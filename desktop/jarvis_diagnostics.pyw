@@ -13,14 +13,6 @@ ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 LOG_DIR = os.path.join(ROOT_DIR, "logs")
 CRASH_FOLDER = os.path.join(LOG_DIR, "crash")
 STATUS_FILE = os.path.join(LOG_DIR, "diagnostics_status.txt")
-STOP_SIGNAL_FILE = os.path.join(LOG_DIR, "diagnostics_stop.signal")
-
-STATE_TRACE_MAP = {
-    "STARTED": "Jarvis State: Starting Diagnostics",
-    "RECOVERING": "Jarvis State: Attempting Recovery",
-    "COMPLETE": "Jarvis State: Offline",
-}
-
 
 class DiagnosticsWindow(QWidget):
     def __init__(self):
@@ -170,7 +162,6 @@ class DiagnosticsWindow(QWidget):
         self.voice_history = []
         self.voice_current = ""
         self.current_state = "STARTED"
-        self.last_state_trace = ""
 
         self.move_to_right_monitor()
 
@@ -208,6 +199,12 @@ class DiagnosticsWindow(QWidget):
                 pass
 
         try:
+            if os.path.exists(STATUS_FILE):
+                os.remove(STATUS_FILE)
+        except Exception:
+            pass
+
+        try:
             self.hide()
         except Exception:
             pass
@@ -243,16 +240,6 @@ class DiagnosticsWindow(QWidget):
         self.trace.append(payload)
         self.trace.verticalScrollBar().setValue(self.trace.verticalScrollBar().maximum())
 
-    def append_state_trace(self, state_name):
-        state_line = STATE_TRACE_MAP.get(state_name, f"Jarvis State: {state_name}")
-        if state_line == self.last_state_trace:
-            return
-        self.last_state_trace = state_line
-        self.append_trace("")
-        self.append_trace(state_line)
-        self.append_trace("---------------------------------------------------")
-        self.append_trace("")
-
     def poll_status(self):
         if not os.path.exists(STATUS_FILE):
             return
@@ -278,7 +265,16 @@ class DiagnosticsWindow(QWidget):
 
             elif kind == "STATE":
                 self.current_state = payload.strip()
-                self.append_state_trace(self.current_state)
+                mapping = {
+                    "STARTED": "Jarvis State: Starting Diagnostics",
+                    "RECOVERING": "Jarvis State: Attempting Recovery",
+                    "COMPLETE": "Jarvis State: Offline",
+                }
+                display = mapping.get(self.current_state, f"Jarvis State: {self.current_state}")
+                self.append_trace("")
+                self.append_trace(display)
+                self.append_trace("---------------------------------------------------")
+                self.append_trace("")
 
             elif kind == "TRACE":
                 self.append_trace(payload)
@@ -302,13 +298,11 @@ class DiagnosticsWindow(QWidget):
         if os.path.exists(CRASH_FOLDER):
             os.startfile(CRASH_FOLDER)
 
-
 def main():
     app = QApplication(sys.argv)
     w = DiagnosticsWindow()
     w.show()
     sys.exit(app.exec())
-
 
 if __name__ == "__main__":
     main()
