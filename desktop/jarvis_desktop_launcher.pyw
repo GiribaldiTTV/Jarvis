@@ -40,10 +40,16 @@ def runtime(msg):
         f.write(f"[{ts}] {msg}\n")
 
 
+def runtime_event(category, *parts):
+    payload = "|".join(str(part) for part in parts)
+    runtime(f"{category}|{payload}" if payload else category)
+
+
 def reset_status():
     with open(STATUS_FILE, "w", encoding="utf-8") as f:
         f.write("")
     runtime(f"Reset diagnostics status file: {STATUS_FILE}")
+    runtime_event("FILE", "CREATE_OR_RESET", os.path.basename(STATUS_FILE), "SUCCESS", "startup")
     delete_file(STOP_SIGNAL_FILE, "startup reset")
 
 
@@ -51,10 +57,12 @@ def write_status(kind, msg):
     with open(STATUS_FILE, "a", encoding="utf-8") as f:
         f.write(f"{kind}|{msg}\n")
     runtime(f"STATUS WRITE: {kind}|{msg}")
+    runtime_event("STATUS", kind, msg)
 
 
 def write_state(state):
     write_status("STATE", state)
+    runtime_event("PHASE", state)
 
 
 def delete_file(path, reason):
@@ -62,11 +70,14 @@ def delete_file(path, reason):
         if os.path.exists(path):
             os.remove(path)
             runtime(f"Deleted file ({reason}): {path}")
+            runtime_event("FILE", "DELETE", os.path.basename(path), "SUCCESS", reason)
             return True
         runtime(f"File already absent ({reason}): {path}")
+        runtime_event("FILE", "DELETE", os.path.basename(path), "ABSENT", reason)
         return False
     except Exception as exc:
         runtime(f"Failed deleting file ({reason}): {path} :: {exc}")
+        runtime_event("FILE", "DELETE", os.path.basename(path), "FAILED", reason, exc)
         return False
 
 
@@ -85,24 +96,29 @@ def crash_log(message, attempts, last_code):
         f.write(f"Runtime Log: {RUNTIME_FILE}\n")
         f.write(f"Failure Reason: {message}\n")
     runtime(f"Crash log written: {path}")
+    runtime_event("STATUS", "SUCCESS", "CRASH_LOG_WRITTEN", os.path.basename(path))
     return path
 
 
 def launch_diag():
     runtime("Launching diagnostics UI")
+    runtime_event("STATUS", "START", "DIAGNOSTICS_UI")
     write_status("TRACE", "Launching diagnostics UI")
     proc = subprocess.Popen([pythonw(), DIAGNOSTICS_SCRIPT])
     runtime(f"Diagnostics PID: {proc.pid}")
+    runtime_event("STATUS", "SUCCESS", "DIAGNOSTICS_UI", f"PID={proc.pid}")
     return proc
 
 
 def speak(spoken_text, display_text=None):
     if not os.path.exists(VOICE_SCRIPT):
         runtime(f"Voice script missing: {VOICE_SCRIPT}")
+        runtime_event("STATUS", "FAIL", "VOICE_SCRIPT", "MISSING")
         return 1
 
     display_text = display_text or spoken_text
     runtime(f"VOICE: {spoken_text}")
+    runtime_event("VOICE", "START", spoken_text)
     write_status("VOICE_CLEAR", "")
 
     cmd = [
@@ -116,23 +132,29 @@ def speak(spoken_text, display_text=None):
     runtime(f"VOICE CMD: {' '.join(cmd[2:])}")
     result = subprocess.run(cmd)
     runtime(f"VOICE EXIT CODE: {result.returncode} :: {spoken_text}")
+    runtime_event("VOICE", "END", spoken_text, f"EXIT={result.returncode}")
     return result.returncode
 
 
 def run_renderer():
     runtime(f"Starting renderer: {TARGET_SCRIPT}")
+    runtime_event("STATUS", "START", "RENDERER_PROCESS")
     proc = subprocess.Popen([pythonw(), TARGET_SCRIPT])
     runtime(f"Renderer PID: {proc.pid}")
+    runtime_event("STATUS", "SUCCESS", "RENDERER_PROCESS_SPAWN", f"PID={proc.pid}")
     proc.wait()
     runtime(f"Renderer exit code: {proc.returncode}")
+    runtime_event("STATUS", "END", "RENDERER_PROCESS", f"EXIT={proc.returncode}")
     return proc.returncode
 
 
 def finalize_failure(attempts_used, last_code):
     runtime("Beginning final immersive shutdown sequence")
+    runtime_event("STATUS", "START", "FINAL_IMMERSIVE_SHUTDOWN")
     speak("Recovery failed.")
     speak("Shutting down.")
     runtime("Final immersive shutdown sequence finished")
+    runtime_event("STATUS", "SUCCESS", "FINAL_IMMERSIVE_SHUTDOWN")
 
     write_state("COMPLETE")
     runtime("Backend completion reached after final voice line")
@@ -151,6 +173,7 @@ def main():
     reset_status()
 
     runtime("==== Jarvis runtime started ====")
+    runtime_event("STATUS", "START", "LAUNCHER_RUNTIME")
     runtime(f"Python executable: {pythonw()}")
     runtime(f"Working directory: {ROOT_DIR}")
     runtime(f"Renderer target: {TARGET_SCRIPT}")
@@ -161,6 +184,7 @@ def main():
 
     for attempt in range(1, MAX_RECOVERY_ATTEMPTS + 1):
         runtime(f"Renderer launch attempt {attempt}/{MAX_RECOVERY_ATTEMPTS}")
+        runtime_event("STATUS", "START", "RECOVERY_ATTEMPT", f"INDEX={attempt}", f"MAX={MAX_RECOVERY_ATTEMPTS}")
         write_status("TRACE", f"Renderer launch attempt {attempt}/{MAX_RECOVERY_ATTEMPTS}")
         time.sleep(0.18)
 
@@ -168,10 +192,13 @@ def main():
 
         if last_code == 0:
             runtime("Renderer exited normally")
+            runtime_event("STATUS", "SUCCESS", "RECOVERY_ATTEMPT", f"INDEX={attempt}", "RENDERER_EXIT=0")
             write_status("TRACE", "Renderer exited normally")
+            runtime_event("STATUS", "SUCCESS", "LAUNCHER_RUNTIME")
             return 0
 
         runtime("Renderer exited unexpectedly")
+        runtime_event("STATUS", "FAIL", "RECOVERY_ATTEMPT", f"INDEX={attempt}", f"RENDERER_EXIT={last_code}")
         write_status("SUMMARY", "Desktop renderer exited unexpectedly")
         write_status("TRACE", f"Renderer exited unexpectedly with code {last_code}")
 
@@ -187,6 +214,7 @@ def main():
 
         if attempt < MAX_RECOVERY_ATTEMPTS:
             runtime(f"Preparing recovery attempt {attempt}")
+            runtime_event("STATUS", "START", "RECOVERY_COOLDOWN", f"INDEX={attempt}", f"SECONDS={RECOVERY_COOLDOWN_SECONDS:.1f}")
             write_state("RECOVERING")
             write_status("TRACE", f"Attempting recovery ({attempt}/{MAX_RECOVERY_ATTEMPTS})")
             write_status("TRACE", f"Cooldown before next attempt: {RECOVERY_COOLDOWN_SECONDS:.1f}s")
@@ -196,10 +224,13 @@ def main():
                 recovery_voice_spoken = True
 
             time.sleep(RECOVERY_COOLDOWN_SECONDS)
+            runtime_event("STATUS", "SUCCESS", "RECOVERY_COOLDOWN", f"INDEX={attempt}")
 
     runtime("All recovery attempts exhausted")
+    runtime_event("STATUS", "FAIL", "RECOVERY_PIPELINE", "MAX_ATTEMPTS_EXHAUSTED")
     write_status("TRACE", "Recovery attempts exhausted")
     finalize_failure(MAX_RECOVERY_ATTEMPTS, last_code)
+    runtime_event("STATUS", "SUCCESS", "LAUNCHER_RUNTIME", "FAILURE_FLOW_COMPLETE")
 
 
 if __name__ == "__main__":
