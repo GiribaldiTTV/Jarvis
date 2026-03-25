@@ -13,6 +13,7 @@ ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 LOG_DIR = os.path.join(ROOT_DIR, "logs")
 CRASH_FOLDER = os.path.join(LOG_DIR, "crash")
 STATUS_FILE = os.path.join(LOG_DIR, "diagnostics_status.txt")
+STOP_SIGNAL_FILE = os.path.join(LOG_DIR, "diagnostics_stop.signal")
 
 class DiagnosticsWindow(QWidget):
     def __init__(self):
@@ -198,11 +199,13 @@ class DiagnosticsWindow(QWidget):
             except Exception:
                 pass
 
-        try:
-            if os.path.exists(STATUS_FILE):
-                os.remove(STATUS_FILE)
-        except Exception:
-            pass
+        if self.current_state == "COMPLETE":
+            for cleanup_path in (STOP_SIGNAL_FILE, STATUS_FILE):
+                try:
+                    if os.path.exists(cleanup_path):
+                        os.remove(cleanup_path)
+                except Exception:
+                    pass
 
         try:
             self.hide()
@@ -265,16 +268,6 @@ class DiagnosticsWindow(QWidget):
 
             elif kind == "STATE":
                 self.current_state = payload.strip()
-                mapping = {
-                    "STARTED": "Jarvis State: Starting Diagnostics",
-                    "RECOVERING": "Jarvis State: Attempting Recovery",
-                    "COMPLETE": "Jarvis State: Offline",
-                }
-                display = mapping.get(self.current_state, f"Jarvis State: {self.current_state}")
-                self.append_trace("")
-                self.append_trace(display)
-                self.append_trace("---------------------------------------------------")
-                self.append_trace("")
 
             elif kind == "TRACE":
                 self.append_trace(payload)
