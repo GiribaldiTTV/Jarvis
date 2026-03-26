@@ -76,6 +76,38 @@ def write_state(state):
     runtime_event("PHASE", state)
 
 
+def extract_renderer_failure_cause(stderr_text, stdout_text):
+    def cleaned_lines(text):
+        for raw in reversed(text.splitlines()):
+            line = raw.strip()
+            if not line:
+                continue
+            if line.startswith("Traceback"):
+                continue
+            if line.startswith("File "):
+                continue
+            if line.startswith("During handling of the above exception"):
+                continue
+            yield line
+
+    preferred_tokens = ("Error:", "Exception:", "failed", "Failed", "crash", "Crash")
+
+    for text in (stderr_text, stdout_text):
+        for line in cleaned_lines(text):
+            if any(token in line for token in preferred_tokens):
+                return line
+
+    for line in cleaned_lines(stderr_text):
+        return line
+
+    for line in cleaned_lines(stdout_text):
+        lowered = line.lower()
+        if "error" in lowered or "exception" in lowered or "fail" in lowered or "crash" in lowered:
+            return line
+
+    return ""
+
+
 def delete_file(path, reason):
     try:
         if os.path.exists(path):
@@ -92,7 +124,7 @@ def delete_file(path, reason):
         return False
 
 
-def crash_log(message, attempts, last_code):
+def crash_log(message, attempts, last_code, failure_cause=""):
     ts = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
     path = os.path.join(CRASH_DIR, f"Crash_{ts}.txt")
     with open(path, "w", encoding="utf-8") as f:
@@ -106,6 +138,8 @@ def crash_log(message, attempts, last_code):
         f.write(f"Last Exit Code: {last_code}\n")
         f.write(f"Runtime Log: {RUNTIME_FILE}\n")
         f.write(f"Failure Reason: {message}\n")
+        if failure_cause:
+            f.write(f"Failure Cause: {failure_cause}\n")
     runtime(f"Crash log written: {path}")
     runtime_event("STATUS", "SUCCESS", "CRASH_LOG_WRITTEN", os.path.basename(path))
     return path
@@ -150,16 +184,26 @@ def speak(spoken_text, display_text=None):
 def run_renderer():
     runtime(f"Starting renderer: {TARGET_SCRIPT}")
     runtime_event("STATUS", "START", "RENDERER_PROCESS")
-    proc = subprocess.Popen([pythonw(), TARGET_SCRIPT])
+    proc = subprocess.Popen(
+        [pythonw(), TARGET_SCRIPT],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
+        encoding="utf-8",
+        errors="replace",
+    )
     runtime(f"Renderer PID: {proc.pid}")
     runtime_event("STATUS", "SUCCESS", "RENDERER_PROCESS_SPAWN", f"PID={proc.pid}")
-    proc.wait()
+    stdout_text, stderr_text = proc.communicate()
     runtime(f"Renderer exit code: {proc.returncode}")
     runtime_event("STATUS", "END", "RENDERER_PROCESS", f"EXIT={proc.returncode}")
-    return proc.returncode
+    failure_cause = extract_renderer_failure_cause(stderr_text or "", stdout_text or "")
+    if proc.returncode != 0 and failure_cause:
+        runtime(f"Renderer failure cause: {failure_cause}")
+    return proc.returncode, failure_cause
 
 
-def finalize_failure(attempts_used, last_code):
+def finalize_failure(attempts_used, last_code, failure_cause=""):
     runtime("Beginning final immersive shutdown sequence")
     runtime_event("STATUS", "START", "FINAL_IMMERSIVE_SHUTDOWN")
     speak("Recovery failed.")
@@ -177,7 +221,7 @@ def finalize_failure(attempts_used, last_code):
     delete_file(STOP_SIGNAL_FILE, "backend completion")
     delete_file(STATUS_FILE, "backend completion")
 
-    crash_log("Renderer failed after maximum recovery attempts.", attempts_used, last_code or -1)
+    crash_log("Renderer failed after maximum recovery attempts.", attempts_used, last_code or -1, failure_cause)
 
 
 def main():
@@ -193,6 +237,7 @@ def main():
     diagnostics_opened = False
     recovery_voice_spoken = False
     last_code = None
+    last_failure_cause = ""
 
     for attempt in range(1, MAX_RECOVERY_ATTEMPTS + 1):
         runtime(f"Renderer launch attempt {attempt}/{MAX_RECOVERY_ATTEMPTS}")
@@ -200,7 +245,7 @@ def main():
         write_status("TRACE", f"Renderer launch attempt {attempt}/{MAX_RECOVERY_ATTEMPTS}")
         time.sleep(0.18)
 
-        last_code = run_renderer()
+        last_code, failure_cause = run_renderer()
 
         if last_code == 0:
             runtime("Renderer exited normally")
@@ -209,10 +254,13 @@ def main():
             runtime_event("STATUS", "SUCCESS", "LAUNCHER_RUNTIME")
             return 0
 
+        last_failure_cause = failure_cause or last_failure_cause
         runtime("Renderer exited unexpectedly")
         runtime_event("STATUS", "FAIL", "RECOVERY_ATTEMPT", f"INDEX={attempt}", f"RENDERER_EXIT={last_code}")
-        write_status("SUMMARY", "Desktop renderer exited unexpectedly")
+        write_status("SUMMARY", failure_cause or "Desktop renderer exited unexpectedly")
         write_status("TRACE", f"Renderer exited unexpectedly with code {last_code}")
+        if failure_cause:
+            write_status("TRACE", f"Failure cause: {failure_cause}")
 
         if not diagnostics_opened:
             write_state("STARTED")
@@ -243,7 +291,7 @@ def main():
     runtime("All recovery attempts exhausted")
     runtime_event("STATUS", "FAIL", "RECOVERY_PIPELINE", "MAX_ATTEMPTS_EXHAUSTED")
     write_status("TRACE", "Recovery attempts exhausted")
-    finalize_failure(MAX_RECOVERY_ATTEMPTS, last_code)
+    finalize_failure(MAX_RECOVERY_ATTEMPTS, last_code, last_failure_cause)
     runtime_event("STATUS", "SUCCESS", "LAUNCHER_RUNTIME", "FAILURE_FLOW_COMPLETE")
 
 
