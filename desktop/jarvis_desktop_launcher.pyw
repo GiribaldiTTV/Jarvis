@@ -147,9 +147,13 @@ def delete_file(path, reason):
         return False
 
 
-def crash_log(message, attempts, last_code, failure_cause=""):
-    ts = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-    path = os.path.join(CRASH_DIR, f"Crash_{ts}.txt")
+def crash_log(message, attempts, last_code, failure_cause="", crash_filename=""):
+    if crash_filename:
+        path = os.path.join(CRASH_DIR, crash_filename)
+        ts = os.path.splitext(crash_filename)[0].replace("Crash_", "", 1)
+    else:
+        ts = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+        path = os.path.join(CRASH_DIR, f"Crash_{ts}.txt")
     with open(path, "w", encoding="utf-8") as f:
         f.write("JARVIS CRASH REPORT\n")
         f.write(f"Time: {ts}\n")
@@ -226,7 +230,7 @@ def run_renderer():
     return proc.returncode, failure_cause
 
 
-def finalize_failure(attempts_used, last_code, failure_cause=""):
+def finalize_failure(attempts_used, last_code, failure_cause="", crash_filename=""):
     runtime("Beginning final immersive shutdown sequence")
     runtime_event("STATUS", "START", "FINAL_IMMERSIVE_SHUTDOWN")
     speak("Recovery failed.")
@@ -235,6 +239,9 @@ def finalize_failure(attempts_used, last_code, failure_cause=""):
     runtime_event("STATUS", "SUCCESS", "FINAL_IMMERSIVE_SHUTDOWN")
 
     write_state("COMPLETE")
+    if crash_filename:
+        write_status("TRACE", f"Latest crash report: {crash_filename}")
+    write_status("TRACE", f"Latest runtime log: {os.path.basename(RUNTIME_FILE)}")
     runtime("Backend completion reached after final voice line")
 
     if COMPLETE_CLEANUP_DELAY_SECONDS > 0:
@@ -244,7 +251,13 @@ def finalize_failure(attempts_used, last_code, failure_cause=""):
     delete_file(STOP_SIGNAL_FILE, "backend completion")
     delete_file(STATUS_FILE, "backend completion")
 
-    crash_log("Renderer failed after maximum recovery attempts.", attempts_used, last_code or -1, failure_cause)
+    crash_log(
+        "Renderer failed after maximum recovery attempts.",
+        attempts_used,
+        last_code or -1,
+        failure_cause,
+        crash_filename,
+    )
 
 
 def main():
@@ -331,8 +344,9 @@ def main():
         write_status("SUMMARY", "Automatic recovery did not change the underlying renderer failure.")
         write_status("TRACE", "Same failure cause persisted across all recovery attempts.")
     write_status("SUMMARY", "Automatic recovery has completed. Manual investigation is required.")
-    write_status("TRACE", "Review the latest crash report and runtime log for follow-up.")
-    finalize_failure(MAX_RECOVERY_ATTEMPTS, last_code, last_failure_cause)
+    crash_filename = f"Crash_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.txt"
+    write_status("SUMMARY", "I have prepared the latest crash report and runtime log. Review the crash report first.")
+    finalize_failure(MAX_RECOVERY_ATTEMPTS, last_code, last_failure_cause, crash_filename)
     runtime_event("STATUS", "SUCCESS", "LAUNCHER_RUNTIME", "FAILURE_FLOW_COMPLETE")
 
 
