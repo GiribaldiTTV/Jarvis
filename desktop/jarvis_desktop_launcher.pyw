@@ -566,7 +566,9 @@ def main():
             runtime("Renderer exited normally")
             runtime_event("STATUS", "SUCCESS", "RECOVERY_ATTEMPT", f"INDEX={attempt}", "RENDERER_EXIT=0")
             write_status("TRACE", "Renderer exited normally")
-            runtime_event("STATUS", "SUCCESS", "LAUNCHER_RUNTIME")
+            delete_file(STOP_SIGNAL_FILE, "normal exit")
+            delete_file(STATUS_FILE, "normal exit")
+            runtime_event("STATUS", "SUCCESS", "LAUNCHER_RUNTIME", "NORMAL_EXIT_COMPLETE")
             return 0
 
         last_failure_cause = failure_cause or last_failure_cause
