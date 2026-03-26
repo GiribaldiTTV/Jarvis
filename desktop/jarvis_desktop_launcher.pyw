@@ -15,6 +15,7 @@ LOG_DIR = os.path.join(ROOT_DIR, "logs")
 CRASH_DIR = os.path.join(LOG_DIR, "crash")
 STATUS_FILE = os.path.join(LOG_DIR, "diagnostics_status.txt")
 STOP_SIGNAL_FILE = os.path.join(LOG_DIR, "diagnostics_stop.signal")
+STARTUP_ABORT_SIGNAL_FILE = os.path.join(LOG_DIR, "renderer_startup_abort.signal")
 DIAGNOSTICS_SCRIPT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "jarvis_diagnostics.pyw")
 VOICE_SCRIPT = os.path.join(ROOT_DIR, "Audio", "jarvis_error_voice.py")
 
@@ -143,6 +144,7 @@ def reset_status():
     runtime(f"Reset diagnostics status file: {STATUS_FILE}")
     runtime_event("FILE", "CREATE_OR_RESET", os.path.basename(STATUS_FILE), "SUCCESS", "startup")
     delete_file(STOP_SIGNAL_FILE, "startup reset")
+    delete_file(STARTUP_ABORT_SIGNAL_FILE, "startup reset")
 
 
 def write_status(kind, msg):
@@ -518,7 +520,12 @@ def run_renderer():
     runtime(f"Starting renderer: {TARGET_SCRIPT}")
     runtime_event("STATUS", "START", "RENDERER_PROCESS")
     proc = subprocess.Popen(
-        [pythonw(), TARGET_SCRIPT, "--runtime-log", RUNTIME_FILE],
+        [
+            pythonw(),
+            TARGET_SCRIPT,
+            "--runtime-log", RUNTIME_FILE,
+            "--startup-abort-signal", STARTUP_ABORT_SIGNAL_FILE,
+        ],
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         text=True,
@@ -624,6 +631,7 @@ def main():
             runtime_event("STATUS", "SUCCESS", "RECOVERY_ATTEMPT", f"INDEX={attempt}", "RENDERER_EXIT=0")
             write_status("TRACE", "Renderer exited normally")
             delete_file(STOP_SIGNAL_FILE, "normal exit")
+            delete_file(STARTUP_ABORT_SIGNAL_FILE, "normal exit")
             delete_file(STATUS_FILE, "normal exit")
             runtime_event("STATUS", "SUCCESS", "LAUNCHER_RUNTIME", "NORMAL_EXIT_COMPLETE")
             return 0

@@ -9,6 +9,7 @@ from desktop.desktop_renderer import DesktopJarvisWindow
 from desktop.hotkeys import ShutdownBus, GlobalHotkeyManager
 
 RUNTIME_LOG_FILE = ""
+STARTUP_ABORT_SIGNAL_FILE = ""
 
 
 def parse_runtime_log_arg(argv):
@@ -16,6 +17,14 @@ def parse_runtime_log_arg(argv):
     for i, arg in enumerate(argv):
         if arg == "--runtime-log" and i + 1 < len(argv):
             RUNTIME_LOG_FILE = argv[i + 1]
+            return
+
+
+def parse_startup_abort_signal_arg(argv):
+    global STARTUP_ABORT_SIGNAL_FILE
+    for i, arg in enumerate(argv):
+        if arg == "--startup-abort-signal" and i + 1 < len(argv):
+            STARTUP_ABORT_SIGNAL_FILE = argv[i + 1]
             return
 
 
@@ -30,24 +39,54 @@ def runtime_milestone(event):
         pass
 
 
+def startup_abort_requested():
+    return bool(STARTUP_ABORT_SIGNAL_FILE) and os.path.exists(STARTUP_ABORT_SIGNAL_FILE)
+
+
+def exit_if_startup_abort_requested(hotkeys=None):
+    if not startup_abort_requested():
+        return False
+
+    runtime_milestone("RENDERER_MAIN|STARTUP_ABORTED")
+
+    if hotkeys is not None:
+        try:
+            hotkeys.stop()
+        except Exception:
+            pass
+
+    return True
+
+
 def main():
     parse_runtime_log_arg(sys.argv)
+    parse_startup_abort_signal_arg(sys.argv)
     runtime_milestone("RENDERER_MAIN|START")
+    if exit_if_startup_abort_requested():
+        return 0
 
     app = QApplication(sys.argv)
     runtime_milestone("RENDERER_MAIN|QAPPLICATION_CREATED")
+    if exit_if_startup_abort_requested():
+        return 0
 
     base_dir = os.path.dirname(os.path.abspath(__file__))
     visual_html_path = os.path.join(base_dir, "jarvis_visual", "jarvis_core_desktop.html")
     runtime_milestone("RENDERER_MAIN|VISUAL_HTML_RESOLVED")
+    if exit_if_startup_abort_requested():
+        return 0
 
     screen = app.primaryScreen()
     window = DesktopJarvisWindow(screen, visual_html_path)
     runtime_milestone("RENDERER_MAIN|WINDOW_CONSTRUCTED")
+    if exit_if_startup_abort_requested():
+        return 0
 
     bus = ShutdownBus()
     runtime_milestone("RENDERER_MAIN|SHUTDOWN_BUS_READY")
     hotkeys = GlobalHotkeyManager(bus)
+    if exit_if_startup_abort_requested():
+        return 0
 
     def do_shutdown():
         runtime_milestone("RENDERER_MAIN|SHUTDOWN_REQUESTED")
@@ -58,13 +97,24 @@ def main():
     bus.shutdown_requested.connect(do_shutdown)
     hotkeys.start()
     runtime_milestone("RENDERER_MAIN|HOTKEYS_STARTED")
+    if exit_if_startup_abort_requested(hotkeys):
+        return 0
 
     print("Jarvis Desktop Concept 1 - Version 1.02")
     print("Hotkey: Ctrl + Alt + End")
 
     window.show()
     runtime_milestone("RENDERER_MAIN|WINDOW_SHOW_CALLED")
-    QTimer.singleShot(0, lambda: runtime_milestone("RENDERER_MAIN|STARTUP_READY"))
+    if exit_if_startup_abort_requested(hotkeys):
+        return 0
+
+    def mark_startup_ready():
+        if exit_if_startup_abort_requested(hotkeys):
+            app.quit()
+            return
+        runtime_milestone("RENDERER_MAIN|STARTUP_READY")
+
+    QTimer.singleShot(0, mark_startup_ready)
 
     exit_code = app.exec()
     hotkeys.stop()
