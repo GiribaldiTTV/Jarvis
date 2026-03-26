@@ -466,13 +466,9 @@ class DiagnosticsWindow(QWidget):
 
     def resizeEvent(self, event):
         super().resizeEvent(event)
-        size = event.size()
-        diag_event('resizeEvent', f'{size.width()}x{size.height()}')
 
     def moveEvent(self, event):
         super().moveEvent(event)
-        pos = event.pos()
-        diag_event('moveEvent', f'{pos.x()},{pos.y()}')
 
     def render_voice_panel(self):
 
