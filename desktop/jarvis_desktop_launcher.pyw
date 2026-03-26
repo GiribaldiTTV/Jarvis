@@ -21,6 +21,7 @@ VOICE_SCRIPT = os.path.join(ROOT_DIR, "Audio", "jarvis_error_voice.py")
 MAX_RECOVERY_ATTEMPTS = 3
 RECOVERY_COOLDOWN_SECONDS = 1.2
 COMPLETE_CLEANUP_DELAY_SECONDS = 0.35
+STARTUP_OBSERVE_POLL_SECONDS = 0.05
 
 os.makedirs(LOG_DIR, exist_ok=True)
 
@@ -152,6 +153,38 @@ def write_status(kind, msg):
 def write_state(state):
     write_status("STATE", state)
     runtime_event("PHASE", state)
+
+
+def runtime_log_contains(pattern):
+    try:
+        with open(RUNTIME_FILE, "r", encoding="utf-8", errors="ignore") as f:
+            return pattern in f.read()
+    except Exception:
+        return False
+
+
+def observe_renderer_startup_ready(proc):
+    marker = "RENDERER_MAIN|STARTUP_READY"
+
+    runtime_event("STATUS", "TRACE", "LAUNCHER_RUNTIME", "STARTUP_OBSERVE_BEGIN")
+
+    while True:
+        if runtime_log_contains(marker):
+            runtime_event("STATUS", "SUCCESS", "LAUNCHER_RUNTIME", "STARTUP_READY_OBSERVED")
+            return True, None, None
+
+        try:
+            stdout_text, stderr_text = proc.communicate(timeout=STARTUP_OBSERVE_POLL_SECONDS)
+            break
+        except subprocess.TimeoutExpired:
+            continue
+
+    if runtime_log_contains(marker):
+        runtime_event("STATUS", "SUCCESS", "LAUNCHER_RUNTIME", "STARTUP_READY_OBSERVED")
+        return True, stdout_text, stderr_text
+
+    runtime_event("STATUS", "WARNING", "LAUNCHER_RUNTIME", "STARTUP_READY_NOT_OBSERVED_BEFORE_EXIT")
+    return False, stdout_text, stderr_text
 
 
 def extract_renderer_failure_cause(stderr_text, stdout_text):
@@ -472,7 +505,9 @@ def run_renderer():
     )
     runtime(f"Renderer PID: {proc.pid}")
     runtime_event("STATUS", "SUCCESS", "RENDERER_PROCESS_SPAWN", f"PID={proc.pid}")
-    stdout_text, stderr_text = proc.communicate()
+    _, stdout_text, stderr_text = observe_renderer_startup_ready(proc)
+    if stdout_text is None and stderr_text is None:
+        stdout_text, stderr_text = proc.communicate()
     runtime(f"Renderer exit code: {proc.returncode}")
     runtime_event("STATUS", "END", "RENDERER_PROCESS", f"EXIT={proc.returncode}")
     failure_cause = extract_renderer_failure_cause(stderr_text or "", stdout_text or "")
