@@ -3,6 +3,7 @@
 import os
 import sys
 import time
+import re
 import subprocess
 import datetime
 
@@ -108,6 +109,48 @@ def extract_renderer_failure_cause(stderr_text, stdout_text):
     return ""
 
 
+def extract_renderer_failure_origin(stderr_text, stdout_text):
+    frame_pattern = re.compile(r'^\s*File "([^"]+)", line (\d+), in (.+)$')
+
+    def sanitize_frame_path(path):
+        try:
+            abs_path = os.path.abspath(path)
+            root_abs = os.path.abspath(ROOT_DIR)
+            if os.path.commonpath([root_abs, abs_path]) == root_abs:
+                return os.path.relpath(abs_path, ROOT_DIR).replace("\\", "/")
+        except Exception:
+            pass
+        return os.path.basename(path).replace("\\", "/")
+
+    def parse_frames(text):
+        frames = []
+        for raw in text.splitlines():
+            match = frame_pattern.match(raw)
+            if match:
+                frames.append(match.groups())
+        return frames
+
+    root_abs = os.path.abspath(ROOT_DIR)
+
+    for text in (stderr_text, stdout_text):
+        frames = parse_frames(text or "")
+        if not frames:
+            continue
+
+        app_frames = []
+        for path, line, func in frames:
+            try:
+                if os.path.commonpath([root_abs, os.path.abspath(path)]) == root_abs:
+                    app_frames.append((path, line, func.strip()))
+            except Exception:
+                continue
+
+        target_path, target_line, target_func = (app_frames[-1] if app_frames else frames[-1])
+        return f"Failure origin: {sanitize_frame_path(target_path)}:{target_line} in {target_func.strip()}"
+
+    return ""
+
+
 def assess_renderer_failure_cause(failure_cause):
     cause = (failure_cause or "").strip()
     if not cause:
@@ -168,7 +211,7 @@ def delete_file(path, reason):
         return False
 
 
-def crash_log(message, attempts, last_code, failure_cause="", crash_filename=""):
+def crash_log(message, attempts, last_code, failure_cause="", failure_origin="", crash_filename=""):
     if crash_filename:
         path = os.path.join(CRASH_DIR, crash_filename)
         ts = os.path.splitext(crash_filename)[0].replace("Crash_", "", 1)
@@ -188,6 +231,8 @@ def crash_log(message, attempts, last_code, failure_cause="", crash_filename="")
         f.write(f"Failure Reason: {message}\n")
         if failure_cause:
             f.write(f"Failure Cause: {failure_cause}\n")
+        if failure_origin:
+            f.write(f"{failure_origin}\n")
     runtime(f"Crash log written: {path}")
     runtime_event("STATUS", "SUCCESS", "CRASH_LOG_WRITTEN", os.path.basename(path))
     return path
@@ -246,12 +291,15 @@ def run_renderer():
     runtime(f"Renderer exit code: {proc.returncode}")
     runtime_event("STATUS", "END", "RENDERER_PROCESS", f"EXIT={proc.returncode}")
     failure_cause = extract_renderer_failure_cause(stderr_text or "", stdout_text or "")
+    failure_origin = extract_renderer_failure_origin(stderr_text or "", stdout_text or "")
     if proc.returncode != 0 and failure_cause:
         runtime(f"Renderer failure cause: {failure_cause}")
-    return proc.returncode, failure_cause
+    if proc.returncode != 0 and failure_origin:
+        runtime(failure_origin)
+    return proc.returncode, failure_cause, failure_origin
 
 
-def finalize_failure(attempts_used, last_code, failure_cause="", crash_filename=""):
+def finalize_failure(attempts_used, last_code, failure_cause="", failure_origin="", crash_filename=""):
     runtime("Beginning final immersive shutdown sequence")
     runtime_event("STATUS", "START", "FINAL_IMMERSIVE_SHUTDOWN")
     speak("Recovery failed.")
@@ -278,6 +326,7 @@ def finalize_failure(attempts_used, last_code, failure_cause="", crash_filename=
         attempts_used,
         last_code or -1,
         failure_cause,
+        failure_origin,
         crash_filename,
     )
 
@@ -296,6 +345,7 @@ def main():
     recovery_voice_spoken = False
     last_code = None
     last_failure_cause = ""
+    last_failure_origin = ""
     failure_causes = []
     assessment_emitted = False
 
@@ -305,7 +355,7 @@ def main():
         write_status("TRACE", f"Renderer launch attempt {attempt}/{MAX_RECOVERY_ATTEMPTS}")
         time.sleep(0.18)
 
-        last_code, failure_cause = run_renderer()
+        last_code, failure_cause, failure_origin = run_renderer()
 
         if last_code == 0:
             runtime("Renderer exited normally")
@@ -315,6 +365,7 @@ def main():
             return 0
 
         last_failure_cause = failure_cause or last_failure_cause
+        last_failure_origin = failure_origin or last_failure_origin
         failure_causes.append((failure_cause or "").strip())
         runtime("Renderer exited unexpectedly")
         runtime_event("STATUS", "FAIL", "RECOVERY_ATTEMPT", f"INDEX={attempt}", f"RENDERER_EXIT={last_code}")
@@ -368,7 +419,7 @@ def main():
     write_status("SUMMARY", "Automatic recovery has completed. Manual investigation is required.")
     crash_filename = f"Crash_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.txt"
     write_status("SUMMARY", "I have prepared the latest crash report and runtime log. Review the crash report first.")
-    finalize_failure(MAX_RECOVERY_ATTEMPTS, last_code, last_failure_cause, crash_filename)
+    finalize_failure(MAX_RECOVERY_ATTEMPTS, last_code, last_failure_cause, last_failure_origin, crash_filename)
     runtime_event("STATUS", "SUCCESS", "LAUNCHER_RUNTIME", "FAILURE_FLOW_COMPLETE")
 
 
