@@ -238,6 +238,7 @@ def main():
     recovery_voice_spoken = False
     last_code = None
     last_failure_cause = ""
+    failure_causes = []
 
     for attempt in range(1, MAX_RECOVERY_ATTEMPTS + 1):
         runtime(f"Renderer launch attempt {attempt}/{MAX_RECOVERY_ATTEMPTS}")
@@ -255,6 +256,7 @@ def main():
             return 0
 
         last_failure_cause = failure_cause or last_failure_cause
+        failure_causes.append((failure_cause or "").strip())
         runtime("Renderer exited unexpectedly")
         runtime_event("STATUS", "FAIL", "RECOVERY_ATTEMPT", f"INDEX={attempt}", f"RENDERER_EXIT={last_code}")
         write_status("SUMMARY", failure_cause or "Desktop renderer exited unexpectedly")
@@ -291,6 +293,13 @@ def main():
     runtime("All recovery attempts exhausted")
     runtime_event("STATUS", "FAIL", "RECOVERY_PIPELINE", "MAX_ATTEMPTS_EXHAUSTED")
     write_status("TRACE", "Recovery attempts exhausted")
+    if (
+        len(failure_causes) == MAX_RECOVERY_ATTEMPTS
+        and all(failure_causes)
+        and len(set(failure_causes)) == 1
+    ):
+        write_status("SUMMARY", "Automatic recovery did not change the underlying renderer failure.")
+        write_status("TRACE", "Same failure cause persisted across all recovery attempts.")
     finalize_failure(MAX_RECOVERY_ATTEMPTS, last_code, last_failure_cause)
     runtime_event("STATUS", "SUCCESS", "LAUNCHER_RUNTIME", "FAILURE_FLOW_COMPLETE")
 
