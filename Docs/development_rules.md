@@ -74,6 +74,36 @@ Do NOT mix into orchestration revisions:
 
 These are separate phases.
 
+## Controlled Improvement Suggestions
+
+If you identify a potential improvement while analyzing or implementing a revision:
+
+- Do NOT include it in the current patch
+- Do NOT expand the scope of the current revision
+- Do NOT combine it with the active change
+
+Instead:
+
+1. Clearly call out the improvement separately
+2. Explain why it is beneficial
+3. Propose it as a future revision
+4. Keep it within one-fix-per-revision discipline
+
+Example format:
+
+Suggested Future Revision:
+
+- Description of the improvement
+- Why it should be done
+- Which files would likely be affected
+- Why it is not included in the current revision
+
+## Rule
+
+Improvements must be proposed, not silently implemented.
+
+Scope expansion without explicit approval is not allowed.
+
 ## Goal
 
 Jarvis must behave as a:
