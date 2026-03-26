@@ -177,6 +177,7 @@ def observe_renderer_startup_ready(proc, log_start_offset):
     stall_deadline = time.monotonic() + STARTUP_READY_STALL_CONFIRM_SECONDS
     warned_within_window = False
     stall_confirmed = False
+    abort_requested_on_stall = False
 
     runtime_event("STATUS", "TRACE", "LAUNCHER_RUNTIME", "STARTUP_OBSERVE_BEGIN")
 
@@ -204,6 +205,10 @@ def observe_renderer_startup_ready(proc, log_start_offset):
         ):
             runtime_event("STATUS", "WARNING", "LAUNCHER_RUNTIME", "STARTUP_READY_STALL_CONFIRMED")
             stall_confirmed = True
+            if not abort_requested_on_stall and not runtime_log_contains_since(ready_marker, log_start_offset):
+                if request_startup_abort("confirmed stall"):
+                    runtime_event("STATUS", "WARNING", "LAUNCHER_RUNTIME", "STARTUP_ABORT_REQUESTED_ON_CONFIRMED_STALL")
+                    abort_requested_on_stall = True
 
         try:
             stdout_text, stderr_text = proc.communicate(timeout=STARTUP_OBSERVE_POLL_SECONDS)
@@ -428,6 +433,19 @@ def delete_file(path, reason):
     except Exception as exc:
         runtime(f"Failed deleting file ({reason}): {path} :: {exc}")
         runtime_event("FILE", "DELETE", os.path.basename(path), "FAILED", reason, exc)
+        return False
+
+
+def request_startup_abort(reason):
+    try:
+        with open(STARTUP_ABORT_SIGNAL_FILE, "w", encoding="utf-8") as f:
+            f.write("abort startup\n")
+        runtime(f"Created startup abort signal ({reason}): {STARTUP_ABORT_SIGNAL_FILE}")
+        runtime_event("FILE", "CREATE_OR_RESET", os.path.basename(STARTUP_ABORT_SIGNAL_FILE), "SUCCESS", reason)
+        return True
+    except Exception as exc:
+        runtime(f"Failed creating startup abort signal ({reason}): {STARTUP_ABORT_SIGNAL_FILE} :: {exc}")
+        runtime_event("FILE", "CREATE_OR_RESET", os.path.basename(STARTUP_ABORT_SIGNAL_FILE), "FAILED", reason, exc)
         return False
 
 
