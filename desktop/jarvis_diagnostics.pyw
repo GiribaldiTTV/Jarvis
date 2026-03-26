@@ -421,6 +421,21 @@ class DiagnosticsWindow(QWidget):
         self.speech.setPlainText("\n".join(lines))
         self.speech.verticalScrollBar().setValue(self.speech.verticalScrollBar().maximum())
 
+    def append_state_trace(self, payload):
+        cursor = self.trace.textCursor()
+        cursor.movePosition(cursor.MoveOperation.End)
+        self.trace.setTextCursor(cursor)
+
+        self.trace.insertHtml(
+            '<div style="margin: 6px 10px 8px 10px; padding: 4px 12px; '
+            'background: #031018; color: #a8f6ff; font-weight: 600; '
+            'border-top: 1px solid #0a2730; border-bottom: 1px solid #061018;">'
+            f'{html_escape(payload)}'
+            '</div>'
+        )
+        self.trace.insertPlainText("\n")
+        self.trace.verticalScrollBar().setValue(self.trace.verticalScrollBar().maximum())
+
     def append_trace(self, payload):
         cursor = self.trace.textCursor()
         cursor.movePosition(cursor.MoveOperation.End)
@@ -429,10 +444,6 @@ class DiagnosticsWindow(QWidget):
         stripped = payload.strip()
 
         if stripped and set(stripped) == {"-"}:
-            self.trace.insertHtml(
-                '<div style="margin: 8px 2px 10px 2px; color: #89f3ff; white-space: pre; '
-                'font-weight: 600;">━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</div>'
-            )
             self.trace.insertPlainText("\n")
         elif payload == "":
             self.trace.insertPlainText("\n")
@@ -485,9 +496,7 @@ class DiagnosticsWindow(QWidget):
                     display = mapping.get(state, f"Jarvis State: {state}")
                     diag_event('state_transition', f'raw={state}', f'display={display}')
                     self.append_trace("")
-                    self.append_trace("---------------------------------------------------")
-                    self.append_trace(display)
-                    self.append_trace("---------------------------------------------------")
+                    self.append_state_trace(display)
                     self.append_trace("")
                     self._last_rendered_state = state
                 else:
