@@ -14,10 +14,38 @@ LOG_DIR = os.path.join(ROOT_DIR, "logs")
 CRASH_FOLDER = os.path.join(LOG_DIR, "crash")
 STATUS_FILE = os.path.join(LOG_DIR, "diagnostics_status.txt")
 STOP_SIGNAL_FILE = os.path.join(LOG_DIR, "diagnostics_stop.signal")
+RUNTIME_LOG_FILE = ""
+
+
+def ui_runtime(msg):
+    if not RUNTIME_LOG_FILE:
+        return
+    try:
+        import datetime
+        ts = datetime.datetime.now().strftime("%H:%M:%S")
+        with open(RUNTIME_LOG_FILE, "a", encoding="utf-8") as f:
+            f.write(f"[{ts}] UI|{msg}\n")
+    except Exception:
+        pass
+
+
+def parse_runtime_log_arg(argv):
+    global RUNTIME_LOG_FILE
+    for i, arg in enumerate(argv):
+        if arg == "--runtime-log" and i + 1 < len(argv):
+            RUNTIME_LOG_FILE = argv[i + 1]
+            return
+
+    env_runtime = os.environ.get("JARVIS_RUNTIME_LOG", "").strip()
+    if env_runtime:
+        RUNTIME_LOG_FILE = env_runtime
+
 
 class DiagnosticsWindow(QWidget):
     def __init__(self):
         super().__init__()
+
+        ui_runtime("DiagnosticsWindow.__init__ start")
 
         self.setWindowFlags(
             Qt.Window |
@@ -25,6 +53,7 @@ class DiagnosticsWindow(QWidget):
         )
         self.setAttribute(Qt.WA_ShowWithoutActivating)
         self.resize(920, 660)
+        ui_runtime(f"Initial window size set: {self.width()}x{self.height()}")
 
         self.setStyleSheet("""
         QWidget {
@@ -115,6 +144,7 @@ class DiagnosticsWindow(QWidget):
 
         trace_title = QLabel("DIAGNOSTIC TRACE")
         trace_title.setFont(QFont("Consolas", 11, QFont.Bold))
+        trace_title.setContentsMargins(0, 10, 0, 4)
         root.addWidget(trace_title)
 
         trace_panel = QFrame()
@@ -130,7 +160,7 @@ class DiagnosticsWindow(QWidget):
 
         jarvis_title = QLabel("JARVIS")
         jarvis_title.setFont(QFont("Consolas", 11, QFont.Bold))
-        jarvis_title.setContentsMargins(0, 8, 0, 4)
+        jarvis_title.setContentsMargins(0, 10, 0, 4)
         root.addWidget(jarvis_title)
 
         speech_panel = QFrame()
@@ -157,6 +187,7 @@ class DiagnosticsWindow(QWidget):
         root.addLayout(btn_layout)
 
         self.setLayout(root)
+        ui_runtime("Layout initialized: trace_panel=3, speech_panel=1, resizable window enabled")
 
         self.dragPos = QPoint()
         self._seen = 0
@@ -178,16 +209,20 @@ class DiagnosticsWindow(QWidget):
         x = geo.x() + (geo.width() - self.width()) // 2
         y = geo.y() + (geo.height() - self.height()) // 2
         self.move(x, y)
+        ui_runtime(f"Moved to monitor: x={geo.x()} y={geo.y()} w={geo.width()} h={geo.height()} :: window=({x},{y},{self.width()},{self.height()})")
 
     def showEvent(self, event):
         super().showEvent(event)
+        ui_runtime(f"showEvent :: visible size={self.width()}x{self.height()} pos=({self.x()},{self.y()})")
         QTimer.singleShot(0, self.raise_)
         QTimer.singleShot(25, self.raise_)
 
     def dismiss_diagnostics(self):
+        ui_runtime(f"Dismiss button clicked :: current_state={self.current_state}")
         self.cleanup_and_exit()
 
     def cleanup_and_exit(self):
+        ui_runtime(f"cleanup_and_exit start :: current_state={self.current_state}")
         try:
             self.timer.stop()
         except Exception:
@@ -197,6 +232,7 @@ class DiagnosticsWindow(QWidget):
             try:
                 with open(STOP_SIGNAL_FILE, "w", encoding="utf-8") as f:
                     f.write("dismissed")
+                ui_runtime("Stop signal created due to early dismiss")
             except Exception:
                 pass
 
@@ -205,23 +241,33 @@ class DiagnosticsWindow(QWidget):
                 try:
                     if os.path.exists(cleanup_path):
                         os.remove(cleanup_path)
+                        ui_runtime(f"Removed completion cleanup file: {cleanup_path}")
                 except Exception:
                     pass
 
         try:
             self.hide()
+            ui_runtime("Window hidden during cleanup")
         except Exception:
             pass
 
         app = QApplication.instance()
         if app:
+            ui_runtime("Requesting QApplication quit")
             app.quit()
 
+        ui_runtime("Process exiting via os._exit(0)")
         os._exit(0)
 
     def closeEvent(self, event):
+        ui_runtime(f"closeEvent accepted :: current_state={self.current_state}")
         event.accept()
         self.cleanup_and_exit()
+
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        size = event.size()
+        ui_runtime(f"resizeEvent :: width={size.width()} height={size.height()}")
 
     def mousePressEvent(self, event):
         if event.button() == Qt.LeftButton:
@@ -283,6 +329,7 @@ class DiagnosticsWindow(QWidget):
 
                 if should_render:
                     display = mapping.get(state, f"Jarvis State: {state}")
+                    ui_runtime(f"State updated :: {state}")
                     self.append_trace("")
                     self.append_trace(display)
                     self.append_trace("---------------------------------------------------")
@@ -305,6 +352,7 @@ class DiagnosticsWindow(QWidget):
                 self.voice_current = ""
                 if final_line and (not self.voice_history or self.voice_history[-1] != final_line):
                     self.voice_history.append(final_line)
+                    ui_runtime(f"VOICE_FINAL appended :: {final_line}")
                 self.render_voice_panel()
 
     def open_crash(self):
@@ -312,9 +360,14 @@ class DiagnosticsWindow(QWidget):
             os.startfile(CRASH_FOLDER)
 
 def main():
+    parse_runtime_log_arg(sys.argv)
+    ui_runtime(f"Diagnostics process starting :: runtime_log={RUNTIME_LOG_FILE or 'UNSET'}")
+    ui_runtime(f"Diagnostics status target :: {STATUS_FILE}")
+    ui_runtime(f"Diagnostics stop target :: {STOP_SIGNAL_FILE}")
     app = QApplication(sys.argv)
     w = DiagnosticsWindow()
     w.show()
+    ui_runtime("Diagnostics window shown")
     sys.exit(app.exec())
 
 if __name__ == "__main__":
