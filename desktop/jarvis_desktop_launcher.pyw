@@ -108,6 +108,29 @@ def extract_renderer_failure_cause(stderr_text, stdout_text):
     return ""
 
 
+def assess_renderer_failure_cause(failure_cause):
+    cause = (failure_cause or "").strip()
+    if not cause:
+        return ""
+
+    internal_exception_prefixes = (
+        "RuntimeError:",
+        "ValueError:",
+        "TypeError:",
+        "AttributeError:",
+        "NameError:",
+        "KeyError:",
+        "IndexError:",
+        "AssertionError:",
+        "NotImplementedError:",
+    )
+
+    if cause.startswith(internal_exception_prefixes):
+        return "Assessment: the renderer is failing with an internal startup exception."
+
+    return "Assessment: the failure cause was captured, but could not be classified confidently."
+
+
 def delete_file(path, reason):
     try:
         if os.path.exists(path):
@@ -239,6 +262,7 @@ def main():
     last_code = None
     last_failure_cause = ""
     failure_causes = []
+    assessment_emitted = False
 
     for attempt in range(1, MAX_RECOVERY_ATTEMPTS + 1):
         runtime(f"Renderer launch attempt {attempt}/{MAX_RECOVERY_ATTEMPTS}")
@@ -263,6 +287,12 @@ def main():
         write_status("TRACE", f"Renderer exited unexpectedly with code {last_code}")
         if failure_cause:
             write_status("TRACE", f"Failure cause: {failure_cause}")
+            if not assessment_emitted:
+                failure_assessment = assess_renderer_failure_cause(failure_cause)
+                if failure_assessment:
+                    runtime(f"Renderer failure assessment: {failure_assessment}")
+                    write_status("TRACE", failure_assessment)
+                    assessment_emitted = True
 
         if not diagnostics_opened:
             write_state("STARTED")
