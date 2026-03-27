@@ -217,6 +217,40 @@ This should remain a reporting refinement only and must not change launcher beha
 
 ---
 
+### [ID: FB-007] Max-attempt identical-failure attempt-pattern correction
+
+Status: Deferred  
+Priority: Low  
+Suggested Version: v1.6.0  
+Suggested Revision: TBD  
+
+Description:
+Correct the final failed-run attempt-pattern summary when all max recovery attempts end with the same non-threshold failure.
+
+Why it matters:
+The current fallback attempt-pattern wording can describe a stable repeated failure as varied, which weakens final summary accuracy.
+
+Proposed Change:
+Refine launcher attempt-pattern selection so max-attempt identical failures produce a stable repeated-failure pattern instead of the generic varied-failure pattern.
+
+Likely Files Affected:
+- jarvis_desktop_launcher.pyw
+
+Scope:
+- launcher-only
+- summary wording correction
+
+Out of Scope:
+- retry policy changes
+- threshold changes
+- diagnostics UI changes
+- renderer changes
+
+Notes:
+This should remain a reporting refinement only and must not change launcher behavior.
+
+---
+
 ## Completed Items
 
 Move completed backlog items here for history tracking.

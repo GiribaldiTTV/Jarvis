@@ -142,11 +142,24 @@ def select_recovery_outcome(recovery_pipeline_end_reason, failure_causes):
     return "Automatic recovery completed without resolving the renderer failure."
 
 
+def stable_max_attempt_identical_failure(failure_kinds, failure_causes):
+    non_empty_kinds = [kind for kind in failure_kinds if kind]
+    non_empty_causes = [cause for cause in failure_causes if cause]
+    return (
+        len(non_empty_kinds) == MAX_RECOVERY_ATTEMPTS
+        and len(non_empty_causes) == MAX_RECOVERY_ATTEMPTS
+        and set(non_empty_kinds) == {"CRASH"}
+        and len(set(non_empty_causes)) == 1
+    )
+
+
 def select_attempt_pattern(recovery_pipeline_end_reason, mixed_failure_pattern_logged, failure_kinds, failure_causes):
     if recovery_pipeline_end_reason == "CONSECUTIVE_STARTUP_ABORT_THRESHOLD_REACHED":
         return "repeated startup aborts"
     if recovery_pipeline_end_reason == "CONSECUTIVE_IDENTICAL_CRASH_THRESHOLD_REACHED":
         return "repeated identical crash"
+    if stable_max_attempt_identical_failure(failure_kinds, failure_causes):
+        return "repeated identical failure across recovery attempts"
     if mixed_failure_pattern_logged:
         return "mixed failure sequence observed"
     non_empty_kinds = [kind for kind in failure_kinds if kind]
@@ -157,6 +170,8 @@ def select_attempt_pattern(recovery_pipeline_end_reason, mixed_failure_pattern_l
 
 
 def select_failure_stability(mixed_failure_pattern_logged, failure_kinds, failure_causes):
+    if stable_max_attempt_identical_failure(failure_kinds, failure_causes):
+        return ""
     non_empty_kinds = [kind for kind in failure_kinds if kind]
     non_empty_causes = [cause for cause in failure_causes if cause]
     if mixed_failure_pattern_logged:
