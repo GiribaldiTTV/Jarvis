@@ -4,6 +4,7 @@ import os
 import sys
 import time
 import re
+import json
 import subprocess
 import datetime
 import platform
@@ -28,6 +29,7 @@ STARTUP_READY_STALL_CONFIRM_SECONDS = 8.0
 STARTUP_ABORT_CONTROL_FLOW_RESULT = "STARTUP_ABORT"
 CONSECUTIVE_STARTUP_ABORT_THRESHOLD = 2
 CONSECUTIVE_IDENTICAL_CRASH_THRESHOLD = 2
+HISTORY_SCHEMA_VERSION = 1
 
 os.makedirs(LOG_DIR, exist_ok=True)
 
@@ -191,6 +193,105 @@ def select_diagnostics_priority(failure_stability):
     if (failure_stability or "").strip() == "unstable across recovery attempts":
         return "elevated attention due to unstable recovery pattern"
     return ""
+
+
+def history_file():
+    return os.path.join(LOG_DIR, "jarvis_history_v1.jsonl")
+
+
+def history_timestamp():
+    return datetime.datetime.now(datetime.timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
+
+
+def normalize_history_run_id(run_id):
+    return strip_label_prefix(run_id, "Run ID: ") or RUN_ID_STEM
+
+
+def build_failure_fingerprint(final_outcome, final_classification, failure_cause="", failure_origin=""):
+    if final_outcome != "FAILURE":
+        return ""
+
+    parts = []
+    normalized_classification = normalize_policy_value(final_classification)
+    normalized_cause = normalize_policy_value(failure_cause)
+    normalized_origin = normalize_policy_value(failure_origin, "Failure origin: ")
+
+    if normalized_classification:
+        parts.append(f"classification={normalized_classification}")
+    if normalized_cause:
+        parts.append(f"cause={normalized_cause}")
+    if normalized_origin:
+        parts.append(f"origin={normalized_origin}")
+
+    return "|".join(parts)
+
+
+def build_history_record(
+    run_id,
+    final_outcome,
+    final_classification,
+    end_reason,
+    attempt_count,
+    attempt_pattern="",
+    failure_stability="",
+    diagnostics_priority="",
+    failure_cause="",
+    failure_origin="",
+):
+    return {
+        "schema_version": HISTORY_SCHEMA_VERSION,
+        "run_id": normalize_history_run_id(run_id),
+        "recorded_at": history_timestamp(),
+        "final_outcome": (final_outcome or "").strip(),
+        "final_classification": (final_classification or "").strip(),
+        "end_reason": (end_reason or "").strip(),
+        "attempt_count": int(attempt_count),
+        "attempt_pattern": (attempt_pattern or "").strip(),
+        "failure_stability": (failure_stability or "").strip(),
+        "diagnostics_priority": (diagnostics_priority or "").strip(),
+        "failure_fingerprint": build_failure_fingerprint(
+            (final_outcome or "").strip(),
+            (final_classification or "").strip(),
+            failure_cause,
+            failure_origin,
+        ),
+        "provenance": "derived_from_finalized_v1.6.0_truth_surfaces",
+    }
+
+
+def record_finalized_history(
+    run_id,
+    final_outcome,
+    final_classification,
+    end_reason,
+    attempt_count,
+    attempt_pattern="",
+    failure_stability="",
+    diagnostics_priority="",
+    failure_cause="",
+    failure_origin="",
+):
+    record = build_history_record(
+        run_id,
+        final_outcome,
+        final_classification,
+        end_reason,
+        attempt_count,
+        attempt_pattern,
+        failure_stability,
+        diagnostics_priority,
+        failure_cause,
+        failure_origin,
+    )
+
+    try:
+        with open(history_file(), "a", encoding="utf-8") as f:
+            f.write(json.dumps(record, sort_keys=True) + "\n")
+        runtime(f"Historical recorder wrote finalized run record: {os.path.basename(history_file())}")
+        return True
+    except Exception as exc:
+        runtime(f"Historical recorder failed; continuing without history: {exc}")
+        return False
 
 
 def write_runtime_incident_summary(
@@ -823,6 +924,13 @@ def main():
             delete_file(STARTUP_ABORT_SIGNAL_FILE, "normal exit")
             delete_file(STATUS_FILE, "normal exit")
             runtime_event("STATUS", "SUCCESS", "LAUNCHER_RUNTIME", "NORMAL_EXIT_COMPLETE")
+            record_finalized_history(
+                run_id,
+                "SUCCESS",
+                "NORMAL_EXIT_COMPLETE",
+                "NORMAL_EXIT_COMPLETE",
+                attempt,
+            )
             return 0
 
         if last_code == STARTUP_ABORT_CONTROL_FLOW_RESULT:
@@ -1022,6 +1130,18 @@ def main():
     )
     write_runtime_stderr_excerpt(last_failure_stderr_excerpt)
     runtime_event("STATUS", "SUCCESS", "LAUNCHER_RUNTIME", "FAILURE_FLOW_COMPLETE")
+    record_finalized_history(
+        run_id,
+        "FAILURE",
+        recovery_pipeline_end_reason,
+        recovery_pipeline_end_reason,
+        len(failure_kinds),
+        attempt_pattern,
+        failure_stability,
+        diagnostics_priority,
+        last_failure_cause,
+        last_failure_origin,
+    )
 
 
 if __name__ == "__main__":
