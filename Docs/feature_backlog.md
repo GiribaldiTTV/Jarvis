@@ -318,6 +318,44 @@ This should remain a summary and classification consistency refinement only and 
 
 ---
 
+### [ID: FB-010] v1.6.0 closeout and documentation sync
+
+Status: Deferred  
+Priority: Medium  
+Suggested Version: v1.6.0  
+Suggested Revision: closeout  
+
+Description:
+Synchronize source-of-truth docs and backlog history with the final rev24 orchestration state before transitioning into v1.7.0.
+
+Why it matters:
+The launcher runtime is now internally consistent and stable, but the repo docs and backlog do not yet reflect the final implemented version state. A closeout sync reduces handoff risk and prevents future work from relying on outdated version context.
+
+Proposed Change:
+Update architecture and orchestration version context, record final verified scenario coverage, and move implemented v1.6.0 backlog items into completed history.
+
+Likely Files Affected:
+- C:/Jarvis/docs/architecture.md
+- C:/Jarvis/docs/orchestration.md
+- C:/Jarvis/docs/feature_backlog.md
+- optional closeout note in C:/Jarvis/docs
+
+Scope:
+- documentation only
+- backlog history and status sync
+- version handoff clarity
+
+Out of Scope:
+- launcher policy changes
+- renderer changes
+- diagnostics UI changes
+- new orchestration behavior
+
+Notes:
+This should be handled as a documentation-only closeout pass and must not introduce new runtime behavior.
+
+---
+
 ## Completed Items
 
 Move completed backlog items here for history tracking.
