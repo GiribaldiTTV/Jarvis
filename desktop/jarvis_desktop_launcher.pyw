@@ -874,6 +874,7 @@ def main():
                 "MIXED_FAILURE_PATTERN_OBSERVED",
                 f"TYPE={mixed_failure_pattern}",
             )
+            write_status("TRACE", f"Mixed failure pattern observed: {mixed_failure_pattern}")
             mixed_failure_pattern_logged = True
 
         previous_failure_kind = current_failure_kind
@@ -942,6 +943,8 @@ def main():
         failure_kinds,
         failure_causes,
     )
+    if failure_stability:
+        write_status("SUMMARY", f"Failure Stability: {failure_stability}")
     if recovery_outcome == "Automatic recovery did not change the underlying renderer failure.":
         write_status("SUMMARY", "Automatic recovery did not change the underlying renderer failure.")
         write_status("TRACE", "Same failure cause persisted across all recovery attempts.")

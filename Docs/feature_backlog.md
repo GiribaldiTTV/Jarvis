@@ -251,6 +251,39 @@ This should remain a reporting refinement only and must not change launcher beha
 
 ---
 
+### [ID: FB-008] Shutdown voice degradation effect
+
+Status: Deferred  
+Priority: Low  
+Suggested Version: TBD  
+Suggested Revision: TBD  
+
+Description:
+Add a staged degradation effect to the final "Shutting down" voice line so Jarvis sounds like he is losing power during terminal shutdown.
+
+Why it matters:
+A shutdown degradation effect would make Jarvis feel more state-aware and physically present during failure termination.
+
+Proposed Change:
+Implement a controlled shutdown voice envelope using staged slowdown, optional pitch drop, and final tail fade or hesitation. Prefer segmented delivery over a single linear slowdown so the effect is more reliable and easier to tune.
+
+Likely Files Affected:
+- C:/Jarvis/Audio/jarvis_error_voice.py
+
+Scope:
+- shutdown voice-effect refinement
+- final shutdown line only
+
+Out of Scope:
+- orchestration policy changes
+- diagnostics behavior changes
+- renderer changes
+
+Notes:
+This should be handled as a dedicated voice and experience revision after orchestration stabilization, not mixed into launcher-control work.
+
+---
+
 ## Completed Items
 
 Move completed backlog items here for history tracking.
