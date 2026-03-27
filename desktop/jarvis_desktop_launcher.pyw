@@ -75,6 +75,24 @@ def repeated_identical_crash(previous_cause, previous_origin, current_cause, cur
     return True
 
 
+def classify_mixed_failure_pattern(previous_kind, previous_cause, previous_origin, current_kind, current_cause, current_origin):
+    if not previous_kind or not current_kind:
+        return ""
+    if previous_kind == STARTUP_ABORT_CONTROL_FLOW_RESULT and current_kind == "CRASH":
+        return "STARTUP_ABORT_TO_CRASH"
+    if previous_kind == "CRASH" and current_kind == STARTUP_ABORT_CONTROL_FLOW_RESULT:
+        return "CRASH_TO_STARTUP_ABORT"
+    if (
+        previous_kind == "CRASH"
+        and current_kind == "CRASH"
+        and previous_cause
+        and current_cause
+        and not repeated_identical_crash(previous_cause, previous_origin, current_cause, current_origin)
+    ):
+        return "CRASH_TO_DIFFERENT_CRASH"
+    return ""
+
+
 def build_incident_summary_lines(
     run_id,
     attempts_used,
@@ -670,6 +688,10 @@ def main():
     consecutive_identical_crash_count = 0
     last_normalized_crash_cause = ""
     last_normalized_crash_origin = ""
+    previous_failure_kind = ""
+    previous_failure_cause = ""
+    previous_failure_origin = ""
+    mixed_failure_pattern_logged = False
     recovery_pipeline_end_reason = "MAX_ATTEMPTS_EXHAUSTED"
 
     for attempt in range(1, MAX_RECOVERY_ATTEMPTS + 1):
@@ -706,6 +728,9 @@ def main():
             consecutive_identical_crash_count = 0
             last_normalized_crash_cause = ""
             last_normalized_crash_origin = ""
+            current_failure_kind = STARTUP_ABORT_CONTROL_FLOW_RESULT
+            current_failure_cause = ""
+            current_failure_origin = ""
         else:
             consecutive_startup_abort_count = 0
             normalized_failure_cause = normalize_policy_value(failure_cause)
@@ -723,6 +748,9 @@ def main():
                 consecutive_identical_crash_count = 0
             last_normalized_crash_cause = normalized_failure_cause
             last_normalized_crash_origin = normalized_failure_origin
+            current_failure_kind = "CRASH"
+            current_failure_cause = normalized_failure_cause
+            current_failure_origin = normalized_failure_origin
 
         last_failure_cause = failure_cause or last_failure_cause
         last_failure_origin = failure_origin or last_failure_origin
@@ -753,6 +781,29 @@ def main():
             launch_diag()
             speak("Uhm..... Sir, I seem to be malfunctioning.")
             diagnostics_opened = True
+
+        mixed_failure_pattern = classify_mixed_failure_pattern(
+            previous_failure_kind,
+            previous_failure_cause,
+            previous_failure_origin,
+            current_failure_kind,
+            current_failure_cause,
+            current_failure_origin,
+        )
+        if not mixed_failure_pattern_logged and mixed_failure_pattern:
+            runtime(f"Mixed failure pattern observed: {mixed_failure_pattern}")
+            runtime_event(
+                "STATUS",
+                "WARNING",
+                "LAUNCHER_RUNTIME",
+                "MIXED_FAILURE_PATTERN_OBSERVED",
+                f"TYPE={mixed_failure_pattern}",
+            )
+            mixed_failure_pattern_logged = True
+
+        previous_failure_kind = current_failure_kind
+        previous_failure_cause = current_failure_cause
+        previous_failure_origin = current_failure_origin
 
         if consecutive_startup_abort_count >= CONSECUTIVE_STARTUP_ABORT_THRESHOLD:
             runtime("Consecutive startup abort threshold reached")
