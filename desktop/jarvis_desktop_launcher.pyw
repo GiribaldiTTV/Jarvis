@@ -101,6 +101,7 @@ def build_incident_summary_lines(
     failure_origin="",
     failure_assessment="",
     recovery_outcome="",
+    attempt_pattern="",
     crash_filename="",
     runtime_filename="",
 ):
@@ -115,6 +116,7 @@ def build_incident_summary_lines(
         f"Failure Origin: {strip_label_prefix(failure_origin, 'Failure origin: ') or 'Unavailable'}",
         f"Assessment: {strip_label_prefix(failure_assessment, 'Assessment: ') or 'Unavailable'}",
         f"Recovery Outcome: {(recovery_outcome or '').strip() or 'Unavailable'}",
+        f"Attempt Pattern: {(attempt_pattern or '').strip() or 'Unavailable'}",
         f"Latest crash report: {(crash_filename or '').strip() or 'Unavailable'}",
         f"Latest runtime log: {(runtime_filename or '').strip() or 'Unavailable'}",
     ]
@@ -134,6 +136,20 @@ def select_recovery_outcome(recovery_pipeline_end_reason, failure_causes):
     return "Automatic recovery completed without resolving the renderer failure."
 
 
+def select_attempt_pattern(recovery_pipeline_end_reason, mixed_failure_pattern_logged, failure_kinds, failure_causes):
+    if recovery_pipeline_end_reason == "CONSECUTIVE_STARTUP_ABORT_THRESHOLD_REACHED":
+        return "repeated startup aborts"
+    if recovery_pipeline_end_reason == "CONSECUTIVE_IDENTICAL_CRASH_THRESHOLD_REACHED":
+        return "repeated identical crash"
+    if mixed_failure_pattern_logged:
+        return "mixed failure sequence observed"
+    non_empty_kinds = [kind for kind in failure_kinds if kind]
+    non_empty_causes = [cause for cause in failure_causes if cause]
+    if len(set(non_empty_kinds)) > 1 or len(set(non_empty_causes)) > 1:
+        return "varied failure outcomes across recovery attempts"
+    return "varied failure outcomes across recovery attempts"
+
+
 def write_runtime_incident_summary(
     run_id,
     attempts_used,
@@ -142,6 +158,7 @@ def write_runtime_incident_summary(
     failure_origin="",
     failure_assessment="",
     recovery_outcome="",
+    attempt_pattern="",
     crash_filename="",
     runtime_filename="",
 ):
@@ -153,6 +170,7 @@ def write_runtime_incident_summary(
         failure_origin,
         failure_assessment,
         recovery_outcome,
+        attempt_pattern,
         crash_filename,
         runtime_filename,
     ):
@@ -507,6 +525,7 @@ def crash_log(
     stderr_excerpt_lines=None,
     failure_assessment="",
     recovery_outcome="",
+    attempt_pattern="",
     crash_filename="",
     run_id="",
 ):
@@ -540,6 +559,7 @@ def crash_log(
             failure_origin,
             failure_assessment,
             recovery_outcome,
+            attempt_pattern,
             os.path.basename(path),
             os.path.basename(RUNTIME_FILE),
         ):
@@ -638,6 +658,7 @@ def finalize_failure(
     stderr_excerpt_lines=None,
     failure_assessment="",
     recovery_outcome="",
+    attempt_pattern="",
     crash_filename="",
     run_id="",
 ):
@@ -671,6 +692,7 @@ def finalize_failure(
         stderr_excerpt_lines or [],
         failure_assessment,
         recovery_outcome,
+        attempt_pattern,
         crash_filename,
         run_id,
     )
@@ -697,6 +719,7 @@ def main():
     last_failure_stderr_excerpt = []
     last_failure_assessment = ""
     failure_causes = []
+    failure_kinds = []
     assessment_emitted = False
     consecutive_startup_abort_count = 0
     consecutive_identical_crash_count = 0
@@ -770,6 +793,7 @@ def main():
         last_failure_origin = failure_origin or last_failure_origin
         last_failure_stderr_excerpt = stderr_excerpt_lines or last_failure_stderr_excerpt
         failure_causes.append((failure_cause or "").strip())
+        failure_kinds.append(current_failure_kind)
         runtime("Renderer exited unexpectedly")
         runtime_event("STATUS", "FAIL", "RECOVERY_ATTEMPT", f"INDEX={attempt}", f"RENDERER_EXIT={last_code}")
         write_status("SUMMARY", failure_cause or "Desktop renderer exited unexpectedly")
@@ -870,6 +894,12 @@ def main():
         runtime_event("STATUS", "FAIL", "RECOVERY_PIPELINE", "MAX_ATTEMPTS_EXHAUSTED")
         write_status("TRACE", "Recovery attempts exhausted")
     recovery_outcome = select_recovery_outcome(recovery_pipeline_end_reason, failure_causes)
+    attempt_pattern = select_attempt_pattern(
+        recovery_pipeline_end_reason,
+        mixed_failure_pattern_logged,
+        failure_kinds,
+        failure_causes,
+    )
     if recovery_outcome == "Automatic recovery did not change the underlying renderer failure.":
         write_status("SUMMARY", "Automatic recovery did not change the underlying renderer failure.")
         write_status("TRACE", "Same failure cause persisted across all recovery attempts.")
@@ -884,6 +914,7 @@ def main():
         last_failure_stderr_excerpt,
         last_failure_assessment,
         recovery_outcome,
+        attempt_pattern,
         crash_filename,
         run_id,
     )
@@ -895,6 +926,7 @@ def main():
         last_failure_origin,
         last_failure_assessment,
         recovery_outcome,
+        attempt_pattern,
         crash_filename,
         os.path.basename(RUNTIME_FILE),
     )
