@@ -10,17 +10,24 @@ import platform
 import secrets
 
 ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-TARGET_SCRIPT = os.path.join(ROOT_DIR, "jarvis_desktop_test.py")
+TARGET_SCRIPT = os.path.join(ROOT_DIR, "jarvis_desktop_main.py")
 LOG_DIR = os.path.join(ROOT_DIR, "logs")
 CRASH_DIR = os.path.join(LOG_DIR, "crash")
 STATUS_FILE = os.path.join(LOG_DIR, "diagnostics_status.txt")
 STOP_SIGNAL_FILE = os.path.join(LOG_DIR, "diagnostics_stop.signal")
+STARTUP_ABORT_SIGNAL_FILE = os.path.join(LOG_DIR, "renderer_startup_abort.signal")
 DIAGNOSTICS_SCRIPT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "jarvis_diagnostics.pyw")
 VOICE_SCRIPT = os.path.join(ROOT_DIR, "Audio", "jarvis_error_voice.py")
 
 MAX_RECOVERY_ATTEMPTS = 3
 RECOVERY_COOLDOWN_SECONDS = 1.2
 COMPLETE_CLEANUP_DELAY_SECONDS = 0.35
+STARTUP_OBSERVE_POLL_SECONDS = 0.05
+STARTUP_READY_OBSERVE_WINDOW_SECONDS = 3.0
+STARTUP_READY_STALL_CONFIRM_SECONDS = 8.0
+STARTUP_ABORT_CONTROL_FLOW_RESULT = "STARTUP_ABORT"
+CONSECUTIVE_STARTUP_ABORT_THRESHOLD = 2
+CONSECUTIVE_IDENTICAL_CRASH_THRESHOLD = 2
 
 os.makedirs(LOG_DIR, exist_ok=True)
 
@@ -53,6 +60,39 @@ def strip_label_prefix(value, prefix):
     return text
 
 
+def normalize_policy_value(value, prefix=""):
+    text = strip_label_prefix(value, prefix)
+    return " ".join(text.split()).casefold()
+
+
+def repeated_identical_crash(previous_cause, previous_origin, current_cause, current_origin):
+    if not previous_cause or not current_cause:
+        return False
+    if previous_cause != current_cause:
+        return False
+    if previous_origin and current_origin and previous_origin != current_origin:
+        return False
+    return True
+
+
+def classify_mixed_failure_pattern(previous_kind, previous_cause, previous_origin, current_kind, current_cause, current_origin):
+    if not previous_kind or not current_kind:
+        return ""
+    if previous_kind == STARTUP_ABORT_CONTROL_FLOW_RESULT and current_kind == "CRASH":
+        return "STARTUP_ABORT_TO_CRASH"
+    if previous_kind == "CRASH" and current_kind == STARTUP_ABORT_CONTROL_FLOW_RESULT:
+        return "CRASH_TO_STARTUP_ABORT"
+    if (
+        previous_kind == "CRASH"
+        and current_kind == "CRASH"
+        and previous_cause
+        and current_cause
+        and previous_cause != current_cause
+    ):
+        return "CRASH_TO_DIFFERENT_CRASH"
+    return ""
+
+
 def build_incident_summary_lines(
     run_id,
     attempts_used,
@@ -61,10 +101,14 @@ def build_incident_summary_lines(
     failure_origin="",
     failure_assessment="",
     recovery_outcome="",
+    attempt_pattern="",
+    diagnostics_priority="",
+    failure_stability="",
+    triage_guidance="",
     crash_filename="",
     runtime_filename="",
 ):
-    return [
+    lines = [
         "INCIDENT SUMMARY",
         f"Run ID: {strip_label_prefix(run_id, 'Run ID: ') or 'Unavailable'}",
         f"Environment: {strip_label_prefix(ENVIRONMENT_FINGERPRINT, 'Environment: ') or 'Unavailable'}",
@@ -75,9 +119,78 @@ def build_incident_summary_lines(
         f"Failure Origin: {strip_label_prefix(failure_origin, 'Failure origin: ') or 'Unavailable'}",
         f"Assessment: {strip_label_prefix(failure_assessment, 'Assessment: ') or 'Unavailable'}",
         f"Recovery Outcome: {(recovery_outcome or '').strip() or 'Unavailable'}",
+        f"Attempt Pattern: {(attempt_pattern or '').strip() or 'Unavailable'}",
+    ]
+    if diagnostics_priority:
+        lines.append(f"Diagnostics Priority: {diagnostics_priority.strip()}")
+    if failure_stability:
+        lines.append(f"Failure Stability: {failure_stability.strip()}")
+    if triage_guidance:
+        lines.append(f"Triage Guidance: {strip_label_prefix(triage_guidance, 'Triage: ') or 'Unavailable'}")
+    lines.extend([
         f"Latest crash report: {(crash_filename or '').strip() or 'Unavailable'}",
         f"Latest runtime log: {(runtime_filename or '').strip() or 'Unavailable'}",
-    ]
+    ])
+    return lines
+
+
+def select_recovery_outcome(recovery_pipeline_end_reason, failure_causes):
+    if recovery_pipeline_end_reason == "CONSECUTIVE_STARTUP_ABORT_THRESHOLD_REACHED":
+        return "Automatic recovery stopped after repeated startup aborts reached the launcher escalation threshold."
+    if recovery_pipeline_end_reason == "CONSECUTIVE_IDENTICAL_CRASH_THRESHOLD_REACHED":
+        return "Automatic recovery stopped after repeated identical crash outcomes reached the launcher escalation threshold."
+    if (
+        len(failure_causes) == MAX_RECOVERY_ATTEMPTS
+        and all(failure_causes)
+        and len(set(failure_causes)) == 1
+    ):
+        return "Automatic recovery did not change the underlying renderer failure."
+    return "Automatic recovery completed without resolving the renderer failure."
+
+
+def stable_max_attempt_identical_failure(failure_kinds, failure_causes):
+    non_empty_kinds = [kind for kind in failure_kinds if kind]
+    non_empty_causes = [cause for cause in failure_causes if cause]
+    return (
+        len(non_empty_kinds) == MAX_RECOVERY_ATTEMPTS
+        and len(non_empty_causes) == MAX_RECOVERY_ATTEMPTS
+        and set(non_empty_kinds) == {"CRASH"}
+        and len(set(non_empty_causes)) == 1
+    )
+
+
+def select_attempt_pattern(recovery_pipeline_end_reason, mixed_failure_pattern_logged, failure_kinds, failure_causes):
+    if recovery_pipeline_end_reason == "CONSECUTIVE_STARTUP_ABORT_THRESHOLD_REACHED":
+        return "repeated startup aborts"
+    if recovery_pipeline_end_reason == "CONSECUTIVE_IDENTICAL_CRASH_THRESHOLD_REACHED":
+        return "repeated identical crash"
+    if stable_max_attempt_identical_failure(failure_kinds, failure_causes):
+        return "repeated identical failure across recovery attempts"
+    if mixed_failure_pattern_logged:
+        return "mixed failure sequence observed"
+    non_empty_kinds = [kind for kind in failure_kinds if kind]
+    non_empty_causes = [cause for cause in failure_causes if cause]
+    if len(set(non_empty_kinds)) > 1 or len(set(non_empty_causes)) > 1:
+        return "varied failure outcomes across recovery attempts"
+    return "varied failure outcomes across recovery attempts"
+
+
+def select_failure_stability(mixed_failure_pattern_logged, failure_kinds, failure_causes):
+    if stable_max_attempt_identical_failure(failure_kinds, failure_causes):
+        return ""
+    non_empty_kinds = [kind for kind in failure_kinds if kind]
+    non_empty_causes = [cause for cause in failure_causes if cause]
+    if mixed_failure_pattern_logged:
+        return "unstable across recovery attempts"
+    if len(set(non_empty_kinds)) > 1 or len(set(non_empty_causes)) > 1:
+        return "unstable across recovery attempts"
+    return ""
+
+
+def select_diagnostics_priority(failure_stability):
+    if (failure_stability or "").strip() == "unstable across recovery attempts":
+        return "elevated attention due to unstable recovery pattern"
+    return ""
 
 
 def write_runtime_incident_summary(
@@ -88,6 +201,10 @@ def write_runtime_incident_summary(
     failure_origin="",
     failure_assessment="",
     recovery_outcome="",
+    attempt_pattern="",
+    diagnostics_priority="",
+    failure_stability="",
+    triage_guidance="",
     crash_filename="",
     runtime_filename="",
 ):
@@ -99,6 +216,10 @@ def write_runtime_incident_summary(
         failure_origin,
         failure_assessment,
         recovery_outcome,
+        attempt_pattern,
+        diagnostics_priority,
+        failure_stability,
+        triage_guidance,
         crash_filename,
         runtime_filename,
     ):
@@ -140,6 +261,7 @@ def reset_status():
     runtime(f"Reset diagnostics status file: {STATUS_FILE}")
     runtime_event("FILE", "CREATE_OR_RESET", os.path.basename(STATUS_FILE), "SUCCESS", "startup")
     delete_file(STOP_SIGNAL_FILE, "startup reset")
+    delete_file(STARTUP_ABORT_SIGNAL_FILE, "startup reset")
 
 
 def write_status(kind, msg):
@@ -152,6 +274,74 @@ def write_status(kind, msg):
 def write_state(state):
     write_status("STATE", state)
     runtime_event("PHASE", state)
+
+
+def runtime_log_contains_since(pattern, start_offset=0):
+    try:
+        with open(RUNTIME_FILE, "r", encoding="utf-8", errors="ignore") as f:
+            if start_offset > 0:
+                f.seek(start_offset)
+            return pattern in f.read()
+    except Exception:
+        return False
+
+
+def observe_renderer_startup_ready(proc, log_start_offset):
+    ready_marker = "RENDERER_MAIN|STARTUP_READY"
+    startup_abort_marker = "RENDERER_MAIN|STARTUP_ABORTED"
+    warn_deadline = time.monotonic() + STARTUP_READY_OBSERVE_WINDOW_SECONDS
+    stall_deadline = time.monotonic() + STARTUP_READY_STALL_CONFIRM_SECONDS
+    warned_within_window = False
+    stall_confirmed = False
+    abort_requested_on_stall = False
+
+    runtime_event("STATUS", "TRACE", "LAUNCHER_RUNTIME", "STARTUP_OBSERVE_BEGIN")
+
+    while True:
+        if runtime_log_contains_since(ready_marker, log_start_offset):
+            runtime_event("STATUS", "SUCCESS", "LAUNCHER_RUNTIME", "STARTUP_READY_OBSERVED")
+            return "ready", None, None
+
+        if runtime_log_contains_since(startup_abort_marker, log_start_offset):
+            runtime_event("STATUS", "WARNING", "LAUNCHER_RUNTIME", "STARTUP_ABORT_OBSERVED")
+            return "startup_aborted", None, None
+
+        if (
+            not warned_within_window
+            and time.monotonic() >= warn_deadline
+            and proc.poll() is None
+        ):
+            runtime_event("STATUS", "WARNING", "LAUNCHER_RUNTIME", "STARTUP_READY_NOT_OBSERVED_WITHIN_WINDOW")
+            warned_within_window = True
+
+        if (
+            not stall_confirmed
+            and time.monotonic() >= stall_deadline
+            and proc.poll() is None
+        ):
+            runtime_event("STATUS", "WARNING", "LAUNCHER_RUNTIME", "STARTUP_READY_STALL_CONFIRMED")
+            stall_confirmed = True
+            if not abort_requested_on_stall and not runtime_log_contains_since(ready_marker, log_start_offset):
+                if request_startup_abort("confirmed stall"):
+                    runtime_event("STATUS", "WARNING", "LAUNCHER_RUNTIME", "STARTUP_ABORT_REQUESTED_ON_CONFIRMED_STALL")
+                    abort_requested_on_stall = True
+
+        try:
+            stdout_text, stderr_text = proc.communicate(timeout=STARTUP_OBSERVE_POLL_SECONDS)
+            break
+        except subprocess.TimeoutExpired:
+            continue
+
+    if runtime_log_contains_since(ready_marker, log_start_offset):
+        runtime_event("STATUS", "SUCCESS", "LAUNCHER_RUNTIME", "STARTUP_READY_OBSERVED")
+        return "ready", stdout_text, stderr_text
+
+    if runtime_log_contains_since(startup_abort_marker, log_start_offset):
+        runtime_event("STATUS", "WARNING", "LAUNCHER_RUNTIME", "STARTUP_ABORT_OBSERVED")
+        return "startup_aborted", stdout_text, stderr_text
+
+    runtime_event("STATUS", "WARNING", "LAUNCHER_RUNTIME", "STARTUP_READY_NOT_OBSERVED_BEFORE_EXIT")
+    return "not_ready_before_exit", stdout_text, stderr_text
 
 
 def extract_renderer_failure_cause(stderr_text, stdout_text):
@@ -325,8 +515,9 @@ def assess_renderer_failure_cause(failure_cause):
     return "Assessment: the failure cause was captured, but could not be classified confidently."
 
 
-def triage_renderer_failure(failure_cause):
+def triage_renderer_failure(failure_cause, failure_stability=""):
     cause = (failure_cause or "").strip()
+    stability = (failure_stability or "").strip()
 
     internal_exception_prefixes = (
         "RuntimeError:",
@@ -339,6 +530,9 @@ def triage_renderer_failure(failure_cause):
         "AssertionError:",
         "NotImplementedError:",
     )
+
+    if stability == "unstable across recovery attempts":
+        return "Triage: compare attempt-to-attempt failure differences before focusing on the final failure cause."
 
     if cause.startswith(internal_exception_prefixes):
         return "Triage: begin with renderer startup code and recent initialization changes."
@@ -362,6 +556,19 @@ def delete_file(path, reason):
         return False
 
 
+def request_startup_abort(reason):
+    try:
+        with open(STARTUP_ABORT_SIGNAL_FILE, "w", encoding="utf-8") as f:
+            f.write("abort startup\n")
+        runtime(f"Created startup abort signal ({reason}): {STARTUP_ABORT_SIGNAL_FILE}")
+        runtime_event("FILE", "CREATE_OR_RESET", os.path.basename(STARTUP_ABORT_SIGNAL_FILE), "SUCCESS", reason)
+        return True
+    except Exception as exc:
+        runtime(f"Failed creating startup abort signal ({reason}): {STARTUP_ABORT_SIGNAL_FILE} :: {exc}")
+        runtime_event("FILE", "CREATE_OR_RESET", os.path.basename(STARTUP_ABORT_SIGNAL_FILE), "FAILED", reason, exc)
+        return False
+
+
 def crash_log(
     message,
     attempts,
@@ -371,6 +578,10 @@ def crash_log(
     stderr_excerpt_lines=None,
     failure_assessment="",
     recovery_outcome="",
+    attempt_pattern="",
+    diagnostics_priority="",
+    failure_stability="",
+    triage_guidance="",
     crash_filename="",
     run_id="",
 ):
@@ -404,6 +615,10 @@ def crash_log(
             failure_origin,
             failure_assessment,
             recovery_outcome,
+            attempt_pattern,
+            diagnostics_priority,
+            failure_stability,
+            triage_guidance,
             os.path.basename(path),
             os.path.basename(RUNTIME_FILE),
         ):
@@ -462,8 +677,14 @@ def speak(spoken_text, display_text=None):
 def run_renderer():
     runtime(f"Starting renderer: {TARGET_SCRIPT}")
     runtime_event("STATUS", "START", "RENDERER_PROCESS")
+    log_start_offset = os.path.getsize(RUNTIME_FILE) if os.path.exists(RUNTIME_FILE) else 0
     proc = subprocess.Popen(
-        [pythonw(), TARGET_SCRIPT],
+        [
+            pythonw(),
+            TARGET_SCRIPT,
+            "--runtime-log", RUNTIME_FILE,
+            "--startup-abort-signal", STARTUP_ABORT_SIGNAL_FILE,
+        ],
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         text=True,
@@ -472,17 +693,20 @@ def run_renderer():
     )
     runtime(f"Renderer PID: {proc.pid}")
     runtime_event("STATUS", "SUCCESS", "RENDERER_PROCESS_SPAWN", f"PID={proc.pid}")
-    stdout_text, stderr_text = proc.communicate()
+    startup_observation, stdout_text, stderr_text = observe_renderer_startup_ready(proc, log_start_offset)
+    if stdout_text is None and stderr_text is None:
+        stdout_text, stderr_text = proc.communicate()
     runtime(f"Renderer exit code: {proc.returncode}")
     runtime_event("STATUS", "END", "RENDERER_PROCESS", f"EXIT={proc.returncode}")
     failure_cause = extract_renderer_failure_cause(stderr_text or "", stdout_text or "")
     failure_origin = extract_renderer_failure_origin(stderr_text or "", stdout_text or "")
     stderr_excerpt_lines = extract_renderer_stderr_excerpt(stderr_text or "", failure_cause, failure_origin)
+    startup_aborted = startup_observation == "startup_aborted"
     if proc.returncode != 0 and failure_cause:
         runtime(f"Renderer failure cause: {failure_cause}")
     if proc.returncode != 0 and failure_origin:
         runtime(failure_origin)
-    return proc.returncode, failure_cause, failure_origin, stderr_excerpt_lines
+    return proc.returncode, failure_cause, failure_origin, stderr_excerpt_lines, startup_aborted
 
 
 def finalize_failure(
@@ -493,6 +717,10 @@ def finalize_failure(
     stderr_excerpt_lines=None,
     failure_assessment="",
     recovery_outcome="",
+    attempt_pattern="",
+    diagnostics_priority="",
+    failure_stability="",
+    triage_guidance="",
     crash_filename="",
     run_id="",
 ):
@@ -503,7 +731,7 @@ def finalize_failure(
     runtime("Final immersive shutdown sequence finished")
     runtime_event("STATUS", "SUCCESS", "FINAL_IMMERSIVE_SHUTDOWN")
 
-    write_status("TRACE", triage_renderer_failure(failure_cause))
+    write_status("TRACE", triage_guidance or triage_renderer_failure(failure_cause, failure_stability))
     write_state("COMPLETE")
     if crash_filename:
         write_status("TRACE", f"Latest crash report: {crash_filename}")
@@ -526,6 +754,10 @@ def finalize_failure(
         stderr_excerpt_lines or [],
         failure_assessment,
         recovery_outcome,
+        attempt_pattern,
+        diagnostics_priority,
+        failure_stability,
+        triage_guidance,
         crash_filename,
         run_id,
     )
@@ -552,7 +784,17 @@ def main():
     last_failure_stderr_excerpt = []
     last_failure_assessment = ""
     failure_causes = []
+    failure_kinds = []
     assessment_emitted = False
+    consecutive_startup_abort_count = 0
+    consecutive_identical_crash_count = 0
+    last_normalized_crash_cause = ""
+    last_normalized_crash_origin = ""
+    previous_failure_kind = ""
+    previous_failure_cause = ""
+    previous_failure_origin = ""
+    mixed_failure_pattern_logged = False
+    recovery_pipeline_end_reason = "MAX_ATTEMPTS_EXHAUSTED"
 
     for attempt in range(1, MAX_RECOVERY_ATTEMPTS + 1):
         runtime(f"Renderer launch attempt {attempt}/{MAX_RECOVERY_ATTEMPTS}")
@@ -560,19 +802,63 @@ def main():
         write_status("TRACE", f"Renderer launch attempt {attempt}/{MAX_RECOVERY_ATTEMPTS}")
         time.sleep(0.18)
 
-        last_code, failure_cause, failure_origin, stderr_excerpt_lines = run_renderer()
+        last_code, failure_cause, failure_origin, stderr_excerpt_lines, startup_aborted = run_renderer()
+
+        if last_code == 0 and startup_aborted:
+            runtime("Renderer startup aborted cooperatively")
+            runtime_event("STATUS", "WARNING", "RECOVERY_ATTEMPT", f"INDEX={attempt}", "RENDERER_STARTUP_ABORTED")
+            delete_file(STOP_SIGNAL_FILE, "startup abort")
+            delete_file(STARTUP_ABORT_SIGNAL_FILE, "startup abort")
+            runtime_event("STATUS", "WARNING", "LAUNCHER_RUNTIME", "STARTUP_ABORT_COMPLETE")
+            last_code = STARTUP_ABORT_CONTROL_FLOW_RESULT
+            failure_cause = "Renderer startup aborted cooperatively before readiness."
+            failure_origin = ""
+            stderr_excerpt_lines = []
 
         if last_code == 0:
             runtime("Renderer exited normally")
             runtime_event("STATUS", "SUCCESS", "RECOVERY_ATTEMPT", f"INDEX={attempt}", "RENDERER_EXIT=0")
             write_status("TRACE", "Renderer exited normally")
-            runtime_event("STATUS", "SUCCESS", "LAUNCHER_RUNTIME")
+            delete_file(STOP_SIGNAL_FILE, "normal exit")
+            delete_file(STARTUP_ABORT_SIGNAL_FILE, "normal exit")
+            delete_file(STATUS_FILE, "normal exit")
+            runtime_event("STATUS", "SUCCESS", "LAUNCHER_RUNTIME", "NORMAL_EXIT_COMPLETE")
             return 0
+
+        if last_code == STARTUP_ABORT_CONTROL_FLOW_RESULT:
+            consecutive_startup_abort_count += 1
+            consecutive_identical_crash_count = 0
+            last_normalized_crash_cause = ""
+            last_normalized_crash_origin = ""
+            current_failure_kind = STARTUP_ABORT_CONTROL_FLOW_RESULT
+            current_failure_cause = ""
+            current_failure_origin = ""
+        else:
+            consecutive_startup_abort_count = 0
+            normalized_failure_cause = normalize_policy_value(failure_cause)
+            normalized_failure_origin = normalize_policy_value(failure_origin, "Failure origin: ")
+            if repeated_identical_crash(
+                last_normalized_crash_cause,
+                last_normalized_crash_origin,
+                normalized_failure_cause,
+                normalized_failure_origin,
+            ):
+                consecutive_identical_crash_count += 1
+            elif normalized_failure_cause:
+                consecutive_identical_crash_count = 1
+            else:
+                consecutive_identical_crash_count = 0
+            last_normalized_crash_cause = normalized_failure_cause
+            last_normalized_crash_origin = normalized_failure_origin
+            current_failure_kind = "CRASH"
+            current_failure_cause = normalized_failure_cause
+            current_failure_origin = normalized_failure_origin
 
         last_failure_cause = failure_cause or last_failure_cause
         last_failure_origin = failure_origin or last_failure_origin
         last_failure_stderr_excerpt = stderr_excerpt_lines or last_failure_stderr_excerpt
         failure_causes.append((failure_cause or "").strip())
+        failure_kinds.append(current_failure_kind)
         runtime("Renderer exited unexpectedly")
         runtime_event("STATUS", "FAIL", "RECOVERY_ATTEMPT", f"INDEX={attempt}", f"RENDERER_EXIT={last_code}")
         write_status("SUMMARY", failure_cause or "Desktop renderer exited unexpectedly")
@@ -599,6 +885,54 @@ def main():
             speak("Uhm..... Sir, I seem to be malfunctioning.")
             diagnostics_opened = True
 
+        mixed_failure_pattern = classify_mixed_failure_pattern(
+            previous_failure_kind,
+            previous_failure_cause,
+            previous_failure_origin,
+            current_failure_kind,
+            current_failure_cause,
+            current_failure_origin,
+        )
+        if not mixed_failure_pattern_logged and mixed_failure_pattern:
+            runtime(f"Mixed failure pattern observed: {mixed_failure_pattern}")
+            runtime_event(
+                "STATUS",
+                "WARNING",
+                "LAUNCHER_RUNTIME",
+                "MIXED_FAILURE_PATTERN_OBSERVED",
+                f"TYPE={mixed_failure_pattern}",
+            )
+            write_status("TRACE", f"Mixed failure pattern observed: {mixed_failure_pattern}")
+            mixed_failure_pattern_logged = True
+
+        previous_failure_kind = current_failure_kind
+        previous_failure_cause = current_failure_cause
+        previous_failure_origin = current_failure_origin
+
+        if consecutive_startup_abort_count >= CONSECUTIVE_STARTUP_ABORT_THRESHOLD:
+            runtime("Consecutive startup abort threshold reached")
+            runtime_event(
+                "STATUS",
+                "WARNING",
+                "LAUNCHER_RUNTIME",
+                "CONSECUTIVE_STARTUP_ABORT_THRESHOLD_REACHED",
+                f"COUNT={consecutive_startup_abort_count}",
+            )
+            recovery_pipeline_end_reason = "CONSECUTIVE_STARTUP_ABORT_THRESHOLD_REACHED"
+            break
+
+        if consecutive_identical_crash_count >= CONSECUTIVE_IDENTICAL_CRASH_THRESHOLD:
+            runtime("Repeated identical crash threshold reached")
+            runtime_event(
+                "STATUS",
+                "WARNING",
+                "LAUNCHER_RUNTIME",
+                "CONSECUTIVE_IDENTICAL_CRASH_THRESHOLD_REACHED",
+                f"COUNT={consecutive_identical_crash_count}",
+            )
+            recovery_pipeline_end_reason = "CONSECUTIVE_IDENTICAL_CRASH_THRESHOLD_REACHED"
+            break
+
         if attempt < MAX_RECOVERY_ATTEMPTS:
             runtime(f"Preparing recovery attempt {attempt}")
             runtime_event("STATUS", "START", "RECOVERY_COOLDOWN", f"INDEX={attempt}", f"SECONDS={RECOVERY_COOLDOWN_SECONDS:.1f}")
@@ -613,16 +947,44 @@ def main():
             time.sleep(RECOVERY_COOLDOWN_SECONDS)
             runtime_event("STATUS", "SUCCESS", "RECOVERY_COOLDOWN", f"INDEX={attempt}")
 
-    runtime("All recovery attempts exhausted")
-    runtime_event("STATUS", "FAIL", "RECOVERY_PIPELINE", "MAX_ATTEMPTS_EXHAUSTED")
-    write_status("TRACE", "Recovery attempts exhausted")
-    recovery_outcome = "Automatic recovery completed without resolving the renderer failure."
-    if (
-        len(failure_causes) == MAX_RECOVERY_ATTEMPTS
-        and all(failure_causes)
-        and len(set(failure_causes)) == 1
-    ):
-        recovery_outcome = "Automatic recovery did not change the underlying renderer failure."
+    failure_stability = select_failure_stability(
+        mixed_failure_pattern_logged,
+        failure_kinds,
+        failure_causes,
+    )
+    if recovery_pipeline_end_reason == "MAX_ATTEMPTS_EXHAUSTED" and failure_stability:
+        recovery_pipeline_end_reason = "MAX_ATTEMPTS_EXHAUSTED_WITH_INSTABILITY"
+
+    if recovery_pipeline_end_reason == "CONSECUTIVE_STARTUP_ABORT_THRESHOLD_REACHED":
+        runtime("Recovery pipeline escalated after repeated startup aborts")
+        runtime_event("STATUS", "FAIL", "RECOVERY_PIPELINE", recovery_pipeline_end_reason)
+        write_status("TRACE", "Repeated startup aborts reached escalation threshold.")
+    elif recovery_pipeline_end_reason == "CONSECUTIVE_IDENTICAL_CRASH_THRESHOLD_REACHED":
+        runtime("Recovery pipeline escalated after repeated identical crash outcomes")
+        runtime_event("STATUS", "FAIL", "RECOVERY_PIPELINE", recovery_pipeline_end_reason)
+        write_status("TRACE", "Repeated identical crash outcomes reached escalation threshold.")
+    elif recovery_pipeline_end_reason == "MAX_ATTEMPTS_EXHAUSTED_WITH_INSTABILITY":
+        runtime("All recovery attempts exhausted with instability observed")
+        runtime_event("STATUS", "FAIL", "RECOVERY_PIPELINE", recovery_pipeline_end_reason)
+        write_status("TRACE", "Recovery attempts exhausted with instability observed.")
+    else:
+        runtime("All recovery attempts exhausted")
+        runtime_event("STATUS", "FAIL", "RECOVERY_PIPELINE", "MAX_ATTEMPTS_EXHAUSTED")
+        write_status("TRACE", "Recovery attempts exhausted")
+    recovery_outcome = select_recovery_outcome(recovery_pipeline_end_reason, failure_causes)
+    attempt_pattern = select_attempt_pattern(
+        recovery_pipeline_end_reason,
+        mixed_failure_pattern_logged,
+        failure_kinds,
+        failure_causes,
+    )
+    triage_guidance = triage_renderer_failure(last_failure_cause, failure_stability)
+    diagnostics_priority = select_diagnostics_priority(failure_stability)
+    if diagnostics_priority:
+        write_status("SUMMARY", f"Diagnostics Priority: {diagnostics_priority}")
+    if failure_stability:
+        write_status("SUMMARY", f"Failure Stability: {failure_stability}")
+    if recovery_outcome == "Automatic recovery did not change the underlying renderer failure.":
         write_status("SUMMARY", "Automatic recovery did not change the underlying renderer failure.")
         write_status("TRACE", "Same failure cause persisted across all recovery attempts.")
     write_status("SUMMARY", "Automatic recovery has completed. Manual investigation is required.")
@@ -636,6 +998,10 @@ def main():
         last_failure_stderr_excerpt,
         last_failure_assessment,
         recovery_outcome,
+        attempt_pattern,
+        diagnostics_priority,
+        failure_stability,
+        triage_guidance,
         crash_filename,
         run_id,
     )
@@ -647,6 +1013,10 @@ def main():
         last_failure_origin,
         last_failure_assessment,
         recovery_outcome,
+        attempt_pattern,
+        diagnostics_priority,
+        failure_stability,
+        triage_guidance,
         crash_filename,
         os.path.basename(RUNTIME_FILE),
     )
