@@ -87,7 +87,7 @@ def classify_mixed_failure_pattern(previous_kind, previous_cause, previous_origi
         and current_kind == "CRASH"
         and previous_cause
         and current_cause
-        and not repeated_identical_crash(previous_cause, previous_origin, current_cause, current_origin)
+        and previous_cause != current_cause
     ):
         return "CRASH_TO_DIFFERENT_CRASH"
     return ""
