@@ -27,6 +27,7 @@ STARTUP_READY_OBSERVE_WINDOW_SECONDS = 3.0
 STARTUP_READY_STALL_CONFIRM_SECONDS = 8.0
 STARTUP_ABORT_CONTROL_FLOW_RESULT = "STARTUP_ABORT"
 CONSECUTIVE_STARTUP_ABORT_THRESHOLD = 2
+CONSECUTIVE_IDENTICAL_CRASH_THRESHOLD = 2
 
 os.makedirs(LOG_DIR, exist_ok=True)
 
@@ -57,6 +58,21 @@ def strip_label_prefix(value, prefix):
     if text.startswith(prefix):
         return text[len(prefix):].strip()
     return text
+
+
+def normalize_policy_value(value, prefix=""):
+    text = strip_label_prefix(value, prefix)
+    return " ".join(text.split()).casefold()
+
+
+def repeated_identical_crash(previous_cause, previous_origin, current_cause, current_origin):
+    if not previous_cause or not current_cause:
+        return False
+    if previous_cause != current_cause:
+        return False
+    if previous_origin and current_origin and previous_origin != current_origin:
+        return False
+    return True
 
 
 def build_incident_summary_lines(
@@ -651,6 +667,9 @@ def main():
     failure_causes = []
     assessment_emitted = False
     consecutive_startup_abort_count = 0
+    consecutive_identical_crash_count = 0
+    last_normalized_crash_cause = ""
+    last_normalized_crash_origin = ""
     recovery_pipeline_end_reason = "MAX_ATTEMPTS_EXHAUSTED"
 
     for attempt in range(1, MAX_RECOVERY_ATTEMPTS + 1):
@@ -684,8 +703,26 @@ def main():
 
         if last_code == STARTUP_ABORT_CONTROL_FLOW_RESULT:
             consecutive_startup_abort_count += 1
+            consecutive_identical_crash_count = 0
+            last_normalized_crash_cause = ""
+            last_normalized_crash_origin = ""
         else:
             consecutive_startup_abort_count = 0
+            normalized_failure_cause = normalize_policy_value(failure_cause)
+            normalized_failure_origin = normalize_policy_value(failure_origin, "Failure origin: ")
+            if repeated_identical_crash(
+                last_normalized_crash_cause,
+                last_normalized_crash_origin,
+                normalized_failure_cause,
+                normalized_failure_origin,
+            ):
+                consecutive_identical_crash_count += 1
+            elif normalized_failure_cause:
+                consecutive_identical_crash_count = 1
+            else:
+                consecutive_identical_crash_count = 0
+            last_normalized_crash_cause = normalized_failure_cause
+            last_normalized_crash_origin = normalized_failure_origin
 
         last_failure_cause = failure_cause or last_failure_cause
         last_failure_origin = failure_origin or last_failure_origin
@@ -729,6 +766,18 @@ def main():
             recovery_pipeline_end_reason = "CONSECUTIVE_STARTUP_ABORT_THRESHOLD_REACHED"
             break
 
+        if consecutive_identical_crash_count >= CONSECUTIVE_IDENTICAL_CRASH_THRESHOLD:
+            runtime("Repeated identical crash threshold reached")
+            runtime_event(
+                "STATUS",
+                "WARNING",
+                "LAUNCHER_RUNTIME",
+                "CONSECUTIVE_IDENTICAL_CRASH_THRESHOLD_REACHED",
+                f"COUNT={consecutive_identical_crash_count}",
+            )
+            recovery_pipeline_end_reason = "CONSECUTIVE_IDENTICAL_CRASH_THRESHOLD_REACHED"
+            break
+
         if attempt < MAX_RECOVERY_ATTEMPTS:
             runtime(f"Preparing recovery attempt {attempt}")
             runtime_event("STATUS", "START", "RECOVERY_COOLDOWN", f"INDEX={attempt}", f"SECONDS={RECOVERY_COOLDOWN_SECONDS:.1f}")
@@ -747,6 +796,10 @@ def main():
         runtime("Recovery pipeline escalated after repeated startup aborts")
         runtime_event("STATUS", "FAIL", "RECOVERY_PIPELINE", recovery_pipeline_end_reason)
         write_status("TRACE", "Repeated startup aborts reached escalation threshold.")
+    elif recovery_pipeline_end_reason == "CONSECUTIVE_IDENTICAL_CRASH_THRESHOLD_REACHED":
+        runtime("Recovery pipeline escalated after repeated identical crash outcomes")
+        runtime_event("STATUS", "FAIL", "RECOVERY_PIPELINE", recovery_pipeline_end_reason)
+        write_status("TRACE", "Repeated identical crash outcomes reached escalation threshold.")
     else:
         runtime("All recovery attempts exhausted")
         runtime_event("STATUS", "FAIL", "RECOVERY_PIPELINE", "MAX_ATTEMPTS_EXHAUSTED")
