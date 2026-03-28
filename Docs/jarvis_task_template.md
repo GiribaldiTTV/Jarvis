@@ -26,6 +26,8 @@ Branch:
 Task mode:
 [analysis-only / planning-only / docs-only / patch / review / release-workflow]
 
+Note: Task mode defines the task type. Codex collaboration posture is defined separately in `C:\Jarvis\docs\codex_modes.md`.
+
 Default expectation:
 - If task mode is `patch`, perform the change unless blocked by a real conflict.
 - If task mode is `analysis-only`, `planning-only`, or `docs-only`, do not patch.
