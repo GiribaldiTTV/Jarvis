@@ -28,6 +28,9 @@ A future top-level boot orchestrator may sit above the current desktop launcher 
 - transition into the desktop phase
 - future phase-to-phase health decisions
 
+At the architecture level, that future boot orchestrator is a coordinating layer for pre-desktop experience and cross-phase handoff.
+It is not the source of truth for desktop-stage startup state and does not replace the desktop launcher inside the desktop phase.
+
 Until that higher-level system is explicitly designed, the desktop launcher remains the owner of:
 
 - desktop-phase readiness observation
@@ -42,6 +45,9 @@ A future boot orchestrator may consume the desktop launcher layer only as read-o
 - launcher-owned desktop-phase readiness, failure, recovery, and finalized end-state signals after they are emitted
 - launcher-owned desktop-phase truth surfaces after they are emitted
 - bounded historical or advisory outputs only as descriptive downstream context, never as authority over desktop-stage truth or control
+
+Conceptually, desktop-stage authority begins when boot-stage coordination delegates desktop startup execution to the desktop launcher.
+From that point forward, the boot layer may coordinate around the transition and consume launcher-emitted downstream outputs, but the launcher owns desktop-phase observation, classification, control, recovery routing, and finalized truth generation.
 
 A future boot orchestrator must not rewrite, override, or reinterpret launcher-owned desktop truth or desktop control decisions.
 
@@ -405,6 +411,8 @@ Allowed:
 - document how future higher layers may depend on launcher truth
 - define which launcher-owned desktop-stage outputs may be consumed on a read-only downstream basis
 - define which desktop-stage responsibilities remain exclusively launcher-owned
+- define the future boot orchestrator's coordination envelope before desktop-stage authority begins
+- define the conceptual handoff from boot-stage coordination into launcher-owned desktop-stage execution
 
 Not allowed yet:
 
@@ -413,3 +421,4 @@ Not allowed yet:
 - instability-driven behavior
 - hard-kill behavior
 - cross-layer authority over launcher-owned desktop truth or control
+- replacement of launcher-owned desktop-stage execution with boot-layer control
