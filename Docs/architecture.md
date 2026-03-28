@@ -146,7 +146,9 @@ It is to introduce a derived memory layer that can describe history safely witho
 
 ## Historical Memory Layer
 
-The first `v1.7.0` architecture track should define a passive historical memory layer that can support:
+The `v1.7.0` historical-memory layer is a passive, derived layer above finalized `v1.6.0` truth.
+
+Its foundation is intended to support:
 
 - cross-run outcome recording
 - recurrence tracking
@@ -158,7 +160,7 @@ It must never be treated as authoritative runtime policy.
 
 ## Historical Memory Contract (v1.7.0 Phase 1)
 
-The historical memory layer must be contract-defined before implementation begins.
+The historical memory layer was contract-defined before implementation began and remains governed by that contract.
 
 That contract must define:
 
@@ -169,9 +171,28 @@ That contract must define:
 - retention and reset behavior
 - corruption and fallback behavior
 
+## v1.7.0 Implemented Foundation (rev1-rev5)
+
+Current implemented foundation:
+
+- rev1: recorder-only historical memory groundwork with versioned schema scaffolding and one finalized record per completed run
+- rev2: recorder validation and storage-path hardening with fail-safe fallback
+- rev3: read-only internal summarizer groundwork using recorded failure fingerprints and simple stability characterization
+- rev4: diagnostics-only historical context on failed runs using prior finalized failure history
+- rev5: diagnostics-only historical advisory hints on failed runs, clearly labeled historical and non-authoritative
+
+Current guarantees:
+
+- historical memory remains derived from finalized `v1.6.0` truth surfaces
+- the launcher remains the source of truth for current-run state
+- history remains non-authoritative and does not read back into runtime behavior
+- diagnostics-facing historical context and advisory output remain failed-run-only
+- advisory output remains non-binding
+- if history is missing, unreadable, corrupt, or hostile, behavior degrades cleanly to finalized `v1.6.0` orchestration behavior
+
 ## Recorder / Summarizer / Advisor Separation
 
-`v1.7.0` should separate historical intelligence into three roles:
+`v1.7.0` separates historical intelligence into three roles:
 
 ### Recorder
 
@@ -194,9 +215,15 @@ Responsible for:
 
 Responsible for:
 
-- presenting non-binding recommendations
+- presenting non-binding advisory output
 - surfacing historical context to diagnostics or operators
 - remaining advisory-only until a later explicitly approved control phase
+
+Current implemented scope through rev5:
+
+- diagnostics-only historical advisory hints
+- failed runs only
+- no runtime-control influence
 
 ## Read-Only Memory Rule
 

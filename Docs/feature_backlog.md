@@ -536,7 +536,7 @@ This is preparation work only and must not introduce boot-level runtime control 
 
 ### [ID: FB-016] Recorder-only historical memory groundwork
 
-Status: Deferred  
+Status: Implemented (v1.7.0)  
 Priority: High  
 Suggested Version: v1.7.0  
 Suggested Revision: rev1  
@@ -573,6 +573,7 @@ Out of Scope:
 
 Notes:
 Rev1 should record only finalized facts from the closed `v1.6.0` truth layer and must not read history back into control flow.
+Implemented in `v1.7.0` rev1.
 
 ---
 

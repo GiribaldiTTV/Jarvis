@@ -198,6 +198,39 @@ Not allowed in `v1.7.0`:
 Historical memory in `v1.7.0` must remain advisory-only.
 If history is missing, unreadable, or corrupt, runtime behavior must degrade cleanly to the finalized `v1.6.0` orchestration behavior.
 
+## v1.7.0 Implemented State (rev1-rev5)
+
+### rev1
+- recorder-only historical memory groundwork
+- versioned per-run history records written only after finalized run completion
+
+### rev2
+- recorder validation before write
+- storage-path hardening and fail-safe fallback
+
+### rev3
+- read-only internal summarizer groundwork
+- malformed-line-safe loading
+- simple recurrence and stability summarization using recorded failure fingerprints
+
+### rev4
+- diagnostics-only historical context on failed runs
+- historical context derived only from prior finalized failure history
+
+### rev5
+- diagnostics-only historical advisory hints on failed runs
+- advisory wording remains explicitly historical, non-authoritative, and non-binding
+
+## Current v1.7.0 Guarantees
+
+- no readback into runtime behavior
+- no retry, escalation, threshold, or classification changes
+- no diagnostics trigger changes
+- no changes to `v1.6.0` summary structure or triage guidance
+- historical context remains clearly separate from current-run truth
+- advisory output remains clearly separate from both current-run truth and runtime control
+- if history is missing, malformed, unreadable, or hostile, the launcher degrades cleanly to finalized `v1.6.0` behavior plus existing fail-safe history handling
+
 ## Future Expansion (Not Yet Implemented)
 
 Examples of later orchestration topics:
