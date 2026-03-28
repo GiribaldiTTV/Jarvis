@@ -309,6 +309,26 @@ Current guarantees remain unchanged:
 - no reinterpretation of recurrence as runtime policy significance
 - no coupling of historical recurrence to runtime-control behavior
 
+## v1.8.0 Planned Rev2b Deterministic Stability Model
+
+`FB-012` rev2b should begin as a deterministic recent-history stability-model pass, not as a broader recurrence or advisory redesign.
+
+That first stability slice should:
+
+- compute stability only from recurrence-eligible finalized failure records
+- use an explicit recent-history window of the most recent `5` eligible finalized failure records
+- treat `stable` as a recent window containing `0` or `1` unique normalized full fingerprints
+- treat `varied` as a recent window containing more than `1` unique normalized full fingerprints
+- exclude success records, empty fingerprints, malformed lines, contract-invalid records, and hostile or unreadable history cases from stability calculations
+
+That first stability slice must not:
+
+- introduce fuzzy matching
+- introduce confidence or provenance semantics
+- redesign advisory wording
+- reinterpret stability as runtime policy significance
+- couple historical stability to runtime-control behavior
+
 ## Read-Only Memory Rule
 
 Historical memory in `v1.7.0` must remain a derived, read-only layer over `v1.6.0` truth.
