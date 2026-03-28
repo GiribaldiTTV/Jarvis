@@ -336,3 +336,40 @@ Implemented `rev1b` state:
 - cooldown redesign
 
 Mixed failure-sequence policy remains separate `FB-002` work and must not be pulled into `FB-003` rev1a.
+
+## FB-002 Rev1a Conservative Mixed Failure-Sequence Boundary
+
+The safest first revision for `FB-002` is a policy-contract pass only.
+
+Its job is to define the conservative policy meaning of cross-kind mixed failure sequences without retuning thresholds, redesigning classification broadly, or reopening the terminal classes already handled by `FB-003`.
+
+Rev1a should stay limited to the currently recognized cross-kind crash and abort transitions:
+
+- `CRASH_TO_STARTUP_ABORT`
+- `STARTUP_ABORT_TO_CRASH`
+
+Rev1a should treat those mixed sequences as weaker evidence than the `FB-003` terminal classes:
+
+- repeated `STARTUP_ABORT` outcomes
+- repeated identical crash outcomes
+
+Rev1a may define:
+
+- that a first observed `CRASH_TO_STARTUP_ABORT` or `STARTUP_ABORT_TO_CRASH` sequence remains non-terminal
+- that these mixed sequences may continue contributing to instability labeling
+- that these mixed sequences may continue contributing to diagnostics-priority and attempt-pattern reporting
+- that these mixed sequences do not become a new early-exhaustion trigger in rev1a
+- that the launcher should preserve conservative retry continuation unless stronger existing terminal evidence appears
+
+Rev1a must not define yet:
+
+- threshold retuning
+- new early-escalation thresholds for mixed sequences
+- broader varied-failure policy beyond the two cross-kind crash and abort transitions above
+- classification redesign outside this mixed-sequence clarification
+- diagnostics UI changes
+- summary or triage redesign
+- cooldown redesign
+
+`FB-002` remains intentionally separate from `FB-003`.
+It may describe how mixed sequences relate to instability reporting and diagnostics entry, but it must not weaken or replace the existing `FB-003` terminal classes.
