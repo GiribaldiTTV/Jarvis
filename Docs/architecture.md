@@ -131,7 +131,7 @@ This staged build order should be preserved in future subsystems when possible:
 - outcome clarity
 - behavior
 
-## v1.7.0 Planning Direction
+## v1.7.0 Direction
 
 `v1.7.0` begins a new layer above the finalized `v1.6.0` orchestration truth:
 
@@ -171,7 +171,7 @@ That contract must define:
 - retention and reset behavior
 - corruption and fallback behavior
 
-## v1.7.0 Implemented Foundation (rev1-rev5)
+## v1.7.0 Implemented Foundation (rev1-rev6)
 
 Current implemented foundation:
 
@@ -180,6 +180,7 @@ Current implemented foundation:
 - rev3: read-only internal summarizer groundwork using recorded failure fingerprints and simple stability characterization
 - rev4: diagnostics-only historical context on failed runs using prior finalized failure history
 - rev5: diagnostics-only historical advisory hints on failed runs, clearly labeled historical and non-authoritative
+- rev6: source-of-truth stabilization and doc/backlog sync for the implemented memory and advisory layer
 
 Current guarantees:
 
@@ -188,6 +189,7 @@ Current guarantees:
 - history remains non-authoritative and does not read back into runtime behavior
 - diagnostics-facing historical context and advisory output remain failed-run-only
 - advisory output remains non-binding
+- historical context and advisory output remain diagnostics-facing surfaces and do not replace current-run incident-summary or crash-report truth
 - if history is missing, unreadable, corrupt, or hostile, behavior degrades cleanly to finalized `v1.6.0` orchestration behavior
 
 ## Recorder / Summarizer / Advisor Separation
@@ -224,6 +226,16 @@ Current implemented scope through rev5:
 - diagnostics-only historical advisory hints
 - failed runs only
 - no runtime-control influence
+
+## v1.7.0 Closeout State
+
+`v1.7.0` is the completed historical-memory and diagnostics-advisory foundation above the closed `v1.6.0` orchestration layer.
+
+It should be treated as:
+
+- a completed passive recorder, summarizer, diagnostics-context, and diagnostics-advisory track
+- a non-authoritative and non-binding intelligence layer
+- a stopping point before any future confidence scoring, broader advisory expansion, or behavior-coupled intelligence work
 
 ## Read-Only Memory Rule
 

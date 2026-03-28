@@ -198,7 +198,7 @@ Not allowed in `v1.7.0`:
 Historical memory in `v1.7.0` must remain advisory-only.
 If history is missing, unreadable, or corrupt, runtime behavior must degrade cleanly to the finalized `v1.6.0` orchestration behavior.
 
-## v1.7.0 Implemented State (rev1-rev5)
+## v1.7.0 Implemented State (rev1-rev6)
 
 ### rev1
 - recorder-only historical memory groundwork
@@ -221,6 +221,10 @@ If history is missing, unreadable, or corrupt, runtime behavior must degrade cle
 - diagnostics-only historical advisory hints on failed runs
 - advisory wording remains explicitly historical, non-authoritative, and non-binding
 
+### rev6
+- source-of-truth stabilization and doc/backlog sync
+- no launcher behavior change required from the audit
+
 ## Current v1.7.0 Guarantees
 
 - no readback into runtime behavior
@@ -229,7 +233,20 @@ If history is missing, unreadable, or corrupt, runtime behavior must degrade cle
 - no changes to `v1.6.0` summary structure or triage guidance
 - historical context remains clearly separate from current-run truth
 - advisory output remains clearly separate from both current-run truth and runtime control
+- historical context and advisory wording remain diagnostics `TRACE` surfaces; crash reports and incident summaries remain current-run truth surfaces
 - if history is missing, malformed, unreadable, or hostile, the launcher degrades cleanly to finalized `v1.6.0` behavior plus existing fail-safe history handling
+
+## Final State (v1.7.0)
+
+`v1.7.0` is complete as a conservative historical-memory and diagnostics-only advisory layer.
+
+No contradictions remain between:
+
+- runtime log truth
+- crash report truth
+- diagnostics `TRACE` historical context
+- diagnostics `TRACE` advisory wording
+- documented version boundaries
 
 ## Future Expansion (Not Yet Implemented)
 

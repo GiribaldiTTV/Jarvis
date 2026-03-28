@@ -358,7 +358,7 @@ This is the documentation-only closeout pass for the finalized `v1.6.0` orchestr
 
 ### [ID: FB-011] Historical memory contract
 
-Status: Deferred  
+Status: Implemented (v1.7.0)  
 Priority: High  
 Suggested Version: v1.7.0  
 Suggested Revision: TBD  
@@ -389,7 +389,7 @@ Out of Scope:
 - boot-level control
 
 Notes:
-This should be the first `v1.7.0` implementation track.
+This contract was defined in repo docs before implementation began and remains the governing rule for `v1.7.0` historical-memory work.
 
 ---
 
