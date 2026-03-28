@@ -331,6 +331,23 @@ Current guarantees remain unchanged:
 
 Taken together, `FB-012` rev2a and rev2b complete the failure fingerprint and recurrence model track for `v1.8.0` without changing runtime policy.
 
+## v1.8.0 Planned Rev3a Provenance-First Advisory Semantics
+
+`FB-013` rev3a should begin as a provenance-first advisory semantics pass, not as surfaced confidence scoring or a broader advisory redesign.
+
+That first advisory slice should:
+
+- explicitly distinguish current-run truth, prior finalized historical context, and advisory inference
+- keep advisory inference non-binding and non-authoritative
+- treat confidence, if mentioned at all in this first slice, as definition-only or internal explanatory metadata rather than surfaced operator-facing output
+
+That first advisory slice must not:
+
+- interpret confidence as severity, urgency, escalation level, recommendation strength, or runtime-policy permission
+- couple advisory semantics to runtime-control behavior
+- expand authority beyond the existing diagnostics-only advisory boundary
+- add historical or advisory content to crash-report or incident-summary truth surfaces
+
 ## Read-Only Memory Rule
 
 Historical memory in `v1.7.0` must remain a derived, read-only layer over `v1.6.0` truth.
