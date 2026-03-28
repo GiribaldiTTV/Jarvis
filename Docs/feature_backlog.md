@@ -615,6 +615,43 @@ The first coherent manual reporting flow is now implemented as a privacy-safe di
 
 ---
 
+### [ID: FB-018] Voice-path regression validation harness
+
+Status: Deferred  
+Priority: Medium  
+Suggested Version: TBD  
+Suggested Revision: TBD  
+
+Description:
+Add a small contained regression harness for Jarvis voice-path validation across the current launcher and diagnostics/manual test lanes.
+
+Why it matters:
+Recent shutdown-line debugging showed that voice regressions can hide inside contained recovery flows even when the launcher still appears to behave correctly. A small voice-focused validation pass would catch missing final lines, broken status sync, bad effect output, or callback drift earlier.
+
+Proposed Change:
+Create a narrow validation path that exercises the current contained voice lanes and verifies expected `VOICE_SYNC` / `VOICE_FINAL` status output for the key launcher-owned lines without changing launcher policy or unifying the distinct normal-versus-diagnostics voice roles.
+
+Likely Files Affected:
+- developer validation tooling
+- voice-path validation helpers
+- optional docs for validation usage only if needed
+
+Scope:
+- contained voice regression validation
+- launcher-owned failure-line verification
+- diagnostics voice status verification
+
+Out of Scope:
+- voice redesign
+- unifying normal and diagnostics voice behavior
+- launcher retry or escalation policy changes
+- broader devtools framework expansion
+
+Notes:
+This should remain a small validation-first item. The current product direction intentionally keeps the normal startup/desktop Jarvis voice path distinct from the diagnostics/error Jarvis voice path, so this item is about guarding those paths, not merging them.
+
+---
+
 ## Completed Items
 
 Move completed backlog items here for history tracking.
