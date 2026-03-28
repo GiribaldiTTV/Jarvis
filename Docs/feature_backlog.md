@@ -253,10 +253,10 @@ This should remain a reporting refinement only and must not change launcher beha
 
 ### [ID: FB-008] Shutdown voice degradation effect
 
-Status: Deferred  
+Status: Implemented (Post-v1.8.0 rev1)  
 Priority: Low  
-Suggested Version: TBD  
-Suggested Revision: TBD  
+Suggested Version: Post-v1.8.0  
+Suggested Revision: rev1  
 
 Description:
 Add a staged degradation effect to the final "Shutting down" voice line so Jarvis sounds like he is losing power during terminal shutdown.
@@ -280,7 +280,7 @@ Out of Scope:
 - renderer changes
 
 Notes:
-This should be handled as a dedicated voice and experience revision after orchestration stabilization, not mixed into launcher-control work.
+The first coherent shutdown-voice slice is now implemented as a dedicated path for the final "Shutting down." line only. That line now uses a shutdown-specific audio branch with segmented delivery and a short powerdown-style ending when available, and it falls back cleanly to the prior generic voice path if the dedicated effect cannot be produced. Non-shutdown lines remain unchanged, and this does not imply a broader voice-system redesign.
 
 ---
 

@@ -201,6 +201,45 @@ class JarvisErrorSpeaker:
                 pass
             return None
 
+    async def prepare_shutdown_audio(self, display_text: str):
+        temp_paths = []
+        try:
+            shutting_path = await self.synthesize_segment("Shutting", "-8%")
+            temp_paths.append(shutting_path)
+
+            down_path = await self.synthesize_segment("down.", "-32%")
+            temp_paths.append(down_path)
+
+            tail_path = self.create_powerdown_tail()
+            if tail_path and os.path.exists(tail_path):
+                temp_paths.append(tail_path)
+
+            concat_inputs = [shutting_path, down_path]
+            if tail_path and os.path.exists(tail_path):
+                concat_inputs.append(tail_path)
+
+            combined_path = self.concat_audio_files(concat_inputs)
+            if not combined_path or not os.path.exists(combined_path):
+                for path in temp_paths:
+                    try:
+                        os.remove(path)
+                    except Exception:
+                        pass
+                return None
+
+            temp_paths.append(combined_path)
+            first_ms = max(1, int(get_duration_seconds(shutting_path) * 1000))
+            second_ms = max(1, int(get_duration_seconds(down_path) * 1000))
+            schedule = self.build_split_uhm_schedule(display_text, first_ms, second_ms)
+            return combined_path, temp_paths, schedule
+        except Exception:
+            for path in temp_paths:
+                try:
+                    os.remove(path)
+                except Exception:
+                    pass
+            return None
+
     async def prepare_audio(self, spoken_text: str, display_text: str):
         temp_paths = []
         try:
@@ -213,14 +252,20 @@ class JarvisErrorSpeaker:
 
                 duration_ms = max(1, int(get_duration_seconds(source_path) * 1000))
                 schedule = self.build_general_sync_schedule("Uhm..... Sir, I seem to be malfunctioning.", duration_ms)
-                return source_path, temp_paths, schedule
+                return source_path, temp_paths, schedule, True
+
+            if normalized_display == "Shutting down.":
+                shutdown_prepared = await self.prepare_shutdown_audio("Shutting down.")
+                if shutdown_prepared is not None:
+                    shutdown_path, shutdown_temp_paths, schedule = shutdown_prepared
+                    return shutdown_path, shutdown_temp_paths, schedule, False
 
             source_path = await self.synthesize_segment(spoken_text, "-10%")
             temp_paths.append(source_path)
 
             duration_ms = max(1, int(get_duration_seconds(source_path) * 1000))
             schedule = self.build_general_sync_schedule(display_text or spoken_text, duration_ms)
-            return source_path, temp_paths, schedule
+            return source_path, temp_paths, schedule, True
 
         except Exception:
             for path in temp_paths:
@@ -236,10 +281,10 @@ class JarvisErrorSpeaker:
         processed_path = None
 
         try:
-            base_audio_path, temp_paths, schedule = await self.prepare_audio(text, self.display_text or text)
+            base_audio_path, temp_paths, schedule, allow_generic_effect = await self.prepare_audio(text, self.display_text or text)
             duration = get_duration_seconds(base_audio_path)
 
-            if duration < 1.2:
+            if not allow_generic_effect or duration < 1.2:
                 playback_path = base_audio_path
             else:
                 effected = apply_error_effect(base_audio_path)
