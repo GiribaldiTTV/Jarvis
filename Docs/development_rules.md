@@ -149,9 +149,30 @@ Important architecture, orchestration, and behavior decisions should be written 
 
 Project docs are part of the source of truth and should be read before planning future revisions.
 
+Use `docs/Main.md` as the source-of-truth index and prompt-baseline map for future Jarvis tasks.
+
 When a workstream has a consolidated canonical planning or design doc, future prompts and task baselines should prefer that canonical doc over the full stack of superseded slice docs.
 
 Superseded slice docs may still be used for historical traceability, earlier revision review, or conflict checking, but they should not continue to be listed as equal-weight prompt inputs once a canonical consolidation exists.
+
+Future prompts should usually prefer:
+
+- `docs/development_rules.md`
+- `docs/Main.md`
+- only the directly relevant canonical doc or docs
+- only the relevant evidence inputs
+
+Closeout docs, historical docs, and optional planning references should be added only when the task materially depends on them.
+
+Core code progression is prioritized over repeated separate doc-only micro-passes.
+
+When a code workstream directly establishes or changes truth that should be recorded, the required truth-doc updates may be bundled into that same approved workstream if:
+
+- the doc updates directly support or record the active code task
+- the edits do not widen architecture or backlog scope
+- batching the doc sync keeps the repo more accurate than delaying it
+
+Prefer milestone-level or canonical doc sync when meaningful, rather than forcing repeated separate micro-passes for every small code slice, unless a docs-only clarification is the safest boundary-setting move.
 
 When using Codex or ChatGPT for project tasks, prefer the structured prompt format in `docs/jarvis_task_template.md` so requests include clear goal, context, evidence, constraints, allowed surfaces, and done-when criteria.
 

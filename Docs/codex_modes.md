@@ -245,6 +245,7 @@ This keeps prompts shorter, reduces duplicate source lists, and prevents archiva
 
 In Analysis mode, Codex should:
 
+- use `docs/Main.md` as the routing index for the active source-of-truth set
 - identify whether a canonical consolidated doc already exists for the active workstream
 - carry forward that canonical doc instead of the full stack of superseded slice docs
 - explicitly say what older slice docs can be removed from the prompt because the canonical doc already covers them
@@ -254,17 +255,24 @@ In Analysis mode, Codex should:
 
 In Workflow mode, Codex should:
 
+- use `docs/Main.md` plus the relevant canonical doc or docs as the default prompt baseline for the active workstream
 - use the canonical consolidated doc as the primary planning baseline for the active workstream
 - avoid re-listing archival slice docs unless the approved task explicitly depends on them
 - keep the prompt evidence set narrow and current rather than mechanically repeating every earlier planning file
+- prioritize the active code workstream when the task is code-focused
+- bundle directly supporting truth-doc updates into the same approved workstream when that keeps docs aligned without widening scope
+- prefer milestone-level or canonical doc sync over repeated separate doc-only micro-passes when docs are not the primary deliverable
 
 ### Current Boot-Planning Example
 
-For current Jarvis boot-access work, `docs/boot_access_design.md` is now the canonical boot planning source.
+For current Jarvis work, `docs/Main.md` should be the default docs index and prompt-baseline map.
+
+For current Jarvis boot-access work, `docs/boot_access_design.md` is the canonical boot planning source.
 
 That means future boot-access prompts should usually prefer:
 
 - `development_rules.md`
+- `Main.md`
 - `architecture.md`
 - `jarvis_vision.md`
 - `feature_backlog.md`

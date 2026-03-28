@@ -7,6 +7,7 @@ You are working inside the Jarvis project as an implementation and analysis part
 Treat the following files as authoritative unless a direct verified implementation-state conflict is found:
 
 - C:\Jarvis\docs\development_rules.md
+- C:\Jarvis\docs\Main.md
 - C:\Jarvis\docs\architecture.md
 - C:\Jarvis\docs\jarvis_vision.md
 - C:\Jarvis\docs\feature_backlog.md
@@ -17,6 +18,8 @@ Treat the following files as authoritative unless a direct verified implementati
 If anything in this request conflicts with those docs, call it out explicitly before proceeding.
 
 Prompt hygiene:
+- Use `C:\Jarvis\docs\Main.md` as the index for selecting the smallest correct docs baseline.
+- The default prompt baseline should usually be `development_rules.md`, `Main.md`, the directly relevant canonical doc or docs, and only the relevant evidence inputs.
 - If a consolidated canonical design or planning doc exists for the active workstream, include that doc and omit superseded slice docs unless the task is explicitly tracing history or auditing the consolidation.
 - Do not bulk-list archival planning slice docs as equal-weight prompt inputs once a canonical consolidation exists.
 - Include prior closeout docs and older slice docs only when they are still materially relevant to the specific task.
@@ -37,6 +40,7 @@ Note: Task mode defines the task type. Codex collaboration posture is defined se
 Default expectation:
 - If task mode is `patch`, perform the change unless blocked by a real conflict.
 - If task mode is `analysis-only`, `planning-only`, or `docs-only`, do not patch.
+- If task mode is `patch`, prioritize the core code task and bundle only the directly supporting truth-doc updates needed to keep canonical docs aligned when that is safe and in scope.
 
 Current accepted state:
 - [fill in the current version status]
@@ -139,6 +143,7 @@ That means:
 - avoid speculative rewrites
 - do not widen scope without justification
 - if the task is too broad, tighten it and explain why
+- when code work is the primary deliverable, prefer keeping directly supporting truth-doc sync inside that same workstream rather than forcing repeated separate doc-only micro-passes
 
 ## Required Workflow
 
