@@ -275,6 +275,19 @@ Not allowed in early `v1.8.0`:
 
 Future `v1.8.0` work may formalize recurrence and provenance semantics only after validation infrastructure is in place.
 
+## v1.8.0 Implemented Rev1 State
+
+`FB-014` rev1 now exists as external validation tooling around the historical-intelligence layer.
+
+Implemented rev1 state:
+
+- rev1a added dormant launcher seams for contained execution without touching the live production logs tree
+- rev1b added the first reusable contained harness runner
+- rev1c expanded that runner to cover baseline prior-history and fallback scenarios
+
+This implemented rev1 state does not alter orchestration behavior.
+It validates the existing recorder, summarizer, diagnostics-context, and diagnostics-advisory surfaces from outside the runtime-control path.
+
 ## Future Expansion (Not Yet Implemented)
 
 Examples of later orchestration topics:

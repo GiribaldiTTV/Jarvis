@@ -273,6 +273,23 @@ Explicit non-goals for `v1.8.0` rev1:
 - retry, escalation, threshold, or classification changes
 - boot-level orchestration work
 
+## v1.8.0 Implemented Rev1 Foundation
+
+`FB-014` rev1 is now implemented as the validation-first harness foundation for `v1.8.0`.
+
+Current implemented rev1 foundation:
+
+- rev1a: dormant contained-execution seams in the launcher for isolated log-root control, target-script override, and optional diagnostics or voice no-op seams
+- rev1b: first reusable contained harness runner covering healthy runs, failed runs with no prior history, and failed runs with matching prior failure history
+- rev1c: harness scenario expansion covering varied prior failure history, success-only prior history, malformed history input, and hostile or unreadable history storage fallback
+
+Current guarantees remain unchanged:
+
+- harness execution remains external validation tooling rather than runtime-control behavior
+- launcher and runtime behavior remain unchanged in production mode when seams are unset
+- historical context remains non-authoritative
+- advisory output remains non-binding
+
 ## Read-Only Memory Rule
 
 Historical memory in `v1.7.0` must remain a derived, read-only layer over `v1.6.0` truth.

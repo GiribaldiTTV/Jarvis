@@ -467,7 +467,7 @@ This should remain advisory-only and should follow the validated recurrence mode
 
 ### [ID: FB-014] Multi-run orchestration regression harness
 
-Status: Deferred  
+Status: Implemented (v1.8.0 rev1)  
 Priority: Medium  
 Suggested Version: v1.8.0  
 Suggested Revision: rev1  
@@ -495,7 +495,7 @@ Out of Scope:
 - UI redesign
 
 Notes:
-This is the safest first implementation target for `v1.8.0` and future-proofs the historical-intelligence layer without reopening `v1.6.0` behavior.
+This was the safest first implementation target for `v1.8.0` and is now implemented as the validation-first harness foundation through rev1a, rev1b, and rev1c without reopening `v1.6.0` behavior. The next intended implementation track remains `FB-012`.
 
 ---
 
