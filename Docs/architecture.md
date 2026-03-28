@@ -349,24 +349,25 @@ Current guarantees remain unchanged:
 - no coupling of advisory semantics to runtime-control behavior
 - no authority expansion beyond the existing diagnostics-only advisory boundary
 
-`FB-013` remains open after rev3a pending the next narrow decision on whether a definition-only confidence-semantics slice is still needed for `v1.8.0`.
+## v1.8.0 Implemented Rev3b Internal Confidence Semantics
 
-## v1.8.0 Planned Rev3b Internal Confidence Semantics
+`FB-013` rev3b is now implemented as the definition-only and internal confidence-semantics slice for `v1.8.0`.
 
-`FB-013` rev3b should remain a definition-only and internal confidence-semantics pass.
+Implemented rev3b state:
 
-That narrow confidence slice should:
+- confidence is defined only as evidence-directness or evidence-quality for advisory inference
+- confidence remains absent from surfaced operator-facing output
+- internal confidence handling stays aligned only with the existing exact-recurrence and varied-history advisory evidence lanes
 
-- define confidence only as evidence-directness or evidence-quality for advisory inference
-- keep confidence absent from surfaced operator-facing output
+Current guarantees remain unchanged:
 
-That narrow confidence slice must not:
+- no surfaced confidence scoring
+- no interpretation of confidence as severity, urgency, escalation level, recommendation strength, predictive correctness, runtime-policy permission, or authority over current-run truth
+- no coupling of confidence semantics to runtime-control behavior
+- no authority expansion beyond the existing diagnostics-only advisory boundary
+- no confidence, historical, or advisory language added to crash-report or incident-summary truth surfaces
 
-- interpret confidence as severity, urgency, escalation level, recommendation strength, predictive correctness, runtime-policy permission, or authority over current-run truth
-- couple confidence semantics to runtime-control behavior
-- expand authority beyond the existing diagnostics-only advisory boundary
-- add confidence, historical, or advisory language to crash-report or incident-summary truth surfaces
-- redesign advisory output beyond what is needed to preserve the internal-only confidence boundary
+Taken together, `FB-013` rev3a and rev3b complete the advisory provenance and confidence semantics track for `v1.8.0` without introducing surfaced confidence output or runtime-policy meaning.
 
 ## Read-Only Memory Rule
 
