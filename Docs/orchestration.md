@@ -299,3 +299,32 @@ Examples of later orchestration topics:
 - longer-term recovery policy tuning
 
 These should be handled as dedicated revisions, not mixed into unrelated work.
+
+## FB-003 Rev1a Retry-Exhaustion Boundary
+
+The safest first revision for `FB-003` is a policy-contract pass only.
+
+Its job is to define when retries stop adding value and when the launcher should enter the existing diagnostics completion path, using current launcher-owned failure classes and recovery outcomes rather than new UI or new control surfaces.
+
+Rev1a should stay grounded in the current high-signal desktop-phase evidence classes already recognized by the launcher:
+
+- repeated `STARTUP_ABORT` outcomes
+- repeated identical crash outcomes
+
+Rev1a may define:
+
+- when those repeated failure classes should be treated as retry-exhausting evidence
+- that retry exhaustion stops further recovery attempts for the current run
+- that the launcher then enters the existing diagnostics completion path rather than continuing silent recovery
+- that this transition reuses the current diagnostics completion surfaces rather than redesigning diagnostics behavior
+
+Rev1a must not define yet:
+
+- mixed failure-sequence policy such as crash-then-abort or abort-then-crash
+- threshold retuning
+- classification redesign
+- diagnostics UI changes
+- summary or triage wording changes
+- cooldown redesign
+
+Mixed failure-sequence policy remains separate `FB-002` work and must not be pulled into `FB-003` rev1a.
