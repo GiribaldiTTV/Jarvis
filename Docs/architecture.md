@@ -309,25 +309,27 @@ Current guarantees remain unchanged:
 - no reinterpretation of recurrence as runtime policy significance
 - no coupling of historical recurrence to runtime-control behavior
 
-## v1.8.0 Planned Rev2b Deterministic Stability Model
+## v1.8.0 Implemented Rev2b Deterministic Stability Model
 
-`FB-012` rev2b should begin as a deterministic recent-history stability-model pass, not as a broader recurrence or advisory redesign.
+`FB-012` rev2b is now implemented as the deterministic recent-history stability-model slice for `v1.8.0`.
 
-That first stability slice should:
+Implemented rev2b state:
 
-- compute stability only from recurrence-eligible finalized failure records
-- use an explicit recent-history window of the most recent `5` eligible finalized failure records
-- treat `stable` as a recent window containing `0` or `1` unique normalized full fingerprints
-- treat `varied` as a recent window containing more than `1` unique normalized full fingerprints
-- exclude success records, empty fingerprints, malformed lines, contract-invalid records, and hostile or unreadable history cases from stability calculations
+- stability is computed only from recurrence-eligible finalized failure records
+- the recent-history window is explicitly the most recent `5` eligible finalized failure records
+- `stable` means a recent window containing `0` or `1` unique normalized full fingerprints
+- `varied` means a recent window containing more than `1` unique normalized full fingerprints
+- success records, empty fingerprints, malformed lines, contract-invalid records, and hostile or unreadable history cases are excluded from stability calculations
 
-That first stability slice must not:
+Current guarantees remain unchanged:
 
-- introduce fuzzy matching
-- introduce confidence or provenance semantics
-- redesign advisory wording
-- reinterpret stability as runtime policy significance
-- couple historical stability to runtime-control behavior
+- no fuzzy matching
+- no confidence or provenance semantics
+- no advisory redesign
+- no reinterpretation of stability as runtime policy significance
+- no coupling of historical stability to runtime-control behavior
+
+Taken together, `FB-012` rev2a and rev2b complete the failure fingerprint and recurrence model track for `v1.8.0` without changing runtime policy.
 
 ## Read-Only Memory Rule
 
