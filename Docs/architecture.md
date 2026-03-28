@@ -422,3 +422,40 @@ Not allowed yet:
 - hard-kill behavior
 - cross-layer authority over launcher-owned desktop truth or control
 - replacement of launcher-owned desktop-stage execution with boot-layer control
+
+## Support-Bundle Reporting Boundary
+
+The safest first slice for `FB-017` is a privacy-safe reporting-contract pass.
+
+A future `Report Issue` flow may package a minimal local support bundle and open a prefilled GitHub issue page or draft for manual user submission.
+
+This boundary is reporting and packaging work only.
+It may package already-produced runtime and crash artifacts plus a small manifest, but it must not introduce upload behavior, silent collection expansion, or diagnostics-policy changes.
+
+Minimum rev1a contract:
+
+- the relevant runtime log for the reported run
+- the matching crash log if present
+- a small manifest containing Jarvis version, run or timestamp identity, and a basic environment summary
+- local bundle generation only
+- manual user review before sharing
+- a prefilled GitHub issue page or draft opened for manual completion
+- manual user attachment and manual user submission
+
+Default exclusions:
+
+- historical-memory files
+- harness artifacts
+- internal-only debug extras
+- silent or background upload behavior
+- fully automatic GitHub submission
+
+Not allowed in this first slice:
+
+- launcher or runtime behavior changes
+- retry, escalation, threshold, classification, diagnostics-trigger, summary, or triage-guidance changes
+- diagnostics redesign
+- reinterpretation of diagnostics-facing historical or advisory surfaces as report-bundle authority
+
+The support bundle should remain simple by default.
+Advanced or internal artifacts may be considered only in a later explicitly approved slice.
