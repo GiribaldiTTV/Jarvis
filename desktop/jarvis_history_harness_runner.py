@@ -12,19 +12,30 @@ ROOT_DIR = Path(__file__).resolve().parents[1]
 LAUNCHER_SCRIPT = Path(__file__).with_name("jarvis_desktop_launcher.pyw")
 LIVE_LOG_DIR = ROOT_DIR / "logs"
 HISTORY_FILENAME = "jarvis_history_v1.jsonl"
+HISTORY_STABILITY_WINDOW_SIZE = 5
 
-HISTORICAL_CONTEXT_MATCH_LINE = (
-    "Historical context (prior finalized runs only): "
-    "matching failure fingerprint observed in 1 prior run(s)."
-)
+def historical_context_match_line(count):
+    return (
+        "Historical context (prior finalized runs only): "
+        f"matching failure fingerprint observed in {count} prior run(s)."
+    )
+
+
 HISTORICAL_CONTEXT_STABILITY_LINE = (
     "Historical context (prior finalized runs only): "
     "recent recorded failure history stability = stable."
 )
-HISTORICAL_ADVISORY_LINE = (
-    "Advisory (historical, non-authoritative): "
-    "this finalized failure fingerprint has appeared in 1 prior finalized failed run(s)."
-)
+
+
+def historical_advisory_line(count):
+    return (
+        "Advisory (historical, non-authoritative): "
+        f"this finalized failure fingerprint has appeared in {count} prior finalized failed run(s)."
+    )
+
+
+HISTORICAL_CONTEXT_MATCH_LINE = historical_context_match_line(1)
+HISTORICAL_ADVISORY_LINE = historical_advisory_line(1)
 HISTORICAL_CONTEXT_VARIED_LINE = (
     "Historical context (prior finalized runs only): "
     "recent recorded failure history stability = varied."
@@ -427,6 +438,28 @@ def validate_failed_success_only_prior(result):
     assert_no_lingering_artifacts(result)
 
 
+def validate_failed_stable_window_boundary(result):
+    assert_true(result["returncode"] == 0, "Stable-window-boundary scenario launcher exit code was not 0.")
+    assert_true(result["crash_file"] is not None, "Stable-window-boundary scenario should produce a crash log.")
+    assert_true(len(result["history_records"]) == 7, "Stable-window-boundary scenario should end with seven valid history records.")
+    record = result["history_records"][-1]
+    assert_true(record["final_outcome"] == "FAILURE", "Stable-window-boundary scenario final_outcome must be FAILURE.")
+    assert_true(
+        record["final_classification"] == "CONSECUTIVE_IDENTICAL_CRASH_THRESHOLD_REACHED",
+        "Stable-window-boundary scenario final_classification must reflect the repeated identical crash threshold.",
+    )
+    assert_failure_fingerprint_contract(record)
+    assert_true(result["history_records"][0]["failure_fingerprint"] != record["failure_fingerprint"], "Oldest seeded failure fingerprint should differ from the final failure fingerprint.")
+    for seeded_record in result["history_records"][1 : HISTORY_STABILITY_WINDOW_SIZE + 1]:
+        assert_true(seeded_record["failure_fingerprint"] == record["failure_fingerprint"], "Most recent seeded failure fingerprints should match the final failure fingerprint.")
+    assert_true(historical_context_match_line(HISTORY_STABILITY_WINDOW_SIZE) in result["runtime_text"], "Stable-window-boundary scenario missing expected recurrence line for the recent five-record window.")
+    assert_true(HISTORICAL_CONTEXT_STABILITY_LINE in result["runtime_text"], "Stable-window-boundary scenario should remain stable across the recent five-record window.")
+    assert_true(historical_advisory_line(HISTORY_STABILITY_WINDOW_SIZE) in result["runtime_text"], "Stable-window-boundary scenario missing advisory line for the recent five-record window.")
+    assert_true(HISTORICAL_CONTEXT_VARIED_LINE not in result["runtime_text"], "Stable-window-boundary scenario should not emit a varied stability line.")
+    assert_no_historical_output(result["crash_text"])
+    assert_no_lingering_artifacts(result)
+
+
 def validate_failed_malformed_history(result):
     assert_true(result["returncode"] == 0, "Malformed-history scenario launcher exit code was not 0.")
     assert_true(result["crash_file"] is not None, "Malformed-history scenario should produce a crash log.")
@@ -541,6 +574,40 @@ def main():
     )
     validate_failed_success_only_prior(failed_success_only_prior_result)
     print_result_summary("failed_success_only_prior_history", failed_success_only_prior_result)
+
+    stable_window_boundary_seed_lines = [
+        serialize_history_record(
+            {
+                **base_failure_record,
+                "run_id": "SEED_WINDOW_OLDEST_DIFFERENT",
+                "recorded_at": "2026-03-27T00:00:02Z",
+                "failure_fingerprint": "classification=synthetic-window-oldest|cause=synthetic oldest failure|origin=synthetic/window-oldest",
+                "final_classification": "SYNTHETIC_WINDOW_OLDEST",
+                "end_reason": "SYNTHETIC_WINDOW_OLDEST",
+            }
+        )
+    ]
+    for index in range(HISTORY_STABILITY_WINDOW_SIZE):
+        stable_window_boundary_seed_lines.append(
+            serialize_history_record(
+                {
+                    **base_failure_record,
+                    "run_id": f"SEED_WINDOW_RECENT_{index + 1}",
+                    "recorded_at": f"2026-03-27T00:00:0{index + 3}Z",
+                }
+            )
+        )
+
+    failed_stable_window_boundary_root = prepare_workspace(workspace_root, "failed_stable_window_boundary")
+    stable_window_renderer = failed_stable_window_boundary_root / "renderer_failure.py"
+    create_renderer_script(stable_window_renderer, FAILURE_RENDERER_SCRIPT)
+    failed_stable_window_boundary_result = run_launcher_scenario(
+        failed_stable_window_boundary_root,
+        stable_window_renderer,
+        seed_history_lines=stable_window_boundary_seed_lines,
+    )
+    validate_failed_stable_window_boundary(failed_stable_window_boundary_result)
+    print_result_summary("failed_stable_window_boundary", failed_stable_window_boundary_result)
 
     failed_malformed_history_root = prepare_workspace(workspace_root, "failed_malformed_history")
     malformed_renderer = failed_malformed_history_root / "renderer_failure.py"

@@ -45,6 +45,7 @@ STARTUP_ABORT_CONTROL_FLOW_RESULT = "STARTUP_ABORT"
 CONSECUTIVE_STARTUP_ABORT_THRESHOLD = 2
 CONSECUTIVE_IDENTICAL_CRASH_THRESHOLD = 2
 HISTORY_SCHEMA_VERSION = 1
+HISTORY_STABILITY_WINDOW_SIZE = 5
 
 os.makedirs(LOG_DIR, exist_ok=True)
 
@@ -370,22 +371,22 @@ def count_history_recurrence(records, failure_fingerprint):
 
 
 def characterize_history_stability(records):
-    if not records:
+    recent_records = [
+        record
+        for record in records
+        if recurrence_eligible_history_record(record)
+    ][-HISTORY_STABILITY_WINDOW_SIZE:]
+
+    if not recent_records:
         return "stable"
 
-    recent_records = records[-5:]
-    recent_outcomes = {
-        (record.get("final_outcome") or "").strip()
-        for record in recent_records
-        if (record.get("final_outcome") or "").strip()
-    }
     recent_fingerprints = {
-        (record.get("failure_fingerprint") or "").strip()
+        normalize_failure_fingerprint_text(record.get("failure_fingerprint"))
         for record in recent_records
-        if (record.get("failure_fingerprint") or "").strip()
+        if recurrence_eligible_history_record(record)
     }
 
-    if len(recent_outcomes) <= 1 and len(recent_fingerprints) <= 1:
+    if len(recent_fingerprints) <= 1:
         return "stable"
     return "varied"
 
