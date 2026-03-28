@@ -331,22 +331,25 @@ Current guarantees remain unchanged:
 
 Taken together, `FB-012` rev2a and rev2b complete the failure fingerprint and recurrence model track for `v1.8.0` without changing runtime policy.
 
-## v1.8.0 Planned Rev3a Provenance-First Advisory Semantics
+## v1.8.0 Implemented Rev3a Provenance-First Advisory Semantics
 
-`FB-013` rev3a should begin as a provenance-first advisory semantics pass, not as surfaced confidence scoring or a broader advisory redesign.
+`FB-013` rev3a is now implemented as the provenance-first advisory semantics slice for `v1.8.0`.
 
-That first advisory slice should:
+Implemented rev3a state:
 
-- explicitly distinguish current-run truth, prior finalized historical context, and advisory inference
-- keep advisory inference non-binding and non-authoritative
-- treat confidence, if mentioned at all in this first slice, as definition-only or internal explanatory metadata rather than surfaced operator-facing output
+- diagnostics-facing output now explicitly distinguishes current-run truth, prior finalized historical context, and advisory inference
+- advisory inference remains non-binding and non-authoritative
+- confidence remains absent from surfaced operator-facing output in this first slice
+- crash-report and incident-summary truth surfaces remain free of historical or advisory provenance language
 
-That first advisory slice must not:
+Current guarantees remain unchanged:
 
-- interpret confidence as severity, urgency, escalation level, recommendation strength, or runtime-policy permission
-- couple advisory semantics to runtime-control behavior
-- expand authority beyond the existing diagnostics-only advisory boundary
-- add historical or advisory content to crash-report or incident-summary truth surfaces
+- no surfaced confidence scoring
+- no interpretation of confidence as severity, urgency, escalation level, recommendation strength, or runtime-policy permission
+- no coupling of advisory semantics to runtime-control behavior
+- no authority expansion beyond the existing diagnostics-only advisory boundary
+
+`FB-013` remains open after rev3a pending the next narrow decision on whether a definition-only confidence-semantics slice is still needed for `v1.8.0`.
 
 ## Read-Only Memory Rule
 

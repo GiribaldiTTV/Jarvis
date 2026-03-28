@@ -431,7 +431,7 @@ This is now implemented through `v1.8.0 rev2a` and `v1.8.0 rev2b`, which togethe
 
 ### [ID: FB-013] Advisory provenance and confidence semantics
 
-Status: Deferred  
+Status: Implemented (v1.8.0 rev3a)  
 Priority: Medium  
 Suggested Version: v1.8.0  
 Suggested Revision: rev3  
@@ -461,7 +461,7 @@ Out of Scope:
 - escalation changes
 
 Notes:
-This should remain advisory-only and should follow the validated recurrence model in `v1.8.0`.
+This is now implemented through `v1.8.0 rev3a` as the provenance-first advisory semantics slice, which explicitly distinguishes current-run truth, prior finalized historical context, and advisory inference while keeping advisory wording non-binding, non-authoritative, and free of surfaced confidence scoring. `FB-013` remains open pending the next narrow decision on whether a definition-only confidence-semantics slice is still needed.
 
 ---
 

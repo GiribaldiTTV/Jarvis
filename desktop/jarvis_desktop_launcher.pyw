@@ -83,6 +83,17 @@ def normalize_policy_value(value, prefix=""):
     return " ".join(text.split()).casefold()
 
 
+def format_historical_context_line(message):
+    return f"Historical context (derived from prior finalized recorded history only): {message}"
+
+
+def format_advisory_inference_line(message):
+    return (
+        "Advisory inference (derived from prior finalized history, non-binding, non-authoritative): "
+        f"{message}"
+    )
+
+
 def build_failure_fingerprint_parts(final_classification, failure_cause="", failure_origin=""):
     parts = []
     normalized_classification = normalize_policy_value(final_classification)
@@ -440,14 +451,12 @@ def select_historical_advisory_hint(prior_history_context):
 
     matching_failure_recurrence = int(prior_history_context.get("matching_failure_recurrence", 0) or 0)
     if matching_failure_recurrence > 0:
-        return (
-            "Advisory (historical, non-authoritative): "
+        return format_advisory_inference_line(
             f"this finalized failure fingerprint has appeared in {matching_failure_recurrence} prior finalized failed run(s)."
         )
 
     if (prior_history_context.get("recent_history_stability") or "").strip() == "varied":
-        return (
-            "Advisory (historical, non-authoritative): "
+        return format_advisory_inference_line(
             "recent prior finalized failed runs have been varied, so this run appears within a changing failure history."
         )
 
@@ -1368,11 +1377,15 @@ def main():
         if prior_history_context["matching_failure_recurrence"] > 0:
             write_status(
                 "TRACE",
-                f"Historical context (prior finalized runs only): matching failure fingerprint observed in {prior_history_context['matching_failure_recurrence']} prior run(s).",
+                format_historical_context_line(
+                    f"matching failure fingerprint observed in {prior_history_context['matching_failure_recurrence']} prior run(s)."
+                ),
             )
         write_status(
             "TRACE",
-            f"Historical context (prior finalized runs only): recent recorded failure history stability = {prior_history_context['recent_history_stability']}.",
+            format_historical_context_line(
+                f"recent recorded failure history stability = {prior_history_context['recent_history_stability']}."
+            ),
         )
     historical_advisory_hint = select_historical_advisory_hint(prior_history_context)
     if historical_advisory_hint:

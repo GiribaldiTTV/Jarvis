@@ -16,20 +16,20 @@ HISTORY_STABILITY_WINDOW_SIZE = 5
 
 def historical_context_match_line(count):
     return (
-        "Historical context (prior finalized runs only): "
+        "Historical context (derived from prior finalized recorded history only): "
         f"matching failure fingerprint observed in {count} prior run(s)."
     )
 
 
 HISTORICAL_CONTEXT_STABILITY_LINE = (
-    "Historical context (prior finalized runs only): "
+    "Historical context (derived from prior finalized recorded history only): "
     "recent recorded failure history stability = stable."
 )
 
 
 def historical_advisory_line(count):
     return (
-        "Advisory (historical, non-authoritative): "
+        "Advisory inference (derived from prior finalized history, non-binding, non-authoritative): "
         f"this finalized failure fingerprint has appeared in {count} prior finalized failed run(s)."
     )
 
@@ -37,11 +37,11 @@ def historical_advisory_line(count):
 HISTORICAL_CONTEXT_MATCH_LINE = historical_context_match_line(1)
 HISTORICAL_ADVISORY_LINE = historical_advisory_line(1)
 HISTORICAL_CONTEXT_VARIED_LINE = (
-    "Historical context (prior finalized runs only): "
+    "Historical context (derived from prior finalized recorded history only): "
     "recent recorded failure history stability = varied."
 )
 HISTORICAL_VARIED_ADVISORY_LINE = (
-    "Advisory (historical, non-authoritative): "
+    "Advisory inference (derived from prior finalized history, non-binding, non-authoritative): "
     "recent prior finalized failed runs have been varied, so this run appears within a changing failure history."
 )
 HISTORY_FAILURE_RUNTIME_PREFIX = "Historical recorder failed; continuing without history:"
@@ -342,8 +342,8 @@ def assert_no_lingering_artifacts(result):
 
 
 def assert_no_historical_output(text):
-    assert_true("Historical context (prior finalized runs only):" not in text, "Unexpected historical context output present.")
-    assert_true("Advisory (historical, non-authoritative):" not in text, "Unexpected historical advisory output present.")
+    assert_true("Historical context (derived from prior finalized recorded history only):" not in text, "Unexpected historical context output present.")
+    assert_true("Advisory inference (derived from prior finalized history, non-binding, non-authoritative):" not in text, "Unexpected historical advisory output present.")
 
 
 def validate_healthy(result):
