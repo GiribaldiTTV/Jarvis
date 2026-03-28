@@ -82,6 +82,52 @@ def normalize_policy_value(value, prefix=""):
     return " ".join(text.split()).casefold()
 
 
+def build_failure_fingerprint_parts(final_classification, failure_cause="", failure_origin=""):
+    parts = []
+    normalized_classification = normalize_policy_value(final_classification)
+    normalized_cause = normalize_policy_value(failure_cause)
+    normalized_origin = normalize_policy_value(failure_origin, "Failure origin: ")
+
+    if normalized_classification:
+        parts.append(("classification", normalized_classification))
+    if normalized_cause:
+        parts.append(("cause", normalized_cause))
+    if normalized_origin:
+        parts.append(("origin", normalized_origin))
+
+    return parts
+
+
+def normalize_failure_fingerprint_text(failure_fingerprint):
+    text = (failure_fingerprint or "").strip()
+    if not text:
+        return ""
+
+    normalized_parts = []
+    for raw_part in text.split("|"):
+        part = raw_part.strip()
+        if not part or "=" not in part:
+            return ""
+
+        key, raw_value = part.split("=", 1)
+        normalized_key = " ".join(key.split()).casefold()
+        normalized_value = normalize_policy_value(raw_value)
+        if not normalized_key or not normalized_value:
+            return ""
+
+        normalized_parts.append(f"{normalized_key}={normalized_value}")
+
+    return "|".join(normalized_parts)
+
+
+def recurrence_eligible_history_record(record):
+    if not isinstance(record, dict):
+        return False
+    if (record.get("final_outcome") or "").strip() != "FAILURE":
+        return False
+    return bool(normalize_failure_fingerprint_text(record.get("failure_fingerprint")))
+
+
 def repeated_identical_crash(previous_cause, previous_origin, current_cause, current_origin):
     if not previous_cause or not current_cause:
         return False
@@ -260,6 +306,14 @@ def validate_history_record(record):
     if record.get("final_outcome") not in {"SUCCESS", "FAILURE"}:
         return "History record final_outcome must be SUCCESS or FAILURE."
 
+    normalized_failure_fingerprint = normalize_failure_fingerprint_text(record.get("failure_fingerprint"))
+    if record.get("final_outcome") == "SUCCESS" and record.get("failure_fingerprint", "").strip():
+        return "History record failure_fingerprint must be empty for SUCCESS."
+    if record.get("final_outcome") == "FAILURE" and not normalized_failure_fingerprint:
+        return "History record failure_fingerprint must be a non-empty normalized fingerprint for FAILURE."
+    if normalized_failure_fingerprint and record.get("failure_fingerprint") != normalized_failure_fingerprint:
+        return "History record failure_fingerprint must already be normalized."
+
     for field_name in required_string_fields:
         field_value = record.get(field_name)
         if not isinstance(field_value, str):
@@ -304,10 +358,15 @@ def load_history_records():
 
 
 def count_history_recurrence(records, failure_fingerprint):
-    fingerprint = (failure_fingerprint or "").strip()
+    fingerprint = normalize_failure_fingerprint_text(failure_fingerprint)
     if not fingerprint:
         return 0
-    return sum(1 for record in records if (record.get("failure_fingerprint") or "").strip() == fingerprint)
+    return sum(
+        1
+        for record in records
+        if recurrence_eligible_history_record(record)
+        and normalize_failure_fingerprint_text(record.get("failure_fingerprint")) == fingerprint
+    )
 
 
 def characterize_history_stability(records):
@@ -341,7 +400,9 @@ def summarize_loaded_history(records):
         }
 
     latest_record = records[-1]
-    latest_failure_fingerprint = (latest_record.get("failure_fingerprint") or "").strip()
+    latest_failure_fingerprint = ""
+    if recurrence_eligible_history_record(latest_record):
+        latest_failure_fingerprint = normalize_failure_fingerprint_text(latest_record.get("failure_fingerprint"))
 
     return {
         "history_loaded": True,
@@ -355,8 +416,7 @@ def summarize_prior_history_for_diagnostics(records, current_failure_fingerprint
     relevant_failure_records = [
         record
         for record in records
-        if (record.get("final_outcome") or "").strip() == "FAILURE"
-        and (record.get("failure_fingerprint") or "").strip()
+        if recurrence_eligible_history_record(record)
     ]
 
     if not relevant_failure_records:
@@ -397,19 +457,14 @@ def build_failure_fingerprint(final_outcome, final_classification, failure_cause
     if final_outcome != "FAILURE":
         return ""
 
-    parts = []
-    normalized_classification = normalize_policy_value(final_classification)
-    normalized_cause = normalize_policy_value(failure_cause)
-    normalized_origin = normalize_policy_value(failure_origin, "Failure origin: ")
-
-    if normalized_classification:
-        parts.append(f"classification={normalized_classification}")
-    if normalized_cause:
-        parts.append(f"cause={normalized_cause}")
-    if normalized_origin:
-        parts.append(f"origin={normalized_origin}")
-
-    return "|".join(parts)
+    return "|".join(
+        f"{key}={value}"
+        for key, value in build_failure_fingerprint_parts(
+            final_classification,
+            failure_cause,
+            failure_origin,
+        )
+    )
 
 
 def build_history_record(

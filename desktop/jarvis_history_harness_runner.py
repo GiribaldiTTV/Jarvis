@@ -74,6 +74,92 @@ class HarnessAssertionError(RuntimeError):
     pass
 
 
+def strip_label_prefix(value, prefix):
+    text = (value or "").strip()
+    if text.startswith(prefix):
+        return text[len(prefix):].strip()
+    return text
+
+
+def normalize_policy_value(value, prefix=""):
+    text = strip_label_prefix(value, prefix)
+    return " ".join(text.split()).casefold()
+
+
+def normalize_failure_fingerprint_text(failure_fingerprint):
+    text = (failure_fingerprint or "").strip()
+    if not text:
+        return ""
+
+    normalized_parts = []
+    for raw_part in text.split("|"):
+        part = raw_part.strip()
+        if not part or "=" not in part:
+            return ""
+
+        key, raw_value = part.split("=", 1)
+        normalized_key = " ".join(key.split()).casefold()
+        normalized_value = normalize_policy_value(raw_value)
+        if not normalized_key or not normalized_value:
+            return ""
+
+        normalized_parts.append(f"{normalized_key}={normalized_value}")
+
+    return "|".join(normalized_parts)
+
+
+def parse_failure_fingerprint(failure_fingerprint):
+    components = {}
+    normalized = normalize_failure_fingerprint_text(failure_fingerprint)
+    if not normalized:
+        return components
+
+    for part in normalized.split("|"):
+        key, value = part.split("=", 1)
+        components[key] = value
+    return components
+
+
+def replace_failure_fingerprint_component(failure_fingerprint, key, new_value):
+    components = parse_failure_fingerprint(failure_fingerprint)
+    assert_true(bool(components), f"Cannot replace component in invalid failure fingerprint: {failure_fingerprint}")
+    assert_true(key in components, f"Failure fingerprint missing component {key}: {failure_fingerprint}")
+    components[key] = normalize_policy_value(new_value)
+    ordered_keys = ("classification", "cause", "origin")
+    return "|".join(f"{component_key}={components[component_key]}" for component_key in ordered_keys if component_key in components)
+
+
+def is_contract_valid_history_record(record):
+    if not isinstance(record, dict):
+        return False
+
+    final_outcome = (record.get("final_outcome") or "").strip()
+    failure_fingerprint = record.get("failure_fingerprint")
+    if not isinstance(failure_fingerprint, str):
+        return False
+
+    normalized_failure_fingerprint = normalize_failure_fingerprint_text(failure_fingerprint)
+    if final_outcome == "SUCCESS":
+        return failure_fingerprint == ""
+    if final_outcome == "FAILURE":
+        return bool(normalized_failure_fingerprint) and failure_fingerprint == normalized_failure_fingerprint
+    return False
+
+
+def assert_failure_fingerprint_contract(record):
+    fingerprint = record["failure_fingerprint"]
+    if record["final_outcome"] == "SUCCESS":
+        assert_true(fingerprint == "", "SUCCESS history records must keep an empty failure_fingerprint.")
+        return
+
+    normalized_fingerprint = normalize_failure_fingerprint_text(fingerprint)
+    assert_true(bool(normalized_fingerprint), "FAILURE history records must keep a non-empty normalized failure_fingerprint.")
+    assert_true(fingerprint == normalized_fingerprint, "FAILURE history records must keep a normalized failure_fingerprint.")
+    components = parse_failure_fingerprint(fingerprint)
+    assert_true("classification" in components, "FAILURE history fingerprints must include classification.")
+    assert_true(set(components).issubset({"classification", "cause", "origin"}), "FAILURE history fingerprints contain unsupported components.")
+
+
 def parse_args():
     parser = argparse.ArgumentParser(description="Contained historical-memory harness runner.")
     parser.add_argument(
@@ -152,6 +238,8 @@ def parse_history_file(path):
         try:
             record = json.loads(line)
         except Exception:
+            continue
+        if not is_contract_valid_history_record(record):
             continue
         valid_lines.append(line)
         records.append(record)
@@ -255,6 +343,7 @@ def validate_healthy(result):
     assert_true(record["final_outcome"] == "SUCCESS", "Healthy scenario history final_outcome must be SUCCESS.")
     assert_true(record["final_classification"] == "NORMAL_EXIT_COMPLETE", "Healthy scenario final_classification must be NORMAL_EXIT_COMPLETE.")
     assert_true(record["attempt_count"] == 1, "Healthy scenario attempt_count must be 1.")
+    assert_failure_fingerprint_contract(record)
     assert_true("STATUS|SUCCESS|LAUNCHER_RUNTIME|NORMAL_EXIT_COMPLETE" in result["runtime_text"], "Healthy scenario missing NORMAL_EXIT_COMPLETE runtime marker.")
     assert_no_historical_output(result["runtime_text"])
     assert_no_lingering_artifacts(result)
@@ -271,7 +360,7 @@ def validate_failed_no_history(result):
         "Failed scenario final_classification must reflect the repeated identical crash threshold.",
     )
     assert_true(record["attempt_pattern"] == "repeated identical crash", "Failed scenario attempt_pattern drifted from repeated identical crash.")
-    assert_true(bool(record["failure_fingerprint"]), "Failed scenario must record a non-empty failure_fingerprint.")
+    assert_failure_fingerprint_contract(record)
     assert_true("STATUS|SUCCESS|LAUNCHER_RUNTIME|FAILURE_FLOW_COMPLETE" in result["runtime_text"], "Failed scenario missing FAILURE_FLOW_COMPLETE marker.")
     assert_no_historical_output(result["runtime_text"])
     assert_no_historical_output(result["crash_text"])
@@ -289,6 +378,8 @@ def validate_failed_matching_prior(result):
         "Matching-prior scenario final_classification must reflect the repeated identical crash threshold.",
     )
     assert_true(record["attempt_pattern"] == "repeated identical crash", "Matching-prior scenario attempt_pattern drifted from repeated identical crash.")
+    assert_failure_fingerprint_contract(record)
+    assert_true(result["history_records"][0]["failure_fingerprint"] == record["failure_fingerprint"], "Matching-prior scenario must match on the full normalized fingerprint.")
     assert_true(HISTORICAL_CONTEXT_MATCH_LINE in result["runtime_text"], "Matching-prior scenario missing historical recurrence context line.")
     assert_true(HISTORICAL_CONTEXT_STABILITY_LINE in result["runtime_text"], "Matching-prior scenario missing historical stability context line.")
     assert_true(HISTORICAL_ADVISORY_LINE in result["runtime_text"], "Matching-prior scenario missing historical advisory line.")
@@ -306,6 +397,12 @@ def validate_failed_varied_prior(result):
         record["final_classification"] == "CONSECUTIVE_IDENTICAL_CRASH_THRESHOLD_REACHED",
         "Varied-prior scenario final_classification must reflect the repeated identical crash threshold.",
     )
+    assert_failure_fingerprint_contract(record)
+    first_seed_components = parse_failure_fingerprint(result["history_records"][0]["failure_fingerprint"])
+    record_components = parse_failure_fingerprint(record["failure_fingerprint"])
+    assert_true(first_seed_components.get("classification") == record_components.get("classification"), "Varied-prior scenario should keep classification equal for the near-match seed.")
+    assert_true(first_seed_components.get("cause") == record_components.get("cause"), "Varied-prior scenario should keep cause equal for the near-match seed.")
+    assert_true(first_seed_components.get("origin") != record_components.get("origin"), "Varied-prior scenario should differ only by origin for the near-match seed.")
     assert_true(HISTORICAL_CONTEXT_MATCH_LINE not in result["runtime_text"], "Varied-prior scenario should not emit a matching recurrence line.")
     assert_true(HISTORICAL_CONTEXT_VARIED_LINE in result["runtime_text"], "Varied-prior scenario missing varied historical stability line.")
     assert_true(HISTORICAL_VARIED_ADVISORY_LINE in result["runtime_text"], "Varied-prior scenario missing varied-history advisory line.")
@@ -323,6 +420,8 @@ def validate_failed_success_only_prior(result):
         record["final_classification"] == "CONSECUTIVE_IDENTICAL_CRASH_THRESHOLD_REACHED",
         "Success-only-prior scenario final_classification must reflect the repeated identical crash threshold.",
     )
+    assert_failure_fingerprint_contract(result["history_records"][0])
+    assert_failure_fingerprint_contract(record)
     assert_no_historical_output(result["runtime_text"])
     assert_no_historical_output(result["crash_text"])
     assert_no_lingering_artifacts(result)
@@ -339,6 +438,8 @@ def validate_failed_malformed_history(result):
         record["final_classification"] == "CONSECUTIVE_IDENTICAL_CRASH_THRESHOLD_REACHED",
         "Malformed-history scenario final_classification must reflect the repeated identical crash threshold.",
     )
+    assert_true(any('"failure_fingerprint": ""' in line for line in result["raw_history_lines"]), "Malformed-history scenario should seed an empty-fingerprint failure record.")
+    assert_failure_fingerprint_contract(record)
     assert_no_historical_output(result["runtime_text"])
     assert_no_historical_output(result["crash_text"])
     assert_no_lingering_artifacts(result)
@@ -398,11 +499,13 @@ def main():
         serialize_history_record(
             {
                 **base_failure_record,
-                "run_id": "SEED_VARIED_A",
+                "run_id": "SEED_NEAR_MATCH_ORIGIN_ONLY",
                 "recorded_at": "2026-03-27T00:00:00Z",
-                "failure_fingerprint": "classification=synthetic-varied-a|cause=synthetic failure a|origin=synthetic/a",
-                "final_classification": "SYNTHETIC_VARIED_A",
-                "end_reason": "SYNTHETIC_VARIED_A",
+                "failure_fingerprint": replace_failure_fingerprint_component(
+                    base_failure_record["failure_fingerprint"],
+                    "origin",
+                    "synthetic alternate origin",
+                ),
             }
         ),
         serialize_history_record(
@@ -446,6 +549,14 @@ def main():
         failed_malformed_history_root,
         malformed_renderer,
         seed_history_lines=[
+            serialize_history_record(
+                {
+                    **base_failure_record,
+                    "run_id": "SEED_EMPTY_FINGERPRINT",
+                    "recorded_at": "2026-03-27T00:00:02Z",
+                    "failure_fingerprint": "",
+                }
+            ),
             "{not-json",
             "not a valid json line",
         ],
