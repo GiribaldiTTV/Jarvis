@@ -51,6 +51,45 @@ From that point forward, the boot layer may coordinate around the transition and
 
 A future boot orchestrator must not rewrite, override, or reinterpret launcher-owned desktop truth or desktop control decisions.
 
+### FB-015 Rev1a Phase-Boundary Contract
+
+`FB-015 rev1a` clarifies the future boundary between boot-stage coordination and launcher-owned desktop-stage execution.
+
+Boot-stage ownership is limited to:
+
+- pre-desktop startup presence and presentation
+- Windows boot and login handoff coordination
+- the decision to delegate desktop startup execution into the launcher
+- cross-phase observation before desktop-stage authority begins
+
+Desktop-stage ownership begins when boot-stage coordination delegates execution to the desktop launcher.
+From that handoff forward, the launcher remains the sole owner of:
+
+- renderer startup execution and observation
+- readiness, stall, abort, and failure classification
+- desktop-phase cooperative control and recovery routing
+- retry and escalation behavior inside the desktop phase
+- finalized runtime, crash, and diagnostics truth generation for the desktop phase
+
+A future higher boot layer may consume launcher-owned downstream outputs only after they are emitted, including:
+
+- readiness, failure, recovery, and finalized end-state signals
+- runtime logs, crash artifacts, and diagnostics status surfaces
+- bounded historical-memory and advisory outputs only as descriptive downstream context
+
+Those downstream inputs remain read-only.
+They may support boot-stage narration, transition logic, or later boot-stage observation, but they must not become authority over launcher-owned desktop truth, classification, control, retry policy, escalation policy, or finalized outcome determination.
+
+Historical or advisory surfaces remain especially constrained across the phase boundary:
+
+- they may be consumed only after launcher emission
+- they remain non-authoritative and non-binding
+- they must not be used by a future boot layer to rewrite desktop-stage truth
+- they must not be used to inject cross-layer control back into the launcher
+
+`FB-015 rev1a` is contract clarification only.
+It does not authorize boot runtime behavior, higher-layer recovery control, or `FB-004` implementation work.
+
 ## System Roles
 
 ### Launcher (`jarvis_desktop_launcher.pyw`)
