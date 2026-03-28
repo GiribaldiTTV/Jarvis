@@ -46,6 +46,8 @@ CONSECUTIVE_STARTUP_ABORT_THRESHOLD = 2
 CONSECUTIVE_IDENTICAL_CRASH_THRESHOLD = 2
 HISTORY_SCHEMA_VERSION = 1
 HISTORY_STABILITY_WINDOW_SIZE = 5
+ADVISORY_CONFIDENCE_DIRECT_EVIDENCE = "direct_evidence"
+ADVISORY_CONFIDENCE_PATTERN_EVIDENCE = "pattern_evidence"
 
 os.makedirs(LOG_DIR, exist_ok=True)
 
@@ -445,22 +447,37 @@ def summarize_prior_history_for_diagnostics(records, current_failure_fingerprint
     }
 
 
-def select_historical_advisory_hint(prior_history_context):
+def build_historical_advisory_inference(prior_history_context):
     if not prior_history_context.get("history_loaded"):
-        return ""
+        return {}
 
     matching_failure_recurrence = int(prior_history_context.get("matching_failure_recurrence", 0) or 0)
     if matching_failure_recurrence > 0:
-        return format_advisory_inference_line(
-            f"this finalized failure fingerprint has appeared in {matching_failure_recurrence} prior finalized failed run(s)."
-        )
+        return {
+            "message": (
+                f"this finalized failure fingerprint has appeared in {matching_failure_recurrence} "
+                "prior finalized failed run(s)."
+            ),
+            "confidence": ADVISORY_CONFIDENCE_DIRECT_EVIDENCE,
+        }
 
     if (prior_history_context.get("recent_history_stability") or "").strip() == "varied":
-        return format_advisory_inference_line(
-            "recent prior finalized failed runs have been varied, so this run appears within a changing failure history."
-        )
+        return {
+            "message": (
+                "recent prior finalized failed runs have been varied, so this run appears within a changing "
+                "failure history."
+            ),
+            "confidence": ADVISORY_CONFIDENCE_PATTERN_EVIDENCE,
+        }
 
-    return ""
+    return {}
+
+
+def select_historical_advisory_hint(prior_history_context):
+    advisory_inference = build_historical_advisory_inference(prior_history_context)
+    if not advisory_inference:
+        return ""
+    return format_advisory_inference_line(advisory_inference["message"])
 
 
 def build_failure_fingerprint(final_outcome, final_classification, failure_cause="", failure_origin=""):

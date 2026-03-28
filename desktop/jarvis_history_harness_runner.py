@@ -1,6 +1,7 @@
 import argparse
 import json
 import os
+import runpy
 import shutil
 import subprocess
 import sys
@@ -45,6 +46,11 @@ HISTORICAL_VARIED_ADVISORY_LINE = (
     "recent prior finalized failed runs have been varied, so this run appears within a changing failure history."
 )
 HISTORY_FAILURE_RUNTIME_PREFIX = "Historical recorder failed; continuing without history:"
+FORBIDDEN_CONFIDENCE_SURFACE_TOKENS = (
+    "Confidence:",
+    "direct_evidence",
+    "pattern_evidence",
+)
 
 HEALTHY_RENDERER_SCRIPT = """import sys
 from pathlib import Path
@@ -208,6 +214,33 @@ def resolve_workspace_root(raw_value):
     return workspace_root
 
 
+def load_launcher_probe_namespace(workspace_root):
+    probe_root = workspace_root / "_launcher_confidence_probe"
+    probe_log_root = probe_root / "logs"
+    probe_root.mkdir(parents=True, exist_ok=True)
+
+    env_names = (
+        "JARVIS_HARNESS_LOG_ROOT",
+        "JARVIS_HARNESS_TARGET_SCRIPT",
+        "JARVIS_HARNESS_DISABLE_DIAGNOSTICS",
+        "JARVIS_HARNESS_DISABLE_VOICE",
+    )
+    original_env = {name: os.environ.get(name) for name in env_names}
+    os.environ["JARVIS_HARNESS_LOG_ROOT"] = str(probe_log_root)
+    os.environ["JARVIS_HARNESS_TARGET_SCRIPT"] = str(probe_root / "probe_renderer.py")
+    os.environ["JARVIS_HARNESS_DISABLE_DIAGNOSTICS"] = "1"
+    os.environ["JARVIS_HARNESS_DISABLE_VOICE"] = "1"
+
+    try:
+        return runpy.run_path(str(LAUNCHER_SCRIPT), run_name="jarvis_launcher_probe")
+    finally:
+        for name, value in original_env.items():
+            if value is None:
+                os.environ.pop(name, None)
+            else:
+                os.environ[name] = value
+
+
 def snapshot_live_log_tree():
     if not LIVE_LOG_DIR.exists():
         return {}
@@ -346,6 +379,64 @@ def assert_no_historical_output(text):
     assert_true("Advisory inference (derived from prior finalized history, non-binding, non-authoritative):" not in text, "Unexpected historical advisory output present.")
 
 
+def assert_no_confidence_output(text):
+    for token in FORBIDDEN_CONFIDENCE_SURFACE_TOKENS:
+        assert_true(token not in text, f"Unexpected surfaced confidence output present: {token}")
+
+
+def validate_internal_confidence_contract(workspace_root):
+    namespace = load_launcher_probe_namespace(workspace_root)
+    build_historical_advisory_inference = namespace["build_historical_advisory_inference"]
+    select_historical_advisory_hint = namespace["select_historical_advisory_hint"]
+    direct_confidence = namespace["ADVISORY_CONFIDENCE_DIRECT_EVIDENCE"]
+    pattern_confidence = namespace["ADVISORY_CONFIDENCE_PATTERN_EVIDENCE"]
+
+    direct_context = {
+        "history_loaded": True,
+        "matching_failure_recurrence": 2,
+        "recent_history_stability": "stable",
+    }
+    direct_inference = build_historical_advisory_inference(direct_context)
+    assert_true(direct_inference["confidence"] == direct_confidence, "Exact recurrence advisory should map to direct evidence confidence.")
+    assert_true(
+        select_historical_advisory_hint(direct_context) == historical_advisory_line(2),
+        "Exact recurrence advisory output should remain unchanged while confidence stays internal.",
+    )
+
+    varied_context = {
+        "history_loaded": True,
+        "matching_failure_recurrence": 0,
+        "recent_history_stability": "varied",
+    }
+    varied_inference = build_historical_advisory_inference(varied_context)
+    assert_true(varied_inference["confidence"] == pattern_confidence, "Varied-history advisory should map to pattern evidence confidence.")
+    assert_true(
+        select_historical_advisory_hint(varied_context) == HISTORICAL_VARIED_ADVISORY_LINE,
+        "Varied-history advisory output should remain unchanged while confidence stays internal.",
+    )
+
+    assert_true(
+        build_historical_advisory_inference(
+            {
+                "history_loaded": True,
+                "matching_failure_recurrence": 0,
+                "recent_history_stability": "stable",
+            }
+        ) == {},
+        "Stable no-match history should not produce an advisory inference payload.",
+    )
+    assert_true(
+        build_historical_advisory_inference(
+            {
+                "history_loaded": False,
+                "matching_failure_recurrence": 0,
+                "recent_history_stability": "stable",
+            }
+        ) == {},
+        "History-unloaded context should not produce an advisory inference payload.",
+    )
+
+
 def validate_healthy(result):
     assert_true(result["returncode"] == 0, "Healthy scenario launcher exit code was not 0.")
     assert_true(result["crash_file"] is None, "Healthy scenario should not produce a crash log.")
@@ -357,6 +448,7 @@ def validate_healthy(result):
     assert_failure_fingerprint_contract(record)
     assert_true("STATUS|SUCCESS|LAUNCHER_RUNTIME|NORMAL_EXIT_COMPLETE" in result["runtime_text"], "Healthy scenario missing NORMAL_EXIT_COMPLETE runtime marker.")
     assert_no_historical_output(result["runtime_text"])
+    assert_no_confidence_output(result["runtime_text"])
     assert_no_lingering_artifacts(result)
 
 
@@ -375,6 +467,8 @@ def validate_failed_no_history(result):
     assert_true("STATUS|SUCCESS|LAUNCHER_RUNTIME|FAILURE_FLOW_COMPLETE" in result["runtime_text"], "Failed scenario missing FAILURE_FLOW_COMPLETE marker.")
     assert_no_historical_output(result["runtime_text"])
     assert_no_historical_output(result["crash_text"])
+    assert_no_confidence_output(result["runtime_text"])
+    assert_no_confidence_output(result["crash_text"])
     assert_no_lingering_artifacts(result)
 
 
@@ -395,6 +489,8 @@ def validate_failed_matching_prior(result):
     assert_true(HISTORICAL_CONTEXT_STABILITY_LINE in result["runtime_text"], "Matching-prior scenario missing historical stability context line.")
     assert_true(HISTORICAL_ADVISORY_LINE in result["runtime_text"], "Matching-prior scenario missing historical advisory line.")
     assert_no_historical_output(result["crash_text"])
+    assert_no_confidence_output(result["runtime_text"])
+    assert_no_confidence_output(result["crash_text"])
     assert_no_lingering_artifacts(result)
 
 
@@ -418,6 +514,8 @@ def validate_failed_varied_prior(result):
     assert_true(HISTORICAL_CONTEXT_VARIED_LINE in result["runtime_text"], "Varied-prior scenario missing varied historical stability line.")
     assert_true(HISTORICAL_VARIED_ADVISORY_LINE in result["runtime_text"], "Varied-prior scenario missing varied-history advisory line.")
     assert_no_historical_output(result["crash_text"])
+    assert_no_confidence_output(result["runtime_text"])
+    assert_no_confidence_output(result["crash_text"])
     assert_no_lingering_artifacts(result)
 
 
@@ -435,6 +533,8 @@ def validate_failed_success_only_prior(result):
     assert_failure_fingerprint_contract(record)
     assert_no_historical_output(result["runtime_text"])
     assert_no_historical_output(result["crash_text"])
+    assert_no_confidence_output(result["runtime_text"])
+    assert_no_confidence_output(result["crash_text"])
     assert_no_lingering_artifacts(result)
 
 
@@ -457,6 +557,8 @@ def validate_failed_stable_window_boundary(result):
     assert_true(historical_advisory_line(HISTORY_STABILITY_WINDOW_SIZE) in result["runtime_text"], "Stable-window-boundary scenario missing advisory line for the recent five-record window.")
     assert_true(HISTORICAL_CONTEXT_VARIED_LINE not in result["runtime_text"], "Stable-window-boundary scenario should not emit a varied stability line.")
     assert_no_historical_output(result["crash_text"])
+    assert_no_confidence_output(result["runtime_text"])
+    assert_no_confidence_output(result["crash_text"])
     assert_no_lingering_artifacts(result)
 
 
@@ -475,6 +577,8 @@ def validate_failed_malformed_history(result):
     assert_failure_fingerprint_contract(record)
     assert_no_historical_output(result["runtime_text"])
     assert_no_historical_output(result["crash_text"])
+    assert_no_confidence_output(result["runtime_text"])
+    assert_no_confidence_output(result["crash_text"])
     assert_no_lingering_artifacts(result)
 
 
@@ -486,6 +590,8 @@ def validate_failed_hostile_history_storage(result):
     assert_true(HISTORY_FAILURE_RUNTIME_PREFIX in result["runtime_text"], "Hostile-history scenario missing recorder failure fallback log.")
     assert_no_historical_output(result["runtime_text"])
     assert_no_historical_output(result["crash_text"])
+    assert_no_confidence_output(result["runtime_text"])
+    assert_no_confidence_output(result["crash_text"])
     assert_no_lingering_artifacts(result)
 
 
@@ -501,6 +607,7 @@ def print_result_summary(name, result):
 def main():
     args = parse_args()
     workspace_root = resolve_workspace_root(args.workspace_root)
+    validate_internal_confidence_contract(workspace_root)
 
     healthy_root = prepare_workspace(workspace_root, "healthy_run")
     healthy_renderer = healthy_root / "renderer_ready.py"
