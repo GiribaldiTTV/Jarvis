@@ -358,6 +358,26 @@ def summarize_prior_history_for_diagnostics(records, current_failure_fingerprint
     }
 
 
+def select_historical_advisory_hint(prior_history_context):
+    if not prior_history_context.get("history_loaded"):
+        return ""
+
+    matching_failure_recurrence = int(prior_history_context.get("matching_failure_recurrence", 0) or 0)
+    if matching_failure_recurrence > 0:
+        return (
+            "Advisory (historical, non-authoritative): "
+            f"this finalized failure fingerprint has appeared in {matching_failure_recurrence} prior finalized failed run(s)."
+        )
+
+    if (prior_history_context.get("recent_history_stability") or "").strip() == "varied":
+        return (
+            "Advisory (historical, non-authoritative): "
+            "recent prior finalized failed runs have been varied, so this run appears within a changing failure history."
+        )
+
+    return ""
+
+
 def build_failure_fingerprint(final_outcome, final_classification, failure_cause="", failure_origin=""):
     if final_outcome != "FAILURE":
         return ""
@@ -1273,6 +1293,9 @@ def main():
             "TRACE",
             f"Historical context (prior finalized runs only): recent recorded failure history stability = {prior_history_context['recent_history_stability']}.",
         )
+    historical_advisory_hint = select_historical_advisory_hint(prior_history_context)
+    if historical_advisory_hint:
+        write_status("TRACE", historical_advisory_hint)
     write_status("SUMMARY", "Automatic recovery has completed. Manual investigation is required.")
     crash_filename = f"Crash_{RUN_ID_STEM}.txt"
     write_status("SUMMARY", "I have prepared the latest crash report and runtime log. Review the crash report first.")
