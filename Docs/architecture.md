@@ -290,6 +290,23 @@ Current guarantees remain unchanged:
 - historical context remains non-authoritative
 - advisory output remains non-binding
 
+## v1.8.0 Planned Rev2a Narrow Scope
+
+`FB-012` rev2a should begin as a strict failure-fingerprint contract pass, not as a broader recurrence redesign.
+
+That first slice should:
+
+- formalize the current implemented fingerprint shape using only existing finalized truth surfaces already recorded by the historical layer
+- formalize initial recurrence grouping as strict equality on the normalized full fingerprint
+- exclude success records and empty fingerprints from recurrence grouping
+
+That first slice must not:
+
+- introduce fuzzy matching
+- introduce confidence or provenance semantics
+- reinterpret recurrence as runtime policy significance
+- couple historical recurrence to runtime-control behavior
+
 ## Read-Only Memory Rule
 
 Historical memory in `v1.7.0` must remain a derived, read-only layer over `v1.6.0` truth.
