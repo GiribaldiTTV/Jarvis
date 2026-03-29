@@ -611,7 +611,7 @@ Out of Scope:
 - unrelated diagnostics policy changes
 
 Notes:
-The first coherent manual reporting flow is now implemented as a privacy-safe diagnostics-window `Report Issue` action. It generates a local support bundle, writes the manifest, opens a prefilled GitHub issue page for manual completion, keeps attachment and submission manual, and includes a crash log only when the runtime-to-crash match is trustworthily determinable. The support bundle remains simple by default, with advanced/internal artifacts included only if explicitly needed later.
+The first coherent manual reporting flow is now implemented as a privacy-safe diagnostics-window `Report Issue` action. It generates a local support bundle, writes the manifest, opens a prefilled GitHub issue page for manual completion, keeps attachment and submission manual, and includes a crash log only when the runtime-to-crash match is trustworthily determinable. The support bundle remains simple by default, with advanced/internal artifacts included only if explicitly needed later. The repo now also includes a contained offscreen validator for the production diagnostics `Report Issue` path that verifies support-bundle creation, manifest/manual-submission contract fields, and GitHub issue-prefill URL plus open-attempt handling without changing production behavior.
 
 ---
 
