@@ -12,6 +12,7 @@ ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 LOGS_DIR = os.path.join(ROOT_DIR, "logs")
 BASE_LOG_ROOT = os.path.join(LOGS_DIR, "support_bundle_triage_harness")
 REPORTS_DIR = os.path.join(BASE_LOG_ROOT, "reports")
+TRIAGE_LOG_ROOT = os.path.join(BASE_LOG_ROOT, "triage")
 VERIFICATION_DIR = os.path.join(BASE_LOG_ROOT, "verification")
 
 TRIAGE_SCRIPT = os.path.join(ROOT_DIR, "dev", "jarvis_support_bundle_triage.py")
@@ -82,6 +83,18 @@ def latest_file_matching(folder_path, prefix):
 
 def line_status(ok, detail):
     return {"ok": bool(ok), "detail": detail}
+
+
+def path_is_contained(path, root):
+    if not path:
+        return False
+
+    try:
+        normalized_path = os.path.normcase(os.path.abspath(path))
+        normalized_root = os.path.normcase(os.path.abspath(root))
+        return os.path.commonpath([normalized_path, normalized_root]) == normalized_root
+    except ValueError:
+        return False
 
 
 def read_json(path):
@@ -192,6 +205,7 @@ def platform_python_implementation():
 
 def run_triage_case(
     triage_module,
+    triage_log_root,
     name,
     input_path,
     input_mode,
@@ -201,7 +215,7 @@ def run_triage_case(
     expected_fragments,
     expect_repro_path,
 ):
-    report_path, json_path, _ = triage_module.triage_bundle(input_path)
+    report_path, json_path, _ = triage_module.triage_bundle(input_path, log_root_override=triage_log_root)
     triage_json = read_json(json_path)
     classification = triage_json["classification"]
     triage_checks = triage_json["checks"]
@@ -217,6 +231,14 @@ def run_triage_case(
         ),
         "triage_json_created": line_status(
             os.path.isfile(json_path),
+            json_path,
+        ),
+        "triage_report_contained": line_status(
+            path_is_contained(report_path, triage_log_root),
+            report_path,
+        ),
+        "triage_json_contained": line_status(
+            path_is_contained(json_path, triage_log_root),
             json_path,
         ),
         "classification_key_expected": line_status(
@@ -240,6 +262,21 @@ def run_triage_case(
             triage_checks["classification_confident_or_safe_fallback"]["detail"],
         ),
     }
+
+    if input_mode == "zip":
+        checks["temp_manifest_contained"] = line_status(
+            path_is_contained(triage_json["manifest_path"], triage_log_root),
+            triage_json["manifest_path"],
+        )
+        checks["temp_runtime_log_contained"] = line_status(
+            path_is_contained(triage_json["runtime_log_path"], triage_log_root),
+            triage_json["runtime_log_path"],
+        )
+        crash_log_path = triage_json.get("crash_log_path", "")
+        checks["temp_crash_log_contained_or_optional"] = line_status(
+            (not crash_log_path) or path_is_contained(crash_log_path, triage_log_root),
+            crash_log_path or "crash log not bundled",
+        )
 
     if expected_lane:
         checks["suggested_lane_expected"] = line_status(
@@ -349,6 +386,7 @@ def main(argv):
 
     repeated_crash_section = run_triage_case(
         triage_module=triage_module,
+        triage_log_root=TRIAGE_LOG_ROOT,
         name="Triage Zip Input: Repeated-Identical-Crash Threshold",
         input_path=repeated_crash_bundle["bundle_path"],
         input_mode="zip",
@@ -364,6 +402,7 @@ def main(argv):
 
     startup_abort_section = run_triage_case(
         triage_module=triage_module,
+        triage_log_root=TRIAGE_LOG_ROOT,
         name="Triage Zip Input: Startup-Abort Threshold",
         input_path=startup_abort_bundle["bundle_path"],
         input_mode="zip",
@@ -379,6 +418,7 @@ def main(argv):
 
     stable_max_attempt_section = run_triage_case(
         triage_module=triage_module,
+        triage_log_root=TRIAGE_LOG_ROOT,
         name="Triage Zip Input: Stable Max-Attempt Exhaustion",
         input_path=stable_bundle["bundle_path"],
         input_mode="zip",
@@ -394,6 +434,7 @@ def main(argv):
 
     unstable_max_attempt_section = run_triage_case(
         triage_module=triage_module,
+        triage_log_root=TRIAGE_LOG_ROOT,
         name="Triage Extracted Input: Unstable Max-Attempt Exhaustion",
         input_path=unstable_extracted_root,
         input_mode="folder",
@@ -410,6 +451,7 @@ def main(argv):
 
     unknown_section = run_triage_case(
         triage_module=triage_module,
+        triage_log_root=TRIAGE_LOG_ROOT,
         name="Triage Extracted Input: Safe Unknown Fallback",
         input_path=synthetic_unknown_root,
         input_mode="folder",

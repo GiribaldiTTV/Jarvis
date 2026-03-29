@@ -9,8 +9,7 @@ import zipfile
 
 ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 LOGS_DIR = os.path.join(ROOT_DIR, "logs")
-BASE_LOG_ROOT = os.path.join(LOGS_DIR, "support_bundle_triage")
-REPORTS_DIR = os.path.join(BASE_LOG_ROOT, "reports")
+DEFAULT_BASE_LOG_ROOT = os.path.join(LOGS_DIR, "support_bundle_triage")
 MANIFEST_FILENAME = "manifest.json"
 
 DESKTOP_LAUNCHER_REGRESSION_HARNESS = os.path.join(ROOT_DIR, "dev", "jarvis_desktop_launcher_regression_harness.py")
@@ -80,7 +79,17 @@ def find_bundle_root(start_path):
     raise SupportBundleTriageError("Multiple manifest.json files were found; provide a single extracted support bundle folder.")
 
 
-def extract_bundle_if_needed(bundle_path):
+def resolve_base_log_root(log_root_override=None):
+    if log_root_override:
+        return os.path.abspath(log_root_override)
+    return DEFAULT_BASE_LOG_ROOT
+
+
+def reports_dir_for(base_log_root):
+    return os.path.join(base_log_root, "reports")
+
+
+def extract_bundle_if_needed(bundle_path, base_log_root):
     normalized = os.path.abspath(bundle_path)
     cleanup_dir = ""
 
@@ -90,7 +99,7 @@ def extract_bundle_if_needed(bundle_path):
     if not zipfile.is_zipfile(normalized):
         raise SupportBundleTriageError("The support bundle path must be a .zip file or an extracted bundle folder.")
 
-    temp_root = tempfile.mkdtemp(prefix="jarvis_support_bundle_", dir=BASE_LOG_ROOT)
+    temp_root = tempfile.mkdtemp(prefix="jarvis_support_bundle_", dir=base_log_root)
     cleanup_dir = temp_root
     with zipfile.ZipFile(normalized, "r") as archive:
         archive.extractall(temp_root)
@@ -327,11 +336,11 @@ def build_report_text(report_path, result):
     return "\n".join(lines) + "\n"
 
 
-def write_reports(result):
-    ensure_dir(REPORTS_DIR)
+def write_reports(result, reports_dir):
+    ensure_dir(reports_dir)
     stamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S_%f")
-    report_path = os.path.join(REPORTS_DIR, f"SupportBundleTriageReport_{stamp}.txt")
-    json_path = os.path.join(REPORTS_DIR, f"SupportBundleTriageReport_{stamp}.json")
+    report_path = os.path.join(reports_dir, f"SupportBundleTriageReport_{stamp}.txt")
+    json_path = os.path.join(reports_dir, f"SupportBundleTriageReport_{stamp}.json")
     report_text = build_report_text(report_path, result)
 
     with open(report_path, "w", encoding="utf-8") as handle:
@@ -358,15 +367,17 @@ def write_reports(result):
     return report_path, json_path, report_text
 
 
-def triage_bundle(source_path):
-    ensure_dir(BASE_LOG_ROOT)
-    bundle_root, cleanup_dir = extract_bundle_if_needed(source_path)
+def triage_bundle(source_path, log_root_override=None):
+    base_log_root = resolve_base_log_root(log_root_override)
+    reports_dir = reports_dir_for(base_log_root)
+    ensure_dir(base_log_root)
+    bundle_root, cleanup_dir = extract_bundle_if_needed(source_path, base_log_root)
     try:
         manifest_path, manifest = load_manifest(bundle_root)
         runtime_log_path = resolve_bundled_file(bundle_root, manifest, "runtime_log")
         crash_log_path = resolve_bundled_file(bundle_root, manifest, "crash_log")
         result = summarize_bundle(bundle_root, os.path.abspath(source_path), manifest_path, manifest, runtime_log_path, crash_log_path)
-        return write_reports(result)
+        return write_reports(result, reports_dir)
     finally:
         if cleanup_dir:
             shutil.rmtree(cleanup_dir, ignore_errors=True)
