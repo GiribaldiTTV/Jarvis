@@ -654,7 +654,7 @@ The first coherent validation-first slice is now implemented as a contained voic
 
 ### [ID: FB-019] Support bundle to repro triage helper
 
-Status: Proposed  
+Status: Implemented (Post-v1.8.0 rev1)  
 Priority: Medium  
 Suggested Version: Post-v1.8.0  
 Suggested Revision: rev1  
@@ -688,7 +688,7 @@ Out of Scope:
 - diagnostics UI redesign
 
 Notes:
-This item is the internal bridge between the implemented support-bundle reporting flow and the existing developer validation harnesses. The goal is not automatic reproduction from logs alone, but faster and more consistent mapping from production evidence to the right contained internal repro path.
+The first coherent `FB-019` slice is now implemented as a dev-only support-bundle triage helper plus a contained regression harness. The repo now includes support-bundle zip and extracted-folder intake, parsing of the existing manifest plus bundled runtime/crash artifacts, conservative classification for the current launcher-owned terminal failure classes, compact `.txt` / `.json` triage reports, and reusable validation coverage for supported cases plus safe `unknown` fallback. Production support-bundle generation and the end-user `Report Issue` flow remain unchanged; this item is about faster internal mapping from production evidence to the right contained repro path.
 
 ---
 

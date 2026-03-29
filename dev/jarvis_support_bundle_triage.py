@@ -329,7 +329,7 @@ def build_report_text(report_path, result):
 
 def write_reports(result):
     ensure_dir(REPORTS_DIR)
-    stamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+    stamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S_%f")
     report_path = os.path.join(REPORTS_DIR, f"SupportBundleTriageReport_{stamp}.txt")
     json_path = os.path.join(REPORTS_DIR, f"SupportBundleTriageReport_{stamp}.json")
     report_text = build_report_text(report_path, result)
