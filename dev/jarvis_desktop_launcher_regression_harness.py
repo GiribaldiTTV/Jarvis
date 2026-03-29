@@ -16,6 +16,7 @@ LAUNCHER_SCRIPT = os.path.join(ROOT_DIR, "desktop", "jarvis_desktop_launcher.pyw
 HEALTHY_VALIDATOR_SCRIPT = os.path.join(ROOT_DIR, "dev", "jarvis_desktop_launcher_healthy_validation.py")
 FAILURE_TARGET = os.path.join(ROOT_DIR, "dev", "targets", "jarvis_manual_failure_target.pyw")
 STARTUP_ABORT_TARGET = os.path.join(ROOT_DIR, "dev", "targets", "jarvis_manual_startup_abort_target.pyw")
+MIXED_SEQUENCE_TARGET = os.path.join(ROOT_DIR, "dev", "targets", "jarvis_manual_mixed_sequence_target.pyw")
 
 
 def hidden_subprocess_kwargs():
@@ -224,6 +225,80 @@ def run_failure_lane(name, target_script, log_root, expected_markers):
     }
 
 
+def run_mixed_failure_lane(name, sequence_value, mixed_type, log_root):
+    reset_dir(log_root)
+
+    env = os.environ.copy()
+    env["JARVIS_HARNESS_TARGET_SCRIPT"] = MIXED_SEQUENCE_TARGET
+    env["JARVIS_HARNESS_LOG_ROOT"] = log_root
+    env["JARVIS_HARNESS_DISABLE_DIAGNOSTICS"] = "1"
+    env["JARVIS_HARNESS_DISABLE_VOICE"] = "1"
+    env["JARVIS_MANUAL_MIXED_SEQUENCE"] = sequence_value
+
+    result = run_command([sys.executable, LAUNCHER_SCRIPT], env=env, timeout_seconds=180)
+
+    runtime_log = latest_file_matching(log_root, "Runtime_")
+    crash_log = latest_file_matching(os.path.join(log_root, "crash"), "Crash_")
+    runtime_lines = read_lines(runtime_log)
+
+    mixed_marker = f"STATUS|WARNING|LAUNCHER_RUNTIME|MIXED_FAILURE_PATTERN_OBSERVED|TYPE={mixed_type}"
+    checks = {
+        "launcher_exit_code_zero": line_status(
+            result.returncode == 0,
+            f"launcher exit={result.returncode}",
+        ),
+        "runtime_log_created": line_status(
+            bool(runtime_log),
+            runtime_log or "missing runtime log",
+        ),
+        "mixed_pattern_observed": line_status(
+            contains_line_fragment(runtime_lines, mixed_marker),
+            mixed_marker,
+        ),
+        "normal_exit_complete": line_status(
+            contains_line_fragment(runtime_lines, "STATUS|SUCCESS|LAUNCHER_RUNTIME|NORMAL_EXIT_COMPLETE"),
+            "STATUS|SUCCESS|LAUNCHER_RUNTIME|NORMAL_EXIT_COMPLETE",
+        ),
+        "failure_flow_absent": line_status(
+            not contains_line_fragment(runtime_lines, "STATUS|SUCCESS|LAUNCHER_RUNTIME|FAILURE_FLOW_COMPLETE"),
+            "STATUS|SUCCESS|LAUNCHER_RUNTIME|FAILURE_FLOW_COMPLETE absent",
+        ),
+        "no_false_identical_crash_threshold": line_status(
+            not contains_line_fragment(runtime_lines, "CONSECUTIVE_IDENTICAL_CRASH_THRESHOLD_REACHED"),
+            "CONSECUTIVE_IDENTICAL_CRASH_THRESHOLD_REACHED absent",
+        ),
+        "no_false_startup_abort_threshold": line_status(
+            not contains_line_fragment(runtime_lines, "CONSECUTIVE_STARTUP_ABORT_THRESHOLD_REACHED"),
+            "CONSECUTIVE_STARTUP_ABORT_THRESHOLD_REACHED absent",
+        ),
+        "crash_log_absent": line_status(
+            not crash_log,
+            crash_log or "no crash log generated",
+        ),
+        "diagnostics_status_cleaned": line_status(
+            not os.path.exists(os.path.join(log_root, "diagnostics_status.txt")),
+            os.path.join(log_root, "diagnostics_status.txt"),
+        ),
+        "diagnostics_stop_cleaned": line_status(
+            not os.path.exists(os.path.join(log_root, "diagnostics_stop.signal")),
+            os.path.join(log_root, "diagnostics_stop.signal"),
+        ),
+        "startup_abort_signal_cleaned": line_status(
+            not os.path.exists(os.path.join(log_root, "renderer_startup_abort.signal")),
+            os.path.join(log_root, "renderer_startup_abort.signal"),
+        ),
+    }
+
+    return {
+        "name": name,
+        "runtime_log": runtime_log,
+        "crash_log": crash_log,
+        "checks": checks,
+        "stdout": result.stdout.strip(),
+        "stderr": result.stderr.strip(),
+    }
+
+
 def collect_failures(section):
     failures = []
     for key, value in section["checks"].items():
@@ -293,7 +368,27 @@ def main(argv):
         ],
     )
 
-    sections = [healthy_section, repeated_crash_section, startup_abort_section]
+    crash_to_abort_section = run_mixed_failure_lane(
+        name="Mixed Failure Sequence: Crash To Startup Abort",
+        sequence_value="crash,abort,success",
+        mixed_type="CRASH_TO_STARTUP_ABORT",
+        log_root=os.path.join(BASE_LOG_ROOT, "mixed_crash_to_abort"),
+    )
+
+    abort_to_crash_section = run_mixed_failure_lane(
+        name="Mixed Failure Sequence: Startup Abort To Crash",
+        sequence_value="abort,crash,success",
+        mixed_type="STARTUP_ABORT_TO_CRASH",
+        log_root=os.path.join(BASE_LOG_ROOT, "mixed_abort_to_crash"),
+    )
+
+    sections = [
+        healthy_section,
+        repeated_crash_section,
+        startup_abort_section,
+        crash_to_abort_section,
+        abort_to_crash_section,
+    ]
     failures = []
     for section in sections:
         failures.extend(collect_failures(section))
