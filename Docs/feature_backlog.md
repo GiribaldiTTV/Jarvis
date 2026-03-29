@@ -253,10 +253,10 @@ This should remain a reporting refinement only and must not change launcher beha
 
 ### [ID: FB-008] Shutdown voice degradation effect
 
-Status: Implemented (Post-v1.8.0 rev1)  
+Status: Deferred  
 Priority: Low  
-Suggested Version: Post-v1.8.0  
-Suggested Revision: rev1  
+Suggested Version: TBD  
+Suggested Revision: TBD  
 
 Description:
 Add a staged degradation effect to the final "Shutting down" voice line so Jarvis sounds like he is losing power during terminal shutdown.
@@ -280,7 +280,7 @@ Out of Scope:
 - renderer changes
 
 Notes:
-The first coherent shutdown-voice slice is now implemented as a dedicated path for the final "Shutting down." line only. That line now uses a shutdown-specific audio branch with segmented delivery and a short powerdown-style ending when available, and it falls back cleanly to the prior generic voice path if the dedicated effect cannot be produced. Non-shutdown lines remain unchanged, and this does not imply a broader voice-system redesign.
+The earlier shutdown-specific effect experiment is no longer the current repo-truth baseline. The final "Shutting down." line currently uses the same diagnostics/error voice path and generic effect flow as the other failure lines. This item remains the place for any future dedicated shutdown-effect work, but no shutdown-specific path is currently implemented.
 
 ---
 
@@ -617,10 +617,10 @@ The first coherent manual reporting flow is now implemented as a privacy-safe di
 
 ### [ID: FB-018] Voice-path regression validation harness
 
-Status: Deferred  
+Status: Implemented (Post-v1.8.0 rev1)  
 Priority: Medium  
-Suggested Version: TBD  
-Suggested Revision: TBD  
+Suggested Version: Post-v1.8.0  
+Suggested Revision: rev1  
 
 Description:
 Add a small contained regression harness for Jarvis voice-path validation across the current launcher and diagnostics/manual test lanes.
@@ -648,7 +648,7 @@ Out of Scope:
 - broader devtools framework expansion
 
 Notes:
-This should remain a small validation-first item. The current product direction intentionally keeps the normal startup/desktop Jarvis voice path distinct from the diagnostics/error Jarvis voice path, so this item is about guarding those paths, not merging them.
+The first coherent validation-first slice is now implemented as a contained voice regression harness. The repo now includes the harness script, a one-click VBS launcher, toolkit surfacing in the accepted PySide dev toolkit, launcher-owned repeated-crash and startup-abort lane coverage, direct diagnostics/error `VOICE_SYNC` / `VOICE_FINAL` probes, and stronger normal-voice direct-probe evidence beyond exit-code-only smoke validation. The current product direction still intentionally keeps the normal startup/desktop Jarvis voice path distinct from the diagnostics/error Jarvis voice path, so this item remains about guarding those paths, not merging them.
 
 ---
 

@@ -32,7 +32,7 @@ EXPECTED_DIAGNOSTICS_LINES = [
     "Shutting down.",
 ]
 
-NORMAL_VOICE_SMOKE_TEXT = "Jarvis normal voice path validation."
+NORMAL_VOICE_PROBE_TEXT = "Jarvis normal voice path validation."
 
 
 def hidden_subprocess_kwargs():
@@ -234,23 +234,62 @@ def run_error_voice_probe(line_text, probe_root):
     }
 
 
-def run_normal_voice_smoke(smoke_root):
-    reset_dir(smoke_root)
-    result = run_command(
-        [
-            sys.executable,
-            NORMAL_VOICE_SCRIPT,
-            "--text", NORMAL_VOICE_SMOKE_TEXT,
-        ],
-        timeout_seconds=60,
-    )
+def parse_last_json_line(stdout_text):
+    for line in reversed([line.strip() for line in stdout_text.splitlines() if line.strip()]):
+        try:
+            return json.loads(line)
+        except Exception:
+            continue
+    return None
+
+
+def run_normal_voice_probe(probe_root):
+    reset_dir(probe_root)
+    probe_script = f"""
+import asyncio
+import importlib.util
+import json
+
+module_path = r"{NORMAL_VOICE_SCRIPT}"
+spec = importlib.util.spec_from_file_location("jarvis_voice_probe", module_path)
+module = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(module)
+
+speaker = module.JarvisSpeaker()
+statuses = []
+states = []
+
+def enum_name(value):
+    return getattr(value, "name", str(value))
+
+speaker.player.mediaStatusChanged.connect(lambda status: statuses.append(enum_name(status)))
+speaker.player.playbackStateChanged.connect(lambda state: states.append(enum_name(state)))
+
+asyncio.run(speaker.speak(r"{NORMAL_VOICE_PROBE_TEXT}"))
+
+print(json.dumps({{
+    "statuses": statuses,
+    "states": states,
+    "playing_seen": "PlayingState" in states,
+    "end_seen": "EndOfMedia" in statuses,
+    "invalid_seen": "InvalidMedia" in statuses,
+}}))
+"""
+
+    result = run_command([sys.executable, "-c", probe_script], timeout_seconds=60)
+    payload = parse_last_json_line(result.stdout.strip())
 
     return {
-        "text": NORMAL_VOICE_SMOKE_TEXT,
+        "text": NORMAL_VOICE_PROBE_TEXT,
         "stdout": result.stdout.strip(),
         "stderr": result.stderr.strip(),
+        "payload": payload or {},
         "checks": {
             "exit_code": line_status(result.returncode == 0, f"voice exit={result.returncode}"),
+            "probe_payload_parsed": line_status(bool(payload), "normal voice probe payload"),
+            "playing_state_seen": line_status(bool(payload and payload.get("playing_seen")), payload.get("states") if payload else "missing payload"),
+            "end_of_media_seen": line_status(bool(payload and payload.get("end_seen")), payload.get("statuses") if payload else "missing payload"),
+            "invalid_media_absent": line_status(bool(payload) and not payload.get("invalid_seen"), payload.get("statuses") if payload else "missing payload"),
         },
     }
 
@@ -295,7 +334,7 @@ def build_report_text(branch_state, report_path, launcher_sections, probe_sectio
             lines.append(f"  {section['stderr']}")
         lines.append("")
 
-    lines.append("Normal voice smoke test:")
+    lines.append("Normal voice direct probe:")
     for key, value in normal_section["checks"].items():
         lines.append(f"  {'PASS' if value['ok'] else 'FAIL'} :: {key} :: {value['detail']}")
 
@@ -322,7 +361,7 @@ def main(argv):
     repeated_crash_root = os.path.join(BASE_LOG_ROOT, "repeated_crash")
     startup_abort_root = os.path.join(BASE_LOG_ROOT, "startup_abort")
     direct_probe_root = os.path.join(BASE_LOG_ROOT, "direct_error_voice")
-    normal_smoke_root = os.path.join(BASE_LOG_ROOT, "normal_voice")
+    normal_probe_root = os.path.join(BASE_LOG_ROOT, "normal_voice")
 
     repeated_crash = run_launcher_lane(
         name="Repeated-Crash Failure Lane",
@@ -366,7 +405,7 @@ def main(argv):
             )
         )
 
-    normal_section = run_normal_voice_smoke(normal_smoke_root)
+    normal_section = run_normal_voice_probe(normal_probe_root)
 
     launcher_sections = [repeated_crash, startup_abort]
     failures = []
