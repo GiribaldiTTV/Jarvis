@@ -82,9 +82,9 @@ This conservative mixed-sequence contract is already satisfied by the stabilized
 
 ### [ID: FB-003] Retry limit and diagnostics escalation policy
 
-Status: Implemented (Post-v1.8.0 rev1)  
+Status: Implemented (v1.9.0 rev1)  
 Priority: Medium  
-Suggested Version: Post-v1.8.0  
+Suggested Version: v1.9.0  
 Suggested Revision: rev1  
 
 Description:
@@ -109,7 +109,7 @@ Out of Scope:
 - broad orchestration refactor
 
 Notes:
-This is now implemented through `Post-v1.8.0` `rev1a` and `rev1b`. `rev1a` defined the retry-exhaustion and diagnostics-entry policy contract for repeated `STARTUP_ABORT` outcomes and repeated identical crash outcomes only. `rev1b` implemented the first coherent launcher behavior slice so those two evidence classes now terminate as first-class outcomes, propagate actual attempts used into terminal finalization and runtime summary output, use reason-correct terminal wording, and reuse the existing diagnostics completion path unchanged. Mixed failure-sequence policy remains separate `FB-002` work.
+This is now implemented through `v1.9.0` `rev1a` and `rev1b`. `rev1a` defined the retry-exhaustion and diagnostics-entry policy contract for repeated `STARTUP_ABORT` outcomes and repeated identical crash outcomes only. `rev1b` implemented the first coherent launcher behavior slice so those two evidence classes now terminate as first-class outcomes, propagate actual attempts used into terminal finalization and runtime summary output, use reason-correct terminal wording, and reuse the existing diagnostics completion path unchanged. Mixed failure-sequence policy remains separate `FB-002` work.
 
 ---
 
@@ -503,7 +503,7 @@ This was the safest first implementation target for `v1.8.0` and is now implemen
 
 Status: Deferred  
 Priority: Medium  
-Suggested Version: Post-v1.8.0  
+Suggested Version: TBD  
 Suggested Revision: TBD  
 
 Description:
@@ -530,7 +530,7 @@ Out of Scope:
 - launcher behavior changes
 
 Notes:
-This is preparation work only, must not introduce boot-level runtime control, and is not part of the validation-first `v1.8.0` track.
+This remains preparation work only. An architecture-level `FB-015 rev1a` phase-boundary contract is already captured in `docs/architecture.md`, but broader cross-doc alignment and any later boot-planning follow-through remain deferred. This item must not introduce boot-level runtime control and does not authorize `FB-004` implementation work.
 
 ---
 
@@ -579,9 +579,9 @@ Implemented in `v1.7.0` rev1.
 
 ### [ID: FB-017] Support bundle and GitHub issue prefill
 
-Status: Implemented (Post-v1.8.0 rev1)  
+Status: Implemented (v1.9.0 rev1)  
 Priority: Medium  
-Suggested Version: Post-v1.8.0  
+Suggested Version: v1.9.0  
 Suggested Revision: rev1  
 
 Description:
@@ -617,9 +617,9 @@ The first coherent manual reporting flow is now implemented as a privacy-safe di
 
 ### [ID: FB-018] Voice-path regression validation harness
 
-Status: Implemented (Post-v1.8.0 rev1)  
+Status: Implemented (v1.9.0 rev1)  
 Priority: Medium  
-Suggested Version: Post-v1.8.0  
+Suggested Version: v1.9.0  
 Suggested Revision: rev1  
 
 Description:
@@ -654,9 +654,9 @@ The first coherent validation-first slice is now implemented as a contained voic
 
 ### [ID: FB-019] Support bundle to repro triage helper
 
-Status: Implemented (Post-v1.8.0 rev1)  
+Status: Implemented (v1.9.0 rev1)  
 Priority: Medium  
-Suggested Version: Post-v1.8.0  
+Suggested Version: v1.9.0  
 Suggested Revision: rev1  
 
 Description:

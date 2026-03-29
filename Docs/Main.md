@@ -47,7 +47,7 @@ Use these when the task concerns:
 - product direction
 - backlog control
 - orchestration ownership
-- prompt or workflow governance
+- prompt or workflow governance, including batched-workstream execution rules
 
 ### Canonical Workstream Docs
 
@@ -70,7 +70,7 @@ These docs are still valid, but they are not part of the default prompt baseline
 - `docs/v1.6.0_closeout.md`
 - `docs/v1.7.0_closeout.md`
 - `docs/v1.8.0_closeout.md`
-- `docs/post-v1.8.0_closeout.md`
+- `docs/v1.9.0_closeout.md`
 
 Use them when the task depends on:
 
@@ -138,6 +138,21 @@ For “what should we do next,” “is this complete,” or “is this the righ
 - the canonical doc for the active workstream
 - relevant closeout docs only if version guarantees or sequencing are part of the question
 
+### First Post-Closeout Version Planning
+
+For the first planning prompt after a version closes, prompts should usually include:
+
+- `docs/development_rules.md`
+- `docs/Main.md`
+- `docs/codex_modes.md`
+- the latest relevant closeout doc
+- the directly relevant canonical planning doc or docs for the next version lane
+
+That first prompt should explicitly answer:
+
+- what facts must be carried forward into the new version baseline
+- what repeated prompt content can now be removed because the source-of-truth docs already capture it
+
 ### Governance / Prompt / Workflow Docs Work
 
 For prompt-governance or workflow-governance tasks, prompts should usually include:
@@ -196,3 +211,5 @@ If you are writing a future Jarvis prompt and are unsure what to include:
 5. add closeout or historical docs only if the task truly depends on them
 
 Shorter prompts are preferred when they still preserve the real source of truth.
+
+For batched-workstream execution specifics, rely on `docs/codex_modes.md` rather than retyping the full rule set in every prompt unless the task needs a deliberate override.

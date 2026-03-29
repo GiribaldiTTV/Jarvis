@@ -47,6 +47,12 @@ Current accepted state:
 - [fill in the relevant completed revisions]
 - [fill in the relevant guarantees already established]
 
+Carry-forward / prompt reduction audit:
+- [what must be carried forward from the last closeout or prior canonical baseline]
+- [what can now be removed from this prompt because current source-of-truth docs already cover it]
+
+For the first planning prompt after a version closeout, this audit should be filled in explicitly.
+
 ## Evidence Inputs
 
 Use the following as part of the task evidence set when relevant:
@@ -72,6 +78,24 @@ If any future version should intentionally change those, treat that as a deliber
 
 Your job is to:
 [describe the exact task in one or two sentences]
+
+## Workstream Identity
+
+Use this section when the task is a coherent batched workstream:
+
+- subsystem: [one subsystem only]
+- end-state: [one concrete end-state]
+- approved subproblem: [one coherent approved subproblem]
+
+## Approved Batch Chain
+
+Use this section only when the task intentionally batches dependent slices:
+
+1. [slice 1]
+2. [slice 2]
+3. [slice 3]
+4. [optional slice 4]
+5. [optional low-risk completion slice 5]
 
 ## Goal
 
@@ -126,11 +150,7 @@ Additional task-specific constraints:
 - [constraint 2]
 - [constraint 3]
 
-In workflow terms:
-- one fix per revision means one coherent approved subproblem per revision
-- minimal isolated changes means minimal coherent approved changes where appropriate
-- use the smallest safe slice for architecture clarification, boundary-setting, and high-risk behavior or policy work
-- use the smallest coherent slice for lower-risk post-boundary feature delivery when a smaller fragment would leave an incomplete first deliverable
+For collaboration-mode and batched-workstream execution specifics, rely on `C:\Jarvis\docs\codex_modes.md` unless this task needs a deliberate task-specific override.
 
 ## Guidance
 

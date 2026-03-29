@@ -156,6 +156,64 @@ Workflow mode may perform edits, but only after the task scope is explicitly app
 
 ---
 
+## Batched Workstream Rule
+
+Jarvis may use one tightly related batched workstream per prompt when that is the smallest coherent way to complete one approved subproblem.
+
+A batched workstream is safe only when all of the following are true:
+
+- one subsystem
+- one end-state
+- one coherent approved subproblem
+- later slices are dependent completion steps of the same chain
+- validation can still stay narrow and exact
+
+Default batch target:
+
+- 3-4 dependent sub-slices
+
+Hard cap:
+
+- 5 sub-slices only when slices 4-5 are low-risk completion steps such as containment, accepted dev-entry reachability, validator coverage, or tiny directly supportive truth-doc sync
+
+Jarvis batched workstreams must not:
+
+- mix unrelated subsystems
+- mix production behavior changes with unrelated dev-tool or docs cleanup
+- use filler batching just to make a prompt feel larger
+- smuggle in backlog cleanup unrelated to the active workstream
+
+### Validation Inside A Batched Workstream
+
+When a batched workstream is approved, Workflow mode should use:
+
+- baseline validation before edits
+- slice-local validation after each code-bearing slice
+- one final integrated validation at the end
+
+### Batched-Workstream Stop Conditions
+
+Stop the workstream early and report immediately if:
+
+- a source-of-truth conflict appears
+- the next slice would cross into another subsystem
+- the next slice would reopen locked production behavior outside the approved scope
+- safe verification for the current slice is not possible
+- the current slice fails validation
+- the remaining slices are no longer obviously required to complete the same end-state
+
+### Docs And Backlog Sync Inside A Batched Workstream
+
+Directly supportive doc sync may travel with the active workstream when it records that exact implemented work and does not widen scope.
+
+Backlog sync remains controlled:
+
+- exact markdown approval is still required before editing `docs/feature_backlog.md`
+- only the exact active workstream truth may be synced
+- unrelated backlog cleanup must stay separate
+
+---
+
 ## Shared Rules Across Both Modes
 
 These rules apply in both modes:
@@ -262,6 +320,15 @@ In Workflow mode, Codex should:
 - prioritize the active code workstream when the task is code-focused
 - bundle directly supporting truth-doc updates into the same approved workstream when that keeps docs aligned without widening scope
 - prefer milestone-level or canonical doc sync over repeated separate doc-only micro-passes when docs are not the primary deliverable
+
+### Prompt Reduction After Closeout
+
+Once a version has a closeout doc and the directly supportive truth-sync items are complete, future prompts should usually:
+
+- cite the latest relevant closeout doc instead of re-listing the full completed-workstream recap
+- carry forward only the baseline facts still needed for the next version lane
+- omit validator, harness, and reachability details that are already captured in the closeout and backlog truth unless the new task depends on them directly
+- avoid repeating the full batched-workstream rule block when `codex_modes.md` is already part of the prompt baseline
 
 ### Current Boot-Planning Example
 
