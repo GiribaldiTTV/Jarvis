@@ -652,6 +652,46 @@ The first coherent validation-first slice is now implemented as a contained voic
 
 ---
 
+### [ID: FB-019] Support bundle to repro triage helper
+
+Status: Proposed  
+Priority: Medium  
+Suggested Version: Post-v1.8.0  
+Suggested Revision: rev1  
+
+Description:
+Add a small internal triage helper that reads a user-generated support bundle and maps it to the closest known failure class and internal repro path.
+
+Why it matters:
+The implemented `Report Issue` flow now gives developers a consistent support bundle, but engineers still have to manually inspect the manifest, runtime log, and crash log to decide which existing harness or contained validation lane best matches the incident. A small dev-only triage helper would shorten the path from user report to reproducible engineering case without changing the end-user reporting flow.
+
+Proposed Change:
+Create a dev-only support-bundle triage helper that parses the support bundle manifest plus available runtime/crash artifacts, identifies the most likely launcher-owned failure class or validation lane, and emits a compact internal summary with suggested next repro steps.
+
+Likely Files Affected:
+- dev-only support bundle triage tooling
+- support bundle manifest parser/helpers
+- optional internal triage documentation if needed
+
+Scope:
+- dev-only bundle parsing
+- failure-class suggestion
+- harness/repro-path suggestion
+- compact internal triage summary
+
+Out of Scope:
+- exact replay of the user machine state
+- end-user UI changes
+- silent uploads
+- automatic GitHub issue submission
+- launcher policy changes
+- diagnostics UI redesign
+
+Notes:
+This item is the internal bridge between the implemented support-bundle reporting flow and the existing developer validation harnesses. The goal is not automatic reproduction from logs alone, but faster and more consistent mapping from production evidence to the right contained internal repro path.
+
+---
+
 ## Completed Items
 
 Move completed backlog items here for history tracking.
