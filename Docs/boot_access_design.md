@@ -459,6 +459,42 @@ At planning level, the resident trust-state transitions are:
 These are conceptual planning states for the future resident boot-access layer.
 They do not authorize runtime control over launcher-owned desktop behavior or reinterpretation of launcher-owned desktop truth.
 
+## Resident Control-Anchor Responsibility Contract
+
+At planning level, the future resident control-center or settings anchor is the stable post-login place where the user can:
+
+- understand current Jarvis trust posture without re-entering a boot flow
+- see whether the current resident trust state is normal, degraded, or recovery-needed
+- reach recovery entry later through a user-initiated path
+- understand why recovery is being surfaced when trust continuity is no longer fully normal
+- revisit Jarvis trust-continuity posture after login through one stable anchor rather than scattered one-off prompts
+
+This resident control anchor is conceptually responsible for:
+
+- calm post-login trust-state visibility
+- user-initiated recovery entry after login
+- concise explanation of current trust continuity posture
+- being the stable post-login home for recovery posture once the boot flow has already handed off to the desktop phase
+
+This resident control anchor should relate to the resident trust states as follows:
+
+- in normal trust state, it may remain quiet and low-demand while still existing as the stable post-login anchor
+- in degraded trust state, it should make recovery discoverable, legible, and easy to revisit
+- in recovery-needed state, it should make restoration obvious enough that the user does not have to hunt for the next safe step
+- after a bounded deferral, it remains the stable place where recovery can later be resumed without forcing the user back through a boot-only flow
+
+This planning contract does not make the resident control anchor responsible for:
+
+- pre-desktop presence or boot-time trust completion
+- launcher-owned desktop truth, classification, control, retry, recovery routing, or finalized end-state determination
+- diagnostics authority, diagnostics policy, or incident handling
+- auth backend, credential storage, biometrics, device-trust, or shell mechanics
+- exact tray, control-center, resident UI, or notification implementation mechanics
+- broad consumer setup or environment-preference ownership
+
+Consumer setup and environment-preference planning remains a separate future lane.
+This resident control-anchor contract is only about post-login trust continuity, trust-state visibility, and user-initiated recovery access.
+
 ## How Jarvis Stays Present Without Becoming Heavy
 
 Jarvis should remain present through:
@@ -520,6 +556,8 @@ This canonical document intentionally defers:
 - notification-system implementation
 - exact post-bypass detection logic
 - exact resident recovery-entry persistence mechanics
+- exact resident control-anchor information architecture or settings taxonomy
+- consumer setup and environment-preference design
 - boot runtime control
 - launcher-policy changes
 
@@ -565,9 +603,8 @@ A successful consolidated boot-access design would make the user feel:
 
 ## Recommended Next Planning Splits
 
-If boot planning continues after this consolidation, the next coherent revisions should stay narrow and choose one of:
+If boot planning continues after this clarification, the next coherent revision should stay narrow:
 
-- resident control-center or settings-anchor responsibility planning
 - consumer setup and environment-preference planning after install and first run
 
-Those should remain separate from backend, shell, diagnostics, or implementation design until the planning boundary is intentionally changed.
+That should remain separate from backend, shell, diagnostics, or implementation design until the planning boundary is intentionally changed.
