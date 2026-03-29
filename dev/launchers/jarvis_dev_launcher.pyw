@@ -108,6 +108,22 @@ LANE_CONFIG = {
         "report_suffix": ".txt",
         "crash_folder": "",
     },
+    "launcherRegression": {
+        "label": "Desktop Launcher Regression Harness",
+        "detail": (
+            "Runs the contained desktop launcher regression harness across the current healthy, "
+            "repeated-crash, and startup-abort launcher paths, then writes one consolidated "
+            "pass/fail report."
+        ),
+        "quiet_launcher": "launch_jarvis_desktop_launcher_regression_harness.vbs",
+        "voice_launcher": "",
+        "supports_voice": False,
+        "log_root": os.path.join(LOGS_DIR, "desktop_launcher_regression_harness"),
+        "report_root": os.path.join(LOGS_DIR, "desktop_launcher_regression_harness", "reports"),
+        "report_prefix": "DesktopLauncherRegressionHarnessReport_",
+        "report_suffix": ".txt",
+        "crash_folder": "",
+    },
 }
 
 
@@ -499,6 +515,7 @@ class DevLauncherWindow(QWidget):
             ("Voice Regression Harness", "voiceRegression", False),
             ("Healthy Desktop Launch Validation", "desktopHealthy", False),
             ("Healthy Launcher Path Validation", "launcherHealthy", False),
+            ("Desktop Launcher Regression Harness", "launcherRegression", False),
         ]
         for label, lane_key, with_voice in quick_buttons:
             btn = QPushButton(label)
@@ -521,6 +538,7 @@ class DevLauncherWindow(QWidget):
             ("voiceRegression", "Voice Regression Harness"),
             ("desktopHealthy", "Healthy Desktop Launch Validation"),
             ("launcherHealthy", "Healthy Launcher Path Validation"),
+            ("launcherRegression", "Desktop Launcher Regression Harness"),
         ):
             btn = QPushButton(button_text)
             btn.setCheckable(True)
