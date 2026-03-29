@@ -119,13 +119,40 @@ def load_module_from_path(module_name, module_path):
     return module
 
 
+def path_is_within_root(path, root):
+    if not path:
+        return False
+    try:
+        return os.path.commonpath([os.path.abspath(path), os.path.abspath(root)]) == os.path.abspath(root)
+    except ValueError:
+        return False
+
+
 def run_healthy_section():
     module = load_module_from_path("jarvis_desktop_launcher_healthy_validation_module", HEALTHY_VALIDATOR_SCRIPT)
-    result = module.run_validation()
+    healthy_log_root = os.path.join(BASE_LOG_ROOT, "healthy")
+    result = module.run_validation(log_root_override=healthy_log_root)
+    artifacts = module.write_validation_artifacts(result)
+    checks = dict(result.get("checks", {}))
+    runtime_log = result.get("runtime_log", "")
+    report_path = artifacts.get("report_path", "")
+    checks["healthy_runtime_contained_under_harness_root"] = line_status(
+        path_is_within_root(runtime_log, healthy_log_root),
+        runtime_log or "missing runtime log",
+    )
+    checks["healthy_report_artifact_created"] = line_status(
+        bool(report_path),
+        report_path or "missing healthy report",
+    )
+    checks["healthy_report_contained_under_harness_root"] = line_status(
+        path_is_within_root(report_path, healthy_log_root),
+        report_path or "missing healthy report",
+    )
     return {
         "name": "Healthy Default Launcher Path",
-        "runtime_log": result.get("runtime_log", ""),
-        "checks": result.get("checks", {}),
+        "runtime_log": runtime_log,
+        "report_path": report_path,
+        "checks": checks,
         "stdout": result.get("stdout", ""),
         "stderr": result.get("stderr", ""),
     }
@@ -218,6 +245,8 @@ def build_report_text(branch_state, report_path, sections, overall_ok):
         lines.append(f"{section['name']}:")
         if section.get("runtime_log"):
             lines.append(f"  runtime log: {section['runtime_log']}")
+        if section.get("report_path"):
+            lines.append(f"  report: {section['report_path']}")
         if section.get("crash_log") is not None:
             lines.append(f"  crash log: {section.get('crash_log') or 'none'}")
         for key, value in section["checks"].items():

@@ -10,8 +10,8 @@ import time
 
 ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 LOGS_DIR = os.path.join(ROOT_DIR, "logs")
-BASE_LOG_ROOT = os.path.join(LOGS_DIR, "desktop_launcher_healthy_validation")
-REPORTS_DIR = os.path.join(BASE_LOG_ROOT, "reports")
+DEFAULT_BASE_LOG_ROOT = os.path.join(LOGS_DIR, "desktop_launcher_healthy_validation")
+REPORT_PREFIX = "DesktopLauncherHealthyValidationReport_"
 
 LAUNCHER_SCRIPT = os.path.join(ROOT_DIR, "desktop", "jarvis_desktop_launcher.pyw")
 DEFAULT_TARGET_SCRIPT = os.path.join(ROOT_DIR, "desktop", "jarvis_desktop_main.py")
@@ -150,15 +150,33 @@ def send_shutdown_hotkey():
         return False, f"hotkey send failed: {exc}"
 
 
-def run_validation():
-    reset_dir(BASE_LOG_ROOT)
-    ensure_dir(REPORTS_DIR)
+def resolve_base_log_root(log_root_override=None):
+    if log_root_override:
+        return log_root_override
+
+    env_override = os.environ.get("JARVIS_HEALTHY_VALIDATION_LOG_ROOT", "").strip()
+    if env_override:
+        return env_override
+
+    return DEFAULT_BASE_LOG_ROOT
+
+
+def reports_dir_for(base_log_root):
+    return os.path.join(base_log_root, "reports")
+
+
+def run_validation(log_root_override=None):
+    base_log_root = resolve_base_log_root(log_root_override)
+    reports_dir = reports_dir_for(base_log_root)
+
+    reset_dir(base_log_root)
+    ensure_dir(reports_dir)
 
     launcher_text = read_text(LAUNCHER_SCRIPT)
     launcher_line = launcher_default_target_line()
 
     env = os.environ.copy()
-    env["JARVIS_HARNESS_LOG_ROOT"] = BASE_LOG_ROOT
+    env["JARVIS_HARNESS_LOG_ROOT"] = base_log_root
     env["JARVIS_HARNESS_DISABLE_DIAGNOSTICS"] = "1"
     env["JARVIS_HARNESS_DISABLE_VOICE"] = "1"
     env["QT_QPA_PLATFORM"] = "offscreen"
@@ -181,7 +199,7 @@ def run_validation():
 
     ready_deadline = time.time() + 25.0
     while time.time() < ready_deadline:
-        runtime_log = latest_file_matching(BASE_LOG_ROOT, "Runtime_")
+        runtime_log = latest_file_matching(base_log_root, "Runtime_")
         runtime_lines = read_lines(runtime_log)
         if any("RENDERER_MAIN|STARTUP_READY" in line for line in runtime_lines):
             ready_seen = True
@@ -198,7 +216,7 @@ def run_validation():
     core_markers_captured = False
     post_ready_deadline = time.time() + 20.0
     while time.time() < post_ready_deadline:
-        runtime_log = latest_file_matching(BASE_LOG_ROOT, "Runtime_")
+        runtime_log = latest_file_matching(base_log_root, "Runtime_")
         runtime_lines = read_lines(runtime_log)
         shutdown_requested_seen = any("RENDERER_MAIN|SHUTDOWN_REQUESTED" in line for line in runtime_lines)
         renderer_exit_seen = any("RENDERER_MAIN|EVENT_LOOP_EXIT|code=0" in line for line in runtime_lines)
@@ -229,9 +247,9 @@ def run_validation():
 
     stdout_text, stderr_text = proc.communicate()
     exit_code = proc.returncode if exit_code is None else exit_code
-    runtime_log = latest_file_matching(BASE_LOG_ROOT, "Runtime_")
+    runtime_log = latest_file_matching(base_log_root, "Runtime_")
     runtime_lines = read_lines(runtime_log)
-    crash_log = latest_file_matching(os.path.join(BASE_LOG_ROOT, "crash"), "Crash_")
+    crash_log = latest_file_matching(os.path.join(base_log_root, "crash"), "Crash_")
     normal_exit_complete_seen = any(
         "STATUS|SUCCESS|LAUNCHER_RUNTIME|NORMAL_EXIT_COMPLETE" in line for line in runtime_lines
     )
@@ -239,9 +257,9 @@ def run_validation():
         "STATUS|SUCCESS|LAUNCHER_RUNTIME|FAILURE_FLOW_COMPLETE" in line for line in runtime_lines
     )
 
-    diagnostics_status_path = os.path.join(BASE_LOG_ROOT, "diagnostics_status.txt")
-    diagnostics_stop_path = os.path.join(BASE_LOG_ROOT, "diagnostics_stop.signal")
-    startup_abort_path = os.path.join(BASE_LOG_ROOT, "renderer_startup_abort.signal")
+    diagnostics_status_path = os.path.join(base_log_root, "diagnostics_status.txt")
+    diagnostics_stop_path = os.path.join(base_log_root, "diagnostics_stop.signal")
+    startup_abort_path = os.path.join(base_log_root, "renderer_startup_abort.signal")
     for artifact_path in (diagnostics_status_path, diagnostics_stop_path, startup_abort_path):
         try:
             if os.path.exists(artifact_path):
@@ -326,6 +344,8 @@ def run_validation():
 
     return {
         "branch_state": detect_branch_state(),
+        "log_root": base_log_root,
+        "reports_dir": reports_dir,
         "runtime_log": runtime_log,
         "launcher_script": LAUNCHER_SCRIPT,
         "target_script": DEFAULT_TARGET_SCRIPT,
@@ -364,16 +384,16 @@ def build_report_text(report_path, result, overall_ok):
     return "\n".join(lines) + "\n"
 
 
-def main(argv):
-    open_report = "--open-report" in argv
+def write_validation_artifacts(result):
+    reports_dir = result.get("reports_dir") or reports_dir_for(resolve_base_log_root(result.get("log_root")))
+    ensure_dir(reports_dir)
 
-    result = run_validation()
     failures = [key for key, value in result["checks"].items() if not value["ok"]]
     overall_ok = not failures
 
     stamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-    report_path = os.path.join(REPORTS_DIR, f"DesktopLauncherHealthyValidationReport_{stamp}.txt")
-    json_path = os.path.join(REPORTS_DIR, f"DesktopLauncherHealthyValidationReport_{stamp}.json")
+    report_path = os.path.join(reports_dir, f"{REPORT_PREFIX}{stamp}.txt")
+    json_path = os.path.join(reports_dir, f"{REPORT_PREFIX}{stamp}.json")
 
     report_text = build_report_text(report_path, result, overall_ok)
 
@@ -392,14 +412,29 @@ def main(argv):
             indent=2,
         )
 
+    return {
+        "overall_ok": overall_ok,
+        "failures": failures,
+        "report_path": report_path,
+        "json_path": json_path,
+        "report_text": report_text,
+    }
+
+
+def main(argv):
+    open_report = "--open-report" in argv
+
+    result = run_validation()
+    artifacts = write_validation_artifacts(result)
+
     if open_report and os.name == "nt":
         try:
-            os.startfile(report_path)
+            os.startfile(artifacts["report_path"])
         except Exception:
             pass
 
-    print(report_text)
-    return 0 if overall_ok else 1
+    print(artifacts["report_text"])
+    return 0 if artifacts["overall_ok"] else 1
 
 
 if __name__ == "__main__":
