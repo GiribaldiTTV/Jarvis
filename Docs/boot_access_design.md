@@ -376,6 +376,70 @@ It should not feel:
 - corporate
 - like the new default login path
 
+## TOTP Additive Stronger-Path Contract
+
+At planning level, TOTP or authenticator-app factors may be considered only as a future optional additive hardening layer for stronger or recovery-oriented trust states.
+They do not replace the current longer-form deliberate secret entry as the canonical Jarvis stronger-path baseline.
+
+Conceptually, this means:
+
+- the longer-form deliberate secret entry remains the baseline stronger or recovery-oriented trust factor
+- TOTP may later act as an additional stronger-path confirmation factor when a later explicitly approved planning pass chooses to harden that lane
+- the routine path does not become a TOTP-driven path by default
+
+TOTP should be understood here as:
+
+- a possible additive hardening factor for non-routine trust states
+- separate from the Windows Hello routine-path shortcut
+- supportive of stronger-path confidence, not a replacement for the current local-secret family
+
+TOTP should not be treated here as:
+
+- the new default daily login path
+- a replacement for typed sufficiency
+- a reason to collapse the stronger path into phone-dependent access by default
+- a reason to redefine Jarvis trust continuity around external app possession alone
+
+## TOTP Role Inside Stronger And Recovery Paths
+
+At planning level, if TOTP is later introduced, it should fit only where the existing design already justifies a more deliberate trust posture:
+
+- trust restoration
+- recovery-oriented confirmation
+- other non-routine states where the system should not pretend everything is ordinary
+
+That means:
+
+- typed secret entry must remain sufficient as part of the stronger-path baseline unless a later planning pass explicitly changes that contract
+- TOTP may later add hardening to stronger or recovery-oriented entry, but it must not silently become the routine path
+- failure or absence of TOTP must not cause the routine path and the stronger path to collapse into one confused flow
+- stronger-path hardening must remain conceptually separate from Windows Hello routine convenience
+
+This keeps the stronger path aligned with the current Jarvis contract:
+
+- more deliberate than routine access
+- recovery-aware when needed
+- still finite
+- still Jarvis-framed
+
+## TOTP Boundary And Deferral Contract
+
+This planning clarification does not authorize:
+
+- auth backend design
+- credential or secret storage implementation
+- exact TOTP enrollment or provisioning flow
+- exact fallback, device-loss, or recovery-code mechanics
+- device-trust implementation details
+- shell, tray, renderer, diagnostics, or boot-runtime mechanics
+
+This planning clarification only defines the role TOTP could later play:
+
+- optional
+- stronger-path or recovery-path only by default
+- additive to the current longer-secret baseline
+- non-replacing unless a later planning pass explicitly reopens that decision
+
 ## Fallback And Safety Contract
 
 Jarvis must never become the only rescue path to Windows access.
@@ -838,6 +902,7 @@ This canonical document intentionally defers:
 - exact environment-preference labels, defaults, or per-surface mappings
 - exact later-adjustment or safe-undo mechanics for setup choices
 - exact Windows Hello enrollment, availability, fallback, or failure-handling mechanics
+- exact TOTP enrollment, provisioning, fallback, device-loss, or recovery-code mechanics
 - boot runtime control
 - launcher-policy changes
 
