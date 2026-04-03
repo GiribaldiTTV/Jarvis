@@ -243,6 +243,28 @@ def latest_file_matching(folder_path: str, prefix: str, suffix: str = "") -> str
     return best_path
 
 
+def matching_files(folder_path: str, prefix: str, suffix: str = "") -> list[str]:
+    if not os.path.isdir(folder_path):
+        return []
+
+    matches = []
+    for name in os.listdir(folder_path):
+        if not name.lower().startswith(prefix.lower()):
+            continue
+        if suffix and not name.lower().endswith(suffix.lower()):
+            continue
+        path = os.path.join(folder_path, name)
+        if not os.path.isfile(path):
+            continue
+        try:
+            modified = os.path.getmtime(path)
+        except OSError:
+            continue
+        matches.append((modified, path))
+    matches.sort(key=lambda item: item[0], reverse=True)
+    return [path for _modified, path in matches]
+
+
 def latest_directory_named(root_path: str, folder_name: str) -> str:
     if not os.path.isdir(root_path):
         return ""
@@ -1144,6 +1166,16 @@ class DevLauncherWindow(QWidget):
             return datetime.datetime.fromtimestamp(last_activity).strftime("%m-%d %I:%M %p")
         return "Unknown time"
 
+    def previous_entry_run_tag(self, entry: dict) -> str:
+        run_key = entry.get("run_key", "")
+        if "::" not in run_key:
+            return ""
+        token = run_key.split("::", 1)[1]
+        stamp = self.normalized_run_stamp(token)
+        if token.startswith(stamp) and len(token) > len(stamp):
+            return token[len(stamp):].strip("_")
+        return ""
+
     def compact_previous_lane_label(self, lane_label: str) -> str:
         compact = lane_label
         for suffix in (" Validation", " Harness", " Helper", " Test", " Lane"):
@@ -1211,6 +1243,9 @@ class DevLauncherWindow(QWidget):
         lane_label = self.compact_previous_lane_label(entry["lane_label"])
         mode_label = self.compact_previous_mode_label(entry["mode_label"])
         timestamp_text = self.compact_previous_timestamp(entry)
+        run_tag = self.previous_entry_run_tag(entry)
+        if run_tag:
+            return f"{lane_label} | {mode_label} | {timestamp_text} #{run_tag}"
         return f"{lane_label} | {mode_label} | {timestamp_text}"
 
     def previous_entry_detail(self, entry: dict) -> str:
@@ -1228,6 +1263,122 @@ class DevLauncherWindow(QWidget):
         if entry.get("crash_folder"):
             self.append_wrapped_detail(lines, "Crash Folder", entry["crash_folder"], width=wrap_width)
         return "\n".join(lines)
+
+    def artifact_token_from_path(self, path: str, prefix: str, suffix: str = "") -> str:
+        if not path:
+            return ""
+        name = os.path.basename(path)
+        if name.lower().startswith(prefix.lower()):
+            name = name[len(prefix):]
+        if suffix and name.lower().endswith(suffix.lower()):
+            name = name[: -len(suffix)]
+        return name
+
+    def normalized_run_stamp(self, token: str) -> str:
+        if len(token) >= 15 and token[8:9] == "_" and token[:8].isdigit() and token[9:15].isdigit():
+            return token[:15]
+        return token
+
+    def build_previous_history_entries(self, record: dict) -> list[dict]:
+        entries = []
+        evidence_root = record.get("evidence_root", "")
+        report_root = record.get("report_root", "")
+        report_prefix = record.get("report_prefix", "")
+        report_suffix = record.get("report_suffix", "")
+        crash_folder_name = record.get("crash_folder_name", "")
+
+        runtime_paths = matching_files(evidence_root, "Runtime_", ".txt")
+        crash_root = os.path.join(evidence_root, crash_folder_name) if crash_folder_name else ""
+        crash_paths = matching_files(crash_root, "Crash_", ".txt")
+        report_paths = matching_files(report_root, report_prefix, report_suffix) if report_root and report_prefix else []
+
+        crash_by_token = {
+            self.artifact_token_from_path(path, "Crash_", ".txt"): path
+            for path in crash_paths
+        }
+        reports_by_stamp = {}
+        for path in report_paths:
+            report_token = self.artifact_token_from_path(path, report_prefix, report_suffix)
+            report_stamp = self.normalized_run_stamp(report_token)
+            reports_by_stamp.setdefault(report_stamp, []).append(path)
+
+        used_reports = set()
+        for runtime_path in runtime_paths:
+            runtime_token = self.artifact_token_from_path(runtime_path, "Runtime_", ".txt")
+            runtime_stamp = self.normalized_run_stamp(runtime_token)
+            report_path = ""
+            for candidate in reports_by_stamp.get(runtime_stamp, []):
+                if candidate in used_reports:
+                    continue
+                report_path = candidate
+                used_reports.add(candidate)
+                break
+
+            crash_path = crash_by_token.get(runtime_token, "")
+            artifact_times = []
+            for path in (runtime_path, report_path, crash_path):
+                if not path:
+                    continue
+                try:
+                    artifact_times.append(os.path.getmtime(path))
+                except OSError:
+                    continue
+            if not artifact_times:
+                continue
+
+            best_time = max(artifact_times)
+            entries.append(
+                {
+                    **record,
+                    "runtime_log": runtime_path,
+                    "report_path": report_path,
+                    "crash_folder": crash_root if crash_path and os.path.isdir(crash_root) else "",
+                    "last_activity": best_time,
+                    "timestamp_text": datetime.datetime.fromtimestamp(best_time).strftime("%Y-%m-%d %I:%M:%S %p"),
+                    "run_key": f"runtime::{runtime_token}",
+                }
+            )
+
+        fixed_runtime = record.get("runtime_fixed", "")
+        if fixed_runtime and fixed_runtime not in runtime_paths and os.path.isfile(fixed_runtime):
+            try:
+                fixed_time = os.path.getmtime(fixed_runtime)
+            except OSError:
+                fixed_time = 0.0
+            if fixed_time:
+                entries.append(
+                    {
+                        **record,
+                        "runtime_log": fixed_runtime,
+                        "report_path": "",
+                        "crash_folder": "",
+                        "last_activity": fixed_time,
+                        "timestamp_text": datetime.datetime.fromtimestamp(fixed_time).strftime("%Y-%m-%d %I:%M:%S %p"),
+                        "run_key": f"fixed::{os.path.basename(fixed_runtime)}",
+                    }
+                )
+
+        for report_path in report_paths:
+            if report_path in used_reports:
+                continue
+            try:
+                report_time = os.path.getmtime(report_path)
+            except OSError:
+                continue
+            report_token = self.artifact_token_from_path(report_path, report_prefix, report_suffix)
+            entries.append(
+                {
+                    **record,
+                    "runtime_log": "",
+                    "report_path": report_path,
+                    "crash_folder": "",
+                    "last_activity": report_time,
+                    "timestamp_text": datetime.datetime.fromtimestamp(report_time).strftime("%Y-%m-%d %I:%M:%S %p"),
+                    "run_key": f"report::{report_token}",
+                }
+            )
+
+        return entries
 
     def utility_section_target_width(self) -> int:
         base_width = 268
@@ -1308,40 +1459,7 @@ class DevLauncherWindow(QWidget):
                     "crash_folder_name": lane.get("crash_folder", ""),
                 }
 
-                runtime_log = self.latest_runtime_log_for_record(record)
-                report_path = self.latest_report_for_record(record)
-                crash_folder = self.crash_folder_for_record(record)
-
-                candidates_with_times = []
-                for path in (runtime_log, report_path, crash_folder):
-                    if not path:
-                        continue
-                    try:
-                        candidates_with_times.append((os.path.getmtime(path), path))
-                    except OSError:
-                        continue
-
-                if not candidates_with_times and not os.path.isdir(evidence_root):
-                    continue
-
-                if candidates_with_times:
-                    best_time, _ = max(candidates_with_times, key=lambda item: item[0])
-                else:
-                    try:
-                        best_time = os.path.getmtime(evidence_root)
-                    except OSError:
-                        continue
-
-                entries.append(
-                    {
-                        **record,
-                        "runtime_log": runtime_log,
-                        "report_path": report_path,
-                        "crash_folder": crash_folder,
-                        "last_activity": best_time,
-                        "timestamp_text": datetime.datetime.fromtimestamp(best_time).strftime("%Y-%m-%d %I:%M:%S %p"),
-                    }
-                )
+                entries.extend(self.build_previous_history_entries(record))
 
         entries.sort(key=lambda entry: entry["last_activity"], reverse=True)
         return entries
@@ -1357,7 +1475,7 @@ class DevLauncherWindow(QWidget):
         self.previous_launch_combo.addItem("Choose a previous launch...", None)
         selected_index = 0
         for index, entry in enumerate(self.previous_launch_entries, start=1):
-            key = f"{entry['lane_key']}::{entry['mode_key']}::{int(entry['last_activity'])}"
+            key = f"{entry['lane_key']}::{entry['mode_key']}::{entry.get('run_key', int(entry['last_activity']))}"
             summary = self.previous_entry_summary(entry)
             full_summary = (
                 f"{entry['lane_label']} | {entry['mode_label']} | "

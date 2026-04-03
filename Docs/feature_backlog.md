@@ -695,19 +695,25 @@ The first coherent `FB-019` slice is now implemented as a dev-only support-bundl
 
 ### [ID: FB-020] Dev Toolkit utility split and dev-only evidence roots
 
-Status: Deferred  
+Status: Implemented (v2.0 rev1)  
 Priority: High  
 Suggested Version: v2.0  
-Suggested Revision: TBD  
+Suggested Revision: rev1  
 
 Description:
-Split the Dev Toolkit utility surface into global versus selected-lane utilities and move Dev Toolkit writes into dedicated `dev/logs` evidence roots instead of the active client-facing `logs` / `crash` roots.
+Split the Dev Toolkit utility surface into stable global utilities versus lane-aware custom-launch utilities, add a separate previous-launch evidence reopen flow, and move toolkit-facing dev writes into dedicated `C:/Jarvis/dev/logs/<lane>/...` roots instead of the active client-facing `logs` / `crash` roots.
 
 Why it matters:
-The current Dev Toolkit mixes stable navigation buttons with lane-dependent evidence buttons, which makes the surface harder to learn. Dev/test runs also still write some evidence into the shared active-client `logs` area, which blurs the line between production-facing artifacts and developer-only validation output.
+The Dev Toolkit is easier to learn when stable navigation is separated from lane-dependent evidence. Keeping developer-triggered runtime, report, and crash artifacts under `dev/logs` also prevents dev validation output from polluting the active client-facing `logs` area.
 
 Proposed Change:
-Introduce a `Global Utilities` section for always-stable folders such as the Jarvis root, Dev folder, Dev launchers folder, Dev logs root, and Dev crash root. Keep lane-dependent evidence under a separate `Custom Launch Utilities` section that follows the current selected lane and launch mode. Migrate Dev Toolkit and dev-harness write paths so developer-triggered runs write into `C:/Jarvis/dev/logs` and `C:/Jarvis/dev/logs/crashes` (or lane-specific subfolders under that root) while still allowing explicit read/open access to active client logs or crash roots when needed for investigation.
+Implemented model:
+- `Global Utilities` opens stable developer locations such as the Jarvis root, Dev folder, Dev logs root, and Dev launchers folder.
+- `Custom Launch Utilities` follows the selected lane and only enables after that lane produces current-session evidence.
+- `Previous Launches` and `Previous Launch Utilities` reopen saved dev evidence separately from the active current-session launch flow.
+- toolkit-facing dev and test writes land under `C:/Jarvis/dev/logs/<lane>/...`
+- lane-local crash artifacts stay under each lane root as `...\\crash`
+- active client-facing `C:/Jarvis/logs` remains read-only investigation context where needed, such as support-bundle picking
 
 Likely Files Affected:
 - C:/Jarvis/dev/launchers/jarvis_dev_launcher.pyw
@@ -716,13 +722,13 @@ Likely Files Affected:
 - C:/Jarvis/dev/launchers/launch_jarvis_launcher_failure_manual_test_with_voice.vbs
 - C:/Jarvis/dev/launchers/launch_jarvis_launcher_startup_abort_manual_test.vbs
 - C:/Jarvis/dev/launchers/launch_jarvis_launcher_startup_abort_manual_test_with_voice.vbs
-- C:/Jarvis/desktop/jarvis_diagnostics.pyw
-- current dev validation and harness scripts that define base log roots
+- directly relevant dev validation and harness scripts that define toolkit-facing evidence roots
 
 Scope:
 - Dev Toolkit utility split
 - global versus lane-scoped utility boundaries
-- dev-only evidence-root migration
+- previous-launch evidence reopen flow
+- dev-only evidence-root migration under `dev/logs`
 - lane-specific dev runtime/report/crash root normalization
 
 Out of Scope:
@@ -733,13 +739,7 @@ Out of Scope:
 - shutdown voice refinement
 
 Notes:
-This should be implemented as a narrow developer-surface pass, not a production-behavior refactor. The concrete patch sequence should be:
-- split utility buttons into `Global Utilities` and `Custom Launch Utilities` with no redundant overlap
-- keep global buttons stable and always available
-- keep lane-dependent buttons tied to the selected lane and disabled until the relevant artifact exists
-- move Dev Toolkit-triggered writes out of the active client-facing `logs` / `crash` roots
-- migrate the diagnostics manual-test path, which is currently the biggest direct writer into the shared root `logs` area
-- preserve the ability to read/open active client `logs` / `crash` locations explicitly when investigation requires it
+Rev1 is now implemented in code. The current repo truth uses lane-local crash folders under each lane root rather than a shared `dev/logs/crashes` bucket. `FB-008` remains intentionally on hold behind this delivered toolkit and dev-evidence cleanup lane.
 
 ---
 
