@@ -20,8 +20,10 @@ from PySide6.QtWidgets import (
 
 
 ROOT_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+DEV_DIR = os.path.join(ROOT_DIR, "dev")
 DEV_LAUNCHERS_DIR = os.path.dirname(os.path.abspath(__file__))
-LOGS_DIR = os.path.join(ROOT_DIR, "logs")
+CLIENT_LOGS_DIR = os.path.join(ROOT_DIR, "logs")
+DEV_LOGS_DIR = os.path.join(DEV_DIR, "logs")
 SUPPORT_BUNDLE_TRIAGE_SCRIPT = os.path.join(ROOT_DIR, "dev", "jarvis_support_bundle_triage.py")
 
 PYTHONW_PATH = r"C:\Users\anden\AppData\Local\Python\pythoncore-3.14-64\pythonw.exe"
@@ -36,8 +38,8 @@ LANE_CONFIG = {
         "quiet_launcher": "launch_jarvis_diagnostics_manual_test.vbs",
         "voice_launcher": "",
         "supports_voice": False,
-        "log_root": LOGS_DIR,
-        "runtime_fixed": os.path.join(LOGS_DIR, "Runtime_manual_diagnostics_test.txt"),
+        "log_root": os.path.join(DEV_LOGS_DIR, "diagnostics_ui"),
+        "runtime_fixed": os.path.join(DEV_LOGS_DIR, "diagnostics_ui", "Runtime_manual_diagnostics_test.txt"),
         "crash_folder": "",
     },
     "repeatedCrash": {
@@ -49,8 +51,8 @@ LANE_CONFIG = {
         "quiet_launcher": "launch_jarvis_launcher_failure_manual_test.vbs",
         "voice_launcher": "launch_jarvis_launcher_failure_manual_test_with_voice.vbs",
         "supports_voice": True,
-        "log_root": os.path.join(LOGS_DIR, "manual_launcher_failure_test"),
-        "log_root_with_voice": os.path.join(LOGS_DIR, "manual_launcher_failure_test_with_voice"),
+        "log_root": os.path.join(DEV_LOGS_DIR, "manual_launcher_failure_test"),
+        "log_root_with_voice": os.path.join(DEV_LOGS_DIR, "manual_launcher_failure_test_with_voice"),
         "crash_folder": "crash",
     },
     "startupAbort": {
@@ -62,8 +64,8 @@ LANE_CONFIG = {
         "quiet_launcher": "launch_jarvis_launcher_startup_abort_manual_test.vbs",
         "voice_launcher": "launch_jarvis_launcher_startup_abort_manual_test_with_voice.vbs",
         "supports_voice": True,
-        "log_root": os.path.join(LOGS_DIR, "manual_launcher_startup_abort_test"),
-        "log_root_with_voice": os.path.join(LOGS_DIR, "manual_launcher_startup_abort_test_with_voice"),
+        "log_root": os.path.join(DEV_LOGS_DIR, "manual_launcher_startup_abort_test"),
+        "log_root_with_voice": os.path.join(DEV_LOGS_DIR, "manual_launcher_startup_abort_test_with_voice"),
         "crash_folder": "crash",
     },
     "voiceRegression": {
@@ -75,8 +77,8 @@ LANE_CONFIG = {
         "quiet_launcher": "launch_jarvis_voice_regression_harness.vbs",
         "voice_launcher": "",
         "supports_voice": False,
-        "log_root": os.path.join(LOGS_DIR, "voice_regression_harness"),
-        "report_root": os.path.join(LOGS_DIR, "voice_regression_harness", "reports"),
+        "log_root": os.path.join(DEV_LOGS_DIR, "voice_regression_harness"),
+        "report_root": os.path.join(DEV_LOGS_DIR, "voice_regression_harness", "reports"),
         "report_prefix": "VoiceRegressionReport_",
         "report_suffix": ".txt",
         "crash_folder": "",
@@ -90,8 +92,8 @@ LANE_CONFIG = {
         "quiet_launcher": "launch_jarvis_desktop_entrypoint_validation.vbs",
         "voice_launcher": "",
         "supports_voice": False,
-        "log_root": os.path.join(LOGS_DIR, "desktop_entrypoint_validation"),
-        "report_root": os.path.join(LOGS_DIR, "desktop_entrypoint_validation", "reports"),
+        "log_root": os.path.join(DEV_LOGS_DIR, "desktop_entrypoint_validation"),
+        "report_root": os.path.join(DEV_LOGS_DIR, "desktop_entrypoint_validation", "reports"),
         "report_prefix": "DesktopEntrypointValidationReport_",
         "report_suffix": ".txt",
         "crash_folder": "",
@@ -106,8 +108,8 @@ LANE_CONFIG = {
         "quiet_launcher": "launch_jarvis_desktop_launcher_healthy_validation.vbs",
         "voice_launcher": "",
         "supports_voice": False,
-        "log_root": os.path.join(LOGS_DIR, "desktop_launcher_healthy_validation"),
-        "report_root": os.path.join(LOGS_DIR, "desktop_launcher_healthy_validation", "reports"),
+        "log_root": os.path.join(DEV_LOGS_DIR, "desktop_launcher_healthy_validation"),
+        "report_root": os.path.join(DEV_LOGS_DIR, "desktop_launcher_healthy_validation", "reports"),
         "report_prefix": "DesktopLauncherHealthyValidationReport_",
         "report_suffix": ".txt",
         "crash_folder": "",
@@ -122,8 +124,8 @@ LANE_CONFIG = {
         "quiet_launcher": "launch_jarvis_desktop_launcher_regression_harness.vbs",
         "voice_launcher": "",
         "supports_voice": False,
-        "log_root": os.path.join(LOGS_DIR, "desktop_launcher_regression_harness"),
-        "report_root": os.path.join(LOGS_DIR, "desktop_launcher_regression_harness", "reports"),
+        "log_root": os.path.join(DEV_LOGS_DIR, "desktop_launcher_regression_harness"),
+        "report_root": os.path.join(DEV_LOGS_DIR, "desktop_launcher_regression_harness", "reports"),
         "report_prefix": "DesktopLauncherRegressionHarnessReport_",
         "report_suffix": ".txt",
         "crash_folder": "",
@@ -138,8 +140,8 @@ LANE_CONFIG = {
         "quiet_launcher": "launch_jarvis_support_bundle_triage_harness.vbs",
         "voice_launcher": "",
         "supports_voice": False,
-        "log_root": os.path.join(LOGS_DIR, "support_bundle_triage_harness"),
-        "report_root": os.path.join(LOGS_DIR, "support_bundle_triage_harness", "reports"),
+        "log_root": os.path.join(DEV_LOGS_DIR, "support_bundle_triage_harness"),
+        "report_root": os.path.join(DEV_LOGS_DIR, "support_bundle_triage_harness", "reports"),
         "report_prefix": "SupportBundleTriageHarnessReport_",
         "report_suffix": ".txt",
         "crash_folder": "",
@@ -153,8 +155,8 @@ LANE_CONFIG = {
         "quiet_launcher": "launch_jarvis_support_bundle_triage_toolkit_validation.vbs",
         "voice_launcher": "",
         "supports_voice": False,
-        "log_root": os.path.join(LOGS_DIR, "support_bundle_triage_toolkit_validation"),
-        "report_root": os.path.join(LOGS_DIR, "support_bundle_triage_toolkit_validation", "reports"),
+        "log_root": os.path.join(DEV_LOGS_DIR, "support_bundle_triage_toolkit_validation"),
+        "report_root": os.path.join(DEV_LOGS_DIR, "support_bundle_triage_toolkit_validation", "reports"),
         "report_prefix": "SupportBundleTriageToolkitValidationReport_",
         "report_suffix": ".txt",
         "crash_folder": "",
@@ -169,8 +171,8 @@ LANE_CONFIG = {
         "quiet_launcher": "launch_jarvis_diagnostics_report_issue_validation.vbs",
         "voice_launcher": "",
         "supports_voice": False,
-        "log_root": os.path.join(LOGS_DIR, "diagnostics_report_issue_validation"),
-        "report_root": os.path.join(LOGS_DIR, "diagnostics_report_issue_validation", "reports"),
+        "log_root": os.path.join(DEV_LOGS_DIR, "diagnostics_report_issue_validation"),
+        "report_root": os.path.join(DEV_LOGS_DIR, "diagnostics_report_issue_validation", "reports"),
         "report_prefix": "DiagnosticsReportIssueValidationReport_",
         "report_suffix": ".txt",
         "crash_folder": "",
@@ -185,8 +187,8 @@ LANE_CONFIG = {
         "quiet_launcher": "",
         "voice_launcher": "",
         "supports_voice": False,
-        "log_root": os.path.join(LOGS_DIR, "support_bundle_triage"),
-        "report_root": os.path.join(LOGS_DIR, "support_bundle_triage", "reports"),
+        "log_root": os.path.join(DEV_LOGS_DIR, "support_bundle_triage"),
+        "report_root": os.path.join(DEV_LOGS_DIR, "support_bundle_triage", "reports"),
         "report_prefix": "SupportBundleTriageReport_",
         "report_suffix": ".txt",
         "crash_folder": "",
@@ -339,6 +341,10 @@ class DevLauncherWindow(QWidget):
         self.launch_timer = QTimer(self)
         self.launch_timer.setSingleShot(True)
         self.launch_timer.timeout.connect(self.run_selected_launcher)
+
+        self.artifact_refresh_timer = QTimer(self)
+        self.artifact_refresh_timer.timeout.connect(self.refresh_utility_buttons)
+        self.artifact_refresh_timer.start(1000)
 
         self.setStyleSheet(
             """
@@ -580,15 +586,20 @@ class DevLauncherWindow(QWidget):
         self._build_configurable_panel(config_panel.layout)
         left_col.addWidget(config_panel, 1)
 
-        evidence_panel = Panel("Evidence & Utilities")
-        self._build_evidence_panel(evidence_panel.layout)
-        right_col.addWidget(evidence_panel)
+        global_utils_panel = Panel("Global Utilities")
+        self._build_global_utilities_panel(global_utils_panel.layout)
+        right_col.addWidget(global_utils_panel)
+
+        custom_utils_panel = Panel("Custom Launch Utilities")
+        self._build_custom_utilities_panel(custom_utils_panel.layout)
+        right_col.addWidget(custom_utils_panel)
 
         notes_panel = Panel("Notes")
         notes_label = QLabel(
             "- Custom Launch is the single launch surface for all current toolkit lanes.\n"
-            "- Start by choosing Launch Mode, then narrow by Purpose and Test / Helper.\n"
-            "- Only Repeated-Crash and Startup-Abort support With Voice / Audio.\n"
+            "- Global Utilities always open stable developer locations and never depend on the selected lane.\n"
+            "- Custom Launch Utilities follow the selected lane and stay greyed out until that lane has evidence to open.\n"
+            "- Dev Toolkit evidence now writes under C:\\Jarvis\\dev\\logs lane roots instead of the active client-facing logs root.\n"
             "- Support Bundle Triage Helper will ask for a bundle zip or extracted folder when launched.\n"
             "- Production behavior is unchanged unless you explicitly launch one of these internal test lanes."
         )
@@ -682,40 +693,45 @@ class DevLauncherWindow(QWidget):
 
         self.populate_lane_group_choices("diagnostics")
 
-    def _build_evidence_panel(self, layout):
+    def _build_global_utilities_panel(self, layout):
         buttons = [
-            ("Open Selected Log Root", self.open_selected_log_root),
-            ("Open Latest Runtime Log", self.open_latest_runtime_log),
-            ("Open Crash Folder", self.open_crash_folder),
-            ("Open Launchers Folder", self.open_launchers_folder),
+            ("Open Jarvis Root", self.open_jarvis_root),
+            ("Open Dev Folder", self.open_dev_folder),
+            ("Open Dev Logs Root", self.open_dev_logs_root),
+            ("Open Latest Dev Crash Folder", self.open_latest_dev_crash_folder),
+            ("Open Dev Launchers Folder", self.open_launchers_folder),
         ]
         for text, handler in buttons:
             btn = QPushButton(text)
             btn.clicked.connect(handler)
             layout.addWidget(btn)
-            if text == "Open Crash Folder":
-                self.crash_folder_btn = btn
 
         note = QLabel(
-            "Evidence helpers follow the currently selected lane and voice mode when lane-specific logs are used."
+            "Global utilities always open the same stable developer locations and never depend on the selected lane."
         )
         note.setObjectName("noteBox")
         note.setWordWrap(True)
         layout.addWidget(note)
 
-    def update_crash_folder_button(self, lane: dict):
-        if not hasattr(self, "crash_folder_btn"):
-            return
-        if lane.get("crash_folder"):
-            self.crash_folder_btn.setText("Open Crash Folder")
-            self.crash_folder_btn.setToolTip(
-                "Open the current lane's dedicated crash folder when crash evidence exists."
-            )
-            return
-        self.crash_folder_btn.setText("Open Latest Crash Folder")
-        self.crash_folder_btn.setToolTip(
-            "This lane does not use its own crash folder, so this opens the newest available crash folder under logs."
+    def _build_custom_utilities_panel(self, layout):
+        buttons = [
+            ("Open Selected Evidence Root", self.open_selected_evidence_root, "selected_evidence_btn"),
+            ("Open Latest Runtime Log", self.open_latest_runtime_log, "latest_runtime_btn"),
+            ("Open Latest Report", self.open_latest_report, "latest_report_btn"),
+            ("Open Selected Crash Folder", self.open_selected_crash_folder, "selected_crash_btn"),
+        ]
+        for text, handler, attr_name in buttons:
+            btn = QPushButton(text)
+            btn.clicked.connect(handler)
+            setattr(self, attr_name, btn)
+            layout.addWidget(btn)
+
+        note = QLabel(
+            "Custom Launch utilities follow the currently selected lane and only enable after that lane has evidence to open."
         )
+        note.setObjectName("noteBox")
+        note.setWordWrap(True)
+        layout.addWidget(note)
 
     def current_lane_group(self) -> dict:
         groups = self.filtered_lane_groups()
@@ -791,13 +807,61 @@ class DevLauncherWindow(QWidget):
     def voice_requested(self) -> bool:
         return self.audio_combo.currentIndex() == 1 and self.current_lane().get("supports_voice", False)
 
-    def active_log_root(self) -> str:
+    def active_evidence_root(self) -> str:
         lane = self.current_lane()
-        if lane.get("report_root"):
-            return lane["report_root"]
         if self.voice_requested() and lane.get("log_root_with_voice"):
             return lane["log_root_with_voice"]
         return lane["log_root"]
+
+    def active_report_root(self) -> str:
+        return self.current_lane().get("report_root", "")
+
+    def latest_runtime_log_path(self) -> str:
+        lane = self.current_lane()
+        fixed = lane.get("runtime_fixed", "")
+        if fixed and os.path.isfile(fixed):
+            return fixed
+
+        root = self.active_evidence_root()
+        if not os.path.isdir(root):
+            return ""
+        return latest_file_matching(root, "Runtime_")
+
+    def latest_report_path(self) -> str:
+        lane = self.current_lane()
+        report_root = lane.get("report_root", "")
+        report_prefix = lane.get("report_prefix", "")
+        report_suffix = lane.get("report_suffix", "")
+        if not report_root or not report_prefix or not os.path.isdir(report_root):
+            return ""
+
+        latest = ""
+        best_time = -1.0
+        for name in os.listdir(report_root):
+            if not name.lower().startswith(report_prefix.lower()):
+                continue
+            if report_suffix and not name.lower().endswith(report_suffix.lower()):
+                continue
+            path = os.path.join(report_root, name)
+            if not os.path.isfile(path):
+                continue
+            try:
+                modified = os.path.getmtime(path)
+            except OSError:
+                continue
+            if modified >= best_time:
+                best_time = modified
+                latest = path
+        return latest
+
+    def selected_crash_folder_path(self) -> str:
+        crash_folder_name = self.current_lane().get("crash_folder", "")
+        if not crash_folder_name:
+            return ""
+        path = os.path.join(self.active_evidence_root(), crash_folder_name)
+        if not os.path.isdir(path):
+            return ""
+        return path
 
     def active_launcher_filename(self) -> str:
         lane = self.current_lane()
@@ -858,12 +922,58 @@ class DevLauncherWindow(QWidget):
             f"Current lane support: {self.audio_mode_summary(lane)}"
         )
 
-        self.update_crash_folder_button(lane)
         self.update_mode_line(lane)
         self.cancel_btn.setEnabled(self.launch_timer.isActive())
+        self.refresh_utility_buttons()
 
     def set_status(self, text: str):
         self.status_label.setText(text)
+        self.refresh_utility_buttons()
+
+    def refresh_utility_buttons(self):
+        if hasattr(self, "selected_evidence_btn"):
+            evidence_root = self.active_evidence_root()
+            evidence_exists = os.path.isdir(evidence_root)
+            self.selected_evidence_btn.setEnabled(evidence_exists)
+            self.selected_evidence_btn.setToolTip(
+                evidence_root if evidence_exists else f"Selected evidence root not created yet: {evidence_root}"
+            )
+
+        if hasattr(self, "latest_runtime_btn"):
+            runtime_path = self.latest_runtime_log_path()
+            self.latest_runtime_btn.setEnabled(bool(runtime_path))
+            self.latest_runtime_btn.setToolTip(
+                runtime_path or "No runtime log is available yet for the selected lane."
+            )
+
+        if hasattr(self, "latest_report_btn"):
+            report_root = self.active_report_root()
+            report_path = self.latest_report_path()
+            supports_reports = bool(self.current_lane().get("report_root"))
+            self.latest_report_btn.setEnabled(bool(report_path))
+            self.latest_report_btn.setToolTip(
+                report_path
+                if report_path
+                else (
+                    f"No report is available yet in: {report_root}"
+                    if supports_reports
+                    else "This lane does not produce a report artifact."
+                )
+            )
+
+        if hasattr(self, "selected_crash_btn"):
+            crash_path = self.selected_crash_folder_path()
+            crash_folder_name = self.current_lane().get("crash_folder", "")
+            self.selected_crash_btn.setEnabled(bool(crash_path))
+            self.selected_crash_btn.setToolTip(
+                crash_path
+                if crash_path
+                else (
+                    f"No lane-local crash folder exists yet under: {self.active_evidence_root()}"
+                    if crash_folder_name
+                    else "This lane does not use a lane-local crash folder."
+                )
+            )
 
     def schedule_or_launch(self):
         self.cancel_launch(silent=True)
@@ -914,7 +1024,7 @@ class DevLauncherWindow(QWidget):
         file_path, _ = QFileDialog.getOpenFileName(
             self,
             "Select Support Bundle Zip",
-            LOGS_DIR,
+            CLIENT_LOGS_DIR,
             "Support Bundle Zip (*.zip);;All Files (*)",
         )
         if file_path:
@@ -923,99 +1033,71 @@ class DevLauncherWindow(QWidget):
         return QFileDialog.getExistingDirectory(
             self,
             "Select Extracted Support Bundle Folder",
-            LOGS_DIR,
+            CLIENT_LOGS_DIR,
         )
+
+    def open_jarvis_root(self):
+        self.open_path(ROOT_DIR, f"Opened: Jarvis root :: {ROOT_DIR}")
+
+    def open_dev_folder(self):
+        self.open_path(DEV_DIR, f"Opened: Dev folder :: {DEV_DIR}")
+
+    def open_dev_logs_root(self):
+        ensure_dir(DEV_LOGS_DIR)
+        self.open_path(DEV_LOGS_DIR, f"Opened: Dev logs root :: {DEV_LOGS_DIR}")
+
+    def open_latest_dev_crash_folder(self):
+        fallback_crash_path = latest_directory_named(DEV_LOGS_DIR, "crash")
+        if not fallback_crash_path:
+            self.set_status("No dev crash folder found yet under C:\\Jarvis\\dev\\logs.")
+            return
+        self.open_path(fallback_crash_path, f"Opened latest dev crash folder: {fallback_crash_path}")
 
     def open_launchers_folder(self):
         self.open_path(DEV_LAUNCHERS_DIR, "Opened: Dev launchers folder")
 
-    def open_selected_log_root(self):
-        root = self.active_log_root()
+    def open_selected_evidence_root(self):
+        root = self.active_evidence_root()
         if not os.path.isdir(root):
-            self.set_status(f"Log root not found yet: {root}")
+            self.set_status(f"Selected evidence root not found yet: {root}")
             return
-        self.open_path(root, f"Opened log root: {root}")
+        self.open_path(root, f"Opened selected evidence root: {root}")
 
     def open_latest_runtime_log(self):
-        lane = self.current_lane()
-        report_root = lane.get("report_root", "")
-        report_prefix = lane.get("report_prefix", "")
-        report_suffix = lane.get("report_suffix", "")
-        if report_root and report_prefix:
-            if not os.path.isdir(report_root):
-                self.set_status(f"Report folder not found yet: {report_root}")
-                return
-            latest = ""
-            best_time = -1.0
-            for name in os.listdir(report_root):
-                if not name.lower().startswith(report_prefix.lower()):
-                    continue
-                if report_suffix and not name.lower().endswith(report_suffix.lower()):
-                    continue
-                path = os.path.join(report_root, name)
-                if not os.path.isfile(path):
-                    continue
-                try:
-                    modified = os.path.getmtime(path)
-                except OSError:
-                    continue
-                if modified >= best_time:
-                    best_time = modified
-                    latest = path
-            if not latest:
-                self.set_status(f"No report found yet in: {report_root}")
-                return
-            self.open_path(latest, f"Opened latest report: {latest}")
-            return
-
-        fixed = lane.get("runtime_fixed", "")
-        if fixed:
-            if not os.path.isfile(fixed):
+        latest = self.latest_runtime_log_path()
+        if not latest:
+            root = self.active_evidence_root()
+            if self.current_lane().get("runtime_fixed"):
                 self.set_status("No diagnostics runtime log found yet.")
                 return
-            self.open_path(fixed, f"Opened latest runtime log: {fixed}")
-            return
-
-        root = self.active_log_root()
-        if not os.path.isdir(root):
-            self.set_status(f"Log root not found yet: {root}")
-            return
-        latest = latest_file_matching(root, "Runtime_")
-        if not latest:
             self.set_status(f"No runtime log found yet in: {root}")
             return
         self.open_path(latest, f"Opened latest runtime log: {latest}")
 
-    def open_crash_folder(self):
-        lane = self.current_lane()
-        crash_folder_name = lane.get("crash_folder", "")
-        preferred_crash_path = ""
-        if crash_folder_name:
-            preferred_crash_path = os.path.join(self.active_log_root(), crash_folder_name)
-            if os.path.isdir(preferred_crash_path):
-                self.open_path(
-                    preferred_crash_path,
-                    f"Opened crash folder for {lane['label']}: {preferred_crash_path}",
-                )
-                return
+    def open_latest_report(self):
+        report_root = self.active_report_root()
+        if not report_root:
+            self.set_status(f"{self.current_lane()['label']} does not produce a report artifact.")
+            return
+        latest = self.latest_report_path()
+        if not latest:
+            self.set_status(f"No report found yet in: {report_root}")
+            return
+        self.open_path(latest, f"Opened latest report: {latest}")
 
-        fallback_crash_path = latest_directory_named(LOGS_DIR, "crash")
-        if fallback_crash_path:
-            if preferred_crash_path:
-                self.open_path(
-                    fallback_crash_path,
-                    f"Opened latest available crash folder (current lane folder not found): {fallback_crash_path}",
-                )
+    def open_selected_crash_folder(self):
+        crash_path = self.selected_crash_folder_path()
+        if not crash_path:
+            crash_folder_name = self.current_lane().get("crash_folder", "")
+            if not crash_folder_name:
+                self.set_status(f"{self.current_lane()['label']} does not use a lane-local crash folder.")
                 return
-            self.open_path(
-                fallback_crash_path,
-                f"Opened latest available crash folder: {fallback_crash_path}",
-            )
+            self.set_status(f"Crash folder not found yet: {os.path.join(self.active_evidence_root(), crash_folder_name)}")
             return
-        if preferred_crash_path:
-            self.set_status(f"Crash folder not found yet: {preferred_crash_path}")
-            return
-        self.set_status("No crash folder found yet under logs.")
+        self.open_path(
+            crash_path,
+            f"Opened selected crash folder for {self.current_lane()['label']}: {crash_path}",
+        )
 
     def open_path(self, path: str, success_message: str):
         try:
