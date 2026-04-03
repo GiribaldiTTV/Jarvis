@@ -6,7 +6,6 @@ from PySide6.QtCore import QPoint, QRect, Qt, QTimer
 from PySide6.QtGui import QFont, QGuiApplication
 from PySide6.QtWidgets import (
     QApplication,
-    QButtonGroup,
     QComboBox,
     QFileDialog,
     QFrame,
@@ -196,6 +195,109 @@ LANE_CONFIG = {
     },
 }
 
+QUICK_LAUNCH_GROUPS = (
+    {
+        "label": "Diagnostics & Recovery",
+        "options": (
+            {
+                "label": "Diagnostics UI Test (Quiet)",
+                "lane_key": "diagnostics",
+                "with_voice": False,
+                "detail": "Standalone diagnostics window checks without launcher recovery or voice playback.",
+            },
+            {
+                "label": "Repeated-Crash Failure Lane (Quiet)",
+                "lane_key": "repeatedCrash",
+                "with_voice": False,
+                "detail": "Real launcher repeated-crash recovery flow without audio playback.",
+            },
+            {
+                "label": "Repeated-Crash Failure Lane (With Voice / Audio)",
+                "lane_key": "repeatedCrash",
+                "with_voice": True,
+                "detail": "Real launcher repeated-crash recovery flow with dedicated voice-enabled evidence.",
+            },
+            {
+                "label": "Startup-Abort Lane (Quiet)",
+                "lane_key": "startupAbort",
+                "with_voice": False,
+                "detail": "Launcher stall and cooperative startup-abort recovery without audio playback.",
+            },
+            {
+                "label": "Startup-Abort Lane (With Voice / Audio)",
+                "lane_key": "startupAbort",
+                "with_voice": True,
+                "detail": "Launcher stall and cooperative startup-abort recovery with voice-enabled evidence.",
+            },
+        ),
+    },
+    {
+        "label": "Voice & Launcher Harnesses",
+        "options": (
+            {
+                "label": "Voice Regression Harness (Quiet)",
+                "lane_key": "voiceRegression",
+                "with_voice": False,
+                "detail": "Contained regression harness for launcher-owned voice lanes and direct diagnostics probes.",
+            },
+            {
+                "label": "Desktop Launcher Regression Harness (Quiet)",
+                "lane_key": "launcherRegression",
+                "with_voice": False,
+                "detail": "Consolidated launcher regression sweep across the healthy and failure-path launcher lanes.",
+            },
+        ),
+    },
+    {
+        "label": "Healthy Path Validation",
+        "options": (
+            {
+                "label": "Healthy Desktop Launch Validation (Quiet)",
+                "lane_key": "desktopHealthy",
+                "with_voice": False,
+                "detail": "Contained offscreen validation for the current default desktop renderer target.",
+            },
+            {
+                "label": "Healthy Launcher Path Validation (Quiet)",
+                "lane_key": "launcherHealthy",
+                "with_voice": False,
+                "detail": "Real launcher healthy-path validation with a controlled shutdown and reusable evidence.",
+            },
+        ),
+    },
+    {
+        "label": "Support Bundle & Reporting",
+        "options": (
+            {
+                "label": "Support Bundle Triage Harness (Quiet)",
+                "lane_key": "supportBundleTriageHarness",
+                "with_voice": False,
+                "detail": "Contained regression harness for supported support-bundle classes and safe unknown fallback.",
+            },
+        ),
+    },
+)
+
+CONFIG_LANE_GROUPS = (
+    {
+        "label": "Diagnostics & Recovery",
+        "lane_keys": ("diagnostics", "repeatedCrash", "startupAbort"),
+    },
+    {
+        "label": "Voice & Launcher Validation",
+        "lane_keys": ("voiceRegression", "desktopHealthy", "launcherHealthy", "launcherRegression"),
+    },
+    {
+        "label": "Support Bundle & Reporting",
+        "lane_keys": (
+            "supportBundleTriageHarness",
+            "supportBundleTriageToolkitValidation",
+            "diagnosticsReportIssueValidation",
+            "supportBundleTriage",
+        ),
+    },
+)
+
 
 def latest_file_matching(folder_path: str, prefix: str) -> str:
     if not os.path.isdir(folder_path):
@@ -294,6 +396,7 @@ class DevLauncherWindow(QWidget):
         self.setMouseTracking(True)
 
         self.pending_launch_key = ""
+        self.selected_lane_key = "diagnostics"
 
         self.launch_timer = QTimer(self)
         self.launch_timer.setSingleShot(True)
@@ -369,6 +472,12 @@ class DevLauncherWindow(QWidget):
             QLabel#panelTitle {
                 color: #d4af37;
                 font-size: 13pt;
+                font-weight: 700;
+            }
+
+            QLabel#fieldLabel {
+                color: #9feeff;
+                font-size: 10pt;
                 font-weight: 700;
             }
 
@@ -576,51 +685,61 @@ class DevLauncherWindow(QWidget):
         self.update_ui()
 
     def _add_quick_launches(self, layout):
-        quick_buttons = [
-            ("Diagnostics UI Test", "diagnostics", False),
-            ("Repeated-Crash Test", "repeatedCrash", False),
-            ("Repeated-Crash Test With Voice", "repeatedCrash", True),
-            ("Startup-Abort Test", "startupAbort", False),
-            ("Startup-Abort Test With Voice", "startupAbort", True),
-            ("Voice Regression Harness", "voiceRegression", False),
-            ("Healthy Desktop Launch Validation", "desktopHealthy", False),
-            ("Healthy Launcher Path Validation", "launcherHealthy", False),
-            ("Desktop Launcher Regression Harness", "launcherRegression", False),
-            ("Support Bundle Triage Harness", "supportBundleTriageHarness", False),
-        ]
-        for label, lane_key, with_voice in quick_buttons:
-            btn = QPushButton(label)
-            btn.clicked.connect(lambda _=False, key=lane_key, voice=with_voice: self.quick_launch(key, voice))
-            layout.addWidget(btn)
+        quick_group_label = QLabel("Quick Group")
+        quick_group_label.setObjectName("fieldLabel")
+        layout.addWidget(quick_group_label)
 
-        note = QLabel("Immediate launch buttons for the current supported manual test lanes.")
+        self.quick_group_combo = QComboBox()
+        for group in QUICK_LAUNCH_GROUPS:
+            self.quick_group_combo.addItem(group["label"])
+        self.quick_group_combo.currentIndexChanged.connect(self.populate_quick_presets)
+        layout.addWidget(self.quick_group_combo)
+
+        quick_preset_label = QLabel("Quick Preset")
+        quick_preset_label.setObjectName("fieldLabel")
+        layout.addWidget(quick_preset_label)
+
+        self.quick_preset_combo = QComboBox()
+        self.quick_preset_combo.currentIndexChanged.connect(self.update_quick_detail)
+        layout.addWidget(self.quick_preset_combo)
+
+        self.quick_detail_label = QLabel()
+        self.quick_detail_label.setObjectName("detailBox")
+        self.quick_detail_label.setWordWrap(True)
+        layout.addWidget(self.quick_detail_label)
+
+        self.quick_launch_btn = QPushButton("Launch Selected Quick Preset")
+        self.quick_launch_btn.clicked.connect(self.launch_selected_quick_preset)
+        layout.addWidget(self.quick_launch_btn)
+
+        note = QLabel(
+            "Quick presets are grouped by purpose so you can immediately tell which lane runs "
+            "Quiet and which one uses With Voice / Audio."
+        )
         note.setObjectName("noteBox")
         note.setWordWrap(True)
         layout.addWidget(note)
 
+        self.populate_quick_presets()
+
     def _build_configurable_panel(self, layout):
-        self.lane_group = QButtonGroup(self)
-        self.lane_group.setExclusive(True)
-        self.lane_buttons = {}
-        for lane_key, button_text in (
-            ("diagnostics", "Diagnostics UI Test"),
-            ("repeatedCrash", "Repeated-Crash Failure Lane"),
-            ("startupAbort", "Startup-Abort Lane"),
-            ("voiceRegression", "Voice Regression Harness"),
-            ("desktopHealthy", "Healthy Desktop Launch Validation"),
-            ("launcherHealthy", "Healthy Launcher Path Validation"),
-            ("launcherRegression", "Desktop Launcher Regression Harness"),
-            ("supportBundleTriageHarness", "Support Bundle Triage Harness"),
-            ("supportBundleTriageToolkitValidation", "Support Bundle Triage Toolkit Validation"),
-            ("diagnosticsReportIssueValidation", "Diagnostics Report Issue Validation"),
-            ("supportBundleTriage", "Support Bundle Triage Helper"),
-        ):
-            btn = QPushButton(button_text)
-            btn.setCheckable(True)
-            btn.clicked.connect(lambda _=False, key=lane_key: self.select_lane(key))
-            layout.addWidget(btn)
-            self.lane_group.addButton(btn)
-            self.lane_buttons[lane_key] = btn
+        lane_group_label = QLabel("Lane Group")
+        lane_group_label.setObjectName("fieldLabel")
+        layout.addWidget(lane_group_label)
+
+        self.lane_group_combo = QComboBox()
+        for group in CONFIG_LANE_GROUPS:
+            self.lane_group_combo.addItem(group["label"])
+        self.lane_group_combo.currentIndexChanged.connect(self.on_lane_group_changed)
+        layout.addWidget(self.lane_group_combo)
+
+        lane_choice_label = QLabel("Lane")
+        lane_choice_label.setObjectName("fieldLabel")
+        layout.addWidget(lane_choice_label)
+
+        self.lane_combo = QComboBox()
+        self.lane_combo.currentIndexChanged.connect(self.on_lane_choice_changed)
+        layout.addWidget(self.lane_combo)
 
         self.detail_label = QLabel()
         self.detail_label.setObjectName("detailBox")
@@ -656,7 +775,7 @@ class DevLauncherWindow(QWidget):
         self.mode_line.setWordWrap(True)
         layout.addWidget(self.mode_line)
 
-        self.select_lane("diagnostics")
+        self.populate_lane_choices("diagnostics")
 
     def _build_evidence_panel(self, layout):
         buttons = [
@@ -679,11 +798,76 @@ class DevLauncherWindow(QWidget):
         note.setWordWrap(True)
         layout.addWidget(note)
 
+    def current_quick_group(self) -> dict:
+        index = self.quick_group_combo.currentIndex()
+        if index < 0:
+            index = 0
+        return QUICK_LAUNCH_GROUPS[index]
+
+    def current_quick_selection(self) -> tuple[str, bool]:
+        data = self.quick_preset_combo.currentData()
+        if isinstance(data, tuple) and len(data) == 2:
+            return data
+        first_option = QUICK_LAUNCH_GROUPS[0]["options"][0]
+        return first_option["lane_key"], first_option["with_voice"]
+
+    def populate_quick_presets(self, *_args):
+        group = self.current_quick_group()
+        self.quick_preset_combo.blockSignals(True)
+        self.quick_preset_combo.clear()
+        for option in group["options"]:
+            self.quick_preset_combo.addItem(option["label"], (option["lane_key"], option["with_voice"]))
+        self.quick_preset_combo.blockSignals(False)
+        self.quick_preset_combo.setCurrentIndex(0)
+        self.update_quick_detail()
+
+    def update_quick_detail(self, *_args):
+        lane_key, with_voice = self.current_quick_selection()
+        lane = LANE_CONFIG[lane_key]
+        detail = lane["detail"]
+        for option in self.current_quick_group()["options"]:
+            if option["lane_key"] == lane_key and option["with_voice"] == with_voice:
+                detail = option.get("detail", detail)
+                break
+        audio_mode = "With Voice / Audio" if with_voice else "Quiet"
+        self.quick_detail_label.setText(f"{lane['label']} | {audio_mode}\n{detail}")
+
+    def launch_selected_quick_preset(self):
+        lane_key, with_voice = self.current_quick_selection()
+        self.quick_launch(lane_key, with_voice)
+
+    def current_lane_group(self) -> dict:
+        index = self.lane_group_combo.currentIndex()
+        if index < 0:
+            index = 0
+        return CONFIG_LANE_GROUPS[index]
+
+    def populate_lane_choices(self, preferred_lane_key: str = ""):
+        group = self.current_lane_group()
+        self.lane_combo.blockSignals(True)
+        self.lane_combo.clear()
+        preferred_index = 0
+        for index, lane_key in enumerate(group["lane_keys"]):
+            lane = LANE_CONFIG[lane_key]
+            self.lane_combo.addItem(lane["label"], lane_key)
+            if lane_key == preferred_lane_key:
+                preferred_index = index
+        self.lane_combo.setCurrentIndex(preferred_index)
+        self.lane_combo.blockSignals(False)
+        self.selected_lane_key = self.lane_combo.currentData() or group["lane_keys"][0]
+        self.update_ui()
+
+    def on_lane_group_changed(self, *_args):
+        self.populate_lane_choices()
+
+    def on_lane_choice_changed(self, *_args):
+        lane_key = self.lane_combo.currentData()
+        if lane_key:
+            self.selected_lane_key = lane_key
+        self.update_ui()
+
     def current_lane_key(self) -> str:
-        for key, btn in self.lane_buttons.items():
-            if btn.isChecked():
-                return key
-        return "diagnostics"
+        return self.selected_lane_key or "diagnostics"
 
     def current_lane(self) -> dict:
         return LANE_CONFIG[self.current_lane_key()]
@@ -712,26 +896,51 @@ class DevLauncherWindow(QWidget):
         return lane["label"]
 
     def select_lane(self, lane_key: str):
-        self.lane_buttons[lane_key].setChecked(True)
-        self.update_ui()
+        group_index = 0
+        for index, group in enumerate(CONFIG_LANE_GROUPS):
+            if lane_key in group["lane_keys"]:
+                group_index = index
+                break
+        self.lane_group_combo.blockSignals(True)
+        self.lane_group_combo.setCurrentIndex(group_index)
+        self.lane_group_combo.blockSignals(False)
+        self.populate_lane_choices(lane_key)
+
+    def audio_mode_summary(self, lane: dict) -> str:
+        if lane.get("supports_voice", False):
+            return "Quiet or With Voice / Audio"
+        return "Quiet only"
+
+    def audio_mode_label_text(self, lane: dict) -> str:
+        if lane.get("supports_voice", False):
+            return "Audio Mode"
+        return "Audio Mode (quiet only for this lane)"
+
+    def detail_text_for_lane(self, lane: dict) -> str:
+        return f"{lane['detail']}\nAudio Support: {self.audio_mode_summary(lane)}"
+
+    def update_mode_line(self, lane: dict):
+        selected_audio = self.audio_combo.currentText() if lane.get("supports_voice", False) else "Quiet only"
+        self.mode_line.setText(
+            f"Selected Group: {self.current_lane_group()['label']} | "
+            f"Lane: {lane['label']} | "
+            f"Audio: {selected_audio} | "
+            f"Delay: {self.delay_combo.currentText()}"
+        )
 
     def update_ui(self):
         lane = self.current_lane()
-        self.detail_label.setText(lane["detail"])
+        self.detail_label.setText(self.detail_text_for_lane(lane))
 
         supports_voice = lane.get("supports_voice", False)
         self.audio_combo.setEnabled(supports_voice)
         if not supports_voice:
             self.audio_combo.setCurrentIndex(0)
-            self.audio_label.setText("Audio Mode (not applicable for Diagnostics UI Test)")
-        else:
-            self.audio_label.setText("Audio Mode")
+        self.audio_label.setText(self.audio_mode_label_text(lane))
 
         if hasattr(self, "crash_folder_btn"):
             self.crash_folder_btn.setEnabled(bool(lane.get("crash_folder")))
-        self.mode_line.setText(
-            f"Selected: {self.active_label()} | Delay: {self.delay_combo.currentText()}"
-        )
+        self.update_mode_line(lane)
         self.cancel_btn.setEnabled(self.launch_timer.isActive())
 
     def set_status(self, text: str):
