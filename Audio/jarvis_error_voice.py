@@ -113,6 +113,7 @@ class JarvisErrorSpeaker:
         temp_paths = []
         try:
             normalized_display = normalize_line(display_text or spoken_text)
+            effect_mode = effect_mode_for_display_text(normalized_display)
 
             if normalized_display == "Uhm..... Sir, I seem to be malfunctioning.":
                 # rev 18b recovery: guarantee audible playback first, refine segmentation later
@@ -121,14 +122,14 @@ class JarvisErrorSpeaker:
 
                 duration_ms = max(1, int(get_duration_seconds(source_path) * 1000))
                 schedule = self.build_general_sync_schedule("Uhm..... Sir, I seem to be malfunctioning.", duration_ms)
-                return source_path, temp_paths, schedule, True
+                return source_path, temp_paths, schedule, effect_mode
 
             source_path = await self.synthesize_segment(spoken_text, "-10%")
             temp_paths.append(source_path)
 
             duration_ms = max(1, int(get_duration_seconds(source_path) * 1000))
             schedule = self.build_general_sync_schedule(display_text or spoken_text, duration_ms)
-            return source_path, temp_paths, schedule, True
+            return source_path, temp_paths, schedule, effect_mode
 
         except Exception:
             for path in temp_paths:
@@ -149,13 +150,19 @@ class JarvisErrorSpeaker:
         try:
             self.last_sync = ""
             self.media_started = False
-            base_audio_path, temp_paths, schedule, allow_generic_effect = await self.prepare_audio(text, self.display_text or text)
+            base_audio_path, temp_paths, schedule, effect_mode = await self.prepare_audio(text, self.display_text or text)
             duration = get_duration_seconds(base_audio_path)
 
-            if not allow_generic_effect or duration < 1.2:
+            if duration < 1.2:
                 playback_path = base_audio_path
             else:
-                effected = apply_error_effect(base_audio_path)
+                effected = None
+                if effect_mode == "shutdown":
+                    effected = apply_shutdown_effect(base_audio_path)
+                    if not effected or not os.path.exists(effected):
+                        effected = apply_error_effect(base_audio_path)
+                else:
+                    effected = apply_error_effect(base_audio_path)
                 playback_path = effected if effected and os.path.exists(effected) else base_audio_path
 
             if playback_path != base_audio_path:
@@ -354,6 +361,12 @@ def get_duration_seconds(path):
         return 0.0
 
 
+def effect_mode_for_display_text(normalized_display):
+    if normalized_display == "Shutting down.":
+        return "shutdown"
+    return "generic"
+
+
 def seg_filter(level):
     if level == "extreme":
         return (
@@ -424,6 +437,79 @@ def apply_error_effect(source_path):
     os.close(fd)
 
     filter_complex = build_chunked_filter_complex(duration)
+
+    cmd = [
+        exe,
+        "-y",
+        "-i", source_path,
+        "-filter_complex", filter_complex,
+        "-map", "[outa]",
+        out_path,
+    ]
+
+    result = subprocess.run(cmd, **hidden_subprocess_kwargs())
+
+    if result.returncode != 0 or not os.path.exists(out_path) or os.path.getsize(out_path) <= 0:
+        try:
+            os.remove(out_path)
+        except Exception:
+            pass
+        return None
+
+    return out_path
+
+
+def build_shutdown_filter_complex(duration):
+    first_end = max(0.18, duration * 0.34)
+    second_end = max(first_end + 0.18, duration * 0.74)
+    first_end = min(first_end, max(duration - 0.24, 0.12))
+    second_end = min(second_end, max(duration - 0.08, first_end + 0.08))
+
+    segments = []
+    segment_specs = [
+        ("s0", 0.0, first_end, "atempo=0.98,lowpass=f=3600,volume=1.00"),
+        ("s1", first_end, second_end, "atempo=0.92,lowpass=f=3000,volume=0.95"),
+        ("s2", second_end, duration, "atempo=0.84,lowpass=f=2400,volume=0.88"),
+    ]
+
+    for label, start, end, chain in segment_specs:
+        if end <= start:
+            continue
+
+        seg_dur = end - start
+        fade = min(0.14, max(0.04, seg_dur / 2.5))
+        segment = (
+            f"[0:a]atrim=start={start:.3f}:end={end:.3f},"
+            f"asetpts=PTS-STARTPTS,{chain}"
+        )
+
+        if label == "s2":
+            fade_out_start = max(0.0, seg_dur - fade)
+            segment += (
+                f",afade=t=in:st=0:d={fade:.3f},"
+                f"afade=t=out:st={fade_out_start:.3f}:d={fade:.3f}"
+            )
+
+        segment += f"[{label}]"
+        segments.append(segment)
+
+    concat_inputs = "".join(f"[s{i}]" for i in range(len(segments)))
+    return ";".join(segments + [f"{concat_inputs}concat=n={len(segments)}:v=0:a=1[outa]"])
+
+
+def apply_shutdown_effect(source_path):
+    exe = ffmpeg_exe()
+    if not exe:
+        return None
+
+    duration = get_duration_seconds(source_path)
+    if duration <= 0:
+        return None
+
+    fd, out_path = tempfile.mkstemp(suffix=".wav")
+    os.close(fd)
+
+    filter_complex = build_shutdown_filter_complex(duration)
 
     cmd = [
         exe,
