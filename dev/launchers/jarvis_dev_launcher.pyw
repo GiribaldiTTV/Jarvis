@@ -197,7 +197,7 @@ LANE_CONFIG = {
 
 QUICK_LAUNCH_GROUPS = (
     {
-        "label": "Diagnostics & Recovery",
+        "label": "Diagnostics & Recovery Checks",
         "options": (
             {
                 "label": "Diagnostics UI Test (Quiet)",
@@ -232,7 +232,7 @@ QUICK_LAUNCH_GROUPS = (
         ),
     },
     {
-        "label": "Voice & Launcher Harnesses",
+        "label": "Voice & Launcher Regression",
         "options": (
             {
                 "label": "Voice Regression Harness (Quiet)",
@@ -249,7 +249,7 @@ QUICK_LAUNCH_GROUPS = (
         ),
     },
     {
-        "label": "Healthy Path Validation",
+        "label": "Healthy Startup Validation",
         "options": (
             {
                 "label": "Healthy Desktop Launch Validation (Quiet)",
@@ -266,7 +266,7 @@ QUICK_LAUNCH_GROUPS = (
         ),
     },
     {
-        "label": "Support Bundle & Reporting",
+        "label": "Support Bundles & Reporting",
         "options": (
             {
                 "label": "Support Bundle Triage Harness (Quiet)",
@@ -280,15 +280,15 @@ QUICK_LAUNCH_GROUPS = (
 
 CONFIG_LANE_GROUPS = (
     {
-        "label": "Diagnostics & Recovery",
+        "label": "Diagnostics & Recovery Checks",
         "lane_keys": ("diagnostics", "repeatedCrash", "startupAbort"),
     },
     {
-        "label": "Voice & Launcher Validation",
+        "label": "Voice, Healthy Start, & Regression",
         "lane_keys": ("voiceRegression", "desktopHealthy", "launcherHealthy", "launcherRegression"),
     },
     {
-        "label": "Support Bundle & Reporting",
+        "label": "Support Bundles & Reporting",
         "lane_keys": (
             "supportBundleTriageHarness",
             "supportBundleTriageToolkitValidation",
@@ -638,11 +638,11 @@ class DevLauncherWindow(QWidget):
         right_col = QVBoxLayout()
         right_col.setSpacing(12)
 
-        quick_panel = Panel("Quick Launch")
+        quick_panel = Panel("Quick Presets")
         self._add_quick_launches(quick_panel.layout)
         left_col.addWidget(quick_panel)
 
-        config_panel = Panel("Configurable Launch")
+        config_panel = Panel("Custom Launch")
         self._build_configurable_panel(config_panel.layout)
         left_col.addWidget(config_panel, 1)
 
@@ -652,10 +652,11 @@ class DevLauncherWindow(QWidget):
 
         notes_panel = Panel("Notes")
         notes_label = QLabel(
-            "- Diagnostics UI Test is a standalone UI validation path.\n"
-            "- Repeated-Crash and Startup-Abort lanes go through the real launcher-owned recovery flow.\n"
-            "- Voice-enabled tests use separate contained log roots so evidence stays clean.\n"
-            "- Production behavior is unchanged unless you explicitly launch one of these manual tests."
+            "- Quick Presets launch the most common lanes immediately with a fixed audio mode.\n"
+            "- Custom Launch lets you choose the lane family, exact lane, launch delay, and audio mode.\n"
+            "- Only Repeated-Crash and Startup-Abort support With Voice / Audio.\n"
+            "- Support Bundle Triage Helper will ask for a bundle zip or extracted folder when launched.\n"
+            "- Production behavior is unchanged unless you explicitly launch one of these internal test lanes."
         )
         notes_label.setObjectName("noteBox")
         notes_label.setWordWrap(True)
@@ -685,7 +686,7 @@ class DevLauncherWindow(QWidget):
         self.update_ui()
 
     def _add_quick_launches(self, layout):
-        quick_group_label = QLabel("Quick Group")
+        quick_group_label = QLabel("Purpose")
         quick_group_label.setObjectName("fieldLabel")
         layout.addWidget(quick_group_label)
 
@@ -695,7 +696,7 @@ class DevLauncherWindow(QWidget):
         self.quick_group_combo.currentIndexChanged.connect(self.populate_quick_presets)
         layout.addWidget(self.quick_group_combo)
 
-        quick_preset_label = QLabel("Quick Preset")
+        quick_preset_label = QLabel("Quick Option")
         quick_preset_label.setObjectName("fieldLabel")
         layout.addWidget(quick_preset_label)
 
@@ -708,13 +709,12 @@ class DevLauncherWindow(QWidget):
         self.quick_detail_label.setWordWrap(True)
         layout.addWidget(self.quick_detail_label)
 
-        self.quick_launch_btn = QPushButton("Launch Selected Quick Preset")
+        self.quick_launch_btn = QPushButton("Launch Quick Option")
         self.quick_launch_btn.clicked.connect(self.launch_selected_quick_preset)
         layout.addWidget(self.quick_launch_btn)
 
         note = QLabel(
-            "Quick presets are grouped by purpose so you can immediately tell which lane runs "
-            "Quiet and which one uses With Voice / Audio."
+            "Use Quick Presets when you want the most common lanes with the audio mode already chosen for you."
         )
         note.setObjectName("noteBox")
         note.setWordWrap(True)
@@ -723,7 +723,7 @@ class DevLauncherWindow(QWidget):
         self.populate_quick_presets()
 
     def _build_configurable_panel(self, layout):
-        lane_group_label = QLabel("Lane Group")
+        lane_group_label = QLabel("Purpose")
         lane_group_label.setObjectName("fieldLabel")
         layout.addWidget(lane_group_label)
 
@@ -733,7 +733,7 @@ class DevLauncherWindow(QWidget):
         self.lane_group_combo.currentIndexChanged.connect(self.on_lane_group_changed)
         layout.addWidget(self.lane_group_combo)
 
-        lane_choice_label = QLabel("Lane")
+        lane_choice_label = QLabel("Test / Helper")
         lane_choice_label.setObjectName("fieldLabel")
         layout.addWidget(lane_choice_label)
 
@@ -747,13 +747,17 @@ class DevLauncherWindow(QWidget):
         self.detail_label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.MinimumExpanding)
         layout.addWidget(self.detail_label)
 
+        delay_label = QLabel("Launch Delay")
+        delay_label.setObjectName("fieldLabel")
+        layout.addWidget(delay_label)
+
         self.delay_combo = QComboBox()
         self.delay_combo.addItems(["Now", "3s", "5s", "10s"])
         self.delay_combo.currentIndexChanged.connect(self.update_ui)
         layout.addWidget(self.delay_combo)
 
         self.audio_label = QLabel("Audio Mode")
-        self.audio_label.setObjectName("noteBox")
+        self.audio_label.setObjectName("fieldLabel")
         self.audio_label.setWordWrap(True)
         layout.addWidget(self.audio_label)
 
@@ -762,7 +766,7 @@ class DevLauncherWindow(QWidget):
         self.audio_combo.currentIndexChanged.connect(self.update_ui)
         layout.addWidget(self.audio_combo)
 
-        self.launch_btn = QPushButton("Launch Selected Test")
+        self.launch_btn = QPushButton("Launch Selected Lane")
         self.launch_btn.clicked.connect(self.schedule_or_launch)
         layout.addWidget(self.launch_btn)
 
@@ -830,7 +834,11 @@ class DevLauncherWindow(QWidget):
                 detail = option.get("detail", detail)
                 break
         audio_mode = "With Voice / Audio" if with_voice else "Quiet"
-        self.quick_detail_label.setText(f"{lane['label']} | {audio_mode}\n{detail}")
+        self.quick_detail_label.setText(
+            f"Lane: {lane['label']}\n"
+            f"Audio: {audio_mode}\n"
+            f"Purpose: {detail}"
+        )
 
     def launch_selected_quick_preset(self):
         lane_key, with_voice = self.current_quick_selection()
@@ -914,10 +922,14 @@ class DevLauncherWindow(QWidget):
     def audio_mode_label_text(self, lane: dict) -> str:
         if lane.get("supports_voice", False):
             return "Audio Mode"
-        return "Audio Mode (quiet only for this lane)"
+        return "Audio Mode (Quiet only for this lane)"
 
     def detail_text_for_lane(self, lane: dict) -> str:
-        return f"{lane['detail']}\nAudio Support: {self.audio_mode_summary(lane)}"
+        return (
+            f"Lane: {lane['label']}\n"
+            f"Purpose: {lane['detail']}\n"
+            f"Audio Support: {self.audio_mode_summary(lane)}"
+        )
 
     def update_mode_line(self, lane: dict):
         selected_audio = self.audio_combo.currentText() if lane.get("supports_voice", False) else "Quiet only"
