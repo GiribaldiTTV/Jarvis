@@ -266,12 +266,38 @@ Audio-domain consolidation.
 - move root-level `jarvis_voice.py` only in a pass that also updates `main.py`
 - normalize `Audio/` naming in the same approved pass if selected
 
+This is a later candidate slice, not the currently approved next implementation move.
+
+It remains blocked at the current planning layer because:
+
+- `jarvis_voice.py` is still coupled to `main.py`
+- `main.py` remains intentionally root-owned while top-level experience and boot-adjacent work stay paused
+- `desktop/jarvis_desktop_launcher.pyw` still references the current root-owned `Audio/jarvis_error_voice.py` path
+- a clean audio-domain move would therefore require a dedicated paired pass rather than an automatic follow-on from the completed desktop-entrypoint consolidation
+
 ### Step 5
 
 Defer top-level experience entrypoint work until later.
 
 - keep `main.py` root-owned until the paused boot or top-level experience track is explicitly resumed
 - keep `launch_jarvis_desktop.vbs` root-owned as the Windows-facing shim unless a dedicated entrypoint pass is approved
+
+## Current Pause Point After Step 3
+
+After the completed desktop-entrypoint consolidation, no further `FB-005` implementation slice is currently approved.
+
+The remaining `FB-005` sequence is intentionally paused because:
+
+- the next apparent audio-domain move is still coupled to deferred top-level experience entrypoint work
+- launcher-referenced `Audio/` assumptions still exist and should not be rewritten casually inside a folder-organization pass
+- broader workspace reorganization remains deferred until a later explicitly approved slice narrows those path-sensitive dependencies cleanly
+
+This means the current plan should be read as:
+
+- Step 3 is complete
+- Step 4 is sequenced but not yet ready
+- Step 5 remains deferred
+- broader workspace reorganization remains paused rather than implicitly queued as the next implementation move
 
 ## Areas Explicitly Deferred From The First Implementation Move Pass
 
@@ -310,4 +336,5 @@ This step is now completed as desktop-entrypoint consolidation:
 - `jarvis_desktop_test.py` moved with it
 - launcher path assumptions were updated accordingly
 
+No further `FB-005` implementation slice is approved by this document at the current planning layer.
 Broader workspace reorganization remains deferred.
