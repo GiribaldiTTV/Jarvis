@@ -84,6 +84,8 @@ class SingleInstanceGuard:
 
 
 def show_already_running_dialog(title: str, message: str) -> None:
+    if _show_qt_dialog(title, message, confirm=False) is not None:
+        return
     try:
         MessageBoxW(None, message, title, MB_OK | MB_ICONINFORMATION | FOREGROUND_DIALOG_FLAGS)
     except Exception:
@@ -91,11 +93,197 @@ def show_already_running_dialog(title: str, message: str) -> None:
 
 
 def show_replace_running_dialog(title: str, message: str) -> bool:
+    qt_result = _show_qt_dialog(title, message, confirm=True)
+    if qt_result is not None:
+        return qt_result
     try:
         result = MessageBoxW(None, message, title, MB_YESNO | MB_ICONQUESTION | FOREGROUND_DIALOG_FLAGS)
         return result == IDYES
     except Exception:
         return False
+
+
+def _show_qt_dialog(title: str, message: str, confirm: bool):
+    try:
+        from PySide6.QtCore import QTimer, Qt
+        from PySide6.QtGui import QFont, QGuiApplication
+        from PySide6.QtWidgets import (
+            QApplication,
+            QDialog,
+            QFrame,
+            QHBoxLayout,
+            QLabel,
+            QPushButton,
+            QVBoxLayout,
+        )
+    except Exception:
+        return None
+
+    class JarvisPromptDialog(QDialog):
+        def __init__(self):
+            super().__init__()
+            self.choice = False
+
+            self.setWindowTitle(title)
+            self.setModal(True)
+            self.setWindowFlags(
+                Qt.Dialog
+                | Qt.FramelessWindowHint
+                | Qt.WindowStaysOnTopHint
+                | Qt.CustomizeWindowHint
+            )
+            self.setAttribute(Qt.WA_DeleteOnClose, True)
+            self.setMinimumWidth(540)
+
+            self.setStyleSheet(
+                """
+                QDialog {
+                    background: #04080d;
+                    color: #8df3ff;
+                    border: 1px solid #0fe1ff;
+                }
+                QFrame#shell {
+                    background: #07131b;
+                    border: 1px solid #0fe1ff;
+                }
+                QLabel#eyebrow {
+                    color: #00d8ff;
+                    font-size: 13px;
+                    font-weight: 700;
+                    letter-spacing: 1px;
+                    border: none;
+                }
+                QLabel#heading {
+                    color: #e8fdff;
+                    font-size: 28px;
+                    font-weight: 700;
+                    border: none;
+                }
+                QLabel#detail {
+                    color: #8dd9e6;
+                    font-size: 15px;
+                    line-height: 1.35em;
+                    border: none;
+                }
+                QPushButton {
+                    min-height: 42px;
+                    padding: 0 18px;
+                    border-radius: 0;
+                    font-size: 14px;
+                    font-weight: 700;
+                }
+                QPushButton#secondary {
+                    color: #8df3ff;
+                    background: #0a1b26;
+                    border: 1px solid #0fe1ff;
+                }
+                QPushButton#secondary:hover {
+                    background: #12303e;
+                }
+                QPushButton#primary {
+                    color: #041017;
+                    background: #0fe1ff;
+                    border: 1px solid #6ff6ff;
+                }
+                QPushButton#primary:hover {
+                    background: #6ff6ff;
+                }
+                """
+            )
+
+            root = QVBoxLayout(self)
+            root.setContentsMargins(18, 18, 18, 18)
+
+            shell = QFrame()
+            shell.setObjectName("shell")
+            shell_layout = QVBoxLayout(shell)
+            shell_layout.setContentsMargins(22, 20, 22, 20)
+            shell_layout.setSpacing(14)
+
+            eyebrow = QLabel("JARVIS")
+            eyebrow.setObjectName("eyebrow")
+
+            heading = QLabel(title)
+            heading.setObjectName("heading")
+            heading.setWordWrap(True)
+
+            detail = QLabel(message.replace("\n", "<br>"))
+            detail.setObjectName("detail")
+            detail.setWordWrap(True)
+            detail.setTextFormat(Qt.RichText)
+
+            shell_layout.addWidget(eyebrow)
+            shell_layout.addWidget(heading)
+            shell_layout.addWidget(detail)
+
+            actions = QHBoxLayout()
+            actions.setContentsMargins(0, 8, 0, 0)
+            actions.setSpacing(10)
+            actions.addStretch()
+
+            if confirm:
+                keep_button = QPushButton("Keep Current")
+                keep_button.setObjectName("secondary")
+                keep_button.clicked.connect(self.reject_dialog)
+                actions.addWidget(keep_button)
+
+                replace_button = QPushButton("Close Current And Relaunch")
+                replace_button.setObjectName("primary")
+                replace_button.clicked.connect(self.accept_dialog)
+                actions.addWidget(replace_button)
+            else:
+                close_button = QPushButton("Close")
+                close_button.setObjectName("primary")
+                close_button.clicked.connect(self.accept_dialog)
+                actions.addWidget(close_button)
+
+            shell_layout.addLayout(actions)
+            root.addWidget(shell)
+
+        def showEvent(self, event):
+            super().showEvent(event)
+            self.raise_()
+            self.activateWindow()
+            try:
+                user32.SetForegroundWindow(int(self.winId()))
+            except Exception:
+                pass
+
+        def center_on_primary(self):
+            screen = QGuiApplication.primaryScreen()
+            if not screen:
+                return
+            geometry = screen.availableGeometry()
+            self.adjustSize()
+            x = geometry.x() + (geometry.width() - self.width()) // 2
+            y = geometry.y() + (geometry.height() - self.height()) // 2
+            self.move(x, y)
+
+        def accept_dialog(self):
+            self.choice = True
+            self.accept()
+
+        def reject_dialog(self):
+            self.choice = False
+            self.reject()
+
+    app = QApplication.instance()
+    owns_app = app is None
+    if owns_app:
+        app = QApplication([])
+        app.setFont(QFont("Segoe UI", 10))
+
+    dialog = JarvisPromptDialog()
+    dialog.center_on_primary()
+    QTimer.singleShot(0, dialog.raise_)
+    QTimer.singleShot(0, dialog.activateWindow)
+    dialog.exec()
+    result = dialog.choice if confirm else True
+
+    if owns_app:
+        app.quit()
+
+    return result
 
 
 class NamedSignal:
