@@ -266,10 +266,10 @@ This should remain a reporting refinement only and must not change launcher beha
 
 ### [ID: FB-008] Shutdown voice degradation effect
 
-Status: On Hold  
+Status: Implemented (v2.2.0 rev2)  
 Priority: Low  
-Suggested Version: TBD  
-Suggested Revision: TBD  
+Suggested Version: v2.2.0  
+Suggested Revision: rev2  
 
 Description:
 Refine the existing staged degradation effect on the final "Shutting down" voice line so Jarvis sounds more convincingly like he is losing power during terminal shutdown.
@@ -278,10 +278,14 @@ Why it matters:
 Shutdown-line tuning would make Jarvis feel more state-aware and physically present during failure termination without widening the diagnostics/error voice path.
 
 Proposed Change:
-Tune the existing shutdown-only voice envelope using staged slowdown, optional pitch drop, and final tail fade or hesitation. Keep the work limited to shutdown-line-only envelope refinement rather than first-time implementation or broader voice-path redesign.
+Implemented model:
+- the final `Shutting down.` line remains routed through the existing dedicated shutdown-only path in `Audio/jarvis_error_voice.py`
+- the late shutdown envelope is now tuned so the collapse stays concentrated on `down` while the tail remains degraded but intelligible
+- the existing dev-only voice regression harness remains the regression guard for the launcher-owned shutdown line, and its normal-voice probe path now matches the current `Audio/jarvis_voice.py` repo layout
 
 Likely Files Affected:
 - C:/Jarvis/Audio/jarvis_error_voice.py
+- C:/Jarvis/dev/jarvis_voice_regression_harness.py
 
 Scope:
 - shutdown voice-effect refinement
@@ -293,8 +297,13 @@ Out of Scope:
 - renderer changes
 
 Notes:
-Current repo truth already includes a dedicated shutdown-only effect path for the final "Shutting down." line inside the diagnostics/error voice script. This item now represents any future shutdown-envelope tuning on top of that existing path, not first implementation of a shutdown-specific branch.
-This item is intentionally paused behind `FB-020` so the Dev Toolkit utility model and dev-only evidence-root cleanup can land first without mixing voice refinement into the current developer-surface rework.
+This item is now implemented as a tiny shutdown-line-only refinement.
+Current repo truth already includes:
+
+- the pre-existing dedicated shutdown-only effect path for the final `Shutting down.` line inside the diagnostics/error voice script
+- a bounded late-tail tuning pass in `apply_shutdown_source_slowdown()` so the collapse remains focused on `down` without over-dragging the final suffix
+- a directly supportive dev-only voice-harness path correction so the normal-voice probe resolves the live `Audio/jarvis_voice.py` location
+- passing voice-regression evidence across repeated-crash, startup-abort, direct diagnostics/error probes, and direct normal-voice probe coverage
 
 ---
 
