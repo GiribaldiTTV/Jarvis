@@ -727,6 +727,7 @@ class JarvisSystem:
                 and
                 pynput_keyboard.Key.end in self.hotkeys_pressed
             ):
+                self.runtime_milestone("BOOT_MAIN|HOTKEY_SHUTDOWN_TRIGGERED")
                 self.emit_bus(self.bus.shutdown_requested)
         except Exception:
             pass
@@ -764,6 +765,26 @@ class JarvisSystem:
                 f.write(f"[{ts}] {event}\n")
         except Exception:
             pass
+
+    def normalized_marker_input(self, text, limit=40):
+        normalized = "_".join(text.strip().lower().split())
+        if not normalized:
+            return "empty"
+
+        cleaned = []
+        for ch in normalized:
+            if ch.isalnum() or ch in {"_", "-"}:
+                cleaned.append(ch)
+            else:
+                cleaned.append("_")
+
+        collapsed = "".join(cleaned).strip("_")
+        while "__" in collapsed:
+            collapsed = collapsed.replace("__", "_")
+
+        if not collapsed:
+            return "empty"
+        return collapsed[:limit]
 
     def sleep_ms(self, ms):
         time.sleep(ms / 1000.0)
@@ -1055,10 +1076,15 @@ class JarvisSystem:
                 self.run_voice("Would you like me to import your home preferences?", show_input_after=True)
 
             elif user_input == "shutdown interface":
+                self.runtime_milestone("BOOT_MAIN|SHUTDOWN_COMMAND_ACCEPTED|stage=command_1")
                 self.run_voice("Understood. Shutting down interface.")
                 self.emit_bus(self.bus.shutdown_requested)
 
             else:
+                normalized_input = self.normalized_marker_input(user_input)
+                self.runtime_milestone(
+                    f"BOOT_MAIN|FIRST_COMMAND_REJECTED|input={normalized_input}"
+                )
                 self.run_voice("Command not recognized.", show_input_after=True)
                 self.set_status("AWAITING COMMAND")
 
@@ -1078,10 +1104,15 @@ class JarvisSystem:
                 self.transition_to_hud(import_home=False)
 
             elif user_input == "shutdown interface":
+                self.runtime_milestone("BOOT_MAIN|SHUTDOWN_COMMAND_ACCEPTED|stage=command_2")
                 self.run_voice("Understood. Shutting down interface.")
                 self.emit_bus(self.bus.shutdown_requested)
 
             else:
+                normalized_input = self.normalized_marker_input(user_input)
+                self.runtime_milestone(
+                    f"BOOT_MAIN|IMPORT_CHOICE_REJECTED|input={normalized_input}"
+                )
                 self.set_status("CONFIRM IMPORT")
                 self.run_voice("Please answer yes or no.", show_input_after=True)
 
@@ -1123,7 +1154,12 @@ class JarvisSystem:
         self.log_event("> Center Jarvis core stabilizing into desktop mode")
         self.sleep_ms(120)
 
-        self.emit_bus(self.bus.begin_desktop_handoff)
+        if self.emit_bus(self.bus.begin_desktop_handoff):
+            self.runtime_milestone("BOOT_MAIN|HANDOFF_SIGNAL_EMITTED")
+        else:
+            self.runtime_milestone(
+                "BOOT_MAIN|HANDOFF_SIGNAL_DROPPED|reason=shutdown_in_progress_or_runtime_error"
+            )
 
     def begin_desktop_handoff(self):
         desktop_reveal_delay_ms = 140
