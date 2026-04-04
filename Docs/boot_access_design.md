@@ -77,6 +77,23 @@ They may support only:
 They must not rewrite, reinterpret, suppress, or override launcher-owned desktop truth or control decisions.
 They must not become a cross-layer command path back into the launcher.
 
+At planning level, the minimal future boot orchestrator is shaped as four conceptual stages:
+
+1. boot presence stage
+2. access/trust framing stage
+3. delegation checkpoint
+4. post-delegation observation stage
+
+Within this boot-access planning surface, those stages mean:
+
+- the boot presence stage owns only pre-desktop Jarvis startup presence and presentation
+- the access/trust framing stage owns only pre-desktop access or trust framing before launcher delegation
+- the delegation checkpoint is the point where desktop startup execution is handed into the launcher and boot-stage authority ends
+- the post-delegation observation stage may observe only launcher-emitted downstream inputs under the existing read-only and non-authoritative boundary contract
+
+This stage model remains conceptual only.
+It does not define boot runtime behavior, implementation sequencing, higher-layer control, or concrete shell/login integration.
+
 ## Product Intent
 
 Jarvis should feel like the primary visible system presence on a consumer Windows machine.

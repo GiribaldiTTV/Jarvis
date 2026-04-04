@@ -51,6 +51,25 @@ From that point forward, the boot layer may coordinate around the transition and
 
 A future boot orchestrator must not rewrite, override, or reinterpret launcher-owned desktop truth or desktop control decisions.
 
+### FB-004 Minimal Future Boot-Orchestrator Stage Model
+
+At planning level, the minimal future boot orchestrator is shaped as four conceptual stages:
+
+1. boot presence stage
+2. access/trust framing stage
+3. delegation checkpoint
+4. post-delegation observation stage
+
+Those stages mean:
+
+- the boot presence stage owns only pre-desktop startup presence and presentation before launcher delegation
+- the access/trust framing stage owns only pre-desktop framing around access or trust before launcher delegation
+- the delegation checkpoint is the exact point where desktop startup execution is handed to the launcher and boot-stage authority ends
+- the post-delegation observation stage may observe launcher-emitted downstream inputs only under the existing read-only and non-authoritative `FB-015` contract
+
+This stage model is conceptual lifecycle shape only.
+It does not authorize boot runtime behavior, integration sequencing, higher-layer control, or `FB-004` implementation work.
+
 ### FB-015 Rev1a Phase-Boundary Contract
 
 `FB-015 rev1a` clarifies the future boundary between boot-stage coordination and launcher-owned desktop-stage execution.
