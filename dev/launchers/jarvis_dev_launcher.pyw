@@ -270,6 +270,24 @@ LANE_CONFIG = {
         "report_suffix": ".txt",
         "crash_folder": "",
     },
+    "devToolkitSmokeValidation": {
+        "label": "Dev Toolkit Smoke Validation",
+        "detail": (
+            "Runs the boot-side Toolkit validation and the desktop-side Toolkit validation in sequence, "
+            "then writes one consolidated smoke report so the current helper-lane wiring can be checked "
+            "with a single background run."
+        ),
+        "quiet_launcher": "launch_jarvis_dev_toolkit_smoke_validation.vbs",
+        "voice_launcher": "",
+        "supports_voice": False,
+        "available_modes": ("quiet",),
+        "opens_window": False,
+        "log_root": os.path.join(DEV_LOGS_DIR, "dev_toolkit_smoke_validation"),
+        "report_root": os.path.join(DEV_LOGS_DIR, "dev_toolkit_smoke_validation", "reports"),
+        "report_prefix": "DevToolkitSmokeValidationReport_",
+        "report_suffix": ".txt",
+        "crash_folder": "",
+    },
     "launcherRegression": {
         "label": "Desktop Launcher Regression Harness",
         "detail": (
@@ -386,6 +404,7 @@ CONFIG_LANE_GROUPS = (
             "desktopHealthy",
             "launcherHealthy",
             "desktopToolkitValidation",
+            "devToolkitSmokeValidation",
             "launcherRegression",
         ),
     },
