@@ -295,8 +295,8 @@ class TitleBar(QFrame):
         self.setObjectName("titleBar")
 
         layout = QHBoxLayout(self)
-        layout.setContentsMargins(10, 8, 10, 8)
-        layout.setSpacing(8)
+        layout.setContentsMargins(10, 6, 10, 6)
+        layout.setSpacing(6)
 
         title = QLabel("JARVIS DEV TOOLKIT // INTERNAL")
         title.setObjectName("titleBarLabel")
@@ -337,12 +337,24 @@ class Panel(QFrame):
         super().__init__()
         self.setObjectName("panel")
         self.layout = QVBoxLayout(self)
-        self.layout.setContentsMargins(12, 12, 12, 12)
-        self.layout.setSpacing(8)
+        self.layout.setContentsMargins(10, 10, 10, 10)
+        self.layout.setSpacing(6)
 
         title = QLabel(title_text)
         title.setObjectName("panelTitle")
         self.layout.addWidget(title)
+
+
+class GuardedComboBox(QComboBox):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.setFocusPolicy(Qt.ClickFocus)
+
+    def wheelEvent(self, event):
+        if self.hasFocus() or self.view().isVisible() or self.view().hasFocus():
+            super().wheelEvent(event)
+            return
+        event.accept()
 
 
 class DevLauncherWindow(QWidget):
@@ -350,8 +362,8 @@ class DevLauncherWindow(QWidget):
         super().__init__()
         self.setWindowTitle("Jarvis Dev Toolkit")
         self.setWindowFlags(Qt.Window | Qt.FramelessWindowHint)
-        self.resize(980, 720)
-        self.setMinimumSize(840, 620)
+        self.resize(980, 900)
+        self.setMinimumSize(840, 720)
 
         self._drag_active = False
         self._drag_pos = QPoint()
@@ -364,7 +376,7 @@ class DevLauncherWindow(QWidget):
         self._drag_source_widgets = []
 
         self.pending_launch_key = ""
-        self.selected_lane_key = "diagnostics"
+        self.selected_lane_key = ""
         self.session_launch_records = {}
         self.previous_launch_entries = []
 
@@ -396,18 +408,18 @@ class DevLauncherWindow(QWidget):
 
             QLabel#titleBarLabel {
                 color: #9feeff;
-                font-size: 12pt;
+                font-size: 10.5pt;
                 font-weight: 700;
                 letter-spacing: 1px;
             }
 
             QPushButton#titleBarButton {
-                min-width: 76px;
-                padding: 5px 8px;
+                min-width: 72px;
+                padding: 3px 8px;
                 border: 1px solid #00d8ff;
                 background: #0a1b26;
                 color: #f4fbff;
-                font-size: 10pt;
+                font-size: 9pt;
             }
 
             QPushButton#titleBarButton:hover {
@@ -421,20 +433,20 @@ class DevLauncherWindow(QWidget):
 
             QLabel#bannerTop {
                 color: #d4af37;
-                font-size: 11pt;
+                font-size: 8.75pt;
                 font-weight: 700;
                 letter-spacing: 1px;
             }
 
             QLabel#bannerTitle {
                 color: #d4af37;
-                font-size: 24pt;
+                font-size: 18pt;
                 font-weight: 700;
             }
 
             QLabel#bannerSubtitle {
                 color: #ff4c4c;
-                font-size: 12pt;
+                font-size: 9pt;
                 font-weight: 700;
             }
 
@@ -445,13 +457,19 @@ class DevLauncherWindow(QWidget):
 
             QLabel#panelTitle {
                 color: #d4af37;
-                font-size: 13pt;
+                font-size: 11pt;
                 font-weight: 700;
             }
 
             QLabel#fieldLabel {
-                color: #9feeff;
-                font-size: 9.5pt;
+                color: #7bffd5;
+                font-size: 10pt;
+                font-weight: 700;
+            }
+
+            QLabel#subsectionTitle {
+                color: #ff4c4c;
+                font-size: 10.5pt;
                 font-weight: 700;
             }
 
@@ -489,16 +507,29 @@ class DevLauncherWindow(QWidget):
                 padding: 8px 6px;
             }
 
+            QPushButton#headerUtilityButton {
+                font-size: 8.75pt;
+                padding: 5px 6px;
+            }
+
             QLabel#detailBox, QLabel#noteBox, QLabel#statusBox {
                 border: 1px solid #134353;
                 background: #06111a;
-                padding: 8px;
+                padding: 6px;
                 color: #9fd7df;
-                font-size: 9pt;
+                font-size: 8.75pt;
             }
 
             QLabel#statusBox {
                 color: #d4af37;
+            }
+
+            QLabel#headerHint {
+                color: #8cc6cf;
+                font-size: 8pt;
+                background: transparent;
+                border: none;
+                padding: 0px;
             }
 
             QLabel#modeLine {
@@ -571,23 +602,25 @@ class DevLauncherWindow(QWidget):
 
         root = QVBoxLayout(self)
         root.setContentsMargins(10, 10, 10, 10)
-        root.setSpacing(10)
+        root.setSpacing(6)
 
         shell = QFrame()
         shell.setObjectName("shell")
         shell_layout = QVBoxLayout(shell)
         shell_layout.setContentsMargins(14, 14, 14, 14)
-        shell_layout.setSpacing(12)
+        shell_layout.setSpacing(6)
         self.shell_frame = shell
 
         self.title_bar = TitleBar(self)
+        self.title_bar.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Maximum)
+        self.title_bar.setMaximumHeight(42)
         shell_layout.addWidget(self.title_bar)
 
         banner = QFrame()
         banner.setObjectName("banner")
         banner_layout = QVBoxLayout(banner)
-        banner_layout.setContentsMargins(12, 12, 12, 12)
-        banner_layout.setSpacing(4)
+        banner_layout.setContentsMargins(8, 6, 8, 6)
+        banner_layout.setSpacing(1)
         self.banner_frame = banner
 
         banner_top = QLabel("STARK INDUSTRIES // INTERNAL TOOLING")
@@ -607,8 +640,32 @@ class DevLauncherWindow(QWidget):
         banner_subtitle.setAlignment(Qt.AlignCenter)
         banner_layout.addWidget(banner_subtitle)
         self.banner_subtitle_label = banner_subtitle
+        banner.setMaximumHeight(70)
 
         shell_layout.addWidget(banner)
+
+        status_panel = Panel("Status")
+        status_panel.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Maximum)
+        status_panel.layout.setContentsMargins(8, 8, 8, 8)
+        status_panel.layout.setSpacing(4)
+        self.status_label = QLabel("Ready.")
+        self.status_label.setObjectName("statusBox")
+        self.status_label.setWordWrap(True)
+        self.status_label.setAlignment(Qt.AlignVCenter | Qt.AlignLeft)
+        self.status_label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+        self.status_label.setMaximumHeight(26)
+        status_panel.layout.addWidget(self.status_label)
+        self.status_panel = status_panel
+
+        global_utils_panel = Panel("Global Utilities")
+        global_utils_panel.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Maximum)
+        global_utils_panel.layout.setContentsMargins(8, 8, 8, 8)
+        global_utils_panel.layout.setSpacing(4)
+        self._build_global_utilities_panel(global_utils_panel.layout)
+        self.global_utils_panel = global_utils_panel
+
+        shell_layout.addWidget(global_utils_panel)
+        shell_layout.addWidget(status_panel)
 
         scroll = QScrollArea()
         scroll.setWidgetResizable(True)
@@ -618,17 +675,6 @@ class DevLauncherWindow(QWidget):
         content_layout.setContentsMargins(0, 0, 0, 0)
         content_layout.setSpacing(12)
         self.scroll_content = content
-
-        status_panel = Panel("Status")
-        self.status_label = QLabel("Ready.")
-        self.status_label.setObjectName("statusBox")
-        self.status_label.setWordWrap(True)
-        status_panel.layout.addWidget(self.status_label)
-        content_layout.addWidget(status_panel)
-
-        global_utils_panel = Panel("Global Utilities")
-        self._build_global_utilities_panel(global_utils_panel.layout)
-        content_layout.addWidget(global_utils_panel)
 
         current_launch_panel = Panel("Custom Launch")
         self._build_current_launch_group_panel(current_launch_panel.layout)
@@ -675,8 +721,10 @@ class DevLauncherWindow(QWidget):
         self.audio_label.setMaximumHeight(70)
         layout.addWidget(self.audio_label)
 
-        self.audio_combo = QComboBox()
-        self.audio_combo.addItems(["Quiet (No Audio / No Voice)", "With Voice / Audio"])
+        self.audio_combo = GuardedComboBox()
+        self.audio_combo.addItem("Choose a launch mode...", None)
+        self.audio_combo.addItem("Quiet (No Audio / No Voice)", "quiet")
+        self.audio_combo.addItem("With Voice / Audio", "voice")
         self.audio_combo.setMinimumWidth(0)
         self.audio_combo.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
         self.audio_combo.currentIndexChanged.connect(self.on_launch_mode_changed)
@@ -686,11 +734,9 @@ class DevLauncherWindow(QWidget):
         lane_group_label.setObjectName("fieldLabel")
         layout.addWidget(lane_group_label)
 
-        self.lane_group_combo = QComboBox()
+        self.lane_group_combo = GuardedComboBox()
         self.lane_group_combo.setMinimumWidth(0)
         self.lane_group_combo.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
-        for group in CONFIG_LANE_GROUPS:
-            self.lane_group_combo.addItem(group["label"])
         self.lane_group_combo.currentIndexChanged.connect(self.on_lane_group_changed)
         layout.addWidget(self.lane_group_combo)
 
@@ -698,7 +744,7 @@ class DevLauncherWindow(QWidget):
         lane_choice_label.setObjectName("fieldLabel")
         layout.addWidget(lane_choice_label)
 
-        self.lane_combo = QComboBox()
+        self.lane_combo = GuardedComboBox()
         self.lane_combo.setMinimumWidth(0)
         self.lane_combo.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
         self.lane_combo.currentIndexChanged.connect(self.on_lane_choice_changed)
@@ -716,8 +762,12 @@ class DevLauncherWindow(QWidget):
         delay_label.setObjectName("fieldLabel")
         layout.addWidget(delay_label)
 
-        self.delay_combo = QComboBox()
-        self.delay_combo.addItems(["Now", "3s", "5s", "10s"])
+        self.delay_combo = GuardedComboBox()
+        self.delay_combo.addItem("Choose a launch delay...", None)
+        self.delay_combo.addItem("Now", "Now")
+        self.delay_combo.addItem("3s", "3s")
+        self.delay_combo.addItem("5s", "5s")
+        self.delay_combo.addItem("10s", "10s")
         self.delay_combo.setMinimumWidth(0)
         self.delay_combo.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
         self.delay_combo.currentIndexChanged.connect(self.update_ui)
@@ -739,34 +789,39 @@ class DevLauncherWindow(QWidget):
 
         layout.addStretch(1)
 
-        self.populate_lane_group_choices("diagnostics")
+        self.populate_lane_group_choices("")
 
     def _build_global_utilities_panel(self, layout):
         button_row = QHBoxLayout()
         button_row.setContentsMargins(0, 0, 0, 0)
-        button_row.setSpacing(10)
+        button_row.setSpacing(6)
         button_row.addStretch(1)
 
         buttons = [
-            ("Open Jarvis Root", self.open_jarvis_root),
-            ("Open Dev Folder", self.open_dev_folder),
-            ("Open Dev Logs Root", self.open_dev_logs_root),
-            ("Open Dev Launchers Folder", self.open_launchers_folder),
+            ("Jarvis Root", self.open_jarvis_root, "Open Jarvis Root"),
+            ("Dev Folder", self.open_dev_folder, "Open Dev Folder"),
+            ("Dev Logs", self.open_dev_logs_root, "Open Dev Logs Root"),
+            ("Dev Launchers", self.open_launchers_folder, "Open Dev Launchers Folder"),
         ]
-        for text, handler in buttons:
+        for text, handler, tooltip in buttons:
             btn = QPushButton(text)
+            btn.setObjectName("headerUtilityButton")
             btn.clicked.connect(handler)
-            btn.setMinimumWidth(180)
+            btn.setToolTip(tooltip)
+            btn.setMinimumWidth(126)
+            btn.setFixedHeight(30)
+            btn.setSizePolicy(QSizePolicy.Maximum, QSizePolicy.Fixed)
             button_row.addWidget(btn)
 
         button_row.addStretch(1)
         layout.addLayout(button_row)
 
         note = QLabel(
-            "Global utilities always open the same stable developer locations and never depend on the selected lane."
+            "Stable developer locations that never depend on the selected lane."
         )
-        note.setObjectName("noteBox")
-        note.setWordWrap(True)
+        note.setObjectName("headerHint")
+        note.setWordWrap(False)
+        note.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
         layout.addWidget(note)
 
     def _create_group_subsection(self, title_text: str):
@@ -778,7 +833,8 @@ class DevLauncherWindow(QWidget):
         inner_layout.setSpacing(10)
 
         title = QLabel(title_text)
-        title.setObjectName("fieldLabel")
+        title.setObjectName("subsectionTitle")
+        title.setAlignment(Qt.AlignCenter)
         inner_layout.addWidget(title)
         return frame, inner_layout
 
@@ -836,6 +892,7 @@ class DevLauncherWindow(QWidget):
         note.setObjectName("noteBox")
         note.setWordWrap(True)
         note.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Minimum)
+        self.custom_utilities_note_label = note
         layout.addWidget(note)
         layout.addStretch(1)
 
@@ -852,7 +909,7 @@ class DevLauncherWindow(QWidget):
         previous_choice_label.setObjectName("fieldLabel")
         layout.addWidget(previous_choice_label)
 
-        self.previous_launch_combo = QComboBox()
+        self.previous_launch_combo = GuardedComboBox()
         self.previous_launch_combo.setMinimumWidth(0)
         self.previous_launch_combo.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
         self.previous_launch_combo.currentIndexChanged.connect(self.on_previous_launch_changed)
@@ -887,6 +944,7 @@ class DevLauncherWindow(QWidget):
         note.setObjectName("noteBox")
         note.setWordWrap(True)
         note.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Minimum)
+        self.previous_utilities_note_label = note
         layout.addWidget(note)
         layout.addStretch(1)
 
@@ -933,15 +991,19 @@ class DevLauncherWindow(QWidget):
 
     def current_lane_group(self) -> dict:
         groups = self.filtered_lane_groups()
-        if not groups:
+        selected_group = self.lane_group_combo.currentData()
+        if not groups or not selected_group:
             return {"label": "No Matching Lanes", "lane_keys": ()}
-        index = self.lane_group_combo.currentIndex()
-        if index < 0 or index >= len(groups):
-            index = 0
-        return groups[index]
+        for group in groups:
+            if group["label"] == selected_group:
+                return group
+        return {"label": "No Matching Lanes", "lane_keys": ()}
 
     def filtered_lane_groups(self) -> list[dict]:
-        wants_voice = self.audio_combo.currentIndex() == 1
+        selected_mode = self.audio_combo.currentData()
+        if not selected_mode:
+            return []
+        wants_voice = selected_mode == "voice"
         groups = []
         for group in CONFIG_LANE_GROUPS:
             lane_keys = []
@@ -958,13 +1020,14 @@ class DevLauncherWindow(QWidget):
         groups = self.filtered_lane_groups()
         self.lane_group_combo.blockSignals(True)
         self.lane_group_combo.clear()
+        self.lane_group_combo.addItem("Choose a purpose...", None)
         preferred_group_index = 0
         for index, group in enumerate(groups):
-            self.lane_group_combo.addItem(group["label"])
+            combo_index = index + 1
+            self.lane_group_combo.addItem(group["label"], group["label"])
             if preferred_lane_key and preferred_lane_key in group["lane_keys"]:
-                preferred_group_index = index
-        if groups:
-            self.lane_group_combo.setCurrentIndex(preferred_group_index)
+                preferred_group_index = combo_index
+        self.lane_group_combo.setCurrentIndex(preferred_group_index)
         self.lane_group_combo.blockSignals(False)
         self.populate_lane_choices(preferred_lane_key)
 
@@ -972,15 +1035,17 @@ class DevLauncherWindow(QWidget):
         group = self.current_lane_group()
         self.lane_combo.blockSignals(True)
         self.lane_combo.clear()
+        self.lane_combo.addItem("Choose a test / helper...", None)
         preferred_index = 0
         for index, lane_key in enumerate(group["lane_keys"]):
             lane = LANE_CONFIG[lane_key]
+            combo_index = index + 1
             self.lane_combo.addItem(lane["label"], lane_key)
             if lane_key == preferred_lane_key:
-                preferred_index = index
+                preferred_index = combo_index
         self.lane_combo.setCurrentIndex(preferred_index)
         self.lane_combo.blockSignals(False)
-        self.selected_lane_key = self.lane_combo.currentData() or group["lane_keys"][0]
+        self.selected_lane_key = self.lane_combo.currentData() or ""
         self.update_ui()
 
     def on_lane_group_changed(self, *_args):
@@ -988,37 +1053,66 @@ class DevLauncherWindow(QWidget):
 
     def on_launch_mode_changed(self, *_args):
         preferred_lane_key = self.current_lane_key()
+        if not self.audio_combo.currentData():
+            preferred_lane_key = ""
         self.populate_lane_group_choices(preferred_lane_key)
 
     def on_lane_choice_changed(self, *_args):
         lane_key = self.lane_combo.currentData()
-        if lane_key:
-            self.selected_lane_key = lane_key
+        self.selected_lane_key = lane_key or ""
         self.update_ui()
 
     def current_lane_key(self) -> str:
-        return self.selected_lane_key or "diagnostics"
+        return self.selected_lane_key or ""
 
     def current_lane(self) -> dict:
-        return LANE_CONFIG[self.current_lane_key()]
+        lane_key = self.current_lane_key()
+        return LANE_CONFIG.get(lane_key, {})
+
+    def has_current_lane_selection(self) -> bool:
+        return bool(self.current_lane_key())
+
+    def launch_delay_value(self) -> str:
+        return self.delay_combo.currentData() or ""
+
+    def launch_mode_value(self) -> str:
+        return self.audio_combo.currentData() or ""
+
+    def current_launch_ready(self) -> bool:
+        return bool(
+            self.launch_mode_value()
+            and self.lane_group_combo.currentData()
+            and self.current_lane_key()
+            and self.launch_delay_value()
+        )
 
     def voice_requested(self) -> bool:
-        return self.audio_combo.currentIndex() == 1 and self.current_lane().get("supports_voice", False)
+        lane = self.current_lane()
+        return self.launch_mode_value() == "voice" and lane.get("supports_voice", False)
 
     def current_launch_mode_key(self) -> str:
+        if not self.launch_mode_value():
+            return ""
         return "voice" if self.voice_requested() else "quiet"
 
     def current_session_artifact_key(self) -> str:
-        return f"{self.current_lane_key()}::{self.current_launch_mode_key()}"
+        lane_key = self.current_lane_key()
+        mode_key = self.current_launch_mode_key()
+        if not lane_key or not mode_key:
+            return ""
+        return f"{lane_key}::{mode_key}"
 
     def active_evidence_root(self) -> str:
         lane = self.current_lane()
+        if not lane:
+            return ""
         if self.voice_requested() and lane.get("log_root_with_voice"):
             return lane["log_root_with_voice"]
         return lane["log_root"]
 
     def active_report_root(self) -> str:
-        return self.current_lane().get("report_root", "")
+        lane = self.current_lane()
+        return lane.get("report_root", "") if lane else ""
 
     def latest_runtime_log_for_record(self, record: dict, newer_than_ts: float = 0.0) -> str:
         fixed = record.get("runtime_fixed", "")
@@ -1079,10 +1173,15 @@ class DevLauncherWindow(QWidget):
         return path
 
     def current_session_record(self) -> dict:
-        return self.session_launch_records.get(self.current_session_artifact_key(), {})
+        artifact_key = self.current_session_artifact_key()
+        if not artifact_key:
+            return {}
+        return self.session_launch_records.get(artifact_key, {})
 
     def build_current_launch_record(self) -> dict:
         lane = self.current_lane()
+        if not lane:
+            return {}
         return {
             "artifact_key": self.current_session_artifact_key(),
             "lane_key": self.current_lane_key(),
@@ -1110,20 +1209,28 @@ class DevLauncherWindow(QWidget):
 
     def active_launcher_filename(self) -> str:
         lane = self.current_lane()
+        if not lane:
+            return ""
         if self.voice_requested() and lane.get("voice_launcher"):
             return lane["voice_launcher"]
         return lane["quiet_launcher"]
 
     def active_label(self) -> str:
         lane = self.current_lane()
+        if not lane:
+            return "Selected lane"
         if self.voice_requested() and lane.get("supports_voice"):
             return lane["label"] + " With Voice"
         return lane["label"]
 
     def select_lane(self, lane_key: str):
-        if self.audio_combo.currentIndex() == 1 and not LANE_CONFIG[lane_key].get("supports_voice", False):
+        if self.launch_mode_value() == "voice" and not LANE_CONFIG[lane_key].get("supports_voice", False):
             self.audio_combo.blockSignals(True)
-            self.audio_combo.setCurrentIndex(0)
+            self.audio_combo.setCurrentIndex(1)
+            self.audio_combo.blockSignals(False)
+        elif not self.launch_mode_value():
+            self.audio_combo.blockSignals(True)
+            self.audio_combo.setCurrentIndex(1)
             self.audio_combo.blockSignals(False)
         self.populate_lane_group_choices(lane_key)
 
@@ -1145,6 +1252,11 @@ class DevLauncherWindow(QWidget):
         )
 
     def update_mode_line(self, lane: dict):
+        if not lane or not self.current_launch_ready():
+            self.mode_line.setText(
+                "Choose a launch mode, purpose, test / helper, and launch delay to enable the selected Custom Launch flow."
+            )
+            return
         selected_audio = self.audio_combo.currentText()
         self.mode_line.setText(
             f"Launch Mode: {selected_audio} | "
@@ -1263,6 +1375,15 @@ class DevLauncherWindow(QWidget):
         if entry.get("crash_folder"):
             self.append_wrapped_detail(lines, "Crash Folder", entry["crash_folder"], width=wrap_width)
         return "\n".join(lines)
+
+    def lane_shows_runtime_button(self, lane_key: str) -> bool:
+        return lane_key in {"diagnostics", "repeatedCrash", "startupAbort", "desktopHealthy", "launcherHealthy"}
+
+    def lane_shows_report_button(self, lane: dict) -> bool:
+        return bool(lane.get("report_root"))
+
+    def lane_shows_crash_button(self, lane: dict) -> bool:
+        return bool(lane.get("crash_folder"))
 
     def artifact_token_from_path(self, path: str, prefix: str, suffix: str = "") -> str:
         if not path:
@@ -1518,20 +1639,28 @@ class DevLauncherWindow(QWidget):
 
     def update_ui(self):
         lane = self.current_lane()
-        self.detail_label.setText(self.detail_text_for_lane(lane))
-
-        supports_voice = lane.get("supports_voice", False)
-        if self.audio_combo.currentIndex() == 1 and not supports_voice:
-            self.audio_combo.blockSignals(True)
-            self.audio_combo.setCurrentIndex(0)
-            self.audio_combo.blockSignals(False)
-        self.audio_label.setText(
-            "Choose whether this launch should stay quiet or run with live voice/audio. "
-            f"Current lane support: {self.audio_mode_summary(lane)}"
-        )
+        if lane:
+            supports_voice = lane.get("supports_voice", False)
+            if self.launch_mode_value() == "voice" and not supports_voice:
+                self.audio_combo.blockSignals(True)
+                self.audio_combo.setCurrentIndex(1)
+                self.audio_combo.blockSignals(False)
+            self.detail_label.setText(self.detail_text_for_lane(lane))
+            self.audio_label.setText(
+                "Choose whether this launch should stay quiet or run with live voice/audio. "
+                f"Current lane support: {self.audio_mode_summary(lane)}"
+            )
+        else:
+            self.detail_label.setText(
+                "Choose a launch mode, purpose, and test / helper to preview the lane details here."
+            )
+            self.audio_label.setText(
+                "Choose whether this launch should stay quiet or run with live voice/audio."
+            )
 
         self.apply_group_section_widths()
         self.update_mode_line(lane)
+        self.launch_btn.setEnabled(self.current_launch_ready() and not self.launch_timer.isActive())
         self.cancel_btn.setEnabled(self.launch_timer.isActive())
         self.refresh_utility_buttons()
 
@@ -1542,9 +1671,13 @@ class DevLauncherWindow(QWidget):
     def refresh_utility_buttons(self):
         current_record = self.current_session_record()
         current_cutoff = current_record.get("launched_at_ts", 0.0) if current_record else 0.0
+        current_lane = self.current_lane()
+        has_lane_selection = bool(current_lane)
+
         if hasattr(self, "selected_evidence_btn"):
             evidence_root = current_record.get("evidence_root", "")
             evidence_exists = bool(current_record) and os.path.isdir(evidence_root)
+            self.selected_evidence_btn.setVisible(has_lane_selection)
             self.selected_evidence_btn.setEnabled(evidence_exists)
             self.selected_evidence_btn.setToolTip(
                 evidence_root
@@ -1554,6 +1687,8 @@ class DevLauncherWindow(QWidget):
 
         if hasattr(self, "latest_runtime_btn"):
             runtime_path = self.latest_runtime_log_for_record(current_record, current_cutoff) if current_record else ""
+            show_runtime = has_lane_selection and self.lane_shows_runtime_button(self.current_lane_key())
+            self.latest_runtime_btn.setVisible(show_runtime)
             self.latest_runtime_btn.setEnabled(bool(runtime_path))
             self.latest_runtime_btn.setToolTip(
                 runtime_path or "No current-session runtime log is available yet for the selected lane."
@@ -1563,6 +1698,8 @@ class DevLauncherWindow(QWidget):
             report_root = current_record.get("report_root", "")
             report_path = self.latest_report_for_record(current_record, current_cutoff) if current_record else ""
             supports_reports = bool(current_record and current_record.get("report_root"))
+            show_report = has_lane_selection and self.lane_shows_report_button(current_lane)
+            self.latest_report_btn.setVisible(show_report)
             self.latest_report_btn.setEnabled(bool(report_path))
             self.latest_report_btn.setToolTip(
                 report_path
@@ -1578,6 +1715,8 @@ class DevLauncherWindow(QWidget):
             crash_file = self.latest_crash_file_for_record(current_record, current_cutoff) if current_record else ""
             crash_path = self.crash_folder_for_record(current_record) if crash_file else ""
             crash_folder_name = current_record.get("crash_folder_name", "") if current_record else ""
+            show_crash = has_lane_selection and self.lane_shows_crash_button(current_lane)
+            self.selected_crash_btn.setVisible(show_crash)
             self.selected_crash_btn.setEnabled(bool(crash_path))
             self.selected_crash_btn.setToolTip(
                 crash_path
@@ -1588,11 +1727,21 @@ class DevLauncherWindow(QWidget):
                     else "This lane has not produced a current-session crash folder."
                 )
             )
+        if hasattr(self, "custom_utilities_note_label"):
+            if not has_lane_selection:
+                self.custom_utilities_note_label.setText(
+                    "Choose a launch mode, purpose, and test / helper to reveal the utilities for that Custom Launch."
+                )
+            else:
+                self.custom_utilities_note_label.setText(
+                    "Custom Launch utilities follow the currently selected lane and only enable after that lane has evidence to open."
+                )
 
         previous_entry = self.selected_previous_entry()
         if hasattr(self, "previous_evidence_btn"):
             previous_root = previous_entry.get("evidence_root", "")
             previous_exists = bool(previous_entry) and os.path.isdir(previous_root)
+            self.previous_evidence_btn.setVisible(bool(previous_entry))
             self.previous_evidence_btn.setEnabled(previous_exists)
             self.previous_evidence_btn.setToolTip(
                 previous_root
@@ -1602,6 +1751,7 @@ class DevLauncherWindow(QWidget):
 
         if hasattr(self, "previous_runtime_btn"):
             previous_runtime = previous_entry.get("runtime_log", "")
+            self.previous_runtime_btn.setVisible(bool(previous_runtime))
             self.previous_runtime_btn.setEnabled(bool(previous_runtime))
             self.previous_runtime_btn.setToolTip(
                 previous_runtime or "No saved runtime log is available for the selected previous launch."
@@ -1609,6 +1759,7 @@ class DevLauncherWindow(QWidget):
 
         if hasattr(self, "previous_report_btn"):
             previous_report = previous_entry.get("report_path", "")
+            self.previous_report_btn.setVisible(bool(previous_report))
             self.previous_report_btn.setEnabled(bool(previous_report))
             self.previous_report_btn.setToolTip(
                 previous_report or "No saved report is available for the selected previous launch."
@@ -1616,14 +1767,27 @@ class DevLauncherWindow(QWidget):
 
         if hasattr(self, "previous_crash_btn"):
             previous_crash = previous_entry.get("crash_folder", "")
+            self.previous_crash_btn.setVisible(bool(previous_crash))
             self.previous_crash_btn.setEnabled(bool(previous_crash))
             self.previous_crash_btn.setToolTip(
                 previous_crash or "No saved crash folder is available for the selected previous launch."
             )
+        if hasattr(self, "previous_utilities_note_label"):
+            if previous_entry:
+                self.previous_utilities_note_label.setText(
+                    "Previous Launch utilities reopen the exact saved artifacts for the selected historical run."
+                )
+            else:
+                self.previous_utilities_note_label.setText(
+                    "Choose a previous launch entry to reveal its saved evidence utilities."
+                )
 
     def schedule_or_launch(self):
         self.cancel_launch(silent=True)
-        delay_text = self.delay_combo.currentText()
+        if not self.current_launch_ready():
+            self.set_status("Choose a launch mode, purpose, test / helper, and launch delay before launching.")
+            return
+        delay_text = self.launch_delay_value()
         if delay_text == "Now":
             self.run_selected_launcher()
             return
@@ -1725,7 +1889,9 @@ class DevLauncherWindow(QWidget):
         record = self.current_session_record()
         report_root = record.get("report_root", "")
         if not report_root:
-            self.set_status(f"{self.current_lane()['label']} does not produce a report artifact.")
+            lane = self.current_lane()
+            lane_label = lane.get("label", "Selected lane")
+            self.set_status(f"{lane_label} does not produce a report artifact.")
             return
         latest = self.latest_report_for_record(record, record.get("launched_at_ts", 0.0))
         if not latest:
@@ -1737,16 +1903,18 @@ class DevLauncherWindow(QWidget):
         record = self.current_session_record()
         crash_file = self.latest_crash_file_for_record(record, record.get("launched_at_ts", 0.0)) if record else ""
         crash_path = self.crash_folder_for_record(record) if crash_file else ""
+        lane = self.current_lane()
+        lane_label = lane.get("label", "Selected lane")
         if not crash_path:
             crash_folder_name = record.get("crash_folder_name", "") if record else ""
             if not crash_folder_name:
-                self.set_status(f"{self.current_lane()['label']} does not use a lane-local crash folder.")
+                self.set_status(f"{lane_label} does not use a lane-local crash folder.")
                 return
             self.set_status(f"Crash folder not found yet: {os.path.join(record.get('evidence_root', self.active_evidence_root()), crash_folder_name)}")
             return
         self.open_path(
             crash_path,
-            f"Opened latest dev crash folder for {self.current_lane()['label']}: {crash_path}",
+            f"Opened latest dev crash folder for {lane_label}: {crash_path}",
         )
 
     def open_previous_evidence_root(self):

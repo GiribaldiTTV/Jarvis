@@ -695,22 +695,24 @@ The first coherent `FB-019` slice is now implemented as a dev-only support-bundl
 
 ### [ID: FB-020] Dev Toolkit utility split and dev-only evidence roots
 
-Status: Implemented (v2.0 rev1)  
+Status: Implemented (v2.0 rev2)  
 Priority: High  
 Suggested Version: v2.0  
-Suggested Revision: rev1  
+Suggested Revision: rev2  
 
 Description:
-Split the Dev Toolkit utility surface into stable global utilities versus lane-aware custom-launch utilities, add a separate previous-launch evidence reopen flow, and move toolkit-facing dev writes into dedicated `C:/Jarvis/dev/logs/<lane>/...` roots instead of the active client-facing `logs` / `crash` roots.
+Split the Dev Toolkit utility surface into stable global utilities versus lane-aware custom-launch utilities, add a separate previous-launch per-run history and exact-artifact reopen flow, and move toolkit-facing dev writes into dedicated `C:/Jarvis/dev/logs/<lane>/...` roots instead of the active client-facing `logs` / `crash` roots.
 
 Why it matters:
-The Dev Toolkit is easier to learn when stable navigation is separated from lane-dependent evidence. Keeping developer-triggered runtime, report, and crash artifacts under `dev/logs` also prevents dev validation output from polluting the active client-facing `logs` area.
+The Dev Toolkit is easier to learn when stable navigation is separated from lane-dependent evidence, current-session utilities only appear when relevant, and historical runs can be reopened precisely without collapsing to the newest lane snapshot. Keeping developer-triggered runtime, report, and crash artifacts under `dev/logs` also prevents dev validation output from polluting the active client-facing `logs` area.
 
 Proposed Change:
 Implemented model:
 - `Global Utilities` opens stable developer locations such as the Jarvis root, Dev folder, Dev logs root, and Dev launchers folder.
-- `Custom Launch Utilities` follows the selected lane and only enables after that lane produces current-session evidence.
-- `Previous Launches` and `Previous Launch Utilities` reopen saved dev evidence separately from the active current-session launch flow.
+- `Custom Launch Utilities` follows the selected lane, stays hidden until relevant to the current selection, and only enables after that lane produces current-session evidence.
+- current launch and previous-launch flows start in explicit chooser-based empty states rather than preselected lane state.
+- `Previous Launches` is a true per-run history browser rather than a latest-per-lane snapshot.
+- `Previous Launch Utilities` reopens the exact runtime, report, crash, or evidence-root artifacts for the selected saved run.
 - toolkit-facing dev and test writes land under `C:/Jarvis/dev/logs/<lane>/...`
 - lane-local crash artifacts stay under each lane root as `...\\crash`
 - active client-facing `C:/Jarvis/logs` remains read-only investigation context where needed, such as support-bundle picking
@@ -728,8 +730,11 @@ Scope:
 - Dev Toolkit utility split
 - global versus lane-scoped utility boundaries
 - previous-launch evidence reopen flow
+- previous-launch true per-run history
+- exact selected-run artifact reopening
 - dev-only evidence-root migration under `dev/logs`
 - lane-specific dev runtime/report/crash root normalization
+- current empty-state and utility-visibility hardening needed to make the toolkit surface accurate and usable
 
 Out of Scope:
 - boot planning
@@ -739,7 +744,7 @@ Out of Scope:
 - shutdown voice refinement
 
 Notes:
-Rev1 is now implemented in code. The current repo truth uses lane-local crash folders under each lane root rather than a shared `dev/logs/crashes` bucket. `FB-008` remains intentionally on hold behind this delivered toolkit and dev-evidence cleanup lane.
+Rev1 and rev2 are now implemented in code. The current repo truth uses lane-local crash folders under each lane root rather than a shared `dev/logs/crashes` bucket, and includes later Dev Toolkit UX hardening needed to make the split utility model usable without preselected state or stale artifact reopening. `FB-008` remains intentionally on hold behind this delivered toolkit and dev-evidence cleanup lane.
 
 ---
 
