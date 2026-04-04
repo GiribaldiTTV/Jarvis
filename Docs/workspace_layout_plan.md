@@ -263,17 +263,42 @@ This was the first real code-moving pass because it addressed the clearest root-
 
 Audio-domain consolidation.
 
-- move root-level `jarvis_voice.py` only in a pass that also updates `main.py`
-- normalize `Audio/` naming in the same approved pass if selected
+- Step 4 is approved only as a dedicated paired path-sensitive pass
+- it is not a generic isolated audio-folder cleanup
 
-This is a later candidate slice, not the currently approved next implementation move.
+The minimum in-bounds file set for this paired pass is:
 
-It remains blocked at the current planning layer because:
+- `main.py`
+- `jarvis_voice.py`
+- `desktop/jarvis_desktop_launcher.pyw`
+- `Audio/jarvis_error_voice.py`
 
-- `jarvis_voice.py` is still coupled to `main.py`
-- `main.py` remains intentionally root-owned while top-level experience and boot-adjacent work stay paused
-- `desktop/jarvis_desktop_launcher.pyw` still references the current root-owned `Audio/jarvis_error_voice.py` path
-- a clean audio-domain move would therefore require a dedicated paired pass rather than an automatic follow-on from the completed desktop-entrypoint consolidation
+Those four files must be treated as one path-sensitive surface because:
+
+- `main.py` still imports and owns the current root-level `jarvis_voice.py` path
+- `desktop/jarvis_desktop_launcher.pyw` still owns the current `Audio/jarvis_error_voice.py` path assumption
+- the normal-voice and diagnostics/error-voice paths therefore cannot be reorganized as unrelated one-file moves
+
+At planning level, Step 4 is allowed to do only this:
+
+- update the paired path assumptions needed to keep those four files coherent as one approved surface
+- move or relink `jarvis_voice.py` only in the same pass that updates `main.py`
+- update the launcher's `Audio/jarvis_error_voice.py` path assumption only if that same paired pass explicitly requires it
+- include tightly necessary path-only naming cleanup inside this four-file surface if selected in the same pass
+
+Step 4 must explicitly avoid:
+
+- moving `main.py`
+- touching `launch_jarvis_desktop.vbs`
+- broader folder cleanup outside this four-file surface
+- `Audio` casing cleanup beyond what the paired pass strictly requires
+- launcher retry, recovery, diagnostics, or control-policy changes
+- diagnostics-policy changes
+- voice behavior or content changes
+- top-level experience restructuring
+
+This is now an explicitly bounded later slice rather than a generic blocked move.
+It is approved only as the paired pass defined above and must not be widened into an automatic follow-on from the completed desktop-entrypoint consolidation.
 
 ### Step 5
 
@@ -288,14 +313,14 @@ After the completed desktop-entrypoint consolidation, no further `FB-005` implem
 
 The remaining `FB-005` sequence is intentionally paused because:
 
-- the next apparent audio-domain move is still coupled to deferred top-level experience entrypoint work
-- launcher-referenced `Audio/` assumptions still exist and should not be rewritten casually inside a folder-organization pass
-- broader workspace reorganization remains deferred until a later explicitly approved slice narrows those path-sensitive dependencies cleanly
+- Step 4 is approved only as the dedicated paired pass defined above, not as a generic folder-organization follow-on
+- launcher-referenced `Audio/` assumptions still require that bounded paired surface
+- broader workspace reorganization remains deferred beyond that bounded paired surface
 
 This means the current plan should be read as:
 
 - Step 3 is complete
-- Step 4 is sequenced but not yet ready
+- Step 4 is explicitly bounded and approval-ready only as the paired surface above
 - Step 5 remains deferred
 - broader workspace reorganization remains paused rather than implicitly queued as the next implementation move
 
