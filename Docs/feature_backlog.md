@@ -191,8 +191,10 @@ Completed slices now include:
 Step 5 and broader workspace work remain intentionally deferred.
 That means:
 
+- the current `FB-005` workspace slice is closed at the completed Step 4 boundary
 - `main.py` remains root-owned
 - `launch_jarvis_desktop.vbs` remains root-owned
+- the remaining root-owned entrypoint boundary no longer belongs to the active workspace-cleanup lane and should be treated as later boot / entrypoint-ownership work outside `FB-005`
 - broader folder cleanup, broader `Audio` casing normalization, and `logs/` reorganization remain out of scope until a later explicitly approved slice
 
 ---
