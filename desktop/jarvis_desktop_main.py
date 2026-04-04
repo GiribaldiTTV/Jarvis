@@ -82,7 +82,7 @@ def main():
         return 0
 
     screen = app.primaryScreen()
-    window = DesktopJarvisWindow(screen, visual_html_path)
+    window = DesktopJarvisWindow(screen, visual_html_path, event_logger=runtime_milestone)
     runtime_milestone("RENDERER_MAIN|WINDOW_CONSTRUCTED")
     if exit_if_startup_abort_requested():
         return 0
@@ -113,11 +113,19 @@ def main():
     if exit_if_startup_abort_requested(hotkeys):
         return 0
 
+    def settle_passive_default_handoff():
+        if exit_if_startup_abort_requested(hotkeys):
+            app.quit()
+            return
+        window.set_visual_state("dormant")
+        runtime_milestone("RENDERER_MAIN|PASSIVE_DEFAULT_HANDOFF_REQUESTED|state=dormant")
+
     def mark_startup_ready():
         if exit_if_startup_abort_requested(hotkeys):
             app.quit()
             return
         runtime_milestone("RENDERER_MAIN|STARTUP_READY")
+        settle_passive_default_handoff()
 
     QTimer.singleShot(0, mark_startup_ready)
 
