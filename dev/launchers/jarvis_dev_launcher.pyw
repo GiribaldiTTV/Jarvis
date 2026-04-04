@@ -165,6 +165,24 @@ LANE_CONFIG = {
         "report_suffix": ".txt",
         "crash_folder": "",
     },
+    "bootToolkitValidation": {
+        "label": "Boot Helper Toolkit Validation",
+        "detail": (
+            "Runs a contained offscreen validation of the Boot & Transition helper lanes and verifies "
+            "the Dev Toolkit can launch Boot Monitor Preflight and Boot To Desktop Handoff Verification "
+            "and then reopen their fresh reports."
+        ),
+        "quiet_launcher": "launch_jarvis_boot_toolkit_validation.vbs",
+        "voice_launcher": "",
+        "supports_voice": False,
+        "available_modes": ("quiet",),
+        "opens_window": False,
+        "log_root": os.path.join(DEV_LOGS_DIR, "boot_toolkit_validation"),
+        "report_root": os.path.join(DEV_LOGS_DIR, "boot_toolkit_validation", "reports"),
+        "report_prefix": "BootToolkitValidationReport_",
+        "report_suffix": ".txt",
+        "crash_folder": "",
+    },
     "voiceRegression": {
         "label": "Voice Regression Harness",
         "detail": (
@@ -322,6 +340,7 @@ CONFIG_LANE_GROUPS = (
             "bootAutoHandoffSkipImport",
             "bootTransitionVerification",
             "bootMonitorPreflight",
+            "bootToolkitValidation",
         ),
     },
     {
