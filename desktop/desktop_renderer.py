@@ -101,9 +101,11 @@ class DesktopJarvisWindow(QWidget):
 
     def _on_load_finished(self, ok):
         if not ok:
+            self._log_event("RENDERER_MAIN|VISUAL_PAGE_LOAD_FAILED")
             return
 
         self._page_ready = True
+        self._log_event("RENDERER_MAIN|VISUAL_PAGE_READY")
         self._apply_pending_visual_state()
         self._apply_pending_voice_level()
 
@@ -132,6 +134,7 @@ class DesktopJarvisWindow(QWidget):
         if self.desktop_mode or self._is_shutting_down:
             return
 
+        self._log_event("RENDERER_MAIN|DESKTOP_MODE_ENABLE_BEGIN")
         self.desktop_mode = True
 
         self.setAttribute(Qt.WA_TransparentForMouseEvents, True)
@@ -141,8 +144,11 @@ class DesktopJarvisWindow(QWidget):
 
         hwnd = int(self.winId())
 
-        attach_window_to_desktop(hwnd)
+        attached = attach_window_to_desktop(hwnd)
         make_window_noninteractive(hwnd)
+        self._log_event(
+            f"RENDERER_MAIN|DESKTOP_ATTACH_RESULT|success={'true' if attached else 'false'}"
+        )
 
         self.lower()
 
@@ -150,6 +156,7 @@ class DesktopJarvisWindow(QWidget):
         if self._is_shutting_down:
             return
 
+        self._log_event("RENDERER_MAIN|RENDERER_SHUTDOWN_BEGIN")
         self._is_shutting_down = True
 
         self.webview.stop()
