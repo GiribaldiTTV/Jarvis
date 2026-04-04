@@ -42,11 +42,17 @@ MessageBoxW.restype = ctypes.c_int
 ERROR_ALREADY_EXISTS = 183
 MB_OK = 0x00000000
 MB_YESNO = 0x00000004
+MB_SYSTEMMODAL = 0x00001000
+MB_SETFOREGROUND = 0x00010000
+MB_TOPMOST = 0x00040000
 MB_ICONINFORMATION = 0x00000040
 MB_ICONQUESTION = 0x00000020
 IDYES = 6
 WAIT_OBJECT_0 = 0
 WAIT_TIMEOUT = 258
+
+
+FOREGROUND_DIALOG_FLAGS = MB_SYSTEMMODAL | MB_SETFOREGROUND | MB_TOPMOST
 
 
 class SingleInstanceGuard:
@@ -78,14 +84,14 @@ class SingleInstanceGuard:
 
 def show_already_running_dialog(title: str, message: str) -> None:
     try:
-        MessageBoxW(None, message, title, MB_OK | MB_ICONINFORMATION)
+        MessageBoxW(None, message, title, MB_OK | MB_ICONINFORMATION | FOREGROUND_DIALOG_FLAGS)
     except Exception:
         pass
 
 
 def show_replace_running_dialog(title: str, message: str) -> bool:
     try:
-        result = MessageBoxW(None, message, title, MB_YESNO | MB_ICONQUESTION)
+        result = MessageBoxW(None, message, title, MB_YESNO | MB_ICONQUESTION | FOREGROUND_DIALOG_FLAGS)
         return result == IDYES
     except Exception:
         return False
