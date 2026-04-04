@@ -1193,8 +1193,11 @@ def main():
     if not acquire_or_prompt_replace(
         runtime_instance_guard,
         runtime_relaunch_signal,
-        "Jarvis Already Running",
-        "Jarvis is already running.\n\nDo you want to close the current instance and open a new one?",
+        "Jarvis Session Active",
+        "Jarvis is already active on this computer.\n\nDo you want to close the current Jarvis session and relaunch Desktop Jarvis now?",
+        eyebrow_text="DESKTOP JARVIS",
+        primary_button_text="Relaunch Desktop Jarvis",
+        secondary_button_text="Keep Current Session",
         event_logger=log_single_instance_event,
     ):
         runtime("Launcher start blocked: Jarvis is already running")

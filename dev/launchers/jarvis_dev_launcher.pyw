@@ -2249,12 +2249,15 @@ def main():
     if not acquire_or_prompt_replace(
         dev_toolkit_guard,
         dev_toolkit_relaunch_signal,
-        "Jarvis Dev Toolkit Already Open",
-        "Jarvis Dev Toolkit is already open.\n\nDo you want to close the current toolkit window and open a new one?",
+        "Dev Toolkit Session Active",
+        "A Jarvis Dev Toolkit session is already open.\n\nDo you want to close the current toolkit window and relaunch a fresh Dev Toolkit session?",
+        eyebrow_text="JARVIS DEV TOOLKIT",
+        primary_button_text="Relaunch Dev Toolkit",
+        secondary_button_text="Keep Current Toolkit",
     ):
         return 0
 
-    app = QApplication(sys.argv)
+    app = QApplication.instance() or QApplication(sys.argv)
     app.setFont(QFont("Consolas", 10))
     window = DevLauncherWindow()
     window.show()

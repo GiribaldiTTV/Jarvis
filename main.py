@@ -596,8 +596,11 @@ class JarvisSystem:
         if not acquire_or_prompt_replace(
             runtime_instance_guard,
             runtime_relaunch_signal,
-            "Jarvis Already Running",
-            "Jarvis is already running.\n\nDo you want to close the current instance and open a new one?",
+            "Boot Jarvis Session Active",
+            "A Boot Jarvis session is already active.\n\nDo you want to close the current Jarvis session and relaunch from this boot entrypoint?",
+            eyebrow_text="BOOT JARVIS",
+            primary_button_text="Relaunch Boot Jarvis",
+            secondary_button_text="Keep Current Session",
             event_logger=log_single_instance_event,
         ):
             write_boot_runtime_marker(self.runtime_log_file, "BOOT_MAIN|SINGLE_INSTANCE_BLOCKED")
@@ -612,7 +615,7 @@ class JarvisSystem:
             f"BOOT_MAIN|START|profile={self.boot_profile}|audio={self.audio_mode}"
         )
 
-        self.app = QApplication(self.dev_config["qt_argv"])
+        self.app = QApplication.instance() or QApplication(self.dev_config["qt_argv"])
         self.app.setQuitOnLastWindowClosed(False)
         self.relaunch_timer = QTimer()
         self.relaunch_timer.timeout.connect(self.check_relaunch_request)

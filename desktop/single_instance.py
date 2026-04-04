@@ -54,6 +54,7 @@ WAIT_TIMEOUT = 258
 
 
 FOREGROUND_DIALOG_FLAGS = MB_SYSTEMMODAL | MB_SETFOREGROUND | MB_TOPMOST
+_qt_dialog_app = None
 
 
 class SingleInstanceGuard:
@@ -83,8 +84,19 @@ class SingleInstanceGuard:
             self.handle = None
 
 
-def show_already_running_dialog(title: str, message: str) -> None:
-    if _show_qt_dialog(title, message, confirm=False) is not None:
+def show_already_running_dialog(
+    title: str,
+    message: str,
+    eyebrow_text: str = "JARVIS",
+    primary_button_text: str = "Close",
+) -> None:
+    if _show_qt_dialog(
+        title,
+        message,
+        confirm=False,
+        eyebrow_text=eyebrow_text,
+        primary_button_text=primary_button_text,
+    ) is not None:
         return
     try:
         MessageBoxW(None, message, title, MB_OK | MB_ICONINFORMATION | FOREGROUND_DIALOG_FLAGS)
@@ -92,8 +104,21 @@ def show_already_running_dialog(title: str, message: str) -> None:
         pass
 
 
-def show_replace_running_dialog(title: str, message: str) -> bool:
-    qt_result = _show_qt_dialog(title, message, confirm=True)
+def show_replace_running_dialog(
+    title: str,
+    message: str,
+    eyebrow_text: str = "JARVIS",
+    primary_button_text: str = "Close Current And Relaunch",
+    secondary_button_text: str = "Keep Current",
+) -> bool:
+    qt_result = _show_qt_dialog(
+        title,
+        message,
+        confirm=True,
+        eyebrow_text=eyebrow_text,
+        primary_button_text=primary_button_text,
+        secondary_button_text=secondary_button_text,
+    )
     if qt_result is not None:
         return qt_result
     try:
@@ -103,7 +128,14 @@ def show_replace_running_dialog(title: str, message: str) -> bool:
         return False
 
 
-def _show_qt_dialog(title: str, message: str, confirm: bool):
+def _show_qt_dialog(
+    title: str,
+    message: str,
+    confirm: bool,
+    eyebrow_text: str = "JARVIS",
+    primary_button_text: str = "Close Current And Relaunch",
+    secondary_button_text: str = "Keep Current",
+):
     try:
         from PySide6.QtCore import QTimer, Qt
         from PySide6.QtGui import QFont, QGuiApplication
@@ -118,6 +150,8 @@ def _show_qt_dialog(title: str, message: str, confirm: bool):
         )
     except Exception:
         return None
+
+    global _qt_dialog_app
 
     class JarvisPromptDialog(QDialog):
         def __init__(self):
@@ -200,7 +234,7 @@ def _show_qt_dialog(title: str, message: str, confirm: bool):
             shell_layout.setContentsMargins(22, 20, 22, 20)
             shell_layout.setSpacing(14)
 
-            eyebrow = QLabel("JARVIS")
+            eyebrow = QLabel(eyebrow_text)
             eyebrow.setObjectName("eyebrow")
 
             heading = QLabel(title)
@@ -222,17 +256,17 @@ def _show_qt_dialog(title: str, message: str, confirm: bool):
             actions.addStretch()
 
             if confirm:
-                keep_button = QPushButton("Keep Current")
+                keep_button = QPushButton(secondary_button_text)
                 keep_button.setObjectName("secondary")
                 keep_button.clicked.connect(self.reject_dialog)
                 actions.addWidget(keep_button)
 
-                replace_button = QPushButton("Close Current And Relaunch")
+                replace_button = QPushButton(primary_button_text)
                 replace_button.setObjectName("primary")
                 replace_button.clicked.connect(self.accept_dialog)
                 actions.addWidget(replace_button)
             else:
-                close_button = QPushButton("Close")
+                close_button = QPushButton(primary_button_text)
                 close_button.setObjectName("primary")
                 close_button.clicked.connect(self.accept_dialog)
                 actions.addWidget(close_button)
@@ -268,10 +302,11 @@ def _show_qt_dialog(title: str, message: str, confirm: bool):
             self.reject()
 
     app = QApplication.instance()
-    owns_app = app is None
-    if owns_app:
-        app = QApplication([])
-        app.setFont(QFont("Segoe UI", 10))
+    if app is None:
+        if _qt_dialog_app is None:
+            _qt_dialog_app = QApplication([])
+            _qt_dialog_app.setFont(QFont("Segoe UI", 10))
+        app = _qt_dialog_app
 
     dialog = JarvisPromptDialog()
     dialog.center_on_primary()
@@ -279,9 +314,6 @@ def _show_qt_dialog(title: str, message: str, confirm: bool):
     QTimer.singleShot(0, dialog.activateWindow)
     dialog.exec()
     result = dialog.choice if confirm else True
-
-    if owns_app:
-        app.quit()
 
     return result
 
@@ -328,6 +360,9 @@ def acquire_or_prompt_replace(
     wait_seconds: float = 8.0,
     poll_interval_seconds: float = 0.1,
     event_logger: Callable[[str], None] | None = None,
+    eyebrow_text: str = "JARVIS",
+    primary_button_text: str = "Close Current And Relaunch",
+    secondary_button_text: str = "Keep Current",
 ) -> bool:
     def log_event(event: str) -> None:
         if not callable(event_logger):
@@ -344,7 +379,13 @@ def acquire_or_prompt_replace(
 
     log_event("SINGLE_INSTANCE_CONFLICT_DETECTED")
 
-    if not show_replace_running_dialog(title, message):
+    if not show_replace_running_dialog(
+        title,
+        message,
+        eyebrow_text=eyebrow_text,
+        primary_button_text=primary_button_text,
+        secondary_button_text=secondary_button_text,
+    ):
         log_event("REPLACE_PROMPT_DECLINED")
         return False
 
@@ -355,6 +396,8 @@ def acquire_or_prompt_replace(
         show_already_running_dialog(
             title,
             "Jarvis could not signal the current instance to close. Please close it manually and try again.",
+            eyebrow_text=eyebrow_text,
+            primary_button_text="Close",
         )
         return False
 
@@ -372,5 +415,7 @@ def acquire_or_prompt_replace(
     show_already_running_dialog(
         title,
         "Jarvis is still closing. Please wait a moment and try again.",
+        eyebrow_text=eyebrow_text,
+        primary_button_text="Close",
     )
     return False
