@@ -259,13 +259,13 @@ Suggested Version: TBD
 Suggested Revision: TBD  
 
 Description:
-Add a staged degradation effect to the final "Shutting down" voice line so Jarvis sounds like he is losing power during terminal shutdown.
+Refine the existing staged degradation effect on the final "Shutting down" voice line so Jarvis sounds more convincingly like he is losing power during terminal shutdown.
 
 Why it matters:
-A shutdown degradation effect would make Jarvis feel more state-aware and physically present during failure termination.
+Shutdown-line tuning would make Jarvis feel more state-aware and physically present during failure termination without widening the diagnostics/error voice path.
 
 Proposed Change:
-Implement a controlled shutdown voice envelope using staged slowdown, optional pitch drop, and final tail fade or hesitation. Prefer segmented delivery over a single linear slowdown so the effect is more reliable and easier to tune.
+Tune the existing shutdown-only voice envelope using staged slowdown, optional pitch drop, and final tail fade or hesitation. Keep the work limited to shutdown-line-only envelope refinement rather than first-time implementation or broader voice-path redesign.
 
 Likely Files Affected:
 - C:/Jarvis/Audio/jarvis_error_voice.py
@@ -280,7 +280,7 @@ Out of Scope:
 - renderer changes
 
 Notes:
-The earlier shutdown-specific effect experiment is no longer the current repo-truth baseline. The final "Shutting down." line currently uses the same diagnostics/error voice path and generic effect flow as the other failure lines. This item remains the place for any future dedicated shutdown-effect work, but no shutdown-specific path is currently implemented.
+Current repo truth already includes a dedicated shutdown-only effect path for the final "Shutting down." line inside the diagnostics/error voice script. This item now represents any future shutdown-envelope tuning on top of that existing path, not first implementation of a shutdown-specific branch.
 This item is intentionally paused behind `FB-020` so the Dev Toolkit utility model and dev-only evidence-root cleanup can land first without mixing voice refinement into the current developer-surface rework.
 
 ---
