@@ -680,6 +680,8 @@ class DevLauncherWindow(QWidget):
         self.session_launch_records = {}
         self.previous_launch_entries = []
         self.active_background_run = {}
+        self.selected_support_bundle_source = ""
+        self.selected_support_bundle_source_kind = ""
 
         self.launch_timer = QTimer(self)
         self.launch_timer.setSingleShot(True)
@@ -1021,13 +1023,17 @@ class DevLauncherWindow(QWidget):
         self._build_previous_launch_group_panel(previous_launch_panel.layout)
         content_layout.addWidget(previous_launch_panel)
 
+        uploads_panel = Panel("Uploads")
+        self._build_support_bundle_intake_group_panel(uploads_panel.layout)
+        content_layout.addWidget(uploads_panel)
+
         notes_panel = Panel("Notes")
         notes_label = QLabel(
             "- Custom Launch utilities only light up for evidence created by launches started in this Dev Toolkit session.\n"
             "- Previous Launches lets you reopen earlier dev evidence without mixing it into the active Custom Launch flow.\n"
             "- Global Utilities only open stable developer locations and never depend on the selected lane.\n"
             "- Dev Toolkit evidence writes under C:\\Jarvis\\dev\\logs lane roots instead of the active client-facing logs root.\n"
-            "- Support Bundle Triage Helper still reads bundles from the client logs area when you pick them manually."
+            "- Uploads stages a support-bundle zip or extracted folder and routes it into the existing Support Bundle Triage Helper."
         )
         notes_label.setObjectName("noteBox")
         notes_label.setWordWrap(True)
@@ -1215,6 +1221,23 @@ class DevLauncherWindow(QWidget):
         row.addWidget(utils_frame, 0, Qt.AlignTop)
         layout.addLayout(row)
 
+    def _build_support_bundle_intake_group_panel(self, layout):
+        row = QHBoxLayout()
+        row.setContentsMargins(0, 0, 0, 0)
+        row.setSpacing(12)
+
+        intake_frame, intake_layout = self._create_group_subsection("Bundle Intake")
+        self._build_support_bundle_intake_panel(intake_layout)
+        self.support_bundle_intake_frame = intake_frame
+
+        utils_frame, utils_layout = self._create_group_subsection("Bundle Utilities")
+        self._build_support_bundle_intake_utilities_panel(utils_layout)
+        self.support_bundle_intake_utils_frame = utils_frame
+
+        row.addWidget(intake_frame, 1, Qt.AlignTop)
+        row.addWidget(utils_frame, 0, Qt.AlignTop)
+        layout.addLayout(row)
+
     def _build_custom_utilities_panel(self, layout):
         buttons = [
             ("Open Selected Evidence Root", self.open_selected_evidence_root, "selected_evidence_btn"),
@@ -1294,6 +1317,66 @@ class DevLauncherWindow(QWidget):
         note.setWordWrap(True)
         note.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Minimum)
         self.previous_utilities_note_label = note
+        layout.addWidget(note)
+        layout.addStretch(1)
+
+    def _build_support_bundle_intake_panel(self, layout):
+        selected_source_label = QLabel("Selected Source")
+        selected_source_label.setObjectName("fieldLabel")
+        layout.addWidget(selected_source_label)
+
+        self.support_bundle_source_label = QLabel()
+        self.support_bundle_source_label.setObjectName("detailBox")
+        self.support_bundle_source_label.setWordWrap(True)
+        self.support_bundle_source_label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Minimum)
+        self.support_bundle_source_label.setMinimumHeight(110)
+        self.support_bundle_source_label.setMaximumHeight(178)
+        layout.addWidget(self.support_bundle_source_label)
+
+        picker_row = QHBoxLayout()
+        picker_row.setContentsMargins(0, 0, 0, 0)
+        picker_row.setSpacing(8)
+
+        self.select_support_bundle_zip_btn = QPushButton("Select Zip")
+        self.select_support_bundle_zip_btn.clicked.connect(self.select_support_bundle_zip)
+        picker_row.addWidget(self.select_support_bundle_zip_btn, 1)
+
+        self.select_support_bundle_folder_btn = QPushButton("Select Extracted Folder")
+        self.select_support_bundle_folder_btn.clicked.connect(self.select_support_bundle_folder)
+        picker_row.addWidget(self.select_support_bundle_folder_btn, 1)
+
+        layout.addLayout(picker_row)
+
+        note = QLabel(
+            "Pick a support-bundle .zip or an already extracted bundle folder. The selected source stays staged here until you clear it or choose another one."
+        )
+        note.setObjectName("noteBox")
+        note.setWordWrap(True)
+        note.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Minimum)
+        self.support_bundle_intake_note_label = note
+        layout.addWidget(note)
+        layout.addStretch(1)
+
+    def _build_support_bundle_intake_utilities_panel(self, layout):
+        buttons = [
+            ("Run Support Bundle Triage", self.launch_selected_support_bundle_triage, "run_support_bundle_triage_btn"),
+            ("Open Selected Source", self.open_selected_support_bundle_source, "open_selected_support_bundle_source_btn"),
+            ("Clear Selected Source", self.clear_selected_support_bundle_source, "clear_selected_support_bundle_source_btn"),
+        ]
+        for text, handler, attr_name in buttons:
+            btn = QPushButton(text)
+            btn.setObjectName("utilityButton")
+            btn.clicked.connect(handler)
+            setattr(self, attr_name, btn)
+            layout.addWidget(btn)
+
+        note = QLabel(
+            "This dev-only intake routes the staged source into the existing Support Bundle Triage Helper without changing production reporting behavior."
+        )
+        note.setObjectName("noteBox")
+        note.setWordWrap(True)
+        note.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Minimum)
+        self.support_bundle_utilities_note_label = note
         layout.addWidget(note)
         layout.addStretch(1)
 
@@ -1912,6 +1995,9 @@ class DevLauncherWindow(QWidget):
             "previous_runtime_btn",
             "previous_report_btn",
             "previous_crash_btn",
+            "run_support_bundle_triage_btn",
+            "open_selected_support_bundle_source_btn",
+            "clear_selected_support_bundle_source_btn",
         ):
             button = getattr(self, attr_name, None)
             if not button:
@@ -1927,6 +2013,7 @@ class DevLauncherWindow(QWidget):
         for attr_name in (
             "current_utils_frame",
             "previous_utils_frame",
+            "support_bundle_intake_utils_frame",
         ):
             frame = getattr(self, attr_name, None)
             if not frame:
@@ -1938,6 +2025,7 @@ class DevLauncherWindow(QWidget):
         for attr_name in (
             "current_launch_frame",
             "previous_launch_frame",
+            "support_bundle_intake_frame",
         ):
             frame = getattr(self, attr_name, None)
             if not frame:
@@ -2240,6 +2328,56 @@ class DevLauncherWindow(QWidget):
                     "Custom Launch utilities follow the currently selected lane and only enable after that lane has evidence to open."
                 )
 
+        selected_bundle_path = self.selected_support_bundle_source
+        selected_bundle_exists = self.support_bundle_source_exists()
+        if hasattr(self, "support_bundle_source_label"):
+            self.support_bundle_source_label.setText(self.support_bundle_source_detail_text())
+
+        if hasattr(self, "run_support_bundle_triage_btn"):
+            enabled = selected_bundle_exists and not self.launch_timer.isActive()
+            self.run_support_bundle_triage_btn.setEnabled(enabled)
+            if self.launch_timer.isActive():
+                tooltip = "Cancel the pending delayed launch before routing a staged support bundle."
+            elif selected_bundle_exists:
+                tooltip = selected_bundle_path
+            elif selected_bundle_path:
+                tooltip = f"Selected source no longer exists: {selected_bundle_path}"
+            else:
+                tooltip = "Choose a support-bundle zip or extracted folder first."
+            self.run_support_bundle_triage_btn.setToolTip(tooltip)
+
+        if hasattr(self, "open_selected_support_bundle_source_btn"):
+            self.open_selected_support_bundle_source_btn.setEnabled(selected_bundle_exists)
+            self.open_selected_support_bundle_source_btn.setToolTip(
+                selected_bundle_path
+                if selected_bundle_exists
+                else (
+                    f"Selected source no longer exists: {selected_bundle_path}"
+                    if selected_bundle_path
+                    else "Choose a support-bundle zip or extracted folder to enable this utility."
+                )
+            )
+
+        if hasattr(self, "clear_selected_support_bundle_source_btn"):
+            self.clear_selected_support_bundle_source_btn.setEnabled(bool(selected_bundle_path))
+            self.clear_selected_support_bundle_source_btn.setToolTip(
+                selected_bundle_path or "No staged support-bundle source is selected right now."
+            )
+
+        if hasattr(self, "support_bundle_utilities_note_label"):
+            if selected_bundle_exists:
+                self.support_bundle_utilities_note_label.setText(
+                    "The staged source is ready to route into the existing Support Bundle Triage Helper."
+                )
+            elif selected_bundle_path:
+                self.support_bundle_utilities_note_label.setText(
+                    "The staged source path is no longer available. Choose another zip or extracted bundle folder before running triage."
+                )
+            else:
+                self.support_bundle_utilities_note_label.setText(
+                    "Choose a support-bundle zip or extracted folder below to enable the triage route."
+                )
+
         previous_entry = self.selected_previous_entry()
         if hasattr(self, "previous_evidence_btn"):
             previous_root = previous_entry.get("evidence_root", "")
@@ -2324,33 +2462,24 @@ class DevLauncherWindow(QWidget):
             mode_key = self.current_launch_mode_key()
             lane_label = lane.get("label", "Unknown lane")
             if lane.get("requires_bundle_input"):
-                source_path = self.select_support_bundle_source()
+                source_path = self.selected_support_bundle_source if self.support_bundle_source_exists() else ""
+                if self.selected_support_bundle_source and not source_path:
+                    self.clear_selected_support_bundle_source(announce=False)
+                if not source_path:
+                    source_path = self.select_support_bundle_source()
                 if not source_path:
                     self.runtime_milestone(
                         f"TOOLKIT_MAIN|LANE_LAUNCH_CANCELLED|lane={lane_key}|mode={mode_key}|reason=no_source_selected"
                     )
                     self.set_status("Launch cancelled: no support bundle selected.")
                     return
-                launch_key = self.current_session_artifact_key()
-                self.session_launch_records[launch_key] = self.build_current_launch_record()
-                if self.lane_runs_in_background(lane):
-                    self.active_background_run = {
-                        "artifact_key": launch_key,
-                        "label": self.active_label(),
-                        "started_at_ts": time.time(),
-                    }
-                subprocess.Popen([PYTHONW_PATH, lane["script_path"], source_path], cwd=ROOT_DIR)
-                self.runtime_milestone(
-                    f"TOOLKIT_MAIN|LANE_LAUNCHED|lane={lane_key}|mode={mode_key}|label={lane_label}"
+                launch_key = self.launch_bundle_input_lane(
+                    lane=lane,
+                    lane_key=lane_key,
+                    mode_key=mode_key,
+                    lane_label=lane_label,
+                    source_path=source_path,
                 )
-                if self.lane_runs_in_background(lane):
-                    self.set_status(
-                        f"Test in progress: {self.active_label()} :: {source_path}",
-                        "Launching the selected helper lane with the chosen support bundle source.",
-                        3,
-                    )
-                else:
-                    self.set_status(f"Launched: {self.active_label()} :: {source_path}")
                 return
 
             launcher_path = os.path.join(DEV_LAUNCHERS_DIR, self.active_launcher_filename())
@@ -2391,17 +2520,177 @@ class DevLauncherWindow(QWidget):
         file_path, _ = QFileDialog.getOpenFileName(
             self,
             "Select Support Bundle Zip",
-            CLIENT_LOGS_DIR,
+            self.support_bundle_dialog_root(),
             "Support Bundle Zip (*.zip);;All Files (*)",
         )
         if file_path:
-            return file_path
+            return self.remember_support_bundle_source(file_path, "zip")
 
-        return QFileDialog.getExistingDirectory(
+        folder_path = QFileDialog.getExistingDirectory(
             self,
             "Select Extracted Support Bundle Folder",
-            CLIENT_LOGS_DIR,
+            self.support_bundle_dialog_root(),
         )
+        if folder_path:
+            return self.remember_support_bundle_source(folder_path, "folder")
+        return ""
+
+    def support_bundle_dialog_root(self) -> str:
+        selected_source = self.selected_support_bundle_source
+        if selected_source:
+            if os.path.isdir(selected_source):
+                return selected_source
+            parent = os.path.dirname(selected_source)
+            if os.path.isdir(parent):
+                return parent
+        return CLIENT_LOGS_DIR
+
+    def support_bundle_source_exists(self) -> bool:
+        return bool(self.selected_support_bundle_source) and os.path.exists(self.selected_support_bundle_source)
+
+    def support_bundle_source_kind_label(self) -> str:
+        if self.selected_support_bundle_source_kind == "zip":
+            return "Zip Archive"
+        if self.selected_support_bundle_source_kind == "folder":
+            return "Extracted Folder"
+        if self.selected_support_bundle_source.lower().endswith(".zip"):
+            return "Zip Archive"
+        if os.path.isdir(self.selected_support_bundle_source):
+            return "Extracted Folder"
+        return "Bundle Source"
+
+    def support_bundle_source_detail_text(self) -> str:
+        source_path = self.selected_support_bundle_source
+        if not source_path:
+            return (
+                "No support-bundle source is staged yet.\n"
+                "Choose a .zip archive or an extracted bundle folder here, then route it into Support Bundle Triage."
+            )
+        status_text = "Ready" if self.support_bundle_source_exists() else "Missing"
+        return (
+            f"Type: {self.support_bundle_source_kind_label()}\n"
+            f"Status: {status_text}\n"
+            f"Path:\n{source_path}"
+        )
+
+    def remember_support_bundle_source(self, source_path: str, source_kind: str, status_message: str = "") -> str:
+        if not source_path:
+            return ""
+        normalized = os.path.abspath(source_path)
+        self.selected_support_bundle_source = normalized
+        self.selected_support_bundle_source_kind = source_kind
+        self.refresh_utility_buttons()
+        if status_message:
+            self.set_status(status_message)
+        return normalized
+
+    def clear_selected_support_bundle_source(self, *args, announce: bool = True):
+        if not self.selected_support_bundle_source and not self.selected_support_bundle_source_kind:
+            if announce:
+                self.set_status("No staged support bundle source is selected right now.")
+            return
+        self.selected_support_bundle_source = ""
+        self.selected_support_bundle_source_kind = ""
+        self.refresh_utility_buttons()
+        if announce:
+            self.set_status("Cleared staged support bundle source.")
+
+    def select_support_bundle_zip(self):
+        file_path, _ = QFileDialog.getOpenFileName(
+            self,
+            "Select Support Bundle Zip",
+            self.support_bundle_dialog_root(),
+            "Support Bundle Zip (*.zip);;All Files (*)",
+        )
+        if not file_path:
+            return
+        self.remember_support_bundle_source(
+            file_path,
+            "zip",
+            f"Selected support bundle zip: {os.path.abspath(file_path)}",
+        )
+
+    def select_support_bundle_folder(self):
+        folder_path = QFileDialog.getExistingDirectory(
+            self,
+            "Select Extracted Support Bundle Folder",
+            self.support_bundle_dialog_root(),
+        )
+        if not folder_path:
+            return
+        self.remember_support_bundle_source(
+            folder_path,
+            "folder",
+            f"Selected extracted support bundle folder: {os.path.abspath(folder_path)}",
+        )
+
+    def launch_bundle_input_lane(self, lane: dict, lane_key: str, mode_key: str, lane_label: str, source_path: str) -> str:
+        source_path = os.path.abspath(source_path)
+        launch_key = self.current_session_artifact_key()
+        self.session_launch_records[launch_key] = self.build_current_launch_record()
+        if self.lane_runs_in_background(lane):
+            self.active_background_run = {
+                "artifact_key": launch_key,
+                "label": self.active_label(),
+                "started_at_ts": time.time(),
+            }
+        subprocess.Popen([PYTHONW_PATH, lane["script_path"], source_path], cwd=ROOT_DIR)
+        self.runtime_milestone(
+            f"TOOLKIT_MAIN|LANE_LAUNCHED|lane={lane_key}|mode={mode_key}|label={lane_label}"
+        )
+        if self.lane_runs_in_background(lane):
+            self.set_status(
+                f"Test in progress: {self.active_label()} :: {source_path}",
+                "Launching the selected helper lane with the chosen support bundle source.",
+                3,
+            )
+        else:
+            self.set_status(f"Launched: {self.active_label()} :: {source_path}")
+        return launch_key
+
+    def launch_selected_support_bundle_triage(self):
+        if self.launch_timer.isActive():
+            self.set_status("Cancel the pending delayed launch before routing a staged support bundle.")
+            return
+        if self.selected_support_bundle_source and not self.support_bundle_source_exists():
+            self.set_status(f"Selected support bundle source not found: {self.selected_support_bundle_source}")
+            return
+        if not self.selected_support_bundle_source:
+            self.set_status("Choose a support-bundle zip or extracted folder first.")
+            return
+
+        self.select_lane("supportBundleTriage")
+        lane = self.current_lane()
+        lane_key = self.current_lane_key()
+        mode_key = self.current_launch_mode_key()
+        lane_label = lane.get("label", "Support Bundle Triage Helper")
+        launch_key = ""
+        try:
+            launch_key = self.launch_bundle_input_lane(
+                lane=lane,
+                lane_key=lane_key,
+                mode_key=mode_key,
+                lane_label=lane_label,
+                source_path=self.selected_support_bundle_source,
+            )
+        except Exception as exc:
+            if launch_key:
+                self.session_launch_records.pop(launch_key, None)
+            self.active_background_run = {}
+            self.runtime_milestone(
+                f"TOOLKIT_MAIN|LANE_LAUNCH_FAILED|lane={lane_key}|mode={mode_key}|reason={type(exc).__name__}"
+            )
+            self.set_status(f"Launch failed: {lane_label} :: {exc}")
+
+    def open_selected_support_bundle_source(self):
+        source_path = self.selected_support_bundle_source
+        if not source_path:
+            self.set_status("No staged support bundle source is selected right now.")
+            return
+        if not os.path.exists(source_path):
+            self.set_status(f"Selected support bundle source not found: {source_path}")
+            return
+        self.open_path(source_path, f"Opened selected support bundle source: {source_path}")
 
     def open_jarvis_root(self):
         self.open_path(ROOT_DIR, f"Opened: Jarvis root :: {ROOT_DIR}")
