@@ -205,6 +205,12 @@ def run_toolkit_case(dev_launcher_module, window, app, name, source_mode, source
     folder_dialog_calls = 0
     launch_records = []
     opened_paths = []
+    selection_status = ""
+    selection_summary = ""
+    launch_status = ""
+    open_status = ""
+    new_report_path = ""
+    selection_buttons_present = False
 
     before_reports = matching_files(RAW_TRIAGE_REPORTS_DIR, RAW_TRIAGE_REPORT_PREFIX, ".txt")
     original_file_dialog = dev_launcher_module.QFileDialog.getOpenFileName
@@ -260,14 +266,32 @@ def run_toolkit_case(dev_launcher_module, window, app, name, source_mode, source
     subprocess.Popen = fake_popen
     window.open_path = fake_open_path
 
-    launch_status = ""
-    open_status = ""
-    new_report_path = ""
     try:
-        window.select_lane(EXPECTED_LANE_KEY)
+        selection_buttons_present = all(
+            hasattr(window, attr_name)
+            for attr_name in (
+                "select_support_bundle_zip_btn",
+                "select_support_bundle_folder_btn",
+                "run_support_bundle_triage_btn",
+                "open_selected_support_bundle_source_btn",
+                "clear_selected_support_bundle_source_btn",
+                "support_bundle_source_label",
+            )
+        )
         app.processEvents()
 
-        window.run_selected_launcher()
+        if source_mode == "zip":
+            window.select_support_bundle_zip_btn.click()
+        else:
+            window.select_support_bundle_folder_btn.click()
+        app.processEvents()
+        selection_status = window.status_label.text()
+        selection_summary = window.support_bundle_source_label.text() if hasattr(window, "support_bundle_source_label") else ""
+
+        if hasattr(window, "run_support_bundle_triage_btn"):
+            window.run_support_bundle_triage_btn.click()
+        else:
+            window.launch_selected_support_bundle_triage()
         app.processEvents()
         launch_status = window.status_label.text()
 
@@ -289,8 +313,13 @@ def run_toolkit_case(dev_launcher_module, window, app, name, source_mode, source
     latest_opened_path = opened_paths[-1]["path"] if opened_paths else ""
     report_text = read_text(new_report_path)
     launch_record = launch_records[0] if launch_records else {}
+    expected_kind_text = "Zip Archive" if source_mode == "zip" else "Extracted Folder"
 
     checks = {
+        "intake_widgets_present": line_status(
+            selection_buttons_present,
+            "uploads intake controls discovered" if selection_buttons_present else "missing uploads intake controls",
+        ),
         "selected_lane_expected": line_status(
             window.current_lane_key() == EXPECTED_LANE_KEY,
             window.current_lane_key(),
@@ -300,12 +329,26 @@ def run_toolkit_case(dev_launcher_module, window, app, name, source_mode, source
             source_path,
         ),
         "file_dialog_called_once": line_status(
-            file_dialog_calls == 1,
+            file_dialog_calls == (1 if source_mode == "zip" else 0),
             f"file dialog calls={file_dialog_calls}",
         ),
-        "folder_dialog_usage_expected": line_status(
+        "folder_dialog_called_once": line_status(
             folder_dialog_calls == (1 if source_mode == "folder" else 0),
             f"folder dialog calls={folder_dialog_calls}",
+        ),
+        "selection_status_expected": line_status(
+            selection_status.startswith("Selected support bundle zip: ")
+            if source_mode == "zip"
+            else selection_status.startswith("Selected extracted support bundle folder: "),
+            selection_status or "missing selection status",
+        ),
+        "selected_source_displayed": line_status(
+            expected_kind_text in selection_summary and os.path.abspath(source_path) in selection_summary,
+            selection_summary or "missing selected source summary",
+        ),
+        "run_button_enabled_after_selection": line_status(
+            hasattr(window, "run_support_bundle_triage_btn") and window.run_support_bundle_triage_btn.isEnabled(),
+            "run button enabled" if hasattr(window, "run_support_bundle_triage_btn") and window.run_support_bundle_triage_btn.isEnabled() else "run button disabled",
         ),
         "helper_process_invoked_once": line_status(
             len(launch_records) == 1,
@@ -332,7 +375,8 @@ def run_toolkit_case(dev_launcher_module, window, app, name, source_mode, source
             f"helper exit={launch_record.get('returncode', 'missing')}",
         ),
         "launch_status_expected": line_status(
-            launch_status.startswith("Launched: Support Bundle Triage Helper :: "),
+            launch_status.startswith("Test in progress: Support Bundle Triage Helper")
+            or launch_status.startswith("Test complete: Support Bundle Triage Helper"),
             launch_status or "missing launch status",
         ),
         "new_report_created": line_status(
@@ -362,6 +406,8 @@ def run_toolkit_case(dev_launcher_module, window, app, name, source_mode, source
         "input_path": source_path,
         "report_path": new_report_path,
         "opened_report_path": latest_opened_path,
+        "selection_status": selection_status,
+        "selection_summary": selection_summary,
         "launch_status": launch_status,
         "open_status": open_status,
         "launch_record": launch_record,
@@ -392,6 +438,12 @@ def build_report_text(branch_state, report_path, sections, overall_ok):
             lines.append(f"  artifact: {section['artifact']}")
         if section.get("input_path"):
             lines.append(f"  input: {section['input_path']}")
+        if section.get("selection_status"):
+            lines.append(f"  selection status: {section['selection_status']}")
+        if section.get("selection_summary"):
+            lines.append("  selected source:")
+            for line in section["selection_summary"].splitlines():
+                lines.append(f"    {line}")
         if section.get("report_path"):
             lines.append(f"  triage report: {section['report_path']}")
         if section.get("opened_report_path"):
