@@ -61,6 +61,22 @@ It is not allowed to replace launcher-owned desktop authority.
 Desktop-stage ownership begins when boot-stage coordination delegates execution to the launcher.
 From that point forward, launcher-owned desktop truth, classification, control, retry, recovery routing, and finalized end-state determination remain launcher-owned and read-only to higher layers.
 
+The canonical allowed downstream input classes available to a future boot/access layer after launcher emission are:
+
+- emitted lifecycle and end-state signals
+- emitted desktop-phase truth artifacts
+- bounded historical-memory or advisory summaries after launcher emission
+
+Those classes remain read-only and non-authoritative.
+They may support only:
+
+- Jarvis presentation or narration framing around the handoff
+- transition-state observation around desktop entry
+- later explanatory observation after launcher emission
+
+They must not rewrite, reinterpret, suppress, or override launcher-owned desktop truth or control decisions.
+They must not become a cross-layer command path back into the launcher.
+
 ## Product Intent
 
 Jarvis should feel like the primary visible system presence on a consumer Windows machine.

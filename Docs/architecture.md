@@ -77,8 +77,21 @@ A future higher boot layer may consume launcher-owned downstream outputs only af
 - runtime logs, crash artifacts, and diagnostics status surfaces
 - bounded historical-memory and advisory outputs only as descriptive downstream context
 
+The canonical allowed downstream input classes are therefore:
+
+- emitted lifecycle and end-state signals
+- emitted desktop-phase truth artifacts
+- bounded historical-memory or advisory summaries after launcher emission
+
 Those downstream inputs remain read-only.
-They may support boot-stage narration, transition logic, or later boot-stage observation, but they must not become authority over launcher-owned desktop truth, classification, control, retry policy, escalation policy, or finalized outcome determination.
+They may support only:
+
+- boot-stage narration or presentation framing
+- transition-state observation around the handoff into or around the desktop phase
+- later explanatory observation after launcher emission
+
+They must not become authority over launcher-owned desktop truth, classification, control, retry policy, escalation policy, or finalized outcome determination.
+They must not be used as a backchannel for cross-layer control into the launcher.
 
 Historical or advisory surfaces remain especially constrained across the phase boundary:
 
