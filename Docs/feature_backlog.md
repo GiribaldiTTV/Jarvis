@@ -950,6 +950,43 @@ This should wait until later. It is not the highest-value first observability mo
 
 ---
 
+### [ID: FB-026] Dev Toolkit uploaded-bundle intake surface
+
+Status: Deferred  
+Priority: Medium  
+Suggested Version: v2.1.0  
+Suggested Revision: rev6  
+
+Description:
+Add a dedicated bottom-of-toolkit intake surface for user-submitted debug bundles so engineers can pick a zip or extracted folder, see what was received, and route it into the right internal helper without leaving the Dev Toolkit.
+
+Why it matters:
+The current toolkit already has support-bundle triage coverage, but intake still feels fragmented. A small, explicit uploaded-bundle area would make the toolkit feel like a one-stop internal debugging surface instead of a set of separate helper entrypoints.
+
+Proposed Change:
+Add a dedicated `Uploads` or similarly named lower-section panel in the Dev Toolkit that accepts a user-submitted zip or extracted bundle folder, shows the current selected source, and routes that source into the existing support-bundle triage helper or later bundle-specific follow-up helpers.
+
+Likely Files Affected:
+- C:/Jarvis/dev/launchers/jarvis_dev_launcher.pyw
+- C:/Jarvis/dev/jarvis_support_bundle_triage.py
+- directly supportive VBS/helper launcher surfaces only if needed
+
+Scope:
+- dev-only uploaded-bundle intake UI
+- zip and extracted-folder picking
+- clearer one-stop routing into existing bundle-debug helpers
+
+Out of Scope:
+- silent uploads
+- cloud transfer or remote storage
+- product-facing upload UI
+- automatic issue submission redesign
+
+Notes:
+This should be handled as its own focused Toolkit UX slice rather than being bolted into the current status/progress pass. The existing support-bundle triage helper remains the current route for bundle analysis until this dedicated intake surface is designed cleanly.
+
+---
+
 ## Completed Items
 
 Move completed backlog items here for history tracking.
