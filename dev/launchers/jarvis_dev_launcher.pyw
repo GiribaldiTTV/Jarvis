@@ -76,6 +76,34 @@ LANE_CONFIG = {
         "log_root_with_voice": os.path.join(DEV_LOGS_DIR, "manual_launcher_startup_abort_test_with_voice"),
         "crash_folder": "crash",
     },
+    "bootManualFlow": {
+        "label": "Boot Jarvis Manual Flow",
+        "detail": (
+            "Launches the dev-only main.py boot harness in manual mode so Boot Jarvis reaches "
+            "the first prompt and waits for operator input."
+        ),
+        "quiet_launcher": "launch_jarvis_main_manual_test.vbs",
+        "voice_launcher": "launch_jarvis_main_manual_test_with_voice.vbs",
+        "supports_voice": True,
+        "available_modes": ("quiet", "voice"),
+        "opens_window": True,
+        "log_root": os.path.join(DEV_LOGS_DIR, "boot_manual_flow"),
+        "crash_folder": "",
+    },
+    "bootAutoHandoffSkipImport": {
+        "label": "Boot Jarvis Auto Handoff (Skip Import)",
+        "detail": (
+            "Launches the dev-only main.py boot harness in auto-handoff mode so Boot Jarvis "
+            "drives the existing engage hud -> no chain and hands off into Desktop Jarvis."
+        ),
+        "quiet_launcher": "launch_jarvis_main_auto_handoff_skip_import.vbs",
+        "voice_launcher": "launch_jarvis_main_auto_handoff_skip_import_with_voice.vbs",
+        "supports_voice": True,
+        "available_modes": ("quiet", "voice"),
+        "opens_window": True,
+        "log_root": os.path.join(DEV_LOGS_DIR, "boot_auto_handoff_skip_import"),
+        "crash_folder": "",
+    },
     "voiceRegression": {
         "label": "Voice Regression Harness",
         "detail": (
@@ -225,6 +253,10 @@ CONFIG_LANE_GROUPS = (
     {
         "label": "Diagnostics & Recovery Checks",
         "lane_keys": ("diagnostics", "repeatedCrash", "startupAbort"),
+    },
+    {
+        "label": "Boot & Transition Checks",
+        "lane_keys": ("bootManualFlow", "bootAutoHandoffSkipImport"),
     },
     {
         "label": "Voice, Healthy Start, & Regression",
