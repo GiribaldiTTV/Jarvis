@@ -40,6 +40,8 @@ LANE_CONFIG = {
         "quiet_launcher": "launch_jarvis_diagnostics_manual_test.vbs",
         "voice_launcher": "",
         "supports_voice": False,
+        "available_modes": ("quiet",),
+        "opens_window": True,
         "log_root": os.path.join(DEV_LOGS_DIR, "diagnostics_ui"),
         "runtime_fixed": os.path.join(DEV_LOGS_DIR, "diagnostics_ui", "Runtime_manual_diagnostics_test.txt"),
         "crash_folder": "",
@@ -53,6 +55,8 @@ LANE_CONFIG = {
         "quiet_launcher": "launch_jarvis_launcher_failure_manual_test.vbs",
         "voice_launcher": "launch_jarvis_launcher_failure_manual_test_with_voice.vbs",
         "supports_voice": True,
+        "available_modes": ("quiet", "voice"),
+        "opens_window": True,
         "log_root": os.path.join(DEV_LOGS_DIR, "manual_launcher_failure_test"),
         "log_root_with_voice": os.path.join(DEV_LOGS_DIR, "manual_launcher_failure_test_with_voice"),
         "crash_folder": "crash",
@@ -66,6 +70,8 @@ LANE_CONFIG = {
         "quiet_launcher": "launch_jarvis_launcher_startup_abort_manual_test.vbs",
         "voice_launcher": "launch_jarvis_launcher_startup_abort_manual_test_with_voice.vbs",
         "supports_voice": True,
+        "available_modes": ("quiet", "voice"),
+        "opens_window": True,
         "log_root": os.path.join(DEV_LOGS_DIR, "manual_launcher_startup_abort_test"),
         "log_root_with_voice": os.path.join(DEV_LOGS_DIR, "manual_launcher_startup_abort_test_with_voice"),
         "crash_folder": "crash",
@@ -79,6 +85,8 @@ LANE_CONFIG = {
         "quiet_launcher": "launch_jarvis_voice_regression_harness.vbs",
         "voice_launcher": "",
         "supports_voice": False,
+        "available_modes": ("voice",),
+        "opens_window": False,
         "log_root": os.path.join(DEV_LOGS_DIR, "voice_regression_harness"),
         "report_root": os.path.join(DEV_LOGS_DIR, "voice_regression_harness", "reports"),
         "report_prefix": "VoiceRegressionReport_",
@@ -94,6 +102,8 @@ LANE_CONFIG = {
         "quiet_launcher": "launch_jarvis_desktop_entrypoint_validation.vbs",
         "voice_launcher": "",
         "supports_voice": False,
+        "available_modes": ("quiet",),
+        "opens_window": False,
         "log_root": os.path.join(DEV_LOGS_DIR, "desktop_entrypoint_validation"),
         "report_root": os.path.join(DEV_LOGS_DIR, "desktop_entrypoint_validation", "reports"),
         "report_prefix": "DesktopEntrypointValidationReport_",
@@ -110,6 +120,8 @@ LANE_CONFIG = {
         "quiet_launcher": "launch_jarvis_desktop_launcher_healthy_validation.vbs",
         "voice_launcher": "",
         "supports_voice": False,
+        "available_modes": ("quiet",),
+        "opens_window": False,
         "log_root": os.path.join(DEV_LOGS_DIR, "desktop_launcher_healthy_validation"),
         "report_root": os.path.join(DEV_LOGS_DIR, "desktop_launcher_healthy_validation", "reports"),
         "report_prefix": "DesktopLauncherHealthyValidationReport_",
@@ -126,6 +138,8 @@ LANE_CONFIG = {
         "quiet_launcher": "launch_jarvis_desktop_launcher_regression_harness.vbs",
         "voice_launcher": "",
         "supports_voice": False,
+        "available_modes": ("quiet",),
+        "opens_window": False,
         "log_root": os.path.join(DEV_LOGS_DIR, "desktop_launcher_regression_harness"),
         "report_root": os.path.join(DEV_LOGS_DIR, "desktop_launcher_regression_harness", "reports"),
         "report_prefix": "DesktopLauncherRegressionHarnessReport_",
@@ -142,6 +156,8 @@ LANE_CONFIG = {
         "quiet_launcher": "launch_jarvis_support_bundle_triage_harness.vbs",
         "voice_launcher": "",
         "supports_voice": False,
+        "available_modes": ("quiet",),
+        "opens_window": False,
         "log_root": os.path.join(DEV_LOGS_DIR, "support_bundle_triage_harness"),
         "report_root": os.path.join(DEV_LOGS_DIR, "support_bundle_triage_harness", "reports"),
         "report_prefix": "SupportBundleTriageHarnessReport_",
@@ -157,6 +173,8 @@ LANE_CONFIG = {
         "quiet_launcher": "launch_jarvis_support_bundle_triage_toolkit_validation.vbs",
         "voice_launcher": "",
         "supports_voice": False,
+        "available_modes": ("quiet",),
+        "opens_window": False,
         "log_root": os.path.join(DEV_LOGS_DIR, "support_bundle_triage_toolkit_validation"),
         "report_root": os.path.join(DEV_LOGS_DIR, "support_bundle_triage_toolkit_validation", "reports"),
         "report_prefix": "SupportBundleTriageToolkitValidationReport_",
@@ -173,6 +191,8 @@ LANE_CONFIG = {
         "quiet_launcher": "launch_jarvis_diagnostics_report_issue_validation.vbs",
         "voice_launcher": "",
         "supports_voice": False,
+        "available_modes": ("quiet",),
+        "opens_window": False,
         "log_root": os.path.join(DEV_LOGS_DIR, "diagnostics_report_issue_validation"),
         "report_root": os.path.join(DEV_LOGS_DIR, "diagnostics_report_issue_validation", "reports"),
         "report_prefix": "DiagnosticsReportIssueValidationReport_",
@@ -189,6 +209,8 @@ LANE_CONFIG = {
         "quiet_launcher": "",
         "voice_launcher": "",
         "supports_voice": False,
+        "available_modes": ("quiet",),
+        "opens_window": False,
         "log_root": os.path.join(DEV_LOGS_DIR, "support_bundle_triage"),
         "report_root": os.path.join(DEV_LOGS_DIR, "support_bundle_triage", "reports"),
         "report_prefix": "SupportBundleTriageReport_",
@@ -379,6 +401,7 @@ class DevLauncherWindow(QWidget):
         self.selected_lane_key = ""
         self.session_launch_records = {}
         self.previous_launch_entries = []
+        self.active_background_run = {}
 
         self.launch_timer = QTimer(self)
         self.launch_timer.setSingleShot(True)
@@ -1003,13 +1026,12 @@ class DevLauncherWindow(QWidget):
         selected_mode = self.audio_combo.currentData()
         if not selected_mode:
             return []
-        wants_voice = selected_mode == "voice"
         groups = []
         for group in CONFIG_LANE_GROUPS:
             lane_keys = []
             for lane_key in group["lane_keys"]:
                 lane = LANE_CONFIG[lane_key]
-                if wants_voice and not lane.get("supports_voice", False):
+                if not self.lane_supports_mode(lane, selected_mode):
                     continue
                 lane_keys.append(lane_key)
             if lane_keys:
@@ -1078,6 +1100,19 @@ class DevLauncherWindow(QWidget):
     def launch_mode_value(self) -> str:
         return self.audio_combo.currentData() or ""
 
+    def lane_available_modes(self, lane: dict) -> tuple[str, ...]:
+        available = lane.get("available_modes", ())
+        if available:
+            return tuple(available)
+        if lane.get("supports_voice", False):
+            return ("quiet", "voice")
+        return ("quiet",)
+
+    def lane_supports_mode(self, lane: dict, mode: str) -> bool:
+        if not lane or not mode:
+            return False
+        return mode in self.lane_available_modes(lane)
+
     def current_launch_ready(self) -> bool:
         return bool(
             self.launch_mode_value()
@@ -1088,12 +1123,21 @@ class DevLauncherWindow(QWidget):
 
     def voice_requested(self) -> bool:
         lane = self.current_lane()
-        return self.launch_mode_value() == "voice" and lane.get("supports_voice", False)
+        return (
+            self.launch_mode_value() == "voice"
+            and self.lane_supports_mode(lane, "voice")
+            and bool(lane.get("voice_launcher"))
+        )
 
     def current_launch_mode_key(self) -> str:
-        if not self.launch_mode_value():
+        lane = self.current_lane()
+        selected_mode = self.launch_mode_value()
+        if not lane or not selected_mode:
             return ""
-        return "voice" if self.voice_requested() else "quiet"
+        if self.lane_supports_mode(lane, selected_mode):
+            return selected_mode
+        available = self.lane_available_modes(lane)
+        return available[0] if available else ""
 
     def current_session_artifact_key(self) -> str:
         lane_key = self.current_lane_key()
@@ -1224,18 +1268,24 @@ class DevLauncherWindow(QWidget):
         return lane["label"]
 
     def select_lane(self, lane_key: str):
-        if self.launch_mode_value() == "voice" and not LANE_CONFIG[lane_key].get("supports_voice", False):
+        lane = LANE_CONFIG[lane_key]
+        if self.launch_mode_value() and not self.lane_supports_mode(lane, self.launch_mode_value()):
+            target_mode = self.lane_available_modes(lane)[0]
             self.audio_combo.blockSignals(True)
-            self.audio_combo.setCurrentIndex(1)
+            self.audio_combo.setCurrentIndex(1 if target_mode == "quiet" else 2)
             self.audio_combo.blockSignals(False)
         elif not self.launch_mode_value():
+            target_mode = self.lane_available_modes(lane)[0]
             self.audio_combo.blockSignals(True)
-            self.audio_combo.setCurrentIndex(1)
+            self.audio_combo.setCurrentIndex(1 if target_mode == "quiet" else 2)
             self.audio_combo.blockSignals(False)
         self.populate_lane_group_choices(lane_key)
 
     def audio_mode_summary(self, lane: dict) -> str:
-        if lane.get("supports_voice", False):
+        available = self.lane_available_modes(lane)
+        if available == ("voice",):
+            return "With Voice / Audio only"
+        if "voice" in available and "quiet" in available:
             return "Quiet or With Voice / Audio"
         return "Quiet only"
 
@@ -1559,9 +1609,14 @@ class DevLauncherWindow(QWidget):
     def scan_previous_launch_entries(self) -> list[dict]:
         entries = []
         for lane_key, lane in LANE_CONFIG.items():
-            candidates = [("quiet", lane.get("log_root", ""), "Quiet (No Audio / No Voice)")]
-            if lane.get("log_root_with_voice"):
-                candidates.append(("voice", lane["log_root_with_voice"], "With Voice / Audio"))
+            candidates = []
+            available_modes = self.lane_available_modes(lane)
+            if "quiet" in available_modes and lane.get("log_root"):
+                candidates.append(("quiet", lane.get("log_root", ""), "Quiet (No Audio / No Voice)"))
+            if "voice" in available_modes:
+                voice_root = lane.get("log_root_with_voice") or lane.get("log_root", "")
+                if voice_root:
+                    candidates.append(("voice", voice_root, "With Voice / Audio"))
 
             for mode_key, evidence_root, mode_label in candidates:
                 if not evidence_root:
@@ -1640,10 +1695,10 @@ class DevLauncherWindow(QWidget):
     def update_ui(self):
         lane = self.current_lane()
         if lane:
-            supports_voice = lane.get("supports_voice", False)
-            if self.launch_mode_value() == "voice" and not supports_voice:
+            if self.launch_mode_value() and not self.lane_supports_mode(lane, self.launch_mode_value()):
+                target_mode = self.lane_available_modes(lane)[0]
                 self.audio_combo.blockSignals(True)
-                self.audio_combo.setCurrentIndex(1)
+                self.audio_combo.setCurrentIndex(1 if target_mode == "quiet" else 2)
                 self.audio_combo.blockSignals(False)
             self.detail_label.setText(self.detail_text_for_lane(lane))
             self.audio_label.setText(
@@ -1667,6 +1722,38 @@ class DevLauncherWindow(QWidget):
     def set_status(self, text: str):
         self.status_label.setText(text)
         self.refresh_utility_buttons()
+
+    def lane_runs_in_background(self, lane: dict) -> bool:
+        return bool(lane) and not lane.get("opens_window", False)
+
+    def completion_artifact_for_record(self, record: dict) -> str:
+        if not record:
+            return ""
+        cutoff = record.get("launched_at_ts", 0.0)
+        report_path = self.latest_report_for_record(record, cutoff)
+        if report_path:
+            return report_path
+        runtime_path = self.latest_runtime_log_for_record(record, cutoff)
+        if runtime_path:
+            return runtime_path
+        return ""
+
+    def refresh_background_run_status(self):
+        run = self.active_background_run
+        if not run:
+            return
+
+        record = self.session_launch_records.get(run.get("artifact_key", ""), {})
+        if not record:
+            self.active_background_run = {}
+            return
+
+        if self.completion_artifact_for_record(record):
+            self.active_background_run = {}
+            self.status_label.setText(f"Test complete: {run.get('label', 'Selected lane')}")
+            return
+
+        self.status_label.setText(f"Test in progress: {run.get('label', 'Selected lane')}")
 
     def refresh_utility_buttons(self):
         current_record = self.current_session_record()
@@ -1782,6 +1869,8 @@ class DevLauncherWindow(QWidget):
                     "Choose a previous launch entry to reveal its saved evidence utilities."
                 )
 
+        self.refresh_background_run_status()
+
     def schedule_or_launch(self):
         self.cancel_launch(silent=True)
         if not self.current_launch_ready():
@@ -1818,18 +1907,35 @@ class DevLauncherWindow(QWidget):
                     return
                 launch_key = self.current_session_artifact_key()
                 self.session_launch_records[launch_key] = self.build_current_launch_record()
+                if self.lane_runs_in_background(lane):
+                    self.active_background_run = {
+                        "artifact_key": launch_key,
+                        "label": self.active_label(),
+                    }
                 subprocess.Popen([PYTHONW_PATH, lane["script_path"], source_path], cwd=ROOT_DIR)
-                self.set_status(f"Launched: {self.active_label()} :: {source_path}")
+                if self.lane_runs_in_background(lane):
+                    self.set_status(f"Test in progress: {self.active_label()} :: {source_path}")
+                else:
+                    self.set_status(f"Launched: {self.active_label()} :: {source_path}")
                 return
 
             launcher_path = os.path.join(DEV_LAUNCHERS_DIR, self.active_launcher_filename())
             launch_key = self.current_session_artifact_key()
             self.session_launch_records[launch_key] = self.build_current_launch_record()
+            if self.lane_runs_in_background(lane):
+                self.active_background_run = {
+                    "artifact_key": launch_key,
+                    "label": self.active_label(),
+                }
             subprocess.Popen(["wscript.exe", launcher_path], cwd=DEV_LAUNCHERS_DIR)
-            self.set_status(f"Launched: {self.active_label()}")
+            if self.lane_runs_in_background(lane):
+                self.set_status(f"Test in progress: {self.active_label()}")
+            else:
+                self.set_status(f"Launched: {self.active_label()}")
         except Exception as exc:
             if 'launch_key' in locals():
                 self.session_launch_records.pop(launch_key, None)
+            self.active_background_run = {}
             self.set_status(f"Launch failed: {self.active_label()} :: {exc}")
         finally:
             self.launch_timer.stop()

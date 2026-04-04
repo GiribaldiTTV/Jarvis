@@ -168,6 +168,15 @@ class JarvisErrorSpeaker:
             if playback_path != base_audio_path:
                 processed_path = playback_path
 
+            playback_duration_ms = max(1, int(get_duration_seconds(playback_path) * 1000))
+            base_duration_ms = max(1, int(get_duration_seconds(base_audio_path) * 1000))
+            if schedule and playback_duration_ms != base_duration_ms:
+                stretch_ratio = playback_duration_ms / base_duration_ms
+                schedule = [
+                    (max(1, int(target_ms * stretch_ratio)), content)
+                    for target_ms, content in schedule
+                ]
+
             loop = QEventLoop()
 
             def push_sync():
@@ -424,6 +433,22 @@ def build_chunked_filter_complex(duration, segment_len=0.40, fade_len=0.050):
     return ";".join(segments + [f"{concat_inputs}concat=n={len(segments)}:v=0:a=1[outa]"])
 
 
+def atempo_chain_for_factor(factor):
+    factor = max(0.01, float(factor))
+    filters = []
+
+    while factor < 0.5:
+        filters.append("atempo=0.500")
+        factor /= 0.5
+
+    while factor > 2.0:
+        filters.append("atempo=2.000")
+        factor /= 2.0
+
+    filters.append(f"atempo={factor:.3f}")
+    return ",".join(filters)
+
+
 def apply_error_effect(source_path):
     exe = ffmpeg_exe()
     if not exe:
@@ -460,38 +485,48 @@ def apply_error_effect(source_path):
 
 
 def build_shutdown_filter_complex(duration):
-    first_end = max(0.18, duration * 0.34)
-    second_end = max(first_end + 0.18, duration * 0.74)
-    first_end = min(first_end, max(duration - 0.24, 0.12))
-    second_end = min(second_end, max(duration - 0.08, first_end + 0.08))
-
+    # Keep the shutdown path isolated, but use the same diagnostics/error voice
+    # shaping while adding a smoother progressive shutdown ramp. The line stays
+    # relatively close to the normal error voice through "Shutting", then
+    # drops much harder across "down" so the slowdown is obvious where the ear
+    # expects the shutdown to collapse.
     segments = []
-    segment_specs = [
-        ("s0", 0.0, first_end, "atempo=0.98,lowpass=f=3600,volume=1.00"),
-        ("s1", first_end, second_end, "atempo=0.92,lowpass=f=3000,volume=0.95"),
-        ("s2", second_end, duration, "atempo=0.84,lowpass=f=2400,volume=0.88"),
-    ]
+    segment_count = 10
+    shutdown_tail_start = 0.58
+    pattern = ["raised", "extreme", "raised", "raised", "extreme", "raised", "extreme", "raised", "extreme", "raised"]
+    start = 0.0
+    fade_len = 0.050
 
-    for label, start, end, chain in segment_specs:
+    for i in range(segment_count):
+        end_ratio = (i + 1) / segment_count
+        end = duration * end_ratio
         if end <= start:
             continue
 
+        if end_ratio <= shutdown_tail_start:
+            front_progress = end_ratio / shutdown_tail_start
+            tempo_factor = 0.85 - (0.18 * (front_progress ** 1.25))
+        else:
+            tail_progress = (end_ratio - shutdown_tail_start) / (1.0 - shutdown_tail_start)
+            tempo_factor = 0.67 - (0.47 * (tail_progress ** 1.45))
+
+        level = pattern[i % len(pattern)]
+
+        label = f"s{i}"
         seg_dur = end - start
-        fade = min(0.14, max(0.04, seg_dur / 2.5))
-        segment = (
+        chain = f"{atempo_chain_for_factor(tempo_factor)},{seg_filter(level)}"
+
+        actual_fade = min(fade_len, max(0.010, seg_dur / 4))
+        fade_out_start = max(0.0, seg_dur - actual_fade)
+
+        segments.append(
             f"[0:a]atrim=start={start:.3f}:end={end:.3f},"
-            f"asetpts=PTS-STARTPTS,{chain}"
+            f"asetpts=PTS-STARTPTS,{chain},"
+            f"afade=t=in:st=0:d={actual_fade:.3f},"
+            f"afade=t=out:st={fade_out_start:.3f}:d={actual_fade:.3f}"
+            f"[{label}]"
         )
-
-        if label == "s2":
-            fade_out_start = max(0.0, seg_dur - fade)
-            segment += (
-                f",afade=t=in:st=0:d={fade:.3f},"
-                f"afade=t=out:st={fade_out_start:.3f}:d={fade:.3f}"
-            )
-
-        segment += f"[{label}]"
-        segments.append(segment)
+        start = end
 
     concat_inputs = "".join(f"[s{i}]" for i in range(len(segments)))
     return ";".join(segments + [f"{concat_inputs}concat=n={len(segments)}:v=0:a=1[outa]"])
