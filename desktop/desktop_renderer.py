@@ -6,7 +6,11 @@ from PySide6.QtCore import Qt, QTimer, QUrl, QRect
 from PySide6.QtGui import QColor
 from PySide6.QtWebEngineWidgets import QWebEngineView
 
-from .workerw_utils import attach_window_to_desktop, make_window_noninteractive
+from .workerw_utils import (
+    attach_window_to_desktop,
+    get_last_workerw_probe_events,
+    make_window_noninteractive,
+)
 
 WM_NCHITTEST = 0x0084
 HTTRANSPARENT = -1
@@ -149,6 +153,8 @@ class DesktopJarvisWindow(QWidget):
         self._log_event(
             f"RENDERER_MAIN|DESKTOP_ATTACH_RESULT|success={'true' if attached else 'false'}"
         )
+        for probe_event in get_last_workerw_probe_events():
+            self._log_event(f"RENDERER_MAIN|{probe_event}")
 
         self.lower()
 
