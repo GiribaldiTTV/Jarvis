@@ -151,19 +151,19 @@ This is a later architecture track and should not be mixed into the current desk
 
 ### [ID: FB-005] Workspace and folder organization
 
-Status: Deferred  
+Status: Deferred (partial implementation through Step 4)  
 Priority: Low  
-Suggested Version: TBD  
-Suggested Revision: TBD  
+Suggested Version: v2.0  
+Suggested Revision: rev1  
 
 Description:
-Restructure project directories for clarity and scalability.
+Continue staged project-directory cleanup for clarity and scalability while keeping top-level entrypoint and broader workspace restructuring deferred.
 
 Why it matters:
 As the project grows, clearer folder boundaries will make ownership, startup flow, audio systems, diagnostics, and future subsystems easier to maintain.
 
 Proposed Change:
-Reorganize project directories and documentation locations with a dedicated, approved workspace-organization pass.
+Carry workspace organization only through explicitly approved, path-sensitive slices rather than broad folder cleanup.
 
 Likely Files Affected:
 - multiple project directories
@@ -180,7 +180,20 @@ Out of Scope:
 - unrelated refactors
 
 Notes:
-This remains intentionally deferred until after active orchestration stabilization work.
+Current repo truth no longer reflects an untouched deferred item.
+Completed slices now include:
+
+- Step 3: `jarvis_desktop_main.py` and `jarvis_desktop_test.py` moved under `desktop/`, and the launcher's target-script assumption now points at the moved desktop entrypoint
+- Step 4: `jarvis_voice.py` moved under `Audio/` as `Audio/jarvis_voice.py`
+- Step 4: `main.py` now imports `Audio.jarvis_voice`
+- Step 4: the launcher-owned diagnostics/error voice path remained valid and unchanged at `Audio/jarvis_error_voice.py`
+
+Step 5 and broader workspace work remain intentionally deferred.
+That means:
+
+- `main.py` remains root-owned
+- `launch_jarvis_desktop.vbs` remains root-owned
+- broader folder cleanup, broader `Audio` casing normalization, and `logs/` reorganization remain out of scope until a later explicitly approved slice
 
 ---
 
