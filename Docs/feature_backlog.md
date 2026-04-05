@@ -1266,10 +1266,57 @@ Current branch-local tracking:
 - the glitch is now tracked in GitHub Issue #17: `Investigate brief visual glitch/stutter during ORIN manual desktop launch`
 - GitHub issue link: `https://github.com/GiribaldiTTV/Jarvis/issues/17`
 - future work that closes this launch/handoff glitch should also resolve and close GitHub Issue #17
+- additional observed symptom now preserved under the same issue linkage: during the glitch, Jarvis appears to jump briefly toward the cursor and then return to center
+- unless later evidence clearly separates it, that cursor-jump symptom should continue to be treated as more evidence for GitHub Issue #17 rather than a separate issue
 - observed context to preserve:
   - the issue was seen during manual ORIN desktop launch validation after the first launch-chain repair was working
   - the ORIN visual asset chain was loading well enough to continue
   - diagnostics and error-voice flow were not part of the observed glitch report
+- later Dev Toolkit launcher organization should keep the main user-facing Toolkit launcher forward-facing while moving non-forward-facing helper launchers used by the Toolkit into a separate helper-launchers folder
+- that Toolkit launcher reorganization remains planned follow-through only and should not be mixed into the current repair-first runtime slices until a dedicated path-organization slice is selected
+
+---
+
+### [ID: FB-030] ORIN voice/audio direction refinement
+
+Status: Deferred  
+Priority: Medium  
+Suggested Version: TBD  
+Suggested Revision: rev1  
+Release Stage: pre-Beta  
+
+Description:
+Refine the current ORIN assistant voice/audio direction so the speaking assistant feels more like the intended ORIN persona rather than only a functional default voice path.
+
+Why it matters:
+The rebrand direction now depends on ORIN feeling distinct as a persona. If the normal assistant voice does not support that identity well enough, the product presentation will lag behind the rest of the rebrand work.
+
+Proposed Change:
+Do a later bounded ORIN normal-voice direction pass that evaluates voice choice, pacing, delivery, and any light supportive processing so the assistant feels:
+
+- organic human
+- slight AI in how it speaks
+- futuristic in nature
+
+Likely Files Affected:
+- C:/Jarvis/Audio/orin_voice.py
+- C:/Jarvis/assistant_personas.py
+- optional directly supportive ORIN voice-test helpers if needed
+
+Scope:
+- ORIN normal assistant voice direction
+- persona-facing delivery refinement
+- bounded voice/presentation tuning for the shipped ORIN path
+
+Out of Scope:
+- ARIA implementation
+- diagnostics/error voice redesign unless explicitly approved later
+- speech-to-text or wake-word work
+- broad audio engine replacement
+- unrelated rebrand/file-rename cleanup
+
+Notes:
+This is a future persona-direction slice, not part of the current repair-first path-coherence work.
 
 ---
 

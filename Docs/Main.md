@@ -39,6 +39,7 @@ These are the default project-governance and product-boundary docs:
 - `docs/orchestration.md`
 - `docs/codex_modes.md`
 - `docs/jarvis_task_template.md`
+- `docs/user_test_summary_guidance.md`
 
 Within that core set:
 
@@ -172,6 +173,7 @@ For prompt-governance or workflow-governance tasks, prompts should usually inclu
 - `docs/Main.md`
 - `docs/codex_modes.md`
 - `docs/jarvis_task_template.md`
+- `docs/user_test_summary_guidance.md`
 
 Add other canonical docs only if the governance wording depends on them.
 
