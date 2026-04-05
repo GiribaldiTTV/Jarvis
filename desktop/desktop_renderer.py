@@ -489,7 +489,7 @@ class DesktopJarvisWindow(QWidget):
             return
 
         state_name = self._pending_visual_state
-        js = f"window.setJarvisState && window.setJarvisState('{state_name}');"
+        js = f"window.setCoreVisualState && window.setCoreVisualState('{state_name}');"
         self._run_javascript(js)
         self._log_event(f"RENDERER_MAIN|VISUAL_STATE_APPLIED|state={state_name}")
         self._pending_visual_state = None
@@ -499,7 +499,7 @@ class DesktopJarvisWindow(QWidget):
             return
 
         level = self._pending_voice_level
-        js = f"window.setJarvisVoiceLevel && window.setJarvisVoiceLevel({level:.4f});"
+        js = f"window.setCoreVoiceLevel && window.setCoreVoiceLevel({level:.4f});"
         self._run_javascript(js)
         self._pending_voice_level = None
 

@@ -1158,7 +1158,7 @@ if (voiceLevel > smoothedVoiceLevel) {
   requestAnimationFrame(frame);
 }
 
-window.setJarvisState = function (stateName) {
+window.setCoreVisualState = function (stateName) {
   lastState = currentState;
   currentState = stateName || "idle";
 
@@ -1181,7 +1181,7 @@ window.setJarvisState = function (stateName) {
   body.classList.add(`state-${currentState}`);
 };
 
-window.setJarvisVoiceLevel = function(level) {
+window.setCoreVoiceLevel = function(level) {
   voiceLevel = clamp(Number(level) || 0, 0, 1);
 };
 
@@ -1190,7 +1190,7 @@ window.setCommandOverlayState = function(state) {
   renderCommandOverlay();
 };
 
-window.setJarvisState("boot");
-window.setJarvisVoiceLevel(0);
+window.setCoreVisualState("boot");
+window.setCoreVoiceLevel(0);
 window.setCommandOverlayState({ visible: false });
 requestAnimationFrame(frame);

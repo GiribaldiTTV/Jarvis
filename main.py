@@ -405,12 +405,12 @@ class JarvisBootCenterWindow(BaseWindow):
         self.progress.hide()
 
     def set_visual_state(self, state_name):
-        js = f"window.setJarvisState && window.setJarvisState('{state_name}');"
+        js = f"window.setCoreVisualState && window.setCoreVisualState('{state_name}');"
         self.webview.page().runJavaScript(js)
 
     def set_voice_level(self, level):
         level = max(0.0, min(1.0, float(level)))
-        js = f"window.setJarvisVoiceLevel && window.setJarvisVoiceLevel({level:.4f});"
+        js = f"window.setCoreVoiceLevel && window.setCoreVoiceLevel({level:.4f});"
         self.webview.page().runJavaScript(js)
 
     def enter_background_visual_mode(self):
