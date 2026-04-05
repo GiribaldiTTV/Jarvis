@@ -78,7 +78,7 @@ def main():
     if exit_if_startup_abort_requested():
         return 0
 
-    visual_html_path = os.path.join(ROOT_DIR, "jarvis_visual", "jarvis_core_desktop.html")
+    visual_html_path = os.path.join(ROOT_DIR, "jarvis_visual", "jarvis_core.html")
     runtime_milestone("RENDERER_MAIN|VISUAL_HTML_RESOLVED")
     if exit_if_startup_abort_requested():
         return 0

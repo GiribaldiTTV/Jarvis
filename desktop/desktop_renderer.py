@@ -462,6 +462,9 @@ class DesktopJarvisWindow(QWidget):
 
         return QRect(x, y, width, height)
 
+    def prepare_desktop_geometry(self):
+        self.setGeometry(self.compute_compact_geometry())
+
     def showEvent(self, event):
         super().showEvent(event)
 
@@ -510,9 +513,9 @@ class DesktopJarvisWindow(QWidget):
         target_geometry = self.compute_compact_geometry()
         hwnd = int(self.winId())
 
+        self.setGeometry(target_geometry)
         attached = attach_window_to_desktop(hwnd)
         if attached:
-            self.setGeometry(target_geometry)
             make_window_noninteractive(hwnd)
             position_desktop_child(
                 hwnd,
@@ -531,6 +534,9 @@ class DesktopJarvisWindow(QWidget):
         self.update()
         self._run_javascript("window.dispatchEvent(new Event('resize'));")
         self.lower()
+
+    def reinforce_desktop_mode(self):
+        self._reinforce_desktop_mode()
 
     def _schedule_desktop_mode_enable(self):
         if not self._desktop_mode_requested or self.desktop_mode or self._is_shutting_down:
@@ -682,11 +688,12 @@ class DesktopJarvisWindow(QWidget):
         self.show()
 
         hwnd = int(self.winId())
+        target_geometry = self.compute_compact_geometry()
+        self.setGeometry(target_geometry)
 
         attached = attach_window_to_desktop(hwnd)
         if attached:
             make_window_noninteractive(hwnd)
-            target_geometry = self.compute_compact_geometry()
             position_desktop_child(
                 hwnd,
                 target_geometry.x(),
