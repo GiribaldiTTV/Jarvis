@@ -1057,7 +1057,13 @@ class JarvisSystem:
     def begin_desktop_handoff(self):
         desktop_reveal_delay_ms = 140
         desktop_state_commit_delay_ms = 220
-        desktop_settle_delay_ms = desktop_reveal_delay_ms + desktop_state_commit_delay_ms + 320
+        # Let the renderer own its bounded post-attach stabilization passes so
+        # the Boot handoff does not keep re-positioning the desktop child for
+        # several extra seconds after transition begins.
+        desktop_settle_delay_ms = max(
+            desktop_reveal_delay_ms + desktop_state_commit_delay_ms + 320,
+            1150,
+        )
 
         self.desktop_center_window.prepare_desktop_geometry()
         self.desktop_center_window.setWindowOpacity(1.0)
@@ -1066,11 +1072,6 @@ class JarvisSystem:
         self.runtime_milestone("BOOT_MAIN|DESKTOP_SHOWN")
 
         self.desktop_center_window.enable_desktop_mode()
-        self.reinforce_desktop_mode()
-        QTimer.singleShot(300, self.reinforce_desktop_mode)
-        QTimer.singleShot(900, self.reinforce_desktop_mode)
-        QTimer.singleShot(2200, self.reinforce_desktop_mode)
-        QTimer.singleShot(5000, self.reinforce_desktop_mode)
         QTimer.singleShot(desktop_settle_delay_ms, self.mark_desktop_settled)
 
         self.boot_center_window.enter_background_visual_mode()
