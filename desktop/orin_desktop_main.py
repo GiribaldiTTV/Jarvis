@@ -119,7 +119,7 @@ def main():
     if exit_if_startup_abort_requested(hotkeys):
         return 0
 
-    print("Jarvis Desktop Concept 1 - Version 1.02")
+    print("Nexus Desktop AI Desktop Runtime - Version 1.02")
     print("Command Overlay: Ctrl + Alt + Home")
     print("Hotkey: Ctrl + Alt + End")
 

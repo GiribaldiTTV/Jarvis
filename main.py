@@ -115,6 +115,7 @@ HTTRANSPARENT = -1
 
 class UIBus(QObject):
     set_overlay_title = Signal(str)
+    set_overlay_subtitle = Signal(str)
     set_overlay_status = Signal(str)
     set_overlay_log = Signal(str)
     append_overlay_log = Signal(str)
@@ -255,7 +256,7 @@ class JarvisBootCenterWindow(BaseWindow):
 
         overlay_layout.addStretch()
 
-        self.overlay_title = QLabel("JARVIS")
+        self.overlay_title = QLabel("NEXUS DESKTOP AI")
         self.overlay_title.setAlignment(Qt.AlignHCenter)
         self.overlay_title.setStyleSheet("""
             color: rgb(0, 190, 255);
@@ -264,7 +265,7 @@ class JarvisBootCenterWindow(BaseWindow):
             background: transparent;
         """)
 
-        self.overlay_sub = QLabel("PRIMARY SYSTEM INTELLIGENCE")
+        self.overlay_sub = QLabel("SYSTEM STARTUP INTERFACE")
         self.overlay_sub.setAlignment(Qt.AlignHCenter)
         self.overlay_sub.setStyleSheet("""
             color: rgb(0, 110, 160);
@@ -379,6 +380,9 @@ class JarvisBootCenterWindow(BaseWindow):
     def set_title(self, text):
         self.overlay_title.setText(text)
 
+    def set_subtitle(self, text):
+        self.overlay_sub.setText(text)
+
     def set_status(self, text):
         self.status.setText(text)
 
@@ -453,10 +457,10 @@ class JarvisSystem:
         if not acquire_or_prompt_replace(
             runtime_instance_guard,
             runtime_relaunch_signal,
-            "Boot Jarvis Session Active",
-            "A Boot Jarvis session is already active.\n\nDo you want to close the current Jarvis session and relaunch from this boot entrypoint?",
-            eyebrow_text="BOOT JARVIS",
-            primary_button_text="Relaunch Boot Jarvis",
+            "Nexus Desktop AI Boot Session Active",
+            "A Nexus Desktop AI boot session is already active.\n\nDo you want to close the current boot session and relaunch from this boot entrypoint?",
+            eyebrow_text="NEXUS DESKTOP AI BOOT",
+            primary_button_text="Relaunch Boot Session",
             secondary_button_text="Keep Current Session",
             event_logger=log_single_instance_event,
         ):
@@ -530,6 +534,7 @@ class JarvisSystem:
         self.desktop_center_window.hide()
 
         self.bus.set_overlay_title.connect(self.boot_center_window.set_title)
+        self.bus.set_overlay_subtitle.connect(self.boot_center_window.set_subtitle)
         self.bus.set_overlay_status.connect(self.boot_center_window.set_status)
         self.bus.set_overlay_log.connect(self.boot_center_window.set_log)
         self.bus.append_overlay_log.connect(self.boot_center_window.append_log)
@@ -871,7 +876,8 @@ class JarvisSystem:
         self.runtime_milestone("BOOT_MAIN|BOOT_SEQUENCE_START")
 
         self.set_visual_state("boot")
-        self.emit_bus(self.bus.set_overlay_title, "Installing Jarvis")
+        self.emit_bus(self.bus.set_overlay_title, "Nexus Desktop AI")
+        self.emit_bus(self.bus.set_overlay_subtitle, "SYSTEM STARTUP INTERFACE")
         self.set_status("PREPARING INSTALLATION")
         self.emit_bus(self.bus.set_overlay_log, "")
         self.emit_bus(self.bus.show_progress)
@@ -883,7 +889,7 @@ class JarvisSystem:
 
         install_steps = [
             (8,  "Allocating core memory"),
-            (16, "Installing Jarvis kernel"),
+            (16, "Installing runtime kernel"),
             (24, "Registering voice interface"),
             (34, "Binding command parser"),
             (46, "Initializing cinematic core"),
@@ -907,11 +913,12 @@ class JarvisSystem:
         if self.shutdown_in_progress:
             return
 
-        self.emit_bus(self.bus.set_overlay_title, "JARVIS")
+        self.emit_bus(self.bus.set_overlay_title, "ORIN")
+        self.emit_bus(self.bus.set_overlay_subtitle, "Operational Response and Intelligence Nexus")
         self.set_status("COMING ONLINE")
         self.log_event("")
-        self.log_event("> Jarvis installation verified")
-        self.log_event("> Bringing primary intelligence core online")
+        self.log_event("> Nexus Desktop AI installation verified")
+        self.log_event("> Bringing O.R.I.N. core online")
 
         online_steps = [
             "Loading voice engine",
@@ -1016,7 +1023,7 @@ class JarvisSystem:
         self.set_visual_state("processing")
 
         self.log_event("> Preparing desktop handoff")
-        self.log_event("> Preserving center monitor Jarvis core")
+        self.log_event("> Preserving center monitor O.R.I.N. core")
         self.log_event("> Initializing compact desktop background core")
         self.log_event("> Left and right displays reserved for external modules")
         self.sleep_ms(550)
@@ -1044,7 +1051,7 @@ class JarvisSystem:
 
         self.sleep_ms(250)
         self.log_event("> Desktop handoff complete")
-        self.log_event("> Center Jarvis core stabilizing into desktop mode")
+        self.log_event("> Center O.R.I.N. core stabilizing into desktop mode")
         self.sleep_ms(120)
 
         if self.emit_bus(self.bus.begin_desktop_handoff):
@@ -1124,7 +1131,8 @@ class JarvisSystem:
         self.right_window.show()
         self.runtime_milestone("BOOT_MAIN|WINDOWS_SHOWN")
 
-        self.boot_center_window.set_title("JARVIS")
+        self.boot_center_window.set_title("NEXUS DESKTOP AI")
+        self.boot_center_window.set_subtitle("SYSTEM STARTUP INTERFACE")
         self.boot_center_window.set_status("BOOTING")
         self.boot_center_window.set_log("")
         self.boot_center_window.set_visual_state("boot")
