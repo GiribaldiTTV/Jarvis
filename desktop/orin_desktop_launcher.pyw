@@ -999,7 +999,7 @@ def crash_log(
         ts = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
         path = os.path.join(CRASH_DIR, f"Crash_{ts}.txt")
     with open(path, "w", encoding="utf-8") as f:
-        f.write("JARVIS CRASH REPORT\n")
+        f.write("NEXUS DESKTOP AI CRASH REPORT\n")
         f.write(f"Time: {ts}\n")
         if run_id:
             f.write(f"{run_id}\n")
@@ -1193,21 +1193,21 @@ def main():
     if not acquire_or_prompt_replace(
         runtime_instance_guard,
         runtime_relaunch_signal,
-        "Jarvis Session Active",
-        "Jarvis is already active on this computer.\n\nDo you want to close the current Jarvis session and relaunch Desktop Jarvis now?",
-        eyebrow_text="DESKTOP JARVIS",
-        primary_button_text="Relaunch Desktop Jarvis",
+        "Nexus Desktop AI Session Active",
+        "Nexus Desktop AI is already active on this computer.\n\nDo you want to close the current session and relaunch the desktop runtime now?",
+        eyebrow_text="NEXUS DESKTOP AI",
+        primary_button_text="Relaunch Desktop Runtime",
         secondary_button_text="Keep Current Session",
         event_logger=log_single_instance_event,
     ):
-        runtime("Launcher start blocked: Jarvis is already running")
+        runtime("Launcher start blocked: Nexus Desktop AI is already running")
         runtime_event("STATUS", "SKIP", "LAUNCHER_RUNTIME", "ALREADY_RUNNING")
         return 0
 
     ensure_crash_dir("launcher startup")
     reset_status()
 
-    runtime("==== Jarvis runtime started ====")
+    runtime("==== Nexus Desktop AI runtime started ====")
     runtime_event("STATUS", "START", "LAUNCHER_RUNTIME")
     runtime(run_id)
     runtime(ENVIRONMENT_FINGERPRINT)
