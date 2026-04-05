@@ -6,10 +6,6 @@ from pynput import keyboard as pynput_keyboard
 class ShutdownBus(QObject):
     shutdown_requested = Signal()
     command_overlay_toggle_requested = Signal()
-    command_character_typed = Signal(str)
-    command_backspace_requested = Signal()
-    command_enter_requested = Signal()
-    command_escape_requested = Signal()
 
 
 class GlobalHotkeyManager:
@@ -19,8 +15,6 @@ class GlobalHotkeyManager:
         self._pressed = set()
         self._shutdown_fired = False
         self._overlay_toggle_fired = False
-        self._command_overlay_active = False
-        self._command_text_capture_active = False
 
     def start(self) -> None:
         if self._listener is not None:
@@ -35,17 +29,9 @@ class GlobalHotkeyManager:
         self._pressed.clear()
         self._shutdown_fired = False
         self._overlay_toggle_fired = False
-        self._command_overlay_active = False
-        self._command_text_capture_active = False
 
     def force_kill(self) -> None:
         os._exit(0)
-
-    def set_command_overlay_active(self, active: bool) -> None:
-        self._command_overlay_active = bool(active)
-
-    def set_command_text_capture_active(self, active: bool) -> None:
-        self._command_text_capture_active = bool(active)
 
     def _on_press(self, key) -> None:
         self._pressed.add(key)
@@ -67,32 +53,6 @@ class GlobalHotkeyManager:
             self._overlay_toggle_fired = True
             self.bus.command_overlay_toggle_requested.emit()
             return
-
-        if not self._command_overlay_active or ctrl_down or alt_down:
-            return
-
-        if key == pynput_keyboard.Key.esc:
-            self.bus.command_escape_requested.emit()
-            return
-
-        if key == pynput_keyboard.Key.enter:
-            self.bus.command_enter_requested.emit()
-            return
-
-        if not self._command_text_capture_active:
-            return
-
-        if key == pynput_keyboard.Key.backspace:
-            self.bus.command_backspace_requested.emit()
-            return
-
-        if key == pynput_keyboard.Key.space:
-            self.bus.command_character_typed.emit(" ")
-            return
-
-        char = getattr(key, "char", None)
-        if isinstance(char, str) and char.isprintable():
-            self.bus.command_character_typed.emit(char)
 
     def _on_release(self, key) -> None:
         self._pressed.discard(key)

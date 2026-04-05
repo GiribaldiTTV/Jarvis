@@ -1,8 +1,16 @@
 import os
 import ctypes
-import json
 
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QApplication
+from PySide6.QtWidgets import (
+    QWidget,
+    QVBoxLayout,
+    QApplication,
+    QFrame,
+    QLabel,
+    QLineEdit,
+    QHBoxLayout,
+    QGridLayout,
+)
 from PySide6.QtCore import Qt, QTimer, QUrl, QRect, Signal
 from PySide6.QtGui import QColor
 from PySide6.QtWebEngineWidgets import QWebEngineView
@@ -18,9 +26,383 @@ WM_NCHITTEST = 0x0084
 HTTRANSPARENT = -1
 
 
+class CommandInputLineEdit(QLineEdit):
+    submit_requested = Signal()
+    escape_requested = Signal()
+    input_armed_changed = Signal(bool)
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self._input_armed = False
+        self.setContextMenuPolicy(Qt.NoContextMenu)
+        self.setPlaceholderText("Left-click or right-click to activate command entry")
+        self.setReadOnly(True)
+
+    def is_input_armed(self) -> bool:
+        return self._input_armed
+
+    def set_input_armed(self, armed: bool, notify: bool = True):
+        armed = bool(armed)
+        if self._input_armed == armed:
+            return
+
+        self._input_armed = armed
+        self.setReadOnly(not armed)
+        if not armed:
+            self.clearFocus()
+        if notify:
+            self.input_armed_changed.emit(armed)
+
+    def mousePressEvent(self, event):
+        if event.button() in (Qt.LeftButton, Qt.RightButton):
+            if not self._input_armed:
+                self.set_input_armed(True)
+            self.setFocus(Qt.MouseFocusReason)
+            if event.button() == Qt.RightButton:
+                event.accept()
+                return
+
+        super().mousePressEvent(event)
+
+    def keyPressEvent(self, event):
+        if event.key() in (Qt.Key_Return, Qt.Key_Enter):
+            self.submit_requested.emit()
+            event.accept()
+            return
+
+        if event.key() == Qt.Key_Escape:
+            self.escape_requested.emit()
+            event.accept()
+            return
+
+        if not self._input_armed:
+            event.accept()
+            return
+
+        super().keyPressEvent(event)
+
+
+class CommandOverlayPanel(QWidget):
+    submit_requested = Signal()
+    escape_requested = Signal()
+    input_text_changed = Signal(str)
+    input_armed_changed = Signal(bool)
+
+    def __init__(self):
+        super().__init__(None, Qt.FramelessWindowHint | Qt.Tool)
+        self.setAttribute(Qt.WA_TranslucentBackground, True)
+        self.setFocusPolicy(Qt.StrongFocus)
+        self.setObjectName("commandOverlayWindow")
+
+        root = QVBoxLayout(self)
+        root.setContentsMargins(0, 0, 0, 0)
+        root.setSpacing(0)
+
+        self.panel = QFrame(self)
+        self.panel.setObjectName("commandPanel")
+        root.addWidget(self.panel)
+
+        layout = QVBoxLayout(self.panel)
+        layout.setContentsMargins(24, 22, 24, 20)
+        layout.setSpacing(0)
+
+        self.kicker_label = QLabel("JARVIS COMMAND", self.panel)
+        self.kicker_label.setObjectName("commandKicker")
+        layout.addWidget(self.kicker_label)
+
+        self.title_label = QLabel("Typed desktop interaction", self.panel)
+        self.title_label.setObjectName("commandTitle")
+        layout.addWidget(self.title_label)
+
+        self.hint_label = QLabel(
+            "Left-click or right-click the command box to activate.",
+            self.panel,
+        )
+        self.hint_label.setObjectName("commandHint")
+        self.hint_label.setWordWrap(True)
+        layout.addWidget(self.hint_label)
+
+        self.input_shell = QFrame(self.panel)
+        self.input_shell.setObjectName("commandInputShell")
+        input_layout = QHBoxLayout(self.input_shell)
+        input_layout.setContentsMargins(16, 14, 16, 14)
+        input_layout.setSpacing(10)
+
+        self.prompt_label = QLabel(">", self.input_shell)
+        self.prompt_label.setObjectName("commandPrompt")
+        input_layout.addWidget(self.prompt_label)
+
+        self.input_line = CommandInputLineEdit(self.input_shell)
+        self.input_line.setObjectName("commandInputLine")
+        self.input_line.textChanged.connect(self.input_text_changed)
+        self.input_line.submit_requested.connect(self.submit_requested)
+        self.input_line.escape_requested.connect(self.escape_requested)
+        self.input_line.input_armed_changed.connect(self.input_armed_changed)
+        input_layout.addWidget(self.input_line, 1)
+
+        self.caret = QFrame(self.input_shell)
+        self.caret.setObjectName("commandCaret")
+        input_layout.addWidget(self.caret)
+
+        layout.addWidget(self.input_shell)
+
+        self.status_label = QLabel("", self.panel)
+        self.status_label.setObjectName("commandStatus")
+        self.status_label.setWordWrap(True)
+        layout.addWidget(self.status_label)
+
+        self.ambiguous_label = QLabel("", self.panel)
+        self.ambiguous_label.setObjectName("commandAmbiguous")
+        self.ambiguous_label.setWordWrap(True)
+        layout.addWidget(self.ambiguous_label)
+
+        self.confirmation_frame = QFrame(self.panel)
+        self.confirmation_frame.setObjectName("commandConfirmation")
+        confirm_layout = QGridLayout(self.confirmation_frame)
+        confirm_layout.setContentsMargins(18, 16, 18, 14)
+        confirm_layout.setHorizontalSpacing(14)
+        confirm_layout.setVerticalSpacing(8)
+
+        confirm_layout.addWidget(self._make_confirm_label("Typed request"), 0, 0)
+        self.confirm_request_value = self._make_confirm_value()
+        confirm_layout.addWidget(self.confirm_request_value, 0, 1)
+
+        confirm_layout.addWidget(self._make_confirm_label("Resolved action"), 1, 0)
+        self.confirm_title_value = self._make_confirm_value()
+        confirm_layout.addWidget(self.confirm_title_value, 1, 1)
+
+        confirm_layout.addWidget(self._make_confirm_label("Target kind"), 2, 0)
+        self.confirm_kind_value = self._make_confirm_value()
+        confirm_layout.addWidget(self.confirm_kind_value, 2, 1)
+
+        confirm_layout.addWidget(self._make_confirm_label("Target"), 3, 0)
+        self.confirm_target_value = self._make_confirm_value()
+        confirm_layout.addWidget(self.confirm_target_value, 3, 1)
+
+        self.confirm_help_label = QLabel(
+            "Press Enter to confirm or Esc to return.",
+            self.confirmation_frame,
+        )
+        self.confirm_help_label.setObjectName("commandConfirmHelp")
+        self.confirm_help_label.setWordWrap(True)
+        confirm_layout.addWidget(self.confirm_help_label, 4, 0, 1, 2)
+
+        layout.addWidget(self.confirmation_frame)
+        self.confirmation_frame.hide()
+
+        self.setStyleSheet(
+            """
+            #commandPanel {
+                border: 1px solid rgba(118, 226, 255, 0.22);
+                border-radius: 22px;
+                background: rgba(4, 16, 28, 238);
+            }
+            #commandKicker {
+                color: rgba(118, 226, 255, 0.72);
+                font-size: 12px;
+                font-weight: 600;
+                letter-spacing: 0.24em;
+            }
+            #commandTitle {
+                margin-top: 8px;
+                color: rgba(238, 250, 255, 0.96);
+                font-size: 28px;
+                font-weight: 600;
+            }
+            #commandHint {
+                margin-top: 10px;
+                color: rgba(172, 215, 235, 0.82);
+                font-size: 14px;
+            }
+            #commandInputShell {
+                margin-top: 18px;
+                border-radius: 16px;
+                border: 1px solid rgba(118, 226, 255, 0.18);
+                background: rgba(6, 18, 30, 196);
+            }
+            #commandInputShell[armed="true"] {
+                border: 1px solid rgba(118, 226, 255, 0.36);
+                background: rgba(7, 22, 36, 220);
+            }
+            #commandInputShell[locked="true"] {
+                border: 1px solid rgba(118, 226, 255, 0.24);
+                background: rgba(8, 18, 30, 214);
+            }
+            #commandPrompt {
+                color: rgba(118, 226, 255, 0.84);
+                font-size: 22px;
+                font-weight: 600;
+            }
+            #commandInputLine {
+                border: none;
+                background: transparent;
+                color: rgba(238, 248, 255, 0.96);
+                font-size: 21px;
+                selection-background-color: rgba(118, 226, 255, 0.28);
+            }
+            #commandInputLine:read-only {
+                color: rgba(170, 194, 208, 0.92);
+            }
+            #commandCaret {
+                min-width: 10px;
+                max-width: 10px;
+                min-height: 24px;
+                max-height: 24px;
+                border-radius: 999px;
+                background: rgba(132, 236, 255, 0.82);
+            }
+            #commandCaret[armed="false"] {
+                background: rgba(132, 236, 255, 0.22);
+            }
+            #commandStatus {
+                margin-top: 14px;
+                min-height: 22px;
+                color: rgba(174, 215, 232, 0.88);
+                font-size: 14px;
+            }
+            #commandStatus[statusKind="not_found"], #commandStatus[statusKind="launch_failed"] {
+                color: rgba(255, 176, 176, 0.95);
+            }
+            #commandStatus[statusKind="ambiguous"] {
+                color: rgba(255, 222, 154, 0.95);
+            }
+            #commandStatus[statusKind="launch_requested"], #commandStatus[statusKind="ready"] {
+                color: rgba(166, 247, 195, 0.94);
+            }
+            #commandAmbiguous {
+                min-height: 20px;
+                color: rgba(255, 222, 154, 0.90);
+                font-size: 13px;
+            }
+            #commandConfirmation {
+                margin-top: 18px;
+                border-radius: 18px;
+                background: rgba(10, 22, 38, 220);
+                border: 1px solid rgba(118, 226, 255, 0.14);
+            }
+            QLabel[confirmRole="label"] {
+                color: rgba(118, 226, 255, 0.66);
+                font-size: 12px;
+                font-weight: 600;
+                letter-spacing: 0.12em;
+            }
+            QLabel[confirmRole="value"] {
+                color: rgba(236, 247, 255, 0.94);
+                font-size: 15px;
+            }
+            #commandConfirmHelp {
+                margin-top: 14px;
+                color: rgba(172, 215, 235, 0.84);
+                font-size: 13px;
+            }
+            """
+        )
+
+    def _make_confirm_label(self, text: str) -> QLabel:
+        label = QLabel(text, self.confirmation_frame)
+        label.setProperty("confirmRole", "label")
+        return label
+
+    def _make_confirm_value(self) -> QLabel:
+        label = QLabel("", self.confirmation_frame)
+        label.setProperty("confirmRole", "value")
+        label.setWordWrap(True)
+        return label
+
+    def keyPressEvent(self, event):
+        if event.key() in (Qt.Key_Return, Qt.Key_Enter):
+            self.submit_requested.emit()
+            event.accept()
+            return
+
+        if event.key() == Qt.Key_Escape:
+            self.escape_requested.emit()
+            event.accept()
+            return
+
+        super().keyPressEvent(event)
+
+    def show_for_geometry(self, host_geometry: QRect, bounds_geometry: QRect | None = None):
+        width = max(460, min(720, int(host_geometry.width() * 0.72)))
+        self.panel.setFixedWidth(width)
+        self.adjustSize()
+
+        x = host_geometry.x() + (host_geometry.width() - self.width()) // 2
+        y = host_geometry.y() + int(host_geometry.height() * 0.68)
+
+        if bounds_geometry is not None:
+            min_x = bounds_geometry.x()
+            max_x = bounds_geometry.x() + max(0, bounds_geometry.width() - self.width())
+            min_y = bounds_geometry.y()
+            max_y = bounds_geometry.y() + max(0, bounds_geometry.height() - self.height())
+            x = max(min_x, min(x, max_x))
+            y = max(min_y, min(y, max_y))
+
+        self.move(x, y)
+        self.show()
+        self.raise_()
+
+    def focus_input(self):
+        self.input_line.setFocus(Qt.MouseFocusReason)
+
+    def render_payload(self, payload: dict):
+        payload = payload or {}
+        phase = payload.get("phase", "hidden")
+        armed = bool(payload.get("input_armed")) and phase == "entry"
+        locked = phase in {"confirm", "result"}
+
+        self.input_shell.setProperty("armed", "true" if armed else "false")
+        self.input_shell.setProperty("locked", "true" if locked else "false")
+        self.caret.setProperty("armed", "true" if armed else "false")
+        for widget in (self.input_shell, self.caret):
+            widget.style().unpolish(widget)
+            widget.style().polish(widget)
+
+        self.input_line.blockSignals(True)
+        if self.input_line.text() != payload.get("input_text", ""):
+            self.input_line.setText(payload.get("input_text", ""))
+        self.input_line.set_input_armed(armed, notify=False)
+        self.input_line.blockSignals(False)
+        if locked:
+            self.setFocus(Qt.ActiveWindowFocusReason)
+
+        if phase == "confirm":
+            self.hint_label.setText("Review the resolved action before execution.")
+        elif phase == "result":
+            self.hint_label.setText("Returning to passive desktop mode.")
+        else:
+            self.hint_label.setText(
+                "Left-click or right-click the command box to activate."
+                if not armed
+                else "Type a saved action or alias, then press Enter."
+            )
+
+        status_kind = payload.get("status_kind", "idle")
+        self.status_label.setProperty("statusKind", status_kind)
+        self.status_label.style().unpolish(self.status_label)
+        self.status_label.style().polish(self.status_label)
+
+        if payload.get("status_text"):
+            self.status_label.setText(payload["status_text"])
+        elif phase == "entry" and not armed:
+            self.status_label.setText("Click inside the command box to begin typing.")
+        else:
+            self.status_label.setText("")
+
+        titles = payload.get("ambiguous_titles") or []
+        self.ambiguous_label.setText(f"Matches: {' | '.join(titles)}" if titles else "")
+
+        action = payload.get("pending_action") or {}
+        show_confirm = phase == "confirm" and bool(action)
+        self.confirmation_frame.setVisible(show_confirm)
+        if show_confirm:
+            self.confirm_request_value.setText(payload.get("typed_request", ""))
+            self.confirm_title_value.setText(action.get("title", ""))
+            self.confirm_kind_value.setText(action.get("target_kind", ""))
+            self.confirm_target_value.setText(action.get("target", ""))
+
+
 class DesktopJarvisWindow(QWidget):
-    command_overlay_visibility_changed = Signal(bool)
-    command_text_capture_changed = Signal(bool)
 
     def __init__(self, screen, visual_html_path: str, event_logger=None):
         super().__init__()
@@ -36,6 +418,11 @@ class DesktopJarvisWindow(QWidget):
         self._pending_visual_state = None
         self._pending_voice_level = None
         self._command_model = CommandOverlayModel()
+        self._command_panel = CommandOverlayPanel()
+        self._command_panel.submit_requested.connect(self.handle_command_submit)
+        self._command_panel.escape_requested.connect(self.handle_command_escape)
+        self._command_panel.input_text_changed.connect(self.handle_command_text_changed)
+        self._command_panel.input_armed_changed.connect(self.handle_command_input_armed_changed)
         self._result_close_timer = QTimer(self)
         self._result_close_timer.setSingleShot(True)
         self._result_close_timer.timeout.connect(self._close_command_overlay_after_result)
@@ -115,13 +502,7 @@ class DesktopJarvisWindow(QWidget):
         self._pending_voice_level = None
 
     def _apply_command_overlay_state(self):
-        if not self._page_ready:
-            return
-
-        payload = json.dumps(self._command_model.view_payload())
-        self._run_javascript(
-            f"window.setCommandOverlayState && window.setCommandOverlayState({payload});"
-        )
+        self._command_panel.render_payload(self._command_model.view_payload())
 
     def _schedule_desktop_mode_enable(self):
         if not self._desktop_mode_requested or self.desktop_mode or self._is_shutting_down:
@@ -154,30 +535,18 @@ class DesktopJarvisWindow(QWidget):
         if self._page_ready:
             self._apply_pending_voice_level()
 
-    def _set_command_overlay_visible(self, active: bool):
-        self.command_overlay_visibility_changed.emit(bool(active))
-
-    def _set_command_text_capture_active(self, active: bool):
-        self.command_text_capture_changed.emit(bool(active))
-
-    def _sync_command_capture_state(self):
-        overlay_visible = self._command_model.visible
-        text_capture_active = (
-            self._command_model.visible
-            and self._command_model.phase == "entry"
-            and self._command_model.input_armed
-        )
-        self._set_command_overlay_visible(overlay_visible)
-        self._set_command_text_capture_active(text_capture_active)
-
     def open_command_overlay(self):
         if self._is_shutting_down:
             return
 
         self._result_close_timer.stop()
         self._command_model.open()
+        self._command_model.input_armed = False
         self._apply_command_overlay_state()
-        self._sync_command_capture_state()
+        self._command_panel.show_for_geometry(
+            self.compute_compact_geometry(),
+            self.screen_ref.availableGeometry(),
+        )
         self._log_event("RENDERER_MAIN|COMMAND_OVERLAY_OPENED")
 
     def close_command_overlay(self):
@@ -185,9 +554,9 @@ class DesktopJarvisWindow(QWidget):
             return
 
         self._result_close_timer.stop()
+        self._command_panel.hide()
         self._command_model.close()
         self._apply_command_overlay_state()
-        self._sync_command_capture_state()
         self._log_event("RENDERER_MAIN|COMMAND_OVERLAY_CLOSED")
 
     def toggle_command_overlay(self):
@@ -196,32 +565,32 @@ class DesktopJarvisWindow(QWidget):
         else:
             self.open_command_overlay()
 
-    def handle_command_character(self, char: str):
-        self._command_model.append_text(char)
+    def handle_command_text_changed(self, text: str):
+        self._command_model.set_input_text(text)
         self._apply_command_overlay_state()
-        self._sync_command_capture_state()
 
-    def handle_command_backspace(self):
-        self._command_model.backspace()
+    def handle_command_input_armed_changed(self, armed: bool):
+        if not self._command_model.visible or self._command_model.phase != "entry":
+            return
+        self._command_model.input_armed = bool(armed)
         self._apply_command_overlay_state()
-        self._sync_command_capture_state()
 
     def handle_command_escape(self):
         result = self._command_model.escape()
         self._apply_command_overlay_state()
-        self._sync_command_capture_state()
 
         if result == "confirm_cancelled":
+            self._command_panel.focus_input()
             self._log_event("RENDERER_MAIN|COMMAND_CONFIRM_CANCELLED")
             return
 
         if result == "closed":
+            self._command_panel.hide()
             self._log_event("RENDERER_MAIN|COMMAND_OVERLAY_CLOSED")
 
     def _show_command_result(self, status_kind: str, status_text: str):
         self._command_model.show_result(status_kind, status_text)
         self._apply_command_overlay_state()
-        self._sync_command_capture_state()
         self._result_close_timer.start(1200)
 
     def _close_command_overlay_after_result(self):
@@ -230,13 +599,9 @@ class DesktopJarvisWindow(QWidget):
     def handle_command_submit(self):
         result, payload = self._command_model.submit()
         self._apply_command_overlay_state()
-        self._sync_command_capture_state()
-
-        if result == "input_armed":
-            self._log_event("RENDERER_MAIN|COMMAND_ENTRY_ACTIVATED")
-            return
 
         if result == "confirm_ready":
+            self._command_panel.setFocus(Qt.ActiveWindowFocusReason)
             self._log_event(f"RENDERER_MAIN|COMMAND_CONFIRM_READY|action_id={payload.id}")
             return
 
@@ -311,6 +676,7 @@ class DesktopJarvisWindow(QWidget):
         self._is_shutting_down = True
         self._result_close_timer.stop()
 
+        self._command_panel.hide()
         self.webview.stop()
         self.hide()
         self.close()

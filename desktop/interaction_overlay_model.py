@@ -119,6 +119,16 @@ class CommandOverlayModel:
         self.status_kind = "idle"
         self.status_text = ""
 
+    def set_input_text(self, text: str):
+        if not self.visible or self.phase != "entry":
+            return
+
+        self.input_text = text or ""
+        self.status_kind = "idle"
+        self.status_text = ""
+        self.pending_action = None
+        self.pending_matches = ()
+
     def backspace(self):
         if not self.visible or self.phase != "entry" or not self.input_armed:
             return
@@ -149,10 +159,9 @@ class CommandOverlayModel:
 
         if self.phase == "entry":
             if not self.input_armed:
-                self.input_armed = True
                 self.status_kind = "idle"
-                self.status_text = ""
-                return ("input_armed", None)
+                self.status_text = "Click inside the command box to begin typing."
+                return ("awaiting_click_arm", None)
 
             if not normalize_command_text(self.input_text):
                 self.status_kind = "idle"
