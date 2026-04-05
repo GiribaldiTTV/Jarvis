@@ -913,7 +913,7 @@ class JarvisSystem:
         if self.shutdown_in_progress:
             return
 
-        self.emit_bus(self.bus.set_overlay_title, "ORIN")
+        self.emit_bus(self.bus.set_overlay_title, "O.R.I.N.")
         self.emit_bus(self.bus.set_overlay_subtitle, "Operational Response and Intelligence Nexus")
         self.set_status("COMING ONLINE")
         self.log_event("")
