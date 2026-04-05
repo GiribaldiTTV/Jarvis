@@ -1081,10 +1081,10 @@ This landed as a bounded dev-tools-only intake slice and did not change producti
 
 ### [ID: FB-027] Jarvis interaction surfaces and shared action model
 
-Status: Deferred  
+Status: Deferred (first pre-Beta slice implemented in v2.2.1 rev1)  
 Priority: High  
 Suggested Version: TBD  
-Suggested Revision: rev1  
+Suggested Revision: rev2  
 Release Stage: Slice-staged  
 
 Description:
@@ -1120,9 +1120,19 @@ Out of Scope:
 Notes:
 Current planning truth already lives in `docs/jarvis_interaction_architecture.md`.
 
+Current repo truth now includes the first implemented `pre-Beta` slice in `v2.2.1 rev1`:
+
+- `Ctrl+Alt+Home` opens and closes a dismissible desktop quick-command overlay
+- typed command entry now exists inside the controlled desktop runtime through a local click-armed input surface rather than global printable-key capture
+- a minimal direct-action / alias model resolves exact title-or-alias matches for the first bounded desktop command set
+- one unique match enters explicit confirmation before execution
+- zero-match and ambiguous-match outcomes stay non-executing and visible inside the overlay
+- confirmed execution shows a brief result state and then returns the desktop to passive mode
+- directly supportive route-parity and stability follow-through in the same lane closed desktop host positioning, overlay input-ownership, and Boot-handoff reset-churn issues for the first slice
+
 Release-stage mapping:
 
-- `pre-Beta`: typed-first interaction foundation, including the quick command overlay, natural-language typed entry, minimal shared action model, direct actions and saved aliases, and desktop-mode command confirmation before execution
+- `pre-Beta`: first typed-first interaction foundation slice is now implemented in `v2.2.1 rev1`; later pre-Beta work remains limited to additional interaction-model follow-through above the same desktop overlay foundation
 - `Beta`: packaged and installable user-facing release with practical setup expectations and broader customization beyond the first internal slice
 - `Full`: later wake-word voice invocation, richer routines and profiles, and any future plugin capability if the shared action model proves stable enough
 
