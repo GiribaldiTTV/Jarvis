@@ -9,7 +9,7 @@ from PySide6.QtWidgets import (
 )
 from PySide6.QtCore import Qt, QTimer, QPoint, QRect
 from PySide6.QtGui import QFont, QGuiApplication, QTextBlockFormat, QTextCharFormat
-from jarvis_support_reporting import (
+from orin_support_reporting import (
     SupportBundleError,
     build_issue_prefill_url,
     create_support_bundle,

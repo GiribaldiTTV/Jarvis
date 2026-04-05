@@ -24,7 +24,7 @@ def env_path_override(name, default_path):
 
 
 ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-DEFAULT_TARGET_SCRIPT = os.path.join(ROOT_DIR, "desktop", "jarvis_desktop_main.py")
+DEFAULT_TARGET_SCRIPT = os.path.join(ROOT_DIR, "desktop", "orin_desktop_main.py")
 DEFAULT_LOG_DIR = os.path.join(ROOT_DIR, "logs")
 TARGET_SCRIPT = env_path_override("JARVIS_HARNESS_TARGET_SCRIPT", DEFAULT_TARGET_SCRIPT)
 LOG_DIR = env_path_override("JARVIS_HARNESS_LOG_ROOT", DEFAULT_LOG_DIR)
@@ -32,8 +32,8 @@ CRASH_DIR = os.path.join(LOG_DIR, "crash")
 STATUS_FILE = os.path.join(LOG_DIR, "diagnostics_status.txt")
 STOP_SIGNAL_FILE = os.path.join(LOG_DIR, "diagnostics_stop.signal")
 STARTUP_ABORT_SIGNAL_FILE = os.path.join(LOG_DIR, "renderer_startup_abort.signal")
-DIAGNOSTICS_SCRIPT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "jarvis_diagnostics.pyw")
-VOICE_SCRIPT = os.path.join(ROOT_DIR, "Audio", "jarvis_error_voice.py")
+DIAGNOSTICS_SCRIPT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "orin_diagnostics.pyw")
+VOICE_SCRIPT = os.path.join(ROOT_DIR, "Audio", "orin_error_voice.py")
 HARNESS_DISABLE_DIAGNOSTICS = env_flag("JARVIS_HARNESS_DISABLE_DIAGNOSTICS")
 HARNESS_DISABLE_VOICE = env_flag("JARVIS_HARNESS_DISABLE_VOICE")
 RUNTIME_INSTANCE_MUTEX = r"Local\JarvisRuntimeSingletonV1"

@@ -107,7 +107,7 @@ class CommandOverlayPanel(QWidget):
         layout.setContentsMargins(24, 22, 24, 20)
         layout.setSpacing(0)
 
-        self.kicker_label = QLabel("JARVIS COMMAND", self.panel)
+        self.kicker_label = QLabel("O.R.I.N. Command Prompt", self.panel)
         self.kicker_label.setObjectName("commandKicker")
         layout.addWidget(self.kicker_label)
 
