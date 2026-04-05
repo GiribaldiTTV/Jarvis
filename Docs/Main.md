@@ -80,6 +80,7 @@ These docs are still valid, but they are not part of the default prompt baseline
 - `docs/v1.9.0_closeout.md`
 - `docs/v2.0_closeout.md`
 - `docs/v2.2.0_closeout.md`
+- `docs/v2.2.1_closeout.md`
 
 Use them when the task depends on:
 
