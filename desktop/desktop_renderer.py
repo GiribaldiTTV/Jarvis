@@ -20,6 +20,7 @@ from .workerw_utils import (
     attach_window_to_desktop,
     get_last_workerw_probe_events,
     make_window_noninteractive,
+    position_desktop_child,
 )
 
 WM_NCHITTEST = 0x0084
@@ -427,12 +428,11 @@ class DesktopJarvisWindow(QWidget):
         self._result_close_timer.setSingleShot(True)
         self._result_close_timer.timeout.connect(self._close_command_overlay_after_result)
 
-        # Window configuration (Concept 2 test)
-        self.setWindowFlags(Qt.FramelessWindowHint | Qt.Tool | Qt.WindowDoesNotAcceptFocus)
-        self.setAttribute(Qt.WA_TranslucentBackground, True)
-        self.setAttribute(Qt.WA_ShowWithoutActivating, True)
-        self.setFocusPolicy(Qt.NoFocus)
-        self.setStyleSheet("background: transparent;")
+        # Align the standalone desktop route with the proven Boot handoff window model.
+        self.setWindowFlags(Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint)
+        self.setAutoFillBackground(True)
+        self.setFocusPolicy(Qt.StrongFocus)
+        self.setStyleSheet("background-color: rgb(0, 0, 0);")
 
         self.setGeometry(self.compute_compact_geometry())
 
@@ -441,12 +441,11 @@ class DesktopJarvisWindow(QWidget):
         root.setSpacing(0)
 
         self.webview = QWebEngineView(self)
-        self.webview.setAttribute(Qt.WA_TranslucentBackground, True)
-        self.webview.setStyleSheet("background: transparent; border: none;")
+        self.webview.setStyleSheet("background-color: rgb(0, 0, 0); border: none;")
         self.webview.setContextMenuPolicy(Qt.NoContextMenu)
         self.webview.setFocusPolicy(Qt.NoFocus)
 
-        self.webview.page().setBackgroundColor(QColor(0, 0, 0, 0))
+        self.webview.page().setBackgroundColor(QColor(0, 0, 0))
         self.webview.loadFinished.connect(self._on_load_finished)
         self.webview.load(QUrl.fromLocalFile(self.visual_html_path))
 
@@ -503,6 +502,35 @@ class DesktopJarvisWindow(QWidget):
 
     def _apply_command_overlay_state(self):
         self._command_panel.render_payload(self._command_model.view_payload())
+
+    def _reinforce_desktop_mode(self):
+        if not self.desktop_mode or self._is_shutting_down:
+            return
+
+        target_geometry = self.compute_compact_geometry()
+        hwnd = int(self.winId())
+
+        attached = attach_window_to_desktop(hwnd)
+        if attached:
+            self.setGeometry(target_geometry)
+            make_window_noninteractive(hwnd)
+            position_desktop_child(
+                hwnd,
+                target_geometry.x(),
+                target_geometry.y(),
+                target_geometry.width(),
+                target_geometry.height(),
+            )
+            self._log_event(
+                "RENDERER_MAIN|DESKTOP_GEOMETRY_RESET"
+                f"|x={target_geometry.x()}|y={target_geometry.y()}"
+                f"|w={target_geometry.width()}|h={target_geometry.height()}"
+            )
+
+        self.webview.update()
+        self.update()
+        self._run_javascript("window.dispatchEvent(new Event('resize'));")
+        self.lower()
 
     def _schedule_desktop_mode_enable(self):
         if not self._desktop_mode_requested or self.desktop_mode or self._is_shutting_down:
@@ -645,7 +673,10 @@ class DesktopJarvisWindow(QWidget):
         self.desktop_mode = True
         self._desktop_mode_requested = False
 
+        self.setWindowFlag(Qt.WindowStaysOnTopHint, False)
         self.setAttribute(Qt.WA_TransparentForMouseEvents, True)
+        self.setAttribute(Qt.WA_ShowWithoutActivating, True)
+        self.setFocusPolicy(Qt.NoFocus)
 
         self.hide()
         self.show()
@@ -655,6 +686,14 @@ class DesktopJarvisWindow(QWidget):
         attached = attach_window_to_desktop(hwnd)
         if attached:
             make_window_noninteractive(hwnd)
+            target_geometry = self.compute_compact_geometry()
+            position_desktop_child(
+                hwnd,
+                target_geometry.x(),
+                target_geometry.y(),
+                target_geometry.width(),
+                target_geometry.height(),
+            )
         else:
             self._log_event("RENDERER_MAIN|DESKTOP_ATTACH_FALLBACK_VISIBLE_MODE")
         self._log_event(
@@ -667,6 +706,10 @@ class DesktopJarvisWindow(QWidget):
         self.update()
         self._run_javascript("window.dispatchEvent(new Event('resize'));")
         self.lower()
+        if attached:
+            QTimer.singleShot(80, self._reinforce_desktop_mode)
+            QTimer.singleShot(260, self._reinforce_desktop_mode)
+            QTimer.singleShot(900, self._reinforce_desktop_mode)
 
     def request_shutdown(self):
         if self._is_shutting_down:

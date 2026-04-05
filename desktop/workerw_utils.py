@@ -331,3 +331,19 @@ def make_window_noninteractive(hwnd: int) -> None:
         | SWP_NOOWNERZORDER
         | SWP_NOSENDCHANGING,
     )
+
+
+def position_desktop_child(hwnd: int, x: int, y: int, width: int, height: int) -> None:
+    SetWindowPos(
+        hwnd,
+        HWND_BOTTOM,
+        int(x),
+        int(y),
+        int(width),
+        int(height),
+        SWP_NOACTIVATE
+        | SWP_SHOWWINDOW
+        | SWP_FRAMECHANGED
+        | SWP_NOOWNERZORDER
+        | SWP_NOSENDCHANGING,
+    )
