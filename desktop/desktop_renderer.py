@@ -101,6 +101,14 @@ class CommandInputLineEdit(QLineEdit):
 
         super().keyPressEvent(event)
 
+    def focusInEvent(self, event):
+        super().focusInEvent(event)
+        self.focus_acquired.emit()
+
+    def focusOutEvent(self, event):
+        super().focusOutEvent(event)
+        self.focus_lost.emit()
+
 
 class CommandOverlayPanel(QWidget):
     submit_requested = Signal()
@@ -377,14 +385,6 @@ class CommandOverlayPanel(QWidget):
             return
 
         super().keyPressEvent(event)
-
-    def focusInEvent(self, event):
-        super().focusInEvent(event)
-        self.focus_acquired.emit()
-
-    def focusOutEvent(self, event):
-        super().focusOutEvent(event)
-        self.focus_lost.emit()
 
     def _resolve_ambiguous_choice_index(self, event) -> int | None:
         if self._visible_ambiguous_count <= 0:
@@ -691,10 +691,10 @@ class DesktopRuntimeWindow(QWidget):
     def _apply_command_overlay_state(self):
         self._command_panel.render_payload(self._command_model.view_payload())
 
-    def _arm_overlay_input_capture(self, seconds: float = 1.35):
+    def _arm_overlay_input_capture(self, seconds: float = 0.65):
         self._overlay_input_capture_until = time.monotonic() + max(0.0, seconds)
 
-    def _refresh_overlay_input_capture(self, seconds: float = 0.95):
+    def _refresh_overlay_input_capture(self, seconds: float = 0.65):
         self._arm_overlay_input_capture(seconds)
 
     def _clear_overlay_input_capture(self):

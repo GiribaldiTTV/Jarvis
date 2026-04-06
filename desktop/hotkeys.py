@@ -1,4 +1,5 @@
 import os
+import time
 from PySide6.QtCore import QObject, Signal
 from pynput import keyboard as pynput_keyboard
 
@@ -24,6 +25,7 @@ class GlobalHotkeyManager:
         self._shutdown_digit_chars = {"2"}
         self._shutdown_digit_vks = {50}
         self._overlay_input_enabled_provider = lambda: False
+        self._overlay_launch_grace_until = 0.0
 
     def start(self) -> None:
         if self._listener is not None:
@@ -38,6 +40,7 @@ class GlobalHotkeyManager:
         self._pressed.clear()
         self._shutdown_fired = False
         self._overlay_toggle_fired = False
+        self._overlay_launch_grace_until = 0.0
 
     def force_kill(self) -> None:
         os._exit(0)
@@ -82,9 +85,10 @@ class GlobalHotkeyManager:
 
     def _overlay_input_enabled(self) -> bool:
         try:
-            return bool(self._overlay_input_enabled_provider())
+            provider_enabled = bool(self._overlay_input_enabled_provider())
         except Exception:
-            return False
+            provider_enabled = False
+        return provider_enabled or (time.monotonic() < self._overlay_launch_grace_until)
 
     def _overlay_text_from_key(self, key):
         if key == pynput_keyboard.Key.space:
@@ -108,6 +112,7 @@ class GlobalHotkeyManager:
 
         if ctrl_down and alt_down and overlay_down and not self._overlay_toggle_fired:
             self._overlay_toggle_fired = True
+            self._overlay_launch_grace_until = time.monotonic() + 0.45
             self.bus.command_overlay_toggle_requested.emit()
             return
 

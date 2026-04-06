@@ -10,7 +10,9 @@ if ROOT_DIR not in sys.path:
     sys.path.insert(0, ROOT_DIR)
 
 import desktop.desktop_renderer as renderer_mod
+import desktop.hotkeys as hotkeys_mod
 from desktop.interaction_overlay_model import CommandOverlayModel
+from pynput import keyboard as pynput_keyboard
 
 
 class _FakeRect:
@@ -108,6 +110,26 @@ def _assert(condition, message):
         raise AssertionError(message)
 
 
+class _RecorderSignal:
+    def __init__(self, sink, label):
+        self._sink = sink
+        self._label = label
+
+    def emit(self, *args):
+        self._sink.append((self._label, args))
+
+
+class _FakeBus:
+    def __init__(self):
+        self.events = []
+        self.shutdown_requested = _RecorderSignal(self.events, "shutdown")
+        self.command_overlay_toggle_requested = _RecorderSignal(self.events, "toggle")
+        self.command_overlay_text_requested = _RecorderSignal(self.events, "text")
+        self.command_overlay_backspace_requested = _RecorderSignal(self.events, "backspace")
+        self.command_overlay_submit_requested = _RecorderSignal(self.events, "submit")
+        self.command_overlay_escape_requested = _RecorderSignal(self.events, "escape")
+
+
 def _test_first_open_capture_allows_typing():
     window = _make_window()
     window.open_command_overlay()
@@ -193,6 +215,46 @@ def _test_capture_expiry_stands_down_fallback():
     _assert(not window.overlay_needs_global_input_capture(), "expired capture session should not keep forwarding keys")
 
 
+def _test_line_edit_focus_methods_present():
+    _assert(
+        "focusInEvent" in renderer_mod.CommandInputLineEdit.__dict__,
+        "the input line edit must override focusInEvent so local-focus engagement is tracked",
+    )
+    _assert(
+        "focusOutEvent" in renderer_mod.CommandInputLineEdit.__dict__,
+        "the input line edit must override focusOutEvent so local-focus loss can be observed",
+    )
+
+
+def _test_hotkey_launch_grace_bridges_open_gap():
+    bus = _FakeBus()
+    manager = hotkeys_mod.GlobalHotkeyManager(bus)
+    manager.set_overlay_input_enabled_provider(lambda: False)
+
+    manager._on_press(pynput_keyboard.Key.ctrl_l)
+    manager._on_press(pynput_keyboard.Key.alt_l)
+    manager._on_press(pynput_keyboard.Key.home)
+    manager._on_release(pynput_keyboard.Key.home)
+    manager._on_release(pynput_keyboard.Key.alt_l)
+    manager._on_release(pynput_keyboard.Key.ctrl_l)
+    manager._on_press(pynput_keyboard.KeyCode.from_char("o"))
+
+    _assert(bus.events[0][0] == "toggle", "overlay hotkey should toggle first")
+    _assert(
+        ("text", ("o",)) in bus.events,
+        "launch grace should forward immediate typing even before the provider is ready",
+    )
+
+
+def _test_hotkey_grace_expires_cleanly():
+    bus = _FakeBus()
+    manager = hotkeys_mod.GlobalHotkeyManager(bus)
+    manager.set_overlay_input_enabled_provider(lambda: False)
+    manager._overlay_launch_grace_until = time.monotonic() - 0.01
+    manager._on_press(pynput_keyboard.KeyCode.from_char("x"))
+    _assert(not bus.events, "expired hotkey grace should not keep forwarding stray typing")
+
+
 def main():
     tests = [
         ("first-open capture", _test_first_open_capture_allows_typing),
@@ -201,6 +263,9 @@ def main():
         ("reopen rearms capture", _test_reopen_rearms_capture),
         ("choose-confirm execute path", _test_ambiguous_choose_confirm_execute_path),
         ("capture expiry", _test_capture_expiry_stands_down_fallback),
+        ("line edit focus methods", _test_line_edit_focus_methods_present),
+        ("hotkey launch grace", _test_hotkey_launch_grace_bridges_open_gap),
+        ("hotkey grace expiry", _test_hotkey_grace_expires_cleanly),
     ]
 
     for name, fn in tests:
