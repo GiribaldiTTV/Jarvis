@@ -233,7 +233,9 @@ A grouped workstream branch does not authorize one broad patch.
 Instead, it means:
 
 - one branch may host a sequence of approved narrow slices
+- one focused branch may also carry multiple small related patches when they all serve the same project-focus lane
 - each slice inside that branch still needs clear scope and verification
+- each small patch inside that branch must still stay narrow, validated, and within the same subsystem boundary
 - unrelated ideas should still be split out even if they are all deferred work
 
 At `Beta` and later, the default recommendation should usually shift toward:
