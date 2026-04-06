@@ -107,6 +107,19 @@ Beta should not be assumed merely because:
 
 The product should not be treated as Beta until the installable and user-facing release threshold is intentionally reached.
 
+## Nexus Public Release Baseline
+
+The Nexus public release line begins after the preserved Jarvis historical release line.
+
+For the first Nexus public release baseline:
+
+- first public release title: `Nexus Desktop AI — Pre-Beta v1.0.0`
+- first public tag: `v1.0.0-prebeta.1`
+- all `pre-Beta` and `Beta` GitHub releases must be published as prereleases
+- old Jarvis-tagged releases and tags remain preserved as legacy/internal historical records
+- old Jarvis-tagged releases and tags do not define the active Nexus public line
+- GitHub `Latest` handling for the Nexus public line must be chosen deliberately at release time rather than assumed automatically
+
 ## Behavior Philosophy (Early Definition)
 
 Jarvis should behave conservatively first:
