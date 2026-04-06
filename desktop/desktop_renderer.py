@@ -25,6 +25,20 @@ from .workerw_utils import (
 
 WM_NCHITTEST = 0x0084
 HTTRANSPARENT = -1
+user32 = ctypes.windll.user32
+GetWindowRect = user32.GetWindowRect
+GetWindowRect.argtypes = [ctypes.wintypes.HWND, ctypes.POINTER(ctypes.wintypes.RECT)]
+GetWindowRect.restype = ctypes.c_bool
+ShowWindowW = user32.ShowWindow
+ShowWindowW.argtypes = [ctypes.wintypes.HWND, ctypes.c_int]
+ShowWindowW.restype = ctypes.c_bool
+IsWindowVisible = user32.IsWindowVisible
+IsWindowVisible.argtypes = [ctypes.wintypes.HWND]
+IsWindowVisible.restype = ctypes.c_bool
+GetParentW = user32.GetParent
+GetParentW.argtypes = [ctypes.wintypes.HWND]
+GetParentW.restype = ctypes.wintypes.HWND
+SW_HIDE = 0
 
 
 class CommandInputLineEdit(QLineEdit):
@@ -444,6 +458,7 @@ class DesktopRuntimeWindow(QWidget):
         self.webview.setStyleSheet("background-color: rgb(0, 0, 0); border: none;")
         self.webview.setContextMenuPolicy(Qt.NoContextMenu)
         self.webview.setFocusPolicy(Qt.NoFocus)
+        self.webview.hide()
 
         self.webview.page().setBackgroundColor(QColor(0, 0, 0))
         self.webview.loadFinished.connect(self._on_load_finished)
@@ -483,6 +498,26 @@ class DesktopRuntimeWindow(QWidget):
         page = self.webview.page()
         if page is not None:
             page.runJavaScript(script)
+
+    def _log_native_window_state(self, label: str, hwnd: int):
+        rect = ctypes.wintypes.RECT()
+        rect_ok = bool(GetWindowRect(hwnd, ctypes.byref(rect)))
+        parent = GetParentW(hwnd)
+        visible = bool(IsWindowVisible(hwnd))
+        if rect_ok:
+            x = rect.left
+            y = rect.top
+            w = max(0, rect.right - rect.left)
+            h = max(0, rect.bottom - rect.top)
+        else:
+            x = y = w = h = -1
+        self._log_event(
+            "RENDERER_MAIN|DESKTOP_ATTACH_STEP"
+            f"|label={label}"
+            f"|visible={'true' if visible else 'false'}"
+            f"|parent={hex(int(parent)) if parent else 'none'}"
+            f"|x={x}|y={y}|w={w}|h={h}"
+        )
 
     def _apply_pending_visual_state(self):
         if not self._page_ready or self._pending_visual_state is None:
@@ -687,14 +722,22 @@ class DesktopRuntimeWindow(QWidget):
         self.setGeometry(target_geometry)
 
         self.hide()
-        self.show()
-
         hwnd = int(self.winId())
+        self.show()
+        self._log_native_window_state("after_show_before_attach", hwnd)
+        ShowWindowW(hwnd, SW_HIDE)
+        self._log_native_window_state("after_native_hide_before_attach", hwnd)
         self.setGeometry(target_geometry)
 
         attached = attach_window_to_desktop(hwnd)
+        self._log_native_window_state("after_attach", hwnd)
         if attached:
+            ShowWindowW(hwnd, SW_HIDE)
+            self._log_native_window_state("after_hide_post_attach", hwnd)
             make_window_noninteractive(hwnd)
+            self._log_native_window_state("after_make_noninteractive", hwnd)
+            ShowWindowW(hwnd, SW_HIDE)
+            self._log_native_window_state("after_hide_post_noninteractive", hwnd)
             position_desktop_child(
                 hwnd,
                 target_geometry.x(),
@@ -702,8 +745,14 @@ class DesktopRuntimeWindow(QWidget):
                 target_geometry.width(),
                 target_geometry.height(),
             )
+            self._log_native_window_state("after_position_child", hwnd)
         else:
             self._log_event("RENDERER_MAIN|DESKTOP_ATTACH_FALLBACK_VISIBLE_MODE")
+
+        if not self.webview.isVisible():
+            self.webview.show()
+            self._log_event("RENDERER_MAIN|WEBVIEW_REVEALED_AFTER_ATTACH")
+
         self._log_event(
             f"RENDERER_MAIN|DESKTOP_ATTACH_RESULT|success={'true' if attached else 'false'}"
         )
