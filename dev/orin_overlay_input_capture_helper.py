@@ -60,6 +60,7 @@ class _FakePanel:
         self.active = False
         self.visible = False
         self.last_payload = None
+        self.focus_after_show_calls = 0
 
     def render_payload(self, payload):
         self.last_payload = payload
@@ -68,7 +69,7 @@ class _FakePanel:
         self.visible = True
 
     def focus_input_after_show(self):
-        return None
+        self.focus_after_show_calls += 1
 
     def focus_input(self, *_args, **_kwargs):
         self.active = True
@@ -133,6 +134,7 @@ class _FakeBus:
 def _test_first_open_capture_allows_typing():
     window = _make_window()
     window.open_command_overlay()
+    _assert(window._command_panel.focus_after_show_calls == 1, "open should request local input focus after show")
     _assert(window.overlay_needs_global_input_capture(), "capture should arm on first open")
     window.handle_overlay_text_requested("o")
     _assert(window._command_model.input_text == "o", "first typed character should reach the overlay")

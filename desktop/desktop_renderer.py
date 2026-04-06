@@ -789,6 +789,7 @@ class DesktopRuntimeWindow(QWidget):
             self.compute_compact_geometry(),
             self.screen_ref.availableGeometry(),
         )
+        self._command_panel.focus_input_after_show()
         self._log_event("RENDERER_MAIN|COMMAND_OVERLAY_OPENED")
 
     def overlay_needs_global_input_capture(self):
