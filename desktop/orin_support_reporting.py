@@ -13,6 +13,10 @@ DEFAULT_GITHUB_ISSUES_NEW_URL = ""
 SUPPORT_BUNDLE_FOLDER = "support_bundles"
 MANIFEST_FILENAME = "manifest.json"
 VERSION_CLOSEOUT_PATTERN = re.compile(r"^v(\d+)\.(\d+)\.(\d+)_closeout\.md$")
+PLANNED_PUBLIC_RELEASE_LABEL = (
+    "Pre-Beta baseline defined; planned first public release: "
+    "Nexus Desktop AI — Pre-Beta v1.0.0 (tag: v1.0.0-prebeta.1)"
+)
 
 
 class SupportBundleError(RuntimeError):
@@ -42,27 +46,8 @@ def make_safe_name(value):
     return safe or "bundle"
 
 
-def detect_jarvis_version(root_dir):
-    docs_dir = os.path.join(root_dir, "docs")
-    best = None
-
-    try:
-        for entry in os.scandir(docs_dir):
-            if not entry.is_file():
-                continue
-            match = VERSION_CLOSEOUT_PATTERN.match(entry.name)
-            if not match:
-                continue
-            version_tuple = tuple(int(part) for part in match.groups())
-            if best is None or version_tuple > best:
-                best = version_tuple
-    except OSError:
-        return "unknown"
-
-    if best is None:
-        return "unknown"
-
-    return f"v{best[0]}.{best[1]}.{best[2]}"
+def get_product_release_label():
+    return PLANNED_PUBLIC_RELEASE_LABEL
 
 
 def read_runtime_log_reference(crash_log_path):
@@ -240,7 +225,7 @@ def create_support_bundle(root_dir, runtime_log_path, crash_dir):
     bundled_files.append({"name": MANIFEST_FILENAME, "kind": "manifest"})
 
     manifest = {
-        "jarvis_version": detect_jarvis_version(root_dir),
+        "jarvis_version": get_product_release_label(),
         "run_identity": run_identity,
         "bundle_created_at": datetime.datetime.now(datetime.timezone.utc).isoformat(),
         "environment_summary": build_environment_summary(),
@@ -302,7 +287,7 @@ def build_issue_prefill_url(root_dir, bundle_info):
         "",
         "## Run Context",
         "",
-        f"- Nexus Desktop AI version: `{bundle_info['jarvis_version']}`",
+        f"- Nexus Desktop AI release baseline: `{bundle_info['jarvis_version']}`",
         f"- Run identity: `{bundle_info['run_identity']}`",
     ]
 
