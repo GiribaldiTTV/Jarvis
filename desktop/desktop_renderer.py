@@ -761,12 +761,17 @@ class DesktopRuntimeWindow(QWidget):
         self._log_event("RENDERER_MAIN|COMMAND_OVERLAY_OPENED")
 
     def overlay_needs_global_input_capture(self):
-        return (
-            self._command_model.visible
-            and not self._is_shutting_down
-            and self._command_model.phase in {"entry", "choose", "confirm"}
-            and not self._command_panel.isActiveWindow()
-        )
+        if not self._command_model.visible or self._is_shutting_down:
+            return False
+
+        phase = self._command_model.phase
+        if phase == "entry":
+            return not self._command_panel.input_line.hasFocus()
+
+        if phase in {"choose", "confirm"}:
+            return not self._command_panel.isActiveWindow()
+
+        return False
 
     def close_command_overlay(self):
         if not self._command_model.visible:
