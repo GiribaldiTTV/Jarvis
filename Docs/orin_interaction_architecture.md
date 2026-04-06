@@ -159,6 +159,35 @@ The purpose of this confirmation is:
 This planning contract does not define the exact UI phrasing, visual layout, or confirmation-control mechanics.
 It only defines the product rule that desktop-mode command execution should be explicitly confirmed before Jarvis runs the resolved action.
 
+### Confirmation Clarity For Paths And Targets
+
+When the resolved action points to a file, folder, URL, app target, or other path-sensitive destination, the confirmation surface should make the destination understandable before execution.
+
+At planning level, that means:
+
+- show enough target detail that the user can tell what will open or run
+- use a compact or truncated path display when the full raw path would be visually noisy
+- avoid hiding the important distinguishing part of the target when multiple similar choices exist
+
+The purpose of this rule is:
+
+- to keep confirmation useful instead of decorative
+- to help the user understand why one match differs from another
+- to reduce accidental launches when multiple choices are similar
+
+## Nexus-Era User-Facing Naming Rule
+
+For Nexus Desktop AI / ORIN-era interaction surfaces, user-facing command labels and choices should prefer current Nexus-era naming rather than legacy Jarvis branding unless the user is explicitly interacting with preserved historical context.
+
+This means future command-surface work should trend toward:
+
+- Nexus-facing names for Nexus-facing actions
+- ORIN-facing assistant presentation where assistant identity matters
+- avoiding legacy Jarvis naming in normal Nexus-facing command choices
+
+This is a user-facing interaction rule only.
+It does not authorize historical rewrite of preserved Jarvis release history.
+
 ## Customization Contract
 
 Jarvis customization should allow users to define:
@@ -177,6 +206,18 @@ At planning level, this contract should support user-defined targets like:
 - `Open Work Setup`
 
 without forcing every user into the same built-in command map.
+
+As the interaction model grows, customization should also allow bounded preference control over supported web-facing actions, such as:
+
+- which browser Nexus uses for supported search or web actions
+- which user-approved external web destination should be used when more than one valid route exists
+
+Those later capabilities should remain:
+
+- user-controlled
+- explicit
+- privacy-aware
+- downstream of the same shared action model rather than separate hardcoded pathways
 
 ## Release-Stage Model
 
@@ -236,9 +277,11 @@ At planning level, the Full release may later expand into:
 
 - wake-word voice invocation
 - stronger voice parity with typed commands
+- optional spoken response or confirmation support for more hands-free interaction
 - richer saved routines and environment profiles
 - more advanced customization surfaces
 - import/export or sharing of user-defined actions
+- bounded user-approved external-assistant or web handoff actions if they remain privacy-aware and clearly inspectable
 - future plugin capability if the shared action model proves stable enough
 
 These later additions should remain downstream of the same shared action system rather than becoming parallel products.
