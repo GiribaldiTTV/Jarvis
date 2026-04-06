@@ -141,6 +141,15 @@ class CommandOverlayModel:
         if not self.visible:
             return "ignored"
 
+        if self.phase == "choose":
+            self.phase = "entry"
+            self.input_armed = True
+            self.status_kind = "idle"
+            self.status_text = ""
+            self.pending_action = None
+            self.pending_matches = ()
+            return "choice_cancelled"
+
         if self.phase == "confirm":
             self.phase = "entry"
             self.input_armed = True
@@ -186,14 +195,31 @@ class CommandOverlayModel:
                 self.status_text = "No saved action or alias matched that request."
                 return ("not_found", None)
 
+            self.phase = "choose"
+            self.input_armed = False
             self.status_kind = "ambiguous"
-            self.status_text = "Multiple saved actions matched that request."
+            self.status_text = "Select the intended action below."
             return ("ambiguous", matches)
 
         if self.phase == "confirm" and self.pending_action is not None:
             return ("execute_confirmed", self.pending_action)
 
         return ("ignored", None)
+
+    def choose_match(self, index: int):
+        if not self.visible or self.phase != "choose":
+            return ("ignored", None)
+
+        if index < 0 or index >= len(self.pending_matches):
+            return ("ignored", None)
+
+        action = self.pending_matches[index]
+        self.phase = "confirm"
+        self.input_armed = False
+        self.pending_action = action
+        self.status_kind = "ready"
+        self.status_text = ""
+        return ("confirm_ready", action)
 
     def show_result(self, status_kind: str, status_text: str):
         self.phase = "result"
@@ -220,4 +246,16 @@ class CommandOverlayModel:
                 "target": action.target,
             },
             "ambiguous_titles": [match.title for match in self.pending_matches] if self.status_kind == "ambiguous" else [],
+            "ambiguous_matches": [
+                {
+                    "index": index,
+                    "id": match.id,
+                    "title": match.title,
+                    "target_kind": match.target_kind,
+                    "target": match.target,
+                }
+                for index, match in enumerate(self.pending_matches)
+            ]
+            if self.status_kind == "ambiguous"
+            else [],
         }
