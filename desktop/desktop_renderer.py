@@ -678,17 +678,18 @@ class DesktopRuntimeWindow(QWidget):
         self._log_event("RENDERER_MAIN|DESKTOP_MODE_ENABLE_BEGIN")
         self.desktop_mode = True
         self._desktop_mode_requested = False
+        target_geometry = self.compute_compact_geometry()
 
         self.setWindowFlag(Qt.WindowStaysOnTopHint, False)
         self.setAttribute(Qt.WA_TransparentForMouseEvents, True)
         self.setAttribute(Qt.WA_ShowWithoutActivating, True)
         self.setFocusPolicy(Qt.NoFocus)
+        self.setGeometry(target_geometry)
 
         self.hide()
         self.show()
 
         hwnd = int(self.winId())
-        target_geometry = self.compute_compact_geometry()
         self.setGeometry(target_geometry)
 
         attached = attach_window_to_desktop(hwnd)
@@ -714,7 +715,6 @@ class DesktopRuntimeWindow(QWidget):
         self._run_javascript("window.dispatchEvent(new Event('resize'));")
         self.lower()
         if attached:
-            QTimer.singleShot(80, self._reinforce_desktop_mode)
             QTimer.singleShot(260, self._reinforce_desktop_mode)
             QTimer.singleShot(900, self._reinforce_desktop_mode)
 
