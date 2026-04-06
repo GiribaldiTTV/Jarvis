@@ -175,6 +175,22 @@ def _test_local_focus_clears_capture_and_stops_mirroring():
     )
 
 
+def _test_false_focus_acquire_keeps_capture_alive():
+    window = _make_window()
+    window.open_command_overlay()
+    window._command_panel.active = False
+    window._command_panel.input_line.focused = True
+    window.handle_command_input_focus_acquired()
+    _assert(
+        not window._overlay_local_input_engaged,
+        "local input should not be marked engaged when the line edit flashes focus but the panel never becomes active",
+    )
+    _assert(
+        window.overlay_needs_global_input_capture(),
+        "fallback capture should stay alive in the fake-focused but not really active first-open case",
+    )
+
+
 def _test_reopen_rearms_capture():
     window = _make_window()
     window.open_command_overlay()
@@ -262,6 +278,7 @@ def main():
         ("first-open capture", _test_first_open_capture_allows_typing),
         ("entry capture while input lacks focus", _test_active_panel_without_input_focus_still_uses_capture),
         ("local focus clears mirroring", _test_local_focus_clears_capture_and_stops_mirroring),
+        ("false focus acquire keeps capture", _test_false_focus_acquire_keeps_capture_alive),
         ("reopen rearms capture", _test_reopen_rearms_capture),
         ("choose-confirm execute path", _test_ambiguous_choose_confirm_execute_path),
         ("capture expiry", _test_capture_expiry_stands_down_fallback),

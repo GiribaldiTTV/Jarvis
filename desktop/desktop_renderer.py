@@ -878,8 +878,15 @@ class DesktopRuntimeWindow(QWidget):
 
     def handle_command_input_focus_acquired(self):
         if self._command_model.visible and self._command_model.phase == "entry":
-            self._overlay_local_input_engaged = True
-            self._clear_overlay_input_capture()
+            panel_is_active = self._command_panel.isActiveWindow()
+            input_has_focus = self._command_panel.input_line.hasFocus()
+            if panel_is_active and input_has_focus:
+                self._overlay_local_input_engaged = True
+                self._clear_overlay_input_capture()
+                return
+
+            self._overlay_local_input_engaged = False
+            self._refresh_overlay_input_capture()
 
     def handle_command_escape(self):
         result = self._command_model.escape()
