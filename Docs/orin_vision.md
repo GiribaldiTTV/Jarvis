@@ -133,6 +133,20 @@ Jarvis should behave conservatively first:
 Jarvis should not behave like a script.
 Jarvis should behave like a system that understands its own state.
 
+## Privacy And User Control Direction
+
+As Nexus Desktop AI grows beyond the first pre-Beta command slices, privacy and user control should remain first-class product constraints rather than later add-ons.
+
+At planning level, that means future Nexus-era behavior should prefer:
+
+- explicit user choice over hidden third-party routing
+- user-visible control over supported browser or web-destination preferences
+- minimizing unnecessary third-party tracking exposure where practical
+- clear user understanding of when Nexus is invoking a local action versus handing off to an external web or assistant surface
+
+This direction does not authorize immediate implementation of browser-routing features, tracking-blocking mechanics, or external-assistant integrations.
+It exists to preserve the intended product posture for later bounded planning and implementation work.
+
 ## Product Direction Reminder
 
 The current desktop launcher path is a foundation layer, not the final identity of the product.

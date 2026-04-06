@@ -11,6 +11,7 @@ from PySide6.QtWidgets import (
     QLineEdit,
     QHBoxLayout,
     QGridLayout,
+    QPushButton,
 )
 from PySide6.QtCore import Qt, QTimer, QUrl, QRect, Signal
 from PySide6.QtGui import QColor
@@ -103,6 +104,7 @@ class CommandOverlayPanel(QWidget):
     escape_requested = Signal()
     input_text_changed = Signal(str)
     input_armed_changed = Signal(bool)
+    ambiguous_match_selected = Signal(int)
 
     def __init__(self):
         super().__init__(None, Qt.FramelessWindowHint | Qt.Tool)
@@ -171,6 +173,14 @@ class CommandOverlayPanel(QWidget):
         self.ambiguous_label.setObjectName("commandAmbiguous")
         self.ambiguous_label.setWordWrap(True)
         layout.addWidget(self.ambiguous_label)
+
+        self.ambiguous_choices_frame = QFrame(self.panel)
+        self.ambiguous_choices_frame.setObjectName("commandAmbiguousChoices")
+        self.ambiguous_choices_layout = QVBoxLayout(self.ambiguous_choices_frame)
+        self.ambiguous_choices_layout.setContentsMargins(0, 8, 0, 0)
+        self.ambiguous_choices_layout.setSpacing(8)
+        layout.addWidget(self.ambiguous_choices_frame)
+        self.ambiguous_choices_frame.hide()
 
         self.confirmation_frame = QFrame(self.panel)
         self.confirmation_frame.setObjectName("commandConfirmation")
@@ -290,6 +300,22 @@ class CommandOverlayPanel(QWidget):
                 color: rgba(255, 222, 154, 0.90);
                 font-size: 13px;
             }
+            #commandAmbiguousChoices {
+                margin-top: 2px;
+            }
+            QPushButton[choiceRole="ambiguous"] {
+                padding: 10px 14px;
+                border-radius: 14px;
+                border: 1px solid rgba(255, 222, 154, 0.28);
+                background: rgba(32, 24, 10, 180);
+                color: rgba(255, 239, 198, 0.96);
+                text-align: left;
+                font-size: 13px;
+            }
+            QPushButton[choiceRole="ambiguous"]:hover {
+                border: 1px solid rgba(255, 222, 154, 0.44);
+                background: rgba(44, 30, 12, 214);
+            }
             #commandConfirmation {
                 margin-top: 18px;
                 border-radius: 18px;
@@ -361,11 +387,30 @@ class CommandOverlayPanel(QWidget):
     def focus_input(self):
         self.input_line.setFocus(Qt.MouseFocusReason)
 
+    def _clear_ambiguous_choice_buttons(self):
+        while self.ambiguous_choices_layout.count():
+            item = self.ambiguous_choices_layout.takeAt(0)
+            widget = item.widget()
+            if widget is not None:
+                widget.deleteLater()
+
+    def _populate_ambiguous_choice_buttons(self, matches: list[dict]):
+        self._clear_ambiguous_choice_buttons()
+        for match in matches:
+            index = int(match.get("index", -1))
+            title = match.get("title", "")
+            target_kind = match.get("target_kind", "")
+            button = QPushButton(f"{index + 1}. {title} ({target_kind})", self.ambiguous_choices_frame)
+            button.setProperty("choiceRole", "ambiguous")
+            button.clicked.connect(lambda _checked=False, idx=index: self.ambiguous_match_selected.emit(idx))
+            self.ambiguous_choices_layout.addWidget(button)
+        self.ambiguous_choices_frame.setVisible(bool(matches))
+
     def render_payload(self, payload: dict):
         payload = payload or {}
         phase = payload.get("phase", "hidden")
         armed = bool(payload.get("input_armed")) and phase == "entry"
-        locked = phase in {"confirm", "result"}
+        locked = phase in {"choose", "confirm", "result"}
 
         self.input_shell.setProperty("armed", "true" if armed else "false")
         self.input_shell.setProperty("locked", "true" if locked else "false")
@@ -384,6 +429,8 @@ class CommandOverlayPanel(QWidget):
 
         if phase == "confirm":
             self.hint_label.setText("Review the resolved action before execution.")
+        elif phase == "choose":
+            self.hint_label.setText("Choose the intended saved action, then confirm it before launch.")
         elif phase == "result":
             self.hint_label.setText("Returning to passive desktop mode.")
         else:
@@ -406,7 +453,11 @@ class CommandOverlayPanel(QWidget):
             self.status_label.setText("")
 
         titles = payload.get("ambiguous_titles") or []
-        self.ambiguous_label.setText(f"Matches: {' | '.join(titles)}" if titles else "")
+        if phase == "choose" and titles:
+            self.ambiguous_label.setText("Multiple saved actions matched your request.")
+        else:
+            self.ambiguous_label.setText(f"Matches: {' | '.join(titles)}" if titles else "")
+        self._populate_ambiguous_choice_buttons(payload.get("ambiguous_matches") or [])
 
         action = payload.get("pending_action") or {}
         show_confirm = phase == "confirm" and bool(action)
@@ -440,6 +491,7 @@ class DesktopRuntimeWindow(QWidget):
         self._command_panel.escape_requested.connect(self.handle_command_escape)
         self._command_panel.input_text_changed.connect(self.handle_command_text_changed)
         self._command_panel.input_armed_changed.connect(self.handle_command_input_armed_changed)
+        self._command_panel.ambiguous_match_selected.connect(self.handle_ambiguous_match_selected)
         self._result_close_timer = QTimer(self)
         self._result_close_timer.setSingleShot(True)
         self._result_close_timer.timeout.connect(self._close_command_overlay_after_result)
@@ -659,6 +711,7 @@ class DesktopRuntimeWindow(QWidget):
             self.compute_compact_geometry(),
             self.screen_ref.availableGeometry(),
         )
+        self._command_panel.focus_input()
         self._log_event("RENDERER_MAIN|COMMAND_OVERLAY_OPENED")
 
     def close_command_overlay(self):
@@ -691,6 +744,11 @@ class DesktopRuntimeWindow(QWidget):
         result = self._command_model.escape()
         self._apply_command_overlay_state()
 
+        if result == "choice_cancelled":
+            self._command_panel.focus_input()
+            self._log_event("RENDERER_MAIN|COMMAND_DISAMBIGUATION_CANCELLED")
+            return
+
         if result == "confirm_cancelled":
             self._command_panel.focus_input()
             self._log_event("RENDERER_MAIN|COMMAND_CONFIRM_CANCELLED")
@@ -707,6 +765,19 @@ class DesktopRuntimeWindow(QWidget):
 
     def _close_command_overlay_after_result(self):
         self.close_command_overlay()
+
+    def handle_ambiguous_match_selected(self, index: int):
+        result, payload = self._command_model.choose_match(index)
+        self._apply_command_overlay_state()
+
+        if result != "confirm_ready":
+            return
+
+        self._command_panel.setFocus(Qt.ActiveWindowFocusReason)
+        self._log_event(
+            f"RENDERER_MAIN|COMMAND_DISAMBIGUATION_SELECTED|index={index}|action_id={payload.id}"
+        )
+        self._log_event(f"RENDERER_MAIN|COMMAND_CONFIRM_READY|action_id={payload.id}")
 
     def handle_command_submit(self):
         result, payload = self._command_model.submit()
