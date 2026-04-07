@@ -28,6 +28,12 @@ If the user gives a brief cue such as:
 
 Codex must still load the default truth baseline from `docs/Main.md`, then add the directly relevant canonical docs and evidence inputs needed for the task.
 
+## Pre-Patch Investigation Gate
+
+For runtime bugs, behavior regressions, systems investigations, architecture-sensitive work, or readiness/risk analysis that could lead directly to patching, Codex must complete pre-patch investigation before editing.
+
+The detailed workflow contract for that deeper investigation belongs in `docs/codex_modes.md`.
+
 ## Workstream Organization
 
 During `pre-Beta`, the project may organize work through grouped workstreams by category or subsystem when that is the clearest way to support multi-developer progress.

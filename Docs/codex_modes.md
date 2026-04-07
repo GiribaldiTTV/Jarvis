@@ -46,6 +46,9 @@ Use Analysis mode when:
 - identifying risks, missing evidence, or drift traps
 - defining the safest scope for a future docs-only or patch task
 - validating whether a proposed next move conflicts with source-of-truth docs
+- investigating runtime bugs, behavior regressions, or other systems-level failures before patching
+- tracing architecture-sensitive behavior where a shallow file-reference answer would be risky
+- performing readiness or risk analysis that could directly lead to a patch recommendation
 - performing post-version planning such as deciding whether `FB-015` is the correct next architecture-first target
 
 ### What Codex Should Do
@@ -59,6 +62,26 @@ Codex should:
 - separate confirmed facts from inference
 - call out risks, blockers, and conflicts directly
 - recommend doc-first clarification when implementation boundaries are not yet tight enough
+
+### Required Analysis Depth
+
+Analysis mode is not one fixed depth for every task.
+
+For a tiny docs review, narrow sanity check, or lightweight source-of-truth drift check, Codex should use only the analysis depth needed to answer the question cleanly.
+
+For runtime bugs, behavior regressions, systems investigations, architecture-sensitive work, or readiness/risk analysis that could lead to patching, Analysis mode must become deep investigative analysis rather than shallow reference review.
+
+Deep investigative analysis is also required for branch-level merge-readiness, PR-readiness, release-readiness, version-bump, or release-package review, even when no patch is being proposed.
+
+When that deeper investigation applies, Codex should:
+
+- trace the full execution or behavior chain from entry point to affected output
+- identify direct files, indirect files, and regression-risk files
+- explain current behavior versus intended behavior
+- identify the relevant validators, state transitions, logging surfaces, config usage, and user-visible side effects
+- list assumptions, unknowns, and evidence still needed
+- define the smallest safe patch scope when a patch may be needed
+- define the verification plan, including commands, log review, and user-test needs, before recommending patching or readiness
 
 Analysis mode should follow those same requirements even when the user invokes it with only a short cue such as:
 
@@ -102,6 +125,14 @@ Analysis mode outputs should usually include:
 - whether a docs-only clarification should happen before patching
 - recommended next move
 
+When deep investigative analysis applies, outputs should also include:
+
+- affected-chain summary
+- current behavior versus intended behavior
+- explicit assumptions, unknowns, and missing evidence
+- smallest safe patch scope when patching is still a live outcome
+- verification and user-test plan
+
 Analysis mode should leave the repo unchanged.
 
 ---
@@ -126,6 +157,7 @@ Use Workflow mode when:
 Codex should:
 
 - still analyze first
+- complete the required deep Analysis-mode investigation before editing when the task involves runtime bugs, behavior regressions, systems investigations, architecture-sensitive work, or readiness/risk analysis that could lead to patching
 - define the exact narrow scope before editing
 - make only the approved isolated change
 - verify the result directly
@@ -159,6 +191,7 @@ Codex should only use the user-facing VBS or desktop shortcut path when the task
 Codex must not:
 
 - treat workflow ownership as permission to widen scope
+- patch runtime, behavior, or systems-impacting work before the required pre-patch investigation is complete
 - silently change backlog status or priorities without explicit approval
 - reopen version-closed behavior as a "small improvement"
 - merge multiple conceptual fixes into one revision
@@ -342,12 +375,21 @@ Before Codex generates any readiness or release package such as:
 
 Codex must verify live repo state first.
 
+Those readiness reviews are Analysis-mode work and must use deep investigative analysis rather than shallow branch-summary reasoning.
+
 That live-state check must include:
 
 - whether the referenced branch is still active
 - whether that branch has already been merged
 - whether related tag or release state already exists
 - whether the prompt framing is stale relative to current repo or GitHub state
+
+For branch-level merge-ready or release-ready review, that deeper analysis should also cover:
+
+- the actual branch scope and what changed on that branch
+- whether any active bug, unresolved drift, or dirty worktree state remains
+- whether verification evidence is strong enough for the claimed readiness level
+- whether closed guarantees, milestone expectations, or release facts could be reopened by the current branch state
 
 If the prompt framing is stale, Codex must not generate a fresh hypothetical readiness package.
 

@@ -46,6 +46,8 @@ Default shorthand behavior:
 4. pull only the evidence inputs needed for that task
 5. ask a clarifying question only if the task is still materially ambiguous after that baseline is applied
 
+For the deeper Analysis mode workflow contract and when deep investigative analysis is required, use `docs/codex_modes.md`.
+
 ## Current Source-Of-Truth Structure
 
 ### Core Authoritative Docs
@@ -179,6 +181,11 @@ For "what should we do next," "is this complete," or "is this the right target" 
 - `docs/Main.md`
 - the canonical doc for the active workstream
 - relevant closeout docs only if version guarantees or sequencing are part of the question
+
+For merge-ready, PR-ready, release-ready, or version-bump review, also include:
+
+- `docs/codex_modes.md`
+- the relevant closeout or rebaseline docs when readiness depends on closed guarantees or milestone facts
 
 ### First Post-Closeout Version Planning
 
