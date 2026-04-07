@@ -286,6 +286,33 @@ def _test_no_click_external_click_clears_typing_ready_visual():
     )
 
 
+def _test_confirm_capture_stays_on_when_panel_is_active_but_input_lacks_focus():
+    window = _make_window()
+    window.open_command_overlay()
+    window._command_model.phase = "confirm"
+    window._command_model.pending_action = window._command_model.actions[0]
+    window._overlay_input_capture_until = time.monotonic() + 5.0
+    window._command_panel.active = True
+    window._command_panel.input_line.focused = False
+    _assert(
+        window.overlay_needs_global_input_capture(),
+        "confirm capture should stay on when the panel looks active but the input itself no longer owns focus",
+    )
+
+
+def _test_confirm_ready_rearms_capture_for_human_confirm_delay():
+    window = _make_window()
+    window.open_command_overlay()
+    window._command_model.input_text = "open file explorer"
+    before = time.monotonic()
+    window.handle_command_submit(source="fallback")
+    remaining = window._overlay_input_capture_until - before
+    _assert(
+        remaining > 4.0,
+        "confirm-ready should keep fallback capture armed long enough for a human second Enter",
+    )
+
+
 def _test_ambiguous_choose_confirm_execute_path():
     window = _make_window()
     launches = []
@@ -369,6 +396,51 @@ def _test_hotkey_grace_stands_down_after_manual_local_engagement():
     _assert(not bus.events, "launch grace should not keep forwarding typing after real local input ownership is established")
 
 
+def _test_fallback_text_is_suppressed_underlay_and_forwarded():
+    bus = _FakeBus()
+    manager = hotkeys_mod.GlobalHotkeyManager(bus)
+    manager.set_overlay_input_enabled_provider(lambda: True)
+    manager._on_press(pynput_keyboard.KeyCode.from_char("a"))
+    _assert(("text", ("a",)) in bus.events, "fallback typing should still be forwarded into the overlay")
+
+
+def _test_fallback_submit_is_suppressed_underlay_and_forwarded():
+    bus = _FakeBus()
+    manager = hotkeys_mod.GlobalHotkeyManager(bus)
+    manager.set_overlay_input_enabled_provider(lambda: True)
+    manager._on_press(pynput_keyboard.Key.enter)
+    _assert(("submit", ()) in bus.events, "fallback Enter should still be forwarded into the overlay")
+
+
+def _test_win32_text_suppression_happens_before_callback_delivery():
+    bus = _FakeBus()
+    manager = hotkeys_mod.GlobalHotkeyManager(bus)
+    manager._listener = SimpleNamespace(_suppress=False)
+    manager.set_overlay_input_enabled_provider(lambda: True)
+    manager._win32_event_filter(manager._WM_KEYDOWN, SimpleNamespace(vkCode=0x4F))
+    _assert(manager._listener._suppress, "Win32 filter should arm suppression for the current text key before the callback path runs")
+
+
+def _test_win32_submit_suppression_happens_before_callback_delivery():
+    bus = _FakeBus()
+    manager = hotkeys_mod.GlobalHotkeyManager(bus)
+    manager._listener = SimpleNamespace(_suppress=False)
+    manager.set_overlay_input_enabled_provider(lambda: True)
+    result = manager._win32_event_filter(manager._WM_KEYDOWN, SimpleNamespace(vkCode=0x0D))
+    _assert(("submit", ()) in bus.events, "Win32 filter should forward Enter directly into the overlay before callback delivery")
+    _assert(manager._listener._suppress, "Win32 filter should arm suppression for the current Enter key before the callback path runs")
+    _assert(result is False, "Win32 filter should stop callback posting for fallback Enter once it has already been forwarded")
+
+
+def _test_win32_unsuppressed_key_clears_suppression_flag():
+    bus = _FakeBus()
+    manager = hotkeys_mod.GlobalHotkeyManager(bus)
+    manager._listener = SimpleNamespace(_suppress=True)
+    manager.set_overlay_input_enabled_provider(lambda: False)
+    manager._win32_event_filter(manager._WM_KEYDOWN, SimpleNamespace(vkCode=0x41))
+    _assert(not manager._listener._suppress, "Win32 filter should clear suppression when the current key is not owned by the overlay")
+
+
 def main():
     tests = [
         ("first-open capture", _test_first_open_capture_allows_typing),
@@ -380,12 +452,19 @@ def main():
         ("reopen rearms capture", _test_reopen_rearms_capture),
         ("no-click external click suspends capture", _test_no_click_external_click_suspends_capture),
         ("no-click external click clears typing-ready visual", _test_no_click_external_click_clears_typing_ready_visual),
+        ("confirm capture survives false panel-active state", _test_confirm_capture_stays_on_when_panel_is_active_but_input_lacks_focus),
+        ("confirm-ready rearms capture for human delay", _test_confirm_ready_rearms_capture_for_human_confirm_delay),
         ("choose-confirm execute path", _test_ambiguous_choose_confirm_execute_path),
         ("capture expiry", _test_capture_expiry_stands_down_fallback),
         ("line edit focus methods", _test_line_edit_focus_methods_present),
         ("hotkey launch grace", _test_hotkey_launch_grace_bridges_open_gap),
         ("hotkey grace expiry", _test_hotkey_grace_expires_cleanly),
         ("hotkey grace stops after local engagement", _test_hotkey_grace_stands_down_after_manual_local_engagement),
+        ("fallback text suppresses underlay", _test_fallback_text_is_suppressed_underlay_and_forwarded),
+        ("fallback submit suppresses underlay", _test_fallback_submit_is_suppressed_underlay_and_forwarded),
+        ("win32 text suppression is synchronous", _test_win32_text_suppression_happens_before_callback_delivery),
+        ("win32 submit suppression is synchronous", _test_win32_submit_suppression_happens_before_callback_delivery),
+        ("win32 clears suppression on unrelated key", _test_win32_unsuppressed_key_clears_suppression_flag),
     ]
 
     for name, fn in tests:

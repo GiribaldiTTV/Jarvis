@@ -15,6 +15,25 @@ class ShutdownBus(QObject):
 
 
 class GlobalHotkeyManager:
+    _WM_KEYDOWN = 0x0100
+    _WM_KEYUP = 0x0101
+    _WM_SYSKEYDOWN = 0x0104
+    _WM_SYSKEYUP = 0x0105
+    _MODIFIER_VKS = {
+        0x10,  # Shift
+        0x11,  # Ctrl
+        0x12,  # Alt
+        0x5B,  # Left Windows
+        0x5C,  # Right Windows
+    }
+    _SUPPRESSED_TEXT_VKS = set(range(0x30, 0x3A)) | set(range(0x41, 0x5B)) | {
+        0x20,  # Space
+        0x60, 0x61, 0x62, 0x63, 0x64, 0x65, 0x66, 0x67, 0x68, 0x69,  # Numpad 0-9
+        0x6A, 0x6B, 0x6D, 0x6E, 0x6F,  # Numpad operators
+        0xBA, 0xBB, 0xBC, 0xBD, 0xBE, 0xBF, 0xC0,  # Common OEM punctuation
+        0xDB, 0xDC, 0xDD, 0xDE,
+    }
+
     def __init__(self, bus: ShutdownBus):
         self.bus = bus
         self._listener = None
@@ -35,7 +54,11 @@ class GlobalHotkeyManager:
     def start(self) -> None:
         if self._listener is not None:
             return
-        self._listener = pynput_keyboard.Listener(on_press=self._on_press, on_release=self._on_release)
+        self._listener = pynput_keyboard.Listener(
+            on_press=self._on_press,
+            on_release=self._on_release,
+            win32_event_filter=self._win32_event_filter,
+        )
         self._listener.start()
         self._mouse_listener = pynput_mouse.Listener(on_click=self._on_click)
         self._mouse_listener.start()
@@ -141,8 +164,84 @@ class GlobalHotkeyManager:
             return char
         return None
 
+    def _overlay_key_should_be_suppressed(self, key) -> bool:
+        enabled, _provider_enabled, _grace_allowed, _grace_active = self._overlay_input_debug_state()
+        if not enabled or self._ctrl_down() or self._alt_down():
+            return False
+
+        if key in (pynput_keyboard.Key.enter, pynput_keyboard.KeyCode.from_vk(13)):
+            return True
+
+        if key in (pynput_keyboard.Key.esc, pynput_keyboard.Key.backspace):
+            return True
+
+        return bool(self._overlay_text_from_key(key))
+
+    def _overlay_vk_should_be_suppressed(self, vk: int) -> bool:
+        enabled, _provider_enabled, _grace_allowed, _grace_active = self._overlay_input_debug_state()
+        if not enabled or self._ctrl_down() or self._alt_down():
+            return False
+
+        if vk in self._MODIFIER_VKS:
+            return False
+
+        if vk in (0x0D, 0x1B, 0x08):
+            return True
+
+        return vk in self._SUPPRESSED_TEXT_VKS
+
+    def _forward_overlay_submit(self, provider_enabled: bool, grace_allowed: bool, grace_active: bool, origin: str) -> None:
+        self._log_debug(
+            "event=submit_forwarded"
+            f"|provider_enabled={'true' if provider_enabled else 'false'}"
+            f"|grace_allowed={'true' if grace_allowed else 'false'}"
+            f"|grace_active={'true' if grace_active else 'false'}"
+            "|suppressed=true"
+            f"|origin={origin}"
+        )
+        self.bus.command_overlay_submit_requested.emit()
+
+    def _win32_event_filter(self, msg, data):
+        if msg not in (
+            self._WM_KEYDOWN,
+            self._WM_KEYUP,
+            self._WM_SYSKEYDOWN,
+            self._WM_SYSKEYUP,
+        ):
+            return True
+
+        listener = self._listener
+        if listener is None:
+            return True
+
+        vk = int(getattr(data, "vkCode", 0) or 0)
+        enabled, provider_enabled, grace_allowed, grace_active = self._overlay_input_debug_state()
+        suppress_vk = enabled and not self._ctrl_down() and not self._alt_down() and self._overlay_vk_should_be_suppressed(vk)
+
+        if msg in (self._WM_KEYDOWN, self._WM_SYSKEYDOWN) and suppress_vk and vk == 0x0D:
+            try:
+                listener._suppress = True
+            except Exception:
+                return True
+            self._forward_overlay_submit(provider_enabled, grace_allowed, grace_active, origin="win32_filter")
+            return False
+
+        if not suppress_vk:
+            try:
+                listener._suppress = False
+            except Exception:
+                pass
+            return True
+
+        try:
+            listener._suppress = True
+        except Exception:
+            return True
+        return True
+
     def _on_press(self, key) -> None:
         self._pressed.add(key)
+        suppress_current = self._overlay_key_should_be_suppressed(key)
         ctrl_down = self._ctrl_down()
         alt_down = self._alt_down()
         shutdown_down = self._key_matches_shutdown_trigger(key)
@@ -171,6 +270,8 @@ class GlobalHotkeyManager:
                 f"|provider_enabled={'true' if provider_enabled else 'false'}"
                 f"|grace_allowed={'true' if grace_allowed else 'false'}"
                 f"|grace_active={'true' if grace_active else 'false'}"
+                f"|suppressed={'true' if suppress_current else 'false'}"
+                "|origin=callback"
             )
             self.bus.command_overlay_submit_requested.emit()
             return
@@ -181,6 +282,7 @@ class GlobalHotkeyManager:
                 f"|provider_enabled={'true' if provider_enabled else 'false'}"
                 f"|grace_allowed={'true' if grace_allowed else 'false'}"
                 f"|grace_active={'true' if grace_active else 'false'}"
+                f"|suppressed={'true' if suppress_current else 'false'}"
             )
             self.bus.command_overlay_escape_requested.emit()
             return
@@ -191,6 +293,7 @@ class GlobalHotkeyManager:
                 f"|provider_enabled={'true' if provider_enabled else 'false'}"
                 f"|grace_allowed={'true' if grace_allowed else 'false'}"
                 f"|grace_active={'true' if grace_active else 'false'}"
+                f"|suppressed={'true' if suppress_current else 'false'}"
             )
             self.bus.command_overlay_backspace_requested.emit()
             return
@@ -203,6 +306,7 @@ class GlobalHotkeyManager:
                 f"|provider_enabled={'true' if provider_enabled else 'false'}"
                 f"|grace_allowed={'true' if grace_allowed else 'false'}"
                 f"|grace_active={'true' if grace_active else 'false'}"
+                f"|suppressed={'true' if suppress_current else 'false'}"
             )
             self.bus.command_overlay_text_requested.emit(text)
 

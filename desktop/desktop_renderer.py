@@ -32,6 +32,17 @@ user32 = ctypes.windll.user32
 GetWindowRect = user32.GetWindowRect
 GetWindowRect.argtypes = [ctypes.wintypes.HWND, ctypes.POINTER(ctypes.wintypes.RECT)]
 GetWindowRect.restype = ctypes.c_bool
+GetForegroundWindow = user32.GetForegroundWindow
+GetForegroundWindow.restype = ctypes.wintypes.HWND
+GetClassNameW = user32.GetClassNameW
+GetClassNameW.argtypes = [ctypes.wintypes.HWND, ctypes.c_wchar_p, ctypes.c_int]
+GetClassNameW.restype = ctypes.c_int
+GetWindowTextLengthW = user32.GetWindowTextLengthW
+GetWindowTextLengthW.argtypes = [ctypes.wintypes.HWND]
+GetWindowTextLengthW.restype = ctypes.c_int
+GetWindowTextW = user32.GetWindowTextW
+GetWindowTextW.argtypes = [ctypes.wintypes.HWND, ctypes.c_wchar_p, ctypes.c_int]
+GetWindowTextW.restype = ctypes.c_int
 ShowWindowW = user32.ShowWindow
 ShowWindowW.argtypes = [ctypes.wintypes.HWND, ctypes.c_int]
 ShowWindowW.restype = ctypes.c_bool
@@ -100,11 +111,17 @@ class CommandInputLineEdit(QLineEdit):
 
     def keyPressEvent(self, event):
         if event.key() in (Qt.Key_Return, Qt.Key_Enter):
+            if not self._local_typing_enabled:
+                event.accept()
+                return
             self.submit_requested.emit()
             event.accept()
             return
 
         if event.key() == Qt.Key_Escape:
+            if not self._local_typing_enabled:
+                event.accept()
+                return
             self.escape_requested.emit()
             event.accept()
             return
@@ -580,7 +597,7 @@ class DesktopRuntimeWindow(QWidget):
         self._pending_voice_level = None
         self._command_model = CommandOverlayModel()
         self._command_panel = CommandOverlayPanel()
-        self._command_panel.submit_requested.connect(self.handle_command_submit)
+        self._command_panel.submit_requested.connect(self.handle_local_submit_requested)
         self._command_panel.escape_requested.connect(self.handle_command_escape)
         self._command_panel.input_text_changed.connect(self.handle_command_text_changed)
         self._command_panel.input_armed_changed.connect(self.handle_command_input_armed_changed)
@@ -666,6 +683,27 @@ class DesktopRuntimeWindow(QWidget):
         for key, value in fields.items():
             extras.append(f"{key}={value}")
         self._log_event("OVERLAY_TRACE|source=renderer|" + "|".join(extras))
+
+    def _foreground_window_snapshot(self):
+        try:
+            hwnd = GetForegroundWindow()
+            if not hwnd:
+                return {"hwnd": "none", "class_name": "", "title": ""}
+
+            class_buffer = ctypes.create_unicode_buffer(256)
+            GetClassNameW(hwnd, class_buffer, len(class_buffer))
+
+            title_length = max(0, int(GetWindowTextLengthW(hwnd)))
+            title_buffer = ctypes.create_unicode_buffer(max(1, title_length + 1))
+            GetWindowTextW(hwnd, title_buffer, len(title_buffer))
+
+            return {
+                "hwnd": hex(int(hwnd)),
+                "class_name": class_buffer.value or "",
+                "title": title_buffer.value or "",
+            }
+        except Exception:
+            return {"hwnd": "unavailable", "class_name": "", "title": ""}
 
     def _run_javascript(self, script):
         page = self.webview.page()
@@ -870,7 +908,7 @@ class DesktopRuntimeWindow(QWidget):
             return False
 
         if phase in {"choose", "confirm"}:
-            return not self._command_panel.isActiveWindow()
+            return not self._command_panel.input_line.hasFocus()
 
         return False
 
@@ -947,7 +985,10 @@ class DesktopRuntimeWindow(QWidget):
         if not self.overlay_needs_global_input_capture():
             return
         self._refresh_overlay_input_capture()
-        self.handle_command_submit()
+        self.handle_command_submit(source="fallback")
+
+    def handle_local_submit_requested(self):
+        self.handle_command_submit(source="local")
 
     def handle_overlay_escape_requested(self):
         if not self._command_model.visible:
@@ -1057,15 +1098,30 @@ class DesktopRuntimeWindow(QWidget):
         )
         self._log_event(f"RENDERER_MAIN|COMMAND_CONFIRM_READY|action_id={payload.id}")
 
-    def handle_command_submit(self):
+    def handle_command_submit(self, source: str = "local"):
+        foreground = self._foreground_window_snapshot()
+        self._trace_overlay(
+            "submit_requested",
+            source=repr(source),
+            foreground_hwnd=repr(foreground["hwnd"]),
+            foreground_class=repr(foreground["class_name"]),
+            foreground_title=repr(foreground["title"]),
+        )
         result, payload = self._command_model.submit()
         self._apply_command_overlay_state()
+        payload_id = getattr(payload, "id", "") if payload is not None else ""
+        self._trace_overlay(
+            "submit_result",
+            source=repr(source),
+            result=repr(result),
+            payload_id=repr(payload_id),
+        )
 
         if result == "confirm_ready":
             if self._overlay_local_input_engaged:
                 self._command_panel.setFocus(Qt.ActiveWindowFocusReason)
             else:
-                self._refresh_overlay_input_capture()
+                self._refresh_overlay_input_capture(seconds=5.0)
             self._log_event(f"RENDERER_MAIN|COMMAND_CONFIRM_READY|action_id={payload.id}")
             return
 

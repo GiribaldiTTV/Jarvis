@@ -41,7 +41,7 @@ Current normalized branch truth is:
 
 - first-open immediate typing from both overlay hotkeys is working
 - the mirrored-text bug is confirmed fixed
-- the no-click `Enter` / desktop-launch leakage bug is confirmed active
+- the no-click input leakage bug family is confirmed fixed on the current branch state
 - `Shift+Home` line-clearing convenience remains a later non-bug enhancement
 
 This tracker should prefer the newest recoverable evidence, including:
@@ -52,57 +52,19 @@ This tracker should prefer the newest recoverable evidence, including:
 
 ## Current-Slice Active Bugs
 
-### BUG-001 No-Click Enter Leaks To Desktop Selection
-
-- Status:
-  - `Confirmed Active`
-- Evidence source:
-  - direct live user testing on `2026-04-07`
-  - current branch code path inspection
-- Exact reproduction summary:
-  1. launch Nexus from the normal desktop shortcut
-  2. select a harmless desktop or File Explorer item first
-  3. open the NCP with `Ctrl+Alt+Home` or `Ctrl+Alt+1`
-  4. do not click the NCP input box
-  5. type either:
-     - a guaranteed zero-match string such as `aaaaazzzz`
-     - or a valid command such as `open file explorer`
-  6. press `Enter`
-- Observed results:
-  - harmless desktop text file opened once
-  - `OBS` opened multiple times
-  - `Wave Link` opened
-  - `AIDA64` attempted to open
-  - in one confirm-path run, the NCP showed the confirm state while external desktop launch still happened
-  - in a zero-match run, the NCP showed `No saved action or alias matched that request.` while an external app still launched
-- Current leading hypothesis:
-  - the no-click entry path still uses fallback global key forwarding
-  - fallback forwarding can mirror typed keys into the NCP without truly suppressing desktop or File Explorer key ownership underneath
-  - leaked printable text may change which desktop item is selected before leaked `Enter` opens it
-  - confirm-path `Enter` may also be vulnerable when the overlay still does not truly own the key event
-- What is still unknown:
-  - whether confirm-path failure is only key leakage or partly capture-expiry timing too
-  - whether leaked printable text is always present or only intermittent before leaked `Enter`
-- Next narrow move:
-  - add explicit submit-path tracing for:
-    - fallback submit received
-    - local submit received
-    - `submit()` result
-    - foreground window ownership at submit time
-  - reproduce with a controlled harmless selected target
-  - patch no-click submit containment without widening into unrelated interaction changes
-
 ### BUG-002 Caret Keeps Flashing After Focus Leaves The NCP
 
 - Status:
   - `Confirmed Active`
 - Evidence source:
+  - direct live user testing on `2026-04-07`
   - direct user report after mirrored typing was already closed
 - Exact reproduction summary:
-  1. open the NCP
-  2. type or otherwise engage the entry path
-  3. click into another app or control
-  4. observe that the caret continues flashing as though the NCP is still ready for typing
+  1. launch Nexus from the normal desktop shortcut
+  2. open the NCP
+  3. type or otherwise engage the entry path
+  4. click into another app or control
+  5. observe that the caret continues flashing as though the NCP is still ready for typing
 - Observed results:
   - typing capture does not necessarily continue
   - but the visual typing-ready signal remains active
@@ -116,6 +78,58 @@ This tracker should prefer the newest recoverable evidence, including:
   - fix visual-state sync only after the no-click `Enter` bug is stable, unless shared evidence proves the same root cause
 
 ## Recently Closed On This Branch
+
+### BUG-001A No-Click First Key Leaks To The Previously Focused Target
+
+- Status:
+  - `Closed`
+- Evidence source:
+  - direct live user confirmation on `2026-04-07`
+  - helper validation for synchronous Win32 suppression
+  - current launcher-path self-run
+- Exact reproduction summary:
+  1. activate a live caret in an outside text target
+  2. open the NCP with no manual click
+  3. begin typing a valid command such as `open file explorer`
+- Current closure understanding:
+  - the first typed letter no longer leaks to the previously focused target on the current branch state
+  - synchronous fallback suppression in the Win32 hook contained the printable-key path strongly enough to close this bug
+
+### BUG-001B No-Click First Enter Leaks To The Previously Focused Target
+
+- Status:
+  - `Closed`
+- Evidence source:
+  - direct live user confirmation on `2026-04-07`
+  - helper validation
+  - current launcher-path self-run
+- Exact reproduction summary:
+  1. activate a live caret in an outside text target
+  2. open the NCP with no manual click
+  3. type `open file explorer`
+  4. press `Enter` once
+- Current closure understanding:
+  - the first `Enter` now lands in the NCP and no longer leaks to the previously focused target
+  - the direct filter-level fallback `Enter` path closed the first-submit leak
+
+### BUG-001C No-Click Second Enter Misses After Confirm
+
+- Status:
+  - `Closed`
+- Evidence source:
+  - direct live user confirmation on `2026-04-07`
+  - helper validation for confirm-delay capture
+  - current launcher-path self-run
+- Exact reproduction summary:
+  1. activate a live caret in an outside text target
+  2. open the NCP with no manual click
+  3. type `open file explorer`
+  4. press `Enter` once to reach confirm
+  5. wait a normal human pause
+  6. press `Enter` again
+- Current closure understanding:
+  - the second `Enter` now lands cleanly in the NCP after confirm
+  - the longer no-click confirm capture rearm was sufficient to keep the confirm path alive for a human second `Enter`
 
 ### BUG-003 Mirrored Typing After Focus Moves Elsewhere
 
