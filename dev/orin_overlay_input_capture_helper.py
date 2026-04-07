@@ -175,6 +175,16 @@ def _assert_clean_entry_baseline(window, message_prefix="overlay"):
     _assert(window._command_panel.last_payload.get("status_kind") == "idle", f"{message_prefix} payload should reopen idle")
 
 
+def _assert_clean_retry_state(window, message_prefix="overlay retry"):
+    _assert(window._command_model.phase == "entry", f"{message_prefix} should be in entry phase")
+    _assert(window._command_model.last_request == "", f"{message_prefix} should not retain stale typed request state")
+    _assert(window._command_model.pending_action is None, f"{message_prefix} should not retain stale pending action state")
+    _assert(window._command_model.pending_matches == (), f"{message_prefix} should not retain stale ambiguous matches")
+    _assert(window._command_panel.last_payload.get("typed_request", "") == "", f"{message_prefix} payload should not retain stale typed request state")
+    _assert(window._command_panel.last_payload.get("pending_action") is None, f"{message_prefix} payload should not retain stale confirm metadata")
+    _assert(window._command_panel.last_payload.get("ambiguous_matches") == [], f"{message_prefix} payload should not retain stale choice metadata")
+
+
 def _test_first_open_capture_allows_typing():
     window = _make_window()
     window.open_command_overlay()
@@ -422,6 +432,46 @@ def _test_confirm_cancel_refreshes_panel_layout_after_return_to_entry():
     )
 
 
+def _test_not_found_retry_edit_clears_stale_request_state():
+    window = _make_window()
+    window.open_command_overlay()
+    window._command_model.input_text = "zzzzzzz"
+    window.handle_command_submit(source="fallback")
+    _assert(window._command_model.status_kind == "not_found", "no-match request should surface not_found status")
+    _assert(window._command_model.last_request == "zzzzzzz", "not_found should record the attempted request before retry")
+    window.handle_command_text_changed("open file explorer")
+    _assert(window._command_model.status_kind == "idle", "editing after not_found should clear the stale not_found status")
+    _assert_clean_retry_state(window, "not-found retry")
+
+
+def _test_ambiguous_back_out_clears_stale_request_state_for_retry():
+    window = _make_window()
+    window.open_command_overlay()
+    window._command_model.input_text = "open nexus folder"
+    window.handle_command_submit(source="fallback")
+    _assert(window._command_model.phase == "choose", "ambiguous request should enter choose state")
+    _assert(window._command_model.last_request == "open nexus folder", "ambiguous request should record the attempted request before back-out")
+    window.handle_command_escape()
+    _assert_clean_retry_state(window, "ambiguous back-out retry")
+    window.handle_command_text_changed("open file explorer")
+    _assert(window._command_model.status_kind == "idle", "retry editing after ambiguous back-out should stay in idle entry state")
+    _assert_clean_retry_state(window, "ambiguous back-out retry after edit")
+
+
+def _test_confirm_back_out_clears_stale_request_state_for_retry():
+    window = _make_window()
+    window.open_command_overlay()
+    window._command_model.input_text = "open file explorer"
+    window.handle_command_submit(source="fallback")
+    _assert(window._command_model.phase == "confirm", "single match should enter confirm state")
+    _assert(window._command_model.last_request == "open file explorer", "confirm path should record the attempted request before back-out")
+    window.handle_command_escape()
+    _assert_clean_retry_state(window, "confirm back-out retry")
+    window.handle_command_text_changed("zzzzzzz")
+    _assert(window._command_model.status_kind == "idle", "retry editing after confirm back-out should stay in idle entry state")
+    _assert_clean_retry_state(window, "confirm back-out retry after edit")
+
+
 def _test_launch_requested_result_clears_transient_state_immediately():
     window = _make_window()
     original_launch = renderer_mod.launch_command_action
@@ -651,6 +701,9 @@ def main():
         ("confirm cancel rearms capture for human retry", _test_confirm_cancel_rearms_capture_for_human_retry_delay),
         ("choose cancel refreshes layout after return to entry", _test_choose_cancel_refreshes_panel_layout_after_return_to_entry),
         ("confirm cancel refreshes layout after return to entry", _test_confirm_cancel_refreshes_panel_layout_after_return_to_entry),
+        ("not-found retry clears stale request state", _test_not_found_retry_edit_clears_stale_request_state),
+        ("ambiguous back-out retry clears stale request state", _test_ambiguous_back_out_clears_stale_request_state_for_retry),
+        ("confirm back-out retry clears stale request state", _test_confirm_back_out_clears_stale_request_state_for_retry),
         ("launch-requested result clears transient state", _test_launch_requested_result_clears_transient_state_immediately),
         ("launch-requested timeout close reopens clean", _test_launch_requested_timeout_close_and_reopen_is_clean),
         ("launch-failed result clears and reopens clean", _test_launch_failed_result_clears_transient_state_and_reopen_is_clean),

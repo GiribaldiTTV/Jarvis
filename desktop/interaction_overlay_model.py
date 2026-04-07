@@ -177,6 +177,7 @@ class CommandOverlayModel:
             return
 
         self.input_text += char
+        self.last_request = ""
         self.status_kind = "idle"
         self.status_text = ""
 
@@ -185,6 +186,7 @@ class CommandOverlayModel:
             return
 
         self.input_text = text or ""
+        self.last_request = ""
         self.status_kind = "idle"
         self.status_text = ""
         self.pending_action = None
@@ -195,6 +197,7 @@ class CommandOverlayModel:
             return
 
         self.input_text = self.input_text[:-1]
+        self.last_request = ""
         self.status_kind = "idle"
         self.status_text = ""
 
@@ -205,6 +208,7 @@ class CommandOverlayModel:
         if self.phase == "choose":
             self.phase = "entry"
             self.input_armed = True
+            self.last_request = ""
             self.status_kind = "idle"
             self.status_text = ""
             self.pending_action = None
@@ -214,6 +218,7 @@ class CommandOverlayModel:
         if self.phase == "confirm":
             self.phase = "entry"
             self.input_armed = True
+            self.last_request = ""
             self.status_kind = "idle"
             self.status_text = ""
             self.pending_action = None
