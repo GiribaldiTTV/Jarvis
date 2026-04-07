@@ -313,6 +313,35 @@ def _test_confirm_ready_rearms_capture_for_human_confirm_delay():
     )
 
 
+def _test_ambiguous_ready_rearms_capture_for_human_choice_delay():
+    window = _make_window()
+    window.open_command_overlay()
+    window._command_model.input_text = "open nexus folder"
+    before = time.monotonic()
+    window.handle_command_submit(source="fallback")
+    remaining = window._overlay_input_capture_until - before
+    _assert(window._command_model.phase == "choose", "open nexus folder should enter choose state")
+    _assert(
+        remaining > 4.0,
+        "ambiguous-ready should keep fallback capture armed long enough for a human number choice",
+    )
+
+
+def _test_ambiguous_choice_rearms_capture_for_human_confirm_delay():
+    window = _make_window()
+    window.open_command_overlay()
+    window._command_model.input_text = "open nexus folder"
+    window.handle_command_submit(source="fallback")
+    before = time.monotonic()
+    window.handle_ambiguous_match_selected(1)
+    remaining = window._overlay_input_capture_until - before
+    _assert(window._command_model.phase == "confirm", "number choice should enter confirm state")
+    _assert(
+        remaining > 4.0,
+        "choose-selection should keep fallback capture armed long enough for a human confirm Enter",
+    )
+
+
 def _test_ambiguous_choose_confirm_execute_path():
     window = _make_window()
     launches = []
@@ -454,6 +483,8 @@ def main():
         ("no-click external click clears typing-ready visual", _test_no_click_external_click_clears_typing_ready_visual),
         ("confirm capture survives false panel-active state", _test_confirm_capture_stays_on_when_panel_is_active_but_input_lacks_focus),
         ("confirm-ready rearms capture for human delay", _test_confirm_ready_rearms_capture_for_human_confirm_delay),
+        ("ambiguous-ready rearms capture for human choice delay", _test_ambiguous_ready_rearms_capture_for_human_choice_delay),
+        ("ambiguous choice rearms capture for human confirm delay", _test_ambiguous_choice_rearms_capture_for_human_confirm_delay),
         ("choose-confirm execute path", _test_ambiguous_choose_confirm_execute_path),
         ("capture expiry", _test_capture_expiry_stands_down_fallback),
         ("line edit focus methods", _test_line_edit_focus_methods_present),

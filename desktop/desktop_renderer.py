@@ -1092,7 +1092,7 @@ class DesktopRuntimeWindow(QWidget):
         if self._overlay_local_input_engaged:
             self._command_panel.setFocus(Qt.ActiveWindowFocusReason)
         else:
-            self._refresh_overlay_input_capture()
+            self._refresh_overlay_input_capture(seconds=5.0)
         self._log_event(
             f"RENDERER_MAIN|COMMAND_DISAMBIGUATION_SELECTED|index={index}|action_id={payload.id}"
         )
@@ -1133,7 +1133,7 @@ class DesktopRuntimeWindow(QWidget):
             if self._overlay_local_input_engaged:
                 self._command_panel.setFocus(Qt.ActiveWindowFocusReason)
             else:
-                self._refresh_overlay_input_capture()
+                self._refresh_overlay_input_capture(seconds=5.0)
             self._log_event(f"RENDERER_MAIN|COMMAND_AMBIGUOUS|count={len(payload)}")
             return
 

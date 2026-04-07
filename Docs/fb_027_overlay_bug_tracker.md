@@ -42,6 +42,8 @@ Current normalized branch truth is:
 - first-open immediate typing from both overlay hotkeys is working
 - the mirrored-text bug is confirmed fixed
 - the no-click input leakage bug family is confirmed fixed on the current branch state
+- the caret visual bug is confirmed fixed on the current branch state
+- the ambiguous-number selection path is confirmed fixed on the current branch state
 - `Shift+Home` line-clearing convenience remains a later non-bug enhancement
 
 This tracker should prefer the newest recoverable evidence, including:
@@ -52,30 +54,7 @@ This tracker should prefer the newest recoverable evidence, including:
 
 ## Current-Slice Active Bugs
 
-### BUG-002 Caret Keeps Flashing After Focus Leaves The NCP
-
-- Status:
-  - `Confirmed Active`
-- Evidence source:
-  - direct live user testing on `2026-04-07`
-  - direct user report after mirrored typing was already closed
-- Exact reproduction summary:
-  1. launch Nexus from the normal desktop shortcut
-  2. open the NCP
-  3. type or otherwise engage the entry path
-  4. click into another app or control
-  5. observe that the caret continues flashing as though the NCP is still ready for typing
-- Observed results:
-  - typing capture does not necessarily continue
-  - but the visual typing-ready signal remains active
-- Current leading hypothesis:
-  - visual typing-ready state and real input ownership are not fully synchronized after focus leaves the NCP
-- What is still unknown:
-  - whether this is purely visual
-  - or whether it occasionally correlates with residual fallback-capture state
-- Next narrow move:
-  - inspect visual-state updates alongside the click-away and focus-loss path
-  - fix visual-state sync only after the no-click `Enter` bug is stable, unless shared evidence proves the same root cause
+- none currently
 
 ## Recently Closed On This Branch
 
@@ -131,6 +110,23 @@ This tracker should prefer the newest recoverable evidence, including:
   - the second `Enter` now lands cleanly in the NCP after confirm
   - the longer no-click confirm capture rearm was sufficient to keep the confirm path alive for a human second `Enter`
 
+### BUG-002 Caret Keeps Flashing After Focus Leaves The NCP
+
+- Status:
+  - `Closed`
+- Evidence source:
+  - direct live user confirmation on `2026-04-07`
+  - earlier direct user report after mirrored typing was already closed
+- Exact reproduction summary:
+  1. launch Nexus from the normal desktop shortcut
+  2. open the NCP
+  3. type or otherwise engage the entry path
+  4. click into another app or control
+  5. observe whether the caret continues flashing as though the NCP is still ready for typing
+- Current closure understanding:
+  - the caret-visual mismatch is now treated as fixed on the current branch state by direct user confirmation
+  - it is no longer the active next bug for this branch
+
 ### BUG-003 Mirrored Typing After Focus Moves Elsewhere
 
 - Status:
@@ -163,6 +159,25 @@ This tracker should prefer the newest recoverable evidence, including:
   - later random cutoff behavior was also confirmed closed in direct testing
 - Why it stays in this file:
   - this branch has already passed through several input-ownership fixes, so keeping the closed path visible helps future drift checks
+
+### BUG-005 Ambiguous Number Selection Fails Until Overlay Is Manually Refocused
+
+- Status:
+  - `Closed`
+- Evidence source:
+  - direct live user confirmation on `2026-04-07`
+  - launcher-path self-run on `2026-04-07`
+  - helper validation for delayed choose/confirm capture rearm
+- Exact reproduction summary:
+  1. launch Nexus from the normal desktop shortcut
+  2. open the NCP
+  3. type `open nexus folder`
+  4. wait for the overlay to present numbered choices
+  5. press `1` or `2` without manually refocusing the overlay
+- Current closure understanding:
+  - the choose-phase fallback capture window now stays alive long enough for a normal human delay
+  - delayed `1` / `2` selection works without manually refocusing the overlay on the current branch state
+  - direct live user confirmation closed the bug
 
 ## Suspected / Not Yet Confirmed
 
