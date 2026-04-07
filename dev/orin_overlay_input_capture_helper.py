@@ -76,6 +76,7 @@ class _FakePanel:
         self.visible = False
         self.last_payload = None
         self.focus_after_show_calls = 0
+        self.refresh_for_geometry_calls = 0
         self._frame_rect = _FakeRect(100, 100, 400, 220)
 
     def render_payload(self, payload):
@@ -84,6 +85,12 @@ class _FakePanel:
 
     def show_for_geometry(self, *_args, **_kwargs):
         self.visible = True
+
+    def refresh_for_geometry(self, *_args, **_kwargs):
+        self.refresh_for_geometry_calls += 1
+
+    def isVisible(self):
+        return self.visible
 
     def focus_input_after_show(self):
         self.focus_after_show_calls += 1
@@ -342,6 +349,62 @@ def _test_ambiguous_choice_rearms_capture_for_human_confirm_delay():
     )
 
 
+def _test_choice_cancel_rearms_capture_for_human_retry_delay():
+    window = _make_window()
+    window.open_command_overlay()
+    window._command_model.input_text = "open nexus folder"
+    window.handle_command_submit(source="fallback")
+    before = time.monotonic()
+    window.handle_command_escape()
+    remaining = window._overlay_input_capture_until - before
+    _assert(window._command_model.phase == "entry", "Esc from choose should return to entry state")
+    _assert(
+        remaining > 4.0,
+        "choose-cancel should keep fallback capture armed long enough for a human retry",
+    )
+
+
+def _test_confirm_cancel_rearms_capture_for_human_retry_delay():
+    window = _make_window()
+    window.open_command_overlay()
+    window._command_model.input_text = "open file explorer"
+    window.handle_command_submit(source="fallback")
+    before = time.monotonic()
+    window.handle_command_escape()
+    remaining = window._overlay_input_capture_until - before
+    _assert(window._command_model.phase == "entry", "Esc from confirm should return to entry state")
+    _assert(
+        remaining > 4.0,
+        "confirm-cancel should keep fallback capture armed long enough for a human retry",
+    )
+
+
+def _test_choose_cancel_refreshes_panel_layout_after_return_to_entry():
+    window = _make_window()
+    window.open_command_overlay()
+    window._command_model.input_text = "open nexus folder"
+    window.handle_command_submit(source="fallback")
+    before = window._command_panel.refresh_for_geometry_calls
+    window.handle_command_escape()
+    _assert(
+        window._command_panel.refresh_for_geometry_calls > before,
+        "Esc from choose should refresh the overlay panel layout after returning to entry",
+    )
+
+
+def _test_confirm_cancel_refreshes_panel_layout_after_return_to_entry():
+    window = _make_window()
+    window.open_command_overlay()
+    window._command_model.input_text = "open file explorer"
+    window.handle_command_submit(source="fallback")
+    before = window._command_panel.refresh_for_geometry_calls
+    window.handle_command_escape()
+    _assert(
+        window._command_panel.refresh_for_geometry_calls > before,
+        "Esc from confirm should refresh the overlay panel layout after returning to entry",
+    )
+
+
 def _test_ambiguous_choose_confirm_execute_path():
     window = _make_window()
     launches = []
@@ -485,6 +548,10 @@ def main():
         ("confirm-ready rearms capture for human delay", _test_confirm_ready_rearms_capture_for_human_confirm_delay),
         ("ambiguous-ready rearms capture for human choice delay", _test_ambiguous_ready_rearms_capture_for_human_choice_delay),
         ("ambiguous choice rearms capture for human confirm delay", _test_ambiguous_choice_rearms_capture_for_human_confirm_delay),
+        ("choose cancel rearms capture for human retry", _test_choice_cancel_rearms_capture_for_human_retry_delay),
+        ("confirm cancel rearms capture for human retry", _test_confirm_cancel_rearms_capture_for_human_retry_delay),
+        ("choose cancel refreshes layout after return to entry", _test_choose_cancel_refreshes_panel_layout_after_return_to_entry),
+        ("confirm cancel refreshes layout after return to entry", _test_confirm_cancel_refreshes_panel_layout_after_return_to_entry),
         ("choose-confirm execute path", _test_ambiguous_choose_confirm_execute_path),
         ("capture expiry", _test_capture_expiry_stands_down_fallback),
         ("line edit focus methods", _test_line_edit_focus_methods_present),

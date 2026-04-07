@@ -440,9 +440,10 @@ class CommandOverlayPanel(QWidget):
 
         return None
 
-    def show_for_geometry(self, host_geometry: QRect, bounds_geometry: QRect | None = None):
+    def _apply_geometry(self, host_geometry: QRect, bounds_geometry: QRect | None = None):
         width = max(460, min(720, int(host_geometry.width() * 0.72)))
         self.panel.setFixedWidth(width)
+        self.panel.adjustSize()
         self.adjustSize()
 
         x = host_geometry.x() + (host_geometry.width() - self.width()) // 2
@@ -457,8 +458,14 @@ class CommandOverlayPanel(QWidget):
             y = max(min_y, min(y, max_y))
 
         self.move(x, y)
+
+    def show_for_geometry(self, host_geometry: QRect, bounds_geometry: QRect | None = None):
+        self._apply_geometry(host_geometry, bounds_geometry)
         self.show()
         self.raise_()
+
+    def refresh_for_geometry(self, host_geometry: QRect, bounds_geometry: QRect | None = None):
+        self._apply_geometry(host_geometry, bounds_geometry)
 
     def focus_input(self, reason=Qt.ShortcutFocusReason):
         self.raise_()
@@ -791,6 +798,11 @@ class DesktopRuntimeWindow(QWidget):
             )
         )
         self._command_panel.render_payload(payload)
+        if payload.get("visible") and self._command_panel.isVisible():
+            self._command_panel.refresh_for_geometry(
+                self.compute_compact_geometry(),
+                self.screen_ref.availableGeometry(),
+            )
 
     def _arm_overlay_input_capture(self, seconds: float = 0.65):
         self._overlay_input_capture_until = time.monotonic() + max(0.0, seconds)
@@ -1058,7 +1070,7 @@ class DesktopRuntimeWindow(QWidget):
             if self._overlay_local_input_engaged:
                 self._command_panel.focus_input()
             else:
-                self._arm_overlay_input_capture()
+                self._refresh_overlay_input_capture(seconds=5.0)
             self._log_event("RENDERER_MAIN|COMMAND_DISAMBIGUATION_CANCELLED")
             return
 
@@ -1066,7 +1078,7 @@ class DesktopRuntimeWindow(QWidget):
             if self._overlay_local_input_engaged:
                 self._command_panel.focus_input()
             else:
-                self._arm_overlay_input_capture()
+                self._refresh_overlay_input_capture(seconds=5.0)
             self._log_event("RENDERER_MAIN|COMMAND_CONFIRM_CANCELLED")
             return
 
