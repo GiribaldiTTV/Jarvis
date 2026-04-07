@@ -47,6 +47,11 @@ def runtime_milestone(event):
         pass
 
 
+def overlay_trace_enabled():
+    value = (os.environ.get("NEXUS_OVERLAY_TRACE") or "").strip().casefold()
+    return value in {"1", "true", "yes", "on"}
+
+
 def startup_abort_requested():
     return bool(STARTUP_ABORT_SIGNAL_FILE) and os.path.exists(STARTUP_ABORT_SIGNAL_FILE)
 
@@ -118,7 +123,12 @@ def main():
     bus.command_overlay_backspace_requested.connect(window.handle_overlay_backspace_requested)
     bus.command_overlay_submit_requested.connect(window.handle_overlay_submit_requested)
     bus.command_overlay_escape_requested.connect(window.handle_overlay_escape_requested)
+    bus.command_overlay_global_click_requested.connect(window.handle_overlay_global_click_requested)
     hotkeys.set_overlay_input_enabled_provider(window.overlay_needs_global_input_capture)
+    hotkeys.set_overlay_launch_grace_allowed_provider(window.overlay_allows_launch_grace)
+    hotkeys.set_overlay_click_monitor_provider(window.overlay_monitors_global_clicks)
+    if overlay_trace_enabled():
+        hotkeys.set_debug_logger(runtime_milestone)
     hotkeys.start()
     runtime_milestone("RENDERER_MAIN|HOTKEYS_STARTED")
     if exit_if_startup_abort_requested(hotkeys):

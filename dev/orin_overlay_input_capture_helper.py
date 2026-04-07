@@ -34,6 +34,9 @@ class _FakeRect:
     def height(self):
         return self._height
 
+    def contains(self, x, y):
+        return self._x <= int(x) < (self._x + self._width) and self._y <= int(y) < (self._y + self._height)
+
 
 class _FakeTimer:
     def __init__(self):
@@ -73,6 +76,7 @@ class _FakePanel:
         self.visible = False
         self.last_payload = None
         self.focus_after_show_calls = 0
+        self._frame_rect = _FakeRect(100, 100, 400, 220)
 
     def render_payload(self, payload):
         self.last_payload = payload
@@ -97,21 +101,24 @@ class _FakePanel:
     def setFocus(self, *_args, **_kwargs):
         self.active = True
 
+    def frameGeometry(self):
+        return self._frame_rect
+
 
 def _make_window():
     window = renderer_mod.DesktopRuntimeWindow.__new__(renderer_mod.DesktopRuntimeWindow)
     window.screen_ref = SimpleNamespace(availableGeometry=lambda: _FakeRect())
     window.compute_compact_geometry = lambda: _FakeRect()
     window._is_shutting_down = False
+    window._overlay_trace_enabled = False
     window._command_model = CommandOverlayModel()
     window._command_panel = _FakePanel()
     window._result_close_timer = _FakeTimer()
     window._overlay_input_capture_until = 0.0
     window._overlay_local_input_engaged = False
+    window._overlay_global_capture_suspended = False
     window._log_event = lambda *_args, **_kwargs: None
-    window._apply_command_overlay_state = lambda: window._command_panel.render_payload(
-        window._command_model.view_payload()
-    )
+    window._apply_command_overlay_state = lambda: renderer_mod.DesktopRuntimeWindow._apply_command_overlay_state(window)
     window._show_command_result = lambda kind, text: (
         window._command_model.show_result(kind, text),
         window._apply_command_overlay_state(),
@@ -249,6 +256,36 @@ def _test_reopen_rearms_capture():
     _assert(window.overlay_needs_global_input_capture(), "reopen should arm a fresh capture session")
 
 
+def _test_no_click_external_click_suspends_capture():
+    window = _make_window()
+    window.open_command_overlay()
+    window.handle_overlay_text_requested("a")
+    _assert(window.overlay_needs_global_input_capture(), "no-click entry path should start with fallback capture active")
+    window.handle_overlay_global_click_requested(900, 700)
+    _assert(
+        not window.overlay_needs_global_input_capture(),
+        "clicking outside the overlay should suspend no-click fallback capture so outside typing no longer mirrors",
+    )
+    before = window._command_model.input_text
+    window.handle_overlay_text_requested("x")
+    _assert(window._command_model.input_text == before, "typing after external click should not change the overlay text")
+
+
+def _test_no_click_external_click_clears_typing_ready_visual():
+    window = _make_window()
+    window.open_command_overlay()
+    _assert(
+        window._command_panel.last_payload.get("typing_ready"),
+        "first-open entry should visually present as typing-ready while fallback capture is active",
+    )
+    window.handle_overlay_global_click_requested(900, 700)
+    window._apply_command_overlay_state()
+    _assert(
+        not window._command_panel.last_payload.get("typing_ready"),
+        "outside click should stop the typing-ready visual once fallback capture is suspended",
+    )
+
+
 def _test_ambiguous_choose_confirm_execute_path():
     window = _make_window()
     launches = []
@@ -322,6 +359,16 @@ def _test_hotkey_grace_expires_cleanly():
     _assert(not bus.events, "expired hotkey grace should not keep forwarding stray typing")
 
 
+def _test_hotkey_grace_stands_down_after_manual_local_engagement():
+    bus = _FakeBus()
+    manager = hotkeys_mod.GlobalHotkeyManager(bus)
+    manager.set_overlay_input_enabled_provider(lambda: False)
+    manager.set_overlay_launch_grace_allowed_provider(lambda: False)
+    manager._overlay_launch_grace_until = time.monotonic() + 5.0
+    manager._on_press(pynput_keyboard.KeyCode.from_char("x"))
+    _assert(not bus.events, "launch grace should not keep forwarding typing after real local input ownership is established")
+
+
 def main():
     tests = [
         ("first-open capture", _test_first_open_capture_allows_typing),
@@ -331,11 +378,14 @@ def main():
         ("local focus clears mirroring", _test_local_focus_clears_capture_and_stops_mirroring),
         ("false focus acquire keeps capture", _test_false_focus_acquire_keeps_capture_alive),
         ("reopen rearms capture", _test_reopen_rearms_capture),
+        ("no-click external click suspends capture", _test_no_click_external_click_suspends_capture),
+        ("no-click external click clears typing-ready visual", _test_no_click_external_click_clears_typing_ready_visual),
         ("choose-confirm execute path", _test_ambiguous_choose_confirm_execute_path),
         ("capture expiry", _test_capture_expiry_stands_down_fallback),
         ("line edit focus methods", _test_line_edit_focus_methods_present),
         ("hotkey launch grace", _test_hotkey_launch_grace_bridges_open_gap),
         ("hotkey grace expiry", _test_hotkey_grace_expires_cleanly),
+        ("hotkey grace stops after local engagement", _test_hotkey_grace_stands_down_after_manual_local_engagement),
     ]
 
     for name, fn in tests:
