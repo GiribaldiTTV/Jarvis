@@ -62,6 +62,7 @@ These are the default project-governance and product-boundary docs:
 - `docs/codex_modes.md`
 - `docs/orin_task_template.md`
 - `docs/codex_user_guide.md`
+- `docs/closeout_guidance.md`
 - `docs/user_test_summary_guidance.md`
 
 Within that core set:
@@ -102,13 +103,14 @@ Use these only when the task is directly about those workstreams.
 
 These docs are still valid, but they are not part of the default prompt baseline for every task:
 
-- `docs/v1.6.0_closeout.md`
-- `docs/v1.7.0_closeout.md`
-- `docs/v1.8.0_closeout.md`
-- `docs/v1.9.0_closeout.md`
-- `docs/v2.0_closeout.md`
-- `docs/v2.2.0_closeout.md`
-- `docs/v2.2.1_closeout.md`
+- `docs/closeouts/v1.6.0_closeout.md`
+- `docs/closeouts/v1.7.0_closeout.md`
+- `docs/closeouts/v1.8.0_closeout.md`
+- `docs/closeouts/v1.9.0_closeout.md`
+- `docs/closeouts/v2.0_closeout.md`
+- `docs/closeouts/v2.2.0_closeout.md`
+- `docs/closeouts/v2.2.1_closeout.md`
+- `docs/closeout_index.md`
 
 Use them when the task depends on:
 
@@ -203,6 +205,7 @@ For prompt-governance or workflow-governance tasks, prompts should usually inclu
 - `docs/codex_modes.md`
 - `docs/orin_task_template.md`
 - `docs/codex_user_guide.md`
+- `docs/closeout_guidance.md` when closeout policy, cadence, cleanup, or post-release baseline questions are in scope
 - `docs/user_test_summary_guidance.md`
 
 Add other canonical docs only if the governance wording depends on them.
@@ -217,6 +220,8 @@ This governance lane includes:
 - shorthand prompt and default-baseline behavior
 - human-operator shorthand guidance for reliable short prompts
 
+For reusable human-facing prompt patterns and operator shorthand examples, use `docs/codex_user_guide.md`.
+
 ## When To Add Closeout Docs
 
 Add closeout docs when the task:
@@ -227,6 +232,10 @@ Add closeout docs when the task:
 - needs version-specific implementation facts that are not already captured elsewhere
 
 Do not include all closeout docs by default if only one is relevant.
+
+For closeout policy, cadence, cleanup, or drift questions, use `docs/closeout_guidance.md` alongside the relevant closeout doc or docs.
+
+For historical closeout lookup and browsing, use `docs/closeout_index.md`.
 
 ## When To Add Historical Or Archival Docs
 

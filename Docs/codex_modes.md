@@ -461,6 +461,8 @@ Once a version has a closeout doc and the directly supportive truth-sync items a
 - omit validator, harness, and reachability details that are already captured in the closeout and backlog truth unless the new task depends on them directly
 - avoid repeating the full batched-workstream rule block when `codex_modes.md` is already part of the prompt baseline
 
+Closeout cadence and whether a new closeout is actually needed should follow `docs/closeout_guidance.md` rather than being assumed mechanically from the existence of a release, branch merge, or docs-only pass.
+
 ### Current Boot-Planning Example
 
 For current Jarvis work, `docs/Main.md` should be the default docs index and prompt-baseline map.

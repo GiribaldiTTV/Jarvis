@@ -15,15 +15,35 @@ This guide is downstream of:
 
 If this guide conflicts with those files, those files win.
 
-## Core Rule
+## Quick Start
 
 The best default prompt pattern is:
 
-- one mode or task cue
-- plus one concrete anchor
+- one cue
+- one anchor
+- optional control add-ons only when needed
 
-The cue tells Codex how to work.
-The anchor tells Codex what the work is actually about.
+Use:
+
+- `[cue]: [anchor]`
+
+Examples:
+
+- `Analyze and Report: merge readiness for current branch`
+- `Analyze for drift: current branch before merge`
+- `Workflow mode: fix zero-match safety on current branch`
+- `docs-only pass: improve prompt cookbook guidance`
+- `continue on current branch: finish the remaining regression`
+- `use latest User Test Summary as authoritative and continue`
+
+## Fastest Reliable Rule
+
+Short prompts are fine.
+
+What still matters is:
+
+- the cue tells Codex how to work
+- the anchor tells Codex what the work is about
 
 Good anchors include:
 
@@ -33,6 +53,14 @@ Good anchors include:
 - the workstream
 - the outcome you want
 - the returned evidence artifact
+
+Weak anchors include:
+
+- `continue`
+- `fix it`
+- `look at this`
+
+Those can still work if the current thread already makes the target obvious, but they are less reliable than one explicit anchor.
 
 ## What Codex Should Do Automatically
 
@@ -58,52 +86,13 @@ Codex should still:
 
 If the task is still materially ambiguous after that baseline, Codex should ask one tight clarifying question rather than lowering quality.
 
-## Best Short Prompt Pattern
-
-Use:
-
-- `[cue]: [anchor]`
-
-Examples:
-
-- `Analyze and Report: merge readiness for current branch`
-- `Analyze for drift: FB-027 overlay usability branch`
-- `Workflow mode: fix zero-match enter leak on current branch`
-- `docs-only pass: add shorthand prompt baseline rules`
-- `reference docs for the following: next FB-027 interaction lane`
-- `continue on current branch: finish click-away no-mirroring`
-
-## What Good Anchors Look Like
-
-Good anchors are concrete.
-
-Examples:
-
-- `current branch`
-- `latest User Test Summary`
-- `FB-027 overlay usability`
-- `merge readiness`
-- `zero-match safety`
-- `Docs/Main.md routing cleanup`
-
-Weak anchors are vague.
-
-Examples:
-
-- `look at this`
-- `continue`
-- `fix it`
-
-Those can still work if the current thread already makes the target obvious, but they are less reliable than one explicit anchor.
-
-## Mode Cheat Sheet
+## Cue Cheat Sheet
 
 Use `Analyze and Report` or `Analysis mode` when you want:
 
 - audit
 - sequencing
 - readiness judgment
-- drift review
 - recommendation without patching
 
 Use `Analyze for drift` when you specifically want:
@@ -126,9 +115,147 @@ Use `docs-only pass` when you want:
 - truth-doc updates only
 - no runtime implementation work
 
-## User Test Summary Rule Of Thumb
+## Best Prompt Building Blocks
 
-When handing back a filled `User Test Summary.txt`, the shortest strong prompt is usually:
+The easiest reliable prompt usually contains:
+
+- one cue
+- one anchor
+- zero to three control add-ons
+
+Useful control add-ons include:
+
+- `on current branch`
+- `do not widen scope`
+- `analysis only`
+- `docs-only pass`
+- `no PR/release output`
+- `use latest User Test Summary as authoritative`
+- `self-validate before handoff`
+- `use helper if needed`
+- `commit and push if clean`
+
+These add-ons are optional.
+Use them only when they materially reduce ambiguity or protect scope.
+
+## Prompt Recipes
+
+### Analyze The Next Move
+
+Use:
+
+- `Analyze and Report: best next lane after current branch`
+
+Useful add-ons:
+
+- `analysis only`
+- `use latest User Test Summary as authoritative`
+
+### Check For Drift
+
+Use:
+
+- `Analyze for drift: current branch before merge`
+
+Best for:
+
+- mixed-scope branches
+- stale prompt assumptions
+- source-of-truth mismatch
+- architecture or workflow drift
+
+### Continue The Same Branch
+
+Use:
+
+- `continue on current branch: [exact remaining bug or task]`
+
+Examples:
+
+- `continue on current branch: finish zero-match safety`
+- `continue on current branch: do one final smoke-focused hardening pass`
+
+### Run A Narrow Fix Pass
+
+Use:
+
+- `Workflow mode: fix [bug] on current branch`
+
+Useful add-ons:
+
+- `do not widen scope`
+- `use helper if needed`
+- `self-validate before handoff`
+
+### Review A Returned User Test Summary
+
+Use:
+
+- `review latest User Test Summary to files-of-truth standards`
+
+or:
+
+- `use latest User Test Summary as authoritative and continue`
+
+### Run A Docs-Only Pass
+
+Use:
+
+- `docs-only pass: [exact truth change]`
+
+Examples:
+
+- `docs-only pass: add prompt recipes for same-branch workflow`
+- `docs-only pass: clarify helper decision rules`
+
+### Ask For A Ready-To-Use Prompt
+
+Use:
+
+- `give me a prompt for ChatGPT to [task]`
+
+Examples:
+
+- `give me a prompt for ChatGPT to fix zero-match safety on the current branch`
+- `give me a prompt for ChatGPT to analyze merge readiness`
+
+### Publish Completed Work
+
+Use:
+
+- `commit and push`
+
+If you want more safety, use:
+
+- `review current branch, then commit and push if clean`
+
+### Ask For A Merge-Readiness Review
+
+Use:
+
+- `Analyze and Report: merge readiness for current branch`
+
+Useful add-ons:
+
+- `analysis only`
+- `no PR/release output`
+
+### Ask For A Branch Plan
+
+Use:
+
+- `analysis-to-plan pass: [goal]`
+
+Examples:
+
+- `analysis-to-plan pass: improve Codex operator workflow`
+- `analysis-to-plan pass: choose the next FB-027 interaction lane`
+
+## High-Value Special Cases
+
+### Latest User Test Summary
+
+When handing back a filled `User Test Summary.txt`, the strongest short prompt is usually:
 
 - `use latest User Test Summary as authoritative and continue`
 
@@ -144,7 +271,7 @@ Codex should then:
 - separate current-slice work from later ideas
 - recommend the next move using repo truth
 
-## Same-Branch Continuation Rule Of Thumb
+### Same-Branch Continuation
 
 When you want Codex to stay on the same branch, the strongest short prompts are:
 
@@ -153,7 +280,7 @@ When you want Codex to stay on the same branch, the strongest short prompts are:
 
 This keeps branch churn low while still preserving scope.
 
-## Review And Readiness Shortcuts
+### Review And Readiness
 
 Good short prompts for review:
 
@@ -165,6 +292,30 @@ Good short prompts for implementation:
 
 - `Workflow mode: finish Issue 1 on current branch`
 - `Workflow mode: do a tiny docs-only pass for shorthand prompt guidance`
+
+## When To Use A Longer Prompt
+
+Use a longer structured prompt when:
+
+- the branch state may be stale or ambiguous
+- you need very tight in-scope and out-of-scope boundaries
+- the task spans more than one approval-sensitive step
+- the work could affect release/readiness, backlog, or source-of-truth canon significantly
+- the work involves many exact files, helper paths, or validation expectations
+
+If the task is simple, a short prompt is usually enough.
+If the task has hidden risk, a longer prompt is worth it.
+
+## Best Operator Habits
+
+These habits will make the system easier to use:
+
+- prefer one cue plus one anchor over very long prompts by default
+- add one control add-on only when scope or validation is easy to misunderstand
+- use `Analyze for drift` before merge, release, or major docs carry-forward decisions
+- use `use latest User Test Summary as authoritative` whenever returned testing should control the next move
+- use `give me a prompt for ChatGPT to ...` whenever you want a reusable handoff prompt instead of rebuilding one manually
+- keep using the desktop shortcut to the live guide so updates in repo truth stay visible without duplicating guidance
 
 ## What This Guide Does Not Do
 
