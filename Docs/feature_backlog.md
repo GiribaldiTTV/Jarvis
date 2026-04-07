@@ -1149,6 +1149,18 @@ Current branch-local follow-through above that same foundation now also includes
 
 These branch-local follow-through items remain part of the same staged `FB-027` interaction lane rather than separate backlog items.
 
+Current NCP hardening and sequencing truth for that same follow-through now lives in `docs/ncp_hardening_assessment.md`.
+That document should be treated as the canonical reference for:
+
+- what is complete enough now in the typed-first NCP hardening lane
+- what is mostly hardened but still under-validated
+- what still remains a meaningful near-term hardening candidate
+
+Current repo truth remains conservative:
+
+- NCP hardening is still FB-027 follow-through, not a separate backlog item
+- `launch_failed` user-visible failure-state predictability is the current validation-first candidate, not an automatic patch target
+
 Release-stage mapping:
 
 - `pre-Beta`: first typed-first interaction foundation slice is now implemented in `v2.2.1 rev1`; later pre-Beta work remains limited to additional interaction-model follow-through above the same desktop overlay foundation
