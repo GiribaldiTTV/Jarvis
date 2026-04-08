@@ -107,6 +107,9 @@ This should be treated as a validation-first candidate, not as an automatically 
 The current question is not whether a broader failure system should be redesigned.
 The current question is only whether the visible `launch_failed` path feels as reset-clean and predictable as the now-validated success path.
 
+Broader failure-class, diagnostics-surface, reporting, or voice-role contract work now belongs to `docs/architecture.md` rather than this NCP hardening doc.
+That later cross-system work should not be treated as an automatic continuation of the current typed-first NCP hardening lane.
+
 ## Not In Work Yet
 
 These items are relevant to future NCP follow-through but are not active work right now:

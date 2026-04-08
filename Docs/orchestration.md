@@ -123,6 +123,16 @@ The renderer is responsible for:
 - cooperative response to launcher control signals
 - clean shutdown behavior
 
+## Diagnostics-Surface Boundary
+
+Within orchestration truth, the launcher-owned diagnostics completion path is for fatal or instability-class launcher and renderer outcomes.
+
+This document should not be read as implying that every recoverable incident in higher interaction layers should open the diagnostics UI.
+
+Contained recoverable failures in interaction surfaces may remain local to those surfaces unless a later explicitly approved failure-class contract says a bounded recoverable incident should surface a separate diagnostics or reporting view.
+
+That later clarification must not silently redesign launcher retry, escalation, threshold, or diagnostics-entry policy.
+
 ## v1.6.0 Evolution (rev10-rev24)
 
 ### rev10-rev12

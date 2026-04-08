@@ -665,6 +665,12 @@ Out of Scope:
 Notes:
 The first coherent manual reporting flow is now implemented as a privacy-safe diagnostics-window `Report Issue` action. It generates a local support bundle, writes the manifest, opens a prefilled GitHub issue page for manual completion, keeps attachment and submission manual, and includes a crash log only when the runtime-to-crash match is trustworthily determinable. The support bundle remains simple by default, with advanced/internal artifacts included only if explicitly needed later. The repo now also includes a contained offscreen validator for the production diagnostics `Report Issue` path that verifies support-bundle creation, manifest/manual-submission contract fields, and GitHub issue-prefill URL plus open-attempt handling without changing production behavior. That validator is now reachable through a dedicated VBS launcher and a report-aware lane in the accepted PySide dev toolkit.
 
+Current approved future follow-through above the same reporting boundary:
+
+- a bounded UX confirmation/warning step may later be added ahead of the `Report Issue` action so the user is explicitly told that a local support bundle will be created, the bundle folder will open, a GitHub issue draft will open, and final attachment/submission remain manual
+- that confirmation follow-through should preserve the existing privacy-safe manual reporting contract rather than redesigning diagnostics policy or introducing automatic upload behavior
+- broader recoverable-incident diagnostics triggering remains separate failure-class work and should not be folded into `FB-017` by default
+
 ---
 
 ### [ID: FB-018] Voice-path regression validation harness
@@ -1493,6 +1499,68 @@ Out of Scope:
 
 Notes:
 Current branch-local evidence indicates the helper is useful for internal startup debugging, but it should remain clearly separate from normal runtime behavior and should only be kept long-term if it stays harness-gated, low-noise, and bounded to developer investigation needs.
+
+---
+
+### [ID: FB-034] Recoverable incident diagnostics surface and failure-class follow-through
+
+Status: Deferred
+Priority: Medium
+Suggested Version: TBD
+Suggested Revision: rev1
+Release Stage: pre-Beta
+
+Description:
+Define a later bounded follow-through for recoverable incidents that should surface diagnostics or reporting while Nexus remains operational, without collapsing those incidents into the fatal launcher diagnostics path.
+
+Why it matters:
+Current repo truth now distinguishes between contained recoverable action failures, future recoverable operational incidents, and fatal launcher/runtime/persona failures. Without a tracked follow-through item, later work could drift into ad hoc diagnostics triggers, inconsistent voice behavior, or silent reporting-policy expansion.
+
+Proposed Change:
+Use the failure-class / diagnostics-surface contract in `docs/architecture.md` as the planning baseline for a later bounded slice that:
+
+- selects one recoverable high-signal incident class only
+- decides whether that class should stay inline or surface a recoverable diagnostics/reporting view
+- preserves the existing manual-reporting boundary
+- keeps fatal launcher/runtime diagnostics completion behavior separate
+- uses normal ORIN voice/trace semantics for recoverable incidents when voice is present
+
+Likely Files Affected:
+- C:/Nexus Desktop AI/Docs/architecture.md
+- C:/Nexus Desktop AI/Docs/orchestration.md
+- C:/Nexus Desktop AI/desktop/desktop_renderer.py
+- C:/Nexus Desktop AI/desktop/orin_desktop_launcher.pyw
+- C:/Nexus Desktop AI/desktop/orin_diagnostics.pyw
+- C:/Nexus Desktop AI/desktop/orin_support_reporting.py
+- C:/Nexus Desktop AI/Audio/orin_voice.py
+- C:/Nexus Desktop AI/Audio/orin_error_voice.py
+
+Scope:
+- failure-class follow-through for recoverable incidents
+- bounded recoverable diagnostics/reporting surface planning and later implementation
+- normal-versus-error voice role split by failure class
+- preserving manual-reporting boundaries while broadening incident-class clarity
+
+Out of Scope:
+- treating every recoverable issue as a diagnostics popup
+- silent or background upload behavior
+- fully automatic GitHub submission
+- launcher retry, escalation, threshold, or fatal diagnostics-entry policy redesign
+- broad diagnostics UI redesign
+- broad voice redesign unrelated to failure-class semantics
+- automatic continuation of the current NCP hardening lane
+
+Notes:
+Current source-of-truth ownership now lives in `docs/architecture.md`.
+That contract is intentionally conservative:
+
+- contained recoverable action failures such as current NCP `launch_failed` remain inline by default
+- recoverable diagnostics or reporting surfaces are future bounded work, not automatic current behavior
+- fatal launcher/runtime/persona failures keep the existing launcher-owned diagnostics completion path
+- later implementation should begin with one bounded recoverable incident class rather than a blanket new diagnostics trigger
+
+This item should remain separate from `FB-027` and `FB-017`.
+It is cross-system planning work, not a pure NCP hardening slice and not only a `Report Issue` UX refinement.
 
 ---
 
