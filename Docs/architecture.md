@@ -540,3 +540,142 @@ Current guarantees remain unchanged:
 
 The support bundle should remain simple by default.
 Advanced or internal artifacts may be considered only in a later explicitly approved slice.
+
+## Failure-Class / Diagnostics-Surface Contract
+
+This contract defines how current and future Nexus failures should be classified for user-visible handling without silently widening current launcher policy.
+
+The classification rule is:
+
+- classify by survivability and ownership first
+- do not classify only by which subsystem raised the problem
+- do not treat every recoverable issue as a diagnostics popup
+
+Current repo truth supports four meaningful classes:
+
+### Class 1: Expected Non-Success Or Guidance State
+
+Examples may include:
+
+- `not_found`
+- ambiguous choice
+- explicit confirm step
+
+These are not incident surfaces.
+They should remain inline, local, and lightweight.
+
+### Class 2: Contained Recoverable Action Failure
+
+This means a user-visible action failed, but Nexus remains operational and the failure stays contained to the active interaction surface.
+
+Current example:
+
+- NCP `launch_failed` inside the command overlay
+
+Current default behavior for this class should be:
+
+- contained user-visible result inside the active surface
+- clean retry and reset posture
+- relevant runtime trace for the failed action
+- no automatic diagnostics-window escalation
+- no corrupted/error voice behavior
+
+This class may later gain a bounded report affordance if explicitly approved, but that is not implied by this contract.
+
+### Class 3: Recoverable Operational Incident While Nexus Remains Alive
+
+This means something meaningful went against normal expected Nexus behavior, but the persona and runtime remain operational enough to continue guiding the user.
+
+This class is a future planning boundary, not a broadly implemented current behavior.
+
+When later approved for a specific subsystem, this class may use:
+
+- a recoverable diagnostics or reporting surface
+- normal ORIN voice and trace semantics
+- relevant local evidence for user review
+- the existing manual reporting boundary when reporting is exposed
+
+This class must not be treated as permission to send every recoverable issue directly into diagnostics.
+It should be used only for bounded high-signal incidents that merit operator review while the system remains alive.
+
+### Class 4: Fatal Launcher / Runtime / Persona Failure
+
+This means Nexus can no longer be treated as normally operational for the current run.
+
+Current examples include:
+
+- launcher-owned instability exhaustion
+- repeated startup-abort exhaustion
+- repeated identical crash exhaustion
+- equivalent renderer or launcher failure states that reuse the current diagnostics completion path
+
+Current default behavior for this class should remain:
+
+- launcher-owned diagnostics completion path
+- diagnostics UI
+- launcher/runtime truth surfaces
+- corrupted/error voice behavior where currently defined
+
+### Surface Mapping
+
+The current recommended surface mapping is:
+
+- Class 1 -> inline or contained guidance only
+- Class 2 -> inline or contained recoverable failure only
+- Class 3 -> recoverable diagnostics or reporting surface when later explicitly approved for a bounded incident class
+- Class 4 -> existing launcher-owned diagnostics completion path
+
+This contract does not by itself authorize new diagnostics triggers or UI surfaces.
+It defines the intended shape for future bounded work.
+
+### Voice / Persona Mapping
+
+The current recommended voice split is:
+
+- Class 1 -> usually no voice
+- Class 2 -> no corrupted/error voice; future normal ORIN guidance remains optional and approval-gated
+- Class 3 -> normal ORIN voice and trace semantics when voice is present
+- Class 4 -> corrupted/error voice semantics for launcher-owned fatal or instability completion paths
+
+This preserves the difference between:
+
+- recoverable incidents where Nexus is still functioning
+- failures where the persona/runtime is no longer functioning normally
+
+### Evidence / Reporting Boundary By Failure Class
+
+All classes may write relevant runtime evidence within their owned surfaces.
+
+The current reporting boundary remains:
+
+- local support-bundle generation only
+- local bundle folder open
+- prefilled GitHub issue draft open when available
+- manual user review before sharing
+- manual user attachment and submission
+- no silent or background upload behavior
+
+Current reporting expectations by class are:
+
+- Class 1 -> no diagnostics reporting surface required
+- Class 2 -> trace evidence only by default
+- Class 3 -> may expose a recoverable diagnostics or reporting surface in a later bounded slice
+- Class 4 -> existing diagnostics-window reporting flow
+
+This contract must not be used to smuggle automatic upload, silent collection expansion, or launcher-policy changes into future work.
+
+### Extensibility Rule
+
+Future subsystem additions should map into the existing classes above before proposing a new failure class.
+
+That means future work should:
+
+- prefer survivability and ownership as the classification rule
+- reuse the existing manual-reporting boundary unless a later explicit reporting-policy revision changes it
+- leave room for future recoverable incident classes that do not exist yet
+- allow later re-analysis as new subsystems, voice behaviors, and packaged product layers are added
+
+Only add a new class later if a future subsystem truly cannot fit the four-class model cleanly.
+
+This contract is intentionally conservative.
+It preserves room for later refinement without overfitting current implementation details.
