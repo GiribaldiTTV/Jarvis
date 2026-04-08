@@ -57,7 +57,7 @@ DEFAULT_COMMAND_ACTIONS = (
     ),
 )
 
-SUPPORTED_ACTION_TARGET_KINDS = frozenset({"app", "folder", "file", "url"})
+SUPPORTED_ACTION_TARGET_KINDS = frozenset({"app", "folder", "file"})
 
 
 class CommandActionCatalog:
