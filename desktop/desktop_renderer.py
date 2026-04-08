@@ -18,7 +18,8 @@ from PySide6.QtCore import Qt, QTimer, QUrl, QRect, Signal
 from PySide6.QtGui import QColor
 from PySide6.QtWebEngineWidgets import QWebEngineView
 
-from .interaction_overlay_model import CommandOverlayModel, launch_command_action
+from .interaction_overlay_model import CommandOverlayModel
+from .shared_action_model import launch_command_action
 from .workerw_utils import (
     attach_window_to_desktop,
     get_last_workerw_probe_events,
