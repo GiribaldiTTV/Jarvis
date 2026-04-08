@@ -6,6 +6,26 @@ from typing import Any
 
 
 DEFAULT_SAVED_ACTION_FILENAME = "saved_actions.json"
+DEFAULT_SAVED_ACTION_TEMPLATE = {
+    "schema_version": 1,
+    "actions": [],
+    "examples": [
+        {
+            "id": "open_notepad",
+            "title": "Open Notepad",
+            "target_kind": "app",
+            "target": "notepad.exe",
+            "aliases": ["open notepad"],
+        },
+        {
+            "id": "open_downloads",
+            "title": "Open Downloads",
+            "target_kind": "folder",
+            "target": r"C:\Users\YourName\Downloads",
+            "aliases": ["open downloads", "show downloads"],
+        },
+    ],
+}
 
 
 @dataclass(frozen=True)
@@ -22,6 +42,34 @@ def resolve_default_saved_action_source_path() -> Path:
     return Path.home() / "AppData" / "Local" / "Nexus Desktop AI" / DEFAULT_SAVED_ACTION_FILENAME
 
 
+def _default_saved_action_source_text() -> str:
+    return json.dumps(DEFAULT_SAVED_ACTION_TEMPLATE, indent=2) + "\n"
+
+
+def ensure_saved_action_source_bootstrap(
+    source_path: str | os.PathLike[str] | None = None,
+) -> Path | None:
+    path = (
+        Path(source_path)
+        if source_path is not None
+        else resolve_default_saved_action_source_path()
+    )
+
+    try:
+        if path.exists():
+            return path if path.is_file() else None
+    except OSError:
+        return None
+
+    try:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(_default_saved_action_source_text(), encoding="utf-8")
+    except OSError:
+        return None
+
+    return path
+
+
 def load_saved_action_source(
     source_path: str | os.PathLike[str] | None = None,
 ) -> SavedActionSourcePayload | None:
@@ -30,6 +78,13 @@ def load_saved_action_source(
         if source_path is not None
         else resolve_default_saved_action_source_path()
     )
+
+    # Bootstrap only the default runtime source so users get an explicit starter
+    # file without widening fallback behavior for custom or validation-only paths.
+    if source_path is None:
+        bootstrapped_path = ensure_saved_action_source_bootstrap()
+        if bootstrapped_path is not None:
+            path = bootstrapped_path
 
     try:
         if not path.exists() or not path.is_file():
