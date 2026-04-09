@@ -5,6 +5,7 @@ import sys
 import time
 import re
 import json
+import shutil
 import subprocess
 import datetime
 import platform
@@ -52,6 +53,9 @@ CONSECUTIVE_STARTUP_ABORT_THRESHOLD = 2
 CONSECUTIVE_IDENTICAL_CRASH_THRESHOLD = 2
 HISTORY_SCHEMA_VERSION = 1
 HISTORY_STABILITY_WINDOW_SIZE = 5
+HISTORY_FILENAME = "jarvis_history_v1.jsonl"
+HISTORY_STATE_DIRNAME = "Nexus Desktop AI"
+HISTORY_STATE_SUBDIR = "state"
 ADVISORY_CONFIDENCE_DIRECT_EVIDENCE = "direct_evidence"
 ADVISORY_CONFIDENCE_PATTERN_EVIDENCE = "pattern_evidence"
 
@@ -284,8 +288,93 @@ def select_diagnostics_priority(failure_stability):
     return ""
 
 
-def history_file():
-    return os.path.join(LOG_DIR, "jarvis_history_v1.jsonl")
+def legacy_history_file_path(log_dir=DEFAULT_LOG_DIR):
+    return os.path.join(os.path.abspath(log_dir), HISTORY_FILENAME)
+
+
+def history_state_root(log_dir=LOG_DIR, harness_log_root=None, local_app_data=None, home_dir=None):
+    resolved_harness_log_root = (harness_log_root or "").strip()
+    if resolved_harness_log_root:
+        return os.path.abspath(log_dir)
+
+    resolved_local_app_data = local_app_data
+    if resolved_local_app_data is None:
+        resolved_local_app_data = os.environ.get("LOCALAPPDATA", "")
+    resolved_local_app_data = resolved_local_app_data.strip()
+    if resolved_local_app_data:
+        return os.path.join(
+            os.path.abspath(resolved_local_app_data),
+            HISTORY_STATE_DIRNAME,
+            HISTORY_STATE_SUBDIR,
+        )
+
+    resolved_home_dir = home_dir
+    if resolved_home_dir is None:
+        resolved_home_dir = os.path.expanduser("~")
+    resolved_home_dir = resolved_home_dir.strip()
+    if resolved_home_dir:
+        return os.path.join(
+            os.path.abspath(resolved_home_dir),
+            "AppData",
+            "Local",
+            HISTORY_STATE_DIRNAME,
+            HISTORY_STATE_SUBDIR,
+        )
+
+    raise ValueError("No launcher-owned state root is available for historical memory storage.")
+
+
+def history_file(log_dir=LOG_DIR, harness_log_root=None, local_app_data=None, home_dir=None):
+    state_root = history_state_root(
+        log_dir=log_dir,
+        harness_log_root=harness_log_root,
+        local_app_data=local_app_data,
+        home_dir=home_dir,
+    )
+    return os.path.join(state_root, HISTORY_FILENAME)
+
+
+def migrate_history_file_if_needed(target_path, legacy_path):
+    resolved_target_path = os.path.abspath(target_path)
+    resolved_legacy_path = os.path.abspath(legacy_path)
+
+    if resolved_target_path == resolved_legacy_path:
+        return
+    if os.path.exists(resolved_target_path):
+        return
+    if not os.path.isfile(resolved_legacy_path):
+        return
+
+    target_parent_dir = os.path.dirname(resolved_target_path)
+    if not target_parent_dir:
+        raise ValueError("Historical state target path has no parent directory.")
+    os.makedirs(target_parent_dir, exist_ok=True)
+
+    migration_temp_path = resolved_target_path + ".migrating"
+    if os.path.exists(migration_temp_path):
+        if os.path.isfile(migration_temp_path):
+            os.remove(migration_temp_path)
+        else:
+            raise IsADirectoryError(f"Historical state migration temp path is a directory: {migration_temp_path}")
+
+    target_created = False
+    try:
+        shutil.copy2(resolved_legacy_path, migration_temp_path)
+        os.replace(migration_temp_path, resolved_target_path)
+        target_created = True
+        os.remove(resolved_legacy_path)
+    except Exception:
+        if os.path.isfile(migration_temp_path):
+            try:
+                os.remove(migration_temp_path)
+            except Exception:
+                pass
+        if target_created and os.path.isfile(resolved_target_path) and os.path.isfile(resolved_legacy_path):
+            try:
+                os.remove(resolved_target_path)
+            except Exception:
+                pass
+        raise
 
 
 def history_timestamp():
@@ -296,11 +385,18 @@ def normalize_history_run_id(run_id):
     return strip_label_prefix(run_id, "Run ID: ") or RUN_ID_STEM
 
 
-def prepare_history_storage_path():
-    path = os.path.abspath(history_file())
+def prepare_history_storage_path(path=None, legacy_path=None):
+    harness_log_root = os.environ.get("JARVIS_HARNESS_LOG_ROOT", "")
+    path = os.path.abspath(path or history_file(harness_log_root=harness_log_root))
     parent_dir = os.path.dirname(path)
     if not parent_dir:
         raise ValueError("History storage path has no parent directory.")
+
+    resolved_legacy_path = legacy_path
+    if resolved_legacy_path is None:
+        resolved_legacy_path = legacy_history_file_path(log_dir=harness_log_root or DEFAULT_LOG_DIR)
+
+    migrate_history_file_if_needed(path, resolved_legacy_path)
     os.makedirs(parent_dir, exist_ok=True)
     if os.path.isdir(path):
         raise IsADirectoryError(f"History storage path is a directory: {path}")
@@ -357,7 +453,7 @@ def validate_history_record(record):
 
 def load_history_records():
     try:
-        history_path = os.path.abspath(history_file())
+        history_path = prepare_history_storage_path()
         if not os.path.exists(history_path):
             return []
         if os.path.isdir(history_path):

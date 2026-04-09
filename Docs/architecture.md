@@ -142,7 +142,10 @@ Current root-owned live launcher surfaces remain under `C:/Jarvis/logs` only for
 - launcher-generated `Runtime_*.txt`
 - matching live crash logs under `C:/Jarvis/logs/crash`
 - launcher control/status files when relevant
-- the current launcher-owned historical state file until a later approved relocation moves it elsewhere
+
+Launcher-owned historical state no longer lives under the root logs tree during normal runtime.
+It now resolves under `%LOCALAPPDATA%/Nexus Desktop AI/state/jarvis_history_v1.jsonl`, while contained harness runs may still keep historical state under the contained harness log root to preserve isolation.
+This relocation does not change runtime log, crash log, or support-bundle locations.
 
 Dev/test/worker/toolkit evidence does not belong in the live root logs tree.
 That evidence must write under `C:/Jarvis/dev/logs/<lane>/...` and must not introduce new artifact families or new subfolders under `C:/Jarvis/logs` or `C:/Jarvis/logs/crash` without explicit approval.
