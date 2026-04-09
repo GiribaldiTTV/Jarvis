@@ -60,6 +60,10 @@ After that, the Nexus pre-Beta public release line moved to:
 - `v1.0.1-prebeta`
 - `v1.1.0-prebeta`
 - `v1.1.1-prebeta`
+- `v1.2.0-prebeta`
+- `v1.2.1-prebeta`
+- `v1.2.2-prebeta`
+- `v1.2.3-prebeta`
 
 but no matching closeout series was created for those newer pre-Beta releases.
 
@@ -189,7 +193,7 @@ For the current repo state:
 - closeouts should not be treated as abandoned
 - closeouts should resume when the next meaningful Nexus milestone closes, not automatically after every small patch
 
-If a future planning pass needs a fresh post-`v1.1.1-prebeta` canonical baseline before broader next-lane work, the best move would be:
+If a future planning pass needs a fresh post-`v1.2.3-prebeta` canonical baseline before broader next-lane work, the best move would be:
 
 - one Nexus-era milestone rebaseline or closeout
 
