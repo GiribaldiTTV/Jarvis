@@ -232,8 +232,8 @@ This governance lane includes:
 
 For reusable human-facing prompt patterns and operator shorthand examples, use `docs/codex_user_guide.md`.
 
-For current near-term roadmap, branch-sequencing, or provisional version-impact questions, use `docs/prebeta_roadmap.md`.
-For grouped `pre-Beta` branch-sizing, minimum merge-ready threshold, or "should this lane stop now?" questions, use `docs/prebeta_roadmap.md` together with `docs/codex_modes.md`.
+For current near-term roadmap, branch-sequencing, or provisional release-floor / target-version questions, use `docs/prebeta_roadmap.md`.
+For grouped `pre-Beta` branch-sizing, minimum merge-ready threshold, release floor, target version, release-debt, or "should this lane stop now?" questions, use `docs/prebeta_roadmap.md` together with `docs/codex_modes.md`.
 That roadmap remains subordinate to:
 
 - `docs/orin_vision.md` for release-stage meaning

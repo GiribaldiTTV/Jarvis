@@ -325,7 +325,8 @@ For `pre-Beta`, the default branch strategy should usually prefer focus-group la
 For those `pre-Beta` focus-group lanes:
 
 - merge cadence should follow meaningful lane milestones rather than every tiny follow-through
-- release cadence should follow meaningful lane milestones when a release is appropriate
+- non-doc implementation branches should usually be version-bearing lane milestones rather than merge-only deltas
+- release cadence should follow those implementation-lane milestones and should usually advance by at least the next patch prerelease step unless the user explicitly approves a different posture
 - grouped branches must still be split if the work starts crossing subsystem boundaries or accumulating unrelated fixes
 
 ## Grouped Lane Milestone Gate
@@ -345,6 +346,54 @@ Instead, Codex should continue through additional narrow slices inside the same 
 - or the user explicitly chooses to stop early
 
 If enabling groundwork and the first usable outcome are tightly coupled inside one subsystem and remain low-risk, they should usually stay in the same grouped branch rather than being split into separate micro-branches or premature PRs.
+
+## Grouped Lane Release Floor
+
+For an active `pre-Beta` grouped lane, Codex should also define before implementation:
+
+- the lane type
+- the release floor
+- the target version for non-doc implementation lanes
+
+Use these lane types:
+
+- `docs-only`
+- `implementation`
+- `rebaseline`
+
+Use these release floors:
+
+- `no release`
+- `patch prerelease`
+- `minor prerelease`
+
+Rules:
+
+- `docs-only` branches are the default and preferred `no release` exception
+- `rebaseline` branches may remain `no release` when they are docs-only and are only syncing baseline truth after a release or milestone
+- non-doc `implementation` branches should usually declare at least `patch prerelease`
+- larger subsystem or capability shifts may justify `minor prerelease`
+
+Codex should judge PR-readiness for a non-doc implementation branch against:
+
+- the lane milestone target
+- the minimum merge-ready threshold
+- the declared release floor
+- the declared target version
+
+## Release-Debt Stop Rule
+
+If `main` already contains merged unreleased non-doc implementation work beyond the latest public prerelease, Codex should treat that as release debt.
+
+While release debt exists, Codex should not recommend merging another non-doc implementation branch by default unless:
+
+- the new branch is the intentionally selected version-bearing milestone that resolves that debt
+- or the user explicitly approves stacking more implementation before the next release
+
+When release debt exists, the default next move should usually be:
+
+- release or version-readiness review
+- or a docs-only rebaseline or governance pass that is directly needed to resolve the release decision cleanly
 
 At `Beta` and later, the default recommendation should usually shift toward:
 
