@@ -6,10 +6,15 @@ from pathlib import Path
 from typing import Iterable
 from urllib.parse import urlparse, unquote
 
-from .saved_action_source import load_saved_action_source
+from .saved_action_source import (
+    load_saved_action_source,
+    resolve_default_saved_action_source_path,
+)
 
 
 ROOT_DIR = Path(__file__).resolve().parent.parent
+DEFAULT_SAVED_ACTION_SOURCE_PATH = resolve_default_saved_action_source_path()
+DEFAULT_SAVED_ACTION_SOURCE_FOLDER = DEFAULT_SAVED_ACTION_SOURCE_PATH.parent
 
 
 @dataclass(frozen=True)
@@ -54,6 +59,29 @@ DEFAULT_COMMAND_ACTIONS = (
         target_kind="app",
         target="explorer.exe",
         aliases=("open windows explorer", "open file explorer", "windows explorer"),
+    ),
+    CommandAction(
+        id="open_saved_actions_file",
+        title="Open Saved Actions File",
+        target_kind="file",
+        target=str(DEFAULT_SAVED_ACTION_SOURCE_PATH),
+        aliases=(
+            "open saved actions file",
+            "open saved actions json",
+            "open saved actions config",
+            "edit saved actions file",
+        ),
+    ),
+    CommandAction(
+        id="open_saved_actions_folder",
+        title="Open Saved Actions Folder",
+        target_kind="folder",
+        target=str(DEFAULT_SAVED_ACTION_SOURCE_FOLDER),
+        aliases=(
+            "open saved actions folder",
+            "open saved actions directory",
+            "show saved actions folder",
+        ),
     ),
 )
 
