@@ -407,17 +407,63 @@ unless a grouped branch remains clearly justified.
 
 After a prior workstream branch has been merged, released if applicable, and deleted, the next workstream should start from updated `main` on a fresh branch.
 
-If the first required post-merge or post-release work is a docs-only roadmap, rebaseline, or drift-refresh pass so shared canon matches live repo truth, Codex may create that fresh docs-only branch immediately after verifying the live repo state.
+For routine Nexus `pre-Beta` work, standalone docs-only roadmap, rebaseline, or drift-refresh branches should not be the default cleanup path anymore.
 
-In that case, the docs-only refresh branch itself counts as the first new workstream branch and should land before a new implementation branch is created from the refreshed shared baseline.
+Instead, canon freshness must be handled in only two required windows:
 
-Codex should not create that next branch until:
+### 1. Branch-Start Canon Alignment Review
 
-- the live post-merge or post-release repo state has been verified
-- the next workstream plan is clearly established
-- the user has approved that next branch path
+Before the first code slice on every new non-doc implementation branch, Codex must run a deep branch-start canon alignment review against:
 
-Once those conditions are met, creating the fresh branch may be the first Workflow-mode step of the new workstream.
+- `docs/Main.md`
+- `docs/development_rules.md`
+- `docs/codex_modes.md`
+- the directly relevant planning docs
+- the directly relevant architecture docs
+- the directly relevant implementation truth
+
+That review must:
+
+- close the just-finished released or merged lane in canon when that closure is now known
+- activate or clarify the new lane in canon when that activation is already known
+- sync only the directly supporting docs needed for the new branch to start from current shared truth
+- land any required docs-only sync as the first commit, or first tightly grouped docs-only commits, on that same new implementation branch before further implementation work
+
+### 2. Pre-PR Canon Freeze Review
+
+Before PR packaging for a non-doc implementation branch, Codex must run a deep canon-freeze review on that same branch.
+
+That review must confirm:
+
+- the roadmap entry matches actual branch truth
+- the backlog item state, suggested version, and suggested revision fields match actual lane truth
+- governing docs reflect any implemented boundary changes now carried by that lane
+- architecture docs reflect any implemented boundary changes now carried by that lane
+- no directly supporting canon needed for merge or release remains stale
+
+If supporting canon is still stale, the required sync must land on the same branch before PR packaging.
+
+### Post-Release Lifecycle Closure Rule
+
+Some facts cannot become true until a public release actually exists. Those facts include:
+
+- latest public prerelease
+- lane `release state: released`
+- lane `status: closed` when that closure depends on the release actually existing
+
+When those release-dependent facts change, Codex should not open a routine standalone docs-only refresh branch by default.
+
+Instead:
+
+- if a new implementation lane is about to begin, Codex should carry the release-closure sync as the first docs-only step on that new implementation branch during the branch-start canon alignment review
+- if no safe next implementation branch can yet be chosen, Codex must say so explicitly and ask for user approval before using any standalone docs-only exception path
+
+This means routine roadmap or drift refresh should happen either:
+
+- before PR on the active implementation branch
+- or at the start of the next implementation branch
+
+It should not be deferred into a separate docs-only branch by default.
 
 ---
 
@@ -478,6 +524,13 @@ Codex should not add a `Not included` section unless:
 
 - the user explicitly asks for one
 - omitting it would create a real scope misunderstanding for the active task
+
+For non-doc implementation branches, PR-readiness output must explicitly state one of:
+
+- `supporting canon already aligned on branch`
+- `supporting canon sync required before PR`
+
+That canon-freshness result is mandatory and must be based on live branch truth, not on prompt framing alone.
 
 In slice-sizing terms:
 

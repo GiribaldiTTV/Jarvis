@@ -129,6 +129,14 @@ That means:
 - do not force a new closeout doc for every small pre-Beta patch release
 - do create a closeout when a meaningful milestone or lane has actually stabilized and future planning will benefit from a fresh baseline
 
+For small Nexus `pre-Beta` patch releases that do not justify their own closeout, the default closure path should be:
+
+- carry any branch-truth canon sync on the active implementation branch before PR
+- carry any release-dependent lifecycle closure on the next implementation branch as its first docs-only step
+- do not create a standalone docs-only roadmap or drift-refresh branch by default just to close a small released lane
+
+Use a standalone docs-only exception only when no safe next implementation branch can yet be chosen and the user explicitly approves that exception.
+
 Examples that usually do not need their own closeout:
 
 - tiny usability follow-through

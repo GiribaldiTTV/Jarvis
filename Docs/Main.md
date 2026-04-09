@@ -205,6 +205,26 @@ That first prompt should explicitly answer:
 - what facts must be carried forward into the new version baseline
 - what repeated prompt content can now be removed because the source-of-truth docs already capture it
 
+### Branch-Start Canon Alignment
+
+For the first prompt on a new non-doc implementation branch after a prior lane has merged or released, prompts should usually include:
+
+- `docs/development_rules.md`
+- `docs/Main.md`
+- `docs/codex_modes.md`
+- the directly relevant planning docs
+- the directly relevant architecture docs
+- the directly relevant implementation truth
+
+That branch-start analysis should explicitly answer:
+
+- what canon from the just-finished lane must now be closed
+- what canon must be activated for the new lane
+- whether the minimum supporting docs sync should land immediately on this new branch before code starts
+
+Do not recommend a separate docs-only roadmap or drift-refresh branch by default for this routine post-release catch-up.
+Instead, carry that closure or activation sync on the new implementation branch unless the user explicitly approves an exception.
+
 ### Governance / Prompt / Workflow Docs Work
 
 For prompt-governance or workflow-governance tasks, prompts should usually include:

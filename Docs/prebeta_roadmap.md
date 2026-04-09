@@ -127,7 +127,21 @@ Refresh this roadmap when:
 - the current release-debt posture changes
 - `main` materially advances beyond the latest public release and this roadmap no longer matches live repo truth
 
-This roadmap should usually be refreshed by one narrow docs-only governance or rebaseline pass rather than by ad hoc wording drift across multiple unrelated branches.
+This roadmap should usually be refreshed on the active implementation branch before PR, or as the first docs-only step on the next implementation branch after release, rather than being deferred into a standalone docs-only refresh branch by default.
+
+## Canon Freshness Timing
+
+For routine Nexus `pre-Beta` work:
+
+- active-lane truth must be synced on the implementation branch before PR packaging
+- release-dependent lifecycle closure should normally be carried on the next implementation branch as its first docs-only step
+- standalone docs-only roadmap or drift-refresh branches are no longer the default post-release cleanup path
+- if no safe next implementation branch can yet be chosen, Codex must call that out explicitly before requesting any exception path
+
+This roadmap should therefore stay fresh in two normal windows only:
+
+- on the active implementation branch before PR
+- at the start of the next implementation branch after a release, when release-closure facts now need to be recorded
 
 ## Release-Debt Handling
 
