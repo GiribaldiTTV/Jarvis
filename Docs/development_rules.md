@@ -80,6 +80,8 @@ In Jarvis workflow terms:
 
 - one fix per revision means one coherent approved subproblem per revision, not one tiny mechanical fragment
 - minimal isolated changes means the minimal coherent approved change set needed to close that subproblem
+- multiple revisions may still live inside one grouped implementation branch when they are tightly coupled to one milestone
+- except for docs-only governance or rebaseline branches, a `pre-Beta` branch should usually target one version-bearing milestone rather than a merge-only code delta
 
 Use the smallest safe slice for:
 

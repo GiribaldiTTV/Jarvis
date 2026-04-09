@@ -9,7 +9,7 @@ Use it for:
 - the current near-term roadmap horizon
 - the current best next lane candidates
 - provisional sequencing
-- provisional version-impact planning
+- provisional release-floor and target-version planning
 - roadmap refresh triggers
 - roadmap entry lifecycle/status handling
 
@@ -44,24 +44,43 @@ That means:
 
 If this roadmap conflicts with those docs, those docs win.
 
-## Version-Impact Labels
+## Lane Types, Release Floors, And Release States
 
-Use only these provisional labels in this roadmap:
+Use these lane types in this roadmap:
+
+- `docs-only`
+- `implementation`
+- `rebaseline`
+
+Use these release floors in this roadmap:
 
 - `no release`
-- `candidate patch prerelease`
-- `candidate minor prerelease`
-- `not a release lane / rebaseline only`
+- `patch prerelease`
+- `minor prerelease`
 
-These labels are planning guidance only.
+Use these release states when relevant:
+
+- `active delta`
+- `merged unreleased`
+- `released`
+- `closed`
+
+These fields are planning guidance only.
 
 They do not:
 
 - assign fixed future version numbers
 - guarantee that a listed branch will ship
-- turn a candidate into an approved release
+- turn a release floor into an approved release by itself
 
 Actual release decisions still depend on live repo truth, milestone value, and later readiness review.
+
+Rules:
+
+- `no release` should normally be limited to `docs-only` or docs-only `rebaseline` lanes
+- non-doc `implementation` lanes should usually declare at least `patch prerelease`
+- larger subsystem or capability shifts may justify `minor prerelease`
+- if merged unreleased implementation work already exists on `main`, that should be treated as release debt rather than as normal background drift
 
 ## Entry Lifecycle
 
@@ -84,8 +103,12 @@ Handling rule:
 
 For each `active` grouped lane, and for the current best next `candidate` when one is named here, include:
 
+- `lane type`
 - `milestone target`
 - `minimum merge-ready threshold`
+- `release floor`
+- `target version` for non-doc implementation lanes
+- `release state` when merged implementation work already exists for that lane
 
 These fields are still provisional planning guidance.
 
@@ -101,9 +124,20 @@ Refresh this roadmap when:
 - a public prerelease is cut
 - a docs-only rebaseline materially changes the planning baseline
 - the current best next lane changes lifecycle state between `candidate`, `active`, `merged`, `closed`, `deferred`, or `superseded`
+- the current release-debt posture changes
 - `main` materially advances beyond the latest public release and this roadmap no longer matches live repo truth
 
 This roadmap should usually be refreshed by one narrow docs-only governance or rebaseline pass rather than by ad hoc wording drift across multiple unrelated branches.
+
+## Release-Debt Handling
+
+If `main` already contains merged unreleased non-doc implementation work beyond the latest public prerelease, treat that as release debt.
+
+While release debt exists:
+
+- docs-only governance, rebaseline, or release-support lanes may still proceed when they are directly needed
+- the current best next non-doc move should usually be release review, release prep, or an explicitly approved continuation of the same version-bearing milestone
+- another unrelated non-doc implementation lane should not merge by default
 
 ## Current Near-Term Roadmap Horizon
 
@@ -112,27 +146,35 @@ This is the current best provisional sequencing horizon from live repo truth aft
 ### 1. `feature/prebeta-roadmap-rebaseline`
 
 - status: `merged`
-- version impact: `no release`
+- lane type: `docs-only`
+- release floor: `no release`
+- release state: `closed`
 - purpose: docs-only governance and planning reset so near-term sequencing and provisional version-impact planning have one canonical interface
 
 ### 2. `feature/fb-027-saved-action-usability`
 
 - status: `active`
-- version impact: `candidate patch prerelease`
+- lane type: `implementation`
+- release floor: `patch prerelease`
+- target version: `v1.2.1-prebeta`
+- release state: `merged unreleased`
 - purpose: grouped FB-027 usability follow-through above the current shared-action, saved-action-source, and starter-bootstrap baseline
 - milestone target: the first coherent saved-action usability milestone above the current starter-bootstrap baseline
-- minimum merge-ready threshold: the current command surface can do more than create the starter file; it must also help the user reach or use that source in a practical bounded way without widening into Action Studio, live reload, or broader interaction redesign
+- minimum merge-ready threshold: the current command surface can do more than create the starter file; it must also help the user reach or use that source in a practical bounded way, and the resulting lane should be strong enough to justify the declared patch prerelease rather than another merge-only code delta
 
 ### 3. `feature/prebeta-v1.2.1-rebaseline`
 
 - status: `candidate`
-- version impact: `not a release lane / rebaseline only`
+- lane type: `rebaseline`
+- release floor: `no release`
 - purpose: only if a prior lane becomes release-worthy, do a milestone closure and release-baseline sync pass without treating that branch as a separate public version by itself
 
 ### 4. `feature/fb-034-recoverable-diagnostics`
 
 - status: `candidate`
-- version impact: `candidate patch prerelease`
+- lane type: `implementation`
+- release floor: `patch prerelease`
+- target version: `TBD after current release-debt resolution`
 - purpose: first bounded recoverable diagnostics and reporting lane if later analysis confirms it is the right next subsystem milestone
 
 ## Current Reading
@@ -140,7 +182,9 @@ This is the current best provisional sequencing horizon from live repo truth aft
 Current repo truth indicates:
 
 - the latest public prerelease is still `v1.2.0-prebeta`
-- `main` has moved ahead through several merged follow-through slices
+- `main` has moved ahead through several merged follow-through slices, including merged unreleased implementation work
 - the next best move is still to prefer milestone-shaped grouped lanes over more micro-branches
+- the current gap between `v1.2.0-prebeta` and `main` should be treated as release debt, not as normal background drift
 
-That does **not** mean every listed lane should automatically happen, or that each lane implies a new public version.
+That does **not** mean every listed lane should automatically happen.
+It does mean non-doc implementation lanes should be treated as version-bearing milestones rather than as merge-only background follow-through.

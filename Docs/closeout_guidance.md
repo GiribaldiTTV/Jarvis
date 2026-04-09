@@ -124,6 +124,8 @@ For the current Nexus pre-Beta line, closeouts should usually be milestone-based
 
 That means:
 
+- a non-doc implementation branch may still justify the next prerelease even when it does not need its own dedicated closeout doc
+- docs-only governance or rebaseline branches remain the common no-release exception
 - do not force a new closeout doc for every small pre-Beta patch release
 - do create a closeout when a meaningful milestone or lane has actually stabilized and future planning will benefit from a fresh baseline
 
