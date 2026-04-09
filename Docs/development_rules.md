@@ -28,6 +28,24 @@ If the user gives a brief cue such as:
 
 Codex must still load the default truth baseline from `docs/Main.md`, then add the directly relevant canonical docs and evidence inputs needed for the task.
 
+## Canon Freshness Gate
+
+For routine Nexus `pre-Beta` implementation work:
+
+- do not let supporting canon drift until after release and then clean it up with a separate docs-only refresh branch by default
+- supporting canon for an active lane must be synced on the implementation branch itself before PR packaging
+- if a just-finished released lane needs lifecycle closure in canon, that closure should normally be the first docs-only step on the next implementation branch rather than a standalone docs-only cleanup branch
+- use a standalone docs-only roadmap or drift-refresh branch only as an explicit exception after telling the user why no safe next implementation branch can yet be chosen
+
+Supporting canon means only the directly relevant truth docs for the active lane, such as:
+
+- `docs/prebeta_roadmap.md` for lane lifecycle, release floor, target version, and release state
+- `docs/feature_backlog.md` for per-item state and version truth
+- `docs/development_rules.md` and `docs/architecture.md` for implemented boundary changes
+
+This rule does not authorize broad docs cleanup.
+It only requires the minimum directly supporting canon sync needed so PR-readiness, release-readiness, and next-branch planning all start from current truth.
+
 ## Pre-Patch Investigation Gate
 
 For runtime bugs, behavior regressions, systems investigations, architecture-sensitive work, or readiness/risk analysis that could lead directly to patching, Codex must complete pre-patch investigation before editing.
