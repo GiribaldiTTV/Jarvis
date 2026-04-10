@@ -87,6 +87,14 @@ Use this section when the task is a coherent batched workstream:
 - end-state: [one concrete end-state]
 - approved subproblem: [one coherent approved subproblem]
 
+## Branch Milestone Value
+
+Use this section for non-doc implementation branches:
+
+- milestone value: [why this branch is worth merging or releasing once complete]
+- same-branch follow-through: [dependent slices that still belong on this branch before readiness]
+- early-stop risk: [what would make the branch feel too small if it stopped after the first validated slice]
+
 ## Approved Batch Chain
 
 Use this section only when the task intentionally batches dependent slices:
@@ -158,7 +166,8 @@ Operate like a careful senior collaborator, not a narrow worker bee.
 
 That means:
 - validate assumptions against the docs and current repo state
-- choose the smallest safe or smallest coherent approved implementation that fits the task risk and closes one subproblem
+- choose the smallest worthwhile branch milestone first, then break it into the smallest safe or smallest coherent approved slices needed to complete that milestone
+- do not stop at the first validated slice if the branch would still be too small to justify its declared release floor
 - call out risks or drift clearly
 - avoid speculative rewrites
 - do not widen scope without justification
@@ -171,7 +180,7 @@ Before patching:
 1. Read the source-of-truth docs
 2. Inspect the relevant repo/code state
 3. Inspect the provided evidence inputs
-4. Explain the exact planned scope
+4. Explain the exact planned scope, branch milestone value, and any same-branch follow-through that still belongs before readiness
 5. Call out any conflicts, risks, or cleaner narrower alternatives
 
 Then:

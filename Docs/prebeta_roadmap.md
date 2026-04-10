@@ -106,6 +106,8 @@ For each `active` grouped lane, and for the current best next `candidate` when o
 - `lane type`
 - `milestone target`
 - `minimum merge-ready threshold`
+- `milestone value statement`
+- `expected same-branch follow-through`
 - `release floor`
 - `target version` for non-doc implementation lanes
 - `release state` when merged implementation work already exists for that lane
@@ -115,6 +117,10 @@ These fields are still provisional planning guidance.
 They do not guarantee that a lane will continue unchanged if live repo truth shifts or a blocker appears.
 
 They do require Codex to judge PR-readiness against the lane milestone rather than against the first clean internal revision.
+
+They should be written in smallest-worthwhile-milestone terms rather than first-safe-slice terms.
+
+If a lane description would make a declared `patch prerelease` read like bookkeeping plus one tiny follow-through, the lane is undersized and should be restated before implementation begins.
 
 ## Refresh Triggers
 
@@ -171,9 +177,11 @@ That lane is now released and closed at `v1.2.5-prebeta`.
 - lane type: `implementation`
 - release floor: `patch prerelease`
 - target version: `v1.2.6-prebeta`
-- purpose: do one bounded recoverable-incident follow-through slice that makes the current Class 2/Class 3 boundary explicit for one high-signal incident class without widening diagnostics policy
-- milestone target: keep repeated identical `launch_failed` for the same action as the only selected incident class, make the recoverable Class 2-to-Class 3 boundary explicit in renderer evidence, and preserve the existing local/manual reporting boundary without broad diagnostics UI work
-- minimum merge-ready threshold: one incident class only; no launcher retry or escalation redesign; no blanket recoverable diagnostics popup behavior; no broad diagnostics UI redesign; no voice-path work required for the first slice; fatal launcher/runtime diagnostics path unchanged; manual reporting boundary unchanged; and narrow validation proves the selected class behaves as intended
+- purpose: deliver the smallest worthwhile recoverable-incident milestone that makes the current Class 2/Class 3 boundary explicit for one high-signal incident class without widening diagnostics policy
+- milestone target: keep repeated identical `launch_failed` for the same action as the only selected incident class, make the recoverable Class 2-to-Class 3 boundary explicit enough in renderer evidence that the branch would still read as a meaningful recoverable-diagnostics milestone if squashed and merged by itself, and preserve the existing local/manual reporting boundary without broad diagnostics UI work
+- minimum merge-ready threshold: one incident class only; no launcher retry or escalation redesign; no blanket recoverable diagnostics popup behavior; no broad diagnostics UI redesign; no voice-path work required for the first slice; fatal launcher/runtime diagnostics path unchanged; manual reporting boundary unchanged; narrow validation proves the selected class behaves as intended; and the branch is strong enough to justify `patch prerelease` rather than reading as setup or bookkeeping only
+- milestone value statement: if squashed today, this branch should still clearly read as the first worthwhile recoverable-diagnostics milestone above the current Class 2/Class 4 boundary rather than as only a marker rename, validation stub, or preparatory fragment
+- expected same-branch follow-through: keep directly coupled follow-through on this branch only when it is still required to make the selected repeated `launch_failed` milestone feel complete, but stop before broader diagnostics classes, UI redesign, retry-policy work, or voice-path expansion
 
 This branch begins with the required canon-alignment step on the same implementation branch rather than through a separate standalone docs-only refresh branch.
 

@@ -111,6 +111,25 @@ Use the smallest coherent slice for:
 
 - lower-risk post-boundary feature delivery where a smaller fragment would leave an incomplete first deliverable
 
+## Branch Sizing Rule
+
+For `pre-Beta` non-doc implementation work, revision sizing and branch sizing are separate decisions.
+
+- revision sizing chooses the smallest safe slice needed to make architecture-safe progress inside the approved milestone
+- branch sizing chooses the smallest worthwhile milestone strong enough to justify the branch's declared release floor
+
+A worthwhile milestone means:
+
+- if the branch were squashed and merged as one commit, it would still read as a meaningful implementation increment rather than as a setup fragment, validator-only stub, or bookkeeping-only follow-through
+- the branch would materially improve current repo truth, future planning baseline, or shipped operator value
+- the branch would still feel strong enough to justify its declared prerelease floor rather than reading like a merge-only delta
+
+Therefore:
+
+- do not stop a non-doc implementation branch just because the first safe slice validates
+- keep tightly coupled follow-through on the same branch when it is still required to make that milestone feel complete
+- stop only when the milestone is complete, a real blocker appears, the next work would cross subsystem boundaries, or the user explicitly chooses to stop early
+
 ## Testing Requirements
 
 Every revision must include:
