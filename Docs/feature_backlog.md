@@ -1533,8 +1533,9 @@ Proposed Change:
 Current active lane target:
 
 - select one recoverable high-signal incident class only: repeated identical `launch_failed` for the same action in a still-running session
-- make the current Class 2-to-Class 3 boundary explicit in renderer evidence before any broader diagnostics-surface work is considered
+- make the current Class 2-to-Class 3 boundary explicit enough in renderer evidence that the branch would still read as a meaningful recoverable-diagnostics milestone if squashed and merged on its own
 - preserve the existing local/manual support-bundle and issue-draft boundary
+- keep directly coupled same-incident follow-through on this branch only when it is still required to make that repeated identical `launch_failed` milestone feel complete
 - keep fatal launcher/runtime diagnostics completion behavior separate and unchanged
 - defer any broader recoverable diagnostics surface, voice, or launcher-policy follow-through until later evidence justifies it
 
@@ -1548,7 +1549,7 @@ Likely Files Affected:
 
 Scope:
 - one recoverable incident class only
-- explicit Class 2/Class 3 boundary evidence for the selected class
+- explicit Class 2/Class 3 boundary evidence and directly coupled same-incident follow-through only for the selected class
 - preserving manual-reporting boundaries while clarifying incident-class behavior
 
 Out of Scope:
@@ -1561,7 +1562,7 @@ Out of Scope:
 - automatic continuation of the current NCP hardening lane
 
 Notes:
-Current active-lane evidence already includes one bounded shipped Class 3 example in `v1.2.2-prebeta`, so this lane should stay scoped to that same repeated identical `launch_failed` incident class first and avoid broader diagnostics widening.
+Current active-lane evidence already includes one bounded shipped Class 3 example in `v1.2.2-prebeta`, so this lane should stay scoped to that same repeated identical `launch_failed` incident class first, allow only directly coupled same-incident follow-through needed to make the milestone feel complete, and avoid broader diagnostics widening.
 
 ---
 
