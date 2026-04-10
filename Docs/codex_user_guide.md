@@ -108,6 +108,7 @@ Use `Workflow mode` when you want:
 - a bounded patch
 - a docs-only pass
 - a same-branch fix pass
+- a same-branch milestone-completion pass
 - a controlled validation pass after approval
 
 Use `docs-only pass` when you want:
@@ -127,6 +128,7 @@ Useful control add-ons include:
 
 - `on current branch`
 - `do not widen scope`
+- `until the milestone is worthwhile`
 - `analysis only`
 - `docs-only pass`
 - `no PR/release output`
@@ -169,11 +171,15 @@ Best for:
 Use:
 
 - `continue on current branch: [exact remaining bug or task]`
+- `continue on current branch until the milestone is worthwhile: [active lane]`
 
 Examples:
 
 - `continue on current branch: finish zero-match safety`
 - `continue on current branch: do one final smoke-focused hardening pass`
+- `continue on current branch until the milestone is worthwhile: finish the remaining recoverable-diagnostics follow-through`
+
+Use the second form when you want Codex to keep multiple safe same-lane slices together until the branch feels like a real milestone rather than stopping after the first clean revision.
 
 ### Run A Narrow Fix Pass
 

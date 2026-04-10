@@ -106,6 +106,8 @@ For each `active` grouped lane, and for the current best next `candidate` when o
 - `lane type`
 - `milestone target`
 - `minimum merge-ready threshold`
+- `milestone value statement`
+- `expected same-branch follow-through`
 - `release floor`
 - `target version` for non-doc implementation lanes
 - `release state` when merged implementation work already exists for that lane
@@ -115,6 +117,10 @@ These fields are still provisional planning guidance.
 They do not guarantee that a lane will continue unchanged if live repo truth shifts or a blocker appears.
 
 They do require Codex to judge PR-readiness against the lane milestone rather than against the first clean internal revision.
+
+They should be written in smallest-worthwhile-milestone terms rather than first-safe-slice terms.
+
+If a lane description would make a declared `patch prerelease` read like bookkeeping plus one tiny follow-through, the lane is undersized and should be restated before implementation begins.
 
 ## Refresh Triggers
 
@@ -155,31 +161,44 @@ While release debt exists:
 
 ## Current Near-Term Roadmap Horizon
 
-This is the current best provisional sequencing horizon from live repo truth after the live `v1.2.4-prebeta` release.
+This is the current best provisional sequencing horizon from live repo truth after the live `v1.2.5-prebeta` release.
 
 The just-finished non-doc implementation lane is now:
 
-- `feature/fb-033-startup-snapshot-harness-follow-through`
+- `feature/fb-025-boot-desktop-milestone-taxonomy-clarification`
 
-That lane is now released and closed at `v1.2.4-prebeta`.
+That lane is now released and closed at `v1.2.5-prebeta`.
 
 ## Current Active Lane
 
-### `feature/fb-025-boot-desktop-milestone-taxonomy-clarification`
+### `feature/fb-034-recoverable-diagnostics`
 
 - status: `active`
 - lane type: `implementation`
 - release floor: `patch prerelease`
-- target version: `v1.2.5-prebeta`
-- purpose: do one tiny boot and desktop milestone taxonomy clarification pass that improves cross-lane diagnostic readability while preserving separate ownership between `BOOT_MAIN|...` and `RENDERER_MAIN|...`
-- milestone target: clarify the specific boot-to-desktop milestone naming shape so request-versus-visible transitions are easier to compare across boot and renderer evidence without broadening the logging contract
-- minimum merge-ready threshold: keep boot and desktop milestone ownership separate; limit the change to naming and taxonomy clarity only; do not change launcher policy, raw verbosity, or shared logging-contract scope; do not change normal user-facing behavior; and prove the affected boot and desktop markers still emit correctly under current flows
+- target version: `v1.2.6-prebeta`
+- purpose: deliver the smallest worthwhile recoverable-incident milestone that makes the current Class 2/Class 3 boundary explicit for one high-signal incident class without widening diagnostics policy
+- milestone target: keep repeated identical `launch_failed` for the same action as the only selected incident class, make the recoverable Class 2-to-Class 3 boundary explicit enough in renderer evidence that the branch would still read as a meaningful recoverable-diagnostics milestone if squashed and merged by itself, and preserve the existing local/manual reporting boundary without broad diagnostics UI work
+- minimum merge-ready threshold: one incident class only; no launcher retry or escalation redesign; no blanket recoverable diagnostics popup behavior; no broad diagnostics UI redesign; no voice-path work required for this milestone; fatal launcher/runtime diagnostics path unchanged; manual reporting boundary unchanged; narrow validation proves the selected class behaves as intended; and the branch is strong enough to justify `patch prerelease` rather than reading as setup or bookkeeping only
+- milestone value statement: if squashed today, this branch should still clearly read as the first worthwhile recoverable-diagnostics milestone above the current Class 2/Class 4 boundary rather than as only a marker rename, validation stub, or preparatory fragment
+- expected same-branch follow-through: keep directly coupled follow-through on this branch only when it is still required to make the selected repeated `launch_failed` milestone feel complete, but stop before broader diagnostics classes, UI redesign, retry-policy work, or voice-path expansion
 
 This branch begins with the required canon-alignment step on the same implementation branch rather than through a separate standalone docs-only refresh branch.
 
 ## Recently Closed Or Superseded Lanes
 
-These entries remain here only long enough to keep the post-`v1.2.4-prebeta` transition explicit.
+These entries remain here only long enough to keep the post-`v1.2.5-prebeta` transition explicit.
+
+### `feature/fb-025-boot-desktop-milestone-taxonomy-clarification`
+
+- status: `closed`
+- lane type: `implementation`
+- release floor: `patch prerelease`
+- target version: `v1.2.5-prebeta`
+- release state: `released`
+- purpose: do one tiny boot and desktop milestone taxonomy clarification pass that improves cross-lane diagnostic readability while preserving separate ownership between `BOOT_MAIN|...` and `RENDERER_MAIN|...`
+- milestone target: clarify the specific boot-to-desktop milestone naming shape so request-versus-visible transitions are easier to compare across boot and renderer evidence without broadening the logging contract
+- minimum merge-ready threshold: keep boot and desktop milestone ownership separate; limit the change to naming and taxonomy clarity only; do not change launcher policy, raw verbosity, or shared logging-contract scope; do not change normal user-facing behavior; and prove the affected boot and desktop markers still emit correctly under current flows
 
 ### `feature/fb-033-startup-snapshot-harness-follow-through`
 
@@ -244,12 +263,13 @@ These entries remain here only long enough to keep the post-`v1.2.4-prebeta` tra
 
 Current repo truth indicates:
 
-- the latest public prerelease is now `v1.2.4-prebeta`
+- the latest public prerelease is now `v1.2.5-prebeta`
 - the `feature/fb-028-history-state-relocation` lane is now released and closed
 - the `feature/fb-033-startup-snapshot-harness-follow-through` lane is now released and closed
-- the prior release debt between `v1.2.3-prebeta` and `main` is cleared
+- the `feature/fb-025-boot-desktop-milestone-taxonomy-clarification` lane is now released and closed
+- the prior release debt between `v1.2.4-prebeta` and `main` is cleared
 - no new implementation lane became active automatically just because the prior patch milestone released
-- fresh next-lane analysis on that released baseline selected `feature/fb-025-boot-desktop-milestone-taxonomy-clarification` as the next bounded implementation lane
+- fresh next-lane analysis on that released baseline selected `feature/fb-034-recoverable-diagnostics` as the next bounded implementation lane
 
 That does **not** mean every listed lane should automatically happen.
 It does mean non-doc implementation lanes should be treated as version-bearing milestones rather than as merge-only background follow-through.

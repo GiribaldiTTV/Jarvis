@@ -221,6 +221,9 @@ That branch-start analysis should explicitly answer:
 - what canon from the just-finished lane must now be closed
 - what canon must be activated for the new lane
 - whether the minimum supporting docs sync should land immediately on this new branch before code starts
+- what the smallest worthwhile milestone is for this branch rather than just the first safe slice
+- what tightly coupled follow-through should stay on this branch before readiness
+- what would make the branch too small to justify its declared release floor if stopped early
 
 Do not recommend a separate docs-only roadmap or drift-refresh branch by default for this routine post-release catch-up.
 Instead, carry that closure or activation sync on the new implementation branch unless the user explicitly approves an exception.
@@ -296,6 +299,8 @@ That means:
 - truth-doc updates may be bundled into the same approved code workstream when they directly support, record, or stabilize the active code task
 - doc batching should stay minimal and relevant to the active workstream
 - broader canonical sync should happen at meaningful milestones rather than after every tiny slice when that would create unnecessary prompt churn
+- branch planning should target the smallest worthwhile milestone, while revision planning should use the smallest safe slices inside that milestone
+- active implementation branches should not stop at the first clean slice when the resulting branch would still be too small to justify its declared release floor
 
 This does not authorize unrelated doc rewrites.
 It only allows directly supporting truth-doc maintenance to travel with the active workstream when safe and approved.

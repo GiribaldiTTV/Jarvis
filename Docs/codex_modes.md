@@ -233,13 +233,18 @@ A batched workstream is safe only when all of the following are true:
 - later slices are dependent completion steps of the same chain
 - validation can still stay narrow and exact
 
-Default batch target:
+Common checkpoint range:
 
-- 3-4 dependent sub-slices
+- 3-5 dependent sub-slices before a deliberate branch-health review
 
-Hard cap:
+This is a review checkpoint, not a stop rule.
 
-- 5 sub-slices only when slices 4-5 are low-risk completion steps such as containment, accepted dev-entry reachability, validator coverage, or tiny directly supportive truth-doc sync
+More than 5 dependent sub-slices are allowed when:
+
+- they still belong to one subsystem, one end-state, and one coherent approved subproblem
+- each additional slice is still required to complete the same worthwhile milestone
+- validation can still stay narrow and exact
+- stopping earlier would leave the branch too small to justify its declared release floor
 
 Jarvis batched workstreams must not:
 
@@ -311,7 +316,7 @@ Instead, it means:
 
 - one branch may host a sequence of approved narrow slices
 - one focused branch may also carry multiple small related patches when they all serve the same project-focus lane
-- one focus-group lane may also carry one larger coherent implementation when that is still the smallest safe milestone inside the same subsystem
+- one focus-group lane may also carry one larger coherent implementation when that is still the smallest worthwhile milestone inside the same subsystem
 - each slice inside that branch still needs clear scope and verification
 - each small patch inside that branch must still stay narrow, validated, and within the same subsystem boundary
 - unrelated ideas should still be split out even if they are all deferred work
@@ -335,17 +340,36 @@ For an active `pre-Beta` grouped workstream branch, Codex should define before i
 
 - the lane milestone target
 - the minimum merge-ready threshold
+- the milestone value statement that explains why the branch is worthwhile if squashed and merged
 - the tightly coupled groundwork that still belongs inside the same branch
+- the expected same-branch follow-through that is still required before readiness
 
 Codex should not treat the first validated revision inside that branch as PR-ready by default.
 
 Instead, Codex should continue through additional narrow slices inside the same branch until:
 
 - the declared minimum merge-ready threshold is reached
+- the branch would still read as a worthwhile milestone if squashed and merged now
+- the branch is strong enough to justify its declared release floor
 - a real blocker appears
 - or the user explicitly chooses to stop early
 
 If enabling groundwork and the first usable outcome are tightly coupled inside one subsystem and remain low-risk, they should usually stay in the same grouped branch rather than being split into separate micro-branches or premature PRs.
+
+## Worthwhile Milestone Gate
+
+Before Codex recommends PR-readiness for a non-doc implementation branch, it must be able to answer `yes` to all of the following:
+
+- the declared minimum merge-ready threshold is reached
+- the branch would still represent a worthwhile milestone if squashed today
+- the branch is strong enough to justify its declared release floor
+- the remaining obviously coupled slices are no longer required to make the milestone feel complete
+
+If any of those answers is `no`, Codex should continue on the same branch unless:
+
+- a real blocker appears
+- the next step would cross subsystem boundaries
+- or the user explicitly chooses to stop early
 
 ## Grouped Lane Release Floor
 
@@ -530,12 +554,19 @@ For non-doc implementation branches, PR-readiness output must explicitly state o
 - `supporting canon already aligned on branch`
 - `supporting canon sync required before PR`
 
+PR-readiness output for non-doc implementation branches must also explicitly state one of:
+
+- `branch milestone is worthwhile and complete for PR`
+- `branch milestone still too small; continue same branch`
+
 That canon-freshness result is mandatory and must be based on live branch truth, not on prompt framing alone.
 
 In slice-sizing terms:
 
 - one fix per revision means one coherent approved subproblem per revision
 - minimal isolated changes means the minimal coherent approved change set needed to close that subproblem
+- smallest safe slice and smallest coherent slice are execution rules for revisions inside a branch, not automatic branch stop rules
+- for `pre-Beta` non-doc branches, choose the smallest worthwhile milestone for the branch first, then use as many safe dependent slices as needed to complete it
 - use the smallest safe slice for architecture clarification, boundary-setting, and high-risk behavior or policy work
 - use the smallest coherent slice for lower-risk post-boundary feature delivery when a smaller fragment would leave an incomplete first deliverable
 
