@@ -1,43 +1,54 @@
-# Jarvis Workspace Layout Plan
+# Nexus Workspace Layout Plan
 
 ## Purpose
 
-This document defines the first planning pass for `FB-005`.
+This document defines workspace-layout planning and ownership boundaries for the current repo.
 
-`rev1a` is planning-only.
-It does not move files, rewrite imports, or change runtime behavior.
+It is a planning and reference surface.
+It does not own:
 
-Its job is to:
+- backlog identity
+- roadmap sequencing
+- workstream execution history
 
-- inventory the current workspace at a practical level
-- define the target folder ownership model
-- identify path-sensitive files that require controlled migration
-- define a safe migration order for later approved implementation passes
+## Current Workspace Reality
 
-## Current Workspace Inventory
-
-### Repo Root
-
-Current repo-root items with planning significance:
+Current repo-root items with planning significance include:
 
 - `main.py`
-- `jarvis_voice.py`
-- `launch_jarvis_desktop.vbs`
+- `launch_orin_desktop.vbs`
 - `dev/`
 - `Audio/`
 - `desktop/`
-- `Docs/` / `docs/` references
+- `Docs/`
 - `jarvis_visual/`
 - `logs/`
 
-Repo metadata and environment artifacts that should remain root-owned:
+Current merged desktop runtime path is:
 
-- `.git/`
-- `.gitattributes`
-- `.gitignore`
-- root `__pycache__/`
+`launch_orin_desktop.vbs`
+-> `desktop/orin_desktop_launcher.pyw`
+-> `desktop/orin_desktop_main.py`
 
-### Current Major Folder Ownership
+Current desktop test entrypoint is:
+
+- `desktop/orin_desktop_test.py`
+
+Current audio runtime surfaces are:
+
+- `Audio/orin_voice.py`
+- `Audio/orin_error_voice.py`
+
+Current visual assets remain under:
+
+- `jarvis_visual/`
+
+Historical note:
+
+- older Jarvis-named move history remains historical context only
+- current repo truth for the desktop and audio surfaces is ORIN-named as listed above
+
+## Current Major Folder Ownership
 
 `desktop/`
 
@@ -46,319 +57,110 @@ Repo metadata and environment artifacts that should remain root-owned:
 - desktop entrypoints
 - desktop renderer support
 - desktop support-reporting helpers
-- harness tooling tied to desktop/runtime validation
 
 `dev/`
 
-- developer-only launchers
-- deterministic manual-test renderer targets
-- contained manual validation entry points that should not be treated as Windows-facing production shims
+- developer launchers
+- deterministic targets
+- validation helpers and toolkit-oriented support
 
 `Audio/`
 
-- failure and shutdown voice runtime path
-- audio-effect implementation for diagnostics and shutdown speech
+- voice and audio-effect implementation
 
 `jarvis_visual/`
 
-- HTML, CSS, and JS assets used by the current visual experience surfaces
+- current visual assets used by the desktop surfaces
 
-`docs/`
+`Docs/`
 
-- source-of-truth project docs
-- version closeouts
-- planning and task guidance
+- source-of-truth and planning documentation
 
 `logs/`
 
-- generated runtime logs
-- generated crash reports
-- generated verification artifacts
-- generated historical-memory storage
+- generated runtime, crash, and validation state only
 
-## Canonical Target Layout
-
-### What Should Remain At Repo Root
+## Root Ownership Boundary
 
 Repo root should stay limited to:
 
-- repo metadata and ignore files
+- repo metadata and environment files
 - top-level Windows-facing launch shims
-- top-level experience entrypoints that still belong to paused boot or top-level experience work
-- temporary compatibility wrappers during later migration passes only if needed
+- top-level experience entrypoints still tied to paused boot or top-level experience work
 
-For now, these should remain root-owned:
+Current root-owned planning-significant surfaces are:
 
-- `launch_jarvis_desktop.vbs`
+- `launch_orin_desktop.vbs`
 - `main.py`
 
-Developer-only launchers should not remain root-owned.
-They should live under `dev/launchers/`.
+That does not mean all future entrypoints should remain root-owned forever.
+It means current merged truth still keeps those surfaces at root.
 
-### What Should Belong Under Domain Folders
+## Domain Ownership Model
 
-`desktop/`
+`desktop/` should remain the home for:
 
-- desktop launcher
-- desktop diagnostics
-- desktop renderer support
-- desktop-specific helpers
-- desktop entrypoints
-- runtime harness helpers that are part of production-adjacent launcher behavior
+- launcher-owned desktop execution
+- renderer entrypoints
+- desktop helpers and diagnostics surfaces
 
-`dev/`
+`dev/` should remain the home for:
 
-- manual test launchers
-- deterministic manual renderer targets
-- developer-only helper surfaces for contained validation
+- developer launchers
+- contained validation surfaces
+- deterministic targets and helper scripts
 
-Desktop entrypoints now consolidated under `desktop/`:
+`Audio/` remains the current home for the voice layer.
 
-- `desktop/jarvis_desktop_main.py`
-- `desktop/jarvis_desktop_test.py`
+`jarvis_visual/` remains the current visual-asset home until a later explicitly chosen visual-layout change says otherwise.
 
-`audio/`
+## Naming And Path Normalization
 
-- voice and audio-effect implementation files
+Current merged truth includes mixed historical naming:
 
-Later move candidates into `audio/`:
+- product framing is Nexus Desktop AI / ORIN
+- some folder and artifact names remain older names for compatibility or historical continuity
 
-- current `Audio/jarvis_error_voice.py`
-- `jarvis_voice.py`
+Examples of still-current names:
 
-`jarvis_visual/`
+- `Audio/`
+- `jarvis_visual/`
+- `%LOCALAPPDATA%/Nexus Desktop AI/state/jarvis_history_v1.jsonl`
+- `C:/Jarvis/logs`
 
-- current visual assets for the Jarvis interface layer
+Those names should be treated as current runtime or repo truth where they still exist, not automatically rewritten in planning docs.
 
-This folder already has coherent ownership and can remain a dedicated visual-assets domain.
+## Path-Sensitive Planning Boundary
 
-`docs/`
+Path-sensitive surfaces still require deliberate handling when future layout work resumes.
 
-- all source-of-truth docs
-- planning docs
-- version closeouts
+Examples include:
 
-`logs/`
-
-- generated state only
-- never a source-code ownership area
-
-## Canonical Folder Naming
-
-Use lowercase canonical folder names for core repo domains:
-
-- `dev`
-- `audio`
-- `desktop`
-- `docs`
-- `logs`
-
-For current visual assets, keep the descriptive domain name:
-
-- `jarvis_visual`
-
-Known current naming inconsistency:
-
-- root inventory currently presents `Docs` while project references consistently use `docs`
-- root inventory currently presents `Audio` with uppercase casing
-
-Case normalization should be handled in a dedicated later move pass because case-only renames can be git-sensitive on Windows.
-
-## Path-Sensitive Inventory
-
-These files are sensitive enough that they must be migrated in a controlled order:
-
-`launch_jarvis_desktop.vbs`
-
-- Windows-facing launch shim
-- hardcodes the launcher path under `desktop/`
-
-`desktop/jarvis_desktop_launcher.pyw`
-
-- derives `ROOT_DIR`
-- targets `desktop/jarvis_desktop_main.py` as the default renderer entrypoint
-- assumes `logs/` lives under repo root
-- assumes `Audio/jarvis_error_voice.py` lives under repo root
-- launches sibling diagnostics script from `desktop/`
-
-`desktop/jarvis_desktop_main.py`
-
-- desktop entrypoint
-- imports `desktop.*`
-- resolves visual assets from `jarvis_visual/` relative to repo root
-
-`desktop/jarvis_desktop_test.py`
-
-- same path pattern as `desktop/jarvis_desktop_main.py`
-- moved in step with the desktop entrypoint layout and should remain paired with it
-
-`main.py`
-
-- top-level experience entrypoint
-- imports `jarvis_voice.py`
-- resolves visual assets from `jarvis_visual/`
-- should be treated as coupled to paused top-level experience and boot-adjacent work
-
-`jarvis_voice.py`
-
-- root-level voice helper
-- currently coupled to `main.py`
-- should not be moved independently from `main.py` without an approved paired pass
-
-`Audio/jarvis_error_voice.py`
-
-- current failure and shutdown voice script
-- path is referenced directly by the launcher
-
-`dev/launchers/*.vbs`
-
-- developer-only Windows launch shims
-- should remain separate from the root Windows-facing production launcher surface
-
-`dev/targets/*.pyw`
-
-- deterministic manual launcher-path test targets
-- safe to move independently from production runtime code because they are only selected through harness env overrides
-
-## Generated And Runtime State
-
-These areas are generated state and should not be reorganized first:
-
-- `logs/`
-- `logs/crash/`
-- harness and verification subfolders under `logs/`
-- `jarvis_history_v1.jsonl`
-- all `__pycache__/` directories
-
-Generated state should be classified and documented, but excluded from the first move pass.
-
-## Migration Order
-
-### Step 1
-
-Planning only.
-
-- approve this layout and ownership model
-- confirm canonical folder naming
-- confirm which root files are intentionally deferred
-
-### Step 2
-
-Low-risk naming and documentation alignment only.
-
-- normalize documentation references to canonical folder names
-- handle `Docs` / `docs` and `Audio` / `audio` casing only in a dedicated approved pass
-
-### Step 3
-
-Implemented.
-
-- `jarvis_desktop_main.py` moved into the `desktop/` domain
-- `jarvis_desktop_test.py` moved with it
-- the launcher's target-script assumption now points at the moved desktop entrypoint
-
-This was the first real code-moving pass because it addressed the clearest root-level ownership leak without crossing into paused boot work.
-
-### Step 4
-
-Audio-domain consolidation.
-
-- Implemented as a dedicated paired path-sensitive pass.
-- It was not treated as a generic isolated audio-folder cleanup.
-
-The in-bounds file set for this paired pass was:
-
+- `launch_orin_desktop.vbs`
 - `main.py`
-- `jarvis_voice.py`
-- `desktop/jarvis_desktop_launcher.pyw`
-- `Audio/jarvis_error_voice.py`
+- `desktop/orin_desktop_launcher.pyw`
+- `desktop/orin_desktop_main.py`
+- `desktop/orin_desktop_test.py`
+- `Audio/orin_voice.py`
+- `Audio/orin_error_voice.py`
+- `jarvis_visual/`
 
-Those four files were treated as one path-sensitive surface because:
+Future layout work should continue to treat those as controlled surfaces rather than casual rename targets.
 
-- `main.py` owned the normal-voice import path that had to move with `jarvis_voice.py`
-- `desktop/jarvis_desktop_launcher.pyw` owned the current `Audio/jarvis_error_voice.py` path assumption
-- the normal-voice and diagnostics/error-voice paths therefore could not be reorganized as unrelated one-file moves
+## Deferred Layout Work
 
-Step 4 did only this:
+The following remain planning-level or deferred topics:
 
-- moved `jarvis_voice.py` into `Audio/` as `Audio/jarvis_voice.py`
-- updated `main.py` to import `Audio.jarvis_voice`
-- left the launcher-owned diagnostics/error voice path valid and unchanged at `Audio/jarvis_error_voice.py`
-- kept the move limited to the paired path-sensitive surface without widening into broader folder cleanup
-
-Step 4 explicitly avoided:
-
-- moving `main.py`
-- touching `launch_jarvis_desktop.vbs`
-- broader folder cleanup outside this four-file surface
-- `Audio` casing cleanup beyond what the paired pass strictly required
-- launcher retry, recovery, diagnostics, or control-policy changes
-- diagnostics-policy changes
-- voice behavior or content changes
-- top-level experience restructuring
-
-This completed the bounded audio-domain follow-on move without widening it into an automatic continuation of broader workspace cleanup.
-
-### Step 5
-
-Defer top-level experience entrypoint work until later.
-
-- keep `main.py` root-owned until the paused boot or top-level experience track is explicitly resumed
-- keep `launch_jarvis_desktop.vbs` root-owned as the Windows-facing shim unless a dedicated entrypoint pass is approved
-
-## Current Pause Point After Step 4
-
-After the completed desktop-entrypoint consolidation and paired audio-domain follow-on move, no further `FB-005` implementation slice is currently approved.
-
-The remaining `FB-005` sequence is intentionally paused because:
-
-- Step 4 is now implemented and no broader Step 5 approval follows automatically from it
-- `main.py` remains root-owned and Step 5 still stays deferred
-- broader workspace reorganization remains deferred beyond the completed paired Step 4 surface
-
-This means the current plan should be read as:
-
-- Step 3 is complete
-- Step 4 is complete
-- Step 5 remains deferred
-- broader workspace reorganization remains paused rather than implicitly queued as the next implementation move
-
-## Areas Explicitly Deferred From The First Implementation Move Pass
-
-- `main.py`
-- `launch_jarvis_desktop.vbs`
-- `logs/`
-- generated verification artifacts
+- top-level experience entrypoint reshaping around `main.py`
+- any future root-to-domain ownership changes for boot-facing entry surfaces
+- case normalization such as `Audio` versus `audio`
 - broader visual-asset reorganization
-- boot-adjacent top-level experience restructuring
+- generated-state reorganization under `logs/`
 
-## Rev1a Non-Goals
+## Relationship To Other Canon Layers
 
-`rev1a` does not:
-
-- move files
-- rename folders
-- rewrite imports
-- rewrite launcher paths
-- change behavior
-- redesign orchestration
-- reopen boot planning
-
-## Risks And Blockers
-
-- case-only folder renames may be unreliable without a controlled git-aware pass on Windows
-- `launch_jarvis_desktop.vbs` hardcodes a root-to-desktop path
-- `desktop/jarvis_desktop_launcher.pyw` still assumes root-owned audio and log paths
-- `main.py` and `jarvis_voice.py` are coupled and should not be split casually
-- generated `logs/` content should not be mixed into source-layout refactors
-
-## Recommended First Implementation Move Pass After Rev1a
-
-This step is now completed as desktop-entrypoint consolidation:
-
-- `jarvis_desktop_main.py` moved under `desktop/`
-- `jarvis_desktop_test.py` moved with it
-- launcher path assumptions were updated accordingly
-
-No further `FB-005` implementation slice is approved by this document at the current planning layer.
-Broader workspace reorganization remains deferred.
+- use `Docs/architecture.md` for system boundaries
+- use `Docs/orchestration.md` for launcher and renderer ownership
+- use `Docs/boot_access_design.md` for future boot-layer planning
+- use `Docs/feature_backlog.md` for tracked layout-related identity
+- use `Docs/prebeta_roadmap.md` for sequencing

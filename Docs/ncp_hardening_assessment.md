@@ -2,151 +2,107 @@
 
 ## Purpose
 
-This document is the canonical hardening assessment for the current FB-027 Nexus Command Prompt (NCP) follow-through lane.
+This document preserves a stable assessment of typed-first hardening expectations for the Nexus Command Prompt interaction surface.
 
-Its purpose is to:
+It is a planning and reference document.
+It does not own backlog identity, roadmap sequencing, workstream closure, or branch-readiness decisions.
 
-- preserve the current NCP hardening truth outside chat history
-- distinguish what is complete enough now from what is only helper-strong
-- record the conservative next-step recommendation for the current branch state
-- give future FB-027 backlog wording a stable truth reference without changing backlog state in the same pass
+Use this document to:
 
-This document is an assessment and sequencing reference.
-It does not replace `docs/feature_backlog.md`, and it does not authorize automatic scope expansion.
+- describe the hardening domains that matter for the desktop command surface
+- summarize the current merged baseline
+- clarify what kinds of future issues would justify renewed hardening work
 
-## Scope Boundary For NCP Hardening
+## Relationship To The Source-Of-Truth Stack
 
-For current repo truth, NCP hardening means typed-first reliability follow-through for the current desktop command surface.
+This document is downstream of:
 
-That includes:
+- `Docs/orin_interaction_architecture.md` for interaction-system design
+- `Docs/orchestration.md` for runtime and failure-handling boundaries
+- `Docs/feature_backlog.md` for tracked identity
+- `Docs/prebeta_roadmap.md` for sequencing and release posture
+- `Docs/workstreams/` for promoted execution and closure records
 
-- keyboard ownership and containment inside the visible overlay
-- focus and reopen behavior
-- transition stability across `entry`, `choose`, `confirm`, and `result`
-- predictable reset and retry posture after success, back-out, or non-success outcomes
-- stable user-visible failure-state behavior for the currently implemented command surface
-- helper and regression validation for the exact typed-interaction risks already discovered
+It should support future planning and assessment without replacing those layers.
 
-That does not include:
+## Current Surface Definition
 
-- voice integration
-- Action Studio or later customization surfaces
-- shortcut customization beyond the already implemented bounded desktop hotkeys
-- command-set expansion
-- broad UI polish or redesign
-- broad architectural rewrite without a reproduced bug that requires it
+For current repo truth, the Nexus Command Prompt is the typed-first desktop command surface built around:
 
-## NCP Hardening Subsystems
+- the quick command overlay
+- explicit keyboard-owned interaction while the overlay is active
+- a bounded `entry` -> `choose` -> `confirm` -> `result` state flow
+- explicit confirmation before execution
+- shared action-model resolution for built-in and saved actions
+- bounded saved-action loading with strict fallback behavior when the saved source is missing or invalid
 
-The current meaningful NCP hardening areas are:
+This document covers hardening expectations for that surface only.
 
-- input ownership and capture stability
-- focus and reopen behavior
-- `entry` / `choose` / `confirm` transition integrity
-- `Enter` / digit / `Esc` containment guarantees
-- no-mirroring / no-underlay-leak guarantees
+It does not define:
+
+- voice invocation behavior
+- Action Studio authoring UI
+- broader shortcut customization
+- new command families
+- unrelated UI redesign
+
+## Hardening Domains
+
+The meaningful hardening domains for the current command surface are:
+
+- keyboard ownership and containment
+- focus and reopen stability
+- transition integrity across `entry`, `choose`, `confirm`, and `result`
+- predictable `Enter`, digit, and `Esc` behavior
 - result-state reset and reopen predictability
-- non-success-path predictability
-- target clarity and execution clarity
-- visual state consistency of the NCP surface
+- non-success-path clarity and recoverability
+- target clarity before execution
+- visual state consistency
 - helper and regression validation coverage
 
-## Complete Enough Now
+## Current Merged Baseline Assessment
 
-`Complete enough now` means good enough by current repo truth and live evidence for the current pre-Beta branch state, not theoretical perfection.
+Current repo truth supports the following baseline assessment:
 
-The following areas are complete enough now:
+- the typed-first command surface is stable enough for current pre-Beta use
+- the current command-state transitions are bounded and understandable
+- confirmation before execution is preserved
+- keyboard-first ambiguous-choice resolution is present
+- non-success handling now has a clearer bounded result path than earlier overlay iterations
+- the shared action model and saved-action seam create a more stable interaction foundation than an overlay-local catalog alone
 
-- input ownership and capture stability for the regression family already discovered
-- no-mirroring / no-underlay-leak guarantees for the currently validated typed paths
-- `Enter` / digit / `Esc` containment guarantees for the currently validated typed paths
-- focus and reopen behavior for the success-path and cancel/retry flows already exercised
-- `entry` / `choose` / `confirm` transition integrity for the current typed command surface
-- result-state reset and clean reopen behavior for the validated success path
-- `launch_failed` result handling and retry/reset posture for the current typed command surface
-- target clarity and execution clarity for the current command set
-- visual state consistency of the NCP surface, including compact reset after backing out of expanded states
+This assessment means the command surface has a usable hardening baseline.
+It does not claim that the surface is feature-complete or final.
 
-Current repo truth supports this classification because the merged overlay-usability lane and the current hardening branch already closed:
+## What Future Follow-Through Would Need To Be About
 
-- mirrored typing and underlay leakage regressions
-- first-`Enter` and second-`Enter` containment failures
-- delayed ambiguous number-selection failure without manual refocus
-- caret / visual state mismatch after focus leaves the NCP
-- `Esc` cancel-and-retry reliability issues
-- layout reset after `Esc` from `choose` / `confirm`
-- success-path clean result close / reopen reset
-- stale retry-state carry-over for current non-success back-out flows
-- `launch_failed` visible failure-result handling, clean reopen/reset posture, and retry cleanliness for the current command surface
+Future NCP hardening work should be justified by one or more of the following:
 
-## Mostly Hardened But Under-Validated
+- a reproduced runtime regression in the current command surface
+- a newly discovered failure class that the current interaction contract does not handle cleanly
+- a major new interaction capability that changes the command-surface risk profile
+- packaging, install, or broader user-testing evidence that exposes a current desktop interaction weakness
 
-`Mostly hardened but under-validated` means the model, runtime, or helper evidence is stronger than the current live user-validation depth.
+Future work should not be justified only by vague polish pressure or by re-opening already settled behavior without fresh evidence.
 
-No currently meaningful NCP subsystem remains in this category for the active branch scope.
+## What This Assessment Should Not Be Used For
 
-The helper / regression surface may still be stronger than the live validation depth for some future failure-oriented or cross-system paths.
-That is useful and intentional, but it is no longer the gating question for the current NCP hardening lane.
+This document should not be used to:
 
-## Still Needs Hardening
+- declare a lane active or closed
+- recommend branch readiness or closure
+- replace a workstream record
+- restate backlog or roadmap state
+- authorize automatic expansion into voice, Action Studio, or broader interaction redesign
 
-No currently reproduced runtime bug forces another NCP patch at the moment.
+Those decisions belong in the backlog, roadmap, and canonical workstream layers.
 
-No currently meaningful near-term NCP hardening candidate remains inside this lane before branch-level closure review.
+## Planning Boundary
 
-Broader failure-class, diagnostics-surface, reporting, or voice-role contract work now belongs to `docs/architecture.md` rather than this NCP hardening doc.
-That later cross-system work should not be treated as an automatic continuation of the current typed-first NCP hardening lane.
+This assessment is healthiest when it is used as:
 
-## Not In Work Yet
+- a reusable reference for future typed-first interaction hardening questions
+- a guardrail against re-opening settled command-surface behavior without evidence
+- a way to distinguish stable command-surface expectations from future broader interaction ambitions
 
-These items are relevant to future NCP follow-through but are not active work right now:
-
-- broader non-success-path polish beyond a reproduced issue
-- any later slice that is only justified if new live evidence reopens a typed-interaction regression
-
-## Not Ready Yet Due To Future Integration Dependencies
-
-These items are NCP-adjacent, but they should wait because later product layers are not yet ready:
-
-- voice-parity behavior above the same interaction model
-- Action Studio and later customization surfaces
-- broader shared-action-model expansion beyond the current typed-first hardening lane
-- later installable / packaged interaction behavior that depends on future Beta-stage delivery
-
-Future voice should build on the same interaction model as typed interaction.
-That does not make voice part of current NCP hardening.
-
-## Current Recommended Next Step
-
-The current recommended next step is:
-
-1. do not patch automatically
-2. treat the approved NCP hardening lane as runtime-complete enough for its current scope
-3. move to branch-level readiness / closure review for `feature/fb-027-ncp-hardening`
-
-This is the conservative next step because the latest returned live user validation closed the `launch_failed` validation-first question without reopening a new NCP runtime bug.
-
-## What Should Wait Until Later
-
-The following should stay out of the current NCP hardening lane:
-
-- voice integration
-- Action Studio
-- shortcut customization
-- `Shift+Home` or other QoL extras
-- broader UI polish
-- command expansion
-- broad architectural rewrites without a reproduced bug
-
-## How This Document Should Be Used Relative To The Relevant FB-027 Backlog Item
-
-This document should be used as the canonical NCP hardening reference for future FB-027 follow-through wording.
-
-That means:
-
-- `docs/feature_backlog.md` should remain the controlling backlog file
-- future approved FB-027 backlog updates may point to this assessment instead of restating the full hardening map
-- backlog wording should stay concise and should not duplicate this document unless a later approved slice materially changes the assessment
-
-Backlog changes remain approval-gated.
-This document exists so future backlog carry-forward can reference one stable source of truth instead of relying on chat history.
+It is drifting if it turns into a branch memo, a closure checklist, or a hidden workstream record.

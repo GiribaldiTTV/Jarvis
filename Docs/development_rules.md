@@ -1,105 +1,127 @@
-# Jarvis Development Rules
+# Nexus Development Rules
 
 ## Core Principles
 
-- One fix per revision
-- No regressions
-- Latest files are the only source of truth
-- Identical source filenames only (do not create versioned code files)
-- Generated runtime and crash artifacts may use Run ID-based filenames
+- Analyze first
+- Validate live repo truth before making lane, branch, merge, or release recommendations
+- One coherent approved change per revision
+- Preserve architecture boundaries
+- Logs, code, and merged docs are the source of truth for implemented behavior
+- No silent scope expansion
+- No silent backlog or policy drift
 
-## Workflow
+## Analysis-First Operating Posture
 
-1. Analyze first
-2. Patch second
-3. Verify the exact failure path before changing logic
-4. No blind iteration
-5. Run a post-revision Analyze pass before recommending the next revision
+Codex is a full-scan analyst before it becomes an executor.
+
+That means Codex must:
+
+- scan broadly enough to understand the whole affected system
+- validate current repo truth
+- surface drift, risk, dependencies, and options
+- only narrow scope after the analysis is complete and the user approves execution boundaries
+
+Execution language such as:
+
+- `minimal`
+- `smallest safe slice`
+- `narrow`
+- `single patch`
+
+belongs to execution planning after analysis, not to the initial investigative posture.
 
 Short prompts, shorthand cues, or mode-only requests do not waive source-of-truth reading.
 
-If the user gives a brief cue such as:
+## Live-State Validation Gate
 
-- `Analyze and Report`
-- `Analyze for drift`
-- `Workflow Mode`
-- `docs-only pass`
-- `reference docs for the following`
+Before recommending the next move after a merge, release, or major lane transition, validate:
 
-Codex must still load the default truth baseline from `docs/Main.md`, then add the directly relevant canonical docs and evidence inputs needed for the task.
+- current branch
+- local `main` versus `origin/main`
+- whether referenced PRs are actually merged
+- whether referenced branches still exist
+- latest public tag or release versus current `main`
+- whether docs and canon reflect live repo truth
 
-## Canon Freshness Gate
+If prompt framing is stale, report the real state first and plan from that state.
 
-For routine Nexus `pre-Beta` implementation work:
+## Source-Of-Truth Ownership Model
 
-- do not let supporting canon drift until after release and then clean it up with a separate docs-only refresh branch by default
-- supporting canon for an active lane must be synced on the implementation branch itself before PR packaging
-- if a just-finished released lane needs lifecycle closure in canon, that closure should normally be the first docs-only step on the next implementation branch rather than a standalone docs-only cleanup branch
-- use a standalone docs-only roadmap or drift-refresh branch only as an explicit exception after telling the user why no safe next implementation branch can yet be chosen
+Use this layered ownership model:
 
-Supporting canon means only the directly relevant truth docs for the active lane, such as:
+- backlog = identity and registry
+- workstream docs = planning, execution, validation, and closure truth for promoted work
+- roadmap = sequencing and release posture
+- rebaselines and closeouts = epoch or milestone summaries
+- incident patterns = generalized reusable lessons
+- bugs = backlog-first, with promoted bug docs only when warranted
+- User Test Summary = validation-contract layer owned by workstreams
+- `Docs/Main.md` = routing authority aligned to merged truth
 
-- `docs/prebeta_roadmap.md` for lane lifecycle, release floor, target version, and release state
-- `docs/feature_backlog.md` for per-item state and version truth
-- `docs/development_rules.md` and `docs/architecture.md` for implemented boundary changes
+Use these lifecycle fields:
 
-This rule does not authorize broad docs cleanup.
-It only requires the minimum directly supporting canon sync needed so PR-readiness, release-readiness, and next-branch planning all start from current truth.
+- `Status` = delivery or work state
+- `Record State` = canonical-record lifecycle
 
-## Pre-Patch Investigation Gate
+Allowed `Record State` values are:
 
-For runtime bugs, behavior regressions, systems investigations, architecture-sensitive work, or readiness/risk analysis that could lead directly to patching, Codex must complete pre-patch investigation before editing.
+- `Registry-only`
+- `Promoted`
+- `Closed`
 
-The detailed workflow contract for that deeper investigation belongs in `docs/codex_modes.md`.
+Rules:
 
-## Workstream Organization
+- if `Record State` is not `Registry-only`, `Canonical Workstream Doc` must exist
+- closed workstream docs stay at stable paths
+- backlog and roadmap must not continue carrying the full execution story once a canonical workstream doc exists
 
-During `pre-Beta`, the project may organize work through grouped workstreams by category or subsystem when that is the clearest way to support multi-developer progress.
+## Branch And Lane Governance
 
-Examples may include:
+PR-readiness is not the default checkpoint after a clean slice.
 
-- interaction work
-- UI / UX work
-- diagnostics / tooling work
-- release-prep or repo-admin work
-- workflow or GitHub-infrastructure work
+Default checkpoint:
 
-This grouping rule does not replace one-fix-per-revision discipline.
+- branch-level lane evaluation
 
-It means:
+Stay inside the active grouped lane until one of these is true:
 
-- the branch or workstream may group related ideas under one coherent lane
-- each approved revision or patch inside that lane must still stay narrow, validated, and architecture-safe
-- unrelated categories must not be silently mixed just because they are all "nice to do"
+- the milestone threshold is satisfied
+- a real blocker appears
+- the next work crosses subsystem boundaries
+- the user explicitly stops
 
-The purpose of grouped workstreams is:
+After a lane is closed:
 
-- clearer backlog-to-branch mapping
-- cleaner multi-developer coordination
-- less churn from fragmenting every release into isolated micro-branches when the work is obviously part of one coherent lane
+- the next workstream must start from updated `main` on a fresh branch
 
-Until `Beta`, grouped workstreams are allowed when they remain coherent by subsystem and end-state.
+If a branch becomes:
 
-At `Beta` and later, the default planning posture should shift back toward narrower:
+- stale
+- merged
+- identical to `main`
 
-- issue branches
-- bug-fix branches
-- single-idea follow-through branches
+Codex must call that out explicitly and recommend a fresh branch from updated `main`.
 
-unless a grouped workstream is explicitly justified.
+## Canon Freshness Rules
+
+Supporting canon must stay aligned with live truth.
+
+That means:
+
+- directly supporting canon may be updated on the active implementation branch when that branch changes the truth
+- docs-only canon reconstruction is also valid when no safe implementation lane should be selected until canon is trustworthy
+- do not force post-release canon repair onto a hypothetical next implementation branch when the truthful next move is a docs-only canon pass
+- do not use canon sync as an excuse for broad unrelated documentation churn
+
+Local docs overlays are reference material only until revalidated against updated `origin/main`.
 
 ## Change Discipline
 
-- Changes must be minimal and isolated
-- Preserve architecture boundaries
-- Do not mix multiple behaviors into one revision
-
-In Jarvis workflow terms:
-
-- one fix per revision means one coherent approved subproblem per revision, not one tiny mechanical fragment
-- minimal isolated changes means the minimal coherent approved change set needed to close that subproblem
-- multiple revisions may still live inside one grouped implementation branch when they are tightly coupled to one milestone
-- except for docs-only governance or rebaseline branches, a `pre-Beta` branch should usually target one version-bearing milestone rather than a merge-only code delta
+- one fix per revision means one coherent approved subproblem per revision
+- minimal isolated changes means the minimal coherent change set needed to close that approved subproblem
+- grouped workstreams are allowed during `pre-Beta` when they remain coherent by subsystem and end-state
+- a grouped branch may carry multiple validated slices when they all belong to the same milestone
+- unrelated ideas must still be split out even if they look convenient to batch
 
 Use the smallest safe slice for:
 
@@ -109,329 +131,97 @@ Use the smallest safe slice for:
 
 Use the smallest coherent slice for:
 
-- lower-risk post-boundary feature delivery where a smaller fragment would leave an incomplete first deliverable
+- lower-risk follow-through inside an already-approved milestone when a smaller fragment would leave the milestone incomplete
 
-## Branch Sizing Rule
+These are execution rules, not analysis-stop rules.
 
-For `pre-Beta` non-doc implementation work, revision sizing and branch sizing are separate decisions.
-
-- revision sizing chooses the smallest safe slice needed to make architecture-safe progress inside the approved milestone
-- branch sizing chooses the smallest worthwhile milestone strong enough to justify the branch's declared release floor
-
-A worthwhile milestone means:
-
-- if the branch were squashed and merged as one commit, it would still read as a meaningful implementation increment rather than as a setup fragment, validator-only stub, or bookkeeping-only follow-through
-- the branch would materially improve current repo truth, future planning baseline, or shipped operator value
-- the branch would still feel strong enough to justify its declared prerelease floor rather than reading like a merge-only delta
-
-Therefore:
-
-- do not stop a non-doc implementation branch just because the first safe slice validates
-- keep tightly coupled follow-through on the same branch when it is still required to make that milestone feel complete
-- stop only when the milestone is complete, a real blocker appears, the next work would cross subsystem boundaries, or the user explicitly chooses to stop early
-
-## Testing Requirements
+## Testing And Validation
 
 Every revision must include:
 
-- Healthy path verification
-- Failure or edge-case verification (if applicable)
-- Runtime log review
-- Crash log review (if present)
-- Artifact cleanup verification
+- healthy-path verification
+- failure or edge-case verification when relevant
+- runtime log review
+- crash log review when present
+- artifact cleanup verification when relevant
 
 Before handing a user-visible runtime, UI, or manual validation path back to the user, Codex must run that same path or the closest faithful equivalent when feasible.
 
-If Codex cannot self-run the same path reliably, Codex must say so explicitly and identify the exact validation gap rather than implying the path was personally verified.
+If Codex cannot self-run the same path reliably, it must say so explicitly and identify the remaining validation gap.
 
-For Nexus desktop-runtime testing, Codex must not use fragile ad hoc shell invocations such as raw `wscript.exe` path calls against launchers with spaces in their path.
+## Runtime Evidence And Logging
 
-Codex should prefer:
+- logs are the source of truth for runtime behavior
+- do not assume behavior without log or code evidence
+- prefer structured markers over raw output
 
-- an approved launcher helper under `dev/launchers/`
-- or direct `pythonw.exe` launch of `desktop/orin_desktop_launcher.pyw`
+### Root Logs Governance
 
-If Codex uses a launcher helper for testing, that helper becomes the default testing launch path unless the active task explicitly requires validating the user-facing desktop shortcut or VBS wrapper itself.
+- `C:/Jarvis/logs` and `C:/Jarvis/logs/crash` remain reserved for approved live launcher and runtime truth surfaces only
+- launcher-owned historical state is not a root-owned live logs surface
+- normal runtime historical state resolves under `%LOCALAPPDATA%/Nexus Desktop AI/state/jarvis_history_v1.jsonl`
+- dev, test, worker, and toolkit evidence must write under `C:/Jarvis/dev/logs/<lane>/...`
+- no new dev or worker evidence roots may be introduced under `C:/Jarvis/logs` without explicit approval
 
-## Standard Analyze Pass
+### Dev-Only Startup Snapshot Harness
 
-After every revision, review:
-
-- the newest runtime log
-- the newest crash log, if one exists
-- `diagnostics_status.txt`
-- `diagnostics_stop.signal` and `renderer_startup_abort.signal` when relevant
-- the exact startup, shutdown, failure, or recovery milestones reached
-- whether observed behavior matches the intended revision scope
-- whether any regression markers appeared
-
-## Logging Philosophy
-
-- Logs are the source of truth
-- Do not assume behavior without log evidence
-- Prefer structured markers over raw output
-
-## Root Logs Governance
-
-- `C:/Jarvis/logs` and `C:/Jarvis/logs/crash` are reserved for already-approved live launcher/runtime truth surfaces only
-- current approved root-owned surfaces are:
-  - launcher-generated `Runtime_*.txt`
-  - matching live crash logs
-  - launcher control/status files when relevant
-- launcher-owned historical state is no longer a root-owned live surface
-- normal runtime historical state now resolves under `%LOCALAPPDATA%/Nexus Desktop AI/state/jarvis_history_v1.jsonl`
-- contained harness runs may still keep historical state under the contained harness log root to preserve harness isolation
-- dev/test/worker/toolkit evidence must write under `C:/Jarvis/dev/logs/<lane>/...`
-- no new dev/test/worker evidence roots, new subfolders, or new artifact families may be introduced under `C:/Jarvis/logs` or `C:/Jarvis/logs/crash` without explicit user approval
-
-## Dev-Only Startup Snapshot Harness
-
-For desktop attach, first-visible frame, or startup-freeze debugging, Codex may use the env-gated startup snapshot harness in the desktop renderer when that is the smallest reliable evidence path.
+For startup-state debugging, Codex may use the env-gated startup snapshot harness when it is the smallest reliable evidence path.
 
 Rules:
 
 - the harness must remain opt-in through `JARVIS_HARNESS_STARTUP_SNAPSHOT_DIR`
-- snapshot output must write to an explicitly chosen dev/test evidence path, not to root `logs`
-- the harness is for internal debugging only and must not become normal user-facing behavior
-- snapshot timing should stay bounded to the startup window under investigation
+- snapshot output must write to an explicitly chosen dev evidence path, not root logs
+- the harness is internal debugging infrastructure only
 - if the harness is not needed for the active task, leave it disabled
-
-## Orchestration Philosophy
-
-Build in this order:
-
-1. Observability (know what is happening)
-2. Classification (know what state it is in)
-3. Control (safe ability to intervene)
-4. Outcome clarity (know what happened)
-5. Behavior (decide what to do)
-
-Never skip a stage.
-
-## Scope Control
-
-Do NOT mix into orchestration revisions:
-
-- UI changes
-- Voice system changes
-- Feature development
-- Folder restructuring
-- `main.py` redesign
-
-These are separate phases.
-
-## Controlled Improvement Suggestions
-
-If you identify a potential improvement while analyzing or implementing a revision:
-
-- Do NOT include it in the current patch
-- Do NOT expand the scope of the current revision
-- Do NOT combine it with the active change
-
-Instead:
-
-1. Clearly call out the improvement separately
-2. Explain why it is beneficial
-3. Propose it as a future revision
-4. Keep it within one-fix-per-revision discipline
-
-Example format:
-
-Suggested Future Revision:
-
-- Description of the improvement
-- Why it should be done
-- Which files would likely be affected
-- Why it is not included in the current revision
-
-## Rule
-
-Improvements must be proposed, not silently implemented.
-
-Scope expansion without explicit approval is not allowed.
-
-## Goal
-
-Jarvis must behave as a:
-
-- Observable system
-- Controllable system
-- Self-correcting system
-
-Not a black box.
-
-## Versioning Philosophy
-
-Each version should focus on a single system layer.
-
-Examples:
-
-- Logging work should focus on observability and traceability
-- Orchestration work should focus on startup control, recovery, and lifecycle behavior
-- Behavior work should focus on decision-making and policy
-
-Do not mix major system layers across versions unless explicitly planned as a dedicated transition.
-
-Each revision (`revX`) must introduce only one controlled change within that version's scope.
-
-## Documentation Rule
-
-Important architecture, orchestration, and behavior decisions should be written into repo docs rather than left only in chat history.
-
-Project docs are part of the source of truth and should be read before planning future revisions.
-
-Use `docs/Main.md` as the source-of-truth index and prompt-baseline map for future Jarvis tasks.
-
-When a workstream has a consolidated canonical planning or design doc, future prompts and task baselines should prefer that canonical doc over the full stack of superseded slice docs.
-
-Superseded slice docs may still be used for historical traceability, earlier revision review, or conflict checking, but they should not continue to be listed as equal-weight prompt inputs once a canonical consolidation exists.
-
-Future prompts should usually prefer:
-
-- `docs/development_rules.md`
-- `docs/Main.md`
-- only the directly relevant canonical doc or docs
-- only the relevant evidence inputs
-
-Closeout docs, historical docs, and optional planning references should be added only when the task materially depends on them.
-
-Core code progression is prioritized over repeated separate doc-only micro-passes.
-
-When a code workstream directly establishes or changes truth that should be recorded, the required truth-doc updates may be bundled into that same approved workstream if:
-
-- the doc updates directly support or record the active code task
-- the edits do not widen architecture or backlog scope
-- batching the doc sync keeps the repo more accurate than delaying it
-
-Prefer milestone-level or canonical doc sync when meaningful, rather than forcing repeated separate micro-passes for every small code slice, unless a docs-only clarification is the safest boundary-setting move.
-
-When using Codex or ChatGPT for project tasks, prefer the structured prompt format in `docs/orin_task_template.md` so requests include clear goal, context, evidence, constraints, allowed surfaces, and done-when criteria.
 
 ## Historical Intelligence Rules
 
-Cross-run intelligence must be contract-defined in repo docs before implementation begins.
+Cross-run intelligence must stay contract-defined in repo docs before implementation changes begin.
 
 That contract must define:
 
-- versioned history schema
-- run identity rules
+- schema and versioning
+- run identity
 - failure fingerprint rules
 - provenance labeling
 - retention and reset behavior
 - corruption and fallback behavior
 
-Historical intelligence must remain a derived layer over current-run truth.
-It must not become a second source of runtime truth.
+Historical intelligence must remain explainable and deterministic rather than becoming a second hidden truth source.
 
-Confidence may be used only as explanatory metadata.
-It must never be treated as authoritative runtime policy.
+## Documentation And Carry-Forward Review
 
-If historical state is missing, unreadable, or corrupt, the system must degrade cleanly to the last finalized non-historical behavior.
+Important architecture, orchestration, planning, and validation decisions should live in repo docs rather than only in chat history.
 
-## Backlog Integration
+For every post-merge, post-release, or next-lane review, classify prior recommendations as:
 
-If a new idea or improvement is identified:
+- carry forward
+- defer
+- discard
 
-- It must be added to docs/feature_backlog.md
-- It must NOT be implemented immediately
-- It must be assigned a suggested version and revision
-- It must follow one-fix-per-revision discipline
+Never treat prior suggestions as automatic scope.
 
-Ideas are only implemented after being explicitly selected from the backlog.
+Use `Docs/Main.md` as the routing index for the merged canon.
 
-## Backlog Control
+## Backlog Governance
 
-The backlog file (docs/feature_backlog.md) is the controlled planning layer for future work.
-
-### Codex Permissions
-
-Codex may:
-- propose new backlog items
-- format backlog entries
-- suggest updates to backlog items
-
-Codex may NOT:
-- silently edit the backlog
-- mark items complete without approval
-- change status of existing items without approval
-- reorder or reprioritize items
-- delete backlog items
-
-Backlog state changes must be explicitly approved and performed by the user.
-
-### Required Backlog Workflow
-
-If a new idea, improvement, or follow-up work is identified:
-
-1. Codex must propose a backlog update first
-2. The proposal must include:
-   - Type (new item / status update / notes / completion)
-   - Title
-   - Reason
-   - Exact markdown change
-3. Codex must wait for explicit user approval
-4. Only after approval may Codex edit docs/feature_backlog.md
-
-### Execution Rules
-
-- Backlog updates must remain minimal and scoped
-- Backlog changes may be made alongside other files ONLY after approval
-- If no backlog update is required, do not modify the backlog
-
-### Control Principle
-
-The backlog is a planning and control layer.
-
-Codex assists in managing it, but the user retains final authority over:
-- prioritization
-- status changes
-- completion
-
-## Backlog Grouping And Planning Rule
-
-When planning future work, Codex may scan the backlog for related ideas by type or subsystem so the user can choose a more organized workstream model.
-
-Examples:
-
-- several UI / UX ideas grouped into one UI / UX lane
-- several interaction-surface ideas grouped into one interaction lane
-- several workflow / tooling ideas grouped into one infrastructure lane
+`Docs/feature_backlog.md` is a controlled registry layer.
 
 Codex may:
 
-- identify clusters of related ideas
-- recommend a grouped workstream branch
-- suggest which items should travel together versus stay separate
+- propose backlog changes
+- draft exact backlog markdown for approval
+- carry approved state changes during an explicitly authorized docs pass
 
 Codex may not:
 
-- silently reorder backlog items into categories
-- silently relabel backlog status or priority
-- silently create a new grouped workstream in backlog truth without approval
+- silently add backlog items
+- silently change priority or status outside approved work
+- silently mark work complete because a branch merely looks clean
 
-Grouped-workstream planning must still preserve:
+## Relationship To `Docs/orin_task_template.md`
 
-- backlog control
-- explicit user approval
-- clear subsystem boundaries
-- minimal per-revision scope inside the larger lane
+`Docs/orin_task_template.md` remains the per-task execution scaffold.
 
-## GitHub / Tooling Expansion Rule
-
-Potential GitHub follow-through such as:
-
-- repo scripts
-- helper automation
-- bots
-- workflow tooling
-- multi-developer coordination helpers
-
-should be treated as explicit infrastructure work, not as silent side work attached to product slices.
-
-Codex may recommend those expansions when they materially improve project organization, validation, or collaboration.
-
-Codex must not silently add them without:
-
-- a clear explanation of why they are worth adding
-- a recommendation for where they belong
-- explicit user approval for the resulting workstream
+This document defines repo-wide rules.
+The task template defines the structure of a specific request.

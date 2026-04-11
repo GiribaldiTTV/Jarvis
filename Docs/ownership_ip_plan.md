@@ -2,30 +2,40 @@
 
 ## Purpose
 
-This document preserves the current ownership, licensing, copyright, and future trademark-planning posture for the Jarvis repository and the Nexus Desktop AI product line.
+This document preserves the current ownership, licensing, copyright, and future trademark-planning posture for Nexus Desktop AI and its assistant personas.
 
 It is planning guidance only.
 It is not formal legal advice and does not replace qualified legal counsel.
 
-## Current Approved Posture
+## Current Identity Context
 
-Current approved repo-root posture:
+Current canon uses these identity boundaries:
+
+- repository and workspace identity: `Nexus Desktop AI`
+- product and platform identity: `Nexus Desktop AI`
+- current shipped assistant persona: `ORIN`
+- future optional persona: `ARIA`
+
+Historical `Jarvis` references may remain in preserved historical material or still-real runtime artifact names, but they do not define current product identity.
+
+## Current Approved Ownership And Licensing Posture
+
+Current approved posture is:
 
 - current copyright holder: `Anden Lee Schmitt`
 - copyright exists automatically upon creation
-- current repo-root licensing posture: restrictive proprietary / all-rights-reserved
-- current repo name remains `Jarvis`
-- current product/platform identity is `Nexus Desktop AI`
+- current repository licensing posture: restrictive proprietary / all-rights-reserved
+- repo permissions and public-facing wording should not imply open-source reuse rights unless an explicit later decision changes that posture
 
 This means the current practical default is:
 
 - hold ownership personally for now
-- keep repo permissions restrictive
-- avoid implying open-source reuse rights unless a later explicit decision changes that posture
+- keep repo permissions and license posture restrictive
+- avoid ambiguous wording that suggests broader reuse rights than intended
 
 ## Near-Term Ownership Recommendation
 
-If privacy, long-term commercial control, or cleaner business separation matter, the preferred later path is to move ownership into an LLC or other intentional legal entity before later public or commercial stages.
+If privacy, liability separation, or cleaner commercial structure become more important, the preferred later path is to move ownership into an LLC or other intentional legal entity before broader commercial stages.
 
 The currently acceptable interim path is:
 
@@ -33,83 +43,69 @@ The currently acceptable interim path is:
 2. form the LLC/entity later if and when that becomes practical
 3. transfer ownership from the personal holder to the LLC/entity by written agreement
 
-Until that later transfer happens, repo-root ownership references should continue to reflect the current approved personal owner.
+Until that transfer happens, ownership references should continue to reflect the current personal owner accurately.
 
 ## Milestone Breakpoints
 
-### Now / Current Branch Merge-Readiness
+### Current Stage
 
 Current practical posture:
 
 - use the approved personal owner: `Anden Lee Schmitt`
-- use restrictive proprietary / all-rights-reserved repo-root posture
-- keep repo-root licensing and ownership references explicit enough that repo permissions are not ambiguous
+- use restrictive proprietary / all-rights-reserved repo posture
+- keep ownership and licensing references explicit enough that repo rights are not ambiguous
 
 ### Before Beta
 
-Before `Beta`, review whether ownership should still remain personal or whether an LLC/entity should be formed first.
+Before `Beta`, review:
 
-If privacy, cleaner contracting, or commercial control matter by that stage, the preferred path is:
+- whether ownership should still remain personal
+- whether an LLC/entity should be formed first
+- whether the current restrictive license notice is still sufficient for the intended distribution posture
 
-- form the LLC/entity before broader public-facing or commercial stages if practical
-- decide whether repo-root ownership references should remain personal temporarily or be updated after written transfer
-- review whether the current root `LICENSE` should remain a minimal restrictive notice or be expanded into a fuller proprietary license instrument before broader public-facing distribution
+### Before Commercialization
 
-### Before Commercialization / Monetization
-
-Before meaningful commercialization, monetization, or broader productization:
+Before meaningful commercialization or broader productization:
 
 - re-check whether personal ownership is still the right posture
 - consider entity formation if it has not happened yet
-- make sure any later ownership transfer is handled in writing
-- consider replacing the minimal restrictive repo-root `LICENSE` with a fuller proprietary license text if the project is moving into broader public, commercial, or enforcement-sensitive use
+- make sure any later ownership transfer is documented in writing
+- review whether the repository license text should be expanded into a fuller proprietary instrument for broader public or enforcement-sensitive use
 
 ### After LLC / Entity Formation
 
 Once an LLC/entity exists and ownership is intentionally moved:
 
 - execute the ownership transfer in writing
-- update repo-root licensing and ownership references from the personal owner to the legal entity
-- keep the transfer record with project/business records
+- update ownership and licensing references from the personal owner to the legal entity
+- preserve the transfer record with project and business records
 
-### When The Codebase Reaches Meaningful Value / Shipping Maturity
+### When The Codebase Reaches Meaningful Value
 
 When the codebase becomes substantial enough or commercially meaningful enough, U.S. copyright registration should be considered.
 
-That is not required for copyright to exist.
-It is a later protection milestone to consider once the work has meaningful value, shipping weight, or enforcement importance.
+Registration is not required for copyright to exist.
+It is a later protection step that may matter once the work has meaningful shipping, commercial, or enforcement value.
 
 ## Future Trademark Path
 
-If `Nexus Desktop AI`, `ORIN`, and later `ARIA` become commercially meaningful names, trademark clearance/search should be considered before or around public `Beta` or commercialization.
-
-If the project moves toward real productization, later trademark filing in priority markets should also be considered.
+If `Nexus Desktop AI`, `ORIN`, or `ARIA` become commercially important names, trademark clearance and later filing should be considered before or around broader productization.
 
 Practical order:
 
-1. perform trademark clearance/search before relying on the names commercially
+1. perform trademark clearance before relying on the names commercially
 2. decide which names are important enough to protect
-3. consider filing in priority markets if the product is moving into real commercial use
+3. consider filing in priority markets if the product moves into real commercial use
 
-## Practical Rule Of Thumb
-
-Use this simple planning order:
-
-1. now: personal ownership plus restrictive proprietary / all-rights-reserved posture
-2. before `Beta`: review LLC/entity timing
-3. before commercialization: review ownership structure and trademark clearance
-4. after LLC/entity formation: transfer ownership in writing and update repo-root ownership references
-5. when the codebase becomes materially valuable: consider U.S. copyright registration
-
-## Scope Boundary
+## Boundary Reminder
 
 This document does not authorize:
 
 - legal filings
 - trademark filings
 - copyright registration work
-- repo rename work
-- release-line work
-- runtime/code changes
+- release work
+- repo or product renaming by itself
+- runtime or code changes
 
-It exists to preserve the intended ownership/IP protection path in one canonical source-of-truth location.
+It exists to preserve the intended ownership and IP-protection posture in one reference location that stays aligned to current product identity.

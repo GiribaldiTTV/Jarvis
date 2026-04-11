@@ -1,721 +1,234 @@
-# Jarvis Codex Modes
+# Nexus Codex Modes
 
 ## Purpose
 
-This document formalizes the two Codex collaboration modes used in the Jarvis project:
+This document defines the collaboration posture Codex should use while handling Nexus Desktop AI tasks.
 
-- Analysis mode
-- Workflow mode
+It works with:
 
-The purpose of these modes is to keep planning, execution, and verification disciplined without weakening user authority, backlog control, or locked architecture boundaries.
+- `Docs/development_rules.md`
+- `Docs/Main.md`
+- `Docs/orin_task_template.md`
 
-This document is operational guidance for how Codex should collaborate inside Jarvis work.
-It does not override `development_rules.md`, `orin_task_template.md`, version closeout facts, or explicit user approval requirements.
-
----
+If those sources conflict, live repo truth and the higher-order governance docs win.
 
 ## Why Two Modes Exist
 
-Jarvis work needs two different collaboration postures:
+Nexus work benefits from two different postures:
 
-- one for evidence-first analysis, planning, audit, and direction validation
-- one for carrying an approved narrow task through analysis, patching, verification, and closeout
+- one for deep truth-mapping, drift analysis, and next-move determination
+- one for carrying an approved task through execution and verification
 
-Keeping those postures explicit helps prevent:
-
-- premature patching
-- scope drift
-- silent backlog changes
-- reopening closed version guarantees
-- mixing planning with implementation before the architecture boundary is clear
-
----
+The modes should not be confused.
+Analysis mode exists to understand the whole system first.
+Workflow mode exists to execute approved work without silent scope drift.
 
 ## Analysis Mode
 
 ### Goal
 
-Use Analysis mode when the immediate job is to understand, validate, challenge, audit, or sequence work before any patching begins.
+Map the real current state of the system before deciding what should happen next.
 
 ### When To Use It
 
-Use Analysis mode when:
+Use Analysis mode when the user asks for:
 
-- deciding whether a version, revision, or backlog item is the correct next target
-- auditing whether a completed revision is clean enough to close
-- identifying risks, missing evidence, or drift traps
-- defining the safest scope for a future docs-only or patch task
-- validating whether a proposed next move conflicts with source-of-truth docs
-- investigating runtime bugs, behavior regressions, or other systems-level failures before patching
-- tracing architecture-sensitive behavior where a shallow file-reference answer would be risky
-- performing readiness or risk analysis that could directly lead to a patch recommendation
-- performing post-version planning such as deciding whether `FB-015` is the correct next architecture-first target
+- drift review
+- post-release or post-merge review
+- workstream planning
+- readiness analysis
+- sequencing analysis
+- source-of-truth audit
+- next-lane determination
 
 ### What Codex Should Do
 
-Codex should:
+In Analysis mode, Codex should:
 
-- read the source-of-truth docs first
-- inspect the relevant repo state before making recommendations
-- validate assumptions against implemented behavior and documented boundaries
-- identify the narrowest safe next step
-- separate confirmed facts from inference
-- call out risks, blockers, and conflicts directly
-- recommend doc-first clarification when implementation boundaries are not yet tight enough
+- validate current repo truth first
+- scan broadly enough to understand the whole affected system
+- compare code, docs, branches, tags, and release facts where relevant
+- identify factual drift, structural drift, and authority drift
+- classify prior suggestions as carry-forward, defer, or discard
+- determine the correct next workstream-level move
 
 ### Required Analysis Depth
 
-Analysis mode is not one fixed depth for every task.
+Analysis mode should reason at:
 
-For a tiny docs review, narrow sanity check, or lightweight source-of-truth drift check, Codex should use only the analysis depth needed to answer the question cleanly.
+- system level
+- lane level
+- workstream level
+- document-ownership level
 
-For runtime bugs, behavior regressions, systems investigations, architecture-sensitive work, or readiness/risk analysis that could lead to patching, Analysis mode must become deep investigative analysis rather than shallow reference review.
-
-Deep investigative analysis is also required for branch-level merge-readiness, PR-readiness, release-readiness, version-bump, or release-package review, even when no patch is being proposed.
-
-When that deeper investigation applies, Codex should:
-
-- trace the full execution or behavior chain from entry point to affected output
-- identify direct files, indirect files, and regression-risk files
-- explain current behavior versus intended behavior
-- identify the relevant validators, state transitions, logging surfaces, config usage, and user-visible side effects
-- list assumptions, unknowns, and evidence still needed
-- define the smallest safe patch scope when a patch may be needed
-- define the verification plan, including commands, log review, and user-test needs, before recommending patching or readiness
-
-Analysis mode should follow those same requirements even when the user invokes it with only a short cue such as:
-
-- `Analyze and Report`
-- `Analyze for drift`
-- `Analysis mode`
-- `reference docs for the following`
-
-Those shorthand prompts are mode selectors, not reduced-quality requests.
-Codex should still load the default baseline from `docs/Main.md` and the directly relevant canonical docs before reporting.
-
-### First Prompt Rule For New Post-Closeout Version Chats
-
-In the first Codex prompt of each new post-closeout version chat, Analysis mode should explicitly address:
-
-- what must be carried forward into the new version context
-- what can be removed from the prompt because the source-of-truth docs already cover it
-
-This keeps new-version chats grounded in the closed baseline without repeating version-closeout facts unnecessarily.
+Do not narrow to the first apparent slice before full drift and dependency mapping is complete.
 
 ### What Codex Must Not Do
 
-Codex must not:
+In Analysis mode, Codex must not:
 
-- patch files
-- change backlog state
-- imply that unimplemented work already exists
-- widen scope to "helpfully" include implementation
-- smuggle in authority, policy meaning, or runtime coupling through analysis language
-- reopen closed `v1.6.0`, `v1.7.0`, or `v1.8.0` guarantees without explicit user approval
+- default into implementation
+- assume PR, merge, release, or closure is the next move
+- compress the task into the smallest possible pass before understanding the system
+- treat local unmerged overlays as merged truth
 
 ### Expected Outputs
 
-Analysis mode outputs should usually include:
+Analysis mode should usually return:
 
-- source-of-truth validation result
-- readiness assessment
-- recommended scope or next revision
-- explicit non-goals
-- drift risks
-- whether a docs-only clarification should happen before patching
-- recommended next move
-
-When deep investigative analysis applies, outputs should also include:
-
-- affected-chain summary
-- current behavior versus intended behavior
-- explicit assumptions, unknowns, and missing evidence
-- smallest safe patch scope when patching is still a live outcome
-- verification and user-test plan
-
-Analysis mode should leave the repo unchanged.
-
----
+- validated current truth
+- key drift findings
+- structural assessment
+- sequencing options
+- one recommended next workstream move
 
 ## Workflow Mode
 
 ### Goal
 
-Use Workflow mode only when the user has explicitly approved a narrow task and wants Codex to carry that exact task through end to end inside the approved boundaries.
+Execute an approved task faithfully, verify it, and keep the resulting truth coherent.
 
 ### When To Use It
 
-Use Workflow mode when:
+Use Workflow mode when the user has already approved:
 
-- a docs-only pass has been clearly approved
-- a narrow patch revision has been clearly approved
-- a closeout sync is needed and its boundaries are already established
-- the user has explicitly approved a bounded task rather than a broad implied workflow handoff
+- a docs-only pass
+- a bounded patch
+- a canon sync
+- a workstream closure pass
+- another clearly bounded execution task
 
 ### What Codex Should Do
 
-Codex should:
+In Workflow mode, Codex should:
 
-- still analyze first
-- complete the required deep Analysis-mode investigation before editing when the task involves runtime bugs, behavior regressions, systems investigations, architecture-sensitive work, or readiness/risk analysis that could lead to patching
-- define the exact narrow scope before editing
-- make only the approved isolated change
-- verify the result directly
-- run the same user-facing test path or the closest faithful equivalent before handing that path back to the user when feasible
-- report what changed and what was verified
-- keep the source-of-truth docs aligned with actual implemented state
-- stop and report if the task would require reopening locked architecture or widening beyond one controlled revision
-
-Workflow mode should follow those same requirements even when the user invokes it with only a short cue such as:
-
-- `Workflow mode`
-- `docs-only pass`
-- `patch this`
-- `continue on this branch`
-
-Those shorthand prompts are execution selectors, not permission to skip truth-doc reading, validation, or scope control.
-Codex should still load the default baseline from `docs/Main.md`, infer the directly relevant canonical docs, and keep the same validation standard as a longer structured prompt.
-
-Workflow mode means Codex carries the task responsibly, not mechanically.
-Codex should behave like a careful senior collaborator who keeps progress moving without bypassing control boundaries.
-
-For desktop-runtime validation inside Workflow mode, Codex should use the approved safe launcher path for testing rather than improvising raw shell launch commands. In practice, that means:
-
-- prefer an approved helper in `dev/launchers/`
-- or launch `desktop/orin_desktop_launcher.pyw` directly through `pythonw.exe`
-
-Codex should only use the user-facing VBS or desktop shortcut path when the task specifically requires validating that wrapper layer itself.
+- validate live repo truth before editing
+- stay inside the approved execution boundary
+- make the required changes
+- verify the changed behavior or changed docs
+- report any drift or remaining gaps honestly
 
 ### What Codex Must Not Do
 
-Codex must not:
+In Workflow mode, Codex must not:
 
-- treat workflow ownership as permission to widen scope
-- patch runtime, behavior, or systems-impacting work before the required pre-patch investigation is complete
-- silently change backlog status or priorities without explicit approval
-- reopen version-closed behavior as a "small improvement"
-- merge multiple conceptual fixes into one revision
-- convert advisory or historical semantics into runtime policy
-- treat Workflow mode as authority over user decisions
+- silently widen scope
+- silently start a new workstream
+- silently create PR, merge, release, or closure output without current-truth justification
+- treat a clean first slice as automatic branch readiness
 
 ### Expected Outputs
 
-Workflow mode outputs should usually include:
+Workflow mode should usually return:
 
-- source-of-truth validation result
-- exact files changed
-- exact minimal changes made
-- why the change is sufficient
-- verification summary
-- whether validation is:
-  - self-validated
-  - helper-validated
-  - or still user-only for the final gap
-- any docs intentionally left unchanged
-- commit summary
-- commit description
+- changes applied
+- validation performed
+- remaining drift or known gaps
+- whether the approved phase is complete
 
-Workflow mode should report the result, not paste the full contents of edited files.
+## Workstream And Branch Governance
 
-Workflow mode may perform edits, but only after the task scope is explicitly approved and bounded.
+### Grouped Workstreams
 
----
+During `pre-Beta`, grouped workstreams are allowed when they remain coherent by subsystem and end-state.
 
-## Batched Workstream Rule
+That means:
 
-Jarvis may use one tightly related batched workstream per prompt when that is the smallest coherent way to complete one approved subproblem.
+- one branch may host multiple validated slices for one milestone
+- grouped workstreams should not become grab-bags of unrelated ideas
+- lane evaluation should stay milestone-driven rather than slice-driven
 
-A batched workstream is safe only when all of the following are true:
+### Milestone Gate
 
-- one subsystem
-- one end-state
-- one coherent approved subproblem
-- later slices are dependent completion steps of the same chain
-- validation can still stay narrow and exact
-
-Common checkpoint range:
-
-- 3-5 dependent sub-slices before a deliberate branch-health review
-
-This is a review checkpoint, not a stop rule.
-
-More than 5 dependent sub-slices are allowed when:
-
-- they still belong to one subsystem, one end-state, and one coherent approved subproblem
-- each additional slice is still required to complete the same worthwhile milestone
-- validation can still stay narrow and exact
-- stopping earlier would leave the branch too small to justify its declared release floor
-
-Jarvis batched workstreams must not:
-
-- mix unrelated subsystems
-- mix production behavior changes with unrelated dev-tool or docs cleanup
-- use filler batching just to make a prompt feel larger
-- smuggle in backlog cleanup unrelated to the active workstream
-
-### Validation Inside A Batched Workstream
-
-When a batched workstream is approved, Workflow mode should use:
-
-- baseline validation before edits
-- slice-local validation after each code-bearing slice
-- one final integrated validation at the end
-
-### Batched-Workstream Stop Conditions
-
-Stop the workstream early and report immediately if:
-
-- a source-of-truth conflict appears
-- the next slice would cross into another subsystem
-- the next slice would reopen locked production behavior outside the approved scope
-- safe verification for the current slice is not possible
-- the current slice fails validation
-- the remaining slices are no longer obviously required to complete the same end-state
-
-### Docs And Backlog Sync Inside A Batched Workstream
-
-Directly supportive doc sync may travel with the active workstream when it records that exact implemented work and does not widen scope.
-
-Backlog sync remains controlled:
-
-- exact markdown approval is still required before editing `docs/feature_backlog.md`
-- only the exact active workstream truth may be synced
-- unrelated backlog cleanup must stay separate
-
-### Docs-Only Governance Pass Batching
-
-When the user explicitly approves a docs-only governance or source-of-truth pass, that pass may batch several directly related clarifications when they all serve one coherent workflow or canon end-state.
-
-This is allowed only when:
-
-- the edits stay inside one governance lane
-- the file scope stays minimal
-- the pass does not widen into unrelated repo cleanup
-- the pass does not mix in runtime implementation work
-- backlog status or priority changes are not made without separate approval
-
-## Grouped Workstream Branch Rule
-
-For `pre-Beta` planning, Codex may recommend or use a grouped workstream branch when:
-
-- the work belongs to one clear category or subsystem
-- several related ideas are better handled as one lane than as disconnected micro-branches
-- the lane is suitable for multi-developer coordination
-- each actual revision inside the branch can still stay narrow and validated
-
-Examples of valid grouped workstream branches:
-
-- interaction
-- UI / UX
-- workflow / GitHub infrastructure
-- diagnostics / tooling
-
-A grouped workstream branch does not authorize one broad patch.
-
-Instead, it means:
-
-- one branch may host a sequence of approved narrow slices
-- one focused branch may also carry multiple small related patches when they all serve the same project-focus lane
-- one focus-group lane may also carry one larger coherent implementation when that is still the smallest worthwhile milestone inside the same subsystem
-- each slice inside that branch still needs clear scope and verification
-- each small patch inside that branch must still stay narrow, validated, and within the same subsystem boundary
-- unrelated ideas should still be split out even if they are all deferred work
-
-For `pre-Beta`, the default branch strategy should usually prefer focus-group lanes over one branch per micro-fix when:
-
-- the lane stays inside one subsystem or category
-- the lane still follows one coherent milestone path
-- the resulting branch does not become a grab-bag of unrelated follow-through
-
-For those `pre-Beta` focus-group lanes:
-
-- merge cadence should follow meaningful lane milestones rather than every tiny follow-through
-- non-doc implementation branches should usually be version-bearing lane milestones rather than merge-only deltas
-- release cadence should follow those implementation-lane milestones and should usually advance by at least the next patch prerelease step unless the user explicitly approves a different posture
-- grouped branches must still be split if the work starts crossing subsystem boundaries or accumulating unrelated fixes
-
-## Grouped Lane Milestone Gate
-
-For an active `pre-Beta` grouped workstream branch, Codex should define before implementation:
+Before treating a non-doc implementation branch as ready, Codex should be able to explain:
 
 - the lane milestone target
 - the minimum merge-ready threshold
-- the milestone value statement that explains why the branch is worthwhile if squashed and merged
-- the tightly coupled groundwork that still belongs inside the same branch
-- the expected same-branch follow-through that is still required before readiness
+- the milestone value statement
+- the same-branch follow-through that still belongs inside the lane
 
-Codex should not treat the first validated revision inside that branch as PR-ready by default.
+### Worthwhile Milestone Gate
 
-Instead, Codex should continue through additional narrow slices inside the same branch until:
+For a non-doc implementation branch, Codex should not recommend readiness until:
 
-- the declared minimum merge-ready threshold is reached
-- the branch would still read as a worthwhile milestone if squashed and merged now
-- the branch is strong enough to justify its declared release floor
-- a real blocker appears
-- or the user explicitly chooses to stop early
+- the threshold is reached
+- the branch is still worthwhile if squashed today
+- the remaining obviously coupled slices are no longer required
 
-If enabling groundwork and the first usable outcome are tightly coupled inside one subsystem and remain low-risk, they should usually stay in the same grouped branch rather than being split into separate micro-branches or premature PRs.
+### Release-Debt Gate
 
-## Worthwhile Milestone Gate
+If `main` already contains merged unreleased non-doc implementation work beyond the latest public prerelease, treat that as release debt.
 
-Before Codex recommends PR-readiness for a non-doc implementation branch, it must be able to answer `yes` to all of the following:
+While release debt exists, the default next move is usually:
 
-- the declared minimum merge-ready threshold is reached
-- the branch would still represent a worthwhile milestone if squashed today
-- the branch is strong enough to justify its declared release floor
-- the remaining obviously coupled slices are no longer required to make the milestone feel complete
+- release review
+- release prep
+- directly needed docs support
 
-If any of those answers is `no`, Codex should continue on the same branch unless:
+not another unrelated implementation lane.
 
-- a real blocker appears
-- the next step would cross subsystem boundaries
-- or the user explicitly chooses to stop early
+### Fresh Branch Start After A Closed Workstream
 
-## Grouped Lane Release Floor
+After a workstream is merged and closed, the next workstream should start from updated `main` on a fresh branch.
 
-For an active `pre-Beta` grouped lane, Codex should also define before implementation:
+If a branch is stale, merged, or identical to `main`, call it out explicitly and stop using it as the base for next-lane planning.
 
-- the lane type
-- the release floor
-- the target version for non-doc implementation lanes
+### Post-Release Canon Repair
 
-Use these lane types:
+Release-dependent truth sometimes changes after the code lane is already closed.
 
-- `docs-only`
-- `implementation`
-- `rebaseline`
+When that happens:
 
-Use these release floors:
-
-- `no release`
-- `patch prerelease`
-- `minor prerelease`
-
-Rules:
-
-- `docs-only` branches are the default and preferred `no release` exception
-- `rebaseline` branches may remain `no release` when they are docs-only and are only syncing baseline truth after a release or milestone
-- non-doc `implementation` branches should usually declare at least `patch prerelease`
-- larger subsystem or capability shifts may justify `minor prerelease`
-
-Codex should judge PR-readiness for a non-doc implementation branch against:
-
-- the lane milestone target
-- the minimum merge-ready threshold
-- the declared release floor
-- the declared target version
-
-## Release-Debt Stop Rule
-
-If `main` already contains merged unreleased non-doc implementation work beyond the latest public prerelease, Codex should treat that as release debt.
-
-While release debt exists, Codex should not recommend merging another non-doc implementation branch by default unless:
-
-- the new branch is the intentionally selected version-bearing milestone that resolves that debt
-- or the user explicitly approves stacking more implementation before the next release
-
-When release debt exists, the default next move should usually be:
-
-- release or version-readiness review
-- or a docs-only rebaseline or governance pass that is directly needed to resolve the release decision cleanly
-
-At `Beta` and later, the default recommendation should usually shift toward:
-
-- issue-specific branches
-- bug-fix branches
-- single-idea branches
-
-unless a grouped branch remains clearly justified.
-
-## Fresh Branch Start After A Closed Workstream
-
-After a prior workstream branch has been merged, released if applicable, and deleted, the next workstream should start from updated `main` on a fresh branch.
-
-For routine Nexus `pre-Beta` work, standalone docs-only roadmap, rebaseline, or drift-refresh branches should not be the default cleanup path anymore.
-
-Instead, canon freshness must be handled in only two required windows:
-
-### 1. Branch-Start Canon Alignment Review
-
-Before the first code slice on every new non-doc implementation branch, Codex must run a deep branch-start canon alignment review against:
-
-- `docs/Main.md`
-- `docs/development_rules.md`
-- `docs/codex_modes.md`
-- the directly relevant planning docs
-- the directly relevant architecture docs
-- the directly relevant implementation truth
-
-That review must:
-
-- close the just-finished released or merged lane in canon when that closure is now known
-- activate or clarify the new lane in canon when that activation is already known
-- sync only the directly supporting docs needed for the new branch to start from current shared truth
-- land any required docs-only sync as the first commit, or first tightly grouped docs-only commits, on that same new implementation branch before further implementation work
-
-### 2. Pre-PR Canon Freeze Review
-
-Before PR packaging for a non-doc implementation branch, Codex must run a deep canon-freeze review on that same branch.
-
-That review must confirm:
-
-- the roadmap entry matches actual branch truth
-- the backlog item state, suggested version, and suggested revision fields match actual lane truth
-- governing docs reflect any implemented boundary changes now carried by that lane
-- architecture docs reflect any implemented boundary changes now carried by that lane
-- no directly supporting canon needed for merge or release remains stale
-
-If supporting canon is still stale, the required sync must land on the same branch before PR packaging.
-
-### Post-Release Lifecycle Closure Rule
-
-Some facts cannot become true until a public release actually exists. Those facts include:
-
-- latest public prerelease
-- lane `release state: released`
-- lane `status: closed` when that closure depends on the release actually existing
-
-When those release-dependent facts change, Codex should not open a routine standalone docs-only refresh branch by default.
-
-Instead:
-
-- if a new implementation lane is about to begin, Codex should carry the release-closure sync as the first docs-only step on that new implementation branch during the branch-start canon alignment review
-- if no safe next implementation branch can yet be chosen, Codex must say so explicitly and ask for user approval before using any standalone docs-only exception path
-
-This means routine roadmap or drift refresh should happen either:
-
-- before PR on the active implementation branch
-- or at the start of the next implementation branch
-
-It should not be deferred into a separate docs-only branch by default.
-
----
+- carry the canon sync on the active lane when that lane is still open
+- use a docs-only canon pass when current truth requires it and no safe next implementation lane should be selected yet
+- do not force post-release canon repair onto a hypothetical next implementation branch when that would leave the repo planning baseline misleading
 
 ## Shared Rules Across Both Modes
 
-These rules apply in both modes:
-
-- analyze first
-- verify exact behavior or exact doc alignment before changing anything
-- no blind iteration
-- minimal isolated changes only
+- analyze before changing anything
+- verify exact behavior or doc alignment before editing
 - preserve architecture boundaries
-- one fix per revision
-- production behavior must remain unchanged unless explicitly in scope
-- logs, code, and current repo docs are the source of truth for implemented behavior
-- when a source-of-truth conflict exists, call it out explicitly before proceeding
+- call out source-of-truth conflicts explicitly
+- backlog owns identity
+- roadmap owns sequencing
+- workstream docs own promoted-work execution and closure truth
+- User Test Summary belongs to workstream-owned validation
+- incident patterns are generalized knowledge, not case history
 
 ## Live-State Readiness Sanity Check
 
-Before Codex generates any readiness or release package such as:
+Before generating any readiness, PR, merge, or release recommendation, validate:
 
-- merge-ready or release-ready judgments
-- version bump recommendations
-- PR title or PR body output
-- release title or release notes output
+- current branch truth
+- branch merge state
+- tag or release state
+- dirty worktree risk
+- whether the prompt framing is stale
 
-Codex must verify live repo state first.
+If the framing is stale, report the real state instead of producing a hypothetical package.
 
-Those readiness reviews are Analysis-mode work and must use deep investigative analysis rather than shallow branch-summary reasoning.
+## Prompt Hygiene
 
-That live-state check must include:
+When a canonical workstream or rebaseline doc exists, prompts should prefer that canonical doc over a stack of superseded slice docs.
 
-- whether the referenced branch is still active
-- whether that branch has already been merged
-- whether related tag or release state already exists
-- whether the prompt framing is stale relative to current repo or GitHub state
-
-For branch-level merge-ready or release-ready review, that deeper analysis should also cover:
-
-- the actual branch scope and what changed on that branch
-- whether any active bug, unresolved drift, or dirty worktree state remains
-- whether verification evidence is strong enough for the claimed readiness level
-- whether closed guarantees, milestone expectations, or release facts could be reopened by the current branch state
-
-If the prompt framing is stale, Codex must not generate a fresh hypothetical readiness package.
-
-Instead, Codex should:
-
-- report the actual current state
-- explain which assumptions in the prompt were stale
-- recommend the true next move from the live state
-
-## Readiness Output Content Rule
-
-When Codex is asked to provide PR-ready or release-ready output, the default should be to describe what is included in the work under review.
-
-Codex should not add a `Not included` section unless:
-
-- the user explicitly asks for one
-- omitting it would create a real scope misunderstanding for the active task
-
-For non-doc implementation branches, PR-readiness output must explicitly state one of:
-
-- `supporting canon already aligned on branch`
-- `supporting canon sync required before PR`
-
-PR-readiness output for non-doc implementation branches must also explicitly state one of:
-
-- `branch milestone is worthwhile and complete for PR`
-- `branch milestone still too small; continue same branch`
-
-That canon-freshness result is mandatory and must be based on live branch truth, not on prompt framing alone.
-
-In slice-sizing terms:
-
-- one fix per revision means one coherent approved subproblem per revision
-- minimal isolated changes means the minimal coherent approved change set needed to close that subproblem
-- smallest safe slice and smallest coherent slice are execution rules for revisions inside a branch, not automatic branch stop rules
-- for `pre-Beta` non-doc branches, choose the smallest worthwhile milestone for the branch first, then use as many safe dependent slices as needed to complete it
-- use the smallest safe slice for architecture clarification, boundary-setting, and high-risk behavior or policy work
-- use the smallest coherent slice for lower-risk post-boundary feature delivery when a smaller fragment would leave an incomplete first deliverable
-
-Neither mode permits:
-
-- silent scope expansion
-- silent backlog control changes
-- policy drift disguised as wording cleanup
-- authority expansion disguised as confidence or intelligence work
-
-In Jarvis work, Codex must not return the full contents of created or edited files.
-
-Codex should instead return:
-
-- a summary of what changed
-- the changed file path or paths
-- the approved scope
-- the verification performed
-
-If actual file review is needed, the file should be reviewed outside Codex by uploading it for inspection.
-
-## Pull Request Opening Boundary
-
-Codex may open or submit a pull request directly only for an approved docs-only branch.
-
-For code branches or mixed code/docs branches, Codex may:
-
-- perform PR-readiness analysis
-- provide the exact PR title and PR body
-- provide merge and release posture guidance
-
-For those non-docs-only branches, Codex should stop short of opening the PR.
-
----
-
-## Backlog-Control Reminder
-
-`docs/feature_backlog.md` remains a controlled planning layer.
-
-Codex may:
-
-- propose backlog changes
-- draft exact backlog markdown for approval
-
-Codex may not:
-
-- silently edit backlog status or priority fields
-- mark items complete without approval
-- reorder backlog items without approval
-
-If backlog state needs to change, user approval is still required even in Workflow mode.
-
----
-
-## Relationship To `orin_task_template.md`
-
-`docs/orin_task_template.md` remains the per-task execution scaffold.
-
-This document does not replace the template.
-Instead:
-
-- `orin_task_template.md` defines the structure of an individual task request
-- `codex_modes.md` defines the collaboration posture Codex should take while handling that task
-
-In practice:
-
-- Analysis mode pairs naturally with `analysis-only`, `planning-only`, and audit tasks in the template
-- Workflow mode pairs naturally with approved `docs-only` and `patch` tasks in the template
-
-If the template and a casual user request conflict, Codex should follow the explicit structured task and the source-of-truth docs.
-
----
-
-## Prompt Hygiene After Consolidation
-
-When a workstream has been consolidated into a canonical planning or design doc, prompts should prefer that canonical doc over the earlier slice-by-slice planning stack.
-
-This keeps prompts shorter, reduces duplicate source lists, and prevents archival reasoning docs from being treated like equal-weight current truth.
-
-### Analysis Mode Guidance
-
-In Analysis mode, Codex should:
-
-- use `docs/Main.md` as the routing index for the active source-of-truth set
-- identify whether a canonical consolidated doc already exists for the active workstream
-- carry forward that canonical doc instead of the full stack of superseded slice docs
-- explicitly say what older slice docs can be removed from the prompt because the canonical doc already covers them
-- pull older slice docs back in only if the task is about historical tracing, consolidation audit, or source conflict checking
-
-### Workflow Mode Guidance
-
-In Workflow mode, Codex should:
-
-- use `docs/Main.md` plus the relevant canonical doc or docs as the default prompt baseline for the active workstream
-- use the canonical consolidated doc as the primary planning baseline for the active workstream
-- avoid re-listing archival slice docs unless the approved task explicitly depends on them
-- keep the prompt evidence set narrow and current rather than mechanically repeating every earlier planning file
-- prioritize the active code workstream when the task is code-focused
-- bundle directly supporting truth-doc updates into the same approved workstream when that keeps docs aligned without widening scope
-- prefer milestone-level or canonical doc sync over repeated separate doc-only micro-passes when docs are not the primary deliverable
-
-### Prompt Reduction After Closeout
-
-Once a version has a closeout doc and the directly supportive truth-sync items are complete, future prompts should usually:
-
-- cite the latest relevant closeout doc instead of re-listing the full completed-workstream recap
-- carry forward only the baseline facts still needed for the next version lane
-- omit validator, harness, and reachability details that are already captured in the closeout and backlog truth unless the new task depends on them directly
-- avoid repeating the full batched-workstream rule block when `codex_modes.md` is already part of the prompt baseline
-
-Closeout cadence and whether a new closeout is actually needed should follow `docs/closeout_guidance.md` rather than being assumed mechanically from the existence of a release, branch merge, or docs-only pass.
-
-### Current Boot-Planning Example
-
-For current Jarvis work, `docs/Main.md` should be the default docs index and prompt-baseline map.
-
-For current Jarvis boot-access work, `docs/boot_access_design.md` is the canonical boot planning source.
-
-That means future boot-access prompts should usually prefer:
-
-- `development_rules.md`
-- `Main.md`
-- `architecture.md`
-- `orin_vision.md`
-- `feature_backlog.md`
-- `orchestration.md`
-- `boot_access_design.md`
-- relevant closeout docs only when still needed
-
-The earlier `boot_*_plan.md` slice docs have been retired from the active docs tree and should not be listed as prompt inputs unless they are reintroduced separately for historical review outside the normal planning baseline.
-
----
+This does not mean shrinking analysis depth.
+It means reducing duplicated prompt inputs once authority is clear.
 
 ## Practical Rule Of Thumb
 
 If the user is asking:
 
-- "What should we do next?"
-- "Is this the right next version or revision?"
-- "Is this complete enough to close?"
+- what is true now
+- what drift exists
+- what should happen next
+- whether the current branch is still the right base
 
-Use Analysis mode.
+start in Analysis mode.
 
 If the user is asking:
 
-- "Carry this approved docs-only pass"
-- "Implement this exact narrow revision"
-- "Own this closeout sync"
+- execute this approved docs-only phase
+- implement this approved patch
+- carry this approved workstream closure or canon sync
 
-Use Workflow mode.
-
-When in doubt, start in Analysis mode first.
+use Workflow mode.

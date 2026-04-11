@@ -2,199 +2,81 @@
 
 ## Purpose
 
-This document defines what closeouts are for, when they are required, when they are optional, and how Nexus Desktop AI should handle closeout drift.
+This document defines how Nexus Desktop AI should use:
 
-It exists because the repo has a historical closeout line, but the current Nexus pre-Beta release cadence moved forward without a clear replacement rule for every newer release milestone.
+- closeouts
+- rebaselines
+- preserved historical closeout records
 
-This document is downstream of:
+Use this file for policy.
+Use `Docs/closeout_index.md` for lookup.
+Use individual closeout or rebaseline docs for the historical or epoch summary itself.
 
-- `development_rules.md`
-- `Main.md`
-- `codex_modes.md`
-- `orin_vision.md`
+## What Closeouts And Rebaselines Are For
 
-If this document conflicts with those files, those files win.
+A closeout or rebaseline should:
 
-Use:
+- summarize what is locked
+- state what remains deferred
+- reduce prompt bloat by replacing repeated historical recaps
+- give later planning a stable shared baseline
 
-- `docs/closeout_guidance.md` for closeout policy
-- `docs/closeout_index.md` for closeout lookup
-- `docs/closeouts/...` for the actual historical closeout records
+They do not replace:
 
-## What A Closeout Is
-
-A closeout is a source-of-truth audit for a completed version lane or milestone.
-
-Its job is to:
-
-- record what is complete
-- record what remains intentionally deferred
-- lock in the accepted guarantees at that layer
-- give future planning a clean baseline
-- reduce prompt bloat by letting later prompts cite the closeout instead of replaying all prior work
-
-A closeout is not the same thing as:
-
-- a release tag
+- the backlog registry
+- canonical workstream records
+- release tags
 - GitHub release notes
-- a merged branch
-- a PR summary
 
-Those are related artifacts, but they do different jobs.
+## Current Nexus Posture
 
-## What Drift Happened
+The historical Jarvis line already has preserved closeouts through `v2.2.1`.
 
-The historical Jarvis line used closeouts regularly through:
+The modern Nexus pre-Beta line now resumes epoch-summary coverage through:
 
-- `v1.6.0`
-- `v1.7.0`
-- `v1.8.0`
-- `v1.9.0`
-- `v2.0`
-- `v2.2.0`
-- `v2.2.1`
+- `Docs/closeouts/nexus_prebeta_rebaseline_through_v1.2.7-prebeta.md`
 
-After that, the Nexus pre-Beta public release line moved to:
+That rebaseline is the current modern carry-forward baseline.
 
-- `v1.0.0-prebeta`
-- `v1.0.1-prebeta`
-- `v1.1.0-prebeta`
-- `v1.1.1-prebeta`
-- `v1.2.0-prebeta`
-- `v1.2.1-prebeta`
-- `v1.2.2-prebeta`
-- `v1.2.3-prebeta`
+## When To Use A Closeout
 
-but no matching closeout series was created for those newer pre-Beta releases.
+Use a closeout when:
 
-That drift happened because:
+- a milestone or lane materially resets future planning
+- future work depends on knowing what is now locked
+- a meaningful release or workstream justifies its own durable summary
 
-- the project shifted from the earlier Jarvis version-lane cadence to a newer Nexus pre-Beta release cadence
-- releases and branch milestones continued
-- but closeout policy was not explicitly redefined for the new cadence
+## When To Use A Rebaseline
 
-So the repo ended up in a mixed state where:
+Use a rebaseline when:
 
-- historical closeouts still matter
-- current canon still references closeouts as real planning surfaces
-- but newer Nexus pre-Beta releases have been carried mostly by tags, release notes, branch truth, and source-of-truth doc updates rather than by dedicated closeout docs
+- several smaller releases or lanes need one shared epoch summary
+- the repo needs a fresh planning baseline without backfilling every small patch release
+- current planning truth is fragmented across multiple closed lanes
 
-## Are Closeouts Still Needed
+## What Not To Do
 
-Yes.
+- do not create retroactive closeouts for every missed small prerelease
+- do not rewrite historical closeouts just to modernize wording
+- do not use closeouts or rebaselines as substitutes for workstream records
+- do not force release-dependent canon repair onto a future implementation branch when the truthful next move is a docs-only canon pass
 
-Closeouts are still useful because they:
+## Post-Release Rule
 
-- create a stable planning baseline
-- reduce repeat prompt bulk
-- clarify what is intentionally complete versus merely paused
-- make post-release sequencing cleaner
-- reduce drift between merged work, backlog truth, and future planning
+Release-dependent facts can change only after a public release exists.
 
-But they are not needed for every tiny release or every docs-only pass.
+Examples:
 
-## Required, Recommended, And Optional Closeouts
+- latest public prerelease
+- release state
+- closure state tied to a public release
 
-### Required
+When those facts change, the repo may legitimately need a docs-only canon repair or rebaseline if no safe next implementation lane should be selected yet.
 
-A closeout should be required when:
+## Current Policy
 
-- a coherent version lane has actually closed
-- a milestone materially resets future planning baseline
-- the next planning step depends on clearly knowing what is now locked versus deferred
-- a release line has accumulated enough change that relying only on branch history and chat memory would create drift risk
-
-### Recommended
-
-A closeout is recommended when:
-
-- a merged workstream created a meaningful user-visible milestone
-- several related slices now form one coherent completed milestone
-- prompt reduction would materially benefit from having a new stable baseline doc
-- a release or milestone changed the practical "what is true now" answer for future planning
-
-### Optional
-
-A closeout is optional, and often unnecessary, when:
-
-- the work is a tiny follow-through patch
-- the pass is docs-only governance with no major planning reset
-- the milestone does not materially change future sequencing
-- the latest truth already lives clearly in canonical docs and a new closeout would mostly duplicate that truth
-
-## Nexus Pre-Beta Rule
-
-For the current Nexus pre-Beta line, closeouts should usually be milestone-based, not release-by-release by default.
-
-That means:
-
-- a non-doc implementation branch may still justify the next prerelease even when it does not need its own dedicated closeout doc
-- docs-only governance or rebaseline branches remain the common no-release exception
-- do not force a new closeout doc for every small pre-Beta patch release
-- do create a closeout when a meaningful milestone or lane has actually stabilized and future planning will benefit from a fresh baseline
-
-For small Nexus `pre-Beta` patch releases that do not justify their own closeout, the default closure path should be:
-
-- carry any branch-truth canon sync on the active implementation branch before PR
-- carry any release-dependent lifecycle closure on the next implementation branch as its first docs-only step
-- do not create a standalone docs-only roadmap or drift-refresh branch by default just to close a small released lane
-
-Use a standalone docs-only exception only when no safe next implementation branch can yet be chosen and the user explicitly approves that exception.
-
-Examples that usually do not need their own closeout:
-
-- tiny usability follow-through
-- narrow docs-only governance sync
-- one small regression fix release
-
-Examples that likely do need a closeout:
-
-- a completed multi-slice interaction milestone
-- a major pre-Beta baseline shift
-- a milestone that materially changes what future prompts should carry forward
-
-## Release, Closeout, And Rebaseline
-
-These should be treated as separate tools:
-
-- `release`
-  - a published version/tag/release event
-- `closeout`
-  - a source-of-truth audit for a completed milestone or version lane
-- `rebaseline`
-  - a catch-up canonical baseline when many small steps happened without individual closeouts
-
-If Nexus pre-Beta continues through several small releases without closeouts, the clean corrective move is usually:
-
-- one rebaseline or milestone closeout
-
-not:
-
-- one retroactive closeout doc for every missed small patch release
-
-## Cleanup Recommendation For Current Drift
-
-The current recommended cleanup is:
-
-1. keep existing historical closeouts
-2. keep them organized under `docs/closeouts/`
-3. use an index doc for lookup rather than merging all closeouts into one large historical file
-4. do not rewrite them just to modernize wording
-5. do not create retroactive closeout docs for every missed Nexus pre-Beta patch release
-6. create a new closeout or rebaseline only when the next milestone genuinely justifies it
-
-This keeps the history useful without manufacturing unnecessary documentation churn.
-
-## Current Recommendation
-
-For the current repo state:
-
-- historical closeouts should remain in place
-- closeouts should not be treated as abandoned
-- closeouts should resume when the next meaningful Nexus milestone closes, not automatically after every small patch
-
-If a future planning pass needs a fresh post-`v1.2.3-prebeta` canonical baseline before broader next-lane work, the best move would be:
-
-- one Nexus-era milestone rebaseline or closeout
-
-rather than trying to backfill every missing pre-Beta patch release individually.
+- preserve historical closeouts
+- route historical lookup through `Docs/closeout_index.md`
+- use canonical workstream records for workstream-level detail
+- use the modern Nexus rebaseline for epoch truth through `v1.2.7-prebeta`
+- create new closeouts or rebaselines only when they materially improve future planning clarity

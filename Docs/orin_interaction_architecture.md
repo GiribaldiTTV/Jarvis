@@ -1,379 +1,232 @@
-# Jarvis Interaction Architecture
+# ORIN Interaction Architecture
 
 ## Purpose
 
-This document is the canonical planning baseline for Jarvis user interaction as a voice-first, typed-sufficient, user-customizable system layer.
+This document defines the interaction-system architecture for Nexus Desktop AI and the ORIN persona.
 
-It defines:
+It is a planning and boundary reference.
+It does not own workstream status, backlog state, roadmap sequencing, or release closure.
 
-- the primary user-facing interaction surfaces
-- the shared action model that should sit underneath voice and typed commands
-- the customization model for saved actions, routines, aliases, and profiles
-- the intended pre-Beta, Beta, and later Full release scope
+Use this document to define:
 
-This is still a planning artifact.
-It does not define implementation mechanics for wake-word detection, speech-to-text, auth backend behavior, shell integration, tray mechanics, renderer wiring, plugin loading, or concrete runtime execution logic.
+- the interaction surfaces the product should support
+- the shared concepts those surfaces should resolve through
+- the current merged interaction baseline
+- the long-term interaction architecture that future work should preserve
 
-## Relationship To Core Source-Of-Truth Docs
+## Relationship To The Source-Of-Truth Stack
 
 This document is downstream of:
 
-- `architecture.md` for launcher-owned desktop authority and higher-layer read-only limits
-- `orin_vision.md` for Jarvis as the intended system-facing experience
-- `boot_access_design.md` for future pre-desktop access, trust, recovery, and resident trust-state boundaries
-- `feature_backlog.md` for workstream status and scope control
+- `Docs/architecture.md` for desktop/runtime ownership boundaries
+- `Docs/orin_vision.md` for product identity and release-stage framing
+- `Docs/orchestration.md` for runtime behavior and orchestration boundaries
+- `Docs/boot_access_design.md` for future pre-desktop trust and access boundaries
+- `Docs/feature_backlog.md` for tracked identity
+- `Docs/prebeta_roadmap.md` for sequencing and release posture
+- `Docs/workstreams/` for promoted execution and closure truth
 
-This document does not replace those files.
-It narrows only the future Jarvis interaction surface and its customization model.
+This document does not replace those layers.
+It defines the stable interaction model that future work should align to.
+
+## Current Merged Baseline
+
+Current repo truth is a typed-first desktop interaction system with the following merged baseline:
+
+- a quick command overlay is the current primary user-facing interaction surface
+- the current default desktop hotkeys are `Ctrl+Alt+Home` and `Ctrl+Alt+1` for opening the overlay
+- the current desktop shutdown paths are `Ctrl+Alt+End` and `Ctrl+Alt+2`
+- the overlay uses a bounded `entry` -> `choose` -> `confirm` -> `result` interaction flow
+- the overlay preserves explicit confirmation before executing the resolved action
+- a shared action model now sits underneath the command surface
+- a saved-action source seam exists at `%LOCALAPPDATA%/Nexus Desktop AI/saved_actions.json`
+- built-in actions and saved actions resolve through the same shared catalog shape
+
+Current repo truth does not yet include a shipped voice-invocation surface, Action Studio UI, or broader shortcut-customization system.
 
 ## Product Intent
 
-Jarvis should evolve toward a system-facing interaction layer that feels more like a personal operator than a conventional desktop app launcher.
+Nexus Desktop AI should evolve toward an interaction system where ORIN feels like an understandable, inspectable operator surface rather than a brittle launcher or opaque automation engine.
 
-At the user level, that means:
+At product level, that means:
 
-- Jarvis is voice-first in personality and product direction
-- typed interaction remains fully sufficient
-- users can speak or type naturally rather than memorize rigid command syntax
-- Jarvis can map natural intent to reusable user-defined actions, routines, and environments
-- users can inspect, customize, and trust what Jarvis will do
-
-The system should feel closer to:
-
-- "Hey Jarvis, launch sim"
-- "Open Windows Explorer"
-- "I'd like you to open my sim setup"
-
-than to a brittle command console that only accepts one exact phrase.
+- voice-forward product direction without making voice the only valid interface
+- typed interaction remaining fully sufficient
+- natural-language requests resolving into one coherent action model
+- users being able to inspect what ORIN believes they asked for before execution
+- users being able to define, reuse, and later expand their own actions and routines
 
 ## Governing Interaction Principles
 
-- voice-first, not voice-only
-- typed-sufficient for all core interaction
-- one shared action system underneath all input surfaces
-- user-customizable by default rather than hardcoded around one machine
-- observable and inspectable rather than opaque
-- safe by default when actions could be risky or ambiguous
-- local product identity first, not a generic desktop launcher clone
+- voice-forward, not voice-exclusive
+- typed interaction is a first-class certainty path
+- one shared action model underneath all interaction surfaces
+- inspectable resolution before execution
+- safe handling when interpretation is ambiguous or execution could surprise the user
+- user-defined actions and aliases should be part of the architecture, not bolted on later
+- ORIN is the current assistant persona for interaction surfaces
 
-## Core Interaction Surfaces
+## Interaction Surfaces
 
-At planning level, Jarvis interaction should eventually be split across four primary user-facing surfaces:
+### Desktop Command Overlay
 
-### 1. Voice Invocation Surface
+The current merged interaction surface is the desktop command overlay.
 
-The long-term voice-first surface is the wake-word path, such as:
+Architecturally, it should remain:
 
-- `Jarvis`
-- `Hey Jarvis`
-
-This is the future always-ready interaction posture, but it is not required for the first pre-Beta slice.
-
-### 2. Quick Command Overlay
-
-The typed-first companion surface is a dismissible command overlay.
-
-At planning level, this should be:
-
-- fast to open
+- fast to invoke
 - fast to dismiss
-- usable as the typed equivalent of speaking to Jarvis
-- able to accept natural-language typed requests
+- keyboard-first for current pre-Beta use
+- capable of accepting natural-language typed requests
+- explicit about the resolved action before execution
 
-The current preferred default hotkey is:
+### Voice Invocation Surface
 
-- `Ctrl+Alt+Home`
+A future voice surface may later sit above the same shared action model.
 
-That hotkey should be treated as a planning-level default, not a permanently fixed non-configurable rule.
+That future surface should be treated as another entry path into the same interaction system, not as a separate product with separate logic.
 
-### Alternate Desktop Hotkey Direction
+This document does not define wake-word implementation, speech-to-text mechanics, or audio-pipeline execution details.
 
-For current Nexus-era desktop interaction, the default desktop hotkeys remain:
+### Action Authoring Surface
 
-- `Ctrl+Alt+Home` for the quick command overlay
-- `Ctrl+Alt+End` for the current desktop shutdown path
+A future authoring surface should let users define and inspect:
 
-Future interaction follow-through should preserve room for:
+- saved actions
+- aliases
+- routines
+- profiles
+- later bounded preferences that affect how supported actions resolve
 
-- one alternate user-usable binding for opening and closing the quick command overlay
-- one alternate user-usable binding for the current desktop shutdown path
+This authoring surface should stay downstream of the same shared action model already used by typed interaction.
 
-The purpose of this direction is:
+### Runtime And Status Surface
 
-- to reduce dependence on one exact physical-key path
-- to support broader usability across keyboards and user preference
-- to leave room for later bounded shortcut follow-through without forcing a full shortcut-customization system immediately
+The interaction system should expose what ORIN is doing, what it just resolved, and what the current command state is.
 
-This direction does not authorize immediate implementation of configurable shortcut management or a broad keybinding system.
+This supports:
 
-Current merged desktop follow-through now includes:
-
-- `Ctrl+Alt+1` as an alternate user-usable quick-command-overlay path alongside `Ctrl+Alt+Home`
-- `Ctrl+Alt+2` as an alternate user-usable desktop shutdown path alongside `Ctrl+Alt+End`
-
-This merged follow-through remains a bounded usability refinement only.
-It does not authorize broader shortcut customization, settings UI, or profile-based keybinding management.
-
-### 3. Action Studio
-
-The customization surface is the place where the user defines and edits saved actions, aliases, routines, and profiles.
-
-This is the closest conceptual analogue to a StreamDeck-style authoring surface, but it should remain Jarvis-shaped rather than becoming a clone of button-grid hardware software.
-
-### 4. Runtime And Status Surface
-
-Jarvis should expose a clear runtime/status surface that explains what it is doing now, what it just ran, and where a routine or command currently stands.
-
-This surface exists to preserve user trust and reduce "black box" behavior.
+- user trust
+- confirmation clarity
+- recoverability after non-success outcomes
+- better debugging and validation evidence
 
 ## Shared Action Model
 
-Voice and typed interaction must not become separate products.
-
-At planning level, both should resolve into one shared interaction model:
+Typed and future voice interaction should resolve through the same conceptual model:
 
 - `intent`
-  - what the user means
 - `action`
-  - one executable user-facing thing Jarvis can do
 - `routine`
-  - an ordered bundle of actions
 - `profile`
-  - a saved user-defined environment or context, such as a sim setup
 - `alias`
-  - alternate phrases that resolve to the same action or routine
 
-The key rule is:
+The architecture should not split into:
 
-- voice input and typed input should resolve into the same action, routine, alias, and profile model
+- one system for typed commands
+- one system for voice commands
+- one separate system for saved presets
 
-This prevents Jarvis from splitting into:
+The shared action model is the architectural seam that keeps those surfaces coherent.
 
-- one system for "voice commands"
-- another system for "typed commands"
-- a third system for "saved presets"
+## Command Resolution Contract
 
-## Natural-Language Command Contract
+The interaction layer should accept ordinary language variation rather than depending on one exact phrase.
 
-Jarvis should be open to ordinary language variation rather than one exact command syntax.
-
-At planning level, that means a user should be able to express similar intent in multiple ways, such as:
+Examples of equivalent user intent may include:
 
 - `open windows explorer`
 - `open file explorer`
-- `I'd like you to open Windows Explorer`
+- `open my Nexus docs`
 
-without the system being planned around one rigid phrase only.
+The architectural rule is flexible intent resolution with bounded, inspectable outcomes.
+It is not authorization for unconstrained AI action execution.
 
-This does not authorize freeform AI action execution without boundaries.
-It only defines the product-level expectation that intent matching should be flexible and user-friendly.
+## Confirmation Contract
 
-## Desktop-Mode Command Confirmation Contract
+Before execution, the interaction surface should make clear:
 
-At planning level, when Jarvis is already inside desktop mode and is about to run a user-requested command, Jarvis should confirm the interpreted action before execution.
+- what ORIN believes the user requested
+- which action, alias, routine, or target was resolved
+- what destination, app target, file, folder, or URL will be used when that matters
 
-That confirmation should make clear:
+For path-sensitive targets, the confirmation surface should show enough detail to distinguish similar options without becoming visually noisy.
 
-- what Jarvis believes the user asked for
-- which defined action, alias, routine, or target Jarvis resolved
-- which user-defined path, app target, or launch context Jarvis is about to use when that matters
+This contract preserves trust and reduces accidental execution when natural-language resolution is flexible.
 
-The purpose of this confirmation is:
+## Current Desktop Interaction Guarantees
 
-- to ensure Jarvis and the user share the same interpretation before execution
-- to keep desktop-mode command execution observable and trustworthy
-- to reduce accidental execution caused by ambiguous natural-language interpretation
+Current merged desktop interaction guarantees include:
 
-This planning contract does not define the exact UI phrasing, visual layout, or confirmation-control mechanics.
-It only defines the product rule that desktop-mode command execution should be explicitly confirmed before Jarvis runs the resolved action.
+- immediate typed-entry readiness when the overlay opens from the supported hotkey paths
+- bounded ambiguous-choice resolution through visible number-key selection
+- preserved explicit confirmation before execution after keyboard selection
+- clean `Esc` back-out behavior inside the visible overlay
+- local keyboard ownership while the overlay is active
+- reuse of the shared action model rather than an overlay-only command catalog
+- bounded saved-action sourcing with strict built-in fallback when the saved source is missing or invalid
 
-### Confirmation Clarity For Paths And Targets
+These are current baseline guarantees, not the full future interaction surface.
 
-When the resolved action points to a file, folder, URL, app target, or other path-sensitive destination, the confirmation surface should make the destination understandable before execution.
+## User-Facing Naming Boundary
 
-At planning level, that means:
+For current product truth:
 
-- show enough target detail that the user can tell what will open or run
-- use a compact or truncated path display when the full raw path would be visually noisy
-- avoid hiding the important distinguishing part of the target when multiple similar choices exist
+- `Nexus Desktop AI` is the product and tooling-shell identity
+- `ORIN` is the shipped assistant persona
 
-The purpose of this rule is:
+User-facing interaction surfaces should prefer current Nexus / ORIN naming.
 
-- to keep confirmation useful instead of decorative
-- to help the user understand why one match differs from another
-- to reduce accidental launches when multiple choices are similar
+Legacy `Jarvis` wording should appear only when:
 
-Current merged desktop overlay follow-through now also includes:
+- preserved historical context is being discussed
+- backward-compatible runtime artifacts still use that name
+- the user is explicitly interacting with older historical material
 
-- immediate typed-entry readiness when the overlay is opened from the current hotkey path
-- bounded keyboard-first ambiguous-choice resolution through visible number-key selection
-- preserved explicit confirmation before launch after keyboard selection
-- preserved clean `Esc` back-out behavior and local-only keyboard ownership inside the visible overlay
-- a reusable shared action model so the built-in desktop command actions and shared helpers no longer live only inside the overlay-local model
-- normalized overlay consumption of that shared action model through a cohesive shared catalog surface
-- a bounded non-UI saved-action source seam for direct actions and aliases with strict built-in fallback when the saved source is missing or invalid
+## Customization Boundary
 
-## Nexus-Era User-Facing Naming Rule
-
-For Nexus Desktop AI / ORIN-era interaction surfaces, user-facing command labels and choices should prefer current Nexus-era naming rather than legacy Jarvis branding unless the user is explicitly interacting with preserved historical context.
-
-This means future command-surface work should trend toward:
-
-- Nexus-facing names for Nexus-facing actions
-- ORIN-facing assistant presentation where assistant identity matters
-- avoiding legacy Jarvis naming in normal Nexus-facing command choices
-
-This is a user-facing interaction rule only.
-It does not authorize historical rewrite of preserved Jarvis release history.
-
-## Customization Contract
-
-Jarvis customization should allow users to define:
+The interaction architecture should support user-defined:
 
 - action names
-- aliases and alternate phrases
-- app, file, folder, URL, or command targets
-- ordered launch steps
-- saved routines or environment profiles
-- preferred starting posture for recurring contexts, such as sim-racing setups
+- aliases
+- targets
+- ordered routines
+- profiles and recurring contexts
 
-At planning level, this contract should support user-defined targets like:
+It may later support bounded user preferences for supported web-facing or external actions, but those capabilities should remain explicit and inspectable.
 
-- `Launch Sim`
-- `Start Racing`
-- `Open Work Setup`
+This document does not define the exact storage schema, editor UI, or execution engine for those features.
 
-without forcing every user into the same built-in command map.
+## Release-Stage View
 
-As the interaction model grows, customization should also allow bounded preference control over supported web-facing actions, such as:
+At architecture level:
 
-- which browser Nexus uses for supported search or web actions
-- which user-approved external web destination should be used when more than one valid route exists
+- `pre-Beta` proves the interaction model and current desktop command surface
+- `Beta` expands that model into a more installable and broadly testable product surface
+- `Full` may later widen into richer voice, authoring, and profile capabilities
 
-Those later capabilities should remain:
-
-- user-controlled
-- explicit
-- privacy-aware
-- downstream of the same shared action model rather than separate hardcoded pathways
-
-## Release-Stage Model
-
-At planning level, the release stages for this interaction lane should follow the product-wide release-stage framing in `orin_vision.md`:
-
-- `pre-Beta`
-  - internal or tightly controlled delivery of the first usable interaction slices
-  - architecture, interaction model, and command-surface proof rather than packaged user distribution
-- `Beta`
-  - a packaged, installable, user-facing release with a real `.exe` or installer path, stable setup expectations, and practical customization
-- `Full`
-  - the broader mature interaction system beyond the first installable/testing release
-
-## Pre-Beta Release Direction
-
-The pre-Beta phase should prioritize the smallest coherent user-visible interaction foundation.
-
-At planning level, pre-Beta should center on:
-
-- the quick command overlay
-- typed natural-language command entry
-- the shared action model underneath typed commands and future voice commands
-- saved actions, aliases, routines, and profiles
-- a clear runtime/status surface for launched actions
-
-Pre-Beta should aim to prove:
-
-- Jarvis can feel like a coherent command surface rather than a generic app menu
-- users can define reusable launch actions and routines for their own machine
-- typed interaction already uses the same model that future voice interaction will depend on
-
-## Pre-Beta First Deliverable Direction
-
-The first pre-Beta deliverable should be the smallest typed-first slice of this interaction model:
-
-- a dismissible quick command overlay
-- natural-language typed command entry
-- a minimal shared action model for direct actions and saved aliases
-- desktop-mode confirmation before executing the resolved action
-
-This first deliverable should not require the full Action Studio, wake-word support, or advanced routine graphing.
-
-Current merged repo truth is already one step beyond that first deliverable.
-
-The repo now also includes:
-
-- the first reusable shared action model underneath the typed command surface
-- the first bounded non-UI saved-action source seam above that shared action model
-- the first restart-based starter bootstrap path for `saved_actions.json` at the default runtime source location
-- built-in direct actions to open the default saved-actions file and its containing folder from the same typed command surface
-- backward-compatible preservation of unrelated valid saved actions when legacy saved-actions file or folder helpers collide with those built-ins
-- preserved exact-match resolution semantics and the existing typed-first confirm-before-execute contract while those architectural seams were introduced
-
-Current merged repo truth now reaches the first coherent saved-action usability milestone above that starter-bootstrap baseline.
-
-## Beta Release Direction
-
-At planning level, the Beta release should expand the proven pre-Beta interaction foundation into a packaged and installable user-facing release.
-
-Beta may later include:
-
-- a real `.exe` or installer path
-- stable install-time setup expectations
-- practical user-facing customization beyond the first internal slice
-- stronger reliability and usability for broader testing
-
-## Full Release Direction
-
-At planning level, the Full release may later expand into:
-
-- wake-word voice invocation
-- stronger voice parity with typed commands
-- optional spoken response or confirmation support for more hands-free interaction
-- richer saved routines and environment profiles
-- more advanced customization surfaces
-- import/export or sharing of user-defined actions
-- bounded user-approved external-assistant or web handoff actions if they remain privacy-aware and clearly inspectable
-- future plugin capability if the shared action model proves stable enough
-
-These later additions should remain downstream of the same shared action system rather than becoming parallel products.
+The release-stage view belongs here only as interaction-system framing.
+Specific sequencing belongs in the roadmap and specific execution belongs in workstream records.
 
 ## Explicit Deferrals
 
-This planning baseline intentionally defers:
+This architecture document does not define:
 
 - wake-word implementation mechanics
 - speech-to-text or local-audio pipeline mechanics
-- shell, tray, renderer, or notification mechanics
-- exact runtime execution engine mechanics
-- auth backend or trust mechanics
-- Windows Hello or TOTP implementation mechanics
-- plugin architecture and plugin lifecycle design
-- exact screen layout or UI flow details for the Action Studio
-- advanced node-graph or visual process-tree editing
+- tray, shell, renderer, or notification implementation details
+- auth or trust backend mechanics
+- plugin lifecycle design
+- exact Action Studio screen layout
+- detailed routine-graph editing UX
 
-## Out-Of-Bounds Patterns
+## Failure Modes To Avoid
 
-The following are out of bounds for this planning baseline:
+The interaction architecture is drifting if future work turns it into:
 
-- building separate logic stacks for voice commands and typed commands
-- treating voice-only interaction as sufficient
-- treating typed interaction as a temporary debug path rather than a first-class certainty path
-- collapsing Jarvis into a generic launcher with no user-defined action model
-- turning the first pre-Beta slice into plugin work
-- coupling the interaction layer to launcher-owned desktop authority or control decisions
+- a generic launcher with no coherent interaction identity
+- disconnected typed, voice, and saved-action systems
+- an opaque execution surface with weak confirmation
+- a system where typed input is treated as a temporary fallback instead of a first-class path
 
-## Success Criteria
-
-This planning baseline is heading in the right direction if future implementation makes it feel like:
-
-- Jarvis is the command surface
-- Jarvis is understandable and customizable
-- Jarvis can be shaped around the user's machine and habits
-- voice and typed interaction feel like two entry paths into one coherent system
-
-This planning baseline is drifting if future implementation makes it feel like:
-
-- a generic desktop app launcher
-- a brittle command parser with exact syntax only
-- an opaque automation engine the user cannot inspect
-- disconnected voice, typed, and preset systems pretending to be one product
+The architecture is holding together if future work keeps all interaction surfaces aligned to one inspectable shared action model.

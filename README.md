@@ -1,83 +1,99 @@
 # Nexus Desktop AI
 
-This repository is the current engineering workspace for **Nexus Desktop AI**.
+This repository is the engineering workspace for `Nexus Desktop AI`.
 
-`Nexus Desktop AI` is the product/platform identity. `ORIN` is the shipped assistant persona for `pre-Beta` and `Beta`. `ARIA` is reserved as a future optional persona for `Full` and is not currently shipped.
+`Nexus Desktop AI` is the product and tooling-shell identity.
+`ORIN` is the current shipped assistant persona for the pre-Beta product line.
+`ARIA` remains a future optional persona rather than a currently shipped surface.
 
-Older legacy/internal releases and tags remain preserved as historical internal context. The future public product line begins later under `Nexus Desktop AI`; this README does not imply that public release work is already complete.
+This README is a repository orientation document.
+For merged governance, planning, routing, and lifecycle truth, start with `Docs/Main.md`.
 
-## Current Status
+## Current Product And Runtime Truth
 
-This repo is in active internal development.
+Current repo truth includes:
 
-What is currently true on this branch:
-- the manual desktop launch path is working well enough for continued validation
-- the dev/boot harness path remains separate from the normal desktop entrypoint
-- diagnostics and Dev Toolkit flows exist to support internal testing and repair-first iteration
+- a manual desktop launch path for the current desktop runtime
+- a separate Dev Toolkit surface for controlled testing and diagnostics work
+- a dev-only boot harness path used for boot-flow and transition validation
+- current pre-Beta delivery under the Nexus Desktop AI / ORIN identity
 
-This is an engineering README, not a public product-launch page.
+Latest public prerelease:
+
+- `v1.2.7-prebeta`
 
 ## Current Entry Paths
 
-### Manual desktop launch path
+### Manual Desktop Launch
 
-The current manual desktop entry path is:
+The normal manual desktop entry path is:
 
-`launch_orin_desktop.vbs`  
-`-> desktop/orin_desktop_launcher.pyw`  
+`launch_orin_desktop.vbs`
+`-> desktop/orin_desktop_launcher.pyw`
 `-> desktop/orin_desktop_main.py`
 
-This is the current normal desktop entrypoint for manual runs.
+### Dev Toolkit
 
-### Dev Toolkit entry
+The Dev Toolkit launcher is:
 
-The current Dev Toolkit entry is:
+`dev/launchers/launch_orin_dev_toolkit.vbs`
 
-`dev\launchers\launch_orin_dev_toolkit.vbs`
+The Dev Toolkit is an internal engineering surface for validators, diagnostics, launch helpers, and repair-first workflows.
 
-The Dev Toolkit is an internal testing surface used for launch lanes, diagnostics, validation helpers, and related repair-first workflows.
+### Boot Harness
 
-### Boot/dev harness path
+`main.py` remains the dev-only boot harness entry.
 
-`main.py` is the current dev-only boot harness path.
-
-It is not the normal user desktop entrypoint. It exists to support controlled boot-path testing, transition checks, and related internal validation work.
-
-## Naming And Release Posture
-
-- product/platform identity: `Nexus Desktop AI`
-- shipped persona in `pre-Beta` and `Beta`: `ORIN`
-- future persona option in `Full`: `ARIA`
-- older legacy/internal releases and tags remain preserved as historical internal context
-- the new public product line begins later under `Nexus Desktop AI`
+It is used for controlled boot-path testing and related validation.
+It is not the normal user desktop entrypoint.
 
 ## Repository Layout
 
 Top-level folders currently include:
-- `Audio/` for voice/audio code
-- `desktop/` for launcher, renderer, runtime, and diagnostics surfaces
-- `dev/` for toolkit, validators, harnesses, and related internal helpers
-- `docs/` for project truth, architecture, backlog, and guidance
-- the current visual assets and bridge-side UI resources
+
+- `Audio/` for voice and audio code
+- `desktop/` for launcher, renderer, interaction, and diagnostics runtime surfaces
+- `dev/` for toolkit surfaces, validators, harnesses, and internal helpers
+- `Docs/` for source-of-truth, architecture, planning, and guidance
+- `jarvis_visual/` for current visual assets and bridge-side UI resources
 - `logs/` for local runtime artifacts
 
-Top-level launch/runtime surfaces currently include:
-- `launch_orin_desktop.vbs`
-- `main.py`
+## Source-Of-Truth Routing
 
-## Current Working Boundary
+Use the merged canon through:
 
-This branch is being advanced through narrow, evidence-driven slices:
-- preserve working launch paths first
-- fix visible rebrand gaps before deeper cleanup
-- keep runtime behavior stable while reducing outdated pre-rebrand user-facing surfaces
-- defer larger UX, release, repo-rename, and public-launch work until separately approved
+- `Docs/Main.md` for routing authority
+- `Docs/development_rules.md` for development governance
+- `Docs/codex_modes.md` for collaboration and analysis/execution posture
 
-## Current Source Of Truth
+From there, route into the layer that owns the truth you need:
 
-For the current project truth and routing, use:
-- `docs/Main.md`
-- `docs/feature_backlog.md`
-- `docs/orin_display_naming_guidance.md`
-- `docs/orin_vision.md`
-- `docs/user_test_summary_guidance.md`
+- `Docs/feature_backlog.md` for tracked identity and registry state
+- `Docs/prebeta_roadmap.md` for sequencing and release posture
+- `Docs/workstreams/index.md` for canonical workstream records
+- `Docs/closeout_index.md` and `Docs/closeouts/nexus_prebeta_rebaseline_through_v1.2.7-prebeta.md` for historical and epoch summaries
+
+## Naming Boundary
+
+Use:
+
+- `Nexus Desktop AI` for the product, repo, and tooling shell
+- `ORIN` for the current assistant persona
+
+Older `Jarvis` references remain only where they are:
+
+- preserved historical context
+- still-real runtime artifact names
+- intentionally retained compatibility references
+
+## Repository Boundary
+
+This repository contains the engineering and canon surfaces for the product.
+
+It is not, by itself:
+
+- a release checklist
+- a public marketing page
+- a substitute for the source-of-truth stack in `Docs/`
+
+When repo orientation and source-of-truth docs disagree, validate live repo truth first and then route through `Docs/Main.md`.
