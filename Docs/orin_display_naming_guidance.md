@@ -2,14 +2,27 @@
 
 ## Purpose
 
-This document is the canonical source-of-truth guidance for when display surfaces should use:
+This document defines how user-facing surfaces should present the ORIN persona.
+
+Use it to decide when display surfaces should use:
 
 - `ORIN`
 - `O.R.I.N.`
 - `Operational Response and Intelligence Nexus`
 
 It is a presentation and wording guide only.
-It does not authorize broad source renames, internal identifier rewrites, or repo-wide wording sweeps by itself.
+It does not own rollout sequencing, workstream status, repo-wide identifier changes, or broad source rewrites by itself.
+
+## Relationship To The Source-Of-Truth Stack
+
+This document is a reference layer under:
+
+- `Docs/Main.md` for routing
+- `Docs/orin_vision.md` for product and persona identity
+- `Docs/architecture.md` and `Docs/orchestration.md` for boundary truth
+- backlog, roadmap, and workstream docs for tracked work and sequencing
+
+It should be used to support wording decisions, not to replace those layers.
 
 ## Naming Boundary
 
@@ -25,6 +38,7 @@ This means:
 
 - use `Nexus Desktop AI` for product-level, tooling-shell, or platform identity
 - use ORIN naming guidance only where the assistant persona itself is being presented
+- keep legacy `Jarvis` wording only where the reference is historical or where a still-real runtime artifact continues to use that name
 
 ## Default Short Form
 
@@ -69,18 +83,18 @@ Preferred examples:
 
 ## Current Diagnostics Direction
 
-Current preferred direction from diagnostics validation:
+Current preferred diagnostics direction:
 
 - the diagnostics voice-trace area header may prefer the full expansion:
   - `Operational Response and Intelligence Nexus`
 - diagnostics trace and state text should prefer:
   - `O.R.I.N.`
 
-Future diagnostics wording changes should use this direction unless a later explicit planning decision replaces it.
+Use this as the default diagnostics direction unless later merged canon explicitly replaces it.
 
 ## Current Boot Reveal Evaluation
 
-Current preferred direction from the latest Slice 4A validation:
+Current preferred boot-reveal direction:
 
 - the assistant reveal title may be better as:
   - `O.R.I.N.`
@@ -88,7 +102,7 @@ Current preferred direction from the latest Slice 4A validation:
   - `Operational Response and Intelligence Nexus`
 
 This is not yet a universal hard rule.
-Treat it as a targeted current preference for the boot reveal surface that should be implemented and revalidated in a later approved slice before it replaces the default short-form rule more broadly.
+Treat it as a targeted display preference for the boot reveal surface rather than a global naming override.
 
 ## Future Persona Rule
 
@@ -99,3 +113,12 @@ If ARIA is later exposed as a user-facing persona, it should follow the same thr
 - full expansion when explanatory or header clarity is useful
 
 Do not assume the exact ARIA presentation rules are finalized yet.
+
+## Boundary Reminder
+
+This document should not be used to:
+
+- decide whether a workstream is active or closed
+- decide when a naming change ships
+- restate backlog, roadmap, or workstream execution detail
+- rewrite preserved historical records that intentionally keep older naming

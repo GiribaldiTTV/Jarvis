@@ -1,320 +1,150 @@
-# Jarvis Main
+# Nexus Source-Of-Truth Index
 
 ## Purpose
 
-This document is the source-of-truth index and prompt-baseline map for the Jarvis docs set.
+This document is the routing authority for the merged Nexus Desktop AI canon.
 
 Its job is to:
 
-- define the current source-of-truth structure
-- separate active canonical docs from historical or optional references
-- keep future prompts shorter and more consistent
-- point work toward the right canonical doc without bulk-listing the whole docs tree
+- define the current source-of-truth layers
+- separate ownership between those layers
+- point prompts and reviews toward the right authority docs
+- prevent local branch overlays from being mistaken for merged truth
 
-`Main.md` is an index and routing document.
+`Docs/Main.md` is a routing document.
 It does not replace the authority of the docs it points to.
 
-## How To Use This File
+## Authoritative Baseline
 
-For most Jarvis tasks, prompts should include:
+Use these rules before trusting any planning or governance claim:
 
-- `docs/development_rules.md`
-- `docs/Main.md`
-- only the directly relevant canonical doc or docs for the active workstream
-- only the relevant evidence inputs
+- `origin/main` is the authoritative baseline after merge and release
+- the latest public tag or release is authoritative for released-version truth
+- local unmerged branches, stashes, and docs overlays are reference material only until revalidated against updated `origin/main`
+- if code, logs, and merged docs disagree, validate the live repo truth first and then repair the docs
 
-Add closeout docs, historical docs, or extra planning docs only when they are materially needed for the specific task.
+## Layered Ownership Model
 
-Short prompts may still rely on this baseline.
+Use this ownership split unless a validated source conflict requires a temporary narrower override:
 
-If the user uses a brief cue rather than a full structured prompt, such as:
+- backlog = identity and registry
+- workstream docs = planning, execution, validation, and closure truth for promoted work
+- roadmap = sequencing and release posture
+- rebaselines and closeouts = epoch or milestone summaries
+- incident patterns = generalized reusable lessons
+- bug tracking = backlog-first, with promoted bug docs only when warranted
+- User Test Summary = validation-contract layer owned by the relevant workstream
+- `Docs/Main.md` = routing authority aligned to merged truth
 
-- `Analyze and Report`
-- `Analyze for drift`
-- `Analysis mode`
-- `Workflow mode`
-- `docs-only pass`
-- `reference docs for the following`
+## Analysis-First Prompt Baseline
 
-Codex should treat that cue as shorthand, not as permission to skip the source-of-truth baseline.
+For system analysis, post-release review, branch-start planning, or source-of-truth audit:
 
-Default shorthand behavior:
+1. read `Docs/Main.md`
+2. read `Docs/development_rules.md`
+3. read `Docs/codex_modes.md`
+4. add the directly relevant authority docs for the task
+5. add only the live repo evidence needed to validate current truth
 
-1. load `docs/development_rules.md`
-2. load `docs/Main.md`
-3. infer the directly relevant canonical doc or docs from the active branch, task wording, and current workstream
-4. pull only the evidence inputs needed for that task
-5. ask a clarifying question only if the task is still materially ambiguous after that baseline is applied
+Do not narrow the docs set before the system structure, drift, and authority boundaries are understood.
 
-For the deeper Analysis mode workflow contract and when deep investigative analysis is required, use `docs/codex_modes.md`.
+## Routing Layers
 
-## Current Source-Of-Truth Structure
+### Governance And Prompting
 
-### Core Authoritative Docs
+Use these for workflow posture, prompt framing, lifecycle rules, and execution scaffolding:
 
-These are the default project-governance and product-boundary docs:
+- `Docs/development_rules.md`
+- `Docs/Main.md`
+- `Docs/codex_modes.md`
+- `Docs/orin_task_template.md`
+- `Docs/codex_user_guide.md`
 
-- `docs/development_rules.md`
-- `docs/Main.md`
-- `docs/architecture.md`
-- `docs/orin_vision.md`
-- `docs/orin_display_naming_guidance.md`
-- `docs/feature_backlog.md`
-- `docs/orchestration.md`
-- `docs/codex_modes.md`
-- `docs/orin_task_template.md`
-- `docs/codex_user_guide.md`
-- `docs/closeout_guidance.md`
-- `docs/user_test_summary_guidance.md`
+### Product And Boundary Truth
 
-Within that core set:
+Use these for current product posture, architecture boundaries, and release-stage meaning:
 
-- `docs/orin_vision.md` owns the product-wide meaning of `pre-Beta`, `Beta`, and `Full`
-- `docs/orin_display_naming_guidance.md` owns the display-level ORIN / O.R.I.N. / full-expansion usage pattern
-- `docs/feature_backlog.md` owns per-item or per-slice release-stage assignment
+- `Docs/architecture.md`
+- `Docs/orin_vision.md`
+- `Docs/orchestration.md`
 
-Use these when the task concerns:
+These remain authoritative for their layer even where older naming or path references still need later normalization.
 
-- repo-wide rules
-- architecture boundaries
-- product direction
-- backlog control
-- orchestration ownership
-- prompt or workflow governance, including batched-workstream execution rules
-- grouped-workstream branch strategy and multi-developer workflow boundaries
+### Registry And Sequencing
 
-### Canonical Workstream Docs
+Use these for tracked identity and near-term sequencing:
 
-These are the current canonical planning docs for specific active planning areas:
+- `Docs/feature_backlog.md`
+- `Docs/prebeta_roadmap.md`
 
-- `docs/boot_access_design.md`
-- `docs/ncp_hardening_assessment.md`
-- `docs/orin_interaction_architecture.md`
-- `docs/ownership_ip_plan.md`
-- `docs/workspace_layout_plan.md`
+Rules:
 
-Current canonical ownership:
+- backlog owns identity
+- roadmap owns sequencing and release posture
+- neither backlog nor roadmap should retain the full execution story once a canonical workstream record exists
 
-- `boot_access_design.md` is the canonical boot-planning source
-- `ncp_hardening_assessment.md` is the canonical typed-first NCP hardening reference for the now-closed FB-027 hardening follow-through
-- `orin_interaction_architecture.md` is the canonical interaction-planning source
-- `ownership_ip_plan.md` is the canonical ownership / licensing / IP-planning source
-- `workspace_layout_plan.md` is the canonical workspace-planning source
+### Canonical Workstream Records
 
-Use these only when the task is directly about those workstreams.
+Use these for promoted work that needs a stable planning, execution, validation, and closure record:
 
-### Historical / Optional Docs
+- `Docs/workstreams/index.md`
+- `Docs/workstreams/FB-035_release_context_fallback_hardening.md`
+- `Docs/workstreams/FB-034_recoverable_diagnostics.md`
+- `Docs/workstreams/FB-025_boot_desktop_milestone_taxonomy_clarification.md`
+- `Docs/workstreams/FB-033_startup_snapshot_harness_follow_through.md`
+- `Docs/workstreams/FB-028_history_state_relocation.md`
 
-These docs are still valid, but they are not part of the default prompt baseline for every task:
+### Rebaselines And Closeouts
 
-- `docs/closeouts/v1.6.0_closeout.md`
-- `docs/closeouts/v1.7.0_closeout.md`
-- `docs/closeouts/v1.8.0_closeout.md`
-- `docs/closeouts/v1.9.0_closeout.md`
-- `docs/closeouts/v2.0_closeout.md`
-- `docs/closeouts/v2.2.0_closeout.md`
-- `docs/closeouts/v2.2.1_closeout.md`
-- `docs/closeout_index.md`
+Use these for closeout policy, historical closeout lookup, and the modern Nexus-era baseline summary:
 
-Use them when the task depends on:
+- `Docs/closeout_guidance.md`
+- `Docs/closeout_index.md`
+- `Docs/closeouts/nexus_prebeta_rebaseline_through_v1.2.7-prebeta.md`
 
-- version guarantees
-- version closeout facts
-- post-closeout sequencing
-- auditing whether later work reopens closed version behavior
+Historical closeout leaf docs are intentionally routed through `Docs/closeout_index.md`.
 
-### Retired / Archive Docs
+### Incident Patterns
 
-Retired or archival planning docs are not part of the active docs tree or the default prompt baseline.
+Use this layer for generalized debugging and validation lessons:
 
-If older slice docs or archival planning artifacts are reintroduced for historical tracing, treat them as optional evidence only, not equal-weight current truth.
+- `Docs/incident_patterns.md`
 
-## Default Prompt Baselines By Task Type
+### Validation Guidance
 
-### General Minimal Baseline
+Use this when a task depends on manual validation handoff, User Test Summary structure, or returned test-evidence digestion:
 
-For most tasks, start with:
+- `Docs/user_test_summary_guidance.md`
 
-- `docs/development_rules.md`
-- `docs/Main.md`
-- the directly relevant canonical doc or docs
-- relevant evidence inputs
+### Auxiliary Planning References
 
-Do not bulk-list unrelated docs by default.
+Use these only when the task directly depends on their planning content:
 
-This same minimal baseline should also apply when the user gives only a short cue or shorthand prompt rather than a fully expanded task request.
+- `Docs/boot_access_design.md`
+- `Docs/orin_interaction_architecture.md`
+- `Docs/workspace_layout_plan.md`
+- `Docs/orin_display_naming_guidance.md`
+- `Docs/ncp_hardening_assessment.md`
+- `Docs/ownership_ip_plan.md`
 
-### Code Progression / Patch Work
+These are reference layers, not active workstream or roadmap owners.
 
-For active code work, prompts should usually include:
+## Routing Rules
 
-- `docs/development_rules.md`
-- `docs/Main.md`
-- the directly relevant canonical doc or docs
-- the relevant logs, screenshots, traces, or test evidence
-
-Add closeout docs only if the patch could affect a closed version guarantee.
-
-### Boot Work
-
-For boot-planning or future boot-access work, prompts should usually include:
-
-- `docs/development_rules.md`
-- `docs/Main.md`
-- `docs/boot_access_design.md`
-
-Add `architecture.md`, `orin_vision.md`, `feature_backlog.md`, or `orchestration.md` when the task touches authority, vision, backlog scope, or launcher-owned desktop boundaries.
-
-### Workspace / Folder Organization Work
-
-For workspace-organization work, prompts should usually include:
-
-- `docs/development_rules.md`
-- `docs/Main.md`
-- `docs/workspace_layout_plan.md`
-
-Add `architecture.md` or startup-path docs only if path-sensitive surfaces are directly involved.
-
-### Analysis / Sequencing Work
-
-For "what should we do next," "is this complete," or "is this the right target" tasks, prompts should usually include:
-
-- `docs/development_rules.md`
-- `docs/Main.md`
-- the canonical doc for the active workstream
-- relevant closeout docs only if version guarantees or sequencing are part of the question
-
-For merge-ready, PR-ready, release-ready, or version-bump review, also include:
-
-- `docs/codex_modes.md`
-- the relevant closeout or rebaseline docs when readiness depends on closed guarantees or milestone facts
-
-### First Post-Closeout Version Planning
-
-For the first planning prompt after a version closes, prompts should usually include:
-
-- `docs/development_rules.md`
-- `docs/Main.md`
-- `docs/codex_modes.md`
-- the latest relevant closeout doc
-- the latest relevant interim rebaseline doc if one exists for the active post-closeout branch
-- the directly relevant canonical planning doc or docs for the next version lane
-
-That first prompt should explicitly answer:
-
-- what facts must be carried forward into the new version baseline
-- what repeated prompt content can now be removed because the source-of-truth docs already capture it
-
-### Branch-Start Canon Alignment
-
-For the first prompt on a new non-doc implementation branch after a prior lane has merged or released, prompts should usually include:
-
-- `docs/development_rules.md`
-- `docs/Main.md`
-- `docs/codex_modes.md`
-- the directly relevant planning docs
-- the directly relevant architecture docs
-- the directly relevant implementation truth
-
-That branch-start analysis should explicitly answer:
-
-- what canon from the just-finished lane must now be closed
-- what canon must be activated for the new lane
-- whether the minimum supporting docs sync should land immediately on this new branch before code starts
-- what the smallest worthwhile milestone is for this branch rather than just the first safe slice
-- what tightly coupled follow-through should stay on this branch before readiness
-- what would make the branch too small to justify its declared release floor if stopped early
-
-Do not recommend a separate docs-only roadmap or drift-refresh branch by default for this routine post-release catch-up.
-Instead, carry that closure or activation sync on the new implementation branch unless the user explicitly approves an exception.
-
-### Governance / Prompt / Workflow Docs Work
-
-For prompt-governance or workflow-governance tasks, prompts should usually include:
-
-- `docs/development_rules.md`
-- `docs/Main.md`
-- `docs/codex_modes.md`
-- `docs/orin_task_template.md`
-- `docs/codex_user_guide.md`
-- `docs/closeout_guidance.md` when closeout policy, cadence, cleanup, or post-release baseline questions are in scope
-- `docs/prebeta_roadmap.md` when current near-term sequencing, lane choice, or provisional version-impact questions are in scope
-- `docs/user_test_summary_guidance.md`
-
-Add other canonical docs only if the governance wording depends on them.
-
-This governance lane includes:
-
-- user-test-summary handling rules
-- backlog-control rules
-- batched-workstream execution rules
-- grouped-workstream branch strategy for `pre-Beta`
-- multi-developer workflow and GitHub/tooling governance boundaries
-- shorthand prompt and default-baseline behavior
-- human-operator shorthand guidance for reliable short prompts
-
-For reusable human-facing prompt patterns and operator shorthand examples, use `docs/codex_user_guide.md`.
-
-For current near-term roadmap, branch-sequencing, or provisional release-floor / target-version questions, use `docs/prebeta_roadmap.md`.
-For grouped `pre-Beta` branch-sizing, minimum merge-ready threshold, release floor, target version, release-debt, or "should this lane stop now?" questions, use `docs/prebeta_roadmap.md` together with `docs/codex_modes.md`.
-That roadmap remains subordinate to:
-
-- `docs/orin_vision.md` for release-stage meaning
-- `docs/closeout_guidance.md` for closeout and rebaseline cadence
-- `docs/feature_backlog.md` for detailed backlog-item ownership
-
-## When To Add Closeout Docs
-
-Add closeout docs when the task:
-
-- checks whether a closed version guarantee still holds
-- sequences work immediately after a closeout
-- audits whether a later change reopens a closed version’s behavior
-- needs version-specific implementation facts that are not already captured elsewhere
-
-Do not include all closeout docs by default if only one is relevant.
-
-For closeout policy, cadence, cleanup, or drift questions, use `docs/closeout_guidance.md` alongside the relevant closeout doc or docs.
-
-For historical closeout lookup and browsing, use `docs/closeout_index.md`.
-
-## When To Add Historical Or Archival Docs
-
-Add historical or archival docs only when the task is explicitly about:
-
-- tracing why a decision was made
-- auditing a consolidation
-- comparing current canon to earlier slice decisions
-- resolving a real source-of-truth conflict
-
-Historical or archival docs should normally be treated as supporting evidence, not current prompt baseline.
-
-## Code Progression And Doc Sync Rule
-
-Core code progression is prioritized.
-
-That means:
-
-- active code work should not be repeatedly interrupted by separate doc-only micro-passes unless a docs-first clarification is the safest boundary-setting move
-- truth-doc updates may be bundled into the same approved code workstream when they directly support, record, or stabilize the active code task
-- doc batching should stay minimal and relevant to the active workstream
-- broader canonical sync should happen at meaningful milestones rather than after every tiny slice when that would create unnecessary prompt churn
-- branch planning should target the smallest worthwhile milestone, while revision planning should use the smallest safe slices inside that milestone
-- active implementation branches should not stop at the first clean slice when the resulting branch would still be too small to justify its declared release floor
-
-This does not authorize unrelated doc rewrites.
-It only allows directly supporting truth-doc maintenance to travel with the active workstream when safe and approved.
+- route through the layer that owns the truth you need
+- prefer index docs for historical or high-cardinality layers
+- do not treat a local-only document as canonical just because it exists in the workspace
+- do not create duplicate authority by making backlog, roadmap, and workstream docs all carry the same execution story
+- keep historical Jarvis material preserved, but mark it as historical rather than current reality
 
 ## Practical Prompt Rule
 
-If you are writing a future Jarvis prompt and are unsure what to include:
+If you are unsure what to include in a future Nexus Desktop AI prompt:
 
-1. include `development_rules.md`
-2. include `Main.md`
-3. include the directly relevant canonical doc or docs
-4. include only the evidence inputs that matter
-5. add closeout or historical docs only if the task truly depends on them
+1. start with `Docs/Main.md`
+2. add `Docs/development_rules.md`
+3. add `Docs/codex_modes.md` when collaboration posture matters
+4. add the directly relevant authority docs for the active question
+5. add live repo evidence only where the truth could have changed or drifted
 
-Shorter prompts are preferred when they still preserve the real source of truth.
-
-For batched-workstream execution specifics, rely on `docs/codex_modes.md` rather than retyping the full rule set in every prompt unless the task needs a deliberate override.
+Only after that full scan should scope be narrowed for execution.

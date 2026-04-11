@@ -2,26 +2,45 @@
 
 ## Purpose
 
-This document is the canonical operator guide for using short, reliable prompts with Codex inside Nexus Desktop AI work.
+This document explains how to prompt Codex effectively inside Nexus Desktop AI work without sacrificing analysis depth, source-of-truth discipline, or validation quality.
 
-It exists to reduce prompt overhead without reducing source-of-truth discipline, validation quality, or scope control.
+It is an operator guide for prompt construction and collaboration posture.
 
-This guide is downstream of:
+It is downstream of:
 
-- `development_rules.md`
-- `Main.md`
-- `codex_modes.md`
-- `user_test_summary_guidance.md`
+- `Docs/development_rules.md`
+- `Docs/Main.md`
+- `Docs/codex_modes.md`
+- `Docs/user_test_summary_guidance.md`
 
 If this guide conflicts with those files, those files win.
 
-## Quick Start
+## Core Rule
 
-The best default prompt pattern is:
+Concise prompts are allowed.
+
+Concise prompts do **not** mean:
+
+- shallow analysis
+- reduced source-of-truth reading
+- premature scope compression
+- automatic readiness, closure, merge, or release framing
+
+Codex should still:
+
+1. validate live repo truth
+2. scan broadly enough to understand the affected system
+3. map drift, risk, dependencies, and options
+4. report clearly
+5. narrow execution only after the user and ChatGPT choose scope
+
+## Default Prompt Posture
+
+The default prompt posture is:
 
 - one cue
 - one anchor
-- optional control add-ons only when needed
+- optional control add-ons only when they materially reduce ambiguity
 
 Use:
 
@@ -29,157 +48,149 @@ Use:
 
 Examples:
 
-- `Analyze and Report: merge readiness for current branch`
-- `Analyze for drift: current branch before merge`
-- `Workflow mode: fix zero-match safety on current branch`
-- `docs-only pass: improve prompt cookbook guidance`
-- `continue on current branch: finish the remaining regression`
+- `Analyze and Report: best next workstream after current release`
+- `Analyze for drift: post-release canon on updated main`
+- `Workflow mode: execute the approved canon phase on current branch`
+- `docs-only pass: align README to the merged source-of-truth model`
 - `use latest User Test Summary as authoritative and continue`
 
-## Fastest Reliable Rule
-
-Short prompts are fine.
-
-What still matters is:
-
-- the cue tells Codex how to work
-- the anchor tells Codex what the work is about
-
-Good anchors include:
-
-- the active branch
-- the bug
-- the file
-- the workstream
-- the outcome you want
-- the returned evidence artifact
-
-Weak anchors include:
-
-- `continue`
-- `fix it`
-- `look at this`
-
-Those can still work if the current thread already makes the target obvious, but they are less reliable than one explicit anchor.
+The prompt may be concise.
+Codex's investigation should still be complete enough for the task.
 
 ## What Codex Should Do Automatically
 
-Short prompts do not waive source-of-truth reading.
+Brief prompts do not waive source-of-truth reading.
 
-When the user gives a brief cue such as:
+When the user gives a short cue such as:
 
 - `Analyze and Report`
 - `Analyze for drift`
 - `Analysis mode`
 - `Workflow mode`
 - `docs-only pass`
-- `reference docs for the following`
 - `continue on current branch`
 
 Codex should still:
 
-1. load `docs/development_rules.md`
-2. load `docs/Main.md`
-3. infer the directly relevant canonical doc or docs
-4. pull only the evidence inputs needed for the task
-5. keep the same validation standard as a longer structured prompt
+1. load `Docs/development_rules.md`
+2. load `Docs/Main.md`
+3. load `Docs/codex_modes.md` when collaboration posture matters
+4. infer the directly relevant authority docs
+5. pull the repo evidence needed to validate live truth
+6. keep the same reasoning standard as a longer structured prompt
 
-If the task is still materially ambiguous after that baseline, Codex should ask one tight clarifying question rather than lowering quality.
+If the task remains materially ambiguous after that baseline, Codex should ask one focused clarifying question rather than lowering the quality of analysis.
 
-## Cue Cheat Sheet
+## Analysis-Phase Prompting
 
-Use `Analyze and Report` or `Analysis mode` when you want:
+Use analysis-phase prompts when the user wants:
 
-- audit
-- sequencing
-- readiness judgment
-- recommendation without patching
+- current-truth validation
+- drift review
+- sequencing review
+- next-move determination
+- post-release or post-merge review
+- source-of-truth audit
+- lane or branch evaluation
 
-Use `Analyze for drift` when you specifically want:
+Helpful cues:
 
-- a check for scope drift
-- source-of-truth drift
-- prompt drift
-- architecture drift
-- branch-readiness risk caused by mixed work
+- `Analyze and Report`
+- `Analyze for drift`
+- `Analysis mode`
+- `analysis-to-plan pass`
 
-Use `Workflow mode` when you want:
+Helpful add-ons:
 
-- a bounded patch
-- a docs-only pass
-- a same-branch fix pass
-- a same-branch milestone-completion pass
-- a controlled validation pass after approval
-
-Use `docs-only pass` when you want:
-
-- truth-doc updates only
-- no runtime implementation work
-
-## Best Prompt Building Blocks
-
-The easiest reliable prompt usually contains:
-
-- one cue
-- one anchor
-- zero to three control add-ons
-
-Useful control add-ons include:
-
-- `on current branch`
-- `do not widen scope`
-- `until the milestone is worthwhile`
 - `analysis only`
-- `docs-only pass`
-- `no PR/release output`
 - `use latest User Test Summary as authoritative`
+- `use origin/main as authoritative truth`
+- `do not patch`
+
+Analysis-phase prompts should encourage:
+
+- full-system reasoning first
+- branch and release truth validation
+- structural and authority drift mapping
+- carry-forward / defer / discard classification of prior suggestions
+
+They should **not** push Codex to behave like a narrowly bounded executor before the analysis is complete.
+
+## Execution-Phase Prompting
+
+Execution-phase prompts are for work the user has already approved.
+
+Helpful cues:
+
+- `Workflow mode`
+- `docs-only pass`
+- `execute the approved phase`
+- `continue on current branch`
+
+Useful execution add-ons:
+
+- `do not widen scope`
 - `self-validate before handoff`
 - `use helper if needed`
-- `commit and push if clean`
+- `no PR/release output`
 
-These add-ons are optional.
-Use them only when they materially reduce ambiguity or protect scope.
+Execution-phase discipline such as:
+
+- bounded patching
+- minimal isolated change
+- smallest coherent execution slice
+- narrow fix pass
+
+belongs here, after analysis and scope selection are already complete.
 
 ## Prompt Recipes
 
-### Analyze The Next Move
+### Deep Analysis Of The Next Move
 
 Use:
 
-- `Analyze and Report: best next lane after current branch`
+- `Analyze and Report: best next workstream after current branch`
 
 Useful add-ons:
 
 - `analysis only`
-- `use latest User Test Summary as authoritative`
+- `use origin/main as authoritative truth`
 
-### Check For Drift
+### Drift Review
 
 Use:
 
 - `Analyze for drift: current branch before merge`
+- `Analyze for drift: post-release canon on updated main`
 
 Best for:
 
 - mixed-scope branches
 - stale prompt assumptions
 - source-of-truth mismatch
+- release-dependent docs drift
 - architecture or workflow drift
 
-### Continue The Same Branch
+### Docs-Only Canon Repair
 
 Use:
 
-- `continue on current branch: [exact remaining bug or task]`
-- `continue on current branch until the milestone is worthwhile: [active lane]`
+- `docs-only pass: repair post-release canon drift on updated main`
+
+This is a valid standalone workstream when live truth justifies it.
+It does not need to be forced onto a hypothetical next implementation branch.
+
+### Continue An Approved Branch
+
+Use:
+
+- `continue on current branch: [approved remaining task]`
+- `Workflow mode on current branch: [approved phase]`
 
 Examples:
 
-- `continue on current branch: finish zero-match safety`
-- `continue on current branch: do one final smoke-focused hardening pass`
-- `continue on current branch until the milestone is worthwhile: finish the remaining recoverable-diagnostics follow-through`
-
-Use the second form when you want Codex to keep multiple safe same-lane slices together until the branch feels like a real milestone rather than stopping after the first clean revision.
+- `continue on current branch: finish the approved validator follow-through`
+- `Workflow mode on current branch: execute Phase 2 of canon reconstruction`
 
 ### Run A Narrow Fix Pass
 
@@ -187,20 +198,14 @@ Use:
 
 - `Workflow mode: fix [bug] on current branch`
 
+This recipe is for approved execution work.
+It is not the default posture for system analysis.
+
 Useful add-ons:
 
 - `do not widen scope`
 - `use helper if needed`
 - `self-validate before handoff`
-
-### Run Desktop Runtime Tests Reliably
-
-When the task needs Codex to launch the Nexus desktop runtime for testing, the safe default is:
-
-- use the approved launcher helper in `dev/launchers/`
-- or launch `desktop/orin_desktop_launcher.pyw` directly through `pythonw.exe`
-
-Codex should not rely on ad hoc raw `wscript.exe` shell launches for test automation, because path-with-spaces failures can create misleading Windows Script Host errors unrelated to the actual product behavior.
 
 ### Review A Returned User Test Summary
 
@@ -212,18 +217,7 @@ or:
 
 - `use latest User Test Summary as authoritative and continue`
 
-### Run A Docs-Only Pass
-
-Use:
-
-- `docs-only pass: [exact truth change]`
-
-Examples:
-
-- `docs-only pass: add prompt recipes for same-branch workflow`
-- `docs-only pass: clarify helper decision rules`
-
-### Ask For A Ready-To-Use Prompt
+### Ask For A Prompt
 
 Use:
 
@@ -231,110 +225,43 @@ Use:
 
 Examples:
 
-- `give me a prompt for ChatGPT to fix zero-match safety on the current branch`
-- `give me a prompt for ChatGPT to analyze merge readiness`
+- `give me a prompt for ChatGPT to analyze post-release canon drift`
+- `give me a prompt for ChatGPT to execute the approved docs-only phase`
 
-### Publish Completed Work
+## Fresh-Branch Rule
 
-Use:
+After a workstream is closed, released, merged, or otherwise no longer the right execution base, the next workstream should start from updated `main` on a fresh branch.
 
-- `commit and push`
+Prompting should reflect that reality.
 
-If you want more safety, use:
-
-- `review current branch, then commit and push if clean`
-
-### Ask For A Merge-Readiness Review
-
-Use:
-
-- `Analyze and Report: merge readiness for current branch`
-
-Useful add-ons:
-
-- `analysis only`
-- `no PR/release output`
-
-### Ask For A Branch Plan
-
-Use:
-
-- `analysis-to-plan pass: [goal]`
-
-Examples:
-
-- `analysis-to-plan pass: improve Codex operator workflow`
-- `analysis-to-plan pass: choose the next FB-027 interaction lane`
-
-## High-Value Special Cases
-
-### Latest User Test Summary
-
-When handing back a filled `User Test Summary.txt`, the strongest short prompt is usually:
-
-- `use latest User Test Summary as authoritative and continue`
-
-If needed, add one anchor:
-
-- `use latest User Test Summary as authoritative and continue on click-away mirroring`
-
-Codex should then:
-
-- digest what passed
-- digest what failed
-- identify what remains unclear
-- separate current-slice work from later ideas
-- recommend the next move using repo truth
-
-### Same-Branch Continuation
-
-When you want Codex to stay on the same branch, the strongest short prompts are:
-
-- `continue on current branch: [exact task]`
-- `Workflow mode on current branch: [exact task]`
-
-This keeps branch churn low while still preserving scope.
-
-### Review And Readiness
-
-Good short prompts for review:
-
-- `Analyze and Report: is this merge-ready`
-- `Analyze for drift: current branch before merge`
-- `review latest User Test Summary to files-of-truth standards`
-
-Good short prompts for implementation:
-
-- `Workflow mode: finish Issue 1 on current branch`
-- `Workflow mode: do a tiny docs-only pass for shorthand prompt guidance`
+Do not ask Codex to keep planning from an old lane branch when live repo truth shows that branch is stale, merged, or identical to `main`.
 
 ## When To Use A Longer Prompt
 
 Use a longer structured prompt when:
 
-- the branch state may be stale or ambiguous
-- you need very tight in-scope and out-of-scope boundaries
-- the task spans more than one approval-sensitive step
-- the work could affect release/readiness, backlog, or source-of-truth canon significantly
-- the work involves many exact files, helper paths, or validation expectations
+- the branch or release state may be stale
+- the task spans multiple authority layers
+- the work could affect canon, governance, routing, backlog, or roadmap behavior
+- the exact approved execution boundary matters
+- validation expectations are unusually specific
 
-If the task is simple, a short prompt is usually enough.
-If the task has hidden risk, a longer prompt is worth it.
+Use a shorter prompt when the task is already well anchored and the current thread or canon makes the target obvious.
+
+The key distinction is prompt length, not analysis depth.
 
 ## Best Operator Habits
 
-These habits will make the system easier to use:
-
-- prefer one cue plus one anchor over very long prompts by default
-- add one control add-on only when scope or validation is easy to misunderstand
-- use `Analyze for drift` before merge, release, or major docs carry-forward decisions
-- use `use latest User Test Summary as authoritative` whenever returned testing should control the next move
-- use `give me a prompt for ChatGPT to ...` whenever you want a reusable handoff prompt instead of rebuilding one manually
-- keep using the desktop shortcut to the live guide so updates in repo truth stay visible without duplicating guidance
+- use one cue plus one anchor by default
+- add control language only when it materially protects truth or scope
+- use `Analyze for drift` before merge, release, or major canon carry-forward decisions
+- use `use latest User Test Summary as authoritative` when returned validation evidence should control the next move
+- route through `Docs/Main.md` whenever authority is unclear
+- treat local unmerged overlays as reference material until revalidated against updated `origin/main`
 
 ## What This Guide Does Not Do
 
-This guide does not make two-word prompts universally safe with no anchor at all.
+This guide does not make vague prompts universally safe.
 
 It also does not remove:
 
@@ -342,5 +269,6 @@ It also does not remove:
 - backlog control
 - scope control
 - validation requirements
+- branch and release truth checks
 
-The goal is lower prompt burden with the same discipline, not lower discipline with shorter prompts.
+The goal is lower prompt overhead with the same analytical rigor, not lower rigor with shorter prompts.
