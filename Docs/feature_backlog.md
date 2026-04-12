@@ -22,7 +22,7 @@ Historical note:
 
 ### [ID: FB-027] Interaction system baseline and shared action model
 
-Status: Implemented on branch (baseline preserved; URL target support; unreleased)
+Status: Merged unreleased on `main` (baseline preserved; URL target support implemented)
 Record State: Promoted
 Priority: High
 Release Stage: pre-Beta

@@ -57,25 +57,25 @@ Use these release-state values when relevant:
 
 ## Current Release Posture
 
-Current branch truth indicates:
+Current merged truth indicates:
 
 - latest public prerelease: `v1.2.7-prebeta`
 - latest public release commit: `3168823`
-- no merged unreleased non-doc implementation debt currently exists on `main`
-- this branch now carries an unreleased FB-027 implementation delta for first-class URL saved-action targets
-- FB-027 remains the active promoted interaction workstream on this branch
+- merged unreleased non-doc implementation debt now exists on `main`
+- that merged unreleased implementation debt is the first FB-027 capability milestone for first-class URL saved-action targets
+- FB-027 remains the active promoted interaction workstream on `main`
 
-That means merged `main` remains between released non-doc implementation lanes while this branch now carries the first bounded FB-027 capability milestone above the locked interaction baseline.
+That means `main` is no longer between released non-doc implementation lanes. It now carries one merged unreleased FB-027 capability milestone above the locked interaction baseline, so the next posture should be release review/prep or directly coupled truth-repair and consistency work rather than another unrelated implementation lane.
 
 ## Current Promoted Workstream Context
 
 ### FB-027 Interaction System Baseline
 
-- status: `implemented on branch`
+- status: `merged unreleased on main`
 - lane type: `implementation`
 - release floor: `patch prerelease`
 - target version: `TBD`
-- release state: `active delta`
+- release state: `merged unreleased`
 - canonical workstream doc: `Docs/workstreams/FB-027_interaction_system_baseline.md`
 - sequencing note: now preserves the locked typed-first baseline while adding first-class URL saved-action targets without changing exact-match resolution, state-machine boundedness, or input-capture behavior
 
@@ -130,12 +130,13 @@ That means merged `main` remains between released non-doc implementation lanes w
 
 ## Current Sequencing Reading
 
-Current branch truth indicates:
+Current merged truth indicates:
 
 - the released FB-035 lane is closed
 - the recent released workstreams above remain part of the locked current baseline
-- FB-027 now carries the first bounded implementation delta above the validated interaction baseline
-- the next FB-027 capability milestone should be chosen only after the URL target milestone is accepted
+- FB-027 now contributes the first bounded merged unreleased implementation milestone above the validated interaction baseline
+- the immediate next posture is merged-truth sync and release-context consistency work, then release review/prep before another unrelated implementation lane
+- the next FB-027 capability milestone should be chosen only after merged truth and release posture are coherent on `main`
 - this milestone does not authorize resolution changes, voice, Action Studio, routines, profiles, hotkey cleanup, or shutdown-confirmation work
 
 Use canonical workstream docs for execution detail.
