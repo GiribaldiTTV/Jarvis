@@ -15,7 +15,7 @@ SUPPORT_BUNDLE_FOLDER = "support_bundles"
 MANIFEST_FILENAME = "manifest.json"
 VERSION_CLOSEOUT_PATTERN = re.compile(r"^v(\d+)\.(\d+)\.(\d+)_closeout\.md$")
 LATEST_PUBLIC_PRERELEASE_LINE_PATTERN = re.compile(
-    r"latest public prerelease(?: is now)?\s*`(v\d+\.\d+\.\d+-prebeta)`",
+    r"latest public prerelease(?: is now)?\s*:?\s*`(v\d+\.\d+\.\d+-prebeta)`",
     re.IGNORECASE,
 )
 RELEASED_CLOSED_PRERELEASE_LINE_PATTERN = re.compile(
