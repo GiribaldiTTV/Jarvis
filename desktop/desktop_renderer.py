@@ -256,9 +256,14 @@ class SavedActionCreateDialog(QDialog):
         hint_text: str = "Choose a task type, then provide the title, optional aliases, and destination.",
         submit_button_text: str = "Create",
         initial_draft: SavedActionDraft | None = None,
+        lifecycle_callback=None,
+        dialog_signal_name: str = "CUSTOM_TASK_CREATE_DIALOG",
     ):
         super().__init__(parent)
         self._submit_handler = submit_handler
+        self._lifecycle_callback = lifecycle_callback
+        self._dialog_signal_name = dialog_signal_name
+        self._ready_signal_emitted = False
         self.setModal(True)
         self.setWindowTitle(dialog_title)
         self.setObjectName("savedActionCreateDialog")
@@ -384,6 +389,31 @@ class SavedActionCreateDialog(QDialog):
         if initial_draft is not None:
             self.load_draft(initial_draft)
 
+    def _emit_lifecycle_event(self, stage: str, **fields):
+        if callable(self._lifecycle_callback):
+            try:
+                self._lifecycle_callback(self._dialog_signal_name, stage, dialog=self, **fields)
+            except Exception:
+                pass
+
+    def _emit_ready_signal(self):
+        if self._ready_signal_emitted or not self.isVisible():
+            return
+        self._ready_signal_emitted = True
+        self._emit_lifecycle_event("ready")
+
+    def showEvent(self, event):
+        super().showEvent(event)
+        self._emit_lifecycle_event("opened")
+        QTimer.singleShot(0, self._emit_ready_signal)
+
+    def done(self, result):
+        self._emit_lifecycle_event(
+            "closed",
+            result="accepted" if result == QDialog.Accepted else "rejected",
+        )
+        super().done(result)
+
     def _make_form_label(self, text: str) -> QLabel:
         label = QLabel(text, self)
         label.setProperty("createRole", "label")
@@ -448,7 +478,13 @@ class SavedActionCreateDialog(QDialog):
 
 
 class SavedActionEditDialog(SavedActionCreateDialog):
-    def __init__(self, parent=None, submit_handler=None, initial_draft: SavedActionDraft | None = None):
+    def __init__(
+        self,
+        parent=None,
+        submit_handler=None,
+        initial_draft: SavedActionDraft | None = None,
+        lifecycle_callback=None,
+    ):
         super().__init__(
             parent,
             submit_handler,
@@ -457,13 +493,17 @@ class SavedActionEditDialog(SavedActionCreateDialog):
             hint_text="Update the task type, title, optional aliases, and destination for this custom task.",
             submit_button_text="Save",
             initial_draft=initial_draft,
+            lifecycle_callback=lifecycle_callback,
+            dialog_signal_name="CUSTOM_TASK_EDIT_DIALOG",
         )
 
 
 class CreatedTasksDialog(QDialog):
-    def __init__(self, parent=None, inventory_payload: dict | None = None):
+    def __init__(self, parent=None, inventory_payload: dict | None = None, lifecycle_callback=None):
         super().__init__(parent)
         self._selected_action_id = ""
+        self._lifecycle_callback = lifecycle_callback
+        self._ready_signal_emitted = False
         self.setModal(True)
         self.setWindowTitle("Created Tasks")
         self.setObjectName("savedActionCreatedTasksDialog")
@@ -591,6 +631,31 @@ class CreatedTasksDialog(QDialog):
         )
 
         self.refresh_inventory(inventory_payload or {})
+
+    def _emit_lifecycle_event(self, stage: str, **fields):
+        if callable(self._lifecycle_callback):
+            try:
+                self._lifecycle_callback("CREATED_TASKS_DIALOG", stage, dialog=self, **fields)
+            except Exception:
+                pass
+
+    def _emit_ready_signal(self):
+        if self._ready_signal_emitted or not self.isVisible():
+            return
+        self._ready_signal_emitted = True
+        self._emit_lifecycle_event("ready")
+
+    def showEvent(self, event):
+        super().showEvent(event)
+        self._emit_lifecycle_event("opened")
+        QTimer.singleShot(0, self._emit_ready_signal)
+
+    def done(self, result):
+        self._emit_lifecycle_event(
+            "closed",
+            result="accepted" if result == QDialog.Accepted else "rejected",
+        )
+        super().done(result)
 
     def selected_action_id(self) -> str:
         return self._selected_action_id
@@ -1248,6 +1313,66 @@ class DesktopRuntimeWindow(QWidget):
             except Exception:
                 pass
 
+    def _normalize_runtime_signal_value(self, value) -> str:
+        if value is None:
+            return ""
+        if isinstance(value, bool):
+            return "true" if value else "false"
+        text = str(value)
+        for original, replacement in (
+            ("\r", " "),
+            ("\n", " "),
+            ("\t", " "),
+            ("|", "/"),
+        ):
+            text = text.replace(original, replacement)
+        return text.strip()
+
+    def _emit_runtime_signal(self, signal_name: str, **fields):
+        parts = [f"RENDERER_MAIN|{signal_name}"]
+        for key, value in fields.items():
+            normalized = self._normalize_runtime_signal_value(value)
+            if not normalized:
+                continue
+            parts.append(f"{key}={normalized}")
+        self._log_event("|".join(parts))
+
+    def _saved_action_inventory_signal_fields(self, inventory=None) -> dict:
+        inventory = inventory or self._command_model.action_catalog.saved_action_inventory
+        return {
+            "saved_status_kind": getattr(inventory, "status_kind", ""),
+            "saved_count": len(getattr(inventory, "actions", ()) or ()),
+            "source_path": getattr(inventory, "path", ""),
+        }
+
+    def _emit_overlay_ready_signal(self):
+        if self._is_shutting_down or not self._command_model.visible or not self._command_panel.isVisible():
+            return
+
+        self._emit_runtime_signal(
+            "COMMAND_OVERLAY_READY",
+            phase=self._command_model.phase,
+            input_armed=self._command_model.input_armed,
+            local_input_engaged=self._overlay_local_input_engaged,
+            global_capture_suspended=self._overlay_global_capture_suspended,
+        )
+
+    def _handle_dialog_lifecycle_signal(self, signal_base: str, stage: str, dialog=None, **fields):
+        signal_name = f"{signal_base}_{stage.upper()}"
+        if dialog is not None:
+            fields.setdefault("dialog_name", dialog.windowTitle())
+        self._emit_runtime_signal(signal_name, **fields)
+
+    def _create_dialog_with_optional_lifecycle(self, factory, *args, **kwargs):
+        try:
+            return factory(*args, **kwargs)
+        except TypeError as exc:
+            if "lifecycle_callback" not in str(exc):
+                raise
+            fallback_kwargs = dict(kwargs)
+            fallback_kwargs.pop("lifecycle_callback", None)
+            return factory(*args, **fallback_kwargs)
+
     def _trace_overlay(self, event: str, **fields):
         if not self._overlay_trace_enabled:
             return
@@ -1484,7 +1609,12 @@ class DesktopRuntimeWindow(QWidget):
         self._command_panel.input_line.set_local_typing_enabled(False)
         self._command_panel.focus_input_after_show()
         self._trace_overlay("overlay_opened")
-        self._log_event("RENDERER_MAIN|COMMAND_OVERLAY_OPENED")
+        self._emit_runtime_signal(
+            "COMMAND_OVERLAY_OPENED",
+            phase=self._command_model.phase,
+            input_armed=self._command_model.input_armed,
+        )
+        QTimer.singleShot(0, self._emit_overlay_ready_signal)
 
     def overlay_needs_global_input_capture(self):
         if not self._command_model.visible or self._is_shutting_down:
@@ -1525,7 +1655,7 @@ class DesktopRuntimeWindow(QWidget):
         self._command_model.close()
         self._apply_command_overlay_state()
         self._trace_overlay("overlay_closed")
-        self._log_event("RENDERER_MAIN|COMMAND_OVERLAY_CLOSED")
+        self._emit_runtime_signal("COMMAND_OVERLAY_CLOSED", phase=self._command_model.phase)
 
     def toggle_command_overlay(self):
         if self._command_model.visible:
@@ -1535,6 +1665,10 @@ class DesktopRuntimeWindow(QWidget):
 
     def reload_command_action_catalog(self, source_path=None):
         resolved_source_path = self._saved_action_source_path if source_path is None else source_path
+        self._emit_runtime_signal(
+            "COMMAND_ACTION_CATALOG_RELOAD_STARTED",
+            source_path=resolved_source_path or "",
+        )
         catalog = self._command_model.reload_action_catalog(resolved_source_path)
         self._apply_command_overlay_state()
         if self._command_panel.isVisible():
@@ -1542,6 +1676,10 @@ class DesktopRuntimeWindow(QWidget):
                 self.compute_compact_geometry(),
                 self.screen_ref.availableGeometry(),
             )
+        inventory_fields = self._saved_action_inventory_signal_fields(catalog.saved_action_inventory)
+        inventory_fields["catalog_action_count"] = len(catalog.actions)
+        self._emit_runtime_signal("COMMAND_ACTION_CATALOG_RELOAD_COMPLETED", **inventory_fields)
+        self._emit_runtime_signal("COMMAND_ACTION_CATALOG_RELOAD_RESULT", **inventory_fields)
         return catalog
 
     def _set_entry_feedback(self, status_kind: str, status_text: str):
@@ -1565,29 +1703,106 @@ class DesktopRuntimeWindow(QWidget):
         self._command_panel.input_line.set_local_typing_enabled(False)
         self._refresh_overlay_input_capture(seconds=5.0)
         self._apply_command_overlay_state()
+        QTimer.singleShot(0, self._emit_overlay_ready_signal)
 
     def _handle_saved_action_create_draft_submit(self, draft: SavedActionDraft):
-        result = create_saved_action_from_draft(
-            draft,
-            source_path=self._saved_action_source_path,
+        self._emit_runtime_signal(
+            "CUSTOM_TASK_CREATE_ATTEMPT_STARTED",
+            title=draft.title,
+            target_kind=draft.target_kind,
         )
+        try:
+            result = create_saved_action_from_draft(
+                draft,
+                source_path=self._saved_action_source_path,
+            )
+        except SavedActionDraftValidationError as exc:
+            self._emit_runtime_signal(
+                "CUSTOM_TASK_CREATE_BLOCKED",
+                reason="validation_error",
+                title=draft.title,
+                target_kind=draft.target_kind,
+                detail=str(exc),
+            )
+            raise
+        except SavedActionUnsafeSourceError as exc:
+            self._emit_runtime_signal(
+                "CUSTOM_TASK_CREATE_BLOCKED",
+                reason="unsafe_source",
+                title=draft.title,
+                target_kind=draft.target_kind,
+                detail=str(exc),
+            )
+            raise
+        except SavedActionSourceWriteBlocked as exc:
+            self._emit_runtime_signal(
+                "CUSTOM_TASK_CREATE_BLOCKED",
+                reason="write_blocked",
+                title=draft.title,
+                target_kind=draft.target_kind,
+                detail=str(exc),
+            )
+            raise
         self.reload_command_action_catalog(self._saved_action_source_path)
         self._set_entry_feedback("ready", f'Custom task created: "{result.record["title"]}".')
-        self._log_event(
-            f'RENDERER_MAIN|CUSTOM_TASK_CREATED|action_id={result.record["id"]}|target_kind={result.record["target_kind"]}'
+        self._emit_runtime_signal(
+            "CUSTOM_TASK_CREATED",
+            action_id=result.record["id"],
+            title=result.record["title"],
+            target_kind=result.record["target_kind"],
         )
         return result
 
     def _handle_saved_action_edit_draft_submit(self, saved_action_id: str, draft: SavedActionDraft):
-        result = update_saved_action_from_draft(
-            saved_action_id,
-            draft,
-            source_path=self._saved_action_source_path,
+        self._emit_runtime_signal(
+            "CUSTOM_TASK_EDIT_ATTEMPT_STARTED",
+            action_id=saved_action_id,
+            title=draft.title,
+            target_kind=draft.target_kind,
         )
+        try:
+            result = update_saved_action_from_draft(
+                saved_action_id,
+                draft,
+                source_path=self._saved_action_source_path,
+            )
+        except SavedActionDraftValidationError as exc:
+            self._emit_runtime_signal(
+                "CUSTOM_TASK_EDIT_BLOCKED",
+                reason="validation_error",
+                action_id=saved_action_id,
+                title=draft.title,
+                target_kind=draft.target_kind,
+                detail=str(exc),
+            )
+            raise
+        except SavedActionUnsafeSourceError as exc:
+            self._emit_runtime_signal(
+                "CUSTOM_TASK_EDIT_BLOCKED",
+                reason="unsafe_source",
+                action_id=saved_action_id,
+                title=draft.title,
+                target_kind=draft.target_kind,
+                detail=str(exc),
+            )
+            raise
+        except SavedActionSourceWriteBlocked as exc:
+            self._emit_runtime_signal(
+                "CUSTOM_TASK_EDIT_BLOCKED",
+                reason="write_blocked",
+                action_id=saved_action_id,
+                title=draft.title,
+                target_kind=draft.target_kind,
+                detail=str(exc),
+            )
+            raise
         self.reload_command_action_catalog(self._saved_action_source_path)
         self._set_entry_feedback("ready", f'Custom task updated: "{result.record["title"]}".')
-        self._log_event(
-            f'RENDERER_MAIN|CUSTOM_TASK_UPDATED|action_id={result.record["id"]}|target_kind={result.record["target_kind"]}'
+        self._emit_runtime_signal(
+            "CUSTOM_TASK_UPDATED",
+            action_id=result.record["id"],
+            title=result.record["title"],
+            target_kind=result.record["target_kind"],
         )
         return result
 
@@ -1598,8 +1813,11 @@ class DesktopRuntimeWindow(QWidget):
         inventory = self._command_model.action_catalog.saved_action_inventory
         if inventory.status_kind in {"invalid_source", "invalid_saved_actions"}:
             self._set_entry_feedback("not_found", self._saved_action_authoring_block_message("creation"))
-            self._log_event(
-                f"RENDERER_MAIN|CUSTOM_TASK_CREATE_BLOCKED|status_kind={inventory.status_kind}"
+            self._emit_runtime_signal(
+                "CUSTOM_TASK_CREATE_BLOCKED",
+                reason="source_invalid",
+                status_kind=inventory.status_kind,
+                **self._saved_action_inventory_signal_fields(inventory),
             )
             return
 
@@ -1609,9 +1827,11 @@ class DesktopRuntimeWindow(QWidget):
         self._clear_overlay_input_capture()
         self._apply_command_overlay_state()
 
-        dialog = self._saved_action_create_dialog_factory(
+        dialog = self._create_dialog_with_optional_lifecycle(
+            self._saved_action_create_dialog_factory,
             self._command_panel,
             self._handle_saved_action_create_draft_submit,
+            lifecycle_callback=self._handle_dialog_lifecycle_signal,
         )
         try:
             dialog.exec()
@@ -1630,9 +1850,11 @@ class DesktopRuntimeWindow(QWidget):
         self._clear_overlay_input_capture()
         self._apply_command_overlay_state()
 
-        dialog = self._created_tasks_dialog_factory(
+        dialog = self._create_dialog_with_optional_lifecycle(
+            self._created_tasks_dialog_factory,
             self._command_panel,
             inventory_payload,
+            lifecycle_callback=self._handle_dialog_lifecycle_signal,
         )
         selected_action_id = ""
         try:
@@ -1652,8 +1874,12 @@ class DesktopRuntimeWindow(QWidget):
         inventory = self._command_model.action_catalog.saved_action_inventory
         if inventory.status_kind in {"invalid_source", "invalid_saved_actions"}:
             self._set_entry_feedback("not_found", self._saved_action_authoring_block_message("editing"))
-            self._log_event(
-                f"RENDERER_MAIN|CUSTOM_TASK_EDIT_BLOCKED|status_kind={inventory.status_kind}"
+            self._emit_runtime_signal(
+                "CUSTOM_TASK_EDIT_BLOCKED",
+                reason="source_invalid",
+                action_id=saved_action_id,
+                status_kind=inventory.status_kind,
+                **self._saved_action_inventory_signal_fields(inventory),
             )
             return
 
@@ -1664,12 +1890,19 @@ class DesktopRuntimeWindow(QWidget):
             )
         except SavedActionUnsafeSourceError:
             self._set_entry_feedback("not_found", self._saved_action_authoring_block_message("editing"))
-            self._log_event("RENDERER_MAIN|CUSTOM_TASK_EDIT_BLOCKED|status_kind=unsafe_source")
+            self._emit_runtime_signal(
+                "CUSTOM_TASK_EDIT_BLOCKED",
+                reason="unsafe_source",
+                action_id=saved_action_id,
+            )
             return
         except SavedActionDraftValidationError as exc:
             self._set_entry_feedback("not_found", str(exc))
-            self._log_event(
-                f"RENDERER_MAIN|CUSTOM_TASK_EDIT_BLOCKED|reason=missing_record|action_id={saved_action_id}"
+            self._emit_runtime_signal(
+                "CUSTOM_TASK_EDIT_BLOCKED",
+                reason="missing_record",
+                action_id=saved_action_id,
+                detail=str(exc),
             )
             return
 
@@ -1679,10 +1912,12 @@ class DesktopRuntimeWindow(QWidget):
         self._clear_overlay_input_capture()
         self._apply_command_overlay_state()
 
-        dialog = self._saved_action_edit_dialog_factory(
+        dialog = self._create_dialog_with_optional_lifecycle(
+            self._saved_action_edit_dialog_factory,
             self._command_panel,
             lambda draft: self._handle_saved_action_edit_draft_submit(saved_action_id, draft),
             initial_draft=initial_draft,
+            lifecycle_callback=self._handle_dialog_lifecycle_signal,
         )
         try:
             dialog.exec()

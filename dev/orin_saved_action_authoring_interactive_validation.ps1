@@ -6,6 +6,8 @@ Add-Type -AssemblyName UIAutomationTypes
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName Microsoft.VisualBasic
 
+$script:ActionTypeOrder = @("Application", "Folder", "File", "Website URL")
+
 $source = @"
 using System;
 using System.Runtime.InteropServices;
@@ -298,6 +300,67 @@ function Set-Value {
     $pattern.SetValue($Value)
 }
 
+function Get-ElementReadableValue {
+    param(
+        [System.Windows.Automation.AutomationElement]$Element
+    )
+
+    if (-not $Element) {
+        return ""
+    }
+
+    try {
+        $pattern = $Element.GetCurrentPattern([System.Windows.Automation.ValuePattern]::Pattern)
+        $value = $pattern.Current.Value
+        if ($null -ne $value) {
+            return [string]$value
+        }
+    } catch {
+    }
+
+    try {
+        $pattern = $Element.GetCurrentPattern([System.Windows.Automation.TextPattern]::Pattern)
+        $value = $pattern.DocumentRange.GetText(-1)
+        if ($null -ne $value) {
+            return ([string]$value).TrimEnd("`0")
+        }
+    } catch {
+    }
+
+    try {
+        $pattern = $Element.GetCurrentPattern([System.Windows.Automation.SelectionPattern]::Pattern)
+        $selected = @($pattern.Current.GetSelection())
+        if ($selected.Count -gt 0) {
+            return [string]$selected[0].Current.Name
+        }
+    } catch {
+    }
+
+    try {
+        return [string]$Element.Current.Name
+    } catch {
+    }
+
+    return ""
+}
+
+function Wait-ForElementValue {
+    param(
+        [scriptblock]$ElementResolver,
+        [string]$ExpectedValue,
+        [int]$TimeoutSeconds = 4,
+        [string]$Description = "element value"
+    )
+
+    Wait-Until -TimeoutSeconds $TimeoutSeconds -Description $Description -Condition {
+        $element = & $ElementResolver
+        if (-not $element) {
+            return $false
+        }
+        return (Get-ElementReadableValue -Element $element) -eq $ExpectedValue
+    } | Out-Null
+}
+
 function Invoke-Element {
     param(
         [System.Windows.Automation.AutomationElement]$Element
@@ -334,52 +397,145 @@ function Expand-Combo {
     $pattern.Expand()
 }
 
+function Get-ComboSelectedText {
+    param(
+        [System.Windows.Automation.AutomationElement]$Combo,
+        [string]$ExpectedFallback = ""
+    )
+
+    $selected = Get-ElementReadableValue -Element $Combo
+    if ($selected) {
+        return $selected
+    }
+
+    try {
+        foreach ($child in (Get-AllDescendants -Element $Combo)) {
+            $selected = Get-ElementReadableValue -Element $child
+            if ($selected) {
+                return $selected
+            }
+        }
+    } catch {
+    }
+
+    return $ExpectedFallback
+}
+
+function Find-ComboPopupItem {
+    param(
+        [System.Windows.Automation.AutomationElement]$Combo,
+        [string]$ItemName
+    )
+
+    $comboRect = $Combo.Current.BoundingRectangle
+    $comboCenterX = $comboRect.Left + ($comboRect.Width / 2.0)
+    $bestItem = $null
+    $bestDistance = [double]::PositiveInfinity
+
+    foreach ($candidate in (Get-AllDescendants -Element ([System.Windows.Automation.AutomationElement]::RootElement))) {
+        try {
+            if ($candidate.Current.ControlType.ProgrammaticName -ne [System.Windows.Automation.ControlType]::ListItem.ProgrammaticName) {
+                continue
+            }
+            if ($candidate.Current.Name -ne $ItemName) {
+                continue
+            }
+            if ($candidate.Current.IsOffscreen) {
+                continue
+            }
+
+            $rect = $candidate.Current.BoundingRectangle
+            $centerX = $rect.Left + ($rect.Width / 2.0)
+            $verticalDelta = [Math]::Abs($rect.Top - $comboRect.Top)
+            $horizontalDelta = [Math]::Abs($centerX - $comboCenterX)
+
+            if ($horizontalDelta -gt 420) {
+                continue
+            }
+            if ($rect.Top -lt ($comboRect.Top - 120) -or $rect.Bottom -gt ($comboRect.Bottom + 540)) {
+                continue
+            }
+
+            $distance = ($verticalDelta * 10.0) + $horizontalDelta
+            if ($distance -lt $bestDistance) {
+                $bestDistance = $distance
+                $bestItem = $candidate
+            }
+        } catch {
+        }
+    }
+
+    return $bestItem
+}
+
 function Select-ComboItem {
     param(
         [System.Windows.Automation.AutomationElement]$Combo,
         [string]$ItemName
     )
 
-    Expand-Combo -Element $Combo
-    Start-Sleep -Milliseconds 250
-    $visibleItem = $null
-    $fallbackItem = $null
-    foreach ($candidate in (Get-AllDescendants -Element ([System.Windows.Automation.AutomationElement]::RootElement))) {
-        if ($candidate.Current.ControlType.ProgrammaticName -ne [System.Windows.Automation.ControlType]::ListItem.ProgrammaticName) {
-            continue
-        }
-        if ($candidate.Current.Name -ne $ItemName) {
-            continue
-        }
-        if (-not $fallbackItem) {
-            $fallbackItem = $candidate
-        }
-        if (-not $candidate.Current.IsOffscreen) {
-            $visibleItem = $candidate
-            break
-        }
+    $desiredIndex = [Array]::IndexOf($script:ActionTypeOrder, $ItemName)
+    if ($desiredIndex -lt 0) {
+        throw "Unsupported combo item '$ItemName'."
     }
-    $item = if ($visibleItem) { $visibleItem } else { $fallbackItem }
-    if (-not $item) {
-        throw "Could not find combo item '$ItemName'."
-    }
-    try {
-        Click-Element -Element $item
-    } catch {
+
+    for ($attempt = 1; $attempt -le 3; $attempt++) {
         try {
-            $select = $item.GetCurrentPattern([System.Windows.Automation.SelectionItemPattern]::Pattern)
-            $select.Select()
+            Focus-Window -Element $Combo
         } catch {
         }
+
+        $currentValue = Get-ComboSelectedText -Combo $Combo
+        Write-StepLog -Stage "INTERACT" -Message "combo select attempt=$attempt desired='$ItemName' current='$currentValue'"
+        if ($currentValue -eq $ItemName) {
+            return
+        }
+
+        $usedPopup = $false
+        try {
+            Expand-Combo -Element $Combo
+            Start-Sleep -Milliseconds 220
+            $item = Find-ComboPopupItem -Combo $Combo -ItemName $ItemName
+            if ($item) {
+                try {
+                    Click-Element -Element $item
+                } catch {
+                    $select = $item.GetCurrentPattern([System.Windows.Automation.SelectionItemPattern]::Pattern)
+                    $select.Select()
+                }
+                $usedPopup = $true
+            }
+        } catch {
+        }
+
+        if (-not $usedPopup) {
+            try {
+                Click-Element -Element $Combo
+            } catch {
+            }
+            Start-Sleep -Milliseconds 150
+            Send-VirtualKey -VirtualKey 0x24
+            Start-Sleep -Milliseconds 80
+            for ($index = 0; $index -lt $desiredIndex; $index++) {
+                Send-VirtualKey -VirtualKey 0x28
+                Start-Sleep -Milliseconds 80
+            }
+            Send-VirtualKey -VirtualKey 0x0D
+        }
+
+        try {
+            Wait-ForElementValue -ExpectedValue $ItemName -TimeoutSeconds 3 -Description "combo value $ItemName" -ElementResolver {
+                return $Combo
+            }
+            return
+        } catch {
+            $actualValue = Get-ComboSelectedText -Combo $Combo
+            Add-Note "Combo selection attempt $attempt for '$ItemName' did not stick; actual value read back as '$actualValue'."
+        }
     }
-    Start-Sleep -Milliseconds 250
-    try {
-        Wait-Until -TimeoutSeconds 3 -Description "combo value $ItemName" -Condition {
-            return $Combo.Current.Name -eq $ItemName
-        } | Out-Null
-    } catch {
-        Add-Note "Combo selection '$ItemName' completed, but the interactive combo-value readback lagged."
-    }
+
+    $finalValue = Get-ComboSelectedText -Combo $Combo
+    throw "Combo selection for '$ItemName' did not stick. Final value: '$finalValue'"
 }
 
 function Get-WindowHandle {
@@ -574,6 +730,40 @@ function Wait-ForElementByAutomationId {
     return (Find-FirstElement -Root $Root -AutomationId $AutomationId)
 }
 
+function Set-FieldValueVerified {
+    param(
+        [scriptblock]$ElementResolver,
+        [string]$ExpectedValue,
+        [string]$Description
+    )
+
+    for ($attempt = 1; $attempt -le 3; $attempt++) {
+        $element = & $ElementResolver
+        if (-not $element) {
+            throw "Could not resolve $Description."
+        }
+
+        try {
+            Focus-Window -Element $element
+        } catch {
+        }
+
+        Write-StepLog -Stage "INTERACT" -Message "field set attempt=$attempt field='$Description' value='$ExpectedValue'"
+        Set-Value -Element $element -Value $ExpectedValue
+
+        try {
+            Wait-ForElementValue -ExpectedValue $ExpectedValue -TimeoutSeconds 3 -Description $Description -ElementResolver $ElementResolver
+            return
+        } catch {
+            $actualValue = Get-ElementReadableValue -Element (& $ElementResolver)
+            Add-Note "Field '$Description' set attempt $attempt did not stick; actual value read back as '$actualValue'."
+        }
+    }
+
+    $finalValue = Get-ElementReadableValue -Element (& $ElementResolver)
+    throw "Field '$Description' did not retain the expected value '$ExpectedValue'. Final value: '$finalValue'"
+}
+
 function Get-TextValue {
     param(
         [System.Windows.Automation.AutomationElement]$Element
@@ -637,6 +827,63 @@ function Test-RuntimeMarkerSeen {
         return $false
     }
     return @($slice | Where-Object { $_ -like "*$Marker*" }).Count -gt 0
+}
+
+function Wait-ForOverlayRuntimeReady {
+    param(
+        [int]$StartLine = -1,
+        [int]$TimeoutSeconds = 12
+    )
+
+    if ($StartLine -lt 0) {
+        $StartLine = New-RuntimeMarkerCursor
+    }
+
+    Wait-ForRuntimeMarker -Marker "RENDERER_MAIN|COMMAND_OVERLAY_OPENED" -TimeoutSeconds $TimeoutSeconds -StartLine $StartLine
+    Wait-ForRuntimeMarker -Marker "RENDERER_MAIN|COMMAND_OVERLAY_READY" -TimeoutSeconds $TimeoutSeconds -StartLine $StartLine
+}
+
+function Wait-ForDialogRuntimeReady {
+    param(
+        [string]$SignalBase,
+        [int]$StartLine = -1,
+        [int]$TimeoutSeconds = 12
+    )
+
+    if ($StartLine -lt 0) {
+        $StartLine = New-RuntimeMarkerCursor
+    }
+
+    Wait-ForRuntimeMarker -Marker "RENDERER_MAIN|${SignalBase}_OPENED" -TimeoutSeconds $TimeoutSeconds -StartLine $StartLine
+    Wait-ForRuntimeMarker -Marker "RENDERER_MAIN|${SignalBase}_READY" -TimeoutSeconds $TimeoutSeconds -StartLine $StartLine
+}
+
+function Wait-ForDialogRuntimeClosed {
+    param(
+        [string]$SignalBase,
+        [int]$StartLine = -1,
+        [int]$TimeoutSeconds = 12
+    )
+
+    if ($StartLine -lt 0) {
+        $StartLine = New-RuntimeMarkerCursor
+    }
+
+    Wait-ForRuntimeMarker -Marker "RENDERER_MAIN|${SignalBase}_CLOSED" -TimeoutSeconds $TimeoutSeconds -StartLine $StartLine
+}
+
+function Wait-ForCatalogReloadCompleted {
+    param(
+        [int]$StartLine = -1,
+        [int]$TimeoutSeconds = 12
+    )
+
+    if ($StartLine -lt 0) {
+        $StartLine = New-RuntimeMarkerCursor
+    }
+
+    Wait-ForRuntimeMarker -Marker "RENDERER_MAIN|COMMAND_ACTION_CATALOG_RELOAD_STARTED" -TimeoutSeconds $TimeoutSeconds -StartLine $StartLine
+    Wait-ForRuntimeMarker -Marker "RENDERER_MAIN|COMMAND_ACTION_CATALOG_RELOAD_COMPLETED" -TimeoutSeconds $TimeoutSeconds -StartLine $StartLine
 }
 
 function Invoke-ElementRobust {
@@ -745,7 +992,48 @@ function Resolve-LiveOverlayRoot {
         return $Overlay
     }
 
+    foreach ($automationId in @(
+        "QApplication.commandOverlayWindow.commandPanel.savedActionInventory.savedActionCreateButton",
+        "QApplication.commandOverlayWindow.commandPanel.savedActionInventory.savedActionCreatedTasksButton",
+        "QApplication.commandOverlayWindow.commandPanel.commandInputShell.commandInputLine"
+    )) {
+        $anchor = Find-FirstElement -Root ([System.Windows.Automation.AutomationElement]::RootElement) -AutomationId $automationId
+        if ($anchor -and -not (Test-ElementGoneOrOffscreen -Element $anchor)) {
+            return [System.Windows.Automation.AutomationElement]::RootElement
+        }
+    }
+
     return (Wait-ForOverlayOpen -TimeoutSeconds 10)
+}
+
+function Resolve-LiveDialogRoot {
+    param(
+        [System.Windows.Automation.AutomationElement]$Dialog,
+        [string]$ExpectedName = ""
+    )
+
+    if ($ExpectedName) {
+        $liveDialog = Get-DialogWindow -Name $ExpectedName
+        if ($liveDialog -and -not (Test-ElementGoneOrOffscreen -Element $liveDialog)) {
+            return $liveDialog
+        }
+    }
+
+    if ($Dialog -and -not (Test-ElementGoneOrOffscreen -Element $Dialog)) {
+        return $Dialog
+    }
+
+    if ($Dialog) {
+        try {
+            $liveDialog = Get-DialogWindow -Name $Dialog.Current.Name
+            if ($liveDialog -and -not (Test-ElementGoneOrOffscreen -Element $liveDialog)) {
+                return $liveDialog
+            }
+        } catch {
+        }
+    }
+
+    return $Dialog
 }
 
 function Get-InventoryTextRows {
@@ -780,12 +1068,16 @@ function Open-Overlay {
         $markerStart = New-RuntimeMarkerCursor
         Write-StepLog -Stage "OVERLAY" -Message "sending overlay hotkey attempt=$attempt startLine=$markerStart"
         Send-OverlayHotkey
-        $overlay = Wait-ForOptionalOverlayOpen -TimeoutSeconds 6
+        try {
+            Wait-ForOverlayRuntimeReady -StartLine $markerStart -TimeoutSeconds 8
+        } catch {
+            Start-Sleep -Milliseconds 600
+        }
+        $overlay = Resolve-LiveOverlayRoot -Overlay $null
         if ($overlay) {
-            if (Test-RuntimeMarkerSeen -Marker "RENDERER_MAIN|COMMAND_OVERLAY_OPENED" -StartLine $markerStart) {
-                $script:RuntimeLogLineCursor = Get-RuntimeLogLineCount
+            if ($overlay -ne [System.Windows.Automation.AutomationElement]::RootElement) {
+                Focus-Window -Element $overlay
             }
-            Focus-Window -Element $overlay
             return $overlay
         }
         Start-Sleep -Milliseconds 600
@@ -799,12 +1091,25 @@ function Open-Overlay {
         }
     }
     Send-OverlayHotkeyFallback
-    $overlay = Wait-ForOptionalOverlayOpen -TimeoutSeconds 4
+    $markerStart = New-RuntimeMarkerCursor
+    try {
+        Wait-ForOverlayRuntimeReady -StartLine $markerStart -TimeoutSeconds 8
+    } catch {
+    }
+    $overlay = Resolve-LiveOverlayRoot -Overlay $null
     if ($overlay) {
-        Focus-Window -Element $overlay
+        if ($overlay -ne [System.Windows.Automation.AutomationElement]::RootElement) {
+            Focus-Window -Element $overlay
+        }
         return $overlay
     }
 
+    $markerStart = New-RuntimeMarkerCursor
+    Wait-ForOverlayRuntimeReady -StartLine $markerStart -TimeoutSeconds 12
+    $overlay = Resolve-LiveOverlayRoot -Overlay $null
+    if ($overlay -eq [System.Windows.Automation.AutomationElement]::RootElement) {
+        return $overlay
+    }
     $overlay = Wait-ForOverlayOpen -TimeoutSeconds 10
     Focus-Window -Element $overlay
     return $overlay
@@ -831,9 +1136,9 @@ function Close-Overlay {
     }
 
     Wait-Until -TimeoutSeconds 8 -Description "overlay close" -Condition { (Get-OverlayWindow) -eq $null } | Out-Null
-    if (Test-RuntimeMarkerSeen -Marker "RENDERER_MAIN|COMMAND_OVERLAY_CLOSED" -StartLine $markerStart) {
-        $script:RuntimeLogLineCursor = Get-RuntimeLogLineCount
-    } else {
+    try {
+        Wait-ForRuntimeMarker -Marker "RENDERER_MAIN|COMMAND_OVERLAY_CLOSED" -TimeoutSeconds 4 -StartLine $markerStart
+    } catch {
         Write-StepLog -Stage "OVERLAY" -Message "overlay closed without a fresh close marker"
     }
 }
@@ -849,22 +1154,22 @@ function Open-CreateDialog {
         throw "Create Custom Task button was not found in the overlay."
     }
     Write-StepLog -Stage "DIALOG" -Message "opening Create Custom Task"
+    $markerStart = New-RuntimeMarkerCursor
     $button.SetFocus()
     Invoke-ElementRobust -Element $button -Description "Create Custom Task button"
 
-    $dialog = Wait-ForOptionalDialog -Name "Create Custom Task" -TimeoutSeconds 2
+    try {
+        Wait-ForDialogRuntimeReady -SignalBase "CUSTOM_TASK_CREATE_DIALOG" -StartLine $markerStart -TimeoutSeconds 8
+    } catch {
+        Invoke-ElementRobust -Element $button -Description "Create Custom Task button retry"
+        Wait-ForDialogRuntimeReady -SignalBase "CUSTOM_TASK_CREATE_DIALOG" -StartLine $markerStart -TimeoutSeconds 8
+    }
+
+    $dialog = Wait-ForOptionalDialog -Name "Create Custom Task" -TimeoutSeconds 3
     if ($dialog) {
         return $dialog
     }
 
-    Invoke-ElementRobust -Element $button -Description "Create Custom Task button retry"
-    $dialog = Wait-ForOptionalDialog -Name "Create Custom Task" -TimeoutSeconds 2
-    if ($dialog) {
-        return $dialog
-    }
-
-    $button.SetFocus()
-    Send-VirtualKey -VirtualKey 0x20
     return (Wait-ForDialog -Name "Create Custom Task" -TimeoutSeconds 8)
 }
 
@@ -879,22 +1184,22 @@ function Open-CreatedTasksDialog {
         throw "Created Tasks button was not found in the overlay."
     }
     Write-StepLog -Stage "DIALOG" -Message "opening Created Tasks"
+    $markerStart = New-RuntimeMarkerCursor
     $button.SetFocus()
     Invoke-ElementRobust -Element $button -Description "Created Tasks button"
 
-    $dialog = Wait-ForOptionalDialog -Name "Created Tasks" -TimeoutSeconds 2
+    try {
+        Wait-ForDialogRuntimeReady -SignalBase "CREATED_TASKS_DIALOG" -StartLine $markerStart -TimeoutSeconds 8
+    } catch {
+        Invoke-ElementRobust -Element $button -Description "Created Tasks button retry"
+        Wait-ForDialogRuntimeReady -SignalBase "CREATED_TASKS_DIALOG" -StartLine $markerStart -TimeoutSeconds 8
+    }
+
+    $dialog = Wait-ForOptionalDialog -Name "Created Tasks" -TimeoutSeconds 3
     if ($dialog) {
         return $dialog
     }
 
-    Invoke-ElementRobust -Element $button -Description "Created Tasks button retry"
-    $dialog = Wait-ForOptionalDialog -Name "Created Tasks" -TimeoutSeconds 2
-    if ($dialog) {
-        return $dialog
-    }
-
-    $button.SetFocus()
-    Send-VirtualKey -VirtualKey 0x20
     return (Wait-ForDialog -Name "Created Tasks" -TimeoutSeconds 8)
 }
 
@@ -907,11 +1212,38 @@ function Fill-AuthoringDialog {
         [string]$Target
     )
 
-    $typeCombo = Wait-ForElementByAutomationId -Root $Dialog -AutomationId "QApplication.savedActionCreateDialog.savedActionCreateType"
-    $titleInput = Wait-ForElementByAutomationId -Root $Dialog -AutomationId "QApplication.savedActionCreateDialog.savedActionCreateTitleInput"
-    $aliasesInput = Wait-ForElementByAutomationId -Root $Dialog -AutomationId "QApplication.savedActionCreateDialog.savedActionCreateAliasesInput"
-    $targetInput = Wait-ForElementByAutomationId -Root $Dialog -AutomationId "QApplication.savedActionCreateDialog.savedActionCreateTargetInput"
-    $guidanceLabel = Wait-ForElementByAutomationId -Root $Dialog -AutomationId "QApplication.savedActionCreateDialog.savedActionCreateTargetGuidance"
+    $dialogName = $Dialog.Current.Name
+    $resolveDialog = {
+        Resolve-LiveDialogRoot -Dialog $Dialog -ExpectedName $dialogName
+    }
+    $resolveTypeCombo = {
+        $liveDialog = & $resolveDialog
+        if (-not $liveDialog) { return $null }
+        return (Wait-ForElementByAutomationId -Root $liveDialog -AutomationId "QApplication.savedActionCreateDialog.savedActionCreateType")
+    }
+    $resolveTitleInput = {
+        $liveDialog = & $resolveDialog
+        if (-not $liveDialog) { return $null }
+        return (Wait-ForElementByAutomationId -Root $liveDialog -AutomationId "QApplication.savedActionCreateDialog.savedActionCreateTitleInput")
+    }
+    $resolveAliasesInput = {
+        $liveDialog = & $resolveDialog
+        if (-not $liveDialog) { return $null }
+        return (Wait-ForElementByAutomationId -Root $liveDialog -AutomationId "QApplication.savedActionCreateDialog.savedActionCreateAliasesInput")
+    }
+    $resolveTargetInput = {
+        $liveDialog = & $resolveDialog
+        if (-not $liveDialog) { return $null }
+        return (Wait-ForElementByAutomationId -Root $liveDialog -AutomationId "QApplication.savedActionCreateDialog.savedActionCreateTargetInput")
+    }
+    $resolveGuidanceLabel = {
+        $liveDialog = & $resolveDialog
+        if (-not $liveDialog) { return $null }
+        return (Wait-ForElementByAutomationId -Root $liveDialog -AutomationId "QApplication.savedActionCreateDialog.savedActionCreateTargetGuidance")
+    }
+
+    $typeCombo = & $resolveTypeCombo
+    $guidanceLabel = & $resolveGuidanceLabel
 
     $guidanceMap = @{
         "Application" = "launchable command"
@@ -921,22 +1253,35 @@ function Fill-AuthoringDialog {
     }
 
     Select-ComboItem -Combo $typeCombo -ItemName $TypeLabel
+    $selectedType = Get-ComboSelectedText -Combo (& $resolveTypeCombo)
+    Write-StepLog -Stage "INTERACT" -Message "type selection final desired='$TypeLabel' actual='$selectedType'"
+    if ($selectedType -ne $TypeLabel) {
+        throw "Type selection did not apply. Expected '$TypeLabel', saw '$selectedType'."
+    }
     if ($guidanceMap.ContainsKey($TypeLabel)) {
         $expectedGuidance = $guidanceMap[$TypeLabel]
         $guidanceReady = $false
         try {
             Wait-Until -TimeoutSeconds 2 -Description "guidance for $TypeLabel" -Condition {
-                return $guidanceLabel.Current.Name -like "*$expectedGuidance*"
+                $liveGuidance = & $resolveGuidanceLabel
+                if (-not $liveGuidance) {
+                    return $false
+                }
+                return (Get-ElementReadableValue -Element $liveGuidance) -like "*$expectedGuidance*"
             } | Out-Null
             $guidanceReady = $true
         } catch {
         }
         if (-not $guidanceReady) {
             Add-Note "Guidance text did not refresh to the expected '$TypeLabel' wording on the first selection attempt; retrying the type selection once."
-            Select-ComboItem -Combo $typeCombo -ItemName $TypeLabel
+            Select-ComboItem -Combo (& $resolveTypeCombo) -ItemName $TypeLabel
             try {
                 Wait-Until -TimeoutSeconds 2 -Description "guidance retry for $TypeLabel" -Condition {
-                    return $guidanceLabel.Current.Name -like "*$expectedGuidance*"
+                    $liveGuidance = & $resolveGuidanceLabel
+                    if (-not $liveGuidance) {
+                        return $false
+                    }
+                    return (Get-ElementReadableValue -Element $liveGuidance) -like "*$expectedGuidance*"
                 } | Out-Null
                 $guidanceReady = $true
             } catch {
@@ -946,9 +1291,9 @@ function Fill-AuthoringDialog {
             Add-Note "Guidance text did not refresh to the expected '$TypeLabel' wording during one dialog interaction, but the subsequent dialog validation path still ran."
         }
     }
-    Set-Value -Element $titleInput -Value $Title
-    Set-Value -Element $aliasesInput -Value $Aliases
-    Set-Value -Element $targetInput -Value $Target
+    Set-FieldValueVerified -ElementResolver $resolveTitleInput -ExpectedValue $Title -Description "title input"
+    Set-FieldValueVerified -ElementResolver $resolveAliasesInput -ExpectedValue $Aliases -Description "aliases input"
+    Set-FieldValueVerified -ElementResolver $resolveTargetInput -ExpectedValue $Target -Description "target input"
 }
 
 function Get-DialogStatusText {
@@ -991,9 +1336,16 @@ function Cancel-Dialog {
     )
 
     Write-StepLog -Stage "DIALOG" -Message "cancelling dialog '$($Dialog.Current.Name)'"
+    $signalBase = if ($Dialog.Current.Name -eq "Edit Custom Task") { "CUSTOM_TASK_EDIT_DIALOG" } else { "CUSTOM_TASK_CREATE_DIALOG" }
+    $markerStart = New-RuntimeMarkerCursor
     try { Submit-Dialog -Dialog $Dialog -ButtonName "Cancel" } catch {}
     try {
-        Wait-ForDialogClosed -Name $Dialog.Current.Name -TimeoutSeconds 2
+        Wait-ForDialogRuntimeClosed -SignalBase $signalBase -StartLine $markerStart -TimeoutSeconds 5
+        try {
+            Wait-ForDialogClosed -Name $Dialog.Current.Name -TimeoutSeconds 2
+        } catch {
+            Add-Note "Dialog close readback lagged after a closed marker; continuing without an ESC fallback."
+        }
         return
     } catch {
     }
@@ -1028,9 +1380,15 @@ function Close-CreatedTasksDialog {
         throw "Created Tasks dialog close button was not found."
     }
     Write-StepLog -Stage "DIALOG" -Message "closing Created Tasks"
+    $markerStart = New-RuntimeMarkerCursor
     Invoke-ElementRobust -Element $closeButton -Description "Created Tasks close button"
     try {
-        Wait-ForDialogClosed -Name "Created Tasks" -TimeoutSeconds 5
+        Wait-ForDialogRuntimeClosed -SignalBase "CREATED_TASKS_DIALOG" -StartLine $markerStart -TimeoutSeconds 5
+        try {
+            Wait-ForDialogClosed -Name "Created Tasks" -TimeoutSeconds 5
+        } catch {
+            Add-Note "Created Tasks close readback lagged after a closed marker; continuing without an ESC fallback."
+        }
     } catch {
         Add-Note "Created Tasks close readback lagged once; continuing after an ESC fallback because the next step can still re-resolve dialog state."
         try {
@@ -1038,6 +1396,10 @@ function Close-CreatedTasksDialog {
         } catch {
         }
         Send-VirtualKey -VirtualKey 0x1B
+        try {
+            Wait-ForDialogRuntimeClosed -SignalBase "CREATED_TASKS_DIALOG" -StartLine $markerStart -TimeoutSeconds 5
+        } catch {
+        }
         Wait-ForDialogClosed -Name "Created Tasks" -TimeoutSeconds 5
     }
 }
@@ -1069,7 +1431,17 @@ function Ensure-OverlayReady {
 
     $liveOverlay = Wait-ForOptionalOverlayOpen -TimeoutSeconds 2
     if ($liveOverlay) {
+        try {
+            $markerStart = New-RuntimeMarkerCursor
+            Wait-ForRuntimeMarker -Marker "RENDERER_MAIN|COMMAND_OVERLAY_READY" -TimeoutSeconds 2 -StartLine $markerStart
+        } catch {
+        }
         return $liveOverlay
+    }
+
+    $resolvedOverlay = Resolve-LiveOverlayRoot -Overlay $Overlay
+    if ($resolvedOverlay) {
+        return $resolvedOverlay
     }
 
     Add-Note "Overlay was not visible after a dialog transition; reopening it for the next validation step."
@@ -1254,15 +1626,88 @@ function Start-NotepadProbe {
 
     return [pscustomobject]@{
         process = $process
+        process_id = $process.Id
         window = $window
         editor = $editor
         path = $probeFile
+        expected_title = $expectedTitle
     }
+}
+
+function Resolve-NotepadProbeWindow {
+    param($Probe)
+
+    $expectedTitle = if ($Probe.expected_title) { [string]$Probe.expected_title } else { "" }
+    $expectedProcessId = 0
+    try {
+        $expectedProcessId = [int]$Probe.process_id
+    } catch {
+    }
+    foreach ($candidate in (Get-RootWindows)) {
+        try {
+            if (
+                $candidate.Current.ControlType.ProgrammaticName -eq [System.Windows.Automation.ControlType]::Window.ProgrammaticName -and
+                $candidate.Current.ClassName -eq "Notepad"
+            ) {
+                if ($expectedProcessId -gt 0 -and $candidate.Current.ProcessId -ne $expectedProcessId) {
+                    continue
+                }
+                if ($expectedTitle -and $candidate.Current.Name -ne $expectedTitle -and $candidate.Current.Name -ne "Notepad") {
+                    continue
+                }
+                return $candidate
+            }
+        } catch {
+        }
+    }
+
+    if ($Probe.window -and -not (Test-ElementGoneOrOffscreen -Element $Probe.window)) {
+        return $Probe.window
+    }
+
+    return $null
+}
+
+function Resolve-NotepadEditor {
+    param($Probe)
+
+    $window = Resolve-NotepadProbeWindow -Probe $Probe
+    if (-not $window) {
+        return $null
+    }
+
+    foreach ($candidate in (Get-AllDescendants -Element $window)) {
+        try {
+            if ($candidate.Current.ClassName -eq "RichEditD2DPT") {
+                return $candidate
+            }
+        } catch {
+        }
+    }
+
+    foreach ($candidate in (Get-AllDescendants -Element $window)) {
+        try {
+            if ($candidate.Current.ControlType.ProgrammaticName -eq [System.Windows.Automation.ControlType]::Edit.ProgrammaticName) {
+                return $candidate
+            }
+        } catch {
+        }
+    }
+
+    return $null
 }
 
 function Get-NotepadText {
     param($Probe)
-    return Get-TextValue -Element $Probe.editor
+    $editor = Resolve-NotepadEditor -Probe $Probe
+    if (-not $editor) {
+        if ($Probe.path -and (Test-Path -LiteralPath $Probe.path)) {
+            Add-Note "External probe control was unavailable at read time; falling back to the probe file contents."
+            return (Get-Content -LiteralPath $Probe.path -Raw)
+        }
+        throw "Could not resolve the external probe control."
+    }
+    return Get-TextValue -Element $editor
 }
 
 function Restore-SavedActionSource {
@@ -1323,8 +1768,11 @@ function Run-Create-Flow {
     Fill-AuthoringDialog -Dialog $dialog -TypeLabel "Application" -Title "Open Notepad Task" -Aliases "launch notepad task" -Target "notepad.exe"
     $markerStart = New-RuntimeMarkerCursor
     Submit-Dialog -Dialog $dialog -ButtonName "Create"
+    Wait-ForRuntimeMarker -Marker "RENDERER_MAIN|CUSTOM_TASK_CREATE_ATTEMPT_STARTED|title=Open Notepad Task" -StartLine $markerStart
+    Wait-ForCatalogReloadCompleted -StartLine $markerStart
     Wait-ForRuntimeMarker -Marker "RENDERER_MAIN|CUSTOM_TASK_CREATED|action_id=open_notepad_task" -StartLine $markerStart
     try {
+        Wait-ForDialogRuntimeClosed -SignalBase "CUSTOM_TASK_CREATE_DIALOG" -StartLine $markerStart -TimeoutSeconds 4
         Wait-ForDialogClosed -Name "Create Custom Task" -TimeoutSeconds 4
     } catch {
         Add-Note "Create dialog close readback lagged after a successful create marker, but the runtime marker and persisted source still confirmed the save."
@@ -1358,6 +1806,8 @@ function Run-Invalid-Create-Checks {
         Fill-AuthoringDialog -Dialog $dialog -TypeLabel $case.type -Title $case.title -Aliases $case.aliases -Target $case.target
         $markerStart = New-RuntimeMarkerCursor
         Submit-Dialog -Dialog $dialog -ButtonName "Create"
+        Wait-ForRuntimeMarker -Marker "RENDERER_MAIN|CUSTOM_TASK_CREATE_ATTEMPT_STARTED|title=$($case.title)" -StartLine $markerStart
+        Wait-ForRuntimeMarker -Marker "RENDERER_MAIN|CUSTOM_TASK_CREATE_BLOCKED|reason=validation_error" -StartLine $markerStart
         Wait-Until -TimeoutSeconds 4 -Description "blocked invalid create '$($case.type)'" -Condition {
             $currentDialog = Get-DialogWindow -Name "Create Custom Task"
             if (-not $currentDialog) {
@@ -1413,6 +1863,8 @@ function Run-Collision-Checks {
         Fill-AuthoringDialog -Dialog $dialog -TypeLabel "Application" -Title $case.title -Aliases $case.aliases -Target $case.target
         $markerStart = New-RuntimeMarkerCursor
         Submit-Dialog -Dialog $dialog -ButtonName "Create"
+        Wait-ForRuntimeMarker -Marker "RENDERER_MAIN|CUSTOM_TASK_CREATE_ATTEMPT_STARTED|title=$($case.title)" -StartLine $markerStart
+        Wait-ForRuntimeMarker -Marker "RENDERER_MAIN|CUSTOM_TASK_CREATE_BLOCKED|reason=validation_error" -StartLine $markerStart
         Wait-Until -TimeoutSeconds 4 -Description "blocked collision create '$($case.title)'" -Condition {
             $currentDialog = Get-DialogWindow -Name "Create Custom Task"
             if (-not $currentDialog) {
@@ -1459,19 +1911,19 @@ function Run-Edit-Flow {
         throw "No edit buttons were available for the saved inventory."
     }
 
+    $markerStart = New-RuntimeMarkerCursor
     Invoke-ElementRobust -Element $editButtons[0] -Description "first Created Tasks edit button"
-    $dialog = Wait-ForOptionalDialog -Name "Edit Custom Task" -TimeoutSeconds 3
-    if (-not $dialog) {
-        Invoke-ElementRobust -Element $editButtons[0] -Description "first Created Tasks edit button retry"
-        $dialog = Wait-ForDialog -Name "Edit Custom Task" -TimeoutSeconds 8
-    }
+    Wait-ForDialogRuntimeReady -SignalBase "CUSTOM_TASK_EDIT_DIALOG" -StartLine $markerStart -TimeoutSeconds 8
+    $dialog = Wait-ForDialog -Name "Edit Custom Task" -TimeoutSeconds 8
     if (Find-WindowAnywhere -Name "Created Tasks") {
         Add-Note "Created Tasks remained visible briefly while the edit dialog opened; continuing because the real edit route was still exercised."
     }
-    Fill-AuthoringDialog -Dialog $dialog -TypeLabel "File" -Title "Open Weekly Reports" -Aliases "weekly reports" -Target "C:\Windows\win.ini"
+    Fill-AuthoringDialog -Dialog $dialog -TypeLabel "Folder" -Title "Open Weekly Reports" -Aliases "weekly reports" -Target "C:\Windows"
     $markerStart = New-RuntimeMarkerCursor
     Submit-Dialog -Dialog $dialog -ButtonName "Save"
+    Wait-ForRuntimeMarker -Marker "RENDERER_MAIN|CUSTOM_TASK_EDIT_ATTEMPT_STARTED|action_id=open_notepad_task" -StartLine $markerStart
     try {
+        Wait-ForCatalogReloadCompleted -StartLine $markerStart
         Wait-ForRuntimeMarker -Marker "RENDERER_MAIN|CUSTOM_TASK_UPDATED|action_id=open_notepad_task" -StartLine $markerStart
     } catch {
         $currentDialog = Get-DialogWindow -Name "Edit Custom Task"
@@ -1481,9 +1933,12 @@ function Run-Edit-Flow {
         Add-Note "Edit save did not surface an update marker on the first submit; retrying Save once against the still-open dialog."
         $markerStart = New-RuntimeMarkerCursor
         Submit-Dialog -Dialog $currentDialog -ButtonName "Save"
+        Wait-ForRuntimeMarker -Marker "RENDERER_MAIN|CUSTOM_TASK_EDIT_ATTEMPT_STARTED|action_id=open_notepad_task" -StartLine $markerStart
+        Wait-ForCatalogReloadCompleted -StartLine $markerStart
         Wait-ForRuntimeMarker -Marker "RENDERER_MAIN|CUSTOM_TASK_UPDATED|action_id=open_notepad_task" -StartLine $markerStart
     }
     try {
+        Wait-ForDialogRuntimeClosed -SignalBase "CUSTOM_TASK_EDIT_DIALOG" -StartLine $markerStart -TimeoutSeconds 4
         Wait-ForDialogClosed -Name "Edit Custom Task" -TimeoutSeconds 4
     } catch {
         Add-Note "Edit dialog close readback lagged after a successful update marker, but the runtime marker and refreshed inventory still confirmed the save."
@@ -1502,12 +1957,10 @@ function Run-Invalid-Edit-Check {
 
     $createdTasksDialog = Open-CreatedTasksDialog -Overlay $Overlay
     $editButtons = @(Get-InventoryEditButtons -Overlay $createdTasksDialog)
+    $markerStart = New-RuntimeMarkerCursor
     Invoke-ElementRobust -Element $editButtons[0] -Description "first Created Tasks edit button"
-    $dialog = Wait-ForOptionalDialog -Name "Edit Custom Task" -TimeoutSeconds 3
-    if (-not $dialog) {
-        Invoke-ElementRobust -Element $editButtons[0] -Description "first Created Tasks edit button retry"
-        $dialog = Wait-ForDialog -Name "Edit Custom Task" -TimeoutSeconds 8
-    }
+    Wait-ForDialogRuntimeReady -SignalBase "CUSTOM_TASK_EDIT_DIALOG" -StartLine $markerStart -TimeoutSeconds 8
+    $dialog = Wait-ForDialog -Name "Edit Custom Task" -TimeoutSeconds 8
     $beforeSourceText = if (Test-Path -LiteralPath $SourcePath) {
         Get-Content -LiteralPath $SourcePath -Raw
     } else {
@@ -1516,6 +1969,8 @@ function Run-Invalid-Edit-Check {
     Fill-AuthoringDialog -Dialog $dialog -TypeLabel "File" -Title "Open Weekly Reports" -Aliases "weekly reports" -Target "Reports\Weekly"
     $markerStart = New-RuntimeMarkerCursor
     Submit-Dialog -Dialog $dialog -ButtonName "Save"
+    Wait-ForRuntimeMarker -Marker "RENDERER_MAIN|CUSTOM_TASK_EDIT_ATTEMPT_STARTED|action_id=open_notepad_task" -StartLine $markerStart
+    Wait-ForRuntimeMarker -Marker "RENDERER_MAIN|CUSTOM_TASK_EDIT_BLOCKED|reason=validation_error|action_id=open_notepad_task" -StartLine $markerStart
     Wait-Until -TimeoutSeconds 4 -Description "blocked invalid edit" -Condition {
         $currentDialog = Get-DialogWindow -Name "Edit Custom Task"
         if (-not $currentDialog) {
@@ -1620,20 +2075,26 @@ function Run-Large-Inventory-Check {
     if ($editButtons.Count -lt 8) {
         throw "Expected at least 8 edit buttons in the large inventory view, found $($editButtons.Count)."
     }
+    $markerStart = New-RuntimeMarkerCursor
     Invoke-ElementRobust -Element $editButtons[-1] -Description "late Created Tasks edit button"
-    $dialog = Wait-ForOptionalDialog -Name "Edit Custom Task" -TimeoutSeconds 3
-    if (-not $dialog) {
+    try {
+        Wait-ForDialogRuntimeReady -SignalBase "CUSTOM_TASK_EDIT_DIALOG" -StartLine $markerStart -TimeoutSeconds 8
+    } catch {
         $createdTasksDialog = Open-CreatedTasksDialog -Overlay $overlay
         $editButtons = @(Get-InventoryEditButtons -Overlay $createdTasksDialog)
+        $markerStart = New-RuntimeMarkerCursor
         Invoke-ElementRobust -Element $editButtons[-1] -Description "late Created Tasks edit button retry"
-        Wait-ForDialogClosed -Name "Created Tasks"
-        $dialog = Wait-ForDialog -Name "Edit Custom Task" -TimeoutSeconds 8
+        Wait-ForDialogRuntimeReady -SignalBase "CUSTOM_TASK_EDIT_DIALOG" -StartLine $markerStart -TimeoutSeconds 8
     }
+    $dialog = Wait-ForDialog -Name "Edit Custom Task" -TimeoutSeconds 8
     Fill-AuthoringDialog -Dialog $dialog -TypeLabel "Folder" -Title "Open Reports Eight" -Aliases "show reports eight" -Target "C:\Reports\8"
     $markerStart = New-RuntimeMarkerCursor
     Submit-Dialog -Dialog $dialog -ButtonName "Save"
+    Wait-ForRuntimeMarker -Marker "RENDERER_MAIN|CUSTOM_TASK_EDIT_ATTEMPT_STARTED|action_id=open_reports_8" -StartLine $markerStart
+    Wait-ForCatalogReloadCompleted -StartLine $markerStart
     Wait-ForRuntimeMarker -Marker "RENDERER_MAIN|CUSTOM_TASK_UPDATED|action_id=open_reports_8" -StartLine $markerStart
     try {
+        Wait-ForDialogRuntimeClosed -SignalBase "CUSTOM_TASK_EDIT_DIALOG" -StartLine $markerStart -TimeoutSeconds 4
         Wait-ForDialogClosed -Name "Edit Custom Task" -TimeoutSeconds 4
     } catch {
         Add-Note "Late-item edit dialog close readback lagged after a successful update marker, but the runtime marker and refreshed Created Tasks view still confirmed the save."
@@ -1654,7 +2115,7 @@ function Run-Unsafe-Source-Check {
     $createButton = Find-FirstElement -Root $overlay -AutomationId "QApplication.commandOverlayWindow.commandPanel.savedActionInventory.savedActionCreateButton"
     $markerStart = New-RuntimeMarkerCursor
     Invoke-ElementRobust -Element $createButton -Description "Create Custom Task button in unsafe-source path"
-    Start-Sleep -Milliseconds 400
+    Wait-ForRuntimeMarker -Marker "RENDERER_MAIN|CUSTOM_TASK_CREATE_BLOCKED|reason=source_invalid" -StartLine $markerStart
     $dialog = Get-DialogWindow -Name "Create Custom Task"
     if ($dialog) {
         throw "Unsafe source should block the create dialog before it opens."

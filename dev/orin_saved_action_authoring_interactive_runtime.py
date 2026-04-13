@@ -48,39 +48,51 @@ def main(argv: list[str] | None = None) -> int:
             def __init__(self, *window_args, **window_kwargs):
                 super().__init__(*window_args, **window_kwargs)
                 self._interactive_auto_open_attempt = 0
+                self._interactive_auto_open_timer = QTimer(self)
+                self._interactive_auto_open_timer.setSingleShot(True)
+                self._interactive_auto_open_timer.timeout.connect(self._interactive_auto_open_overlay)
+                runtime_main.runtime_milestone(
+                    f"RENDERER_MAIN|INTERACTIVE_VALIDATION_AUTO_OPEN_SCHEDULED|delay_ms={AUTO_OPEN_DELAY_MS}"
+                )
+                self._interactive_auto_open_timer.start(AUTO_OPEN_DELAY_MS)
 
-                def _auto_open_overlay():
-                    if getattr(self, "_is_shutting_down", False):
-                        return
+            def _schedule_interactive_auto_open_retry(self, delay_ms: int) -> None:
+                runtime_main.runtime_milestone(
+                    "RENDERER_MAIN|INTERACTIVE_VALIDATION_AUTO_OPEN_RETRY_SCHEDULED"
+                    f"|delay_ms={delay_ms}|next_attempt={self._interactive_auto_open_attempt + 1}"
+                )
+                self._interactive_auto_open_timer.start(delay_ms)
+
+            def _interactive_auto_open_overlay(self):
+                if getattr(self, "_is_shutting_down", False):
+                    return
+                if self.is_command_overlay_visible():
+                    runtime_main.runtime_milestone(
+                        "RENDERER_MAIN|INTERACTIVE_VALIDATION_AUTO_OPEN_SKIPPED|reason=already_visible"
+                    )
+                    return
+                self._interactive_auto_open_attempt += 1
+                try:
+                    runtime_main.runtime_milestone(
+                        "RENDERER_MAIN|INTERACTIVE_VALIDATION_AUTO_OPEN_ATTEMPT"
+                        f"|count={self._interactive_auto_open_attempt}"
+                    )
+                    self.open_command_overlay()
                     if self.is_command_overlay_visible():
-                        runtime_main.runtime_milestone(
-                            "RENDERER_MAIN|INTERACTIVE_VALIDATION_AUTO_OPEN_SKIPPED|reason=already_visible"
-                        )
+                        runtime_main.runtime_milestone("RENDERER_MAIN|INTERACTIVE_VALIDATION_AUTO_OPENED")
                         return
-                    self._interactive_auto_open_attempt += 1
-                    try:
-                        runtime_main.runtime_milestone(
-                            "RENDERER_MAIN|INTERACTIVE_VALIDATION_AUTO_OPEN_ATTEMPT"
-                            f"|count={self._interactive_auto_open_attempt}"
-                        )
-                        self.open_command_overlay()
-                        if self.is_command_overlay_visible():
-                            runtime_main.runtime_milestone("RENDERER_MAIN|INTERACTIVE_VALIDATION_AUTO_OPENED")
-                            return
-                        if self._interactive_auto_open_attempt < AUTO_OPEN_ATTEMPTS:
-                            QTimer.singleShot(AUTO_OPEN_RETRY_MS, _auto_open_overlay)
-                            return
-                        runtime_main.runtime_milestone(
-                            "RENDERER_MAIN|INTERACTIVE_VALIDATION_AUTO_OPEN_GAVE_UP|reason=overlay_not_visible"
-                        )
-                    except Exception as exc:
-                        if self._interactive_auto_open_attempt < AUTO_OPEN_ATTEMPTS:
-                            QTimer.singleShot(AUTO_OPEN_RETRY_MS, _auto_open_overlay)
-                        runtime_main.runtime_milestone(
-                            f"RENDERER_MAIN|INTERACTIVE_VALIDATION_AUTO_OPEN_FAILED|reason={exc}"
-                        )
-
-                QTimer.singleShot(AUTO_OPEN_DELAY_MS, _auto_open_overlay)
+                    if self._interactive_auto_open_attempt < AUTO_OPEN_ATTEMPTS:
+                        self._schedule_interactive_auto_open_retry(AUTO_OPEN_RETRY_MS)
+                        return
+                    runtime_main.runtime_milestone(
+                        "RENDERER_MAIN|INTERACTIVE_VALIDATION_AUTO_OPEN_GAVE_UP|reason=overlay_not_visible"
+                    )
+                except Exception as exc:
+                    if self._interactive_auto_open_attempt < AUTO_OPEN_ATTEMPTS:
+                        self._schedule_interactive_auto_open_retry(AUTO_OPEN_RETRY_MS)
+                    runtime_main.runtime_milestone(
+                        f"RENDERER_MAIN|INTERACTIVE_VALIDATION_AUTO_OPEN_FAILED|reason={exc}"
+                    )
 
         runtime_main.DesktopRuntimeWindow = InteractiveValidationDesktopRuntimeWindow
 
