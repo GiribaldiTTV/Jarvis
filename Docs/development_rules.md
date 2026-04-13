@@ -151,6 +151,32 @@ Before handing a user-visible runtime, UI, or manual validation path back to the
 
 If Codex cannot self-run the same path reliably, it must say so explicitly and identify the remaining validation gap.
 
+For runtime, UI, startup, prompt, voice, or other operator-facing implementation slices, green validators are necessary but not sufficient on their own.
+
+Before continuing to the next implementation slice on the same branch, Codex must also perform a deeper branch-local validation and hardening pass that:
+
+- pressure-tests the implemented path and its likely failure modes
+- checks integration seams and branch-local regressions beyond the happy path
+- adds or creates the smallest reliable validation infrastructure on-branch when the current suite leaves meaningful blind spots
+- uses supporting validation artifacts when needed, such as validators, harnesses, fixtures, scripted helpers, trace capture, screenshots, runtime logs, or reproducible sample inputs
+- exercises the workflow in the most practical live-style way available when feasible rather than stopping at simulated reasoning
+- preserves evidence of what was run, what passed or failed, and where the supporting artifacts live
+- explicitly distinguishes:
+  - validator results
+  - simulated reasoning or inspection findings
+  - live-style execution results
+  - manual user-test handoff that still remains
+- explicitly decides whether the correct next move is:
+  - continue implementation
+  - pause for internal hardening or validation
+  - or fix a specific defect first
+
+Validator-green status plus simulated reasoning or recap-style summary is not enough when the implemented path can be exercised more directly with supporting validation artifacts.
+
+When Codex recommends continuing implementation after a user-visible slice, it must be able to explain why the current validation and hardening depth is already sufficient for that continuation.
+
+If the current validation surface is too thin to support that explanation, Codex must first add the smallest reliable validation infrastructure on-branch and re-run the validation pass before continuing.
+
 When a slice changes user-visible behavior, runtime interaction, UX flow, prompts, startup behavior, voice behavior, or any manual operator-facing path, Codex must include a true manual validation checklist under `## User Test Summary` by default.
 
 That checklist must include:
@@ -165,11 +191,40 @@ A recap-style summary is not sufficient when manual validation is relevant.
 
 If no meaningful manual test exists for the change, Codex must say so explicitly under `## User Test Summary` and explain why manual validation is not materially relevant for that slice.
 
+For active desktop workstreams, the default canonical repo-level `UTS` artifact is the `## User Test Summary` section in the relevant canonical workstream doc unless that doc explicitly declares a different repo path.
+
+When that artifact exists and supporting docs are in scope on the active branch, Codex must update it as part of the same slice by default.
+
+Response-only `## User Test Summary` output does not satisfy the workstream-owned validation layer when the canonical repo artifact remains stale.
+
+For desktop user-facing slices, Codex must also export or refresh the convenience copy at:
+
+- `C:\Users\anden\OneDrive\Desktop\User Test Summary.txt`
+
+unless it explicitly explains why the desktop export is not relevant or is being intentionally skipped.
+
+The ownership hierarchy is:
+
+- workstream doc `## User Test Summary` section = canonical repo source of truth
+- desktop `User Test Summary.txt` = required user-facing exported copy when relevant
+- response-level `## User Test Summary` = current handoff text only
+
+If Codex does not update the canonical repo-level `UTS` artifact, it must say explicitly why. Valid reasons are limited to:
+
+- no meaningful manual test exists for the slice
+- no canonical workstream doc exists yet for the active lane
+- the user explicitly restricted the pass so the relevant artifact could not be updated
+- the relevant closed workstream doc already says that no separate ongoing `UTS` artifact remains
+
+If Codex does not export or refresh the desktop `User Test Summary.txt` copy for a relevant desktop slice, it must also say explicitly why.
+
 ## Runtime Evidence And Logging
 
 - logs are the source of truth for runtime behavior
 - do not assume behavior without log or code evidence
 - prefer structured markers over raw output
+- preserve or cite the exact validator outputs, helper scripts or harnesses used, runtime logs reviewed, and any created fixtures, traces, or screenshots that materially support a continuation recommendation
+- do not claim live-style validation without evidence or a specific explanation of what path was actually exercised
 
 ### Root Logs Governance
 

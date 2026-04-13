@@ -123,7 +123,13 @@ Workflow mode should usually return:
 
 - changes applied
 - validation performed
+- a distinct summary of validator results
+- a distinct summary of live-style execution results and the supporting validation artifacts created or used
+- any remaining simulated-only findings or reasoning-only gaps that still matter
+- deeper branch-local validation or hardening findings when the slice changes runtime or user-visible behavior
 - a detailed `## User Test Summary` manual checklist when the slice changes user-visible behavior, runtime interaction, UX flow, prompts, startup behavior, voice behavior, or another operator-facing path
+- the updated canonical repo-level `UTS` artifact when the active workstream owns one and the slice makes that artifact relevant
+- the exported or refreshed desktop `User Test Summary.txt` copy when the slice is a relevant desktop user-facing path, or an explicit explanation of why that export was skipped
 - an explicit statement under `## User Test Summary` when no meaningful manual test exists and why
 - remaining drift or known gaps
 - whether the approved phase is complete
@@ -198,6 +204,12 @@ When that happens:
 - User Test Summary belongs to workstream-owned validation
 - incident patterns are generalized knowledge, not case history
 
+For desktop workstreams, response-level `## User Test Summary` output and the canonical repo-level `UTS` artifact are related but not interchangeable:
+
+- the response section is the current handoff copy
+- the workstream-owned repo artifact is the durable canonical record unless the workstream explicitly declares another repo path
+- the desktop `User Test Summary.txt` file is the required user-facing exported copy when relevant, but it is not the default canonical repo record
+
 When manual validation is relevant, `## User Test Summary` must be a real checklist rather than a recap.
 
 It should include:
@@ -207,6 +219,17 @@ It should include:
 - expected visible behavior
 - failure signs to watch for
 - branch-specific or slice-specific validation focus
+
+For runtime or user-visible implementation slices, green validators alone do not authorize automatic continuation.
+
+Codex must also:
+
+- run a deeper branch-local hardening pass against the implemented path
+- add or create the smallest reliable validation infrastructure when meaningful blind spots remain
+- preserve an evidence trail of the validators, harnesses, helper scripts, fixtures, runtime logs, traces, screenshots, or other validation artifacts actually used
+- simulate or execute the same practical workflow the user would test when feasible, and prefer the most live-style path available over reasoning alone
+- explicitly distinguish validator results, simulated reasoning, live-style execution results, and manual user-test handoff
+- make an explicit next-step call between continue, harden, or corrective fix
 
 ## Live-State Readiness Sanity Check
 

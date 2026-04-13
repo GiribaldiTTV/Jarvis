@@ -112,9 +112,11 @@ Use this layer for generalized debugging and validation lessons:
 
 ### Validation Guidance
 
-Use this when a task depends on manual validation handoff, User Test Summary structure, returned test-evidence digestion, or implementation-output requirements for a `## User Test Summary` section:
+Use this when a task depends on manual validation handoff, User Test Summary structure, returned test-evidence digestion, implementation-output requirements for a `## User Test Summary` section, or the canonical repo-level `UTS` artifact for an active workstream:
 
 - `Docs/user_test_summary_guidance.md`
+- the relevant canonical workstream doc under `Docs/workstreams/`
+- `Docs/development_rules.md` when the task also depends on implementation-time validation depth, supporting validation artifacts, required evidence trails, or hardening expectations
 
 ### Auxiliary Planning References
 
@@ -145,6 +147,12 @@ These are reference layers, not active workstream or roadmap owners.
   5. then continue lane work
 - a standalone docs-only post-release repair is an explicit exception path only when no plausible next workstream can yet be selected safely
 - when a slice changes user-visible behavior or another operator-facing path, do not treat `## User Test Summary` as a recap slot; route through `Docs/user_test_summary_guidance.md` and require a real manual checklist unless no meaningful manual test exists
+- when an active desktop workstream has a canonical repo-level `UTS` artifact, do not stop at response text; update that workstream-owned artifact as well unless an explicit exception from `Docs/user_test_summary_guidance.md` applies
+- for relevant desktop user-facing slices, also export or refresh `C:\Users\anden\OneDrive\Desktop\User Test Summary.txt` unless an explicit exception from `Docs/user_test_summary_guidance.md` applies
+- do not confuse the canonical workstream-owned repo artifact with the required desktop convenience export or with response-level handoff text
+- when a user-visible implementation slice is already validator-green, do not assume that alone is enough to continue; route through `Docs/development_rules.md` and require an explicit hardening or continuation judgment
+- when the implemented path can be exercised more directly than validators plus simulation allow, do not stop at those lighter layers; require the smallest reliable validation infrastructure and an evidence-backed live-style validation result before continuation
+- keep validator results, live-style execution results, simulated reasoning, and manual handoff as separate evidence layers rather than collapsing them into one summary
 
 ## Practical Prompt Rule
 

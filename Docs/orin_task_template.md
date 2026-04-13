@@ -74,6 +74,8 @@ Use the following as part of the task evidence set when relevant:
 - [trace output]
 - [manual test notes]
 - [prior verification artifacts]
+- [branch-local validation artifacts created during the pass]
+- [validator or harness outputs]
 
 If critical evidence is missing, say so explicitly.
 
@@ -253,6 +255,33 @@ That checklist must include:
 A recap-style summary is not sufficient when manual validation is relevant.
 
 If no meaningful manual test exists, the output must still include `## User Test Summary` and explain why manual validation is not materially relevant for that slice.
+
+If a canonical repo-level `UTS` artifact exists for the active desktop workstream, the execution pass must update that artifact as well rather than stopping at response text.
+
+By default, that artifact is the `## User Test Summary` section in the relevant canonical workstream doc unless that doc explicitly declares a different repo path.
+
+If the artifact is not updated, the final output must explain why the update was skipped.
+
+For relevant desktop slices, the execution pass must also export or refresh:
+
+- `C:\Users\anden\OneDrive\Desktop\User Test Summary.txt`
+
+unless the final output explicitly explains why the desktop export was not relevant or was intentionally skipped.
+
+Response-level `## User Test Summary` text alone is not sufficient when either the canonical repo artifact or the desktop export should exist.
+
+For runtime, UI, startup, prompt, voice, or other operator-facing implementation slices, validator results alone are not sufficient to justify immediate continuation.
+
+The execution pass must also:
+
+- run a deeper branch-local validation or hardening pass against the implemented path
+- add or create the smallest reliable validation infrastructure on-branch when meaningful blind spots remain
+- preserve evidence of the validators, harnesses, helper scripts, fixtures, logs, traces, screenshots, or other validation artifacts actually used
+- simulate or execute the workflow in the same practical way the user would test it when feasible, preferring the most live-style path available over reasoning alone
+- explicitly distinguish validator results, simulated reasoning, live-style execution results, and remaining manual user-test handoff
+- explicitly decide whether the next move is to continue implementation, pause for hardening, or fix a specific defect first
+
+If the current validation surface is too thin to support a continuation recommendation, the execution pass must strengthen that surface before recommending continuation.
 
 ## Done When
 
