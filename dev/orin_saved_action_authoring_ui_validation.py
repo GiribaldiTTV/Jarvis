@@ -85,6 +85,7 @@ def _make_window(source_path: Path):
     window._overlay_trace_enabled = False
     window._saved_action_source_path = source_path
     window._saved_action_create_dialog_factory = None
+    window._created_tasks_dialog_factory = None
     window._saved_action_edit_dialog_factory = None
     window._command_model = CommandOverlayModel(action_catalog=build_default_command_action_catalog(source_path))
     window._command_panel = _FakePanel()
@@ -121,6 +122,18 @@ class _AutoSubmitEditDialog(renderer_mod.SavedActionEditDialog):
     def exec(self):
         self._configure(self)
         self._handle_create_clicked()
+        return self.result()
+
+
+class _AutoSelectCreatedTasksDialog(renderer_mod.CreatedTasksDialog):
+    def __init__(self, parent, inventory_payload, configure, sink):
+        super().__init__(parent, inventory_payload)
+        self._configure = configure
+        self._sink = sink
+        self._sink.append(self)
+
+    def exec(self):
+        self._configure(self)
         return self.result()
 
 
@@ -161,7 +174,7 @@ def _test_create_trigger_is_present_and_clickable():
     _assert(fired == ["clicked"], "Create Custom Task trigger should be reachable and clickable")
 
 
-def _test_edit_trigger_is_present_and_clickable_for_saved_inventory_items():
+def _test_created_tasks_trigger_is_present_and_clickable():
     _app()
     panel = renderer_mod.CommandOverlayPanel()
     payload = {
@@ -197,39 +210,20 @@ def _test_edit_trigger_is_present_and_clickable_for_saved_inventory_items():
         },
     }
     fired = []
-    panel.edit_saved_action_requested.connect(lambda action_id: fired.append(action_id))
+    panel.created_tasks_requested.connect(lambda: fired.append("clicked"))
     panel.render_payload(payload)
-    edit_buttons = [
-        button
-        for button in panel.saved_inventory_items_frame.findChildren(QPushButton)
-        if button.text() == "Edit"
-    ]
 
-    _assert(edit_buttons, "saved inventory items should expose an Edit trigger")
-    edit_buttons[0].click()
+    panel.created_tasks_button.click()
     _assert(
-        fired == ["open_reports"],
-        "saved inventory edit trigger should be reachable and emit the selected saved-action id",
+        panel.created_tasks_button.text() == "Created Tasks",
+        "entry-state UI should expose a Created Tasks trigger",
     )
+    _assert(fired == ["clicked"], "Created Tasks trigger should be reachable and clickable")
 
 
-def _test_saved_inventory_edit_reachability_extends_beyond_six_items():
+def _test_entry_surface_keeps_inventory_details_out_of_landing_view():
     _app()
     panel = renderer_mod.CommandOverlayPanel()
-    items = []
-    for index in range(1, 9):
-        items.append(
-            {
-                "id": f"open_reports_{index}",
-                "title": f"Open Reports {index}",
-                "origin": "saved",
-                "origin_label": "Saved",
-                "target_kind": "folder",
-                "target": fr"C:\Reports\{index}",
-                "target_display": fr"C:\Reports\{index}",
-            }
-        )
-
     payload = {
         "visible": True,
         "phase": "entry",
@@ -248,33 +242,127 @@ def _test_saved_inventory_edit_reachability_extends_beyond_six_items():
             "guidance_text": 'Use "Open Saved Actions File" or "Open Saved Actions Folder" to inspect the source.',
             "path": r"C:\Users\Test\AppData\Local\Nexus Desktop AI\saved_actions.json",
             "path_display": r"C:\Users\Test\AppData\Local\Nexus Desktop AI\saved_actions.json",
-            "count": 8,
-            "items": items,
+            "count": 1,
+            "items": [
+                {
+                    "id": "open_reports",
+                    "title": "Open Reports",
+                    "origin": "saved",
+                    "origin_label": "Saved",
+                    "target_kind": "folder",
+                    "target": r"C:\Reports",
+                    "target_display": r"C:\Reports",
+                }
+            ],
         },
     }
-    fired = []
-    panel.edit_saved_action_requested.connect(lambda action_id: fired.append(action_id))
     panel.render_payload(payload)
 
-    edit_buttons = [
+    landing_edit_buttons = [
         button
-        for button in panel.saved_inventory_items_frame.findChildren(QPushButton)
+        for button in panel.findChildren(QPushButton)
         if button.text() == "Edit"
     ]
 
     _assert(
-        not panel.saved_inventory_items_scroll.isHidden(),
-        "saved inventory should keep its scroll container enabled when many saved actions are present",
+        not panel.saved_inventory_frame.isHidden(),
+        "entry-state landing surface should remain visible in entry phase",
+    )
+    _assert(
+        not landing_edit_buttons,
+        "entry-state landing surface should stay button-led and should not expose inline edit buttons",
+    )
+    _assert(
+        panel.saved_inventory_status.text() == "Choose an action to continue.",
+        "entry-state landing surface should keep its inline copy minimal",
+    )
+
+
+def _test_created_tasks_dialog_exposes_edit_trigger_for_saved_inventory_items():
+    _app()
+    inventory_payload = {
+        "visible": True,
+        "status_kind": "loaded",
+        "status_text": "1 saved action is available.",
+        "guidance_text": 'Use "Open Saved Actions File" or "Open Saved Actions Folder" to inspect the source.',
+        "path": r"C:\Users\Test\AppData\Local\Nexus Desktop AI\saved_actions.json",
+        "path_display": r"C:\Users\Test\AppData\Local\Nexus Desktop AI\saved_actions.json",
+        "count": 1,
+        "items": [
+            {
+                "id": "open_reports",
+                "title": "Open Reports",
+                "origin": "saved",
+                "origin_label": "Saved",
+                "target_kind": "folder",
+                "target": r"C:\Reports",
+                "target_display": r"C:\Reports",
+            }
+        ],
+    }
+    dialog = renderer_mod.CreatedTasksDialog(inventory_payload=inventory_payload)
+    edit_buttons = [
+        button
+        for button in dialog.items_frame.findChildren(QPushButton)
+        if button.text() == "Edit"
+    ]
+
+    _assert(edit_buttons, "Created Tasks dialog should expose edit triggers for saved actions")
+    edit_buttons[0].click()
+    _assert(
+        dialog.selected_action_id() == "open_reports",
+        "Created Tasks dialog should preserve stable edit-button mapping for the selected saved action",
+    )
+
+
+def _test_created_tasks_dialog_edit_reachability_extends_beyond_six_items():
+    _app()
+    items = []
+    for index in range(1, 9):
+        items.append(
+            {
+                "id": f"open_reports_{index}",
+                "title": f"Open Reports {index}",
+                "origin": "saved",
+                "origin_label": "Saved",
+                "target_kind": "folder",
+                "target": fr"C:\Reports\{index}",
+                "target_display": fr"C:\Reports\{index}",
+            }
+        )
+
+    dialog = renderer_mod.CreatedTasksDialog(
+        inventory_payload={
+            "visible": True,
+            "status_kind": "loaded",
+            "status_text": "8 saved actions are available.",
+            "guidance_text": 'Use "Open Saved Actions File" or "Open Saved Actions Folder" to inspect the source.',
+            "path": r"C:\Users\Test\AppData\Local\Nexus Desktop AI\saved_actions.json",
+            "path_display": r"C:\Users\Test\AppData\Local\Nexus Desktop AI\saved_actions.json",
+            "count": 8,
+            "items": items,
+        }
+    )
+
+    edit_buttons = [
+        button
+        for button in dialog.items_frame.findChildren(QPushButton)
+        if button.text() == "Edit"
+    ]
+
+    _assert(
+        not dialog.items_scroll.isHidden(),
+        "Created Tasks dialog should keep its scroll container enabled when many saved actions are present",
     )
     _assert(
         len(edit_buttons) == 8,
-        "saved inventory should expose edit reachability for every saved action, not just the first six",
+        "Created Tasks dialog should expose edit reachability for every saved action, not just the first six",
     )
 
     edit_buttons[-1].click()
     _assert(
-        fired == ["open_reports_8"],
-        "saved inventory should preserve stable edit-button mapping for items beyond the previous six-item cap",
+        dialog.selected_action_id() == "open_reports_8",
+        "Created Tasks dialog should preserve stable edit-button mapping for later saved actions",
     )
 
 
@@ -510,6 +598,78 @@ def _test_unsafe_source_blocks_before_dialog_open():
         )
 
 
+def _test_created_tasks_navigation_routes_into_edit_dialog():
+    with tempfile.TemporaryDirectory() as temp_dir:
+        source_path = Path(temp_dir) / "saved_actions.json"
+        source_path.write_text(
+            """{
+  "schema_version": 1,
+  "actions": [
+    {
+      "id": "open_reports",
+      "title": "Open Reports",
+      "target_kind": "folder",
+      "target": "C:\\\\Reports",
+      "aliases": ["show reports"]
+    }
+  ]
+}
+""",
+            encoding="utf-8",
+        )
+        window = _make_window(source_path)
+        created_tasks_dialogs = []
+        edit_dialogs = []
+        window._created_tasks_dialog_factory = (
+            lambda parent, inventory_payload: _AutoSelectCreatedTasksDialog(
+                None,
+                inventory_payload,
+                lambda dialog: (
+                    _assert(
+                        dialog.title_label.text() == "Created Tasks (1)",
+                        "Created Tasks dialog should reflect the current saved-action count",
+                    ),
+                    dialog._handle_edit_requested("open_reports"),
+                ),
+                created_tasks_dialogs,
+            )
+        )
+        window._saved_action_edit_dialog_factory = (
+            lambda parent, submit_handler, initial_draft: _AutoSubmitEditDialog(
+                None,
+                submit_handler,
+                initial_draft,
+                lambda dialog: (
+                    _assert(
+                        dialog.title_input.text() == "Open Reports",
+                        "Created Tasks navigation should route into the existing edit dialog",
+                    ),
+                    dialog.type_combo.setCurrentText("File"),
+                    dialog.title_input.setText("Open Weekly Reports"),
+                    dialog.aliases_input.setText("weekly reports"),
+                    dialog.target_input.setText(r"C:\Reports\weekly.txt"),
+                ),
+                edit_dialogs,
+            )
+        )
+
+        renderer_mod.DesktopRuntimeWindow.handle_created_tasks_requested(window)
+
+        inventory = window._command_model.view_payload().get("saved_action_inventory") or {}
+        items = inventory.get("items") or []
+
+        _assert(created_tasks_dialogs, "Created Tasks navigation should open the secondary Created Tasks dialog")
+        _assert(edit_dialogs, "Created Tasks navigation should route selected items into the existing edit dialog")
+        _assert(
+            items and items[0].get("title") == "Open Weekly Reports",
+            "Created Tasks navigation should preserve the existing edit/update behavior",
+        )
+        _assert(
+            renderer_mod.DesktopRuntimeWindow.overlay_needs_global_input_capture(window),
+            "Created Tasks navigation should still restore fallback input capture readiness afterward",
+        )
+
+
 def _test_successful_edit_flow_loads_existing_values_and_reloads_inventory():
     with tempfile.TemporaryDirectory() as temp_dir:
         source_path = Path(temp_dir) / "saved_actions.json"
@@ -655,8 +815,10 @@ def _test_unsafe_source_blocks_edit_before_dialog_open():
 def main():
     tests = [
         ("create trigger present and clickable", _test_create_trigger_is_present_and_clickable),
-        ("edit trigger present and clickable", _test_edit_trigger_is_present_and_clickable_for_saved_inventory_items),
-        ("edit reachability extends beyond six items", _test_saved_inventory_edit_reachability_extends_beyond_six_items),
+        ("Created Tasks trigger present and clickable", _test_created_tasks_trigger_is_present_and_clickable),
+        ("entry surface stays button-led", _test_entry_surface_keeps_inventory_details_out_of_landing_view),
+        ("Created Tasks dialog exposes edit trigger", _test_created_tasks_dialog_exposes_edit_trigger_for_saved_inventory_items),
+        ("Created Tasks dialog keeps edit reachability beyond six items", _test_created_tasks_dialog_edit_reachability_extends_beyond_six_items),
         ("type-first dialog maps supported kinds", _test_type_first_dialog_maps_all_supported_kinds),
         ("successful create flow reloads inventory", _test_successful_create_flow_reloads_inventory_immediately),
         ("invalid input shows dialog error without write", _test_invalid_input_shows_dialog_error_and_does_not_write),
@@ -664,6 +826,7 @@ def main():
         ("invalid application target shows dialog error without write", _test_invalid_application_target_shows_dialog_error_and_does_not_write),
         ("invalid file target shows dialog error without write", _test_invalid_file_target_shows_dialog_error_and_does_not_write),
         ("unsafe source blocks before dialog open", _test_unsafe_source_blocks_before_dialog_open),
+        ("Created Tasks navigation routes into edit dialog", _test_created_tasks_navigation_routes_into_edit_dialog),
         ("successful edit flow reloads inventory", _test_successful_edit_flow_loads_existing_values_and_reloads_inventory),
         ("invalid edit input shows dialog error without write", _test_invalid_edit_input_shows_dialog_error_and_does_not_write),
         ("unsafe source blocks edit before dialog open", _test_unsafe_source_blocks_edit_before_dialog_open),

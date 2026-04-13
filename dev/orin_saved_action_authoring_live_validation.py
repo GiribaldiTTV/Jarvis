@@ -120,6 +120,18 @@ class _AutoSubmitEditDialog(renderer_mod.SavedActionEditDialog):
         return self.result()
 
 
+class _AutoSelectCreatedTasksDialog(renderer_mod.CreatedTasksDialog):
+    def __init__(self, parent, inventory_payload, configure, sink):
+        super().__init__(parent, inventory_payload)
+        self._configure = configure
+        self._sink = sink
+        self._sink.append(self)
+
+    def exec(self):
+        self._configure(self)
+        return self.result()
+
+
 def _make_window(source_path: Path):
     window = renderer_mod.DesktopRuntimeWindow.__new__(renderer_mod.DesktopRuntimeWindow)
     window.screen_ref = SimpleNamespace(availableGeometry=lambda: _FakeRect())
@@ -128,6 +140,7 @@ def _make_window(source_path: Path):
     window._overlay_trace_enabled = False
     window._saved_action_source_path = source_path
     window._saved_action_create_dialog_factory = None
+    window._created_tasks_dialog_factory = None
     window._saved_action_edit_dialog_factory = None
     window._result_close_timer = SimpleNamespace(stop=lambda: None)
     window._overlay_input_capture_until = 0.0
@@ -163,6 +176,7 @@ def _run_create_edit_reopen_cycle(stamp: str):
         window = _make_window(source_path)
         create_dialogs = []
         edit_dialogs = []
+        created_tasks_dialogs = []
 
         window._saved_action_create_dialog_factory = (
             lambda parent, submit_handler: _AutoSubmitCreateDialog(
@@ -205,8 +219,17 @@ def _run_create_edit_reopen_cycle(stamp: str):
                 edit_dialogs,
             )
         )
-        renderer_mod.DesktopRuntimeWindow.handle_edit_saved_action_requested(window, "open_reports")
+        window._created_tasks_dialog_factory = (
+            lambda parent, inventory_payload: _AutoSelectCreatedTasksDialog(
+                None,
+                inventory_payload,
+                lambda dialog: dialog._handle_edit_requested("open_reports"),
+                created_tasks_dialogs,
+            )
+        )
+        renderer_mod.DesktopRuntimeWindow.handle_created_tasks_requested(window)
         edited_inventory = _inventory_items(window)
+        _assert(created_tasks_dialogs, "Created Tasks navigation should open before edit in the live-style harness")
         _assert(edit_dialogs, "edit flow should open the edit dialog")
         _assert(len(edited_inventory) == 1, "edit should preserve inventory count")
         _assert(edited_inventory[0].get("id") == "open_reports", "edit should preserve saved-action identity")
@@ -244,6 +267,7 @@ def _run_create_edit_reopen_cycle(stamp: str):
             "artifact_path": artifact_path,
             "event_markers": event_markers,
             "final_titles": [item.get("title") for item in _inventory_items(window)],
+            "created_tasks_navigation": True,
         }
 
 
@@ -347,6 +371,15 @@ def _run_large_inventory_late_edit(stamp: str):
 
         window = _make_window(source_path)
         edit_dialogs = []
+        created_tasks_dialogs = []
+        window._created_tasks_dialog_factory = (
+            lambda parent, inventory_payload: _AutoSelectCreatedTasksDialog(
+                None,
+                inventory_payload,
+                lambda dialog: dialog._handle_edit_requested("open_reports_8"),
+                created_tasks_dialogs,
+            )
+        )
         window._saved_action_edit_dialog_factory = (
             lambda parent, submit_handler, initial_draft: _AutoSubmitEditDialog(
                 None,
@@ -362,9 +395,10 @@ def _run_large_inventory_late_edit(stamp: str):
                 edit_dialogs,
             )
         )
-        renderer_mod.DesktopRuntimeWindow.handle_edit_saved_action_requested(window, "open_reports_8")
+        renderer_mod.DesktopRuntimeWindow.handle_created_tasks_requested(window)
         inventory = _inventory_items(window)
         late_item = next(item for item in inventory if item.get("id") == "open_reports_8")
+        _assert(created_tasks_dialogs, "large-inventory late edit should pass through the Created Tasks dialog")
         _assert(edit_dialogs, "late inventory items should still open the edit dialog")
         _assert(late_item.get("title") == "Open Reports Eight", "late inventory edit should update the intended item")
         artifact_path = _copy_artifact(source_path, stamp, "large_inventory_late_edit_saved_actions")

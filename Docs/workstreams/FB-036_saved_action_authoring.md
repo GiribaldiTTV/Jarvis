@@ -31,6 +31,8 @@ This workstream exists so users can manage non-standard custom tasks safely thro
 
 - the branch already includes safe saved-action persistence and explicit catalog reload after writes
 - the branch already includes a type-first create flow and a bounded edit flow
+- the entry-state NCP opening now stays lightweight and button-led, with `Create Custom Task` and `Created Tasks` as the primary authoring entry points
+- detailed saved-action inventory viewing and edit reachability now live in the secondary `Created Tasks` window instead of being expanded inline on the initial opening surface
 - exact-match resolution remains unchanged
 - the overlay phase machine remains bounded to `entry` -> `choose` -> `confirm` -> `result`
 - current supported saved-action target kinds remain `app`, `folder`, `file`, and `url`
@@ -63,6 +65,7 @@ This workstream exists so users can manage non-standard custom tasks safely thro
 3. added the bounded edit flow with identity-preserving updates
 4. tightened target validation for `app`, `folder`, and `file`
 5. expanded saved-action inventory reachability so edit is no longer capped to the first six items
+6. pivoted the initial NCP authoring entry into a lightweight button-led landing surface with a secondary `Created Tasks` window
 
 ## Idea Impact Analysis And Route Adjustment
 
@@ -82,11 +85,9 @@ This workstream exists so users can manage non-standard custom tasks safely thro
 ## Planned Resequencing
 
 1. preserve and stabilize the current branch-local validation and support assets so the existing create/edit baseline remains provable and reusable
-2. pivot the next user-facing FB-036 slice toward a lightweight NCP landing surface with minimal top-level buttons instead of expanding dense initial entry-state descriptions
-3. add a secondary `Created Tasks` / task-management window so existing-task detail and actions move behind an intentional button click rather than living on the initial opening surface
-4. improve field-level help inside the create/edit windows, especially around `Alias`, `Task type`, and `Target`
-5. add browse-assisted target selection for the existing `Application`, `Folder`, and `File` task types without changing persisted action kinds
-6. evaluate focused create/edit window visual polish after the routing, explanatory copy, and target-picking flow are settled
+2. improve field-level help inside the create/edit windows, especially around `Alias`, `Task type`, and `Target`
+3. add browse-assisted target selection for the existing `Application`, `Folder`, and `File` task types without changing persisted action kinds
+4. evaluate focused create/edit window visual polish after the routing, explanatory copy, and target-picking flow are settled
 
 ## Validation And Support Artifact History
 
@@ -162,7 +163,10 @@ Confirm that the full FB-036 branch behavior is stable for real desktop use:
 
 ### Scenario / Entry Point
 
-Open the desktop overlay on `feature/fb-036-saved-action-authoring` with a healthy `%LOCALAPPDATA%\Nexus Desktop AI\saved_actions.json` source and use the entry-state inventory as the only authoring entry point.
+Open the desktop overlay on `feature/fb-036-saved-action-authoring` with a healthy `%LOCALAPPDATA%\Nexus Desktop AI\saved_actions.json` source and use the lightweight button-led entry surface as the authoring landing path:
+
+- `Create Custom Task`
+- `Created Tasks`
 
 ### Setup / Prerequisites
 
@@ -177,8 +181,8 @@ Open the desktop overlay on `feature/fb-036-saved-action-authoring` with a healt
 
 1. Setup: launch the desktop runtime and open the overlay in its normal typed-first way.
 Action: inspect the entry-state panel before typing anything.
-Expected Behavior: the overlay opens in the normal entry baseline, the saved-action inventory is visible, and `Create Custom Task` is available without changing the overlay phase model.
-Failure Conditions / Edge Cases: the overlay skips entry state, the create trigger is missing, the inventory panel is absent, or outside text receives stray typing.
+Expected Behavior: the overlay opens in the normal entry baseline, the initial landing surface stays lightweight, `Create Custom Task` and `Created Tasks` are both visible, and no inline saved-action detail or `Edit` buttons overload the first surface.
+Failure Conditions / Edge Cases: the overlay skips entry state, either top-level button is missing, inline inventory/edit detail still clutters the landing surface, or outside text receives stray typing.
 
 2. Setup: stay in entry state with a healthy saved-action source.
 Action: click `Create Custom Task`, choose `Folder`, enter `Title = Open Reports`, `Aliases = show reports`, `Target = C:\Reports`, then save.
@@ -206,13 +210,13 @@ use another saved action's existing title or alias
 Expected Behavior: the dialog stays open, collision feedback is clear, and no write occurs.
 Failure Conditions / Edge Cases: a colliding action is saved, an existing record is overwritten, or inventory count changes.
 
-6. Setup: with `Open Reports` still present in inventory.
-Action: click `Edit`, verify the dialog preloads current values, change the title to `Open Weekly Reports`, change the type to `File`, set the target to `C:\Reports\weekly.txt`, and save.
-Expected Behavior: the dialog preloads the existing title, aliases, type, and target; save closes it; success feedback appears; the same saved action updates in place; and the inventory refreshes immediately without creating a duplicate.
-Failure Conditions / Edge Cases: blank preload, duplicate item creation, wrong action updated, missing feedback, or inventory refresh only after restart.
+6. Setup: with `Open Reports` already created successfully.
+Action: click `Created Tasks`, confirm the secondary window opens, click `Edit` on `Open Reports`, verify the dialog preloads current values, change the title to `Open Weekly Reports`, change the type to `File`, set the target to `C:\Reports\weekly.txt`, and save.
+Expected Behavior: the landing surface stays lightweight, the secondary `Created Tasks` window owns the saved-action detail, the edit dialog preloads the existing title, aliases, type, and target; save closes it; success feedback appears; the same saved action updates in place; and the refreshed values are visible without creating a duplicate.
+Failure Conditions / Edge Cases: `Created Tasks` does not open, the wrong item opens for editing, blank preload, duplicate item creation, wrong action updated, missing feedback, or refresh only after restart.
 
 7. Setup: edit an existing saved action again.
-Action: try invalid or colliding edits:
+Action: go back through `Created Tasks`, then try invalid or colliding edits:
 change the target to `Reports\Weekly`
 change the title to a built-in title
 change the title to another saved action's title
@@ -220,27 +224,30 @@ Expected Behavior: the dialog stays open, clear errors appear, the original reco
 Failure Conditions / Edge Cases: invalid edits save, collisions overwrite another action, or the original action mutates despite the error.
 
 8. Setup: prepare at least eight valid saved actions and reopen the overlay.
-Action: scroll the inventory, find the seventh or eighth saved action, click `Edit`, change it, and save.
-Expected Behavior: later items remain reachable, scrolling stays stable, the correct later item opens for editing, and the updated later item refreshes immediately after save.
-Failure Conditions / Edge Cases: only the first six items remain editable, scroll behavior breaks layout, later `Edit` buttons open the wrong item, or later edits do not refresh correctly.
+Action: click `Created Tasks`, scroll the inventory there, find the seventh or eighth saved action, click `Edit`, change it, and save.
+Expected Behavior: later items remain reachable through the secondary window, scrolling stays stable, the correct later item opens for editing, and the updated later item refreshes immediately after save.
+Failure Conditions / Edge Cases: only the first six items remain editable, `Created Tasks` does not expose later rows cleanly, scroll behavior breaks layout, later `Edit` buttons open the wrong item, or later edits do not refresh correctly.
 
 9. Setup: after one or more successful creates or edits.
-Action: close the overlay, reopen it, and inspect the inventory again.
+Action: close the overlay, reopen it, click `Created Tasks`, and inspect the inventory again.
 Expected Behavior: the newly created or edited saved actions are still present with their latest values, showing that the change persisted and reload behavior was not only in-memory.
-Failure Conditions / Edge Cases: changes disappear after reopen, stale values return, or the overlay reopens with stale typed request / confirm / result state.
+Failure Conditions / Edge Cases: changes disappear after reopen, stale values return, `Created Tasks` no longer opens cleanly, or the overlay reopens with stale typed request / confirm / result state.
 
 10. Setup: after a successful create and a successful edit, keep the same session open.
-Action: create or edit one more valid saved action, close the overlay, reopen it again, and confirm the full inventory state.
+Action: create or edit one more valid saved action, close the overlay, reopen it again, open `Created Tasks`, and confirm the full inventory state.
 Expected Behavior: repeated authoring operations remain stable, inventory count stays correct, updated values persist, and no stale entry/confirm/result state leaks across reopen cycles.
-Failure Conditions / Edge Cases: repeated operations create duplicates, later saves disappear on reopen, stale overlay state returns, or entry-state feedback becomes inconsistent after multiple cycles.
+Failure Conditions / Edge Cases: repeated operations create duplicates, later saves disappear on reopen, stale overlay state returns, `Created Tasks` loses sync with the saved-action catalog, or entry-state feedback becomes inconsistent after multiple cycles.
 
 11. Setup: back up `%LOCALAPPDATA%\Nexus Desktop AI\saved_actions.json`, then intentionally corrupt it with invalid JSON.
-Action: reopen the overlay and try `Create Custom Task`; if any saved-action rows still show `Edit`, try that too.
-Expected Behavior: authoring is blocked cleanly with repair-oriented messaging, no dialog proceeds into a real save path, and the source is not silently rewritten. In a fail-closed invalid-source state, edit affordances may disappear entirely from the inventory; that absence is acceptable as long as the UI does not expose a live edit path.
+Action: reopen the overlay, try `Create Custom Task`, then open `Created Tasks`; if any saved-action rows still show `Edit`, try that too.
+Expected Behavior: authoring is blocked cleanly with repair-oriented messaging, no dialog proceeds into a real save path, and the source is not silently rewritten. In a fail-closed invalid-source state, `Created Tasks` may still open for status visibility while edit affordances disappear entirely; that absence is acceptable as long as the UI does not expose a live edit path.
 Failure Conditions / Edge Cases: the dialog opens anyway, the source is auto-repaired silently, inventory becomes inconsistent, a live edit path is still reachable against the broken source, or outside text/input-capture behavior regresses while blocked.
 
 ### Branch / Slice-Specific Validation Focus
 
+- the entry-state surface remains lightweight and button-led rather than becoming a dense inline management surface
+- `Create Custom Task` and `Created Tasks` remain the top-level authoring entry points on the initial NCP opening
+- the secondary `Created Tasks` window owns saved-action detail visibility and edit reachability
 - create and edit both route through the shared validation-before-write foundation
 - `app`, `folder`, `file`, and `url` validation all fail closed before disk write
 - successful saves reload the shared catalog immediately and refresh inventory without restart

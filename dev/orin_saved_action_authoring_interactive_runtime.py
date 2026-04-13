@@ -3,6 +3,8 @@ import datetime
 import sys
 from pathlib import Path
 
+from PySide6.QtCore import QTimer
+
 CURRENT_DIR = Path(__file__).resolve().parent
 ROOT_DIR = CURRENT_DIR.parent
 
@@ -10,6 +12,12 @@ if str(ROOT_DIR) not in sys.path:
     sys.path.insert(0, str(ROOT_DIR))
 
 import desktop.orin_desktop_main as runtime_main
+
+
+AUTO_OPEN_OVERLAY = False
+AUTO_OPEN_ATTEMPTS = 6
+AUTO_OPEN_DELAY_MS = 2200
+AUTO_OPEN_RETRY_MS = 700
 
 
 def _build_logger(log_path: Path):
@@ -27,7 +35,54 @@ def _build_logger(log_path: Path):
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--runtime-log", required=True)
+    parser.add_argument("--auto-open-overlay", action="store_true")
     args = parser.parse_args(argv)
+
+    global AUTO_OPEN_OVERLAY
+    AUTO_OPEN_OVERLAY = bool(args.auto_open_overlay)
+
+    if AUTO_OPEN_OVERLAY:
+        base_window_class = runtime_main.DesktopRuntimeWindow
+
+        class InteractiveValidationDesktopRuntimeWindow(base_window_class):
+            def __init__(self, *window_args, **window_kwargs):
+                super().__init__(*window_args, **window_kwargs)
+                self._interactive_auto_open_attempt = 0
+
+                def _auto_open_overlay():
+                    if getattr(self, "_is_shutting_down", False):
+                        return
+                    if self.is_command_overlay_visible():
+                        runtime_main.runtime_milestone(
+                            "RENDERER_MAIN|INTERACTIVE_VALIDATION_AUTO_OPEN_SKIPPED|reason=already_visible"
+                        )
+                        return
+                    self._interactive_auto_open_attempt += 1
+                    try:
+                        runtime_main.runtime_milestone(
+                            "RENDERER_MAIN|INTERACTIVE_VALIDATION_AUTO_OPEN_ATTEMPT"
+                            f"|count={self._interactive_auto_open_attempt}"
+                        )
+                        self.open_command_overlay()
+                        if self.is_command_overlay_visible():
+                            runtime_main.runtime_milestone("RENDERER_MAIN|INTERACTIVE_VALIDATION_AUTO_OPENED")
+                            return
+                        if self._interactive_auto_open_attempt < AUTO_OPEN_ATTEMPTS:
+                            QTimer.singleShot(AUTO_OPEN_RETRY_MS, _auto_open_overlay)
+                            return
+                        runtime_main.runtime_milestone(
+                            "RENDERER_MAIN|INTERACTIVE_VALIDATION_AUTO_OPEN_GAVE_UP|reason=overlay_not_visible"
+                        )
+                    except Exception as exc:
+                        if self._interactive_auto_open_attempt < AUTO_OPEN_ATTEMPTS:
+                            QTimer.singleShot(AUTO_OPEN_RETRY_MS, _auto_open_overlay)
+                        runtime_main.runtime_milestone(
+                            f"RENDERER_MAIN|INTERACTIVE_VALIDATION_AUTO_OPEN_FAILED|reason={exc}"
+                        )
+
+                QTimer.singleShot(AUTO_OPEN_DELAY_MS, _auto_open_overlay)
+
+        runtime_main.DesktopRuntimeWindow = InteractiveValidationDesktopRuntimeWindow
 
     runtime_log_path = Path(args.runtime_log).resolve()
     runtime_main.RUNTIME_LOG_FILE = str(runtime_log_path)

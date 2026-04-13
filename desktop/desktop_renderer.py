@@ -71,6 +71,69 @@ SW_HIDE = 0
 ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
+def _clear_layout_widgets(layout):
+    while layout.count():
+        item = layout.takeAt(0)
+        widget = item.widget()
+        child_layout = item.layout()
+        if widget is not None:
+            widget.deleteLater()
+        elif child_layout is not None:
+            _clear_layout_widgets(child_layout)
+
+
+def _build_saved_inventory_item_text(item: dict) -> str:
+    title = item.get("title", "")
+    origin_label = item.get("origin_label", "Saved")
+    target_kind = item.get("target_kind", "")
+    target_display = item.get("target_display") or item.get("target", "")
+    item_text = title
+    metadata_bits = [origin_label]
+    if target_kind:
+        metadata_bits.append(target_kind)
+    if metadata_bits:
+        item_text += f"\n{' • '.join(metadata_bits)}"
+    if target_display:
+        item_text += f"\n{target_display}"
+    return item_text
+
+
+def _populate_saved_inventory_item_layout(
+    layout,
+    parent,
+    items: list[dict],
+    edit_handler,
+):
+    _clear_layout_widgets(layout)
+    for item in items:
+        item_id = str(item.get("id") or "").strip()
+        title = item.get("title", "")
+
+        item_frame = QFrame(parent)
+        item_frame.setProperty("inventoryRole", "itemFrame")
+        item_layout = QHBoxLayout(item_frame)
+        item_layout.setContentsMargins(0, 0, 0, 0)
+        item_layout.setSpacing(0)
+
+        label = QLabel(_build_saved_inventory_item_text(item), item_frame)
+        label.setProperty("inventoryRole", "itemLabel")
+        label.setWordWrap(True)
+        label.setToolTip(item.get("target", ""))
+        item_layout.addWidget(label, 1)
+
+        if item_id:
+            edit_button = QPushButton("Edit", item_frame)
+            edit_button.setProperty("inventoryRole", "editButton")
+            edit_button.setToolTip(f'Edit "{title}"')
+            edit_button.clicked.connect(
+                lambda _checked=False, action_id=item_id: edit_handler(action_id)
+            )
+            item_layout.addWidget(edit_button, 0, Qt.AlignTop)
+
+        layout.addWidget(item_frame)
+    layout.addStretch(1)
+
+
 class CommandInputLineEdit(QLineEdit):
     submit_requested = Signal()
     escape_requested = Signal()
@@ -397,6 +460,174 @@ class SavedActionEditDialog(SavedActionCreateDialog):
         )
 
 
+class CreatedTasksDialog(QDialog):
+    def __init__(self, parent=None, inventory_payload: dict | None = None):
+        super().__init__(parent)
+        self._selected_action_id = ""
+        self.setModal(True)
+        self.setWindowTitle("Created Tasks")
+        self.setObjectName("savedActionCreatedTasksDialog")
+        self.setMinimumWidth(500)
+
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(20, 18, 20, 18)
+        layout.setSpacing(10)
+
+        self.title_label = QLabel("Created Tasks", self)
+        self.title_label.setObjectName("savedActionCreatedTasksTitle")
+        layout.addWidget(self.title_label)
+
+        self.hint_label = QLabel(
+            "Review your existing custom tasks here, then choose Edit when you want the detailed task window.",
+            self,
+        )
+        self.hint_label.setObjectName("savedActionCreatedTasksHint")
+        self.hint_label.setWordWrap(True)
+        layout.addWidget(self.hint_label)
+
+        self.status_label = QLabel("", self)
+        self.status_label.setObjectName("savedActionCreatedTasksStatus")
+        self.status_label.setWordWrap(True)
+        layout.addWidget(self.status_label)
+
+        self.source_label = QLabel("", self)
+        self.source_label.setObjectName("savedActionCreatedTasksSource")
+        self.source_label.setWordWrap(True)
+        layout.addWidget(self.source_label)
+
+        self.guidance_label = QLabel("", self)
+        self.guidance_label.setObjectName("savedActionCreatedTasksGuidance")
+        self.guidance_label.setWordWrap(True)
+        layout.addWidget(self.guidance_label)
+
+        self.items_frame = QFrame(self)
+        self.items_frame.setObjectName("savedActionCreatedTasksItems")
+        self.items_layout = QVBoxLayout(self.items_frame)
+        self.items_layout.setContentsMargins(0, 2, 0, 0)
+        self.items_layout.setSpacing(8)
+
+        self.items_scroll = QScrollArea(self)
+        self.items_scroll.setObjectName("savedActionCreatedTasksItemsScroll")
+        self.items_scroll.setFrameShape(QFrame.NoFrame)
+        self.items_scroll.setWidgetResizable(True)
+        self.items_scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.items_scroll.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+        self.items_scroll.setFocusPolicy(Qt.NoFocus)
+        self.items_scroll.setMaximumHeight(280)
+        self.items_scroll.setWidget(self.items_frame)
+        layout.addWidget(self.items_scroll)
+
+        button_row = QHBoxLayout()
+        button_row.setContentsMargins(0, 6, 0, 0)
+        button_row.addStretch(1)
+
+        self.close_button = QPushButton("Close", self)
+        self.close_button.setObjectName("savedActionCreatedTasksClose")
+        self.close_button.clicked.connect(self.reject)
+        button_row.addWidget(self.close_button)
+
+        layout.addLayout(button_row)
+
+        self.setStyleSheet(
+            """
+            #savedActionCreatedTasksDialog {
+                background: rgba(4, 16, 28, 244);
+            }
+            #savedActionCreatedTasksTitle {
+                color: rgba(238, 250, 255, 0.96);
+                font-size: 28px;
+                font-weight: 600;
+            }
+            #savedActionCreatedTasksHint {
+                color: rgba(172, 215, 235, 0.82);
+                font-size: 14px;
+            }
+            #savedActionCreatedTasksStatus {
+                color: rgba(236, 247, 255, 0.92);
+                font-size: 13px;
+            }
+            #savedActionCreatedTasksStatus[statusKind="invalid_source"], #savedActionCreatedTasksStatus[statusKind="invalid_saved_actions"], #savedActionCreatedTasksStatus[statusKind="missing"] {
+                color: rgba(255, 189, 176, 0.96);
+            }
+            #savedActionCreatedTasksSource {
+                color: rgba(172, 215, 235, 0.80);
+                font-size: 12px;
+            }
+            #savedActionCreatedTasksGuidance {
+                color: rgba(166, 247, 195, 0.88);
+                font-size: 12px;
+            }
+            QFrame[inventoryRole="itemFrame"] {
+                border-radius: 14px;
+                border: 1px solid rgba(118, 226, 255, 0.16);
+                background: rgba(6, 18, 30, 196);
+            }
+            QLabel[inventoryRole="itemLabel"] {
+                padding: 10px 12px;
+                color: rgba(234, 246, 255, 0.94);
+                font-size: 12px;
+            }
+            QPushButton[inventoryRole="editButton"], #savedActionCreatedTasksClose {
+                min-height: 32px;
+                padding: 0 12px;
+                border-radius: 10px;
+                border: 1px solid rgba(118, 226, 255, 0.18);
+                background: rgba(8, 24, 38, 220);
+                color: rgba(238, 248, 255, 0.96);
+                font-size: 12px;
+                font-weight: 600;
+            }
+            QPushButton[inventoryRole="editButton"] {
+                margin: 8px 10px 8px 0;
+            }
+            QPushButton[inventoryRole="editButton"]:hover, #savedActionCreatedTasksClose:hover {
+                border: 1px solid rgba(118, 226, 255, 0.36);
+            }
+            #savedActionCreatedTasksItemsScroll {
+                border: none;
+                background: transparent;
+            }
+            """
+        )
+
+        self.refresh_inventory(inventory_payload or {})
+
+    def selected_action_id(self) -> str:
+        return self._selected_action_id
+
+    def _handle_edit_requested(self, action_id: str):
+        self._selected_action_id = action_id
+        self.accept()
+
+    def refresh_inventory(self, inventory_payload: dict):
+        inventory_payload = inventory_payload or {}
+        item_count = int(inventory_payload.get("count", 0))
+        self.title_label.setText(
+            f"Created Tasks ({item_count})" if item_count else "Created Tasks"
+        )
+
+        status_kind = inventory_payload.get("status_kind", "hidden")
+        self.status_label.setProperty("statusKind", status_kind)
+        self.status_label.style().unpolish(self.status_label)
+        self.status_label.style().polish(self.status_label)
+        self.status_label.setText(inventory_payload.get("status_text", ""))
+
+        source_path = inventory_payload.get("path", "")
+        source_display = inventory_payload.get("path_display") or source_path
+        self.source_label.setText(f"Source: {source_display}" if source_display else "")
+        self.source_label.setToolTip(source_path)
+        self.guidance_label.setText(inventory_payload.get("guidance_text", ""))
+
+        items = inventory_payload.get("items") or []
+        _populate_saved_inventory_item_layout(
+            self.items_layout,
+            self.items_frame,
+            items,
+            self._handle_edit_requested,
+        )
+        self.items_scroll.setVisible(bool(items))
+
+
 class CommandOverlayPanel(QWidget):
     submit_requested = Signal()
     escape_requested = Signal()
@@ -406,6 +637,7 @@ class CommandOverlayPanel(QWidget):
     input_focus_lost = Signal()
     ambiguous_match_selected = Signal(int)
     create_custom_task_requested = Signal()
+    created_tasks_requested = Signal()
     edit_saved_action_requested = Signal(str)
 
     def __init__(self):
@@ -480,48 +712,32 @@ class CommandOverlayPanel(QWidget):
         saved_inventory_layout.setContentsMargins(18, 16, 18, 14)
         saved_inventory_layout.setSpacing(8)
 
-        self.saved_inventory_title = QLabel("Saved action inventory", self.saved_inventory_frame)
+        self.saved_inventory_title = QLabel("Task actions", self.saved_inventory_frame)
         self.saved_inventory_title.setObjectName("savedActionInventoryTitle")
         saved_inventory_layout.addWidget(self.saved_inventory_title)
 
-        self.saved_inventory_status = QLabel("", self.saved_inventory_frame)
+        self.saved_inventory_status = QLabel("Choose an action to continue.", self.saved_inventory_frame)
         self.saved_inventory_status.setObjectName("savedActionInventoryStatus")
         self.saved_inventory_status.setWordWrap(True)
         saved_inventory_layout.addWidget(self.saved_inventory_status)
 
-        self.saved_inventory_source = QLabel("", self.saved_inventory_frame)
-        self.saved_inventory_source.setObjectName("savedActionInventorySource")
-        self.saved_inventory_source.setWordWrap(True)
-        saved_inventory_layout.addWidget(self.saved_inventory_source)
-
-        self.saved_inventory_guidance = QLabel("", self.saved_inventory_frame)
-        self.saved_inventory_guidance.setObjectName("savedActionInventoryGuidance")
-        self.saved_inventory_guidance.setWordWrap(True)
-        saved_inventory_layout.addWidget(self.saved_inventory_guidance)
-
         self.create_custom_task_button = QPushButton("Create Custom Task", self.saved_inventory_frame)
         self.create_custom_task_button.setObjectName("savedActionCreateButton")
+        self.create_custom_task_button.setProperty("entryAction", "true")
         self.create_custom_task_button.clicked.connect(
             lambda _checked=False: self.create_custom_task_requested.emit()
         )
         saved_inventory_layout.addWidget(self.create_custom_task_button)
 
-        self.saved_inventory_items_frame = QFrame(self.saved_inventory_frame)
-        self.saved_inventory_items_frame.setObjectName("savedActionInventoryItems")
-        self.saved_inventory_items_layout = QVBoxLayout(self.saved_inventory_items_frame)
-        self.saved_inventory_items_layout.setContentsMargins(0, 2, 0, 0)
-        self.saved_inventory_items_layout.setSpacing(8)
-        self.saved_inventory_items_scroll = QScrollArea(self.saved_inventory_frame)
-        self.saved_inventory_items_scroll.setObjectName("savedActionInventoryItemsScroll")
-        self.saved_inventory_items_scroll.setFrameShape(QFrame.NoFrame)
-        self.saved_inventory_items_scroll.setWidgetResizable(True)
-        self.saved_inventory_items_scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        self.saved_inventory_items_scroll.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
-        self.saved_inventory_items_scroll.setFocusPolicy(Qt.NoFocus)
-        self.saved_inventory_items_scroll.setMaximumHeight(244)
-        self.saved_inventory_items_scroll.setWidget(self.saved_inventory_items_frame)
-        saved_inventory_layout.addWidget(self.saved_inventory_items_scroll)
-        self.saved_inventory_items_scroll.hide()
+        self.created_tasks_button = QPushButton("Created Tasks", self.saved_inventory_frame)
+        self.created_tasks_button.setObjectName("savedActionCreatedTasksButton")
+        self.created_tasks_button.setProperty("entryAction", "true")
+        self.created_tasks_button.clicked.connect(
+            lambda _checked=False: self.created_tasks_requested.emit()
+        )
+        saved_inventory_layout.addWidget(self.created_tasks_button)
+
+        saved_inventory_layout.addStretch(1)
 
         layout.addWidget(self.saved_inventory_frame)
         self.saved_inventory_frame.hide()
@@ -669,21 +885,10 @@ class CommandOverlayPanel(QWidget):
                 letter-spacing: 0.10em;
             }
             #savedActionInventoryStatus {
-                color: rgba(236, 247, 255, 0.92);
+                color: rgba(172, 215, 235, 0.82);
                 font-size: 13px;
             }
-            #savedActionInventoryStatus[statusKind="invalid_source"], #savedActionInventoryStatus[statusKind="invalid_saved_actions"], #savedActionInventoryStatus[statusKind="missing"] {
-                color: rgba(255, 189, 176, 0.96);
-            }
-            #savedActionInventorySource {
-                color: rgba(172, 215, 235, 0.80);
-                font-size: 12px;
-            }
-            #savedActionInventoryGuidance {
-                color: rgba(166, 247, 195, 0.88);
-                font-size: 12px;
-            }
-            #savedActionCreateButton {
+            QPushButton[entryAction="true"] {
                 min-height: 34px;
                 margin-top: 4px;
                 padding: 0 12px;
@@ -695,37 +900,9 @@ class CommandOverlayPanel(QWidget):
                 font-size: 13px;
                 font-weight: 600;
             }
-            #savedActionCreateButton:hover {
+            QPushButton[entryAction="true"]:hover {
                 border: 1px solid rgba(118, 226, 255, 0.36);
                 background: rgba(8, 24, 38, 220);
-            }
-            QFrame[inventoryRole="itemFrame"] {
-                border-radius: 14px;
-                border: 1px solid rgba(118, 226, 255, 0.16);
-                background: rgba(6, 18, 30, 196);
-            }
-            QLabel[inventoryRole="itemLabel"] {
-                padding: 10px 12px;
-                color: rgba(234, 246, 255, 0.94);
-                font-size: 12px;
-            }
-            QPushButton[inventoryRole="editButton"] {
-                min-height: 30px;
-                margin: 8px 10px 8px 0;
-                padding: 0 12px;
-                border-radius: 10px;
-                border: 1px solid rgba(118, 226, 255, 0.18);
-                background: rgba(8, 24, 38, 220);
-                color: rgba(238, 248, 255, 0.96);
-                font-size: 12px;
-                font-weight: 600;
-            }
-            QPushButton[inventoryRole="editButton"]:hover {
-                border: 1px solid rgba(118, 226, 255, 0.36);
-            }
-            #savedActionInventoryItemsScroll {
-                border: none;
-                background: transparent;
             }
             #commandAmbiguous {
                 min-height: 20px;
@@ -890,54 +1067,6 @@ class CommandOverlayPanel(QWidget):
             self.ambiguous_choices_layout.addWidget(button)
         self.ambiguous_choices_frame.setVisible(bool(matches))
 
-    def _clear_saved_inventory_items(self):
-        while self.saved_inventory_items_layout.count():
-            item = self.saved_inventory_items_layout.takeAt(0)
-            widget = item.widget()
-            if widget is not None:
-                widget.deleteLater()
-
-    def _populate_saved_inventory_items(self, items: list[dict]):
-        self._clear_saved_inventory_items()
-        for item in items:
-            item_id = str(item.get("id") or "").strip()
-            title = item.get("title", "")
-            origin_label = item.get("origin_label", "Saved")
-            target_kind = item.get("target_kind", "")
-            target_display = item.get("target_display") or item.get("target", "")
-            item_text = title
-            metadata_bits = [origin_label]
-            if target_kind:
-                metadata_bits.append(target_kind)
-            if metadata_bits:
-                item_text += f"\n{' • '.join(metadata_bits)}"
-            if target_display:
-                item_text += f"\n{target_display}"
-
-            item_frame = QFrame(self.saved_inventory_items_frame)
-            item_frame.setProperty("inventoryRole", "itemFrame")
-            item_layout = QHBoxLayout(item_frame)
-            item_layout.setContentsMargins(0, 0, 0, 0)
-            item_layout.setSpacing(0)
-
-            label = QLabel(item_text, item_frame)
-            label.setProperty("inventoryRole", "itemLabel")
-            label.setWordWrap(True)
-            label.setToolTip(item.get("target", ""))
-            item_layout.addWidget(label, 1)
-
-            if item_id:
-                edit_button = QPushButton("Edit", item_frame)
-                edit_button.setProperty("inventoryRole", "editButton")
-                edit_button.setToolTip(f'Edit "{title}"')
-                edit_button.clicked.connect(
-                    lambda _checked=False, action_id=item_id: self.edit_saved_action_requested.emit(action_id)
-                )
-                item_layout.addWidget(edit_button, 0, Qt.AlignTop)
-
-            self.saved_inventory_items_layout.addWidget(item_frame)
-        self.saved_inventory_items_layout.addStretch(1)
-
     def render_payload(self, payload: dict):
         payload = payload or {}
         phase = payload.get("phase", "hidden")
@@ -969,7 +1098,7 @@ class CommandOverlayPanel(QWidget):
         elif phase == "result":
             self.hint_label.setText("Returning to passive desktop mode.")
         else:
-            self.hint_label.setText("Type a built-in or saved action, then press Enter.")
+            self.hint_label.setText("Type a built-in or saved action, or use the buttons below.")
 
         status_kind = payload.get("status_kind", "idle")
         self.status_label.setProperty("statusKind", status_kind)
@@ -988,33 +1117,14 @@ class CommandOverlayPanel(QWidget):
         self.saved_inventory_frame.setVisible(show_inventory)
         if show_inventory:
             self.create_custom_task_button.setEnabled(True)
-            item_count = int(saved_action_inventory.get("count", 0))
-            self.saved_inventory_title.setText(
-                f"Saved action inventory ({item_count})"
-                if item_count
-                else "Saved action inventory"
-            )
-            inventory_status_kind = saved_action_inventory.get("status_kind", "hidden")
-            self.saved_inventory_status.setProperty("statusKind", inventory_status_kind)
+            self.created_tasks_button.setEnabled(True)
+            self.saved_inventory_title.setText("Task actions")
+            self.saved_inventory_status.setProperty("statusKind", "idle")
             self.saved_inventory_status.style().unpolish(self.saved_inventory_status)
             self.saved_inventory_status.style().polish(self.saved_inventory_status)
-            self.saved_inventory_status.setText(saved_action_inventory.get("status_text", ""))
-
-            source_path = saved_action_inventory.get("path", "")
-            source_display = saved_action_inventory.get("path_display") or source_path
-            self.saved_inventory_source.setText(f"Source: {source_display}" if source_display else "")
-            self.saved_inventory_source.setToolTip(source_path)
-            self.saved_inventory_guidance.setText(saved_action_inventory.get("guidance_text", ""))
-            inventory_items = saved_action_inventory.get("items") or []
-            self._populate_saved_inventory_items(inventory_items)
-            self.saved_inventory_items_scroll.setVisible(bool(inventory_items))
+            self.saved_inventory_status.setText("Choose an action to continue.")
         else:
-            self._clear_saved_inventory_items()
-            self.saved_inventory_items_scroll.hide()
             self.saved_inventory_status.setText("")
-            self.saved_inventory_source.setText("")
-            self.saved_inventory_source.setToolTip("")
-            self.saved_inventory_guidance.setText("")
 
         titles = payload.get("ambiguous_titles") or []
         if phase == "choose" and titles:
@@ -1062,6 +1172,7 @@ class DesktopRuntimeWindow(QWidget):
         self._pending_voice_level = None
         self._saved_action_source_path = None
         self._saved_action_create_dialog_factory = SavedActionCreateDialog
+        self._created_tasks_dialog_factory = CreatedTasksDialog
         self._saved_action_edit_dialog_factory = SavedActionEditDialog
         self._command_model = CommandOverlayModel()
         self._command_panel = CommandOverlayPanel()
@@ -1073,6 +1184,7 @@ class DesktopRuntimeWindow(QWidget):
         self._command_panel.input_focus_lost.connect(self.handle_command_input_focus_lost)
         self._command_panel.ambiguous_match_selected.connect(self.handle_ambiguous_match_selected)
         self._command_panel.create_custom_task_requested.connect(self.handle_create_custom_task_requested)
+        self._command_panel.created_tasks_requested.connect(self.handle_created_tasks_requested)
         self._command_panel.edit_saved_action_requested.connect(self.handle_edit_saved_action_requested)
         self._result_close_timer = QTimer(self)
         self._result_close_timer.setSingleShot(True)
@@ -1505,6 +1617,33 @@ class DesktopRuntimeWindow(QWidget):
             dialog.exec()
         finally:
             self._resume_overlay_capture_after_authoring_dialog()
+
+    def handle_created_tasks_requested(self):
+        if not self._command_model.visible or self._command_model.phase != "entry":
+            return
+
+        inventory_payload = self._command_model.view_payload().get("saved_action_inventory") or {}
+
+        self._overlay_local_input_engaged = False
+        self._overlay_global_capture_suspended = True
+        self._command_panel.input_line.set_local_typing_enabled(False)
+        self._clear_overlay_input_capture()
+        self._apply_command_overlay_state()
+
+        dialog = self._created_tasks_dialog_factory(
+            self._command_panel,
+            inventory_payload,
+        )
+        selected_action_id = ""
+        try:
+            dialog.exec()
+            if hasattr(dialog, "selected_action_id"):
+                selected_action_id = str(dialog.selected_action_id() or "").strip()
+        finally:
+            self._resume_overlay_capture_after_authoring_dialog()
+
+        if selected_action_id:
+            self.handle_edit_saved_action_requested(selected_action_id)
 
     def handle_edit_saved_action_requested(self, saved_action_id: str):
         if not self._command_model.visible or self._command_model.phase != "entry":
