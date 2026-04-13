@@ -115,7 +115,7 @@ Use this layer for generalized debugging and validation lessons:
 Use this when a task depends on manual validation handoff, User Test Summary structure, returned test-evidence digestion, implementation-output requirements for a `## User Test Summary` section, or the canonical repo-level `UTS` artifact for an active workstream:
 
 - `Docs/user_test_summary_guidance.md`
-- the relevant canonical workstream doc under `Docs/workstreams/`
+- the relevant canonical workstream doc under `Docs/workstreams/`, which also owns the active lane's canonical repo-level `UTS` artifact and any durable artifact-history or artifact-reference section for branch-local validation/support assets when that workstream has created them
 - `Docs/development_rules.md` when the task also depends on implementation-time validation depth, supporting validation artifacts, required evidence trails, hardening expectations, or the interactive OS-level continuation gate
 
 ### Auxiliary Planning References

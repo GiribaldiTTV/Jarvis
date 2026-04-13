@@ -24,6 +24,8 @@ Use this layer when a backlog item has been promoted and now needs:
 - response-level `## User Test Summary` text does not replace the workstream-owned repo artifact
 - when an active desktop slice can be exercised through a real desktop session, the workstream layer should capture or point to the durable evidence from that interactive OS-level validation before continuation is recommended
 - synthetic or headless validation evidence may support that continuation decision, but it does not replace the interactive OS-level gate when that gate is feasible
+- when Codex creates or materially extends lane-specific validators, harnesses, runtime helpers, scripts, workers, report roots, exported manual-test artifacts, or other reusable support assets on an active workstream branch, the workstream doc should keep a durable artifact-history or artifact-reference section for them
+- that artifact-history section should record the path, purpose, introduced-when or introduced-why note, classification such as `baseline`, `supporting`, `interactive-only`, or `temporary`, and how future work should reuse the artifact
 - closed workstream docs may explicitly state that no separate ongoing `UTS` artifact remains
 
 ## Current Canonical Workstream Records

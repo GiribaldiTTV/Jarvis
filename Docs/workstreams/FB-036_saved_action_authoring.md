@@ -35,6 +35,7 @@ This workstream exists so users can manage non-standard custom tasks safely thro
 - the overlay phase machine remains bounded to `entry` -> `choose` -> `confirm` -> `result`
 - current supported saved-action target kinds remain `app`, `folder`, `file`, and `url`
 - malformed or colliding saved-action sources still block authoring rather than attempting salvage
+- branch-local validation and hardening work now also includes dedicated FB-036 validators, live-style harnesses, interactive runtime helpers, durable validation reports, and exported manual-test artifacts that future slices should reuse rather than recreate blindly
 
 ## Scope
 
@@ -42,7 +43,8 @@ This workstream exists so users can manage non-standard custom tasks safely thro
 - safe persistence and validation-before-write
 - immediate catalog reload after successful writes
 - explicit user-facing type selection mapped to the current persisted target kinds
-- small reachability follow-through needed to keep authoring usable from the entry-state inventory
+- a lightweight landing path for task authoring and management that does not overload the initial NCP opening surface
+- richer secondary create/manage windows that can carry the detailed explanations, guidance, and step-by-step authoring copy users need once they choose an action path
 
 ## Non-Goals
 
@@ -61,6 +63,88 @@ This workstream exists so users can manage non-standard custom tasks safely thro
 3. added the bounded edit flow with identity-preserving updates
 4. tightened target validation for `app`, `folder`, and `file`
 5. expanded saved-action inventory reachability so edit is no longer capped to the first six items
+
+## Idea Impact Analysis And Route Adjustment
+
+- The new idea set refines FB-036 rather than replacing it. The safe create/edit foundation, validation-before-write, reload seam, and bounded inventory editing all remain valid branch truth.
+- The strongest route change is at the landing surface. The initial NCP opening should now be treated as a lightweight action launcher rather than a place that carries dense explanatory copy or full task-management detail inline.
+- `Create Custom Task` remains in scope for FB-036, but the user-facing route should pivot so the initial surface stays minimal and the detailed help moves into the secondary create/manage windows.
+- An explicit `Created Tasks` or task-management entry point remains compatible with FB-036 and now looks like the right follow-through instead of continuing to expand inline entry-state inventory detail.
+- Leaving visual room for future buttons such as plugin integration is a forward-compatibility design constraint, not an authorization to add plugin behavior to FB-036.
+- Future voice access is a real planning constraint for this lane, but it should be treated as a naming and action-routing requirement rather than as authorization to implement voice in FB-036. The visible actions and windows added here should map cleanly to future voice-addressable intents.
+- A user-facing `Active` / `Inactive` toggle for saved tasks should be deferred. It would introduce new persisted enable/disable semantics, new filtering behavior, and a new execution-state policy that goes beyond the current bounded authoring baseline.
+- Field-level explanation is now a higher-priority refinement. `Alias`, `Task type`, and `Target` need clearer in-window guidance so users understand what each field does before more advanced target-picking conveniences are layered on top.
+- Browse-assisted target selection for the current `Application`, `Folder`, and `File` kinds remains compatible with FB-036 and is a better fit than adding brand-new target kinds right now. It should populate the existing `Target` field rather than introduce a parallel persistence model.
+- Additional task kinds beyond `app`, `folder`, `file`, and `url` should remain deferred until runtime behavior actually exists for them.
+- A per-task or global browser-selection policy for website tasks crosses into settings and launch-policy territory. That should be deferred to a later settings or built-in-action lane instead of being silently folded into the current authoring branch.
+- A visual polish pass for the create/edit window, including the current title-bar look, belongs in planning for this lane but should follow the routing and field-guidance adjustments rather than precede them.
+
+## Planned Resequencing
+
+1. preserve and stabilize the current branch-local validation and support assets so the existing create/edit baseline remains provable and reusable
+2. pivot the next user-facing FB-036 slice toward a lightweight NCP landing surface with minimal top-level buttons instead of expanding dense initial entry-state descriptions
+3. add a secondary `Created Tasks` / task-management window so existing-task detail and actions move behind an intentional button click rather than living on the initial opening surface
+4. improve field-level help inside the create/edit windows, especially around `Alias`, `Task type`, and `Target`
+5. add browse-assisted target selection for the existing `Application`, `Folder`, and `File` task types without changing persisted action kinds
+6. evaluate focused create/edit window visual polish after the routing, explanatory copy, and target-picking flow are settled
+
+## Validation And Support Artifact History
+
+- `dev/orin_saved_action_authoring_validation.py`
+  Purpose: lane-specific authoring foundation validator for create/update behavior, collision handling, unsafe-source blocking, and write-safe persistence.
+  Introduced: when the safe persistence foundation and bounded create/edit baseline were added to FB-036.
+  Classification: `baseline`.
+  Reuse: extend this first when saved-action draft rules, identity preservation, or persistence semantics change.
+
+- `dev/orin_saved_action_authoring_ui_validation.py`
+  Purpose: supporting headless UI validator for create/edit dialog behavior, invalid target rejection, collision messaging, and inventory edit-button mapping.
+  Introduced: when the branch moved from persistence-only authoring support into visible create/edit UX.
+  Classification: `supporting`.
+  Reuse: extend this when dialog controls, labels, type selection, inventory rendering, or button routing change.
+
+- `dev/orin_saved_action_authoring_live_validation.py`
+  Purpose: supporting live-style harness that exercises create/edit/reopen behavior with durable reports and saved-actions snapshots without requiring the full interactive desktop gate.
+  Introduced: when evidence-backed hardening became required before normal continuation.
+  Classification: `supporting`.
+  Reuse: keep this as the fast reusable regression layer before a slower interactive OS-level session.
+
+- `dev/orin_saved_action_authoring_interactive_runtime.py`
+  Purpose: branch-local runtime helper that launches the real desktop runtime with a deterministic FB-036 runtime-log target for interactive validation.
+  Introduced: during the interactive-validation hardening pass on `2026-04-13`.
+  Classification: `interactive-only`.
+  Reuse: use this when future FB-036 slices need a reproducible interactive runtime launch path with preserved log evidence.
+
+- `dev/orin_saved_action_authoring_interactive_validation.ps1`
+  Purpose: branch-local interactive OS-level validation driver for real hotkey, dialog, create/edit, reopen, unsafe-source, and large-inventory scenarios.
+  Introduced: during the same `2026-04-13` interactive-validation hardening pass.
+  Classification: `interactive-only`.
+  Reuse: continue hardening and reuse this as the default FB-036 interactive continuation gate instead of rebuilding one-off probes.
+
+- `dev/logs/fb_036_authoring_live_validation/`
+  Purpose: durable report and artifact root for the synthetic/live-style FB-036 validation harness.
+  Introduced: when the branch added evidence-backed live validation before continuation.
+  Classification: `supporting`.
+  Reuse: keep reports and snapshots here so future slices can compare behavior against earlier branch-local authoring evidence.
+
+- `dev/logs/fb_036_authoring_interactive_validation/`
+  Purpose: durable report and artifact root for interactive OS-level validation runs, including runtime logs, saved-actions snapshots, and branch-local manual-gate evidence.
+  Introduced: during the interactive-validation hardening pass on `2026-04-13`.
+  Classification: `interactive-only`.
+  Reuse: future slices should append new reports here and cite the exact report used for any continuation recommendation.
+
+- `Docs/workstreams/FB-036_saved_action_authoring.md` `## User Test Summary`
+  Purpose: canonical repo-level manual-validation contract for the active workstream.
+  Introduced: when FB-036 was promoted into a canonical workstream record.
+  Classification: `baseline`.
+  Reuse: update this whenever user-visible expectations, fail-closed behavior, or the manual continuation checklist changes.
+
+- `C:\Users\anden\OneDrive\Desktop\User Test Summary.txt`
+  Purpose: required user-facing exported copy of the active FB-036 manual checklist.
+  Introduced: when the lane adopted the stronger desktop-export rule for relevant desktop slices.
+  Classification: `supporting`.
+  Reuse: keep it aligned with the workstream-owned `## User Test Summary` whenever the manual checklist changes.
+
+- Existing shared baseline validators such as `dev/orin_saved_action_source_validation.py`, `dev/orin_interaction_baseline_validation.py`, `dev/orin_overlay_input_capture_helper.py`, and `dev/orin_recoverable_launch_failed_validation.py` remain part of the required validation stack, but they are reused cross-lane infrastructure rather than FB-036-specific artifact owners.
 
 ## User Test Summary
 
