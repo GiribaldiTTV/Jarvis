@@ -24,7 +24,7 @@ Use this layer when a backlog item has been promoted and now needs:
 
 ### Active
 
-- no currently active non-doc implementation workstream record is selected on `main`
+- `Docs/workstreams/FB-036_saved_action_authoring.md` on `feature/fb-036-saved-action-authoring` (branch-local active workstream; not merged on `main`)
 
 ### Closed
 

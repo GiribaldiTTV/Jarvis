@@ -165,6 +165,37 @@ def _test_invalid_inputs_are_rejected_before_write():
         )
 
 
+def _test_invalid_non_url_targets_are_rejected_before_write():
+    with tempfile.TemporaryDirectory() as temp_dir:
+        cases = [
+            ("app", "notepad.exe --help"),
+            ("folder", r"Reports\Daily"),
+            ("file", r"C:\Reports\weekly?.txt"),
+        ]
+
+        for index, (target_kind, target) in enumerate(cases, start=1):
+            source_path = Path(temp_dir) / f"saved_actions_{index}.json"
+            try:
+                create_saved_action_from_draft(
+                    SavedActionDraft(
+                        title=f"Task {index}",
+                        target_kind=target_kind,
+                        target=target,
+                        aliases=(f"alias {index}",),
+                    ),
+                    source_path,
+                )
+            except SavedActionDraftValidationError:
+                pass
+            else:
+                raise AssertionError(f"invalid {target_kind} targets should be rejected before write")
+
+            _assert(
+                not source_path.exists(),
+                f"rejecting invalid {target_kind} targets should not create or modify the saved-action source file",
+            )
+
+
 def _test_builtin_collisions_are_rejected_before_write():
     with tempfile.TemporaryDirectory() as temp_dir:
         source_path = Path(temp_dir) / "saved_actions.json"
@@ -562,6 +593,53 @@ def _test_invalid_edit_input_is_rejected_before_write():
         )
 
 
+def _test_invalid_non_url_edit_targets_are_rejected_before_write():
+    with tempfile.TemporaryDirectory() as temp_dir:
+        source_path = Path(temp_dir) / "saved_actions.json"
+        _write_json(
+            source_path,
+            {
+                "schema_version": 1,
+                "actions": [
+                    {
+                        "id": "open_reports",
+                        "title": "Open Reports",
+                        "target_kind": "folder",
+                        "target": r"C:\Reports",
+                        "aliases": ["show reports"],
+                    }
+                ],
+            },
+        )
+        original_text = source_path.read_text(encoding="utf-8")
+
+        for target_kind, target in (
+            ("app", r"C:\Program Files\Notepad"),
+            ("folder", r"C:\Reports\Bad|Folder"),
+            ("file", r"Reports\weekly.txt"),
+        ):
+            try:
+                update_saved_action_from_draft(
+                    "open_reports",
+                    SavedActionDraft(
+                        title="Open Reports",
+                        target_kind=target_kind,
+                        target=target,
+                        aliases=("show reports",),
+                    ),
+                    source_path,
+                )
+            except SavedActionDraftValidationError:
+                pass
+            else:
+                raise AssertionError(f"invalid {target_kind} edit targets should be rejected before write")
+
+            _assert(
+                source_path.read_text(encoding="utf-8") == original_text,
+                f"rejecting invalid {target_kind} edit targets should leave the saved-action source untouched",
+            )
+
+
 def _test_invalid_existing_saved_actions_block_edit_completely():
     with tempfile.TemporaryDirectory() as temp_dir:
         source_path = Path(temp_dir) / "saved_actions.json"
@@ -617,6 +695,7 @@ def main():
         ("id generation avoids existing saved ids", _test_id_generation_avoids_existing_saved_ids),
         ("create supports all persisted target kinds", _test_create_supports_all_persisted_target_kinds),
         ("invalid inputs rejected before write", _test_invalid_inputs_are_rejected_before_write),
+        ("invalid non-url targets rejected before write", _test_invalid_non_url_targets_are_rejected_before_write),
         ("built-in collisions rejected before write", _test_builtin_collisions_are_rejected_before_write),
         ("existing saved-action collisions rejected before write", _test_existing_saved_action_phrase_collisions_are_rejected_before_write),
         ("invalid existing saved actions block write", _test_invalid_existing_saved_actions_block_write_completely),
@@ -626,6 +705,7 @@ def main():
         ("edit rejects built-in collisions without write", _test_edit_rejects_builtin_collisions_without_writing),
         ("edit rejects other saved-action collisions without self-collision", _test_edit_rejects_other_saved_action_collisions_without_self_collision),
         ("invalid edit input is rejected before write", _test_invalid_edit_input_is_rejected_before_write),
+        ("invalid non-url edit targets rejected before write", _test_invalid_non_url_edit_targets_are_rejected_before_write),
         ("invalid existing saved actions block edit", _test_invalid_existing_saved_actions_block_edit_completely),
     ]
 

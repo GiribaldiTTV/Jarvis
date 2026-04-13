@@ -22,6 +22,10 @@ Historical note:
 
 No currently promoted non-doc implementation workstream is active on `main`.
 
+Branch-local promoted implementation workstream currently in progress:
+
+- `Docs/workstreams/FB-036_saved_action_authoring.md` on `feature/fb-036-saved-action-authoring`
+
 ## Registry Items
 
 ### [ID: FB-004] Future boot orchestrator layer
@@ -96,11 +100,12 @@ Why it matters: The repo still needs deeper identity and wording normalization a
 
 ### [ID: FB-036] Limited saved-action authoring and type-first custom task UX
 
-Status: Deferred
-Record State: Registry-only
+Status: Active on `feature/fb-036-saved-action-authoring`
+Record State: Promoted
 Priority: High
 Release Stage: pre-Beta
 Target Version: TBD
+Canonical Workstream Doc: Docs/workstreams/FB-036_saved_action_authoring.md
 Summary: Track the first post-v1.2.8 FB-027 follow-through lane for bounded saved-action create/edit UX with explicit user-facing action-type selection and safe persistence.
 Why it matters: Saved-action inventory and guided access improve inspection, but users still need a deliberate non-Action-Studio path to create and edit custom tasks without hand-editing JSON. This lane should keep custom tasks focused on user-defined or non-standard actions such as personal URLs, paths, or host-specific app launches while preserving the locked interaction baseline.
 

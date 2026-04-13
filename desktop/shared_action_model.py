@@ -2,7 +2,7 @@ import os
 import re
 import subprocess
 from dataclasses import dataclass
-from pathlib import Path
+from pathlib import Path, PureWindowsPath
 from typing import Iterable
 from urllib.parse import urlparse, unquote
 
@@ -89,9 +89,24 @@ DEFAULT_COMMAND_ACTIONS = (
 
 SUPPORTED_ACTION_TARGET_KINDS = frozenset({"app", "folder", "file", "url"})
 SUPPORTED_SAVED_ACTION_URL_SCHEMES = frozenset({"http", "https"})
+SUPPORTED_APP_TARGET_EXTENSIONS = frozenset({".exe", ".com", ".bat", ".cmd"})
 LEGACY_SAVED_ACTIONS_ACCESS_ACTION_IDS = frozenset(
     {"open_saved_actions_file", "open_saved_actions_folder"}
 )
+INVALID_WINDOWS_PATH_CHARACTERS = frozenset('<>:"|?*')
+RESERVED_WINDOWS_PATH_NAMES = frozenset(
+    {
+        "con",
+        "prn",
+        "aux",
+        "nul",
+        "conin$",
+        "conout$",
+        *(f"com{index}" for index in range(1, 10)),
+        *(f"lpt{index}" for index in range(1, 10)),
+    }
+)
+APP_COMMAND_RE = re.compile(r"^[a-z0-9][a-z0-9._-]*$", re.IGNORECASE)
 
 
 @dataclass(frozen=True)
@@ -195,17 +210,132 @@ def _coerce_saved_action_aliases(record: dict) -> tuple[str, ...]:
 
 
 def _validate_saved_action_target(target_kind: str, target: str) -> str:
-    if target_kind != "url":
+    if target_kind == "url":
+        if any(char.isspace() for char in target):
+            raise ValueError("Saved action URL targets must not contain whitespace.")
+
+        parsed = urlparse(target)
+        if parsed.scheme.casefold() not in SUPPORTED_SAVED_ACTION_URL_SCHEMES or not parsed.netloc:
+            raise ValueError("Saved action URL target must be an absolute http or https URL.")
+
         return target
 
-    if any(char.isspace() for char in target):
-        raise ValueError("Saved action URL targets must not contain whitespace.")
+    if target_kind == "app":
+        return _validate_saved_action_app_target(target)
 
-    parsed = urlparse(target)
-    if parsed.scheme.casefold() not in SUPPORTED_SAVED_ACTION_URL_SCHEMES or not parsed.netloc:
-        raise ValueError("Saved action URL target must be an absolute http or https URL.")
+    if target_kind == "folder":
+        return _validate_saved_action_folder_target(target)
+
+    if target_kind == "file":
+        return _validate_saved_action_file_target(target)
 
     return target
+
+
+def validate_saved_action_target(target_kind: str, target: str) -> str:
+    if not isinstance(target_kind, str):
+        raise ValueError("Saved action target kind must be a string.")
+    if not isinstance(target, str):
+        raise ValueError("Saved action target must be a string.")
+
+    normalized_target = target.strip()
+    if not normalized_target:
+        raise ValueError("Saved action target must not be empty.")
+
+    return _validate_saved_action_target(target_kind.strip().casefold(), normalized_target)
+
+
+def _normalize_non_url_target_text(target: str) -> str:
+    normalized = target.strip()
+    if len(normalized) >= 2 and normalized[0] == normalized[-1] and normalized[0] in {'"', "'"}:
+        normalized = normalized[1:-1].strip()
+    return normalized
+
+
+def _validate_windows_path_part(part: str, *, label: str):
+    if not part:
+        raise ValueError(f"Saved action {label} targets must not contain empty path segments.")
+    if part in {".", ".."}:
+        raise ValueError(f"Saved action {label} targets must not contain relative path segments.")
+    if part[-1] in {" ", "."}:
+        raise ValueError(f"Saved action {label} targets must not end path segments with spaces or dots.")
+    if any(ord(char) < 32 for char in part):
+        raise ValueError(f"Saved action {label} targets must not contain control characters.")
+    if any(char in INVALID_WINDOWS_PATH_CHARACTERS for char in part):
+        raise ValueError(f"Saved action {label} targets must not contain illegal Windows path characters.")
+
+    reserved_name = part.rstrip(" .").split(".", 1)[0].casefold()
+    if reserved_name in RESERVED_WINDOWS_PATH_NAMES:
+        raise ValueError(f"Saved action {label} targets must not use reserved Windows path names.")
+
+
+def _validate_absolute_windows_path_target(
+    target: str,
+    *,
+    label: str,
+    require_leaf: bool,
+) -> str:
+    normalized = _normalize_non_url_target_text(target)
+    if not normalized:
+        raise ValueError(f"Saved action {label} target must not be empty.")
+    if any(char in normalized for char in "\r\n\t"):
+        raise ValueError(f"Saved action {label} targets must stay on one line.")
+
+    path = PureWindowsPath(normalized)
+    if not path.is_absolute():
+        raise ValueError(f"Saved action {label} targets must be absolute Windows paths.")
+
+    anchor = path.anchor
+    for part in path.parts:
+        if part == anchor:
+            continue
+        _validate_windows_path_part(part, label=label)
+
+    if require_leaf:
+        if normalized.endswith(("\\", "/")) or not path.name:
+            raise ValueError(f"Saved action {label} targets must include a final file name.")
+    return str(path)
+
+
+def _validate_saved_action_folder_target(target: str) -> str:
+    return _validate_absolute_windows_path_target(target, label="folder", require_leaf=False)
+
+
+def _validate_saved_action_file_target(target: str) -> str:
+    return _validate_absolute_windows_path_target(target, label="file", require_leaf=True)
+
+
+def _validate_saved_action_app_target(target: str) -> str:
+    normalized = _normalize_non_url_target_text(target)
+    if not normalized:
+        raise ValueError("Saved action application target must not be empty.")
+    if any(char in normalized for char in "\r\n\t"):
+        raise ValueError("Saved action application targets must stay on one line.")
+
+    looks_like_path = any(separator in normalized for separator in ("\\", "/")) or (
+        len(normalized) >= 2 and normalized[1] == ":"
+    )
+    if looks_like_path:
+        normalized_path = _validate_absolute_windows_path_target(
+            normalized,
+            label="application",
+            require_leaf=True,
+        )
+        if PureWindowsPath(normalized_path).suffix.casefold() not in SUPPORTED_APP_TARGET_EXTENSIONS:
+            raise ValueError(
+                "Saved action application targets must point to an .exe, .com, .bat, or .cmd file."
+            )
+        return normalized_path
+
+    if any(char.isspace() for char in normalized):
+        raise ValueError(
+            "Saved action application targets must be a bare command like notepad.exe or an absolute Windows executable path."
+        )
+    if not APP_COMMAND_RE.fullmatch(normalized):
+        raise ValueError(
+            "Saved action application command targets may contain only letters, numbers, dots, hyphens, and underscores."
+        )
+    return normalized
 
 
 def _command_action_from_saved_record(record: object) -> CommandAction:

@@ -16,6 +16,7 @@ from PySide6.QtWidgets import (
     QGridLayout,
     QPushButton,
     QComboBox,
+    QScrollArea,
 )
 from PySide6.QtCore import Qt, QTimer, QUrl, QRect, Signal
 from PySide6.QtGui import QColor
@@ -510,7 +511,17 @@ class CommandOverlayPanel(QWidget):
         self.saved_inventory_items_layout = QVBoxLayout(self.saved_inventory_items_frame)
         self.saved_inventory_items_layout.setContentsMargins(0, 2, 0, 0)
         self.saved_inventory_items_layout.setSpacing(8)
-        saved_inventory_layout.addWidget(self.saved_inventory_items_frame)
+        self.saved_inventory_items_scroll = QScrollArea(self.saved_inventory_frame)
+        self.saved_inventory_items_scroll.setObjectName("savedActionInventoryItemsScroll")
+        self.saved_inventory_items_scroll.setFrameShape(QFrame.NoFrame)
+        self.saved_inventory_items_scroll.setWidgetResizable(True)
+        self.saved_inventory_items_scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.saved_inventory_items_scroll.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+        self.saved_inventory_items_scroll.setFocusPolicy(Qt.NoFocus)
+        self.saved_inventory_items_scroll.setMaximumHeight(244)
+        self.saved_inventory_items_scroll.setWidget(self.saved_inventory_items_frame)
+        saved_inventory_layout.addWidget(self.saved_inventory_items_scroll)
+        self.saved_inventory_items_scroll.hide()
 
         layout.addWidget(self.saved_inventory_frame)
         self.saved_inventory_frame.hide()
@@ -712,6 +723,10 @@ class CommandOverlayPanel(QWidget):
             QPushButton[inventoryRole="editButton"]:hover {
                 border: 1px solid rgba(118, 226, 255, 0.36);
             }
+            #savedActionInventoryItemsScroll {
+                border: none;
+                background: transparent;
+            }
             #commandAmbiguous {
                 min-height: 20px;
                 color: rgba(255, 222, 154, 0.90);
@@ -884,7 +899,7 @@ class CommandOverlayPanel(QWidget):
 
     def _populate_saved_inventory_items(self, items: list[dict]):
         self._clear_saved_inventory_items()
-        for item in items[:6]:
+        for item in items:
             item_id = str(item.get("id") or "").strip()
             title = item.get("title", "")
             origin_label = item.get("origin_label", "Saved")
@@ -921,6 +936,7 @@ class CommandOverlayPanel(QWidget):
                 item_layout.addWidget(edit_button, 0, Qt.AlignTop)
 
             self.saved_inventory_items_layout.addWidget(item_frame)
+        self.saved_inventory_items_layout.addStretch(1)
 
     def render_payload(self, payload: dict):
         payload = payload or {}
@@ -989,9 +1005,12 @@ class CommandOverlayPanel(QWidget):
             self.saved_inventory_source.setText(f"Source: {source_display}" if source_display else "")
             self.saved_inventory_source.setToolTip(source_path)
             self.saved_inventory_guidance.setText(saved_action_inventory.get("guidance_text", ""))
-            self._populate_saved_inventory_items(saved_action_inventory.get("items") or [])
+            inventory_items = saved_action_inventory.get("items") or []
+            self._populate_saved_inventory_items(inventory_items)
+            self.saved_inventory_items_scroll.setVisible(bool(inventory_items))
         else:
             self._clear_saved_inventory_items()
+            self.saved_inventory_items_scroll.hide()
             self.saved_inventory_status.setText("")
             self.saved_inventory_source.setText("")
             self.saved_inventory_source.setToolTip("")

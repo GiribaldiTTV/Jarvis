@@ -273,6 +273,42 @@ def _test_invalid_url_targets_fail_closed():
         )
 
 
+def _test_invalid_non_url_targets_fail_closed():
+    with tempfile.TemporaryDirectory() as temp_dir:
+        cases = [
+            ("app", "notepad.exe --help"),
+            ("folder", r"Reports\Daily"),
+            ("file", r"C:\Reports\weekly?.txt"),
+        ]
+
+        for index, (target_kind, target) in enumerate(cases, start=1):
+            source_path = Path(temp_dir) / f"invalid_{target_kind}_{index}.json"
+            _write_json(
+                source_path,
+                {
+                    "schema_version": 1,
+                    "actions": [
+                        {
+                            "id": f"open_{target_kind}_{index}",
+                            "title": f"Open {target_kind.title()} {index}",
+                            "target_kind": target_kind,
+                            "target": target,
+                            "aliases": [f"open {target_kind} {index}"],
+                        }
+                    ],
+                },
+            )
+
+            _assert(
+                load_saved_command_actions(source_path) == (),
+                f"invalid {target_kind} saved-action targets should fail closed to no saved actions",
+            )
+            _assert(
+                build_default_command_action_catalog(source_path).saved_action_inventory.status_kind == "invalid_saved_actions",
+                f"invalid {target_kind} saved-action targets should remain visible as invalid saved-action entries",
+            )
+
+
 def _test_duplicate_saved_ids_fail_closed():
     with tempfile.TemporaryDirectory() as temp_dir:
         source_path = Path(temp_dir) / "duplicate_ids.json"
@@ -375,6 +411,7 @@ def main():
         ("valid url saved actions extend catalog", _test_valid_url_saved_actions_extend_the_effective_catalog),
         ("unsupported target kind fails closed", _test_unsupported_target_kind_fails_closed),
         ("invalid url targets fail closed", _test_invalid_url_targets_fail_closed),
+        ("invalid non-url targets fail closed", _test_invalid_non_url_targets_fail_closed),
         ("duplicate saved ids fail closed", _test_duplicate_saved_ids_fail_closed),
         ("duplicate saved phrases fail closed", _test_duplicate_saved_phrases_fail_closed),
         ("built-in collisions fail closed", _test_builtin_collisions_fail_closed),

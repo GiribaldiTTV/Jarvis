@@ -18,6 +18,7 @@ from .shared_action_model import (
     coerce_saved_command_actions_from_records,
     normalize_command_text,
     reload_default_command_action_catalog,
+    validate_saved_action_target,
 )
 
 
@@ -128,21 +129,24 @@ def _normalize_target_kind(target_kind: Any) -> str:
     return normalized
 
 
-def _normalize_target(target: Any) -> str:
+def _normalize_target(target: Any, *, target_kind: str) -> str:
     if not isinstance(target, str):
         raise SavedActionDraftValidationError("Saved action target must be a string.")
 
     normalized = target.strip()
     if not normalized:
         raise SavedActionDraftValidationError("Saved action target must not be empty.")
-    return normalized
+    try:
+        return validate_saved_action_target(target_kind, normalized)
+    except ValueError as exc:
+        raise SavedActionDraftValidationError(str(exc)) from exc
 
 
 def _normalize_draft_fields(draft: SavedActionDraft) -> tuple[str, tuple[str, ...], str, str]:
     title = _normalize_title(draft.title)
     aliases = _normalize_aliases(draft.aliases, title=title)
     target_kind = _normalize_target_kind(draft.target_kind)
-    target = _normalize_target(draft.target)
+    target = _normalize_target(draft.target, target_kind=target_kind)
     return title, aliases, target_kind, target
 
 

@@ -213,6 +213,71 @@ def _test_edit_trigger_is_present_and_clickable_for_saved_inventory_items():
     )
 
 
+def _test_saved_inventory_edit_reachability_extends_beyond_six_items():
+    _app()
+    panel = renderer_mod.CommandOverlayPanel()
+    items = []
+    for index in range(1, 9):
+        items.append(
+            {
+                "id": f"open_reports_{index}",
+                "title": f"Open Reports {index}",
+                "origin": "saved",
+                "origin_label": "Saved",
+                "target_kind": "folder",
+                "target": fr"C:\Reports\{index}",
+                "target_display": fr"C:\Reports\{index}",
+            }
+        )
+
+    payload = {
+        "visible": True,
+        "phase": "entry",
+        "input_armed": True,
+        "input_text": "",
+        "status_kind": "idle",
+        "status_text": "",
+        "typed_request": "",
+        "pending_action": None,
+        "ambiguous_titles": [],
+        "ambiguous_matches": [],
+        "saved_action_inventory": {
+            "visible": True,
+            "status_kind": "loaded",
+            "status_text": "8 saved actions are available.",
+            "guidance_text": 'Use "Open Saved Actions File" or "Open Saved Actions Folder" to inspect the source.',
+            "path": r"C:\Users\Test\AppData\Local\Nexus Desktop AI\saved_actions.json",
+            "path_display": r"C:\Users\Test\AppData\Local\Nexus Desktop AI\saved_actions.json",
+            "count": 8,
+            "items": items,
+        },
+    }
+    fired = []
+    panel.edit_saved_action_requested.connect(lambda action_id: fired.append(action_id))
+    panel.render_payload(payload)
+
+    edit_buttons = [
+        button
+        for button in panel.saved_inventory_items_frame.findChildren(QPushButton)
+        if button.text() == "Edit"
+    ]
+
+    _assert(
+        not panel.saved_inventory_items_scroll.isHidden(),
+        "saved inventory should keep its scroll container enabled when many saved actions are present",
+    )
+    _assert(
+        len(edit_buttons) == 8,
+        "saved inventory should expose edit reachability for every saved action, not just the first six",
+    )
+
+    edit_buttons[-1].click()
+    _assert(
+        fired == ["open_reports_8"],
+        "saved inventory should preserve stable edit-button mapping for items beyond the previous six-item cap",
+    )
+
+
 def _test_type_first_dialog_maps_all_supported_kinds():
     _app()
     dialog = renderer_mod.SavedActionCreateDialog()
@@ -308,6 +373,43 @@ def _test_invalid_input_shows_dialog_error_and_does_not_write():
         _assert(
             renderer_mod.DesktopRuntimeWindow.overlay_needs_global_input_capture(window),
             "invalid input should still restore fallback input capture readiness after the dialog path",
+        )
+
+
+def _test_invalid_folder_target_shows_dialog_error_and_does_not_write():
+    with tempfile.TemporaryDirectory() as temp_dir:
+        source_path = Path(temp_dir) / "saved_actions.json"
+        window = _make_window(source_path)
+        dialog_instances = []
+        window._saved_action_create_dialog_factory = (
+            lambda parent, submit_handler: _AutoSubmitCreateDialog(
+                None,
+                submit_handler,
+                lambda dialog: (
+                    dialog.type_combo.setCurrentText("Folder"),
+                    dialog.title_input.setText("Open Reports"),
+                    dialog.aliases_input.setText("view reports"),
+                    dialog.target_input.setText(r"Reports\Daily"),
+                ),
+                dialog_instances,
+            )
+        )
+
+        renderer_mod.DesktopRuntimeWindow.handle_create_custom_task_requested(window)
+
+        _assert(dialog_instances, "invalid folder targets should still open the create dialog")
+        _assert(
+            "absolute windows paths" in dialog_instances[0].status_label.text().casefold(),
+            "invalid folder targets should surface a clear path-structure error inside the dialog",
+        )
+        _assert(
+            not source_path.exists(),
+            "invalid folder targets should not write the saved-action source",
+        )
+        _assert(window._command_model.phase == "entry", "invalid folder targets should preserve entry phase")
+        _assert(
+            renderer_mod.DesktopRuntimeWindow.overlay_needs_global_input_capture(window),
+            "invalid folder targets should still restore fallback input capture readiness",
         )
 
 
@@ -480,9 +582,11 @@ def main():
     tests = [
         ("create trigger present and clickable", _test_create_trigger_is_present_and_clickable),
         ("edit trigger present and clickable", _test_edit_trigger_is_present_and_clickable_for_saved_inventory_items),
+        ("edit reachability extends beyond six items", _test_saved_inventory_edit_reachability_extends_beyond_six_items),
         ("type-first dialog maps supported kinds", _test_type_first_dialog_maps_all_supported_kinds),
         ("successful create flow reloads inventory", _test_successful_create_flow_reloads_inventory_immediately),
         ("invalid input shows dialog error without write", _test_invalid_input_shows_dialog_error_and_does_not_write),
+        ("invalid folder target shows dialog error without write", _test_invalid_folder_target_shows_dialog_error_and_does_not_write),
         ("unsafe source blocks before dialog open", _test_unsafe_source_blocks_before_dialog_open),
         ("successful edit flow reloads inventory", _test_successful_edit_flow_loads_existing_values_and_reloads_inventory),
         ("invalid edit input shows dialog error without write", _test_invalid_edit_input_shows_dialog_error_and_does_not_write),
