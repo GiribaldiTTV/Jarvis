@@ -1,6 +1,8 @@
 import os
 import sys
+import tempfile
 from types import SimpleNamespace
+from pathlib import Path
 
 
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -10,11 +12,13 @@ if ROOT_DIR not in sys.path:
     sys.path.insert(0, ROOT_DIR)
 
 import desktop.desktop_renderer as renderer_mod
+from desktop.saved_action_authoring import SavedActionDraft, create_saved_action_from_draft
 from desktop.interaction_overlay_model import CommandOverlayModel
 from desktop.shared_action_model import (
     CommandAction,
     CommandActionCatalog,
     SavedActionInventoryState,
+    build_default_command_action_catalog,
 )
 
 
@@ -352,6 +356,52 @@ def _test_entry_payload_surfaces_saved_action_inventory_guidance():
     )
 
 
+def _test_catalog_reload_seam_surfaces_new_saved_actions_without_phase_change():
+    with tempfile.TemporaryDirectory() as temp_dir:
+        source_path = Path(temp_dir) / "saved_actions.json"
+        model = CommandOverlayModel(action_catalog=build_default_command_action_catalog(source_path))
+        model.open(arm_input=True)
+
+        before = model.view_payload()
+        _assert(before.get("phase") == "entry", "reload-seam baseline should begin in entry phase")
+        _assert(
+            (before.get("saved_action_inventory") or {}).get("count") == 0,
+            "reload-seam baseline should begin without active saved actions",
+        )
+
+        result = create_saved_action_from_draft(
+            SavedActionDraft(
+                title="Open Reports",
+                target_kind="folder",
+                target=r"C:\Reports",
+                aliases=("view reports",),
+            ),
+            source_path,
+        )
+
+        reloaded_catalog = model.reload_action_catalog(source_path)
+        after = model.view_payload()
+        inventory = after.get("saved_action_inventory") or {}
+        inventory_items = inventory.get("items") or []
+
+        _assert(after.get("phase") == "entry", "catalog reload should preserve entry phase")
+        _assert(after.get("input_armed"), "catalog reload should preserve armed entry input")
+        _assert(inventory.get("count") == 1, "catalog reload should immediately surface the new saved action")
+        _assert(len(inventory_items) == 1, "catalog reload should surface one saved-action inventory item")
+        _assert(
+            inventory_items[0].get("id") == result.record["id"],
+            "catalog reload should surface the saved action written through the authoring foundation",
+        )
+        _assert(
+            inventory_items[0].get("origin") == "saved",
+            "catalog reload should preserve saved origin detail for the new action",
+        )
+        _assert(
+            reloaded_catalog.actions[-1].id == result.record["id"],
+            "catalog reload should rebuild the in-memory catalog with the new saved action",
+        )
+
+
 def main():
     tests = [
         ("typed-first open enters entry mode", _test_open_starts_in_typed_first_entry_mode),
@@ -360,6 +410,7 @@ def main():
         ("result close and reopen is clean", _test_result_close_and_reopen_is_clean),
         ("url saved action confirm-result flow", _test_url_saved_action_confirm_result_flow),
         ("entry payload surfaces saved-action inventory guidance", _test_entry_payload_surfaces_saved_action_inventory_guidance),
+        ("catalog reload seam surfaces new saved actions", _test_catalog_reload_seam_surfaces_new_saved_actions_without_phase_change),
     ]
 
     for name, fn in tests:

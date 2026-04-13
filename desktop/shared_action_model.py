@@ -231,6 +231,10 @@ def _command_action_from_saved_record(record: object) -> CommandAction:
     )
 
 
+def coerce_saved_command_action_record(record: object) -> CommandAction:
+    return _command_action_from_saved_record(record)
+
+
 def _build_saved_action_access_guidance() -> str:
     file_action = next(
         (action.title for action in DEFAULT_COMMAND_ACTIONS if action.id == "open_saved_actions_file"),
@@ -284,6 +288,10 @@ def _load_saved_command_actions_from_records(records: Iterable[object]) -> tuple
     return tuple(saved_actions)
 
 
+def coerce_saved_command_actions_from_records(records: Iterable[object]) -> tuple[CommandAction, ...]:
+    return _load_saved_command_actions_from_records(records)
+
+
 def inspect_saved_action_inventory(
     source_path: str | os.PathLike[str] | None = None,
 ) -> SavedActionInventoryState:
@@ -319,7 +327,7 @@ def inspect_saved_action_inventory(
         )
 
     try:
-        saved_actions = _load_saved_command_actions_from_records(inspection.actions)
+        saved_actions = coerce_saved_command_actions_from_records(inspection.actions)
     except ValueError:
         return SavedActionInventoryState(
             visible=True,
@@ -373,6 +381,12 @@ def build_default_command_action_catalog(
 
 
 DEFAULT_COMMAND_ACTION_CATALOG = build_default_command_action_catalog()
+
+
+def reload_default_command_action_catalog() -> CommandActionCatalog:
+    global DEFAULT_COMMAND_ACTION_CATALOG
+    DEFAULT_COMMAND_ACTION_CATALOG = build_default_command_action_catalog()
+    return DEFAULT_COMMAND_ACTION_CATALOG
 
 
 def resolve_command_actions(text: str, actions=DEFAULT_COMMAND_ACTIONS):

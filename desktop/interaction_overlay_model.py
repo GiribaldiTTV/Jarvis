@@ -1,7 +1,11 @@
+import os
+
 from .shared_action_model import (
     CommandActionCatalog,
     DEFAULT_COMMAND_ACTION_CATALOG,
+    build_default_command_action_catalog,
     format_action_origin_label,
+    reload_default_command_action_catalog,
 )
 
 
@@ -73,6 +77,29 @@ class CommandOverlayModel:
         self.status_text = ""
         self.pending_action = None
         self.pending_matches = ()
+
+    def set_entry_feedback(self, status_kind: str, status_text: str):
+        if not self.visible or self.phase != "entry":
+            return
+
+        self.status_kind = status_kind or "idle"
+        self.status_text = status_text or ""
+        self.last_request = ""
+        self.pending_action = None
+        self.pending_matches = ()
+
+    def set_action_catalog(self, action_catalog: CommandActionCatalog):
+        self.action_catalog = action_catalog
+        self.actions = tuple(action_catalog.actions)
+
+    def reload_action_catalog(self, source_path: str | os.PathLike[str] | None = None):
+        action_catalog = (
+            reload_default_command_action_catalog()
+            if source_path is None
+            else build_default_command_action_catalog(source_path)
+        )
+        self.set_action_catalog(action_catalog)
+        return action_catalog
 
     def backspace(self):
         if not self.visible or self.phase != "entry" or not self.input_armed:

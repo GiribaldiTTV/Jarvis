@@ -9,17 +9,28 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
     QApplication,
     QFrame,
+    QDialog,
     QLabel,
     QLineEdit,
     QHBoxLayout,
     QGridLayout,
     QPushButton,
+    QComboBox,
 )
 from PySide6.QtCore import Qt, QTimer, QUrl, QRect, Signal
 from PySide6.QtGui import QColor
 from PySide6.QtWebEngineWidgets import QWebEngineView
 
 from .interaction_overlay_model import CommandOverlayModel
+from .saved_action_authoring import (
+    SavedActionDraft,
+    SavedActionDraftValidationError,
+    SavedActionUnsafeSourceError,
+    create_saved_action_from_draft,
+    load_saved_action_draft_for_edit,
+    update_saved_action_from_draft,
+)
+from .saved_action_source import SavedActionSourceWriteBlocked
 from .shared_action_model import launch_command_action
 from .orin_support_reporting import SupportBundleError, prepare_manual_issue_report
 from .workerw_utils import (
@@ -156,6 +167,235 @@ class CommandInputLineEdit(QLineEdit):
         return self._last_focus_was_manual
 
 
+class SavedActionCreateDialog(QDialog):
+    ACTION_TYPE_OPTIONS = (
+        ("Application", "app"),
+        ("Folder", "folder"),
+        ("File", "file"),
+        ("Website URL", "url"),
+    )
+
+    TARGET_GUIDANCE = {
+        "app": "Enter an executable path or launchable command, for example notepad.exe.",
+        "folder": "Enter the folder path to open.",
+        "file": "Enter the file path to open.",
+        "url": "Enter an absolute http or https URL.",
+    }
+
+    def __init__(
+        self,
+        parent=None,
+        submit_handler=None,
+        *,
+        dialog_title: str = "Create Custom Task",
+        heading_text: str = "Create Custom Task",
+        hint_text: str = "Choose a task type, then provide the title, optional aliases, and destination.",
+        submit_button_text: str = "Create",
+        initial_draft: SavedActionDraft | None = None,
+    ):
+        super().__init__(parent)
+        self._submit_handler = submit_handler
+        self.setModal(True)
+        self.setWindowTitle(dialog_title)
+        self.setObjectName("savedActionCreateDialog")
+        self.setMinimumWidth(440)
+
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(20, 18, 20, 18)
+        layout.setSpacing(10)
+
+        self.title_label = QLabel(heading_text, self)
+        self.title_label.setObjectName("savedActionCreateTitle")
+        layout.addWidget(self.title_label)
+
+        self.hint_label = QLabel(hint_text, self)
+        self.hint_label.setObjectName("savedActionCreateHint")
+        self.hint_label.setWordWrap(True)
+        layout.addWidget(self.hint_label)
+
+        form = QGridLayout()
+        form.setHorizontalSpacing(12)
+        form.setVerticalSpacing(8)
+
+        form.addWidget(self._make_form_label("Task type"), 0, 0)
+        self.type_combo = QComboBox(self)
+        self.type_combo.setObjectName("savedActionCreateType")
+        for label, target_kind in self.ACTION_TYPE_OPTIONS:
+            self.type_combo.addItem(label, target_kind)
+        self.type_combo.currentIndexChanged.connect(self._update_target_guidance)
+        form.addWidget(self.type_combo, 0, 1)
+
+        form.addWidget(self._make_form_label("Title"), 1, 0)
+        self.title_input = QLineEdit(self)
+        self.title_input.setObjectName("savedActionCreateTitleInput")
+        self.title_input.setPlaceholderText("Open Reports")
+        form.addWidget(self.title_input, 1, 1)
+
+        form.addWidget(self._make_form_label("Aliases"), 2, 0)
+        self.aliases_input = QLineEdit(self)
+        self.aliases_input.setObjectName("savedActionCreateAliasesInput")
+        self.aliases_input.setPlaceholderText("Optional, comma-separated")
+        form.addWidget(self.aliases_input, 2, 1)
+
+        form.addWidget(self._make_form_label("Target"), 3, 0)
+        self.target_input = QLineEdit(self)
+        self.target_input.setObjectName("savedActionCreateTargetInput")
+        form.addWidget(self.target_input, 3, 1)
+
+        layout.addLayout(form)
+
+        self.target_guidance_label = QLabel("", self)
+        self.target_guidance_label.setObjectName("savedActionCreateTargetGuidance")
+        self.target_guidance_label.setWordWrap(True)
+        layout.addWidget(self.target_guidance_label)
+
+        self.status_label = QLabel("", self)
+        self.status_label.setObjectName("savedActionCreateStatus")
+        self.status_label.setWordWrap(True)
+        layout.addWidget(self.status_label)
+
+        button_row = QHBoxLayout()
+        button_row.setContentsMargins(0, 6, 0, 0)
+        button_row.addStretch(1)
+
+        self.cancel_button = QPushButton("Cancel", self)
+        self.cancel_button.clicked.connect(self.reject)
+        button_row.addWidget(self.cancel_button)
+
+        self.create_button = QPushButton(submit_button_text, self)
+        self.create_button.setDefault(True)
+        self.create_button.clicked.connect(self._handle_create_clicked)
+        button_row.addWidget(self.create_button)
+
+        layout.addLayout(button_row)
+
+        self.setStyleSheet(
+            """
+            #savedActionCreateDialog {
+                background: rgb(9, 18, 28);
+            }
+            #savedActionCreateTitle {
+                color: rgba(238, 248, 255, 0.96);
+                font-size: 22px;
+                font-weight: 600;
+            }
+            #savedActionCreateHint, #savedActionCreateTargetGuidance {
+                color: rgba(172, 215, 235, 0.82);
+                font-size: 13px;
+            }
+            #savedActionCreateStatus {
+                min-height: 22px;
+                color: rgba(255, 189, 176, 0.96);
+                font-size: 13px;
+            }
+            QLabel[createRole="label"] {
+                color: rgba(118, 226, 255, 0.70);
+                font-size: 12px;
+                font-weight: 600;
+                letter-spacing: 0.08em;
+            }
+            QLineEdit, QComboBox {
+                min-height: 34px;
+                border-radius: 10px;
+                border: 1px solid rgba(118, 226, 255, 0.18);
+                background: rgba(6, 18, 30, 196);
+                color: rgba(238, 248, 255, 0.96);
+                padding: 4px 10px;
+            }
+            QPushButton {
+                min-height: 34px;
+                padding: 0 14px;
+                border-radius: 10px;
+                border: 1px solid rgba(118, 226, 255, 0.18);
+                background: rgba(6, 18, 30, 196);
+                color: rgba(238, 248, 255, 0.96);
+            }
+            QPushButton:hover {
+                border: 1px solid rgba(118, 226, 255, 0.34);
+            }
+            """
+        )
+
+        self._update_target_guidance()
+        if initial_draft is not None:
+            self.load_draft(initial_draft)
+
+    def _make_form_label(self, text: str) -> QLabel:
+        label = QLabel(text, self)
+        label.setProperty("createRole", "label")
+        return label
+
+    def current_target_kind(self) -> str:
+        return str(self.type_combo.currentData() or "app")
+
+    def _update_target_guidance(self):
+        target_kind = self.current_target_kind()
+        self.target_guidance_label.setText(self.TARGET_GUIDANCE.get(target_kind, ""))
+        if target_kind == "url":
+            self.target_input.setPlaceholderText("https://example.com/docs")
+        elif target_kind == "folder":
+            self.target_input.setPlaceholderText(r"C:\Users\YourName\Documents")
+        elif target_kind == "file":
+            self.target_input.setPlaceholderText(r"C:\Users\YourName\Documents\notes.txt")
+        else:
+            self.target_input.setPlaceholderText("notepad.exe")
+
+    def _parse_aliases_text(self) -> tuple[str, ...]:
+        alias_text = (self.aliases_input.text() or "").replace("\n", ",")
+        aliases = [part.strip() for part in alias_text.split(",")]
+        return tuple(alias for alias in aliases if alias)
+
+    def build_draft(self) -> SavedActionDraft:
+        return SavedActionDraft(
+            title=self.title_input.text(),
+            target_kind=self.current_target_kind(),
+            target=self.target_input.text(),
+            aliases=self._parse_aliases_text(),
+        )
+
+    def load_draft(self, draft: SavedActionDraft):
+        for index in range(self.type_combo.count()):
+            if str(self.type_combo.itemData(index) or "") == draft.target_kind:
+                self.type_combo.setCurrentIndex(index)
+                break
+        self.title_input.setText(draft.title)
+        self.aliases_input.setText(", ".join(draft.aliases))
+        self.target_input.setText(draft.target)
+        self._update_target_guidance()
+
+    def set_error_text(self, text: str):
+        self.status_label.setText(text or "")
+
+    def _handle_create_clicked(self):
+        if self._submit_handler is None:
+            self.accept()
+            return
+
+        try:
+            self._submit_handler(self.build_draft())
+        except (SavedActionDraftValidationError, SavedActionUnsafeSourceError, SavedActionSourceWriteBlocked) as exc:
+            self.set_error_text(str(exc))
+            return
+        except Exception as exc:
+            self.set_error_text(f"Custom task could not be saved: {exc}")
+            return
+
+        self.accept()
+
+
+class SavedActionEditDialog(SavedActionCreateDialog):
+    def __init__(self, parent=None, submit_handler=None, initial_draft: SavedActionDraft | None = None):
+        super().__init__(
+            parent,
+            submit_handler,
+            dialog_title="Edit Custom Task",
+            heading_text="Edit Custom Task",
+            hint_text="Update the task type, title, optional aliases, and destination for this custom task.",
+            submit_button_text="Save",
+            initial_draft=initial_draft,
+        )
+
+
 class CommandOverlayPanel(QWidget):
     submit_requested = Signal()
     escape_requested = Signal()
@@ -164,6 +404,8 @@ class CommandOverlayPanel(QWidget):
     input_focus_acquired = Signal()
     input_focus_lost = Signal()
     ambiguous_match_selected = Signal(int)
+    create_custom_task_requested = Signal()
+    edit_saved_action_requested = Signal(str)
 
     def __init__(self):
         super().__init__(None, Qt.FramelessWindowHint | Qt.Tool)
@@ -255,6 +497,13 @@ class CommandOverlayPanel(QWidget):
         self.saved_inventory_guidance.setObjectName("savedActionInventoryGuidance")
         self.saved_inventory_guidance.setWordWrap(True)
         saved_inventory_layout.addWidget(self.saved_inventory_guidance)
+
+        self.create_custom_task_button = QPushButton("Create Custom Task", self.saved_inventory_frame)
+        self.create_custom_task_button.setObjectName("savedActionCreateButton")
+        self.create_custom_task_button.clicked.connect(
+            lambda _checked=False: self.create_custom_task_requested.emit()
+        )
+        saved_inventory_layout.addWidget(self.create_custom_task_button)
 
         self.saved_inventory_items_frame = QFrame(self.saved_inventory_frame)
         self.saved_inventory_items_frame.setObjectName("savedActionInventoryItems")
@@ -423,13 +672,45 @@ class CommandOverlayPanel(QWidget):
                 color: rgba(166, 247, 195, 0.88);
                 font-size: 12px;
             }
-            QLabel[inventoryRole="item"] {
-                padding: 10px 12px;
+            #savedActionCreateButton {
+                min-height: 34px;
+                margin-top: 4px;
+                padding: 0 12px;
+                border-radius: 12px;
+                border: 1px solid rgba(118, 226, 255, 0.18);
+                background: rgba(6, 18, 30, 196);
+                color: rgba(238, 248, 255, 0.96);
+                text-align: left;
+                font-size: 13px;
+                font-weight: 600;
+            }
+            #savedActionCreateButton:hover {
+                border: 1px solid rgba(118, 226, 255, 0.36);
+                background: rgba(8, 24, 38, 220);
+            }
+            QFrame[inventoryRole="itemFrame"] {
                 border-radius: 14px;
                 border: 1px solid rgba(118, 226, 255, 0.16);
                 background: rgba(6, 18, 30, 196);
+            }
+            QLabel[inventoryRole="itemLabel"] {
+                padding: 10px 12px;
                 color: rgba(234, 246, 255, 0.94);
                 font-size: 12px;
+            }
+            QPushButton[inventoryRole="editButton"] {
+                min-height: 30px;
+                margin: 8px 10px 8px 0;
+                padding: 0 12px;
+                border-radius: 10px;
+                border: 1px solid rgba(118, 226, 255, 0.18);
+                background: rgba(8, 24, 38, 220);
+                color: rgba(238, 248, 255, 0.96);
+                font-size: 12px;
+                font-weight: 600;
+            }
+            QPushButton[inventoryRole="editButton"]:hover {
+                border: 1px solid rgba(118, 226, 255, 0.36);
             }
             #commandAmbiguous {
                 min-height: 20px;
@@ -604,6 +885,7 @@ class CommandOverlayPanel(QWidget):
     def _populate_saved_inventory_items(self, items: list[dict]):
         self._clear_saved_inventory_items()
         for item in items[:6]:
+            item_id = str(item.get("id") or "").strip()
             title = item.get("title", "")
             origin_label = item.get("origin_label", "Saved")
             target_kind = item.get("target_kind", "")
@@ -617,11 +899,28 @@ class CommandOverlayPanel(QWidget):
             if target_display:
                 item_text += f"\n{target_display}"
 
-            label = QLabel(item_text, self.saved_inventory_items_frame)
-            label.setProperty("inventoryRole", "item")
+            item_frame = QFrame(self.saved_inventory_items_frame)
+            item_frame.setProperty("inventoryRole", "itemFrame")
+            item_layout = QHBoxLayout(item_frame)
+            item_layout.setContentsMargins(0, 0, 0, 0)
+            item_layout.setSpacing(0)
+
+            label = QLabel(item_text, item_frame)
+            label.setProperty("inventoryRole", "itemLabel")
             label.setWordWrap(True)
             label.setToolTip(item.get("target", ""))
-            self.saved_inventory_items_layout.addWidget(label)
+            item_layout.addWidget(label, 1)
+
+            if item_id:
+                edit_button = QPushButton("Edit", item_frame)
+                edit_button.setProperty("inventoryRole", "editButton")
+                edit_button.setToolTip(f'Edit "{title}"')
+                edit_button.clicked.connect(
+                    lambda _checked=False, action_id=item_id: self.edit_saved_action_requested.emit(action_id)
+                )
+                item_layout.addWidget(edit_button, 0, Qt.AlignTop)
+
+            self.saved_inventory_items_layout.addWidget(item_frame)
 
     def render_payload(self, payload: dict):
         payload = payload or {}
@@ -672,6 +971,7 @@ class CommandOverlayPanel(QWidget):
         show_inventory = phase == "entry" and bool(saved_action_inventory.get("visible"))
         self.saved_inventory_frame.setVisible(show_inventory)
         if show_inventory:
+            self.create_custom_task_button.setEnabled(True)
             item_count = int(saved_action_inventory.get("count", 0))
             self.saved_inventory_title.setText(
                 f"Saved action inventory ({item_count})"
@@ -741,6 +1041,9 @@ class DesktopRuntimeWindow(QWidget):
         self._desktop_mode_requested = False
         self._pending_visual_state = None
         self._pending_voice_level = None
+        self._saved_action_source_path = None
+        self._saved_action_create_dialog_factory = SavedActionCreateDialog
+        self._saved_action_edit_dialog_factory = SavedActionEditDialog
         self._command_model = CommandOverlayModel()
         self._command_panel = CommandOverlayPanel()
         self._command_panel.submit_requested.connect(self.handle_local_submit_requested)
@@ -750,6 +1053,8 @@ class DesktopRuntimeWindow(QWidget):
         self._command_panel.input_focus_acquired.connect(self.handle_command_input_focus_acquired)
         self._command_panel.input_focus_lost.connect(self.handle_command_input_focus_lost)
         self._command_panel.ambiguous_match_selected.connect(self.handle_ambiguous_match_selected)
+        self._command_panel.create_custom_task_requested.connect(self.handle_create_custom_task_requested)
+        self._command_panel.edit_saved_action_requested.connect(self.handle_edit_saved_action_requested)
         self._result_close_timer = QTimer(self)
         self._result_close_timer.setSingleShot(True)
         self._result_close_timer.timeout.connect(self._close_command_overlay_after_result)
@@ -1096,6 +1401,135 @@ class DesktopRuntimeWindow(QWidget):
             self.close_command_overlay()
         else:
             self.open_command_overlay()
+
+    def reload_command_action_catalog(self, source_path=None):
+        resolved_source_path = self._saved_action_source_path if source_path is None else source_path
+        catalog = self._command_model.reload_action_catalog(resolved_source_path)
+        self._apply_command_overlay_state()
+        if self._command_panel.isVisible():
+            self._command_panel.refresh_for_geometry(
+                self.compute_compact_geometry(),
+                self.screen_ref.availableGeometry(),
+            )
+        return catalog
+
+    def _set_entry_feedback(self, status_kind: str, status_text: str):
+        self._command_model.set_entry_feedback(status_kind, status_text)
+        self._apply_command_overlay_state()
+
+    def _saved_action_authoring_block_message(self, operation_label: str) -> str:
+        inventory = self._command_model.action_catalog.saved_action_inventory
+        guidance_text = inventory.guidance_text or 'Use "Open Saved Actions File" or "Open Saved Actions Folder" to inspect the source.'
+        return (
+            f"Custom task {operation_label} is blocked until the saved-actions source is repaired. "
+            + guidance_text
+        )
+
+    def _resume_overlay_capture_after_authoring_dialog(self):
+        if not self._command_model.visible or self._command_model.phase != "entry":
+            return
+
+        self._overlay_local_input_engaged = False
+        self._overlay_global_capture_suspended = False
+        self._command_panel.input_line.set_local_typing_enabled(False)
+        self._refresh_overlay_input_capture(seconds=5.0)
+        self._apply_command_overlay_state()
+
+    def _handle_saved_action_create_draft_submit(self, draft: SavedActionDraft):
+        result = create_saved_action_from_draft(
+            draft,
+            source_path=self._saved_action_source_path,
+        )
+        self.reload_command_action_catalog(self._saved_action_source_path)
+        self._set_entry_feedback("ready", f'Custom task created: "{result.record["title"]}".')
+        self._log_event(
+            f'RENDERER_MAIN|CUSTOM_TASK_CREATED|action_id={result.record["id"]}|target_kind={result.record["target_kind"]}'
+        )
+        return result
+
+    def _handle_saved_action_edit_draft_submit(self, saved_action_id: str, draft: SavedActionDraft):
+        result = update_saved_action_from_draft(
+            saved_action_id,
+            draft,
+            source_path=self._saved_action_source_path,
+        )
+        self.reload_command_action_catalog(self._saved_action_source_path)
+        self._set_entry_feedback("ready", f'Custom task updated: "{result.record["title"]}".')
+        self._log_event(
+            f'RENDERER_MAIN|CUSTOM_TASK_UPDATED|action_id={result.record["id"]}|target_kind={result.record["target_kind"]}'
+        )
+        return result
+
+    def handle_create_custom_task_requested(self):
+        if not self._command_model.visible or self._command_model.phase != "entry":
+            return
+
+        inventory = self._command_model.action_catalog.saved_action_inventory
+        if inventory.status_kind in {"invalid_source", "invalid_saved_actions"}:
+            self._set_entry_feedback("not_found", self._saved_action_authoring_block_message("creation"))
+            self._log_event(
+                f"RENDERER_MAIN|CUSTOM_TASK_CREATE_BLOCKED|status_kind={inventory.status_kind}"
+            )
+            return
+
+        self._overlay_local_input_engaged = False
+        self._overlay_global_capture_suspended = True
+        self._command_panel.input_line.set_local_typing_enabled(False)
+        self._clear_overlay_input_capture()
+        self._apply_command_overlay_state()
+
+        dialog = self._saved_action_create_dialog_factory(
+            self._command_panel,
+            self._handle_saved_action_create_draft_submit,
+        )
+        try:
+            dialog.exec()
+        finally:
+            self._resume_overlay_capture_after_authoring_dialog()
+
+    def handle_edit_saved_action_requested(self, saved_action_id: str):
+        if not self._command_model.visible or self._command_model.phase != "entry":
+            return
+
+        inventory = self._command_model.action_catalog.saved_action_inventory
+        if inventory.status_kind in {"invalid_source", "invalid_saved_actions"}:
+            self._set_entry_feedback("not_found", self._saved_action_authoring_block_message("editing"))
+            self._log_event(
+                f"RENDERER_MAIN|CUSTOM_TASK_EDIT_BLOCKED|status_kind={inventory.status_kind}"
+            )
+            return
+
+        try:
+            initial_draft = load_saved_action_draft_for_edit(
+                saved_action_id,
+                source_path=self._saved_action_source_path,
+            )
+        except SavedActionUnsafeSourceError:
+            self._set_entry_feedback("not_found", self._saved_action_authoring_block_message("editing"))
+            self._log_event("RENDERER_MAIN|CUSTOM_TASK_EDIT_BLOCKED|status_kind=unsafe_source")
+            return
+        except SavedActionDraftValidationError as exc:
+            self._set_entry_feedback("not_found", str(exc))
+            self._log_event(
+                f"RENDERER_MAIN|CUSTOM_TASK_EDIT_BLOCKED|reason=missing_record|action_id={saved_action_id}"
+            )
+            return
+
+        self._overlay_local_input_engaged = False
+        self._overlay_global_capture_suspended = True
+        self._command_panel.input_line.set_local_typing_enabled(False)
+        self._clear_overlay_input_capture()
+        self._apply_command_overlay_state()
+
+        dialog = self._saved_action_edit_dialog_factory(
+            self._command_panel,
+            lambda draft: self._handle_saved_action_edit_draft_submit(saved_action_id, draft),
+            initial_draft=initial_draft,
+        )
+        try:
+            dialog.exec()
+        finally:
+            self._resume_overlay_capture_after_authoring_dialog()
 
     def handle_command_text_changed(self, text: str):
         self._command_model.set_input_text(text)
