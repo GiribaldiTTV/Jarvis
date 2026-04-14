@@ -34,9 +34,9 @@ This workstream exists so users can manage non-standard custom tasks safely thro
 - the entry-state NCP opening now stays lightweight and button-led, with `Create Custom Task` and `Created Tasks` as the primary authoring entry points
 - detailed saved-action inventory viewing and edit reachability now live in the secondary `Created Tasks` window instead of being expanded inline on the initial opening surface
 - create/edit dialogs now expose an explicit `Trigger` field with `Launch`, `Open`, `Launch and Open`, and `Custom` options
-- callable phrases for saved actions are now generated at runtime from `title`, `aliases`, `trigger_mode`, and optional `custom_triggers` instead of being persisted as alias hacks
-- legacy saved actions that do not yet carry trigger fields still remain bare-title and bare-alias only until they are deliberately rewritten through the new model
-- create/edit dialogs now use stronger field headers, concise help icons, and a bottom examples box that updates from the current title, aliases, trigger selection, and target kind
+- new saved actions now use alias-root invocation, with `Title` treated as a label and callable phrases generated at runtime from `aliases`, `trigger_mode`, and optional `custom_triggers`
+- legacy saved actions that do not yet carry the new invocation-mode marker still remain title-plus-alias callable so existing tasks do not silently change behavior
+- create/edit dialogs now use stronger field headers, concise help icons, and a single bottom guidance/examples box that updates from the current title, aliases, trigger selection, and target kind
 - exact-match resolution remains unchanged
 - the overlay phase machine remains bounded to `entry` -> `choose` -> `confirm` -> `result`
 - current supported saved-action target kinds remain `app`, `folder`, `file`, and `url`
@@ -52,7 +52,7 @@ This workstream exists so users can manage non-standard custom tasks safely thro
 - a lightweight landing path for task authoring and management that does not overload the initial NCP opening surface
 - richer secondary create/manage windows that can carry the detailed explanations, guidance, and step-by-step authoring copy users need once they choose an action path
 - short inline field guidance inside the secondary create/edit windows so users get quick help without overloading the initial landing surface
-- title-driven alias suggestions, explicit trigger configuration, and a bottom-of-dialog dynamic invocation examples box inside the secondary create/edit windows
+- title-driven alias suggestions, explicit trigger configuration, alias-root invocation for new tasks, and a bottom-of-dialog dynamic invocation examples box inside the secondary create/edit windows
 - browse-assisted target selection for `Application`, `Folder`, and `File` that fills the existing validated `Target` field while `Website URL` stays direct-entry only
 
 ## Non-Goals
@@ -75,6 +75,7 @@ This workstream exists so users can manage non-standard custom tasks safely thro
 6. pivoted the initial NCP authoring entry into a lightweight button-led landing surface with a secondary `Created Tasks` window
 7. added browse-assisted target selection for `Application`, `Folder`, and `File` while keeping `Website URL` direct-entry only
 8. added the explicit Trigger model, runtime-generated callable phrases, stronger field headers/help icons, and a dynamic examples box for create/edit dialogs
+9. pivoted new saved actions to alias-root invocation while preserving legacy title-callable behavior for existing tasks
 
 ## Idea Impact Analysis And Route Adjustment
 
@@ -128,6 +129,7 @@ This workstream exists so users can manage non-standard custom tasks safely thro
   Introduced: during the same `2026-04-13` interactive-validation hardening pass.
   Classification: `interactive-only`.
   Reuse: continue hardening and reuse this as the default FB-036 interactive continuation gate instead of rebuilding one-off probes.
+  Time-budgeted defaults: full run `420s`, no-progress watchdog `45s`, scenario budget `90s`, transition budget `25s`, with clean abort, cleanup, and last-progress reporting required on timeout.
 
 - `dev/logs/fb_036_authoring_live_validation/`
   Purpose: durable report and artifact root for the synthetic/live-style FB-036 validation harness.
@@ -164,6 +166,7 @@ Confirm that the full FB-036 branch behavior is stable for real desktop use, inc
 - safe custom-task creation
 - bounded in-place editing
 - explicit Trigger configuration with runtime-generated callable phrases
+- alias-root invocation for newly created tasks without silently changing legacy tasks
 - validation-before-write for every supported target kind
 - immediate catalog reload after save
 - fail-closed handling for unsafe saved-action sources
@@ -194,18 +197,18 @@ Failure Conditions / Edge Cases: the overlay skips entry state, either top-level
 
 2. Setup: stay in entry state with a healthy saved-action source.
 Action: click `Create Custom Task`, choose `Application`, then inspect the dialog before saving anything.
-Expected Behavior: the dialog shows stronger headers for `Title`, `Aliases`, `Trigger`, and `Target`; each header has a help icon; inline guidance stays short; `Trigger` offers `Launch`, `Open`, `Launch and Open`, and `Custom`; `Custom` keeps its comma-separated trigger field hidden until selected; and the bottom examples box stays visible near the action buttons.
-Failure Conditions / Edge Cases: headers are not visually distinct, help icons are missing, the trigger dropdown is missing, the custom trigger field is always visible, or the bottom examples box is missing.
+Expected Behavior: the dialog shows stronger headers for `Title`, `Aliases`, `Trigger`, and `Target`; each header has a help icon; field-specific helper text is carried by the tooltips instead of stacked under the fields; `Trigger` offers `Launch`, `Open`, `Launch and Open`, and `Custom`; `Custom` keeps its comma-separated trigger field hidden until selected; and a single bottom guidance/examples box stays visible near the action buttons.
+Failure Conditions / Edge Cases: headers are not visually distinct, help icons are missing, field helper text still stacks under the inputs, the trigger dropdown is missing, the custom trigger field is always visible, or the bottom guidance/examples box is missing.
 
 3. Setup: stay in the same create dialog.
-Action: enter `Title = Nexus`, `Aliases = NDAI`, confirm the default trigger for `Application`, then switch `Trigger` to `Launch and Open`.
-Expected Behavior: alias suggestions update from the title without overwriting the aliases field; `Application` defaults to `Launch`; the bottom examples box updates live to the current draft and shows only relevant callable phrases like `Nexus`, `NDAI`, `Launch Nexus`, `Open Nexus`, `Launch NDAI`, and `Open NDAI`; and the target-format reminder stays specific to `Application`.
-Failure Conditions / Edge Cases: alias suggestions overwrite typed aliases, the default trigger does not match the selected type, the examples box does not update live, irrelevant examples remain visible, or generated trigger phrases are missing.
+Action: enter `Title = Open Nexus`, `Aliases = Nexus, NDAI`, confirm the default trigger for `Application`, then switch `Trigger` to `Launch and Open`.
+Expected Behavior: alias suggestions update from the title without overwriting the aliases field; `Application` defaults to `Launch`; the bottom examples box updates live to the current draft and shows only relevant callable phrases like `Nexus`, `NDAI`, `Launch Nexus`, `Open Nexus`, `Launch NDAI`, and `Open NDAI`; the title itself is treated as a label rather than a callable phrase source unless it also appears in aliases; and the target-format reminder stays specific to `Application`.
+Failure Conditions / Edge Cases: alias suggestions overwrite typed aliases, the default trigger does not match the selected type, the examples box does not update live, the title appears as a generated callable phrase even when it is not in aliases, irrelevant examples remain visible, or generated trigger phrases are missing.
 
 4. Setup: still in the create dialog.
 Action: change `Trigger` to `Custom`, enter `Force Open, Duck Duck Goose`, then use `Browse...` or manual entry to set `Target = notepad.exe` and save.
-Expected Behavior: the custom trigger field appears only for `Custom`; the examples box updates to phrases like `Force Open Nexus`, `Duck Duck Goose Nexus`, `Force Open NDAI`, and `Duck Duck Goose NDAI`; standard `Launch` / `Open` phrases disappear from the examples box in this mode; save succeeds; and the new task appears immediately without restart.
-Failure Conditions / Edge Cases: the custom trigger field stays hidden, the examples box still shows standard trigger phrases, custom trigger phrases are ignored, or the task only appears after restart.
+Expected Behavior: the custom trigger field appears only for `Custom`; the examples box updates to phrases like `Force Open Nexus`, `Duck Duck Goose Nexus`, `Force Open NDAI`, and `Duck Duck Goose NDAI`; standard `Launch` / `Open` phrases disappear from the examples box in this mode; the title label does not generate its own custom-trigger phrases unless it is also present in aliases; save succeeds; and the new task appears immediately without restart.
+Failure Conditions / Edge Cases: the custom trigger field stays hidden, the examples box still shows standard trigger phrases, custom trigger phrases are ignored, the title generates callable phrases on its own, or the task only appears after restart.
 
 5. Setup: with the newly created task present.
 Action: type callable phrases through the normal overlay input:
@@ -213,8 +216,8 @@ Action: type callable phrases through the normal overlay input:
 `NDAI`
 `Force Open Nexus`
 `Duck Duck Goose NDAI`
-Expected Behavior: each exact phrase resolves through the existing typed-first path with no fuzzy expansion.
-Failure Conditions / Edge Cases: bare title or alias stops working, custom-trigger phrases do not resolve, resolution becomes fuzzy or ambiguous unexpectedly, or restart is required before the new phrases work.
+Expected Behavior: each exact phrase resolves through the existing typed-first path with no fuzzy expansion because the aliases are the invocation roots for the new task.
+Failure Conditions / Edge Cases: alias-root phrases do not resolve, custom-trigger phrases do not resolve, the title label resolves even though it is not present in aliases, resolution becomes fuzzy or ambiguous unexpectedly, or restart is required before the new phrases work.
 
 6. Setup: open `Create Custom Task` again.
 Action: test invalid creates one at a time:
@@ -228,9 +231,9 @@ Failure Conditions / Edge Cases: any invalid target or invalid custom trigger se
 
 7. Setup: with at least one saved action already present.
 Action: attempt collision creates:
-use a built-in title like `Open Windows Explorer`
+use an alias like `Open Windows Explorer`
 use another saved action's existing title or alias
-use wording that collides only through generated trigger phrases, such as creating `Open Nexus` with `Trigger = Launch` after `Nexus` already exists with `Launch and Open`
+use wording that collides only through generated trigger phrases, such as creating `Workspace` with `Trigger = Open` after another task already makes `Open Workspace` callable
 Expected Behavior: the dialog stays open, collision feedback is clear, and no write occurs.
 Failure Conditions / Edge Cases: a colliding action is saved, an existing record is overwritten, or inventory count changes.
 
@@ -241,15 +244,20 @@ Failure Conditions / Edge Cases: preload is blank or incomplete, the trigger res
 
 9. Setup: after the valid edit succeeds.
 Action: run the callable phrases that should still work for the edited task, then verify phrases that should no longer work after the trigger change.
-Expected Behavior: bare title and bare aliases still work; the current trigger family works; phrases from trigger families you removed no longer resolve for that task.
-Failure Conditions / Edge Cases: old trigger phrases still resolve after the trigger mode changed, current trigger phrases do not resolve, or bare title / alias behavior regresses.
+Expected Behavior: the alias-root phrases still work; the current trigger family works; and phrases from trigger families you removed no longer resolve for that task.
+Failure Conditions / Edge Cases: old trigger phrases still resolve after the trigger mode changed, current alias-root phrases do not resolve, or the title label behaves like an invocation source for the new task even when it is not in aliases.
 
-10. Setup: prepare at least eight valid saved actions and reopen the overlay.
+10. Setup: use or create one saved action record that predates the alias-root invocation marker, then open `Created Tasks` and edit it without changing its compatibility mode.
+Action: save a valid edit and then run the legacy task again by bare title.
+Expected Behavior: the legacy task keeps its title-callable behavior after the edit because existing tasks must not silently convert.
+Failure Conditions / Edge Cases: a legacy task loses bare-title callability after a normal edit, or it silently flips into the new alias-root model without an explicit migration step.
+
+11. Setup: prepare at least eight valid saved actions and reopen the overlay.
 Action: click `Created Tasks`, scroll the inventory there, find the seventh or eighth saved action, click `Edit`, change it, and save.
 Expected Behavior: later items remain reachable through the secondary window, scrolling stays stable, the correct later item opens for editing, and the updated later item refreshes immediately after save.
 Failure Conditions / Edge Cases: only the first six items remain editable, `Created Tasks` does not expose later rows cleanly, scroll behavior breaks layout, later `Edit` buttons open the wrong item, or later edits do not refresh correctly.
 
-11. Setup: back up `%LOCALAPPDATA%\Nexus Desktop AI\saved_actions.json`, then intentionally corrupt it with invalid JSON.
+12. Setup: back up `%LOCALAPPDATA%\Nexus Desktop AI\saved_actions.json`, then intentionally corrupt it with invalid JSON.
 Action: reopen the overlay, try `Create Custom Task`, then open `Created Tasks`; if any saved-action rows still show `Edit`, try that too.
 Expected Behavior: authoring is blocked cleanly with repair-oriented messaging, no dialog proceeds into a real save path, and the source is not silently rewritten. In a fail-closed invalid-source state, `Created Tasks` may still open for status visibility while edit affordances disappear entirely; that absence is acceptable as long as the UI does not expose a live edit path.
 Failure Conditions / Edge Cases: the dialog opens anyway, the source is auto-repaired silently, inventory becomes inconsistent, a live edit path is still reachable against the broken source, or outside text/input-capture behavior regresses while blocked.
@@ -260,11 +268,13 @@ Failure Conditions / Edge Cases: the dialog opens anyway, the source is auto-rep
 - `Create Custom Task` and `Created Tasks` remain the top-level authoring entry points on the initial NCP opening
 - create and edit dialogs now expose an explicit `Trigger` field instead of relying on alias hacks
 - `Launch`, `Open`, `Launch and Open`, and `Custom` stay bounded and exact rather than widening into fuzzy language
+- new saved actions treat `Title` as a label and `Aliases` as the invocation roots
 - custom trigger phrases are comma-separated, user-authored, and persisted separately from aliases
-- runtime-generated callable phrases include bare title, bare aliases, trigger + title, and trigger + aliases
-- legacy saved actions without trigger fields stay bare-only until rewritten through the new model
+- runtime-generated callable phrases for new tasks include bare aliases and trigger + aliases
+- legacy saved actions without the new invocation-mode marker keep title-plus-alias callability until an explicit migration path exists
 - stronger headers and concise help icons improve readability without creating a text wall
-- the bottom examples box shows only current callable phrases plus the relevant current target-format reminder
+- field-specific helper text now lives in the tooltips instead of separate labels under each field
+- the single bottom guidance/examples box shows suggested aliases, current callable phrases, and the relevant current target-format reminder
 - `Application`, `Folder`, and `File` expose `Browse...` support while still allowing manual target entry
 - `Website URL` stays direct-entry only
 - generated trigger phrases participate in collision detection before write
