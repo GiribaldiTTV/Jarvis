@@ -126,7 +126,7 @@ Workflow mode should usually return:
 - a distinct summary of validator results
 - a distinct summary of synthetic or headless validation results and the supporting validation artifacts created or used
 - a distinct summary of interactive OS-level execution results when that path is feasible
-- session cleanup performed, including what was closed, stopped, restored, or deleted after the pass
+- session cleanup performed and explicitly verified, including what was closed, stopped, restored, or deleted after the pass
 - any remaining simulated-only findings or reasoning-only gaps that still matter
 - deeper branch-local validation or hardening findings when the slice changes runtime or user-visible behavior
 - a detailed `## User Test Summary` manual checklist when the slice changes user-visible behavior, runtime interaction, UX flow, prompts, startup behavior, voice behavior, or another operator-facing path
@@ -135,6 +135,8 @@ Workflow mode should usually return:
 - an explicit statement under `## User Test Summary` when no meaningful manual test exists and why
 - remaining drift or known gaps
 - whether the approved phase is complete
+
+Do not report cleanup as complete unless the pass has explicitly checked for leftover apps, windows, dialogs, helper processes, probe files, or other temporary artifacts it created or opened.
 
 ## Workstream And Branch Governance
 

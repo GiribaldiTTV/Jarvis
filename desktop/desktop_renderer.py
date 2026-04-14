@@ -19,6 +19,7 @@ from PySide6.QtWidgets import (
     QComboBox,
     QScrollArea,
     QFileDialog,
+    QToolButton,
 )
 from PySide6.QtCore import Qt, QTimer, QUrl, QRect, Signal
 from PySide6.QtGui import QColor
@@ -34,7 +35,11 @@ from .saved_action_authoring import (
     update_saved_action_from_draft,
 )
 from .saved_action_source import SavedActionSourceWriteBlocked
-from .shared_action_model import launch_command_action
+from .shared_action_model import (
+    build_saved_action_callable_phrases,
+    default_saved_action_trigger_mode,
+    launch_command_action,
+)
 from .orin_support_reporting import SupportBundleError, prepare_manual_issue_report
 from .workerw_utils import (
     attach_window_to_desktop,
@@ -240,6 +245,12 @@ class SavedActionCreateDialog(QDialog):
         ("File", "file"),
         ("Website URL", "url"),
     )
+    TRIGGER_OPTIONS = (
+        ("Launch", "launch"),
+        ("Open", "open"),
+        ("Launch and Open", "launch_and_open"),
+        ("Custom", "custom"),
+    )
 
     TITLE_GUIDANCE = (
         "The main name people will type or click."
@@ -266,13 +277,57 @@ class SavedActionCreateDialog(QDialog):
         ),
     }
 
-    TARGET_EXAMPLES_TEXT = (
-        "Application: notepad.exe\n"
-        r"Application path: C:\Program Files\Notepad++\notepad++.exe" "\n"
-        r"Folder: C:\Reports" "\n"
-        r"File: C:\Reports\weekly.txt" "\n"
-        "Website URL: https://example.com/docs"
+    TRIGGER_GUIDANCE = (
+        "Adds the leading phrase Nexus can use before the title or aliases."
     )
+    CUSTOM_TRIGGERS_GUIDANCE = (
+        "Custom trigger phrases, separated by commas."
+    )
+
+    TITLE_TOOLTIP_TEXT = (
+        "What it does: the main task name people type or click.\n"
+        "Examples: Nexus, Reports Hub."
+    )
+    ALIASES_TOOLTIP_TEXT = (
+        "What it does: alternate names for the same task.\n"
+        "Examples: NDAI, weekly reports."
+    )
+    TRIGGER_TOOLTIP_TEXT = (
+        "What it does: adds explicit call prefixes before the title or aliases.\n"
+        "Examples: Open, Launch, Force Open."
+    )
+    TARGET_TOOLTIP_TEXT = {
+        "app": (
+            "What it does: points to what Nexus launches.\n"
+            r"Examples: notepad.exe or C:\Program Files\Notepad++\notepad++.exe"
+        ),
+        "folder": (
+            "What it does: points to the folder Nexus opens.\n"
+            r"Example: C:\Reports"
+        ),
+        "file": (
+            "What it does: points to the file Nexus opens.\n"
+            r"Example: C:\Reports\weekly.txt"
+        ),
+        "url": (
+            "What it does: points to the full website address Nexus opens.\n"
+            "Example: https://example.com/docs"
+        ),
+    }
+    TARGET_FORMAT_EXAMPLES = {
+        "app": (
+            r"Target format: notepad.exe or C:\Program Files\Notepad++\notepad++.exe"
+        ),
+        "folder": (
+            r"Target format: C:\Reports"
+        ),
+        "file": (
+            r"Target format: C:\Reports\weekly.txt"
+        ),
+        "url": (
+            "Target format: https://example.com/docs"
+        ),
+    }
 
     TARGET_ERROR_GUIDANCE = {
         "app": (
@@ -310,6 +365,8 @@ class SavedActionCreateDialog(QDialog):
         self._lifecycle_callback = lifecycle_callback
         self._dialog_signal_name = dialog_signal_name
         self._ready_signal_emitted = False
+        self._syncing_trigger_selection = False
+        self._trigger_manually_changed = False
         self.setModal(True)
         self.setWindowTitle(dialog_title)
         self.setObjectName("savedActionCreateDialog")
@@ -337,14 +394,21 @@ class SavedActionCreateDialog(QDialog):
         self.type_combo.setObjectName("savedActionCreateType")
         for label, target_kind in self.ACTION_TYPE_OPTIONS:
             self.type_combo.addItem(label, target_kind)
-        self.type_combo.currentIndexChanged.connect(self._update_target_guidance)
+        self.type_combo.currentIndexChanged.connect(self._handle_target_kind_changed)
         form.addWidget(self.type_combo, 0, 1)
 
-        form.addWidget(self._make_form_label("Title"), 1, 0)
+        self.title_header, self.title_header_label, self.title_help_button = self._make_form_header(
+            "Title",
+            tooltip_text=self.TITLE_TOOLTIP_TEXT,
+            object_name="savedActionCreateTitleHeader",
+            help_object_name="savedActionCreateTitleHelp",
+        )
+        form.addWidget(self.title_header, 1, 0)
         self.title_input = QLineEdit(self)
         self.title_input.setObjectName("savedActionCreateTitleInput")
         self.title_input.setPlaceholderText("Open Reports")
         self.title_input.textChanged.connect(self._update_alias_suggestions)
+        self.title_input.textChanged.connect(self._refresh_examples_box)
         form.addWidget(self.title_input, 1, 1)
         self.title_guidance_label = self._make_field_guidance_label(
             self.TITLE_GUIDANCE,
@@ -352,10 +416,17 @@ class SavedActionCreateDialog(QDialog):
         )
         form.addWidget(self.title_guidance_label, 2, 1)
 
-        form.addWidget(self._make_form_label("Aliases"), 3, 0)
+        self.aliases_header, self.aliases_header_label, self.aliases_help_button = self._make_form_header(
+            "Aliases",
+            tooltip_text=self.ALIASES_TOOLTIP_TEXT,
+            object_name="savedActionCreateAliasesHeader",
+            help_object_name="savedActionCreateAliasesHelp",
+        )
+        form.addWidget(self.aliases_header, 3, 0)
         self.aliases_input = QLineEdit(self)
         self.aliases_input.setObjectName("savedActionCreateAliasesInput")
         self.aliases_input.setPlaceholderText("Optional, comma-separated")
+        self.aliases_input.textChanged.connect(self._refresh_examples_box)
         form.addWidget(self.aliases_input, 3, 1)
         self.aliases_guidance_label = self._make_field_guidance_label(
             self.ALIASES_GUIDANCE,
@@ -368,7 +439,46 @@ class SavedActionCreateDialog(QDialog):
         )
         form.addWidget(self.aliases_suggestion_label, 5, 1)
 
-        form.addWidget(self._make_form_label("Target"), 6, 0)
+        self.trigger_header, self.trigger_header_label, self.trigger_help_button = self._make_form_header(
+            "Trigger",
+            tooltip_text=self.TRIGGER_TOOLTIP_TEXT,
+            object_name="savedActionCreateTriggerHeader",
+            help_object_name="savedActionCreateTriggerHelp",
+        )
+        form.addWidget(self.trigger_header, 6, 0)
+        self.trigger_combo = QComboBox(self)
+        self.trigger_combo.setObjectName("savedActionCreateTrigger")
+        for label, trigger_mode in self.TRIGGER_OPTIONS:
+            self.trigger_combo.addItem(label, trigger_mode)
+        self.trigger_combo.currentIndexChanged.connect(self._handle_trigger_selection_changed)
+        self.custom_triggers_input = QLineEdit(self)
+        self.custom_triggers_input.setObjectName("savedActionCreateCustomTriggersInput")
+        self.custom_triggers_input.setPlaceholderText("Force Open, Duck Duck Goose")
+        self.custom_triggers_input.textChanged.connect(self._refresh_examples_box)
+        self.custom_triggers_guidance_label = self._make_field_guidance_label(
+            self.CUSTOM_TRIGGERS_GUIDANCE,
+            "savedActionCreateCustomTriggersGuidance",
+        )
+        trigger_row = QVBoxLayout()
+        trigger_row.setContentsMargins(0, 0, 0, 0)
+        trigger_row.setSpacing(6)
+        trigger_row.addWidget(self.trigger_combo)
+        trigger_row.addWidget(self.custom_triggers_input)
+        trigger_row.addWidget(self.custom_triggers_guidance_label)
+        form.addLayout(trigger_row, 6, 1)
+        self.trigger_guidance_label = self._make_field_guidance_label(
+            self.TRIGGER_GUIDANCE,
+            "savedActionCreateTriggerGuidance",
+        )
+        form.addWidget(self.trigger_guidance_label, 7, 1)
+
+        self.target_header, self.target_header_label, self.target_help_button = self._make_form_header(
+            "Target",
+            tooltip_text="",
+            object_name="savedActionCreateTargetHeader",
+            help_object_name="savedActionCreateTargetHelp",
+        )
+        form.addWidget(self.target_header, 8, 0)
         self.target_input = QLineEdit(self)
         self.target_input.setObjectName("savedActionCreateTargetInput")
         self.target_browse_button = QPushButton("Browse...", self)
@@ -379,12 +489,12 @@ class SavedActionCreateDialog(QDialog):
         target_row.setSpacing(8)
         target_row.addWidget(self.target_input, 1)
         target_row.addWidget(self.target_browse_button, 0)
-        form.addLayout(target_row, 6, 1)
+        form.addLayout(target_row, 8, 1)
         self.target_guidance_label = self._make_field_guidance_label(
             "",
             "savedActionCreateTargetGuidance",
         )
-        form.addWidget(self.target_guidance_label, 7, 1)
+        form.addWidget(self.target_guidance_label, 9, 1)
 
         layout.addLayout(form)
 
@@ -399,11 +509,11 @@ class SavedActionCreateDialog(QDialog):
         target_examples_layout.setContentsMargins(12, 10, 12, 10)
         target_examples_layout.setSpacing(4)
 
-        self.target_examples_title = QLabel("Launch / open string examples", self.target_examples_box)
+        self.target_examples_title = QLabel("How you can call this task", self.target_examples_box)
         self.target_examples_title.setObjectName("savedActionCreateTargetExamplesTitle")
         target_examples_layout.addWidget(self.target_examples_title)
 
-        self.target_examples_label = QLabel(self.TARGET_EXAMPLES_TEXT, self.target_examples_box)
+        self.target_examples_label = QLabel("", self.target_examples_box)
         self.target_examples_label.setObjectName("savedActionCreateTargetExamples")
         self.target_examples_label.setWordWrap(True)
         target_examples_layout.addWidget(self.target_examples_label)
@@ -465,6 +575,9 @@ class SavedActionCreateDialog(QDialog):
                 font-weight: 600;
                 letter-spacing: 0.08em;
             }
+            QLabel[createRole="fieldHeader"] {
+                color: rgba(232, 246, 255, 0.98);
+            }
             QLineEdit, QComboBox {
                 min-height: 34px;
                 border-radius: 10px;
@@ -472,6 +585,22 @@ class SavedActionCreateDialog(QDialog):
                 background: rgba(6, 18, 30, 196);
                 color: rgba(238, 248, 255, 0.96);
                 padding: 4px 10px;
+            }
+            QToolButton[createRole="helpIcon"] {
+                min-width: 22px;
+                max-width: 22px;
+                min-height: 22px;
+                max-height: 22px;
+                padding: 0;
+                border-radius: 11px;
+                border: 1px solid rgba(118, 226, 255, 0.20);
+                background: rgba(6, 18, 30, 168);
+                color: rgba(196, 230, 245, 0.94);
+                font-size: 11px;
+                font-weight: 700;
+            }
+            QToolButton[createRole="helpIcon"]:hover {
+                border: 1px solid rgba(118, 226, 255, 0.38);
             }
             QPushButton {
                 min-height: 34px;
@@ -488,7 +617,11 @@ class SavedActionCreateDialog(QDialog):
         )
 
         self._update_alias_suggestions()
+        self._apply_default_trigger_mode(force=True)
+        self._sync_trigger_ui_from_selection(mark_manual=False)
+        self._trigger_manually_changed = False
         self._update_target_guidance()
+        self._refresh_examples_box()
         if initial_draft is not None:
             self.load_draft(initial_draft)
 
@@ -522,6 +655,38 @@ class SavedActionCreateDialog(QDialog):
         label.setProperty("createRole", "label")
         return label
 
+    def _make_form_header(
+        self,
+        text: str,
+        *,
+        tooltip_text: str,
+        object_name: str,
+        help_object_name: str,
+    ) -> tuple[QWidget, QLabel, QToolButton]:
+        container = QWidget(self)
+        layout = QHBoxLayout(container)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(6)
+
+        label = QLabel(text, container)
+        label.setObjectName(object_name)
+        label.setProperty("createRole", "fieldHeader")
+        header_font = label.font()
+        header_font.setPointSize(max(14, header_font.pointSize()))
+        header_font.setBold(True)
+        label.setFont(header_font)
+        layout.addWidget(label, 0, Qt.AlignVCenter)
+
+        help_button = QToolButton(container)
+        help_button.setObjectName(help_object_name)
+        help_button.setProperty("createRole", "helpIcon")
+        help_button.setText("?")
+        help_button.setToolTip(tooltip_text)
+        help_button.setAutoRaise(True)
+        layout.addWidget(help_button, 0, Qt.AlignVCenter)
+        layout.addStretch(1)
+        return container, label, help_button
+
     def _make_field_guidance_label(self, text: str, object_name: str) -> QLabel:
         label = QLabel(text, self)
         label.setObjectName(object_name)
@@ -531,6 +696,9 @@ class SavedActionCreateDialog(QDialog):
 
     def current_target_kind(self) -> str:
         return str(self.type_combo.currentData() or "app")
+
+    def current_trigger_mode(self) -> str:
+        return str(self.trigger_combo.currentData() or default_saved_action_trigger_mode(self.current_target_kind()))
 
     def _build_alias_suggestions(self, title: str) -> tuple[str, ...]:
         normalized_title = re.sub(r"\s+", " ", (title or "").strip())
@@ -574,9 +742,79 @@ class SavedActionCreateDialog(QDialog):
             return
         self.aliases_suggestion_label.setText(f"Suggested aliases: {' | '.join(suggestions)}")
 
+    def _set_trigger_mode(self, trigger_mode: str):
+        self._syncing_trigger_selection = True
+        try:
+            for index in range(self.trigger_combo.count()):
+                if str(self.trigger_combo.itemData(index) or "") == trigger_mode:
+                    self.trigger_combo.setCurrentIndex(index)
+                    break
+        finally:
+            self._syncing_trigger_selection = False
+
+    def _apply_default_trigger_mode(self, *, force: bool = False):
+        if force or not self._trigger_manually_changed:
+            self._set_trigger_mode(default_saved_action_trigger_mode(self.current_target_kind()))
+
+    def _handle_target_kind_changed(self):
+        self._apply_default_trigger_mode()
+        self._update_target_guidance()
+        self._refresh_examples_box()
+
+    def _handle_trigger_selection_changed(self):
+        self._sync_trigger_ui_from_selection(mark_manual=not self._syncing_trigger_selection)
+
+    def _sync_trigger_ui_from_selection(self, *, mark_manual: bool):
+        if mark_manual:
+            self._trigger_manually_changed = True
+        is_custom = self.current_trigger_mode() == "custom"
+        self.custom_triggers_input.setVisible(is_custom)
+        self.custom_triggers_guidance_label.setVisible(is_custom)
+        self._refresh_examples_box()
+
+    def _parse_custom_triggers_text(self) -> tuple[str, ...]:
+        trigger_text = (self.custom_triggers_input.text() or "").replace("\n", ",")
+        triggers = [re.sub(r"\s+", " ", part.strip()) for part in trigger_text.split(",")]
+        return tuple(trigger for trigger in triggers if trigger)
+
+    def _target_tooltip_text(self) -> str:
+        return self.TARGET_TOOLTIP_TEXT.get(self.current_target_kind(), "")
+
+    def _target_format_example_text(self) -> str:
+        return self.TARGET_FORMAT_EXAMPLES.get(self.current_target_kind(), "")
+
+    def _refresh_examples_box(self):
+        title = re.sub(r"\s+", " ", (self.title_input.text() or "").strip())
+        aliases = self._parse_aliases_text()
+        trigger_mode = self.current_trigger_mode()
+        custom_triggers = self._parse_custom_triggers_text()
+
+        lines: list[str] = []
+        callable_phrases = build_saved_action_callable_phrases(
+            title,
+            aliases,
+            trigger_mode=trigger_mode,
+            custom_triggers=custom_triggers,
+        )
+        if callable_phrases:
+            lines.append("Examples (case does not matter):")
+            for phrase in callable_phrases[:6]:
+                lines.append(phrase)
+        elif trigger_mode == "custom":
+            lines.append("Add a title and one or more custom triggers to see callable examples.")
+        else:
+            lines.append("Add a title to see how this task can be called.")
+
+        target_format = self._target_format_example_text()
+        if target_format:
+            lines.append("")
+            lines.append(target_format)
+        self.target_examples_label.setText("\n".join(lines))
+
     def _update_target_guidance(self):
         target_kind = self.current_target_kind()
         self.target_guidance_label.setText(self.TARGET_GUIDANCE.get(target_kind, ""))
+        self.target_help_button.setToolTip(self._target_tooltip_text())
         if target_kind == "url":
             self.target_input.setPlaceholderText("https://example.com/docs")
             self.target_browse_button.hide()
@@ -652,18 +890,26 @@ class SavedActionCreateDialog(QDialog):
             target_kind=self.current_target_kind(),
             target=self.target_input.text(),
             aliases=self._parse_aliases_text(),
+            trigger_mode=self.current_trigger_mode(),
+            custom_triggers=self._parse_custom_triggers_text(),
         )
 
     def load_draft(self, draft: SavedActionDraft):
+        explicit_trigger_configured = bool(draft.trigger_mode or draft.custom_triggers)
         for index in range(self.type_combo.count()):
             if str(self.type_combo.itemData(index) or "") == draft.target_kind:
                 self.type_combo.setCurrentIndex(index)
                 break
         self.title_input.setText(draft.title)
         self.aliases_input.setText(", ".join(draft.aliases))
+        self.custom_triggers_input.setText(", ".join(draft.custom_triggers))
+        self._set_trigger_mode(draft.trigger_mode or default_saved_action_trigger_mode(draft.target_kind))
         self.target_input.setText(draft.target)
         self._update_alias_suggestions()
+        self._sync_trigger_ui_from_selection(mark_manual=False)
+        self._trigger_manually_changed = explicit_trigger_configured
         self._update_target_guidance()
+        self._refresh_examples_box()
 
     def _format_error_text(self, text: str) -> str:
         message = (text or "").strip()
@@ -678,8 +924,13 @@ class SavedActionCreateDialog(QDialog):
             )
         if "collides with" in lower_message:
             return (
-                "Title or aliases: pick wording that does not overlap with a built-in action "
+                "Title, aliases, or triggers: pick wording that does not overlap with a built-in action "
                 "or another custom task. "
+                f"{message}"
+            )
+        if "trigger mode" in lower_message or "custom trigger" in lower_message or "trigger" in lower_message:
+            return (
+                "Trigger: choose a standard trigger or enter unique custom trigger phrases separated by commas. "
                 f"{message}"
             )
         if "could not be found for editing" in lower_message:

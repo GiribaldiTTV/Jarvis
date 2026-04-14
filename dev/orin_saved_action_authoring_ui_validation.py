@@ -397,6 +397,25 @@ def _test_create_dialog_surfaces_field_level_guidance():
     dialog = renderer_mod.SavedActionCreateDialog()
 
     _assert(
+        dialog.title_header_label.font().pointSize() >= 14
+        and dialog.aliases_header_label.font().pointSize() >= 14
+        and dialog.trigger_header_label.font().pointSize() >= 14
+        and dialog.target_header_label.font().pointSize() >= 14,
+        "field headers should be more prominent than the surrounding guidance copy",
+    )
+    _assert(
+        "main task name" in dialog.title_help_button.toolTip().casefold(),
+        "title help icon should explain what the title field does",
+    )
+    _assert(
+        "alternate names" in dialog.aliases_help_button.toolTip().casefold(),
+        "aliases help icon should explain what aliases are for",
+    )
+    _assert(
+        "explicit call prefixes" in dialog.trigger_help_button.toolTip().casefold(),
+        "trigger help icon should explain what the trigger field does",
+    )
+    _assert(
         "main name" in dialog.title_guidance_label.text().casefold(),
         "create dialog should explain what the title field does",
     )
@@ -409,36 +428,105 @@ def _test_create_dialog_surfaces_field_level_guidance():
         "create dialog should explain that alias suggestions follow the title",
     )
     _assert(
+        "leading phrase" in dialog.trigger_guidance_label.text().casefold(),
+        "create dialog should explain what the trigger field controls",
+    )
+    _assert(
+        dialog.current_trigger_mode() == "launch",
+        "application tasks should default to Launch until the trigger is changed manually",
+    )
+    _assert(
         "what nexus launches" in dialog.target_guidance_label.text().casefold(),
         "application target guidance should explain what the target launches",
     )
     _assert(
-        "launch / open string examples" in dialog.target_examples_title.text().casefold(),
-        "create dialog should show a boxed examples section below the fields",
-    )
-    _assert(
-        "application: notepad.exe" in dialog.target_examples_label.text().casefold()
-        and "website url: https://example.com/docs" in dialog.target_examples_label.text().casefold(),
-        "target examples box should show all supported launch/open string formats",
+        "how you can call this task" in dialog.target_examples_title.text().casefold(),
+        "create dialog should show a boxed callable-examples section below the fields",
     )
 
-    dialog.title_input.setText("Open Reports")
+    dialog.title_input.setText("Nexus")
     _assert(
-        "reports" in dialog.aliases_suggestion_label.text().casefold()
-        and "show reports" in dialog.aliases_suggestion_label.text().casefold(),
+        "nexus" in dialog.aliases_suggestion_label.text().casefold()
+        and "show nexus" in dialog.aliases_suggestion_label.text().casefold(),
         "alias suggestions should update from the title without overwriting the aliases field",
     )
 
     dialog.type_combo.setCurrentText("Folder")
     _assert(
+        dialog.current_trigger_mode() == "open",
+        "folder tasks should default to Open while the trigger is still following the selected type",
+    )
+    _assert(
         "full folder path" in dialog.target_guidance_label.text().casefold(),
         "folder guidance should explain that the target points to a folder",
+    )
+    _assert(
+        "folder nexus opens" in dialog.target_help_button.toolTip().casefold(),
+        "target help icon should update with the current target-kind examples",
     )
 
     dialog.type_combo.setCurrentText("Website URL")
     _assert(
         "full address" in dialog.target_guidance_label.text().casefold(),
         "website guidance should explain that the target needs a full URL",
+    )
+
+
+def _test_create_dialog_trigger_controls_and_dynamic_examples():
+    _app()
+    dialog = renderer_mod.SavedActionCreateDialog()
+
+    _assert(
+        dialog.custom_triggers_input.isHidden(),
+        "custom trigger input should stay hidden until Custom trigger mode is selected",
+    )
+
+    dialog.type_combo.setCurrentText("Website URL")
+    dialog.title_input.setText("Nexus")
+    dialog.aliases_input.setText("NDAI")
+    dialog.trigger_combo.setCurrentText("Launch and Open")
+    examples_text = dialog.target_examples_label.text().casefold()
+
+    _assert(
+        "examples (case does not matter)" in examples_text,
+        "examples box should explain the real callable phrases for the current draft",
+    )
+    _assert(
+        "open nexus" in examples_text
+        and "launch nexus" in examples_text
+        and "open ndai" in examples_text
+        and "launch ndai" in examples_text,
+        "launch-and-open mode should show both trigger families for the title and aliases",
+    )
+    _assert(
+        "target format: https://example.com/docs" in examples_text,
+        "examples box should keep only the relevant target-kind format reminder",
+    )
+    _assert(
+        "notepad.exe" not in examples_text and r"c:\reports\weekly.txt" not in examples_text,
+        "examples box should remove irrelevant target-kind examples",
+    )
+
+    dialog.trigger_combo.setCurrentText("Custom")
+    _assert(
+        not dialog.custom_triggers_input.isHidden(),
+        "custom trigger mode should reveal the comma-separated custom trigger input",
+    )
+    dialog.custom_triggers_input.setText("Force Open, Duck Duck Goose")
+    custom_examples_text = dialog.target_examples_label.text().casefold()
+    custom_example_lines = {
+        line.strip()
+        for line in custom_examples_text.splitlines()
+        if line.strip()
+    }
+    _assert(
+        "force open nexus" in custom_examples_text
+        and "duck duck goose ndai" in custom_examples_text,
+        "custom trigger mode should show examples using the entered custom trigger phrases",
+    )
+    _assert(
+        "launch nexus" not in custom_example_lines and "open nexus" not in custom_example_lines,
+        "custom trigger mode should replace the standard trigger families in the examples box",
     )
 
 
@@ -951,6 +1039,7 @@ def main():
         ("Created Tasks dialog keeps edit reachability beyond six items", _test_created_tasks_dialog_edit_reachability_extends_beyond_six_items),
         ("type-first dialog maps supported kinds", _test_type_first_dialog_maps_all_supported_kinds),
         ("create dialog surfaces field-level guidance", _test_create_dialog_surfaces_field_level_guidance),
+        ("create dialog trigger controls and dynamic examples", _test_create_dialog_trigger_controls_and_dynamic_examples),
         ("create dialog supports browse-assisted target selection", _test_create_dialog_supports_browse_assisted_target_selection),
         ("successful create flow reloads inventory", _test_successful_create_flow_reloads_inventory_immediately),
         ("invalid input shows dialog error without write", _test_invalid_input_shows_dialog_error_and_does_not_write),

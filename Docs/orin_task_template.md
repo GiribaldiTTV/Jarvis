@@ -241,6 +241,7 @@ If applicable, also verify:
 - failure path
 - artifact cleanup
 - session cleanup and teardown
+- cleanup verification, including that no test-opened app window, helper process, or temporary probe file was left behind
 - no regressions in locked behavior
 - no drift outside the allowed surfaces
 
@@ -250,6 +251,7 @@ Session cleanup and teardown includes, when relevant:
 - stopping helper processes, harnesses, temporary runtimes, or validators started during the pass
 - deleting temporary files, scratch documents, probe files, or other temporary outputs created only for the pass
 - restoring any local state or source inputs intentionally changed for verification
+- explicitly checking that those items are actually closed, stopped, deleted, or restored before handoff rather than assuming they cleaned themselves up
 
 If anything remains intentionally open or preserved after the pass, the output must say so explicitly and explain why.
 

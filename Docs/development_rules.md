@@ -150,6 +150,8 @@ Every revision must include:
 
 After any validation run, test pass, runtime exercise, harness execution, or other operational step, Codex must also clean up what it created or opened during that session unless there is a deliberate reason to preserve it.
 
+This is not satisfied by a best-effort attempt alone. Before handoff, Codex must explicitly verify that the cleanup actually happened for the apps, windows, dialogs, helper processes, temporary files, probe documents, and other session-scoped artifacts it opened, started, or created during the pass.
+
 That includes, when relevant:
 
 - closing programs, dialogs, or windows Codex opened
@@ -157,6 +159,7 @@ That includes, when relevant:
 - deleting temporary files, temporary documents, scratch outputs, or probe files Codex created only for the pass
 - restoring source files, settings, or local state Codex intentionally modified for the test
 - confirming the machine or workspace is not left in a noisier or more invasive state than necessary for the user
+- verifying that user-visible apps or windows opened for the pass, such as Notepad or File Explorer windows, are actually closed rather than assumed closed
 
 If something created during the pass must remain on disk or stay open intentionally, Codex must say so explicitly and explain why it was preserved.
 

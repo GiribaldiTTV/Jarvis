@@ -60,6 +60,7 @@ $ValidationState = [ordered]@{
 }
 
 $script:RuntimeLogLineCursor = 0
+$script:RuntimeAutoOpenPending = $false
 
 function Write-StepLog {
     param(
@@ -983,6 +984,10 @@ function Resolve-LiveOverlayRoot {
         [System.Windows.Automation.AutomationElement]$Overlay
     )
 
+    if ($Overlay -eq [System.Windows.Automation.AutomationElement]::RootElement) {
+        return $Overlay
+    }
+
     $liveOverlay = Get-OverlayWindow
     if ($liveOverlay -and -not (Test-ElementGoneOrOffscreen -Element $liveOverlay)) {
         return $liveOverlay
@@ -1051,6 +1056,24 @@ function Get-InventoryTextRows {
 }
 
 function Open-Overlay {
+    if ($script:RuntimeAutoOpenPending) {
+        $script:RuntimeAutoOpenPending = $false
+        $markerStart = New-RuntimeMarkerCursor
+        Write-StepLog -Stage "OVERLAY" -Message "waiting for runtime helper auto-open"
+        try {
+            Wait-ForRuntimeMarker -Marker "RENDERER_MAIN|INTERACTIVE_VALIDATION_AUTO_OPENED" -TimeoutSeconds 5 -StartLine $markerStart
+        } catch {
+            try {
+                Wait-ForOverlayRuntimeReady -StartLine $markerStart -TimeoutSeconds 5
+            } catch {
+            }
+        }
+
+        if (Test-RuntimeMarkerSeen -Marker "RENDERER_MAIN|COMMAND_OVERLAY_READY" -StartLine $markerStart) {
+            return [System.Windows.Automation.AutomationElement]::RootElement
+        }
+    }
+
     $overlay = Wait-ForOptionalOverlayOpen -TimeoutSeconds 6
     if ($overlay) {
         Write-StepLog -Stage "OVERLAY" -Message "overlay already visible"
@@ -1385,12 +1408,12 @@ function Close-CreatedTasksDialog {
     try {
         Wait-ForDialogRuntimeClosed -SignalBase "CREATED_TASKS_DIALOG" -StartLine $markerStart -TimeoutSeconds 5
         try {
-            Wait-ForDialogClosed -Name "Created Tasks" -TimeoutSeconds 5
+            Wait-ForRuntimeMarker -Marker "RENDERER_MAIN|COMMAND_OVERLAY_READY" -TimeoutSeconds 3 -StartLine $markerStart
         } catch {
-            Add-Note "Created Tasks close readback lagged after a closed marker; continuing without an ESC fallback."
+            Add-Note "Created Tasks closed by runtime marker, but overlay-ready follow-up lagged; continuing with runtime marker authority."
         }
     } catch {
-        Add-Note "Created Tasks close readback lagged once; continuing after an ESC fallback because the next step can still re-resolve dialog state."
+        Add-Note "Created Tasks did not close on the first runtime wait; retrying with an ESC fallback and trusting runtime markers instead of UI readback."
         try {
             Focus-Window -Element $Dialog
         } catch {
@@ -1399,8 +1422,13 @@ function Close-CreatedTasksDialog {
         try {
             Wait-ForDialogRuntimeClosed -SignalBase "CREATED_TASKS_DIALOG" -StartLine $markerStart -TimeoutSeconds 5
         } catch {
+            Add-Note "Created Tasks close fallback still missed a fresh runtime close marker; continuing because the next step re-resolves overlay state."
         }
-        Wait-ForDialogClosed -Name "Created Tasks" -TimeoutSeconds 5
+        try {
+            Wait-ForRuntimeMarker -Marker "RENDERER_MAIN|COMMAND_OVERLAY_READY" -TimeoutSeconds 3 -StartLine $markerStart
+        } catch {
+            Add-Note "Overlay-ready follow-up lagged after the Created Tasks close fallback; continuing with re-resolved overlay state."
+        }
     }
 }
 
@@ -1515,6 +1543,7 @@ function Start-InteractiveRuntime {
         return (($newLines -join "`n") -like "*RENDERER_MAIN|DESKTOP_ATTACH_RESULT|success=true*")
     } | Out-Null
     $script:RuntimeLogLineCursor = Get-RuntimeLogLineCount
+    $script:RuntimeAutoOpenPending = $true
     Start-Sleep -Milliseconds 1600
     return $process
 }

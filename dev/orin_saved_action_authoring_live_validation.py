@@ -324,6 +324,48 @@ def _run_invalid_and_collision_paths():
         }
 
 
+def _run_trigger_phrase_resolution():
+    with tempfile.TemporaryDirectory() as temp_dir:
+        source_path = Path(temp_dir) / "saved_actions.json"
+        window = _make_window(source_path)
+        dialog_instances = []
+
+        window._saved_action_create_dialog_factory = (
+            lambda parent, submit_handler: _AutoSubmitCreateDialog(
+                None,
+                submit_handler,
+                lambda dialog: (
+                    dialog.type_combo.setCurrentText("Application"),
+                    dialog.title_input.setText("Nexus"),
+                    dialog.aliases_input.setText("NDAI"),
+                    dialog.trigger_combo.setCurrentText("Launch and Open"),
+                    dialog.target_input.setText("notepad.exe"),
+                ),
+                dialog_instances,
+            )
+        )
+        renderer_mod.DesktopRuntimeWindow.handle_create_custom_task_requested(window)
+
+        _assert(dialog_instances, "trigger phrase validation should still open the create dialog")
+        inventory = _inventory_items(window)
+        _assert(len(inventory) == 1, "trigger phrase validation should create one saved action")
+
+        catalog = window._command_model.action_catalog
+        expected_id = inventory[0].get("id")
+        for phrase in ("Nexus", "NDAI", "Open Nexus", "Launch Nexus", "Open NDAI", "Launch NDAI"):
+            matches = catalog.resolve_actions(phrase)
+            _assert(
+                tuple(action.id for action in matches) == (expected_id,),
+                f"live validation should resolve '{phrase}' through the reloaded catalog",
+            )
+
+        return {
+            "action_id": expected_id,
+            "trigger_mode": catalog.actions[-1].trigger_mode,
+            "resolved_phrases": ["Nexus", "NDAI", "Open Nexus", "Launch Nexus", "Open NDAI", "Launch NDAI"],
+        }
+
+
 def _run_unsafe_source_blocking():
     with tempfile.TemporaryDirectory() as temp_dir:
         source_path = Path(temp_dir) / "saved_actions.json"
@@ -444,6 +486,9 @@ def main():
 
         details["invalid_and_collision_paths"] = _run_invalid_and_collision_paths()
         checks.append(("invalid target and collision rejection", "PASS"))
+
+        details["trigger_phrase_resolution"] = _run_trigger_phrase_resolution()
+        checks.append(("trigger phrase resolution", "PASS"))
 
         details["unsafe_source_blocking"] = _run_unsafe_source_blocking()
         checks.append(("unsafe source blocking", "PASS"))

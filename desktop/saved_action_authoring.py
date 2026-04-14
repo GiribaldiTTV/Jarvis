@@ -16,7 +16,10 @@ from .shared_action_model import (
     build_default_command_action_catalog,
     coerce_saved_command_action_record,
     coerce_saved_command_actions_from_records,
+    default_saved_action_trigger_mode,
     normalize_command_text,
+    normalize_saved_action_custom_triggers,
+    normalize_saved_action_trigger_mode,
     reload_default_command_action_catalog,
     validate_saved_action_target,
 )
@@ -31,6 +34,8 @@ class SavedActionDraft:
     target_kind: str
     target: str
     aliases: tuple[str, ...] = ()
+    trigger_mode: str = ""
+    custom_triggers: tuple[str, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -75,6 +80,8 @@ def _coerce_draft(draft: SavedActionDraft | dict[str, Any]) -> SavedActionDraft:
             target_kind=draft.get("target_kind", ""),
             target=draft.get("target", ""),
             aliases=tuple(draft.get("aliases", ()) or ()),
+            trigger_mode=draft.get("trigger_mode", ""),
+            custom_triggers=tuple(draft.get("custom_triggers", ()) or ()),
         )
     raise SavedActionDraftValidationError("Saved action draft must be an object with title, target kind, and target.")
 
@@ -142,12 +149,35 @@ def _normalize_target(target: Any, *, target_kind: str) -> str:
         raise SavedActionDraftValidationError(str(exc)) from exc
 
 
-def _normalize_draft_fields(draft: SavedActionDraft) -> tuple[str, tuple[str, ...], str, str]:
+def _normalize_trigger_fields(
+    draft: SavedActionDraft,
+    *,
+    target_kind: str,
+) -> tuple[str, tuple[str, ...]]:
+    try:
+        trigger_mode = normalize_saved_action_trigger_mode(
+            draft.trigger_mode,
+            target_kind=target_kind,
+            allow_empty=False,
+        )
+        custom_triggers = normalize_saved_action_custom_triggers(
+            draft.custom_triggers,
+            trigger_mode=trigger_mode,
+        )
+    except ValueError as exc:
+        raise SavedActionDraftValidationError(str(exc)) from exc
+    return trigger_mode, custom_triggers
+
+
+def _normalize_draft_fields(
+    draft: SavedActionDraft,
+) -> tuple[str, tuple[str, ...], str, str, str, tuple[str, ...]]:
     title = _normalize_title(draft.title)
     aliases = _normalize_aliases(draft.aliases, title=title)
     target_kind = _normalize_target_kind(draft.target_kind)
     target = _normalize_target(draft.target, target_kind=target_kind)
-    return title, aliases, target_kind, target
+    trigger_mode, custom_triggers = _normalize_trigger_fields(draft, target_kind=target_kind)
+    return title, aliases, target_kind, target, trigger_mode, custom_triggers
 
 
 def _load_saved_action_authoring_state(
@@ -214,7 +244,7 @@ def _build_saved_action_record_for_create(
     draft: SavedActionDraft,
     state: SavedActionAuthoringState,
 ) -> dict[str, Any]:
-    title, aliases, target_kind, target = _normalize_draft_fields(draft)
+    title, aliases, target_kind, target, trigger_mode, custom_triggers = _normalize_draft_fields(draft)
 
     existing_ids = {action.id for action in DEFAULT_COMMAND_ACTIONS}
     existing_ids.update(action.id for action in state.existing_actions)
@@ -226,7 +256,10 @@ def _build_saved_action_record_for_create(
         "target_kind": target_kind,
         "target": target,
         "aliases": list(aliases),
+        "trigger_mode": trigger_mode,
     }
+    if custom_triggers:
+        record["custom_triggers"] = list(custom_triggers)
 
     try:
         coerce_saved_command_actions_from_records((*state.existing_records, record))
@@ -243,6 +276,8 @@ def draft_from_saved_action_record(record: dict[str, Any]) -> SavedActionDraft:
         target_kind=action.target_kind,
         target=action.target,
         aliases=action.aliases,
+        trigger_mode=action.trigger_mode,
+        custom_triggers=action.custom_triggers,
     )
 
 
@@ -261,13 +296,18 @@ def _build_saved_action_record_for_update(
     state: SavedActionAuthoringState,
 ) -> tuple[int, dict[str, Any]]:
     index, existing_record = _find_existing_saved_action_record(state, saved_action_id)
-    title, aliases, target_kind, target = _normalize_draft_fields(draft)
+    title, aliases, target_kind, target, trigger_mode, custom_triggers = _normalize_draft_fields(draft)
 
     record = deepcopy(existing_record)
     record["title"] = title
     record["target_kind"] = target_kind
     record["target"] = target
     record["aliases"] = list(aliases)
+    record["trigger_mode"] = trigger_mode
+    if custom_triggers:
+        record["custom_triggers"] = list(custom_triggers)
+    else:
+        record.pop("custom_triggers", None)
 
     updated_records = list(deepcopy(state.existing_records))
     updated_records[index] = record

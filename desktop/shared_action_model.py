@@ -25,6 +25,8 @@ class CommandAction:
     target_kind: str
     target: str
     aliases: tuple[str, ...]
+    trigger_mode: str = ""
+    custom_triggers: tuple[str, ...] = ()
     origin: str = "built_in"
 
 
@@ -90,6 +92,7 @@ DEFAULT_COMMAND_ACTIONS = (
 SUPPORTED_ACTION_TARGET_KINDS = frozenset({"app", "folder", "file", "url"})
 SUPPORTED_SAVED_ACTION_URL_SCHEMES = frozenset({"http", "https"})
 SUPPORTED_APP_TARGET_EXTENSIONS = frozenset({".exe", ".com", ".bat", ".cmd"})
+SUPPORTED_SAVED_ACTION_TRIGGER_MODES = frozenset({"launch", "open", "launch_and_open", "custom"})
 LEGACY_SAVED_ACTIONS_ACCESS_ACTION_IDS = frozenset(
     {"open_saved_actions_file", "open_saved_actions_folder"}
 )
@@ -107,6 +110,12 @@ RESERVED_WINDOWS_PATH_NAMES = frozenset(
     }
 )
 APP_COMMAND_RE = re.compile(r"^[a-z0-9][a-z0-9._-]*$", re.IGNORECASE)
+DEFAULT_TRIGGER_MODE_BY_TARGET_KIND = {
+    "app": "launch",
+    "folder": "open",
+    "file": "open",
+    "url": "open",
+}
 
 
 @dataclass(frozen=True)
@@ -160,9 +169,139 @@ def normalize_command_text(text: str) -> str:
     return normalized.strip()
 
 
+def default_saved_action_trigger_mode(target_kind: str) -> str:
+    return DEFAULT_TRIGGER_MODE_BY_TARGET_KIND.get((target_kind or "").strip().casefold(), "open")
+
+
+def normalize_saved_action_trigger_mode(
+    trigger_mode: object,
+    *,
+    target_kind: str,
+    allow_empty: bool = False,
+) -> str:
+    if trigger_mode in (None, ""):
+        if allow_empty:
+            return ""
+        return default_saved_action_trigger_mode(target_kind)
+
+    if not isinstance(trigger_mode, str):
+        raise ValueError("Saved action trigger mode must be a string.")
+
+    normalized = trigger_mode.strip().casefold()
+    if not normalized:
+        if allow_empty:
+            return ""
+        return default_saved_action_trigger_mode(target_kind)
+    if normalized not in SUPPORTED_SAVED_ACTION_TRIGGER_MODES:
+        raise ValueError("Saved action trigger mode is unsupported.")
+    return normalized
+
+
+def normalize_saved_action_custom_triggers(
+    custom_triggers: object,
+    *,
+    trigger_mode: str,
+) -> tuple[str, ...]:
+    if trigger_mode != "custom":
+        if custom_triggers in (None, "", (), []):
+            return ()
+        if not isinstance(custom_triggers, (list, tuple)):
+            raise ValueError("Saved action custom triggers must be a list of strings.")
+        if any((str(item).strip() if isinstance(item, str) else item) for item in custom_triggers):
+            raise ValueError("Saved action custom triggers require trigger mode 'custom'.")
+        return ()
+
+    if custom_triggers in (None, "", (), []):
+        raise ValueError("Saved action custom triggers must contain at least one phrase.")
+    if not isinstance(custom_triggers, (list, tuple)):
+        raise ValueError("Saved action custom triggers must be a list of strings.")
+
+    normalized_triggers: list[str] = []
+    seen_normalized: set[str] = set()
+    for phrase in custom_triggers:
+        if not isinstance(phrase, str):
+            raise ValueError("Saved action custom triggers must contain only strings.")
+
+        normalized_phrase = re.sub(r"\s+", " ", phrase.strip())
+        if not normalized_phrase:
+            raise ValueError("Saved action custom triggers must not be empty.")
+
+        normalized_key = normalize_command_text(normalized_phrase)
+        if not normalized_key:
+            raise ValueError("Saved action custom triggers must normalize to non-empty phrases.")
+        if normalized_key in seen_normalized:
+            raise ValueError("Saved action custom triggers must stay unique.")
+
+        seen_normalized.add(normalized_key)
+        normalized_triggers.append(normalized_phrase)
+
+    return tuple(normalized_triggers)
+
+
+def _trigger_prefixes_for_action(
+    *,
+    trigger_mode: str,
+    custom_triggers: Iterable[str],
+) -> tuple[str, ...]:
+    if trigger_mode == "launch":
+        return ("Launch",)
+    if trigger_mode == "open":
+        return ("Open",)
+    if trigger_mode == "launch_and_open":
+        return ("Launch", "Open")
+    if trigger_mode == "custom":
+        return tuple(re.sub(r"\s+", " ", phrase.strip()) for phrase in custom_triggers if phrase and phrase.strip())
+    return ()
+
+
+def build_saved_action_callable_phrases(
+    title: str,
+    aliases: Iterable[str] = (),
+    *,
+    trigger_mode: str = "",
+    custom_triggers: Iterable[str] = (),
+) -> tuple[str, ...]:
+    phrases: list[str] = []
+    seen_normalized: set[str] = set()
+
+    def add_phrase(value: str):
+        normalized_display = re.sub(r"\s+", " ", (value or "").strip())
+        if not normalized_display:
+            return
+        normalized_key = normalize_command_text(normalized_display)
+        if not normalized_key or normalized_key in seen_normalized:
+            return
+        seen_normalized.add(normalized_key)
+        phrases.append(normalized_display)
+
+    base_phrases = tuple(phrase for phrase in (title, *tuple(aliases)) if isinstance(phrase, str))
+    for phrase in base_phrases:
+        add_phrase(phrase)
+
+    for prefix in _trigger_prefixes_for_action(trigger_mode=trigger_mode, custom_triggers=custom_triggers):
+        normalized_prefix = normalize_command_text(prefix)
+        if not normalized_prefix:
+            continue
+        for phrase in base_phrases:
+            normalized_phrase = normalize_command_text(phrase)
+            if not normalized_phrase:
+                continue
+            if normalized_phrase == normalized_prefix or normalized_phrase.startswith(f"{normalized_prefix} "):
+                add_phrase(phrase)
+            else:
+                add_phrase(f"{prefix} {phrase}")
+
+    return tuple(phrases)
+
+
 def _normalized_action_phrases(action: CommandAction) -> set[str]:
     normalized_phrases: set[str] = set()
-    for phrase in (action.title, *action.aliases):
+    for phrase in build_saved_action_callable_phrases(
+        action.title,
+        action.aliases,
+        trigger_mode=action.trigger_mode,
+        custom_triggers=action.custom_triggers,
+    ):
         normalized = normalize_command_text(phrase)
         if not normalized:
             raise ValueError("Action phrases must be non-empty.")
@@ -207,6 +346,21 @@ def _coerce_saved_action_aliases(record: dict) -> tuple[str, ...]:
         normalized_aliases.append(normalized)
 
     return tuple(normalized_aliases)
+
+
+def _coerce_saved_action_trigger_mode(record: dict, *, target_kind: str) -> str:
+    return normalize_saved_action_trigger_mode(
+        record.get("trigger_mode", ""),
+        target_kind=target_kind,
+        allow_empty=True,
+    )
+
+
+def _coerce_saved_action_custom_triggers(record: dict, *, trigger_mode: str) -> tuple[str, ...]:
+    return normalize_saved_action_custom_triggers(
+        record.get("custom_triggers", ()),
+        trigger_mode=trigger_mode,
+    )
 
 
 def _validate_saved_action_target(target_kind: str, target: str) -> str:
@@ -350,6 +504,8 @@ def _command_action_from_saved_record(record: object) -> CommandAction:
         target_kind,
         _require_saved_action_string(record, "target"),
     )
+    trigger_mode = _coerce_saved_action_trigger_mode(record, target_kind=target_kind)
+    custom_triggers = _coerce_saved_action_custom_triggers(record, trigger_mode=trigger_mode)
 
     return CommandAction(
         id=_require_saved_action_string(record, "id"),
@@ -357,6 +513,8 @@ def _command_action_from_saved_record(record: object) -> CommandAction:
         target_kind=target_kind,
         target=target,
         aliases=_coerce_saved_action_aliases(record),
+        trigger_mode=trigger_mode,
+        custom_triggers=custom_triggers,
         origin="saved",
     )
 
@@ -393,7 +551,7 @@ def _load_saved_command_actions_from_records(records: Iterable[object]) -> tuple
         if normalized_id in seen_saved_ids:
             raise ValueError("Saved action id collides with another saved action.")
         if normalized_phrases & seen_saved_phrases:
-            raise ValueError("Saved action title or alias collides with another saved action.")
+            raise ValueError("Saved action title, alias, or trigger phrase collides with another saved action.")
 
         built_in_phrase_collisions = normalized_phrases & built_in_phrases
         if normalized_id in built_in_ids or built_in_phrase_collisions:
@@ -408,7 +566,7 @@ def _load_saved_command_actions_from_records(records: Iterable[object]) -> tuple
                 - LEGACY_SAVED_ACTIONS_ACCESS_ACTION_PHRASES
             )
             if incompatible_id_collision or incompatible_phrase_collision:
-                raise ValueError("Saved action title or alias collides with an existing action.")
+                raise ValueError("Saved action title, alias, or trigger phrase collides with an existing action.")
             continue
 
         seen_saved_ids.add(normalized_id)
@@ -526,7 +684,12 @@ def resolve_command_actions(text: str, actions=DEFAULT_COMMAND_ACTIONS):
 
     matches = []
     for action in actions:
-        candidates = (action.title, *action.aliases)
+        candidates = build_saved_action_callable_phrases(
+            action.title,
+            action.aliases,
+            trigger_mode=action.trigger_mode,
+            custom_triggers=action.custom_triggers,
+        )
         if any(normalize_command_text(candidate) == normalized for candidate in candidates):
             matches.append(action)
     return matches

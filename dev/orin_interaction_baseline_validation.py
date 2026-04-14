@@ -317,6 +317,47 @@ def _test_url_saved_action_confirm_result_flow():
         renderer_mod.launch_command_action = original_launch
 
 
+def _test_trigger_generated_saved_action_phrases_stay_exact_and_bounded():
+    action_catalog = CommandActionCatalog(
+        (
+            CommandAction(
+                id="open_nexus_site",
+                title="Nexus",
+                target_kind="url",
+                target="https://example.com/docs/start",
+                aliases=("NDAI",),
+                trigger_mode="launch_and_open",
+                origin="saved",
+            ),
+            CommandAction(
+                id="legacy_docs_site",
+                title="Legacy Docs",
+                target_kind="url",
+                target="https://example.com/legacy",
+                aliases=("Legacy Docs Alias",),
+                origin="saved",
+            ),
+        )
+    )
+
+    _assert(
+        tuple(action.id for action in action_catalog.resolve_actions("Launch Nexus")) == ("open_nexus_site",),
+        "trigger-generated launch phrases should resolve through the existing exact-match path",
+    )
+    _assert(
+        tuple(action.id for action in action_catalog.resolve_actions("Open NDAI")) == ("open_nexus_site",),
+        "trigger-generated open phrases should resolve for saved-action aliases",
+    )
+    _assert(
+        tuple(action.id for action in action_catalog.resolve_actions("Launch Legacy Docs")) == (),
+        "legacy saved actions without trigger fields should not gain prefixed callable phrases retroactively",
+    )
+    _assert(
+        tuple(action.id for action in action_catalog.resolve_actions("Legacy Docs")) == ("legacy_docs_site",),
+        "legacy saved actions without trigger fields should keep their bare exact-match behavior",
+    )
+
+
 def _test_entry_payload_surfaces_saved_action_inventory_guidance():
     saved_action = CommandAction(
         id="open_reports",
@@ -409,6 +450,7 @@ def main():
         ("choose-confirm-result baseline flow", _test_typed_first_choose_confirm_result_flow),
         ("result close and reopen is clean", _test_result_close_and_reopen_is_clean),
         ("url saved action confirm-result flow", _test_url_saved_action_confirm_result_flow),
+        ("trigger-generated saved action phrases stay exact and bounded", _test_trigger_generated_saved_action_phrases_stay_exact_and_bounded),
         ("entry payload surfaces saved-action inventory guidance", _test_entry_payload_surfaces_saved_action_inventory_guidance),
         ("catalog reload seam surfaces new saved actions", _test_catalog_reload_seam_surfaces_new_saved_actions_without_phase_change),
     ]
