@@ -49,6 +49,7 @@ This workstream exists so users can manage non-standard custom tasks safely thro
 - richer secondary create/manage windows that can carry the detailed explanations, guidance, and step-by-step authoring copy users need once they choose an action path
 - short inline field guidance inside the secondary create/edit windows so users get quick help without overloading the initial landing surface
 - title-driven alias suggestions and a bottom-of-dialog launch/open examples box inside the secondary create/edit windows
+- browse-assisted target selection for `Application`, `Folder`, and `File` that fills the existing validated `Target` field while `Website URL` stays direct-entry only
 
 ## Non-Goals
 
@@ -68,6 +69,7 @@ This workstream exists so users can manage non-standard custom tasks safely thro
 4. tightened target validation for `app`, `folder`, and `file`
 5. expanded saved-action inventory reachability so edit is no longer capped to the first six items
 6. pivoted the initial NCP authoring entry into a lightweight button-led landing surface with a secondary `Created Tasks` window
+7. added browse-assisted target selection for `Application`, `Folder`, and `File` while keeping `Website URL` direct-entry only
 
 ## Idea Impact Analysis And Route Adjustment
 
@@ -88,8 +90,7 @@ This workstream exists so users can manage non-standard custom tasks safely thro
 
 1. preserve and stabilize the current branch-local validation and support assets so the existing create/edit baseline remains provable and reusable
 2. improve field-level help inside the create/edit windows, especially around `Alias`, `Task type`, and `Target`
-3. add browse-assisted target selection for the existing `Application`, `Folder`, and `File` task types without changing persisted action kinds
-4. evaluate focused create/edit window visual polish after the routing, explanatory copy, and target-picking flow are settled
+3. evaluate focused create/edit window visual polish after the routing, explanatory copy, alias suggestions, examples box, and target-picking flow are settled
 
 ## Validation And Support Artifact History
 
@@ -187,9 +188,9 @@ Expected Behavior: the overlay opens in the normal entry baseline, the initial l
 Failure Conditions / Edge Cases: the overlay skips entry state, either top-level button is missing, inline inventory/edit detail still clutters the landing surface, or outside text receives stray typing.
 
 2. Setup: stay in entry state with a healthy saved-action source.
-Action: click `Create Custom Task`, choose `Folder`, enter `Title = Open Reports`, `Aliases = show reports`, `Target = C:\Reports`, then save.
-Expected Behavior: the dialog shows short inline guidance for `Title`, `Aliases`, and `Target`; alias suggestions update from the title without overwriting the aliases field; a boxed examples panel appears near the bottom of the dialog with the supported launch/open string formats; the dialog closes after save; success feedback appears in entry state; and the new saved action appears in inventory immediately without restart.
-Failure Conditions / Edge Cases: field guidance is missing or overly long, alias suggestions do not update from the title, the examples box is missing from the bottom area, the dialog closes without feedback, the inventory does not refresh, the overlay leaves entry state unexpectedly, or the source file is not updated.
+Action: click `Create Custom Task`, choose `Folder`, enter `Title = Open Reports`, `Aliases = show reports`, then use `Browse...` to choose `C:\Reports` and save.
+Expected Behavior: the dialog shows short inline guidance for `Title`, `Aliases`, and `Target`; alias suggestions update from the title without overwriting the aliases field; `Browse...` is visible for `Folder` and fills the existing `Target` field; a boxed examples panel appears near the bottom of the dialog with the supported launch/open string formats; the dialog closes after save; success feedback appears in entry state; and the new saved action appears in inventory immediately without restart.
+Failure Conditions / Edge Cases: field guidance is missing or overly long, alias suggestions do not update from the title, the browse button is missing for `Folder`, the picker result does not populate the `Target` field, the examples box is missing from the bottom area, the dialog closes without feedback, the inventory does not refresh, the overlay leaves entry state unexpectedly, or the source file is not updated.
 
 3. Setup: with `Open Reports` now visible in inventory.
 Action: type the exact title or alias into the normal overlay input and execute it through the existing typed-first flow.
@@ -213,9 +214,9 @@ Expected Behavior: the dialog stays open, collision feedback is clear, and no wr
 Failure Conditions / Edge Cases: a colliding action is saved, an existing record is overwritten, or inventory count changes.
 
 6. Setup: with `Open Reports` already created successfully.
-Action: click `Created Tasks`, confirm the secondary window opens, click `Edit` on `Open Reports`, verify the dialog preloads current values, change the title to `Open Weekly Reports`, change the type to `File`, set the target to `C:\Reports\weekly.txt`, and save.
-Expected Behavior: the landing surface stays lightweight, the secondary `Created Tasks` window owns the saved-action detail, the edit dialog preloads the existing title, aliases, type, and target, short inline field guidance remains visible there, alias suggestions continue to track the title, the bottom examples box remains available as a reference, save closes it, success feedback appears, the same saved action updates in place, and the refreshed values are visible without creating a duplicate.
-Failure Conditions / Edge Cases: `Created Tasks` does not open, the wrong item opens for editing, blank preload, missing field guidance, missing alias suggestions, missing examples box, duplicate item creation, wrong action updated, missing feedback, or refresh only after restart.
+Action: click `Created Tasks`, confirm the secondary window opens, click `Edit` on `Open Reports`, verify the dialog preloads current values, change the title to `Open Weekly Reports`, change the type to `File`, use `Browse...` to choose `C:\Reports\weekly.txt`, and save.
+Expected Behavior: the landing surface stays lightweight, the secondary `Created Tasks` window owns the saved-action detail, the edit dialog preloads the existing title, aliases, type, and target, short inline field guidance remains visible there, alias suggestions continue to track the title, `Browse...` is visible for `File` and fills the same validated `Target` field, the bottom examples box remains available as a reference, save closes it, success feedback appears, the same saved action updates in place, and the refreshed values are visible without creating a duplicate.
+Failure Conditions / Edge Cases: `Created Tasks` does not open, the wrong item opens for editing, blank preload, missing field guidance, missing alias suggestions, missing browse support for `File`, picker results not appearing in `Target`, missing examples box, duplicate item creation, wrong action updated, missing feedback, or refresh only after restart.
 
 7. Setup: edit an existing saved action again.
 Action: go back through `Created Tasks`, then try invalid or colliding edits:
@@ -254,6 +255,9 @@ Failure Conditions / Edge Cases: the dialog opens anyway, the source is auto-rep
 - alias suggestions update from the title without auto-writing into the aliases field
 - the bottom dialog area includes a boxed reference list of supported launch/open string examples for every current task type
 - target guidance changes with the selected task type while keeping the secondary windows compact
+- `Application`, `Folder`, and `File` expose `Browse...` support while still allowing manual target entry
+- picker results fill the same validated `Target` field that manual entry uses
+- `Website URL` stays direct-entry only and does not expose browse-assisted target picking
 - create and edit both route through the shared validation-before-write foundation
 - `app`, `folder`, `file`, and `url` validation all fail closed before disk write
 - successful saves reload the shared catalog immediately and refresh inventory without restart

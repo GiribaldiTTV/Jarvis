@@ -442,6 +442,70 @@ def _test_create_dialog_surfaces_field_level_guidance():
     )
 
 
+def _test_create_dialog_supports_browse_assisted_target_selection():
+    _app()
+    dialog = renderer_mod.SavedActionCreateDialog()
+
+    _assert(
+        not dialog.target_browse_button.isHidden(),
+        "application tasks should expose a browse button beside the target field",
+    )
+    _assert(
+        "application path" in dialog.target_browse_button.toolTip().casefold(),
+        "application browse button should explain what it selects",
+    )
+    dialog._choose_application_target = lambda: r"C:\Program Files\Notepad++\notepad++.exe"
+    dialog.target_browse_button.click()
+    _assert(
+        dialog.target_input.text() == r"C:\Program Files\Notepad++\notepad++.exe",
+        "application browse should populate the validated target field directly",
+    )
+
+    dialog.type_combo.setCurrentText("Folder")
+    _assert(
+        not dialog.target_browse_button.isHidden(),
+        "folder tasks should keep browse-assisted target selection visible",
+    )
+    _assert(
+        "folder path" in dialog.target_browse_button.toolTip().casefold(),
+        "folder browse button should explain what it selects",
+    )
+    dialog._choose_folder_target = lambda: r"C:\Reports"
+    dialog.target_browse_button.click()
+    _assert(
+        dialog.target_input.text() == r"C:\Reports",
+        "folder browse should populate the target field with the chosen folder path",
+    )
+
+    dialog.type_combo.setCurrentText("File")
+    _assert(
+        not dialog.target_browse_button.isHidden(),
+        "file tasks should keep browse-assisted target selection visible",
+    )
+    _assert(
+        "file path" in dialog.target_browse_button.toolTip().casefold(),
+        "file browse button should explain what it selects",
+    )
+    dialog._choose_file_target = lambda: r"C:\Reports\weekly.txt"
+    dialog.target_browse_button.click()
+    _assert(
+        dialog.target_input.text() == r"C:\Reports\weekly.txt",
+        "file browse should populate the target field with the chosen file path",
+    )
+
+    dialog.type_combo.setCurrentText("Website URL")
+    _assert(
+        dialog.target_browse_button.isHidden(),
+        "website tasks should remain direct-entry only and should hide the browse button",
+    )
+    prior_target = dialog.target_input.text()
+    dialog.target_browse_button.click()
+    _assert(
+        dialog.target_input.text() == prior_target,
+        "website tasks should ignore browse interaction and leave the direct-entry target unchanged",
+    )
+
+
 def _test_successful_create_flow_reloads_inventory_immediately():
     with tempfile.TemporaryDirectory() as temp_dir:
         source_path = Path(temp_dir) / "saved_actions.json"
@@ -887,6 +951,7 @@ def main():
         ("Created Tasks dialog keeps edit reachability beyond six items", _test_created_tasks_dialog_edit_reachability_extends_beyond_six_items),
         ("type-first dialog maps supported kinds", _test_type_first_dialog_maps_all_supported_kinds),
         ("create dialog surfaces field-level guidance", _test_create_dialog_surfaces_field_level_guidance),
+        ("create dialog supports browse-assisted target selection", _test_create_dialog_supports_browse_assisted_target_selection),
         ("successful create flow reloads inventory", _test_successful_create_flow_reloads_inventory_immediately),
         ("invalid input shows dialog error without write", _test_invalid_input_shows_dialog_error_and_does_not_write),
         ("invalid folder target shows dialog error without write", _test_invalid_folder_target_shows_dialog_error_and_does_not_write),

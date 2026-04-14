@@ -18,6 +18,7 @@ from PySide6.QtWidgets import (
     QPushButton,
     QComboBox,
     QScrollArea,
+    QFileDialog,
 )
 from PySide6.QtCore import Qt, QTimer, QUrl, QRect, Signal
 from PySide6.QtGui import QColor
@@ -370,7 +371,15 @@ class SavedActionCreateDialog(QDialog):
         form.addWidget(self._make_form_label("Target"), 6, 0)
         self.target_input = QLineEdit(self)
         self.target_input.setObjectName("savedActionCreateTargetInput")
-        form.addWidget(self.target_input, 6, 1)
+        self.target_browse_button = QPushButton("Browse...", self)
+        self.target_browse_button.setObjectName("savedActionCreateTargetBrowseButton")
+        self.target_browse_button.clicked.connect(self._handle_target_browse_clicked)
+        target_row = QHBoxLayout()
+        target_row.setContentsMargins(0, 0, 0, 0)
+        target_row.setSpacing(8)
+        target_row.addWidget(self.target_input, 1)
+        target_row.addWidget(self.target_browse_button, 0)
+        form.addLayout(target_row, 6, 1)
         self.target_guidance_label = self._make_field_guidance_label(
             "",
             "savedActionCreateTargetGuidance",
@@ -570,12 +579,67 @@ class SavedActionCreateDialog(QDialog):
         self.target_guidance_label.setText(self.TARGET_GUIDANCE.get(target_kind, ""))
         if target_kind == "url":
             self.target_input.setPlaceholderText("https://example.com/docs")
+            self.target_browse_button.hide()
+            self.target_browse_button.setToolTip("")
         elif target_kind == "folder":
             self.target_input.setPlaceholderText(r"C:\Users\YourName\Documents")
+            self.target_browse_button.show()
+            self.target_browse_button.setToolTip("Choose a folder path.")
         elif target_kind == "file":
             self.target_input.setPlaceholderText(r"C:\Users\YourName\Documents\notes.txt")
+            self.target_browse_button.show()
+            self.target_browse_button.setToolTip("Choose a file path.")
         else:
             self.target_input.setPlaceholderText("notepad.exe")
+            self.target_browse_button.show()
+            self.target_browse_button.setToolTip("Choose an application path.")
+
+    def _target_picker_start_path(self) -> str:
+        target_text = (self.target_input.text() or "").strip()
+        if target_text:
+            return target_text
+        return os.path.expanduser("~")
+
+    def _choose_application_target(self) -> str:
+        selected_path, _selected_filter = QFileDialog.getOpenFileName(
+            self,
+            "Choose Application",
+            self._target_picker_start_path(),
+            "Applications (*.exe *.com *.bat *.cmd);;All Files (*)",
+        )
+        return selected_path or ""
+
+    def _choose_folder_target(self) -> str:
+        selected_path = QFileDialog.getExistingDirectory(
+            self,
+            "Choose Folder",
+            self._target_picker_start_path(),
+        )
+        return selected_path or ""
+
+    def _choose_file_target(self) -> str:
+        selected_path, _selected_filter = QFileDialog.getOpenFileName(
+            self,
+            "Choose File",
+            self._target_picker_start_path(),
+            "All Files (*)",
+        )
+        return selected_path or ""
+
+    def _pick_target_value(self) -> str:
+        target_kind = self.current_target_kind()
+        if target_kind == "folder":
+            return self._choose_folder_target()
+        if target_kind == "file":
+            return self._choose_file_target()
+        if target_kind == "app":
+            return self._choose_application_target()
+        return ""
+
+    def _handle_target_browse_clicked(self):
+        selected_target = self._pick_target_value()
+        if selected_target:
+            self.target_input.setText(selected_target)
 
     def _parse_aliases_text(self) -> tuple[str, ...]:
         alias_text = (self.aliases_input.text() or "").replace("\n", ",")
