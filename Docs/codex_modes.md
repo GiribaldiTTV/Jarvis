@@ -129,6 +129,7 @@ Workflow mode should usually return:
 - session cleanup performed and explicitly verified, including what was closed, stopped, restored, or deleted after the pass
 - any remaining simulated-only findings or reasoning-only gaps that still matter
 - deeper branch-local validation or hardening findings when the slice changes runtime or user-visible behavior
+- any timeout or stall conditions encountered during validation, including the last confirmed meaningful progress point and whether the run aborted cleanly
 - a detailed `## User Test Summary` manual checklist when the slice changes user-visible behavior, runtime interaction, UX flow, prompts, startup behavior, voice behavior, or another operator-facing path
 - the updated canonical repo-level `UTS` artifact when the active workstream owns one and the slice makes that artifact relevant
 - the exported or refreshed desktop `User Test Summary.txt` copy when the slice is a relevant desktop user-facing path, or an explicit explanation of why that export was skipped
@@ -137,6 +138,8 @@ Workflow mode should usually return:
 - whether the approved phase is complete
 
 Do not report cleanup as complete unless the pass has explicitly checked for leftover apps, windows, dialogs, helper processes, probe files, or other temporary artifacts it created or opened.
+
+Do not report an interactive validation pass as complete or trustworthy if it exceeded its time budgets or sat stalled without a clean abort path.
 
 ## Workstream And Branch Governance
 

@@ -148,6 +148,23 @@ Every revision must include:
 - artifact cleanup verification when relevant
 - session cleanup verification when relevant
 
+Interactive validation must also be time-budgeted.
+Codex must not allow stalled validation runs, harnesses, or desktop exercises to sit indefinitely.
+
+When an interactive validation pass is relevant, it must use:
+
+- a full-run hard timeout
+- a no-progress watchdog timeout
+- scenario and/or transition budgets where the flow has distinct multi-step seams
+- an outer execution timeout that sits only slightly above the interactive harness hard cap rather than extending it by many additional minutes
+
+If a timeout or freeze is detected, Codex must:
+
+- abort cleanly rather than letting the run continue indefinitely
+- perform the required session cleanup
+- explicitly report the timeout or stall condition
+- explicitly report the last confirmed meaningful progress point
+
 After any validation run, test pass, runtime exercise, harness execution, or other operational step, Codex must also clean up what it created or opened during that session unless there is a deliberate reason to preserve it.
 
 This is not satisfied by a best-effort attempt alone. Before handoff, Codex must explicitly verify that the cleanup actually happened for the apps, windows, dialogs, helper processes, temporary files, probe documents, and other session-scoped artifacts it opened, started, or created during the pass.

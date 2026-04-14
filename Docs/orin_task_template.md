@@ -220,6 +220,14 @@ If an execution task is too broad for one approved pass, explain the cleaner exe
 2. Explain the branch or workstream posture.
 3. Explain the validation plan.
 
+If the task includes interactive validation, the validation plan should also state:
+
+- full-run hard timeout
+- no-progress timeout
+- scenario timeout when relevant
+- transition timeout when relevant
+- how timeout or freeze will be reported and cleaned up
+
 ### During Execution
 
 1. Perform only the approved execution work.
@@ -244,6 +252,7 @@ If applicable, also verify:
 - cleanup verification, including that no test-opened app window, helper process, or temporary probe file was left behind
 - no regressions in locked behavior
 - no drift outside the allowed surfaces
+- interactive validation time budgets and timeout behavior when the pass depends on a real desktop or harness run
 
 Session cleanup and teardown includes, when relevant:
 
@@ -254,6 +263,12 @@ Session cleanup and teardown includes, when relevant:
 - explicitly checking that those items are actually closed, stopped, deleted, or restored before handoff rather than assuming they cleaned themselves up
 
 If anything remains intentionally open or preserved after the pass, the output must say so explicitly and explain why.
+
+If an interactive run times out or freezes, the output must also state:
+
+- which time budget tripped
+- the last confirmed meaningful progress point
+- what cleanup was performed before handoff
 
 If the slice changes user-visible behavior, runtime interaction, UX flow, prompts, startup behavior, voice behavior, or another manual operator-facing path, the final output must include a `## User Test Summary` section as a concrete manual checklist.
 
