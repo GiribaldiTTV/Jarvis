@@ -47,6 +47,8 @@ This workstream exists so users can manage non-standard custom tasks safely thro
 - explicit user-facing type selection mapped to the current persisted target kinds
 - a lightweight landing path for task authoring and management that does not overload the initial NCP opening surface
 - richer secondary create/manage windows that can carry the detailed explanations, guidance, and step-by-step authoring copy users need once they choose an action path
+- short inline field guidance inside the secondary create/edit windows so users get quick help without overloading the initial landing surface
+- title-driven alias suggestions and a bottom-of-dialog launch/open examples box inside the secondary create/edit windows
 
 ## Non-Goals
 
@@ -186,8 +188,8 @@ Failure Conditions / Edge Cases: the overlay skips entry state, either top-level
 
 2. Setup: stay in entry state with a healthy saved-action source.
 Action: click `Create Custom Task`, choose `Folder`, enter `Title = Open Reports`, `Aliases = show reports`, `Target = C:\Reports`, then save.
-Expected Behavior: the dialog closes, success feedback appears in entry state, and the new saved action appears in inventory immediately without restart.
-Failure Conditions / Edge Cases: the dialog closes without feedback, the inventory does not refresh, the overlay leaves entry state unexpectedly, or the source file is not updated.
+Expected Behavior: the dialog shows short inline guidance for `Title`, `Aliases`, and `Target`; alias suggestions update from the title without overwriting the aliases field; a boxed examples panel appears near the bottom of the dialog with the supported launch/open string formats; the dialog closes after save; success feedback appears in entry state; and the new saved action appears in inventory immediately without restart.
+Failure Conditions / Edge Cases: field guidance is missing or overly long, alias suggestions do not update from the title, the examples box is missing from the bottom area, the dialog closes without feedback, the inventory does not refresh, the overlay leaves entry state unexpectedly, or the source file is not updated.
 
 3. Setup: with `Open Reports` now visible in inventory.
 Action: type the exact title or alias into the normal overlay input and execute it through the existing typed-first flow.
@@ -200,7 +202,7 @@ Action: test invalid creates one at a time:
 `Folder` with `Target = Reports\Daily`
 `File` with `Target = C:\Reports\bad?.txt`
 `Website URL` with `Target = example.com/docs`
-Expected Behavior: each invalid case stays in the dialog, shows a clear validation error, and writes nothing to disk.
+Expected Behavior: each invalid case stays in the dialog, shows a clear validation explanation that helps the user correct the relevant field, and writes nothing to disk.
 Failure Conditions / Edge Cases: any invalid target is accepted, the dialog closes anyway, the inventory changes, or the error text is vague or missing.
 
 5. Setup: with at least one saved action already present.
@@ -212,8 +214,8 @@ Failure Conditions / Edge Cases: a colliding action is saved, an existing record
 
 6. Setup: with `Open Reports` already created successfully.
 Action: click `Created Tasks`, confirm the secondary window opens, click `Edit` on `Open Reports`, verify the dialog preloads current values, change the title to `Open Weekly Reports`, change the type to `File`, set the target to `C:\Reports\weekly.txt`, and save.
-Expected Behavior: the landing surface stays lightweight, the secondary `Created Tasks` window owns the saved-action detail, the edit dialog preloads the existing title, aliases, type, and target; save closes it; success feedback appears; the same saved action updates in place; and the refreshed values are visible without creating a duplicate.
-Failure Conditions / Edge Cases: `Created Tasks` does not open, the wrong item opens for editing, blank preload, duplicate item creation, wrong action updated, missing feedback, or refresh only after restart.
+Expected Behavior: the landing surface stays lightweight, the secondary `Created Tasks` window owns the saved-action detail, the edit dialog preloads the existing title, aliases, type, and target, short inline field guidance remains visible there, alias suggestions continue to track the title, the bottom examples box remains available as a reference, save closes it, success feedback appears, the same saved action updates in place, and the refreshed values are visible without creating a duplicate.
+Failure Conditions / Edge Cases: `Created Tasks` does not open, the wrong item opens for editing, blank preload, missing field guidance, missing alias suggestions, missing examples box, duplicate item creation, wrong action updated, missing feedback, or refresh only after restart.
 
 7. Setup: edit an existing saved action again.
 Action: go back through `Created Tasks`, then try invalid or colliding edits:
@@ -248,6 +250,10 @@ Failure Conditions / Edge Cases: the dialog opens anyway, the source is auto-rep
 - the entry-state surface remains lightweight and button-led rather than becoming a dense inline management surface
 - `Create Custom Task` and `Created Tasks` remain the top-level authoring entry points on the initial NCP opening
 - the secondary `Created Tasks` window owns saved-action detail visibility and edit reachability
+- create and edit dialogs provide short field-level guidance for `Title`, `Aliases`, and `Target` instead of long descriptive blocks
+- alias suggestions update from the title without auto-writing into the aliases field
+- the bottom dialog area includes a boxed reference list of supported launch/open string examples for every current task type
+- target guidance changes with the selected task type while keeping the secondary windows compact
 - create and edit both route through the shared validation-before-write foundation
 - `app`, `folder`, `file`, and `url` validation all fail closed before disk write
 - successful saves reload the shared catalog immediately and refresh inventory without restart
