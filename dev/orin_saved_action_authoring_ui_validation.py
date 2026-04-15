@@ -7,6 +7,7 @@ from types import SimpleNamespace
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
 from PySide6.QtWidgets import QApplication, QDialog, QLabel, QPushButton, QToolButton
+from PySide6.QtCore import Qt
 
 
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -221,6 +222,115 @@ def _test_created_tasks_trigger_is_present_and_clickable():
     _assert(fired == ["clicked"], "Manage Custom Tasks trigger should be reachable and clickable")
 
 
+def _test_create_custom_group_trigger_is_present_and_clickable():
+    _app()
+    panel = renderer_mod.CommandOverlayPanel()
+    payload = {
+        "visible": True,
+        "phase": "entry",
+        "input_armed": True,
+        "input_text": "",
+        "status_kind": "idle",
+        "status_text": "",
+        "typed_request": "",
+        "pending_action": None,
+        "ambiguous_titles": [],
+        "ambiguous_matches": [],
+        "saved_action_inventory": {
+            "visible": True,
+            "status_kind": "loaded",
+            "status_text": "1 saved action is available.",
+            "guidance_text": "",
+            "path": r"C:\Users\Test\AppData\Local\Nexus Desktop AI\saved_actions.json",
+            "path_display": r"C:\Users\Test\AppData\Local\Nexus Desktop AI\saved_actions.json",
+            "count": 1,
+            "items": [],
+        },
+        "saved_group_inventory": {
+            "visible": True,
+            "status_kind": "template_only",
+            "status_text": "No custom groups are active yet.",
+            "guidance_text": "",
+            "path": r"C:\Users\Test\AppData\Local\Nexus Desktop AI\saved_actions.json",
+            "path_display": r"C:\Users\Test\AppData\Local\Nexus Desktop AI\saved_actions.json",
+            "count": 0,
+            "items": [],
+        },
+    }
+    fired = []
+    panel.create_custom_group_requested.connect(lambda: fired.append("clicked"))
+    panel.render_payload(payload)
+    panel.create_custom_group_button.click()
+
+    _assert(
+        panel.create_custom_group_button.text() == "Create Custom Group",
+        "entry-state UI should expose a Create Custom Group trigger",
+    )
+    _assert(
+        "savedActionCreateGroupDescription" in panel.styleSheet(),
+        "entry-state styling should explicitly theme the Create Custom Group description instead of falling back to default black text",
+    )
+    _assert(fired == ["clicked"], "Create Custom Group trigger should be reachable and clickable")
+
+
+def _test_manage_custom_groups_trigger_is_present_and_clickable():
+    _app()
+    panel = renderer_mod.CommandOverlayPanel()
+    payload = {
+        "visible": True,
+        "phase": "entry",
+        "input_armed": True,
+        "input_text": "",
+        "status_kind": "idle",
+        "status_text": "",
+        "typed_request": "",
+        "pending_action": None,
+        "ambiguous_titles": [],
+        "ambiguous_matches": [],
+        "saved_action_inventory": {
+            "visible": True,
+            "status_kind": "loaded",
+            "status_text": "1 saved action is available.",
+            "guidance_text": "",
+            "path": r"C:\Users\Test\AppData\Local\Nexus Desktop AI\saved_actions.json",
+            "path_display": r"C:\Users\Test\AppData\Local\Nexus Desktop AI\saved_actions.json",
+            "count": 1,
+            "items": [],
+        },
+        "saved_group_inventory": {
+            "visible": True,
+            "status_kind": "loaded",
+            "status_text": "1 custom group is available.",
+            "guidance_text": "",
+            "path": r"C:\Users\Test\AppData\Local\Nexus Desktop AI\saved_actions.json",
+            "path_display": r"C:\Users\Test\AppData\Local\Nexus Desktop AI\saved_actions.json",
+            "count": 1,
+            "items": [
+                {
+                    "id": "workspace_tools",
+                    "title": "Workspace Tools",
+                    "aliases": ["workspace tools"],
+                    "member_count": 2,
+                }
+            ],
+        },
+    }
+    fired = []
+    panel.created_groups_requested.connect(lambda: fired.append("clicked"))
+    panel.render_payload(payload)
+    panel.created_groups_button.click()
+
+    _assert(
+        panel.created_groups_button.text() == "Manage Custom Groups",
+        "entry-state UI should expose a Manage Custom Groups trigger",
+    )
+    _assert(
+        "savedActionCreatedGroupsDescription" in panel.styleSheet(),
+        "entry-state styling should explicitly theme the Manage Custom Groups description instead of falling back to default black text",
+    )
+    _assert(fired == ["clicked"], "Manage Custom Groups trigger should be reachable and clickable")
+
+
 def _test_entry_surface_keeps_inventory_details_out_of_landing_view():
     _app()
     panel = renderer_mod.CommandOverlayPanel()
@@ -273,12 +383,12 @@ def _test_entry_surface_keeps_inventory_details_out_of_landing_view():
         "entry-state landing surface should stay button-led and should not expose inline edit buttons",
     )
     _assert(
-        panel.saved_inventory_title.text() == "Custom tasks",
-        "entry-state landing surface should use a more intentional custom-task heading",
+        panel.saved_inventory_title.text() == "Custom tasks and groups",
+        "entry-state landing surface should explain that both task and group authoring live here",
     )
     _assert(
-        panel.saved_inventory_status.text() == "Create a new task or manage the tasks you already saved.",
-        "entry-state landing surface should explain the two task actions more clearly",
+        panel.saved_inventory_status.text() == "Create or manage exact-match tasks and callable groups.",
+        "entry-state landing surface should explain the expanded exact-match task and group actions clearly",
     )
     _assert(
         "application, folder, file, or website" in panel.create_custom_task_description.text().casefold(),
@@ -289,16 +399,31 @@ def _test_entry_surface_keeps_inventory_details_out_of_landing_view():
         "created-tasks action should explain that it opens the management surface for existing tasks",
     )
     _assert(
+        "callable group" in panel.create_custom_group_description.text().casefold()
+        and "built-ins and saved tasks" in panel.create_custom_group_description.text().casefold(),
+        "create-group action should explain that callable groups can surface both built-ins and saved tasks",
+    )
+    _assert(
+        "review, edit, or remove callable groups" in panel.created_groups_description.text().casefold(),
+        "manage-groups action should explain that it opens the management surface for existing callable groups",
+    )
+    _assert(
         panel.create_action_frame.property("entryActionVariant") == "primary"
         and panel.manage_action_frame.property("entryActionVariant") == "secondary",
-        "entry actions should be visually differentiated so the section feels like a real entry point",
+        "task entry actions should stay visually differentiated so the section feels like a real entry point",
+    )
+    _assert(
+        panel.create_group_action_frame.property("entryActionVariant") == "primary"
+        and panel.manage_group_action_frame.property("entryActionVariant") == "secondary",
+        "group entry actions should mirror the same visual differentiation as the task actions",
     )
     panel.show()
     _app().processEvents()
     _assert(
         abs(panel.create_action_frame.y() - panel.manage_action_frame.y()) <= 4
-        and panel.manage_action_frame.x() > panel.create_action_frame.x(),
-        "entry-state landing surface should present create and manage as peer actions on one row",
+        and abs(panel.create_group_action_frame.y() - panel.manage_group_action_frame.y()) <= 4
+        and panel.create_group_action_frame.y() > panel.create_action_frame.y(),
+        "entry-state landing surface should present tasks and groups as two aligned peer rows instead of collapsing back to a single task-only strip",
     )
     panel.close()
 
@@ -493,6 +618,62 @@ def _test_created_tasks_dialog_edit_reachability_extends_beyond_six_items():
     )
 
 
+def _test_created_groups_dialog_exposes_group_management_triggers():
+    _app()
+    inventory_payload = {
+        "visible": True,
+        "status_kind": "loaded",
+        "status_text": "1 custom group is available.",
+        "guidance_text": "",
+        "path": r"C:\Users\Test\AppData\Local\Nexus Desktop AI\saved_actions.json",
+        "path_display": r"C:\Users\Test\AppData\Local\Nexus Desktop AI\saved_actions.json",
+        "count": 1,
+        "items": [
+            {
+                "id": "workspace_tools",
+                "title": "Workspace Tools",
+                "aliases": ["workspace tools", "tools group"],
+                "member_count": 2,
+            }
+        ],
+    }
+    dialog = renderer_mod.CreatedGroupsDialog(inventory_payload=inventory_payload)
+    edit_buttons = [
+        button
+        for button in dialog.items_frame.findChildren(QPushButton)
+        if button.text() == "Edit"
+    ]
+    delete_buttons = [
+        button
+        for button in dialog.items_frame.findChildren(QPushButton)
+        if button.text() == "Delete"
+    ]
+
+    _assert(edit_buttons and delete_buttons, "Manage Custom Groups dialog should expose edit and delete triggers")
+    _assert(
+        dialog.windowTitle() == "Manage Custom Groups",
+        "group management dialog should expose the clearer Manage Custom Groups window title",
+    )
+    _assert(
+        dialog.guidance_label.isHidden() and dialog.source_label.isHidden(),
+        "group management dialog should keep the loaded-state header stack light",
+    )
+    meta_labels = [
+        label
+        for label in dialog.items_frame.findChildren(QLabel)
+        if label.property("inventoryRole") == "itemMeta"
+    ]
+    _assert(
+        any("members" in (label.text() or "").casefold() for label in meta_labels),
+        "group management rows should surface member-count metadata so the group surface stays legible",
+    )
+    edit_buttons[0].click()
+    _assert(
+        dialog.selected_group_id() == "workspace_tools",
+        "group management dialog should preserve stable edit-button mapping for the selected group",
+    )
+
+
 def _test_type_first_dialog_maps_all_supported_kinds():
     _app()
     dialog = renderer_mod.SavedActionCreateDialog()
@@ -639,6 +820,11 @@ def _test_create_dialog_surfaces_field_level_guidance():
         dialog.create_button.minimumHeight() >= 40 and dialog.cancel_button.minimumHeight() >= 40,
         "dialog action buttons should keep the tighter but still comfortable padding rhythm",
     )
+    _assert(
+        dialog.title_header.property("createRole") == "fieldHeaderShell"
+        and dialog.target_header.property("createRole") == "fieldHeaderShell",
+        "task dialog headers should sit inside subtle bordered shells for stronger field separation",
+    )
     dialog.show()
     _app().processEvents()
     _assert(
@@ -679,6 +865,156 @@ def _test_create_dialog_surfaces_field_level_guidance():
     _assert(
         "full website address" in dialog.target_help_button.toolTip().casefold(),
         "website guidance should now live in the target tooltip instead of under the field",
+    )
+    dialog.close()
+
+
+def _test_create_dialog_supports_group_assignment_and_inline_group_queue():
+    _app()
+    dialog = renderer_mod.SavedActionCreateDialog(
+        available_groups=[
+            {
+                "id": "workspace_tools",
+                "title": "Workspace Tools",
+                "aliases": ["workspace tools"],
+                "member_count": 2,
+            },
+            {
+                "id": "daily_flow",
+                "title": "Daily Flow",
+                "aliases": ["daily flow"],
+                "member_count": 1,
+            },
+        ],
+        group_status_kind="loaded",
+        group_status_text="",
+    )
+
+    _assert(
+        dialog.groups_header_label.text() == "Groups",
+        "task dialog should expose a dedicated Groups field when callable groups are available",
+    )
+    _assert(
+        dialog.groups_new_button.text() == "Assign Group...",
+        "task dialog should route group membership through a dedicated assignment window instead of inline checkboxes",
+    )
+    dialog.title_input.setText("Open Reports")
+    dialog.aliases_input.setText("reports")
+    dialog.target_input.setText(r"C:\Reports")
+    assignment_dialog = renderer_mod.TaskGroupAssignmentDialog(
+        available_groups=dialog._available_groups,
+        selected_group_ids=("workspace_tools",),
+        inline_group_draft=renderer_mod.CallableGroupDraft(
+            title="Reports Suite",
+            aliases=("reports suite",),
+            member_action_ids=(),
+        ),
+        inline_group_assigned=False,
+        group_status_kind="loaded",
+        group_status_text="",
+    )
+    assignment_dialog._toggle_inline_group()
+    dialog._selected_group_ids_state = assignment_dialog.selected_group_ids()
+    dialog._inline_group_draft = assignment_dialog.inline_group_draft()
+    dialog._inline_group_assigned = assignment_dialog.inline_group_assigned()
+    dialog._refresh_groups_ui()
+    draft = dialog.build_draft()
+
+    _assert(
+        draft.group_ids == ("workspace_tools",),
+        "task dialog should carry assigned existing group ids into the saved-action draft",
+    )
+    _assert(
+        draft.inline_group is not None and draft.inline_group.title == "Reports Suite",
+        "task dialog should preserve the queued inline group draft only once the assignment flow marks it assigned",
+    )
+    _assert(
+        "queued and assigned" in dialog.groups_summary_label.text().casefold(),
+        "task dialog should surface queued inline-group feedback directly in the groups summary section",
+    )
+    _assert(
+        assignment_dialog.inline_group_assigned(),
+        "assignment dialog should let the queued inline group be explicitly assigned before save",
+    )
+    assignment_dialog.close()
+
+
+def _test_group_create_dialog_surfaces_members_and_exact_alias_guidance():
+    _app()
+    dialog = renderer_mod.CallableGroupCreateDialog(
+        available_members=[
+            {
+                "id": "open_reports",
+                "title": "Open Reports",
+                "origin_label": "Saved",
+                "target_kind": "folder",
+            },
+            {
+                "id": "open_saved_actions_folder",
+                "title": "Open Saved Actions Folder",
+                "origin_label": "Built-in",
+                "target_kind": "folder",
+            },
+            {
+                "id": "open_docs",
+                "title": "Open Docs",
+                "origin_label": "Built-in",
+                "target_kind": "url",
+            },
+        ]
+    )
+
+    _assert(
+        dialog.windowTitle() == "Create Custom Group",
+        "group authoring should expose a dedicated Create Custom Group dialog",
+    )
+    member_header_labels = [
+        label
+        for label in dialog.members_header.findChildren(QLabel)
+        if label.property("createRole") == "fieldHeaderHelp"
+    ]
+    _assert(
+        member_header_labels and member_header_labels[0].text() == "Members",
+        "group dialog should expose a member-picker field",
+    )
+    _assert(
+        dialog.name_header.property("createRole") == "fieldHeaderShell",
+        "group dialog headers should sit inside subtle bordered shells for stronger separation",
+    )
+    _assert(
+        len(dialog._member_checkboxes) == 3,
+        "group dialog should expose checkboxes for both saved-task and built-in members",
+    )
+    _assert(
+        dialog.maximumWidth() <= 560,
+        "group dialog should keep a bounded default width instead of expanding too far across the screen",
+    )
+    _assert(
+        dialog.members_scroll.maximumHeight() <= 220
+        and dialog.members_scroll.horizontalScrollBarPolicy() == Qt.ScrollBarAlwaysOff,
+        "group dialog should bound the members list with a vertical-only scroll region for reliability",
+    )
+    _assert(
+        "chromeRole=\"close\"" in dialog.styleSheet(),
+        "group dialog should explicitly style the custom close button instead of falling back to the default chrome look",
+    )
+    dialog.name_input.setText("Workspace Tools")
+    dialog.aliases_input.setText("workspace tools, tools group")
+    dialog._member_checkboxes[0].setChecked(True)
+    draft = dialog.build_draft()
+
+    _assert(
+        draft.aliases == ("workspace tools", "tools group"),
+        "group dialog should preserve exact alias phrases without inventing trigger variants",
+    )
+    _assert(
+        draft.member_action_ids == ("open_reports",),
+        "group dialog should carry the explicitly selected member ids only",
+    )
+    _assert(
+        "workspace tools" in dialog.examples_label.text().casefold()
+        and "tools group" in dialog.examples_label.text().casefold(),
+        "group dialog callable surface should preview exact group aliases only",
     )
     dialog.close()
 
@@ -834,7 +1170,13 @@ def _test_create_dialog_supports_browse_assisted_target_selection():
 
     _assert(
         not dialog.target_browse_button.isHidden(),
-        "application tasks should expose a browse button beside the target field",
+        "application tasks should expose a browse button beneath the target field",
+    )
+    dialog.show()
+    _app().processEvents()
+    _assert(
+        dialog.target_browse_button.y() > dialog.target_input.y(),
+        "target browse control should sit below the input so the address field keeps more horizontal room",
     )
     _assert(
         "application path" in dialog.target_browse_button.toolTip().casefold(),
@@ -1399,12 +1741,17 @@ def main():
     tests = [
         ("create trigger present and clickable", _test_create_trigger_is_present_and_clickable),
         ("Created Tasks trigger present and clickable", _test_created_tasks_trigger_is_present_and_clickable),
+        ("Create Custom Group trigger present and clickable", _test_create_custom_group_trigger_is_present_and_clickable),
+        ("Manage Custom Groups trigger present and clickable", _test_manage_custom_groups_trigger_is_present_and_clickable),
         ("entry surface stays button-led", _test_entry_surface_keeps_inventory_details_out_of_landing_view),
         ("Created Tasks dialog exposes edit trigger", _test_created_tasks_dialog_exposes_edit_trigger_for_saved_inventory_items),
         ("Created Tasks dialog exposes delete trigger", _test_created_tasks_dialog_exposes_delete_trigger_for_saved_inventory_items),
         ("Created Tasks dialog keeps edit reachability beyond six items", _test_created_tasks_dialog_edit_reachability_extends_beyond_six_items),
+        ("Created Groups dialog exposes group management triggers", _test_created_groups_dialog_exposes_group_management_triggers),
         ("type-first dialog maps supported kinds", _test_type_first_dialog_maps_all_supported_kinds),
         ("create dialog surfaces field-level guidance", _test_create_dialog_surfaces_field_level_guidance),
+        ("create dialog supports group assignment and inline group queue", _test_create_dialog_supports_group_assignment_and_inline_group_queue),
+        ("group create dialog surfaces members and exact alias guidance", _test_group_create_dialog_surfaces_members_and_exact_alias_guidance),
         ("create dialog trigger controls and dynamic examples", _test_create_dialog_trigger_controls_and_dynamic_examples),
         ("edit dialog default trigger follows type until changed", _test_edit_dialog_default_trigger_follows_type_until_changed),
         ("legacy edit dialog preserves bare callable examples until trigger changes", _test_legacy_edit_dialog_preserves_bare_callable_examples_until_trigger_changes),

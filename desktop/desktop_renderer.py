@@ -1,3 +1,4 @@
+import inspect
 import os
 import re
 import ctypes
@@ -22,6 +23,7 @@ from PySide6.QtWidgets import (
     QFileDialog,
     QToolTip,
     QSizePolicy,
+    QCheckBox,
 )
 from PySide6.QtCore import Qt, QTimer, QUrl, QRect, Signal, QPoint
 from PySide6.QtGui import QColor, QFont
@@ -29,16 +31,24 @@ from PySide6.QtWebEngineWidgets import QWebEngineView
 
 from .interaction_overlay_model import CommandOverlayModel
 from .saved_action_authoring import (
+    CallableGroupDraft,
+    CallableGroupDraftValidationError,
+    CallableGroupUnsafeSourceError,
     SavedActionDraft,
     SavedActionDraftValidationError,
     SavedActionUnsafeSourceError,
+    create_callable_group_from_draft,
     create_saved_action_from_draft,
+    delete_callable_group,
     delete_saved_action,
+    load_callable_group_draft_for_edit,
     load_saved_action_draft_for_edit,
+    update_callable_group_from_draft,
     update_saved_action_from_draft,
 )
 from .saved_action_source import SavedActionSourceWriteBlocked
 from .shared_action_model import (
+    build_callable_group_phrases,
     build_saved_action_callable_phrases,
     default_saved_action_trigger_mode,
     launch_command_action,
@@ -236,6 +246,81 @@ def _populate_saved_inventory_item_layout(
             delete_button.setToolTip(f'Delete "{title}"')
             delete_button.clicked.connect(
                 lambda _checked=False, action_id=item_id: delete_handler(action_id)
+            )
+            button_layout.addWidget(delete_button)
+            button_layout.addStretch(1)
+
+            item_layout.addWidget(action_shell, 0, Qt.AlignTop)
+
+        layout.addWidget(item_frame)
+    layout.addStretch(1)
+
+
+def _populate_saved_group_item_layout(
+    layout,
+    parent,
+    items: list[dict],
+    edit_handler,
+    delete_handler,
+):
+    _clear_layout_widgets(layout)
+    for item in items:
+        item_id = str(item.get("id") or "").strip()
+        title = item.get("title", "")
+        aliases = item.get("aliases") or []
+        member_count = int(item.get("member_count") or 0)
+        member_noun = "member" if member_count == 1 else "members"
+        alias_preview = ", ".join(str(alias).strip() for alias in aliases if str(alias).strip())
+
+        item_frame = QFrame(parent)
+        item_frame.setProperty("inventoryRole", "itemFrame")
+        item_layout = QHBoxLayout(item_frame)
+        item_layout.setContentsMargins(12, 12, 12, 12)
+        item_layout.setSpacing(12)
+
+        content_layout = QVBoxLayout()
+        content_layout.setContentsMargins(0, 0, 0, 0)
+        content_layout.setSpacing(5)
+
+        title_label = QLabel(title, item_frame)
+        title_label.setProperty("inventoryRole", "itemTitle")
+        title_label.setWordWrap(True)
+        content_layout.addWidget(title_label)
+
+        metadata_label = QLabel(f"Custom group | {member_count} {member_noun}", item_frame)
+        metadata_label.setProperty("inventoryRole", "itemMeta")
+        metadata_label.setWordWrap(True)
+        content_layout.addWidget(metadata_label)
+
+        if alias_preview:
+            aliases_label = QLabel(f"Aliases: {alias_preview}", item_frame)
+            aliases_label.setProperty("inventoryRole", "itemTarget")
+            aliases_label.setWordWrap(True)
+            aliases_label.setToolTip(alias_preview)
+            content_layout.addWidget(aliases_label)
+
+        item_layout.addLayout(content_layout, 1)
+
+        if item_id:
+            action_shell = QFrame(item_frame)
+            action_shell.setProperty("inventoryRole", "actionShell")
+            button_layout = QVBoxLayout(action_shell)
+            button_layout.setContentsMargins(7, 7, 7, 7)
+            button_layout.setSpacing(6)
+
+            edit_button = QPushButton("Edit", action_shell)
+            edit_button.setProperty("inventoryRole", "editButton")
+            edit_button.setToolTip(f'Edit "{title}"')
+            edit_button.clicked.connect(
+                lambda _checked=False, group_id=item_id: edit_handler(group_id)
+            )
+            button_layout.addWidget(edit_button)
+
+            delete_button = QPushButton("Delete", action_shell)
+            delete_button.setProperty("inventoryRole", "deleteButton")
+            delete_button.setToolTip(f'Delete "{title}"')
+            delete_button.clicked.connect(
+                lambda _checked=False, group_id=item_id: delete_handler(group_id)
             )
             button_layout.addWidget(delete_button)
             button_layout.addStretch(1)
@@ -456,6 +541,612 @@ class DialogChromeBar(QFrame):
         super().mouseReleaseEvent(event)
 
 
+class QuickCreateGroupDialog(QDialog):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setModal(True)
+        self.setWindowFlags(Qt.Dialog | Qt.FramelessWindowHint)
+        self.setAttribute(Qt.WA_TranslucentBackground, True)
+        self.setWindowTitle("New Group")
+        self.setObjectName("quickCreateGroupDialog")
+        self.setMinimumWidth(420)
+
+        root_layout = QVBoxLayout(self)
+        root_layout.setContentsMargins(6, 6, 6, 6)
+        root_layout.setSpacing(0)
+
+        self.shell = QFrame(self)
+        self.shell.setObjectName("quickCreateGroupShell")
+        root_layout.addWidget(self.shell)
+
+        shell_layout = QVBoxLayout(self.shell)
+        shell_layout.setContentsMargins(0, 0, 0, 0)
+        shell_layout.setSpacing(0)
+
+        self.content = QWidget(self.shell)
+        self.content.setObjectName("quickCreateGroupContent")
+        shell_layout.addWidget(self.content)
+
+        self.chrome_bar = DialogChromeBar(
+            "New Group",
+            self,
+            object_prefix="quickCreateGroup",
+            parent=self.shell,
+            show_title=False,
+        )
+        self.chrome_bar.raise_()
+
+        layout = QVBoxLayout(self.content)
+        layout.setContentsMargins(22, 10, 22, 16)
+        layout.setSpacing(10)
+
+        title_label = QLabel("New Group", self)
+        title_label.setObjectName("quickCreateGroupTitle")
+        layout.addWidget(title_label)
+
+        hint_label = QLabel(
+            "Create a callable group name and aliases for the current task. The task becomes the first member when save succeeds.",
+            self,
+        )
+        hint_label.setObjectName("quickCreateGroupHint")
+        hint_label.setWordWrap(True)
+        layout.addWidget(hint_label)
+
+        name_label = QLabel("Group name", self)
+        name_label.setProperty("createRole", "fieldHeader")
+        layout.addWidget(name_label)
+
+        self.title_input = QLineEdit(self)
+        self.title_input.setObjectName("quickCreateGroupTitleInput")
+        self.title_input.setMinimumHeight(42)
+        self.title_input.setPlaceholderText("Workspace Tools")
+        layout.addWidget(self.title_input)
+
+        aliases_label = QLabel("Aliases", self)
+        aliases_label.setProperty("createRole", "fieldHeader")
+        layout.addWidget(aliases_label)
+
+        self.aliases_input = QLineEdit(self)
+        self.aliases_input.setObjectName("quickCreateGroupAliasesInput")
+        self.aliases_input.setMinimumHeight(42)
+        self.aliases_input.setPlaceholderText("workspace tools, tools group")
+        layout.addWidget(self.aliases_input)
+
+        self.status_label = QLabel("", self)
+        self.status_label.setObjectName("quickCreateGroupStatus")
+        self.status_label.setWordWrap(True)
+        self.status_label.hide()
+        layout.addWidget(self.status_label)
+
+        button_row = QHBoxLayout()
+        button_row.setContentsMargins(0, 0, 0, 0)
+        button_row.setSpacing(8)
+        button_row.addStretch(1)
+
+        cancel_button = QPushButton("Cancel", self)
+        cancel_button.clicked.connect(self.reject)
+        button_row.addWidget(cancel_button)
+
+        create_button = QPushButton("Add Group", self)
+        create_button.setDefault(True)
+        create_button.clicked.connect(self._handle_submit)
+        button_row.addWidget(create_button)
+
+        layout.addLayout(button_row)
+
+        self.setStyleSheet(
+            """
+            #quickCreateGroupDialog { background: transparent; }
+            #quickCreateGroupShell {
+                border-radius: 18px;
+                border: 1px solid rgba(118, 226, 255, 0.14);
+                background: rgb(9, 18, 28);
+            }
+            #quickCreateGroupContent { background: transparent; }
+            #quickCreateGroupChromeBar {
+                border: none;
+                background: transparent;
+            }
+            QPushButton[chromeRole="close"] {
+                min-width: 24px;
+                max-width: 24px;
+                min-height: 20px;
+                max-height: 20px;
+                padding: 0 0 1px 0;
+                text-align: center;
+                border-radius: 8px;
+                border: 1px solid rgba(118, 226, 255, 0.10);
+                background: rgba(11, 26, 40, 0.52);
+                color: rgba(191, 212, 207, 0.94);
+                font-size: 12px;
+                font-weight: 600;
+            }
+            QPushButton[chromeRole="close"]:hover {
+                border: 1px solid rgba(102, 219, 204, 0.24);
+                background: rgba(15, 36, 52, 0.70);
+            }
+            #quickCreateGroupTitle {
+                color: rgba(188, 212, 203, 0.97);
+                font-size: 22px;
+                font-weight: 650;
+            }
+            #quickCreateGroupHint {
+                color: rgba(136, 165, 174, 0.88);
+                font-size: 12px;
+            }
+            #quickCreateGroupStatus {
+                color: rgba(255, 189, 176, 0.96);
+                font-size: 12px;
+            }
+            QLineEdit {
+                min-height: 42px;
+                border-radius: 13px;
+                border: 1px solid rgba(118, 226, 255, 0.18);
+                background: rgba(6, 18, 30, 196);
+                color: rgba(193, 213, 208, 0.96);
+                padding: 7px 14px;
+            }
+            QPushButton {
+                min-height: 38px;
+                padding: 0 18px;
+                border-radius: 11px;
+                border: 1px solid rgba(118, 226, 255, 0.18);
+                background: rgba(6, 18, 30, 196);
+                color: rgba(191, 212, 207, 0.96);
+            }
+            """
+        )
+
+        self._update_chrome_overlay_geometry()
+
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        self._update_chrome_overlay_geometry()
+
+    def _update_chrome_overlay_geometry(self):
+        if hasattr(self, "chrome_bar") and hasattr(self, "shell"):
+            self.chrome_bar.setGeometry(6, 6, max(72, self.shell.width() - 12), self.chrome_bar.height())
+            self.chrome_bar.raise_()
+
+    def draft(self) -> CallableGroupDraft:
+        aliases = tuple(
+            part.strip()
+            for part in (self.aliases_input.text() or "").replace("\n", ",").split(",")
+            if part.strip()
+        )
+        return CallableGroupDraft(
+            title=self.title_input.text(),
+            aliases=aliases,
+            member_action_ids=(),
+        )
+
+    def _handle_submit(self):
+        try:
+            _coerced = CallableGroupDraft(
+                title=self.title_input.text().strip(),
+                aliases=tuple(
+                    part.strip()
+                    for part in (self.aliases_input.text() or "").replace("\n", ",").split(",")
+                    if part.strip()
+                ),
+                member_action_ids=(),
+            )
+            if not _coerced.title:
+                raise CallableGroupDraftValidationError("Callable group name must not be empty.")
+            if not _coerced.aliases:
+                raise CallableGroupDraftValidationError("Callable groups require at least one exact alias.")
+        except CallableGroupDraftValidationError as exc:
+            self.status_label.setText(str(exc))
+            self.status_label.show()
+            return
+        self.accept()
+
+
+class TaskGroupAssignmentDialog(QDialog):
+    def __init__(
+        self,
+        *,
+        available_groups: list[dict] | None = None,
+        selected_group_ids: tuple[str, ...] = (),
+        inline_group_draft: CallableGroupDraft | None = None,
+        inline_group_assigned: bool = False,
+        group_status_kind: str = "loaded",
+        group_status_text: str = "",
+        parent=None,
+    ):
+        super().__init__(parent)
+        self._available_groups = list(available_groups or [])
+        self._selected_group_ids: list[str] = [
+            str(group_id).strip()
+            for group_id in (selected_group_ids or ())
+            if str(group_id).strip()
+        ]
+        self._inline_group_draft = inline_group_draft
+        self._inline_group_assigned = bool(inline_group_assigned and inline_group_draft is not None)
+        self._group_status_kind = group_status_kind or "template_only"
+        self._group_status_text = group_status_text or ""
+        self.setModal(True)
+        self.setWindowFlags(Qt.Dialog | Qt.FramelessWindowHint)
+        self.setAttribute(Qt.WA_TranslucentBackground, True)
+        self.setWindowTitle("Available Groups")
+        self.setObjectName("taskGroupAssignmentDialog")
+        self.setMinimumWidth(500)
+        self.setMaximumWidth(560)
+
+        root_layout = QVBoxLayout(self)
+        root_layout.setContentsMargins(6, 6, 6, 6)
+        root_layout.setSpacing(0)
+
+        self.shell = QFrame(self)
+        self.shell.setObjectName("taskGroupAssignmentShell")
+        root_layout.addWidget(self.shell)
+
+        shell_layout = QVBoxLayout(self.shell)
+        shell_layout.setContentsMargins(0, 0, 0, 0)
+        shell_layout.setSpacing(0)
+
+        self.content = QWidget(self.shell)
+        self.content.setObjectName("taskGroupAssignmentContent")
+        shell_layout.addWidget(self.content)
+
+        self.chrome_bar = DialogChromeBar(
+            "Available Groups",
+            self,
+            object_prefix="taskGroupAssignment",
+            parent=self.shell,
+            show_title=False,
+        )
+        self.chrome_bar.raise_()
+
+        layout = QVBoxLayout(self.content)
+        layout.setContentsMargins(20, 10, 20, 14)
+        layout.setSpacing(10)
+
+        self.title_label = QLabel("Available Groups", self)
+        self.title_label.setObjectName("taskGroupAssignmentTitle")
+        layout.addWidget(self.title_label)
+
+        self.hint_label = QLabel(
+            "Assign this task to existing groups, or create a new callable group for this task without leaving the current edit session.",
+            self,
+        )
+        self.hint_label.setObjectName("taskGroupAssignmentHint")
+        self.hint_label.setWordWrap(True)
+        layout.addWidget(self.hint_label)
+
+        self.status_label = QLabel("", self)
+        self.status_label.setObjectName("taskGroupAssignmentStatus")
+        self.status_label.setWordWrap(True)
+        layout.addWidget(self.status_label)
+
+        self.items_frame = QFrame(self)
+        self.items_frame.setObjectName("taskGroupAssignmentItems")
+        self.items_layout = QVBoxLayout(self.items_frame)
+        self.items_layout.setContentsMargins(0, 0, 0, 0)
+        self.items_layout.setSpacing(8)
+
+        self.items_scroll = QScrollArea(self)
+        self.items_scroll.setObjectName("taskGroupAssignmentItemsScroll")
+        self.items_scroll.setFrameShape(QFrame.NoFrame)
+        self.items_scroll.setWidgetResizable(True)
+        self.items_scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.items_scroll.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+        self.items_scroll.setFocusPolicy(Qt.NoFocus)
+        self.items_scroll.setMaximumHeight(236)
+        self.items_scroll.viewport().setObjectName("taskGroupAssignmentViewport")
+        self.items_scroll.viewport().setAutoFillBackground(False)
+        self.items_scroll.setWidget(self.items_frame)
+        layout.addWidget(self.items_scroll)
+
+        actions_row = QHBoxLayout()
+        actions_row.setContentsMargins(0, 0, 0, 0)
+        actions_row.setSpacing(8)
+
+        self.create_group_button = QPushButton("Create New Group...", self)
+        self.create_group_button.setObjectName("taskGroupAssignmentCreateButton")
+        self.create_group_button.setMinimumHeight(38)
+        self.create_group_button.clicked.connect(self._handle_create_group_requested)
+        actions_row.addWidget(self.create_group_button, 0, Qt.AlignLeft)
+        actions_row.addStretch(1)
+
+        self.done_button = QPushButton("Done", self)
+        self.done_button.setObjectName("taskGroupAssignmentDoneButton")
+        self.done_button.setMinimumHeight(38)
+        self.done_button.clicked.connect(self.accept)
+        actions_row.addWidget(self.done_button)
+        layout.addLayout(actions_row)
+
+        self.setStyleSheet(
+            """
+            #taskGroupAssignmentDialog { background: transparent; }
+            #taskGroupAssignmentShell {
+                border-radius: 18px;
+                border: 1px solid rgba(118, 226, 255, 0.16);
+                background: rgb(9, 18, 28);
+            }
+            #taskGroupAssignmentContent {
+                background: transparent;
+            }
+            #taskGroupAssignmentTitle {
+                color: rgba(188, 212, 203, 0.97);
+                font-size: 22px;
+                font-weight: 650;
+            }
+            #taskGroupAssignmentHint {
+                color: rgba(136, 165, 174, 0.88);
+                font-size: 12px;
+                line-height: 1.45em;
+            }
+            #taskGroupAssignmentStatus {
+                color: rgba(255, 189, 176, 0.96);
+                font-size: 12px;
+            }
+            #taskGroupAssignmentItemsScroll {
+                border: none;
+                background: transparent;
+            }
+            #taskGroupAssignmentViewport {
+                border-radius: 16px;
+                background: rgba(8, 20, 34, 0.96);
+            }
+            #taskGroupAssignmentItems {
+                background: transparent;
+            }
+            QFrame[groupAssignRole="row"] {
+                border-radius: 14px;
+                border: 1px solid rgba(118, 226, 255, 0.12);
+                background: rgba(7, 20, 34, 0.96);
+            }
+            QLabel[groupAssignRole="title"] {
+                color: rgba(184, 208, 200, 0.96);
+                font-size: 13px;
+                font-weight: 650;
+            }
+            QLabel[groupAssignRole="meta"] {
+                color: rgba(148, 179, 186, 0.90);
+                font-size: 12px;
+            }
+            QLabel[groupAssignRole="badge"] {
+                color: rgba(84, 192, 181, 0.86);
+                font-size: 11px;
+                font-weight: 600;
+                letter-spacing: 0.06em;
+                text-transform: uppercase;
+            }
+            QPushButton[chromeRole="close"] {
+                min-width: 24px;
+                max-width: 24px;
+                min-height: 20px;
+                max-height: 20px;
+                padding: 0 0 1px 0;
+                text-align: center;
+                border-radius: 8px;
+                border: 1px solid rgba(118, 226, 255, 0.10);
+                background: rgba(11, 26, 40, 0.52);
+                color: rgba(191, 212, 207, 0.94);
+                font-size: 12px;
+                font-weight: 600;
+            }
+            QPushButton[chromeRole="close"]:hover {
+                border: 1px solid rgba(102, 219, 204, 0.24);
+                background: rgba(15, 36, 52, 0.70);
+            }
+            QPushButton[groupAssignRole="toggle"], #taskGroupAssignmentCreateButton, #taskGroupAssignmentDoneButton {
+                min-height: 36px;
+                padding: 0 16px;
+                border-radius: 10px;
+                border: 1px solid rgba(118, 226, 255, 0.18);
+                background: rgba(8, 24, 38, 220);
+                color: rgba(191, 212, 207, 0.96);
+                font-size: 12px;
+                font-weight: 600;
+            }
+            QPushButton[groupAssignRole="toggle"][assigned="true"] {
+                border: 1px solid rgba(110, 220, 174, 0.32);
+                background: rgba(14, 45, 36, 220);
+            }
+            QPushButton[groupAssignRole="toggle"]:hover, #taskGroupAssignmentCreateButton:hover, #taskGroupAssignmentDoneButton:hover {
+                border: 1px solid rgba(118, 226, 255, 0.34);
+            }
+            #taskGroupAssignmentItemsScroll QScrollBar:vertical {
+                width: 10px;
+                margin: 6px 2px 6px 0;
+                border-radius: 5px;
+                background: rgba(10, 24, 38, 0.74);
+            }
+            #taskGroupAssignmentItemsScroll QScrollBar::handle:vertical {
+                min-height: 42px;
+                border-radius: 5px;
+                background: rgba(118, 226, 255, 0.28);
+            }
+            #taskGroupAssignmentItemsScroll QScrollBar::handle:vertical:hover {
+                background: rgba(118, 226, 255, 0.42);
+            }
+            #taskGroupAssignmentItemsScroll QScrollBar::add-line:vertical,
+            #taskGroupAssignmentItemsScroll QScrollBar::sub-line:vertical {
+                height: 0px;
+                background: transparent;
+            }
+            #taskGroupAssignmentItemsScroll QScrollBar::add-page:vertical,
+            #taskGroupAssignmentItemsScroll QScrollBar::sub-page:vertical {
+                background: transparent;
+            }
+            """
+        )
+
+        self._update_chrome_overlay_geometry()
+        self._refresh_items()
+
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        self._update_chrome_overlay_geometry()
+
+    def _update_chrome_overlay_geometry(self):
+        if hasattr(self, "chrome_bar") and hasattr(self, "shell"):
+            self.chrome_bar.setGeometry(6, 6, max(72, self.shell.width() - 12), self.chrome_bar.height())
+            self.chrome_bar.raise_()
+
+    def selected_group_ids(self) -> tuple[str, ...]:
+        return tuple(self._selected_group_ids)
+
+    def inline_group_draft(self) -> CallableGroupDraft | None:
+        return self._inline_group_draft
+
+    def inline_group_assigned(self) -> bool:
+        return bool(self._inline_group_draft is not None and self._inline_group_assigned)
+
+    def _toggle_existing_group(self, group_id: str):
+        normalized_key = str(group_id or "").strip().casefold()
+        if not normalized_key:
+            return
+        retained: list[str] = []
+        removed = False
+        for existing_id in self._selected_group_ids:
+            if existing_id.casefold() == normalized_key:
+                removed = True
+                continue
+            retained.append(existing_id)
+        if removed:
+            self._selected_group_ids = retained
+        else:
+            retained.append(str(group_id).strip())
+            self._selected_group_ids = retained
+        self._refresh_items()
+
+    def _toggle_inline_group(self):
+        if self._inline_group_draft is None:
+            return
+        self._inline_group_assigned = not self._inline_group_assigned
+        self._refresh_items()
+
+    def _handle_create_group_requested(self):
+        if self._group_status_kind == "invalid_groups":
+            self.status_label.setText(self._group_status_text)
+            self.status_label.setVisible(bool(self.status_label.text()))
+            return
+
+        dialog = QuickCreateGroupDialog(self)
+        if dialog.exec() != QDialog.Accepted:
+            return
+        try:
+            self._inline_group_draft = dialog.draft()
+        except CallableGroupDraftValidationError as exc:
+            self.status_label.setText(str(exc))
+            self.status_label.setVisible(True)
+            return
+        self._inline_group_assigned = False
+        self._refresh_items()
+
+    def _make_group_row(
+        self,
+        *,
+        title: str,
+        meta_text: str,
+        badge_text: str,
+        assigned: bool,
+        on_toggle,
+        parent: QWidget,
+    ) -> QFrame:
+        frame = QFrame(parent)
+        frame.setProperty("groupAssignRole", "row")
+        layout = QHBoxLayout(frame)
+        layout.setContentsMargins(12, 12, 12, 12)
+        layout.setSpacing(12)
+
+        text_column = QVBoxLayout()
+        text_column.setContentsMargins(0, 0, 0, 0)
+        text_column.setSpacing(4)
+
+        title_label = QLabel(title, frame)
+        title_label.setProperty("groupAssignRole", "title")
+        title_label.setWordWrap(True)
+        text_column.addWidget(title_label)
+
+        badge_label = QLabel(badge_text, frame)
+        badge_label.setProperty("groupAssignRole", "badge")
+        badge_label.setVisible(bool(badge_text))
+        text_column.addWidget(badge_label)
+
+        meta_label = QLabel(meta_text, frame)
+        meta_label.setProperty("groupAssignRole", "meta")
+        meta_label.setWordWrap(True)
+        text_column.addWidget(meta_label)
+
+        layout.addLayout(text_column, 1)
+
+        action_button = QPushButton("Remove" if assigned else "Assign", frame)
+        action_button.setProperty("groupAssignRole", "toggle")
+        action_button.setProperty("assigned", assigned)
+        action_button.setMinimumWidth(92)
+        action_button.clicked.connect(on_toggle)
+        action_button.setEnabled(self._group_status_kind != "invalid_groups")
+        layout.addWidget(action_button, 0, Qt.AlignTop)
+        return frame
+
+    def _refresh_items(self):
+        _clear_layout_widgets(self.items_layout)
+        show_disabled_state = self._group_status_kind == "invalid_groups"
+        self.status_label.setText(self._group_status_text if show_disabled_state else "")
+        self.status_label.setVisible(bool(self.status_label.text()))
+        self.create_group_button.setEnabled(not show_disabled_state)
+
+        normalized_selected = {group_id.casefold() for group_id in self._selected_group_ids}
+        row_count = 0
+
+        for item in self._available_groups:
+            group_id = str(item.get("id") or "").strip()
+            if not group_id:
+                continue
+            aliases = ", ".join(
+                str(alias).strip()
+                for alias in (item.get("aliases") or [])
+                if str(alias).strip()
+            )
+            member_count = int(item.get("member_count") or 0)
+            meta_text = f"{member_count} {'member' if member_count == 1 else 'members'}"
+            if aliases:
+                meta_text = f"{meta_text} • {aliases}"
+            row = self._make_group_row(
+                title=str(item.get("title") or "").strip() or group_id,
+                meta_text=meta_text,
+                badge_text="Existing group",
+                assigned=group_id.casefold() in normalized_selected,
+                on_toggle=lambda _checked=False, value=group_id: self._toggle_existing_group(value),
+                parent=self.items_frame,
+            )
+            self.items_layout.addWidget(row)
+            row_count += 1
+
+        if self._inline_group_draft is not None:
+            inline_aliases = ", ".join(self._inline_group_draft.aliases)
+            row = self._make_group_row(
+                title=self._inline_group_draft.title,
+                meta_text=(
+                    f"Queued for this task • {inline_aliases}"
+                    if inline_aliases
+                    else "Queued for this task"
+                ),
+                badge_text="New group",
+                assigned=self._inline_group_assigned,
+                on_toggle=lambda _checked=False: self._toggle_inline_group(),
+                parent=self.items_frame,
+            )
+            self.items_layout.addWidget(row)
+            row_count += 1
+
+        if row_count == 0:
+            empty_label = QLabel(
+                "No callable groups yet. Create one here if you want this task to surface inside a group chooser.",
+                self.items_frame,
+            )
+            empty_label.setProperty("groupAssignRole", "meta")
+            empty_label.setWordWrap(True)
+            self.items_layout.addWidget(empty_label)
+            row_count = 1
+
+        self.items_layout.addStretch(1)
+        self.items_scroll.setFixedHeight(min(236, max(96, self.items_frame.sizeHint().height() + 4)))
+
 class SavedActionCreateDialog(QDialog):
     ACTION_TYPE_OPTIONS = (
         ("Application", "app"),
@@ -558,6 +1249,9 @@ class SavedActionCreateDialog(QDialog):
         ),
         submit_button_text: str = "Create",
         initial_draft: SavedActionDraft | None = None,
+        available_groups: list[dict] | None = None,
+        group_status_kind: str = "template_only",
+        group_status_text: str = "",
         lifecycle_callback=None,
         dialog_signal_name: str = "CUSTOM_TASK_CREATE_DIALOG",
     ):
@@ -571,6 +1265,12 @@ class SavedActionCreateDialog(QDialog):
         self._loaded_trigger_follows_default = True
         self._preserve_legacy_bare_trigger = False
         self._invocation_mode = "aliases_only"
+        self._available_groups = list(available_groups or [])
+        self._group_status_kind = group_status_kind or "template_only"
+        self._group_status_text = group_status_text or ""
+        self._inline_group_draft: CallableGroupDraft | None = None
+        self._inline_group_assigned = False
+        self._selected_group_ids_state: tuple[str, ...] = ()
         self.setModal(True)
         self.setWindowFlags(Qt.Dialog | Qt.FramelessWindowHint)
         self.setAttribute(Qt.WA_TranslucentBackground, True)
@@ -691,27 +1391,67 @@ class SavedActionCreateDialog(QDialog):
         self.aliases_input.textChanged.connect(self._refresh_examples_box)
         form.addWidget(self.aliases_input, 3, 1)
 
+        self.groups_header, self.groups_header_label, self.groups_help_button = self._make_form_header(
+            "Groups",
+            tooltip_text=(
+                "<div style=\"max-width: 250px;\"><b>What this is</b><br/>Optional callable groups this task belongs to."
+                "<br/><br/><b>How it affects calling</b><br/>Group aliases open the group's member chooser, then the normal confirm step."
+                "<br/><br/><b>Boundaries</b><br/>Groups stay exact-match and do not generate trigger phrases.</div>"
+            ),
+            object_name="savedActionCreateGroupsHeader",
+            help_object_name="savedActionCreateGroupsHelp",
+        )
+        form.addWidget(self.groups_header, 4, 0)
+        self.groups_frame = QFrame(self)
+        self.groups_frame.setObjectName("savedActionCreateGroupsFrame")
+        groups_layout = QVBoxLayout(self.groups_frame)
+        groups_layout.setContentsMargins(0, 0, 0, 0)
+        groups_layout.setSpacing(6)
+
+        self.groups_status_label = QLabel("", self.groups_frame)
+        self.groups_status_label.setObjectName("savedActionCreateGroupsStatus")
+        self.groups_status_label.setWordWrap(True)
+        groups_layout.addWidget(self.groups_status_label)
+
+        self.groups_list_frame = QFrame(self.groups_frame)
+        self.groups_list_frame.setObjectName("savedActionCreateGroupsList")
+        self.groups_list_layout = QVBoxLayout(self.groups_list_frame)
+        self.groups_list_layout.setContentsMargins(10, 10, 10, 10)
+        self.groups_list_layout.setSpacing(6)
+        self.groups_summary_label = QLabel("", self.groups_list_frame)
+        self.groups_summary_label.setObjectName("savedActionCreateGroupsSummary")
+        self.groups_summary_label.setWordWrap(True)
+        self.groups_list_layout.addWidget(self.groups_summary_label)
+        groups_layout.addWidget(self.groups_list_frame)
+
+        self.groups_new_button = QPushButton("Assign Group...", self.groups_frame)
+        self.groups_new_button.setObjectName("savedActionCreateNewGroupButton")
+        self.groups_new_button.setMinimumHeight(36)
+        self.groups_new_button.clicked.connect(self._handle_group_assignment_requested)
+        groups_layout.addWidget(self.groups_new_button, 0, Qt.AlignLeft)
+        form.addWidget(self.groups_frame, 4, 1)
+
         self.target_header, self.target_header_label, self.target_help_button = self._make_form_header(
             "Target",
             tooltip_text="",
             object_name="savedActionCreateTargetHeader",
             help_object_name="savedActionCreateTargetHelp",
         )
-        form.addWidget(self.target_header, 4, 0)
+        form.addWidget(self.target_header, 5, 0)
         self.target_input = QLineEdit(self)
         self.target_input.setObjectName("savedActionCreateTargetInput")
         self.target_input.setMinimumHeight(42)
         self.target_browse_button = QPushButton("Browse...", self)
         self.target_browse_button.setObjectName("savedActionCreateTargetBrowseButton")
-        self.target_browse_button.setMinimumHeight(42)
+        self.target_browse_button.setMinimumHeight(38)
         self.target_browse_button.setMinimumWidth(112)
         self.target_browse_button.clicked.connect(self._handle_target_browse_clicked)
-        target_row = QHBoxLayout()
+        target_row = QVBoxLayout()
         target_row.setContentsMargins(0, 0, 0, 0)
-        target_row.setSpacing(8)
-        target_row.addWidget(self.target_input, 1)
-        target_row.addWidget(self.target_browse_button, 0)
-        form.addLayout(target_row, 4, 1)
+        target_row.setSpacing(6)
+        target_row.addWidget(self.target_input)
+        target_row.addWidget(self.target_browse_button, 0, Qt.AlignLeft)
+        form.addLayout(target_row, 5, 1)
 
         content_row = QHBoxLayout()
         self.content_row = content_row
@@ -851,6 +1591,23 @@ class SavedActionCreateDialog(QDialog):
                 font-size: 12px;
                 line-height: 1.45em;
             }
+            #savedActionCreateGroupsFrame {
+                background: transparent;
+            }
+            #savedActionCreateGroupsList {
+                border-radius: 13px;
+                border: 1px solid rgba(118, 226, 255, 0.12);
+                background: rgba(6, 18, 30, 0.56);
+            }
+            #savedActionCreateGroupsSummary {
+                color: rgba(168, 193, 199, 0.93);
+                font-size: 12px;
+                line-height: 1.45em;
+            }
+            #savedActionCreateGroupsStatus {
+                color: rgba(255, 189, 176, 0.96);
+                font-size: 12px;
+            }
             #savedActionCreateStatus {
                 min-height: 0px;
                 color: rgba(255, 189, 176, 0.96);
@@ -862,13 +1619,18 @@ class SavedActionCreateDialog(QDialog):
                 font-weight: 600;
                 letter-spacing: 0.08em;
             }
+            QWidget[createRole="fieldHeaderShell"] {
+                border-radius: 12px;
+                border: 1px solid rgba(118, 226, 255, 0.10);
+                background: rgba(6, 18, 30, 0.46);
+            }
             QLabel[createRole="fieldHeader"], QLabel[createRole="fieldHeaderHelp"] {
                 color: rgba(182, 206, 198, 0.96);
                 font-size: 15px;
                 font-weight: 650;
             }
             QLabel[createRole="fieldHeaderHelp"] {
-                padding-bottom: 2px;
+                padding-bottom: 1px;
                 border-bottom: 1px dotted rgba(102, 219, 204, 0.24);
             }
             QLabel[createRole="fieldHeaderHelp"]:hover {
@@ -936,6 +1698,7 @@ class SavedActionCreateDialog(QDialog):
             """
         )
 
+        self._refresh_groups_ui()
         self._apply_default_trigger_mode(force=True)
         self._sync_trigger_ui_from_selection(mark_manual=False)
         self._trigger_manually_changed = False
@@ -990,8 +1753,9 @@ class SavedActionCreateDialog(QDialog):
     ) -> tuple[QWidget, QLabel, QLabel]:
         container = QWidget(self)
         container.setObjectName(object_name)
+        container.setProperty("createRole", "fieldHeaderShell")
         layout = QHBoxLayout(container)
-        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setContentsMargins(10, 7, 10, 7)
         layout.setSpacing(0)
 
         label = ImmediateHelpButton(container)
@@ -1006,6 +1770,62 @@ class SavedActionCreateDialog(QDialog):
         layout.addWidget(label, 0, Qt.AlignVCenter)
         layout.addStretch(1)
         return container, label, label
+
+    def _selected_group_ids(self) -> tuple[str, ...]:
+        return tuple(self._selected_group_ids_state)
+
+    def _refresh_groups_ui(self):
+        show_disabled_state = self._group_status_kind == "invalid_groups"
+        self.groups_status_label.setText(self._group_status_text if show_disabled_state else "")
+        self.groups_status_label.setVisible(bool(self.groups_status_label.text()))
+        normalized_selected = {group_id.casefold() for group_id in self._selected_group_ids_state}
+        selected_lines: list[str] = []
+        for item in self._available_groups:
+            group_id = str(item.get("id") or "").strip()
+            if not group_id or group_id.casefold() not in normalized_selected:
+                continue
+            member_count = int(item.get("member_count") or 0)
+            selected_lines.append(
+                f'Assigned: {str(item.get("title") or "").strip() or group_id} ({member_count} {"member" if member_count == 1 else "members"})'
+            )
+
+        if self._inline_group_draft is not None:
+            inline_aliases = ", ".join(self._inline_group_draft.aliases)
+            queued_prefix = "Queued and assigned" if self._inline_group_assigned else "Queued only"
+            selected_lines.append(
+                f"{queued_prefix}: {self._inline_group_draft.title}"
+                + (f" ({inline_aliases})" if inline_aliases else "")
+            )
+
+        if not selected_lines:
+            selected_lines.append("No groups assigned yet. Use Assign Group... to attach this task to existing or newly created callable groups.")
+
+        self.groups_summary_label.setText("\n".join(selected_lines))
+        self.groups_summary_label.setTextFormat(Qt.PlainText)
+        self.groups_list_frame.setMinimumHeight(max(82, self.groups_summary_label.sizeHint().height() + 22))
+        self.groups_new_button.setEnabled(not show_disabled_state)
+
+    def _handle_group_assignment_requested(self):
+        if self._group_status_kind == "invalid_groups":
+            self.set_error_text(self._group_status_text)
+            return
+
+        dialog = TaskGroupAssignmentDialog(
+            available_groups=self._available_groups,
+            selected_group_ids=self._selected_group_ids_state,
+            inline_group_draft=self._inline_group_draft,
+            inline_group_assigned=self._inline_group_assigned,
+            group_status_kind=self._group_status_kind,
+            group_status_text=self._group_status_text,
+            parent=self,
+        )
+        if dialog.exec() != QDialog.Accepted:
+            return
+
+        self._selected_group_ids_state = dialog.selected_group_ids()
+        self._inline_group_draft = dialog.inline_group_draft()
+        self._inline_group_assigned = dialog.inline_group_assigned()
+        self._refresh_groups_ui()
 
     def current_target_kind(self) -> str:
         return str(self.type_combo.currentData() or "app")
@@ -1249,6 +2069,8 @@ class SavedActionCreateDialog(QDialog):
             invocation_mode=self._invocation_mode,
             trigger_mode=trigger_mode,
             custom_triggers=custom_triggers,
+            group_ids=self._selected_group_ids(),
+            inline_group=self._inline_group_draft if self._inline_group_assigned else None,
         )
 
     def load_draft(self, draft: SavedActionDraft):
@@ -1269,6 +2091,10 @@ class SavedActionCreateDialog(QDialog):
         self.custom_triggers_input.setText(", ".join(draft.custom_triggers))
         self._set_trigger_mode(draft.trigger_mode or default_saved_action_trigger_mode(draft.target_kind))
         self.target_input.setText(draft.target)
+        self._inline_group_draft = draft.inline_group
+        self._inline_group_assigned = draft.inline_group is not None
+        self._selected_group_ids_state = tuple(draft.group_ids)
+        self._refresh_groups_ui()
         self._sync_trigger_ui_from_selection(mark_manual=False)
         self._trigger_manually_changed = not trigger_follows_default
         self._update_target_guidance()
@@ -1383,6 +2209,460 @@ class SavedActionEditDialog(SavedActionCreateDialog):
             dialog_signal_name="CUSTOM_TASK_EDIT_DIALOG",
         )
 
+
+class CallableGroupCreateDialog(QDialog):
+    def __init__(
+        self,
+        parent=None,
+        submit_handler=None,
+        *,
+        dialog_title: str = "Create Custom Group",
+        heading_text: str = "Create Custom Group",
+        hint_text: str = "Pick a group name, exact aliases, and explicit members below.",
+        submit_button_text: str = "Create",
+        available_members: list[dict] | None = None,
+        initial_draft: CallableGroupDraft | None = None,
+        lifecycle_callback=None,
+        dialog_signal_name: str = "CUSTOM_GROUP_CREATE_DIALOG",
+    ):
+        super().__init__(parent)
+        self._submit_handler = submit_handler
+        self._available_members = list(available_members or [])
+        self._lifecycle_callback = lifecycle_callback
+        self._dialog_signal_name = dialog_signal_name
+        self._ready_signal_emitted = False
+        self._member_checkboxes: list[QCheckBox] = []
+        self.setModal(True)
+        self.setWindowFlags(Qt.Dialog | Qt.FramelessWindowHint)
+        self.setAttribute(Qt.WA_TranslucentBackground, True)
+        self.setWindowTitle(dialog_title)
+        self.setObjectName("callableGroupCreateDialog")
+        self.setMinimumWidth(520)
+        self.setMaximumWidth(560)
+
+        root_layout = QVBoxLayout(self)
+        root_layout.setContentsMargins(6, 6, 6, 6)
+        root_layout.setSpacing(0)
+
+        self.shell = QFrame(self)
+        self.shell.setObjectName("callableGroupCreateShell")
+        root_layout.addWidget(self.shell)
+
+        shell_layout = QVBoxLayout(self.shell)
+        shell_layout.setContentsMargins(0, 0, 0, 0)
+        shell_layout.setSpacing(0)
+
+        self.content = QWidget(self.shell)
+        self.content.setObjectName("callableGroupCreateContent")
+        shell_layout.addWidget(self.content)
+
+        self.chrome_bar = DialogChromeBar(
+            dialog_title,
+            self,
+            object_prefix="callableGroupCreate",
+            parent=self.shell,
+            show_title=False,
+        )
+        self.chrome_bar.raise_()
+
+        layout = QVBoxLayout(self.content)
+        layout.setContentsMargins(20, 10, 20, 14)
+        layout.setSpacing(10)
+
+        self.title_label = QLabel(heading_text, self)
+        self.title_label.setObjectName("callableGroupCreateTitle")
+        layout.addWidget(self.title_label)
+
+        self.hint_label = QLabel(hint_text, self)
+        self.hint_label.setObjectName("callableGroupCreateHint")
+        self.hint_label.setWordWrap(True)
+        layout.addWidget(self.hint_label)
+
+        form = QVBoxLayout()
+        form.setContentsMargins(0, 0, 0, 0)
+        form.setSpacing(10)
+
+        self.name_header, _, _ = SavedActionCreateDialog._make_form_header(
+            self,
+            "Group name",
+            tooltip_text=(
+                "<div style=\"max-width: 250px;\"><b>What this is</b><br/>The display label people see for the group."
+                "<br/><br/><b>How it affects calling</b><br/>Calling comes from the group's aliases, not the name.</div>"
+            ),
+            object_name="callableGroupCreateNameHeader",
+            help_object_name="callableGroupCreateNameHelp",
+        )
+        form.addWidget(self.name_header)
+        self.name_input = QLineEdit(self)
+        self.name_input.setObjectName("callableGroupCreateNameInput")
+        self.name_input.setMinimumHeight(42)
+        self.name_input.setPlaceholderText("Workspace Tools")
+        form.addWidget(self.name_input)
+
+        self.aliases_header, _, _ = SavedActionCreateDialog._make_form_header(
+            self,
+            "Aliases",
+            tooltip_text=(
+                "<div style=\"max-width: 250px;\"><b>What this is</b><br/>Exact callable phrases for this group."
+                "<br/><br/><b>How it affects calling</b><br/>Typing one of these aliases opens the group's member chooser.</div>"
+            ),
+            object_name="callableGroupCreateAliasesHeader",
+            help_object_name="callableGroupCreateAliasesHelp",
+        )
+        form.addWidget(self.aliases_header)
+        self.aliases_input = QLineEdit(self)
+        self.aliases_input.setObjectName("callableGroupCreateAliasesInput")
+        self.aliases_input.setMinimumHeight(42)
+        self.aliases_input.setPlaceholderText("workspace tools, tools group")
+        self.aliases_input.textChanged.connect(self._refresh_examples_box)
+        form.addWidget(self.aliases_input)
+
+        self.examples_box = QFrame(self)
+        self.examples_box.setObjectName("callableGroupCreateExamplesBox")
+        examples_layout = QVBoxLayout(self.examples_box)
+        examples_layout.setContentsMargins(10, 10, 10, 10)
+        examples_layout.setSpacing(5)
+        examples_title = QLabel("Callable surface", self.examples_box)
+        examples_title.setObjectName("callableGroupCreateExamplesTitle")
+        examples_layout.addWidget(examples_title)
+        self.examples_label = QLabel("", self.examples_box)
+        self.examples_label.setObjectName("callableGroupCreateExamples")
+        self.examples_label.setWordWrap(True)
+        self.examples_label.setTextFormat(Qt.RichText)
+        examples_layout.addWidget(self.examples_label)
+        form.addWidget(self.examples_box)
+
+        self.members_header, _, _ = SavedActionCreateDialog._make_form_header(
+            self,
+            "Members",
+            tooltip_text=(
+                "<div style=\"max-width: 250px;\"><b>What this is</b><br/>The built-ins and saved tasks this group can surface."
+                "<br/><br/><b>How it affects calling</b><br/>Group aliases show only these members in the chooser.</div>"
+            ),
+            object_name="callableGroupCreateMembersHeader",
+            help_object_name="callableGroupCreateMembersHelp",
+        )
+        form.addWidget(self.members_header)
+        self.members_scroll = QScrollArea(self)
+        self.members_scroll.setObjectName("callableGroupCreateMembersScroll")
+        self.members_scroll.setFrameShape(QFrame.NoFrame)
+        self.members_scroll.setWidgetResizable(True)
+        self.members_scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.members_scroll.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+        self.members_scroll.setFocusPolicy(Qt.NoFocus)
+        self.members_scroll.setMaximumHeight(176)
+        self.members_scroll.viewport().setObjectName("callableGroupCreateMembersViewport")
+        self.members_scroll.viewport().setAutoFillBackground(False)
+        self.members_frame = QFrame(self)
+        self.members_frame.setObjectName("callableGroupCreateMembersFrame")
+        self.members_layout = QVBoxLayout(self.members_frame)
+        self.members_layout.setContentsMargins(10, 10, 10, 10)
+        self.members_layout.setSpacing(6)
+        self.members_scroll.setWidget(self.members_frame)
+        form.addWidget(self.members_scroll)
+
+        layout.addLayout(form)
+
+        self.status_label = QLabel("", self)
+        self.status_label.setObjectName("callableGroupCreateStatus")
+        self.status_label.setWordWrap(True)
+        self.status_label.hide()
+        layout.addWidget(self.status_label)
+
+        button_row = QHBoxLayout()
+        button_row.setContentsMargins(0, 0, 0, 0)
+        button_row.setSpacing(8)
+        button_row.addStretch(1)
+        self.cancel_button = QPushButton("Cancel", self)
+        self.cancel_button.clicked.connect(self.reject)
+        button_row.addWidget(self.cancel_button)
+        self.submit_button = QPushButton(submit_button_text, self)
+        self.submit_button.setDefault(True)
+        self.submit_button.clicked.connect(self._handle_submit_clicked)
+        button_row.addWidget(self.submit_button)
+        layout.addLayout(button_row)
+
+        self.setStyleSheet(
+            """
+            #callableGroupCreateDialog { background: transparent; }
+            #callableGroupCreateShell {
+                border-radius: 20px;
+                border: 1px solid rgba(118, 226, 255, 0.16);
+                background: rgb(9, 18, 28);
+            }
+            #callableGroupCreateContent { background: transparent; }
+            #callableGroupCreateChromeBar {
+                border: none;
+                background: transparent;
+            }
+            #callableGroupCreateTitle {
+                color: rgba(188, 212, 203, 0.97);
+                font-size: 24px;
+                font-weight: 650;
+            }
+            #callableGroupCreateHint {
+                color: rgba(136, 165, 174, 0.88);
+                font-size: 12px;
+                line-height: 1.45em;
+            }
+            #callableGroupCreateExamplesBox {
+                border-radius: 15px;
+                border: 1px solid rgba(118, 226, 255, 0.10);
+                background: rgba(7, 20, 34, 176);
+            }
+            #callableGroupCreateMembersScroll {
+                border-radius: 15px;
+                border: 1px solid rgba(118, 226, 255, 0.10);
+                background: rgba(7, 20, 34, 0.96);
+            }
+            #callableGroupCreateMembersViewport {
+                border-radius: 14px;
+                background: transparent;
+            }
+            #callableGroupCreateMembersFrame {
+                background: transparent;
+            }
+            #callableGroupCreateExamplesTitle {
+                color: rgba(84, 192, 181, 0.88);
+                font-size: 11px;
+                font-weight: 600;
+                letter-spacing: 0.06em;
+                text-transform: uppercase;
+            }
+            #callableGroupCreateExamples {
+                color: rgba(168, 193, 199, 0.93);
+                font-size: 12px;
+                line-height: 1.45em;
+            }
+            #callableGroupCreateStatus {
+                color: rgba(255, 189, 176, 0.96);
+                font-size: 12px;
+            }
+            QWidget[createRole="fieldHeaderShell"] {
+                border-radius: 12px;
+                border: 1px solid rgba(118, 226, 255, 0.10);
+                background: rgba(6, 18, 30, 0.46);
+            }
+            QLabel[createRole="fieldHeader"], QLabel[createRole="fieldHeaderHelp"] {
+                color: rgba(182, 206, 198, 0.96);
+                font-size: 15px;
+                font-weight: 650;
+            }
+            QLabel[createRole="fieldHeaderHelp"] {
+                padding-bottom: 1px;
+                border-bottom: 1px dotted rgba(102, 219, 204, 0.24);
+            }
+            QLabel[createRole="fieldHeaderHelp"]:hover {
+                color: rgba(198, 218, 211, 0.99);
+                border-bottom: 1px dotted rgba(102, 219, 204, 0.50);
+            }
+            QLineEdit {
+                min-height: 42px;
+                border-radius: 13px;
+                border: 1px solid rgba(118, 226, 255, 0.18);
+                background: rgba(6, 18, 30, 196);
+                color: rgba(193, 213, 208, 0.96);
+                padding: 7px 14px;
+            }
+            QLineEdit:focus {
+                border: 1px solid rgba(118, 226, 255, 0.42);
+                background: rgba(8, 23, 38, 216);
+            }
+            QPushButton {
+                min-height: 40px;
+                padding: 0 18px;
+                border-radius: 11px;
+                border: 1px solid rgba(118, 226, 255, 0.18);
+                background: rgba(6, 18, 30, 196);
+                color: rgba(191, 212, 207, 0.96);
+            }
+            QPushButton[chromeRole="close"] {
+                min-width: 24px;
+                max-width: 24px;
+                min-height: 20px;
+                max-height: 20px;
+                padding: 0 0 1px 0;
+                text-align: center;
+                border-radius: 8px;
+                border: 1px solid rgba(118, 226, 255, 0.10);
+                background: rgba(11, 26, 40, 0.52);
+                color: rgba(191, 212, 207, 0.94);
+                font-size: 12px;
+                font-weight: 600;
+            }
+            QPushButton[chromeRole="close"]:hover,
+            QPushButton:hover {
+                border: 1px solid rgba(118, 226, 255, 0.34);
+            }
+            QPushButton[chromeRole="close"]:hover {
+                background: rgba(15, 36, 52, 0.70);
+            }
+            QCheckBox {
+                color: rgba(182, 206, 198, 0.94);
+                spacing: 8px;
+            }
+            #callableGroupCreateMembersScroll QScrollBar:vertical {
+                width: 10px;
+                margin: 6px 2px 6px 0;
+                border-radius: 5px;
+                background: rgba(10, 24, 38, 0.74);
+            }
+            #callableGroupCreateMembersScroll QScrollBar::handle:vertical {
+                min-height: 42px;
+                border-radius: 5px;
+                background: rgba(118, 226, 255, 0.28);
+            }
+            #callableGroupCreateMembersScroll QScrollBar::handle:vertical:hover {
+                background: rgba(118, 226, 255, 0.42);
+            }
+            #callableGroupCreateMembersScroll QScrollBar::add-line:vertical,
+            #callableGroupCreateMembersScroll QScrollBar::sub-line:vertical {
+                height: 0px;
+                background: transparent;
+            }
+            #callableGroupCreateMembersScroll QScrollBar::add-page:vertical,
+            #callableGroupCreateMembersScroll QScrollBar::sub-page:vertical {
+                background: transparent;
+            }
+            """
+        )
+        self._populate_member_choices()
+        self._refresh_examples_box()
+        if initial_draft is not None:
+            self.load_draft(initial_draft)
+
+    def _emit_lifecycle_event(self, stage: str, **fields):
+        if callable(self._lifecycle_callback):
+            try:
+                self._lifecycle_callback(self._dialog_signal_name, stage, dialog=self, **fields)
+            except Exception:
+                pass
+
+    def _emit_ready_signal(self):
+        if self._ready_signal_emitted or not self.isVisible():
+            return
+        self._ready_signal_emitted = True
+        self._emit_lifecycle_event("ready")
+
+    def showEvent(self, event):
+        super().showEvent(event)
+        self._update_chrome_overlay_geometry()
+        self._emit_lifecycle_event("opened")
+        QTimer.singleShot(0, self._emit_ready_signal)
+
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        self._update_chrome_overlay_geometry()
+
+    def done(self, result):
+        self._emit_lifecycle_event(
+            "closed",
+            result="accepted" if result == QDialog.Accepted else "rejected",
+        )
+        super().done(result)
+
+    def _update_chrome_overlay_geometry(self):
+        if hasattr(self, "chrome_bar") and hasattr(self, "shell"):
+            self.chrome_bar.setGeometry(6, 6, max(72, self.shell.width() - 12), self.chrome_bar.height())
+            self.chrome_bar.raise_()
+
+    def _populate_member_choices(self):
+        _clear_layout_widgets(self.members_layout)
+        self._member_checkboxes = []
+        for item in self._available_members:
+            member_id = str(item.get("id") or "").strip()
+            title = str(item.get("title") or "").strip()
+            subtitle = f"{item.get('origin_label', '')} | {item.get('target_kind', '')}".strip(" |")
+            checkbox = QCheckBox(title, self.members_frame)
+            checkbox.setProperty("memberId", member_id)
+            checkbox.setToolTip(subtitle)
+            self.members_layout.addWidget(checkbox)
+            self._member_checkboxes.append(checkbox)
+        self.members_layout.addStretch(1)
+        if hasattr(self, "members_scroll"):
+            desired_height = min(176, max(104, self.members_frame.sizeHint().height() + 4))
+            self.members_scroll.setFixedHeight(desired_height)
+
+    def _selected_member_ids(self) -> tuple[str, ...]:
+        return tuple(
+            checkbox.property("memberId")
+            for checkbox in self._member_checkboxes
+            if checkbox.isChecked() and str(checkbox.property("memberId") or "").strip()
+        )
+
+    def _refresh_examples_box(self):
+        aliases = tuple(
+            part.strip()
+            for part in (self.aliases_input.text() or "").replace("\n", ",").split(",")
+            if part.strip()
+        )
+        phrases = build_callable_group_phrases(aliases)
+        if phrases:
+            body = "<br/>".join(f"&bull; {escape(phrase)}" for phrase in phrases)
+        else:
+            body = "Add one or more aliases to preview the exact callable phrases."
+        self.examples_label.setText(body)
+
+    def build_draft(self) -> CallableGroupDraft:
+        aliases = tuple(
+            part.strip()
+            for part in (self.aliases_input.text() or "").replace("\n", ",").split(",")
+            if part.strip()
+        )
+        return CallableGroupDraft(
+            title=self.name_input.text(),
+            aliases=aliases,
+            member_action_ids=self._selected_member_ids(),
+        )
+
+    def load_draft(self, draft: CallableGroupDraft):
+        self.name_input.setText(draft.title)
+        self.aliases_input.setText(", ".join(draft.aliases))
+        selected_ids = {member_id.casefold() for member_id in draft.member_action_ids}
+        for checkbox in self._member_checkboxes:
+            checkbox.setChecked(str(checkbox.property("memberId") or "").strip().casefold() in selected_ids)
+        self._refresh_examples_box()
+
+    def set_error_text(self, text: str):
+        self.status_label.setText((text or "").strip())
+        self.status_label.setVisible(bool(self.status_label.text()))
+
+    def _handle_submit_clicked(self):
+        if self._submit_handler is None:
+            self.accept()
+            return
+        try:
+            self._submit_handler(self.build_draft())
+        except (CallableGroupDraftValidationError, CallableGroupUnsafeSourceError, SavedActionSourceWriteBlocked) as exc:
+            self.set_error_text(str(exc))
+            return
+        except Exception as exc:
+            self.set_error_text(f"Custom group could not be saved: {exc}")
+            return
+        self.accept()
+
+
+class CallableGroupEditDialog(CallableGroupCreateDialog):
+    def __init__(
+        self,
+        parent=None,
+        submit_handler=None,
+        initial_draft: CallableGroupDraft | None = None,
+        available_members: list[dict] | None = None,
+        lifecycle_callback=None,
+    ):
+        super().__init__(
+            parent,
+            submit_handler,
+            dialog_title="Edit Custom Group",
+            heading_text="Edit Custom Group",
+            hint_text="Update the group name, aliases, and members below.",
+            submit_button_text="Save",
+            available_members=available_members,
+            initial_draft=initial_draft,
+            lifecycle_callback=lifecycle_callback,
+            dialog_signal_name="CUSTOM_GROUP_EDIT_DIALOG",
+        )
 
 class CreatedTasksDialog(QDialog):
     def __init__(self, parent=None, inventory_payload: dict | None = None, lifecycle_callback=None):
@@ -1751,6 +3031,354 @@ class CreatedTasksDialog(QDialog):
             self.items_scroll.setFixedHeight(0)
 
 
+class CreatedGroupsDialog(QDialog):
+    def __init__(self, parent=None, inventory_payload: dict | None = None, lifecycle_callback=None):
+        super().__init__(parent)
+        self._selected_group_id = ""
+        self._selected_delete_group_id = ""
+        self._lifecycle_callback = lifecycle_callback
+        self._ready_signal_emitted = False
+        self.setModal(True)
+        self.setWindowFlags(Qt.Dialog | Qt.FramelessWindowHint)
+        self.setAttribute(Qt.WA_TranslucentBackground, True)
+        self.setWindowTitle("Manage Custom Groups")
+        self.setObjectName("savedActionCreatedGroupsDialog")
+        self.setMinimumWidth(560)
+        self.setMaximumWidth(620)
+
+        root_layout = QVBoxLayout(self)
+        root_layout.setContentsMargins(6, 6, 6, 6)
+        root_layout.setSpacing(0)
+
+        self.shell = QFrame(self)
+        self.shell.setObjectName("savedActionCreatedTasksShell")
+        root_layout.addWidget(self.shell)
+
+        shell_layout = QVBoxLayout(self.shell)
+        shell_layout.setContentsMargins(0, 0, 0, 0)
+        shell_layout.setSpacing(0)
+
+        self.content = QWidget(self.shell)
+        self.content.setObjectName("savedActionCreatedTasksContent")
+        shell_layout.addWidget(self.content)
+
+        self.chrome_bar = DialogChromeBar(
+            "Manage Custom Groups",
+            self,
+            object_prefix="savedActionCreatedTasks",
+            parent=self.shell,
+            show_title=False,
+        )
+        self.chrome_bar.raise_()
+
+        layout = QVBoxLayout(self.content)
+        layout.setContentsMargins(18, 10, 18, 12)
+        layout.setSpacing(7)
+
+        self.title_label = QLabel("Manage Custom Groups", self)
+        self.title_label.setObjectName("savedActionCreatedTasksTitle")
+        layout.addWidget(self.title_label)
+
+        self.hint_label = QLabel(
+            "Review, update, or remove callable groups from the current source.",
+            self,
+        )
+        self.hint_label.setObjectName("savedActionCreatedTasksHint")
+        self.hint_label.setWordWrap(True)
+        layout.addWidget(self.hint_label)
+
+        self.status_label = QLabel("", self)
+        self.status_label.setObjectName("savedActionCreatedTasksStatus")
+        self.status_label.setWordWrap(True)
+        layout.addWidget(self.status_label)
+
+        self.source_label = QLabel("", self)
+        self.source_label.setObjectName("savedActionCreatedTasksSource")
+        self.source_label.setWordWrap(True)
+        layout.addWidget(self.source_label)
+
+        self.guidance_label = QLabel("", self)
+        self.guidance_label.setObjectName("savedActionCreatedTasksGuidance")
+        self.guidance_label.setWordWrap(True)
+        layout.addWidget(self.guidance_label)
+
+        self.items_frame = QFrame(self)
+        self.items_frame.setObjectName("savedActionCreatedTasksItems")
+        self.items_layout = QVBoxLayout(self.items_frame)
+        self.items_layout.setContentsMargins(0, 2, 0, 0)
+        self.items_layout.setSpacing(8)
+
+        self.items_scroll = QScrollArea(self)
+        self.items_scroll.setObjectName("savedActionCreatedTasksItemsScroll")
+        self.items_scroll.setFrameShape(QFrame.NoFrame)
+        self.items_scroll.setWidgetResizable(True)
+        self.items_scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.items_scroll.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+        self.items_scroll.setFocusPolicy(Qt.NoFocus)
+        self.items_scroll.setMaximumHeight(272)
+        self.items_scroll.viewport().setObjectName("savedActionCreatedTasksViewport")
+        self.items_scroll.viewport().setAutoFillBackground(False)
+        self.items_scroll.setWidget(self.items_frame)
+        layout.addWidget(self.items_scroll)
+
+        self.footer_frame = QFrame(self)
+        self.footer_frame.setObjectName("savedActionCreatedTasksFooter")
+        footer_layout = QHBoxLayout(self.footer_frame)
+        footer_layout.setContentsMargins(0, 6, 0, 0)
+        footer_layout.setSpacing(8)
+        footer_layout.addStretch(1)
+
+        self.close_button = QPushButton("Close", self.footer_frame)
+        self.close_button.setObjectName("savedActionCreatedTasksClose")
+        self.close_button.setMinimumHeight(34)
+        self.close_button.clicked.connect(self.reject)
+        footer_layout.addWidget(self.close_button)
+
+        layout.addWidget(self.footer_frame)
+        self.setStyleSheet(
+            """
+            #savedActionCreatedTasksDialog {
+                background: transparent;
+            }
+            #savedActionCreatedTasksShell {
+                border-radius: 20px;
+                border: 1px solid rgba(118, 226, 255, 0.14);
+                background: rgba(4, 16, 28, 244);
+            }
+            #savedActionCreatedTasksContent {
+                background: transparent;
+            }
+            #savedActionCreatedTasksChromeBar {
+                border: none;
+                background: transparent;
+            }
+            #savedActionCreatedTasksFooter {
+                border-top: 1px solid rgba(118, 226, 255, 0.08);
+                background: transparent;
+            }
+            #savedActionCreatedTasksTitle {
+                color: rgba(188, 212, 203, 0.97);
+                font-size: 24px;
+                font-weight: 650;
+            }
+            #savedActionCreatedTasksHint {
+                color: rgba(136, 165, 174, 0.88);
+                font-size: 12px;
+            }
+            #savedActionCreatedTasksStatus {
+                color: rgba(148, 180, 178, 0.89);
+                font-size: 12px;
+                font-weight: 600;
+            }
+            #savedActionCreatedTasksStatus[statusKind="invalid_source"], #savedActionCreatedTasksStatus[statusKind="invalid_groups"], #savedActionCreatedTasksStatus[statusKind="invalid_saved_actions"], #savedActionCreatedTasksStatus[statusKind="missing"] {
+                color: rgba(255, 189, 176, 0.96);
+            }
+            #savedActionCreatedTasksSource {
+                color: rgba(126, 157, 171, 0.78);
+                font-size: 11px;
+            }
+            #savedActionCreatedTasksGuidance {
+                color: rgba(110, 201, 164, 0.86);
+                font-size: 11px;
+            }
+            #savedActionCreatedTasksItemsScroll {
+                border: none;
+                background: transparent;
+            }
+            #savedActionCreatedTasksViewport {
+                border-radius: 18px;
+                background: rgba(8, 20, 34, 0.96);
+            }
+            #savedActionCreatedTasksItems {
+                background: transparent;
+            }
+            QFrame[inventoryRole="itemFrame"] {
+                border-radius: 16px;
+                border: 1px solid rgba(118, 226, 255, 0.12);
+                background: rgba(7, 20, 34, 0.96);
+            }
+            QFrame[inventoryRole="actionShell"] {
+                border-radius: 14px;
+                border: 1px solid rgba(118, 226, 255, 0.10);
+                background: rgba(10, 25, 39, 0.86);
+            }
+            QLabel[inventoryRole="itemTitle"] {
+                color: rgba(184, 208, 200, 0.96);
+                font-size: 14px;
+                font-weight: 650;
+            }
+            QLabel[inventoryRole="itemMeta"] {
+                color: rgba(84, 192, 181, 0.83);
+                font-size: 11px;
+                font-weight: 600;
+                letter-spacing: 0.06em;
+                text-transform: uppercase;
+            }
+            QLabel[inventoryRole="itemTarget"] {
+                color: rgba(163, 189, 196, 0.92);
+                font-size: 12px;
+            }
+            QPushButton[inventoryRole="editButton"], QPushButton[inventoryRole="deleteButton"], #savedActionCreatedTasksClose {
+                min-height: 34px;
+                padding: 0 14px;
+                border-radius: 11px;
+                border: 1px solid rgba(118, 226, 255, 0.18);
+                background: rgba(8, 24, 38, 220);
+                color: rgba(191, 212, 207, 0.96);
+                font-size: 12px;
+                font-weight: 600;
+            }
+            QPushButton[inventoryRole="editButton"] {
+                border: 1px solid rgba(118, 226, 255, 0.30);
+                background: rgba(18, 52, 78, 214);
+            }
+            QPushButton[inventoryRole="deleteButton"] {
+                border: 1px solid rgba(255, 138, 138, 0.26);
+                background: rgba(34, 12, 16, 212);
+                color: rgba(255, 231, 231, 0.96);
+            }
+            QPushButton[chromeRole="close"] {
+                min-width: 24px;
+                max-width: 24px;
+                min-height: 20px;
+                max-height: 20px;
+                padding: 0 0 1px 0;
+                text-align: center;
+                border-radius: 8px;
+                border: 1px solid rgba(118, 226, 255, 0.10);
+                background: rgba(11, 26, 40, 0.52);
+                color: rgba(191, 212, 207, 0.94);
+                font-size: 12px;
+                font-weight: 600;
+            }
+            QPushButton[chromeRole="close"]:hover {
+                border: 1px solid rgba(102, 219, 204, 0.24);
+                background: rgba(15, 36, 52, 0.70);
+            }
+            #savedActionCreatedTasksItemsScroll QScrollBar:vertical {
+                width: 10px;
+                margin: 6px 2px 6px 0;
+                border-radius: 5px;
+                background: rgba(10, 24, 38, 0.74);
+            }
+            #savedActionCreatedTasksItemsScroll QScrollBar::handle:vertical {
+                min-height: 42px;
+                border-radius: 5px;
+                background: rgba(118, 226, 255, 0.28);
+            }
+            #savedActionCreatedTasksItemsScroll QScrollBar::handle:vertical:hover {
+                background: rgba(118, 226, 255, 0.42);
+            }
+            #savedActionCreatedTasksItemsScroll QScrollBar::handle:vertical:pressed {
+                background: rgba(118, 226, 255, 0.54);
+            }
+            #savedActionCreatedTasksItemsScroll QScrollBar::add-line:vertical,
+            #savedActionCreatedTasksItemsScroll QScrollBar::sub-line:vertical {
+                height: 0px;
+                background: transparent;
+            }
+            #savedActionCreatedTasksItemsScroll QScrollBar::add-page:vertical,
+            #savedActionCreatedTasksItemsScroll QScrollBar::sub-page:vertical {
+                background: transparent;
+            }
+            """
+        )
+        self.refresh_inventory(inventory_payload or {})
+
+    def _emit_lifecycle_event(self, stage: str, **fields):
+        if callable(self._lifecycle_callback):
+            try:
+                self._lifecycle_callback("CREATED_GROUPS_DIALOG", stage, dialog=self, **fields)
+            except Exception:
+                pass
+
+    def _emit_ready_signal(self):
+        if self._ready_signal_emitted or not self.isVisible():
+            return
+        self._ready_signal_emitted = True
+        self._emit_lifecycle_event("ready")
+
+    def showEvent(self, event):
+        super().showEvent(event)
+        self._update_chrome_overlay_geometry()
+        self._emit_lifecycle_event("opened")
+        QTimer.singleShot(0, self._emit_ready_signal)
+
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        self._update_chrome_overlay_geometry()
+
+    def done(self, result):
+        self._emit_lifecycle_event(
+            "closed",
+            result="accepted" if result == QDialog.Accepted else "rejected",
+        )
+        super().done(result)
+
+    def _update_chrome_overlay_geometry(self):
+        if hasattr(self, "chrome_bar") and hasattr(self, "shell"):
+            self.chrome_bar.setGeometry(6, 6, max(72, self.shell.width() - 12), self.chrome_bar.height())
+            self.chrome_bar.raise_()
+
+    def selected_group_id(self) -> str:
+        return self._selected_group_id
+
+    def selected_delete_group_id(self) -> str:
+        return self._selected_delete_group_id
+
+    def _handle_edit_requested(self, group_id: str):
+        self._selected_group_id = group_id
+        self._selected_delete_group_id = ""
+        self.accept()
+
+    def _handle_delete_requested(self, group_id: str):
+        self._selected_delete_group_id = group_id
+        self._selected_group_id = ""
+        self.accept()
+
+    def refresh_inventory(self, inventory_payload: dict):
+        inventory_payload = inventory_payload or {}
+        item_count = int(inventory_payload.get("count", 0))
+        self.title_label.setText(
+            f"Manage Custom Groups ({item_count})" if item_count else "Manage Custom Groups"
+        )
+
+        status_kind = inventory_payload.get("status_kind", "hidden")
+        self.status_label.setProperty("statusKind", status_kind)
+        self.status_label.style().unpolish(self.status_label)
+        self.status_label.style().polish(self.status_label)
+        self.status_label.setText(inventory_payload.get("status_text", ""))
+
+        source_path = inventory_payload.get("path", "")
+        source_display = inventory_payload.get("path_display") or source_path
+        items = inventory_payload.get("items") or []
+        show_source_details = status_kind in {"invalid_source", "invalid_groups", "invalid_saved_actions", "missing", "template_only"} or not items
+        self.source_label.setText(f"Source: {source_display}" if show_source_details and source_display else "")
+        self.source_label.setToolTip(source_path)
+        guidance_text = inventory_payload.get("guidance_text", "")
+        show_guidance = bool(guidance_text) and (
+            status_kind in {"invalid_source", "invalid_groups", "invalid_saved_actions", "missing", "template_only"} or not items
+        )
+        self.guidance_label.setText(guidance_text if show_guidance else "")
+        self.source_label.setVisible(bool(self.source_label.text()))
+        self.guidance_label.setVisible(bool(self.guidance_label.text()))
+
+        _populate_saved_group_item_layout(
+            self.items_layout,
+            self.items_frame,
+            items,
+            self._handle_edit_requested,
+            self._handle_delete_requested,
+        )
+        self.items_scroll.setVisible(bool(items))
+        if items:
+            self.items_layout.activate()
+            desired_height = min(320, max(112, self.items_frame.sizeHint().height() + 2))
+            self.items_scroll.setFixedHeight(desired_height)
+        else:
+            self.items_scroll.setFixedHeight(0)
+
+
 class CommandOverlayPanel(QWidget):
     submit_requested = Signal()
     escape_requested = Signal()
@@ -1761,6 +3389,8 @@ class CommandOverlayPanel(QWidget):
     ambiguous_match_selected = Signal(int)
     create_custom_task_requested = Signal()
     created_tasks_requested = Signal()
+    create_custom_group_requested = Signal()
+    created_groups_requested = Signal()
     edit_saved_action_requested = Signal(str)
 
     def __init__(self):
@@ -1835,12 +3465,12 @@ class CommandOverlayPanel(QWidget):
         saved_inventory_layout.setContentsMargins(18, 16, 18, 16)
         saved_inventory_layout.setSpacing(10)
 
-        self.saved_inventory_title = QLabel("Custom tasks", self.saved_inventory_frame)
+        self.saved_inventory_title = QLabel("Custom tasks and groups", self.saved_inventory_frame)
         self.saved_inventory_title.setObjectName("savedActionInventoryTitle")
         saved_inventory_layout.addWidget(self.saved_inventory_title)
 
         self.saved_inventory_status = QLabel(
-            "Create a new task or manage the tasks you already saved.",
+            "Create or manage exact-match tasks and callable groups.",
             self.saved_inventory_frame,
         )
         self.saved_inventory_status.setObjectName("savedActionInventoryStatus")
@@ -1850,7 +3480,7 @@ class CommandOverlayPanel(QWidget):
         self.entry_actions_layout = QGridLayout()
         self.entry_actions_layout.setContentsMargins(0, 0, 0, 0)
         self.entry_actions_layout.setHorizontalSpacing(12)
-        self.entry_actions_layout.setVerticalSpacing(0)
+        self.entry_actions_layout.setVerticalSpacing(12)
         self.entry_actions_layout.setColumnStretch(0, 1)
         self.entry_actions_layout.setColumnStretch(1, 1)
 
@@ -1903,6 +3533,56 @@ class CommandOverlayPanel(QWidget):
         self.created_tasks_description.setWordWrap(True)
         manage_action_layout.addWidget(self.created_tasks_description)
         self.entry_actions_layout.addWidget(self.manage_action_frame, 0, 1)
+
+        self.create_group_action_frame = QFrame(self.saved_inventory_frame)
+        self.create_group_action_frame.setProperty("entryActionCard", "true")
+        self.create_group_action_frame.setProperty("entryActionVariant", "primary")
+        create_group_layout = QVBoxLayout(self.create_group_action_frame)
+        create_group_layout.setContentsMargins(12, 12, 12, 12)
+        create_group_layout.setSpacing(6)
+
+        self.create_custom_group_button = QPushButton("Create Custom Group", self.create_group_action_frame)
+        self.create_custom_group_button.setObjectName("savedActionCreateGroupButton")
+        self.create_custom_group_button.setProperty("entryAction", "true")
+        self.create_custom_group_button.setProperty("entryActionVariant", "primary")
+        self.create_custom_group_button.clicked.connect(
+            lambda _checked=False: self.create_custom_group_requested.emit()
+        )
+        create_group_layout.addWidget(self.create_custom_group_button)
+
+        self.create_custom_group_description = QLabel(
+            "Start a callable group that can surface built-ins and saved tasks.",
+            self.create_group_action_frame,
+        )
+        self.create_custom_group_description.setObjectName("savedActionCreateGroupDescription")
+        self.create_custom_group_description.setWordWrap(True)
+        create_group_layout.addWidget(self.create_custom_group_description)
+        self.entry_actions_layout.addWidget(self.create_group_action_frame, 1, 0)
+
+        self.manage_group_action_frame = QFrame(self.saved_inventory_frame)
+        self.manage_group_action_frame.setProperty("entryActionCard", "true")
+        self.manage_group_action_frame.setProperty("entryActionVariant", "secondary")
+        manage_group_layout = QVBoxLayout(self.manage_group_action_frame)
+        manage_group_layout.setContentsMargins(12, 12, 12, 12)
+        manage_group_layout.setSpacing(6)
+
+        self.created_groups_button = QPushButton("Manage Custom Groups", self.manage_group_action_frame)
+        self.created_groups_button.setObjectName("savedActionCreatedGroupsButton")
+        self.created_groups_button.setProperty("entryAction", "true")
+        self.created_groups_button.setProperty("entryActionVariant", "secondary")
+        self.created_groups_button.clicked.connect(
+            lambda _checked=False: self.created_groups_requested.emit()
+        )
+        manage_group_layout.addWidget(self.created_groups_button)
+
+        self.created_groups_description = QLabel(
+            "Review, edit, or remove callable groups and their members.",
+            self.manage_group_action_frame,
+        )
+        self.created_groups_description.setObjectName("savedActionCreatedGroupsDescription")
+        self.created_groups_description.setWordWrap(True)
+        manage_group_layout.addWidget(self.created_groups_description)
+        self.entry_actions_layout.addWidget(self.manage_group_action_frame, 1, 1)
 
         saved_inventory_layout.addLayout(self.entry_actions_layout)
 
@@ -2070,7 +3750,8 @@ class CommandOverlayPanel(QWidget):
             QFrame[entryActionCard="true"][entryActionVariant="secondary"] {
                 background: rgba(9, 22, 37, 0.88);
             }
-            #savedActionCreateDescription, #savedActionCreatedTasksDescription {
+            #savedActionCreateDescription, #savedActionCreatedTasksDescription,
+            #savedActionCreateGroupDescription, #savedActionCreatedGroupsDescription {
                 color: rgba(147, 174, 182, 0.87);
                 font-size: 12px;
                 line-height: 1.4em;
@@ -2286,10 +3967,18 @@ class CommandOverlayPanel(QWidget):
         if locked:
             self.setFocus(Qt.ActiveWindowFocusReason)
 
+        selection_context = payload.get("selection_context", "")
+        pending_group = payload.get("pending_group") or {}
+
         if phase == "confirm":
             self.hint_label.setText("Review the resolved action origin and destination before execution.")
         elif phase == "choose":
-            self.hint_label.setText("Press a number key or click the intended action after reviewing its origin and destination.")
+            if selection_context == "group" and pending_group.get("title"):
+                self.hint_label.setText(
+                    f'Select a member from "{pending_group.get("title")}" after reviewing its origin and destination.'
+                )
+            else:
+                self.hint_label.setText("Press a number key or click the intended action after reviewing its origin and destination.")
         elif phase == "result":
             self.hint_label.setText("Returning to passive desktop mode.")
         else:
@@ -2308,24 +3997,34 @@ class CommandOverlayPanel(QWidget):
             self.status_label.setText("")
 
         saved_action_inventory = payload.get("saved_action_inventory") or {}
-        show_inventory = phase == "entry" and bool(saved_action_inventory.get("visible"))
+        saved_group_inventory = payload.get("saved_group_inventory") or {}
+        show_inventory = phase == "entry" and bool(
+            saved_action_inventory.get("visible") or saved_group_inventory.get("visible")
+        )
         self.saved_inventory_frame.setVisible(show_inventory)
         if show_inventory:
             self.create_custom_task_button.setEnabled(True)
             self.created_tasks_button.setEnabled(True)
-            self.saved_inventory_title.setText("Custom tasks")
+            self.create_custom_group_button.setEnabled(True)
+            self.created_groups_button.setEnabled(True)
+            self.saved_inventory_title.setText("Custom tasks and groups")
             self.saved_inventory_status.setProperty("statusKind", "idle")
             self.saved_inventory_status.style().unpolish(self.saved_inventory_status)
             self.saved_inventory_status.style().polish(self.saved_inventory_status)
-            self.saved_inventory_status.setText("Create a new task or manage the tasks you already saved.")
+            self.saved_inventory_status.setText("Create or manage exact-match tasks and callable groups.")
         else:
             self.saved_inventory_status.setText("")
 
         titles = payload.get("ambiguous_titles") or []
         if phase == "choose" and titles:
-            self.ambiguous_label.setText(
-                "Multiple actions matched your request. Press a number key or click a choice after reviewing the origin and destination detail below."
-            )
+            if selection_context == "group" and pending_group.get("title"):
+                self.ambiguous_label.setText(
+                    f'Select the member you want from "{pending_group.get("title")}".'
+                )
+            else:
+                self.ambiguous_label.setText(
+                    "Multiple actions matched your request. Press a number key or click a choice after reviewing the origin and destination detail below."
+                )
         else:
             self.ambiguous_label.setText(f"Matches: {' | '.join(titles)}" if titles else "")
         self._populate_ambiguous_choice_buttons(ambiguous_matches)
@@ -2369,6 +4068,9 @@ class DesktopRuntimeWindow(QWidget):
         self._saved_action_create_dialog_factory = SavedActionCreateDialog
         self._created_tasks_dialog_factory = CreatedTasksDialog
         self._saved_action_edit_dialog_factory = SavedActionEditDialog
+        self._callable_group_create_dialog_factory = CallableGroupCreateDialog
+        self._created_groups_dialog_factory = CreatedGroupsDialog
+        self._callable_group_edit_dialog_factory = CallableGroupEditDialog
         self._command_model = CommandOverlayModel()
         self._command_panel = CommandOverlayPanel()
         self._command_panel.submit_requested.connect(self.handle_local_submit_requested)
@@ -2380,6 +4082,8 @@ class DesktopRuntimeWindow(QWidget):
         self._command_panel.ambiguous_match_selected.connect(self.handle_ambiguous_match_selected)
         self._command_panel.create_custom_task_requested.connect(self.handle_create_custom_task_requested)
         self._command_panel.created_tasks_requested.connect(self.handle_created_tasks_requested)
+        self._command_panel.create_custom_group_requested.connect(self.handle_create_custom_group_requested)
+        self._command_panel.created_groups_requested.connect(self.handle_created_groups_requested)
         self._command_panel.edit_saved_action_requested.connect(self.handle_edit_saved_action_requested)
         self._result_close_timer = QTimer(self)
         self._result_close_timer.setSingleShot(True)
@@ -2480,6 +4184,14 @@ class DesktopRuntimeWindow(QWidget):
             "source_path": getattr(inventory, "path", ""),
         }
 
+    def _saved_group_inventory_signal_fields(self, inventory=None) -> dict:
+        inventory = inventory or self._command_model.action_catalog.saved_group_inventory
+        return {
+            "group_status_kind": getattr(inventory, "status_kind", ""),
+            "group_count": len(getattr(inventory, "groups", ()) or ()),
+            "group_source_path": getattr(inventory, "path", ""),
+        }
+
     def _ensure_overlay_ready_tracking(self):
         if getattr(self, "_overlay_ready_timer", None) is None:
             try:
@@ -2522,6 +4234,8 @@ class DesktopRuntimeWindow(QWidget):
         entry_actions_visible = (
             self._command_panel.create_custom_task_button.isVisible()
             and self._command_panel.created_tasks_button.isVisible()
+            and self._command_panel.create_custom_group_button.isVisible()
+            and self._command_panel.created_groups_button.isVisible()
         )
         return {
             "phase": self._command_model.phase,
@@ -2633,11 +4347,33 @@ class DesktopRuntimeWindow(QWidget):
         try:
             return factory(*args, **kwargs)
         except TypeError as exc:
-            if "lifecycle_callback" not in str(exc):
+            try:
+                signature = inspect.signature(factory)
+            except (TypeError, ValueError):
+                signature = None
+
+            if signature is None or any(
+                parameter.kind == inspect.Parameter.VAR_KEYWORD
+                for parameter in signature.parameters.values()
+            ):
                 raise
-            fallback_kwargs = dict(kwargs)
-            fallback_kwargs.pop("lifecycle_callback", None)
-            return factory(*args, **fallback_kwargs)
+
+            accepted_kwargs = {
+                name
+                for name, parameter in signature.parameters.items()
+                if parameter.kind in {
+                    inspect.Parameter.POSITIONAL_OR_KEYWORD,
+                    inspect.Parameter.KEYWORD_ONLY,
+                }
+            }
+            filtered_kwargs = {
+                name: value
+                for name, value in kwargs.items()
+                if name in accepted_kwargs
+            }
+            if filtered_kwargs == kwargs:
+                raise exc
+            return factory(*args, **filtered_kwargs)
 
     def _trace_overlay(self, event: str, **fields):
         if not self._overlay_trace_enabled:
@@ -2945,6 +4681,7 @@ class DesktopRuntimeWindow(QWidget):
                 self.screen_ref.availableGeometry(),
             )
         inventory_fields = self._saved_action_inventory_signal_fields(catalog.saved_action_inventory)
+        inventory_fields.update(self._saved_group_inventory_signal_fields(catalog.saved_group_inventory))
         inventory_fields["catalog_action_count"] = len(catalog.actions)
         self._emit_runtime_signal("COMMAND_ACTION_CATALOG_RELOAD_COMPLETED", **inventory_fields)
         self._emit_runtime_signal("COMMAND_ACTION_CATALOG_RELOAD_RESULT", **inventory_fields)
@@ -2961,6 +4698,39 @@ class DesktopRuntimeWindow(QWidget):
             f"Custom task {operation_label} is blocked until the saved-actions source is repaired. "
             + guidance_text
         )
+
+    def _saved_group_authoring_block_message(self, operation_label: str) -> str:
+        inventory = self._command_model.action_catalog.saved_group_inventory
+        guidance_text = inventory.guidance_text or 'Use "Open Saved Actions File" or "Open Saved Actions Folder" to inspect the source.'
+        return (
+            f"Custom group {operation_label} is blocked until the saved-actions source is repaired. "
+            + guidance_text
+        )
+
+    def _group_dialog_member_items(self) -> list[dict]:
+        items: list[dict] = []
+        for action in self._command_model.action_catalog.actions:
+            items.append(
+                {
+                    "id": action.id,
+                    "title": action.title,
+                    "origin_label": "Saved" if action.origin == "saved" else "Built-in",
+                    "target_kind": action.target_kind,
+                    "target_display": self._command_model.action_catalog.format_target_display(
+                        action.target_kind,
+                        action.target,
+                    ),
+                }
+            )
+        return items
+
+    def _task_dialog_group_kwargs(self) -> dict:
+        group_inventory = self._command_model.view_payload().get("saved_group_inventory") or {}
+        return {
+            "available_groups": group_inventory.get("items") or [],
+            "group_status_kind": group_inventory.get("status_kind", "template_only"),
+            "group_status_text": group_inventory.get("status_text", ""),
+        }
 
     def _resume_overlay_capture_after_authoring_dialog(self):
         if not self._command_model.visible or self._command_model.phase != "entry":
@@ -3074,6 +4844,54 @@ class DesktopRuntimeWindow(QWidget):
         )
         return result
 
+    def _handle_callable_group_create_draft_submit(self, draft: CallableGroupDraft):
+        self._emit_runtime_signal(
+            "CUSTOM_GROUP_CREATE_ATTEMPT_STARTED",
+            title=draft.title,
+            member_count=len(draft.member_action_ids),
+        )
+        try:
+            result = create_callable_group_from_draft(
+                draft,
+                source_path=self._saved_action_source_path,
+            )
+        except (CallableGroupDraftValidationError, CallableGroupUnsafeSourceError, SavedActionSourceWriteBlocked):
+            raise
+        self.reload_command_action_catalog(self._saved_action_source_path)
+        self._set_entry_feedback("ready", f'Custom group created: "{result.record["title"]}".')
+        self._emit_runtime_signal(
+            "CUSTOM_GROUP_CREATED",
+            group_id=result.record["id"],
+            title=result.record["title"],
+            member_count=len(result.record.get("member_action_ids", ()) or ()),
+        )
+        return result
+
+    def _handle_callable_group_edit_draft_submit(self, group_id: str, draft: CallableGroupDraft):
+        self._emit_runtime_signal(
+            "CUSTOM_GROUP_EDIT_ATTEMPT_STARTED",
+            group_id=group_id,
+            title=draft.title,
+            member_count=len(draft.member_action_ids),
+        )
+        try:
+            result = update_callable_group_from_draft(
+                group_id,
+                draft,
+                source_path=self._saved_action_source_path,
+            )
+        except (CallableGroupDraftValidationError, CallableGroupUnsafeSourceError, SavedActionSourceWriteBlocked):
+            raise
+        self.reload_command_action_catalog(self._saved_action_source_path)
+        self._set_entry_feedback("ready", f'Custom group updated: "{result.record["title"]}".')
+        self._emit_runtime_signal(
+            "CUSTOM_GROUP_UPDATED",
+            group_id=result.record["id"],
+            title=result.record["title"],
+            member_count=len(result.record.get("member_action_ids", ()) or ()),
+        )
+        return result
+
     def handle_create_custom_task_requested(self):
         if not self._command_model.visible or self._command_model.phase != "entry":
             return
@@ -3099,6 +4917,7 @@ class DesktopRuntimeWindow(QWidget):
             self._saved_action_create_dialog_factory,
             self._command_panel,
             self._handle_saved_action_create_draft_submit,
+            **self._task_dialog_group_kwargs(),
             lifecycle_callback=self._handle_dialog_lifecycle_signal,
         )
         try:
@@ -3139,6 +4958,73 @@ class DesktopRuntimeWindow(QWidget):
             self.handle_delete_saved_action_requested(selected_delete_action_id)
         elif selected_action_id:
             self.handle_edit_saved_action_requested(selected_action_id)
+
+    def handle_create_custom_group_requested(self):
+        if not self._command_model.visible or self._command_model.phase != "entry":
+            return
+
+        group_inventory = self._command_model.action_catalog.saved_group_inventory
+        if group_inventory.status_kind in {"invalid_source", "invalid_saved_actions", "invalid_groups"}:
+            self._set_entry_feedback("not_found", self._saved_group_authoring_block_message("creation"))
+            self._emit_runtime_signal(
+                "CUSTOM_GROUP_CREATE_BLOCKED",
+                reason="source_invalid",
+                status_kind=group_inventory.status_kind,
+                **self._saved_group_inventory_signal_fields(group_inventory),
+            )
+            return
+
+        self._overlay_local_input_engaged = False
+        self._overlay_global_capture_suspended = True
+        self._command_panel.input_line.set_local_typing_enabled(False)
+        self._clear_overlay_input_capture()
+        self._apply_command_overlay_state()
+
+        dialog = self._create_dialog_with_optional_lifecycle(
+            self._callable_group_create_dialog_factory,
+            self._command_panel,
+            self._handle_callable_group_create_draft_submit,
+            available_members=self._group_dialog_member_items(),
+            lifecycle_callback=self._handle_dialog_lifecycle_signal,
+        )
+        try:
+            dialog.exec()
+        finally:
+            self._resume_overlay_capture_after_authoring_dialog()
+
+    def handle_created_groups_requested(self):
+        if not self._command_model.visible or self._command_model.phase != "entry":
+            return
+
+        inventory_payload = self._command_model.view_payload().get("saved_group_inventory") or {}
+
+        self._overlay_local_input_engaged = False
+        self._overlay_global_capture_suspended = True
+        self._command_panel.input_line.set_local_typing_enabled(False)
+        self._clear_overlay_input_capture()
+        self._apply_command_overlay_state()
+
+        dialog = self._create_dialog_with_optional_lifecycle(
+            self._created_groups_dialog_factory,
+            self._command_panel,
+            inventory_payload,
+            lifecycle_callback=self._handle_dialog_lifecycle_signal,
+        )
+        selected_group_id = ""
+        selected_delete_group_id = ""
+        try:
+            dialog.exec()
+            if hasattr(dialog, "selected_group_id"):
+                selected_group_id = str(dialog.selected_group_id() or "").strip()
+            if hasattr(dialog, "selected_delete_group_id"):
+                selected_delete_group_id = str(dialog.selected_delete_group_id() or "").strip()
+        finally:
+            self._resume_overlay_capture_after_authoring_dialog()
+
+        if selected_delete_group_id:
+            self.handle_delete_saved_group_requested(selected_delete_group_id)
+        elif selected_group_id:
+            self.handle_edit_saved_group_requested(selected_group_id)
 
     def handle_edit_saved_action_requested(self, saved_action_id: str):
         if not self._command_model.visible or self._command_model.phase != "entry":
@@ -3190,6 +5076,57 @@ class DesktopRuntimeWindow(QWidget):
             self._command_panel,
             lambda draft: self._handle_saved_action_edit_draft_submit(saved_action_id, draft),
             initial_draft=initial_draft,
+            **self._task_dialog_group_kwargs(),
+            lifecycle_callback=self._handle_dialog_lifecycle_signal,
+        )
+        try:
+            dialog.exec()
+        finally:
+            self._resume_overlay_capture_after_authoring_dialog()
+
+    def handle_edit_saved_group_requested(self, group_id: str):
+        if not self._command_model.visible or self._command_model.phase != "entry":
+            return
+
+        group_inventory = self._command_model.action_catalog.saved_group_inventory
+        if group_inventory.status_kind in {"invalid_source", "invalid_saved_actions", "invalid_groups"}:
+            self._set_entry_feedback("not_found", self._saved_group_authoring_block_message("editing"))
+            self._emit_runtime_signal(
+                "CUSTOM_GROUP_EDIT_BLOCKED",
+                reason="source_invalid",
+                group_id=group_id,
+                status_kind=group_inventory.status_kind,
+                **self._saved_group_inventory_signal_fields(group_inventory),
+            )
+            return
+
+        try:
+            initial_draft = load_callable_group_draft_for_edit(
+                group_id,
+                source_path=self._saved_action_source_path,
+            )
+        except (CallableGroupUnsafeSourceError, CallableGroupDraftValidationError) as exc:
+            self._set_entry_feedback("not_found", str(exc))
+            self._emit_runtime_signal(
+                "CUSTOM_GROUP_EDIT_BLOCKED",
+                reason="missing_record",
+                group_id=group_id,
+                detail=str(exc),
+            )
+            return
+
+        self._overlay_local_input_engaged = False
+        self._overlay_global_capture_suspended = True
+        self._command_panel.input_line.set_local_typing_enabled(False)
+        self._clear_overlay_input_capture()
+        self._apply_command_overlay_state()
+
+        dialog = self._create_dialog_with_optional_lifecycle(
+            self._callable_group_edit_dialog_factory,
+            self._command_panel,
+            lambda draft: self._handle_callable_group_edit_draft_submit(group_id, draft),
+            initial_draft=initial_draft,
+            available_members=self._group_dialog_member_items(),
             lifecycle_callback=self._handle_dialog_lifecycle_signal,
         )
         try:
@@ -3256,6 +5193,45 @@ class DesktopRuntimeWindow(QWidget):
             action_id=result.record["id"],
             title=result.record["title"],
             target_kind=result.record["target_kind"],
+        )
+
+    def handle_delete_saved_group_requested(self, group_id: str):
+        if not self._command_model.visible or self._command_model.phase != "entry":
+            return
+
+        group_inventory = self._command_model.action_catalog.saved_group_inventory
+        if group_inventory.status_kind in {"invalid_source", "invalid_saved_actions", "invalid_groups"}:
+            self._set_entry_feedback("not_found", self._saved_group_authoring_block_message("deletion"))
+            self._emit_runtime_signal(
+                "CUSTOM_GROUP_DELETE_BLOCKED",
+                reason="source_invalid",
+                group_id=group_id,
+                status_kind=group_inventory.status_kind,
+                **self._saved_group_inventory_signal_fields(group_inventory),
+            )
+            return
+
+        try:
+            result = delete_callable_group(
+                group_id,
+                source_path=self._saved_action_source_path,
+            )
+        except (CallableGroupUnsafeSourceError, CallableGroupDraftValidationError, SavedActionSourceWriteBlocked) as exc:
+            self._set_entry_feedback("not_found", str(exc))
+            self._emit_runtime_signal(
+                "CUSTOM_GROUP_DELETE_BLOCKED",
+                reason="write_blocked",
+                group_id=group_id,
+                detail=str(exc),
+            )
+            return
+
+        self.reload_command_action_catalog(self._saved_action_source_path)
+        self._set_entry_feedback("ready", f'Custom group deleted: "{result.record["title"]}".')
+        self._emit_runtime_signal(
+            "CUSTOM_GROUP_DELETED",
+            group_id=result.record["id"],
+            title=result.record["title"],
         )
 
     def handle_command_text_changed(self, text: str):

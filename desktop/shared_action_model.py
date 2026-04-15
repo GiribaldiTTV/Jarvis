@@ -130,6 +130,25 @@ class SavedActionInventoryState:
     actions: tuple[CommandAction, ...] = ()
 
 
+@dataclass(frozen=True)
+class CommandGroup:
+    id: str
+    title: str
+    aliases: tuple[str, ...]
+    member_action_ids: tuple[str, ...]
+    member_actions: tuple[CommandAction, ...]
+
+
+@dataclass(frozen=True)
+class SavedGroupInventoryState:
+    visible: bool = False
+    status_kind: str = "hidden"
+    status_text: str = ""
+    guidance_text: str = ""
+    path: str = ""
+    groups: tuple[CommandGroup, ...] = ()
+
+
 def format_action_origin_label(origin: str) -> str:
     if (origin or "").strip().casefold() == "saved":
         return "Saved"
@@ -142,9 +161,13 @@ class CommandActionCatalog:
         actions: Iterable[CommandAction] = DEFAULT_COMMAND_ACTIONS,
         *,
         saved_action_inventory: SavedActionInventoryState | None = None,
+        groups: Iterable[CommandGroup] = (),
+        saved_group_inventory: SavedGroupInventoryState | None = None,
     ):
         self._actions = tuple(actions)
         self._saved_action_inventory = saved_action_inventory or SavedActionInventoryState()
+        self._groups = tuple(groups)
+        self._saved_group_inventory = saved_group_inventory or SavedGroupInventoryState()
 
     @property
     def actions(self) -> tuple[CommandAction, ...]:
@@ -154,11 +177,22 @@ class CommandActionCatalog:
     def saved_action_inventory(self) -> SavedActionInventoryState:
         return self._saved_action_inventory
 
+    @property
+    def groups(self) -> tuple[CommandGroup, ...]:
+        return self._groups
+
+    @property
+    def saved_group_inventory(self) -> SavedGroupInventoryState:
+        return self._saved_group_inventory
+
     def normalize_text(self, text: str) -> str:
         return normalize_command_text(text)
 
     def resolve_actions(self, text: str) -> tuple[CommandAction, ...]:
         return tuple(resolve_command_actions(text, self._actions))
+
+    def resolve_group(self, text: str) -> CommandGroup | None:
+        return resolve_command_group(text, self._groups)
 
     def format_target_display(self, target_kind: str, target: str, max_length: int = 72) -> str:
         return format_command_target_display(target_kind, target, max_length=max_length)
@@ -323,6 +357,25 @@ def build_saved_action_callable_phrases(
     return tuple(phrases)
 
 
+def build_callable_group_phrases(
+    aliases: Iterable[str] = (),
+) -> tuple[str, ...]:
+    phrases: list[str] = []
+    seen_normalized: set[str] = set()
+    for alias in tuple(aliases):
+        if not isinstance(alias, str):
+            continue
+        normalized_display = re.sub(r"\s+", " ", alias.strip())
+        if not normalized_display:
+            continue
+        normalized_key = normalize_command_text(normalized_display)
+        if not normalized_key or normalized_key in seen_normalized:
+            continue
+        seen_normalized.add(normalized_key)
+        phrases.append(normalized_display)
+    return tuple(phrases)
+
+
 def _normalized_action_phrases(action: CommandAction) -> set[str]:
     normalized_phrases: set[str] = set()
     for phrase in build_saved_action_callable_phrases(
@@ -335,6 +388,16 @@ def _normalized_action_phrases(action: CommandAction) -> set[str]:
         normalized = normalize_command_text(phrase)
         if not normalized:
             raise ValueError("Action phrases must be non-empty.")
+        normalized_phrases.add(normalized)
+    return normalized_phrases
+
+
+def _normalized_group_phrases(group: CommandGroup) -> set[str]:
+    normalized_phrases: set[str] = set()
+    for phrase in build_callable_group_phrases(group.aliases):
+        normalized = normalize_command_text(phrase)
+        if not normalized:
+            raise ValueError("Callable group aliases must be non-empty.")
         normalized_phrases.add(normalized)
     return normalized_phrases
 
@@ -578,6 +641,10 @@ def _build_saved_action_access_guidance() -> str:
     return f'Use "{file_action}" or "{folder_action}" to inspect the source.'
 
 
+def _build_saved_group_access_guidance() -> str:
+    return _build_saved_action_access_guidance()
+
+
 def _load_saved_command_actions_from_records(records: Iterable[object]) -> tuple[CommandAction, ...]:
     built_in_ids = {action.id.casefold() for action in DEFAULT_COMMAND_ACTIONS}
     built_in_phrases: set[str] = set()
@@ -617,6 +684,151 @@ def _load_saved_command_actions_from_records(records: Iterable[object]) -> tuple
 
 def coerce_saved_command_actions_from_records(records: Iterable[object]) -> tuple[CommandAction, ...]:
     return _load_saved_command_actions_from_records(records)
+
+
+def _require_saved_group_string(record: dict, field_name: str) -> str:
+    value = record.get(field_name)
+    if not isinstance(value, str):
+        raise ValueError(f"Callable group field '{field_name}' must be a string.")
+
+    normalized = value.strip()
+    if not normalized:
+        raise ValueError(f"Callable group field '{field_name}' must not be empty.")
+    return normalized
+
+
+def _coerce_saved_group_aliases(record: dict) -> tuple[str, ...]:
+    aliases = record.get("aliases", ())
+    if aliases in (None, "", (), []):
+        raise ValueError("Callable groups require at least one exact alias.")
+
+    if not isinstance(aliases, (list, tuple)):
+        raise ValueError("Callable group aliases must be a list of strings.")
+
+    normalized_aliases: list[str] = []
+    seen_aliases: set[str] = set()
+    for alias in aliases:
+        if not isinstance(alias, str):
+            raise ValueError("Callable group aliases must contain only strings.")
+
+        normalized = re.sub(r"\s+", " ", alias.strip())
+        if not normalized:
+            raise ValueError("Callable group aliases must not be empty.")
+
+        normalized_key = normalize_command_text(normalized)
+        if not normalized_key:
+            raise ValueError("Callable group aliases must normalize to non-empty phrases.")
+        if normalized_key in seen_aliases:
+            raise ValueError("Callable group aliases must stay unique.")
+
+        seen_aliases.add(normalized_key)
+        normalized_aliases.append(normalized)
+
+    return tuple(normalized_aliases)
+
+
+def _coerce_saved_group_member_ids(record: dict) -> tuple[str, ...]:
+    member_action_ids = record.get("member_action_ids", ())
+    if member_action_ids in (None, "", (), []):
+        raise ValueError("Callable groups must contain at least one member.")
+
+    if not isinstance(member_action_ids, (list, tuple)):
+        raise ValueError("Callable group member ids must be a list of strings.")
+
+    normalized_member_ids: list[str] = []
+    seen_member_ids: set[str] = set()
+    for member_id in member_action_ids:
+        if not isinstance(member_id, str):
+            raise ValueError("Callable group member ids must contain only strings.")
+
+        normalized = member_id.strip()
+        if not normalized:
+            raise ValueError("Callable group member ids must not be empty.")
+
+        normalized_key = normalized.casefold()
+        if normalized_key in seen_member_ids:
+            raise ValueError("Callable group members must stay unique.")
+
+        seen_member_ids.add(normalized_key)
+        normalized_member_ids.append(normalized)
+
+    return tuple(normalized_member_ids)
+
+
+def _command_group_from_saved_record(
+    record: object,
+    *,
+    available_actions: Iterable[CommandAction],
+) -> CommandGroup:
+    if not isinstance(record, dict):
+        raise ValueError("Callable group records must be objects.")
+
+    action_by_id = {
+        action.id.casefold(): action
+        for action in tuple(available_actions)
+    }
+    member_action_ids = _coerce_saved_group_member_ids(record)
+    member_actions: list[CommandAction] = []
+    for member_id in member_action_ids:
+        action = action_by_id.get(member_id.casefold())
+        if action is None:
+            raise ValueError("Callable group member ids must resolve to built-in or saved actions.")
+        member_actions.append(action)
+
+    return CommandGroup(
+        id=_require_saved_group_string(record, "id"),
+        title=_require_saved_group_string(record, "title"),
+        aliases=_coerce_saved_group_aliases(record),
+        member_action_ids=member_action_ids,
+        member_actions=tuple(member_actions),
+    )
+
+
+def coerce_saved_command_group_record(
+    record: object,
+    *,
+    available_actions: Iterable[CommandAction],
+) -> CommandGroup:
+    return _command_group_from_saved_record(record, available_actions=available_actions)
+
+
+def _load_saved_command_groups_from_records(
+    records: Iterable[object],
+    *,
+    available_actions: Iterable[CommandAction],
+) -> tuple[CommandGroup, ...]:
+    available_actions = tuple(available_actions)
+    action_phrases: set[str] = set()
+    for action in available_actions:
+        action_phrases.update(_normalized_action_phrases(action))
+
+    seen_group_ids: set[str] = set()
+    seen_group_aliases: set[str] = set()
+    groups: list[CommandGroup] = []
+    for record in records:
+        group = _command_group_from_saved_record(record, available_actions=available_actions)
+        normalized_id = group.id.casefold()
+        normalized_aliases = _normalized_group_phrases(group)
+        if normalized_id in seen_group_ids:
+            raise ValueError("Callable group id collides with another group.")
+        if normalized_aliases & action_phrases:
+            raise ValueError("Callable group aliases must not collide with built-in or saved-task phrases.")
+        if normalized_aliases & seen_group_aliases:
+            raise ValueError("Callable group aliases must stay unique across groups.")
+
+        seen_group_ids.add(normalized_id)
+        seen_group_aliases.update(normalized_aliases)
+        groups.append(group)
+
+    return tuple(groups)
+
+
+def coerce_saved_command_groups_from_records(
+    records: Iterable[object],
+    *,
+    available_actions: Iterable[CommandAction],
+) -> tuple[CommandGroup, ...]:
+    return _load_saved_command_groups_from_records(records, available_actions=available_actions)
 
 
 def inspect_saved_action_inventory(
@@ -685,25 +897,116 @@ def inspect_saved_action_inventory(
     )
 
 
+def inspect_saved_group_inventory(
+    source_path: str | os.PathLike[str] | None = None,
+) -> SavedGroupInventoryState:
+    guidance_text = _build_saved_group_access_guidance()
+    inspection = inspect_saved_action_source(source_path)
+    source_path_text = str(inspection.path)
+
+    if inspection.status == "missing":
+        return SavedGroupInventoryState(
+            visible=True,
+            status_kind="missing",
+            status_text="Custom groups source is missing. Built-in and saved tasks remain available.",
+            guidance_text=guidance_text,
+            path=source_path_text,
+        )
+
+    if inspection.status == "template_only":
+        return SavedGroupInventoryState(
+            visible=True,
+            status_kind="template_only",
+            status_text="No custom groups are active yet. The starter source is ready when you want it.",
+            guidance_text=guidance_text,
+            path=source_path_text,
+        )
+
+    if inspection.status == "invalid_source":
+        return SavedGroupInventoryState(
+            visible=True,
+            status_kind="invalid_source",
+            status_text="Custom groups are unavailable because the source file could not be read cleanly.",
+            guidance_text=guidance_text,
+            path=source_path_text,
+        )
+
+    try:
+        saved_actions = coerce_saved_command_actions_from_records(inspection.actions)
+    except ValueError:
+        return SavedGroupInventoryState(
+            visible=True,
+            status_kind="invalid_saved_actions",
+            status_text="Custom groups are unavailable because one or more saved-task entries are invalid or colliding.",
+            guidance_text=guidance_text,
+            path=source_path_text,
+        )
+
+    try:
+        saved_groups = coerce_saved_command_groups_from_records(
+            inspection.groups,
+            available_actions=(*DEFAULT_COMMAND_ACTIONS, *saved_actions),
+        )
+    except ValueError:
+        return SavedGroupInventoryState(
+            visible=True,
+            status_kind="invalid_groups",
+            status_text="Custom groups are unavailable because one or more group entries are invalid, empty, or colliding.",
+            guidance_text=guidance_text,
+            path=source_path_text,
+        )
+
+    if not saved_groups:
+        return SavedGroupInventoryState(
+            visible=True,
+            status_kind="template_only",
+            status_text="No custom groups are active yet. Create a group when you want a callable member set.",
+            guidance_text=guidance_text,
+            path=source_path_text,
+        )
+
+    count = len(saved_groups)
+    noun = "group" if count == 1 else "groups"
+    return SavedGroupInventoryState(
+        visible=True,
+        status_kind="loaded",
+        status_text=f"{count} custom {noun} loaded from the current source.",
+        guidance_text=guidance_text,
+        path=source_path_text,
+        groups=saved_groups,
+    )
+
+
 def load_saved_command_actions(
     source_path: str | os.PathLike[str] | None = None,
 ) -> tuple[CommandAction, ...]:
     return inspect_saved_action_inventory(source_path).actions
 
 
+def load_saved_command_groups(
+    source_path: str | os.PathLike[str] | None = None,
+) -> tuple[CommandGroup, ...]:
+    return inspect_saved_group_inventory(source_path).groups
+
+
 def build_default_command_action_catalog(
     source_path: str | os.PathLike[str] | None = None,
 ) -> CommandActionCatalog:
     saved_action_inventory = inspect_saved_action_inventory(source_path)
+    saved_group_inventory = inspect_saved_group_inventory(source_path)
     if not saved_action_inventory.actions:
         return CommandActionCatalog(
             DEFAULT_COMMAND_ACTIONS,
             saved_action_inventory=saved_action_inventory,
+            groups=saved_group_inventory.groups,
+            saved_group_inventory=saved_group_inventory,
         )
 
     return CommandActionCatalog(
         (*DEFAULT_COMMAND_ACTIONS, *saved_action_inventory.actions),
         saved_action_inventory=saved_action_inventory,
+        groups=saved_group_inventory.groups,
+        saved_group_inventory=saved_group_inventory,
     )
 
 
@@ -733,6 +1036,17 @@ def resolve_command_actions(text: str, actions=DEFAULT_COMMAND_ACTIONS):
         if any(normalize_command_text(candidate) == normalized for candidate in candidates):
             matches.append(action)
     return matches
+
+
+def resolve_command_group(text: str, groups: Iterable[CommandGroup] = ()):
+    normalized = normalize_command_text(text)
+    if not normalized:
+        return None
+
+    for group in tuple(groups):
+        if any(normalize_command_text(candidate) == normalized for candidate in build_callable_group_phrases(group.aliases)):
+            return group
+    return None
 
 
 def launch_command_action(action: CommandAction):

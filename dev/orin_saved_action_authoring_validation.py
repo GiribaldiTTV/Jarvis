@@ -13,17 +13,24 @@ if ROOT_DIR not in sys.path:
 
 import desktop.saved_action_source as saved_action_source_mod
 from desktop.saved_action_authoring import (
+    CallableGroupDraft,
+    CallableGroupDraftValidationError,
     SavedActionDraft,
     SavedActionDraftValidationError,
     SavedActionUnsafeSourceError,
+    create_callable_group_from_draft,
     create_saved_action_from_draft,
+    delete_callable_group,
     delete_saved_action,
+    load_callable_group_draft_for_edit,
     load_saved_action_draft_for_edit,
     prepare_saved_action_record_for_create,
+    prepare_callable_group_record_for_create,
+    update_callable_group_from_draft,
     update_saved_action_from_draft,
 )
 from desktop.saved_action_source import DEFAULT_SAVED_ACTION_TEMPLATE
-from desktop.shared_action_model import build_default_command_action_catalog
+from desktop.shared_action_model import build_default_command_action_catalog, inspect_saved_group_inventory
 
 
 def _assert(condition, message):
@@ -1135,6 +1142,256 @@ def _test_invalid_existing_saved_actions_with_duplicate_ids_block_edit_completel
         )
 
 
+def _test_group_create_persists_groups_without_changing_schema_version():
+    with tempfile.TemporaryDirectory() as temp_dir:
+        source_path = Path(temp_dir) / "saved_actions.json"
+        create_saved_action_from_draft(
+            SavedActionDraft(
+                title="Open Reports",
+                target_kind="folder",
+                target=r"C:\Reports",
+                aliases=("show reports",),
+            ),
+            source_path,
+        )
+
+        result = create_callable_group_from_draft(
+            CallableGroupDraft(
+                title="Workspace Tools",
+                aliases=("workspace tools", "tools group"),
+                member_action_ids=("open_reports", "open_saved_actions_folder"),
+            ),
+            source_path,
+        )
+
+        payload = json.loads(source_path.read_text(encoding="utf-8"))
+        _assert(payload.get("schema_version") == 1, "callable groups should remain a backward-compatible schema_version 1 addition")
+        _assert(len(payload.get("actions") or []) == 1, "group creation should preserve existing saved actions in the source")
+        _assert(len(payload.get("groups") or []) == 1, "group creation should persist one callable group record")
+        _assert(
+            payload["groups"][0]["member_action_ids"] == ["open_reports", "open_saved_actions_folder"],
+            "group creation should persist explicit built-in and saved member ids exactly",
+        )
+        matched_group = result.catalog.resolve_group("workspace tools")
+        _assert(matched_group is not None and matched_group.id == "workspace_tools", "group creation should reload the new callable group into the catalog")
+
+
+def _test_group_alias_collisions_stay_bounded_against_tasks_builtins_and_groups():
+    with tempfile.TemporaryDirectory() as temp_dir:
+        source_path = Path(temp_dir) / "saved_actions.json"
+        create_saved_action_from_draft(
+            SavedActionDraft(
+                title="Open Reports",
+                target_kind="folder",
+                target=r"C:\Reports",
+                aliases=("show reports",),
+            ),
+            source_path,
+        )
+        create_callable_group_from_draft(
+            CallableGroupDraft(
+                title="Workspace Tools",
+                aliases=("workspace tools",),
+                member_action_ids=("open_reports",),
+            ),
+            source_path,
+        )
+        original_text = source_path.read_text(encoding="utf-8")
+
+        for draft in (
+            CallableGroupDraft(
+                title="Task Collision",
+                aliases=("show reports",),
+                member_action_ids=("open_reports",),
+            ),
+            CallableGroupDraft(
+                title="Built-In Collision",
+                aliases=("open windows explorer",),
+                member_action_ids=("open_reports",),
+            ),
+            CallableGroupDraft(
+                title="Group Collision",
+                aliases=("workspace tools",),
+                member_action_ids=("open_reports",),
+            ),
+        ):
+            try:
+                prepare_callable_group_record_for_create(draft, source_path)
+            except CallableGroupDraftValidationError:
+                pass
+            else:
+                raise AssertionError("group alias collisions should be rejected before write")
+
+        _assert(
+            source_path.read_text(encoding="utf-8") == original_text,
+            "rejected group alias collisions should leave the source untouched",
+        )
+
+
+def _test_group_edit_and_delete_preserve_group_identity_and_remove_records():
+    with tempfile.TemporaryDirectory() as temp_dir:
+        source_path = Path(temp_dir) / "saved_actions.json"
+        create_saved_action_from_draft(
+            SavedActionDraft(
+                title="Open Reports",
+                target_kind="folder",
+                target=r"C:\Reports",
+                aliases=("show reports",),
+            ),
+            source_path,
+        )
+        create_callable_group_from_draft(
+            CallableGroupDraft(
+                title="Workspace Tools",
+                aliases=("workspace tools",),
+                member_action_ids=("open_reports",),
+            ),
+            source_path,
+        )
+
+        loaded_draft = load_callable_group_draft_for_edit("workspace_tools", source_path)
+        _assert(
+            loaded_draft.member_action_ids == ("open_reports",),
+            "group edit loading should preload the persisted member ids",
+        )
+
+        update_result = update_callable_group_from_draft(
+            "workspace_tools",
+            CallableGroupDraft(
+                title="Workspace Toolkit",
+                aliases=("workspace toolkit",),
+                member_action_ids=("open_reports", "open_saved_actions_folder"),
+            ),
+            source_path,
+        )
+        payload = json.loads(source_path.read_text(encoding="utf-8"))
+        _assert(payload["groups"][0]["id"] == "workspace_tools", "group edit should preserve the callable group id")
+        _assert(payload["groups"][0]["title"] == "Workspace Toolkit", "group edit should update the title in place")
+        _assert(
+            tuple(update_result.catalog.resolve_group("workspace toolkit").member_action_ids) == ("open_reports", "open_saved_actions_folder"),
+            "group edit should reload the updated member set into the catalog",
+        )
+
+        delete_result = delete_callable_group("workspace_tools", source_path)
+        payload = json.loads(source_path.read_text(encoding="utf-8"))
+        _assert(payload.get("groups") == [], "group delete should remove the persisted group record only")
+        _assert(delete_result.record["id"] == "workspace_tools", "group delete should report the deleted group identity")
+
+
+def _test_task_delete_removes_group_membership_and_drops_empty_groups():
+    with tempfile.TemporaryDirectory() as temp_dir:
+        source_path = Path(temp_dir) / "saved_actions.json"
+        create_saved_action_from_draft(
+            SavedActionDraft(
+                title="Open Reports",
+                target_kind="folder",
+                target=r"C:\Reports",
+                aliases=("show reports",),
+            ),
+            source_path,
+        )
+        create_callable_group_from_draft(
+            CallableGroupDraft(
+                title="Workspace Tools",
+                aliases=("workspace tools",),
+                member_action_ids=("open_reports",),
+            ),
+            source_path,
+        )
+
+        delete_saved_action("open_reports", source_path)
+        payload = json.loads(source_path.read_text(encoding="utf-8"))
+        _assert(payload.get("actions") == [], "task delete should remove the persisted saved action")
+        _assert(payload.get("groups") == [], "task delete should remove empty groups in the same atomic source write")
+
+
+def _test_invalid_groups_do_not_block_normal_task_authoring_or_exact_task_resolution():
+    with tempfile.TemporaryDirectory() as temp_dir:
+        source_path = Path(temp_dir) / "saved_actions.json"
+        _write_json(
+            source_path,
+            {
+                "schema_version": 1,
+                "actions": [
+                    {
+                        "id": "open_reports",
+                        "title": "Open Reports",
+                        "target_kind": "folder",
+                        "target": r"C:\Reports",
+                        "aliases": ["show reports"],
+                    }
+                ],
+                "groups": [
+                    {
+                        "id": "broken_group",
+                        "title": "Broken Group",
+                        "aliases": ["broken group"],
+                        "member_action_ids": ["missing_action"],
+                    }
+                ],
+            },
+        )
+
+        group_inventory = inspect_saved_group_inventory(source_path)
+        _assert(
+            group_inventory.status_kind == "invalid_groups",
+            "invalid callable groups should surface a group-specific invalid state",
+        )
+
+        create_result = create_saved_action_from_draft(
+            SavedActionDraft(
+                title="Open Notes",
+                target_kind="app",
+                target="notepad.exe",
+                aliases=("notes",),
+            ),
+            source_path,
+        )
+        _assert(
+            tuple(action.id for action in create_result.catalog.resolve_actions("show reports")) == ("open_reports",),
+            "invalid groups should not break exact resolution for existing saved tasks",
+        )
+        _assert(
+            tuple(action.id for action in create_result.catalog.resolve_actions("notes")) == ("open_notes",),
+            "invalid groups should not block normal task authoring or new exact task resolution",
+        )
+
+
+def _test_task_inline_group_creation_is_atomic_and_creates_initial_membership():
+    with tempfile.TemporaryDirectory() as temp_dir:
+        source_path = Path(temp_dir) / "saved_actions.json"
+
+        result = create_saved_action_from_draft(
+            SavedActionDraft(
+                title="Open Reports",
+                target_kind="folder",
+                target=r"C:\Reports",
+                aliases=("show reports",),
+                inline_group=CallableGroupDraft(
+                    title="Reports Suite",
+                    aliases=("reports suite",),
+                    member_action_ids=(),
+                ),
+            ),
+            source_path,
+        )
+
+        payload = json.loads(source_path.read_text(encoding="utf-8"))
+        _assert(
+            len(payload.get("actions") or []) == 1 and len(payload.get("groups") or []) == 1,
+            "inline group creation should persist the task and its new group together in one source write",
+        )
+        _assert(
+            payload["groups"][0]["member_action_ids"] == ["open_reports"],
+            "inline group creation should attach the newly created task as the first member automatically",
+        )
+        matched_group = result.catalog.resolve_group("reports suite")
+        _assert(
+            matched_group is not None and matched_group.member_action_ids == ("open_reports",),
+            "inline group creation should reload the new group into the catalog immediately",
+        )
+
+
 def main():
     tests = [
         ("create persists saved action and preserves template fields", _test_create_persists_saved_action_and_preserves_template_fields),
@@ -1165,6 +1422,12 @@ def main():
         ("invalid edit input is rejected before write", _test_invalid_edit_input_is_rejected_before_write),
         ("invalid non-url edit targets rejected before write", _test_invalid_non_url_edit_targets_are_rejected_before_write),
         ("invalid existing saved actions with duplicate ids block edit", _test_invalid_existing_saved_actions_with_duplicate_ids_block_edit_completely),
+        ("group create persists groups without schema bump", _test_group_create_persists_groups_without_changing_schema_version),
+        ("group alias collisions stay bounded", _test_group_alias_collisions_stay_bounded_against_tasks_builtins_and_groups),
+        ("group edit and delete preserve identity and remove records", _test_group_edit_and_delete_preserve_group_identity_and_remove_records),
+        ("task delete removes group membership and drops empty groups", _test_task_delete_removes_group_membership_and_drops_empty_groups),
+        ("invalid groups do not block normal task authoring", _test_invalid_groups_do_not_block_normal_task_authoring_or_exact_task_resolution),
+        ("task inline group creation is atomic", _test_task_inline_group_creation_is_atomic_and_creates_initial_membership),
     ]
 
     for name, fn in tests:

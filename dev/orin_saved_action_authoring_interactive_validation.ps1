@@ -1516,6 +1516,32 @@ function Get-CreateDialogControlAutomationIds {
     }
 }
 
+function Get-GroupDialogControlAutomationIds {
+    param(
+        [string]$LeafAutomationId
+    )
+
+    $legacyBase = "QApplication.callableGroupCreateDialog"
+    $currentBase = "QApplication.callableGroupCreateDialog.callableGroupCreateShell.callableGroupCreateContent"
+    return @(
+        "$currentBase.$LeafAutomationId",
+        "$legacyBase.$LeafAutomationId"
+    )
+}
+
+function Get-QuickCreateGroupDialogControlAutomationIds {
+    param(
+        [string]$LeafAutomationId
+    )
+
+    $legacyBase = "QApplication.quickCreateGroupDialog"
+    $currentBase = "QApplication.quickCreateGroupDialog.quickCreateGroupShell.quickCreateGroupContent"
+    return @(
+        "$currentBase.$LeafAutomationId",
+        "$legacyBase.$LeafAutomationId"
+    )
+}
+
 function Get-CreatedTasksDialogControlAutomationIds {
     param(
         [string]$LeafAutomationId
@@ -1529,8 +1555,29 @@ function Get-CreatedTasksDialogControlAutomationIds {
     )
 }
 
+function Get-CreatedGroupsDialogControlAutomationIds {
+    param(
+        [string]$LeafAutomationId
+    )
+
+    $legacyBase = "QApplication.savedActionCreatedGroupsDialog"
+    $currentBase = "QApplication.savedActionCreatedGroupsDialog.savedActionCreatedTasksShell.savedActionCreatedTasksContent"
+    return @(
+        "$currentBase.$LeafAutomationId",
+        "$legacyBase.$LeafAutomationId"
+    )
+}
+
 function Get-CreatedTasksDialogWindow {
     $dialog = Find-ElementByAutomationIdDirect -Root ([System.Windows.Automation.AutomationElement]::RootElement) -AutomationId "QApplication.savedActionCreatedTasksDialog"
+    if ($dialog -and -not (Test-ElementGoneOrOffscreen -Element $dialog)) {
+        return $dialog
+    }
+    return $null
+}
+
+function Get-CreatedGroupsDialogWindow {
+    $dialog = Find-ElementByAutomationIdDirect -Root ([System.Windows.Automation.AutomationElement]::RootElement) -AutomationId "QApplication.savedActionCreatedGroupsDialog"
     if ($dialog -and -not (Test-ElementGoneOrOffscreen -Element $dialog)) {
         return $dialog
     }
@@ -1550,6 +1597,19 @@ function Resolve-LiveCreatedTasksDialogRoot {
     return (Resolve-LiveDialogRoot -Dialog $Dialog)
 }
 
+function Resolve-LiveCreatedGroupsDialogRoot {
+    param(
+        [System.Windows.Automation.AutomationElement]$Dialog
+    )
+
+    $liveDialog = Get-CreatedGroupsDialogWindow
+    if ($liveDialog) {
+        return $liveDialog
+    }
+
+    return (Resolve-LiveDialogRoot -Dialog $Dialog)
+}
+
 function Get-DialogLookupChildAutomationIds {
     param(
         [string]$Name
@@ -1558,6 +1618,21 @@ function Get-DialogLookupChildAutomationIds {
     switch ($Name) {
         "Created Tasks" {
             return (Get-CreatedTasksDialogControlAutomationIds -LeafAutomationId "savedActionCreatedTasksStatus")
+        }
+        "Manage Custom Tasks" {
+            return (Get-CreatedTasksDialogControlAutomationIds -LeafAutomationId "savedActionCreatedTasksStatus")
+        }
+        "Manage Custom Groups" {
+            return (Get-CreatedGroupsDialogControlAutomationIds -LeafAutomationId "savedActionCreatedTasksStatus")
+        }
+        "Create Custom Group" {
+            return (Get-GroupDialogControlAutomationIds -LeafAutomationId "callableGroupCreateAliasesInput")
+        }
+        "Edit Custom Group" {
+            return (Get-GroupDialogControlAutomationIds -LeafAutomationId "callableGroupCreateAliasesInput")
+        }
+        "New Group" {
+            return (Get-QuickCreateGroupDialogControlAutomationIds -LeafAutomationId "quickCreateGroupTitleInput")
         }
         default {
             return (Get-CreateDialogControlAutomationIds -LeafAutomationId "savedActionCreateTitleInput")
@@ -1571,6 +1646,8 @@ function Get-OverlayAnchorAutomationIds {
     )
     $ids += Get-OverlayCreateButtonAutomationIds
     $ids += Get-OverlayManageButtonAutomationIds
+    $ids += Get-OverlayCreateGroupButtonAutomationIds
+    $ids += Get-OverlayManageGroupButtonAutomationIds
     return $ids
 }
 
@@ -1585,6 +1662,20 @@ function Get-OverlayManageButtonAutomationIds {
     return @(
         "QApplication.commandOverlayWindow.commandPanel.savedActionInventory.QFrame.savedActionCreatedTasksButton",
         "QApplication.commandOverlayWindow.commandPanel.savedActionInventory.savedActionCreatedTasksButton"
+    )
+}
+
+function Get-OverlayCreateGroupButtonAutomationIds {
+    return @(
+        "QApplication.commandOverlayWindow.commandPanel.savedActionInventory.QFrame.savedActionCreateGroupButton",
+        "QApplication.commandOverlayWindow.commandPanel.savedActionInventory.savedActionCreateGroupButton"
+    )
+}
+
+function Get-OverlayManageGroupButtonAutomationIds {
+    return @(
+        "QApplication.commandOverlayWindow.commandPanel.savedActionInventory.QFrame.savedActionCreatedGroupsButton",
+        "QApplication.commandOverlayWindow.commandPanel.savedActionInventory.savedActionCreatedGroupsButton"
     )
 }
 
@@ -1630,8 +1721,23 @@ function Get-DialogWindow {
         }
     }
 
-    if ($Name -eq "Created Tasks") {
+    if ($Name -in @("Created Tasks", "Manage Custom Tasks")) {
         $dialog = Find-ElementByAutomationIdDirect -Root ([System.Windows.Automation.AutomationElement]::RootElement) -AutomationId "QApplication.savedActionCreatedTasksDialog"
+        if ($dialog) {
+            return $dialog
+        }
+    } elseif ($Name -eq "Manage Custom Groups") {
+        $dialog = Find-ElementByAutomationIdDirect -Root ([System.Windows.Automation.AutomationElement]::RootElement) -AutomationId "QApplication.savedActionCreatedGroupsDialog"
+        if ($dialog) {
+            return $dialog
+        }
+    } elseif ($Name -eq "New Group") {
+        $dialog = Find-ElementByAutomationIdDirect -Root ([System.Windows.Automation.AutomationElement]::RootElement) -AutomationId "QApplication.quickCreateGroupDialog"
+        if ($dialog) {
+            return $dialog
+        }
+    } elseif ($Name -in @("Create Custom Group", "Edit Custom Group")) {
+        $dialog = Find-ElementByAutomationIdDirect -Root ([System.Windows.Automation.AutomationElement]::RootElement) -AutomationId "QApplication.callableGroupCreateDialog"
         if ($dialog) {
             return $dialog
         }
@@ -2276,6 +2382,58 @@ function Get-ButtonByName {
     return Find-FirstElement -Root $Root -Name $Name -ControlType ([System.Windows.Automation.ControlType]::Button)
 }
 
+function Get-CheckboxByName {
+    param(
+        [System.Windows.Automation.AutomationElement]$Root,
+        [string]$Name
+    )
+    return Find-FirstElement -Root $Root -Name $Name -ControlType ([System.Windows.Automation.ControlType]::CheckBox)
+}
+
+function Set-CheckboxStateVerified {
+    param(
+        [scriptblock]$ElementResolver,
+        [bool]$Checked,
+        [string]$Description
+    )
+
+    $expectedState = if ($Checked) {
+        [System.Windows.Automation.ToggleState]::On
+    } else {
+        [System.Windows.Automation.ToggleState]::Off
+    }
+
+    for ($attempt = 1; $attempt -le 3; $attempt++) {
+        $element = Focus-ElementForInteraction -ElementResolver $ElementResolver -Description $Description -RequireExactFocus $false
+        if (-not $element) {
+            throw "Could not resolve $Description."
+        }
+
+        try {
+            $togglePattern = $element.GetCurrentPattern([System.Windows.Automation.TogglePattern]::Pattern)
+            if ($togglePattern.Current.ToggleState -ne $expectedState) {
+                $togglePattern.Toggle()
+                Start-Sleep -Milliseconds 120
+            }
+        } catch {
+            Invoke-ElementRobust -Element $element -Description $Description
+            Start-Sleep -Milliseconds 120
+        }
+
+        $element = & $ElementResolver
+        try {
+            $togglePattern = $element.GetCurrentPattern([System.Windows.Automation.TogglePattern]::Pattern)
+            if ($togglePattern.Current.ToggleState -eq $expectedState) {
+                Write-StepLog -Stage "INTERACT" -Message "checkbox state verified for '$Description' checked=$Checked"
+                return
+            }
+        } catch {
+        }
+    }
+
+    throw "Could not verify checkbox state for '$Description'."
+}
+
 function Get-InventoryEditButtons {
     param(
         [System.Windows.Automation.AutomationElement]$Overlay
@@ -2577,6 +2735,137 @@ function Open-CreateDialog {
     return (& $resolveDialog)
 }
 
+function Open-CreateGroupDialog {
+    param(
+        [System.Windows.Automation.AutomationElement]$Overlay
+    )
+
+    $resolveOverlay = {
+        Resolve-LiveOverlayRoot -Overlay $Overlay
+    }
+    $resolveCreateGroupButton = {
+        $liveOverlay = & $resolveOverlay
+        if (-not $liveOverlay) {
+            return $null
+        }
+        return (Find-ElementByAutomationIdsDirect -Root $liveOverlay -AutomationIds (Get-OverlayCreateGroupButtonAutomationIds))
+    }
+
+    $null = Wait-ForOverlayControlReady -OverlayResolver $resolveOverlay -AutomationIds (Get-OverlayCreateGroupButtonAutomationIds) -Description "Create Custom Group button"
+    $button = Focus-ElementForInteraction -ElementResolver $resolveCreateGroupButton -Description "Create Custom Group button" -RequireExactFocus $false
+    Write-StepLog -Stage "DIALOG" -Message "opening Create Custom Group"
+    $markerStart = New-RuntimeMarkerCursor
+    Invoke-ElementRobust -Element $button -Description "Create Custom Group button"
+
+    try {
+        Wait-ForDialogRuntimeReady -SignalBase "CUSTOM_GROUP_CREATE_DIALOG" -StartLine $markerStart -TimeoutSeconds 8
+    } catch {
+        Add-Note "Create Custom Group markers were not observed after the first invoke; retrying the entry button once."
+        $button = Focus-ElementForInteraction -ElementResolver $resolveCreateGroupButton -Description "Create Custom Group button retry" -RequireExactFocus $false
+        Invoke-ElementRobust -Element $button -Description "Create Custom Group button retry"
+        Wait-ForDialogRuntimeReady -SignalBase "CUSTOM_GROUP_CREATE_DIALOG" -StartLine $markerStart -TimeoutSeconds 8
+    }
+
+    $dialog = Wait-ForDialog -Name "Create Custom Group" -TimeoutSeconds 8
+    $resolveDialog = {
+        Resolve-LiveDialogRoot -Dialog $dialog -ExpectedName "Create Custom Group"
+    }
+
+    $null = Wait-ForDialogControlReady -DialogResolver $resolveDialog -AutomationIds (Get-GroupDialogControlAutomationIds -LeafAutomationId "callableGroupCreateNameInput") -Description "group dialog name input"
+    $null = Wait-ForDialogControlReady -DialogResolver $resolveDialog -AutomationIds (Get-GroupDialogControlAutomationIds -LeafAutomationId "callableGroupCreateAliasesInput") -Description "group dialog aliases input"
+    $null = Wait-ForDialogControlReady -DialogResolver $resolveDialog -AutomationIds (Get-GroupDialogControlAutomationIds -LeafAutomationId "callableGroupCreateMembersFrame") -Description "group dialog members frame" -RequireEnabled $false
+    return (& $resolveDialog)
+}
+
+function Fill-CallableGroupDialog {
+    param(
+        [System.Windows.Automation.AutomationElement]$Dialog,
+        [string]$GroupName,
+        [string]$Aliases,
+        [string[]]$MemberNames
+    )
+
+    $dialogName = $Dialog.Current.Name
+    $resolveDialog = {
+        Resolve-LiveDialogRoot -Dialog $Dialog -ExpectedName $dialogName
+    }
+    $resolveNameInput = {
+        $liveDialog = & $resolveDialog
+        if (-not $liveDialog) { return $null }
+        return (Find-ElementByAutomationIdsDirect -Root $liveDialog -AutomationIds (Get-GroupDialogControlAutomationIds -LeafAutomationId "callableGroupCreateNameInput"))
+    }
+    $resolveAliasesInput = {
+        $liveDialog = & $resolveDialog
+        if (-not $liveDialog) { return $null }
+        return (Find-ElementByAutomationIdsDirect -Root $liveDialog -AutomationIds (Get-GroupDialogControlAutomationIds -LeafAutomationId "callableGroupCreateAliasesInput"))
+    }
+
+    Set-FieldValueVerified -ElementResolver $resolveNameInput -ExpectedValue $GroupName -Description "group name input"
+    Set-FieldValueVerified -ElementResolver $resolveAliasesInput -ExpectedValue $Aliases -Description "group aliases input"
+
+    foreach ($memberName in @($MemberNames)) {
+        $resolveCheckbox = {
+            $liveDialog = & $resolveDialog
+            if (-not $liveDialog) { return $null }
+            return (Get-CheckboxByName -Root $liveDialog -Name $memberName)
+        }
+        Set-CheckboxStateVerified -ElementResolver $resolveCheckbox -Checked $true -Description "group member '$memberName'"
+    }
+}
+
+function Open-QuickCreateGroupDialog {
+    param(
+        [System.Windows.Automation.AutomationElement]$TaskDialog
+    )
+
+    $dialogName = $TaskDialog.Current.Name
+    $resolveTaskDialog = {
+        Resolve-LiveDialogRoot -Dialog $TaskDialog -ExpectedName $dialogName
+    }
+    $resolveNewGroupButton = {
+        $liveDialog = & $resolveTaskDialog
+        if (-not $liveDialog) { return $null }
+        return (Find-ElementByAutomationIdsDirect -Root $liveDialog -AutomationIds (Get-CreateDialogControlAutomationIds -LeafAutomationId "savedActionCreateNewGroupButton"))
+    }
+
+    $null = Wait-ForDialogControlReady -DialogResolver $resolveTaskDialog -AutomationIds (Get-CreateDialogControlAutomationIds -LeafAutomationId "savedActionCreateNewGroupButton") -Description "task dialog New Group button"
+    $button = Focus-ElementForInteraction -ElementResolver $resolveNewGroupButton -Description "task dialog New Group button" -RequireExactFocus $false
+    Invoke-ElementRobust -Element $button -Description "task dialog New Group button"
+
+    $dialog = Wait-ForDialog -Name "New Group" -TimeoutSeconds 8
+    $resolveDialog = {
+        Resolve-LiveDialogRoot -Dialog $dialog -ExpectedName "New Group"
+    }
+    $null = Wait-ForDialogControlReady -DialogResolver $resolveDialog -AutomationIds (Get-QuickCreateGroupDialogControlAutomationIds -LeafAutomationId "quickCreateGroupTitleInput") -Description "quick group title input"
+    $null = Wait-ForDialogControlReady -DialogResolver $resolveDialog -AutomationIds (Get-QuickCreateGroupDialogControlAutomationIds -LeafAutomationId "quickCreateGroupAliasesInput") -Description "quick group aliases input"
+    return (& $resolveDialog)
+}
+
+function Fill-QuickCreateGroupDialog {
+    param(
+        [System.Windows.Automation.AutomationElement]$Dialog,
+        [string]$GroupName,
+        [string]$Aliases
+    )
+
+    $resolveDialog = {
+        Resolve-LiveDialogRoot -Dialog $Dialog -ExpectedName "New Group"
+    }
+    $resolveNameInput = {
+        $liveDialog = & $resolveDialog
+        if (-not $liveDialog) { return $null }
+        return (Find-ElementByAutomationIdsDirect -Root $liveDialog -AutomationIds (Get-QuickCreateGroupDialogControlAutomationIds -LeafAutomationId "quickCreateGroupTitleInput"))
+    }
+    $resolveAliasesInput = {
+        $liveDialog = & $resolveDialog
+        if (-not $liveDialog) { return $null }
+        return (Find-ElementByAutomationIdsDirect -Root $liveDialog -AutomationIds (Get-QuickCreateGroupDialogControlAutomationIds -LeafAutomationId "quickCreateGroupAliasesInput"))
+    }
+
+    Set-FieldValueVerified -ElementResolver $resolveNameInput -ExpectedValue $GroupName -Description "quick group name input"
+    Set-FieldValueVerified -ElementResolver $resolveAliasesInput -ExpectedValue $Aliases -Description "quick group aliases input"
+}
+
 function Open-CreatedTasksDialog {
     param(
         [System.Windows.Automation.AutomationElement]$Overlay
@@ -2602,10 +2891,17 @@ function Open-CreatedTasksDialog {
     try {
         Wait-ForDialogRuntimeReady -SignalBase "CREATED_TASKS_DIALOG" -StartLine $markerStart -TimeoutSeconds 8
     } catch {
-        Add-Note "Created Tasks markers were not observed after the first entry button invoke; retrying once."
-        $button = Focus-ElementForInteraction -ElementResolver $resolveCreatedTasksButton -Description "Created Tasks button retry" -RequireExactFocus $false
-        Invoke-ElementRobust -Element $button -Description "Created Tasks button retry"
-        Wait-ForDialogRuntimeReady -SignalBase "CREATED_TASKS_DIALOG" -StartLine $markerStart -TimeoutSeconds 8
+        $dialogAlreadyVisible = [bool](Get-CreatedTasksDialogWindow)
+        $openedSeen = Test-RuntimeMarkerSeen -Marker "RENDERER_MAIN|CREATED_TASKS_DIALOG_OPENED" -StartLine $markerStart
+        $readySeen = Test-RuntimeMarkerSeen -Marker "RENDERER_MAIN|CREATED_TASKS_DIALOG_READY" -StartLine $markerStart
+        if ($dialogAlreadyVisible -or $openedSeen -or $readySeen) {
+            Add-Note "Created Tasks runtime readiness had a transient wait miss after the first entry button invoke, but the dialog was already visible or the final markers were present, so the harness continued without retry."
+        } else {
+            Add-Note "Created Tasks markers were not observed after the first entry button invoke; retrying once."
+            $button = Focus-ElementForInteraction -ElementResolver $resolveCreatedTasksButton -Description "Created Tasks button retry" -RequireExactFocus $false
+            Invoke-ElementRobust -Element $button -Description "Created Tasks button retry"
+            Wait-ForDialogRuntimeReady -SignalBase "CREATED_TASKS_DIALOG" -StartLine $markerStart -TimeoutSeconds 8
+        }
     }
 
     Wait-Until -TimeoutSeconds 8 -Description "Manage Custom Tasks dialog" -Condition {
@@ -2698,11 +2994,11 @@ function Open-EditDialog {
         Wait-ForDialogRuntimeReady -SignalBase "CUSTOM_TASK_EDIT_DIALOG" -StartLine $markerStart -TimeoutSeconds 8
     }
 
-    $dialogScope = [System.Windows.Automation.AutomationElement]::RootElement
     Write-StepLog -Stage "DIALOG" -Message "verifying edit-dialog entry readiness after runtime markers"
 
+    $dialog = Wait-ForDialog -Name "Edit Custom Task" -TimeoutSeconds 8
     $resolveDialog = {
-        return $dialogScope
+        Resolve-LiveDialogRoot -Dialog $dialog -ExpectedName "Edit Custom Task"
     }
 
     $null = Wait-ForDialogControlReady -DialogResolver $resolveDialog -AutomationIds (Get-CreateDialogControlAutomationIds -LeafAutomationId "savedActionCreateType") -Description "edit dialog task type combo"
@@ -2716,13 +3012,13 @@ function Open-EditDialog {
             return $null
         }
         return (Find-ElementByAutomationIdsDirect -Root $liveScope -AutomationIds (Get-CreateDialogControlAutomationIds -LeafAutomationId "savedActionCreateType"))
-    } -Description "edit dialog task type combo"
+    } -Description "edit dialog task type combo" -RequireExactFocus $false
 
     if (-not $typeCombo) {
         throw "Could not focus the edit dialog task type combo after dialog ready."
     }
 
-    $dialog = & $resolveEditDialog
+    $dialog = & $resolveDialog
     if (-not $dialog) {
         $dialog = Find-DialogAncestorFromElement -Element $typeCombo -ExpectedName "Edit Custom Task"
     }
@@ -2891,13 +3187,20 @@ function Cancel-Dialog {
     )
 
     Write-StepLog -Stage "DIALOG" -Message "cancelling dialog '$($Dialog.Current.Name)'"
-    $signalBase = if ($Dialog.Current.Name -eq "Edit Custom Task") { "CUSTOM_TASK_EDIT_DIALOG" } else { "CUSTOM_TASK_CREATE_DIALOG" }
+    $signalBase = switch ($Dialog.Current.Name) {
+        "Edit Custom Task" { "CUSTOM_TASK_EDIT_DIALOG"; break }
+        "Create Custom Group" { "CUSTOM_GROUP_CREATE_DIALOG"; break }
+        "Edit Custom Group" { "CUSTOM_GROUP_EDIT_DIALOG"; break }
+        default { "CUSTOM_TASK_CREATE_DIALOG" }
+    }
     $markerStart = New-RuntimeMarkerCursor
     try { Submit-Dialog -Dialog $Dialog -ButtonName "Cancel" } catch {}
     try {
-        Wait-ForDialogRuntimeClosed -SignalBase $signalBase -StartLine $markerStart -TimeoutSeconds 5
-        Write-StepLog -Stage "DIALOG" -Message "$($Dialog.Current.Name) close confirmed by runtime marker"
-        return
+        if ($Dialog.Current.Name -ne "New Group") {
+            Wait-ForDialogRuntimeClosed -SignalBase $signalBase -StartLine $markerStart -TimeoutSeconds 5
+            Write-StepLog -Stage "DIALOG" -Message "$($Dialog.Current.Name) close confirmed by runtime marker"
+            return
+        }
     } catch {
     }
 
@@ -3156,7 +3459,7 @@ function Start-InteractiveRuntime {
         0
     }
 
-    $argString = "dev\orin_saved_action_authoring_interactive_runtime.py --runtime-log `"$RuntimeLogPath`""
+    $argString = "dev\orin_saved_action_authoring_interactive_runtime.py --runtime-log `"$RuntimeLogPath`" --auto-open-overlay"
     Write-StepLog -Stage "RUNTIME" -Message "starting interactive runtime helper from baseline line count $baselineLines"
     $previousOverlayTrace = $env:NEXUS_OVERLAY_TRACE
     $env:NEXUS_OVERLAY_TRACE = "1"
@@ -3194,7 +3497,7 @@ function Start-InteractiveRuntime {
     } | Out-Null
     Write-StepLog -Stage "RUNTIME" -Message "confirmed desktop attach success"
     $script:RuntimeLogLineCursor = Get-RuntimeLogLineCount
-    $script:RuntimeAutoOpenPending = $false
+    $script:RuntimeAutoOpenPending = $true
     Start-Sleep -Milliseconds 1600
     return $process
 }
@@ -3499,6 +3802,24 @@ function Get-SavedActionRecordById {
     return $record
 }
 
+function Get-CallableGroupRecordById {
+    param(
+        [string]$GroupId
+    )
+
+    if (-not (Test-Path -LiteralPath $SourcePath)) {
+        throw "Saved action source was not present while resolving group '$GroupId'."
+    }
+
+    $parsed = Get-Content -LiteralPath $SourcePath -Raw | ConvertFrom-Json
+    $groups = @($parsed.groups)
+    $record = $groups | Where-Object { $_.id -eq $GroupId } | Select-Object -First 1
+    if (-not $record) {
+        throw "Callable group '$GroupId' was not present in the current source."
+    }
+    return $record
+}
+
 function Get-RecordPropertyValue {
     param(
         $Record,
@@ -3731,6 +4052,213 @@ function Run-Create-Flow {
     return (Ensure-OverlayReady -Overlay $Overlay -Reason "post-create inventory verification")
 }
 
+function Run-Group-Create-Flow {
+    param([System.Windows.Automation.AutomationElement]$Overlay)
+    Write-StepLog -Stage "FLOW" -Message "running valid group create flow"
+    $dialog = Open-CreateGroupDialog -Overlay $Overlay
+    Fill-CallableGroupDialog -Dialog $dialog -GroupName "Workspace Tools" -Aliases "workspace tools" -MemberNames @("Open Notepad Task", "Open Saved Actions Folder")
+    $markerStart = New-RuntimeMarkerCursor
+    Submit-Dialog -Dialog $dialog -ButtonName "Create"
+    Wait-ForRuntimeMarker -Marker "RENDERER_MAIN|CUSTOM_GROUP_CREATE_ATTEMPT_STARTED|title=Workspace Tools|member_count=2" -StartLine $markerStart
+    Wait-ForCatalogReloadCompleted -StartLine $markerStart
+    Wait-ForRuntimeMarker -Marker "RENDERER_MAIN|CUSTOM_GROUP_CREATED|group_id=workspace_tools|title=Workspace Tools|member_count=2" -StartLine $markerStart
+    try {
+        Wait-ForDialogRuntimeClosed -SignalBase "CUSTOM_GROUP_CREATE_DIALOG" -StartLine $markerStart -TimeoutSeconds 4
+    } catch {
+        Add-Note "Create Custom Group close readback lagged after a successful create marker, but the runtime marker and persisted source still confirmed the save."
+    }
+    $record = Get-CallableGroupRecordById -GroupId "workspace_tools"
+    if (@($record.member_action_ids).Count -ne 2) {
+        throw "Callable group record did not persist both selected members."
+    }
+    Copy-SourceSnapshot -Slug "after_group_create" | Out-Null
+    return (Ensure-OverlayReady -Overlay $Overlay -Reason "post-group-create verification")
+}
+
+function Run-Group-Collision-Checks {
+    param([System.Windows.Automation.AutomationElement]$Overlay)
+    Write-StepLog -Stage "FLOW" -Message "running callable-group collision checks"
+
+    $dialog = Open-CreateGroupDialog -Overlay $Overlay
+    Fill-CallableGroupDialog -Dialog $dialog -GroupName "Explorer Group" -Aliases "Open Windows Explorer" -MemberNames @("Open Notepad Task")
+    $markerStart = New-RuntimeMarkerCursor
+    Submit-Dialog -Dialog $dialog -ButtonName "Create"
+    Wait-ForRuntimeMarker -Marker "RENDERER_MAIN|CUSTOM_GROUP_CREATE_ATTEMPT_STARTED|title=Explorer Group|member_count=1" -StartLine $markerStart
+
+    try {
+        Wait-Until -TimeoutSeconds 2 -Description "group collision feedback" -Condition {
+            $currentDialog = Get-DialogWindow -Name "Create Custom Group"
+            if (-not $currentDialog) {
+                return $false
+            }
+            $status = Get-DialogStatusText -Dialog $currentDialog
+            return [bool]$status
+        } | Out-Null
+    } catch {
+    }
+
+    if (Test-RuntimeMarkerSeen -Marker "RENDERER_MAIN|CUSTOM_GROUP_CREATED|" -StartLine $markerStart) {
+        throw "Callable-group collision unexpectedly produced a create marker."
+    }
+
+    Cancel-Dialog -Dialog $dialog
+    return (Restore-OverlayAfterAuthoringDialogCancel -Overlay $Overlay -Reason "callable-group collision case cancel")
+}
+
+function Run-Group-Invocation-Check {
+    param([System.Windows.Automation.AutomationElement]$Overlay)
+    Write-StepLog -Stage "FLOW" -Message "running callable-group exact invocation check"
+    $Overlay = Ensure-OverlayReady -Overlay $Overlay -Reason "callable-group exact invocation setup"
+    $record = Get-CallableGroupRecordById -GroupId "workspace_tools"
+    $aliases = @($record.aliases)
+    if ($aliases.Count -lt 1) {
+        throw "Workspace Tools group did not persist any callable aliases."
+    }
+    $memberIds = @($record.member_action_ids)
+    $builtInIndex = [Array]::IndexOf($memberIds, "open_saved_actions_folder")
+    $savedIndex = [Array]::IndexOf($memberIds, "open_notepad_task")
+    if ($builtInIndex -lt 0 -or $savedIndex -lt 0) {
+        throw "Workspace Tools group did not preserve the expected saved and built-in members."
+    }
+    $phrase = [string]$aliases[0]
+
+    $input = Get-OverlayInput -Overlay $Overlay
+    Set-Value -Element $input -Value $phrase
+    $input.SetFocus()
+    Start-Sleep -Milliseconds 200
+
+    $ambiguousStart = New-RuntimeMarkerCursor
+    Send-VirtualKey -VirtualKey 0x0D
+    Wait-ForRuntimeMarker -Marker "RENDERER_MAIN|COMMAND_AMBIGUOUS|count=2" -StartLine $ambiguousStart
+
+    $selectionStart = New-RuntimeMarkerCursor
+    Send-VirtualKey -VirtualKey (0x31 + $builtInIndex)
+    Wait-ForRuntimeMarker -Marker "RENDERER_MAIN|COMMAND_DISAMBIGUATION_SELECTED|index=$builtInIndex|action_id=open_saved_actions_folder" -StartLine $selectionStart
+    Wait-ForRuntimeMarker -Marker "RENDERER_MAIN|COMMAND_CONFIRM_READY|action_id=open_saved_actions_folder" -StartLine $selectionStart
+
+    $launchStart = New-RuntimeMarkerCursor
+    Send-VirtualKey -VirtualKey 0x0D
+    Wait-ForRuntimeMarker -Marker "RENDERER_MAIN|COMMAND_LAUNCH_REQUEST_SENT|action_id=open_saved_actions_folder" -StartLine $launchStart
+
+    $Overlay = Ensure-OverlayReady -Overlay $Overlay -Reason "group built-in invocation verification"
+    $input = Get-OverlayInput -Overlay $Overlay
+    Set-Value -Element $input -Value $phrase
+    $input.SetFocus()
+    Start-Sleep -Milliseconds 200
+
+    $ambiguousStart = New-RuntimeMarkerCursor
+    Send-VirtualKey -VirtualKey 0x0D
+    Wait-ForRuntimeMarker -Marker "RENDERER_MAIN|COMMAND_AMBIGUOUS|count=2" -StartLine $ambiguousStart
+
+    $selectionStart = New-RuntimeMarkerCursor
+    Send-VirtualKey -VirtualKey (0x31 + $savedIndex)
+    Wait-ForRuntimeMarker -Marker "RENDERER_MAIN|COMMAND_DISAMBIGUATION_SELECTED|index=$savedIndex|action_id=open_notepad_task" -StartLine $selectionStart
+    Wait-ForRuntimeMarker -Marker "RENDERER_MAIN|COMMAND_CONFIRM_READY|action_id=open_notepad_task" -StartLine $selectionStart
+
+    $launchStart = New-RuntimeMarkerCursor
+    Send-VirtualKey -VirtualKey 0x0D
+    Wait-ForRuntimeMarker -Marker "RENDERER_MAIN|COMMAND_LAUNCH_REQUEST_SENT|action_id=open_notepad_task" -StartLine $launchStart
+    Copy-SourceSnapshot -Slug "after_group_invocation" | Out-Null
+    return (Ensure-OverlayReady -Overlay $Overlay -Reason "post-group invocation verification")
+}
+
+function Run-Task-Inline-Group-Check {
+    param([System.Windows.Automation.AutomationElement]$Overlay)
+    Write-StepLog -Stage "FLOW" -Message "running task inline-group quick-create check"
+    $dialog = Open-CreateDialog -Overlay $Overlay
+    Fill-AuthoringDialog -Dialog $dialog -TypeLabel "Application" -Title "Open Notes Task" -Aliases "notes task" -Target "notepad.exe"
+
+    $resolveDialog = {
+        Resolve-LiveDialogRoot -Dialog $dialog -ExpectedName "Create Custom Task"
+    }
+    $resolveExistingGroupCheckbox = {
+        $liveDialog = & $resolveDialog
+        if (-not $liveDialog) { return $null }
+        return (Get-CheckboxByName -Root $liveDialog -Name "Workspace Tools (2 members)")
+    }
+
+    Set-CheckboxStateVerified -ElementResolver $resolveExistingGroupCheckbox -Checked $true -Description "existing Workspace Tools group checkbox"
+    $quickDialog = Open-QuickCreateGroupDialog -TaskDialog $dialog
+    Fill-QuickCreateGroupDialog -Dialog $quickDialog -GroupName "Notes Suite" -Aliases "notes suite"
+    Submit-Dialog -Dialog $quickDialog -ButtonName "Add Group"
+    Wait-Until -TimeoutSeconds 6 -Description "task dialog returned after quick group create" -Condition {
+        $liveDialog = & $resolveDialog
+        return [bool]$liveDialog
+    } | Out-Null
+
+    $markerStart = New-RuntimeMarkerCursor
+    Submit-Dialog -Dialog $dialog -ButtonName "Create"
+    Wait-ForRuntimeMarker -Marker "RENDERER_MAIN|CUSTOM_TASK_CREATE_ATTEMPT_STARTED|title=Open Notes Task" -StartLine $markerStart
+    Wait-ForCatalogReloadCompleted -StartLine $markerStart
+    Wait-ForRuntimeMarker -Marker "RENDERER_MAIN|CUSTOM_TASK_CREATED|action_id=open_notes_task" -StartLine $markerStart
+
+    $workspaceGroup = Get-CallableGroupRecordById -GroupId "workspace_tools"
+    $notesGroup = Get-CallableGroupRecordById -GroupId "notes_suite"
+    if (@($workspaceGroup.member_action_ids) -notcontains "open_notes_task") {
+        throw "Existing group membership did not pick up the newly created task."
+    }
+    if (@($notesGroup.member_action_ids).Count -ne 1 -or @($notesGroup.member_action_ids)[0] -ne "open_notes_task") {
+        throw "Inline quick-create group did not persist with the new task as its first member."
+    }
+    Copy-SourceSnapshot -Slug "after_task_inline_group" | Out-Null
+    return (Ensure-OverlayReady -Overlay $Overlay -Reason "post-inline-group task verification")
+}
+
+function Run-Invalid-Group-Source-Check {
+    Write-StepLog -Stage "FLOW" -Message "running invalid-group-source blocking check"
+    Save-JsonNoBom -Path $SourcePath -Value @{
+        schema_version = 1
+        actions = @(
+            @{
+                id = "open_reports"
+                title = "Open Reports"
+                target_kind = "folder"
+                target = "C:\Reports"
+                aliases = @("show reports")
+            }
+        )
+        groups = @(
+            @{
+                id = "broken_group"
+                title = "Broken Group"
+                aliases = @("broken group")
+                member_action_ids = @("missing_action")
+            }
+        )
+    }
+    Restart-InteractiveRuntime | Out-Null
+    $overlay = Open-OverlayWithRuntimeRestartFallback
+    $overlay = Ensure-OverlayReady -Overlay $overlay -Reason "invalid group source blocking check"
+
+    $resolveOverlay = {
+        Resolve-LiveOverlayRoot -Overlay $overlay
+    }
+    $resolveCreateGroupButton = {
+        $liveOverlay = & $resolveOverlay
+        if (-not $liveOverlay) {
+            return $null
+        }
+        return (Find-ElementByAutomationIdsDirect -Root $liveOverlay -AutomationIds (Get-OverlayCreateGroupButtonAutomationIds))
+    }
+
+    $null = Wait-ForOverlayControlReady -OverlayResolver $resolveOverlay -AutomationIds (Get-OverlayCreateGroupButtonAutomationIds) -Description "Create Custom Group button in invalid-group-source path"
+    $createGroupButton = Focus-ElementForInteraction -ElementResolver $resolveCreateGroupButton -Description "Create Custom Group button in invalid-group-source path" -RequireExactFocus $false
+    $markerStart = New-RuntimeMarkerCursor
+    Invoke-ElementRobust -Element $createGroupButton -Description "Create Custom Group button in invalid-group-source path"
+    Wait-ForRuntimeMarker -Marker "RENDERER_MAIN|CUSTOM_GROUP_CREATE_BLOCKED|reason=source_invalid" -StartLine $markerStart
+    if (Test-RuntimeMarkerSeen -Marker "RENDERER_MAIN|CUSTOM_GROUP_CREATE_DIALOG_OPENED" -StartLine $markerStart) {
+        throw "Invalid group source should block the Create Custom Group dialog before it opens."
+    }
+
+    $overlay = Ensure-OverlayReady -Overlay $overlay -Reason "after invalid group create block"
+    $dialog = Open-CreateDialog -Overlay $overlay
+    Fill-AuthoringDialog -Dialog $dialog -TypeLabel "Application" -Title "Recovered Notes Task" -Aliases "recovered notes" -Target "notepad.exe"
+    $markerStart = New-RuntimeMarkerCursor
+    Submit-Dialog -Dialog $dialog -ButtonName "Create"
+    Wait-ForRuntimeMarker -Marker "RENDERER_MAIN|CUSTOM_TASK_CREATED|action_id=recovered_notes_task" -StartLine $markerStart
+    Copy-SourceSnapshot -Slug "after_invalid_group_source_recovery" | Out-Null
+}
+
 function Get-InvalidCreateCases {
     return @(
         @{ type = "Application"; title = "Bad App"; aliases = "bad app alias"; target = "notepad.exe --help"; expect = "Application targets" },
@@ -3910,9 +4438,8 @@ function Run-SavedAlias-Ambiguity-Selection {
 
     $liveOverlay = Wait-ForOptionalOverlayOpen -TimeoutSeconds 2
     if ($liveOverlay) {
-        Write-StepLog -Stage "FLOW" -Message "overlay still visible after exact-match execution; forcing a clean reopen before saved-vs-saved ambiguity setup"
-        Close-Overlay -Reason "post exact-match execution before saved-vs-saved ambiguity setup"
-        $Overlay = Reopen-OverlayAfterClose -Reason "saved-vs-saved ambiguity setup reset"
+        Write-StepLog -Stage "FLOW" -Message "overlay still visible after exact-match execution; reusing the live overlay for saved-vs-saved ambiguity setup"
+        $Overlay = Ensure-OverlayReady -Overlay $liveOverlay -Reason "saved-vs-saved ambiguity setup reuse"
     } else {
         Write-StepLog -Stage "FLOW" -Message "overlay closed after exact-match execution; reopening before saved-vs-saved ambiguity setup"
         $Overlay = Open-OverlayWithRuntimeRestartFallback -MaxAttempts 2
@@ -3955,6 +4482,7 @@ function Run-SavedAlias-Ambiguity-Selection {
     Send-VirtualKey -VirtualKey 0x0D
     Wait-ForRuntimeMarker -Marker "RENDERER_MAIN|COMMAND_LAUNCH_REQUEST_SENT|action_id=weekly_reports_explorer" -StartLine $launchStart
     Copy-SourceSnapshot -Slug "after_ambiguity_selection" | Out-Null
+    return (Ensure-OverlayReady -Overlay $Overlay -Reason "post-saved-vs-saved ambiguity verification")
 }
 
 function Run-Edit-Flow {
@@ -4289,6 +4817,11 @@ try {
     Add-ScenarioResult -Name "valid_create" -Passed $true -Details "A real create dialog session created Open Notepad Task and refreshed inventory immediately."
     Clear-ScenarioBudget -Name "valid_create"
 
+    Enter-ScenarioBudget -Name "valid_group_create"
+    $overlay = Run-Group-Create-Flow -Overlay $overlay
+    Add-ScenarioResult -Name "valid_group_create" -Passed $true -Details "A real create-group dialog session created Workspace Tools with saved and built-in members."
+    Clear-ScenarioBudget -Name "valid_group_create"
+
     foreach ($invalidCreateCase in (Get-InvalidCreateCases)) {
         $invalidCreateScenarioName = "invalid_create_rejection_$(Get-ScenarioSlug -Value $invalidCreateCase.type)"
         Enter-ScenarioBudget -Name $invalidCreateScenarioName
@@ -4301,6 +4834,11 @@ try {
     Run-Collision-Checks -Overlay $overlay
     Add-ScenarioResult -Name "collision_rejection" -Passed $true -Details "Built-in collisions stayed blocked in the real create dialog."
     Clear-ScenarioBudget -Name "collision_rejection"
+
+    Enter-ScenarioBudget -Name "group_collision_rejection"
+    $overlay = Run-Group-Collision-Checks -Overlay $overlay
+    Add-ScenarioResult -Name "group_collision_rejection" -Passed $true -Details "Callable-group aliases stayed bounded against built-ins and existing exact phrases in the real create-group dialog."
+    Clear-ScenarioBudget -Name "group_collision_rejection"
 
     Enter-ScenarioBudget -Name "valid_edit"
     $overlay = Run-Edit-Flow -Overlay $overlay
@@ -4318,9 +4856,19 @@ try {
     Clear-ScenarioBudget -Name "exact_match_execution"
 
     Enter-ScenarioBudget -Name "saved_alias_ambiguity"
-    Run-SavedAlias-Ambiguity-Selection -Overlay $overlay
+    $overlay = Run-SavedAlias-Ambiguity-Selection -Overlay $overlay
     Add-ScenarioResult -Name "saved_alias_ambiguity" -Passed $true -Details "Two saved actions sharing the same alias surfaced the existing ambiguity chooser and selection executed the chosen action."
     Clear-ScenarioBudget -Name "saved_alias_ambiguity"
+
+    Enter-ScenarioBudget -Name "group_exact_invocation"
+    $overlay = Run-Group-Invocation-Check -Overlay $overlay
+    Add-ScenarioResult -Name "group_exact_invocation" -Passed $true -Details "Exact group invocation surfaced the chooser and both saved and built-in members executed only when selected."
+    Clear-ScenarioBudget -Name "group_exact_invocation"
+
+    Enter-ScenarioBudget -Name "task_inline_group_quick_create"
+    $overlay = Run-Task-Inline-Group-Check -Overlay $overlay
+    Add-ScenarioResult -Name "task_inline_group_quick_create" -Passed $true -Details "Task authoring assigned an existing group and atomically created a new inline group without leaving the task flow."
+    Clear-ScenarioBudget -Name "task_inline_group_quick_create"
 
     Enter-ScenarioBudget -Name "reopen_persistence"
     $overlay = Run-Reopen-Check
@@ -4336,6 +4884,11 @@ try {
     Run-Unsafe-Source-Check
     Add-ScenarioResult -Name "unsafe_source_blocking" -Passed $true -Details "An invalid saved-actions source blocked real create entry and surfaced repair-oriented status feedback."
     Clear-ScenarioBudget -Name "unsafe_source_blocking"
+
+    Enter-ScenarioBudget -Name "invalid_group_source_blocking"
+    Run-Invalid-Group-Source-Check
+    Add-ScenarioResult -Name "invalid_group_source_blocking" -Passed $true -Details "Invalid group records blocked real group entry but still allowed normal task authoring and exact task invocation paths."
+    Clear-ScenarioBudget -Name "invalid_group_source_blocking"
 
     Enter-ScenarioBudget -Name "no_input_leakage"
     $notepadText = Get-NotepadText -Probe $script:notepadProbe
