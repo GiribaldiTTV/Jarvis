@@ -452,6 +452,10 @@ def _test_create_dialog_surfaces_field_level_guidance():
         "title help icon should explain what the title field does",
     )
     _assert(
+        "does not create callable phrases" in dialog.title_help_button.toolTip().casefold(),
+        "title help icon should reinforce that the title is label-only for alias-root tasks",
+    )
+    _assert(
         "exact words or phrases" in dialog.aliases_help_button.toolTip().casefold(),
         "aliases help icon should explain what aliases are for",
     )
@@ -463,6 +467,10 @@ def _test_create_dialog_surfaces_field_level_guidance():
         hasattr(dialog.title_help_button, "show_help_tooltip_now")
         and hasattr(dialog.trigger_help_button, "show_help_tooltip_now"),
         "field help icons should support immediate tooltip display for faster response",
+    )
+    _assert(
+        dialog.title_help_button.focusPolicy() == renderer_mod.Qt.StrongFocus,
+        "help buttons should be keyboard-focusable for a more consistent immediate-help experience",
     )
     _assert(
         not hasattr(dialog, "title_guidance_label"),
@@ -496,6 +504,14 @@ def _test_create_dialog_surfaces_field_level_guidance():
         title_row < trigger_row < aliases_row,
         "Trigger should sit directly below Title and before Aliases in the UI branch layout",
     )
+    _assert(
+        dialog.form_layout.verticalSpacing() >= 12 and dialog.form_layout.horizontalSpacing() >= 14,
+        "create dialog spacing should stay roomy enough to keep the stronger header hierarchy readable",
+    )
+    _assert(
+        dialog.create_button.minimumHeight() >= 36 and dialog.cancel_button.minimumHeight() >= 36,
+        "dialog action buttons should keep the tighter but still comfortable padding rhythm",
+    )
 
     dialog.title_input.setText("Nexus")
     _assert(
@@ -512,6 +528,10 @@ def _test_create_dialog_surfaces_field_level_guidance():
     _assert(
         "folder nexus opens" in dialog.target_help_button.toolTip().casefold(),
         "target help icon should update with the current target-kind examples",
+    )
+    _assert(
+        "border-radius: 10px" in dialog.target_examples_label.text().casefold(),
+        "bottom guidance box should render the sectioned card presentation for better scanability",
     )
 
     dialog.type_combo.setCurrentText("Website URL")
