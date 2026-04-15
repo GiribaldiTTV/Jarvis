@@ -321,6 +321,11 @@ class SavedActionCreateDialog(QDialog):
         "<br/>It does not create callable phrases on its own unless you also use it in <b>Aliases</b>."
         "<br/><br/><b>Examples</b><br/>Open Nexus AI<br/>Weekly Reports Hub</div>"
     )
+    TASK_TYPE_TOOLTIP_TEXT = (
+        "<div style=\"max-width: 250px;\"><b>Role</b><br/>Chooses what kind of destination this task opens."
+        "<br/>It also controls the default trigger family and the target-format guidance."
+        "<br/><br/><b>Options</b><br/>Application<br/>Folder<br/>File<br/>Website URL</div>"
+    )
     ALIASES_TOOLTIP_TEXT = (
         "<div style=\"max-width: 250px;\"><b>Role</b><br/>Exact words or phrases people can use to call this task."
         "<br/>Add at least one alias, separated by commas."
@@ -389,7 +394,7 @@ class SavedActionCreateDialog(QDialog):
         dialog_title: str = "Create Custom Task",
         heading_text: str = "Create Custom Task",
         hint_text: str = (
-            "Choose a task type, then fill in the fields below."
+            "Pick the task type first, then shape the label, trigger, aliases, and target below."
         ),
         submit_button_text: str = "Create",
         initial_draft: SavedActionDraft | None = None,
@@ -431,7 +436,13 @@ class SavedActionCreateDialog(QDialog):
         form.setColumnMinimumWidth(0, 122)
         form.setColumnStretch(1, 1)
 
-        form.addWidget(self._make_form_label("Task type"), 0, 0)
+        self.type_header, self.type_header_label, self.type_help_button = self._make_form_header(
+            "Task type",
+            tooltip_text=self.TASK_TYPE_TOOLTIP_TEXT,
+            object_name="savedActionCreateTypeHeader",
+            help_object_name="savedActionCreateTypeHelp",
+        )
+        form.addWidget(self.type_header, 0, 0)
         self.type_combo = QComboBox(self)
         self.type_combo.setObjectName("savedActionCreateType")
         self.type_combo.setMinimumHeight(38)
@@ -705,11 +716,6 @@ class SavedActionCreateDialog(QDialog):
             result="accepted" if result == QDialog.Accepted else "rejected",
         )
         super().done(result)
-
-    def _make_form_label(self, text: str) -> QLabel:
-        label = QLabel(text, self)
-        label.setProperty("createRole", "label")
-        return label
 
     def _make_form_header(
         self,

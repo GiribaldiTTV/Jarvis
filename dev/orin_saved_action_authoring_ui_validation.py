@@ -436,16 +436,23 @@ def _test_type_first_dialog_maps_all_supported_kinds():
 def _test_create_dialog_surfaces_field_level_guidance():
     _app()
     dialog = renderer_mod.SavedActionCreateDialog()
+    type_row = dialog.form_layout.getItemPosition(dialog.form_layout.indexOf(dialog.type_header))[0]
     title_row = dialog.form_layout.getItemPosition(dialog.form_layout.indexOf(dialog.title_header))[0]
     trigger_row = dialog.form_layout.getItemPosition(dialog.form_layout.indexOf(dialog.trigger_header))[0]
     aliases_row = dialog.form_layout.getItemPosition(dialog.form_layout.indexOf(dialog.aliases_header))[0]
 
     _assert(
-        dialog.title_header_label.font().pointSize() >= 14
+        dialog.type_header_label.font().pointSize() >= 14
+        and dialog.type_header_label.font().bold()
+        and dialog.title_header_label.font().pointSize() >= 14
         and dialog.aliases_header_label.font().pointSize() >= 14
         and dialog.trigger_header_label.font().pointSize() >= 14
         and dialog.target_header_label.font().pointSize() >= 14,
         "field headers should be more prominent than the surrounding guidance copy",
+    )
+    _assert(
+        "default trigger family" in dialog.type_help_button.toolTip().casefold(),
+        "task type help icon should explain how task type shapes trigger and target behavior",
     )
     _assert(
         "display label" in dialog.title_help_button.toolTip().casefold(),
@@ -471,6 +478,10 @@ def _test_create_dialog_surfaces_field_level_guidance():
     _assert(
         dialog.title_help_button.focusPolicy() == renderer_mod.Qt.StrongFocus,
         "help buttons should be keyboard-focusable for a more consistent immediate-help experience",
+    )
+    _assert(
+        hasattr(dialog.type_help_button, "show_help_tooltip_now"),
+        "task type help icon should also support immediate tooltip display",
     )
     _assert(
         not hasattr(dialog, "title_guidance_label"),
@@ -501,8 +512,8 @@ def _test_create_dialog_surfaces_field_level_guidance():
         "create dialog should show one boxed callable-examples section below the fields",
     )
     _assert(
-        title_row < trigger_row < aliases_row,
-        "Trigger should sit directly below Title and before Aliases in the UI branch layout",
+        type_row < title_row < trigger_row < aliases_row,
+        "Task type should remain the first full field row, followed by Title, Trigger, and Aliases",
     )
     _assert(
         dialog.form_layout.verticalSpacing() >= 12 and dialog.form_layout.horizontalSpacing() >= 14,
