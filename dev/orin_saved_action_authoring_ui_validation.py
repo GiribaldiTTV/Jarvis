@@ -270,6 +270,10 @@ def _test_create_custom_group_trigger_is_present_and_clickable():
         "savedActionCreateGroupDescription" in panel.styleSheet(),
         "entry-state styling should explicitly theme the Create Custom Group description instead of falling back to default black text",
     )
+    _assert(
+        "exact-match callable group" in panel.create_custom_group_button.toolTip().casefold(),
+        "Create Custom Group should expose a specific tooltip instead of a generic one",
+    )
     _assert(fired == ["clicked"], "Create Custom Group trigger should be reachable and clickable")
 
 
@@ -327,6 +331,10 @@ def _test_manage_custom_groups_trigger_is_present_and_clickable():
     _assert(
         "savedActionCreatedGroupsDescription" in panel.styleSheet(),
         "entry-state styling should explicitly theme the Manage Custom Groups description instead of falling back to default black text",
+    )
+    _assert(
+        "which members each group can surface" in panel.created_groups_button.toolTip().casefold(),
+        "Manage Custom Groups should expose a specific tooltip instead of a generic one",
     )
     _assert(fired == ["clicked"], "Manage Custom Groups trigger should be reachable and clickable")
 
@@ -821,9 +829,9 @@ def _test_create_dialog_surfaces_field_level_guidance():
         "dialog action buttons should keep the tighter but still comfortable padding rhythm",
     )
     _assert(
-        dialog.title_header.property("createRole") == "fieldHeaderShell"
-        and dialog.target_header.property("createRole") == "fieldHeaderShell",
-        "task dialog headers should sit inside subtle bordered shells for stronger field separation",
+        dialog.title_header.property("createRole") == "fieldHeaderDivider"
+        and dialog.target_header.property("createRole") == "fieldHeaderDivider",
+        "task dialog headers should use slim divider rows for stronger field separation without boxed chrome",
     )
     dialog.show()
     _app().processEvents()
@@ -898,12 +906,16 @@ def _test_create_dialog_supports_group_assignment_and_inline_group_queue():
         dialog.groups_new_button.text() == "Assign Group...",
         "task dialog should route group membership through a dedicated assignment window instead of inline checkboxes",
     )
+    _assert(
+        dialog.groups_remove_button.text() == "Unassign Group",
+        "task dialog should expose a dedicated unassign action for the single-group model",
+    )
     dialog.title_input.setText("Open Reports")
     dialog.aliases_input.setText("reports")
     dialog.target_input.setText(r"C:\Reports")
     assignment_dialog = renderer_mod.TaskGroupAssignmentDialog(
         available_groups=dialog._available_groups,
-        selected_group_ids=("workspace_tools",),
+        selected_group_ids=(),
         inline_group_draft=renderer_mod.CallableGroupDraft(
             title="Reports Suite",
             aliases=("reports suite",),
@@ -913,7 +925,7 @@ def _test_create_dialog_supports_group_assignment_and_inline_group_queue():
         group_status_kind="loaded",
         group_status_text="",
     )
-    assignment_dialog._toggle_inline_group()
+    assignment_dialog._toggle_existing_group("workspace_tools")
     dialog._selected_group_ids_state = assignment_dialog.selected_group_ids()
     dialog._inline_group_draft = assignment_dialog.inline_group_draft()
     dialog._inline_group_assigned = assignment_dialog.inline_group_assigned()
@@ -925,16 +937,16 @@ def _test_create_dialog_supports_group_assignment_and_inline_group_queue():
         "task dialog should carry assigned existing group ids into the saved-action draft",
     )
     _assert(
-        draft.inline_group is not None and draft.inline_group.title == "Reports Suite",
-        "task dialog should preserve the queued inline group draft only once the assignment flow marks it assigned",
+        draft.inline_group is None,
+        "task dialog should not carry an unassigned inline group draft into save",
     )
     _assert(
-        "queued and assigned" in dialog.groups_summary_label.text().casefold(),
-        "task dialog should surface queued inline-group feedback directly in the groups summary section",
+        "assigned group:" in dialog.groups_summary_label.text().casefold(),
+        "task dialog should surface the single assigned group directly instead of the older boxed summary",
     )
     _assert(
-        assignment_dialog.inline_group_assigned(),
-        "assignment dialog should let the queued inline group be explicitly assigned before save",
+        not dialog.groups_remove_button.isHidden() and dialog.groups_new_button.isHidden(),
+        "task dialog should swap the assign action for an unassign action once a group is attached",
     )
     assignment_dialog.close()
 
@@ -978,8 +990,8 @@ def _test_group_create_dialog_surfaces_members_and_exact_alias_guidance():
         "group dialog should expose a member-picker field",
     )
     _assert(
-        dialog.name_header.property("createRole") == "fieldHeaderShell",
-        "group dialog headers should sit inside subtle bordered shells for stronger separation",
+        dialog.name_header.property("createRole") == "fieldHeaderDivider",
+        "group dialog headers should use the same slim divider styling as the task dialog",
     )
     _assert(
         len(dialog._member_checkboxes) == 3,
@@ -1015,6 +1027,31 @@ def _test_group_create_dialog_surfaces_members_and_exact_alias_guidance():
         "workspace tools" in dialog.examples_label.text().casefold()
         and "tools group" in dialog.examples_label.text().casefold(),
         "group dialog callable surface should preview exact group aliases only",
+    )
+    dialog.close()
+
+
+def _test_assignment_group_create_reuses_group_dialog_without_member_picker():
+    _app()
+    dialog = renderer_mod.CallableGroupCreateDialog(
+        heading_text="Create Custom Group",
+        hint_text="Pick a group name and exact aliases below. You will return to Available Groups to assign it to this task.",
+        submit_button_text="Create",
+        available_members=[],
+        show_member_picker=False,
+    )
+
+    _assert(
+        dialog.windowTitle() == "Create Custom Group",
+        "inline group creation should reuse the same Create Custom Group window title",
+    )
+    _assert(
+        dialog.members_header is None and dialog.members_scroll is None,
+        "assignment-driven group creation should hide the member picker so it matches the task-session flow",
+    )
+    _assert(
+        "pick a group name and exact aliases below" in dialog.hint_label.text().casefold(),
+        "assignment-driven group creation should keep the same create-group surface while narrowing the scope to name and aliases",
     )
     dialog.close()
 
@@ -1752,6 +1789,7 @@ def main():
         ("create dialog surfaces field-level guidance", _test_create_dialog_surfaces_field_level_guidance),
         ("create dialog supports group assignment and inline group queue", _test_create_dialog_supports_group_assignment_and_inline_group_queue),
         ("group create dialog surfaces members and exact alias guidance", _test_group_create_dialog_surfaces_members_and_exact_alias_guidance),
+        ("assignment group create reuses group dialog without member picker", _test_assignment_group_create_reuses_group_dialog_without_member_picker),
         ("create dialog trigger controls and dynamic examples", _test_create_dialog_trigger_controls_and_dynamic_examples),
         ("edit dialog default trigger follows type until changed", _test_edit_dialog_default_trigger_follows_type_until_changed),
         ("legacy edit dialog preserves bare callable examples until trigger changes", _test_legacy_edit_dialog_preserves_bare_callable_examples_until_trigger_changes),

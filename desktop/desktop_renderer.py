@@ -756,11 +756,14 @@ class TaskGroupAssignmentDialog(QDialog):
     ):
         super().__init__(parent)
         self._available_groups = list(available_groups or [])
-        self._selected_group_ids: list[str] = [
-            str(group_id).strip()
-            for group_id in (selected_group_ids or ())
-            if str(group_id).strip()
-        ]
+        self._selected_group_id = next(
+            (
+                str(group_id).strip()
+                for group_id in (selected_group_ids or ())
+                if str(group_id).strip()
+            ),
+            "",
+        )
         self._inline_group_draft = inline_group_draft
         self._inline_group_assigned = bool(inline_group_assigned and inline_group_draft is not None)
         self._group_status_kind = group_status_kind or "template_only"
@@ -807,7 +810,7 @@ class TaskGroupAssignmentDialog(QDialog):
         layout.addWidget(self.title_label)
 
         self.hint_label = QLabel(
-            "Assign this task to existing groups, or create a new callable group for this task without leaving the current edit session.",
+            "Assign this task to one callable group, or create a new callable group for this task without leaving the current edit session.",
             self,
         )
         self.hint_label.setObjectName("taskGroupAssignmentHint")
@@ -845,6 +848,9 @@ class TaskGroupAssignmentDialog(QDialog):
         self.create_group_button = QPushButton("Create New Group...", self)
         self.create_group_button.setObjectName("taskGroupAssignmentCreateButton")
         self.create_group_button.setMinimumHeight(38)
+        self.create_group_button.setToolTip(
+            "Open the full Create Custom Group dialog, then return here to assign the new group to this task."
+        )
         self.create_group_button.clicked.connect(self._handle_create_group_requested)
         actions_row.addWidget(self.create_group_button, 0, Qt.AlignLeft)
         actions_row.addStretch(1)
@@ -987,7 +993,9 @@ class TaskGroupAssignmentDialog(QDialog):
             self.chrome_bar.raise_()
 
     def selected_group_ids(self) -> tuple[str, ...]:
-        return tuple(self._selected_group_ids)
+        if not self._selected_group_id:
+            return ()
+        return (self._selected_group_id,)
 
     def inline_group_draft(self) -> CallableGroupDraft | None:
         return self._inline_group_draft
@@ -999,24 +1007,19 @@ class TaskGroupAssignmentDialog(QDialog):
         normalized_key = str(group_id or "").strip().casefold()
         if not normalized_key:
             return
-        retained: list[str] = []
-        removed = False
-        for existing_id in self._selected_group_ids:
-            if existing_id.casefold() == normalized_key:
-                removed = True
-                continue
-            retained.append(existing_id)
-        if removed:
-            self._selected_group_ids = retained
+        if self._selected_group_id and self._selected_group_id.casefold() == normalized_key:
+            self._selected_group_id = ""
         else:
-            retained.append(str(group_id).strip())
-            self._selected_group_ids = retained
+            self._selected_group_id = str(group_id).strip()
+            self._inline_group_assigned = False
         self._refresh_items()
 
     def _toggle_inline_group(self):
         if self._inline_group_draft is None:
             return
         self._inline_group_assigned = not self._inline_group_assigned
+        if self._inline_group_assigned:
+            self._selected_group_id = ""
         self._refresh_items()
 
     def _handle_create_group_requested(self):
@@ -1025,7 +1028,15 @@ class TaskGroupAssignmentDialog(QDialog):
             self.status_label.setVisible(bool(self.status_label.text()))
             return
 
-        dialog = QuickCreateGroupDialog(self)
+        dialog = CallableGroupCreateDialog(
+            self,
+            dialog_title="Create Custom Group",
+            heading_text="Create Custom Group",
+            hint_text="Pick a group name and exact aliases below. You will return to Available Groups to assign it to this task.",
+            submit_button_text="Create",
+            available_members=[],
+            show_member_picker=False,
+        )
         if dialog.exec() != QDialog.Accepted:
             return
         try:
@@ -1090,7 +1101,7 @@ class TaskGroupAssignmentDialog(QDialog):
         self.status_label.setVisible(bool(self.status_label.text()))
         self.create_group_button.setEnabled(not show_disabled_state)
 
-        normalized_selected = {group_id.casefold() for group_id in self._selected_group_ids}
+        normalized_selected = self._selected_group_id.casefold() if self._selected_group_id else ""
         row_count = 0
 
         for item in self._available_groups:
@@ -1110,7 +1121,7 @@ class TaskGroupAssignmentDialog(QDialog):
                 title=str(item.get("title") or "").strip() or group_id,
                 meta_text=meta_text,
                 badge_text="Existing group",
-                assigned=group_id.casefold() in normalized_selected,
+                assigned=bool(normalized_selected and group_id.casefold() == normalized_selected),
                 on_toggle=lambda _checked=False, value=group_id: self._toggle_existing_group(value),
                 parent=self.items_frame,
             )
@@ -1394,9 +1405,9 @@ class SavedActionCreateDialog(QDialog):
         self.groups_header, self.groups_header_label, self.groups_help_button = self._make_form_header(
             "Groups",
             tooltip_text=(
-                "<div style=\"max-width: 250px;\"><b>What this is</b><br/>Optional callable groups this task belongs to."
-                "<br/><br/><b>How it affects calling</b><br/>Group aliases open the group's member chooser, then the normal confirm step."
-                "<br/><br/><b>Boundaries</b><br/>Groups stay exact-match and do not generate trigger phrases.</div>"
+                "<div style=\"max-width: 250px;\"><b>What this is</b><br/>An optional callable group this task belongs to."
+                "<br/><br/><b>How it affects calling</b><br/>Group aliases open that group's member chooser, then the normal confirm step."
+                "<br/><br/><b>Boundaries</b><br/>Tasks stay limited to one assigned group here. Groups stay exact-match and do not generate trigger phrases.</div>"
             ),
             object_name="savedActionCreateGroupsHeader",
             help_object_name="savedActionCreateGroupsHelp",
@@ -1413,22 +1424,34 @@ class SavedActionCreateDialog(QDialog):
         self.groups_status_label.setWordWrap(True)
         groups_layout.addWidget(self.groups_status_label)
 
-        self.groups_list_frame = QFrame(self.groups_frame)
-        self.groups_list_frame.setObjectName("savedActionCreateGroupsList")
-        self.groups_list_layout = QVBoxLayout(self.groups_list_frame)
-        self.groups_list_layout.setContentsMargins(10, 10, 10, 10)
-        self.groups_list_layout.setSpacing(6)
-        self.groups_summary_label = QLabel("", self.groups_list_frame)
+        self.groups_summary_label = QLabel("", self.groups_frame)
         self.groups_summary_label.setObjectName("savedActionCreateGroupsSummary")
         self.groups_summary_label.setWordWrap(True)
-        self.groups_list_layout.addWidget(self.groups_summary_label)
-        groups_layout.addWidget(self.groups_list_frame)
+        groups_layout.addWidget(self.groups_summary_label)
+
+        groups_button_row = QHBoxLayout()
+        groups_button_row.setContentsMargins(0, 0, 0, 0)
+        groups_button_row.setSpacing(8)
 
         self.groups_new_button = QPushButton("Assign Group...", self.groups_frame)
         self.groups_new_button.setObjectName("savedActionCreateNewGroupButton")
         self.groups_new_button.setMinimumHeight(36)
+        self.groups_new_button.setToolTip(
+            "Choose an existing callable group or create a new one for this task."
+        )
         self.groups_new_button.clicked.connect(self._handle_group_assignment_requested)
-        groups_layout.addWidget(self.groups_new_button, 0, Qt.AlignLeft)
+        groups_button_row.addWidget(self.groups_new_button, 0, Qt.AlignLeft)
+
+        self.groups_remove_button = QPushButton("Unassign Group", self.groups_frame)
+        self.groups_remove_button.setObjectName("savedActionCreateRemoveGroupButton")
+        self.groups_remove_button.setMinimumHeight(36)
+        self.groups_remove_button.setToolTip(
+            "Remove this task from its current callable group."
+        )
+        self.groups_remove_button.clicked.connect(self._handle_group_unassign_requested)
+        groups_button_row.addWidget(self.groups_remove_button, 0, Qt.AlignLeft)
+        groups_button_row.addStretch(1)
+        groups_layout.addLayout(groups_button_row)
         form.addWidget(self.groups_frame, 4, 1)
 
         self.target_header, self.target_header_label, self.target_help_button = self._make_form_header(
@@ -1594,15 +1617,11 @@ class SavedActionCreateDialog(QDialog):
             #savedActionCreateGroupsFrame {
                 background: transparent;
             }
-            #savedActionCreateGroupsList {
-                border-radius: 13px;
-                border: 1px solid rgba(118, 226, 255, 0.12);
-                background: rgba(6, 18, 30, 0.56);
-            }
             #savedActionCreateGroupsSummary {
                 color: rgba(168, 193, 199, 0.93);
                 font-size: 12px;
                 line-height: 1.45em;
+                padding: 2px 0 4px 0;
             }
             #savedActionCreateGroupsStatus {
                 color: rgba(255, 189, 176, 0.96);
@@ -1619,10 +1638,10 @@ class SavedActionCreateDialog(QDialog):
                 font-weight: 600;
                 letter-spacing: 0.08em;
             }
-            QWidget[createRole="fieldHeaderShell"] {
-                border-radius: 12px;
-                border: 1px solid rgba(118, 226, 255, 0.10);
-                background: rgba(6, 18, 30, 0.46);
+            QWidget[createRole="fieldHeaderDivider"] {
+                border: none;
+                border-bottom: 1px solid rgba(118, 226, 255, 0.18);
+                background: transparent;
             }
             QLabel[createRole="fieldHeader"], QLabel[createRole="fieldHeaderHelp"] {
                 color: rgba(182, 206, 198, 0.96);
@@ -1631,7 +1650,7 @@ class SavedActionCreateDialog(QDialog):
             }
             QLabel[createRole="fieldHeaderHelp"] {
                 padding-bottom: 1px;
-                border-bottom: 1px dotted rgba(102, 219, 204, 0.24);
+                border-bottom: 1px dotted rgba(102, 219, 204, 0.20);
             }
             QLabel[createRole="fieldHeaderHelp"]:hover {
                 color: rgba(198, 218, 211, 0.99);
@@ -1753,9 +1772,9 @@ class SavedActionCreateDialog(QDialog):
     ) -> tuple[QWidget, QLabel, QLabel]:
         container = QWidget(self)
         container.setObjectName(object_name)
-        container.setProperty("createRole", "fieldHeaderShell")
+        container.setProperty("createRole", "fieldHeaderDivider")
         layout = QHBoxLayout(container)
-        layout.setContentsMargins(10, 7, 10, 7)
+        layout.setContentsMargins(0, 0, 0, 6)
         layout.setSpacing(0)
 
         label = ImmediateHelpButton(container)
@@ -1772,38 +1791,48 @@ class SavedActionCreateDialog(QDialog):
         return container, label, label
 
     def _selected_group_ids(self) -> tuple[str, ...]:
-        return tuple(self._selected_group_ids_state)
+        return tuple(self._selected_group_ids_state[:1])
 
     def _refresh_groups_ui(self):
         show_disabled_state = self._group_status_kind == "invalid_groups"
         self.groups_status_label.setText(self._group_status_text if show_disabled_state else "")
         self.groups_status_label.setVisible(bool(self.groups_status_label.text()))
-        normalized_selected = {group_id.casefold() for group_id in self._selected_group_ids_state}
-        selected_lines: list[str] = []
-        for item in self._available_groups:
-            group_id = str(item.get("id") or "").strip()
-            if not group_id or group_id.casefold() not in normalized_selected:
-                continue
-            member_count = int(item.get("member_count") or 0)
-            selected_lines.append(
-                f'Assigned: {str(item.get("title") or "").strip() or group_id} ({member_count} {"member" if member_count == 1 else "members"})'
-            )
-
-        if self._inline_group_draft is not None:
+        assigned_text = "No group assigned yet."
+        if self._selected_group_ids_state:
+            selected_id = self._selected_group_ids_state[0].casefold()
+            for item in self._available_groups:
+                group_id = str(item.get("id") or "").strip()
+                if not group_id or group_id.casefold() != selected_id:
+                    continue
+                member_count = int(item.get("member_count") or 0)
+                aliases = ", ".join(
+                    str(alias).strip()
+                    for alias in (item.get("aliases") or [])
+                    if str(alias).strip()
+                )
+                member_noun = "member" if member_count == 1 else "members"
+                assigned_text = (
+                    f'Assigned group: {str(item.get("title") or "").strip() or group_id}'
+                    f" ({member_count} {member_noun})"
+                )
+                if aliases:
+                    assigned_text += f"\nAliases: {aliases}"
+                break
+        elif self._inline_group_draft is not None and self._inline_group_assigned:
             inline_aliases = ", ".join(self._inline_group_draft.aliases)
-            queued_prefix = "Queued and assigned" if self._inline_group_assigned else "Queued only"
-            selected_lines.append(
-                f"{queued_prefix}: {self._inline_group_draft.title}"
-                + (f" ({inline_aliases})" if inline_aliases else "")
-            )
+            assigned_text = f"Assigned group: {self._inline_group_draft.title} (new)"
+            if inline_aliases:
+                assigned_text += f"\nAliases: {inline_aliases}"
 
-        if not selected_lines:
-            selected_lines.append("No groups assigned yet. Use Assign Group... to attach this task to existing or newly created callable groups.")
-
-        self.groups_summary_label.setText("\n".join(selected_lines))
+        self.groups_summary_label.setText(assigned_text)
         self.groups_summary_label.setTextFormat(Qt.PlainText)
-        self.groups_list_frame.setMinimumHeight(max(82, self.groups_summary_label.sizeHint().height() + 22))
+        has_assigned_group = bool(
+            self._selected_group_ids_state or (self._inline_group_draft is not None and self._inline_group_assigned)
+        )
+        self.groups_new_button.setVisible(not has_assigned_group)
         self.groups_new_button.setEnabled(not show_disabled_state)
+        self.groups_remove_button.setVisible(has_assigned_group)
+        self.groups_remove_button.setEnabled(not show_disabled_state)
 
     def _handle_group_assignment_requested(self):
         if self._group_status_kind == "invalid_groups":
@@ -1825,6 +1854,11 @@ class SavedActionCreateDialog(QDialog):
         self._selected_group_ids_state = dialog.selected_group_ids()
         self._inline_group_draft = dialog.inline_group_draft()
         self._inline_group_assigned = dialog.inline_group_assigned()
+        self._refresh_groups_ui()
+
+    def _handle_group_unassign_requested(self):
+        self._selected_group_ids_state = ()
+        self._inline_group_assigned = False
         self._refresh_groups_ui()
 
     def current_target_kind(self) -> str:
@@ -2093,7 +2127,7 @@ class SavedActionCreateDialog(QDialog):
         self.target_input.setText(draft.target)
         self._inline_group_draft = draft.inline_group
         self._inline_group_assigned = draft.inline_group is not None
-        self._selected_group_ids_state = tuple(draft.group_ids)
+        self._selected_group_ids_state = tuple(draft.group_ids[:1])
         self._refresh_groups_ui()
         self._sync_trigger_ui_from_selection(mark_manual=False)
         self._trigger_manually_changed = not trigger_follows_default
@@ -2224,6 +2258,7 @@ class CallableGroupCreateDialog(QDialog):
         initial_draft: CallableGroupDraft | None = None,
         lifecycle_callback=None,
         dialog_signal_name: str = "CUSTOM_GROUP_CREATE_DIALOG",
+        show_member_picker: bool = True,
     ):
         super().__init__(parent)
         self._submit_handler = submit_handler
@@ -2231,6 +2266,7 @@ class CallableGroupCreateDialog(QDialog):
         self._lifecycle_callback = lifecycle_callback
         self._dialog_signal_name = dialog_signal_name
         self._ready_signal_emitted = False
+        self._show_member_picker = bool(show_member_picker)
         self._member_checkboxes: list[QCheckBox] = []
         self.setModal(True)
         self.setWindowFlags(Qt.Dialog | Qt.FramelessWindowHint)
@@ -2332,34 +2368,39 @@ class CallableGroupCreateDialog(QDialog):
         examples_layout.addWidget(self.examples_label)
         form.addWidget(self.examples_box)
 
-        self.members_header, _, _ = SavedActionCreateDialog._make_form_header(
-            self,
-            "Members",
-            tooltip_text=(
-                "<div style=\"max-width: 250px;\"><b>What this is</b><br/>The built-ins and saved tasks this group can surface."
-                "<br/><br/><b>How it affects calling</b><br/>Group aliases show only these members in the chooser.</div>"
-            ),
-            object_name="callableGroupCreateMembersHeader",
-            help_object_name="callableGroupCreateMembersHelp",
-        )
-        form.addWidget(self.members_header)
-        self.members_scroll = QScrollArea(self)
-        self.members_scroll.setObjectName("callableGroupCreateMembersScroll")
-        self.members_scroll.setFrameShape(QFrame.NoFrame)
-        self.members_scroll.setWidgetResizable(True)
-        self.members_scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        self.members_scroll.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
-        self.members_scroll.setFocusPolicy(Qt.NoFocus)
-        self.members_scroll.setMaximumHeight(176)
-        self.members_scroll.viewport().setObjectName("callableGroupCreateMembersViewport")
-        self.members_scroll.viewport().setAutoFillBackground(False)
-        self.members_frame = QFrame(self)
-        self.members_frame.setObjectName("callableGroupCreateMembersFrame")
-        self.members_layout = QVBoxLayout(self.members_frame)
-        self.members_layout.setContentsMargins(10, 10, 10, 10)
-        self.members_layout.setSpacing(6)
-        self.members_scroll.setWidget(self.members_frame)
-        form.addWidget(self.members_scroll)
+        self.members_header = None
+        self.members_scroll = None
+        self.members_frame = None
+        self.members_layout = None
+        if self._show_member_picker:
+            self.members_header, _, _ = SavedActionCreateDialog._make_form_header(
+                self,
+                "Members",
+                tooltip_text=(
+                    "<div style=\"max-width: 250px;\"><b>What this is</b><br/>The built-ins and saved tasks this group can surface."
+                    "<br/><br/><b>How it affects calling</b><br/>Group aliases show only these members in the chooser.</div>"
+                ),
+                object_name="callableGroupCreateMembersHeader",
+                help_object_name="callableGroupCreateMembersHelp",
+            )
+            form.addWidget(self.members_header)
+            self.members_scroll = QScrollArea(self)
+            self.members_scroll.setObjectName("callableGroupCreateMembersScroll")
+            self.members_scroll.setFrameShape(QFrame.NoFrame)
+            self.members_scroll.setWidgetResizable(True)
+            self.members_scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+            self.members_scroll.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+            self.members_scroll.setFocusPolicy(Qt.NoFocus)
+            self.members_scroll.setMaximumHeight(176)
+            self.members_scroll.viewport().setObjectName("callableGroupCreateMembersViewport")
+            self.members_scroll.viewport().setAutoFillBackground(False)
+            self.members_frame = QFrame(self)
+            self.members_frame.setObjectName("callableGroupCreateMembersFrame")
+            self.members_layout = QVBoxLayout(self.members_frame)
+            self.members_layout.setContentsMargins(10, 10, 10, 10)
+            self.members_layout.setSpacing(6)
+            self.members_scroll.setWidget(self.members_frame)
+            form.addWidget(self.members_scroll)
 
         layout.addLayout(form)
 
@@ -2438,10 +2479,10 @@ class CallableGroupCreateDialog(QDialog):
                 color: rgba(255, 189, 176, 0.96);
                 font-size: 12px;
             }
-            QWidget[createRole="fieldHeaderShell"] {
-                border-radius: 12px;
-                border: 1px solid rgba(118, 226, 255, 0.10);
-                background: rgba(6, 18, 30, 0.46);
+            QWidget[createRole="fieldHeaderDivider"] {
+                border: none;
+                border-bottom: 1px solid rgba(118, 226, 255, 0.18);
+                background: transparent;
             }
             QLabel[createRole="fieldHeader"], QLabel[createRole="fieldHeaderHelp"] {
                 color: rgba(182, 206, 198, 0.96);
@@ -2567,6 +2608,8 @@ class CallableGroupCreateDialog(QDialog):
             self.chrome_bar.raise_()
 
     def _populate_member_choices(self):
+        if self.members_layout is None or self.members_frame is None:
+            return
         _clear_layout_widgets(self.members_layout)
         self._member_checkboxes = []
         for item in self._available_members:
@@ -2612,15 +2655,16 @@ class CallableGroupCreateDialog(QDialog):
         return CallableGroupDraft(
             title=self.name_input.text(),
             aliases=aliases,
-            member_action_ids=self._selected_member_ids(),
+            member_action_ids=self._selected_member_ids() if self._show_member_picker else (),
         )
 
     def load_draft(self, draft: CallableGroupDraft):
         self.name_input.setText(draft.title)
         self.aliases_input.setText(", ".join(draft.aliases))
-        selected_ids = {member_id.casefold() for member_id in draft.member_action_ids}
-        for checkbox in self._member_checkboxes:
-            checkbox.setChecked(str(checkbox.property("memberId") or "").strip().casefold() in selected_ids)
+        if self._show_member_picker:
+            selected_ids = {member_id.casefold() for member_id in draft.member_action_ids}
+            for checkbox in self._member_checkboxes:
+                checkbox.setChecked(str(checkbox.property("memberId") or "").strip().casefold() in selected_ids)
         self._refresh_examples_box()
 
     def set_error_text(self, text: str):
@@ -3545,6 +3589,9 @@ class CommandOverlayPanel(QWidget):
         self.create_custom_group_button.setObjectName("savedActionCreateGroupButton")
         self.create_custom_group_button.setProperty("entryAction", "true")
         self.create_custom_group_button.setProperty("entryActionVariant", "primary")
+        self.create_custom_group_button.setToolTip(
+            "Create an exact-match callable group that can surface selected built-ins and saved tasks."
+        )
         self.create_custom_group_button.clicked.connect(
             lambda _checked=False: self.create_custom_group_requested.emit()
         )
@@ -3570,6 +3617,9 @@ class CommandOverlayPanel(QWidget):
         self.created_groups_button.setObjectName("savedActionCreatedGroupsButton")
         self.created_groups_button.setProperty("entryAction", "true")
         self.created_groups_button.setProperty("entryActionVariant", "secondary")
+        self.created_groups_button.setToolTip(
+            "Review, edit, or remove callable groups and manage which members each group can surface."
+        )
         self.created_groups_button.clicked.connect(
             lambda _checked=False: self.created_groups_requested.emit()
         )

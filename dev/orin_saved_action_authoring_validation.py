@@ -1392,6 +1392,46 @@ def _test_task_inline_group_creation_is_atomic_and_creates_initial_membership():
         )
 
 
+def _test_tasks_reject_multiple_group_assignments():
+    with tempfile.TemporaryDirectory() as temp_dir:
+        source_path = Path(temp_dir) / "saved_actions.json"
+        create_callable_group_from_draft(
+            CallableGroupDraft(
+                title="Workspace Tools",
+                aliases=("workspace tools",),
+                member_action_ids=("open_saved_actions_folder",),
+            ),
+            source_path,
+        )
+        create_callable_group_from_draft(
+            CallableGroupDraft(
+                title="Daily Flow",
+                aliases=("daily flow",),
+                member_action_ids=("open_saved_actions_folder",),
+            ),
+            source_path,
+        )
+
+        try:
+            create_saved_action_from_draft(
+                SavedActionDraft(
+                    title="Open Reports",
+                    target_kind="folder",
+                    target=r"C:\Reports",
+                    aliases=("show reports",),
+                    group_ids=("workspace_tools", "daily_flow"),
+                ),
+                source_path,
+            )
+        except SavedActionDraftValidationError as exc:
+            _assert(
+                "only one callable group" in str(exc).casefold(),
+                "task authoring should now fail fast when multiple callable groups are selected",
+            )
+        else:
+            raise AssertionError("tasks should reject multiple group assignments")
+
+
 def main():
     tests = [
         ("create persists saved action and preserves template fields", _test_create_persists_saved_action_and_preserves_template_fields),
@@ -1428,6 +1468,7 @@ def main():
         ("task delete removes group membership and drops empty groups", _test_task_delete_removes_group_membership_and_drops_empty_groups),
         ("invalid groups do not block normal task authoring", _test_invalid_groups_do_not_block_normal_task_authoring_or_exact_task_resolution),
         ("task inline group creation is atomic", _test_task_inline_group_creation_is_atomic_and_creates_initial_membership),
+        ("tasks reject multiple group assignments", _test_tasks_reject_multiple_group_assignments),
     ]
 
     for name, fn in tests:

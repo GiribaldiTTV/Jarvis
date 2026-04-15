@@ -59,7 +59,7 @@ This workstream exists so users can manage non-standard custom tasks safely thro
   - groups may not include other groups
   - empty persisted groups are invalid
 - malformed group records or dangling member references now produce a group-specific invalid state that blocks group create/manage and group invocation without blocking healthy task authoring or normal task execution
-- task create/edit flows now include bounded group assignment, including inline quick-create of a new group that is committed atomically with the task save instead of being written early
+- task create/edit flows now include bounded single-group assignment, including inline quick-create of a new group that is committed atomically with the task save instead of being written early
 - deleting a saved task now also removes that task from any groups in the same atomic write
 - malformed or colliding saved-action sources still block authoring rather than attempting salvage
 - branch-local validation and hardening work now also includes dedicated FB-036 validators, live-style harnesses, interactive runtime helpers, durable validation reports, and exported manual-test artifacts that future slices should reuse rather than recreate blindly
@@ -76,7 +76,7 @@ This workstream exists so users can manage non-standard custom tasks safely thro
 - a lightweight landing path for task authoring and management that does not overload the initial NCP opening surface
 - richer secondary create/manage windows that can carry the detailed explanations, guidance, and step-by-step authoring copy users need once they choose an action path
 - explicit callable-group aliases and explicit member selection without weakening the exact-match resolver contract
-- bounded task-to-group assignment, including inline quick-create of a new group from the task dialog
+- bounded single-group assignment, including inline quick-create of a new group from the task dialog
 - short inline field guidance inside the secondary create/edit windows so users get quick help without overloading the initial landing surface
 - title-driven alias suggestions, explicit trigger configuration, alias-root invocation for new tasks, and a bottom-of-dialog dynamic invocation examples box inside the secondary create/edit windows
 - browse-assisted target selection for `Application`, `Folder`, and `File` that fills the existing validated `Target` field while `Website URL` stays direct-entry only
@@ -112,7 +112,7 @@ This workstream exists so users can manage non-standard custom tasks safely thro
 11. polished the create/edit dialog layout so `Trigger` follows `Title`, help tooltips appear faster, and the single bottom callable-surface box is easier to scan
 12. allowed saved-vs-saved exact-match ambiguity while preserving built-in collision rejection and the existing choose -> confirm -> execute overlay flow
 13. integrated the latest FB-036 UI lane, hardening lane, and Idea 5 ambiguity lane into one final proof branch and re-cleared the full watchdog-backed interactive desktop gate
-14. extended the same exact-match authoring lane with callable groups, bounded task-to-group assignment, and exact group invocation through the existing chooser + confirm flow
+14. extended the same exact-match authoring lane with callable groups, bounded single-group assignment, and exact group invocation through the existing chooser + confirm flow
 
 ## Idea Impact Analysis And Route Adjustment
 
@@ -427,7 +427,7 @@ Confirm that the full FB-036 branch behavior is stable for real desktop use, inc
 - explicit Trigger configuration with runtime-generated callable phrases
 - alias-root invocation for newly created tasks without silently changing legacy tasks
 - exact callable-group aliases with explicit static membership
-- bounded task-to-group assignment, including inline quick-create
+- bounded single-group assignment, including inline quick-create
 - validation-before-write for every supported target kind
 - immediate catalog reload after save
 - fail-closed handling for unsafe saved-action sources
@@ -518,10 +518,10 @@ Action: type one of the exact group aliases into the normal overlay input, choos
 Expected Behavior: the exact group alias opens the existing chooser with that group's members only; member selection advances to the normal confirm step; and only the selected built-in or saved task executes.
 Failure Conditions / Edge Cases: the group alias executes immediately without showing members, non-member actions appear in the chooser, the chooser skips confirm, or the wrong member executes.
 
-11. Setup: with an existing saved task that is not yet assigned to every group.
-Action: open `Create Custom Task` or edit an existing task, assign the task to an existing group, then use the inline quick-create path to create a second new group with the current task as its first member and save the task.
-Expected Behavior: existing-group assignment updates cleanly; inline quick-create collects only group name and aliases; the new group is not persisted early; and the saved task plus the new membership land together in one atomic write.
-Failure Conditions / Edge Cases: the inline group persists before the task save succeeds, the current task does not become the first member, group assignment is lost after save, or the task flow leaves the dialog unexpectedly.
+11. Setup: with an existing saved task that is not yet assigned to a callable group.
+Action: open `Create Custom Task` or edit an existing task, confirm the dialog starts with `Assign Group...`, assign one existing group, then unassign it and use the inline quick-create path to create a new group for the current task and save.
+Expected Behavior: tasks stay limited to one assigned group at a time; the main task dialog swaps `Assign Group...` for `Unassign Group` once one group is attached; inline quick-create reuses the same `Create Custom Group` window with only `Group name` and `Aliases`; the new group is not persisted early; and the saved task plus the new membership land together in one atomic write.
+Failure Conditions / Edge Cases: multiple groups can be assigned at once, the inline group persists before the task save succeeds, the current task does not become the first member, group assignment is lost after save, or the task flow leaves the dialog unexpectedly.
 
 12. Setup: with the created task already present.
 Action: click `Manage Custom Tasks`, then `Edit`, verify current values preload, change `Trigger` to `Open`, change type to `File`, use `Browse...` to choose `C:\Reports\weekly.txt`, and save.
@@ -564,7 +564,7 @@ Failure Conditions / Edge Cases: task authoring is blocked even though only grou
 - groups stay alias-only with no trigger expansion, no title-callable fallback, and no mixed task/group ambiguity
 - group aliases remain unique against built-ins, saved-task phrases, and other groups
 - exact group invocation reuses the chooser + confirm flow instead of inventing a second execution surface
-- task create/edit dialogs support bounded group assignment and inline group quick-create without early persistence
+- task create/edit dialogs support bounded single-group assignment and inline group quick-create without early persistence
 - deleting a task removes its group membership in the same write
 - invalid groups fail closed for group flows only and do not block healthy task flows
 - custom trigger phrases are comma-separated, user-authored, and persisted separately from aliases

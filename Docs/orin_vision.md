@@ -99,6 +99,7 @@ That expansion should remain deferred until after the current exact-match callab
 Current vision boundary:
 
 - pre-Beta callable groups should stay explicit and exact-match
+- shipped built-in task grouping/taxonomy should stay deferred until the explicit callable-group model is proven and a stable default group strategy exists
 - post-Beta grouping/query ideas should not be used to weaken command predictability in the current release
 
 ## Trust And Recovery Posture

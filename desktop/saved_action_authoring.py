@@ -374,6 +374,9 @@ def _normalize_group_ids(
         seen_group_ids.add(normalized_key)
         normalized_group_ids.append(normalized_group_id)
 
+    if len(normalized_group_ids) > 1:
+        raise error_type("Tasks can be assigned to only one callable group at a time.")
+
     return tuple(normalized_group_ids)
 
 
@@ -400,6 +403,10 @@ def _normalize_draft_fields(
             inline_group = _coerce_callable_group_draft(draft.inline_group, allow_empty_members=True)
         except CallableGroupDraftValidationError as exc:
             raise SavedActionDraftValidationError(str(exc)) from exc
+    if group_ids and inline_group is not None:
+        raise SavedActionDraftValidationError(
+            "Tasks can be assigned to one existing group or one newly created group, not both."
+        )
     return (
         title,
         aliases,
@@ -758,11 +765,12 @@ def load_saved_action_draft_for_edit(
     group_ids = ()
     if state.group_status_kind == "loaded":
         normalized_action_id = saved_action_id.strip().casefold()
-        group_ids = tuple(
+        matched_group_ids = tuple(
             group.id
             for group in state.existing_groups
             if any(member_id.casefold() == normalized_action_id for member_id in group.member_action_ids)
         )
+        group_ids = tuple(matched_group_ids[:1])
     return draft_from_saved_action_record(record, group_ids=group_ids)
 
 

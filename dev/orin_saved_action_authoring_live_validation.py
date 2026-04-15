@@ -1007,32 +1007,46 @@ def _run_task_group_assignment_and_inline_group_flow(stamp: str):
 
         window = _make_window(source_path)
         task_dialogs = []
+        create_steps = [
+            lambda dialog: (
+                dialog.type_combo.setCurrentText("Application"),
+                dialog.title_input.setText("Open Notes"),
+                dialog.aliases_input.setText("notes"),
+                dialog.target_input.setText("notepad.exe"),
+                setattr(dialog, "_selected_group_ids_state", ("workspace_tools",)),
+                setattr(dialog, "_inline_group_draft", None),
+                setattr(dialog, "_inline_group_assigned", False),
+                dialog._refresh_groups_ui(),
+            ),
+            lambda dialog: (
+                dialog.type_combo.setCurrentText("Application"),
+                dialog.title_input.setText("Open Journal"),
+                dialog.aliases_input.setText("journal"),
+                dialog.target_input.setText("notepad.exe"),
+                setattr(dialog, "_selected_group_ids_state", ()),
+                setattr(
+                    dialog,
+                    "_inline_group_draft",
+                    renderer_mod.CallableGroupDraft(
+                        title="Notes Suite",
+                        aliases=("notes suite",),
+                        member_action_ids=(),
+                    ),
+                ),
+                setattr(dialog, "_inline_group_assigned", True),
+                dialog._refresh_groups_ui(),
+            ),
+        ]
         window._saved_action_create_dialog_factory = (
             lambda parent, submit_handler, **kwargs: _AutoSubmitCreateDialog(
                 None,
                 submit_handler,
-                lambda dialog: (
-                    dialog.type_combo.setCurrentText("Application"),
-                    dialog.title_input.setText("Open Notes"),
-                    dialog.aliases_input.setText("notes"),
-                    dialog.target_input.setText("notepad.exe"),
-                    setattr(dialog, "_selected_group_ids_state", ("workspace_tools",)),
-                    setattr(
-                        dialog,
-                        "_inline_group_draft",
-                        renderer_mod.CallableGroupDraft(
-                            title="Notes Suite",
-                            aliases=("notes suite",),
-                            member_action_ids=(),
-                        ),
-                    ),
-                    setattr(dialog, "_inline_group_assigned", True),
-                    dialog._refresh_groups_ui(),
-                ),
+                lambda dialog: create_steps.pop(0)(dialog),
                 task_dialogs,
                 **kwargs,
             )
         )
+        renderer_mod.DesktopRuntimeWindow.handle_create_custom_task_requested(window)
         renderer_mod.DesktopRuntimeWindow.handle_create_custom_task_requested(window)
 
         payload = json.loads(source_path.read_text(encoding="utf-8"))
@@ -1047,12 +1061,13 @@ def _run_task_group_assignment_and_inline_group_flow(stamp: str):
             "task create should append the new task to the explicitly selected existing group without dropping prior members",
         )
         _assert(
-            inline_group["member_action_ids"] == ["open_notes"],
+            inline_group["member_action_ids"] == ["open_journal"],
             "task create should atomically create the queued inline group with the new task as its first member",
         )
         return {
             "artifact_path": artifact_path,
             "group_ids": [group["id"] for group in groups],
+            "task_ids": [item["id"] for item in payload.get("actions") or []],
         }
 
 
