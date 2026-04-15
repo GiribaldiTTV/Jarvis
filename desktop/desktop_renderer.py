@@ -354,6 +354,8 @@ class SavedActionCreateDialog(QDialog):
         self._ready_signal_emitted = False
         self._syncing_trigger_selection = False
         self._trigger_manually_changed = False
+        self._loaded_trigger_follows_default = True
+        self._preserve_legacy_bare_trigger = False
         self._invocation_mode = "aliases_only"
         self.setModal(True)
         self.setWindowTitle(dialog_title)
@@ -649,6 +651,19 @@ class SavedActionCreateDialog(QDialog):
     def current_trigger_mode(self) -> str:
         return str(self.trigger_combo.currentData() or default_saved_action_trigger_mode(self.current_target_kind()))
 
+    def _effective_trigger_mode(self) -> str:
+        if self._preserve_legacy_bare_trigger and not self._trigger_manually_changed:
+            return ""
+        return self.current_trigger_mode()
+
+    def _draft_trigger_follows_default(self, draft: SavedActionDraft) -> bool:
+        if draft.custom_triggers:
+            return False
+        trigger_mode = (draft.trigger_mode or "").strip().casefold()
+        if not trigger_mode:
+            return draft.invocation_mode != "aliases_only"
+        return trigger_mode == default_saved_action_trigger_mode(draft.target_kind)
+
     def _build_alias_suggestions(self, title: str) -> tuple[str, ...]:
         normalized_title = re.sub(r"\s+", " ", (title or "").strip())
         if not normalized_title:
@@ -721,7 +736,7 @@ class SavedActionCreateDialog(QDialog):
     def _refresh_examples_box(self):
         title = re.sub(r"\s+", " ", (self.title_input.text() or "").strip())
         aliases = self._parse_aliases_text()
-        trigger_mode = self.current_trigger_mode()
+        trigger_mode = self._effective_trigger_mode()
         custom_triggers = self._parse_custom_triggers_text()
         alias_suggestions = self._build_alias_suggestions(title)
 
@@ -827,19 +842,27 @@ class SavedActionCreateDialog(QDialog):
         return tuple(alias for alias in aliases if alias)
 
     def build_draft(self) -> SavedActionDraft:
+        trigger_mode = self._effective_trigger_mode()
+        custom_triggers = self._parse_custom_triggers_text() if trigger_mode == "custom" else ()
         return SavedActionDraft(
             title=self.title_input.text(),
             target_kind=self.current_target_kind(),
             target=self.target_input.text(),
             aliases=self._parse_aliases_text(),
             invocation_mode=self._invocation_mode,
-            trigger_mode=self.current_trigger_mode(),
-            custom_triggers=self._parse_custom_triggers_text(),
+            trigger_mode=trigger_mode,
+            custom_triggers=custom_triggers,
         )
 
     def load_draft(self, draft: SavedActionDraft):
-        explicit_trigger_configured = bool(draft.trigger_mode or draft.custom_triggers)
+        trigger_follows_default = self._draft_trigger_follows_default(draft)
         self._invocation_mode = draft.invocation_mode or "legacy"
+        self._loaded_trigger_follows_default = trigger_follows_default
+        self._preserve_legacy_bare_trigger = (
+            self._invocation_mode == "legacy"
+            and not (draft.trigger_mode or "").strip()
+            and not draft.custom_triggers
+        )
         for index in range(self.type_combo.count()):
             if str(self.type_combo.itemData(index) or "") == draft.target_kind:
                 self.type_combo.setCurrentIndex(index)
@@ -850,7 +873,7 @@ class SavedActionCreateDialog(QDialog):
         self._set_trigger_mode(draft.trigger_mode or default_saved_action_trigger_mode(draft.target_kind))
         self.target_input.setText(draft.target)
         self._sync_trigger_ui_from_selection(mark_manual=False)
-        self._trigger_manually_changed = explicit_trigger_configured
+        self._trigger_manually_changed = not trigger_follows_default
         self._update_target_guidance()
         self._refresh_examples_box()
 

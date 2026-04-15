@@ -370,6 +370,147 @@ def _run_trigger_phrase_resolution():
         }
 
 
+def _run_edit_invocation_alignment_cycle():
+    with tempfile.TemporaryDirectory() as temp_dir:
+        source_path = Path(temp_dir) / "saved_actions.json"
+        window = _make_window(source_path)
+        create_dialogs = []
+        edit_dialogs = []
+        created_tasks_dialogs = []
+
+        window._saved_action_create_dialog_factory = (
+            lambda parent, submit_handler: _AutoSubmitCreateDialog(
+                None,
+                submit_handler,
+                lambda dialog: (
+                    dialog.type_combo.setCurrentText("Application"),
+                    dialog.title_input.setText("Open Nexus"),
+                    dialog.aliases_input.setText("Nexus"),
+                    dialog.target_input.setText("notepad.exe"),
+                ),
+                create_dialogs,
+            )
+        )
+        renderer_mod.DesktopRuntimeWindow.handle_create_custom_task_requested(window)
+
+        window._saved_action_edit_dialog_factory = (
+            lambda parent, submit_handler, initial_draft: _AutoSubmitEditDialog(
+                None,
+                submit_handler,
+                initial_draft,
+                lambda dialog: (
+                    _assert(dialog.current_trigger_mode() == "launch", "edit alignment flow should preload the current default trigger"),
+                    dialog.type_combo.setCurrentText("Folder"),
+                    _assert(dialog.current_trigger_mode() == "open", "edit alignment flow should let default triggers follow the edited type before manual trigger selection"),
+                    dialog.title_input.setText("Nexus Workspace"),
+                    dialog.aliases_input.setText("Nexus"),
+                    dialog.target_input.setText(r"C:\Reports"),
+                ),
+                edit_dialogs,
+            )
+        )
+        window._created_tasks_dialog_factory = (
+            lambda parent, inventory_payload: _AutoSelectCreatedTasksDialog(
+                None,
+                inventory_payload,
+                lambda dialog: dialog._handle_edit_requested("open_nexus"),
+                created_tasks_dialogs,
+            )
+        )
+        renderer_mod.DesktopRuntimeWindow.handle_created_tasks_requested(window)
+
+        catalog = window._command_model.action_catalog
+        _assert(create_dialogs, "edit invocation alignment should create the initial alias-root task first")
+        _assert(created_tasks_dialogs, "edit invocation alignment should route through Created Tasks")
+        _assert(edit_dialogs, "edit invocation alignment should open the edit dialog")
+        _assert(
+            tuple(action.id for action in catalog.resolve_actions("Open Nexus")) == ("open_nexus",),
+            "after editing type without a manual trigger change, the reloaded catalog should expose the new default trigger phrase",
+        )
+        _assert(
+            tuple(action.id for action in catalog.resolve_actions("Launch Nexus")) == (),
+            "after editing type without a manual trigger change, the old default trigger phrase should stop resolving",
+        )
+        _assert(
+            tuple(action.id for action in catalog.resolve_actions("Nexus Workspace")) == (),
+            "edit alignment should keep the display label out of the callable phrase surface for alias-root tasks",
+        )
+
+        return {
+            "resolved_phrases": ["Nexus", "Open Nexus"],
+            "rejected_phrases": ["Launch Nexus", "Nexus Workspace"],
+            "action_id": "open_nexus",
+        }
+
+
+def _run_legacy_edit_preserves_bare_behavior():
+    with tempfile.TemporaryDirectory() as temp_dir:
+        source_path = Path(temp_dir) / "saved_actions.json"
+        source_path.write_text(
+            json.dumps(
+                {
+                    "schema_version": 1,
+                    "actions": [
+                        {
+                            "id": "knowledge_base",
+                            "title": "Knowledge Base",
+                            "target_kind": "url",
+                            "target": "https://example.com/docs",
+                            "aliases": ["KB Docs"],
+                        }
+                    ],
+                },
+                indent=2,
+            )
+            + "\n",
+            encoding="utf-8",
+        )
+
+        window = _make_window(source_path)
+        edit_dialogs = []
+        created_tasks_dialogs = []
+        window._created_tasks_dialog_factory = (
+            lambda parent, inventory_payload: _AutoSelectCreatedTasksDialog(
+                None,
+                inventory_payload,
+                lambda dialog: dialog._handle_edit_requested("knowledge_base"),
+                created_tasks_dialogs,
+            )
+        )
+        window._saved_action_edit_dialog_factory = (
+            lambda parent, submit_handler, initial_draft: _AutoSubmitEditDialog(
+                None,
+                submit_handler,
+                initial_draft,
+                lambda dialog: (
+                    _assert(dialog.current_trigger_mode() == "open", "legacy edit flow may still surface the type default in the trigger control"),
+                    _assert("Open Knowledge Base" not in dialog.target_examples_label.text(), "legacy edit examples should stay aligned to the current bare-only invocation surface before a trigger is chosen"),
+                    dialog.target_input.setText("https://example.com/docs/v2"),
+                ),
+                edit_dialogs,
+            )
+        )
+        renderer_mod.DesktopRuntimeWindow.handle_created_tasks_requested(window)
+
+        catalog = window._command_model.action_catalog
+        _assert(created_tasks_dialogs, "legacy edit preservation should route through Created Tasks")
+        _assert(edit_dialogs, "legacy edit preservation should open the edit dialog")
+        _assert(
+            tuple(action.id for action in catalog.resolve_actions("Knowledge Base")) == ("knowledge_base",),
+            "legacy edit preservation should keep bare-title resolution after a normal edit",
+        )
+        _assert(
+            tuple(action.id for action in catalog.resolve_actions("Open Knowledge Base")) == (),
+            "legacy edit preservation should not add prefixed title behavior unless the trigger is explicitly changed",
+        )
+
+        return {
+            "resolved_phrases": ["Knowledge Base", "KB Docs"],
+            "rejected_phrases": ["Open Knowledge Base"],
+            "action_id": "knowledge_base",
+        }
+
+
 def _run_unsafe_source_blocking():
     with tempfile.TemporaryDirectory() as temp_dir:
         source_path = Path(temp_dir) / "saved_actions.json"
@@ -556,6 +697,12 @@ def main():
 
         details["trigger_phrase_resolution"] = _run_trigger_phrase_resolution()
         checks.append(("trigger phrase resolution", "PASS"))
+
+        details["edit_invocation_alignment"] = _run_edit_invocation_alignment_cycle()
+        checks.append(("edit invocation alignment", "PASS"))
+
+        details["legacy_edit_preserves_bare_behavior"] = _run_legacy_edit_preserves_bare_behavior()
+        checks.append(("legacy edit preserves bare behavior", "PASS"))
 
         details["unsafe_source_blocking"] = _run_unsafe_source_blocking()
         checks.append(("unsafe source blocking", "PASS"))

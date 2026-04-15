@@ -579,6 +579,56 @@ def _test_legacy_saved_actions_keep_title_callability_when_edited():
         )
 
 
+def _test_legacy_saved_actions_can_stay_bare_only_when_edited_without_trigger_change():
+    with tempfile.TemporaryDirectory() as temp_dir:
+        source_path = Path(temp_dir) / "saved_actions.json"
+        _write_json(
+            source_path,
+            {
+                "schema_version": 1,
+                "actions": [
+                    {
+                        "id": "knowledge_base",
+                        "title": "Knowledge Base",
+                        "target_kind": "url",
+                        "target": "https://example.com/docs",
+                        "aliases": ["KB Docs"],
+                    }
+                ],
+            },
+        )
+
+        update_saved_action_from_draft(
+            "knowledge_base",
+            SavedActionDraft(
+                title="Knowledge Base",
+                target_kind="url",
+                target="https://example.com/docs/v2",
+                aliases=("KB Docs", "KB"),
+                invocation_mode="legacy",
+                trigger_mode="",
+            ),
+            source_path,
+        )
+
+        payload = json.loads(source_path.read_text(encoding="utf-8"))
+        record = (payload.get("actions") or [])[0]
+        _assert(
+            record["trigger_mode"] == "",
+            "legacy edits should preserve an empty trigger mode when no trigger was explicitly chosen",
+        )
+
+        catalog = build_default_command_action_catalog(source_path)
+        _assert(
+            tuple(action.id for action in catalog.resolve_actions("Knowledge Base")) == ("knowledge_base",),
+            "legacy tasks should keep bare-title resolution after a normal edit with no trigger change",
+        )
+        _assert(
+            tuple(action.id for action in catalog.resolve_actions("Open Knowledge Base")) == (),
+            "legacy tasks should stay bare-only after edit until a trigger is explicitly chosen",
+        )
+
+
 def _test_invalid_existing_saved_actions_block_write_completely():
     with tempfile.TemporaryDirectory() as temp_dir:
         source_path = Path(temp_dir) / "saved_actions.json"
@@ -1108,6 +1158,7 @@ def main():
         ("generated trigger phrases collide with saved actions before write", _test_generated_trigger_phrase_collides_with_existing_saved_action_before_write),
         ("legacy saved actions remain bare-only without trigger fields", _test_existing_saved_actions_without_trigger_fields_remain_bare_only),
         ("legacy saved actions keep title callability when edited", _test_legacy_saved_actions_keep_title_callability_when_edited),
+        ("legacy saved actions can stay bare-only when edited without trigger change", _test_legacy_saved_actions_can_stay_bare_only_when_edited_without_trigger_change),
         ("invalid existing saved actions block write", _test_invalid_existing_saved_actions_block_write_completely),
         ("atomic write failure preserves existing source", _test_atomic_write_failure_preserves_existing_source),
         ("edit loads existing saved action draft", _test_edit_loads_existing_saved_action_draft),

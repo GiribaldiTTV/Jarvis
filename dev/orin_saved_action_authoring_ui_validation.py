@@ -575,6 +575,81 @@ def _test_create_dialog_trigger_controls_and_dynamic_examples():
     )
 
 
+def _test_edit_dialog_default_trigger_follows_type_until_changed():
+    _app()
+    dialog = renderer_mod.SavedActionEditDialog(
+        initial_draft=renderer_mod.SavedActionDraft(
+            title="Open Nexus",
+            target_kind="app",
+            target="notepad.exe",
+            aliases=("Nexus",),
+            invocation_mode="aliases_only",
+            trigger_mode="launch",
+        )
+    )
+
+    _assert(
+        dialog.current_trigger_mode() == "launch",
+        "edit dialog should preload the saved trigger mode for alias-root tasks",
+    )
+
+    dialog.type_combo.setCurrentText("Folder")
+    examples_text = dialog.target_examples_label.text()
+    _assert(
+        dialog.current_trigger_mode() == "open",
+        "edit dialog should keep following the selected type when the saved trigger only mirrored the prior default",
+    )
+    _assert(
+        "Open Nexus" in examples_text and "Launch Nexus" not in examples_text,
+        "edit dialog examples should switch to the new default trigger family for alias-root tasks when no manual trigger was chosen",
+    )
+
+    dialog.trigger_combo.setCurrentText("Launch and Open")
+    dialog.type_combo.setCurrentText("File")
+    examples_text = dialog.target_examples_label.text()
+    _assert(
+        dialog.current_trigger_mode() == "launch_and_open",
+        "edit dialog should preserve an explicitly chosen trigger once the user changes it",
+    )
+    _assert(
+        "Launch Nexus" in examples_text and "Open Nexus" in examples_text,
+        "edit dialog examples should preserve the explicitly chosen trigger family after later type changes",
+    )
+
+
+def _test_legacy_edit_dialog_preserves_bare_callable_examples_until_trigger_changes():
+    _app()
+    dialog = renderer_mod.SavedActionEditDialog(
+        initial_draft=renderer_mod.SavedActionDraft(
+            title="Knowledge Base",
+            target_kind="url",
+            target="https://example.com/docs",
+            aliases=("KB Docs",),
+            invocation_mode="legacy",
+            trigger_mode="",
+        )
+    )
+
+    examples_text = dialog.target_examples_label.text()
+    draft = dialog.build_draft()
+    _assert(
+        "Knowledge Base" in examples_text and "Open Knowledge Base" not in examples_text,
+        "legacy edit examples should stay aligned to the current bare-only callable phrases until a trigger is explicitly chosen",
+    )
+    _assert(
+        draft.trigger_mode == "",
+        "legacy edits should preserve the absence of an explicit trigger when the user has not changed it",
+    )
+
+    dialog.trigger_combo.setCurrentText("Launch")
+    dialog.trigger_combo.setCurrentText("Open")
+    draft = dialog.build_draft()
+    _assert(
+        draft.trigger_mode == "open",
+        "legacy edits should persist a trigger once the user explicitly chooses one",
+    )
+
+
 def _test_create_dialog_supports_browse_assisted_target_selection():
     _app()
     dialog = renderer_mod.SavedActionCreateDialog()
@@ -1153,6 +1228,8 @@ def main():
         ("type-first dialog maps supported kinds", _test_type_first_dialog_maps_all_supported_kinds),
         ("create dialog surfaces field-level guidance", _test_create_dialog_surfaces_field_level_guidance),
         ("create dialog trigger controls and dynamic examples", _test_create_dialog_trigger_controls_and_dynamic_examples),
+        ("edit dialog default trigger follows type until changed", _test_edit_dialog_default_trigger_follows_type_until_changed),
+        ("legacy edit dialog preserves bare callable examples until trigger changes", _test_legacy_edit_dialog_preserves_bare_callable_examples_until_trigger_changes),
         ("create dialog supports browse-assisted target selection", _test_create_dialog_supports_browse_assisted_target_selection),
         ("successful create flow reloads inventory", _test_successful_create_flow_reloads_inventory_immediately),
         ("invalid input shows dialog error without write", _test_invalid_input_shows_dialog_error_and_does_not_write),

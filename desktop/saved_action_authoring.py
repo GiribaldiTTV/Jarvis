@@ -165,12 +165,13 @@ def _normalize_trigger_fields(
     draft: SavedActionDraft,
     *,
     target_kind: str,
+    invocation_mode: str,
 ) -> tuple[str, tuple[str, ...]]:
     try:
         trigger_mode = normalize_saved_action_trigger_mode(
             draft.trigger_mode,
             target_kind=target_kind,
-            allow_empty=False,
+            allow_empty=(invocation_mode == "legacy"),
         )
         custom_triggers = normalize_saved_action_custom_triggers(
             draft.custom_triggers,
@@ -199,7 +200,11 @@ def _normalize_draft_fields(
     aliases = _normalize_aliases(draft.aliases, title=title, invocation_mode=invocation_mode)
     target_kind = _normalize_target_kind(draft.target_kind)
     target = _normalize_target(draft.target, target_kind=target_kind)
-    trigger_mode, custom_triggers = _normalize_trigger_fields(draft, target_kind=target_kind)
+    trigger_mode, custom_triggers = _normalize_trigger_fields(
+        draft,
+        target_kind=target_kind,
+        invocation_mode=invocation_mode,
+    )
     return title, aliases, target_kind, target, invocation_mode, trigger_mode, custom_triggers
 
 
