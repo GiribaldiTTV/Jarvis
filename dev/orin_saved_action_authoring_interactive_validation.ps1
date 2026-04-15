@@ -703,6 +703,38 @@ function Find-DialogFromChildAutomationId {
     return $null
 }
 
+function Find-DialogAncestorFromElement {
+    param(
+        [System.Windows.Automation.AutomationElement]$Element,
+        [string]$ExpectedName = ""
+    )
+
+    if (-not $Element) {
+        return $null
+    }
+
+    $walker = [System.Windows.Automation.TreeWalker]::ControlViewWalker
+    $current = $Element
+    while ($current) {
+        try {
+            if (
+                ($ExpectedName -and $current.Current.Name -eq $ExpectedName) -or
+                $current.Current.ControlType.ProgrammaticName -eq [System.Windows.Automation.ControlType]::Window.ProgrammaticName
+            ) {
+                return $current
+            }
+        } catch {
+        }
+        try {
+            $current = $walker.GetParent($current)
+        } catch {
+            return $null
+        }
+    }
+
+    return $null
+}
+
 function Find-FirstElement {
     param(
         [System.Windows.Automation.AutomationElement]$Root = [System.Windows.Automation.AutomationElement]::RootElement,
@@ -969,6 +1001,60 @@ function Get-ComboSelectedText {
     return $ExpectedFallback
 }
 
+function Get-ActionTypeIndexFromValue {
+    param(
+        [string]$Value
+    )
+
+    $normalizedValue = Normalize-UiValue $Value
+    for ($index = 0; $index -lt $script:ActionTypeOrder.Count; $index++) {
+        if ((Normalize-UiValue $script:ActionTypeOrder[$index]) -eq $normalizedValue) {
+            return $index
+        }
+    }
+
+    return -1
+}
+
+function Send-ComboSelectionSequence {
+    param(
+        [int]$DesiredIndex,
+        [int]$CurrentIndex = -1,
+        [bool]$OpenDropdown = $true,
+        [bool]$ResetFromTop = $false
+    )
+
+    if ($OpenDropdown) {
+        Send-VirtualKey -VirtualKey 0x73
+        Start-Sleep -Milliseconds 140
+    }
+
+    if ($ResetFromTop -or $CurrentIndex -lt 0) {
+        Send-VirtualKey -VirtualKey 0x24
+        Start-Sleep -Milliseconds 90
+        for ($index = 0; $index -lt $DesiredIndex; $index++) {
+            Send-VirtualKey -VirtualKey 0x28
+            Start-Sleep -Milliseconds 90
+        }
+    } else {
+        $delta = $DesiredIndex - $CurrentIndex
+        if ($delta -gt 0) {
+            for ($index = 0; $index -lt $delta; $index++) {
+                Send-VirtualKey -VirtualKey 0x28
+                Start-Sleep -Milliseconds 90
+            }
+        } elseif ($delta -lt 0) {
+            for ($index = 0; $index -lt ([Math]::Abs($delta)); $index++) {
+                Send-VirtualKey -VirtualKey 0x26
+                Start-Sleep -Milliseconds 90
+            }
+        }
+    }
+
+    Send-VirtualKey -VirtualKey 0x0D
+    Start-Sleep -Milliseconds 180
+}
+
 function Find-ComboPopupItem {
     param(
         [System.Windows.Automation.AutomationElement]$Combo,
@@ -1032,47 +1118,36 @@ function Select-ComboItem {
         if (-not $Combo) {
             throw "Could not resolve combo box for '$ItemName'."
         }
-        try {
-            Focus-Window -Element $Combo
-        } catch {
-        }
+
+        $Combo = Focus-ElementForInteraction -ElementResolver $ComboResolver -Description "combo '$ItemName' selection control" -RequireExactFocus $false
 
         $currentValue = Get-ComboSelectedText -Combo $Combo
-        Write-StepLog -Stage "INTERACT" -Message "combo select attempt=$attempt desired='$ItemName' current='$currentValue' state=$(Get-ElementStateSummary -Element $Combo)"
+        $currentIndex = Get-ActionTypeIndexFromValue -Value $currentValue
+        Write-StepLog -Stage "INTERACT" -Message "combo select attempt=$attempt desired='$ItemName' current='$currentValue' current_index=$currentIndex state=$(Get-ElementStateSummary -Element $Combo)"
         if ($currentValue -eq $ItemName) {
             return
         }
 
-        $usedPopup = $false
         try {
-            Expand-Combo -Element $Combo
-            Start-Sleep -Milliseconds 220
-            $item = Find-ComboPopupItem -Combo $Combo -ItemName $ItemName
-            if ($item) {
-                try {
-                    Click-Element -Element $item
-                } catch {
-                    $select = $item.GetCurrentPattern([System.Windows.Automation.SelectionItemPattern]::Pattern)
-                    $select.Select()
+            $strategy = switch ($attempt) {
+                1 { "keyboard_open_delta" }
+                2 { "keyboard_open_reset" }
+                default { "keyboard_closed_reset" }
+            }
+            Write-StepLog -Stage "INTERACT" -Message "combo select strategy=$strategy desired='$ItemName' attempt=$attempt"
+            switch ($attempt) {
+                1 {
+                    Send-ComboSelectionSequence -DesiredIndex $desiredIndex -CurrentIndex $currentIndex -OpenDropdown $true -ResetFromTop $false
                 }
-                $usedPopup = $true
+                2 {
+                    Send-ComboSelectionSequence -DesiredIndex $desiredIndex -CurrentIndex $currentIndex -OpenDropdown $true -ResetFromTop $true
+                }
+                default {
+                    Send-ComboSelectionSequence -DesiredIndex $desiredIndex -CurrentIndex $currentIndex -OpenDropdown $false -ResetFromTop $true
+                }
             }
         } catch {
-        }
-
-        if (-not $usedPopup) {
-            try {
-                Click-Element -Element $Combo
-            } catch {
-            }
-            Start-Sleep -Milliseconds 150
-            Send-VirtualKey -VirtualKey 0x24
-            Start-Sleep -Milliseconds 80
-            for ($index = 0; $index -lt $desiredIndex; $index++) {
-                Send-VirtualKey -VirtualKey 0x28
-                Start-Sleep -Milliseconds 80
-            }
-            Send-VirtualKey -VirtualKey 0x0D
+            Add-Note "Combo selection attempt $attempt for '$ItemName' hit an interaction error before readback. Cause: $($_.Exception.Message)"
         }
 
         try {
@@ -1083,7 +1158,8 @@ function Select-ComboItem {
         } catch {
             $actualCombo = & $ComboResolver
             $actualValue = Get-ComboSelectedText -Combo $actualCombo
-            Add-Note "Combo selection attempt $attempt for '$ItemName' did not stick; actual value read back as '$actualValue'. State: $(Get-ElementStateSummary -Element $actualCombo)"
+            $actualIndex = Get-ActionTypeIndexFromValue -Value $actualValue
+            Add-Note "Combo selection attempt $attempt for '$ItemName' did not stick; actual value read back as '$actualValue' (index=$actualIndex). State: $(Get-ElementStateSummary -Element $actualCombo)"
         }
     }
 
@@ -1172,6 +1248,13 @@ function Get-DialogWindow {
     param(
         [string]$Name
     )
+
+    if ($Name) {
+        $rootDialog = Find-RootWindow -Name $Name
+        if ($rootDialog) {
+            return $rootDialog
+        }
+    }
 
     $childAutomationId = Get-DialogLookupChildAutomationId -Name $Name
     if ($childAutomationId) {
@@ -1359,7 +1442,9 @@ function Wait-ForDialogControlReady {
             return $false
         }
         try {
-            Focus-Window -Element $liveDialog
+            if ($liveDialog -ne [System.Windows.Automation.AutomationElement]::RootElement) {
+                Focus-Window -Element $liveDialog
+            }
         } catch {
         }
         $element = Find-ElementByAutomationIdDirect -Root $liveDialog -AutomationId $AutomationId
@@ -1499,19 +1584,37 @@ function Set-FieldValueVerified {
         [string]$Description
     )
 
+    $expectedNormalized = Normalize-UiValue $ExpectedValue
+
     for ($attempt = 1; $attempt -le 3; $attempt++) {
-        $element = & $ElementResolver
+        $element = Focus-ElementForInteraction -ElementResolver $ElementResolver -Description $Description -RequireExactFocus $true
         if (-not $element) {
             throw "Could not resolve $Description."
         }
 
+        Write-StepLog -Stage "INTERACT" -Message "field set attempt=$attempt field='$Description' value='$ExpectedValue' state=$(Get-ElementStateSummary -Element $element)"
         try {
-            Focus-Window -Element $element
+            Set-Value -Element $element -Value ""
+            Start-Sleep -Milliseconds 80
         } catch {
+            Add-Note "Field '$Description' clear attempt $attempt could not execute cleanly before rewrite. Cause: $($_.Exception.Message)"
         }
 
-        Write-StepLog -Stage "INTERACT" -Message "field set attempt=$attempt field='$Description' value='$ExpectedValue' state=$(Get-ElementStateSummary -Element $element)"
+        $element = & $ElementResolver
+        if (-not $element) {
+            throw "Could not re-resolve $Description after clearing it."
+        }
+
         Set-Value -Element $element -Value $ExpectedValue
+        Start-Sleep -Milliseconds 120
+
+        $actualElement = & $ElementResolver
+        $actualValue = Get-ElementReadableValue -Element $actualElement
+        $actualNormalized = Normalize-UiValue $actualValue
+        if ($actualNormalized -eq $expectedNormalized) {
+            Write-StepLog -Stage "INTERACT" -Message "field set confirmed field='$Description' actual='$actualValue' state=$(Get-ElementStateSummary -Element $actualElement)"
+            return
+        }
 
         try {
             Wait-ForElementValue -ExpectedValue $ExpectedValue -TimeoutSeconds 3 -Description $Description -ElementResolver $ElementResolver
@@ -1521,13 +1624,19 @@ function Set-FieldValueVerified {
         } catch {
             $actualElement = & $ElementResolver
             $actualValue = Get-ElementReadableValue -Element $actualElement
-            Add-Note "Field '$Description' set attempt $attempt did not stick; actual value read back as '$actualValue'. State: $(Get-ElementStateSummary -Element $actualElement)"
+            $actualNormalized = Normalize-UiValue $actualValue
+            if ($actualNormalized -eq $expectedNormalized) {
+                Write-StepLog -Stage "INTERACT" -Message "field set confirmed after retry window field='$Description' actual='$actualValue' state=$(Get-ElementStateSummary -Element $actualElement)"
+                return
+            }
+            Add-Note "Field '$Description' set attempt $attempt did not stick; actual value read back as '$actualValue' (normalized='$actualNormalized', expected_normalized='$expectedNormalized'). State: $(Get-ElementStateSummary -Element $actualElement)"
         }
     }
 
     $finalElement = & $ElementResolver
     $finalValue = Get-ElementReadableValue -Element $finalElement
-    if ((Normalize-UiValue $finalValue) -eq (Normalize-UiValue $ExpectedValue)) {
+    if ((Normalize-UiValue $finalValue) -eq $expectedNormalized) {
+        Write-StepLog -Stage "INTERACT" -Message "field set confirmed after retries field='$Description' actual='$finalValue' state=$(Get-ElementStateSummary -Element $finalElement)"
         Add-Note "Field '$Description' required retries, but the final normalized value matched the expected text."
         return
     }
@@ -2077,6 +2186,126 @@ function Open-CreatedTasksDialog {
     return (Wait-ForDialog -Name "Created Tasks" -TimeoutSeconds 8)
 }
 
+function Wait-ForInventoryEditButtonReady {
+    param(
+        [scriptblock]$DialogResolver,
+        [int]$EditIndex = 0,
+        [int]$TimeoutSeconds = 6
+    )
+
+    $description = "Created Tasks edit button index=$EditIndex"
+    Write-StepLog -Stage "DIALOG" -Message "verifying control '$description'"
+    Wait-Until -TimeoutSeconds $TimeoutSeconds -Description $description -Condition {
+        $liveDialog = & $DialogResolver
+        if (-not $liveDialog) {
+            return $false
+        }
+        $buttons = @(Get-InventoryEditButtons -Overlay $liveDialog)
+        if ($buttons.Count -le $EditIndex) {
+            return $false
+        }
+        return (Test-ElementUsable -Element $buttons[$EditIndex] -RequireEnabled $true)
+    } | Out-Null
+
+    $liveDialog = & $DialogResolver
+    if (-not $liveDialog) {
+        throw "Could not resolve the Created Tasks dialog while waiting for edit button index $EditIndex."
+    }
+
+    $buttons = @(Get-InventoryEditButtons -Overlay $liveDialog)
+    if ($buttons.Count -le $EditIndex) {
+        throw "Created Tasks edit button index $EditIndex was not available."
+    }
+
+    $button = $buttons[$EditIndex]
+    if (-not (Test-ElementUsable -Element $button -RequireEnabled $true)) {
+        throw "Created Tasks edit button index $EditIndex did not become usable. State: $(Get-ElementStateSummary -Element $button)"
+    }
+
+    Write-StepLog -Stage "DIALOG" -Message "control ready '$description' state=$(Get-ElementStateSummary -Element $button)"
+    return $button
+}
+
+function Open-EditDialog {
+    param(
+        [System.Windows.Automation.AutomationElement]$CreatedTasksDialog,
+        [int]$EditIndex = 0
+    )
+
+    $resolveCreatedTasksDialog = {
+        Resolve-LiveDialogRoot -Dialog $CreatedTasksDialog -ExpectedName "Created Tasks"
+    }
+    $resolveEditButton = {
+        $liveDialog = & $resolveCreatedTasksDialog
+        if (-not $liveDialog) {
+            return $null
+        }
+        $buttons = @(Get-InventoryEditButtons -Overlay $liveDialog)
+        if ($buttons.Count -le $EditIndex) {
+            return $null
+        }
+        return $buttons[$EditIndex]
+    }
+    $resolveEditDialog = {
+        $dialog = Find-RootWindow -Name "Edit Custom Task"
+        if ($dialog -and -not (Test-ElementGoneOrOffscreen -Element $dialog)) {
+            return $dialog
+        }
+
+        return $null
+    }
+
+    $null = Wait-ForInventoryEditButtonReady -DialogResolver $resolveCreatedTasksDialog -EditIndex $EditIndex
+    $button = Focus-ElementForInteraction -ElementResolver $resolveEditButton -Description "Created Tasks edit button index=$EditIndex" -RequireExactFocus $false
+    Write-StepLog -Stage "DIALOG" -Message "opening Edit Custom Task from Created Tasks index=$EditIndex"
+    $markerStart = New-RuntimeMarkerCursor
+    Invoke-ElementRobust -Element $button -Description "Created Tasks edit button index=$EditIndex"
+
+    try {
+        Wait-ForDialogRuntimeReady -SignalBase "CUSTOM_TASK_EDIT_DIALOG" -StartLine $markerStart -TimeoutSeconds 8
+    } catch {
+        Add-Note "Edit dialog markers were not observed after the first edit-button invoke; retrying once."
+        $button = Focus-ElementForInteraction -ElementResolver $resolveEditButton -Description "Created Tasks edit button retry index=$EditIndex" -RequireExactFocus $false
+        Invoke-ElementRobust -Element $button -Description "Created Tasks edit button retry index=$EditIndex"
+        Wait-ForDialogRuntimeReady -SignalBase "CUSTOM_TASK_EDIT_DIALOG" -StartLine $markerStart -TimeoutSeconds 8
+    }
+
+    $dialogScope = [System.Windows.Automation.AutomationElement]::RootElement
+    Write-StepLog -Stage "DIALOG" -Message "verifying edit-dialog entry readiness after runtime markers"
+
+    $resolveDialog = {
+        return $dialogScope
+    }
+
+    $null = Wait-ForDialogControlReady -DialogResolver $resolveDialog -AutomationId "QApplication.savedActionCreateDialog.savedActionCreateType" -Description "edit dialog task type combo"
+    $null = Wait-ForDialogControlReady -DialogResolver $resolveDialog -AutomationId "QApplication.savedActionCreateDialog.savedActionCreateTitleInput" -Description "edit dialog title input"
+    $null = Wait-ForDialogControlReady -DialogResolver $resolveDialog -AutomationId "QApplication.savedActionCreateDialog.savedActionCreateAliasesInput" -Description "edit dialog aliases input"
+    $null = Wait-ForDialogControlReady -DialogResolver $resolveDialog -AutomationId "QApplication.savedActionCreateDialog.savedActionCreateTargetInput" -Description "edit dialog target input"
+
+    $typeCombo = Focus-ElementForInteraction -ElementResolver {
+        $liveScope = & $resolveDialog
+        if (-not $liveScope) {
+            return $null
+        }
+        return (Find-ElementByAutomationIdDirect -Root $liveScope -AutomationId "QApplication.savedActionCreateDialog.savedActionCreateType")
+    } -Description "edit dialog task type combo"
+
+    if (-not $typeCombo) {
+        throw "Could not focus the edit dialog task type combo after dialog ready."
+    }
+
+    $dialog = & $resolveEditDialog
+    if (-not $dialog) {
+        $dialog = Find-DialogAncestorFromElement -Element $typeCombo -ExpectedName "Edit Custom Task"
+    }
+    if (-not $dialog) {
+        throw "Edit dialog root could not be derived from the focused task type control after readiness checks."
+    }
+
+    Write-StepLog -Stage "DIALOG" -Message "edit-dialog entry ready and first interaction control focused"
+    return $dialog
+}
+
 function Fill-AuthoringDialog {
     param(
         [System.Windows.Automation.AutomationElement]$Dialog,
@@ -2239,11 +2468,7 @@ function Cancel-Dialog {
     try { Submit-Dialog -Dialog $Dialog -ButtonName "Cancel" } catch {}
     try {
         Wait-ForDialogRuntimeClosed -SignalBase $signalBase -StartLine $markerStart -TimeoutSeconds 5
-        try {
-            Wait-ForDialogClosedFast -Name $Dialog.Current.Name -TimeoutSeconds 2
-        } catch {
-            Add-Note "Dialog close readback lagged after a closed marker; continuing without an ESC fallback."
-        }
+        Write-StepLog -Stage "DIALOG" -Message "$($Dialog.Current.Name) close confirmed by runtime marker"
         return
     } catch {
     }
@@ -2255,6 +2480,35 @@ function Cancel-Dialog {
         }
         Send-VirtualKey -VirtualKey 0x1B
     }
+}
+
+function Restore-OverlayAfterAuthoringDialogCancel {
+    param(
+        [System.Windows.Automation.AutomationElement]$Overlay,
+        [string]$Reason
+    )
+
+    $attempts = @(
+        @{ label = "existing overlay reference"; overlay = $Overlay },
+        @{ label = "fresh overlay resolution"; overlay = $null }
+    )
+
+    for ($index = 0; $index -lt $attempts.Count; $index++) {
+        $attempt = $attempts[$index]
+        Write-StepLog -Stage "FLOW" -Message "overlay reacquisition after authoring dialog cancel attempt=$($index + 1) using $($attempt.label)"
+        try {
+            $restoredOverlay = Ensure-OverlayReady -Overlay $attempt.overlay -Reason $Reason
+            Write-StepLog -Stage "FLOW" -Message "overlay next-step ready confirmed after authoring dialog cancel on attempt=$($index + 1)"
+            return $restoredOverlay
+        } catch {
+            Add-Note "Overlay reacquisition after authoring dialog cancel failed on attempt=$($index + 1). Cause: $($_.Exception.Message)"
+        }
+    }
+
+    Write-StepLog -Stage "FLOW" -Message "overlay reacquisition after authoring dialog cancel falling back to overlay reopen"
+    $reopenedOverlay = Open-OverlayWithRuntimeRestartFallback -MaxAttempts 2
+    Write-StepLog -Stage "FLOW" -Message "overlay next-step ready confirmed after authoring dialog cancel via overlay reopen fallback"
+    return $reopenedOverlay
 }
 
 function Wait-ForDialogClosed {
@@ -2326,9 +2580,40 @@ function Wait-ForOverlayReadyForNextStep {
     return (Resolve-LiveOverlayRoot -Overlay $liveOverlay)
 }
 
+function Restore-OverlayAfterCreatedTasksClose {
+    param(
+        [System.Windows.Automation.AutomationElement]$Overlay,
+        [string]$Reason = "Created Tasks close handoff"
+    )
+
+    $attempts = @(
+        @{ label = "existing overlay reference"; overlay = $Overlay },
+        @{ label = "fresh overlay resolution"; overlay = $null }
+    )
+
+    for ($index = 0; $index -lt $attempts.Count; $index++) {
+        $attempt = $attempts[$index]
+        Write-StepLog -Stage "FLOW" -Message "overlay reacquisition after Created Tasks close attempt=$($index + 1) using $($attempt.label)"
+        try {
+            $restoredOverlay = Ensure-OverlayReady -Overlay $attempt.overlay -Reason $Reason
+            Write-StepLog -Stage "FLOW" -Message "overlay next-step ready confirmed after Created Tasks close on attempt=$($index + 1)"
+            return $restoredOverlay
+        } catch {
+            Add-Note "Overlay reacquisition after Created Tasks close failed on attempt=$($index + 1). Cause: $($_.Exception.Message)"
+        }
+    }
+
+    Write-StepLog -Stage "FLOW" -Message "overlay reacquisition after Created Tasks close falling back to overlay reopen"
+    $reopenedOverlay = Open-OverlayWithRuntimeRestartFallback -MaxAttempts 2
+    Write-StepLog -Stage "FLOW" -Message "overlay next-step ready confirmed after Created Tasks close via overlay reopen fallback"
+    return $reopenedOverlay
+}
+
 function Close-CreatedTasksDialog {
     param(
-        [System.Windows.Automation.AutomationElement]$Dialog
+        [System.Windows.Automation.AutomationElement]$Dialog,
+        [System.Windows.Automation.AutomationElement]$Overlay,
+        [string]$Reason = "Created Tasks close handoff"
     )
 
     $closeButton = Get-ButtonByName -Root $Dialog -Name "Close"
@@ -2340,11 +2625,7 @@ function Close-CreatedTasksDialog {
     Invoke-ElementRobust -Element $closeButton -Description "Created Tasks close button"
     try {
         Wait-ForDialogRuntimeClosed -SignalBase "CREATED_TASKS_DIALOG" -StartLine $markerStart -TimeoutSeconds 5
-        try {
-            Wait-ForRuntimeMarker -Marker "RENDERER_MAIN|COMMAND_OVERLAY_READY" -TimeoutSeconds 3 -StartLine $markerStart
-        } catch {
-            Add-Note "Created Tasks closed by runtime marker, but overlay-ready follow-up lagged; continuing with runtime marker authority."
-        }
+        Write-StepLog -Stage "DIALOG" -Message "Created Tasks close confirmed by runtime marker"
     } catch {
         Add-Note "Created Tasks did not close on the first runtime wait; retrying with an ESC fallback and trusting runtime markers instead of UI readback."
         try {
@@ -2357,18 +2638,9 @@ function Close-CreatedTasksDialog {
         } catch {
             Add-Note "Created Tasks close fallback still missed a fresh runtime close marker; continuing because the next step re-resolves overlay state."
         }
-        try {
-            Wait-ForRuntimeMarker -Marker "RENDERER_MAIN|COMMAND_OVERLAY_READY" -TimeoutSeconds 3 -StartLine $markerStart
-        } catch {
-            Add-Note "Overlay-ready follow-up lagged after the Created Tasks close fallback; continuing with re-resolved overlay state."
-        }
     }
 
-    try {
-        Wait-ForDialogClosedFast -Name "Created Tasks" -TimeoutSeconds 3
-    } catch {
-        Add-Note "Created Tasks fast close confirmation lagged after runtime closure markers; relying on overlay reacquisition."
-    }
+    return (Restore-OverlayAfterCreatedTasksClose -Overlay $Overlay -Reason $Reason)
 }
 
 function Wait-ForInventoryText {
@@ -2761,12 +3033,150 @@ function Corrupt-Source {
     Write-Utf8NoBomFile -Path $SourcePath -Content "{ not valid json"
 }
 
+function Normalize-CommandPhrase {
+    param(
+        [string]$Text
+    )
+
+    $value = if ($null -eq $Text) { "" } else { [string]$Text }
+    $normalized = $value.Trim().ToLowerInvariant()
+    $normalized = [regex]::Replace($normalized, "\s+", " ")
+    $normalized = [regex]::Replace($normalized, "[.!?]+$", "")
+    return $normalized.Trim()
+}
+
 function Get-JsonTitles {
     if (-not (Test-Path -LiteralPath $SourcePath)) {
         return @()
     }
     $parsed = Get-Content -LiteralPath $SourcePath -Raw | ConvertFrom-Json
     return @($parsed.actions | ForEach-Object { $_.title })
+}
+
+function Get-SavedActionRecordById {
+    param(
+        [string]$ActionId
+    )
+
+    if (-not (Test-Path -LiteralPath $SourcePath)) {
+        throw "Saved action source was not present while resolving action '$ActionId'."
+    }
+
+    $parsed = Get-Content -LiteralPath $SourcePath -Raw | ConvertFrom-Json
+    $actions = @($parsed.actions)
+    $record = $actions | Where-Object { $_.id -eq $ActionId } | Select-Object -First 1
+    if (-not $record) {
+        throw "Saved action '$ActionId' was not present in the current source."
+    }
+    return $record
+}
+
+function Get-SavedActionTriggerPrefixes {
+    param(
+        [string]$TriggerMode,
+        [object[]]$CustomTriggers = @()
+    )
+
+    switch (([string]$TriggerMode).Trim().ToLowerInvariant()) {
+        "launch" { return @("Launch") }
+        "open" { return @("Open") }
+        "launch_and_open" { return @("Launch", "Open") }
+        "custom" {
+            return @(
+                @($CustomTriggers) |
+                    Where-Object { $_ -is [string] -and $_.Trim() } |
+                    ForEach-Object { [regex]::Replace($_.Trim(), "\s+", " ") }
+            )
+        }
+        default { return @() }
+    }
+}
+
+function Build-SavedActionCallablePhrases {
+    param(
+        $Record
+    )
+
+    $phrases = New-Object System.Collections.Generic.List[string]
+    $seen = New-Object System.Collections.Generic.HashSet[string]
+
+    $aliases = @()
+    if ($null -ne $Record.aliases) {
+        $aliases = @($Record.aliases | Where-Object { $_ -is [string] })
+    }
+
+    $invocationMode = if ($null -eq $Record.invocation_mode -or [string]::IsNullOrWhiteSpace([string]$Record.invocation_mode)) {
+        "legacy"
+    } else {
+        [string]$Record.invocation_mode
+    }
+    if ($invocationMode -eq "aliases_only") {
+        $basePhrases = @($aliases)
+    } else {
+        $basePhrases = @([string]$Record.title) + @($aliases)
+    }
+
+    $addPhrase = {
+        param([string]$Value)
+        $valueText = if ($null -eq $Value) { "" } else { [string]$Value }
+        $display = [regex]::Replace($valueText.Trim(), "\s+", " ")
+        if (-not $display) {
+            return
+        }
+        $normalized = Normalize-CommandPhrase $display
+        if (-not $normalized) {
+            return
+        }
+        if ($seen.Add($normalized)) {
+            $phrases.Add($display) | Out-Null
+        }
+    }
+
+    foreach ($phrase in $basePhrases) {
+        & $addPhrase $phrase
+    }
+
+    $prefixes = Get-SavedActionTriggerPrefixes -TriggerMode ([string]$Record.trigger_mode) -CustomTriggers @($Record.custom_triggers)
+    foreach ($prefix in $prefixes) {
+        $normalizedPrefix = Normalize-CommandPhrase $prefix
+        if (-not $normalizedPrefix) {
+            continue
+        }
+        foreach ($phrase in $basePhrases) {
+            $normalizedPhrase = Normalize-CommandPhrase $phrase
+            if (-not $normalizedPhrase) {
+                continue
+            }
+            if ($normalizedPhrase -eq $normalizedPrefix -or $normalizedPhrase.StartsWith("$normalizedPrefix ")) {
+                & $addPhrase $phrase
+            } else {
+                & $addPhrase "$prefix $phrase"
+            }
+        }
+    }
+
+    return @($phrases)
+}
+
+function Get-PreferredExactInvocationPhrase {
+    param(
+        $Record
+    )
+
+    $aliases = @()
+    if ($null -ne $Record.aliases) {
+        $aliases = @($Record.aliases | Where-Object { $_ -is [string] -and $_.Trim() })
+    }
+    if ($aliases.Count -lt 1) {
+        throw "Saved action '$($Record.id)' did not expose any callable aliases for exact-match execution."
+    }
+
+    $prefixes = Get-SavedActionTriggerPrefixes -TriggerMode ([string]$Record.trigger_mode) -CustomTriggers @($Record.custom_triggers)
+    if ($prefixes.Count -gt 0) {
+        return [regex]::Replace("$($prefixes[0]) $($aliases[0])", "\s+", " ").Trim()
+    }
+
+    return [regex]::Replace(([string]$aliases[0]).Trim(), "\s+", " ").Trim()
 }
 
 function Run-Create-Flow {
@@ -2789,73 +3199,128 @@ function Run-Create-Flow {
     Write-StepLog -Stage "FLOW" -Message "verifying created inventory after successful create"
     $createdTasksDialog = Open-CreatedTasksDialog -Overlay $Overlay
     Wait-ForInventoryText -Overlay $createdTasksDialog -Text "Open Notepad Task"
-    Close-CreatedTasksDialog -Dialog $createdTasksDialog
+    $Overlay = Close-CreatedTasksDialog -Dialog $createdTasksDialog -Overlay $Overlay -Reason "post-create Created Tasks close"
     Copy-SourceSnapshot -Slug "after_create" | Out-Null
     Write-StepLog -Stage "FLOW" -Message "valid create flow complete; preparing next scenario"
     return (Ensure-OverlayReady -Overlay $Overlay -Reason "post-create inventory verification")
 }
 
-function Run-Invalid-Create-Checks {
-    param([System.Windows.Automation.AutomationElement]$Overlay)
-    Write-StepLog -Stage "FLOW" -Message "running invalid create checks"
-
-    $cases = @(
+function Get-InvalidCreateCases {
+    return @(
         @{ type = "Application"; title = "Bad App"; aliases = "bad app alias"; target = "notepad.exe --help"; expect = "Application targets" },
         @{ type = "Folder"; title = "Bad Folder"; aliases = "bad folder alias"; target = "Reports\Daily"; expect = "Folder targets" },
         @{ type = "File"; title = "Bad File"; aliases = "bad file alias"; target = "C:\Reports\bad?.txt"; expect = "File targets" },
         @{ type = "Website URL"; title = "Bad Url"; aliases = "bad url alias"; target = "example.com/docs"; expect = "absolute http or https URL" }
     )
+}
 
-    foreach ($case in $cases) {
-        $beforeSourceText = if (Test-Path -LiteralPath $SourcePath) {
+function Get-ScenarioSlug {
+    param(
+        [string]$Value
+    )
+
+    $slug = ([string]$Value).ToLowerInvariant() -replace "[^a-z0-9]+", "_"
+    $slug = $slug.Trim("_")
+    if (-not $slug) {
+        return "case"
+    }
+    return $slug
+}
+
+function Confirm-InvalidCreateBlockedSubmission {
+    param(
+        [string]$Title,
+        [string]$TypeLabel,
+        [int]$StartLine,
+        [string]$BeforeSourceText
+    )
+
+    $attemptMarker = "RENDERER_MAIN|CUSTOM_TASK_CREATE_ATTEMPT_STARTED|title=$Title"
+    $blockedMarker = "RENDERER_MAIN|CUSTOM_TASK_CREATE_BLOCKED|reason=validation_error|title=$Title"
+    $attemptSeen = $false
+    $blockedSeen = $false
+
+    Write-StepLog -Stage "FLOW" -Message "confirming blocked create submit for type='$TypeLabel' title='$Title'"
+
+    try {
+        Wait-ForRuntimeMarker -Marker $attemptMarker -StartLine $StartLine -TimeoutSeconds 6
+        $attemptSeen = $true
+    } catch {
+        Add-Note "Invalid create submit for '$Title' did not surface the attempt-start marker within the first wait window."
+    }
+
+    try {
+        Wait-ForRuntimeMarker -Marker $blockedMarker -StartLine $StartLine -TimeoutSeconds 6
+        $blockedSeen = $true
+    } catch {
+        if (Test-RuntimeMarkerSeen -Marker $blockedMarker -StartLine $StartLine) {
+            $blockedSeen = $true
+            Add-Note "Invalid create submit for '$Title' surfaced the blocked marker after the timed wait loop missed it once; continuing with final log slice evidence."
+        } else {
+            Add-Note "Invalid create submit for '$Title' did not surface the blocked marker within the first wait window."
+        }
+    }
+
+    Wait-Until -TimeoutSeconds 4 -Description "blocked invalid create '$TypeLabel'" -Condition {
+        $currentDialog = Get-DialogWindow -Name "Create Custom Task"
+        if (-not $currentDialog) {
+            return $false
+        }
+        $currentSourceText = if (Test-Path -LiteralPath $SourcePath) {
             Get-Content -LiteralPath $SourcePath -Raw
         } else {
             ""
         }
-        $dialog = Open-CreateDialog -Overlay $Overlay
-        Fill-AuthoringDialog -Dialog $dialog -TypeLabel $case.type -Title $case.title -Aliases $case.aliases -Target $case.target
-        $markerStart = New-RuntimeMarkerCursor
-        Submit-Dialog -Dialog $dialog -ButtonName "Create"
-        Wait-ForRuntimeMarker -Marker "RENDERER_MAIN|CUSTOM_TASK_CREATE_ATTEMPT_STARTED|title=$($case.title)" -StartLine $markerStart
-        Wait-ForRuntimeMarker -Marker "RENDERER_MAIN|CUSTOM_TASK_CREATE_BLOCKED|reason=validation_error" -StartLine $markerStart
-        Wait-Until -TimeoutSeconds 4 -Description "blocked invalid create '$($case.type)'" -Condition {
+        return $currentSourceText -eq $BeforeSourceText
+    } | Out-Null
+
+    if (Test-RuntimeMarkerSeen -Marker "RENDERER_MAIN|CUSTOM_TASK_CREATED|" -StartLine $StartLine) {
+        throw "Invalid target case '$TypeLabel' unexpectedly produced a create marker."
+    }
+
+    if (-not $blockedSeen) {
+        throw "Invalid target case '$TypeLabel' never surfaced the expected blocked marker after submit."
+    }
+
+    Write-StepLog -Stage "FLOW" -Message "blocked create submit confirmed for type='$TypeLabel' title='$Title' attempt_marker=$attemptSeen blocked_marker=$blockedSeen"
+}
+
+function Run-Invalid-Create-CheckCase {
+    param(
+        [System.Windows.Automation.AutomationElement]$Overlay,
+        [hashtable]$Case
+    )
+
+    Write-StepLog -Stage "FLOW" -Message "running invalid create case type='$($Case.type)' title='$($Case.title)'"
+
+    $beforeSourceText = if (Test-Path -LiteralPath $SourcePath) {
+        Get-Content -LiteralPath $SourcePath -Raw
+    } else {
+        ""
+    }
+    $dialog = Open-CreateDialog -Overlay $Overlay
+    Fill-AuthoringDialog -Dialog $dialog -TypeLabel $Case.type -Title $Case.title -Aliases $Case.aliases -Target $Case.target
+    $markerStart = New-RuntimeMarkerCursor
+    Submit-Dialog -Dialog $dialog -ButtonName "Create"
+    Confirm-InvalidCreateBlockedSubmission -Title $Case.title -TypeLabel $Case.type -StartLine $markerStart -BeforeSourceText $beforeSourceText
+
+    $status = ""
+    try {
+        Wait-Until -TimeoutSeconds 2 -Description "blocking feedback for invalid create '$($Case.type)'" -Condition {
             $currentDialog = Get-DialogWindow -Name "Create Custom Task"
             if (-not $currentDialog) {
                 return $false
             }
-            $currentSourceText = if (Test-Path -LiteralPath $SourcePath) {
-                Get-Content -LiteralPath $SourcePath -Raw
-            } else {
-                ""
-            }
-            return $currentSourceText -eq $beforeSourceText
+            $status = Get-DialogStatusText -Dialog $currentDialog
+            return [bool]$status
         } | Out-Null
-        if (Test-RuntimeMarkerSeen -Marker "RENDERER_MAIN|CUSTOM_TASK_CREATED|" -StartLine $markerStart) {
-            throw "Invalid target case '$($case.type)' unexpectedly produced a create marker."
-        }
-        $status = ""
-        try {
-            Wait-Until -TimeoutSeconds 2 -Description "blocking feedback for invalid create '$($case.type)'" -Condition {
-                $currentDialog = Get-DialogWindow -Name "Create Custom Task"
-                if (-not $currentDialog) {
-                    return $false
-                }
-                $status = Get-DialogStatusText -Dialog $currentDialog
-                return [bool]$status
-            } | Out-Null
-        } catch {
-        }
-        if (-not $status) {
-            Add-Note "Invalid target case '$($case.type)' kept the dialog open and preserved the source, but the interactive status-label readback was blank."
-        }
-        Cancel-Dialog -Dialog $dialog
-        try {
-            Wait-ForDialogClosedFast -Name "Create Custom Task" -TimeoutSeconds 3
-        } catch {
-            Add-Note "Invalid create dialog close readback lagged after cancel; continuing with overlay reacquisition."
-        }
-        $Overlay = Ensure-OverlayReady -Overlay $Overlay -Reason "invalid create case '$($case.type)'"
+    } catch {
     }
+    if (-not $status) {
+        Add-Note "Invalid target case '$($Case.type)' kept the dialog open and preserved the source, but the interactive status-label readback was blank."
+    }
+    Cancel-Dialog -Dialog $dialog
+    return (Restore-OverlayAfterAuthoringDialogCancel -Overlay $Overlay -Reason "invalid create case '$($Case.type)' cancel")
 }
 
 function Run-Collision-Checks {
@@ -2910,12 +3375,7 @@ function Run-Collision-Checks {
             Add-Note "Collision case '$($case.title)' stayed blocked with no write, but the interactive status-label readback was blank."
         }
         Cancel-Dialog -Dialog $dialog
-        try {
-            Wait-ForDialogClosedFast -Name "Create Custom Task" -TimeoutSeconds 3
-        } catch {
-            Add-Note "Collision dialog close readback lagged after cancel; continuing with overlay reacquisition."
-        }
-        $Overlay = Ensure-OverlayReady -Overlay $Overlay -Reason "collision create case '$($case.title)'"
+        $Overlay = Restore-OverlayAfterAuthoringDialogCancel -Overlay $Overlay -Reason "collision create case '$($case.title)' cancel"
     }
 }
 
@@ -2924,18 +3384,7 @@ function Run-Edit-Flow {
     Write-StepLog -Stage "FLOW" -Message "running valid edit flow"
 
     $createdTasksDialog = Open-CreatedTasksDialog -Overlay $Overlay
-    $editButtons = @(Get-InventoryEditButtons -Overlay $createdTasksDialog)
-    if (-not $editButtons -or $editButtons.Count -lt 1) {
-        throw "No edit buttons were available for the saved inventory."
-    }
-
-    $markerStart = New-RuntimeMarkerCursor
-    Invoke-ElementRobust -Element $editButtons[0] -Description "first Created Tasks edit button"
-    Wait-ForDialogRuntimeReady -SignalBase "CUSTOM_TASK_EDIT_DIALOG" -StartLine $markerStart -TimeoutSeconds 8
-    $dialog = Wait-ForDialog -Name "Edit Custom Task" -TimeoutSeconds 8
-    if (Find-WindowAnywhere -Name "Created Tasks") {
-        Add-Note "Created Tasks remained visible briefly while the edit dialog opened; continuing because the real edit route was still exercised."
-    }
+    $dialog = Open-EditDialog -CreatedTasksDialog $createdTasksDialog -EditIndex 0
     Fill-AuthoringDialog -Dialog $dialog -TypeLabel "Folder" -Title "Open Weekly Reports" -Aliases "weekly reports" -Target "C:\Windows"
     $markerStart = New-RuntimeMarkerCursor
     Submit-Dialog -Dialog $dialog -ButtonName "Save"
@@ -2964,7 +3413,7 @@ function Run-Edit-Flow {
     Write-StepLog -Stage "FLOW" -Message "verifying created inventory after successful edit"
     $createdTasksDialog = Open-CreatedTasksDialog -Overlay $Overlay
     Wait-ForInventoryText -Overlay $createdTasksDialog -Text "Open Weekly Reports"
-    Close-CreatedTasksDialog -Dialog $createdTasksDialog
+    $Overlay = Close-CreatedTasksDialog -Dialog $createdTasksDialog -Overlay $Overlay -Reason "post-edit Created Tasks close"
     Copy-SourceSnapshot -Slug "after_edit" | Out-Null
     Write-StepLog -Stage "FLOW" -Message "valid edit flow complete; preparing next scenario"
     return (Ensure-OverlayReady -Overlay $Overlay -Reason "post-edit inventory verification")
@@ -2975,11 +3424,7 @@ function Run-Invalid-Edit-Check {
     Write-StepLog -Stage "FLOW" -Message "running invalid edit check"
 
     $createdTasksDialog = Open-CreatedTasksDialog -Overlay $Overlay
-    $editButtons = @(Get-InventoryEditButtons -Overlay $createdTasksDialog)
-    $markerStart = New-RuntimeMarkerCursor
-    Invoke-ElementRobust -Element $editButtons[0] -Description "first Created Tasks edit button"
-    Wait-ForDialogRuntimeReady -SignalBase "CUSTOM_TASK_EDIT_DIALOG" -StartLine $markerStart -TimeoutSeconds 8
-    $dialog = Wait-ForDialog -Name "Edit Custom Task" -TimeoutSeconds 8
+    $dialog = Open-EditDialog -CreatedTasksDialog $createdTasksDialog -EditIndex 0
     $beforeSourceText = if (Test-Path -LiteralPath $SourcePath) {
         Get-Content -LiteralPath $SourcePath -Raw
     } else {
@@ -3021,20 +3466,25 @@ function Run-Invalid-Edit-Check {
         Add-Note "Invalid edit target kept the dialog open and preserved the source, but the interactive status-label readback was blank."
     }
     Cancel-Dialog -Dialog $dialog
-    try {
-        Wait-ForDialogClosedFast -Name "Edit Custom Task" -TimeoutSeconds 3
-    } catch {
-        Add-Note "Invalid edit dialog close readback lagged after cancel; continuing with overlay reacquisition."
-    }
-    $Overlay = Ensure-OverlayReady -Overlay $Overlay -Reason "invalid edit check"
+    $Overlay = Restore-OverlayAfterAuthoringDialogCancel -Overlay $Overlay -Reason "invalid edit check cancel"
 }
 
 function Run-ExactMatch-Execution {
     param([System.Windows.Automation.AutomationElement]$Overlay)
     Write-StepLog -Stage "FLOW" -Message "running exact-match execution check"
     $Overlay = Ensure-OverlayReady -Overlay $Overlay -Reason "exact-match execution check"
+    $record = Get-SavedActionRecordById -ActionId "open_notepad_task"
+    $callablePhrases = @(Build-SavedActionCallablePhrases -Record $record)
+    $invocationPhrase = Get-PreferredExactInvocationPhrase -Record $record
+    Write-StepLog -Stage "FLOW" -Message "exact-match callable phrases action_id=$($record.id) phrases=$([string]::Join(' | ', $callablePhrases))"
+    Write-StepLog -Stage "FLOW" -Message "exact-match invocation attempt action_id=$($record.id) phrase='$invocationPhrase' title='$($record.title)' invocation_mode='$($record.invocation_mode)' trigger_mode='$($record.trigger_mode)'"
+
+    if (-not (@($callablePhrases | Where-Object { (Normalize-CommandPhrase $_) -eq (Normalize-CommandPhrase $invocationPhrase) }).Count -gt 0)) {
+        throw "Exact-match invocation phrase '$invocationPhrase' was not present in the saved action callable phrase set."
+    }
+
     $input = Get-OverlayInput -Overlay $Overlay
-    Set-Value -Element $input -Value "Open Weekly Reports"
+    Set-Value -Element $input -Value $invocationPhrase
     $input.SetFocus()
     Start-Sleep -Milliseconds 200
 
@@ -3052,6 +3502,7 @@ function Run-ExactMatch-Execution {
         Add-Note "First exact-match submit did not surface a fresh confirm or launch marker; retrying the submit path once."
         $Overlay = Ensure-OverlayReady -Overlay $Overlay -Reason "exact-match execution retry"
         $input = Get-OverlayInput -Overlay $Overlay
+        Set-Value -Element $input -Value $invocationPhrase
         $input.SetFocus()
         Start-Sleep -Milliseconds 150
         $markerStart = New-RuntimeMarkerCursor
@@ -3080,7 +3531,7 @@ function Run-Reopen-Check {
     $overlay = Open-OverlayWithRuntimeRestartFallback
     $createdTasksDialog = Open-CreatedTasksDialog -Overlay $overlay
     Wait-ForInventoryText -Overlay $createdTasksDialog -Text "Open Weekly Reports"
-    Close-CreatedTasksDialog -Dialog $createdTasksDialog
+    $overlay = Close-CreatedTasksDialog -Dialog $createdTasksDialog -Overlay $overlay -Reason "overlay reopen persistence Created Tasks close"
     Write-StepLog -Stage "FLOW" -Message "overlay reopen persistence check complete; preparing next scenario"
     return (Ensure-OverlayReady -Overlay $overlay -Reason "overlay reopen persistence check")
 }
@@ -3125,7 +3576,7 @@ function Run-Large-Inventory-Check {
     $overlay = Ensure-OverlayReady -Overlay $overlay -Reason "large inventory edit flow"
     $createdTasksDialog = Open-CreatedTasksDialog -Overlay $overlay
     Wait-ForInventoryText -Overlay $createdTasksDialog -Text "Open Reports Eight"
-    Close-CreatedTasksDialog -Dialog $createdTasksDialog
+    $overlay = Close-CreatedTasksDialog -Dialog $createdTasksDialog -Overlay $overlay -Reason "post-large-inventory Created Tasks close"
     Copy-SourceSnapshot -Slug "after_large_inventory_edit" | Out-Null
     Write-StepLog -Stage "FLOW" -Message "large inventory late-item edit check complete; preparing next scenario"
     return (Ensure-OverlayReady -Overlay $overlay -Reason "post-large-inventory verification")
@@ -3166,7 +3617,7 @@ function Run-Unsafe-Source-Check {
     } else {
         Add-Note "Unsafe source hid edit affordances inside Created Tasks, which matches the fail-closed UI posture."
     }
-    Close-CreatedTasksDialog -Dialog $createdTasksDialog
+    $overlay = Close-CreatedTasksDialog -Dialog $createdTasksDialog -Overlay $overlay -Reason "unsafe-source Created Tasks close"
     $overlay = Ensure-OverlayReady -Overlay $overlay
 }
 
@@ -3219,10 +3670,13 @@ try {
     Add-ScenarioResult -Name "valid_create" -Passed $true -Details "A real create dialog session created Open Notepad Task and refreshed inventory immediately."
     Clear-ScenarioBudget -Name "valid_create"
 
-    Enter-ScenarioBudget -Name "invalid_create_rejection"
-    Run-Invalid-Create-Checks -Overlay $overlay
-    Add-ScenarioResult -Name "invalid_create_rejection" -Passed $true -Details "Application, folder, file, and URL invalid targets stayed blocked in the real dialog with no write."
-    Clear-ScenarioBudget -Name "invalid_create_rejection"
+    foreach ($invalidCreateCase in (Get-InvalidCreateCases)) {
+        $invalidCreateScenarioName = "invalid_create_rejection_$(Get-ScenarioSlug -Value $invalidCreateCase.type)"
+        Enter-ScenarioBudget -Name $invalidCreateScenarioName
+        $overlay = Run-Invalid-Create-CheckCase -Overlay $overlay -Case $invalidCreateCase
+        Add-ScenarioResult -Name $invalidCreateScenarioName -Passed $true -Details "Invalid $($invalidCreateCase.type) targets stayed blocked in the real create dialog with no write."
+        Clear-ScenarioBudget -Name $invalidCreateScenarioName
+    }
 
     Enter-ScenarioBudget -Name "collision_rejection"
     Run-Collision-Checks -Overlay $overlay
