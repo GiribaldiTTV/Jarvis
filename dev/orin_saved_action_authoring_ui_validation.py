@@ -274,6 +274,10 @@ def _test_create_custom_group_trigger_is_present_and_clickable():
         "exact-match callable group" in panel.create_custom_group_button.toolTip().casefold(),
         "Create Custom Group should expose a specific tooltip instead of a generic one",
     )
+    _assert(
+        "QToolTip {" in panel.styleSheet(),
+        "entry-state overlay should theme its tooltips instead of falling back to the default OS tooltip styling",
+    )
     _assert(fired == ["clicked"], "Create Custom Group trigger should be reachable and clickable")
 
 
@@ -663,8 +667,16 @@ def _test_created_groups_dialog_exposes_group_management_triggers():
         "group management dialog should expose the clearer Manage Custom Groups window title",
     )
     _assert(
+        dialog.title_label.text() == "Manage Custom Groups",
+        "group management header should no longer duplicate the item count in the title itself",
+    )
+    _assert(
         dialog.guidance_label.isHidden() and dialog.source_label.isHidden(),
         "group management dialog should keep the loaded-state header stack light",
+    )
+    _assert(
+        "QToolTip {" in dialog.styleSheet(),
+        "group management dialog should theme its tooltips instead of inheriting the default tooltip style",
     )
     meta_labels = [
         label
@@ -674,6 +686,27 @@ def _test_created_groups_dialog_exposes_group_management_triggers():
     _assert(
         any("members" in (label.text() or "").casefold() for label in meta_labels),
         "group management rows should surface member-count metadata so the group surface stays legible",
+    )
+    alias_labels = [
+        label
+        for label in dialog.items_frame.findChildren(QLabel)
+        if label.property("inventoryRole") == "itemTarget"
+    ]
+    _assert(
+        alias_labels and "exact callable aliases" in alias_labels[0].toolTip().casefold(),
+        "group management rows should expose group-specific alias tooltips instead of a raw generic preview",
+    )
+    _assert(
+        "aliases or members" in edit_buttons[0].toolTip().casefold(),
+        "group management edit tooltips should explain the real group edit scope",
+    )
+    _assert(
+        "tasks stay saved" in delete_buttons[0].toolTip().casefold(),
+        "group management delete tooltips should clarify that deleting a group does not delete tasks",
+    )
+    _assert(
+        dialog.chrome_bar.close_button.toolTip().casefold() == "close manage custom groups",
+        "group management close affordance should expose a specific tooltip",
     )
     edit_buttons[0].click()
     _assert(
@@ -1002,6 +1035,10 @@ def _test_group_create_dialog_surfaces_members_and_exact_alias_guidance():
         "group dialog should keep a bounded default width instead of expanding too far across the screen",
     )
     _assert(
+        "QToolTip {" in dialog.styleSheet(),
+        "group authoring should theme tooltips instead of falling back to the default tooltip styling",
+    )
+    _assert(
         dialog.members_scroll.maximumHeight() <= 220
         and dialog.members_scroll.horizontalScrollBarPolicy() == Qt.ScrollBarAlwaysOff,
         "group dialog should bound the members list with a vertical-only scroll region for reliability",
@@ -1009,6 +1046,35 @@ def _test_group_create_dialog_surfaces_members_and_exact_alias_guidance():
     _assert(
         "chromeRole=\"close\"" in dialog.styleSheet(),
         "group dialog should explicitly style the custom close button instead of falling back to the default chrome look",
+    )
+    name_help = dialog.findChild(QLabel, "callableGroupCreateNameHelp")
+    aliases_help = dialog.findChild(QLabel, "callableGroupCreateAliasesHelp")
+    members_help = dialog.findChild(QLabel, "callableGroupCreateMembersHelp")
+    _assert(
+        name_help is not None
+        and "display label" in name_help.toolTip().casefold()
+        and "aliases, not the name" in name_help.toolTip().casefold(),
+        "group name help should explain that the label is visual while aliases remain the callable surface",
+    )
+    _assert(
+        aliases_help is not None
+        and "exact phrases" in aliases_help.toolTip().casefold()
+        and "member chooser" in aliases_help.toolTip().casefold(),
+        "group alias help should explain that aliases are exact phrases that open the group chooser",
+    )
+    _assert(
+        members_help is not None
+        and "built-ins and saved tasks" in members_help.toolTip().casefold()
+        and "only show these members" in members_help.toolTip().casefold(),
+        "group member help should explain that the chooser is limited to the selected members",
+    )
+    _assert(
+        dialog.chrome_bar.close_button.toolTip().casefold() == "close create custom group",
+        "group create close affordance should expose a specific tooltip",
+    )
+    _assert(
+        any("becomes selectable when this group's alias is used." in checkbox.toolTip().casefold() for checkbox in dialog._member_checkboxes),
+        "group member rows should expose specific tooltips instead of a generic origin-only label",
     )
     dialog.name_input.setText("Workspace Tools")
     dialog.aliases_input.setText("workspace tools, tools group")
@@ -1517,8 +1583,8 @@ def _test_created_tasks_navigation_routes_into_edit_dialog():
                 inventory_payload,
                 lambda dialog: (
                     _assert(
-                        dialog.title_label.text() == "Manage Custom Tasks (1)",
-                        "Manage Custom Tasks dialog should reflect the current saved-action count",
+                        dialog.title_label.text() == "Manage Custom Tasks",
+                        "Manage Custom Tasks dialog should keep a stable main header and leave counts to the status line",
                     ),
                     dialog._handle_edit_requested("open_reports"),
                 ),
@@ -1595,8 +1661,8 @@ def _test_created_tasks_navigation_routes_into_delete_flow():
                 inventory_payload,
                 lambda dialog: (
                     _assert(
-                        dialog.title_label.text() == "Manage Custom Tasks (2)",
-                        "Manage Custom Tasks delete flow should reflect the current saved-action count",
+                        dialog.title_label.text() == "Manage Custom Tasks",
+                        "Manage Custom Tasks delete flow should keep a stable main header and leave counts to the status line",
                     ),
                     dialog._handle_delete_requested("open_reports"),
                 ),

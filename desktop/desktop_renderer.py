@@ -97,6 +97,18 @@ DWMWA_CAPTION_COLOR = 35
 DWMWA_TEXT_COLOR = 36
 DWMWCP_ROUND = 2
 
+THEMED_TOOLTIP_QSS = """
+            QToolTip {
+                border: 1px solid rgba(102, 219, 204, 0.22);
+                border-radius: 12px;
+                background: rgba(5, 16, 28, 248);
+                color: rgba(192, 212, 207, 0.96);
+                padding: 12px 14px;
+                font-size: 12px;
+                line-height: 1.45em;
+            }
+"""
+
 
 def _windows_colorref(red: int, green: int, blue: int) -> int:
     return (blue << 16) | (green << 8) | red
@@ -290,13 +302,16 @@ def _populate_saved_group_item_layout(
         metadata_label = QLabel(f"Custom group | {member_count} {member_noun}", item_frame)
         metadata_label.setProperty("inventoryRole", "itemMeta")
         metadata_label.setWordWrap(True)
+        metadata_label.setToolTip(
+            f'This group can surface {member_count} {member_noun} when one of its exact aliases is used.'
+        )
         content_layout.addWidget(metadata_label)
 
         if alias_preview:
             aliases_label = QLabel(f"Aliases: {alias_preview}", item_frame)
             aliases_label.setProperty("inventoryRole", "itemTarget")
             aliases_label.setWordWrap(True)
-            aliases_label.setToolTip(alias_preview)
+            aliases_label.setToolTip(f'Exact callable aliases for "{title}": {alias_preview}')
             content_layout.addWidget(aliases_label)
 
         item_layout.addLayout(content_layout, 1)
@@ -310,7 +325,7 @@ def _populate_saved_group_item_layout(
 
             edit_button = QPushButton("Edit", action_shell)
             edit_button.setProperty("inventoryRole", "editButton")
-            edit_button.setToolTip(f'Edit "{title}"')
+            edit_button.setToolTip(f'Edit the aliases or members for "{title}".')
             edit_button.clicked.connect(
                 lambda _checked=False, group_id=item_id: edit_handler(group_id)
             )
@@ -318,7 +333,7 @@ def _populate_saved_group_item_layout(
 
             delete_button = QPushButton("Delete", action_shell)
             delete_button.setProperty("inventoryRole", "deleteButton")
-            delete_button.setToolTip(f'Delete "{title}"')
+            delete_button.setToolTip(f'Delete the group "{title}". Tasks stay saved.')
             delete_button.clicked.connect(
                 lambda _checked=False, group_id=item_id: delete_handler(group_id)
             )
@@ -799,6 +814,7 @@ class TaskGroupAssignmentDialog(QDialog):
             parent=self.shell,
             show_title=False,
         )
+        self.chrome_bar.close_button.setToolTip("Close Available Groups")
         self.chrome_bar.raise_()
 
         layout = QVBoxLayout(self.content)
@@ -849,7 +865,7 @@ class TaskGroupAssignmentDialog(QDialog):
         self.create_group_button.setObjectName("taskGroupAssignmentCreateButton")
         self.create_group_button.setMinimumHeight(38)
         self.create_group_button.setToolTip(
-            "Open the full Create Custom Group dialog, then return here to assign the new group to this task."
+            "Create a new callable group, then return here to assign it to this task."
         )
         self.create_group_button.clicked.connect(self._handle_create_group_requested)
         actions_row.addWidget(self.create_group_button, 0, Qt.AlignLeft)
@@ -887,6 +903,9 @@ class TaskGroupAssignmentDialog(QDialog):
                 color: rgba(255, 189, 176, 0.96);
                 font-size: 12px;
             }
+            """
+            + THEMED_TOOLTIP_QSS
+            + """
             #taskGroupAssignmentItemsScroll {
                 border: none;
                 background: transparent;
@@ -1650,11 +1669,11 @@ class SavedActionCreateDialog(QDialog):
             }
             QLabel[createRole="fieldHeaderHelp"] {
                 padding-bottom: 1px;
-                border-bottom: 1px dotted rgba(102, 219, 204, 0.20);
+                border-bottom: 1px dotted rgba(102, 219, 204, 0.36);
             }
             QLabel[createRole="fieldHeaderHelp"]:hover {
                 color: rgba(198, 218, 211, 0.99);
-                border-bottom: 1px dotted rgba(102, 219, 204, 0.50);
+                border-bottom: 1px dotted rgba(102, 219, 204, 0.58);
             }
             QLabel[createRole="fieldHeaderHelp"]:focus {
                 color: rgba(198, 218, 211, 0.99);
@@ -2299,6 +2318,7 @@ class CallableGroupCreateDialog(QDialog):
             parent=self.shell,
             show_title=False,
         )
+        self.chrome_bar.close_button.setToolTip(f"Close {dialog_title}")
         self.chrome_bar.raise_()
 
         layout = QVBoxLayout(self.content)
@@ -2322,8 +2342,8 @@ class CallableGroupCreateDialog(QDialog):
             self,
             "Group name",
             tooltip_text=(
-                "<div style=\"max-width: 250px;\"><b>What this is</b><br/>The display label people see for the group."
-                "<br/><br/><b>How it affects calling</b><br/>Calling comes from the group's aliases, not the name.</div>"
+                "<div style=\"max-width: 250px;\"><b>What this is</b><br/>The display label people see for this group."
+                "<br/><br/><b>How it affects calling</b><br/>Calling still comes from the group's aliases, not the name.</div>"
             ),
             object_name="callableGroupCreateNameHeader",
             help_object_name="callableGroupCreateNameHelp",
@@ -2339,8 +2359,8 @@ class CallableGroupCreateDialog(QDialog):
             self,
             "Aliases",
             tooltip_text=(
-                "<div style=\"max-width: 250px;\"><b>What this is</b><br/>Exact callable phrases for this group."
-                "<br/><br/><b>How it affects calling</b><br/>Typing one of these aliases opens the group's member chooser.</div>"
+                "<div style=\"max-width: 250px;\"><b>What this is</b><br/>Exact phrases that call this group."
+                "<br/><br/><b>How it affects calling</b><br/>Using one of these aliases opens the group's member chooser.</div>"
             ),
             object_name="callableGroupCreateAliasesHeader",
             help_object_name="callableGroupCreateAliasesHelp",
@@ -2378,7 +2398,7 @@ class CallableGroupCreateDialog(QDialog):
                 "Members",
                 tooltip_text=(
                     "<div style=\"max-width: 250px;\"><b>What this is</b><br/>The built-ins and saved tasks this group can surface."
-                    "<br/><br/><b>How it affects calling</b><br/>Group aliases show only these members in the chooser.</div>"
+                    "<br/><br/><b>How it affects calling</b><br/>Group aliases only show these members in the chooser.</div>"
                 ),
                 object_name="callableGroupCreateMembersHeader",
                 help_object_name="callableGroupCreateMembersHelp",
@@ -2446,6 +2466,9 @@ class CallableGroupCreateDialog(QDialog):
                 font-size: 12px;
                 line-height: 1.45em;
             }
+            """
+            + THEMED_TOOLTIP_QSS
+            + """
             #callableGroupCreateExamplesBox {
                 border-radius: 15px;
                 border: 1px solid rgba(118, 226, 255, 0.10);
@@ -2491,11 +2514,11 @@ class CallableGroupCreateDialog(QDialog):
             }
             QLabel[createRole="fieldHeaderHelp"] {
                 padding-bottom: 1px;
-                border-bottom: 1px dotted rgba(102, 219, 204, 0.24);
+                border-bottom: 1px dotted rgba(102, 219, 204, 0.36);
             }
             QLabel[createRole="fieldHeaderHelp"]:hover {
                 color: rgba(198, 218, 211, 0.99);
-                border-bottom: 1px dotted rgba(102, 219, 204, 0.50);
+                border-bottom: 1px dotted rgba(102, 219, 204, 0.58);
             }
             QLineEdit {
                 min-height: 42px;
@@ -2615,10 +2638,17 @@ class CallableGroupCreateDialog(QDialog):
         for item in self._available_members:
             member_id = str(item.get("id") or "").strip()
             title = str(item.get("title") or "").strip()
-            subtitle = f"{item.get('origin_label', '')} | {item.get('target_kind', '')}".strip(" |")
+            origin_label = str(item.get("origin_label") or "").strip() or "Member"
+            target_kind = str(item.get("target_kind") or "").strip()
+            subtitle = f"{origin_label} | {target_kind}".strip(" |")
             checkbox = QCheckBox(title, self.members_frame)
             checkbox.setProperty("memberId", member_id)
-            checkbox.setToolTip(subtitle)
+            if subtitle:
+                checkbox.setToolTip(
+                    f"{subtitle}\nBecomes selectable when this group's alias is used."
+                )
+            else:
+                checkbox.setToolTip("Becomes selectable when this group's alias is used.")
             self.members_layout.addWidget(checkbox)
             self._member_checkboxes.append(checkbox)
         self.members_layout.addStretch(1)
@@ -2745,6 +2775,7 @@ class CreatedTasksDialog(QDialog):
             parent=self.shell,
             show_title=False,
         )
+        self.chrome_bar.close_button.setToolTip("Close Manage Custom Tasks")
         self.chrome_bar.raise_()
 
         layout = QVBoxLayout(self.content)
@@ -2867,6 +2898,9 @@ class CreatedTasksDialog(QDialog):
                 font-size: 12px;
                 line-height: 1.45em;
             }
+            """
+            + THEMED_TOOLTIP_QSS
+            + """
             #savedActionCreatedTasksStatus {
                 color: rgba(148, 180, 178, 0.89);
                 font-size: 12px;
@@ -3034,10 +3068,7 @@ class CreatedTasksDialog(QDialog):
 
     def refresh_inventory(self, inventory_payload: dict):
         inventory_payload = inventory_payload or {}
-        item_count = int(inventory_payload.get("count", 0))
-        self.title_label.setText(
-            f"Manage Custom Tasks ({item_count})" if item_count else "Manage Custom Tasks"
-        )
+        self.title_label.setText("Manage Custom Tasks")
 
         status_kind = inventory_payload.get("status_kind", "hidden")
         self.status_label.setProperty("statusKind", status_kind)
@@ -3113,6 +3144,7 @@ class CreatedGroupsDialog(QDialog):
             parent=self.shell,
             show_title=False,
         )
+        self.chrome_bar.close_button.setToolTip("Close Manage Custom Groups")
         self.chrome_bar.raise_()
 
         layout = QVBoxLayout(self.content)
@@ -3209,6 +3241,9 @@ class CreatedGroupsDialog(QDialog):
                 color: rgba(136, 165, 174, 0.88);
                 font-size: 12px;
             }
+            """
+            + THEMED_TOOLTIP_QSS
+            + """
             #savedActionCreatedTasksStatus {
                 color: rgba(148, 180, 178, 0.89);
                 font-size: 12px;
@@ -3382,10 +3417,7 @@ class CreatedGroupsDialog(QDialog):
 
     def refresh_inventory(self, inventory_payload: dict):
         inventory_payload = inventory_payload or {}
-        item_count = int(inventory_payload.get("count", 0))
-        self.title_label.setText(
-            f"Manage Custom Groups ({item_count})" if item_count else "Manage Custom Groups"
-        )
+        self.title_label.setText("Manage Custom Groups")
 
         status_kind = inventory_payload.get("status_kind", "hidden")
         self.status_label.setProperty("statusKind", status_kind)
@@ -3716,6 +3748,9 @@ class CommandOverlayPanel(QWidget):
                 color: rgba(136, 165, 174, 0.88);
                 font-size: 14px;
             }
+            """
+            + THEMED_TOOLTIP_QSS
+            + """
             #commandInputShell {
                 margin-top: 18px;
                 border-radius: 16px;
