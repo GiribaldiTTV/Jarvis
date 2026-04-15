@@ -30,21 +30,37 @@ This workstream exists so users can manage non-standard custom tasks safely thro
 ## Current Branch Truth
 
 - the branch already includes safe saved-action persistence, bounded deletion, and explicit catalog reload after writes
+- the branch now also treats callable groups as first-class persisted authoring objects that live alongside saved tasks in the same source document
 - the branch already includes a type-first create flow and a bounded edit flow
-- the entry-state NCP opening now stays lightweight and button-led, with peer `Create Custom Task` and `Manage Custom Tasks` actions as the primary authoring entry points
+- the entry-state NCP opening now stays lightweight and button-led, with peer `Create Custom Task`, `Manage Custom Tasks`, `Create Custom Group`, and `Manage Custom Groups` actions as the primary authoring entry points
 - detailed saved-action inventory viewing and edit reachability now live in the secondary `Manage Custom Tasks` window instead of being expanded inline on the initial opening surface
 - the secondary `Manage Custom Tasks` window now supports both edit and delete actions for existing saved tasks
+- standalone callable-group creation and management now live in dedicated `Create Custom Group` and `Manage Custom Groups` windows that mirror the task surfaces without widening into batch automation
 - create/edit dialogs now expose an explicit `Trigger` field with `Launch`, `Open`, `Launch and Open`, and `Custom` options
 - new saved actions now use alias-root invocation, with `Title` treated as a label and callable phrases generated at runtime from `aliases`, `trigger_mode`, and optional `custom_triggers`
+- groups stay alias-only in this lane
+  - `Group name` is label-only
+  - `Aliases` are the exact callable phrases
+  - there is no group `Trigger` field
+  - there is no title-callable fallback for groups
 - legacy saved actions that do not yet carry the new invocation-mode marker still remain title-plus-alias callable so existing tasks do not silently change behavior
 - create/edit dialogs now use stronger field headers with label-hover help, darker integrated chrome, and a single callable-surface panel that updates from the current title, aliases, trigger selection, and target kind
 - create/edit dialogs now place `Trigger` directly below `Title`, use faster NDAI-styled help tooltips from the field labels themselves, and keep the callable-surface panel to the right of the form for clearer scanning
 - exact-match resolution remains unchanged
 - new integrated truth now allows multiple saved actions to share the same exact callable phrase while still keeping exact-match normalization and resolution bounded
 - saved-vs-saved exact ambiguities now surface through the existing overlay ambiguity chooser, then continue through the normal confirm step before execution
+- exact group invocation now uses that same bounded chooser and confirm flow, but only after an exact group alias expands to the group's explicit members
 - built-in vs saved callable-phrase overlap still remains blocked rather than becoming ambiguous in this lane
+- group aliases must remain unique against built-ins, saved-task callable phrases, and other group aliases, so there is no mixed task/group ambiguity in v1
 - the overlay phase machine remains bounded to `entry` -> `choose` -> `confirm` -> `result`
 - current supported saved-action target kinds remain `app`, `folder`, `file`, and `url`
+- group membership is explicit and static by action ID
+  - groups may include both built-ins and saved tasks
+  - groups may not include other groups
+  - empty persisted groups are invalid
+- malformed group records or dangling member references now produce a group-specific invalid state that blocks group create/manage and group invocation without blocking healthy task authoring or normal task execution
+- task create/edit flows now include bounded group assignment, including inline quick-create of a new group that is committed atomically with the task save instead of being written early
+- deleting a saved task now also removes that task from any groups in the same atomic write
 - malformed or colliding saved-action sources still block authoring rather than attempting salvage
 - branch-local validation and hardening work now also includes dedicated FB-036 validators, live-style harnesses, interactive runtime helpers, durable validation reports, and exported manual-test artifacts that future slices should reuse rather than recreate blindly
 - the final integrated FB-036 + Idea 5 watchdog-enforced interactive desktop gate passed end-to-end on `2026-04-15` using `dev/logs/fb_036_authoring_interactive_validation/reports/FB036SavedActionAuthoringInteractiveValidationReport_20260415_115705.txt`
@@ -53,11 +69,14 @@ This workstream exists so users can manage non-standard custom tasks safely thro
 
 - bounded saved-action create and edit UX
 - bounded saved-action deletion from the secondary `Manage Custom Tasks` window
+- bounded callable-group create, edit, and delete UX
 - safe persistence and validation-before-write
 - immediate catalog reload after successful writes
 - explicit user-facing type selection mapped to the current persisted target kinds
 - a lightweight landing path for task authoring and management that does not overload the initial NCP opening surface
 - richer secondary create/manage windows that can carry the detailed explanations, guidance, and step-by-step authoring copy users need once they choose an action path
+- explicit callable-group aliases and explicit member selection without weakening the exact-match resolver contract
+- bounded task-to-group assignment, including inline quick-create of a new group from the task dialog
 - short inline field guidance inside the secondary create/edit windows so users get quick help without overloading the initial landing surface
 - title-driven alias suggestions, explicit trigger configuration, alias-root invocation for new tasks, and a bottom-of-dialog dynamic invocation examples box inside the secondary create/edit windows
 - browse-assisted target selection for `Application`, `Folder`, and `File` that fills the existing validated `Target` field while `Website URL` stays direct-entry only
@@ -69,10 +88,14 @@ This workstream exists so users can manage non-standard custom tasks safely thro
 - taskbar or tray authoring surfaces
 - overlay phase changes
 - new persisted action kinds
+- batch group execution
+- nested groups
+- mixed task/group ambiguity
 - malformed-source repair logic
 - built-in vs saved ambiguity
 - ambiguity ranking logic changes
 - fuzzy matching
+- dynamic natural-language grouping or query behavior
 
 ## Executed Slices So Far
 
@@ -89,6 +112,7 @@ This workstream exists so users can manage non-standard custom tasks safely thro
 11. polished the create/edit dialog layout so `Trigger` follows `Title`, help tooltips appear faster, and the single bottom callable-surface box is easier to scan
 12. allowed saved-vs-saved exact-match ambiguity while preserving built-in collision rejection and the existing choose -> confirm -> execute overlay flow
 13. integrated the latest FB-036 UI lane, hardening lane, and Idea 5 ambiguity lane into one final proof branch and re-cleared the full watchdog-backed interactive desktop gate
+14. extended the same exact-match authoring lane with callable groups, bounded task-to-group assignment, and exact group invocation through the existing chooser + confirm flow
 
 ## Idea Impact Analysis And Route Adjustment
 
@@ -397,14 +421,19 @@ Confirm that the full FB-036 branch behavior is stable for real desktop use, inc
 
 - safe custom-task creation
 - bounded in-place editing
-- bounded deletion from `Created Tasks`
+- bounded deletion from `Manage Custom Tasks`
+- safe custom-group creation
+- bounded custom-group editing and deletion
 - explicit Trigger configuration with runtime-generated callable phrases
 - alias-root invocation for newly created tasks without silently changing legacy tasks
+- exact callable-group aliases with explicit static membership
+- bounded task-to-group assignment, including inline quick-create
 - validation-before-write for every supported target kind
 - immediate catalog reload after save
 - fail-closed handling for unsafe saved-action sources
 - edit reachability for inventories larger than six items
 - saved-vs-saved exact-match ambiguity surfaced through candidate selection
+- exact group invocation surfaced through the same chooser + confirm flow
 - built-in-vs-saved overlap still blocked before write
 - no regression in the typed-first overlay baseline
 
@@ -414,6 +443,8 @@ Open the desktop overlay on `feature/fb-036-idea5-integrated-hardening` with a h
 
 - `Create Custom Task`
 - `Manage Custom Tasks`
+- `Create Custom Group`
+- `Manage Custom Groups`
 
 ### Setup / Prerequisites
 
@@ -427,8 +458,8 @@ Open the desktop overlay on `feature/fb-036-idea5-integrated-hardening` with a h
 
 1. Setup: launch the desktop runtime and open the overlay in its normal typed-first way.
 Action: inspect the entry-state panel before typing anything.
-Expected Behavior: the overlay opens in the normal entry baseline, the initial landing surface stays lightweight, `Create Custom Task` and `Manage Custom Tasks` are both visible as peer actions, and no inline saved-action detail or `Edit` buttons overload the first surface.
-Failure Conditions / Edge Cases: the overlay skips entry state, either top-level button is missing, inline inventory/edit detail still clutters the landing surface, or outside text receives stray typing.
+Expected Behavior: the overlay opens in the normal entry baseline, the initial landing surface stays lightweight, `Create Custom Task`, `Manage Custom Tasks`, `Create Custom Group`, and `Manage Custom Groups` are all visible as peer actions, and no inline saved-action detail or `Edit` buttons overload the first surface.
+Failure Conditions / Edge Cases: the overlay skips entry state, any top-level authoring button is missing, inline inventory/edit detail still clutters the landing surface, or outside text receives stray typing.
 
 2. Setup: stay in entry state with a healthy saved-action source.
 Action: click `Create Custom Task`, choose `Application`, then inspect the dialog before saving anything.
@@ -477,43 +508,65 @@ use wording that collides only through generated trigger phrases, such as creati
 Expected Behavior: the dialog stays open, collision feedback is clear, and no write occurs.
 Failure Conditions / Edge Cases: a colliding action is saved, an existing record is overwritten, or inventory count changes.
 
-9. Setup: with the created task already present.
+9. Setup: with at least one built-in action and one saved task visible to the current source.
+Action: click `Create Custom Group`, enter `Group name = Workspace Tools`, add aliases such as `Workspace Tools, Tools Group`, select both a built-in member and a saved-task member, and save.
+Expected Behavior: the group saves successfully only when it has at least one valid member and unique aliases; the callable-surface panel shows exact group aliases only; and the new group appears immediately in `Manage Custom Groups` without restart.
+Failure Conditions / Edge Cases: the group saves with no members, aliases collide with built-ins or saved-task phrases, generated trigger phrases appear even though groups are alias-only, or the group only appears after restart.
+
+10. Setup: with the new group present.
+Action: type one of the exact group aliases into the normal overlay input, choose the built-in member first, confirm, then repeat and choose the saved-task member.
+Expected Behavior: the exact group alias opens the existing chooser with that group's members only; member selection advances to the normal confirm step; and only the selected built-in or saved task executes.
+Failure Conditions / Edge Cases: the group alias executes immediately without showing members, non-member actions appear in the chooser, the chooser skips confirm, or the wrong member executes.
+
+11. Setup: with an existing saved task that is not yet assigned to every group.
+Action: open `Create Custom Task` or edit an existing task, assign the task to an existing group, then use the inline quick-create path to create a second new group with the current task as its first member and save the task.
+Expected Behavior: existing-group assignment updates cleanly; inline quick-create collects only group name and aliases; the new group is not persisted early; and the saved task plus the new membership land together in one atomic write.
+Failure Conditions / Edge Cases: the inline group persists before the task save succeeds, the current task does not become the first member, group assignment is lost after save, or the task flow leaves the dialog unexpectedly.
+
+12. Setup: with the created task already present.
 Action: click `Manage Custom Tasks`, then `Edit`, verify current values preload, change `Trigger` to `Open`, change type to `File`, use `Browse...` to choose `C:\Reports\weekly.txt`, and save.
 Expected Behavior: the edit dialog preloads the existing title, aliases, trigger choice, and target; type changes still update the default trigger until you deliberately choose a trigger yourself; the same saved action updates in place; and the examples box refreshes to match the edited trigger and target kind.
 Failure Conditions / Edge Cases: preload is blank or incomplete, the trigger resets unexpectedly after a manual choice, browse support disappears for `File`, the examples box stays stale, the save creates a duplicate, or refresh only happens after restart.
 
-10. Setup: after the valid edit succeeds.
+13. Setup: after the valid edit succeeds.
 Action: run the callable phrases that should still work for the edited task, then verify phrases that should no longer work after the trigger change.
 Expected Behavior: the alias-root phrases still work; the current trigger family works; and phrases from trigger families you removed no longer resolve for that task.
 Failure Conditions / Edge Cases: old trigger phrases still resolve after the trigger mode changed, current alias-root phrases do not resolve, or the title label behaves like an invocation source for the new task even when it is not in aliases.
 
-11. Setup: with at least two saved actions present after a successful create or edit pass.
-Action: click `Manage Custom Tasks`, choose `Delete` for one task, then return to the overlay and verify the remaining inventory.
-Expected Behavior: the selected task is removed immediately without restart, the remaining tasks stay intact, the deleted task disappears from `Manage Custom Tasks`, and the overlay returns to entry-ready state with clear deletion feedback.
-Failure Conditions / Edge Cases: deleting one task removes the wrong row, inventory does not refresh until restart, the deleted task still resolves as callable, or the overlay does not recover cleanly afterward.
+14. Setup: with at least two saved actions present after a successful create or edit pass and with one of those tasks belonging to a group.
+Action: click `Manage Custom Tasks`, choose `Delete` for one task, then return to the overlay and verify the remaining inventory and the affected group.
+Expected Behavior: the selected task is removed immediately without restart, the remaining tasks stay intact, the deleted task disappears from `Manage Custom Tasks`, the deleted task also disappears from any group membership in the same write, and the overlay returns to entry-ready state with clear deletion feedback.
+Failure Conditions / Edge Cases: deleting one task removes the wrong row, inventory does not refresh until restart, the deleted task still resolves as callable, the deleted task remains in a group member list, or the overlay does not recover cleanly afterward.
 
-12. Setup: use or create one saved action record that predates the alias-root invocation marker, then open `Created Tasks` and edit it without changing its compatibility mode.
+15. Setup: use or create one saved action record that predates the alias-root invocation marker, then open `Manage Custom Tasks` and edit it without changing its compatibility mode.
 Action: save a valid edit and then run the legacy task again by bare title.
 Expected Behavior: the legacy task keeps its title-callable behavior after the edit because existing tasks must not silently convert.
 Failure Conditions / Edge Cases: a legacy task loses bare-title callability after a normal edit, or it silently flips into the new alias-root model without an explicit migration step.
 
-12. Setup: prepare at least eight valid saved actions and reopen the overlay.
-Action: click `Created Tasks`, scroll the inventory there, find the seventh or eighth saved action, click `Edit`, change it, and save.
-Expected Behavior: later items remain reachable through the secondary window, scrolling stays stable, the correct later item opens for editing, and the updated later item refreshes immediately after save.
-Failure Conditions / Edge Cases: only the first six items remain editable, `Created Tasks` does not expose later rows cleanly, scroll behavior breaks layout, later `Edit` buttons open the wrong item, or later edits do not refresh correctly.
+16. Setup: prepare at least eight valid saved actions and multiple valid groups, then reopen the overlay.
+Action: click `Manage Custom Tasks`, scroll the inventory there, find the seventh or eighth saved action, click `Edit`, change it, and save; then open `Manage Custom Groups`, scroll to a later group, and verify edit/delete reachability there too.
+Expected Behavior: later items remain reachable through both secondary windows, scrolling stays stable, the correct later item opens for editing, and later task/group edits refresh immediately after save.
+Failure Conditions / Edge Cases: only the first six items remain reachable, either management window breaks layout while scrolling, later `Edit` buttons open the wrong record, or later edits do not refresh correctly.
 
-13. Setup: back up `%LOCALAPPDATA%\Nexus Desktop AI\saved_actions.json`, then intentionally corrupt it with invalid JSON.
-Action: reopen the overlay, try `Create Custom Task`, then open `Manage Custom Tasks`; if any saved-action rows still show `Edit`, try that too.
-Expected Behavior: authoring is blocked cleanly with repair-oriented messaging, no dialog proceeds into a real save path, and the source is not silently rewritten. In a fail-closed invalid-source state, `Manage Custom Tasks` may still open for status visibility while edit affordances disappear entirely; that absence is acceptable as long as the UI does not expose a live edit path.
-Failure Conditions / Edge Cases: the dialog opens anyway, the source is auto-repaired silently, inventory becomes inconsistent, a live edit path is still reachable against the broken source, or outside text/input-capture behavior regresses while blocked.
+17. Setup: back up `%LOCALAPPDATA%\Nexus Desktop AI\saved_actions.json`, then intentionally corrupt only the `groups` section or insert a dangling group member ID while keeping the task records themselves valid.
+Action: reopen the overlay, try `Create Custom Task`, `Manage Custom Tasks`, `Create Custom Group`, and `Manage Custom Groups`, then try invoking a normal task and a group alias.
+Expected Behavior: normal task authoring and normal task invocation remain available; group create/manage and group invocation are blocked cleanly with repair-oriented messaging; and the source is not silently rewritten.
+Failure Conditions / Edge Cases: task authoring is blocked even though only groups are invalid, a broken group can still be invoked, the source is auto-repaired silently, or outside text/input-capture behavior regresses while blocked.
 
 ### Branch / Slice-Specific Validation Focus
 
 - the entry-state surface remains lightweight and button-led rather than becoming a dense inline management surface
-- `Create Custom Task` and `Created Tasks` remain the top-level authoring entry points on the initial NCP opening
+- `Create Custom Task`, `Manage Custom Tasks`, `Create Custom Group`, and `Manage Custom Groups` remain the top-level authoring entry points on the initial NCP opening
 - create and edit dialogs now expose an explicit `Trigger` field instead of relying on alias hacks
 - `Launch`, `Open`, `Launch and Open`, and `Custom` stay bounded and exact rather than widening into fuzzy language
 - new saved actions treat `Title` as a label and `Aliases` as the invocation roots
+- callable groups treat `Group name` as a label and `Aliases` as the exact callable phrases
+- groups stay alias-only with no trigger expansion, no title-callable fallback, and no mixed task/group ambiguity
+- group aliases remain unique against built-ins, saved-task phrases, and other groups
+- exact group invocation reuses the chooser + confirm flow instead of inventing a second execution surface
+- task create/edit dialogs support bounded group assignment and inline group quick-create without early persistence
+- deleting a task removes its group membership in the same write
+- invalid groups fail closed for group flows only and do not block healthy task flows
 - custom trigger phrases are comma-separated, user-authored, and persisted separately from aliases
 - runtime-generated callable phrases for new tasks include bare aliases and trigger + aliases
 - legacy saved actions without the new invocation-mode marker keep title-plus-alias callability until an explicit migration path exists

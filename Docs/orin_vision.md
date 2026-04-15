@@ -84,6 +84,23 @@ That future model should mean:
 - if setup requires Windows login, startup, or boot-configuration changes, the product should guide the user through that setup
 - the current desktop runtime path remains valid even when future boot-facing work is deferred
 
+## Future Grouping Direction
+
+Callable groups can be a valid part of the bounded pre-Beta command surface when they stay explicit, exact-match, and member-driven.
+
+Post-Beta expansion may explore richer grouping behavior such as:
+
+- dynamic natural-language grouping requests
+- group discovery or query flows like "show me all tasks associated with..."
+- broader organizational or recommendation layers above exact callable aliases
+
+That expansion should remain deferred until after the current exact-match callable-group model is proven.
+
+Current vision boundary:
+
+- pre-Beta callable groups should stay explicit and exact-match
+- post-Beta grouping/query ideas should not be used to weaken command predictability in the current release
+
 ## Trust And Recovery Posture
 
 Nexus should eventually present trust, recovery, and post-login continuity as one coherent experience layer, but the repo is not there yet.
