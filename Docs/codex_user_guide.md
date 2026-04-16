@@ -93,6 +93,9 @@ Codex should still:
 
 If the task remains materially ambiguous after that baseline, Codex should ask one focused clarifying question rather than lowering the quality of analysis.
 
+Promoted workstream docs remain the place to read branch-local feature state, evidence, and active seams.
+Repo-wide lifecycle rules such as phases, stop-loss, timeout governance, and proof authority come from `Docs/phase_governance.md`.
+
 ## Analysis-Phase Prompting
 
 Use analysis-phase prompts when the user wants:
@@ -191,6 +194,7 @@ Use:
 
 This is a valid standalone workstream when live truth justifies it.
 It does not need to be forced onto a hypothetical next implementation branch.
+If that docs pass changes validation or harness behavior assumptions, canon must be updated before further execution is recommended.
 
 ### Continue An Approved Branch
 

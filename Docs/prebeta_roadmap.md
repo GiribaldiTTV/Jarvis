@@ -22,6 +22,7 @@ Do not use it as:
 This roadmap is subordinate to:
 
 - `Docs/development_rules.md`
+- `Docs/phase_governance.md`
 - `Docs/codex_modes.md`
 - `Docs/feature_backlog.md`
 - `Docs/workstreams/index.md`
@@ -30,7 +31,8 @@ This roadmap is subordinate to:
 That means:
 
 - backlog owns identity
-- workstream docs own promoted-work execution and closure truth
+- workstream docs own promoted-work feature-state, branch-local evidence, and closure records
+- phase governance owns repo-wide lifecycle, proof, timeout, and stop-loss rules
 - closeouts and rebaselines own epoch summaries
 - roadmap owns sequencing and release posture only
 

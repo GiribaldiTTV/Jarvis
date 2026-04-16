@@ -24,7 +24,7 @@ No currently promoted non-doc implementation workstream is active on `main`.
 
 Branch-local promoted implementation workstream currently in progress:
 
-- `Docs/workstreams/FB-036_saved_action_authoring.md` on `feature/fb-036-saved-action-authoring`
+- `Docs/workstreams/FB-036_saved_action_authoring.md` on `feature/fb-036-idea5-integrated-hardening`
 
 ## Registry Items
 
@@ -100,7 +100,7 @@ Why it matters: The repo still needs deeper identity and wording normalization a
 
 ### [ID: FB-036] Limited saved-action authoring and type-first custom task UX
 
-Status: Active on `feature/fb-036-saved-action-authoring`
+Status: Active on `feature/fb-036-idea5-integrated-hardening`
 Record State: Promoted
 Priority: High
 Release Stage: pre-Beta

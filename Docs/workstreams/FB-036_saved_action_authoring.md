@@ -26,6 +26,7 @@
 Deliver a bounded in-product path for creating and editing saved actions without reopening the typed-first interaction contract or expanding into Action Studio behavior.
 
 This workstream exists so users can manage non-standard custom tasks safely through the existing shared action model instead of hand-editing JSON.
+Repo-wide phase, timeout, proof-authority, and stop-loss rules for this workstream are inherited from `Docs/phase_governance.md`; this record captures the branch-local phase state, evidence, and active seam trail.
 
 ## Current Phase
 

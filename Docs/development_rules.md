@@ -50,20 +50,22 @@ If prompt framing is stale, report the real state first and plan from that state
 Use this layered ownership model:
 
 - backlog = identity and registry
-- workstream docs = planning, execution, validation, and closure truth for promoted work
+- workstream docs = promoted-work feature-state, branch-local evidence, active seam references, and closure history
 - roadmap = sequencing and release posture
 - rebaselines and closeouts = epoch or milestone summaries
 - incident patterns = generalized reusable lessons
 - bugs = backlog-first, with promoted bug docs only when warranted
 - User Test Summary = validation-contract layer owned by workstreams
-- phase governance = cross-workstream execution, closeout, and stop-loss contract
+- phase governance = repo-wide execution, proof, timeout, seam, and stop-loss contract
 - `Docs/Main.md` = routing authority aligned to merged truth
 
 Use `Docs/phase_governance.md` for:
 
 - named execution phases
 - phase entry and exit rules
+- proof authority rules
 - interactive timeout governance
+- truth-drift enforcement
 - governed closeout stop-loss rules
 
 Use these lifecycle fields:
@@ -82,6 +84,7 @@ Rules:
 - if `Record State` is not `Registry-only`, `Canonical Workstream Doc` must exist
 - closed workstream docs stay at stable paths
 - backlog and roadmap must not continue carrying the full execution story once a canonical workstream doc exists
+- workstream docs must not silently redefine repo-wide phase or proof-governance rules that belong to `Docs/phase_governance.md`
 
 ## Branch And Lane Governance
 
@@ -174,6 +177,8 @@ If a timeout or freeze is detected, Codex must:
 - perform the required session cleanup
 - explicitly report the timeout or stall condition
 - explicitly report the last confirmed meaningful progress point
+
+If the timeout contract in the active workstream doc and the live harness behavior drift apart, the workflow is blocked until that drift is reconciled in canon before continued execution is recommended.
 
 After any validation run, test pass, runtime exercise, harness execution, or other operational step, Codex must also clean up what it created or opened during that session unless there is a deliberate reason to preserve it.
 

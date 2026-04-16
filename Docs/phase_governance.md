@@ -13,11 +13,11 @@ It exists so:
 
 all use the same phase names and the same control rules.
 
-This is a cross-workstream governance layer.
+This is the canonical cross-workstream governance layer.
 It does not replace:
 
 - `Docs/Main.md` as the routing index
-- canonical workstream docs as feature and closure truth
+- canonical workstream docs as branch-local feature-state, evidence, and closure records
 - release or rebaseline docs as milestone summaries
 
 ## Required Prompt Anchors
@@ -36,9 +36,29 @@ When the branch is in closeout recovery, prompts should also include:
 - prompt and instruction layers should mirror the same phase names in compressed form
 - workstream docs must record the current phase when promoted work is active
 - a branch must not be treated as PR-ready or release-ready while its active workstream still sits in `Validation / Hardening`
-- if the validation contract, timeout contract, or active seam changes materially during closeout recovery, the workstream doc must be updated before continuation is recommended
+- if the validation contract, timeout contract, harness behavior, or active seam changes materially during closeout recovery, canon must be updated before continued execution is recommended
 
-## Validation Authority Model
+## Canonical Governance Rules
+
+### Source-Of-Truth Enforcement
+
+- `Docs/phase_governance.md` is the repo-wide authority for phase names, proof governance, timeout governance, seam governance, and stop-loss rules
+- workstream docs must consume this model rather than redefining repo-wide process rules locally
+- workstream docs may record branch-local validation contracts, tighter time budgets, active seams, and evidence references, but those narrower contracts must be explicit
+
+### Blocker Rule
+
+Phase-sensitive work is blocked until the following are explicit and mutually consistent:
+
+- current approved phase
+- active workstream or equivalent authority record
+- validation contract when validation is in scope
+- timeout contract when interactive validation is in scope
+- current active seam when the branch is in governed closeout recovery
+
+If the live harness behavior and documented timeout contract drift, execution is blocked until they are reconciled.
+
+### Proof Authority Matrix
 
 When multiple evidence layers exist, use this authority order unless a workstream explicitly documents a tighter requirement:
 
@@ -49,7 +69,38 @@ When multiple evidence layers exist, use this authority order unless a workstrea
 
 UI-only observations may be logged as notes, but they must not override stronger runtime and persisted-source proof unless the UI interaction itself is the thing being validated.
 
-## Interactive Timeout Governance
+### Proof Ownership Rule
+
+- repo-wide phase governance defines the allowed proof model
+- the active workstream doc defines the branch-local validation contract, active seam, and any explicit tighter requirements
+- runtime markers and persisted source truth own correctness for product behavior unless the scenario is explicitly about UI interaction quality or reachability
+
+### Seam Classification Rule
+
+Validation seams should be classified before they are fixed:
+
+- `product defect`
+- `harness defect`
+- `environment issue`
+- `canon / contract drift`
+
+Do not treat a seam as a product defect merely because the interactive harness failed first.
+
+### Single-Seam Iteration Rule
+
+- only one active seam may be fixed at a time during governed closeout recovery
+- rerun the full governed gate immediately after that seam fix
+- if a new seam appears, log it before selecting it as the next active seam
+
+### Stop-Loss Rule
+
+For governed closeout recovery:
+
+- stop after `2` seam fixes in one governed closeout pass
+- stop after `90 minutes` of closeout recovery work and produce findings instead of continuing
+- when stop-loss is reached, continued execution is blocked until a decision memo or equivalent phase-state update is recorded
+
+### Timeout Governance
 
 Interactive closeout and hardening work must use tiered hard stops.
 
@@ -69,15 +120,39 @@ Prohibited without explicit workstream-doc reconciliation:
 - undocumented `15m+` full-run caps
 - silent timeout inflation during closeout
 
-## Stop-Loss Rules
+### Truth-Drift Enforcement Rule
 
-For governed closeout recovery:
+- if validation or harness behavior changes materially, canon must be updated before continued execution is recommended
+- if a workstream changes which evidence layer is authoritative for success, that change must be written into the active workstream doc before the next seam-fix iteration
+- if a workstream doc, harness defaults, and live execution evidence disagree, the workflow remains in `Validation / Hardening` until the drift is reconciled
 
-- fix only one active seam at a time
-- rerun the full gate immediately after that seam fix
-- if a new seam appears, log it before selecting it as the next active seam
-- stop after `2` seam fixes in one governed closeout pass
-- stop after `90 minutes` of closeout recovery work and produce findings instead of continuing
+### Preflight Requirement
+
+Before a full interactive gate is used as a closeout proof surface, run or confirm a preflight that proves:
+
+- startup or probe acquisition works
+- runtime log creation works
+- the overlay or root runtime surface opens
+- the cleanup path works
+- no stale helper processes, probe windows, or leftover session artifacts are still active from an earlier failed run
+
+If preflight fails, the branch remains in `Validation / Hardening`; do not burn a full closeout run first.
+
+### Iteration Discipline
+
+- full interactive reruns are for proof, not exploration
+- do not keep fixing seams informally without updating the seam ledger
+- after a green rerun, move to `Docs / Canon Sync` before calling PR readiness
+- after a non-green rerun, either select one new active seam inside stop-loss or stop and report
+
+### Phase Transition Rule
+
+- `Workstream Analysis` -> `Approved Execution` only after the execution boundary is explicit
+- `Approved Execution` -> `Validation / Hardening` when branch truth must be proven or hardened
+- `Validation / Hardening` -> `Docs / Canon Sync` only after branch-local proof is sufficient for closeout
+- `Docs / Canon Sync` -> `PR Readiness` only after the docs reflect the proven branch truth and no active seam remains
+- `PR Readiness` -> `Release Readiness` only when the branch is a legitimate merge or release candidate
+- `Release Readiness` -> `Post-Release Canon Sync` only after merged or released truth exists that canon must absorb
 
 ## Phase Definitions
 

@@ -209,7 +209,8 @@ When that happens:
 - call out source-of-truth conflicts explicitly
 - backlog owns identity
 - roadmap owns sequencing
-- workstream docs own promoted-work execution and closure truth
+- workstream docs own promoted-work feature-state, branch-local evidence, active seam references, and closure history
+- `Docs/phase_governance.md` owns repo-wide phase, proof, timeout, seam, and stop-loss rules
 - User Test Summary belongs to workstream-owned validation
 - incident patterns are generalized knowledge, not case history
 

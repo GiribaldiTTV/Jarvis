@@ -24,6 +24,8 @@ If anything in the request conflicts with those docs, call it out explicitly bef
 - The default prompt baseline should usually be `development_rules.md`, `Main.md`, `phase_governance.md`, the directly relevant authority docs, and the evidence inputs needed to validate live truth.
 - If a canonical workstream, rebaseline, or consolidated design doc exists for the active question, prefer that authority doc over a stack of superseded slice docs.
 - Include prior closeout docs and older slice docs only when they are still materially relevant to the specific task.
+- Treat canonical workstream docs as branch-local feature-state, evidence, validation-contract, and active-seam references.
+- Treat `phase_governance.md` as the repo-wide authority for phase names, stop-loss rules, proof ownership, timeout governance, and truth-drift enforcement.
 
 Concise prompts are acceptable.
 They do not reduce the required depth of analysis.
@@ -46,6 +48,7 @@ Current active seam:
 [fill in only when the task is in governed closeout recovery]
 
 Note: task mode defines the task type. Codex collaboration posture is defined separately in `C:\Nexus Desktop AI\Docs\codex_modes.md`.
+If the task is phase-sensitive and the current approved phase or active seam is missing, stop and clarify before execution.
 
 Default expectation:
 

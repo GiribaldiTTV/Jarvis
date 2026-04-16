@@ -28,13 +28,13 @@ Use these rules before trusting any planning or governance claim:
 Use this ownership split unless a validated source conflict requires a temporary narrower override:
 
 - backlog = identity and registry
-- workstream docs = planning, execution, validation, and closure truth for promoted work
+- workstream docs = promoted-work feature-state, branch-local evidence, active seam references, and closure history
 - roadmap = sequencing and release posture
 - rebaselines and closeouts = epoch or milestone summaries
 - incident patterns = generalized reusable lessons
 - bug tracking = backlog-first, with promoted bug docs only when warranted
 - User Test Summary = validation-contract layer owned by the relevant workstream
-- phase governance = cross-workstream execution, closeout, and stop-loss contract
+- phase governance = repo-wide execution, proof, timeout, seam, and stop-loss contract
 - `Docs/Main.md` = routing authority aligned to merged truth
 
 ## Analysis-First Prompt Baseline
@@ -89,7 +89,7 @@ Rules:
 
 ### Canonical Workstream Records
 
-Use these for promoted work that needs a stable planning, execution, validation, and closure record:
+Use these for promoted work that needs a stable feature-state, branch-local validation/evidence record, active seam trail, and closure history:
 
 - `Docs/workstreams/index.md`
 - `Docs/workstreams/FB-035_release_context_fallback_hardening.md`
@@ -143,6 +143,7 @@ These are reference layers, not active workstream or roadmap owners.
 - do not treat a local-only document as canonical just because it exists in the workspace
 - keep future post-Beta AI behavior, privacy, and execution intent in `Docs/orin_vision.md` until a later selected workstream turns part of it into execution truth
 - do not create duplicate authority by making backlog, roadmap, and workstream docs all carry the same execution story
+- do not treat workstream docs as the owner of repo-wide phase, timeout, stop-loss, or proof-authority rules; those belong to `Docs/phase_governance.md`
 - keep historical Jarvis material preserved, but mark it as historical rather than current reality
 - after a release, do not default to a standalone docs-only canon lane when a plausible next workstream can be selected from updated `main`
 - the normal post-release sequence is:

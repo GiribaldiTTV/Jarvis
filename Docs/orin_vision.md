@@ -9,6 +9,7 @@ It does not own:
 - workstream closure
 - backlog identity
 - roadmap sequencing
+- phase governance, proof ownership, or validation stop-loss rules
 
 Use it for product direction, experience intent, and release-stage meaning.
 
@@ -182,6 +183,7 @@ That means:
 ## Relationship To Other Canon Layers
 
 - use `Docs/architecture.md` for architectural boundaries
+- use `Docs/phase_governance.md` for governed execution phases, proof authority, and closeout discipline
 - use `Docs/orchestration.md` for orchestration behavior and runtime ownership
 - use `Docs/boot_access_design.md` for future boot-access planning
 - use `Docs/prebeta_roadmap.md` for sequencing and release posture
