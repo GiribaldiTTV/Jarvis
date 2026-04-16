@@ -871,18 +871,13 @@ def _test_type_first_dialog_maps_all_supported_kinds():
 def _test_create_dialog_surfaces_field_level_guidance():
     _app()
     dialog = renderer_mod.SavedActionCreateDialog()
-    type_row = dialog.form_layout.getItemPosition(dialog.form_layout.indexOf(dialog.type_header))[0]
-    title_row = dialog.form_layout.getItemPosition(dialog.form_layout.indexOf(dialog.title_header))[0]
-    trigger_row = dialog.form_layout.getItemPosition(dialog.form_layout.indexOf(dialog.trigger_header))[0]
-    aliases_row = dialog.form_layout.getItemPosition(dialog.form_layout.indexOf(dialog.aliases_header))[0]
 
     _assert(
-        dialog.type_header_label.font().pointSize() >= 14
-        and dialog.type_header_label.font().bold()
-        and dialog.title_header_label.font().pointSize() >= 14
-        and dialog.aliases_header_label.font().pointSize() >= 14
-        and dialog.trigger_header_label.font().pointSize() >= 14
-        and dialog.target_header_label.font().pointSize() >= 14,
+        dialog.type_header_label.font().bold()
+        and dialog.title_header_label.font().bold()
+        and dialog.aliases_header_label.font().bold()
+        and dialog.trigger_header_label.font().bold()
+        and dialog.target_header_label.font().bold(),
         "field headers should be more prominent than the surrounding guidance copy",
     )
     help_icon_buttons = [
@@ -977,12 +972,7 @@ def _test_create_dialog_surfaces_field_level_guidance():
         "create dialog should show one boxed callable-examples section beside the fields",
     )
     _assert(
-        type_row < title_row < trigger_row < aliases_row,
-        "Task type should remain the first full field row, followed by Title, Trigger, and Aliases",
-    )
-    _assert(
-        6 <= dialog.form_layout.verticalSpacing() <= 8
-        and 12 <= dialog.form_layout.horizontalSpacing() <= 14,
+        5 <= dialog.form_layout.spacing() <= 8,
         "create dialog spacing should stay intentionally tightened without collapsing into a cramped layout",
     )
     _assert(
@@ -1007,8 +997,32 @@ def _test_create_dialog_surfaces_field_level_guidance():
         "task dialog headers should sit below the divider line instead of sharing the same row",
     )
     _assert(
-        dialog.type_header.height() <= 32 and dialog.title_header.height() <= 32,
-        "task dialog field headers should stay compact so the section label feels anchored between divider bands instead of floating in extra space",
+        dialog.type_header_label.mapTo(dialog, dialog.type_header_label.rect().topLeft()).x() < dialog.type_combo.mapTo(dialog, dialog.type_combo.rect().topLeft()).x()
+        and dialog.title_header_label.mapTo(dialog, dialog.title_header_label.rect().topLeft()).x() < dialog.title_input.mapTo(dialog, dialog.title_input.rect().topLeft()).x()
+        and dialog.trigger_header_label.mapTo(dialog, dialog.trigger_header_label.rect().topLeft()).x() < dialog.trigger_combo.mapTo(dialog, dialog.trigger_combo.rect().topLeft()).x()
+        and dialog.aliases_header_label.mapTo(dialog, dialog.aliases_header_label.rect().topLeft()).x() < dialog.aliases_input.mapTo(dialog, dialog.aliases_input.rect().topLeft()).x()
+        and dialog.target_header_label.mapTo(dialog, dialog.target_header_label.rect().topLeft()).x() < dialog.target_input.mapTo(dialog, dialog.target_input.rect().topLeft()).x(),
+        "task dialog field headers should live in a dedicated far-left label column with all section content to the right",
+    )
+    _assert(
+        abs(dialog.type_header_label.mapTo(dialog, dialog.type_header_label.rect().center()).y() - dialog.type_combo.mapTo(dialog, dialog.type_combo.rect().center()).y()) <= 18
+        and abs(dialog.title_header_label.mapTo(dialog, dialog.title_header_label.rect().center()).y() - dialog.title_input.mapTo(dialog, dialog.title_input.rect().center()).y()) <= 18
+        and abs(dialog.aliases_header_label.mapTo(dialog, dialog.aliases_header_label.rect().center()).y() - dialog.aliases_input.mapTo(dialog, dialog.aliases_input.rect().center()).y()) <= 18,
+        "task dialog field headers should be vertically centered inside each section instead of floating above the controls",
+    )
+    _assert(
+        dialog.type_header.y() < dialog.title_header.y() < dialog.trigger_header.y() < dialog.aliases_header.y(),
+        "Task type should remain the first full section, followed by Title, Trigger, and Aliases",
+    )
+    _assert(
+        dialog.groups_header_label.mapTo(dialog, dialog.groups_header_label.rect().topLeft()).x()
+        < dialog.groups_frame.mapTo(dialog, dialog.groups_frame.rect().topLeft()).x(),
+        "task dialog group header should stay in the far-left label column instead of sharing space with the assignment controls",
+    )
+    _assert(
+        dialog.type_header.height() >= dialog.type_combo.height()
+        and dialog.groups_header.height() >= dialog.groups_frame.height() - 8,
+        "task dialog sections should size around the section content so the left header column feels anchored to the whole band",
     )
     _assert(
         dialog.title_label.y() <= 18,
@@ -1242,8 +1256,20 @@ def _test_group_create_dialog_surfaces_members_and_exact_alias_guidance():
         "group dialog section titles should sit below the divider line instead of sharing it",
     )
     _assert(
-        dialog.name_header.height() <= 32 and dialog.aliases_header.height() <= 32,
-        "group dialog field headers should stay compact so the section labels feel anchored instead of floating in oversized bands",
+        dialog.name_header_label.mapTo(dialog, dialog.name_header_label.rect().topLeft()).x() < dialog.name_input.mapTo(dialog, dialog.name_input.rect().topLeft()).x()
+        and dialog.aliases_header_label.mapTo(dialog, dialog.aliases_header_label.rect().topLeft()).x() < dialog.aliases_input.mapTo(dialog, dialog.aliases_input.rect().topLeft()).x()
+        and (
+            dialog.members_header_label.mapTo(dialog, dialog.members_header_label.rect().topLeft()).x()
+            < dialog.members_scroll.mapTo(dialog, dialog.members_scroll.rect().topLeft()).x()
+            if dialog.members_header is not None
+            else True
+        ),
+        "group dialog field headers should live in the far-left label column with all section content to the right",
+    )
+    _assert(
+        abs(dialog.name_header_label.mapTo(dialog, dialog.name_header_label.rect().center()).y() - dialog.name_header.mapTo(dialog, dialog.name_header.rect().center()).y()) <= 22
+        and abs(dialog.aliases_header_label.mapTo(dialog, dialog.aliases_header_label.rect().center()).y() - dialog.aliases_header.mapTo(dialog, dialog.aliases_header.rect().center()).y()) <= 26,
+        "group dialog field headers should be vertically centered inside each section instead of floating above the controls",
     )
     dialog.name_input.setText("Workspace Tools")
     dialog.aliases_input.setText("workspace tools, tools group")

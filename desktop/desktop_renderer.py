@@ -1443,49 +1443,40 @@ class SavedActionCreateDialog(QDialog):
         self.hint_label.setAlignment(Qt.AlignHCenter | Qt.AlignTop)
         layout.addWidget(self.hint_label)
 
-        form = QGridLayout()
+        form = QVBoxLayout()
         self.form_layout = form
-        form.setHorizontalSpacing(12)
-        form.setVerticalSpacing(6)
-        form.setColumnMinimumWidth(0, 112)
-        form.setColumnStretch(1, 1)
+        form.setContentsMargins(0, 0, 0, 0)
+        form.setSpacing(6)
 
-        self.type_header, self.type_header_label, self.type_help_button, self.type_header_divider = self._make_form_header(
-            "Task type",
-            tooltip_text=self.TASK_TYPE_TOOLTIP_TEXT,
-            object_name="savedActionCreateTypeHeader",
-            help_object_name="savedActionCreateTypeHelp",
-        )
-        form.addWidget(self.type_header, 0, 0, 1, 2)
         self.type_combo = QComboBox(self)
         self.type_combo.setObjectName("savedActionCreateType")
         self.type_combo.setMinimumHeight(34)
         for label, target_kind in self.ACTION_TYPE_OPTIONS:
             self.type_combo.addItem(label, target_kind)
         self.type_combo.currentIndexChanged.connect(self._handle_target_kind_changed)
-        form.addWidget(self.type_combo, 1, 1)
-
-        self.title_header, self.title_header_label, self.title_help_button, self.title_header_divider = self._make_form_header(
-            "Title",
-            tooltip_text=self.TITLE_TOOLTIP_TEXT,
-            object_name="savedActionCreateTitleHeader",
-            help_object_name="savedActionCreateTitleHelp",
+        self.type_header, self.type_header_label, self.type_help_button, self.type_header_divider = self._make_form_section(
+            "Task type",
+            self.type_combo,
+            tooltip_text=self.TASK_TYPE_TOOLTIP_TEXT,
+            object_name="savedActionCreateTypeHeader",
+            help_object_name="savedActionCreateTypeHelp",
         )
-        form.addWidget(self.title_header, 2, 0, 1, 2)
+        form.addWidget(self.type_header)
+
         self.title_input = QLineEdit(self)
         self.title_input.setObjectName("savedActionCreateTitleInput")
         self.title_input.setMinimumHeight(34)
         self.title_input.setPlaceholderText("Open Reports")
         self.title_input.textChanged.connect(self._refresh_examples_box)
-        form.addWidget(self.title_input, 3, 1)
-
-        self.trigger_header, self.trigger_header_label, self.trigger_help_button, self.trigger_header_divider = self._make_form_header(
-            "Trigger",
-            tooltip_text=self.TRIGGER_TOOLTIP_TEXT,
-            object_name="savedActionCreateTriggerHeader",
-            help_object_name="savedActionCreateTriggerHelp",
+        self.title_header, self.title_header_label, self.title_help_button, self.title_header_divider = self._make_form_section(
+            "Title",
+            self.title_input,
+            tooltip_text=self.TITLE_TOOLTIP_TEXT,
+            object_name="savedActionCreateTitleHeader",
+            help_object_name="savedActionCreateTitleHelp",
         )
-        form.addWidget(self.trigger_header, 4, 0, 1, 2)
+        form.addWidget(self.title_header)
+
         self.trigger_combo = QComboBox(self)
         self.trigger_combo.setObjectName("savedActionCreateTrigger")
         self.trigger_combo.setMinimumHeight(34)
@@ -1502,33 +1493,32 @@ class SavedActionCreateDialog(QDialog):
         trigger_row.setSpacing(6)
         trigger_row.addWidget(self.trigger_combo)
         trigger_row.addWidget(self.custom_triggers_input)
-        form.addLayout(trigger_row, 5, 1)
-
-        self.aliases_header, self.aliases_header_label, self.aliases_help_button, self.aliases_header_divider = self._make_form_header(
-            "Aliases",
-            tooltip_text=self.ALIASES_TOOLTIP_TEXT,
-            object_name="savedActionCreateAliasesHeader",
-            help_object_name="savedActionCreateAliasesHelp",
+        trigger_widget = QWidget(self)
+        trigger_widget.setObjectName("savedActionCreateTriggerContent")
+        trigger_widget.setLayout(trigger_row)
+        self.trigger_header, self.trigger_header_label, self.trigger_help_button, self.trigger_header_divider = self._make_form_section(
+            "Trigger",
+            trigger_widget,
+            tooltip_text=self.TRIGGER_TOOLTIP_TEXT,
+            object_name="savedActionCreateTriggerHeader",
+            help_object_name="savedActionCreateTriggerHelp",
         )
-        form.addWidget(self.aliases_header, 6, 0, 1, 2)
+        form.addWidget(self.trigger_header)
+
         self.aliases_input = QLineEdit(self)
         self.aliases_input.setObjectName("savedActionCreateAliasesInput")
         self.aliases_input.setMinimumHeight(34)
         self.aliases_input.setPlaceholderText("Required, comma-separated")
         self.aliases_input.textChanged.connect(self._refresh_examples_box)
-        form.addWidget(self.aliases_input, 7, 1)
-
-        self.groups_header, self.groups_header_label, self.groups_help_button, self.groups_header_divider = self._make_form_header(
-            "Groups",
-            tooltip_text=(
-                "<div style=\"max-width: 250px;\"><b>What this is</b><br/>An optional callable group this task belongs to."
-                "<br/><br/><b>How it affects calling</b><br/>Group aliases open that group's member chooser, then the normal confirm step."
-                "<br/><br/><b>Boundaries</b><br/>Tasks stay limited to one assigned group here. Groups stay exact-match and do not generate trigger phrases.</div>"
-            ),
-            object_name="savedActionCreateGroupsHeader",
-            help_object_name="savedActionCreateGroupsHelp",
+        self.aliases_header, self.aliases_header_label, self.aliases_help_button, self.aliases_header_divider = self._make_form_section(
+            "Aliases",
+            self.aliases_input,
+            tooltip_text=self.ALIASES_TOOLTIP_TEXT,
+            object_name="savedActionCreateAliasesHeader",
+            help_object_name="savedActionCreateAliasesHelp",
         )
-        form.addWidget(self.groups_header, 8, 0, 1, 2)
+        form.addWidget(self.aliases_header)
+
         self.groups_frame = QFrame(self)
         self.groups_frame.setObjectName("savedActionCreateGroupsFrame")
         groups_layout = QVBoxLayout(self.groups_frame)
@@ -1568,15 +1558,26 @@ class SavedActionCreateDialog(QDialog):
         groups_button_row.addWidget(self.groups_remove_button, 0, Qt.AlignLeft)
         groups_button_row.addStretch(1)
         groups_layout.addLayout(groups_button_row)
-        form.addWidget(self.groups_frame, 9, 1)
+        self.groups_header, self.groups_header_label, self.groups_help_button, self.groups_header_divider = self._make_form_section(
+            "Groups",
+            self.groups_frame,
+            tooltip_text=(
+                "<div style=\"max-width: 250px;\"><b>What this is</b><br/>An optional callable group this task belongs to."
+                "<br/><br/><b>How it affects calling</b><br/>Group aliases open that group's member chooser, then the normal confirm step."
+                "<br/><br/><b>Boundaries</b><br/>Tasks stay limited to one assigned group here. Groups stay exact-match and do not generate trigger phrases.</div>"
+            ),
+            object_name="savedActionCreateGroupsHeader",
+            help_object_name="savedActionCreateGroupsHelp",
+        )
+        form.addWidget(self.groups_header)
 
-        self.target_header, self.target_header_label, self.target_help_button, self.target_header_divider = self._make_form_header(
+        self.target_header, self.target_header_label, self.target_help_button, self.target_header_divider = self._make_form_section(
             "Target",
+            None,
             tooltip_text="",
             object_name="savedActionCreateTargetHeader",
             help_object_name="savedActionCreateTargetHelp",
         )
-        form.addWidget(self.target_header, 10, 0, 1, 2)
         self.target_input = QLineEdit(self)
         self.target_input.setObjectName("savedActionCreateTargetInput")
         self.target_input.setMinimumHeight(34)
@@ -1590,7 +1591,11 @@ class SavedActionCreateDialog(QDialog):
         target_row.setSpacing(6)
         target_row.addWidget(self.target_input)
         target_row.addWidget(self.target_browse_button, 0, Qt.AlignLeft)
-        form.addLayout(target_row, 11, 1)
+        target_widget = QWidget(self)
+        target_widget.setObjectName("savedActionCreateTargetContent")
+        target_widget.setLayout(target_row)
+        self._attach_form_section_content(self.target_header, target_widget)
+        form.addWidget(self.target_header)
 
         content_row = QHBoxLayout()
         self.content_row = content_row
@@ -1865,14 +1870,12 @@ class SavedActionCreateDialog(QDialog):
         self._update_chrome_overlay_geometry()
         _schedule_window_clamp(self)
         self._emit_lifecycle_event("opened")
-        QTimer.singleShot(0, self._sync_items_scroll_height)
         QTimer.singleShot(0, self._emit_ready_signal)
 
     def resizeEvent(self, event):
         super().resizeEvent(event)
         self._update_chrome_overlay_geometry()
         _schedule_window_clamp(self)
-        QTimer.singleShot(0, self._sync_items_scroll_height)
 
     def done(self, result):
         self._emit_lifecycle_event(
@@ -1920,6 +1923,86 @@ class SavedActionCreateDialog(QDialog):
         header_font.setBold(True)
         label.setFont(header_font)
         layout.addWidget(label, 0, Qt.AlignLeft)
+        return container, label, label, divider
+
+    def _attach_form_section_content(self, section: QWidget, content_widget: QWidget | None):
+        if section is None:
+            return
+        content_holder = getattr(section, "_section_content_holder", None)
+        if content_holder is None:
+            return
+        content_layout = content_holder.layout()
+        if content_layout is None:
+            content_layout = QVBoxLayout(content_holder)
+            content_layout.setContentsMargins(0, 0, 0, 0)
+            content_layout.setSpacing(0)
+        _clear_layout_widgets(content_layout)
+        if content_widget is not None:
+            content_layout.addWidget(content_widget)
+        row = getattr(section, "_section_row_layout", None)
+        if row is not None:
+            row.invalidate()
+        section.adjustSize()
+
+    def _make_form_section(
+        self,
+        text: str,
+        content_widget: QWidget | None,
+        *,
+        tooltip_text: str,
+        object_name: str,
+        help_object_name: str,
+        label_width: int = 112,
+    ) -> tuple[QWidget, QLabel, QLabel, QFrame]:
+        container = QWidget(self)
+        container.setObjectName(object_name)
+        container.setProperty("createRole", "fieldHeaderDivider")
+        layout = QVBoxLayout(container)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(4)
+
+        divider = QFrame(container)
+        divider.setObjectName(f"{object_name}Divider")
+        divider.setProperty("createRole", "fieldHeaderDividerLine")
+        divider.setFrameShape(QFrame.HLine)
+        divider.setFixedHeight(1)
+        divider.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+        layout.addWidget(divider)
+
+        row_widget = QWidget(container)
+        row_layout = QHBoxLayout(row_widget)
+        row_layout.setContentsMargins(0, 0, 0, 0)
+        row_layout.setSpacing(12)
+
+        label_holder = QWidget(row_widget)
+        label_holder.setFixedWidth(label_width)
+        label_holder.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Expanding)
+        label_layout = QVBoxLayout(label_holder)
+        label_layout.setContentsMargins(0, 0, 0, 0)
+        label_layout.setSpacing(0)
+        label_layout.addStretch(1)
+
+        label = ImmediateHelpButton(label_holder)
+        label.setObjectName(help_object_name)
+        label.setProperty("createRole", "fieldHeaderHelp")
+        label.setText(text)
+        label.setToolTip(tooltip_text)
+        header_font = label.font()
+        header_font.setPointSize(14)
+        header_font.setBold(True)
+        label.setFont(header_font)
+        label_layout.addWidget(label, 0, Qt.AlignLeft)
+        label_layout.addStretch(1)
+        row_layout.addWidget(label_holder, 0)
+
+        content_holder = QWidget(row_widget)
+        content_holder.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
+        row_layout.addWidget(content_holder, 1)
+        layout.addWidget(row_widget)
+
+        container._section_row_layout = row_layout
+        container._section_content_holder = content_holder
+        SavedActionCreateDialog._attach_form_section_content(self, container, content_widget)
         return container, label, label, divider
 
     def _selected_group_ids(self) -> tuple[str, ...]:
@@ -2453,9 +2536,14 @@ class CallableGroupCreateDialog(QDialog):
         form.setContentsMargins(0, 0, 0, 0)
         form.setSpacing(8)
 
-        self.name_header, _, _, _ = SavedActionCreateDialog._make_form_header(
+        self.name_input = QLineEdit(self)
+        self.name_input.setObjectName("callableGroupCreateNameInput")
+        self.name_input.setMinimumHeight(34)
+        self.name_input.setPlaceholderText("Workspace Tools")
+        self.name_header, self.name_header_label, self.name_help_button, self.name_header_divider = SavedActionCreateDialog._make_form_section(
             self,
             "Group name",
+            self.name_input,
             tooltip_text=(
                 "<div style=\"max-width: 250px;\"><b>What this is</b><br/>The display label people see for this group."
                 "<br/><br/><b>How it affects calling</b><br/>Calling still comes from the group's aliases, not the name.</div>"
@@ -2464,29 +2552,12 @@ class CallableGroupCreateDialog(QDialog):
             help_object_name="callableGroupCreateNameHelp",
         )
         form.addWidget(self.name_header)
-        self.name_input = QLineEdit(self)
-        self.name_input.setObjectName("callableGroupCreateNameInput")
-        self.name_input.setMinimumHeight(34)
-        self.name_input.setPlaceholderText("Workspace Tools")
-        form.addWidget(self.name_input)
 
-        self.aliases_header, _, _, _ = SavedActionCreateDialog._make_form_header(
-            self,
-            "Aliases",
-            tooltip_text=(
-                "<div style=\"max-width: 250px;\"><b>What this is</b><br/>Exact phrases that call this group."
-                "<br/><br/><b>How it affects calling</b><br/>Using one of these aliases opens the group's member chooser.</div>"
-            ),
-            object_name="callableGroupCreateAliasesHeader",
-            help_object_name="callableGroupCreateAliasesHelp",
-        )
-        form.addWidget(self.aliases_header)
         self.aliases_input = QLineEdit(self)
         self.aliases_input.setObjectName("callableGroupCreateAliasesInput")
         self.aliases_input.setMinimumHeight(34)
         self.aliases_input.setPlaceholderText("workspace tools, tools group")
         self.aliases_input.textChanged.connect(self._refresh_examples_box)
-        form.addWidget(self.aliases_input)
 
         self.examples_box = QFrame(self)
         self.examples_box.setObjectName("callableGroupCreateExamplesBox")
@@ -2501,24 +2572,31 @@ class CallableGroupCreateDialog(QDialog):
         self.examples_label.setWordWrap(True)
         self.examples_label.setTextFormat(Qt.RichText)
         examples_layout.addWidget(self.examples_label)
-        form.addWidget(self.examples_box)
+        aliases_content = QWidget(self)
+        aliases_content.setObjectName("callableGroupCreateAliasesContent")
+        aliases_content_layout = QVBoxLayout(aliases_content)
+        aliases_content_layout.setContentsMargins(0, 0, 0, 0)
+        aliases_content_layout.setSpacing(6)
+        aliases_content_layout.addWidget(self.aliases_input)
+        aliases_content_layout.addWidget(self.examples_box)
+        self.aliases_header, self.aliases_header_label, self.aliases_help_button, self.aliases_header_divider = SavedActionCreateDialog._make_form_section(
+            self,
+            "Aliases",
+            aliases_content,
+            tooltip_text=(
+                "<div style=\"max-width: 250px;\"><b>What this is</b><br/>Exact phrases that call this group."
+                "<br/><br/><b>How it affects calling</b><br/>Using one of these aliases opens the group's member chooser.</div>"
+            ),
+            object_name="callableGroupCreateAliasesHeader",
+            help_object_name="callableGroupCreateAliasesHelp",
+        )
+        form.addWidget(self.aliases_header)
 
         self.members_header = None
         self.members_scroll = None
         self.members_frame = None
         self.members_layout = None
         if self._show_member_picker:
-            self.members_header, _, _, _ = SavedActionCreateDialog._make_form_header(
-                self,
-                "Available Tasks",
-                tooltip_text=(
-                    "<div style=\"max-width: 250px;\"><b>What this is</b><br/>The built-ins and saved tasks this group can surface."
-                    "<br/><br/><b>How it affects calling</b><br/>Group aliases only show these members in the chooser.</div>"
-                ),
-                object_name="callableGroupCreateMembersHeader",
-                help_object_name="callableGroupCreateMembersHelp",
-            )
-            form.addWidget(self.members_header)
             self.members_scroll = QScrollArea(self)
             self.members_scroll.setObjectName("callableGroupCreateMembersScroll")
             self.members_scroll.setFrameShape(QFrame.NoFrame)
@@ -2535,7 +2613,18 @@ class CallableGroupCreateDialog(QDialog):
             self.members_layout.setContentsMargins(8, 8, 8, 8)
             self.members_layout.setSpacing(3)
             self.members_scroll.setWidget(self.members_frame)
-            form.addWidget(self.members_scroll)
+            self.members_header, self.members_header_label, self.members_help_button, self.members_header_divider = SavedActionCreateDialog._make_form_section(
+                self,
+                "Available Tasks",
+                self.members_scroll,
+                tooltip_text=(
+                    "<div style=\"max-width: 250px;\"><b>What this is</b><br/>The built-ins and saved tasks this group can surface."
+                    "<br/><br/><b>How it affects calling</b><br/>Group aliases only show these members in the chooser.</div>"
+                ),
+                object_name="callableGroupCreateMembersHeader",
+                help_object_name="callableGroupCreateMembersHelp",
+            )
+            form.addWidget(self.members_header)
 
         layout.addLayout(form)
 
