@@ -256,12 +256,12 @@ def _populate_saved_inventory_item_layout(
         item_frame = QFrame(parent)
         item_frame.setProperty("inventoryRole", "itemFrame")
         item_layout = QHBoxLayout(item_frame)
-        item_layout.setContentsMargins(8, 8, 8, 8)
-        item_layout.setSpacing(8)
+        item_layout.setContentsMargins(6, 6, 6, 6)
+        item_layout.setSpacing(6)
 
         content_layout = QVBoxLayout()
         content_layout.setContentsMargins(0, 0, 0, 0)
-        content_layout.setSpacing(2)
+        content_layout.setSpacing(1)
 
         title_label = QLabel(title, item_frame)
         title_label.setProperty("inventoryRole", "itemTitle")
@@ -289,8 +289,8 @@ def _populate_saved_inventory_item_layout(
             action_shell = QFrame(item_frame)
             action_shell.setProperty("inventoryRole", "actionShell")
             button_layout = QVBoxLayout(action_shell)
-            button_layout.setContentsMargins(5, 5, 5, 5)
-            button_layout.setSpacing(4)
+            button_layout.setContentsMargins(4, 4, 4, 4)
+            button_layout.setSpacing(3)
 
             edit_button = QPushButton("Edit", action_shell)
             edit_button.setProperty("inventoryRole", "editButton")
@@ -334,12 +334,12 @@ def _populate_saved_group_item_layout(
         item_frame = QFrame(parent)
         item_frame.setProperty("inventoryRole", "itemFrame")
         item_layout = QHBoxLayout(item_frame)
-        item_layout.setContentsMargins(8, 8, 8, 8)
-        item_layout.setSpacing(8)
+        item_layout.setContentsMargins(6, 6, 6, 6)
+        item_layout.setSpacing(6)
 
         content_layout = QVBoxLayout()
         content_layout.setContentsMargins(0, 0, 0, 0)
-        content_layout.setSpacing(2)
+        content_layout.setSpacing(1)
 
         title_label = QLabel(title, item_frame)
         title_label.setProperty("inventoryRole", "itemTitle")
@@ -367,8 +367,8 @@ def _populate_saved_group_item_layout(
             action_shell = QFrame(item_frame)
             action_shell.setProperty("inventoryRole", "actionShell")
             button_layout = QVBoxLayout(action_shell)
-            button_layout.setContentsMargins(5, 5, 5, 5)
-            button_layout.setSpacing(4)
+            button_layout.setContentsMargins(4, 4, 4, 4)
+            button_layout.setSpacing(3)
 
             edit_button = QPushButton("Edit", action_shell)
             edit_button.setProperty("inventoryRole", "editButton")
@@ -865,8 +865,8 @@ class TaskGroupAssignmentDialog(QDialog):
         self.chrome_bar.raise_()
 
         layout = QVBoxLayout(self.content)
-        layout.setContentsMargins(18, 8, 18, 12)
-        layout.setSpacing(8)
+        layout.setContentsMargins(16, 6, 16, 10)
+        layout.setSpacing(6)
 
         self.title_label = QLabel("Available Groups", self)
         self.title_label.setObjectName("taskGroupAssignmentTitle")
@@ -900,7 +900,7 @@ class TaskGroupAssignmentDialog(QDialog):
         self.items_scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.items_scroll.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
         self.items_scroll.setFocusPolicy(Qt.NoFocus)
-        self.items_scroll.setMaximumHeight(220)
+        self.items_scroll.setMaximumHeight(320)
         self.items_scroll.viewport().setObjectName("taskGroupAssignmentViewport")
         self.items_scroll.viewport().setAutoFillBackground(False)
         self.items_scroll.setWidget(self.items_frame)
@@ -912,7 +912,7 @@ class TaskGroupAssignmentDialog(QDialog):
 
         self.create_group_button = QPushButton("Create New Group...", self)
         self.create_group_button.setObjectName("taskGroupAssignmentCreateButton")
-        self.create_group_button.setMinimumHeight(38)
+        self.create_group_button.setMinimumHeight(32)
         self.create_group_button.setToolTip(
             "Create a new callable group, then return here to assign it to this task."
         )
@@ -922,7 +922,7 @@ class TaskGroupAssignmentDialog(QDialog):
 
         self.done_button = QPushButton("Done", self)
         self.done_button.setObjectName("taskGroupAssignmentDoneButton")
-        self.done_button.setMinimumHeight(38)
+        self.done_button.setMinimumHeight(32)
         self.done_button.clicked.connect(self.accept)
         actions_row.addWidget(self.done_button)
         layout.addLayout(actions_row)
@@ -940,12 +940,12 @@ class TaskGroupAssignmentDialog(QDialog):
             }
             #taskGroupAssignmentTitle {
                 color: rgba(188, 212, 203, 0.97);
-                font-size: 22px;
+                font-size: 20px;
                 font-weight: 650;
             }
             #taskGroupAssignmentHint {
                 color: rgba(136, 165, 174, 0.88);
-                font-size: 12px;
+                font-size: 10px;
                 line-height: 1.45em;
             }
             #taskGroupAssignmentStatus {
@@ -973,16 +973,16 @@ class TaskGroupAssignmentDialog(QDialog):
             }
             QLabel[groupAssignRole="title"] {
                 color: rgba(184, 208, 200, 0.96);
-                font-size: 12px;
+                font-size: 11px;
                 font-weight: 650;
             }
             QLabel[groupAssignRole="meta"] {
                 color: rgba(148, 179, 186, 0.90);
-                font-size: 11px;
+                font-size: 10px;
             }
             QLabel[groupAssignRole="badge"] {
                 color: rgba(84, 192, 181, 0.86);
-                font-size: 10px;
+                font-size: 9px;
                 font-weight: 600;
                 letter-spacing: 0.06em;
                 text-transform: uppercase;
@@ -1006,13 +1006,13 @@ class TaskGroupAssignmentDialog(QDialog):
                 background: rgba(15, 36, 52, 0.70);
             }
             QPushButton[groupAssignRole="toggle"], #taskGroupAssignmentCreateButton, #taskGroupAssignmentDoneButton {
-                min-height: 32px;
-                padding: 0 14px;
-                border-radius: 10px;
+                min-height: 28px;
+                padding: 0 12px;
+                border-radius: 9px;
                 border: 1px solid rgba(118, 226, 255, 0.18);
                 background: rgba(8, 24, 38, 220);
                 color: rgba(191, 212, 207, 0.96);
-                font-size: 11px;
+                font-size: 10px;
                 font-weight: 600;
             }
             QPushButton[groupAssignRole="toggle"][assigned="true"] {
@@ -1140,12 +1140,12 @@ class TaskGroupAssignmentDialog(QDialog):
             frame.setObjectName(row_object_name)
         frame.setProperty("groupAssignRole", "row")
         layout = QHBoxLayout(frame)
-        layout.setContentsMargins(10, 10, 10, 10)
-        layout.setSpacing(10)
+        layout.setContentsMargins(7, 7, 7, 7)
+        layout.setSpacing(8)
 
         text_column = QVBoxLayout()
         text_column.setContentsMargins(0, 0, 0, 0)
-        text_column.setSpacing(4)
+        text_column.setSpacing(2)
 
         title_label = QLabel(title, frame)
         if title_object_name:
@@ -1171,7 +1171,7 @@ class TaskGroupAssignmentDialog(QDialog):
             action_button.setObjectName(button_object_name)
         action_button.setProperty("groupAssignRole", "toggle")
         action_button.setProperty("assigned", assigned)
-        action_button.setMinimumWidth(86)
+        action_button.setMinimumWidth(76)
         action_button.clicked.connect(on_toggle)
         action_button.setEnabled(self._group_status_kind != "invalid_groups")
         layout.addWidget(action_button, 0, Qt.AlignTop)
@@ -1242,7 +1242,7 @@ class TaskGroupAssignmentDialog(QDialog):
             row_count = 1
 
         self.items_layout.addStretch(1)
-        self.items_scroll.setFixedHeight(min(220, max(92, self.items_frame.sizeHint().height() + 4)))
+        self.items_scroll.setFixedHeight(min(320, max(86, self.items_frame.sizeHint().height() + 2)))
 
 class SavedActionCreateDialog(QDialog):
     ACTION_TYPE_OPTIONS = (
@@ -1870,8 +1870,8 @@ class SavedActionCreateDialog(QDialog):
         container.setObjectName(object_name)
         container.setProperty("createRole", "fieldHeaderDivider")
         layout = QVBoxLayout(container)
-        layout.setContentsMargins(0, 0, 0, 6)
-        layout.setSpacing(5)
+        layout.setContentsMargins(0, 0, 0, 3)
+        layout.setSpacing(2)
 
         divider = QFrame(container)
         divider.setObjectName(f"{object_name}Divider")
@@ -1887,7 +1887,7 @@ class SavedActionCreateDialog(QDialog):
         label.setText(text)
         label.setToolTip(tooltip_text)
         header_font = label.font()
-        header_font.setPointSize(max(16, header_font.pointSize()))
+        header_font.setPointSize(14)
         header_font.setBold(True)
         label.setFont(header_font)
         layout.addWidget(label, 0, Qt.AlignLeft)
@@ -2889,8 +2889,8 @@ class CreatedTasksDialog(QDialog):
         self.chrome_bar.raise_()
 
         layout = QVBoxLayout(self.content)
-        layout.setContentsMargins(18, 8, 18, 12)
-        layout.setSpacing(7)
+        layout.setContentsMargins(16, 6, 16, 10)
+        layout.setSpacing(6)
 
         self.title_label = QLabel("Manage Custom Tasks", self)
         self.title_label.setObjectName("savedActionCreatedTasksTitle")
@@ -2925,7 +2925,7 @@ class CreatedTasksDialog(QDialog):
         self.items_frame.setObjectName("savedActionCreatedTasksItems")
         self.items_layout = QVBoxLayout(self.items_frame)
         self.items_layout.setContentsMargins(0, 2, 0, 0)
-        self.items_layout.setSpacing(6)
+        self.items_layout.setSpacing(4)
 
         self.items_scroll = QScrollArea(self)
         self.items_scroll.setObjectName("savedActionCreatedTasksItemsScroll")
@@ -2934,7 +2934,7 @@ class CreatedTasksDialog(QDialog):
         self.items_scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.items_scroll.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
         self.items_scroll.setFocusPolicy(Qt.NoFocus)
-        self.items_scroll.setMaximumHeight(268)
+        self.items_scroll.setMaximumHeight(430)
         self.items_scroll.viewport().setObjectName("savedActionCreatedTasksViewport")
         self.items_scroll.viewport().setAutoFillBackground(False)
         self.items_scroll.setWidget(self.items_frame)
@@ -2943,13 +2943,13 @@ class CreatedTasksDialog(QDialog):
         self.footer_frame = QFrame(self)
         self.footer_frame.setObjectName("savedActionCreatedTasksFooter")
         footer_layout = QHBoxLayout(self.footer_frame)
-        footer_layout.setContentsMargins(0, 6, 0, 0)
+        footer_layout.setContentsMargins(0, 4, 0, 0)
         footer_layout.setSpacing(8)
         footer_layout.addStretch(1)
 
         self.close_button = QPushButton("Close", self.footer_frame)
         self.close_button.setObjectName("savedActionCreatedTasksClose")
-        self.close_button.setMinimumHeight(32)
+        self.close_button.setMinimumHeight(26)
         self.close_button.clicked.connect(self.reject)
         footer_layout.addWidget(self.close_button)
 
@@ -3002,12 +3002,12 @@ class CreatedTasksDialog(QDialog):
             }
             #savedActionCreatedTasksTitle {
                 color: rgba(188, 212, 203, 0.97);
-                font-size: 23px;
+                font-size: 21px;
                 font-weight: 650;
             }
             #savedActionCreatedTasksHint {
                 color: rgba(136, 165, 174, 0.88);
-                font-size: 11px;
+                font-size: 10px;
                 line-height: 1.45em;
             }
             """
@@ -3214,7 +3214,7 @@ class CreatedTasksDialog(QDialog):
         self.items_scroll.setVisible(bool(items))
         if items:
             self.items_layout.activate()
-            desired_height = min(304, max(104, self.items_frame.sizeHint().height() + 2))
+            desired_height = min(430, max(100, self.items_frame.sizeHint().height() + 2))
             self.items_scroll.setFixedHeight(desired_height)
         else:
             self.items_scroll.setFixedHeight(0)
@@ -3262,8 +3262,8 @@ class CreatedGroupsDialog(QDialog):
         self.chrome_bar.raise_()
 
         layout = QVBoxLayout(self.content)
-        layout.setContentsMargins(18, 8, 18, 12)
-        layout.setSpacing(7)
+        layout.setContentsMargins(16, 6, 16, 10)
+        layout.setSpacing(6)
 
         self.title_label = QLabel("Manage Custom Groups", self)
         self.title_label.setObjectName("savedActionCreatedTasksTitle")
@@ -3298,7 +3298,7 @@ class CreatedGroupsDialog(QDialog):
         self.items_frame.setObjectName("savedActionCreatedTasksItems")
         self.items_layout = QVBoxLayout(self.items_frame)
         self.items_layout.setContentsMargins(0, 2, 0, 0)
-        self.items_layout.setSpacing(6)
+        self.items_layout.setSpacing(4)
 
         self.items_scroll = QScrollArea(self)
         self.items_scroll.setObjectName("savedActionCreatedTasksItemsScroll")
@@ -3307,7 +3307,7 @@ class CreatedGroupsDialog(QDialog):
         self.items_scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.items_scroll.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
         self.items_scroll.setFocusPolicy(Qt.NoFocus)
-        self.items_scroll.setMaximumHeight(236)
+        self.items_scroll.setMaximumHeight(396)
         self.items_scroll.viewport().setObjectName("savedActionCreatedTasksViewport")
         self.items_scroll.viewport().setAutoFillBackground(False)
         self.items_scroll.setWidget(self.items_frame)
@@ -3316,13 +3316,13 @@ class CreatedGroupsDialog(QDialog):
         self.footer_frame = QFrame(self)
         self.footer_frame.setObjectName("savedActionCreatedTasksFooter")
         footer_layout = QHBoxLayout(self.footer_frame)
-        footer_layout.setContentsMargins(0, 6, 0, 0)
+        footer_layout.setContentsMargins(0, 4, 0, 0)
         footer_layout.setSpacing(8)
         footer_layout.addStretch(1)
 
         self.close_button = QPushButton("Close", self.footer_frame)
         self.close_button.setObjectName("savedActionCreatedTasksClose")
-        self.close_button.setMinimumHeight(32)
+        self.close_button.setMinimumHeight(26)
         self.close_button.clicked.connect(self.reject)
         footer_layout.addWidget(self.close_button)
 
@@ -3350,12 +3350,12 @@ class CreatedGroupsDialog(QDialog):
             }
             #savedActionCreatedTasksTitle {
                 color: rgba(188, 212, 203, 0.97);
-                font-size: 23px;
+                font-size: 21px;
                 font-weight: 650;
             }
             #savedActionCreatedTasksHint {
                 color: rgba(136, 165, 174, 0.88);
-                font-size: 11px;
+                font-size: 10px;
             }
             """
             + THEMED_TOOLTIP_QSS
@@ -3388,43 +3388,43 @@ class CreatedGroupsDialog(QDialog):
                 background: transparent;
             }
             QFrame[inventoryRole="itemFrame"] {
-                border-radius: 16px;
+                border-radius: 14px;
                 border: 1px solid rgba(118, 226, 255, 0.12);
                 background: rgba(7, 20, 34, 0.96);
             }
             QFrame[inventoryRole="actionShell"] {
-                border-radius: 14px;
+                border-radius: 12px;
                 border: 1px solid rgba(118, 226, 255, 0.10);
                 background: rgba(10, 25, 39, 0.86);
             }
             QLabel[inventoryRole="itemTitle"] {
                 color: rgba(184, 208, 200, 0.96);
-                font-size: 11px;
+                font-size: 10px;
                 font-weight: 650;
             }
             QLabel[inventoryRole="itemMeta"] {
                 color: rgba(84, 192, 181, 0.83);
-                font-size: 9px;
+                font-size: 8px;
                 font-weight: 600;
                 letter-spacing: 0.06em;
                 text-transform: uppercase;
             }
             QLabel[inventoryRole="itemTarget"] {
                 color: rgba(163, 189, 196, 0.92);
-                font-size: 9px;
+                font-size: 8px;
             }
             QPushButton[inventoryRole="editButton"], QPushButton[inventoryRole="deleteButton"], #savedActionCreatedTasksClose {
-                min-height: 28px;
-                padding: 0 10px;
-                border-radius: 10px;
+                min-height: 24px;
+                padding: 0 9px;
+                border-radius: 9px;
                 border: 1px solid rgba(118, 226, 255, 0.18);
                 background: rgba(8, 24, 38, 220);
                 color: rgba(191, 212, 207, 0.96);
-                font-size: 9px;
+                font-size: 8px;
                 font-weight: 600;
             }
             QPushButton[inventoryRole="editButton"], QPushButton[inventoryRole="deleteButton"] {
-                min-width: 78px;
+                min-width: 70px;
             }
             QPushButton[inventoryRole="editButton"] {
                 border: 1px solid rgba(118, 226, 255, 0.30);
@@ -3570,7 +3570,7 @@ class CreatedGroupsDialog(QDialog):
         self.items_scroll.setVisible(bool(items))
         if items:
             self.items_layout.activate()
-            desired_height = min(268, max(100, self.items_frame.sizeHint().height() + 2))
+            desired_height = min(396, max(96, self.items_frame.sizeHint().height() + 2))
             self.items_scroll.setFixedHeight(desired_height)
         else:
             self.items_scroll.setFixedHeight(0)
