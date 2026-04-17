@@ -103,14 +103,15 @@ When the user wants live screenshot proof to render inside the Codex client, use
 
 1. capture the screenshot from the real launched process and preserve the original file on disk as the durable audit artifact
 2. keep the audit manifest and the original capture paths in the evidence trail
-3. if in-chat visual confirmation is needed, default to a small inline WebP `data:` image rather than a local-file Markdown image
+3. if in-chat visual confirmation is needed, default to a small inline PNG `data:` image generated from that real file rather than a local-file Markdown image
 4. send one image at a time until the user confirms the client is rendering it reliably
 5. if the first inline image fails or flashes, reduce the payload further before trying again
 
 Default assumptions:
 
 - local-file Markdown image embeds are not the reliable default for this client
-- smaller WebP payloads are preferred over larger ones
+- smaller inline PNG payloads are the proven default for this client state
+- WebP should be treated as a fallback path rather than the default unless PNG has stopped working in the current client state
 - the in-chat image is a preview convenience layer, not the durable evidence source
 - the durable evidence remains the manifest plus the original captured files on disk
 
@@ -118,7 +119,7 @@ When writing a prompt that depends on in-chat screenshot review, say so explicit
 
 - `Use live launched-process screenshots.`
 - `Preserve original captures on disk and in the audit manifest.`
-- `For in-chat image proof, use a small inline WebP data image one at a time until rendering is confirmed.`
+- `For in-chat image proof, use a small inline PNG data image one at a time until rendering is confirmed.`
 
 If the task remains materially ambiguous after that baseline, Codex should ask one focused clarifying question rather than lowering the quality of analysis.
 

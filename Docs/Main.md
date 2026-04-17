@@ -198,7 +198,7 @@ These are reference layers, not active workstream or roadmap owners.
 - when a task depends on interactive desktop validation, route through `Docs/development_rules.md` and require explicit time budgets, clean timeout abort behavior, cleanup, and last-progress reporting rather than relying on open-ended waits
 - when closeout depends on interactive desktop validation, also route through `Docs/phase_governance.md` and require the helper's documented default budget profile to prove green before calling the branch truly green
 - when a branch materially changes user-facing desktop UI, require the post-green live launched-process UI audit before treating closeout as complete; do not reinterpret that as a screenshot requirement for every seam iteration
-- when the user also wants those audit screenshots to render inside the Codex client, use the screenshot-delivery guidance in `Docs/codex_user_guide.md` rather than assuming local-file image embeds will work
+- when the user also wants those audit screenshots to render inside the Codex client, use the screenshot-delivery guidance in `Docs/codex_user_guide.md`, which now defaults to small inline PNG preview images backed by preserved original files on disk, rather than assuming local-file image embeds will work
 
 ## Practical Prompt Rule
 

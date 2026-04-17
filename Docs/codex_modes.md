@@ -267,7 +267,7 @@ When meaningful desktop UI changed, Codex should also:
 
 - treat the live launched-process UI audit as a post-green closeout check rather than a per-seam screenshot requirement
 - preserve the audit manifest and key captured windows in the final evidence package when closeout or readiness is being claimed
-- when the user wants those screenshots to render inside the Codex client, preserve the original files on disk but default the in-chat preview path to one small inline WebP `data:` image at a time instead of local-path Markdown embeds
+- when the user wants those screenshots to render inside the Codex client, preserve the original files on disk but default the in-chat preview path to one small inline PNG `data:` image at a time instead of local-path Markdown embeds
 
 If that interactive path is not feasible, Codex must explain why, use the strongest available non-interactive evidence, and state that the continuation judgment is limited by the missing interactive validation.
 
