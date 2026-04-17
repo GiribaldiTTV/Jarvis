@@ -89,6 +89,12 @@ Use the following as part of the task evidence set when relevant:
 
 If critical evidence is missing, say so explicitly.
 
+If the task depends on in-chat screenshot review inside the Codex client, add a prompt note such as:
+
+- `Use live launched-process screenshots.`
+- `Preserve the originals on disk and in the audit manifest.`
+- `For in-chat image proof, use a small inline WebP data image one at a time until rendering is confirmed.`
+
 ## Locked Boundaries / Do Not Reopen
 
 Do not casually reopen:

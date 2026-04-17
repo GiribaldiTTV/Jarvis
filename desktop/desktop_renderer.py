@@ -877,8 +877,8 @@ class TaskGroupAssignmentDialog(QDialog):
         self.setAttribute(Qt.WA_TranslucentBackground, True)
         self.setWindowTitle("Available Groups")
         self.setObjectName("taskGroupAssignmentDialog")
-        self.setMinimumWidth(520)
-        self.setMaximumWidth(600)
+        self.setMinimumWidth(560)
+        self.setMaximumWidth(620)
 
         root_layout = QVBoxLayout(self)
         root_layout.setContentsMargins(6, 6, 6, 6)
@@ -916,7 +916,7 @@ class TaskGroupAssignmentDialog(QDialog):
         layout.addWidget(self.title_label)
 
         self.hint_label = QLabel(
-            "Assign this task to one callable group, or create a new callable group for this task without leaving the current edit session.",
+            "Review available callable groups, assign one to this task, or create a new callable group without leaving the current task session.",
             self,
         )
         self.hint_label.setObjectName("taskGroupAssignmentHint")
@@ -928,6 +928,16 @@ class TaskGroupAssignmentDialog(QDialog):
         self.status_label.setObjectName("taskGroupAssignmentStatus")
         self.status_label.setWordWrap(True)
         layout.addWidget(self.status_label)
+
+        self.source_label = QLabel("", self)
+        self.source_label.setObjectName("taskGroupAssignmentSource")
+        self.source_label.setWordWrap(True)
+        layout.addWidget(self.source_label)
+
+        self.guidance_label = QLabel("", self)
+        self.guidance_label.setObjectName("taskGroupAssignmentGuidance")
+        self.guidance_label.setWordWrap(True)
+        layout.addWidget(self.guidance_label)
 
         self.items_frame = QFrame(self)
         self.items_frame.setObjectName("taskGroupAssignmentItems")
@@ -949,7 +959,7 @@ class TaskGroupAssignmentDialog(QDialog):
         layout.addWidget(self.items_scroll)
 
         actions_row = QHBoxLayout()
-        actions_row.setContentsMargins(0, 0, 0, 0)
+        actions_row.setContentsMargins(0, 4, 0, 0)
         actions_row.setSpacing(8)
 
         self.create_group_button = QPushButton("Create New Group...", self)
@@ -975,14 +985,14 @@ class TaskGroupAssignmentDialog(QDialog):
             #taskGroupAssignmentShell {
                 border-radius: 18px;
                 border: 1px solid rgba(118, 226, 255, 0.16);
-                background: rgb(9, 18, 28);
+                background: rgba(4, 16, 28, 244);
             }
             #taskGroupAssignmentContent {
                 background: transparent;
             }
             #taskGroupAssignmentTitle {
                 color: rgba(188, 212, 203, 0.97);
-                font-size: 20px;
+                font-size: 21px;
                 font-weight: 650;
             }
             #taskGroupAssignmentHint {
@@ -994,6 +1004,14 @@ class TaskGroupAssignmentDialog(QDialog):
                 color: rgba(255, 189, 176, 0.96);
                 font-size: 12px;
             }
+            #taskGroupAssignmentSource {
+                color: rgba(126, 157, 171, 0.78);
+                font-size: 11px;
+            }
+            #taskGroupAssignmentGuidance {
+                color: rgba(110, 201, 164, 0.86);
+                font-size: 11px;
+            }
             """
             + THEMED_TOOLTIP_QSS
             + """
@@ -1002,32 +1020,37 @@ class TaskGroupAssignmentDialog(QDialog):
                 background: transparent;
             }
             #taskGroupAssignmentViewport {
-                border-radius: 16px;
+                border-radius: 18px;
                 background: rgba(8, 20, 34, 0.96);
             }
             #taskGroupAssignmentItems {
                 background: transparent;
             }
             QFrame[groupAssignRole="row"] {
-                border-radius: 14px;
+                border-radius: 16px;
                 border: 1px solid rgba(118, 226, 255, 0.12);
                 background: rgba(7, 20, 34, 0.96);
             }
+            QFrame[groupAssignRole="actionShell"] {
+                border-radius: 12px;
+                border: 1px solid rgba(118, 226, 255, 0.10);
+                background: rgba(10, 25, 39, 0.86);
+            }
             QLabel[groupAssignRole="title"] {
                 color: rgba(184, 208, 200, 0.96);
-                font-size: 11px;
+                font-size: 10px;
                 font-weight: 650;
             }
             QLabel[groupAssignRole="meta"] {
-                color: rgba(148, 179, 186, 0.90);
-                font-size: 10px;
-            }
-            QLabel[groupAssignRole="badge"] {
                 color: rgba(84, 192, 181, 0.86);
-                font-size: 9px;
+                font-size: 8px;
                 font-weight: 600;
                 letter-spacing: 0.06em;
                 text-transform: uppercase;
+            }
+            QLabel[groupAssignRole="detail"] {
+                color: rgba(163, 189, 196, 0.92);
+                font-size: 8px;
             }
             QPushButton[chromeRole="close"] {
                 min-width: 24px;
@@ -1048,9 +1071,9 @@ class TaskGroupAssignmentDialog(QDialog):
                 background: rgba(15, 36, 52, 0.70);
             }
             QPushButton[groupAssignRole="toggle"], #taskGroupAssignmentCreateButton, #taskGroupAssignmentDoneButton {
-                min-height: 28px;
+                min-height: 30px;
                 padding: 0 12px;
-                border-radius: 9px;
+                border-radius: 11px;
                 border: 1px solid rgba(118, 226, 255, 0.18);
                 background: rgba(8, 24, 38, 220);
                 color: rgba(191, 212, 207, 0.96);
@@ -1192,7 +1215,7 @@ class TaskGroupAssignmentDialog(QDialog):
         *,
         title: str,
         meta_text: str,
-        badge_text: str,
+        detail_text: str,
         assigned: bool,
         on_toggle,
         parent: QWidget,
@@ -1205,8 +1228,8 @@ class TaskGroupAssignmentDialog(QDialog):
             frame.setObjectName(row_object_name)
         frame.setProperty("groupAssignRole", "row")
         layout = QHBoxLayout(frame)
-        layout.setContentsMargins(7, 7, 7, 7)
-        layout.setSpacing(8)
+        layout.setContentsMargins(6, 6, 6, 6)
+        layout.setSpacing(6)
 
         text_column = QVBoxLayout()
         text_column.setContentsMargins(0, 0, 0, 0)
@@ -1219,27 +1242,35 @@ class TaskGroupAssignmentDialog(QDialog):
         title_label.setWordWrap(True)
         text_column.addWidget(title_label)
 
-        badge_label = QLabel(badge_text, frame)
-        badge_label.setProperty("groupAssignRole", "badge")
-        badge_label.setVisible(bool(badge_text))
-        text_column.addWidget(badge_label)
-
         meta_label = QLabel(meta_text, frame)
         meta_label.setProperty("groupAssignRole", "meta")
         meta_label.setWordWrap(True)
         text_column.addWidget(meta_label)
 
+        if detail_text:
+            detail_label = QLabel(detail_text, frame)
+            detail_label.setProperty("groupAssignRole", "detail")
+            detail_label.setWordWrap(True)
+            text_column.addWidget(detail_label)
+
         layout.addLayout(text_column, 1)
 
-        action_button = QPushButton("Remove" if assigned else "Assign", frame)
+        action_shell = QFrame(frame)
+        action_shell.setProperty("groupAssignRole", "actionShell")
+        action_layout = QVBoxLayout(action_shell)
+        action_layout.setContentsMargins(4, 4, 4, 4)
+        action_layout.setSpacing(0)
+
+        action_button = QPushButton("Remove" if assigned else "Assign", action_shell)
         if button_object_name:
             action_button.setObjectName(button_object_name)
         action_button.setProperty("groupAssignRole", "toggle")
         action_button.setProperty("assigned", assigned)
-        action_button.setMinimumWidth(76)
+        action_button.setMinimumWidth(84)
         action_button.clicked.connect(on_toggle)
         action_button.setEnabled(self._group_status_kind != "invalid_groups")
-        layout.addWidget(action_button, 0, Qt.AlignTop)
+        action_layout.addWidget(action_button)
+        layout.addWidget(action_shell, 0, Qt.AlignTop)
         return frame
 
     def _refresh_items(self):
@@ -1251,6 +1282,7 @@ class TaskGroupAssignmentDialog(QDialog):
 
         normalized_selected = self._selected_group_id.casefold() if self._selected_group_id else ""
         row_count = 0
+        available_group_count = 0
 
         for item in self._available_groups:
             group_id = str(item.get("id") or "").strip()
@@ -1262,30 +1294,29 @@ class TaskGroupAssignmentDialog(QDialog):
                 if str(alias).strip()
             )
             member_count = int(item.get("member_count") or 0)
-            meta_text = f"{member_count} {'member' if member_count == 1 else 'members'}"
-            if aliases:
-                meta_text = f"{meta_text} • {aliases}"
+            member_noun = "member" if member_count == 1 else "members"
             row = self._make_group_row(
                 title=str(item.get("title") or "").strip() or group_id,
-                meta_text=meta_text,
-                badge_text="Existing group",
+                meta_text=f"Existing group | {member_count} {member_noun}",
+                detail_text=(f"Aliases: {aliases}" if aliases else "Aliases: none"),
                 assigned=bool(normalized_selected and group_id.casefold() == normalized_selected),
                 on_toggle=lambda _checked=False, value=group_id: self._toggle_existing_group(value),
                 parent=self.items_frame,
             )
             self.items_layout.addWidget(row)
             row_count += 1
+            available_group_count += 1
 
         if self._inline_group_draft is not None:
             inline_aliases = ", ".join(self._inline_group_draft.aliases)
             row = self._make_group_row(
                 title=self._inline_group_draft.title,
-                meta_text=(
-                    f"Queued for this task • {inline_aliases}"
+                meta_text="New group | queued for this task",
+                detail_text=(
+                    f"Aliases: {inline_aliases}"
                     if inline_aliases
-                    else "Queued for this task"
+                    else "Aliases: none yet"
                 ),
-                badge_text="New group",
                 assigned=self._inline_group_assigned,
                 on_toggle=lambda _checked=False: self._toggle_inline_group(),
                 parent=self.items_frame,
@@ -1297,14 +1328,46 @@ class TaskGroupAssignmentDialog(QDialog):
             row_count += 1
 
         if row_count == 0:
-            empty_label = QLabel(
-                "No callable groups yet. Create one here if you want this task to surface inside a group chooser.",
-                self.items_frame,
+            empty_frame = QFrame(self.items_frame)
+            empty_frame.setProperty("groupAssignRole", "row")
+            empty_layout = QVBoxLayout(empty_frame)
+            empty_layout.setContentsMargins(10, 10, 10, 10)
+            empty_layout.setSpacing(4)
+
+            empty_title = QLabel("No callable groups yet", empty_frame)
+            empty_title.setProperty("groupAssignRole", "title")
+            empty_layout.addWidget(empty_title)
+
+            empty_meta = QLabel("Create one here", empty_frame)
+            empty_meta.setProperty("groupAssignRole", "meta")
+            empty_layout.addWidget(empty_meta)
+
+            empty_detail = QLabel(
+                "Use Create New Group to add one without leaving this task session.",
+                empty_frame,
             )
-            empty_label.setProperty("groupAssignRole", "meta")
-            empty_label.setWordWrap(True)
-            self.items_layout.addWidget(empty_label)
+            empty_detail.setProperty("groupAssignRole", "detail")
+            empty_detail.setWordWrap(True)
+            empty_layout.addWidget(empty_detail)
+            self.items_layout.addWidget(empty_frame)
             row_count = 1
+
+        self.source_label.setText(
+            (
+                f"{available_group_count} custom {'group' if available_group_count == 1 else 'groups'} loaded from the current source."
+                if available_group_count
+                else "No custom groups loaded from the current source."
+            )
+            if not show_disabled_state
+            else ""
+        )
+        self.source_label.setVisible(bool(self.source_label.text()))
+        self.guidance_label.setText(
+            "Assign one to this task, or create a new group without leaving the current task session."
+            if not show_disabled_state
+            else "Repair the saved-groups source before changing task-group assignments."
+        )
+        self.guidance_label.setVisible(bool(self.guidance_label.text()))
 
         self.items_layout.addStretch(1)
         self.items_scroll.setFixedHeight(min(320, max(86, self.items_frame.sizeHint().height() + 2)))
@@ -1567,8 +1630,8 @@ class SavedActionCreateDialog(QDialog):
         self.groups_frame = QFrame(self)
         self.groups_frame.setObjectName("savedActionCreateGroupsFrame")
         groups_layout = QVBoxLayout(self.groups_frame)
-        groups_layout.setContentsMargins(0, 0, 0, 0)
-        groups_layout.setSpacing(6)
+        groups_layout.setContentsMargins(10, 10, 10, 10)
+        groups_layout.setSpacing(8)
 
         self.groups_status_label = QLabel("", self.groups_frame)
         self.groups_status_label.setObjectName("savedActionCreateGroupsStatus")
@@ -1712,7 +1775,7 @@ class SavedActionCreateDialog(QDialog):
             #savedActionCreateShell {
                 border-radius: 20px;
                 border: 1px solid rgba(118, 226, 255, 0.16);
-                background: rgb(9, 18, 28);
+                background: rgba(4, 16, 28, 244);
             }
             #savedActionCreateContent {
                 background: transparent;
@@ -1782,13 +1845,15 @@ class SavedActionCreateDialog(QDialog):
                 line-height: 1.45em;
             }
             #savedActionCreateGroupsFrame {
-                background: transparent;
+                border-radius: 15px;
+                border: 1px solid rgba(118, 226, 255, 0.10);
+                background: rgba(7, 20, 34, 176);
             }
             #savedActionCreateGroupsSummary {
                 color: rgba(168, 193, 199, 0.93);
                 font-size: 12px;
                 line-height: 1.45em;
-                padding: 2px 0 4px 0;
+                padding: 0px;
             }
             #savedActionCreateGroupsStatus {
                 color: rgba(255, 189, 176, 0.96);
@@ -1807,6 +1872,9 @@ class SavedActionCreateDialog(QDialog):
             }
             QWidget[createRole="fieldHeaderDivider"] {
                 border: none;
+                background: transparent;
+            }
+            QWidget[createRole="fieldRow"], QWidget[createRole="fieldLabelHolder"], QWidget[createRole="fieldContentHolder"] {
                 background: transparent;
             }
             QFrame[createRole="fieldHeaderDividerLine"] {
@@ -2018,11 +2086,13 @@ class SavedActionCreateDialog(QDialog):
         layout.addWidget(divider)
 
         row_widget = QWidget(container)
+        row_widget.setProperty("createRole", "fieldRow")
         row_layout = QHBoxLayout(row_widget)
         row_layout.setContentsMargins(0, 0, 0, 0)
         row_layout.setSpacing(12)
 
         label_holder = QWidget(row_widget)
+        label_holder.setProperty("createRole", "fieldLabelHolder")
         label_holder.setFixedWidth(label_width)
         label_holder.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Expanding)
         label_layout = QVBoxLayout(label_holder)
@@ -2044,6 +2114,7 @@ class SavedActionCreateDialog(QDialog):
         row_layout.addWidget(label_holder, 0)
 
         content_holder = QWidget(row_widget)
+        content_holder.setProperty("createRole", "fieldContentHolder")
         content_holder.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
         row_layout.addWidget(content_holder, 1)
         layout.addWidget(row_widget)
@@ -2702,7 +2773,7 @@ class CallableGroupCreateDialog(QDialog):
             #callableGroupCreateShell {
                 border-radius: 20px;
                 border: 1px solid rgba(118, 226, 255, 0.16);
-                background: rgb(9, 18, 28);
+                background: rgba(4, 16, 28, 244);
             }
             #callableGroupCreateContent { background: transparent; }
             #callableGroupCreateChromeBar {
@@ -2757,6 +2828,9 @@ class CallableGroupCreateDialog(QDialog):
             }
             QWidget[createRole="fieldHeaderDivider"] {
                 border: none;
+                background: transparent;
+            }
+            QWidget[createRole="fieldRow"], QWidget[createRole="fieldLabelHolder"], QWidget[createRole="fieldContentHolder"] {
                 background: transparent;
             }
             QFrame[createRole="fieldHeaderDividerLine"] {

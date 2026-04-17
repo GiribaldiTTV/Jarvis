@@ -30,6 +30,12 @@ def _app():
     return QApplication.instance() or QApplication([])
 
 
+def _flush_qt_events():
+    app = _app()
+    app.processEvents()
+    app.processEvents()
+
+
 class _FakeRect:
     def __init__(self, x=0, y=0, width=1280, height=720):
         self._x = x
@@ -56,15 +62,41 @@ class _FakeRect:
 class _FakeInputLine:
     def __init__(self):
         self.local_typing_enabled = False
+        self.visible = True
+        self.enabled = True
+        self.focused = False
 
     def set_local_typing_enabled(self, enabled: bool):
         self.local_typing_enabled = bool(enabled)
+
+    def hasFocus(self):
+        return self.focused
+
+    def isVisible(self):
+        return self.visible
+
+    def isEnabled(self):
+        return self.enabled
+
+
+class _FakeVisibleControl:
+    def __init__(self, visible: bool = True):
+        self.visible = visible
+
+    def isVisible(self):
+        return self.visible
 
 
 class _FakePanel:
     def __init__(self):
         self.input_line = _FakeInputLine()
+        self.create_custom_task_button = _FakeVisibleControl()
+        self.created_tasks_button = _FakeVisibleControl()
+        self.create_custom_group_button = _FakeVisibleControl()
+        self.created_groups_button = _FakeVisibleControl()
         self.visible = True
+        self._width = 720
+        self._height = 420
         self.last_payload = None
         self.refresh_for_geometry_calls = 0
 
@@ -73,6 +105,15 @@ class _FakePanel:
 
     def isVisible(self):
         return self.visible
+
+    def isActiveWindow(self):
+        return True
+
+    def width(self):
+        return self._width
+
+    def height(self):
+        return self._height
 
     def refresh_for_geometry(self, *_args, **_kwargs):
         self.refresh_for_geometry_calls += 1
@@ -1552,6 +1593,7 @@ def _test_successful_create_flow_reloads_inventory_immediately():
         )
 
         renderer_mod.DesktopRuntimeWindow.handle_create_custom_task_requested(window)
+        _flush_qt_events()
 
         inventory = window._command_model.view_payload().get("saved_action_inventory") or {}
         items = inventory.get("items") or []
@@ -1587,6 +1629,7 @@ def _test_invalid_input_shows_dialog_error_and_does_not_write():
         )
 
         renderer_mod.DesktopRuntimeWindow.handle_create_custom_task_requested(window)
+        _flush_qt_events()
 
         _assert(dialog_instances, "invalid input path should still open the create dialog")
         _assert(
@@ -1624,6 +1667,7 @@ def _test_invalid_folder_target_shows_dialog_error_and_does_not_write():
         )
 
         renderer_mod.DesktopRuntimeWindow.handle_create_custom_task_requested(window)
+        _flush_qt_events()
 
         _assert(dialog_instances, "invalid folder targets should still open the create dialog")
         _assert(
@@ -1665,6 +1709,7 @@ def _test_invalid_application_target_shows_dialog_error_and_does_not_write():
         )
 
         renderer_mod.DesktopRuntimeWindow.handle_create_custom_task_requested(window)
+        _flush_qt_events()
 
         _assert(dialog_instances, "invalid application targets should still open the create dialog")
         _assert(
@@ -1706,6 +1751,7 @@ def _test_invalid_file_target_shows_dialog_error_and_does_not_write():
         )
 
         renderer_mod.DesktopRuntimeWindow.handle_create_custom_task_requested(window)
+        _flush_qt_events()
 
         _assert(dialog_instances, "invalid file targets should still open the create dialog")
         _assert(
@@ -1736,6 +1782,7 @@ def _test_unsafe_source_blocks_before_dialog_open():
         window._saved_action_create_dialog_factory = lambda *_args, **_kwargs: opened.append(True)
 
         renderer_mod.DesktopRuntimeWindow.handle_create_custom_task_requested(window)
+        _flush_qt_events()
 
         _assert(not opened, "unsafe saved-action sources should block the dialog before create begins")
         _assert(window._command_model.phase == "entry", "unsafe-source block should preserve entry phase")
