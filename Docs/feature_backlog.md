@@ -13,6 +13,12 @@ Rules:
 - if `Record State` is not `Registry-only`, `Canonical Workstream Doc` must exist
 - backlog entries keep the short registry story, not the full execution story
 
+Record-state meaning:
+
+- `Registry-only` = tracked identity only; no canonical workstream execution record is required yet
+- `Promoted` = canonical workstream doc required and used as the durable execution and traceability record while the lane is active
+- `Closed` = canonical workstream doc remains stable historical lane truth after closure
+
 Historical note:
 
 - older implemented entries may preserve older Jarvis-era titles as historical identity

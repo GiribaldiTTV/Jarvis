@@ -10,6 +10,10 @@ Use:
 
 - canonical workstream docs for the full story of a specific lane
 - this document for reusable symptom-to-fix patterns
+- the relevant canonical workstream doc first for branch-local reuse notes, artifact guidance, and seam history
+
+Add material here only when the lesson has generalized beyond one lane.
+Branch-local "what worked" notes should stay in the canonical workstream doc first and only be distilled here once the pattern is broad enough to help future branches outside that lane.
 
 ## Pattern: Released-Canon Fallback Must Not Use The Highest Planned Prerelease
 

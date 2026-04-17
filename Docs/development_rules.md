@@ -50,7 +50,7 @@ If prompt framing is stale, report the real state first and plan from that state
 Use this layered ownership model:
 
 - backlog = identity and registry
-- workstream docs = promoted-work feature-state, branch-local evidence, active seam references, and closure history
+- workstream docs = promoted-work feature-state, branch-local evidence, active seam references, artifact history, branch-local reuse notes, and closure history
 - roadmap = sequencing and release posture
 - rebaselines and closeouts = epoch or milestone summaries
 - incident patterns = generalized reusable lessons
@@ -85,6 +85,25 @@ Rules:
 - closed workstream docs stay at stable paths
 - backlog and roadmap must not continue carrying the full execution story once a canonical workstream doc exists
 - workstream docs must not silently redefine repo-wide phase or proof-governance rules that belong to `Docs/phase_governance.md`
+
+Record-state meaning:
+
+- `Registry-only` = backlog identity exists, but no canonical workstream execution record is required yet
+- `Promoted` = a canonical workstream doc is required and becomes the durable branch record that must stay current throughout the active lane
+- `Closed` = the canonical workstream doc remains historical lane truth and must not be treated as active execution authority by inertia
+
+## Required Startup Contract
+
+Before planning, patching, reviewing, or recommending the next move, Codex must follow the canonical startup contract in `Docs/Main.md`.
+
+That startup pass must make explicit:
+
+- source-of-truth layer selection
+- `Record State` when the task maps to a tracked item
+- current branch truth and whether the branch is the correct execution base
+- the canonical workstream doc when one exists
+- the reuse baseline
+- the next safe move
 
 ## Branch And Lane Governance
 

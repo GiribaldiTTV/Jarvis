@@ -17,9 +17,12 @@ Use `Docs/phase_governance.md` for phase names, proof authority, seam governance
 
 ## Workstream Record Rules
 
-- workstream docs are the canonical feature-state, branch-local validation/evidence, active-seam, and closure records for promoted work
+- workstream docs are the canonical feature-state, branch-local validation/evidence, active-seam, artifact-history, branch-local reuse, and closure records for promoted work
 - `Record State` tracks whether the record is `Promoted` or `Closed`
 - `Status` remains the delivery or work field
+- `Registry-only` backlog items do not require a canonical workstream execution record yet
+- when a backlog item moves from `Registry-only` to `Promoted`, its canonical workstream doc must be created at a stable `Docs/workstreams/FB-XXX_slug.md` path
+- once promoted, the canonical workstream doc becomes the durable execution and traceability record for that lane and must be updated throughout the active branch, not just at closeout
 - backlog remains the identity registry and points here through `Canonical Workstream Doc`
 - roadmap consumes this layer for sequencing but does not duplicate its full execution story
 - repo-wide phase, timeout, proof-authority, seam, and stop-loss rules live in `Docs/phase_governance.md`, not in individual workstream docs
@@ -37,7 +40,26 @@ Use `Docs/phase_governance.md` for phase names, proof authority, seam governance
 - when an active workstream enters governed closeout recovery or another late hardening phase, it should also record the current active seam
 - when an active workstream enters governed closeout recovery or another late hardening phase, it should also record the seam ledger
 - when an active workstream enters governed closeout recovery or another late hardening phase, it should also record the stop-loss threshold
+- branch-local "what worked", reuse guidance, and future-branch carry-forward notes belong in the canonical workstream doc first
+- only generalized cross-branch lessons should be distilled into `Docs/incident_patterns.md`
+- closed workstream docs remain historical lane truth and must not be treated as active execution authority by inertia
 - closed workstream docs may explicitly state that no separate ongoing `UTS` artifact remains
+
+## Minimum Durable Traceability Content
+
+For an active or recently closed canonical workstream, keep these durable traceability elements current when relevant:
+
+- `ID` / title, `Record State`, and `Status`
+- purpose / why it matters
+- current branch truth or equivalent promoted-lane truth
+- scope and non-goals
+- executed slices or equivalent progress log
+- current phase and phase-specific validation, seam, timeout, or stop-loss state when phase-sensitive work is active
+- durable validation or proof references that materially justify continuation or closeout
+- artifact history or artifact references for lane-specific validators, harnesses, helpers, reports, or manual-test exports that future work should reuse
+- branch-local reuse notes or "what worked" guidance when a future branch would otherwise need to rediscover the same lesson
+- closeout traceability, or an explicit note that the lane is not at closeout yet
+- `## User Test Summary` when relevant, or an explicit note in a closed lane that no separate ongoing `UTS` artifact remains
 
 ## Current Canonical Workstream Records
 

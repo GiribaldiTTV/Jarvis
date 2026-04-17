@@ -24,6 +24,21 @@ The modes should not be confused.
 Analysis mode exists to understand the whole system first.
 Workflow mode exists to execute approved work without silent scope drift.
 
+## Required Startup Assessment
+
+Before planning, patching, reviewing, or recommending the next move in either mode, Codex must run the startup contract from `Docs/Main.md`.
+
+That startup assessment should explicitly answer:
+
+- `Source-of-Truth`
+- `Record State`
+- `Branch Truth`
+- `Canonical Workstream`
+- `Reuse Baseline`
+- `Next Safe Move`
+
+This can stay brief, but it should happen before scope is narrowed for execution.
+
 ## Analysis Mode
 
 ### Goal

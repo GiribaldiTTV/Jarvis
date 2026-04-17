@@ -83,17 +83,34 @@ When the user gives a short cue such as:
 
 Codex should still:
 
-1. load `Docs/development_rules.md`
-2. load `Docs/Main.md`
-3. load `Docs/phase_governance.md` when lifecycle or closeout posture matters
-4. load `Docs/codex_modes.md` when collaboration posture matters
+1. load `Docs/Main.md`
+2. load `Docs/development_rules.md`
+3. load `Docs/phase_governance.md`
+4. load `Docs/codex_modes.md`
 5. infer the directly relevant authority docs
 6. pull the repo evidence needed to validate live truth
 7. keep the same reasoning standard as a longer structured prompt
 
 If the task remains materially ambiguous after that baseline, Codex should ask one focused clarifying question rather than lowering the quality of analysis.
 
-Promoted workstream docs remain the place to read branch-local feature state, evidence, and active seams.
+## Startup Contract For Every Task
+
+Before planning or execution, Codex should follow the startup contract in `Docs/Main.md`.
+
+For tracked work, that means:
+
+1. read `Docs/Main.md`
+2. read `Docs/development_rules.md`
+3. read `Docs/phase_governance.md`
+4. read `Docs/codex_modes.md`
+5. check `Docs/feature_backlog.md` for `Record State`
+6. load the canonical workstream doc when the item is `Promoted` or `Closed`
+7. validate current branch truth before trusting prompt framing
+8. use the canonical workstream doc first for branch-local reuse, artifact history, and "what worked" notes
+9. use `Docs/incident_patterns.md` only for generalized cross-branch patterns
+10. state the next safe move before narrowing scope
+
+Promoted workstream docs remain the place to read branch-local feature state, evidence, active seams, artifact history, and branch-local reuse notes.
 Repo-wide lifecycle rules such as phases, stop-loss, timeout governance, and proof authority come from `Docs/phase_governance.md`.
 
 ## Analysis-Phase Prompting
