@@ -198,10 +198,12 @@ That means:
   - a branch is not PR-ready if merging it would leave `main` canon-stale
 - when a branch closes a workstream, changes released milestone posture, changes the current rebaseline, changes closeout-index routing, changes backlog or roadmap release posture, changes workstream-index release posture, or changes `Docs/Main.md` baseline routing, the required release-facing canon updates must already be on that branch before PR creation is allowed
 - no PR-ready without successor branch created:
+  - If post-merge truth will resolve to `No Active Branch` because `Release Debt` or another repo-level admission blocker remains open, successor-lane selection and reserved successor-branch creation are waived for that PR-readiness pass.
   - the next workstream must be selected from canon
   - that workstream must have canon-valid `Record State`
   - a fresh successor branch must already be created using an approved naming family such as `feature/<lane>`, `fix/<issue>`, or `docs/<lane>`
   - that successor branch must remain reserved until the current branch merges and the successor branch is revalidated against updated `main`
+  - when that waiver applies, the branch must instead record `No Active Branch` plus the blocking admission item explicitly in merged current-state canon
 - post-release canon repair is emergency-only:
   - use it only when canon drift already exists on updated `main` and could not be prevented before merge or release
 - do not default to a standalone docs-only post-release branch for routine canon completion

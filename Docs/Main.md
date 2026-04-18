@@ -198,11 +198,13 @@ These are reference layers, not active workstream or roadmap owners.
   1. validate current branch truth
   2. complete the merge-target canon updates on that same branch
   3. run the Governance Drift Audit
-  4. select the next workstream from current canon
-  5. confirm the next workstream has canon-valid record state
-  6. create the fresh successor branch
-  7. keep that successor branch reserved until it is revalidated after merge
-  8. only then allow the current branch to enter PR creation
+  4. if post-merge truth will admit a next branch, select the next workstream from current canon
+  5. if post-merge truth will admit a next branch, confirm the next workstream has canon-valid record state
+  6. if post-merge truth will admit a next branch, create the fresh successor branch
+  7. if post-merge truth will admit a next branch, keep that successor branch reserved until it is revalidated after merge
+  8. If post-merge truth will resolve to `No Active Branch` because `Release Debt` or another repo-level admission blocker remains open, successor-lane selection and reserved successor-branch creation are waived for that PR-readiness pass.
+  9. when that waiver applies, record the blocked repo state explicitly
+  10. only then allow the current branch to enter PR creation
 - a standalone post-release canon repair is an emergency-only exception path when merged canon is already stale or when external drift made pre-merge prevention impossible
 - returned `UTS`, screenshot, interactive, PR-review, or release-review evidence must be digested into the authority record before phase advancement is recommended
 - when a slice changes user-visible behavior or another operator-facing path, do not treat `## User Test Summary` as a recap slot; route through `Docs/user_test_summary_guidance.md` and require a real manual checklist unless no meaningful manual test exists

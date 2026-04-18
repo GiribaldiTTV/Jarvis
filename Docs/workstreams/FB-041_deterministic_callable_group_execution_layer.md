@@ -41,7 +41,7 @@ This workstream exists so callable groups can move from exact invocation only in
 
 - `No Active Branch`
 - `FB-041` is the merged-unreleased release-debt owner on updated `main`
-- merged-canon repair and release-debt handling remain outstanding before the repo may legally begin next-lane execution
+- merged current-state canon is aligned by the governance correction pass; release-debt handling remains outstanding before the repo may legally begin next-lane execution
 
 ## Branch Class
 
@@ -49,20 +49,17 @@ This workstream exists so callable groups can move from exact invocation only in
 
 ## Blockers
 
-- `Merged Canon Drift`
-- `Current-State Claim Drift`
 - `Release Debt`
 
 ## Entry Basis
 
 - merged `main` includes the FB-041 implementation merge from PR `#58`
 - latest public prerelease remains `v1.3.0-prebeta`, so FB-041 is merged unreleased implementation debt above the latest public baseline
-- merged canon still carries stale active or pre-implementation FB-041 claims in backlog, roadmap, and workstream indexing layers
-- no next implementation branch may legally begin until those blockers are repaired and release-debt handling is explicit
+- merged current-state canon now reflects FB-041 as the merged-unreleased release-debt owner across backlog, roadmap, and workstream indexing layers
+- no next implementation branch may legally begin until release-debt handling is explicit
 
 ## Exit Criteria
 
-- merged current-state canon reflects FB-041 as merged-unreleased truth rather than pre-implementation truth
 - backlog, roadmap, workstreams index, and this workstream doc agree on the same merged-unreleased posture
 - release packaging inputs are explicit and no unresolved blocker remains
 - if a real correctness, canon, regression, or governance issue appears during release review, the repo reopens to the failed earlier phase instead of starting next-lane execution
@@ -73,13 +70,13 @@ This workstream exists so callable groups can move from exact invocation only in
 
 ## Next Legal Phase
 
-- `Release Readiness` on a release packaging or emergency canon repair branch once the current blockers are cleared
+- `Release Readiness` on a release packaging or emergency canon repair branch once release-debt handling is explicitly opened
 
 ## Current Branch Truth
 
 - the latest public shared baseline remains the released FB-027 interaction floor plus the released FB-036 authoring-and-callable-group milestone in `v1.3.0-prebeta`
 - `main` now also contains merged unreleased FB-041 callable-group execution follow-through above that public baseline
-- repo state is currently `No Active Branch` for next-lane execution until merged canon is repaired and release-debt handling is complete
+- repo state is currently `No Active Branch` for next-lane execution until release-debt handling is complete
 - exact group invocation still enters through the released chooser and confirm flow, but group follow-through now executes the full stored-order callable group after confirm
 - deterministic callable-group execution now emits bounded runtime markers for:
   - group start
@@ -107,7 +104,7 @@ This workstream exists so callable groups can move from exact invocation only in
   - add the governance validator
   - strengthen current-state claim containment
   - update prompt scaffolds to the exact prompt contract
-- Whether The Drift Blocks Merge: `The code is already merged; the drift now blocks next-lane execution and truthful release-debt handling`
+- Whether The Drift Blocks Merge: `This governance branch resolves the drift; after merge the remaining blocker is release debt, which still blocks next-lane execution`
 - Whether User Confirmation Is Required: `No for the current approved governance pass`
 
 ## Scope

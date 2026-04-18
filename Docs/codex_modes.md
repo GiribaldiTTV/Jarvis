@@ -161,11 +161,16 @@ When the approved phase is `PR Readiness`, the output must also explicitly inclu
 - confirmation that the merge-target canon completeness gate passed
 - confirmation that the Governance Drift Audit ran
 - whether governance drift was found
-- the selected next workstream identity
-- the next workstream `Record State`
-- the successor branch name
-- confirmation that the successor branch was created
-- confirmation that the successor branch is reserved until revalidated after merge
+- when post-merge truth will admit a next branch:
+  - the selected next workstream identity
+  - the next workstream `Record State`
+  - the successor branch name
+  - confirmation that the successor branch was created
+  - confirmation that the successor branch is reserved until revalidated after merge
+- when post-merge truth will resolve to `No Active Branch` because `Release Debt` or another repo-level admission blocker remains open:
+  - repo state `No Active Branch`
+  - the blocking admission item
+  - confirmation that successor lock was waived for the pass
 
 Do not report cleanup as complete unless the pass has explicitly checked for leftover apps, windows, dialogs, helper processes, probe files, or other temporary artifacts it created or opened.
 
@@ -219,6 +224,8 @@ If release debt or another repo-level admission blocker means no branch may lega
 After a workstream is merged and closed, the next workstream should execute from updated `main` on a fresh branch.
 
 That successor branch may be created during `PR Readiness`, but it must stay reserved until the current branch merges and the successor branch is revalidated against updated `main`.
+
+If post-merge truth will resolve to `No Active Branch` because `Release Debt` or another repo-level admission blocker remains open, successor-lane selection and reserved successor-branch creation are waived for that PR-readiness pass.
 
 If a branch is stale, merged, or identical to `main`, call it out explicitly and stop using it as the base for next-lane planning.
 

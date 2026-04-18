@@ -62,6 +62,9 @@ STALE_CURRENT_STATE_TERMS = (
     "pending merge",
     "Promoted for pre-implementation setup",
     "Current Selected Workstream",
+    "until merged-canon repair and release-debt handling are complete",
+    "merged-canon repair and release-debt handling remain outstanding",
+    "merged canon still carries stale active or pre-implementation",
 )
 
 STALE_AUXILIARY_TERMS = (
@@ -77,6 +80,18 @@ REQUIRED_WORKSTREAM_HEADINGS = (
     "## Exit Criteria",
     "## Rollback Target",
     "## Next Legal Phase",
+)
+
+SUCCESSOR_LOCK_WAIVER_DOCS = (
+    Path("Docs/phase_governance.md"),
+    Path("Docs/development_rules.md"),
+    Path("Docs/Main.md"),
+    Path("Docs/codex_modes.md"),
+)
+
+SUCCESSOR_LOCK_WAIVER_PHRASE = (
+    "If post-merge truth will resolve to `No Active Branch` because `Release Debt` "
+    "or another repo-level admission blocker remains open"
 )
 
 
@@ -249,6 +264,16 @@ def main() -> int:
             f"Docs/codex_user_guide.md: exact prompt contract no longer mentions '{field_label}'",
         )
 
+    for relative_path in SUCCESSOR_LOCK_WAIVER_DOCS:
+        text = _read_text(relative_path)
+        require(
+            SUCCESSOR_LOCK_WAIVER_PHRASE in text,
+            (
+                f"{relative_path}: successor-lock waiver for post-merge `No Active Branch` "
+                "state due to `Release Debt` or another admission blocker is missing"
+            ),
+        )
+
     promoted_entries = [
         entry
         for entry in _parse_backlog_sections(backlog_text)
@@ -341,6 +366,27 @@ def main() -> int:
             require(
                 "Governance Drift Found:" in governance_audit,
                 f"{canonical_path}: Governance Drift Audit is missing 'Governance Drift Found:'",
+            )
+
+        phase_status_section = _section(workstream_text, "Phase Status")
+        if (
+            _normalize_status(str(workstream_info["status"])) == "merged unreleased"
+            and "`No Active Branch`" in phase_status_section
+            and "Release Debt" in blockers
+        ):
+            require(
+                current_phase == "Release Readiness",
+                (
+                    f"{canonical_path}: merged-unreleased `No Active Branch` release-debt owner "
+                    "must use `Release Readiness` as Current Phase"
+                ),
+            )
+            require(
+                "Merged Canon Drift" not in blockers and "Current-State Claim Drift" not in blockers,
+                (
+                    f"{canonical_path}: merged-unreleased `No Active Branch` release-debt owner "
+                    "must not keep resolved current-state drift blockers active"
+                ),
             )
 
         require(

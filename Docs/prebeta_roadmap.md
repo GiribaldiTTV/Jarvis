@@ -66,7 +66,7 @@ Current merged truth indicates:
 - merged unreleased non-doc implementation debt currently exists on `main`
 - the latest public released implementation milestone is FB-036 saved-action authoring and callable groups in `v1.3.0-prebeta`
 - that merged unreleased implementation debt is FB-041 deterministic callable-group execution layer
-- no next implementation branch may enter `Branch Readiness` until merged-canon repair and release-debt handling are complete
+- no next implementation branch may enter `Branch Readiness` until release-debt handling is complete
 
 That means the released FB-027 interaction baseline plus the later released FB-036 authoring-and-callable-group milestone remain the latest public shared pre-Beta baseline, while FB-041 is now merged unreleased truth above that baseline.
 
@@ -80,7 +80,7 @@ That means the released FB-027 interaction baseline plus the later released FB-0
 - target version: `TBD`
 - release state: `merged unreleased`
 - canonical workstream doc: `Docs/workstreams/FB-041_deterministic_callable_group_execution_layer.md`
-- sequencing note: the first bounded callable-group execution follow-through lane is now merged to `main`, but merged canon and release-debt handling still need to catch up before a next implementation branch may begin
+- sequencing note: the first bounded callable-group execution follow-through lane is now merged to `main`, merged current-state canon is aligned by this governance pass, and release-debt handling still needs to complete before a next implementation branch may begin
 
 ## Most Recent Released Workstream Context
 
@@ -163,7 +163,7 @@ Current merged truth indicates:
 - the recent released workstreams above remain part of the locked current baseline
 - merged unreleased non-doc implementation debt currently exists on `main`
 - FB-041 is the merged unreleased implementation-debt owner on current merged truth
-- repo state is `No Active Branch` for next-lane execution until merged-canon repair and release-debt handling are complete
+- repo state is `No Active Branch` for next-lane execution until release-debt handling is complete
 - if a branch changes release-facing canon, those canon updates must land on that same branch before PR readiness is allowed
 - post-release canon repair is emergency-only when merged canon is already stale or external drift made pre-merge prevention impossible
 - the released FB-027 baseline does not authorize further saved-action authoring, resolution, voice, Action Studio, routines, profiles, hotkey cleanup, or shutdown-confirmation work by inertia
@@ -174,7 +174,7 @@ Current merged truth indicates:
   - FB-040 for monitoring, thermals, and performance HUD surfaces
 - those candidate lanes must be selected deliberately rather than bundled together as one implicit interaction continuation
 - FB-041 remains the promoted current-truth owner only as the merged-unreleased release-debt record, not as permission to start another execution branch by inertia
-- the next implementation workstream must not be selected or branched until FB-041 canon repair and release-debt handling are complete
+- the next implementation workstream must not be selected or branched until FB-041 release-debt handling is complete
 
 Use canonical workstream docs for execution detail.
 Use the backlog for item identity.

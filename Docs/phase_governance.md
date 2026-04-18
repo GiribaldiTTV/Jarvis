@@ -191,6 +191,10 @@ Rule:
 
 - a branch is not `PR Readiness`-complete unless the next workstream is selected, canon-valid, and a fresh successor branch is created
 
+Exception:
+
+- If post-merge truth will resolve to `No Active Branch` because `Release Debt` or another repo-level admission blocker remains open, successor-lane selection and reserved successor-branch creation are waived for that PR-readiness pass.
+
 This gate requires all of the following before PR creation is allowed:
 
 - the next workstream identity is selected from current canon
@@ -201,6 +205,12 @@ This gate requires all of the following before PR creation is allowed:
   - `docs/<lane>`
 - the successor branch is explicitly treated as reserved
 - execution on the successor branch must not begin until the current branch merges and the successor branch is revalidated against updated `main`
+
+When the exception applies, the branch must instead:
+
+- make the post-merge `No Active Branch` state explicit in current-state canon
+- name the blocking admission item explicitly
+- avoid selecting or branching the next implementation lane by inertia
 
 If the next workstream is not selected, its record state is not canon-valid, or the successor branch has not been created, the branch is blocked by `Successor Lock Missing`.
 
@@ -478,7 +488,7 @@ The canonical rule is narrower:
 - `Workstream` -> `Hardening` when the changed branch truth must be pressure-tested or stabilized before closeout
 - `Hardening` -> `Live Validation` only after repo-side hardening proof is sufficient for interactive or manual closeout work
 - `Live Validation` -> `PR Readiness` only after branch-local proof is sufficient for closeout and returned evidence has been digested into the authority record
-- `PR Readiness` -> `Release Readiness` only after merge-target canon completeness passes, successor lock passes, the Governance Drift Audit passes, and no unresolved blocker remains
+- `PR Readiness` -> `Release Readiness` only after merge-target canon completeness passes, the Governance Drift Audit passes, and either successor lock passes or successor lock is explicitly waived because post-merge truth resolves to `No Active Branch` due to `Release Debt` or another repo-level admission blocker
 - `Release Readiness` -> `Post-Release Canon Repair` only as an emergency repair path after merged or released truth already exists and canon drift escaped the earlier gates
 
 Later phases must not paper over missing earlier-phase requirements.
@@ -624,7 +634,7 @@ Exit:
 
 Purpose:
 
-- determine whether the branch is ready to become a merge candidate without leaving merged canon stale and with the next lane already locked
+- determine whether the branch is ready to become a merge candidate without leaving merged canon stale and, when post-merge truth will admit a next branch, with the next lane already locked
 
 Allowed:
 
@@ -647,10 +657,10 @@ Required evidence:
 
 - branch-local proof complete
 - merge-target canon completeness gate passed
-- successor lane lock gate passed
+- successor lane lock gate passed, or successor lock explicitly waived because post-merge truth resolves to `No Active Branch` due to `Release Debt` or another repo-level admission blocker
 - Governance Drift Audit completed
 - no active seam
-- no unresolved blocker
+- no unresolved blocker that should have been repaired on the current branch before merge
 
 Exit:
 
