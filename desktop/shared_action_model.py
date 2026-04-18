@@ -3,7 +3,7 @@ import re
 import subprocess
 from dataclasses import dataclass
 from pathlib import Path, PureWindowsPath
-from typing import Iterable
+from typing import Callable, Iterable
 from urllib.parse import urlparse, unquote
 
 from .saved_action_source import (
@@ -149,6 +149,17 @@ class SavedGroupInventoryState:
     guidance_text: str = ""
     path: str = ""
     groups: tuple[CommandGroup, ...] = ()
+
+
+@dataclass(frozen=True)
+class CommandGroupExecutionResult:
+    group_id: str
+    step_count: int
+    completed_action_ids: tuple[str, ...] = ()
+    succeeded: bool = False
+    failed_action_id: str = ""
+    failed_step_index: int = 0
+    error: Exception | None = None
 
 
 def format_action_origin_label(origin: str) -> str:
@@ -1097,6 +1108,107 @@ def resolve_command_group(text: str, groups: Iterable[CommandGroup] = ()):
         if any(normalize_command_text(candidate) == normalized for candidate in build_callable_group_phrases(group.aliases)):
             return group
     return None
+
+
+def _emit_group_execution_marker(
+    marker_emitter: Callable[[str, dict[str, str]], None] | None,
+    marker_name: str,
+    **fields: object,
+):
+    if marker_emitter is None:
+        return
+
+    payload: dict[str, str] = {}
+    for key, value in fields.items():
+        if value is None:
+            continue
+        normalized = str(value).strip()
+        if not normalized:
+            continue
+        payload[key] = normalized.replace("|", "/")
+    marker_emitter(marker_name, payload)
+
+
+def execute_command_group(
+    group: CommandGroup,
+    *,
+    action_launcher: Callable[[CommandAction], None],
+    marker_emitter: Callable[[str, dict[str, str]], None] | None = None,
+) -> CommandGroupExecutionResult:
+    member_ids = tuple(group.member_action_ids)
+    member_actions = tuple(group.member_actions)
+    normalized_member_ids = tuple(member_id.casefold() for member_id in member_ids)
+    normalized_action_ids = tuple(action.id.casefold() for action in member_actions)
+
+    if normalized_action_ids != normalized_member_ids:
+        raise ValueError("Callable group execution order is ambiguous.")
+
+    _emit_group_execution_marker(
+        marker_emitter,
+        "GROUP_EXECUTION_STARTED",
+        group_id=group.id,
+        step_count=len(member_actions),
+    )
+
+    completed_action_ids: list[str] = []
+    for step_index, action in enumerate(member_actions, start=1):
+        _emit_group_execution_marker(
+            marker_emitter,
+            "GROUP_EXECUTION_STEP_STARTED",
+            group_id=group.id,
+            step_index=step_index,
+            action_id=action.id,
+        )
+        try:
+            action_launcher(action)
+        except Exception as exc:
+            _emit_group_execution_marker(
+                marker_emitter,
+                "GROUP_EXECUTION_STEP_FAILED",
+                group_id=group.id,
+                step_index=step_index,
+                action_id=action.id,
+                error=exc,
+            )
+            _emit_group_execution_marker(
+                marker_emitter,
+                "GROUP_EXECUTION_FAILED",
+                group_id=group.id,
+                failed_step_index=step_index,
+                failed_action_id=action.id,
+                completed_step_count=len(completed_action_ids),
+            )
+            return CommandGroupExecutionResult(
+                group_id=group.id,
+                step_count=len(member_actions),
+                completed_action_ids=tuple(completed_action_ids),
+                succeeded=False,
+                failed_action_id=action.id,
+                failed_step_index=step_index,
+                error=exc,
+            )
+
+        completed_action_ids.append(action.id)
+        _emit_group_execution_marker(
+            marker_emitter,
+            "GROUP_EXECUTION_STEP_SUCCEEDED",
+            group_id=group.id,
+            step_index=step_index,
+            action_id=action.id,
+        )
+
+    _emit_group_execution_marker(
+        marker_emitter,
+        "GROUP_EXECUTION_COMPLETED",
+        group_id=group.id,
+        step_count=len(member_actions),
+    )
+    return CommandGroupExecutionResult(
+        group_id=group.id,
+        step_count=len(member_actions),
+        completed_action_ids=tuple(completed_action_ids),
+        succeeded=True,
+    )
 
 
 def launch_command_action(action: CommandAction):
