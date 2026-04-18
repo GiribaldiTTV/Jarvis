@@ -51,6 +51,7 @@ from .shared_action_model import (
     build_callable_group_phrases,
     build_saved_action_callable_phrases,
     default_saved_action_trigger_mode,
+    execute_command_group,
     launch_command_action,
 )
 from .orin_support_reporting import SupportBundleError, prepare_manual_issue_report
@@ -6318,6 +6319,22 @@ class DesktopRuntimeWindow(QWidget):
         self._apply_command_overlay_state()
         self._result_close_timer.start(max(0, int(close_delay_ms)))
 
+    def _emit_group_execution_marker(self, marker_name: str, fields: dict[str, str]):
+        parts = ["RENDERER_MAIN", marker_name]
+        for key, value in fields.items():
+            normalized = (value or "").strip()
+            if not normalized:
+                continue
+            parts.append(f"{key}={normalized}")
+        self._log_event("|".join(parts))
+
+    def _execute_callable_group(self, group):
+        return execute_command_group(
+            group,
+            action_launcher=launch_command_action,
+            marker_emitter=self._emit_group_execution_marker,
+        )
+
     def _close_command_overlay_after_result(self):
         self.close_command_overlay()
 
@@ -6475,7 +6492,31 @@ class DesktopRuntimeWindow(QWidget):
             return
 
         action = payload
-        self._log_event(f"RENDERER_MAIN|COMMAND_EXECUTION_REQUESTED|action_id={action.id}")
+        group = self._command_model.pending_group
+        execution_request_fields = [f"action_id={action.id}"]
+        if group is not None:
+            execution_request_fields.append(f"group_id={group.id}")
+        self._log_event("RENDERER_MAIN|COMMAND_EXECUTION_REQUESTED|" + "|".join(execution_request_fields))
+
+        if group is not None:
+            result = self._execute_callable_group(group)
+            if not result.succeeded:
+                self._log_event(
+                    "RENDERER_MAIN|COMMAND_GROUP_EXECUTION_FAILED|"
+                    f"group_id={group.id}|failed_action_id={result.failed_action_id}|failed_step_index={result.failed_step_index}"
+                )
+                self._show_command_result("launch_failed", f"Launch failed: {result.error}")
+                return
+
+            for completed_action_id in result.completed_action_ids:
+                self._clear_launch_failure_tracking(completed_action_id)
+            self._log_event(
+                "RENDERER_MAIN|COMMAND_GROUP_EXECUTION_COMPLETED|"
+                f"group_id={group.id}|step_count={result.step_count}"
+            )
+            self._show_command_result("launch_requested", "Launch request sent.")
+            return
+
         try:
             launch_command_action(action)
         except Exception as exc:

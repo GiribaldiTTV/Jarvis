@@ -11,7 +11,7 @@
 
 ## Status
 
-- `Promoted for pre-implementation setup`
+- `Execution in progress`
 
 ## Release Stage
 
@@ -34,7 +34,7 @@ This workstream exists so callable groups can move from exact invocation only in
 ## Current Phase
 
 - Phase: `Approved Execution`
-- Substate: `Execution boundary approved, reserved branch revalidated against updated main, first product slice not started`
+- Substate: `Dispatch integration landed, first bounded execution slice complete, deeper follow-through refinement pending`
 
 ## Phase Entry Basis
 
@@ -111,7 +111,9 @@ This workstream exists so callable groups can move from exact invocation only in
 - promoted the backlog identity into an active canonical workstream
 - created the stable canonical workstream record
 - revalidated the reserved branch against updated `main`
-- confirmed the lane remains pre-implementation only
+- added the first deterministic callable-group execution helper at the dispatch layer
+- routed the dispatch handoff through the deterministic group-execution helper when a callable-group confirm context is active
+- added repo-side validation for stored-order execution, stop-on-failure, and runtime-marker progression
 
 ## User Test Summary
 
