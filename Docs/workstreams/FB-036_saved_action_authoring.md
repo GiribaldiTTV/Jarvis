@@ -11,7 +11,7 @@
 
 ## Status
 
-- `Active on feature/fb-036-idea5-integrated-hardening`
+- `Ready for PR on feature/fb-036-idea5-integrated-hardening`
 
 ## Release Stage
 
@@ -30,33 +30,31 @@ Repo-wide phase, timeout, proof-authority, and stop-loss rules for this workstre
 
 ## Current Phase
 
-- Phase: `Docs / Canon Sync`
-- Substate: `Post-Green Evidence Refresh`
+- Phase: `PR Readiness`
+- Substate: `Validation / Hardening completed; docs synced to final green proof`
 
 ## Phase Entry Basis
 
 - the branch contains the integrated FB-036 + Idea 5 implementation truth, including callable groups and the latest UI/inventory follow-through
 - repo-side and live-style validators are already green on the branch
 - the exact current branch truth now has fresh fully green watchdog-backed interactive proof under the tightened default timing profile:
-  - `dev/logs/fb_036_authoring_interactive_validation/reports/FB036SavedActionAuthoringInteractiveValidationReport_20260417_093651.txt`
-  - `dev/logs/fb_036_authoring_interactive_validation/reports/FB036SavedActionAuthoringInteractiveValidationReport_20260417_105920.txt`
-  - `dev/logs/fb_036_authoring_interactive_validation/reports/FB036SavedActionAuthoringInteractiveValidationReport_20260417_110929.txt`
+  - `dev/logs/fb_036_authoring_interactive_validation/reports/FB036SavedActionAuthoringInteractiveValidationReport_20260417_221901.txt`
 - the latest exact-branch proof is:
-  - `dev/logs/fb_036_authoring_interactive_validation/reports/FB036SavedActionAuthoringInteractiveValidationReport_20260417_110929.txt`
+  - `dev/logs/fb_036_authoring_interactive_validation/reports/FB036SavedActionAuthoringInteractiveValidationReport_20260417_221901.txt`
 - the latest live launched-process UI audit is:
-  - `dev/logs/launcher_live_window_audit/20260417_110602/manifest.json`
+  - `dev/logs/launcher_live_window_audit/20260417_175140/manifest.json`
 - together those artifacts prove:
   - the full interactive gate is green on the exact current branch truth
-  - the tightened budget profile is now the default harness profile rather than a manual override
-  - the Create Custom Task visual regression introduced during the efficiency pass was corrected without reopening any failing interactive seam
-  - real launched-process screenshots of the overlay, task dialogs, group dialogs, and invalid-source dialogs remain aligned with the intended dark/translucent UI direction
+  - all governed interactive scenarios now pass under the default harness profile rather than a manual override
+  - the latest UI conformity baseline and the launched-process audit remain aligned on the exact current branch truth
+  - the branch has no active validation seam and is ready to enter PR review
 
 ## Phase Exit Criteria
 
 - the timeout contract in this workstream doc matches the live harness defaults
 - the seam ledger is current and no active seam remains
-- the latest green interactive evidence and the live launched-process UI audit are both recorded here
-- only after those are true should this workstream move to `PR Readiness`
+- the latest exact-branch green interactive evidence and the latest live launched-process UI audit are both recorded here
+- all of those conditions are now satisfied, and the branch is ready for `PR Readiness`
 
 ## Validation Contract
 
@@ -157,9 +155,11 @@ Undocumented slower profiles are not allowed during normal continuation. If a fu
 
 - `none`
 - latest proving report:
-  - `dev/logs/fb_036_authoring_interactive_validation/reports/FB036SavedActionAuthoringInteractiveValidationReport_20260417_110929.txt`
+  - `dev/logs/fb_036_authoring_interactive_validation/reports/FB036SavedActionAuthoringInteractiveValidationReport_20260417_221901.txt`
 - current branch status note:
   - the full interactive gate is green on the exact current branch truth using the harness defaults `1800s / 3s / 60s / 3s`
+  - all governed interactive scenarios passed on the exact current branch truth
+  - branch posture is now `Ready for PR`
 
 ## Stop-Loss Threshold
 
@@ -563,35 +563,35 @@ Undocumented slower profiles are not allowed during normal continuation. If a fu
 ### Evidence References
 
 - latest exact-branch green interactive report
-  - `dev/logs/fb_036_authoring_interactive_validation/reports/FB036SavedActionAuthoringInteractiveValidationReport_20260417_110929.txt`
+  - `dev/logs/fb_036_authoring_interactive_validation/reports/FB036SavedActionAuthoringInteractiveValidationReport_20260417_221901.txt`
 - latest exact-branch green runtime log
-  - `dev/logs/fb_036_authoring_interactive_validation/artifacts/20260417_110929_runtime.log`
+  - `dev/logs/fb_036_authoring_interactive_validation/artifacts/20260417_221901_runtime.log`
 - latest exact-branch green step log
-  - `dev/logs/fb_036_authoring_interactive_validation/artifacts/20260417_110929_interactive_steps.log`
+  - `dev/logs/fb_036_authoring_interactive_validation/artifacts/20260417_221901_interactive_steps.log`
 - latest exact-branch green snapshots
-  - `dev/logs/fb_036_authoring_interactive_validation/artifacts/20260417_110929_initial_source_saved_actions.json`
-  - `dev/logs/fb_036_authoring_interactive_validation/artifacts/20260417_110929_after_create_saved_actions.json`
-  - `dev/logs/fb_036_authoring_interactive_validation/artifacts/20260417_110929_after_group_create_saved_actions.json`
-  - `dev/logs/fb_036_authoring_interactive_validation/artifacts/20260417_110929_after_edit_saved_actions.json`
-  - `dev/logs/fb_036_authoring_interactive_validation/artifacts/20260417_110929_after_task_inline_group_saved_actions.json`
-  - `dev/logs/fb_036_authoring_interactive_validation/artifacts/20260417_110929_after_large_inventory_edit_saved_actions.json`
-  - `dev/logs/fb_036_authoring_interactive_validation/artifacts/20260417_110929_after_invalid_group_source_recovery_saved_actions.json`
-- supporting post-fix green interactive report
-  - `dev/logs/fb_036_authoring_interactive_validation/reports/FB036SavedActionAuthoringInteractiveValidationReport_20260417_105920.txt`
-- first tightened-budget green report from the efficiency pass
-  - `dev/logs/fb_036_authoring_interactive_validation/reports/FB036SavedActionAuthoringInteractiveValidationReport_20260417_093651.txt`
+  - `dev/logs/fb_036_authoring_interactive_validation/artifacts/20260417_221901_initial_source_saved_actions.json`
+  - `dev/logs/fb_036_authoring_interactive_validation/artifacts/20260417_221901_after_create_saved_actions.json`
+  - `dev/logs/fb_036_authoring_interactive_validation/artifacts/20260417_221901_after_group_create_saved_actions.json`
+  - `dev/logs/fb_036_authoring_interactive_validation/artifacts/20260417_221901_after_edit_saved_actions.json`
+  - `dev/logs/fb_036_authoring_interactive_validation/artifacts/20260417_221901_after_ambiguity_selection_saved_actions.json`
+  - `dev/logs/fb_036_authoring_interactive_validation/artifacts/20260417_221901_after_group_invocation_saved_actions.json`
+  - `dev/logs/fb_036_authoring_interactive_validation/artifacts/20260417_221901_after_task_inline_group_saved_actions.json`
+  - `dev/logs/fb_036_authoring_interactive_validation/artifacts/20260417_221901_after_large_inventory_edit_saved_actions.json`
+  - `dev/logs/fb_036_authoring_interactive_validation/artifacts/20260417_221901_after_invalid_group_source_recovery_saved_actions.json`
+  - `dev/logs/fb_036_authoring_interactive_validation/artifacts/20260417_221901_final_source_before_restore_saved_actions.json`
 - latest live launched-process UI audit manifest
-  - `dev/logs/launcher_live_window_audit/20260417_110602/manifest.json`
+  - `dev/logs/launcher_live_window_audit/20260417_175140/manifest.json`
 - key live launched-process UI audit captures
-  - `dev/logs/launcher_live_window_audit/20260417_110602/overlay_entry.png`
-  - `dev/logs/launcher_live_window_audit/20260417_110602/create_custom_task_error.png`
-  - `dev/logs/launcher_live_window_audit/20260417_110602/edit_custom_task.png`
-  - `dev/logs/launcher_live_window_audit/20260417_110602/available_groups.png`
-  - `dev/logs/launcher_live_window_audit/20260417_110602/create_custom_group_direct.png`
-  - `dev/logs/launcher_live_window_audit/20260417_110602/manage_custom_tasks.png`
-  - `dev/logs/launcher_live_window_audit/20260417_110602/manage_custom_groups.png`
-  - `dev/logs/launcher_live_window_audit/20260417_110602/manage_custom_tasks_invalid_source.png`
-  - `dev/logs/launcher_live_window_audit/20260417_110602/manage_custom_groups_invalid_source.png`
+  - `dev/logs/launcher_live_window_audit/20260417_175140/overlay_entry.png`
+  - `dev/logs/launcher_live_window_audit/20260417_175140/create_custom_task_error.png`
+  - `dev/logs/launcher_live_window_audit/20260417_175140/edit_custom_task.png`
+  - `dev/logs/launcher_live_window_audit/20260417_175140/available_groups.png`
+  - `dev/logs/launcher_live_window_audit/20260417_175140/create_custom_group.png`
+  - `dev/logs/launcher_live_window_audit/20260417_175140/create_custom_group_direct.png`
+  - `dev/logs/launcher_live_window_audit/20260417_175140/manage_custom_tasks.png`
+  - `dev/logs/launcher_live_window_audit/20260417_175140/manage_custom_groups.png`
+  - `dev/logs/launcher_live_window_audit/20260417_175140/manage_custom_tasks_invalid_source.png`
+  - `dev/logs/launcher_live_window_audit/20260417_175140/manage_custom_groups_invalid_source.png`
 - historical governed seam-history reports remain relevant for the recovery trail
   - `dev/logs/fb_036_authoring_interactive_validation/reports/FB036SavedActionAuthoringInteractiveValidationReport_20260416_161300.txt`
   - `dev/logs/fb_036_authoring_interactive_validation/reports/FB036SavedActionAuthoringInteractiveValidationReport_20260416_153450.txt`

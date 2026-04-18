@@ -1977,6 +1977,20 @@ function Get-TaskGroupAssignmentDialogControlAutomationIds {
 
     $legacyBase = "QApplication.taskGroupAssignmentDialog"
     $currentBase = "QApplication.taskGroupAssignmentDialog.taskGroupAssignmentShell.taskGroupAssignmentContent"
+    switch ($LeafAutomationId) {
+        "taskGroupAssignmentCreateButton" {
+            return @(
+                "$currentBase.taskGroupAssignmentFooter.taskGroupAssignmentCreateButton",
+                "$legacyBase.taskGroupAssignmentCreateButton"
+            )
+        }
+        "taskGroupAssignmentDoneButton" {
+            return @(
+                "$currentBase.taskGroupAssignmentFooter.taskGroupAssignmentDoneButton",
+                "$legacyBase.taskGroupAssignmentDoneButton"
+            )
+        }
+    }
     return @(
         "$currentBase.$LeafAutomationId",
         "$legacyBase.$LeafAutomationId"
@@ -2386,6 +2400,83 @@ function Wait-ForDialogControlReady {
     return $element
 }
 
+function Get-TaskGroupAssignmentDialogButton {
+    param(
+        [System.Windows.Automation.AutomationElement]$Dialog,
+        [string]$LeafAutomationId,
+        [string[]]$FallbackNames
+    )
+
+    if (-not $Dialog) {
+        return $null
+    }
+
+    $automationIds = @(Get-TaskGroupAssignmentDialogControlAutomationIds -LeafAutomationId $LeafAutomationId)
+    $searchRoot = $Dialog
+    if ($LeafAutomationId -in @("taskGroupAssignmentCreateButton", "taskGroupAssignmentDoneButton")) {
+        $footerAutomationId = "QApplication.taskGroupAssignmentDialog.taskGroupAssignmentShell.taskGroupAssignmentContent.taskGroupAssignmentFooter"
+        $footer = Find-ElementByAutomationIdDirect -Root $Dialog -AutomationId $footerAutomationId
+        if ($footer) {
+            $searchRoot = $footer
+        }
+    }
+
+    $element = Find-ElementByAutomationIdsDirect -Root $searchRoot -AutomationIds $automationIds
+    if ($element) {
+        return $element
+    }
+
+    foreach ($name in @($FallbackNames | Where-Object { -not [string]::IsNullOrWhiteSpace($_) })) {
+        $element = Get-ButtonByName -Root $searchRoot -Name $name
+        if ($element) {
+            return $element
+        }
+    }
+
+    return $null
+}
+
+function Wait-ForTaskGroupAssignmentDialogButtonReady {
+    param(
+        [scriptblock]$DialogResolver,
+        [string]$LeafAutomationId,
+        [string]$Description,
+        [string[]]$FallbackNames,
+        [int]$TimeoutSeconds = 6,
+        [bool]$RequireEnabled = $true
+    )
+
+    $automationIds = @(Get-TaskGroupAssignmentDialogControlAutomationIds -LeafAutomationId $LeafAutomationId)
+    $fallbackSummary = @($FallbackNames | Where-Object { -not [string]::IsNullOrWhiteSpace($_) }) -join " | "
+    $searchSummary = $automationIds -join " | "
+    if (-not [string]::IsNullOrWhiteSpace($fallbackSummary)) {
+        $searchSummary = "$searchSummary ; fallbackName='$fallbackSummary'"
+    }
+
+    Write-StepLog -Stage "DIALOG" -Message "verifying control '$Description' automationId='$searchSummary'"
+    Wait-Until -TimeoutSeconds $TimeoutSeconds -Description $Description -Condition {
+        $liveDialog = & $DialogResolver
+        if (-not $liveDialog) {
+            return $false
+        }
+        $element = Get-TaskGroupAssignmentDialogButton -Dialog $liveDialog -LeafAutomationId $LeafAutomationId -FallbackNames $FallbackNames
+        return (Test-ElementUsable -Element $element -RequireEnabled $RequireEnabled)
+    } | Out-Null
+
+    $liveDialog = & $DialogResolver
+    if (-not $liveDialog) {
+        throw "Could not resolve the live task-group assignment dialog while waiting for '$Description'."
+    }
+
+    $element = Get-TaskGroupAssignmentDialogButton -Dialog $liveDialog -LeafAutomationId $LeafAutomationId -FallbackNames $FallbackNames
+    if (-not (Test-ElementUsable -Element $element -RequireEnabled $RequireEnabled)) {
+        throw "Control '$Description' did not become usable. State: $(Get-ElementStateSummary -Element $element)"
+    }
+
+    Write-StepLog -Stage "DIALOG" -Message "control ready '$Description' state=$(Get-ElementStateSummary -Element $element)"
+    return $element
+}
+
 function Wait-ForCreateDialogTaskTypeComboReady {
     param(
         [scriptblock]$DialogResolver,
@@ -2572,6 +2663,39 @@ function Wait-ForGroupDialogMembersRegionReady {
 
     $memberCheckboxCount = @(Get-GroupDialogMemberCheckboxes -Root $liveDialog -RequireEnabled $false).Count
     Write-StepLog -Stage "DIALOG" -Message "control ready '$Description' state=$(Get-ElementStateSummary -Element $element) member_checkboxes=$memberCheckboxCount"
+    return $element
+}
+
+function Wait-ForGroupDialogMemberCheckboxReady {
+    param(
+        [scriptblock]$DialogResolver,
+        [string]$MemberName,
+        [string]$Description,
+        [int]$TimeoutSeconds = 8,
+        [bool]$RequireEnabled = $true
+    )
+
+    Write-StepLog -Stage "DIALOG" -Message "verifying control '$Description' through member-title checkbox resolution"
+    Wait-Until -TimeoutSeconds $TimeoutSeconds -Description $Description -Condition {
+        $liveDialog = & $DialogResolver
+        if (-not $liveDialog) {
+            return $false
+        }
+        $element = Get-GroupDialogMemberCheckboxByTitle -Root $liveDialog -Title $MemberName -RequireEnabled $RequireEnabled
+        return (Test-ElementUsable -Element $element -RequireEnabled $RequireEnabled)
+    } | Out-Null
+
+    $liveDialog = & $DialogResolver
+    if (-not $liveDialog) {
+        throw "Could not resolve the live dialog while waiting for '$Description'."
+    }
+
+    $element = Get-GroupDialogMemberCheckboxByTitle -Root $liveDialog -Title $MemberName -RequireEnabled $RequireEnabled
+    if (-not (Test-ElementUsable -Element $element -RequireEnabled $RequireEnabled)) {
+        throw "Control '$Description' did not become usable. State: $(Get-ElementStateSummary -Element $element)"
+    }
+
+    Write-StepLog -Stage "DIALOG" -Message "control ready '$Description' state=$(Get-ElementStateSummary -Element $element)"
     return $element
 }
 
@@ -3685,6 +3809,101 @@ function Get-CheckboxByName {
     return Find-FirstElement -Root $Root -Name $Name -ControlType ([System.Windows.Automation.ControlType]::CheckBox)
 }
 
+function Get-GroupDialogMemberCheckboxByTitle {
+    param(
+        [System.Windows.Automation.AutomationElement]$Root,
+        [string]$Title,
+        [bool]$RequireEnabled = $true
+    )
+
+    if (-not $Root -or [string]::IsNullOrWhiteSpace($Title)) {
+        return $null
+    }
+
+    $directMatch = Get-CheckboxByName -Root $Root -Name $Title
+    if (Test-ElementUsable -Element $directMatch -RequireEnabled $RequireEnabled) {
+        return $directMatch
+    }
+
+    $normalizedTitle = Normalize-UiValue $Title
+    if ([string]::IsNullOrWhiteSpace($normalizedTitle)) {
+        return $null
+    }
+
+    $titleCandidates = @()
+    foreach ($candidate in (Get-AllDescendants -Element $Root)) {
+        try {
+            $candidateName = Normalize-UiValue ([string]$candidate.Current.Name)
+            if ($candidateName -ne $normalizedTitle) {
+                continue
+            }
+            if (-not (Test-ElementUsable -Element $candidate -RequireEnabled $false)) {
+                continue
+            }
+            $titleCandidates += $candidate
+        } catch {
+        }
+    }
+
+    $walker = [System.Windows.Automation.TreeWalker]::ControlViewWalker
+    foreach ($titleElement in $titleCandidates) {
+        $current = $titleElement
+        while ($current) {
+            try {
+                $current = $walker.GetParent($current)
+            } catch {
+                break
+            }
+
+            if (-not $current -or (Test-ElementsEquivalent -Left $current -Right $Root)) {
+                break
+            }
+
+            $candidateCheckboxes = @(Get-GroupDialogMemberCheckboxes -Root $current -RequireEnabled $RequireEnabled)
+            if ($candidateCheckboxes.Count -eq 1) {
+                return $candidateCheckboxes[0]
+            }
+        }
+    }
+
+    $allCheckboxes = @(Get-GroupDialogMemberCheckboxes -Root $Root -RequireEnabled $RequireEnabled)
+    if ($allCheckboxes.Count -eq 0 -or $titleCandidates.Count -eq 0) {
+        return $null
+    }
+
+    $bestMatch = $null
+    $bestScore = [double]::PositiveInfinity
+    foreach ($titleElement in $titleCandidates) {
+        try {
+            $titleRect = $titleElement.Current.BoundingRectangle
+        } catch {
+            continue
+        }
+
+        foreach ($checkbox in $allCheckboxes) {
+            try {
+                $checkboxRect = $checkbox.Current.BoundingRectangle
+            } catch {
+                continue
+            }
+
+            if ($checkboxRect.Left -lt $titleRect.Left) {
+                continue
+            }
+
+            $verticalDistance = [Math]::Abs(($checkboxRect.Top + ($checkboxRect.Height / 2.0)) - ($titleRect.Top + ($titleRect.Height / 2.0)))
+            $horizontalDistance = [Math]::Abs($checkboxRect.Left - $titleRect.Right)
+            $score = ($verticalDistance * 3.0) + $horizontalDistance
+            if ($score -lt $bestScore) {
+                $bestScore = $score
+                $bestMatch = $checkbox
+            }
+        }
+    }
+
+    return $bestMatch
+}
+
 function Set-CheckboxStateVerified {
     param(
         [scriptblock]$ElementResolver,
@@ -3903,6 +4122,15 @@ function Resolve-LiveDialogRoot {
     }
 
     return $Dialog
+}
+
+function Resolve-LiveTaskGroupAssignmentDialogRoot {
+    $dialog = Find-ElementByAutomationIdDirect -Root ([System.Windows.Automation.AutomationElement]::RootElement) -AutomationId "QApplication.taskGroupAssignmentDialog"
+    if (Test-ElementUsable -Element $dialog -RequireEnabled $true) {
+        return $dialog
+    }
+
+    return $null
 }
 
 function Get-InventoryTextRows {
@@ -4225,8 +4453,9 @@ function Fill-CallableGroupDialog {
         $resolveCheckbox = {
             $liveDialog = & $resolveDialog
             if (-not $liveDialog) { return $null }
-            return (Get-CheckboxByName -Root $liveDialog -Name $memberName)
+            return (Get-GroupDialogMemberCheckboxByTitle -Root $liveDialog -Title $memberName -RequireEnabled $true)
         }
+        $null = Wait-ForGroupDialogMemberCheckboxReady -DialogResolver $resolveDialog -MemberName $memberName -Description "group member '$memberName'"
         Set-CheckboxStateVerified -ElementResolver $resolveCheckbox -Checked $true -Description "group member '$memberName'"
     }
 }
@@ -4275,7 +4504,7 @@ function Open-TaskGroupAssignmentDialog {
 
         try {
             Wait-ForDialogRuntimeReady -SignalBase "TASK_GROUP_ASSIGNMENT_DIALOG" -StartLine $markerStart -TimeoutSeconds 2
-            $dialog = Wait-ForDialogViaRuntimeHandle -SignalBase "TASK_GROUP_ASSIGNMENT_DIALOG" -ExpectedName "Available Groups" -StartLine $markerStart -TimeoutSeconds 2
+            $dialog = Wait-ForDialogViaRuntimeHandle -SignalBase "TASK_GROUP_ASSIGNMENT_DIALOG" -ExpectedName "" -StartLine $markerStart -TimeoutSeconds 2
             Write-StepLog -Stage "WAIT" -Message "Available Groups dialog observed via runtime handle after assign-group activation attempt=$attempt"
             break
         } catch {
@@ -4293,10 +4522,10 @@ function Open-TaskGroupAssignmentDialog {
         throw "Could not open 'Available Groups' from the task dialog Assign Group button."
     }
     $resolveDialog = {
-        Resolve-LiveDialogRoot -Dialog $dialog -ExpectedName "Available Groups"
+        Resolve-LiveDialogRoot -Dialog $dialog -ExpectedName ""
     }
-    $null = Wait-ForDialogControlReady -DialogResolver $resolveDialog -AutomationIds (Get-TaskGroupAssignmentDialogControlAutomationIds -LeafAutomationId "taskGroupAssignmentCreateButton") -Description "Available Groups create button"
-    $null = Wait-ForDialogControlReady -DialogResolver $resolveDialog -AutomationIds (Get-TaskGroupAssignmentDialogControlAutomationIds -LeafAutomationId "taskGroupAssignmentDoneButton") -Description "Available Groups done button"
+    $null = Wait-ForTaskGroupAssignmentDialogButtonReady -DialogResolver $resolveDialog -LeafAutomationId "taskGroupAssignmentCreateButton" -Description "Available Groups create button" -FallbackNames @("Create New Group", "Create New Group...")
+    $null = Wait-ForTaskGroupAssignmentDialogButtonReady -DialogResolver $resolveDialog -LeafAutomationId "taskGroupAssignmentDoneButton" -Description "Available Groups done button" -FallbackNames @("Done")
     return (& $resolveDialog)
 }
 
@@ -4307,9 +4536,62 @@ function Get-TaskGroupAssignmentRowButton {
         [string]$ButtonName
     )
 
-    $liveDialog = Resolve-LiveDialogRoot -Dialog $Dialog -ExpectedName "Available Groups"
+    $itemsContainerAutomationId = "QApplication.taskGroupAssignmentDialog.taskGroupAssignmentShell.taskGroupAssignmentContent.taskGroupAssignmentItemsScroll.taskGroupAssignmentViewport.taskGroupAssignmentItems"
+    $liveDialog = Resolve-LiveDialogRoot -Dialog $Dialog -ExpectedName "Manage Custom Groups"
     if (-not $liveDialog) {
         return $null
+    }
+
+    $itemsContainer = Find-ElementByAutomationIdDirect -Root $liveDialog -AutomationId $itemsContainerAutomationId
+    if ($itemsContainer) {
+        $walker = [System.Windows.Automation.TreeWalker]::ControlViewWalker
+        try {
+            $row = $walker.GetFirstChild($itemsContainer)
+        } catch {
+            $row = $null
+        }
+        $normalizedGroupTitle = Normalize-UiValue $GroupTitle
+        while ($row) {
+            $rowMatches = $false
+            foreach ($candidate in (Get-AllDescendants -Element $row)) {
+                try {
+                    $candidateName = [string]$candidate.Current.Name
+                    if ([string]::IsNullOrWhiteSpace($candidateName)) {
+                        continue
+                    }
+                    $normalizedCandidate = Normalize-UiValue $candidateName
+                    if (-not $normalizedCandidate) {
+                        continue
+                    }
+                    if ($normalizedCandidate -eq $normalizedGroupTitle -or $normalizedCandidate.Contains($normalizedGroupTitle)) {
+                        $rowMatches = $true
+                        break
+                    }
+                } catch {
+                }
+            }
+
+            if ($rowMatches) {
+                foreach ($candidate in (Get-AllDescendants -Element $row)) {
+                    try {
+                        if (
+                            (Get-ElementControlTypeNameSafe -Element $candidate -Context "Get-TaskGroupAssignmentRowButton row button") -eq [System.Windows.Automation.ControlType]::Button.ProgrammaticName -and
+                            [string]$candidate.Current.Name -eq $ButtonName -and
+                            (Test-ElementUsable -Element $candidate -RequireEnabled $true)
+                        ) {
+                            return $candidate
+                        }
+                    } catch {
+                    }
+                }
+            }
+
+            try {
+                $row = $walker.GetNextSibling($row)
+            } catch {
+                $row = $null
+            }
+        }
     }
 
     $titleElement = Find-FirstElement -Root $liveDialog -Name $GroupTitle
@@ -4375,35 +4657,82 @@ function Get-TaskGroupAssignmentRowButton {
     return $null
 }
 
+function Get-TaskGroupAssignmentRowElement {
+    param(
+        [System.Windows.Automation.AutomationElement]$Dialog,
+        [string]$GroupTitle
+    )
+
+    $itemsContainerAutomationId = "QApplication.taskGroupAssignmentDialog.taskGroupAssignmentShell.taskGroupAssignmentContent.taskGroupAssignmentItemsScroll.taskGroupAssignmentViewport.taskGroupAssignmentItems"
+    $liveDialog = Resolve-LiveDialogRoot -Dialog $Dialog -ExpectedName "Manage Custom Groups"
+    if (-not $liveDialog) {
+        return $null
+    }
+
+    $itemsContainer = Find-ElementByAutomationIdDirect -Root $liveDialog -AutomationId $itemsContainerAutomationId
+    if (-not $itemsContainer) {
+        return $null
+    }
+
+    $normalizedGroupTitle = Normalize-UiValue $GroupTitle
+    $walker = [System.Windows.Automation.TreeWalker]::ControlViewWalker
+    try {
+        $row = $walker.GetFirstChild($itemsContainer)
+    } catch {
+        $row = $null
+    }
+
+    while ($row) {
+        foreach ($candidate in (Get-AllDescendants -Element $row)) {
+            try {
+                $candidateName = [string]$candidate.Current.Name
+                if ([string]::IsNullOrWhiteSpace($candidateName)) {
+                    continue
+                }
+                $normalizedCandidate = Normalize-UiValue $candidateName
+                if (-not $normalizedCandidate) {
+                    continue
+                }
+                if ($normalizedCandidate -eq $normalizedGroupTitle -or $normalizedCandidate.Contains($normalizedGroupTitle)) {
+                    return $row
+                }
+            } catch {
+            }
+        }
+
+        try {
+            $row = $walker.GetNextSibling($row)
+        } catch {
+            $row = $null
+        }
+    }
+
+    return $null
+}
+
 function Get-TaskGroupAssignmentInlineGroupToggleButton {
     param(
         [System.Windows.Automation.AutomationElement]$Dialog,
         [bool]$RequireEnabled = $true
     )
 
-    $liveDialog = Resolve-LiveDialogRoot -Dialog $Dialog -ExpectedName "Available Groups"
-    if (-not $liveDialog) {
+    $row = Get-TaskGroupAssignmentRowElement -Dialog $Dialog -GroupTitle "Notes Suite"
+    if (-not $row) {
         return $null
     }
 
-    $automationIdMatch = Find-ElementByAutomationIdsDirect -Root $liveDialog -AutomationIds (Get-TaskGroupAssignmentDialogControlAutomationIds -LeafAutomationId "taskGroupAssignmentInlineGroupToggleButton")
-    if (Test-ElementUsable -Element $automationIdMatch -RequireEnabled $RequireEnabled) {
-        return $automationIdMatch
-    }
-
-    foreach ($candidate in (Get-AllDescendants -Element $liveDialog)) {
+    foreach ($candidate in (Get-AllDescendants -Element $row)) {
         try {
-            if ((Get-ElementControlTypeNameSafe -Element $candidate -Context "Get-TaskGroupAssignmentInlineGroupToggleButton") -ne [System.Windows.Automation.ControlType]::Button.ProgrammaticName) {
-                continue
-            }
-            $automationId = [string]$candidate.Current.AutomationId
-            if ([string]::IsNullOrWhiteSpace($automationId) -or $automationId -notlike "*taskGroupAssignmentInlineGroupToggleButton") {
+            if ((Get-ElementControlTypeNameSafe -Element $candidate -Context "Get-TaskGroupAssignmentInlineGroupToggleButton row") -ne [System.Windows.Automation.ControlType]::Button.ProgrammaticName) {
                 continue
             }
             if (-not (Test-ElementUsable -Element $candidate -RequireEnabled $RequireEnabled)) {
                 continue
             }
-            return $candidate
+            $candidateName = [string]$candidate.Current.Name
+            if ($candidateName -eq "Assign" -or $candidateName -eq "Remove") {
+                return $candidate
+            }
         } catch {
         }
     }
@@ -4426,23 +4755,24 @@ function Get-TaskGroupAssignmentInlineGroupTitleElement {
         [System.Windows.Automation.AutomationElement]$Dialog
     )
 
-    $liveDialog = Resolve-LiveDialogRoot -Dialog $Dialog -ExpectedName "Available Groups"
-    if (-not $liveDialog) {
+    $row = Get-TaskGroupAssignmentRowElement -Dialog $Dialog -GroupTitle "Notes Suite"
+    if (-not $row) {
         return $null
     }
 
-    $automationIdMatch = Find-ElementByAutomationIdsDirect -Root $liveDialog -AutomationIds (Get-TaskGroupAssignmentDialogControlAutomationIds -LeafAutomationId "taskGroupAssignmentInlineGroupTitle")
-    if ($automationIdMatch) {
-        return $automationIdMatch
-    }
-
-    foreach ($candidate in (Get-AllDescendants -Element $liveDialog)) {
+    foreach ($candidate in (Get-AllDescendants -Element $row)) {
         try {
-            $automationId = [string]$candidate.Current.AutomationId
-            if ([string]::IsNullOrWhiteSpace($automationId) -or $automationId -notlike "*taskGroupAssignmentInlineGroupTitle") {
+            $candidateName = [string]$candidate.Current.Name
+            if ([string]::IsNullOrWhiteSpace($candidateName)) {
                 continue
             }
-            return $candidate
+            $normalizedCandidate = Normalize-UiValue $candidateName
+            if (-not $normalizedCandidate) {
+                continue
+            }
+            if ($normalizedCandidate -eq "notes suite" -or $normalizedCandidate.Contains("notes suite")) {
+                return $candidate
+            }
         } catch {
         }
     }
@@ -4456,7 +4786,7 @@ function Get-TaskGroupAssignmentDialogDebugSummary {
         [int]$MaxItems = 40
     )
 
-    $liveDialog = Resolve-LiveDialogRoot -Dialog $Dialog -ExpectedName "Available Groups"
+    $liveDialog = Resolve-LiveTaskGroupAssignmentDialogRoot
     if (-not $liveDialog) {
         return "Available Groups dialog unavailable"
     }
@@ -4848,6 +5178,7 @@ function Set-TaskGroupAssignmentRowState {
     $resolveButton = {
         return (Get-TaskGroupAssignmentRowButton -Dialog $Dialog -GroupTitle $GroupTitle -ButtonName $ButtonName)
     }
+    Write-StepLog -Stage "DIALOG" -Message "resolving Available Groups row button '$ButtonName' for group '$GroupTitle'"
     Wait-Until -TimeoutSeconds 8 -Description "$Description ready" -Condition {
         return [bool](& $resolveButton)
     }
@@ -4909,15 +5240,15 @@ function Open-AssignmentCreateGroupDialog {
     )
 
     $resolveAssignmentDialog = {
-        Resolve-LiveDialogRoot -Dialog $AssignmentDialog -ExpectedName "Available Groups"
+        Resolve-LiveDialogRoot -Dialog $AssignmentDialog -ExpectedName "Manage Custom Groups"
     }
     $resolveCreateButton = {
         $liveDialog = & $resolveAssignmentDialog
         if (-not $liveDialog) { return $null }
-        return (Find-ElementByAutomationIdsDirect -Root $liveDialog -AutomationIds (Get-TaskGroupAssignmentDialogControlAutomationIds -LeafAutomationId "taskGroupAssignmentCreateButton"))
+        return (Get-TaskGroupAssignmentDialogButton -Dialog $liveDialog -LeafAutomationId "taskGroupAssignmentCreateButton" -FallbackNames @("Create New Group", "Create New Group..."))
     }
 
-    $null = Wait-ForDialogControlReady -DialogResolver $resolveAssignmentDialog -AutomationIds (Get-TaskGroupAssignmentDialogControlAutomationIds -LeafAutomationId "taskGroupAssignmentCreateButton") -Description "Available Groups create button"
+    $null = Wait-ForTaskGroupAssignmentDialogButtonReady -DialogResolver $resolveAssignmentDialog -LeafAutomationId "taskGroupAssignmentCreateButton" -Description "Available Groups create button" -FallbackNames @("Create New Group", "Create New Group...")
     $markerStart = New-RuntimeMarkerCursor
     Invoke-ElementViaKeyboardActivation -ElementResolver $resolveCreateButton -Description "Available Groups create button"
 
@@ -6739,7 +7070,7 @@ function Run-Task-Inline-Group-Check {
     $inlineGroupCloseMarkerSeen = $false
     $inlineGroupSearchStart = [Math]::Max(0, $inlineGroupMarkerStart - 5)
     $resolveReturnedAssignmentDialog = {
-        return (Resolve-LiveDialogRoot -Dialog $assignmentDialog -ExpectedName "Available Groups")
+        return (Resolve-LiveDialogRoot -Dialog $assignmentDialog -ExpectedName "Manage Custom Groups")
     }
     try {
         Wait-ForDialogRuntimeClosed -SignalBase "CUSTOM_GROUP_CREATE_DIALOG" -StartLine $inlineGroupMarkerStart -TimeoutSeconds 3
@@ -6769,10 +7100,11 @@ function Run-Task-Inline-Group-Check {
         throw "Available Groups dialog did not return after inline group creation."
     }
     $resolveInlineAssignmentDialog = {
-        return (Resolve-LiveDialogRoot -Dialog $assignmentDialog -ExpectedName "Available Groups")
+        return (Resolve-LiveDialogRoot -Dialog $assignmentDialog -ExpectedName "Manage Custom Groups")
     }
-    $null = Wait-ForDialogControlReady -DialogResolver $resolveInlineAssignmentDialog -AutomationIds (Get-TaskGroupAssignmentDialogControlAutomationIds -LeafAutomationId "taskGroupAssignmentCreateButton") -Description "Available Groups create button after inline create"
-    $null = Wait-ForDialogControlReady -DialogResolver $resolveInlineAssignmentDialog -AutomationIds (Get-TaskGroupAssignmentDialogControlAutomationIds -LeafAutomationId "taskGroupAssignmentDoneButton") -Description "Available Groups done button after inline create"
+    $null = Wait-ForTaskGroupAssignmentDialogButtonReady -DialogResolver $resolveInlineAssignmentDialog -LeafAutomationId "taskGroupAssignmentCreateButton" -Description "Available Groups create button after inline create" -FallbackNames @("Create New Group", "Create New Group...")
+    $null = Wait-ForTaskGroupAssignmentDialogButtonReady -DialogResolver $resolveInlineAssignmentDialog -LeafAutomationId "taskGroupAssignmentDoneButton" -Description "Available Groups done button after inline create" -FallbackNames @("Done")
+    Write-StepLog -Stage "DIALOG" -Message "re-resolving Available Groups items container after inline create for 'Notes Suite'"
     $liveInlineAssignmentDialog = & $resolveInlineAssignmentDialog
     if ($liveInlineAssignmentDialog) {
         Focus-Window -Element $liveInlineAssignmentDialog
