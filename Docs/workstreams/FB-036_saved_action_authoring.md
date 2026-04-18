@@ -7,11 +7,21 @@
 
 ## Record State
 
-- `Promoted`
+- `Closed`
 
 ## Status
 
-- `Ready for PR on feature/fb-036-idea5-integrated-hardening`
+- `Released (v1.3.0-prebeta)`
+
+## Current Release-Truth Note
+
+- the final FB-036 integrated branch merged to `main`
+- the lane is released in `v1.3.0-prebeta`
+- the final exact-branch green proof remains:
+  - `dev/logs/fb_036_authoring_interactive_validation/reports/FB036SavedActionAuthoringInteractiveValidationReport_20260417_221901.txt`
+- the final launched-process UI audit remains:
+  - `dev/logs/launcher_live_window_audit/20260417_175140/manifest.json`
+- this workstream record is now historical lane truth, not an active execution lane
 
 ## Release Stage
 
@@ -19,7 +29,7 @@
 
 ## Target Version
 
-- `TBD`
+- `v1.3.0-prebeta`
 
 ## Purpose / Why It Matters
 
@@ -30,8 +40,8 @@ Repo-wide phase, timeout, proof-authority, and stop-loss rules for this workstre
 
 ## Current Phase
 
-- Phase: `PR Readiness`
-- Substate: `Validation / Hardening completed; docs synced to final green proof`
+- Phase: `Completed`
+- Substate: `Merged to main, released in v1.3.0-prebeta, and canon-synced`
 
 ## Phase Entry Basis
 
@@ -44,17 +54,17 @@ Repo-wide phase, timeout, proof-authority, and stop-loss rules for this workstre
 - the latest live launched-process UI audit is:
   - `dev/logs/launcher_live_window_audit/20260417_175140/manifest.json`
 - together those artifacts prove:
-  - the full interactive gate is green on the exact current branch truth
+  - the full interactive gate reached green on the exact final branch truth
   - all governed interactive scenarios now pass under the default harness profile rather than a manual override
-  - the latest UI conformity baseline and the launched-process audit remain aligned on the exact current branch truth
-  - the branch has no active validation seam and is ready to enter PR review
+  - the latest UI conformity baseline and the launched-process audit remain aligned on the final released branch truth
+  - the lane closed without any remaining active validation seam
 
 ## Phase Exit Criteria
 
 - the timeout contract in this workstream doc matches the live harness defaults
 - the seam ledger is current and no active seam remains
 - the latest exact-branch green interactive evidence and the latest live launched-process UI audit are both recorded here
-- all of those conditions are now satisfied, and the branch is ready for `PR Readiness`
+- all of those conditions were satisfied before merge, and the lane is now closed as released historical truth
 
 ## Validation Contract
 
@@ -157,9 +167,9 @@ Undocumented slower profiles are not allowed during normal continuation. If a fu
 - latest proving report:
   - `dev/logs/fb_036_authoring_interactive_validation/reports/FB036SavedActionAuthoringInteractiveValidationReport_20260417_221901.txt`
 - current branch status note:
-  - the full interactive gate is green on the exact current branch truth using the harness defaults `1800s / 3s / 60s / 3s`
-  - all governed interactive scenarios passed on the exact current branch truth
-  - branch posture is now `Ready for PR`
+  - the full interactive gate reached green on the exact final branch truth using the harness defaults `1800s / 3s / 60s / 3s`
+  - all governed interactive scenarios passed on the final branch truth before merge
+  - lane posture is now `Closed` and `Released (v1.3.0-prebeta)`
 
 ## Stop-Loss Threshold
 

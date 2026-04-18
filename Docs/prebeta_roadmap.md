@@ -61,27 +61,37 @@ Use these release-state values when relevant:
 
 Current merged truth indicates:
 
-- latest public prerelease: `v1.2.9-prebeta`
-- latest public release commit: `1bdf7a0`
+- latest public prerelease: `v1.3.0-prebeta`
+- latest public release commit: `11eb8ad`
 - no merged unreleased non-doc implementation debt currently exists on `main`
-- the latest public released FB-027 milestone is the saved-action inventory and guided-access release in `v1.2.9-prebeta`
+- the latest public released implementation milestone is FB-036 saved-action authoring and callable groups in `v1.3.0-prebeta`
 - no active non-doc implementation workstream is currently selected on `main`
 
-That means `main` is again between released non-doc implementation lanes. The released FB-027 baseline, URL-target milestone, and later inventory-and-guided-access follow-through now form part of the current shared pre-Beta baseline, and the next implementation workstream should be chosen only after fresh post-release analysis on updated `main`.
+That means `main` is again between released non-doc implementation lanes. The released FB-027 interaction baseline plus the later released FB-036 authoring-and-callable-group milestone now form part of the current shared pre-Beta baseline, and the next implementation workstream should be chosen only after fresh post-release analysis on updated `main`.
 
 ## Most Recent Released Workstream Context
 
-### FB-027 Interaction System Baseline
+### FB-036 Saved-Action Authoring And Callable Groups
 
 - status: `released`
+- lane type: `implementation`
+- release floor: `minor prerelease`
+- target version: `v1.3.0-prebeta`
+- release state: `released`
+- canonical workstream doc: `Docs/workstreams/FB-036_saved_action_authoring.md`
+- sequencing note: released bounded custom-task authoring, callable groups, inline group quick-create, explicit trigger modeling, and the final exact-green authoring hardening without changing the locked typed-first overlay contract or widening into Action Studio behavior
+
+## Recently Closed Workstreams
+
+### FB-027 Interaction System Baseline
+
+- status: `closed`
 - lane type: `implementation`
 - release floor: `patch prerelease`
 - target version: `v1.2.9-prebeta`
 - release state: `released`
 - canonical workstream doc: `Docs/workstreams/FB-027_interaction_system_baseline.md`
-- sequencing note: released the locked typed-first baseline, first-class URL saved-action targets, and the later saved-action inventory and guided-access follow-through without changing exact-match resolution, state-machine boundedness, or input-capture behavior
-
-## Recently Closed Workstreams
+- sequencing note: remains the locked interaction baseline below the later released FB-036 authoring and callable-group milestone
 
 ### FB-035 Release-Context Fallback Hardening
 
@@ -134,7 +144,8 @@ That means `main` is again between released non-doc implementation lanes. The re
 
 Current merged truth indicates:
 
-- the released FB-027 baseline now includes both the earlier URL-target milestone and the later inventory-and-guided-access follow-through
+- the released FB-027 baseline remains part of the locked current interaction floor
+- the released FB-036 authoring-and-callable-group milestone is now part of the locked current pre-Beta baseline
 - the released FB-035 lane is closed
 - the recent released workstreams above remain part of the locked current baseline
 - no merged unreleased non-doc implementation debt currently exists on `main`
@@ -143,7 +154,6 @@ Current merged truth indicates:
 - standalone docs-only post-release repair is exception-only when no plausible next workstream can yet be selected safely from current truth
 - the released FB-027 baseline does not authorize further saved-action authoring, resolution, voice, Action Studio, routines, profiles, hotkey cleanup, or shutdown-confirmation work by inertia
 - future candidate spaces now explicitly recorded in the backlog include:
-  - FB-036 for limited saved-action authoring and type-first custom task UX
   - FB-037 for curated built-in system actions and Nexus settings expansion
   - FB-038 for taskbar or tray quick-task UX including Create Custom Task
   - FB-039 for external trigger and plugin integration architecture

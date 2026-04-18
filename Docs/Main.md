@@ -121,6 +121,7 @@ Rules:
 Use these for promoted work that needs a stable feature-state, branch-local validation/evidence record, active seam trail, durable artifact/reuse history, and closure history:
 
 - `Docs/workstreams/index.md`
+- `Docs/workstreams/FB-036_saved_action_authoring.md`
 - `Docs/workstreams/FB-035_release_context_fallback_hardening.md`
 - `Docs/workstreams/FB-034_recoverable_diagnostics.md`
 - `Docs/workstreams/FB-025_boot_desktop_milestone_taxonomy_clarification.md`
@@ -133,7 +134,7 @@ Use these for closeout policy, historical closeout lookup, and the modern Nexus-
 
 - `Docs/closeout_guidance.md`
 - `Docs/closeout_index.md`
-- `Docs/closeouts/nexus_prebeta_rebaseline_through_v1.2.9-prebeta.md`
+- `Docs/closeouts/nexus_prebeta_rebaseline_through_v1.3.0-prebeta.md`
 
 Historical closeout leaf docs are intentionally routed through `Docs/closeout_index.md`.
 
