@@ -7,6 +7,7 @@ This document defines the collaboration posture Codex should use while handling 
 It works with:
 
 - `Docs/development_rules.md`
+- `Docs/phase_governance.md`
 - `Docs/Main.md`
 - `Docs/orin_task_template.md`
 
@@ -22,6 +23,21 @@ Nexus work benefits from two different postures:
 The modes should not be confused.
 Analysis mode exists to understand the whole system first.
 Workflow mode exists to execute approved work without silent scope drift.
+
+## Required Startup Assessment
+
+Before planning, patching, reviewing, or recommending the next move in either mode, Codex must run the startup contract from `Docs/Main.md`.
+
+That startup assessment should explicitly answer:
+
+- `Source-of-Truth`
+- `Record State`
+- `Branch Truth`
+- `Canonical Workstream`
+- `Reuse Baseline`
+- `Next Safe Move`
+
+This can stay brief, but it should happen before scope is narrowed for execution.
 
 ## Analysis Mode
 
@@ -107,6 +123,7 @@ In Workflow mode, Codex should:
 - make the required changes
 - verify the changed behavior or changed docs
 - report any drift or remaining gaps honestly
+- when the approved boundary is continuous validation inside the current workstream, keep iterating until the full gate is green or a hard stop is reached
 
 ### What Codex Must Not Do
 
@@ -123,8 +140,25 @@ Workflow mode should usually return:
 
 - changes applied
 - validation performed
+- a distinct summary of validator results
+- a distinct summary of synthetic or headless validation results and the supporting validation artifacts created or used
+- a distinct summary of interactive OS-level execution results when that path is feasible
+- session cleanup performed and explicitly verified, including what was closed, stopped, restored, or deleted after the pass
+- any remaining simulated-only findings or reasoning-only gaps that still matter
+- deeper branch-local validation or hardening findings when the slice changes runtime or user-visible behavior
+- any timeout or stall conditions encountered during validation, including the last confirmed meaningful progress point and whether the run aborted cleanly
+- whether closeout-grade proof came from the helper's documented default budget profile or only from exploratory overrides
+- a detailed `## User Test Summary` manual checklist when the slice changes user-visible behavior, runtime interaction, UX flow, prompts, startup behavior, voice behavior, or another operator-facing path
+- the updated canonical repo-level `UTS` artifact when the active workstream owns one and the slice makes that artifact relevant
+- the exported or refreshed desktop `User Test Summary.txt` copy when the slice is a relevant desktop user-facing path, or an explicit explanation of why that export was skipped
+- when meaningful desktop UI changed and closeout posture matters, a distinct summary of the live launched-process UI audit results and evidence
+- an explicit statement under `## User Test Summary` when no meaningful manual test exists and why
 - remaining drift or known gaps
 - whether the approved phase is complete
+
+Do not report cleanup as complete unless the pass has explicitly checked for leftover apps, windows, dialogs, helper processes, probe files, or other temporary artifacts it created or opened.
+
+Do not report an interactive validation pass as complete or trustworthy if it exceeded its time budgets or sat stalled without a clean abort path.
 
 ## Workstream And Branch Governance
 
@@ -180,20 +214,75 @@ Release-dependent truth sometimes changes after the code lane is already closed.
 When that happens:
 
 - carry the canon sync on the active lane when that lane is still open
-- use a docs-only canon pass when current truth requires it and no safe next implementation lane should be selected yet
-- do not force post-release canon repair onto a hypothetical next implementation branch when that would leave the repo planning baseline misleading
+- if the lane is already closed, normally validate updated `main`, select the next plausible workstream, create its fresh branch, and perform the post-release canon sync at the start of that branch before implementation begins
+- do not default to a standalone docs-only post-release canon pass when a plausible next implementation lane can already be selected safely
+- use a standalone docs-only canon pass only as an explicit exception when no plausible safe next implementation lane can yet be selected, or when current canon drift makes branch selection itself untrustworthy
 
 ## Shared Rules Across Both Modes
 
 - analyze before changing anything
+- anchor phase-sensitive work to the current phase named in `Docs/phase_governance.md`
 - verify exact behavior or doc alignment before editing
 - preserve architecture boundaries
 - call out source-of-truth conflicts explicitly
 - backlog owns identity
 - roadmap owns sequencing
-- workstream docs own promoted-work execution and closure truth
+- workstream docs own promoted-work feature-state, branch-local evidence, active seam references, artifact history, branch-local reuse notes, and closure history
+- `Docs/phase_governance.md` owns repo-wide phase, proof, timeout, seam, stop-loss, validation-helper, and desktop UI audit rules
 - User Test Summary belongs to workstream-owned validation
 - incident patterns are generalized knowledge, not case history
+
+For desktop workstreams, response-level `## User Test Summary` output and the canonical repo-level `UTS` artifact are related but not interchangeable:
+
+- the response section is the current handoff copy
+- the workstream-owned repo artifact is the durable canonical record unless the workstream explicitly declares another repo path
+- the desktop `User Test Summary.txt` file is the required user-facing exported copy when relevant, but it is not the default canonical repo record
+
+When manual validation is relevant, `## User Test Summary` must be a real checklist rather than a recap.
+
+It should include:
+
+- setup or prerequisites
+- exact user actions
+- expected visible behavior
+- failure signs to watch for
+- branch-specific or slice-specific validation focus
+
+For runtime or user-visible implementation slices, green validators alone do not authorize automatic continuation.
+
+When a relevant desktop or runtime path can be launched and exercised through a real desktop session in the current environment, synthetic or headless validation does not authorize continuation on its own either.
+
+Codex must also:
+
+- run a deeper branch-local hardening pass against the implemented path
+- add or create the smallest reliable validation infrastructure when meaningful blind spots remain
+- preserve an evidence trail of the validators, harnesses, helper scripts, fixtures, runtime logs, traces, screenshots, or other validation artifacts actually used
+- clean up test-session side effects such as temporary files, launched apps, helper processes, probe documents, or altered local state unless there is an intentional reason to preserve them
+- use synthetic or headless validators and harnesses as supporting proof rather than the final gate when a real desktop session is feasible
+- launch and exercise the real desktop or runtime path through an interactive OS-level session when feasible
+- explicitly distinguish validator results, synthetic or headless validation results, simulated reasoning, interactive OS-level execution results, and manual user-test handoff
+- make an explicit next-step call between continue, harden, or corrective fix
+
+When meaningful desktop UI changed, Codex should also:
+
+- treat the live launched-process UI audit as a post-green closeout check rather than a per-seam screenshot requirement
+- preserve the audit manifest and key captured windows in the final evidence package when closeout or readiness is being claimed
+- when the user wants those screenshots to render inside the Codex client, preserve the original files on disk but default the in-chat preview path to one small inline PNG `data:` image at a time instead of local-path Markdown embeds
+
+If that interactive path is not feasible, Codex must explain why, use the strongest available non-interactive evidence, and state that the continuation judgment is limited by the missing interactive validation.
+
+## Phase Anchoring
+
+Modes define collaboration posture.
+Phases define the current governed lifecycle state.
+
+For phase-sensitive work, prompts and execution records should explicitly state:
+
+- `Current approved phase: <phase name>`
+
+When a branch is in governed closeout recovery, prompts should also state:
+
+- `Current active seam: <seam name>`
 
 ## Live-State Readiness Sanity Check
 

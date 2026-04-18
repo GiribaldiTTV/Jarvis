@@ -10,6 +10,7 @@ It is downstream of:
 
 - `Docs/development_rules.md`
 - `Docs/Main.md`
+- `Docs/phase_governance.md`
 - `Docs/codex_modes.md`
 - `Docs/user_test_summary_guidance.md`
 
@@ -57,6 +58,16 @@ Examples:
 The prompt may be concise.
 Codex's investigation should still be complete enough for the task.
 
+## Required Phase Anchor
+
+For phase-sensitive work, prompts should explicitly include:
+
+- `Current approved phase: <phase name>`
+
+For governed closeout recovery, also include:
+
+- `Current active seam: <seam name>`
+
 ## What Codex Should Do Automatically
 
 Brief prompts do not waive source-of-truth reading.
@@ -72,14 +83,66 @@ When the user gives a short cue such as:
 
 Codex should still:
 
-1. load `Docs/development_rules.md`
-2. load `Docs/Main.md`
-3. load `Docs/codex_modes.md` when collaboration posture matters
-4. infer the directly relevant authority docs
-5. pull the repo evidence needed to validate live truth
-6. keep the same reasoning standard as a longer structured prompt
+1. load `Docs/Main.md`
+2. load `Docs/development_rules.md`
+3. load `Docs/phase_governance.md`
+4. load `Docs/codex_modes.md`
+5. infer the directly relevant authority docs
+6. pull the repo evidence needed to validate live truth
+7. keep the same reasoning standard as a longer structured prompt
+
+For meaningful interactive desktop hardening or closeout work, that baseline also includes:
+
+- using `Docs/phase_governance.md` for the repo-wide validation helper contract and proof hierarchy
+- using `Docs/development_rules.md` for evidence, cleanup, and hardening expectations
+- planning the post-green live launched-process UI audit when meaningful user-facing desktop UI changed
+
+## Codex Client Screenshot Delivery
+
+When the user wants live screenshot proof to render inside the Codex client, use this as the default delivery path:
+
+1. capture the screenshot from the real launched process and preserve the original file on disk as the durable audit artifact
+2. keep the audit manifest and the original capture paths in the evidence trail
+3. if in-chat visual confirmation is needed, default to a small inline PNG `data:` image generated from that real file rather than a local-file Markdown image
+4. send one image at a time until the user confirms the client is rendering it reliably
+5. if the first inline image fails or flashes, reduce the payload further before trying again
+
+Default assumptions:
+
+- local-file Markdown image embeds are not the reliable default for this client
+- smaller inline PNG payloads are the proven default for this client state
+- WebP should be treated as a fallback path rather than the default unless PNG has stopped working in the current client state
+- the in-chat image is a preview convenience layer, not the durable evidence source
+- the durable evidence remains the manifest plus the original captured files on disk
+
+When writing a prompt that depends on in-chat screenshot review, say so explicitly:
+
+- `Use live launched-process screenshots.`
+- `Preserve original captures on disk and in the audit manifest.`
+- `For in-chat image proof, use a small inline PNG data image one at a time until rendering is confirmed.`
 
 If the task remains materially ambiguous after that baseline, Codex should ask one focused clarifying question rather than lowering the quality of analysis.
+
+## Startup Contract For Every Task
+
+Before planning or execution, Codex should follow the startup contract in `Docs/Main.md`.
+
+For tracked work, that means:
+
+1. read `Docs/Main.md`
+2. read `Docs/development_rules.md`
+3. read `Docs/phase_governance.md`
+4. read `Docs/codex_modes.md`
+5. check `Docs/feature_backlog.md` for `Record State`
+6. load the canonical workstream doc when the item is `Promoted` or `Closed`
+7. validate current branch truth before trusting prompt framing
+8. use the canonical workstream doc first for branch-local reuse, artifact history, and "what worked" notes
+9. use `Docs/incident_patterns.md` only for generalized cross-branch patterns
+10. state the next safe move before narrowing scope
+
+Promoted workstream docs remain the place to read branch-local feature state, evidence, active seams, artifact history, and branch-local reuse notes.
+Repo-wide lifecycle rules such as phases, stop-loss, timeout governance, and proof authority come from `Docs/phase_governance.md`.
+Repo-wide validation-helper rules and the desktop UI audit rule also come from `Docs/phase_governance.md`.
 
 ## Analysis-Phase Prompting
 
@@ -179,6 +242,7 @@ Use:
 
 This is a valid standalone workstream when live truth justifies it.
 It does not need to be forced onto a hypothetical next implementation branch.
+If that docs pass changes validation or harness behavior assumptions, canon must be updated before further execution is recommended.
 
 ### Continue An Approved Branch
 
@@ -206,6 +270,41 @@ Useful add-ons:
 - `do not widen scope`
 - `use helper if needed`
 - `self-validate before handoff`
+
+### Governed Closeout Recovery
+
+Use:
+
+- `Workflow mode: governed closeout recovery on current branch`
+
+Use this bounded form when the user wants a stop-and-report recovery pass rather than a continuous run to full green.
+
+Required add-ons:
+
+- `Current approved phase: Validation / Hardening`
+- `Current active seam: [seam name]`
+- `do not widen scope`
+- `stop after the governed seam budget is exhausted`
+
+### Continuous Validation To Full Green
+
+Use:
+
+- `Workflow mode: continuous governed validation to full green on current branch`
+
+Required add-ons:
+
+- `Current approved phase: Validation / Hardening`
+- `use the documented validation timeout profile`
+- `do not widen scope`
+- `do not stop between seam iterations unless blocker, truth drift, stop-loss, or required canon sync appears`
+- `continue until the full gate is green or a hard stop is hit`
+
+Helpful add-ons:
+
+- `target no-progress 3s`
+- `target transition 3s`
+- `target normal seam 60s`
 
 ### Review A Returned User Test Summary
 

@@ -8,6 +8,7 @@ Treat the following files as authoritative unless a direct verified implementati
 
 - `C:\Nexus Desktop AI\Docs\development_rules.md`
 - `C:\Nexus Desktop AI\Docs\Main.md`
+- `C:\Nexus Desktop AI\Docs\phase_governance.md`
 - `C:\Nexus Desktop AI\Docs\architecture.md`
 - `C:\Nexus Desktop AI\Docs\orin_vision.md`
 - `C:\Nexus Desktop AI\Docs\feature_backlog.md`
@@ -20,9 +21,11 @@ If anything in the request conflicts with those docs, call it out explicitly bef
 ## Prompt Hygiene
 
 - Use `C:\Nexus Desktop AI\Docs\Main.md` as the routing index for selecting the correct authority baseline.
-- The default prompt baseline should usually be `development_rules.md`, `Main.md`, the directly relevant authority docs, and the evidence inputs needed to validate live truth.
+- The default prompt baseline should usually be `development_rules.md`, `Main.md`, `phase_governance.md`, the directly relevant authority docs, and the evidence inputs needed to validate live truth.
 - If a canonical workstream, rebaseline, or consolidated design doc exists for the active question, prefer that authority doc over a stack of superseded slice docs.
 - Include prior closeout docs and older slice docs only when they are still materially relevant to the specific task.
+- Treat canonical workstream docs as branch-local feature-state, evidence, validation-contract, and active-seam references.
+- Treat `phase_governance.md` as the repo-wide authority for phase names, stop-loss rules, proof ownership, timeout governance, validation-helper rules, desktop UI audit rules, and truth-drift enforcement.
 
 Concise prompts are acceptable.
 They do not reduce the required depth of analysis.
@@ -38,7 +41,14 @@ Branch:
 Task mode:
 [analysis-only / planning-only / docs-only / patch / review / release-workflow]
 
+Current approved phase:
+[Workstream Analysis / Approved Execution / Validation / Hardening / Docs / Canon Sync / PR Readiness / Release Readiness / Post-Release Canon Sync]
+
+Current active seam:
+[fill in only when the task is in governed closeout recovery]
+
 Note: task mode defines the task type. Codex collaboration posture is defined separately in `C:\Nexus Desktop AI\Docs\codex_modes.md`.
+If the task is phase-sensitive and the current approved phase or active seam is missing, stop and clarify before execution.
 
 Default expectation:
 
@@ -74,8 +84,16 @@ Use the following as part of the task evidence set when relevant:
 - [trace output]
 - [manual test notes]
 - [prior verification artifacts]
+- [branch-local validation artifacts created during the pass]
+- [validator or harness outputs]
 
 If critical evidence is missing, say so explicitly.
+
+If the task depends on in-chat screenshot review inside the Codex client, add a prompt note such as:
+
+- `Use live launched-process screenshots.`
+- `Preserve the originals on disk and in the audit manifest.`
+- `For in-chat image proof, use a small inline PNG data image one at a time until rendering is confirmed.`
 
 ## Locked Boundaries / Do Not Reopen
 
@@ -216,13 +234,23 @@ If an execution task is too broad for one approved pass, explain the cleaner exe
 
 1. Explain the approved execution scope.
 2. Explain the branch or workstream posture.
-3. Explain the validation plan.
+3. Explain the current approved phase and, when relevant, the current active seam.
+4. Explain the validation plan.
+
+If the task includes interactive validation, the validation plan should also state:
+
+- full-run hard timeout
+- no-progress timeout
+- scenario timeout when relevant
+- transition timeout when relevant
+- how timeout or freeze will be reported and cleaned up
 
 ### During Execution
 
 1. Perform only the approved execution work.
 2. Verify the result directly.
-3. Report what changed and what was verified.
+3. Clean up session-scoped side effects from the pass unless there is an explicit reason to preserve them.
+4. Report what changed, what was verified, and what was cleaned up or intentionally left in place.
 
 ## Verification Requirements
 
@@ -237,8 +265,71 @@ If applicable, also verify:
 - healthy path
 - failure path
 - artifact cleanup
+- session cleanup and teardown
+- cleanup verification, including that no test-opened app window, helper process, or temporary probe file was left behind
 - no regressions in locked behavior
 - no drift outside the allowed surfaces
+- interactive validation time budgets and timeout behavior when the pass depends on a real desktop or harness run
+
+Session cleanup and teardown includes, when relevant:
+
+- closing programs, windows, or dialogs opened during the pass
+- stopping helper processes, harnesses, temporary runtimes, or validators started during the pass
+- deleting temporary files, scratch documents, probe files, or other temporary outputs created only for the pass
+- restoring any local state or source inputs intentionally changed for verification
+- explicitly checking that those items are actually closed, stopped, deleted, or restored before handoff rather than assuming they cleaned themselves up
+
+If anything remains intentionally open or preserved after the pass, the output must say so explicitly and explain why.
+
+If an interactive run times out or freezes, the output must also state:
+
+- which time budget tripped
+- the last confirmed meaningful progress point
+- what cleanup was performed before handoff
+
+If the slice changes user-visible behavior, runtime interaction, UX flow, prompts, startup behavior, voice behavior, or another manual operator-facing path, the final output must include a `## User Test Summary` section as a concrete manual checklist.
+
+That checklist must include:
+
+- setup or prerequisites
+- exact user actions
+- expected visible behavior
+- failure signs to watch for
+- branch-specific or slice-specific validation focus
+
+A recap-style summary is not sufficient when manual validation is relevant.
+
+If no meaningful manual test exists, the output must still include `## User Test Summary` and explain why manual validation is not materially relevant for that slice.
+
+If a canonical repo-level `UTS` artifact exists for the active desktop workstream, the execution pass must update that artifact as well rather than stopping at response text.
+
+By default, that artifact is the `## User Test Summary` section in the relevant canonical workstream doc unless that doc explicitly declares a different repo path.
+
+If the artifact is not updated, the final output must explain why the update was skipped.
+
+For relevant desktop slices, the execution pass must also export or refresh:
+
+- `C:\Users\anden\OneDrive\Desktop\User Test Summary.txt`
+
+unless the final output explicitly explains why the desktop export was not relevant or was intentionally skipped.
+
+Response-level `## User Test Summary` text alone is not sufficient when either the canonical repo artifact or the desktop export should exist.
+
+For runtime, UI, startup, prompt, voice, or other operator-facing implementation slices, validator results alone are not sufficient to justify immediate continuation.
+
+The execution pass must also:
+
+- run a deeper branch-local validation or hardening pass against the implemented path
+- add or create the smallest reliable validation infrastructure on-branch when meaningful blind spots remain
+- preserve evidence of the validators, synthetic/headless harnesses, helper scripts, fixtures, logs, traces, screenshots, or other validation artifacts actually used
+- use synthetic or headless validation as supporting proof rather than the final continuation gate when a real desktop session is feasible
+- launch and exercise the real desktop or runtime path through an interactive OS-level session when feasible
+- explicitly distinguish validator results, synthetic or headless validation results, simulated reasoning, interactive OS-level execution results, and remaining manual user-test handoff
+- explicitly decide whether the next move is to continue implementation, pause for hardening, or fix a specific defect first
+
+If the current validation surface is too thin to support a continuation recommendation, the execution pass must strengthen that surface before recommending continuation.
+
+If a real interactive OS-level session is not feasible, the execution pass must explain why, use the strongest available non-interactive evidence, and state that any continuation recommendation is limited by that missing interactive gate.
 
 ## Done When
 
@@ -276,6 +367,8 @@ G. Commit summary
 H. Commit description
 I. PR title
 J. PR description
+
+K. `## User Test Summary` manual checklist when manual validation is relevant
 
 ## Important
 

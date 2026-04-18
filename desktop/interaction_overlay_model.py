@@ -1,7 +1,11 @@
+import os
+
 from .shared_action_model import (
     CommandActionCatalog,
     DEFAULT_COMMAND_ACTION_CATALOG,
+    build_default_command_action_catalog,
     format_action_origin_label,
+    reload_default_command_action_catalog,
 )
 
 
@@ -25,6 +29,7 @@ class CommandOverlayModel:
         self.last_request = ""
         self.pending_action = None
         self.pending_matches = ()
+        self.pending_group = None
 
     def open(self, *, arm_input: bool = False):
         self.visible = True
@@ -36,6 +41,7 @@ class CommandOverlayModel:
         self.last_request = ""
         self.pending_action = None
         self.pending_matches = ()
+        self.pending_group = None
 
     def close(self):
         self.visible = False
@@ -47,6 +53,7 @@ class CommandOverlayModel:
         self.last_request = ""
         self.pending_action = None
         self.pending_matches = ()
+        self.pending_group = None
 
     def toggle(self):
         if self.visible:
@@ -62,6 +69,7 @@ class CommandOverlayModel:
         self.last_request = ""
         self.status_kind = "idle"
         self.status_text = ""
+        self.pending_group = None
 
     def set_input_text(self, text: str):
         if not self.visible or self.phase != "entry":
@@ -73,6 +81,31 @@ class CommandOverlayModel:
         self.status_text = ""
         self.pending_action = None
         self.pending_matches = ()
+        self.pending_group = None
+
+    def set_entry_feedback(self, status_kind: str, status_text: str):
+        if not self.visible or self.phase != "entry":
+            return
+
+        self.status_kind = status_kind or "idle"
+        self.status_text = status_text or ""
+        self.last_request = ""
+        self.pending_action = None
+        self.pending_matches = ()
+        self.pending_group = None
+
+    def set_action_catalog(self, action_catalog: CommandActionCatalog):
+        self.action_catalog = action_catalog
+        self.actions = tuple(action_catalog.actions)
+
+    def reload_action_catalog(self, source_path: str | os.PathLike[str] | None = None):
+        action_catalog = (
+            reload_default_command_action_catalog()
+            if source_path is None
+            else build_default_command_action_catalog(source_path)
+        )
+        self.set_action_catalog(action_catalog)
+        return action_catalog
 
     def backspace(self):
         if not self.visible or self.phase != "entry" or not self.input_armed:
@@ -82,6 +115,7 @@ class CommandOverlayModel:
         self.last_request = ""
         self.status_kind = "idle"
         self.status_text = ""
+        self.pending_group = None
 
     def escape(self):
         if not self.visible:
@@ -95,6 +129,7 @@ class CommandOverlayModel:
             self.status_text = ""
             self.pending_action = None
             self.pending_matches = ()
+            self.pending_group = None
             return "choice_cancelled"
 
         if self.phase == "confirm":
@@ -105,6 +140,7 @@ class CommandOverlayModel:
             self.status_text = ""
             self.pending_action = None
             self.pending_matches = ()
+            self.pending_group = None
             return "confirm_cancelled"
 
         self.close()
@@ -126,8 +162,20 @@ class CommandOverlayModel:
                 return ("awaiting_input", None)
 
             self.last_request = self.input_text
+            matched_group = self.action_catalog.resolve_group(self.input_text)
+            if matched_group is not None:
+                self.phase = "choose"
+                self.input_armed = False
+                self.pending_group = matched_group
+                self.pending_matches = matched_group.member_actions
+                self.pending_action = None
+                self.status_kind = "ambiguous"
+                self.status_text = "Choose a member from the matched group."
+                return ("ambiguous", matched_group.member_actions)
+
             matches = self.action_catalog.resolve_actions(self.input_text)
             self.pending_matches = matches
+            self.pending_group = None
 
             if len(matches) == 1:
                 self.phase = "confirm"
@@ -178,6 +226,7 @@ class CommandOverlayModel:
         self.last_request = ""
         self.pending_action = None
         self.pending_matches = ()
+        self.pending_group = None
 
     def _serialize_action(self, action, *, index: int | None = None):
         if action is None:
@@ -199,9 +248,22 @@ class CommandOverlayModel:
             payload["index"] = index
         return payload
 
+    def _serialize_group(self, group):
+        if group is None:
+            return None
+
+        return {
+            "id": group.id,
+            "title": group.title,
+            "aliases": list(group.aliases),
+            "member_count": len(group.member_actions),
+            "member_action_ids": list(group.member_action_ids),
+        }
+
     def view_payload(self):
         action = self.pending_action
         saved_action_inventory = self.action_catalog.saved_action_inventory
+        saved_group_inventory = self.action_catalog.saved_group_inventory
         return {
             "visible": self.visible,
             "phase": self.phase,
@@ -211,6 +273,14 @@ class CommandOverlayModel:
             "status_text": self.status_text,
             "typed_request": self.last_request,
             "pending_action": self._serialize_action(action),
+            "pending_group": self._serialize_group(self.pending_group),
+            "selection_context": (
+                "group"
+                if self.pending_group is not None and self.phase in {"choose", "confirm"}
+                else "ambiguity"
+                if self.phase == "choose"
+                else ""
+            ),
             "ambiguous_titles": [match.title for match in self.pending_matches] if self.status_kind == "ambiguous" else [],
             "ambiguous_matches": [
                 self._serialize_action(match, index=index)
@@ -234,6 +304,30 @@ class CommandOverlayModel:
                 "items": [
                     self._serialize_action(saved_action)
                     for saved_action in saved_action_inventory.actions
+                ],
+            },
+            "saved_group_inventory": {
+                "visible": saved_group_inventory.visible,
+                "status_kind": saved_group_inventory.status_kind,
+                "status_text": saved_group_inventory.status_text,
+                "guidance_text": saved_group_inventory.guidance_text,
+                "path": saved_group_inventory.path,
+                "path_display": self.action_catalog.format_target_display(
+                    "file",
+                    saved_group_inventory.path,
+                )
+                if saved_group_inventory.path
+                else "",
+                "count": len(saved_group_inventory.groups),
+                "items": [
+                    {
+                        "id": group.id,
+                        "title": group.title,
+                        "aliases": list(group.aliases),
+                        "member_action_ids": list(group.member_action_ids),
+                        "member_count": len(group.member_actions),
+                    }
+                    for group in saved_group_inventory.groups
                 ],
             },
         }

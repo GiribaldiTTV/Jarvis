@@ -19,12 +19,13 @@ Use this document to define:
 This document is downstream of:
 
 - `Docs/architecture.md` for desktop/runtime ownership boundaries
+- `Docs/phase_governance.md` for governed execution and closeout posture
 - `Docs/orin_vision.md` for product identity and release-stage framing
 - `Docs/orchestration.md` for runtime behavior and orchestration boundaries
 - `Docs/boot_access_design.md` for future pre-desktop trust and access boundaries
 - `Docs/feature_backlog.md` for tracked identity
 - `Docs/prebeta_roadmap.md` for sequencing and release posture
-- `Docs/workstreams/` for promoted execution and closure truth
+- `Docs/workstreams/` for promoted feature-state, evidence, and closure history
 
 This document does not replace those layers.
 It defines the stable interaction model that future work should align to.

@@ -13,6 +13,12 @@ Rules:
 - if `Record State` is not `Registry-only`, `Canonical Workstream Doc` must exist
 - backlog entries keep the short registry story, not the full execution story
 
+Record-state meaning:
+
+- `Registry-only` = tracked identity only; no canonical workstream execution record is required yet
+- `Promoted` = canonical workstream doc required and used as the durable execution and traceability record while the lane is active
+- `Closed` = canonical workstream doc remains stable historical lane truth after closure
+
 Historical note:
 
 - older implemented entries may preserve older Jarvis-era titles as historical identity
@@ -21,6 +27,10 @@ Historical note:
 ## Promoted Canonical Workstreams
 
 No currently promoted non-doc implementation workstream is active on `main`.
+
+Branch-local promoted implementation workstream currently in progress:
+
+- `Docs/workstreams/FB-036_saved_action_authoring.md` on `feature/fb-036-idea5-integrated-hardening`
 
 ## Registry Items
 
@@ -96,11 +106,12 @@ Why it matters: The repo still needs deeper identity and wording normalization a
 
 ### [ID: FB-036] Limited saved-action authoring and type-first custom task UX
 
-Status: Deferred
-Record State: Registry-only
+Status: Active on `feature/fb-036-idea5-integrated-hardening`
+Record State: Promoted
 Priority: High
 Release Stage: pre-Beta
 Target Version: TBD
+Canonical Workstream Doc: Docs/workstreams/FB-036_saved_action_authoring.md
 Summary: Track the first post-v1.2.8 FB-027 follow-through lane for bounded saved-action create/edit UX with explicit user-facing action-type selection and safe persistence.
 Why it matters: Saved-action inventory and guided access improve inspection, but users still need a deliberate non-Action-Studio path to create and edit custom tasks without hand-editing JSON. This lane should keep custom tasks focused on user-defined or non-standard actions such as personal URLs, paths, or host-specific app launches while preserving the locked interaction baseline.
 
@@ -148,14 +159,14 @@ Why it matters: Monitoring overlays are a separate runtime and status surface an
 
 ### [ID: FB-027] Interaction system baseline and shared action model
 
-Status: Released (v1.2.8-prebeta); merged unreleased follow-through on main
+Status: Released (v1.2.9-prebeta)
 Record State: Closed
 Priority: High
 Release Stage: pre-Beta
-Target Version: v1.2.8-prebeta
+Target Version: v1.2.9-prebeta
 Canonical Workstream Doc: Docs/workstreams/FB-027_interaction_system_baseline.md
-Summary: Lock the typed-first interaction baseline and deliver bounded shared-action follow-through through the released URL-target milestone plus the later merged unreleased saved-action inventory and guided-access milestone on `main`.
-Why it matters: Future interaction work needs one authoritative baseline and truthful release posture so the released URL-target milestone and the newer merged unreleased inventory-and-guided-access milestone do not get collapsed into one misleading state.
+Summary: Lock the typed-first interaction baseline and deliver bounded shared-action follow-through through the released URL-target milestone plus the later released saved-action inventory and guided-access milestone.
+Why it matters: Future interaction work needs one authoritative baseline and truthful released-state posture so the URL-target milestone and the later inventory-and-guided-access milestone remain visible as bounded released steps rather than drifting back into ambiguous follow-through language.
 
 ### [ID: FB-025] Boot and desktop milestone taxonomy clarification
 
