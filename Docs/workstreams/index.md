@@ -67,10 +67,11 @@ For an active or recently closed canonical workstream, keep these durable tracea
 
 ### Active
 
-- `Docs/workstreams/FB-036_saved_action_authoring.md` on `feature/fb-036-idea5-integrated-hardening` (branch-local active workstream; not merged on `main`)
+No active canonical implementation workstream is currently selected on `main`.
 
 ### Closed
 
+- `Docs/workstreams/FB-036_saved_action_authoring.md`
 - `Docs/workstreams/FB-027_interaction_system_baseline.md`
 - `Docs/workstreams/FB-035_release_context_fallback_hardening.md`
 - `Docs/workstreams/FB-034_recoverable_diagnostics.md`
