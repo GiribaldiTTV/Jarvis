@@ -14,7 +14,7 @@ This branch exists to prepare the public prerelease, release-state canon transit
 
 ## Current Phase
 
-- Phase: `Hardening`
+- Phase: `Live Validation`
 
 ## Phase Status
 
@@ -23,7 +23,7 @@ This branch exists to prepare the public prerelease, release-state canon transit
 - local `main`, `origin/main`, and this branch resolve to merge commit `d1277e65cf348073c73f636c8dd1b5965543f1a8`
 - FB-037 remains `Merged unreleased on main`
 - FB-038 remains selected in canon only and has no branch
-- Branch Readiness and Workstream Slice 1 are complete; release-packaging Hardening is open for artifact pressure review before Live Validation
+- Branch Readiness, Workstream Slice 1, and release-artifact Hardening are complete; release-packaging Live Validation is open for release-boundary proof before PR Readiness
 
 ## Branch Class
 
@@ -37,7 +37,7 @@ This branch exists to prepare the public prerelease, release-state canon transit
 
 ## Blockers
 
-- no active branch blockers
+- None
 
 ## Entry Basis
 
@@ -52,21 +52,20 @@ This branch exists to prepare the public prerelease, release-state canon transit
 
 ## Exit Criteria
 
-- release target remains correct and aligned with the roadmap
-- release scope remains bounded to the merged FB-037 built-in catalog milestone
-- release notes, draft rebaseline, and release-state transition checklist remain internally consistent
-- no tag, publish step, released-state canon update, or `Release Debt` clearance has occurred
+- release-boundary validation confirms the target, scope, notes, draft rebaseline, and transition checklist remain complete and internally consistent
+- validation confirms no tag, publish step, released-state canon update, or `Release Debt` clearance has occurred
+- validation confirms the draft rebaseline remains inactive and does not contradict the active `v1.3.1-prebeta` baseline
 - no product or runtime work is introduced
 - FB-038 remains unbranched until FB-037 release debt is cleared and updated `main` is revalidated
-- direct validation proves FB-037 still remains merged unreleased until the release execution slice performs the actual release
+- Live Validation evidence is digested into this authority record before PR Readiness is recommended
 
 ## Rollback Target
 
-- `Workstream`
+- `Hardening`
 
 ## Next Legal Phase
 
-- `Live Validation`
+- `PR Readiness`
 
 ## Target Release Version
 
@@ -159,6 +158,19 @@ Continuation rule:
 - no tag exists, no release was published, no released-state canon updates were applied, and `Release Debt` remains active
 - no product or runtime work was introduced
 - phase authority transitioned from `Workstream` to `Hardening`
+
+## Hardening Progress
+
+- Hardening complete:
+  `Release Artifact Pressure Review`
+- release target `v1.4.0-prebeta` remains correct and roadmap-aligned
+- release scope remains bounded to FB-037 delivered behavior
+- draft release notes do not overclaim settings, protocol, new target-kind, launcher-policy, UI, callable-group, or FB-038 work
+- draft rebaseline remains internally consistent and explicitly inactive until release execution
+- release-state transition checklist is complete, ordered, and preserves FB-038 branch deferral
+- no tag exists, no release was published, no released-state canon updates were applied, and `Release Debt` remains active
+- no product or runtime work was introduced
+- phase authority transitioned from `Hardening` to `Live Validation`
 
 ## Slice 1 Draft Release Notes
 
@@ -308,6 +320,18 @@ Hardening validation must prove:
 - draft rebaseline remains inactive until release execution
 - no `v1.4.0-prebeta` tag exists before release execution
 - FB-037 remains `Merged unreleased on main` with `Release Debt` active
+- FB-038 remains selected in canon only and no FB-038 branch exists
+- no product or runtime files changed
+
+Live Validation must prove:
+
+- branch authority record now owns `Live Validation` for this release-packaging branch
+- release-boundary evidence confirms `v1.4.0-prebeta` remains planned and unreleased
+- `Release Debt` remains active until release execution
+- draft rebaseline remains inactive until release execution
+- no `v1.4.0-prebeta` tag exists before release execution
+- no release was published
+- no released-state canon updates were applied
 - FB-038 remains selected in canon only and no FB-038 branch exists
 - no product or runtime files changed
 
