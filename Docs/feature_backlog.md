@@ -26,7 +26,21 @@ Historical note:
 
 ## Promoted Canonical Workstreams
 
-- None
+- `Docs/workstreams/FB-038_taskbar_tray_quick_task_ux.md`
+
+## Active Promoted Workstream
+
+### [ID: FB-038] Taskbar / tray quick-task UX and Create Custom Task surface
+
+Status: Branch Readiness
+Record State: Promoted
+Priority: Medium
+Release Stage: pre-Beta
+Target Version: TBD
+Canonical Workstream Doc: Docs/workstreams/FB-038_taskbar_tray_quick_task_ux.md
+Minimal Scope: Branch Readiness admission and planning for the shell-facing quick-task entry surface, initially limited to defining the smallest safe taskbar/tray or Create Custom Task UX seam above the released interaction, authoring, callable-group execution, and built-in catalog baselines; branch `feature/fb-038-taskbar-tray-quick-task-ux` is admitted for Branch Readiness only, and no implementation is authorized until this authority record exits cleanly to Workstream.
+Summary: Track future taskbar or tray quick-access UX, including a Create Custom Task affordance, as a deliberate shell-facing entry surface into the shared action model.
+Why it matters: Taskbar and tray interaction affect entry, discoverability, and user trust, so they should be planned as an explicit UX lane instead of piggybacking on overlay or authoring work.
 
 ## Registry Items
 
@@ -99,18 +113,6 @@ Release Stage: pre-Beta
 Target Version: TBD
 Summary: Track the broader Nexus-era vision and source-of-truth migration above the current phase-one canon foundation rebuild.
 Why it matters: The repo still needs deeper identity and wording normalization after the foundation layer is rebuilt.
-
-### [ID: FB-038] Taskbar / tray quick-task UX and Create Custom Task surface
-
-Status: Deferred
-Record State: Registry-only
-Next Workstream: Selected
-Priority: Medium
-Release Stage: pre-Beta
-Target Version: TBD
-Minimal Scope: Branch Readiness admission and planning for the shell-facing quick-task entry surface, initially limited to defining the smallest safe taskbar/tray or Create Custom Task UX seam above the released interaction, authoring, callable-group execution, and built-in catalog baselines; branch `feature/fb-038-taskbar-tray-quick-task-ux` exists for Branch Readiness only, and no implementation is authorized until prior-branch canon cleanup and FB-038 admission are clean.
-Summary: Track future taskbar or tray quick-access UX, including a Create Custom Task affordance, as a deliberate shell-facing entry surface into the shared action model.
-Why it matters: Taskbar and tray interaction affect entry, discoverability, and user trust, so they should be planned as an explicit UX lane instead of piggybacking on overlay or authoring work.
 
 ### [ID: FB-039] External trigger and plugin integration architecture
 
