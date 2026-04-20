@@ -81,14 +81,15 @@ Note: task mode defines the task type. Codex collaboration posture is defined se
 If the task is phase-sensitive and the exact `Phase` field is missing, stop and clarify before execution.
 If repo state is blocked `No Active Branch`, implementation is blocked and the task should resolve the blocking repair path instead of starting implementation.
 If repo state is steady-state `No Active Branch`, do not start implementation by inertia.
-An explicitly approved `docs/governance`, `release packaging`, or `emergency canon repair` branch may still proceed only when the branch-class admission rules from `C:\Nexus Desktop AI\Docs\phase_governance.md` allow it.
+Do not open a governance-only branch or between-branch canon repair lane.
+Release-packaging branches may proceed only when the branch-class admission rules from `C:\Nexus Desktop AI\Docs\phase_governance.md` allow them.
+Emergency canon repair is direct-main only and requires explicit user approval.
 If a governance or canon update is directly required to keep the active current branch truthful, executable, phase-correct, readiness-correct, validation-correct, closeout-correct, or release-correct, keep that docs-only update on the active branch inside the current phase and branch class.
-Use a separate governance or docs-style branch only for repo-wide uncoupled governance work, emergency canon repair, cross-branch truth repair, or governance work that would contaminate or confuse an active implementation or release branch.
 Add `Validation Contract`, `Timeout Contract`, and `Current active seam` when the governed task needs them.
 Add `Seam Sequence` when the Workstream prompt may use bounded multi-seam workflow.
 If `Seam Sequence` is present, Codex must execute one active seam at a time, validate after each seam, and report a continue-or-stop decision before starting the next seam.
 For `Release Readiness`, a release-bearing branch must include `Release Target:`, `Release Scope:`, and `Release Artifacts:` before green status is allowed.
-Use `Release Branch: No` only for `docs/governance` branches or explicitly canon-only / repo-wide source-of-truth update branches.
+Use `Release Branch: No` only for preserved historical records or explicitly authorized direct-main emergency contexts.
 Do not use `Release Branch: No` for `implementation` or `release packaging` branches.
 
 Default expectation:
@@ -165,7 +166,7 @@ Use this section when the branch matters to the task:
 
 - milestone value: [why this branch or docs program is worth completing]
 - same-branch follow-through: [dependent work that still belongs on this branch before readiness]
-- branch posture: [fresh branch from updated main / continue approved active branch / docs/governance branch from No Active Branch / release packaging branch / emergency canon repair branch / No Active Branch]
+- branch posture: [fresh branch from updated main / continue approved active branch / release packaging branch / No Active Branch / explicitly approved emergency direct-main action]
 - branch-level plan: [objective, target end-state, expected seam families and risk classes, validation contract, User Test Summary strategy, later-phase needs, and first seam or seam sequence]
 
 If a lane was already closed, merged, or released, the next workstream should start from updated `main` on a fresh branch.
@@ -283,8 +284,8 @@ If an execution task is too broad for one approved pass, explain the cleaner exe
 4. Explain the next legal phase or say explicitly that repo state is `No Active Branch`.
 5. If in `Branch Readiness`, explain the whole-branch execution plan before Workstream admission.
 6. If in `Workstream`, explain whether bounded multi-seam workflow is safe; if it is, list the seam sequence, per-seam gates, and stop conditions.
-7. If in `PR Readiness`, explicitly plan the stale-canon check, post-merge-state handling, next-workstream selection/canon/minimal-scope/no-branch-exists check, required `Next Workstream: Selected`, `Minimal Scope:`, `## Selected Next Workstream`, and `Branch: Not created` markers, dirty-branch/durable-commit check, docs-sync/drift-audit check, normal governance validator, and PR-readiness gate mode.
-8. If in `Release Readiness`, explicitly plan the `Release Target Undefined` check, required `Release Target:`, `Release Scope:`, and `Release Artifacts:` markers for release-bearing branches, or the narrow `Release Branch: No` waiver for allowed non-release governance/canon branches.
+7. If in `PR Readiness`, explicitly plan the stale-canon check, post-merge-state handling, next-workstream selection/canon/minimal-scope/no-branch-exists check, required `Next Workstream: Selected`, `Minimal Scope:`, `## Selected Next Workstream`, and `Branch: Not created` markers, dirty-branch/durable-commit check, docs-sync/drift-audit check, `PR Readiness Scope Missed`, `Between-Branch Canon Repair Attempt`, `Next Branch Created Too Early`, normal governance validator, and PR-readiness gate mode.
+8. If in `Release Readiness`, explicitly plan the `Release Target Undefined` check, required `Release Target:`, `Release Scope:`, and `Release Artifacts:` markers for release-bearing branches, and confirm Release Readiness is not being used for broad docs sync or branch-authority cleanup.
 9. Explain the validation plan.
 
 If the task includes interactive validation, the validation plan should also state:
@@ -438,4 +439,4 @@ K. `## User Test Summary` manual checklist when manual validation is relevant
 - Do not smuggle in policy or authority changes outside the approved task.
 - Do not modify backlog status or add backlog items unless the task explicitly authorizes backlog updates.
 - Do not force tightly coupled governance or canon updates onto a separate docs/governance branch when the active branch owns the affected truth and the update can stay inside its current phase, branch class, validation rules, and stop conditions.
-- Do not force a docs-only canon repair onto a hypothetical implementation branch when live truth and `C:\Nexus Desktop AI\Docs\phase_governance.md` justify an explicitly approved standalone docs/governance branch.
+- Do not open a governance-only branch or between-branch repair window for missed PR Readiness work; carry the repair in the next active branch's `Branch Readiness` before implementation begins.

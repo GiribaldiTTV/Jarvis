@@ -65,10 +65,10 @@ Current merged truth indicates:
 - latest public release commit: the `v1.4.0-prebeta` tag target
 - merged unreleased non-doc implementation debt exists: no
 - the latest public released implementation milestone is FB-037 curated built-in system actions and Nexus settings expansion in `v1.4.0-prebeta`
-- current release-packaging branch: `codex/fb-037-release-debt-packaging`
-- current release-packaging phase: `Release Readiness`
+- current phase: `Release Readiness`
+- phase status: `No Active Branch`
 - blocker after release execution: none for FB-037
-- next concern after this release branch is merged and updated `main` is revalidated: FB-038 Branch Readiness
+- next concern on the active branch: FB-038 Branch Readiness governance/admission repair before implementation
 
 That means the released FB-027 interaction baseline, the released FB-036 authoring-and-callable-group milestone, the released FB-041 deterministic callable-group execution milestone, and the released FB-037 built-in catalog milestone are now part of the current public shared pre-Beta baseline.
 
@@ -85,10 +85,10 @@ That means the released FB-027 interaction baseline, the released FB-036 authori
 
 - selection state: `selected next workstream`
 - Record State: `Registry-only`
-- Branch: Not created
-- sequence: after the FB-037 release branch is merged and updated `main` is revalidated
+- Branch: `feature/fb-038-taskbar-tray-quick-task-ux` created for Branch Readiness only
+- sequence: current active branch remains in Branch Readiness until prior-branch canon cleanup, governance repair, and FB-038 admission are clean
 - Minimal Scope: Branch Readiness admission and planning for the shell-facing quick-task entry surface, initially limited to defining the smallest safe taskbar/tray or Create Custom Task UX seam above the released FB-027 interaction baseline, FB-036 authoring baseline, FB-041 callable-group execution baseline, and FB-037 built-in catalog baseline.
-- branch creation rule: defer branch creation to `Branch Readiness` after updated `main` includes the FB-037 release-state canon and is revalidated
+- implementation rule: no FB-038 implementation may begin until Branch Readiness repairs prior-branch canon drift, creates the active FB-038 authority record if admitted, and exits cleanly to Workstream
 
 ## Most Recent Released Workstream Context
 

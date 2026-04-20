@@ -113,6 +113,21 @@ DOCS_GOVERNANCE_ADMISSION_DOCS = (
     Path("Docs/codex_user_guide.md"),
 )
 
+GOVERNANCE_ONLY_BLOCK_DOCS = (
+    Path("Docs/phase_governance.md"),
+    Path("Docs/development_rules.md"),
+    Path("Docs/Main.md"),
+    Path("Docs/codex_modes.md"),
+    Path("Docs/orin_task_template.md"),
+    Path("Docs/codex_user_guide.md"),
+    Path("Docs/closeout_guidance.md"),
+)
+
+GOVERNANCE_ONLY_BLOCK_PHRASES = (
+    "governance-only branch",
+    "between-branch",
+)
+
 MULTI_SEAM_CONTRACT_DOCS = (
     Path("Docs/phase_governance.md"),
     Path("Docs/development_rules.md"),
@@ -203,6 +218,9 @@ PR_READINESS_BLOCKER_PHRASES = (
     "dirty",
     "docs-sync",
     "next-workstream",
+    "PR Readiness Scope Missed",
+    "Between-Branch Canon Repair Attempt",
+    "Next Branch Created Too Early",
 )
 
 RELEASE_READINESS_TARGET_DOCS = (
@@ -220,6 +238,18 @@ RELEASE_READINESS_TARGET_PHRASES = (
     "Release Scope:",
     "Release Artifacts:",
     "Release Branch: No",
+)
+
+RELEASE_READINESS_SCOPE_DOCS = (
+    Path("Docs/phase_governance.md"),
+    Path("Docs/Main.md"),
+    Path("Docs/codex_modes.md"),
+    Path("Docs/orin_task_template.md"),
+)
+
+RELEASE_READINESS_SCOPE_PHRASES = (
+    "Release Readiness is not",
+    "docs-sync",
 )
 
 REQUIRED_RELEASE_BEARING_MARKERS = (
@@ -396,6 +426,20 @@ def _git_status_porcelain() -> str:
     )
     if completed.returncode != 0:
         return f"__GIT_STATUS_ERROR__ {completed.stderr.strip()}"
+    return completed.stdout.strip()
+
+
+def _git_current_branch() -> str:
+    completed = subprocess.run(
+        ("git", "branch", "--show-current"),
+        cwd=ROOT_DIR,
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        check=False,
+    )
+    if completed.returncode != 0:
+        return ""
     return completed.stdout.strip()
 
 
@@ -619,8 +663,16 @@ def main() -> int:
         text = _read_text(relative_path)
         require(
             "docs/governance" in text,
-            f"{relative_path}: docs/governance branch-admission guidance is missing",
+            f"{relative_path}: docs/governance historical branch-class guidance is missing",
         )
+
+    for relative_path in GOVERNANCE_ONLY_BLOCK_DOCS:
+        text = _read_text(relative_path).casefold()
+        for required_phrase in GOVERNANCE_ONLY_BLOCK_PHRASES:
+            require(
+                required_phrase in text,
+                f"{relative_path}: governance-only / between-branch repair blocker guidance is missing '{required_phrase}'",
+            )
 
     for relative_path in MULTI_SEAM_CONTRACT_DOCS:
         text = _read_text(relative_path)
@@ -674,7 +726,7 @@ def main() -> int:
         text = _read_text(relative_path).casefold()
         for required_phrase in PR_READINESS_BLOCKER_PHRASES:
             require(
-                required_phrase in text,
+                required_phrase.casefold() in text,
                 f"{relative_path}: PR Readiness blocker guidance is missing '{required_phrase}'",
             )
 
@@ -686,6 +738,14 @@ def main() -> int:
                 f"{relative_path}: Release Readiness target gate guidance is missing '{required_phrase}'",
             )
 
+    for relative_path in RELEASE_READINESS_SCOPE_DOCS:
+        text = _read_text(relative_path).casefold()
+        for required_phrase in RELEASE_READINESS_SCOPE_PHRASES:
+            require(
+                required_phrase.casefold() in text,
+                f"{relative_path}: Release Readiness docs-sync scope boundary is missing '{required_phrase}'",
+            )
+
     active_index_paths = _collect_active_index_paths(index_text)
     closed_index_paths = _collect_closed_index_paths(index_text)
     release_debt_index_paths = _collect_release_debt_index_paths(index_text)
@@ -693,6 +753,48 @@ def main() -> int:
     backlog_entries = _parse_backlog_sections(backlog_text)
     if pr_readiness_gate:
         _run_pr_readiness_gate(require, backlog_entries, roadmap_text)
+
+    selected_entries = _selected_next_workstream_entries(backlog_entries)
+    if len(selected_entries) == 1 and not pr_readiness_gate:
+        selected = selected_entries[0]
+        selected_id = selected["id"]
+        roadmap_section = _next_workstream_roadmap_section(roadmap_text)
+        branch_names, branch_error = _git_branch_names()
+        require(
+            not branch_error,
+            f"Selected next workstream branch check: could not inspect branch names: {branch_error}",
+        )
+        if not branch_error and roadmap_section:
+            matching_branches = _branch_names_for_workstream(branch_names, selected_id)
+            if matching_branches:
+                current_branch = _git_current_branch()
+                roadmap_lower = roadmap_section.casefold()
+                claims_not_created = any(
+                    phrase.casefold() in roadmap_lower
+                    for phrase in NEXT_WORKSTREAM_BRANCH_NOT_CREATED_PHRASES
+                )
+                require(
+                    not claims_not_created,
+                    (
+                        "Next Branch Created Too Early / current-state claim drift: "
+                        f"{selected_id} has branch(es) {', '.join(matching_branches)} but roadmap still claims no branch exists"
+                    ),
+                )
+                require(
+                    current_branch in matching_branches and current_branch in roadmap_section,
+                    (
+                        "Selected next workstream branch truth is ambiguous: "
+                        f"{selected_id} has branch(es) {', '.join(matching_branches)}, "
+                        "but the current branch is not recorded as the Branch Readiness branch in roadmap"
+                    ),
+                )
+                require(
+                    "Branch Readiness" in selected["block"] or "Branch Readiness" in roadmap_section,
+                    (
+                        "Selected next workstream branch truth is ambiguous: "
+                        f"{selected_id} branch exists but Branch Readiness-only admission state is not explicit"
+                    ),
+                )
 
     promoted_entries = [
         entry
@@ -983,10 +1085,11 @@ def main() -> int:
             )
         if has_non_release_marker:
             require(
-                branch_class in NON_RELEASE_WAIVER_BRANCH_CLASSES,
+                branch_record_path in historical_branch_record_paths
+                or "direct-main emergency" in record_text.casefold(),
                 (
                     f"{branch_record_path}: '{NON_RELEASE_BRANCH_MARKER}' is only allowed for "
-                    "docs/governance or explicitly canon-only / repo-wide source-of-truth update branches"
+                    "preserved historical records or explicitly authorized direct-main emergency contexts"
                 ),
             )
         require(

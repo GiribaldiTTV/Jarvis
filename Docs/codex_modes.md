@@ -164,6 +164,8 @@ When the approved phase is `PR Readiness`, the output must also explicitly inclu
 - confirmation that the Governance Drift Audit ran
 - whether governance drift was found
 - confirmation that stale-canon, post-merge-state, next-workstream, dirty-branch, and docs-sync/drift-audit blockers are clear
+- confirmation that `PR Readiness Scope Missed`, `Between-Branch Canon Repair Attempt`, and `Next Branch Created Too Early` are clear
+- confirmation that no PR-owned docs or canon work is being deferred to Release Readiness, updated `main`, or a governance-only branch
 - confirmation that branch truth is committed and durable, not only present in the working tree
 - confirmation that the normal governance validator and the PR-readiness gate mode passed
 - for the selected next workstream:
@@ -188,9 +190,10 @@ When the approved phase is `Release Readiness`, the output must also explicitly 
   - `Release Artifacts:`
 - for explicitly non-release branches:
   - `Release Branch: No`
-  - confirmation that the branch is a `docs/governance` branch or an explicitly canon-only / repo-wide source-of-truth update branch
+  - confirmation that this is only a historical or explicitly authorized direct-main emergency context, not a new governance-only branch
 - confirmation that the non-release waiver is not being used for an `implementation` or `release packaging` branch
 - confirmation that `Release Debt`, post-merge truth, validation, and successor branch deferral remain governed by their normal blockers
+- confirmation that Release Readiness is not being used as a docs-sync or branch-authority cleanup phase
 
 Do not report cleanup as complete unless the pass has explicitly checked for leftover apps, windows, dialogs, helper processes, probe files, or other temporary artifacts it created or opened.
 
@@ -259,7 +262,8 @@ While release debt exists, the default next move is usually:
 not another unrelated implementation lane.
 
 That default blocks the next implementation lane by default.
-It does not, by itself, forbid an explicitly approved `docs/governance`, `release packaging`, or `emergency canon repair` branch when `Docs/phase_governance.md` says that branch class may begin from `No Active Branch`.
+It does not authorize a governance-only branch.
+Release packaging may begin only when `Docs/phase_governance.md` says that branch class may begin from `No Active Branch`.
 
 If release debt or another repo-level admission blocker means no next implementation branch may legally begin execution, report repo state as `No Active Branch` instead of inventing a next implementation phase.
 If repo truth is a steady-state `No Active Branch`, say so explicitly instead of pretending a new implementation branch should open automatically.
@@ -278,17 +282,16 @@ If a branch is stale, merged, or identical to `main`, call it out explicitly and
 
 ### Post-Release Canon Repair
 
-Release-dependent truth sometimes changes after the code lane is already closed.
+Release-dependent truth must be anticipated before PR green.
 
-When that happens:
+When release-dependent truth changes:
 
 - carry the canon sync on the active lane when that lane is still open
-- if the lane is already closed, do not treat post-release canon repair as a normal next-branch step
 - require merge-target canon completeness before PR so merged `main` does not become stale in the first place
-- use a standalone post-release canon pass only as an emergency exception when canon drift already exists on updated `main` and could not be prevented before merge or release
-
-This emergency path is distinct from a planned `docs/governance` branch opened from a clean `No Active Branch` steady state.
-Do not collapse those two cases into one label.
+- do not use Release Readiness as a docs-sync phase
+- do not open a governance-only branch or between-branch repair window
+- if a PR Readiness miss escapes after merge, block the next active branch in `Branch Readiness` and repair the miss before implementation begins
+- use direct-main emergency repair only when no active branch can legally carry the fix and the user explicitly authorizes that direct-main action
 
 ## Shared Rules Across Both Modes
 
@@ -305,7 +308,7 @@ Do not collapse those two cases into one label.
 - User Test Summary belongs to workstream-owned validation
 - incident patterns are generalized knowledge, not case history
 - governance and canon updates should ride on the active current branch when they are directly required to keep that branch truthful, executable, phase-correct, readiness-correct, validation-correct, closeout-correct, or release-correct
-- standalone governance or docs-style branches are exception paths for repo-wide governance work not tightly coupled to one active branch, emergency canon repair, cross-branch truth repair, or governance work that would contaminate or confuse an active implementation or release branch
+- governance-only branches are not used for new Nexus work; tightly coupled governance repair rides on the active branch, and escaped PR misses block the next active branch's `Branch Readiness`
 - active-branch governance updates must not weaken validation, stop conditions, phase authority, branch-class authority, or scope control
 
 For desktop workstreams, response-level `## User Test Summary` output and the canonical repo-level `UTS` artifact are related but not interchangeable:

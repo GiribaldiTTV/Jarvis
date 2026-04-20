@@ -40,9 +40,22 @@ Branch-local "what worked" notes should stay in the canonical workstream doc fir
 - root-cause pattern:
   release-debt truth is present, but release-bearing branch records lack machine-checkable markers that prove the release target is explicit before green status
 - fix pattern:
-  require release-bearing branches to declare `Release Target:`, `Release Scope:`, and `Release Artifacts:`; allow `Release Branch: No` only for `docs/governance` or explicitly canon-only / repo-wide source-of-truth branches
+  require release-bearing branches to declare `Release Target:`, `Release Scope:`, and `Release Artifacts:`; allow `Release Branch: No` only for preserved historical records or explicitly authorized direct-main emergency contexts
 - validation pattern:
-  run the branch governance validator; it must fail release-packaging branch records that omit release target markers or branch records that use the non-release waiver outside the narrow governance/canon-only exception
+  run the branch governance validator; it must fail release-packaging branch records that omit release target markers or branch records that use the non-release waiver outside preserved historical records or explicitly authorized direct-main emergency contexts
+
+## Pattern: Escaped PR Work Blocks Next Branch Readiness
+
+- Trigger:
+  PR Readiness misses required canon, branch-authority cleanup, post-merge truth, or next-branch deferral work, and the miss is discovered during Release Readiness, after merge, on updated `main`, or after the next branch was created
+- Risk:
+  Release Readiness becomes a docs-sync phase, repair work leaks between branches, direct `main` writes become tempting, or a governance-only branch becomes a side door around the active phase machine
+- Common Cause:
+  PR Readiness checks prove behavior or release artifacts but do not prove that merged-main branch records, roadmap state, post-merge state, and selected-next branch timing are already durable before green
+- Required Response:
+  classify the issue as `PR Readiness Scope Missed`; if it appears during Release Readiness, also classify `Release Readiness Scope Drift`; if a successor branch already exists, keep that branch in `Branch Readiness` and repair the miss before any implementation begins
+- Prevention:
+  block governance-only branches, block between-branch canon repair, block unapproved direct `main` writes, require branch-authority cleanup before PR green, and extend the validator whenever a miss exposes a machine-checkable gap
 - source references:
   - `Docs/phase_governance.md`
   - `dev/orin_branch_governance_validation.py`

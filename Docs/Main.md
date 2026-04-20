@@ -35,7 +35,7 @@ Use this ownership split unless a validated source conflict requires a temporary
 - bug tracking = backlog-first, with promoted bug docs only when warranted
 - User Test Summary = validation-contract layer owned by the relevant workstream
 - phase governance = repo-wide execution, proof, timeout, seam, stop-loss, validation-helper, and desktop UI audit contract
-- branch authority records = repo-owned phase owners for approved non-backlog `docs/governance`, `emergency canon repair`, and `release packaging` branches
+- branch authority records = repo-owned phase owners for approved non-backlog `release packaging` branches and historical `docs/governance` or emergency repair records
 - `Docs/Main.md` = routing authority aligned to merged truth
 
 ## Analysis-First Prompt Baseline
@@ -80,7 +80,8 @@ The startup assessment should make these items explicit:
 - `Next Safe Move`
 
 If repo truth resolves to blocked `No Active Branch`, `Next Safe Move` must report the blocking repair path instead of inventing a later phase.
-If repo truth resolves to steady-state `No Active Branch`, `Next Safe Move` may truthfully say that no branch should open yet or may name an explicitly approved non-implementation branch class whose admission rules pass.
+If repo truth resolves to steady-state `No Active Branch`, `Next Safe Move` may truthfully say that no branch should open yet or may name a release-packaging branch whose admission rules pass.
+Governance-only branches are not used for new Nexus work.
 
 ## Routing Layers
 
@@ -197,9 +198,9 @@ These are reference layers, not active workstream or roadmap owners.
 - keep historical Jarvis material preserved, but mark it as historical rather than current reality
 - during the normal active-branch-first `pre-Beta` flow, governance and canon updates should ride on the active current branch when they are directly required to keep that branch truthful, executable, phase-correct, readiness-correct, validation-correct, closeout-correct, or release-correct
 - active-branch governance or canon updates must stay inside the current branch's approved phase, branch class, and scope; they must not weaken validation, stop conditions, phase authority, or become unrelated documentation churn
-- do not default to a standalone docs-only canon lane when a plausible active implementation or release branch should carry the truth updates
-- a planned standalone `docs/governance` branch is an exception path, not the preferred default; it is future-capable from `No Active Branch`, but only when the branch-class admission rules pass and the branch is genuinely governance, policy, docs, or triage work rather than delayed implementation follow-through
-- standalone governance or docs-style branches are reserved for repo-wide governance work not tightly coupled to one active branch, emergency canon repair, cross-branch truth repair that cannot safely live on one active branch, or governance work that would contaminate or confuse an active implementation or release branch
+- do not open a standalone docs-only canon lane, governance-only branch, or between-branch repair window for routine canon completion
+- if PR Readiness misses required canon, branch-authority cleanup, or post-merge truth work, the next active branch must treat that miss as a `Branch Readiness` blocker and repair it before implementation begins
+- do not write directly to `main` except when the user explicitly authorizes an emergency direct-main action
 - the normal governed branch lifecycle is:
   1. `Branch Readiness`
   2. `Workstream`
@@ -211,10 +212,11 @@ These are reference layers, not active workstream or roadmap owners.
 - during `Workstream`, `bounded multi-seam workflow` is the primary model for coherent same-risk seam chains; execute one active seam at a time, validate it, record evidence, and report `continue` or `stop` before the next seam
 - single-seam fallback is required for bug fixes, hotfixes, unclear or high-risk seams, cross-subsystem changes, settings/protocol/launcher/UI-model changes, or any pass where validation cannot support safe continuation
 - `Workstream` completion does not imply PR readiness; the normal next legal phase is `Hardening`, followed by `Live Validation` and then `PR Readiness`
-- `Post-Release Canon Repair` is not a normal phase; it is an emergency-only exception path after merged or released truth already exists
+- `Post-Release Canon Repair` is not a normal phase or branch; it is an emergency direct-main action after merged or released truth already exists and only with explicit user approval
 - before any next implementation branch may enter `Branch Readiness`, the repo-level admission gate from `Docs/phase_governance.md` must pass on updated `main`
 - if repo truth resolves to blocked `No Active Branch`, report the blocking repair path
 - if repo truth resolves to steady-state `No Active Branch`, do not invent a next implementation branch by inertia
+- governance-only branches are not used for new Nexus work; governance or canon repair rides on the active branch that owns the affected truth, or on the next active branch's `Branch Readiness` if a PR Readiness miss escaped the prior branch
 - the normal `PR Readiness` sequence for a branch that changes release-facing canon is:
   0. clear the hard PR Readiness blockers: `stale-canon`, `post-merge`, `dirty`, `docs-sync`, and `next-workstream`
   1. validate current branch truth
@@ -231,14 +233,16 @@ These are reference layers, not active workstream or roadmap owners.
   12. commit all required docs, canon, validator, and branch-truth changes so the worktree is clean and truth is durable in commit history
   13. run the normal branch governance validator and the PR-readiness gate mode
   14. only then allow the current branch to report `PR READY: YES` and enter PR creation
+- PR Readiness also owns `PR Readiness Scope Missed`, `Between-Branch Canon Repair Attempt`, and `Next Branch Created Too Early`; none may be deferred into Release Readiness or a later side branch
 - the normal `Release Readiness` sequence for a release-bearing branch must clear `Release Target Undefined` before reporting green:
   1. confirm whether the branch is release-bearing or explicitly non-release
   2. for release-bearing branches, require machine-checkable `Release Target:`, `Release Scope:`, and `Release Artifacts:` markers in the active authority record
   3. for non-release branches, require `Release Branch: No`
-  4. allow `Release Branch: No` only for `docs/governance` branches or explicitly canon-only / repo-wide source-of-truth update branches
+  4. allow `Release Branch: No` only for preserved historical records or explicitly authorized direct-main emergency contexts
   5. never use the non-release waiver for `implementation` or `release packaging` branches
   6. never let the waiver clear `Release Debt`, weaken post-merge truth, weaken validation, or permit premature next-workstream branch creation
-- a standalone post-release canon repair is an emergency-only exception path when merged canon is already stale or when external drift made pre-merge prevention impossible
+- Release Readiness is not a docs-sync phase; it is restricted to release-target, release-scope, release-artifact, GitHub release package information, final release-execution authorization or confirmation, and release-state confirmation after release execution
+- a post-release canon repair is an emergency direct-main action only when merged canon is already stale, no active branch can legally carry the repair, and the user explicitly authorizes that direct-main action
 - returned `UTS`, screenshot, interactive, PR-review, or release-review evidence must be digested into the authority record before phase advancement is recommended
 - when a slice changes user-visible behavior or another operator-facing path, do not treat `## User Test Summary` as a recap slot; route through `Docs/user_test_summary_guidance.md` and require a real manual checklist unless no meaningful manual test exists
 - when an active desktop workstream has a canonical repo-level `UTS` artifact, do not stop at response text; update that workstream-owned artifact as well unless an explicit exception from `Docs/user_test_summary_guidance.md` applies

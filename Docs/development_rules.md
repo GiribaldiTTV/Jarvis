@@ -59,7 +59,7 @@ Use this layered ownership model:
 - bugs = backlog-first, with promoted bug docs only when warranted
 - User Test Summary = validation-contract layer owned by workstreams
 - phase governance = repo-wide execution, exact phase enum, blockers, branch classes, proof, timeout, seam, stop-loss, validation-helper, Governance Drift Audit, phase resolver, and desktop UI audit contract
-- branch authority records = repo-owned phase owners for approved non-backlog `docs/governance`, `emergency canon repair`, and `release packaging` branches
+- branch authority records = repo-owned phase owners for approved non-backlog `release packaging` branches and historical `docs/governance` or emergency repair records
 - `Docs/Main.md` = routing authority aligned to merged truth
 
 Use `Docs/phase_governance.md` for:
@@ -180,16 +180,16 @@ If the admission gate fails:
 - no next implementation branch may begin
 - the next safe move is blocker repair, not next-lane execution
 
-Explicitly approved non-implementation branches may still begin from `No Active Branch` only when:
-
-- their branch class is `docs/governance`, `release packaging`, or `emergency canon repair`
-- their branch-class admission rules from `Docs/phase_governance.md` pass
-- their branch authority record is explicit
+Release-packaging branches may still begin from `No Active Branch` only when their branch-class admission rules from `Docs/phase_governance.md` pass and their branch authority record is explicit.
+Governance-only branches are not used for new Nexus work.
+Emergency canon repair is a direct-main exception only when explicitly approved by the user.
 
 Active-branch-first remains the normal rule for tightly coupled canon and governance work.
 When a governance or canon update is directly required to keep the active branch truthful, executable, phase-correct, readiness-correct, validation-correct, closeout-correct, or release-correct, carry that update on the active branch inside its current phase and branch class.
 That allowance does not permit unrelated governance churn, product scope expansion, validation weakening, stop-condition weakening, or phase-authority bypass.
 Do not use a standalone `docs/governance` branch to carry routine canon or governance work that belongs on an already-active implementation or release branch.
+Do not open a governance-only branch for between-branch canon repair.
+If PR Readiness missed required canon or docs work and the owning branch has already merged, the next active branch must treat the miss as a `Branch Readiness` blocker and repair it before implementation begins.
 
 For active promoted work, the canonical workstream doc is the single authoritative owner of:
 
@@ -240,21 +240,25 @@ That means:
 - no PR-ready without docs-sync and drift-audit completion:
   - docs sync, Governance Drift Audit, validator alignment, and required post-merge wording must be complete and mutually consistent
   - run the branch governance validator and its PR-readiness gate mode before reporting `PR READY: YES`
+- no PR-ready with a PR Readiness scope miss:
+  - named blockers are `PR Readiness Scope Missed`, `Between-Branch Canon Repair Attempt`, and `Next Branch Created Too Early`
+  - PR Readiness must complete branch-authority cleanup, merge-target canon, post-merge truth, next-workstream selection, next-branch deferral, and release-debt routing on the active branch before green
+  - do not defer that work to Release Readiness, updated `main`, a later governance-only branch, or a between-branch repair window
+  - if the next branch already exists before the current branch merged and updated `main` was revalidated, block as `Next Branch Created Too Early`
 - no Release Readiness green with `Release Target Undefined`:
   - a release-bearing branch must explicitly declare `Release Target:`, `Release Scope:`, and `Release Artifacts:` before Release Readiness can report green
   - release-bearing includes `release packaging` branches and any branch that creates, prepares, validates, tags, publishes, or transitions release-facing artifacts or release-state canon
   - the only non-release waiver is `Release Branch: No`
-  - `Release Branch: No` is limited to `docs/governance` branches or explicitly canon-only / repo-wide source-of-truth update branches
+  - `Release Branch: No` is limited to preserved historical records or explicitly authorized direct-main emergency contexts
   - the non-release waiver is not available to `implementation` or `release packaging` branches
   - the waiver does not clear `Release Debt`, weaken post-merge truth rules, weaken validation, or permit premature successor branch creation
 - post-release canon repair is emergency-only:
   - use it only when canon drift already exists on updated `main` and could not be prevented before merge or release
-- standalone `docs/governance` branches are future-capable but tightly gated:
-  - they may begin from `No Active Branch` when the branch-class admission rules pass
-  - they remain non-default during `pre-Beta`
-  - they must not be used to avoid active-branch canon duties or required release-debt follow-through
-- standalone governance or docs-style branches are reserved for repo-wide governance work not tightly coupled to one active branch, emergency canon repair, cross-branch truth repair that cannot safely live on one active branch, or governance work that would contaminate or confuse an active implementation or release branch
-- do not default to a standalone docs-only post-release branch for routine canon completion
+- governance-only branches are not used for new Nexus work:
+  - governance and canon repair ride on the active branch when tied to that branch's truth
+  - between-branch canon repair is blocked
+  - direct writes to `main` are blocked unless the user explicitly authorizes an emergency direct-main action
+  - Release Readiness must not absorb docs sync or canon cleanup that PR Readiness should have completed
 - do not use canon sync as an excuse for broad unrelated documentation churn
 
 Local docs overlays are reference material only until revalidated against updated `origin/main`.
@@ -289,9 +293,8 @@ that weakness must be classified as `Governance Drift`.
 If governance drift is discovered:
 
 - stop normal progression immediately
-- if the drift is directly coupled to the active branch's truth, phase, readiness, validation, closeout, or release state, fix it inside the approved docs or governance boundary on that active branch after the boundary is explicit
-- otherwise, either fix it inside an approved standalone governance or docs boundary, or
-- produce the exact required canon delta and wait for user confirmation
+- if the drift is directly coupled to the active branch's truth, phase, readiness, validation, closeout, or release state, fix it on that active branch after the boundary is explicit
+- otherwise, produce the exact required canon delta and wait for user confirmation
 
 Do not defer known governance weaknesses silently to a later branch.
 

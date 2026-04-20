@@ -60,7 +60,7 @@ Use a rebaseline when:
 - do not create retroactive closeouts for every missed small prerelease
 - do not rewrite historical closeouts just to modernize wording
 - do not use closeouts or rebaselines as substitutes for workstream records
-- do not force release-dependent canon repair onto a future implementation branch when the truthful next move is a docs-only canon pass
+- do not force release-dependent canon repair into `Release Readiness`; PR-owned canon must be complete before PR green, and escaped misses block the next active branch's `Branch Readiness`
 
 ## Post-Release Rule
 
@@ -72,11 +72,11 @@ Examples:
 - release state
 - closure state tied to a public release
 
-When those facts change, the repo may legitimately need a docs-only canon repair or rebaseline if no safe next implementation lane should be selected yet.
-
-That does not make standalone docs/governance branches the default.
-The normal active-branch-first rule still applies while an implementation or release branch is open.
-Use a standalone docs/governance branch only when repo truth is genuinely `No Active Branch`, the branch purpose is really governance or docs maintenance, and `Docs/phase_governance.md` says the branch class may begin.
+When those facts change, the owning branch must carry the release-state canon before it reports PR-ready or release-ready.
+Release Readiness is not a broad docs-sync phase.
+If a required canon update escapes PR Readiness and the owning branch has already merged, the miss becomes a blocker in the next active branch's `Branch Readiness`; repair it there before implementation begins.
+Do not open a governance-only branch or between-branch canon repair lane for routine closeout cleanup.
+Direct-main emergency repair requires explicit user approval.
 
 ## Current Policy
 
@@ -85,4 +85,4 @@ Use a standalone docs/governance branch only when repo truth is genuinely `No Ac
 - use canonical workstream records for workstream-level detail
 - do not let this guidance doc become a live current-state owner
 - create new closeouts or rebaselines only when they materially improve future planning clarity
-- keep emergency post-release canon repair distinct from a planned standalone docs/governance branch opened from `No Active Branch`
+- keep emergency post-release canon repair as an explicitly approved direct-main exception, not as a planned governance-only branch

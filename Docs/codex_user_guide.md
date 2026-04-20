@@ -84,7 +84,7 @@ For Release Readiness, also include:
 - `Release Target: <version or identifier>` for release-bearing branches
 - `Release Scope: <bounded release scope>` for release-bearing branches
 - `Release Artifacts: <tag, notes, rebaseline, or other release artifacts>` for release-bearing branches
-- `Release Branch: No` only for non-release `docs/governance` or explicitly canon-only / repo-wide source-of-truth update branches
+- `Release Branch: No` only for preserved historical records or explicitly authorized direct-main emergency contexts
 
 ## What Codex Should Do Automatically
 
@@ -283,26 +283,27 @@ Use it only when merged canon is already stale and that drift could not be preve
 If a plausible next implementation workstream can be selected safely from current truth, do not treat this as the default path.
 If that docs pass changes validation or harness behavior assumptions, canon must be updated before further execution is recommended.
 
-This is not the same thing as a planned `docs/governance` branch from `No Active Branch`.
-Use the emergency repair recipe only for escaped canon drift.
+This is not a planned `docs/governance` branch from `No Active Branch`.
+Use the emergency repair recipe only for escaped canon drift, and only as an explicitly authorized direct-main action when no active branch can legally carry the repair.
 
-### Planned Docs/Governance Branch From No Active Branch
+### Governance Repair On The Active Branch
 
 Use:
 
-- `Analyze and Report: may a docs/governance branch begin from No Active Branch`
+- `Analyze and Report: identify the Branch Readiness blocker and repair it on the active branch`
 
 or:
 
-- `Workflow mode: execute the approved docs/governance branch from No Active Branch`
+- `Workflow mode: execute the docs-only governance repair on the active branch before implementation`
 
 Use this only when:
 
-- no active implementation branch exists
-- the branch purpose is genuinely governance, docs, policy, roadmap, backlog, or triage work
-- the branch is not being used to avoid canon sync that belongs on an active implementation or release branch
-- the branch-class admission rules from `Docs/phase_governance.md` pass
-- the work is repo-wide governance not coupled to one active branch, emergency canon repair, cross-branch truth repair, or governance work that would contaminate or confuse an active implementation or release branch
+- the repair is directly required to keep the active branch truthful, executable, phase-correct, readiness-correct, validation-correct, closeout-correct, or release-correct
+- a prior PR Readiness miss escaped and must be cleared in the next active branch's `Branch Readiness`
+- the work can stay docs/governance-only without changing product/runtime behavior
+- the prompt blocks implementation until the Branch Readiness blocker is cleared
+
+Do not use a governance-only branch or between-branch canon repair lane for this work.
 
 During `pre-Beta`, this path remains non-default and explicitly justified.
 In later Beta, public, or steady-state repo operation, it may become a normal maintenance path.
@@ -361,7 +362,7 @@ Required add-on for non-release branches:
 
 - `Release Branch: No`
 
-Use `Release Branch: No` only when the branch is a `docs/governance` branch or an explicitly canon-only / repo-wide source-of-truth update branch.
+Use `Release Branch: No` only for preserved historical records or explicitly authorized direct-main emergency contexts.
 Do not use `Release Branch: No` for `implementation` or `release packaging` branches.
 If a release-bearing branch lacks `Release Target:`, `Release Scope:`, or `Release Artifacts:`, Release Readiness is blocked by `Release Target Undefined`.
 
@@ -447,6 +448,7 @@ Prompting should reflect that reality.
 PR Readiness selects and minimally scopes the next workstream in canon, but it must also prove no branch exists yet for that next workstream.
 Use machine-checkable markers: `Next Workstream: Selected` and `Minimal Scope:` in the backlog entry, plus `## Selected Next Workstream` and `Branch: Not created` in the roadmap.
 Create the fresh branch only during the next `Branch Readiness` pass after the current branch merges and updated `main` is revalidated.
+If that branch is created and a prior-branch canon miss is discovered, stay in `Branch Readiness`, repair the miss on the active branch, and do not start implementation until the blocker is cleared.
 
 Do not ask Codex to keep planning from an old lane branch when live repo truth shows that branch is stale, merged, or identical to `main`.
 If repo truth is a steady-state `No Active Branch`, it is also valid for the truthful next move to be no branch at all until a new approved need exists.
@@ -471,7 +473,7 @@ The key distinction is prompt length, not analysis depth.
 - add control language only when it materially protects truth or scope
 - use `Analyze for drift` before merge, release, or major canon carry-forward decisions
 - use evidence-digestion language when returned validation evidence should control the next move, rather than implying that phase advancement is automatic
-- in `PR Readiness`, require five hard blocker checks before accepting `PR READY: YES`: `stale-canon`, `post-merge`, `next-workstream`, `dirty`, and `docs-sync`
+- in `PR Readiness`, require hard blocker checks before accepting `PR READY: YES`: `stale-canon`, `post-merge`, `next-workstream`, `dirty`, `docs-sync`, `PR Readiness Scope Missed`, `Between-Branch Canon Repair Attempt`, and `Next Branch Created Too Early`
 - route through `Docs/Main.md` whenever authority is unclear
 - treat local unmerged overlays as reference material until revalidated against updated `origin/main`
 

@@ -108,7 +108,7 @@ Next Workstream: Selected
 Priority: Medium
 Release Stage: pre-Beta
 Target Version: TBD
-Minimal Scope: Branch Readiness admission and planning for the shell-facing quick-task entry surface, initially limited to defining the smallest safe taskbar/tray or Create Custom Task UX seam above the released interaction, authoring, callable-group execution, and built-in catalog baselines; no branch exists yet and no implementation is authorized until updated main is revalidated after the FB-037 release.
+Minimal Scope: Branch Readiness admission and planning for the shell-facing quick-task entry surface, initially limited to defining the smallest safe taskbar/tray or Create Custom Task UX seam above the released interaction, authoring, callable-group execution, and built-in catalog baselines; branch `feature/fb-038-taskbar-tray-quick-task-ux` exists for Branch Readiness only, and no implementation is authorized until prior-branch canon cleanup and FB-038 admission are clean.
 Summary: Track future taskbar or tray quick-access UX, including a Create Custom Task affordance, as a deliberate shell-facing entry surface into the shared action model.
 Why it matters: Taskbar and tray interaction affect entry, discoverability, and user trust, so they should be planned as an explicit UX lane instead of piggybacking on overlay or authoring work.
 
