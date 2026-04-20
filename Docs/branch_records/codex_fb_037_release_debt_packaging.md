@@ -20,7 +20,8 @@ This branch exists to prepare the public prerelease, release-state canon transit
 
 - `Active Branch`
 - branch was created from updated `main`
-- local `main`, `origin/main`, and this branch resolve to merge commit `d1277e65cf348073c73f636c8dd1b5965543f1a8`
+- local `main` and `origin/main` resolve to merge commit `d1277e65cf348073c73f636c8dd1b5965543f1a8`
+- this branch is based on that merge commit and carries release-packaging commits on top of it
 - FB-037 remains `Merged unreleased on main`
 - FB-038 remains selected in canon only and has no branch
 - Branch Readiness, Workstream Slice 1, and release-artifact Hardening are complete; release-packaging Live Validation is open for release-boundary proof before PR Readiness
