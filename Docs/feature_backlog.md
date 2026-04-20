@@ -28,13 +28,14 @@ Historical note:
 
 ### [ID: FB-037] Curated built-in system actions and Nexus settings expansion
 
-Status: Workstream
+Status: Merged unreleased on main
 Record State: Promoted
+Blocker: Release Debt
 Priority: High
 Release Stage: pre-Beta
 Target Version: TBD
 Canonical Workstream Doc: Docs/workstreams/FB-037_built_in_actions_and_settings_expansion.md
-Summary: Admit the curated built-in system actions and Nexus settings expansion lane for bounded planning and later implementation under the shared action model.
+Summary: Completed and merge-target-ready curated Windows utility built-in catalog expansion under the shared action model; after merge, FB-037 is merged-unreleased implementation debt and blocks next implementation admission until release packaging clears Release Debt.
 Why it matters: Standard product actions should feel native and inspectable under the shared action model instead of being pushed into user-defined saved actions as ad hoc customization. Common Windows and Nexus-owned actions should ship as first-class built-ins, while saved actions remain the seam for personal or non-standard tasks.
 
 ## Registry Items
@@ -113,9 +114,11 @@ Why it matters: The repo still needs deeper identity and wording normalization a
 
 Status: Deferred
 Record State: Registry-only
+Next Workstream: Selected
 Priority: Medium
 Release Stage: pre-Beta
 Target Version: TBD
+Minimal Scope: Branch Readiness admission and planning for the shell-facing quick-task entry surface, initially limited to defining the smallest safe taskbar/tray or Create Custom Task UX seam above the released interaction, authoring, callable-group execution, and built-in catalog baselines; no branch exists yet and no implementation is authorized until FB-037 release debt is cleared.
 Summary: Track future taskbar or tray quick-access UX, including a Create Custom Task affordance, as a deliberate shell-facing entry surface into the shared action model.
 Why it matters: Taskbar and tray interaction affect entry, discoverability, and user trust, so they should be planned as an explicit UX lane instead of piggybacking on overlay or authoring work.
 
