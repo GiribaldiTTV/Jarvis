@@ -11,7 +11,7 @@
 
 ## Status
 
-- `Branch Readiness`
+- `Workstream`
 
 ## Release Stage
 
@@ -33,14 +33,15 @@ This workstream exists so common Windows, vendor utility, and Nexus-owned destin
 
 ## Current Phase
 
-- Phase: `Branch Readiness`
+- Phase: `Workstream`
 
 ## Phase Status
 
 - `Active Branch`
-- Branch Readiness admission is open on `feature/fb-037-built-in-actions-and-settings-expansion`
+- Workstream phase is open on `feature/fb-037-built-in-actions-and-settings-expansion`
+- Branch Readiness setup is durably checkpointed in commit `1cc1a93`
 - no implementation seam has been selected yet
-- no product or runtime code changes are authorized in Branch Readiness
+- no product or runtime code changes are authorized until the first Workstream seam is selected and bounded
 
 ## Branch Class
 
@@ -57,14 +58,18 @@ This workstream exists so common Windows, vendor utility, and Nexus-owned destin
 - no active promoted workstream exists before this admission
 - FB-037 was `Registry-only` on merged canon before this Branch Readiness pass
 - this branch was created fresh from updated `main`
+- Branch Readiness setup was committed in `1cc1a93`
+- Branch Readiness validation passed with `python dev/orin_branch_governance_validation.py`
+- `git diff --check` passed after the Branch Readiness checkpoint
 
 ## Exit Criteria
 
-- backlog, roadmap, workstreams index, and this workstream doc agree that FB-037 is promoted and in `Branch Readiness`
-- bounded objective and explicit non-goals are recorded before implementation begins
-- reuse baseline and validation contract are recorded
-- no product or runtime implementation has started during Branch Readiness
-- no unresolved blocker prevents transition to `Workstream`
+- first implementation seam is selected and explicitly bounded
+- selected seam stays inside curated built-in system actions and Nexus settings expansion
+- implementation for the selected seam is complete
+- direct repo-side validation for the selected seam is green
+- shared action model, saved-action, callable-group, and interaction baseline regressions are checked as relevant
+- no unresolved same-slice correctness gap remains before transition to `Hardening`
 
 ## Rollback Target
 
@@ -72,7 +77,7 @@ This workstream exists so common Windows, vendor utility, and Nexus-owned destin
 
 ## Next Legal Phase
 
-- `Workstream`
+- `Hardening`
 
 ## Bounded Objective
 
@@ -128,7 +133,15 @@ Future Workstream-phase validation must be defined before implementation begins 
 - promoted FB-037 from `Registry-only` to `Promoted`
 - created this canonical workstream record
 - recorded Branch Readiness phase authority, scope, non-goals, reuse baseline, and validation contract
+- checkpointed Branch Readiness setup in commit `1cc1a93`
+- advanced phase authority to `Workstream` for first seam selection only
+
+## Workstream Progress
+
+- no implementation seam has been selected yet
+- no product or runtime code changes have been made for FB-037
+- next Workstream move is first seam analysis and selection
 
 ## User Test Summary
 
-No manual user test is required for this Branch Readiness pass because no product, runtime, UI, or user-visible behavior changed.
+No manual user test is required for this phase-transition pass because no product, runtime, UI, or user-visible behavior changed.

@@ -28,7 +28,7 @@ Historical note:
 
 ### [ID: FB-037] Curated built-in system actions and Nexus settings expansion
 
-Status: Branch Readiness
+Status: Workstream
 Record State: Promoted
 Priority: High
 Release Stage: pre-Beta

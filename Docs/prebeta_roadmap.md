@@ -65,7 +65,7 @@ Current merged truth indicates:
 - latest public release commit: `f743281`
 - no merged unreleased non-doc implementation debt currently exists on `main`
 - the latest public released implementation milestone is FB-041 deterministic callable-group execution layer in `v1.3.1-prebeta`
-- the active implementation workstream is FB-037 in `Branch Readiness`
+- the active implementation workstream is FB-037 in `Workstream`
 
 That means the released FB-027 interaction baseline, the released FB-036 authoring-and-callable-group milestone, and the released FB-041 deterministic callable-group execution milestone are now part of the current public shared pre-Beta baseline.
 
@@ -73,13 +73,13 @@ That means the released FB-027 interaction baseline, the released FB-036 authori
 
 ### FB-037 Curated Built-In System Actions And Nexus Settings Expansion
 
-- status: `Branch Readiness`
+- status: `Workstream`
 - lane type: `implementation`
 - release floor: `minor prerelease`
 - target version: `TBD`
 - release state: `active delta`
 - canonical workstream doc: `Docs/workstreams/FB-037_built_in_actions_and_settings_expansion.md`
-- sequencing note: admitted for Branch Readiness only; implementation must not begin until the workstream doc, boundary, validation contract, and phase exit criteria allow transition into `Workstream`
+- sequencing note: admitted into `Workstream` for first seam selection; implementation must not begin until the first seam is explicitly selected and bounded
 
 ## Most Recent Released Workstream Context
 
@@ -174,7 +174,7 @@ Current merged truth indicates:
 - the released FB-035 lane is closed
 - the recent released workstreams above remain part of the locked current baseline
 - no merged unreleased non-doc implementation debt currently exists on `main`
-- FB-037 is the active implementation workstream in `Branch Readiness`
+- FB-037 is the active implementation workstream in `Workstream`
 - if a branch changes release-facing canon, those canon updates must land on that same branch before PR readiness is allowed
 - post-release canon repair is emergency-only when merged canon is already stale or external drift made pre-merge prevention impossible
 - the released FB-027 baseline does not authorize further saved-action authoring, resolution, voice, Action Studio, routines, profiles, hotkey cleanup, or shutdown-confirmation work by inertia
