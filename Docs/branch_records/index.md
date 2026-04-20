@@ -41,7 +41,7 @@ Do not use this layer to replace:
 
 ## Active Branch Authority Records
 
-- none currently
+- `Docs/branch_records/codex_fb_037_release_debt_packaging.md`
 
 ## Historical Branch Authority Records
 

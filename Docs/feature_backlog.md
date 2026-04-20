@@ -34,6 +34,7 @@ Blocker: Release Debt
 Priority: High
 Release Stage: pre-Beta
 Target Version: TBD
+Planned Release Packaging Target: v1.4.0-prebeta
 Canonical Workstream Doc: Docs/workstreams/FB-037_built_in_actions_and_settings_expansion.md
 Summary: Completed and merge-target-ready curated Windows utility built-in catalog expansion under the shared action model; after merge, FB-037 is merged-unreleased implementation debt and blocks next implementation admission until release packaging clears Release Debt.
 Why it matters: Standard product actions should feel native and inspectable under the shared action model instead of being pushed into user-defined saved actions as ad hoc customization. Common Windows and Nexus-owned actions should ship as first-class built-ins, while saved actions remain the seam for personal or non-standard tasks.

@@ -20,6 +20,7 @@
 ## Target Version
 
 - `TBD`
+- planned release-packaging target: `v1.4.0-prebeta`
 
 ## Canonical Branch
 
@@ -40,6 +41,8 @@ This workstream exists so common Windows, vendor utility, and Nexus-owned destin
 - `No Active Branch`
 - after this branch merges, FB-037 is merged-unreleased implementation release debt and no implementation branch remains active
 - Release Readiness is the governing post-merge phase until release packaging clears `Release Debt` for FB-037
+- release-packaging Branch Readiness opened on `codex/fb-037-release-debt-packaging`
+- release-packaging branch authority record: `Docs/branch_records/codex_fb_037_release_debt_packaging.md`
 - successor-lane lock is waived because post-merge repo truth resolves to `No Active Branch` due to `Release Debt` (FB-037)
 - historical implementation branch:
   - `feature/fb-037-built-in-actions-and-settings-expansion`
@@ -120,6 +123,8 @@ This workstream exists so common Windows, vendor utility, and Nexus-owned destin
 - Successor lane lock: waived because repo truth resolves to `No Active Branch` due to FB-037 release debt
 - Record State: `Promoted` until release packaging marks FB-037 released and closes the workstream
 - Next concern: release packaging; no next implementation lane may begin until release debt is cleared or explicitly waived by canon
+- Active release-packaging branch: `codex/fb-037-release-debt-packaging`
+- Planned public prerelease target: `v1.4.0-prebeta`
 - This workstream must not be treated as an active implementation branch owner after merge
 
 ## Bounded Objective

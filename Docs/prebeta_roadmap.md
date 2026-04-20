@@ -79,12 +79,13 @@ That means the released FB-027 interaction baseline, the released FB-036 authori
 - status: `merged unreleased`
 - lane type: `implementation`
 - release floor: `minor prerelease`
-- target version: `TBD`
+- target version: `v1.4.0-prebeta` (planned)
 - release state: `merged unreleased`
 - current phase after merge: `Release Readiness`
 - phase status after merge: `No Active Branch`
 - blocker after merge: `Release Debt` (FB-037)
 - next concern after merge: release packaging
+- release-packaging branch: `codex/fb-037-release-debt-packaging`
 - canonical workstream doc: `Docs/workstreams/FB-037_built_in_actions_and_settings_expansion.md`
 - sequencing note: Workstream same-risk built-in catalog seams remain complete; helper-only Hardening cleared the reusable-helper cleanup no-progress and missing-manifest gap; Live Validation then passed with manifest-backed evidence across built-in execution, saved-action override, authoring collision rejection, mixed environments, and repeated execution; successor-lane lock is waived because post-merge truth resolves to `No Active Branch` due to FB-037 release debt
 
