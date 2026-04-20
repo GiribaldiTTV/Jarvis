@@ -80,10 +80,11 @@ That may be an executable branch owner or another explicitly promoted current-tr
 Merged / Release Debt Owners are promoted implementation workstreams whose implementation branch is merge-target complete but whose public release packaging has not yet cleared release debt.
 These records are not active implementation branch owners after merge.
 
-- `Docs/workstreams/FB-037_built_in_actions_and_settings_expansion.md`
+- None
 
 ### Closed
 
+- `Docs/workstreams/FB-037_built_in_actions_and_settings_expansion.md`
 - `Docs/workstreams/FB-041_deterministic_callable_group_execution_layer.md`
 - `Docs/workstreams/FB-036_saved_action_authoring.md`
 - `Docs/workstreams/FB-027_interaction_system_baseline.md`

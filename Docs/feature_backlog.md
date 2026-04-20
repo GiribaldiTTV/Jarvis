@@ -26,18 +26,7 @@ Historical note:
 
 ## Promoted Canonical Workstreams
 
-### [ID: FB-037] Curated built-in system actions and Nexus settings expansion
-
-Status: Merged unreleased on main
-Record State: Promoted
-Blocker: Release Debt
-Priority: High
-Release Stage: pre-Beta
-Target Version: TBD
-Planned Release Packaging Target: v1.4.0-prebeta
-Canonical Workstream Doc: Docs/workstreams/FB-037_built_in_actions_and_settings_expansion.md
-Summary: Completed and merge-target-ready curated Windows utility built-in catalog expansion under the shared action model; after merge, FB-037 is merged-unreleased implementation debt and blocks next implementation admission until release packaging clears Release Debt.
-Why it matters: Standard product actions should feel native and inspectable under the shared action model instead of being pushed into user-defined saved actions as ad hoc customization. Common Windows and Nexus-owned actions should ship as first-class built-ins, while saved actions remain the seam for personal or non-standard tasks.
+- None
 
 ## Registry Items
 
@@ -119,7 +108,7 @@ Next Workstream: Selected
 Priority: Medium
 Release Stage: pre-Beta
 Target Version: TBD
-Minimal Scope: Branch Readiness admission and planning for the shell-facing quick-task entry surface, initially limited to defining the smallest safe taskbar/tray or Create Custom Task UX seam above the released interaction, authoring, callable-group execution, and built-in catalog baselines; no branch exists yet and no implementation is authorized until FB-037 release debt is cleared.
+Minimal Scope: Branch Readiness admission and planning for the shell-facing quick-task entry surface, initially limited to defining the smallest safe taskbar/tray or Create Custom Task UX seam above the released interaction, authoring, callable-group execution, and built-in catalog baselines; no branch exists yet and no implementation is authorized until updated main is revalidated after the FB-037 release.
 Summary: Track future taskbar or tray quick-access UX, including a Create Custom Task affordance, as a deliberate shell-facing entry surface into the shared action model.
 Why it matters: Taskbar and tray interaction affect entry, discoverability, and user trust, so they should be planned as an explicit UX lane instead of piggybacking on overlay or authoring work.
 
@@ -144,6 +133,17 @@ Summary: Track future runtime monitoring and HUD surfaces for GPU / CPU thermals
 Why it matters: Monitoring overlays are a separate runtime and status surface and should not be bolted onto the saved-action system without an explicit product boundary.
 
 ## Closed Canonical Workstreams
+
+### [ID: FB-037] Curated built-in system actions and Nexus settings expansion
+
+Status: Released (v1.4.0-prebeta)
+Record State: Closed
+Priority: High
+Release Stage: pre-Beta
+Target Version: v1.4.0-prebeta
+Canonical Workstream Doc: Docs/workstreams/FB-037_built_in_actions_and_settings_expansion.md
+Summary: Released the first curated Windows utility built-in catalog under the shared action model, including Task Manager, Calculator, Notepad, and Paint while preserving saved-action override authority, authoring collision protection, confirm/result surfaces, and callable-group behavior.
+Why it matters: Standard product actions now feel native and inspectable under the shared action model instead of being pushed into user-defined saved actions as ad hoc customization. Common Windows actions ship as first-class built-ins, while saved actions remain the seam for personal or non-standard tasks.
 
 ### [ID: FB-041] Deterministic callable-group execution layer
 

@@ -7,11 +7,11 @@
 
 ## Record State
 
-- `Promoted`
+- `Closed`
 
 ## Status
 
-- `Merged unreleased on main`
+- `Released (v1.4.0-prebeta)`
 
 ## Release Stage
 
@@ -19,31 +19,32 @@
 
 ## Target Version
 
-- `TBD`
-- planned release-packaging target: `v1.4.0-prebeta`
+- `v1.4.0-prebeta`
 
 ## Canonical Branch
 
-- `feature/fb-037-built-in-actions-and-settings-expansion`
+- No active canonical branch remains after release.
+- historical implementation branch:
+  - `feature/fb-037-built-in-actions-and-settings-expansion`
+- historical release-packaging branch:
+  - `codex/fb-037-release-debt-packaging`
 
 ## Purpose / Why It Matters
 
-Promote the curated built-in system actions and Nexus settings expansion lane above the released shared action, saved-action authoring, callable-group authoring, and deterministic callable-group execution baseline.
+Record the released curated built-in system actions and Nexus settings expansion lane above the released shared action, saved-action authoring, callable-group authoring, and deterministic callable-group execution baseline.
 
-This workstream exists so common Windows, vendor utility, and Nexus-owned destinations can become deliberate first-class built-in actions under the shared action model instead of being left to ad hoc saved-action customization.
+This workstream released common Windows utility destinations as deliberate first-class built-in actions under the shared action model instead of leaving them to ad hoc saved-action customization.
 
 ## Current Phase
 
-- Phase: `Release Readiness`
+- Released historical workstream record. No active branch phase is owned by this workstream doc after `v1.4.0-prebeta`.
 
 ## Phase Status
 
-- `No Active Branch`
-- after this branch merges, FB-037 is merged-unreleased implementation release debt and no implementation branch remains active
-- Release Readiness is the governing post-merge phase until release packaging clears `Release Debt` for FB-037
-- release-packaging Branch Readiness opened on `codex/fb-037-release-debt-packaging`
-- release-packaging branch authority record: `Docs/branch_records/codex_fb_037_release_debt_packaging.md`
-- successor-lane lock is waived because post-merge repo truth resolves to `No Active Branch` due to `Release Debt` (FB-037)
+- historical released posture
+- FB-037 is released in `v1.4.0-prebeta`
+- `Release Debt` for FB-037 is cleared
+- release-packaging authority record: `Docs/branch_records/codex_fb_037_release_debt_packaging.md`
 - historical implementation branch:
   - `feature/fb-037-built-in-actions-and-settings-expansion`
 - PR Readiness on the implementation branch passed after Live Validation evidence was digested and merge-target canon was corrected for post-merge truth
@@ -71,7 +72,7 @@ This workstream exists so common Windows, vendor utility, and Nexus-owned destin
 
 ## Blockers
 
-- `Release Debt` (FB-037)
+- None. This workstream is released and closed.
 
 ## Entry Basis
 
@@ -96,15 +97,14 @@ This workstream exists so common Windows, vendor utility, and Nexus-owned destin
 - final helper scenario result: `19` passed scenarios, `0` failed scenarios
 - final cleanup summary: cleanup success count `5`, OS-blocked cleanup count `0`, helper-failure cleanup count `0`, baseline-skipped count `14`
 - repo-side governance validation passed before this phase transition with `python dev/orin_branch_governance_validation.py`
-- PR Readiness canon correction recorded the post-merge `No Active Branch` state and waived successor-lane lock because FB-037 release debt blocks next implementation admission
+- PR Readiness canon correction recorded the prior post-merge `No Active Branch` state and waived successor-lane lock while FB-037 release debt blocked next implementation admission
 
 ## Exit Criteria
 
-- release packaging for FB-037 is opened on an approved release-packaging branch or otherwise explicitly authorized
-- target public prerelease for FB-037 is selected by release packaging
-- FB-037 release notes and release-state transitions are prepared before clearing `Release Debt`
-- release debt remains explicit until FB-037 is actually released
-- no next implementation branch is admitted while FB-037 release debt remains unresolved
+- FB-037 is released as `v1.4.0-prebeta`
+- release notes and the `v1.4.0-prebeta` rebaseline are active release artifacts
+- `Release Debt` for FB-037 is cleared
+- FB-038 remains selected in canon only and unbranched until updated `main` is revalidated for Branch Readiness
 
 ## Rollback Target
 
@@ -112,20 +112,17 @@ This workstream exists so common Windows, vendor utility, and Nexus-owned destin
 
 ## Next Legal Phase
 
-- `Release Readiness`
+- No active next phase. Future implementation must enter through a new Branch Readiness admission on a selected workstream.
 
-## Post-Merge State
+## Released State
 
-- Phase (post-merge): `Release Readiness`
-- Phase Status (post-merge): `No Active Branch`
-- Blocker: `Release Debt` (FB-037)
-- Next Legal Phase: `Release Readiness` (release packaging)
-- Successor lane lock: waived because repo truth resolves to `No Active Branch` due to FB-037 release debt
-- Record State: `Promoted` until release packaging marks FB-037 released and closes the workstream
-- Next concern: release packaging; no next implementation lane may begin until release debt is cleared or explicitly waived by canon
-- Active release-packaging branch: `codex/fb-037-release-debt-packaging`
-- Planned public prerelease target: `v1.4.0-prebeta`
-- This workstream must not be treated as an active implementation branch owner after merge
+- Public prerelease: `v1.4.0-prebeta`
+- Record State: `Closed`
+- Release Debt: cleared
+- Current baseline: `Docs/closeouts/nexus_prebeta_rebaseline_through_v1.4.0-prebeta.md`
+- Release packaging branch: `codex/fb-037-release-debt-packaging`
+- FB-038 remains selected in canon only and unbranched until updated `main` is revalidated for Branch Readiness.
+- This workstream must not be treated as an active implementation branch owner after release.
 
 ## Bounded Objective
 
@@ -149,7 +146,7 @@ Each built-in catalog seam must be selected, bounded, implemented, validated, re
 
 ## Reuse Baseline
 
-- `Docs/closeouts/nexus_prebeta_rebaseline_through_v1.3.1-prebeta.md`
+- `Docs/closeouts/nexus_prebeta_rebaseline_through_v1.4.0-prebeta.md`
 - `Docs/workstreams/FB-041_deterministic_callable_group_execution_layer.md`
 - `Docs/workstreams/FB-036_saved_action_authoring.md`
 - `Docs/workstreams/FB-027_interaction_system_baseline.md`

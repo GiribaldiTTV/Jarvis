@@ -22,11 +22,13 @@ This branch exists to prepare the public prerelease, release-state canon transit
 - branch was created from updated `main`
 - local `main` and `origin/main` resolve to merge commit `d1277e65cf348073c73f636c8dd1b5965543f1a8`
 - this branch is based on that merge commit and carries release-packaging commits on top of it
-- FB-037 remains `Merged unreleased on main`
+- FB-037 is released as `v1.4.0-prebeta` on this release-execution branch
+- FB-037 `Release Debt` is cleared in release-state canon
 - FB-038 remains selected in canon only and has no branch
 - Branch Readiness, Workstream Slice 1, release-artifact Hardening, release-packaging Live Validation, and PR Readiness are complete
 - release-packaging PR Readiness closed after merge-target canon, release-boundary proof, successor branch deferral, Governance Drift Audit, and PR gate validation passed
-- Release Readiness is open for the release-execution authorization and execution pass; no tag, release, released-state canon update, `Release Debt` clearance, or FB-038 branch creation has occurred yet
+- Release Readiness executed the release-state canon transition for FB-037; Git tag `v1.4.0-prebeta` is the supported public release artifact in this environment
+- GitHub Release publication is not supported in this environment because `gh` and API credentials are unavailable; the API lookup remains the publication proof point
 
 ## Branch Class
 
@@ -36,7 +38,7 @@ This branch exists to prepare the public prerelease, release-state canon transit
 
 - Release Target: `v1.4.0-prebeta`
 - Release Scope: FB-037 curated built-in Windows utility catalog prerelease, including Task Manager, Calculator, Notepad, and Paint built-ins plus saved-action override, authoring collision, confirm/result preservation, callable-group regression preservation, and reusable helper proof support.
-- Release Artifacts: draft release notes, draft `Docs/closeouts/nexus_prebeta_rebaseline_through_v1.4.0-prebeta.md`, release-state transition checklist, `v1.4.0-prebeta` Git tag plan, and public prerelease notes plan.
+- Release Artifacts: release notes, active `Docs/closeouts/nexus_prebeta_rebaseline_through_v1.4.0-prebeta.md`, release-state transition checklist, `v1.4.0-prebeta` Git tag, and public prerelease notes content.
 
 ## Blockers
 
@@ -55,12 +57,12 @@ This branch exists to prepare the public prerelease, release-state canon transit
 
 ## Exit Criteria
 
-- release target, release scope, and release artifacts remain explicit and validated
-- release-boundary proof remains green before execution: no tag, publish step, released-state canon update, or `Release Debt` clearance has occurred
-- draft rebaseline remains inactive and does not contradict the active `v1.3.1-prebeta` baseline until release execution activates it
-- release-state transition checklist remains complete and ordered
-- release execution is run only by an explicit Release Readiness execution pass
-- FB-038 remains selected in canon only and unbranched until FB-037 release debt is cleared and updated `main` is revalidated
+- release target, release scope, and release artifacts are explicit and validated
+- release-state canon transitions mark FB-037 `Released (v1.4.0-prebeta)` and `Closed`
+- `Release Debt` for FB-037 is cleared
+- the `v1.4.0-prebeta` rebaseline is active
+- release-state transition checklist remains complete and ordered as historical proof
+- FB-038 remains selected in canon only and unbranched until updated `main` is revalidated
 - no product or runtime work is introduced
 
 ## Rollback Target
@@ -73,9 +75,9 @@ This branch exists to prepare the public prerelease, release-state canon transit
 
 ## Target Release Version
 
-- planned version: `v1.4.0-prebeta`
+- released version: `v1.4.0-prebeta`
 - basis: latest public prerelease is `v1.3.1-prebeta`, and FB-037 carries a `minor prerelease` release floor
-- release-state note: this planned version does not mark FB-037 released, clear `Release Debt`, create a tag, or publish a release
+- release-state note: release execution marks FB-037 released, clears `Release Debt`, activates the rebaseline, and creates the `v1.4.0-prebeta` Git tag
 
 ## Release Scope
 
@@ -91,9 +93,9 @@ FB-037 release packaging covers the merged built-in catalog expansion:
 - callable-group regression preservation from the released FB-041 baseline
 - reusable live-validation helper reliability improvements that supported FB-037 proof
 
-## Required Release-Facing Updates
+## Release-Facing Updates Applied
 
-The release execution slice must prepare or update:
+The release execution slice updates:
 
 - `Docs/feature_backlog.md`
   - move FB-037 from `Merged unreleased on main` to `Released (v1.4.0-prebeta)`
@@ -113,7 +115,7 @@ The release execution slice must prepare or update:
 - `Docs/closeout_index.md`
   - update the current Nexus-era baseline pointer if a new rebaseline is created
 - `Docs/closeouts/nexus_prebeta_rebaseline_through_v1.4.0-prebeta.md`
-  - draft prepared in Slice 1; becomes active only after release execution updates `Docs/closeout_index.md`
+  - activate the Slice 1 draft as the current Nexus-era rebaseline
 - Git tag and release artifacts
   - tag: `v1.4.0-prebeta`
   - release notes covering the FB-037 built-in catalog milestone
@@ -221,9 +223,22 @@ Continuation rule:
   - no product or runtime work was introduced
 - phase authority transitioned from `PR Readiness` to `Release Readiness`
 
-## Slice 1 Draft Release Notes
+## Release Execution Progress
 
-Draft release notes for `v1.4.0-prebeta`:
+- Release Readiness release execution complete for FB-037.
+- release-state canon marks FB-037 `Released (v1.4.0-prebeta)` and `Closed`
+- `Release Debt` for FB-037 is cleared
+- `Docs/closeouts/nexus_prebeta_rebaseline_through_v1.4.0-prebeta.md` is active
+- `Docs/closeout_index.md` points to the `v1.4.0-prebeta` rebaseline
+- release notes are preserved in this branch record
+- Git tag: `v1.4.0-prebeta`
+- GitHub Release publication: unsupported in this environment because no `gh` CLI or API token is available
+- FB-038 remains selected in canon only and unbranched
+- no product or runtime work was introduced
+
+## Release Notes
+
+Release notes for `v1.4.0-prebeta`:
 
 Title:
 
@@ -270,11 +285,11 @@ Validation evidence:
 - Draft file prepared:
   - `Docs/closeouts/nexus_prebeta_rebaseline_through_v1.4.0-prebeta.md`
 - Activation rule:
-  - this draft must not become the active baseline until the release execution pass creates or confirms the `v1.4.0-prebeta` tag, updates release-state canon, and points `Docs/closeout_index.md` at the new baseline.
+  - release execution activates this baseline by creating the `v1.4.0-prebeta` tag, updating release-state canon, and pointing `Docs/closeout_index.md` at the new baseline.
 
 ## Slice 1 Release-State Transition Checklist
 
-Later release execution must perform these steps in order:
+Release execution performed these steps in order:
 
 1. Confirm `v1.4.0-prebeta` tag does not already exist.
 2. Confirm no FB-038 branch exists.
@@ -324,15 +339,15 @@ Later release execution must perform these steps in order:
 - no settings or protocol behavior
 - no launcher-policy changes
 - no UI or confirm/result changes
-- no release tag creation before an explicit release execution pass
-- no marking FB-037 released before an explicit release execution pass
+- no release tag creation before the explicit Release Readiness execution pass
+- no marking FB-037 released before the explicit Release Readiness execution pass
 - no FB-038 branch creation
 - no next implementation admission work
 
 ## Reuse Baseline
 
 - `Docs/workstreams/FB-037_built_in_actions_and_settings_expansion.md`
-- `Docs/closeouts/nexus_prebeta_rebaseline_through_v1.3.1-prebeta.md`
+- `Docs/closeouts/nexus_prebeta_rebaseline_through_v1.4.0-prebeta.md`
 - `Docs/prebeta_roadmap.md`
 - `Docs/feature_backlog.md`
 - `Docs/workstreams/index.md`
@@ -340,51 +355,51 @@ Later release execution must perform these steps in order:
 
 ## Validation Contract
 
-Branch Readiness validation must prove:
+Branch Readiness validation proved:
 
 - branch authority record exists and declares `release packaging`
 - branch authority record carries `Release Target:`, `Release Scope:`, and `Release Artifacts:`
 - branch remains based on updated `main`
-- FB-037 remains merged unreleased until release execution
-- planned target version does not imply release completion
+- FB-037 remained merged unreleased until release execution
+- planned target version did not imply release completion
 - FB-038 remains selected in canon only and no FB-038 branch exists
 - no product or runtime files changed
 - `python dev/orin_branch_governance_validation.py` passes
 - `git diff --check` passes
 
-Workstream planning validation must prove:
+Workstream planning validation proved:
 
 - branch authority record now owns `Workstream` for this release-packaging branch
 - branch authority record keeps explicit release-bearing markers for `Release Target:`, `Release Scope:`, and `Release Artifacts:`
-- FB-037 remains `Merged unreleased on main`
-- `Release Debt` remains active until release execution
-- planned target version does not imply release completion
+- FB-037 remained `Merged unreleased on main`
+- `Release Debt` remained active until release execution
+- planned target version did not imply release completion
 - FB-038 remains selected in canon only and no FB-038 branch exists
 - no product or runtime files changed
 
-Hardening validation must prove:
+Hardening validation proved:
 
 - branch authority record now owns `Hardening` for this release-packaging branch
 - release artifact set remains complete and internally consistent
-- draft rebaseline remains inactive until release execution
-- no `v1.4.0-prebeta` tag exists before release execution
-- FB-037 remains `Merged unreleased on main` with `Release Debt` active
+- draft rebaseline remained inactive until release execution
+- no `v1.4.0-prebeta` tag existed before release execution
+- FB-037 remained `Merged unreleased on main` with `Release Debt` active
 - FB-038 remains selected in canon only and no FB-038 branch exists
 - no product or runtime files changed
 
-Live Validation must prove:
+Live Validation proved:
 
 - branch authority record now owns `Live Validation` for this release-packaging branch
-- release-boundary evidence confirms `v1.4.0-prebeta` remains planned and unreleased
-- `Release Debt` remains active until release execution
-- draft rebaseline remains inactive until release execution
-- no `v1.4.0-prebeta` tag exists before release execution
-- no release was published
-- no released-state canon updates were applied
+- release-boundary evidence confirmed `v1.4.0-prebeta` remained planned and unreleased
+- `Release Debt` remained active until release execution
+- draft rebaseline remained inactive until release execution
+- no `v1.4.0-prebeta` tag existed before release execution
+- no release was published before release execution
+- no released-state canon updates were applied before release execution
 - FB-038 remains selected in canon only and no FB-038 branch exists
 - no product or runtime files changed
 
-Release execution validation must later prove:
+Release execution validation must prove:
 
 - release-state canon transitions are complete
 - release artifacts are present and internally consistent

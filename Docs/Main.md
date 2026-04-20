@@ -149,7 +149,7 @@ Use these for closeout policy, historical closeout lookup, and the modern Nexus-
 
 - `Docs/closeout_guidance.md`
 - `Docs/closeout_index.md`
-- `Docs/closeouts/nexus_prebeta_rebaseline_through_v1.3.1-prebeta.md`
+- `Docs/closeouts/nexus_prebeta_rebaseline_through_v1.4.0-prebeta.md`
 
 Historical closeout leaf docs are intentionally routed through `Docs/closeout_index.md`.
 

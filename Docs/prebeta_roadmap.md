@@ -61,33 +61,23 @@ Use these release-state values when relevant:
 
 Current merged truth indicates:
 
-- latest public prerelease: `v1.3.1-prebeta`
-- latest public release commit: `f743281`
-- merged unreleased non-doc implementation debt exists after this branch merges: FB-037 curated built-in system actions and Nexus settings expansion
-- the latest public released implementation milestone is FB-041 deterministic callable-group execution layer in `v1.3.1-prebeta`
-- current phase after this branch merges: `Release Readiness`
-- phase status after this branch merges: `No Active Branch`
-- blocker after this branch merges: `Release Debt` (FB-037)
-- next concern after this branch merges: release packaging for FB-037
+- latest public prerelease: `v1.4.0-prebeta`
+- latest public release commit: the `v1.4.0-prebeta` tag target
+- merged unreleased non-doc implementation debt exists: no
+- the latest public released implementation milestone is FB-037 curated built-in system actions and Nexus settings expansion in `v1.4.0-prebeta`
+- current release-packaging branch: `codex/fb-037-release-debt-packaging`
+- current release-packaging phase: `Release Readiness`
+- blocker after release execution: none for FB-037
+- next concern after this release branch is merged and updated `main` is revalidated: FB-038 Branch Readiness
 
-That means the released FB-027 interaction baseline, the released FB-036 authoring-and-callable-group milestone, and the released FB-041 deterministic callable-group execution milestone are now part of the current public shared pre-Beta baseline.
+That means the released FB-027 interaction baseline, the released FB-036 authoring-and-callable-group milestone, the released FB-041 deterministic callable-group execution milestone, and the released FB-037 built-in catalog milestone are now part of the current public shared pre-Beta baseline.
 
 ## Current Release Debt Owner
 
-### FB-037 Curated Built-In System Actions And Nexus Settings Expansion
+### None
 
-- status: `merged unreleased`
-- lane type: `implementation`
-- release floor: `minor prerelease`
-- target version: `v1.4.0-prebeta` (planned)
-- release state: `merged unreleased`
-- current phase after merge: `Release Readiness`
-- phase status after merge: `No Active Branch`
-- blocker after merge: `Release Debt` (FB-037)
-- next concern after merge: release packaging
-- release-packaging branch: `codex/fb-037-release-debt-packaging`
-- canonical workstream doc: `Docs/workstreams/FB-037_built_in_actions_and_settings_expansion.md`
-- sequencing note: Workstream same-risk built-in catalog seams remain complete; helper-only Hardening cleared the reusable-helper cleanup no-progress and missing-manifest gap; Live Validation then passed with manifest-backed evidence across built-in execution, saved-action override, authoring collision rejection, mixed environments, and repeated execution; successor-lane lock is waived because post-merge truth resolves to `No Active Branch` due to FB-037 release debt
+- no merged-unreleased implementation workstream currently owns Release Debt after FB-037 release execution
+- any future release debt must be introduced explicitly by a later merge or release-packaging branch
 
 ## Selected Next Workstream
 
@@ -96,11 +86,23 @@ That means the released FB-027 interaction baseline, the released FB-036 authori
 - selection state: `selected next workstream`
 - Record State: `Registry-only`
 - Branch: Not created
-- sequence: after FB-037 release packaging clears `Release Debt`
+- sequence: after the FB-037 release branch is merged and updated `main` is revalidated
 - Minimal Scope: Branch Readiness admission and planning for the shell-facing quick-task entry surface, initially limited to defining the smallest safe taskbar/tray or Create Custom Task UX seam above the released FB-027 interaction baseline, FB-036 authoring baseline, FB-041 callable-group execution baseline, and FB-037 built-in catalog baseline.
-- branch creation rule: defer branch creation to `Branch Readiness` after FB-037 release debt is cleared and updated `main` is revalidated
+- branch creation rule: defer branch creation to `Branch Readiness` after updated `main` includes the FB-037 release-state canon and is revalidated
 
 ## Most Recent Released Workstream Context
+
+### FB-037 Curated Built-In System Actions And Nexus Settings Expansion
+
+- status: `released`
+- lane type: `implementation`
+- release floor: `minor prerelease`
+- target version: `v1.4.0-prebeta`
+- release state: `released`
+- canonical workstream doc: `Docs/workstreams/FB-037_built_in_actions_and_settings_expansion.md`
+- sequencing note: released the curated built-in Windows utility catalog for Task Manager, Calculator, Notepad, and Paint while preserving saved-action override authority, authoring collision protection, confirm/result surfaces, and callable-group behavior
+
+## Prior Released Workstream Context
 
 ### FB-041 Deterministic Callable-Group Execution Layer
 
@@ -111,8 +113,6 @@ That means the released FB-027 interaction baseline, the released FB-036 authori
 - release state: `released`
 - canonical workstream doc: `Docs/workstreams/FB-041_deterministic_callable_group_execution_layer.md`
 - sequencing note: released deterministic stored-order callable-group execution, stop-on-failure semantics, group-aware failure-path reuse, and confirm/result status alignment while preserving single-action behavior
-
-## Prior Released Workstream Context
 
 ### FB-036 Saved-Action Authoring And Callable Groups
 
@@ -190,17 +190,18 @@ Current merged truth indicates:
 - the released FB-027 baseline remains part of the locked current interaction floor
 - the released FB-036 authoring-and-callable-group milestone is now part of the locked current pre-Beta baseline
 - the released FB-041 deterministic callable-group execution milestone is now part of the locked current pre-Beta baseline
+- the released FB-037 built-in catalog milestone is now part of the locked current pre-Beta baseline
 - the released FB-035 lane is closed
 - the recent released workstreams above remain part of the locked current baseline
-- merged unreleased non-doc implementation debt exists after this branch merges: FB-037
-- no active implementation workstream remains selected after this branch merges
-- post-merge repo truth resolves to `Release Readiness` with phase status `No Active Branch` and blocker `Release Debt` (FB-037)
-- successor-lane lock is waived for this PR Readiness pass because release debt blocks next implementation admission
+- merged unreleased non-doc implementation debt exists: no
+- no active implementation workstream is currently admitted
+- post-release repo truth after this release branch merges resolves to no active implementation branch and no FB-037 release-debt blocker
+- successor-lane branch creation remains deferred until FB-038 enters Branch Readiness from updated `main`
 - if a branch changes release-facing canon, those canon updates must land on that same branch before PR readiness is allowed
 - post-release canon repair is emergency-only when merged canon is already stale or external drift made pre-merge prevention impossible
 - the released FB-027 baseline does not authorize further saved-action authoring, resolution, voice, Action Studio, routines, profiles, hotkey cleanup, or shutdown-confirmation work by inertia
 - remaining future candidate spaces now explicitly recorded in the backlog include:
-  - FB-038 for taskbar or tray quick-task UX including Create Custom Task, selected as the next implementation workstream after FB-037 release packaging clears release debt
+  - FB-038 for taskbar or tray quick-task UX including Create Custom Task, selected as the next implementation workstream after updated `main` includes the FB-037 release-state canon
   - FB-039 for external trigger and plugin integration architecture
   - FB-040 for monitoring, thermals, and performance HUD surfaces
 - those candidate lanes must be selected deliberately rather than bundled together as one implicit interaction continuation
