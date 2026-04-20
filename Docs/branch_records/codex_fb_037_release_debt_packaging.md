@@ -14,7 +14,7 @@ This branch exists to prepare the public prerelease, release-state canon transit
 
 ## Current Phase
 
-- Phase: `PR Readiness`
+- Phase: `Release Readiness`
 
 ## Phase Status
 
@@ -24,7 +24,9 @@ This branch exists to prepare the public prerelease, release-state canon transit
 - this branch is based on that merge commit and carries release-packaging commits on top of it
 - FB-037 remains `Merged unreleased on main`
 - FB-038 remains selected in canon only and has no branch
-- Branch Readiness, Workstream Slice 1, release-artifact Hardening, and release-packaging Live Validation are complete; release-packaging PR Readiness is open for merge-target canon, drift, branch-authority, and PR gate checks
+- Branch Readiness, Workstream Slice 1, release-artifact Hardening, release-packaging Live Validation, and PR Readiness are complete
+- release-packaging PR Readiness closed after merge-target canon, release-boundary proof, successor branch deferral, Governance Drift Audit, and PR gate validation passed
+- Release Readiness is open for the release-execution authorization and execution pass; no tag, release, released-state canon update, `Release Debt` clearance, or FB-038 branch creation has occurred yet
 
 ## Branch Class
 
@@ -53,22 +55,21 @@ This branch exists to prepare the public prerelease, release-state canon transit
 
 ## Exit Criteria
 
-- branch truth is durable in commit history and the worktree is clean
-- merge-target canon remains complete and still represents FB-037 as `Merged unreleased on main` with `Release Debt` active until release execution
-- release-boundary proof remains green: no tag, publish step, released-state canon update, or `Release Debt` clearance has occurred
-- draft rebaseline remains inactive and does not contradict the active `v1.3.1-prebeta` baseline
-- Governance Drift Audit is completed for the release-packaging branch
-- branch authority record is made merge-safe as historical truth or removed before PR completion
+- release target, release scope, and release artifacts remain explicit and validated
+- release-boundary proof remains green before execution: no tag, publish step, released-state canon update, or `Release Debt` clearance has occurred
+- draft rebaseline remains inactive and does not contradict the active `v1.3.1-prebeta` baseline until release execution activates it
+- release-state transition checklist remains complete and ordered
+- release execution is run only by an explicit Release Readiness execution pass
 - FB-038 remains selected in canon only and unbranched until FB-037 release debt is cleared and updated `main` is revalidated
 - no product or runtime work is introduced
 
 ## Rollback Target
 
-- `Live Validation`
+- `PR Readiness`
 
 ## Next Legal Phase
 
-- `Release Readiness`
+- `Release Readiness` (same-phase release execution pass; `Release execution` is not a separate canonical phase)
 
 ## Target Release Version
 
@@ -192,6 +193,33 @@ Continuation rule:
 - FB-038 remains selected in canon only and no local or remote FB-038 branch exists
 - no product or runtime work was introduced
 - phase authority transitioned from `Live Validation` to `PR Readiness`
+
+## Governance Drift Audit
+
+- Governance Drift Found: No
+- Drift Type: None for this PR Readiness closeout; prior release-target governance drift was already corrected earlier on this branch
+- Why Current Canon Failed To Prevent It: Not applicable for this closeout pass; current canon now requires release-bearing branches to carry `Release Target:`, `Release Scope:`, and `Release Artifacts:` markers before Release Readiness can report green
+- Required Canon Changes: None
+- Whether The Drift Blocks Merge: No
+- Whether User Confirmation Is Required: No
+- Missing blocker check: no missing PR Readiness blocker remains; stale canon, post-merge state, dirty branch, docs sync, next-workstream selection, and release-target marker gates are all represented in current governance
+- Weak phase entry or exit rule check: no unresolved weakness remains; Release Readiness is reached only after PR Readiness validation and this Governance Drift Audit
+- Weak source-of-truth ownership rule check: branch authority record remains the phase owner for this release-packaging branch, while the FB-037 workstream doc remains the promoted workstream and release-debt owner
+- Stale prompt scaffolding or operator example check: no stale prompt-scaffold drift was found in this closeout pass
+- Missing validator requirement check: the normal governance validator and PR-readiness gate mode both pass before this phase transition
+
+## PR Readiness Closeout
+
+- PR Readiness complete:
+  - merge-target canon still represents FB-037 as `Merged unreleased on main` with `Release Debt` active until release execution
+  - release target, release scope, and release artifacts are explicit in this authority record
+  - draft rebaseline remains inactive and does not override the active `v1.3.1-prebeta` baseline
+  - no local or remote `v1.4.0-prebeta` tag exists
+  - GitHub release lookup for `v1.4.0-prebeta` returned `404`
+  - FB-038 remains selected in canon only and no FB-038 branch exists
+  - Governance Drift Audit completed with no blocking drift
+  - no product or runtime work was introduced
+- phase authority transitioned from `PR Readiness` to `Release Readiness`
 
 ## Slice 1 Draft Release Notes
 
