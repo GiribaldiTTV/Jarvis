@@ -42,7 +42,7 @@ This workstream exists so taskbar or tray access and Create Custom Task entry ar
 - Branch Readiness is complete and durably checkpointed in commit `766ff67`
 - Workstream seam chain and helper governance are complete and durably checkpointed in commit `ef05ab2`
 - Hardening execution pass completed on 2026-04-21; branch-wide validator and helper sweep is green
-- Live Validation is admitted for bounded real desktop validation; Live Validation execution has not started in the transition pass
+- Live Validation execution completed on 2026-04-21; bounded real desktop evidence is green and digested below
 - FB-037 is released and closed in `v1.4.0-prebeta`
 - FB-037 release publication exists at `https://github.com/GiribaldiTTV/Nexus-Desktop-AI/releases/tag/v1.4.0-prebeta`
 - no FB-037 release-debt blocker remains
@@ -87,7 +87,7 @@ This workstream exists so taskbar or tray access and Create Custom Task entry ar
 
 - `PR Readiness`
 
-Live Validation was admitted after validating Workstream closure, Hardening GREEN evidence, User Test Summary alignment, helper registry compliance, and clean branch truth. The next safe move is a separate Live Validation execution pass; do not perform Live Validation scenarios inside the phase-transition admission pass.
+Live Validation was admitted after validating Workstream closure, Hardening GREEN evidence, User Test Summary alignment, helper registry compliance, and clean branch truth. Live Validation execution is now green; the next safe move is a separate Live Validation closeout and PR Readiness transition pass.
 
 ## Bounded Objective
 
@@ -388,6 +388,47 @@ When a Workstream seam changes taskbar, tray, Create Custom Task, or other user-
 - Next safe move:
   separate Live Validation execution pass; do not treat Hardening helper evidence as a substitute for Live Validation closeout evidence.
 
+## Live Validation Progress
+
+- Live Validation execution completed on 2026-04-21 for the completed FB-038 tray/task UX seam chain.
+- Repo-side validator sweep passed:
+  - `dev/orin_branch_governance_validation.py` passed with `401` checks
+  - `dev/orin_desktop_entrypoint_validation.py` passed; report: `dev/logs/desktop_entrypoint_validation/reports/DesktopEntrypointValidationReport_20260421_061954.txt`
+  - `dev/orin_interaction_baseline_validation.py` passed
+  - `dev/orin_saved_action_authoring_ui_validation.py` passed
+  - `dev/orin_callable_group_execution_validation.py` passed
+  - `dev/orin_saved_action_source_validation.py` passed
+- Workstream-scoped helper sweep passed:
+  - `dev/orin_fb038_seam2_validation.ps1` passed, including PySide6 import, desktop entrypoint, interaction baseline, saved-action authoring UI, branch governance, and diff checks
+  - `dev/orin_fb038_seam2_live_validation.ps1` passed; evidence root: `dev/logs/fb_038_tray_create_live_validation/20260421_062005`
+  - `dev/orin_fb038_seam3_live_validation.ps1` passed; evidence root: `dev/logs/fb_038_tray_create_completion_live_validation/20260421_062028`
+- Seam 1 live result:
+  tray startup, tray icon visibility, tray activation, existing overlay open path, and hotkey preservation remain green through the repo-side validator sweep and the live helper baseline checks.
+- Seam 2 live result:
+  tray `Create Custom Task` exposed the tray affordance, opened the existing command overlay entry path, opened the existing Create Custom Task dialog, captured screenshots, canceled without submit, confirmed required route markers, confirmed absence of create markers, and preserved `saved_actions.json` hash/timestamp/length exactly.
+- Seam 3 live result:
+  tray-origin create completion persisted a temporary saved action through the existing FB-036 authoring path, confirmed catalog reload, confirmed exact-match created-task resolution, completed confirm/result execution, captured dialog/confirm/result screenshots, closed the launched Notepad process, stopped the runtime, and restored the saved-action source.
+- Runtime marker evidence:
+  - Seam 2 observed `TRAY_CREATE_CUSTOM_TASK_REQUESTED`, `COMMAND_OVERLAY_OPENED`, `TRAY_CREATE_CUSTOM_TASK_ROUTED_TO_OVERLAY_ENTRY`, `OVERLAY_ENTRY_ACTION_TRIGGERED|action=create_custom_task`, and `OVERLAY_ENTRY_DIALOG_CREATED|action=create_custom_task`
+  - Seam 2 confirmed absence of `CUSTOM_TASK_CREATE_ATTEMPT_STARTED` and `CUSTOM_TASK_CREATED` on cancel
+  - Seam 3 observed `TRAY_CREATE_CUSTOM_TASK_REQUESTED`, `COMMAND_OVERLAY_OPENED`, `TRAY_CREATE_CUSTOM_TASK_ROUTED_TO_OVERLAY_ENTRY`, `OVERLAY_ENTRY_ACTION_TRIGGERED|action=create_custom_task`, `OVERLAY_ENTRY_DIALOG_CREATED|action=create_custom_task`, `CUSTOM_TASK_CREATE_ATTEMPT_STARTED`, `COMMAND_ACTION_CATALOG_RELOAD_COMPLETED`, `CUSTOM_TASK_CREATED`, `COMMAND_CONFIRM_READY`, and `COMMAND_LAUNCH_REQUEST_SENT`
+- Persisted-state evidence:
+  - Seam 2 `saved_actions.json` hash before/after: `D4E9160717D00A09879E6F8E3B8C84D40F4B40F47AFABC12C7031A73CD1D80CF`
+  - Seam 2 `saved_actions.json` last-write timestamp and byte length were unchanged on cancel
+  - Seam 3 evidence includes `created_record.json`, `saved_actions_after_create.json`, and `saved_actions_restored.json`; the helper confirmed persisted state updated, then restored
+- Cleanup and lifecycle result:
+  helper cleanup closed the launched Notepad process, stopped the runtime, restored the saved-action source, and a follow-up process check found no remaining `python`, `pythonw`, `notepad`, or `Nexus Desktop AI` processes from the pass.
+- Baseline preservation result:
+  no regression observed for the released FB-027 interaction baseline, FB-036 authoring/source safety, FB-041 callable-group execution, or FB-037 built-in catalog and saved-action override behavior.
+- Helper-governance result:
+  FB-038 helper registry entries remain compliant as `Workstream-scoped`; the consolidation or promotion decision remains required before PR Readiness, but it is not a Live Validation blocker.
+- Scope-drift result:
+  no new implementation, schema change, target-kind change, resolution precedence change, built-in catalog change, callable-group change, taskbar pinning, jump-list, protocol, settings, installer, release, or PR work was introduced during Live Validation.
+- Live Validation decision:
+  GREEN.
+- Next safe move:
+  separate Live Validation closeout and PR Readiness transition durability pass; do not start PR Readiness inside this Live Validation execution pass.
+
 ## User Test Summary
 
 Seam 1 adds a user-visible tray entry into the existing command overlay path.
@@ -408,7 +449,8 @@ Current manual/live status:
 - Seam 3 repo-side and manual/live validation passed at `dev/logs/fb_038_tray_create_completion_live_validation/20260421_045536`
 - Seam 3 is fully green
 - Seam 4 Workstream evidence and User Test Summary finalization is complete
-- the approved Workstream seam chain is complete, Hardening is green, and the branch is admitted to Live Validation
+- Live Validation passed for the completed tray/task UX seam chain with evidence roots `dev/logs/fb_038_tray_create_live_validation/20260421_062005` and `dev/logs/fb_038_tray_create_completion_live_validation/20260421_062028`
+- the approved Workstream seam chain is complete, Hardening is green, and Live Validation execution is green
 - desktop export refreshed at `C:\Users\anden\OneDrive\Desktop\User Test Summary.txt`
 
 Completed user-facing behavior:
