@@ -152,7 +152,7 @@ If any of those fail:
 
 This gate controls next-lane implementation admission.
 It does not authorize a governance-only branch.
-Release-packaging branches still satisfy their own admission rules below.
+Release packaging branches still satisfy their own admission rules below.
 
 ### Blocker Catalog
 
@@ -346,6 +346,47 @@ Hard blockers:
 
 The PR-readiness validator gate must be run in its PR-specific mode before reporting `PR READY: YES`.
 If the normal governance validator passes but the PR-specific gate reports dirty worktree or unresolved PR blockers, the result is not PR-ready.
+
+### PR Readiness Response Contract
+
+When `PR Readiness` reports green or `PR READY: YES`, the response must include a repo-wide standardized `Next Branch` block and a markdown-friendly `PR Creation Details` package.
+This is a response contract, not permission to create the PR, merge the branch, release the branch, or create the next branch.
+
+The `Next Branch` block must distinguish the next legal branch from the selected next implementation branch.
+For example, if post-merge truth creates `Release Debt`, the next legal branch may be a release packaging branch while the selected next implementation branch remains deferred until after release handling and updated-`main` revalidation.
+
+Required `Next Branch` block:
+
+```markdown
+## Next Branch
+- Next Legal Branch Type:
+- Next Branch Name:
+- Branch Class:
+- Creation Status:
+- Creation Gate:
+- Selected Next Workstream:
+- Selected Next Implementation Branch:
+- May Create Now: YES / NO
+- Reason:
+```
+
+Required PR-green markdown package:
+
+```markdown
+## PR Creation Details
+### Title
+### Base / Head
+### Summary
+### Validation
+### Governance / Canon
+### Post-Merge Truth
+### Next Branch
+### Not Included
+```
+
+The PR package must be copy-ready markdown.
+It must summarize the actual PR title, base/head, implemented scope, validation evidence, governance/canon state, post-merge truth, next-branch handling, and explicit non-includes.
+If `May Create Now` is `NO`, the `Next Branch` subsection must explain the blocking gate rather than implying branch creation is allowed.
 
 ### User-Facing Shortcut Live Validation Gate
 
@@ -572,6 +613,7 @@ That validator should verify at minimum:
 - the canonical `bounded multi-seam workflow` contract is present in governance and operator scaffolds
 - prompt scaffolds teach `Seam Sequence`, per-seam validation, and continue-or-stop decisions for multi-seam Workstream execution
 - docs do not teach direct `Workstream` -> `PR Readiness` as the default path
+- PR Readiness prompt scaffolds require the standardized `## Next Branch` block and `## PR Creation Details` markdown package before reporting PR green
 
 A governance or current-state canon branch is not complete until that validator is green.
 
@@ -1068,6 +1110,7 @@ Required evidence:
 - post-merge truth fully encoded before merge
 - Governance Drift Audit completed
 - docs sync complete and validator-aligned
+- standardized `## Next Branch` response block and copy-ready `## PR Creation Details` markdown package prepared
 - clean worktree with required branch truth durable in commit history
 - approved non-backlog branches merge with historical or removed branch-authority truth rather than lingering as active branch owners on `main`
 - no active seam

@@ -182,6 +182,38 @@ When the approved phase is `PR Readiness`, the output must also explicitly inclu
   - repo state `No Active Branch`
   - the blocking admission item
   - confirmation that branch creation remains deferred and no next implementation branch may execute by inertia
+- a required `## Next Branch` section with this exact field shape:
+
+```markdown
+## Next Branch
+- Next Legal Branch Type:
+- Next Branch Name:
+- Branch Class:
+- Creation Status:
+- Creation Gate:
+- Selected Next Workstream:
+- Selected Next Implementation Branch:
+- May Create Now: YES / NO
+- Reason:
+```
+
+- when PR Readiness is green or `PR READY: YES`, a copy-ready markdown PR package with this exact section shape:
+
+```markdown
+## PR Creation Details
+### Title
+### Base / Head
+### Summary
+### Validation
+### Governance / Canon
+### Post-Merge Truth
+### Next Branch
+### Not Included
+```
+
+The `Next Branch` section must separate the next legal branch type/name from the selected next implementation workstream branch.
+If release debt, updated-`main` revalidation, or another admission gate blocks branch creation, `May Create Now: NO` is required with the reason.
+The `PR Creation Details` block is preparation material only; it must not imply PR creation, merge execution, release execution, or next-branch creation has occurred.
 
 When the approved phase is `Release Readiness`, the output must also explicitly include:
 

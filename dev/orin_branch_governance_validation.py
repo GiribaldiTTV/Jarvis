@@ -245,6 +245,34 @@ PR_READINESS_BLOCKER_PHRASES = (
     "Next Branch Created Too Early",
 )
 
+PR_READINESS_RESPONSE_CONTRACT_DOCS = (
+    Path("Docs/phase_governance.md"),
+    Path("Docs/codex_modes.md"),
+    Path("Docs/orin_task_template.md"),
+    Path("Docs/codex_user_guide.md"),
+)
+
+PR_READINESS_RESPONSE_CONTRACT_PHRASES = (
+    "## Next Branch",
+    "Next Legal Branch Type:",
+    "Next Branch Name:",
+    "Branch Class:",
+    "Creation Status:",
+    "Creation Gate:",
+    "Selected Next Workstream:",
+    "Selected Next Implementation Branch:",
+    "May Create Now: YES / NO",
+    "## PR Creation Details",
+    "### Title",
+    "### Base / Head",
+    "### Summary",
+    "### Validation",
+    "### Governance / Canon",
+    "### Post-Merge Truth",
+    "### Next Branch",
+    "### Not Included",
+)
+
 UTS_RESULTS_BLOCKER_DOCS = (
     Path("Docs/phase_governance.md"),
     Path("Docs/development_rules.md"),
@@ -970,6 +998,14 @@ def main() -> int:
             require(
                 required_phrase.casefold() in text,
                 f"{relative_path}: PR Readiness blocker guidance is missing '{required_phrase}'",
+            )
+
+    for relative_path in PR_READINESS_RESPONSE_CONTRACT_DOCS:
+        text = _read_text(relative_path)
+        for required_phrase in PR_READINESS_RESPONSE_CONTRACT_PHRASES:
+            require(
+                required_phrase in text,
+                f"{relative_path}: PR Readiness response contract is missing '{required_phrase}'",
             )
 
     for relative_path in UTS_RESULTS_BLOCKER_DOCS:

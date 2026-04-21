@@ -467,6 +467,44 @@ If that branch is created and a prior-branch canon miss is discovered, stay in `
 Do not ask Codex to keep planning from an old lane branch when live repo truth shows that branch is stale, merged, or identical to `main`.
 If repo truth is a steady-state `No Active Branch`, it is also valid for the truthful next move to be no branch at all until a new approved need exists.
 
+## PR Readiness Green Output
+
+When a `PR Readiness` pass is green or reports `PR READY: YES`, require a standardized `Next Branch` block and a copy-ready markdown `PR Creation Details` package.
+This keeps successor-branch handling and PR creation instructions from being reinvented or omitted.
+
+Required `Next Branch` block:
+
+```markdown
+## Next Branch
+- Next Legal Branch Type:
+- Next Branch Name:
+- Branch Class:
+- Creation Status:
+- Creation Gate:
+- Selected Next Workstream:
+- Selected Next Implementation Branch:
+- May Create Now: YES / NO
+- Reason:
+```
+
+Required `PR Creation Details` package:
+
+```markdown
+## PR Creation Details
+### Title
+### Base / Head
+### Summary
+### Validation
+### Governance / Canon
+### Post-Merge Truth
+### Next Branch
+### Not Included
+```
+
+The `Next Branch` block must state whether branch creation is legal now.
+When release debt or updated-`main` revalidation blocks the selected next implementation branch, use `May Create Now: NO` and record the gate.
+The PR package should be markdown-friendly and copy-ready, but it must not create the PR, merge the branch, run release work, or create the next branch by itself.
+
 ## When To Use A Longer Prompt
 
 Use a longer structured prompt when:
@@ -488,6 +526,7 @@ The key distinction is prompt length, not analysis depth.
 - use `Analyze for drift` before merge, release, or major canon carry-forward decisions
 - use evidence-digestion language when returned validation evidence should control the next move, rather than implying that phase advancement is automatic
 - in `PR Readiness`, require hard blocker checks before accepting `PR READY: YES`: `stale-canon`, `post-merge`, `next-workstream`, `dirty`, `docs-sync`, `desktop-shortcut`, `uts-results`, `PR Readiness Scope Missed`, `Between-Branch Canon Repair Attempt`, and `Next Branch Created Too Early`
+- in `PR Readiness`, require the standardized `## Next Branch` block and, when green, the copy-ready `## PR Creation Details` markdown package
 - route through `Docs/Main.md` whenever authority is unclear
 - treat local unmerged overlays as reference material until revalidated against updated `origin/main`
 
