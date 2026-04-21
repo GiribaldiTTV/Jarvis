@@ -60,7 +60,7 @@ Use this layered ownership model:
 - User Test Summary = validation-contract layer owned by workstreams
 - phase governance = repo-wide execution, exact phase enum, blockers, branch classes, proof, timeout, seam, stop-loss, validation-helper, Governance Drift Audit, phase resolver, and desktop UI audit contract
 - validation helper registry = repo-wide helper naming, helper ownership, reuse-first inventory, workstream-scoped exception markers, and consolidation contract
-- branch authority records = repo-owned phase owners for approved non-backlog `release packaging` branches and historical `docs/governance` or emergency repair records
+- branch authority records = repo-owned phase owners for approved non-backlog `release packaging` branches and historical `docs/governance` records
 - `Docs/Main.md` = routing authority aligned to merged truth
 
 Use `Docs/phase_governance.md` for:
@@ -183,7 +183,11 @@ If the admission gate fails:
 
 Release-packaging branches may still begin from `No Active Branch` only when their branch-class admission rules from `Docs/phase_governance.md` pass and their branch authority record is explicit.
 Governance-only branches are not used for new Nexus work.
-Emergency canon repair is a direct-main exception only when explicitly approved by the user.
+`main` is protected for Codex work: Codex may read it for truth validation but must not edit, stage, commit, generate, refresh, or directly repair files on it.
+There is no emergency direct-main repair path for Codex.
+If canon drift is discovered before merge, repair it on the owning branch before PR green.
+If canon drift is discovered after merge, repair it on the still-available prior branch when that branch remains the legal repair surface, or block the next active branch's `Branch Readiness` and repair there before implementation.
+Any tracked file mutation while Codex is on `main` is a `Main Write Attempt` blocker.
 
 Active-branch-first remains the normal rule for tightly coupled canon and governance work.
 When a governance or canon update is directly required to keep the active branch truthful, executable, phase-correct, readiness-correct, validation-correct, closeout-correct, or release-correct, carry that update on the active branch inside its current phase and branch class.
@@ -233,6 +237,11 @@ That means:
   - when release debt or another admission blocker applies, the branch must also record `No Active Branch` plus the blocking admission item explicitly in merged current-state canon
 - no PR-ready with unresolved post-merge planning:
   - if post-merge truth needs `No Active Branch` handling, release-debt handling, next-workstream planning, next-workstream canon sync, minimal scope, or branch-creation deferral, that handling must already be complete inside PR Readiness
+- no PR-ready with an incomplete merged-unreleased release-debt owner contract:
+  - if merge will create unreleased implementation release debt, PR Readiness must leave merge-target canon in the exact post-merge shape
+  - required machine-checkable fields are `Merged-Unreleased Release-Debt Owner:`, `Repo State: No Active Branch`, `Release Target:`, `Release Scope:`, `Release Artifacts:`, `Post-Release Truth:`, `Selected Next Workstream:`, and `Next-Branch Creation Gate:`
+  - active-branch truth must be removed from main-facing backlog, roadmap, and workstreams index canon before PR green
+  - Release Readiness consumes these inherited fields; it must not create or repair them in files
 - no PR-ready with a dirty branch:
   - the worktree must be clean before `PR READY: YES`
   - required docs changes must be committed
@@ -261,7 +270,7 @@ That means:
   - tracked file changes while the authority record says `Release Readiness` are blocked as `Release Readiness File Mutation Attempt`
   - release-bearing includes `release packaging` branches and any branch that creates, prepares, validates, tags, publishes, or transitions release-facing artifacts or release-state canon
   - the only non-release waiver is `Release Branch: No`
-  - `Release Branch: No` is limited to preserved historical records or explicitly authorized direct-main emergency contexts
+  - `Release Branch: No` is limited to preserved historical records
   - the non-release waiver is not available to `implementation` or `release packaging` branches
   - the waiver does not clear `Release Debt`, weaken post-merge truth rules, weaken validation, or permit premature successor branch creation
 - post-release canon repair is emergency-only:
@@ -269,7 +278,7 @@ That means:
 - governance-only branches are not used for new Nexus work:
   - governance and canon repair ride on the active branch when tied to that branch's truth
   - between-branch canon repair is blocked
-  - direct writes to `main` are blocked unless the user explicitly authorizes an emergency direct-main action
+  - direct writes to `main` are blocked as `Main Write Attempt`
   - Release Readiness must not absorb docs sync or canon cleanup that PR Readiness should have completed
   - Release Readiness must not mutate files to repair a discovered gap; use `PR Readiness` before merge or the next active branch's `Branch Readiness` after merge
 - do not use canon sync as an excuse for broad unrelated documentation churn

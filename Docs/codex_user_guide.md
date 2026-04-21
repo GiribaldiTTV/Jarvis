@@ -84,8 +84,9 @@ For Release Readiness, also include:
 - `Release Target: <version or identifier>` for release-bearing branches
 - `Release Scope: <bounded release scope>` for release-bearing branches
 - `Release Artifacts: <tag, notes, rebaseline, or other release artifacts>` for release-bearing branches
-- `Release Branch: No` only for preserved historical records or explicitly authorized direct-main emergency contexts
+- `Release Branch: No` only for preserved historical records
 - `No file changes` because Release Readiness is analysis-only for repository files
+- `Protected Main: main is read-only for Codex work` when the task reads post-merge truth from `main`
 
 ## What Codex Should Do Automatically
 
@@ -282,13 +283,14 @@ Use:
 
 - `docs-only pass: emergency repair for post-release canon drift on updated main`
 
-This is an emergency-only workflow.
+This is an emergency-only analysis workflow.
 Use it only when merged canon is already stale and that drift could not be prevented before merge or release.
 If a plausible next implementation workstream can be selected safely from current truth, do not treat this as the default path.
 If that docs pass changes validation or harness behavior assumptions, canon must be updated before further execution is recommended.
 
 This is not a planned `docs/governance` branch from `No Active Branch`.
-Use the emergency repair recipe only for escaped canon drift, and only as an explicitly authorized direct-main action when no active branch can legally carry the repair.
+Do not repair directly on `main`.
+Use this recipe to classify escaped canon drift, then repair it on the still-available prior branch when that remains the legal repair surface, or in the next active branch's `Branch Readiness` before implementation.
 
 ### Governance Repair On The Active Branch
 
@@ -367,10 +369,11 @@ Required add-on for non-release branches:
 
 - `Release Branch: No`
 
-Use `Release Branch: No` only for preserved historical records or explicitly authorized direct-main emergency contexts.
+Use `Release Branch: No` only for preserved historical records.
 Do not use `Release Branch: No` for `implementation` or `release packaging` branches.
 If a release-bearing branch lacks `Release Target:`, `Release Scope:`, or `Release Artifacts:`, Release Readiness is blocked by `Release Target Undefined`.
 If Release Readiness analysis discovers missing, stale, or ambiguous release truth that requires a file update, do not patch in Release Readiness. Return to `PR Readiness` before merge, or defer the repair to the next active branch's `Branch Readiness` after merge. Treat any file mutation while the authority record says `Release Readiness` as `Release Readiness File Mutation Attempt`.
+Release Readiness consumes inherited release truth only; it must not create `Release Target:`, `Release Scope:`, `Release Artifacts:`, merged-unreleased owner, or post-release truth in repository files.
 
 ### Run A Narrow Fix Pass
 
@@ -469,6 +472,9 @@ If that branch is created and a prior-branch canon miss is discovered, stay in `
 
 Do not ask Codex to keep planning from an old lane branch when live repo truth shows that branch is stale, merged, or identical to `main`.
 If repo truth is a steady-state `No Active Branch`, it is also valid for the truthful next move to be no branch at all until a new approved need exists.
+Do not ask Codex to work directly on `main`; `main` is protected and read-only for Codex work.
+There is no emergency direct-main repair path for Codex.
+Any tracked file mutation while Codex is on `main` is a `Main Write Attempt`.
 
 ## PR Readiness Green Output
 
@@ -532,6 +538,7 @@ The key distinction is prompt length, not analysis depth.
 - in `PR Readiness`, require the standardized `## Next Branch` block and, when green, the copy-ready `## PR Creation Details` markdown package
 - route through `Docs/Main.md` whenever authority is unclear
 - treat local unmerged overlays as reference material until revalidated against updated `origin/main`
+- treat `main` as protected/read-only for Codex work; any required repository file mutation must move to a legal branch surface
 
 ## What This Guide Does Not Do
 

@@ -363,10 +363,56 @@ RELEASE_READINESS_FILE_FREEZE_PHRASES = (
     "next active branch's `Branch Readiness`",
 )
 
+PROTECTED_MAIN_DOCS = (
+    Path("Docs/phase_governance.md"),
+    Path("Docs/development_rules.md"),
+    Path("Docs/Main.md"),
+    Path("Docs/codex_modes.md"),
+    Path("Docs/orin_task_template.md"),
+    Path("Docs/codex_user_guide.md"),
+    Path("Docs/closeout_guidance.md"),
+    Path("Docs/incident_patterns.md"),
+)
+
+PROTECTED_MAIN_PHRASES = (
+    "main` is protected",
+    "Main Write Attempt",
+    "no emergency direct-main",
+)
+
+MERGED_UNRELEASED_CONTRACT_DOCS = (
+    Path("Docs/phase_governance.md"),
+    Path("Docs/development_rules.md"),
+    Path("Docs/Main.md"),
+    Path("Docs/incident_patterns.md"),
+)
+
+MERGED_UNRELEASED_CONTRACT_PHRASES = (
+    "Merged-Unreleased Release-Debt Owner:",
+    "Repo State: No Active Branch",
+    "Release Target:",
+    "Release Scope:",
+    "Release Artifacts:",
+    "Post-Release Truth:",
+    "Selected Next Workstream:",
+    "Next-Branch Creation Gate:",
+)
+
 REQUIRED_RELEASE_BEARING_MARKERS = (
     "Release Target:",
     "Release Scope:",
     "Release Artifacts:",
+)
+
+REQUIRED_MERGED_UNRELEASED_MARKERS = (
+    "Merged-Unreleased Release-Debt Owner:",
+    "Repo State: No Active Branch",
+    "Release Target:",
+    "Release Scope:",
+    "Release Artifacts:",
+    "Post-Release Truth:",
+    "Selected Next Workstream:",
+    "Next-Branch Creation Gate:",
 )
 
 NON_RELEASE_BRANCH_MARKER = "Release Branch: No"
@@ -572,9 +618,12 @@ def _phase_index(phase_name: str) -> int:
     return PHASES.index(phase_name)
 
 
-def _git_status_porcelain() -> str:
+def _git_status_porcelain(*, tracked_only: bool = False) -> str:
+    command = ["git", "status", "--porcelain"]
+    if tracked_only:
+        command.append("--untracked-files=no")
     completed = subprocess.run(
-        ("git", "status", "--porcelain"),
+        command,
         cwd=ROOT_DIR,
         text=True,
         stdout=subprocess.PIPE,
@@ -1065,6 +1114,29 @@ def main() -> int:
                 f"{relative_path}: Release Readiness file-freeze guidance is missing '{required_phrase}'",
             )
 
+    for relative_path in PROTECTED_MAIN_DOCS:
+        text = _read_text(relative_path).casefold()
+        for required_phrase in PROTECTED_MAIN_PHRASES:
+            require(
+                required_phrase.casefold() in text,
+                f"{relative_path}: protected-main governance is missing '{required_phrase}'",
+            )
+
+    for relative_path in MERGED_UNRELEASED_CONTRACT_DOCS:
+        text = _read_text(relative_path)
+        for required_phrase in MERGED_UNRELEASED_CONTRACT_PHRASES:
+            require(
+                required_phrase in text,
+                f"{relative_path}: merged-unreleased release-debt contract is missing '{required_phrase}'",
+            )
+
+    if _git_current_branch() == "main":
+        status_output = _git_status_porcelain(tracked_only=True)
+        require(
+            not status_output,
+            "Main Write Attempt blocker is active; Codex must not leave tracked file mutations on protected main",
+        )
+
     active_index_paths = _collect_active_index_paths(index_text)
     closed_index_paths = _collect_closed_index_paths(index_text)
     release_debt_index_paths = _collect_release_debt_index_paths(index_text)
@@ -1400,7 +1472,7 @@ def main() -> int:
             )
 
         if current_phase == "Release Readiness":
-            status_output = _git_status_porcelain()
+            status_output = _git_status_porcelain(tracked_only=True)
             require(
                 not status_output,
                 (
@@ -1447,6 +1519,38 @@ def main() -> int:
 
         normalized_workstream_status = _normalize_status(str(workstream_info["status"]))
         if normalized_workstream_status == "merged unreleased":
+            for required_marker in REQUIRED_MERGED_UNRELEASED_MARKERS:
+                require(
+                    required_marker in workstream_text,
+                    f"{canonical_path}: merged-unreleased release-debt owner is missing '{required_marker}'",
+                )
+            require(
+                "merged unreleased non-doc implementation debt exists: yes" in roadmap_text,
+                (
+                    "Docs/prebeta_roadmap.md: merged-unreleased workstream exists but "
+                    "release posture does not declare implementation release debt"
+                ),
+            )
+            require(
+                "current active workstream: none" in roadmap_text,
+                (
+                    "Docs/prebeta_roadmap.md: merged-unreleased release-debt state "
+                    "must clear active workstream truth"
+                ),
+            )
+            require(
+                "Merged-Unreleased Release-Debt Owner:" in backlog_text,
+                "Docs/feature_backlog.md: merged-unreleased release-debt owner contract is missing",
+            )
+            for required_marker in REQUIRED_MERGED_UNRELEASED_MARKERS:
+                require(
+                    required_marker in roadmap_text,
+                    f"Docs/prebeta_roadmap.md: merged-unreleased release-debt state is missing '{required_marker}'",
+                )
+                require(
+                    required_marker in backlog_text,
+                    f"Docs/feature_backlog.md: merged-unreleased release-debt state is missing '{required_marker}'",
+                )
             require(
                 canonical_path in release_debt_index_paths,
                 (
@@ -1548,11 +1652,10 @@ def main() -> int:
             )
         if has_non_release_marker:
             require(
-                branch_record_path in historical_branch_record_paths
-                or "direct-main emergency" in record_text.casefold(),
+                branch_record_path in historical_branch_record_paths,
                 (
                     f"{branch_record_path}: '{NON_RELEASE_BRANCH_MARKER}' is only allowed for "
-                    "preserved historical records or explicitly authorized direct-main emergency contexts"
+                    "preserved historical records"
                 ),
             )
         require(
@@ -1564,7 +1667,7 @@ def main() -> int:
             f"{branch_record_path}: Next Legal Phase '{info['next_legal_phase']}' is not in the canonical phase enum",
         )
         if branch_record_path in active_branch_record_paths and str(info["current_phase"]) == "Release Readiness":
-            status_output = _git_status_porcelain()
+            status_output = _git_status_porcelain(tracked_only=True)
             require(
                 not status_output,
                 (

@@ -76,7 +76,9 @@ When those facts change, the owning branch must carry the release-state canon be
 Release Readiness is not a broad docs-sync phase.
 If a required canon update escapes PR Readiness and the owning branch has already merged, the miss becomes a blocker in the next active branch's `Branch Readiness`; repair it there before implementation begins.
 Do not open a governance-only branch or between-branch canon repair lane for routine closeout cleanup.
-Direct-main emergency repair requires explicit user approval.
+Do not repair directly on `main`; `main` is protected and read-only for Codex work.
+There is no emergency direct-main repair path for Codex.
+Any tracked file mutation while Codex is on `main` is a `Main Write Attempt`.
 
 ## Current Policy
 
@@ -86,4 +88,4 @@ Direct-main emergency repair requires explicit user approval.
 - use `Docs/validation_helper_registry.md` for helper naming, helper status, and consolidation truth when closeout or release notes mention validation helpers
 - do not let this guidance doc become a live current-state owner
 - create new closeouts or rebaselines only when they materially improve future planning clarity
-- keep emergency post-release canon repair as an explicitly approved direct-main exception, not as a planned governance-only branch
+- keep escaped post-release canon drift as a protected-main blocker that must be repaired on a legal branch surface, not as a planned governance-only branch or direct-main write
