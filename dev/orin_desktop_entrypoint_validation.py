@@ -27,7 +27,10 @@ EXPECTED_MILESTONES = [
     "RENDERER_MAIN|TRAY_ENTRY_INITIALIZE_REQUESTED",
     "RENDERER_MAIN|TRAY_ENTRY_READY",
     "RENDERER_MAIN|HOTKEYS_STARTED",
+    "RENDERER_MAIN|WINDOW_SHOW_DEFERRED_UNTIL_CORE_READY",
+    "RENDERER_MAIN|CORE_VISUALIZATION_READY",
     "RENDERER_MAIN|WINDOW_SHOW_REQUESTED",
+    "RENDERER_MAIN|CORE_VISUALIZATION_FIRST_VISIBLE",
     "RENDERER_MAIN|STARTUP_READY",
 ]
 
@@ -71,6 +74,13 @@ def read_lines(path):
 
 def line_status(ok, detail):
     return {"ok": bool(ok), "detail": detail}
+
+
+def first_marker_index(lines, marker):
+    for index, line in enumerate(lines):
+        if marker in line:
+            return index
+    return -1
 
 
 def detect_branch_state():
@@ -427,6 +437,44 @@ def run_validation():
             any(milestone in line for line in runtime_lines),
             milestone,
         )
+
+    deferred_index = first_marker_index(
+        runtime_lines,
+        "RENDERER_MAIN|WINDOW_SHOW_DEFERRED_UNTIL_CORE_READY",
+    )
+    core_ready_index = first_marker_index(
+        runtime_lines,
+        "RENDERER_MAIN|CORE_VISUALIZATION_READY",
+    )
+    show_index = first_marker_index(
+        runtime_lines,
+        "RENDERER_MAIN|WINDOW_SHOW_REQUESTED",
+    )
+    first_visible_index = first_marker_index(
+        runtime_lines,
+        "RENDERER_MAIN|CORE_VISUALIZATION_FIRST_VISIBLE",
+    )
+    startup_ready_index = first_marker_index(
+        runtime_lines,
+        "RENDERER_MAIN|STARTUP_READY",
+    )
+    ordering_detail = (
+        f"deferred={deferred_index}, core_ready={core_ready_index}, "
+        f"show={show_index}, first_visible={first_visible_index}, "
+        f"startup_ready={startup_ready_index}"
+    )
+    checks["window_show_deferred_before_core_ready"] = line_status(
+        deferred_index >= 0 and core_ready_index > deferred_index,
+        ordering_detail,
+    )
+    checks["window_show_after_core_visualization_ready"] = line_status(
+        show_index > core_ready_index >= 0,
+        ordering_detail,
+    )
+    checks["core_visualization_visible_before_startup_ready"] = line_status(
+        startup_ready_index > first_visible_index > show_index,
+        ordering_detail,
+    )
 
     checks["startup_ready_reached_before_termination"] = line_status(
         ready_seen,

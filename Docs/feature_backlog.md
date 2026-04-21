@@ -32,14 +32,14 @@ Historical note:
 
 ### [ID: FB-038] Taskbar / tray quick-task UX and Create Custom Task surface
 
-Status: Live Validation
-Blocker: User Test Summary Results Pending
+Status: PR Readiness
+Blocker: None
 Record State: Promoted
 Priority: Medium
 Release Stage: pre-Beta
 Target Version: TBD
 Canonical Workstream Doc: Docs/workstreams/FB-038_taskbar_tray_quick_task_ux.md
-Minimal Scope: Post-Hardening Live Validation for the completed shell-facing tray quick-task entry surface after H1/H2 tray identity and shortcut-readback fixes; automated validators and live helper evidence are green, the desktop shortcut gate passes with the tray discoverable as `Nexus Desktop AI` in the visible tray or hidden icons overflow, and final phase advancement remains blocked by `User Test Summary Results Pending` until the fresh handoff is returned and digested.
+Minimal Scope: PR Readiness admission for the completed tray quick-task UX after fresh post-H4 Live Validation; desktop shortcut launch proves Core Visualization is the first visible Nexus UI, tray identity/discoverability remains clear, tray Create Custom Task dialog-open/no-write and create-completion flows remain green, and UTS returned-results handling is resolved by documented waiver.
 Summary: Track future taskbar or tray quick-access UX, including a Create Custom Task affordance, as a deliberate shell-facing entry surface into the shared action model.
 Why it matters: Taskbar and tray interaction affect entry, discoverability, and user trust, so they should be planned as an explicit UX lane instead of piggybacking on overlay or authoring work.
 

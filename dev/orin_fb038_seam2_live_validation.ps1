@@ -351,6 +351,29 @@ function Click-ElementCenter {
     Start-Sleep -Milliseconds 500
 }
 
+function RightClick-ElementCenter {
+    param(
+        [object]$Paths,
+        [object]$Element
+    )
+
+    $rect = $Element.Current.BoundingRectangle
+    if ($rect.IsEmpty) {
+        throw "Cannot right-click element with empty bounding rectangle: $($Element.Current.Name)"
+    }
+
+    $x = [int]($rect.X + ($rect.Width / 2))
+    $y = [int]($rect.Y + ($rect.Height / 2))
+    Write-Step $Paths "right-click element '$($Element.Current.Name)' at $x,$y"
+
+    [NativeInputFb038Seam2LiveValidation]::SetCursorPos($x, $y) | Out-Null
+    Start-Sleep -Milliseconds 120
+    [NativeInputFb038Seam2LiveValidation]::mouse_event(0x0008, 0, 0, 0, [UIntPtr]::Zero)
+    Start-Sleep -Milliseconds 100
+    [NativeInputFb038Seam2LiveValidation]::mouse_event(0x0010, 0, 0, 0, [UIntPtr]::Zero)
+    Start-Sleep -Milliseconds 500
+}
+
 function Invoke-ElementIfSupported {
     param([object]$Element)
 
@@ -404,9 +427,16 @@ function Invoke-TrayMenuActionAndWait {
 
     for ($attempt = 1; $attempt -le 2; $attempt++) {
         Open-HiddenTrayOnNexus -Paths $Paths
+        $focusedTrayElement = [System.Windows.Automation.AutomationElement]::FocusedElement
         Send-ShiftF10
 
-        $menuItem = Find-VisibleElementByName -Name $ActionName -ControlTypeName "ControlType.MenuItem" -TimeoutSeconds 8
+        $menuItem = Find-VisibleElementByName -Name $ActionName -ControlTypeName "ControlType.MenuItem" -TimeoutSeconds 4
+        if (-not $menuItem -and $focusedTrayElement -and $focusedTrayElement.Current.Name -eq "Nexus Desktop AI") {
+            Write-Step $Paths "keyboard context menu did not expose '$ActionName'; retrying via focused tray icon right-click"
+            RightClick-ElementCenter -Paths $Paths -Element $focusedTrayElement
+            $menuItem = Find-VisibleElementByName -Name $ActionName -ControlTypeName "ControlType.MenuItem" -TimeoutSeconds 8
+        }
+
         if (-not $menuItem) {
             Fail-Validation -Paths $Paths -Message "Visible tray menu action '$ActionName' not found"
         }
@@ -462,6 +492,11 @@ function Cancel-CreateCustomTaskDialog {
     }
 
     Write-Step $Paths "found visible Create Custom Task Cancel button"
+    if (Invoke-ElementIfSupported -Element $cancel) {
+        Write-Step $Paths "invoked Create Custom Task Cancel button through UIAutomation InvokePattern"
+        return
+    }
+
     Click-ElementCenter -Paths $Paths -Element $cancel
 }
 

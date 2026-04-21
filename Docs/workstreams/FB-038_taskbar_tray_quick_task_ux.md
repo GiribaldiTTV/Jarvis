@@ -11,7 +11,7 @@
 
 ## Status
 
-- `Live Validation`
+- `PR Readiness`
 
 ## Release Stage
 
@@ -33,7 +33,7 @@ This workstream exists so taskbar or tray access and Create Custom Task entry ar
 
 ## Current Phase
 
-- Phase: `Live Validation`
+- Phase: `PR Readiness`
 
 ## Phase Status
 
@@ -43,9 +43,15 @@ This workstream exists so taskbar or tray access and Create Custom Task entry ar
 - Workstream seam chain and helper governance are complete and durably checkpointed in commit `ef05ab2`
 - Hardening execution pass completed on 2026-04-21; branch-wide validator and helper sweep is green
 - Live Validation execution completed on 2026-04-21; automated validators, live helper evidence, and the user-facing desktop shortcut gate were green, but returned User Test Summary evidence reported the desktop VBS launch did not show an obvious tray shortcut to the user
-- Hardening re-entry H1 `Tray Identity And Discoverability Refinement` and H2 `Shortcut-Launch Tray Readback Validation` are green; fresh post-Hardening Live Validation evidence and User Test Summary handoff are complete, with returned User Test Summary results still pending
+- Hardening re-entry H1 `Tray Identity And Discoverability Refinement` and H2 `Shortcut-Launch Tray Readback Validation` are green
+- returned User Test Summary results after fresh post-Hardening Live Validation reported that desktop shortcut launch briefly shows a black placeholder window before Core Visualization
+- H3 `Window Initialization Sequencing Fix` and H4 `Post-fix startup visibility validation` are green in Hardening
+- fresh post-H4 Live Validation technical evidence refreshed on 2026-04-21 and produced a new User Test Summary handoff
 - User-Facing Shortcut Path: `C:\Users\anden\OneDrive\Desktop\Nexus Desktop Launcher.lnk`
 - User-Facing Shortcut Validation: PASS
+- User Test Summary Results: WAIVED
+- UTS waiver source: operator-confirmed waiver artifact on 2026-04-21
+- final Live Validation advancement blocker is cleared; PR Readiness is admitted but not executed in this pass
 - FB-037 is released and closed in `v1.4.0-prebeta`
 - FB-037 release publication exists at `https://github.com/GiribaldiTTV/Nexus-Desktop-AI/releases/tag/v1.4.0-prebeta`
 - no FB-037 release-debt blocker remains
@@ -57,7 +63,7 @@ This workstream exists so taskbar or tray access and Create Custom Task entry ar
 
 ## Blockers
 
-- `User Test Summary Results Pending`
+- None
 
 ## Entry Basis
 
@@ -72,29 +78,47 @@ This workstream exists so taskbar or tray access and Create Custom Task entry ar
 - FB-038 was selected in canon before this admission and is now promoted
 - Branch Readiness exit criteria are satisfied
 - Workstream exit criteria are satisfied: all approved seams are complete and green, the workstream-owned User Test Summary is current, evidence references exist, and no same-slice correctness gap remains
-- Hardening exit criteria are satisfied: branch-local validator and helper sweep is green, no regression or scope drift remains, helper-governance obligations are represented, and no Hardening blocker remains
+- prior Hardening exit criteria were satisfied before the returned User Test Summary exposed a new window-initialization sequencing failure
+- H3/H4 Hardening re-entry is green after the returned User Test Summary failure that reported a black placeholder window before Core Visualization on desktop shortcut launch
+- fresh post-H4 Live Validation technical/live evidence is green
+- User Test Summary result digestion is complete by documented waiver; `User Test Summary Results Pending` is cleared
 
 ## Exit Criteria
 
 - H1 tray identity and discoverability refinement is implemented without new tray actions, new entrypoints, taskbar pinning, jump lists, protocol handling, or changes to Create Custom Task behavior
 - tray tooltip/title, tray menu identity, and any startup discovery cue clearly identify `Nexus Desktop AI` and document that Windows may place the icon in hidden tray overflow
 - H2 shortcut-launch tray readback validates the user-facing desktop shortcut path after the H1 repair
+- H3 window initialization sequencing defers the first visible main window until Core Visualization is ready and releases visibility only after the webview is revealed
+- H4 post-fix validation proves desktop shortcut launch no longer shows an empty or uninitialized window before Core Visualization
 - required runtime marker, persisted-state, screenshot or equivalent UI evidence, and cleanup evidence are captured and referenced for the repair validation
 - no runtime contradiction appears against repo-side validation or prior Hardening proof
 - no regression appears in released FB-027 interaction behavior, FB-036 authoring/source safety, FB-041 callable-group behavior, FB-037 built-in catalog and saved-action override behavior, tray overlay behavior, or tray-origin Create Custom Task behavior
-- post-Hardening Live Validation evidence is captured and the fresh User Test Summary handoff is exported; PR Readiness remains blocked until returned User Test Summary results pass or are explicitly waived and digested
+- H4 post-fix evidence is captured; fresh post-H4 Live Validation technical evidence and a new User Test Summary handoff are captured; returned User Test Summary handling is resolved by documented waiver before PR Readiness admission
 
 ## Rollback Target
 
-- `Hardening` re-entry after failed User Test Summary tray visibility result
+- `Live Validation`
 
 ## Next Legal Phase
 
-- `Live Validation`
+- `Release Readiness`
 
-Live Validation was admitted after validating Workstream closure, Hardening GREEN evidence, User Test Summary alignment, helper registry compliance, and clean branch truth. Automated validators, live helper evidence, and the user-facing desktop shortcut gate are green, but returned User Test Summary evidence reports a user-visible tray discoverability failure from the desktop VBS shortcut. The next legal movement is back to Hardening for a bounded tray-visibility/discoverability repair or a clearly documented OS-overflow expectation correction; PR Readiness remains blocked.
+Live Validation was previously admitted after validating Workstream closure, Hardening GREEN evidence, User Test Summary alignment, helper registry compliance, and clean branch truth. Returned User Test Summary evidence first routed to bounded tray discoverability Hardening and then to bounded window initialization Hardening.
 
-Fresh post-Hardening Live Validation is complete and the updated User Test Summary handoff is exported. Automated validators and live helper evidence are green, but final phase advancement is blocked by `User Test Summary Results Pending` until the filled User Test Summary is submitted or waived, digested into this authority record, and blockers are reevaluated.
+Fresh post-Hardening Live Validation produced a returned User Test Summary failure: desktop shortcut launch briefly showed a black placeholder window before Core Visualization. H3/H4 Hardening re-entry is now green. Fresh post-H4 Live Validation technical/live evidence is green and a new User Test Summary handoff was exported. The UTS result was resolved by operator-confirmed waiver artifact on 2026-04-21, so `User Test Summary Results Pending` is cleared and PR Readiness is admitted. PR Readiness execution has not started in this pass.
+
+## Governance Drift Audit
+
+- Governance Drift Found: Not yet evaluated in the PR Readiness phase.
+- Admission note:
+  this section is present only to keep the newly admitted `PR Readiness` authority record structurally valid; the required PR Readiness Governance Drift Audit still must run before PR green.
+
+## Post-Merge State
+
+- successor handling:
+  not yet evaluated in the PR Readiness phase.
+- Admission note:
+  PR Readiness must decide and encode the post-merge successor or `No Active Branch` truth before PR green; this digestion pass does not execute that review.
 
 ## Bounded Objective
 
@@ -552,14 +576,105 @@ When a Workstream seam changes taskbar, tray, Create Custom Task, or other user-
 - Automated validators and live helper evidence:
   GREEN.
 - User-Facing Shortcut Path: `C:\Users\anden\OneDrive\Desktop\Nexus Desktop Launcher.lnk`
-- User-Facing Shortcut Validation: PASS.
-- User Test Summary Results: PENDING.
-- Final phase advancement is BLOCKED until the filled User Test Summary is submitted and digested.
+- User-Facing Shortcut Validation: PASS for the technical shortcut gate.
+- Returned User Test Summary Results: FAIL because the user saw a black placeholder window before Core Visualization.
+- Routing decision:
+  Live Validation could not close and was routed to H3/H4 bounded Hardening re-entry.
 - Desktop User Test Summary handoff was refreshed at `C:\Users\anden\OneDrive\Desktop\User Test Summary.txt` for the user to complete.
-- Remaining blocker:
-  `User Test Summary Results Pending`
-- Next safe move:
-  result digestion only after the filled User Test Summary is returned or a waiver is explicitly documented; do not start PR Readiness yet.
+- H3/H4 repair status:
+  GREEN as of `dev/logs/fb_038_startup_visibility_hardening/20260421_093605`; this historical Live Validation failure is no longer the active blocker.
+- Next safe move after H3/H4:
+  fresh Live Validation and a new User Test Summary handoff before any PR Readiness movement.
+
+## H3 Window Initialization Re-Entry Progress
+
+- H3 active:
+  `Window Initialization Sequencing Fix`
+- returned User Test Summary failure:
+  desktop shortcut launch briefly shows a black placeholder window before Core Visualization appears
+- root cause:
+  the runtime requested the main window show before the renderer page had reached `VISUAL_PAGE_READY`, while the webview was intentionally hidden until desktop-mode attach; Windows could therefore paint the host window as an empty black placeholder
+- H3 fix:
+  defer first `window.show()` until `RENDERER_MAIN|CORE_VISUALIZATION_READY`, keep the host window transparent during the startup attach sequence, and release opacity only after the webview is revealed as the first visible frame
+- H3 runtime markers:
+  - `RENDERER_MAIN|WINDOW_SHOW_DEFERRED_UNTIL_CORE_READY`
+  - `RENDERER_MAIN|CORE_VISUALIZATION_READY`
+  - `RENDERER_MAIN|WINDOW_SHOW_REQUESTED|reason=core_visualization_ready`
+  - `RENDERER_MAIN|CORE_VISUALIZATION_FIRST_VISIBLE`
+- H3 repo-side validation:
+  `dev/orin_desktop_entrypoint_validation.py` passed; report: `dev/logs/desktop_entrypoint_validation/reports/DesktopEntrypointValidationReport_20260421_090321.txt`
+- H3 decision:
+  repo-side sequencing proof is green and H4 post-fix desktop shortcut validation has now verified the user-facing launch path
+
+## H4 Post-Fix Startup Visibility Validation
+
+- H4 active seam:
+  `Post-fix startup visibility validation`
+- evidence root:
+  `dev/logs/fb_038_startup_visibility_hardening/20260421_093605`
+- desktop shortcut path:
+  `C:\Users\anden\OneDrive\Desktop\Nexus Desktop Launcher.lnk`
+- runtime log:
+  `logs/Runtime_20260421_093607_D52E.txt`
+- startup marker ordering:
+  `RENDERER_MAIN|CORE_VISUALIZATION_READY` -> `RENDERER_MAIN|WINDOW_SHOW_REQUESTED|reason=core_visualization_ready` -> `RENDERER_MAIN|CORE_VISUALIZATION_FIRST_VISIBLE` -> `RENDERER_MAIN|STARTUP_READY`
+- screenshot / UI evidence:
+  startup frame contact sheet and ready-frame screenshot captured under the evidence root; no empty or black placeholder window was observed before the Core Visualization ready-frame
+- tray discoverability regression evidence:
+  UIAutomation found the `Nexus Desktop AI` tray button, observed the tray menu identity header, and confirmed existing `Open Command Overlay` and `Create Custom Task` menu actions remained present
+- behavior regression evidence:
+  tray `Open Command Overlay`, tray-origin `Create Custom Task` open/cancel/no-write, and the overlay hotkey path all passed from the shortcut-launched runtime
+- persisted-state evidence:
+  `saved_actions.json` hash, length, and timestamp were unchanged after tray-origin Create Custom Task open/cancel
+- cleanup evidence:
+  the validation stopped the two launched `pythonw.exe` processes and confirmed `leftover_new_processes=0`
+- H4 decision:
+  GREEN for post-fix startup visibility and shortcut-launched tray/task behavior regression validation
+
+## Fresh Post-H4 Live Validation Progress
+
+- Fresh post-H4 Live Validation refreshed on 2026-04-21 for the completed FB-038 tray/task UX seam chain.
+- evidence root: `dev/logs/fb_038_live_validation_post_h4/20260421_103616`
+- desktop shortcut gate evidence:
+  - root: `dev/logs/fb_038_live_validation_post_h4/20260421_103616/desktop_shortcut_gate`
+  - shortcut path: `C:\Users\anden\OneDrive\Desktop\Nexus Desktop Launcher.lnk`
+  - runtime log: `logs/Runtime_20260421_104732_5775.txt`
+  - startup marker order: `CORE_VISUALIZATION_READY` -> `WINDOW_SHOW_REQUESTED` -> `CORE_VISUALIZATION_FIRST_VISIBLE` -> `STARTUP_READY`
+  - startup contact sheet and ready-frame screenshot captured; no empty or black placeholder was observed before Core Visualization
+  - UIAutomation found `Nexus Desktop AI` in the Windows notification area / hidden icons overflow path
+  - context-menu readback observed the disabled `Nexus Desktop AI` identity header plus the existing `Open Command Overlay` and `Create Custom Task` actions
+  - tray `Open Command Overlay`, tray-origin `Create Custom Task` open/cancel/no-write, and hotkey overlay checks passed
+  - cleanup stopped validation-launched processes and verified `LEFTOVER_VALIDATION_PROCESSES: 0`
+- Seam 2 post-H4 live evidence:
+  - root: `dev/logs/fb_038_live_validation_post_h4/20260421_103616/seam2_dialog_open_no_write`
+  - confirmed required tray-origin marker chain through the existing overlay entry path
+  - confirmed Cancel uses the existing dialog close path and leaves `saved_actions.json` hash/timestamp/length unchanged
+  - confirmed absence of `CUSTOM_TASK_CREATE_ATTEMPT_STARTED` and `CUSTOM_TASK_CREATED` during open/cancel validation
+  - confirmed existing tray `Open Command Overlay` and hotkey overlay paths still pass
+- Seam 3 post-H4 live evidence:
+  - root: `dev/logs/fb_038_live_validation_post_h4/20260421_103616/seam3_create_completion`
+  - created temporary task id: `fb038_seam3_live_notepad_20260421104449`
+  - confirmed persisted-state update, catalog reload, created-task exact-match resolution, confirm/result flow, launched Notepad cleanup, and saved-action source restore
+- Repo-side validator sweep passed:
+  - `dev/orin_branch_governance_validation.py` passed with `471` checks
+  - `dev/orin_desktop_entrypoint_validation.py` passed; report: `dev/logs/desktop_entrypoint_validation/reports/DesktopEntrypointValidationReport_20260421_103635.txt`
+  - `dev/orin_interaction_baseline_validation.py` passed
+  - `dev/orin_saved_action_authoring_ui_validation.py` passed
+  - `dev/orin_callable_group_execution_validation.py` passed
+  - `dev/orin_saved_action_source_validation.py` passed
+  - `dev/orin_fb038_seam2_validation.ps1` passed
+  - `dev/orin_fb038_seam2_live_validation.ps1` passed after hardening the existing registered helper's UIAutomation control activation and tray-menu fallback
+  - `dev/orin_fb038_seam3_live_validation.ps1` passed
+- Automated validators and live helper evidence:
+  GREEN.
+- User-Facing Shortcut Path: `C:\Users\anden\OneDrive\Desktop\Nexus Desktop Launcher.lnk`
+- User-Facing Shortcut Validation: PASS.
+- User Test Summary Results: WAIVED.
+- UTS waiver source:
+  operator-confirmed waiver artifact on 2026-04-21.
+- Final Live Validation advancement blocker:
+  CLEARED.
+- Desktop User Test Summary handoff was refreshed at `C:\Users\anden\OneDrive\Desktop\User Test Summary.txt` with the fresh post-H4 evidence root, startup first-visible expectations, tray hidden-overflow guidance, and response slots; the returned-results requirement is now resolved by documented waiver.
 
 ## User Test Summary
 
@@ -570,33 +685,26 @@ H1 Hardening re-entry improves tray identity/discoverability without changing th
 
 Current manual/live status:
 
-- passed for Seam 1
-- live startup and tray initialization markers are present
-- real tray-shell activation produced the required tray activation and overlay-open markers
-- existing hotkey overlay behavior still works through the released path
-- normal shutdown hid the tray icon and left no runtime process behind
-- no direct Create Custom Task routing exists yet
-- Seam 2 route is implemented and repo-side Qt validators pass through `dev/orin_fb038_seam2_validation.ps1`
-- Seam 2 manual/live tray readback passed at `dev/logs/fb_038_tray_create_live_validation/20260420_220847`
-- Seam 2 is fully green
-- Seam 3 repo-side and manual/live validation passed at `dev/logs/fb_038_tray_create_completion_live_validation/20260421_045536`
-- Seam 3 is fully green
+- Seam 1 is complete and green
+- Seam 2 is complete and green
+- Seam 3 is complete and green
 - Seam 4 Workstream evidence and User Test Summary finalization is complete
-- Live Validation passed for the completed tray/task UX seam chain with evidence roots `dev/logs/fb_038_tray_create_live_validation/20260421_071454`, `dev/logs/fb_038_tray_create_completion_live_validation/20260421_071521`, and `dev/logs/fb_038_desktop_shortcut_live_validation/20260421_071742`
+- H1 tray identity/discoverability repair is green
+- H2 shortcut-launch tray readback validation is green
+- H3 window initialization sequencing fix is green
+- H4 post-fix startup visibility validation is green
+- Fresh post-H4 Live Validation passed for the completed tray/task UX seam chain with evidence root `dev/logs/fb_038_live_validation_post_h4/20260421_103616`
+- desktop shortcut gate passed at `dev/logs/fb_038_live_validation_post_h4/20260421_103616/desktop_shortcut_gate`
+- Seam 2 live dialog-open/no-write evidence passed at `dev/logs/fb_038_live_validation_post_h4/20260421_103616/seam2_dialog_open_no_write`
+- Seam 3 live create-completion evidence passed at `dev/logs/fb_038_live_validation_post_h4/20260421_103616/seam3_create_completion`
 - Automated validators and live helper evidence: GREEN.
 - User-Facing Shortcut Path: `C:\Users\anden\OneDrive\Desktop\Nexus Desktop Launcher.lnk`
-- User-Facing Shortcut Validation: PASS.
-- Previous returned User Test Summary Results: FAIL before H1/H2.
-- At that time, final phase advancement was BLOCKED because the returned User Test Summary reported that the desktop VBS shortcut launch did not show an obvious Nexus Desktop AI tray shortcut to the user.
-- the approved Workstream seam chain is complete, Hardening is green, and automated/live helper evidence for Live Validation is green
-- H1 tray identity/discoverability repair and H2 shortcut-launch tray readback validation are green
-- Fresh post-Hardening Live Validation passed for the completed tray/task UX seam chain with evidence root `dev/logs/fb_038_live_validation_post_hardening/20260421_081741`
-- Automated validators and live helper evidence: GREEN.
-- User Test Summary Results: PENDING.
-- Final phase advancement is BLOCKED until the filled User Test Summary is submitted and digested.
-- desktop export refreshed at `C:\Users\anden\OneDrive\Desktop\User Test Summary.txt` with the fresh post-Hardening evidence roots and pending response slots
+- User-Facing Shortcut Validation: PASS for fresh post-H4 Live Validation.
+- User Test Summary Results: WAIVED.
+- Final Live Validation advancement blocker is cleared by operator-confirmed waiver artifact on 2026-04-21.
+- desktop export refreshed at `C:\Users\anden\OneDrive\Desktop\User Test Summary.txt` with the fresh post-H4 evidence root, startup first-visible expectations, tray hidden-overflow guidance, and response slots
 - routing after returned User Test Summary digestion:
-  the prior returned results failed on tray visibility/discoverability from the desktop VBS shortcut and were routed to bounded Hardening; the current fresh handoff is pending and must be digested before any PR Readiness transition.
+  prior returned results failed on tray visibility/discoverability from the desktop VBS shortcut and were routed to bounded H1/H2 Hardening; later returned results failed on a black placeholder window before Core Visualization and were routed to H3/H4 Hardening re-entry. H1 through H4 are now green, fresh post-H4 Live Validation technical/live evidence is green, the UTS requirement is waived, and the next safe move is PR Readiness execution in a separate pass.
 
 Returned User Test Summary digest on 2026-04-21:
 
@@ -612,6 +720,41 @@ Returned User Test Summary digest on 2026-04-21:
   user-visible tray discoverability failed even though runtime markers and UIAutomation evidence show the tray icon exists in the Windows notification area / hidden overflow model
 - decision:
   Live Validation cannot close; route back to bounded Hardening for a tray-visibility/discoverability repair or an explicit source-of-truth correction that the supported tray entry may appear under Windows hidden icons overflow rather than the visible tray strip
+
+Returned User Test Summary digest on 2026-04-21 for H3:
+
+- user-reported result:
+  launching through the desktop shortcut briefly shows a black placeholder window before Core Visualization appears
+- classification:
+  window initialization sequencing failure; behavior is not a feature-scope change, but the visible startup frame is not acceptable for Live Validation
+- decision:
+  Live Validation cannot close; route back to bounded Hardening for H3 `Window Initialization Sequencing Fix`, then require H4 post-fix validation before a fresh Live Validation handoff
+
+Post-H4 User Test Summary digestion attempt on 2026-04-21:
+
+- artifact read:
+  `C:\Users\anden\OneDrive\Desktop\User Test Summary.txt`
+- raw finding:
+  the artifact is still the handoff template, states `Status: HANDOFF ONLY - NOT PASSED YET`, and has empty PASS/FAIL response slots with no documented waiver
+- classification:
+  AMBIGUOUS because no returned user observations or waiver were present in the primary artifact
+- blocker decision:
+  keep `User Test Summary Results Pending`; the authority marker remains `User Test Summary Results: PENDING`
+- routing decision:
+  remain in Live Validation result digestion until the filled User Test Summary or an explicit documented waiver is available; do not advance to PR Readiness
+
+Post-H4 User Test Summary waiver digestion on 2026-04-21:
+
+- waiver source:
+  operator-confirmed waiver artifact (`waiver artifact confirmed, proceed`)
+- classification:
+  WAIVED
+- blocker decision:
+  clear `User Test Summary Results Pending`; the authority marker is now `User Test Summary Results: WAIVED`
+- rationale:
+  automated validators, live helper evidence, shortcut-launched evidence, H1/H2 tray discoverability repair evidence, and H3/H4 startup visibility repair evidence are all green; the waiver resolves the remaining returned-results gate without changing product scope
+- routing decision:
+  transition the authority record to `PR Readiness`; do not execute PR Readiness work in this pass
 
 Completed user-facing behavior:
 
@@ -691,4 +834,19 @@ Manual validation checklist for `Tray-Origin Create Completion And Catalog Re-Re
 - failure signs:
   no saved-action record is written on submit, the catalog does not reload, the created phrase does not resolve, confirm/result behavior changes, a new authoring or resolution path appears, built-ins or existing saved actions regress, or the saved-action source cannot be restored after validation
 
-The desktop `User Test Summary.txt` export was refreshed during Seam 4 because FB-038's user-facing Workstream seam chain is complete.
+Fresh post-H4 User Test Summary handoff checklist:
+
+- startup visibility:
+  launch through `C:\Users\anden\OneDrive\Desktop\Nexus Desktop Launcher.lnk` and confirm Core Visualization is the first visible Nexus UI; no empty or black placeholder should appear first
+- tray discoverability:
+  find `Nexus Desktop AI` in the visible notification area or Windows hidden icons overflow (`^`)
+- tray identity:
+  confirm the tooltip/label and the first disabled tray menu header read `Nexus Desktop AI`
+- overlay behavior:
+  confirm tray `Open Command Overlay` and the existing hotkey path still open the command overlay without duplicate overlays
+- Create Custom Task flow:
+  confirm tray `Create Custom Task` opens the existing overlay entry path and existing dialog, cancel/close does not write `saved_actions.json`, and a deliberate submit can create, reload, resolve, execute, and clean up a test task through the existing FB-036 path
+- response status:
+  returned User Test Summary handling is `WAIVED`; PR Readiness is admitted, and PR Readiness work must run in a separate pass
+
+The desktop `User Test Summary.txt` export was refreshed during fresh post-H4 Live Validation because FB-038 remains a user-facing desktop workstream. Returned UTS handling is now resolved by documented waiver, allowing PR Readiness admission without starting PR Readiness execution in this pass.

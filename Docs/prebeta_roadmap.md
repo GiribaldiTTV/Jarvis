@@ -66,12 +66,12 @@ Current merged truth indicates:
 - latest public prerelease publication: `https://github.com/GiribaldiTTV/Nexus-Desktop-AI/releases/tag/v1.4.0-prebeta`
 - merged unreleased non-doc implementation debt exists: no
 - the latest public released implementation milestone is FB-037 curated built-in system actions and Nexus settings expansion in `v1.4.0-prebeta`
-- current phase: `Live Validation`
+- current phase: `PR Readiness`
 - phase status: `Active Branch`
 - blocker after release execution: none for FB-037
 - current active workstream: FB-038 Taskbar / Tray Quick-Task UX And Create Custom Task Surface
 - current branch: `feature/fb-038-taskbar-tray-quick-task-ux`
-- next concern on the active branch: wait for the fresh post-Hardening User Test Summary results, then digest them before any PR Readiness transition; automated validators, live helpers, and the desktop shortcut gate are green, but final phase advancement is blocked by `User Test Summary Results Pending`
+- next concern on the active branch: execute PR Readiness in a separate pass, including merge-target canon, Governance Drift Audit, helper consolidation or retention decision, next-workstream selection, post-merge truth, and dirty-branch gates before PR green
 
 That means the released FB-027 interaction baseline, the released FB-036 authoring-and-callable-group milestone, the released FB-041 deterministic callable-group execution milestone, and the released FB-037 built-in catalog milestone are now part of the current public shared pre-Beta baseline.
 
@@ -86,14 +86,14 @@ That means the released FB-027 interaction baseline, the released FB-036 authori
 
 ### FB-038 Taskbar / Tray Quick-Task UX And Create Custom Task Surface
 
-- status: `Live Validation`
-- blocker: `User Test Summary Results Pending`
+- status: `PR Readiness`
+- blocker: `None`
 - Record State: `Promoted`
 - canonical workstream doc: `Docs/workstreams/FB-038_taskbar_tray_quick_task_ux.md`
 - Branch: `feature/fb-038-taskbar-tray-quick-task-ux`
-- sequence: current active branch completed bounded Hardening re-entry after the returned tray-visibility User Test Summary failure; H1 tray identity/discoverability and H2 shortcut-launch tray readback are green, and fresh post-Hardening Live Validation evidence plus a new User Test Summary handoff have been produced
-- Minimal Scope: Live Validation for the completed tray quick-task UX after H1/H2, limited to desktop shortcut launch, tray discovery as `Nexus Desktop AI` in visible tray or hidden icons overflow, tray menu identity, tray overlay entry, tray Create Custom Task dialog-open/no-write behavior, tray-origin create completion, catalog reload, exact-match re-resolution, confirm/result, cleanup, and released-baseline preservation.
-- live validation rule: automated validators and live helper evidence may be green, but PR Readiness remains blocked until the filled User Test Summary is submitted or waived, digested into the active authority record, and blockers are reevaluated.
+- sequence: current active branch completed H1/H2 tray identity/discoverability repair and post-Hardening Live Validation, then returned to Hardening for H3/H4 after the filled User Test Summary reported a black placeholder window before Core Visualization during desktop shortcut launch; H3/H4 are green, fresh post-H4 Live Validation is green, and UTS returned-results handling is resolved by documented waiver
+- Minimal Scope: PR Readiness admission for the completed tray quick-task UX, limited to proving merge-target canon, Governance Drift Audit, helper consolidation or retention, next-workstream selection, post-merge truth, and dirty-branch gates before PR green.
+- live validation rule: automated validators, live helper evidence, user-facing desktop shortcut validation, and UTS waiver digestion are green enough to admit PR Readiness; PR Readiness itself has not been executed yet.
 
 ## Most Recent Released Workstream Context
 
@@ -199,14 +199,14 @@ Current merged truth indicates:
 - the released FB-035 lane is closed
 - the recent released workstreams above remain part of the locked current baseline
 - merged unreleased non-doc implementation debt exists: no
-- FB-038 is the active Live Validation implementation workstream with `User Test Summary Results Pending`; H1 identity/discoverability repair, H2 shortcut-launch tray readback validation, automated validators, live helper evidence, and the desktop shortcut gate are green, but returned User Test Summary results must still be submitted and digested before forward phase movement
+- FB-038 is the active PR Readiness implementation workstream; H1 identity/discoverability repair, H2 shortcut-launch tray readback validation, H3 window initialization sequencing, H4 post-fix startup visibility validation, fresh post-H4 technical/live validation, user-facing desktop shortcut validation, and UTS waiver digestion are green
 - post-release repo truth after the FB-037 release branch merge resolved to no FB-037 release-debt blocker
 - successor-lane branch creation for FB-038 has already occurred as the current Branch Readiness branch after updated `main` was revalidated
 - if a branch changes release-facing canon, those canon updates must land on that same branch before PR readiness is allowed
 - post-release canon repair is emergency-only when merged canon is already stale or external drift made pre-merge prevention impossible
 - the released FB-027 baseline does not authorize further saved-action authoring, resolution, voice, Action Studio, routines, profiles, hotkey cleanup, or shutdown-confirmation work by inertia
 - remaining future candidate spaces now explicitly recorded in the backlog include:
-  - FB-038 for taskbar or tray quick-task UX including Create Custom Task, now in Live Validation with automated/live helper evidence green, post-Hardening shortcut readback green, `User-Facing Shortcut Validation: PASS`, and `User Test Summary Results Pending` blocking phase advancement until filled UTS evidence is returned and digested
+  - FB-038 for taskbar or tray quick-task UX including Create Custom Task, now in PR Readiness with H3/H4 startup visibility re-entry green, `User-Facing Shortcut Validation: PASS`, UTS handling resolved by documented waiver, and PR Readiness execution still required before PR green
   - FB-039 for external trigger and plugin integration architecture
   - FB-040 for monitoring, thermals, and performance HUD surfaces
 - those candidate lanes must be selected deliberately rather than bundled together as one implicit interaction continuation

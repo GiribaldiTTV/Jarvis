@@ -299,11 +299,6 @@ def main():
     print("Command Overlay: Ctrl + Alt + Home or Ctrl + Alt + 1")
     print("Hotkey: Ctrl + Alt + End or Ctrl + Alt + 2")
 
-    window.show()
-    runtime_milestone("RENDERER_MAIN|WINDOW_SHOW_REQUESTED")
-    if exit_if_startup_abort_requested(hotkeys, tray_entry):
-        return 0
-
     def settle_passive_default_handoff():
         if exit_if_startup_abort_requested(hotkeys, tray_entry):
             app.quit()
@@ -311,18 +306,42 @@ def main():
         window.set_visual_state("dormant")
         runtime_milestone("RENDERER_MAIN|PASSIVE_DEFAULT_HANDOFF_REQUESTED|state=dormant")
 
+    startup_ready_marked = False
+
     def mark_startup_ready():
+        nonlocal startup_ready_marked
+        if startup_ready_marked:
+            return
         if exit_if_startup_abort_requested(hotkeys, tray_entry):
             app.quit()
             return
+        startup_ready_marked = True
         runtime_milestone("RENDERER_MAIN|STARTUP_READY")
         tray_entry.show_discovery_cue()
         settle_passive_default_handoff()
 
+    window_show_requested = False
+
+    def show_window_after_core_visualization_ready():
+        nonlocal window_show_requested
+        if window_show_requested:
+            return
+        if exit_if_startup_abort_requested(hotkeys, tray_entry):
+            app.quit()
+            return
+        window_show_requested = True
+        window.show()
+        runtime_milestone("RENDERER_MAIN|WINDOW_SHOW_REQUESTED|reason=core_visualization_ready")
+
+    window.core_visualization_ready.connect(show_window_after_core_visualization_ready)
+    window.core_visualization_visible.connect(mark_startup_ready)
+    runtime_milestone("RENDERER_MAIN|WINDOW_SHOW_DEFERRED_UNTIL_CORE_READY")
+    if window.is_core_visualization_ready():
+        QTimer.singleShot(0, show_window_after_core_visualization_ready)
+
     relaunch_timer = QTimer()
     relaunch_timer.timeout.connect(poll_relaunch_request)
     relaunch_timer.start(200)
-    QTimer.singleShot(0, mark_startup_ready)
 
     exit_code = app.exec()
     relaunch_timer.stop()
