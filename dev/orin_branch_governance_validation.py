@@ -618,9 +618,12 @@ def _phase_index(phase_name: str) -> int:
     return PHASES.index(phase_name)
 
 
-def _git_status_porcelain() -> str:
+def _git_status_porcelain(*, tracked_only: bool = False) -> str:
+    command = ["git", "status", "--porcelain"]
+    if tracked_only:
+        command.append("--untracked-files=no")
     completed = subprocess.run(
-        ("git", "status", "--porcelain"),
+        command,
         cwd=ROOT_DIR,
         text=True,
         stdout=subprocess.PIPE,
@@ -1128,7 +1131,7 @@ def main() -> int:
             )
 
     if _git_current_branch() == "main":
-        status_output = _git_status_porcelain()
+        status_output = _git_status_porcelain(tracked_only=True)
         require(
             not status_output,
             "Main Write Attempt blocker is active; Codex must not leave tracked file mutations on protected main",
@@ -1469,7 +1472,7 @@ def main() -> int:
             )
 
         if current_phase == "Release Readiness":
-            status_output = _git_status_porcelain()
+            status_output = _git_status_porcelain(tracked_only=True)
             require(
                 not status_output,
                 (
@@ -1664,7 +1667,7 @@ def main() -> int:
             f"{branch_record_path}: Next Legal Phase '{info['next_legal_phase']}' is not in the canonical phase enum",
         )
         if branch_record_path in active_branch_record_paths and str(info["current_phase"]) == "Release Readiness":
-            status_output = _git_status_porcelain()
+            status_output = _git_status_porcelain(tracked_only=True)
             require(
                 not status_output,
                 (
