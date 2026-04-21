@@ -60,6 +60,23 @@ Branch-local "what worked" notes should stay in the canonical workstream doc fir
   - `Docs/phase_governance.md`
   - `dev/orin_branch_governance_validation.py`
 
+## Pattern: Validation Helper Sprawl Must Collapse Into Registered Helper Families
+
+- symptom:
+  a feature branch creates seam-specific live validators or helper scripts even though an existing validator family already covers the same desktop, authoring, launcher, or interaction surface
+- layer:
+  validation helper governance and Workstream evidence
+- root-cause pattern:
+  the repo requires reuse-first validation, but without a helper registry and naming tiers, a successful seam helper can become accidental permanent tooling
+- fix pattern:
+  register durable root `dev/` helpers in `Docs/validation_helper_registry.md`, require standardized names and `Helper Status:` values, and force workstream-scoped helpers to declare owner, reason, consolidation target, and promotion decision point
+- validation pattern:
+  run `python dev/orin_branch_governance_validation.py`; it must fail when helper standardization language is missing or a root `dev/` validation/helper script is unregistered
+- source references:
+  - `Docs/validation_helper_registry.md`
+  - `Docs/phase_governance.md`
+  - `dev/orin_branch_governance_validation.py`
+
 ## Pattern: Released-Canon Fallback Must Not Use The Highest Planned Prerelease
 
 - symptom:

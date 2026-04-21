@@ -562,16 +562,53 @@ That contract is:
 - windows, dialogs, overlays, and controls should be re-resolved live across close/open seams instead of reusing stale references
 - validation seams must be classified as `product defect`, `harness defect`, `environment issue`, or `canon / contract drift` before product code is changed
 
+## Validation Helper Registry And Naming Standard
+
+`Docs/validation_helper_registry.md` is the repo-wide registry for durable root `dev/` validators, live-validation scripts, audit helpers, harnesses, and shared helper modules.
+
+The registry must define:
+
+- the canonical helper naming scheme
+- the allowed `Helper Status:` values
+- which helpers are `Reusable`
+- which helpers are `Workstream-scoped`
+- which helpers are `Temporary probe`
+- the owner, reason, consolidation target, and promotion decision point for every workstream-scoped durable helper
+
+Naming standard:
+
+- repo-side validators use `dev/orin_<domain>_<capability>_validation.py`
+- live desktop helpers use `dev/orin_<domain>_<capability>_live_validation.ps1`
+- interactive suites use `dev/orin_<domain>_<capability>_interactive_validation.ps1`
+- audit helpers use `dev/orin_<domain>_<capability>_audit.ps1`
+- reusable harnesses use `dev/orin_<domain>_<capability>_harness.py`
+- shared helper modules use `dev/orin_<domain>_<capability>_helper.py`
+
+Workstream-scoped exceptions are allowed only when reuse would contaminate proof ownership, blur workstream truth, or make validation less reliable.
+They must use `dev/orin_<workstream_id>_<bounded_capability>_validation.ps1` or `dev/orin_<workstream_id>_<bounded_capability>_live_validation.ps1`, be registered immediately, and carry:
+
+- `Helper Status: Workstream-scoped`
+- `Owner Workstream:`
+- `Reason Reusable Helper Was Not Extended:`
+- `Consolidation Target:`
+- `Promotion Decision Point:`
+
+Seam-number helper names are not the default naming model.
+They are permitted only as short-lived workstream-scoped bridge names created during active seam proof, and they must be consolidated, promoted, or explicitly justified before PR Readiness.
+
+PR Readiness must fail if a new durable root `dev/` validation helper, live-validation script, audit helper, harness, or shared helper module is unregistered, has no helper status, or is workstream-scoped without a consolidation target.
+
 ## Live Validation Reuse-First Rule
 
 Before creating a new live-validation helper, script, or harness, Codex must inventory existing repo helpers and choose the smallest safe reuse path.
 
 Preferred order:
 
-1. use an existing helper unchanged when it already covers the needed path
-2. parameterize or extend an existing helper when the validation belongs to the same desktop/runtime helper family
-3. extract shared helper support when multiple helpers need the same watchdog, progress, cleanup, or UIAutomation behavior
-4. create a new helper only when reuse would contaminate the helper boundary, blur workstream truth, or make validation less reliable
+1. inspect `Docs/validation_helper_registry.md`
+2. use an existing helper unchanged when it already covers the needed path
+3. parameterize or extend an existing helper when the validation belongs to the same desktop/runtime helper family
+4. extract shared helper support when multiple helpers need the same watchdog, progress, cleanup, UIAutomation, runtime startup, saved-state snapshot, or artifact-writing behavior
+5. create a new workstream-scoped helper only when reuse would contaminate the helper boundary, blur workstream truth, or make validation less reliable
 
 One-off probes are allowed only as temporary exploratory evidence under an ignored evidence root such as `dev/logs/...`.
 They must not be used as closeout-grade proof, must not be left behind as de facto reusable tooling, and must either be deleted after the pass or deliberately promoted into a documented reusable helper with workstream artifact-history notes.

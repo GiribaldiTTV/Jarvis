@@ -1,3 +1,4 @@
+import json
 import os
 import sys
 import tempfile
@@ -118,6 +119,15 @@ class _FakePanel:
     def refresh_for_geometry(self, *_args, **_kwargs):
         self.refresh_for_geometry_calls += 1
 
+    def show_for_geometry(self, *_args, **_kwargs):
+        self.visible = True
+
+    def hide(self):
+        self.visible = False
+
+    def focus_input_after_show(self):
+        self.input_line.focused = True
+
 
 def _make_window(source_path: Path):
     window = renderer_mod.DesktopRuntimeWindow.__new__(renderer_mod.DesktopRuntimeWindow)
@@ -131,9 +141,14 @@ def _make_window(source_path: Path):
     window._saved_action_edit_dialog_factory = None
     window._command_model = CommandOverlayModel(action_catalog=build_default_command_action_catalog(source_path))
     window._command_panel = _FakePanel()
+    window._result_close_timer = SimpleNamespace(stop=lambda: None)
+    window._overlay_ready_timer = False
     window._overlay_input_capture_until = 0.0
     window._overlay_local_input_engaged = False
     window._overlay_global_capture_suspended = False
+    window._last_launch_failure_action_id = ""
+    window._last_launch_failure_count = 0
+    window._reported_recoverable_launch_failures = set()
     window._trace_overlay = lambda *_args, **_kwargs: None
     window._log_event = lambda *_args, **_kwargs: None
     window._command_model.open(arm_input=True)
@@ -151,6 +166,17 @@ class _AutoSubmitCreateDialog(renderer_mod.SavedActionCreateDialog):
     def exec(self):
         self._configure(self)
         self._handle_create_clicked()
+        return self.result()
+
+
+class _AutoRejectCreateDialog(renderer_mod.SavedActionCreateDialog):
+    def __init__(self, parent, submit_handler, sink):
+        super().__init__(parent, submit_handler)
+        self._sink = sink
+        self._sink.append(self)
+
+    def exec(self):
+        self.reject()
         return self.result()
 
 
@@ -1612,6 +1638,74 @@ def _test_create_dialog_supports_browse_assisted_target_selection():
     )
 
 
+def _test_tray_create_custom_task_route_opens_existing_dialog_without_write():
+    with tempfile.TemporaryDirectory() as temp_dir:
+        source_path = Path(temp_dir) / "saved_actions.json"
+        window = _make_window(source_path)
+        events = []
+        dialog_instances = []
+        window._log_event = events.append
+        window._saved_action_create_dialog_factory = (
+            lambda _parent, submit_handler, **_kwargs: _AutoRejectCreateDialog(
+                None,
+                submit_handler,
+                dialog_instances,
+            )
+        )
+
+        before_exists = source_path.exists()
+        before_text = source_path.read_text(encoding="utf-8") if before_exists else None
+
+        renderer_mod.DesktopRuntimeWindow.close_command_overlay(window)
+        events.clear()
+        renderer_mod.DesktopRuntimeWindow.request_create_custom_task_from_tray(
+            window,
+            source="validation",
+        )
+        _flush_qt_events()
+
+        after_exists = source_path.exists()
+        after_text = source_path.read_text(encoding="utf-8") if after_exists else None
+
+        _assert(dialog_instances, "tray-origin Create Custom Task should open the existing create dialog")
+        _assert(
+            dialog_instances[0].windowTitle() == "Create Custom Task",
+            "tray-origin Create Custom Task should reuse the existing Create Custom Task dialog",
+        )
+        _assert(
+            before_exists == after_exists and before_text == after_text,
+            "dialog open/cancel from tray origin should not write the saved-action source",
+        )
+        _assert(
+            any("RENDERER_MAIN|COMMAND_OVERLAY_OPENED|phase=entry" in event for event in events),
+            "tray-origin Create Custom Task should open the existing overlay entry path first",
+        )
+        _assert(
+            any(
+                "RENDERER_MAIN|TRAY_CREATE_CUSTOM_TASK_ROUTED_TO_OVERLAY_ENTRY|source=validation|phase=entry"
+                in event
+                for event in events
+            ),
+            "tray-origin Create Custom Task should log routing through overlay entry",
+        )
+        _assert(
+            any("RENDERER_MAIN|OVERLAY_ENTRY_ACTION_TRIGGERED|action=create_custom_task" in event for event in events),
+            "tray-origin Create Custom Task should reuse the existing overlay entry action trigger",
+        )
+        _assert(
+            any("RENDERER_MAIN|OVERLAY_ENTRY_DIALOG_CREATED|action=create_custom_task" in event for event in events),
+            "tray-origin Create Custom Task should create the existing dialog",
+        )
+        _assert(
+            not any("RENDERER_MAIN|CUSTOM_TASK_CREATE_ATTEMPT_STARTED" in event for event in events),
+            "dialog open/cancel seam must not enter persisted create flow",
+        )
+        _assert(
+            not any("RENDERER_MAIN|CUSTOM_TASK_CREATED" in event for event in events),
+            "dialog open/cancel seam must not persist a saved action",
+        )
+
+
 def _test_successful_create_flow_reloads_inventory_immediately():
     with tempfile.TemporaryDirectory() as temp_dir:
         source_path = Path(temp_dir) / "saved_actions.json"
@@ -1646,6 +1740,112 @@ def _test_successful_create_flow_reloads_inventory_immediately():
             renderer_mod.DesktopRuntimeWindow.overlay_needs_global_input_capture(window),
             "successful create flow should restore fallback input capture readiness",
         )
+
+
+def _test_tray_origin_create_completion_reloads_and_resolves_created_task():
+    with tempfile.TemporaryDirectory() as temp_dir:
+        source_path = Path(temp_dir) / "saved_actions.json"
+        target_path = Path(temp_dir) / "seam3-target"
+        target_path.mkdir()
+        window = _make_window(source_path)
+        events = []
+        dialog_instances = []
+        launched_actions = []
+        window._log_event = events.append
+        window._result_close_timer = SimpleNamespace(stop=lambda: None, start=lambda *_args, **_kwargs: None)
+        window._saved_action_create_dialog_factory = (
+            lambda _parent, submit_handler, **_kwargs: _AutoSubmitCreateDialog(
+                None,
+                submit_handler,
+                lambda dialog: (
+                    dialog.type_combo.setCurrentText("Folder"),
+                    dialog.title_input.setText("Open Seam Three Tray Task"),
+                    dialog.aliases_input.setText("seam three tray task"),
+                    dialog.target_input.setText(str(target_path)),
+                ),
+                dialog_instances,
+            )
+        )
+
+        original_launcher = renderer_mod.launch_command_action
+        renderer_mod.launch_command_action = launched_actions.append
+        try:
+            renderer_mod.DesktopRuntimeWindow.close_command_overlay(window)
+            events.clear()
+            renderer_mod.DesktopRuntimeWindow.request_create_custom_task_from_tray(
+                window,
+                source="validation",
+            )
+            _flush_qt_events()
+
+            _assert(dialog_instances, "tray-origin create completion should open the existing create dialog")
+            _assert(source_path.exists(), "tray-origin create completion should write the saved-action source")
+            payload = json.loads(source_path.read_text(encoding="utf-8"))
+            records = payload.get("actions") or []
+            _assert(len(records) == 1, "tray-origin create completion should persist exactly one action")
+            record = records[0]
+            _assert(record.get("title") == "Open Seam Three Tray Task", "created task title should be persisted")
+            _assert(record.get("target_kind") == "folder", "created task target kind should be persisted")
+            _assert(record.get("target") == str(target_path), "created task target should be persisted")
+            _assert(
+                record.get("aliases") == ["seam three tray task"],
+                "created task alias should be persisted without schema drift",
+            )
+
+            required_markers = (
+                "RENDERER_MAIN|COMMAND_OVERLAY_OPENED|phase=entry",
+                "RENDERER_MAIN|TRAY_CREATE_CUSTOM_TASK_ROUTED_TO_OVERLAY_ENTRY|source=validation|phase=entry",
+                "RENDERER_MAIN|OVERLAY_ENTRY_ACTION_TRIGGERED|action=create_custom_task",
+                "RENDERER_MAIN|OVERLAY_ENTRY_DIALOG_CREATED|action=create_custom_task",
+                "RENDERER_MAIN|CUSTOM_TASK_CREATE_ATTEMPT_STARTED",
+                "RENDERER_MAIN|COMMAND_ACTION_CATALOG_RELOAD_COMPLETED",
+                "RENDERER_MAIN|CUSTOM_TASK_CREATED",
+            )
+            for marker in required_markers:
+                _assert(
+                    any(marker in event for event in events),
+                    f"tray-origin create completion should emit marker: {marker}",
+                )
+
+            marker_positions = [
+                next(index for index, event in enumerate(events) if marker in event)
+                for marker in required_markers
+            ]
+            _assert(
+                marker_positions == sorted(marker_positions),
+                "tray-origin create completion markers should stay in route/create/reload order",
+            )
+
+            inventory = window._command_model.view_payload().get("saved_action_inventory") or {}
+            items = inventory.get("items") or []
+            _assert(inventory.get("count") == 1, "catalog reload should surface one saved action")
+            _assert(
+                items and items[0].get("title") == "Open Seam Three Tray Task",
+                "catalog reload should surface the newly created tray-origin task",
+            )
+
+            window._command_model.input_armed = True
+            window._command_model.set_input_text("open seam three tray task")
+            renderer_mod.DesktopRuntimeWindow.handle_command_submit(window, source="validation")
+            _assert(
+                any("RENDERER_MAIN|COMMAND_CONFIRM_READY|action_id=open_seam_three_tray_task" in event for event in events),
+                "created tray-origin task should exact-match resolve to the normal confirm surface",
+            )
+            renderer_mod.DesktopRuntimeWindow.handle_command_submit(window, source="validation")
+            _assert(
+                launched_actions and launched_actions[0].id == "open_seam_three_tray_task",
+                "created tray-origin task should execute through the normal launch path",
+            )
+            _assert(
+                any(
+                    "RENDERER_MAIN|COMMAND_LAUNCH_REQUEST_SENT|action_id=open_seam_three_tray_task" in event
+                    for event in events
+                ),
+                "created tray-origin task should emit the normal launch request marker",
+            )
+            _assert(window._command_model.phase == "result", "created tray-origin task should reach result phase")
+        finally:
+            renderer_mod.launch_command_action = original_launcher
 
 
 def _test_invalid_input_shows_dialog_error_and_does_not_write():
@@ -2144,7 +2344,9 @@ def main():
         ("edit dialog default trigger follows type until changed", _test_edit_dialog_default_trigger_follows_type_until_changed),
         ("legacy edit dialog preserves bare callable examples until trigger changes", _test_legacy_edit_dialog_preserves_bare_callable_examples_until_trigger_changes),
         ("create dialog supports browse-assisted target selection", _test_create_dialog_supports_browse_assisted_target_selection),
+        ("tray Create Custom Task route opens existing dialog without write", _test_tray_create_custom_task_route_opens_existing_dialog_without_write),
         ("successful create flow reloads inventory", _test_successful_create_flow_reloads_inventory_immediately),
+        ("tray-origin create completion reloads and resolves created task", _test_tray_origin_create_completion_reloads_and_resolves_created_task),
         ("invalid input shows dialog error without write", _test_invalid_input_shows_dialog_error_and_does_not_write),
         ("invalid folder target shows dialog error without write", _test_invalid_folder_target_shows_dialog_error_and_does_not_write),
         ("invalid application target shows dialog error without write", _test_invalid_application_target_shows_dialog_error_and_does_not_write),

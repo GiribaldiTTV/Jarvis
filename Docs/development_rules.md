@@ -59,6 +59,7 @@ Use this layered ownership model:
 - bugs = backlog-first, with promoted bug docs only when warranted
 - User Test Summary = validation-contract layer owned by workstreams
 - phase governance = repo-wide execution, exact phase enum, blockers, branch classes, proof, timeout, seam, stop-loss, validation-helper, Governance Drift Audit, phase resolver, and desktop UI audit contract
+- validation helper registry = repo-wide helper naming, helper ownership, reuse-first inventory, workstream-scoped exception markers, and consolidation contract
 - branch authority records = repo-owned phase owners for approved non-backlog `release packaging` branches and historical `docs/governance` or emergency repair records
 - `Docs/Main.md` = routing authority aligned to merged truth
 
@@ -368,6 +369,12 @@ When the branch is in governed closeout recovery, `Docs/phase_governance.md` is 
 Interactive validation is reuse-first.
 Before creating a new live-validation helper, Codex must inspect the existing repo helper surface and use, parameterize, extend, or extract shared support from existing helpers when that is safe.
 Temporary one-off probes may be used only under ignored evidence roots, may not become closeout-grade proof by inertia, and must be deleted after the pass unless deliberately promoted into documented reusable tooling.
+
+Validation helper naming and ownership are registry-governed.
+Before adding or keeping a durable root `dev/` validation helper, live-validation script, audit helper, harness, or shared helper module, Codex must route through `Docs/validation_helper_registry.md`.
+That registry defines the allowed `Helper Status:` values, naming scheme, owner rules, `Workstream-scoped` exception markers, `Temporary probe` handling, and `Consolidation Target` requirements.
+New feature work must extend an existing helper family whenever that is safe; creating a new helper is allowed only after registry lookup proves reuse would contaminate proof ownership, blur branch truth, or make validation less reliable.
+Workstream-scoped helpers must be registered before closeout-grade proof can depend on them and must carry a promotion or consolidation decision before PR Readiness.
 
 When an interactive validation pass is relevant, it must use:
 

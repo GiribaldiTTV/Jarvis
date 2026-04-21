@@ -8,8 +8,9 @@ ROOT_DIR = os.path.dirname(CURRENT_DIR)
 if ROOT_DIR not in sys.path:
     sys.path.insert(0, ROOT_DIR)
 
-from PySide6.QtWidgets import QApplication
+from PySide6.QtGui import QAction
 from PySide6.QtCore import QTimer
+from PySide6.QtWidgets import QApplication, QMenu, QStyle, QSystemTrayIcon
 
 from desktop.desktop_renderer import DesktopRuntimeWindow
 from desktop.hotkeys import ShutdownBus, GlobalHotkeyManager
@@ -52,15 +53,109 @@ def overlay_trace_enabled():
     return value in {"1", "true", "yes", "on"}
 
 
+class DesktopTrayEntry:
+    def __init__(self, app, window, event_logger=None):
+        self.app = app
+        self.window = window
+        self.event_logger = event_logger or (lambda _event: None)
+        self.tray_icon = None
+        self.tray_menu = None
+        self.open_overlay_action = None
+        self.create_custom_task_action = None
+
+    def _emit(self, event):
+        try:
+            self.event_logger(event)
+        except Exception:
+            pass
+
+    def initialize(self):
+        self._emit("RENDERER_MAIN|TRAY_ENTRY_INITIALIZE_REQUESTED")
+        try:
+            tray_available = QSystemTrayIcon.isSystemTrayAvailable()
+
+            if not tray_available:
+                self._emit("RENDERER_MAIN|TRAY_ENTRY_READY|available=false")
+                return False
+
+            icon = self.app.windowIcon()
+            if icon.isNull():
+                icon = self.app.style().standardIcon(QStyle.SP_ComputerIcon)
+
+            self.tray_menu = QMenu()
+            self.open_overlay_action = QAction("Open Command Overlay", self.tray_menu)
+            self.open_overlay_action.triggered.connect(
+                lambda _checked=False: self.request_overlay_from_tray("menu")
+            )
+            self.tray_menu.addAction(self.open_overlay_action)
+            self.create_custom_task_action = QAction("Create Custom Task", self.tray_menu)
+            self.create_custom_task_action.triggered.connect(
+                lambda _checked=False: self.request_create_custom_task_from_tray("menu")
+            )
+            self.tray_menu.addAction(self.create_custom_task_action)
+
+            self.tray_icon = QSystemTrayIcon(icon, self.app)
+            self.tray_icon.setToolTip("Nexus Desktop AI")
+            self.tray_icon.setContextMenu(self.tray_menu)
+            self.tray_icon.activated.connect(self._handle_activation)
+            self.tray_icon.show()
+            self._emit("RENDERER_MAIN|TRAY_ENTRY_READY|available=true")
+            self._emit("RENDERER_MAIN|TRAY_ICON_SHOWN")
+            return True
+        except Exception as exc:
+            self.close()
+            self._emit(
+                f"RENDERER_MAIN|TRAY_ENTRY_READY|available=false|reason={type(exc).__name__}"
+            )
+            return False
+
+    def _handle_activation(self, reason):
+        reason_name = getattr(reason, "name", str(reason))
+        trigger_reason = QSystemTrayIcon.ActivationReason.Trigger
+        double_click_reason = QSystemTrayIcon.ActivationReason.DoubleClick
+        if reason in (trigger_reason, double_click_reason):
+            self.request_overlay_from_tray(f"activation_{reason_name}")
+            return
+
+        self._emit(f"RENDERER_MAIN|TRAY_ACTIVATION_IGNORED|reason={reason_name}")
+
+    def request_overlay_from_tray(self, source):
+        self._emit(f"RENDERER_MAIN|TRAY_ACTIVATION_REQUESTED|source={source}")
+        self.window.toggle_command_overlay()
+        self._emit(f"RENDERER_MAIN|TRAY_ACTIVATION_ROUTED_TO_OVERLAY|source={source}")
+
+    def request_create_custom_task_from_tray(self, source):
+        self._emit(f"RENDERER_MAIN|TRAY_CREATE_CUSTOM_TASK_REQUESTED|source={source}")
+        self.window.request_create_custom_task_from_tray(source=source)
+
+    def close(self):
+        if self.tray_icon is None:
+            return
+
+        try:
+            self.tray_icon.hide()
+            self._emit("RENDERER_MAIN|TRAY_ICON_HIDDEN")
+        except Exception as exc:
+            self._emit(f"RENDERER_MAIN|TRAY_ICON_HIDE_FAILED|reason={type(exc).__name__}")
+        finally:
+            self.tray_icon = None
+
+
 def startup_abort_requested():
     return bool(STARTUP_ABORT_SIGNAL_FILE) and os.path.exists(STARTUP_ABORT_SIGNAL_FILE)
 
 
-def exit_if_startup_abort_requested(hotkeys=None):
+def exit_if_startup_abort_requested(hotkeys=None, tray_entry=None):
     if not startup_abort_requested():
         return False
 
     runtime_milestone("RENDERER_MAIN|STARTUP_ABORTED")
+
+    if tray_entry is not None:
+        try:
+            tray_entry.close()
+        except Exception:
+            pass
 
     if hotkeys is not None:
         try:
@@ -113,6 +208,7 @@ def main():
             return
         shutdown_started = True
         runtime_milestone("RENDERER_MAIN|SHUTDOWN_REQUESTED")
+        tray_entry.close()
         hotkeys.stop()
         window.request_shutdown()
         QTimer.singleShot(1200, hotkeys.force_kill)
@@ -129,6 +225,8 @@ def main():
     bus.command_overlay_submit_requested.connect(window.handle_overlay_submit_requested)
     bus.command_overlay_escape_requested.connect(window.handle_overlay_escape_requested)
     bus.command_overlay_global_click_requested.connect(window.handle_overlay_global_click_requested)
+    tray_entry = DesktopTrayEntry(app, window, runtime_milestone)
+    tray_entry.initialize()
     hotkeys.set_overlay_input_enabled_provider(window.overlay_needs_global_input_capture)
     hotkeys.set_overlay_launch_grace_allowed_provider(window.overlay_allows_launch_grace)
     hotkeys.set_overlay_click_monitor_provider(window.overlay_monitors_global_clicks)
@@ -136,7 +234,7 @@ def main():
         hotkeys.set_debug_logger(runtime_milestone)
     hotkeys.start()
     runtime_milestone("RENDERER_MAIN|HOTKEYS_STARTED")
-    if exit_if_startup_abort_requested(hotkeys):
+    if exit_if_startup_abort_requested(hotkeys, tray_entry):
         return 0
 
     print("Nexus Desktop AI Desktop Runtime - Version 1.02")
@@ -145,18 +243,18 @@ def main():
 
     window.show()
     runtime_milestone("RENDERER_MAIN|WINDOW_SHOW_REQUESTED")
-    if exit_if_startup_abort_requested(hotkeys):
+    if exit_if_startup_abort_requested(hotkeys, tray_entry):
         return 0
 
     def settle_passive_default_handoff():
-        if exit_if_startup_abort_requested(hotkeys):
+        if exit_if_startup_abort_requested(hotkeys, tray_entry):
             app.quit()
             return
         window.set_visual_state("dormant")
         runtime_milestone("RENDERER_MAIN|PASSIVE_DEFAULT_HANDOFF_REQUESTED|state=dormant")
 
     def mark_startup_ready():
-        if exit_if_startup_abort_requested(hotkeys):
+        if exit_if_startup_abort_requested(hotkeys, tray_entry):
             app.quit()
             return
         runtime_milestone("RENDERER_MAIN|STARTUP_READY")
@@ -170,6 +268,7 @@ def main():
     exit_code = app.exec()
     relaunch_timer.stop()
     relaunch_signal.close()
+    tray_entry.close()
     hotkeys.stop()
     runtime_milestone(f"RENDERER_MAIN|EVENT_LOOP_EXIT|code={exit_code}")
     return exit_code

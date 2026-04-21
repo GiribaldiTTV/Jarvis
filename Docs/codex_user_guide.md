@@ -112,6 +112,7 @@ Codex should still:
 For meaningful interactive desktop hardening or closeout work, that baseline also includes:
 
 - using `Docs/phase_governance.md` for the repo-wide validation helper contract and proof hierarchy
+- using `Docs/validation_helper_registry.md` for durable helper naming, `Helper Status:`, owner, reuse, `Workstream-scoped` classification, `Consolidation Target`, and `Temporary probe` handling
 - using `Docs/development_rules.md` for evidence, cleanup, and hardening expectations
 - reusing existing live-validation helpers before creating new scripts, or recording why reuse is unsafe
 - treating one-off live-validation probes as temporary ignored artifacts that must be deleted or promoted into documented reusable tooling before closeout-grade proof
@@ -407,6 +408,7 @@ Required add-ons:
 - `Phase: Hardening`
 - `use the documented validation timeout profile`
 - `reuse existing validation helpers first`
+- `check Docs/validation_helper_registry.md before creating or keeping a helper`
 - `do not widen scope`
 - `do not stop between seam iterations unless blocker, truth drift, stop-loss, or required canon sync appears`
 - `continue until the full gate is green or a hard stop is hit`

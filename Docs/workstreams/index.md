@@ -14,6 +14,7 @@ Use this layer when a backlog item has been promoted and now needs:
 
 This index does not own repo-wide process rules.
 Use `Docs/phase_governance.md` for phase names, proof authority, seam governance, timeout governance, preflight rules, stop-loss rules, the validation helper contract, and the desktop UI audit rule.
+Use `Docs/validation_helper_registry.md` for durable root `dev/` helper naming, helper status, reuse, and consolidation rules.
 
 ## Workstream Record Rules
 
@@ -34,6 +35,7 @@ Use `Docs/phase_governance.md` for phase names, proof authority, seam governance
 - when meaningful user-facing desktop UI changed on an active workstream branch, the workstream layer should also capture or point to the final live launched-process UI audit evidence as part of closeout history
 - that UI audit expectation is a post-green closeout rule for meaningful desktop UI changes, not a rule that every seam iteration must always take screenshots
 - when Codex creates or materially extends lane-specific validators, harnesses, runtime helpers, scripts, workers, report roots, exported manual-test artifacts, or other reusable support assets on an active workstream branch, the workstream doc should keep a durable artifact-history or artifact-reference section for them
+- when those assets live as durable root `dev/` helpers, the helper must also be registered in `Docs/validation_helper_registry.md` with the correct helper status and consolidation story
 - that artifact-history section should record the path, purpose, introduced-when or introduced-why note, classification such as `baseline`, `supporting`, `interactive-only`, or `temporary`, and how future work should reuse the artifact
 - active promoted workstreams must carry the modern phase-state block:
   - `## Current Phase`

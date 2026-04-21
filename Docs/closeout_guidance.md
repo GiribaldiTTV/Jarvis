@@ -83,6 +83,7 @@ Direct-main emergency repair requires explicit user approval.
 - preserve historical closeouts
 - route historical lookup and current-baseline lookup through `Docs/closeout_index.md`
 - use canonical workstream records for workstream-level detail
+- use `Docs/validation_helper_registry.md` for helper naming, helper status, and consolidation truth when closeout or release notes mention validation helpers
 - do not let this guidance doc become a live current-state owner
 - create new closeouts or rebaselines only when they materially improve future planning clarity
 - keep emergency post-release canon repair as an explicitly approved direct-main exception, not as a planned governance-only branch

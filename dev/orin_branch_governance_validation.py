@@ -203,6 +203,26 @@ LIVE_VALIDATION_HELPER_CONTRACTS = {
     ),
 }
 
+VALIDATION_HELPER_REGISTRY = Path("Docs/validation_helper_registry.md")
+
+VALIDATION_HELPER_STANDARD_DOCS = (
+    Path("Docs/phase_governance.md"),
+    Path("Docs/development_rules.md"),
+    Path("Docs/Main.md"),
+    Path("Docs/codex_modes.md"),
+    Path("Docs/orin_task_template.md"),
+    Path("Docs/codex_user_guide.md"),
+    Path("Docs/validation_helper_registry.md"),
+)
+
+VALIDATION_HELPER_STANDARD_PHRASES = (
+    "Docs/validation_helper_registry.md",
+    "Helper Status:",
+    "Workstream-scoped",
+    "Consolidation Target",
+    "Temporary probe",
+)
+
 PR_READINESS_BLOCKER_DOCS = (
     Path("Docs/phase_governance.md"),
     Path("Docs/development_rules.md"),
@@ -487,6 +507,27 @@ def _branch_names_for_workstream(branch_names: list[str], workstream_id: str) ->
     ]
 
 
+def _root_dev_helper_paths() -> list[str]:
+    helper_dir = ROOT_DIR / "dev"
+    if not helper_dir.is_dir():
+        return []
+    return sorted(
+        path.relative_to(ROOT_DIR).as_posix()
+        for path in helper_dir.iterdir()
+        if path.is_file()
+        and path.suffix.lower() in {".py", ".ps1"}
+        and path.name.startswith("orin_")
+    )
+
+
+def _registry_line_for_path(registry_text: str, helper_path: str) -> str:
+    needle = f"`{helper_path}`"
+    for line in registry_text.splitlines():
+        if needle in line:
+            return line
+    return ""
+
+
 def _run_next_workstream_gate(require, backlog_entries: list[dict[str, str]], roadmap_text: str) -> None:
     selected_entries = _selected_next_workstream_entries(backlog_entries)
     require(
@@ -721,6 +762,49 @@ def main() -> int:
                 required_phrase in text,
                 f"{relative_path}: reusable Live Validation helper is missing '{required_phrase}'",
             )
+
+    registry_path = ROOT_DIR / VALIDATION_HELPER_REGISTRY
+    require(
+        registry_path.is_file(),
+        f"{VALIDATION_HELPER_REGISTRY}: validation helper registry is missing",
+    )
+    registry_text = _read_text(VALIDATION_HELPER_REGISTRY) if registry_path.is_file() else ""
+
+    for relative_path in VALIDATION_HELPER_STANDARD_DOCS:
+        text = _read_text(relative_path)
+        for required_phrase in VALIDATION_HELPER_STANDARD_PHRASES:
+            require(
+                required_phrase in text,
+                f"{relative_path}: validation helper standardization guidance is missing '{required_phrase}'",
+            )
+
+    if registry_text:
+        for helper_path in _root_dev_helper_paths():
+            helper_line = _registry_line_for_path(registry_text, helper_path)
+            require(
+                bool(helper_line),
+                f"{VALIDATION_HELPER_REGISTRY}: root dev helper '{helper_path}' is not registered",
+            )
+            if helper_line:
+                require(
+                    "Helper Status:" in helper_line,
+                    f"{VALIDATION_HELPER_REGISTRY}: helper '{helper_path}' is missing Helper Status",
+                )
+                if re.search(r"dev/orin_fb\d+_", helper_path):
+                    require(
+                        "Helper Status: Workstream-scoped" in helper_line,
+                        (
+                            f"{VALIDATION_HELPER_REGISTRY}: workstream helper '{helper_path}' "
+                            "must be marked Helper Status: Workstream-scoped"
+                        ),
+                    )
+                    require(
+                        re.search(r"consolidat|fold|promot", helper_line, flags=re.I) is not None,
+                        (
+                            f"{VALIDATION_HELPER_REGISTRY}: workstream helper '{helper_path}' "
+                            "must name a consolidation or promotion target"
+                        ),
+                    )
 
     for relative_path in PR_READINESS_BLOCKER_DOCS:
         text = _read_text(relative_path).casefold()

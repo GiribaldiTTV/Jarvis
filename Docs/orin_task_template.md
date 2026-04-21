@@ -291,6 +291,9 @@ If an execution task is too broad for one approved pass, explain the cleaner exe
 If the task includes interactive validation, the validation plan should also state:
 
 - existing helper or harness that will be reused first, or the exact reason reuse is unsafe
+- `Docs/validation_helper_registry.md` lookup result when a durable root `dev/` helper, live-validation script, audit helper, harness, or shared helper module is created or kept
+- the helper's standardized name, `Helper Status:`, owner, and `Consolidation Target` when the helper is `Workstream-scoped`
+- any `Temporary probe` handling, including whether it will be deleted or promoted
 - whether any temporary one-off probe is being used and how it will be deleted or promoted before closeout-grade proof
 - full-run hard timeout
 - no-progress timeout

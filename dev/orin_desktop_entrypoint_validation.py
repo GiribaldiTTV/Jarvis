@@ -24,6 +24,8 @@ EXPECTED_MILESTONES = [
     "RENDERER_MAIN|VISUAL_HTML_RESOLVED",
     "RENDERER_MAIN|WINDOW_CONSTRUCTED",
     "RENDERER_MAIN|SHUTDOWN_BUS_READY",
+    "RENDERER_MAIN|TRAY_ENTRY_INITIALIZE_REQUESTED",
+    "RENDERER_MAIN|TRAY_ENTRY_READY",
     "RENDERER_MAIN|HOTKEYS_STARTED",
     "RENDERER_MAIN|WINDOW_SHOW_REQUESTED",
     "RENDERER_MAIN|STARTUP_READY",
@@ -85,6 +87,134 @@ def launcher_default_target_line():
         if line.strip().startswith("DEFAULT_TARGET_SCRIPT"):
             return line.strip()
     return "missing DEFAULT_TARGET_SCRIPT line"
+
+
+def validate_tray_overlay_route():
+    previous_qt_platform = os.environ.get("QT_QPA_PLATFORM")
+    os.environ["QT_QPA_PLATFORM"] = "offscreen"
+
+    try:
+        if ROOT_DIR not in sys.path:
+            sys.path.insert(0, ROOT_DIR)
+
+        from PySide6.QtWidgets import QApplication
+
+        from desktop.orin_desktop_main import DesktopTrayEntry
+
+        app = QApplication.instance()
+        created_app = False
+        if app is None:
+            app = QApplication(["orin_desktop_entrypoint_validation"])
+            created_app = True
+
+        events = []
+
+        class FakeWindow:
+            def __init__(self):
+                self.toggle_count = 0
+                self.create_custom_task_sources = []
+
+            def toggle_command_overlay(self):
+                self.toggle_count += 1
+
+            def request_create_custom_task_from_tray(self, source=""):
+                self.create_custom_task_sources.append(source)
+
+        fake_window = FakeWindow()
+        tray_entry = DesktopTrayEntry(app, fake_window, events.append)
+        tray_entry.request_overlay_from_tray("validation")
+        tray_entry.request_create_custom_task_from_tray("validation")
+
+        if created_app:
+            app.quit()
+
+        return {
+            "ok": True,
+            "events": events,
+            "toggle_count": fake_window.toggle_count,
+            "create_custom_task_sources": fake_window.create_custom_task_sources,
+            "error": "",
+        }
+    except Exception as exc:
+        return {
+            "ok": False,
+            "events": [],
+            "toggle_count": 0,
+            "create_custom_task_sources": [],
+            "error": f"{type(exc).__name__}: {exc}",
+        }
+    finally:
+        if previous_qt_platform is None:
+            os.environ.pop("QT_QPA_PLATFORM", None)
+        else:
+            os.environ["QT_QPA_PLATFORM"] = previous_qt_platform
+
+
+def validate_tray_initialization_failure_is_bounded():
+    previous_qt_platform = os.environ.get("QT_QPA_PLATFORM")
+    os.environ["QT_QPA_PLATFORM"] = "offscreen"
+
+    try:
+        if ROOT_DIR not in sys.path:
+            sys.path.insert(0, ROOT_DIR)
+
+        from PySide6.QtWidgets import QApplication
+
+        import desktop.orin_desktop_main as runtime_mod
+
+        app = QApplication.instance()
+        created_app = False
+        if app is None:
+            app = QApplication(["orin_desktop_entrypoint_validation"])
+            created_app = True
+
+        events = []
+
+        class FakeWindow:
+            def toggle_command_overlay(self):
+                raise AssertionError("initialize should not route overlay")
+
+        class FailingTrayIcon:
+            class ActivationReason:
+                Trigger = object()
+                DoubleClick = object()
+
+            @staticmethod
+            def isSystemTrayAvailable():
+                return True
+
+            def __init__(self, *_args, **_kwargs):
+                raise RuntimeError("synthetic tray init failure")
+
+        original_tray_icon = runtime_mod.QSystemTrayIcon
+        runtime_mod.QSystemTrayIcon = FailingTrayIcon
+        try:
+            tray_entry = runtime_mod.DesktopTrayEntry(app, FakeWindow(), events.append)
+            initialized = tray_entry.initialize()
+        finally:
+            runtime_mod.QSystemTrayIcon = original_tray_icon
+
+        if created_app:
+            app.quit()
+
+        return {
+            "ok": True,
+            "initialized": initialized,
+            "events": events,
+            "error": "",
+        }
+    except Exception as exc:
+        return {
+            "ok": False,
+            "initialized": True,
+            "events": [],
+            "error": f"{type(exc).__name__}: {exc}",
+        }
+    finally:
+        if previous_qt_platform is None:
+            os.environ.pop("QT_QPA_PLATFORM", None)
+        else:
+            os.environ["QT_QPA_PLATFORM"] = previous_qt_platform
 
 
 def run_validation():
@@ -170,11 +300,67 @@ def run_validation():
         stderr_text.strip() or "no traceback in stderr",
     )
 
+    tray_route_result = validate_tray_overlay_route()
+    tray_events = tray_route_result["events"]
+    checks["tray_route_validation_imported"] = line_status(
+        tray_route_result["ok"],
+        tray_route_result["error"] or "DesktopTrayEntry imported and exercised",
+    )
+    checks["tray_route_toggle_overlay_called"] = line_status(
+        tray_route_result["toggle_count"] == 1,
+        f"toggle_count={tray_route_result['toggle_count']}",
+    )
+    checks["tray_route_requested_marker"] = line_status(
+        any(
+            "RENDERER_MAIN|TRAY_ACTIVATION_REQUESTED|source=validation" in event
+            for event in tray_events
+        ),
+        "TRAY_ACTIVATION_REQUESTED",
+    )
+    checks["tray_route_routed_marker"] = line_status(
+        any(
+            "RENDERER_MAIN|TRAY_ACTIVATION_ROUTED_TO_OVERLAY|source=validation" in event
+            for event in tray_events
+        ),
+        "TRAY_ACTIVATION_ROUTED_TO_OVERLAY",
+    )
+    checks["tray_create_custom_task_marker"] = line_status(
+        any(
+            "RENDERER_MAIN|TRAY_CREATE_CUSTOM_TASK_REQUESTED|source=validation" in event
+            for event in tray_events
+        ),
+        "TRAY_CREATE_CUSTOM_TASK_REQUESTED",
+    )
+    checks["tray_create_custom_task_route"] = line_status(
+        tray_route_result["create_custom_task_sources"] == ["validation"],
+        f"create_custom_task_sources={tray_route_result['create_custom_task_sources']}",
+    )
+
+    tray_failure_result = validate_tray_initialization_failure_is_bounded()
+    tray_failure_events = tray_failure_result["events"]
+    checks["tray_init_failure_validation_imported"] = line_status(
+        tray_failure_result["ok"],
+        tray_failure_result["error"] or "DesktopTrayEntry init failure path exercised",
+    )
+    checks["tray_init_failure_returns_false"] = line_status(
+        tray_failure_result["initialized"] is False,
+        f"initialized={tray_failure_result['initialized']}",
+    )
+    checks["tray_init_failure_ready_marker"] = line_status(
+        any(
+            "RENDERER_MAIN|TRAY_ENTRY_READY|available=false|reason=RuntimeError" in event
+            for event in tray_failure_events
+        ),
+        "TRAY_ENTRY_READY failure marker",
+    )
+
     return {
         "branch_state": detect_branch_state(),
         "runtime_log": runtime_log,
         "target_script": DEFAULT_TARGET_SCRIPT,
         "launcher_line": launcher_line,
+        "tray_route_events": tray_events,
+        "tray_failure_events": tray_failure_events,
         "stdout": stdout_text.strip(),
         "stderr": stderr_text.strip(),
         "checks": checks,
@@ -202,6 +388,12 @@ def build_report_text(report_path, result, overall_ok):
         lines.extend(["", "stdout:", result["stdout"]])
     if result["stderr"]:
         lines.extend(["", "stderr:", result["stderr"]])
+    if result.get("tray_route_events"):
+        lines.extend(["", "Tray route events:"])
+        lines.extend(f"  {event}" for event in result["tray_route_events"])
+    if result.get("tray_failure_events"):
+        lines.extend(["", "Tray init failure events:"])
+        lines.extend(f"  {event}" for event in result["tray_failure_events"])
 
     return "\n".join(lines) + "\n"
 

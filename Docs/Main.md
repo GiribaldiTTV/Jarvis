@@ -35,6 +35,7 @@ Use this ownership split unless a validated source conflict requires a temporary
 - bug tracking = backlog-first, with promoted bug docs only when warranted
 - User Test Summary = validation-contract layer owned by the relevant workstream
 - phase governance = repo-wide execution, proof, timeout, seam, stop-loss, validation-helper, and desktop UI audit contract
+- validation helper registry = repo-wide helper naming, ownership, reuse, workstream-scoped exception, and consolidation contract
 - branch authority records = repo-owned phase owners for approved non-backlog `release packaging` branches and historical `docs/governance` or emergency repair records
 - `Docs/Main.md` = routing authority aligned to merged truth
 
@@ -169,6 +170,7 @@ Distill only generalized cross-branch lessons into `Docs/incident_patterns.md`.
 Use this when a task depends on manual validation handoff, User Test Summary structure, returned test-evidence digestion, implementation-output requirements for a `## User Test Summary` section, or the canonical repo-level `UTS` artifact for an active workstream:
 
 - `Docs/user_test_summary_guidance.md`
+- `Docs/validation_helper_registry.md` when the task creates, extends, names, promotes, consolidates, or relies on a validation helper, live-validation script, audit helper, harness, or shared validation support under `dev/`
 - the relevant canonical workstream doc under `Docs/workstreams/`, which also owns the active lane's canonical repo-level `UTS` artifact and any durable artifact-history or artifact-reference section for branch-local validation/support assets when that workstream has created them
 - `Docs/development_rules.md` when the task also depends on implementation-time validation depth, supporting validation artifacts, required evidence trails, hardening expectations, or the interactive OS-level continuation gate
 - `Docs/phase_governance.md` when the task also depends on the repo-wide validation helper contract, marker-first proof hierarchy, gating-vs-non-gating observation rules, default-budget closeout expectations, or the desktop UI audit rule
@@ -257,6 +259,7 @@ These are reference layers, not active workstream or roadmap owners.
 - when a pass opens programs, windows, dialogs, temporary documents, helper processes, probe files, or other session-scoped artifacts, route through `Docs/development_rules.md` and require cleanup plus explicit cleanup verification before handoff unless there is an explicit reason to preserve them
 - when a task depends on interactive desktop validation, route through `Docs/development_rules.md` and require explicit time budgets, clean timeout abort behavior, cleanup, and last-progress reporting rather than relying on open-ended waits
 - when a task depends on Live Validation or another interactive desktop helper, route through `Docs/phase_governance.md` and require reuse-first selection from existing helpers before creating new scripts; temporary one-off probes must stay ignored, temporary, and non-closeout-grade unless promoted into documented reusable tooling
+- when a task creates or keeps a durable root `dev/` validation helper, live-validation script, audit helper, harness, or shared helper, route through `Docs/validation_helper_registry.md` and require the standardized helper name, `Helper Status:`, owner, reuse decision, `Workstream-scoped` classification when applicable, `Consolidation Target`, and `Temporary probe` deletion or promotion handling
 - when a live validation helper has no tighter watchdog, require a `10s` maximum no-progress supervisor with visible progress, clean abort, cleanup, and last confirmed progress reporting
 - when closeout depends on interactive desktop validation, also route through `Docs/phase_governance.md` and require the helper's documented default budget profile to prove green before calling the branch truly green
 - when a branch materially changes user-facing desktop UI, require the post-green live launched-process UI audit before treating closeout as complete; do not reinterpret that as a screenshot requirement for every seam iteration

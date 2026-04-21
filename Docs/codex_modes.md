@@ -202,6 +202,10 @@ Do not report an interactive validation pass as complete or trustworthy if it ex
 Do not create a new live-validation script by default.
 For Live Validation, Codex should reuse existing helpers first, then parameterize or extend them, then extract shared support if several helpers need the same watchdog or cleanup behavior.
 Temporary one-off probes are allowed only as ignored exploratory artifacts and must be deleted or promoted into documented reusable tooling before closeout-grade proof is claimed.
+Durable root `dev/` validators, live-validation scripts, audit helpers, harnesses, and shared helper modules must also be checked against `Docs/validation_helper_registry.md`.
+If a new helper is kept, Codex must report its standardized name, `Helper Status:`, owner, reuse decision, and `Consolidation Target` when it is `Workstream-scoped`.
+Workstream-scoped seam helpers are bridge tooling, not the default release naming model, and must be consolidated, promoted, or explicitly justified before PR Readiness.
+Any `Temporary probe` must stay ignored and be deleted or promoted before closeout-grade proof.
 
 ## Workstream And Branch Governance
 
@@ -305,6 +309,7 @@ When release-dependent truth changes:
 - roadmap owns sequencing
 - workstream docs own promoted-work feature-state, branch-local evidence, active seam references, artifact history, branch-local reuse notes, and closure history
 - `Docs/phase_governance.md` owns repo-wide phase, proof, timeout, seam, stop-loss, validation-helper, and desktop UI audit rules
+- `Docs/validation_helper_registry.md` owns durable helper naming, helper status, registry, and consolidation expectations
 - User Test Summary belongs to workstream-owned validation
 - incident patterns are generalized knowledge, not case history
 - governance and canon updates should ride on the active current branch when they are directly required to keep that branch truthful, executable, phase-correct, readiness-correct, validation-correct, closeout-correct, or release-correct

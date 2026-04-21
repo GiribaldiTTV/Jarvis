@@ -5582,6 +5582,31 @@ class DesktopRuntimeWindow(QWidget):
         else:
             self.open_command_overlay()
 
+    def request_create_custom_task_from_tray(self, source: str = "tray"):
+        if self._is_shutting_down:
+            self._emit_runtime_signal(
+                "TRAY_CREATE_CUSTOM_TASK_ABORTED",
+                source=source,
+                reason="shutdown",
+            )
+            return
+
+        self.open_command_overlay()
+        if not self._command_model.visible or self._command_model.phase != "entry":
+            self._emit_runtime_signal(
+                "TRAY_CREATE_CUSTOM_TASK_ABORTED",
+                source=source,
+                reason="overlay_not_entry",
+            )
+            return
+
+        self._emit_runtime_signal(
+            "TRAY_CREATE_CUSTOM_TASK_ROUTED_TO_OVERLAY_ENTRY",
+            source=source,
+            phase=self._command_model.phase,
+        )
+        QTimer.singleShot(0, self.handle_create_custom_task_requested)
+
     def reload_command_action_catalog(self, source_path=None):
         resolved_source_path = self._saved_action_source_path if source_path is None else source_path
         self._emit_runtime_signal(

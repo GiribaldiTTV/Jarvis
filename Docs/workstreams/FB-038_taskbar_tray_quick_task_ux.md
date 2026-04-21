@@ -40,8 +40,8 @@ This workstream exists so taskbar or tray access and Create Custom Task entry ar
 - `Active Branch`
 - current branch: `feature/fb-038-taskbar-tray-quick-task-ux`
 - Branch Readiness is complete and durably checkpointed in commit `766ff67`
-- no FB-038 product or runtime implementation has started
-- first Workstream pass is source-map and seam selection only
+- first Workstream source-map and seam selection selected `Minimal Tray Overlay Entry`
+- Seam 1 implementation is limited to tray entry into the existing command overlay path
 - FB-037 is released and closed in `v1.4.0-prebeta`
 - FB-037 release publication exists at `https://github.com/GiribaldiTTV/Nexus-Desktop-AI/releases/tag/v1.4.0-prebeta`
 - no FB-037 release-debt blocker remains
@@ -53,7 +53,7 @@ This workstream exists so taskbar or tray access and Create Custom Task entry ar
 
 ## Blockers
 
-- None
+- None.
 
 ## Entry Basis
 
@@ -66,7 +66,7 @@ This workstream exists so taskbar or tray access and Create Custom Task entry ar
 - the GitHub prerelease for `v1.4.0-prebeta` exists, is published, and is marked prerelease
 - FB-038 was selected in canon before this admission and is now promoted
 - Branch Readiness exit criteria are satisfied
-- no FB-038 implementation work is authorized until the first Workstream pass selects and bounds a seam
+- the first Workstream pass selected and bounded `Minimal Tray Overlay Entry` as the first implementation seam
 
 ## Exit Criteria
 
@@ -85,6 +85,8 @@ This workstream exists so taskbar or tray access and Create Custom Task entry ar
 ## Next Legal Phase
 
 - `Hardening`
+
+The approved Workstream seam chain is complete. The next safe move is a separate Workstream-to-Hardening phase-transition durability pass; do not begin Hardening pressure testing inside the Seam 4 finalization pass.
 
 ## Bounded Objective
 
@@ -118,15 +120,23 @@ Bounded multi-seam workflow may be used later only if a Workstream analysis prov
 
 ## First Workstream Pass
 
-The first Workstream pass should be a source-map and seam-selection pass only.
+The first Workstream source-map and seam-selection pass is complete.
 
-It must:
+It selected:
 
-- identify the current tray, taskbar, overlay, launcher, and Create Custom Task surfaces
-- recommend the smallest safe first implementation seam
-- define exact non-includes before any product/runtime patch
-- select validation targets for the first seam
-- preserve all released FB-027, FB-036, FB-041, and FB-037 behavior
+- `Minimal Tray Overlay Entry`
+
+The selected seam proves a tray-shell entry into the existing command overlay path before any direct tray-to-authoring behavior is attempted.
+
+Explicit non-includes for the selected seam:
+
+- no direct `Create Custom Task` tray action
+- no saved-action schema, source, authoring, collision, or resolution changes
+- no built-in catalog changes
+- no callable-group changes
+- no taskbar pinning, jump lists, installer policy, startup registration, or protocol handling
+- no launcher recovery changes
+- no UI redesign, confirm/result copy changes, or settings surface work
 
 ## Explicit Non-Goals
 
@@ -180,6 +190,14 @@ Future desktop UX validation must include:
 - real interactive OS-level proof when feasible
 - cleanup verification for any windows, tray state, helper processes, or temporary artifacts opened by validation
 - User Test Summary updates when the branch changes user-visible behavior
+- helper reuse and naming checks through `Docs/validation_helper_registry.md` before any new durable root `dev/` validation helper is kept
+
+Seam 1 `Minimal Tray Overlay Entry` validation must prove:
+
+- startup still reaches `RENDERER_MAIN|STARTUP_READY`
+- tray entry initialization emits runtime markers
+- tray activation routes to the existing command overlay path
+- existing hotkey, overlay, saved-action, built-in, confirm, result, and callable-group baselines are not widened by the seam
 
 ## User Test Summary Strategy
 
@@ -219,12 +237,218 @@ When a Workstream seam changes taskbar, tray, Create Custom Task, or other user-
 
 ## Workstream Progress
 
-- Workstream is open for source-map and seam selection.
-- No implementation seam has been selected yet.
-- No product/runtime implementation has started.
+- Source-map and seam selection complete:
+  `Minimal Tray Overlay Entry` is the first implementation seam.
+- Seam 1 complete:
+  `Minimal Tray Overlay Entry`
+- Added a lightweight desktop runtime tray entry in `desktop/orin_desktop_main.py`.
+- Tray activation routes only through the existing `DesktopRuntimeWindow.toggle_command_overlay()` path.
+- Added runtime markers:
+  - `RENDERER_MAIN|TRAY_ENTRY_INITIALIZE_REQUESTED`
+  - `RENDERER_MAIN|TRAY_ENTRY_READY`
+  - `RENDERER_MAIN|TRAY_ICON_SHOWN` when the OS tray is available
+  - `RENDERER_MAIN|TRAY_ACTIVATION_REQUESTED`
+  - `RENDERER_MAIN|TRAY_ACTIVATION_ROUTED_TO_OVERLAY`
+- Extended `dev/orin_desktop_entrypoint_validation.py` to prove startup readiness, tray initialization markers, and tray activation routing to the existing overlay toggle path.
+- Same-phase seam-1 hardening completed:
+  tray initialization now fails closed if Qt tray construction is unavailable or throws, startup-abort and shutdown paths hide the tray entry when needed, and validator coverage proves the bounded failure path emits `TRAY_ENTRY_READY|available=false|reason=RuntimeError` instead of crashing startup.
+- Preserved explicit non-includes:
+  no direct Create Custom Task tray action, saved-action changes, built-in catalog changes, callable-group changes, taskbar pinning, jump lists, installer policy, startup registration, protocol handling, launcher recovery changes, UI redesign, confirm/result copy changes, or settings surface work.
+- Repo-side validation for Seam 1 passed:
+  - `python dev/orin_desktop_entrypoint_validation.py`
+  - `python dev/orin_interaction_baseline_validation.py`
+  - `python dev/orin_branch_governance_validation.py`
+  - `git diff --check`
+- Manual/live validation checkpoint for Seam 1 passed:
+  - evidence root: `dev/logs/fb_038_tray_live_validation/20260420_182512`
+  - live runtime startup reached `RENDERER_MAIN|STARTUP_READY`
+  - live runtime tray setup emitted `RENDERER_MAIN|TRAY_ENTRY_READY|available=true` and `RENDERER_MAIN|TRAY_ICON_SHOWN`
+  - Windows UIAutomation exposed the tray entry as `Nexus Desktop AI` / `SystemTray.NormalButton`
+  - keyboard activation of that tray entry emitted `RENDERER_MAIN|TRAY_ACTIVATION_REQUESTED|source=activation_Trigger` and opened the existing overlay with `RENDERER_MAIN|COMMAND_OVERLAY_OPENED|phase=entry|input_armed=true`
+  - `Ctrl+Alt+Home` still opened the same command overlay path
+  - controlled shutdown emitted `RENDERER_MAIN|SHUTDOWN_REQUESTED` and `RENDERER_MAIN|TRAY_ICON_HIDDEN`
+  - no Create Custom Task direct-routing marker appeared
+  - cleanup verification found `leftover_runtime_processes=0`
+  - earlier failed probe roots remain classified as superseded, non-passing exploratory evidence:
+    - `dev/logs/fb_038_tray_live_validation/20260420_154502`
+    - `dev/logs/fb_038_tray_live_validation/20260420_154713`
+    - `dev/logs/fb_038_tray_live_validation/20260420_155022`
+  - classification: `manual/live activation evidence complete`
+  - continuation decision: Seam 1 is fully validated for user-visible shell activation; Seam 2 selection may begin in a separate Workstream seam-selection pass
+- Seam 2 active:
+  `Tray Create Custom Task Entry, Dialog-Open Only`
+- Seam 2 implementation added a tray menu `Create Custom Task` affordance that routes through the existing overlay entry path and existing `handle_create_custom_task_requested()` authoring surface.
+- Seam 2 added runtime proof markers for tray-origin authoring entry:
+  - `RENDERER_MAIN|TRAY_CREATE_CUSTOM_TASK_REQUESTED`
+  - `RENDERER_MAIN|TRAY_CREATE_CUSTOM_TASK_ROUTED_TO_OVERLAY_ENTRY`
+  - existing `RENDERER_MAIN|COMMAND_OVERLAY_OPENED`
+  - existing `RENDERER_MAIN|OVERLAY_ENTRY_ACTION_TRIGGERED|action=create_custom_task`
+  - existing `RENDERER_MAIN|OVERLAY_ENTRY_DIALOG_CREATED|action=create_custom_task`
+- Seam 2 validation support added:
+  - tray create-action route coverage in `dev/orin_desktop_entrypoint_validation.py`
+  - dialog-open/no-write coverage in `dev/orin_saved_action_authoring_ui_validation.py`
+- Seam 2 validation status:
+  - added `dev/orin_fb038_seam2_validation.ps1` as the deterministic repo-local validator runner for this seam
+  - added `dev/orin_fb038_seam2_live_validation.ps1` as the stable repo-local manual/live validation helper for the tray menu, dialog-open/no-write, tray overlay baseline, and hotkey overlay baseline evidence path
+  - both helpers are registered as `Workstream-scoped` in `Docs/validation_helper_registry.md`; Hardening or PR Readiness must decide whether to consolidate them into reusable tray/authoring validation support, promote them, or keep them explicitly workstream-scoped
+  - the runner resolves `NEXUS_VALIDATION_PYTHON`, then the existing Nexus user-local Python at `C:\Users\anden\AppData\Local\Python\pythoncore-3.14-64\python.exe`, then `python` on `PATH`
+  - the runner refuses to proceed unless `PySide6` imports successfully; no validator skip, stub, or fake pass condition was added
+  - `python` and `py` remain unavailable in the current sandbox `PATH`, but the user-local Nexus Python is available and has `PySide6 6.10.2`
+  - `dev/orin_fb038_seam2_validation.ps1` passed
+  - latest passing entrypoint report: `dev/logs/desktop_entrypoint_validation/reports/DesktopEntrypointValidationReport_20260420_221016.txt`
+  - `dev/orin_desktop_entrypoint_validation.py` passed with the user-local Qt-capable Python, including tray initialization, tray overlay routing, and tray Create Custom Task request routing
+  - `dev/orin_interaction_baseline_validation.py` passed with the user-local Qt-capable Python
+  - `dev/orin_saved_action_authoring_ui_validation.py` passed with the user-local Qt-capable Python, including tray-origin Create Custom Task dialog-open/no-write coverage
+  - `dev/orin_branch_governance_validation.py` passed with `292` checks
+  - `git diff --check` passed with CRLF normalization warnings only
+  - manual/live helper evidence passed at `dev/logs/fb_038_tray_create_live_validation/20260420_220847`
+  - manual/live evidence observed the required tray-origin marker chain, confirmed `saved_actions.json` hash/timestamp/length unchanged on open/cancel, confirmed absence of `CUSTOM_TASK_CREATE_ATTEMPT_STARTED` and `CUSTOM_TASK_CREATED`, and rechecked both the tray `Open Command Overlay` baseline and the hotkey overlay baseline
+  - Seam 2 is fully green.
+  - continuation decision at Seam 2 closeout: Seam 3 could only start in a separate bounded Workstream pass.
+- Seam 3 complete:
+  `Tray-Origin Create Completion And Catalog Re-Resolution`
+- Seam 3 reused the existing FB-036 authoring, persistence, catalog reload, resolution, confirm, and result paths without adding a new persistence path, target kind, schema field, or parallel resolution model.
+- Seam 3 validation support added:
+  - tray-origin create-completion/re-resolution coverage in `dev/orin_saved_action_authoring_ui_validation.py`
+  - `dev/orin_fb038_seam3_live_validation.ps1` as the stable repo-local live helper for tray-origin create, persisted saved-action source update, catalog reload, created-task exact-match resolution, confirm/result flow, launched Notepad cleanup, and saved-action source restoration
+  - the helper is registered as `Workstream-scoped` in `Docs/validation_helper_registry.md`; Hardening or PR Readiness must decide whether to consolidate it with the Seam 2 tray helper into reusable tray/Create Custom Task validation support, promote it, or keep it explicitly workstream-scoped
+- Seam 3 repo-side validation passed:
+  - `dev/orin_saved_action_authoring_ui_validation.py`
+  - the validation proves `CUSTOM_TASK_CREATE_ATTEMPT_STARTED`, `COMMAND_ACTION_CATALOG_RELOAD_COMPLETED`, `CUSTOM_TASK_CREATED`, created-record persistence, catalog inventory refresh, exact-match resolution, and normal launch-result flow through a fake launcher
+- Seam 3 manual/live validation passed:
+  - evidence root: `dev/logs/fb_038_tray_create_completion_live_validation/20260421_045536`
+  - observed marker chain:
+    - `RENDERER_MAIN|TRAY_CREATE_CUSTOM_TASK_REQUESTED|source=menu`
+    - `RENDERER_MAIN|COMMAND_OVERLAY_OPENED|phase=entry|input_armed=true`
+    - `RENDERER_MAIN|TRAY_CREATE_CUSTOM_TASK_ROUTED_TO_OVERLAY_ENTRY|source=menu|phase=entry`
+    - `RENDERER_MAIN|OVERLAY_ENTRY_ACTION_TRIGGERED|action=create_custom_task`
+    - `RENDERER_MAIN|OVERLAY_ENTRY_DIALOG_CREATED|action=create_custom_task`
+    - `RENDERER_MAIN|CUSTOM_TASK_CREATE_ATTEMPT_STARTED`
+    - `RENDERER_MAIN|COMMAND_ACTION_CATALOG_RELOAD_COMPLETED`
+    - `RENDERER_MAIN|CUSTOM_TASK_CREATED`
+    - `RENDERER_MAIN|COMMAND_CONFIRM_READY|action_id=fb038_seam3_live_notepad_20260421045536`
+    - `RENDERER_MAIN|COMMAND_LAUNCH_REQUEST_SENT|action_id=fb038_seam3_live_notepad_20260421045536`
+  - persisted record proof: `dev/logs/fb_038_tray_create_completion_live_validation/20260421_045536/created_record.json`
+  - saved-action source proof:
+    - `dev/logs/fb_038_tray_create_completion_live_validation/20260421_045536/saved_actions_after_create.json`
+    - `dev/logs/fb_038_tray_create_completion_live_validation/20260421_045536/saved_actions_restored.json`
+  - screenshots:
+    - `dev/logs/fb_038_tray_create_completion_live_validation/20260421_045536/02_create_custom_task_dialog.png`
+    - `dev/logs/fb_038_tray_create_completion_live_validation/20260421_045536/03_created_task_confirm.png`
+    - `dev/logs/fb_038_tray_create_completion_live_validation/20260421_045536/04_created_task_result.png`
+  - cleanup verification: launched Notepad process closed, runtime process stopped, and `saved_actions.json` restored to its original hash and length
+  - continuation decision: Seam 3 is fully validated; Seam 4 may execute only as Workstream evidence and User Test Summary finalization.
+- Seam 4 complete:
+  `Workstream Evidence And User Test Summary Finalization`
+- Consolidated Workstream evidence across:
+  - Seam 1 `Minimal Tray Overlay Entry`
+  - Seam 2 `Tray Create Custom Task Entry, Dialog-Open Only`
+  - Seam 3 `Tray-Origin Create Completion And Catalog Re-Resolution`
+- Updated this authority record so completed seams are marked green, evidence roots are current, no stale blocker remains, and Hardening is named only as the next legal phase.
+- Finalized the canonical `## User Test Summary` for the completed FB-038 user-facing Workstream behavior.
+- Refreshed the desktop convenience export at `C:\Users\anden\OneDrive\Desktop\User Test Summary.txt` from this workstream-owned canonical summary.
+- Recorded validation-helper registry drift:
+  FB-038 currently carries workstream-scoped Seam 2 and Seam 3 helpers; this is acceptable for Workstream evidence, but the helper registry now requires a consolidation or promotion decision before PR Readiness.
+- Workstream completion decision:
+  COMPLETE for the approved same-risk seam chain.
+- Remaining Workstream seams:
+  none known inside the approved FB-038 scope.
+- Continuation decision:
+  stop Workstream execution and use a separate phase-transition durability pass before Hardening begins.
 
 ## User Test Summary
 
-No user-facing behavior changed in Branch Readiness.
+Seam 1 adds a user-visible tray entry into the existing command overlay path.
+Seam 2 adds a tray menu `Create Custom Task` affordance that should open the existing Create Custom Task dialog without writing saved-action source state on open/cancel.
+Seam 3 completes tray-origin Create Custom Task follow-through through the existing authoring path, proving create, persistence, catalog reload, created-task re-resolution, and confirm/result execution.
 
-Manual validation becomes relevant only after a Workstream seam changes taskbar, tray, Create Custom Task, or related visible desktop behavior.
+Current manual/live status:
+
+- passed for Seam 1
+- live startup and tray initialization markers are present
+- real tray-shell activation produced the required tray activation and overlay-open markers
+- existing hotkey overlay behavior still works through the released path
+- normal shutdown hid the tray icon and left no runtime process behind
+- no direct Create Custom Task routing exists yet
+- Seam 2 route is implemented and repo-side Qt validators pass through `dev/orin_fb038_seam2_validation.ps1`
+- Seam 2 manual/live tray readback passed at `dev/logs/fb_038_tray_create_live_validation/20260420_220847`
+- Seam 2 is fully green
+- Seam 3 repo-side and manual/live validation passed at `dev/logs/fb_038_tray_create_completion_live_validation/20260421_045536`
+- Seam 3 is fully green
+- Seam 4 Workstream evidence and User Test Summary finalization is complete
+- the approved Workstream seam chain is complete and ready for a later Workstream-to-Hardening transition pass
+- desktop export refreshed at `C:\Users\anden\OneDrive\Desktop\User Test Summary.txt`
+
+Completed user-facing behavior:
+
+- the Nexus Desktop AI tray icon is available in a normal desktop session when the runtime starts
+- tray `Open Command Overlay` opens the existing command overlay path without creating a second overlay path
+- the existing overlay hotkey path still opens the same command overlay behavior
+- tray `Create Custom Task` opens the existing command overlay entry path first, then opens the existing `Create Custom Task` dialog
+- canceling or closing the tray-origin Create Custom Task dialog without submitting does not write `saved_actions.json` and does not create a saved action
+- submitting a valid tray-origin custom task uses the existing FB-036 authoring path, persists exactly one saved-action record, reloads the catalog, and allows exact-match resolution of the created task without restart
+- the created task uses the existing confirm/result execution flow
+- validation restores temporary saved-action state after create-completion testing and closes launched apps and helper runtime processes
+
+Manual validation checklist for `Minimal Tray Overlay Entry`:
+
+- setup:
+  launch Nexus Desktop AI from this branch in a normal Windows desktop session
+- action:
+  confirm a Nexus Desktop AI tray icon appears when the runtime starts
+- expected:
+  the app still reaches the normal passive desktop state and the existing overlay hotkeys continue to work
+- action:
+  activate the tray icon or choose `Open Command Overlay` from the tray entry
+- expected:
+  the existing command overlay opens or toggles using the same overlay surface as the hotkey path
+- action:
+  type a known built-in command such as `open calculator`
+- expected:
+  the existing confirm and result flow appears unchanged
+- action:
+  use `Esc` or normal overlay close behavior
+- expected:
+  the overlay returns to a clean entry/passive state without changing saved actions, built-ins, callable groups, or launcher behavior
+- failure signs:
+  no tray icon appears in a normal desktop session, tray activation does nothing, tray activation bypasses confirmation, hotkeys regress, saved-action behavior changes, or confirm/result copy changes unexpectedly
+
+Manual validation checklist for `Tray Create Custom Task Entry, Dialog-Open Only`:
+
+- setup:
+  launch Nexus Desktop AI from this branch in a normal Windows desktop session with a clean saved-action source snapshot
+- action:
+  open the tray menu and choose `Create Custom Task`
+- expected:
+  the existing command overlay opens into entry state first, then the existing `Create Custom Task` dialog opens
+- expected runtime marker chain:
+  `TRAY_CREATE_CUSTOM_TASK_REQUESTED`, `COMMAND_OVERLAY_OPENED`, `TRAY_CREATE_CUSTOM_TASK_ROUTED_TO_OVERLAY_ENTRY`, `OVERLAY_ENTRY_ACTION_TRIGGERED|action=create_custom_task`, and `OVERLAY_ENTRY_DIALOG_CREATED|action=create_custom_task`
+- action:
+  cancel or close the dialog without submitting
+- expected:
+  no saved-action source file write occurs, no custom task is created, and the overlay returns to a stable entry/passive state
+- action:
+  use the existing `Open Command Overlay` tray action and the existing overlay hotkey
+- expected:
+  both still open the command overlay through their existing paths
+- failure signs:
+  the tray action opens a separate authoring path, bypasses overlay entry, writes the saved-action source on open/cancel, creates a custom task, duplicates the overlay, breaks the hotkey path, or changes confirm/result behavior
+
+Manual validation checklist for `Tray-Origin Create Completion And Catalog Re-Resolution`:
+
+- setup:
+  launch Nexus Desktop AI from this branch in a normal Windows desktop session and snapshot `%LOCALAPPDATA%\Nexus Desktop AI\saved_actions.json`
+- action:
+  open the tray menu, choose `Create Custom Task`, fill a valid application task, and submit
+- expected:
+  the route opens the existing overlay entry path first, opens the existing `Create Custom Task` dialog, persists exactly one new saved-action record, and emits `CUSTOM_TASK_CREATE_ATTEMPT_STARTED`, `COMMAND_ACTION_CATALOG_RELOAD_COMPLETED`, and `CUSTOM_TASK_CREATED`
+- action:
+  run the created task phrase through the command overlay
+- expected:
+  the created task resolves by exact match, shows the existing confirm surface, executes through the existing result flow, and emits `COMMAND_CONFIRM_READY` plus `COMMAND_LAUNCH_REQUEST_SENT` for the created action id
+- cleanup:
+  close any launched app window and restore the saved-action source if the validation used a temporary test task
+- failure signs:
+  no saved-action record is written on submit, the catalog does not reload, the created phrase does not resolve, confirm/result behavior changes, a new authoring or resolution path appears, built-ins or existing saved actions regress, or the saved-action source cannot be restored after validation
+
+The desktop `User Test Summary.txt` export was refreshed during Seam 4 because FB-038's user-facing Workstream seam chain is complete.
