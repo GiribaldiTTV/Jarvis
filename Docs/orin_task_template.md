@@ -68,6 +68,15 @@ Validation Contract:
 Timeout Contract:
 [fill in only when interactive timing governance matters]
 
+User Test Summary Results:
+[PENDING / PASS / FAIL / WAIVED / not applicable]
+
+User-Facing Shortcut Path:
+[fill in for relevant desktop user-facing Live Validation, or not applicable]
+
+User-Facing Shortcut Validation:
+[PENDING / PASS / FAIL / WAIVED / not applicable]
+
 Seam Sequence:
 [fill in when a Workstream pass may execute more than one seam]
 
@@ -81,15 +90,18 @@ Note: task mode defines the task type. Codex collaboration posture is defined se
 If the task is phase-sensitive and the exact `Phase` field is missing, stop and clarify before execution.
 If repo state is blocked `No Active Branch`, implementation is blocked and the task should resolve the blocking repair path instead of starting implementation.
 If repo state is steady-state `No Active Branch`, do not start implementation by inertia.
-An explicitly approved `docs/governance`, `release packaging`, or `emergency canon repair` branch may still proceed only when the branch-class admission rules from `C:\Nexus Desktop AI\Docs\phase_governance.md` allow it.
+Do not open a governance-only branch or between-branch canon repair lane.
+Release-packaging branches may proceed only when the branch-class admission rules from `C:\Nexus Desktop AI\Docs\phase_governance.md` allow them.
+Emergency canon repair is direct-main only and requires explicit user approval.
 If a governance or canon update is directly required to keep the active current branch truthful, executable, phase-correct, readiness-correct, validation-correct, closeout-correct, or release-correct, keep that docs-only update on the active branch inside the current phase and branch class.
-Use a separate governance or docs-style branch only for repo-wide uncoupled governance work, emergency canon repair, cross-branch truth repair, or governance work that would contaminate or confuse an active implementation or release branch.
 Add `Validation Contract`, `Timeout Contract`, and `Current active seam` when the governed task needs them.
 Add `Seam Sequence` when the Workstream prompt may use bounded multi-seam workflow.
 If `Seam Sequence` is present, Codex must execute one active seam at a time, validate after each seam, and report a continue-or-stop decision before starting the next seam.
 For `Release Readiness`, a release-bearing branch must include `Release Target:`, `Release Scope:`, and `Release Artifacts:` before green status is allowed.
-Use `Release Branch: No` only for `docs/governance` branches or explicitly canon-only / repo-wide source-of-truth update branches.
+Use `Release Branch: No` only for preserved historical records or explicitly authorized direct-main emergency contexts.
 Do not use `Release Branch: No` for `implementation` or `release packaging` branches.
+If a required User Test Summary handoff is outstanding, use `User Test Summary Results: PENDING`, list `User Test Summary Results Pending` under blockers, and do not report final phase advancement as green until the filled User Test Summary is submitted or waived, digested, and blockers are reevaluated.
+For relevant desktop user-facing Live Validation, apply the `User-Facing Shortcut Live Validation Gate` / `desktop-shortcut` blocker path before User Test Summary handoff: declare `User-Facing Shortcut Path:`, record `User-Facing Shortcut Validation: PENDING`, `PASS`, `FAIL`, or `WAIVED`, and keep `User-Facing Shortcut Validation Pending` as a blocker until the declared desktop shortcut or equivalent user entrypoint is passable or explicitly waived.
 
 Default expectation:
 
@@ -165,7 +177,7 @@ Use this section when the branch matters to the task:
 
 - milestone value: [why this branch or docs program is worth completing]
 - same-branch follow-through: [dependent work that still belongs on this branch before readiness]
-- branch posture: [fresh branch from updated main / continue approved active branch / docs/governance branch from No Active Branch / release packaging branch / emergency canon repair branch / No Active Branch]
+- branch posture: [fresh branch from updated main / continue approved active branch / release packaging branch / No Active Branch / explicitly approved emergency direct-main action]
 - branch-level plan: [objective, target end-state, expected seam families and risk classes, validation contract, User Test Summary strategy, later-phase needs, and first seam or seam sequence]
 
 If a lane was already closed, merged, or released, the next workstream should start from updated `main` on a fresh branch.
@@ -283,13 +295,17 @@ If an execution task is too broad for one approved pass, explain the cleaner exe
 4. Explain the next legal phase or say explicitly that repo state is `No Active Branch`.
 5. If in `Branch Readiness`, explain the whole-branch execution plan before Workstream admission.
 6. If in `Workstream`, explain whether bounded multi-seam workflow is safe; if it is, list the seam sequence, per-seam gates, and stop conditions.
-7. If in `PR Readiness`, explicitly plan the stale-canon check, post-merge-state handling, next-workstream selection/canon/minimal-scope/no-branch-exists check, required `Next Workstream: Selected`, `Minimal Scope:`, `## Selected Next Workstream`, and `Branch: Not created` markers, dirty-branch/durable-commit check, docs-sync/drift-audit check, normal governance validator, and PR-readiness gate mode.
-8. If in `Release Readiness`, explicitly plan the `Release Target Undefined` check, required `Release Target:`, `Release Scope:`, and `Release Artifacts:` markers for release-bearing branches, or the narrow `Release Branch: No` waiver for allowed non-release governance/canon branches.
+7. If in `PR Readiness`, explicitly plan the stale-canon check, post-merge-state handling, next-workstream selection/canon/minimal-scope/no-branch-exists check, required `Next Workstream: Selected`, `Minimal Scope:`, `## Selected Next Workstream`, and `Branch: Not created` markers, dirty-branch/durable-commit check, docs-sync/drift-audit check, `PR Readiness Scope Missed`, `Between-Branch Canon Repair Attempt`, `Next Branch Created Too Early`, normal governance validator, PR-readiness gate mode, required `## Next Branch` response block, and copy-ready `## PR Creation Details` package.
+8. If in `Release Readiness`, explicitly plan the `Release Target Undefined` check, required `Release Target:`, `Release Scope:`, and `Release Artifacts:` markers for release-bearing branches, and confirm Release Readiness is not being used for broad docs sync or branch-authority cleanup.
 9. Explain the validation plan.
+10. If a User Test Summary handoff is relevant, explicitly state whether returned results are `PENDING`, `PASS`, `FAIL`, or `WAIVED`; `PENDING` is the hard blocker `User Test Summary Results Pending`.
 
 If the task includes interactive validation, the validation plan should also state:
 
 - existing helper or harness that will be reused first, or the exact reason reuse is unsafe
+- `Docs/validation_helper_registry.md` lookup result when a durable root `dev/` helper, live-validation script, audit helper, harness, or shared helper module is created or kept
+- the helper's standardized name, `Helper Status:`, owner, and `Consolidation Target` when the helper is `Workstream-scoped`
+- any `Temporary probe` handling, including whether it will be deleted or promoted
 - whether any temporary one-off probe is being used and how it will be deleted or promoted before closeout-grade proof
 - full-run hard timeout
 - no-progress timeout
@@ -375,6 +391,14 @@ unless the final output explicitly explains why the desktop export was not relev
 
 Response-level `## User Test Summary` text alone is not sufficient when either the canonical repo artifact or the desktop export should exist.
 
+Returned User Test Summary results are a hard phase gate. While results are pending, output the state as:
+
+- Automated validators and live helper evidence: GREEN.
+- User Test Summary Results: PENDING.
+- Final phase advancement is BLOCKED until the filled User Test Summary is submitted and digested.
+
+After submission, digest the filled results into the active authority record, reevaluate blockers, and route back to `Workstream` or `Hardening` if user evidence exposes mismatch, regression, ambiguity, cleanup failure, or scope drift.
+
 For runtime, UI, startup, prompt, voice, or other operator-facing implementation slices, validator results alone are not sufficient to justify immediate continuation.
 
 The execution pass must also:
@@ -411,6 +435,7 @@ Stop and explicitly report if:
 - the task would require reopening locked architecture
 - safe verification is not possible
 - the task needs a new branch basis because the current one is stale, merged, or no longer the right execution base
+- `User Test Summary Results Pending` remains active while the task attempts to advance phase, PR readiness, merge readiness, or final green status
 
 ## Required Output Format
 
@@ -430,6 +455,38 @@ J. PR description
 
 K. `## User Test Summary` manual checklist when manual validation is relevant
 
+If the phase is `PR Readiness`, the final response must include:
+
+```markdown
+## Next Branch
+- Next Legal Branch Type:
+- Next Branch Name:
+- Branch Class:
+- Creation Status:
+- Creation Gate:
+- Selected Next Workstream:
+- Selected Next Implementation Branch:
+- May Create Now: YES / NO
+- Reason:
+```
+
+If `PR Readiness` is green or `PR READY: YES`, the final response must also include this copy-ready markdown package:
+
+```markdown
+## PR Creation Details
+### Title
+### Base / Head
+### Summary
+### Validation
+### Governance / Canon
+### Post-Merge Truth
+### Next Branch
+### Not Included
+```
+
+The `Next Branch` block must separate the next legal branch from the selected next implementation branch.
+If the next implementation branch is deferred by release debt, updated-`main` revalidation, or another branch-admission gate, set `May Create Now: NO` and state the reason.
+
 ## Important
 
 - Do not write code if this is analysis-only.
@@ -438,4 +495,4 @@ K. `## User Test Summary` manual checklist when manual validation is relevant
 - Do not smuggle in policy or authority changes outside the approved task.
 - Do not modify backlog status or add backlog items unless the task explicitly authorizes backlog updates.
 - Do not force tightly coupled governance or canon updates onto a separate docs/governance branch when the active branch owns the affected truth and the update can stay inside its current phase, branch class, validation rules, and stop conditions.
-- Do not force a docs-only canon repair onto a hypothetical implementation branch when live truth and `C:\Nexus Desktop AI\Docs\phase_governance.md` justify an explicitly approved standalone docs/governance branch.
+- Do not open a governance-only branch or between-branch repair window for missed PR Readiness work; carry the repair in the next active branch's `Branch Readiness` before implementation begins.

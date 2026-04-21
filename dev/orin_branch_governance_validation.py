@@ -113,6 +113,21 @@ DOCS_GOVERNANCE_ADMISSION_DOCS = (
     Path("Docs/codex_user_guide.md"),
 )
 
+GOVERNANCE_ONLY_BLOCK_DOCS = (
+    Path("Docs/phase_governance.md"),
+    Path("Docs/development_rules.md"),
+    Path("Docs/Main.md"),
+    Path("Docs/codex_modes.md"),
+    Path("Docs/orin_task_template.md"),
+    Path("Docs/codex_user_guide.md"),
+    Path("Docs/closeout_guidance.md"),
+)
+
+GOVERNANCE_ONLY_BLOCK_PHRASES = (
+    "governance-only branch",
+    "between-branch",
+)
+
 MULTI_SEAM_CONTRACT_DOCS = (
     Path("Docs/phase_governance.md"),
     Path("Docs/development_rules.md"),
@@ -188,6 +203,26 @@ LIVE_VALIDATION_HELPER_CONTRACTS = {
     ),
 }
 
+VALIDATION_HELPER_REGISTRY = Path("Docs/validation_helper_registry.md")
+
+VALIDATION_HELPER_STANDARD_DOCS = (
+    Path("Docs/phase_governance.md"),
+    Path("Docs/development_rules.md"),
+    Path("Docs/Main.md"),
+    Path("Docs/codex_modes.md"),
+    Path("Docs/orin_task_template.md"),
+    Path("Docs/codex_user_guide.md"),
+    Path("Docs/validation_helper_registry.md"),
+)
+
+VALIDATION_HELPER_STANDARD_PHRASES = (
+    "Docs/validation_helper_registry.md",
+    "Helper Status:",
+    "Workstream-scoped",
+    "Consolidation Target",
+    "Temporary probe",
+)
+
 PR_READINESS_BLOCKER_DOCS = (
     Path("Docs/phase_governance.md"),
     Path("Docs/development_rules.md"),
@@ -203,7 +238,84 @@ PR_READINESS_BLOCKER_PHRASES = (
     "dirty",
     "docs-sync",
     "next-workstream",
+    "desktop-shortcut",
+    "User Test Summary Results Pending",
+    "PR Readiness Scope Missed",
+    "Between-Branch Canon Repair Attempt",
+    "Next Branch Created Too Early",
 )
+
+PR_READINESS_RESPONSE_CONTRACT_DOCS = (
+    Path("Docs/phase_governance.md"),
+    Path("Docs/codex_modes.md"),
+    Path("Docs/orin_task_template.md"),
+    Path("Docs/codex_user_guide.md"),
+)
+
+PR_READINESS_RESPONSE_CONTRACT_PHRASES = (
+    "## Next Branch",
+    "Next Legal Branch Type:",
+    "Next Branch Name:",
+    "Branch Class:",
+    "Creation Status:",
+    "Creation Gate:",
+    "Selected Next Workstream:",
+    "Selected Next Implementation Branch:",
+    "May Create Now: YES / NO",
+    "## PR Creation Details",
+    "### Title",
+    "### Base / Head",
+    "### Summary",
+    "### Validation",
+    "### Governance / Canon",
+    "### Post-Merge Truth",
+    "### Next Branch",
+    "### Not Included",
+)
+
+UTS_RESULTS_BLOCKER_DOCS = (
+    Path("Docs/phase_governance.md"),
+    Path("Docs/development_rules.md"),
+    Path("Docs/Main.md"),
+    Path("Docs/codex_modes.md"),
+    Path("Docs/orin_task_template.md"),
+    Path("Docs/codex_user_guide.md"),
+    Path("Docs/user_test_summary_guidance.md"),
+)
+
+UTS_RESULTS_BLOCKER_PHRASES = (
+    "User Test Summary Results Pending",
+    "User Test Summary Results:",
+    "Final phase advancement is BLOCKED",
+)
+
+UTS_RESULTS_BLOCKER = "User Test Summary Results Pending"
+UTS_RESULT_LABEL = "User Test Summary Results:"
+UTS_RESULT_VALUES = ("PENDING", "PASS", "FAIL", "WAIVED")
+UTS_CLEAR_RESULT_VALUES = ("PASS", "WAIVED")
+
+USER_FACING_SHORTCUT_GATE_DOCS = (
+    Path("Docs/phase_governance.md"),
+    Path("Docs/development_rules.md"),
+    Path("Docs/Main.md"),
+    Path("Docs/codex_modes.md"),
+    Path("Docs/orin_task_template.md"),
+    Path("Docs/codex_user_guide.md"),
+    Path("Docs/user_test_summary_guidance.md"),
+)
+
+USER_FACING_SHORTCUT_GATE_PHRASES = (
+    "User-Facing Shortcut Live Validation Gate",
+    "User-Facing Shortcut Validation:",
+    "User-Facing Shortcut Path:",
+    "before User Test Summary",
+)
+
+USER_FACING_SHORTCUT_BLOCKER = "User-Facing Shortcut Validation Pending"
+USER_FACING_SHORTCUT_RESULT_LABEL = "User-Facing Shortcut Validation:"
+USER_FACING_SHORTCUT_PATH_LABEL = "User-Facing Shortcut Path:"
+USER_FACING_SHORTCUT_RESULT_VALUES = ("PENDING", "PASS", "FAIL", "WAIVED")
+USER_FACING_SHORTCUT_CLEAR_VALUES = ("PASS", "WAIVED")
 
 RELEASE_READINESS_TARGET_DOCS = (
     Path("Docs/phase_governance.md"),
@@ -220,6 +332,18 @@ RELEASE_READINESS_TARGET_PHRASES = (
     "Release Scope:",
     "Release Artifacts:",
     "Release Branch: No",
+)
+
+RELEASE_READINESS_SCOPE_DOCS = (
+    Path("Docs/phase_governance.md"),
+    Path("Docs/Main.md"),
+    Path("Docs/codex_modes.md"),
+    Path("Docs/orin_task_template.md"),
+)
+
+RELEASE_READINESS_SCOPE_PHRASES = (
+    "Release Readiness is not",
+    "docs-sync",
 )
 
 REQUIRED_RELEASE_BEARING_MARKERS = (
@@ -356,6 +480,52 @@ def _parse_workstream_doc(text: str) -> dict[str, object]:
     }
 
 
+def _parse_uts_result_state(text: str) -> str:
+    matches = re.findall(rf"{re.escape(UTS_RESULT_LABEL)}\s*`?([A-Za-z]+)`?", text)
+    if not matches:
+        return ""
+    return matches[-1].strip().upper()
+
+
+def _parse_user_facing_shortcut_state(text: str) -> str:
+    matches = re.findall(
+        rf"{re.escape(USER_FACING_SHORTCUT_RESULT_LABEL)}\s*`?([A-Za-z]+)`?",
+        text,
+    )
+    if not matches:
+        return ""
+    return matches[-1].strip().upper()
+
+
+def _parse_user_facing_shortcut_path(text: str) -> str:
+    matches = re.findall(
+        rf"{re.escape(USER_FACING_SHORTCUT_PATH_LABEL)}\s*`?([^\r\n`]+)`?",
+        text,
+    )
+    if not matches:
+        return ""
+    return matches[-1].strip()
+
+
+def _has_user_test_summary(text: str) -> bool:
+    return "## User Test Summary" in text
+
+
+def _requires_user_facing_shortcut_gate(text: str) -> bool:
+    if not _has_user_test_summary(text):
+        return False
+    text_lower = text.casefold()
+    desktop_surface_markers = (
+        "desktop",
+        "tray",
+        "taskbar",
+        "shortcut",
+        "launcher",
+        "user-facing",
+    )
+    return any(marker in text_lower for marker in desktop_surface_markers)
+
+
 def _collect_active_index_paths(text: str) -> set[str]:
     active_section = _subsection(text, "Active")
     return set(re.findall(r"Docs/workstreams/[A-Za-z0-9._-]+\.md", active_section))
@@ -396,6 +566,20 @@ def _git_status_porcelain() -> str:
     )
     if completed.returncode != 0:
         return f"__GIT_STATUS_ERROR__ {completed.stderr.strip()}"
+    return completed.stdout.strip()
+
+
+def _git_current_branch() -> str:
+    completed = subprocess.run(
+        ("git", "branch", "--show-current"),
+        cwd=ROOT_DIR,
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        check=False,
+    )
+    if completed.returncode != 0:
+        return ""
     return completed.stdout.strip()
 
 
@@ -441,6 +625,92 @@ def _branch_names_for_workstream(branch_names: list[str], workstream_id: str) ->
         for branch_name in branch_names
         if canonical in branch_name.casefold() or compact in branch_name.casefold().replace("-", "")
     ]
+
+
+def _root_dev_helper_paths() -> list[str]:
+    helper_dir = ROOT_DIR / "dev"
+    if not helper_dir.is_dir():
+        return []
+    return sorted(
+        path.relative_to(ROOT_DIR).as_posix()
+        for path in helper_dir.iterdir()
+        if path.is_file()
+        and path.suffix.lower() in {".py", ".ps1"}
+        and path.name.startswith("orin_")
+    )
+
+
+def _registry_line_for_path(registry_text: str, helper_path: str) -> str:
+    needle = f"`{helper_path}`"
+    for line in registry_text.splitlines():
+        if needle in line:
+            return line
+    return ""
+
+
+def _run_uts_results_pr_gate(require, backlog_entries: list[dict[str, str]]) -> None:
+    for entry in backlog_entries:
+        if entry.get("record_state") != "Promoted":
+            continue
+
+        canonical_path = entry.get("canonical_path", "")
+        if not canonical_path:
+            continue
+
+        workstream_path = Path(canonical_path)
+        if not (ROOT_DIR / workstream_path).is_file():
+            continue
+
+        workstream_text = _read_text(workstream_path)
+        if not _has_user_test_summary(workstream_text):
+            continue
+
+        workstream_info = _parse_workstream_doc(workstream_text)
+        current_phase = str(workstream_info["current_phase"])
+        if current_phase not in {"Live Validation", "PR Readiness"}:
+            continue
+
+        uts_result = _parse_uts_result_state(workstream_text)
+        blockers = list(workstream_info["blockers"])
+        if _requires_user_facing_shortcut_gate(workstream_text):
+            shortcut_result = _parse_user_facing_shortcut_state(workstream_text)
+            require(
+                bool(shortcut_result),
+                (
+                    "PR readiness gate: User-Facing Shortcut Validation Pending blocker is active; "
+                    f"{canonical_path} must declare '{USER_FACING_SHORTCUT_RESULT_LABEL}' before PR READY: YES"
+                ),
+            )
+            if shortcut_result:
+                require(
+                    shortcut_result in USER_FACING_SHORTCUT_CLEAR_VALUES
+                    and USER_FACING_SHORTCUT_BLOCKER not in blockers,
+                    (
+                        "PR readiness gate: User-Facing Shortcut Validation gate is not clear; "
+                        f"{canonical_path} reports {USER_FACING_SHORTCUT_RESULT_LABEL} {shortcut_result}; "
+                        "the declared user-facing shortcut or equivalent entrypoint must pass or be waived "
+                        "before PR READY: YES"
+                    ),
+                )
+
+        require(
+            bool(uts_result),
+            (
+                "PR readiness gate: User Test Summary Results Pending blocker is active; "
+                f"{canonical_path} must declare '{UTS_RESULT_LABEL}' before PR READY: YES"
+            ),
+        )
+        if not uts_result:
+            continue
+
+        require(
+            uts_result in UTS_CLEAR_RESULT_VALUES and UTS_RESULTS_BLOCKER not in blockers,
+            (
+                "PR readiness gate: User Test Summary Results Pending blocker is active; "
+                f"{canonical_path} reports {UTS_RESULT_LABEL} {uts_result}; returned results "
+                "must be submitted or waived, digested, and reevaluated before PR READY: YES"
+            ),
+        )
 
 
 def _run_next_workstream_gate(require, backlog_entries: list[dict[str, str]], roadmap_text: str) -> None:
@@ -537,6 +807,7 @@ def _run_pr_readiness_gate(require, backlog_entries: list[dict[str, str]], roadm
             "and required branch truth must be durable in commit history before PR READY: YES"
         ),
     )
+    _run_uts_results_pr_gate(require, backlog_entries)
     _run_next_workstream_gate(require, backlog_entries, roadmap_text)
 
 
@@ -619,8 +890,16 @@ def main() -> int:
         text = _read_text(relative_path)
         require(
             "docs/governance" in text,
-            f"{relative_path}: docs/governance branch-admission guidance is missing",
+            f"{relative_path}: docs/governance historical branch-class guidance is missing",
         )
+
+    for relative_path in GOVERNANCE_ONLY_BLOCK_DOCS:
+        text = _read_text(relative_path).casefold()
+        for required_phrase in GOVERNANCE_ONLY_BLOCK_PHRASES:
+            require(
+                required_phrase in text,
+                f"{relative_path}: governance-only / between-branch repair blocker guidance is missing '{required_phrase}'",
+            )
 
     for relative_path in MULTI_SEAM_CONTRACT_DOCS:
         text = _read_text(relative_path)
@@ -670,12 +949,79 @@ def main() -> int:
                 f"{relative_path}: reusable Live Validation helper is missing '{required_phrase}'",
             )
 
+    registry_path = ROOT_DIR / VALIDATION_HELPER_REGISTRY
+    require(
+        registry_path.is_file(),
+        f"{VALIDATION_HELPER_REGISTRY}: validation helper registry is missing",
+    )
+    registry_text = _read_text(VALIDATION_HELPER_REGISTRY) if registry_path.is_file() else ""
+
+    for relative_path in VALIDATION_HELPER_STANDARD_DOCS:
+        text = _read_text(relative_path)
+        for required_phrase in VALIDATION_HELPER_STANDARD_PHRASES:
+            require(
+                required_phrase in text,
+                f"{relative_path}: validation helper standardization guidance is missing '{required_phrase}'",
+            )
+
+    if registry_text:
+        for helper_path in _root_dev_helper_paths():
+            helper_line = _registry_line_for_path(registry_text, helper_path)
+            require(
+                bool(helper_line),
+                f"{VALIDATION_HELPER_REGISTRY}: root dev helper '{helper_path}' is not registered",
+            )
+            if helper_line:
+                require(
+                    "Helper Status:" in helper_line,
+                    f"{VALIDATION_HELPER_REGISTRY}: helper '{helper_path}' is missing Helper Status",
+                )
+                if re.search(r"dev/orin_fb\d+_", helper_path):
+                    require(
+                        "Helper Status: Workstream-scoped" in helper_line,
+                        (
+                            f"{VALIDATION_HELPER_REGISTRY}: workstream helper '{helper_path}' "
+                            "must be marked Helper Status: Workstream-scoped"
+                        ),
+                    )
+                    require(
+                        re.search(r"consolidat|fold|promot", helper_line, flags=re.I) is not None,
+                        (
+                            f"{VALIDATION_HELPER_REGISTRY}: workstream helper '{helper_path}' "
+                            "must name a consolidation or promotion target"
+                        ),
+                    )
+
     for relative_path in PR_READINESS_BLOCKER_DOCS:
         text = _read_text(relative_path).casefold()
         for required_phrase in PR_READINESS_BLOCKER_PHRASES:
             require(
-                required_phrase in text,
+                required_phrase.casefold() in text,
                 f"{relative_path}: PR Readiness blocker guidance is missing '{required_phrase}'",
+            )
+
+    for relative_path in PR_READINESS_RESPONSE_CONTRACT_DOCS:
+        text = _read_text(relative_path)
+        for required_phrase in PR_READINESS_RESPONSE_CONTRACT_PHRASES:
+            require(
+                required_phrase in text,
+                f"{relative_path}: PR Readiness response contract is missing '{required_phrase}'",
+            )
+
+    for relative_path in UTS_RESULTS_BLOCKER_DOCS:
+        text = _read_text(relative_path)
+        for required_phrase in UTS_RESULTS_BLOCKER_PHRASES:
+            require(
+                required_phrase in text,
+                f"{relative_path}: User Test Summary results blocker guidance is missing '{required_phrase}'",
+            )
+
+    for relative_path in USER_FACING_SHORTCUT_GATE_DOCS:
+        text = _read_text(relative_path)
+        for required_phrase in USER_FACING_SHORTCUT_GATE_PHRASES:
+            require(
+                required_phrase in text,
+                f"{relative_path}: user-facing shortcut Live Validation gate guidance is missing '{required_phrase}'",
             )
 
     for relative_path in RELEASE_READINESS_TARGET_DOCS:
@@ -686,6 +1032,14 @@ def main() -> int:
                 f"{relative_path}: Release Readiness target gate guidance is missing '{required_phrase}'",
             )
 
+    for relative_path in RELEASE_READINESS_SCOPE_DOCS:
+        text = _read_text(relative_path).casefold()
+        for required_phrase in RELEASE_READINESS_SCOPE_PHRASES:
+            require(
+                required_phrase.casefold() in text,
+                f"{relative_path}: Release Readiness docs-sync scope boundary is missing '{required_phrase}'",
+            )
+
     active_index_paths = _collect_active_index_paths(index_text)
     closed_index_paths = _collect_closed_index_paths(index_text)
     release_debt_index_paths = _collect_release_debt_index_paths(index_text)
@@ -693,6 +1047,48 @@ def main() -> int:
     backlog_entries = _parse_backlog_sections(backlog_text)
     if pr_readiness_gate:
         _run_pr_readiness_gate(require, backlog_entries, roadmap_text)
+
+    selected_entries = _selected_next_workstream_entries(backlog_entries)
+    if len(selected_entries) == 1 and not pr_readiness_gate:
+        selected = selected_entries[0]
+        selected_id = selected["id"]
+        roadmap_section = _next_workstream_roadmap_section(roadmap_text)
+        branch_names, branch_error = _git_branch_names()
+        require(
+            not branch_error,
+            f"Selected next workstream branch check: could not inspect branch names: {branch_error}",
+        )
+        if not branch_error and roadmap_section:
+            matching_branches = _branch_names_for_workstream(branch_names, selected_id)
+            if matching_branches:
+                current_branch = _git_current_branch()
+                roadmap_lower = roadmap_section.casefold()
+                claims_not_created = any(
+                    phrase.casefold() in roadmap_lower
+                    for phrase in NEXT_WORKSTREAM_BRANCH_NOT_CREATED_PHRASES
+                )
+                require(
+                    not claims_not_created,
+                    (
+                        "Next Branch Created Too Early / current-state claim drift: "
+                        f"{selected_id} has branch(es) {', '.join(matching_branches)} but roadmap still claims no branch exists"
+                    ),
+                )
+                require(
+                    current_branch in matching_branches and current_branch in roadmap_section,
+                    (
+                        "Selected next workstream branch truth is ambiguous: "
+                        f"{selected_id} has branch(es) {', '.join(matching_branches)}, "
+                        "but the current branch is not recorded as the Branch Readiness branch in roadmap"
+                    ),
+                )
+                require(
+                    "Branch Readiness" in selected["block"] or "Branch Readiness" in roadmap_section,
+                    (
+                        "Selected next workstream branch truth is ambiguous: "
+                        f"{selected_id} branch exists but Branch Readiness-only admission state is not explicit"
+                    ),
+                )
 
     promoted_entries = [
         entry
@@ -832,6 +1228,140 @@ def main() -> int:
                     f"Next Legal Phase advances from '{current_phase}' to '{next_legal_phase}'"
                 ),
             )
+
+        if current_phase in {"Live Validation", "PR Readiness"} and _has_user_test_summary(workstream_text):
+            uts_result = _parse_uts_result_state(workstream_text)
+            require(
+                bool(uts_result),
+                (
+                    f"{canonical_path}: active user-facing '{current_phase}' workstream must declare "
+                    f"'{UTS_RESULT_LABEL}'"
+                ),
+            )
+            if uts_result:
+                require(
+                    uts_result in UTS_RESULT_VALUES,
+                    (
+                        f"{canonical_path}: {UTS_RESULT_LABEL} '{uts_result}' must be one of "
+                        f"{', '.join(UTS_RESULT_VALUES)}"
+                    ),
+                )
+                if uts_result == "PENDING":
+                    require(
+                        UTS_RESULTS_BLOCKER in blockers,
+                        (
+                            f"{canonical_path}: {UTS_RESULT_LABEL} PENDING requires "
+                            f"'{UTS_RESULTS_BLOCKER}' under Blockers"
+                        ),
+                    )
+                    require(
+                        next_legal_phase == current_phase,
+                        (
+                            f"{canonical_path}: {UTS_RESULT_LABEL} PENDING must keep Next Legal Phase "
+                            f"at '{current_phase}' until returned results are digested"
+                        ),
+                    )
+                if uts_result == "FAIL":
+                    require(
+                        UTS_RESULTS_BLOCKER in blockers or blockers,
+                        (
+                            f"{canonical_path}: {UTS_RESULT_LABEL} FAIL must keep an explicit blocker "
+                            "and route back before advancement"
+                        ),
+                    )
+                if uts_result in UTS_CLEAR_RESULT_VALUES:
+                    require(
+                        UTS_RESULTS_BLOCKER not in blockers,
+                        (
+                            f"{canonical_path}: {UTS_RESULTS_BLOCKER} must clear after "
+                            f"{UTS_RESULT_LABEL} {uts_result}"
+                        ),
+                    )
+                if current_phase == "PR Readiness":
+                    require(
+                        uts_result in UTS_CLEAR_RESULT_VALUES,
+                        (
+                            f"{canonical_path}: PR Readiness requires {UTS_RESULT_LABEL} PASS or WAIVED; "
+                            f"current value is {uts_result}"
+                        ),
+                    )
+
+        if current_phase in {"Live Validation", "PR Readiness"} and _requires_user_facing_shortcut_gate(
+            workstream_text
+        ):
+            shortcut_result = _parse_user_facing_shortcut_state(workstream_text)
+            shortcut_path = _parse_user_facing_shortcut_path(workstream_text)
+            require(
+                bool(shortcut_result),
+                (
+                    f"{canonical_path}: active desktop user-facing '{current_phase}' workstream must declare "
+                    f"'{USER_FACING_SHORTCUT_RESULT_LABEL}' before User Test Summary handoff"
+                ),
+            )
+            if shortcut_result:
+                require(
+                    shortcut_result in USER_FACING_SHORTCUT_RESULT_VALUES,
+                    (
+                        f"{canonical_path}: {USER_FACING_SHORTCUT_RESULT_LABEL} '{shortcut_result}' must be one of "
+                        f"{', '.join(USER_FACING_SHORTCUT_RESULT_VALUES)}"
+                    ),
+                )
+                if shortcut_result != "WAIVED":
+                    require(
+                        bool(shortcut_path),
+                        (
+                            f"{canonical_path}: {USER_FACING_SHORTCUT_RESULT_LABEL} {shortcut_result} requires "
+                            f"'{USER_FACING_SHORTCUT_PATH_LABEL}'"
+                        ),
+                    )
+                if shortcut_result == "PENDING":
+                    require(
+                        USER_FACING_SHORTCUT_BLOCKER in blockers,
+                        (
+                            f"{canonical_path}: {USER_FACING_SHORTCUT_RESULT_LABEL} PENDING requires "
+                            f"'{USER_FACING_SHORTCUT_BLOCKER}' under Blockers"
+                        ),
+                    )
+                    require(
+                        next_legal_phase == current_phase,
+                        (
+                            f"{canonical_path}: {USER_FACING_SHORTCUT_RESULT_LABEL} PENDING must keep "
+                            f"Next Legal Phase at '{current_phase}' until shortcut evidence is digested"
+                        ),
+                    )
+                if shortcut_result == "FAIL":
+                    require(
+                        blockers,
+                        (
+                            f"{canonical_path}: {USER_FACING_SHORTCUT_RESULT_LABEL} FAIL must keep an explicit "
+                            "blocker and route back before advancement"
+                        ),
+                    )
+                if shortcut_result in USER_FACING_SHORTCUT_CLEAR_VALUES:
+                    require(
+                        USER_FACING_SHORTCUT_BLOCKER not in blockers,
+                        (
+                            f"{canonical_path}: {USER_FACING_SHORTCUT_BLOCKER} must clear after "
+                            f"{USER_FACING_SHORTCUT_RESULT_LABEL} {shortcut_result}"
+                        ),
+                    )
+                uts_result_for_shortcut = _parse_uts_result_state(workstream_text)
+                if uts_result_for_shortcut in UTS_CLEAR_RESULT_VALUES:
+                    require(
+                        shortcut_result in USER_FACING_SHORTCUT_CLEAR_VALUES,
+                        (
+                            f"{canonical_path}: {UTS_RESULT_LABEL} {uts_result_for_shortcut} requires "
+                            f"{USER_FACING_SHORTCUT_RESULT_LABEL} PASS or WAIVED first"
+                        ),
+                    )
+                if current_phase == "PR Readiness":
+                    require(
+                        shortcut_result in USER_FACING_SHORTCUT_CLEAR_VALUES,
+                        (
+                            f"{canonical_path}: PR Readiness requires "
+                            f"{USER_FACING_SHORTCUT_RESULT_LABEL} PASS or WAIVED; current value is {shortcut_result}"
+                        ),
+                    )
 
         if current_phase in {"PR Readiness", "Release Readiness"}:
             governance_audit = str(workstream_info["governance_audit"])
@@ -983,10 +1513,11 @@ def main() -> int:
             )
         if has_non_release_marker:
             require(
-                branch_class in NON_RELEASE_WAIVER_BRANCH_CLASSES,
+                branch_record_path in historical_branch_record_paths
+                or "direct-main emergency" in record_text.casefold(),
                 (
                     f"{branch_record_path}: '{NON_RELEASE_BRANCH_MARKER}' is only allowed for "
-                    "docs/governance or explicitly canon-only / repo-wide source-of-truth update branches"
+                    "preserved historical records or explicitly authorized direct-main emergency contexts"
                 ),
             )
         require(

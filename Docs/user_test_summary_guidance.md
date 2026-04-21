@@ -158,6 +158,69 @@ That digest should separate:
 - what belongs to the current workstream
 - what should be deferred
 
+## User Test Summary Results Blocker
+
+Named blocker:
+
+- `User Test Summary Results Pending`
+
+Definition:
+
+- Live Validation and PR Readiness must not report final green while a relevant user-facing workstream has a required `UTS` handoff outstanding and returned results have not been submitted and digested.
+
+Required authority-record marker:
+
+- `User Test Summary Results: PENDING`
+- `User Test Summary Results: PASS`
+- `User Test Summary Results: FAIL`
+- `User Test Summary Results: WAIVED`
+
+While results are pending, Codex must report:
+
+- Automated validators and live helper evidence: GREEN.
+- User Test Summary Results: PENDING.
+- Final phase advancement is BLOCKED until the filled User Test Summary is submitted and digested.
+
+Lift condition:
+
+- the filled `UTS` is submitted or a documented waiver exists
+- the returned results or waiver are digested into the active authority record
+- blockers are reevaluated after digestion
+
+Routing after digestion:
+
+- if returned results pass, clear `User Test Summary Results Pending` and allow forward progression only if all other gates pass
+- if returned results expose mismatch, regression, unclear behavior, cleanup failure, or scope drift, route back to `Workstream` or `Hardening` as appropriate
+- if returned results raise new ideas or requests, keep them out of current scope until carry-forward is explicitly approved
+
+The desktop export is not considered returned evidence by itself. It is the handoff artifact; the blocker remains active until filled results come back or a waiver is documented.
+
+## User-Facing Shortcut Live Validation Gate
+
+For relevant desktop user-facing workstreams, User Test Summary handoff is downstream of final Live Validation through the user's actual desktop entrypoint.
+Validators, live helpers, synthetic harnesses, and direct runtime launches may build supporting evidence, but they do not replace this final shortcut gate when the shortcut path is feasible.
+
+Before User Test Summary handoff, the active authority record must declare:
+
+- `User-Facing Shortcut Path:`
+- `User-Facing Shortcut Validation: PENDING`
+- `User-Facing Shortcut Validation: PASS`
+- `User-Facing Shortcut Validation: FAIL`
+- `User-Facing Shortcut Validation: WAIVED`
+
+Named blocker:
+
+- `User-Facing Shortcut Validation Pending`
+
+The expected default path for Nexus Desktop AI desktop work is:
+
+- `C:\Users\anden\OneDrive\Desktop\Nexus Desktop Launcher.lnk`
+
+The gate is green only when the declared shortcut or explicitly equivalent user-facing entrypoint launches the active branch, reaches ready state, exposes the relevant user-visible surface, and leaves cleanup/persisted-state evidence consistent with the workstream validation contract before User Test Summary handoff.
+If the gate is `PENDING`, keep `User-Facing Shortcut Validation Pending` active.
+If the gate is `FAIL`, route back to `Workstream` or `Hardening` before exporting final-green `UTS` posture.
+If the gate is `WAIVED`, the waiver must state why the branch is not desktop/user-facing or why the shortcut path is explicitly unavailable.
+
 ## Carry-Forward Approval Rule
 
 Ideas surfaced through a returned `UTS` must not be silently added to:

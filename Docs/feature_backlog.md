@@ -26,7 +26,22 @@ Historical note:
 
 ## Promoted Canonical Workstreams
 
-- None
+- `Docs/workstreams/FB-038_taskbar_tray_quick_task_ux.md`
+
+## Active Promoted Workstream
+
+### [ID: FB-038] Taskbar / tray quick-task UX and Create Custom Task surface
+
+Status: PR Readiness
+Blocker: None
+Record State: Promoted
+Priority: Medium
+Release Stage: pre-Beta
+Target Version: TBD
+Canonical Workstream Doc: Docs/workstreams/FB-038_taskbar_tray_quick_task_ux.md
+Minimal Scope: PR Readiness for the completed tray quick-task UX after fresh post-H4 Live Validation; desktop shortcut launch proves Core Visualization is the first visible Nexus UI, tray identity/discoverability remains clear, tray Create Custom Task dialog-open/no-write and create-completion flows remain green, UTS returned-results handling is resolved by documented waiver, merge-target/post-merge truth is explicit, helper retention is resolved, and the next workstream is selected without creating its branch.
+Summary: Track future taskbar or tray quick-access UX, including a Create Custom Task affordance, as a deliberate shell-facing entry surface into the shared action model.
+Why it matters: Taskbar and tray interaction affect entry, discoverability, and user trust, so they should be planned as an explicit UX lane instead of piggybacking on overlay or authoring work.
 
 ## Registry Items
 
@@ -100,7 +115,7 @@ Target Version: TBD
 Summary: Track the broader Nexus-era vision and source-of-truth migration above the current phase-one canon foundation rebuild.
 Why it matters: The repo still needs deeper identity and wording normalization after the foundation layer is rebuilt.
 
-### [ID: FB-038] Taskbar / tray quick-task UX and Create Custom Task surface
+### [ID: FB-039] External trigger and plugin integration architecture
 
 Status: Deferred
 Record State: Registry-only
@@ -108,17 +123,7 @@ Next Workstream: Selected
 Priority: Medium
 Release Stage: pre-Beta
 Target Version: TBD
-Minimal Scope: Branch Readiness admission and planning for the shell-facing quick-task entry surface, initially limited to defining the smallest safe taskbar/tray or Create Custom Task UX seam above the released interaction, authoring, callable-group execution, and built-in catalog baselines; no branch exists yet and no implementation is authorized until updated main is revalidated after the FB-037 release.
-Summary: Track future taskbar or tray quick-access UX, including a Create Custom Task affordance, as a deliberate shell-facing entry surface into the shared action model.
-Why it matters: Taskbar and tray interaction affect entry, discoverability, and user trust, so they should be planned as an explicit UX lane instead of piggybacking on overlay or authoring work.
-
-### [ID: FB-039] External trigger and plugin integration architecture
-
-Status: Deferred
-Record State: Registry-only
-Priority: Medium
-Release Stage: pre-Beta
-Target Version: TBD
+Minimal Scope: Branch Readiness only for external trigger and plugin integration architecture; define the source map, lifecycle ownership, trust/safety boundaries, validation contract, and explicit non-goals for external trigger surfaces such as Stream Deck or other installed integration points before any implementation. No plugin runtime implementation, Stream Deck integration, protocol handling, installer work, settings surface, taskbar/tray expansion, monitoring HUD work, or release packaging is admitted during Branch Readiness.
 Summary: Track future plugin and integration lifecycle design for external trigger surfaces such as Stream Deck and other installed integration points.
 Why it matters: Plugin-backed action triggering needs explicit lifecycle, safety, and ownership boundaries before it becomes part of the product.
 

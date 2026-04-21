@@ -4940,6 +4940,8 @@ class CommandOverlayPanel(QWidget):
 
 
 class DesktopRuntimeWindow(QWidget):
+    core_visualization_ready = Signal()
+    core_visualization_visible = Signal()
 
     def __init__(self, screen, visual_html_path: str, event_logger=None, runtime_log_path: str = ""):
         super().__init__()
@@ -4961,6 +4963,7 @@ class DesktopRuntimeWindow(QWidget):
         self._is_shutting_down = False
         self._page_ready = False
         self._desktop_mode_requested = False
+        self._startup_visibility_guard_active = True
         self._pending_visual_state = None
         self._pending_voice_level = None
         self._saved_action_source_path = None
@@ -5005,6 +5008,7 @@ class DesktopRuntimeWindow(QWidget):
         self.setAutoFillBackground(True)
         self.setFocusPolicy(Qt.StrongFocus)
         self.setStyleSheet("background-color: rgb(0, 0, 0);")
+        self.setWindowOpacity(0.0)
 
         self.setGeometry(self.compute_compact_geometry())
 
@@ -5037,6 +5041,9 @@ class DesktopRuntimeWindow(QWidget):
 
     def prepare_desktop_geometry(self):
         self.setGeometry(self.compute_compact_geometry())
+
+    def is_core_visualization_ready(self):
+        return self._page_ready
 
     def showEvent(self, event):
         super().showEvent(event)
@@ -5492,10 +5499,21 @@ class DesktopRuntimeWindow(QWidget):
 
         self._page_ready = True
         self._log_event("RENDERER_MAIN|VISUAL_PAGE_READY")
+        self._log_event("RENDERER_MAIN|CORE_VISUALIZATION_READY")
         self._apply_pending_visual_state()
         self._apply_pending_voice_level()
         self._apply_command_overlay_state()
         self._schedule_desktop_mode_enable()
+        self.core_visualization_ready.emit()
+
+    def _release_initial_visibility_guard(self):
+        if not self._startup_visibility_guard_active or self._is_shutting_down:
+            return
+
+        self._startup_visibility_guard_active = False
+        self.setWindowOpacity(1.0)
+        self._log_event("RENDERER_MAIN|CORE_VISUALIZATION_FIRST_VISIBLE")
+        self.core_visualization_visible.emit()
 
     def set_visual_state(self, state_name):
         self._pending_visual_state = state_name
@@ -5581,6 +5599,31 @@ class DesktopRuntimeWindow(QWidget):
             self.close_command_overlay()
         else:
             self.open_command_overlay()
+
+    def request_create_custom_task_from_tray(self, source: str = "tray"):
+        if self._is_shutting_down:
+            self._emit_runtime_signal(
+                "TRAY_CREATE_CUSTOM_TASK_ABORTED",
+                source=source,
+                reason="shutdown",
+            )
+            return
+
+        self.open_command_overlay()
+        if not self._command_model.visible or self._command_model.phase != "entry":
+            self._emit_runtime_signal(
+                "TRAY_CREATE_CUSTOM_TASK_ABORTED",
+                source=source,
+                reason="overlay_not_entry",
+            )
+            return
+
+        self._emit_runtime_signal(
+            "TRAY_CREATE_CUSTOM_TASK_ROUTED_TO_OVERLAY_ENTRY",
+            source=source,
+            phase=self._command_model.phase,
+        )
+        QTimer.singleShot(0, self.handle_create_custom_task_requested)
 
     def reload_command_action_catalog(self, source_path=None):
         resolved_source_path = self._saved_action_source_path if source_path is None else source_path
@@ -6741,6 +6784,7 @@ class DesktopRuntimeWindow(QWidget):
             QTimer.singleShot(1600, lambda: self._capture_startup_snapshot("after_1600ms"))
             QTimer.singleShot(2200, lambda: self._capture_startup_snapshot("after_2200ms"))
 
+        self._release_initial_visibility_guard()
         self._log_event(
             f"RENDERER_MAIN|DESKTOP_ATTACH_RESULT|success={'true' if attached else 'false'}"
         )

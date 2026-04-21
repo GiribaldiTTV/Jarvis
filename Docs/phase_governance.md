@@ -63,7 +63,8 @@ It may be:
 - a blocked state when an admission gate or another required repair path is still open
 - a steady-state resting posture when no implementation lane is currently selected and no branch should open by inertia
 
-`Post-Release Canon Repair` is an emergency-only exception path after merged or released truth already exists.
+`Post-Release Canon Repair` is an emergency-only direct-main action after merged or released truth already exists.
+It is not a normal branch phase and is not a governance-only branch.
 
 ## Cross-Phase Rules
 
@@ -115,10 +116,11 @@ That branch authority record becomes the single authoritative owner of:
 
 This path is for explicitly approved non-backlog branch classes such as:
 
-- `docs/governance`
 - `emergency canon repair`
 - `release packaging`
 
+`docs/governance` branch records may exist as historical records, but new governance-only branches are not used in the normal Nexus flow.
+Tightly coupled governance and canon repair must ride on the active branch that owns the affected truth.
 It must not be used to avoid carrying supporting canon sync on an already-active implementation branch.
 
 While the branch is active, that branch authority record is the branch-local phase owner.
@@ -137,6 +139,8 @@ Before any next implementation branch may enter `Branch Readiness`, all of the f
 - no emergency canon repair is outstanding
 - no unresolved governance-drift blocker exists
 - no unresolved release-debt blocker exists
+- no unresolved prior-branch release, branch-authority, or current-state canon cleanup exists
+- no PR Readiness scope miss is being deferred into a later phase
 - no current branch is being treated as executable if it is stale, merged, or identical to `main`
 
 If any of those fail:
@@ -144,10 +148,11 @@ If any of those fail:
 - repo state becomes `No Active Branch`
 - next implementation branch execution is blocked
 - the next safe move is blocker repair, not a later phase
+- if a next active branch has already been created, it must stay in `Branch Readiness` and repair the blocker before any implementation begins
 
 This gate controls next-lane implementation admission.
-It does not, by itself, authorize or prohibit a narrower non-implementation branch class.
-Those branch classes must still satisfy their own admission rules below.
+It does not authorize a governance-only branch.
+Release packaging branches still satisfy their own admission rules below.
 
 ### Blocker Catalog
 
@@ -167,6 +172,14 @@ The default named blockers are:
 - `Docs Sync Incomplete`
 - `Release Debt`
 - `Release Target Undefined`
+- `User-Facing Shortcut Validation Pending`
+- `User Test Summary Results Pending`
+- `PR Readiness Scope Missed`
+- `Release Readiness Scope Drift`
+- `Prior Branch Canon Unresolved`
+- `Between-Branch Canon Repair Attempt`
+- `Main Write Attempt`
+- `Next Branch Created Too Early`
 - `Governance Drift`
 - `Current-State Claim Drift`
 - `Phase Waiver Missing`
@@ -197,6 +210,7 @@ Every active branch must declare a `Branch Class`:
 - `release packaging`
 
 The same six normal phases apply to all branch classes.
+`docs/governance` remains a recognized historical branch class, but it is not an approved new-branch lane in the normal Nexus flow.
 Phases may be waived only when:
 
 - the waiver is explicit in the active workstream or branch authority record
@@ -218,17 +232,13 @@ Branch admission is class-sensitive.
 
 `docs/governance`
 
-- is an exception path, not the preferred default while an active implementation or release branch owns the affected truth
-- may begin from updated `main` while repo sequencing truth is `No Active Branch` only when:
-  - no active implementation branch exists
-  - the branch purpose is genuine governance, docs, roadmap, backlog, triage, policy, or prompt-scaffolding maintenance
-  - the work is not routine canon completion that belongs on an already-active implementation or release branch
-  - the branch is not being used to hide merged canon drift, release debt, or required implementation follow-through
-  - the reason it cannot or should not ride on an active implementation branch is explicit in the branch authority record
-- during `pre-Beta`, active-branch-first remains the default and standalone `docs/governance` branches are non-default
-- in later Beta, public, or project steady-state operation, this branch class may legitimately begin from `No Active Branch` when the same admission rules still hold
-- if `Release Debt` remains open, the branch must leave that blocker explicit and must not claim the debt is cleared unless that is the approved scope
-- standalone governance or docs-style branches are reserved for repo-wide governance work not tightly coupled to one active branch, emergency canon repair, cross-branch truth repair that cannot safely live on one active branch, or governance work that would contaminate or confuse an active implementation or release branch
+- is preserved only for historical records and explicit legacy interpretation
+- must not be opened as a new governance-only branch in the normal Nexus flow
+- must not be used for between-branch canon repair
+- must not be used to carry PR Readiness work after the branch that owned that work has merged
+- if governance or canon work is directly required to keep the current branch truthful, executable, phase-correct, readiness-correct, validation-correct, closeout-correct, or release-correct, that work must ride on the active current branch inside its current phase and branch class
+- if a PR Readiness miss is discovered after merge, the next active branch's `Branch Readiness` must carry the repair before implementation begins
+- if no active branch exists and no next workstream can be selected, the repo remains `No Active Branch`; any direct-main emergency action requires explicit user approval and must name the emergency
 
 `release packaging`
 
@@ -237,8 +247,9 @@ Branch admission is class-sensitive.
 
 `emergency canon repair`
 
-- may begin only when merged or released truth is already stale and the drift escaped the earlier gates
-- the branch must stay tightly limited to repairing that escaped canon drift
+- is not a normal branch lane in the current Nexus flow
+- if escaped canon drift exists, the default repair is the next active branch's `Branch Readiness`
+- if no active branch can exist, an emergency direct-main repair requires explicit user approval and must not be disguised as a governance-only branch
 
 ### Merge-Target Canon Completeness Gate
 
@@ -311,7 +322,7 @@ PR Readiness must not report green while any pre-merge process blocker remains u
 
 Hard blockers:
 
-- canonical shorthand: `stale-canon`, `post-merge`, `dirty`, `docs-sync`, `next-workstream`
+- canonical shorthand: `stale-canon`, `post-merge`, `dirty`, `docs-sync`, `next-workstream`, `desktop-shortcut`, `uts-results`
 - `Stale Canon`:
   current-state canon and merge-target canon must already reflect the branch's true state and the state that will be true after merge
 - `Post-Merge State Unresolved`:
@@ -322,9 +333,134 @@ Hard blockers:
   PR Readiness cannot be green while the worktree is dirty, required docs changes are uncommitted, required canon exists only in the working tree, or branch truth is not durable in commit history
 - `Docs Sync Incomplete`:
   docs sync, Governance Drift Audit, validator alignment, and any required post-merge state wording must be complete and mutually consistent
+- `User-Facing Shortcut Validation Pending`:
+  Live Validation and PR Readiness cannot be final-green for a relevant desktop user-facing workstream until the final Live Validation closeout has launched through the declared user-facing desktop shortcut or equivalent user entrypoint, recorded `User-Facing Shortcut Validation: PASS` or `User-Facing Shortcut Validation: WAIVED`, and preserved the evidence before User Test Summary handoff
+- `User Test Summary Results Pending`:
+  PR Readiness cannot be green while a user-facing workstream has a required User Test Summary handoff outstanding and returned results have not been submitted, waived, digested into the active authority record, and reevaluated
+- `PR Readiness Scope Missed`:
+  PR Readiness cannot be green if branch-authority cleanup, merge-target canon, post-merge truth, next-workstream selection, next-branch deferral, or release-debt routing is incomplete or being deferred to Release Readiness, updated `main`, or a later governance-only branch
+- `Between-Branch Canon Repair Attempt`:
+  PR Readiness cannot rely on any canon repair that is planned between branches rather than committed on the active branch before merge
+- `Next Branch Created Too Early`:
+  PR Readiness cannot be green if the next implementation branch already exists before the current branch has merged and updated `main` has been revalidated
 
 The PR-readiness validator gate must be run in its PR-specific mode before reporting `PR READY: YES`.
 If the normal governance validator passes but the PR-specific gate reports dirty worktree or unresolved PR blockers, the result is not PR-ready.
+
+### PR Readiness Response Contract
+
+When `PR Readiness` reports green or `PR READY: YES`, the response must include a repo-wide standardized `Next Branch` block and a markdown-friendly `PR Creation Details` package.
+This is a response contract, not permission to create the PR, merge the branch, release the branch, or create the next branch.
+
+The `Next Branch` block must distinguish the next legal branch from the selected next implementation branch.
+For example, if post-merge truth creates `Release Debt`, the next legal branch may be a release packaging branch while the selected next implementation branch remains deferred until after release handling and updated-`main` revalidation.
+
+Required `Next Branch` block:
+
+```markdown
+## Next Branch
+- Next Legal Branch Type:
+- Next Branch Name:
+- Branch Class:
+- Creation Status:
+- Creation Gate:
+- Selected Next Workstream:
+- Selected Next Implementation Branch:
+- May Create Now: YES / NO
+- Reason:
+```
+
+Required PR-green markdown package:
+
+```markdown
+## PR Creation Details
+### Title
+### Base / Head
+### Summary
+### Validation
+### Governance / Canon
+### Post-Merge Truth
+### Next Branch
+### Not Included
+```
+
+The PR package must be copy-ready markdown.
+It must summarize the actual PR title, base/head, implemented scope, validation evidence, governance/canon state, post-merge truth, next-branch handling, and explicit non-includes.
+If `May Create Now` is `NO`, the `Next Branch` subsection must explain the blocking gate rather than implying branch creation is allowed.
+
+### User-Facing Shortcut Live Validation Gate
+
+For relevant desktop user-facing workstreams, Live Validation may use validators, direct runtime launches, helper launches, synthetic harnesses, and targeted manual probes to build scenario coverage.
+Those evidence layers are supporting proof, not final green by themselves.
+
+Before User Test Summary handoff, the final Live Validation closeout must launch and exercise the branch through the same user-facing desktop shortcut or equivalent user entrypoint that the user is expected to use.
+For Nexus Desktop AI, the default desktop shortcut path is normally `C:\Users\anden\OneDrive\Desktop\Nexus Desktop Launcher.lnk` unless the active authority record declares an explicit equivalent.
+
+Named blocker:
+
+- `User-Facing Shortcut Validation Pending`
+
+Machine-checkable authority-record markers:
+
+- `User-Facing Shortcut Path:`
+- `User-Facing Shortcut Validation: PENDING`
+- `User-Facing Shortcut Validation: PASS`
+- `User-Facing Shortcut Validation: FAIL`
+- `User-Facing Shortcut Validation: WAIVED`
+
+Required proof:
+
+- the declared user-facing shortcut or equivalent entrypoint launches the active branch runtime
+- startup reaches the expected ready state
+- the user-visible entry surface introduced or changed by the branch is visible or intentionally documented where the user must look for it
+- relevant runtime markers, UI/manual readback, persisted-state checks, and cleanup evidence match the branch validation contract
+- helper-only, direct-Python, or harness-only evidence is not treated as a substitute for this final shortcut gate when the shortcut path is feasible
+
+Lift condition:
+
+- `User-Facing Shortcut Validation: PASS` is recorded with evidence from the declared shortcut path, or `User-Facing Shortcut Validation: WAIVED` is recorded with a reason showing the branch is not desktop/user-facing or the shortcut path is explicitly unavailable
+- the blocker state is reevaluated after the result is digested
+
+Routing:
+
+- while `User-Facing Shortcut Validation: PENDING` remains, list `User-Facing Shortcut Validation Pending` under blockers and do not advance
+- if `User-Facing Shortcut Validation: FAIL`, keep an explicit blocker and route back to `Workstream` or `Hardening` before PR Readiness
+- if the shortcut gate passes or is waived, User Test Summary handoff may proceed only if all other Live Validation gates are green
+
+### User Test Summary Results Gate
+
+Live Validation and PR Readiness must not report final green while a relevant user-facing workstream has a required User Test Summary handoff outstanding and returned results have not been submitted and digested.
+
+Named blocker:
+
+- `User Test Summary Results Pending`
+
+Required status model:
+
+- Automated validators and live helper evidence: GREEN.
+- User Test Summary Results: PENDING.
+- Final phase advancement is BLOCKED until the filled User Test Summary is submitted and digested.
+
+Machine-checkable authority-record markers:
+
+- while pending, the active authority record must include `User Test Summary Results: PENDING`
+- while pending, the active authority record must list `User Test Summary Results Pending` under `## Blockers`
+- while pending, `## Next Legal Phase` must not advance beyond the current phase
+- when passing returned results are digested, the active authority record must include `User Test Summary Results: PASS` and a digest of the returned results before the blocker can clear
+- when a waiver is used, the active authority record must include `User Test Summary Results: WAIVED` and a documented waiver reason before the blocker can clear
+- when returned results fail or expose ambiguity, the active authority record must keep or replace the blocker with the appropriate Workstream or Hardening blocker and route backward rather than advancing
+
+Lift condition:
+
+- a filled User Test Summary is submitted or a documented waiver exists
+- the results or waiver are digested into the active authority record
+- the blocker state is reevaluated after digestion
+
+Routing after digestion:
+
+- if returned results pass, `User Test Summary Results Pending` clears and forward progression may continue if all other gates pass
+- if returned results expose mismatch, regression, unclear behavior, cleanup failure, or scope drift, route back to `Workstream` or `Hardening` as appropriate
+- if returned results raise new feature ideas, keep them out of current scope until backlog carry-forward is explicitly approved
 
 ### Release Readiness Target Gate
 
@@ -346,14 +482,38 @@ A branch is release-bearing when:
 The only non-release waiver is:
 
 - the active authority record explicitly declares `Release Branch: No`
-- the branch is a `docs/governance` branch or an explicitly canon-only / repo-wide source-of-truth update branch
+- the record is historical, or the user explicitly authorized a direct-main emergency context
 - the branch does not create, prepare, validate, tag, publish, or transition release-facing artifacts or release-state canon
 
 The non-release waiver is not available to `implementation` or `release packaging` branches.
 It does not waive `Release Debt`, merge-target canon completeness, post-merge truth, successor lock, validation, or dirty-branch requirements.
 
 If release target markers are missing on a release-bearing branch, the branch is blocked by `Release Target Undefined`.
-If `Release Branch: No` appears on a branch outside the narrow non-release branch classes, the branch is blocked by `Phase Waiver Missing`.
+If `Release Branch: No` appears outside a preserved historical record or explicitly authorized direct-main emergency context, the branch is blocked by `Phase Waiver Missing`.
+
+### Release Readiness Scope Boundary
+
+Release Readiness is not a docs-sync phase.
+
+Allowed in `Release Readiness`:
+
+- release-target validation
+- release-scope validation
+- release-artifact validation
+- GitHub release package information such as tag, title, and release notes
+- final release-execution authorization or confirmation
+- release-state confirmation after the release execution
+
+Forbidden in `Release Readiness`:
+
+- broad canon or docs sync that should have been completed in `PR Readiness`
+- branch-authority cleanup that should have been merge-safe before PR green
+- next-workstream selection, planning, or branch creation
+- between-branch canon repair
+- direct writes to `main` unless the user explicitly authorizes an emergency direct-main action
+
+If Release Readiness discovers missing PR-owned canon or docs work, stop immediately and classify the issue as `PR Readiness Scope Missed` and `Release Readiness Scope Drift`.
+If the branch has already merged, the next active branch's `Branch Readiness` must repair the miss before implementation begins and must update governance or validator coverage so the miss cannot recur.
 
 ### Governance Drift Audit
 
@@ -384,9 +544,8 @@ If governance drift is discovered in any earlier phase:
 
 - stop normal progression immediately
 - classify it as `Governance Drift`
-- if the drift is directly coupled to the active branch's truth, phase, readiness, validation, closeout, or release state, fix it inside the approved docs or governance boundary on that active branch after the boundary is explicit
-- otherwise, either fix it inside an approved standalone governance or docs boundary, or
-- produce the exact required canon delta and wait for user confirmation
+- fix it on the active branch when the drift is tightly coupled to that branch's truth, phase, readiness, validation, closeout, or release state, or
+- produce the exact required canon delta and wait for user confirmation when the repair would exceed the active branch boundary
 
 Do not defer known governance weaknesses silently to a later branch.
 
@@ -445,13 +604,16 @@ That validator should verify at minimum:
 - stale merge-era wording does not remain in active current-state owners
 - Governance Drift Audit output exists before `Release Readiness`
 - release-bearing branches carry `Release Target:`, `Release Scope:`, and `Release Artifacts:` markers before Release Readiness can report green
-- non-release waiver records use `Release Branch: No` only for `docs/governance` or explicitly canon-only / repo-wide source-of-truth update branches
+- non-release waiver records use `Release Branch: No` only for preserved historical records or explicitly authorized direct-main emergency contexts
 - unresolved blockers prevent phase advancement
 - active-branch governance and canon updates remain the primary path when tightly coupled to the active branch's truth, phase, readiness, validation, closeout, or release state
-- standalone governance or docs-style branches remain exception paths for repo-wide uncoupled governance work, emergency canon repair, cross-branch truth repair, or contamination-risk cases
+- governance-only branches are not used for new Nexus work, and between-branch canon repair attempts are blocked
+- Release Readiness cannot absorb PR Readiness docs sync or canon repair
+- prior-branch canon misses block the next active branch in Branch Readiness before implementation can begin
 - the canonical `bounded multi-seam workflow` contract is present in governance and operator scaffolds
 - prompt scaffolds teach `Seam Sequence`, per-seam validation, and continue-or-stop decisions for multi-seam Workstream execution
 - docs do not teach direct `Workstream` -> `PR Readiness` as the default path
+- PR Readiness prompt scaffolds require the standardized `## Next Branch` block and `## PR Creation Details` markdown package before reporting PR green
 
 A governance or current-state canon branch is not complete until that validator is green.
 
@@ -460,7 +622,7 @@ When branch authority records are active, the validator should also verify:
 - `Docs/branch_records/index.md` exists and routes to the active branch authority records
 - active branch authority records carry the required phase-state block
 - `No Active Branch` blocked-versus-steady-state handling stays consistent across the governance and operator docs
-- standalone `docs/governance` branches remain explicit, gated, and non-default during `pre-Beta`
+- new governance-only branches remain blocked during `pre-Beta`; historical `docs/governance` records are allowed only as preserved history
 
 ### Phase Resolver Contract
 
@@ -522,16 +684,53 @@ That contract is:
 - windows, dialogs, overlays, and controls should be re-resolved live across close/open seams instead of reusing stale references
 - validation seams must be classified as `product defect`, `harness defect`, `environment issue`, or `canon / contract drift` before product code is changed
 
+## Validation Helper Registry And Naming Standard
+
+`Docs/validation_helper_registry.md` is the repo-wide registry for durable root `dev/` validators, live-validation scripts, audit helpers, harnesses, and shared helper modules.
+
+The registry must define:
+
+- the canonical helper naming scheme
+- the allowed `Helper Status:` values
+- which helpers are `Reusable`
+- which helpers are `Workstream-scoped`
+- which helpers are `Temporary probe`
+- the owner, reason, consolidation target, and promotion decision point for every workstream-scoped durable helper
+
+Naming standard:
+
+- repo-side validators use `dev/orin_<domain>_<capability>_validation.py`
+- live desktop helpers use `dev/orin_<domain>_<capability>_live_validation.ps1`
+- interactive suites use `dev/orin_<domain>_<capability>_interactive_validation.ps1`
+- audit helpers use `dev/orin_<domain>_<capability>_audit.ps1`
+- reusable harnesses use `dev/orin_<domain>_<capability>_harness.py`
+- shared helper modules use `dev/orin_<domain>_<capability>_helper.py`
+
+Workstream-scoped exceptions are allowed only when reuse would contaminate proof ownership, blur workstream truth, or make validation less reliable.
+They must use `dev/orin_<workstream_id>_<bounded_capability>_validation.ps1` or `dev/orin_<workstream_id>_<bounded_capability>_live_validation.ps1`, be registered immediately, and carry:
+
+- `Helper Status: Workstream-scoped`
+- `Owner Workstream:`
+- `Reason Reusable Helper Was Not Extended:`
+- `Consolidation Target:`
+- `Promotion Decision Point:`
+
+Seam-number helper names are not the default naming model.
+They are permitted only as short-lived workstream-scoped bridge names created during active seam proof, and they must be consolidated, promoted, or explicitly justified before PR Readiness.
+
+PR Readiness must fail if a new durable root `dev/` validation helper, live-validation script, audit helper, harness, or shared helper module is unregistered, has no helper status, or is workstream-scoped without a consolidation target.
+
 ## Live Validation Reuse-First Rule
 
 Before creating a new live-validation helper, script, or harness, Codex must inventory existing repo helpers and choose the smallest safe reuse path.
 
 Preferred order:
 
-1. use an existing helper unchanged when it already covers the needed path
-2. parameterize or extend an existing helper when the validation belongs to the same desktop/runtime helper family
-3. extract shared helper support when multiple helpers need the same watchdog, progress, cleanup, or UIAutomation behavior
-4. create a new helper only when reuse would contaminate the helper boundary, blur workstream truth, or make validation less reliable
+1. inspect `Docs/validation_helper_registry.md`
+2. use an existing helper unchanged when it already covers the needed path
+3. parameterize or extend an existing helper when the validation belongs to the same desktop/runtime helper family
+4. extract shared helper support when multiple helpers need the same watchdog, progress, cleanup, UIAutomation, runtime startup, saved-state snapshot, or artifact-writing behavior
+5. create a new workstream-scoped helper only when reuse would contaminate the helper boundary, blur workstream truth, or make validation less reliable
 
 One-off probes are allowed only as temporary exploratory evidence under an ignored evidence root such as `dev/logs/...`.
 They must not be used as closeout-grade proof, must not be left behind as de facto reusable tooling, and must either be deleted after the pass or deliberately promoted into a documented reusable helper with workstream artifact-history notes.
@@ -711,9 +910,9 @@ The canonical rule is narrower:
 - `Branch Readiness` -> `Workstream` only after branch base, branch class, authority record, branch objective, target end-state, expected seam families and risk classes, validation contract, User Test Summary strategy, later-phase expectations, and first Workstream seam or initial seam sequence are explicit
 - `Workstream` -> `Hardening` only after the approved same-risk Workstream seam sequence is complete, direct validation is green, User Test Summary obligations are current for user-facing changes, and no same-slice correctness gap remains
 - `Hardening` -> `Live Validation` only after repo-side hardening proof is sufficient for interactive or manual closeout work
-- `Live Validation` -> `PR Readiness` only after branch-local proof is sufficient for closeout and returned evidence has been digested into the authority record
+- `Live Validation` -> `PR Readiness` only after branch-local proof is sufficient for closeout, returned evidence has been digested into the authority record, and `User Test Summary Results Pending` is absent or cleared by a documented waiver
 - `PR Readiness` -> `Release Readiness` only after merge-target canon completeness passes, the Governance Drift Audit passes, the next-workstream selection gate passes, and branch creation remains deferred to `Branch Readiness`
-- `Release Readiness` -> `Post-Release Canon Repair` only as an emergency repair path after merged or released truth already exists and canon drift escaped the earlier gates
+- `Release Readiness` stays restricted to release target, scope, artifact, release-execution authorization, and release-state confirmation work; it does not transition into a docs-sync phase
 
 There is no default direct `Workstream` -> `PR Readiness` transition.
 If Workstream appears complete, the next normal phase is `Hardening` unless an explicit authority-record waiver says otherwise.
@@ -870,7 +1069,9 @@ Exit:
 
 - required interactive or manual evidence is green
 - required UI audit exists when applicable
+- required user-facing desktop shortcut validation is `PASS` or explicitly `WAIVED` before User Test Summary handoff; `User-Facing Shortcut Validation Pending` must not remain active
 - returned evidence is digested into canon
+- required User Test Summary results are `PASS` or explicitly `WAIVED`; `User Test Summary Results Pending` must not remain active
 - no unresolved validation contradiction remains
 
 ### PR Readiness
@@ -901,12 +1102,15 @@ Forbidden:
 Required evidence:
 
 - branch-local proof complete
+- required user-facing desktop shortcut validation digested, passing or explicitly waived, and no `User-Facing Shortcut Validation Pending` blocker
+- required User Test Summary results digested, passing or explicitly waived, and no `User Test Summary Results Pending` blocker
 - merge-target canon completeness gate passed
 - next workstream selected, canon-defined, assigned valid record state, minimally scoped, and explicitly not branched yet
 - successor branch creation deferred to `Branch Readiness`
 - post-merge truth fully encoded before merge
 - Governance Drift Audit completed
 - docs sync complete and validator-aligned
+- standardized `## Next Branch` response block and copy-ready `## PR Creation Details` markdown package prepared
 - clean worktree with required branch truth durable in commit history
 - approved non-backlog branches merge with historical or removed branch-authority truth rather than lingering as active branch owners on `main`
 - no active seam
@@ -926,22 +1130,25 @@ Purpose:
 Allowed:
 
 - release review
-- release notes prep
+- release notes, tag, title, and release package information
 - version or tag recommendations
 - final release-candidate verification
+- release-state confirmation immediately after release execution
 
 Forbidden:
 
 - implementation
-- canon-sync mutation
+- broad canon-sync mutation that should have been completed before PR green
 - hidden fix work
 - hidden next-lane planning
+- branch-authority cleanup that should have been merge-safe in PR Readiness
+- between-branch canon repair
 
 Required evidence:
 
 - merged or legitimately merge-ready truth
 - explicit `Release Target:`, `Release Scope:`, and `Release Artifacts:` markers for release-bearing branches
-- or explicit `Release Branch: No` only for narrowly allowed non-release governance/canon branches
+- or explicit `Release Branch: No` only for preserved historical records or explicitly authorized direct-main emergency contexts
 - release-context verification
 - no unresolved blocker
 
@@ -979,23 +1186,26 @@ When `No Active Branch` is steady-state:
 
 - do not start the next implementation branch by inertia
 - it is valid for `Next Safe Move` to say explicitly that no branch should open yet
-- an explicitly approved `docs/governance`, `release packaging`, or `emergency canon repair` branch may still enter `Branch Readiness` if its branch-class admission rules pass
+- a release packaging branch may still enter `Branch Readiness` if its branch-class admission rules pass
+- governance-only branches are not used; governance or canon repair must ride on the next active branch's `Branch Readiness` unless the user explicitly authorizes an emergency direct-main action
 
 ## Exception Path: Post-Release Canon Repair
 
 Purpose:
 
-- perform emergency canon repair after a release only when merged truth is already live and canon drift escaped the earlier gates
+- perform emergency canon repair after a release only when merged truth is already live, canon drift escaped the earlier gates, no active branch can legally carry the repair, and the user explicitly authorizes a direct-main emergency action
 
 Allowed:
 
-- docs and canon repair tightly coupled to the released truth
+- docs and canon repair tightly coupled to the released truth under explicit direct-main emergency approval
 
 Forbidden:
 
 - treating post-release canon repair as a normal part of the standard lifecycle
 - using post-release repair instead of the merge-target canon completeness gate
 - turning the repair path into a new implementation lane by accident
+- opening a governance-only branch
+- using Release Readiness as a broad docs-sync phase
 
 Required evidence:
 
@@ -1003,6 +1213,7 @@ Required evidence:
 - latest release truth
 - explicit canon drift
 - explicit reason the drift could not be prevented before merge or release
+- explicit user approval for direct-main emergency action
 
 Exit:
 

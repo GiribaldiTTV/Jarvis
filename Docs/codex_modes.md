@@ -153,6 +153,9 @@ Workflow mode should usually return:
 - a detailed `## User Test Summary` manual checklist when the slice changes user-visible behavior, runtime interaction, UX flow, prompts, startup behavior, voice behavior, or another operator-facing path
 - the updated canonical repo-level `UTS` artifact when the active workstream owns one and the slice makes that artifact relevant
 - the exported or refreshed desktop `User Test Summary.txt` copy when the slice is a relevant desktop user-facing path, or an explicit explanation of why that export was skipped
+- for relevant desktop user-facing Live Validation, the `User-Facing Shortcut Live Validation Gate` / `desktop-shortcut` result with `User-Facing Shortcut Path:` and `User-Facing Shortcut Validation:` recorded before User Test Summary handoff
+- when the user-facing shortcut result is outstanding, the explicit blocker `User-Facing Shortcut Validation Pending`; helper-only, synthetic, harness, or direct-runtime evidence must not be reported as final green while this blocker remains
+- when returned User Test Summary results are still outstanding, the explicit blocker output: `Automated validators and live helper evidence: GREEN.`, `User Test Summary Results: PENDING.`, and `Final phase advancement is BLOCKED until the filled User Test Summary is submitted and digested.`
 - when meaningful desktop UI changed and closeout posture matters, a distinct summary of the live launched-process UI audit results and evidence
 - an explicit statement under `## User Test Summary` when no meaningful manual test exists and why
 - remaining drift or known gaps
@@ -163,7 +166,9 @@ When the approved phase is `PR Readiness`, the output must also explicitly inclu
 - confirmation that the merge-target canon completeness gate passed
 - confirmation that the Governance Drift Audit ran
 - whether governance drift was found
-- confirmation that stale-canon, post-merge-state, next-workstream, dirty-branch, and docs-sync/drift-audit blockers are clear
+- confirmation that stale-canon, post-merge-state, next-workstream, dirty-branch, docs-sync/drift-audit, and `User Test Summary Results Pending` blockers are clear
+- confirmation that `PR Readiness Scope Missed`, `Between-Branch Canon Repair Attempt`, and `Next Branch Created Too Early` are clear
+- confirmation that no PR-owned docs or canon work is being deferred to Release Readiness, updated `main`, or a governance-only branch
 - confirmation that branch truth is committed and durable, not only present in the working tree
 - confirmation that the normal governance validator and the PR-readiness gate mode passed
 - for the selected next workstream:
@@ -177,6 +182,38 @@ When the approved phase is `PR Readiness`, the output must also explicitly inclu
   - repo state `No Active Branch`
   - the blocking admission item
   - confirmation that branch creation remains deferred and no next implementation branch may execute by inertia
+- a required `## Next Branch` section with this exact field shape:
+
+```markdown
+## Next Branch
+- Next Legal Branch Type:
+- Next Branch Name:
+- Branch Class:
+- Creation Status:
+- Creation Gate:
+- Selected Next Workstream:
+- Selected Next Implementation Branch:
+- May Create Now: YES / NO
+- Reason:
+```
+
+- when PR Readiness is green or `PR READY: YES`, a copy-ready markdown PR package with this exact section shape:
+
+```markdown
+## PR Creation Details
+### Title
+### Base / Head
+### Summary
+### Validation
+### Governance / Canon
+### Post-Merge Truth
+### Next Branch
+### Not Included
+```
+
+The `Next Branch` section must separate the next legal branch type/name from the selected next implementation workstream branch.
+If release debt, updated-`main` revalidation, or another admission gate blocks branch creation, `May Create Now: NO` is required with the reason.
+The `PR Creation Details` block is preparation material only; it must not imply PR creation, merge execution, release execution, or next-branch creation has occurred.
 
 When the approved phase is `Release Readiness`, the output must also explicitly include:
 
@@ -188,9 +225,10 @@ When the approved phase is `Release Readiness`, the output must also explicitly 
   - `Release Artifacts:`
 - for explicitly non-release branches:
   - `Release Branch: No`
-  - confirmation that the branch is a `docs/governance` branch or an explicitly canon-only / repo-wide source-of-truth update branch
+  - confirmation that this is only a historical or explicitly authorized direct-main emergency context, not a new governance-only branch
 - confirmation that the non-release waiver is not being used for an `implementation` or `release packaging` branch
 - confirmation that `Release Debt`, post-merge truth, validation, and successor branch deferral remain governed by their normal blockers
+- confirmation that Release Readiness is not being used as a docs-sync or branch-authority cleanup phase
 
 Do not report cleanup as complete unless the pass has explicitly checked for leftover apps, windows, dialogs, helper processes, probe files, or other temporary artifacts it created or opened.
 
@@ -199,6 +237,10 @@ Do not report an interactive validation pass as complete or trustworthy if it ex
 Do not create a new live-validation script by default.
 For Live Validation, Codex should reuse existing helpers first, then parameterize or extend them, then extract shared support if several helpers need the same watchdog or cleanup behavior.
 Temporary one-off probes are allowed only as ignored exploratory artifacts and must be deleted or promoted into documented reusable tooling before closeout-grade proof is claimed.
+Durable root `dev/` validators, live-validation scripts, audit helpers, harnesses, and shared helper modules must also be checked against `Docs/validation_helper_registry.md`.
+If a new helper is kept, Codex must report its standardized name, `Helper Status:`, owner, reuse decision, and `Consolidation Target` when it is `Workstream-scoped`.
+Workstream-scoped seam helpers are bridge tooling, not the default release naming model, and must be consolidated, promoted, or explicitly justified before PR Readiness.
+Any `Temporary probe` must stay ignored and be deleted or promoted before closeout-grade proof.
 
 ## Workstream And Branch Governance
 
@@ -259,7 +301,8 @@ While release debt exists, the default next move is usually:
 not another unrelated implementation lane.
 
 That default blocks the next implementation lane by default.
-It does not, by itself, forbid an explicitly approved `docs/governance`, `release packaging`, or `emergency canon repair` branch when `Docs/phase_governance.md` says that branch class may begin from `No Active Branch`.
+It does not authorize a governance-only branch.
+Release packaging may begin only when `Docs/phase_governance.md` says that branch class may begin from `No Active Branch`.
 
 If release debt or another repo-level admission blocker means no next implementation branch may legally begin execution, report repo state as `No Active Branch` instead of inventing a next implementation phase.
 If repo truth is a steady-state `No Active Branch`, say so explicitly instead of pretending a new implementation branch should open automatically.
@@ -278,17 +321,16 @@ If a branch is stale, merged, or identical to `main`, call it out explicitly and
 
 ### Post-Release Canon Repair
 
-Release-dependent truth sometimes changes after the code lane is already closed.
+Release-dependent truth must be anticipated before PR green.
 
-When that happens:
+When release-dependent truth changes:
 
 - carry the canon sync on the active lane when that lane is still open
-- if the lane is already closed, do not treat post-release canon repair as a normal next-branch step
 - require merge-target canon completeness before PR so merged `main` does not become stale in the first place
-- use a standalone post-release canon pass only as an emergency exception when canon drift already exists on updated `main` and could not be prevented before merge or release
-
-This emergency path is distinct from a planned `docs/governance` branch opened from a clean `No Active Branch` steady state.
-Do not collapse those two cases into one label.
+- do not use Release Readiness as a docs-sync phase
+- do not open a governance-only branch or between-branch repair window
+- if a PR Readiness miss escapes after merge, block the next active branch in `Branch Readiness` and repair the miss before implementation begins
+- use direct-main emergency repair only when no active branch can legally carry the fix and the user explicitly authorizes that direct-main action
 
 ## Shared Rules Across Both Modes
 
@@ -302,10 +344,11 @@ Do not collapse those two cases into one label.
 - roadmap owns sequencing
 - workstream docs own promoted-work feature-state, branch-local evidence, active seam references, artifact history, branch-local reuse notes, and closure history
 - `Docs/phase_governance.md` owns repo-wide phase, proof, timeout, seam, stop-loss, validation-helper, and desktop UI audit rules
+- `Docs/validation_helper_registry.md` owns durable helper naming, helper status, registry, and consolidation expectations
 - User Test Summary belongs to workstream-owned validation
 - incident patterns are generalized knowledge, not case history
 - governance and canon updates should ride on the active current branch when they are directly required to keep that branch truthful, executable, phase-correct, readiness-correct, validation-correct, closeout-correct, or release-correct
-- standalone governance or docs-style branches are exception paths for repo-wide governance work not tightly coupled to one active branch, emergency canon repair, cross-branch truth repair, or governance work that would contaminate or confuse an active implementation or release branch
+- governance-only branches are not used for new Nexus work; tightly coupled governance repair rides on the active branch, and escaped PR misses block the next active branch's `Branch Readiness`
 - active-branch governance updates must not weaken validation, stop conditions, phase authority, branch-class authority, or scope control
 
 For desktop workstreams, response-level `## User Test Summary` output and the canonical repo-level `UTS` artifact are related but not interchangeable:
@@ -313,6 +356,12 @@ For desktop workstreams, response-level `## User Test Summary` output and the ca
 - the response section is the current handoff copy
 - the workstream-owned repo artifact is the durable canonical record unless the workstream explicitly declares another repo path
 - the desktop `User Test Summary.txt` file is the required user-facing exported copy when relevant, but it is not the default canonical repo record
+
+If a required User Test Summary handoff is outstanding, `User Test Summary Results Pending` is a hard blocker. Codex must not report final phase green or PR-ready while the filled results are missing; it must digest submitted results, update the authority record, reevaluate blockers, and route backward to `Workstream` or `Hardening` if the results expose a mismatch, regression, ambiguity, cleanup issue, or scope drift.
+
+For relevant desktop user-facing workstreams, `User-Facing Shortcut Validation Pending` is a hard blocker before User Test Summary handoff.
+Codex may use validators, live helpers, harnesses, or direct runtime launches for scenario coverage, but Live Validation closeout must also run the declared user-facing desktop shortcut or equivalent entrypoint and record `User-Facing Shortcut Path:` plus `User-Facing Shortcut Validation: PASS`, `FAIL`, `PENDING`, or `WAIVED`.
+If that shortcut gate fails or remains pending, do not report final green; route back to `Workstream` or `Hardening` as appropriate.
 
 When manual validation is relevant, `## User Test Summary` must be a real checklist rather than a recap.
 

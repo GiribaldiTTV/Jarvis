@@ -40,10 +40,74 @@ Branch-local "what worked" notes should stay in the canonical workstream doc fir
 - root-cause pattern:
   release-debt truth is present, but release-bearing branch records lack machine-checkable markers that prove the release target is explicit before green status
 - fix pattern:
-  require release-bearing branches to declare `Release Target:`, `Release Scope:`, and `Release Artifacts:`; allow `Release Branch: No` only for `docs/governance` or explicitly canon-only / repo-wide source-of-truth branches
+  require release-bearing branches to declare `Release Target:`, `Release Scope:`, and `Release Artifacts:`; allow `Release Branch: No` only for preserved historical records or explicitly authorized direct-main emergency contexts
 - validation pattern:
-  run the branch governance validator; it must fail release-packaging branch records that omit release target markers or branch records that use the non-release waiver outside the narrow governance/canon-only exception
+  run the branch governance validator; it must fail release-packaging branch records that omit release target markers or branch records that use the non-release waiver outside preserved historical records or explicitly authorized direct-main emergency contexts
+
+## Pattern: Escaped PR Work Blocks Next Branch Readiness
+
+- Trigger:
+  PR Readiness misses required canon, branch-authority cleanup, post-merge truth, or next-branch deferral work, and the miss is discovered during Release Readiness, after merge, on updated `main`, or after the next branch was created
+- Risk:
+  Release Readiness becomes a docs-sync phase, repair work leaks between branches, direct `main` writes become tempting, or a governance-only branch becomes a side door around the active phase machine
+- Common Cause:
+  PR Readiness checks prove behavior or release artifacts but do not prove that merged-main branch records, roadmap state, post-merge state, and selected-next branch timing are already durable before green
+- Required Response:
+  classify the issue as `PR Readiness Scope Missed`; if it appears during Release Readiness, also classify `Release Readiness Scope Drift`; if a successor branch already exists, keep that branch in `Branch Readiness` and repair the miss before any implementation begins
+- Prevention:
+  block governance-only branches, block between-branch canon repair, block unapproved direct `main` writes, require branch-authority cleanup before PR green, and extend the validator whenever a miss exposes a machine-checkable gap
 - source references:
+  - `Docs/phase_governance.md`
+  - `dev/orin_branch_governance_validation.py`
+
+## Pattern: Validation Helper Sprawl Must Collapse Into Registered Helper Families
+
+- symptom:
+  a feature branch creates seam-specific live validators or helper scripts even though an existing validator family already covers the same desktop, authoring, launcher, or interaction surface
+- layer:
+  validation helper governance and Workstream evidence
+- root-cause pattern:
+  the repo requires reuse-first validation, but without a helper registry and naming tiers, a successful seam helper can become accidental permanent tooling
+- fix pattern:
+  register durable root `dev/` helpers in `Docs/validation_helper_registry.md`, require standardized names and `Helper Status:` values, and force workstream-scoped helpers to declare owner, reason, consolidation target, and promotion decision point
+- validation pattern:
+  run `python dev/orin_branch_governance_validation.py`; it must fail when helper standardization language is missing or a root `dev/` validation/helper script is unregistered
+- source references:
+  - `Docs/validation_helper_registry.md`
+  - `Docs/phase_governance.md`
+  - `dev/orin_branch_governance_validation.py`
+
+## Pattern: User Test Summary Pending Must Block Final Green
+
+- symptom:
+  automated validators and live helpers pass, but final phase output implies the branch can advance before the filled User Test Summary results are submitted and digested
+- layer:
+  validation evidence digestion and phase governance
+- root-cause pattern:
+  canon requires returned user evidence digestion, but without a named blocker the result can be summarized as all-green even though the user-facing handoff is still outstanding
+- fix pattern:
+  require the named blocker `User Test Summary Results Pending`, record `User Test Summary Results: PENDING` in the active authority record, and report that automated/live evidence is green while final phase advancement remains blocked
+- validation pattern:
+  run `python dev/orin_branch_governance_validation.py` plus the PR-readiness gate mode; the PR gate must fail while `User Test Summary Results Pending` is active or while the result marker is missing for a relevant user-facing Live Validation or PR Readiness workstream
+- source references:
+  - `Docs/user_test_summary_guidance.md`
+  - `Docs/phase_governance.md`
+  - `dev/orin_branch_governance_validation.py`
+
+## Pattern: Desktop Shortcut Gate Must Precede User Test Summary Handoff
+
+- symptom:
+  validators, live helpers, and direct-runtime launches pass, but the user-facing desktop shortcut path later exposes a visibility, startup, or discoverability failure
+- layer:
+  Live Validation proof hierarchy and User Test Summary handoff
+- root-cause pattern:
+  helper evidence proves branch behavior through controlled launch paths, but the final user entrypoint is not named as a machine-checkable gate before `UTS` handoff
+- fix pattern:
+  require the `User-Facing Shortcut Live Validation Gate`, record `User-Facing Shortcut Path:` and `User-Facing Shortcut Validation:`, and keep `User-Facing Shortcut Validation Pending` active until the declared shortcut or equivalent user entrypoint passes or is explicitly waived before User Test Summary handoff
+- validation pattern:
+  run `python dev/orin_branch_governance_validation.py` plus the PR-readiness gate mode; relevant desktop user-facing Live Validation and PR Readiness records must fail if the shortcut result is missing, pending, or failed
+- source references:
+  - `Docs/user_test_summary_guidance.md`
   - `Docs/phase_governance.md`
   - `dev/orin_branch_governance_validation.py`
 

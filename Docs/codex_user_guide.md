@@ -84,7 +84,7 @@ For Release Readiness, also include:
 - `Release Target: <version or identifier>` for release-bearing branches
 - `Release Scope: <bounded release scope>` for release-bearing branches
 - `Release Artifacts: <tag, notes, rebaseline, or other release artifacts>` for release-bearing branches
-- `Release Branch: No` only for non-release `docs/governance` or explicitly canon-only / repo-wide source-of-truth update branches
+- `Release Branch: No` only for preserved historical records or explicitly authorized direct-main emergency contexts
 
 ## What Codex Should Do Automatically
 
@@ -112,10 +112,12 @@ Codex should still:
 For meaningful interactive desktop hardening or closeout work, that baseline also includes:
 
 - using `Docs/phase_governance.md` for the repo-wide validation helper contract and proof hierarchy
+- using `Docs/validation_helper_registry.md` for durable helper naming, `Helper Status:`, owner, reuse, `Workstream-scoped` classification, `Consolidation Target`, and `Temporary probe` handling
 - using `Docs/development_rules.md` for evidence, cleanup, and hardening expectations
 - reusing existing live-validation helpers before creating new scripts, or recording why reuse is unsafe
 - treating one-off live-validation probes as temporary ignored artifacts that must be deleted or promoted into documented reusable tooling before closeout-grade proof
 - requiring visible helper progress and a no-progress supervisor; if no tighter helper-specific watchdog is active, `10s` without meaningful progress must abort the run, clean up, and report the last confirmed progress point
+- applying the `User-Facing Shortcut Live Validation Gate` for relevant desktop user-facing Live Validation: declare `User-Facing Shortcut Path:`, record `User-Facing Shortcut Validation:`, and clear or waive `User-Facing Shortcut Validation Pending` before User Test Summary handoff
 - planning the post-green live launched-process UI audit when meaningful user-facing desktop UI changed
 
 ## Codex Client Screenshot Delivery
@@ -189,6 +191,7 @@ Helpful add-ons:
 
 - `analysis only`
 - `digest latest User Test Summary before recommending the next legal phase`
+- `if User Test Summary results are pending, report User Test Summary Results Pending as the final-green blocker`
 - `use origin/main as authoritative truth`
 - `do not patch`
 
@@ -283,26 +286,27 @@ Use it only when merged canon is already stale and that drift could not be preve
 If a plausible next implementation workstream can be selected safely from current truth, do not treat this as the default path.
 If that docs pass changes validation or harness behavior assumptions, canon must be updated before further execution is recommended.
 
-This is not the same thing as a planned `docs/governance` branch from `No Active Branch`.
-Use the emergency repair recipe only for escaped canon drift.
+This is not a planned `docs/governance` branch from `No Active Branch`.
+Use the emergency repair recipe only for escaped canon drift, and only as an explicitly authorized direct-main action when no active branch can legally carry the repair.
 
-### Planned Docs/Governance Branch From No Active Branch
+### Governance Repair On The Active Branch
 
 Use:
 
-- `Analyze and Report: may a docs/governance branch begin from No Active Branch`
+- `Analyze and Report: identify the Branch Readiness blocker and repair it on the active branch`
 
 or:
 
-- `Workflow mode: execute the approved docs/governance branch from No Active Branch`
+- `Workflow mode: execute the docs-only governance repair on the active branch before implementation`
 
 Use this only when:
 
-- no active implementation branch exists
-- the branch purpose is genuinely governance, docs, policy, roadmap, backlog, or triage work
-- the branch is not being used to avoid canon sync that belongs on an active implementation or release branch
-- the branch-class admission rules from `Docs/phase_governance.md` pass
-- the work is repo-wide governance not coupled to one active branch, emergency canon repair, cross-branch truth repair, or governance work that would contaminate or confuse an active implementation or release branch
+- the repair is directly required to keep the active branch truthful, executable, phase-correct, readiness-correct, validation-correct, closeout-correct, or release-correct
+- a prior PR Readiness miss escaped and must be cleared in the next active branch's `Branch Readiness`
+- the work can stay docs/governance-only without changing product/runtime behavior
+- the prompt blocks implementation until the Branch Readiness blocker is cleared
+
+Do not use a governance-only branch or between-branch canon repair lane for this work.
 
 During `pre-Beta`, this path remains non-default and explicitly justified.
 In later Beta, public, or steady-state repo operation, it may become a normal maintenance path.
@@ -361,7 +365,7 @@ Required add-on for non-release branches:
 
 - `Release Branch: No`
 
-Use `Release Branch: No` only when the branch is a `docs/governance` branch or an explicitly canon-only / repo-wide source-of-truth update branch.
+Use `Release Branch: No` only for preserved historical records or explicitly authorized direct-main emergency contexts.
 Do not use `Release Branch: No` for `implementation` or `release packaging` branches.
 If a release-bearing branch lacks `Release Target:`, `Release Scope:`, or `Release Artifacts:`, Release Readiness is blocked by `Release Target Undefined`.
 
@@ -406,6 +410,7 @@ Required add-ons:
 - `Phase: Hardening`
 - `use the documented validation timeout profile`
 - `reuse existing validation helpers first`
+- `check Docs/validation_helper_registry.md before creating or keeping a helper`
 - `do not widen scope`
 - `do not stop between seam iterations unless blocker, truth drift, stop-loss, or required canon sync appears`
 - `continue until the full gate is green or a hard stop is hit`
@@ -427,6 +432,16 @@ or:
 
 - `digest latest User Test Summary to files-of-truth standards, reevaluate blockers and phase, and continue only if the next legal phase allows it`
 
+If results have not been returned yet, the correct prompt/output posture is:
+
+- automated validators and live helper evidence may be green
+- if shortcut validation has not passed or been waived, `User-Facing Shortcut Validation Pending` remains the hard blocker before User Test Summary handoff
+- relevant desktop workstreams must record `User-Facing Shortcut Path:` and `User-Facing Shortcut Validation:` before treating Live Validation as final green
+- `User Test Summary Results Pending` remains the hard blocker
+- `User Test Summary Results: PENDING.`
+- `Final phase advancement is BLOCKED until the filled User Test Summary is submitted and digested.`
+- final phase advancement stays blocked until the filled User Test Summary is submitted or waived, digested into the active authority record, and blockers are reevaluated
+
 ### Ask For A Prompt
 
 Use:
@@ -447,9 +462,48 @@ Prompting should reflect that reality.
 PR Readiness selects and minimally scopes the next workstream in canon, but it must also prove no branch exists yet for that next workstream.
 Use machine-checkable markers: `Next Workstream: Selected` and `Minimal Scope:` in the backlog entry, plus `## Selected Next Workstream` and `Branch: Not created` in the roadmap.
 Create the fresh branch only during the next `Branch Readiness` pass after the current branch merges and updated `main` is revalidated.
+If that branch is created and a prior-branch canon miss is discovered, stay in `Branch Readiness`, repair the miss on the active branch, and do not start implementation until the blocker is cleared.
 
 Do not ask Codex to keep planning from an old lane branch when live repo truth shows that branch is stale, merged, or identical to `main`.
 If repo truth is a steady-state `No Active Branch`, it is also valid for the truthful next move to be no branch at all until a new approved need exists.
+
+## PR Readiness Green Output
+
+When a `PR Readiness` pass is green or reports `PR READY: YES`, require a standardized `Next Branch` block and a copy-ready markdown `PR Creation Details` package.
+This keeps successor-branch handling and PR creation instructions from being reinvented or omitted.
+
+Required `Next Branch` block:
+
+```markdown
+## Next Branch
+- Next Legal Branch Type:
+- Next Branch Name:
+- Branch Class:
+- Creation Status:
+- Creation Gate:
+- Selected Next Workstream:
+- Selected Next Implementation Branch:
+- May Create Now: YES / NO
+- Reason:
+```
+
+Required `PR Creation Details` package:
+
+```markdown
+## PR Creation Details
+### Title
+### Base / Head
+### Summary
+### Validation
+### Governance / Canon
+### Post-Merge Truth
+### Next Branch
+### Not Included
+```
+
+The `Next Branch` block must state whether branch creation is legal now.
+When release debt or updated-`main` revalidation blocks the selected next implementation branch, use `May Create Now: NO` and record the gate.
+The PR package should be markdown-friendly and copy-ready, but it must not create the PR, merge the branch, run release work, or create the next branch by itself.
 
 ## When To Use A Longer Prompt
 
@@ -471,7 +525,8 @@ The key distinction is prompt length, not analysis depth.
 - add control language only when it materially protects truth or scope
 - use `Analyze for drift` before merge, release, or major canon carry-forward decisions
 - use evidence-digestion language when returned validation evidence should control the next move, rather than implying that phase advancement is automatic
-- in `PR Readiness`, require five hard blocker checks before accepting `PR READY: YES`: `stale-canon`, `post-merge`, `next-workstream`, `dirty`, and `docs-sync`
+- in `PR Readiness`, require hard blocker checks before accepting `PR READY: YES`: `stale-canon`, `post-merge`, `next-workstream`, `dirty`, `docs-sync`, `desktop-shortcut`, `uts-results`, `PR Readiness Scope Missed`, `Between-Branch Canon Repair Attempt`, and `Next Branch Created Too Early`
+- in `PR Readiness`, require the standardized `## Next Branch` block and, when green, the copy-ready `## PR Creation Details` markdown package
 - route through `Docs/Main.md` whenever authority is unclear
 - treat local unmerged overlays as reference material until revalidated against updated `origin/main`
 

@@ -18,17 +18,19 @@ This branch exists to prepare the public prerelease, release-state canon transit
 
 ## Phase Status
 
-- `Active Branch`
+- Historical completed branch record.
 - branch was created from updated `main`
 - local `main` and `origin/main` resolve to merge commit `d1277e65cf348073c73f636c8dd1b5965543f1a8`
 - this branch is based on that merge commit and carries release-packaging commits on top of it
+- branch merged to `main` in merge commit `1bab4b2`
 - FB-037 is released as `v1.4.0-prebeta` on this release-execution branch
 - FB-037 `Release Debt` is cleared in release-state canon
-- FB-038 remains selected in canon only and has no branch
+- while this release branch was active, FB-038 remained selected in canon only and had no branch
 - Branch Readiness, Workstream Slice 1, release-artifact Hardening, release-packaging Live Validation, and PR Readiness are complete
 - release-packaging PR Readiness closed after merge-target canon, release-boundary proof, successor branch deferral, Governance Drift Audit, and PR gate validation passed
 - Release Readiness executed the release-state canon transition for FB-037; Git tag `v1.4.0-prebeta` is the supported public release artifact in this environment
 - GitHub Release publication is not supported in this environment because `gh` and API credentials are unavailable; the API lookup remains the publication proof point
+- this record is preserved for historical traceability only and is not active execution authority after merge
 
 ## Branch Class
 
@@ -47,13 +49,13 @@ This branch exists to prepare the public prerelease, release-state canon transit
 ## Entry Basis
 
 - updated `main` is aligned with `origin/main`
-- FB-037 is the current merged-unreleased release-debt owner
-- repo truth before this branch resolves to `Release Readiness`, `No Active Branch`, and `Release Debt` (FB-037)
+- at branch admission, FB-037 was the current merged-unreleased release-debt owner
+- repo truth before this branch resolved to `Release Readiness`, `No Active Branch`, and `Release Debt` (FB-037)
 - the release floor for FB-037 is `minor prerelease`
 - latest public prerelease is `v1.3.1-prebeta`
 - target release version is planned as `v1.4.0-prebeta`
-- FB-038 is selected as the next implementation workstream in canon only
-- no FB-038 branch exists
+- at branch admission, FB-038 was selected as the next implementation workstream in canon only
+- at branch admission, no FB-038 branch existed
 
 ## Exit Criteria
 
@@ -62,7 +64,7 @@ This branch exists to prepare the public prerelease, release-state canon transit
 - `Release Debt` for FB-037 is cleared
 - the `v1.4.0-prebeta` rebaseline is active
 - release-state transition checklist remains complete and ordered as historical proof
-- FB-038 remains selected in canon only and unbranched until updated `main` is revalidated
+- this release branch preserved FB-038 as selected in canon only and unbranched until updated `main` was revalidated
 - no product or runtime work is introduced
 
 ## Rollback Target
@@ -130,7 +132,7 @@ Boundary:
 - decide whether the release needs a new Nexus pre-Beta rebaseline file
 - if a rebaseline is needed, prepare the draft baseline file without changing latest-public-release truth yet
 - prepare the exact release-state transition checklist for the later release execution pass
-- keep FB-037 as `Merged unreleased on main` with `Release Debt` active until tag/release execution happens
+- keep FB-037 as `Merged unreleased on main` with `Release Debt` active until tag/release execution happens; this was the pre-release boundary, not current release truth
 
 Explicit non-includes:
 
@@ -161,7 +163,7 @@ Continuation rule:
 - release target review passed for `v1.4.0-prebeta`
 - release scope review passed and remains limited to FB-037 built-in catalog release packaging
 - draft release notes, draft rebaseline, and release-state transition checklist are complete and internally consistent
-- no tag exists, no release was published, no released-state canon updates were applied, and `Release Debt` remains active
+- at Workstream completion, no tag existed, no release was published, no released-state canon updates had been applied, and `Release Debt` remained active
 - no product or runtime work was introduced
 - phase authority transitioned from `Workstream` to `Hardening`
 
@@ -174,7 +176,7 @@ Continuation rule:
 - draft release notes do not overclaim settings, protocol, new target-kind, launcher-policy, UI, callable-group, or FB-038 work
 - draft rebaseline remains internally consistent and explicitly inactive until release execution
 - release-state transition checklist is complete, ordered, and preserves FB-038 branch deferral
-- no tag exists, no release was published, no released-state canon updates were applied, and `Release Debt` remains active
+- at Hardening completion, no tag existed, no release was published, no released-state canon updates had been applied, and `Release Debt` remained active
 - no product or runtime work was introduced
 - phase authority transitioned from `Hardening` to `Live Validation`
 
@@ -183,16 +185,16 @@ Continuation rule:
 - Live Validation complete:
   `Release Boundary Proof`
 - branch-truth correction was made durable in commit `e1dd905`
-- release target `v1.4.0-prebeta` remains planned and unreleased
-- release scope remains bounded to FB-037 delivered built-in catalog behavior and supporting proof artifacts
-- draft release notes remain accurate and do not claim settings/protocol, new target-kind, launcher-policy, UI, callable-group, or FB-038 work
-- draft rebaseline remains explicitly inactive and does not override the active `v1.3.1-prebeta` baseline
-- release-state transition checklist remains complete and ordered for the later release execution pass
+- release target `v1.4.0-prebeta` remained planned and unreleased during Live Validation
+- release scope remained bounded to FB-037 delivered built-in catalog behavior and supporting proof artifacts
+- draft release notes remained accurate and did not claim settings/protocol, new target-kind, launcher-policy, UI, callable-group, or FB-038 work
+- draft rebaseline remained explicitly inactive and did not override the active `v1.3.1-prebeta` baseline
+- release-state transition checklist remained complete and ordered for the later release execution pass
 - local tag check confirmed no `v1.4.0-prebeta` tag exists
 - remote tag check confirmed no `v1.4.0-prebeta` tag exists on `origin`
 - GitHub release lookup for `v1.4.0-prebeta` returned `404`
-- FB-037 remains `Merged unreleased on main` with `Release Debt` active
-- FB-038 remains selected in canon only and no local or remote FB-038 branch exists
+- FB-037 remained `Merged unreleased on main` with `Release Debt` active during Live Validation
+- during Live Validation, FB-038 remained selected in canon only and no local or remote FB-038 branch existed
 - no product or runtime work was introduced
 - phase authority transitioned from `Live Validation` to `PR Readiness`
 
@@ -213,12 +215,12 @@ Continuation rule:
 ## PR Readiness Closeout
 
 - PR Readiness complete:
-  - merge-target canon still represents FB-037 as `Merged unreleased on main` with `Release Debt` active until release execution
+  - merge-target canon still represented FB-037 as `Merged unreleased on main` with `Release Debt` active until release execution
   - release target, release scope, and release artifacts are explicit in this authority record
   - draft rebaseline remains inactive and does not override the active `v1.3.1-prebeta` baseline
   - no local or remote `v1.4.0-prebeta` tag exists
   - GitHub release lookup for `v1.4.0-prebeta` returned `404`
-  - FB-038 remains selected in canon only and no FB-038 branch exists
+  - during PR Readiness, FB-038 remained selected in canon only and no FB-038 branch existed
   - Governance Drift Audit completed with no blocking drift
   - no product or runtime work was introduced
 - phase authority transitioned from `PR Readiness` to `Release Readiness`
@@ -233,7 +235,7 @@ Continuation rule:
 - release notes are preserved in this branch record
 - Git tag: `v1.4.0-prebeta`
 - GitHub Release publication: unsupported in this environment because no `gh` CLI or API token is available
-- FB-038 remains selected in canon only and unbranched
+- at release execution completion, FB-038 remained selected in canon only and unbranched
 - no product or runtime work was introduced
 
 ## Release Notes
@@ -292,8 +294,8 @@ Validation evidence:
 Release execution performed these steps in order:
 
 1. Confirm `v1.4.0-prebeta` tag does not already exist.
-2. Confirm no FB-038 branch exists.
-3. Confirm FB-037 still remains `Promoted`, `Merged unreleased on main`, and blocked by `Release Debt`.
+2. Before release execution, confirm no FB-038 branch exists.
+3. Before release execution, confirm FB-037 still remains `Promoted`, `Merged unreleased on main`, and blocked by `Release Debt`.
 4. Update `Docs/feature_backlog.md`:
    - `Status: Released (v1.4.0-prebeta)`
    - `Record State: Closed`
@@ -305,7 +307,7 @@ Release execution performed these steps in order:
    - latest public release commit: release execution commit
    - remove FB-037 from current release debt
    - move FB-037 into released or recently closed context
-   - keep FB-038 selected with `Branch: Not created`
+   - keep FB-038 selected with release-time branch-deferral wording
 6. Update `Docs/workstreams/index.md`:
    - remove FB-037 from `Merged / Release Debt Owners`
    - add FB-037 under `Closed`
@@ -330,7 +332,7 @@ Release execution performed these steps in order:
     - `v1.4.0-prebeta`
 13. Prepare/publish release notes using the Slice 1 draft notes above.
 14. Confirm no stale FB-037 `Release Debt` references remain in current-state canon.
-15. Confirm FB-038 remains unbranched until updated `main` is revalidated for Branch Readiness.
+15. Confirm FB-038 remains unbranched through release execution until updated `main` is revalidated for Branch Readiness.
 
 ## Explicit Non-Goals
 
@@ -362,7 +364,7 @@ Branch Readiness validation proved:
 - branch remains based on updated `main`
 - FB-037 remained merged unreleased until release execution
 - planned target version did not imply release completion
-- FB-038 remains selected in canon only and no FB-038 branch exists
+- at Branch Readiness validation time, FB-038 remained selected in canon only and no FB-038 branch existed
 - no product or runtime files changed
 - `python dev/orin_branch_governance_validation.py` passes
 - `git diff --check` passes
@@ -374,7 +376,7 @@ Workstream planning validation proved:
 - FB-037 remained `Merged unreleased on main`
 - `Release Debt` remained active until release execution
 - planned target version did not imply release completion
-- FB-038 remains selected in canon only and no FB-038 branch exists
+- at Workstream planning validation time, FB-038 remained selected in canon only and no FB-038 branch existed
 - no product or runtime files changed
 
 Hardening validation proved:
@@ -384,7 +386,7 @@ Hardening validation proved:
 - draft rebaseline remained inactive until release execution
 - no `v1.4.0-prebeta` tag existed before release execution
 - FB-037 remained `Merged unreleased on main` with `Release Debt` active
-- FB-038 remains selected in canon only and no FB-038 branch exists
+- at Hardening validation time, FB-038 remained selected in canon only and no FB-038 branch existed
 - no product or runtime files changed
 
 Live Validation proved:
@@ -396,7 +398,7 @@ Live Validation proved:
 - no `v1.4.0-prebeta` tag existed before release execution
 - no release was published before release execution
 - no released-state canon updates were applied before release execution
-- FB-038 remains selected in canon only and no FB-038 branch exists
+- at Live Validation time, FB-038 remained selected in canon only and no FB-038 branch existed
 - no product or runtime files changed
 
 Release execution validation must prove:
