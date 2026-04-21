@@ -77,6 +77,40 @@ Branch-local "what worked" notes should stay in the canonical workstream doc fir
   - `Docs/phase_governance.md`
   - `dev/orin_branch_governance_validation.py`
 
+## Pattern: User Test Summary Pending Must Block Final Green
+
+- symptom:
+  automated validators and live helpers pass, but final phase output implies the branch can advance before the filled User Test Summary results are submitted and digested
+- layer:
+  validation evidence digestion and phase governance
+- root-cause pattern:
+  canon requires returned user evidence digestion, but without a named blocker the result can be summarized as all-green even though the user-facing handoff is still outstanding
+- fix pattern:
+  require the named blocker `User Test Summary Results Pending`, record `User Test Summary Results: PENDING` in the active authority record, and report that automated/live evidence is green while final phase advancement remains blocked
+- validation pattern:
+  run `python dev/orin_branch_governance_validation.py` plus the PR-readiness gate mode; the PR gate must fail while `User Test Summary Results Pending` is active or while the result marker is missing for a relevant user-facing Live Validation or PR Readiness workstream
+- source references:
+  - `Docs/user_test_summary_guidance.md`
+  - `Docs/phase_governance.md`
+  - `dev/orin_branch_governance_validation.py`
+
+## Pattern: Desktop Shortcut Gate Must Precede User Test Summary Handoff
+
+- symptom:
+  validators, live helpers, and direct-runtime launches pass, but the user-facing desktop shortcut path later exposes a visibility, startup, or discoverability failure
+- layer:
+  Live Validation proof hierarchy and User Test Summary handoff
+- root-cause pattern:
+  helper evidence proves branch behavior through controlled launch paths, but the final user entrypoint is not named as a machine-checkable gate before `UTS` handoff
+- fix pattern:
+  require the `User-Facing Shortcut Live Validation Gate`, record `User-Facing Shortcut Path:` and `User-Facing Shortcut Validation:`, and keep `User-Facing Shortcut Validation Pending` active until the declared shortcut or equivalent user entrypoint passes or is explicitly waived before User Test Summary handoff
+- validation pattern:
+  run `python dev/orin_branch_governance_validation.py` plus the PR-readiness gate mode; relevant desktop user-facing Live Validation and PR Readiness records must fail if the shortcut result is missing, pending, or failed
+- source references:
+  - `Docs/user_test_summary_guidance.md`
+  - `Docs/phase_governance.md`
+  - `dev/orin_branch_governance_validation.py`
+
 ## Pattern: Released-Canon Fallback Must Not Use The Highest Planned Prerelease
 
 - symptom:

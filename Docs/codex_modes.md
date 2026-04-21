@@ -153,6 +153,9 @@ Workflow mode should usually return:
 - a detailed `## User Test Summary` manual checklist when the slice changes user-visible behavior, runtime interaction, UX flow, prompts, startup behavior, voice behavior, or another operator-facing path
 - the updated canonical repo-level `UTS` artifact when the active workstream owns one and the slice makes that artifact relevant
 - the exported or refreshed desktop `User Test Summary.txt` copy when the slice is a relevant desktop user-facing path, or an explicit explanation of why that export was skipped
+- for relevant desktop user-facing Live Validation, the `User-Facing Shortcut Live Validation Gate` / `desktop-shortcut` result with `User-Facing Shortcut Path:` and `User-Facing Shortcut Validation:` recorded before User Test Summary handoff
+- when the user-facing shortcut result is outstanding, the explicit blocker `User-Facing Shortcut Validation Pending`; helper-only, synthetic, harness, or direct-runtime evidence must not be reported as final green while this blocker remains
+- when returned User Test Summary results are still outstanding, the explicit blocker output: `Automated validators and live helper evidence: GREEN.`, `User Test Summary Results: PENDING.`, and `Final phase advancement is BLOCKED until the filled User Test Summary is submitted and digested.`
 - when meaningful desktop UI changed and closeout posture matters, a distinct summary of the live launched-process UI audit results and evidence
 - an explicit statement under `## User Test Summary` when no meaningful manual test exists and why
 - remaining drift or known gaps
@@ -163,7 +166,7 @@ When the approved phase is `PR Readiness`, the output must also explicitly inclu
 - confirmation that the merge-target canon completeness gate passed
 - confirmation that the Governance Drift Audit ran
 - whether governance drift was found
-- confirmation that stale-canon, post-merge-state, next-workstream, dirty-branch, and docs-sync/drift-audit blockers are clear
+- confirmation that stale-canon, post-merge-state, next-workstream, dirty-branch, docs-sync/drift-audit, and `User Test Summary Results Pending` blockers are clear
 - confirmation that `PR Readiness Scope Missed`, `Between-Branch Canon Repair Attempt`, and `Next Branch Created Too Early` are clear
 - confirmation that no PR-owned docs or canon work is being deferred to Release Readiness, updated `main`, or a governance-only branch
 - confirmation that branch truth is committed and durable, not only present in the working tree
@@ -321,6 +324,12 @@ For desktop workstreams, response-level `## User Test Summary` output and the ca
 - the response section is the current handoff copy
 - the workstream-owned repo artifact is the durable canonical record unless the workstream explicitly declares another repo path
 - the desktop `User Test Summary.txt` file is the required user-facing exported copy when relevant, but it is not the default canonical repo record
+
+If a required User Test Summary handoff is outstanding, `User Test Summary Results Pending` is a hard blocker. Codex must not report final phase green or PR-ready while the filled results are missing; it must digest submitted results, update the authority record, reevaluate blockers, and route backward to `Workstream` or `Hardening` if the results expose a mismatch, regression, ambiguity, cleanup issue, or scope drift.
+
+For relevant desktop user-facing workstreams, `User-Facing Shortcut Validation Pending` is a hard blocker before User Test Summary handoff.
+Codex may use validators, live helpers, harnesses, or direct runtime launches for scenario coverage, but Live Validation closeout must also run the declared user-facing desktop shortcut or equivalent entrypoint and record `User-Facing Shortcut Path:` plus `User-Facing Shortcut Validation: PASS`, `FAIL`, `PENDING`, or `WAIVED`.
+If that shortcut gate fails or remains pending, do not report final green; route back to `Workstream` or `Hardening` as appropriate.
 
 When manual validation is relevant, `## User Test Summary` must be a real checklist rather than a recap.
 

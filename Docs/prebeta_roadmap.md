@@ -71,7 +71,7 @@ Current merged truth indicates:
 - blocker after release execution: none for FB-037
 - current active workstream: FB-038 Taskbar / Tray Quick-Task UX And Create Custom Task Surface
 - current branch: `feature/fb-038-taskbar-tray-quick-task-ux`
-- next concern on the active branch: capture bounded real desktop validation evidence for the completed FB-038 tray/task UX behavior before PR Readiness
+- next concern on the active branch: wait for the fresh post-Hardening User Test Summary results, then digest them before any PR Readiness transition; automated validators, live helpers, and the desktop shortcut gate are green, but final phase advancement is blocked by `User Test Summary Results Pending`
 
 That means the released FB-027 interaction baseline, the released FB-036 authoring-and-callable-group milestone, the released FB-041 deterministic callable-group execution milestone, and the released FB-037 built-in catalog milestone are now part of the current public shared pre-Beta baseline.
 
@@ -87,12 +87,13 @@ That means the released FB-027 interaction baseline, the released FB-036 authori
 ### FB-038 Taskbar / Tray Quick-Task UX And Create Custom Task Surface
 
 - status: `Live Validation`
+- blocker: `User Test Summary Results Pending`
 - Record State: `Promoted`
 - canonical workstream doc: `Docs/workstreams/FB-038_taskbar_tray_quick_task_ux.md`
 - Branch: `feature/fb-038-taskbar-tray-quick-task-ux`
-- sequence: current active branch is in Live Validation after green Hardening for the completed Workstream seam chain
-- Minimal Scope: Live Validation for the completed shell-facing tray quick-task entry surface, limited to bounded real desktop validation of tray overlay entry, tray Create Custom Task dialog-open/no-write behavior, tray-origin create completion, catalog reload, exact-match re-resolution, confirm/result behavior, cleanup, and released-baseline preservation; no new feature seams are authorized during Live Validation.
-- live validation rule: do not add new feature seams; capture bounded real desktop evidence for the completed tray and Create Custom Task behavior only
+- sequence: current active branch completed bounded Hardening re-entry after the returned tray-visibility User Test Summary failure; H1 tray identity/discoverability and H2 shortcut-launch tray readback are green, and fresh post-Hardening Live Validation evidence plus a new User Test Summary handoff have been produced
+- Minimal Scope: Live Validation for the completed tray quick-task UX after H1/H2, limited to desktop shortcut launch, tray discovery as `Nexus Desktop AI` in visible tray or hidden icons overflow, tray menu identity, tray overlay entry, tray Create Custom Task dialog-open/no-write behavior, tray-origin create completion, catalog reload, exact-match re-resolution, confirm/result, cleanup, and released-baseline preservation.
+- live validation rule: automated validators and live helper evidence may be green, but PR Readiness remains blocked until the filled User Test Summary is submitted or waived, digested into the active authority record, and blockers are reevaluated.
 
 ## Most Recent Released Workstream Context
 
@@ -198,14 +199,14 @@ Current merged truth indicates:
 - the released FB-035 lane is closed
 - the recent released workstreams above remain part of the locked current baseline
 - merged unreleased non-doc implementation debt exists: no
-- FB-038 is the active Live Validation implementation workstream
+- FB-038 is the active Live Validation implementation workstream with `User Test Summary Results Pending`; H1 identity/discoverability repair, H2 shortcut-launch tray readback validation, automated validators, live helper evidence, and the desktop shortcut gate are green, but returned User Test Summary results must still be submitted and digested before forward phase movement
 - post-release repo truth after the FB-037 release branch merge resolved to no FB-037 release-debt blocker
 - successor-lane branch creation for FB-038 has already occurred as the current Branch Readiness branch after updated `main` was revalidated
 - if a branch changes release-facing canon, those canon updates must land on that same branch before PR readiness is allowed
 - post-release canon repair is emergency-only when merged canon is already stale or external drift made pre-merge prevention impossible
 - the released FB-027 baseline does not authorize further saved-action authoring, resolution, voice, Action Studio, routines, profiles, hotkey cleanup, or shutdown-confirmation work by inertia
 - remaining future candidate spaces now explicitly recorded in the backlog include:
-  - FB-038 for taskbar or tray quick-task UX including Create Custom Task, now transitioned from Hardening into Live Validation after green branch-wide pressure testing
+  - FB-038 for taskbar or tray quick-task UX including Create Custom Task, now in Live Validation with automated/live helper evidence green, post-Hardening shortcut readback green, `User-Facing Shortcut Validation: PASS`, and `User Test Summary Results Pending` blocking phase advancement until filled UTS evidence is returned and digested
   - FB-039 for external trigger and plugin integration architecture
   - FB-040 for monitoring, thermals, and performance HUD surfaces
 - those candidate lanes must be selected deliberately rather than bundled together as one implicit interaction continuation

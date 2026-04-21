@@ -221,7 +221,7 @@ These are reference layers, not active workstream or roadmap owners.
 - if repo truth resolves to steady-state `No Active Branch`, do not invent a next implementation branch by inertia
 - governance-only branches are not used for new Nexus work; governance or canon repair rides on the active branch that owns the affected truth, or on the next active branch's `Branch Readiness` if a PR Readiness miss escaped the prior branch
 - the normal `PR Readiness` sequence for a branch that changes release-facing canon is:
-  0. clear the hard PR Readiness blockers: `stale-canon`, `post-merge`, `dirty`, `docs-sync`, and `next-workstream`
+  0. clear the hard PR Readiness blockers: `stale-canon`, `post-merge`, `dirty`, `docs-sync`, `next-workstream`, and `uts-results`
   1. validate current branch truth
   2. complete the merge-target canon updates on that same branch
   3. run the Governance Drift Audit
@@ -247,6 +247,8 @@ These are reference layers, not active workstream or roadmap owners.
 - Release Readiness is not a docs-sync phase; it is restricted to release-target, release-scope, release-artifact, GitHub release package information, final release-execution authorization or confirmation, and release-state confirmation after release execution
 - a post-release canon repair is an emergency direct-main action only when merged canon is already stale, no active branch can legally carry the repair, and the user explicitly authorizes that direct-main action
 - returned `UTS`, screenshot, interactive, PR-review, or release-review evidence must be digested into the authority record before phase advancement is recommended
+- while a required User Test Summary handoff is outstanding, the active branch must report `User Test Summary Results Pending`; automated validators and live helper evidence may be green, but final phase advancement is blocked until the filled User Test Summary is submitted or waived, digested into the authority record, and blockers are reevaluated
+- required pending-UTS wording is: `Automated validators and live helper evidence: GREEN.`, `User Test Summary Results: PENDING.`, and `Final phase advancement is BLOCKED until the filled User Test Summary is submitted and digested.`
 - when a slice changes user-visible behavior or another operator-facing path, do not treat `## User Test Summary` as a recap slot; route through `Docs/user_test_summary_guidance.md` and require a real manual checklist unless no meaningful manual test exists
 - when an active desktop workstream has a canonical repo-level `UTS` artifact, do not stop at response text; update that workstream-owned artifact as well unless an explicit exception from `Docs/user_test_summary_guidance.md` applies
 - during bounded multi-seam Workstream execution, update the canonical workstream `UTS` incrementally as user-visible seams land, then refresh the desktop export when the Workstream seam chain is complete and the branch is user-facing
@@ -254,6 +256,7 @@ These are reference layers, not active workstream or roadmap owners.
 - do not confuse the canonical workstream-owned repo artifact with the required desktop convenience export or with response-level handoff text
 - when a user-visible implementation slice is already validator-green, do not assume that alone is enough to continue; route through `Docs/development_rules.md` and require an explicit hardening or continuation judgment
 - when a relevant desktop or runtime path can be launched and exercised through a real desktop session, do not treat validators, simulation, or synthetic/headless harnesses as sufficient for continuation on their own; require the smallest reliable validation infrastructure plus an evidence-backed interactive OS-level result before continuation
+- when Live Validation concerns a relevant desktop user-facing workstream, route through `Docs/phase_governance.md` and require the `User-Facing Shortcut Live Validation Gate`; this is the canonical `desktop-shortcut` blocker path: the active authority record must declare `User-Facing Shortcut Path:` and `User-Facing Shortcut Validation:` before User Test Summary handoff, and final green is blocked by `User-Facing Shortcut Validation Pending` until the declared user-facing desktop shortcut or equivalent entrypoint is passable or explicitly waived
 - if the real interactive desktop path is not feasible, require an explicit explanation of why, require the strongest available synthetic/headless evidence instead, and treat the continuation judgment as limited by that missing interactive layer
 - keep validator results, synthetic/headless validation results, interactive OS-level execution results, simulated reasoning, and manual handoff as separate evidence layers rather than collapsing them into one summary
 - when a pass opens programs, windows, dialogs, temporary documents, helper processes, probe files, or other session-scoped artifacts, route through `Docs/development_rules.md` and require cleanup plus explicit cleanup verification before handoff unless there is an explicit reason to preserve them

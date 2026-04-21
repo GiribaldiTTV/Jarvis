@@ -42,7 +42,10 @@ This workstream exists so taskbar or tray access and Create Custom Task entry ar
 - Branch Readiness is complete and durably checkpointed in commit `766ff67`
 - Workstream seam chain and helper governance are complete and durably checkpointed in commit `ef05ab2`
 - Hardening execution pass completed on 2026-04-21; branch-wide validator and helper sweep is green
-- Live Validation execution completed on 2026-04-21; bounded real desktop evidence is green and digested below
+- Live Validation execution completed on 2026-04-21; automated validators, live helper evidence, and the user-facing desktop shortcut gate were green, but returned User Test Summary evidence reported the desktop VBS launch did not show an obvious tray shortcut to the user
+- Hardening re-entry H1 `Tray Identity And Discoverability Refinement` and H2 `Shortcut-Launch Tray Readback Validation` are green; fresh post-Hardening Live Validation evidence and User Test Summary handoff are complete, with returned User Test Summary results still pending
+- User-Facing Shortcut Path: `C:\Users\anden\OneDrive\Desktop\Nexus Desktop Launcher.lnk`
+- User-Facing Shortcut Validation: PASS
 - FB-037 is released and closed in `v1.4.0-prebeta`
 - FB-037 release publication exists at `https://github.com/GiribaldiTTV/Nexus-Desktop-AI/releases/tag/v1.4.0-prebeta`
 - no FB-037 release-debt blocker remains
@@ -54,7 +57,7 @@ This workstream exists so taskbar or tray access and Create Custom Task entry ar
 
 ## Blockers
 
-- None.
+- `User Test Summary Results Pending`
 
 ## Entry Basis
 
@@ -73,21 +76,25 @@ This workstream exists so taskbar or tray access and Create Custom Task entry ar
 
 ## Exit Criteria
 
-- bounded real desktop validation is complete for tray overlay entry, tray Create Custom Task dialog-open/no-write behavior, tray-origin create completion, catalog reload, exact-match re-resolution, confirm/result behavior, cleanup, and released-baseline preservation
-- required runtime marker, persisted-state, screenshot or equivalent UI evidence, and cleanup evidence are captured and referenced
-- no runtime contradiction appears against repo-side validation or Hardening proof
-- no regression appears in released FB-027 interaction behavior, FB-036 authoring/source safety, FB-041 callable-group behavior, or FB-037 built-in catalog and saved-action override behavior
-- returned Live Validation evidence is digested into this authority record before PR Readiness is recommended
+- H1 tray identity and discoverability refinement is implemented without new tray actions, new entrypoints, taskbar pinning, jump lists, protocol handling, or changes to Create Custom Task behavior
+- tray tooltip/title, tray menu identity, and any startup discovery cue clearly identify `Nexus Desktop AI` and document that Windows may place the icon in hidden tray overflow
+- H2 shortcut-launch tray readback validates the user-facing desktop shortcut path after the H1 repair
+- required runtime marker, persisted-state, screenshot or equivalent UI evidence, and cleanup evidence are captured and referenced for the repair validation
+- no runtime contradiction appears against repo-side validation or prior Hardening proof
+- no regression appears in released FB-027 interaction behavior, FB-036 authoring/source safety, FB-041 callable-group behavior, FB-037 built-in catalog and saved-action override behavior, tray overlay behavior, or tray-origin Create Custom Task behavior
+- post-Hardening Live Validation evidence is captured and the fresh User Test Summary handoff is exported; PR Readiness remains blocked until returned User Test Summary results pass or are explicitly waived and digested
 
 ## Rollback Target
 
-- `Hardening`
+- `Hardening` re-entry after failed User Test Summary tray visibility result
 
 ## Next Legal Phase
 
-- `PR Readiness`
+- `Live Validation`
 
-Live Validation was admitted after validating Workstream closure, Hardening GREEN evidence, User Test Summary alignment, helper registry compliance, and clean branch truth. Live Validation execution is now green; the next safe move is a separate Live Validation closeout and PR Readiness transition pass.
+Live Validation was admitted after validating Workstream closure, Hardening GREEN evidence, User Test Summary alignment, helper registry compliance, and clean branch truth. Automated validators, live helper evidence, and the user-facing desktop shortcut gate are green, but returned User Test Summary evidence reports a user-visible tray discoverability failure from the desktop VBS shortcut. The next legal movement is back to Hardening for a bounded tray-visibility/discoverability repair or a clearly documented OS-overflow expectation correction; PR Readiness remains blocked.
+
+Fresh post-Hardening Live Validation is complete and the updated User Test Summary handoff is exported. Automated validators and live helper evidence are green, but final phase advancement is blocked by `User Test Summary Results Pending` until the filled User Test Summary is submitted or waived, digested into this authority record, and blockers are reevaluated.
 
 ## Bounded Objective
 
@@ -100,7 +107,7 @@ The branch should prove a bounded shell-facing UX milestone, not redesign the ac
 - a clearly bounded taskbar or tray quick-task entry surface is implemented or the branch records why the smallest safe surface must be deferred
 - Create Custom Task entry reuses the released FB-036 authoring model rather than inventing a second authoring path
 - released shared-action resolution, saved-action authority, built-in catalog behavior, and callable-group execution remain unchanged
-- branch-local validation and Live Validation evidence are sufficient to support PR Readiness
+- branch-local validation, Live Validation evidence, and digested User Test Summary results are sufficient to support PR Readiness
 
 ## Expected Seam Families And Risk Classes
 
@@ -390,18 +397,19 @@ When a Workstream seam changes taskbar, tray, Create Custom Task, or other user-
 
 ## Live Validation Progress
 
-- Live Validation execution completed on 2026-04-21 for the completed FB-038 tray/task UX seam chain.
+- Live Validation execution rerun completed on 2026-04-21 for the completed FB-038 tray/task UX seam chain.
 - Repo-side validator sweep passed:
-  - `dev/orin_branch_governance_validation.py` passed with `401` checks
-  - `dev/orin_desktop_entrypoint_validation.py` passed; report: `dev/logs/desktop_entrypoint_validation/reports/DesktopEntrypointValidationReport_20260421_061954.txt`
+  - `dev/orin_branch_governance_validation.py` passed with `470` checks
+  - `dev/orin_desktop_entrypoint_validation.py` passed; report: `dev/logs/desktop_entrypoint_validation/reports/DesktopEntrypointValidationReport_20260421_071357.txt`
   - `dev/orin_interaction_baseline_validation.py` passed
   - `dev/orin_saved_action_authoring_ui_validation.py` passed
   - `dev/orin_callable_group_execution_validation.py` passed
   - `dev/orin_saved_action_source_validation.py` passed
 - Workstream-scoped helper sweep passed:
   - `dev/orin_fb038_seam2_validation.ps1` passed, including PySide6 import, desktop entrypoint, interaction baseline, saved-action authoring UI, branch governance, and diff checks
-  - `dev/orin_fb038_seam2_live_validation.ps1` passed; evidence root: `dev/logs/fb_038_tray_create_live_validation/20260421_062005`
-  - `dev/orin_fb038_seam3_live_validation.ps1` passed; evidence root: `dev/logs/fb_038_tray_create_completion_live_validation/20260421_062028`
+  - `dev/orin_fb038_seam2_live_validation.ps1` passed; evidence root: `dev/logs/fb_038_tray_create_live_validation/20260421_071454`
+  - `dev/orin_fb038_seam3_live_validation.ps1` passed; evidence root: `dev/logs/fb_038_tray_create_completion_live_validation/20260421_071521`
+  - user-facing desktop shortcut gate passed for runtime startup and hidden-overflow tray focus; evidence root: `dev/logs/fb_038_desktop_shortcut_live_validation/20260421_071742`
 - Seam 1 live result:
   tray startup, tray icon visibility, tray activation, existing overlay open path, and hotkey preservation remain green through the repo-side validator sweep and the live helper baseline checks.
 - Seam 2 live result:
@@ -424,16 +432,141 @@ When a Workstream seam changes taskbar, tray, Create Custom Task, or other user-
   FB-038 helper registry entries remain compliant as `Workstream-scoped`; the consolidation or promotion decision remains required before PR Readiness, but it is not a Live Validation blocker.
 - Scope-drift result:
   no new implementation, schema change, target-kind change, resolution precedence change, built-in catalog change, callable-group change, taskbar pinning, jump-list, protocol, settings, installer, release, or PR work was introduced during Live Validation.
-- Live Validation decision:
+- Live Validation automated/live-helper decision:
   GREEN.
+- User-facing desktop shortcut gate:
+  PASS.
+- User-Facing Shortcut Path: `C:\Users\anden\OneDrive\Desktop\Nexus Desktop Launcher.lnk`
+- User-Facing Shortcut Validation: PASS
+- Previous User Test Summary Results: FAIL before H1/H2.
+- At that time, final phase advancement was BLOCKED because the returned User Test Summary reported that the desktop VBS shortcut launch did not show an obvious Nexus Desktop AI tray shortcut to the user.
 - Next safe move:
-  separate Live Validation closeout and PR Readiness transition durability pass; do not start PR Readiness inside this Live Validation execution pass.
+  route back to a bounded Hardening/repair pass for tray visibility and discoverability from the desktop VBS shortcut; do not advance to PR Readiness until the user-facing tray expectation is repaired or explicitly re-scoped and revalidated.
+
+## Hardening Re-Entry Progress
+
+- H1 complete:
+  `Tray Identity And Discoverability Refinement`
+- H1 implementation added or standardized only tray identity/discoverability signals:
+  - application identity is set to `Nexus Desktop AI`
+  - tray tooltip remains `Nexus Desktop AI`
+  - tray menu now starts with a disabled `Nexus Desktop AI` identity header before existing actions
+  - startup discovery cue says Nexus is running in the Windows notification area and tells the user to check hidden icons (`^`) if the icon is not visible
+  - runtime markers added:
+    - `RENDERER_MAIN|TRAY_IDENTITY_READY|label=Nexus Desktop AI|hidden_overflow_hint=true`
+    - `RENDERER_MAIN|TRAY_DISCOVERY_CUE_REQUESTED|hidden_overflow_hint=true`
+- H1 preserved explicit non-includes:
+  no forced tray pinning, taskbar pinning, jump lists, protocol handling, startup registration, new tray actions, Create Custom Task behavior changes, saved-action persistence changes, catalog changes, callable-group changes, resolution changes, or parallel entrypoints.
+- H1 repo-side validation evidence:
+  - `dev/orin_desktop_entrypoint_validation.py` passed; report: `dev/logs/desktop_entrypoint_validation/reports/DesktopEntrypointValidationReport_20260421_073353.txt`
+  - `dev/orin_fb038_seam2_validation.ps1` passed and included the updated entrypoint validator; report: `dev/logs/desktop_entrypoint_validation/reports/DesktopEntrypointValidationReport_20260421_073517.txt`
+  - `dev/orin_branch_governance_validation.py` passed with `463` checks after Hardening re-entry canon alignment
+  - `dev/orin_interaction_baseline_validation.py` passed
+  - `dev/orin_saved_action_authoring_ui_validation.py` passed
+  - `dev/orin_callable_group_execution_validation.py` passed
+  - `dev/orin_saved_action_source_validation.py` passed
+- H1 tray behavior regression evidence after the identity/header change:
+  - `dev/orin_fb038_seam2_live_validation.ps1` passed; evidence root: `dev/logs/fb_038_tray_create_live_validation/20260421_074343`
+  - confirmed the updated tray menu still exposes `Create Custom Task` and `Open Command Overlay`
+  - confirmed tray-origin Create Custom Task opens the existing dialog and cancel leaves `saved_actions.json` hash/timestamp/length unchanged
+  - confirmed absence of `CUSTOM_TASK_CREATE_ATTEMPT_STARTED` and `CUSTOM_TASK_CREATED` on cancel
+  - confirmed existing tray overlay and hotkey overlay paths still pass
+  - cleanup force-stopped the validation runtime after graceful close timeout and a follow-up process check found no remaining validation runtime process
+- H1 shortcut-launch readback evidence:
+  - evidence root: `dev/logs/fb_038_tray_discoverability_hardening/20260421_074140`
+  - shortcut path: `C:\Users\anden\OneDrive\Desktop\Nexus Desktop Launcher.lnk`
+  - runtime log: `logs/Runtime_20260421_074141_9BE9.txt`
+  - confirmed markers:
+    - `RENDERER_MAIN|STARTUP_READY`
+    - `RENDERER_MAIN|TRAY_ENTRY_READY|available=true`
+    - `RENDERER_MAIN|TRAY_IDENTITY_READY|label=Nexus Desktop AI|hidden_overflow_hint=true`
+    - `RENDERER_MAIN|TRAY_ICON_SHOWN`
+    - `RENDERER_MAIN|TRAY_DISCOVERY_CUE_REQUESTED|hidden_overflow_hint=true`
+  - UI readback found and focused the tray icon as `Nexus Desktop AI` in the visible tray or hidden overflow
+  - context-menu readback after `Shift+F10` focused `Nexus Desktop AI`, proving the identity header is reachable from the tray entry
+  - cleanup stopped the two validation-launched `pythonw.exe` processes and verified `leftover validation process count: 0`
+- H1 decision:
+  GREEN for the bounded tray identity/discoverability repair.
+- H2 complete:
+  `Shortcut-Launch Tray Readback Validation`
+- H2 shortcut-launch readback evidence:
+  - evidence root: `dev/logs/fb_038_tray_readback_hardening/20260421_075904`
+  - shortcut path: `C:\Users\anden\OneDrive\Desktop\Nexus Desktop Launcher.lnk`
+  - runtime log: `logs/Runtime_20260421_075904_CC5A.txt`
+  - confirmed markers:
+    - `RENDERER_MAIN|STARTUP_READY`
+    - `RENDERER_MAIN|TRAY_ENTRY_READY|available=true`
+    - `RENDERER_MAIN|TRAY_IDENTITY_READY|label=Nexus Desktop AI|hidden_overflow_hint=true`
+    - `RENDERER_MAIN|TRAY_ICON_SHOWN`
+    - `RENDERER_MAIN|TRAY_DISCOVERY_CUE_REQUESTED|hidden_overflow_hint=true`
+  - UI readback found `Nexus Desktop AI` through the Windows notification area / hidden icons overflow path
+  - context-menu readback observed the disabled `Nexus Desktop AI` identity header plus the existing `Open Command Overlay` and `Create Custom Task` actions
+  - screenshots were captured for startup ready, tray focus / overflow, and tray context menu
+  - cleanup stopped the two validation-launched `pythonw.exe` processes and verified `leftover validation process count: 0`
+- H2 regression evidence:
+  - `dev/orin_fb038_seam2_live_validation.ps1` passed; evidence root: `dev/logs/fb_038_tray_create_live_validation/20260421_075950`
+  - confirmed tray-origin `Create Custom Task` still opens the existing dialog and cancel leaves `saved_actions.json` hash/timestamp/length unchanged
+  - confirmed absence of `CUSTOM_TASK_CREATE_ATTEMPT_STARTED` and `CUSTOM_TASK_CREATED` on cancel
+  - confirmed existing tray `Open Command Overlay` and hotkey overlay paths still pass
+- H2 decision:
+  GREEN for shortcut-launch tray readback and identity/discoverability evidence.
+- H2 remaining blocker:
+  cleared by post-Hardening Live Validation shortcut readback evidence.
+
+## Post-Hardening Live Validation Progress
+
+- Fresh post-Hardening Live Validation completed on 2026-04-21 after H1/H2 discoverability fixes.
+- evidence root: `dev/logs/fb_038_live_validation_post_hardening/20260421_081741`
+- desktop shortcut gate evidence:
+  - root: `dev/logs/fb_038_live_validation_post_hardening/20260421_081741/desktop_shortcut_gate`
+  - shortcut path: `C:\Users\anden\OneDrive\Desktop\Nexus Desktop Launcher.lnk`
+  - runtime log: `logs/Runtime_20260421_081742_E38E.txt`
+  - confirmed markers:
+    - `RENDERER_MAIN|STARTUP_READY`
+    - `RENDERER_MAIN|TRAY_ENTRY_READY|available=true`
+    - `RENDERER_MAIN|TRAY_IDENTITY_READY|label=Nexus Desktop AI|hidden_overflow_hint=true`
+    - `RENDERER_MAIN|TRAY_ICON_SHOWN`
+    - `RENDERER_MAIN|TRAY_DISCOVERY_CUE_REQUESTED|hidden_overflow_hint=true`
+  - UI readback found `Nexus Desktop AI` by opening Windows hidden icons from `Show Hidden Icons`, then moving focus to the Nexus tray entry
+  - context-menu readback observed the disabled `Nexus Desktop AI` identity header plus the existing `Open Command Overlay` and `Create Custom Task` actions
+  - screenshots were captured for startup ready, tray focus / overflow, and tray context menu
+  - cleanup stopped the two validation-launched `pythonw.exe` processes and verified `leftover validation process count: 0`
+- Seam 2 post-Hardening live evidence:
+  - root: `dev/logs/fb_038_live_validation_post_hardening/20260421_081741/seam2_dialog_open_no_write`
+  - confirmed tray-origin `Create Custom Task` still opens the existing dialog
+  - confirmed cancel leaves `saved_actions.json` hash/timestamp/length unchanged
+  - confirmed absence of `CUSTOM_TASK_CREATE_ATTEMPT_STARTED` and `CUSTOM_TASK_CREATED` on cancel
+  - confirmed existing tray `Open Command Overlay` and hotkey overlay paths still pass
+- Seam 3 post-Hardening live evidence:
+  - root: `dev/logs/fb_038_live_validation_post_hardening/20260421_081741/seam3_create_completion`
+  - created temporary task id: `fb038_seam3_live_notepad_20260421081939`
+  - confirmed persisted-state update, catalog reload, created-task exact-match resolution, confirm/result flow, launched Notepad cleanup, and saved-action source restore
+- Repo-side validator sweep passed:
+  - `dev/orin_branch_governance_validation.py` passed with `463` checks
+  - `dev/orin_desktop_entrypoint_validation.py` passed; report: `dev/logs/desktop_entrypoint_validation/reports/DesktopEntrypointValidationReport_20260421_082044.txt`
+  - `dev/orin_interaction_baseline_validation.py` passed
+  - `dev/orin_saved_action_authoring_ui_validation.py` passed
+  - `dev/orin_callable_group_execution_validation.py` passed
+  - `dev/orin_saved_action_source_validation.py` passed
+  - `dev/orin_fb038_seam2_validation.ps1` passed; report: `dev/logs/desktop_entrypoint_validation/reports/DesktopEntrypointValidationReport_20260421_082108.txt`
+- Automated validators and live helper evidence:
+  GREEN.
+- User-Facing Shortcut Path: `C:\Users\anden\OneDrive\Desktop\Nexus Desktop Launcher.lnk`
+- User-Facing Shortcut Validation: PASS.
+- User Test Summary Results: PENDING.
+- Final phase advancement is BLOCKED until the filled User Test Summary is submitted and digested.
+- Desktop User Test Summary handoff was refreshed at `C:\Users\anden\OneDrive\Desktop\User Test Summary.txt` for the user to complete.
+- Remaining blocker:
+  `User Test Summary Results Pending`
+- Next safe move:
+  result digestion only after the filled User Test Summary is returned or a waiver is explicitly documented; do not start PR Readiness yet.
 
 ## User Test Summary
 
 Seam 1 adds a user-visible tray entry into the existing command overlay path.
 Seam 2 adds a tray menu `Create Custom Task` affordance that should open the existing Create Custom Task dialog without writing saved-action source state on open/cancel.
 Seam 3 completes tray-origin Create Custom Task follow-through through the existing authoring path, proving create, persistence, catalog reload, created-task re-resolution, and confirm/result execution.
+H1 Hardening re-entry improves tray identity/discoverability without changing the tray action model.
 
 Current manual/live status:
 
@@ -449,13 +582,42 @@ Current manual/live status:
 - Seam 3 repo-side and manual/live validation passed at `dev/logs/fb_038_tray_create_completion_live_validation/20260421_045536`
 - Seam 3 is fully green
 - Seam 4 Workstream evidence and User Test Summary finalization is complete
-- Live Validation passed for the completed tray/task UX seam chain with evidence roots `dev/logs/fb_038_tray_create_live_validation/20260421_062005` and `dev/logs/fb_038_tray_create_completion_live_validation/20260421_062028`
-- the approved Workstream seam chain is complete, Hardening is green, and Live Validation execution is green
-- desktop export refreshed at `C:\Users\anden\OneDrive\Desktop\User Test Summary.txt`
+- Live Validation passed for the completed tray/task UX seam chain with evidence roots `dev/logs/fb_038_tray_create_live_validation/20260421_071454`, `dev/logs/fb_038_tray_create_completion_live_validation/20260421_071521`, and `dev/logs/fb_038_desktop_shortcut_live_validation/20260421_071742`
+- Automated validators and live helper evidence: GREEN.
+- User-Facing Shortcut Path: `C:\Users\anden\OneDrive\Desktop\Nexus Desktop Launcher.lnk`
+- User-Facing Shortcut Validation: PASS.
+- Previous returned User Test Summary Results: FAIL before H1/H2.
+- At that time, final phase advancement was BLOCKED because the returned User Test Summary reported that the desktop VBS shortcut launch did not show an obvious Nexus Desktop AI tray shortcut to the user.
+- the approved Workstream seam chain is complete, Hardening is green, and automated/live helper evidence for Live Validation is green
+- H1 tray identity/discoverability repair and H2 shortcut-launch tray readback validation are green
+- Fresh post-Hardening Live Validation passed for the completed tray/task UX seam chain with evidence root `dev/logs/fb_038_live_validation_post_hardening/20260421_081741`
+- Automated validators and live helper evidence: GREEN.
+- User Test Summary Results: PENDING.
+- Final phase advancement is BLOCKED until the filled User Test Summary is submitted and digested.
+- desktop export refreshed at `C:\Users\anden\OneDrive\Desktop\User Test Summary.txt` with the fresh post-Hardening evidence roots and pending response slots
+- routing after returned User Test Summary digestion:
+  the prior returned results failed on tray visibility/discoverability from the desktop VBS shortcut and were routed to bounded Hardening; the current fresh handoff is pending and must be digested before any PR Readiness transition.
+
+Returned User Test Summary digest on 2026-04-21:
+
+- user-reported result:
+  launching through `C:\Users\anden\OneDrive\Desktop\Nexus Desktop Launcher.lnk` / `C:\Nexus Desktop AI\launch_orin_desktop.vbs` did not show an obvious system-tray shortcut
+- launch-path evidence:
+  the desktop shortcut targets `C:\Nexus Desktop AI\launch_orin_desktop.vbs` with working directory `C:\Nexus Desktop AI`
+- runtime evidence:
+  latest VBS-launched runtime log `logs/Runtime_20260421_064824_7D58.txt` reached `RENDERER_MAIN|STARTUP_READY`, emitted `RENDERER_MAIN|TRAY_ENTRY_READY|available=true`, and emitted `RENDERER_MAIN|TRAY_ICON_SHOWN`
+- prior helper evidence:
+  `dev/logs/fb_038_tray_create_live_validation/20260421_062005/step_log.txt` focused `Nexus Desktop AI` in the hidden tray overflow, and `dev/logs/fb_038_tray_live_validation/20260420_182512/notify_icon_candidates.txt` exposed `Nexus Desktop AI` as `SystemTray.NormalButton`
+- classification:
+  user-visible tray discoverability failed even though runtime markers and UIAutomation evidence show the tray icon exists in the Windows notification area / hidden overflow model
+- decision:
+  Live Validation cannot close; route back to bounded Hardening for a tray-visibility/discoverability repair or an explicit source-of-truth correction that the supported tray entry may appear under Windows hidden icons overflow rather than the visible tray strip
 
 Completed user-facing behavior:
 
-- the Nexus Desktop AI tray icon is available in a normal desktop session when the runtime starts
+- the Nexus Desktop AI tray icon is available to Windows notification-area automation when the runtime starts, and post-Hardening shortcut readback confirms it can be found as `Nexus Desktop AI` through the visible tray or hidden icons overflow path
+- startup now emits a `Nexus Desktop AI` discovery cue that tells the user to check Windows hidden icons (`^`) when the tray icon is not visible
+- the tray menu now begins with a disabled `Nexus Desktop AI` identity header above the existing actions
 - tray `Open Command Overlay` opens the existing command overlay path without creating a second overlay path
 - the existing overlay hotkey path still opens the same command overlay behavior
 - tray `Create Custom Task` opens the existing command overlay entry path first, then opens the existing `Create Custom Task` dialog
@@ -469,9 +631,13 @@ Manual validation checklist for `Minimal Tray Overlay Entry`:
 - setup:
   launch Nexus Desktop AI from this branch in a normal Windows desktop session
 - action:
-  confirm a Nexus Desktop AI tray icon appears when the runtime starts
+  confirm a Nexus Desktop AI tray icon appears when the runtime starts, including whether Windows placed it directly on the visible tray strip or only inside the hidden icons overflow (`^`)
 - expected:
-  the app still reaches the normal passive desktop state and the existing overlay hotkeys continue to work
+  the app still reaches the normal passive desktop state, a brief `Nexus Desktop AI` discovery cue points to the Windows notification area / hidden icons overflow when supported, and the existing overlay hotkeys continue to work
+- action:
+  right-click or keyboard-open the Nexus tray entry menu
+- expected:
+  the tray menu identifies itself with `Nexus Desktop AI` before the existing `Open Command Overlay` and `Create Custom Task` actions
 - action:
   activate the tray icon or choose `Open Command Overlay` from the tray entry
 - expected:
@@ -485,7 +651,7 @@ Manual validation checklist for `Minimal Tray Overlay Entry`:
 - expected:
   the overlay returns to a clean entry/passive state without changing saved actions, built-ins, callable groups, or launcher behavior
 - failure signs:
-  no tray icon appears in a normal desktop session, tray activation does nothing, tray activation bypasses confirmation, hotkeys regress, saved-action behavior changes, or confirm/result copy changes unexpectedly
+  no tray icon appears in a normal desktop session or hidden tray overflow, the tray entry exists only in automation but is not discoverable by the user, tray activation does nothing, tray activation bypasses confirmation, hotkeys regress, saved-action behavior changes, or confirm/result copy changes unexpectedly
 
 Manual validation checklist for `Tray Create Custom Task Entry, Dialog-Open Only`:
 

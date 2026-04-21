@@ -213,7 +213,7 @@ Supporting canon must stay aligned with live truth.
 
 That means:
 
-- PR Readiness hard blocker shorthand is `stale-canon`, `post-merge`, `dirty`, `docs-sync`, and `next-workstream`
+- PR Readiness hard blocker shorthand is `stale-canon`, `post-merge`, `dirty`, `docs-sync`, `next-workstream`, and `uts-results`
 - directly supporting canon and tightly coupled governance may be updated on the active implementation or release branch when that branch changes or depends on the truth
 - no PR-ready without canon-ready:
   - a branch is not PR-ready if merging it would leave `main` canon-stale
@@ -241,6 +241,14 @@ That means:
 - no PR-ready without docs-sync and drift-audit completion:
   - docs sync, Governance Drift Audit, validator alignment, and required post-merge wording must be complete and mutually consistent
   - run the branch governance validator and its PR-readiness gate mode before reporting `PR READY: YES`
+- no PR-ready without user-facing desktop-shortcut validation:
+  - for relevant desktop user-facing workstreams, `User-Facing Shortcut Live Validation Gate` must pass or be explicitly waived before PR Readiness can report green
+  - the active authority record must declare `User-Facing Shortcut Path:` and `User-Facing Shortcut Validation:` before User Test Summary handoff
+  - helper-only, direct-runtime, synthetic, or harness evidence may support Live Validation, but it does not replace the final user-facing shortcut gate when that shortcut path is feasible
+- no PR-ready with `User Test Summary Results Pending`:
+  - automated validators and live helper evidence may be green, but final phase advancement remains blocked while a required User Test Summary handoff is outstanding
+  - returned User Test Summary results must be submitted or explicitly waived, digested into the active authority record, and reevaluated before PR Readiness can report green
+  - if returned results expose mismatch, regression, cleanup failure, ambiguity, or scope drift, route back to `Workstream` or `Hardening` instead of advancing
 - no PR-ready with a PR Readiness scope miss:
   - named blockers are `PR Readiness Scope Missed`, `Between-Branch Canon Repair Attempt`, and `Next Branch Created Too Early`
   - PR Readiness must complete branch-authority cleanup, merge-target canon, post-merge truth, next-workstream selection, next-branch deferral, and release-debt routing on the active branch before green
@@ -509,8 +517,24 @@ For bounded multi-seam Workstream execution, User Test Summary handling is incre
 
 - update the canonical workstream `## User Test Summary` as user-visible or operator-facing seams land
 - when the Workstream seam chain is complete, refresh the desktop export if the branch is user-facing
+- before User Test Summary handoff in Live Validation, run the `User-Facing Shortcut Live Validation Gate` for relevant desktop user-facing workstreams and record `User-Facing Shortcut Path:` plus `User-Facing Shortcut Validation: PENDING`, `PASS`, `FAIL`, or `WAIVED`
 - digest returned user evidence in `Live Validation` before recommending phase advancement
 - route returned evidence back to `Workstream` for in-scope user-facing branch work, to `Hardening` for defects or validation gaps, or to backlog/defer handling for new feature requests
+
+If required user-facing desktop shortcut evidence is outstanding, the active authority record must carry the hard blocker `User-Facing Shortcut Validation Pending`.
+
+The shortcut blocker lifts only after `User-Facing Shortcut Validation: PASS` is recorded with evidence from the declared shortcut path, or `User-Facing Shortcut Validation: WAIVED` is recorded with a reason proving the branch is not desktop/user-facing or the shortcut path is explicitly unavailable.
+If `User-Facing Shortcut Validation: FAIL`, keep an explicit blocker and route back to `Workstream` or `Hardening` instead of exporting the branch as final-green.
+
+If a required User Test Summary handoff is outstanding, the active authority record must carry the hard blocker `User Test Summary Results Pending`.
+
+Expected reporting model:
+
+- Automated validators and live helper evidence: GREEN.
+- User Test Summary Results: PENDING.
+- Final phase advancement is BLOCKED until the filled User Test Summary is submitted and digested.
+
+The blocker lifts only after the filled User Test Summary is submitted or a documented waiver exists, the returned results or waiver are digested into the active authority record, and blockers are reevaluated.
 
 Completing a User Test Summary update does not move the branch directly from `Workstream` to `PR Readiness`.
 The normal next phase after Workstream completion remains `Hardening`.

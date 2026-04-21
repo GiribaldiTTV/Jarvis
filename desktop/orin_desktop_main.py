@@ -19,6 +19,12 @@ from desktop.single_instance import NamedSignal
 RUNTIME_LOG_FILE = ""
 STARTUP_ABORT_SIGNAL_FILE = ""
 RUNTIME_RELAUNCH_EVENT = r"Local\JarvisRuntimeRelaunchRequestV1"
+TRAY_IDENTITY_LABEL = "Nexus Desktop AI"
+TRAY_DISCOVERY_MESSAGE = (
+    "Nexus Desktop AI is running in the Windows notification area. "
+    "If you do not see the icon, open hidden icons (^)."
+)
+TRAY_DISCOVERY_DURATION_MS = 4500
 
 
 def parse_runtime_log_arg(argv):
@@ -60,8 +66,10 @@ class DesktopTrayEntry:
         self.event_logger = event_logger or (lambda _event: None)
         self.tray_icon = None
         self.tray_menu = None
+        self.identity_action = None
         self.open_overlay_action = None
         self.create_custom_task_action = None
+        self._discovery_cue_shown = False
 
     def _emit(self, event):
         try:
@@ -82,7 +90,12 @@ class DesktopTrayEntry:
             if icon.isNull():
                 icon = self.app.style().standardIcon(QStyle.SP_ComputerIcon)
 
-            self.tray_menu = QMenu()
+            self.tray_menu = QMenu(TRAY_IDENTITY_LABEL)
+            self.tray_menu.setTitle(TRAY_IDENTITY_LABEL)
+            self.identity_action = QAction(TRAY_IDENTITY_LABEL, self.tray_menu)
+            self.identity_action.setEnabled(False)
+            self.tray_menu.addAction(self.identity_action)
+            self.tray_menu.addSeparator()
             self.open_overlay_action = QAction("Open Command Overlay", self.tray_menu)
             self.open_overlay_action.triggered.connect(
                 lambda _checked=False: self.request_overlay_from_tray("menu")
@@ -95,11 +108,14 @@ class DesktopTrayEntry:
             self.tray_menu.addAction(self.create_custom_task_action)
 
             self.tray_icon = QSystemTrayIcon(icon, self.app)
-            self.tray_icon.setToolTip("Nexus Desktop AI")
+            self.tray_icon.setToolTip(TRAY_IDENTITY_LABEL)
             self.tray_icon.setContextMenu(self.tray_menu)
             self.tray_icon.activated.connect(self._handle_activation)
             self.tray_icon.show()
             self._emit("RENDERER_MAIN|TRAY_ENTRY_READY|available=true")
+            self._emit(
+                f"RENDERER_MAIN|TRAY_IDENTITY_READY|label={TRAY_IDENTITY_LABEL}|hidden_overflow_hint=true"
+            )
             self._emit("RENDERER_MAIN|TRAY_ICON_SHOWN")
             return True
         except Exception as exc:
@@ -127,6 +143,43 @@ class DesktopTrayEntry:
     def request_create_custom_task_from_tray(self, source):
         self._emit(f"RENDERER_MAIN|TRAY_CREATE_CUSTOM_TASK_REQUESTED|source={source}")
         self.window.request_create_custom_task_from_tray(source=source)
+
+    def show_discovery_cue(self):
+        if self.tray_icon is None:
+            self._emit("RENDERER_MAIN|TRAY_DISCOVERY_CUE_SKIPPED|reason=tray_unavailable")
+            return False
+
+        if self._discovery_cue_shown:
+            self._emit("RENDERER_MAIN|TRAY_DISCOVERY_CUE_SKIPPED|reason=already_shown")
+            return False
+
+        self._discovery_cue_shown = True
+        try:
+            supports_messages = QSystemTrayIcon.supportsMessages()
+        except Exception:
+            supports_messages = True
+
+        if not supports_messages:
+            self._emit("RENDERER_MAIN|TRAY_DISCOVERY_CUE_SKIPPED|reason=messages_unavailable")
+            return False
+
+        try:
+            message_icon = getattr(getattr(QSystemTrayIcon, "MessageIcon", object), "Information", None)
+            if message_icon is None:
+                message_icon = getattr(QSystemTrayIcon, "Information", 1)
+            self.tray_icon.showMessage(
+                TRAY_IDENTITY_LABEL,
+                TRAY_DISCOVERY_MESSAGE,
+                message_icon,
+                TRAY_DISCOVERY_DURATION_MS,
+            )
+            self._emit("RENDERER_MAIN|TRAY_DISCOVERY_CUE_REQUESTED|hidden_overflow_hint=true")
+            return True
+        except Exception as exc:
+            self._emit(
+                f"RENDERER_MAIN|TRAY_DISCOVERY_CUE_FAILED|reason={type(exc).__name__}"
+            )
+            return False
 
     def close(self):
         if self.tray_icon is None:
@@ -174,6 +227,11 @@ def main():
         return 0
 
     app = QApplication(sys.argv)
+    app.setApplicationName(TRAY_IDENTITY_LABEL)
+    try:
+        app.setApplicationDisplayName(TRAY_IDENTITY_LABEL)
+    except Exception:
+        pass
     runtime_milestone("RENDERER_MAIN|QAPPLICATION_CREATED")
     if exit_if_startup_abort_requested():
         return 0
@@ -258,6 +316,7 @@ def main():
             app.quit()
             return
         runtime_milestone("RENDERER_MAIN|STARTUP_READY")
+        tray_entry.show_discovery_cue()
         settle_passive_default_handoff()
 
     relaunch_timer = QTimer()

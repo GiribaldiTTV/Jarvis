@@ -68,6 +68,15 @@ Validation Contract:
 Timeout Contract:
 [fill in only when interactive timing governance matters]
 
+User Test Summary Results:
+[PENDING / PASS / FAIL / WAIVED / not applicable]
+
+User-Facing Shortcut Path:
+[fill in for relevant desktop user-facing Live Validation, or not applicable]
+
+User-Facing Shortcut Validation:
+[PENDING / PASS / FAIL / WAIVED / not applicable]
+
 Seam Sequence:
 [fill in when a Workstream pass may execute more than one seam]
 
@@ -91,6 +100,8 @@ If `Seam Sequence` is present, Codex must execute one active seam at a time, val
 For `Release Readiness`, a release-bearing branch must include `Release Target:`, `Release Scope:`, and `Release Artifacts:` before green status is allowed.
 Use `Release Branch: No` only for preserved historical records or explicitly authorized direct-main emergency contexts.
 Do not use `Release Branch: No` for `implementation` or `release packaging` branches.
+If a required User Test Summary handoff is outstanding, use `User Test Summary Results: PENDING`, list `User Test Summary Results Pending` under blockers, and do not report final phase advancement as green until the filled User Test Summary is submitted or waived, digested, and blockers are reevaluated.
+For relevant desktop user-facing Live Validation, apply the `User-Facing Shortcut Live Validation Gate` / `desktop-shortcut` blocker path before User Test Summary handoff: declare `User-Facing Shortcut Path:`, record `User-Facing Shortcut Validation: PENDING`, `PASS`, `FAIL`, or `WAIVED`, and keep `User-Facing Shortcut Validation Pending` as a blocker until the declared desktop shortcut or equivalent user entrypoint is passable or explicitly waived.
 
 Default expectation:
 
@@ -287,6 +298,7 @@ If an execution task is too broad for one approved pass, explain the cleaner exe
 7. If in `PR Readiness`, explicitly plan the stale-canon check, post-merge-state handling, next-workstream selection/canon/minimal-scope/no-branch-exists check, required `Next Workstream: Selected`, `Minimal Scope:`, `## Selected Next Workstream`, and `Branch: Not created` markers, dirty-branch/durable-commit check, docs-sync/drift-audit check, `PR Readiness Scope Missed`, `Between-Branch Canon Repair Attempt`, `Next Branch Created Too Early`, normal governance validator, and PR-readiness gate mode.
 8. If in `Release Readiness`, explicitly plan the `Release Target Undefined` check, required `Release Target:`, `Release Scope:`, and `Release Artifacts:` markers for release-bearing branches, and confirm Release Readiness is not being used for broad docs sync or branch-authority cleanup.
 9. Explain the validation plan.
+10. If a User Test Summary handoff is relevant, explicitly state whether returned results are `PENDING`, `PASS`, `FAIL`, or `WAIVED`; `PENDING` is the hard blocker `User Test Summary Results Pending`.
 
 If the task includes interactive validation, the validation plan should also state:
 
@@ -379,6 +391,14 @@ unless the final output explicitly explains why the desktop export was not relev
 
 Response-level `## User Test Summary` text alone is not sufficient when either the canonical repo artifact or the desktop export should exist.
 
+Returned User Test Summary results are a hard phase gate. While results are pending, output the state as:
+
+- Automated validators and live helper evidence: GREEN.
+- User Test Summary Results: PENDING.
+- Final phase advancement is BLOCKED until the filled User Test Summary is submitted and digested.
+
+After submission, digest the filled results into the active authority record, reevaluate blockers, and route back to `Workstream` or `Hardening` if user evidence exposes mismatch, regression, ambiguity, cleanup failure, or scope drift.
+
 For runtime, UI, startup, prompt, voice, or other operator-facing implementation slices, validator results alone are not sufficient to justify immediate continuation.
 
 The execution pass must also:
@@ -415,6 +435,7 @@ Stop and explicitly report if:
 - the task would require reopening locked architecture
 - safe verification is not possible
 - the task needs a new branch basis because the current one is stale, merged, or no longer the right execution base
+- `User Test Summary Results Pending` remains active while the task attempts to advance phase, PR readiness, merge readiness, or final green status
 
 ## Required Output Format
 

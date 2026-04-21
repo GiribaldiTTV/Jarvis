@@ -217,6 +217,143 @@ def validate_tray_initialization_failure_is_bounded():
             os.environ["QT_QPA_PLATFORM"] = previous_qt_platform
 
 
+def validate_tray_identity_initialization():
+    previous_qt_platform = os.environ.get("QT_QPA_PLATFORM")
+    os.environ["QT_QPA_PLATFORM"] = "offscreen"
+
+    try:
+        if ROOT_DIR not in sys.path:
+            sys.path.insert(0, ROOT_DIR)
+
+        from PySide6.QtWidgets import QApplication
+
+        import desktop.orin_desktop_main as runtime_mod
+
+        app = QApplication.instance()
+        created_app = False
+        if app is None:
+            app = QApplication(["orin_desktop_entrypoint_validation"])
+            created_app = True
+
+        events = []
+
+        class FakeWindow:
+            def toggle_command_overlay(self):
+                raise AssertionError("initialize should not route overlay")
+
+            def request_create_custom_task_from_tray(self, source=""):
+                raise AssertionError("initialize should not route authoring")
+
+        class FakeSignal:
+            def __init__(self):
+                self.callback = None
+
+            def connect(self, callback):
+                self.callback = callback
+
+        class FakeTrayIcon:
+            latest_instance = None
+
+            class ActivationReason:
+                Trigger = object()
+                DoubleClick = object()
+
+            class MessageIcon:
+                Information = "information"
+
+            @staticmethod
+            def isSystemTrayAvailable():
+                return True
+
+            @staticmethod
+            def supportsMessages():
+                return True
+
+            def __init__(self, *_args, **_kwargs):
+                self.activated = FakeSignal()
+                self.tooltip = ""
+                self.context_menu = None
+                self.shown = False
+                self.hidden = False
+                self.messages = []
+                FakeTrayIcon.latest_instance = self
+
+            def setToolTip(self, tooltip):
+                self.tooltip = tooltip
+
+            def setContextMenu(self, menu):
+                self.context_menu = menu
+
+            def show(self):
+                self.shown = True
+
+            def hide(self):
+                self.hidden = True
+
+            def showMessage(self, title, message, icon, duration_ms):
+                self.messages.append(
+                    {
+                        "title": title,
+                        "message": message,
+                        "icon": icon,
+                        "duration_ms": duration_ms,
+                    }
+                )
+
+        original_tray_icon = runtime_mod.QSystemTrayIcon
+        runtime_mod.QSystemTrayIcon = FakeTrayIcon
+        try:
+            tray_entry = runtime_mod.DesktopTrayEntry(app, FakeWindow(), events.append)
+            initialized = tray_entry.initialize()
+            discovery_cue_requested = tray_entry.show_discovery_cue()
+            actions = [
+                action
+                for action in tray_entry.tray_menu.actions()
+                if not action.isSeparator()
+            ]
+            action_texts = [action.text() for action in actions]
+            identity_action_enabled = actions[0].isEnabled() if actions else None
+            fake_icon = FakeTrayIcon.latest_instance
+            tooltip = fake_icon.tooltip if fake_icon is not None else ""
+            messages = fake_icon.messages if fake_icon is not None else []
+        finally:
+            runtime_mod.QSystemTrayIcon = original_tray_icon
+
+        tray_entry.close()
+
+        if created_app:
+            app.quit()
+
+        return {
+            "ok": True,
+            "initialized": initialized,
+            "events": events,
+            "action_texts": action_texts,
+            "identity_action_enabled": identity_action_enabled,
+            "tooltip": tooltip,
+            "discovery_cue_requested": discovery_cue_requested,
+            "messages": messages,
+            "error": "",
+        }
+    except Exception as exc:
+        return {
+            "ok": False,
+            "initialized": False,
+            "events": [],
+            "action_texts": [],
+            "identity_action_enabled": None,
+            "tooltip": "",
+            "discovery_cue_requested": False,
+            "messages": [],
+            "error": f"{type(exc).__name__}: {exc}",
+        }
+    finally:
+        if previous_qt_platform is None:
+            os.environ.pop("QT_QPA_PLATFORM", None)
+        else:
+            os.environ["QT_QPA_PLATFORM"] = previous_qt_platform
+
+
 def run_validation():
     ensure_dir(BASE_LOG_ROOT)
     ensure_dir(REPORTS_DIR)
@@ -336,6 +473,53 @@ def run_validation():
         f"create_custom_task_sources={tray_route_result['create_custom_task_sources']}",
     )
 
+    tray_identity_result = validate_tray_identity_initialization()
+    tray_identity_events = tray_identity_result["events"]
+    tray_identity_messages = tray_identity_result["messages"]
+    checks["tray_identity_validation_imported"] = line_status(
+        tray_identity_result["ok"],
+        tray_identity_result["error"] or "DesktopTrayEntry identity path exercised",
+    )
+    checks["tray_identity_initializes"] = line_status(
+        tray_identity_result["initialized"] is True,
+        f"initialized={tray_identity_result['initialized']}",
+    )
+    checks["tray_identity_tooltip"] = line_status(
+        tray_identity_result["tooltip"] == "Nexus Desktop AI",
+        f"tooltip={tray_identity_result['tooltip']}",
+    )
+    checks["tray_identity_menu_header"] = line_status(
+        tray_identity_result["action_texts"][:3]
+        == ["Nexus Desktop AI", "Open Command Overlay", "Create Custom Task"],
+        f"action_texts={tray_identity_result['action_texts']}",
+    )
+    checks["tray_identity_header_disabled"] = line_status(
+        tray_identity_result["identity_action_enabled"] is False,
+        f"identity_action_enabled={tray_identity_result['identity_action_enabled']}",
+    )
+    checks["tray_identity_ready_marker"] = line_status(
+        any(
+            "RENDERER_MAIN|TRAY_IDENTITY_READY|label=Nexus Desktop AI|hidden_overflow_hint=true"
+            in event
+            for event in tray_identity_events
+        ),
+        "TRAY_IDENTITY_READY",
+    )
+    checks["tray_discovery_cue_requested"] = line_status(
+        tray_identity_result["discovery_cue_requested"] is True
+        and any(
+            "RENDERER_MAIN|TRAY_DISCOVERY_CUE_REQUESTED|hidden_overflow_hint=true"
+            in event
+            for event in tray_identity_events
+        ),
+        "TRAY_DISCOVERY_CUE_REQUESTED",
+    )
+    checks["tray_discovery_cue_hidden_overflow_hint"] = line_status(
+        bool(tray_identity_messages)
+        and "hidden icons" in tray_identity_messages[0]["message"],
+        tray_identity_messages[0]["message"] if tray_identity_messages else "no message",
+    )
+
     tray_failure_result = validate_tray_initialization_failure_is_bounded()
     tray_failure_events = tray_failure_result["events"]
     checks["tray_init_failure_validation_imported"] = line_status(
@@ -360,6 +544,9 @@ def run_validation():
         "target_script": DEFAULT_TARGET_SCRIPT,
         "launcher_line": launcher_line,
         "tray_route_events": tray_events,
+        "tray_identity_events": tray_identity_events,
+        "tray_identity_actions": tray_identity_result["action_texts"],
+        "tray_identity_messages": tray_identity_messages,
         "tray_failure_events": tray_failure_events,
         "stdout": stdout_text.strip(),
         "stderr": stderr_text.strip(),
@@ -391,6 +578,18 @@ def build_report_text(report_path, result, overall_ok):
     if result.get("tray_route_events"):
         lines.extend(["", "Tray route events:"])
         lines.extend(f"  {event}" for event in result["tray_route_events"])
+    if result.get("tray_identity_actions"):
+        lines.extend(["", "Tray identity menu actions:"])
+        lines.extend(f"  {action}" for action in result["tray_identity_actions"])
+    if result.get("tray_identity_events"):
+        lines.extend(["", "Tray identity events:"])
+        lines.extend(f"  {event}" for event in result["tray_identity_events"])
+    if result.get("tray_identity_messages"):
+        lines.extend(["", "Tray identity discovery messages:"])
+        lines.extend(
+            f"  {message['title']} :: {message['message']}"
+            for message in result["tray_identity_messages"]
+        )
     if result.get("tray_failure_events"):
         lines.extend(["", "Tray init failure events:"])
         lines.extend(f"  {event}" for event in result["tray_failure_events"])

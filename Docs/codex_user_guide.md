@@ -117,6 +117,7 @@ For meaningful interactive desktop hardening or closeout work, that baseline als
 - reusing existing live-validation helpers before creating new scripts, or recording why reuse is unsafe
 - treating one-off live-validation probes as temporary ignored artifacts that must be deleted or promoted into documented reusable tooling before closeout-grade proof
 - requiring visible helper progress and a no-progress supervisor; if no tighter helper-specific watchdog is active, `10s` without meaningful progress must abort the run, clean up, and report the last confirmed progress point
+- applying the `User-Facing Shortcut Live Validation Gate` for relevant desktop user-facing Live Validation: declare `User-Facing Shortcut Path:`, record `User-Facing Shortcut Validation:`, and clear or waive `User-Facing Shortcut Validation Pending` before User Test Summary handoff
 - planning the post-green live launched-process UI audit when meaningful user-facing desktop UI changed
 
 ## Codex Client Screenshot Delivery
@@ -190,6 +191,7 @@ Helpful add-ons:
 
 - `analysis only`
 - `digest latest User Test Summary before recommending the next legal phase`
+- `if User Test Summary results are pending, report User Test Summary Results Pending as the final-green blocker`
 - `use origin/main as authoritative truth`
 - `do not patch`
 
@@ -430,6 +432,16 @@ or:
 
 - `digest latest User Test Summary to files-of-truth standards, reevaluate blockers and phase, and continue only if the next legal phase allows it`
 
+If results have not been returned yet, the correct prompt/output posture is:
+
+- automated validators and live helper evidence may be green
+- if shortcut validation has not passed or been waived, `User-Facing Shortcut Validation Pending` remains the hard blocker before User Test Summary handoff
+- relevant desktop workstreams must record `User-Facing Shortcut Path:` and `User-Facing Shortcut Validation:` before treating Live Validation as final green
+- `User Test Summary Results Pending` remains the hard blocker
+- `User Test Summary Results: PENDING.`
+- `Final phase advancement is BLOCKED until the filled User Test Summary is submitted and digested.`
+- final phase advancement stays blocked until the filled User Test Summary is submitted or waived, digested into the active authority record, and blockers are reevaluated
+
 ### Ask For A Prompt
 
 Use:
@@ -475,7 +487,7 @@ The key distinction is prompt length, not analysis depth.
 - add control language only when it materially protects truth or scope
 - use `Analyze for drift` before merge, release, or major canon carry-forward decisions
 - use evidence-digestion language when returned validation evidence should control the next move, rather than implying that phase advancement is automatic
-- in `PR Readiness`, require hard blocker checks before accepting `PR READY: YES`: `stale-canon`, `post-merge`, `next-workstream`, `dirty`, `docs-sync`, `PR Readiness Scope Missed`, `Between-Branch Canon Repair Attempt`, and `Next Branch Created Too Early`
+- in `PR Readiness`, require hard blocker checks before accepting `PR READY: YES`: `stale-canon`, `post-merge`, `next-workstream`, `dirty`, `docs-sync`, `desktop-shortcut`, `uts-results`, `PR Readiness Scope Missed`, `Between-Branch Canon Repair Attempt`, and `Next Branch Created Too Early`
 - route through `Docs/Main.md` whenever authority is unclear
 - treat local unmerged overlays as reference material until revalidated against updated `origin/main`
 
