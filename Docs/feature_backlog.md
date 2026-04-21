@@ -30,16 +30,31 @@ Historical note:
 
 ## Active Promoted Workstream
 
+None.
+
+Main-facing canon is in `No Active Branch` while FB-038 remains merged-unreleased release debt.
+FB-039 is selected only and must not be branched until release debt clears and updated `main` passes the repo-level admission gate.
+
+## Merged-Unreleased Release-Debt Owner
+
 ### [ID: FB-038] Taskbar / tray quick-task UX and Create Custom Task surface
 
-Status: PR Readiness
-Blocker: None
+Status: Merged Unreleased (Release Debt)
+Blocker: Release Debt
 Record State: Promoted
 Priority: Medium
 Release Stage: pre-Beta
-Target Version: TBD
+Target Version: v1.5.0-prebeta
 Canonical Workstream Doc: Docs/workstreams/FB-038_taskbar_tray_quick_task_ux.md
-Minimal Scope: PR Readiness for the completed tray quick-task UX after fresh post-H4 Live Validation; desktop shortcut launch proves Core Visualization is the first visible Nexus UI, tray identity/discoverability remains clear, tray Create Custom Task dialog-open/no-write and create-completion flows remain green, UTS returned-results handling is resolved by documented waiver, merge-target/post-merge truth is explicit, helper retention is resolved, and the next workstream is selected without creating its branch.
+Merged-Unreleased Release-Debt Owner: FB-038
+Repo State: No Active Branch
+Release Target: v1.5.0-prebeta
+Release Scope: FB-038 tray/task UX milestone only: tray identity/discoverability, tray Open Command Overlay, tray Create Custom Task dialog-open/no-write route, tray-origin create completion through existing FB-036 authoring, catalog reload, exact-match resolution, confirm/result execution, and startup first-visible Core Visualization repair.
+Release Artifacts: tag `v1.5.0-prebeta`; release title `Nexus Desktop AI v1.5.0-prebeta - Tray Quick-Task UX`; release notes summarizing FB-038 user-facing tray/task UX, validation evidence, and retained FB-038 evidence helpers.
+Post-Release Truth: after release, FB-038 can move to `Closed` / `Released (v1.5.0-prebeta)`, release debt clears, and repo-level admission may reconsider FB-039 Branch Readiness from updated `main`.
+Selected Next Workstream: FB-039 External trigger and plugin integration architecture.
+Next-Branch Creation Gate: FB-039 remains selected-only and `Branch: Not created` until FB-038 release debt is cleared and updated `main` passes the repo-level admission gate.
+Minimal Scope: Merged-unreleased release-debt owner for completed FB-038 tray quick-task UX; Release Readiness may validate inherited target/scope/artifacts but must not mutate repository files.
 Summary: Track future taskbar or tray quick-access UX, including a Create Custom Task affordance, as a deliberate shell-facing entry surface into the shared action model.
 Why it matters: Taskbar and tray interaction affect entry, discoverability, and user trust, so they should be planned as an explicit UX lane instead of piggybacking on overlay or authoring work.
 

@@ -23,6 +23,22 @@ Use these rules before trusting any planning or governance claim:
 - local unmerged branches, stashes, and docs overlays are reference material only until revalidated against updated `origin/main`
 - if code, logs, and merged docs disagree, validate the live repo truth first and then repair the docs
 
+## Protected Main Law
+
+`main` is a protected branch for Codex work.
+
+Codex must not edit, stage, commit, generate, refresh, or directly repair repository files on `main`.
+`main` may be read for truth validation, release review, merge verification, and post-release verification only.
+
+There is no emergency direct-main repair path for Codex.
+If drift is discovered:
+
+- before merge, return to the owning branch and repair it before PR green
+- after merge, repair on the still-available prior branch if that branch remains the legal repair surface
+- if the prior branch is unavailable, block the next active branch in `Branch Readiness` and repair there before implementation
+
+Any tracked file mutation while Codex is on `main` is a `Main Write Attempt` blocker.
+
 ## Layered Ownership Model
 
 Use this ownership split unless a validated source conflict requires a temporary narrower override:
@@ -36,7 +52,7 @@ Use this ownership split unless a validated source conflict requires a temporary
 - User Test Summary = validation-contract layer owned by the relevant workstream
 - phase governance = repo-wide execution, proof, timeout, seam, stop-loss, validation-helper, and desktop UI audit contract
 - validation helper registry = repo-wide helper naming, ownership, reuse, workstream-scoped exception, and consolidation contract
-- branch authority records = repo-owned phase owners for approved non-backlog `release packaging` branches and historical `docs/governance` or emergency repair records
+- branch authority records = repo-owned phase owners for approved non-backlog `release packaging` branches and historical `docs/governance` records
 - `Docs/Main.md` = routing authority aligned to merged truth
 
 ## Analysis-First Prompt Baseline
@@ -203,7 +219,7 @@ These are reference layers, not active workstream or roadmap owners.
 - active-branch governance or canon updates must stay inside the current branch's approved phase, branch class, and scope; they must not weaken validation, stop conditions, phase authority, or become unrelated documentation churn
 - do not open a standalone docs-only canon lane, governance-only branch, or between-branch repair window for routine canon completion
 - if PR Readiness misses required canon, branch-authority cleanup, or post-merge truth work, the next active branch must treat that miss as a `Branch Readiness` blocker and repair it before implementation begins
-- do not write directly to `main` except when the user explicitly authorizes an emergency direct-main action
+- do not write directly to `main`; `main` is protected and any Codex file mutation there is a `Main Write Attempt`
 - the normal governed branch lifecycle is:
   1. `Branch Readiness`
   2. `Workstream`
@@ -215,7 +231,7 @@ These are reference layers, not active workstream or roadmap owners.
 - during `Workstream`, `bounded multi-seam workflow` is the primary model for coherent same-risk seam chains; execute one active seam at a time, validate it, record evidence, and report `continue` or `stop` before the next seam
 - single-seam fallback is required for bug fixes, hotfixes, unclear or high-risk seams, cross-subsystem changes, settings/protocol/launcher/UI-model changes, or any pass where validation cannot support safe continuation
 - `Workstream` completion does not imply PR readiness; the normal next legal phase is `Hardening`, followed by `Live Validation` and then `PR Readiness`
-- `Post-Release Canon Repair` is not a normal phase or branch; it is an emergency direct-main action after merged or released truth already exists and only with explicit user approval
+- `Post-Release Canon Repair` is not a normal phase or branch; escaped canon repair must ride the prior legal branch or the next active branch's `Branch Readiness`, never direct `main`
 - before any next implementation branch may enter `Branch Readiness`, the repo-level admission gate from `Docs/phase_governance.md` must pass on updated `main`
 - if repo truth resolves to blocked `No Active Branch`, report the blocking repair path
 - if repo truth resolves to steady-state `No Active Branch`, do not invent a next implementation branch by inertia
@@ -237,17 +253,18 @@ These are reference layers, not active workstream or roadmap owners.
   13. run the normal branch governance validator and the PR-readiness gate mode
   14. only then allow the current branch to report `PR READY: YES` and enter PR creation
 - PR Readiness also owns `PR Readiness Scope Missed`, `Between-Branch Canon Repair Attempt`, and `Next Branch Created Too Early`; none may be deferred into Release Readiness or a later side branch
+- PR Readiness also owns the merged-unreleased release-debt owner contract when a branch will merge unreleased implementation work; the merge-target canon must already contain `Merged-Unreleased Release-Debt Owner:`, `Repo State: No Active Branch`, `Release Target:`, `Release Scope:`, `Release Artifacts:`, `Post-Release Truth:`, `Selected Next Workstream:`, and `Next-Branch Creation Gate:` before PR green
 - the normal `Release Readiness` sequence for a release-bearing branch must clear `Release Target Undefined` before reporting green:
   1. confirm whether the branch is release-bearing or explicitly non-release
   2. for release-bearing branches, require machine-checkable `Release Target:`, `Release Scope:`, and `Release Artifacts:` markers before Release Readiness can report green
   3. for non-release branches, require `Release Branch: No`
-  4. allow `Release Branch: No` only for preserved historical records or explicitly authorized direct-main emergency contexts
+  4. allow `Release Branch: No` only for preserved historical records
   5. never use the non-release waiver for `implementation` or `release packaging` branches
   6. never let the waiver clear `Release Debt`, weaken post-merge truth, weaken validation, or permit premature next-workstream branch creation
 - Release Readiness is not a docs-sync phase and not a file-mutation phase; it is analysis-only for repository files and is restricted to release-target validation, release-scope validation, release-artifact validation, GitHub release package information, final release-execution authorization or confirmation, and release-state confirmation after release execution
 - Release Readiness must not edit, stage, commit, generate, or refresh source, docs, canon, validator, helper, release-note, or handoff files; if such work is discovered before merge, return to `PR Readiness`, and if discovered after merge, defer it to the next active branch's `Branch Readiness`
 - tracked file changes while the authority record says `Release Readiness` are blocked as `Release Readiness File Mutation Attempt`
-- a post-release canon repair is an emergency direct-main action only when merged canon is already stale, no active branch can legally carry the repair, and the user explicitly authorizes that direct-main action
+- a post-release canon repair must not mutate `main`; if merged canon is stale, carry the repair on the still-available prior branch or block the next active branch's `Branch Readiness`
 - returned `UTS`, screenshot, interactive, PR-review, or release-review evidence must be digested into the authority record before phase advancement is recommended
 - while a required User Test Summary handoff is outstanding, the active branch must report `User Test Summary Results Pending`; automated validators and live helper evidence may be green, but final phase advancement is blocked until the filled User Test Summary is submitted or waived, digested into the authority record, and blockers are reevaluated
 - required pending-UTS wording is: `Automated validators and live helper evidence: GREEN.`, `User Test Summary Results: PENDING.`, and `Final phase advancement is BLOCKED until the filled User Test Summary is submitted and digested.`

@@ -40,9 +40,9 @@ Branch-local "what worked" notes should stay in the canonical workstream doc fir
 - root-cause pattern:
   release-debt truth is present, but release-bearing branch records lack machine-checkable markers that prove the release target is explicit before green status
 - fix pattern:
-  require release-bearing branches to declare `Release Target:`, `Release Scope:`, and `Release Artifacts:`; allow `Release Branch: No` only for preserved historical records or explicitly authorized direct-main emergency contexts
+  require release-bearing branches to declare `Release Target:`, `Release Scope:`, and `Release Artifacts:`; allow `Release Branch: No` only for preserved historical records
 - validation pattern:
-  run the branch governance validator; it must fail release-packaging branch records that omit release target markers or branch records that use the non-release waiver outside preserved historical records or explicitly authorized direct-main emergency contexts
+  run the branch governance validator; it must fail release-packaging branch records that omit release target markers or branch records that use the non-release waiver outside preserved historical records
 
 ## Pattern: Release Readiness File Mutation Must Backflow
 
@@ -72,9 +72,44 @@ Branch-local "what worked" notes should stay in the canonical workstream doc fir
 - Required Response:
   classify the issue as `PR Readiness Scope Missed`; if it appears during Release Readiness, also classify `Release Readiness Scope Drift`; if a successor branch already exists, keep that branch in `Branch Readiness` and repair the miss before any implementation begins
 - Prevention:
-  block governance-only branches, block between-branch canon repair, block unapproved direct `main` writes, require branch-authority cleanup before PR green, and extend the validator whenever a miss exposes a machine-checkable gap
+  block governance-only branches, block between-branch canon repair, block all Codex direct `main` writes, require branch-authority cleanup before PR green, and extend the validator whenever a miss exposes a machine-checkable gap
 - source references:
   - `Docs/phase_governance.md`
+  - `dev/orin_branch_governance_validation.py`
+
+## Pattern: Merged-Unreleased Release Debt Must Be Durable Before Release Readiness
+
+- symptom:
+  an implementation workstream is merged or squash-merged, but canon still represents it as an active PR Readiness branch and Release Readiness must rediscover the release target, scope, artifacts, or release-debt owner
+- layer:
+  merge-target canon, roadmap release posture, workstreams index, and branch governance validation
+- root-cause pattern:
+  PR Readiness recorded future post-merge prose but did not leave machine-checkable merged-unreleased release-debt fields in the exact post-merge shape that `main` needs after merge
+- fix pattern:
+  require `Merged-Unreleased Release-Debt Owner:`, `Repo State: No Active Branch`, `Release Target:`, `Release Scope:`, `Release Artifacts:`, `Post-Release Truth:`, `Selected Next Workstream:`, and `Next-Branch Creation Gate:` before PR green when a branch will merge unreleased implementation work
+- validation pattern:
+  run `python dev/orin_branch_governance_validation.py` plus the PR-readiness gate mode; the validator must fail if a promoted merged-unreleased workstream remains under Active, lacks release target/scope/artifacts, or if `main` carries tracked file mutation during Codex work
+- source references:
+  - `Docs/phase_governance.md`
+  - `Docs/prebeta_roadmap.md`
+  - `Docs/workstreams/index.md`
+  - `dev/orin_branch_governance_validation.py`
+
+## Pattern: Protected Main Must Stay Read-Only For Codex
+
+- symptom:
+  escaped canon drift makes direct `main` repair look faster than a branch-carried fix
+- layer:
+  branch governance, release readiness boundary, and protected-branch safety
+- root-cause pattern:
+  older governance left room for emergency direct-main repair, which can bypass PR review and make protected branch truth harder to audit
+- fix pattern:
+  `main` is protected for Codex work; there is no emergency direct-main repair path, and any required file mutation must ride the still-available prior branch or the next active branch's `Branch Readiness`
+- validation pattern:
+  run `python dev/orin_branch_governance_validation.py`; it must enforce protected-main language and fail with `Main Write Attempt` if tracked file mutation exists while Codex is on `main`
+- source references:
+  - `Docs/phase_governance.md`
+  - `Docs/Main.md`
   - `dev/orin_branch_governance_validation.py`
 
 ## Pattern: Validation Helper Sprawl Must Collapse Into Registered Helper Families

@@ -169,6 +169,7 @@ When the approved phase is `PR Readiness`, the output must also explicitly inclu
 - confirmation that stale-canon, post-merge-state, next-workstream, dirty-branch, docs-sync/drift-audit, and `User Test Summary Results Pending` blockers are clear
 - confirmation that `PR Readiness Scope Missed`, `Between-Branch Canon Repair Attempt`, and `Next Branch Created Too Early` are clear
 - confirmation that no PR-owned docs or canon work is being deferred to Release Readiness, updated `main`, or a governance-only branch
+- confirmation that `main` remains protected and that no Codex file mutation, staging, commit, generation, refresh, or repair work is being performed on `main`
 - confirmation that branch truth is committed and durable, not only present in the working tree
 - confirmation that the normal governance validator and the PR-readiness gate mode passed
 - for the selected next workstream:
@@ -181,6 +182,11 @@ When the approved phase is `PR Readiness`, the output must also explicitly inclu
 - when post-merge truth will resolve to `No Active Branch` because `Release Debt` or another repo-level admission blocker remains open:
   - repo state `No Active Branch`
   - the blocking admission item
+  - `Merged-Unreleased Release-Debt Owner:`
+  - `Release Target:`
+  - `Release Scope:`
+  - `Release Artifacts:`
+  - `Post-Release Truth:`
   - confirmation that branch creation remains deferred and no next implementation branch may execute by inertia
 - a required `## Next Branch` section with this exact field shape:
 
@@ -225,7 +231,7 @@ When the approved phase is `Release Readiness`, the output must also explicitly 
   - `Release Artifacts:`
 - for explicitly non-release branches:
   - `Release Branch: No`
-  - confirmation that this is only a historical or explicitly authorized direct-main emergency context, not a new governance-only branch
+  - confirmation that this is only a historical context, not a new governance-only branch or a direct-main repair path
 - confirmation that the non-release waiver is not being used for an `implementation` or `release packaging` branch
 - confirmation that `Release Debt`, post-merge truth, validation, and successor branch deferral remain governed by their normal blockers
 - confirmation that Release Readiness is not being used as a docs-sync or branch-authority cleanup phase
@@ -333,7 +339,7 @@ When release-dependent truth changes:
 - do not use Release Readiness as a file-mutation phase; release package information may be generated as response text only
 - do not open a governance-only branch or between-branch repair window
 - if a PR Readiness miss escapes after merge, block the next active branch in `Branch Readiness` and repair the miss before implementation begins
-- use direct-main emergency repair only when no active branch can legally carry the fix and the user explicitly authorizes that direct-main action
+- do not use direct-main emergency repair; `main` is protected for Codex work and repair must ride the still-available prior branch or the next active branch's `Branch Readiness`
 
 ## Shared Rules Across Both Modes
 
@@ -353,6 +359,8 @@ When release-dependent truth changes:
 - governance and canon updates should ride on the active current branch when they are directly required to keep that branch truthful, executable, phase-correct, readiness-correct, validation-correct, closeout-correct, or release-correct
 - governance-only branches are not used for new Nexus work; tightly coupled governance repair rides on the active branch, and escaped PR misses block the next active branch's `Branch Readiness`
 - active-branch governance updates must not weaken validation, stop conditions, phase authority, branch-class authority, or scope control
+- `main` is protected for Codex work; Codex may read `main` for truth validation, but any tracked file mutation, staging, commit, generation, refresh, or direct repair on `main` is a `Main Write Attempt`
+- There is no emergency direct-main repair path for Codex.
 
 For desktop workstreams, response-level `## User Test Summary` output and the canonical repo-level `UTS` artifact are related but not interchangeable:
 
