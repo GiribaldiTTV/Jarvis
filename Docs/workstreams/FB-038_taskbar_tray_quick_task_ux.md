@@ -41,7 +41,7 @@ This workstream exists so taskbar or tray access and Create Custom Task entry ar
 - current branch: `feature/fb-038-taskbar-tray-quick-task-ux`
 - Branch Readiness is complete and durably checkpointed in commit `766ff67`
 - Workstream seam chain and helper governance are complete and durably checkpointed in commit `ef05ab2`
-- Hardening is admitted for branch-wide pressure testing; Hardening execution has not started in the transition pass
+- Hardening execution pass completed on 2026-04-21; branch-wide validator and helper sweep is green
 - FB-037 is released and closed in `v1.4.0-prebeta`
 - FB-037 release publication exists at `https://github.com/GiribaldiTTV/Nexus-Desktop-AI/releases/tag/v1.4.0-prebeta`
 - no FB-037 release-debt blocker remains
@@ -85,7 +85,7 @@ This workstream exists so taskbar or tray access and Create Custom Task entry ar
 
 - `Live Validation`
 
-Hardening was admitted after validating Workstream closure, evidence references, User Test Summary alignment, helper registry compliance, and clean durable branch truth. The next safe move is a separate Hardening execution pass; do not perform Hardening pressure testing inside the phase-transition admission pass.
+Hardening was admitted after validating Workstream closure, evidence references, User Test Summary alignment, helper registry compliance, and clean durable branch truth. The Hardening pressure-test pass is now green. The next safe move is a separate Hardening-to-Live Validation phase-transition durability pass; do not start Live Validation inside the Hardening execution pass.
 
 ## Bounded Objective
 
@@ -354,6 +354,37 @@ When a Workstream seam changes taskbar, tray, Create Custom Task, or other user-
   none known inside the approved FB-038 scope.
 - Continuation decision:
   stop Workstream execution and use a separate phase-transition durability pass before Hardening begins.
+
+## Hardening Progress
+
+- Hardening execution completed on 2026-04-21 for the completed FB-038 tray/task UX seam chain.
+- Repo-side validator sweep passed:
+  - `dev/orin_branch_governance_validation.py` passed with `401` checks
+  - `dev/orin_desktop_entrypoint_validation.py` passed; report: `dev/logs/desktop_entrypoint_validation/reports/DesktopEntrypointValidationReport_20260421_060751.txt`
+  - `dev/orin_interaction_baseline_validation.py` passed
+  - `dev/orin_saved_action_authoring_ui_validation.py` passed
+  - `dev/orin_callable_group_execution_validation.py` passed
+  - `dev/orin_saved_action_source_validation.py` passed
+- Workstream-scoped helper sweep passed:
+  - `dev/orin_fb038_seam2_validation.ps1` passed, including PySide6 import, desktop entrypoint, interaction baseline, saved-action authoring UI, branch governance, and diff checks
+  - `dev/orin_fb038_seam2_live_validation.ps1` passed; evidence root: `dev/logs/fb_038_tray_create_live_validation/20260421_060814`
+  - `dev/orin_fb038_seam3_live_validation.ps1` passed; evidence root: `dev/logs/fb_038_tray_create_completion_live_validation/20260421_060843`
+- Seam 1 pressure-test result:
+  tray startup, tray activation, existing overlay open path, and hotkey preservation remain green through entrypoint and interaction-baseline validation.
+- Seam 2 pressure-test result:
+  tray `Create Custom Task` opens the existing overlay-entry and dialog path, required route markers are observed, `saved_actions.json` hash/timestamp/length remain unchanged on cancel, create markers are absent on cancel, tray `Open Command Overlay` still works, and hotkey overlay baseline still works.
+- Seam 3 pressure-test result:
+  tray-origin create completion persists the created saved action through the existing FB-036 authoring path, catalog reload is confirmed, created task exact-match resolution is confirmed, confirm/result flow passes, launched Notepad cleanup completes, and restored saved-action source evidence is preserved.
+- Baseline preservation result:
+  no regression observed for the released FB-027 interaction baseline, FB-036 authoring/source safety, FB-041 callable-group execution, or FB-037 built-in catalog and saved-action override behavior.
+- Helper-governance result:
+  FB-038 helper registry entries remain compliant as `Workstream-scoped`; the existing consolidation or promotion decision remains required before PR Readiness, but it is not a Hardening blocker.
+- Scope-drift result:
+  no schema change, target-kind change, resolution precedence change, built-in catalog change, callable-group change, taskbar pinning, jump-list, protocol, settings, installer, or broad UI work was introduced during Hardening.
+- Hardening decision:
+  GREEN.
+- Next safe move:
+  separate phase-transition durability pass from `Hardening` to `Live Validation`; do not start Live Validation from this Hardening execution pass.
 
 ## User Test Summary
 
