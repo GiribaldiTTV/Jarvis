@@ -44,6 +44,23 @@ Branch-local "what worked" notes should stay in the canonical workstream doc fir
 - validation pattern:
   run the branch governance validator; it must fail release-packaging branch records that omit release target markers or branch records that use the non-release waiver outside preserved historical records or explicitly authorized direct-main emergency contexts
 
+## Pattern: Release Readiness File Mutation Must Backflow
+
+- symptom:
+  Release Readiness discovers missing release target, scope, artifact, canon, helper, or release-note truth and patches files while the authority record still says `Release Readiness`
+- layer:
+  release readiness boundary and phase backflow
+- root-cause pattern:
+  canon treated release target/scope/artifact definition as something Release Readiness could repair in-place instead of analysis-only output or a blocker that returns to the owning earlier phase
+- fix pattern:
+  treat Release Readiness as analysis-only for repository files; it may produce release package information in the response, but any required source, docs, canon, validator, helper, release-note, or handoff-file mutation must return to `PR Readiness` before merge or defer to the next active branch's `Branch Readiness` after merge
+- validation pattern:
+  run `python dev/orin_branch_governance_validation.py`; it must enforce `Release Readiness File Mutation Attempt` file-freeze language in governance docs and fail if tracked files are dirty while an active authority record says `Release Readiness`
+- source references:
+  - `Docs/phase_governance.md`
+  - `Docs/development_rules.md`
+  - `dev/orin_branch_governance_validation.py`
+
 ## Pattern: Escaped PR Work Blocks Next Branch Readiness
 
 - Trigger:

@@ -109,7 +109,7 @@ Fresh post-Hardening Live Validation produced a returned User Test Summary failu
 
 ## Governance Drift Audit
 
-- Governance Drift Found: No.
+- Governance Drift Found: Yes, repaired in PR Readiness.
 - Audit Date: 2026-04-21.
 - Audit Scope:
   PR Readiness review of FB-038 branch truth, merge-target canon, post-merge state, next-workstream selection, helper registry obligations, desktop shortcut/UTS gates, and dirty-branch durability.
@@ -122,6 +122,7 @@ Fresh post-Hardening Live Validation produced a returned User Test Summary failu
   - desktop-shortcut blocker is clear because `User-Facing Shortcut Validation: PASS` is recorded with fresh post-H4 evidence.
   - uts-results blocker is clear because `User Test Summary Results: WAIVED` is recorded with operator-confirmed waiver digestion.
   - PR Readiness scope-miss blockers are clear: no branch-authority cleanup is required for this backlog-backed implementation branch, no between-branch canon repair is planned, no successor branch exists, and no PR-owned docs work is deferred into Release Readiness.
+  - Release Readiness file-mutation boundary drift was found and repaired during PR Readiness re-entry: Release Readiness is now analysis-only for repository files, and any required file mutation must return to PR Readiness before merge or defer to the next active branch's Branch Readiness after merge.
 - Helper Governance Finding:
   FB-038 workstream-scoped helpers remain registered and are intentionally retained as FB-038 evidence helpers after merge. They are not promoted to reusable helpers in this branch because reuse would prematurely generalize tray-origin authoring proof before a second branch needs it. Future tray-origin or authoring work must consolidate these helpers into a reusable tray/Create Custom Task live helper or the saved-action interactive suite before creating another helper.
 

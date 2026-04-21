@@ -172,6 +172,7 @@ The default named blockers are:
 - `Docs Sync Incomplete`
 - `Release Debt`
 - `Release Target Undefined`
+- `Release Readiness File Mutation Attempt`
 - `User-Facing Shortcut Validation Pending`
 - `User Test Summary Results Pending`
 - `PR Readiness Scope Missed`
@@ -466,6 +467,8 @@ Routing after digestion:
 
 Release Readiness must not report green while any release target blocker remains unresolved.
 
+Release Readiness is an analysis-only file-freeze phase. Required release target, scope, and artifact truth must already exist before entering Release Readiness, normally as PR-owned merge-target canon or a PR-ready response package. If Release Readiness analysis discovers that those fields are missing, ambiguous, stale, or require source-file changes, do not patch files inside Release Readiness. Return the active branch to `PR Readiness` if it has not merged; if the branch has already merged, defer the repair to the next active branch's `Branch Readiness`.
+
 Hard blocker:
 
 - `Release Target Undefined`:
@@ -490,10 +493,18 @@ It does not waive `Release Debt`, merge-target canon completeness, post-merge tr
 
 If release target markers are missing on a release-bearing branch, the branch is blocked by `Release Target Undefined`.
 If `Release Branch: No` appears outside a preserved historical record or explicitly authorized direct-main emergency context, the branch is blocked by `Phase Waiver Missing`.
+If any source, docs, canon, validator, helper, or release-note file is modified while the active phase remains `Release Readiness`, the branch is blocked by `Release Readiness File Mutation Attempt` and must return to `PR Readiness` or defer to the next active branch's `Branch Readiness` before the change can be made.
 
 ### Release Readiness Scope Boundary
 
-Release Readiness is not a docs-sync phase.
+Release Readiness is not a docs-sync phase. It is also not a file-mutation phase.
+
+Release Readiness is analysis-only for repository files:
+
+- it may inspect repo truth, branches, tags, releases, validator output, and release evidence
+- it may produce release package information in the response, including tag, title, release notes, and release-execution instructions
+- it may run validation commands that do not mutate tracked source files
+- it must not edit, stage, commit, generate, or refresh source, docs, canon, validator, helper, release-note, or desktop handoff files
 
 Allowed in `Release Readiness`:
 
@@ -510,9 +521,11 @@ Forbidden in `Release Readiness`:
 - branch-authority cleanup that should have been merge-safe before PR green
 - next-workstream selection, planning, or branch creation
 - between-branch canon repair
+- any source, docs, canon, validator, helper, release-note, or handoff-file mutation
 - direct writes to `main` unless the user explicitly authorizes an emergency direct-main action
 
 If Release Readiness discovers missing PR-owned canon or docs work, stop immediately and classify the issue as `PR Readiness Scope Missed` and `Release Readiness Scope Drift`.
+If the branch has not merged, return to `PR Readiness` and repair the miss there before any Release Readiness output can be treated as green.
 If the branch has already merged, the next active branch's `Branch Readiness` must repair the miss before implementation begins and must update governance or validator coverage so the miss cannot recur.
 
 ### Governance Drift Audit
@@ -604,6 +617,7 @@ That validator should verify at minimum:
 - stale merge-era wording does not remain in active current-state owners
 - Governance Drift Audit output exists before `Release Readiness`
 - release-bearing branches carry `Release Target:`, `Release Scope:`, and `Release Artifacts:` markers before Release Readiness can report green
+- Release Readiness is analysis-only and cannot mutate files; dirty tracked files while the authority record says `Release Readiness` are a `Release Readiness File Mutation Attempt`
 - non-release waiver records use `Release Branch: No` only for preserved historical records or explicitly authorized direct-main emergency contexts
 - unresolved blockers prevent phase advancement
 - active-branch governance and canon updates remain the primary path when tightly coupled to the active branch's truth, phase, readiness, validation, closeout, or release state
@@ -911,8 +925,8 @@ The canonical rule is narrower:
 - `Workstream` -> `Hardening` only after the approved same-risk Workstream seam sequence is complete, direct validation is green, User Test Summary obligations are current for user-facing changes, and no same-slice correctness gap remains
 - `Hardening` -> `Live Validation` only after repo-side hardening proof is sufficient for interactive or manual closeout work
 - `Live Validation` -> `PR Readiness` only after branch-local proof is sufficient for closeout, returned evidence has been digested into the authority record, and `User Test Summary Results Pending` is absent or cleared by a documented waiver
-- `PR Readiness` -> `Release Readiness` only after merge-target canon completeness passes, the Governance Drift Audit passes, the next-workstream selection gate passes, and branch creation remains deferred to `Branch Readiness`
-- `Release Readiness` stays restricted to release target, scope, artifact, release-execution authorization, and release-state confirmation work; it does not transition into a docs-sync phase
+- `PR Readiness` -> `Release Readiness` only after merge-target canon completeness passes, the Governance Drift Audit passes, the next-workstream selection gate passes, branch creation remains deferred to `Branch Readiness`, and any release target/scope/artifact truth needed for release review is already available without file mutation
+- `Release Readiness` stays restricted to analysis-only release target, scope, artifact, release-execution authorization, and release-state confirmation work; it does not transition into a docs-sync phase or a file-mutation phase
 
 There is no default direct `Workstream` -> `PR Readiness` transition.
 If Workstream appears complete, the next normal phase is `Hardening` unless an explicit authority-record waiver says otherwise.
@@ -1143,6 +1157,7 @@ Forbidden:
 - hidden next-lane planning
 - branch-authority cleanup that should have been merge-safe in PR Readiness
 - between-branch canon repair
+- source, docs, canon, validator, helper, release-note, or handoff-file mutation
 
 Required evidence:
 
@@ -1150,6 +1165,7 @@ Required evidence:
 - explicit `Release Target:`, `Release Scope:`, and `Release Artifacts:` markers for release-bearing branches
 - or explicit `Release Branch: No` only for preserved historical records or explicitly authorized direct-main emergency contexts
 - release-context verification
+- clean tracked-file state; any required file update must be routed back to `PR Readiness` before merge or to the next active branch's `Branch Readiness` after merge
 - no unresolved blocker
 
 Exit:

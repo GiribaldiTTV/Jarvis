@@ -85,6 +85,7 @@ For Release Readiness, also include:
 - `Release Scope: <bounded release scope>` for release-bearing branches
 - `Release Artifacts: <tag, notes, rebaseline, or other release artifacts>` for release-bearing branches
 - `Release Branch: No` only for preserved historical records or explicitly authorized direct-main emergency contexts
+- `No file changes` because Release Readiness is analysis-only for repository files
 
 ## What Codex Should Do Automatically
 
@@ -352,7 +353,7 @@ Do not prompt Codex to treat Workstream completion as direct `PR Readiness`.
 
 Use:
 
-- `Workflow mode on current branch: execute Release Readiness target validation`
+- `Analyze and Report on current branch: execute Release Readiness target validation without file changes`
 
 Required add-ons for release-bearing branches:
 
@@ -360,6 +361,7 @@ Required add-ons for release-bearing branches:
 - `Release Target: [version or release identifier]`
 - `Release Scope: [bounded release scope]`
 - `Release Artifacts: [tag, notes, rebaseline, or other release artifacts]`
+- `No file changes`
 
 Required add-on for non-release branches:
 
@@ -368,6 +370,7 @@ Required add-on for non-release branches:
 Use `Release Branch: No` only for preserved historical records or explicitly authorized direct-main emergency contexts.
 Do not use `Release Branch: No` for `implementation` or `release packaging` branches.
 If a release-bearing branch lacks `Release Target:`, `Release Scope:`, or `Release Artifacts:`, Release Readiness is blocked by `Release Target Undefined`.
+If Release Readiness analysis discovers missing, stale, or ambiguous release truth that requires a file update, do not patch in Release Readiness. Return to `PR Readiness` before merge, or defer the repair to the next active branch's `Branch Readiness` after merge. Treat any file mutation while the authority record says `Release Readiness` as `Release Readiness File Mutation Attempt`.
 
 ### Run A Narrow Fix Pass
 
