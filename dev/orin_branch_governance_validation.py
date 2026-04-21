@@ -346,6 +346,23 @@ RELEASE_READINESS_SCOPE_PHRASES = (
     "docs-sync",
 )
 
+RELEASE_READINESS_FILE_FREEZE_DOCS = (
+    Path("Docs/phase_governance.md"),
+    Path("Docs/development_rules.md"),
+    Path("Docs/Main.md"),
+    Path("Docs/codex_modes.md"),
+    Path("Docs/orin_task_template.md"),
+    Path("Docs/codex_user_guide.md"),
+    Path("Docs/incident_patterns.md"),
+)
+
+RELEASE_READINESS_FILE_FREEZE_PHRASES = (
+    "Release Readiness File Mutation Attempt",
+    "analysis-only",
+    "return to `PR Readiness`",
+    "next active branch's `Branch Readiness`",
+)
+
 REQUIRED_RELEASE_BEARING_MARKERS = (
     "Release Target:",
     "Release Scope:",
@@ -1040,6 +1057,14 @@ def main() -> int:
                 f"{relative_path}: Release Readiness docs-sync scope boundary is missing '{required_phrase}'",
             )
 
+    for relative_path in RELEASE_READINESS_FILE_FREEZE_DOCS:
+        text = _read_text(relative_path).casefold()
+        for required_phrase in RELEASE_READINESS_FILE_FREEZE_PHRASES:
+            require(
+                required_phrase.casefold() in text,
+                f"{relative_path}: Release Readiness file-freeze guidance is missing '{required_phrase}'",
+            )
+
     active_index_paths = _collect_active_index_paths(index_text)
     closed_index_paths = _collect_closed_index_paths(index_text)
     release_debt_index_paths = _collect_release_debt_index_paths(index_text)
@@ -1374,6 +1399,16 @@ def main() -> int:
                 f"{canonical_path}: Governance Drift Audit is missing 'Governance Drift Found:'",
             )
 
+        if current_phase == "Release Readiness":
+            status_output = _git_status_porcelain()
+            require(
+                not status_output,
+                (
+                    f"{canonical_path}: Release Readiness File Mutation Attempt blocker is active; "
+                    "tracked files are dirty while Current Phase is Release Readiness"
+                ),
+            )
+
         if current_phase == "PR Readiness":
             post_merge_state = _section(workstream_text, "Post-Merge State")
             require(
@@ -1528,6 +1563,15 @@ def main() -> int:
             str(info["next_legal_phase"]) in PHASES,
             f"{branch_record_path}: Next Legal Phase '{info['next_legal_phase']}' is not in the canonical phase enum",
         )
+        if branch_record_path in active_branch_record_paths and str(info["current_phase"]) == "Release Readiness":
+            status_output = _git_status_porcelain()
+            require(
+                not status_output,
+                (
+                    f"{branch_record_path}: Release Readiness File Mutation Attempt blocker is active; "
+                    "tracked files are dirty while Current Phase is Release Readiness"
+                ),
+            )
         if branch_record_path in active_branch_record_paths:
             require(
                 "`Active Branch`" in phase_status_section,

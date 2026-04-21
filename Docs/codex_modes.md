@@ -229,6 +229,8 @@ When the approved phase is `Release Readiness`, the output must also explicitly 
 - confirmation that the non-release waiver is not being used for an `implementation` or `release packaging` branch
 - confirmation that `Release Debt`, post-merge truth, validation, and successor branch deferral remain governed by their normal blockers
 - confirmation that Release Readiness is not being used as a docs-sync or branch-authority cleanup phase
+- confirmation that Release Readiness is analysis-only for repository files and that no source, docs, canon, validator, helper, release-note, or handoff files were edited, staged, committed, generated, or refreshed
+- if any file change is needed, classification as `Release Readiness File Mutation Attempt`, then return to `PR Readiness` before merge or defer to the next active branch's `Branch Readiness` after merge instead of patching inside Release Readiness
 
 Do not report cleanup as complete unless the pass has explicitly checked for leftover apps, windows, dialogs, helper processes, probe files, or other temporary artifacts it created or opened.
 
@@ -328,6 +330,7 @@ When release-dependent truth changes:
 - carry the canon sync on the active lane when that lane is still open
 - require merge-target canon completeness before PR so merged `main` does not become stale in the first place
 - do not use Release Readiness as a docs-sync phase
+- do not use Release Readiness as a file-mutation phase; release package information may be generated as response text only
 - do not open a governance-only branch or between-branch repair window
 - if a PR Readiness miss escapes after merge, block the next active branch in `Branch Readiness` and repair the miss before implementation begins
 - use direct-main emergency repair only when no active branch can legally carry the fix and the user explicitly authorizes that direct-main action

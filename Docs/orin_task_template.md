@@ -98,6 +98,8 @@ Add `Validation Contract`, `Timeout Contract`, and `Current active seam` when th
 Add `Seam Sequence` when the Workstream prompt may use bounded multi-seam workflow.
 If `Seam Sequence` is present, Codex must execute one active seam at a time, validate after each seam, and report a continue-or-stop decision before starting the next seam.
 For `Release Readiness`, a release-bearing branch must include `Release Target:`, `Release Scope:`, and `Release Artifacts:` before green status is allowed.
+`Release Readiness` is analysis-only for repository files. It may produce release package information in the response, but it must not edit, stage, commit, generate, or refresh source, docs, canon, validator, helper, release-note, or handoff files.
+If a file change is needed during `Release Readiness`, classify `Release Readiness File Mutation Attempt`, return to `PR Readiness` before merge, or defer to the next active branch's `Branch Readiness` after merge.
 Use `Release Branch: No` only for preserved historical records or explicitly authorized direct-main emergency contexts.
 Do not use `Release Branch: No` for `implementation` or `release packaging` branches.
 If a required User Test Summary handoff is outstanding, use `User Test Summary Results: PENDING`, list `User Test Summary Results Pending` under blockers, and do not report final phase advancement as green until the filled User Test Summary is submitted or waived, digested, and blockers are reevaluated.
@@ -296,7 +298,7 @@ If an execution task is too broad for one approved pass, explain the cleaner exe
 5. If in `Branch Readiness`, explain the whole-branch execution plan before Workstream admission.
 6. If in `Workstream`, explain whether bounded multi-seam workflow is safe; if it is, list the seam sequence, per-seam gates, and stop conditions.
 7. If in `PR Readiness`, explicitly plan the stale-canon check, post-merge-state handling, next-workstream selection/canon/minimal-scope/no-branch-exists check, required `Next Workstream: Selected`, `Minimal Scope:`, `## Selected Next Workstream`, and `Branch: Not created` markers, dirty-branch/durable-commit check, docs-sync/drift-audit check, `PR Readiness Scope Missed`, `Between-Branch Canon Repair Attempt`, `Next Branch Created Too Early`, normal governance validator, PR-readiness gate mode, required `## Next Branch` response block, and copy-ready `## PR Creation Details` package.
-8. If in `Release Readiness`, explicitly plan the `Release Target Undefined` check, required `Release Target:`, `Release Scope:`, and `Release Artifacts:` markers for release-bearing branches, and confirm Release Readiness is not being used for broad docs sync or branch-authority cleanup.
+8. If in `Release Readiness`, explicitly plan the `Release Target Undefined` check, required `Release Target:`, `Release Scope:`, and `Release Artifacts:` markers for release-bearing branches, confirm Release Readiness is not being used for broad docs sync or branch-authority cleanup, and confirm no repository file mutation will occur in the phase.
 9. Explain the validation plan.
 10. If a User Test Summary handoff is relevant, explicitly state whether returned results are `PENDING`, `PASS`, `FAIL`, or `WAIVED`; `PENDING` is the hard blocker `User Test Summary Results Pending`.
 
@@ -434,6 +436,7 @@ Stop and explicitly report if:
 - critical evidence is missing
 - the task would require reopening locked architecture
 - safe verification is not possible
+- the task is in `Release Readiness` and requires any source, docs, canon, validator, helper, release-note, or handoff-file mutation; return to `PR Readiness` before merge or defer to the next active branch's `Branch Readiness` after merge
 - the task needs a new branch basis because the current one is stale, merged, or no longer the right execution base
 - `User Test Summary Results Pending` remains active while the task attempts to advance phase, PR readiness, merge readiness, or final green status
 

@@ -239,12 +239,14 @@ These are reference layers, not active workstream or roadmap owners.
 - PR Readiness also owns `PR Readiness Scope Missed`, `Between-Branch Canon Repair Attempt`, and `Next Branch Created Too Early`; none may be deferred into Release Readiness or a later side branch
 - the normal `Release Readiness` sequence for a release-bearing branch must clear `Release Target Undefined` before reporting green:
   1. confirm whether the branch is release-bearing or explicitly non-release
-  2. for release-bearing branches, require machine-checkable `Release Target:`, `Release Scope:`, and `Release Artifacts:` markers in the active authority record
+  2. for release-bearing branches, require machine-checkable `Release Target:`, `Release Scope:`, and `Release Artifacts:` markers before Release Readiness can report green
   3. for non-release branches, require `Release Branch: No`
   4. allow `Release Branch: No` only for preserved historical records or explicitly authorized direct-main emergency contexts
   5. never use the non-release waiver for `implementation` or `release packaging` branches
   6. never let the waiver clear `Release Debt`, weaken post-merge truth, weaken validation, or permit premature next-workstream branch creation
-- Release Readiness is not a docs-sync phase; it is restricted to release-target, release-scope, release-artifact, GitHub release package information, final release-execution authorization or confirmation, and release-state confirmation after release execution
+- Release Readiness is not a docs-sync phase and not a file-mutation phase; it is analysis-only for repository files and is restricted to release-target validation, release-scope validation, release-artifact validation, GitHub release package information, final release-execution authorization or confirmation, and release-state confirmation after release execution
+- Release Readiness must not edit, stage, commit, generate, or refresh source, docs, canon, validator, helper, release-note, or handoff files; if such work is discovered before merge, return to `PR Readiness`, and if discovered after merge, defer it to the next active branch's `Branch Readiness`
+- tracked file changes while the authority record says `Release Readiness` are blocked as `Release Readiness File Mutation Attempt`
 - a post-release canon repair is an emergency direct-main action only when merged canon is already stale, no active branch can legally carry the repair, and the user explicitly authorizes that direct-main action
 - returned `UTS`, screenshot, interactive, PR-review, or release-review evidence must be digested into the authority record before phase advancement is recommended
 - while a required User Test Summary handoff is outstanding, the active branch must report `User Test Summary Results Pending`; automated validators and live helper evidence may be green, but final phase advancement is blocked until the filled User Test Summary is submitted or waived, digested into the authority record, and blockers are reevaluated

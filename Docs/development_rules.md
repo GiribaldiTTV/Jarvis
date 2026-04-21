@@ -256,6 +256,9 @@ That means:
   - if the next branch already exists before the current branch merged and updated `main` was revalidated, block as `Next Branch Created Too Early`
 - no Release Readiness green with `Release Target Undefined`:
   - a release-bearing branch must explicitly declare `Release Target:`, `Release Scope:`, and `Release Artifacts:` before Release Readiness can report green
+  - Release Readiness is analysis-only for repository files; it may produce release package information in the response, but it must not edit, stage, commit, generate, or refresh source, docs, canon, validator, helper, release-note, or handoff files
+  - if Release Readiness analysis discovers missing, stale, or ambiguous release target/scope/artifact truth, do not patch in Release Readiness; return to `PR Readiness` on the active branch if unmerged, or defer the repair to the next active branch's `Branch Readiness` if already merged
+  - tracked file changes while the authority record says `Release Readiness` are blocked as `Release Readiness File Mutation Attempt`
   - release-bearing includes `release packaging` branches and any branch that creates, prepares, validates, tags, publishes, or transitions release-facing artifacts or release-state canon
   - the only non-release waiver is `Release Branch: No`
   - `Release Branch: No` is limited to preserved historical records or explicitly authorized direct-main emergency contexts
@@ -268,6 +271,7 @@ That means:
   - between-branch canon repair is blocked
   - direct writes to `main` are blocked unless the user explicitly authorizes an emergency direct-main action
   - Release Readiness must not absorb docs sync or canon cleanup that PR Readiness should have completed
+  - Release Readiness must not mutate files to repair a discovered gap; use `PR Readiness` before merge or the next active branch's `Branch Readiness` after merge
 - do not use canon sync as an excuse for broad unrelated documentation churn
 
 Local docs overlays are reference material only until revalidated against updated `origin/main`.
