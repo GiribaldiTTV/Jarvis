@@ -3,7 +3,8 @@ param(
     [string]$Mode = "Backup",
     [string]$OutputDirectory = [Environment]::GetFolderPath("Desktop"),
     [switch]$SkipPackageState,
-    [switch]$ForceCloseCodex
+    [switch]$ForceCloseCodex,
+    [switch]$ResetClipboard
 )
 
 $ErrorActionPreference = "Stop"
@@ -142,8 +143,44 @@ Repair scope:
 - Removed transient sqlite WAL/SHM files so Codex can rebuild them cleanly.
 - Cleared temp/cache folders that are safe to regenerate.
 - Cleared Electron renderer, code, GPU, and WebGPU caches that can contribute to UI stalls.
+- Optionally reset Windows clipboard state when requested.
 - Did not delete your primary .codex sessions, memories, auth, config, plugins, or skills.
 "@ | Set-Content -LiteralPath $Path -Encoding UTF8
+}
+
+function Invoke-ClipboardReset {
+    param([System.Collections.Generic.List[string]]$Actions)
+
+    try {
+        powershell -NoProfile -STA -Command "Add-Type -AssemblyName System.Windows.Forms; [Windows.Forms.Clipboard]::Clear()"
+        if ($LASTEXITCODE -eq 0) {
+            $Actions.Add("cleared current Windows clipboard contents") | Out-Null
+        } else {
+            $Actions.Add("attempted clipboard clear, but the STA clipboard helper returned exit code $LASTEXITCODE") | Out-Null
+        }
+    } catch {
+        $Actions.Add("clipboard clear failed: $($_.Exception.Message)") | Out-Null
+    }
+
+    $clipboardServices = Get-Service | Where-Object { $_.Name -like "cbdhsvc_*" }
+    foreach ($service in $clipboardServices) {
+        try {
+            Restart-Service -Name $service.Name -Force -ErrorAction Stop
+            $Actions.Add("restarted clipboard service $($service.Name)") | Out-Null
+        } catch {
+            $Actions.Add("clipboard service restart skipped for $($service.Name): $($_.Exception.Message)") | Out-Null
+        }
+    }
+
+    $textInputHosts = Get-Process -Name TextInputHost -ErrorAction SilentlyContinue
+    foreach ($process in $textInputHosts) {
+        try {
+            Stop-Process -Id $process.Id -Force -ErrorAction Stop
+            $Actions.Add("restarted TextInputHost process $($process.Id)") | Out-Null
+        } catch {
+            $Actions.Add("TextInputHost restart skipped for $($process.Id): $($_.Exception.Message)") | Out-Null
+        }
+    }
 }
 
 function New-BackupBundle {
@@ -198,7 +235,10 @@ function New-BackupBundle {
 }
 
 function Invoke-SafeRepair {
-    param([string]$DesktopPath)
+    param(
+        [string]$DesktopPath,
+        [bool]$ResetClipboardState
+    )
 
     $stamp = Get-Date -Format "yyyyMMdd_HHmmss"
     $repairRoot = Join-Path $DesktopPath "Codex_Repair_Report_$stamp"
@@ -250,6 +290,10 @@ function Invoke-SafeRepair {
         }
     }
 
+    if ($ResetClipboardState) {
+        Invoke-ClipboardReset -Actions $actions
+    }
+
     New-RepairReport -Path (Join-Path $repairRoot "REPAIR_REPORT.txt") -Actions $actions.ToArray()
 
     return @{
@@ -272,13 +316,13 @@ switch ($Mode) {
     }
     "Repair" {
         Write-Step "Running safe Codex repair."
-        $repairResult = Invoke-SafeRepair -DesktopPath $OutputDirectory
+        $repairResult = Invoke-SafeRepair -DesktopPath $OutputDirectory -ResetClipboardState:$ResetClipboard
     }
     "BackupAndRepair" {
         Write-Step "Creating recovery bundle before repair."
         $backupResult = New-BackupBundle -DesktopPath $OutputDirectory -IncludePackageState:$includePackageState
         Write-Step "Running safe Codex repair."
-        $repairResult = Invoke-SafeRepair -DesktopPath $OutputDirectory
+        $repairResult = Invoke-SafeRepair -DesktopPath $OutputDirectory -ResetClipboardState:$ResetClipboard
     }
 }
 
