@@ -109,12 +109,28 @@
 - Scope: specify what later validators or helper reuse must prove and when helper creation would be justified under the registry.
 - Non-Includes: no new validator/helper creation during WS-1 or WS-3 planning unless a concrete validation gap blocks later implementation admission.
 
+### Seam 4: Implementation Boundary And First Runtime Seam Admission Framing
+
+- Goal: define the first runtime implementation seam boundary that may be admitted later without implementing it in the architecture pass.
+- Scope: frame the first Nexus-owned runtime seam, its required proof, and its non-includes so later implementation cannot invent transport, plugin, or execution scope midstream.
+- Non-Includes: no runtime code, no external listener, no plugin host, no transport binding, no payload schema, no settings UI, no installer work, and no action execution path.
+
+### Seam 5: Follow-On Architecture Tightening
+
+- Goal: reconcile WS-1 through WS-4 into one durable architecture authority and identify unresolved architecture decisions that must remain blocked from runtime implementation.
+- Scope: tighten terminology, stop conditions, future-seam gates, and non-goals without adding product/runtime behavior.
+- Non-Includes: no implementation, no helper creation, no validator creation, no release work, and no phase advancement claim.
+
 ## Active Seam
 
-- Active seam: `WS-2 Lifecycle Ownership And Trust/Safety Boundary Contract`.
+- Active seam: `None after WS-5 completion`.
+- Last executed seam: `WS-5 Follow-On Architecture Tightening`.
 - WS-1 status: complete and durable as architecture-only documentation.
-- WS-2 status: active in this pass and architecture-only.
-- WS-3 status: planned only.
+- WS-2 status: complete and durable as architecture-only documentation.
+- WS-3 status: complete and durable as architecture-only documentation.
+- WS-4 status: complete and durable as architecture-only documentation.
+- WS-5 status: complete and durable as architecture-only documentation.
+- Next runtime implementation seam: not active; requires a later bounded Workstream pass with exact affected files, non-includes, validation gates, and User Test Summary classification.
 
 ## WS-1 External Trigger Source Map
 
@@ -273,45 +289,172 @@ Must not be externally controlled:
 - WS-3 remains planned only.
 - Continuation decision: WS-3 may be admitted only in a later bounded Workstream pass.
 
+## WS-3 Validation And Implementation-Admission Contract
+
+WS-3 defines what later implementation seams must prove before runtime code is admitted. It does not create validators, helpers, runtime code, protocols, transports, payload schemas, UI, installer behavior, or release artifacts.
+
+Validation families required before a later runtime seam may be admitted:
+
+- Governance and branch-truth validation: `python dev\orin_branch_governance_validation.py`, `git diff --check`, and clean branch-status proof remain required for every runtime-admission pass.
+- Regression validation: later runtime implementation must preserve FB-027 interaction baselines, FB-036 saved-action authoring authority, FB-041 callable-group execution semantics, FB-037 built-in catalog authority, and FB-038 tray/task UX behavior when touched.
+- Boundary validation: the seam must prove external origins can only create a Nexus-facing trigger request and cannot bypass Nexus-owned intake, approval, confirmation, saved-action, callable-group, or result authority.
+- Negative-path validation: unsupported, disabled, blocked, malformed, unauthenticated, non-user-visible, and remote/cloud-origin trigger attempts must reject safely without execution.
+- Cleanup validation: accepted, rejected, disabled, failed, and canceled trigger requests must leave no stale pending state, duplicate execution, orphaned runtime process, or persistent binding outside admitted scope.
+- User-facing validation: if a later seam adds operator-visible setup, settings, prompt, tray, overlay, notification, or shortcut behavior, the workstream must add a meaningful User Test Summary path and follow the returned-results blocker model before Live Validation or PR Readiness.
+- Helper governance validation: reuse existing validators and registered helper families first; new durable root `dev/` helpers require registry lookup, `Helper Status`, owner, reuse decision, and consolidation target before closeout-grade proof can depend on them.
+
+Implementation-admission gates:
+
+- A later runtime seam must name exactly one runtime boundary and one active owner before edits begin.
+- The seam must list exact non-includes, including any blocked protocol, transport, payload, UI, installer, plugin-host, settings, or action-execution expansion.
+- The seam must state whether it is internal-only, user-visible, or external-facing; external-facing or user-visible seams require stronger validation and User Test Summary handling.
+- The seam must identify affected modules before patching and must stop if the affected surface crosses risk class or subsystem family.
+- The seam must define a rollback target and cleanup expectation before implementation begins.
+- The seam must prove branch-local authority remains current after implementation and before durability commit/push.
+
+Runtime marker expectations for later implementation:
+
+- later runtime seams should emit or expose clear evidence for intake received, origin classified, request accepted or rejected, execution blocked or routed, cleanup complete, and failure surfaced when those states exist
+- runtime markers are admission expectations only in WS-3; marker names, log shape, payload fields, and persistence format remain deferred to the implementation seam that owns them
+
+WS-3 continue-or-stop decision:
+
+- WS-3 validation/admission contract is architecture-only and stays in the same workstream, phase, branch class, risk class, and subsystem family as WS-1 and WS-2.
+- WS-4 may continue in this pass only as implementation-boundary framing, not runtime implementation.
+- Stop before runtime code, protocol mechanics, payload schema, transport binding, plugin host, settings UI, installer flow, or helper creation.
+
+## WS-3 Execution Record
+
+- WS-3 executed as architecture-only documentation on the active FB-039 branch.
+- Validation families: complete for governance, regression, boundary, negative-path, cleanup, user-facing, and helper-governance proof.
+- Implementation-admission gates: complete for future seam ownership, boundary, non-includes, affected surface, rollback, cleanup, and branch-truth requirements.
+- Runtime marker expectations: recorded only as future proof categories; concrete marker names and formats remain deferred.
+- Runtime/product implementation: none.
+- Validator/helper creation: none.
+- Continue decision after WS-3: continue to WS-4 only as docs-only implementation-boundary framing.
+
+## WS-4 Implementation Boundary And First Runtime Seam Admission Framing
+
+WS-4 frames the first runtime implementation seam that may be admitted later. It does not implement that seam.
+
+First runtime seam candidate:
+
+- Name: `Internal Trigger Intake Boundary Skeleton`.
+- Goal: introduce a Nexus-owned internal trigger intake boundary that can receive an internal trigger request concept and reject or defer it by default until later seams admit origin support and routing.
+- Owner: Nexus-owned trigger intake.
+- Risk class: implementation/integration safety, because the seam touches the boundary where external-origin intent may later cross into Nexus action authority.
+- Admission posture: not active in WS-4; eligible only for a later bounded Workstream implementation pass with exact affected files and validation commands named before patching.
+
+Allowed future runtime seam boundary:
+
+- internal-only Nexus-owned intake boundary
+- default reject/defer behavior for every origin until explicit support is admitted
+- branch-local evidence proving no saved action, callable group, overlay, tray, settings, installer, plugin host, or external transport is reached by default
+- governance validation and direct negative-path proof before durability
+
+Not admitted by WS-4:
+
+- external listener, protocol endpoint, URI handler, socket, webhook, cloud ingress, browser-origin bridge, or transport binding
+- payload schema, serialization format, plugin API, Stream Deck API, installer path, settings UI, tray/taskbar expansion, or monitoring/HUD behavior
+- direct saved-action execution, callable-group execution, silent background execution, or bypass of Nexus-owned confirmation/approval surfaces
+- durable helper creation unless the future implementation seam proves existing validators cannot cover its negative-path and cleanup proof
+
+Required preflight for the future first runtime seam:
+
+- name the affected source files before editing
+- state the exact trigger-intake boundary and its non-includes
+- prove whether the seam is internal-only, user-visible, or external-facing
+- identify required regression baselines and negative-path checks
+- record whether any User Test Summary applies before claiming Workstream completion
+- stop if implementation needs protocol, payload, transport, settings, installer, plugin-host, or execution routing decisions
+
+## WS-4 Execution Record
+
+- WS-4 executed as architecture-only documentation on the active FB-039 branch.
+- First runtime seam admission framing: complete for the `Internal Trigger Intake Boundary Skeleton` candidate.
+- Implementation boundary: complete for internal-only intake, default reject/defer behavior, and blocked external transport/execution scope.
+- Preflight requirements: complete for future affected-file naming, non-includes, regression baselines, negative-path proof, User Test Summary classification, and stop conditions.
+- Runtime/product implementation: none.
+- Protocol, payload schema, transport binding, plugin host, installer, settings UI, monitoring/HUD, taskbar/tray expansion, and helper creation: none.
+- Continue decision after WS-4: continue to WS-5 only as docs-only follow-on architecture tightening.
+
+## WS-5 Follow-On Architecture Tightening
+
+WS-5 reconciles the architecture chain into one durable authority. It does not authorize implementation.
+
+Architecture authority after WS-5:
+
+- WS-1 owns the external trigger source map, origin categories, ownership vocabulary, and Nexus entry-point framing.
+- WS-2 owns lifecycle ownership, trust/safety boundary vocabulary, trigger class admission posture, and user-control versus external-initiation rules.
+- WS-3 owns the validation families, implementation-admission gates, runtime marker expectation categories, and helper/User Test Summary admission rules for future implementation seams.
+- WS-4 owns the first runtime seam admission framing for the future `Internal Trigger Intake Boundary Skeleton` candidate.
+
+Unresolved architecture decisions that remain blocked from implementation:
+
+- exact source files for the first runtime seam
+- concrete runtime marker names, log shape, payload fields, or persistence format
+- any external transport, protocol, URI handler, socket, webhook, browser bridge, or cloud ingress
+- Stream Deck integration, plugin host API, installer flow, settings UI, tray/taskbar expansion, monitoring/HUD, or action execution routing
+- durable helper creation or validator expansion before a concrete implementation seam proves the validation gap and registry obligations
+
+Future Workstream admission rule:
+
+- The next implementation pass may admit only one runtime seam at a time.
+- The candidate first runtime seam is `Internal Trigger Intake Boundary Skeleton`.
+- Admission must restate source-of-truth, affected files, exact boundary, explicit non-includes, validation commands, cleanup expectations, User Test Summary classification, and stop conditions before any code edits.
+- If the future seam needs protocol, payload, transport, settings, installer, plugin-host, or direct execution design, it must stop and split that concern into a later seam rather than absorbing it.
+
+## WS-5 Execution Record
+
+- WS-5 executed as architecture-only documentation on the active FB-039 branch.
+- Architecture authority reconciliation: complete for WS-1 through WS-4.
+- Blocked implementation decisions: complete and explicitly deferred.
+- Future runtime seam admission rule: complete for the first candidate implementation seam.
+- Runtime/product implementation: none.
+- Protocol, payload schema, transport binding, plugin host, installer, settings UI, monitoring/HUD, taskbar/tray expansion, action execution routing, validator/helper creation, and release work: none.
+- Continue decision after WS-5: stop the current bounded architecture chain; next movement requires a later bounded Workstream pass admitting exactly one runtime implementation seam or a governance-backed decision that architecture-only Workstream scope is complete.
+
 ## Scope
 
-- Execute WS-2 only: lifecycle ownership and trust/safety boundary contract.
+- Record the approved bounded multi-seam chain from WS-3 through WS-5 as complete when validation remains green.
 - Preserve WS-1 as complete and durable architecture-only source map and ownership vocabulary.
-- Keep validation/admission contract work in WS-3 planned-only status.
+- Preserve WS-2 as complete and durable architecture-only lifecycle ownership and trust/safety boundary contract.
+- Keep the first runtime implementation seam not active; do not implement runtime behavior in this pass.
 - Preserve architecture-level entry-point framing without implementation design, listener design, transport binding, protocol mechanics, payload schema details, settings UI, installer flow, or helper creation.
 - Carry the deferred PR #67 connector follow-up as later Workstream governance review only if it remains relevant to validator trust.
 
 ## Non-Goals
 
-- No plugin runtime implementation during WS-2.
-- No Stream Deck integration implementation during WS-2.
+- No plugin runtime implementation during WS-3, WS-4, or WS-5.
+- No Stream Deck integration implementation during WS-3, WS-4, or WS-5.
 - No protocol handling, installer work, settings surface, taskbar/tray expansion, monitoring HUD work, or release packaging.
 - No product/runtime code changes in this Workstream pass.
 - No new validation helper creation unless a later Workstream seam proves an actual validation gap and registry rules are satisfied.
 - No FB-040 monitoring, thermals, or HUD scope.
-- No trust/safety enforcement logic, transport payload schema detail, validation matrix design, user-facing settings/UI, or runtime plugin lifecycle implementation in WS-2.
+- No trust/safety enforcement logic, transport payload schema detail, user-facing settings/UI, or runtime plugin lifecycle implementation in WS-3, WS-4, or WS-5.
 
 ## Validation Contract
 
-- Workstream WS-2 validation:
+- Workstream post-WS5 validation:
   - `python dev\orin_branch_governance_validation.py`
   - `git diff --check`
   - `git status --short --branch`
-- WS-2 is documentation-only and architecture-first; no runtime helper is required.
+- WS-3, WS-4, and WS-5 are documentation-only and architecture-first; no runtime helper is required.
+- The future `Internal Trigger Intake Boundary Skeleton` implementation seam must rerun and expand validation only after it is admitted in a later bounded pass.
 - Reuse existing validator families and `Docs/validation_helper_registry.md` guidance first.
 - New helpers are blocked until a concrete validation gap exists, the helper purpose is branch-scoped or reusable by design, and registry status/consolidation rules are satisfied.
 - Any user-facing behavior introduced later must route through the User Test Summary and user-facing shortcut validation rules if applicable.
 
 ## Stop Conditions
 
-- Stop if FB-039 scope expands into plugin/runtime implementation during WS-2.
-- Stop if WS-2 starts defining trust/safety enforcement logic, protocol mechanics, payload schemas, validation matrix design, settings UI, installer flow, or helper implementation.
-- Stop if WS-3 begins executing in this pass.
-- Stop if lifecycle ownership boundaries, trust/safety vocabulary, trigger admission posture, or user-control rules cannot be stated explicitly at architecture level.
+- Stop if FB-039 scope expands into plugin/runtime implementation during WS-3, WS-4, or WS-5.
+- Stop if WS-3, WS-4, or WS-5 starts defining trust/safety enforcement logic, protocol mechanics, payload schemas, settings UI, installer flow, or helper implementation.
+- Stop if a downstream seam cannot be stated as the same workstream, same phase, same branch class, same risk class, and same subsystem family or tightly coupled architecture chain.
+- Stop if validation/admission gates, implementation boundary framing, or architecture tightening cannot be stated explicitly at architecture level.
 - Stop if any FB-038 release debt or stale release canon reappears.
 - Stop if a governance-only branch, direct-main mutation, or between-branch repair path is attempted.
 - Stop if new helper creation is proposed before reuse and registry obligations are satisfied.
-- Stop if Workstream execution expands beyond WS-2 before WS-2 is recorded and validated.
+- Stop if Workstream execution expands beyond the validated WS-3 through WS-5 architecture chain before each seam is recorded and validated.
 
 ## Exit Criteria
 
@@ -319,7 +462,10 @@ Must not be externally controlled:
 - This workstream record contains the required phase authority fields.
 - WS-1 external trigger source map, ownership vocabulary, ownership boundaries, and architecture-only entry-point framing are recorded.
 - WS-2 lifecycle ownership boundaries, trust/safety boundary vocabulary, trigger class admission posture, and user-control rules are recorded.
-- WS-3 remains planned only.
+- WS-3 validation and implementation-admission contract is recorded.
+- WS-4 implementation boundary and first runtime seam admission framing is recorded.
+- WS-5 follow-on architecture tightening is recorded.
+- Future runtime implementation seam is framed but not active.
 - FB-038 remains released/closed and release debt remains clear.
 - Repo state is no longer `No Active Branch`; active branch truth is `feature/fb-039-external-trigger-plugin-integration-architecture`.
 - No runtime/product implementation has started.
@@ -334,4 +480,4 @@ Must not be externally controlled:
 
 ## Branch Readiness Notes
 
-Branch Readiness durability is complete, WS-1 is durable, and WS-2 is now recorded as the active Workstream seam for this pass. This pass remains architecture-only and does not execute WS-3.
+Branch Readiness durability is complete, WS-1 and WS-2 are durable, and the WS-3 through WS-5 architecture chain is now recorded as complete. This pass remains architecture-only and does not execute runtime implementation.
