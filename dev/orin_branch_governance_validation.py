@@ -513,6 +513,23 @@ REQUIRED_MERGED_UNRELEASED_MARKERS = (
 PATCH_PRERELEASE_FLOOR = "patch prerelease"
 MINOR_PRERELEASE_FLOOR = "minor prerelease"
 SEMANTIC_RELEASE_FLOORS = (PATCH_PRERELEASE_FLOOR, MINOR_PRERELEASE_FLOOR)
+MINOR_RELEASE_CAPABILITY_MARKERS = (
+    "executable",
+    "runtime capability",
+    "operator-facing",
+    "user-facing",
+    "materially expanded product capability",
+    "product behavior expansion",
+)
+PATCH_FLOOR_DEFAULT_MARKERS = (
+    "architecture-only",
+    "planning",
+    "admission contract",
+    "validation-only",
+    "non-user-facing",
+    "documentation/canon repair",
+    "governance repair",
+)
 PREBETA_RELEASE_TITLE_TEMPLATE = "Pre-Beta v<major>.<minor>.<patch>"
 FB038_RELEASE_TAG = "v1.4.1-prebeta"
 FB038_RELEASE_TITLE = "Pre-Beta v1.4.1"
@@ -695,8 +712,28 @@ def _git_prebeta_tags() -> list[str]:
     ]
 
 
-def _highest_local_prebeta_tag() -> str:
-    tags = _git_prebeta_tags()
+def _git_remote_prebeta_tags() -> list[str]:
+    completed = subprocess.run(
+        ("git", "ls-remote", "--tags", "origin", "refs/tags/v*-prebeta"),
+        cwd=ROOT_DIR,
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        check=False,
+    )
+    if completed.returncode != 0:
+        return []
+
+    tags: list[str] = []
+    for line in completed.stdout.splitlines():
+        match = re.search(r"refs/tags/(v\d+\.\d+\.\d+-prebeta)(?:\^\{\})?$", line.strip())
+        if match and _parse_prebeta_version(match.group(1)) is not None:
+            tags.append(match.group(1))
+    return tags
+
+
+def _highest_known_prebeta_tag() -> str:
+    tags = sorted(set(_git_prebeta_tags()) | set(_git_remote_prebeta_tags()))
     if not tags:
         return ""
     return max(tags, key=lambda tag: _parse_prebeta_version(tag) or (0, 0, 0))
@@ -704,6 +741,11 @@ def _highest_local_prebeta_tag() -> str:
 
 def _workstream_target_version(workstream_text: str) -> str:
     return _clean_release_value(_extract_first_backtick_value(_section(workstream_text, "Target Version")))
+
+
+def _minor_release_rationale_has_capability(rationale_text: str) -> bool:
+    lowered = rationale_text.casefold()
+    return any(marker in lowered for marker in MINOR_RELEASE_CAPABILITY_MARKERS)
 
 
 def _release_debt_owner_claim(workstream_id: str) -> str:
@@ -1580,19 +1622,19 @@ def main() -> int:
 
     backlog_entries = _parse_backlog_sections(backlog_text)
     latest_public_prerelease = _latest_public_prerelease(roadmap_text)
-    highest_local_prebeta_tag = _highest_local_prebeta_tag()
-    if highest_local_prebeta_tag:
+    highest_known_prebeta_tag = _highest_known_prebeta_tag()
+    if highest_known_prebeta_tag:
         require(
-            latest_public_prerelease == highest_local_prebeta_tag,
+            latest_public_prerelease == highest_known_prebeta_tag,
             (
                 "Docs/prebeta_roadmap.md: latest public prerelease must match the latest "
-                f"local prebeta tag '{highest_local_prebeta_tag}', found '{latest_public_prerelease}'"
+                f"local or remote prebeta tag '{highest_known_prebeta_tag}', found '{latest_public_prerelease}'"
             ),
         )
 
     fb038_entry = _entry_by_id(backlog_entries, "FB-038")
     require(bool(fb038_entry), "Docs/feature_backlog.md: FB-038 backlog entry is missing")
-    if highest_local_prebeta_tag == FB038_RELEASE_TAG and fb038_entry:
+    if highest_known_prebeta_tag == FB038_RELEASE_TAG and fb038_entry:
         require(
             fb038_entry["record_state"] == "Closed",
             f"Docs/feature_backlog.md: FB-038 must be Closed after {FB038_RELEASE_TAG} release",
@@ -1647,13 +1689,13 @@ def main() -> int:
                 f"{FB038_CANONICAL_PATH}: released-state canon must record release title '{FB038_RELEASE_TITLE}'",
             )
 
-    if highest_local_prebeta_tag:
-        expected_latest_title = _expected_prebeta_release_title(highest_local_prebeta_tag)
+    if highest_known_prebeta_tag:
+        expected_latest_title = _expected_prebeta_release_title(highest_known_prebeta_tag)
         latest_release_owner_entries = [
             entry
             for entry in backlog_entries
             if _clean_release_value(_extract_colon_value(entry["block"], "Target Version"))
-            == highest_local_prebeta_tag
+            == highest_known_prebeta_tag
         ]
         for entry in latest_release_owner_entries:
             workstream_id = entry["id"]
@@ -1663,7 +1705,7 @@ def main() -> int:
                 entry["record_state"] == "Closed",
                 (
                     "Post-release canon closure drift: "
-                    f"{workstream_id} targets published tag {highest_local_prebeta_tag} "
+                    f"{workstream_id} targets published tag {highest_known_prebeta_tag} "
                     f"but backlog Record State is '{entry['record_state']}', not 'Closed'"
                 ),
             )
@@ -1671,7 +1713,7 @@ def main() -> int:
                 normalized_status == "released",
                 (
                     "Post-release canon closure drift: "
-                    f"{workstream_id} targets published tag {highest_local_prebeta_tag} "
+                    f"{workstream_id} targets published tag {highest_known_prebeta_tag} "
                     f"but backlog Status is '{entry['status']}', not Released"
                 ),
             )
@@ -1682,7 +1724,7 @@ def main() -> int:
                     (
                         "Post-release canon closure drift: "
                         f"{workstream_id} Release Title '{release_title}' must be "
-                        f"'{expected_latest_title}' for {highest_local_prebeta_tag}"
+                        f"'{expected_latest_title}' for {highest_known_prebeta_tag}"
                     ),
                 )
             require(
@@ -1696,7 +1738,7 @@ def main() -> int:
                 canonical_path in closed_index_paths,
                 (
                     "Post-release canon closure drift: "
-                    f"{canonical_path} must be listed under Closed after {highest_local_prebeta_tag}"
+                    f"{canonical_path} must be listed under Closed after {highest_known_prebeta_tag}"
                 ),
             )
             require(
@@ -1704,14 +1746,14 @@ def main() -> int:
                 (
                     "Post-release canon closure drift: "
                     f"{canonical_path} must not remain under Merged / Release Debt Owners "
-                    f"after {highest_local_prebeta_tag}"
+                    f"after {highest_known_prebeta_tag}"
                 ),
             )
             require(
                 canonical_path not in active_index_paths,
                 (
                     "Post-release canon closure drift: "
-                    f"{canonical_path} must not remain under Active after {highest_local_prebeta_tag}"
+                    f"{canonical_path} must not remain under Active after {highest_known_prebeta_tag}"
                 ),
             )
 
@@ -1725,7 +1767,7 @@ def main() -> int:
                     (
                         "Post-release canon closure drift: "
                         f"{source_name} still claims {workstream_id} as merged-unreleased release debt "
-                        f"after {highest_local_prebeta_tag}"
+                        f"after {highest_known_prebeta_tag}"
                     ),
                 )
 
@@ -1741,21 +1783,21 @@ def main() -> int:
                     workstream_info["record_state"] == "Closed",
                     (
                         "Post-release canon closure drift: "
-                        f"{canonical_path} Record State must be Closed after {highest_local_prebeta_tag}"
+                        f"{canonical_path} Record State must be Closed after {highest_known_prebeta_tag}"
                     ),
                 )
                 require(
                     _normalize_status(str(workstream_info["status"])) == "released",
                     (
                         "Post-release canon closure drift: "
-                        f"{canonical_path} Status must be Released after {highest_local_prebeta_tag}"
+                        f"{canonical_path} Status must be Released after {highest_known_prebeta_tag}"
                     ),
                 )
                 require(
-                    f"Latest Public Prerelease: {highest_local_prebeta_tag}" in workstream_text,
+                    f"Latest Public Prerelease: {highest_known_prebeta_tag}" in workstream_text,
                     (
                         "Post-release canon closure drift: "
-                        f"{canonical_path} must record Latest Public Prerelease: {highest_local_prebeta_tag}"
+                        f"{canonical_path} must record Latest Public Prerelease: {highest_known_prebeta_tag}"
                     ),
                 )
                 require(
@@ -1770,7 +1812,7 @@ def main() -> int:
                     (
                         "Post-release canon closure drift: "
                         f"{canonical_path} still claims {workstream_id} as merged-unreleased release debt "
-                        f"after {highest_local_prebeta_tag}"
+                        f"after {highest_known_prebeta_tag}"
                     ),
                 )
 
@@ -2349,6 +2391,19 @@ def main() -> int:
                         "Release Floor must match backlog release floor"
                     ),
                 )
+                if source_floor == MINOR_PRERELEASE_FLOOR:
+                    source_scope = _extract_colon_value(source_text, "Release Scope")
+                    rationale_context = f"{source_rationale} {source_scope}"
+                    require(
+                        _minor_release_rationale_has_capability(rationale_context),
+                        (
+                            f"{source_name}: Release Target Undefined blocker is active; "
+                            "`minor prerelease` requires a new executable, runtime, "
+                            "operator-facing, user-facing, or materially expanded product "
+                            "capability rationale; architecture-only or non-user-facing "
+                            "planning/admission work must use `patch prerelease`"
+                        ),
+                    )
 
             expected_release_target = _expected_prerelease_target(latest_public_prerelease, release_floor)
             require(

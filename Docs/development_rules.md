@@ -261,6 +261,9 @@ That means:
   - required machine-checkable fields are `Merged-Unreleased Release-Debt Owner:`, `Repo State: No Active Branch`, `Release Target:`, `Release Floor:`, `Version Rationale:`, `Release Scope:`, `Release Artifacts:`, `Post-Release Truth:`, `Selected Next Workstream:`, and `Next-Branch Creation Gate:`
   - release-target correctness is semantic, not marker-only: derive the target from the latest public prerelease and the declared `Release Floor:` before PR green
   - `patch prerelease` increments patch only, for example `v1.4.0-prebeta` -> `v1.4.1-prebeta`; `minor prerelease` increments minor and resets patch, for example `v1.4.0-prebeta` -> `v1.5.0-prebeta`
+  - `patch prerelease` is the default for architecture-only planning, admission contracts, validation-only work, documentation/canon repair, governance repair, UX polish, bug fixes, and non-user-facing milestones that do not add executable product behavior
+  - `minor prerelease` requires a new executable, runtime, operator-facing, user-facing, or materially expanded product capability lane; opening a planning lane or writing architecture is not enough by itself
+  - after a public prerelease tag exists for a release-debt owner, durable canon must close that workstream as Released / Closed, advance latest public prerelease truth, clear release debt, and move the workstream index entry to Closed before any next implementation work begins
   - active-branch truth must be removed from main-facing backlog, roadmap, and workstreams index canon before PR green
   - Release Readiness consumes these inherited fields; it must not create or repair them in files
 - no PR-ready with a dirty branch:

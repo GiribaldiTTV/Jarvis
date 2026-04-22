@@ -415,6 +415,9 @@ When release-dependent truth changes:
 
 - carry the canon sync on the active lane when that lane is still open
 - require merge-target canon completeness before PR so merged `main` does not become stale in the first place
+- after a public prerelease tag exists, require durable closure: latest public prerelease advances, released workstream moves to Released / Closed, release debt clears, and workstreams index moves the record to Closed
+- classify any missed durable closure as a Branch Readiness blocker on the next legal active branch before implementation
+- treat architecture-only planning, admission contracts, validation-only work, documentation/canon repair, governance repair, and non-user-facing milestones as `patch prerelease` by default unless a new executable, runtime, operator-facing, user-facing, or materially expanded product capability lane is delivered
 - do not use Release Readiness as a docs-sync phase
 - do not use Release Readiness as a file-mutation phase; release package information may be generated as response text only
 - do not open a governance-only branch or between-branch repair window

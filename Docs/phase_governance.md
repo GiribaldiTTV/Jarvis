@@ -387,7 +387,23 @@ PR Readiness must derive the target from the latest public prerelease and the de
 - `patch prerelease` increments only the patch number, for example `v1.4.0-prebeta` -> `v1.4.1-prebeta`
 - `minor prerelease` increments the minor number and resets patch to zero, for example `v1.4.0-prebeta` -> `v1.5.0-prebeta`
 
+Release floor ownership:
+
+- `patch prerelease` is the default floor for bug fixes, UX polish, governance fixes, documentation/canon repair, architecture-only planning, admission contracts, validation-only work, and non-user-facing milestones that do not add executable product behavior.
+- `minor prerelease` is allowed only when the release delivers a new executable, runtime, operator-facing, user-facing, or materially expanded product capability lane.
+- Opening a future planning lane, writing architecture, defining vocabulary, or creating an admission contract is not enough by itself to justify `minor prerelease`.
+- If a public tag has already been published with a larger bump than the corrected law would choose, do not rewrite the public tag; record the published tag as latest release truth, classify the mismatch as version-advancement drift, and harden future `Release Floor:` validation.
+
 If the declared target, artifacts, or post-release truth do not match the semantic release floor, keep `Release Target Undefined` active and repair the mismatch in PR Readiness before Release Readiness.
+
+Post-release closure is mandatory after release execution:
+
+- once a public prerelease tag exists for a merged-unreleased release-debt owner, durable canon must move that workstream to Released / Closed
+- `Docs/prebeta_roadmap.md` must advance latest public prerelease truth to the published tag
+- `Docs/feature_backlog.md` must mark the owner `Record State: Closed` and `Status: Released`
+- `Docs/workstreams/index.md` must remove the owner from `Merged / Release Debt Owners` and list it under `Closed`
+- the canonical workstream doc must record `Latest Public Prerelease:`, `Release Title:`, released/closed state, and cleared release debt
+- if this closure is missed after merge or release, the next active branch's `Branch Readiness` is blocked until the closure is repaired and validator coverage is updated so the miss cannot recur
 
 ### Successor Lane Lock Gate
 

@@ -215,6 +215,23 @@ Branch-local "what worked" notes should stay in the canonical workstream doc fir
   - `Docs/workstreams/index.md`
   - `dev/orin_branch_governance_validation.py`
 
+## Pattern: Architecture-Only Milestones Must Not Force Minor Prerelease Bumps
+
+- symptom:
+  a planning, architecture, admission-contract, validation-only, or non-user-facing milestone advances the public pre-Beta version by a minor bump even though no executable, runtime, operator-facing, user-facing, or materially expanded product capability lane was delivered
+- layer:
+  release-floor governance, PR Readiness release-target semantics, and validator enforcement
+- root-cause pattern:
+  source-of-truth treats "opens a lane" or "defines architecture" as equivalent to delivering a new capability lane, so `Release Floor: minor prerelease` can pass marker checks without proving user-visible or executable product expansion
+- fix pattern:
+  make `patch prerelease` the default for architecture-only planning, admission contracts, validation-only work, documentation/canon repair, governance repair, and non-user-facing milestones; require `minor prerelease` rationale to name a new executable, runtime, operator-facing, user-facing, or materially expanded product capability lane
+- validation pattern:
+  run `python dev/orin_branch_governance_validation.py`; the validator must fail a merged-unreleased owner that declares `Release Floor: minor prerelease` while its rationale/scope is architecture-only or non-user-facing without an executable or user-facing capability marker
+- source references:
+  - `Docs/phase_governance.md`
+  - `Docs/prebeta_roadmap.md`
+  - `dev/orin_branch_governance_validation.py`
+
 ## Pattern: Pre-Beta Release Title Format Is Concise
 
 - symptom:
