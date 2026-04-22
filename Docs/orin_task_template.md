@@ -2,7 +2,7 @@
 
 ## Top Rule: Pre-PR Durability
 
-**DO THIS ALWAYS before `PR Readiness`: when a bounded phase pass or durability seam changes source, docs, canon, validator, helper registry, workstream authority, or branch-truth files and validation is green, Codex must commit and push those changes on the active branch instead of stopping at a copy-ready or staged-only state. This includes `Branch Readiness`, `Workstream`, `Hardening`, and `Live Validation`; the only exceptions are an explicit active-prompt prohibition, failed validation, or a legally file-frozen phase such as `Release Readiness`.**
+**DO THIS ALWAYS before `PR Readiness`: when a bounded phase pass or durability seam changes source, docs, canon, validator, helper registry, workstream authority, or branch-truth files and validation is green, Codex must commit and push those changes on the active branch instead of stopping at a copy-ready, staged-only, or uncommitted state. This includes `Branch Readiness`, `Workstream`, `Hardening`, and `Live Validation`; a prompt-level request not to commit is not enough to stop durability. The only exceptions are a documented `Durability Waiver`, failed validation, a legally file-frozen phase such as `Release Readiness`, or a named Codex self-imposed blocker; when that self-imposed blocker is lifted, Codex must automatically commit and push.**
 
 **Release Readiness is file-frozen: block ANY source, docs, canon, validator, helper registry, release-note, or handoff-file changes discovered or needed during `Release Readiness`. Do not edit, stage, commit, or push in `Release Readiness`; route the change back to `PR Readiness` before merge, or to the next active `Branch Readiness` after merge.**
 
@@ -316,7 +316,7 @@ If an execution task is too broad for one approved pass, explain the cleaner exe
 8. If in `Release Readiness`, explicitly plan the `Release Target Undefined` check, required inherited `Release Target:`, `Release Floor:`, `Version Rationale:`, `Release Scope:`, and `Release Artifacts:` markers for release-bearing branches, confirm Release Readiness is not being used for broad docs sync or branch-authority cleanup, and confirm no repository file mutation will occur in the phase.
 9. Explain the validation plan.
 10. If a User Test Summary handoff is relevant, explicitly state whether returned results are `PENDING`, `PASS`, `FAIL`, or `WAIVED`; `PENDING` is the hard blocker `User Test Summary Results Pending`.
-11. Apply the Pre-PR Durability Rule: before `PR Readiness`, when a bounded phase pass or durability seam changes source, docs, canon, validator, helper registry, workstream authority, or branch-truth files and validation is green, Codex must commit and push those changes on the active branch instead of stopping at a copy-ready or staged-only state.
+11. Apply the Pre-PR Durability Rule: before `PR Readiness`, when a bounded phase pass or durability seam changes source, docs, canon, validator, helper registry, workstream authority, or branch-truth files and validation is green, Codex must commit and push those changes on the active branch instead of stopping at a copy-ready, staged-only, or uncommitted state; only a documented `Durability Waiver`, failed validation, legally file-frozen `Release Readiness`, or a named Codex self-imposed blocker may stop commit/push, and self-imposed blockers must automatically commit and push once lifted.
 
 If the task includes interactive validation, the validation plan should also state:
 

@@ -194,7 +194,10 @@ PRE_PR_DURABILITY_PHRASES = (
     "block ANY",
     "before `PR Readiness`",
     "commit and push",
-    "copy-ready or staged-only state",
+    "uncommitted state",
+    "Durability Waiver",
+    "self-imposed blocker",
+    "automatically commit and push",
 )
 
 LIVE_VALIDATION_REUSE_DOCS = (

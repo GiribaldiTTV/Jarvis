@@ -2,7 +2,7 @@
 
 ## Top Rule: Pre-PR Durability
 
-**DO THIS ALWAYS before `PR Readiness`: when a bounded phase pass or durability seam changes source, docs, canon, validator, helper registry, workstream authority, or branch-truth files and validation is green, Codex must commit and push those changes on the active branch instead of stopping at a copy-ready or staged-only state. This includes `Branch Readiness`, `Workstream`, `Hardening`, and `Live Validation`; the only exceptions are an explicit active-prompt prohibition, failed validation, or a legally file-frozen phase such as `Release Readiness`.**
+**DO THIS ALWAYS before `PR Readiness`: when a bounded phase pass or durability seam changes source, docs, canon, validator, helper registry, workstream authority, or branch-truth files and validation is green, Codex must commit and push those changes on the active branch instead of stopping at a copy-ready, staged-only, or uncommitted state. This includes `Branch Readiness`, `Workstream`, `Hardening`, and `Live Validation`; a prompt-level request not to commit is not enough to stop durability. The only exceptions are a documented `Durability Waiver`, failed validation, a legally file-frozen phase such as `Release Readiness`, or a named Codex self-imposed blocker; when that self-imposed blocker is lifted, Codex must automatically commit and push.**
 
 **Release Readiness is file-frozen: block ANY source, docs, canon, validator, helper registry, release-note, or handoff-file changes discovered or needed during `Release Readiness`. Do not edit, stage, commit, or push in `Release Readiness`; route the change back to `PR Readiness` before merge, or to the next active `Branch Readiness` after merge.**
 
@@ -243,8 +243,9 @@ These are reference layers, not active workstream or roadmap owners.
 - if repo truth resolves to blocked `No Active Branch`, report the blocking repair path
 - if repo truth resolves to steady-state `No Active Branch`, do not invent a next implementation branch by inertia
 - governance-only branches are not used for new Nexus work; governance or canon repair rides on the active branch that owns the affected truth, or on the next active branch's `Branch Readiness` if a PR Readiness miss escaped the prior branch
-- Pre-PR Durability Rule: before `PR Readiness`, when a bounded phase pass or durability seam changes source, docs, canon, validator, helper registry, workstream authority, or branch-truth files and validation is green, Codex must commit and push those changes on the active branch instead of stopping at a copy-ready or staged-only state
+- Pre-PR Durability Rule: before `PR Readiness`, when a bounded phase pass or durability seam changes source, docs, canon, validator, helper registry, workstream authority, or branch-truth files and validation is green, Codex must commit and push those changes on the active branch instead of stopping at a copy-ready, staged-only, or uncommitted state
 - the Pre-PR Durability Rule applies through `Branch Readiness`, `Workstream`, `Hardening`, and `Live Validation`; `PR Readiness` remains the later merge-target gate and must still prove clean durable branch truth
+- prompt-level requests to stop before commit/push are not durability exceptions; only a documented `Durability Waiver`, failed validation, legally file-frozen `Release Readiness`, or a named Codex self-imposed blocker may stop commit/push, and self-imposed blockers must automatically commit and push once lifted
 - the normal `PR Readiness` sequence for a branch that changes release-facing canon is:
   0. clear the hard PR Readiness blockers: `stale-canon`, `post-merge`, `dirty`, `docs-sync`, `next-workstream`, and `uts-results`
   1. validate current branch truth

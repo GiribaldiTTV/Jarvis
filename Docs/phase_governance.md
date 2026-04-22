@@ -2,7 +2,7 @@
 
 ## Top Rule: Pre-PR Durability
 
-**DO THIS ALWAYS before `PR Readiness`: when a bounded phase pass or durability seam changes source, docs, canon, validator, helper registry, workstream authority, or branch-truth files and validation is green, Codex must commit and push those changes on the active branch instead of stopping at a copy-ready or staged-only state. This includes `Branch Readiness`, `Workstream`, `Hardening`, and `Live Validation`; the only exceptions are an explicit active-prompt prohibition, failed validation, or a legally file-frozen phase such as `Release Readiness`.**
+**DO THIS ALWAYS before `PR Readiness`: when a bounded phase pass or durability seam changes source, docs, canon, validator, helper registry, workstream authority, or branch-truth files and validation is green, Codex must commit and push those changes on the active branch instead of stopping at a copy-ready, staged-only, or uncommitted state. This includes `Branch Readiness`, `Workstream`, `Hardening`, and `Live Validation`; a prompt-level request not to commit is not enough to stop durability. The only exceptions are a documented `Durability Waiver`, failed validation, a legally file-frozen phase such as `Release Readiness`, or a named Codex self-imposed blocker; when that self-imposed blocker is lifted, Codex must automatically commit and push.**
 
 **Release Readiness is file-frozen: block ANY source, docs, canon, validator, helper registry, release-note, or handoff-file changes discovered or needed during `Release Readiness`. Do not edit, stage, commit, or push in `Release Readiness`; route the change back to `PR Readiness` before merge, or to the next active `Branch Readiness` after merge.**
 
@@ -186,7 +186,9 @@ Release packaging branches still satisfy their own admission rules below.
 
 ### Pre-PR Durability Rule
 
-before `PR Readiness`, when a bounded phase pass or durability seam changes source, docs, canon, validator, helper registry, workstream authority, or branch-truth files and validation is green, Codex must commit and push those changes on the active branch instead of stopping at a copy-ready or staged-only state.
+Before `PR Readiness`, when a bounded phase pass or durability seam changes source, docs, canon, validator, helper registry, workstream authority, or branch-truth files and validation is green, Codex must commit and push those changes on the active branch instead of stopping at a copy-ready, staged-only, or uncommitted state.
+
+A prompt-level request to stop before commit/push is not a durability exception. Only a documented `Durability Waiver`, failed validation, a legally file-frozen phase such as `Release Readiness`, or a named Codex self-imposed blocker may stop commit/push. If Codex names a self-imposed blocker, the authority record or response must say what lifts it; once lifted, Codex must automatically commit and push without requiring a second durability prompt.
 
 This rule applies through:
 
@@ -195,7 +197,7 @@ This rule applies through:
 - `Hardening`
 - `Live Validation`
 
-If validation fails, Codex must not commit and push; it must report the blocker and keep the branch in the current phase.
+If validation fails, Codex must not commit and push; it must report the blocker and keep the branch in the current phase until the blocker is lifted.
 `PR Readiness` remains the later merge-target gate and must still prove clean durable branch truth before PR creation.
 
 ### Blocker Catalog
