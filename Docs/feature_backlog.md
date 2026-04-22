@@ -30,14 +30,23 @@ Historical note:
 
 ## Active Promoted Workstream
 
-FB-040 Monitoring, thermals, and performance HUD surface.
+None after FB-040 merge-target canon.
 
-Main-facing canon is shaped for Live Validation truth: FB-039 is released and closed in `v1.5.0-prebeta`, release debt is clear, and `feature/fb-040-monitoring-thermals-performance-hud-surface` is the active Live Validation branch.
+Main-facing canon is shaped for post-merge PR Readiness truth: FB-039 is released and closed in `v1.5.0-prebeta`, FB-040 becomes the merged-unreleased release-debt owner after merge, and repo state resolves to `No Active Branch` until FB-040 release handling clears release debt.
 FB-038 remains released and closed in `v1.4.1-prebeta`.
 
 ## Merged-Unreleased Release-Debt Owner
 
-None. FB-039 release debt cleared when `v1.5.0-prebeta` was tagged and published.
+Merged-Unreleased Release-Debt Owner: FB-040 Monitoring, thermals, and performance HUD surface.
+Repo State: No Active Branch.
+Release Target: v1.6.0-prebeta.
+Release Floor: minor prerelease.
+Version Rationale: FB-040 opens the monitoring, thermals, and performance HUD architecture lane, so it is a new pre-Beta capability lane rather than patch-only UX, sequencing, bug-fix, or governance repair.
+Release Scope: Architecture-only monitoring and thermal source mapping, ownership vocabulary, lifecycle/trust-safety framing, validation/admission contract definition, hardening pressure test, and Live Validation waiver truth for the current non-user-facing milestone.
+Release Artifacts: Tag v1.6.0-prebeta; release title Pre-Beta v1.6.0; inclusion-only release notes summarize the FB-040 monitoring and thermal architecture milestone, source-map boundaries, lifecycle/trust-safety handling, validation/admission contract, hardening result, and Live Validation waivers.
+Post-Release Truth: FB-040 becomes Released / Closed in v1.6.0-prebeta; release debt clears; repo remains No Active Branch until FB-031 Branch Readiness admission is explicitly opened.
+Selected Next Workstream: FB-031 Nexus Desktop AI UI/UX overhaul planning.
+Next-Branch Creation Gate: FB-031 remains selected-only with Branch: Not created until FB-040 release debt clears and updated main revalidates Branch Readiness admission.
 
 ## Registry Items
 
@@ -98,6 +107,8 @@ Record State: Registry-only
 Priority: Medium
 Release Stage: pre-Beta
 Target Version: TBD
+Next Workstream: Selected
+Minimal Scope: Branch Readiness must define the Nexus-era UI/UX overhaul planning boundary, source map, visual-language ownership, validation contract, and explicit non-goals before any UI implementation, runtime behavior, settings work, launcher work, or release work is considered.
 Summary: Preserve future UI/UX overhaul planning as a deliberate design lane rather than piecemeal visual drift.
 Why it matters: The Nexus-era visual language should be planned coherently when the repo is ready for that design pass.
 
@@ -113,14 +124,20 @@ Why it matters: The repo still needs deeper identity and wording normalization a
 
 ### [ID: FB-040] Monitoring, thermals, and performance HUD surface
 
-Status: Active (Live Validation)
+Status: Merged Unreleased
 Record State: Promoted
 Priority: Medium
 Release Stage: pre-Beta
-Target Version: TBD
+Target Version: v1.6.0-prebeta
 Branch: feature/fb-040-monitoring-thermals-performance-hud-surface
 Canonical Workstream Doc: Docs/workstreams/FB-040_monitoring_thermals_performance_hud_surface.md
 Minimal Scope: Architecture-only monitoring and thermal source mapping, ownership vocabulary, lifecycle/trust-safety framing, and validation/admission contract definition are complete; no telemetry plumbing, sensor polling, HUD UI, plugin integration, installer work, settings work, or release work is admitted for this milestone.
+Release Target: v1.6.0-prebeta
+Release Floor: minor prerelease
+Version Rationale: FB-040 opens the monitoring, thermals, and performance HUD architecture lane, so it is a new pre-Beta capability lane rather than patch-only UX, sequencing, bug-fix, or governance repair.
+Release Scope: Architecture-only monitoring and thermal source mapping, ownership vocabulary, lifecycle/trust-safety framing, validation/admission contract definition, hardening pressure test, and Live Validation waiver truth for the current non-user-facing milestone.
+Release Artifacts: Tag v1.6.0-prebeta; release title Pre-Beta v1.6.0; inclusion-only release notes summarize the FB-040 monitoring and thermal architecture milestone, source-map boundaries, lifecycle/trust-safety handling, validation/admission contract, hardening result, and Live Validation waivers.
+Post-Release Truth: FB-040 is Released / Closed in v1.6.0-prebeta; release debt is clear; FB-031 remains selected-only until Branch Readiness admission after release.
 Summary: Track future runtime monitoring and HUD surfaces for GPU / CPU thermals and performance, including possible plugin-fed telemetry inputs.
 Why it matters: Monitoring overlays are a separate runtime and status surface and should not be bolted onto the saved-action system without an explicit product boundary.
 

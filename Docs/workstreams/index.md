@@ -78,14 +78,14 @@ For an active or recently closed canonical workstream, keep these durable tracea
 Active here means the current promoted truth owner.
 That may be an executable branch owner or another explicitly promoted current-truth owner.
 
-- `Docs/workstreams/FB-040_monitoring_thermals_performance_hud_surface.md`
+None. FB-040 merge-target canon resolves to merged-unreleased release debt and `No Active Branch` after PR merge.
 
 ### Merged / Release Debt Owners
 
 Merged / Release Debt Owners are promoted implementation workstreams whose implementation branch is merge-target complete but whose public release packaging has not yet cleared release debt.
 These records are not active implementation branch owners after merge.
 
-None. FB-039 release debt cleared with `v1.5.0-prebeta`.
+- `Docs/workstreams/FB-040_monitoring_thermals_performance_hud_surface.md`
 
 ### Closed
 

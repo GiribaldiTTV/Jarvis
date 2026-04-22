@@ -11,7 +11,7 @@
 
 ## Status
 
-- `Active (Live Validation)`
+- `Merged Unreleased`
 
 ## Release Stage
 
@@ -19,7 +19,7 @@
 
 ## Target Version
 
-- `TBD`
+- `v1.6.0-prebeta`
 
 ## Canonical Branch
 
@@ -27,15 +27,17 @@
 
 ## Current Phase
 
-- Phase: `Live Validation`
+- Phase: `Release Readiness`
 
 ## Phase Status
 
-- `Active Branch`
+- `No Active Branch`
 - Branch Readiness exit is complete and FB-040 Workstream is admitted.
 - FB-039 is released and closed in `v1.5.0-prebeta`.
 - FB-039 release debt is clear.
 - Latest public prerelease truth is `v1.5.0-prebeta`.
+- FB-040 is the merged-unreleased release-debt owner after PR merge.
+- Release Readiness must consume the inherited FB-040 release target, scope, artifacts, and post-release truth without file mutation.
 - WS-1 monitoring and thermal source map plus ownership vocabulary is complete and durably recorded.
 - WS-2 lifecycle and trust/safety boundary framing for monitoring inputs is complete and durably recorded.
 - WS-3 validation and admission contract for future runtime monitoring seams is complete and durably recorded.
@@ -51,7 +53,7 @@
 
 ## Blockers
 
-- None after Branch Readiness admission/update validation.
+- Release Debt until `v1.6.0-prebeta` is tagged and published.
 
 ## Entry Basis
 
@@ -70,10 +72,23 @@
 
 ## Target End-State
 
-- FB-040 has a coherent Workstream scaffold, completed architecture-first WS-1 through WS-3 records, and completed Live Validation waiver truth.
+- FB-040 has a coherent Workstream scaffold, completed architecture-first WS-1 through WS-3 records, completed Live Validation waiver truth, and inherited release truth for `v1.6.0-prebeta`.
 - Monitoring, thermal, and performance HUD source categories are separated from later telemetry plumbing, HUD implementation, or source-adapter work.
 - Future runtime monitoring seams have a documented admission contract before collection, HUD rendering, persistence, plugin integration, or installer changes can be considered.
 - FB-039 remains closed/released and release debt remains clear.
+
+## Post-Merge State
+
+Repo State: No Active Branch
+Merged-Unreleased Release-Debt Owner: FB-040 Monitoring, thermals, and performance HUD surface
+Release Target: v1.6.0-prebeta
+Release Floor: minor prerelease
+Version Rationale: FB-040 opens the monitoring, thermals, and performance HUD architecture lane, so it is a new pre-Beta capability lane rather than patch-only UX, sequencing, bug-fix, or governance repair.
+Release Scope: Architecture-only monitoring and thermal source mapping, ownership vocabulary, lifecycle/trust-safety framing, validation/admission contract definition, hardening pressure test, and Live Validation waiver truth for the current non-user-facing milestone.
+Release Artifacts: Tag v1.6.0-prebeta; release title Pre-Beta v1.6.0; inclusion-only release notes summarize the FB-040 monitoring and thermal architecture milestone, source-map boundaries, lifecycle/trust-safety handling, validation/admission contract, hardening result, and Live Validation waivers.
+Post-Release Truth: FB-040 becomes Released / Closed in v1.6.0-prebeta; release debt clears; repo remains No Active Branch until FB-031 Branch Readiness admission is explicitly opened.
+Selected Next Workstream: FB-031 Nexus Desktop AI UI/UX overhaul planning
+Next-Branch Creation Gate: FB-031 remains selected-only with Branch: Not created until FB-040 release debt clears and updated main revalidates Branch Readiness admission.
 
 ## Expected Seam Families And Risk Classes
 
@@ -121,7 +136,7 @@ Seam 3: validation and admission contract for later implementation seams
 
 ## Active Seam
 
-Active seam: None after LV-3 completion.
+Active seam: None after PR-3 package-readiness completion.
 
 - WS-1 Status: Completed / executed.
 - WS-1 Boundary: architecture-only source categories, ownership vocabulary, Nexus-owned versus external/system-owned responsibilities, and explicit unknowns for later admission.
@@ -132,6 +147,9 @@ Active seam: None after LV-3 completion.
 - WS-3 Status: Completed / executed.
 - WS-3 Boundary: architecture-only validation/admission criteria for future runtime monitoring, thermal, and HUD seams.
 - WS-3 Non-Includes: no validation helper creation, hardware-dependent test matrix, runtime collector, source adapter, HUD implementation, release packaging, or phase advancement execution.
+- PR-1 Status: Completed / executed as merge-target canon completeness and governance drift audit.
+- PR-2 Status: Completed / executed as helper/validator posture and FB-031 selected-next branch-creation gate validation.
+- PR-3 Status: Completed / executed as PR package readiness and output package preparation.
 
 ## WS-1 Execution Record
 
@@ -357,6 +375,29 @@ LV-1 through LV-3 validated the completed FB-040 architecture-only milestone aga
 - User Test Summary Results: WAIVED
 - User Test Summary Waiver Reason: The milestone remains architecture-only and validator-proven through repo/canon checks; a filled manual UTS would not materially validate behavior because no user-visible setup, display, runtime monitoring, or invocation surface exists.
 
+## PR Readiness Package Record
+
+PR-1 through PR-3 completed the FB-040 PR package-readiness pass. The merge-target canon now represents FB-040 as merged-unreleased release debt for `v1.6.0-prebeta`, clears active branch truth after merge, preserves `No Active Branch` until release handling, and selects FB-031 as the next workstream with branch creation deferred to later Branch Readiness.
+
+### PR Readiness Findings
+
+- Merge-Target Canon: backlog, roadmap, workstreams index, and this workstream record encode FB-040 as the merged-unreleased release-debt owner after merge.
+- Release Target Semantics: latest public prerelease `v1.5.0-prebeta` plus `Release Floor: minor prerelease` yields `Release Target: v1.6.0-prebeta`.
+- Release Scope: architecture-only monitoring and thermal source map, ownership vocabulary, lifecycle/trust-safety framing, validation/admission contract, hardening pressure test, and Live Validation waiver truth.
+- Helper Posture: no FB-040 root `dev/` helper, validator, live helper, harness, or temporary probe was created; no helper-registry update is required for this milestone.
+- User Test Summary: exact waiver markers are present in `## User Test Summary`.
+- Selected Next Workstream: FB-031 Nexus Desktop AI UI/UX overhaul planning.
+- Branch-Creation Gate: FB-031 remains selected-only and `Branch: Not created`; creation is blocked until FB-040 release debt clears and updated `main` revalidates Branch Readiness.
+- Governance Drift Audit: no unresolved governance drift remains after this PR Readiness pass.
+
+### PR Readiness Completion Decision
+
+- PR-1 Result: Complete / green.
+- PR-2 Result: Complete / green.
+- PR-3 Result: Complete / package-ready.
+- Validation Layer: documentation and governance validation only.
+- Continue/Stop Decision: stop at PR package readiness; live PR creation and PR validation are required before PR Readiness can be reported GREEN.
+
 Completed Branch Readiness seam history:
 
 - BR-1: repaired carried-forward post-release canon drift from FB-039.
@@ -369,12 +410,13 @@ Completed Branch Readiness seam history:
 ## Validation Contract
 
 - `python dev\orin_branch_governance_validation.py`
+- `python dev\orin_branch_governance_validation.py --pr-readiness-gate`
 - `git diff --check`
 - `git status --short --branch`
 - The validator must fail if latest public prerelease canon trails the latest local pre-Beta tag.
 - The validator must fail if a workstream whose release tag exists remains represented as merged-unreleased release debt instead of closed/released.
-- Live Validation is not clean unless FB-039 is closed/released, release debt is clear, FB-040 is active/promoted, this authority record records WS-1 through WS-3 and H-1 complete, this authority record contains the current Live Validation phase state, and the exact `## User Test Summary` waiver markers are present.
-- Live Validation remains architecture/documentation-only because no runtime monitoring, HUD, telemetry, helper, source-adapter, shortcut, or user-facing implementation exists yet.
+- PR package readiness is not clean unless FB-039 is closed/released, FB-040 is represented as merged-unreleased release debt after merge, release target semantics are correct, FB-031 is selected with `Branch: Not created`, helper posture is explicit, and the exact `## User Test Summary` waiver markers are present.
+- Release Readiness remains analysis-only and file-frozen after merge because release target, scope, artifacts, and post-release truth are inherited from this PR-owned canon.
 
 ## Stop Conditions
 
@@ -386,6 +428,7 @@ Completed Branch Readiness seam history:
 - Stop if validator enforcement would require broad redesign outside current Workstream truth.
 - Stop if Hardening tries to admit runtime monitoring, source adapters, telemetry collection, HUD rendering, user-facing surfaces, or helper creation without reopening Workstream through the WS-3 admission gate.
 - Stop if Live Validation tries to run or invent a user-facing shortcut, HUD, runtime monitoring path, helper, or manual test for behavior that was not implemented in this architecture-only milestone.
+- Stop if PR Readiness tries to defer merge-target canon, release target semantics, selected-next truth, helper posture, or branch-creation gate truth to Release Readiness.
 
 ## Exit Criteria
 
@@ -395,17 +438,19 @@ Completed Branch Readiness seam history:
 - H-1 pressure-test of architecture, validation, scope, ambiguity, contradiction, and implementation-readiness issues is complete and green.
 - LV-1 through LV-3 Live Validation repo-truth, waiver, and completion checks are complete and green.
 - `## User Test Summary` records `User-Facing Shortcut Validation: WAIVED`, `User-Facing Shortcut Waiver Reason:`, `User Test Summary Results: WAIVED`, and `User Test Summary Waiver Reason:`.
+- PR package readiness records FB-040 as merged-unreleased release debt for `v1.6.0-prebeta`.
+- FB-031 is selected as the next workstream with `Branch: Not created`.
 - Workstream evidence and User Test Summary obligations are current for the completed scope.
 - Direct validation is green.
 - No unresolved same-slice correctness gap remains.
 
 ## Rollback Target
 
-- `Hardening`
+- `PR Readiness`
 
 ## Next Legal Phase
 
-- `PR Readiness` after Live Validation exit criteria are met.
+- `Release Readiness` after PR creation, PR validation, merge, and updated-main revalidation.
 
 ## Governance Drift Audit
 
@@ -415,3 +460,9 @@ Governance Drift Found: Yes, repaired during FB-040 Branch Readiness.
 - Finding: FB-039 had been released as `v1.5.0-prebeta`, but durable canon still recorded latest public prerelease `v1.4.1-prebeta`, kept FB-039 as merged-unreleased release debt, and treated FB-040 as selected-only / not-created after the FB-040 branch existed.
 - Repair: latest public prerelease truth is advanced to `v1.5.0-prebeta`, FB-039 is closed/released, release debt is cleared, FB-040 was admitted as the active Branch Readiness workstream, and validator coverage is extended so the latest released tag cannot leave its owner in merged-unreleased state.
 - Governance Drift Found After Repair: No unresolved drift remains after validation.
+
+Governance Drift Found: No unresolved drift during FB-040 PR Readiness.
+
+- PR Readiness Scope Missed: Clear.
+- Between-Branch Canon Repair Attempt: Clear.
+- Next Branch Created Too Early: Clear.

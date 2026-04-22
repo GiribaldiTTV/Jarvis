@@ -65,35 +65,49 @@ Current merged truth indicates:
 - latest public release commit: the `v1.5.0-prebeta` tag target
 - latest public prerelease publication: `https://github.com/GiribaldiTTV/Nexus-Desktop-AI/releases/tag/v1.5.0-prebeta`
 - latest public prerelease title: `Pre-Beta v1.5.0`
-- merged unreleased non-doc implementation debt exists: no
+- merged unreleased non-doc implementation debt exists: yes
 - the latest public released implementation milestone is FB-039 external trigger and plugin integration architecture in `v1.5.0-prebeta`
-- current phase after FB-039 release closure: `Live Validation`
-- phase status after FB-039 release closure: `Active Branch`
-- blocker after release execution: none for FB-039 after this Branch Readiness repair
-- current active workstream: FB-040 Monitoring, thermals, and performance HUD surface
-- current branch after FB-039 release closure: `feature/fb-040-monitoring-thermals-performance-hud-surface`
-- merged-unreleased release-debt owner: none
-- next concern: evaluate FB-040 PR Readiness after architecture-only Live Validation completes without widening into runtime monitoring or HUD implementation.
+- current phase after FB-040 merge-target canon: `Release Readiness`
+- phase status after FB-040 merge-target canon: `No Active Branch`
+- blocker after FB-040 merge: release debt remains until `v1.6.0-prebeta` is tagged and published
+- current active workstream: none
+- current branch after FB-040 merge: `No Active Branch`
+- merged-unreleased release-debt owner: FB-040 Monitoring, thermals, and performance HUD surface
+- next concern: run FB-040 Release Readiness from inherited release target, release scope, release artifacts, and post-release truth without file mutation after PR merge.
 
 That means the released FB-027 interaction baseline, the released FB-036 authoring-and-callable-group milestone, the released FB-041 deterministic callable-group execution milestone, the released FB-037 built-in catalog milestone, the released FB-038 tray quick-task UX milestone, and the released FB-039 external trigger intake architecture milestone are now part of the current public shared pre-Beta baseline.
 
 ## Current Release Debt Owner
 
-None. FB-039 release debt cleared when `v1.5.0-prebeta` was tagged and published.
+### FB-040 Monitoring, Thermals, And Performance HUD Surface
+
+- status: `Merged Unreleased`
+- record state: `Promoted`
+- canonical workstream doc: `Docs/workstreams/FB-040_monitoring_thermals_performance_hud_surface.md`
+
+Merged-Unreleased Release-Debt Owner: FB-040 Monitoring, thermals, and performance HUD surface
+Repo State: No Active Branch
+Release Target: v1.6.0-prebeta
+Release Floor: minor prerelease
+Version Rationale: FB-040 opens the monitoring, thermals, and performance HUD architecture lane, so it is a new pre-Beta capability lane rather than patch-only UX, sequencing, bug-fix, or governance repair.
+Release Scope: Architecture-only monitoring and thermal source mapping, ownership vocabulary, lifecycle/trust-safety framing, validation/admission contract definition, hardening pressure test, and Live Validation waiver truth for the current non-user-facing milestone.
+Release Artifacts: Tag v1.6.0-prebeta; release title Pre-Beta v1.6.0; inclusion-only release notes summarize the FB-040 monitoring and thermal architecture milestone, source-map boundaries, lifecycle/trust-safety handling, validation/admission contract, hardening result, and Live Validation waivers.
+Post-Release Truth: FB-040 becomes Released / Closed in v1.6.0-prebeta; release debt clears; repo remains No Active Branch until FB-031 Branch Readiness admission is explicitly opened.
+Selected Next Workstream: FB-031 Nexus Desktop AI UI/UX overhaul planning
+Next-Branch Creation Gate: FB-031 remains selected-only with Branch: Not created until FB-040 release debt clears and updated main revalidates Branch Readiness admission.
 
 ## Current Active Workstream
 
-### FB-040 Monitoring, Thermals, And Performance HUD Surface
-
-- status: `Active (Live Validation)`
-- record state: `Promoted`
-- branch: `feature/fb-040-monitoring-thermals-performance-hud-surface`
-- canonical workstream doc: `Docs/workstreams/FB-040_monitoring_thermals_performance_hud_surface.md`
-- scope: Architecture-first monitoring and thermal source mapping, ownership vocabulary, lifecycle/trust-safety framing, and validation/admission contract definition are complete; Live Validation records that no user-facing or manual validation surface exists for this architecture-only milestone.
+None. FB-040 merge-target canon resolves to merged-unreleased release debt and `No Active Branch` until `v1.6.0-prebeta` release handling clears the debt.
 
 ## Selected Next Workstream
 
-None selected yet. FB-040 is the active Workstream; successor selection is deferred to FB-040 PR Readiness.
+### FB-031 Nexus Desktop AI UI/UX Overhaul Planning
+
+- Record State: `Registry-only`
+- Minimal Scope: Branch Readiness must define the Nexus-era UI/UX overhaul planning boundary, source map, visual-language ownership, validation contract, and explicit non-goals before any UI implementation, runtime behavior, settings work, launcher work, or release work is considered.
+- Branch: Not created.
+- Creation Gate: Branch creation is deferred until FB-040 release debt clears and updated `main` revalidates Branch Readiness admission.
 
 ## Most Recent Released Workstream Context
 
@@ -224,11 +238,11 @@ Current merged truth indicates:
 - the released FB-039 external trigger intake architecture milestone is now part of the locked current pre-Beta baseline
 - the released FB-035 lane is closed
 - the recent released workstreams above remain part of the locked current baseline
-- merged unreleased non-doc implementation debt exists: no
+- merged unreleased non-doc implementation debt exists: yes; FB-040 is the merged-unreleased release-debt owner until `v1.6.0-prebeta` release handling clears the debt
 - FB-038 is released and closed in `v1.4.1-prebeta`; H1 identity/discoverability repair, H2 shortcut-launch tray readback validation, H3 window initialization sequencing, H4 post-fix startup visibility validation, fresh post-H4 technical/live validation, user-facing desktop shortcut validation, and UTS waiver digestion are preserved as historical evidence
 - FB-039 is released and closed in `v1.5.0-prebeta`; internal-only intake runtime boundaries, reusable validation coverage, Live Validation waivers, PR readiness governance, and post-merge release-truth repairs are preserved as historical evidence
-- post-release repo truth after the FB-039 release resolves to no merged-unreleased release-debt blocker
-- FB-040 is now in Live Validation on `feature/fb-040-monitoring-thermals-performance-hud-surface`
+- post-release repo truth after the FB-039 release was clear; FB-040 merge-target truth now creates merged-unreleased release debt for `v1.6.0-prebeta`
+- FB-040 is the merge-target release-debt owner after PR merge; repo state resolves to `No Active Branch` until release handling clears the debt
 - successor-lane branch creation for FB-039 is historical; FB-039 is released and no longer an executable active implementation branch
 - if a branch changes release-facing canon, those canon updates must land on that same branch before PR readiness is allowed
 - escaped post-merge canon repair must ride a legal branch surface; `main` is protected and must not be patched directly by Codex
@@ -236,7 +250,8 @@ Current merged truth indicates:
 - remaining future candidate spaces now explicitly recorded in the backlog include:
   - FB-038 for taskbar or tray quick-task UX including Create Custom Task, now released and closed in `v1.4.1-prebeta` with H3/H4 startup visibility re-entry green, `User-Facing Shortcut Validation: PASS`, and UTS handling resolved by documented waiver
   - FB-039 for external trigger and plugin integration architecture, now released and closed in `v1.5.0-prebeta`
-  - FB-040 for monitoring, thermals, and performance HUD surfaces, active in Workstream on `feature/fb-040-monitoring-thermals-performance-hud-surface`
+  - FB-040 for monitoring, thermals, and performance HUD surfaces, merged-unreleased after PR merge until `v1.6.0-prebeta` release handling clears the debt
+  - FB-031 for Nexus Desktop AI UI/UX overhaul planning, selected-only with `Branch: Not created`
 - those candidate lanes must be selected deliberately rather than bundled together as one implicit interaction continuation
 - FB-037 Branch Readiness does not imply automatic continuation into any remaining candidate lane
 
