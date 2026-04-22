@@ -27,7 +27,7 @@
 
 ## Current Phase
 
-- Phase: `Workstream`
+- Phase: `Hardening`
 
 ## Phase Status
 
@@ -40,6 +40,7 @@
 - WS-2 lifecycle and trust/safety boundary framing for monitoring inputs is complete and durably recorded.
 - WS-3 validation and admission contract for future runtime monitoring seams is complete and durably recorded.
 - Initial architecture-only Workstream seam sequence is complete and ready for Hardening evaluation.
+- H-1 monitoring architecture and admission-contract pressure test is complete and green.
 - The prior stop-after-WS-1 posture is classified as seam-continuation governance drift and is superseded by the completed WS-1 through WS-3 chain.
 - No FB-040 runtime, HUD, telemetry, thermal, monitoring, plugin, installer, or settings implementation has started.
 
@@ -64,13 +65,13 @@
 
 - Define the branch authority and first execution boundaries for monitoring, thermals, and performance HUD surfaces.
 - Keep FB-040 focused on local monitoring/HUD product boundaries rather than external trigger integration, saved-action execution, installer behavior, release packaging, or generic telemetry sprawl.
-- Preserve the completed carried-forward FB-039 post-release canon repair while FB-040 begins architecture-first Workstream seams.
+- Preserve the completed carried-forward FB-039 post-release canon repair while FB-040 hardens the completed architecture-first Workstream seams.
 
 ## Target End-State
 
-- FB-040 has a coherent Workstream scaffold and an admitted first seam for architecture-first source mapping.
-- Monitoring, thermal, and performance HUD source categories are separated from later telemetry plumbing or UI implementation.
-- First Workstream seams can begin with architecture/source-map work rather than runtime collection, HUD rendering, persistence, plugin integration, or installer changes.
+- FB-040 has a coherent Workstream scaffold and completed architecture-first WS-1 through WS-3 records.
+- Monitoring, thermal, and performance HUD source categories are separated from later telemetry plumbing, HUD implementation, or source-adapter work.
+- Future runtime monitoring seams have a documented admission contract before collection, HUD rendering, persistence, plugin integration, or installer changes can be considered.
 - FB-039 remains closed/released and release debt remains clear.
 
 ## Expected Seam Families And Risk Classes
@@ -119,7 +120,7 @@ Seam 3: validation and admission contract for later implementation seams
 
 ## Active Seam
 
-Active seam: None after WS-3 completion.
+Active seam: None after H-1 completion.
 
 - WS-1 Status: Completed / executed.
 - WS-1 Boundary: architecture-only source categories, ownership vocabulary, Nexus-owned versus external/system-owned responsibilities, and explicit unknowns for later admission.
@@ -305,6 +306,27 @@ Before any future runtime monitoring seam may begin, the seam must explicitly de
 - User Test Summary Applicability: not applicable for WS-3 because it adds architecture-only admission rules and no user-visible behavior.
 - Continue/Stop Decision: stop at the Workstream phase boundary because the approved initial WS-1 through WS-3 architecture sequence is complete. The next legal phase is `Hardening`.
 
+## H-1 Hardening Record
+
+H-1 pressure-tested the completed monitoring architecture and admission contract for governance gaps, validation gaps, scope gaps, ambiguity, contradictions, and implementation-readiness issues. This hardening record is docs/canon-only and does not admit runtime monitoring, source adapters, sensor polling, HUD rendering, settings, plugin integration, installer work, helper creation, or release work.
+
+### Hardening Findings
+
+- Governance Gap: the active branch had entered Hardening, but the workstream record still described the current phase and rollback/next-phase posture as Workstream-era truth. This record corrects the phase to `Hardening` and moves the next legal phase to Live Validation.
+- Validation Gap: no runtime validator or helper is required for the current architecture-only milestone. The WS-3 admission contract now remains the required gate before any future runtime monitoring seam can create validators, helpers, source adapters, or hardware-dependent proof.
+- Scope Gap: no monitoring source is implemented, no HUD surface is admitted, and no telemetry collection path exists. The hardened branch remains architecture/admission-only.
+- Ambiguity: WS-2 and WS-3 now explicitly distinguish lifecycle/trust framing from future display or runtime implementation so later seams cannot treat raw telemetry as display-ready or execution-authoritative by default.
+- Contradiction Check: FB-039 remains released/closed, release debt remains clear, FB-040 remains active/promoted, and the branch remains the legal execution surface.
+- Implementation-Readiness Finding: the branch is not ready to start runtime monitoring implementation by inertia. Any future implementation must first satisfy the WS-3 future runtime admission gate with exact affected files, validation surface, cleanup expectations, and User Test Summary applicability.
+
+### H-1 Completion Decision
+
+- H-1 Result: Complete / green.
+- Validation Layer: documentation and governance validation only.
+- Cleanup: no programs, helper processes, windows, temporary files, telemetry collectors, probes, or runtime artifacts were created.
+- User Test Summary Applicability: not applicable for H-1 because it hardens architecture-only records and adds no user-visible behavior.
+- Continue/Stop Decision: stop at the Hardening phase boundary after validation because the current architecture-only milestone has no runtime or user-facing surface to further harden. The next legal phase is `Live Validation`.
+
 Completed Branch Readiness seam history:
 
 - BR-1: repaired carried-forward post-release canon drift from FB-039.
@@ -321,8 +343,8 @@ Completed Branch Readiness seam history:
 - `git status --short --branch`
 - The validator must fail if latest public prerelease canon trails the latest local pre-Beta tag.
 - The validator must fail if a workstream whose release tag exists remains represented as merged-unreleased release debt instead of closed/released.
-- Workstream admission is not clean unless FB-039 is closed/released, release debt is clear, FB-040 is active/promoted, and this authority record contains the required Workstream phase state and active WS-1 seam.
-- Workstream validation remains architecture/documentation-only until a later seam explicitly admits runtime or HUD implementation.
+- Hardening is not clean unless FB-039 is closed/released, release debt is clear, FB-040 is active/promoted, this authority record records WS-1 through WS-3 complete, and this authority record contains the current Hardening phase state.
+- Hardening validation remains architecture/documentation-only because no runtime monitoring, HUD, telemetry, helper, source-adapter, or user-facing implementation exists yet.
 
 ## Stop Conditions
 
@@ -332,23 +354,25 @@ Completed Branch Readiness seam history:
 - Stop if WS-2 or WS-3 drift from architecture/admission framing into runtime telemetry collection, source-adapter implementation, sensor polling, hardware API binding, HUD rendering, persistence, settings UI, tray/taskbar work, plugin integration, installer changes, or release packaging.
 - Stop if monitoring/HUD scope drifts into external trigger integration, saved-action execution, installer behavior, release packaging, or unrelated governance expansion.
 - Stop if validator enforcement would require broad redesign outside current Workstream truth.
+- Stop if Hardening tries to admit runtime monitoring, source adapters, telemetry collection, HUD rendering, user-facing surfaces, or helper creation without reopening Workstream through the WS-3 admission gate.
 
 ## Exit Criteria
 
 - WS-1 monitoring and thermal source map plus ownership vocabulary is complete and durably recorded.
 - WS-2 lifecycle and trust/safety boundary framing for monitoring inputs is complete and durably recorded.
 - WS-3 validation and admission contract for later implementation seams is complete before any runtime monitoring or HUD implementation seam begins.
+- H-1 pressure-test of architecture, validation, scope, ambiguity, contradiction, and implementation-readiness issues is complete and green.
 - Workstream evidence and User Test Summary obligations are current for the completed scope.
 - Direct validation is green.
 - No unresolved same-slice correctness gap remains.
 
 ## Rollback Target
 
-- `Branch Readiness`
+- `Workstream`
 
 ## Next Legal Phase
 
-- `Hardening` after Workstream exit criteria are met.
+- `Live Validation` after Hardening exit criteria are met.
 
 ## Governance Drift Audit
 
