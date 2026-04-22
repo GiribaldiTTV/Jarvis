@@ -66,6 +66,22 @@ def _assert_sweep_no_execution(sweep, message: str) -> None:
         _assert_no_execution(inspection, message, operation="inspect_readiness")
 
 
+def _assert_summary_no_execution(summary, message: str) -> None:
+    _assert(not summary.routed_to_execution, f"{message}: routed_to_execution must stay false")
+    _assert(not summary.execution_authorized, f"{message}: execution_authorized must stay false")
+    _assert(not summary.cleanup_required, f"{message}: cleanup_required must stay false")
+    _assert(not summary.accepted, f"{message}: accepted must stay false")
+    _assert_evidence(
+        summary.evidence,
+        message,
+        boundary="internal_trigger_registry_readiness_summary",
+        operation="summarize_registry_readiness",
+        decision=summary.decision,
+        reason=summary.reason,
+    )
+    _assert_sweep_no_execution(summary.sweep, message)
+
+
 def validate_registration_contract() -> None:
     registry = TriggerOriginRegistry()
 
@@ -767,6 +783,146 @@ def validate_registry_readiness_sweep_contract() -> None:
     print("PASS: trigger registry readiness sweep contract")
 
 
+def validate_registry_readiness_summary_contract() -> None:
+    no_registry_summary = InternalTriggerIntakeBoundary().summarize_registry_readiness()
+    _assert(
+        no_registry_summary.boundary == "internal_trigger_registry_readiness_summary",
+        "no-registry summary should identify registry readiness summary boundary",
+    )
+    _assert(
+        no_registry_summary.decision == TRIGGER_INTAKE_DECISION_DEFERRED,
+        "no-registry summary should defer",
+    )
+    _assert(
+        no_registry_summary.reason == "registration_support_not_admitted",
+        "no-registry summary should report missing registration support",
+    )
+    _assert(no_registry_summary.inspected_count == 0, "no-registry summary should report zero inspections")
+    _assert(
+        not no_registry_summary.sweep.boundary_snapshot.registration_support_admitted,
+        "no-registry summary should preserve missing registration support snapshot",
+    )
+    _assert_summary_no_execution(no_registry_summary, "no-registry readiness summary")
+
+    empty_registry_summary = InternalTriggerIntakeBoundary(
+        origin_registry=TriggerOriginRegistry()
+    ).summarize_registry_readiness()
+    _assert(
+        empty_registry_summary.decision == TRIGGER_INTAKE_DECISION_DEFERRED,
+        "empty-registry summary should defer",
+    )
+    _assert(
+        empty_registry_summary.reason == "no_registered_origins",
+        "empty-registry summary should report no registered origins",
+    )
+    _assert(empty_registry_summary.inspected_count == 0, "empty-registry summary should inspect zero origins")
+    _assert(
+        empty_registry_summary.sweep.boundary_snapshot.registration_support_admitted,
+        "empty-registry summary should preserve registration support snapshot",
+    )
+    _assert_summary_no_execution(empty_registry_summary, "empty-registry readiness summary")
+
+    disabled_registry = TriggerOriginRegistry()
+    disabled_result = disabled_registry.register(
+        TriggerOriginRegistration(
+            origin_id="Automation A",
+            origin_category="desktop_automation",
+            user_visible_label="Automation A",
+            enabled=False,
+        )
+    )
+    _assert(disabled_result.registered, "disabled summary setup should register disabled origin")
+    disabled_snapshot = disabled_registry.snapshot()
+    disabled_summary = InternalTriggerIntakeBoundary(
+        origin_registry=disabled_registry
+    ).summarize_registry_readiness()
+    _assert(
+        disabled_summary.decision == TRIGGER_INTAKE_DECISION_DEFERRED,
+        "disabled-only summary should defer",
+    )
+    _assert(
+        disabled_summary.reason == "no_enabled_origins",
+        "disabled-only summary should report no enabled origins",
+    )
+    _assert(disabled_summary.inspected_count == 1, "disabled-only summary should inspect origin")
+    _assert(disabled_summary.deferred_count == 1, "disabled-only summary should count deferred origin")
+    _assert(disabled_summary.enabled_count == 0, "disabled-only summary should count zero enabled origins")
+    _assert(disabled_summary.disabled_count == 1, "disabled-only summary should count disabled origin")
+    _assert(disabled_registry.snapshot() == disabled_snapshot, "disabled-only summary should not mutate registry")
+    _assert_summary_no_execution(disabled_summary, "disabled-only readiness summary")
+
+    registry = TriggerOriginRegistry()
+    deck_result = registry.register(
+        TriggerOriginRegistration(
+            origin_id="Deck Button 1",
+            origin_category="hardware_adjacent",
+            user_visible_label="Deck Button 1",
+            enabled=True,
+        )
+    )
+    _assert(deck_result.registered, "summary setup should register enabled origin")
+    automation_result = registry.register(
+        TriggerOriginRegistration(
+            origin_id="Automation A",
+            origin_category="desktop_automation",
+            user_visible_label="Automation A",
+            enabled=False,
+        )
+    )
+    _assert(automation_result.registered, "summary setup should register disabled origin")
+    before_snapshot = registry.snapshot()
+    summary = InternalTriggerIntakeBoundary(origin_registry=registry).summarize_registry_readiness()
+    _assert(summary.decision == TRIGGER_INTAKE_DECISION_DEFERRED, "populated summary should defer")
+    _assert(
+        summary.reason == "invocation_follow_through_not_admitted",
+        "populated summary should stop at follow-through boundary",
+    )
+    _assert(summary.inspected_count == 2, "populated summary should mirror inspected count")
+    _assert(summary.deferred_count == 2, "populated summary should mirror deferred count")
+    _assert(summary.rejected_count == 0, "populated summary should mirror rejected count")
+    _assert(summary.enabled_count == 1, "populated summary should mirror enabled count")
+    _assert(summary.disabled_count == 1, "populated summary should mirror disabled count")
+    _assert(
+        tuple(inspection.request.origin_id for inspection in summary.sweep.inspections)
+        == ("Automation A", "Deck Button 1"),
+        "populated summary should preserve deterministic sweep order",
+    )
+    _assert(registry.snapshot() == before_snapshot, "populated summary should not mutate registry")
+    _assert_summary_no_execution(summary, "populated readiness summary")
+
+    custom_registry = TriggerOriginRegistry(known_origin_categories=("custom_local",))
+    custom_result = custom_registry.register(
+        TriggerOriginRegistration(
+            origin_id="Custom Trigger",
+            origin_category="custom_local",
+            enabled=True,
+        )
+    )
+    _assert(custom_result.registered, "rejected summary setup should register custom origin")
+    rejected_summary = InternalTriggerIntakeBoundary(
+        origin_registry=custom_registry
+    ).summarize_registry_readiness()
+    _assert(
+        rejected_summary.decision == TRIGGER_INTAKE_DECISION_REJECTED,
+        "rejected summary should reject when sweep contains readiness rejections",
+    )
+    _assert(
+        rejected_summary.reason == "readiness_rejections_present",
+        "rejected summary should report sweep rejection presence",
+    )
+    _assert(rejected_summary.rejected_count == 1, "rejected summary should mirror rejected count")
+    _assert_summary_no_execution(rejected_summary, "rejected readiness summary")
+
+    try:
+        summary.reason = "changed"
+    except FrozenInstanceError:
+        pass
+    else:
+        raise AssertionError("registry readiness summary should be immutable")
+
+    print("PASS: trigger registry readiness summary contract")
+
+
 def main() -> int:
     validate_registration_contract()
     validate_invocation_follow_through_contract()
@@ -774,6 +930,7 @@ def main() -> int:
     validate_state_snapshot_contract()
     validate_readiness_inspection_contract()
     validate_registry_readiness_sweep_contract()
+    validate_registry_readiness_summary_contract()
     print("EXTERNAL TRIGGER INTAKE VALIDATION: PASS")
     return 0
 

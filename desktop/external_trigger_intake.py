@@ -116,6 +116,27 @@ class TriggerRegistryReadinessSweepResult:
 
 
 @dataclass(frozen=True)
+class TriggerRegistryReadinessSummary:
+    boundary: str
+    sweep: TriggerRegistryReadinessSweepResult
+    decision: str
+    reason: str
+    inspected_count: int = 0
+    deferred_count: int = 0
+    rejected_count: int = 0
+    enabled_count: int = 0
+    disabled_count: int = 0
+    routed_to_execution: bool = False
+    execution_authorized: bool = False
+    cleanup_required: bool = False
+    evidence: TriggerDecisionEvidence | None = None
+
+    @property
+    def accepted(self) -> bool:
+        return False
+
+
+@dataclass(frozen=True)
 class TriggerRegistrationResult:
     registration: TriggerOriginRegistration | None
     registered: bool
@@ -632,6 +653,43 @@ class InternalTriggerIntakeBoundary:
             boundary_snapshot=boundary_snapshot,
         )
 
+    def summarize_registry_readiness(self) -> TriggerRegistryReadinessSummary:
+        sweep = self.inspect_registry_readiness()
+        boundary_snapshot = sweep.boundary_snapshot
+        if boundary_snapshot is not None and not boundary_snapshot.registration_support_admitted:
+            decision = TRIGGER_INTAKE_DECISION_DEFERRED
+            reason = "registration_support_not_admitted"
+        elif sweep.inspected_count == 0:
+            decision = TRIGGER_INTAKE_DECISION_DEFERRED
+            reason = "no_registered_origins"
+        elif sweep.rejected_count:
+            decision = TRIGGER_INTAKE_DECISION_REJECTED
+            reason = "readiness_rejections_present"
+        elif sweep.enabled_count == 0:
+            decision = TRIGGER_INTAKE_DECISION_DEFERRED
+            reason = "no_enabled_origins"
+        else:
+            decision = TRIGGER_INTAKE_DECISION_DEFERRED
+            reason = "invocation_follow_through_not_admitted"
+
+        return TriggerRegistryReadinessSummary(
+            boundary="internal_trigger_registry_readiness_summary",
+            sweep=sweep,
+            decision=decision,
+            reason=reason,
+            inspected_count=sweep.inspected_count,
+            deferred_count=sweep.deferred_count,
+            rejected_count=sweep.rejected_count,
+            enabled_count=sweep.enabled_count,
+            disabled_count=sweep.disabled_count,
+            evidence=_trigger_decision_evidence(
+                boundary="internal_trigger_registry_readiness_summary",
+                operation="summarize_registry_readiness",
+                decision=decision,
+                reason=reason,
+            ),
+        )
+
     def receive(self, request: TriggerIntakeRequest | dict) -> TriggerIntakeResult:
         normalized_request = coerce_trigger_intake_request(request)
         category = normalized_request.origin_category
@@ -829,6 +887,7 @@ __all__ = (
     "TriggerOriginRegistry",
     "TriggerOriginRegistrySnapshot",
     "TriggerRegistryReadinessSweepResult",
+    "TriggerRegistryReadinessSummary",
     "TriggerRegistrationResult",
     "coerce_trigger_intake_request",
     "coerce_trigger_origin_registration",
