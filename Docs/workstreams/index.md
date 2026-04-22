@@ -77,7 +77,7 @@ For an active or recently closed canonical workstream, keep these durable tracea
 Active here means the current promoted truth owner.
 That may be an executable branch owner or another explicitly promoted current-truth owner.
 
-- None
+- `Docs/workstreams/FB-039_external_trigger_plugin_integration_architecture.md`
 
 ### Merged / Release Debt Owners
 

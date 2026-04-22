@@ -67,13 +67,13 @@ Current merged truth indicates:
 - latest public prerelease title: `Pre-Beta v1.4.1`
 - merged unreleased non-doc implementation debt exists: no
 - the latest public released implementation milestone is FB-038 taskbar / tray quick-task UX and Create Custom Task surface in `v1.4.1-prebeta`
-- current phase: `No Active Branch`
-- phase status: `No Active Branch`
+- current phase: `Branch Readiness`
+- phase status: `Active Branch`
 - blocker after release execution: none for FB-038
-- current active workstream: none
-- current branch: `No Active Branch`
+- current active workstream: FB-039 External trigger and plugin integration architecture
+- current branch: `feature/fb-039-external-trigger-plugin-integration-architecture`
 - merged-unreleased release-debt owner: none
-- next concern: FB-039 Branch Readiness may be evaluated from updated `main`; FB-039 remains selected-only and unbranched until admitted
+- next concern: complete FB-039 Branch Readiness scaffold and keep implementation blocked until Workstream is explicitly admitted
 
 That means the released FB-027 interaction baseline, the released FB-036 authoring-and-callable-group milestone, the released FB-041 deterministic callable-group execution milestone, the released FB-037 built-in catalog milestone, and the released FB-038 tray quick-task UX milestone are now part of the current public shared pre-Beta baseline.
 
@@ -83,22 +83,21 @@ None.
 
 ## Current Active Workstream
 
-### None
+### FB-039 External Trigger And Plugin Integration Architecture
 
-- repo state: `No Active Branch`
+- status: `Branch Readiness`
+- record state: `Promoted`
+- branch: `feature/fb-039-external-trigger-plugin-integration-architecture`
+- canonical workstream doc: `Docs/workstreams/FB-039_external_trigger_plugin_integration_architecture.md`
+- current phase: `Branch Readiness`
+- phase status: `Active Branch`
 - blocker: none
-- current owner: none
-- release readiness rule: Release Readiness remains analysis-only; post-release canon is already expected to represent latest public prerelease and closed workstream truth before any later release review reports green
+- scope: define the source map, lifecycle ownership, trust/safety boundaries, validation contract, and explicit non-goals for external trigger surfaces before implementation begins
+- release readiness rule: Release Readiness remains analysis-only; post-release canon already represents latest public prerelease and closed FB-038 truth
 
 ## Selected Next Workstream
 
-### FB-039 External Trigger And Plugin Integration Architecture
-
-- Record State: `Registry-only`
-- Minimal Scope: Branch Readiness only for external trigger and plugin integration architecture; define the source map, lifecycle ownership, trust/safety boundaries, validation contract, and explicit non-goals for external trigger surfaces such as Stream Deck or other installed integration points before any implementation. No plugin runtime implementation, Stream Deck integration, protocol handling, installer work, settings surface, taskbar/tray expansion, monitoring HUD work, or release packaging is admitted during Branch Readiness.
-- Branch: Not created
-- Selection Basis: FB-039 is the nearest canon successor after FB-038 because it plans external trigger ownership and plugin integration boundaries without expanding the completed tray/task UX branch. FB-040 remains deferred because monitoring, thermals, and HUD surfaces are a separate runtime/status lane.
-- Successor Deferral: FB-039 remains selected in canon only. Its branch may not be created until updated `main` is revalidated during Branch Readiness and the repo-level admission gate passes.
+None. FB-039 has moved from selected-only canon into active Branch Readiness.
 
 ## Most Recent Released Workstream Context
 
@@ -217,8 +216,8 @@ Current merged truth indicates:
 - the recent released workstreams above remain part of the locked current baseline
 - merged unreleased non-doc implementation debt exists: no
 - FB-038 is released and closed in `v1.4.1-prebeta`; H1 identity/discoverability repair, H2 shortcut-launch tray readback validation, H3 window initialization sequencing, H4 post-fix startup visibility validation, fresh post-H4 technical/live validation, user-facing desktop shortcut validation, and UTS waiver digestion are preserved as historical evidence
-- FB-039 is selected in canon only as the next workstream for Branch Readiness after updated `main` is revalidated; no FB-039 branch exists
-- FB-039 branch creation remains deferred until Branch Readiness passes; it is no longer blocked by FB-038 release debt
+- FB-039 is now active in Branch Readiness on `feature/fb-039-external-trigger-plugin-integration-architecture`
+- FB-039 implementation remains blocked until Branch Readiness scaffold and validation contract are durable and Workstream is explicitly admitted
 - post-release repo truth after the FB-038 release resolves to no FB-038 release-debt blocker
 - successor-lane branch creation for FB-038 is historical; FB-038 is now merged and no longer an executable active implementation branch
 - if a branch changes release-facing canon, those canon updates must land on that same branch before PR readiness is allowed
@@ -226,7 +225,7 @@ Current merged truth indicates:
 - the released FB-027 baseline does not authorize further saved-action authoring, resolution, voice, Action Studio, routines, profiles, hotkey cleanup, or shutdown-confirmation work by inertia
 - remaining future candidate spaces now explicitly recorded in the backlog include:
   - FB-038 for taskbar or tray quick-task UX including Create Custom Task, now released and closed in `v1.4.1-prebeta` with H3/H4 startup visibility re-entry green, `User-Facing Shortcut Validation: PASS`, and UTS handling resolved by documented waiver
-  - FB-039 for external trigger and plugin integration architecture, selected in canon only with `Branch: Not created`
+  - FB-039 for external trigger and plugin integration architecture, active in Branch Readiness on `feature/fb-039-external-trigger-plugin-integration-architecture`
   - FB-040 for monitoring, thermals, and performance HUD surfaces
 - those candidate lanes must be selected deliberately rather than bundled together as one implicit interaction continuation
 - FB-037 Branch Readiness does not imply automatic continuation into any remaining candidate lane
