@@ -185,9 +185,111 @@ def validate_invocation_follow_through_contract() -> None:
     print("PASS: trigger invocation follow-through contract")
 
 
+def validate_lifecycle_state_transition_contract() -> None:
+    registry = TriggerOriginRegistry()
+    registration_result = registry.register(
+        TriggerOriginRegistration(
+            origin_id="Automation A",
+            origin_category="desktop_automation",
+            user_visible_label="Automation A",
+            enabled=False,
+        )
+    )
+    _assert(registration_result.registered, "lifecycle setup should register disabled origin")
+
+    boundary = InternalTriggerIntakeBoundary(origin_registry=registry)
+    disabled = boundary.receive(
+        {
+            "origin_id": "Automation A",
+            "origin_category": "desktop_automation",
+        }
+    )
+    _assert(
+        disabled.reason == "origin_not_enabled",
+        "disabled registered origin should defer before enable",
+    )
+    _assert(disabled.origin_registered, "disabled origin should be marked registered")
+    _assert(not disabled.origin_enabled, "disabled origin should not be marked enabled")
+    _assert_no_execution(disabled, "disabled lifecycle origin")
+
+    enabled_result = registry.enable(" Automation A ")
+    _assert(enabled_result.changed, "enable should change disabled origin state")
+    _assert(enabled_result.origin_found, "enable should find origin")
+    _assert(enabled_result.reason == "enabled", "enable should report enabled")
+
+    enabled = boundary.receive(
+        {
+            "origin_id": "Automation A",
+            "origin_category": "desktop_automation",
+        }
+    )
+    _assert(
+        enabled.reason == "invocation_follow_through_not_admitted",
+        "enabled origin should stop at follow-through boundary",
+    )
+    _assert(enabled.origin_registered, "enabled origin should be marked registered")
+    _assert(enabled.origin_enabled, "enabled origin should be marked enabled")
+    _assert_no_execution(enabled, "enabled lifecycle origin")
+
+    already_enabled = registry.enable("Automation A")
+    _assert(not already_enabled.changed, "repeated enable should be a no-op")
+    _assert(already_enabled.reason == "already_enabled", "repeated enable should report no-op")
+
+    disabled_result = registry.disable("Automation A")
+    _assert(disabled_result.changed, "disable should change enabled origin state")
+    _assert(disabled_result.reason == "disabled", "disable should report disabled")
+
+    redisabled = boundary.receive(
+        {
+            "origin_id": "Automation A",
+            "origin_category": "desktop_automation",
+        }
+    )
+    _assert(
+        redisabled.reason == "origin_not_enabled",
+        "disabled origin should return to origin_not_enabled",
+    )
+    _assert(redisabled.origin_registered, "re-disabled origin should be marked registered")
+    _assert(not redisabled.origin_enabled, "re-disabled origin should not be marked enabled")
+    _assert_no_execution(redisabled, "re-disabled lifecycle origin")
+
+    already_disabled = registry.disable("Automation A")
+    _assert(not already_disabled.changed, "repeated disable should be a no-op")
+    _assert(already_disabled.reason == "already_disabled", "repeated disable should report no-op")
+
+    unregistered = registry.unregister("Automation A")
+    _assert(unregistered.changed, "unregister should remove registered origin")
+    _assert(unregistered.origin_found, "unregister should find registered origin")
+    _assert(unregistered.reason == "unregistered", "unregister should report unregistered")
+
+    after_teardown = boundary.receive(
+        {
+            "origin_id": "Automation A",
+            "origin_category": "desktop_automation",
+        }
+    )
+    _assert(
+        after_teardown.reason == "origin_not_registered",
+        "unregistered origin should defer as not registered",
+    )
+    _assert(not after_teardown.origin_registered, "unregistered origin should not be marked registered")
+    _assert_no_execution(after_teardown, "unregistered lifecycle origin")
+
+    missing = registry.unregister("Automation A")
+    _assert(not missing.changed, "missing unregister should be a no-op")
+    _assert(missing.reason == "origin_not_registered", "missing unregister should report not registered")
+
+    invalid = registry.enable("   ")
+    _assert(not invalid.changed, "blank origin enable should be a no-op")
+    _assert(invalid.reason == "invalid_origin_id", "blank origin enable should report invalid id")
+
+    print("PASS: trigger origin lifecycle state transition contract")
+
+
 def main() -> int:
     validate_registration_contract()
     validate_invocation_follow_through_contract()
+    validate_lifecycle_state_transition_contract()
     print("EXTERNAL TRIGGER INTAKE VALIDATION: PASS")
     return 0
 

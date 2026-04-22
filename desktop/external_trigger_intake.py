@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 import re
 from typing import Iterable
 
@@ -48,6 +48,14 @@ class TriggerRegistrationResult:
     reason: str
     origin_category_known: bool = False
     origin_category_blocked: bool = False
+
+
+@dataclass(frozen=True)
+class TriggerOriginLifecycleResult:
+    registration: TriggerOriginRegistration | None
+    changed: bool
+    reason: str
+    origin_found: bool = False
 
 
 @dataclass(frozen=True)
@@ -146,10 +154,10 @@ class TriggerOriginRegistry:
         return tuple(self._registrations[key] for key in sorted(self._registrations))
 
     def lookup(self, origin_id: object) -> TriggerOriginRegistration | None:
-        normalized_origin_id = normalize_trigger_origin_id(origin_id)
-        if not normalized_origin_id:
+        key = self._registration_key(origin_id)
+        if not key:
             return None
-        return self._registrations.get(normalized_origin_id.casefold())
+        return self._registrations.get(key)
 
     def register(
         self,
@@ -190,6 +198,43 @@ class TriggerOriginRegistry:
             origin_category_known=True,
         )
 
+    def enable(self, origin_id: object) -> TriggerOriginLifecycleResult:
+        return self._set_enabled(origin_id, True)
+
+    def disable(self, origin_id: object) -> TriggerOriginLifecycleResult:
+        return self._set_enabled(origin_id, False)
+
+    def unregister(self, origin_id: object) -> TriggerOriginLifecycleResult:
+        key = self._registration_key(origin_id)
+        if not key:
+            return self._lifecycle_result(None, False, "invalid_origin_id")
+        registration = self._registrations.pop(key, None)
+        if registration is None:
+            return self._lifecycle_result(None, False, "origin_not_registered")
+        return self._lifecycle_result(registration, True, "unregistered", origin_found=True)
+
+    def _set_enabled(self, origin_id: object, enabled: bool) -> TriggerOriginLifecycleResult:
+        key = self._registration_key(origin_id)
+        if not key:
+            return self._lifecycle_result(None, False, "invalid_origin_id")
+        registration = self._registrations.get(key)
+        if registration is None:
+            return self._lifecycle_result(None, False, "origin_not_registered")
+        if registration.enabled is enabled:
+            reason = "already_enabled" if enabled else "already_disabled"
+            return self._lifecycle_result(registration, False, reason, origin_found=True)
+
+        updated_registration = replace(registration, enabled=enabled)
+        self._registrations[key] = updated_registration
+        reason = "enabled" if enabled else "disabled"
+        return self._lifecycle_result(updated_registration, True, reason, origin_found=True)
+
+    def _registration_key(self, origin_id: object) -> str:
+        normalized_origin_id = normalize_trigger_origin_id(origin_id)
+        if not normalized_origin_id:
+            return ""
+        return normalized_origin_id.casefold()
+
     def _reject_registration(
         self,
         registration: TriggerOriginRegistration,
@@ -204,6 +249,21 @@ class TriggerOriginRegistry:
             reason=reason,
             origin_category_known=category_known,
             origin_category_blocked=category_blocked,
+        )
+
+    def _lifecycle_result(
+        self,
+        registration: TriggerOriginRegistration | None,
+        changed: bool,
+        reason: str,
+        *,
+        origin_found: bool = False,
+    ) -> TriggerOriginLifecycleResult:
+        return TriggerOriginLifecycleResult(
+            registration=registration,
+            changed=changed,
+            reason=reason,
+            origin_found=origin_found,
         )
 
 
@@ -327,6 +387,7 @@ __all__ = (
     "TRIGGER_INTAKE_DECISION_REJECTED",
     "TriggerIntakeRequest",
     "TriggerIntakeResult",
+    "TriggerOriginLifecycleResult",
     "TriggerOriginRegistration",
     "TriggerOriginRegistry",
     "TriggerRegistrationResult",
