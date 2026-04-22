@@ -38,6 +38,7 @@
 - Latest public prerelease truth is `v1.5.0-prebeta`.
 - WS-1 monitoring and thermal source map plus ownership vocabulary is complete and durably recorded.
 - WS-2 and WS-3 remain planned only.
+- The prior stop-after-WS-1 posture is classified as seam-continuation governance drift; WS-2 is the next Workstream continuation candidate after this governance repair.
 - No FB-040 runtime, HUD, telemetry, thermal, monitoring, plugin, installer, or settings implementation has started.
 
 ## Branch Class
@@ -114,12 +115,12 @@ Seam 3: validation and admission contract for later implementation seams
 
 ## Active Seam
 
-Active seam: None after WS-1 completion.
+Active seam: seam-continuation governance repair for the WS-1 stop drift.
 
 - WS-1 Status: Completed / executed.
 - WS-1 Boundary: architecture-only source categories, ownership vocabulary, Nexus-owned versus external/system-owned responsibilities, and explicit unknowns for later admission.
 - WS-1 Non-Includes: no telemetry collection, sensor polling, hardware API binding, HUD rendering, persistence, settings UI, tray/taskbar work, plugin integration, installer changes, or release packaging.
-- WS-2 Status: Planned only; next legal Workstream seam when explicitly activated.
+- WS-2 Status: Planned only; next legal Workstream continuation candidate under `Next-Seam Continuation Required` when continuation authority conditions pass.
 - WS-3 Status: Planned only.
 
 ## WS-1 Execution Record
@@ -198,7 +199,15 @@ Nexus does not own:
 - Validation Layer: documentation and governance validation only.
 - Cleanup: no programs, helper processes, windows, temporary files, telemetry collectors, probes, or runtime artifacts were created.
 - User Test Summary Applicability: not applicable for WS-1 because it adds architecture-only planning and no user-visible behavior.
-- Continue/Stop Decision: Stop after WS-1. WS-2 remains the next planned seam and must be explicitly activated before lifecycle or trust/safety boundary work begins.
+- Continue/Stop Decision: the original stop after WS-1 is superseded and classified as seam-continuation governance drift because no canon-valid blocker, phase boundary, stop-loss trigger, or `Single-Seam Fallback` required stopping. WS-2 remains planned only, but it is the next Workstream continuation candidate after this governance repair rather than a prompt-only activation dependency.
+
+## Seam Continuation Governance Repair
+
+- Governance Drift Found: Yes.
+- Drift Type: green Workstream seam stopped without a canon-valid continuation blocker.
+- Root Cause: source-of-truth required a continue-or-stop decision but did not make safe next-seam continuation the default after a green seam.
+- Corrected Rule: `Next-Seam Continuation Required` is now the default after a green seam in a valid bounded multi-seam workflow.
+- Recurrence Prevention: prompt-named seams are entry seams, not terminal boundaries; stopping after a green seam requires a recorded blocker, phase boundary, stop-loss trigger, or `Single-Seam Fallback`.
 
 Completed Branch Readiness seam history:
 

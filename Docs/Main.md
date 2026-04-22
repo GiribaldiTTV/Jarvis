@@ -220,7 +220,8 @@ These are reference layers, not active workstream or roadmap owners.
   5. `PR Readiness`
   6. `Release Readiness`
 - `Branch Readiness` must plan the whole branch at phase level before Workstream begins, including objective, target end-state, expected seam families and risk classes, validation contract, User Test Summary strategy, later-phase needs, and first seam or seam sequence
-- during `Workstream`, `bounded multi-seam workflow` is the primary model for coherent same-risk seam chains; execute one active seam at a time, validate it, record evidence, and report `continue` or `stop` before the next seam
+- during `Workstream`, `bounded multi-seam workflow` is the primary model for coherent same-risk seam chains; execute one active seam at a time, validate it, record evidence, report `continue` or `stop`, and continue by default when `Next-Seam Continuation Required` applies
+- when a prompt names an active seam inside an approved seam sequence, treat it as the entry seam, not a terminal boundary; stopping after a green seam requires a canon-valid blocker, phase boundary, stop-loss trigger, or `Single-Seam Fallback`
 - single-seam fallback is required for bug fixes, hotfixes, unclear or high-risk seams, cross-subsystem changes, settings/protocol/launcher/UI-model changes, or any pass where validation cannot support safe continuation
 - `Workstream` completion does not imply PR readiness; the normal next legal phase is `Hardening`, followed by `Live Validation` and then `PR Readiness`
 - `Post-Release Canon Repair` is not a normal phase or branch; escaped canon repair must ride the prior legal branch or the next active branch's `Branch Readiness`, never direct `main`

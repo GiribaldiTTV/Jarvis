@@ -313,7 +313,9 @@ Task:
 Constraints:
 - Stay inside the approved Workstream scope.
 - Do not enter Hardening, Live Validation, PR Readiness, Release Readiness, release execution, or next-branch work.
-- Do not redesign seam workflow logic; use existing canon if seam behavior is relevant.
+- Do not redesign seam workflow logic; use `Docs/phase_governance.md` if seam behavior is relevant.
+- If a Seam Sequence is present, treat the prompt-named seam as the entry seam, not a terminal boundary.
+- Do not encode a single-seam stop unless owning canon supplies `Single-Seam Fallback`, a phase boundary, stop-loss trigger, or another explicit blocker.
 
 Stop if scope, phase, branch truth, or validation requirements are unclear.
 

@@ -135,6 +135,9 @@ In Workflow mode, Codex should:
 - report any drift or remaining gaps honestly
 - when the approved boundary contains a seam chain, treat prompt-provided seams as structure only and use `Docs/phase_governance.md` as the continuation authority
 - when the approved Workstream boundary contains a coherent same-risk seam chain, use bounded multi-seam workflow as the primary model while executing one active seam at a time
+- when a prompt names an active seam inside an approved sequence, treat it as the entry seam, not a terminal boundary
+- after a green entry seam, apply `Next-Seam Continuation Required` and continue by default when the continuation authority conditions pass
+- use `Single-Seam Fallback` only when source-of-truth records a canon-valid fallback reason or continuation blocker
 - when the approved boundary is continuous validation inside the current workstream, keep iterating only while the governing phase rules, validation, and stop-loss contract remain green
 
 ### What Codex Must Not Do
@@ -145,6 +148,7 @@ In Workflow mode, Codex must not:
 - silently start a new workstream
 - silently create PR, merge, release, or closure output without current-truth justification
 - treat a clean first slice as automatic branch readiness
+- stop after a green seam merely because the prompt task named only the entry seam, the output asks for `Next Safe Move`, durability completed, or one seam was recorded
 
 ### Expected Outputs
 

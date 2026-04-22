@@ -111,6 +111,9 @@ If a governance or canon update is directly required to keep the active current 
 Add `Validation Contract`, `Timeout Contract`, and `Current active seam` when the governed task needs them.
 Add `Seam Sequence` when the Workstream prompt may use bounded multi-seam workflow.
 If `Seam Sequence` is present, Codex must execute one active seam at a time, validate after each seam, and report a continue-or-stop decision before starting the next seam.
+If a prompt names an active seam inside that sequence, treat it as the entry seam, not a terminal boundary.
+After a green seam, `Next-Seam Continuation Required` applies by default when continuation authority conditions pass.
+Do not encode a single-seam stop unless `Single-Seam Fallback`, a phase boundary, stop-loss trigger, or another canon-valid blocker applies.
 For `Release Readiness`, a release-bearing branch must include `Release Target:`, `Release Floor:`, `Version Rationale:`, `Release Scope:`, and `Release Artifacts:` before green status is allowed.
 For `PR Readiness`, release-bearing merge-target canon must prove the target is semantically correct from the latest public prerelease and declared release floor before green status is allowed.
 `Release Readiness` is analysis-only for repository files. It may produce release package information in the response, but it must not edit, stage, commit, generate, or refresh source, docs, canon, validator, helper, release-note, or handoff files.
@@ -258,6 +261,8 @@ After analysis is complete and execution scope is approved, follow these discipl
 - one coherent approved subproblem per revision
 - use bounded multi-seam workflow as the primary Workstream model when the approved seams are same-workstream, same-phase, same-risk, and same-subsystem-family or tightly coupled
 - execute exactly one active seam at a time and validate, record, and decide continue-or-stop before the next seam
+- treat a prompt-named seam inside an approved sequence as the entry seam, not a terminal boundary
+- continue by default after a green seam when `Next-Seam Continuation Required` applies and the continuation authority conditions pass
 - use single-seam fallback for bug fixes, hotfixes, unclear or high-risk seams, cross-subsystem work, settings/protocol/launcher/UI-model changes, or any pass where validation cannot support safe continuation
 - preserve architecture boundaries
 - keep source-of-truth docs aligned with actual implemented state
@@ -336,9 +341,10 @@ If the task includes interactive validation, the validation plan should also sta
 
 1. Perform only the approved execution work.
 2. For bounded multi-seam workflow, perform exactly one seam, verify it, record evidence, and decide `continue` or `stop` before starting the next seam.
-3. Stop the workflow immediately on validation failure, regression, scope drift, risk-class change, governance drift, unresolved manual-validation blocker, or branch-truth inconsistency.
-4. Clean up session-scoped side effects from the pass unless there is an explicit reason to preserve them.
-5. Report what changed, what was verified, the per-seam continue-or-stop decisions, and what was cleaned up or intentionally left in place.
+3. Continue by default to the next planned seam after a green seam when `Next-Seam Continuation Required` applies and the continuation authority conditions pass.
+4. Stop the workflow immediately on validation failure, regression, scope drift, risk-class change, governance drift, unresolved manual-validation blocker, branch-truth inconsistency, phase boundary, stop-loss trigger, or canon-valid `Single-Seam Fallback`.
+5. Clean up session-scoped side effects from the pass unless there is an explicit reason to preserve them.
+6. Report what changed, what was verified, the per-seam continue-or-stop decisions, and what was cleaned up or intentionally left in place.
 
 ## Verification Requirements
 

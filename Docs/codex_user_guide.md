@@ -84,6 +84,8 @@ For bounded multi-seam Workstream execution, also include:
 
 - `Seam Sequence: <ordered seam list>`
 - `Per-Seam Gate: validate, record evidence, and report continue-or-stop before the next seam`
+- `Entry Seam Rule: the prompt-named seam is the entry seam, not a terminal boundary`
+- `Continuation Rule: apply Next-Seam Continuation Required after a green seam when continuation authority conditions pass`
 
 For Release Readiness, also include:
 
@@ -346,6 +348,8 @@ Required add-ons:
 - `Seam Sequence: [ordered seam list]`
 - `validate after each seam`
 - `report continue-or-stop after each seam`
+- `treat prompt-named seam as the entry seam, not a terminal boundary`
+- `apply Next-Seam Continuation Required after a green seam when continuation authority conditions pass`
 - `stop on validation failure, regression, scope drift, risk-class change, governance drift, unresolved manual-validation blocker, or branch-truth inconsistency`
 
 Use this when:
@@ -353,6 +357,8 @@ Use this when:
 - the seams are in the same workstream, same phase, same branch class, same risk class, and same subsystem family or tightly coupled chain
 - the operator wants Codex to keep moving through a coherent seam sequence without a new prompt after every seam
 - per-seam validation and evidence recording remain mandatory
+
+Do not use prompt wording such as `execute WS-1` to mean `stop after WS-1` unless the prompt also records a canon-valid `Single-Seam Fallback`, phase boundary, stop-loss trigger, or explicit blocker.
 
 Do not use this recipe for bug fixes, hotfixes, unclear or high-risk seams, cross-subsystem changes, settings/protocol/launcher/UI-model changes, or any pass where validation cannot support safe continuation.
 

@@ -376,12 +376,16 @@ and keep that validator green before calling the branch ready.
 - a grouped branch may carry multiple validated slices when they all belong to the same milestone
 - `Docs/phase_governance.md` owns seam workflow behavior; prompts and task text may name seams, but they do not define continuation authority
 - `bounded multi-seam workflow` is the primary Workstream execution model for coherent same-risk seam chains
+- `Next-Seam Continuation Required` is the default after a green seam inside a valid bounded multi-seam workflow
+- a prompt-named seam inside an approved sequence is the entry seam, not a terminal boundary
 - unrelated ideas must still be split out even if they look convenient to batch
 
 Bounded multi-seam workflow means:
 
 - multiple seams may execute in sequence within one approved phase boundary only when phase governance allows it
 - each seam still has one active owner, exact boundary, explicit non-includes, validation gate, cleanup expectation, and continue-or-stop decision
+- Codex must continue by default to the next planned seam when the continuation authority conditions pass
+- stopping after a green seam requires a canon-valid blocker, phase boundary, stop-loss trigger, or `Single-Seam Fallback`
 - every seam must remain in the same workstream or active authority record, same phase, same branch class, same risk class, and same subsystem family or tightly coupled chain
 - Branch Readiness may use planning, admission, or tightly coupled governance-repair seams, but not product/runtime implementation
 - Workstream uses the full seam pipeline for safe same-risk execution

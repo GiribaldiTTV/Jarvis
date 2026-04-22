@@ -988,6 +988,36 @@ It is allowed only when every seam in the sequence stays within:
 Multi-seam does not mean batch execution.
 It means Codex may continue across a planned seam sequence without requiring a new operator prompt after every seam, but only while it executes exactly one active seam at a time.
 
+### Default Continuation Duty
+
+`Next-Seam Continuation Required` is the default result after a green seam in a valid bounded multi-seam workflow.
+When a prompt names an `Active Seam` or says to execute a seam that also appears inside an approved seam sequence, that seam is the entry seam, not a terminal boundary.
+After the entry seam validates green, Codex must evaluate the next seam in the sequence from source-of-truth and continue by default when the continuation authority conditions pass.
+
+Codex must not stop merely because:
+
+- the prompt task named only the entry seam
+- the output format asks for `Next Safe Move`
+- durability commit and push completed
+- one seam was successfully recorded
+
+Stopping after a green seam requires one of these recorded reasons:
+
+- a validation failure
+- a regression
+- scope drift
+- risk-class change
+- governance drift
+- branch-truth contradiction
+- unresolved manual-validation blocker
+- stop-loss trigger
+- phase boundary
+- weaker validation would be required for the next seam
+- `Single-Seam Fallback` is canon-valid for the pass
+
+A prompt-level `execute only <seam>` request does not override this continuation duty unless the request is paired with a canon-valid `Single-Seam Fallback` reason or another named blocker from this contract.
+If Codex stops after a green seam without one of the recorded reasons above, classify that stop as `Governance Drift` and repair the source-of-truth or validator gap before treating the workflow as healthy.
+
 ### Seam Stages
 
 Each active seam follows this governed stage model:
@@ -1022,6 +1052,7 @@ After each seam, Codex must:
 - update the canonical workstream `User Test Summary` when the seam changes user-visible or operator-facing behavior
 - verify cleanup for artifacts the pass created or opened
 - decide and report `continue` or `stop`
+- continue by default to the next planned seam when `Next-Seam Continuation Required` applies and the continuation authority conditions pass
 
 ### Continuation Authority
 
@@ -1039,6 +1070,7 @@ Continuation is allowed only when:
 
 If any continuation condition fails, the whole workflow stops immediately and the next safe move must be reported from the blocking truth.
 If continuation would require broader authority, a different phase, a different risk class, or weaker validation, Codex must stop and report the blocker rather than treating the downstream seam as activated.
+If all continuation conditions pass and the next planned seam remains inside the approved sequence, continuation is required under `Next-Seam Continuation Required`; do not downgrade a safe continuation into an optional stop.
 
 ## Single-Seam Fallback Rule
 

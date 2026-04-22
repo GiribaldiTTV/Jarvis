@@ -155,7 +155,12 @@ MULTI_SEAM_CONTRACT_DOCS = (
     Path("Docs/codex_user_guide.md"),
 )
 
-MULTI_SEAM_CONTRACT_PHRASE = "bounded multi-seam workflow"
+MULTI_SEAM_CONTRACT_PHRASES = (
+    "bounded multi-seam workflow",
+    "Next-Seam Continuation Required",
+    "entry seam, not a terminal boundary",
+    "Single-Seam Fallback",
+)
 
 MULTI_SEAM_PROMPT_DOCS = (
     Path("Docs/orin_task_template.md"),
@@ -165,6 +170,9 @@ MULTI_SEAM_PROMPT_DOCS = (
 MULTI_SEAM_PROMPT_PHRASES = (
     "Seam Sequence",
     "continue-or-stop",
+    "Next-Seam Continuation Required",
+    "entry seam, not a terminal boundary",
+    "Single-Seam Fallback",
 )
 
 WORKSTREAM_TO_PR_DEFAULT_GUARD_DOCS = (
@@ -1365,10 +1373,11 @@ def main() -> int:
 
     for relative_path in MULTI_SEAM_CONTRACT_DOCS:
         text = _read_text(relative_path)
-        require(
-            MULTI_SEAM_CONTRACT_PHRASE in text,
-            f"{relative_path}: canonical bounded multi-seam workflow contract is missing",
-        )
+        for required_phrase in MULTI_SEAM_CONTRACT_PHRASES:
+            require(
+                required_phrase in text,
+                f"{relative_path}: canonical bounded multi-seam workflow contract is missing '{required_phrase}'",
+            )
 
     for relative_path in MULTI_SEAM_PROMPT_DOCS:
         text = _read_text(relative_path)
