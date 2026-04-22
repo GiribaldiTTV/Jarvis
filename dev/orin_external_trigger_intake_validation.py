@@ -1,3 +1,4 @@
+from dataclasses import FrozenInstanceError
 import os
 import sys
 
@@ -407,10 +408,104 @@ def validate_lifecycle_state_transition_contract() -> None:
     print("PASS: trigger origin lifecycle state transition contract")
 
 
+def validate_state_snapshot_contract() -> None:
+    registry = TriggerOriginRegistry()
+    empty_snapshot = registry.snapshot()
+    _assert(empty_snapshot.boundary == "trigger_origin_registry", "empty snapshot should identify registry boundary")
+    _assert(empty_snapshot.registrations == (), "empty snapshot should expose empty registration tuple")
+    _assert(empty_snapshot.registered_count == 0, "empty snapshot should report zero registrations")
+    _assert(empty_snapshot.enabled_count == 0, "empty snapshot should report zero enabled origins")
+
+    deck_result = registry.register(
+        TriggerOriginRegistration(
+            origin_id="Deck Button 1",
+            origin_category="hardware_adjacent",
+            user_visible_label="Deck Button 1",
+            enabled=True,
+        )
+    )
+    _assert(deck_result.registered, "snapshot setup should register enabled origin")
+    automation_result = registry.register(
+        TriggerOriginRegistration(
+            origin_id="Automation A",
+            origin_category="desktop_automation",
+            user_visible_label="Automation A",
+            enabled=False,
+        )
+    )
+    _assert(automation_result.registered, "snapshot setup should register disabled origin")
+
+    populated_snapshot = registry.snapshot()
+    _assert(populated_snapshot.registered_count == 2, "populated snapshot should report registrations")
+    _assert(populated_snapshot.enabled_count == 1, "populated snapshot should count enabled origins")
+    _assert(
+        tuple(registration.origin_id for registration in populated_snapshot.registrations)
+        == ("Automation A", "Deck Button 1"),
+        "snapshot registrations should be deterministic by origin id",
+    )
+
+    boundary_snapshot = InternalTriggerIntakeBoundary(origin_registry=registry).snapshot()
+    _assert(
+        boundary_snapshot.boundary == "internal_trigger_intake",
+        "boundary snapshot should identify intake boundary",
+    )
+    _assert(
+        boundary_snapshot.registration_support_admitted,
+        "boundary snapshot should report registry support",
+    )
+    _assert(
+        boundary_snapshot.registry_snapshot == populated_snapshot,
+        "boundary snapshot should include current registry snapshot",
+    )
+    _assert(
+        "hardware_adjacent" in boundary_snapshot.known_origin_categories,
+        "boundary snapshot should expose known origin categories",
+    )
+    _assert(
+        "remote_network" in boundary_snapshot.blocked_origin_categories,
+        "boundary snapshot should expose blocked origin categories",
+    )
+
+    no_registry_snapshot = InternalTriggerIntakeBoundary().snapshot()
+    _assert(
+        not no_registry_snapshot.registration_support_admitted,
+        "boundary snapshot without registry should report no registration support",
+    )
+    _assert(
+        no_registry_snapshot.registry_snapshot is None,
+        "boundary snapshot without registry should not synthesize registry state",
+    )
+
+    unregistered = registry.unregister("Automation A")
+    _assert(unregistered.changed, "snapshot cleanup setup should unregister origin")
+    after_cleanup = registry.snapshot()
+    _assert(after_cleanup.registered_count == 1, "cleanup snapshot should report removed origin")
+    _assert(populated_snapshot.registered_count == 2, "prior snapshot should remain immutable history")
+
+    try:
+        populated_snapshot.registered_count = 99
+    except FrozenInstanceError:
+        pass
+    else:
+        raise AssertionError("registry snapshot should be immutable")
+
+    boundary = InternalTriggerIntakeBoundary(origin_registry=registry)
+    enabled = boundary.receive(
+        {
+            "origin_id": "Deck Button 1",
+            "origin_category": "hardware_adjacent",
+        }
+    )
+    _assert_no_execution(enabled, "snapshot boundary enabled origin")
+
+    print("PASS: trigger boundary state snapshot contract")
+
+
 def main() -> int:
     validate_registration_contract()
     validate_invocation_follow_through_contract()
     validate_lifecycle_state_transition_contract()
+    validate_state_snapshot_contract()
     print("EXTERNAL TRIGGER INTAKE VALIDATION: PASS")
     return 0
 

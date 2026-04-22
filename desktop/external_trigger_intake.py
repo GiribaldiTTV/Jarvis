@@ -59,6 +59,23 @@ class TriggerOriginRegistration:
 
 
 @dataclass(frozen=True)
+class TriggerOriginRegistrySnapshot:
+    boundary: str
+    registrations: tuple[TriggerOriginRegistration, ...] = ()
+    registered_count: int = 0
+    enabled_count: int = 0
+
+
+@dataclass(frozen=True)
+class TriggerIntakeBoundarySnapshot:
+    boundary: str
+    known_origin_categories: tuple[str, ...] = ()
+    blocked_origin_categories: tuple[str, ...] = ()
+    registration_support_admitted: bool = False
+    registry_snapshot: TriggerOriginRegistrySnapshot | None = None
+
+
+@dataclass(frozen=True)
 class TriggerRegistrationResult:
     registration: TriggerOriginRegistration | None
     registered: bool
@@ -205,6 +222,15 @@ class TriggerOriginRegistry:
     @property
     def registrations(self) -> tuple[TriggerOriginRegistration, ...]:
         return tuple(self._registrations[key] for key in sorted(self._registrations))
+
+    def snapshot(self) -> TriggerOriginRegistrySnapshot:
+        registrations = self.registrations
+        return TriggerOriginRegistrySnapshot(
+            boundary="trigger_origin_registry",
+            registrations=registrations,
+            registered_count=len(registrations),
+            enabled_count=sum(1 for registration in registrations if registration.enabled),
+        )
 
     def lookup(self, origin_id: object) -> TriggerOriginRegistration | None:
         key = self._registration_key(origin_id)
@@ -451,6 +477,17 @@ class InternalTriggerIntakeBoundary:
     def blocked_origin_categories(self) -> tuple[str, ...]:
         return tuple(sorted(self._blocked_origin_categories))
 
+    def snapshot(self) -> TriggerIntakeBoundarySnapshot:
+        return TriggerIntakeBoundarySnapshot(
+            boundary="internal_trigger_intake",
+            known_origin_categories=self.known_origin_categories,
+            blocked_origin_categories=self.blocked_origin_categories,
+            registration_support_admitted=self._origin_registry is not None,
+            registry_snapshot=self._origin_registry.snapshot()
+            if self._origin_registry is not None
+            else None,
+        )
+
     def receive(self, request: TriggerIntakeRequest | dict) -> TriggerIntakeResult:
         normalized_request = coerce_trigger_intake_request(request)
         category = normalized_request.origin_category
@@ -583,11 +620,13 @@ __all__ = (
     "TRIGGER_INTAKE_DECISION_DEFERRED",
     "TRIGGER_INTAKE_DECISION_REJECTED",
     "TriggerDecisionEvidence",
+    "TriggerIntakeBoundarySnapshot",
     "TriggerIntakeRequest",
     "TriggerIntakeResult",
     "TriggerOriginLifecycleResult",
     "TriggerOriginRegistration",
     "TriggerOriginRegistry",
+    "TriggerOriginRegistrySnapshot",
     "TriggerRegistrationResult",
     "coerce_trigger_intake_request",
     "coerce_trigger_origin_registration",
