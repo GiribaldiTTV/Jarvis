@@ -378,7 +378,7 @@ and keep that validator green before calling the branch ready.
 - grouped workstreams are allowed during `pre-Beta` when they remain coherent by subsystem and end-state
 - a grouped branch may carry multiple validated slices when they all belong to the same milestone
 - `Docs/phase_governance.md` owns seam workflow behavior; prompts and task text may name seams, but they do not define continuation authority
-- `bounded multi-seam workflow` is the primary Workstream execution model for coherent same-risk seam chains
+- `bounded multi-seam workflow` is the primary Workstream execution model for approved seam chains
 - `Next-Seam Continuation Required` is the default after a green seam inside a valid bounded multi-seam workflow
 - a prompt-named seam inside an approved sequence is the entry seam, not a terminal boundary
 - unrelated ideas must still be split out even if they look convenient to batch
@@ -388,24 +388,20 @@ Bounded multi-seam workflow means:
 - multiple seams may execute in sequence within one approved phase boundary only when phase governance allows it
 - each seam still has one active owner, exact boundary, explicit non-includes, validation gate, cleanup expectation, and continue-or-stop decision
 - Codex must continue by default to the next planned seam when the continuation authority conditions pass
-- stopping after a green seam requires a canon-valid blocker, phase boundary, stop-loss trigger, or `Single-Seam Fallback`
-- every seam must remain in the same workstream or active authority record, same phase, same branch class, same risk class, and same subsystem family or tightly coupled chain
+- stopping after a green seam requires a bounded stop condition from `Docs/phase_governance.md`, a phase boundary, stop-loss trigger, or canon-valid `Single-Seam Fallback`
+- every seam must remain in the same workstream or active authority record, same phase, same branch class, same approved scope, and same subsystem family or tightly coupled implementation, validation, or governance chain
 - Branch Readiness may use planning, admission, or tightly coupled governance-repair seams, but not product/runtime implementation
-- Workstream uses the full seam pipeline for safe same-risk execution
+- Workstream uses the full seam pipeline for safe approved execution
 - Hardening and Live Validation may use constrained validation or evidence-digestion loops, but they must not become hidden feature lanes
 - PR Readiness uses readiness gates, not product implementation seams
 - Release Readiness remains analysis-only and file-frozen
 
 Stop the workflow immediately if validation fails, regression appears, scope drifts, risk class changes, governance drift appears, manual validation becomes blocking, or branch truth no longer matches the authority record.
 
-Use single-seam fallback for:
-
-- bug fixes
-- hotfixes
-- unclear or high-risk seams
-- cross-subsystem changes
-- settings, protocol, launcher-policy, or UI-model changes
-- any pass where validation cannot support safe continuation
+Do not use category labels as stop authority.
+Bug fixes, hotfixes, unclear seams, high-risk seams, cross-subsystem changes, settings, protocol, launcher-policy, and UI-model work require the smallest safe seam, stronger validation, and an explicit continuation check.
+They do not require stopping after a green seam when the next seam is admitted, validation-backed, and inside the same approved bounded workflow.
+Use `Single-Seam Fallback` only when the pass records a bounded stop condition, the next seam would be unsafe or outside phase authority, or source-of-truth admits exactly one seam.
 
 Use the smallest safe slice for:
 

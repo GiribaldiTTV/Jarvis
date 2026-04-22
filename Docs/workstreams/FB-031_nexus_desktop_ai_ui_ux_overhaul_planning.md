@@ -35,7 +35,8 @@
 - FB-040 is released and closed in `v1.6.0-prebeta`.
 - Release debt is clear.
 - FB-031 Workstream is admitted for architecture-only UI/UX source mapping and visual-language ownership planning.
-- WS-1 Nexus-era UI/UX source map and visual-language ownership vocabulary is the active execution seam for this pass.
+- WS-1 Nexus-era UI/UX source map and visual-language ownership vocabulary is complete.
+- WS-2 UI/UX surface boundary and design-system admission contract is the next planned product Workstream seam after bounded seam governance repair.
 
 ## Branch Class
 
@@ -123,13 +124,16 @@ Seam 3: validation and User Test Summary admission contract for future UI implem
 
 ## Active Seam
 
-Active seam: None after WS-1 completion; WS-2 is the next planned Workstream seam.
+Active seam: None after bounded seam governance repair; WS-2 is the next planned product Workstream seam.
 
 - BR-1 Status: Completed in this pass; FB-040 post-release canon drift repaired.
 - BR-2 Status: Completed in this pass; post-release closure and version-advancement governance/validator hardening added.
 - BR-3 Status: Completed in this pass; FB-031 Branch Readiness scaffold established and Workstream admission can be evaluated after validation.
 - WS-1 Status: Completed in this pass; Nexus-era UI/UX source map and visual-language ownership vocabulary defined.
-- WS-1 Continuation Decision: stop after WS-1 because UI-model / visual-language work is high-risk enough for `Single-Seam Fallback`; continue to WS-2 in a later Workstream pass.
+- GOV-S1 Status: Completed in this pass; category-based seam fallback was identified as the reason a healthy bounded seam chain stopped too early.
+- GOV-S2 Status: Completed in this pass; source-of-truth now treats bounded multi-seam continuation as the default after green seams and requires an explicit bounded stop condition before stopping.
+- GOV-S3 Status: Completed in this pass; validator enforcement now rejects category-based fallback wording in seam-governance docs.
+- WS-1 Continuation Decision: superseded. The earlier stop after WS-1 was governance drift caused by category-based `Single-Seam Fallback`; under repaired governance, WS-2 remains the next admitted Workstream seam when validation and branch truth are green.
 
 ## WS-1 Execution Record
 
@@ -181,7 +185,7 @@ Primary current and candidate UI/UX surface families:
 - Validation Layer: documentation and governance validation only.
 - User Test Summary Applicability: not applicable for WS-1 because this seam adds architecture/vocabulary only and creates no user-visible behavior.
 - Cleanup: no programs, helper processes, windows, temporary files, probes, assets, or runtime artifacts were created.
-- Continue/Stop Decision: stop after WS-1 under `Single-Seam Fallback` because visual-language and UI-model planning should be reviewed one seam at a time before lifecycle/interaction-state framing begins.
+- Continue/Stop Decision: superseded by bounded seam governance repair. Visual-language and UI-model planning require small seams and strong gates, but they are not automatic stop authority when the next planned seam remains admitted, validation-backed, and within the approved Workstream boundary.
 
 ## Validation Contract
 

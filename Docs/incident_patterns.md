@@ -274,9 +274,29 @@ Branch-local "what worked" notes should stay in the canonical workstream doc fir
 - root-cause pattern:
   source-of-truth required a continue-or-stop decision, but did not make next-seam continuation the default after a green seam; validator enforcement only checked for broad multi-seam markers and missed prompt-as-terminal ambiguity
 - fix pattern:
-  define `Next-Seam Continuation Required` as the default after a green seam, treat prompt-named seams inside approved sequences as entry seams rather than terminal boundaries, and require a recorded blocker, phase boundary, stop-loss trigger, or `Single-Seam Fallback` before stopping
+  define `Next-Seam Continuation Required` as the default after a green seam, treat prompt-named seams inside approved sequences as entry seams rather than terminal boundaries, and require a recorded bounded stop condition, phase boundary, stop-loss trigger, or canon-valid `Single-Seam Fallback` before stopping
 - validation pattern:
-  run `python dev/orin_branch_governance_validation.py`; governing docs and prompt scaffolds must include `Next-Seam Continuation Required`, entry-seam language, default-continuation language, and `Single-Seam Fallback` stop authority
+  run `python dev/orin_branch_governance_validation.py`; governing docs and prompt scaffolds must include `Next-Seam Continuation Required`, entry-seam language, default-continuation language, bounded stop conditions, and `Single-Seam Fallback` as a bounded stop decision rather than category stop authority
+- source references:
+  - `Docs/phase_governance.md`
+  - `Docs/development_rules.md`
+  - `Docs/codex_modes.md`
+  - `Docs/orin_task_template.md`
+  - `Docs/codex_user_guide.md`
+  - `dev/orin_branch_governance_validation.py`
+
+## Pattern: Category-Based Single-Seam Fallback Stops Healthy Chains
+
+- symptom:
+  Codex completes and validates an admitted architecture or planning seam, then stops solely because the seam is labeled UI-model, launcher, protocol, settings, high-risk, or cross-subsystem
+- layer:
+  seam workflow governance and validator enforcement
+- root-cause pattern:
+  source-of-truth treated risk categories as automatic `Single-Seam Fallback` authority instead of requiring a concrete bounded stop condition
+- fix pattern:
+  keep bounded multi-seam continuation as the default after green seams; use category labels to require smaller seams and stronger gates, not to stop an otherwise valid chain
+- validation pattern:
+  run `python dev/orin_branch_governance_validation.py`; the validator must reject governance docs that recreate category-based fallback stop authority
 - source references:
   - `Docs/phase_governance.md`
   - `Docs/development_rules.md`

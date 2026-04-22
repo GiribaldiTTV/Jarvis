@@ -159,7 +159,21 @@ MULTI_SEAM_CONTRACT_PHRASES = (
     "bounded multi-seam workflow",
     "Next-Seam Continuation Required",
     "entry seam, not a terminal boundary",
+    "bounded stop condition",
     "Single-Seam Fallback",
+)
+
+MULTI_SEAM_PRIMARY_REPAIR_PHRASES = (
+    "Category labels are not stop conditions by themselves.",
+    "`Single-Seam Fallback` is not a category shortcut.",
+)
+
+MULTI_SEAM_PROHIBITED_CATEGORY_STOP_PHRASES = (
+    "single-seam fallback is required for bug fixes",
+    "Use single-seam fallback for:",
+    "Do not use this recipe for bug fixes, hotfixes",
+    "unclear or high-risk seams, cross-subsystem changes, settings/protocol/launcher/UI-model changes",
+    "settings, protocol, launcher-policy, or UI-model changes",
 )
 
 MULTI_SEAM_PROMPT_DOCS = (
@@ -1420,6 +1434,18 @@ def main() -> int:
                 required_phrase in text,
                 f"{relative_path}: canonical bounded multi-seam workflow contract is missing '{required_phrase}'",
             )
+        for prohibited_phrase in MULTI_SEAM_PROHIBITED_CATEGORY_STOP_PHRASES:
+            require(
+                prohibited_phrase not in text,
+                f"{relative_path}: bounded seam workflow must not recreate category-based Single-Seam Fallback stop authority via '{prohibited_phrase}'",
+            )
+
+    phase_governance_text = _read_text(Path("Docs/phase_governance.md"))
+    for required_phrase in MULTI_SEAM_PRIMARY_REPAIR_PHRASES:
+        require(
+            required_phrase in phase_governance_text,
+            f"Docs/phase_governance.md: primary seam governance is missing category-stop repair phrase '{required_phrase}'",
+        )
 
     for relative_path in MULTI_SEAM_PROMPT_DOCS:
         text = _read_text(relative_path)
