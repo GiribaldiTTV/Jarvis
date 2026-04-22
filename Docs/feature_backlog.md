@@ -32,7 +32,7 @@ Historical note:
 
 FB-039 External trigger and plugin integration architecture.
 
-Main-facing canon is no longer in steady-state `No Active Branch`; FB-039 Branch Readiness is active on `feature/fb-039-external-trigger-plugin-integration-architecture`.
+Main-facing canon is no longer in steady-state `No Active Branch`; FB-039 Workstream is active on `feature/fb-039-external-trigger-plugin-integration-architecture`.
 FB-038 remains released and closed in `v1.4.1-prebeta`.
 
 ## Merged-Unreleased Release-Debt Owner
@@ -113,14 +113,14 @@ Why it matters: The repo still needs deeper identity and wording normalization a
 
 ### [ID: FB-039] External trigger and plugin integration architecture
 
-Status: Branch Readiness
+Status: Workstream
 Record State: Promoted
 Priority: Medium
 Release Stage: pre-Beta
 Target Version: TBD
 Branch: feature/fb-039-external-trigger-plugin-integration-architecture
 Canonical Workstream Doc: Docs/workstreams/FB-039_external_trigger_plugin_integration_architecture.md
-Minimal Scope: Branch Readiness only for external trigger and plugin integration architecture; define the source map, lifecycle ownership, trust/safety boundaries, validation contract, and explicit non-goals for external trigger surfaces such as Stream Deck or other installed integration points before any implementation. No plugin runtime implementation, Stream Deck integration, protocol handling, installer work, settings surface, taskbar/tray expansion, monitoring HUD work, or release packaging is admitted during Branch Readiness.
+Minimal Scope: Workstream WS-1 only for external trigger source map and ownership vocabulary. No plugin runtime implementation, Stream Deck integration, protocol handling, installer work, settings surface, taskbar/tray expansion, monitoring HUD work, transport schema, trust/safety enforcement design, validation matrix design, helper creation, or release packaging is admitted during WS-1.
 Summary: Track future plugin and integration lifecycle design for external trigger surfaces such as Stream Deck and other installed integration points.
 Why it matters: Plugin-backed action triggering needs explicit lifecycle, safety, and ownership boundaries before it becomes part of the product.
 

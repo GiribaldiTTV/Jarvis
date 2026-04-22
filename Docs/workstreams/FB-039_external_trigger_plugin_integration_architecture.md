@@ -11,7 +11,7 @@
 
 ## Status
 
-- `Branch Readiness`
+- `Workstream`
 
 ## Release Stage
 
@@ -27,7 +27,7 @@
 
 ## Current Phase
 
-- Phase: `Branch Readiness`
+- Phase: `Workstream`
 
 ## Phase Status
 
@@ -36,7 +36,7 @@
 - branch created from updated `main` after FB-038 release/post-release confirmation green
 - FB-038 remains `Released (v1.4.1-prebeta)` / `Closed`
 - release debt is clear
-- no implementation has started
+- no runtime/product implementation has started
 
 ## Branch Class
 
@@ -54,12 +54,13 @@
 - Repo-level admission gate passed: no release debt, no stale FB-038 canon, no active implementation branch, and no existing FB-039 branch.
 - FB-039 was selected in backlog and roadmap as the next implementation workstream before this branch was created.
 - Branch Readiness is admitted to define the FB-039 source map, lifecycle ownership, trust/safety boundaries, validation contract, non-goals, and first Workstream seam before implementation.
+- Branch Readiness durability is committed and pushed; Workstream is admitted for WS-1 only.
 
 ## Branch Objective
 
 - Establish the architecture-first authority for FB-039 external trigger and plugin integration before any runtime implementation begins.
 - Define how external trigger origins are named, owned, trusted, admitted, validated, and later routed into existing Nexus action authority.
-- Keep this branch bounded to external trigger and plugin integration architecture; do not use it to implement Stream Deck, protocol transport, installer, settings, or runtime plugin behavior during Branch Readiness.
+- Keep this branch bounded to external trigger and plugin integration architecture; do not use it to implement Stream Deck, protocol transport, installer, settings, or runtime plugin behavior during WS-1.
 
 ## Target End-State
 
@@ -77,13 +78,13 @@
 
 ## User Test Summary Strategy
 
-- Branch Readiness has no meaningful manual User Test Summary because it does not change runtime or user-visible product behavior.
+- Branch Readiness had no meaningful manual User Test Summary because it did not change runtime or user-visible product behavior; WS-1 is also documentation-only and has no meaningful manual User Test Summary.
 - If a later Workstream seam introduces user-visible setup, trigger invocation, tray/overlay interaction, settings, prompt, or desktop shortcut behavior, the workstream must add a User Test Summary section and follow the returned-results blocker model before Live Validation or PR Readiness can advance.
 - If later implementation remains headless or architecture-only, the workstream must explicitly record why no meaningful manual User Test Summary applies.
 
 ## Later-Phase Expectations
 
-- Workstream may begin only after this Branch Readiness scaffold is durable and Seam 1 is explicitly admitted.
+- Workstream began only after this Branch Readiness scaffold became durable and Seam 1 was explicitly admitted.
 - Hardening must pressure-test trust boundaries, lifecycle cleanup, negative-path handling, and regression risk against saved-action, callable-group, overlay, tray, and built-in catalog baselines if implementation touches those paths.
 - Live Validation is required only if FB-039 introduces user-visible desktop behavior or operator-facing integration setup; otherwise validation may remain repo-side with a documented no-meaningful-manual-test rationale.
 - PR Readiness must confirm no helper sprawl, no scope drift into FB-040 monitoring/HUD, no unapproved runtime/plugin surface, and no stale release or branch-authority canon.
@@ -106,59 +107,138 @@
 
 - Goal: define the validation families, runtime markers, negative-path proof, cleanup proof, and user-facing/manual gates required before implementation seams can be admitted.
 - Scope: specify what later validators or helper reuse must prove and when helper creation would be justified under the registry.
-- Non-Includes: no new validator/helper creation during Branch Readiness unless a concrete, current validation gap blocks this architecture plan.
+- Non-Includes: no new validator/helper creation during WS-1 or WS-3 planning unless a concrete validation gap blocks later implementation admission.
 
 ## Active Seam
 
-- Active seam: `Branch Readiness durability repair`.
-- Workstream seam status: planned only; `Seam 1: External Trigger Source Map And Ownership Vocabulary` is the first later Workstream seam but is not active in this pass.
+- Active seam: `WS-1 External Trigger Source Map And Ownership Vocabulary`.
+- WS-1 status: active in this pass and architecture-only.
+- WS-2 status: planned only.
+- WS-3 status: planned only.
+
+## WS-1 External Trigger Source Map
+
+An external trigger source is a local or locally-adjacent origin outside the core Nexus command overlay that asks Nexus to consider starting an action, workflow, or future plugin-owned entry path.
+
+External trigger sources are not themselves Nexus action authority. They may request attention or route a trigger request into a Nexus-owned entry point, but they do not bypass Nexus confirmation, saved-action authority, callable-group behavior, trust boundaries, or user-visible failure handling.
+
+Candidate trigger-origin categories for FB-039 planning:
+
+- Hardware-adjacent trigger tools: local devices or device-control applications that expose user-initiated buttons, macro keys, decks, or equivalent physical/near-physical trigger surfaces.
+- Desktop automation tools: local automation utilities that can initiate user-configured actions or shortcuts from the desktop environment.
+- Local companion apps: installed local applications that could request Nexus action handling through a future approved integration path.
+- Future plugin-hosted sources: Nexus-adjacent plugin surfaces that may later host trigger affordances once lifecycle, trust/safety, and validation contracts exist.
+- Explicitly unsupported origins for WS-1: remote network callers, untrusted web pages, cloud webhook ingress, background services without user-visible ownership, arbitrary script injection, and any source that would require transport or security enforcement design in this seam.
+
+## WS-1 Ownership Vocabulary
+
+- External trigger: a user-initiated or tool-originated signal outside the core Nexus overlay asking Nexus to consider action handling.
+- Trigger origin: the named source category or concrete surface that produced an external trigger.
+- Trigger event: the occurrence at the origin, before Nexus accepts or interprets it.
+- Trigger request: the Nexus-facing request concept created after a trigger event is intentionally handed toward Nexus ownership.
+- Nexus entry point: the architecture-level receiving boundary where Nexus may later validate, route, reject, or surface a trigger request.
+- Supported origin: an origin category admitted by workstream truth and later validation as eligible for a Nexus entry point.
+- Unsupported origin: an origin category excluded by scope, trust posture, missing validation, or lack of user-visible ownership.
+- External-owned surface: the UI, hardware, automation tool, companion app, or plugin-hosted surface outside Nexus that emits the trigger event.
+- Nexus-owned surface: any Nexus-controlled confirmation, overlay, execution, saved-action, callable-group, failure visibility, or audit surface reached after a trigger request is accepted.
+
+## WS-1 Ownership Boundaries
+
+External systems own:
+
+- the physical, desktop, app, or future plugin-hosted surface where the trigger event begins
+- local user configuration inside that external surface
+- whether their surface presents a button, shortcut, macro, or equivalent origin affordance
+- non-Nexus device/app availability, naming, and native UI state
+
+Nexus owns:
+
+- whether an origin category is supported or unsupported
+- the Nexus entry point boundary for accepting, rejecting, or deferring a trigger request
+- any later mapping from a trigger request into existing saved-action, callable-group, overlay, confirmation, or result behavior
+- user-visible Nexus failure messaging and audit markers once a trigger request crosses into Nexus ownership
+- preservation of existing action authority, confirmation, and execution semantics
+
+Not-owned / non-goal surfaces for WS-1:
+
+- external device SDK behavior
+- Stream Deck runtime integration
+- protocol listeners or transport bindings
+- command payload schemas
+- installer or settings flows
+- trust/safety enforcement logic
+- validation matrix design
+- new helper or runtime implementation
+
+## WS-1 Entry-Point Architecture Framing
+
+The Nexus entry point is an architecture boundary, not an implementation component in WS-1.
+
+For WS-1, the entry point means: the future Nexus-owned place where a trigger request may be received, classified by origin support, and routed or rejected according to later lifecycle, trust/safety, and validation contracts.
+
+The entry point does not define a listener, transport, payload schema, protocol, plugin API, background service, or UI surface in this seam. Those decisions are intentionally deferred to later seams after WS-2 defines lifecycle/trust-safety boundaries and WS-3 defines validation/admission requirements.
+
+## WS-1 Execution Record
+
+- WS-1 executed as architecture-only documentation on the active FB-039 branch.
+- Source map: complete for bounded candidate categories and unsupported origins.
+- Ownership vocabulary: complete for later-seam terminology.
+- Ownership boundaries: complete at architecture level.
+- Entry-point framing: complete as a concept only, with no implementation contract.
+- Runtime/product implementation: none.
+- Helper creation: none.
+- WS-2 and WS-3 remain planned only.
+- Continuation decision: WS-2 may be admitted only in a later bounded Workstream pass.
 
 ## Scope
 
-- Define the external trigger source map for candidate installed integration surfaces such as Stream Deck or equivalent local trigger origins.
-- Define lifecycle ownership for trigger discovery, registration, enablement, invocation, teardown, and failure handling.
-- Define trust/safety boundaries for external inputs, local execution, saved-action authority, user confirmation, and failure visibility.
-- Define the validation contract before implementation, including expected validator families, runtime markers, negative-path proof, and any user-facing validation needs.
-- Preserve the first bounded Workstream seam sequence for later Workstream admission without executing it during Branch Readiness.
-- Carry the deferred PR #67 connector follow-up as Branch Readiness governance review: semantic release-target validation coverage for release-packaging branch records must be reviewed before implementation begins if it remains relevant to validator trust.
+- Execute WS-1 only: external trigger source map and ownership vocabulary.
+- Keep lifecycle/trust-safety contract work in WS-2 planned-only status.
+- Keep validation/admission contract work in WS-3 planned-only status.
+- Preserve architecture-level entry-point framing without implementation design, listener design, transport binding, protocol mechanics, payload schema details, settings UI, installer flow, or helper creation.
+- Carry the deferred PR #67 connector follow-up as later Workstream governance review only if it remains relevant to validator trust.
 
 ## Non-Goals
 
-- No plugin runtime implementation during Branch Readiness.
-- No Stream Deck integration implementation during Branch Readiness.
+- No plugin runtime implementation during WS-1.
+- No Stream Deck integration implementation during WS-1.
 - No protocol handling, installer work, settings surface, taskbar/tray expansion, monitoring HUD work, or release packaging.
-- No product/runtime code changes in this durability pass.
+- No product/runtime code changes in this Workstream pass.
 - No new validation helper creation unless a later Workstream seam proves an actual validation gap and registry rules are satisfied.
 - No FB-040 monitoring, thermals, or HUD scope.
+- No trust/safety enforcement logic, transport payload schema detail, validation matrix design, user-facing settings/UI, or plugin lifecycle rules in WS-1.
 
 ## Validation Contract
 
-- Branch Readiness durability validation:
+- Workstream WS-1 validation:
   - `python dev\orin_branch_governance_validation.py`
   - `git diff --check`
   - `git status --short --branch`
-- Workstream admission validation must be defined before implementation starts.
+- WS-1 is documentation-only and architecture-first; no runtime helper is required.
 - Reuse existing validator families and `Docs/validation_helper_registry.md` guidance first.
 - New helpers are blocked until a concrete validation gap exists, the helper purpose is branch-scoped or reusable by design, and registry status/consolidation rules are satisfied.
 - Any user-facing behavior introduced later must route through the User Test Summary and user-facing shortcut validation rules if applicable.
 
 ## Stop Conditions
 
-- Stop if FB-039 scope expands into plugin/runtime implementation before Branch Readiness is complete.
-- Stop if source map, lifecycle ownership, trust/safety boundaries, validation contract, or first seam cannot be stated explicitly.
+- Stop if FB-039 scope expands into plugin/runtime implementation during WS-1.
+- Stop if WS-1 starts defining lifecycle/trust-safety enforcement detail, protocol mechanics, payload schemas, validation matrix design, settings UI, installer flow, or helper implementation.
+- Stop if WS-2 or WS-3 begins executing in this pass.
+- Stop if source map, ownership vocabulary, ownership boundaries, or architecture-only entry-point framing cannot be stated explicitly.
 - Stop if any FB-038 release debt or stale release canon reappears.
 - Stop if a governance-only branch, direct-main mutation, or between-branch repair path is attempted.
 - Stop if new helper creation is proposed before reuse and registry obligations are satisfied.
-- Stop if Workstream execution begins before this Branch Readiness scaffold is committed and the first seam is explicitly admitted.
+- Stop if Workstream execution expands beyond WS-1 before WS-1 is recorded and validated.
 
 ## Exit Criteria
 
-- FB-039 is represented as the active promoted workstream in backlog, roadmap, and workstreams index.
+- FB-039 is represented as the active Workstream in backlog, roadmap, and workstreams index.
 - This workstream record contains the required phase authority fields.
-- Branch Readiness objective, target end-state, seam families/risk classes, User Test Summary strategy, later-phase expectations, initial Workstream seam sequence, active seam, scope, non-goals, validation contract, and stop conditions are explicit.
+- WS-1 external trigger source map, ownership vocabulary, ownership boundaries, and architecture-only entry-point framing are recorded.
+- WS-2 and WS-3 remain planned only.
 - FB-038 remains released/closed and release debt remains clear.
 - Repo state is no longer `No Active Branch`; active branch truth is `feature/fb-039-external-trigger-plugin-integration-architecture`.
-- No implementation has started.
+- No runtime/product implementation has started.
 
 ## Rollback Target
 
@@ -170,4 +250,4 @@
 
 ## Branch Readiness Notes
 
-This branch is admitted only to prepare FB-039 implementation safely. Workstream may begin only after this scaffold is durable and `Seam 1: External Trigger Source Map And Ownership Vocabulary` is explicitly admitted in a later Workstream pass.
+Branch Readiness durability is complete and WS-1 is now the active Workstream seam. This pass remains architecture-only and does not execute WS-2 or WS-3.
