@@ -11,7 +11,7 @@
 
 ## Status
 
-- `Active (Branch Readiness)`
+- `Active (Workstream)`
 
 ## Release Stage
 
@@ -27,18 +27,17 @@
 
 ## Current Phase
 
-- Phase: `Branch Readiness`
+- Phase: `Workstream`
 
 ## Phase Status
 
 - `Active Branch`
-- This branch is the legal Branch Readiness surface for carried-forward FB-039 post-release canon repair before FB-040 implementation can begin.
+- Branch Readiness exit is complete and FB-040 Workstream is admitted.
 - FB-039 is released and closed in `v1.5.0-prebeta`.
 - FB-039 release debt is clear.
 - Latest public prerelease truth is `v1.5.0-prebeta`.
-- This Branch Readiness pass is implementing the approved seam workflow governance contract before FB-040 Workstream begins.
-- This Branch Readiness pass also separates ChatGPT loader/prompt responsibilities from Codex execution authority before FB-040 Workstream begins.
-- This Branch Readiness pass is standardizing operator-facing PR Readiness and Release Readiness copy-block output before FB-040 Workstream begins.
+- WS-1 is the active Workstream seam for monitoring and thermal source map plus ownership vocabulary.
+- WS-2 and WS-3 remain planned only.
 - No FB-040 runtime, HUD, telemetry, thermal, monitoring, plugin, installer, or settings implementation has started.
 
 ## Branch Class
@@ -47,7 +46,7 @@
 
 ## Blockers
 
-- None after BR-1 through BR-3 repair and validation.
+- None after Branch Readiness admission/update validation.
 
 ## Entry Basis
 
@@ -56,16 +55,17 @@
 - Release debt is clear after carried-forward canon repair in Branch Readiness.
 - The active branch exists because FB-039 release/post-release drift was discovered after merge and must be repaired on the next active Branch Readiness surface before implementation.
 - FB-040 was the selected successor in FB-039 merge-target canon.
+- Branch Readiness completed with the branch objective, target end-state, seam families, validation contract, User Test Summary strategy, later-phase expectations, and initial Workstream seam sequence recorded.
 
 ## Branch Objective
 
 - Define the branch authority and first execution boundaries for monitoring, thermals, and performance HUD surfaces.
 - Keep FB-040 focused on local monitoring/HUD product boundaries rather than external trigger integration, saved-action execution, installer behavior, release packaging, or generic telemetry sprawl.
-- Complete carried-forward FB-039 post-release canon repair before any FB-040 implementation seam is admitted.
+- Preserve the completed carried-forward FB-039 post-release canon repair while FB-040 begins architecture-first Workstream seams.
 
 ## Target End-State
 
-- FB-040 has a coherent Branch Readiness scaffold that can admit Workstream only after current repo truth is clean.
+- FB-040 has a coherent Workstream scaffold and an admitted first seam for architecture-first source mapping.
 - Monitoring, thermal, and performance HUD source categories are separated from later telemetry plumbing or UI implementation.
 - First Workstream seams can begin with architecture/source-map work rather than runtime collection, HUD rendering, persistence, plugin integration, or installer changes.
 - FB-039 remains closed/released and release debt remains clear.
@@ -79,7 +79,7 @@
 
 ## User Test Summary Strategy
 
-- Branch Readiness has no manual `UTS` artifact because no user-facing FB-040 behavior exists yet.
+- The initial Workstream seams have no manual `UTS` artifact because no user-facing FB-040 behavior exists yet.
 - If later Workstream seams add a user-visible HUD, tray, overlay, shortcut, settings, or monitoring display path, the workstream must add an exact `## User Test Summary` artifact before Live Validation.
 - If FB-040 remains architecture-only or internal-only in a later phase, any UTS waiver must include explicit waiver reasons in the canonical `## User Test Summary` section.
 
@@ -113,20 +113,22 @@ Seam 3: validation and admission contract for later implementation seams
 
 ## Active Seam
 
-Active seam: GOV-O1 through GOV-O3 Branch Readiness operator-output contract standardization.
+Active seam: WS-1 monitoring and thermal source map plus ownership vocabulary.
 
-- BR-1: repair carried-forward post-release canon drift from FB-039.
-- BR-2: repair carried-forward version-governance drift and validator expectations.
-- BR-3: re-evaluate repo truth and admit FB-040 only if Branch Readiness becomes clean.
-- GOV-1: implement the refined seam workflow contract in the canonical governance owner.
-- GOV-2: align development rules and Codex mode posture to the canonical seam contract without creating duplicate authority.
-- GOV-3: validate governance alignment and confirm FB-040 remains ready for Workstream admission.
-- GOV-I1: validate governance integration and locate ChatGPT/Codex interface drift.
-- GOV-I2: clarify that ChatGPT and loader prompts are interface-only while Codex execution authority lives in owning canon.
-- GOV-I3: validate governance alignment and confirm FB-040 remains ready for Workstream admission.
-- GOV-O1: validate current PR and Release operator-output ownership and stale template drift.
-- GOV-O2: implement inclusion-only PR and Release operator copy-block contracts in the canonical owner and mirrors.
-- GOV-O3: validate governance alignment and confirm FB-040 remains ready for Workstream admission.
+- WS-1 Status: Active / admitted.
+- WS-1 Boundary: architecture-only source categories, ownership vocabulary, Nexus-owned versus external/system-owned responsibilities, and explicit unknowns for later admission.
+- WS-1 Non-Includes: no telemetry collection, sensor polling, hardware API binding, HUD rendering, persistence, settings UI, tray/taskbar work, plugin integration, installer changes, or release packaging.
+- WS-2 Status: Planned only.
+- WS-3 Status: Planned only.
+
+Completed Branch Readiness seam history:
+
+- BR-1: repaired carried-forward post-release canon drift from FB-039.
+- BR-2: repaired carried-forward version-governance drift and validator expectations.
+- BR-3: reevaluated repo truth and admitted FB-040 to Branch Readiness.
+- GOV-1 through GOV-3: implemented and aligned the canonical seam workflow contract.
+- GOV-I1 through GOV-I3: separated ChatGPT loader/prompt responsibilities from Codex execution authority.
+- GOV-O1 through GOV-O3: standardized operator-facing PR Readiness and Release Readiness copy-block output.
 
 ## Validation Contract
 
@@ -135,23 +137,25 @@ Active seam: GOV-O1 through GOV-O3 Branch Readiness operator-output contract sta
 - `git status --short --branch`
 - The validator must fail if latest public prerelease canon trails the latest local pre-Beta tag.
 - The validator must fail if a workstream whose release tag exists remains represented as merged-unreleased release debt instead of closed/released.
-- Branch Readiness is not clean unless FB-039 is closed/released, release debt is clear, FB-040 is active/promoted, and this authority record contains the required Branch Readiness scaffold.
+- Workstream admission is not clean unless FB-039 is closed/released, release debt is clear, FB-040 is active/promoted, and this authority record contains the required Workstream phase state and active WS-1 seam.
+- Workstream validation remains architecture/documentation-only until a later seam explicitly admits runtime or HUD implementation.
 
 ## Stop Conditions
 
-- Stop if FB-039 release debt, stale latest public prerelease truth, or merged-unreleased state remains.
-- Stop if FB-040 implementation work begins before Branch Readiness is clean.
+- Stop if FB-039 release debt, stale latest public prerelease truth, or merged-unreleased state returns.
+- Stop if FB-040 implementation work begins outside an admitted Workstream seam.
+- Stop if WS-1 drifts into telemetry collection, sensor polling, hardware API binding, HUD rendering, persistence, settings UI, tray/taskbar work, plugin integration, installer changes, or release packaging.
 - Stop if monitoring/HUD scope drifts into external trigger integration, saved-action execution, installer behavior, release packaging, or unrelated governance expansion.
-- Stop if validator enforcement would require broad redesign outside post-release truth and Branch Readiness durability.
+- Stop if validator enforcement would require broad redesign outside current Workstream truth.
 
 ## Exit Criteria
 
-- FB-039 is represented as `Released (v1.5.0-prebeta)` / `Closed` in backlog, roadmap, workstreams index, and its workstream record.
-- Latest public prerelease truth is `v1.5.0-prebeta`.
-- Release debt is clear.
-- FB-040 is represented as the active promoted workstream in backlog, roadmap, workstreams index, Main routing, and this workstream record.
-- Branch objective, target end-state, expected seam families/risk classes, validation contract, UTS strategy, later-phase expectations, and first Workstream seam sequence are explicit.
-- No FB-040 runtime/product implementation has started.
+- WS-1 monitoring and thermal source map plus ownership vocabulary is complete and durably recorded.
+- WS-2 HUD surface and visibility boundary framing is either completed or deliberately deferred with documented rationale.
+- WS-3 validation and admission contract for later implementation seams is complete before any runtime monitoring or HUD implementation seam begins.
+- Workstream evidence and User Test Summary obligations are current for the completed scope.
+- Direct validation is green.
+- No unresolved same-slice correctness gap remains.
 
 ## Rollback Target
 
@@ -159,7 +163,7 @@ Active seam: GOV-O1 through GOV-O3 Branch Readiness operator-output contract sta
 
 ## Next Legal Phase
 
-- `Workstream`
+- `Hardening` after Workstream exit criteria are met.
 
 ## Governance Drift Audit
 
@@ -167,5 +171,5 @@ Governance Drift Found: Yes, repaired during FB-040 Branch Readiness.
 
 - Drift Type: carried-forward post-release canon drift and version-governance validator gap.
 - Finding: FB-039 had been released as `v1.5.0-prebeta`, but durable canon still recorded latest public prerelease `v1.4.1-prebeta`, kept FB-039 as merged-unreleased release debt, and treated FB-040 as selected-only / not-created after the FB-040 branch existed.
-- Repair: latest public prerelease truth is advanced to `v1.5.0-prebeta`, FB-039 is closed/released, release debt is cleared, FB-040 is admitted as the active Branch Readiness workstream, and validator coverage is extended so the latest released tag cannot leave its owner in merged-unreleased state.
+- Repair: latest public prerelease truth is advanced to `v1.5.0-prebeta`, FB-039 is closed/released, release debt is cleared, FB-040 was admitted as the active Branch Readiness workstream, and validator coverage is extended so the latest released tag cannot leave its owner in merged-unreleased state.
 - Governance Drift Found After Repair: No unresolved drift remains after validation.
