@@ -303,14 +303,32 @@ PR_READINESS_RESPONSE_CONTRACT_PHRASES = (
     "Selected Next Implementation Branch:",
     "May Create Now: YES / NO",
     "## PR Creation Details",
-    "### Title",
-    "### Base / Head",
-    "### Summary",
-    "### Validation",
-    "### Governance / Canon",
-    "### Post-Merge Truth",
-    "### Next Branch",
-    "### Not Included",
+    "### PR Title",
+    "### Base Branch",
+    "### Head Branch",
+    "### PR Summary",
+    "inclusion-only",
+    "defensive scope language",
+)
+
+RELEASE_OPERATOR_OUTPUT_CONTRACT_DOCS = (
+    Path("Docs/phase_governance.md"),
+    Path("Docs/codex_modes.md"),
+    Path("Docs/orin_task_template.md"),
+    Path("Docs/codex_user_guide.md"),
+)
+
+RELEASE_OPERATOR_OUTPUT_CONTRACT_PHRASES = (
+    "## Release Package Details",
+    "### Release Title",
+    "### Release Tag",
+    "### Target Commit",
+    "### Release Notes",
+    "inclusion-only",
+    "what was built",
+    "what capabilities exist",
+    "how the system behaves",
+    "defensive wording",
 )
 
 PR_LIVE_STATE_DOCS = (
@@ -499,7 +517,7 @@ RELEASE_TITLE_FORMAT_DOCS = (
 
 RELEASE_TITLE_FORMAT_PHRASES = (
     PREBETA_RELEASE_TITLE_TEMPLATE,
-    "release notes",
+    "inclusion-only release notes",
 )
 
 NON_RELEASE_BRANCH_MARKER = "Release Branch: No"
@@ -1458,6 +1476,14 @@ def main() -> int:
             require(
                 required_phrase in text,
                 f"{relative_path}: PR Readiness response contract is missing '{required_phrase}'",
+            )
+
+    for relative_path in RELEASE_OPERATOR_OUTPUT_CONTRACT_DOCS:
+        text = _read_text(relative_path)
+        for required_phrase in RELEASE_OPERATOR_OUTPUT_CONTRACT_PHRASES:
+            require(
+                required_phrase in text,
+                f"{relative_path}: Release operator output contract is missing '{required_phrase}'",
             )
 
     for relative_path in PR_LIVE_STATE_DOCS:

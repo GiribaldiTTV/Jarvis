@@ -248,6 +248,7 @@ These are reference layers, not active workstream or roadmap owners.
   13. run the normal branch governance validator and the PR-readiness gate mode
   14. report `PR package ready`, create the PR, and validate the live PR state before reporting `PR READY: YES`
   15. only after the PR exists, has no conflicts, has no unresolved Codex comments/issues, and matches merge-target canon may the branch report `PR Readiness GREEN`
+- PR creation details must use the operator copy-block contract from `Docs/phase_governance.md`: separate copy-ready blocks for `PR Title`, `Base Branch`, `Head Branch`, and `PR Summary`; the summary reports included implementation and validation truth only
 - PR Readiness also owns `PR Readiness Scope Missed`, `Between-Branch Canon Repair Attempt`, and `Next Branch Created Too Early`; none may be deferred into Release Readiness or a later side branch
 - PR Readiness also owns `PR Creation Pending`, `PR Validation Pending`, and `PR State Unknown`; `PR package ready` is not `PR Readiness GREEN`
 - PR Readiness also owns the merged-unreleased release-debt owner contract when a branch will merge unreleased implementation work; the merge-target canon must already contain `Merged-Unreleased Release-Debt Owner:`, `Repo State: No Active Branch`, `Release Target:`, `Release Floor:`, `Version Rationale:`, `Release Scope:`, `Release Artifacts:`, `Post-Release Truth:`, `Selected Next Workstream:`, and `Next-Branch Creation Gate:` before PR green
@@ -260,6 +261,7 @@ These are reference layers, not active workstream or roadmap owners.
   5. never use the non-release waiver for `implementation` or `release packaging` branches
   6. never let the waiver clear `Release Debt`, weaken post-merge truth, weaken validation, or permit premature next-workstream branch creation
 - Release Readiness is not a docs-sync phase and not a file-mutation phase; it is analysis-only for repository files and is restricted to release-target validation, release-scope validation, release-artifact validation, GitHub release package information, final release-execution authorization or confirmation, and release-state confirmation after release execution
+- Release package details must use the operator copy-block contract from `Docs/phase_governance.md`: separate copy-ready blocks for `Release Title`, `Release Tag`, `Target Commit`, and `Release Notes`; release notes are detailed, user-facing, and inclusion-only
 - Release Readiness must not edit, stage, commit, generate, or refresh source, docs, canon, validator, helper, release-note, or handoff files; if such work is discovered before merge, return to `PR Readiness`, and if discovered after merge, defer it to the next active branch's `Branch Readiness`
 - tracked file changes while the authority record says `Release Readiness` are blocked as `Release Readiness File Mutation Attempt`
 - a post-release canon repair must not mutate `main`; if merged canon is stale, carry the repair on the still-available prior branch or block the next active branch's `Branch Readiness`

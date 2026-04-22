@@ -371,7 +371,7 @@ Return:
 - Validation Results
 - Ready-To-Commit Decision
 - Whether PR Readiness is GREEN
-- PR Creation Details, if package-ready
+- PR Creation Details operator copy blocks, if package-ready
 - Next Legal Phase
 - Next Safe Move
 ```
@@ -416,6 +416,7 @@ Return:
 - Post-Release Truth
 - Validation Results
 - Whether Release Readiness is GREEN
+- Release Package Details operator copy blocks, if green
 - Remaining Blockers
 - Next Legal Phase
 - Next Safe Move

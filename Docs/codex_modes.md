@@ -230,23 +230,36 @@ When the approved phase is `PR Readiness`, the output must also explicitly inclu
 - Reason:
 ```
 
-- when PR Readiness is package-ready or `PR package ready`, a copy-ready markdown PR package with this exact section shape:
+- when PR Readiness is package-ready or `PR package ready`, inclusion-only PR operator copy blocks with this exact shape:
 
-```markdown
+````markdown
 ## PR Creation Details
-### Title
-### Base / Head
-### Summary
-### Validation
-### Governance / Canon
-### Post-Merge Truth
-### Next Branch
-### Not Included
+### PR Title
+```text
+<title only>
 ```
+
+### Base Branch
+```text
+<base branch only>
+```
+
+### Head Branch
+```text
+<head branch only>
+```
+
+### PR Summary
+```markdown
+<implemented work only>
+```
+````
 
 The `Next Branch` section must separate the next legal branch type/name from the selected next implementation workstream branch.
 If release debt, updated-`main` revalidation, or another admission gate blocks branch creation, `May Create Now: NO` is required with the reason.
 The `PR Creation Details` block is preparation material only; it must not imply PR creation, merge execution, release execution, next-branch creation, or PR Readiness GREEN has occurred.
+Each PR operator field must be its own copy-ready block and must be usable independently.
+The PR summary must include implemented branch truth only. Do not include exclusion lists, `Not Included` sections, or defensive scope language.
 PR Readiness GREEN requires the PR to exist, be open, be non-draft, have no conflicts, match merge-target canon, and have no unresolved Codex comments/issues or requested changes.
 
 When the approved phase is `Release Readiness`, the output must also explicitly include:
@@ -268,6 +281,33 @@ When the approved phase is `Release Readiness`, the output must also explicitly 
 - confirmation that Release Readiness is not being used as a docs-sync or branch-authority cleanup phase
 - confirmation that Release Readiness is analysis-only for repository files and that no source, docs, canon, validator, helper, release-note, or handoff files were edited, staged, committed, generated, or refreshed
 - if any file change is needed, classification as `Release Readiness File Mutation Attempt`, then return to `PR Readiness` before merge or defer to the next active branch's `Branch Readiness` after merge instead of patching inside Release Readiness
+- when Release Readiness is green for release execution, inclusion-only release operator copy blocks with this exact shape:
+
+````markdown
+## Release Package Details
+### Release Title
+```text
+<release title only>
+```
+
+### Release Tag
+```text
+<tag only>
+```
+
+### Target Commit
+```text
+<commit sha only>
+```
+
+### Release Notes
+```markdown
+<detailed user-facing release notes>
+```
+````
+
+- release notes must clearly explain what was built, what capabilities exist, and how the system behaves
+- release notes must not include exclusion lists, `Not Included` sections, negative scope framing, or defensive wording
 
 Do not report cleanup as complete unless the pass has explicitly checked for leftover apps, windows, dialogs, helper processes, probe files, or other temporary artifacts it created or opened.
 

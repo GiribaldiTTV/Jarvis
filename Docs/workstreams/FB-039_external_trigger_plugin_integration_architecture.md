@@ -1874,7 +1874,7 @@ Release Target: v1.5.0-prebeta
 Release Floor: minor prerelease
 Version Rationale: FB-039 created the external trigger and plugin integration architecture lane with an internal trigger intake boundary, so it was a new pre-Beta capability lane rather than patch-only UX, sequencing, or governance repair.
 Release Scope: Internal-only external trigger intake architecture and runtime boundary, including source map, ownership vocabulary, lifecycle/trust framing, in-memory registration, bounded invocation follow-through, lifecycle transitions, decision evidence, boundary snapshots, readiness inspection, readiness sweep, readiness summary, and readiness detail snapshot.
-Release Artifacts: Tag v1.5.0-prebeta; release title Pre-Beta v1.5.0; release notes summarize the FB-039 internal-only trigger intake milestone, validation evidence, Live Validation waivers, and explicit non-includes.
+Release Artifacts: Tag v1.5.0-prebeta; release title Pre-Beta v1.5.0; inclusion-only release notes summarize the FB-039 internal-only trigger intake milestone, capabilities, system behavior, validation evidence, and Live Validation waivers.
 Post-Release Truth: FB-039 is `Closed` / `Released (v1.5.0-prebeta)`, release debt is clear, roadmap latest public prerelease is `v1.5.0-prebeta`, and FB-040 Branch Readiness is admitted on `feature/fb-040-monitoring-thermals-performance-hud-surface`.
 Selected Next Workstream: FB-040 Monitoring, thermals, and performance HUD surface.
 Historical Next-Branch Creation Gate: FB-040 remained selected-only and `Branch: Not created` until FB-039 release debt cleared and updated `main` admitted FB-040 Branch Readiness.

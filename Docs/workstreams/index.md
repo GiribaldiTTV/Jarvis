@@ -27,6 +27,7 @@ Use `Docs/validation_helper_registry.md` for durable root `dev/` helper naming, 
 - backlog remains the identity registry and points here through `Canonical Workstream Doc`
 - roadmap consumes this layer for sequencing but does not duplicate its full execution story
 - repo-wide phase, timeout, proof-authority, seam, stop-loss, validation-helper, and desktop UI audit rules live in `Docs/phase_governance.md`, not in individual workstream docs
+- operator-facing PR and release output contracts live in `Docs/phase_governance.md`; workstream docs may provide the underlying implemented work, validation, release scope, and post-merge truth, but final operator PR summaries and release notes must use inclusion-only copy blocks and must not add exclusion lists or `Not Included` sections
 - for active desktop workstreams, the default canonical repo-level `UTS` artifact is the `## User Test Summary` section inside the workstream doc unless that doc explicitly declares a different repo path
 - for relevant desktop slices, `C:\Users\anden\OneDrive\Desktop\User Test Summary.txt` is the required user-facing exported copy unless an explicit documented exception applies
 - response-level `## User Test Summary` text does not replace the workstream-owned repo artifact

@@ -224,7 +224,7 @@ Branch-local "what worked" notes should stay in the canonical workstream doc fir
 - root-cause pattern:
   source-of-truth does not record the public GitHub prerelease title format separately from release-note summary content
 - fix pattern:
-  use `Pre-Beta v<major>.<minor>.<patch>` as the public GitHub release title format for Nexus pre-Beta releases; put milestone name, scope, evidence, and exclusions in release notes
+  use `Pre-Beta v<major>.<minor>.<patch>` as the public GitHub release title format for Nexus pre-Beta releases; put milestone name, user-facing scope, capabilities, behavior, and evidence in inclusion-only release notes
 - validation pattern:
   run `python dev/orin_branch_governance_validation.py`; release artifacts and released-state canon should use the concise title format while release notes carry the scoped milestone summary
 - source references:

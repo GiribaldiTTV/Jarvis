@@ -476,7 +476,7 @@ If the normal governance validator passes but the PR-specific gate reports dirty
 
 ### PR Readiness Response Contract
 
-When `PR Readiness` reports package-ready or `PR package ready`, the response must include a repo-wide standardized `Next Branch` block and a markdown-friendly `PR Creation Details` package.
+When `PR Readiness` reports package-ready or `PR package ready`, the response must include a repo-wide standardized `Next Branch` block and markdown-friendly PR operator copy blocks.
 Those package details are the input to PR creation and validation; they are not themselves proof that PR Readiness is GREEN.
 This is a response contract, not permission to create the PR, merge the branch, release the branch, or create the next branch.
 
@@ -498,23 +498,42 @@ Required `Next Branch` block:
 - Reason:
 ```
 
-Required PR-package markdown:
+Required PR operator copy blocks:
 
-```markdown
+````markdown
 ## PR Creation Details
-### Title
-### Base / Head
-### Summary
-### Validation
-### Governance / Canon
-### Post-Merge Truth
-### Next Branch
-### Not Included
+### PR Title
+```text
+<title only>
 ```
 
-The PR package must be copy-ready markdown.
-It must summarize the actual PR title, base/head, implemented scope, validation evidence, governance/canon state, post-merge truth, next-branch handling, and explicit non-includes.
+### Base Branch
+```text
+<base branch only>
+```
+
+### Head Branch
+```text
+<head branch only>
+```
+
+### PR Summary
+```markdown
+<implemented work only>
+```
+````
+
+Each PR operator field must be its own copy-ready block and must be usable independently.
+The PR summary must describe implemented work, validation evidence, governance/canon state, post-merge truth, and next-branch handling only when those items are part of the implemented branch truth.
+The PR summary must not include exclusion lists, `Not Included` sections, or defensive scope language.
 If `May Create Now` is `NO`, the `Next Branch` subsection must explain the blocking gate rather than implying branch creation is allowed.
+
+### Operator Output Content Rule
+
+Operator-facing PR summaries and GitHub release notes are inclusion-only.
+They must report what exists, what was implemented, what capabilities are available, how the system behaves, and which validation or release facts support the package.
+They must not report what was not done, include exclusion lists, use `Not Included` sections, or use defensive scope framing.
+This rule governs operator output packages; it does not remove normal canon requirements for branch scope, non-goals, stop conditions, or blockers in source-of-truth records.
 
 ### User-Facing Shortcut Live Validation Gate
 
@@ -657,6 +676,40 @@ Forbidden in `Release Readiness`:
 - any source, docs, canon, validator, helper, release-note, or handoff-file mutation
 - any direct write to protected `main`
 
+### Release Readiness Operator Output Contract
+
+When `Release Readiness` is green for release execution, the response must include markdown-friendly release operator copy blocks for direct GitHub release use.
+
+Required release operator copy blocks:
+
+````markdown
+## Release Package Details
+### Release Title
+```text
+<release title only>
+```
+
+### Release Tag
+```text
+<tag only>
+```
+
+### Target Commit
+```text
+<commit sha only>
+```
+
+### Release Notes
+```markdown
+<detailed user-facing release notes>
+```
+````
+
+Each release operator field must be its own copy-ready block and must be usable independently.
+Release notes must be detailed, descriptive, and user-facing.
+They must clearly explain what was built, what capabilities exist, and how the system behaves.
+Release notes must follow the operator output content rule: report included work only, with no exclusion lists, `Not Included` sections, negative scope framing, or defensive wording.
+
 If Release Readiness discovers missing PR-owned canon or docs work, stop immediately and classify the issue as `PR Readiness Scope Missed` and `Release Readiness Scope Drift`.
 If the branch has not merged, return to `PR Readiness` and repair the miss there before any Release Readiness output can be treated as green.
 If the branch has already merged, the next active branch's `Branch Readiness` must repair the miss before implementation begins and must update governance or validator coverage so the miss cannot recur.
@@ -761,7 +814,8 @@ That validator should verify at minimum:
 - the canonical `bounded multi-seam workflow` contract is present in governance and operator scaffolds
 - prompt scaffolds teach `Seam Sequence`, per-seam validation, and continue-or-stop decisions for multi-seam Workstream execution
 - docs do not teach direct `Workstream` -> `PR Readiness` as the default path
-- PR Readiness prompt scaffolds require the standardized `## Next Branch` block and `## PR Creation Details` markdown package before reporting PR green
+- PR Readiness prompt scaffolds require the standardized `## Next Branch` block and inclusion-only `## PR Creation Details` operator copy blocks before reporting PR green
+- Release Readiness prompt scaffolds require inclusion-only `## Release Package Details` operator copy blocks when release execution is green
 
 A governance or current-state canon branch is not complete until that validator is green.
 
@@ -1303,7 +1357,7 @@ Required evidence:
 - post-merge truth fully encoded before merge
 - Governance Drift Audit completed
 - docs sync complete and validator-aligned
-- standardized `## Next Branch` response block and copy-ready `## PR Creation Details` markdown package prepared
+- standardized `## Next Branch` response block and inclusion-only `## PR Creation Details` operator copy blocks prepared
 - clean worktree with required branch truth durable in commit history
 - GitHub PR created for the current head branch and intended base branch
 - PR exists, is open, non-draft, conflict-free, and inspectable
