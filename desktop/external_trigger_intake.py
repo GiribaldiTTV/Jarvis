@@ -76,6 +76,27 @@ class TriggerIntakeBoundarySnapshot:
 
 
 @dataclass(frozen=True)
+class TriggerIntakeReadinessResult:
+    request: TriggerIntakeRequest
+    decision: str
+    reason: str
+    origin_category_known: bool = False
+    origin_category_blocked: bool = False
+    origin_registered: bool = False
+    origin_enabled: bool = False
+    registration_support_admitted: bool = False
+    routed_to_execution: bool = False
+    execution_authorized: bool = False
+    cleanup_required: bool = False
+    evidence: TriggerDecisionEvidence | None = None
+    boundary_snapshot: TriggerIntakeBoundarySnapshot | None = None
+
+    @property
+    def accepted(self) -> bool:
+        return False
+
+
+@dataclass(frozen=True)
 class TriggerRegistrationResult:
     registration: TriggerOriginRegistration | None
     registered: bool
@@ -488,6 +509,68 @@ class InternalTriggerIntakeBoundary:
             else None,
         )
 
+    def inspect_readiness(
+        self,
+        request: TriggerIntakeRequest | dict,
+    ) -> TriggerIntakeReadinessResult:
+        normalized_request = coerce_trigger_intake_request(request)
+        category = normalized_request.origin_category
+
+        if not normalized_request.origin_id:
+            return self._readiness_result(normalized_request, "invalid_origin_id")
+        if not category:
+            return self._readiness_result(normalized_request, "invalid_origin_category")
+        if category in self._blocked_origin_categories:
+            return self._readiness_result(
+                normalized_request,
+                "blocked_origin_category",
+                category_blocked=True,
+            )
+        if category not in self._known_origin_categories:
+            return self._readiness_result(normalized_request, "unsupported_origin_category")
+
+        if self._origin_registry is None:
+            return self._readiness_result(
+                normalized_request,
+                "registration_support_not_admitted",
+                decision=TRIGGER_INTAKE_DECISION_DEFERRED,
+                category_known=True,
+            )
+
+        registration = self._origin_registry.lookup(normalized_request.origin_id)
+        if registration is None:
+            return self._readiness_result(
+                normalized_request,
+                "origin_not_registered",
+                decision=TRIGGER_INTAKE_DECISION_DEFERRED,
+                category_known=True,
+            )
+        if registration.origin_category != category:
+            return self._readiness_result(
+                normalized_request,
+                "origin_registration_mismatch",
+                category_known=True,
+                origin_registered=True,
+                origin_enabled=registration.enabled,
+            )
+        if not registration.enabled:
+            return self._readiness_result(
+                normalized_request,
+                "origin_not_enabled",
+                decision=TRIGGER_INTAKE_DECISION_DEFERRED,
+                category_known=True,
+                origin_registered=True,
+            )
+
+        return self._readiness_result(
+            normalized_request,
+            "invocation_follow_through_not_admitted",
+            decision=TRIGGER_INTAKE_DECISION_DEFERRED,
+            category_known=True,
+            origin_registered=True,
+            origin_enabled=True,
+        )
+
     def receive(self, request: TriggerIntakeRequest | dict) -> TriggerIntakeResult:
         normalized_request = coerce_trigger_intake_request(request)
         category = normalized_request.origin_category
@@ -588,6 +671,62 @@ class InternalTriggerIntakeBoundary:
             ),
         )
 
+    def _readiness_result(
+        self,
+        request: TriggerIntakeRequest,
+        reason: str,
+        *,
+        decision: str = TRIGGER_INTAKE_DECISION_REJECTED,
+        category_known: bool = False,
+        category_blocked: bool = False,
+        origin_registered: bool = False,
+        origin_enabled: bool = False,
+    ) -> TriggerIntakeReadinessResult:
+        return TriggerIntakeReadinessResult(
+            request=request,
+            decision=decision,
+            reason=reason,
+            origin_category_known=category_known,
+            origin_category_blocked=category_blocked,
+            origin_registered=origin_registered,
+            origin_enabled=origin_enabled,
+            registration_support_admitted=self._origin_registry is not None,
+            evidence=self._readiness_evidence(
+                request,
+                decision=decision,
+                reason=reason,
+                category_known=category_known,
+                category_blocked=category_blocked,
+                origin_registered=origin_registered,
+                origin_enabled=origin_enabled,
+            ),
+            boundary_snapshot=self.snapshot(),
+        )
+
+    def _readiness_evidence(
+        self,
+        request: TriggerIntakeRequest,
+        *,
+        decision: str,
+        reason: str,
+        category_known: bool = False,
+        category_blocked: bool = False,
+        origin_registered: bool = False,
+        origin_enabled: bool = False,
+    ) -> TriggerDecisionEvidence:
+        return _trigger_decision_evidence(
+            boundary="internal_trigger_intake",
+            operation="inspect_readiness",
+            origin_id=request.origin_id,
+            origin_category=request.origin_category,
+            decision=decision,
+            reason=reason,
+            origin_category_known=category_known,
+            origin_category_blocked=category_blocked,
+            origin_registered=origin_registered,
+            origin_enabled=origin_enabled,
+        )
+
     def _intake_evidence(
         self,
         request: TriggerIntakeRequest,
@@ -621,6 +760,7 @@ __all__ = (
     "TRIGGER_INTAKE_DECISION_REJECTED",
     "TriggerDecisionEvidence",
     "TriggerIntakeBoundarySnapshot",
+    "TriggerIntakeReadinessResult",
     "TriggerIntakeRequest",
     "TriggerIntakeResult",
     "TriggerOriginLifecycleResult",

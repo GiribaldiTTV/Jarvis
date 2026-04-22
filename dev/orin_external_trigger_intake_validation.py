@@ -42,7 +42,7 @@ def _assert_evidence(
     _assert(not evidence.cleanup_required, f"{message}: evidence cleanup_required must stay false")
 
 
-def _assert_no_execution(result, message: str) -> None:
+def _assert_no_execution(result, message: str, *, operation: str = "receive") -> None:
     _assert(not result.routed_to_execution, f"{message}: routed_to_execution must stay false")
     _assert(not result.execution_authorized, f"{message}: execution_authorized must stay false")
     _assert(not result.cleanup_required, f"{message}: cleanup_required must stay false")
@@ -51,7 +51,7 @@ def _assert_no_execution(result, message: str) -> None:
         result.evidence,
         message,
         boundary="internal_trigger_intake",
-        operation="receive",
+        operation=operation,
         decision=result.decision,
         reason=result.reason,
     )
@@ -501,11 +501,176 @@ def validate_state_snapshot_contract() -> None:
     print("PASS: trigger boundary state snapshot contract")
 
 
+def validate_readiness_inspection_contract() -> None:
+    registry = TriggerOriginRegistry()
+    enabled_result = registry.register(
+        TriggerOriginRegistration(
+            origin_id="Deck Button 1",
+            origin_category="hardware_adjacent",
+            user_visible_label="Deck Button 1",
+            enabled=True,
+        )
+    )
+    _assert(enabled_result.registered, "readiness setup should register enabled origin")
+    disabled_result = registry.register(
+        TriggerOriginRegistration(
+            origin_id="Automation A",
+            origin_category="desktop_automation",
+            user_visible_label="Automation A",
+            enabled=False,
+        )
+    )
+    _assert(disabled_result.registered, "readiness setup should register disabled origin")
+
+    no_registry = InternalTriggerIntakeBoundary().inspect_readiness(
+        {
+            "origin_id": "Deck Button 1",
+            "origin_category": "hardware_adjacent",
+        }
+    )
+    _assert(
+        no_registry.decision == TRIGGER_INTAKE_DECISION_DEFERRED,
+        "readiness without registry should defer",
+    )
+    _assert(
+        no_registry.reason == "registration_support_not_admitted",
+        "readiness without registry should report missing registration support",
+    )
+    _assert(
+        not no_registry.registration_support_admitted,
+        "readiness without registry should not mark support admitted",
+    )
+    _assert(
+        no_registry.boundary_snapshot is not None,
+        "readiness without registry should include boundary snapshot",
+    )
+    _assert(
+        not no_registry.boundary_snapshot.registration_support_admitted,
+        "readiness snapshot without registry should show no registration support",
+    )
+    _assert_no_execution(no_registry, "readiness without registry", operation="inspect_readiness")
+
+    boundary = InternalTriggerIntakeBoundary(origin_registry=registry)
+    before_snapshot = registry.snapshot()
+    unregistered = boundary.inspect_readiness(
+        {
+            "origin_id": "Unregistered Button",
+            "origin_category": "hardware_adjacent",
+        }
+    )
+    _assert(
+        unregistered.decision == TRIGGER_INTAKE_DECISION_DEFERRED,
+        "unregistered readiness should defer",
+    )
+    _assert(
+        unregistered.reason == "origin_not_registered",
+        "unregistered readiness should report origin_not_registered",
+    )
+    _assert(unregistered.origin_category_known, "unregistered readiness should mark known category")
+    _assert(
+        unregistered.registration_support_admitted,
+        "unregistered readiness should mark support admitted",
+    )
+    _assert_no_execution(unregistered, "unregistered readiness", operation="inspect_readiness")
+
+    disabled = boundary.inspect_readiness(
+        {
+            "origin_id": "Automation A",
+            "origin_category": "desktop_automation",
+        }
+    )
+    _assert(
+        disabled.reason == "origin_not_enabled",
+        "disabled readiness should report origin_not_enabled",
+    )
+    _assert(disabled.origin_registered, "disabled readiness should mark registered")
+    _assert(not disabled.origin_enabled, "disabled readiness should not mark enabled")
+    _assert_no_execution(disabled, "disabled readiness", operation="inspect_readiness")
+
+    enabled = boundary.inspect_readiness(
+        {
+            "origin_id": "Deck Button 1",
+            "origin_category": "hardware_adjacent",
+        }
+    )
+    _assert(
+        enabled.reason == "invocation_follow_through_not_admitted",
+        "enabled readiness should stop at follow-through boundary",
+    )
+    _assert(enabled.origin_registered, "enabled readiness should mark registered")
+    _assert(enabled.origin_enabled, "enabled readiness should mark enabled")
+    _assert(
+        enabled.boundary_snapshot.registry_snapshot == before_snapshot,
+        "enabled readiness should include current immutable registry snapshot",
+    )
+    _assert_no_execution(enabled, "enabled readiness", operation="inspect_readiness")
+
+    mismatch = boundary.inspect_readiness(
+        {
+            "origin_id": "Deck Button 1",
+            "origin_category": "desktop_automation",
+        }
+    )
+    _assert(
+        mismatch.decision == TRIGGER_INTAKE_DECISION_REJECTED,
+        "readiness category mismatch should reject",
+    )
+    _assert(
+        mismatch.reason == "origin_registration_mismatch",
+        "readiness category mismatch should report mismatch",
+    )
+    _assert(mismatch.origin_registered, "mismatch readiness should mark registered")
+    _assert(mismatch.origin_enabled, "mismatch readiness should preserve enabled state")
+    _assert_no_execution(mismatch, "mismatch readiness", operation="inspect_readiness")
+
+    blocked = boundary.inspect_readiness(
+        {
+            "origin_id": "Remote Network",
+            "origin_category": "remote_network",
+        }
+    )
+    _assert(
+        blocked.decision == TRIGGER_INTAKE_DECISION_REJECTED,
+        "blocked readiness should reject",
+    )
+    _assert(
+        blocked.reason == "blocked_origin_category",
+        "blocked readiness should report blocked category",
+    )
+    _assert(blocked.origin_category_blocked, "blocked readiness should mark blocked category")
+    _assert_no_execution(blocked, "blocked readiness", operation="inspect_readiness")
+
+    unsupported = boundary.inspect_readiness(
+        {
+            "origin_id": "Unsupported",
+            "origin_category": "unknown_tool",
+        }
+    )
+    _assert(
+        unsupported.reason == "unsupported_origin_category",
+        "unsupported readiness should report unsupported category",
+    )
+    _assert_no_execution(unsupported, "unsupported readiness", operation="inspect_readiness")
+
+    after_snapshot = registry.snapshot()
+    _assert(after_snapshot == before_snapshot, "readiness inspection should not mutate registry state")
+
+    try:
+        enabled.boundary_snapshot.boundary = "changed"
+    except FrozenInstanceError:
+        pass
+    else:
+        raise AssertionError("readiness boundary snapshot should be immutable")
+
+    print("PASS: trigger readiness inspection contract")
+
+
 def main() -> int:
     validate_registration_contract()
     validate_invocation_follow_through_contract()
     validate_lifecycle_state_transition_contract()
     validate_state_snapshot_contract()
+    validate_readiness_inspection_contract()
     print("EXTERNAL TRIGGER INTAKE VALIDATION: PASS")
     return 0
 
