@@ -137,6 +137,39 @@ class TriggerRegistryReadinessSummary:
 
 
 @dataclass(frozen=True)
+class TriggerRegistryReadinessDetail:
+    origin_id: str
+    origin_category: str
+    user_visible_label: str = ""
+    decision: str = ""
+    reason: str = ""
+    origin_registered: bool = False
+    origin_enabled: bool = False
+    routed_to_execution: bool = False
+    execution_authorized: bool = False
+    cleanup_required: bool = False
+
+    @property
+    def accepted(self) -> bool:
+        return False
+
+
+@dataclass(frozen=True)
+class TriggerRegistryReadinessDetailSnapshot:
+    boundary: str
+    summary: TriggerRegistryReadinessSummary
+    details: tuple[TriggerRegistryReadinessDetail, ...] = ()
+    detailed_count: int = 0
+    routed_to_execution: bool = False
+    execution_authorized: bool = False
+    cleanup_required: bool = False
+
+    @property
+    def accepted(self) -> bool:
+        return False
+
+
+@dataclass(frozen=True)
 class TriggerRegistrationResult:
     registration: TriggerOriginRegistration | None
     registered: bool
@@ -690,6 +723,27 @@ class InternalTriggerIntakeBoundary:
             ),
         )
 
+    def inspect_registry_readiness_details(self) -> TriggerRegistryReadinessDetailSnapshot:
+        summary = self.summarize_registry_readiness()
+        details = tuple(
+            TriggerRegistryReadinessDetail(
+                origin_id=inspection.request.origin_id,
+                origin_category=inspection.request.origin_category,
+                user_visible_label=inspection.request.user_visible_label,
+                decision=inspection.decision,
+                reason=inspection.reason,
+                origin_registered=inspection.origin_registered,
+                origin_enabled=inspection.origin_enabled,
+            )
+            for inspection in summary.sweep.inspections
+        )
+        return TriggerRegistryReadinessDetailSnapshot(
+            boundary="internal_trigger_registry_readiness_details",
+            summary=summary,
+            details=details,
+            detailed_count=len(details),
+        )
+
     def receive(self, request: TriggerIntakeRequest | dict) -> TriggerIntakeResult:
         normalized_request = coerce_trigger_intake_request(request)
         category = normalized_request.origin_category
@@ -886,6 +940,8 @@ __all__ = (
     "TriggerOriginRegistration",
     "TriggerOriginRegistry",
     "TriggerOriginRegistrySnapshot",
+    "TriggerRegistryReadinessDetail",
+    "TriggerRegistryReadinessDetailSnapshot",
     "TriggerRegistryReadinessSweepResult",
     "TriggerRegistryReadinessSummary",
     "TriggerRegistrationResult",

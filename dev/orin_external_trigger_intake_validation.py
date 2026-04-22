@@ -82,6 +82,23 @@ def _assert_summary_no_execution(summary, message: str) -> None:
     _assert_sweep_no_execution(summary.sweep, message)
 
 
+def _assert_detail_no_execution(detail, message: str) -> None:
+    _assert(not detail.routed_to_execution, f"{message}: detail routed_to_execution must stay false")
+    _assert(not detail.execution_authorized, f"{message}: detail execution_authorized must stay false")
+    _assert(not detail.cleanup_required, f"{message}: detail cleanup_required must stay false")
+    _assert(not detail.accepted, f"{message}: detail accepted must stay false")
+
+
+def _assert_detail_snapshot_no_execution(snapshot, message: str) -> None:
+    _assert(not snapshot.routed_to_execution, f"{message}: routed_to_execution must stay false")
+    _assert(not snapshot.execution_authorized, f"{message}: execution_authorized must stay false")
+    _assert(not snapshot.cleanup_required, f"{message}: cleanup_required must stay false")
+    _assert(not snapshot.accepted, f"{message}: accepted must stay false")
+    _assert_summary_no_execution(snapshot.summary, message)
+    for detail in snapshot.details:
+        _assert_detail_no_execution(detail, message)
+
+
 def validate_registration_contract() -> None:
     registry = TriggerOriginRegistry()
 
@@ -923,6 +940,142 @@ def validate_registry_readiness_summary_contract() -> None:
     print("PASS: trigger registry readiness summary contract")
 
 
+def validate_registry_readiness_detail_snapshot_contract() -> None:
+    no_registry_details = InternalTriggerIntakeBoundary().inspect_registry_readiness_details()
+    _assert(
+        no_registry_details.boundary == "internal_trigger_registry_readiness_details",
+        "no-registry details should identify registry readiness details boundary",
+    )
+    _assert(
+        no_registry_details.summary.reason == "registration_support_not_admitted",
+        "no-registry details should preserve missing registration support summary",
+    )
+    _assert(no_registry_details.details == (), "no-registry details should expose empty detail tuple")
+    _assert(no_registry_details.detailed_count == 0, "no-registry details should report zero details")
+    _assert_detail_snapshot_no_execution(no_registry_details, "no-registry readiness details")
+
+    empty_registry_details = InternalTriggerIntakeBoundary(
+        origin_registry=TriggerOriginRegistry()
+    ).inspect_registry_readiness_details()
+    _assert(
+        empty_registry_details.summary.reason == "no_registered_origins",
+        "empty-registry details should preserve empty-registry summary",
+    )
+    _assert(empty_registry_details.details == (), "empty-registry details should expose empty detail tuple")
+    _assert(empty_registry_details.detailed_count == 0, "empty-registry details should report zero details")
+    _assert_detail_snapshot_no_execution(empty_registry_details, "empty-registry readiness details")
+
+    disabled_registry = TriggerOriginRegistry()
+    disabled_result = disabled_registry.register(
+        TriggerOriginRegistration(
+            origin_id="Automation A",
+            origin_category="desktop_automation",
+            user_visible_label="Automation A",
+            enabled=False,
+        )
+    )
+    _assert(disabled_result.registered, "disabled details setup should register disabled origin")
+    disabled_snapshot = disabled_registry.snapshot()
+    disabled_details = InternalTriggerIntakeBoundary(
+        origin_registry=disabled_registry
+    ).inspect_registry_readiness_details()
+    _assert(
+        disabled_details.summary.reason == "no_enabled_origins",
+        "disabled-only details should preserve no-enabled summary",
+    )
+    _assert(disabled_details.detailed_count == 1, "disabled-only details should report one detail")
+    _assert(disabled_details.details[0].origin_id == "Automation A", "disabled detail should preserve origin id")
+    _assert(
+        disabled_details.details[0].reason == "origin_not_enabled",
+        "disabled detail should preserve readiness reason",
+    )
+    _assert(disabled_details.details[0].origin_registered, "disabled detail should mark registered")
+    _assert(not disabled_details.details[0].origin_enabled, "disabled detail should not mark enabled")
+    _assert(disabled_registry.snapshot() == disabled_snapshot, "disabled details should not mutate registry")
+    _assert_detail_snapshot_no_execution(disabled_details, "disabled-only readiness details")
+
+    registry = TriggerOriginRegistry()
+    deck_result = registry.register(
+        TriggerOriginRegistration(
+            origin_id="Deck Button 1",
+            origin_category="hardware_adjacent",
+            user_visible_label="Deck Button 1",
+            enabled=True,
+        )
+    )
+    _assert(deck_result.registered, "details setup should register enabled origin")
+    automation_result = registry.register(
+        TriggerOriginRegistration(
+            origin_id="Automation A",
+            origin_category="desktop_automation",
+            user_visible_label="Automation A",
+            enabled=False,
+        )
+    )
+    _assert(automation_result.registered, "details setup should register disabled origin")
+    before_snapshot = registry.snapshot()
+    details = InternalTriggerIntakeBoundary(origin_registry=registry).inspect_registry_readiness_details()
+    _assert(details.summary.reason == "invocation_follow_through_not_admitted", "details should preserve summary")
+    _assert(details.detailed_count == 2, "details should report registered origin details")
+    _assert(
+        tuple(detail.origin_id for detail in details.details)
+        == ("Automation A", "Deck Button 1"),
+        "details should follow deterministic registry snapshot order",
+    )
+    _assert(
+        tuple(detail.reason for detail in details.details)
+        == ("origin_not_enabled", "invocation_follow_through_not_admitted"),
+        "details should preserve readiness reasons",
+    )
+    _assert(
+        tuple(detail.origin_enabled for detail in details.details) == (False, True),
+        "details should preserve enablement state",
+    )
+    _assert(details.summary.sweep.inspected_count == details.detailed_count, "details should mirror sweep count")
+    _assert(registry.snapshot() == before_snapshot, "details should not mutate registry state")
+    _assert_detail_snapshot_no_execution(details, "populated readiness details")
+
+    custom_registry = TriggerOriginRegistry(known_origin_categories=("custom_local",))
+    custom_result = custom_registry.register(
+        TriggerOriginRegistration(
+            origin_id="Custom Trigger",
+            origin_category="custom_local",
+            user_visible_label="Custom Trigger",
+            enabled=True,
+        )
+    )
+    _assert(custom_result.registered, "rejected details setup should register custom origin")
+    rejected_details = InternalTriggerIntakeBoundary(
+        origin_registry=custom_registry
+    ).inspect_registry_readiness_details()
+    _assert(
+        rejected_details.summary.decision == TRIGGER_INTAKE_DECISION_REJECTED,
+        "rejected details should reject when summary rejects",
+    )
+    _assert(rejected_details.detailed_count == 1, "rejected details should report one detail")
+    _assert(
+        rejected_details.details[0].reason == "unsupported_origin_category",
+        "rejected detail should preserve unsupported readiness reason",
+    )
+    _assert_detail_snapshot_no_execution(rejected_details, "rejected readiness details")
+
+    try:
+        details.detailed_count = 99
+    except FrozenInstanceError:
+        pass
+    else:
+        raise AssertionError("registry readiness detail snapshot should be immutable")
+
+    try:
+        details.details[0].reason = "changed"
+    except FrozenInstanceError:
+        pass
+    else:
+        raise AssertionError("registry readiness detail row should be immutable")
+
+    print("PASS: trigger registry readiness detail snapshot contract")
+
+
 def main() -> int:
     validate_registration_contract()
     validate_invocation_follow_through_contract()
@@ -931,6 +1084,7 @@ def main() -> int:
     validate_readiness_inspection_contract()
     validate_registry_readiness_sweep_contract()
     validate_registry_readiness_summary_contract()
+    validate_registry_readiness_detail_snapshot_contract()
     print("EXTERNAL TRIGGER INTAKE VALIDATION: PASS")
     return 0
 
