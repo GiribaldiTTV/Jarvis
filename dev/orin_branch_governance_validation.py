@@ -190,6 +190,8 @@ PRE_PR_DURABILITY_DOCS = (
 PRE_PR_DURABILITY_PHRASES = (
     "DO THIS ALWAYS",
     "Pre-PR Durability Rule",
+    "Release Readiness is file-frozen",
+    "block ANY",
     "before `PR Readiness`",
     "commit and push",
     "copy-ready or staged-only state",

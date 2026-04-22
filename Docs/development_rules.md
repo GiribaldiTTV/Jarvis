@@ -4,6 +4,8 @@
 
 **DO THIS ALWAYS before `PR Readiness`: when a bounded phase pass or durability seam changes source, docs, canon, validator, helper registry, workstream authority, or branch-truth files and validation is green, Codex must commit and push those changes on the active branch instead of stopping at a copy-ready or staged-only state. This includes `Branch Readiness`, `Workstream`, `Hardening`, and `Live Validation`; the only exceptions are an explicit active-prompt prohibition, failed validation, or a legally file-frozen phase such as `Release Readiness`.**
 
+**Release Readiness is file-frozen: block ANY source, docs, canon, validator, helper registry, release-note, or handoff-file changes discovered or needed during `Release Readiness`. Do not edit, stage, commit, or push in `Release Readiness`; route the change back to `PR Readiness` before merge, or to the next active `Branch Readiness` after merge.**
+
 ## Core Principles
 
 - Analyze first
