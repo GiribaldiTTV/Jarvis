@@ -111,6 +111,12 @@ Before PR Readiness, each workstream-scoped helper must be resolved in one of th
 | `dev/orin_callable_group_execution_validation.py` | Helper Status: Reusable | callable-group validator | Extend for deterministic callable-group execution checks. |
 | `dev/orin_callable_group_execution_interactive_validation.ps1` | Helper Status: Reusable | callable-group interactive suite | Extend for callable-group interactive proof before creating another callable-group live helper. |
 
+### External Trigger Intake
+
+| Path | Helper Status | Family | Reuse / Consolidation |
+| --- | --- | --- | --- |
+| `dev/orin_external_trigger_intake_validation.py` | Helper Status: Reusable | external trigger intake validator | Extend for FB-039 trigger intake, registration, bounded invocation follow-through, and negative-path checks before creating another external-trigger helper. |
+
 ### Toolkits, Boot, Diagnostics, Support, And Voice
 
 | Path | Helper Status | Family | Reuse / Consolidation |

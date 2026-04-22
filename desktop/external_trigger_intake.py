@@ -34,12 +34,31 @@ class TriggerIntakeRequest:
 
 
 @dataclass(frozen=True)
+class TriggerOriginRegistration:
+    origin_id: str
+    origin_category: str
+    user_visible_label: str = ""
+    enabled: bool = False
+
+
+@dataclass(frozen=True)
+class TriggerRegistrationResult:
+    registration: TriggerOriginRegistration | None
+    registered: bool
+    reason: str
+    origin_category_known: bool = False
+    origin_category_blocked: bool = False
+
+
+@dataclass(frozen=True)
 class TriggerIntakeResult:
     request: TriggerIntakeRequest
     decision: str
     reason: str
     origin_category_known: bool = False
     origin_category_blocked: bool = False
+    origin_registered: bool = False
+    origin_enabled: bool = False
     routed_to_execution: bool = False
     execution_authorized: bool = False
     cleanup_required: bool = False
@@ -83,7 +102,27 @@ def coerce_trigger_intake_request(request: TriggerIntakeRequest | dict) -> Trigg
     raise TypeError("Trigger intake request must be a TriggerIntakeRequest or dict.")
 
 
-class InternalTriggerIntakeBoundary:
+def coerce_trigger_origin_registration(
+    registration: TriggerOriginRegistration | dict,
+) -> TriggerOriginRegistration:
+    if isinstance(registration, TriggerOriginRegistration):
+        return TriggerOriginRegistration(
+            origin_id=normalize_trigger_origin_id(registration.origin_id),
+            origin_category=normalize_trigger_origin_category(registration.origin_category),
+            user_visible_label=normalize_trigger_origin_id(registration.user_visible_label),
+            enabled=bool(registration.enabled),
+        )
+    if isinstance(registration, dict):
+        return TriggerOriginRegistration(
+            origin_id=normalize_trigger_origin_id(registration.get("origin_id")),
+            origin_category=normalize_trigger_origin_category(registration.get("origin_category")),
+            user_visible_label=normalize_trigger_origin_id(registration.get("user_visible_label")),
+            enabled=bool(registration.get("enabled", False)),
+        )
+    raise TypeError("Trigger origin registration must be a TriggerOriginRegistration or dict.")
+
+
+class TriggerOriginRegistry:
     def __init__(
         self,
         *,
@@ -100,6 +139,93 @@ class InternalTriggerIntakeBoundary:
             for category in blocked_origin_categories
             if normalize_trigger_origin_category(category)
         )
+        self._registrations: dict[str, TriggerOriginRegistration] = {}
+
+    @property
+    def registrations(self) -> tuple[TriggerOriginRegistration, ...]:
+        return tuple(self._registrations[key] for key in sorted(self._registrations))
+
+    def lookup(self, origin_id: object) -> TriggerOriginRegistration | None:
+        normalized_origin_id = normalize_trigger_origin_id(origin_id)
+        if not normalized_origin_id:
+            return None
+        return self._registrations.get(normalized_origin_id.casefold())
+
+    def register(
+        self,
+        registration: TriggerOriginRegistration | dict,
+    ) -> TriggerRegistrationResult:
+        normalized_registration = coerce_trigger_origin_registration(registration)
+        category = normalized_registration.origin_category
+
+        if not normalized_registration.origin_id:
+            return self._reject_registration(normalized_registration, "invalid_origin_id")
+        if not category:
+            return self._reject_registration(normalized_registration, "invalid_origin_category")
+        if category in self._blocked_origin_categories:
+            return self._reject_registration(
+                normalized_registration,
+                "blocked_origin_category",
+                category_blocked=True,
+            )
+        if category not in self._known_origin_categories:
+            return self._reject_registration(
+                normalized_registration,
+                "unsupported_origin_category",
+            )
+
+        key = normalized_registration.origin_id.casefold()
+        if key in self._registrations:
+            return self._reject_registration(
+                normalized_registration,
+                "duplicate_origin_id",
+                category_known=True,
+            )
+
+        self._registrations[key] = normalized_registration
+        return TriggerRegistrationResult(
+            registration=normalized_registration,
+            registered=True,
+            reason="registered",
+            origin_category_known=True,
+        )
+
+    def _reject_registration(
+        self,
+        registration: TriggerOriginRegistration,
+        reason: str,
+        *,
+        category_known: bool = False,
+        category_blocked: bool = False,
+    ) -> TriggerRegistrationResult:
+        return TriggerRegistrationResult(
+            registration=registration,
+            registered=False,
+            reason=reason,
+            origin_category_known=category_known,
+            origin_category_blocked=category_blocked,
+        )
+
+
+class InternalTriggerIntakeBoundary:
+    def __init__(
+        self,
+        *,
+        known_origin_categories: Iterable[str] = KNOWN_TRIGGER_ORIGIN_CATEGORIES,
+        blocked_origin_categories: Iterable[str] = BLOCKED_TRIGGER_ORIGIN_CATEGORIES,
+        origin_registry: TriggerOriginRegistry | None = None,
+    ):
+        self._known_origin_categories = frozenset(
+            normalize_trigger_origin_category(category)
+            for category in known_origin_categories
+            if normalize_trigger_origin_category(category)
+        )
+        self._blocked_origin_categories = frozenset(
+            normalize_trigger_origin_category(category)
+            for category in blocked_origin_categories
+            if normalize_trigger_origin_category(category)
+        )
+        self._origin_registry = origin_registry
 
     @property
     def known_origin_categories(self) -> tuple[str, ...]:
@@ -127,11 +253,49 @@ class InternalTriggerIntakeBoundary:
         if category not in self._known_origin_categories:
             return self._reject(normalized_request, "unsupported_origin_category")
 
+        if self._origin_registry is None:
+            return self._defer(normalized_request, "registration_support_not_admitted")
+
+        registration = self._origin_registry.lookup(normalized_request.origin_id)
+        if registration is None:
+            return self._defer(normalized_request, "origin_not_registered")
+        if registration.origin_category != category:
+            return self._reject(
+                normalized_request,
+                "origin_registration_mismatch",
+                category_known=True,
+                origin_registered=True,
+                origin_enabled=registration.enabled,
+            )
+        if not registration.enabled:
+            return self._defer(
+                normalized_request,
+                "origin_not_enabled",
+                origin_registered=True,
+            )
+
+        return self._defer(
+            normalized_request,
+            "invocation_follow_through_not_admitted",
+            origin_registered=True,
+            origin_enabled=True,
+        )
+
+    def _defer(
+        self,
+        request: TriggerIntakeRequest,
+        reason: str,
+        *,
+        origin_registered: bool = False,
+        origin_enabled: bool = False,
+    ) -> TriggerIntakeResult:
         return TriggerIntakeResult(
-            request=normalized_request,
+            request=request,
             decision=TRIGGER_INTAKE_DECISION_DEFERRED,
-            reason="runtime_support_not_admitted",
+            reason=reason,
             origin_category_known=True,
+            origin_registered=origin_registered,
+            origin_enabled=origin_enabled,
         )
 
     def _reject(
@@ -141,6 +305,8 @@ class InternalTriggerIntakeBoundary:
         *,
         category_known: bool = False,
         category_blocked: bool = False,
+        origin_registered: bool = False,
+        origin_enabled: bool = False,
     ) -> TriggerIntakeResult:
         return TriggerIntakeResult(
             request=request,
@@ -148,6 +314,8 @@ class InternalTriggerIntakeBoundary:
             reason=reason,
             origin_category_known=category_known,
             origin_category_blocked=category_blocked,
+            origin_registered=origin_registered,
+            origin_enabled=origin_enabled,
         )
 
 
@@ -159,7 +327,11 @@ __all__ = (
     "TRIGGER_INTAKE_DECISION_REJECTED",
     "TriggerIntakeRequest",
     "TriggerIntakeResult",
+    "TriggerOriginRegistration",
+    "TriggerOriginRegistry",
+    "TriggerRegistrationResult",
     "coerce_trigger_intake_request",
+    "coerce_trigger_origin_registration",
     "normalize_trigger_origin_category",
     "normalize_trigger_origin_id",
 )
