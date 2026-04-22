@@ -18,15 +18,15 @@ Branch-local "what worked" notes should stay in the canonical workstream doc fir
 ## Pattern: PR Readiness Green Must Require Durable Process Truth
 
 - symptom:
-  PR Readiness can appear green while required canon sync, post-merge state handling, or docs changes still exist only in the working tree
+  PR Readiness can appear green while required canon sync, post-merge state handling, docs changes, PR creation, or PR validation still have not completed
 - layer:
-  branch governance and merge-target canon
+  branch governance, merge-target canon, and PR-state validation
 - root-cause pattern:
-  validation proves branch behavior, but process blockers are not named strongly enough as pre-merge gates
+  validation proves branch behavior or produces a copy-ready PR package, but process blockers are not named strongly enough as pre-merge gates
 - fix pattern:
-  require PR Readiness to clear stale canon, post-merge-state handling, next-workstream selection with minimal scope and no branch created yet, dirty branch / durable commit state, and docs-sync / Governance Drift Audit blockers before reporting `PR READY: YES`
+  require PR Readiness to clear stale canon, post-merge-state handling, next-workstream selection with minimal scope and no branch created yet, dirty branch / durable commit state, docs-sync / Governance Drift Audit blockers, PR creation, and PR validation before reporting `PR READY: YES` or `PR Readiness GREEN`; `PR package ready` is not green, missing PRs carry `PR Creation Pending`, unknown PR inspection carries `PR State Unknown`, and unresolved live PR issues carry `PR Validation Pending`
 - validation pattern:
-  run the normal branch governance validator plus the PR-readiness gate mode; the gate must fail while the worktree is dirty, while required post-merge truth is not encoded, or while the next workstream is undefined, unscoped, or already branched
+  run the normal branch governance validator plus the PR-readiness gate mode; the gate must fail while the worktree is dirty, while required post-merge truth is not encoded, while the next workstream is undefined, unscoped, or already branched, while the PR does not exist, or while PR state cannot be inspected
 - source references:
   - `Docs/phase_governance.md`
   - `dev/orin_branch_governance_validation.py`
@@ -145,6 +145,23 @@ Branch-local "what worked" notes should stay in the canonical workstream doc fir
 - source references:
   - `Docs/user_test_summary_guidance.md`
   - `Docs/phase_governance.md`
+  - `dev/orin_branch_governance_validation.py`
+
+## Pattern: UTS Waivers Must Live In The Exact Canonical Artifact
+
+- symptom:
+  Live Validation or PR Readiness records `User Test Summary Results: WAIVED` or `User-Facing Shortcut Validation: WAIVED`, but the waiver lives in recap prose, `## User Test Summary Strategy`, or a validation-contract paragraph rather than the exact canonical `## User Test Summary` section
+- layer:
+  workstream-owned validation evidence, response contract, and branch governance validation
+- root-cause pattern:
+  the branch has a valid no-meaningful-manual-test rationale, but validator parsing trusts loose markers outside the canonical UTS artifact, allowing the response/output contract to drift
+- fix pattern:
+  require an exact `## User Test Summary` section for active `Live Validation` and `PR Readiness` workstreams; require `User Test Summary Waiver Reason:` for UTS waivers and `User-Facing Shortcut Waiver Reason:` for shortcut waivers
+- validation pattern:
+  run `python dev/orin_branch_governance_validation.py`; it must fail if `## User Test Summary Strategy` is present but the exact canonical `## User Test Summary` section lacks the required result and waiver-reason markers
+- source references:
+  - `Docs/phase_governance.md`
+  - `Docs/development_rules.md`
   - `dev/orin_branch_governance_validation.py`
 
 ## Pattern: Desktop Shortcut Gate Must Precede User Test Summary Handoff

@@ -1,5 +1,11 @@
 # Nexus Source-Of-Truth Index
 
+## Top Rule: Pre-PR Durability
+
+**DO THIS ALWAYS before `PR Readiness`: when a bounded phase pass or durability seam changes source, docs, canon, validator, helper registry, workstream authority, or branch-truth files and validation is green, Codex must commit and push those changes on the active branch instead of stopping at a copy-ready, staged-only, or uncommitted state. This includes `Branch Readiness`, `Workstream`, `Hardening`, and `Live Validation`; a prompt-level request not to commit is not enough to stop durability. The only exceptions are a documented `Durability Waiver`, failed validation, a legally file-frozen phase such as `Release Readiness`, or a named Codex self-imposed blocker; when that self-imposed blocker is lifted, Codex must automatically commit and push.**
+
+**Release Readiness is file-frozen: block ANY source, docs, canon, validator, helper registry, release-note, or handoff-file changes discovered or needed during `Release Readiness`. Do not edit, stage, commit, or push in `Release Readiness`; route the change back to `PR Readiness` before merge, or to the next active `Branch Readiness` after merge.**
+
 ## Purpose
 
 This document is the routing authority for the merged Nexus Desktop AI canon.
@@ -145,6 +151,7 @@ Rules:
 Use these for promoted work that needs a stable feature-state, branch-local validation/evidence record, active seam trail, durable artifact/reuse history, and closure history:
 
 - `Docs/workstreams/index.md`
+- `Docs/workstreams/FB-039_external_trigger_plugin_integration_architecture.md`
 - `Docs/workstreams/FB-038_taskbar_tray_quick_task_ux.md`
 - `Docs/workstreams/FB-037_built_in_actions_and_settings_expansion.md`
 - `Docs/workstreams/FB-036_saved_action_authoring.md`
@@ -236,6 +243,9 @@ These are reference layers, not active workstream or roadmap owners.
 - if repo truth resolves to blocked `No Active Branch`, report the blocking repair path
 - if repo truth resolves to steady-state `No Active Branch`, do not invent a next implementation branch by inertia
 - governance-only branches are not used for new Nexus work; governance or canon repair rides on the active branch that owns the affected truth, or on the next active branch's `Branch Readiness` if a PR Readiness miss escaped the prior branch
+- Pre-PR Durability Rule: before `PR Readiness`, when a bounded phase pass or durability seam changes source, docs, canon, validator, helper registry, workstream authority, or branch-truth files and validation is green, Codex must commit and push those changes on the active branch instead of stopping at a copy-ready, staged-only, or uncommitted state
+- the Pre-PR Durability Rule applies through `Branch Readiness`, `Workstream`, `Hardening`, and `Live Validation`; `PR Readiness` remains the later merge-target gate and must still prove clean durable branch truth
+- prompt-level requests to stop before commit/push are not durability exceptions; only a documented `Durability Waiver`, failed validation, legally file-frozen `Release Readiness`, or a named Codex self-imposed blocker may stop commit/push, and self-imposed blockers must automatically commit and push once lifted
 - the normal `PR Readiness` sequence for a branch that changes release-facing canon is:
   0. clear the hard PR Readiness blockers: `stale-canon`, `post-merge`, `dirty`, `docs-sync`, `next-workstream`, and `uts-results`
   1. validate current branch truth
@@ -251,8 +261,10 @@ These are reference layers, not active workstream or roadmap owners.
   11. If post-merge truth will resolve to `No Active Branch` because `Release Debt` or another repo-level admission blocker remains open, successor branch creation remains deferred; next-workstream selection is still required unless the user explicitly approves a no-next-workstream steady-state outcome in canon.
   12. commit all required docs, canon, validator, and branch-truth changes so the worktree is clean and truth is durable in commit history
   13. run the normal branch governance validator and the PR-readiness gate mode
-  14. only then allow the current branch to report `PR READY: YES` and enter PR creation
+  14. report `PR package ready`, create the PR, and validate the live PR state before reporting `PR READY: YES`
+  15. only after the PR exists, has no conflicts, has no unresolved Codex comments/issues, and matches merge-target canon may the branch report `PR Readiness GREEN`
 - PR Readiness also owns `PR Readiness Scope Missed`, `Between-Branch Canon Repair Attempt`, and `Next Branch Created Too Early`; none may be deferred into Release Readiness or a later side branch
+- PR Readiness also owns `PR Creation Pending`, `PR Validation Pending`, and `PR State Unknown`; `PR package ready` is not `PR Readiness GREEN`
 - PR Readiness also owns the merged-unreleased release-debt owner contract when a branch will merge unreleased implementation work; the merge-target canon must already contain `Merged-Unreleased Release-Debt Owner:`, `Repo State: No Active Branch`, `Release Target:`, `Release Floor:`, `Version Rationale:`, `Release Scope:`, `Release Artifacts:`, `Post-Release Truth:`, `Selected Next Workstream:`, and `Next-Branch Creation Gate:` before PR green
 - PR Readiness must validate release target semantics from the latest public prerelease and declared `Release Floor:` before green; marker presence is insufficient if the version is wrong
 - the normal `Release Readiness` sequence for a release-bearing branch must clear `Release Target Undefined` before reporting green:
@@ -270,13 +282,15 @@ These are reference layers, not active workstream or roadmap owners.
 - while a required User Test Summary handoff is outstanding, the active branch must report `User Test Summary Results Pending`; automated validators and live helper evidence may be green, but final phase advancement is blocked until the filled User Test Summary is submitted or waived, digested into the authority record, and blockers are reevaluated
 - required pending-UTS wording is: `Automated validators and live helper evidence: GREEN.`, `User Test Summary Results: PENDING.`, and `Final phase advancement is BLOCKED until the filled User Test Summary is submitted and digested.`
 - when a slice changes user-visible behavior or another operator-facing path, do not treat `## User Test Summary` as a recap slot; route through `Docs/user_test_summary_guidance.md` and require a real manual checklist unless no meaningful manual test exists
+- `## User Test Summary Strategy` is planning context only; the canonical repo-level `UTS` artifact must be the exact `## User Test Summary` section when one is required or waived
+- when `User Test Summary Results: WAIVED` is used, the exact `## User Test Summary` section must also include `User Test Summary Waiver Reason:`
 - when an active desktop workstream has a canonical repo-level `UTS` artifact, do not stop at response text; update that workstream-owned artifact as well unless an explicit exception from `Docs/user_test_summary_guidance.md` applies
 - during bounded multi-seam Workstream execution, update the canonical workstream `UTS` incrementally as user-visible seams land, then refresh the desktop export when the Workstream seam chain is complete and the branch is user-facing
 - for relevant desktop user-facing slices, also export or refresh `C:\Users\anden\OneDrive\Desktop\User Test Summary.txt` unless an explicit exception from `Docs/user_test_summary_guidance.md` applies
 - do not confuse the canonical workstream-owned repo artifact with the required desktop convenience export or with response-level handoff text
 - when a user-visible implementation slice is already validator-green, do not assume that alone is enough to continue; route through `Docs/development_rules.md` and require an explicit hardening or continuation judgment
 - when a relevant desktop or runtime path can be launched and exercised through a real desktop session, do not treat validators, simulation, or synthetic/headless harnesses as sufficient for continuation on their own; require the smallest reliable validation infrastructure plus an evidence-backed interactive OS-level result before continuation
-- when Live Validation concerns a relevant desktop user-facing workstream, route through `Docs/phase_governance.md` and require the `User-Facing Shortcut Live Validation Gate`; this is the canonical `desktop-shortcut` blocker path: the active authority record must declare `User-Facing Shortcut Path:` and `User-Facing Shortcut Validation:` before User Test Summary handoff, and final green is blocked by `User-Facing Shortcut Validation Pending` until the declared user-facing desktop shortcut or equivalent entrypoint is passable or explicitly waived
+- when Live Validation concerns a relevant desktop user-facing workstream, route through `Docs/phase_governance.md` and require the `User-Facing Shortcut Live Validation Gate`; this is the canonical `desktop-shortcut` blocker path: the active authority record must declare `User-Facing Shortcut Path:` and `User-Facing Shortcut Validation:` before User Test Summary handoff, and final green is blocked by `User-Facing Shortcut Validation Pending` until the declared user-facing desktop shortcut or equivalent entrypoint is passable or explicitly waived with `User-Facing Shortcut Waiver Reason:`
 - if the real interactive desktop path is not feasible, require an explicit explanation of why, require the strongest available synthetic/headless evidence instead, and treat the continuation judgment as limited by that missing interactive layer
 - keep validator results, synthetic/headless validation results, interactive OS-level execution results, simulated reasoning, and manual handoff as separate evidence layers rather than collapsing them into one summary
 - when a pass opens programs, windows, dialogs, temporary documents, helper processes, probe files, or other session-scoped artifacts, route through `Docs/development_rules.md` and require cleanup plus explicit cleanup verification before handoff unless there is an explicit reason to preserve them

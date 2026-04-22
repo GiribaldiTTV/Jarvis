@@ -1,5 +1,11 @@
 # Nexus Development Rules
 
+## Top Rule: Pre-PR Durability
+
+**DO THIS ALWAYS before `PR Readiness`: when a bounded phase pass or durability seam changes source, docs, canon, validator, helper registry, workstream authority, or branch-truth files and validation is green, Codex must commit and push those changes on the active branch instead of stopping at a copy-ready, staged-only, or uncommitted state. This includes `Branch Readiness`, `Workstream`, `Hardening`, and `Live Validation`; a prompt-level request not to commit is not enough to stop durability. The only exceptions are a documented `Durability Waiver`, failed validation, a legally file-frozen phase such as `Release Readiness`, or a named Codex self-imposed blocker; when that self-imposed blocker is lifted, Codex must automatically commit and push.**
+
+**Release Readiness is file-frozen: block ANY source, docs, canon, validator, helper registry, release-note, or handoff-file changes discovered or needed during `Release Readiness`. Do not edit, stage, commit, or push in `Release Readiness`; route the change back to `PR Readiness` before merge, or to the next active `Branch Readiness` after merge.**
+
 ## Core Principles
 
 - Analyze first
@@ -196,6 +202,15 @@ Do not use a standalone `docs/governance` branch to carry routine canon or gover
 Do not open a governance-only branch for between-branch canon repair.
 If PR Readiness missed required canon or docs work and the owning branch has already merged, the next active branch must treat the miss as a `Branch Readiness` blocker and repair it before implementation begins.
 
+Pre-PR Durability Rule:
+
+- before `PR Readiness`, when a bounded phase pass or durability seam changes source, docs, canon, validator, helper registry, workstream authority, or branch-truth files and validation is green, Codex must commit and push those changes on the active branch instead of stopping at a copy-ready, staged-only, or uncommitted state
+- this applies through `Branch Readiness`, `Workstream`, `Hardening`, and `Live Validation`
+- a prompt-level request to stop before commit/push is not a durability exception; only a documented `Durability Waiver`, failed validation, legally file-frozen `Release Readiness`, or a named Codex self-imposed blocker may stop commit/push
+- if Codex names a self-imposed blocker, it must name the lift condition; once lifted, Codex must automatically commit and push without requiring a second durability prompt
+- if validation fails, do not commit and push; report the blocker and keep the branch in the current phase until the blocker is lifted
+- `PR Readiness` still performs the final dirty-branch and durable-truth gate before PR creation
+
 For active promoted work, the canonical workstream doc is the single authoritative owner of:
 
 - `Current Phase`
@@ -217,7 +232,7 @@ Supporting canon must stay aligned with live truth.
 
 That means:
 
-- PR Readiness hard blocker shorthand is `stale-canon`, `post-merge`, `dirty`, `docs-sync`, `next-workstream`, and `uts-results`
+- PR Readiness hard blocker shorthand is `stale-canon`, `post-merge`, `dirty`, `docs-sync`, `next-workstream`, `uts-results`, `pr-created`, and `pr-validated`
 - directly supporting canon and tightly coupled governance may be updated on the active implementation or release branch when that branch changes or depends on the truth
 - no PR-ready without canon-ready:
   - a branch is not PR-ready if merging it would leave `main` canon-stale
@@ -260,6 +275,13 @@ That means:
   - automated validators and live helper evidence may be green, but final phase advancement remains blocked while a required User Test Summary handoff is outstanding
   - returned User Test Summary results must be submitted or explicitly waived, digested into the active authority record, and reevaluated before PR Readiness can report green
   - if returned results expose mismatch, regression, cleanup failure, ambiguity, or scope drift, route back to `Workstream` or `Hardening` instead of advancing
+- no PR-ready before PR creation and PR validation:
+  - `PR package ready` is not `PR Readiness GREEN`
+  - PR creation is part of PR Readiness completion, not a later phase
+  - the GitHub PR must exist before final green
+  - the PR must be open, non-draft, conflict-free, inspectable, and aligned to merge-target canon
+  - a missing PR keeps `PR Creation Pending` active
+  - unresolved Codex comments/issues, requested changes, unknown mergeability, unknown PR state, or inability to inspect the PR keep `PR Validation Pending` or `PR State Unknown` active
 - no PR-ready with a PR Readiness scope miss:
   - named blockers are `PR Readiness Scope Missed`, `Between-Branch Canon Repair Attempt`, and `Next Branch Created Too Early`
   - PR Readiness must complete branch-authority cleanup, merge-target canon, post-merge truth, next-workstream selection, next-branch deferral, and release-debt routing on the active branch before green
@@ -524,6 +546,7 @@ That checklist must include:
 A recap-style summary is not sufficient when manual validation is relevant.
 
 If no meaningful manual test exists for the change, Codex must say so explicitly under `## User Test Summary` and explain why manual validation is not materially relevant for that slice.
+`## User Test Summary Strategy` is planning context only; it does not satisfy the canonical repo-level `## User Test Summary` artifact.
 
 For active desktop workstreams, the default canonical repo-level `UTS` artifact is the `## User Test Summary` section in the relevant canonical workstream doc unless that doc explicitly declares a different repo path.
 
@@ -539,7 +562,7 @@ For bounded multi-seam Workstream execution, User Test Summary handling is incre
 
 If required user-facing desktop shortcut evidence is outstanding, the active authority record must carry the hard blocker `User-Facing Shortcut Validation Pending`.
 
-The shortcut blocker lifts only after `User-Facing Shortcut Validation: PASS` is recorded with evidence from the declared shortcut path, or `User-Facing Shortcut Validation: WAIVED` is recorded with a reason proving the branch is not desktop/user-facing or the shortcut path is explicitly unavailable.
+The shortcut blocker lifts only after `User-Facing Shortcut Validation: PASS` is recorded with evidence from the declared shortcut path, or `User-Facing Shortcut Validation: WAIVED` is recorded with `User-Facing Shortcut Waiver Reason:` proving the branch is not desktop/user-facing or the shortcut path is explicitly unavailable.
 If `User-Facing Shortcut Validation: FAIL`, keep an explicit blocker and route back to `Workstream` or `Hardening` instead of exporting the branch as final-green.
 
 If a required User Test Summary handoff is outstanding, the active authority record must carry the hard blocker `User Test Summary Results Pending`.
@@ -551,6 +574,7 @@ Expected reporting model:
 - Final phase advancement is BLOCKED until the filled User Test Summary is submitted and digested.
 
 The blocker lifts only after the filled User Test Summary is submitted or a documented waiver exists, the returned results or waiver are digested into the active authority record, and blockers are reevaluated.
+When a waiver is used, the active authority record must include `User Test Summary Results: WAIVED` and `User Test Summary Waiver Reason:` inside the exact `## User Test Summary` section.
 
 Completing a User Test Summary update does not move the branch directly from `Workstream` to `PR Readiness`.
 The normal next phase after Workstream completion remains `Hardening`.
@@ -565,7 +589,7 @@ unless it explicitly explains why the desktop export is not relevant or is being
 
 The ownership hierarchy is:
 
-- workstream doc `## User Test Summary` section = canonical repo source of truth
+- workstream doc exact `## User Test Summary` section = canonical repo source of truth
 - desktop `User Test Summary.txt` = required user-facing exported copy when relevant
 - response-level `## User Test Summary` = current handoff text only
 

@@ -1,5 +1,11 @@
 # Nexus Codex Modes
 
+## Top Rule: Pre-PR Durability
+
+**DO THIS ALWAYS before `PR Readiness`: when a bounded phase pass or durability seam changes source, docs, canon, validator, helper registry, workstream authority, or branch-truth files and validation is green, Codex must commit and push those changes on the active branch instead of stopping at a copy-ready, staged-only, or uncommitted state. This includes `Branch Readiness`, `Workstream`, `Hardening`, and `Live Validation`; a prompt-level request not to commit is not enough to stop durability. The only exceptions are a documented `Durability Waiver`, failed validation, a legally file-frozen phase such as `Release Readiness`, or a named Codex self-imposed blocker; when that self-imposed blocker is lifted, Codex must automatically commit and push.**
+
+**Release Readiness is file-frozen: block ANY source, docs, canon, validator, helper registry, release-note, or handoff-file changes discovered or needed during `Release Readiness`. Do not edit, stage, commit, or push in `Release Readiness`; route the change back to `PR Readiness` before merge, or to the next active `Branch Readiness` after merge.**
+
 ## Purpose
 
 This document defines the collaboration posture Codex should use while handling Nexus Desktop AI tasks.
@@ -158,8 +164,19 @@ Workflow mode should usually return:
 - when returned User Test Summary results are still outstanding, the explicit blocker output: `Automated validators and live helper evidence: GREEN.`, `User Test Summary Results: PENDING.`, and `Final phase advancement is BLOCKED until the filled User Test Summary is submitted and digested.`
 - when meaningful desktop UI changed and closeout posture matters, a distinct summary of the live launched-process UI audit results and evidence
 - an explicit statement under `## User Test Summary` when no meaningful manual test exists and why
+- if `User Test Summary Results: WAIVED` is used, the response-level `## User Test Summary` section and the canonical workstream `## User Test Summary` artifact must include `User Test Summary Waiver Reason:`
+- if `User-Facing Shortcut Validation: WAIVED` is used, the response-level `## User Test Summary` section and the canonical workstream `## User Test Summary` artifact must include `User-Facing Shortcut Waiver Reason:`
 - remaining drift or known gaps
 - whether the approved phase is complete
+
+Pre-PR Durability Rule:
+
+- before `PR Readiness`, when a bounded phase pass or durability seam changes source, docs, canon, validator, helper registry, workstream authority, or branch-truth files and validation is green, Codex must commit and push those changes on the active branch instead of stopping at a copy-ready, staged-only, or uncommitted state
+- this applies through `Branch Readiness`, `Workstream`, `Hardening`, and `Live Validation`
+- a prompt-level request to stop before commit/push is not a durability exception; only a documented `Durability Waiver`, failed validation, legally file-frozen `Release Readiness`, or a named Codex self-imposed blocker may stop commit/push
+- if Codex names a self-imposed blocker, it must name the lift condition; once lifted, Codex must automatically commit and push without requiring a second durability prompt
+- if validation fails, do not commit and push; report the blocker and keep the branch in the current phase until the blocker is lifted
+- `PR Readiness` still performs the final dirty-branch and durable-truth gate before PR creation
 
 When the approved phase is `PR Readiness`, the output must also explicitly include:
 
@@ -168,6 +185,8 @@ When the approved phase is `PR Readiness`, the output must also explicitly inclu
 - whether governance drift was found
 - confirmation that stale-canon, post-merge-state, next-workstream, dirty-branch, docs-sync/drift-audit, and `User Test Summary Results Pending` blockers are clear
 - confirmation that `PR Readiness Scope Missed`, `Between-Branch Canon Repair Attempt`, and `Next Branch Created Too Early` are clear
+- confirmation that `PR Creation Pending`, `PR Validation Pending`, and `PR State Unknown` are clear before reporting `PR Readiness GREEN`
+- confirmation that `PR package ready` is not being collapsed into `PR Readiness GREEN`
 - confirmation that no PR-owned docs or canon work is being deferred to Release Readiness, updated `main`, or a governance-only branch
 - confirmation that `main` remains protected and that no Codex file mutation, staging, commit, generation, refresh, or repair work is being performed on `main`
 - confirmation that branch truth is committed and durable, not only present in the working tree
@@ -206,7 +225,7 @@ When the approved phase is `PR Readiness`, the output must also explicitly inclu
 - Reason:
 ```
 
-- when PR Readiness is green or `PR READY: YES`, a copy-ready markdown PR package with this exact section shape:
+- when PR Readiness is package-ready or `PR package ready`, a copy-ready markdown PR package with this exact section shape:
 
 ```markdown
 ## PR Creation Details
@@ -222,7 +241,8 @@ When the approved phase is `PR Readiness`, the output must also explicitly inclu
 
 The `Next Branch` section must separate the next legal branch type/name from the selected next implementation workstream branch.
 If release debt, updated-`main` revalidation, or another admission gate blocks branch creation, `May Create Now: NO` is required with the reason.
-The `PR Creation Details` block is preparation material only; it must not imply PR creation, merge execution, release execution, or next-branch creation has occurred.
+The `PR Creation Details` block is preparation material only; it must not imply PR creation, merge execution, release execution, next-branch creation, or PR Readiness GREEN has occurred.
+PR Readiness GREEN requires the PR to exist, be open, be non-draft, have no conflicts, match merge-target canon, and have no unresolved Codex comments/issues or requested changes.
 
 When the approved phase is `Release Readiness`, the output must also explicitly include:
 
@@ -371,7 +391,7 @@ When release-dependent truth changes:
 For desktop workstreams, response-level `## User Test Summary` output and the canonical repo-level `UTS` artifact are related but not interchangeable:
 
 - the response section is the current handoff copy
-- the workstream-owned repo artifact is the durable canonical record unless the workstream explicitly declares another repo path
+- the workstream-owned repo artifact is the exact `## User Test Summary` section, not `## User Test Summary Strategy`, unless the workstream explicitly declares another repo path
 - the desktop `User Test Summary.txt` file is the required user-facing exported copy when relevant, but it is not the default canonical repo record
 
 If a required User Test Summary handoff is outstanding, `User Test Summary Results Pending` is a hard blocker. Codex must not report final phase green or PR-ready while the filled results are missing; it must digest submitted results, update the authority record, reevaluate blockers, and route backward to `Workstream` or `Hardening` if the results expose a mismatch, regression, ambiguity, cleanup issue, or scope drift.

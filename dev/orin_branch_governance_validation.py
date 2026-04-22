@@ -1,3 +1,4 @@
+import json
 import re
 import subprocess
 import sys
@@ -83,6 +84,23 @@ REQUIRED_WORKSTREAM_HEADINGS = (
     "## Next Legal Phase",
 )
 
+REQUIRED_BRANCH_READINESS_DURABILITY_HEADINGS = (
+    "## Branch Objective",
+    "## Target End-State",
+    "## Expected Seam Families And Risk Classes",
+    "## User Test Summary Strategy",
+    "## Later-Phase Expectations",
+    "## Initial Workstream Seam Sequence",
+    "## Active Seam",
+)
+
+REQUIRED_BRANCH_READINESS_FIRST_SEAM_MARKERS = (
+    "Seam 1:",
+    "Goal:",
+    "Scope:",
+    "Non-Includes:",
+)
+
 SUCCESSOR_LOCK_WAIVER_DOCS = (
     Path("Docs/phase_governance.md"),
     Path("Docs/development_rules.md"),
@@ -159,6 +177,28 @@ WORKSTREAM_TO_PR_DEFAULT_GUARD_PHRASES = (
     "There is no default direct `Workstream` -> `PR Readiness` transition.",
     "The normal next legal phase is `Hardening`, then `Live Validation`, then `PR Readiness`.",
     "Do not prompt Codex to treat Workstream completion as direct `PR Readiness`.",
+)
+
+PRE_PR_DURABILITY_DOCS = (
+    Path("Docs/phase_governance.md"),
+    Path("Docs/development_rules.md"),
+    Path("Docs/Main.md"),
+    Path("Docs/codex_modes.md"),
+    Path("Docs/orin_task_template.md"),
+    Path("Docs/codex_user_guide.md"),
+)
+
+PRE_PR_DURABILITY_PHRASES = (
+    "DO THIS ALWAYS",
+    "Pre-PR Durability Rule",
+    "Release Readiness is file-frozen",
+    "block ANY",
+    "before `PR Readiness`",
+    "commit and push",
+    "uncommitted state",
+    "Durability Waiver",
+    "self-imposed blocker",
+    "automatically commit and push",
 )
 
 LIVE_VALIDATION_REUSE_DOCS = (
@@ -273,6 +313,21 @@ PR_READINESS_RESPONSE_CONTRACT_PHRASES = (
     "### Not Included",
 )
 
+PR_LIVE_STATE_DOCS = (
+    Path("Docs/phase_governance.md"),
+    Path("Docs/development_rules.md"),
+    Path("Docs/Main.md"),
+    Path("Docs/codex_modes.md"),
+    Path("Docs/incident_patterns.md"),
+)
+
+PR_LIVE_STATE_PHRASES = (
+    "PR package ready",
+    "PR Creation Pending",
+    "PR Validation Pending",
+    "PR State Unknown",
+)
+
 UTS_RESULTS_BLOCKER_DOCS = (
     Path("Docs/phase_governance.md"),
     Path("Docs/development_rules.md"),
@@ -291,6 +346,7 @@ UTS_RESULTS_BLOCKER_PHRASES = (
 
 UTS_RESULTS_BLOCKER = "User Test Summary Results Pending"
 UTS_RESULT_LABEL = "User Test Summary Results:"
+UTS_WAIVER_REASON_LABEL = "User Test Summary Waiver Reason:"
 UTS_RESULT_VALUES = ("PENDING", "PASS", "FAIL", "WAIVED")
 UTS_CLEAR_RESULT_VALUES = ("PASS", "WAIVED")
 
@@ -314,6 +370,7 @@ USER_FACING_SHORTCUT_GATE_PHRASES = (
 USER_FACING_SHORTCUT_BLOCKER = "User-Facing Shortcut Validation Pending"
 USER_FACING_SHORTCUT_RESULT_LABEL = "User-Facing Shortcut Validation:"
 USER_FACING_SHORTCUT_PATH_LABEL = "User-Facing Shortcut Path:"
+USER_FACING_SHORTCUT_WAIVER_REASON_LABEL = "User-Facing Shortcut Waiver Reason:"
 USER_FACING_SHORTCUT_RESULT_VALUES = ("PENDING", "PASS", "FAIL", "WAIVED")
 USER_FACING_SHORTCUT_CLEAR_VALUES = ("PASS", "WAIVED")
 
@@ -640,17 +697,38 @@ def _parse_workstream_doc(text: str) -> dict[str, object]:
     }
 
 
+def _user_test_summary_section(text: str) -> str:
+    return _section(text, "User Test Summary")
+
+
+def _extract_marker_value(block: str, label: str) -> str:
+    matches = re.findall(
+        rf"^\s*(?:-\s*)?{re.escape(label)}\s*`?(.+?)`?\s*$",
+        block,
+        flags=re.M,
+    )
+    if not matches:
+        return ""
+    return matches[-1].strip().strip("`").strip()
+
+
 def _parse_uts_result_state(text: str) -> str:
-    matches = re.findall(rf"{re.escape(UTS_RESULT_LABEL)}\s*`?([A-Za-z]+)`?", text)
+    section = _user_test_summary_section(text)
+    matches = re.findall(rf"{re.escape(UTS_RESULT_LABEL)}\s*`?([A-Za-z]+)`?", section)
     if not matches:
         return ""
     return matches[-1].strip().upper()
 
 
+def _parse_uts_waiver_reason(text: str) -> str:
+    return _extract_marker_value(_user_test_summary_section(text), UTS_WAIVER_REASON_LABEL)
+
+
 def _parse_user_facing_shortcut_state(text: str) -> str:
+    section = _user_test_summary_section(text)
     matches = re.findall(
         rf"{re.escape(USER_FACING_SHORTCUT_RESULT_LABEL)}\s*`?([A-Za-z]+)`?",
-        text,
+        section,
     )
     if not matches:
         return ""
@@ -658,23 +736,27 @@ def _parse_user_facing_shortcut_state(text: str) -> str:
 
 
 def _parse_user_facing_shortcut_path(text: str) -> str:
-    matches = re.findall(
-        rf"{re.escape(USER_FACING_SHORTCUT_PATH_LABEL)}\s*`?([^\r\n`]+)`?",
-        text,
+    return _extract_marker_value(_user_test_summary_section(text), USER_FACING_SHORTCUT_PATH_LABEL)
+
+
+def _parse_user_facing_shortcut_waiver_reason(text: str) -> str:
+    return _extract_marker_value(
+        _user_test_summary_section(text),
+        USER_FACING_SHORTCUT_WAIVER_REASON_LABEL,
     )
-    if not matches:
-        return ""
-    return matches[-1].strip()
 
 
 def _has_user_test_summary(text: str) -> bool:
-    return "## User Test Summary" in text
+    return bool(_user_test_summary_section(text))
 
 
 def _requires_user_facing_shortcut_gate(text: str) -> bool:
-    if not _has_user_test_summary(text):
+    section = _user_test_summary_section(text)
+    if not section:
         return False
-    text_lower = text.casefold()
+    if USER_FACING_SHORTCUT_RESULT_LABEL in section or USER_FACING_SHORTCUT_PATH_LABEL in section:
+        return True
+    section_lower = section.casefold()
     desktop_surface_markers = (
         "desktop",
         "tray",
@@ -683,7 +765,7 @@ def _requires_user_facing_shortcut_gate(text: str) -> bool:
         "launcher",
         "user-facing",
     )
-    return any(marker in text_lower for marker in desktop_surface_markers)
+    return any(marker in section_lower for marker in desktop_surface_markers)
 
 
 def _collect_active_index_paths(text: str) -> set[str]:
@@ -768,6 +850,81 @@ def _git_branch_names() -> tuple[list[str], str]:
     return sorted(set(names)), "; ".join(error for error in errors if error)
 
 
+def _gh_pr_view_for_branch(branch_name: str) -> tuple[dict[str, object] | None, str]:
+    fields = (
+        "id,number,state,mergeable,mergeStateStatus,reviewDecision,isDraft,"
+        "headRefName,baseRefName,title,url"
+    )
+    completed = subprocess.run(
+        ("gh", "pr", "view", branch_name, "--json", fields),
+        cwd=ROOT_DIR,
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        check=False,
+    )
+    if completed.returncode != 0:
+        return None, completed.stderr.strip() or completed.stdout.strip() or "gh pr view failed"
+    try:
+        return json.loads(completed.stdout), ""
+    except json.JSONDecodeError as exc:
+        return None, f"could not parse gh pr view JSON: {exc}"
+
+
+def _gh_unresolved_codex_threads(pr_node_id: str) -> tuple[list[str], str]:
+    if not pr_node_id:
+        return [], "PR node id is missing"
+
+    query = """
+query($id: ID!) {
+  node(id: $id) {
+    ... on PullRequest {
+      reviewThreads(first: 100) {
+        nodes {
+          isResolved
+          comments(first: 20) {
+            nodes {
+              author { login }
+              body
+            }
+          }
+        }
+      }
+    }
+  }
+}
+"""
+    completed = subprocess.run(
+        ("gh", "api", "graphql", "-f", f"query={query}", "-F", f"id={pr_node_id}"),
+        cwd=ROOT_DIR,
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        check=False,
+    )
+    if completed.returncode != 0:
+        return [], completed.stderr.strip() or completed.stdout.strip() or "gh api graphql failed"
+
+    try:
+        payload = json.loads(completed.stdout)
+    except json.JSONDecodeError as exc:
+        return [], f"could not parse gh review-thread JSON: {exc}"
+
+    nodes = (((payload.get("data") or {}).get("node") or {}).get("reviewThreads") or {}).get("nodes") or []
+    unresolved: list[str] = []
+    for thread in nodes:
+        if thread.get("isResolved"):
+            continue
+        comments = ((thread.get("comments") or {}).get("nodes")) or []
+        for comment in comments:
+            author = ((comment.get("author") or {}).get("login") or "").casefold()
+            body = (comment.get("body") or "").casefold()
+            if "codex" in author or "openai" in author or "codex" in body:
+                unresolved.append(author or "unknown-author")
+                break
+    return unresolved, ""
+
+
 def _selected_next_workstream_entries(backlog_entries: list[dict[str, str]]) -> list[dict[str, str]]:
     return [
         entry
@@ -825,13 +982,19 @@ def _run_uts_results_pr_gate(require, backlog_entries: list[dict[str, str]]) -> 
             continue
 
         workstream_text = _read_text(workstream_path)
-        if not _has_user_test_summary(workstream_text):
-            continue
 
         workstream_info = _parse_workstream_doc(workstream_text)
         current_phase = str(workstream_info["current_phase"])
         if current_phase not in {"Live Validation", "PR Readiness"}:
             continue
+
+        require(
+            _has_user_test_summary(workstream_text),
+            (
+                "PR readiness gate: User Test Summary Results Pending blocker is active; "
+                f"{canonical_path} must include an exact '## User Test Summary' section before PR READY: YES"
+            ),
+        )
 
         uts_result = _parse_uts_result_state(workstream_text)
         blockers = list(workstream_info["blockers"])
@@ -855,6 +1018,14 @@ def _run_uts_results_pr_gate(require, backlog_entries: list[dict[str, str]]) -> 
                         "before PR READY: YES"
                     ),
                 )
+                if shortcut_result == "WAIVED":
+                    require(
+                        bool(_parse_user_facing_shortcut_waiver_reason(workstream_text)),
+                        (
+                            "PR readiness gate: User-Facing Shortcut Validation waiver is incomplete; "
+                            f"{canonical_path} must declare '{USER_FACING_SHORTCUT_WAIVER_REASON_LABEL}'"
+                        ),
+                    )
 
         require(
             bool(uts_result),
@@ -874,6 +1045,14 @@ def _run_uts_results_pr_gate(require, backlog_entries: list[dict[str, str]]) -> 
                 "must be submitted or waived, digested, and reevaluated before PR READY: YES"
             ),
         )
+        if uts_result == "WAIVED":
+            require(
+                bool(_parse_uts_waiver_reason(workstream_text)),
+                (
+                    "PR readiness gate: User Test Summary waiver is incomplete; "
+                    f"{canonical_path} must declare '{UTS_WAIVER_REASON_LABEL}'"
+                ),
+            )
 
 
 def _run_next_workstream_gate(require, backlog_entries: list[dict[str, str]], roadmap_text: str) -> None:
@@ -961,6 +1140,95 @@ def _run_next_workstream_gate(require, backlog_entries: list[dict[str, str]], ro
     )
 
 
+def _run_pr_live_state_gate(require) -> None:
+    branch_name = _git_current_branch()
+    require(
+        bool(branch_name),
+        "PR readiness gate: PR State Unknown blocker is active; current branch could not be determined",
+    )
+    if not branch_name:
+        return
+
+    pr_info, pr_error = _gh_pr_view_for_branch(branch_name)
+    require(
+        bool(pr_info),
+        (
+            "PR readiness gate: PR Creation Pending / PR State Unknown blocker is active; "
+            f"could not inspect a GitHub PR for branch '{branch_name}': {pr_error}"
+        ),
+    )
+    if not pr_info:
+        return
+
+    pr_url = str(pr_info.get("url") or "")
+    pr_state = str(pr_info.get("state") or "")
+    pr_head = str(pr_info.get("headRefName") or "")
+    pr_base = str(pr_info.get("baseRefName") or "")
+    mergeable = str(pr_info.get("mergeable") or "")
+    merge_state = str(pr_info.get("mergeStateStatus") or "")
+    review_decision = str(pr_info.get("reviewDecision") or "")
+
+    require(
+        pr_state == "OPEN",
+        f"PR readiness gate: PR Validation Pending blocker is active; PR {pr_url or pr_info.get('number')} state is '{pr_state}'",
+    )
+    require(
+        not bool(pr_info.get("isDraft")),
+        f"PR readiness gate: PR Validation Pending blocker is active; PR {pr_url or pr_info.get('number')} is still draft",
+    )
+    require(
+        pr_head == branch_name,
+        (
+            "PR readiness gate: PR Validation Pending blocker is active; "
+            f"PR head '{pr_head}' does not match current branch '{branch_name}'"
+        ),
+    )
+    require(
+        pr_base == "main",
+        (
+            "PR readiness gate: PR Validation Pending blocker is active; "
+            f"PR base '{pr_base}' does not match merge-target canon 'main'"
+        ),
+    )
+    require(
+        mergeable == "MERGEABLE",
+        (
+            "PR readiness gate: PR Validation Pending blocker is active; "
+            f"PR mergeability is '{mergeable or 'UNKNOWN'}'"
+        ),
+    )
+    require(
+        merge_state not in {"BLOCKED", "DIRTY", "UNKNOWN", "DRAFT"},
+        (
+            "PR readiness gate: PR Validation Pending blocker is active; "
+            f"PR merge state is '{merge_state or 'UNKNOWN'}'"
+        ),
+    )
+    require(
+        review_decision not in {"CHANGES_REQUESTED", "REVIEW_REQUIRED"},
+        (
+            "PR readiness gate: PR Validation Pending blocker is active; "
+            f"PR review decision is '{review_decision or 'UNKNOWN'}'"
+        ),
+    )
+
+    unresolved_codex_threads, thread_error = _gh_unresolved_codex_threads(str(pr_info.get("id") or ""))
+    require(
+        not thread_error,
+        (
+            "PR readiness gate: PR State Unknown blocker is active; "
+            f"could not inspect Codex review threads for PR {pr_url or pr_info.get('number')}: {thread_error}"
+        ),
+    )
+    require(
+        not unresolved_codex_threads,
+        (
+            "PR readiness gate: PR Validation Pending blocker is active; "
+            "unresolved Codex comments/issues remain on the PR"
+        ),
+    )
+
+
 def _run_pr_readiness_gate(require, backlog_entries: list[dict[str, str]], roadmap_text: str) -> None:
     status_output = _git_status_porcelain()
     require(
@@ -972,6 +1240,7 @@ def _run_pr_readiness_gate(require, backlog_entries: list[dict[str, str]], roadm
     )
     _run_uts_results_pr_gate(require, backlog_entries)
     _run_next_workstream_gate(require, backlog_entries, roadmap_text)
+    _run_pr_live_state_gate(require)
 
 
 def main() -> int:
@@ -982,6 +1251,8 @@ def main() -> int:
     backlog_text = _read_text(Path("Docs/feature_backlog.md"))
     roadmap_text = _read_text(Path("Docs/prebeta_roadmap.md"))
     index_text = _read_text(Path("Docs/workstreams/index.md"))
+    main_text = _read_text(Path("Docs/Main.md"))
+    main_canonical_workstream_routes = _subsection(main_text, "Canonical Workstream Records")
 
     def require(condition: bool, message: str) -> None:
         nonlocal checks
@@ -1086,6 +1357,14 @@ def main() -> int:
             f"{relative_path}: direct Workstream-to-PR default guard is missing",
         )
 
+    for relative_path in PRE_PR_DURABILITY_DOCS:
+        text = _read_text(relative_path)
+        for required_phrase in PRE_PR_DURABILITY_PHRASES:
+            require(
+                required_phrase in text,
+                f"{relative_path}: Pre-PR Durability Rule is missing '{required_phrase}'",
+            )
+
     for relative_path in LIVE_VALIDATION_REUSE_DOCS:
         text = _read_text(relative_path)
         lower_text = text.casefold()
@@ -1169,6 +1448,14 @@ def main() -> int:
             require(
                 required_phrase in text,
                 f"{relative_path}: PR Readiness response contract is missing '{required_phrase}'",
+            )
+
+    for relative_path in PR_LIVE_STATE_DOCS:
+        text = _read_text(relative_path)
+        for required_phrase in PR_LIVE_STATE_PHRASES:
+            require(
+                required_phrase in text,
+                f"{relative_path}: PR live-state completion contract is missing '{required_phrase}'",
             )
 
     for relative_path in UTS_RESULTS_BLOCKER_DOCS:
@@ -1285,13 +1572,10 @@ def main() -> int:
             FB038_CANONICAL_PATH not in release_debt_index_paths,
             "Docs/workstreams/index.md: FB-038 must not remain under Merged / Release Debt Owners after release",
         )
+        roadmap_lower = roadmap_text.casefold()
         require(
-            "merged unreleased non-doc implementation debt exists: no" in roadmap_text,
-            "Docs/prebeta_roadmap.md: FB-038 release must clear merged-unreleased implementation debt",
-        )
-        require(
-            "merged-unreleased release-debt owner: none" in roadmap_text,
-            "Docs/prebeta_roadmap.md: FB-038 release must clear the release-debt owner",
+            "merged-unreleased release-debt owner: fb-038" not in roadmap_lower,
+            "Docs/prebeta_roadmap.md: FB-038 release must not remain the release-debt owner",
         )
         fb038_workstream_path = ROOT_DIR / Path(FB038_CANONICAL_PATH)
         require(
@@ -1439,6 +1723,14 @@ def main() -> int:
         if not canonical_path:
             continue
 
+        require(
+            canonical_path in main_canonical_workstream_routes,
+            (
+                "Docs/Main.md: promoted workstream "
+                f"{canonical_path} is missing from the Canonical Workstream Records routing list"
+            ),
+        )
+
         workstream_path = Path(canonical_path)
         require(
             (ROOT_DIR / workstream_path).is_file(),
@@ -1502,12 +1794,46 @@ def main() -> int:
                 ),
             )
 
-        if current_phase in {"Live Validation", "PR Readiness"} and _has_user_test_summary(workstream_text):
+        if current_phase == "Branch Readiness":
+            for heading in REQUIRED_BRANCH_READINESS_DURABILITY_HEADINGS:
+                require(
+                    heading in workstream_text,
+                    (
+                        f"{canonical_path}: Branch Readiness durability scaffold is missing "
+                        f"required heading '{heading}'"
+                    ),
+                )
+
+            initial_seam_sequence = _section(workstream_text, "Initial Workstream Seam Sequence")
+            for marker in REQUIRED_BRANCH_READINESS_FIRST_SEAM_MARKERS:
+                require(
+                    marker in initial_seam_sequence,
+                    (
+                        f"{canonical_path}: Initial Workstream Seam Sequence must define a first seam "
+                        f"with '{marker}'"
+                    ),
+                )
+
+            active_seam_section = _section(workstream_text, "Active Seam")
+            require(
+                "Active seam:" in active_seam_section,
+                f"{canonical_path}: Active Seam section must clearly identify the active seam",
+            )
+
+        if current_phase in {"Live Validation", "PR Readiness"}:
+            require(
+                _has_user_test_summary(workstream_text),
+                (
+                    f"{canonical_path}: active '{current_phase}' workstream must include an exact "
+                    "'## User Test Summary' section; '## User Test Summary Strategy' is not the "
+                    "canonical UTS artifact"
+                ),
+            )
             uts_result = _parse_uts_result_state(workstream_text)
             require(
                 bool(uts_result),
                 (
-                    f"{canonical_path}: active user-facing '{current_phase}' workstream must declare "
+                    f"{canonical_path}: active '{current_phase}' workstream must declare "
                     f"'{UTS_RESULT_LABEL}'"
                 ),
             )
@@ -1548,6 +1874,14 @@ def main() -> int:
                         (
                             f"{canonical_path}: {UTS_RESULTS_BLOCKER} must clear after "
                             f"{UTS_RESULT_LABEL} {uts_result}"
+                        ),
+                    )
+                if uts_result == "WAIVED":
+                    require(
+                        bool(_parse_uts_waiver_reason(workstream_text)),
+                        (
+                            f"{canonical_path}: {UTS_RESULT_LABEL} WAIVED requires "
+                            f"'{UTS_WAIVER_REASON_LABEL}' in the exact '## User Test Summary' section"
                         ),
                     )
                 if current_phase == "PR Readiness":
@@ -1616,6 +1950,15 @@ def main() -> int:
                         (
                             f"{canonical_path}: {USER_FACING_SHORTCUT_BLOCKER} must clear after "
                             f"{USER_FACING_SHORTCUT_RESULT_LABEL} {shortcut_result}"
+                        ),
+                    )
+                if shortcut_result == "WAIVED":
+                    require(
+                        bool(_parse_user_facing_shortcut_waiver_reason(workstream_text)),
+                        (
+                            f"{canonical_path}: {USER_FACING_SHORTCUT_RESULT_LABEL} WAIVED requires "
+                            f"'{USER_FACING_SHORTCUT_WAIVER_REASON_LABEL}' in the exact "
+                            "'## User Test Summary' section"
                         ),
                     )
                 uts_result_for_shortcut = _parse_uts_result_state(workstream_text)
