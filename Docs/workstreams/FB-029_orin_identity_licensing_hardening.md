@@ -23,11 +23,11 @@
 
 ## Current Phase
 
-- Phase: `Workstream`
+- Phase: `Hardening`
 
 ## Phase Status
 
-- `Workstream seam chain complete; Hardening next`
+- `Hardening is complete; Live Validation is next`
 - FB-015 remains the merged-unreleased release-debt owner on `main` for `v1.6.4-prebeta`.
 - Repo-level current active workstream remains `none` while FB-015 release debt is unresolved.
 - FB-029 is the current promoted Workstream authority on `feature/fb-029-orin-identity-licensing-hardening`.
@@ -35,7 +35,10 @@
 - WS-1 current identity, persona-option, and licensing source-of-truth inventory is complete and durably recorded.
 - WS-2 canonical vs historical identity, persona-option, and licensing boundary framing is complete and durably recorded.
 - WS-3 validation and admission contract for future identity and licensing implementation is complete and durably recorded.
-- The bounded docs/canon-only Workstream seam chain is complete and ready for Hardening evaluation.
+- H-1 pressure test of the identity inventory, persona-option framing, licensing boundary framing, and future implementation admission contract is complete and durably recorded.
+- Current-truth canon now records Hardening-complete / Live-Validation-next phase status instead of leaving Workstream-complete / Hardening-next wording behind.
+- Dormant ARIA registry presence remains non-shipping and non-default; any release-gating, runtime-selection, UI-exposure, or public-claim change still requires a later explicitly admitted implementation surface.
+- Licensing authority remains centralized in `LICENSE` plus `Docs/ownership_ip_plan.md`; `README.md`, release notes, and other public identity summaries remain downstream explanatory surfaces only.
 - Explicit product/legal approval still blocks any implementation-facing naming, licensing, release, runtime, or persona-surface change.
 - No naming changes, license-file changes, runtime changes, release edits, UI copy sweeps, asset changes, or repo ownership changes have started.
 
@@ -45,7 +48,7 @@
 
 ## Blockers
 
-None. Hardening is the next legal phase for this docs/canon-only milestone.
+None. Live Validation is the next legal phase for this docs/canon-only milestone.
 
 ## Entry Basis
 
@@ -101,10 +104,10 @@ None. Hardening is the next legal phase for this docs/canon-only milestone.
 - Run `python dev\orin_branch_governance_validation.py`.
 - Run `git diff --check`.
 - Confirm `Docs/Main.md` routes this workstream record.
-- Confirm `Docs/feature_backlog.md` marks FB-029 as `Promoted`, `Active`, cites this doc, and records WS-1 through WS-3 complete with Hardening next.
+- Confirm `Docs/feature_backlog.md` marks FB-029 as `Promoted`, `Active`, cites this doc, and records WS-1 through WS-3 plus H-1 complete with Live Validation next.
 - Confirm `Docs/workstreams/index.md` lists FB-029 under Active while FB-015 remains under Merged / Release Debt Owners.
-- Confirm `Docs/prebeta_roadmap.md` preserves FB-015 merged-unreleased release-debt truth with `current active workstream: none` while also recording FB-029 Workstream WS-1 through WS-3 complete and Hardening next.
-- Confirm `Docs/feature_backlog.md`, `Docs/prebeta_roadmap.md`, `Docs/workstreams/index.md`, and `Docs/workstreams/FB-015_boot_and_desktop_phase_boundary_model.md` agree that FB-029 is promoted on this branch, the Workstream seam chain is complete, and Hardening is next.
+- Confirm `Docs/prebeta_roadmap.md` preserves FB-015 merged-unreleased release-debt truth with `current active workstream: none` while also recording FB-029 Workstream plus Hardening complete and Live Validation next.
+- Confirm `Docs/feature_backlog.md`, `Docs/prebeta_roadmap.md`, `Docs/workstreams/index.md`, and `Docs/workstreams/FB-015_boot_and_desktop_phase_boundary_model.md` agree that FB-029 is promoted on this branch, WS-1 through WS-3 and H-1 are complete, and Live Validation is next.
 - Confirm `assistant_personas.py` still keeps `RELEASED_PERSONA_IDS = ("orin",)` and `DEFAULT_PERSONA_ID = "orin"`.
 - Confirm `LICENSE` and `Docs/ownership_ip_plan.md` remain aligned on current proprietor and restrictive proprietary posture.
 - Confirm FB-015 merged-unreleased release-debt truth still routes Release Readiness to updated `main`.
@@ -157,7 +160,7 @@ Seam 3: Validation and admission contract for future identity and licensing impl
 
 ## Active Seam
 
-Active seam: None after WS-3 completion under bounded multi-seam governance.
+Active seam: None after H-1 completion under bounded multi-seam governance; Live Validation is next.
 
 - BR-1 Status: Completed in the prior Branch Readiness pass.
 - BR-1 Boundary: promote FB-029, define branch objective, target end-state, seam families, validation contract, User Test Summary strategy, later-phase expectations, and the first Workstream seam.
@@ -171,6 +174,9 @@ Active seam: None after WS-3 completion under bounded multi-seam governance.
 - WS-3 Status: Completed / executed.
 - WS-3 Boundary: docs/canon validation and admission contract for future identity, persona, licensing, release-facing, and user-facing implementation.
 - WS-3 Non-Includes: no naming edits, no licensing edits, no runtime changes, no UI or asset changes, no installer changes, no release edits, no public release editing, and no implementation admission by inertia.
+- H-1 Status: Completed / executed.
+- H-1 Boundary: docs/canon pressure test of the identity inventory, persona-option framing, licensing boundary framing, future implementation admission contract, governance gaps, ambiguity, contradiction, scope drift, and implementation-readiness risk.
+- H-1 Non-Includes: no naming edits, no licensing edits, no runtime changes, no UI or asset changes, no installer changes, no release edits, no public release editing, and no implementation admission by inertia.
 
 ## WS-1 Execution Record
 
@@ -257,6 +263,7 @@ Before any future naming, persona, runtime, UI, asset, installer, or release-fac
 - state whether each affected surface is canonical-current, historical-preserved, compatibility-retained, or newly admitted for migration
 - preserve the current product/tooling shell vs persona split unless a later explicit product/legal decision changes that model
 - keep `assistant_personas.py` release gating truthful and prevent dormant ARIA registry presence from being misrepresented as shipped behavior
+- treat any change to `RELEASED_PERSONA_IDS`, `DEFAULT_PERSONA_ID`, runtime persona selection, user-facing persona exposure, or public persona claims as implementation-facing persona activation rather than docs-only cleanup
 - define rollback boundaries that separate docs/canon changes from runtime/UI changes, asset changes, release changes, and public-surface updates
 
 ### Future Licensing Implementation Admission Gate
@@ -285,12 +292,46 @@ Before any future license text, ownership reference, trademark claim, entity tra
 - User Test Summary Applicability: not applicable for WS-3 because it defines future admission and validation rules only.
 - Continue/Stop Decision: stop at the phase boundary. The approved Workstream seam chain is complete, so the next legal phase is Hardening.
 
+## H-1 Hardening Record
+
+H-1 is docs/canon only. It pressure-tests whether the completed FB-029 identity, persona-option, and licensing planning frame is coherent enough to move into Live Validation without admitting naming, licensing, runtime, UI, asset, installer, release, or persona implementation.
+
+### Hardening Findings
+
+- Governance Gap: the active workstream record and current-truth mirrors still carried Workstream-complete / Hardening-next wording after the bounded WS-1 through WS-3 seam chain had already finished. H-1 corrects current-state canon to Hardening-complete / Live-Validation-next truth.
+- Identity Inventory Pressure Test: the current inventory cleanly separates canonical current identity surfaces, runtime presentation surfaces, historical-preserved surfaces, compatibility artifacts, and orientation-only summaries. `README.md` still carries a stale latest-prerelease line, but WS-1 already records that it is identity-orientation only and not release-truth authority. No identity contradiction blocks Live Validation.
+- Persona-Option Framing Gap: WS-2 correctly kept ARIA dormant, but the admission contract left a little too much room to misread registry/default edits or public persona claims as harmless docs cleanup. H-1 tightens the contract so persona release gating, runtime selection, UI exposure, and public-shipped claims stay implementation-facing and explicitly admitted.
+- Licensing Boundary Pressure Test: `LICENSE` and `Docs/ownership_ip_plan.md` remain aligned on current proprietary posture and owner-of-record. `README.md`, release notes, and other public summaries remain explanatory or disclosure surfaces only; they do not bind licensing rights or ownership changes by implication.
+- Scope Check: WS-1 through WS-3 and H-1 remain docs/canon only. No naming edits, license-file edits, runtime changes, release edits, UI copy edits, asset changes, repo ownership changes, helper-code edits, or desktop-export artifacts were introduced.
+- Implementation-Readiness Risk: FB-029 is ready for repo-truth and applicability validation, but it is not ready for implementation by inertia. Any later naming, persona, licensing, release-facing, or user-facing seam still requires explicit affected-surface classification, product/legal approval posture, rollback target, release/public impact classification, and validation scope.
+
+### Hardening Corrections
+
+- Current-state canon is updated from Workstream-complete / Hardening-next wording to Hardening-complete / Live-Validation-next wording.
+- The future identity/persona admission contract now explicitly classifies persona release-gating, default selection, runtime persona selection, UI exposure, and public persona claims as implementation-facing activation surfaces rather than docs-only cleanup.
+- No validator, helper, runtime, release, or desktop-export repair is required for this hardening pass.
+
+### H-1 Completion Decision
+
+- H-1 Result: Complete / green.
+- User-facing impact: none. This pass changed docs/canon only.
+- Next legal phase: Live Validation.
+- Stop condition: phase boundary reached; Hardening is complete after H-1.
+
+### H-1 Validation Results
+
+- `python dev\orin_branch_governance_validation.py`: PASS, 1045 checks.
+- `git diff --check`: PASS with line-ending normalization warnings only and no whitespace errors.
+- H-1 phase-state scan: PASS; current authority surfaces report FB-029 Hardening complete and Live Validation as the next legal phase.
+- H-1 scope validation: PASS; changed files are docs/canon surfaces only.
+- H-1 changed no naming surface, license-file surface, runtime behavior, release artifact, UI surface, asset, installer behavior, helper code, or desktop export.
+
 ## Seam Continuation Decision
 
 Continue Decision: `stop`
-Next Active Seam: `Hardening`
+Next Active Seam: `Live Validation`
 Stop Condition: `phase boundary reached`
-Continuation Action: execute FB-029 Hardening against the completed WS-1 through WS-3 docs/canon seam chain.
+Continuation Action: execute FB-029 Live Validation against the completed WS-1 through WS-3 plus H-1 docs/canon record.
 
 ## Reuse Baseline
 
@@ -324,6 +365,7 @@ Continuation Action: execute FB-029 Hardening against the completed WS-1 through
 - WS-1 current identity, persona-option, and licensing source-of-truth inventory is complete.
 - WS-2 canonical vs historical identity, persona-option, and licensing boundary framing is complete.
 - WS-3 validation and admission contract for future identity and licensing implementation is complete.
+- H-1 pressure test findings and corrections are recorded.
 - Current canonical vs historical identity, persona-option, and licensing source inventory plus boundary framing are recorded without implementation drift.
 - Explicit product/legal approval remains recorded as the gate on any implementation-facing naming, licensing, release, runtime, or persona-surface work.
 - No naming edits, license-file edits, runtime changes, UI or asset changes, installer changes, release edits, or public release edits were made in this pass.
@@ -332,8 +374,8 @@ Continuation Action: execute FB-029 Hardening against the completed WS-1 through
 ## Rollback Target
 
 - `Workstream`
-- Revert the FB-029 Workstream docs/canon commit(s) and return FB-029 to Branch-Readiness-complete truth with WS-1 admitted next and no executed Workstream seam record.
+- Revert the FB-029 Hardening docs/canon commit(s) and return FB-029 to Workstream-complete / Hardening-next truth with WS-1 through WS-3 recorded and H-1 absent.
 
 ## Next Legal Phase
 
-- `Hardening`
+- `Live Validation`

@@ -80,7 +80,7 @@ That may be an executable branch owner or another explicitly promoted current-tr
 
 - `Docs/workstreams/FB-029_orin_identity_licensing_hardening.md`
 
-FB-029 is the current promoted Workstream authority on `feature/fb-029-orin-identity-licensing-hardening`. The bounded WS-1 through WS-3 docs/canon seam chain is complete, Hardening is next, the milestone remains docs/canon-only, and explicit product/legal approval still blocks any implementation-facing naming, licensing, release, runtime, or persona-surface work.
+FB-029 is the current promoted Workstream authority on `feature/fb-029-orin-identity-licensing-hardening`. The bounded WS-1 through WS-3 docs/canon seam chain plus H-1 Hardening are complete, Live Validation is next, the milestone remains docs/canon-only, and explicit product/legal approval still blocks any implementation-facing naming, licensing, release, runtime, or persona-surface work.
 
 ### Merged / Release Debt Owners
 
@@ -89,7 +89,7 @@ These records are not active implementation branch owners after merge.
 
 - `Docs/workstreams/FB-015_boot_and_desktop_phase_boundary_model.md`
 
-FB-015 merged through PR #75 into `main` at `3e821e07ff91d814fd7aba9b50819f97d700a301` and now owns merged-unreleased release debt for `v1.6.4-prebeta`. No repo-level active workstream is admitted while that release debt remains open. FB-029 has completed the bounded docs/canon-only Workstream seam chain through WS-3 on `feature/fb-029-orin-identity-licensing-hardening`, and Hardening is next.
+FB-015 merged through PR #75 into `main` at `3e821e07ff91d814fd7aba9b50819f97d700a301` and now owns merged-unreleased release debt for `v1.6.4-prebeta`. No repo-level active workstream is admitted while that release debt remains open. FB-029 has completed the bounded docs/canon-only Workstream seam chain through WS-3 plus H-1 on `feature/fb-029-orin-identity-licensing-hardening`, and Live Validation is next.
 
 ### Closed
 
