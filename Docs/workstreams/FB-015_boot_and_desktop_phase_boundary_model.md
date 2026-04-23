@@ -34,6 +34,7 @@
 - FB-015 is now the active promoted workstream on `feature/fb-015-boot-desktop-phase-boundary-model`.
 - WS-1 current boot/desktop boundary inventory and ownership map is admitted next.
 - A narrow supporting canon sync for released FB-040 Sensor HUD beta admission may ride on this branch only as docs/governance-only source-of-truth maintenance; it does not reopen FB-040, change FB-015 runtime scope, or replace WS-1 as the next admitted FB-015 seam.
+- A requested future-lane admission for `FB-042 Stream Deck Integration via Elgato MCP` was reviewed and explicitly deferred because backlog identity, roadmap sequencing, and new auxiliary planning-reference canon for that lane would exceed the current FB-015 Branch Readiness boundary.
 - No FB-015 runtime, launcher, shortcut, renderer lifecycle, UI, installer, source-tree, or release work has started.
 
 ## Branch Class
@@ -100,15 +101,17 @@ None.
 - Confirm `Docs/workstreams/index.md` lists FB-015 under Active.
 - Confirm `Docs/prebeta_roadmap.md` records FB-015 as active and Branch Readiness-complete.
 - Confirm FB-004 remains Released / Closed in `v1.6.3-prebeta`.
-- Confirm any supporting canon sync in this pass remains limited to `Docs/workstreams/FB-040_monitoring_thermals_performance_hud_surface.md` and `Docs/validation_helper_registry.md`, without backlog, roadmap, index, phase-governance, runtime, or helper-file changes.
+- Confirm any supporting canon sync in this pass remains limited to active FB-015 branch authority wording, `Docs/workstreams/FB-040_monitoring_thermals_performance_hud_surface.md`, and `Docs/validation_helper_registry.md`, without backlog, roadmap, index, phase-governance, runtime, or helper-file changes.
+- Confirm requested future-lane `FB-042 Stream Deck Integration via Elgato MCP` admission remains deferred on this branch and does not add backlog, roadmap, workstream, or auxiliary planning-reference canon.
 - Confirm no runtime, launcher, shortcut, renderer lifecycle, UI, installer, source-tree, release, helper-code, or desktop-export surface changed during Branch Readiness.
 
 ## Branch Readiness Validation Results
 
 - `python dev\orin_branch_governance_validation.py`: PASS, 916 checks.
 - `git diff --check`: PASS; no whitespace errors.
-- Scope validation: PASS; this supporting canon sync changes only the active FB-015 branch authority wording, the released FB-040 workstream's future beta admission contract, and the validation helper registry reservation.
-- Admission validation: PASS; FB-015 remains the active promoted workstream, WS-1 current boot/desktop boundary inventory and ownership map remains next, and FB-040 is not reactivated by this pass.
+- Scope validation: PASS; this follow-up docs-only clarification changes only the active FB-015 branch authority wording and does not add backlog, roadmap, workstream, auxiliary planning-reference, phase-governance, runtime, or helper-file changes.
+- Admission validation: PASS; FB-015 remains the active promoted workstream, WS-1 current boot/desktop boundary inventory and ownership map remains next, FB-040 is not reactivated, and requested future-lane `FB-042 Stream Deck Integration via Elgato MCP` admission remains deferred on this branch.
+- Boundary validation: PASS; no backlog, roadmap, workstream, or auxiliary planning-reference canon is added on this branch, and future-lane `FB-042 Stream Deck Integration via Elgato MCP` admission is preserved as a later legal-surface task.
 
 ## User Test Summary Strategy
 
@@ -156,12 +159,14 @@ This active branch may carry tightly scoped supporting canon sync when the chang
 
 Admitted supporting canon sync for this pass:
 
+- active FB-015 branch authority clarification that requested future-lane `FB-042 Stream Deck Integration via Elgato MCP` admission remains deferred on this branch
 - post-release future beta admission contract additions in `Docs/workstreams/FB-040_monitoring_thermals_performance_hud_surface.md`
 - future Sensor HUD helper-family reservation in `Docs/validation_helper_registry.md`
 
 Non-includes for this supporting canon sync:
 
 - no FB-040 reactivation as the active workstream
+- no FB-042 backlog admission, roadmap sequencing change, workstream creation, or `Docs/stream_deck_integration_design.md` planning-reference creation on this branch
 - no backlog, roadmap, or workstreams-index selection changes
 - no `Docs/phase_governance.md` policy expansion
 - no runtime code, helper-file, installer, shortcut, tray, overlay, or UI changes
