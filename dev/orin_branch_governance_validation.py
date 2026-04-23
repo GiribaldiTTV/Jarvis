@@ -841,6 +841,7 @@ def _release_debt_owner_claim(workstream_id: str) -> str:
 def _parse_workstream_doc(text: str) -> dict[str, object]:
     record_state = _extract_first_backtick_value(_section(text, "Record State"))
     status = _extract_first_backtick_value(_section(text, "Status"))
+    canonical_branch = _extract_first_backtick_value(_section(text, "Canonical Branch"))
     current_phase_section = _section(text, "Current Phase")
     current_phase_match = re.search(r"Phase:\s*`([^`]+)`", current_phase_section)
     current_phase = current_phase_match.group(1) if current_phase_match else ""
@@ -852,6 +853,7 @@ def _parse_workstream_doc(text: str) -> dict[str, object]:
     return {
         "record_state": record_state,
         "status": status,
+        "canonical_branch": canonical_branch,
         "current_phase": current_phase,
         "branch_class": branch_class,
         "blockers": blockers,
@@ -2028,6 +2030,8 @@ def main() -> int:
                     ),
                 )
 
+    current_git_branch = _git_current_branch()
+
     promoted_entries = [
         entry
         for entry in backlog_entries
@@ -2146,6 +2150,7 @@ def main() -> int:
 
         current_phase = str(workstream_info["current_phase"])
         branch_class = str(workstream_info["branch_class"])
+        canonical_branch = str(workstream_info["canonical_branch"])
         rollback_target = str(workstream_info["rollback_target"])
         next_legal_phase = str(workstream_info["next_legal_phase"])
         blockers = list(workstream_info["blockers"])
@@ -2410,6 +2415,22 @@ def main() -> int:
 
         phase_status_section = _section(workstream_text, "Phase Status")
         normalized_workstream_status = _normalize_status(str(workstream_info["status"]))
+        if (
+            current_git_branch == "main"
+            and branch_class == "implementation"
+            and normalized_workstream_status == "active"
+            and canonical_branch
+            and canonical_branch != "main"
+        ):
+            require(
+                False,
+                (
+                    f"{canonical_path}: post-merge current-state drift is active; "
+                    "main must not carry active implementation workstream truth for a canonical "
+                    f"branch outside main ('{canonical_branch}'). After merge, the workstream must "
+                    "be represented as merged-unreleased release debt or closed state."
+                ),
+            )
         if normalized_workstream_status == "merged unreleased":
             require(
                 current_phase == "Release Readiness",

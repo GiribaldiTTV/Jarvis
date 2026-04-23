@@ -78,16 +78,16 @@ For an active or recently closed canonical workstream, keep these durable tracea
 Active here means the current promoted truth owner.
 That may be an executable branch owner or another explicitly promoted current-truth owner.
 
-- `Docs/workstreams/FB-015_boot_and_desktop_phase_boundary_model.md`
-
-FB-015 is the active promoted workstream on `feature/fb-015-boot-desktop-phase-boundary-model`. PR Readiness is complete; WS-1 current boot/desktop boundary inventory and ownership map, WS-2 lifecycle and phase-boundary state framing, WS-3 validation and admission contract for future boot/desktop boundary implementation, H-1 hardening, LV-1 Live Validation, PR-1 merge-target canon completeness, PR-2 selected-next workstream selection, and PR-3 live PR creation plus authenticated PR state validation are complete. PR #75 is open/non-draft/mergeable clean. FB-029 is selected next for planning only, and its branch remains uncreated pending FB-015 merge, `v1.6.4-prebeta` release closure, updated-main revalidation, and explicit product/legal approval.
+None. No active promoted implementation workstream is admitted while FB-015 is the merged-unreleased release-debt owner on `main` for `v1.6.4-prebeta`. `feature/fb-029-orin-identity-licensing-hardening` currently exists only for blocker-clearing FB-015 canon repair and FB-029 Branch Readiness planning; FB-029 remains selected-only and `Registry-only` until Branch Readiness completes.
 
 ### Merged / Release Debt Owners
 
 Merged / Release Debt Owners are promoted implementation workstreams whose implementation branch is merge-target complete but whose public release packaging has not yet cleared release debt.
 These records are not active implementation branch owners after merge.
 
-None. FB-004 release debt cleared when `v1.6.3-prebeta` was published and validated.
+- `Docs/workstreams/FB-015_boot_and_desktop_phase_boundary_model.md`
+
+FB-015 merged through PR #75 into `main` at `3e821e07ff91d814fd7aba9b50819f97d700a301` and now owns merged-unreleased release debt for `v1.6.4-prebeta`. No active promoted implementation workstream is admitted while that release debt remains open. FB-029 is selected next on `feature/fb-029-orin-identity-licensing-hardening`, but that branch currently exists only for blocker-clearing canon repair and Branch Readiness planning.
 
 ### Closed
 

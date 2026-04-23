@@ -35,38 +35,43 @@ Historical note:
 
 ## Active Promoted Workstream
 
-FB-015 Boot and desktop phase-boundary model is the active promoted workstream on `feature/fb-015-boot-desktop-phase-boundary-model`.
+None. No active promoted implementation workstream is admitted while FB-015 is the merged-unreleased release-debt owner on `main` for `v1.6.4-prebeta`.
 
-Main-facing canon is aligned to post-release truth: FB-040 is released and closed in `v1.6.0-prebeta`, FB-031 is released and closed in `v1.6.1-prebeta`, FB-032 is released and closed in `v1.6.2-prebeta`, FB-004 is released and closed in `v1.6.3-prebeta`, and release debt is clear. FB-015 is now PR Readiness-complete on `feature/fb-015-boot-desktop-phase-boundary-model`; WS-1 through WS-3, H-1, LV-1, PR-1, PR-2, and PR-3 are complete, PR #75 is open/non-draft/mergeable clean, and Release Readiness is next after merge.
+Main-facing canon is aligned to merged-unreleased truth: FB-040 is released and closed in `v1.6.0-prebeta`, FB-031 is released and closed in `v1.6.1-prebeta`, FB-032 is released and closed in `v1.6.2-prebeta`, FB-004 is released and closed in `v1.6.3-prebeta`, and FB-015 is merged into `main` at `3e821e07ff91d814fd7aba9b50819f97d700a301` with release debt active for `v1.6.4-prebeta`. `feature/fb-029-orin-identity-licensing-hardening` exists only for blocker-clearing FB-015 canon repair and FB-029 Branch Readiness planning; FB-029 remains selected-only and `Registry-only` until Branch Readiness completes.
 FB-039 is released and closed in `v1.5.0-prebeta`.
 FB-038 remains released and closed in `v1.4.1-prebeta`.
 
 ## Merged-Unreleased Release-Debt Owner
 
-Merged-Unreleased Release-Debt Owner: None.
-Repo State: FB-015 PR Readiness is complete on `feature/fb-015-boot-desktop-phase-boundary-model`; WS-1 through WS-3, H-1, LV-1, PR-1, PR-2, and PR-3 are complete, and PR #75 is open/non-draft/mergeable clean.
+Merged-Unreleased Release-Debt Owner: FB-015 Boot and desktop phase-boundary model.
+Repo State: No Active Branch. FB-015 merged cleanly through PR #75, so no active promoted implementation branch remains admitted while release debt is open.
 Latest Public Prerelease: v1.6.3-prebeta.
 Latest Public Release Commit: 9f5ae9a78c7dbff79322089bca370fa49da38598.
 Latest Public Prerelease Publication: https://github.com/GiribaldiTTV/Nexus-Desktop-AI/releases/tag/v1.6.3-prebeta.
 Latest Public Prerelease Title: Pre-Beta v1.6.3.
-Release Debt: Clear after FB-004 release execution and live release validation.
-Post-Release Truth: FB-004 is Released / Closed in v1.6.3-prebeta; release debt is clear; FB-015 is the active promoted workstream with WS-1 through WS-3, H-1, LV-1, PR-1, PR-2, and PR-3 complete, and Release Readiness next after PR merge.
+Release Debt: Active for FB-015 until `v1.6.4-prebeta` is published, validated, and post-release canon closure is completed.
+Release Target: v1.6.4-prebeta
+Release Floor: patch prerelease
+Version Rationale: FB-015 remains a docs/canon-only boot and desktop phase-boundary architecture plus admission milestone with no new executable, runtime, operator-facing, user-facing, or materially expanded product capability.
+Release Scope: Boot and desktop phase-boundary inventory, ownership map, lifecycle and state framing, implementation admission contract, hardening corrections, Live Validation waivers, PR Readiness package history, post-merge canon repair, and merged-unreleased release-debt framing.
+Release Artifacts: Tag v1.6.4-prebeta; release title Pre-Beta v1.6.4; rich Markdown release notes summarize the FB-015 boundary model and governance results without repeating the release title inside the notes body, and GitHub-generated `## What's Changed` plus `**Full Changelog**:` must be included.
+Post-Release Truth: FB-015 is Released / Closed in v1.6.4-prebeta after publication and validation; release debt then clears, and FB-029 Branch Readiness may continue on feature/fb-029-orin-identity-licensing-hardening after updated-main revalidation while explicit product/legal approval remains required before implementation-facing work.
 Selected Next Workstream: FB-029 ORIN legal-safe rebrand, future ARIA persona option, and repo licensing hardening.
-Next-Branch Creation Gate: FB-029 remains planning-only and no branch may be created until FB-015 merges, `v1.6.4-prebeta` is published and validated, updated `main` is revalidated, and explicit product/legal approval admits FB-029 Branch Readiness.
+Next-Branch Creation Gate: FB-029 Branch Readiness branch now exists only for blocker-clearing FB-015 merged-state canon repair and Branch Readiness planning; FB-029 remains selected-only and registry-only until Branch Readiness completes, and explicit product/legal approval still controls any later implementation-facing admission.
 
 ## Backlog Governance Sync
 
-Last Reviewed: 2026-04-23 during FB-015 PR-3.
+Last Reviewed: 2026-04-23 during FB-029 Branch Readiness blocker-clearing repair.
 
 Open-candidate priority review:
 
 - FB-004 is released and closed in `v1.6.3-prebeta`; it is no longer an active or selected-next branch candidate.
-- FB-029 remains `High` and is now the selected-next planning lane because it is the highest-priority remaining open candidate after FB-015; branch creation and Branch Readiness admission remain blocked until explicit product/legal approval is given.
-- FB-015 remains `High`, is promoted, and is the active PR Readiness lane with WS-1 through WS-3, H-1, LV-1, PR-1, and PR-2 complete because boot/desktop phase-boundary follow-through remains the current release-bearing branch.
+- FB-015 remains `High`, is promoted, and is now the merged-unreleased release-debt owner on `main` for `v1.6.4-prebeta`; no active promoted implementation workstream is admitted while that release debt remains open.
+- FB-029 remains `High` and selected next for planning, but the current branch exists only for blocker-clearing FB-015 canon repair and Branch Readiness planning; explicit product/legal approval is still required before any implementation-facing admission.
 - FB-030 remains `Medium` because it requires an explicit voice/audio design goal and must not enter as incidental persona or runtime cleanup.
 - FB-005 remains `Low` because remaining workspace movement is path-sensitive and requires explicit workspace/path approval.
 
-Next-branch clarity: FB-029 is selected next for planning only. Successor branch creation remains blocked until FB-015 merges, `v1.6.4-prebeta` is published and validated, updated `main` is revalidated, and explicit product/legal approval admits FB-029 Branch Readiness.
+Next-branch clarity: FB-029 remains selected next for planning only on `feature/fb-029-orin-identity-licensing-hardening`. This branch may clear escaped FB-015 canon drift and complete Branch Readiness planning, but FB-029 stays selected-only and `Registry-only` until Branch Readiness completes and explicit product/legal approval admits any later implementation-facing work.
 
 ## Registry Items
 
@@ -84,10 +89,12 @@ Why it matters: Keeps folder and ownership cleanup deliberate instead of letting
 
 ### [ID: FB-015] Boot and desktop phase-boundary model
 
-Status: Active
+Status: Merged unreleased
 Record State: Promoted
 Priority: High
 Release Stage: Slice-staged
+Target Version: v1.6.4-prebeta
+Release Title: Pre-Beta v1.6.4
 Deferred Since: v2.0 closeout after the FB-015 rev1a phase-boundary clarification.
 Deferred Because: the boot/desktop ownership model is clarified at planning level, but no later implementation-facing boundary change has been admitted.
 Selection / Unblock: Select when a concrete boot, desktop, startup, trust, or orchestration lane is blocked by unresolved ownership boundaries; Branch Readiness must name the exact ambiguity it resolves.
@@ -98,7 +105,14 @@ Branch Readiness: Complete. The branch objective, target end-state, seam familie
 Workstream: WS-1 current boot/desktop boundary inventory and ownership map, WS-2 lifecycle and phase-boundary state framing, and WS-3 validation and admission contract for future boot/desktop boundary implementation are complete.
 Hardening: H-1 pressure test of the boot/desktop boundary inventory and ownership map, lifecycle and phase-boundary state framing, and future implementation admission contract is complete.
 Live Validation: LV-1 repo-truth alignment, user-facing shortcut applicability, User Test Summary applicability, desktop export applicability, cleanup posture, and waiver handling are complete.
-PR Readiness: PR-1 merge-target canon completeness, PR-2 selected-next workstream selection, and PR-3 live PR creation plus authenticated PR state validation are complete.
+PR Readiness: PR-1 merge-target canon completeness, PR-2 selected-next workstream selection, and PR-3 live PR creation plus authenticated PR state validation are complete; PR #75 merged cleanly into `main` at `3e821e07ff91d814fd7aba9b50819f97d700a301`.
+Release Readiness: FB-015 is the merged-unreleased release-debt owner on `main` for `v1.6.4-prebeta`; no active promoted implementation branch remains admitted while release debt is open.
+Release Target: v1.6.4-prebeta
+Release Floor: patch prerelease
+Version Rationale: FB-015 remains a docs/canon-only boundary inventory, ownership, lifecycle, and implementation-admission milestone with no new executable, runtime, operator-facing, user-facing, or materially expanded product capability.
+Release Scope: Boot and desktop phase-boundary inventory, ownership map, lifecycle/state framing, implementation admission contract, hardening corrections, Live Validation waivers, PR package history, post-merge canon repair, and merged-unreleased release-debt truth.
+Release Artifacts: Tag v1.6.4-prebeta; release title Pre-Beta v1.6.4; rich Markdown release notes summarize the FB-015 boundary model and governance results without repeating the release title inside the notes body, and GitHub-generated `## What's Changed` plus `**Full Changelog**:` must be included.
+Post-Release Truth: FB-015 is Released / Closed in v1.6.4-prebeta after publication and validation; release debt then clears, and FB-029 Branch Readiness may continue on feature/fb-029-orin-identity-licensing-hardening after updated-main revalidation while explicit product/legal approval remains required before implementation-facing work.
 Minimal Scope: Complete the bounded docs/canon seam chain for current boot/desktop phase-boundary ambiguity, starting with current boundary inventory and ownership mapping before lifecycle framing or implementation-admission rules are extended.
 Summary: Preserve the future boot and desktop phase-boundary model above the already-closed milestone taxonomy work.
 Why it matters: Keeps boot-versus-desktop ownership planning explicit without reopening the closed taxonomy milestone by inertia.
@@ -113,6 +127,8 @@ Deferred Since: current pre-Beta identity backlog registration before FB-032 pro
 Deferred Because: legal-safe naming, ORIN/ARIA persona posture, and licensing hardening need explicit product/legal approval and must not ride along with source-of-truth migration, UI, runtime, or release work.
 Selection / Unblock: FB-015 PR Readiness may record FB-029 as the selected-next planning lane when it remains the highest-priority open candidate, but branch creation and Branch Readiness admission still require explicit product/legal approval and must separate naming, licensing, persona, release, and runtime non-goals before edits begin.
 Next Workstream: Selected
+Branch: feature/fb-029-orin-identity-licensing-hardening
+Branch Readiness: Active as a blocker-clearing seam only. This branch currently exists to repair escaped FB-015 merged-state canon drift and to preserve FB-029 as selected-only plus Registry-only while Branch Readiness planning is evaluated; no FB-029 implementation-facing admission is active.
 Minimal Scope: Define the Branch Readiness frame for legal-safe ORIN naming, optional future ARIA persona posture, and repo licensing hardening before any naming, licensing, release, runtime, or persona-facing edits begin.
 Summary: Track future ORIN-era naming, persona, and licensing hardening work without treating the local rebrand overlay as merged truth.
 Why it matters: Product identity, legal posture, and repo ownership still need durable future treatment, but not by accidental carry-forward.
