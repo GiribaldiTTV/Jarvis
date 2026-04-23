@@ -27,22 +27,23 @@
 
 ## Current Phase
 
-- Phase: `Hardening`
+- Phase: `Live Validation`
 
 ## Phase Status
 
-- `H-1 complete / Live Validation admission ready`
+- `LV-1 complete / PR Readiness admission ready`
 - FB-031 is released and closed in `v1.6.1-prebeta`.
 - Latest public prerelease truth is `v1.6.1-prebeta`.
 - Release debt is clear.
-- FB-032 Branch Readiness is complete and this record is the active Hardening authority.
+- FB-032 Branch Readiness is complete and this record is the active Live Validation authority.
 - WS-1 current-vs-historical source-of-truth inventory and naming policy is complete.
 - GOV-WS1 bounded multi-seam continuation repair is complete after the WS-1 pass stopped before acting on the admitted WS-2 continuation.
 - WS-2 classification and mapping of canonical vs historical surfaces is complete.
 - WS-3 validation and admission contract for controlled migration execution is complete.
 - H-1 pressure test of the source-of-truth migration frame, naming policy, surface classification, and migration admission contract is complete.
+- LV-1 repo-truth alignment, user-facing shortcut applicability, User Test Summary applicability, and architecture-only waiver handling are complete.
 - No FB-032 wording migration, persona work, runtime behavior, UI implementation, rebrand execution, release work, or source-of-truth migration implementation has started.
-- The FB-032 Hardening pass is complete and the next legal phase is Live Validation.
+- The FB-032 Live Validation pass is complete and the next legal phase is PR Readiness.
 
 ## Branch Class
 
@@ -106,8 +107,8 @@ None.
 - Confirm `Docs/Main.md` routes the promoted FB-032 workstream record.
 - Confirm `Docs/feature_backlog.md` marks FB-032 as `Promoted` and cites this canonical workstream doc.
 - Confirm `Docs/workstreams/index.md` lists FB-032 under Active and not under Closed or Merged / Release Debt Owners.
-- Confirm `Docs/prebeta_roadmap.md` records FB-032 as the active Workstream-phase workstream and does not leave Branch Readiness-only truth behind.
-- Confirm no runtime, UI, persona, wording migration, source code, release, or desktop artifact changed during WS-1 through WS-3 or H-1.
+- Confirm `Docs/prebeta_roadmap.md` records FB-032 as the active Live Validation-phase workstream and does not leave Branch Readiness-only, Workstream-only, or Hardening-only truth behind.
+- Confirm no runtime, UI, persona, wording migration, source code, release, or desktop artifact changed during WS-1 through WS-3, H-1, or LV-1.
 
 ## User Test Summary Strategy
 
@@ -150,7 +151,7 @@ Seam 3: Validation and admission contract for controlled migration execution
 
 ## Active Seam
 
-Active seam: H-1 source-of-truth migration frame pressure test is complete; FB-032 Hardening is complete and the next legal phase is Live Validation.
+Active seam: LV-1 Live Validation repo-truth and applicability classification is complete; FB-032 Live Validation is complete and the next legal phase is PR Readiness.
 
 - BR-1 Status: Completed in this pass.
 - BR-1 Boundary: promote FB-032, define branch objective, target end-state, seam families, validation contract, User Test Summary strategy, later-phase expectations, and the first Workstream seam.
@@ -170,13 +171,16 @@ Active seam: H-1 source-of-truth migration frame pressure test is complete; FB-0
 - H-1 Status: Completed / executed.
 - H-1 Boundary: docs/canon pressure test of the migration frame, naming policy, canonical-vs-historical surface classification, validation/admission contract, governance gaps, validation gaps, ambiguity, contradiction, scope issues, and migration-readiness risks.
 - H-1 Non-Includes: no controlled migration execution, no source code edits, no runtime behavior, no UI implementation, no persona implementation, no public wording migration, no release work, and no historical rewrite that destroys traceability.
+- LV-1 Status: Completed / executed.
+- LV-1 Boundary: docs/canon repo-truth alignment, branch-truth alignment, user-facing shortcut applicability classification, User Test Summary applicability classification, desktop export applicability classification, cleanup posture, and PR Readiness admission posture.
+- LV-1 Non-Includes: no runtime validation, no shortcut launch, no manual User Test Summary handoff, no desktop export, no controlled migration execution, no source code edits, no UI implementation, no persona implementation, no release work, and no historical rewrite that destroys traceability.
 
 ## Seam Continuation Decision
 
 Continue Decision: `stop`
-Next Active Seam: `LV-1 Live Validation repo-truth and applicability classification`
+Next Active Seam: `PR-1 PR Readiness merge-target canon and package validation`
 Stop Condition: `Phase boundary reached`
-Continuation Action: FB-032 Hardening is complete after H-1; the next legal phase is Live Validation, not another Hardening seam.
+Continuation Action: FB-032 Live Validation is complete after LV-1; the next legal phase is PR Readiness, not another Live Validation seam.
 
 ## WS-1 Execution Record
 
@@ -355,12 +359,42 @@ H-1 is docs/canon only. It pressure-tests whether the WS-1 through WS-3 migratio
 - Next legal phase: Live Validation.
 - Stop condition: phase boundary reached; Hardening is complete after H-1.
 
+## Live Validation Record
+
+LV-1 validated the completed FB-032 architecture-only milestone against live repo truth, branch truth, and user-facing/manual validation applicability. The branch remains documentation/canon-only for this milestone: no wording migration, controlled source-of-truth migration execution, runtime behavior, source code path, UI surface, persona behavior, launcher path, settings path, tray/taskbar path, overlay/HUD path, shortcut path, voice path, plugin path, installer path, asset, validation helper, release artifact, or operator-facing invocation behavior has been added.
+
+### Live Validation Findings
+
+- Repo Truth Alignment: FB-032 remains `Promoted`, active on `feature/fb-032-nexus-era-vision-source-of-truth-migration`, and FB-031 remains released/closed in `v1.6.1-prebeta` with release debt clear.
+- Branch Truth Alignment: the checked-out branch is the canonical FB-032 branch and carries completed BR-1, GOV-WS1, WS-1 through WS-3, and H-1 records.
+- User-Facing Shortcut Applicability: no user-facing desktop shortcut or equivalent entrypoint exists for the current milestone because FB-032 has not implemented launcher, shortcut, tray, overlay, settings, HUD, runtime UI, plugin, protocol, transport, voice, installer, controlled migration execution, wording migration, persona behavior, or operator-facing invocation behavior.
+- Manual Validation Applicability: no meaningful manual User Test Summary exists for the current milestone because the deliverable is source-of-truth inventory, naming policy, surface classification, migration admission contract, and Hardening truth only; manual testing cannot exercise behavior that does not exist.
+- Runtime Evidence Applicability: no runtime/helper evidence is required or meaningful for this milestone because no runtime product surface, helper, migration script, or user-facing artifact was created.
+- Desktop Export Applicability: no desktop `User Test Summary.txt` export is required for this Live Validation pass because there is no user-facing desktop path or manual checklist to hand off.
+- Cleanup: no programs, helper processes, windows, temporary files, probes, assets, screenshots, helpers, harnesses, runtime artifacts, desktop exports, release artifacts, or session-scoped evidence files were created.
+
+### Live Validation Completion Decision
+
+- LV-1 Result: Complete / green with repo-truth alignment and applicability waivers recorded.
+- User-facing shortcut gate: waived with exact markers in `## User Test Summary`.
+- User Test Summary results gate: waived with exact markers in `## User Test Summary`.
+- Validation Layer: documentation and governance validation only.
+- Continue/Stop Decision: stop at the Live Validation phase boundary after validation because FB-032 Live Validation proof is green and the next normal phase is `PR Readiness`; PR Readiness must still prove merge-target canon, successor selection, branch-history scope, dirty-branch status, PR package creation, and live PR validation before reporting PR-ready.
+
+## User Test Summary
+
+- User-Facing Shortcut Path: Not applicable - no user-facing desktop entrypoint exists for the current architecture-only FB-032 milestone.
+- User-Facing Shortcut Validation: WAIVED
+- User-Facing Shortcut Waiver Reason: FB-032 has no launcher, shortcut, tray, overlay, settings, HUD, runtime UI, plugin, protocol, transport, voice, installer, controlled migration execution, wording migration, persona behavior, or operator-facing invocation path to exercise.
+- User Test Summary Results: WAIVED
+- User Test Summary Waiver Reason: The milestone remains architecture-only and validator-proven through repo/canon checks; a filled manual UTS would not materially validate behavior because no user-visible setup, display, runtime UI, source-of-truth migration execution, wording migration, persona behavior, or invocation surface exists.
+
 ## Reuse Baseline
 
 - Reuse the existing governance validator `dev/orin_branch_governance_validation.py`.
 - Reuse the current workstream lifecycle and UTS rules in `Docs/phase_governance.md`, `Docs/development_rules.md`, and `Docs/workstreams/index.md`.
 - Reuse FB-031's architecture-only admission pattern for docs/canon planning seams, while keeping FB-032's identity/source-of-truth scope distinct from UI/UX implementation planning.
-- Do not create a new helper during WS-1 through WS-3 or H-1.
+- Do not create a new helper during WS-1 through WS-3, H-1, or LV-1.
 
 ## Exit Criteria
 
@@ -369,18 +403,19 @@ H-1 is docs/canon only. It pressure-tests whether the WS-1 through WS-3 migratio
 - WS-2 canonical-vs-historical surface classification and mapping is recorded.
 - WS-3 validation and admission contract for controlled migration execution is recorded.
 - H-1 pressure test findings and corrections are recorded.
-- `Docs/feature_backlog.md`, `Docs/prebeta_roadmap.md`, and `Docs/workstreams/index.md` identify FB-032 as the active Hardening-phase authority.
+- LV-1 repo-truth alignment, user-facing shortcut applicability, User Test Summary applicability, desktop export applicability, cleanup posture, and waiver handling are recorded.
+- `Docs/feature_backlog.md`, `Docs/prebeta_roadmap.md`, and `Docs/workstreams/index.md` identify FB-032 as the active Live Validation-phase authority.
 - No implementation work is admitted beyond the planned docs/canon seam sequence.
-- Hardening may advance to Live Validation after H-1 is complete and green.
+- Live Validation may advance to PR Readiness after LV-1 is complete and green.
 - Governance validation and diff hygiene pass for the current seam.
 
 ## Rollback Target
 
-- `Hardening`
+- `Live Validation`
 
 ## Next Legal Phase
 
-- `Live Validation`
+- `PR Readiness`
 
 ## Governance Drift Audit
 
@@ -394,6 +429,7 @@ Governance Drift Found: Yes, repaired during GOV-WS1.
 - WS-2 classified current legacy-named runtime artifacts as current truth with legacy names, historical lane records as preservation surfaces, and user-facing/runtime/persona surfaces as controlled-admission surfaces.
 - WS-3 defined controlled migration admission gates and stop conditions; no controlled migration execution is admitted by inertia.
 - H-1 found no new governance gap, contradiction, scope issue, or migration-readiness blocker after current-state canon was advanced to Hardening-complete / Live-Validation-next truth.
+- LV-1 found no repo-truth mismatch, shortcut blocker, User Test Summary blocker, desktop export requirement, runtime evidence requirement, or cleanup gap after current-state canon was advanced to Live-Validation-complete / PR-Readiness-next truth.
 - Finding: the WS-1 pass correctly recorded WS-2 as next, but stopped after returning `Next Safe Move` instead of acting on the required bounded multi-seam continuation.
 - Repair: governance, prompt scaffolds, and validator enforcement now require that reporting `Next Safe Move` is not a substitute for execution and that a `continue` decision must be acted on immediately by starting the next admitted seam.
 
@@ -419,3 +455,9 @@ Governance Drift Found: Yes, repaired during GOV-WS1.
 - H-1 diff hygiene: `git diff --check` PASS with line-ending normalization warnings only and no whitespace errors.
 - H-1 phase-state scan: PASS; current authority surfaces report FB-032 Hardening complete and Live Validation as the next legal phase.
 - H-1 changed docs/canon only; no runtime, UI, persona behavior, source code behavior, release artifact, desktop shortcut behavior, broad wording migration, controlled migration execution, or historical rewrite changed.
+- LV-1 validation: `python dev\orin_branch_governance_validation.py` PASS, 889 checks.
+- LV-1 diff hygiene: `git diff --check` PASS with line-ending normalization warnings only and no whitespace errors.
+- LV-1 phase-state scan: PASS; current authority surfaces report FB-032 Live Validation complete and PR Readiness as the next legal phase.
+- LV-1 user-facing shortcut gate: WAIVED with `User-Facing Shortcut Validation: WAIVED` and `User-Facing Shortcut Waiver Reason:` recorded in `## User Test Summary`.
+- LV-1 User Test Summary results gate: WAIVED with `User Test Summary Results: WAIVED` and `User Test Summary Waiver Reason:` recorded in `## User Test Summary`; no desktop export was required.
+- LV-1 changed docs/canon only; no runtime, UI, persona behavior, source code behavior, release artifact, desktop shortcut behavior, broad wording migration, controlled migration execution, helper, desktop export, or historical rewrite changed.
