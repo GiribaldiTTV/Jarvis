@@ -23,11 +23,11 @@
 
 ## Current Phase
 
-- Phase: `Workstream`
+- Phase: `Hardening`
 
 ## Phase Status
 
-- `Workstream is active on feature/fb-030-orin-voice-audio-direction-refinement after Branch Readiness closed green and the bounded WS-1 through WS-3 seam chain was completed.`
+- `Hardening is active on feature/fb-030-orin-voice-audio-direction-refinement after the bounded WS-1 through WS-3 Workstream seam chain completed green.`
 - FB-015 and FB-029 are released and closed in `v1.6.4-prebeta`.
 - Latest public prerelease truth is `v1.6.4-prebeta`.
 - Release debt is clear after `v1.6.4-prebeta` publication, validation, and post-release canon closure.
@@ -37,7 +37,8 @@
 - WS-1 current voice/audio surface inventory and ownership map is complete and durably recorded below.
 - WS-2 lifecycle and persona-state framing for voice/audio transitions is complete and durably recorded below.
 - WS-3 validation and admission contract for future voice/audio implementation is complete and durably recorded below.
-- The Workstream seam chain is complete, and Hardening is the next legal phase.
+- H-1 hardening pressure test is complete and durably recorded below.
+- Live Validation is the next legal phase.
 - No runtime voice behavior, shutdown voice behavior, recovery voice behavior, persona default, public copy, audio asset, or release-note wording change has started.
 
 ## Branch Class
@@ -70,7 +71,7 @@ None.
 
 ## Next Legal Phase
 
-- `Workstream`
+- `Live Validation`
 
 ## Branch Objective
 
@@ -216,7 +217,7 @@ Seam 3: Validation and admission contract for future voice/audio implementation
 
 Active seam: none. The admitted WS-1 through WS-3 Workstream seam chain is complete, and Hardening is next.
 
-- Branch Readiness result: complete and green; Workstream is active.
+- Workstream result: complete and green; Hardening is active.
 - WS-1 Status: Completed / executed.
 - WS-1 Boundary: docs/canon current voice/audio surface inventory and ownership mapping only.
 - WS-1 Non-Includes: no runtime code edits, no prompt changes, no audio asset changes, no UI changes, no persona-default changes, no diagnostics implementation changes, no release edits, and no public release editing.
@@ -466,7 +467,9 @@ Before any later FB-030 implementation seam may edit voice/audio behavior or use
 - the ownership class of each touched surface: `playback authority`, `caller`, `passive observer`, `transcript/history`, `telemetry`, `persona/tone source`, or `documentation surface`
 - the lifecycle family being changed: boot speech, quiet-mode bypass, malfunction speech, retry speech, failure-finalization speech, shutdown speech, telemetry-only visualization, diagnostics history, persona posture, or public explanatory surface
 - the exact before/after state vocabulary and runtime markers that will prove the change, including any boot `BOOT_MAIN|VOICE_*` markers, launcher runtime events, diagnostics `VOICE_CLEAR` / `VOICE_SYNC` / `VOICE_FINAL` semantics, renderer telemetry behavior, or new markers if the seam introduces them
+- the explicit cross-path parity or divergence decision between the dev boot ORIN speech lane and the launcher-managed error/shutdown lane whenever either lane's wording, routing, timing, or effects are touched
 - the duplicate-trigger control plan across command handling, hotkey shutdown, relaunch, retry cooldown, repeated-failure finalization, and stop-signal handling so later work does not accidentally stack overlapping voice lines
+- the exact precedence and idempotence proof whenever a seam can touch shared shutdown-request handling, retry-to-failure transitions, or final immersive shutdown ordering
 - the exact rollback target for each touched surface class, including whether rollback must revert runtime code, diagnostics semantics, telemetry/UI behavior, assets, persona registry truth, release/public copy, or helper outputs separately
 - the helper-reuse decision from `Docs/validation_helper_registry.md`
 - User Test Summary applicability, user-facing shortcut applicability, desktop export applicability, and release/public-surface applicability
@@ -487,7 +490,9 @@ Boot prototype speech or prompt seams:
 - `dev/orin_voice_regression_harness.py` when speech-path behavior or prompt timing changes
 - `dev/orin_boot_transition_verification.py` and `dev/orin_boot_transition_capture.py` when boot-to-desktop timing or visible handoff evidence is materially affected
 - runtime marker review for relevant `BOOT_MAIN|VOICE_BYPASSED`, `BOOT_MAIN|VOICE_STARTED`, `BOOT_MAIN|VOICE_COMPLETED`, `BOOT_MAIN|SHUTDOWN_COMMAND_ACCEPTED`, and handoff markers
+- explicit proof of shutdown-trigger precedence and idempotence when command-driven shutdown speech, hotkey shutdown, or shared shutdown-request handling is touched
 - explicit proof that boot-lane changes do not silently become launcher diagnostics truth unless the seam admits that transcript-root change
+- production desktop shortcut/live-path validation does not replace boot-lane proof, because the current production entry surface does not exercise the dev-only boot prototype voice lane
 
 Launcher recovery, failure, or shutdown speech seams:
 
@@ -495,10 +500,11 @@ Launcher recovery, failure, or shutdown speech seams:
 - `dev/orin_voice_regression_harness.py` for launcher/error voice-path coverage
 - `dev/orin_desktop_launcher_regression_harness.py` only after repair or with an explicit recorded bypass, because the current harness remains repair-gated in the helper registry
 - runtime evidence review for diagnostics launch, retry cooldown, `VOICE` start/end events, final immersive shutdown, normal-exit completion, failure-flow completion, and diagnostics artifact cleanup
+- explicit proof that `recovery_voice_spoken`, retry sequencing, and final `Recovery failed.` then `Shutting down.` ordering remain deterministic when recovery/failure/shutdown surfaces are touched
 
 Diagnostics transcript/history seams:
 
-- `dev/orin_diagnostics_report_issue_validation.py` when diagnostics UI or support/report flows are touched
+- `dev/orin_diagnostics_report_issue_validation.py` only after repair or with an explicit recorded bypass, because the current helper still points at legacy `jarvis_diagnostics.pyw`
 - `dev/orin_recoverable_launch_failed_validation.py` when launcher-failure diagnostics semantics are affected
 - proof of `VOICE_CLEAR`, `VOICE_SYNC`, `VOICE_FINAL`, deduplicated history append behavior, and any change to whether diagnostics is launcher-path-only or repo-wide
 
@@ -519,6 +525,7 @@ Persona, tone-routing, asset, or public-claim seams:
 - Docs/canon-only planning seams do not require a `## User Test Summary` artifact, shortcut validation, or desktop export.
 - Any seam that changes audible user-facing behavior, visible voice/audio UI, diagnostics/operator-facing voice wording, shutdown/recovery speech behavior, persona exposure, or public explanatory voice copy becomes user-facing and must add the canonical `## User Test Summary` artifact plus any required shortcut/live desktop evidence.
 - Direct dev launchers and harnesses are supporting proof only. If a later seam changes real operator-facing startup, shutdown, or voice behavior, Live Validation must exercise the actual user-facing path rather than relying only on helper invocation.
+- The current production desktop shortcut/live path does not exercise the dev-only boot prototype speech lane. Boot-only voice changes still require their own dev-lane proof and an explicit statement about whether any production-facing path changed.
 - Public release notes, GitHub release pages, `README.md` release-posture lines, and other release-facing summaries are release-scope surfaces and must be routed through PR/Release Readiness instead of treated as casual docs cleanup.
 - Helper reuse remains reuse-first: later implementation seams must extend `dev/orin_voice_regression_harness.py`, `dev/orin_desktop_launcher_healthy_validation.py`, `dev/orin_boot_transition_verification.py`, `dev/orin_boot_transition_capture.py`, `dev/orin_diagnostics_report_issue_validation.py`, or other registered helpers before creating new ones.
 
@@ -538,12 +545,40 @@ Persona, tone-routing, asset, or public-claim seams:
 - WS-3 scope validation: PASS; the seam changes docs/canon only in the FB-030 workstream record plus current-truth mirror surfaces.
 - WS-3 changed no runtime behavior, shutdown/recovery behavior, renderer/UI behavior, diagnostics implementation, audio assets, persona defaults, release artifacts, or public copy.
 
+## H-1 Hardening Record
+
+H-1 is docs/canon only. It pressure-tests whether the completed FB-030 voice/audio planning frame is coherent enough to move into Live Validation without admitting runtime voice, shutdown, recovery, diagnostics, telemetry, asset, or persona-default implementation.
+
+### Hardening Findings
+
+- Governance Gap: current-state canon still reflected Workstream-active / Hardening-next truth even though the admitted WS-1 through WS-3 seam chain had already finished. H-1 corrects current phase-state truth to Hardening-complete / Live-Validation-next.
+- Validation Gap: `dev/orin_diagnostics_report_issue_validation.py` is still registered as reusable diagnostics proof, but the file currently targets legacy `jarvis_diagnostics.pyw`. That means diagnostics issue/report validation is repair-gated for FB-030 until the helper is fixed or explicitly bypassed.
+- Duplicate-Trigger Risk Review: the current shutdown model is coherent but intentionally split. `main.py` owns boot-lane shutdown speech before emitting `shutdown_requested`, while launcher failure finalization owns `Recovery failed.` then `Shutting down.` in the production failure lane. Future seams that touch shared shutdown-request handling, retry/failure transitions, or terminal shutdown wording need explicit precedence and idempotence proof.
+- Cross-Path Conflict Review: normal ORIN boot speech, launcher error/shutdown speech, diagnostics history, renderer telemetry, and persona registry tone truth can coexist without contradiction today, but they are not one unified authority. Diagnostics remains launcher-path-only transcript truth, renderer voice level remains telemetry-only, and persona registry truth still sits upstream of implementation-local routing. Later changes must explicitly declare whether boot and launcher voice lanes are meant to stay aligned or intentionally diverge.
+- Scope Check: WS-1 through WS-3 and H-1 remain docs/canon only. No runtime prompt edits, shutdown voice edits, recovery voice edits, diagnostics implementation edits, renderer/UI edits, asset edits, release-note edits, or persona-default changes were introduced.
+
+### Hardening Corrections
+
+- Current phase-state canon is updated from Workstream-active / Hardening-next wording to Hardening-complete / Live-Validation-next wording.
+- The future implementation admission contract now requires an explicit cross-path parity/divergence decision between the normal ORIN boot lane and the launcher-managed error/shutdown lane.
+- The future implementation admission contract now requires explicit shutdown-trigger precedence and idempotence proof whenever shared shutdown-request handling, retry-to-failure transitions, or terminal failure-shutdown ordering are touched.
+- Diagnostics helper reuse truth is tightened: `dev/orin_diagnostics_report_issue_validation.py` is repair-gated until its legacy diagnostics target is corrected or an explicit bypass is recorded.
+- No runtime, helper-code, release, or desktop-export repair is required for this hardening pass beyond the helper-registry truth correction above.
+
+### H-1 Completion Decision
+
+- H-1 Result: Complete / green.
+- Validation Layer: docs/canon pressure test plus helper-registry truth repair.
+- Cleanup: no programs, helper processes, windows, temporary files, release assets, or runtime artifacts were created.
+- User Test Summary Applicability: not applicable for H-1 because it changes docs/canon only and adds no user-visible behavior.
+- Continue/Stop Decision: stop at the phase boundary. Hardening is complete, and the next legal phase is Live Validation.
+
 ## Seam Continuation Decision
 
 Continue Decision: `stop`
 Next Active Seam: `none`
-Stop Condition: `phase boundary reached after bounded WS-1 through WS-3 completion`
-Continuation Action: execute Hardening to pressure-test the completed voice/audio ownership map, lifecycle/persona-state framing, and future implementation admission contract.
+Stop Condition: `Hardening complete; next legal phase is Live Validation`
+Continuation Action: execute Live Validation to classify repo-truth alignment, user-facing shortcut applicability, User Test Summary applicability, and cleanup posture for the completed docs/canon-only milestone.
 
 ## Reuse Baseline
 
