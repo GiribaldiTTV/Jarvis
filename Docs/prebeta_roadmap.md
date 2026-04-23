@@ -68,19 +68,19 @@ Current merged truth indicates:
 - merged unreleased non-doc implementation debt exists: no
 - the latest public released implementation milestone is FB-032 Nexus-era vision and source-of-truth migration in `v1.6.2-prebeta`
 - current phase after FB-032 release closure: `Workstream`
-- phase status after FB-032 release closure: FB-004 WS-1 current boot-to-desktop source map and ownership boundary is complete; WS-2 lifecycle and orchestration-state framing is admitted next
+- phase status after FB-032 release closure: FB-004 WS-1 current boot-to-desktop source map and ownership boundary and WS-2 lifecycle and orchestration-state framing are complete; WS-3 validation and admission contract is admitted next
 - blocker after FB-032 release: release debt is clear; no release-debt or selected-only blocker remains for FB-004 Workstream admission
 - current active workstream: FB-004 Future boot orchestrator layer
 - current branch after FB-032 release: `feature/fb-004-future-boot-orchestrator-layer`
 - selected next workstream: none while FB-004 is active
-- next concern: execute FB-004 WS-2 lifecycle and orchestration-state framing for boot and desktop transitions.
+- next concern: execute FB-004 WS-3 validation and admission contract for orchestrator implementation seams.
 
 That means the released FB-027 interaction baseline, the released FB-036 authoring-and-callable-group milestone, the released FB-041 deterministic callable-group execution milestone, the released FB-037 built-in catalog milestone, the released FB-038 tray quick-task UX milestone, the released FB-039 external trigger intake architecture milestone, the released FB-040 monitoring/thermal architecture milestone, the released FB-031 UI/UX architecture milestone, and the released FB-032 source-of-truth migration milestone are now part of the current public shared pre-Beta baseline.
 
 ## Current Release Debt Owner
 
 Merged-Unreleased Release-Debt Owner: None.
-Repo State: FB-004 Workstream is active on `feature/fb-004-future-boot-orchestrator-layer`; WS-1 is complete and WS-2 is admitted next.
+Repo State: FB-004 Workstream is active on `feature/fb-004-future-boot-orchestrator-layer`; WS-1 and WS-2 are complete and WS-3 is admitted next.
 
 Latest Public Prerelease: v1.6.2-prebeta
 Latest Public Release Commit: e282072769ec25694928293ce51e144d6a37f611
@@ -96,7 +96,7 @@ Active Branch Before Release: `feature/fb-032-nexus-era-vision-source-of-truth-m
 
 ## Current Active Workstream
 
-FB-004 Future boot orchestrator layer is the active promoted workstream. WS-1 current boot-to-desktop source map and ownership boundary is complete and WS-2 lifecycle and orchestration-state framing is admitted next.
+FB-004 Future boot orchestrator layer is the active promoted workstream. WS-1 current boot-to-desktop source map and ownership boundary and WS-2 lifecycle and orchestration-state framing are complete. WS-3 validation and admission contract is admitted next.
 
 ## Latest Released Workstream Context
 
@@ -124,8 +124,8 @@ FB-004 Future boot orchestrator layer is the active promoted workstream. WS-1 cu
 - canonical workstream doc: `Docs/workstreams/FB-004_future_boot_orchestrator_layer.md`
 - minimal scope: define the smallest implementation-facing boot-orchestrator Branch Readiness plan above the desktop launcher, including boot-to-desktop ownership, non-goals, validation proof path, rollback boundary, and explicit protection against runtime delivery by inertia.
 - branch readiness: complete; branch objective, target end-state, seam families, validation contract, User Test Summary strategy, later-phase expectations, and first Workstream seam are recorded in the canonical workstream doc.
-- workstream: WS-1 current boot-to-desktop source map and ownership boundary is complete.
-- next workstream seam: WS-2 lifecycle and orchestration-state framing for boot and desktop transitions.
+- workstream: WS-1 current boot-to-desktop source map and ownership boundary and WS-2 lifecycle and orchestration-state framing are complete.
+- next workstream seam: WS-3 validation and admission contract for orchestrator implementation seams.
 
 ## Prior Released Workstream Context
 
@@ -297,7 +297,7 @@ Current merged truth indicates:
   - FB-040 for monitoring, thermals, and performance HUD surfaces, released and closed in `v1.6.0-prebeta`
   - FB-031 for Nexus Desktop AI UI/UX overhaul planning, released and closed in `v1.6.1-prebeta`
   - FB-032 for Nexus-era vision and source-of-truth migration, released and closed in `v1.6.2-prebeta`
-  - FB-004 for future boot orchestrator layer, active on `feature/fb-004-future-boot-orchestrator-layer` with WS-1 complete and WS-2 admitted next
+  - FB-004 for future boot orchestrator layer, active on `feature/fb-004-future-boot-orchestrator-layer` with WS-1 and WS-2 complete and WS-3 admitted next
 - those candidate lanes must be selected deliberately rather than bundled together as one implicit interaction continuation
 - FB-037 Branch Readiness does not imply automatic continuation into any remaining candidate lane
 
