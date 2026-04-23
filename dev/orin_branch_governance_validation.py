@@ -875,6 +875,7 @@ def _count_field_occurrences(block: str, label: str) -> int:
 def _branch_record_branch_class_map(
     active_branch_record_paths: set[str],
     historical_branch_record_paths: set[str],
+    current_branch: str,
 ) -> dict[str, str]:
     branch_class_map: dict[str, str] = {}
     for branch_record_path in active_branch_record_paths | historical_branch_record_paths:
@@ -886,6 +887,13 @@ def _branch_record_branch_class_map(
         branch_class = str(_parse_workstream_doc(record_text)["branch_class"])
         if not branch_name or not branch_class:
             continue
+        if branch_record_path not in active_branch_record_paths:
+            if not (
+                current_branch
+                and branch_class == "emergency canon repair"
+                and branch_name == current_branch
+            ):
+                continue
         branch_class_map[branch_name] = branch_class
         branch_class_map[f"origin/{branch_name}"] = branch_class
     return branch_class_map
@@ -1816,6 +1824,7 @@ def main() -> int:
     branch_record_class_map = _branch_record_branch_class_map(
         active_branch_record_paths,
         historical_branch_record_paths,
+        _git_current_branch(),
     )
 
     backlog_entries = _parse_backlog_sections(backlog_text)
