@@ -80,7 +80,7 @@ That may be an executable branch owner or another explicitly promoted current-tr
 
 - `Docs/workstreams/FB-004_future_boot_orchestrator_layer.md`
 
-FB-004 Future boot orchestrator layer is active on `feature/fb-004-future-boot-orchestrator-layer`. Workstream seams WS-1 current boot-to-desktop source map and ownership boundary, WS-2 lifecycle and orchestration-state framing, WS-3 validation and admission contract, H-1 Hardening pressure test, and LV-1 Live Validation waiver handling are complete. PR Readiness is the next legal phase.
+FB-004 Future boot orchestrator layer is active on `feature/fb-004-future-boot-orchestrator-layer`. Workstream seams WS-1 current boot-to-desktop source map and ownership boundary, WS-2 lifecycle and orchestration-state framing, WS-3 validation and admission contract, H-1 Hardening pressure test, LV-1 Live Validation waiver handling, and GOV-PR0 backlog governance sync are complete. PR Readiness is the next legal phase.
 
 ### Merged / Release Debt Owners
 

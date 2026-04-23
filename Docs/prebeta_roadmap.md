@@ -68,7 +68,7 @@ Current merged truth indicates:
 - merged unreleased non-doc implementation debt exists: no
 - the latest public released implementation milestone is FB-032 Nexus-era vision and source-of-truth migration in `v1.6.2-prebeta`
 - current phase after FB-032 release closure: `Live Validation`
-- phase status after FB-032 release closure: FB-004 Workstream seams WS-1 through WS-3, H-1 Hardening, and LV-1 Live Validation are complete; PR Readiness is the next legal phase
+- phase status after FB-032 release closure: FB-004 Workstream seams WS-1 through WS-3, H-1 Hardening, LV-1 Live Validation, and GOV-PR0 backlog governance sync are complete; PR Readiness is the next legal phase
 - blocker after FB-032 release: release debt is clear; no release-debt or selected-only blocker remains for FB-004 Workstream admission
 - current active workstream: FB-004 Future boot orchestrator layer
 - current branch after FB-032 release: `feature/fb-004-future-boot-orchestrator-layer`
@@ -80,7 +80,7 @@ That means the released FB-027 interaction baseline, the released FB-036 authori
 ## Current Release Debt Owner
 
 Merged-Unreleased Release-Debt Owner: None.
-Repo State: FB-004 Workstream seams WS-1 through WS-3, H-1 Hardening, and LV-1 Live Validation are complete on `feature/fb-004-future-boot-orchestrator-layer`; PR Readiness is the next legal phase.
+Repo State: FB-004 Workstream seams WS-1 through WS-3, H-1 Hardening, LV-1 Live Validation, and GOV-PR0 backlog governance sync are complete on `feature/fb-004-future-boot-orchestrator-layer`; PR Readiness is the next legal phase.
 
 Latest Public Prerelease: v1.6.2-prebeta
 Latest Public Release Commit: e282072769ec25694928293ce51e144d6a37f611
@@ -96,7 +96,19 @@ Active Branch Before Release: `feature/fb-032-nexus-era-vision-source-of-truth-m
 
 ## Current Active Workstream
 
-FB-004 Future boot orchestrator layer is the active promoted workstream. WS-1 current boot-to-desktop source map and ownership boundary, WS-2 lifecycle and orchestration-state framing, WS-3 validation and admission contract, H-1 Hardening pressure test, and LV-1 Live Validation waiver handling are complete. PR Readiness is the next legal phase.
+FB-004 Future boot orchestrator layer is the active promoted workstream. WS-1 current boot-to-desktop source map and ownership boundary, WS-2 lifecycle and orchestration-state framing, WS-3 validation and admission contract, H-1 Hardening pressure test, LV-1 Live Validation waiver handling, and GOV-PR0 backlog governance sync are complete. PR Readiness is the next legal phase.
+
+## Backlog Priority Review
+
+The 2026-04-23 FB-004 pre-PR docs governance sync revalidated open backlog candidates against priority-led selection and deferred-context readiness:
+
+- FB-004 remains the active `High` priority promoted workstream and is not a selected-next branch candidate while it is still active.
+- FB-029 remains `High`, but explicit product/legal identity approval is required before selection; it is not a routine next branch by priority alone.
+- FB-015 is raised to `High` and is the clearest routine technical successor candidate after FB-004 if no explicit product/legal, voice, or workspace approval supersedes it.
+- FB-030 remains `Medium` and requires an explicit voice/audio design goal before selection.
+- FB-005 remains `Low` and requires explicit path-sensitive workspace approval before selection.
+
+Next-branch clarity: PR Readiness should select FB-015 as the routine next-workstream candidate unless the user explicitly approves FB-029, FB-030, or FB-005 before selection. No successor branch is created yet; successor branch creation remains deferred to Branch Readiness after FB-004 merges and updated `main` is revalidated.
 
 ## Latest Released Workstream Context
 
@@ -127,6 +139,7 @@ FB-004 Future boot orchestrator layer is the active promoted workstream. WS-1 cu
 - workstream: WS-1 current boot-to-desktop source map and ownership boundary, WS-2 lifecycle and orchestration-state framing, and WS-3 validation and admission contract are complete.
 - hardening: H-1 pressure test is complete; diagnostics-root canon is aligned to runtime-root launcher truth and stale launcher regression helper reuse is repair-gated.
 - live validation: LV-1 repo-truth alignment, user-facing shortcut applicability, User Test Summary applicability, desktop export applicability, cleanup posture, and waiver handling are complete.
+- backlog governance sync: GOV-PR0 priority review is complete; FB-015 is the clear routine successor candidate unless explicit product/legal, voice, or workspace approval supersedes it during PR Readiness.
 - next phase: PR Readiness.
 
 ## Prior Released Workstream Context
@@ -141,7 +154,7 @@ FB-004 Future boot orchestrator layer is the active promoted workstream. WS-1 cu
 - release title: `Pre-Beta v1.6.1`
 - canonical workstream doc: `Docs/workstreams/FB-031_nexus_desktop_ai_ui_ux_overhaul_planning.md`
 - sequencing note: released the architecture-only UI/UX planning milestone, including source map, visual-language ownership vocabulary, lifecycle and interaction-state framing, future UI implementation admission contract, Hardening pressure test, Live Validation waivers, PR Readiness merge-target canon, and PR-R1 release-floor validator repair.
-- successor note: FB-032 is released and closed in `v1.6.2-prebeta`; FB-004 is active on `feature/fb-004-future-boot-orchestrator-layer` with WS-1 through WS-3, H-1 Hardening, and LV-1 Live Validation complete.
+- successor note: FB-032 is released and closed in `v1.6.2-prebeta`; FB-004 is active on `feature/fb-004-future-boot-orchestrator-layer` with WS-1 through WS-3, H-1 Hardening, LV-1 Live Validation, and GOV-PR0 backlog governance sync complete.
 
 ## Prior Released Workstream Context
 
@@ -288,18 +301,17 @@ Current merged truth indicates:
 - FB-040 is released and closed in `v1.6.0-prebeta`; architecture-only monitoring and thermal source mapping, lifecycle/trust-safety framing, validation/admission contract, hardening, Live Validation waiver truth, and post-release canon closure are preserved as historical evidence
 - FB-031 is released and closed in `v1.6.1-prebeta`; UI/UX source mapping, visual-language ownership vocabulary, lifecycle/interaction-state framing, future implementation admission contract, hardening, Live Validation waiver truth, PR Readiness merge-target canon, and PR-R1 release-floor validator repair are preserved as historical evidence
 - FB-032 is released and closed in `v1.6.2-prebeta`; source-of-truth inventory, naming policy, surface classification, controlled migration admission contract, governance repairs, hardening, Live Validation waivers, and PR Readiness merge-target canon are preserved as historical evidence
-- post-release repo truth after the FB-032 release is clear for release debt; FB-004 completed Branch Readiness, WS-1 through WS-3, H-1 Hardening, and LV-1 Live Validation on `feature/fb-004-future-boot-orchestrator-layer`; PR Readiness is next
+- post-release repo truth after the FB-032 release is clear for release debt; FB-004 completed Branch Readiness, WS-1 through WS-3, H-1 Hardening, LV-1 Live Validation, and GOV-PR0 backlog governance sync on `feature/fb-004-future-boot-orchestrator-layer`; PR Readiness is next
 - successor-lane branch creation for FB-039 is historical; FB-039 is released and no longer an executable active implementation branch
 - if a branch changes release-facing canon, those canon updates must land on that same branch before PR readiness is allowed
 - escaped post-merge canon repair must ride a legal branch surface; `main` is protected and must not be patched directly by Codex
 - the released FB-027 baseline does not authorize further saved-action authoring, resolution, voice, Action Studio, routines, profiles, hotkey cleanup, or shutdown-confirmation work by inertia
-- remaining future candidate spaces now explicitly recorded in the backlog include:
-  - FB-038 for taskbar or tray quick-task UX including Create Custom Task, now released and closed in `v1.4.1-prebeta` with H3/H4 startup visibility re-entry green, `User-Facing Shortcut Validation: PASS`, and UTS handling resolved by documented waiver
-  - FB-039 for external trigger and plugin integration architecture, now released and closed in `v1.5.0-prebeta`
-  - FB-040 for monitoring, thermals, and performance HUD surfaces, released and closed in `v1.6.0-prebeta`
-  - FB-031 for Nexus Desktop AI UI/UX overhaul planning, released and closed in `v1.6.1-prebeta`
-  - FB-032 for Nexus-era vision and source-of-truth migration, released and closed in `v1.6.2-prebeta`
-  - FB-004 for future boot orchestrator layer, active on `feature/fb-004-future-boot-orchestrator-layer` with WS-1 through WS-3, H-1 Hardening, and LV-1 Live Validation complete; PR Readiness next
+- remaining open backlog candidates now explicitly recorded in the backlog include:
+  - FB-004 for future boot orchestrator layer, active on `feature/fb-004-future-boot-orchestrator-layer` with WS-1 through WS-3, H-1 Hardening, LV-1 Live Validation, and GOV-PR0 backlog governance sync complete; PR Readiness next
+  - FB-015 for boot and desktop phase-boundary model, `High` after the FB-004 pre-PR priority review and the clearest routine technical successor candidate if no explicit approval supersedes it
+  - FB-029 for ORIN legal-safe rebrand, future ARIA persona option, and repo licensing hardening, `High` but gated by explicit product/legal identity approval
+  - FB-030 for ORIN voice/audio direction refinement, `Medium` and gated by an explicit voice/audio design goal
+  - FB-005 for workspace and folder organization, `Low` and gated by explicit path-sensitive workspace approval
 - those candidate lanes must be selected deliberately rather than bundled together as one implicit interaction continuation
 - FB-037 Branch Readiness does not imply automatic continuation into any remaining candidate lane
 

@@ -37,14 +37,14 @@ Historical note:
 
 FB-004 Future boot orchestrator layer is the active promoted workstream on `feature/fb-004-future-boot-orchestrator-layer`.
 
-Main-facing canon is aligned to post-release truth: FB-040 is released and closed in `v1.6.0-prebeta`, FB-031 is released and closed in `v1.6.1-prebeta`, FB-032 is released and closed in `v1.6.2-prebeta`, and release debt is clear. FB-004 Future boot orchestrator layer has completed WS-1 current boot-to-desktop source map and ownership boundary, WS-2 lifecycle and orchestration-state framing, WS-3 validation and admission contract, H-1 Hardening pressure test, and LV-1 Live Validation waiver handling. PR Readiness is the next legal phase.
+Main-facing canon is aligned to post-release truth: FB-040 is released and closed in `v1.6.0-prebeta`, FB-031 is released and closed in `v1.6.1-prebeta`, FB-032 is released and closed in `v1.6.2-prebeta`, and release debt is clear. FB-004 Future boot orchestrator layer has completed WS-1 current boot-to-desktop source map and ownership boundary, WS-2 lifecycle and orchestration-state framing, WS-3 validation and admission contract, H-1 Hardening pressure test, LV-1 Live Validation waiver handling, and GOV-PR0 backlog governance sync. PR Readiness is the next legal phase.
 FB-039 is released and closed in `v1.5.0-prebeta`.
 FB-038 remains released and closed in `v1.4.1-prebeta`.
 
 ## Merged-Unreleased Release-Debt Owner
 
 Merged-Unreleased Release-Debt Owner: None.
-Repo State: FB-004 Workstream seams WS-1 through WS-3, H-1 Hardening, and LV-1 Live Validation are complete on `feature/fb-004-future-boot-orchestrator-layer`; PR Readiness is the next legal phase.
+Repo State: FB-004 Workstream seams WS-1 through WS-3, H-1 Hardening, LV-1 Live Validation, and GOV-PR0 backlog governance sync are complete on `feature/fb-004-future-boot-orchestrator-layer`; PR Readiness is the next legal phase.
 Latest Public Prerelease: v1.6.2-prebeta.
 Latest Public Release Commit: e282072769ec25694928293ce51e144d6a37f611.
 Latest Public Prerelease Publication: https://github.com/GiribaldiTTV/Nexus-Desktop-AI/releases/tag/v1.6.2-prebeta.
@@ -53,6 +53,20 @@ Release Debt: Clear after FB-032 release execution and live release validation.
 Post-Release Truth: FB-032 is Released / Closed in v1.6.2-prebeta; release debt is clear; FB-004 Workstream is active.
 Selected Next Workstream: None; FB-004 is now the active promoted workstream.
 Next-Branch Creation Gate: Not applicable while FB-004 is active; successor selection belongs to PR Readiness.
+
+## Backlog Governance Sync
+
+Last Reviewed: 2026-04-23 during the FB-004 pre-PR docs governance sync.
+
+Open-candidate priority review:
+
+- FB-004 remains `High`, `Promoted`, and active on the current branch; it is not a selected-next branch candidate while it owns the active workstream.
+- FB-029 remains `High`, but its own selection/unblock rule requires explicit product/legal identity approval before it can be selected; it is not a routine next branch by priority alone.
+- FB-015 is raised from `Medium` to `High` because, after FB-004 boot-orchestrator architecture and admission framing, boot/desktop phase-boundary follow-through is the highest-priority routine technical successor if no explicit product/legal, voice, or workspace approval supersedes it.
+- FB-030 remains `Medium` because it requires an explicit voice/audio design goal and must not enter as incidental persona or runtime cleanup.
+- FB-005 remains `Low` because remaining workspace movement is path-sensitive and requires explicit workspace/path approval.
+
+Next-branch clarity: PR Readiness should treat FB-015 as the routine selected-next candidate unless the user explicitly approves FB-029, FB-030, or FB-005 before next-workstream selection. Successor branch creation remains deferred to Branch Readiness after FB-004 merges and updated `main` is revalidated.
 
 ## Registry Items
 
@@ -91,11 +105,12 @@ Why it matters: Keeps folder and ownership cleanup deliberate instead of letting
 
 Status: Deferred (since v2.0 closeout; rev1a clarification is complete enough to pause until later boundary follow-through is explicitly selected)
 Record State: Registry-only
-Priority: Medium
+Priority: High
 Release Stage: Slice-staged
 Deferred Since: v2.0 closeout after the FB-015 rev1a phase-boundary clarification.
 Deferred Because: the boot/desktop ownership model is clarified at planning level, but no later implementation-facing boundary change has been admitted.
 Selection / Unblock: Select when a concrete boot, desktop, startup, trust, or orchestration lane is blocked by unresolved ownership boundaries; Branch Readiness must name the exact ambiguity it resolves.
+Priority Review: Raised to High during the FB-004 pre-PR docs governance sync because boot/desktop phase-boundary follow-through is the clearest routine technical successor after FB-004 unless an explicitly approved product/legal, voice, or workspace lane supersedes it.
 Summary: Preserve the future boot and desktop phase-boundary model above the already-closed milestone taxonomy work.
 Why it matters: Keeps boot-versus-desktop ownership planning explicit without reopening the closed taxonomy milestone by inertia.
 

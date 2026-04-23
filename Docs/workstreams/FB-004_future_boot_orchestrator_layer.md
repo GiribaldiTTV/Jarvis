@@ -39,6 +39,7 @@
 - H-1 pressure test of the boot-orchestrator source map, lifecycle/state framing, ownership boundaries, diagnostics evidence roots, rollback boundaries, stale-helper caveat, and implementation admission contract is complete.
 - Diagnostics-root canon was corrected to align current architecture/governance wording with the launcher-owned runtime-root evidence model.
 - LV-1 repo-truth alignment, user-facing shortcut applicability, User Test Summary applicability, desktop export applicability, cleanup posture, and waiver handling are complete.
+- GOV-PR0 backlog governance sync and priority review is complete; FB-015 is the clear routine successor candidate unless explicit product/legal, voice, or workspace approval supersedes it during PR Readiness.
 - PR Readiness is the next legal phase.
 - No FB-004 implementation, runtime behavior, launcher behavior, desktop shortcut behavior, UI change, installer change, release work, or tag work has started.
 
@@ -160,7 +161,7 @@ Seam 3: Validation and admission contract for orchestrator implementation seams
 
 ## Active Seam
 
-Active seam: LV-1 FB-004 Live Validation is complete; no active Live Validation seam remains before PR Readiness.
+Active seam: GOV-PR0 backlog governance sync and priority review is complete; no active docs-governance seam remains before PR Readiness.
 
 - BR-1 Status: Completed in this pass.
 - BR-1 Boundary: promote FB-004, define branch objective, target end-state, seam families, validation contract, User Test Summary strategy, later-phase expectations, and the first Workstream seam.
@@ -180,6 +181,9 @@ Active seam: LV-1 FB-004 Live Validation is complete; no active Live Validation 
 - LV-1 Status: Completed / executed.
 - LV-1 Boundary: docs/canon repo-truth alignment, branch-truth alignment, user-facing shortcut applicability classification, User Test Summary applicability classification, desktop export applicability classification, cleanup posture, and PR Readiness admission posture.
 - LV-1 Non-Includes: no runtime validation, no shortcut launch, no manual User Test Summary handoff, no desktop export, no runtime code edits, no launcher behavior changes, no desktop shortcut behavior changes, no renderer lifecycle implementation, no UI work, no installer or autostart work, no helper-code repair, no release work, and no public release editing.
+- GOV-PR0 Status: Completed / executed.
+- GOV-PR0 Boundary: docs/canon backlog drift audit, open-candidate priority re-evaluation, successor-candidate clarity, branch-existence check, and PR Readiness next-workstream preparation.
+- GOV-PR0 Non-Includes: no selected-next machine marker, no successor branch creation, no PR package creation, no PR creation, no runtime code edits, no launcher behavior changes, no desktop shortcut behavior changes, no UI work, no installer or autostart work, no release work, and no public release editing.
 
 ## Seam Continuation Decision
 
@@ -564,6 +568,37 @@ LV-1 validated the completed FB-004 docs/canon-only milestone against live repo 
 - User Test Summary Results: WAIVED
 - User Test Summary Waiver Reason: The milestone remains docs/canon-only and validator-proven through repo/canon checks; a filled manual User Test Summary would not materially validate behavior because no user-visible setup, display, runtime, shortcut, launcher, renderer, installer, or invocation surface changed.
 
+## Backlog Governance Sync Record
+
+GOV-PR0 validated backlog and roadmap drift before FB-004 PR Readiness. The pass stayed docs/canon-only and did not execute the full PR Readiness package, create a PR, create a successor branch, or mark a selected-next workstream with machine-checkable PR markers.
+
+### GOV-PR0 Findings
+
+- Backlog Entry Shape: PASS. Open backlog candidates define `Priority`; deferred candidates define `Deferred Since:`, `Deferred Because:`, and `Selection / Unblock:`; open candidates do not carry `Target Version`.
+- Backlog/Roadmap Alignment: PASS after sync. Backlog and roadmap both identify FB-004 as the active promoted workstream with PR Readiness next, release debt clear, and no selected-next branch created.
+- Priority Re-Evaluation: FB-015 was raised from `Medium` to `High` because, after FB-004 boot-orchestrator architecture and admission framing, boot/desktop phase-boundary follow-through is the highest-priority routine technical successor if no explicit product/legal, voice, or workspace approval supersedes it.
+- High-Priority Gate Check: FB-029 remains `High`, but it requires explicit product/legal identity approval before selection and must not be selected as routine wording cleanup.
+- Medium/Low Candidate Check: FB-030 remains `Medium` and requires an explicit voice/audio design goal. FB-005 remains `Low` and requires explicit path-sensitive workspace approval.
+- Branch Containment Check: no local or remote branch exists for FB-005, FB-015, FB-029, or FB-030. Successor branch creation remains deferred to Branch Readiness after FB-004 merges and updated `main` is revalidated.
+- Next-Branch Clarity: PR Readiness should treat FB-015 as the routine selected-next candidate unless the user explicitly approves FB-029, FB-030, or FB-005 before next-workstream selection. PR Readiness must still encode the required `Next Workstream: Selected`, `Minimal Scope:`, roadmap selected-next section, and `Branch: Not created` markers before PR green.
+
+### GOV-PR0 Completion Decision
+
+- GOV-PR0 Result: Complete / green.
+- User-facing impact: none. This pass changed docs/canon only.
+- Next legal phase remains PR Readiness.
+- Stop condition: docs governance sync complete; full PR Readiness remains the next safe move.
+
+### GOV-PR0 Validation Results
+
+- `python dev\orin_branch_governance_validation.py`: PASS, 919 checks.
+- `git diff --check`: PASS with line-ending normalization warnings only and no whitespace errors.
+- Open backlog candidate scan: PASS; FB-004, FB-005, FB-015, FB-029, and FB-030 define Priority, and open candidates do not carry `Target Version`.
+- Deferred-context scan: PASS; all deferred open candidates define `Deferred Since:`, `Deferred Because:`, and `Selection / Unblock:`.
+- Priority sync: PASS; FB-015 is raised to `High`, FB-029 remains `High` but explicit product/legal-gated, FB-030 remains `Medium`, and FB-005 remains `Low`.
+- Successor branch containment: PASS; no local or remote branch exists for FB-005, FB-015, FB-029, or FB-030.
+- Scope validation: PASS; changed files are docs/canon surfaces only and no selected-next machine marker or successor branch was created.
+
 ## Reuse Baseline
 
 - `Docs/architecture.md` and `Docs/orchestration.md` are the baseline architecture and orchestration references for current startup, launcher, renderer, and evidence boundaries.
@@ -571,7 +606,7 @@ LV-1 validated the completed FB-004 docs/canon-only milestone against live repo 
 - `Docs/workstreams/FB-033_startup_snapshot_harness_follow_through.md` preserves startup snapshot harness context for future validation reuse where applicable.
 - `Docs/phase_governance.md`, `Docs/development_rules.md`, `Docs/codex_modes.md`, and `Docs/orin_task_template.md` own phase, seam, proof, User Test Summary, and durability governance.
 - `dev/orin_branch_governance_validation.py` is the reusable governance validator for this admission pass.
-- No new validator, harness, runtime helper, desktop export, or release helper is introduced during Branch Readiness, WS-1 through WS-3, H-1, or LV-1.
+- No new validator, harness, runtime helper, desktop export, release helper, PR helper, or successor branch is introduced during Branch Readiness, WS-1 through WS-3, H-1, LV-1, or GOV-PR0.
 
 ## Exit Criteria
 
@@ -586,10 +621,12 @@ LV-1 validated the completed FB-004 docs/canon-only milestone against live repo 
 - WS-3 validation and admission contract for orchestrator implementation seams is complete.
 - H-1 pressure test findings and corrections are recorded.
 - LV-1 repo-truth alignment, user-facing shortcut applicability, User Test Summary applicability, desktop export applicability, cleanup posture, and waiver handling are recorded.
+- GOV-PR0 backlog governance sync and priority review are recorded.
 - `## User Test Summary` records `User-Facing Shortcut Validation: WAIVED`, `User-Facing Shortcut Waiver Reason:`, `User Test Summary Results: WAIVED`, and `User Test Summary Waiver Reason:`.
 - Backlog, roadmap, workstream index, and Main routing all point to this canonical FB-004 workstream record.
+- Backlog and roadmap identify FB-015 as the clear routine successor candidate after FB-004 unless explicit product/legal, voice, or workspace approval supersedes it during PR Readiness.
 - Workstream, Hardening, and Live Validation pass.
-- Branch remains docs/canon only through WS-1, WS-2, WS-3, H-1, and LV-1.
+- Branch remains docs/canon only through WS-1, WS-2, WS-3, H-1, LV-1, and GOV-PR0.
 
 ## Rollback Target
 
