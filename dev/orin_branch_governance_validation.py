@@ -1159,7 +1159,7 @@ def _selected_next_ignored_branch_names(
     all_repair_branch_names: set[str],
     active_repair_branch_names: set[str],
 ) -> set[str]:
-    if current_branch == "main" or current_branch in all_repair_branch_names:
+    if current_branch == "main" or current_branch in active_repair_branch_names:
         return set(all_repair_branch_names)
     return set()
 
