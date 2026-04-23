@@ -78,17 +78,18 @@ For an active or recently closed canonical workstream, keep these durable tracea
 Active here means the current promoted truth owner.
 That may be an executable branch owner or another explicitly promoted current-truth owner.
 
-None. FB-031 merge-target canon resolves to merged-unreleased release debt and `No Active Branch` after PR merge.
+None. FB-031 is released and closed in `v1.6.1-prebeta`; FB-032 remains selected-only / `Registry-only` during Branch Readiness until promotion and implementation admission are complete.
 
 ### Merged / Release Debt Owners
 
 Merged / Release Debt Owners are promoted implementation workstreams whose implementation branch is merge-target complete but whose public release packaging has not yet cleared release debt.
 These records are not active implementation branch owners after merge.
 
-- `Docs/workstreams/FB-031_nexus_desktop_ai_ui_ux_overhaul_planning.md`
+None. Public release packaging for FB-031 cleared in `v1.6.1-prebeta`.
 
 ### Closed
 
+- `Docs/workstreams/FB-031_nexus_desktop_ai_ui_ux_overhaul_planning.md`
 - `Docs/workstreams/FB-040_monitoring_thermals_performance_hud_surface.md`
 - `Docs/workstreams/FB-039_external_trigger_plugin_integration_architecture.md`
 - `Docs/workstreams/FB-038_taskbar_tray_quick_task_ux.md`
