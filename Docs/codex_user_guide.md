@@ -574,6 +574,8 @@ Required `Release Package Details` operator blocks:
 
 Release notes should clearly explain what was built, what capabilities exist, and how the system behaves.
 Release notes must report included release work only and must not include exclusion lists, `Not Included` sections, negative scope framing, or defensive wording.
+Release notes must use the standard Markdown release body shape: `# <release title>`, `## Release Summary`, `## Release Highlights`, GitHub-generated `## What's Changed`, and the generated `**Full Changelog**:` compare link to the previous release.
+During Release Execution, use GitHub-generated release notes through the GitHub release notes button or generated-release-notes API so the `## What's Changed` section and previous-release compare link are populated by GitHub.
 
 ## When To Use A Longer Prompt
 

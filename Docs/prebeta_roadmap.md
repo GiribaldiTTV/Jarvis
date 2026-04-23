@@ -99,6 +99,7 @@ None promoted. FB-032 is the selected-next Branch Readiness surface only; no FB-
 - Minimal Scope: Branch Readiness must define the Nexus-era vision/source-of-truth migration boundary, current-vs-historical naming policy, AI/UI identity routing, canon migration admission rules, and explicit non-goals before any wording migration, persona work, runtime behavior, UI implementation, rebrand execution, or release work is considered.
 - Branch: `feature/fb-032-nexus-era-vision-source-of-truth-migration`.
 - Creation Gate: Branch Readiness surface is created after FB-031 release debt cleared and updated `main` was validated; FB-032 remains selected-only / `Registry-only` until Branch Readiness admission completes.
+- Branch Readiness Governance Repair: live GitHub release notes were standardized across the release history to Markdown release bodies with GitHub-generated `## What's Changed` and `**Full Changelog**:` sections; Release Readiness governance now requires this format for future release execution.
 
 ## Most Recent Released Workstream Context
 

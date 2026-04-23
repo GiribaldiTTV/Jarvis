@@ -310,6 +310,10 @@ When the approved phase is `Release Readiness`, the output must also explicitly 
 ```
 ````
 
+The Release Notes block must prepare the human-written Markdown release body using the standard release body shape: `# <release title>`, `## Release Summary`, and `## Release Highlights`.
+During Release Execution, the live GitHub release body must also include GitHub-generated release notes with `## What's Changed` and the generated `**Full Changelog**:` compare link to the previous release, populated through the GitHub release notes button or generated-release-notes API.
+Do not hand-write or omit the generated changelog section when publishing or repairing a GitHub release.
+
 - release notes must clearly explain what was built, what capabilities exist, and how the system behaves
 - release notes must not include exclusion lists, `Not Included` sections, negative scope framing, or defensive wording
 

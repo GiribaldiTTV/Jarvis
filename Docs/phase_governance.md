@@ -549,6 +549,7 @@ If `May Create Now` is `NO`, the `Next Branch` subsection must explain the block
 Operator-facing PR summaries and GitHub release notes are inclusion-only.
 They must report what exists, what was implemented, what capabilities are available, how the system behaves, and which validation or release facts support the package.
 They must not report what was not done, include exclusion lists, use `Not Included` sections, or use defensive scope framing.
+GitHub release notes must also use the standard Markdown release body shape: `# <release title>`, `## Release Summary`, `## Release Highlights`, GitHub-generated `## What's Changed`, and the generated `**Full Changelog**:` compare link to the previous release.
 This rule governs operator output packages; it does not remove normal canon requirements for branch scope, non-goals, stop conditions, or blockers in source-of-truth records.
 
 ### User-Facing Shortcut Live Validation Gate
@@ -725,6 +726,15 @@ Each release operator field must be its own copy-ready block and must be usable 
 Release notes must be detailed, descriptive, and user-facing.
 They must clearly explain what was built, what capabilities exist, and how the system behaves.
 Release notes must follow the operator output content rule: report included work only, with no exclusion lists, `Not Included` sections, negative scope framing, or defensive wording.
+The live GitHub release body must use the standard Markdown release body shape:
+
+- `# <release title>`
+- `## Release Summary`
+- `## Release Highlights`
+- `## What's Changed`
+- `**Full Changelog**:`
+
+The `## What's Changed` section and `**Full Changelog**:` compare link must be populated by GitHub-generated release notes, using the GitHub release notes button or the generated-release-notes API with the previous release selected. Release Readiness may prepare the human-written summary and highlights, but Release Execution must combine them with the GitHub-generated notes before publication or repair the release body immediately after publication.
 
 If Release Readiness discovers missing PR-owned canon or docs work, stop immediately and classify the issue as `PR Readiness Scope Missed` and `Release Readiness Scope Drift`.
 If the branch has not merged, return to `PR Readiness` and repair the miss there before any Release Readiness output can be treated as green.
