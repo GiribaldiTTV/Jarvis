@@ -31,42 +31,42 @@ Historical note:
 
 ## Promoted Canonical Workstreams
 
-None after FB-004 release closure. FB-015 remains selected-only and registry-only until Branch Readiness completes.
+- `Docs/workstreams/FB-015_boot_and_desktop_phase_boundary_model.md`
 
 ## Active Promoted Workstream
 
-No active promoted workstream is admitted after FB-004 release closure.
+FB-015 Boot and desktop phase-boundary model is the active promoted workstream on `feature/fb-015-boot-desktop-phase-boundary-model`.
 
-Main-facing canon is aligned to post-release truth: FB-040 is released and closed in `v1.6.0-prebeta`, FB-031 is released and closed in `v1.6.1-prebeta`, FB-032 is released and closed in `v1.6.2-prebeta`, FB-004 is released and closed in `v1.6.3-prebeta`, and release debt is clear. FB-015 Boot and desktop phase-boundary model is selected next on `feature/fb-015-boot-desktop-phase-boundary-model`, but remains selected-only and registry-only until Branch Readiness defines the branch objective, target end-state, seam families, validation contract, User Test Summary strategy, later-phase expectations, and first admitted seam.
+Main-facing canon is aligned to post-release truth: FB-040 is released and closed in `v1.6.0-prebeta`, FB-031 is released and closed in `v1.6.1-prebeta`, FB-032 is released and closed in `v1.6.2-prebeta`, FB-004 is released and closed in `v1.6.3-prebeta`, and release debt is clear. FB-015 Branch Readiness is complete and records the branch objective, target end-state, seam families, validation contract, User Test Summary strategy, later-phase expectations, and first admitted Workstream seam. WS-1 current boot/desktop boundary inventory and ownership map is admitted next.
 FB-039 is released and closed in `v1.5.0-prebeta`.
 FB-038 remains released and closed in `v1.4.1-prebeta`.
 
 ## Merged-Unreleased Release-Debt Owner
 
 Merged-Unreleased Release-Debt Owner: None.
-Repo State: FB-015 Branch Readiness blocker-clearing seam on `feature/fb-015-boot-desktop-phase-boundary-model`; no active promoted workstream until Branch Readiness completes.
+Repo State: FB-015 Branch Readiness complete on `feature/fb-015-boot-desktop-phase-boundary-model`; Workstream WS-1 is next.
 Latest Public Prerelease: v1.6.3-prebeta.
 Latest Public Release Commit: 9f5ae9a78c7dbff79322089bca370fa49da38598.
 Latest Public Prerelease Publication: https://github.com/GiribaldiTTV/Nexus-Desktop-AI/releases/tag/v1.6.3-prebeta.
 Latest Public Prerelease Title: Pre-Beta v1.6.3.
 Release Debt: Clear after FB-004 release execution and live release validation.
-Post-Release Truth: FB-004 is Released / Closed in v1.6.3-prebeta; release debt is clear; FB-015 may continue Branch Readiness after updated-main revalidation and the repo-level admission gate passes.
-Selected Next Workstream: FB-015 Boot and desktop phase-boundary model.
-Next-Branch Creation Gate: FB-015 Branch Readiness branch now exists only for blocker-clearing canon closure and Branch Readiness planning; FB-015 remains selected-only and registry-only until Branch Readiness completes.
+Post-Release Truth: FB-004 is Released / Closed in v1.6.3-prebeta; release debt is clear; FB-015 is the active promoted workstream with Branch Readiness complete.
+Selected Next Workstream: None while FB-015 is active.
+Next-Branch Creation Gate: Not applicable while FB-015 is active; successor selection belongs to later PR Readiness.
 
 ## Backlog Governance Sync
 
-Last Reviewed: 2026-04-23 during the FB-004 pre-PR docs governance sync.
+Last Reviewed: 2026-04-23 during FB-015 Branch Readiness.
 
 Open-candidate priority review:
 
-- FB-004 remains `High`, `Promoted`, and active on the current branch; it is not a selected-next branch candidate while it owns the active workstream.
+- FB-004 is released and closed in `v1.6.3-prebeta`; it is no longer an active or selected-next branch candidate.
 - FB-029 remains `High`, but its own selection/unblock rule requires explicit product/legal identity approval before it can be selected; it is not a routine next branch by priority alone.
-- FB-015 is raised from `Medium` to `High` because, after FB-004 boot-orchestrator architecture and admission framing, boot/desktop phase-boundary follow-through is the highest-priority routine technical successor if no explicit product/legal, voice, or workspace approval supersedes it.
+- FB-015 remains `High`, is promoted, and is the active Branch Readiness-complete workstream because boot/desktop phase-boundary follow-through is the highest-priority routine technical successor after FB-004.
 - FB-030 remains `Medium` because it requires an explicit voice/audio design goal and must not enter as incidental persona or runtime cleanup.
 - FB-005 remains `Low` because remaining workspace movement is path-sensitive and requires explicit workspace/path approval.
 
-Next-branch clarity: FB-015 is the selected-next candidate unless the user explicitly approves FB-029, FB-030, or FB-005 before Branch Readiness admission. The FB-015 branch exists only for blocker-clearing canon closure and Branch Readiness planning; FB-015 remains registry-only until Branch Readiness completes.
+Next-branch clarity: no successor branch is selected while FB-015 is active. Successor selection belongs to later FB-015 PR Readiness.
 
 ## Registry Items
 
@@ -84,17 +84,18 @@ Why it matters: Keeps folder and ownership cleanup deliberate instead of letting
 
 ### [ID: FB-015] Boot and desktop phase-boundary model
 
-Status: Deferred (since v2.0 closeout; rev1a clarification is complete enough to pause until later boundary follow-through is explicitly selected)
-Record State: Registry-only
+Status: Active
+Record State: Promoted
 Priority: High
 Release Stage: Slice-staged
 Deferred Since: v2.0 closeout after the FB-015 rev1a phase-boundary clarification.
 Deferred Because: the boot/desktop ownership model is clarified at planning level, but no later implementation-facing boundary change has been admitted.
 Selection / Unblock: Select when a concrete boot, desktop, startup, trust, or orchestration lane is blocked by unresolved ownership boundaries; Branch Readiness must name the exact ambiguity it resolves.
 Priority Review: Raised to High during the FB-004 pre-PR docs governance sync because boot/desktop phase-boundary follow-through is the clearest routine technical successor after FB-004 unless an explicitly approved product/legal, voice, or workspace lane supersedes it.
-Next Workstream: Selected
 Branch: feature/fb-015-boot-desktop-phase-boundary-model
-Branch Readiness: In progress for blocker-clearing post-release canon closure only; FB-015 remains selected-only and registry-only until Branch Readiness defines the branch objective, target end-state, seam families, validation contract, User Test Summary strategy, later-phase expectations, and first admitted seam.
+Canonical Workstream Doc: Docs/workstreams/FB-015_boot_and_desktop_phase_boundary_model.md
+Branch Readiness: Complete. The branch objective, target end-state, seam families, validation contract, User Test Summary strategy, later-phase expectations, and first Workstream seam are recorded in the canonical workstream doc.
+Workstream: WS-1 current boot/desktop boundary inventory and ownership map is admitted next.
 Minimal Scope: Define the smallest Branch Readiness-only follow-through slice for boot/desktop phase-boundary ambiguity after FB-004, including the exact ambiguity, affected source-of-truth surfaces, non-goals, proof path, rollback boundary, and protection against runtime delivery by inertia.
 Summary: Preserve the future boot and desktop phase-boundary model above the already-closed milestone taxonomy work.
 Why it matters: Keeps boot-versus-desktop ownership planning explicit without reopening the closed taxonomy milestone by inertia.

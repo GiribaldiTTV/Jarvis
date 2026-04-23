@@ -78,7 +78,9 @@ For an active or recently closed canonical workstream, keep these durable tracea
 Active here means the current promoted truth owner.
 That may be an executable branch owner or another explicitly promoted current-truth owner.
 
-None. FB-015 remains selected-only and registry-only during Branch Readiness until the branch objective, target end-state, seam families, validation contract, User Test Summary strategy, later-phase expectations, and first admitted seam are recorded.
+- `Docs/workstreams/FB-015_boot_and_desktop_phase_boundary_model.md`
+
+FB-015 is the active promoted workstream on `feature/fb-015-boot-desktop-phase-boundary-model`. Branch Readiness is complete, and WS-1 current boot/desktop boundary inventory and ownership map is admitted next. No FB-015 runtime behavior, launcher behavior, desktop shortcut behavior, renderer lifecycle behavior, UI work, installer work, source movement, release work, or public release editing has started.
 
 ### Merged / Release Debt Owners
 
