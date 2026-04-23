@@ -249,6 +249,24 @@ Branch-local "what worked" notes should stay in the canonical workstream doc fir
   - `Docs/prebeta_roadmap.md`
   - `dev/orin_branch_governance_validation.py`
 
+## Pattern: Release Notes Must Not Repeat The Release Title
+
+- symptom:
+  live GitHub release notes begin with a repeated H1 copy of the release title, making the GitHub release page show the same title twice
+- layer:
+  release notes and Release Execution packaging
+- root-cause pattern:
+  the release body template treated `# <release title>` as part of the Markdown notes instead of keeping the title in GitHub release metadata
+- fix pattern:
+  keep the public release title in GitHub release metadata and the separate `Release Title` operator block; start the release body with `## Release Summary` or `## Release Overview`, then use `## Release Highlights` or release-specific rich sections, followed by GitHub-generated `## What's Changed` and `**Full Changelog**:`
+- validation pattern:
+  inspect live GitHub releases for no leading `# <release title>`, require generated `## What's Changed` and `**Full Changelog**:`, and run `python dev/orin_branch_governance_validation.py`
+- source references:
+  - `Docs/phase_governance.md`
+  - `Docs/development_rules.md`
+  - `Docs/codex_modes.md`
+  - `dev/orin_branch_governance_validation.py`
+
 ## Pattern: Repeated-Identical Recoverable launch_failed Must Stay Bounded
 
 - symptom:

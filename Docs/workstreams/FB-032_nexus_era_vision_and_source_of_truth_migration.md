@@ -227,7 +227,7 @@ Historical source-of-truth layers:
 
 - Closed workstream docs under `Docs/workstreams/` preserve released lane truth and are not active execution authority by inertia.
 - Historical closeout docs under `Docs/closeouts/` preserve older Jarvis-era and epoch-level history; they must be routed through `Docs/closeout_index.md`.
-- Public release tags, GitHub release notes, PRs, branch names, commit history, and release-era issue context remain historical evidence and must not be modernized by wording preference.
+- Public release tags, GitHub release notes, PRs, branch names, commit history, and release-era issue context remain historical evidence and must not be modernized by wording preference. Presentation-only release-note template repair is allowed when explicitly admitted by governance and when it preserves release facts, generated changelog links, and release-era scope.
 - Older Jarvis-named release records, docs, and closeouts remain preserved historical records unless a current source explicitly identifies a still-real runtime artifact that keeps the name.
 - Current runtime artifacts with historical names, including `jarvis_history_v1.jsonl` and `C:/Jarvis/...` evidence roots, are not historical-only references; they are current runtime truth until an admitted implementation seam changes the underlying path or file contract.
 - Future-facing planning docs may contain deferred Nexus/ORIN or ARIA concepts; those sections are planning truth only and must not be recast as current shipped behavior.
@@ -239,7 +239,7 @@ Use this policy before any later FB-032 classification, mapping, or migration se
 - Current product, repository, release, and platform-shell identity should use `Nexus Desktop AI` on first clear mention, with `Nexus` acceptable where the product context is unambiguous.
 - Assistant persona identity should use `ORIN` by default; use `O.R.I.N.` or `Operational Response and Intelligence Nexus` only where `Docs/orin_display_naming_guidance.md` admits that presentation form.
 - Current source-of-truth docs may mention `Jarvis` only for preserved historical context, exact legacy artifact names, exact runtime/log/state paths, exact branch/tag/commit/PR history, or quoted source material.
-- Historical closeouts, closed workstream history, release notes, tags, branch names, commit messages, and old public context should preserve their release-era names. Do not rewrite them merely to make wording look modern.
+- Historical closeouts, closed workstream history, release notes, tags, branch names, commit messages, and old public context should preserve their release-era names. Do not rewrite them merely to make wording look modern; release-note template repairs must preserve historical names and facts while removing duplicated title formatting or other governance-defined presentation drift.
 - Current runtime paths or files that still contain `Jarvis` or `orin` names must be cited exactly. If explanatory copy is needed, say that the artifact name is legacy or current-runtime-with-legacy-name rather than silently renaming it.
 - Do not run broad search/replace across `Jarvis`, `ORIN`, `Nexus`, or related identity terms. Every future edit must be admitted by classification, source owner, surface type, and validation impact.
 - Backlog entries keep tracked identity and minimal scope; roadmap keeps sequencing and release posture; workstream docs keep execution/evidence detail. Do not duplicate full execution story just to normalize wording.
@@ -267,7 +267,7 @@ WS-2 is docs/canon only. It classifies the surfaces found by WS-1 so later migra
 | Current registry and sequencing canon | `Docs/feature_backlog.md`, `Docs/prebeta_roadmap.md`, `Docs/workstreams/index.md`, active FB-032 record | Backlog, roadmap, and active workstream layers | May reflect current active Workstream truth and approved scope. Must not duplicate full execution story outside the canonical workstream record. |
 | Current legacy-named runtime artifacts | `launch_orin_desktop.vbs`, `desktop/orin_desktop_launcher.pyw`, `desktop/orin_desktop_main.py`, `%LOCALAPPDATA%/Nexus Desktop AI/state/jarvis_history_v1.jsonl`, `C:/Jarvis/logs`, `C:/Jarvis/logs/crash`, `C:/Jarvis/dev/logs/<lane>/...` | Runtime code, architecture, orchestration, and development rules | Must be cited exactly. Treat as current runtime truth with legacy names, not as wording to modernize in docs or code without a later implementation seam. |
 | Preserved historical lane records | closed `Docs/workstreams/FB-*.md`, `Docs/closeouts/*.md`, historical branch/PR/commit/release context | Workstream history, closeout index, public release history, Git history | Preserve release-era names and facts. Add supersession notes only when current truth requires clarification; do not rewrite historical records for style. |
-| Public release and PR surfaces | GitHub releases, release tags, generated changelogs, PR titles/summaries, historical review state | GitHub/public release history plus release governance | Preserve published historical truth. New release notes use current release-note governance and current product identity where appropriate. |
+| Public release and PR surfaces | GitHub releases, release tags, generated changelogs, PR titles/summaries, historical review state | GitHub/public release history plus release governance | Preserve published historical truth. New release notes use current release-note governance and current product identity where appropriate. Explicit governance repairs may normalize release-note presentation, such as removing duplicated title headings, when release facts and generated changelog links are preserved. |
 | Future planning surfaces | future boot model, post-Beta AI vision, ARIA possibility, deferred backlog items | Product vision, boot design, backlog, roadmap | Label as future, deferred, planning, or post-Beta. Do not recast as current shipped behavior. |
 | User-facing copy, UI, persona, shortcut, and runtime behavior surfaces | tray labels, overlay copy, desktop shortcut, assistant presentation, runtime paths, helper names, validation exports | The owning implementation or validation layer plus active workstream admission | Not admitted by WS-2. Any change requires WS-3 admission rules, affected-surface proof, and User Test Summary/shortcut classification when user-facing. |
 
@@ -278,7 +278,7 @@ WS-2 is docs/canon only. It classifies the surfaces found by WS-1 so later migra
 - `Historical-preserved`: historical closeouts, release-era workstream sections, tags, PRs, branch names, commit messages, and release notes keep their historical names.
 - `Future-planning`: future concepts stay explicitly future-facing and must not be used to claim current runtime, UI, or release behavior.
 - `User-facing-controlled`: UI copy, persona behavior, shortcut naming, runtime labels, and operator-facing text require later admission, evidence, and UTS classification before change.
-- `Public-release-controlled`: published release history is preserved; future release packages use current release governance without rewriting older public artifacts by preference.
+- `Public-release-controlled`: published release history is preserved; future release packages use current release governance without rewriting older public artifacts by preference. Older release-note bodies may receive presentation-only governance repair when the release facts, historical names, and generated changelog links are preserved.
 
 ### Migration Disposition By Class
 
@@ -319,7 +319,7 @@ Any later migration execution must declare all of the following before it can ed
 - Current product and architecture canon: require owner-layer citation and targeted review that future, current, historical, and runtime claims remain separated.
 - Current legacy-named runtime artifacts: require source-code review, runtime validation, backward-compatibility plan, and rollback plan before any path or filename change; docs-only seams must cite names exactly and may not rename them.
 - Preserved historical lane records: require proof that any edit is a correction, supersession note, or current-truth handoff, not stylistic modernization; public release and Git history must remain faithful.
-- Public release and PR surfaces: require release-governance checks, GitHub release-state validation when live, generated `## What's Changed` / `**Full Changelog**:` handling for future releases, and no retroactive rewrite by preference.
+- Public release and PR surfaces: require release-governance checks, GitHub release-state validation when live, generated `## What's Changed` / `**Full Changelog**:` handling, no duplicated release-title H1 in release bodies, and no retroactive rewrite by preference.
 - Future planning surfaces: require clear `future`, `deferred`, `planning`, or `post-Beta` labels and proof that the text does not claim current shipped behavior.
 - User-facing copy, UI, persona, shortcut, and runtime behavior surfaces: require explicit implementation admission, affected-surface proof, desktop shortcut applicability classification, exact `## User Test Summary` handling, and live UI/runtime validation when meaningful behavior changes.
 
@@ -490,7 +490,7 @@ PR-1 through PR-3 prepare and validate the FB-032 PR package for the architectur
 
 Governance Drift Found: Yes, repaired during GOV-WS1.
 
-- Release Readiness drift found before FB-032 promotion was repaired by standardizing live GitHub release notes and updating release governance/validator requirements.
+- Release Readiness drift found before FB-032 promotion and refined during FB-004 Branch Readiness was repaired by standardizing live GitHub release notes so bodies do not repeat the release title as a leading H1 and do include generated `## What's Changed` / `**Full Changelog**:` sections.
 - FB-031 post-release canon closure is complete.
 - FB-032 Branch Readiness no longer has selected-only / registry-only drift after this promotion record.
 - No contradiction remains between backlog, roadmap, workstream index, and main routing for FB-032.

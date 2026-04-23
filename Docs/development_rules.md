@@ -311,7 +311,8 @@ That means:
   - PR Readiness PR creation details must use separate copy-ready blocks for `PR Title`, `Base Branch`, `Head Branch`, and `PR Summary`
   - Release Readiness release package details must use separate copy-ready blocks for `Release Title`, `Release Tag`, `Target Commit`, and `Release Notes`
   - PR summaries and release notes must report implemented or released work only
-  - GitHub release notes must use the standard Markdown release body shape: `# <release title>`, `## Release Summary`, `## Release Highlights`, GitHub-generated `## What's Changed`, and the generated `**Full Changelog**:` compare link to the previous release
+  - GitHub release notes must use the standard Markdown release body shape used by the current pre-Beta releases: start with `## Release Summary` or `## Release Overview`, continue with `## Release Highlights` or release-specific rich sections, then include GitHub-generated `## What's Changed` and the generated `**Full Changelog**:` compare link to the previous release
+  - the live GitHub release body must not start with or repeat the release title as `# <release title>`; the release title belongs in GitHub release metadata and the separate `Release Title` operator block only
   - Release Execution must use GitHub-generated release notes, through the GitHub release notes button or generated-release-notes API, so the `## What's Changed` section and previous-release compare link are populated from GitHub instead of hand-written or omitted
   - do not include `Not Included` sections, exclusion lists, negative scope framing, or defensive wording in operator summaries or release notes
   - keep normal source-of-truth scope, non-goals, stop conditions, and blockers in canon records; the inclusion-only rule applies to operator-facing PR and release packages
