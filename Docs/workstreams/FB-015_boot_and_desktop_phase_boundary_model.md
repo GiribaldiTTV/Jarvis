@@ -33,6 +33,7 @@
 - Release debt is clear.
 - FB-015 is now the active promoted workstream on `feature/fb-015-boot-desktop-phase-boundary-model`.
 - WS-1 current boot/desktop boundary inventory and ownership map is admitted next.
+- A narrow supporting canon sync for released FB-040 Sensor HUD beta admission may ride on this branch only as docs/governance-only source-of-truth maintenance; it does not reopen FB-040, change FB-015 runtime scope, or replace WS-1 as the next admitted FB-015 seam.
 - No FB-015 runtime, launcher, shortcut, renderer lifecycle, UI, installer, source-tree, or release work has started.
 
 ## Branch Class
@@ -99,14 +100,15 @@ None.
 - Confirm `Docs/workstreams/index.md` lists FB-015 under Active.
 - Confirm `Docs/prebeta_roadmap.md` records FB-015 as active and Branch Readiness-complete.
 - Confirm FB-004 remains Released / Closed in `v1.6.3-prebeta`.
+- Confirm any supporting canon sync in this pass remains limited to `Docs/workstreams/FB-040_monitoring_thermals_performance_hud_surface.md` and `Docs/validation_helper_registry.md`, without backlog, roadmap, index, phase-governance, runtime, or helper-file changes.
 - Confirm no runtime, launcher, shortcut, renderer lifecycle, UI, installer, source-tree, release, helper-code, or desktop-export surface changed during Branch Readiness.
 
 ## Branch Readiness Validation Results
 
 - `python dev\orin_branch_governance_validation.py`: PASS, 916 checks.
 - `git diff --check`: PASS; no whitespace errors.
-- Scope validation: PASS; Branch Readiness changed docs/canon routing and the new FB-015 workstream record only.
-- Admission validation: PASS; FB-015 is promoted and WS-1 current boot/desktop boundary inventory and ownership map is admitted next.
+- Scope validation: PASS; this supporting canon sync changes only the active FB-015 branch authority wording, the released FB-040 workstream's future beta admission contract, and the validation helper registry reservation.
+- Admission validation: PASS; FB-015 remains the active promoted workstream, WS-1 current boot/desktop boundary inventory and ownership map remains next, and FB-040 is not reactivated by this pass.
 
 ## User Test Summary Strategy
 
@@ -147,6 +149,23 @@ Continue Decision: `stop`
 Next Active Seam: `WS-1 current boot/desktop boundary inventory and ownership map`
 Stop Condition: `phase boundary reached`
 Continuation Action: execute FB-015 Workstream WS-1 after Branch Readiness validation is green and durably committed.
+
+## Supporting Canon Sync
+
+This active branch may carry tightly scoped supporting canon sync when the change stays docs/governance-only, preserves FB-015 as the active workstream, and does not widen into runtime or branch-selection churn.
+
+Admitted supporting canon sync for this pass:
+
+- post-release future beta admission contract additions in `Docs/workstreams/FB-040_monitoring_thermals_performance_hud_surface.md`
+- future Sensor HUD helper-family reservation in `Docs/validation_helper_registry.md`
+
+Non-includes for this supporting canon sync:
+
+- no FB-040 reactivation as the active workstream
+- no backlog, roadmap, or workstreams-index selection changes
+- no `Docs/phase_governance.md` policy expansion
+- no runtime code, helper-file, installer, shortcut, tray, overlay, or UI changes
+- no change to the admitted next FB-015 seam; WS-1 remains next
 
 ## Reuse Baseline
 
