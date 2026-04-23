@@ -46,7 +46,7 @@
 - PR-1 merge-target canon completeness is complete.
 - PR-2 selected-next workstream selection is complete with FB-029 planning-only.
 - PR-3 live PR creation and validation is complete, and PR #75 is now merged.
-- `feature/fb-029-orin-identity-licensing-hardening` is now the promoted FB-029 Workstream authority; the bounded docs/canon-only WS-1 through WS-3 seam chain plus H-1 plus LV-1 are complete there, PR Readiness is next, and explicit product/legal approval still blocks any implementation-facing naming, licensing, release, runtime, or persona-surface work.
+- `feature/fb-029-orin-identity-licensing-hardening` is now the promoted FB-029 PR Readiness authority; the bounded docs/canon-only WS-1 through WS-3 seam chain plus H-1 plus LV-1 are complete there, PR-1 merge-target canon completeness and PR-2 selected-next workstream selection are complete, PR-3 live PR creation plus validation is pending, and explicit product/legal approval still blocks any implementation-facing naming, licensing, release, runtime, or persona-surface work.
 - Hardening clarified launcher-owned `STARTUP_READY_OBSERVED`, `normal exit complete`, and `failure flow complete` as explicit boundary states and tightened later shortcut-proof classification so direct repository launch-shim invocation is not treated as real user-facing shortcut proof by default.
 - Live Validation confirmed the completed FB-015 delta remains docs/canon only, so user-facing shortcut validation and User Test Summary results are both waived for this milestone.
 - PR Readiness derived `v1.6.4-prebeta` / `Pre-Beta v1.6.4` as the semantic post-merge release target because FB-015 remains a docs/canon-only architecture/admission milestone with `patch prerelease` release-floor semantics.
@@ -614,11 +614,11 @@ Release Target: v1.6.4-prebeta
 Release Title: Pre-Beta v1.6.4
 Release Floor: patch prerelease
 Version Rationale: FB-015 remains a docs/canon-only boot and desktop phase-boundary architecture plus admission milestone with no new executable, runtime, operator-facing, user-facing, or materially expanded product capability
-Release Scope: Boot and desktop phase-boundary inventory, ownership map, lifecycle and state framing, implementation admission contract, hardening corrections, Live Validation waivers, PR Readiness package history, post-merge canon repair, and merged-unreleased release-debt framing
-Release Artifacts: Tag v1.6.4-prebeta; release title Pre-Beta v1.6.4; rich Markdown release notes summarize the FB-015 boundary model and governance results without repeating the release title inside the notes body, and GitHub-generated `## What's Changed` plus `**Full Changelog**:` must be included
-Post-Release Truth: FB-015 is Released / Closed in v1.6.4-prebeta after publication and validation; release debt then clears, and FB-029 Workstream may continue on feature/fb-029-orin-identity-licensing-hardening after updated-main revalidation while this milestone stays docs/canon-only and explicit product/legal approval remains required before implementation-facing work
-Selected Next Workstream: FB-029 ORIN legal-safe rebrand, future ARIA persona option, and repo licensing hardening
-Next-Branch Creation Gate: Satisfied. FB-029 Workstream WS-1 through WS-3 plus H-1 plus LV-1 are complete on feature/fb-029-orin-identity-licensing-hardening, PR Readiness is next for the same docs/canon-only milestone, and explicit product/legal approval still controls any later implementation-facing naming, licensing, release, runtime, or persona-surface admission
+Release Scope: FB-015 boot and desktop phase-boundary inventory, ownership map, lifecycle and state framing, implementation admission contract, hardening corrections, Live Validation waivers, PR Readiness package history, post-merge canon repair, and merged-unreleased release-debt framing, plus the FB-029 identity source-of-truth inventory, persona-option boundary framing, licensing boundary framing, implementation admission contract, hardening corrections, Live Validation waivers, and PR Readiness package history
+Release Artifacts: Tag v1.6.4-prebeta; release title Pre-Beta v1.6.4; rich Markdown release notes summarize the FB-015 boundary model and the FB-029 identity/licensing planning frame without repeating the release title inside the notes body, and GitHub-generated `## What's Changed` plus `**Full Changelog**:` must be included
+Post-Release Truth: FB-015 and FB-029 are Released / Closed in v1.6.4-prebeta after publication and validation; release debt then clears, and FB-030 Branch Readiness may continue on a later branch after updated-main revalidation and an explicit voice/audio design goal with affected-surface map admits the lane
+Selected Next Workstream: FB-030 ORIN voice/audio direction refinement
+Next-Branch Creation Gate: After FB-029 merges, `v1.6.4-prebeta` is published and validated, updated `main` is revalidated, and an explicit voice/audio design goal with affected-surface map admits FB-030 Branch Readiness
 
 ## Post-Merge State
 

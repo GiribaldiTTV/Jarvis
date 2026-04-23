@@ -23,22 +23,24 @@
 
 ## Current Phase
 
-- Phase: `Live Validation`
+- Phase: `PR Readiness`
 
 ## Phase Status
 
-- `Live Validation is complete; PR Readiness is next`
+- `PR Readiness package is ready; PR-1 merge-target canon completeness and PR-2 selected-next workstream selection are complete, and PR-3 live PR creation plus validation is pending`
 - FB-015 remains the merged-unreleased release-debt owner on `main` for `v1.6.4-prebeta`.
-- Repo-level current active workstream remains `none` while FB-015 release debt is unresolved.
-- FB-029 is the current promoted Workstream authority on `feature/fb-029-orin-identity-licensing-hardening`.
+- FB-015 pending `v1.6.4-prebeta` release scope now includes the completed FB-029 docs/canon-only identity, persona-option, and licensing-planning milestone.
+- Repo-level current active workstream remains `none` after merge while the inherited `v1.6.4-prebeta` release debt remains unresolved.
+- FB-029 is the current promoted PR Readiness authority on `feature/fb-029-orin-identity-licensing-hardening`.
 - This milestone remains docs/canon-only planning and governance work.
 - WS-1 current identity, persona-option, and licensing source-of-truth inventory is complete and durably recorded.
 - WS-2 canonical vs historical identity, persona-option, and licensing boundary framing is complete and durably recorded.
 - WS-3 validation and admission contract for future identity and licensing implementation is complete and durably recorded.
 - H-1 pressure test of the identity inventory, persona-option framing, licensing boundary framing, and future implementation admission contract is complete and durably recorded.
-- Current-truth canon now records Hardening-complete / Live-Validation-next phase status instead of leaving Workstream-complete / Hardening-next wording behind.
 - LV-1 repo-truth alignment, user-facing shortcut applicability, User Test Summary applicability, desktop export applicability, cleanup posture, and waiver handling are complete and durably recorded.
-- Current-truth canon now records Live-Validation-complete / PR-Readiness-next phase status instead of leaving Hardening-complete / Live-Validation-next wording behind.
+- PR-1 merge-target canon completeness is complete with inherited `v1.6.4-prebeta` release-debt truth aligned to include FB-029 in pending release scope.
+- PR-2 selected-next workstream selection is complete with FB-030 planning-only.
+- PR-3 durable PR package details are prepared, and live PR creation plus validation is pending.
 - Dormant ARIA registry presence remains non-shipping and non-default; any release-gating, runtime-selection, UI-exposure, or public-claim change still requires a later explicitly admitted implementation surface.
 - Licensing authority remains centralized in `LICENSE` plus `Docs/ownership_ip_plan.md`; `README.md`, release notes, and other public identity summaries remain downstream explanatory surfaces only.
 - Live Validation confirms this milestone remains docs/canon-only, so user-facing shortcut validation and User Test Summary results are both waived for this pass.
@@ -51,7 +53,8 @@
 
 ## Blockers
 
-None. PR Readiness is the next legal phase for this docs/canon-only milestone.
+- `PR Creation Pending`
+- `PR Validation Pending`
 
 ## Entry Basis
 
@@ -364,6 +367,78 @@ LV-1 validated the completed FB-029 docs/canon-only milestone against live repo 
 - LV-1 scope validation: PASS; changed files are docs/canon surfaces only.
 - LV-1 changed no naming implementation, license-file surface, runtime behavior, release artifact, UI surface, asset, installer behavior, helper code, or desktop export.
 
+## Governance Drift Audit
+
+Governance Drift Found: Yes, resolved before PR green.
+
+- Current-state canon drift was found at PR Readiness entry because backlog, roadmap, workstream index, and this workstream record still reported Live Validation complete / PR Readiness next after PR-1 and PR-2 analysis had already established the merge-target package and successor lane.
+- Release-debt scope drift was found because the inherited FB-015 `v1.6.4-prebeta` release-debt contract still summarized only the earlier boundary-model milestone and did not yet include the completed FB-029 docs/canon-only planning delta that will merge before that pending prerelease is published.
+- Successor-selection drift was found because current truth still selected FB-029 as its own next workstream instead of advancing the next planning-only lane after FB-029 PR packaging.
+- Repair: PR-1 expands the inherited `v1.6.4-prebeta` release-debt scope, artifacts, and post-release truth to include the completed FB-029 milestone while preserving FB-015 as the active merged-unreleased release-debt owner on `main`; PR-2 selects FB-030 as the next planning-only workstream and keeps branch creation deferred; current-state canon is synchronized to PR Readiness package-ready truth.
+- No unresolved contradiction remains across backlog priority, deferred-context fields, semantic release-target derivation, selected-next gating, docs/canon-only validation posture, or product/legal implementation gates.
+
+## Post-Merge State
+
+- After merge, repo state remains `No Active Branch` because the inherited `v1.6.4-prebeta` release debt remains open on `main`.
+- FB-015 remains the merged-unreleased release-debt owner for `v1.6.4-prebeta`, and the pending release scope now includes both the FB-015 boot/desktop boundary model and the completed FB-029 identity, persona-option, and licensing-planning milestone.
+- FB-029 no longer owns active branch execution truth after merge; its completed docs/canon-only planning milestone becomes part of the pending `v1.6.4-prebeta` release package.
+- FB-030 is the selected next planning-only workstream, and branch creation remains deferred until FB-029 merges, `v1.6.4-prebeta` is published and validated, updated `main` is revalidated, and an explicit voice/audio design goal with affected-surface map admits FB-030 Branch Readiness.
+
+## PR Readiness Record
+
+PR Readiness validates the completed docs/canon-only FB-029 milestone for merge to `main`. This record aligns the inherited `v1.6.4-prebeta` release-debt package, selects the next planning lane, prepares durable PR package details, and then records live PR validation before reporting green.
+
+### PR-1 Merge-Target Canon Findings
+
+- Merge Target: `main`.
+- Head Branch: `feature/fb-029-orin-identity-licensing-hardening`.
+- Source-of-Truth Alignment: PASS. `Docs/Main.md`, `Docs/feature_backlog.md`, `Docs/prebeta_roadmap.md`, `Docs/workstreams/index.md`, `Docs/workstreams/FB-015_boot_and_desktop_phase_boundary_model.md`, and this workstream record align on FB-029 as the active PR Readiness authority and FB-015 as the inherited merged-unreleased release-debt owner.
+- Release-Debt Framing: PASS. FB-015 remains the merged-unreleased release-debt owner for `v1.6.4-prebeta`, and FB-029 PR Readiness expands that pending release package so the completed FB-029 docs/canon-only planning milestone is included before publication.
+- Release Target: `v1.6.4-prebeta`.
+- Release Title: `Pre-Beta v1.6.4`.
+- Release Floor: `patch prerelease`.
+- Version Rationale: `patch prerelease` remains required because the combined pending delta is still docs/canon-only planning and governance work with no new executable, runtime, operator-facing, user-facing, or materially expanded product capability.
+- Release Scope: FB-015 boot and desktop phase-boundary inventory, ownership map, lifecycle/state framing, implementation admission contract, hardening corrections, Live Validation waivers, PR package history, post-merge canon repair, and merged-unreleased release-debt framing, plus the FB-029 identity source-of-truth inventory, persona-option boundary framing, licensing boundary framing, implementation admission contract, hardening corrections, Live Validation waivers, and PR Readiness package history.
+- Release Artifacts: Tag `v1.6.4-prebeta`; release title `Pre-Beta v1.6.4`; rich Markdown release notes summarize the FB-015 boundary model and the FB-029 identity/licensing planning frame without repeating the release title inside the notes body, and GitHub-generated `## What's Changed` plus `**Full Changelog**:` must be included.
+- Post-Release Truth: FB-015 and FB-029 are Released / Closed in `v1.6.4-prebeta` after publication and validation; release debt then clears, and FB-030 Branch Readiness may continue on a later branch after updated `main` revalidation and an explicit voice/audio design goal with affected-surface map admits the lane.
+
+### PR-2 Selected-Next Workstream Findings
+
+- Selected Next Workstream: FB-030 ORIN voice/audio direction refinement.
+- Selected Next Basis: FB-030 is now the highest-priority remaining open backlog candidate after FB-029, and it is preserved as planning-only because the lane still requires an explicit voice/audio design goal before any branch admission.
+- Selected Next Record State At PR Package Time: `Registry-only`.
+- Selected Next Implementation Branch At PR Package Time: Not created.
+- Branch Creation Gate At PR Package Time: After FB-029 merges, `v1.6.4-prebeta` is published and validated, updated `main` is revalidated, and an explicit voice/audio design goal with affected-surface map admits FB-030 Branch Readiness.
+- Branch Containment At PR Package Time: PASS. No local or remote branch exists for FB-030.
+
+### PR-3 PR Package Details
+
+- PR Title: `FB-029 ORIN Legal-Safe Rebrand, Future ARIA Persona Option, And Repo Licensing Hardening`
+- Base Branch: `main`
+- Head Branch: `feature/fb-029-orin-identity-licensing-hardening`
+- PR Summary: Promote the docs/canon-only FB-029 identity, persona-option, and licensing hardening planning milestone, align the inherited `v1.6.4-prebeta` release-debt package to include that completed scope, preserve implementation-facing product/legal gates, and select FB-030 as the next planning-only workstream.
+- PR URL: pending live creation
+- PR State: pending live creation
+- Review Thread State: pending live validation
+- Merge Readiness: pending live validation
+
+### PR Readiness Completion Decision
+
+- PR-1 Result: Complete / green.
+- PR-2 Result: Complete / green.
+- PR-3 Result: Package ready; live PR creation and validation are still pending.
+- User-facing impact: none. FB-029 remains docs/canon-only.
+- Continue/Stop Decision: continue inside PR Readiness until the live PR exists, is open, non-draft, conflict-free, and review-thread state is inspectable.
+
+### PR Readiness Validation Results
+
+- `python dev\orin_branch_governance_validation.py`: pending rerun after PR Readiness package sync.
+- `git diff --check`: pending rerun after PR Readiness package sync.
+- User-facing shortcut gate: WAIVED with exact markers in `## User Test Summary`.
+- User Test Summary results gate: WAIVED with exact markers in `## User Test Summary`.
+- Successor branch containment at PR package time: PASS; no FB-030 branch exists and successor branch creation remains prohibited during FB-029 PR Readiness.
+- Scope validation: pending rerun after PR Readiness package sync; PR Readiness remains docs/canon only.
+
 ## User Test Summary
 
 - User-Facing Shortcut Path: Not applicable - FB-029 Live Validation is docs/canon only and does not change any user-facing desktop shortcut, equivalent production entrypoint behavior, runtime behavior, launcher behavior, renderer behavior, visible UI behavior, installer behavior, or other operator-facing invocation path.
@@ -374,10 +449,10 @@ LV-1 validated the completed FB-029 docs/canon-only milestone against live repo 
 
 ## Seam Continuation Decision
 
-Continue Decision: `stop`
-Next Active Seam: `PR Readiness`
-Stop Condition: `phase boundary reached`
-Continuation Action: execute FB-029 PR Readiness against the completed WS-1 through WS-3, H-1, and LV-1 docs/canon record.
+Continue Decision: `continue`
+Next Active Seam: `PR-3 live PR creation and validation`
+Stop Condition: `PR Readiness green`
+Continuation Action: create the live FB-029 PR, validate the PR state, record the live PR result, and then close PR Readiness green.
 
 ## Reuse Baseline
 
@@ -406,13 +481,16 @@ Continuation Action: execute FB-029 PR Readiness against the completed WS-1 thro
 ## Exit Criteria
 
 - The branch objective, target end-state, seam families, validation contract, User Test Summary strategy, later-phase expectations, and bounded Workstream seam chain are recorded.
-- `Docs/Main.md`, `Docs/feature_backlog.md`, `Docs/prebeta_roadmap.md`, and `Docs/workstreams/index.md` route FB-029 as promoted current-branch truth on `feature/fb-029-orin-identity-licensing-hardening`.
-- FB-015 remains the merged-unreleased release-debt owner on `main` for `v1.6.4-prebeta`.
+- `Docs/Main.md`, `Docs/feature_backlog.md`, `Docs/prebeta_roadmap.md`, and `Docs/workstreams/index.md` route FB-029 as the active PR Readiness authority on `feature/fb-029-orin-identity-licensing-hardening`.
+- FB-015 remains the merged-unreleased release-debt owner on `main` for `v1.6.4-prebeta`, and the pending release scope now includes the completed FB-029 docs/canon-only milestone.
 - WS-1 current identity, persona-option, and licensing source-of-truth inventory is complete.
 - WS-2 canonical vs historical identity, persona-option, and licensing boundary framing is complete.
 - WS-3 validation and admission contract for future identity and licensing implementation is complete.
 - H-1 pressure test findings and corrections are recorded.
 - LV-1 repo-truth alignment, user-facing shortcut applicability, User Test Summary applicability, desktop export applicability, cleanup posture, and waiver handling are recorded.
+- PR-1 merge-target canon completeness is recorded.
+- PR-2 selected-next workstream truth is recorded with FB-030 selected planning-only.
+- PR-3 live PR creation and validation is recorded.
 - Current canonical vs historical identity, persona-option, and licensing source inventory plus boundary framing are recorded without implementation drift.
 - `## User Test Summary` records `User-Facing Shortcut Validation: WAIVED`, `User-Facing Shortcut Waiver Reason:`, `User Test Summary Results: WAIVED`, and `User Test Summary Waiver Reason:` for the docs/canon-only milestone.
 - Explicit product/legal approval remains recorded as the gate on any implementation-facing naming, licensing, release, runtime, or persona-surface work.
@@ -421,8 +499,8 @@ Continuation Action: execute FB-029 PR Readiness against the completed WS-1 thro
 
 ## Rollback Target
 
-- `Hardening`
-- Revert the FB-029 Live Validation docs/canon commit(s) and return FB-029 to Hardening-complete / Live-Validation-next truth with WS-1 through WS-3 and H-1 recorded and LV-1 absent.
+- `Live Validation`
+- Revert the FB-029 PR Readiness docs/canon commit(s) and return FB-029 to Live-Validation-complete / PR-Readiness-next truth with WS-1 through WS-3, H-1, and LV-1 recorded and PR-1 through PR-3 absent.
 
 ## Next Legal Phase
 
