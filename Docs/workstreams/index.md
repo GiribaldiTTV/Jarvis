@@ -80,14 +80,14 @@ That may be an executable branch owner or another explicitly promoted current-tr
 
 - `Docs/workstreams/FB-004_future_boot_orchestrator_layer.md`
 
-FB-004 Future boot orchestrator layer is active on `feature/fb-004-future-boot-orchestrator-layer`. Workstream seams WS-1 current boot-to-desktop source map and ownership boundary, WS-2 lifecycle and orchestration-state framing, WS-3 validation and admission contract, H-1 Hardening pressure test, LV-1 Live Validation waiver handling, and GOV-PR0 backlog governance sync are complete. PR Readiness is the next legal phase.
+FB-004 Future boot orchestrator layer is active on `feature/fb-004-future-boot-orchestrator-layer`. Workstream seams WS-1 current boot-to-desktop source map and ownership boundary, WS-2 lifecycle and orchestration-state framing, WS-3 validation and admission contract, H-1 Hardening pressure test, LV-1 Live Validation waiver handling, GOV-PR0 backlog governance sync, post-merge release-debt truth, selected-next workstream truth, and PR package canon are complete. FB-004 remains docs/canon-only through PR Readiness and targets `v1.6.3-prebeta` after merge.
 
 ### Merged / Release Debt Owners
 
 Merged / Release Debt Owners are promoted implementation workstreams whose implementation branch is merge-target complete but whose public release packaging has not yet cleared release debt.
 These records are not active implementation branch owners after merge.
 
-None. FB-032 release debt cleared when `v1.6.2-prebeta` was published and validated.
+Post-merge prepared owner: FB-004 Future boot orchestrator layer becomes the merged-unreleased release-debt owner for `v1.6.3-prebeta` after its PR merges. Until that merge occurs, FB-004 remains under Active; after merge, repo state is No Active Branch until FB-004 release debt clears.
 
 ### Closed
 
