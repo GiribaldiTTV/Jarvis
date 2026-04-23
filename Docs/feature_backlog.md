@@ -30,7 +30,7 @@ Historical note:
 
 ## Active Promoted Workstream
 
-FB-031 Nexus Desktop AI UI/UX overhaul planning is in Workstream on `feature/fb-031-nexus-desktop-ai-ui-ux-overhaul-planning`.
+FB-031 Nexus Desktop AI UI/UX overhaul planning has completed its architecture-only Workstream seam sequence on `feature/fb-031-nexus-desktop-ai-ui-ux-overhaul-planning`; the next legal phase is Hardening.
 
 FB-040 is released and closed in `v1.6.0-prebeta`; release debt is clear.
 FB-039 is released and closed in `v1.5.0-prebeta`.
@@ -101,7 +101,7 @@ Release Stage: pre-Beta
 Target Version: TBD
 Branch: feature/fb-031-nexus-desktop-ai-ui-ux-overhaul-planning
 Canonical Workstream Doc: Docs/workstreams/FB-031_nexus_desktop_ai_ui_ux_overhaul_planning.md
-Minimal Scope: Branch Readiness must define the Nexus-era UI/UX overhaul planning boundary, source map, visual-language ownership, validation contract, and explicit non-goals before any UI implementation, runtime behavior, settings work, launcher work, or release work is considered.
+Minimal Scope: Define the Nexus-era UI/UX overhaul planning boundary, source map, visual-language ownership, lifecycle/interaction-state framing, validation contract, and explicit non-goals before any UI implementation, runtime behavior, settings work, launcher work, or release work is considered.
 Summary: Preserve future UI/UX overhaul planning as a deliberate design lane rather than piecemeal visual drift.
 Why it matters: The Nexus-era visual language should be planned coherently when the repo is ready for that design pass.
 

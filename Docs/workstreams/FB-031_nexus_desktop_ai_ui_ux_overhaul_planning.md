@@ -34,9 +34,11 @@
 - `Active Branch`
 - FB-040 is released and closed in `v1.6.0-prebeta`.
 - Release debt is clear.
-- FB-031 Workstream is admitted for architecture-only UI/UX source mapping and visual-language ownership planning.
+- FB-031 Workstream is admitted for architecture-only UI/UX source mapping, visual-language ownership planning, lifecycle/interaction-state framing, and validation/admission contract definition.
 - WS-1 Nexus-era UI/UX source map and visual-language ownership vocabulary is complete.
-- WS-2 UI/UX surface boundary and design-system admission contract is the next planned product Workstream seam after bounded seam governance repair.
+- WS-2 lifecycle and interaction-state framing for UI surfaces is complete.
+- WS-3 validation and admission contract for UI implementation seams is complete.
+- The initial architecture-only Workstream seam sequence is complete and ready for Hardening evaluation.
 
 ## Branch Class
 
@@ -62,13 +64,15 @@ None.
 
 - FB-031 has a complete architecture-first UI/UX source map.
 - Visual-language ownership vocabulary is explicit enough for later UI implementation seams to avoid piecemeal design drift.
-- Lifecycle/state framing and validation/admission contracts are planned as later Workstream seams.
+- Lifecycle/state framing and validation/admission contracts are complete for the architecture-only Workstream seam sequence.
 - No product/runtime UI implementation is added during this architecture-only Workstream milestone.
 
 ## Scope
 
 - Define the Nexus-era UI/UX source map.
 - Define visual-language ownership vocabulary for later implementation seams.
+- Define lifecycle and interaction-state framing for UI surfaces.
+- Define validation and admission rules for future UI implementation seams.
 - Preserve explicit non-goals so future UI, launcher, settings, tray/taskbar, overlay, HUD, shortcut, voice, plugin, installer, or runtime work is admitted deliberately instead of by design drift.
 
 ## Non-Goals
@@ -94,7 +98,7 @@ None.
 
 ## Later-Phase Expectations
 
-- Workstream must begin with a source map and visual-language ownership vocabulary before any UI implementation can be proposed.
+- Workstream must complete source map, visual-language ownership vocabulary, lifecycle/state framing, and validation/admission rules before any UI implementation can be proposed.
 - Hardening must pressure-test ambiguity, surface ownership, validation coverage, accessibility/readability risk, and implementation-readiness gaps.
 - Live Validation must classify whether the milestone is user-facing; if no UI is implemented, waiver reasoning must be explicit and machine-checkable.
 - PR Readiness must prove merge-target canon, next-workstream selection, helper posture, User Test Summary status, and clean branch truth before PR creation and live PR validation.
@@ -108,23 +112,23 @@ Seam 1: Nexus-era UI/UX source map and visual-language ownership vocabulary
 - Scope: architecture-only source map, surface inventory, ownership vocabulary, and explicit non-goals for future implementation admission.
 - Non-Includes: no UI code, runtime behavior, launcher changes, settings changes, tray/taskbar changes, overlay/HUD rendering, installer changes, assets, or release work.
 
-Seam 2: UI/UX surface boundary and design-system admission contract
+Seam 2: lifecycle and interaction-state framing for UI surfaces
 
-- Status: Planned.
-- Goal: define which UI/UX surface classes may be admitted later and what design-system proof is required before implementation.
-- Scope: surface categories, user-facing risk classes, accessibility/readability expectations, and implementation-admission evidence.
-- Non-Includes: no visual redesign, no component implementation, no CSS/style changes, no interaction runtime, and no release work.
+- Status: Completed.
+- Goal: define lifecycle and interaction-state vocabulary for Nexus UI surfaces so later implementation seams do not invent state behavior ad hoc.
+- Scope: architecture-only lifecycle states, interaction states, transition boundaries, degradation/recovery framing, and state ownership expectations.
+- Non-Includes: no visual redesign, no component implementation, no CSS/style changes, no runtime state machine, and no release work.
 
 Seam 3: validation and User Test Summary admission contract for future UI implementation seams
 
-- Status: Planned.
+- Status: Completed.
 - Goal: define the validation, live UI audit, User Test Summary, and cleanup expectations required before future FB-031 implementation seams can begin.
 - Scope: evidence requirements, user-facing shortcut/entrypoint classification, manual validation expectations, and validator/harness reuse posture.
 - Non-Includes: no helper creation unless a later implementation seam proves one is required, no screenshot capture, no UI implementation, and no release work.
 
 ## Active Seam
 
-Active seam: None after bounded seam governance repair; WS-2 is the next planned product Workstream seam.
+Active seam: None after WS-3 completion; the next legal phase is Hardening.
 
 - BR-1 Status: Completed in this pass; FB-040 post-release canon drift repaired.
 - BR-2 Status: Completed in this pass; post-release closure and version-advancement governance/validator hardening added.
@@ -134,6 +138,12 @@ Active seam: None after bounded seam governance repair; WS-2 is the next planned
 - GOV-S2 Status: Completed in this pass; source-of-truth now treats bounded multi-seam continuation as the default after green seams and requires an explicit bounded stop condition before stopping.
 - GOV-S3 Status: Completed in this pass; validator enforcement now rejects category-based fallback wording in seam-governance docs.
 - WS-1 Continuation Decision: superseded. The earlier stop after WS-1 was governance drift caused by category-based `Single-Seam Fallback`; under repaired governance, WS-2 remains the next admitted Workstream seam when validation and branch truth are green.
+- WS-2 Status: Completed / executed.
+- WS-2 Boundary: architecture-only lifecycle and interaction-state framing for Nexus UI surfaces.
+- WS-2 Non-Includes: no UI implementation, no component code, no CSS/style changes, no runtime state machine, no assets, no launcher/settings/tray/overlay implementation, and no release work.
+- WS-3 Status: Completed / executed.
+- WS-3 Boundary: architecture-only validation, live UI audit, User Test Summary, cleanup, and implementation-admission rules for future UI implementation seams.
+- WS-3 Non-Includes: no helper creation, no screenshot capture, no UI implementation, no runtime behavior, and no release work.
 
 ## WS-1 Execution Record
 
@@ -187,6 +197,99 @@ Primary current and candidate UI/UX surface families:
 - Cleanup: no programs, helper processes, windows, temporary files, probes, assets, or runtime artifacts were created.
 - Continue/Stop Decision: superseded by bounded seam governance repair. Visual-language and UI-model planning require small seams and strong gates, but they are not automatic stop authority when the next planned seam remains admitted, validation-backed, and within the approved Workstream boundary.
 
+## WS-2 Execution Record
+
+WS-2 is architecture-only. It defines how later Nexus UI surfaces should describe lifecycle and interaction state before implementation seams are admitted.
+
+### UI Surface Lifecycle Framing
+
+- `Uninitialized`: the surface is known in planning or code ownership but has not been prepared, shown, or bound to runtime state.
+- `Starting`: the surface is being prepared for visibility or interaction and must not imply readiness until first-visible proof exists.
+- `First Visible`: the user can see the surface for orientation, but deeper controls, data, or affordances may still be stabilizing.
+- `Ready`: the surface is visible or available, its primary affordances are coherent, and it can accept the interactions admitted by its seam.
+- `Focused`: the surface owns keyboard, pointer, or command attention and must make cancellation, escape, or return behavior clear.
+- `Backgrounded`: the surface remains available but does not own active input focus, mutation authority, or user attention.
+- `Modal`: the surface temporarily blocks or gates another interaction and must define the blocked action, allowed escape path, and completion condition.
+- `Degraded`: the surface remains visible or reachable but cannot provide the full normal experience because required state, data, dependency, or context is partial.
+- `Recovering`: the surface is returning from degraded, blocked, failed, or unavailable state and must avoid silent success claims.
+- `Closing`: the surface is dismissing, tearing down, or transferring ownership; it must not start new execution or mutation work.
+- `Closed`: the surface no longer owns focus, visible state, pending confirmation, or cleanup obligations beyond recorded evidence.
+
+### Interaction-State Vocabulary
+
+- `Orienting`: the user is receiving context about what surface they are in, what Nexus can do there, and how to leave or continue.
+- `Intent Entry`: the user is expressing a command, task, preference, target, or navigation intent.
+- `Editing`: the user is modifying text, task details, settings, labels, layout choices, or future visual preferences.
+- `Resolving`: Nexus is mapping the entered or selected intent to a known action, destination, state, or next step.
+- `Validation Pending`: the surface is checking whether the requested action or state transition is allowed.
+- `Confirmation Pending`: Nexus needs explicit user approval before execution, mutation, persistence, or another meaningful state change.
+- `Executing`: an admitted action is in progress; the surface must distinguish progress from completion.
+- `Result Ready`: the surface can report success, failure, blocked state, partial completion, or recovery guidance.
+- `Blocked`: the requested interaction cannot proceed until a named condition changes.
+- `Cancelled`: the user or system intentionally ended the interaction without committing the pending action.
+- `Unavailable`: the surface or action cannot be offered in the current environment, phase, or product state.
+
+### Transition And Ownership Rules
+
+- Every future UI implementation seam must name the lifecycle states and interaction states it creates, changes, or relies on.
+- First-visible UI proof must not be treated as ready-state proof unless the seam explicitly validates both.
+- A surface must not claim success, readiness, saved state, or execution completion while it is degraded, recovering, blocked, unavailable, or only first-visible.
+- Confirmation surfaces own approval semantics; backgrounded, status-only, diagnostic, and discoverability surfaces must not become hidden execution paths.
+- Cancellation must leave the surface in a named state and must not silently persist, execute, or mutate source state.
+- Degraded and recovery states must be visible enough for the user or operator to understand what changed and what can happen next.
+- Handoffs between surfaces must name which surface owns focus, validation, confirmation, and result reporting after the transition.
+
+### WS-2 Completion Decision
+
+- WS-2 Result: Complete / green.
+- Validation Layer: documentation and governance validation only.
+- User Test Summary Applicability: not applicable for WS-2 because this seam adds architecture/state vocabulary only and creates no user-visible behavior.
+- Cleanup: no programs, helper processes, windows, temporary files, probes, assets, or runtime artifacts were created.
+- Continue/Stop Decision: continue to WS-3 under `Next-Seam Continuation Required`; WS-3 is in the same approved Workstream, phase, branch class, architecture-only scope, and validation surface.
+
+## WS-3 Execution Record
+
+WS-3 is architecture-only. It defines the admission contract that later UI implementation seams must satisfy before product/runtime UI changes can begin.
+
+### Future UI Implementation Admission Contract
+
+Before a future FB-031 UI implementation seam may edit product/runtime UI code, that seam must explicitly define:
+
+- the target surface family and exact Nexus-owned surface being changed
+- the user-facing objective and the state or interaction problem being solved
+- the lifecycle states and interaction states affected
+- the visual-language ownership terms reused from WS-1
+- the entry point, exit path, cancellation path, and recovery path
+- the files or surface layers expected to change
+- explicit non-includes, including adjacent UI surfaces that must not be changed by inertia
+- accessibility/readability expectations such as focus, hierarchy, contrast, legibility, and cognitive load
+- validation gates, including repo-side checks and live UI evidence when meaningful desktop UI changes
+- User Test Summary applicability and the exact waiver reason if no manual user-facing validation exists
+
+### Validation And Evidence Requirements
+
+- Documentation-only planning seams continue to require `python dev\orin_branch_governance_validation.py`, `git diff --check`, and clean branch truth.
+- UI implementation seams must add or reuse the smallest reliable validation that proves the changed surface, lifecycle state, interaction state, and cleanup behavior.
+- Meaningful desktop UI changes must include live launched-process UI audit evidence before closeout posture is claimed.
+- User-facing shortcut, launcher, tray, overlay, settings, or primary app-surface changes must route through the exact User Test Summary and Live Validation shortcut-gate rules already owned by governance.
+- Screenshot, visual-diff, or helper evidence may be admitted only when a later seam proves it is necessary and routes any durable helper through `Docs/validation_helper_registry.md`.
+- Validation evidence must distinguish `First Visible`, `Ready`, `Blocked`, `Degraded`, `Cancelled`, and `Result Ready` states when those states are affected.
+
+### Cleanup And Non-Implementation Guardrails
+
+- Future UI implementation seams must prove any opened windows, dialogs, helper processes, probes, temporary files, screenshots, or exported evidence are cleaned up, preserved intentionally, or registered as durable artifacts.
+- No future seam may treat WS-1 through WS-3 as permission to redesign, restyle, or implement UI broadly.
+- No implementation seam may combine launcher, tray, settings, overlay, HUD, installer, protocol, plugin, voice, and runtime behavior unless Branch Readiness or a later authority record explicitly admits that broader scope.
+- Architecture-only milestones must not claim user-facing validation coverage unless a user-facing surface actually changed.
+
+### WS-3 Completion Decision
+
+- WS-3 Result: Complete / green.
+- Validation Layer: documentation and governance validation only.
+- User Test Summary Applicability: not applicable for WS-3 because this seam adds architecture-only admission rules and creates no user-visible behavior.
+- Cleanup: no programs, helper processes, windows, temporary files, probes, assets, screenshots, or runtime artifacts were created.
+- Continue/Stop Decision: stop at the Workstream phase boundary because the approved WS-1 through WS-3 architecture sequence is complete. The next legal phase is `Hardening`.
+
 ## Validation Contract
 
 - `python dev\orin_branch_governance_validation.py`
@@ -202,7 +305,7 @@ Primary current and candidate UI/UX surface families:
 - Stop if latest public prerelease truth trails the live `v1.6.0-prebeta` release.
 - Stop if release-version law cannot distinguish architecture-only planning from actual minor capability expansion.
 - Stop if FB-031 scope drifts into UI implementation, launcher work, settings work, runtime behavior, assets, or release work.
-- Stop if visual-language vocabulary becomes implementation-shaped before lifecycle/state framing and validation/admission contracts are complete.
+- Stop if visual-language, lifecycle/state, or validation/admission truth becomes implementation-shaped before a later implementation seam is explicitly admitted.
 - Stop if validator hardening requires broad redesign outside post-release closure or release-version advancement.
 - Stop if source-of-truth conflicts make FB-031 Branch Readiness admission unclear.
 
@@ -211,10 +314,12 @@ Primary current and candidate UI/UX surface families:
 - FB-040 is Released / Closed in `v1.6.0-prebeta`.
 - Latest public prerelease truth is `v1.6.0-prebeta`.
 - Release debt is clear across backlog, roadmap, workstreams index, and FB-040 workstream canon.
-- FB-031 is represented as the active Branch Readiness workstream.
+- FB-031 is represented as the active promoted Workstream owner.
 - Branch objective, target end-state, expected seam families, UTS strategy, later-phase expectations, initial Workstream seam sequence, validation contract, and stop conditions are explicit.
 - Validator hardening covers post-release closure drift and release-version advancement drift.
 - WS-1 Nexus-era UI/UX source map and visual-language ownership vocabulary is complete and durably recorded.
+- WS-2 lifecycle and interaction-state framing for UI surfaces is complete and durably recorded.
+- WS-3 validation and admission contract for UI implementation seams is complete and durably recorded.
 
 ## Rollback Target
 
@@ -222,7 +327,7 @@ Primary current and candidate UI/UX surface families:
 
 ## Next Legal Phase
 
-- `Workstream`
+- `Hardening`
 
 ## Governance Drift Audit
 
@@ -231,5 +336,5 @@ Governance Drift Found: Yes, repaired during FB-031 Branch Readiness.
 - Drift Type: escaped post-release canon closure drift and release-version advancement drift.
 - Finding: FB-040 was live as `v1.6.0-prebeta`, but durable canon still carried latest public prerelease `v1.5.0-prebeta`, FB-040 merged-unreleased release debt, and FB-031 selected-only / branch-not-created wording after this branch was created.
 - Version Finding: FB-040 advanced by a minor prerelease despite delivering an architecture-only, non-user-facing planning/admission milestone; the published tag remains canonical, but future equivalent work must not use minor advancement solely because it opens a planning lane.
-- Repair: latest public prerelease truth is advanced to `v1.6.0-prebeta`, FB-040 is closed/released, release debt is cleared, FB-031 is admitted as the active Branch Readiness workstream, and validator/governance coverage is tightened for remote tag closure and release-floor semantics.
+- Repair: latest public prerelease truth is advanced to `v1.6.0-prebeta`, FB-040 is closed/released, release debt is cleared, FB-031 was admitted through Branch Readiness and is now the active branch workstream, and validator/governance coverage is tightened for remote tag closure and release-floor semantics.
 - Governance Drift Found After Repair: No unresolved drift remains after validation.

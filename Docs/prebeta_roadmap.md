@@ -73,7 +73,7 @@ Current merged truth indicates:
 - current active workstream: FB-031 Nexus Desktop AI UI/UX overhaul planning
 - current branch: `feature/fb-031-nexus-desktop-ai-ui-ux-overhaul-planning`
 - merged-unreleased release-debt owner: none
-- next concern: execute FB-031 Workstream architecture seams without beginning UI implementation until source map, lifecycle/state framing, and validation/admission truth are explicit.
+- next concern: begin FB-031 Hardening after the architecture-only WS-1 through WS-3 Workstream sequence is complete.
 
 That means the released FB-027 interaction baseline, the released FB-036 authoring-and-callable-group milestone, the released FB-041 deterministic callable-group execution milestone, the released FB-037 built-in catalog milestone, the released FB-038 tray quick-task UX milestone, the released FB-039 external trigger intake architecture milestone, and the released FB-040 monitoring/thermal architecture milestone are now part of the current public shared pre-Beta baseline.
 
@@ -89,12 +89,12 @@ None. FB-040 is released and closed in `v1.6.0-prebeta`; release debt is clear.
 - record state: `Promoted`
 - branch: `feature/fb-031-nexus-desktop-ai-ui-ux-overhaul-planning`
 - canonical workstream doc: `Docs/workstreams/FB-031_nexus_desktop_ai_ui_ux_overhaul_planning.md`
-- minimal scope: Branch Readiness must define the Nexus-era UI/UX overhaul planning boundary, source map, visual-language ownership, validation contract, and explicit non-goals before any UI implementation, runtime behavior, settings work, launcher work, or release work is considered.
-- admission note: FB-031 Branch Readiness is complete; the active Workstream is architecture-only and begins with source map plus visual-language ownership vocabulary.
+- minimal scope: Define the Nexus-era UI/UX overhaul planning boundary, source map, visual-language ownership, lifecycle/interaction-state framing, validation contract, and explicit non-goals before any UI implementation, runtime behavior, settings work, launcher work, or release work is considered.
+- admission note: FB-031 Branch Readiness is complete; the architecture-only Workstream sequence records source map, visual-language ownership, lifecycle/interaction-state framing, and validation/admission truth without UI implementation.
 
 ## Selected Next Workstream
 
-None selected yet while FB-031 Branch Readiness is active.
+None selected yet while FB-031 is active.
 
 ## Most Recent Released Workstream Context
 
