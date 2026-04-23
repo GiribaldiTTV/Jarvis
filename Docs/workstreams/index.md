@@ -78,16 +78,18 @@ For an active or recently closed canonical workstream, keep these durable tracea
 Active here means the current promoted truth owner.
 That may be an executable branch owner or another explicitly promoted current-truth owner.
 
-- `Docs/workstreams/FB-015_boot_and_desktop_phase_boundary_model.md`
+- `Docs/workstreams/FB-029_orin_identity_licensing_hardening.md`
 
-FB-015 is the active promoted workstream on `feature/fb-015-boot-desktop-phase-boundary-model`. PR Readiness is complete; WS-1 current boot/desktop boundary inventory and ownership map, WS-2 lifecycle and phase-boundary state framing, WS-3 validation and admission contract for future boot/desktop boundary implementation, H-1 hardening, LV-1 Live Validation, PR-1 merge-target canon completeness, PR-2 selected-next workstream selection, and PR-3 live PR creation plus authenticated PR state validation are complete. PR #75 is open/non-draft/mergeable clean. FB-029 is selected next for planning only, and its branch remains uncreated pending FB-015 merge, `v1.6.4-prebeta` release closure, updated-main revalidation, and explicit product/legal approval.
+FB-029 is the current promoted PR Readiness authority on `feature/fb-029-orin-identity-licensing-hardening`. The bounded WS-1 through WS-3 docs/canon seam chain plus H-1 Hardening plus LV-1 Live Validation are complete; PR-1, PR-2, and PR-3 are complete; PR #76 is open/non-draft/mergeable clean; the milestone remains docs/canon-only; and explicit product/legal approval still blocks any implementation-facing naming, licensing, release, runtime, or persona-surface work.
 
 ### Merged / Release Debt Owners
 
 Merged / Release Debt Owners are promoted implementation workstreams whose implementation branch is merge-target complete but whose public release packaging has not yet cleared release debt.
 These records are not active implementation branch owners after merge.
 
-None. FB-004 release debt cleared when `v1.6.3-prebeta` was published and validated.
+- `Docs/workstreams/FB-015_boot_and_desktop_phase_boundary_model.md`
+
+FB-015 merged through PR #75 into `main` at `3e821e07ff91d814fd7aba9b50819f97d700a301` and remains the merged-unreleased release-debt owner for `v1.6.4-prebeta`. The pending release scope now includes the completed FB-029 docs/canon-only identity, persona-option, and licensing-planning milestone. No repo-level active workstream is admitted after merge while that release debt remains open. FB-029 has completed the bounded docs/canon-only Workstream seam chain through WS-3 plus H-1 plus LV-1 on `feature/fb-029-orin-identity-licensing-hardening`; PR-1, PR-2, and PR-3 are complete on open PR #76. FB-030 is selected next planning-only, and its branch remains uncreated.
 
 ### Closed
 
