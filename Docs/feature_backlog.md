@@ -31,33 +31,28 @@ Historical note:
 
 ## Promoted Canonical Workstreams
 
-- `Docs/workstreams/FB-004_future_boot_orchestrator_layer.md`
+None after FB-004 release closure. FB-015 remains selected-only and registry-only until Branch Readiness completes.
 
 ## Active Promoted Workstream
 
-FB-004 Future boot orchestrator layer is the active promoted PR Readiness workstream on `feature/fb-004-future-boot-orchestrator-layer`.
+No active promoted workstream is admitted after FB-004 release closure.
 
-Main-facing canon is aligned to post-release truth: FB-040 is released and closed in `v1.6.0-prebeta`, FB-031 is released and closed in `v1.6.1-prebeta`, FB-032 is released and closed in `v1.6.2-prebeta`, and release debt is clear before FB-004 merge. FB-004 Future boot orchestrator layer has completed WS-1 current boot-to-desktop source map and ownership boundary, WS-2 lifecycle and orchestration-state framing, WS-3 validation and admission contract, H-1 Hardening pressure test, LV-1 Live Validation waiver handling, GOV-PR0 backlog governance sync, and PR Readiness merge-target canon. After FB-004 merges, it becomes the merged-unreleased release-debt owner for `v1.6.3-prebeta` and no next implementation branch may start until release debt clears.
+Main-facing canon is aligned to post-release truth: FB-040 is released and closed in `v1.6.0-prebeta`, FB-031 is released and closed in `v1.6.1-prebeta`, FB-032 is released and closed in `v1.6.2-prebeta`, FB-004 is released and closed in `v1.6.3-prebeta`, and release debt is clear. FB-015 Boot and desktop phase-boundary model is selected next on `feature/fb-015-boot-desktop-phase-boundary-model`, but remains selected-only and registry-only until Branch Readiness defines the branch objective, target end-state, seam families, validation contract, User Test Summary strategy, later-phase expectations, and first admitted seam.
 FB-039 is released and closed in `v1.5.0-prebeta`.
 FB-038 remains released and closed in `v1.4.1-prebeta`.
 
 ## Merged-Unreleased Release-Debt Owner
 
-Merged-Unreleased Release-Debt Owner: FB-004 Future boot orchestrator layer after PR merge.
-Repo State: No Active Branch after PR merge until FB-004 release debt clears.
-Latest Public Prerelease: v1.6.2-prebeta.
-Latest Public Release Commit: e282072769ec25694928293ce51e144d6a37f611.
-Latest Public Prerelease Publication: https://github.com/GiribaldiTTV/Nexus-Desktop-AI/releases/tag/v1.6.2-prebeta.
-Latest Public Prerelease Title: Pre-Beta v1.6.2.
-Release Debt: Clear before FB-004 merge; after merge FB-004 owns release debt until `v1.6.3-prebeta` is published and validated.
-Release Target: v1.6.3-prebeta.
-Release Floor: patch prerelease.
-Version Rationale: FB-004 is an implementation-branch, docs/canon-only architecture and admission milestone that changes boot-orchestrator source-of-truth governance without changing runtime behavior; patch prerelease is the smallest release-bearing public package after `v1.6.2-prebeta`.
-Release Scope: Docs/canon-only future boot-orchestrator planning frame, including Branch Readiness, WS-1 source map and ownership boundary, WS-2 lifecycle/state framing, WS-3 validation and implementation admission contract, H-1 hardening corrections, LV-1 waiver handling, GOV-PR0 backlog governance sync, and PR Readiness merge-target canon.
-Release Artifacts: Tag `v1.6.3-prebeta`; release title `Pre-Beta v1.6.3`; rich Markdown release notes summarize the FB-004 boot-orchestrator planning frame, validation/admission contract, diagnostics-root correction, waiver posture, backlog sync, and selected-next branch gate.
-Post-Release Truth: FB-004 is Released / Closed in v1.6.3-prebeta; release debt is clear; FB-015 remains selected-only until its Branch Readiness surface is legally created after release closure.
+Merged-Unreleased Release-Debt Owner: None.
+Repo State: FB-015 Branch Readiness blocker-clearing seam on `feature/fb-015-boot-desktop-phase-boundary-model`; no active promoted workstream until Branch Readiness completes.
+Latest Public Prerelease: v1.6.3-prebeta.
+Latest Public Release Commit: 9f5ae9a78c7dbff79322089bca370fa49da38598.
+Latest Public Prerelease Publication: https://github.com/GiribaldiTTV/Nexus-Desktop-AI/releases/tag/v1.6.3-prebeta.
+Latest Public Prerelease Title: Pre-Beta v1.6.3.
+Release Debt: Clear after FB-004 release execution and live release validation.
+Post-Release Truth: FB-004 is Released / Closed in v1.6.3-prebeta; release debt is clear; FB-015 may continue Branch Readiness after updated-main revalidation and the repo-level admission gate passes.
 Selected Next Workstream: FB-015 Boot and desktop phase-boundary model.
-Next-Branch Creation Gate: Do not create an FB-015 branch during FB-004 PR Readiness; defer branch creation to FB-015 Branch Readiness after FB-004 merges, `v1.6.3-prebeta` is published and validated, `main` is updated and revalidated, and release debt is cleared.
+Next-Branch Creation Gate: FB-015 Branch Readiness branch now exists only for blocker-clearing canon closure and Branch Readiness planning; FB-015 remains selected-only and registry-only until Branch Readiness completes.
 
 ## Backlog Governance Sync
 
@@ -71,36 +66,9 @@ Open-candidate priority review:
 - FB-030 remains `Medium` because it requires an explicit voice/audio design goal and must not enter as incidental persona or runtime cleanup.
 - FB-005 remains `Low` because remaining workspace movement is path-sensitive and requires explicit workspace/path approval.
 
-Next-branch clarity: PR Readiness should treat FB-015 as the routine selected-next candidate unless the user explicitly approves FB-029, FB-030, or FB-005 before next-workstream selection. Successor branch creation remains deferred to Branch Readiness after FB-004 merges and updated `main` is revalidated.
+Next-branch clarity: FB-015 is the selected-next candidate unless the user explicitly approves FB-029, FB-030, or FB-005 before Branch Readiness admission. The FB-015 branch exists only for blocker-clearing canon closure and Branch Readiness planning; FB-015 remains registry-only until Branch Readiness completes.
 
 ## Registry Items
-
-### [ID: FB-004] Future boot orchestrator layer
-
-Status: Active
-Record State: Promoted
-Priority: High
-Release Stage: Slice-staged
-Branch: feature/fb-004-future-boot-orchestrator-layer
-Canonical Workstream Doc: Docs/workstreams/FB-004_future_boot_orchestrator_layer.md
-Deferred Since: v2.0 closeout; carried forward again by later closeout truth as future boot-orchestrator implementation work.
-Deferred Because: boot-orchestrator planning groundwork is preserved, but no runtime boot-orchestrator delivery has been admitted.
-Selection / Unblock: Select only after the current active workstream closes and boot-to-desktop orchestration is the highest-priority next lane; Branch Readiness must define the smallest implementation-facing slice, non-goals, proof path, and rollback boundary.
-Branch Readiness: Complete. The branch objective, target end-state, seam families, validation contract, User Test Summary strategy, later-phase expectations, and first Workstream seam are recorded in the canonical workstream doc.
-Workstream: WS-1 current boot-to-desktop source map and ownership boundary is complete. WS-2 lifecycle and orchestration-state framing for boot and desktop transitions is complete. WS-3 validation and admission contract for orchestrator implementation seams is complete. No runtime implementation, launcher behavior, desktop shortcut behavior, UI change, installer change, release work, or tag work is admitted by WS-1 through WS-3.
-Hardening: H-1 boot-orchestrator pressure test is complete. Diagnostics-root canon now aligns with runtime-root launcher truth, and stale launcher regression helper reuse is repair-gated.
-Live Validation: LV-1 repo-truth alignment, user-facing shortcut applicability, User Test Summary applicability, desktop export applicability, cleanup posture, and waiver handling are complete. PR Readiness is the next legal phase.
-PR Readiness: Merge-target canon, post-merge release-debt truth, selected-next workstream truth, PR package details, and live PR validation are recorded in the canonical workstream doc. FB-004 remains docs/canon-only through PR Readiness.
-Post-Merge State: FB-004 becomes the merged-unreleased release-debt owner for `v1.6.3-prebeta` after PR merge; no active implementation branch may start until release debt clears.
-Release Target: v1.6.3-prebeta.
-Release Floor: patch prerelease.
-Version Rationale: FB-004 is an implementation-branch, docs/canon-only architecture and admission milestone that needs a public prerelease package after merge while preserving patch-level scope.
-Release Scope: Future boot-orchestrator source map, lifecycle/state framing, ownership boundaries, diagnostics evidence-root correction, rollback boundaries, stale launcher helper caveat, implementation admission contract, Hardening, Live Validation waivers, backlog governance sync, and PR Readiness merge-target canon.
-Release Artifacts: Tag `v1.6.3-prebeta`; release title `Pre-Beta v1.6.3`; inclusion-only rich Markdown release notes with no repeated title in the body.
-Post-Release Truth: FB-004 is Released / Closed in `v1.6.3-prebeta`; release debt is clear; FB-015 may enter Branch Readiness only after release closure.
-Minimal Scope: Define the smallest implementation-facing boot-orchestrator Branch Readiness plan above the desktop launcher, including boot-to-desktop ownership, non-goals, validation proof path, rollback boundary, and explicit protection against runtime delivery by inertia.
-Summary: Preserve the future top-level boot-orchestrator direction above the desktop launcher without authorizing runtime delivery yet.
-Why it matters: Keeps the longer-term boot-to-desktop product direction explicit while current desktop and diagnostics work stays bounded.
 
 ### [ID: FB-005] Workspace and folder organization
 
@@ -125,6 +93,8 @@ Deferred Because: the boot/desktop ownership model is clarified at planning leve
 Selection / Unblock: Select when a concrete boot, desktop, startup, trust, or orchestration lane is blocked by unresolved ownership boundaries; Branch Readiness must name the exact ambiguity it resolves.
 Priority Review: Raised to High during the FB-004 pre-PR docs governance sync because boot/desktop phase-boundary follow-through is the clearest routine technical successor after FB-004 unless an explicitly approved product/legal, voice, or workspace lane supersedes it.
 Next Workstream: Selected
+Branch: feature/fb-015-boot-desktop-phase-boundary-model
+Branch Readiness: In progress for blocker-clearing post-release canon closure only; FB-015 remains selected-only and registry-only until Branch Readiness defines the branch objective, target end-state, seam families, validation contract, User Test Summary strategy, later-phase expectations, and first admitted seam.
 Minimal Scope: Define the smallest Branch Readiness-only follow-through slice for boot/desktop phase-boundary ambiguity after FB-004, including the exact ambiguity, affected source-of-truth surfaces, non-goals, proof path, rollback boundary, and protection against runtime delivery by inertia.
 Summary: Preserve the future boot and desktop phase-boundary model above the already-closed milestone taxonomy work.
 Why it matters: Keeps boot-versus-desktop ownership planning explicit without reopening the closed taxonomy milestone by inertia.
@@ -154,6 +124,31 @@ Summary: Preserve future ORIN voice-direction refinement as its own bounded pers
 Why it matters: Voice identity should be intentional and should not piggyback on unrelated runtime or canon work.
 
 ## Closed Canonical Workstreams
+
+### [ID: FB-004] Future boot orchestrator layer
+
+Status: Released (v1.6.3-prebeta)
+Record State: Closed
+Priority: High
+Release Stage: Slice-staged
+Target Version: v1.6.3-prebeta
+Release Title: Pre-Beta v1.6.3
+Branch: feature/fb-004-future-boot-orchestrator-layer
+Canonical Workstream Doc: Docs/workstreams/FB-004_future_boot_orchestrator_layer.md
+Branch Readiness: Complete. The branch objective, target end-state, seam families, validation contract, User Test Summary strategy, later-phase expectations, and first Workstream seam are recorded in the canonical workstream doc.
+Workstream: WS-1 current boot-to-desktop source map and ownership boundary, WS-2 lifecycle and orchestration-state framing, and WS-3 validation and admission contract are complete.
+Hardening: H-1 boot-orchestrator pressure test is complete. Diagnostics-root canon aligns with runtime-root launcher truth, and stale launcher regression helper reuse is repair-gated.
+Live Validation: LV-1 repo-truth alignment, user-facing shortcut applicability, User Test Summary applicability, desktop export applicability, cleanup posture, and waiver handling are complete.
+PR Readiness: Merge-target canon, post-merge release-debt truth, selected-next workstream truth, PR package details, and live PR validation were recorded before PR #74 merged.
+Release Execution: `v1.6.3-prebeta` is live at https://github.com/GiribaldiTTV/Nexus-Desktop-AI/releases/tag/v1.6.3-prebeta on commit `9f5ae9a78c7dbff79322089bca370fa49da38598`.
+Release Target: v1.6.3-prebeta
+Release Floor: patch prerelease
+Version Rationale: FB-004 was a docs/canon-only architecture and admission milestone with no executable, runtime, operator-facing, user-facing, or materially expanded product capability.
+Release Scope: Future boot-orchestrator source map, lifecycle/state framing, ownership boundaries, diagnostics evidence-root correction, rollback boundaries, stale launcher helper caveat, implementation admission contract, hardening, Live Validation waivers, backlog governance sync, and PR Readiness merge-target canon.
+Release Artifacts: Tag v1.6.3-prebeta; release title Pre-Beta v1.6.3; rich Markdown release notes summarize the FB-004 boot-orchestrator planning frame, validation/admission contract, diagnostics-root correction, waiver posture, backlog sync, and selected-next branch gate with GitHub-generated What's Changed and Full Changelog sections.
+Post-Release Truth: FB-004 is Released / Closed in v1.6.3-prebeta; release debt is clear; FB-015 Branch Readiness may continue on `feature/fb-015-boot-desktop-phase-boundary-model` after updated-main revalidation and the repo-level admission gate pass.
+Summary: Preserved the future top-level boot-orchestrator direction above the desktop launcher without authorizing runtime delivery yet.
+Why it matters: Keeps the longer-term boot-to-desktop product direction explicit while current desktop and diagnostics work stays bounded.
 
 ### [ID: FB-032] Nexus-era vision and source-of-truth migration
 
