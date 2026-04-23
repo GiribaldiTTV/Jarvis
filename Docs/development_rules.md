@@ -236,7 +236,7 @@ Supporting canon must stay aligned with live truth.
 
 That means:
 
-- PR Readiness hard blocker shorthand is `stale-canon`, `post-merge`, `dirty`, `docs-sync`, `next-workstream`, `uts-results`, `pr-created`, and `pr-validated`
+- PR Readiness hard blocker shorthand is `stale-canon`, `post-merge`, `dirty`, `docs-sync`, `next-workstream`, `deferred-context`, `uts-results`, `pr-created`, and `pr-validated`
 - directly supporting canon and tightly coupled governance may be updated on the active implementation or release branch when that branch changes or depends on the truth
 - no PR-ready without canon-ready:
   - a branch is not PR-ready if merging it would leave `main` canon-stale
@@ -245,9 +245,11 @@ That means:
 - when a branch closes a workstream, changes released milestone posture, changes the current rebaseline, changes closeout-index routing, changes backlog or roadmap release posture, changes workstream-index release posture, or changes `Docs/Main.md` baseline routing, the required release-facing canon updates must already be on that branch before PR creation is allowed
 - no PR-ready with `Next Workstream Undefined`:
   - If post-merge truth will resolve to `No Active Branch` because `Release Debt` or another repo-level admission blocker remains open, successor branch creation remains deferred; next-workstream selection is still required unless the user explicitly approves a no-next-workstream steady-state outcome in canon.
-  - the next workstream must be selected from canon
+  - the next workstream must be selected from canon using open backlog `Priority` plus deferred-context readiness, not `Target Version`
   - that workstream must be recorded in `Docs/feature_backlog.md` and `Docs/prebeta_roadmap.md`
   - that workstream must have canon-valid `Record State`
+  - that workstream must have `Priority` defined
+  - if that workstream is deferred, the backlog entry must include `Deferred Since:`, `Deferred Because:`, and `Selection / Unblock:`
   - that workstream must have minimal scope defined before PR green
   - no branch may exist yet for that next workstream
   - the selected backlog entry must include `Next Workstream: Selected` and `Minimal Scope:`
@@ -701,6 +703,14 @@ Use `Docs/Main.md` as the routing index for the merged canon.
 ## Backlog Governance
 
 `Docs/feature_backlog.md` is a controlled registry layer.
+
+Open backlog selection is priority-led:
+
+- `Priority` is the primary selection signal for open candidate work
+- `Target Version` must not be used to rank, select, defer, or skip open backlog candidates
+- open `Registry-only` and active `Promoted` entries should not carry `Target Version`
+- closed, released, implemented, or release-debt entries may keep `Target Version` as historical release evidence
+- deferred open entries must state `Deferred Since:`, `Deferred Because:`, and `Selection / Unblock:` before they are eligible for next-workstream selection
 
 Codex may:
 

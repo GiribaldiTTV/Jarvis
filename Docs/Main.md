@@ -127,6 +127,9 @@ Use these for tracked identity and near-term sequencing:
 Rules:
 
 - backlog owns identity
+- backlog candidate selection is priority-led; `Priority` and deferred-context fields are the selection inputs for open items
+- `Target Version` is not an open-backlog selection input and belongs only to release posture, release debt, or historical closed/implemented evidence
+- deferred open backlog entries must explain `Deferred Since:`, `Deferred Because:`, and `Selection / Unblock:` before they can be selected efficiently
 - roadmap owns sequencing and release posture
 - neither backlog nor roadmap should retain the full execution story once a canonical workstream record exists
 

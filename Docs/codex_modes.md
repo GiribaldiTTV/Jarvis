@@ -205,6 +205,9 @@ When the approved phase is `PR Readiness`, the output must also explicitly inclu
 - for the selected next workstream:
   - the selected next workstream identity
   - the next workstream `Record State`
+  - the backlog `Priority` used as the primary selection signal
+  - confirmation that `Target Version` was not used to rank, select, defer, or skip the open backlog candidate
+  - if the selected item is deferred, confirmation that `Deferred Since:`, `Deferred Because:`, and `Selection / Unblock:` are present
   - the minimal scope recorded in canon
   - confirmation that backlog includes `Next Workstream: Selected` and `Minimal Scope:` and roadmap includes `## Selected Next Workstream`
   - confirmation that no branch exists yet for that next workstream

@@ -617,6 +617,12 @@ VALID_NEXT_WORKSTREAM_RECORD_STATES = (
     "Promoted",
 )
 
+DEFERRED_BACKLOG_CONTEXT_LABELS = (
+    "Deferred Since",
+    "Deferred Because",
+    "Selection / Unblock",
+)
+
 REQUIRED_BRANCH_RECORD_HEADINGS = (
     "## Current Phase",
     "## Phase Status",
@@ -692,6 +698,16 @@ def _parse_backlog_sections(text: str) -> list[dict[str, str]]:
             }
         )
     return entries
+
+
+def _is_open_backlog_candidate(entry: dict[str, str]) -> bool:
+    status = entry["status"].strip().casefold()
+    normalized_status = _normalize_status(entry["status"])
+    return (
+        entry["record_state"] != "Closed"
+        and normalized_status not in {"released", "closed", "merged unreleased"}
+        and not status.startswith("implemented")
+    )
 
 
 def _extract_colon_value(block: str, label: str) -> str:
@@ -1271,7 +1287,37 @@ def _run_next_workstream_gate(require, backlog_entries: list[dict[str, str]], ro
             "PR readiness gate: Successor Lock Missing blocker is active; "
             f"{selected_id} already has branch(es): {', '.join(matching_branches)}"
         ),
-    )
+        )
+
+
+def _run_open_backlog_selection_governance(require, backlog_entries: list[dict[str, str]]) -> None:
+    for entry in backlog_entries:
+        if not _is_open_backlog_candidate(entry):
+            continue
+
+        workstream_id = entry["id"]
+        block = entry["block"]
+        require(
+            bool(_extract_colon_value(block, "Priority")),
+            f"Docs/feature_backlog.md: {workstream_id} open backlog candidate must define Priority",
+        )
+        require(
+            not bool(_extract_colon_value(block, "Target Version")),
+            (
+                f"Docs/feature_backlog.md: {workstream_id} open backlog candidate must not carry "
+                "Target Version; use Priority and deferred-context fields for backlog selection"
+            ),
+        )
+
+        if _normalize_status(entry["status"]) == "deferred":
+            for label in DEFERRED_BACKLOG_CONTEXT_LABELS:
+                require(
+                    bool(_extract_colon_value(block, label)),
+                    (
+                        f"Docs/feature_backlog.md: {workstream_id} deferred backlog candidate "
+                        f"must define {label}:"
+                    ),
+                )
 
 
 def _run_pr_live_state_gate(require) -> None:
@@ -1689,6 +1735,7 @@ def main() -> int:
     release_debt_index_paths = _collect_release_debt_index_paths(index_text)
 
     backlog_entries = _parse_backlog_sections(backlog_text)
+    _run_open_backlog_selection_governance(require, backlog_entries)
     latest_public_prerelease = _latest_public_prerelease(roadmap_text)
     highest_known_prebeta_tag = _highest_known_prebeta_tag()
     if highest_known_prebeta_tag:

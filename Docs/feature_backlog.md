@@ -9,6 +9,11 @@ Rules:
 - backlog identity remains controlled and approval-gated
 - `Status` is the delivery or work field
 - `Record State` is the canonical-record lifecycle field
+- `Priority` is the primary backlog selection signal for open candidate work
+- `Target Version` is not an open-backlog selection field and must not be used to rank, select, defer, or skip open backlog candidates
+- open `Registry-only` and active `Promoted` entries should not carry `Target Version`; release target truth is assigned later through roadmap, workstream, PR Readiness, and Release Readiness governance when release-bearing work exists
+- closed, released, implemented, or release-debt entries may preserve `Target Version` as historical release evidence
+- if `Status` is `Deferred`, the entry must also state `Deferred Since:`, `Deferred Because:`, and `Selection / Unblock:` so next-workstream selection can evaluate it without guessing
 - allowed `Record State` values are `Registry-only`, `Promoted`, and `Closed`
 - if `Record State` is not `Registry-only`, `Canonical Workstream Doc` must exist
 - backlog entries keep the short registry story, not the full execution story
@@ -49,51 +54,61 @@ Active Branch: `feature/fb-032-nexus-era-vision-source-of-truth-migration`.
 
 ### [ID: FB-004] Future boot orchestrator layer
 
-Status: Deferred (planning groundwork complete enough to pause)
+Status: Deferred (since v2.0 closeout; planning groundwork complete enough to pause until an implementation-facing boot-orchestrator slice is explicitly selected)
 Record State: Registry-only
 Priority: High
 Release Stage: Slice-staged
-Target Version: v2.0
+Deferred Since: v2.0 closeout; carried forward again by later closeout truth as future boot-orchestrator implementation work.
+Deferred Because: boot-orchestrator planning groundwork is preserved, but no runtime boot-orchestrator delivery has been admitted.
+Selection / Unblock: Select only after the current active workstream closes and boot-to-desktop orchestration is the highest-priority next lane; Branch Readiness must define the smallest implementation-facing slice, non-goals, proof path, and rollback boundary.
 Summary: Preserve the future top-level boot-orchestrator direction above the desktop launcher without authorizing runtime delivery yet.
 Why it matters: Keeps the longer-term boot-to-desktop product direction explicit while current desktop and diagnostics work stays bounded.
 
 ### [ID: FB-005] Workspace and folder organization
 
-Status: Deferred (partial implementation through Step 4)
+Status: Deferred (since v2.0 closeout; Step 4 is complete and Step 5 or broader workspace moves need explicit path-sensitive approval)
 Record State: Registry-only
 Priority: Low
 Release Stage: Slice-staged
-Target Version: v2.0
+Deferred Since: v2.0 closeout after the Step 4 workspace slice; the earlier first workspace slice is preserved in v1.9.0 closeout history.
+Deferred Because: remaining workspace movement is path-sensitive and can break imports, launcher routes, logs, or user-facing entrypoints if treated as casual cleanup.
+Selection / Unblock: Select only when the next approved lane is a bounded workspace/path slice with exact file/path ownership, migration limits, validation coverage, and rollback instructions.
 Summary: Continue workspace organization only through explicitly approved path-sensitive slices.
 Why it matters: Keeps folder and ownership cleanup deliberate instead of letting it blur into unrelated feature work.
 
 ### [ID: FB-015] Boot and desktop phase-boundary model
 
-Status: Deferred (rev1a clarification complete enough to pause)
+Status: Deferred (since v2.0 closeout; rev1a clarification is complete enough to pause until later boundary follow-through is explicitly selected)
 Record State: Registry-only
 Priority: Medium
 Release Stage: Slice-staged
-Target Version: v2.0
+Deferred Since: v2.0 closeout after the FB-015 rev1a phase-boundary clarification.
+Deferred Because: the boot/desktop ownership model is clarified at planning level, but no later implementation-facing boundary change has been admitted.
+Selection / Unblock: Select when a concrete boot, desktop, startup, trust, or orchestration lane is blocked by unresolved ownership boundaries; Branch Readiness must name the exact ambiguity it resolves.
 Summary: Preserve the future boot and desktop phase-boundary model above the already-closed milestone taxonomy work.
 Why it matters: Keeps boot-versus-desktop ownership planning explicit without reopening the closed taxonomy milestone by inertia.
 
 ### [ID: FB-029] ORIN legal-safe rebrand, future ARIA persona option, and repo licensing hardening
 
-Status: Deferred
+Status: Deferred (pending explicit product/legal identity decision; not selectable as routine wording cleanup)
 Record State: Registry-only
 Priority: High
 Release Stage: pre-Beta
-Target Version: v2.2.1
+Deferred Since: current pre-Beta identity backlog registration before FB-032 promotion.
+Deferred Because: legal-safe naming, ORIN/ARIA persona posture, and licensing hardening need explicit product/legal approval and must not ride along with source-of-truth migration, UI, runtime, or release work.
+Selection / Unblock: Select only after the user explicitly approves identity/legal hardening as the next lane; Branch Readiness must separate naming, licensing, persona, release, and runtime non-goals before edits begin.
 Summary: Track future ORIN-era naming, persona, and licensing hardening work without treating the local rebrand overlay as merged truth.
 Why it matters: Product identity, legal posture, and repo ownership still need durable future treatment, but not by accidental carry-forward.
 
 ### [ID: FB-030] ORIN voice/audio direction refinement
 
-Status: Deferred
+Status: Deferred (pending explicit voice/persona direction lane; not selectable as incidental runtime or canon cleanup)
 Record State: Registry-only
 Priority: Medium
 Release Stage: pre-Beta
-Target Version: TBD
+Deferred Since: current pre-Beta voice/persona backlog registration before FB-032 promotion.
+Deferred Because: ORIN voice identity needs a deliberate persona-facing direction pass; current voice harness, shutdown-voice, and source-of-truth work do not admit broader voice redesign or execution behavior.
+Selection / Unblock: Select only with an explicit voice/audio design goal, affected-surface map, validation boundary, and non-goals separating persona direction from runtime execution.
 Summary: Preserve future ORIN voice-direction refinement as its own bounded persona-facing lane.
 Why it matters: Voice identity should be intentional and should not piggyback on unrelated runtime or canon work.
 
@@ -103,7 +118,6 @@ Status: Active
 Record State: Promoted
 Priority: Medium
 Release Stage: pre-Beta
-Target Version: TBD
 Branch: feature/fb-032-nexus-era-vision-source-of-truth-migration
 Canonical Workstream Doc: Docs/workstreams/FB-032_nexus_era_vision_and_source_of_truth_migration.md
 Workstream: WS-1 current-vs-historical source-of-truth inventory and naming policy, WS-2 classification and mapping of canonical vs historical surfaces, and WS-3 validation and admission contract for controlled migration execution are complete.

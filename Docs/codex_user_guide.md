@@ -492,6 +492,8 @@ Prompting should reflect that reality.
 
 PR Readiness selects and minimally scopes the next workstream in canon, but it must also prove no branch exists yet for that next workstream.
 Use machine-checkable markers: `Next Workstream: Selected` and `Minimal Scope:` in the backlog entry, plus `## Selected Next Workstream` and `Branch: Not created` in the roadmap.
+Selection must be priority-led: use open backlog `Priority` and deferred-context readiness, not `Target Version`, to choose the next candidate.
+If the selected backlog item is deferred, it must already explain `Deferred Since:`, `Deferred Because:`, and `Selection / Unblock:` before PR Readiness can treat it as selectable.
 Create the fresh branch only during the next `Branch Readiness` pass after the current branch merges and updated `main` is revalidated.
 If that branch is created and a prior-branch canon miss is discovered, stay in `Branch Readiness`, repair the miss on the active branch, and do not start implementation until the blocker is cleared.
 

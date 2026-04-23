@@ -174,6 +174,9 @@ Active seam: LV-1 Live Validation repo-truth and applicability classification is
 - LV-1 Status: Completed / executed.
 - LV-1 Boundary: docs/canon repo-truth alignment, branch-truth alignment, user-facing shortcut applicability classification, User Test Summary applicability classification, desktop export applicability classification, cleanup posture, and PR Readiness admission posture.
 - LV-1 Non-Includes: no runtime validation, no shortcut launch, no manual User Test Summary handoff, no desktop export, no controlled migration execution, no source code edits, no UI implementation, no persona implementation, no release work, and no historical rewrite that destroys traceability.
+- GOV-PR1 Status: Completed / executed.
+- GOV-PR1 Boundary: repair backlog-selection governance drift so open backlog selection is priority-led, `Target Version` is excluded from open-candidate selection, deferred entries carry when/why/unblock context, and validator coverage enforces the rule.
+- GOV-PR1 Non-Includes: no runtime behavior, no UI implementation, no persona implementation, no controlled migration execution, no release target assignment, no selected-next workstream decision, no branch creation, and no PR creation.
 
 ## Seam Continuation Decision
 
@@ -395,6 +398,7 @@ LV-1 validated the completed FB-032 architecture-only milestone against live rep
 - Reuse the current workstream lifecycle and UTS rules in `Docs/phase_governance.md`, `Docs/development_rules.md`, and `Docs/workstreams/index.md`.
 - Reuse FB-031's architecture-only admission pattern for docs/canon planning seams, while keeping FB-032's identity/source-of-truth scope distinct from UI/UX implementation planning.
 - Do not create a new helper during WS-1 through WS-3, H-1, or LV-1.
+- GOV-PR1 extended the existing governance validator rather than creating a new helper; future backlog-selection governance checks should reuse `dev/orin_branch_governance_validation.py`.
 
 ## Exit Criteria
 
@@ -404,6 +408,7 @@ LV-1 validated the completed FB-032 architecture-only milestone against live rep
 - WS-3 validation and admission contract for controlled migration execution is recorded.
 - H-1 pressure test findings and corrections are recorded.
 - LV-1 repo-truth alignment, user-facing shortcut applicability, User Test Summary applicability, desktop export applicability, cleanup posture, and waiver handling are recorded.
+- GOV-PR1 backlog-selection governance drift repair is recorded.
 - `Docs/feature_backlog.md`, `Docs/prebeta_roadmap.md`, and `Docs/workstreams/index.md` identify FB-032 as the active Live Validation-phase authority.
 - No implementation work is admitted beyond the planned docs/canon seam sequence.
 - Live Validation may advance to PR Readiness after LV-1 is complete and green.
@@ -430,6 +435,8 @@ Governance Drift Found: Yes, repaired during GOV-WS1.
 - WS-3 defined controlled migration admission gates and stop conditions; no controlled migration execution is admitted by inertia.
 - H-1 found no new governance gap, contradiction, scope issue, or migration-readiness blocker after current-state canon was advanced to Hardening-complete / Live-Validation-next truth.
 - LV-1 found no repo-truth mismatch, shortcut blocker, User Test Summary blocker, desktop export requirement, runtime evidence requirement, or cleanup gap after current-state canon was advanced to Live-Validation-complete / PR-Readiness-next truth.
+- GOV-PR1 found backlog-selection drift: open backlog entries carried `Target Version`, and deferred candidate entries did not all explain when, why, and how to unblock selection.
+- GOV-PR1 repair: backlog, governance, prompt-contract docs, and the governance validator now require open backlog selection to use `Priority` plus deferred-context readiness; open entries no longer carry `Target Version`, and deferred entries carry `Deferred Since:`, `Deferred Because:`, and `Selection / Unblock:`.
 - Finding: the WS-1 pass correctly recorded WS-2 as next, but stopped after returning `Next Safe Move` instead of acting on the required bounded multi-seam continuation.
 - Repair: governance, prompt scaffolds, and validator enforcement now require that reporting `Next Safe Move` is not a substitute for execution and that a `continue` decision must be acted on immediately by starting the next admitted seam.
 
@@ -461,3 +468,6 @@ Governance Drift Found: Yes, repaired during GOV-WS1.
 - LV-1 user-facing shortcut gate: WAIVED with `User-Facing Shortcut Validation: WAIVED` and `User-Facing Shortcut Waiver Reason:` recorded in `## User Test Summary`.
 - LV-1 User Test Summary results gate: WAIVED with `User Test Summary Results: WAIVED` and `User Test Summary Waiver Reason:` recorded in `## User Test Summary`; no desktop export was required.
 - LV-1 changed docs/canon only; no runtime, UI, persona behavior, source code behavior, release artifact, desktop shortcut behavior, broad wording migration, controlled migration execution, helper, desktop export, or historical rewrite changed.
+- GOV-PR1 validation: `python dev\orin_branch_governance_validation.py` PASS, 916 checks.
+- GOV-PR1 diff hygiene: `git diff --check` PASS with line-ending normalization warnings only and no whitespace errors.
+- GOV-PR1 changed docs/canon and extended existing governance validator coverage only; no runtime, UI, persona behavior, release artifact, selected-next workstream, branch creation, PR creation, or release target assignment changed.

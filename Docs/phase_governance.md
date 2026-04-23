@@ -417,13 +417,17 @@ Exception:
 
 This gate requires all of the following before PR creation is allowed:
 
-- the next workstream identity is selected from current canon
+- the next workstream identity is selected from current canon using open backlog `Priority` plus deferred-context readiness, not `Target Version`
 - that workstream exists in `Docs/feature_backlog.md`
 - that workstream is recorded in `Docs/prebeta_roadmap.md`
 - that workstream has a canon-valid `Record State`
+- that workstream has `Priority` defined
+- if that workstream is deferred, the backlog entry records `Deferred Since:`, `Deferred Because:`, and `Selection / Unblock:`
 - that workstream has minimal scope defined before PR green
 - no branch has been created for that next workstream yet
 - successor branch creation is deferred to `Branch Readiness` after the current branch merges and updated `main` is revalidated
+
+`Target Version` is not a next-workstream selection field. Do not use it to rank, select, defer, or skip open backlog candidates. Release targets are assigned by release-floor and release-readiness governance when a release-bearing branch requires them. Closed, released, implemented, or release-debt entries may preserve `Target Version` as historical release evidence.
 
 Machine-checkable canon markers:
 
@@ -440,6 +444,7 @@ When the exception applies, the branch must instead:
 - avoid creating or executing the next implementation branch by inertia
 
 If the next workstream is not selected, is not recorded in backlog and roadmap, lacks valid record state, or lacks minimal scope, the branch is blocked by `Next Workstream Undefined`.
+If a selected deferred workstream lacks deferred-context fields, the branch is blocked by `Deferred Selection Context Missing`.
 If a successor branch is created before `Branch Readiness`, the branch is blocked by `Successor Lock Missing`.
 
 ### PR Readiness Hard Blocker Gates
@@ -448,13 +453,15 @@ PR Readiness must not report green while any pre-merge process blocker remains u
 
 Hard blockers:
 
-- canonical shorthand: `stale-canon`, `post-merge`, `dirty`, `docs-sync`, `next-workstream`, `desktop-shortcut`, `uts-results`
+- canonical shorthand: `stale-canon`, `post-merge`, `dirty`, `docs-sync`, `next-workstream`, `deferred-context`, `desktop-shortcut`, `uts-results`
 - `Stale Canon`:
   current-state canon and merge-target canon must already reflect the branch's true state and the state that will be true after merge
 - `Post-Merge State Unresolved`:
   post-merge truth must already encode either the `No Active Branch` / `Release Debt` path or the successor-workstream planning, canon sync, and branch-creation deferral required when post-merge truth will admit another branch
 - `Next Workstream Undefined`:
   PR Readiness cannot be green until the next workstream exists in canon, is recorded in backlog and roadmap, has a valid record state, has minimal scope defined, and has no branch created yet
+- `Deferred Selection Context Missing`:
+  PR Readiness cannot be green when the selected next workstream is deferred but lacks `Deferred Since:`, `Deferred Because:`, or `Selection / Unblock:` in the backlog entry
 - `Dirty Branch`:
   PR Readiness cannot be green while the worktree is dirty, required docs changes are uncommitted, required canon exists only in the working tree, or branch truth is not durable in commit history
 - `Docs Sync Incomplete`:
