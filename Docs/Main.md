@@ -138,6 +138,7 @@ Rules:
 Use these for promoted work that needs a stable feature-state, branch-local validation/evidence record, active seam trail, durable artifact/reuse history, and closure history:
 
 - `Docs/workstreams/index.md`
+- `Docs/workstreams/FB-004_future_boot_orchestrator_layer.md`
 - `Docs/workstreams/FB-032_nexus_era_vision_and_source_of_truth_migration.md`
 - `Docs/workstreams/FB-031_nexus_desktop_ai_ui_ux_overhaul_planning.md`
 - `Docs/workstreams/FB-040_monitoring_thermals_performance_hud_surface.md`

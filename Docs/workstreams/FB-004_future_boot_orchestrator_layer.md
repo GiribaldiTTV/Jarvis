@@ -1,0 +1,186 @@
+# FB-004 Future Boot Orchestrator Layer
+
+## Identity
+
+- ID: `FB-004`
+- Title: `Future boot orchestrator layer`
+
+## Record State
+
+- `Promoted`
+
+## Status
+
+- `Active`
+
+## Release Stage
+
+- `Slice-staged`
+
+## Canonical Branch
+
+- `feature/fb-004-future-boot-orchestrator-layer`
+
+## Current Phase
+
+- Phase: `Branch Readiness`
+
+## Phase Status
+
+- `Branch Readiness GREEN / Workstream admission ready`
+- FB-032 is released and closed in `v1.6.2-prebeta`.
+- Latest public prerelease truth is `v1.6.2-prebeta`.
+- Release debt is clear.
+- FB-004 is promoted from selected-only registry truth into this canonical workstream record.
+- No FB-004 implementation, runtime behavior, launcher behavior, desktop shortcut behavior, UI change, installer change, release work, or tag work has started.
+
+## Branch Class
+
+- `implementation`
+
+## Blockers
+
+None.
+
+## Entry Basis
+
+- `main` reached the public `v1.6.2-prebeta` release at `e282072769ec25694928293ce51e144d6a37f611`.
+- FB-032 post-release canon closure is complete.
+- Release debt is clear.
+- FB-004 was selected as the next lane by priority-led backlog selection after FB-032 closure.
+- The canonical FB-004 branch is `feature/fb-004-future-boot-orchestrator-layer`.
+- Branch Readiness is the first legal FB-004 surface and exists to admit the lane before any Workstream implementation begins.
+
+## Branch Objective
+
+- Define the smallest implementation-facing future boot orchestrator slice above the current desktop launcher.
+- Establish boot-to-desktop ownership, lifecycle boundaries, validation proof paths, rollback boundaries, and non-goals before any runtime delivery starts.
+- Keep launcher behavior, desktop shortcut behavior, startup diagnostics, renderer lifecycle, and future orchestrator responsibilities separated enough that later implementation seams can be admitted deliberately.
+- Prevent a broad boot rewrite, service/autostart layer, UI implementation, installer change, or release task from entering by inertia.
+
+## Target End-State
+
+- FB-004 has a canonical boot-orchestrator planning frame that names the current boot-to-desktop surfaces and the future orchestrator boundary.
+- Workstream execution can begin with a source-map and ownership seam instead of implementation.
+- The branch has a validation contract that distinguishes docs/canon proof from later runtime, shortcut, launcher, or user-facing proof.
+- Later implementation is blocked until a seam explicitly admits the affected runtime surfaces, rollback path, and user-facing validation requirements.
+
+## Scope
+
+- Define current boot-to-desktop ownership boundaries.
+- Define the future orchestrator responsibility frame above the existing launcher and renderer startup path.
+- Define validation and evidence expectations for planning-only, diagnostics-only, and runtime-affecting seams.
+- Define what later Workstream seams may inspect or classify before any implementation.
+- Preserve existing launcher, shortcut, desktop session, and release behavior during Branch Readiness.
+
+## Non-Goals
+
+- No runtime behavior changes.
+- No launcher behavior changes.
+- No desktop shortcut changes.
+- No renderer lifecycle implementation.
+- No service, autostart, installer, packaging, or OS integration changes.
+- No UI implementation.
+- No source tree reorganization.
+- No release packaging, tag creation, or public release editing during Branch Readiness.
+
+## Expected Seam Families And Risk Classes
+
+- Current boot-to-desktop source map and ownership family; risk class: architecture/runtime-boundary, because future implementation can destabilize startup if ownership is guessed.
+- Boot lifecycle and orchestration contract family; risk class: lifecycle/launcher, because launcher, renderer, diagnostics, readiness, and rollback responsibilities must not collapse into one ambiguous owner.
+- Failure, diagnostics, and evidence boundary family; risk class: validation/observability, because startup failures need durable proof without broadening logging or changing runtime behavior by accident.
+- Runtime admission and rollback contract family; risk class: implementation/governance, because later code seams must prove exact affected surfaces, rollback path, and validation gates before edits.
+- User-facing startup path classification family; risk class: desktop/user-facing, because shortcut launch, visible startup, and User Test Summary handling become mandatory only when the completed delta affects those surfaces.
+
+## Validation Contract
+
+- Run `python dev\orin_branch_governance_validation.py`.
+- Run `git diff --check`.
+- Confirm `Docs/Main.md` routes this promoted FB-004 workstream record.
+- Confirm `Docs/feature_backlog.md` marks FB-004 as `Promoted`, `Active`, and cites this canonical workstream doc.
+- Confirm `Docs/workstreams/index.md` lists FB-004 under Active and not under Closed or Merged / Release Debt Owners.
+- Confirm `Docs/prebeta_roadmap.md` records FB-004 as the active Branch Readiness workstream and does not leave selected-only or registry-only truth behind.
+- Confirm this Branch Readiness pass changes only docs/canon surfaces.
+- Confirm no runtime, launcher, shortcut, UI, installer, release, or desktop export artifact changed during Branch Readiness.
+
+## Branch Readiness Validation Results
+
+- `python dev\orin_branch_governance_validation.py`: PASS, 921 checks.
+- `git diff --check`: PASS; no whitespace errors.
+- Scope validation: PASS; Branch Readiness changed docs/canon routing and the new FB-004 workstream record only.
+- Admission validation: PASS; FB-004 is promoted and WS-1 current boot-to-desktop source map and ownership boundary is admitted next.
+
+## User Test Summary Strategy
+
+- Branch Readiness is docs/canon planning only and does not change user-facing behavior.
+- No desktop shortcut validation, desktop export, or manual User Test Summary handoff is required during Branch Readiness.
+- If a later Workstream seam remains docs/canon-only, Live Validation may waive the exact `## User Test Summary` artifact with a recorded reason.
+- If a later seam changes runtime startup, launcher behavior, desktop shortcut behavior, visible startup state, user-facing copy, UI, installer behavior, or another operator-facing path, FB-004 must add the exact `## User Test Summary` artifact and desktop export required by governance before Live Validation can advance.
+- User-facing shortcut validation becomes applicable for any completed delta that must be exercised through the real desktop shortcut or user-visible boot path.
+
+## Later-Phase Expectations
+
+- Workstream must execute bounded seams and keep the active seam recorded here.
+- Workstream must start with WS-1 and must not begin runtime implementation, launcher implementation, shortcut changes, UI work, installer work, service/autostart work, release work, or broad source movement unless a later seam explicitly admits it.
+- Hardening must pressure-test the boot-to-desktop architecture frame, lifecycle ownership, validation gates, rollback boundary, startup-failure evidence, user-facing shortcut trigger, and implementation-readiness risks.
+- Live Validation must classify user-facing shortcut applicability and User Test Summary applicability based on the completed FB-004 delta.
+- PR Readiness must prove merge-target canon completeness, clean branch truth, successor selection, User Test Summary state, and live PR state before PR green.
+- Release Readiness remains file-frozen and may only validate release package truth if FB-004 becomes release-bearing after merge.
+
+## Initial Workstream Seam Sequence
+
+Seam 1: Current boot-to-desktop source map and ownership boundary
+
+- Status: Admitted next.
+- Goal: inventory the current boot-to-desktop entrypoints, launcher and renderer startup ownership, diagnostics evidence roots, and rollback boundaries before any orchestrator implementation is considered.
+- Scope: docs/canon source map, ownership vocabulary, current entrypoint inventory, lifecycle boundary notes, validation trigger classification, rollback boundary, and implementation admission checklist for later seams.
+- Non-Includes: no runtime code edits, no launcher behavior changes, no desktop shortcut changes, no renderer lifecycle implementation, no UI work, no installer or autostart work, no source tree reorganization, no release work, and no public release editing.
+
+## Active Seam
+
+Active seam: BR-1 Branch Readiness admission planning is complete; WS-1 current boot-to-desktop source map and ownership boundary is admitted next.
+
+- BR-1 Status: Completed in this pass.
+- BR-1 Boundary: promote FB-004, define branch objective, target end-state, seam families, validation contract, User Test Summary strategy, later-phase expectations, and the first Workstream seam.
+- BR-1 Non-Includes: no runtime behavior, launcher behavior, desktop shortcut behavior, UI implementation, service/autostart work, installer work, source tree reorganization, release packaging, tag creation, or public release editing.
+- WS-1 Status: Admitted next.
+- WS-1 Boundary: docs/canon source map and ownership boundary only.
+- WS-1 Non-Includes: no runtime code edits, no launcher behavior changes, no desktop shortcut changes, no renderer lifecycle implementation, no UI work, no installer or autostart work, no source tree reorganization, no release work, and no public release editing.
+
+## Seam Continuation Decision
+
+Continue Decision: `stop`
+Next Active Seam: `WS-1 current boot-to-desktop source map and ownership boundary`
+Stop Condition: `Phase boundary reached`
+Continuation Action: FB-004 Branch Readiness is complete after validation; begin Workstream with WS-1 on the same branch.
+
+## Reuse Baseline
+
+- `Docs/architecture.md` and `Docs/orchestration.md` are the baseline architecture and orchestration references for current startup, launcher, renderer, and evidence boundaries.
+- `Docs/workstreams/FB-025_boot_desktop_milestone_taxonomy_clarification.md` preserves historical boot/desktop milestone separation and must not be expanded by inertia.
+- `Docs/workstreams/FB-033_startup_snapshot_harness_follow_through.md` preserves startup snapshot harness context for future validation reuse where applicable.
+- `Docs/phase_governance.md`, `Docs/development_rules.md`, `Docs/codex_modes.md`, and `Docs/orin_task_template.md` own phase, seam, proof, User Test Summary, and durability governance.
+- `dev/orin_branch_governance_validation.py` is the reusable governance validator for this admission pass.
+- No new validator, harness, runtime helper, desktop export, or release helper is introduced during Branch Readiness.
+
+## Exit Criteria
+
+- Branch objective is recorded.
+- Target end-state is recorded.
+- Seam families and risk classes are recorded.
+- Validation contract is recorded.
+- User Test Summary strategy is recorded.
+- Later-phase expectations are recorded.
+- First Workstream seam is recorded and admitted next.
+- Backlog, roadmap, workstream index, and Main routing all point to this canonical FB-004 workstream record.
+- Branch Readiness validation passes.
+- Branch remains docs/canon only.
+
+## Rollback Target
+
+- `Branch Readiness`
+- Revert the FB-004 Branch Readiness canon promotion commit and return FB-004 to selected-only registry truth with no admitted Workstream seam.
+
+## Next Legal Phase
+
+- `Workstream`

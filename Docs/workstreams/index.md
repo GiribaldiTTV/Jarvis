@@ -78,7 +78,9 @@ For an active or recently closed canonical workstream, keep these durable tracea
 Active here means the current promoted truth owner.
 That may be an executable branch owner or another explicitly promoted current-truth owner.
 
-None. FB-004 remains selected-only and registry-only during Branch Readiness until the branch objective, target end-state, seam families, validation contract, User Test Summary strategy, later-phase expectations, and first admitted Workstream seam are recorded.
+- `Docs/workstreams/FB-004_future_boot_orchestrator_layer.md`
+
+FB-004 Future boot orchestrator layer is active on `feature/fb-004-future-boot-orchestrator-layer`. Branch Readiness is complete and WS-1 current boot-to-desktop source map and ownership boundary is admitted next.
 
 ### Merged / Release Debt Owners
 

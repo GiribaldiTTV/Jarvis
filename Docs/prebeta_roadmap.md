@@ -68,35 +68,35 @@ Current merged truth indicates:
 - merged unreleased non-doc implementation debt exists: no
 - the latest public released implementation milestone is FB-032 Nexus-era vision and source-of-truth migration in `v1.6.2-prebeta`
 - current phase after FB-032 release closure: `Branch Readiness`
-- phase status after FB-032 release closure: FB-004 Branch Readiness blocker-clearing canon closure is in progress; no FB-004 implementation is admitted yet
-- blocker after FB-032 release: release debt is clear; FB-004 still must complete Branch Readiness before promotion, implementation, or Workstream admission
-- current active workstream: none; FB-004 remains selected-only and registry-only until Branch Readiness completes
+- phase status after FB-032 release closure: FB-004 Branch Readiness is complete; Workstream WS-1 is admitted next
+- blocker after FB-032 release: release debt is clear; no release-debt or selected-only blocker remains for FB-004 Workstream admission
+- current active workstream: FB-004 Future boot orchestrator layer
 - current branch after FB-032 release: `feature/fb-004-future-boot-orchestrator-layer`
-- selected next workstream: FB-004 Future boot orchestrator layer
-- next concern: complete FB-004 Branch Readiness after FB-032 post-release canon closure validates.
+- selected next workstream: none while FB-004 is active
+- next concern: execute FB-004 WS-1 current boot-to-desktop source map and ownership boundary.
 
 That means the released FB-027 interaction baseline, the released FB-036 authoring-and-callable-group milestone, the released FB-041 deterministic callable-group execution milestone, the released FB-037 built-in catalog milestone, the released FB-038 tray quick-task UX milestone, the released FB-039 external trigger intake architecture milestone, the released FB-040 monitoring/thermal architecture milestone, the released FB-031 UI/UX architecture milestone, and the released FB-032 source-of-truth migration milestone are now part of the current public shared pre-Beta baseline.
 
 ## Current Release Debt Owner
 
 Merged-Unreleased Release-Debt Owner: None.
-Repo State: FB-004 Branch Readiness blocker-clearing seam on `feature/fb-004-future-boot-orchestrator-layer`; no active promoted workstream until Branch Readiness completes.
+Repo State: FB-004 Branch Readiness is complete on `feature/fb-004-future-boot-orchestrator-layer`; FB-004 is the active promoted workstream and WS-1 is admitted next.
 
 Latest Public Prerelease: v1.6.2-prebeta
 Latest Public Release Commit: e282072769ec25694928293ce51e144d6a37f611
 Latest Public Prerelease Publication: https://github.com/GiribaldiTTV/Nexus-Desktop-AI/releases/tag/v1.6.2-prebeta
 Latest Public Prerelease Title: Pre-Beta v1.6.2
 Release Debt: Clear after FB-032 release execution and live release validation.
-Post-Release Truth: FB-032 is Released / Closed in v1.6.2-prebeta; release debt is clear; FB-004 may continue Branch Readiness after updated-main revalidation and the repo-level admission gate passes.
-Selected Next Workstream: FB-004 Future boot orchestrator layer
-Next-Branch Creation Gate: FB-004 Branch Readiness branch now exists only for blocker-clearing canon closure and Branch Readiness planning; FB-004 remains selected-only and registry-only until Branch Readiness completes.
-Current active workstream: none
+Post-Release Truth: FB-032 is Released / Closed in v1.6.2-prebeta; release debt is clear; FB-004 Branch Readiness is complete and Workstream is the next legal phase.
+Selected Next Workstream: None; FB-004 is now active.
+Next-Branch Creation Gate: Not applicable while FB-004 is active; successor selection belongs to PR Readiness.
+Current active workstream: FB-004 Future boot orchestrator layer
 Current Active Workstream Before Release: FB-032 Nexus-era vision and source-of-truth migration
 Active Branch Before Release: `feature/fb-032-nexus-era-vision-source-of-truth-migration`
 
 ## Current Active Workstream
 
-No promoted active workstream is admitted. FB-004 remains selected-only and registry-only until Branch Readiness completes.
+FB-004 Future boot orchestrator layer is the active promoted workstream. Branch Readiness is complete and WS-1 current boot-to-desktop source map and ownership boundary is admitted next.
 
 ## Latest Released Workstream Context
 
@@ -110,19 +110,21 @@ No promoted active workstream is admitted. FB-004 remains selected-only and regi
 - release title: `Pre-Beta v1.6.2`
 - canonical workstream doc: `Docs/workstreams/FB-032_nexus_era_vision_and_source_of_truth_migration.md`
 - sequencing note: released the architecture-only Nexus-era source-of-truth migration foundation, including current-vs-historical source inventory, naming policy, canonical-vs-historical surface classification, controlled migration admission contract, governance repairs, hardening, Live Validation waivers, and PR Readiness merge-target canon.
-- successor note: FB-004 is selected next and now has the Branch Readiness branch `feature/fb-004-future-boot-orchestrator-layer`, but remains selected-only until Branch Readiness completes.
+- successor note: FB-004 completed Branch Readiness on `feature/fb-004-future-boot-orchestrator-layer` and is now the active promoted workstream.
 
-## Selected Next Workstream
+## Active Promoted Workstream
 
 ### FB-004 Future Boot Orchestrator Layer
 
-- status: `deferred / selected next`
-- record state: `Registry-only`
+- status: `active`
+- record state: `Promoted`
 - priority: `High`
 - selection basis: priority-led backlog selection; FB-004 is a High-priority open candidate with deferred-context fields present, while FB-029 is also High but requires explicit product/legal approval before selection.
 - branch: `feature/fb-004-future-boot-orchestrator-layer`
+- canonical workstream doc: `Docs/workstreams/FB-004_future_boot_orchestrator_layer.md`
 - minimal scope: define the smallest implementation-facing boot-orchestrator Branch Readiness plan above the desktop launcher, including boot-to-desktop ownership, non-goals, validation proof path, rollback boundary, and explicit protection against runtime delivery by inertia.
-- creation gate: branch creation is complete for the blocker-clearing Branch Readiness surface only; FB-004 remains selected-only and registry-only until Branch Readiness defines the branch objective, target end-state, seam families, validation contract, User Test Summary strategy, later-phase expectations, and first admitted Workstream seam.
+- branch readiness: complete; branch objective, target end-state, seam families, validation contract, User Test Summary strategy, later-phase expectations, and first Workstream seam are recorded in the canonical workstream doc.
+- next workstream seam: WS-1 current boot-to-desktop source map and ownership boundary.
 
 ## Prior Released Workstream Context
 
@@ -283,7 +285,7 @@ Current merged truth indicates:
 - FB-040 is released and closed in `v1.6.0-prebeta`; architecture-only monitoring and thermal source mapping, lifecycle/trust-safety framing, validation/admission contract, hardening, Live Validation waiver truth, and post-release canon closure are preserved as historical evidence
 - FB-031 is released and closed in `v1.6.1-prebeta`; UI/UX source mapping, visual-language ownership vocabulary, lifecycle/interaction-state framing, future implementation admission contract, hardening, Live Validation waiver truth, PR Readiness merge-target canon, and PR-R1 release-floor validator repair are preserved as historical evidence
 - FB-032 is released and closed in `v1.6.2-prebeta`; source-of-truth inventory, naming policy, surface classification, controlled migration admission contract, governance repairs, hardening, Live Validation waivers, and PR Readiness merge-target canon are preserved as historical evidence
-- post-release repo truth after the FB-032 release is clear for release debt; FB-004 is selected next on `feature/fb-004-future-boot-orchestrator-layer` but remains Branch Readiness-only and registry-only until admission planning completes
+- post-release repo truth after the FB-032 release is clear for release debt; FB-004 completed Branch Readiness on `feature/fb-004-future-boot-orchestrator-layer` and is now active for WS-1
 - successor-lane branch creation for FB-039 is historical; FB-039 is released and no longer an executable active implementation branch
 - if a branch changes release-facing canon, those canon updates must land on that same branch before PR readiness is allowed
 - escaped post-merge canon repair must ride a legal branch surface; `main` is protected and must not be patched directly by Codex
@@ -294,7 +296,7 @@ Current merged truth indicates:
   - FB-040 for monitoring, thermals, and performance HUD surfaces, released and closed in `v1.6.0-prebeta`
   - FB-031 for Nexus Desktop AI UI/UX overhaul planning, released and closed in `v1.6.1-prebeta`
   - FB-032 for Nexus-era vision and source-of-truth migration, released and closed in `v1.6.2-prebeta`
-  - FB-004 for future boot orchestrator layer, selected next on `feature/fb-004-future-boot-orchestrator-layer` with Branch Readiness still in progress
+  - FB-004 for future boot orchestrator layer, active on `feature/fb-004-future-boot-orchestrator-layer` with WS-1 admitted next after Branch Readiness
 - those candidate lanes must be selected deliberately rather than bundled together as one implicit interaction continuation
 - FB-037 Branch Readiness does not imply automatic continuation into any remaining candidate lane
 
