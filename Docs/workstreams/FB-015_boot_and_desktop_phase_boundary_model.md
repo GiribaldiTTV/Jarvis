@@ -23,11 +23,11 @@
 
 ## Current Phase
 
-- Phase: `Live Validation`
+- Phase: `PR Readiness`
 
 ## Phase Status
 
-- `Live Validation complete; PR Readiness next`
+- `PR Readiness package-ready; PR-3 live PR creation and validation next`
 - FB-004 is released and closed in `v1.6.3-prebeta`.
 - Latest public prerelease truth is `v1.6.3-prebeta`.
 - Release debt is clear.
@@ -38,8 +38,13 @@
 - WS-3 validation and admission contract for future boot/desktop boundary implementation is complete.
 - H-1 pressure test of the boot/desktop boundary inventory and ownership map, lifecycle and phase-boundary state framing, and future implementation admission contract is complete.
 - LV-1 repo-truth alignment, user-facing shortcut applicability, User Test Summary applicability, desktop export applicability, cleanup posture, and waiver handling are complete.
+- PR-1 merge-target canon completeness is complete.
+- PR-2 selected-next workstream selection is complete with FB-029 planning-only and unbranched.
+- PR-3 live PR creation and validation is pending.
 - Hardening clarified launcher-owned `STARTUP_READY_OBSERVED`, `normal exit complete`, and `failure flow complete` as explicit boundary states and tightened later shortcut-proof classification so direct repository launch-shim invocation is not treated as real user-facing shortcut proof by default.
 - Live Validation confirmed the completed FB-015 delta remains docs/canon only, so user-facing shortcut validation and User Test Summary results are both waived for this milestone.
+- PR Readiness derived `v1.6.4-prebeta` / `Pre-Beta v1.6.4` as the semantic post-merge release target because FB-015 remains a docs/canon-only architecture/admission milestone with `patch prerelease` release-floor semantics.
+- PR Readiness selected FB-029 as the next planning-only workstream because it is the highest-priority remaining open backlog candidate after FB-015, while keeping branch creation blocked until explicit product/legal approval and updated-main admission.
 - A narrow supporting canon sync for released FB-040 Sensor HUD beta admission remained bounded to docs/governance-only source-of-truth maintenance; it did not reopen FB-040, change FB-015 runtime scope, or alter the admitted FB-015 seam chain.
 - A requested future-lane admission for `FB-042 Stream Deck Integration via Elgato MCP` was reviewed and explicitly deferred because backlog identity, roadmap sequencing, and new auxiliary planning-reference canon for that lane would exceed the current FB-015 branch boundary and remains out of scope for the completed FB-015 Workstream seam chain.
 - No FB-015 runtime, launcher, shortcut, renderer lifecycle, UI, installer, source-tree, helper-code, or release work has started.
@@ -50,7 +55,8 @@
 
 ## Blockers
 
-None.
+- `PR Creation Pending`
+- `PR Validation Pending`
 
 ## Entry Basis
 
@@ -106,7 +112,11 @@ None.
 - Confirm `Docs/Main.md` routes this workstream record.
 - Confirm `Docs/feature_backlog.md` marks FB-015 as `Promoted`, `Active`, and cites this doc.
 - Confirm `Docs/workstreams/index.md` lists FB-015 under Active.
-- Confirm `Docs/feature_backlog.md`, `Docs/prebeta_roadmap.md`, and `Docs/workstreams/index.md` record FB-015 as the active promoted branch with Live Validation complete and PR Readiness next.
+- Confirm `Docs/feature_backlog.md`, `Docs/prebeta_roadmap.md`, and `Docs/workstreams/index.md` record FB-015 as the active promoted branch with PR Readiness package-ready and PR-3 live PR creation and validation next.
+- Confirm `Docs/feature_backlog.md` records FB-029 as `Next Workstream: Selected` with `Minimal Scope:` and deferred-context fields intact.
+- Confirm `Docs/prebeta_roadmap.md` records `## Selected Next Workstream` for FB-029 with `Record State: Registry-only`, `Minimal Scope:`, and `Branch: Not created`.
+- Confirm no local or remote branch exists for FB-029.
+- Run `python dev\orin_branch_governance_validation.py --pr-readiness-gate` after PR creation and final PR-state canon commit.
 - Confirm FB-004 remains Released / Closed in `v1.6.3-prebeta`.
 - Confirm the previously recorded supporting canon sync remains limited to active FB-015 branch authority wording, `Docs/workstreams/FB-040_monitoring_thermals_performance_hud_surface.md`, and `Docs/validation_helper_registry.md`, and does not reopen FB-040 or change the admitted FB-015 seam chain.
 - Confirm requested future-lane `FB-042 Stream Deck Integration via Elgato MCP` admission remains deferred on this branch and does not add backlog, roadmap, workstream, or auxiliary planning-reference canon.
@@ -122,8 +132,8 @@ None.
 
 ## User Test Summary Strategy
 
-- Branch Readiness, WS-1 through WS-3, H-1, and LV-1 are docs/canon only and do not change user-facing behavior.
-- No desktop shortcut validation, desktop export, or manual User Test Summary handoff is required during Branch Readiness, WS-1 through WS-3, H-1, or LV-1.
+- Branch Readiness, WS-1 through WS-3, H-1, LV-1, PR-1, PR-2, and PR-3 remain docs/canon only and do not change user-facing behavior.
+- No desktop shortcut validation, desktop export, or manual User Test Summary handoff is required during Branch Readiness, WS-1 through WS-3, H-1, LV-1, PR-1, PR-2, or PR-3.
 - If a later seam changes startup, launcher, shortcut, visible startup state, user-facing copy, UI, installer behavior, or another operator-facing path, FB-015 must add the exact `## User Test Summary` artifact and desktop export required by governance before Live Validation can advance.
 
 ## Later-Phase Expectations
@@ -132,7 +142,8 @@ None.
 - Workstream must start with WS-1 and must not begin runtime implementation, launcher implementation, shortcut changes, renderer lifecycle work, UI work, installer work, source movement, or release work unless a later seam explicitly admits the affected surfaces.
 - Hardening must pressure-test the phase-boundary frame, lifecycle handoffs, ownership boundaries, diagnostics evidence roots, rollback boundaries, stale-helper caveats, implementation-admission contract, and User Test Summary triggers.
 - Live Validation must classify shortcut applicability and User Test Summary applicability based on the completed FB-015 delta.
-- PR Readiness must prove merge-target canon completeness, clean branch truth, successor selection, User Test Summary state, and live PR state before PR green.
+- PR Readiness must prove merge-target canon completeness, clean branch truth, successor selection, User Test Summary state, live PR state, and authenticated review-thread state before PR green.
+- Release Readiness must validate the file-frozen `v1.6.4-prebeta` release package on updated `main` after the PR merges.
 
 ## Initial Workstream Seam Sequence
 
@@ -159,7 +170,7 @@ Seam 3: Validation and admission contract for future boot/desktop boundary imple
 
 ## Active Seam
 
-Active seam: none after LV-1 completion; the next legal phase is PR Readiness.
+Active seam: PR-3 live PR creation and validation.
 
 - BR-1 Status: Completed in this pass.
 - BR-1 Boundary: promote FB-015 and define the branch objective, target end-state, seam families, validation contract, User Test Summary strategy, later-phase expectations, and first Workstream seam.
@@ -179,13 +190,22 @@ Active seam: none after LV-1 completion; the next legal phase is PR Readiness.
 - LV-1 Status: Completed / executed.
 - LV-1 Boundary: docs/canon repo-truth alignment, branch-truth alignment, user-facing shortcut applicability classification, User Test Summary applicability classification, desktop export applicability classification, cleanup posture, and PR Readiness admission posture.
 - LV-1 Non-Includes: no runtime validation, no shortcut launch, no manual User Test Summary handoff, no desktop export, no runtime code edits, no launcher behavior changes, no desktop shortcut behavior changes, no renderer lifecycle implementation, no UI work, no installer or autostart work, no helper-code repair, no release work, and no public release editing.
+- PR-1 Status: Completed / executed.
+- PR-1 Boundary: merge-target canon completeness, semantic release-target derivation for the post-merge FB-015 release-debt state, and merge-target package preparation for the docs/canon-only milestone.
+- PR-1 Non-Includes: no runtime code edits, no launcher behavior changes, no desktop shortcut behavior changes, no renderer lifecycle implementation, no UI work, no installer or autostart work, no helper-code repair, no release publication, and no public release editing.
+- PR-2 Status: Completed / executed.
+- PR-2 Boundary: next-workstream selection, deferred-context validation, branch-containment validation, and successor branch-creation gate recording.
+- PR-2 Non-Includes: no successor branch creation, no runtime code edits, no launcher behavior changes, no desktop shortcut behavior changes, no renderer lifecycle implementation, no UI work, no installer or autostart work, no helper-code repair, no release publication, and no public release editing.
+- PR-3 Status: In progress / package-ready.
+- PR-3 Boundary: live PR creation, authenticated PR state validation, authenticated review-thread validation, final PR-state canon sync, and clean pushed branch truth.
+- PR-3 Non-Includes: no merge execution, no release publication, no runtime code edits, no launcher behavior changes, no desktop shortcut behavior changes, no renderer lifecycle implementation, no UI work, no installer or autostart work, no helper-code repair, and no public release editing.
 
 ## Seam Continuation Decision
 
-Continue Decision: `stop`
-Next Active Seam: `PR Readiness`
-Stop Condition: `Phase boundary reached`
-Continuation Action: execute FB-015 PR Readiness after LV-1 validation is green and durably committed.
+Continue Decision: `continue`
+Next Active Seam: `PR-3 live PR creation and validation`
+Stop Condition: `PR live-state validation pending`
+Continuation Action: create the FB-015 GitHub PR, validate authenticated PR and review-thread state, record PR-3 completion, and then stop at the PR Readiness phase boundary.
 
 ## WS-1 Execution Record
 
@@ -567,6 +587,73 @@ Non-includes for this supporting canon sync:
 - no runtime code, helper-file, installer, shortcut, tray, overlay, or UI changes
 - no change to the admitted FB-015 seam chain or later Hardening admission posture
 
+## Governance Drift Audit
+
+Governance Drift Found: Yes, resolved before PR green.
+
+- Successor-selection drift was found at PR Readiness entry: every remaining open backlog candidate was deferred, and FB-029's prior wording could be read as prohibiting even planning-only selected-next recording. PR-2 resolves this by clarifying that FB-029 may be selected as the next planning lane during PR Readiness while branch creation and Branch Readiness admission remain explicitly product/legal-gated.
+- Current-state canon drift was found across backlog, roadmap, workstream index, and this workstream doc because they still reported LV-1 complete / PR Readiness next after PR-1 and PR-2 had already been executed locally. PR-2 reconciles all active authority surfaces to the same PR Readiness package-ready truth.
+- No unresolved contradiction remains across backlog priority, deferred-context fields, successor lock, semantic release-target derivation, or FB-015 docs/canon-only validation posture after PR-1 and PR-2.
+
+## Post-Merge State
+
+- If PR-3 merges cleanly, FB-015 becomes the merged-unreleased release-debt owner for `v1.6.4-prebeta`.
+- After merge, repo state becomes `No Active Branch` until `v1.6.4-prebeta` is published, validated, and post-release canon closure is completed on the next legal branch surface.
+- FB-029 is the selected next workstream for planning only; its implementation branch remains uncreated until updated `main` is revalidated and explicit product/legal approval admits FB-029 Branch Readiness.
+
+## PR Readiness Record
+
+PR Readiness validates the completed docs/canon-only FB-015 milestone for merge to `main`. This record prepares the post-merge release-debt path, successor-selection state, durable PR package, and live PR validation gate.
+
+### PR-1 Merge-Target Canon Findings
+
+- Merge Target: `main`.
+- Head Branch: `feature/fb-015-boot-desktop-phase-boundary-model`.
+- Source-of-Truth Alignment: PASS. `Docs/Main.md`, `Docs/feature_backlog.md`, `Docs/prebeta_roadmap.md`, `Docs/workstreams/index.md`, and this workstream record point to FB-015 as the active promoted PR Readiness authority.
+- Release Debt Framing: PASS. Before merge, release debt is clear after `v1.6.3-prebeta`; after merge, FB-015 becomes the merged-unreleased release-debt owner for `v1.6.4-prebeta`.
+- Release Target: `v1.6.4-prebeta`.
+- Release Title: `Pre-Beta v1.6.4`.
+- Release Floor: `patch prerelease`.
+- Version Rationale: `patch prerelease` is required because FB-015 remains a docs/canon-only phase-boundary architecture and admission milestone with no new executable, runtime, operator-facing, or materially expanded product capability.
+- Release Scope: docs/canon-only boot/desktop boundary inventory, ownership map, lifecycle/state framing, implementation admission contract, hardening corrections, Live Validation waivers, selected-next governance sync, and PR Readiness merge-target canon.
+- Release Artifacts: Tag `v1.6.4-prebeta`; release title `Pre-Beta v1.6.4`; rich Markdown release notes summarize the boot/desktop phase-boundary model, ownership map, lifecycle/state framing, implementation admission contract, hardening corrections, waiver posture, selected-next FB-029 branch gate, GitHub-generated `## What's Changed`, and the generated `**Full Changelog**:` compare link.
+- Post-Release Truth: FB-015 is Released / Closed after `v1.6.4-prebeta` is published and validated; release debt clears only after post-release canon closure, and FB-029 remains planning-only until updated `main` is revalidated and explicit product/legal approval admits Branch Readiness.
+
+### PR-2 Selected-Next Workstream Findings
+
+- Selected Next Workstream: FB-029 ORIN legal-safe rebrand, future ARIA persona option, and repo licensing hardening.
+- Selected Next Basis: FB-029 is the highest-priority remaining open backlog candidate after FB-015, and PR-2 records it as the next planning lane while preserving the explicit product/legal gate on branch creation and Branch Readiness admission.
+- Selected Next Record State: `Registry-only`.
+- Selected Next Implementation Branch: Not created.
+- Branch Creation Gate: FB-029 branch creation remains blocked until FB-015 merges, `v1.6.4-prebeta` is published and validated, updated `main` is revalidated, and explicit product/legal approval admits FB-029 Branch Readiness.
+- Branch Containment: PASS. No local or remote branch exists for FB-029.
+
+### PR-3 PR Package Details
+
+- PR Title: `FB-015 Boot And Desktop Phase-Boundary Model`
+- Base Branch: `main`
+- Head Branch: `feature/fb-015-boot-desktop-phase-boundary-model`
+- PR Summary: Promote the docs/canon-only FB-015 boot/desktop phase-boundary model, including the current boundary inventory, ownership map, lifecycle/state framing, implementation admission contract, hardening corrections, Live Validation waivers, selected-next FB-029 branch gate, and post-merge `v1.6.4-prebeta` release-debt path.
+- PR URL: Not created yet.
+- Current PR State: PR package ready only; live PR creation and authenticated PR validation are still pending.
+
+### PR Readiness Completion Decision
+
+- PR-1 Result: Complete / green.
+- PR-2 Result: Complete / green.
+- PR-3 Result: Package-ready / pending live PR creation and validation.
+- User-facing impact: none. FB-015 remains docs/canon-only.
+- Next legal action: create the live FB-015 PR, validate authenticated PR state plus review-thread state, and then stop at PR Readiness green.
+
+### PR Readiness Validation Results
+
+- `python dev\orin_branch_governance_validation.py`: PASS before live PR creation.
+- `git diff --check`: PASS before live PR creation with line-ending normalization warnings only and no whitespace errors.
+- User-facing shortcut gate: WAIVED with exact markers in `## User Test Summary`.
+- User Test Summary results gate: WAIVED with exact markers in `## User Test Summary`.
+- Successor branch containment: PASS; no FB-029 branch exists and successor branch creation remains prohibited during FB-015 PR Readiness.
+- Scope validation: PASS; PR Readiness changed docs/canon surfaces only.
+
 ## Reuse Baseline
 
 - `Docs/workstreams/FB-004_future_boot_orchestrator_layer.md`
@@ -596,9 +683,13 @@ Non-includes for this supporting canon sync:
 - WS-3 validation and admission rules for future boot/desktop boundary implementation are recorded.
 - H-1 pressure test findings and corrections are recorded.
 - LV-1 repo-truth alignment, user-facing shortcut applicability, User Test Summary applicability, desktop export applicability, cleanup posture, and waiver handling are recorded.
+- PR-1 merge-target canon completeness is recorded.
+- PR-2 selected-next workstream truth is recorded with FB-029 selected-next and no branch created.
+- PR-3 live PR creation and validation is recorded before merge.
 - The ownership map across the current user-facing launch shim, production launcher, production renderer, dev-only boot prototype, shared single-instance primitives, and evidence/state roots is recorded.
 - `## User Test Summary` records `User-Facing Shortcut Validation: WAIVED`, `User-Facing Shortcut Waiver Reason:`, `User Test Summary Results: WAIVED`, and `User Test Summary Waiver Reason:` for the docs/canon-only milestone.
-- `Docs/Main.md`, `Docs/feature_backlog.md`, `Docs/prebeta_roadmap.md`, and `Docs/workstreams/index.md` route FB-015 as the active promoted branch with WS-1 through WS-3, H-1, and LV-1 complete and PR Readiness next.
+- `Docs/Main.md`, `Docs/feature_backlog.md`, `Docs/prebeta_roadmap.md`, and `Docs/workstreams/index.md` route FB-015 as the active promoted branch with WS-1 through WS-3, H-1, LV-1, PR-1, and PR-2 complete and PR-3 next.
+- Backlog and roadmap record FB-029 as the selected next workstream with `Minimal Scope:` and `Branch: Not created`.
 - FB-004 remains Released / Closed and release debt remains clear.
 - Requested future-lane `FB-042 Stream Deck Integration via Elgato MCP` admission remains deferred and no out-of-scope backlog, roadmap, workstream, or auxiliary planning-reference canon was added on this branch.
 - No runtime, launcher, shortcut, renderer lifecycle, UI, installer, source-tree, release, helper-code, or desktop-export surface changed during WS-1 through WS-3, H-1, or LV-1.
@@ -606,8 +697,8 @@ Non-includes for this supporting canon sync:
 
 ## Rollback Target
 
-- `Hardening`
-- Revert the LV-1 docs/canon commit and return FB-015 to the Hardening-complete / Live-Validation-next state with WS-1 through WS-3 and H-1 recorded and no implementation admitted.
+- `Live Validation`
+- Revert the FB-015 PR Readiness docs/canon commit(s) and return FB-015 to the Live-Validation-complete / PR-Readiness-next state with WS-1 through WS-3, H-1, and LV-1 recorded and no PR package or selected-next canon applied.
 
 ## Next Legal Phase
 

@@ -80,7 +80,7 @@ That may be an executable branch owner or another explicitly promoted current-tr
 
 - `Docs/workstreams/FB-015_boot_and_desktop_phase_boundary_model.md`
 
-FB-015 is the active promoted workstream on `feature/fb-015-boot-desktop-phase-boundary-model`. Live Validation is complete; WS-1 current boot/desktop boundary inventory and ownership map, WS-2 lifecycle and phase-boundary state framing, WS-3 validation and admission contract for future boot/desktop boundary implementation, H-1 hardening, and LV-1 Live Validation are complete, and PR Readiness is next. No FB-015 runtime behavior, launcher behavior, desktop shortcut behavior, renderer lifecycle behavior, UI work, installer work, source movement, release work, or public release editing has started.
+FB-015 is the active promoted workstream on `feature/fb-015-boot-desktop-phase-boundary-model`. PR Readiness is package-ready; WS-1 current boot/desktop boundary inventory and ownership map, WS-2 lifecycle and phase-boundary state framing, WS-3 validation and admission contract for future boot/desktop boundary implementation, H-1 hardening, LV-1 Live Validation, PR-1 merge-target canon completeness, and PR-2 selected-next workstream selection are complete, and PR-3 live PR creation and validation are next. FB-029 is selected next for planning only, and its branch remains uncreated pending FB-015 merge, `v1.6.4-prebeta` release closure, updated-main revalidation, and explicit product/legal approval.
 
 ### Merged / Release Debt Owners
 
