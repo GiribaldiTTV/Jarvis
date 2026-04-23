@@ -1040,9 +1040,11 @@ A `continue` decision must be acted on immediately by starting the next seam in 
 Durability commit/push after a green seam is a checkpoint, not a stop.
 Do not send a final closeout response after a green entry seam while the next seam remains admitted and no bounded stop condition exists.
 
-Stopping after a green seam requires a recorded bounded stop condition from this contract.
+Stopping after a green seam because the workflow is being narrowed to one seam requires an explicit `Single-Seam Mode Waiver`.
+A bounded stop condition blocks continuation; it does not by itself create single-seam mode.
 
-A prompt-level `execute only <seam>` request does not override this continuation duty unless the request is paired with a bounded stop condition or another named blocker from this contract.
+A prompt-level `execute only <seam>` request does not override this continuation duty unless the request is paired with an explicit `Single-Seam Mode Waiver` or another named blocker from this contract.
+Restrictive wording, cautious wording, and small-slice wording do not create single-seam mode without that waiver.
 If Codex stops after a green seam without one of the recorded reasons above, classify that stop as `Governance Drift` and repair the source-of-truth or validator gap before treating the workflow as healthy.
 
 ### Seam Stages
@@ -1120,18 +1122,27 @@ A bounded multi-seam workflow may end before phase completion only when one of t
 Category labels are not stop conditions by themselves.
 Bug fix, hotfix, UI-model, launcher, settings, protocol, policy, cross-subsystem, or high-risk labels may require smaller seams and stronger gates, but they do not cancel bounded multi-seam continuation when the next seam remains admitted and green.
 
-## Single-Seam Fallback Rule
+## Single-Seam Mode Waiver Rule
 
-`Single-Seam Fallback` is not a category shortcut.
-It is a bounded stop decision after one seam, allowed only when the pass records one of the bounded stop conditions above or when source-of-truth admits exactly one seam and no next seam exists.
+`Single-Seam Fallback` is legacy terminology for `Single-Seam Mode Waiver`.
+Single-seam mode is waiver-only.
+It is not a category shortcut, a cautious-default shortcut, or a prompt-wording shortcut.
+A bounded stop condition blocks the workflow. It does not by itself authorize single-seam mode.
 
-When `Single-Seam Fallback` is used, the output or authority record must name:
+`Single-Seam Mode Waiver` may narrow an otherwise valid bounded multi-seam workflow to one seam only when an explicit waiver is recorded in source-of-truth, the active authority record, or the operator prompt.
+When a `Single-Seam Mode Waiver` is used, the output or authority record must name:
 
-- the bounded stop condition
-- why continuation would be unsafe, invalid, or outside phase authority
-- the lift condition or next legal phase
+- `Single-Seam Waiver: Yes`
+- `Single-Seam Waiver Reason:`
+- `Single-Seam Waiver Owner:`
+- `Single-Seam Waiver Coverage:`
+- `Single-Seam Waiver Lift Condition:`
+- `Next Legal Resume Point:`
 
-It does not authorize phase skipping, readiness claims, or stopping a green approved seam chain merely because the work is high-risk.
+If source-of-truth admits exactly one seam and no next seam exists, that is a one-seam workflow, not single-seam mode, and no waiver is needed.
+
+Category labels, restrictive task wording, and cautionary phrases such as `execute WS-1`, `stop after WS-1`, `smallest safe slice`, `high-risk`, `launcher`, `settings`, `protocol`, `UI-model`, or `cross-subsystem` do not create waiver authority by themselves.
+Single-seam mode does not authorize phase skipping, readiness claims, or stopping a green approved seam chain merely because the work feels risky.
 
 ## Continuous Validation Loop Rule
 

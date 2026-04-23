@@ -89,6 +89,7 @@ For bounded multi-seam Workstream execution, also include:
 - `Execution Rule: reporting Next Safe Move is not a substitute for execution when continuation authority passes`
 - Execution Rule: reporting `Next Safe Move` is not a substitute for execution when continuation authority passes
 - Execution Rule: A `continue` decision must be acted on immediately by starting the next seam in the approved sequence
+- `Single-Seam Mode Waiver Rule: treat legacy Single-Seam Fallback wording as waiver-only`
 
 For Release Readiness, also include:
 
@@ -365,7 +366,8 @@ Use this when:
 - the operator wants Codex to keep moving through a coherent seam sequence without a new prompt after every seam
 - per-seam validation and evidence recording remain mandatory
 
-Do not use prompt wording such as `execute WS-1` to mean `stop after WS-1` unless the prompt also records a bounded stop condition, phase boundary, stop-loss trigger, or canon-valid `Single-Seam Fallback`.
+Do not use prompt wording such as `execute WS-1` to mean `stop after WS-1` unless the prompt also records an explicit `Single-Seam Mode Waiver` or another blocker from `Docs/phase_governance.md`.
+A bounded stop condition blocks continuation; it does not create single-seam mode.
 reporting `Next Safe Move` is not a substitute for execution when continuation authority passes; A `continue` decision must be acted on immediately by starting the next seam in the approved sequence.
 
 High-risk categories such as bug fixes, hotfixes, unclear seams, cross-subsystem changes, settings, protocol, launcher, or UI-model work require smaller seams and stronger gates; they do not automatically cancel bounded multi-seam continuation after a green admitted seam.

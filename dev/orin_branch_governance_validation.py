@@ -159,6 +159,7 @@ MULTI_SEAM_CONTRACT_PHRASES = (
     "bounded multi-seam workflow",
     "Next-Seam Continuation Required",
     "entry seam, not a terminal boundary",
+    "Single-Seam Mode Waiver",
     "bounded stop condition",
     "Single-Seam Fallback",
     "reporting `Next Safe Move` is not a substitute for execution",
@@ -167,7 +168,9 @@ MULTI_SEAM_CONTRACT_PHRASES = (
 
 MULTI_SEAM_PRIMARY_REPAIR_PHRASES = (
     "Category labels are not stop conditions by themselves.",
-    "`Single-Seam Fallback` is not a category shortcut.",
+    "`Single-Seam Fallback` is legacy terminology for `Single-Seam Mode Waiver`.",
+    "Single-seam mode is waiver-only.",
+    "A bounded stop condition blocks the workflow. It does not by itself authorize single-seam mode.",
 )
 
 MULTI_SEAM_PROHIBITED_CATEGORY_STOP_PHRASES = (
@@ -178,9 +181,17 @@ MULTI_SEAM_PROHIBITED_CATEGORY_STOP_PHRASES = (
     "settings, protocol, launcher-policy, or UI-model changes",
 )
 
+MULTI_SEAM_PROHIBITED_THROTTLE_PHRASES = (
+    "do not encode a single-seam stop unless",
+    "use `single-seam fallback` only when",
+    "canon-valid `single-seam fallback`",
+    "unless owning canon supplies `single-seam fallback`",
+)
+
 MULTI_SEAM_PROMPT_DOCS = (
     Path("Docs/orin_task_template.md"),
     Path("Docs/codex_user_guide.md"),
+    Path("Docs/nexus_startup_contract.md"),
 )
 
 MULTI_SEAM_PROMPT_PHRASES = (
@@ -188,6 +199,7 @@ MULTI_SEAM_PROMPT_PHRASES = (
     "continue-or-stop",
     "Next-Seam Continuation Required",
     "entry seam, not a terminal boundary",
+    "Single-Seam Mode Waiver",
     "Single-Seam Fallback",
     "reporting Next Safe Move is not a substitute for execution",
     "continue decision must be acted on immediately",
@@ -1519,6 +1531,7 @@ def main() -> int:
 
     for relative_path in MULTI_SEAM_CONTRACT_DOCS:
         text = _read_text(relative_path)
+        lower_text = text.casefold()
         for required_phrase in MULTI_SEAM_CONTRACT_PHRASES:
             require(
                 required_phrase in text,
@@ -1528,6 +1541,11 @@ def main() -> int:
             require(
                 prohibited_phrase not in text,
                 f"{relative_path}: bounded seam workflow must not recreate category-based Single-Seam Fallback stop authority via '{prohibited_phrase}'",
+            )
+        for prohibited_phrase in MULTI_SEAM_PROHIBITED_THROTTLE_PHRASES:
+            require(
+                prohibited_phrase not in lower_text,
+                f"{relative_path}: bounded seam workflow must not recreate single-seam throttling authority via '{prohibited_phrase}'",
             )
 
     phase_governance_text = _read_text(Path("Docs/phase_governance.md"))
@@ -1539,10 +1557,16 @@ def main() -> int:
 
     for relative_path in MULTI_SEAM_PROMPT_DOCS:
         text = _read_text(relative_path)
+        lower_text = text.casefold()
         for required_phrase in MULTI_SEAM_PROMPT_PHRASES:
             require(
                 required_phrase in text,
                 f"{relative_path}: multi-seam prompt scaffold is missing '{required_phrase}'",
+            )
+        for prohibited_phrase in MULTI_SEAM_PROHIBITED_THROTTLE_PHRASES:
+            require(
+                prohibited_phrase not in lower_text,
+                f"{relative_path}: prompt scaffold must not recreate single-seam throttling authority via '{prohibited_phrase}'",
             )
 
     for relative_path, guard_phrase in zip(WORKSTREAM_TO_PR_DEFAULT_GUARD_DOCS, WORKSTREAM_TO_PR_DEFAULT_GUARD_PHRASES):
