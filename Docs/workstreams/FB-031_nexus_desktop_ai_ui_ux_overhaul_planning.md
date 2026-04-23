@@ -93,7 +93,7 @@ Release Artifacts: Tag v1.6.1-prebeta; release title Pre-Beta v1.6.1; inclusion-
 Post-Release Truth: FB-031 is Released / Closed in v1.6.1-prebeta; release debt is clear; repo proceeds through the active FB-032 Workstream authority.
 Successor Workstream: FB-032 Nexus-era vision and source-of-truth migration
 Successor Branch: feature/fb-032-nexus-era-vision-source-of-truth-migration
-Successor Admission State: Active Workstream authority; WS-1 is complete and WS-2 is the next legal seam after FB-032 WS-1 validation is green and durable.
+Successor Admission State: Active Workstream authority; WS-1 and WS-2 are complete and WS-3 is the next legal seam after FB-032 WS-2 validation is green and durable.
 
 ## Scope
 

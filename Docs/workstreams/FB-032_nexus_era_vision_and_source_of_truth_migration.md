@@ -31,15 +31,16 @@
 
 ## Phase Status
 
-- `WS-1 complete / GOV-WS1 complete / WS-2 continuation required`
+- `WS-2 complete / WS-3 continuation required`
 - FB-031 is released and closed in `v1.6.1-prebeta`.
 - Latest public prerelease truth is `v1.6.1-prebeta`.
 - Release debt is clear.
 - FB-032 Branch Readiness is complete and this record is the active Workstream authority.
 - WS-1 current-vs-historical source-of-truth inventory and naming policy is complete.
 - GOV-WS1 bounded multi-seam continuation repair is complete after the WS-1 pass stopped before acting on the admitted WS-2 continuation.
+- WS-2 classification and mapping of canonical vs historical surfaces is complete.
 - No FB-032 wording migration, persona work, runtime behavior, UI implementation, rebrand execution, release work, or source-of-truth migration implementation has started.
-- Workstream continuation is limited to WS-2 classification and mapping of canonical vs historical surfaces.
+- Workstream continuation is limited to WS-3 validation and admission contract for controlled migration execution.
 
 ## Branch Class
 
@@ -104,7 +105,7 @@ None.
 - Confirm `Docs/feature_backlog.md` marks FB-032 as `Promoted` and cites this canonical workstream doc.
 - Confirm `Docs/workstreams/index.md` lists FB-032 under Active and not under Closed or Merged / Release Debt Owners.
 - Confirm `Docs/prebeta_roadmap.md` records FB-032 as the active Workstream-phase workstream and does not leave Branch Readiness-only truth behind.
-- Confirm no runtime, UI, persona, wording migration, source code, release, or desktop artifact changed during WS-1.
+- Confirm no runtime, UI, persona, wording migration, source code, release, or desktop artifact changed during WS-1 or WS-2.
 
 ## User Test Summary Strategy
 
@@ -131,23 +132,23 @@ Seam 1: Current-vs-historical source-of-truth inventory and naming policy
 - Scope: docs/canon inventory, source-of-truth ownership map, current-vs-historical terminology policy, preservation rules, contradiction capture, and migration candidates for later seams.
 - Non-Includes: no source code edits, no runtime behavior, no UI implementation, no persona implementation, no release work, no public wording migration, and no historical rewrite that destroys traceability.
 
-Seam 2: AI/UI identity routing and migration admission contract
+Seam 2: Classification and mapping of canonical vs historical surfaces
 
-- Status: Planned / next admitted Workstream seam after WS-1 validation is green and durable.
-- Goal: define separate routing for assistant/persona identity, product/UI identity, repo source-of-truth identity, and historical identity before any migration implementation.
-- Scope: identity routing rules, later-seam admission checklist, user-facing applicability triggers, and validator/handoff expectations.
-- Non-Includes: no persona switch, no UI copy migration, no runtime changes, no asset changes, and no release packaging.
+- Status: Completed.
+- Goal: classify the current, historical, legacy-named-current, future-planning, public-release, and user-facing surface classes before any controlled migration execution.
+- Scope: canonical-vs-historical surface classes, owners, allowed treatment, forbidden treatment, and migration-admission requirement per class.
+- Non-Includes: no source code edits, no runtime behavior, no UI implementation, no persona implementation, no release work, no public wording migration, and no historical rewrite that destroys traceability.
 
-Seam 3: migration sequencing and validation-readiness map
+Seam 3: Validation and admission contract for controlled migration execution
 
-- Status: Planned / not admitted until prior seams are green and durable.
-- Goal: turn the migration policy into a sequenced implementation/readiness map with explicit validation and stop conditions.
-- Scope: migration order, affected authority layers, validator coverage expectations, User Test Summary strategy updates, and phase-exit readiness criteria.
-- Non-Includes: no execution of the migration map, no runtime behavior, no UI implementation, and no release work.
+- Status: Planned / next admitted Workstream seam after WS-2 validation is green and durable.
+- Goal: define the validation, admission, stop-condition, and evidence contract that must gate any later controlled migration execution.
+- Scope: migration admission checklist, required proof by surface class, User Test Summary and shortcut triggers, validator expectations, and phase-exit readiness criteria.
+- Non-Includes: no execution of the migration map, no runtime behavior, no UI implementation, no persona switch, no asset changes, and no release work.
 
 ## Active Seam
 
-Active seam: GOV-WS1 bounded multi-seam continuation governance repair is complete; WS-2 classification and mapping of canonical vs historical surfaces is the next active Workstream seam and must start after repair durability.
+Active seam: WS-2 classification and mapping of canonical vs historical surfaces is complete; WS-3 validation and admission contract for controlled migration execution is the next active Workstream seam after WS-2 validation and durability.
 
 - BR-1 Status: Completed in this pass.
 - BR-1 Boundary: promote FB-032, define branch objective, target end-state, seam families, validation contract, User Test Summary strategy, later-phase expectations, and the first Workstream seam.
@@ -158,14 +159,17 @@ Active seam: GOV-WS1 bounded multi-seam continuation governance repair is comple
 - GOV-WS1 Status: Completed / executed.
 - GOV-WS1 Boundary: repair governance and validator enforcement so a green bounded multi-seam `continue` decision is acted on by starting the next seam instead of being reported as a future optional move.
 - GOV-WS1 Non-Includes: no source code behavior changes, no runtime behavior, no UI implementation, no persona implementation, no public wording migration, no release work, and no execution of WS-2 before the governance repair validates.
-- WS-2 Admission: allowed after WS-1 validation is green and branch truth is durable.
+- WS-2 Status: Completed / executed.
+- WS-2 Boundary: docs/canon classification and mapping of canonical vs historical surfaces only.
+- WS-2 Non-Includes: no source code edits, no runtime behavior, no UI implementation, no persona implementation, no public wording migration, no release work, and no historical rewrite that destroys traceability.
+- WS-3 Admission: allowed after WS-2 validation is green and branch truth is durable.
 
 ## Seam Continuation Decision
 
 Continue Decision: `continue`
-Next Active Seam: `WS-2 classification and mapping of canonical vs historical surfaces`
+Next Active Seam: `WS-3 validation and admission contract for controlled migration execution`
 Stop Condition: `None`
-Continuation Action: GOV-WS1 must validate and commit the bounded multi-seam governance repair, then start WS-2 immediately; reporting `Next Safe Move` is not a substitute for execution when continuation authority passes.
+Continuation Action: WS-2 must validate and commit, then start WS-3 immediately; reporting `Next Safe Move` is not a substitute for execution when continuation authority passes.
 
 ## WS-1 Execution Record
 
@@ -219,17 +223,58 @@ Use this policy before any later FB-032 classification, mapping, or migration se
 - Next admitted seam: WS-2 classification and mapping of canonical vs historical surfaces.
 - Stop condition: none identified; bounded multi-seam continuation remains valid after validation.
 
+## WS-2 Execution Record
+
+WS-2 is docs/canon only. It classifies the surfaces found by WS-1 so later migration execution can be admitted or blocked by surface type instead of by broad naming preference.
+
+### Surface Classification Map
+
+| Surface Class | Examples | Current Owner | Treatment |
+| --- | --- | --- | --- |
+| Current routing and governance canon | `Docs/Main.md`, `Docs/development_rules.md`, `Docs/phase_governance.md`, `Docs/codex_modes.md`, `Docs/orin_task_template.md`, `Docs/codex_user_guide.md` | Current governance/source-of-truth layer | May receive current Nexus-era wording when the owning rule is current and no historical quote or exact artifact is being altered. Broad identity replacement remains forbidden. |
+| Current product and architecture canon | `Docs/orin_vision.md`, `Docs/architecture.md`, `Docs/orchestration.md`, `Docs/boot_access_design.md`, `Docs/orin_display_naming_guidance.md` | Product, architecture, orchestration, boot-planning, and persona-display layers | May distinguish `Nexus Desktop AI` product identity, `ORIN` assistant identity, current runtime truth, future planning, and historical notes. Must preserve exact runtime path names. |
+| Current registry and sequencing canon | `Docs/feature_backlog.md`, `Docs/prebeta_roadmap.md`, `Docs/workstreams/index.md`, active FB-032 record | Backlog, roadmap, and active workstream layers | May reflect current active Workstream truth and approved scope. Must not duplicate full execution story outside the canonical workstream record. |
+| Current legacy-named runtime artifacts | `launch_orin_desktop.vbs`, `desktop/orin_desktop_launcher.pyw`, `desktop/orin_desktop_main.py`, `%LOCALAPPDATA%/Nexus Desktop AI/state/jarvis_history_v1.jsonl`, `C:/Jarvis/logs`, `C:/Jarvis/logs/crash`, `C:/Jarvis/dev/logs/<lane>/...` | Runtime code, architecture, orchestration, and development rules | Must be cited exactly. Treat as current runtime truth with legacy names, not as wording to modernize in docs or code without a later implementation seam. |
+| Preserved historical lane records | closed `Docs/workstreams/FB-*.md`, `Docs/closeouts/*.md`, historical branch/PR/commit/release context | Workstream history, closeout index, public release history, Git history | Preserve release-era names and facts. Add supersession notes only when current truth requires clarification; do not rewrite historical records for style. |
+| Public release and PR surfaces | GitHub releases, release tags, generated changelogs, PR titles/summaries, historical review state | GitHub/public release history plus release governance | Preserve published historical truth. New release notes use current release-note governance and current product identity where appropriate. |
+| Future planning surfaces | future boot model, post-Beta AI vision, ARIA possibility, deferred backlog items | Product vision, boot design, backlog, roadmap | Label as future, deferred, planning, or post-Beta. Do not recast as current shipped behavior. |
+| User-facing copy, UI, persona, shortcut, and runtime behavior surfaces | tray labels, overlay copy, desktop shortcut, assistant presentation, runtime paths, helper names, validation exports | The owning implementation or validation layer plus active workstream admission | Not admitted by WS-2. Any change requires WS-3 admission rules, affected-surface proof, and User Test Summary/shortcut classification when user-facing. |
+
+### Mapping Rules
+
+- `Canonical-current`: owner docs may use current Nexus/ORIN wording when they are stating current truth, but must preserve exact artifact names and historical evidence.
+- `Canonical-current-with-legacy-name`: current runtime artifacts with `Jarvis` or `orin` in their names remain exact current truth until a later implementation seam changes the artifact contract.
+- `Historical-preserved`: historical closeouts, release-era workstream sections, tags, PRs, branch names, commit messages, and release notes keep their historical names.
+- `Future-planning`: future concepts stay explicitly future-facing and must not be used to claim current runtime, UI, or release behavior.
+- `User-facing-controlled`: UI copy, persona behavior, shortcut naming, runtime labels, and operator-facing text require later admission, evidence, and UTS classification before change.
+- `Public-release-controlled`: published release history is preserved; future release packages use current release governance without rewriting older public artifacts by preference.
+
+### Migration Disposition By Class
+
+- Allowed in later docs/canon seams: clarify current-vs-historical labels, route ownership, and record migration admission rules.
+- Blocked without implementation admission: source code renames, runtime path moves, helper renames, user-facing copy changes, persona behavior changes, UI naming changes, shortcut changes, release publication changes, and exported manual-test artifact changes.
+- Blocked permanently unless historical correction is required: broad retroactive rewriting of closeouts, released workstream history, commit/branch/tag names, public PR history, and release notes solely to modernize terms.
+- Requires WS-3 contract before execution: any controlled migration that edits a classified surface beyond clarification must name the surface class, owner, affected files/artifacts, validation proof, UTS/shortcut applicability, rollback plan, and stop condition.
+
+### WS-2 Completion Decision
+
+- WS-2 Result: Complete / green.
+- User-facing impact: none. This seam changed docs/canon only.
+- Next admitted seam: WS-3 validation and admission contract for controlled migration execution.
+- Stop condition: none identified; bounded multi-seam continuation remains valid after validation.
+
 ## Reuse Baseline
 
 - Reuse the existing governance validator `dev/orin_branch_governance_validation.py`.
 - Reuse the current workstream lifecycle and UTS rules in `Docs/phase_governance.md`, `Docs/development_rules.md`, and `Docs/workstreams/index.md`.
 - Reuse FB-031's architecture-only admission pattern for docs/canon planning seams, while keeping FB-032's identity/source-of-truth scope distinct from UI/UX implementation planning.
-- Do not create a new helper during WS-1.
+- Do not create a new helper during WS-1 or WS-2.
 
 ## Exit Criteria
 
 - WS-1 current-vs-historical source-of-truth inventory is recorded.
 - WS-1 naming policy for canonical vs historical surfaces is recorded.
+- WS-2 canonical-vs-historical surface classification and mapping is recorded.
 - `Docs/feature_backlog.md`, `Docs/prebeta_roadmap.md`, and `Docs/workstreams/index.md` identify FB-032 as the active Workstream-phase authority.
 - No implementation work is admitted beyond the planned docs/canon seam sequence.
 - Workstream phase does not exit to Hardening until WS-1 through WS-3 are complete and green.
@@ -252,6 +297,7 @@ Governance Drift Found: Yes, repaired during GOV-WS1.
 - FB-032 Branch Readiness no longer has selected-only / registry-only drift after this promotion record.
 - No contradiction remains between backlog, roadmap, workstream index, and main routing for FB-032.
 - WS-1 found no reason to reinterpret historical Jarvis records as current Nexus truth and no reason to rename current legacy-named runtime paths without a later admitted implementation seam.
+- WS-2 classified current legacy-named runtime artifacts as current truth with legacy names, historical lane records as preservation surfaces, and user-facing/runtime/persona surfaces as controlled-admission surfaces.
 - Finding: the WS-1 pass correctly recorded WS-2 as next, but stopped after returning `Next Safe Move` instead of acting on the required bounded multi-seam continuation.
 - Repair: governance, prompt scaffolds, and validator enforcement now require that reporting `Next Safe Move` is not a substitute for execution and that a `continue` decision must be acted on immediately by starting the next admitted seam.
 
@@ -265,3 +311,7 @@ Governance Drift Found: Yes, repaired during GOV-WS1.
 - GOV-WS1 validation: `python dev\orin_branch_governance_validation.py` PASS, 884 checks.
 - GOV-WS1 diff hygiene: `git diff --check` PASS with line-ending normalization warnings only and no whitespace errors.
 - GOV-WS1 changed governance/docs/validator/workstream canon only; no runtime, UI, persona behavior, source code behavior, release artifact, desktop shortcut behavior, broad wording migration, or historical rewrite changed.
+- WS-2 validation: `python dev\orin_branch_governance_validation.py` PASS, 884 checks.
+- WS-2 diff hygiene: `git diff --check` PASS with line-ending normalization warnings only and no whitespace errors.
+- WS-2 targeted continuation-state scan: PASS; current authority surfaces point to WS-3 as the next admitted Workstream seam.
+- WS-2 changed docs/canon only; no runtime, UI, persona behavior, source code behavior, release artifact, desktop shortcut behavior, broad wording migration, or historical rewrite changed.
