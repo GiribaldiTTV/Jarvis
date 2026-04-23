@@ -27,7 +27,7 @@
 
 ## Phase Status
 
-- `Workstream is active on feature/fb-030-orin-voice-audio-direction-refinement after Branch Readiness closed green and WS-1 was executed as the opening inventory seam.`
+- `Workstream is active on feature/fb-030-orin-voice-audio-direction-refinement after Branch Readiness closed green and the bounded WS-1 through WS-3 seam chain was completed.`
 - FB-015 and FB-029 are released and closed in `v1.6.4-prebeta`.
 - Latest public prerelease truth is `v1.6.4-prebeta`.
 - Release debt is clear after `v1.6.4-prebeta` publication, validation, and post-release canon closure.
@@ -35,7 +35,9 @@
 - Branch-name reuse is intentional: the earlier emergency repair record with this same branch name remains historical traceability only and does not own live execution authority.
 - The voice/audio design goal and affected-surface map are now explicitly recorded before any runtime voice, shutdown voice, recovery voice, diagnostics, UI, asset, or public-claim change is admitted.
 - WS-1 current voice/audio surface inventory and ownership map is complete and durably recorded below.
-- WS-2 lifecycle and persona-state framing for voice/audio transitions is the admitted next seam.
+- WS-2 lifecycle and persona-state framing for voice/audio transitions is complete and durably recorded below.
+- WS-3 validation and admission contract for future voice/audio implementation is complete and durably recorded below.
+- The Workstream seam chain is complete, and Hardening is the next legal phase.
 - No runtime voice behavior, shutdown voice behavior, recovery voice behavior, persona default, public copy, audio asset, or release-note wording change has started.
 
 ## Branch Class
@@ -191,36 +193,39 @@ None.
 
 Seam 1: Current voice/audio surface inventory and ownership map
 
-- Status: Admitted next.
+- Status: Complete.
 - Goal: inventory current boot voice, shutdown voice, recovery voice, quiet-mode, renderer telemetry, diagnostics, persona-registry, and audio-asset surfaces before implementation is considered.
 - Scope: docs/canon source inventory, ownership mapping, evidence roots, ambiguity capture, and current-vs-future classification.
 - Non-Includes: no runtime code edits, no prompt changes, no audio asset changes, no UI changes, no persona-default changes, no diagnostics implementation changes, no release edits, and no public release editing.
 
 Seam 2: Lifecycle and persona-state framing for voice/audio transitions
 
-- Status: Planned.
+- Status: Complete.
 - Goal: define lifecycle and state vocabulary across boot prototype speech, launcher recovery speech, shutdown speech, quiet mode, renderer telemetry, diagnostics capture, and persona-option boundaries.
 - Scope: docs/canon lifecycle framing, ownership handoffs, current-vs-future persona posture, ambiguity capture, and implementation-readiness risks.
 - Non-Includes: no runtime code edits, no prompt changes, no audio asset changes, no UI changes, no persona-default changes, no diagnostics implementation changes, no release edits, and no public release editing.
 
 Seam 3: Validation and admission contract for future voice/audio implementation
 
-- Status: Planned.
+- Status: Complete.
 - Goal: define the proof required before future runtime voice, shutdown voice, recovery voice, asset, UI, diagnostics, or public persona-surface changes begin.
 - Scope: validation gates, User Test Summary triggers, user-facing classification, release/public-surface triggers, rollback proof, helper reuse posture, and implementation-admission checklist.
 - Non-Includes: no runtime code edits, no prompt changes, no audio asset changes, no UI changes, no persona-default changes, no diagnostics implementation changes, no release edits, and no public release editing.
 
 ## Active Seam
 
-Active seam: WS-2 lifecycle and persona-state framing for voice/audio transitions
+Active seam: none. The admitted WS-1 through WS-3 Workstream seam chain is complete, and Hardening is next.
 
 - Branch Readiness result: complete and green; Workstream is active.
 - WS-1 Status: Completed / executed.
 - WS-1 Boundary: docs/canon current voice/audio surface inventory and ownership mapping only.
 - WS-1 Non-Includes: no runtime code edits, no prompt changes, no audio asset changes, no UI changes, no persona-default changes, no diagnostics implementation changes, no release edits, and no public release editing.
-- WS-2 Status: Admitted next.
+- WS-2 Status: Completed / executed.
 - WS-2 Boundary: docs/canon lifecycle, persona-state, and ownership-handoff framing for boot, recovery, shutdown, telemetry, and diagnostics voice/audio transitions only.
 - WS-2 Non-Includes: no runtime code edits, no prompt changes, no audio asset changes, no UI changes, no persona-default changes, no diagnostics implementation changes, no release edits, and no public release editing.
+- WS-3 Status: Completed / executed.
+- WS-3 Boundary: docs/canon validation, implementation-admission, rollback, and user-facing trigger framing for future voice/audio work only.
+- WS-3 Non-Includes: no runtime code edits, no prompt changes, no audio asset changes, no UI changes, no persona-default changes, no diagnostics implementation changes, no release edits, and no public release editing.
 
 ## WS-1 Execution Record
 
@@ -355,12 +360,190 @@ WS-1 inventories the current voice/audio trigger surfaces, playback modules, tra
 - User Test Summary Applicability: not applicable for WS-1 because it adds docs/canon inventory only and no user-visible behavior.
 - Continue/Stop Decision: continue. WS-2 remains the next admitted seam, and no canon-valid blocker or phase boundary requires stopping after a green WS-1.
 
+## WS-2 Execution Record
+
+WS-2 defines the lifecycle and persona-state framing that later FB-030 work must preserve across the dev-only boot speech lane, the launcher-owned recovery/failure/shutdown lane, renderer telemetry-only voice surfaces, diagnostics transcript/history handling, and the registry-level ORIN versus ARIA posture. This seam is docs/canon only and does not admit playback rewiring, prompt edits, audio asset changes, UI changes, diagnostics implementation changes, release edits, or persona-default changes.
+
+### Lifecycle Families
+
+Dev-only boot prototype speech lifecycle:
+
+1. `main.py` resolves `audio_mode`, stage state, and `OrinSpeaker` availability before any audible line begins.
+2. `run_voice(...)` hides command input, marks the boot lane voice-busy, and branches between quiet bypass and audible speech.
+3. Quiet mode is a first-class lifecycle outcome, not an error path: `BOOT_MAIN|VOICE_BYPASSED|stage=...` is emitted, no playback authority is called, and input reopening still follows the normal staged command flow.
+4. Audible boot speech sets visual state `speaking`, drives the boot-only voice visualizer, emits `BOOT_MAIN|VOICE_STARTED|stage=...`, then blocks on `Audio/orin_voice.py` until the spoken line completes.
+5. When playback returns, the boot lane stops the visualizer, emits `BOOT_MAIN|VOICE_COMPLETED|stage=...`, restores visual state `idle`, and optionally reopens command input if the staged command flow still expects more user input.
+6. Boot shutdown speech is committed before downstream shutdown handling: when `shutdown interface` is accepted, `main.py` speaks `Understood. Shutting down interface.` and only then emits `shutdown_requested`.
+7. This lifecycle is dev-only boot/handoff framing. It does not populate launcher diagnostics history and it does not define current production desktop voice behavior by itself.
+
+Launcher-managed recovery/failure/shutdown lifecycle:
+
+1. `desktop/orin_desktop_launcher.pyw` becomes the current production speech-policy owner only after renderer failure or startup-abort handling enters the launcher recovery envelope.
+2. On first failure, the launcher opens diagnostics once, then speaks `Uhm..... Sir, I seem to be malfunctioning.` as the initial fault announcement.
+3. During bounded retry handling, the launcher writes recovery traces and may speak `Attempting recovery.` exactly once per launcher run through `recovery_voice_spoken`; later retries reuse cooldown and diagnostics state without replaying that line automatically.
+4. Every launcher speech request clears diagnostics current-line state before spawning `Audio/orin_error_voice.py`, so transcript refresh belongs to the launcher/error-voice lane rather than to the renderer or boot prototype.
+5. `Audio/orin_error_voice.py` owns the playback-timeline execution for this lane: it prepares the voiced source, applies error/shutdown effects, streams `VOICE_SYNC`, emits `VOICE_FINAL`, and obeys the stop-signal file while the launcher remains the policy owner of when those lines are requested.
+6. If recovery fails, `finalize_failure(...)` owns the terminal speech order and serially commits `Recovery failed.` followed by `Shutting down.` before launcher cleanup, crash logging, and finalized-history writes complete.
+7. Normal healthy renderer exit is a separate launcher terminal state and contains no launcher-spoken success line today.
+
+Renderer telemetry and observer lifecycle:
+
+1. Callers may emit voice-level changes even before the renderer page is ready.
+2. `desktop/desktop_renderer.py` stores a pending clamped voice level until `RENDERER_MAIN|VISUAL_PAGE_READY`, then forwards only numeric intensity to `window.setCoreVoiceLevel(...)`.
+3. `jarvis_visual/orin_core.js` is a passive visual sink; it reflects perceived speaking intensity and does not own prompts, playback timing, or transcript truth.
+4. `desktop/orin_diagnostics.pyw` is also observer-only: it clears current voice on `VOICE_CLEAR`, mirrors in-progress speech on `VOICE_SYNC`, and appends history only on `VOICE_FINAL` when the final line is non-empty and not a duplicate of the most recent stored line.
+5. Renderer telemetry and diagnostics history are separate observer families. Neither is sufficient by itself to claim repo-wide playback authority or audible completion.
+
+Persona/tone posture lifecycle:
+
+1. `assistant_personas.py` records the shipped persona posture: ORIN is the only released/default persona and ARIA remains dormant future-option planning truth.
+2. Current playback modules do not yet route through that registry before speaking; `Audio/orin_voice.py` and `Audio/orin_error_voice.py` still use implementation-local voice/effect defaults.
+3. That means persona posture is upstream identity truth, while effective playback routing is still downstream implementation detail.
+4. Future voice-direction work must explicitly bridge those layers rather than assuming that registry presence, dormant ARIA metadata, or current voice ids already control runtime behavior.
+
+### Voice/Audio State Vocabulary
+
+Boot speech states:
+
+- `boot voice pending`: the dev boot lane has queued a staged line but has not yet committed playback or bypass.
+- `boot voice bypassed`: quiet mode intentionally skipped playback while preserving staged flow and markers.
+- `boot speaking active`: the dev boot lane is currently driving `OrinSpeaker`, visual state `speaking`, and boot-only voice-level animation.
+- `boot voice settled`: the boot line has finished or bypassed, visual state is back to `idle`, and staged input or transition logic may continue.
+- `boot shutdown speech committed`: the boot lane has already delivered its shutdown line and handed control into the shared shutdown-request bus.
+
+Launcher-managed speech states:
+
+- `fault announcement active`: the launcher has crossed into first-failure handling and is speaking the malfunction line.
+- `recovery announcement eligible`: the launcher is inside retry handling and may emit the one-shot `Attempting recovery.` line if it has not been spent yet.
+- `recovery announcement spent`: the one-shot retry voice line has already been used for this launcher run.
+- `failure finalization active`: the launcher has stopped recovery and now owns terminal voice order, diagnostics finalization, and cleanup sequencing.
+- `shutdown final line active`: `Audio/orin_error_voice.py` is executing the special shutdown speech/effect path for `Shutting down.` under launcher control.
+
+Observer and persona states:
+
+- `telemetry-only voice level`: renderer or visual-core intensity is being updated, but no audible-playback claim is implied.
+- `diagnostics current line`: diagnostics is showing the current launcher/error-voice line and it may still change before finalization.
+- `diagnostics finalized history`: diagnostics has appended a finished launcher/error-voice line to history after `VOICE_FINAL`.
+- `shipped ORIN posture`: ORIN remains the only released/default persona and current public persona truth.
+- `dormant ARIA posture`: ARIA exists only as future-option planning metadata and is not current runtime availability or public shipped behavior.
+- `implementation-local routing`: a playback module is still deciding voice/effect behavior locally instead of through a shared persona-routing authority.
+
+### Ownership Handoff Rules
+
+- `main.py` owns when dev boot speech is requested, which staged command it belongs to, whether quiet bypass is allowed, and when shutdown/request handoff happens; `Audio/orin_voice.py` owns the actual audible synthesis and playback mechanics for that lane.
+- `desktop/orin_desktop_launcher.pyw` owns when recovery, malfunction, failure, and shutdown speech is requested in the production failure path; `Audio/orin_error_voice.py` owns execution timing, transcript synchronization, and shutdown-effect playback for those lines.
+- `desktop/orin_diagnostics.pyw` is not allowed to invent, reorder, or validate speech on its own. It only renders launcher/error-voice status-file updates.
+- `desktop/orin_desktop_main.py` and `desktop/hotkeys.py` may request shutdown, but they do not own shutdown speech and must not grow independent voice authority by inertia.
+- `desktop/desktop_renderer.py` and `jarvis_visual/orin_core.js` own telemetry display only. They do not own prompt wording, transcript truth, or audible completion.
+- `assistant_personas.py` owns current persona/tone posture and release gating, but it is not yet the sole runtime playback-routing source.
+
+### Transition Ambiguities Captured For Later Seams
+
+- Quiet bypass and audible completion both let the boot flow continue, but only one produces real playback. Later validation must keep `VOICE_BYPASSED` distinct from failed or missing speech.
+- Boot shutdown speech and launcher shutdown speech are separate ownership lanes today. Future work must deliberately choose whether to preserve that split or unify it with explicit trigger precedence.
+- Diagnostics history currently represents launcher/error-path speech only. If future work wants repo-wide spoken history, it must explicitly widen the transcript root instead of assuming the current diagnostics panel already covers normal ORIN speech.
+- `recovery_voice_spoken` is a one-shot gate. Changes to retry cadence, retry reset, or relaunch behavior can easily create duplicate or missing recovery announcements if that gate is touched casually.
+- Persona registry truth and playback routing truth still diverge. Any later ORIN/ARIA or tone-direction change must explicitly define which layer is authoritative for routing, not just for naming.
+- Renderer voice-level telemetry can lag page readiness or persist briefly after caller updates; it is a visual observer path and must not be used as standalone proof that audio played.
+
+### WS-2 Continuation Decision
+
+- WS-2 Result: Complete.
+- Validation Layer: docs/canon lifecycle, persona-state, and ownership-handoff framing only.
+- Cleanup: no programs, helper processes, windows, temporary files, release assets, or runtime artifacts were created.
+- User Test Summary Applicability: not applicable for WS-2 because it changes docs/canon framing only and adds no user-visible behavior.
+- Continue/Stop Decision: continue. WS-3 remained the next admitted seam in the approved Workstream chain, and no canon-valid blocker, waiver, or phase boundary required stopping after a green WS-2.
+
+## WS-3 Execution Record
+
+WS-3 defines the validation and admission contract required before any later FB-030 implementation seam may change runtime prompts, recovery voice, shutdown voice, telemetry behavior, diagnostics history, persona routing, audio assets, or public voice-facing copy. This seam is docs/canon only and does not authorize implementation itself.
+
+### Implementation Admission Checklist
+
+Before any later FB-030 implementation seam may edit voice/audio behavior or user-facing persona surfaces, it must record:
+
+- the exact affected surface classes, such as boot caller/prompt flow in `main.py`, launcher recovery/failure policy in `desktop/orin_desktop_launcher.pyw`, playback authorities in `Audio/orin_voice.py` and `Audio/orin_error_voice.py`, shutdown-request callers in `desktop/orin_desktop_main.py` or `desktop/hotkeys.py`, renderer telemetry in `desktop/desktop_renderer.py` / `jarvis_visual/orin_core.js`, diagnostics transcript/history in `desktop/orin_diagnostics.pyw`, persona registry truth in `assistant_personas.py`, audio assets/effect pipelines, or public/release-facing docs
+- the ownership class of each touched surface: `playback authority`, `caller`, `passive observer`, `transcript/history`, `telemetry`, `persona/tone source`, or `documentation surface`
+- the lifecycle family being changed: boot speech, quiet-mode bypass, malfunction speech, retry speech, failure-finalization speech, shutdown speech, telemetry-only visualization, diagnostics history, persona posture, or public explanatory surface
+- the exact before/after state vocabulary and runtime markers that will prove the change, including any boot `BOOT_MAIN|VOICE_*` markers, launcher runtime events, diagnostics `VOICE_CLEAR` / `VOICE_SYNC` / `VOICE_FINAL` semantics, renderer telemetry behavior, or new markers if the seam introduces them
+- the duplicate-trigger control plan across command handling, hotkey shutdown, relaunch, retry cooldown, repeated-failure finalization, and stop-signal handling so later work does not accidentally stack overlapping voice lines
+- the exact rollback target for each touched surface class, including whether rollback must revert runtime code, diagnostics semantics, telemetry/UI behavior, assets, persona registry truth, release/public copy, or helper outputs separately
+- the helper-reuse decision from `Docs/validation_helper_registry.md`
+- User Test Summary applicability, user-facing shortcut applicability, desktop export applicability, and release/public-surface applicability
+- explicit non-includes that prevent adjacent runtime, UI, diagnostics, asset, persona, release, or public-copy work from entering by inertia
+
+If a later seam cannot answer those items before edits begin, it is not admitted.
+
+### Required Proof By Surface Class
+
+Docs/canon-only seams:
+
+- `python dev\\orin_branch_governance_validation.py`
+- `git diff --check`
+- source-of-truth sweep confirming backlog, roadmap, workstream index, and this workstream record agree on phase, seam completion, blockers, and next legal phase
+
+Boot prototype speech or prompt seams:
+
+- `dev/orin_voice_regression_harness.py` when speech-path behavior or prompt timing changes
+- `dev/orin_boot_transition_verification.py` and `dev/orin_boot_transition_capture.py` when boot-to-desktop timing or visible handoff evidence is materially affected
+- runtime marker review for relevant `BOOT_MAIN|VOICE_BYPASSED`, `BOOT_MAIN|VOICE_STARTED`, `BOOT_MAIN|VOICE_COMPLETED`, `BOOT_MAIN|SHUTDOWN_COMMAND_ACCEPTED`, and handoff markers
+- explicit proof that boot-lane changes do not silently become launcher diagnostics truth unless the seam admits that transcript-root change
+
+Launcher recovery, failure, or shutdown speech seams:
+
+- `dev/orin_desktop_launcher_healthy_validation.py` for healthy launcher-path non-regression
+- `dev/orin_voice_regression_harness.py` for launcher/error voice-path coverage
+- `dev/orin_desktop_launcher_regression_harness.py` only after repair or with an explicit recorded bypass, because the current harness remains repair-gated in the helper registry
+- runtime evidence review for diagnostics launch, retry cooldown, `VOICE` start/end events, final immersive shutdown, normal-exit completion, failure-flow completion, and diagnostics artifact cleanup
+
+Diagnostics transcript/history seams:
+
+- `dev/orin_diagnostics_report_issue_validation.py` when diagnostics UI or support/report flows are touched
+- `dev/orin_recoverable_launch_failed_validation.py` when launcher-failure diagnostics semantics are affected
+- proof of `VOICE_CLEAR`, `VOICE_SYNC`, `VOICE_FINAL`, deduplicated history append behavior, and any change to whether diagnostics is launcher-path-only or repo-wide
+
+Renderer telemetry or visible voice-UI seams:
+
+- proof that `desktop/desktop_renderer.py` and `jarvis_visual/orin_core.js` remain telemetry-only unless the seam explicitly widens their authority
+- live visual validation whenever meaningful visible voice/audio UI changes
+- explicit statement that telemetry is supporting evidence only and does not replace playback or transcript proof
+
+Persona, tone-routing, asset, or public-claim seams:
+
+- validation that `assistant_personas.py` still reflects the intended released/default posture and that dormant ARIA metadata is not being misrepresented as shipped behavior
+- explicit proof when changing `RELEASED_PERSONA_IDS`, `DEFAULT_PERSONA_ID`, `voice_id`, `error_voice_id`, audio assets, shutdown-effect settings, or any public/release-facing ORIN/ARIA voice claim
+- PR/Release Readiness handling for release notes, GitHub release copy, `README.md` release-facing wording, or other public claim changes
+
+### User-Facing And Release Trigger Contract
+
+- Docs/canon-only planning seams do not require a `## User Test Summary` artifact, shortcut validation, or desktop export.
+- Any seam that changes audible user-facing behavior, visible voice/audio UI, diagnostics/operator-facing voice wording, shutdown/recovery speech behavior, persona exposure, or public explanatory voice copy becomes user-facing and must add the canonical `## User Test Summary` artifact plus any required shortcut/live desktop evidence.
+- Direct dev launchers and harnesses are supporting proof only. If a later seam changes real operator-facing startup, shutdown, or voice behavior, Live Validation must exercise the actual user-facing path rather than relying only on helper invocation.
+- Public release notes, GitHub release pages, `README.md` release-posture lines, and other release-facing summaries are release-scope surfaces and must be routed through PR/Release Readiness instead of treated as casual docs cleanup.
+- Helper reuse remains reuse-first: later implementation seams must extend `dev/orin_voice_regression_harness.py`, `dev/orin_desktop_launcher_healthy_validation.py`, `dev/orin_boot_transition_verification.py`, `dev/orin_boot_transition_capture.py`, `dev/orin_diagnostics_report_issue_validation.py`, or other registered helpers before creating new ones.
+
+### WS-3 Completion Decision
+
+- WS-3 Result: Complete.
+- Validation Layer: docs/canon implementation-admission and proof-contract definition only.
+- Cleanup: no programs, helper processes, windows, temporary files, release assets, or runtime artifacts were created.
+- User Test Summary Applicability: not applicable for WS-3 because it defines future admission and validation rules only.
+- Continue/Stop Decision: stop at the phase boundary. The approved Workstream seam chain is complete, so the next legal phase is Hardening.
+
+### WS-3 Validation Results
+
+- `python dev\\orin_branch_governance_validation.py`: PASS, 1105 checks.
+- `git diff --check`: PASS with line-ending normalization warnings only and no whitespace errors.
+- WS-3 continuation-state scan: PASS; current authority surfaces report WS-1 through WS-3 complete and Hardening next.
+- WS-3 scope validation: PASS; the seam changes docs/canon only in the FB-030 workstream record plus current-truth mirror surfaces.
+- WS-3 changed no runtime behavior, shutdown/recovery behavior, renderer/UI behavior, diagnostics implementation, audio assets, persona defaults, release artifacts, or public copy.
+
 ## Seam Continuation Decision
 
-Continue Decision: `continue`
-Next Active Seam: `WS-2 lifecycle and persona-state framing for voice/audio transitions`
-Stop Condition: `none`
-Continuation Action: execute WS-2 to define lifecycle vocabulary, ownership handoffs, and persona-state boundaries across boot speech, launcher recovery speech, shutdown speech, quiet mode, diagnostics capture, and renderer telemetry.
+Continue Decision: `stop`
+Next Active Seam: `none`
+Stop Condition: `phase boundary reached after bounded WS-1 through WS-3 completion`
+Continuation Action: execute Hardening to pressure-test the completed voice/audio ownership map, lifecycle/persona-state framing, and future implementation admission contract.
 
 ## Reuse Baseline
 
