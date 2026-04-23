@@ -68,12 +68,12 @@ Current merged truth indicates:
 - merged unreleased non-doc implementation debt exists: yes
 - the latest public released implementation milestone is FB-004 Future boot orchestrator layer in `v1.6.3-prebeta`
 - current phase after FB-004 release closure: `PR Readiness`
-- phase status after FB-004 release closure: FB-015 remains merged-unreleased release debt on `main` for `v1.6.4-prebeta`; repo-level current active workstream remains none after merge while that release debt is open; FB-029 Workstream WS-1 through WS-3 plus H-1 plus LV-1 are complete on `feature/fb-029-orin-identity-licensing-hardening`; PR-1 and PR-2 are complete, and PR-3 live PR creation plus validation is pending
-- blocker after FB-004 release: no FB-029 Workstream blocker remains; live PR creation plus validation is still pending before PR Readiness can report green
+- phase status after FB-004 release closure: FB-015 remains merged-unreleased release debt on `main` for `v1.6.4-prebeta`; repo-level current active workstream remains none after merge while that release debt is open; FB-029 Workstream WS-1 through WS-3 plus H-1 plus LV-1 are complete on `feature/fb-029-orin-identity-licensing-hardening`; PR-1, PR-2, and PR-3 are complete, and PR #76 is open/non-draft/mergeable clean
+- blocker after FB-004 release: no FB-029 Workstream blocker remains; merge PR #76 and then continue file-frozen Release Readiness on updated `main`
 - current active workstream: none
 - current branch after FB-004 release: `feature/fb-029-orin-identity-licensing-hardening`
 - selected next workstream: FB-030 ORIN voice/audio direction refinement
-- next concern: create and validate the live FB-029 PR, then merge it and continue file-frozen Release Readiness for the inherited `v1.6.4-prebeta` release-debt package on updated `main`.
+- next concern: merge PR #76 and then continue file-frozen Release Readiness for the inherited `v1.6.4-prebeta` release-debt package on updated `main`.
 
 That means the released FB-027 interaction baseline, the released FB-036 authoring-and-callable-group milestone, the released FB-041 deterministic callable-group execution milestone, the released FB-037 built-in catalog milestone, the released FB-038 tray quick-task UX milestone, the released FB-039 external trigger intake architecture milestone, the released FB-040 monitoring/thermal architecture milestone, the released FB-031 UI/UX architecture milestone, the released FB-032 source-of-truth migration milestone, and the released FB-004 future boot-orchestrator architecture milestone are now part of the current public shared pre-Beta baseline.
 
@@ -109,7 +109,7 @@ The 2026-04-23 priority reading is updated during FB-029 PR-2:
 
 - FB-004 is released and closed in `v1.6.3-prebeta`; it is no longer an active or selected-next branch candidate.
 - FB-015 remains `High`, is promoted, and remains the merged-unreleased release-debt owner on `main` for `v1.6.4-prebeta`; no active promoted implementation branch remains admitted after FB-029 merges while that release debt remains open.
-- FB-029 remains `High`, is promoted on `feature/fb-029-orin-identity-licensing-hardening`, and has completed the bounded docs/canon-only Workstream seam chain through WS-3 plus H-1 Hardening plus LV-1 Live Validation; PR-1 and PR-2 are complete, and PR-3 live PR creation plus validation is pending.
+- FB-029 remains `High`, is promoted on `feature/fb-029-orin-identity-licensing-hardening`, and has completed the bounded docs/canon-only Workstream seam chain through WS-3 plus H-1 Hardening plus LV-1 Live Validation; PR-1, PR-2, and PR-3 are complete, and PR #76 is open/non-draft/mergeable clean.
 - FB-030 remains `Medium`, is now selected-next planning only, and still requires an explicit voice/audio design goal before branch admission.
 - FB-005 remains `Low` and requires explicit path-sensitive workspace approval before selection.
 
@@ -133,9 +133,9 @@ Creation Gate: After FB-029 merges, `v1.6.4-prebeta` is published and validated,
 - canonical workstream doc: `Docs/workstreams/FB-029_orin_identity_licensing_hardening.md`
 - selection basis: selected during FB-015 PR Readiness as the highest-priority remaining open backlog candidate, then carried on this branch first for blocker-clearing FB-015 canon repair and now for completed Branch Readiness planning.
 - branch: `feature/fb-029-orin-identity-licensing-hardening`
-- phase status: Workstream WS-1 through WS-3, H-1, and LV-1 are complete; PR-1 and PR-2 are complete; PR-3 live PR creation plus validation is pending; the milestone remains docs/canon-only; explicit product/legal approval still blocks any implementation-facing naming, licensing, release, runtime, or persona-surface work.
+- phase status: Workstream WS-1 through WS-3, H-1, and LV-1 are complete; PR-1, PR-2, and PR-3 are complete; PR #76 is open/non-draft/mergeable clean; the milestone remains docs/canon-only; explicit product/legal approval still blocks any implementation-facing naming, licensing, release, runtime, or persona-surface work.
 - repo-level post-merge state: `No Active Branch` while the inherited `v1.6.4-prebeta` release debt remains open on `main`.
-- next legal seam: complete PR-3 live PR creation and validation, then merge to continue Release Readiness on updated `main`.
+- next legal seam: merge PR #76, then continue Release Readiness on updated `main`.
 - Minimal Scope: Define the legal-safe ORIN naming, optional future ARIA persona posture, and licensing-hardening planning frame before any naming, licensing, release, runtime, or persona-facing edits begin.
 
 ## Merged / Release Debt Owner Workstream
@@ -172,7 +172,7 @@ Next-Branch Creation Gate: After FB-029 merges, `v1.6.4-prebeta` is published an
 - release title: `Pre-Beta v1.6.3`
 - canonical workstream doc: `Docs/workstreams/FB-004_future_boot_orchestrator_layer.md`
 - sequencing note: released the docs/canon-only future boot-orchestrator architecture milestone, including source map, lifecycle/state framing, ownership boundaries, diagnostics evidence-root correction, rollback boundaries, stale helper caveat, implementation admission contract, hardening, Live Validation waivers, backlog governance sync, and PR Readiness merge-target canon.
-- successor note: FB-015 remains merged-unreleased on `main` for `v1.6.4-prebeta`; the pending release scope now includes FB-029, which has completed the bounded docs/canon-only Workstream seam chain through WS-3 plus H-1 plus LV-1 on `feature/fb-029-orin-identity-licensing-hardening` and is now in PR Readiness with PR-3 live validation pending.
+- successor note: FB-015 remains merged-unreleased on `main` for `v1.6.4-prebeta`; the pending release scope now includes FB-029, which has completed the bounded docs/canon-only Workstream seam chain through WS-3 plus H-1 plus LV-1 on `feature/fb-029-orin-identity-licensing-hardening` and is now PR-ready on open PR #76.
 
 ## Prior Released Workstream Context
 
@@ -186,7 +186,7 @@ Next-Branch Creation Gate: After FB-029 merges, `v1.6.4-prebeta` is published an
 - release title: `Pre-Beta v1.6.2`
 - canonical workstream doc: `Docs/workstreams/FB-032_nexus_era_vision_and_source_of_truth_migration.md`
 - sequencing note: released the architecture-only Nexus-era source-of-truth migration foundation, including current-vs-historical source inventory, naming policy, canonical-vs-historical surface classification, controlled migration admission contract, governance repairs, hardening, Live Validation waivers, and PR Readiness merge-target canon.
-- successor note: FB-004 is released and closed in `v1.6.3-prebeta`; FB-015 remains merged-unreleased on `main` for `v1.6.4-prebeta`, and FB-029 has completed the bounded docs/canon-only Workstream seam chain through WS-3 plus H-1 plus LV-1 on `feature/fb-029-orin-identity-licensing-hardening` with PR-1 and PR-2 complete plus PR-3 pending.
+- successor note: FB-004 is released and closed in `v1.6.3-prebeta`; FB-015 remains merged-unreleased on `main` for `v1.6.4-prebeta`, and FB-029 has completed the bounded docs/canon-only Workstream seam chain through WS-3 plus H-1 plus LV-1 on `feature/fb-029-orin-identity-licensing-hardening` with PR-1, PR-2, and PR-3 complete on open PR #76.
 
 ## Prior Released Workstream Context
 
@@ -200,7 +200,7 @@ Next-Branch Creation Gate: After FB-029 merges, `v1.6.4-prebeta` is published an
 - release title: `Pre-Beta v1.6.1`
 - canonical workstream doc: `Docs/workstreams/FB-031_nexus_desktop_ai_ui_ux_overhaul_planning.md`
 - sequencing note: released the architecture-only UI/UX planning milestone, including source map, visual-language ownership vocabulary, lifecycle and interaction-state framing, future UI implementation admission contract, Hardening pressure test, Live Validation waivers, PR Readiness merge-target canon, and PR-R1 release-floor validator repair.
-- successor note: FB-032 is released and closed in `v1.6.2-prebeta`; FB-004 is released and closed in `v1.6.3-prebeta`; FB-015 remains merged-unreleased on `main` for `v1.6.4-prebeta`, and FB-029 has completed the bounded docs/canon-only Workstream seam chain through WS-3 plus H-1 plus LV-1 on `feature/fb-029-orin-identity-licensing-hardening` with PR-1 and PR-2 complete plus PR-3 pending.
+- successor note: FB-032 is released and closed in `v1.6.2-prebeta`; FB-004 is released and closed in `v1.6.3-prebeta`; FB-015 remains merged-unreleased on `main` for `v1.6.4-prebeta`, and FB-029 has completed the bounded docs/canon-only Workstream seam chain through WS-3 plus H-1 plus LV-1 on `feature/fb-029-orin-identity-licensing-hardening` with PR-1, PR-2, and PR-3 complete on open PR #76.
 
 ## Prior Released Workstream Context
 

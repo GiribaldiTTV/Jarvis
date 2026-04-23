@@ -38,7 +38,7 @@ Historical note:
 
 FB-029 ORIN legal-safe rebrand, future ARIA persona option, and repo licensing hardening is the current promoted Workstream authority on `feature/fb-029-orin-identity-licensing-hardening`.
 
-Main-facing canon is aligned to merged-unreleased truth: FB-040 is released and closed in `v1.6.0-prebeta`, FB-031 is released and closed in `v1.6.1-prebeta`, FB-032 is released and closed in `v1.6.2-prebeta`, FB-004 is released and closed in `v1.6.3-prebeta`, and FB-015 remains the merged-unreleased release-debt owner on `main` for `v1.6.4-prebeta`. FB-029 Workstream WS-1 through WS-3, H-1, and LV-1 are complete on `feature/fb-029-orin-identity-licensing-hardening`; PR-1 and PR-2 are complete, PR-3 live PR creation plus validation is pending, the milestone remains docs/canon-only, and explicit product/legal approval still blocks any implementation-facing naming, licensing, release, runtime, or persona-surface change.
+Main-facing canon is aligned to merged-unreleased truth: FB-040 is released and closed in `v1.6.0-prebeta`, FB-031 is released and closed in `v1.6.1-prebeta`, FB-032 is released and closed in `v1.6.2-prebeta`, FB-004 is released and closed in `v1.6.3-prebeta`, and FB-015 remains the merged-unreleased release-debt owner on `main` for `v1.6.4-prebeta`. FB-029 Workstream WS-1 through WS-3, H-1, and LV-1 are complete on `feature/fb-029-orin-identity-licensing-hardening`; PR-1, PR-2, and PR-3 are complete, PR #76 is open/non-draft/mergeable clean, the milestone remains docs/canon-only, and explicit product/legal approval still blocks any implementation-facing naming, licensing, release, runtime, or persona-surface change.
 FB-039 is released and closed in `v1.5.0-prebeta`.
 FB-038 remains released and closed in `v1.4.1-prebeta`.
 
@@ -62,13 +62,13 @@ Next-Branch Creation Gate: After FB-029 merges, `v1.6.4-prebeta` is published an
 
 ## Backlog Governance Sync
 
-Last Reviewed: 2026-04-23 during FB-029 PR-2.
+Last Reviewed: 2026-04-23 during FB-029 PR-3.
 
 Open-candidate priority review:
 
 - FB-004 is released and closed in `v1.6.3-prebeta`; it is no longer an active or selected-next branch candidate.
 - FB-015 remains `High`, is promoted, and remains the merged-unreleased release-debt owner on `main` for `v1.6.4-prebeta`; no active promoted implementation branch remains admitted after FB-029 merges while that release debt remains open.
-- FB-029 remains `High`, is promoted on `feature/fb-029-orin-identity-licensing-hardening`, and has completed the bounded docs/canon-only Workstream seam chain through WS-3 plus H-1 Hardening plus LV-1 Live Validation; PR-1 and PR-2 are complete and PR-3 live PR creation plus validation is pending.
+- FB-029 remains `High`, is promoted on `feature/fb-029-orin-identity-licensing-hardening`, and has completed the bounded docs/canon-only Workstream seam chain through WS-3 plus H-1 Hardening plus LV-1 Live Validation; PR-1, PR-2, and PR-3 are complete, and PR #76 is open/non-draft/mergeable clean.
 - FB-030 remains `Medium`, is now selected-next planning only, and still requires an explicit voice/audio design goal before branch admission.
 - FB-005 remains `Low` because remaining workspace movement is path-sensitive and requires explicit workspace/path approval.
 
@@ -133,7 +133,7 @@ Branch Readiness: Complete. The branch objective, target end-state, seam familie
 Workstream: WS-1 current identity, persona-option, and licensing source-of-truth inventory, WS-2 canonical vs historical identity, persona-option, and licensing boundary framing, and WS-3 validation and admission contract for future identity and licensing implementation are complete.
 Hardening: H-1 pressure test of identity inventory, persona-option framing, licensing boundary framing, and future implementation admission rules is complete.
 Live Validation: LV-1 repo-truth alignment, user-facing shortcut applicability, User Test Summary applicability, desktop export applicability, cleanup posture, and waiver handling are complete.
-PR Readiness: PR-1 merge-target canon completeness and PR-2 selected-next workstream selection are complete; PR-3 live PR creation plus validation is pending.
+PR Readiness: PR-1 merge-target canon completeness, PR-2 selected-next workstream selection, and PR-3 live PR creation plus authenticated PR state validation are complete; PR #76 is open/non-draft/mergeable clean.
 Minimal Scope: Define the Branch Readiness frame for legal-safe ORIN naming, optional future ARIA persona posture, and repo licensing hardening before any naming, licensing, release, runtime, or persona-facing edits begin; Workstream remains docs/canon only unless a later legal surface explicitly widens scope.
 Summary: Track future ORIN-era naming, persona, and licensing hardening work without treating the local rebrand overlay as merged truth.
 Why it matters: Product identity, legal posture, and repo ownership still need durable future treatment, but not by accidental carry-forward.
