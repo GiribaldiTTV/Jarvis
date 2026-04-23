@@ -80,7 +80,7 @@ That may be an executable branch owner or another explicitly promoted current-tr
 
 - `Docs/workstreams/FB-005_workspace_and_folder_organization.md`
 
-Current execution truth is `Branch Readiness` on `feature/fb-005-workspace-path-planning`. FB-005 is now promoted, Branch Readiness is complete, and Workstream is admitted for WS-1 `desktop/orin_desktop_test.py` -> `dev/desktop/orin_desktop_test.py` without widening into broader workspace movement.
+Current execution truth is `Workstream` on `feature/fb-005-workspace-path-planning`. FB-005 remains promoted, WS-1 `desktop/orin_desktop_test.py` -> `dev/desktop/orin_desktop_test.py` is complete, the admitted chain ends there for this pass, and `Hardening` is next without widening into broader workspace movement.
 
 ### Merged / Release Debt Owners
 
