@@ -42,7 +42,7 @@ Do not use this layer to replace:
 
 ## Active Branch Authority Records
 
-- None
+- `Docs/branch_records/feature_fb_005_workspace_path_planning.md`
 
 ## Historical Branch Authority Records
 

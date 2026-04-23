@@ -78,19 +78,18 @@ For an active or recently closed canonical workstream, keep these durable tracea
 Active here means the current promoted truth owner.
 That may be an executable branch owner or another explicitly promoted current-truth owner.
 
-None. Repo current-state is `No Active Branch` while FB-030 owns merged-unreleased release debt for `v1.6.5-prebeta`.
+None. No promoted workstream is active. Current execution truth is `Branch Readiness` on `feature/fb-005-workspace-path-planning` while FB-005 remains selected-only / `Registry-only` and blocked by unresolved explicit path-sensitive workspace approval.
 
 ### Merged / Release Debt Owners
 
 Merged / Release Debt Owners are promoted implementation workstreams whose implementation branch is merge-target complete but whose public release packaging has not yet cleared release debt.
 These records are not active implementation branch owners after merge.
 
-- `Docs/workstreams/FB-030_orin_voice_audio_direction_refinement.md`
-
-FB-030 merged through PR #81 into `main` at `c23adc70e17683d40770bf29571928af95935576` and now owns merged-unreleased release debt for `v1.6.5-prebeta`. Repo state is `No Active Branch`, and FB-005 remains selected next planning-only with branch not created.
+None.
 
 ### Closed
 
+- `Docs/workstreams/FB-030_orin_voice_audio_direction_refinement.md`
 - `Docs/workstreams/FB-029_orin_identity_licensing_hardening.md`
 - `Docs/workstreams/FB-015_boot_and_desktop_phase_boundary_model.md`
 - `Docs/workstreams/FB-004_future_boot_orchestrator_layer.md`
