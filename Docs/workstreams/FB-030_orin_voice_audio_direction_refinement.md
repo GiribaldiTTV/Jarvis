@@ -23,11 +23,11 @@
 
 ## Current Phase
 
-- Phase: `Hardening`
+- Phase: `Live Validation`
 
 ## Phase Status
 
-- `Hardening is active on feature/fb-030-orin-voice-audio-direction-refinement after the bounded WS-1 through WS-3 Workstream seam chain completed green.`
+- `Live Validation is active on feature/fb-030-orin-voice-audio-direction-refinement after H-1 hardening completed green.`
 - FB-015 and FB-029 are released and closed in `v1.6.4-prebeta`.
 - Latest public prerelease truth is `v1.6.4-prebeta`.
 - Release debt is clear after `v1.6.4-prebeta` publication, validation, and post-release canon closure.
@@ -38,7 +38,8 @@
 - WS-2 lifecycle and persona-state framing for voice/audio transitions is complete and durably recorded below.
 - WS-3 validation and admission contract for future voice/audio implementation is complete and durably recorded below.
 - H-1 hardening pressure test is complete and durably recorded below.
-- Live Validation is the next legal phase.
+- LV-1 repo-truth alignment, user-facing shortcut applicability, User Test Summary applicability, desktop export applicability, cleanup posture, and waiver handling are complete and durably recorded below.
+- PR Readiness is the next legal phase.
 - No runtime voice behavior, shutdown voice behavior, recovery voice behavior, persona default, public copy, audio asset, or release-note wording change has started.
 
 ## Branch Class
@@ -71,7 +72,7 @@ None.
 
 ## Next Legal Phase
 
-- `Live Validation`
+- `PR Readiness`
 
 ## Branch Objective
 
@@ -215,9 +216,9 @@ Seam 3: Validation and admission contract for future voice/audio implementation
 
 ## Active Seam
 
-Active seam: none. The admitted WS-1 through WS-3 Workstream seam chain is complete, and Hardening is next.
+Active seam: none. The admitted WS-1 through WS-3 Workstream seam chain is complete, Hardening is complete, and Live Validation is the active phase.
 
-- Workstream result: complete and green; Hardening is active.
+- Workstream result: complete and green; Hardening is complete and LV-1 Live Validation is complete.
 - WS-1 Status: Completed / executed.
 - WS-1 Boundary: docs/canon current voice/audio surface inventory and ownership mapping only.
 - WS-1 Non-Includes: no runtime code edits, no prompt changes, no audio asset changes, no UI changes, no persona-default changes, no diagnostics implementation changes, no release edits, and no public release editing.
@@ -573,12 +574,52 @@ H-1 is docs/canon only. It pressure-tests whether the completed FB-030 voice/aud
 - User Test Summary Applicability: not applicable for H-1 because it changes docs/canon only and adds no user-visible behavior.
 - Continue/Stop Decision: stop at the phase boundary. Hardening is complete, and the next legal phase is Live Validation.
 
+## Live Validation Record
+
+LV-1 validated the completed FB-030 docs/canon-only milestone against live repo truth, branch truth, and user-facing/manual validation applicability. The branch remains docs/canon-only for this milestone: no runtime voice behavior change, shutdown voice behavior change, recovery voice behavior change, diagnostics implementation change, renderer behavior change, desktop shortcut change, visible voice/audio UI change, audio-asset change, persona-default change, release-note change, or operator-facing invocation change has been added.
+
+### Live Validation Findings
+
+- Repo Truth Alignment: `Docs/feature_backlog.md`, `Docs/prebeta_roadmap.md`, `Docs/workstreams/index.md`, and this workstream record align on FB-030 as the active promoted implementation workstream, latest public prerelease `v1.6.4-prebeta`, release debt clear, WS-1 through WS-3 complete, H-1 complete, and PR Readiness next after LV-1 completion.
+- Branch Truth Alignment: the checked-out branch is the canonical FB-030 branch and carries completed Branch Readiness, WS-1 through WS-3, and H-1 records at the durable hardening baseline.
+- User-Facing Shortcut Applicability: waived for this milestone because the completed FB-030 delta remains docs/canon only and does not add or change the user-facing desktop shortcut, equivalent production entrypoint behavior, runtime behavior, launcher behavior, renderer behavior, visible UI behavior, installer behavior, or another operator-facing path. Exercising the existing shortcut would not validate the FB-030 delta.
+- Manual Validation Applicability: waived for this milestone because the deliverable is the voice/audio ownership map, lifecycle/persona-state framing, implementation-admission governance, hardening correction, and repo-truth validation only; a filled manual User Test Summary would not materially validate behavior that did not change.
+- Runtime Evidence Applicability: no runtime/helper evidence is required or meaningful for this milestone because no runtime product surface, helper, harness, launcher behavior, renderer behavior, shortcut behavior, installer behavior, or user-facing artifact was created.
+- Desktop Export Applicability: no desktop `User Test Summary.txt` export is required for this Live Validation pass because there is no user-facing desktop path or manual checklist to hand off.
+- Cleanup: no programs, helper processes, windows, temporary files, probes, assets, screenshots, helpers, harnesses, runtime artifacts, desktop exports, release artifacts, or session-scoped evidence files were created.
+
+### Live Validation Completion Decision
+
+- LV-1 Result: Complete / green with repo-truth alignment and applicability waivers recorded.
+- User-facing shortcut gate: waived with exact markers in `## User Test Summary`.
+- User Test Summary results gate: waived with exact markers in `## User Test Summary`.
+- Validation Layer: documentation, branch truth, targeted repo-truth scan, and governance validation only.
+- Continue/Stop Decision: stop at the Live Validation phase boundary after validation because FB-030 Live Validation proof is green and the next normal phase is `PR Readiness`; PR Readiness must still prove merge-target canon completeness, clean branch truth, successor selection, PR package creation, and live PR validation before reporting PR-ready.
+
+### LV-1 Validation Results
+
+- `python dev\orin_branch_governance_validation.py`: PASS, 1110 checks.
+- `git diff --check`: PASS with line-ending normalization warnings only and no whitespace errors.
+- LV-1 phase-state scan: PASS; current authority surfaces report FB-030 Live Validation complete and PR Readiness as the next legal phase.
+- LV-1 user-facing shortcut gate: WAIVED with exact markers in `## User Test Summary`.
+- LV-1 User Test Summary results gate: WAIVED with exact markers in `## User Test Summary`; no desktop export was required.
+- LV-1 scope validation: PASS; changed files are docs/canon surfaces only.
+- LV-1 changed no runtime voice behavior, shutdown voice behavior, recovery voice behavior, diagnostics implementation, renderer behavior, desktop shortcut behavior, UI surface, audio asset, persona-default, release artifact, helper code, or desktop export.
+
+## User Test Summary
+
+- User-Facing Shortcut Path: Not applicable - FB-030 Live Validation is docs/canon only and does not change any user-facing desktop shortcut, equivalent production entrypoint behavior, runtime behavior, launcher behavior, renderer behavior, visible UI behavior, installer behavior, or other operator-facing invocation path.
+- User-Facing Shortcut Validation: WAIVED
+- User-Facing Shortcut Waiver Reason: FB-030 LV-1 validates docs/canon only. The completed milestone changes no user-facing desktop shortcut behavior, equivalent production entrypoint behavior, runtime behavior, launcher behavior, renderer behavior, visible UI behavior, installer behavior, or other operator-facing invocation path, so exercising the existing shortcut would not validate the FB-030 delta.
+- User Test Summary Results: WAIVED
+- User Test Summary Waiver Reason: The milestone remains docs/canon-only and validator-proven through repo/canon checks; a filled manual User Test Summary would not materially validate behavior because no user-visible setup, display, runtime, shortcut, launcher, renderer, installer, or invocation surface changed.
+
 ## Seam Continuation Decision
 
 Continue Decision: `stop`
 Next Active Seam: `none`
-Stop Condition: `Hardening complete; next legal phase is Live Validation`
-Continuation Action: execute Live Validation to classify repo-truth alignment, user-facing shortcut applicability, User Test Summary applicability, and cleanup posture for the completed docs/canon-only milestone.
+Stop Condition: `Live Validation complete; next legal phase is PR Readiness`
+Continuation Action: execute PR Readiness to validate merge-target canon completeness, confirm clean branch truth, select and record the next workstream, prepare the PR package, create the PR, and validate live PR state.
 
 ## Reuse Baseline
 
