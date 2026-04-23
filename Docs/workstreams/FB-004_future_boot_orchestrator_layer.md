@@ -23,11 +23,11 @@
 
 ## Current Phase
 
-- Phase: `Workstream`
+- Phase: `Hardening`
 
 ## Phase Status
 
-- `Workstream complete / Hardening next`
+- `Hardening complete / Live Validation next`
 - FB-032 is released and closed in `v1.6.2-prebeta`.
 - Latest public prerelease truth is `v1.6.2-prebeta`.
 - Release debt is clear.
@@ -36,7 +36,9 @@
 - WS-1 current boot-to-desktop source map and ownership boundary is complete.
 - WS-2 lifecycle and orchestration-state framing for boot and desktop transitions is complete.
 - WS-3 validation and admission contract for orchestrator implementation seams is complete.
-- Hardening is the next legal phase.
+- H-1 pressure test of the boot-orchestrator source map, lifecycle/state framing, ownership boundaries, diagnostics evidence roots, rollback boundaries, stale-helper caveat, and implementation admission contract is complete.
+- Diagnostics-root canon was corrected to align current architecture/governance wording with the launcher-owned runtime-root evidence model.
+- Live Validation is the next legal phase.
 - No FB-004 implementation, runtime behavior, launcher behavior, desktop shortcut behavior, UI change, installer change, release work, or tag work has started.
 
 ## Branch Class
@@ -76,7 +78,7 @@ None.
 - Define the future orchestrator responsibility frame above the existing launcher and renderer startup path.
 - Define validation and evidence expectations for planning-only, diagnostics-only, and runtime-affecting seams.
 - Define what later Workstream seams may inspect or classify before any implementation.
-- Preserve existing launcher, shortcut, desktop session, and release behavior during Branch Readiness.
+- Preserve existing launcher, shortcut, desktop session, and release behavior during Branch Readiness, Workstream, and Hardening.
 
 ## Non-Goals
 
@@ -87,7 +89,7 @@ None.
 - No service, autostart, installer, packaging, or OS integration changes.
 - No UI implementation.
 - No source tree reorganization.
-- No release packaging, tag creation, or public release editing during Branch Readiness.
+- No release packaging, tag creation, or public release editing during Branch Readiness, Workstream, or Hardening.
 
 ## Expected Seam Families And Risk Classes
 
@@ -104,9 +106,9 @@ None.
 - Confirm `Docs/Main.md` routes this promoted FB-004 workstream record.
 - Confirm `Docs/feature_backlog.md` marks FB-004 as `Promoted`, `Active`, and cites this canonical workstream doc.
 - Confirm `Docs/workstreams/index.md` lists FB-004 under Active and not under Closed or Merged / Release Debt Owners.
-- Confirm `Docs/prebeta_roadmap.md` records FB-004 as the active Branch Readiness workstream and does not leave selected-only or registry-only truth behind.
-- Confirm this Branch Readiness pass changes only docs/canon surfaces.
-- Confirm no runtime, launcher, shortcut, UI, installer, release, or desktop export artifact changed during Branch Readiness.
+- Confirm `Docs/prebeta_roadmap.md` records FB-004 as the active Hardening-complete workstream and does not leave selected-only, registry-only, Branch Readiness-only, Workstream-only, or Hardening-next truth behind.
+- Confirm this Hardening pass changes only docs/canon surfaces.
+- Confirm no runtime, launcher, shortcut, UI, installer, release, helper code, or desktop export artifact changed during WS-1 through WS-3 or H-1.
 
 ## Branch Readiness Validation Results
 
@@ -118,7 +120,7 @@ None.
 ## User Test Summary Strategy
 
 - Branch Readiness is docs/canon planning only and does not change user-facing behavior.
-- No desktop shortcut validation, desktop export, or manual User Test Summary handoff is required during Branch Readiness.
+- No desktop shortcut validation, desktop export, or manual User Test Summary handoff is required during Branch Readiness, WS-1 through WS-3, or H-1.
 - If a later Workstream seam remains docs/canon-only, Live Validation may waive the exact `## User Test Summary` artifact with a recorded reason.
 - If a later seam changes runtime startup, launcher behavior, desktop shortcut behavior, visible startup state, user-facing copy, UI, installer behavior, or another operator-facing path, FB-004 must add the exact `## User Test Summary` artifact and desktop export required by governance before Live Validation can advance.
 - User-facing shortcut validation becomes applicable for any completed delta that must be exercised through the real desktop shortcut or user-visible boot path.
@@ -157,7 +159,7 @@ Seam 3: Validation and admission contract for orchestrator implementation seams
 
 ## Active Seam
 
-Active seam: WS-3 validation and admission contract for orchestrator implementation seams is complete; no active Workstream seam remains before Hardening.
+Active seam: H-1 FB-004 Hardening pressure test is complete; no active Hardening seam remains before Live Validation.
 
 - BR-1 Status: Completed in this pass.
 - BR-1 Boundary: promote FB-004, define branch objective, target end-state, seam families, validation contract, User Test Summary strategy, later-phase expectations, and the first Workstream seam.
@@ -171,13 +173,16 @@ Active seam: WS-3 validation and admission contract for orchestrator implementat
 - WS-3 Status: Completed / executed.
 - WS-3 Boundary: docs/canon validation and implementation-admission contract only.
 - WS-3 Non-Includes: no runtime code edits, no launcher behavior changes, no desktop shortcut changes, no renderer lifecycle implementation, no UI work, no installer or autostart work, no release work, and no public release editing.
+- H-1 Status: Completed / executed.
+- H-1 Boundary: docs/canon pressure test of the boot-orchestrator source map, lifecycle/state framing, ownership boundaries, diagnostics evidence roots, rollback boundaries, stale-helper caveat, implementation admission contract, governance gaps, validation gaps, ambiguity, contradiction, scope issues, and orchestrator-readiness risks.
+- H-1 Non-Includes: no runtime code edits, no launcher behavior changes, no desktop shortcut changes, no renderer lifecycle implementation, no UI work, no installer or autostart work, no release work, no helper-code repair, no desktop export, and no public release editing.
 
 ## Seam Continuation Decision
 
 Continue Decision: `stop`
-Next Active Seam: `Hardening`
+Next Active Seam: `Live Validation`
 Stop Condition: `phase boundary reached`
-Continuation Action: FB-004 Workstream seam chain is complete after validation; proceed to Hardening next.
+Continuation Action: FB-004 Hardening is complete after validation; proceed to Live Validation next.
 
 ## WS-1 Execution Record
 
@@ -471,6 +476,50 @@ The following conditions block future implementation until resolved inside an ad
 - Final Workstream validation: `python dev\orin_branch_governance_validation.py` PASS, 914 checks.
 - Final whitespace validation: `git diff --check` PASS.
 
+## H-1 Hardening Record
+
+H-1 is docs/canon only. It pressure-tests whether the WS-1 through WS-3 boot-orchestrator frame is coherent enough to move into Live Validation without admitting runtime or launcher implementation.
+
+### Hardening Findings
+
+- Source Map Pressure Test: the production path remains `launch_orin_desktop.vbs` to `desktop/orin_desktop_launcher.pyw` to `desktop/orin_desktop_main.py`. The dev-only `main.py` boot/handoff prototype remains evidence and planning context only. No source-map contradiction blocks Live Validation.
+- Lifecycle And State Pressure Test: `BOOT_MAIN|...`, `RENDERER_MAIN|...`, `state=dormant`, launcher terminal classifications, renderer readiness, startup abort, and desktop-settled outcomes are separated by owner and evidence surface. No lifecycle state is allowed to imply trust, auth, release, or installer state.
+- Ownership Boundary Pressure Test: the future boot orchestrator remains above the shipped launcher. The launcher remains the current desktop startup authority, the renderer remains the presentation/readiness owner, shared relaunch primitives remain shared contracts, and dev boot prototypes remain dev-only unless a future seam admits product-path implementation.
+- Diagnostics Evidence Root Pressure Test: a canon contradiction was found. Older current architecture and governance wording named fixed `C:/Jarvis/...` evidence roots, while current launcher code resolves live logs through `ROOT_DIR\logs` and dev validation evidence through `dev\logs`. H-1 corrected current architecture/governance wording to the runtime-root model while preserving historical legacy-name traceability where appropriate.
+- Rollback Boundary Pressure Test: rollback remains scoped to the changed surface. A future boot seam must prove restoration of launch shim behavior, launcher control files and classification, renderer readiness markers, diagnostics roots, helper registration state, and any dev-only prototype changes it admits.
+- Stale Helper Pressure Test: `dev/orin_desktop_launcher_regression_harness.py` remains repair-gated because it still references absent legacy `jarvis_*` paths. H-1 records that the helper cannot be used as current FB-004 launcher regression proof until repaired, replaced by a current registered helper, or explicitly bypassed with rationale.
+- Implementation Admission Contract Pressure Test: WS-3 blocks implementation unless the seam names affected surfaces, ownership, helper reuse/repair, rollback, validation proof, user-facing shortcut applicability, and User Test Summary applicability. No implementation is admitted by H-1.
+- Governance Gap: no new phase-order governance gap remains. The current legal sequence is Workstream complete, Hardening complete, then Live Validation.
+- Validation Gap: no runtime helper proof is required for this docs/canon-only milestone. The current validation gate remains `python dev\orin_branch_governance_validation.py`, `git diff --check`, targeted phase-state searches, source-owner review, and scope review.
+- Ambiguity Check: future boot ownership, launcher ownership, renderer ownership, dev-only prototype ownership, evidence-root ownership, and helper reuse expectations are distinct enough to continue.
+- Contradiction Check: the only active contradiction found was the fixed `C:/Jarvis/...` evidence-root wording in current architecture/governance docs; H-1 corrected it.
+- Scope Check: WS-1 through WS-3 and H-1 did not change runtime behavior, launcher behavior, renderer behavior, desktop shortcut behavior, UI, installer behavior, source layout, helper code, release artifacts, tags, public releases, or desktop exports.
+- Orchestrator-Readiness Risk: the branch is ready to validate the architecture/admission frame, but not ready for boot-orchestrator implementation by inertia. Later implementation still requires a separately admitted seam with exact rollback and live proof.
+
+### Hardening Corrections
+
+- Current-state canon is updated from Workstream-complete / Hardening-next wording to Hardening-complete / Live-Validation-next wording.
+- `Docs/architecture.md`, `Docs/orchestration.md`, and `Docs/development_rules.md` now describe current live logs as resolving under the runtime root's ignored `logs/` directory and dev evidence under the runtime root's ignored `dev/logs/<lane>/...` evidence lanes.
+- `Docs/validation_helper_registry.md` now marks `dev/orin_desktop_launcher_regression_harness.py` as repair-gated before it can be used as current launcher regression proof.
+- This record's validation contract no longer carries stale Branch Readiness-only wording.
+- The rollback target is updated to the Workstream-complete state because H-1 advances from Workstream into Live Validation readiness.
+- No new helper, validator, runtime artifact, launcher artifact, desktop shortcut artifact, release artifact, or User Test Summary export was created.
+
+### H-1 Completion Decision
+
+- H-1 Result: Complete / green.
+- User-facing impact: none. This pass changed docs/canon only.
+- Next legal phase: Live Validation.
+- Stop condition: phase boundary reached; Hardening is complete after H-1.
+
+### H-1 Validation Results
+
+- `python dev\orin_branch_governance_validation.py`: PASS, 909 checks.
+- `git diff --check`: PASS with line-ending normalization warnings only and no whitespace errors.
+- H-1 phase-state scan: PASS; current authority surfaces report FB-004 Hardening complete and Live Validation as the next legal phase.
+- H-1 scope validation: PASS; changed files are docs/canon surfaces only.
+- H-1 changed no runtime behavior, launcher behavior, renderer behavior, desktop shortcut behavior, UI, installer behavior, helper code, release artifact, tag, public release, or desktop export.
+
 ## Reuse Baseline
 
 - `Docs/architecture.md` and `Docs/orchestration.md` are the baseline architecture and orchestration references for current startup, launcher, renderer, and evidence boundaries.
@@ -478,7 +527,7 @@ The following conditions block future implementation until resolved inside an ad
 - `Docs/workstreams/FB-033_startup_snapshot_harness_follow_through.md` preserves startup snapshot harness context for future validation reuse where applicable.
 - `Docs/phase_governance.md`, `Docs/development_rules.md`, `Docs/codex_modes.md`, and `Docs/orin_task_template.md` own phase, seam, proof, User Test Summary, and durability governance.
 - `dev/orin_branch_governance_validation.py` is the reusable governance validator for this admission pass.
-- No new validator, harness, runtime helper, desktop export, or release helper is introduced during Branch Readiness.
+- No new validator, harness, runtime helper, desktop export, or release helper is introduced during Branch Readiness, WS-1 through WS-3, or H-1.
 
 ## Exit Criteria
 
@@ -491,15 +540,16 @@ The following conditions block future implementation until resolved inside an ad
 - WS-1 current boot-to-desktop source map and ownership boundary is complete.
 - WS-2 lifecycle and orchestration-state framing for boot and desktop transitions is complete.
 - WS-3 validation and admission contract for orchestrator implementation seams is complete.
+- H-1 pressure test findings and corrections are recorded.
 - Backlog, roadmap, workstream index, and Main routing all point to this canonical FB-004 workstream record.
-- Workstream validation passes.
-- Branch remains docs/canon only through WS-1, WS-2, and WS-3.
+- Workstream and Hardening validation pass.
+- Branch remains docs/canon only through WS-1, WS-2, WS-3, and H-1.
 
 ## Rollback Target
 
-- `Branch Readiness`
-- Revert the FB-004 Branch Readiness canon promotion commit and return FB-004 to selected-only registry truth with no admitted Workstream seam.
+- `Workstream`
+- Revert the FB-004 H-1 Hardening canon correction commit and return FB-004 to Workstream-complete / Hardening-next truth with WS-1 through WS-3 recorded and no implementation admitted.
 
 ## Next Legal Phase
 
-- `Hardening`
+- `Live Validation`

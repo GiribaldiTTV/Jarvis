@@ -652,11 +652,12 @@ Required sequence:
 
 ### Root Logs Governance
 
-- `C:/Jarvis/logs` and `C:/Jarvis/logs/crash` remain reserved for approved live launcher and runtime truth surfaces only
+- the runtime root's ignored `logs/` directory and `logs/crash` child remain reserved for approved live launcher and runtime truth surfaces only
 - launcher-owned historical state is not a root-owned live logs surface
 - normal runtime historical state resolves under `%LOCALAPPDATA%/Nexus Desktop AI/state/jarvis_history_v1.jsonl`
-- dev, test, worker, and toolkit evidence must write under `C:/Jarvis/dev/logs/<lane>/...`
-- no new dev or worker evidence roots may be introduced under `C:/Jarvis/logs` without explicit approval
+- dev, test, worker, and toolkit evidence must write under the runtime root's ignored `dev/logs/<lane>/...` evidence lanes
+- no new dev or worker evidence roots may be introduced under the runtime root's live `logs/` directory without explicit approval
+- historical `C:/Jarvis/...` wording in older records does not override current root-relative launcher code truth
 
 ### Dev-Only Startup Snapshot Harness
 
