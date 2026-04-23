@@ -11,7 +11,7 @@
 
 ## Status
 
-- `Live Validation`
+- `Merged Unreleased`
 
 ## Release Stage
 
@@ -19,7 +19,7 @@
 
 ## Target Version
 
-- `TBD`
+- `v1.6.1-prebeta`
 
 ## Canonical Branch
 
@@ -27,13 +27,15 @@
 
 ## Current Phase
 
-- Phase: `Live Validation`
+- Phase: `Release Readiness`
 
 ## Phase Status
 
-- `Active Branch`
+- `No Active Branch`
 - FB-040 is released and closed in `v1.6.0-prebeta`.
-- Release debt is clear.
+- Latest public prerelease truth is `v1.6.0-prebeta`.
+- FB-031 is the merged-unreleased release-debt owner after PR merge.
+- Release Readiness must consume the inherited FB-031 release target, scope, artifacts, and post-release truth without file mutation.
 - FB-031 Workstream is admitted for architecture-only UI/UX source mapping, visual-language ownership planning, lifecycle/interaction-state framing, and validation/admission contract definition.
 - WS-1 Nexus-era UI/UX source map and visual-language ownership vocabulary is complete.
 - WS-2 lifecycle and interaction-state framing for UI surfaces is complete.
@@ -43,6 +45,7 @@
 - LV-1 repo-truth and branch-truth alignment check is complete and green.
 - LV-2 user-facing shortcut and User Test Summary applicability classification is complete with waivers recorded.
 - LV-3 Live Validation completion evaluation is complete and green.
+- PR Readiness merge-target canon, FB-032 selected-next truth, and successor branch deferral are recorded for post-merge truth.
 - No FB-031 UI implementation, launcher work, settings work, tray/taskbar work, overlay/HUD work, shortcut work, voice work, plugin work, installer work, asset work, helper creation, or runtime behavior change has started.
 
 ## Branch Class
@@ -51,7 +54,7 @@
 
 ## Blockers
 
-None.
+- Release Debt until `v1.6.1-prebeta` is tagged and published.
 
 ## Entry Basis
 
@@ -72,6 +75,19 @@ None.
 - Lifecycle/state framing and validation/admission contracts are complete for the architecture-only Workstream seam sequence.
 - No product/runtime UI implementation is added during this architecture-only Workstream milestone.
 
+## Post-Merge State
+
+Repo State: No Active Branch
+Merged-Unreleased Release-Debt Owner: FB-031 Nexus Desktop AI UI/UX overhaul planning
+Release Target: v1.6.1-prebeta
+Release Floor: patch prerelease
+Version Rationale: FB-031 is architecture-only UI/UX planning and implementation-admission canon with no executable, runtime, operator-facing, user-facing, or materially expanded product capability; per governance, architecture-only planning/admission work uses patch prerelease advancement from v1.6.0-prebeta to v1.6.1-prebeta.
+Release Scope: Architecture-only Nexus Desktop AI UI/UX source map, visual-language ownership vocabulary, lifecycle and interaction-state framing, future UI implementation admission contract, hardening pressure test, Live Validation repo-truth and waiver classification, and PR Readiness merge-target canon.
+Release Artifacts: Tag v1.6.1-prebeta; release title Pre-Beta v1.6.1; inclusion-only release notes summarize the FB-031 UI/UX architecture milestone, source-map and lifecycle/state boundaries, validation/admission contract, hardening result, Live Validation waivers, and clean branch history.
+Post-Release Truth: FB-031 becomes Released / Closed in v1.6.1-prebeta; release debt clears; repo remains No Active Branch until FB-032 Branch Readiness admission is explicitly opened.
+Selected Next Workstream: FB-032 Nexus-era vision and source-of-truth migration
+Next-Branch Creation Gate: FB-032 remains selected-only with Branch: Not created until FB-031 release debt clears and updated main revalidates Branch Readiness admission.
+
 ## Scope
 
 - Define the Nexus-era UI/UX source map.
@@ -86,8 +102,8 @@ None.
 - No launcher implementation.
 - No settings implementation.
 - No tray, taskbar, overlay, HUD, shortcut, voice, plugin, installer, or runtime behavior changes.
-- No release execution.
-- No FB-031 PR or Release Readiness work.
+- No release execution before PR merge.
+- No successor branch creation before release debt clears and updated main revalidates Branch Readiness admission.
 
 ## Expected Seam Families And Risk Classes
 
@@ -133,7 +149,7 @@ Seam 3: validation and User Test Summary admission contract for future UI implem
 
 ## Active Seam
 
-Active seam: None after LV-3 completion; the next legal phase is PR Readiness.
+Active seam: None after PR-3 completion; the next legal phase is Release Readiness after PR merge.
 
 - BR-1 Status: Completed in this pass; FB-040 post-release canon drift repaired.
 - BR-2 Status: Completed in this pass; post-release closure and version-advancement governance/validator hardening added.
@@ -161,6 +177,15 @@ Active seam: None after LV-3 completion; the next legal phase is PR Readiness.
 - LV-3 Status: Completed / executed.
 - LV-3 Boundary: Live Validation completion decision and PR Readiness admission posture.
 - LV-3 Non-Includes: no PR creation, no release packaging, no next-workstream selection, and no successor branch creation.
+- PR-1 Status: Completed / executed.
+- PR-1 Boundary: merge-target canon completeness, release target semantics, helper posture, and source-of-truth alignment.
+- PR-1 Non-Includes: no release execution, no merge execution, no successor branch creation, and no runtime behavior.
+- PR-2 Status: Completed / executed.
+- PR-2 Boundary: FB-032 selected-next workstream scope, Branch: Not created successor lock, UTS waiver gate, and branch truth.
+- PR-2 Non-Includes: no FB-032 branch creation, no FB-032 promotion, no implementation admission, and no release packaging.
+- PR-3 Status: Completed / executed.
+- PR-3 Boundary: PR package creation basis, live PR validation gate, and final post-merge Release Readiness admission posture.
+- PR-3 Non-Includes: no merge execution, no release execution, no tag creation, no release-note publication, and no file mutation after Release Readiness starts.
 
 ## WS-1 Execution Record
 
@@ -359,14 +384,40 @@ LV-1 through LV-3 validated the completed FB-031 architecture-only milestone aga
 - User Test Summary Results: WAIVED
 - User Test Summary Waiver Reason: The milestone remains architecture-only and validator-proven through repo/canon checks; a filled manual UTS would not materially validate behavior because no user-visible setup, display, runtime UI, or invocation surface exists.
 
+## PR Readiness Package Record
+
+PR-1 through PR-3 completed the FB-031 PR Readiness pass and prepared the pre-release merge-target canon for `v1.6.1-prebeta`.
+
+### PR Readiness Findings
+
+- Merge-Target Canon: FB-031 is encoded as the post-merge merged-unreleased release-debt owner with repo state `No Active Branch`.
+- Release Target Semantics: release target is `v1.6.1-prebeta` from latest public prerelease `v1.6.0-prebeta` plus `Release Floor: patch prerelease`.
+- Release Scope: architecture-only Nexus Desktop AI UI/UX source map, visual-language ownership vocabulary, lifecycle and interaction-state framing, future UI implementation admission contract, hardening pressure test, Live Validation waiver classification, and PR Readiness merge-target canon.
+- Helper Posture: no FB-031 root `dev/` helper, validator, live helper, harness, screenshot probe, or temporary runtime probe was created; no helper-registry update is required for this milestone.
+- User Test Summary: exact waiver markers are present in `## User Test Summary`.
+- Selected Next Workstream: FB-032 Nexus-era vision and source-of-truth migration.
+- Branch-Creation Gate: FB-032 remains selected-only with Branch: Not created until FB-031 release debt clears and updated main revalidates Branch Readiness admission.
+- Governance Drift Audit: no unresolved governance drift remains after this PR Readiness pass.
+
+### PR Readiness Completion Decision
+
+- PR-1 Result: Complete / green.
+- PR-2 Result: Complete / green.
+- PR-3 Result: Complete / package-ready pending live PR validation.
+- Validation Layer: documentation and governance validation only.
+- Continue/Stop Decision: stop at PR Readiness after the live PR creation and validation gate is complete; Release Readiness is the next legal phase after PR merge and must remain file-frozen.
+
 ## Validation Contract
 
 - `python dev\orin_branch_governance_validation.py`
+- `python dev\orin_branch_governance_validation.py --pr-readiness-gate`
 - `git diff --check`
 - `git status --short --branch`
 - Validator must compare latest public prerelease canon against the latest local or remote pre-Beta tag.
 - Validator must fail if a workstream whose release tag exists remains represented as merged-unreleased release debt.
 - Validator must fail future release-floor claims where architecture-only or non-user-facing planning is treated as `minor prerelease` without an executable, runtime, operator-facing, or user-facing capability rationale.
+- PR package readiness is not clean unless release target semantics are correct, helper posture is explicit, next-workstream branch timing is explicit, and the exact `## User Test Summary` waiver markers are present.
+- Release Readiness remains analysis-only and file-frozen after merge because release target, scope, artifacts, and post-release truth are inherited from this PR-owned canon.
 
 ## Stop Conditions
 
@@ -377,6 +428,8 @@ LV-1 through LV-3 validated the completed FB-031 architecture-only milestone aga
 - Stop if visual-language, lifecycle/state, or validation/admission truth becomes implementation-shaped before a later implementation seam is explicitly admitted.
 - Stop if validator hardening requires broad redesign outside post-release closure or release-version advancement.
 - Stop if source-of-truth conflicts make FB-031 Branch Readiness admission unclear.
+- Stop if PR Readiness tries to defer merge-target canon, release target semantics, selected-next truth, helper posture, User Test Summary waiver truth, or branch-creation gate truth to Release Readiness.
+- Stop if Release Readiness attempts file mutation after PR merge.
 
 ## Exit Criteria
 
@@ -392,14 +445,16 @@ LV-1 through LV-3 validated the completed FB-031 architecture-only milestone aga
 - H-1 pressure test of UI/UX architecture, lifecycle/state framing, validation/admission contract, ambiguity, contradiction, scope, and implementation-readiness risk is complete and green.
 - LV-1 through LV-3 Live Validation repo-truth alignment, user-facing shortcut applicability, User Test Summary applicability, and completion checks are complete and green.
 - `## User Test Summary` records `User-Facing Shortcut Validation: WAIVED`, `User-Facing Shortcut Waiver Reason:`, `User Test Summary Results: WAIVED`, and `User Test Summary Waiver Reason:`.
+- FB-031 merge-target canon records `v1.6.1-prebeta` as the patch prerelease target, release debt owner, post-release truth, and selected-next branch gate.
+- FB-032 is selected as the next workstream with `Branch: Not created` and no successor branch exists.
 
 ## Rollback Target
 
-- `Hardening`
+- `PR Readiness`
 
 ## Next Legal Phase
 
-- `PR Readiness`
+- `Release Readiness`
 
 ## Governance Drift Audit
 
@@ -410,3 +465,9 @@ Governance Drift Found: Yes, repaired during FB-031 Branch Readiness.
 - Version Finding: FB-040 advanced by a minor prerelease despite delivering an architecture-only, non-user-facing planning/admission milestone; the published tag remains canonical, but future equivalent work must not use minor advancement solely because it opens a planning lane.
 - Repair: latest public prerelease truth is advanced to `v1.6.0-prebeta`, FB-040 is closed/released, release debt is cleared, FB-031 was admitted through Branch Readiness and is now the active branch workstream, and validator/governance coverage is tightened for remote tag closure and release-floor semantics.
 - Governance Drift Found After Repair: No unresolved drift remains after validation.
+
+Governance Drift Found: No unresolved drift during FB-031 PR Readiness.
+
+- PR Readiness Scope Missed: Clear.
+- Between-Branch Canon Repair Attempt: Clear.
+- Next Branch Created Too Early: Clear.
