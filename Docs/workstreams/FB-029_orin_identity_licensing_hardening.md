@@ -23,11 +23,11 @@
 
 ## Current Phase
 
-- Phase: `Hardening`
+- Phase: `Live Validation`
 
 ## Phase Status
 
-- `Hardening is complete; Live Validation is next`
+- `Live Validation is complete; PR Readiness is next`
 - FB-015 remains the merged-unreleased release-debt owner on `main` for `v1.6.4-prebeta`.
 - Repo-level current active workstream remains `none` while FB-015 release debt is unresolved.
 - FB-029 is the current promoted Workstream authority on `feature/fb-029-orin-identity-licensing-hardening`.
@@ -37,8 +37,11 @@
 - WS-3 validation and admission contract for future identity and licensing implementation is complete and durably recorded.
 - H-1 pressure test of the identity inventory, persona-option framing, licensing boundary framing, and future implementation admission contract is complete and durably recorded.
 - Current-truth canon now records Hardening-complete / Live-Validation-next phase status instead of leaving Workstream-complete / Hardening-next wording behind.
+- LV-1 repo-truth alignment, user-facing shortcut applicability, User Test Summary applicability, desktop export applicability, cleanup posture, and waiver handling are complete and durably recorded.
+- Current-truth canon now records Live-Validation-complete / PR-Readiness-next phase status instead of leaving Hardening-complete / Live-Validation-next wording behind.
 - Dormant ARIA registry presence remains non-shipping and non-default; any release-gating, runtime-selection, UI-exposure, or public-claim change still requires a later explicitly admitted implementation surface.
 - Licensing authority remains centralized in `LICENSE` plus `Docs/ownership_ip_plan.md`; `README.md`, release notes, and other public identity summaries remain downstream explanatory surfaces only.
+- Live Validation confirms this milestone remains docs/canon-only, so user-facing shortcut validation and User Test Summary results are both waived for this pass.
 - Explicit product/legal approval still blocks any implementation-facing naming, licensing, release, runtime, or persona-surface change.
 - No naming changes, license-file changes, runtime changes, release edits, UI copy sweeps, asset changes, or repo ownership changes have started.
 
@@ -48,7 +51,7 @@
 
 ## Blockers
 
-None. Live Validation is the next legal phase for this docs/canon-only milestone.
+None. PR Readiness is the next legal phase for this docs/canon-only milestone.
 
 ## Entry Basis
 
@@ -104,10 +107,10 @@ None. Live Validation is the next legal phase for this docs/canon-only milestone
 - Run `python dev\orin_branch_governance_validation.py`.
 - Run `git diff --check`.
 - Confirm `Docs/Main.md` routes this workstream record.
-- Confirm `Docs/feature_backlog.md` marks FB-029 as `Promoted`, `Active`, cites this doc, and records WS-1 through WS-3 plus H-1 complete with Live Validation next.
+- Confirm `Docs/feature_backlog.md` marks FB-029 as `Promoted`, `Active`, cites this doc, and records WS-1 through WS-3, H-1, and LV-1 complete with PR Readiness next.
 - Confirm `Docs/workstreams/index.md` lists FB-029 under Active while FB-015 remains under Merged / Release Debt Owners.
-- Confirm `Docs/prebeta_roadmap.md` preserves FB-015 merged-unreleased release-debt truth with `current active workstream: none` while also recording FB-029 Workstream plus Hardening complete and Live Validation next.
-- Confirm `Docs/feature_backlog.md`, `Docs/prebeta_roadmap.md`, `Docs/workstreams/index.md`, and `Docs/workstreams/FB-015_boot_and_desktop_phase_boundary_model.md` agree that FB-029 is promoted on this branch, WS-1 through WS-3 and H-1 are complete, and Live Validation is next.
+- Confirm `Docs/prebeta_roadmap.md` preserves FB-015 merged-unreleased release-debt truth with `current active workstream: none` while also recording FB-029 Workstream plus Hardening and Live Validation complete with PR Readiness next.
+- Confirm `Docs/feature_backlog.md`, `Docs/prebeta_roadmap.md`, `Docs/workstreams/index.md`, and `Docs/workstreams/FB-015_boot_and_desktop_phase_boundary_model.md` agree that FB-029 is promoted on this branch, WS-1 through WS-3, H-1, and LV-1 are complete, and PR Readiness is next.
 - Confirm `assistant_personas.py` still keeps `RELEASED_PERSONA_IDS = ("orin",)` and `DEFAULT_PERSONA_ID = "orin"`.
 - Confirm `LICENSE` and `Docs/ownership_ip_plan.md` remain aligned on current proprietor and restrictive proprietary posture.
 - Confirm FB-015 merged-unreleased release-debt truth still routes Release Readiness to updated `main`.
@@ -160,7 +163,7 @@ Seam 3: Validation and admission contract for future identity and licensing impl
 
 ## Active Seam
 
-Active seam: None after H-1 completion under bounded multi-seam governance; Live Validation is next.
+Active seam: None after LV-1 completion under bounded multi-seam governance; PR Readiness is next.
 
 - BR-1 Status: Completed in the prior Branch Readiness pass.
 - BR-1 Boundary: promote FB-029, define branch objective, target end-state, seam families, validation contract, User Test Summary strategy, later-phase expectations, and the first Workstream seam.
@@ -177,6 +180,9 @@ Active seam: None after H-1 completion under bounded multi-seam governance; Live
 - H-1 Status: Completed / executed.
 - H-1 Boundary: docs/canon pressure test of the identity inventory, persona-option framing, licensing boundary framing, future implementation admission contract, governance gaps, ambiguity, contradiction, scope drift, and implementation-readiness risk.
 - H-1 Non-Includes: no naming edits, no licensing edits, no runtime changes, no UI or asset changes, no installer changes, no release edits, no public release editing, and no implementation admission by inertia.
+- LV-1 Status: Completed / executed.
+- LV-1 Boundary: docs/canon repo-truth alignment, branch-truth alignment, user-facing shortcut applicability classification, User Test Summary applicability classification, desktop export applicability classification, cleanup posture, and PR Readiness admission posture.
+- LV-1 Non-Includes: no runtime validation, no shortcut launch, no manual User Test Summary handoff, no desktop export, no naming implementation, no licensing implementation, no release publication, no runtime changes, no UI or asset changes, no installer changes, no helper-code repair, and no public release editing.
 
 ## WS-1 Execution Record
 
@@ -326,12 +332,52 @@ H-1 is docs/canon only. It pressure-tests whether the completed FB-029 identity,
 - H-1 scope validation: PASS; changed files are docs/canon surfaces only.
 - H-1 changed no naming surface, license-file surface, runtime behavior, release artifact, UI surface, asset, installer behavior, helper code, or desktop export.
 
+## Live Validation Record
+
+LV-1 validated the completed FB-029 docs/canon-only milestone against live repo truth, branch truth, and user-facing/manual validation applicability. The branch remains docs/canon-only for this milestone: no naming implementation, licensing implementation, release publication, runtime behavior change, launcher behavior change, renderer behavior change, desktop shortcut change, visible UI change, asset change, installer path change, source-layout change, helper code change, or operator-facing invocation behavior has been added.
+
+### Live Validation Findings
+
+- Repo Truth Alignment: FB-029 remains `Promoted`, active on `feature/fb-029-orin-identity-licensing-hardening`, and FB-015 remains the merged-unreleased release-debt owner on `main` for `v1.6.4-prebeta`.
+- Branch Truth Alignment: the checked-out branch is the canonical FB-029 branch and carries completed Branch Readiness, WS-1 through WS-3, and H-1 records at the durable hardening baseline.
+- User-Facing Shortcut Applicability: waived for this milestone because the completed FB-029 delta is docs/canon only and does not add or change the user-facing desktop shortcut, equivalent production entrypoint behavior, runtime behavior, launcher behavior, renderer behavior, visible UI behavior, installer behavior, or another operator-facing path. Exercising the existing shortcut would not validate the FB-029 delta.
+- Manual Validation Applicability: waived for this milestone because the deliverable is identity inventory, persona-option framing, licensing boundary framing, implementation-admission governance, hardening correction, and repo-truth validation only; a filled manual User Test Summary would not materially validate behavior that did not change.
+- Runtime Evidence Applicability: no runtime/helper evidence is required or meaningful for this milestone because no runtime product surface, helper, harness, launcher behavior, renderer behavior, shortcut behavior, installer behavior, or user-facing artifact was created.
+- Desktop Export Applicability: no desktop `User Test Summary.txt` export is required for this Live Validation pass because there is no user-facing desktop path or manual checklist to hand off.
+- Cleanup: no programs, helper processes, windows, temporary files, probes, assets, screenshots, helpers, harnesses, runtime artifacts, desktop exports, release artifacts, or session-scoped evidence files were created.
+
+### Live Validation Completion Decision
+
+- LV-1 Result: Complete / green with repo-truth alignment and applicability waivers recorded.
+- User-facing shortcut gate: waived with exact markers in `## User Test Summary`.
+- User Test Summary results gate: waived with exact markers in `## User Test Summary`.
+- Validation Layer: documentation, branch truth, targeted repo-truth scan, and governance validation only.
+- Continue/Stop Decision: stop at the Live Validation phase boundary after validation because FB-029 Live Validation proof is green and the next normal phase is `PR Readiness`; PR Readiness must still prove merge-target canon, clean branch truth, successor selection, PR package creation, and live PR validation before reporting PR-ready.
+
+### LV-1 Validation Results
+
+- `python dev\orin_branch_governance_validation.py`: PASS, 1055 checks.
+- `git diff --check`: PASS with line-ending normalization warnings only and no whitespace errors.
+- LV-1 phase-state scan: PASS; current authority surfaces report FB-029 Live Validation complete and PR Readiness as the next legal phase.
+- LV-1 user-facing shortcut gate: WAIVED with exact markers in `## User Test Summary`.
+- LV-1 User Test Summary results gate: WAIVED with exact markers in `## User Test Summary`; no desktop export was required.
+- LV-1 scope validation: PASS; changed files are docs/canon surfaces only.
+- LV-1 changed no naming implementation, license-file surface, runtime behavior, release artifact, UI surface, asset, installer behavior, helper code, or desktop export.
+
+## User Test Summary
+
+- User-Facing Shortcut Path: Not applicable - FB-029 Live Validation is docs/canon only and does not change any user-facing desktop shortcut, equivalent production entrypoint behavior, runtime behavior, launcher behavior, renderer behavior, visible UI behavior, installer behavior, or other operator-facing invocation path.
+- User-Facing Shortcut Validation: WAIVED
+- User-Facing Shortcut Waiver Reason: FB-029 LV-1 validates docs/canon only. The completed milestone changes no user-facing desktop shortcut behavior, equivalent production entrypoint behavior, runtime behavior, launcher behavior, renderer behavior, visible UI behavior, installer behavior, or other operator-facing invocation path, so exercising the existing shortcut would not validate the FB-029 delta.
+- User Test Summary Results: WAIVED
+- User Test Summary Waiver Reason: The milestone remains docs/canon-only and validator-proven through repo/canon checks; a filled manual User Test Summary would not materially validate behavior because no user-visible setup, display, runtime, shortcut, launcher, renderer, installer, or invocation surface changed.
+
 ## Seam Continuation Decision
 
 Continue Decision: `stop`
-Next Active Seam: `Live Validation`
+Next Active Seam: `PR Readiness`
 Stop Condition: `phase boundary reached`
-Continuation Action: execute FB-029 Live Validation against the completed WS-1 through WS-3 plus H-1 docs/canon record.
+Continuation Action: execute FB-029 PR Readiness against the completed WS-1 through WS-3, H-1, and LV-1 docs/canon record.
 
 ## Reuse Baseline
 
@@ -366,16 +412,18 @@ Continuation Action: execute FB-029 Live Validation against the completed WS-1 t
 - WS-2 canonical vs historical identity, persona-option, and licensing boundary framing is complete.
 - WS-3 validation and admission contract for future identity and licensing implementation is complete.
 - H-1 pressure test findings and corrections are recorded.
+- LV-1 repo-truth alignment, user-facing shortcut applicability, User Test Summary applicability, desktop export applicability, cleanup posture, and waiver handling are recorded.
 - Current canonical vs historical identity, persona-option, and licensing source inventory plus boundary framing are recorded without implementation drift.
+- `## User Test Summary` records `User-Facing Shortcut Validation: WAIVED`, `User-Facing Shortcut Waiver Reason:`, `User Test Summary Results: WAIVED`, and `User Test Summary Waiver Reason:` for the docs/canon-only milestone.
 - Explicit product/legal approval remains recorded as the gate on any implementation-facing naming, licensing, release, runtime, or persona-surface work.
-- No naming edits, license-file edits, runtime changes, UI or asset changes, installer changes, release edits, or public release edits were made in this pass.
+- No naming edits, license-file edits, runtime changes, UI or asset changes, installer changes, release edits, public release edits, or desktop exports were made in this pass.
 - Validation is green.
 
 ## Rollback Target
 
-- `Workstream`
-- Revert the FB-029 Hardening docs/canon commit(s) and return FB-029 to Workstream-complete / Hardening-next truth with WS-1 through WS-3 recorded and H-1 absent.
+- `Hardening`
+- Revert the FB-029 Live Validation docs/canon commit(s) and return FB-029 to Hardening-complete / Live-Validation-next truth with WS-1 through WS-3 and H-1 recorded and LV-1 absent.
 
 ## Next Legal Phase
 
-- `Live Validation`
+- `PR Readiness`

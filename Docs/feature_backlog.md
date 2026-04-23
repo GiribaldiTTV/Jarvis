@@ -38,7 +38,7 @@ Historical note:
 
 FB-029 ORIN legal-safe rebrand, future ARIA persona option, and repo licensing hardening is the current promoted Workstream authority on `feature/fb-029-orin-identity-licensing-hardening`.
 
-Main-facing canon is aligned to merged-unreleased truth: FB-040 is released and closed in `v1.6.0-prebeta`, FB-031 is released and closed in `v1.6.1-prebeta`, FB-032 is released and closed in `v1.6.2-prebeta`, FB-004 is released and closed in `v1.6.3-prebeta`, and FB-015 is merged into `main` at `3e821e07ff91d814fd7aba9b50819f97d700a301` with release debt active for `v1.6.4-prebeta`. FB-029 Workstream WS-1 through WS-3 and H-1 are now complete on `feature/fb-029-orin-identity-licensing-hardening`; the milestone remains docs/canon-only, Live Validation is next, and explicit product/legal approval still blocks any implementation-facing naming, licensing, release, runtime, or persona-surface change.
+Main-facing canon is aligned to merged-unreleased truth: FB-040 is released and closed in `v1.6.0-prebeta`, FB-031 is released and closed in `v1.6.1-prebeta`, FB-032 is released and closed in `v1.6.2-prebeta`, FB-004 is released and closed in `v1.6.3-prebeta`, and FB-015 is merged into `main` at `3e821e07ff91d814fd7aba9b50819f97d700a301` with release debt active for `v1.6.4-prebeta`. FB-029 Workstream WS-1 through WS-3, H-1, and LV-1 are now complete on `feature/fb-029-orin-identity-licensing-hardening`; the milestone remains docs/canon-only, PR Readiness is next, and explicit product/legal approval still blocks any implementation-facing naming, licensing, release, runtime, or persona-surface change.
 FB-039 is released and closed in `v1.5.0-prebeta`.
 FB-038 remains released and closed in `v1.4.1-prebeta`.
 
@@ -58,21 +58,21 @@ Release Scope: Boot and desktop phase-boundary inventory, ownership map, lifecyc
 Release Artifacts: Tag v1.6.4-prebeta; release title Pre-Beta v1.6.4; rich Markdown release notes summarize the FB-015 boundary model and governance results without repeating the release title inside the notes body, and GitHub-generated `## What's Changed` plus `**Full Changelog**:` must be included.
 Post-Release Truth: FB-015 is Released / Closed in v1.6.4-prebeta after publication and validation; release debt then clears, and FB-029 Workstream may continue on feature/fb-029-orin-identity-licensing-hardening after updated-main revalidation while this milestone stays docs/canon-only and explicit product/legal approval remains required before implementation-facing work.
 Selected Next Workstream: FB-029 ORIN legal-safe rebrand, future ARIA persona option, and repo licensing hardening.
-Next-Branch Creation Gate: Satisfied. FB-029 Workstream WS-1 through WS-3 and H-1 are complete on feature/fb-029-orin-identity-licensing-hardening, Live Validation is next for the same docs/canon-only milestone, and explicit product/legal approval still controls any later implementation-facing naming, licensing, release, runtime, or persona-surface admission.
+Next-Branch Creation Gate: Satisfied. FB-029 Workstream WS-1 through WS-3, H-1, and LV-1 are complete on feature/fb-029-orin-identity-licensing-hardening, PR Readiness is next for the same docs/canon-only milestone, and explicit product/legal approval still controls any later implementation-facing naming, licensing, release, runtime, or persona-surface admission.
 
 ## Backlog Governance Sync
 
-Last Reviewed: 2026-04-23 during FB-029 Hardening.
+Last Reviewed: 2026-04-23 during FB-029 Live Validation.
 
 Open-candidate priority review:
 
 - FB-004 is released and closed in `v1.6.3-prebeta`; it is no longer an active or selected-next branch candidate.
 - FB-015 remains `High`, is promoted, and is now the merged-unreleased release-debt owner on `main` for `v1.6.4-prebeta`; no active promoted implementation workstream is admitted while that release debt remains open.
-- FB-029 remains `High`, is promoted on `feature/fb-029-orin-identity-licensing-hardening`, and has completed the bounded docs/canon-only Workstream seam chain through WS-3 plus H-1 Hardening; explicit product/legal approval is still required before any implementation-facing naming, licensing, release, runtime, or persona-surface admission.
+- FB-029 remains `High`, is promoted on `feature/fb-029-orin-identity-licensing-hardening`, and has completed the bounded docs/canon-only Workstream seam chain through WS-3 plus H-1 Hardening plus LV-1 Live Validation; explicit product/legal approval is still required before any implementation-facing naming, licensing, release, runtime, or persona-surface admission.
 - FB-030 remains `Medium` because it requires an explicit voice/audio design goal and must not enter as incidental persona or runtime cleanup.
 - FB-005 remains `Low` because remaining workspace movement is path-sensitive and requires explicit workspace/path approval.
 
-Next-branch clarity: FB-029 is the current promoted Workstream authority on `feature/fb-029-orin-identity-licensing-hardening`, the bounded WS-1 through WS-3 seam chain plus H-1 Hardening are complete, and Live Validation is next. This milestone remains docs/canon-only; explicit product/legal approval still blocks any implementation-facing naming, licensing, release, runtime, or persona-surface work.
+Next-branch clarity: FB-029 is the current promoted Workstream authority on `feature/fb-029-orin-identity-licensing-hardening`, the bounded WS-1 through WS-3 seam chain plus H-1 Hardening plus LV-1 Live Validation are complete, and PR Readiness is next. This milestone remains docs/canon-only; explicit product/legal approval still blocks any implementation-facing naming, licensing, release, runtime, or persona-surface work.
 
 ## Registry Items
 
@@ -132,6 +132,7 @@ Canonical Workstream Doc: Docs/workstreams/FB-029_orin_identity_licensing_harden
 Branch Readiness: Complete. The branch objective, target end-state, seam families, validation contract, User Test Summary strategy, later-phase expectations, and first Workstream seam are recorded in the canonical workstream doc.
 Workstream: WS-1 current identity, persona-option, and licensing source-of-truth inventory, WS-2 canonical vs historical identity, persona-option, and licensing boundary framing, and WS-3 validation and admission contract for future identity and licensing implementation are complete.
 Hardening: H-1 pressure test of identity inventory, persona-option framing, licensing boundary framing, and future implementation admission rules is complete.
+Live Validation: LV-1 repo-truth alignment, user-facing shortcut applicability, User Test Summary applicability, desktop export applicability, cleanup posture, and waiver handling are complete.
 Minimal Scope: Define the Branch Readiness frame for legal-safe ORIN naming, optional future ARIA persona posture, and repo licensing hardening before any naming, licensing, release, runtime, or persona-facing edits begin; Workstream remains docs/canon only unless a later legal surface explicitly widens scope.
 Summary: Track future ORIN-era naming, persona, and licensing hardening work without treating the local rebrand overlay as merged truth.
 Why it matters: Product identity, legal posture, and repo ownership still need durable future treatment, but not by accidental carry-forward.
