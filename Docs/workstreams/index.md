@@ -78,18 +78,16 @@ For an active or recently closed canonical workstream, keep these durable tracea
 Active here means the current promoted truth owner.
 That may be an executable branch owner or another explicitly promoted current-truth owner.
 
-- `Docs/workstreams/FB-030_orin_voice_audio_direction_refinement.md`
-
-FB-030 now owns active branch execution truth on `feature/fb-030-orin-voice-audio-direction-refinement`. `v1.6.4-prebeta` is live, release debt is clear, WS-1 current voice/audio surface inventory and ownership map is complete, WS-2 lifecycle and persona-state framing for voice/audio transitions is complete, WS-3 validation and admission contract for future voice/audio implementation is complete, H-1 hardening is complete, LV-1 Live Validation is complete, PR-1 merge-target canon completeness is complete, PR-2 selected-next workstream selection is complete, and PR-3 live PR creation plus validation is complete on open PR #81.
+None. Repo current-state is `No Active Branch` while FB-030 owns merged-unreleased release debt for `v1.6.5-prebeta`.
 
 ### Merged / Release Debt Owners
 
 Merged / Release Debt Owners are promoted implementation workstreams whose implementation branch is merge-target complete but whose public release packaging has not yet cleared release debt.
 These records are not active implementation branch owners after merge.
 
-- None
+- `Docs/workstreams/FB-030_orin_voice_audio_direction_refinement.md`
 
-Release debt is clear after `v1.6.4-prebeta` publication, validation, and post-release canon closure.
+FB-030 merged through PR #81 into `main` at `c23adc70e17683d40770bf29571928af95935576` and now owns merged-unreleased release debt for `v1.6.5-prebeta`. Repo state is `No Active Branch`, and FB-005 remains selected next planning-only with branch not created.
 
 ### Closed
 

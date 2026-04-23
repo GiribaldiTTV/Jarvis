@@ -11,11 +11,15 @@
 
 ## Status
 
-- `Active`
+- `Merged unreleased`
 
 ## Release Stage
 
 - `pre-Beta`
+
+## Target Version
+
+- `v1.6.5-prebeta`
 
 ## Canonical Branch
 
@@ -23,15 +27,17 @@
 
 ## Current Phase
 
-- Phase: `PR Readiness`
+- Phase: `Release Readiness`
 
 ## Phase Status
 
-- `PR Readiness is active on feature/fb-030-orin-voice-audio-direction-refinement after LV-1 Live Validation completed green, and live PR validation is now complete on PR #81.`
+- `Release Readiness is now the active phase on updated main after PR #81 merged cleanly into main at c23adc70e17683d40770bf29571928af95935576.`
 - FB-015 and FB-029 are released and closed in `v1.6.4-prebeta`.
 - Latest public prerelease truth is `v1.6.4-prebeta`.
-- Release debt is clear after `v1.6.4-prebeta` publication, validation, and post-release canon closure.
-- FB-030 now owns active promoted implementation-branch truth on this branch.
+- Repo current-state is `No Active Branch`.
+- FB-030 now owns merged-unreleased release debt for `v1.6.5-prebeta`.
+- Release debt is active after PR #81 merged until `v1.6.5-prebeta` is published, validated, and post-release canon closure completes.
+- This blocker-clearing repair branch does not restore active implementation-branch truth; it only carries the merged-state canon repair required before file-frozen Release Readiness can report green.
 - Branch-name reuse is intentional: the earlier emergency repair record with this same branch name remains historical traceability only and does not own live execution authority.
 - The voice/audio design goal and affected-surface map are now explicitly recorded before any runtime voice, shutdown voice, recovery voice, diagnostics, UI, asset, or public-claim change is admitted.
 - WS-1 current voice/audio surface inventory and ownership map is complete and durably recorded below.
@@ -42,7 +48,8 @@
 - PR-1 merge-target canon completeness is complete and durably recorded below.
 - PR-2 selected-next workstream selection is complete and durably recorded below.
 - PR-3 live PR creation plus validation are complete and durably recorded below.
-- Release Readiness is the next legal phase after PR #81 merges.
+- FB-005 remains selected next planning-only, and its implementation branch remains not created.
+- Release Execution is the next legal phase after file-frozen Release Readiness passes on updated main.
 - No runtime voice behavior, shutdown voice behavior, recovery voice behavior, persona default, public copy, audio asset, or release-note wording change has started.
 
 ## Branch Class
@@ -51,7 +58,7 @@
 
 ## Blockers
 
-None.
+None. This branch is limited to post-merge canon repair so merged-unreleased release-debt truth becomes durable before Release Readiness resumes on updated `main`.
 
 ## Entry Basis
 
@@ -76,6 +83,21 @@ None.
 ## Next Legal Phase
 
 - `Release Readiness`
+
+## Merged-Unreleased Release-Debt Owner
+
+- Merged-Unreleased Release-Debt Owner: FB-030 ORIN voice/audio direction refinement
+- Repo State: No Active Branch
+- Latest Public Prerelease: v1.6.4-prebeta
+- Release Debt: Active after PR #81 merged until `v1.6.5-prebeta` is published, validated, and post-release canon closure completes
+- Release Target: v1.6.5-prebeta
+- Release Floor: patch prerelease
+- Version Rationale: FB-030 remains a docs/canon-only voice/audio planning and admission milestone with no new executable, runtime, operator-facing, user-facing, or materially expanded product capability
+- Release Scope: Voice/audio trigger-surface inventory, playback-authority inventory, transcript/telemetry/history ownership map, lifecycle and persona-state framing, implementation admission contract, hardening corrections, Live Validation waivers, selected-next workspace/path gate, and PR package history
+- Release Artifacts: Tag v1.6.5-prebeta; release title Pre-Beta v1.6.5; rich Markdown release notes summarize the FB-030 voice/audio direction planning frame without repeating the release title inside the notes body, and GitHub-generated `## What's Changed` plus `**Full Changelog**:` must be included
+- Post-Release Truth: FB-030 is Released / Closed in v1.6.5-prebeta; release debt is clear; FB-005 remains selected next planning-only; and FB-005 Branch Readiness may begin only after updated-main revalidation and explicit path-sensitive workspace approval admits a bounded workspace/path slice
+- Selected Next Workstream: FB-005 Workspace and folder organization
+- Next-Branch Creation Gate: After `v1.6.5-prebeta` is published and validated, updated `main` is revalidated, and explicit path-sensitive workspace approval admits FB-005 Branch Readiness
 
 ## Branch Objective
 
@@ -680,9 +702,9 @@ PR Readiness validates the completed docs/canon-only FB-030 milestone for merge 
 - Head Branch: `feature/fb-030-orin-voice-audio-direction-refinement`
 - PR Summary: Promote the docs/canon-only FB-030 voice/audio direction planning milestone, including the current trigger and ownership inventory, lifecycle and persona-state framing, implementation admission contract, hardening corrections, Live Validation waivers, and the selected-next FB-005 workspace/path planning gate.
 - PR URL: https://github.com/GiribaldiTTV/Nexus-Desktop-AI/pull/81
-- PR State: OPEN, non-draft, base `main`, head `feature/fb-030-orin-voice-audio-direction-refinement`.
-- Review Thread State: PASS. Authenticated PR validation found zero review threads and no unresolved blocking review-thread state.
-- Merge Readiness: PASS. GitHub reports `MERGEABLE` with merge state `CLEAN`.
+- PR State: MERGED, base `main`, head `feature/fb-030-orin-voice-audio-direction-refinement`, merge commit `c23adc70e17683d40770bf29571928af95935576`.
+- Review Thread State: PASS. Authenticated PR validation found zero review threads and no unresolved blocking review-thread state before merge.
+- Merge Readiness: PASS. GitHub reported `MERGEABLE` with merge state `CLEAN`, and the PR then merged successfully.
 
 ### PR Readiness Completion Decision
 
@@ -690,24 +712,24 @@ PR Readiness validates the completed docs/canon-only FB-030 milestone for merge 
 - PR-2 Result: Complete / green.
 - PR-3 Result: Complete / green.
 - User-facing impact: none. FB-030 remains docs/canon-only.
-- Continue/Stop Decision: stop at the PR Readiness phase boundary. The live PR is green and the next legal phase is Release Readiness after merge.
+- Next legal action after merge: file-frozen Release Readiness on updated `main` for `v1.6.5-prebeta`; if escaped post-merge canon drift is found, repair it on the prior legal branch before release packaging proceeds.
 
 ### PR Readiness Validation Results
 
-- `python dev\orin_branch_governance_validation.py --pr-readiness-gate`: PASS after live PR creation and canon sync.
+- `python dev\orin_branch_governance_validation.py --pr-readiness-gate`: PASS after live PR creation and canon sync; historical proof only after merge.
 - `git diff --check`: PASS with line-ending normalization warnings only and no whitespace errors.
 - User-facing shortcut gate: WAIVED with exact markers in `## User Test Summary`.
 - User Test Summary results gate: WAIVED with exact markers in `## User Test Summary`.
 - Next-workstream selection gate: PASS. FB-005 is selected-next planning-only and its implementation branch remains not created.
-- Live PR state: PASS. PR #81 is open, non-draft, `MERGEABLE`, and `CLEAN`.
-- Review-thread state: PASS. Zero review threads are present.
+- Live PR state: PASS. PR #81 merged cleanly into `main` at `c23adc70e17683d40770bf29571928af95935576`.
+- Review-thread state: PASS. Zero review threads were present at validation time.
 
 ## Seam Continuation Decision
 
 Continue Decision: `stop`
 Next Active Seam: `none`
-Stop Condition: `PR Readiness phase boundary reached with live PR validation green on PR #81`
-Continuation Action: merge PR #81, then hand off to file-frozen Release Readiness on updated `main`.
+Stop Condition: `PR #81 is merged and merged-unreleased release-debt truth is now the controlling current-state frame`
+Continuation Action: validate file-frozen Release Readiness on updated `main` for `v1.6.5-prebeta`.
 
 ## Reuse Baseline
 
