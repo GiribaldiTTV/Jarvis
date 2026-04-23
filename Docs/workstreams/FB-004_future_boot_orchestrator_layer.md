@@ -7,11 +7,11 @@
 
 ## Record State
 
-- `Promoted`
+- `Closed`
 
 ## Status
 
-- `Active`
+- `Released (v1.6.3-prebeta)`
 
 ## Release Stage
 
@@ -23,15 +23,15 @@
 
 ## Current Phase
 
-- Phase: `PR Readiness`
+- Phase: `Closed`
 
 ## Phase Status
 
-- `PR Readiness complete / PR merge next`
+- `Released / Closed in v1.6.3-prebeta`
 - FB-032 is released and closed in `v1.6.2-prebeta`.
-- Latest public prerelease truth is `v1.6.2-prebeta`.
-- Release debt is clear.
-- FB-004 is promoted and active in this canonical workstream record.
+- Latest public prerelease truth is `v1.6.3-prebeta`.
+- Release debt is clear after FB-004 release execution and live release validation.
+- FB-004 Branch Readiness is complete and this record is now closed historical lane truth.
 - Branch Readiness is complete.
 - WS-1 current boot-to-desktop source map and ownership boundary is complete.
 - WS-2 lifecycle and orchestration-state framing for boot and desktop transitions is complete.
@@ -43,7 +43,8 @@
 - PR-1 merge-target canon and release-debt truth are recorded for `v1.6.3-prebeta`.
 - PR-2 selected-next workstream truth records FB-015 as selected-only, with branch creation deferred until after FB-004 release debt clears.
 - PR-3 PR package details, live PR creation, authenticated PR state validation, authenticated review-thread validation, and merge-readiness validation are complete for PR #74.
-- No FB-004 implementation, runtime behavior, launcher behavior, desktop shortcut behavior, UI change, installer change, release work, or tag work has started.
+- Release Execution published `v1.6.3-prebeta` on commit `9f5ae9a78c7dbff79322089bca370fa49da38598`.
+- No FB-004 implementation, runtime behavior, launcher behavior, desktop shortcut behavior, UI change, installer change, or operator-facing behavior change was admitted.
 
 ## Branch Class
 
@@ -55,7 +56,7 @@ None.
 
 ## Entry Basis
 
-- `main` reached the public `v1.6.2-prebeta` release at `e282072769ec25694928293ce51e144d6a37f611`.
+- `main` reached the public `v1.6.3-prebeta` release at `9f5ae9a78c7dbff79322089bca370fa49da38598`.
 - FB-032 post-release canon closure is complete.
 - Release debt is clear.
 - FB-004 was selected as the next lane by priority-led backlog selection after FB-032 closure.
@@ -109,9 +110,9 @@ None.
 - Run `git diff --check`.
 - Confirm `Docs/Main.md` routes this promoted FB-004 workstream record.
 - Confirm `Docs/feature_backlog.md` marks FB-004 as `Promoted`, `Active`, and cites this canonical workstream doc.
-- Confirm `Docs/workstreams/index.md` lists FB-004 under Active and not under Closed or Merged / Release Debt Owners.
-- Confirm `Docs/prebeta_roadmap.md` records FB-004 as the active PR Readiness workstream and does not leave selected-only, registry-only, Branch Readiness-only, Workstream-only, Hardening-only, Hardening-next, Live-Validation-next, or PR-Readiness-next truth behind.
-- Confirm `Docs/feature_backlog.md` and `Docs/prebeta_roadmap.md` record FB-015 as the selected next workstream with branch creation deferred.
+- Confirm `Docs/workstreams/index.md` lists FB-004 under Closed and not under Active or Merged / Release Debt Owners after release closure.
+- Confirm `Docs/prebeta_roadmap.md` records FB-004 as Released / Closed in `v1.6.3-prebeta` and does not leave active, merged-unreleased, PR-Readiness-next, or release-debt truth behind.
+- Confirm `Docs/feature_backlog.md` and `Docs/prebeta_roadmap.md` record FB-015 as the selected next workstream with Branch Readiness branch creation limited to the blocker-clearing Branch Readiness surface.
 - Run `python dev\orin_branch_governance_validation.py --pr-readiness-gate` after the branch is clean, pushed, and a live non-draft PR exists.
 - Confirm this PR Readiness pass changes only docs/canon surfaces.
 - Confirm no runtime, launcher, shortcut, UI, installer, release, helper code, or desktop export artifact changed during WS-1 through WS-3, H-1, LV-1, GOV-PR0, or PR Readiness.
@@ -623,10 +624,25 @@ Governance Drift Found: Yes, resolved before PR green.
 
 ## Post-Merge State
 
-- No Active Branch after PR merge until FB-004 release debt clears.
-- FB-004 becomes the merged-unreleased release-debt owner for `v1.6.3-prebeta` after its PR merges to `main`.
-- `v1.6.3-prebeta` must be published and validated before FB-004 can be marked Released / Closed.
-- FB-015 remains selected-only and registry-only after FB-004 merge; no FB-015 branch may be created until FB-004 release debt is cleared and updated `main` is revalidated.
+- FB-004 release debt cleared when `v1.6.3-prebeta` was published and validated.
+- FB-004 is Released / Closed in `v1.6.3-prebeta`.
+- FB-015 is selected next and now has the Branch Readiness branch `feature/fb-015-boot-desktop-phase-boundary-model`.
+- FB-015 remains selected-only and registry-only until Branch Readiness completes.
+
+## Release Closure State
+
+Latest Public Prerelease: v1.6.3-prebeta
+Release Title: Pre-Beta v1.6.3
+Release URL: https://github.com/GiribaldiTTV/Nexus-Desktop-AI/releases/tag/v1.6.3-prebeta
+Release Commit: 9f5ae9a78c7dbff79322089bca370fa49da38598
+Release Debt: Clear.
+Release Target: v1.6.3-prebeta.
+Release Floor: patch prerelease.
+Release Scope: Docs/canon-only future boot-orchestrator source map, lifecycle/state framing, ownership boundaries, diagnostics evidence-root correction, rollback boundaries, stale launcher helper caveat, implementation admission contract, hardening, Live Validation waivers, GOV-PR0 backlog governance sync, and PR Readiness merge-target canon.
+Release Artifacts: Tag v1.6.3-prebeta; release title Pre-Beta v1.6.3; rich Markdown release notes summarize the FB-004 boot-orchestrator planning frame, validation/admission contract, diagnostics-root correction, waiver posture, backlog sync, selected-next branch gate, GitHub-generated What's Changed, and Full Changelog sections.
+Post-Release Truth: FB-004 is Released / Closed in v1.6.3-prebeta; release debt is clear; FB-015 may continue Branch Readiness after updated-main revalidation and the repo-level admission gate passes.
+Selected Next Workstream: FB-015 Boot and desktop phase-boundary model.
+Next-Branch Creation Gate: FB-015 Branch Readiness branch now exists only for blocker-clearing canon closure and Branch Readiness planning; FB-015 remains selected-only and registry-only until Branch Readiness completes.
 
 ## PR Readiness Record
 
@@ -660,7 +676,7 @@ PR Readiness validates the completed docs/canon-only FB-004 milestone for merge 
 - Head Branch: `feature/fb-004-future-boot-orchestrator-layer`
 - PR Summary: Promote the docs/canon-only FB-004 future boot-orchestrator layer, including source mapping, lifecycle/state framing, ownership boundaries, diagnostics evidence-root correction, rollback boundaries, stale helper caveat, implementation admission contract, Hardening, Live Validation waivers, backlog governance sync, selected-next FB-015 branch gate, and post-merge `v1.6.3-prebeta` release-debt truth.
 - PR URL: https://github.com/GiribaldiTTV/Nexus-Desktop-AI/pull/74
-- PR State: OPEN, non-draft, base `main`, head `feature/fb-004-future-boot-orchestrator-layer`.
+- PR State: MERGED, base `main`, head `feature/fb-004-future-boot-orchestrator-layer`, merge commit `9f5ae9a78c7dbff79322089bca370fa49da38598`.
 - Review Thread State: PASS. Authenticated review-thread inspection found no review threads and no unresolved blocking Codex review state.
 - Merge Readiness: PASS. GitHub reports `MERGEABLE` with merge state `CLEAN` and no blocking review decision.
 
@@ -721,4 +737,4 @@ PR Readiness validates the completed docs/canon-only FB-004 milestone for merge 
 
 ## Next Legal Phase
 
-- `Release Readiness`
+- `Branch Readiness`

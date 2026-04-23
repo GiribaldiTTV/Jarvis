@@ -139,7 +139,8 @@ In Workflow mode, Codex should:
 - after a green entry seam, apply `Next-Seam Continuation Required` and continue by default when the continuation authority conditions pass
 - reporting `Next Safe Move` is not a substitute for execution when continuation authority passes
 - A `continue` decision must be acted on immediately by starting the next seam in the approved sequence
-- use `Single-Seam Fallback` only when source-of-truth records a bounded stop condition or continuation blocker
+- treat legacy `Single-Seam Fallback` wording as `Single-Seam Mode Waiver`
+- use `Single-Seam Mode Waiver` only when source-of-truth explicitly records a waiver that narrows the workflow to one seam
 - when the approved boundary is continuous validation inside the current workstream, keep iterating only while the governing phase rules, validation, and stop-loss contract remain green
 
 ### What Codex Must Not Do
@@ -366,8 +367,10 @@ That means:
 - A `continue` decision must be acted on immediately by starting the next seam in the approved sequence
 - a validation failure, regression, scope drift, unplanned risk expansion, governance drift, unresolved manual-validation blocker, branch-truth contradiction, phase boundary, stop-loss trigger, or other bounded stop condition stops the workflow
 
-`Single-Seam Fallback` is a bounded stop decision, not a category shortcut.
-Bug fixes, hotfixes, unclear seams, high-risk seams, cross-subsystem work, settings, protocol, launcher, and UI-model changes require smaller seams and stronger gates; they do not stop a green approved seam chain unless a bounded stop condition is recorded.
+`Single-Seam Fallback` is legacy wording for `Single-Seam Mode Waiver`.
+Single-seam mode is waiver-only.
+A bounded stop condition blocks continuation; it does not create single-seam mode.
+Bug fixes, hotfixes, unclear seams, high-risk seams, cross-subsystem work, settings, protocol, launcher, and UI-model changes require smaller seams and stronger gates; they do not stop a green approved seam chain unless a blocker is recorded or an explicit waiver narrows the pass to one seam.
 
 Completing Workstream seams does not make the branch PR-ready by itself.
 The normal next legal phase is `Hardening`, then `Live Validation`, then `PR Readiness`.

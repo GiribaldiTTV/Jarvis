@@ -315,7 +315,13 @@ Constraints:
 - Do not enter Hardening, Live Validation, PR Readiness, Release Readiness, release execution, or next-branch work.
 - Do not redesign seam workflow logic; use `Docs/phase_governance.md` if seam behavior is relevant.
 - If a Seam Sequence is present, treat the prompt-named seam as the entry seam, not a terminal boundary.
-- Do not encode a single-seam stop unless owning canon supplies `Single-Seam Fallback`, a phase boundary, stop-loss trigger, or another explicit blocker.
+- If a Seam Sequence is present, execute one active seam at a time, validate after each seam, and report a continue-or-stop decision before starting the next seam.
+- After a green seam, `Next-Seam Continuation Required` applies by default when continuation authority conditions pass.
+- reporting `Next Safe Move` is not a substitute for execution when continuation authority conditions pass.
+- reporting Next Safe Move is not a substitute for execution when continuation authority conditions pass.
+- A `continue` decision must be acted on immediately by starting the next seam in the approved sequence.
+- continue decision must be acted on immediately by starting the next seam in the approved sequence.
+- Do not encode single-seam mode unless owning canon records an explicit `Single-Seam Mode Waiver`; treat legacy `Single-Seam Fallback` wording as waiver-only.
 
 Stop if scope, phase, branch truth, or validation requirements are unclear.
 

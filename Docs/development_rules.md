@@ -396,7 +396,7 @@ Bounded multi-seam workflow means:
 - reporting `Next Safe Move` is not a substitute for execution when continuation authority passes.
 - A `continue` decision must be acted on immediately by starting the next seam in the approved sequence.
 - durability commit/push after a green seam is a checkpoint, not a stop
-- stopping after a green seam requires a bounded stop condition from `Docs/phase_governance.md`, a phase boundary, stop-loss trigger, or canon-valid `Single-Seam Fallback`
+- stopping after a green seam by choice requires an explicit `Single-Seam Mode Waiver`; a bounded stop condition, phase boundary, or stop-loss trigger blocks continuation but does not create single-seam mode
 - every seam must remain in the same workstream or active authority record, same phase, same branch class, same approved scope, and same subsystem family or tightly coupled implementation, validation, or governance chain
 - Branch Readiness may use planning, admission, or tightly coupled governance-repair seams, but not product/runtime implementation
 - Workstream uses the full seam pipeline for safe approved execution
@@ -409,7 +409,10 @@ Stop the workflow immediately if validation fails, regression appears, scope dri
 Do not use category labels as stop authority.
 Bug fixes, hotfixes, unclear seams, high-risk seams, cross-subsystem changes, settings, protocol, launcher-policy, and UI-model work require the smallest safe seam, stronger validation, and an explicit continuation check.
 They do not require stopping after a green seam when the next seam is admitted, validation-backed, and inside the same approved bounded workflow.
-Use `Single-Seam Fallback` only when the pass records a bounded stop condition, the next seam would be unsafe or outside phase authority, or source-of-truth admits exactly one seam.
+Treat legacy `Single-Seam Fallback` wording as `Single-Seam Mode Waiver`.
+Single-seam mode is waiver-only.
+Use `Single-Seam Mode Waiver` only when source-of-truth explicitly records a waiver that narrows an otherwise valid bounded multi-seam workflow to one seam.
+If source-of-truth admits exactly one seam and no next seam exists, that is a one-seam workflow rather than single-seam mode.
 
 Use the smallest safe slice for:
 

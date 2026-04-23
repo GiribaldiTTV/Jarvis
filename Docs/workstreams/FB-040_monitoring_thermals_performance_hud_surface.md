@@ -474,3 +474,111 @@ Governance Drift Found: Yes, repaired during FB-031 Branch Readiness after FB-04
 - Version Finding: FB-040 was published as a minor prerelease even though the delivered milestone was architecture-only and non-user-facing; the public tag remains canonical, but future equivalent milestones must use patch prerelease advancement unless an executable or user-facing capability lane is delivered.
 - Repair: latest public prerelease truth is advanced to `v1.6.0-prebeta`, FB-040 is closed/released, release debt is cleared, FB-031 Branch Readiness is admitted, and validator coverage now checks remote pre-Beta tags plus release-floor rationale.
 - Governance Drift Found After Repair: No unresolved drift remains after validation.
+
+## Post-Release Future Beta Admission Contract
+
+This section is forward-looking admission truth only. It does not reopen FB-040, does not change the historical `Released / Closed` record, and does not by itself admit runtime implementation. Its purpose is to bound a later Sensor HUD beta implementation so that a future active branch can execute against an explicit contract instead of reopening architecture framing from scratch.
+
+### Product Boundary
+
+- The first admitted beta is a dedicated Nexus Sensor HUD.
+- The admitted beta is not a generic widget platform.
+- The admitted beta is not a plugin marketplace.
+- Widget-like movement, search, sort, grouping, and personalization are allowed only inside the dedicated Sensor HUD surface.
+
+### Admitted Beta Providers
+
+- Mock provider for deterministic development, validation, and fallback proof.
+- Windows performance counters for baseline operating-system-owned CPU, memory, disk, and network posture.
+- `psutil` for bounded local process and system metrics where available.
+- `nvidia-smi` for NVIDIA GPU metrics such as temperature, utilization, VRAM, power, clocks, and related bounded status.
+- LibreHardwareMonitor bridge as the primary broad hardware-sensor backend for the beta.
+- HWiNFO64 as an optional detected advanced source with explicit provider-health and availability reporting.
+
+### Read-Only Provider Rules
+
+- The beta remains read-only.
+- No hardware writes are admitted.
+- No fan control is admitted.
+- No overclocking is admitted.
+- No power-limit control is admitted.
+- No driver-install behavior is admitted.
+- No remote or cloud telemetry is admitted.
+- No arbitrary third-party plugin execution is admitted.
+- Provider failures must degrade to explicit stale, unavailable, partial, invalid, or unknown state handling rather than hidden remediation.
+
+### HUD UX Contract
+
+- Search for explicit sensors by label, alias, or normalized category terms.
+- Pin and unpin sensors.
+- Drag and resize cards.
+- Sort and manually reorder cards.
+- Categorize and group cards.
+- Threshold-driven color states for warning and critical presentation.
+- Edit mode for interactive layout changes.
+- Lock mode for passive display behavior.
+- Hidden and paused states that preserve layout without implying provider failure.
+- Stale-state presentation that distinguishes old data from current data.
+- Provider-health presentation for available, missing, slow, partial, stale, invalid, and conflict states.
+- Polling controls with requested-rate and effective-rate visibility.
+
+### Desktop Integration Contract
+
+- Tray actions must admit `Show Sensor HUD`, `Edit Sensor HUD`, `Pause Sensors`, and `Sensor Sources`.
+- Command overlay intents must admit open, edit, pause, and resume monitoring routes.
+- The Sensor HUD path must remain separate from the wallpaper/runtime attachment path.
+- The future HUD may reuse the existing PySide6 desktop runtime patterns, but it must not widen the product into a generic widget framework by inertia.
+
+### Persistence Boundary
+
+- Persist layout and preferences only.
+- Persist selected sensors, card placement, card sizing, ordering, categories, labels, thresholds, opacity, monitor target, provider enablement, and polling preferences.
+- Do not persist long-term history by default.
+- Do not persist raw provider dumps by default.
+- Do not persist telemetry-like uploads or remote export behavior by default.
+
+### Sensor Identity And Rematch Contract
+
+- Saved HUD cards must persist a stable sensor identity key composed of provider family, normalized hardware path, sensor kind, normalized metric name, and unit.
+- Saved HUD cards must also persist a fallback fingerprint for same-family rematch when the exact key no longer resolves.
+- Rematch order is: exact key match, then fallback fingerprint inside the same provider family, then same hardware-path and same metric/unit from an admitted higher-priority equivalent provider, else unresolved placeholder.
+- Rematch must never silently bind to a different unit.
+- Rematch must never silently bind to a different semantic metric.
+- Unresolved cards must remain visible as unresolved placeholders until the user rebinds or removes them.
+
+### Provider Precedence, Merge, And Dedup Contract
+
+- Provider precedence order is: user-pinned provider override, then LibreHardwareMonitor, then HWiNFO64, then `nvidia-smi`, then Windows performance counters, then `psutil`, then mock provider.
+- Lower-priority providers may fill gaps only when a higher-priority admitted provider does not already own the normalized metric.
+- Lower-priority providers must not silently override a higher-priority bound metric.
+- Merge and dedup must preserve provenance so the HUD can explain which provider owns the shown value.
+- Conflicts must degrade confidence and surface provenance instead of averaging, hiding, or silently switching values.
+
+### Polling, Stale-State, Backpressure, And Render Contract
+
+- Global polling profiles are `Performance 500ms`, `Balanced 1s`, `Quiet 2s`, and `Eco 5s`.
+- Category floors are `500ms-1s` for active CPU and GPU metrics, `2s` for memory, `1-2s` for fans, `1s` for network, and `10-60s` for storage and other slow metrics.
+- One scheduled poller is admitted per provider; overlapping provider re-entry is not admitted.
+- If a provider overruns its interval twice in a row, mark the provider `slow`, back off one profile step, and surface the effective rate.
+- Stale timing is `max(2x effective interval, 2s)` for fast metrics, `max(2x effective interval, 10s)` for medium metrics, and `max(2x effective interval, 60s)` for storage or other slow metrics.
+- Sample cadence and UI repaint cadence must stay decoupled.
+- HUD repaint is capped at `4 Hz` in lock mode and `10 Hz` during edit interactions.
+- Render coalescing is required: when multiple samples arrive before the next repaint, the HUD shows the newest admitted sample and preserves the effective-rate accounting.
+
+### Validation And Evidence Contract For Future Beta Implementation
+
+- A future implementation branch must add provider-contract proof for discovery, normalized catalog shape, merge and dedup behavior, stale-state handling, pause and resume, fallback, and effective polling-rate reporting.
+- A future implementation branch must add HUD-layout proof for persistence, rematch behavior, unresolved placeholder behavior, search, pinning, categorization, and card ordering.
+- A future implementation branch must add live desktop proof for tray entry, command-overlay entry, edit and lock mode behavior, pause and resume behavior, and provider-health presentation.
+- A future implementation branch must add the exact `## User Test Summary` artifact once the HUD becomes user-visible.
+- A future implementation branch must satisfy the repo-wide live desktop UI audit rule before closeout if the HUD materially changes user-facing desktop UI.
+
+### Acceptance Criteria For Future Beta Implementation
+
+- The user can open the Sensor HUD from the tray and from the command overlay.
+- The user can search for a sensor, place it, move it, resize it, categorize it, and save the layout.
+- Saved layouts reload with safe sensor rematch behavior and unresolved placeholders when rematch is not valid.
+- The HUD surfaces provider health, stale state, and conflict provenance.
+- The HUD shows requested polling rate and effective polling rate.
+- The HUD runs without hardware writes.
+- The HUD degrades cleanly when optional providers are missing, slow, stale, or unavailable.

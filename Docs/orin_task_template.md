@@ -117,7 +117,7 @@ reporting `Next Safe Move` is not a substitute for execution when continuation a
 reporting Next Safe Move is not a substitute for execution when continuation authority passes.
 A `continue` decision must be acted on immediately by starting the next seam in the approved sequence.
 continue decision must be acted on immediately by starting the next seam in the approved sequence.
-Do not encode a single-seam stop unless a bounded stop condition, phase boundary, stop-loss trigger, or canon-valid `Single-Seam Fallback` applies.
+Do not encode single-seam mode unless owning canon records an explicit `Single-Seam Mode Waiver`; treat legacy `Single-Seam Fallback` wording as waiver-only. A bounded stop condition blocks continuation; it does not create single-seam mode.
 For `Release Readiness`, a release-bearing branch must include `Release Target:`, `Release Floor:`, `Version Rationale:`, `Release Scope:`, and `Release Artifacts:` before green status is allowed.
 For `PR Readiness`, release-bearing merge-target canon must prove the target is semantically correct from the latest public prerelease and declared release floor before green status is allowed.
 For release-version planning, `patch prerelease` is the default for architecture-only planning, admission contracts, validation-only work, documentation/canon repair, governance repair, and non-user-facing milestones that do not add executable product behavior; `minor prerelease` requires a new executable, runtime, operator-facing, user-facing, or materially expanded product capability lane.
@@ -269,7 +269,7 @@ After analysis is complete and execution scope is approved, follow these discipl
 - execute exactly one active seam at a time and validate, record, and decide continue-or-stop before the next seam
 - treat a prompt-named seam inside an approved sequence as the entry seam, not a terminal boundary
 - continue by default after a green seam when `Next-Seam Continuation Required` applies and the continuation authority conditions pass
-- use `Single-Seam Fallback` only when a bounded stop condition is recorded, the next seam would be unsafe or outside phase authority, or source-of-truth admits exactly one seam
+- use `Single-Seam Mode Waiver` only when source-of-truth explicitly records a waiver that narrows an otherwise valid bounded multi-seam workflow to one seam; if source-of-truth admits exactly one seam and no next seam exists, that is a one-seam workflow rather than single-seam mode
 - preserve architecture boundaries
 - keep source-of-truth docs aligned with actual implemented state
 - production behavior must remain unchanged unless explicitly in scope
@@ -349,7 +349,7 @@ If the task includes interactive validation, the validation plan should also sta
 2. For bounded multi-seam workflow, perform exactly one seam, verify it, record evidence, and decide `continue` or `stop` before starting the next seam.
 3. Continue by default to the next planned seam after a green seam when `Next-Seam Continuation Required` applies and the continuation authority conditions pass.
 4. Reporting `Next Safe Move` is not a substitute for execution when continuation authority passes; A `continue` decision must be acted on immediately by starting the next seam in the approved sequence.
-5. Stop the workflow immediately on validation failure, regression, scope drift, unplanned risk expansion, governance drift, unresolved manual-validation blocker, branch-truth inconsistency, phase boundary, stop-loss trigger, or canon-valid `Single-Seam Fallback`.
+5. Stop the workflow immediately on validation failure, regression, scope drift, unplanned risk expansion, governance drift, unresolved manual-validation blocker, branch-truth inconsistency, phase boundary, stop-loss trigger, or a declared `Single-Seam Mode Waiver` boundary.
 6. Clean up session-scoped side effects from the pass unless there is an explicit reason to preserve them.
 7. Report what changed, what was verified, the per-seam continue-or-stop decisions, and what was cleaned up or intentionally left in place.
 

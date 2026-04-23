@@ -150,6 +150,19 @@ Before PR Readiness, each workstream-scoped helper must be resolved in one of th
 | `dev/orin_fb038_seam2_live_validation.ps1` | Helper Status: Workstream-scoped | FB-038 | Created to prove tray-origin Create Custom Task dialog-open/no-write behavior without overloading the broader FB-036 interactive suite mid-Workstream. | Retained as FB-038 tray/Create Custom Task evidence. Future tray-origin authoring work must first consolidate this flow into a reusable tray live validation helper or into `dev/orin_saved_action_authoring_interactive_validation.ps1`. | PR Readiness decision: keep Workstream-scoped after merge; do not promote until a second branch needs the same tray-origin authoring proof. |
 | `dev/orin_fb038_seam3_live_validation.ps1` | Helper Status: Workstream-scoped | FB-038 | Created to prove tray-origin create completion, catalog reload, exact-match re-resolution, and cleanup while keeping Seam 3 separate from Seam 2 no-write proof. | Retained as FB-038 tray-origin create-completion evidence. Future create-completion work must consolidate with the Seam 2 helper into a reusable tray/Create Custom Task live helper or fold the scenario into the saved-action interactive suite. | PR Readiness decision: keep Workstream-scoped after merge; do not promote until future branches prove the flow is reusable beyond FB-038. |
 
+## Admitted Future Helper Families
+
+These reservations do not register files that do not yet exist. They record the reuse order and expected names for already-admitted future work so a later implementation branch does not invent helper families ad hoc.
+
+### Sensor HUD Beta
+
+- Reuse order first: extend `dev/orin_desktop_entrypoint_validation.py` for tray and overlay entry coverage before creating a new Sensor HUD entry validator.
+- Reuse order second: extend `dev/orin_interaction_baseline_validation.py` for command-overlay Sensor HUD intents before creating a new interaction-path helper.
+- If a future implementation branch still needs new durable helpers after that reuse check, use `dev/orin_sensor_provider_validation.py` for provider contract, merge and dedup, stale-state, fallback, pause and resume, polling, and effective-rate proof.
+- If a future implementation branch still needs new durable helpers after that reuse check, use `dev/orin_sensor_hud_layout_validation.py` for layout persistence, rematch, unresolved-placeholder behavior, search, pinning, categorization, and serialized card state proof.
+- If a future implementation branch still needs new durable helpers after that reuse check, use `dev/orin_sensor_hud_live_validation.ps1` for tray actions, Sensor HUD open and edit behavior, pause and resume, lock and edit interaction, and live desktop proof.
+- Provider-specific probes remain `Temporary probe` assets unless and until they are promoted through this registry with an explicit status and reuse story.
+
 ## Release / PR Standard
 
 Before a branch reports PR Readiness green:
