@@ -12,18 +12,23 @@ This temporary repair branch exists only to clear the remaining `Release Readine
 
 It does not promote FB-030, create the selected-next FB-030 implementation branch, or admit any runtime, release, naming, persona, licensing, or user-facing implementation work.
 
+This record is now preserved as historical traceability after PR #79 merged; merged current-state canon must not continue to treat it as an active branch owner.
+
 ## Current Phase
 
 - Phase: `PR Readiness`
 
 ## Phase Status
 
-- `Active Branch`
-- temporary blocker-clearing repair branch created from updated `main` at `301cd858b718c743921cd579f16d5b22f8927536`
+- historical traceability record for the successor-branch truth repair lane
+- temporary blocker-clearing repair branch was created from updated `main` at `301cd858b718c743921cd579f16d5b22f8927536`
+- PR #79 merged this repair to `main` at `e841aa18b76458aa0591e20bd4f3ba9790e1f238`
+- merged current-state canon must remain `No Active Branch` while FB-015 owns merged-unreleased release debt for `v1.6.4-prebeta`
 - repo-level current-state canon intentionally remains `No Active Branch` while FB-015 owns merged-unreleased release debt for `v1.6.4-prebeta`
 - FB-030 remains selected-only / `Registry-only`; this branch must not be treated as the selected-next FB-030 implementation branch
-- this branch exists only to repair successor-branch truth so temporary `emergency canon repair` branches are not misread as selected-next implementation-branch creation
-- no runtime, release, naming, persona, licensing, or other implementation-facing work is admitted on this branch
+- this branch existed only to repair successor-branch truth so temporary `emergency canon repair` branches are not misread as selected-next implementation-branch creation
+- no runtime, release, naming, persona, licensing, or other implementation-facing work was admitted on this branch
+- this record is historical only and is not active execution authority
 
 ## Branch Class
 
@@ -47,7 +52,7 @@ It does not promote FB-030, create the selected-next FB-030 implementation branc
 - roadmap, branch-record, and validator truth all agree that FB-030 remains selected-only / `Registry-only`
 - FB-015 remains the sole merged-unreleased release-debt owner for `v1.6.4-prebeta`
 - release-debt scope and post-release truth remain unchanged apart from the successor-branch truth repair
-- a live blocker-clearing PR exists for this branch and validates cleanly
+- PR #79 merges cleanly, and the merged branch record no longer appears under `Active Branch Authority Records`
 
 ## Rollback Target
 
@@ -56,3 +61,5 @@ It does not promote FB-030, create the selected-next FB-030 implementation branc
 ## Next Legal Phase
 
 - `Release Readiness`
+
+Release Branch: No

@@ -1159,7 +1159,7 @@ def _selected_next_ignored_branch_names(
     all_repair_branch_names: set[str],
     active_repair_branch_names: set[str],
 ) -> set[str]:
-    if current_branch == "main" or current_branch in active_repair_branch_names:
+    if current_branch == "main" or current_branch in all_repair_branch_names:
         return set(all_repair_branch_names)
     return set()
 
@@ -1857,6 +1857,17 @@ def main() -> int:
         all_repair_branch_names,
         active_repair_branch_names,
     )
+    merged_no_active_branch_truth = (
+        "Repo State: No Active Branch" in backlog_text or "Repo State: No Active Branch" in roadmap_text
+    )
+    if current_git_branch == "main" and merged_no_active_branch_truth:
+        require(
+            not active_branch_record_paths,
+            (
+                "Docs/branch_records/index.md: merged current-state canon declares `No Active Branch`, "
+                "so `Active Branch Authority Records` must be empty on main"
+            ),
+        )
 
     backlog_entries = _parse_backlog_sections(backlog_text)
     for entry in backlog_entries:
