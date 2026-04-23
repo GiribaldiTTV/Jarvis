@@ -23,11 +23,11 @@
 
 ## Current Phase
 
-- Phase: `Hardening`
+- Phase: `Live Validation`
 
 ## Phase Status
 
-- `Hardening complete / Live Validation next`
+- `Live Validation complete / PR Readiness next`
 - FB-032 is released and closed in `v1.6.2-prebeta`.
 - Latest public prerelease truth is `v1.6.2-prebeta`.
 - Release debt is clear.
@@ -38,7 +38,8 @@
 - WS-3 validation and admission contract for orchestrator implementation seams is complete.
 - H-1 pressure test of the boot-orchestrator source map, lifecycle/state framing, ownership boundaries, diagnostics evidence roots, rollback boundaries, stale-helper caveat, and implementation admission contract is complete.
 - Diagnostics-root canon was corrected to align current architecture/governance wording with the launcher-owned runtime-root evidence model.
-- Live Validation is the next legal phase.
+- LV-1 repo-truth alignment, user-facing shortcut applicability, User Test Summary applicability, desktop export applicability, cleanup posture, and waiver handling are complete.
+- PR Readiness is the next legal phase.
 - No FB-004 implementation, runtime behavior, launcher behavior, desktop shortcut behavior, UI change, installer change, release work, or tag work has started.
 
 ## Branch Class
@@ -106,9 +107,9 @@ None.
 - Confirm `Docs/Main.md` routes this promoted FB-004 workstream record.
 - Confirm `Docs/feature_backlog.md` marks FB-004 as `Promoted`, `Active`, and cites this canonical workstream doc.
 - Confirm `Docs/workstreams/index.md` lists FB-004 under Active and not under Closed or Merged / Release Debt Owners.
-- Confirm `Docs/prebeta_roadmap.md` records FB-004 as the active Hardening-complete workstream and does not leave selected-only, registry-only, Branch Readiness-only, Workstream-only, or Hardening-next truth behind.
-- Confirm this Hardening pass changes only docs/canon surfaces.
-- Confirm no runtime, launcher, shortcut, UI, installer, release, helper code, or desktop export artifact changed during WS-1 through WS-3 or H-1.
+- Confirm `Docs/prebeta_roadmap.md` records FB-004 as the active Live-Validation-complete workstream and does not leave selected-only, registry-only, Branch Readiness-only, Workstream-only, Hardening-only, Hardening-next, or Live-Validation-next truth behind.
+- Confirm this Live Validation pass changes only docs/canon surfaces.
+- Confirm no runtime, launcher, shortcut, UI, installer, release, helper code, or desktop export artifact changed during WS-1 through WS-3, H-1, or LV-1.
 
 ## Branch Readiness Validation Results
 
@@ -159,7 +160,7 @@ Seam 3: Validation and admission contract for orchestrator implementation seams
 
 ## Active Seam
 
-Active seam: H-1 FB-004 Hardening pressure test is complete; no active Hardening seam remains before Live Validation.
+Active seam: LV-1 FB-004 Live Validation is complete; no active Live Validation seam remains before PR Readiness.
 
 - BR-1 Status: Completed in this pass.
 - BR-1 Boundary: promote FB-004, define branch objective, target end-state, seam families, validation contract, User Test Summary strategy, later-phase expectations, and the first Workstream seam.
@@ -176,13 +177,16 @@ Active seam: H-1 FB-004 Hardening pressure test is complete; no active Hardening
 - H-1 Status: Completed / executed.
 - H-1 Boundary: docs/canon pressure test of the boot-orchestrator source map, lifecycle/state framing, ownership boundaries, diagnostics evidence roots, rollback boundaries, stale-helper caveat, implementation admission contract, governance gaps, validation gaps, ambiguity, contradiction, scope issues, and orchestrator-readiness risks.
 - H-1 Non-Includes: no runtime code edits, no launcher behavior changes, no desktop shortcut changes, no renderer lifecycle implementation, no UI work, no installer or autostart work, no release work, no helper-code repair, no desktop export, and no public release editing.
+- LV-1 Status: Completed / executed.
+- LV-1 Boundary: docs/canon repo-truth alignment, branch-truth alignment, user-facing shortcut applicability classification, User Test Summary applicability classification, desktop export applicability classification, cleanup posture, and PR Readiness admission posture.
+- LV-1 Non-Includes: no runtime validation, no shortcut launch, no manual User Test Summary handoff, no desktop export, no runtime code edits, no launcher behavior changes, no desktop shortcut behavior changes, no renderer lifecycle implementation, no UI work, no installer or autostart work, no helper-code repair, no release work, and no public release editing.
 
 ## Seam Continuation Decision
 
 Continue Decision: `stop`
-Next Active Seam: `Live Validation`
+Next Active Seam: `PR Readiness`
 Stop Condition: `phase boundary reached`
-Continuation Action: FB-004 Hardening is complete after validation; proceed to Live Validation next.
+Continuation Action: FB-004 Live Validation is complete after validation; proceed to PR Readiness next.
 
 ## WS-1 Execution Record
 
@@ -520,6 +524,46 @@ H-1 is docs/canon only. It pressure-tests whether the WS-1 through WS-3 boot-orc
 - H-1 scope validation: PASS; changed files are docs/canon surfaces only.
 - H-1 changed no runtime behavior, launcher behavior, renderer behavior, desktop shortcut behavior, UI, installer behavior, helper code, release artifact, tag, public release, or desktop export.
 
+## Live Validation Record
+
+LV-1 validated the completed FB-004 docs/canon-only milestone against live repo truth, branch truth, and user-facing/manual validation applicability. The branch remains docs/canon-only for this milestone: no runtime boot orchestrator, launcher path, renderer path, desktop shortcut path, visible startup state, UI surface, tray/taskbar path, overlay/HUD path, settings path, voice path, service/autostart path, installer path, source layout, helper code, validation harness, release artifact, or operator-facing invocation behavior has been added.
+
+### Live Validation Findings
+
+- Repo Truth Alignment: FB-004 remains `Promoted`, active on `feature/fb-004-future-boot-orchestrator-layer`, and FB-032 remains released/closed in `v1.6.2-prebeta` with release debt clear.
+- Branch Truth Alignment: the checked-out branch is the canonical FB-004 branch and carries completed BR-1, WS-1 through WS-3, and H-1 records at the durable hardening baseline.
+- User-Facing Shortcut Applicability: no user-facing desktop shortcut or equivalent entrypoint exists for the current milestone because FB-004 has not implemented runtime boot orchestration, launcher behavior, desktop shortcut behavior, renderer behavior, visible startup state, UI, tray/taskbar behavior, overlay/HUD behavior, settings behavior, voice behavior, service/autostart behavior, installer behavior, release behavior, helper code, or operator-facing invocation behavior.
+- Manual Validation Applicability: no meaningful manual User Test Summary exists for the current milestone because the deliverable is boot-orchestrator source mapping, lifecycle/state framing, ownership boundaries, diagnostics/rollback framing, helper-reuse caveat, hardening correction, and implementation-admission governance only; manual testing cannot exercise behavior that does not exist.
+- Runtime Evidence Applicability: no runtime/helper evidence is required or meaningful for this milestone because no runtime product surface, helper, harness, launcher behavior, renderer behavior, shortcut behavior, installer behavior, or user-facing artifact was created.
+- Desktop Export Applicability: no desktop `User Test Summary.txt` export is required for this Live Validation pass because there is no user-facing desktop path or manual checklist to hand off.
+- Cleanup: no programs, helper processes, windows, temporary files, probes, assets, screenshots, helpers, harnesses, runtime artifacts, desktop exports, release artifacts, or session-scoped evidence files were created.
+
+### Live Validation Completion Decision
+
+- LV-1 Result: Complete / green with repo-truth alignment and applicability waivers recorded.
+- User-facing shortcut gate: waived with exact markers in `## User Test Summary`.
+- User Test Summary results gate: waived with exact markers in `## User Test Summary`.
+- Validation Layer: documentation, branch truth, targeted repo-truth scan, and governance validation only.
+- Continue/Stop Decision: stop at the Live Validation phase boundary after validation because FB-004 Live Validation proof is green and the next normal phase is `PR Readiness`; PR Readiness must still prove merge-target canon, successor selection, clean branch truth, PR package creation, and live PR validation before reporting PR-ready.
+
+### LV-1 Validation Results
+
+- `python dev\orin_branch_governance_validation.py`: PASS, 919 checks.
+- `git diff --check`: PASS with line-ending normalization warnings only and no whitespace errors.
+- LV-1 phase-state scan: PASS; current authority surfaces report FB-004 Live Validation complete and PR Readiness as the next legal phase.
+- LV-1 user-facing shortcut gate: WAIVED with `User-Facing Shortcut Validation: WAIVED` and `User-Facing Shortcut Waiver Reason:` recorded in `## User Test Summary`.
+- LV-1 User Test Summary results gate: WAIVED with `User Test Summary Results: WAIVED` and `User Test Summary Waiver Reason:` recorded in `## User Test Summary`; no desktop export was required.
+- LV-1 scope validation: PASS; changed files are docs/canon surfaces only.
+- LV-1 changed no runtime behavior, launcher behavior, renderer behavior, desktop shortcut behavior, UI, installer behavior, helper code, release artifact, tag, public release, desktop export, or operator-facing invocation path.
+
+## User Test Summary
+
+- User-Facing Shortcut Path: Not applicable - no user-facing desktop entrypoint exists for the current docs/canon-only FB-004 milestone.
+- User-Facing Shortcut Validation: WAIVED
+- User-Facing Shortcut Waiver Reason: FB-004 has no runtime boot orchestrator, launcher behavior, desktop shortcut behavior, renderer behavior, visible startup state, UI, tray/taskbar behavior, overlay/HUD behavior, settings behavior, voice behavior, service/autostart behavior, installer behavior, release behavior, helper code, or operator-facing invocation path to exercise.
+- User Test Summary Results: WAIVED
+- User Test Summary Waiver Reason: The milestone remains docs/canon-only and validator-proven through repo/canon checks; a filled manual User Test Summary would not materially validate behavior because no user-visible setup, display, runtime, shortcut, launcher, renderer, installer, or invocation surface changed.
+
 ## Reuse Baseline
 
 - `Docs/architecture.md` and `Docs/orchestration.md` are the baseline architecture and orchestration references for current startup, launcher, renderer, and evidence boundaries.
@@ -527,7 +571,7 @@ H-1 is docs/canon only. It pressure-tests whether the WS-1 through WS-3 boot-orc
 - `Docs/workstreams/FB-033_startup_snapshot_harness_follow_through.md` preserves startup snapshot harness context for future validation reuse where applicable.
 - `Docs/phase_governance.md`, `Docs/development_rules.md`, `Docs/codex_modes.md`, and `Docs/orin_task_template.md` own phase, seam, proof, User Test Summary, and durability governance.
 - `dev/orin_branch_governance_validation.py` is the reusable governance validator for this admission pass.
-- No new validator, harness, runtime helper, desktop export, or release helper is introduced during Branch Readiness, WS-1 through WS-3, or H-1.
+- No new validator, harness, runtime helper, desktop export, or release helper is introduced during Branch Readiness, WS-1 through WS-3, H-1, or LV-1.
 
 ## Exit Criteria
 
@@ -541,15 +585,17 @@ H-1 is docs/canon only. It pressure-tests whether the WS-1 through WS-3 boot-orc
 - WS-2 lifecycle and orchestration-state framing for boot and desktop transitions is complete.
 - WS-3 validation and admission contract for orchestrator implementation seams is complete.
 - H-1 pressure test findings and corrections are recorded.
+- LV-1 repo-truth alignment, user-facing shortcut applicability, User Test Summary applicability, desktop export applicability, cleanup posture, and waiver handling are recorded.
+- `## User Test Summary` records `User-Facing Shortcut Validation: WAIVED`, `User-Facing Shortcut Waiver Reason:`, `User Test Summary Results: WAIVED`, and `User Test Summary Waiver Reason:`.
 - Backlog, roadmap, workstream index, and Main routing all point to this canonical FB-004 workstream record.
-- Workstream and Hardening validation pass.
-- Branch remains docs/canon only through WS-1, WS-2, WS-3, and H-1.
+- Workstream, Hardening, and Live Validation pass.
+- Branch remains docs/canon only through WS-1, WS-2, WS-3, H-1, and LV-1.
 
 ## Rollback Target
 
-- `Workstream`
-- Revert the FB-004 H-1 Hardening canon correction commit and return FB-004 to Workstream-complete / Hardening-next truth with WS-1 through WS-3 recorded and no implementation admitted.
+- `Hardening`
+- Revert the FB-004 LV-1 Live Validation canon commit and return FB-004 to Hardening-complete / Live-Validation-next truth with WS-1 through WS-3 and H-1 recorded and no implementation admitted.
 
 ## Next Legal Phase
 
-- `Live Validation`
+- `PR Readiness`

@@ -67,20 +67,20 @@ Current merged truth indicates:
 - latest public prerelease title: `Pre-Beta v1.6.2`
 - merged unreleased non-doc implementation debt exists: no
 - the latest public released implementation milestone is FB-032 Nexus-era vision and source-of-truth migration in `v1.6.2-prebeta`
-- current phase after FB-032 release closure: `Hardening`
-- phase status after FB-032 release closure: FB-004 Workstream seams WS-1 through WS-3 and H-1 Hardening are complete; Live Validation is the next legal phase
+- current phase after FB-032 release closure: `Live Validation`
+- phase status after FB-032 release closure: FB-004 Workstream seams WS-1 through WS-3, H-1 Hardening, and LV-1 Live Validation are complete; PR Readiness is the next legal phase
 - blocker after FB-032 release: release debt is clear; no release-debt or selected-only blocker remains for FB-004 Workstream admission
 - current active workstream: FB-004 Future boot orchestrator layer
 - current branch after FB-032 release: `feature/fb-004-future-boot-orchestrator-layer`
 - selected next workstream: none while FB-004 is active
-- next concern: execute FB-004 Live Validation against the completed docs/canon-only boot-orchestrator architecture frame and implementation admission contract.
+- next concern: execute FB-004 PR Readiness against the completed docs/canon-only boot-orchestrator architecture frame, waiver handling, and implementation admission contract.
 
 That means the released FB-027 interaction baseline, the released FB-036 authoring-and-callable-group milestone, the released FB-041 deterministic callable-group execution milestone, the released FB-037 built-in catalog milestone, the released FB-038 tray quick-task UX milestone, the released FB-039 external trigger intake architecture milestone, the released FB-040 monitoring/thermal architecture milestone, the released FB-031 UI/UX architecture milestone, and the released FB-032 source-of-truth migration milestone are now part of the current public shared pre-Beta baseline.
 
 ## Current Release Debt Owner
 
 Merged-Unreleased Release-Debt Owner: None.
-Repo State: FB-004 Workstream seams WS-1 through WS-3 and H-1 Hardening are complete on `feature/fb-004-future-boot-orchestrator-layer`; Live Validation is the next legal phase.
+Repo State: FB-004 Workstream seams WS-1 through WS-3, H-1 Hardening, and LV-1 Live Validation are complete on `feature/fb-004-future-boot-orchestrator-layer`; PR Readiness is the next legal phase.
 
 Latest Public Prerelease: v1.6.2-prebeta
 Latest Public Release Commit: e282072769ec25694928293ce51e144d6a37f611
@@ -96,7 +96,7 @@ Active Branch Before Release: `feature/fb-032-nexus-era-vision-source-of-truth-m
 
 ## Current Active Workstream
 
-FB-004 Future boot orchestrator layer is the active promoted workstream. WS-1 current boot-to-desktop source map and ownership boundary, WS-2 lifecycle and orchestration-state framing, WS-3 validation and admission contract, and H-1 Hardening pressure test are complete. Live Validation is the next legal phase.
+FB-004 Future boot orchestrator layer is the active promoted workstream. WS-1 current boot-to-desktop source map and ownership boundary, WS-2 lifecycle and orchestration-state framing, WS-3 validation and admission contract, H-1 Hardening pressure test, and LV-1 Live Validation waiver handling are complete. PR Readiness is the next legal phase.
 
 ## Latest Released Workstream Context
 
@@ -126,7 +126,8 @@ FB-004 Future boot orchestrator layer is the active promoted workstream. WS-1 cu
 - branch readiness: complete; branch objective, target end-state, seam families, validation contract, User Test Summary strategy, later-phase expectations, and first Workstream seam are recorded in the canonical workstream doc.
 - workstream: WS-1 current boot-to-desktop source map and ownership boundary, WS-2 lifecycle and orchestration-state framing, and WS-3 validation and admission contract are complete.
 - hardening: H-1 pressure test is complete; diagnostics-root canon is aligned to runtime-root launcher truth and stale launcher regression helper reuse is repair-gated.
-- next phase: Live Validation.
+- live validation: LV-1 repo-truth alignment, user-facing shortcut applicability, User Test Summary applicability, desktop export applicability, cleanup posture, and waiver handling are complete.
+- next phase: PR Readiness.
 
 ## Prior Released Workstream Context
 
@@ -140,7 +141,7 @@ FB-004 Future boot orchestrator layer is the active promoted workstream. WS-1 cu
 - release title: `Pre-Beta v1.6.1`
 - canonical workstream doc: `Docs/workstreams/FB-031_nexus_desktop_ai_ui_ux_overhaul_planning.md`
 - sequencing note: released the architecture-only UI/UX planning milestone, including source map, visual-language ownership vocabulary, lifecycle and interaction-state framing, future UI implementation admission contract, Hardening pressure test, Live Validation waivers, PR Readiness merge-target canon, and PR-R1 release-floor validator repair.
-- successor note: FB-032 is released and closed in `v1.6.2-prebeta`; FB-004 is active on `feature/fb-004-future-boot-orchestrator-layer` with WS-1 through WS-3 and H-1 Hardening complete.
+- successor note: FB-032 is released and closed in `v1.6.2-prebeta`; FB-004 is active on `feature/fb-004-future-boot-orchestrator-layer` with WS-1 through WS-3, H-1 Hardening, and LV-1 Live Validation complete.
 
 ## Prior Released Workstream Context
 
@@ -287,7 +288,7 @@ Current merged truth indicates:
 - FB-040 is released and closed in `v1.6.0-prebeta`; architecture-only monitoring and thermal source mapping, lifecycle/trust-safety framing, validation/admission contract, hardening, Live Validation waiver truth, and post-release canon closure are preserved as historical evidence
 - FB-031 is released and closed in `v1.6.1-prebeta`; UI/UX source mapping, visual-language ownership vocabulary, lifecycle/interaction-state framing, future implementation admission contract, hardening, Live Validation waiver truth, PR Readiness merge-target canon, and PR-R1 release-floor validator repair are preserved as historical evidence
 - FB-032 is released and closed in `v1.6.2-prebeta`; source-of-truth inventory, naming policy, surface classification, controlled migration admission contract, governance repairs, hardening, Live Validation waivers, and PR Readiness merge-target canon are preserved as historical evidence
-- post-release repo truth after the FB-032 release is clear for release debt; FB-004 completed Branch Readiness, WS-1 through WS-3, and H-1 Hardening on `feature/fb-004-future-boot-orchestrator-layer`; Live Validation is next
+- post-release repo truth after the FB-032 release is clear for release debt; FB-004 completed Branch Readiness, WS-1 through WS-3, H-1 Hardening, and LV-1 Live Validation on `feature/fb-004-future-boot-orchestrator-layer`; PR Readiness is next
 - successor-lane branch creation for FB-039 is historical; FB-039 is released and no longer an executable active implementation branch
 - if a branch changes release-facing canon, those canon updates must land on that same branch before PR readiness is allowed
 - escaped post-merge canon repair must ride a legal branch surface; `main` is protected and must not be patched directly by Codex
@@ -298,7 +299,7 @@ Current merged truth indicates:
   - FB-040 for monitoring, thermals, and performance HUD surfaces, released and closed in `v1.6.0-prebeta`
   - FB-031 for Nexus Desktop AI UI/UX overhaul planning, released and closed in `v1.6.1-prebeta`
   - FB-032 for Nexus-era vision and source-of-truth migration, released and closed in `v1.6.2-prebeta`
-  - FB-004 for future boot orchestrator layer, active on `feature/fb-004-future-boot-orchestrator-layer` with WS-1 through WS-3 and H-1 Hardening complete; Live Validation next
+  - FB-004 for future boot orchestrator layer, active on `feature/fb-004-future-boot-orchestrator-layer` with WS-1 through WS-3, H-1 Hardening, and LV-1 Live Validation complete; PR Readiness next
 - those candidate lanes must be selected deliberately rather than bundled together as one implicit interaction continuation
 - FB-037 Branch Readiness does not imply automatic continuation into any remaining candidate lane
 
