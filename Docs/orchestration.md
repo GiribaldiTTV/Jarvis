@@ -99,12 +99,12 @@ The renderer remains reactive inside that model.
 
 Current runtime evidence boundaries remain:
 
-- live launcher/runtime truth under `C:/Jarvis/logs`
-- live crash truth under `C:/Jarvis/logs/crash`
-- dev, toolkit, and harness evidence under `C:/Jarvis/dev/logs/<lane>/...`
+- live launcher/runtime truth under `<runtime root>/logs`
+- live crash truth under `<runtime root>/logs/crash`
+- dev, toolkit, and harness evidence under `<runtime root>/dev/logs/<lane>/...`
 - normal historical state under `%LOCALAPPDATA%/Nexus Desktop AI/state/jarvis_history_v1.jsonl`
 
-These are current runtime boundaries, not historical-only notes.
+The current desktop launcher resolves the live root from the repository/runtime root. Older `C:/Jarvis/...` references remain historical wording unless an admitted implementation seam changes current path behavior.
 
 ## Future Orchestration Direction
 

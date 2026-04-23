@@ -556,7 +556,7 @@ If `May Create Now` is `NO`, the `Next Branch` subsection must explain the block
 Operator-facing PR summaries and GitHub release notes are inclusion-only.
 They must report what exists, what was implemented, what capabilities are available, how the system behaves, and which validation or release facts support the package.
 They must not report what was not done, include exclusion lists, use `Not Included` sections, or use defensive scope framing.
-GitHub release notes must also use the standard Markdown release body shape: `# <release title>`, `## Release Summary`, `## Release Highlights`, GitHub-generated `## What's Changed`, and the generated `**Full Changelog**:` compare link to the previous release.
+GitHub release notes must also use the standard Markdown release body shape used by the current pre-Beta releases: the body starts with `## Release Summary` or `## Release Overview`, continues with `## Release Highlights` or release-specific rich sections, then includes GitHub-generated `## What's Changed` and the generated `**Full Changelog**:` compare link to the previous release. The live release body must not start with or repeat the release title as `# <release title>`; the release title belongs in GitHub release metadata and in the separate `Release Title` operator block only.
 This rule governs operator output packages; it does not remove normal canon requirements for branch scope, non-goals, stop conditions, or blockers in source-of-truth records.
 
 ### User-Facing Shortcut Live Validation Gate
@@ -735,12 +735,12 @@ They must clearly explain what was built, what capabilities exist, and how the s
 Release notes must follow the operator output content rule: report included work only, with no exclusion lists, `Not Included` sections, negative scope framing, or defensive wording.
 The live GitHub release body must use the standard Markdown release body shape:
 
-- `# <release title>`
-- `## Release Summary`
-- `## Release Highlights`
+- `## Release Summary` or `## Release Overview`
+- `## Release Highlights` or release-specific rich sections
 - `## What's Changed`
 - `**Full Changelog**:`
 
+The live release body must not start with or repeat the release title as `# <release title>`. Keep the public title in GitHub release metadata and the separate `Release Title` operator block; keep milestone names, scope, behavior, capabilities, validation, and next-step context inside the Markdown body.
 The `## What's Changed` section and `**Full Changelog**:` compare link must be populated by GitHub-generated release notes, using the GitHub release notes button or the generated-release-notes API with the previous release selected. Release Readiness may prepare the human-written summary and highlights, but Release Execution must combine them with the GitHub-generated notes before publication or repair the release body immediately after publication.
 
 If Release Readiness discovers missing PR-owned canon or docs work, stop immediately and classify the issue as `PR Readiness Scope Missed` and `Release Readiness Scope Drift`.

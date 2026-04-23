@@ -78,19 +78,20 @@ For an active or recently closed canonical workstream, keep these durable tracea
 Active here means the current promoted truth owner.
 That may be an executable branch owner or another explicitly promoted current-truth owner.
 
-- `Docs/workstreams/FB-032_nexus_era_vision_and_source_of_truth_migration.md`
+- `Docs/workstreams/FB-004_future_boot_orchestrator_layer.md`
 
-FB-032 is the current promoted PR Readiness authority. WS-1 through WS-3, H-1, LV-1, GOV-PR1, and PR-1 through PR-3 are docs/canon only and complete; PR #73 is open, non-draft, mergeable, and clean. No FB-032 implementation, wording migration, runtime behavior, UI implementation, persona work, rebrand execution, release work, shortcut validation requirement, or manual User Test Summary requirement is admitted by Workstream, Hardening, Live Validation, or PR Readiness completion alone.
+FB-004 Future boot orchestrator layer is active on `feature/fb-004-future-boot-orchestrator-layer`. Workstream seams WS-1 current boot-to-desktop source map and ownership boundary, WS-2 lifecycle and orchestration-state framing, WS-3 validation and admission contract, H-1 Hardening pressure test, LV-1 Live Validation waiver handling, GOV-PR0 backlog governance sync, post-merge release-debt truth, selected-next workstream truth, and PR package canon are complete. FB-004 remains docs/canon-only through PR Readiness and targets `v1.6.3-prebeta` after merge.
 
 ### Merged / Release Debt Owners
 
 Merged / Release Debt Owners are promoted implementation workstreams whose implementation branch is merge-target complete but whose public release packaging has not yet cleared release debt.
 These records are not active implementation branch owners after merge.
 
-Post-merge prepared owner: `Docs/workstreams/FB-032_nexus_era_vision_and_source_of_truth_migration.md` targets `v1.6.2-prebeta` as architecture-only / canon-only patch prerelease debt after PR merge. This record remains under Active until PR merge; after merge, repo state is `No Active Branch` until release debt clears.
+Post-merge prepared owner: FB-004 Future boot orchestrator layer becomes the merged-unreleased release-debt owner for `v1.6.3-prebeta` after its PR merges. Until that merge occurs, FB-004 remains under Active; after merge, repo state is No Active Branch until FB-004 release debt clears.
 
 ### Closed
 
+- `Docs/workstreams/FB-032_nexus_era_vision_and_source_of_truth_migration.md`
 - `Docs/workstreams/FB-031_nexus_desktop_ai_ui_ux_overhaul_planning.md`
 - `Docs/workstreams/FB-040_monitoring_thermals_performance_hud_surface.md`
 - `Docs/workstreams/FB-039_external_trigger_plugin_integration_architecture.md`

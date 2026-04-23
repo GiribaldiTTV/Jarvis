@@ -93,10 +93,10 @@ That historical filename is still part of current runtime truth even though the 
 
 ## Root Logs And Evidence Boundaries
 
-Current approved live launcher surfaces remain under:
+Current approved live launcher surfaces resolve under the runtime root's ignored `logs/` directory:
 
-- `C:/Jarvis/logs`
-- `C:/Jarvis/logs/crash`
+- `<runtime root>/logs`
+- `<runtime root>/logs/crash`
 
 Those roots remain the current runtime truth for:
 
@@ -104,11 +104,13 @@ Those roots remain the current runtime truth for:
 - matching crash logs
 - launcher control or status files when relevant
 
+In source, the desktop launcher resolves this from the repository/runtime root through `DEFAULT_LOG_DIR = os.path.join(ROOT_DIR, "logs")`. Historical `C:/Jarvis/...` wording may appear in older records from the Jarvis-named runtime era, but it does not override current root-relative launcher code truth.
+
 Launcher-owned historical state is no longer a root-logs surface during normal runtime.
 
 Developer, worker, toolkit, and harness evidence belongs under:
 
-- `C:/Jarvis/dev/logs/<lane>/...`
+- `<runtime root>/dev/logs/<lane>/...`
 
 That separation is part of the current architecture, not just a docs convention.
 

@@ -92,7 +92,7 @@ Before PR Readiness, each workstream-scoped helper must be resolved in one of th
 | --- | --- | --- | --- |
 | `dev/orin_desktop_entrypoint_validation.py` | Helper Status: Reusable | desktop startup and entrypoint validator | Extend for non-live startup, tray, overlay-entry, and runtime marker coverage. |
 | `dev/orin_desktop_launcher_healthy_validation.py` | Helper Status: Reusable | launcher healthy-path validator | Extend for launcher healthy startup regression coverage. |
-| `dev/orin_desktop_launcher_regression_harness.py` | Helper Status: Reusable | launcher regression harness | Extend for launcher scenario regression coverage before creating another launcher harness. |
+| `dev/orin_desktop_launcher_regression_harness.py` | Helper Status: Reusable | launcher regression harness | Repair-gated reusable: current file still references absent legacy `jarvis_*` launcher/target paths; repair to current `orin_*` paths or explicitly bypass before using it as launcher regression proof. After repair, extend for launcher scenario regression coverage before creating another launcher harness. |
 | `dev/orin_launcher_live_window_audit.ps1` | Helper Status: Reusable | live window audit helper | Extend or parameterize for launcher/window live validation before creating another launcher live audit helper. |
 | `dev/orin_overlay_input_capture_helper.py` | Helper Status: Reusable | overlay input helper | Reuse for overlay input-capture support instead of duplicating low-level input helpers. |
 

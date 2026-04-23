@@ -138,6 +138,7 @@ Rules:
 Use these for promoted work that needs a stable feature-state, branch-local validation/evidence record, active seam trail, durable artifact/reuse history, and closure history:
 
 - `Docs/workstreams/index.md`
+- `Docs/workstreams/FB-004_future_boot_orchestrator_layer.md`
 - `Docs/workstreams/FB-032_nexus_era_vision_and_source_of_truth_migration.md`
 - `Docs/workstreams/FB-031_nexus_desktop_ai_ui_ux_overhaul_planning.md`
 - `Docs/workstreams/FB-040_monitoring_thermals_performance_hud_surface.md`
@@ -268,7 +269,7 @@ These are reference layers, not active workstream or roadmap owners.
   5. never use the non-release waiver for `implementation` or `release packaging` branches
   6. never let the waiver clear `Release Debt`, weaken post-merge truth, weaken validation, or permit premature next-workstream branch creation
 - Release Readiness is not a docs-sync phase and not a file-mutation phase; it is analysis-only for repository files and is restricted to release-target validation, release-scope validation, release-artifact validation, GitHub release package information, final release-execution authorization or confirmation, and release-state confirmation after release execution
-- Release package details must use the operator copy-block contract from `Docs/phase_governance.md`: separate copy-ready blocks for `Release Title`, `Release Tag`, `Target Commit`, and `Release Notes`; release notes are detailed, user-facing, inclusion-only, Markdown-friendly, and must be combined with GitHub-generated `## What's Changed` plus the generated `**Full Changelog**:` compare link to the previous release during Release Execution
+- Release package details must use the operator copy-block contract from `Docs/phase_governance.md`: separate copy-ready blocks for `Release Title`, `Release Tag`, `Target Commit`, and `Release Notes`; release notes are detailed, user-facing, inclusion-only, Markdown-friendly, must not start with or repeat the release title as `# <release title>`, and must be combined with GitHub-generated `## What's Changed` plus the generated `**Full Changelog**:` compare link to the previous release during Release Execution
 - Release Readiness must not edit, stage, commit, generate, or refresh source, docs, canon, validator, helper, release-note, or handoff files; if such work is discovered before merge, return to `PR Readiness`, and if discovered after merge, defer it to the next active branch's `Branch Readiness`
 - tracked file changes while the authority record says `Release Readiness` are blocked as `Release Readiness File Mutation Attempt`
 - a post-release canon repair must not mutate `main`; if merged canon is stale, carry the repair on the still-available prior branch or block the next active branch's `Branch Readiness`
