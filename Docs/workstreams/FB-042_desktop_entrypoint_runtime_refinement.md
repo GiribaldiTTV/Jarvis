@@ -19,7 +19,7 @@
 
 ## Current Phase
 
-- Phase: `Hardening`
+- Phase: `Live Validation`
 
 ## Phase Status
 
@@ -33,6 +33,9 @@
 - H-1 WS-1 launch-path hardening is complete and green.
 - `launch_orin_desktop.vbs` now resolves the preferred installed `pythonw.exe` path first, falls back to `pyw.exe -3` only when `py -0p` proves a registered Python 3 launcher is available, then falls back to `pythonw.exe` on `PATH`, and shows a user-facing startup failure message if no windowed Python launcher is available.
 - `dev/orin_desktop_entrypoint_validation.py` now validates both the default VBS path and a forced-fallback VBS path through the real `launch_orin_desktop.vbs` -> `desktop/orin_desktop_launcher.pyw` -> `desktop/orin_desktop_main.py` chain and keeps launch-chain preflight / cleanup isolation as reusable proof.
+- LV-1 is complete and green.
+- The declared user-facing desktop shortcut `C:\Users\anden\OneDrive\Desktop\Nexus Desktop Launcher.lnk` now has fresh live evidence showing the active branch runtime launches through the real shortcut path, reaches launcher-owned `STARTUP_READY_OBSERVED`, reaches renderer `STARTUP_READY`, and does not route through launcher failure flow.
+- User-facing shortcut validation is now clear in canon, and User Test Summary results are explicitly waived because the branch changes a narrow launch fallback/error-handling seam rather than a broader manual workflow, in-app content flow, settings surface, or multi-step operator interaction.
 - Broader `main.py` reshaping and broader workspace follow-through are explicitly deferred; they are not admitted by inertia on this branch.
 - The historical FB-042 branch-authority record is preserved for traceability only and no longer owns active execution truth.
 
@@ -67,7 +70,7 @@ None.
 
 ## Next Legal Phase
 
-- `Live Validation`
+- `PR Readiness`
 
 ## Branch Objective
 
@@ -149,8 +152,7 @@ Planning-Loop Bypass Reason: `None`
 
 - User-Facing Shortcut Path: `C:\Users\anden\OneDrive\Desktop\Nexus Desktop Launcher.lnk`
 - Equivalent Entry Path: `launch_orin_desktop.vbs` -> `desktop/orin_desktop_launcher.pyw` -> `desktop/orin_desktop_main.py`
-- User-Facing Shortcut Validation: `PENDING`
-- `User-Facing Shortcut Validation Pending` is expected to remain a blocker later in Live Validation until the declared path is re-validated or explicitly waived with evidence.
+- User-Facing Shortcut Validation: `PASS`
 
 ## Validation Contract
 
@@ -180,10 +182,10 @@ Planning-Loop Bypass Reason: `None`
 
 ## Later-Phase Expectations
 
-- Workstream is now complete through WS-1 and Hardening is complete through H-1; do not reopen planning-only framing as a substitute for execution.
+- Workstream is now complete through WS-1, Hardening is complete through H-1, and Live Validation is complete through LV-1; do not reopen planning-only framing as a substitute for execution.
 - Any later seam that touches `main.py` or broader workspace follow-through must be separately admitted after WS-1 evidence exists.
 - Hardening pressure-tested launch-path ownership, fallback behavior, PATH-based Python resolution, validator cleanup boundaries, process isolation, rollback viability, and hidden coupling for the implemented WS-1 delta.
-- Live Validation must classify shortcut applicability from the real shipped path and clear or waive the user-facing shortcut blocker with evidence.
+- Live Validation classified shortcut applicability from the real shipped path, cleared the user-facing shortcut gate with real shortcut evidence, and classified User Test Summary results as a narrow waiver.
 
 ## Initial Workstream Seam Sequence
 
@@ -229,6 +231,48 @@ H-1 pressure-tested the completed WS-1 runtime delta across launch-path ownershi
 - `git diff --check`: PASS.
 - Hidden-coupling scan: PASS; no new fallback-resolution markers leaked into `main.py`, `Audio/`, or `jarvis_visual/`.
 
+## Live Validation Record
+
+LV-1 validates the completed FB-042 WS-1 launch-path slice against live repo truth, real desktop shortcut behavior, User Test Summary applicability, and branch cleanliness. This pass keeps the implementation slice bounded to the existing desktop shortcut / VBS / launcher / runtime chain and does not reopen `main.py`, broader workspace movement, audio, logs, visual-asset relocation, or installer work.
+
+### Live Validation Findings
+
+- Repo Truth Alignment: `Docs/feature_backlog.md`, `Docs/prebeta_roadmap.md`, `Docs/workstreams/index.md`, and this workstream record align on FB-042 as the active promoted implementation workstream, latest public prerelease `v1.6.6-prebeta`, release debt clear, WS-1 complete, H-1 complete, and PR Readiness next after LV-1 completion.
+- Branch Truth Alignment: the checked-out branch is `feature/fb-042-desktop-entrypoint-runtime-refinement`, aligned with origin at the hardened WS-1 baseline before this LV-1 pass.
+- User-Facing Shortcut Applicability: applicable and exercised. The completed delta changes the shipped desktop shortcut launch path, so the final Live Validation closeout used the declared desktop shortcut rather than a helper-only or direct-Python substitute.
+- Real Shortcut Gate Result: PASS. Launching through `C:\Users\anden\OneDrive\Desktop\Nexus Desktop Launcher.lnk` exercised the active branch runtime, produced a dedicated evidence root, reached launcher-owned `STARTUP_READY_OBSERVED`, reached renderer `STARTUP_READY`, recorded `WINDOW_SHOW_REQUESTED` and `TRAY_ENTRY_READY`, and did not route through launcher failure flow.
+- User Test Summary Applicability: narrow waiver. The branch changes startup fallback selection and failure-path user messaging on the existing launch path, but it does not add a new in-app task flow, settings workflow, persisted user content, multi-step operator behavior, or broader UI contract that a filled manual User Test Summary would materially validate beyond the real shortcut evidence already captured.
+- Desktop Export Applicability: no desktop `User Test Summary.txt` export is required for LV-1 because User Test Summary results are waived for this narrow launch-path delta.
+- Cleanup: the live shortcut pass left no residual validation-owned launch-chain processes after cleanup.
+
+### Live Validation Completion Decision
+
+- LV-1 Result: Complete / green with real desktop shortcut evidence and waiver-based User Test Summary digestion recorded.
+- User-facing shortcut gate: PASS with exact markers in `## User Test Summary`.
+- User Test Summary results gate: WAIVED with exact markers in `## User Test Summary`.
+- Validation Layer: repo-truth alignment, reusable validator evidence, real desktop shortcut launch evidence, launcher/runtime marker readback, and governance validation.
+- Continue/Stop Decision: stop at the Live Validation phase boundary after validation because FB-042 LV-1 proof is green and the next normal phase is `PR Readiness`.
+
+### LV-1 Validation Results
+
+- `python dev\orin_desktop_entrypoint_validation.py`: PASS; report `dev/logs/desktop_entrypoint_validation/reports/DesktopEntrypointValidationReport_20260424_134116.txt`.
+- Real desktop shortcut gate: PASS; report `dev/logs/fb_042_live_validation/20260424_134832/desktop_shortcut_gate/DesktopShortcutGateReport.json`.
+- `python dev\orin_branch_governance_validation.py`: PASS.
+- `git diff --check`: PASS.
+- LV-1 phase-state scan: PASS; current authority surfaces report FB-042 Live Validation complete and PR Readiness as the next legal phase.
+- LV-1 user-facing shortcut gate: PASS with exact markers in `## User Test Summary`.
+- LV-1 User Test Summary results gate: WAIVED with exact markers in `## User Test Summary`; no desktop export is required.
+- LV-1 scope validation: PASS; no new runtime surface, launcher target, audio path, logs ownership model, visual asset path, installer surface, or broader workspace slice was introduced during this pass.
+
+## User Test Summary
+
+- Implemented delta: the desktop launch shim now prefers the installed `pythonw.exe`, falls back to `pyw.exe -3` only when a registered Python 3 launcher is proven, falls back to PATH `pythonw.exe` last, and shows a direct startup failure dialog when no usable windowed Python launcher exists.
+- Automated validators and live shortcut evidence: GREEN.
+- User-Facing Shortcut Path: `C:\Users\anden\OneDrive\Desktop\Nexus Desktop Launcher.lnk`
+- User-Facing Shortcut Validation: PASS
+- User Test Summary Results: WAIVED
+- User Test Summary Waiver Reason: The completed FB-042 delta is a narrow desktop launch-path refinement backed by fresh real-shortcut evidence, default/fallback launch-chain validation, and cleanup proof. It does not add a broader manual task flow, content workflow, settings journey, or multi-step interactive behavior that a filled manual User Test Summary would materially validate beyond the captured shortcut evidence.
+
 ## Artifact History
 
 - `dev/orin_desktop_entrypoint_validation.py`
@@ -239,18 +283,21 @@ H-1 pressure-tested the completed WS-1 runtime delta across launch-path ownershi
 - `dev/logs/desktop_entrypoint_validation/reports/DesktopEntrypointValidationReport_20260424_133627.txt`
   Purpose: latest H-1 proof artifact showing default-path success, forced-fallback success, launch-chain cleanup isolation, and the hardened Python 3 launcher-registration fallback contract.
   Classification: `supporting`
+- `dev/logs/fb_042_live_validation/20260424_134832/desktop_shortcut_gate/DesktopShortcutGateReport.json`
+  Purpose: LV-1 real desktop shortcut gate evidence showing the declared `.lnk` path launched the active branch runtime, reached startup-ready markers, and avoided launcher failure flow.
+  Classification: `supporting`, `interactive-only`
 
 ## Active Seam
 
 Active seam: `None.`
 
-- Workstream is complete through WS-1 and Hardening is complete through H-1.
+- Workstream is complete through WS-1, Hardening is complete through H-1, and Live Validation is complete through LV-1.
 - No later FB-042 seam is admitted yet.
 - Broader `main.py` reshaping and broader workspace follow-through remain explicitly blocked until a later bounded admission.
 
 ## Seam Continuation Decision
 
-Continue Decision: `Stop at the Hardening phase boundary.`
+Continue Decision: `Stop at the Live Validation phase boundary.`
 Next Active Seam: `None.`
-Stop Condition: `WS-1 is complete and validated, H-1 hardening is complete and green, and no later FB-042 seam is admitted yet.`
-Continuation Action: `Advance to Live Validation and classify the real desktop shortcut gate before any later seam is admitted.`
+Stop Condition: `WS-1 is complete and validated, H-1 hardening is complete and green, LV-1 is complete and green, and no later FB-042 seam is admitted yet.`
+Continuation Action: `Advance to PR Readiness and package the bounded launch-path runtime slice before any later seam is admitted.`
