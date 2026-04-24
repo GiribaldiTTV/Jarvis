@@ -87,12 +87,11 @@ No active implementation workstream remains after FB-042 PR packaging because me
 Merged / Release Debt Owners are promoted implementation workstreams whose implementation branch is merge-target complete but whose public release packaging has not yet cleared release debt.
 These records are not active implementation branch owners after merge.
 
-- `Docs/workstreams/FB-042_desktop_entrypoint_runtime_refinement.md`
-
-FB-042 Desktop entrypoint runtime refinement is the merged-unreleased release-debt owner for `v1.6.7-prebeta`. `Repo State` is `No Active Branch`; the bounded WS-1 desktop shortcut launch-path runtime refinement, H-1 hardening, and LV-1 live shortcut validation are complete historical proof; and FB-043 is selected next as the branch-not-created top-level desktop entrypoint successor lane.
+None.
 
 ### Closed
 
+- `Docs/workstreams/FB-042_desktop_entrypoint_runtime_refinement.md`
 - `Docs/workstreams/FB-005_workspace_and_folder_organization.md`
 - `Docs/workstreams/FB-030_orin_voice_audio_direction_refinement.md`
 - `Docs/workstreams/FB-029_orin_identity_licensing_hardening.md`

@@ -45,7 +45,7 @@ Do not use this layer to replace:
 
 ## Active Branch Authority Records
 
-None.
+- `Docs/branch_records/feature_fb_043_top_level_entrypoint_handoff_refinement.md`
 
 ## Historical Branch Authority Records
 

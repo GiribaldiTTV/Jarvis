@@ -7,11 +7,11 @@
 
 ## Record State
 
-- `Promoted`
+- `Closed`
 
 ## Status
 
-- `Merged unreleased`
+- `Released (v1.6.7-prebeta)`
 
 ## Target Version
 
@@ -23,19 +23,17 @@
 
 ## Current Phase
 
-- Phase: `Release Readiness`
+- Phase: `Closed`
 
 ## Phase Status
 
-- FB-042 is the merged-unreleased release-debt owner for `v1.6.7-prebeta`.
-- Repo State: No Active Branch
-- Repo State: `No Active Branch`
-- Merged-Unreleased Release-Debt Owner: FB-042 Desktop entrypoint runtime refinement
+- `Released / Closed in v1.6.7-prebeta`.
 - Historical source-branch execution completed on `feature/fb-042-desktop-entrypoint-runtime-refinement`.
-- Latest public prerelease truth is `v1.6.6-prebeta`.
-- `v1.6.6-prebeta` is live at `https://github.com/GiribaldiTTV/Nexus-Desktop-AI/releases/tag/v1.6.6-prebeta` on target commit `deeaa691a79dd01897f6aed82f087970db7019b3`.
-- FB-005 is Released / Closed in `v1.6.6-prebeta`, and release debt is clear in canon.
-- Release debt becomes active after merge and stays active until `v1.6.7-prebeta` is published, validated, and post-release canon closure completes.
+- Latest Public Prerelease: v1.6.7-prebeta
+- Latest public prerelease truth is `v1.6.7-prebeta`.
+- `v1.6.7-prebeta` is live at `https://github.com/GiribaldiTTV/Nexus-Desktop-AI/releases/tag/v1.6.7-prebeta` on target commit `8f53d163ad008f7508f55f593b15369749e3ec24`.
+- FB-005 is Released / Closed in `v1.6.6-prebeta`, and release debt remains clear in canon.
+- FB-042 release debt is clear after publication, validation, and post-release canon closure.
 - Target Version: v1.6.7-prebeta
 - Release Title: Pre-Beta v1.6.7
 - WS-1 desktop shortcut launch-path runtime refinement is complete and validated.
@@ -46,9 +44,9 @@
 - LV-1 is complete and green.
 - The declared user-facing desktop shortcut `C:\Users\anden\OneDrive\Desktop\Nexus Desktop Launcher.lnk` now has fresh live evidence showing the active branch runtime launches through the real shortcut path, reaches launcher-owned `STARTUP_READY_OBSERVED`, reaches renderer `STARTUP_READY`, and does not route through launcher failure flow.
 - User-facing shortcut validation is now clear in canon, and User Test Summary results are explicitly waived because the branch changes a narrow launch fallback/error-handling seam rather than a broader manual workflow, in-app content flow, settings surface, or multi-step operator interaction.
-- PR Readiness is complete, and merge-target canon is now prepared for file-frozen Release Readiness on updated `main`.
+- PR Readiness, Release Readiness, and Release Execution are complete historical proof.
 - Selected Next Workstream: FB-043 Top-level desktop entrypoint ownership and main.py handoff refinement.
-- FB-043 remains branch-not-created until FB-042 release packaging clears and a bounded runtime-bearing top-level entrypoint slice is admitted.
+- FB-043 Branch Readiness is now active on `feature/fb-043-top-level-entrypoint-handoff-refinement`, and one bounded runtime-bearing top-level entrypoint slice is defined for Workstream admission.
 - Broader `main.py` reshaping and broader workspace follow-through are explicitly deferred; they are not admitted by inertia on this branch.
 - The historical FB-042 branch-authority record is preserved for traceability only and no longer owns active execution truth.
 
@@ -79,11 +77,11 @@ None.
 
 ## Rollback Target
 
-- `Branch Readiness`
+- `Closed`
 
 ## Next Legal Phase
 
-- `Release Readiness`
+- `Closed`
 
 ## Branch Objective
 
