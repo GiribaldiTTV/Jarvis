@@ -32,8 +32,9 @@
 - WS-1 `main.py` direct-launch handoff refinement is complete and validated.
 - Plain direct `main.py` launches now hand off to the canonical desktop entry chain instead of silently owning a competing top-level runtime path.
 - Explicit dev boot intent remains available through boot arguments and the existing dev launcher parent path.
-- Same-branch continuation remains the default for the remaining FB-043 slices needed to finish the backlog item.
-- Active seam: `None.` WS-1 is complete; `Hardening` is next.
+- Same-branch backlog completion remains the default for FB-043, and the branch stays in `Workstream` until the backlog item is fully implemented or only future-dependent blockers remain.
+- WS-1 is complete and validated, but backlog completion is not yet proven.
+- Active seam: `None.` WS-1 is complete; backlog-completion reassessment and the next implementable FB-043 slice are still pending before `Hardening` becomes legal.
 
 ## Branch Class
 
@@ -41,7 +42,7 @@
 
 ## Blockers
 
-None.
+- `Backlog Completion Unproven`
 
 ## Entry Basis
 
@@ -57,6 +58,7 @@ None.
 - Explicit dev boot paths remain verifiable and are not silently replaced by the canonical runtime route.
 - Validation proves production launch, fallback launch, and explicit dev boot evidence are all green.
 - Canon is updated so FB-043 is no longer described as selected-only while active implementation is underway.
+- The branch does not leave `Workstream` until FB-043 reaches `Backlog Completion State: Implemented Complete` or `Backlog Completion State: Implemented Complete Except Future Dependency`.
 
 ## Rollback Target
 
@@ -64,7 +66,7 @@ None.
 
 ## Next Legal Phase
 
-- `Hardening`
+- `Workstream`
 
 ## Purpose / Why It Matters
 
@@ -104,6 +106,12 @@ Backlog-Split Reason: `None`
 
 - WS-1 is the first completed FB-043 slice, not a branch cap.
 - Additional FB-043 slices should continue on this same branch when scope, phase, risk, and validation authority remain green.
+
+## Backlog Completion Status
+
+Backlog Completion State: `In Progress`
+Remaining Implementable Work: `Workstream reassessment is required after WS-1; additional same-branch FB-043 slices may still be needed to finish top-level desktop entrypoint ownership and handoff refinement.`
+Future-Dependent Blockers: `None proven yet.`
 
 ## User-Facing Shortcut Contract
 
@@ -194,10 +202,10 @@ That removes the old split where plain `main.py` execution looked like a competi
 
 ## Seam Continuation Decision
 
-Continue Decision: `Stop at the Workstream phase boundary after WS-1 completion; keep same-branch continuation as the default for later FB-043 slices`
-Next Active Seam: `None in Workstream; WS-1 is complete`
-Stop Condition: `Workstream reached its current bounded boundary because WS-1 is implemented, validated, and ready for Hardening`
-Continuation Action: `Advance to Hardening for WS-1 on this same branch, then preserve same-branch continuation for later FB-043 slices unless a bounded stop condition or USER-approved backlog split is recorded`
+Continue Decision: `Continue in Workstream; WS-1 is complete, but FB-043 backlog completion is not yet proven`
+Next Active Seam: `Reassess the remaining top-level entrypoint ambiguity, admit the next implementable FB-043 slice on this same branch, and execute it unless only future-dependent blockers remain`
+Stop Condition: `Do not leave Workstream until Backlog Completion State is Implemented Complete or Implemented Complete Except Future Dependency`
+Continuation Action: `Keep FB-043 in Workstream on this branch, continue the next implementable slice, and delay Hardening until remaining same-branch work is exhausted or proven future-dependent`
 
 ## User Test Summary
 
@@ -210,4 +218,4 @@ Continuation Action: `Advance to Hardening for WS-1 on this same branch, then pr
 Active seam: `None.`
 
 - WS-1 is complete and validated.
-- `Hardening` is the next legal phase.
+- `Hardening` is blocked while `Backlog Completion State` remains `In Progress`.

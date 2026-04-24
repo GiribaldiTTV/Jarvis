@@ -87,6 +87,7 @@ REQUIRED_WORKSTREAM_HEADINGS = (
 REQUIRED_BRANCH_READINESS_DURABILITY_HEADINGS = (
     "## Branch Objective",
     "## Target End-State",
+    "## Backlog Completion Strategy",
     "## Expected Seam Families And Risk Classes",
     "## User Test Summary Strategy",
     "## Later-Phase Expectations",
@@ -99,6 +100,12 @@ REQUIRED_BRANCH_READINESS_FIRST_SEAM_MARKERS = (
     "Goal:",
     "Scope:",
     "Non-Includes:",
+)
+
+REQUIRED_BRANCH_READINESS_COMPLETION_MARKERS = (
+    "Branch Completion Goal:",
+    "Known Future-Dependent Blockers:",
+    "Branch Closure Rule:",
 )
 
 SUCCESSOR_LOCK_WAIVER_DOCS = (
@@ -164,6 +171,9 @@ MULTI_SEAM_CONTRACT_PHRASES = (
     "there is no repo-wide cap on how many slices a branch or workstream may carry",
     "same-branch backlog completion is the default: admit and execute the additional slices needed to finish the backlog item on the current branch whenever scope, phase, risk, and validation authority remain green",
     "perform all admitted seams in the bounded multi-seam workflow and continue through the additional slices needed to complete the backlog item on the same branch unless an explicit `Backlog-Split User Approval` or a named bounded stop condition is recorded",
+    "Branch Readiness must evaluate the whole backlog item, define the first admitted slice, record the same-branch continuation posture for the remaining slices needed to complete the backlog item, and record any known future-dependent blockers before Workstream begins.",
+    "Workstream must execute admitted implementation slices, keep re-evaluating the backlog item after each seam and slice, and continue on the same branch until the backlog item is fully implemented or only future-dependent blockers remain unless the USER explicitly approves a docs-only bypass or backlog split.",
+    "`Workstream` may not advance to `Hardening` while remaining implementable work is still available on the current backlog item",
     "Backlog-Split User Approval",
     "bounded stop condition",
     "reporting `Next Safe Move` is not a substitute for execution",
@@ -209,6 +219,7 @@ MULTI_SEAM_PROMPT_PHRASES = (
     "there is no repo-wide cap on how many slices a branch or workstream may carry",
     "same-branch backlog completion is the default: admit and execute the additional slices needed to finish the backlog item on the current branch whenever scope, phase, risk, and validation authority remain green",
     "perform all admitted seams in the bounded multi-seam workflow and continue through the additional slices needed to complete the backlog item on the same branch unless an explicit `Backlog-Split User Approval` or a named bounded stop condition is recorded",
+    "Backlog Completion State",
     "Backlog-Split User Approval",
     "Backlog-Split Reason",
     "reporting Next Safe Move is not a substitute for execution",
@@ -274,13 +285,14 @@ PLANNING_LOOP_GUARDRAIL_DOCS = (
 )
 
 PLANNING_LOOP_GUARDRAIL_PHRASES = (
-    "Branch Readiness owns planning, framing, affected-surface mapping, implementation delta classification, and admitted-slice definition before Workstream begins.",
-    "Branch Readiness must define the first admitted slice and the same-branch continuation posture for the remaining slices needed to complete the backlog item.",
-    "Workstream must execute admitted implementation slices and keep same-branch backlog completion as the default unless the USER explicitly approves a docs-only bypass or backlog split.",
+    "Branch Readiness owns planning, framing, affected-surface mapping, implementation delta classification, admitted-slice definition, and whole-backlog closure strategy before Workstream begins.",
+    "Branch Readiness must evaluate the whole backlog item, define the first admitted slice, record the same-branch continuation posture for the remaining slices needed to complete the backlog item, and record any known future-dependent blockers before Workstream begins.",
+    "Workstream must execute admitted implementation slices, keep re-evaluating the backlog item after each seam and slice, and continue on the same branch until the backlog item is fully implemented or only future-dependent blockers remain unless the USER explicitly approves a docs-only bypass or backlog split.",
     "Docs-only Workstreams require explicit USER approval.",
     "Planning-Loop Bypass User Approval: APPROVED",
     "Planning-Loop Bypass Reason:",
     "Release-bearing implementation work with no runtime/user-facing, backend/runtime, or developer-tooling delta is blocked unless the USER explicitly approves that release window.",
+    "`Workstream` may not advance to `Hardening` while remaining implementable work is still available on the current backlog item",
 )
 
 PROMPT_DISCIPLINE_REQUIRED_PHRASES = {
@@ -326,6 +338,13 @@ PLANNING_LOOP_ACTIVE_PHASES = (
     "PR Readiness",
 )
 
+BACKLOG_COMPLETION_ACTIVE_PHASES = (
+    "Workstream",
+    "Hardening",
+    "Live Validation",
+    "PR Readiness",
+)
+
 PLANNING_LOOP_DELTA_CLASS_LABEL = "Implementation Delta Class"
 PLANNING_LOOP_DOCS_ONLY_LABEL = "Docs-Only Workstream"
 PLANNING_LOOP_BYPASS_APPROVAL_LABEL = "Planning-Loop Bypass User Approval"
@@ -342,6 +361,18 @@ SLICE_CONTINUATION_DEFAULT_LABEL = "Slice Continuation Default"
 BACKLOG_SPLIT_APPROVAL_LABEL = "Backlog-Split User Approval"
 BACKLOG_SPLIT_REASON_LABEL = "Backlog-Split Reason"
 SAME_BRANCH_SLICE_CONTINUATION_VALUE = "same-branch backlog completion"
+BACKLOG_COMPLETION_STATUS_HEADING = "Backlog Completion Status"
+BACKLOG_COMPLETION_STRATEGY_HEADING = "Backlog Completion Strategy"
+BACKLOG_COMPLETION_STATE_LABEL = "Backlog Completion State"
+REMAINING_IMPLEMENTABLE_WORK_LABEL = "Remaining Implementable Work"
+FUTURE_DEPENDENT_BLOCKERS_LABEL = "Future-Dependent Blockers"
+BACKLOG_COMPLETION_GOAL_LABEL = "Branch Completion Goal"
+KNOWN_FUTURE_DEPENDENT_BLOCKERS_LABEL = "Known Future-Dependent Blockers"
+BRANCH_CLOSURE_RULE_LABEL = "Branch Closure Rule"
+BACKLOG_COMPLETION_UNPROVEN_BLOCKER = "Backlog Completion Unproven"
+BACKLOG_COMPLETION_IN_PROGRESS = "in progress"
+BACKLOG_COMPLETION_IMPLEMENTED_COMPLETE = "implemented complete"
+BACKLOG_COMPLETION_IMPLEMENTED_COMPLETE_FUTURE = "implemented complete except future dependency"
 ACTIVE_SINGLE_SLICE_PROHIBITED_PATTERNS = (
     r"only the admitted ws-\d+",
     r"unless the user later approves another seam",
@@ -1285,6 +1316,178 @@ def _validate_slice_continuation_policy(
             (
                 f"{source_path}: active implementation lane must not encode single-slice stop "
                 f"authority via '{prohibited_pattern}'"
+            ),
+        )
+
+
+def _validate_backlog_completion_strategy(
+    require,
+    source_path: str,
+    text: str,
+    *,
+    branch_class: str,
+    current_phase: str,
+) -> None:
+    if branch_class != "implementation":
+        return
+    if current_phase != "Branch Readiness":
+        return
+
+    require(
+        f"## {BACKLOG_COMPLETION_STRATEGY_HEADING}" in text,
+        f"{source_path}: implementation Branch Readiness is missing '## {BACKLOG_COMPLETION_STRATEGY_HEADING}'",
+    )
+    strategy_section = _section(text, BACKLOG_COMPLETION_STRATEGY_HEADING)
+    for marker in REQUIRED_BRANCH_READINESS_COMPLETION_MARKERS:
+        require(
+            marker in strategy_section,
+            f"{source_path}: {BACKLOG_COMPLETION_STRATEGY_HEADING} is missing '{marker}'",
+        )
+
+    completion_goal = _extract_marker_value(strategy_section, BACKLOG_COMPLETION_GOAL_LABEL)
+    known_future_blockers = _extract_marker_value(
+        strategy_section, KNOWN_FUTURE_DEPENDENT_BLOCKERS_LABEL
+    )
+    closure_rule = _extract_marker_value(strategy_section, BRANCH_CLOSURE_RULE_LABEL)
+
+    require(
+        bool(completion_goal),
+        f"{source_path}: {BACKLOG_COMPLETION_GOAL_LABEL} must not be empty",
+    )
+    require(
+        bool(known_future_blockers),
+        f"{source_path}: {KNOWN_FUTURE_DEPENDENT_BLOCKERS_LABEL} must not be empty",
+    )
+    require(
+        bool(closure_rule),
+        f"{source_path}: {BRANCH_CLOSURE_RULE_LABEL} must not be empty",
+    )
+
+
+def _validate_backlog_completion_status(
+    require,
+    source_path: str,
+    text: str,
+    *,
+    branch_class: str,
+    current_phase: str,
+    blockers: list[str],
+    next_legal_phase: str,
+) -> None:
+    if branch_class != "implementation":
+        return
+    if current_phase not in BACKLOG_COMPLETION_ACTIVE_PHASES:
+        return
+
+    require(
+        f"## {BACKLOG_COMPLETION_STATUS_HEADING}" in text,
+        f"{source_path}: implementation lane is missing '## {BACKLOG_COMPLETION_STATUS_HEADING}'",
+    )
+    status_section = _section(text, BACKLOG_COMPLETION_STATUS_HEADING)
+    state_value = _extract_marker_value(status_section, BACKLOG_COMPLETION_STATE_LABEL)
+    remaining_work = _extract_marker_value(status_section, REMAINING_IMPLEMENTABLE_WORK_LABEL)
+    future_blockers = _extract_marker_value(status_section, FUTURE_DEPENDENT_BLOCKERS_LABEL)
+    normalized_state = state_value.strip().casefold()
+    normalized_remaining = remaining_work.strip().casefold()
+    normalized_future = future_blockers.strip().casefold()
+    has_backlog_blocker = BACKLOG_COMPLETION_UNPROVEN_BLOCKER in blockers
+
+    require(
+        bool(state_value),
+        f"{source_path}: {BACKLOG_COMPLETION_STATUS_HEADING} is missing '{BACKLOG_COMPLETION_STATE_LABEL}:'",
+    )
+    require(
+        bool(remaining_work),
+        f"{source_path}: {BACKLOG_COMPLETION_STATUS_HEADING} is missing '{REMAINING_IMPLEMENTABLE_WORK_LABEL}:'",
+    )
+    require(
+        bool(future_blockers),
+        f"{source_path}: {BACKLOG_COMPLETION_STATUS_HEADING} is missing '{FUTURE_DEPENDENT_BLOCKERS_LABEL}:'",
+    )
+    require(
+        normalized_state
+        in {
+            BACKLOG_COMPLETION_IN_PROGRESS,
+            BACKLOG_COMPLETION_IMPLEMENTED_COMPLETE,
+            BACKLOG_COMPLETION_IMPLEMENTED_COMPLETE_FUTURE,
+        },
+        (
+            f"{source_path}: {BACKLOG_COMPLETION_STATE_LABEL} '{state_value}' must be "
+            "'In Progress', 'Implemented Complete', or 'Implemented Complete Except Future Dependency'"
+        ),
+    )
+
+    if normalized_state == BACKLOG_COMPLETION_IN_PROGRESS:
+        require(
+            current_phase == "Workstream",
+            (
+                f"{source_path}: {BACKLOG_COMPLETION_STATE_LABEL} In Progress must keep the branch in "
+                "`Workstream`"
+            ),
+        )
+        require(
+            next_legal_phase == "Workstream",
+            (
+                f"{source_path}: {BACKLOG_COMPLETION_STATE_LABEL} In Progress must keep "
+                "Next Legal Phase at `Workstream`"
+            ),
+        )
+        require(
+            normalized_remaining not in {"", "none", "n/a", "na"},
+            (
+                f"{source_path}: {BACKLOG_COMPLETION_STATE_LABEL} In Progress requires "
+                f"'{REMAINING_IMPLEMENTABLE_WORK_LABEL}:' to name remaining same-branch work"
+            ),
+        )
+        require(
+            has_backlog_blocker,
+            (
+                f"{source_path}: {BACKLOG_COMPLETION_STATE_LABEL} In Progress requires blocker "
+                f"'{BACKLOG_COMPLETION_UNPROVEN_BLOCKER}'"
+            ),
+        )
+    elif normalized_state == BACKLOG_COMPLETION_IMPLEMENTED_COMPLETE:
+        require(
+            normalized_remaining in {"", "none", "n/a", "na"},
+            (
+                f"{source_path}: {BACKLOG_COMPLETION_STATE_LABEL} Implemented Complete requires "
+                f"'{REMAINING_IMPLEMENTABLE_WORK_LABEL}: None'"
+            ),
+        )
+        require(
+            normalized_future in {"", "none", "n/a", "na"},
+            (
+                f"{source_path}: {BACKLOG_COMPLETION_STATE_LABEL} Implemented Complete requires "
+                f"'{FUTURE_DEPENDENT_BLOCKERS_LABEL}: None'"
+            ),
+        )
+        require(
+            not has_backlog_blocker,
+            (
+                f"{source_path}: blocker '{BACKLOG_COMPLETION_UNPROVEN_BLOCKER}' must clear once "
+                "backlog completion is proven"
+            ),
+        )
+    elif normalized_state == BACKLOG_COMPLETION_IMPLEMENTED_COMPLETE_FUTURE:
+        require(
+            normalized_remaining in {"", "none", "n/a", "na"},
+            (
+                f"{source_path}: {BACKLOG_COMPLETION_STATE_LABEL} Implemented Complete Except Future "
+                f"Dependency requires '{REMAINING_IMPLEMENTABLE_WORK_LABEL}: None'"
+            ),
+        )
+        require(
+            normalized_future not in {"", "none", "n/a", "na"},
+            (
+                f"{source_path}: {BACKLOG_COMPLETION_STATE_LABEL} Implemented Complete Except Future "
+                f"Dependency requires named '{FUTURE_DEPENDENT_BLOCKERS_LABEL}:'"
+            ),
+        )
+        require(
+            not has_backlog_blocker,
+            (
+                f"{source_path}: blocker '{BACKLOG_COMPLETION_UNPROVEN_BLOCKER}' must clear once "
+                "only future-dependent blockers remain"
             ),
         )
 
@@ -2915,6 +3118,14 @@ def main() -> int:
                     ),
                 )
 
+            _validate_backlog_completion_strategy(
+                require,
+                canonical_path,
+                workstream_text,
+                branch_class=branch_class,
+                current_phase=current_phase,
+            )
+
             initial_seam_sequence = _section(workstream_text, "Initial Workstream Seam Sequence")
             for marker in REQUIRED_BRANCH_READINESS_FIRST_SEAM_MARKERS:
                 require(
@@ -3155,6 +3366,15 @@ def main() -> int:
             workstream_text,
             branch_class=branch_class,
             current_phase=current_phase,
+        )
+        _validate_backlog_completion_status(
+            require,
+            canonical_path,
+            workstream_text,
+            branch_class=branch_class,
+            current_phase=current_phase,
+            blockers=blockers,
+            next_legal_phase=next_legal_phase,
         )
         if (
             current_git_branch == "main"
@@ -3521,12 +3741,13 @@ def main() -> int:
             f"{branch_record_path}: Next Legal Phase '{info['next_legal_phase']}' is not in the canonical phase enum",
         )
         if branch_record_path in active_branch_record_paths:
+            current_phase = str(info["current_phase"])
             _validate_planning_loop_guardrail(
                 require,
                 branch_record_path,
                 record_text,
                 branch_class=branch_class,
-                current_phase=str(info["current_phase"]),
+                current_phase=current_phase,
                 normalized_status=normalized_record_status,
             )
             _validate_slice_continuation_policy(
@@ -3534,8 +3755,58 @@ def main() -> int:
                 branch_record_path,
                 record_text,
                 branch_class=branch_class,
-                current_phase=str(info["current_phase"]),
+                current_phase=current_phase,
             )
+            _validate_backlog_completion_strategy(
+                require,
+                branch_record_path,
+                record_text,
+                branch_class=branch_class,
+                current_phase=current_phase,
+            )
+            _validate_backlog_completion_status(
+                require,
+                branch_record_path,
+                record_text,
+                branch_class=branch_class,
+                current_phase=current_phase,
+                blockers=list(info["blockers"]),
+                next_legal_phase=str(info["next_legal_phase"]),
+            )
+            if current_phase == "Branch Readiness":
+                for heading in REQUIRED_BRANCH_READINESS_DURABILITY_HEADINGS:
+                    require(
+                        heading in record_text,
+                        (
+                            f"{branch_record_path}: Branch Readiness durability scaffold is missing "
+                            f"required heading '{heading}'"
+                        ),
+                    )
+                initial_seam_sequence = _section(record_text, "Initial Workstream Seam Sequence")
+                for marker in REQUIRED_BRANCH_READINESS_FIRST_SEAM_MARKERS:
+                    require(
+                        marker in initial_seam_sequence,
+                        (
+                            f"{branch_record_path}: Initial Workstream Seam Sequence must define a first seam "
+                            f"with '{marker}'"
+                        ),
+                    )
+                active_seam_section = _section(record_text, "Active Seam")
+                require(
+                    "Active seam:" in active_seam_section,
+                    f"{branch_record_path}: Active Seam section must clearly identify the active seam",
+                )
+            if current_phase == "Workstream":
+                continuation_section = _section(record_text, "Seam Continuation Decision")
+                require(
+                    bool(continuation_section),
+                    f"{branch_record_path}: active Workstream record must include '## Seam Continuation Decision'",
+                )
+                for marker in REQUIRED_WORKSTREAM_CONTINUATION_MARKERS:
+                    require(
+                        marker in continuation_section,
+                        f"{branch_record_path}: Seam Continuation Decision is missing '{marker}'",
+                    )
         if branch_record_path in active_branch_record_paths and str(info["current_phase"]) == "Release Readiness":
             status_output = _git_status_porcelain(tracked_only=True)
             require(

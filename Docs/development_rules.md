@@ -161,8 +161,9 @@ Default checkpoint:
 
 Branch Readiness must establish the branch-level execution plan before Workstream begins.
 That plan must name the branch objective, target end-state, expected seam families and risk classes, validation contract, User Test Summary strategy, later-phase needs, and the first Workstream seam or initial seam sequence.
-Branch Readiness owns planning, framing, affected-surface mapping, implementation delta classification, and admitted-slice definition before Workstream begins.
+Branch Readiness owns planning, framing, affected-surface mapping, implementation delta classification, admitted-slice definition, and whole-backlog closure strategy before Workstream begins.
 Workstream must execute an admitted implementation slice unless the USER explicitly approves a docs-only bypass.
+Workstream must keep re-evaluating the backlog item after each seam and slice and continue on the same branch until the backlog item is fully implemented or only future-dependent blockers remain.
 Docs-only Workstreams require explicit USER approval.
 Planning-loop bypass requires `Planning-Loop Bypass User Approval: APPROVED` and `Planning-Loop Bypass Reason:`.
 Release-bearing implementation work with no runtime/user-facing, backend/runtime, or developer-tooling delta is blocked unless the USER explicitly approves that release window.
@@ -404,12 +405,14 @@ and keep that validator green before calling the branch ready.
 - `bounded multi-seam workflow` is the primary Workstream execution model for approved seam chains
 - `Next-Seam Continuation Required` is the default after a green seam inside a valid bounded multi-seam workflow
 - a prompt-named seam inside an approved sequence is the entry seam, not a terminal boundary
-- Branch Readiness must define the first admitted slice and the same-branch continuation posture for the remaining slices needed to complete the backlog item.
-- Workstream must execute admitted implementation slices and keep same-branch backlog completion as the default unless the USER explicitly approves a docs-only bypass or backlog split.
+- Branch Readiness must evaluate the whole backlog item, define the first admitted slice, record the same-branch continuation posture for the remaining slices needed to complete the backlog item, and record any known future-dependent blockers before Workstream begins.
+- Workstream must execute admitted implementation slices, keep re-evaluating the backlog item after each seam and slice, and continue on the same branch until the backlog item is fully implemented or only future-dependent blockers remain unless the USER explicitly approves a docs-only bypass or backlog split.
 - a slice is a bounded admitted backlog-completion unit; a seam is the current execution checkpoint inside or between slices
 - there is no repo-wide cap on how many slices a branch or workstream may carry
 - Same-branch backlog completion is the default: admit and execute the additional slices needed to finish the backlog item on the current branch whenever scope, phase, risk, and validation authority remain green.
 - Perform all admitted seams in the bounded multi-seam workflow and continue through the additional slices needed to complete the backlog item on the same branch unless an explicit `Backlog-Split User Approval` or a named bounded stop condition is recorded.
+- `Workstream` may not advance to `Hardening` while remaining implementable work is still available on the current backlog item.
+- use `Backlog Completion State: In Progress`, `Implemented Complete`, or `Implemented Complete Except Future Dependency` to record whether more same-branch slices are still required
 - unrelated ideas must still be split out even if they look convenient to batch
 
 Bounded multi-seam workflow means:

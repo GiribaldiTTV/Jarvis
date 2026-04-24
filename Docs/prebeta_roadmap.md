@@ -68,10 +68,10 @@ Current merged truth indicates:
 - merged unreleased non-doc implementation debt exists: no
 - the latest public released implementation milestone is FB-042 Desktop entrypoint runtime refinement in `v1.6.7-prebeta`; FB-005 Workspace and folder organization remains released in `v1.6.6-prebeta`; FB-030 ORIN voice/audio direction refinement remains released in `v1.6.5-prebeta`; FB-015 Boot and desktop phase-boundary model plus FB-029 ORIN legal-safe rebrand, future ARIA persona option, and repo licensing hardening remain released in `v1.6.4-prebeta`
 - current phase after `v1.6.7-prebeta` release closure: `Workstream`
-- phase status after `v1.6.7-prebeta` release closure: FB-042 is Released / Closed in `v1.6.7-prebeta`; release debt is clear; `feature/fb-043-top-level-entrypoint-handoff-refinement` now owns the active promoted FB-043 runtime workstream; WS-1 `main.py` direct-launch handoff refinement is complete and validated; and same-branch continuation remains preferred for the remaining FB-043 slices.
+- phase status after `v1.6.7-prebeta` release closure: FB-042 is Released / Closed in `v1.6.7-prebeta`; release debt is clear; `feature/fb-043-top-level-entrypoint-handoff-refinement` now owns the active promoted FB-043 runtime workstream; WS-1 `main.py` direct-launch handoff refinement is complete and validated; `Backlog Completion State` remains `In Progress`; and the branch stays in `Workstream` until remaining implementable FB-043 work is exhausted or only future-dependent blockers remain.
 - current active workstream: FB-043 Top-level desktop entrypoint ownership and main.py handoff refinement
 - current branch after `v1.6.7-prebeta` release closure: `feature/fb-043-top-level-entrypoint-handoff-refinement`
-- next concern: execute FB-043 Hardening for the completed WS-1 slice and continue on the same branch through the remaining FB-043 slices needed to finish the backlog item without reopening another planning-only lane
+- next concern: keep FB-043 in `Workstream`, reassess the remaining top-level entrypoint ambiguity, admit and execute the next implementable same-branch slice, and do not open `Hardening` until backlog completion is proven or only future-dependent blockers remain
 
 That means the released FB-027 interaction baseline, the released FB-036 authoring-and-callable-group milestone, the released FB-041 deterministic callable-group execution milestone, the released FB-037 built-in catalog milestone, the released FB-038 tray quick-task UX milestone, the released FB-039 external trigger intake architecture milestone, the released FB-040 monitoring/thermal architecture milestone, the released FB-031 UI/UX architecture milestone, the released FB-032 source-of-truth migration milestone, the released FB-004 future boot-orchestrator architecture milestone, the released FB-015 plus FB-029 planning milestones, the released FB-030 voice/audio planning milestone, and the released FB-005 bounded workspace-path slice are now part of the current public shared pre-Beta baseline.
 
@@ -101,7 +101,7 @@ Historical Hardening State: Complete on `feature/fb-005-workspace-path-planning`
 Historical Live Validation State: Complete on `feature/fb-005-workspace-path-planning`.
 PR Readiness State: Complete on `feature/fb-042-desktop-entrypoint-runtime-refinement`; merged PR package state is recorded in the canonical FB-042 workstream doc.
 Release Execution State: `v1.6.7-prebeta` is live at https://github.com/GiribaldiTTV/Nexus-Desktop-AI/releases/tag/v1.6.7-prebeta on commit `8f53d163ad008f7508f55f593b15369749e3ec24`.
-Active Workstream Chain: FB-043 is promoted on `feature/fb-043-top-level-entrypoint-handoff-refinement`; WS-1 `main.py` direct-launch handoff refinement is complete and validated; and same-branch continuation remains preferred for the remaining FB-043 slices needed to complete the backlog item.
+Active Workstream Chain: FB-043 is promoted on `feature/fb-043-top-level-entrypoint-handoff-refinement`; WS-1 `main.py` direct-launch handoff refinement is complete and validated; `Backlog Completion State` remains `In Progress`; and the branch stays in `Workstream` until remaining implementable FB-043 work is exhausted or only future-dependent blockers remain.
 
 ## Merged-Unreleased Release-Debt Owner
 
@@ -137,7 +137,7 @@ Post-Release Truth: FB-042 is Released / Closed in `v1.6.7-prebeta`; release deb
 Release Target: v1.6.6-prebeta
 Release Floor: patch prerelease
 Version Rationale: FB-005 remains a bounded dev-only workspace/path implementation slice with no change to shipped runtime entrypoints, launcher paths, audio paths, logs, visual assets, installer behavior, or user-facing desktop behavior.
-Release Scope: WS-1 dev-only desktop test harness relocation from `desktop/orin_desktop_test.py` to `dev/desktop/orin_desktop_test.py`, local path-math preservation, direct workspace-layout truth sync, hardening corrections, Live Validation waivers, PR package history, and release publication for the first admitted FB-005 slice only.
+Release Scope: the historically released FB-005 WS-1 dev-only desktop test harness relocation from `desktop/orin_desktop_test.py` to `dev/desktop/orin_desktop_test.py`, local path-math preservation, direct workspace-layout truth sync, hardening corrections, Live Validation waivers, PR package history, and release publication for that bounded released slice.
 Release Artifacts: Tag v1.6.6-prebeta; release title Pre-Beta v1.6.6; rich Markdown release notes summarize the bounded FB-005 WS-1 workspace slice, validation evidence, non-user-facing release posture, and selected-next planning lane without repeating the release title inside the notes body, and GitHub-generated `## What's Changed` plus `**Full Changelog**:` must be included.
 Post-Release Truth: FB-005 is Released / Closed in `v1.6.6-prebeta`; FB-042 is Released / Closed in `v1.6.7-prebeta`; and FB-043 is the active promoted workstream on `feature/fb-043-top-level-entrypoint-handoff-refinement`.
 
@@ -157,7 +157,7 @@ Release Scope: Voice/audio trigger-surface inventory, playback-authority invento
 Release Artifacts: Tag v1.6.5-prebeta; release title Pre-Beta v1.6.5; rich Markdown release notes summarize the FB-030 voice/audio direction planning frame without repeating the release title inside the notes body, and GitHub-generated `## What's Changed` plus `**Full Changelog**:` must be included.
 Post-Release Truth: FB-030 is Released / Closed in v1.6.5-prebeta; FB-005 is Released / Closed in v1.6.6-prebeta; FB-042 is Released / Closed in `v1.6.7-prebeta`; and FB-043 is the active promoted workstream on `feature/fb-043-top-level-entrypoint-handoff-refinement`.
 Current Active Workstream: FB-043 Top-level desktop entrypoint ownership and main.py handoff refinement.
-Branch Readiness Gate: Satisfied. Release publication, validation, updated-main revalidation, explicit path-sensitive workspace approval, and bounded-slice admission are complete for WS-1 `desktop/orin_desktop_test.py` -> `dev/desktop/orin_desktop_test.py`; later workspace/path slices remain separate approval gates.
+Branch Readiness Gate: Satisfied. Release publication, validation, updated-main revalidation, explicit path-sensitive workspace approval, and bounded-slice admission are complete for the historically released WS-1 `desktop/orin_desktop_test.py` -> `dev/desktop/orin_desktop_test.py`; that closed branch reflects the earlier path-sensitive posture rather than the current same-branch backlog-completion default.
 - Minimal Scope: Complete the bounded docs/canon voice/audio planning seam chain: current surface inventory and ownership mapping, lifecycle/persona-state framing, and the implementation admission contract before runtime voice, shutdown voice, recovery voice, persona-default, or public voice-copy change begins.
 
 ## Backlog Priority Review
@@ -183,7 +183,7 @@ Current-branch clarity: latest public prerelease is `v1.6.7-prebeta`; FB-042 is 
 - Branch: `feature/fb-043-top-level-entrypoint-handoff-refinement`
 - Repair-Only Branch Handling: `feature/fb-043-release-debt-marker-repair` is a repair-only `feature/` branch and does not imply Branch Readiness admission or active branch truth.
 - canonical workstream doc: `Docs/workstreams/FB-043_top_level_entrypoint_handoff_refinement.md`
-- promotion basis: FB-043 moved out of selected-only Branch Readiness because the first admitted runtime-bearing slice is now implemented and validated on the active branch.
+- promotion basis: FB-043 moved out of selected-only Branch Readiness because the first admitted runtime-bearing slice is now implemented and validated on the active branch, while same-branch backlog completion remains the closure rule for the rest of the backlog item.
 - current slice status: WS-1 `main.py` direct-launch handoff refinement is complete and validated.
 - minimal scope: begin with the admitted WS-1 `main.py` direct-launch handoff refinement slice across `main.py`, the minimal required launcher-contract surfaces, `dev/orin_desktop_entrypoint_validation.py`, and `dev/orin_boot_transition_verification.py`, then continue on the same branch through any additional FB-043 slices needed to complete the backlog item while keeping `Audio/`, `logs/`, `jarvis_visual/`, installer work, and broader workspace reshaping out of scope.
 
@@ -424,7 +424,7 @@ Current merged truth indicates:
   - FB-015 for boot and desktop phase-boundary model, released and closed in `v1.6.4-prebeta`
   - FB-029 for ORIN legal-safe rebrand, future ARIA persona option, and repo licensing hardening, released and closed in `v1.6.4-prebeta` and still implementation-gated for any later naming, licensing, release, runtime, or persona-facing execution
   - FB-030 for ORIN voice/audio direction refinement, `Medium`, promoted on `feature/fb-030-orin-voice-audio-direction-refinement`, and now carrying the explicit voice/audio design goal, ownership map, and conflict inventory needed for continued Workstream admission
-  - FB-005 for workspace and folder organization, `Low`, promoted on `feature/fb-005-workspace-path-planning`, with only WS-1 `desktop/orin_desktop_test.py` -> `dev/desktop/orin_desktop_test.py` admitted while later workspace/path slices remain approval-gated
+  - FB-005 for workspace and folder organization, `Low`, promoted on `feature/fb-005-workspace-path-planning`, with historical proof that WS-1 `desktop/orin_desktop_test.py` -> `dev/desktop/orin_desktop_test.py` was the released slice on that branch under the earlier path-sensitive posture
 - those candidate lanes must be selected deliberately rather than bundled together as one implicit interaction continuation
 - FB-037 Branch Readiness does not imply automatic continuation into any remaining candidate lane
 

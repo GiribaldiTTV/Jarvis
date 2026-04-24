@@ -80,6 +80,15 @@ Backlog-Split User Approval:
 Backlog-Split Reason:
 [required when approved; otherwise None]
 
+Backlog Completion State:
+[In Progress / Implemented Complete / Implemented Complete Except Future Dependency]
+
+Remaining Implementable Work:
+[None / short summary of same-branch work still available]
+
+Future-Dependent Blockers:
+[None / short summary of work blocked by another backlog item, dependency, or capability]
+
 Release Branch:
 [Yes / No / not applicable]
 
@@ -140,9 +149,9 @@ After a green seam, `Next-Seam Continuation Required` applies by default when co
 There is no repo-wide cap on how many slices a branch or workstream may carry.
 Same-branch backlog completion is the default: admit and execute the additional slices needed to finish the backlog item on the current branch whenever scope, phase, risk, and validation authority remain green.
 Perform all admitted seams in the bounded multi-seam workflow and continue through the additional slices needed to complete the backlog item on the same branch unless an explicit `Backlog-Split User Approval` or a named bounded stop condition is recorded.
-Branch Readiness owns planning, framing, affected-surface mapping, implementation delta classification, and admitted-slice definition before Workstream begins.
-Branch Readiness must define the first admitted slice and the same-branch continuation posture for the remaining slices needed to complete the backlog item.
-Workstream must execute admitted implementation slices and keep same-branch backlog completion as the default unless the USER explicitly approves a docs-only bypass or backlog split.
+Branch Readiness owns planning, framing, affected-surface mapping, implementation delta classification, admitted-slice definition, and whole-backlog closure strategy before Workstream begins.
+Branch Readiness must evaluate the whole backlog item, define the first admitted slice, record the same-branch continuation posture for the remaining slices needed to complete the backlog item, and record any known future-dependent blockers before Workstream begins.
+Workstream must execute admitted implementation slices, keep re-evaluating the backlog item after each seam and slice, and continue on the same branch until the backlog item is fully implemented or only future-dependent blockers remain unless the USER explicitly approves a docs-only bypass or backlog split.
 Docs-only Workstreams require explicit USER approval.
 Planning-loop bypass requires `Planning-Loop Bypass User Approval: APPROVED` and `Planning-Loop Bypass Reason:`.
 Release-bearing implementation work with no runtime/user-facing, backend/runtime, or developer-tooling delta is blocked unless the USER explicitly approves that release window.
@@ -151,6 +160,8 @@ reporting Next Safe Move is not a substitute for execution when continuation aut
 A `continue` decision must be acted on immediately by starting the next seam in the approved sequence.
 continue decision must be acted on immediately by starting the next seam in the approved sequence.
 Legacy `Single-Seam Fallback` and `Single-Seam Mode Waiver` wording is retired in active source-of-truth.
+`Workstream` may not advance to `Hardening` while remaining implementable work is still available on the current backlog item.
+Use `Backlog Completion State: In Progress`, `Implemented Complete`, or `Implemented Complete Except Future Dependency` to record whether more same-branch slices are still required.
 Stopping after the first slice or splitting the backlog item across branches requires an explicit `Backlog-Split User Approval` or a named bounded stop condition.
 For `Release Readiness`, a release-bearing branch must include `Release Target:`, `Release Floor:`, `Version Rationale:`, `Release Scope:`, and `Release Artifacts:` before green status is allowed.
 For `PR Readiness`, release-bearing merge-target canon must prove the target is semantically correct from the latest public prerelease and declared release floor before green status is allowed.

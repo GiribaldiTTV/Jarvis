@@ -234,10 +234,10 @@ These are reference layers, not active workstream or roadmap owners.
   5. `PR Readiness`
   6. `Release Readiness`
 - `Branch Readiness` must plan the whole branch at phase level before Workstream begins, including objective, target end-state, expected seam families and risk classes, validation contract, User Test Summary strategy, later-phase needs, and first seam or seam sequence
-- Branch Readiness owns planning, framing, affected-surface mapping, implementation delta classification, and admitted-slice definition before Workstream begins.
-- Branch Readiness must define the first admitted slice and the same-branch continuation posture for the remaining slices needed to complete the backlog item.
+- Branch Readiness owns planning, framing, affected-surface mapping, implementation delta classification, admitted-slice definition, and whole-backlog closure strategy before Workstream begins.
+- Branch Readiness must evaluate the whole backlog item, define the first admitted slice, record the same-branch continuation posture for the remaining slices needed to complete the backlog item, and record any known future-dependent blockers before Workstream begins.
 - during `Workstream`, `bounded multi-seam workflow` is the primary model for approved seam chains; execute one active seam at a time, validate it, record evidence, report `continue` or `stop`, and continue by default when `Next-Seam Continuation Required` applies
-- Workstream must execute admitted implementation slices and keep same-branch backlog completion as the default unless the USER explicitly approves a docs-only bypass or backlog split.
+- Workstream must execute admitted implementation slices, keep re-evaluating the backlog item after each seam and slice, and continue on the same branch until the backlog item is fully implemented or only future-dependent blockers remain unless the USER explicitly approves a docs-only bypass or backlog split.
 - Docs-only Workstreams require explicit USER approval.
 - Planning-loop bypass requires `Planning-Loop Bypass User Approval: APPROVED` and `Planning-Loop Bypass Reason:`.
 - Release-bearing implementation work with no runtime/user-facing, backend/runtime, or developer-tooling delta is blocked unless the USER explicitly approves that release window.
@@ -246,6 +246,8 @@ These are reference layers, not active workstream or roadmap owners.
 - there is no repo-wide cap on how many slices a branch or workstream may carry
 - Same-branch backlog completion is the default: admit and execute the additional slices needed to finish the backlog item on the current branch whenever scope, phase, risk, and validation authority remain green.
 - Perform all admitted seams in the bounded multi-seam workflow and continue through the additional slices needed to complete the backlog item on the same branch unless an explicit `Backlog-Split User Approval` or a named bounded stop condition is recorded.
+- `Workstream` may not advance to `Hardening` while remaining implementable work is still available on the current backlog item.
+- use `Backlog Completion State: In Progress`, `Implemented Complete`, or `Implemented Complete Except Future Dependency` to record whether more same-branch slices are still required
 - stopping after the first slice or splitting the backlog item across branches requires an explicit `Backlog-Split User Approval` or a named bounded stop condition
 - reporting `Next Safe Move` is not a substitute for execution when continuation authority passes; A `continue` decision must be acted on immediately by starting the next seam in the approved sequence
 - category labels such as bug fix, hotfix, high-risk, cross-subsystem, settings, protocol, launcher, or UI-model work require smaller seams and stronger gates; they are not automatic stop authority when the next seam remains admitted and green

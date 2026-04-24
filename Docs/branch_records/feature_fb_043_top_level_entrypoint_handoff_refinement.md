@@ -32,7 +32,7 @@ The older `feature/fb-043-release-debt-marker-repair` branch remains historical 
 - FB-043 was selected-only / `Registry-only` during the preserved Branch Readiness pass.
 - A first bounded runtime/user-facing slice was defined on this branch before promotion.
 - The defined slice was admitted for the next legal phase and was bounded to top-level entrypoint handoff behavior rather than broader runtime or workspace reshaping.
-- Same-branch backlog completion remained the default for the remaining FB-043 slices after WS-1 when scope, phase, risk, and validation authority stayed green.
+- Same-branch backlog completion remained the default for the remaining FB-043 slices after WS-1 when scope, phase, risk, validation authority, and backlog-completion reassessment stayed green.
 - The historical repair-only branch `feature/fb-043-release-debt-marker-repair` remains non-admitting traceability only.
 
 ## Branch Class
@@ -57,7 +57,7 @@ None.
 - FB-042 is durably Released / Closed in canon and merged-unreleased release debt is clear.
 - FB-043 current branch truth is explicit in backlog, roadmap, and this active branch record.
 - The first bounded runtime/user-facing top-level entrypoint slice is defined with exact affected paths, in-scope/out-of-scope limits, validation coverage, and rollback conditions.
-- Same-branch continuation posture is explicit so FB-043 does not silently cap itself at WS-1.
+- Branch-level closure rule is explicit so FB-043 does not silently cap itself at WS-1 or leave `Workstream` before backlog completion is proven.
 - Branch Readiness blockers are resolved without widening FB-043 into a planning-only or docs-only lane.
 
 ## Rollback Target
@@ -81,9 +81,15 @@ None.
 - The first slice clarifies top-level `main.py` handoff ownership while preserving the already-green Windows shortcut / VBS / launcher / renderer path.
 - Additional FB-043 slices should stay on this same branch when they remain inside the same backlog item, branch class, phase family, approved scope, and validation surface.
 
+## Backlog Completion Strategy
+
+Branch Completion Goal: `Complete FB-043 on this same branch unless only future-dependent blockers remain after the remaining implementable top-level entrypoint work is exhausted.`
+Known Future-Dependent Blockers: `None proven during preserved Branch Readiness.`
+Branch Closure Rule: `Do not leave Workstream after WS-1 while more implementable FB-043 work remains; exit Workstream only when Backlog Completion State becomes Implemented Complete or Implemented Complete Except Future Dependency.`
+
 Release Target: `v1.6.8-prebeta`
 Release Floor: `patch prerelease`
-Version Rationale: FB-043 is starting with a bounded runtime/user-facing top-level entrypoint handoff refinement. The branch should prefer completing the remaining FB-043 slices on one branch, and if the slice chain stays inside this same runtime lane it should remain a patch prerelease because it clarifies and tightens launch ownership without opening a new product lane or broad runtime family.
+Version Rationale: FB-043 is starting with a bounded runtime/user-facing top-level entrypoint handoff refinement. The branch should continue completing the remaining FB-043 slices on one branch unless only future-dependent blockers remain, and if the slice chain stays inside this same runtime lane it should remain a patch prerelease because it clarifies and tightens launch ownership without opening a new product lane or broad runtime family.
 Release Scope: bounded top-level desktop entrypoint ownership and `main.py` handoff refinement beginning with WS-1 `main.py` direct-launch handoff behavior, continuing with any same-branch FB-043 follow-through slices that remain inside the approved runtime lane, the minimal launcher-contract support actually needed, direct validation coverage updates, and the canon needed to keep the branch truthful.
 Release Artifacts: anticipated tag `v1.6.8-prebeta`; release title `Pre-Beta v1.6.8`; rich Markdown notes must summarize the bounded top-level entrypoint handoff refinement and the user-facing launch ownership outcome without repeating the release title in the body, with GitHub-generated `## What's Changed` and `**Full Changelog**:` when release packaging is reached.
 

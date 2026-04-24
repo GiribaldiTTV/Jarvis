@@ -48,7 +48,7 @@
 - PR-1 merge-target canon completeness is complete and durably recorded below.
 - PR-2 selected-next workstream selection is complete and durably recorded below.
 - PR-3 live PR creation plus validation are complete and durably recorded below.
-- FB-005 is now the active promoted workspace/path lane, and only WS-1 `desktop/orin_desktop_test.py` -> `dev/desktop/orin_desktop_test.py` is admitted while later slices remain approval-gated.
+- FB-005 is now preserved as historical released workspace/path proof for the bounded WS-1 `desktop/orin_desktop_test.py` -> `dev/desktop/orin_desktop_test.py` branch outcome under the earlier path-sensitive posture.
 - No runtime voice behavior, shutdown voice behavior, recovery voice behavior, persona default, public copy, audio asset, or release-note wording change has started.
 
 ## Branch Class

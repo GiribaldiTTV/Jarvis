@@ -22,6 +22,7 @@ Use `Docs/validation_helper_registry.md` for durable root `dev/` helper naming, 
 - a slice is a bounded admitted backlog-completion unit; a seam is the current execution checkpoint inside or between slices
 - active implementation workstreams may carry as many slices as needed to complete the backlog item on one branch when phase, scope, risk, and validation authority remain green
 - workstream docs must not encode a one-slice branch cap unless an explicit `Backlog-Split User Approval: APPROVED` or a named bounded stop condition is recorded
+- active implementation workstreams must record whether the backlog item is still `In Progress`, `Implemented Complete`, or `Implemented Complete Except Future Dependency` before phase exit
 - `Record State` tracks whether the record is `Promoted` or `Closed`
 - `Status` remains the delivery or work field
 - `Registry-only` backlog items do not require a canonical workstream execution record yet
@@ -68,6 +69,7 @@ For an active or recently closed canonical workstream, keep these durable tracea
 - scope and non-goals
 - executed slices or equivalent progress log
 - current phase, phase status, branch class, blockers, phase-specific validation, seam, timeout, or stop-loss state when phase-sensitive work is active
+- backlog completion status, remaining implementable work, and any future-dependent blockers when implementation work is active
 - durable validation or proof references that materially justify continuation or closeout
 - artifact history or artifact references for lane-specific validators, harnesses, helpers, reports, or manual-test exports that future work should reuse
 - branch-local reuse notes or "what worked" guidance when a future branch would otherwise need to rediscover the same lesson

@@ -89,8 +89,11 @@ For bounded multi-seam Workstream execution, also include:
 - `Seam Sequence: <ordered seam list>` when the admitted sequence is already explicit in canon
 - `Validation Contract: <summary or authority reference>` when validation governance matters
 - `Slice Continuation Policy: <summary or authority reference>` when same-branch continuation or an approved backlog split matters
+- `Backlog Completion State: <In Progress / Implemented Complete / Implemented Complete Except Future Dependency>` when Workstream continuation or phase exit matters
+- `Remaining Implementable Work: <None / short summary>` when Workstream continuation or phase exit matters
+- `Future-Dependent Blockers: <None / short summary>` when Workstream continuation or phase exit matters
 
-Use owning canon after load to derive the per-seam gate, entry seam, `Next-Seam Continuation Required`, the rule that a slice is a bounded admitted backlog-completion unit and a seam is the current execution checkpoint inside or between slices, the rule that there is no repo-wide cap on how many slices a branch or workstream may carry, same-branch backlog completion, `Backlog-Split User Approval`, `Backlog-Split Reason`, and the rule that reporting `Next Safe Move` is not a substitute for execution and a continue decision must be acted on immediately by starting the next seam in the approved sequence.
+Use owning canon after load to derive the per-seam gate, entry seam, `Next-Seam Continuation Required`, the rule that a slice is a bounded admitted backlog-completion unit and a seam is the current execution checkpoint inside or between slices, the rule that there is no repo-wide cap on how many slices a branch or workstream may carry, same-branch backlog completion, backlog completion state, future-dependent blockers, `Backlog-Split User Approval`, `Backlog-Split Reason`, and the rule that reporting `Next Safe Move` is not a substitute for execution and a continue decision must be acted on immediately by starting the next seam in the approved sequence.
 
 For Release Readiness, also include:
 
@@ -374,9 +377,9 @@ Keep the prompt body thin and let owning canon supply the detailed rules after l
 Use the prompt to name the active seam, validate after each seam, and report continue-or-stop.
 Source-truth reminders that stay in canon rather than prompt body:
 
-- Branch Readiness owns planning, framing, affected-surface mapping, implementation delta classification, and admitted-slice definition before Workstream begins.
-- Branch Readiness must define the first admitted slice and the same-branch continuation posture for the remaining slices needed to complete the backlog item.
-- Workstream must execute admitted implementation slices and keep same-branch backlog completion as the default unless the USER explicitly approves a docs-only bypass or backlog split.
+- Branch Readiness owns planning, framing, affected-surface mapping, implementation delta classification, admitted-slice definition, and whole-backlog closure strategy before Workstream begins.
+- Branch Readiness must evaluate the whole backlog item, define the first admitted slice, record the same-branch continuation posture for the remaining slices needed to complete the backlog item, and record any known future-dependent blockers before Workstream begins.
+- Workstream must execute admitted implementation slices, keep re-evaluating the backlog item after each seam and slice, and continue on the same branch until the backlog item is fully implemented or only future-dependent blockers remain unless the USER explicitly approves a docs-only bypass or backlog split.
 - Docs-only Workstreams require explicit USER approval.
 - Planning-Loop Bypass User Approval: APPROVED
 - Planning-Loop Bypass Reason:
@@ -388,6 +391,8 @@ Source-truth reminders that stay in canon rather than prompt body:
 - Next-Seam Continuation Required
 - same-branch backlog completion is the default: admit and execute the additional slices needed to finish the backlog item on the current branch whenever scope, phase, risk, and validation authority remain green
 - perform all admitted seams in the bounded multi-seam workflow and continue through the additional slices needed to complete the backlog item on the same branch unless an explicit `Backlog-Split User Approval` or a named bounded stop condition is recorded
+- `Workstream` may not advance to `Hardening` while remaining implementable work is still available on the current backlog item
+- use `Backlog Completion State: In Progress`, `Implemented Complete`, or `Implemented Complete Except Future Dependency` to record whether more same-branch slices are still required
 - reporting Next Safe Move is not a substitute for execution
 - A `continue` decision must be acted on immediately by starting the next seam in the approved sequence.
 
