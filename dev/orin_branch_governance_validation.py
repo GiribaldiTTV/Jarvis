@@ -479,6 +479,7 @@ UTS_RESULTS_BLOCKER_DOCS = (
 UTS_RESULTS_BLOCKER_PHRASES = (
     "User Test Summary Results Pending",
     "User Test Summary Results:",
+    "Live Validation green requires an exact `## User Test Summary` state before final green.",
     "Final phase advancement is BLOCKED",
 )
 

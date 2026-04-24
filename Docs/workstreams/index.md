@@ -78,18 +78,18 @@ For an active or recently closed canonical workstream, keep these durable tracea
 Active here means the current promoted truth owner.
 That may be an executable branch owner or another explicitly promoted current-truth owner.
 
-- `Docs/workstreams/FB-042_desktop_entrypoint_runtime_refinement.md`
+None.
 
-FB-042 Desktop entrypoint runtime refinement is the active promoted implementation workstream on `feature/fb-042-desktop-entrypoint-runtime-refinement`. Branch Readiness is complete, WS-1 desktop shortcut launch-path runtime refinement is complete and validated, H-1 hardening is complete, LV-1 is complete, PR Readiness is next, and broader `main.py` reshaping plus broader workspace follow-through remain explicitly deferred until a later bounded seam.
+No active implementation workstream remains after FB-042 PR packaging because merge-target canon is now in `No Active Branch` posture for `v1.6.7-prebeta`.
 
 ### Merged / Release Debt Owners
 
 Merged / Release Debt Owners are promoted implementation workstreams whose implementation branch is merge-target complete but whose public release packaging has not yet cleared release debt.
 These records are not active implementation branch owners after merge.
 
-None.
+- `Docs/workstreams/FB-042_desktop_entrypoint_runtime_refinement.md`
 
-No merged-unreleased release-debt owner remains after `v1.6.6-prebeta` publication, validation, and post-release canon closure.
+FB-042 Desktop entrypoint runtime refinement is the merged-unreleased release-debt owner for `v1.6.7-prebeta`. `Repo State` is `No Active Branch`; the bounded WS-1 desktop shortcut launch-path runtime refinement, H-1 hardening, and LV-1 live shortcut validation are complete historical proof; and FB-043 is selected next as the branch-not-created top-level desktop entrypoint successor lane.
 
 ### Closed
 

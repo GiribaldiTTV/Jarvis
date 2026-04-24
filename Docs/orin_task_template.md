@@ -145,6 +145,7 @@ If a file change is needed during `Release Readiness`, classify `Release Readine
 Use `Release Branch: No` only for preserved historical records.
 Do not use `Release Branch: No` for `implementation` or `release packaging` branches.
 If a required User Test Summary handoff is outstanding, use `User Test Summary Results: PENDING`, list `User Test Summary Results Pending` under blockers, and do not report final phase advancement as green until the filled User Test Summary is submitted or waived, digested, and blockers are reevaluated.
+Live Validation green requires an exact `## User Test Summary` state before final green.
 For relevant desktop user-facing Live Validation, apply the `User-Facing Shortcut Live Validation Gate` / `desktop-shortcut` blocker path before User Test Summary handoff: declare `User-Facing Shortcut Path:`, record `User-Facing Shortcut Validation: PENDING`, `PASS`, `FAIL`, or `WAIVED`, and keep `User-Facing Shortcut Validation Pending` as a blocker until the declared desktop shortcut or equivalent user entrypoint is passable or explicitly waived.
 
 Default expectation:

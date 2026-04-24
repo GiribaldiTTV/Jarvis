@@ -610,6 +610,7 @@ The shortcut blocker lifts only after `User-Facing Shortcut Validation: PASS` is
 If `User-Facing Shortcut Validation: FAIL`, keep an explicit blocker and route back to `Workstream` or `Hardening` instead of exporting the branch as final-green.
 
 If a required User Test Summary handoff is outstanding, the active authority record must carry the hard blocker `User Test Summary Results Pending`.
+Live Validation green requires an exact `## User Test Summary` state before final green.
 
 Expected reporting model:
 

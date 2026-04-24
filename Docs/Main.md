@@ -289,6 +289,7 @@ These are reference layers, not active workstream or roadmap owners.
 - a post-release canon repair must not mutate `main`; if merged canon is stale, carry the repair on the still-available prior branch or block the next active branch's `Branch Readiness`
 - returned `UTS`, screenshot, interactive, PR-review, or release-review evidence must be digested into the authority record before phase advancement is recommended
 - while a required User Test Summary handoff is outstanding, the active branch must report `User Test Summary Results Pending`; automated validators and live helper evidence may be green, but final phase advancement is blocked until the filled User Test Summary is submitted or waived, digested into the authority record, and blockers are reevaluated
+- Live Validation green requires an exact `## User Test Summary` state before final green.
 - required pending-UTS wording is: `Automated validators and live helper evidence: GREEN.`, `User Test Summary Results: PENDING.`, and `Final phase advancement is BLOCKED until the filled User Test Summary is submitted and digested.`
 - when a slice changes user-visible behavior or another operator-facing path, do not treat `## User Test Summary` as a recap slot; route through `Docs/user_test_summary_guidance.md` and require a real manual checklist unless no meaningful manual test exists
 - `## User Test Summary Strategy` is planning context only; the canonical repo-level `UTS` artifact must be the exact `## User Test Summary` section when one is required or waived

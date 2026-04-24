@@ -477,6 +477,7 @@ For desktop workstreams, response-level `## User Test Summary` output and the ca
 - the desktop `User Test Summary.txt` file is the required user-facing exported copy when relevant, but it is not the default canonical repo record
 
 If a required User Test Summary handoff is outstanding, `User Test Summary Results Pending` is a hard blocker. Codex must not report final phase green or PR-ready while the filled results are missing; it must digest submitted results, update the authority record, reevaluate blockers, and route backward to `Workstream` or `Hardening` if the results expose a mismatch, regression, ambiguity, cleanup issue, or scope drift.
+Live Validation green requires an exact `## User Test Summary` state before final green.
 
 For relevant desktop user-facing workstreams, `User-Facing Shortcut Validation Pending` is a hard blocker before User Test Summary handoff.
 Codex may use validators, live helpers, harnesses, or direct runtime launches for scenario coverage, but Live Validation closeout must also run the declared user-facing desktop shortcut or equivalent entrypoint and record `User-Facing Shortcut Path:` plus `User-Facing Shortcut Validation: PASS`, `FAIL`, `PENDING`, or `WAIVED`.

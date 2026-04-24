@@ -653,6 +653,7 @@ Routing:
 ### User Test Summary Results Gate
 
 Live Validation and PR Readiness must not report final green while a relevant user-facing workstream has a required User Test Summary handoff outstanding and returned results have not been submitted and digested.
+Live Validation green requires an exact `## User Test Summary` state before final green.
 
 Named blocker:
 

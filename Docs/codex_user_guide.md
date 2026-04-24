@@ -479,6 +479,7 @@ If results have not been returned yet, the correct prompt/output posture is:
 - if shortcut validation has not passed or been waived, `User-Facing Shortcut Validation Pending` remains the hard blocker before User Test Summary handoff
 - relevant desktop workstreams must record `User-Facing Shortcut Path:` and `User-Facing Shortcut Validation:` before treating Live Validation as final green
 - `User Test Summary Results Pending` remains the hard blocker
+- Live Validation green requires an exact `## User Test Summary` state before final green.
 - `User Test Summary Results: PENDING.`
 - `Final phase advancement is BLOCKED until the filled User Test Summary is submitted and digested.`
 - final phase advancement stays blocked until the filled User Test Summary is submitted or waived, digested into the active authority record, and blockers are reevaluated
