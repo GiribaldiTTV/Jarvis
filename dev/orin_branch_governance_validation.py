@@ -276,6 +276,41 @@ PLANNING_LOOP_GUARDRAIL_PHRASES = (
     "Release-bearing implementation work with no runtime/user-facing, backend/runtime, or developer-tooling delta is blocked unless the USER explicitly approves that release window.",
 )
 
+PROMPT_DISCIPLINE_REQUIRED_PHRASES = {
+    Path("Docs/nexus_startup_contract.md"): (
+        "Planning-loop prevention belongs in ChatGPT preflight analysis.",
+        "If planning-loop risk is detected, ChatGPT must block prompt generation and return analysis instead of an execution prompt.",
+        "Once prompt generation is allowed, the prompt stays thin and neutral.",
+        "Codex prompts should express admitted scope positively through project context, active seam, task, and return format.",
+        "The startup contract should load that authority; it should not leak startup-contract narration into the generated Codex prompt body.",
+    ),
+    Path("Docs/codex_user_guide.md"): (
+        "When ChatGPT is generating the prompt, planning-loop risk belongs in preflight analysis.",
+        "Planning-loop prevention belongs in ChatGPT preflight analysis, not in a thicker Codex prompt body.",
+        "Once prompt generation is allowed, keep the Codex prompt thin and neutral.",
+        "Let repo truth, branch authority, canonical workstreams, and admitted slice records supply behavior after load rather than pasting full seam-governance rule blocks into the prompt text.",
+    ),
+    Path("Docs/Main.md"): (
+        "Planning-loop blocking belongs in ChatGPT preflight analysis before prompt generation.",
+        "Once a prompt is allowed, it should stay thin, neutral, and repo-aligned instead of carrying behavior-management lists or protective governance narration.",
+    ),
+    Path("Docs/orin_task_template.md"): (
+        "When ChatGPT is generating a Codex prompt, treat this template as a construction checklist rather than prompt text to paste wholesale.",
+        "Planning-loop prevention belongs in ChatGPT preflight analysis; once prompt generation is allowed, keep the prompt thin, neutral, and repo-aligned.",
+    ),
+}
+
+PROMPT_DISCIPLINE_PROHIBITED_PHRASES = {
+    Path("Docs/nexus_startup_contract.md"): (
+        "Do not generate minimal prompts that omit governance loading.",
+        "Every generated prompt must include: Mode, Phase, Workstream, Branch, Branch Class when relevant, task scope, constraints, stop conditions, validation requirements",
+        "\nConstraints:\n",
+    ),
+    Path("Docs/codex_user_guide.md"): (
+        "optional control add-ons only when they materially reduce ambiguity",
+    ),
+}
+
 PLANNING_LOOP_ACTIVE_PHASES = (
     "Branch Readiness",
     "Workstream",
@@ -2166,6 +2201,22 @@ def main() -> int:
             require(
                 required_phrase in text,
                 f"{relative_path}: planning-loop guardrail guidance is missing '{required_phrase}'",
+            )
+
+    for relative_path, required_phrases in PROMPT_DISCIPLINE_REQUIRED_PHRASES.items():
+        text = _read_text(relative_path)
+        for required_phrase in required_phrases:
+            require(
+                required_phrase in text,
+                f"{relative_path}: thin prompt discipline guidance is missing '{required_phrase}'",
+            )
+
+    for relative_path, prohibited_phrases in PROMPT_DISCIPLINE_PROHIBITED_PHRASES.items():
+        text = _read_text(relative_path)
+        for prohibited_phrase in prohibited_phrases:
+            require(
+                prohibited_phrase not in text,
+                f"{relative_path}: prompt-discipline drift reintroduced prohibited phrase '{prohibited_phrase}'",
             )
 
     for relative_path in LIVE_VALIDATION_REUSE_DOCS:

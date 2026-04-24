@@ -36,6 +36,9 @@ If anything in the request conflicts with those docs, call it out explicitly bef
 Concise prompts are acceptable.
 They do not reduce the required depth of analysis.
 
+When ChatGPT is generating a Codex prompt, treat this template as a construction checklist rather than prompt text to paste wholesale.
+Planning-loop prevention belongs in ChatGPT preflight analysis; once prompt generation is allowed, keep the prompt thin, neutral, and repo-aligned.
+
 ## Current Project State
 
 Version:

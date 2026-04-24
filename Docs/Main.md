@@ -80,6 +80,8 @@ For prompt generation and new-chat bootstrapping, use `Docs/nexus_startup_contra
 
 That file is ChatGPT-facing and interface-only.
 It helps generate complete prompts that load the correct source-of-truth without pasting the full governance stack.
+Planning-loop blocking belongs in ChatGPT preflight analysis before prompt generation.
+Once a prompt is allowed, it should stay thin, neutral, and repo-aligned instead of carrying behavior-management lists or protective governance narration.
 It does not own Codex execution behavior, phase transitions, seam continuation, durability, validation, release rules, or branch authority.
 Codex execution remains governed by the owning canon documents listed in this index, especially `Docs/development_rules.md`, `Docs/phase_governance.md`, `Docs/codex_modes.md`, and the active workstream or branch authority record.
 
