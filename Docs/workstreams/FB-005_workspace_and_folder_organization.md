@@ -46,9 +46,9 @@
 - The pending release scope ends after WS-1 because no WS-2 or later FB-005 slice is admitted yet; later slices remain explicit approval gates.
 - No reverse runtime dependency on `dev/desktop/` or the moved harness was found.
 - LV-1 confirms the residual visual-path mismatch is dev-only and non-user-facing: the harness still names historical visual file `jarvis_core_desktop.html` while the current desktop visual asset on disk is `orin_core_desktop.html`.
-- Selected-next planning truth is locked to FB-042 Top-level experience entrypoint and broader workspace follow-through, and its branch remains not created.
+- Selected-next planning truth is locked to FB-042 Top-level experience entrypoint and broader workspace follow-through, and Branch Readiness is now active on `feature/fb-042-step5-entrypoint-planning` while FB-042 remains planning-only / `Registry-only` with no Workstream slice admitted.
 - Merge-target current-state truth is branchless release-debt ownership, not branch-owned execution.
-- PR #83 is open, non-draft, mergeable, and clean against `main`.
+- PR #83 merged into `main` at `873c9b6801802a05bbcef074595e632c0ec9f1d2`, and current merge-target truth is now merged-unreleased release-debt ownership rather than open-PR state.
 
 ## Branch Class
 
@@ -330,14 +330,14 @@ Release Floor: patch prerelease
 Version Rationale: FB-005 delivers a bounded dev-only workspace/path implementation slice and direct path-truth sync with no change to shipped runtime entrypoints, launcher paths, audio paths, logs, visual assets, installer behavior, or user-facing desktop behavior
 Release Scope: WS-1 dev-only desktop test harness relocation from `desktop/orin_desktop_test.py` to `dev/desktop/orin_desktop_test.py`, local path-math preservation, direct workspace-layout truth sync, hardening corrections, Live Validation waivers, PR package history, and merged-unreleased release-debt truth for the first admitted FB-005 slice only
 Release Artifacts: Tag v1.6.6-prebeta; release title Pre-Beta v1.6.6; rich Markdown release notes summarize the bounded FB-005 WS-1 workspace slice, validation evidence, non-user-facing release posture, and selected-next planning lane without repeating the release title inside the notes body, and GitHub-generated `## What's Changed` plus `**Full Changelog**:` must be included
-Post-Release Truth: FB-005 is Released / Closed in v1.6.6-prebeta; release debt is clear; and FB-042 remains selected next planning-only with branch not created until Branch Readiness admits a bounded Step 5 / top-level entrypoint planning slice
-Next-Branch Creation Gate: After `v1.6.6-prebeta` publication, validation, and updated-main revalidation; `feature/fb-042-top-level-entrypoint-workspace-follow-through` remains not created, and FB-042 Branch Readiness must stay planning-first around root-owned entrypoints and broader workspace ownership before any implementation slice is admitted
+Post-Release Truth: FB-005 is Released / Closed in v1.6.6-prebeta; release debt is clear; and FB-042 remains selected next planning-only / `Registry-only` on `feature/fb-042-step5-entrypoint-planning` until Branch Readiness admits a bounded Step 5 / top-level entrypoint planning slice
+Next-Branch Creation Gate: Superseded by the active blocker-clearing Branch Readiness route. `feature/fb-042-step5-entrypoint-planning` is now the current FB-042 Branch Readiness branch, but FB-042 remains planning-first / `Registry-only` and must not admit any implementation slice until Branch Readiness completes
 
 ## Post-Merge State
 
 - Historical post-merge state before release execution: repo state becomes `No Active Branch` because FB-005 will own merged-unreleased release debt on `main` for `v1.6.6-prebeta`.
 - Historical pending-package state: the pending release scope contains the completed FB-005 WS-1 dev-only workspace/path slice only.
-- Historical successor state: FB-042 remains selected next planning-only, and its implementation branch must stay not created until `v1.6.6-prebeta` is published, validated, updated `main` is revalidated, and Branch Readiness admits a bounded planning-first Step 5 / top-level entrypoint slice.
+- Historical successor state at PR package time: FB-042 remained selected next planning-only, and its implementation branch had not been created yet.
 
 ## Release Window Audit
 
@@ -382,9 +382,9 @@ PR Readiness validates the completed bounded FB-005 WS-1 implementation slice fo
 - Head Branch: `feature/fb-005-workspace-path-planning`
 - PR Summary: Promote the bounded FB-005 WS-1 workspace/path implementation slice by moving the dev-only desktop test harness from `desktop/orin_desktop_test.py` to `dev/desktop/orin_desktop_test.py`, preserving runtime non-reachability, recording hardening and Live Validation evidence, aligning merge-target canon for `v1.6.6-prebeta`, and selecting FB-042 as the next planning-only Step 5 / top-level entrypoint lane.
 - PR URL: https://github.com/GiribaldiTTV/Nexus-Desktop-AI/pull/83
-- PR State: OPEN, base `main`, head `feature/fb-005-workspace-path-planning`, mergeable `MERGEABLE`, merge state `CLEAN`.
+- PR State At PR Package Time: OPEN, base `main`, head `feature/fb-005-workspace-path-planning`, mergeable `MERGEABLE`, merge state `CLEAN`.
 - Review Thread State: PASS. Authenticated PR validation found zero review threads, zero review comments, and zero submitted reviews.
-- Merge Readiness: PASS. GitHub reports PR #83 as non-draft and mergeable with clean merge state.
+- Merge Readiness At PR Package Time: PASS. GitHub reported PR #83 as non-draft and mergeable with clean merge state.
 
 ### PR Readiness Completion Decision
 
@@ -401,6 +401,6 @@ PR Readiness validates the completed bounded FB-005 WS-1 implementation slice fo
 - `git diff --check`: PASS with line-ending normalization warnings only and no whitespace errors.
 - User-facing shortcut gate: WAIVED with exact markers in `## User Test Summary`.
 - User Test Summary results gate: WAIVED with exact markers in `## User Test Summary`.
-- Next-workstream selection gate: PASS. FB-042 is selected-next planning-only and its implementation branch remains not created.
-- Live PR state: PASS. PR #83 is open, non-draft, mergeable, and clean against `main`.
+- Next-workstream selection gate: PASS. At PR package time, FB-042 was selected-next planning-only and its implementation branch had not been created yet.
+- Historical Live PR State: PASS. At PR package time, PR #83 was open, non-draft, mergeable, and clean against `main`.
 - Review-thread state: PASS. Zero review threads, review comments, and submitted reviews were present at validation time.

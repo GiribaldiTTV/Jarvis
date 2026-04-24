@@ -89,7 +89,7 @@ These records are not active implementation branch owners after merge.
 
 - `Docs/workstreams/FB-005_workspace_and_folder_organization.md`
 
-Current merge-target truth is `No Active Branch`. FB-005 is the merged-unreleased release-debt owner for `v1.6.6-prebeta`; the pending release scope remains bounded to WS-1 `desktop/orin_desktop_test.py` -> `dev/desktop/orin_desktop_test.py`; the residual visual-path mismatch remains dev-only and non-user-facing; and FB-042 is selected next planning-only with branch not created.
+Current merge-target truth is `No Active Branch`. FB-005 is the merged-unreleased release-debt owner for `v1.6.6-prebeta`; the pending release scope remains bounded to WS-1 `desktop/orin_desktop_test.py` -> `dev/desktop/orin_desktop_test.py`; the residual visual-path mismatch remains dev-only and non-user-facing; and FB-042 remains selected next planning-only on `feature/fb-042-step5-entrypoint-planning`, where Branch Readiness is active and no Workstream slice is admitted.
 
 ### Closed
 

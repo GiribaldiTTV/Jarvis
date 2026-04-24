@@ -42,7 +42,7 @@ Do not use this layer to replace:
 
 ## Active Branch Authority Records
 
-None.
+- `Docs/branch_records/feature_fb_042_step5_entrypoint_planning.md`
 
 ## Historical Branch Authority Records
 
