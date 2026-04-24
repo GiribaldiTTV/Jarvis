@@ -921,13 +921,6 @@ def _branch_record_branch_sets(
             if branch_record_path in active_branch_record_paths:
                 active_repair_branch_names.add(branch_name)
                 active_repair_branch_names.add(prefixed_branch_name)
-        if branch_record_path not in active_branch_record_paths:
-            if not (
-                current_branch
-                and branch_class == EMERGENCY_CANON_REPAIR_BRANCH_CLASS
-                and branch_name == current_branch
-            ):
-                continue
         branch_class_map[branch_name] = branch_class
         branch_class_map[prefixed_branch_name] = branch_class
     return branch_class_map, all_repair_branch_names, active_repair_branch_names
