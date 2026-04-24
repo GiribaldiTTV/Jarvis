@@ -80,19 +80,20 @@ That may be an executable branch owner or another explicitly promoted current-tr
 
 None.
 
-No active promoted implementation branch remains in merge-target truth after FB-005 PR packaging.
+No active promoted implementation workstream exists on this branch surface. FB-042 `Branch Readiness` is active through `Docs/branch_records/feature_fb_042_step5_entrypoint_planning.md` while FB-042 remains `Registry-only` / planning-only, and no Workstream seam is admitted.
 
 ### Merged / Release Debt Owners
 
 Merged / Release Debt Owners are promoted implementation workstreams whose implementation branch is merge-target complete but whose public release packaging has not yet cleared release debt.
 These records are not active implementation branch owners after merge.
 
-- `Docs/workstreams/FB-005_workspace_and_folder_organization.md`
+None.
 
-Current merge-target truth is `No Active Branch`. FB-005 is the merged-unreleased release-debt owner for `v1.6.6-prebeta`; the pending release scope remains bounded to WS-1 `desktop/orin_desktop_test.py` -> `dev/desktop/orin_desktop_test.py`; the residual visual-path mismatch remains dev-only and non-user-facing; and FB-042 remains selected next planning-only with historical repair-only traceability on `feature/fb-042-step5-entrypoint-planning`; branch existence does not imply Branch Readiness admission or active branch truth, and no Workstream slice is admitted.
+No merged-unreleased release-debt owner remains after `v1.6.6-prebeta` publication, validation, and post-release canon closure.
 
 ### Closed
 
+- `Docs/workstreams/FB-005_workspace_and_folder_organization.md`
 - `Docs/workstreams/FB-030_orin_voice_audio_direction_refinement.md`
 - `Docs/workstreams/FB-029_orin_identity_licensing_hardening.md`
 - `Docs/workstreams/FB-015_boot_and_desktop_phase_boundary_model.md`
