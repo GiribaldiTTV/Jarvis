@@ -174,7 +174,7 @@ If the task remains materially ambiguous after that baseline, Codex should ask o
 
 ## Startup Contract For Every Task
 
-Before planning or execution, Codex should follow the startup contract in `Docs/Main.md`.
+Before planning or execution, Codex should follow the startup loading contract in `Docs/Main.md`, using `Docs/nexus_startup_contract.md` only as the ChatGPT/new-chat loader map when prompt generation is in scope.
 
 For tracked work, that means:
 

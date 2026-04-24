@@ -215,6 +215,13 @@ MULTI_SEAM_PROMPT_PHRASES = (
     "continue decision must be acted on immediately",
 )
 
+REUSABLE_GUIDANCE_RETIRED_SEAM_TERMS = {
+    Path("Docs/incident_patterns.md"): (
+        "Single-Seam Fallback",
+        "Single-Seam Mode Waiver",
+    ),
+}
+
 REQUIRED_WORKSTREAM_CONTINUATION_MARKERS = (
     "Continue Decision:",
     "Next Active Seam:",
@@ -2178,6 +2185,14 @@ def main() -> int:
             require(
                 prohibited_phrase not in lower_text,
                 f"{relative_path}: prompt scaffold must not recreate single-seam throttling authority via '{prohibited_phrase}'",
+            )
+
+    for relative_path, retired_terms in REUSABLE_GUIDANCE_RETIRED_SEAM_TERMS.items():
+        text = _read_text(relative_path)
+        for retired_term in retired_terms:
+            require(
+                retired_term not in text,
+                f"{relative_path}: reusable guidance must not reintroduce retired seam-governance term '{retired_term}'",
             )
 
     for relative_path, guard_phrase in zip(WORKSTREAM_TO_PR_DEFAULT_GUARD_DOCS, WORKSTREAM_TO_PR_DEFAULT_GUARD_PHRASES):

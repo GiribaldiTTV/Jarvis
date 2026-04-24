@@ -165,7 +165,7 @@ Active seam: None after PR-3 completion; the next legal phase is Release Readine
 - GOV-S1 Status: Completed in this pass; category-based seam fallback was identified as the reason a healthy bounded seam chain stopped too early.
 - GOV-S2 Status: Completed in this pass; source-of-truth now treats bounded multi-seam continuation as the default after green seams and requires an explicit bounded stop condition before stopping.
 - GOV-S3 Status: Completed in this pass; validator enforcement now rejects category-based fallback wording in seam-governance docs.
-- WS-1 Continuation Decision: superseded. The earlier stop after WS-1 was governance drift caused by category-based `Single-Seam Fallback`; under repaired governance, WS-2 remains the next admitted Workstream seam when validation and branch truth are green.
+- WS-1 Continuation Decision: superseded. The earlier stop after WS-1 was governance drift caused by a retired category-based stop rule; under repaired governance, WS-2 remains the next admitted Workstream seam when validation and branch truth are green.
 - WS-2 Status: Completed / executed.
 - WS-2 Boundary: architecture-only lifecycle and interaction-state framing for Nexus UI surfaces.
 - WS-2 Non-Includes: no UI implementation, no component code, no CSS/style changes, no runtime state machine, no assets, no launcher/settings/tray/overlay implementation, and no release work.
