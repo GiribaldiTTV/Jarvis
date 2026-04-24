@@ -21,8 +21,10 @@ EXPECTED_DEFAULT_TARGET_LINE = re.compile(
 )
 EXPECTED_ENTRYPOINT_FALLBACK_MARKERS = (
     "Function ResolvePythonLaunchCommand()",
+    "Function PyLauncherSupportsPython3()",
     'CommandExists("pyw.exe")',
     'CommandExists("pythonw.exe")',
+    "py -0p",
     "NEXUS_DESKTOP_SKIP_PREFERRED_PYTHONW",
     "windowed Python launcher was not found",
 )

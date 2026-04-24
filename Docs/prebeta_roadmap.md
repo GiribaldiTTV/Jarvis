@@ -68,10 +68,10 @@ Current merged truth indicates:
 - merged unreleased non-doc implementation debt exists: no
 - the latest public released implementation milestone is FB-005 Workspace and folder organization in `v1.6.6-prebeta`; FB-030 ORIN voice/audio direction refinement remains released in `v1.6.5-prebeta`; FB-015 Boot and desktop phase-boundary model plus FB-029 ORIN legal-safe rebrand, future ARIA persona option, and repo licensing hardening remain released in `v1.6.4-prebeta`
 - current phase after `v1.6.6-prebeta` release closure: `Workstream`
-- phase status after `v1.6.6-prebeta` release closure: FB-005 is Released / Closed in `v1.6.6-prebeta`; release debt is clear; FB-042 is now the active promoted implementation workstream on `feature/fb-042-desktop-entrypoint-runtime-refinement`; Branch Readiness is complete; and WS-1 desktop shortcut launch-path runtime refinement is complete and validated while broader `main.py` reshaping and broader workspace follow-through remain explicitly deferred.
+- phase status after `v1.6.6-prebeta` release closure: FB-005 is Released / Closed in `v1.6.6-prebeta`; release debt is clear; FB-042 is now the active promoted implementation workstream on `feature/fb-042-desktop-entrypoint-runtime-refinement`; Branch Readiness is complete; WS-1 desktop shortcut launch-path runtime refinement is complete and validated; H-1 launch-path hardening is complete and green; and broader `main.py` reshaping plus broader workspace follow-through remain explicitly deferred while Live Validation is next.
 - current active workstream: FB-042 Desktop entrypoint runtime refinement
 - current branch after `v1.6.6-prebeta` release closure: `feature/fb-042-desktop-entrypoint-runtime-refinement`
-- next concern: execute Hardening for the completed WS-1 desktop shortcut launch-path runtime refinement without widening into `main.py` reshaping or broader workspace movement
+- next concern: execute Live Validation for the completed WS-1 desktop shortcut launch-path runtime refinement without widening into `main.py` reshaping or broader workspace movement
 
 That means the released FB-027 interaction baseline, the released FB-036 authoring-and-callable-group milestone, the released FB-041 deterministic callable-group execution milestone, the released FB-037 built-in catalog milestone, the released FB-038 tray quick-task UX milestone, the released FB-039 external trigger intake architecture milestone, the released FB-040 monitoring/thermal architecture milestone, the released FB-031 UI/UX architecture milestone, the released FB-032 source-of-truth migration milestone, the released FB-004 future boot-orchestrator architecture milestone, the released FB-015 plus FB-029 planning milestones, the released FB-030 voice/audio planning milestone, and the released FB-005 bounded workspace-path slice are now part of the current public shared pre-Beta baseline.
 
@@ -93,7 +93,7 @@ Selected Next Workstream: None yet. Selection deferred until FB-042 PR Readiness
 Historical Branch Readiness State: Complete on `feature/fb-005-workspace-path-planning`.
 Current Branch Readiness State: Complete on `feature/fb-042-desktop-entrypoint-runtime-refinement`.
 Historical Workstream State: WS-1 `desktop/orin_desktop_test.py` -> `dev/desktop/orin_desktop_test.py` is complete.
-Active Workstream State: WS-1 desktop shortcut launch-path runtime refinement is complete and validated. Hardening is next.
+Active Workstream State: WS-1 desktop shortcut launch-path runtime refinement is complete and validated. H-1 launch-path hardening is complete and green. Live Validation is next.
 Historical Hardening State: Complete on `feature/fb-005-workspace-path-planning`.
 Historical Live Validation State: Complete on `feature/fb-005-workspace-path-planning`.
 PR Readiness State: Complete on `feature/fb-005-workspace-path-planning`; PR #83 merged into `main` at `873c9b6801802a05bbcef074595e632c0ec9f1d2`.
@@ -109,10 +109,10 @@ Record State: `Promoted`
 Canonical Workstream Doc: `Docs/workstreams/FB-042_desktop_entrypoint_runtime_refinement.md`
 Branch: `feature/fb-042-desktop-entrypoint-runtime-refinement`
 Branch Readiness State: Complete on `feature/fb-042-desktop-entrypoint-runtime-refinement`
-Workstream State: Complete through WS-1. WS-1 desktop shortcut launch-path runtime refinement is complete and validated; Hardening is next.
+Workstream State: Complete through WS-1. WS-1 desktop shortcut launch-path runtime refinement is complete and validated; H-1 hardening is complete; Live Validation is next.
 Branch Meaning: Active promoted implementation ownership of the real desktop shortcut / VBS / launcher / runtime path, while broader `main.py` reshaping and broader workspace follow-through remain explicitly deferred until a later bounded seam.
 Minimal Scope: Execute only WS-1 desktop shortcut launch-path runtime refinement across `launch_orin_desktop.vbs`, `desktop/orin_desktop_launcher.pyw`, `desktop/orin_desktop_main.py`, and `dev/orin_desktop_entrypoint_validation.py`.
-FB-042 Desktop entrypoint runtime refinement is the active promoted implementation workstream on feature/fb-042-desktop-entrypoint-runtime-refinement. Branch Readiness is complete, WS-1 desktop shortcut launch-path runtime refinement is complete and validated, Hardening is next, and broader `main.py` reshaping plus broader workspace follow-through remain explicitly deferred until a later bounded seam.
+FB-042 Desktop entrypoint runtime refinement is the active promoted implementation workstream on feature/fb-042-desktop-entrypoint-runtime-refinement. Branch Readiness is complete, WS-1 desktop shortcut launch-path runtime refinement is complete and validated, H-1 hardening is complete, Live Validation is next, and broader `main.py` reshaping plus broader workspace follow-through remain explicitly deferred until a later bounded seam.
 
 ## Latest Released Workstream Context
 
@@ -123,7 +123,7 @@ FB-042 Desktop entrypoint runtime refinement is the active promoted implementati
 - priority: `Low`
 - canonical workstream doc: `Docs/workstreams/FB-005_workspace_and_folder_organization.md`
 - branch: `feature/fb-005-workspace-path-planning`
-- phase status: Released / Closed in `v1.6.6-prebeta`; PR #83 merged into `main` at `873c9b6801802a05bbcef074595e632c0ec9f1d2`; the release is live on commit `deeaa691a79dd01897f6aed82f087970db7019b3`; release debt is clear; and FB-042 is now the active promoted implementation workstream on `feature/fb-042-desktop-entrypoint-runtime-refinement`, with Branch Readiness complete and WS-1 desktop shortcut launch-path runtime refinement complete / validated.
+- phase status: Released / Closed in `v1.6.6-prebeta`; PR #83 merged into `main` at `873c9b6801802a05bbcef074595e632c0ec9f1d2`; the release is live on commit `deeaa691a79dd01897f6aed82f087970db7019b3`; release debt is clear; and FB-042 is now the active promoted implementation workstream on `feature/fb-042-desktop-entrypoint-runtime-refinement`, with Branch Readiness complete, WS-1 desktop shortcut launch-path runtime refinement complete / validated, and H-1 hardening complete.
 - next legal seam: none; this record is now historical released truth.
 Release Target: v1.6.6-prebeta
 Release Floor: patch prerelease
@@ -162,7 +162,7 @@ The 2026-04-23 priority reading is updated during FB-005 Branch Readiness:
 - FB-005 remains `Low` as historical workspace priority, but it is now Released / Closed in `v1.6.6-prebeta` and no longer owns release debt or selected-next truth.
 - FB-042 is the active promoted implementation workstream on `feature/fb-042-desktop-entrypoint-runtime-refinement`, with Branch Readiness complete and WS-1 desktop shortcut launch-path runtime refinement complete / validated.
 
-Current-branch clarity: latest public prerelease is `v1.6.6-prebeta`; FB-005 is Released / Closed and release debt is clear; the historical FB-005 residual visual-path mismatch remains dev-only and non-user-facing; and FB-042 is the active promoted implementation workstream on `feature/fb-042-desktop-entrypoint-runtime-refinement` with WS-1 desktop shortcut launch-path runtime refinement complete / validated and Hardening next.
+Current-branch clarity: latest public prerelease is `v1.6.6-prebeta`; FB-005 is Released / Closed and release debt is clear; the historical FB-005 residual visual-path mismatch remains dev-only and non-user-facing; and FB-042 is the active promoted implementation workstream on `feature/fb-042-desktop-entrypoint-runtime-refinement` with WS-1 desktop shortcut launch-path runtime refinement complete / validated, H-1 hardening complete, and Live Validation next.
 
 ## Selected Next Workstream
 

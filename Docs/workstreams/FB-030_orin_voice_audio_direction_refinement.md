@@ -97,7 +97,7 @@ None.
 - Released Artifacts: Tag v1.6.5-prebeta; release title Pre-Beta v1.6.5; rich Markdown release notes summarize the FB-030 voice/audio direction planning frame without repeating the release title inside the notes body, and GitHub-generated `## What's Changed` plus `**Full Changelog**:` must be included
 - Post-Release Truth: FB-030 is Released / Closed in v1.6.5-prebeta; FB-005 is Released / Closed in v1.6.6-prebeta; release debt is clear; and FB-042 is now the active promoted implementation workstream on `feature/fb-042-desktop-entrypoint-runtime-refinement`, with Branch Readiness complete and WS-1 desktop shortcut launch-path runtime refinement complete / validated
 - Selected Next Workstream: None yet. FB-042 is no longer selected-next because it is now the active promoted implementation workstream on `feature/fb-042-desktop-entrypoint-runtime-refinement`
-- Branch Readiness Gate: Complete on `feature/fb-042-desktop-entrypoint-runtime-refinement`; WS-1 desktop shortcut launch-path runtime refinement is complete / validated, Hardening is next, and broader `main.py` reshaping plus broader workspace follow-through remain explicitly deferred until a later bounded seam
+- Branch Readiness Gate: Complete on `feature/fb-042-desktop-entrypoint-runtime-refinement`; WS-1 desktop shortcut launch-path runtime refinement is complete / validated, H-1 hardening is complete, Live Validation is next, and broader `main.py` reshaping plus broader workspace follow-through remain explicitly deferred until a later bounded seam
 
 ## Branch Objective
 

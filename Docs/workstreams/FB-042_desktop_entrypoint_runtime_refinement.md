@@ -19,7 +19,7 @@
 
 ## Current Phase
 
-- Phase: `Workstream`
+- Phase: `Hardening`
 
 ## Phase Status
 
@@ -30,8 +30,9 @@
 - FB-005 is Released / Closed in `v1.6.6-prebeta`, and release debt is clear in canon.
 - WS-1 desktop shortcut launch-path runtime refinement is complete and validated.
 - The completed WS-1 slice remains runtime-bearing and user-facing because it improved the real Windows-facing desktop shortcut / VBS / launcher / runtime path.
-- `launch_orin_desktop.vbs` now resolves the preferred installed `pythonw.exe` path first, falls back to `pyw.exe -3` and `pythonw.exe` on `PATH`, and shows a user-facing startup failure message if no windowed Python launcher is available.
-- `dev/orin_desktop_entrypoint_validation.py` now validates both the default VBS path and a forced-fallback VBS path through the real `launch_orin_desktop.vbs` -> `desktop/orin_desktop_launcher.pyw` -> `desktop/orin_desktop_main.py` chain.
+- H-1 WS-1 launch-path hardening is complete and green.
+- `launch_orin_desktop.vbs` now resolves the preferred installed `pythonw.exe` path first, falls back to `pyw.exe -3` only when `py -0p` proves a registered Python 3 launcher is available, then falls back to `pythonw.exe` on `PATH`, and shows a user-facing startup failure message if no windowed Python launcher is available.
+- `dev/orin_desktop_entrypoint_validation.py` now validates both the default VBS path and a forced-fallback VBS path through the real `launch_orin_desktop.vbs` -> `desktop/orin_desktop_launcher.pyw` -> `desktop/orin_desktop_main.py` chain and keeps launch-chain preflight / cleanup isolation as reusable proof.
 - Broader `main.py` reshaping and broader workspace follow-through are explicitly deferred; they are not admitted by inertia on this branch.
 - The historical FB-042 branch-authority record is preserved for traceability only and no longer owns active execution truth.
 
@@ -66,7 +67,7 @@ None.
 
 ## Next Legal Phase
 
-- `Hardening`
+- `Live Validation`
 
 ## Branch Objective
 
@@ -179,9 +180,9 @@ Planning-Loop Bypass Reason: `None`
 
 ## Later-Phase Expectations
 
-- Workstream is now complete through WS-1; do not reopen planning-only framing as a substitute for execution.
+- Workstream is now complete through WS-1 and Hardening is complete through H-1; do not reopen planning-only framing as a substitute for execution.
 - Any later seam that touches `main.py` or broader workspace follow-through must be separately admitted after WS-1 evidence exists.
-- Hardening must pressure-test launch-path ownership, startup sequencing, shortcut expectations, validator coverage, and rollback viability for the implemented WS-1 delta.
+- Hardening pressure-tested launch-path ownership, fallback behavior, PATH-based Python resolution, validator cleanup boundaries, process isolation, rollback viability, and hidden coupling for the implemented WS-1 delta.
 - Live Validation must classify shortcut applicability from the real shipped path and clear or waive the user-facing shortcut blocker with evidence.
 
 ## Initial Workstream Seam Sequence
@@ -194,28 +195,62 @@ Seam 1: `WS-1 desktop shortcut launch-path runtime refinement`
 - Non-Includes: no `main.py` reshaping, no broader workspace moves, no audio-path changes, no visual-asset reorganization, no installer redesign
 - Result: `launch_orin_desktop.vbs` now falls back cleanly from the preferred installed `pythonw.exe` path to `pyw.exe -3` or `pythonw.exe`, and the reusable entrypoint validator now proves both the default and forced-fallback launch paths through the real desktop chain.
 
+## H-1 Hardening Record
+
+H-1 pressure-tested the completed WS-1 runtime delta across launch-path ownership, fallback execution behavior, PATH-based Python resolution, launcher/runtime cleanup boundaries, validator preflight and process isolation, rollback viability, and cross-environment edge cases without widening into `main.py`, `Audio/`, `logs/`, `jarvis_visual/`, installer work, or broader workspace reshaping.
+
+### Hardening Findings
+
+- Launch-path ownership remains bounded to `launch_orin_desktop.vbs` and `dev/orin_desktop_entrypoint_validation.py`; `desktop/orin_desktop_launcher.pyw` and `desktop/orin_desktop_main.py` were revalidated but not widened.
+- Default-path and forced-fallback execution both succeed through the real `launch_orin_desktop.vbs` -> `desktop/orin_desktop_launcher.pyw` -> `desktop/orin_desktop_main.py` chain.
+- A real PATH-resolution edge case exists on Windows: `where pyw.exe` can succeed through Windows app aliases even when a usable registered Python 3 launcher is not yet proven.
+- Validator cleanup boundaries remain acceptable because preflight and cleanup target only validation-owned launch-chain processes under `dev/logs/desktop_entrypoint_validation`.
+- Hidden-coupling pressure tests found no new launch-fallback symbol leakage into `main.py`, `Audio/`, or `jarvis_visual/`.
+- The final `pythonw.exe` PATH fallback remains environment-sensitive if it points at a mismatched install, but the preferred installed path plus the explicit `py -0p` registration check now reduce that risk materially.
+
+### Hardening Corrections
+
+- `launch_orin_desktop.vbs` now requires `PyLauncherSupportsPython3()` before it trusts `pyw.exe -3` as the fallback windowed launcher path.
+- The user-facing startup failure dialog now reports the full checked fallback order: preferred installed `pythonw.exe`, registered `pyw.exe -3`, and PATH `pythonw.exe`.
+- `dev/orin_desktop_entrypoint_validation.py` now checks for the hardened fallback markers `Function PyLauncherSupportsPython3()` and `py -0p` so future regressions on PATH-based launcher proof do not silently pass.
+
+### H-1 Completion Decision
+
+- H-1 Result: Complete / green.
+- Runtime Stability Decision: the bounded desktop launch-path delta is stable enough to advance because fallback proof, process isolation, and rollback posture are all green after the Python 3 launcher-registration correction.
+- Rollback Target: `Workstream`
+- Stop condition: phase boundary reached; Hardening is complete after H-1.
+
+### H-1 Validation Results
+
+- `python -m py_compile desktop\orin_desktop_launcher.pyw desktop\orin_desktop_main.py dev\orin_desktop_entrypoint_validation.py`: PASS.
+- `python dev\orin_desktop_entrypoint_validation.py`: PASS; report `dev/logs/desktop_entrypoint_validation/reports/DesktopEntrypointValidationReport_20260424_133627.txt`.
+- `python dev\orin_branch_governance_validation.py`: PASS.
+- `git diff --check`: PASS.
+- Hidden-coupling scan: PASS; no new fallback-resolution markers leaked into `main.py`, `Audio/`, or `jarvis_visual/`.
+
 ## Artifact History
 
 - `dev/orin_desktop_entrypoint_validation.py`
   Purpose: reusable desktop entrypoint validator for non-live startup, tray identity, tray routing, and launch-chain proof.
-  Introduced / Extended: extended in WS-1 to validate the real VBS -> launcher -> runtime chain in both default and forced-fallback launch scenarios.
+  Introduced / Extended: extended in WS-1 to validate the real VBS -> launcher -> runtime chain in both default and forced-fallback launch scenarios, then reused in H-1 to pressure-test launch-chain preflight, cleanup isolation, and the hardened Python 3 launcher fallback contract.
   Classification: `baseline`, `supporting`
   Reuse: extend this helper before creating another desktop entrypoint or launch-shim validator.
-- `dev/logs/desktop_entrypoint_validation/reports/DesktopEntrypointValidationReport_20260424_110630.txt`
-  Purpose: latest WS-1 proof artifact showing the upgraded launch shim, default-path success, and forced-fallback success.
+- `dev/logs/desktop_entrypoint_validation/reports/DesktopEntrypointValidationReport_20260424_133627.txt`
+  Purpose: latest H-1 proof artifact showing default-path success, forced-fallback success, launch-chain cleanup isolation, and the hardened Python 3 launcher-registration fallback contract.
   Classification: `supporting`
 
 ## Active Seam
 
 Active seam: `None.`
 
-- Workstream is complete through WS-1.
+- Workstream is complete through WS-1 and Hardening is complete through H-1.
 - No later FB-042 seam is admitted yet.
 - Broader `main.py` reshaping and broader workspace follow-through remain explicitly blocked until a later bounded admission.
 
 ## Seam Continuation Decision
 
-Continue Decision: `Stop at the Workstream phase boundary.`
+Continue Decision: `Stop at the Hardening phase boundary.`
 Next Active Seam: `None.`
-Stop Condition: `WS-1 is complete and validated, and no later FB-042 seam is admitted yet.`
-Continuation Action: `Advance to Hardening and pressure-test the completed launch-path delta before any later seam is admitted.`
+Stop Condition: `WS-1 is complete and validated, H-1 hardening is complete and green, and no later FB-042 seam is admitted yet.`
+Continuation Action: `Advance to Live Validation and classify the real desktop shortcut gate before any later seam is admitted.`
