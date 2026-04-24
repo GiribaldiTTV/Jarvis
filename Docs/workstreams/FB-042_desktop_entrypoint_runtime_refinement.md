@@ -46,7 +46,7 @@
 - User-facing shortcut validation is now clear in canon, and User Test Summary results are explicitly waived because the branch changes a narrow launch fallback/error-handling seam rather than a broader manual workflow, in-app content flow, settings surface, or multi-step operator interaction.
 - PR Readiness, Release Readiness, and Release Execution are complete historical proof.
 - Selected Next Workstream: FB-043 Top-level desktop entrypoint ownership and main.py handoff refinement.
-- FB-043 Branch Readiness is now active on `feature/fb-043-top-level-entrypoint-handoff-refinement`, and one bounded runtime-bearing top-level entrypoint slice is defined for Workstream admission.
+- FB-043 Branch Readiness is now active on `feature/fb-043-top-level-entrypoint-handoff-refinement`, and the first bounded runtime-bearing top-level entrypoint slice is defined for Workstream admission with same-branch continuation preserved for the remaining FB-043 slices.
 - Broader `main.py` reshaping and broader workspace follow-through are explicitly deferred; they are not admitted by inertia on this branch.
 - The historical FB-042 branch-authority record is preserved for traceability only and no longer owns active execution truth.
 
@@ -305,9 +305,9 @@ Release Floor: patch prerelease
 Version Rationale: FB-042 delivers a bounded runtime/user-facing launch-path reliability and startup error-handling refinement on the existing desktop entrypoint path, but it does not introduce a new product lane, broader runtime family, or materially expanded capability beyond the shipped launch chain
 Release Scope: WS-1 launch-path fallback hardening in `launch_orin_desktop.vbs`, direct user-facing startup failure dialog handling when no usable windowed Python launcher exists, launch-chain validator expansion across default and forced-fallback VBS paths, H-1 fallback-contract correction for `py -0p` / Python 3 launcher proof, real desktop shortcut validation evidence, PR package history, and merged-unreleased release-debt truth for the bounded FB-042 runtime slice only
 Release Artifacts: Tag v1.6.7-prebeta; release title Pre-Beta v1.6.7; rich Markdown release notes summarize the bounded FB-042 desktop launch-path runtime refinement, fallback hardening, real shortcut evidence, and selected-next top-level entrypoint successor lane without repeating the release title inside the notes body, and GitHub-generated `## What's Changed` plus `**Full Changelog**:` must be included
-Post-Release Truth: FB-042 is Released / Closed in `v1.6.7-prebeta` after publication and validation; release debt then clears, and FB-043 Branch Readiness may begin only after updated `main` is revalidated and one bounded runtime-bearing top-level desktop entrypoint slice is admitted
+Post-Release Truth: FB-042 is Released / Closed in `v1.6.7-prebeta` after publication and validation; release debt then clears, and FB-043 Branch Readiness may begin only after updated `main` is revalidated and the first bounded runtime-bearing top-level desktop entrypoint slice is admitted with same-branch continuation posture explicit
 Selected Next Workstream: FB-043 Top-level desktop entrypoint ownership and main.py handoff refinement
-Next-Branch Creation Gate: After FB-042 merges, `v1.6.7-prebeta` is published and validated, updated `main` is revalidated, and FB-043 Branch Readiness admits one bounded runtime-bearing top-level entrypoint slice; branch creation remains blocked until then
+Next-Branch Creation Gate: After FB-042 merges, `v1.6.7-prebeta` is published and validated, updated `main` is revalidated, and FB-043 Branch Readiness admits the first bounded runtime-bearing top-level entrypoint slice with same-branch continuation posture explicit; branch creation remains blocked until then
 
 ## Post-Merge State
 
@@ -340,7 +340,7 @@ PR Readiness validates the completed bounded FB-042 WS-1 runtime slice for merge
 - Version Rationale: `patch prerelease` remains required because the delivered FB-042 delta is a bounded runtime/user-facing launch-path reliability and startup error-handling refinement on the existing desktop entrypoint, not a new capability lane or materially expanded feature family.
 - Release Scope: launch-path fallback hardening in `launch_orin_desktop.vbs`, direct startup failure dialog handling, validator expansion across default and forced-fallback VBS paths, H-1 fallback-contract correction for Python 3 launcher proof, real desktop shortcut validation evidence, selected-next successor lock, and PR package history.
 - Release Artifacts: Tag `v1.6.7-prebeta`; release title `Pre-Beta v1.6.7`; rich Markdown release notes summarize the bounded FB-042 desktop launch-path runtime refinement without repeating the release title inside the notes body, and GitHub-generated `## What's Changed` plus `**Full Changelog**:` must be included.
-- Post-Release Truth: FB-042 is Released / Closed in `v1.6.7-prebeta` after publication and validation; release debt then clears, and FB-043 Branch Readiness may begin only after updated `main` is revalidated and one bounded runtime-bearing top-level entrypoint slice is admitted.
+- Post-Release Truth: FB-042 is Released / Closed in `v1.6.7-prebeta` after publication and validation; release debt then clears, and FB-043 Branch Readiness may begin only after updated `main` is revalidated and the first bounded runtime-bearing top-level entrypoint slice is admitted with same-branch continuation posture explicit.
 
 ### PR-2 Selected-Next Workstream Findings
 
@@ -348,7 +348,7 @@ PR Readiness validates the completed bounded FB-042 WS-1 runtime slice for merge
 - Selected Next Basis: FB-043 is the smallest repo-grounded runtime-bearing successor after FB-042 because the next high-value unresolved surface is the still-ambiguous top-level desktop entrypoint handoff across `main.py` and the shipped launcher chain.
 - Selected Next Record State At PR Package Time: `Registry-only`.
 - Selected Next Implementation Branch At PR Package Time: Not created.
-- Branch Creation Gate At PR Package Time: After FB-042 merges, `v1.6.7-prebeta` is published and validated, updated `main` is revalidated, and FB-043 Branch Readiness admits one bounded runtime-bearing top-level entrypoint slice.
+- Branch Creation Gate At PR Package Time: After FB-042 merges, `v1.6.7-prebeta` is published and validated, updated `main` is revalidated, and FB-043 Branch Readiness admits the first bounded runtime-bearing top-level entrypoint slice with same-branch continuation posture explicit.
 - Branch Containment At PR Package Time: PASS. No local or remote branch exists for FB-043.
 
 ### PR-3 PR Package Details

@@ -19,6 +19,9 @@ Use `Docs/validation_helper_registry.md` for durable root `dev/` helper naming, 
 ## Workstream Record Rules
 
 - workstream docs are the canonical feature-state, branch-local validation/evidence, active-seam, artifact-history, branch-local reuse, and closure records for promoted work
+- a slice is a bounded admitted backlog-completion unit; a seam is the current execution checkpoint inside or between slices
+- active implementation workstreams may carry as many slices as needed to complete the backlog item on one branch when phase, scope, risk, and validation authority remain green
+- workstream docs must not encode a one-slice branch cap unless an explicit `Backlog-Split User Approval: APPROVED` or a named bounded stop condition is recorded
 - `Record State` tracks whether the record is `Promoted` or `Closed`
 - `Status` remains the delivery or work field
 - `Registry-only` backlog items do not require a canonical workstream execution record yet

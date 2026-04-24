@@ -10,7 +10,7 @@
 
 This branch is the active FB-043 `Branch Readiness` surface.
 
-FB-043 remains `Registry-only` during this pass. The branch exists to close FB-042 post-release canon, rebase current repo truth onto the live `v1.6.7-prebeta` release, and admit one bounded runtime-bearing top-level desktop entrypoint slice before any FB-043 implementation begins.
+FB-043 remains `Registry-only` during this pass. The branch exists to close FB-042 post-release canon, rebase current repo truth onto the live `v1.6.7-prebeta` release, admit the first bounded runtime-bearing top-level desktop entrypoint slice, and preserve same-branch continuation for the remaining FB-043 slices needed to finish the backlog item.
 
 The older `feature/fb-043-release-debt-marker-repair` branch remains historical repair-only traceability and does not imply current Branch Readiness admission or active branch truth for FB-043.
 
@@ -30,6 +30,7 @@ The older `feature/fb-043-release-debt-marker-repair` branch remains historical 
 - FB-043 remains selected-only / `Registry-only` during Branch Readiness.
 - A first bounded runtime/user-facing slice is now defined on this branch.
 - The defined slice is admitted for the next legal phase and is bounded to top-level entrypoint handoff behavior rather than broader runtime or workspace reshaping.
+- Same-branch backlog completion remains the default for the remaining FB-043 slices after WS-1 when scope, phase, risk, and validation authority stay green.
 - The historical repair-only branch `feature/fb-043-release-debt-marker-repair` remains non-admitting traceability only.
 
 ## Branch Class
@@ -53,7 +54,8 @@ None.
 - Latest public prerelease truth is advanced to `v1.6.7-prebeta` across active canon.
 - FB-042 is durably Released / Closed in canon and merged-unreleased release debt is clear.
 - FB-043 current branch truth is explicit in backlog, roadmap, and this active branch record.
-- One bounded runtime/user-facing top-level entrypoint slice is defined with exact affected paths, in-scope/out-of-scope limits, validation coverage, and rollback conditions.
+- The first bounded runtime/user-facing top-level entrypoint slice is defined with exact affected paths, in-scope/out-of-scope limits, validation coverage, and rollback conditions.
+- Same-branch continuation posture is explicit so FB-043 does not silently cap itself at WS-1.
 - Branch Readiness blockers are resolved without widening FB-043 into a planning-only or docs-only lane.
 
 ## Rollback Target
@@ -75,11 +77,12 @@ None.
 - Repo current-state canon reflects `v1.6.7-prebeta` as the latest public prerelease and no longer carries FB-042 merged-unreleased truth.
 - FB-043 has an active Branch Readiness branch with a bounded first runtime-bearing slice ready for Workstream.
 - The first slice clarifies top-level `main.py` handoff ownership while preserving the already-green Windows shortcut / VBS / launcher / renderer path.
+- Additional FB-043 slices should stay on this same branch when they remain inside the same backlog item, branch class, phase family, approved scope, and validation surface.
 
 Release Target: `v1.6.8-prebeta`
 Release Floor: `patch prerelease`
-Version Rationale: FB-043 is starting with a bounded runtime/user-facing top-level entrypoint handoff refinement. If the first slice lands cleanly, it should remain a patch prerelease because it clarifies and tightens launch ownership without opening a new product lane or broad runtime family.
-Release Scope: bounded top-level desktop entrypoint ownership and `main.py` handoff refinement beginning with WS-1 `main.py` direct-launch handoff behavior, the minimal launcher-contract support it actually needs, direct validation coverage updates, and the canon needed to keep the branch truthful.
+Version Rationale: FB-043 is starting with a bounded runtime/user-facing top-level entrypoint handoff refinement. The branch should prefer completing the remaining FB-043 slices on one branch, and if the slice chain stays inside this same runtime lane it should remain a patch prerelease because it clarifies and tightens launch ownership without opening a new product lane or broad runtime family.
+Release Scope: bounded top-level desktop entrypoint ownership and `main.py` handoff refinement beginning with WS-1 `main.py` direct-launch handoff behavior, continuing with any same-branch FB-043 follow-through slices that remain inside the approved runtime lane, the minimal launcher-contract support actually needed, direct validation coverage updates, and the canon needed to keep the branch truthful.
 Release Artifacts: anticipated tag `v1.6.8-prebeta`; release title `Pre-Beta v1.6.8`; rich Markdown notes must summarize the bounded top-level entrypoint handoff refinement and the user-facing launch ownership outcome without repeating the release title in the body, with GitHub-generated `## What's Changed` and `**Full Changelog**:` when release packaging is reached.
 
 ## Affected Surface Ownership
@@ -108,6 +111,16 @@ Planning-Loop Bypass Reason: `None`
 - FB-043 is an implementation branch and must begin with an admitted runtime/user-facing seam.
 - Branch creation, post-release canon closure, or branch-readiness framing do not count as Workstream progress by themselves.
 - Any future docs-only or canon-only FB-043 pass requires explicit USER approval before it can bypass implementation execution.
+
+## Slice Continuation Policy
+
+Slice Continuation Default: `Same-branch backlog completion`
+Backlog-Split User Approval: `None`
+Backlog-Split Reason: `None`
+
+- WS-1 is the first admitted FB-043 slice, not a branch cap.
+- Additional FB-043 slices should be admitted and executed on this branch when they remain inside the same backlog item, branch class, phase family, approved scope, and validation surface.
+- A bounded stop condition or explicit USER-approved backlog split is required before stopping the branch after only WS-1.
 
 ## Admitted Implementation Slice
 
@@ -174,7 +187,7 @@ Planning-Loop Bypass Reason: `None`
 
 ## Later-Phase Expectations
 
-- Workstream must execute only the admitted WS-1 main.py direct-launch handoff refinement slice unless the USER later approves another seam.
+- Workstream must begin with the admitted WS-1 main.py direct-launch handoff refinement slice and keep same-branch backlog completion as the default for the remaining FB-043 slices needed to finish the backlog item.
 - Hardening must pressure-test direct-launch ownership, production launch regression risk, explicit dev boot-path preservation, and rollback clarity.
 - Live Validation must prove the production shortcut path still works and must classify whether the top-level `main.py` handoff change also requires a narrow waiver or a real User Test Summary artifact.
 - PR Readiness must package FB-043 as real implementation work, not as a docs-only or repair-only lane.

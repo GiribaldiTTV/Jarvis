@@ -47,7 +47,7 @@ Add these fields when relevant:
 If `Phase` is missing or is not one of the exact canonical phase names below, execution is blocked and only truth-validation or analysis may continue.
 If `Seam Sequence` is present, it is structure only.
 Prompt text may name the entry seam and downstream planned seams, but it does not define seam behavior, bypass phase rules, or authorize continuation by itself.
-The canonical seam workflow contract below controls whether Codex may continue, must stop, or must fall back to a single active seam.
+The canonical seam workflow contract below controls whether Codex may continue, must stop, or may split a backlog item across branches only with explicit USER approval.
 
 ## Canonical Phase Enum
 
@@ -277,7 +277,8 @@ Purpose:
 Core rule:
 
 - Branch Readiness owns planning, framing, affected-surface mapping, implementation delta classification, and admitted-slice definition before Workstream begins.
-- Workstream must execute an admitted implementation slice unless the USER explicitly approves a docs-only bypass.
+- Branch Readiness must define the first admitted slice and the same-branch continuation posture for the remaining slices needed to complete the backlog item.
+- Workstream must execute admitted implementation slices and keep same-branch backlog completion as the default unless the USER explicitly approves a docs-only bypass or backlog split.
 - Docs-only Workstreams require explicit USER approval.
 - Planning-loop bypass requires `Planning-Loop Bypass User Approval: APPROVED` and `Planning-Loop Bypass Reason:`.
 - Release-bearing implementation work with no runtime/user-facing, backend/runtime, or developer-tooling delta is blocked unless the USER explicitly approves that release window.
@@ -1107,12 +1108,19 @@ Multi-seam does not mean batch execution.
 It means Codex continues across a planned seam sequence without requiring a new operator prompt after every seam, while still executing exactly one active seam at a time.
 Risky categories such as UI, launcher, settings, protocol, cross-subsystem, or policy work require sharper per-seam boundaries and stronger validation, not an automatic stop.
 
+### Slice And Seam Definitions
+
+A slice is a bounded admitted backlog-completion unit; a seam is the current execution checkpoint inside or between slices.
+There is no repo-wide cap on how many slices a branch or workstream may carry.
+Same-branch backlog completion is the default: admit and execute the additional slices needed to finish the backlog item on the current branch whenever scope, phase, risk, and validation authority remain green.
+Stopping after the first slice or splitting the backlog item across branches requires an explicit `Backlog-Split User Approval` or a named bounded stop condition.
+
 ### Default Continuation Duty
 
 `Next-Seam Continuation Required` is the default result after a green seam in a valid bounded multi-seam workflow.
 When a prompt names an `Active Seam` or says to execute a seam that also appears inside an approved seam sequence, that seam is the entry seam, not a terminal boundary.
 After the entry seam validates green, Codex must evaluate the next seam in the sequence from source-of-truth and continue by default when the continuation authority conditions pass.
-Perform all admitted seams in the bounded multi-seam workflow unless an explicit `Single-Seam Mode Waiver` is raised or a named bounded stop condition is recorded.
+Perform all admitted seams in the bounded multi-seam workflow and continue through the additional slices needed to complete the backlog item on the same branch unless an explicit `Backlog-Split User Approval` or a named bounded stop condition is recorded.
 
 Codex must not stop merely because:
 
@@ -1126,12 +1134,11 @@ A `continue` decision must be acted on immediately by starting the next seam in 
 Durability commit/push after a green seam is a checkpoint, not a stop.
 Do not send a final closeout response after a green entry seam while the next seam remains admitted and no bounded stop condition exists.
 
-Stopping after a green seam because the workflow is being narrowed to one seam requires an explicit `Single-Seam Mode Waiver`.
-A bounded stop condition blocks continuation; it does not by itself create single-seam mode.
+A bounded stop condition blocks continuation; it does not by itself authorize stopping the backlog item after only one slice.
 
-A prompt-level `execute only <seam>` request does not override this continuation duty unless the request is paired with an explicit `Single-Seam Mode Waiver` or another named blocker from this contract.
-Restrictive wording, cautious wording, and small-slice wording do not create single-seam mode without that waiver.
-If Codex stops after a green seam without one of the recorded reasons above, classify that stop as `Governance Drift` and repair the source-of-truth or validator gap before treating the workflow as healthy.
+A prompt-level `execute only <seam>` request does not override this continuation duty unless the request is paired with an explicit `Backlog-Split User Approval` or another named blocker from this contract.
+Restrictive wording, cautious wording, and small-slice wording do not create backlog-split authority by themselves.
+If Codex stops after a green seam or stops the branch after a first slice without one of the recorded reasons above, classify that stop as `Governance Drift` and repair the source-of-truth or validator gap before treating the workflow as healthy.
 
 ### Seam Stages
 
@@ -1208,28 +1215,24 @@ A bounded multi-seam workflow may end before phase completion only when one of t
 Category labels are not stop conditions by themselves.
 Bug fix, hotfix, UI-model, launcher, settings, protocol, policy, cross-subsystem, or high-risk labels may require smaller seams and stronger gates, but they do not cancel bounded multi-seam continuation when the next seam remains admitted and green.
 
-## Single-Seam Mode Waiver Rule
+## Backlog-Split Rule
 
-`Single-Seam Fallback` is legacy terminology for `Single-Seam Mode Waiver`.
-Single-seam mode is waiver-only.
-It is not a category shortcut, a cautious-default shortcut, or a prompt-wording shortcut.
-A bounded stop condition blocks the workflow. It does not by itself authorize single-seam mode.
+Legacy `Single-Seam Fallback` and `Single-Seam Mode Waiver` terms are retired and must not be used in active source-of-truth.
+Same-branch backlog completion is the default.
+There is no repo-wide single-slice cap for an active branch or workstream.
+A bounded stop condition blocks the workflow. It does not by itself authorize splitting the backlog item across branches.
 
-`Single-Seam Mode Waiver` may narrow an otherwise valid bounded multi-seam workflow to one seam only when an explicit waiver is recorded in source-of-truth, the active authority record, or the operator prompt.
-If no explicit waiver is raised and no bounded stop condition is recorded, perform all admitted seams in the bounded multi-seam workflow.
-When a `Single-Seam Mode Waiver` is used, the output or authority record must name:
+`Backlog-Split User Approval` may split an otherwise valid same-branch slice chain across branches only when an explicit USER approval is recorded in source-of-truth, the active authority record, or the operator prompt.
+If no explicit approval is raised and no bounded stop condition is recorded, continue admitting and executing the additional slices needed to complete the backlog item on the same branch.
+When a backlog split is used, the output or authority record must name:
 
-- `Single-Seam Waiver: Yes`
-- `Single-Seam Waiver Reason:`
-- `Single-Seam Waiver Owner:`
-- `Single-Seam Waiver Coverage:`
-- `Single-Seam Waiver Lift Condition:`
-- `Next Legal Resume Point:`
+- `Backlog-Split User Approval: APPROVED`
+- `Backlog-Split Reason:`
+- `Backlog-Split Boundary:`
+- `Backlog-Split Resume Point:`
 
-If source-of-truth admits exactly one seam and no next seam exists, that is a one-seam workflow, not single-seam mode, and no waiver is needed.
-
-Category labels, restrictive task wording, and cautionary phrases such as `execute WS-1`, `stop after WS-1`, `smallest safe slice`, `high-risk`, `launcher`, `settings`, `protocol`, `UI-model`, or `cross-subsystem` do not create waiver authority by themselves.
-Single-seam mode does not authorize phase skipping, readiness claims, or stopping a green approved seam chain merely because the work feels risky.
+Category labels, restrictive task wording, and cautionary phrases such as `execute WS-1`, `stop after WS-1`, `smallest safe slice`, `high-risk`, `launcher`, `settings`, `protocol`, `UI-model`, or `cross-subsystem` do not create split authority by themselves.
+Same-branch slice continuation does not authorize phase skipping, readiness claims, or batching multiple seams without per-seam validation.
 
 ## Continuous Validation Loop Rule
 

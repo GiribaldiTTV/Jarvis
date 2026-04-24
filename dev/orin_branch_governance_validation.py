@@ -159,20 +159,23 @@ MULTI_SEAM_CONTRACT_PHRASES = (
     "bounded multi-seam workflow",
     "Next-Seam Continuation Required",
     "entry seam, not a terminal boundary",
-    "Perform all admitted seams in the bounded multi-seam workflow unless an explicit `Single-Seam Mode Waiver` is raised or a named bounded stop condition is recorded.",
-    "Single-Seam Mode Waiver",
+    "a slice is a bounded admitted backlog-completion unit",
+    "a seam is the current execution checkpoint inside or between slices",
+    "there is no repo-wide cap on how many slices a branch or workstream may carry",
+    "same-branch backlog completion is the default: admit and execute the additional slices needed to finish the backlog item on the current branch whenever scope, phase, risk, and validation authority remain green",
+    "perform all admitted seams in the bounded multi-seam workflow and continue through the additional slices needed to complete the backlog item on the same branch unless an explicit `Backlog-Split User Approval` or a named bounded stop condition is recorded",
+    "Backlog-Split User Approval",
     "bounded stop condition",
-    "Single-Seam Fallback",
     "reporting `Next Safe Move` is not a substitute for execution",
     "A `continue` decision must be acted on immediately",
 )
 
 MULTI_SEAM_PRIMARY_REPAIR_PHRASES = (
     "Category labels are not stop conditions by themselves.",
-    "`Single-Seam Fallback` is legacy terminology for `Single-Seam Mode Waiver`.",
-    "Single-seam mode is waiver-only.",
-    "A bounded stop condition blocks the workflow. It does not by itself authorize single-seam mode.",
-    "Perform all admitted seams in the bounded multi-seam workflow unless an explicit `Single-Seam Mode Waiver` is raised or a named bounded stop condition is recorded.",
+    "Legacy `Single-Seam Fallback` and `Single-Seam Mode Waiver` terms are retired and must not be used in active source-of-truth.",
+    "A bounded stop condition blocks the workflow. It does not by itself authorize splitting the backlog item across branches.",
+    "Stopping after the first slice or splitting the backlog item across branches requires an explicit `Backlog-Split User Approval` or a named bounded stop condition.",
+    "Perform all admitted seams in the bounded multi-seam workflow and continue through the additional slices needed to complete the backlog item on the same branch unless an explicit `Backlog-Split User Approval` or a named bounded stop condition is recorded.",
 )
 
 MULTI_SEAM_PROHIBITED_CATEGORY_STOP_PHRASES = (
@@ -188,6 +191,8 @@ MULTI_SEAM_PROHIBITED_THROTTLE_PHRASES = (
     "use `single-seam fallback` only when",
     "canon-valid `single-seam fallback`",
     "unless owning canon supplies `single-seam fallback`",
+    "use `single-seam mode waiver` only when",
+    "one-seam workflow",
 )
 
 MULTI_SEAM_PROMPT_DOCS = (
@@ -201,9 +206,11 @@ MULTI_SEAM_PROMPT_PHRASES = (
     "continue-or-stop",
     "Next-Seam Continuation Required",
     "entry seam, not a terminal boundary",
-    "Perform all admitted seams in the bounded multi-seam workflow unless an explicit `Single-Seam Mode Waiver` is raised or a named bounded stop condition is recorded.",
-    "Single-Seam Mode Waiver",
-    "Single-Seam Fallback",
+    "there is no repo-wide cap on how many slices a branch or workstream may carry",
+    "same-branch backlog completion is the default: admit and execute the additional slices needed to finish the backlog item on the current branch whenever scope, phase, risk, and validation authority remain green",
+    "perform all admitted seams in the bounded multi-seam workflow and continue through the additional slices needed to complete the backlog item on the same branch unless an explicit `Backlog-Split User Approval` or a named bounded stop condition is recorded",
+    "Backlog-Split User Approval",
+    "Backlog-Split Reason",
     "reporting Next Safe Move is not a substitute for execution",
     "continue decision must be acted on immediately",
 )
@@ -261,7 +268,8 @@ PLANNING_LOOP_GUARDRAIL_DOCS = (
 
 PLANNING_LOOP_GUARDRAIL_PHRASES = (
     "Branch Readiness owns planning, framing, affected-surface mapping, implementation delta classification, and admitted-slice definition before Workstream begins.",
-    "Workstream must execute an admitted implementation slice unless the USER explicitly approves a docs-only bypass.",
+    "Branch Readiness must define the first admitted slice and the same-branch continuation posture for the remaining slices needed to complete the backlog item.",
+    "Workstream must execute admitted implementation slices and keep same-branch backlog completion as the default unless the USER explicitly approves a docs-only bypass or backlog split.",
     "Docs-only Workstreams require explicit USER approval.",
     "Planning-Loop Bypass User Approval: APPROVED",
     "Planning-Loop Bypass Reason:",
@@ -286,6 +294,16 @@ REAL_IMPLEMENTATION_DELTA_CLASSES = frozenset(
 )
 ALLOWED_IMPLEMENTATION_DELTA_CLASSES = REAL_IMPLEMENTATION_DELTA_CLASSES | frozenset(
     {PLANNING_LOOP_DOCS_ONLY_DELTA}
+)
+
+SLICE_CONTINUATION_DEFAULT_LABEL = "Slice Continuation Default"
+BACKLOG_SPLIT_APPROVAL_LABEL = "Backlog-Split User Approval"
+BACKLOG_SPLIT_REASON_LABEL = "Backlog-Split Reason"
+SAME_BRANCH_SLICE_CONTINUATION_VALUE = "same-branch backlog completion"
+ACTIVE_SINGLE_SLICE_PROHIBITED_PATTERNS = (
+    r"only the admitted ws-\d+",
+    r"unless the user later approves another seam",
+    r"later slices remain explicit approval gates",
 )
 
 LIVE_VALIDATION_REUSE_DOCS = (
@@ -1139,6 +1157,92 @@ def _validate_planning_loop_guardrail(
             (
                 f"{source_path}: release-bearing implementation work with no real runtime, "
                 "backend/runtime, or developer-tooling delta requires explicit USER approval"
+            ),
+        )
+
+
+def _validate_slice_continuation_policy(
+    require,
+    source_path: str,
+    text: str,
+    *,
+    branch_class: str,
+    current_phase: str,
+) -> None:
+    if branch_class != "implementation":
+        return
+    if current_phase not in PLANNING_LOOP_ACTIVE_PHASES:
+        return
+
+    require(
+        "## Slice Continuation Policy" in text,
+        f"{source_path}: implementation lane is missing '## Slice Continuation Policy'",
+    )
+    continuation_section = _section(text, "Slice Continuation Policy")
+    continuation_default = _extract_marker_value(
+        continuation_section, SLICE_CONTINUATION_DEFAULT_LABEL
+    )
+    split_approval = _extract_marker_value(
+        continuation_section, BACKLOG_SPLIT_APPROVAL_LABEL
+    )
+    split_reason = _extract_marker_value(
+        continuation_section, BACKLOG_SPLIT_REASON_LABEL
+    )
+    normalized_default = continuation_default.strip().casefold()
+    normalized_approval = split_approval.strip().upper()
+    normalized_reason = split_reason.strip().casefold()
+
+    require(
+        bool(continuation_default),
+        f"{source_path}: Slice Continuation Policy is missing '{SLICE_CONTINUATION_DEFAULT_LABEL}:'",
+    )
+    require(
+        bool(split_approval),
+        f"{source_path}: Slice Continuation Policy is missing '{BACKLOG_SPLIT_APPROVAL_LABEL}:'",
+    )
+    require(
+        bool(split_reason),
+        f"{source_path}: Slice Continuation Policy is missing '{BACKLOG_SPLIT_REASON_LABEL}:'",
+    )
+    require(
+        normalized_default == SAME_BRANCH_SLICE_CONTINUATION_VALUE,
+        (
+            f"{source_path}: {SLICE_CONTINUATION_DEFAULT_LABEL} must be "
+            "'Same-branch backlog completion' for active implementation lanes"
+        ),
+    )
+
+    if normalized_approval == "APPROVED":
+        require(
+            normalized_reason not in {"", "none", "n/a", "na"},
+            (
+                f"{source_path}: {BACKLOG_SPLIT_APPROVAL_LABEL} APPROVED requires "
+                f"'{BACKLOG_SPLIT_REASON_LABEL}:'"
+            ),
+        )
+    else:
+        require(
+            normalized_approval in {"", "NONE", "NO"},
+            (
+                f"{source_path}: {BACKLOG_SPLIT_APPROVAL_LABEL} must be APPROVED or None "
+                "for active implementation lanes"
+            ),
+        )
+        require(
+            normalized_reason in {"", "none", "n/a", "na"},
+            (
+                f"{source_path}: {BACKLOG_SPLIT_REASON_LABEL} must be None unless a backlog split "
+                "is explicitly approved"
+            ),
+        )
+
+    lowered_text = text.casefold()
+    for prohibited_pattern in ACTIVE_SINGLE_SLICE_PROHIBITED_PATTERNS:
+        require(
+            re.search(prohibited_pattern, lowered_text) is None,
+            (
+                f"{source_path}: active implementation lane must not encode single-slice stop "
+                f"authority via '{prohibited_pattern}'"
             ),
         )
 
@@ -2005,7 +2109,7 @@ def main() -> int:
         lower_text = text.casefold()
         for required_phrase in MULTI_SEAM_CONTRACT_PHRASES:
             require(
-                required_phrase in text,
+                required_phrase.casefold() in lower_text,
                 f"{relative_path}: canonical bounded multi-seam workflow contract is missing '{required_phrase}'",
             )
         for prohibited_phrase in MULTI_SEAM_PROHIBITED_CATEGORY_STOP_PHRASES:
@@ -2020,9 +2124,10 @@ def main() -> int:
             )
 
     phase_governance_text = _read_text(Path("Docs/phase_governance.md"))
+    phase_governance_lower = phase_governance_text.casefold()
     for required_phrase in MULTI_SEAM_PRIMARY_REPAIR_PHRASES:
         require(
-            required_phrase in phase_governance_text,
+            required_phrase.casefold() in phase_governance_lower,
             f"Docs/phase_governance.md: primary seam governance is missing category-stop repair phrase '{required_phrase}'",
         )
 
@@ -2031,7 +2136,7 @@ def main() -> int:
         lower_text = text.casefold()
         for required_phrase in MULTI_SEAM_PROMPT_PHRASES:
             require(
-                required_phrase in text,
+                required_phrase.casefold() in lower_text,
                 f"{relative_path}: multi-seam prompt scaffold is missing '{required_phrase}'",
             )
         for prohibited_phrase in MULTI_SEAM_PROHIBITED_THROTTLE_PHRASES:
@@ -2978,6 +3083,13 @@ def main() -> int:
             current_phase=current_phase,
             normalized_status=normalized_workstream_status,
         )
+        _validate_slice_continuation_policy(
+            require,
+            canonical_path,
+            workstream_text,
+            branch_class=branch_class,
+            current_phase=current_phase,
+        )
         if (
             current_git_branch == "main"
             and branch_class == "implementation"
@@ -3350,6 +3462,13 @@ def main() -> int:
                 branch_class=branch_class,
                 current_phase=str(info["current_phase"]),
                 normalized_status=normalized_record_status,
+            )
+            _validate_slice_continuation_policy(
+                require,
+                branch_record_path,
+                record_text,
+                branch_class=branch_class,
+                current_phase=str(info["current_phase"]),
             )
         if branch_record_path in active_branch_record_paths and str(info["current_phase"]) == "Release Readiness":
             status_output = _git_status_porcelain(tracked_only=True)

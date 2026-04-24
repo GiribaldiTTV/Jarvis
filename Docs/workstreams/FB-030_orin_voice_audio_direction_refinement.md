@@ -97,7 +97,7 @@ None.
 - Released Artifacts: Tag v1.6.5-prebeta; release title Pre-Beta v1.6.5; rich Markdown release notes summarize the FB-030 voice/audio direction planning frame without repeating the release title inside the notes body, and GitHub-generated `## What's Changed` plus `**Full Changelog**:` must be included
 - Post-Release Truth: FB-030 is Released / Closed in v1.6.5-prebeta; FB-005 is Released / Closed in v1.6.6-prebeta; FB-042 is Released / Closed in `v1.6.7-prebeta`; and FB-043 Branch Readiness is active on `feature/fb-043-top-level-entrypoint-handoff-refinement`
 - Selected Next Workstream: FB-043 Top-level desktop entrypoint ownership and main.py handoff refinement
-- Branch Readiness Gate: Branch not created. After FB-042 merges, `v1.6.7-prebeta` is published and validated, updated `main` is revalidated, and FB-043 Branch Readiness must admit one bounded runtime-bearing top-level entrypoint slice before implementation begins
+- Branch Readiness Gate: Branch not created. After FB-042 merges, `v1.6.7-prebeta` is published and validated, updated `main` is revalidated, and FB-043 Branch Readiness must admit the first bounded runtime-bearing top-level entrypoint slice with same-branch continuation posture explicit before implementation begins
 
 ## Branch Objective
 

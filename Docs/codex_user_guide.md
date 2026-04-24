@@ -86,11 +86,16 @@ For bounded multi-seam Workstream execution, also include:
 - `Per-Seam Gate: validate, record evidence, and report continue-or-stop before the next seam`
 - `Entry Seam Rule: the prompt-named seam is the entry seam, not a terminal boundary`
 - `Continuation Rule: apply Next-Seam Continuation Required after a green seam when continuation authority conditions pass`
-- `All-Seams Rule: Perform all admitted seams in the bounded multi-seam workflow unless an explicit `Single-Seam Mode Waiver` is raised or a named bounded stop condition is recorded.`
+- `Slice Rule: a slice is a bounded admitted backlog-completion unit; a seam is the current execution checkpoint inside or between slices`
+- `Slice Count Rule: there is no repo-wide cap on how many slices a branch or workstream may carry`
+- `Same-Branch Rule: Same-branch backlog completion is the default: admit and execute the additional slices needed to finish the backlog item on the current branch whenever scope, phase, risk, and validation authority remain green.`
+- `All-Seams Rule: Perform all admitted seams in the bounded multi-seam workflow and continue through the additional slices needed to complete the backlog item on the same branch unless an explicit `Backlog-Split User Approval` or a named bounded stop condition is recorded.`
+- `Backlog-Split User Approval: APPROVED / None`
+- `Backlog-Split Reason: <required when approved>`
 - `Execution Rule: reporting Next Safe Move is not a substitute for execution when continuation authority passes`
 - Execution Rule: reporting `Next Safe Move` is not a substitute for execution when continuation authority passes
 - Execution Rule: A `continue` decision must be acted on immediately by starting the next seam in the approved sequence
-- `Single-Seam Mode Waiver Rule: treat legacy Single-Seam Fallback wording as waiver-only`
+- `Backlog-Split Rule: stopping after the first slice or splitting the backlog item across branches requires an explicit Backlog-Split User Approval or a named bounded stop condition`
 
 For Release Readiness, also include:
 
@@ -375,10 +380,12 @@ Use this when:
 - the operator wants Codex to keep moving through a coherent seam sequence without a new prompt after every seam
 - per-seam validation and evidence recording remain mandatory
 
-Do not use prompt wording such as `execute WS-1` to mean `stop after WS-1` unless the prompt also records an explicit `Single-Seam Mode Waiver` or another blocker from `Docs/phase_governance.md`.
+Do not use prompt wording such as `execute WS-1` to mean `stop after WS-1` unless the prompt also records an explicit `Backlog-Split User Approval` or another blocker from `Docs/phase_governance.md`.
+Branch Readiness must define the first admitted slice and the same-branch continuation posture for the remaining slices needed to complete the backlog item.
 Do not use an implementation branch's `Workstream` phase for planning-only or canon-only output unless the USER explicitly approves a docs-only bypass and source-of-truth records the required planning-loop guardrail markers.
-Perform all admitted seams in the bounded multi-seam workflow unless an explicit `Single-Seam Mode Waiver` is raised or a named bounded stop condition is recorded.
-A bounded stop condition blocks continuation; it does not create single-seam mode.
+Workstream must execute admitted implementation slices and keep same-branch backlog completion as the default unless the USER explicitly approves a docs-only bypass or backlog split.
+Perform all admitted seams in the bounded multi-seam workflow and continue through the additional slices needed to complete the backlog item on the same branch unless an explicit `Backlog-Split User Approval` or a named bounded stop condition is recorded.
+A bounded stop condition blocks continuation; it does not by itself authorize stopping the backlog item after only one slice.
 reporting `Next Safe Move` is not a substitute for execution when continuation authority passes; A `continue` decision must be acted on immediately by starting the next seam in the approved sequence.
 
 High-risk categories such as bug fixes, hotfixes, unclear seams, cross-subsystem changes, settings, protocol, launcher, or UI-model work require smaller seams and stronger gates; they do not automatically cancel bounded multi-seam continuation after a green admitted seam.

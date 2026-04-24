@@ -74,7 +74,8 @@ If any required file cannot be read, any authority owner is ambiguous, or live r
 - Incident patterns are reusable lessons, not case-history authority.
 - `main` is protected for Codex work and may be read but not mutated.
 - Branch Readiness owns planning, framing, affected-surface mapping, implementation delta classification, and admitted-slice definition before Workstream begins.
-- Workstream must execute an admitted implementation slice unless the USER explicitly approves a docs-only bypass.
+- Branch Readiness must define the first admitted slice and the same-branch continuation posture for the remaining slices needed to complete the backlog item.
+- Workstream must execute admitted implementation slices and keep same-branch backlog completion as the default unless the USER explicitly approves a docs-only bypass or backlog split.
 - Docs-only Workstreams require explicit USER approval.
 - Planning-loop bypass requires `Planning-Loop Bypass User Approval: APPROVED` and `Planning-Loop Bypass Reason:`.
 - Release-bearing implementation work with no runtime/user-facing, backend/runtime, or developer-tooling delta is blocked unless the USER explicitly approves that release window.
@@ -328,12 +329,16 @@ Constraints:
 - If a Seam Sequence is present, treat the prompt-named seam as the entry seam, not a terminal boundary.
 - If a Seam Sequence is present, execute one active seam at a time, validate after each seam, and report a continue-or-stop decision before starting the next seam.
 - After a green seam, `Next-Seam Continuation Required` applies by default when continuation authority conditions pass.
-- Perform all admitted seams in the bounded multi-seam workflow unless an explicit `Single-Seam Mode Waiver` is raised or a named bounded stop condition is recorded.
+- A slice is a bounded admitted backlog-completion unit; a seam is the current execution checkpoint inside or between slices.
+- There is no repo-wide cap on how many slices a branch or workstream may carry.
+- Same-branch backlog completion is the default: admit and execute the additional slices needed to finish the backlog item on the current branch whenever scope, phase, risk, and validation authority remain green.
+- Perform all admitted seams in the bounded multi-seam workflow and continue through the additional slices needed to complete the backlog item on the same branch unless an explicit `Backlog-Split User Approval` or a named bounded stop condition is recorded.
+- If a backlog split is explicitly approved, record `Backlog-Split User Approval: APPROVED` and `Backlog-Split Reason:` before continuation is narrowed.
 - reporting `Next Safe Move` is not a substitute for execution when continuation authority conditions pass.
 - reporting Next Safe Move is not a substitute for execution when continuation authority conditions pass.
 - A `continue` decision must be acted on immediately by starting the next seam in the approved sequence.
 - continue decision must be acted on immediately by starting the next seam in the approved sequence.
-- Do not encode single-seam mode unless owning canon records an explicit `Single-Seam Mode Waiver`; treat legacy `Single-Seam Fallback` wording as waiver-only.
+- Stopping after the first slice or splitting the backlog item across branches requires an explicit `Backlog-Split User Approval` or a named bounded stop condition.
 
 Stop if scope, phase, branch truth, or validation requirements are unclear.
 
