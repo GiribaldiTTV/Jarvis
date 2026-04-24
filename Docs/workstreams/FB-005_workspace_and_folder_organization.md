@@ -23,7 +23,7 @@
 
 ## Current Phase
 
-- Phase: `Hardening`
+- Phase: `Live Validation`
 
 ## Phase Status
 
@@ -32,14 +32,15 @@
 - FB-030 is Released / Closed in `v1.6.5-prebeta`, latest public prerelease truth is `v1.6.5-prebeta`, and merged-unreleased release debt is clear.
 - FB-005 is promoted from selected-only / `Registry-only` into an active canonical workstream on `feature/fb-005-workspace-path-planning`.
 - Workstream WS-1 is complete for the only currently admitted bounded path-sensitive slice.
-- H-1 hardening is complete for that slice, and Live Validation is the next legal phase.
+- H-1 hardening is complete for that slice.
+- LV-1 Live Validation is complete for that slice, and PR Readiness is the next legal phase.
 - Completed first slice: `desktop/orin_desktop_test.py` -> `dev/desktop/orin_desktop_test.py`.
 - The moved dev-only harness now lives at `dev/desktop/orin_desktop_test.py`.
 - Runtime entrypoints, launcher paths, audio paths, logs, visual assets, and user-facing desktop paths remain outside this admitted slice.
 - Runtime-reachability proof remains unchanged: shipped entrypoints still route through `launch_orin_desktop.vbs` -> `desktop/orin_desktop_launcher.pyw` -> `desktop/orin_desktop_main.py`.
 - The admitted Workstream chain ends after WS-1 for this pass because no WS-2 or later FB-005 slice is admitted yet; later slices remain explicit approval gates.
 - No reverse runtime dependency on `dev/desktop/` or the moved harness was found.
-- H-1 records one non-blocking dev-only residual risk: the harness still names historical visual file `jarvis_core_desktop.html` while the current desktop visual asset on disk is `orin_core_desktop.html`.
+- LV-1 confirms the residual visual-path mismatch is dev-only and non-user-facing: the harness still names historical visual file `jarvis_core_desktop.html` while the current desktop visual asset on disk is `orin_core_desktop.html`.
 
 ## Branch Class
 
@@ -72,7 +73,7 @@
 
 ## Next Legal Phase
 
-- `Live Validation`
+- `PR Readiness`
 
 ## Branch Objective
 
@@ -204,14 +205,15 @@ Active seam: `None.`
 - WS-1 `desktop/orin_desktop_test.py` -> `dev/desktop/orin_desktop_test.py` is complete.
 - Bounded-stop authority: no WS-2 is admitted in this workstream record, so stopping after WS-1 is the legal end of the current admitted chain rather than a single-seam drift.
 - H-1 hardening is complete for the admitted slice.
-- Next legal phase is `Live Validation`.
+- LV-1 Live Validation is complete for the admitted slice.
+- Next legal phase is `PR Readiness`.
 
 ## Seam Continuation Decision
 
 Continue Decision: `Stop at the Workstream phase boundary.`
 Next Active Seam: `None.`
 Stop Condition: `WS-1 desktop/orin_desktop_test.py -> dev/desktop/orin_desktop_test.py` is the only admitted FB-005 seam in the current canonical workstream record; no WS-2 or later workspace/path slice is admitted.
-Continuation Action: `Advance to Hardening for the completed WS-1 slice and do not begin any later FB-005 workspace/path move until a separate explicit approval admits it.`
+Continuation Action: `The bounded Workstream stop already executed. H-1 and LV-1 are complete, and PR Readiness is now the next legal phase; do not begin any later FB-005 workspace/path move until a separate explicit approval admits it.`
 
 ## Rollback Conditions
 
@@ -256,3 +258,45 @@ H-1 pressure-tests whether the completed WS-1 slice is coherent enough to move i
 - `python dev\desktop\orin_desktop_test.py`: PASS for bounded validation; the harness initializes from `dev/desktop/`, prints its expected banner, and exits only at the intentional `RuntimeError(\"Jarvis test crash triggered intentionally\")`.
 - Reverse-coupling scan: PASS; no `dev/desktop`, `from dev`, or `import dev` reference appears in `main.py`, `launch_orin_desktop.vbs`, `desktop/`, `Audio/`, or `assistant_personas.py`.
 - Asset-path integrity scan: recorded residual dev-only risk; `jarvis_visual/jarvis_core_desktop.html` does not exist while `jarvis_visual/orin_core_desktop.html` does.
+
+## Live Validation Record
+
+LV-1 validates the completed FB-005 WS-1 slice against live repo truth, branch truth, user-facing/manual validation applicability, and the already-recorded residual dev-only visual-path mismatch. The implemented delta remains a bounded dev-only workspace relocation: no runtime entrypoint, launcher path, audio path, log root, visual asset, installer path, desktop shortcut, or other user-facing behavior changed.
+
+### Live Validation Findings
+
+- Repo Truth Alignment: `Docs/feature_backlog.md`, `Docs/prebeta_roadmap.md`, `Docs/workstreams/index.md`, and this workstream record align on FB-005 as the active promoted workstream, latest public prerelease `v1.6.5-prebeta`, release debt clear, WS-1 complete, H-1 complete, and PR Readiness next after LV-1 completion.
+- Branch Truth Alignment: the checked-out branch is `feature/fb-005-workspace-path-planning`, aligned with origin at the hardened WS-1 baseline before this LV-1 pass.
+- User-Facing Shortcut Applicability: waived for this milestone because the completed delta is a dev-only harness relocation and does not change any user-facing desktop shortcut, equivalent production entrypoint behavior, launcher behavior, runtime behavior, visible UI behavior, installer behavior, audio behavior, log behavior, or other operator-facing path.
+- Manual Validation Applicability: waived for this milestone because the delivered delta is a bounded workspace/path relocation with repo-truth validation, runtime non-reachability proof, and dev-only harness evidence already recorded; a filled manual User Test Summary would not materially validate changed user-facing behavior because none changed.
+- Runtime Evidence Applicability: no additional runtime helper evidence is required for LV-1 because the shipped runtime path was unchanged and H-1 already proved the moved harness remains outside runtime reachability.
+- Residual Visual-Path Mismatch Classification: non-user-facing / dev-only. `dev/desktop/orin_desktop_test.py` still names historical file `jarvis_core_desktop.html`, while the current on-disk asset is `jarvis_visual/orin_core_desktop.html`; production entrypoints do not reference the moved harness or `dev/desktop/`, so this mismatch does not reach user-facing runtime behavior.
+- Desktop Export Applicability: no desktop `User Test Summary.txt` export is required for this Live Validation pass because there is no user-facing desktop path or manual checklist to hand off.
+- Cleanup: no programs, helper processes, windows, temporary files, new helpers, release artifacts, screenshots, or desktop-export artifacts were created by LV-1.
+
+### Live Validation Completion Decision
+
+- LV-1 Result: Complete / green with repo-truth alignment and applicability waivers recorded.
+- User-facing shortcut gate: waived with exact markers in `## User Test Summary`.
+- User Test Summary results gate: waived with exact markers in `## User Test Summary`.
+- Validation Layer: documentation, branch truth, targeted reachability/path scan, previously recorded harness evidence, and governance validation.
+- Continue/Stop Decision: stop at the Live Validation phase boundary after validation because FB-005 LV-1 proof is green and the next normal phase is `PR Readiness`; PR Readiness must still prove merge-target canon completeness, clean branch truth, next-workstream selection, PR package creation, and live PR validation before reporting PR-ready.
+
+### LV-1 Validation Results
+
+- `python dev\orin_branch_governance_validation.py`: PASS, 1143 checks.
+- `git diff --check`: PASS with line-ending normalization warnings only and no whitespace errors.
+- LV-1 phase-state scan: PASS; current authority surfaces report FB-005 Live Validation complete and PR Readiness as the next legal phase.
+- LV-1 user-facing shortcut gate: WAIVED with exact markers in `## User Test Summary`.
+- LV-1 User Test Summary results gate: WAIVED with exact markers in `## User Test Summary`; no desktop export is required.
+- LV-1 residual visual-path mismatch classification: PASS; confirmed non-user-facing because the mismatch remains isolated to the dev-only harness and production entrypoints do not reference `dev/desktop/` or the moved harness.
+- LV-1 runtime non-reachability sweep: PASS; no runtime-surface references to the moved harness, `dev/desktop/`, or the historical/current desktop HTML filenames were found in `main.py`, `launch_orin_desktop.vbs`, `desktop/`, `Audio/`, or `assistant_personas.py`.
+- LV-1 scope validation: PASS; no runtime entrypoint, launcher path, audio path, logs path, visual asset, or user-facing desktop path changed during this pass.
+
+## User Test Summary
+
+- User-Facing Shortcut Path: Not applicable - FB-005 LV-1 validates a dev-only workspace/path slice and does not change any user-facing desktop shortcut, equivalent production entrypoint behavior, launcher behavior, runtime behavior, visible UI behavior, installer behavior, audio behavior, log behavior, visual asset ownership, or other operator-facing invocation path.
+- User-Facing Shortcut Validation: WAIVED
+- User-Facing Shortcut Waiver Reason: The completed FB-005 delta is a dev-only harness relocation with runtime non-reachability proof. Exercising the existing user-facing desktop shortcut would not validate the moved harness or any changed user-facing behavior because none changed.
+- User Test Summary Results: WAIVED
+- User Test Summary Waiver Reason: The completed FB-005 delta is a bounded dev-only workspace/path relocation backed by repo/canon checks, reachability proof, and prior harness validation; a filled manual User Test Summary would not materially validate behavior because no user-facing setup, display, runtime, shortcut, launcher, audio, logs, visual-asset ownership, or invocation surface changed.

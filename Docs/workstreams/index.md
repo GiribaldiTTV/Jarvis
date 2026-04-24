@@ -80,7 +80,7 @@ That may be an executable branch owner or another explicitly promoted current-tr
 
 - `Docs/workstreams/FB-005_workspace_and_folder_organization.md`
 
-Current execution truth is `Hardening` on `feature/fb-005-workspace-path-planning`. FB-005 remains promoted, WS-1 `desktop/orin_desktop_test.py` -> `dev/desktop/orin_desktop_test.py` is complete, H-1 is complete, and `Live Validation` is next without widening into broader workspace movement.
+Current execution truth is `Live Validation` on `feature/fb-005-workspace-path-planning`. FB-005 remains promoted, WS-1 `desktop/orin_desktop_test.py` -> `dev/desktop/orin_desktop_test.py` is complete, H-1 is complete, LV-1 is complete, the residual visual-path mismatch remains dev-only and non-user-facing, and `PR Readiness` is next without widening into broader workspace movement.
 
 ### Merged / Release Debt Owners
 
