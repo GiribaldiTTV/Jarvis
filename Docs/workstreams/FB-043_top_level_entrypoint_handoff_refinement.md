@@ -19,7 +19,7 @@
 
 ## Current Phase
 
-- Phase: `Workstream`
+- Phase: `Hardening`
 
 ## Phase Status
 
@@ -34,7 +34,10 @@
 - Plain direct `main.py` launches and explicit `--desktop-entrypoint` launches now hand off to the canonical desktop entry chain instead of silently owning a competing top-level runtime path.
 - Explicit dev boot intent remains available through recognized boot arguments and the existing dev launcher parent path, and invalid direct-launch args now fail fast with usage guidance instead of silently falling into the boot prototype.
 - Same-branch backlog completion remained the default for FB-043, and the branch now reaches implemented-complete state on this same branch without requiring a split.
-- Active seam: `None.` WS-1 and WS-2 are complete; backlog completion is now proven and `Hardening` is legal.
+- H-1 entrypoint hardening is complete and green.
+- Hardening pressure tests confirmed explicit launch-intent resolution, invalid-argument handling, explicit dev boot preservation, CLI / VBS / launcher variability, import-side-effect boundaries, rollback viability, and hidden-coupling boundaries for the completed FB-043 slice chain.
+- Fast-exit paths (`--help`, invalid direct-launch args, and missing explicit boot-argument values) now remain side-effect light and avoid loading the heavy desktop/runtime stack before exit.
+- Active seam: `None.` WS-1 and WS-2 are complete, backlog completion remains proven, H-1 is complete, and `Live Validation` is now legal.
 
 ## Branch Class
 
@@ -68,7 +71,7 @@ None.
 
 ## Next Legal Phase
 
-- `Hardening`
+- `Live Validation`
 
 ## Purpose / Why It Matters
 
@@ -256,6 +259,43 @@ Next Active Seam: `None`
 Stop Condition: `Reached Backlog Completion State: Implemented Complete`
 Continuation Action: `Advance to Hardening for the completed FB-043 workstream implementation`
 
+## H-1 Hardening Record
+
+H-1 pressure-tested the completed FB-043 slice chain across explicit launch-intent resolution, invalid-argument handling, explicit dev boot preservation, CLI / VBS / launcher variability, import timing and side effects, rollback viability, and hidden coupling without widening beyond the admitted top-level entrypoint lane.
+
+### Hardening Findings
+
+- Explicit launch-intent resolution is stable: plain `python main.py` and explicit `python main.py --desktop-entrypoint` both route into the canonical desktop chain, while recognized dev boot arguments still preserve the boot-prototype path.
+- Invalid direct-launch args and missing values for explicit boot flags fail fast with usage guidance instead of silently claiming boot ownership or launching the desktop chain.
+- Explicit dev boot preservation remains green even when recognized boot arguments are reordered; the preserved dev launcher parent path also still keeps the boot prototype reachable.
+- CLI, VBS, and launcher variability remain bounded and green: default VBS launch, forced-fallback VBS launch, direct desktop handoff, and explicit dev boot proof all validate through the declared helpers without widening the runtime surface.
+- Import-side-effect pressure tests are green: `main.py --help` and invalid direct-launch exits do not pull in the heavy desktop/runtime stack before exiting.
+- Hidden-coupling scans found no stray runtime-owner leakage for the new explicit launch-intent markers outside `main.py`, `dev/orin_desktop_entrypoint_validation.py`, and direct current-truth documentation.
+- Rollback remains bounded to `main.py` direct-launch ownership logic and the corresponding validator coverage; the already-green FB-042 shortcut / VBS / launcher / renderer route remains preserved as-is.
+
+### Hardening Corrections
+
+- `None.` H-1 pressure tests did not reveal a new runtime correction beyond the completed WS-2 slice.
+
+### H-1 Completion Decision
+
+- H-1 Result: `Complete / green`
+- Entrypoint Stability Decision: the completed FB-043 slice chain is stable enough to advance because launch-intent resolution, invalid-argument handling, explicit dev boot preservation, environment variability, import-side-effect boundaries, and rollback posture are all green.
+- Rollback Target: `Workstream`
+- Stop condition: phase boundary reached; Hardening is complete after H-1.
+
+### H-1 Validation Results
+
+- `python -m py_compile main.py desktop\orin_desktop_launcher.pyw desktop\orin_desktop_main.py dev\orin_desktop_entrypoint_validation.py dev\orin_boot_transition_verification.py`: PASS
+- `python main.py --help`: PASS
+- `python dev\orin_desktop_entrypoint_validation.py`: PASS; report `dev/logs/desktop_entrypoint_validation/reports/DesktopEntrypointValidationReport_20260424_173916.txt`
+- `python dev\orin_boot_transition_verification.py`: PASS; report `dev/logs/boot_transition_verification/reports/BootTransitionVerificationReport_20260424_173935.txt`
+- Explicit direct-launch argument probes: PASS; invalid args and missing explicit-boot values exit cleanly with usage guidance and return code `2`.
+- Import timing / side-effect probe: PASS; `python -X importtime main.py --help` reports no heavy runtime imports before exit.
+- Hidden-coupling scan: PASS; new explicit launch-intent markers remain confined to `main.py`, `dev/orin_desktop_entrypoint_validation.py`, and direct current-truth docs.
+- `python dev\orin_branch_governance_validation.py`: PASS, `1364` checks
+- `git diff --check`: PASS with line-ending normalization warnings only; no whitespace errors
+
 ## User Test Summary
 
 - Applicability: `Relevant later; not a Workstream-phase gate by itself`
@@ -268,4 +308,5 @@ Active seam: `None.`
 
 - WS-1 is complete and validated.
 - WS-2 is complete and validated.
-- `Hardening` is now legal because `Backlog Completion State` is `Implemented Complete`.
+- H-1 is complete and green.
+- `Live Validation` is now legal because `Backlog Completion State` is `Implemented Complete` and Hardening is complete.
