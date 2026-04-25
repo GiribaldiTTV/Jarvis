@@ -41,7 +41,9 @@
 - Disposable-copy validation is now also green on the updated FB-045 code, so the previously recorded merged-main-style release blocker is no longer reproducing on the active implementation lane.
 - H-1 post-settled lifecycle hardening is complete and green.
 - Hardening confirmed recoverable lifecycle classification never appears before authoritative settled, clean shutdown keeps precedence when shutdown markers are present, repeated launch cycles stay green, and both immediate and delayed post-settled abnormal exits land in the same recoverable lane without falling into startup failure flow.
-- Active seam: `None.` WS-1 and H-1 are complete, and `Live Validation` is next.
+- LV-1 live validation is complete and green.
+- Live Validation confirmed repo-truth alignment, exercised the real declared desktop shortcut, preserved explicit dev boot proof, and verified that the hardened lifecycle contract still lands on valid clean termination on the real shipped route while reusable helpers continue to prove the recoverable post-settled lane.
+- Active seam: `None.` WS-1, H-1, and LV-1 are complete, and `PR Readiness` is next.
 
 ## Branch Class
 
@@ -72,7 +74,7 @@ None.
 
 ## Next Legal Phase
 
-- `Live Validation`
+- `PR Readiness`
 
 ## Purpose / Why It Matters
 
@@ -265,12 +267,54 @@ H-1 pressure-tested the completed FB-045 slice chain across recoverable-classifi
 - Valid clean shutdown still wins when clean-exit markers are present, even after settled has already been observed.
 - Primary-workspace VBS / launcher / `main.py` handoff routes and explicit dev boot proof all remain green after the added edge-case coverage.
 
+## Live Validation Record
+
+LV-1 validates the completed FB-045 relaunch-stability slice chain against live repo truth, the declared real desktop shortcut path, explicit dev boot-proof evidence, exact User Test Summary state, and branch cleanliness. This pass stays bounded to the admitted launcher/runtime lifecycle surfaces and does not reopen `main.py`, `Audio/`, `logs/`, `jarvis_visual/`, installer work, or broader boot-orchestrator scope.
+
+### Live Validation Findings
+
+- Repo Truth Alignment: `Docs/feature_backlog.md`, `Docs/prebeta_roadmap.md`, and this workstream record align on FB-045 as the active promoted blocker-clearing implementation workstream, latest public prerelease `v1.6.8-prebeta`, WS-1 complete, H-1 complete, and PR Readiness next after LV-1 completion.
+- Branch Truth Alignment: the checked-out branch is `feature/fb-045-active-session-relaunch-stability`, aligned with origin on the hardened lifecycle baseline before this LV-1 pass.
+- User-Facing Shortcut Applicability: applicable and exercised. FB-045 changes lifecycle classification on the shipped desktop runtime route after authoritative settled is observed, so final Live Validation used the real declared desktop shortcut rather than helper-only proof as the final user-facing shortcut gate.
+- Real Shortcut Gate Result: PASS. Launching through `C:\Users\anden\OneDrive\Desktop\Nexus Desktop Launcher.lnk` exercised the active branch runtime, produced dedicated evidence under `dev/logs/fb_045_live_validation/20260425_100047/desktop_shortcut_gate`, reached launcher-owned `DESKTOP_SETTLED_OBSERVED|state=dormant`, reached renderer `STARTUP_READY`, recorded `WINDOW_SHOW_REQUESTED` and `TRAY_ENTRY_READY|available=true`, reached the authoritative settled marker, and completed on the clean-shutdown lifecycle path with no launcher failure flow.
+- Production Launch Path Evidence: PASS. Fresh reusable entrypoint validation still proves the VBS default path, VBS fallback path, direct `main.py` desktop handoff, repeated-launch stability, pre-settled rollback honesty, clean-shutdown precedence, and immediate-versus-delayed recoverable post-settled lanes on the active branch.
+- Explicit Dev Boot-Proof Route Evidence: PASS. `python dev\orin_boot_transition_verification.py` still proves the explicit `auto_handoff_skip_import` boot-profile route reaches the ordered boot markers, converges on the authoritative settled marker, and exits cleanly.
+- Lifecycle Classification Integrity: PASS. Real execution on the declared shortcut route lands on valid clean termination after settled; reusable helper proof still covers the recoverable post-settled abnormal-exit lane; and neither path falls back into startup failure flow once authoritative settled has already been observed.
+- User Test Summary Applicability: narrow waiver. The completed FB-045 delta refines launcher lifecycle truth after settled on the existing startup path, but it does not add a new manual task flow, settings workflow, persisted user-content path, or broader multi-step operator interaction that a filled manual User Test Summary would materially validate beyond the captured real-shortcut evidence, reusable helper proof, and explicit dev boot proof.
+- Desktop Export Applicability: no desktop `User Test Summary.txt` export is required for LV-1 because User Test Summary results are waived for this narrow lifecycle-classification refinement.
+- Cleanup: the real shortcut pass left no residual launcher/runtime processes after shutdown and post-validation cleanup.
+
+### Live Validation Completion Decision
+
+- LV-1 Result: `Complete / green with real desktop shortcut evidence and waiver-based User Test Summary digestion recorded`
+- User-facing shortcut gate: `PASS` with exact markers in `## User Test Summary`
+- User Test Summary results gate: `WAIVED` with exact markers in `## User Test Summary`
+- Validation Layer: repo-truth alignment, real desktop shortcut launch evidence, reusable production-path validation, explicit dev boot proof, recoverable-lifecycle edge validation, and governance validation
+- Continue/Stop Decision: stop at the Live Validation phase boundary after validation because FB-045 LV-1 proof is green and the next normal phase is `PR Readiness`.
+
+### LV-1 Validation Results
+
+- Real desktop shortcut gate: PASS; report `dev/logs/fb_045_live_validation/20260425_100047/desktop_shortcut_gate/DesktopShortcutGateReport.json`
+- `python dev\orin_desktop_entrypoint_validation.py`: PASS; report `dev/logs/desktop_entrypoint_validation/reports/DesktopEntrypointValidationReport_20260425_100237.txt`
+- `python dev\orin_boot_transition_verification.py`: PASS; report `dev/logs/boot_transition_verification/reports/BootTransitionVerificationReport_20260425_100112.txt`
+- `python dev\orin_branch_governance_validation.py`: PASS
+- `git diff --check`: PASS
+- LV-1 phase-state scan: PASS; current authority surfaces report FB-045 Live Validation complete and PR Readiness as the next legal phase.
+
+## User Test Summary
+
+- User-Facing Shortcut Path: `C:\Users\anden\OneDrive\Desktop\Nexus Desktop Launcher.lnk`
+- User-Facing Shortcut Validation: `PASS`
+- User Test Summary Results: `WAIVED`
+- User Test Summary Waiver Reason: The completed FB-045 delta is a narrow lifecycle-classification refinement on the existing desktop runtime path already covered by fresh real-shortcut evidence, reusable production-path validation, explicit dev boot verification, and synthetic recoverable-lifecycle proof. It does not add a new manual multi-step task flow, settings journey, persisted user-content path, or broader operator workflow that a filled manual User Test Summary would materially validate beyond that captured evidence.
+- Desktop User Test Summary Export: `Not required; waiver path`
+
 ## Seam Continuation Decision
 
-Continue Decision: `Advance after H-1 because backlog completion is implemented complete and the next legal phase is Live Validation`
+Continue Decision: `Advance after LV-1 because backlog completion is implemented complete and the next legal phase is PR Readiness`
 Next Active Seam: `None`
-Stop Condition: `Reached Live Validation gate after H-1 completion`
-Continuation Action: `Validate repo-truth alignment, production launch truth, explicit dev boot proof, User Test Summary status, and branch cleanliness before PR packaging`
+Stop Condition: `Reached PR Readiness gate after LV-1 completion`
+Continuation Action: `Prepare merge-target canon, PR package details, selected-next truth, and live PR state for the completed blocker-clearing lifecycle slice`
 
 ## Active Seam
 
@@ -278,4 +322,5 @@ Active seam: `None.`
 
 - WS-1 is complete and validated.
 - H-1 is complete and green.
-- `Live Validation` is now the next legal phase.
+- LV-1 is complete and green.
+- `PR Readiness` is now the next legal phase.
