@@ -10,6 +10,8 @@
 
 This branch record owns FB-044 `Branch Readiness` while the backlog item remains `Registry-only` and before a promoted canonical workstream record exists.
 
+This record is preserved as historical Branch Readiness trace now that `Docs/workstreams/FB-044_boot_desktop_handoff_outcome_refinement.md` owns active FB-044 execution truth.
+
 This pass closes FB-043 post-release canon, rebases current-state truth onto live `v1.6.8-prebeta`, and admits the first bounded runtime/user-facing boot-to-desktop handoff outcome slice on the same branch that should carry the remaining FB-044 backlog work unless only future-dependent blockers remain.
 
 ## Current Phase
@@ -18,14 +20,14 @@ This pass closes FB-043 post-release canon, rebases current-state truth onto liv
 
 ## Phase Status
 
-- `Active Branch`: `feature/fb-044-boot-desktop-handoff-outcome-refinement`
+- `Historical Source Branch`: `feature/fb-044-boot-desktop-handoff-outcome-refinement`
 - Latest Public Prerelease: `v1.6.8-prebeta`
 - Latest Public Release Commit: `5e695af5fada05e4ad6b25731bce328ede8a09ee`
 - Latest Public Prerelease Publication: `https://github.com/GiribaldiTTV/Nexus-Desktop-AI/releases/tag/v1.6.8-prebeta`
 - Latest Public Prerelease Title: `Pre-Beta v1.6.8`
 - FB-043 is Released / Closed in `v1.6.8-prebeta`, and release debt is clear after publication, validation, and post-release canon closure.
 - Repo current-state truth is rebased onto the live `v1.6.8-prebeta` baseline before FB-044 implementation begins.
-- FB-044 remains selected-only / `Registry-only` during this Branch Readiness pass.
+- FB-044 remained selected-only / `Registry-only` during this historical Branch Readiness pass.
 - The first bounded runtime/user-facing slice is now defined on this branch before promotion.
 - Same-branch backlog completion remains the default for the remaining FB-044 slices when scope, phase, risk, validation authority, and backlog-completion reassessment stay green.
 - Active seam: `None.` Branch Readiness has defined the first admitted FB-044 implementation slice; `Workstream` is the next legal phase.

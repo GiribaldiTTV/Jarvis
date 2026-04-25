@@ -49,8 +49,8 @@
 - PR-2 selected-next workstream selection is complete with FB-044 as the branch-not-created runtime/back-end successor lane.
 - PR-3 live PR creation and validation is complete.
 - PR Readiness, Release Readiness, and Release Execution are complete historical proof.
-- Current Active Workstream: None.
-- FB-044 now owns selected-only Branch Readiness on `feature/fb-044-boot-desktop-handoff-outcome-refinement`; the first bounded runtime/user-facing boot-to-desktop handoff outcome slice is admitted for `Workstream`, and no promoted canonical workstream exists yet.
+- Current Active Workstream: FB-044 Boot-to-desktop handoff outcome refinement.
+- FB-044 now owns the active promoted workstream on `feature/fb-044-boot-desktop-handoff-outcome-refinement`; WS-1 is complete and validated; and `Hardening` is next.
 - The historical FB-043 branch-authority record is preserved for traceability only and no longer owns active execution truth.
 
 ## Branch Class

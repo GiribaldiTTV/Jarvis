@@ -47,6 +47,10 @@ BOOT_RUNTIME_ROOTS = (
     os.path.join(ROOT_DIR, "dev", "logs", "boot_manual_flow"),
     os.path.join(ROOT_DIR, "dev", "logs", "boot_auto_handoff_skip_import"),
 )
+AUTHORITATIVE_DESKTOP_SETTLED_MARKER = "DESKTOP_OUTCOME|SETTLED|state=dormant"
+LAUNCHER_SETTLED_OBSERVED_MARKER = (
+    "STATUS|SUCCESS|LAUNCHER_RUNTIME|DESKTOP_SETTLED_OBSERVED|state=dormant"
+)
 
 EXPECTED_MILESTONES = [
     "RENDERER_MAIN|START",
@@ -62,15 +66,18 @@ EXPECTED_MILESTONES = [
     "RENDERER_MAIN|WINDOW_SHOW_REQUESTED",
     "RENDERER_MAIN|CORE_VISUALIZATION_FIRST_VISIBLE",
     "RENDERER_MAIN|STARTUP_READY",
+    "RENDERER_MAIN|PASSIVE_DEFAULT_HANDOFF_REQUESTED|state=dormant",
+    AUTHORITATIVE_DESKTOP_SETTLED_MARKER,
 ]
 
 EXPECTED_LAUNCH_CHAIN_MARKERS = [
     "STATUS|START|LAUNCHER_RUNTIME",
     "STATUS|SUCCESS|RENDERER_PROCESS_SPAWN",
-    "STATUS|SUCCESS|LAUNCHER_RUNTIME|STARTUP_READY_OBSERVED",
+    LAUNCHER_SETTLED_OBSERVED_MARKER,
     "RENDERER_MAIN|START",
     "RENDERER_MAIN|WINDOW_SHOW_REQUESTED",
     "RENDERER_MAIN|STARTUP_READY",
+    AUTHORITATIVE_DESKTOP_SETTLED_MARKER,
     "RENDERER_MAIN|SHUTDOWN_REQUESTED",
     "RENDERER_MAIN|EVENT_LOOP_EXIT|code=0",
 ]
@@ -638,10 +645,10 @@ def run_launch_chain_scenario(scenario_name, launch_command, force_path_fallback
 
     runtime_log = ""
     runtime_lines = []
-    ready_seen = False
+    settled_seen = False
     shutdown_requested_seen = False
     renderer_exit_seen = False
-    launcher_ready_observed_seen = False
+    launcher_settled_observed_seen = False
     hotkey_sent = False
     hotkey_detail = "hotkey not sent"
     hotkey_attempts = 0
@@ -653,12 +660,12 @@ def run_launch_chain_scenario(scenario_name, launch_command, force_path_fallback
         while time.time() < ready_deadline:
             runtime_log = latest_file_matching(scenario_root, "Runtime_")
             runtime_lines = read_lines(runtime_log)
-            if any("RENDERER_MAIN|STARTUP_READY" in line for line in runtime_lines):
-                ready_seen = True
+            if any(AUTHORITATIVE_DESKTOP_SETTLED_MARKER in line for line in runtime_lines):
+                settled_seen = True
                 break
             time.sleep(0.2)
 
-        if ready_seen:
+        if settled_seen:
             hotkey_attempts += 1
             hotkey_sent, hotkey_detail = send_shutdown_hotkey()
 
@@ -668,8 +675,8 @@ def run_launch_chain_scenario(scenario_name, launch_command, force_path_fallback
             runtime_lines = read_lines(runtime_log)
             shutdown_requested_seen = any("RENDERER_MAIN|SHUTDOWN_REQUESTED" in line for line in runtime_lines)
             renderer_exit_seen = any("RENDERER_MAIN|EVENT_LOOP_EXIT|code=0" in line for line in runtime_lines)
-            launcher_ready_observed_seen = any(
-                "STATUS|SUCCESS|LAUNCHER_RUNTIME|STARTUP_READY_OBSERVED" in line
+            launcher_settled_observed_seen = any(
+                LAUNCHER_SETTLED_OBSERVED_MARKER in line
                 for line in runtime_lines
             )
             normal_exit_complete_seen = any(
@@ -679,10 +686,10 @@ def run_launch_chain_scenario(scenario_name, launch_command, force_path_fallback
                 "STATUS|SUCCESS|LAUNCHER_RUNTIME|FAILURE_FLOW_COMPLETE" in line for line in runtime_lines
             )
 
-            if shutdown_requested_seen and renderer_exit_seen and launcher_ready_observed_seen:
+            if shutdown_requested_seen and renderer_exit_seen and launcher_settled_observed_seen:
                 break
 
-            if ready_seen and not shutdown_requested_seen and hotkey_sent and hotkey_attempts < 2:
+            if settled_seen and not shutdown_requested_seen and hotkey_sent and hotkey_attempts < 2:
                 hotkey_attempts += 1
                 hotkey_sent, hotkey_detail = send_shutdown_hotkey()
 
@@ -705,13 +712,13 @@ def run_launch_chain_scenario(scenario_name, launch_command, force_path_fallback
             any(f"Renderer target: {DEFAULT_TARGET_SCRIPT}" in line for line in runtime_lines),
             DEFAULT_TARGET_SCRIPT,
         ),
-        "launcher_owned_startup_ready_observed": line_status(
-            launcher_ready_observed_seen,
-            "STATUS|SUCCESS|LAUNCHER_RUNTIME|STARTUP_READY_OBSERVED",
+        "launcher_authoritative_settled_observed": line_status(
+            launcher_settled_observed_seen,
+            LAUNCHER_SETTLED_OBSERVED_MARKER,
         ),
-        "renderer_startup_ready_reached": line_status(
-            ready_seen,
-            "RENDERER_MAIN|STARTUP_READY",
+        "authoritative_desktop_settled_reached": line_status(
+            settled_seen,
+            AUTHORITATIVE_DESKTOP_SETTLED_MARKER,
         ),
         "shutdown_hotkey_sent": line_status(
             hotkey_sent,
@@ -965,7 +972,7 @@ def run_validation():
         while time.time() < deadline:
             if os.path.exists(runtime_log):
                 runtime_lines = read_lines(runtime_log)
-                if any("RENDERER_MAIN|STARTUP_READY" in line for line in runtime_lines):
+                if any(AUTHORITATIVE_DESKTOP_SETTLED_MARKER in line for line in runtime_lines):
                     ready_seen = True
                     break
 
@@ -1030,10 +1037,19 @@ def run_validation():
         runtime_lines,
         "RENDERER_MAIN|STARTUP_READY",
     )
+    passive_handoff_index = first_marker_index(
+        runtime_lines,
+        "RENDERER_MAIN|PASSIVE_DEFAULT_HANDOFF_REQUESTED|state=dormant",
+    )
+    authoritative_settled_index = first_marker_index(
+        runtime_lines,
+        AUTHORITATIVE_DESKTOP_SETTLED_MARKER,
+    )
     ordering_detail = (
         f"deferred={deferred_index}, core_ready={core_ready_index}, "
         f"show={show_index}, first_visible={first_visible_index}, "
-        f"startup_ready={startup_ready_index}"
+        f"startup_ready={startup_ready_index}, passive_handoff={passive_handoff_index}, "
+        f"authoritative_settled={authoritative_settled_index}"
     )
     checks["window_show_deferred_before_core_ready"] = line_status(
         deferred_index >= 0 and core_ready_index > deferred_index,
@@ -1047,10 +1063,14 @@ def run_validation():
         startup_ready_index > first_visible_index > show_index,
         ordering_detail,
     )
+    checks["authoritative_settled_after_passive_handoff"] = line_status(
+        authoritative_settled_index > passive_handoff_index >= 0,
+        ordering_detail,
+    )
 
-    checks["startup_ready_reached_before_termination"] = line_status(
+    checks["authoritative_settled_reached_before_termination"] = line_status(
         ready_seen,
-        "RENDERER_MAIN|STARTUP_READY",
+        AUTHORITATIVE_DESKTOP_SETTLED_MARKER,
     )
     checks["traceback_absent"] = line_status(
         "Traceback" not in stderr_text,
