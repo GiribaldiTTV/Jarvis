@@ -31,13 +31,14 @@ Historical note:
 
 ## Promoted Canonical Workstreams
 
+- `Docs/workstreams/FB-045_active_session_relaunch_outcome_refinement.md`
 - `Docs/workstreams/FB-044_boot_desktop_handoff_outcome_refinement.md`
 
 ## Active Promoted Workstream
 
 - `FB-045 Active-session relaunch outcome refinement`
 
-FB-044 Boot-to-desktop handoff outcome refinement remains the merged-unreleased release-debt owner for `v1.6.9-prebeta`. Latest public prerelease truth remains `v1.6.8-prebeta`; FB-043 is Released / Closed historical proof in `v1.6.8-prebeta`; and FB-045 is now the active promoted blocker-clearing workstream on `feature/fb-045-active-session-relaunch-stability`, where WS-1 has reclassified post-settled abnormal exits as a recoverable lifecycle condition and turned disposable-copy validation green again.
+FB-044 Boot-to-desktop handoff outcome refinement remains the merged-unreleased release-debt owner for `v1.6.9-prebeta`. Latest public prerelease truth remains `v1.6.8-prebeta`; FB-043 is Released / Closed historical proof in `v1.6.8-prebeta`; and FB-045 is now the active promoted blocker-clearing workstream on `feature/fb-045-active-session-relaunch-stability`, where WS-1 has reclassified post-settled abnormal exits as a recoverable lifecycle condition, H-1 has pressure-tested that lifecycle boundary across rapid exits and repeated launches, and disposable-copy validation remains green on the updated lane.
 Released baseline truth is aligned: FB-040 is released and closed in `v1.6.0-prebeta`, FB-031 is released and closed in `v1.6.1-prebeta`, FB-032 is released and closed in `v1.6.2-prebeta`, FB-004 is released and closed in `v1.6.3-prebeta`, FB-015 plus FB-029 are released and closed in `v1.6.4-prebeta`, FB-030 is released and closed in `v1.6.5-prebeta`, FB-005 is released and closed in `v1.6.6-prebeta`, FB-042 is released and closed in `v1.6.7-prebeta`, and FB-043 is now released and closed in `v1.6.8-prebeta`.
 FB-039 is released and closed in `v1.5.0-prebeta`.
 FB-038 remains released and closed in `v1.4.1-prebeta`.
@@ -69,13 +70,13 @@ Repair-Only Branch Handling: `feature/fb-043-release-debt-marker-repair` is a re
 Historical Branch Readiness State: Complete on `feature/fb-043-top-level-entrypoint-handoff-refinement`.
 Current Branch Readiness State: Historical complete on `feature/fb-045-active-session-relaunch-stability`.
 Historical Workstream State: FB-043 WS-1 `main.py` direct-launch handoff refinement, WS-2 explicit launch-intent refinement, H-1 entrypoint hardening, LV-1 live validation, PR Readiness, merge, and release publication are complete historical proof in `v1.6.8-prebeta`.
-Merged-Unreleased Workstream State: FB-044 WS-1 `desktop-settled handoff outcome refinement`, H-1 settled-state hardening, LV-1 live validation, and PR-1 / PR-2 / PR-3 remain complete and frozen for `v1.6.9-prebeta` release packaging. FB-045 WS-1 `post-settled runtime stability refinement` is now complete and validated on the active branch, and the previous disposable-clone blocker no longer reproduces on the updated lane.
+Merged-Unreleased Workstream State: FB-044 WS-1 `desktop-settled handoff outcome refinement`, H-1 settled-state hardening, LV-1 live validation, and PR-1 / PR-2 / PR-3 remain complete and frozen for `v1.6.9-prebeta` release packaging. FB-045 WS-1 `post-settled runtime stability refinement` is complete and validated on the active branch, H-1 post-settled lifecycle hardening is now complete and green, and the previous disposable-clone blocker no longer reproduces on the updated lane.
 Historical Hardening State: Complete on `feature/fb-043-top-level-entrypoint-handoff-refinement`.
 Historical Live Validation State: Complete on `feature/fb-043-top-level-entrypoint-handoff-refinement`.
 PR Readiness State: Complete on `feature/fb-044-boot-desktop-handoff-outcome-refinement`; live PR package state is recorded in the canonical FB-044 workstream doc.
 Release Execution State: `v1.6.8-prebeta` is live at https://github.com/GiribaldiTTV/Nexus-Desktop-AI/releases/tag/v1.6.8-prebeta on commit `5e695af5fada05e4ad6b25731bce328ede8a09ee`.
-Current Branch Objective: harden the completed FB-045 post-settled runtime classification without widening beyond the relaunch-stability lane.
-Next Legal Phase: Hardening.
+Current Branch Objective: live-validate the hardened FB-045 post-settled lifecycle classification without widening beyond the relaunch-stability lane.
+Next Legal Phase: Live Validation.
 Release Target: v1.6.9-prebeta.
 Release Title: Pre-Beta v1.6.9.
 Release Floor: patch prerelease.
@@ -84,7 +85,7 @@ Release Scope: completed FB-044 WS-1 desktop-settled handoff outcome refinement 
 Release Artifacts: Tag v1.6.9-prebeta; release title Pre-Beta v1.6.9; rich Markdown release notes summarize the bounded FB-044 boot-to-desktop settled-outcome refinement, real shortcut evidence, rollback-hardening result, and the FB-045 successor lane without repeating the release title inside the notes body, and GitHub-generated `## What's Changed` plus `**Full Changelog**:` must be included.
 Post-Release Truth: FB-044 is Released / Closed in `v1.6.9-prebeta` after publication and validation; release debt then clears; and FB-045 continues same-branch backlog completion until its relaunch-stability work is implemented complete or only future-dependent blockers remain.
 Next-Branch Creation Gate: Satisfied for FB-045. The blocker-clearing feature branch is now active at `feature/fb-045-active-session-relaunch-stability`.
-Active Workstream Chain: FB-045 WS-1 `post-settled runtime stability refinement` is complete and validated; `Hardening` is next on the active blocker-clearing branch while FB-044 remains the merged-unreleased release-debt owner for `v1.6.9-prebeta`.
+Active Workstream Chain: FB-045 WS-1 `post-settled runtime stability refinement` is complete and validated; H-1 post-settled lifecycle hardening is complete and green; `Live Validation` is next on the active blocker-clearing branch while FB-044 remains the merged-unreleased release-debt owner for `v1.6.9-prebeta`.
 
 ## Backlog Governance Sync
 
@@ -100,9 +101,9 @@ Open-candidate priority review:
 - FB-042 is now Released / Closed in `v1.6.7-prebeta`; the bounded runtime/user-facing launch-path slice is complete historical proof.
 - FB-043 is now Released / Closed in `v1.6.8-prebeta`.
 - FB-044 remains the merged-unreleased release-debt owner for `v1.6.9-prebeta`, but its release blocker is now being cleared on the active FB-045 implementation branch.
-- FB-045 is now the active promoted workstream on `feature/fb-045-active-session-relaunch-stability`; WS-1 is complete and validated, and `Hardening` is next.
+- FB-045 is now the active promoted workstream on `feature/fb-045-active-session-relaunch-stability`; WS-1 is complete and validated, H-1 is complete and green, and `Live Validation` is next.
 
-Current-branch clarity: latest public prerelease is `v1.6.8-prebeta`; FB-044 remains the merged-unreleased release-debt owner for `v1.6.9-prebeta`; repo state is an active FB-045 promoted workstream branch on `feature/fb-045-active-session-relaunch-stability`; the bounded FB-044 settled-outcome slice chain, hardening, live validation, and PR package remain complete; and FB-045 has now completed its first blocker-clearing relaunch-stability slice.
+Current-branch clarity: latest public prerelease is `v1.6.8-prebeta`; FB-044 remains the merged-unreleased release-debt owner for `v1.6.9-prebeta`; repo state is an active FB-045 promoted workstream branch on `feature/fb-045-active-session-relaunch-stability`; the bounded FB-044 settled-outcome slice chain, hardening, live validation, and PR package remain complete; and FB-045 has now completed its first blocker-clearing relaunch-stability slice plus H-1 post-settled lifecycle hardening.
 
 ## Registry Items
 
@@ -216,12 +217,12 @@ Status: In progress
 Record State: Promoted
 Priority: High
 Selection / Unblock: FB-045 is selected because updated-main `Release Readiness` for FB-044 found a reproducible post-settled runtime failure after the authoritative settled marker: the renderer exited `3221226505`, stderr reported `Failed to make current since context is marked as lost`, and launcher failure flow fired. Workstream execution on `feature/fb-045-active-session-relaunch-stability` now classifies that boundary correctly as a recoverable post-settled runtime condition instead of a startup failure.
-Next Workstream: WS-1 complete; `Hardening` next.
+Next Workstream: WS-1 complete; H-1 complete; `Live Validation` next.
 Branch: feature/fb-045-active-session-relaunch-stability
 Canonical Workstream Doc: Docs/workstreams/FB-045_active_session_relaunch_outcome_refinement.md
 Historical Branch-Readiness Record: Docs/branch_records/feature_fb_045_active_session_relaunch_stability.md
 Branch Readiness: Historical complete. The blocker classification, admitted WS-1 slice, validation contract, rollback conditions, and same-branch backlog-completion posture remain preserved in the historical branch-readiness record.
-Workstream: WS-1 `post-settled runtime stability refinement` is complete and validated.
+Workstream: WS-1 `post-settled runtime stability refinement` is complete and validated; H-1 post-settled lifecycle hardening is complete and green.
 Backlog Completion State: Implemented Complete
 Minimal Scope: Classify post-settled abnormal renderer exits as a recoverable lifecycle condition after authoritative settled is already proven, keep settled truth authoritative, preserve green startup paths, and avoid widening beyond launcher / validator relaunch-stability scope.
 Summary: Clear the FB-044 release blocker by fixing launcher lifecycle classification after settled and proving that result across primary-workspace and disposable-copy validation.

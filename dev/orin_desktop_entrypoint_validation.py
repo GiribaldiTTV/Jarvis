@@ -826,6 +826,19 @@ def scenario_has_single_instance_conflict(scenario_result):
     )
 
 
+def launch_scenario_core_ok(scenario_result):
+    core_check_names = (
+        "launch_invocation_ok",
+        "runtime_log_created",
+        "launcher_authoritative_settled_observed",
+        "authoritative_desktop_settled_reached",
+        "completion_path_classified",
+        "failure_flow_absent",
+    )
+    checks = scenario_result.get("checks", {})
+    return all(checks.get(name, {}).get("ok") for name in core_check_names)
+
+
 def run_entrypoint_launch_scenario(scenario_name, force_path_fallback=False):
     cscript_command = resolve_cscript_command()
     launch_command = []
@@ -858,6 +871,41 @@ def run_entrypoint_launch_scenario(scenario_name, force_path_fallback=False):
         cscript_command[0] if cscript_command else "missing Windows Script Host entrypoint",
     )
     return scenario_result
+
+
+def run_repeated_entrypoint_launch_scenario():
+    first_result = run_entrypoint_launch_scenario("vbs_repeated_launch_first")
+    second_result = run_entrypoint_launch_scenario("vbs_repeated_launch_second")
+
+    checks = {
+        "first_launch_core_path_ok": line_status(
+            launch_scenario_core_ok(first_result),
+            first_result["runtime_log"] or "missing first runtime log",
+        ),
+        "second_launch_core_path_ok": line_status(
+            launch_scenario_core_ok(second_result),
+            second_result["runtime_log"] or "missing second runtime log",
+        ),
+        "second_launch_no_failure_flow": line_status(
+            second_result["checks"]["failure_flow_absent"]["ok"],
+            second_result["checks"]["failure_flow_absent"]["detail"],
+        ),
+        "second_launch_no_single_instance_conflict": line_status(
+            not scenario_has_single_instance_conflict(second_result),
+            "no validator-observed single-instance conflict on repeated launch"
+            if not scenario_has_single_instance_conflict(second_result)
+            else "validator observed single-instance conflict on repeated launch",
+        ),
+    }
+
+    return {
+        "scenario_name": "vbs_repeated_launch_cycle",
+        "log_root": BASE_LOG_ROOT,
+        "runtime_log": second_result["runtime_log"],
+        "stdout": second_result["stdout"],
+        "stderr": second_result["stderr"],
+        "checks": checks,
+    }
 
 
 def run_main_default_handoff_scenario():
@@ -1074,8 +1122,236 @@ def run_missing_settled_signal_scenario():
     }
 
 
-def run_post_settled_recoverable_exit_scenario():
-    scenario_name = "launcher_post_settled_recoverable_exit"
+def run_rapid_pre_settled_exit_scenario():
+    scenario_name = "launcher_rapid_pre_settled_exit"
+    scenario_root = os.path.join(BASE_LOG_ROOT, scenario_name)
+    preexisting_processes_before, preexisting_processes_killed, preexisting_processes_after = (
+        cleanup_launch_chain_processes_for_log_root(BASE_LOG_ROOT)
+    )
+    reset_dir(scenario_root)
+    fake_renderer_script = os.path.join(scenario_root, "fake_renderer_rapid_pre_settle_exit.py")
+
+    with open(fake_renderer_script, "w", encoding="utf-8") as handle:
+        handle.write(
+            "import sys\n"
+            "\n"
+            "def arg_value(flag):\n"
+            "    for index, arg in enumerate(sys.argv):\n"
+            "        if arg == flag and index + 1 < len(sys.argv):\n"
+            "            return sys.argv[index + 1]\n"
+            "    return ''\n"
+            "\n"
+            "runtime_log = arg_value('--runtime-log')\n"
+            "\n"
+            "def log(line):\n"
+            "    with open(runtime_log, 'a', encoding='utf-8') as stream:\n"
+            "        stream.write(line + '\\n')\n"
+            "\n"
+            "log('RENDERER_MAIN|START')\n"
+            "sys.stderr.write('[fake:rapid] renderer exited before settled\\n')\n"
+            "sys.stderr.flush()\n"
+            "raise SystemExit(7)\n"
+        )
+
+    env = os.environ.copy()
+    env["JARVIS_HARNESS_LOG_ROOT"] = scenario_root
+    env["JARVIS_HARNESS_TARGET_SCRIPT"] = fake_renderer_script
+    env["JARVIS_HARNESS_DISABLE_DIAGNOSTICS"] = "1"
+    env["JARVIS_HARNESS_DISABLE_VOICE"] = "1"
+    env["QT_QPA_PLATFORM"] = "offscreen"
+
+    result = run_hidden_command(
+        [sys.executable, LAUNCHER_SCRIPT],
+        env=env,
+        timeout_seconds=45,
+    )
+    time.sleep(0.35)
+
+    runtime_log = latest_file_matching(scenario_root, "Runtime_")
+    runtime_lines = read_lines(runtime_log)
+    residual_launch_chain_processes_before, residual_launch_chain_killed, residual_launch_chain_processes_after = (
+        cleanup_launch_chain_processes_for_log_root(BASE_LOG_ROOT)
+    )
+
+    checks = {
+        "runtime_log_created": line_status(
+            bool(runtime_log),
+            runtime_log or "missing runtime log",
+        ),
+        "authoritative_settled_absent": line_status(
+            not any(AUTHORITATIVE_DESKTOP_SETTLED_MARKER in line for line in runtime_lines),
+            AUTHORITATIVE_DESKTOP_SETTLED_MARKER,
+        ),
+        "launcher_settled_success_absent": line_status(
+            not any(LAUNCHER_SETTLED_OBSERVED_MARKER in line for line in runtime_lines),
+            LAUNCHER_SETTLED_OBSERVED_MARKER,
+        ),
+        "post_settled_runtime_exit_absent": line_status(
+            not any(POST_SETTLED_RUNTIME_EXIT_MARKER in line for line in runtime_lines),
+            POST_SETTLED_RUNTIME_EXIT_MARKER,
+        ),
+        "post_settled_recoverable_complete_absent": line_status(
+            not any(POST_SETTLED_RECOVERABLE_COMPLETE_MARKER in line for line in runtime_lines),
+            POST_SETTLED_RECOVERABLE_COMPLETE_MARKER,
+        ),
+        "failure_flow_complete_present": line_status(
+            any("STATUS|SUCCESS|LAUNCHER_RUNTIME|FAILURE_FLOW_COMPLETE" in line for line in runtime_lines),
+            "STATUS|SUCCESS|LAUNCHER_RUNTIME|FAILURE_FLOW_COMPLETE",
+        ),
+        "traceback_absent": line_status(
+            "Traceback" not in (result.stdout or "") and "Traceback" not in (result.stderr or ""),
+            (result.stderr or result.stdout).strip() or "no traceback in stdout/stderr",
+        ),
+        "scenario_preflight_cleanup_optional": line_status(
+            not preexisting_processes_after,
+            "no prior validation-owned launcher/runtime processes detected"
+            if not preexisting_processes_before
+            else (
+                f"detected {len(preexisting_processes_before)} prior process(es); "
+                f"killed={','.join(str(pid) for pid in preexisting_processes_killed) or 'none'}"
+            ),
+        ),
+        "launch_chain_cleanup_optional": line_status(
+            not residual_launch_chain_processes_after,
+            "no residual validation-owned launcher/runtime processes detected"
+            if not residual_launch_chain_processes_before
+            else (
+                f"detected {len(residual_launch_chain_processes_before)} residual process(es); "
+                f"killed={','.join(str(pid) for pid in residual_launch_chain_killed) or 'none'}"
+            ),
+        ),
+    }
+
+    return {
+        "scenario_name": scenario_name,
+        "log_root": scenario_root,
+        "runtime_log": runtime_log,
+        "stdout": (result.stdout or "").strip(),
+        "stderr": (result.stderr or "").strip(),
+        "checks": checks,
+    }
+
+
+def run_post_settled_clean_exit_precedence_scenario():
+    scenario_name = "launcher_post_settled_clean_exit_precedence"
+    scenario_root = os.path.join(BASE_LOG_ROOT, scenario_name)
+    preexisting_processes_before, preexisting_processes_killed, preexisting_processes_after = (
+        cleanup_launch_chain_processes_for_log_root(BASE_LOG_ROOT)
+    )
+    reset_dir(scenario_root)
+    fake_renderer_script = os.path.join(scenario_root, "fake_renderer_post_settled_clean_exit.py")
+
+    with open(fake_renderer_script, "w", encoding="utf-8") as handle:
+        handle.write(
+            "import sys\n"
+            "\n"
+            "def arg_value(flag):\n"
+            "    for index, arg in enumerate(sys.argv):\n"
+            "        if arg == flag and index + 1 < len(sys.argv):\n"
+            "            return sys.argv[index + 1]\n"
+            "    return ''\n"
+            "\n"
+            "runtime_log = arg_value('--runtime-log')\n"
+            "\n"
+            "def log(line):\n"
+            "    with open(runtime_log, 'a', encoding='utf-8') as stream:\n"
+            "        stream.write(line + '\\n')\n"
+            "\n"
+            "log('RENDERER_MAIN|START')\n"
+            "log('RENDERER_MAIN|PASSIVE_DEFAULT_HANDOFF_REQUESTED|state=dormant')\n"
+            "log('DESKTOP_OUTCOME|SETTLED|state=dormant')\n"
+            "log('RENDERER_MAIN|SHUTDOWN_REQUESTED')\n"
+            "log('RENDERER_MAIN|EVENT_LOOP_EXIT|code=0')\n"
+            "raise SystemExit(0)\n"
+        )
+
+    env = os.environ.copy()
+    env["JARVIS_HARNESS_LOG_ROOT"] = scenario_root
+    env["JARVIS_HARNESS_TARGET_SCRIPT"] = fake_renderer_script
+    env["JARVIS_HARNESS_DISABLE_DIAGNOSTICS"] = "1"
+    env["JARVIS_HARNESS_DISABLE_VOICE"] = "1"
+    env["QT_QPA_PLATFORM"] = "offscreen"
+
+    result = run_hidden_command(
+        [sys.executable, LAUNCHER_SCRIPT],
+        env=env,
+        timeout_seconds=45,
+    )
+    time.sleep(0.35)
+
+    runtime_log = latest_file_matching(scenario_root, "Runtime_")
+    runtime_lines = read_lines(runtime_log)
+    residual_launch_chain_processes_before, residual_launch_chain_killed, residual_launch_chain_processes_after = (
+        cleanup_launch_chain_processes_for_log_root(BASE_LOG_ROOT)
+    )
+
+    checks = {
+        "runtime_log_created": line_status(
+            bool(runtime_log),
+            runtime_log or "missing runtime log",
+        ),
+        "authoritative_settled_present": line_status(
+            any(AUTHORITATIVE_DESKTOP_SETTLED_MARKER in line for line in runtime_lines),
+            AUTHORITATIVE_DESKTOP_SETTLED_MARKER,
+        ),
+        "launcher_settled_success_present": line_status(
+            any(LAUNCHER_SETTLED_OBSERVED_MARKER in line for line in runtime_lines),
+            LAUNCHER_SETTLED_OBSERVED_MARKER,
+        ),
+        "normal_exit_complete_present": line_status(
+            any("STATUS|SUCCESS|LAUNCHER_RUNTIME|NORMAL_EXIT_COMPLETE" in line for line in runtime_lines),
+            "STATUS|SUCCESS|LAUNCHER_RUNTIME|NORMAL_EXIT_COMPLETE",
+        ),
+        "post_settled_runtime_exit_absent": line_status(
+            not any(POST_SETTLED_RUNTIME_EXIT_MARKER in line for line in runtime_lines),
+            POST_SETTLED_RUNTIME_EXIT_MARKER,
+        ),
+        "post_settled_recoverable_complete_absent": line_status(
+            not any(POST_SETTLED_RECOVERABLE_COMPLETE_MARKER in line for line in runtime_lines),
+            POST_SETTLED_RECOVERABLE_COMPLETE_MARKER,
+        ),
+        "failure_flow_complete_absent": line_status(
+            not any("STATUS|SUCCESS|LAUNCHER_RUNTIME|FAILURE_FLOW_COMPLETE" in line for line in runtime_lines),
+            "STATUS|SUCCESS|LAUNCHER_RUNTIME|FAILURE_FLOW_COMPLETE absent",
+        ),
+        "traceback_absent": line_status(
+            "Traceback" not in (result.stdout or "") and "Traceback" not in (result.stderr or ""),
+            (result.stderr or result.stdout).strip() or "no traceback in stdout/stderr",
+        ),
+        "scenario_preflight_cleanup_optional": line_status(
+            not preexisting_processes_after,
+            "no prior validation-owned launcher/runtime processes detected"
+            if not preexisting_processes_before
+            else (
+                f"detected {len(preexisting_processes_before)} prior process(es); "
+                f"killed={','.join(str(pid) for pid in preexisting_processes_killed) or 'none'}"
+            ),
+        ),
+        "launch_chain_cleanup_optional": line_status(
+            not residual_launch_chain_processes_after,
+            "no residual validation-owned launcher/runtime processes detected"
+            if not residual_launch_chain_processes_before
+            else (
+                f"detected {len(residual_launch_chain_processes_before)} residual process(es); "
+                f"killed={','.join(str(pid) for pid in residual_launch_chain_killed) or 'none'}"
+            ),
+        ),
+    }
+
+    return {
+        "scenario_name": scenario_name,
+        "log_root": scenario_root,
+        "runtime_log": runtime_log,
+        "stdout": (result.stdout or "").strip(),
+        "stderr": (result.stderr or "").strip(),
+        "checks": checks,
+    }
+
+
+def run_post_settled_recoverable_exit_scenario(
+    scenario_name="launcher_post_settled_recoverable_exit",
+    settle_delay_seconds=0.25,
+):
     scenario_root = os.path.join(BASE_LOG_ROOT, scenario_name)
     preexisting_processes_before, preexisting_processes_killed, preexisting_processes_after = (
         cleanup_launch_chain_processes_for_log_root(BASE_LOG_ROOT)
@@ -1103,7 +1379,7 @@ def run_post_settled_recoverable_exit_scenario():
             "log('RENDERER_MAIN|START')\n"
             "log('RENDERER_MAIN|PASSIVE_DEFAULT_HANDOFF_REQUESTED|state=dormant')\n"
             "log('DESKTOP_OUTCOME|SETTLED|state=dormant')\n"
-            "time.sleep(0.25)\n"
+            f"time.sleep({settle_delay_seconds})\n"
             "log('FAKE_RENDERER|FORCED_POST_SETTLED_EXIT')\n"
             "sys.stderr.write('[fake:gpu] Failed to make current since context is marked as lost\\n')\n"
             "sys.stderr.flush()\n"
@@ -1483,9 +1759,16 @@ def run_validation():
     )
     main_handoff_result = run_main_default_handoff_scenario()
     main_explicit_handoff_result = run_main_explicit_desktop_handoff_scenario()
+    repeated_entrypoint_result = run_repeated_entrypoint_launch_scenario()
     main_invalid_argument_result = run_main_invalid_argument_scenario()
+    rapid_pre_settled_result = run_rapid_pre_settled_exit_scenario()
     missing_settled_result = run_missing_settled_signal_scenario()
+    post_settled_clean_exit_result = run_post_settled_clean_exit_precedence_scenario()
     post_settled_recoverable_result = run_post_settled_recoverable_exit_scenario()
+    post_settled_recoverable_immediate_result = run_post_settled_recoverable_exit_scenario(
+        "launcher_post_settled_recoverable_exit_immediate",
+        0.0,
+    )
 
     for scenario_result in (
         default_launch_result,
@@ -1503,10 +1786,18 @@ def run_validation():
 
     for check_name, check_result in main_invalid_argument_result["checks"].items():
         checks[f"{main_invalid_argument_result['scenario_name']}::{check_name}"] = check_result
+    for check_name, check_result in repeated_entrypoint_result["checks"].items():
+        checks[f"{repeated_entrypoint_result['scenario_name']}::{check_name}"] = check_result
+    for check_name, check_result in rapid_pre_settled_result["checks"].items():
+        checks[f"{rapid_pre_settled_result['scenario_name']}::{check_name}"] = check_result
     for check_name, check_result in missing_settled_result["checks"].items():
         checks[f"{missing_settled_result['scenario_name']}::{check_name}"] = check_result
+    for check_name, check_result in post_settled_clean_exit_result["checks"].items():
+        checks[f"{post_settled_clean_exit_result['scenario_name']}::{check_name}"] = check_result
     for check_name, check_result in post_settled_recoverable_result["checks"].items():
         checks[f"{post_settled_recoverable_result['scenario_name']}::{check_name}"] = check_result
+    for check_name, check_result in post_settled_recoverable_immediate_result["checks"].items():
+        checks[f"{post_settled_recoverable_immediate_result['scenario_name']}::{check_name}"] = check_result
 
     return {
         "branch_state": detect_branch_state(),
@@ -1522,9 +1813,13 @@ def run_validation():
             main_explicit_handoff_result,
         ],
         "nonlaunch_scenarios": [
+            repeated_entrypoint_result,
             main_invalid_argument_result,
+            rapid_pre_settled_result,
             missing_settled_result,
+            post_settled_clean_exit_result,
             post_settled_recoverable_result,
+            post_settled_recoverable_immediate_result,
         ],
         "tray_route_events": tray_events,
         "tray_identity_events": tray_identity_events,

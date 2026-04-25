@@ -39,7 +39,9 @@
 - The launcher no longer collapses authoritative-settled runtime exits into startup failure flow.
 - Primary workspace validation remains green.
 - Disposable-copy validation is now also green on the updated FB-045 code, so the previously recorded merged-main-style release blocker is no longer reproducing on the active implementation lane.
-- Active seam: `None.` WS-1 is complete and `Hardening` is next.
+- H-1 post-settled lifecycle hardening is complete and green.
+- Hardening confirmed recoverable lifecycle classification never appears before authoritative settled, clean shutdown keeps precedence when shutdown markers are present, repeated launch cycles stay green, and both immediate and delayed post-settled abnormal exits land in the same recoverable lane without falling into startup failure flow.
+- Active seam: `None.` WS-1 and H-1 are complete, and `Live Validation` is next.
 
 ## Branch Class
 
@@ -70,7 +72,7 @@ None.
 
 ## Next Legal Phase
 
-- `Hardening`
+- `Live Validation`
 
 ## Purpose / Why It Matters
 
@@ -222,16 +224,58 @@ Startup truth remains authoritative and the lifecycle boundary is clearer now:
 
 That keeps launcher truth aligned with what actually happened instead of letting a later runtime exit rewrite already-proven startup success.
 
+## H-1 Hardening Record
+
+H-1 pressure-tested the completed FB-045 slice chain across recoverable-classification timing, rapid pre-settled exits, clean-shutdown precedence, repeated launcher-owned startup cycles, explicit dev boot proof preservation, and immediate-versus-delayed post-settled abnormal exits without widening beyond the admitted relaunch-stability lane.
+
+### Hardening Findings
+
+- Recoverable post-settled lifecycle markers only appear after the authoritative settled marker has already been observed.
+- A rapid renderer exit before settled still routes into failure flow and never produces any settled or post-settled success markers.
+- Clean shutdown after settled still takes precedence over recoverable classification when `RENDERER_MAIN|SHUTDOWN_REQUESTED` and `RENDERER_MAIN|EVENT_LOOP_EXIT|code=0` are present.
+- Repeated canonical VBS launches remain green across back-to-back runs and do not introduce validator-observed single-instance conflicts or false failure flow.
+- Immediate and delayed post-settled abnormal exits both classify into the same recoverable lane, which keeps GPU-context-loss timing variations from changing startup truth.
+- Explicit dev boot verification remains green and still converges on authoritative settled without being confused with launcher-owned completion markers.
+
+### Hardening Corrections
+
+- `dev/orin_desktop_entrypoint_validation.py` now carries reusable edge scenarios for repeated entrypoint launch, rapid pre-settled exit, post-settled clean-exit precedence, and immediate post-settled recoverable exit timing.
+- No additional runtime correction was required in `desktop/orin_desktop_launcher.pyw` or `desktop/orin_desktop_main.py`; the FB-045 WS-1 lifecycle classification held under the new pressure tests.
+
+### H-1 Completion Decision
+
+- H-1 Result: `Complete / green`
+- Remaining implementable work inside FB-045: `None`
+- Stop condition: phase boundary reached; Hardening is complete after H-1.
+
+### H-1 Validation Results
+
+- `python -m py_compile desktop\orin_desktop_launcher.pyw desktop\orin_desktop_main.py dev\orin_desktop_entrypoint_validation.py dev\orin_boot_transition_verification.py`: PASS
+- `python dev\orin_desktop_entrypoint_validation.py`: PASS
+  - report: `dev/logs/desktop_entrypoint_validation/reports/DesktopEntrypointValidationReport_20260425_082507.txt`
+- `python dev\orin_boot_transition_verification.py`: PASS
+  - report: `dev/logs/boot_transition_verification/reports/BootTransitionVerificationReport_20260425_082527.txt`
+- `python dev\orin_branch_governance_validation.py`: PASS
+- `git diff --check`: PASS
+
+### H-1 Stability Notes
+
+- Startup success still remains tied only to `DESKTOP_OUTCOME|SETTLED|state=dormant`.
+- Recoverable lifecycle completion is now proven absent before settled and proven present for both immediate and delayed post-settled abnormal exits.
+- Valid clean shutdown still wins when clean-exit markers are present, even after settled has already been observed.
+- Primary-workspace VBS / launcher / `main.py` handoff routes and explicit dev boot proof all remain green after the added edge-case coverage.
+
 ## Seam Continuation Decision
 
-Continue Decision: `Advance after WS-1 because backlog completion is implemented complete and the next legal phase is Hardening`
+Continue Decision: `Advance after H-1 because backlog completion is implemented complete and the next legal phase is Live Validation`
 Next Active Seam: `None`
-Stop Condition: `Reached Hardening gate after WS-1 completion`
-Continuation Action: `Pressure-test post-settled classification, invalid lifecycle edges, rollback honesty, and hidden coupling before Live Validation`
+Stop Condition: `Reached Live Validation gate after H-1 completion`
+Continuation Action: `Validate repo-truth alignment, production launch truth, explicit dev boot proof, User Test Summary status, and branch cleanliness before PR packaging`
 
 ## Active Seam
 
 Active seam: `None.`
 
 - WS-1 is complete and validated.
-- `Hardening` is now the next legal phase.
+- H-1 is complete and green.
+- `Live Validation` is now the next legal phase.
