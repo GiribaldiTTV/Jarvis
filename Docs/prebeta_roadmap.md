@@ -68,7 +68,7 @@ Current merged truth indicates:
 - merged unreleased non-doc implementation debt exists: yes
 - the latest public released implementation milestone is FB-042 Desktop entrypoint runtime refinement in `v1.6.7-prebeta`; FB-005 Workspace and folder organization remains released in `v1.6.6-prebeta`; FB-030 ORIN voice/audio direction refinement remains released in `v1.6.5-prebeta`; FB-015 Boot and desktop phase-boundary model plus FB-029 ORIN legal-safe rebrand, future ARIA persona option, and repo licensing hardening remain released in `v1.6.4-prebeta`
 - current phase after `v1.6.7-prebeta` release closure: `Release Readiness`
-- phase status after `v1.6.7-prebeta` release closure: FB-042 is Released / Closed in `v1.6.7-prebeta`; FB-043 is now the merged-unreleased release-debt owner for `v1.6.8-prebeta`; repo state is `No Active Branch`; the bounded FB-043 slice chain, Hardening, and Live Validation are complete with PR-1 and PR-2 complete and PR-3 pending in this pass; and FB-044 is selected next as the branch-not-created runtime/back-end successor lane.
+- phase status after `v1.6.7-prebeta` release closure: FB-042 is Released / Closed in `v1.6.7-prebeta`; FB-043 is now the merged-unreleased release-debt owner for `v1.6.8-prebeta`; repo state is `No Active Branch`; the bounded FB-043 slice chain, Hardening, Live Validation, and PR Readiness are complete; and FB-044 is selected next as the branch-not-created runtime/back-end successor lane.
 - current active workstream: none
 - current branch after `v1.6.7-prebeta` release closure: none
 - next concern: execute file-frozen `Release Readiness` on updated `main` for the merged-unreleased FB-043 `v1.6.8-prebeta` package, then carry post-release canon closure on the next legal feature branch.
@@ -100,10 +100,10 @@ Repair-Only Branch Handling: `feature/fb-043-release-debt-marker-repair` is a re
 Historical Branch Readiness State: Complete on `feature/fb-042-desktop-entrypoint-runtime-refinement`.
 Current Branch Readiness State: Complete on `feature/fb-043-top-level-entrypoint-handoff-refinement`.
 Historical Workstream State: WS-1 `desktop/orin_desktop_test.py` -> `dev/desktop/orin_desktop_test.py` is complete.
-Merged-Unreleased Workstream State: FB-043 WS-1 `main.py` direct-launch handoff refinement, WS-2 explicit launch-intent refinement, H-1 entrypoint hardening, LV-1 live validation, and PR-1 / PR-2 are complete; PR-3 live PR creation and validation is pending in this pass for `v1.6.8-prebeta` release packaging.
+Merged-Unreleased Workstream State: FB-043 WS-1 `main.py` direct-launch handoff refinement, WS-2 explicit launch-intent refinement, H-1 entrypoint hardening, LV-1 live validation, and PR-1 / PR-2 / PR-3 are complete and frozen for `v1.6.8-prebeta` release packaging.
 Historical Hardening State: Complete on `feature/fb-005-workspace-path-planning`.
 Historical Live Validation State: Complete on `feature/fb-005-workspace-path-planning`.
-PR Readiness State: PR-1 merge-target canon completeness and PR-2 selected-next workstream selection are complete on `feature/fb-043-top-level-entrypoint-handoff-refinement`; PR-3 live PR creation and validation is pending in this pass and will then be recorded in the canonical FB-043 workstream doc.
+PR Readiness State: Complete on `feature/fb-043-top-level-entrypoint-handoff-refinement`; live PR package state is recorded in the canonical FB-043 workstream doc.
 Release Execution State: `v1.6.7-prebeta` is live at https://github.com/GiribaldiTTV/Nexus-Desktop-AI/releases/tag/v1.6.7-prebeta on commit `8f53d163ad008f7508f55f593b15369749e3ec24`.
 Release Target: v1.6.8-prebeta
 Release Title: Pre-Beta v1.6.8
