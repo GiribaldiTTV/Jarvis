@@ -58,7 +58,7 @@ Use this ownership split unless a validated source conflict requires a temporary
 - User Test Summary = validation-contract layer owned by the relevant workstream
 - phase governance = repo-wide execution, proof, timeout, seam, stop-loss, validation-helper, and desktop UI audit contract
 - validation helper registry = repo-wide helper naming, ownership, reuse, workstream-scoped exception, and consolidation contract
-- branch authority records = repo-owned phase owners for approved non-backlog `release packaging` branches and preserved historical `docs/governance` or `emergency canon repair` records; new fixes and repairs still use a new `feature/` branch by default
+- branch authority records = repo-owned phase owners for selected `Registry-only` backlog branches in `Branch Readiness`, approved `release packaging` branches, and preserved historical `docs/governance` or `emergency canon repair` records; new fixes and repairs still use a new `feature/` branch by default
 - `Docs/Main.md` = routing authority aligned to merged truth
 
 ## Analysis-First Prompt Baseline
@@ -164,7 +164,7 @@ Use these for promoted work that needs a stable feature-state, branch-local vali
 
 ### Branch Authority Records
 
-Use these for approved branches that do not map to a promoted backlog workstream but still need a durable repo-owned phase authority record:
+Use these for selected `Registry-only` backlog branches in `Branch Readiness`, and for approved branches that do not map to a promoted backlog workstream but still need a durable repo-owned phase authority record:
 
 - `Docs/branch_records/index.md`
 - the relevant active branch authority record under `Docs/branch_records/`
@@ -273,9 +273,9 @@ These are reference layers, not active workstream or roadmap owners.
   5. select the next workstream from current canon
   6. confirm the next workstream is recorded in backlog and roadmap
   7. confirm the next workstream has canon-valid record state and minimal scope
-  8. confirm no branch exists yet for that next workstream
+  8. confirm no branch exists yet for that next workstream while PR Readiness is encoding selected-next truth
   9. defer successor branch creation to `Branch Readiness` after merge and updated-`main` revalidation
-  10. encode the machine-checkable selected-next markers: `Next Workstream: Selected` and `Minimal Scope:` in backlog, plus `## Selected Next Workstream` with `Branch: Not created` in roadmap
+  10. encode the machine-checkable selected-next markers: `Next Workstream: Selected` and `Minimal Scope:` in backlog, plus `## Selected Next Workstream` with truthful branch status such as `Branch: Not created` before branch creation or the active Branch Readiness branch name after creation in roadmap
   11. If post-merge truth will resolve to `No Active Branch` because `Release Debt` or another repo-level admission blocker remains open, successor branch creation remains deferred; next-workstream selection is still required unless the user explicitly approves a no-next-workstream steady-state outcome in canon.
   12. commit all required docs, canon, validator, and branch-truth changes so the worktree is clean and truth is durable in commit history
   13. run the normal branch governance validator and the PR-readiness gate mode
