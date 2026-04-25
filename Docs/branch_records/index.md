@@ -45,7 +45,7 @@ Do not use this layer to replace:
 
 ## Active Branch Authority Records
 
-None.
+- `Docs/branch_records/feature_fb_044_boot_desktop_handoff_outcome_refinement.md`
 
 ## Historical Branch Authority Records
 
