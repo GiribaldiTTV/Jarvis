@@ -9,6 +9,9 @@ ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 CANONICAL_ENTRYPOINT_SCRIPT = os.path.join(ROOT_DIR, "launch_orin_desktop.vbs")
 VALID_BOOT_PROFILES = {"manual", "auto_handoff_skip_import"}
 VALID_AUDIO_MODES = {"voice", "quiet"}
+HELP_ARGS = {"-h", "--help", "/?"}
+DESKTOP_ENTRYPOINT_ARGS = {"--desktop-entrypoint"}
+PREPARSED_DEV_RUN_CONFIG = None
 
 
 def hidden_windows_subprocess_kwargs():
@@ -71,12 +74,102 @@ def direct_parent_command_line():
     return (result.stdout or "").strip()
 
 
-def direct_launch_requests_dev_boot(argv):
-    if len(argv) > 1:
-        return True
+def default_dev_run_config(script_path):
+    return {
+        "boot_profile": "manual",
+        "audio_mode": "voice",
+        "qt_argv": [script_path],
+    }
+
+
+def build_direct_launch_usage():
+    return (
+        "main.py launch modes:\n"
+        "  python main.py\n"
+        "      Hand off to the canonical Windows desktop entry chain.\n"
+        "  python main.py --desktop-entrypoint\n"
+        "      Explicitly hand off to the canonical Windows desktop entry chain.\n"
+        "  python main.py --boot-profile <manual|auto_handoff_skip_import> [--audio-mode <voice|quiet>]\n"
+        "      Run the dev-only boot prototype path.\n"
+    )
+
+
+def parse_explicit_dev_boot_config(argv):
+    config = default_dev_run_config(argv[0])
+    args = argv[1:]
+    saw_explicit_dev_arg = False
+
+    i = 0
+    while i < len(args):
+        arg = args[i]
+
+        if arg == "--boot-profile":
+            if i + 1 >= len(args):
+                return None, "--boot-profile requires one of: manual, auto_handoff_skip_import."
+            candidate = args[i + 1].strip().lower()
+            if candidate not in VALID_BOOT_PROFILES:
+                return None, (
+                    f"Invalid --boot-profile '{args[i + 1]}'. "
+                    "Expected one of: manual, auto_handoff_skip_import."
+                )
+            config["boot_profile"] = candidate
+            saw_explicit_dev_arg = True
+            i += 2
+            continue
+
+        if arg == "--audio-mode":
+            if i + 1 >= len(args):
+                return None, "--audio-mode requires one of: voice, quiet."
+            candidate = args[i + 1].strip().lower()
+            if candidate not in VALID_AUDIO_MODES:
+                return None, f"Invalid --audio-mode '{args[i + 1]}'. Expected one of: voice, quiet."
+            config["audio_mode"] = candidate
+            saw_explicit_dev_arg = True
+            i += 2
+            continue
+
+        if arg in DESKTOP_ENTRYPOINT_ARGS:
+            return None, (
+                "--desktop-entrypoint cannot be combined with explicit dev boot arguments. "
+                "Use either canonical desktop handoff or explicit dev boot mode."
+            )
+
+        return None, (
+            f"Unrecognized direct-launch argument: {arg}\n"
+            "Use --desktop-entrypoint for the canonical desktop chain or "
+            "--boot-profile/--audio-mode for the dev boot prototype path."
+        )
+
+    if not saw_explicit_dev_arg:
+        return None, "No explicit dev boot arguments were provided."
+
+    return config, ""
+
+
+def classify_direct_launch_mode(argv):
+    args = argv[1:]
+
+    if any(arg in HELP_ARGS for arg in args):
+        return {"mode": "help"}
+
+    if len(args) == 1 and args[0] in DESKTOP_ENTRYPOINT_ARGS:
+        return {"mode": "canonical_desktop"}
+
+    if args:
+        config, error = parse_explicit_dev_boot_config(argv)
+        if config is not None:
+            return {"mode": "dev_boot", "config": config}
+        return {"mode": "invalid", "message": error}
 
     parent_command_line = direct_parent_command_line().lower().replace("/", "\\")
-    return "\\dev\\launchers\\launch_orin_main_" in parent_command_line
+    if "\\dev\\launchers\\launch_orin_main_" in parent_command_line:
+        return {"mode": "dev_boot", "config": default_dev_run_config(argv[0])}
+
+    return {"mode": "canonical_desktop"}
+
+
+def print_direct_launch_usage(stream):
+    stream.write(build_direct_launch_usage())
 
 
 def handoff_to_canonical_desktop_entrypoint():
@@ -110,8 +203,22 @@ def handoff_to_canonical_desktop_entrypoint():
     return 0
 
 
-if __name__ == "__main__" and not direct_launch_requests_dev_boot(sys.argv):
-    raise SystemExit(handoff_to_canonical_desktop_entrypoint())
+if __name__ == "__main__":
+    launch_mode = classify_direct_launch_mode(sys.argv)
+
+    if launch_mode["mode"] == "help":
+        print_direct_launch_usage(sys.stdout)
+        raise SystemExit(0)
+
+    if launch_mode["mode"] == "invalid":
+        sys.stderr.write(f"{launch_mode['message']}\n\n")
+        print_direct_launch_usage(sys.stderr)
+        raise SystemExit(2)
+
+    if launch_mode["mode"] == "canonical_desktop":
+        raise SystemExit(handoff_to_canonical_desktop_entrypoint())
+
+    PREPARSED_DEV_RUN_CONFIG = dict(launch_mode["config"])
 
 import asyncio
 import threading
@@ -154,36 +261,14 @@ runtime_relaunch_signal = NamedSignal(RUNTIME_RELAUNCH_EVENT)
 
 
 def parse_dev_run_config(argv):
-    boot_profile = "manual"
-    audio_mode = "voice"
-    qt_argv = [argv[0]]
+    if PREPARSED_DEV_RUN_CONFIG is not None:
+        return dict(PREPARSED_DEV_RUN_CONFIG)
 
-    i = 1
-    while i < len(argv):
-        arg = argv[i]
+    config, _error = parse_explicit_dev_boot_config(argv)
+    if config is not None:
+        return config
 
-        if arg == "--boot-profile" and i + 1 < len(argv):
-            candidate = argv[i + 1].strip().lower()
-            if candidate in VALID_BOOT_PROFILES:
-                boot_profile = candidate
-            i += 2
-            continue
-
-        if arg == "--audio-mode" and i + 1 < len(argv):
-            candidate = argv[i + 1].strip().lower()
-            if candidate in VALID_AUDIO_MODES:
-                audio_mode = candidate
-            i += 2
-            continue
-
-        qt_argv.append(arg)
-        i += 1
-
-    return {
-        "boot_profile": boot_profile,
-        "audio_mode": audio_mode,
-        "qt_argv": qt_argv,
-    }
+    return default_dev_run_config(argv[0])
 
 
 def resolve_boot_runtime_log_paths(base_dir, boot_profile, audio_mode):

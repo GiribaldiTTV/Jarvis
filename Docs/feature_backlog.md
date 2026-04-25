@@ -37,7 +37,7 @@ Historical note:
 
 - `Docs/workstreams/FB-043_top_level_entrypoint_handoff_refinement.md`
 
-FB-043 Top-level desktop entrypoint ownership and `main.py` handoff refinement is now the active promoted runtime workstream on `feature/fb-043-top-level-entrypoint-handoff-refinement`. Latest public prerelease truth is `v1.6.7-prebeta`; release debt is clear; FB-042 is Released / Closed historical proof in `v1.6.7-prebeta`; and FB-043 remains in `Workstream` on this same branch until the backlog item is fully implemented or only future-dependent blockers remain.
+FB-043 Top-level desktop entrypoint ownership and `main.py` handoff refinement is now the active promoted runtime workstream on `feature/fb-043-top-level-entrypoint-handoff-refinement`. Latest public prerelease truth is `v1.6.7-prebeta`; release debt is clear; FB-042 is Released / Closed historical proof in `v1.6.7-prebeta`; and FB-043 now has Workstream implementation complete on this same branch with `Backlog Completion State: Implemented Complete` and `Hardening` legal next.
 Released baseline truth is aligned: FB-040 is released and closed in `v1.6.0-prebeta`, FB-031 is released and closed in `v1.6.1-prebeta`, FB-032 is released and closed in `v1.6.2-prebeta`, FB-004 is released and closed in `v1.6.3-prebeta`, FB-015 plus FB-029 are released and closed in `v1.6.4-prebeta`, FB-030 is released and closed in `v1.6.5-prebeta`, FB-005 is released and closed in `v1.6.6-prebeta`, and FB-042 is now released and closed in `v1.6.7-prebeta`.
 FB-039 is released and closed in `v1.5.0-prebeta`.
 FB-038 remains released and closed in `v1.4.1-prebeta`.
@@ -65,7 +65,7 @@ Historical Hardening State: Complete on `feature/fb-005-workspace-path-planning`
 Historical Live Validation State: Complete on `feature/fb-005-workspace-path-planning`.
 PR Readiness State: Complete on `feature/fb-042-desktop-entrypoint-runtime-refinement`; merged PR state is preserved in the canonical FB-042 workstream doc.
 Release Execution State: `v1.6.7-prebeta` is live at https://github.com/GiribaldiTTV/Nexus-Desktop-AI/releases/tag/v1.6.7-prebeta on commit `8f53d163ad008f7508f55f593b15369749e3ec24`.
-Active Workstream Chain: FB-043 is promoted on `feature/fb-043-top-level-entrypoint-handoff-refinement`; WS-1 `main.py` direct-launch handoff refinement is complete and validated; `Backlog Completion State` remains `In Progress`; and the branch stays in `Workstream` until remaining implementable FB-043 work is exhausted or only future-dependent blockers remain.
+Active Workstream Chain: FB-043 is promoted on `feature/fb-043-top-level-entrypoint-handoff-refinement`; WS-1 `main.py` direct-launch handoff refinement and WS-2 explicit launch-intent refinement are complete and validated; `Backlog Completion State` is `Implemented Complete`; and the next legal phase is `Hardening`.
 
 ## Backlog Governance Sync
 
@@ -81,7 +81,7 @@ Open-candidate priority review:
 - FB-042 is now Released / Closed in `v1.6.7-prebeta`; the bounded runtime/user-facing launch-path slice is complete historical proof.
 - FB-043 is now the active promoted runtime-bearing workstream on `feature/fb-043-top-level-entrypoint-handoff-refinement`.
 
-Current-branch clarity: latest public prerelease is `v1.6.7-prebeta`; FB-042 is Released / Closed and release debt is clear; the repo is now on active promoted FB-043 workstream truth at `feature/fb-043-top-level-entrypoint-handoff-refinement`; WS-1 `main.py` direct-launch handoff refinement is complete and validated; and Hardening remains blocked until backlog completion is proven.
+Current-branch clarity: latest public prerelease is `v1.6.7-prebeta`; FB-042 is Released / Closed and release debt is clear; the repo is now on active promoted FB-043 workstream truth at `feature/fb-043-top-level-entrypoint-handoff-refinement`; WS-1 `main.py` direct-launch handoff refinement and WS-2 explicit launch-intent refinement are complete and validated; and `Hardening` is now legal because backlog completion is proven.
 
 ## Registry Items
 
@@ -151,8 +151,8 @@ Branch: feature/fb-043-top-level-entrypoint-handoff-refinement
 Repair-Only Branch Handling: `feature/fb-043-release-debt-marker-repair` is a repair-only `feature/` branch and does not imply Branch Readiness admission or active branch truth.
 Canonical Workstream Doc: Docs/workstreams/FB-043_top_level_entrypoint_handoff_refinement.md
 Branch Readiness: Complete. The former branch-readiness authority on `feature/fb-043-top-level-entrypoint-handoff-refinement` admitted WS-1 with exact owned paths, validation coverage, rollback conditions, same-branch continuation posture, and the branch-level closure rule before promotion.
-Workstream: Active. WS-1 `main.py` direct-launch handoff refinement is complete and validated; plain no-argument direct `main.py` launches now hand off to the canonical desktop chain; explicit dev boot paths remain verifiable; `Backlog Completion State` remains `In Progress`; and `Hardening` is not yet legal while remaining implementable FB-043 work is still being reassessed.
-Minimal Scope: Begin with WS-1 `main.py` direct-launch handoff refinement across `main.py`, the minimal required launcher-contract surfaces, `dev/orin_desktop_entrypoint_validation.py`, and `dev/orin_boot_transition_verification.py`, then continue on this same branch through the additional FB-043 slices needed to complete the backlog item while keeping `Audio/`, `logs/`, `jarvis_visual/`, installer work, and broader workspace reshaping out of scope.
+Workstream: Active. WS-1 `main.py` direct-launch handoff refinement and WS-2 explicit launch-intent refinement are complete and validated; plain no-argument direct `main.py` launches and explicit `--desktop-entrypoint` launches now hand off to the canonical desktop chain; explicit dev boot paths remain verifiable through recognized boot arguments or the dev launcher parent path; invalid direct-launch args now fail fast with guidance; `Backlog Completion State` is `Implemented Complete`; and `Hardening` is now legal.
+Minimal Scope: Complete the bounded top-level entrypoint slice chain on this same branch: WS-1 `main.py` direct-launch handoff refinement plus WS-2 explicit launch-intent refinement across `main.py`, the minimal required launcher-contract surfaces, `dev/orin_desktop_entrypoint_validation.py`, and `dev/orin_boot_transition_verification.py`, while keeping `Audio/`, `logs/`, `jarvis_visual/`, installer work, and broader workspace reshaping out of scope.
 Summary: Continue the desktop entrypoint runtime lane by clarifying and tightening top-level ownership and handoff on the shipped launch path.
 Why it matters: Builds directly on FB-042's user-facing launch-path improvement and keeps the next branch implementation-bearing instead of slipping back into planning-only governance work.
 

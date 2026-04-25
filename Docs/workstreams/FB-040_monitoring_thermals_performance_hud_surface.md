@@ -322,7 +322,7 @@ Before any future runtime monitoring seam may begin, the seam must explicitly de
 - Validation Layer: documentation and governance validation only.
 - Cleanup: no programs, helper processes, windows, temporary files, telemetry collectors, probes, or runtime artifacts were created.
 - User Test Summary Applicability: not applicable for WS-3 because it adds architecture-only admission rules and no user-visible behavior.
-- Continue/Stop Decision: stop at the Workstream phase boundary because the approved initial WS-1 through WS-3 architecture sequence is complete. The next legal phase is `Hardening`.
+- Continue/Stop Decision: historical Workstream closure because the approved initial WS-1 through WS-3 architecture sequence was complete on that branch. The next legal phase there was `Hardening`.
 
 ## H-1 Hardening Record
 

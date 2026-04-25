@@ -498,7 +498,7 @@ Any later implementation seam must prove rollback and cleanup at the same surfac
 - Validation Layer: docs/canon plus live repo entrypoint and helper-surface inspection.
 - User Test Summary Applicability: not applicable for WS-3 because this seam changes docs/canon only and adds no user-visible behavior.
 - Cleanup: no programs, helper processes, windows, temporary files, probes, or runtime artifacts were created.
-- Continue/Stop Decision: stop at the Workstream phase boundary because the approved WS-1 through WS-3 docs/canon seam chain is complete. The next legal phase is `Hardening`.
+- Continue/Stop Decision: historical Workstream closure because the approved WS-1 through WS-3 docs/canon seam chain was complete on that branch. The next legal phase there was `Hardening`.
 
 ### WS-3 Validation Results
 

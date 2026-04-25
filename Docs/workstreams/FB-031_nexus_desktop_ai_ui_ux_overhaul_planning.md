@@ -340,7 +340,7 @@ Before a future FB-031 UI implementation seam may edit product/runtime UI code, 
 - Validation Layer: documentation and governance validation only.
 - User Test Summary Applicability: not applicable for WS-3 because this seam adds architecture-only admission rules and creates no user-visible behavior.
 - Cleanup: no programs, helper processes, windows, temporary files, probes, assets, screenshots, or runtime artifacts were created.
-- Continue/Stop Decision: stop at the Workstream phase boundary because the approved WS-1 through WS-3 architecture sequence is complete. The next legal phase is `Hardening`.
+- Continue/Stop Decision: historical Workstream closure because the approved WS-1 through WS-3 architecture sequence was complete on that branch. The next legal phase there was `Hardening`.
 
 ## H-1 Hardening Record
 

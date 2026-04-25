@@ -30,11 +30,11 @@
 - Latest Public Prerelease Title: `Pre-Beta v1.6.7`
 - FB-042 is Released / Closed in `v1.6.7-prebeta`, and release debt is clear.
 - WS-1 `main.py` direct-launch handoff refinement is complete and validated.
-- Plain direct `main.py` launches now hand off to the canonical desktop entry chain instead of silently owning a competing top-level runtime path.
-- Explicit dev boot intent remains available through boot arguments and the existing dev launcher parent path.
-- Same-branch backlog completion remains the default for FB-043, and the branch stays in `Workstream` until the backlog item is fully implemented or only future-dependent blockers remain.
-- WS-1 is complete and validated, but backlog completion is not yet proven.
-- Active seam: `None.` WS-1 is complete; backlog-completion reassessment and the next implementable FB-043 slice are still pending before `Hardening` becomes legal.
+- WS-2 `main.py` explicit launch-intent refinement is complete and validated.
+- Plain direct `main.py` launches and explicit `--desktop-entrypoint` launches now hand off to the canonical desktop entry chain instead of silently owning a competing top-level runtime path.
+- Explicit dev boot intent remains available through recognized boot arguments and the existing dev launcher parent path, and invalid direct-launch args now fail fast with usage guidance instead of silently falling into the boot prototype.
+- Same-branch backlog completion remained the default for FB-043, and the branch now reaches implemented-complete state on this same branch without requiring a split.
+- Active seam: `None.` WS-1 and WS-2 are complete; backlog completion is now proven and `Hardening` is legal.
 
 ## Branch Class
 
@@ -42,7 +42,7 @@
 
 ## Blockers
 
-- `Backlog Completion Unproven`
+None.
 
 ## Entry Basis
 
@@ -55,7 +55,9 @@
 
 - WS-1 makes top-level `main.py` launch ownership explicit without regressing the canonical desktop entry chain.
 - Plain no-argument direct `main.py` launches route into the shipped desktop chain.
+- Explicit `--desktop-entrypoint` launches route into the shipped desktop chain too.
 - Explicit dev boot paths remain verifiable and are not silently replaced by the canonical runtime route.
+- Unrecognized direct-launch args fail fast with clear usage guidance instead of silently changing runtime ownership.
 - Validation proves production launch, fallback launch, and explicit dev boot evidence are all green.
 - Canon is updated so FB-043 is no longer described as selected-only while active implementation is underway.
 - The branch does not leave `Workstream` until FB-043 reaches `Backlog Completion State: Implemented Complete` or `Backlog Completion State: Implemented Complete Except Future Dependency`.
@@ -66,7 +68,7 @@
 
 ## Next Legal Phase
 
-- `Workstream`
+- `Hardening`
 
 ## Purpose / Why It Matters
 
@@ -109,9 +111,9 @@ Backlog-Split Reason: `None`
 
 ## Backlog Completion Status
 
-Backlog Completion State: `In Progress`
-Remaining Implementable Work: `Workstream reassessment is required after WS-1; additional same-branch FB-043 slices may still be needed to finish top-level desktop entrypoint ownership and handoff refinement.`
-Future-Dependent Blockers: `None proven yet.`
+Backlog Completion State: `Implemented Complete`
+Remaining Implementable Work: `None`
+Future-Dependent Blockers: `None`
 
 ## User-Facing Shortcut Contract
 
@@ -190,22 +192,69 @@ Future-Dependent Blockers: `None proven yet.`
 - `python dev\orin_boot_transition_verification.py`: PASS
   - report: `dev/logs/boot_transition_verification/reports/BootTransitionVerificationReport_20260424_161513.txt`
 
+### WS-2 main.py explicit launch-intent refinement
+
+- Status: `Complete / validated`
+- Goal: make top-level `main.py` launch intent explicit so canonical desktop handoff, explicit dev boot, and invalid direct-launch args no longer blur into competing ownership
+- Exact Affected Paths:
+  - `main.py`
+  - `dev/orin_desktop_entrypoint_validation.py`
+  - `Docs/workstreams/FB-043_top_level_entrypoint_handoff_refinement.md`
+  - `Docs/feature_backlog.md`
+  - `Docs/prebeta_roadmap.md`
+- In-Scope Paths:
+  - `main.py`
+  - `dev/orin_desktop_entrypoint_validation.py`
+  - direct canon updates required to keep FB-043 truthful as completed Workstream implementation
+- Out-Of-Scope Paths:
+  - `Audio/`
+  - `logs/`
+  - `jarvis_visual/`
+  - installer, packaging, or shortcut-registration redesign
+  - broader workspace or root ownership reshaping beyond the top-level handoff seam
+  - unrelated runtime UX expansion
+
+### WS-2 Implementation Results
+
+- `main.py` now classifies direct launch intent explicitly before heavy runtime imports load.
+- Plain no-argument direct launches still delegate into `launch_orin_desktop.vbs`.
+- Explicit `--desktop-entrypoint` launches delegate into the same canonical desktop chain.
+- Explicit dev boot execution now requires recognized `--boot-profile` / `--audio-mode` intent or the existing dev-launcher parent path instead of treating any extra arg as boot ownership.
+- Unrecognized direct-launch args now fail fast with clear usage guidance instead of silently falling into the boot prototype path.
+- `dev/orin_desktop_entrypoint_validation.py` now validates four launch facts together:
+  - the default VBS launch path
+  - the forced-fallback VBS launch path
+  - the plain `main.py` no-argument handoff into the same canonical chain
+  - the explicit `main.py --desktop-entrypoint` handoff into that same canonical chain
+- The validator also now proves that invalid direct-launch args do not create boot-runtime artifacts or launcher-chain processes.
+
+### WS-2 Validation Results
+
+- `python -m py_compile main.py desktop\orin_desktop_launcher.pyw desktop\orin_desktop_main.py dev\orin_desktop_entrypoint_validation.py dev\orin_boot_transition_verification.py`: PASS
+- `python main.py --help`: PASS
+- `python dev\orin_desktop_entrypoint_validation.py`: PASS
+  - report: `dev/logs/desktop_entrypoint_validation/reports/DesktopEntrypointValidationReport_20260424_171023.txt`
+- `python dev\orin_boot_transition_verification.py`: PASS
+  - report: `dev/logs/boot_transition_verification/reports/BootTransitionVerificationReport_20260424_170938.txt`
+
 ## Entrypoint Consistency Result
 
 Top-level launch ownership is clearer now:
 
 - the shipped user-facing desktop path remains `launch_orin_desktop.vbs` -> `desktop/orin_desktop_launcher.pyw` -> `desktop/orin_desktop_main.py`
 - plain direct `main.py` execution now hands off into that same chain
+- explicit `--desktop-entrypoint` launches also hand off into that same chain
 - explicit dev boot paths still own the boot prototype and its `BOOT_MAIN|...` evidence
+- invalid direct-launch args now stop early with guidance instead of silently claiming boot ownership
 
 That removes the old split where plain `main.py` execution looked like a competing top-level runtime owner.
 
 ## Seam Continuation Decision
 
-Continue Decision: `Continue in Workstream; WS-1 is complete, but FB-043 backlog completion is not yet proven`
-Next Active Seam: `Reassess the remaining top-level entrypoint ambiguity, admit the next implementable FB-043 slice on this same branch, and execute it unless only future-dependent blockers remain`
-Stop Condition: `Do not leave Workstream until Backlog Completion State is Implemented Complete or Implemented Complete Except Future Dependency`
-Continuation Action: `Keep FB-043 in Workstream on this branch, continue the next implementable slice, and delay Hardening until remaining same-branch work is exhausted or proven future-dependent`
+Continue Decision: `Stop after WS-2 because FB-043 backlog completion is now implemented complete on this same branch`
+Next Active Seam: `None`
+Stop Condition: `Reached Backlog Completion State: Implemented Complete`
+Continuation Action: `Advance to Hardening for the completed FB-043 workstream implementation`
 
 ## User Test Summary
 
@@ -218,4 +267,5 @@ Continuation Action: `Keep FB-043 in Workstream on this branch, continue the nex
 Active seam: `None.`
 
 - WS-1 is complete and validated.
-- `Hardening` is blocked while `Backlog Completion State` remains `In Progress`.
+- WS-2 is complete and validated.
+- `Hardening` is now legal because `Backlog Completion State` is `Implemented Complete`.

@@ -68,10 +68,10 @@ Current merged truth indicates:
 - merged unreleased non-doc implementation debt exists: no
 - the latest public released implementation milestone is FB-042 Desktop entrypoint runtime refinement in `v1.6.7-prebeta`; FB-005 Workspace and folder organization remains released in `v1.6.6-prebeta`; FB-030 ORIN voice/audio direction refinement remains released in `v1.6.5-prebeta`; FB-015 Boot and desktop phase-boundary model plus FB-029 ORIN legal-safe rebrand, future ARIA persona option, and repo licensing hardening remain released in `v1.6.4-prebeta`
 - current phase after `v1.6.7-prebeta` release closure: `Workstream`
-- phase status after `v1.6.7-prebeta` release closure: FB-042 is Released / Closed in `v1.6.7-prebeta`; release debt is clear; `feature/fb-043-top-level-entrypoint-handoff-refinement` now owns the active promoted FB-043 runtime workstream; WS-1 `main.py` direct-launch handoff refinement is complete and validated; `Backlog Completion State` remains `In Progress`; and the branch stays in `Workstream` until remaining implementable FB-043 work is exhausted or only future-dependent blockers remain.
+- phase status after `v1.6.7-prebeta` release closure: FB-042 is Released / Closed in `v1.6.7-prebeta`; release debt is clear; `feature/fb-043-top-level-entrypoint-handoff-refinement` now owns the active promoted FB-043 runtime workstream; WS-1 `main.py` direct-launch handoff refinement and WS-2 explicit launch-intent refinement are complete and validated; `Backlog Completion State` is `Implemented Complete`; and the next legal phase is `Hardening`.
 - current active workstream: FB-043 Top-level desktop entrypoint ownership and main.py handoff refinement
 - current branch after `v1.6.7-prebeta` release closure: `feature/fb-043-top-level-entrypoint-handoff-refinement`
-- next concern: keep FB-043 in `Workstream`, reassess the remaining top-level entrypoint ambiguity, admit and execute the next implementable same-branch slice, and do not open `Hardening` until backlog completion is proven or only future-dependent blockers remain
+- next concern: execute `Hardening` on the completed FB-043 Workstream implementation and pressure-test the finished top-level entrypoint ownership result before later Live Validation.
 
 That means the released FB-027 interaction baseline, the released FB-036 authoring-and-callable-group milestone, the released FB-041 deterministic callable-group execution milestone, the released FB-037 built-in catalog milestone, the released FB-038 tray quick-task UX milestone, the released FB-039 external trigger intake architecture milestone, the released FB-040 monitoring/thermal architecture milestone, the released FB-031 UI/UX architecture milestone, the released FB-032 source-of-truth migration milestone, the released FB-004 future boot-orchestrator architecture milestone, the released FB-015 plus FB-029 planning milestones, the released FB-030 voice/audio planning milestone, and the released FB-005 bounded workspace-path slice are now part of the current public shared pre-Beta baseline.
 
@@ -101,7 +101,7 @@ Historical Hardening State: Complete on `feature/fb-005-workspace-path-planning`
 Historical Live Validation State: Complete on `feature/fb-005-workspace-path-planning`.
 PR Readiness State: Complete on `feature/fb-042-desktop-entrypoint-runtime-refinement`; merged PR package state is recorded in the canonical FB-042 workstream doc.
 Release Execution State: `v1.6.7-prebeta` is live at https://github.com/GiribaldiTTV/Nexus-Desktop-AI/releases/tag/v1.6.7-prebeta on commit `8f53d163ad008f7508f55f593b15369749e3ec24`.
-Active Workstream Chain: FB-043 is promoted on `feature/fb-043-top-level-entrypoint-handoff-refinement`; WS-1 `main.py` direct-launch handoff refinement is complete and validated; `Backlog Completion State` remains `In Progress`; and the branch stays in `Workstream` until remaining implementable FB-043 work is exhausted or only future-dependent blockers remain.
+Active Workstream Chain: FB-043 is promoted on `feature/fb-043-top-level-entrypoint-handoff-refinement`; WS-1 `main.py` direct-launch handoff refinement and WS-2 explicit launch-intent refinement are complete and validated; `Backlog Completion State` is `Implemented Complete`; and the next legal phase is `Hardening`.
 
 ## Merged-Unreleased Release-Debt Owner
 
@@ -172,7 +172,7 @@ The 2026-04-23 priority reading is updated during FB-005 Branch Readiness:
 - FB-042 is now Released / Closed in `v1.6.7-prebeta`; the completed runtime slice is stable historical proof.
 - FB-043 is now the active promoted runtime-bearing workstream on `feature/fb-043-top-level-entrypoint-handoff-refinement`.
 
-Current-branch clarity: latest public prerelease is `v1.6.7-prebeta`; FB-042 is Released / Closed and release debt is clear; `feature/fb-043-top-level-entrypoint-handoff-refinement` now owns active promoted workstream truth; and WS-1 `main.py` direct-launch handoff refinement is complete and validated.
+Current-branch clarity: latest public prerelease is `v1.6.7-prebeta`; FB-042 is Released / Closed and release debt is clear; `feature/fb-043-top-level-entrypoint-handoff-refinement` now owns active promoted workstream truth; and WS-1 `main.py` direct-launch handoff refinement plus WS-2 explicit launch-intent refinement are complete and validated.
 
 ## Current Active Workstream
 
@@ -184,8 +184,8 @@ Current-branch clarity: latest public prerelease is `v1.6.7-prebeta`; FB-042 is 
 - Repair-Only Branch Handling: `feature/fb-043-release-debt-marker-repair` is a repair-only `feature/` branch and does not imply Branch Readiness admission or active branch truth.
 - canonical workstream doc: `Docs/workstreams/FB-043_top_level_entrypoint_handoff_refinement.md`
 - promotion basis: FB-043 moved out of selected-only Branch Readiness because the first admitted runtime-bearing slice is now implemented and validated on the active branch, while same-branch backlog completion remains the closure rule for the rest of the backlog item.
-- current slice status: WS-1 `main.py` direct-launch handoff refinement is complete and validated.
-- minimal scope: begin with the admitted WS-1 `main.py` direct-launch handoff refinement slice across `main.py`, the minimal required launcher-contract surfaces, `dev/orin_desktop_entrypoint_validation.py`, and `dev/orin_boot_transition_verification.py`, then continue on the same branch through any additional FB-043 slices needed to complete the backlog item while keeping `Audio/`, `logs/`, `jarvis_visual/`, installer work, and broader workspace reshaping out of scope.
+- current slice status: WS-1 `main.py` direct-launch handoff refinement and WS-2 explicit launch-intent refinement are complete and validated.
+- minimal scope: complete the bounded top-level entrypoint slice chain on the same branch across `main.py`, the minimal required launcher-contract surfaces, `dev/orin_desktop_entrypoint_validation.py`, and `dev/orin_boot_transition_verification.py`, while keeping `Audio/`, `logs/`, `jarvis_visual/`, installer work, and broader workspace reshaping out of scope.
 
 ## Latest Released Workstream Context
 
