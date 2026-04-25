@@ -47,10 +47,11 @@ Do not use this layer to replace:
 
 ## Active Branch Authority Records
 
-- `Docs/branch_records/feature_fb_045_active_session_relaunch_stability.md`
+None.
 
 ## Historical Branch Authority Records
 
+- `Docs/branch_records/feature_fb_045_active_session_relaunch_stability.md`
 - `Docs/branch_records/feature_fb_044_boot_desktop_handoff_outcome_refinement.md`
 - `Docs/branch_records/feature_fb_043_top_level_entrypoint_handoff_refinement.md`
 - `Docs/branch_records/codex_fb_037_release_debt_packaging.md`

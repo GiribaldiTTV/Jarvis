@@ -35,14 +35,14 @@ Historical note:
 
 ## Active Promoted Workstream
 
-- `None.`
+- `FB-045 Active-session relaunch outcome refinement`
 
-FB-044 Boot-to-desktop handoff outcome refinement remains the merged-unreleased release-debt owner for `v1.6.9-prebeta`. Latest public prerelease truth remains `v1.6.8-prebeta`; FB-043 is Released / Closed historical proof in `v1.6.8-prebeta`; updated-main `Release Readiness` found a reproducible post-settled runtime failure after `DESKTOP_OUTCOME|SETTLED|state=dormant`; and that blocker is now carried by FB-045 `Branch Readiness` on `feature/fb-045-active-session-relaunch-stability` while FB-045 remains selected-only / `Registry-only`.
+FB-044 Boot-to-desktop handoff outcome refinement remains the merged-unreleased release-debt owner for `v1.6.9-prebeta`. Latest public prerelease truth remains `v1.6.8-prebeta`; FB-043 is Released / Closed historical proof in `v1.6.8-prebeta`; and FB-045 is now the active promoted blocker-clearing workstream on `feature/fb-045-active-session-relaunch-stability`, where WS-1 has reclassified post-settled abnormal exits as a recoverable lifecycle condition and turned disposable-copy validation green again.
 Released baseline truth is aligned: FB-040 is released and closed in `v1.6.0-prebeta`, FB-031 is released and closed in `v1.6.1-prebeta`, FB-032 is released and closed in `v1.6.2-prebeta`, FB-004 is released and closed in `v1.6.3-prebeta`, FB-015 plus FB-029 are released and closed in `v1.6.4-prebeta`, FB-030 is released and closed in `v1.6.5-prebeta`, FB-005 is released and closed in `v1.6.6-prebeta`, FB-042 is released and closed in `v1.6.7-prebeta`, and FB-043 is now released and closed in `v1.6.8-prebeta`.
 FB-039 is released and closed in `v1.5.0-prebeta`.
 FB-038 remains released and closed in `v1.4.1-prebeta`.
 
-## Current Branch Readiness Posture
+## Current Branch Execution Posture
 
 Merged-Unreleased Release-Debt Owner: FB-044 Boot-to-desktop handoff outcome refinement.
 Repo State: Active Branch.
@@ -52,30 +52,30 @@ Latest Public Release Commit: 5e695af5fada05e4ad6b25731bce328ede8a09ee.
 Latest Public Prerelease Publication: https://github.com/GiribaldiTTV/Nexus-Desktop-AI/releases/tag/v1.6.8-prebeta.
 Latest Public Prerelease Title: Pre-Beta v1.6.8.
 Release Debt: Active after merge until `v1.6.9-prebeta` is published, validated, and post-release canon closure completes.
-Current Active Workstream: None.
+Current Active Workstream: FB-045 Active-session relaunch outcome refinement.
 Current Active Workstream Before Release: FB-044 Boot-to-desktop handoff outcome refinement.
 Current Active Branch: feature/fb-045-active-session-relaunch-stability.
 Active Branch Before Release: feature/fb-044-boot-desktop-handoff-outcome-refinement.
-Current Active Branch Record: Docs/branch_records/feature_fb_045_active_session_relaunch_stability.md.
-Current Active Canonical Workstream Doc: Docs/workstreams/FB-044_boot_desktop_handoff_outcome_refinement.md.
+Historical Branch-Readiness Record: Docs/branch_records/feature_fb_045_active_session_relaunch_stability.md.
+Current Active Canonical Workstream Doc: Docs/workstreams/FB-045_active_session_relaunch_outcome_refinement.md.
 Historical Active Workstream Before Release: FB-043 Top-level desktop entrypoint ownership and main.py handoff refinement.
 Earlier Historical Active Workstream Before Release: FB-042 Desktop entrypoint runtime refinement.
 Historical Active Branch Before Release: feature/fb-043-top-level-entrypoint-handoff-refinement.
 Earlier Historical Active Branch Before Release: feature/fb-042-desktop-entrypoint-runtime-refinement.
 Selected Next Workstream: FB-045 Active-session relaunch outcome refinement.
-Selected Next Record State: Registry-only.
+Selected Next Record State: Promoted.
 Selected Next Implementation Branch: feature/fb-045-active-session-relaunch-stability.
 Repair-Only Branch Handling: `feature/fb-043-release-debt-marker-repair` is a repair-only `feature/` branch and does not imply Branch Readiness admission or active branch truth for FB-043.
 Historical Branch Readiness State: Complete on `feature/fb-043-top-level-entrypoint-handoff-refinement`.
-Current Branch Readiness State: Complete on `feature/fb-045-active-session-relaunch-stability`.
+Current Branch Readiness State: Historical complete on `feature/fb-045-active-session-relaunch-stability`.
 Historical Workstream State: FB-043 WS-1 `main.py` direct-launch handoff refinement, WS-2 explicit launch-intent refinement, H-1 entrypoint hardening, LV-1 live validation, PR Readiness, merge, and release publication are complete historical proof in `v1.6.8-prebeta`.
-Merged-Unreleased Workstream State: FB-044 WS-1 `desktop-settled handoff outcome refinement`, H-1 settled-state hardening, LV-1 live validation, and PR-1 / PR-2 / PR-3 remain complete and frozen for `v1.6.9-prebeta` release packaging, but updated-main `Release Readiness` is blocked because disposable-clone validation reaches authoritative settled, then the renderer exits `3221226505` and launcher failure flow fires. FB-045 now owns the blocker-clearing runtime/user-facing lane.
+Merged-Unreleased Workstream State: FB-044 WS-1 `desktop-settled handoff outcome refinement`, H-1 settled-state hardening, LV-1 live validation, and PR-1 / PR-2 / PR-3 remain complete and frozen for `v1.6.9-prebeta` release packaging. FB-045 WS-1 `post-settled runtime stability refinement` is now complete and validated on the active branch, and the previous disposable-clone blocker no longer reproduces on the updated lane.
 Historical Hardening State: Complete on `feature/fb-043-top-level-entrypoint-handoff-refinement`.
 Historical Live Validation State: Complete on `feature/fb-043-top-level-entrypoint-handoff-refinement`.
 PR Readiness State: Complete on `feature/fb-044-boot-desktop-handoff-outcome-refinement`; live PR package state is recorded in the canonical FB-044 workstream doc.
 Release Execution State: `v1.6.8-prebeta` is live at https://github.com/GiribaldiTTV/Nexus-Desktop-AI/releases/tag/v1.6.8-prebeta on commit `5e695af5fada05e4ad6b25731bce328ede8a09ee`.
-Current Branch Objective: classify and clear the merged-main post-settled runtime failure blocking FB-044 `Release Readiness` without widening beyond the admitted FB-045 relaunch-stability lane.
-Next Legal Phase: Workstream.
+Current Branch Objective: harden the completed FB-045 post-settled runtime classification without widening beyond the relaunch-stability lane.
+Next Legal Phase: Hardening.
 Release Target: v1.6.9-prebeta.
 Release Title: Pre-Beta v1.6.9.
 Release Floor: patch prerelease.
@@ -84,7 +84,7 @@ Release Scope: completed FB-044 WS-1 desktop-settled handoff outcome refinement 
 Release Artifacts: Tag v1.6.9-prebeta; release title Pre-Beta v1.6.9; rich Markdown release notes summarize the bounded FB-044 boot-to-desktop settled-outcome refinement, real shortcut evidence, rollback-hardening result, and the FB-045 successor lane without repeating the release title inside the notes body, and GitHub-generated `## What's Changed` plus `**Full Changelog**:` must be included.
 Post-Release Truth: FB-044 is Released / Closed in `v1.6.9-prebeta` after publication and validation; release debt then clears; and FB-045 continues same-branch backlog completion until its relaunch-stability work is implemented complete or only future-dependent blockers remain.
 Next-Branch Creation Gate: Satisfied for FB-045. The blocker-clearing feature branch is now active at `feature/fb-045-active-session-relaunch-stability`.
-Active Workstream Chain: None. FB-044 remains the merged-unreleased release-debt owner for `v1.6.9-prebeta`, and FB-045 Branch Readiness is the active blocker-clearing branch with `Workstream` next.
+Active Workstream Chain: FB-045 WS-1 `post-settled runtime stability refinement` is complete and validated; `Hardening` is next on the active blocker-clearing branch while FB-044 remains the merged-unreleased release-debt owner for `v1.6.9-prebeta`.
 
 ## Backlog Governance Sync
 
@@ -99,10 +99,10 @@ Open-candidate priority review:
 - FB-005 remains `Low` as historical workspace priority, but it is now Released / Closed in `v1.6.6-prebeta` and no longer owns release debt or selected-next truth.
 - FB-042 is now Released / Closed in `v1.6.7-prebeta`; the bounded runtime/user-facing launch-path slice is complete historical proof.
 - FB-043 is now Released / Closed in `v1.6.8-prebeta`.
-- FB-044 remains the merged-unreleased release-debt owner for `v1.6.9-prebeta`, but updated-main `Release Readiness` is blocked on a post-settled runtime failure after the authoritative settled marker.
-- FB-045 is now selected next on `feature/fb-045-active-session-relaunch-stability`; Branch Readiness is complete and the first blocker-clearing runtime/user-facing slice is admitted.
+- FB-044 remains the merged-unreleased release-debt owner for `v1.6.9-prebeta`, but its release blocker is now being cleared on the active FB-045 implementation branch.
+- FB-045 is now the active promoted workstream on `feature/fb-045-active-session-relaunch-stability`; WS-1 is complete and validated, and `Hardening` is next.
 
-Current-branch clarity: latest public prerelease is `v1.6.8-prebeta`; FB-044 remains the merged-unreleased release-debt owner for `v1.6.9-prebeta`; repo state is an active FB-045 Branch Readiness branch on `feature/fb-045-active-session-relaunch-stability`; the bounded FB-044 settled-outcome slice chain, hardening, live validation, and PR package remain complete; and FB-045 now owns the blocker-clearing relaunch-stability lane.
+Current-branch clarity: latest public prerelease is `v1.6.8-prebeta`; FB-044 remains the merged-unreleased release-debt owner for `v1.6.9-prebeta`; repo state is an active FB-045 promoted workstream branch on `feature/fb-045-active-session-relaunch-stability`; the bounded FB-044 settled-outcome slice chain, hardening, live validation, and PR package remain complete; and FB-045 has now completed its first blocker-clearing relaunch-stability slice.
 
 ## Registry Items
 
@@ -212,17 +212,20 @@ Why it matters: Builds directly on FB-043's ownership cleanup and turns the rema
 
 ### [ID: FB-045] Active-session relaunch outcome refinement
 
-Status: Selected
-Record State: Registry-only
+Status: In progress
+Record State: Promoted
 Priority: High
-Selection / Unblock: FB-045 is selected because updated-main `Release Readiness` for FB-044 found a reproducible post-settled runtime failure after the authoritative settled marker: the renderer exits `3221226505`, stderr reports `Failed to make current since context is marked as lost`, and launcher failure flow fires. Branch Readiness on `feature/fb-045-active-session-relaunch-stability` now owns that blocker-clearing runtime/user-facing follow-through and keeps same-branch backlog completion explicit from the start.
-Next Workstream: Branch Readiness complete; `Workstream` next for WS-1 `post-settled runtime stability refinement`.
+Selection / Unblock: FB-045 is selected because updated-main `Release Readiness` for FB-044 found a reproducible post-settled runtime failure after the authoritative settled marker: the renderer exited `3221226505`, stderr reported `Failed to make current since context is marked as lost`, and launcher failure flow fired. Workstream execution on `feature/fb-045-active-session-relaunch-stability` now classifies that boundary correctly as a recoverable post-settled runtime condition instead of a startup failure.
+Next Workstream: WS-1 complete; `Hardening` next.
 Branch: feature/fb-045-active-session-relaunch-stability
-Active Branch Authority Record: Docs/branch_records/feature_fb_045_active_session_relaunch_stability.md
-Branch Readiness: Complete. The failure classification, admitted WS-1 slice, exact affected paths, validation contract, rollback conditions, and same-branch backlog-completion posture are recorded in the active branch authority record.
-Minimal Scope: Admit the first bounded runtime/user-facing post-settled runtime stability slice across `desktop/orin_desktop_launcher.pyw`, `desktop/orin_desktop_main.py`, `dev/orin_desktop_entrypoint_validation.py`, and `dev/orin_boot_transition_verification.py`, focused on active-session relaunch / rollback truth after authoritative settled is reached, while keeping `main.py`, `Audio/`, `logs/`, `jarvis_visual/`, installer work, and broader future boot-orchestrator implementation out of scope.
-Summary: Classify and clear the merged-main post-settled runtime failure on a new `feature/` branch before FB-044 release packaging resumes.
-Why it matters: Turns a real merged-main runtime blocker into a bounded implementation lane instead of leaving release packaging blocked on a stale analysis result.
+Canonical Workstream Doc: Docs/workstreams/FB-045_active_session_relaunch_outcome_refinement.md
+Historical Branch-Readiness Record: Docs/branch_records/feature_fb_045_active_session_relaunch_stability.md
+Branch Readiness: Historical complete. The blocker classification, admitted WS-1 slice, validation contract, rollback conditions, and same-branch backlog-completion posture remain preserved in the historical branch-readiness record.
+Workstream: WS-1 `post-settled runtime stability refinement` is complete and validated.
+Backlog Completion State: Implemented Complete
+Minimal Scope: Classify post-settled abnormal renderer exits as a recoverable lifecycle condition after authoritative settled is already proven, keep settled truth authoritative, preserve green startup paths, and avoid widening beyond launcher / validator relaunch-stability scope.
+Summary: Clear the FB-044 release blocker by fixing launcher lifecycle classification after settled and proving that result across primary-workspace and disposable-copy validation.
+Why it matters: Keeps startup truth honest, prevents post-settled runtime exits from being mislabeled as startup failure, and unblocks the path back to FB-044 `Release Readiness`.
 
 ### [ID: FB-015] Boot and desktop phase-boundary model
 

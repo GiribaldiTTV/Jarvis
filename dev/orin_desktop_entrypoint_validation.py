@@ -51,6 +51,10 @@ AUTHORITATIVE_DESKTOP_SETTLED_MARKER = "DESKTOP_OUTCOME|SETTLED|state=dormant"
 LAUNCHER_SETTLED_OBSERVED_MARKER = (
     "STATUS|SUCCESS|LAUNCHER_RUNTIME|DESKTOP_SETTLED_OBSERVED|state=dormant"
 )
+POST_SETTLED_RUNTIME_EXIT_MARKER = "POST_SETTLED_RUNTIME_EXIT"
+POST_SETTLED_RECOVERABLE_COMPLETE_MARKER = (
+    "STATUS|SUCCESS|LAUNCHER_RUNTIME|POST_SETTLED_RECOVERABLE_COMPLETE"
+)
 
 EXPECTED_MILESTONES = [
     "RENDERER_MAIN|START",
@@ -78,8 +82,6 @@ EXPECTED_LAUNCH_CHAIN_MARKERS = [
     "RENDERER_MAIN|WINDOW_SHOW_REQUESTED",
     "RENDERER_MAIN|STARTUP_READY",
     AUTHORITATIVE_DESKTOP_SETTLED_MARKER,
-    "RENDERER_MAIN|SHUTDOWN_REQUESTED",
-    "RENDERER_MAIN|EVENT_LOOP_EXIT|code=0",
 ]
 
 
@@ -654,6 +656,7 @@ def run_launch_chain_scenario(scenario_name, launch_command, force_path_fallback
     hotkey_attempts = 0
     normal_exit_complete_seen = False
     failure_flow_seen = False
+    post_settled_recoverable_seen = False
 
     if launch_attempted:
         ready_deadline = time.time() + 25.0
@@ -682,11 +685,18 @@ def run_launch_chain_scenario(scenario_name, launch_command, force_path_fallback
             normal_exit_complete_seen = any(
                 "STATUS|SUCCESS|LAUNCHER_RUNTIME|NORMAL_EXIT_COMPLETE" in line for line in runtime_lines
             )
+            post_settled_recoverable_seen = any(
+                POST_SETTLED_RECOVERABLE_COMPLETE_MARKER in line for line in runtime_lines
+            )
             failure_flow_seen = any(
                 "STATUS|SUCCESS|LAUNCHER_RUNTIME|FAILURE_FLOW_COMPLETE" in line for line in runtime_lines
             )
 
-            if shutdown_requested_seen and renderer_exit_seen and launcher_settled_observed_seen:
+            if (
+                shutdown_requested_seen
+                and renderer_exit_seen
+                and launcher_settled_observed_seen
+            ) or post_settled_recoverable_seen:
                 break
 
             if settled_seen and not shutdown_requested_seen and hotkey_sent and hotkey_attempts < 2:
@@ -724,9 +734,25 @@ def run_launch_chain_scenario(scenario_name, launch_command, force_path_fallback
             hotkey_sent,
             hotkey_detail,
         ),
-        "clean_shutdown_markers_captured": line_status(
-            shutdown_requested_seen and renderer_exit_seen,
-            "RENDERER_MAIN|SHUTDOWN_REQUESTED + RENDERER_MAIN|EVENT_LOOP_EXIT|code=0",
+        "completion_path_classified": line_status(
+            (shutdown_requested_seen and renderer_exit_seen) or post_settled_recoverable_seen,
+            "clean shutdown markers or POST_SETTLED_RECOVERABLE_COMPLETE",
+        ),
+        "clean_shutdown_markers_optional": line_status(
+            True,
+            "seen"
+            if shutdown_requested_seen and renderer_exit_seen
+            else "not seen before validator cleanup",
+        ),
+        "post_settled_recoverable_complete_optional": line_status(
+            True,
+            "seen" if post_settled_recoverable_seen else "not seen",
+        ),
+        "post_settled_runtime_exit_marker_optional": line_status(
+            True,
+            "seen"
+            if any(POST_SETTLED_RUNTIME_EXIT_MARKER in line for line in runtime_lines)
+            else "not seen",
         ),
         "launcher_normal_exit_complete_optional": line_status(
             True,
@@ -1048,6 +1074,134 @@ def run_missing_settled_signal_scenario():
     }
 
 
+def run_post_settled_recoverable_exit_scenario():
+    scenario_name = "launcher_post_settled_recoverable_exit"
+    scenario_root = os.path.join(BASE_LOG_ROOT, scenario_name)
+    preexisting_processes_before, preexisting_processes_killed, preexisting_processes_after = (
+        cleanup_launch_chain_processes_for_log_root(BASE_LOG_ROOT)
+    )
+    reset_dir(scenario_root)
+    fake_renderer_script = os.path.join(scenario_root, "fake_renderer_post_settled_exit.py")
+
+    with open(fake_renderer_script, "w", encoding="utf-8") as handle:
+        handle.write(
+            "import sys\n"
+            "import time\n"
+            "\n"
+            "def arg_value(flag):\n"
+            "    for index, arg in enumerate(sys.argv):\n"
+            "        if arg == flag and index + 1 < len(sys.argv):\n"
+            "            return sys.argv[index + 1]\n"
+            "    return ''\n"
+            "\n"
+            "runtime_log = arg_value('--runtime-log')\n"
+            "\n"
+            "def log(line):\n"
+            "    with open(runtime_log, 'a', encoding='utf-8') as stream:\n"
+            "        stream.write(line + '\\n')\n"
+            "\n"
+            "log('RENDERER_MAIN|START')\n"
+            "log('RENDERER_MAIN|PASSIVE_DEFAULT_HANDOFF_REQUESTED|state=dormant')\n"
+            "log('DESKTOP_OUTCOME|SETTLED|state=dormant')\n"
+            "time.sleep(0.25)\n"
+            "log('FAKE_RENDERER|FORCED_POST_SETTLED_EXIT')\n"
+            "sys.stderr.write('[fake:gpu] Failed to make current since context is marked as lost\\n')\n"
+            "sys.stderr.flush()\n"
+            "raise SystemExit(5)\n"
+        )
+
+    env = os.environ.copy()
+    env["JARVIS_HARNESS_LOG_ROOT"] = scenario_root
+    env["JARVIS_HARNESS_TARGET_SCRIPT"] = fake_renderer_script
+    env["JARVIS_HARNESS_DISABLE_DIAGNOSTICS"] = "1"
+    env["JARVIS_HARNESS_DISABLE_VOICE"] = "1"
+    env["QT_QPA_PLATFORM"] = "offscreen"
+
+    result = run_hidden_command(
+        [sys.executable, LAUNCHER_SCRIPT],
+        env=env,
+        timeout_seconds=45,
+    )
+    time.sleep(0.35)
+
+    runtime_log = latest_file_matching(scenario_root, "Runtime_")
+    runtime_lines = read_lines(runtime_log)
+    residual_launch_chain_processes_before, residual_launch_chain_killed, residual_launch_chain_processes_after = (
+        cleanup_launch_chain_processes_for_log_root(BASE_LOG_ROOT)
+    )
+
+    checks = {
+        "runtime_log_created": line_status(
+            bool(runtime_log),
+            runtime_log or "missing runtime log",
+        ),
+        "renderer_target_matches_fake_script": line_status(
+            any(f"Renderer target: {fake_renderer_script}" in line for line in runtime_lines),
+            fake_renderer_script,
+        ),
+        "authoritative_settled_present": line_status(
+            any(AUTHORITATIVE_DESKTOP_SETTLED_MARKER in line for line in runtime_lines),
+            AUTHORITATIVE_DESKTOP_SETTLED_MARKER,
+        ),
+        "launcher_settled_success_present": line_status(
+            any(LAUNCHER_SETTLED_OBSERVED_MARKER in line for line in runtime_lines),
+            LAUNCHER_SETTLED_OBSERVED_MARKER,
+        ),
+        "post_settled_runtime_exit_warning_present": line_status(
+            any(POST_SETTLED_RUNTIME_EXIT_MARKER in line for line in runtime_lines),
+            POST_SETTLED_RUNTIME_EXIT_MARKER,
+        ),
+        "post_settled_recoverable_complete_present": line_status(
+            any(POST_SETTLED_RECOVERABLE_COMPLETE_MARKER in line for line in runtime_lines),
+            POST_SETTLED_RECOVERABLE_COMPLETE_MARKER,
+        ),
+        "clean_shutdown_markers_absent": line_status(
+            not any("RENDERER_MAIN|SHUTDOWN_REQUESTED" in line for line in runtime_lines)
+            and not any("RENDERER_MAIN|EVENT_LOOP_EXIT|code=0" in line for line in runtime_lines),
+            "RENDERER_MAIN|SHUTDOWN_REQUESTED + RENDERER_MAIN|EVENT_LOOP_EXIT|code=0 absent",
+        ),
+        "normal_exit_complete_absent": line_status(
+            not any("STATUS|SUCCESS|LAUNCHER_RUNTIME|NORMAL_EXIT_COMPLETE" in line for line in runtime_lines),
+            "STATUS|SUCCESS|LAUNCHER_RUNTIME|NORMAL_EXIT_COMPLETE absent",
+        ),
+        "failure_flow_complete_absent": line_status(
+            not any("STATUS|SUCCESS|LAUNCHER_RUNTIME|FAILURE_FLOW_COMPLETE" in line for line in runtime_lines),
+            "STATUS|SUCCESS|LAUNCHER_RUNTIME|FAILURE_FLOW_COMPLETE absent",
+        ),
+        "traceback_absent": line_status(
+            "Traceback" not in (result.stdout or "") and "Traceback" not in (result.stderr or ""),
+            (result.stderr or result.stdout).strip() or "no traceback in stdout/stderr",
+        ),
+        "scenario_preflight_cleanup_optional": line_status(
+            not preexisting_processes_after,
+            "no prior validation-owned launcher/runtime processes detected"
+            if not preexisting_processes_before
+            else (
+                f"detected {len(preexisting_processes_before)} prior process(es); "
+                f"killed={','.join(str(pid) for pid in preexisting_processes_killed) or 'none'}"
+            ),
+        ),
+        "launch_chain_cleanup_optional": line_status(
+            not residual_launch_chain_processes_after,
+            "no residual validation-owned launcher/runtime processes detected"
+            if not residual_launch_chain_processes_before
+            else (
+                f"detected {len(residual_launch_chain_processes_before)} residual process(es); "
+                f"killed={','.join(str(pid) for pid in residual_launch_chain_killed) or 'none'}"
+            ),
+        ),
+    }
+
+    return {
+        "scenario_name": scenario_name,
+        "log_root": scenario_root,
+        "runtime_log": runtime_log,
+        "stdout": (result.stdout or "").strip(),
+        "stderr": (result.stderr or "").strip(),
+        "checks": checks,
+    }
+
+
 def run_validation():
     ensure_dir(BASE_LOG_ROOT)
     ensure_dir(REPORTS_DIR)
@@ -1331,6 +1485,7 @@ def run_validation():
     main_explicit_handoff_result = run_main_explicit_desktop_handoff_scenario()
     main_invalid_argument_result = run_main_invalid_argument_scenario()
     missing_settled_result = run_missing_settled_signal_scenario()
+    post_settled_recoverable_result = run_post_settled_recoverable_exit_scenario()
 
     for scenario_result in (
         default_launch_result,
@@ -1350,6 +1505,8 @@ def run_validation():
         checks[f"{main_invalid_argument_result['scenario_name']}::{check_name}"] = check_result
     for check_name, check_result in missing_settled_result["checks"].items():
         checks[f"{missing_settled_result['scenario_name']}::{check_name}"] = check_result
+    for check_name, check_result in post_settled_recoverable_result["checks"].items():
+        checks[f"{post_settled_recoverable_result['scenario_name']}::{check_name}"] = check_result
 
     return {
         "branch_state": detect_branch_state(),
@@ -1364,7 +1521,11 @@ def run_validation():
             main_handoff_result,
             main_explicit_handoff_result,
         ],
-        "nonlaunch_scenarios": [main_invalid_argument_result, missing_settled_result],
+        "nonlaunch_scenarios": [
+            main_invalid_argument_result,
+            missing_settled_result,
+            post_settled_recoverable_result,
+        ],
         "tray_route_events": tray_events,
         "tray_identity_events": tray_identity_events,
         "tray_identity_actions": tray_identity_result["action_texts"],

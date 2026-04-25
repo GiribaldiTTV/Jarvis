@@ -12,14 +12,17 @@ This branch record owns FB-045 `Branch Readiness` while the backlog item remains
 
 This pass closes the merged-main FB-044 `Release Readiness` blocker into a new `feature/` branch instead of leaving release packaging blocked on analysis alone. FB-044 remains the merged-unreleased release-debt owner for `v1.6.9-prebeta`; FB-045 owns the blocker-clearing runtime/user-facing follow-through on the next legal branch surface.
 
+Historical traceability note: Branch Readiness is complete historical proof only. Active execution truth now lives in `Docs/workstreams/FB-045_active_session_relaunch_outcome_refinement.md`.
+
 ## Current Phase
 
 - Phase: `Branch Readiness`
 
 ## Phase Status
 
-- Repo State: `Active Branch`
-- Active Branch: `feature/fb-045-active-session-relaunch-stability`
+- Repo State: `Historical Traceability`
+- Historical Branch: `feature/fb-045-active-session-relaunch-stability`
+- Historical posture: `Branch Readiness completed before promotion; active execution truth moved to Docs/workstreams/FB-045_active_session_relaunch_outcome_refinement.md.`
 - Latest Public Prerelease: `v1.6.8-prebeta`
 - Latest Public Release Commit: `5e695af5fada05e4ad6b25731bce328ede8a09ee`
 - Latest Public Prerelease Publication: `https://github.com/GiribaldiTTV/Nexus-Desktop-AI/releases/tag/v1.6.8-prebeta`
