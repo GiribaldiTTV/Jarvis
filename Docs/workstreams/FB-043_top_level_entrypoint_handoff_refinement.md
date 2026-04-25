@@ -11,7 +11,11 @@
 
 ## Status
 
-- `Active`
+- `Merged unreleased`
+
+## Target Version
+
+- `v1.6.8-prebeta`
 
 ## Canonical Branch
 
@@ -19,11 +23,14 @@
 
 ## Current Phase
 
-- Phase: `Live Validation`
+- Phase: `Release Readiness`
 
 ## Phase Status
 
-- Active promoted implementation workstream truth is now owned here on `feature/fb-043-top-level-entrypoint-handoff-refinement`.
+- Merged-Unreleased Release-Debt Owner: FB-043 Top-level desktop entrypoint ownership and main.py handoff refinement.
+- Repo State: No Active Branch
+- Merge-target repo state is `No Active Branch`.
+- FB-043 merge-target package truth is now owned here as merged-unreleased release debt sourced from `feature/fb-043-top-level-entrypoint-handoff-refinement`.
 - Latest Public Prerelease: `v1.6.7-prebeta`
 - Latest Public Release Commit: `8f53d163ad008f7508f55f593b15369749e3ec24`
 - Latest Public Prerelease Publication: `https://github.com/GiribaldiTTV/Nexus-Desktop-AI/releases/tag/v1.6.7-prebeta`
@@ -33,13 +40,16 @@
 - WS-2 `main.py` explicit launch-intent refinement is complete and validated.
 - Plain direct `main.py` launches and explicit `--desktop-entrypoint` launches now hand off to the canonical desktop entry chain instead of silently owning a competing top-level runtime path.
 - Explicit dev boot intent remains available through recognized boot arguments and the existing dev launcher parent path, and invalid direct-launch args now fail fast with usage guidance instead of silently falling into the boot prototype.
-- Same-branch backlog completion remained the default for FB-043, and the branch now reaches implemented-complete state on this same branch without requiring a split.
+- Same-branch backlog completion remained the default for FB-043, and the branch reached implemented-complete state on this same branch without requiring a split.
 - H-1 entrypoint hardening is complete and green.
 - Hardening pressure tests confirmed explicit launch-intent resolution, invalid-argument handling, explicit dev boot preservation, CLI / VBS / launcher variability, import-side-effect boundaries, rollback viability, and hidden-coupling boundaries for the completed FB-043 slice chain.
 - Fast-exit paths (`--help`, invalid direct-launch args, and missing explicit boot-argument values) now remain side-effect light and avoid loading the heavy desktop/runtime stack before exit.
 - LV-1 is complete and green.
 - Live Validation confirmed repo-truth alignment, exercised the real declared desktop shortcut, preserved explicit dev boot-profile evidence, and classified User Test Summary results as a narrow waiver.
-- Active seam: `None.` WS-1 and WS-2 are complete, backlog completion remains proven, H-1 is complete, LV-1 is complete, and `PR Readiness` is now legal.
+- PR-1 merge-target canon completeness is complete.
+- PR-2 selected-next workstream selection is complete with FB-044 as the branch-not-created runtime/back-end successor lane.
+- PR-3 live PR creation and validation is pending in this pass.
+- Active seam: `None.` The completed FB-043 slice chain is packaged for merge-target `v1.6.8-prebeta` release-debt truth, `Release Readiness` is the merge-target current phase, and PR-3 live PR validation remains the last branch-local PR Readiness step to record in this pass.
 
 ## Branch Class
 
@@ -73,7 +83,7 @@ None.
 
 ## Next Legal Phase
 
-- `PR Readiness`
+- `Release Readiness`
 
 ## Purpose / Why It Matters
 
@@ -347,3 +357,98 @@ Active seam: `None.`
 - H-1 is complete and green.
 - LV-1 is complete and green.
 - `PR Readiness` is now legal because `Backlog Completion State` is `Implemented Complete`, Hardening is complete, and Live Validation is complete.
+
+## Governance Drift Audit
+
+Governance Drift Found: No.
+
+- Merge-target canon is synchronized to merged-unreleased release-debt truth before PR green.
+- `Repo State` is `No Active Branch` in merge-target surfaces, so this package does not rely on a later post-merge active-branch cleanup.
+- FB-044 is explicitly selected next with `Branch: Not created`, so branch existence is not being confused with successor admission.
+- No docs-only bypass, planning-loop bypass, or repair-only branch posture is being used to justify this implementation package.
+
+## Historical PR Package State
+
+Historical Merged-Unreleased Release-Debt Owner At PR Package Time: FB-043 Top-level desktop entrypoint ownership and main.py handoff refinement
+Historical Repo State At PR Package Time: No Active Branch
+Latest Public Prerelease: v1.6.7-prebeta
+Release Debt: Active after merge until `v1.6.8-prebeta` is published, validated, and post-release canon closure completes
+Release Target: v1.6.8-prebeta
+Release Title: Pre-Beta v1.6.8
+Release Floor: patch prerelease
+Version Rationale: FB-043 delivers a bounded runtime/user-facing top-level desktop entrypoint ownership and `main.py` handoff refinement on the existing launch path without opening a new product lane, broader runtime family, or materially expanded capability beyond the shipped desktop chain
+Release Scope: completed FB-043 WS-1 `main.py` direct-launch handoff refinement, WS-2 explicit launch-intent refinement, bounded validator extensions in `dev/orin_desktop_entrypoint_validation.py` and `dev/orin_boot_transition_verification.py`, H-1 hardening proof, LV-1 real desktop shortcut evidence, PR package history, merged-unreleased release-debt truth, and selected-next FB-044 successor lock for the bounded runtime slice only
+Release Artifacts: Tag v1.6.8-prebeta; release title Pre-Beta v1.6.8; rich Markdown release notes summarize the bounded FB-043 top-level entrypoint ownership and `main.py` handoff refinement, explicit launch-intent outcome, real shortcut evidence, and the FB-044 successor lane without repeating the release title inside the notes body, and GitHub-generated `## What's Changed` plus `**Full Changelog**:` must be included
+Post-Release Truth: FB-043 is Released / Closed in `v1.6.8-prebeta` after publication and validation; release debt then clears, and FB-044 Branch Readiness may begin only after updated `main` is revalidated and the first bounded runtime/back-end boot-to-desktop handoff slice is admitted
+Selected Next Workstream: FB-044 Boot-to-desktop handoff outcome refinement
+Next-Branch Creation Gate: After FB-043 merges, `v1.6.8-prebeta` is published and validated, updated `main` is revalidated, and FB-044 Branch Readiness admits the first bounded runtime/back-end boot-to-desktop handoff slice; branch creation remains blocked until then
+
+## Post-Merge State
+
+- Post-merge repo state: `No Active Branch` because FB-043 will own merged-unreleased release debt on `main` for `v1.6.8-prebeta`.
+- Pending release scope after merge: the completed bounded FB-043 top-level entrypoint slice chain only.
+- Successor state after merge: FB-044 remains selected next, `Registry-only`, and branch-not-created until `v1.6.8-prebeta` is published, validated, updated `main` is revalidated, and bounded Branch Readiness admits the first runtime/back-end slice.
+
+## Release Window Audit
+
+Release Window Audit: PASS
+Window Scope: FB-043 WS-1 `main.py` direct-launch handoff refinement, WS-2 explicit launch-intent refinement, H-1 hardening, LV-1 real shortcut validation, merge-target release-debt framing for `v1.6.8-prebeta`, and successor-lock selection of FB-044.
+Known Window Blockers Reviewed: missing merged-unreleased release-debt framing; stale active-branch current-state wording on merge-target canon; missing successor lock; risk of another repair-only pre-release branch; missing live PR state; and risk of widening beyond the bounded top-level entrypoint lane.
+Remaining Known Release Blockers: None
+Another Pre-Release Repair PR Required: NO
+Release Window Split Waiver: None
+
+## PR Readiness Record
+
+PR Readiness validates the completed bounded FB-043 runtime slice chain for merge to `main`. This record aligns the `v1.6.8-prebeta` release-debt package, selects the next runtime/back-end workstream, prepares durable PR package details, and then records live PR validation before reporting green.
+
+### PR-1 Merge-Target Canon Findings
+
+- Merge Target: `main`.
+- Head Branch: `feature/fb-043-top-level-entrypoint-handoff-refinement`.
+- Source-of-Truth Alignment: PASS. `Docs/Main.md`, `Docs/feature_backlog.md`, `Docs/prebeta_roadmap.md`, `Docs/workstreams/index.md`, `Docs/workstreams/FB-005_workspace_and_folder_organization.md`, `Docs/workstreams/FB-015_boot_and_desktop_phase_boundary_model.md`, `Docs/workstreams/FB-029_orin_identity_licensing_hardening.md`, `Docs/workstreams/FB-030_orin_voice_audio_direction_refinement.md`, `Docs/workstreams/FB-042_desktop_entrypoint_runtime_refinement.md`, and this workstream record align on FB-043 as the merged-unreleased release-debt owner for `v1.6.8-prebeta`.
+- Release-Debt Framing: PASS. `v1.6.7-prebeta` is the latest public prerelease; after merge, FB-043 becomes the merged-unreleased release-debt owner for `v1.6.8-prebeta`.
+- Release Target: `v1.6.8-prebeta`.
+- Release Title: `Pre-Beta v1.6.8`.
+- Release Floor: `patch prerelease`.
+- Version Rationale: `patch prerelease` remains required because the delivered FB-043 delta is a bounded runtime/user-facing top-level entrypoint ownership and handoff refinement on the existing launch path, not a new capability lane or materially expanded feature family.
+- Release Scope: complete WS-1 `main.py` direct-launch handoff refinement, WS-2 explicit launch-intent refinement, bounded validator extensions in `dev/orin_desktop_entrypoint_validation.py` and `dev/orin_boot_transition_verification.py`, H-1 hardening proof, real shortcut validation evidence, selected-next successor lock, and PR package history.
+- Release Artifacts: Tag `v1.6.8-prebeta`; release title `Pre-Beta v1.6.8`; rich Markdown release notes summarize the bounded FB-043 top-level entrypoint ownership and `main.py` handoff refinement without repeating the release title inside the notes body, and GitHub-generated `## What's Changed` plus `**Full Changelog**:` must be included.
+- Post-Release Truth: FB-043 is Released / Closed in `v1.6.8-prebeta` after publication and validation; release debt then clears, and FB-044 Branch Readiness may begin only after updated `main` is revalidated and the first bounded runtime/back-end boot-to-desktop handoff slice is admitted.
+
+### PR-2 Selected-Next Workstream Findings
+
+- Selected Next Workstream: FB-044 Boot-to-desktop handoff outcome refinement.
+- Selected Next Basis: FB-044 is the smallest repo-grounded runtime/back-end successor after FB-043 because top-level entrypoint ownership is now explicit, but the boot-to-desktop handoff outcome contract still needs a bounded follow-through slice across explicit dev boot profiles, launcher-observed startup ownership, and desktop-settled transition proof.
+- Selected Next Record State At PR Package Time: `Registry-only`.
+- Selected Next Implementation Branch At PR Package Time: Not created.
+- Branch Creation Gate At PR Package Time: After FB-043 merges, `v1.6.8-prebeta` is published and validated, updated `main` is revalidated, and FB-044 Branch Readiness admits the first bounded runtime/back-end boot-to-desktop handoff slice.
+- Branch Containment At PR Package Time: PASS. No local or remote branch exists for FB-044.
+
+### PR-3 PR Package Details
+
+- PR Title: `FB-043 Top-Level Entrypoint Handoff Refinement`
+- Base Branch: `main`
+- Head Branch: `feature/fb-043-top-level-entrypoint-handoff-refinement`
+- PR Summary: Deliver the bounded FB-043 runtime/user-facing top-level entrypoint slice by making `main.py` direct launch and explicit `--desktop-entrypoint` launch hand off to the canonical desktop chain, preserving explicit dev boot-profile routing, failing invalid direct-launch args fast with clear guidance, extending reusable entrypoint and boot-transition validation, preserving real desktop shortcut evidence, aligning merge-target canon for `v1.6.8-prebeta`, and selecting FB-044 as the next boot-to-desktop handoff successor lane.
+- PR URL: Pending live PR creation in this PR Readiness pass.
+- PR State At PR Package Time: Pending live PR creation.
+- Review Thread State: Pending live PR creation.
+- Merge Readiness At PR Package Time: Pending live PR creation.
+
+### PR Readiness Completion Decision
+
+- PR-1 Result: Complete / green.
+- PR-2 Result: Complete / green.
+- PR-3 Result: Pending live PR creation and validation in this pass.
+- Runtime/User-Facing Impact: the repo-root entrypoint now behaves consistently with the shipped desktop launcher path, explicit dev boot intent remains verifiable, and invalid direct-launch intent no longer falls through into the wrong runtime owner.
+- Next legal action after merge: file-frozen Release Readiness on updated `main` for `v1.6.8-prebeta`.
+
+### PR Readiness Validation Results
+
+- `python dev\orin_branch_governance_validation.py`: pending rerun after merge-target canon sync commit.
+- `python dev\orin_branch_governance_validation.py --pr-readiness-gate`: pending live PR creation.
+- `git diff --check`: pending rerun after merge-target canon sync commit.
+- User-facing shortcut gate: PASS with exact markers in `## User Test Summary`.
+- User Test Summary results gate: WAIVED with exact markers in `## User Test Summary`.
+- Next-workstream selection gate: PASS. FB-044 is selected next, `Registry-only`, and branch-not-created.

@@ -32,8 +32,8 @@
 ## Phase Status
 
 - `Released / Closed in v1.6.6-prebeta`.
-- Current branch execution surface for new work is `feature/fb-042-desktop-entrypoint-runtime-refinement`.
-- Repo State: Active Branch
+- Current branch execution surface for new work is `main` in merged-unreleased release packaging posture.
+- Repo State: No Active Branch
 - Latest Public Prerelease: v1.6.7-prebeta
 - `v1.6.6-prebeta` is live at `https://github.com/GiribaldiTTV/Nexus-Desktop-AI/releases/tag/v1.6.6-prebeta` on target commit `deeaa691a79dd01897f6aed82f087970db7019b3`.
 - FB-030 is Released / Closed in `v1.6.5-prebeta`, and latest public prerelease truth is now `v1.6.6-prebeta`.
@@ -47,8 +47,8 @@
 - The completed release scope ends after WS-1 because that historical branch closed with only the released WS-1 slice under the earlier path-sensitive posture; this is preserved historical truth, not the current repo-wide backlog-completion rule.
 - No reverse runtime dependency on `dev/desktop/` or the moved harness was found.
 - LV-1 confirms the residual visual-path mismatch is dev-only and non-user-facing: the harness still names historical visual file `jarvis_core_desktop.html` while the current desktop visual asset on disk is `orin_core_desktop.html`.
-- FB-042 now owns merged-unreleased release debt for `v1.6.7-prebeta`, and merge-target canon is in `No Active Branch` posture.
-- Canonical FB-042 truth now lives in `Docs/workstreams/FB-042_desktop_entrypoint_runtime_refinement.md`, and WS-1 desktop shortcut launch-path runtime refinement, H-1 hardening, and LV-1 are complete with PR Readiness next.
+- FB-043 now owns merged-unreleased release debt for `v1.6.8-prebeta`, and merge-target canon is in `No Active Branch` posture.
+- Canonical FB-043 truth now lives in `Docs/workstreams/FB-043_top_level_entrypoint_handoff_refinement.md`, and WS-1, WS-2, H-1, LV-1, and PR Readiness are complete with Release Readiness next after merge.
 - Release Execution published `v1.6.6-prebeta` on commit `deeaa691a79dd01897f6aed82f087970db7019b3`.
 - PR #83 merged into `main` at `873c9b6801802a05bbcef074595e632c0ec9f1d2`, and later release packaging and publication are now complete historical truth.
 
@@ -331,7 +331,7 @@ Release Floor: patch prerelease
 Version Rationale: FB-005 delivers a bounded dev-only workspace/path implementation slice and direct path-truth sync with no change to shipped runtime entrypoints, launcher paths, audio paths, logs, visual assets, installer behavior, or user-facing desktop behavior
 Release Scope: the historically released WS-1 dev-only desktop test harness relocation from `desktop/orin_desktop_test.py` to `dev/desktop/orin_desktop_test.py`, local path-math preservation, direct workspace-layout truth sync, hardening corrections, Live Validation waivers, PR package history, and merged-unreleased release-debt truth for that bounded released slice
 Release Artifacts: Tag v1.6.6-prebeta; release title Pre-Beta v1.6.6; rich Markdown release notes summarize the bounded FB-005 WS-1 workspace slice, validation evidence, non-user-facing release posture, and selected-next planning lane without repeating the release title inside the notes body, and GitHub-generated `## What's Changed` plus `**Full Changelog**:` must be included
-Post-Release Truth: FB-005 is Released / Closed in v1.6.6-prebeta; FB-042 is Released / Closed in `v1.6.7-prebeta`; and FB-043 is the active promoted workstream on `feature/fb-043-top-level-entrypoint-handoff-refinement`.
+Post-Release Truth: FB-005 is Released / Closed in v1.6.6-prebeta; FB-042 is Released / Closed in `v1.6.7-prebeta`; FB-043 is the merged-unreleased release-debt owner for `v1.6.8-prebeta`; and FB-044 remains selected next, `Registry-only`, and branch-not-created.
 Next-Branch Creation Gate: After FB-042 merges, `v1.6.7-prebeta` is published and validated, updated `main` is revalidated, and FB-043 Branch Readiness admits the first bounded runtime-bearing top-level entrypoint slice with same-branch continuation posture explicit; branch creation remains blocked until then
 
 ## Post-Merge State
