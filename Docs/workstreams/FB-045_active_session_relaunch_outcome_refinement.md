@@ -23,7 +23,7 @@
 
 ## Current Phase
 
-- Phase: `Workstream`
+- Phase: `PR Readiness`
 
 ## Phase Status
 
@@ -43,7 +43,9 @@
 - Hardening confirmed recoverable lifecycle classification never appears before authoritative settled, clean shutdown keeps precedence when shutdown markers are present, repeated launch cycles stay green, and both immediate and delayed post-settled abnormal exits land in the same recoverable lane without falling into startup failure flow.
 - LV-1 live validation is complete and green.
 - Live Validation confirmed repo-truth alignment, exercised the real declared desktop shortcut, preserved explicit dev boot proof, and verified that the hardened lifecycle contract still lands on valid clean termination on the real shipped route while reusable helpers continue to prove the recoverable post-settled lane.
-- Active seam: `None.` WS-1, H-1, and LV-1 are complete, and `PR Readiness` is next.
+- PR-1 merge-target canon completeness is complete.
+- PR-2 selected-next workstream selection is complete with FB-046 as the branch-not-created runtime/user-facing successor lane.
+- Active seam: `None.` WS-1, H-1, LV-1, PR-1, and PR-2 are complete, and live PR creation plus validation is the remaining PR Readiness seam.
 
 ## Branch Class
 
@@ -74,7 +76,7 @@ None.
 
 ## Next Legal Phase
 
-- `PR Readiness`
+- `Release Readiness`
 
 ## Purpose / Why It Matters
 
@@ -328,4 +330,102 @@ Active seam: `None.`
 - WS-1 is complete and validated.
 - H-1 is complete and green.
 - LV-1 is complete and green.
-- `PR Readiness` is now the next legal phase.
+- PR-1 merge-target canon completeness is complete.
+- PR-2 selected-next workstream selection is complete with FB-046 as the branch-not-created successor lane.
+- PR-3 live PR creation and validation is pending.
+
+## Governance Drift Audit
+
+Governance Drift Found: No.
+
+- Merge-target canon is synchronized to merged-unreleased release-debt truth before PR green.
+- `Repo State` is `No Active Branch` in merge-target surfaces, so this package does not rely on a later post-merge active-branch cleanup.
+- FB-046 is explicitly selected next with `Branch: Not created`, so branch existence is not being confused with successor admission.
+- No docs-only bypass, planning-loop bypass, or repair-only branch posture is being used to justify this implementation package.
+
+## Historical PR Package State
+
+Historical Merged-Unreleased Release-Debt Owner At PR Package Time: FB-044 Boot-to-desktop handoff outcome refinement
+Historical Repo State At PR Package Time: No Active Branch
+Latest Public Prerelease: v1.6.8-prebeta
+Release Debt: Active after merge until `v1.6.9-prebeta` is published, validated, and post-release canon closure completes
+Release Target: v1.6.9-prebeta
+Release Title: Pre-Beta v1.6.9
+Release Floor: patch prerelease
+Version Rationale: FB-044 remains the merged-unreleased release-debt owner, and FB-045 contributes a bounded runtime/user-facing blocker-clearing lifecycle-classification correction on the same existing startup family without opening a new product lane or materially expanded runtime family
+Release Scope: completed FB-044 WS-1 `desktop-settled handoff outcome refinement`, H-1 settled-state hardening, LV-1 real desktop shortcut evidence, merged-unreleased release-debt truth, completed FB-045 WS-1 `post-settled runtime stability refinement`, H-1 post-settled lifecycle hardening, LV-1 real desktop shortcut evidence, PR package history, and selected-next FB-046 successor lock for the bounded runtime/user-facing lane only
+Release Artifacts: Tag v1.6.9-prebeta; release title Pre-Beta v1.6.9; rich Markdown release notes summarize the bounded FB-044 boot-to-desktop settled-outcome refinement, the FB-045 blocker-clearing lifecycle classification result, real shortcut evidence, and the FB-046 successor lane without repeating the release title inside the notes body, and GitHub-generated `## What's Changed` plus `**Full Changelog**:` must be included
+Post-Release Truth: FB-044 and FB-045 are Released / Closed in `v1.6.9-prebeta` after publication and validation; release debt then clears, and FB-046 Branch Readiness may begin only after updated `main` is revalidated and the first bounded runtime/user-facing relaunch-reacquisition slice is admitted
+Selected Next Workstream: FB-046 Active-session relaunch reacquisition and settled re-entry proof
+Next-Branch Creation Gate: After `v1.6.9-prebeta` is published and validated, updated `main` is revalidated, and FB-046 Branch Readiness admits the first bounded runtime/user-facing relaunch-reacquisition slice; branch creation remains blocked until then
+
+## Post-Merge State
+
+- Post-merge repo state: `No Active Branch` because FB-044 remains the merged-unreleased release-debt owner on `main` for `v1.6.9-prebeta`.
+- Pending release scope after merge: the completed bounded FB-044 settled-outcome package plus the completed bounded FB-045 blocker-clearing lifecycle-classification correction only.
+- Successor state after merge: FB-046 remains selected next, `Registry-only`, and branch-not-created until `v1.6.9-prebeta` is published, validated, updated `main` is revalidated, and bounded Branch Readiness admits the first relaunch-reacquisition slice.
+
+## Release Window Audit
+
+Release Window Audit: PASS
+Window Scope: FB-044 merged-unreleased settled-outcome package, FB-045 WS-1 `post-settled runtime stability refinement`, H-1 post-settled lifecycle hardening, LV-1 real shortcut validation, merge-target release-debt framing for `v1.6.9-prebeta`, and successor-lock selection of FB-046.
+Known Window Blockers Reviewed: stale active-branch wording on merge-target canon, missing successor lock, risk of treating FB-045 as partial instead of backlog-complete, missing live PR state, and risk of widening beyond the bounded relaunch-stability lane.
+Remaining Known Release Blockers: None
+Post-Merge Readiness Action: updated `main` must still rerun file-frozen `Release Readiness` after merge.
+Another Pre-Release Repair PR Required: NO
+Release Window Split Waiver: None
+
+## PR Readiness Record
+
+PR Readiness validates the completed bounded FB-045 blocker-clearing runtime slice chain for merge to `main`. This record aligns merge-target canon for the merged-unreleased FB-044 `v1.6.9-prebeta` package, selects the next runtime/user-facing workstream, prepares durable PR package details, and then records live PR validation before reporting green.
+
+### PR-1 Merge-Target Canon Findings
+
+- Merge Target: `main`.
+- Head Branch: `feature/fb-045-active-session-relaunch-stability`.
+- Source-of-Truth Alignment: PASS. `Docs/Main.md`, `Docs/feature_backlog.md`, `Docs/prebeta_roadmap.md`, `Docs/workstreams/index.md`, `Docs/workstreams/FB-044_boot_desktop_handoff_outcome_refinement.md`, and this workstream record align on FB-044 as the merged-unreleased release-debt owner for `v1.6.9-prebeta`, with FB-045 as the completed blocker-clearing runtime/user-facing follow-through package.
+- Release-Debt Framing: PASS. `v1.6.8-prebeta` is the latest public prerelease; after merge, FB-044 remains the merged-unreleased release-debt owner and FB-045 lands as a completed blocker-clearing implementation package inside the same pending `v1.6.9-prebeta` release window.
+- Release Target: `v1.6.9-prebeta`.
+- Release Title: `Pre-Beta v1.6.9`.
+- Release Floor: `patch prerelease`.
+- Version Rationale: `patch prerelease` remains required because the delivered delta stays inside the existing startup family: FB-044 is still the release owner and FB-045 is a bounded runtime/user-facing lifecycle-classification correction, not a new feature family.
+- Release Scope: completed FB-044 settled-outcome package, completed FB-045 lifecycle-classification blocker clear, real desktop shortcut evidence, reusable validation evidence, and successor-lock selection of FB-046.
+- Release Artifacts: Tag `v1.6.9-prebeta`; release title `Pre-Beta v1.6.9`; rich Markdown release notes summarize the bounded FB-044 settled-outcome package, the FB-045 blocker-clearing lifecycle classification result, and the FB-046 successor lane without repeating the release title inside the notes body, and GitHub-generated `## What's Changed` plus `**Full Changelog**:` must be included.
+- Post-Release Truth: FB-044 and FB-045 are Released / Closed in `v1.6.9-prebeta` after publication and validation; release debt then clears, and FB-046 Branch Readiness may begin only after updated `main` is revalidated and the first bounded relaunch-reacquisition slice is admitted.
+
+### PR-2 Selected-Next Workstream Findings
+
+- Selected Next Workstream: FB-046 Active-session relaunch reacquisition and settled re-entry proof.
+- Selected Next Basis: FB-046 is the smallest repo-grounded runtime/user-facing successor after FB-045 because the current code already contains the relaunch prompt, named relaunch signal, wait-for-reacquire loop, and runtime shutdown-on-relaunch handling, but the repo does not yet treat full accepted relaunch completion and replacement-session return to authoritative settled as a first-class proof surface.
+- Selected Next Record State At PR Package Time: `Registry-only`.
+- Selected Next Implementation Branch At PR Package Time: Not created.
+- Branch Creation Gate At PR Package Time: After `v1.6.9-prebeta` is published and validated, updated `main` is revalidated, and FB-046 Branch Readiness admits the first bounded runtime/user-facing relaunch-reacquisition slice.
+- Branch Containment At PR Package Time: PASS. No local or remote branch exists for FB-046.
+
+### PR-3 PR Package Details
+
+- PR Title: `FB-045 Active-Session Relaunch Outcome Refinement`
+- Base Branch: `main`
+- Head Branch: `feature/fb-045-active-session-relaunch-stability`
+- PR Summary: Deliver the bounded FB-045 blocker-clearing runtime/user-facing lifecycle slice by keeping `DESKTOP_OUTCOME|SETTLED|state=dormant` authoritative for startup success, classifying later abnormal renderer exits as recoverable post-settled runtime conditions instead of startup failure, preserving real desktop shortcut and explicit dev boot proof, aligning merge-target canon for the merged-unreleased FB-044 `v1.6.9-prebeta` package, and selecting FB-046 as the next relaunch-reacquisition successor lane.
+- PR URL: Pending live PR creation.
+- PR State At PR Package Time: Pending live PR creation.
+- Review Thread State: Pending live PR creation.
+- Merge Readiness At PR Package Time: Pending live PR creation.
+
+### PR Readiness Completion Decision
+
+- PR-1 Result: Complete / green.
+- PR-2 Result: Complete / green.
+- PR-3 Result: Pending live PR creation.
+- Lifecycle Classification Integrity: authoritative settled remains the startup-success proof; clean post-settled shutdown remains distinct from recoverable post-settled abnormal exit; and the merged-main blocker now classifies truthfully instead of collapsing into startup failure flow.
+- Next legal action after merge: file-frozen Release Readiness on updated `main` for the merged-unreleased FB-044 `v1.6.9-prebeta` package.
+
+### PR Readiness Validation Results
+
+- `python dev\orin_branch_governance_validation.py`: PASS; merge-target canon and successor-lock truth are green.
+- `python dev\orin_branch_governance_validation.py --pr-readiness-gate`: pending until live PR exists.
+- `git diff --check`: PASS.
+- User-facing shortcut gate: PASS with exact markers in `## User Test Summary`.
+- User Test Summary results gate: WAIVED with exact markers in `## User Test Summary`.
+- Next-workstream selection gate: PASS. FB-046 is selected next, `Registry-only`, and branch-not-created.
