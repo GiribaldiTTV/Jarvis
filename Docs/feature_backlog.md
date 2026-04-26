@@ -72,7 +72,7 @@ Current Branch Readiness State: Not started for FB-047. Branch creation remains 
 Historical Workstream State: FB-046 is merge-target complete and will become the merged-unreleased release-debt owner for `v1.6.10-prebeta` after merge; FB-044 and FB-045 remain Released / Closed historical proof in `v1.6.9-prebeta`.
 Historical Hardening State: Complete on `feature/fb-046-active-session-relaunch-reacquisition`.
 Historical Live Validation State: Complete on `feature/fb-046-active-session-relaunch-reacquisition`.
-PR Readiness State: In progress on `feature/fb-046-active-session-relaunch-reacquisition`; merge-target canon and successor-lock truth are prepared, and live PR creation plus validation is the remaining gate.
+PR Readiness State: Complete on `feature/fb-046-active-session-relaunch-reacquisition`; PR-1 merge-target canon completeness, PR-2 selected-next successor lock, and PR-3 live PR creation plus validation are complete; PR #92 is open and mergeable.
 Release Execution State: `v1.6.9-prebeta` is live at https://github.com/GiribaldiTTV/Nexus-Desktop-AI/releases/tag/v1.6.9-prebeta on commit `348fd55b944435e3cae80b97acd0bb857fd65d56`.
 Release Target: v1.6.10-prebeta.
 Release Floor: patch prerelease.
@@ -83,7 +83,7 @@ Post-Release Truth: FB-046 is Released / Closed in `v1.6.10-prebeta` after publi
 Next-Branch Creation Gate: After `v1.6.10-prebeta` is published and validated, updated `main` is revalidated, and FB-047 Branch Readiness admits the first bounded runtime/user-facing relaunch-decline preservation slice; branch creation remains blocked until then.
 Current Branch Objective: carry the merged-unreleased FB-046 relaunch-reacquisition package through `Release Readiness` on updated `main` after merge while preserving FB-047 as selected next and branch-not-created.
 Next Legal Phase: Release Readiness.
-Active Workstream Chain: FB-046 is merge-target complete and prepared to own merged-unreleased release debt for `v1.6.10-prebeta`; WS-1, H-1, and LV-1 are complete and green; PR-1 merge-target canon completeness and PR-2 selected-next successor lock are prepared; FB-047 is selected next, `Registry-only`, and branch-not-created; and `Release Readiness` is the next legal phase after merge.
+Active Workstream Chain: FB-046 is merge-target complete and prepared to own merged-unreleased release debt for `v1.6.10-prebeta`; WS-1, H-1, and LV-1 are complete and green; PR-1 merge-target canon completeness, PR-2 selected-next successor lock, and PR-3 live PR creation plus validation are complete; FB-047 is selected next, `Registry-only`, and branch-not-created; and `Release Readiness` is the next legal phase after merge.
 
 ## Backlog Governance Sync
 
@@ -249,7 +249,7 @@ Historical Branch Readiness Record: Docs/branch_records/feature_fb_046_active_se
 Branch Readiness: Historical complete. The admitted slice, validation contract, rollback conditions, and same-branch backlog-completion posture remain preserved in the historical branch-readiness record.
 Workstream: WS-1 accepted relaunch replacement-session settled re-entry proof is complete and validated. Accepted relaunch now proves prior-session shutdown, single-instance guard release, replacement-session reacquisition, replacement-session authoritative settled re-entry, and truthful post-settled lifecycle completion without dual ownership. H-1 relaunch lifecycle hardening is complete and green across slow shutdown, recoverable-exit relaunch, and rapid consecutive relaunch-cycle proof. LV-1 is complete and green with real desktop shortcut evidence plus a focused User Test Summary waiver. `Backlog Completion State` is `Implemented Complete`. PR-1 merge-target canon completeness and PR-2 selected-next successor lock are complete on this branch, and after merge this lane becomes the merged-unreleased release-debt owner for `v1.6.10-prebeta`.
 Backlog Completion State: Implemented Complete
-PR Readiness: In progress. PR-1 merge-target canon completeness and PR-2 selected-next workstream selection are complete; PR-3 live PR creation plus validation is the remaining gate before PR Readiness is green.
+PR Readiness: Complete. PR-1 merge-target canon completeness, PR-2 selected-next workstream selection, and PR-3 live PR creation plus validation are complete; PR #92 is open, non-draft, and mergeable.
 Release Target: v1.6.10-prebeta
 Release Floor: patch prerelease
 Version Rationale: FB-046 delivers a bounded runtime/user-facing relaunch-reacquisition refinement on the existing desktop startup family without opening a new product lane or materially expanded feature family.
@@ -266,7 +266,8 @@ Status: Selected next
 Record State: Registry-only
 Priority: High
 Selection / Unblock: Selected during FB-046 PR Readiness because accepted relaunch is now fully proven, but the complementary decline path still lacks first-class proof that declining replacement preserves the settled active session, keeps single-instance ownership with that session, and terminates the incoming launch truthfully without dual ownership or false replacement-session markers.
-Next Workstream: Branch creation blocked until `v1.6.10-prebeta` is published and validated, updated `main` is revalidated, and FB-047 Branch Readiness admits the first bounded relaunch-decline preservation slice.
+Next Workstream: Selected
+Branch Creation Gate: After `v1.6.10-prebeta` is published and validated, updated `main` is revalidated, and FB-047 Branch Readiness admits the first bounded relaunch-decline preservation slice.
 Branch: Not created
 Branch Readiness: Not started. Must begin on a new `feature/` branch only after the gate above clears.
 Minimal Scope: Prove and refine the relaunch-decline lane across `desktop/single_instance.py`, `desktop/orin_desktop_launcher.pyw`, `desktop/orin_desktop_main.py`, and the minimum required reusable validator surfaces so declining replacement preserves the active settled session and cleanly terminates the incoming launch without dual ownership or false successor markers.

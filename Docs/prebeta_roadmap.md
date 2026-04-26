@@ -105,7 +105,7 @@ Current Branch Readiness State: Not started for FB-047. Branch creation remains 
 Historical Workstream State: FB-046 is merge-target complete and will own merged-unreleased release debt for `v1.6.10-prebeta` after merge; FB-044 and FB-045 remain Released / Closed historical proof in `v1.6.9-prebeta`.
 Historical Hardening State: Complete on `feature/fb-046-active-session-relaunch-reacquisition`.
 Historical Live Validation State: Complete on `feature/fb-046-active-session-relaunch-reacquisition`.
-PR Readiness State: In progress on `feature/fb-046-active-session-relaunch-reacquisition`; merge-target canon and successor-lock truth are prepared, and live PR creation plus validation is the remaining gate.
+PR Readiness State: Complete on `feature/fb-046-active-session-relaunch-reacquisition`; PR-1 merge-target canon completeness, PR-2 selected-next successor lock, and PR-3 live PR creation plus validation are complete; PR #92 is open and mergeable.
 Release Execution State: `v1.6.9-prebeta` is live at https://github.com/GiribaldiTTV/Nexus-Desktop-AI/releases/tag/v1.6.9-prebeta on commit `348fd55b944435e3cae80b97acd0bb857fd65d56`.
 Release Target: v1.6.10-prebeta
 Release Floor: patch prerelease
@@ -116,7 +116,7 @@ Post-Release Truth: FB-046 is Released / Closed in `v1.6.10-prebeta` after publi
 Next-Branch Creation Gate: After `v1.6.10-prebeta` is published and validated, updated `main` is revalidated, and FB-047 Branch Readiness admits the first bounded runtime/user-facing relaunch-decline preservation slice; branch creation remains blocked until then.
 Current Branch Objective: carry the merged-unreleased FB-046 relaunch-reacquisition package through file-frozen `Release Readiness` on updated `main` after merge while preserving FB-047 as selected next and branch-not-created.
 Next Legal Phase: Release Readiness.
-Active Workstream Chain: FB-046 is merge-target complete and prepared to own merged-unreleased release debt for `v1.6.10-prebeta`; WS-1, H-1, and LV-1 are complete and green; PR-1 merge-target canon completeness and PR-2 selected-next successor lock are prepared; FB-047 is selected next, `Registry-only`, and branch-not-created; and `Release Readiness` is the next legal phase after merge.
+Active Workstream Chain: FB-046 is merge-target complete and prepared to own merged-unreleased release debt for `v1.6.10-prebeta`; WS-1, H-1, and LV-1 are complete and green; PR-1 merge-target canon completeness, PR-2 selected-next successor lock, and PR-3 live PR creation plus validation are complete; FB-047 is selected next, `Registry-only`, and branch-not-created; and `Release Readiness` is the next legal phase after merge.
 
 ## Merged-Unreleased Release-Debt Owner
 
