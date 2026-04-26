@@ -19,7 +19,7 @@
 
 ## Current Phase
 
-- Phase: `Workstream`
+- Phase: `Hardening`
 
 ## Phase Status
 
@@ -33,7 +33,7 @@ Latest Public Prerelease Title: `Pre-Beta v1.6.10`
 FB-046 is `Released / Closed` historical proof in `v1.6.10-prebeta`.
 Release debt is clear after publication, validation, and post-release canon closure.
 FB-047 is now the active promoted workstream on this branch.
-WS-1 is complete / validated, `Backlog Completion State` is `Implemented Complete`, and `Hardening` is next.
+WS-1 is complete / validated, H-1 is complete / green, `Backlog Completion State` is `Implemented Complete`, and `Live Validation` is next.
 Active seam: `None.`
 
 ## Branch Class
@@ -65,7 +65,7 @@ None.
 
 ## Next Legal Phase
 
-- `Hardening`
+- `Live Validation`
 
 ## Purpose / Why It Matters
 
@@ -196,6 +196,51 @@ Single-instance ownership remains with the active settled session throughout the
 - no replacement-session reacquire or settled markers appear on incoming declined launches
 - no dual ownership or false replacement-session success surface appears during repeated incoming launches
 
+## H-1 Hardening Record
+
+H-1 pressure-tested the completed FB-047 decline-preservation lane across rapid repeated declined incoming launches, replacement-session marker timing, single-instance guard ownership under timing stress, mixed decline/accept sequences, and validator classification consistency without widening beyond the admitted runtime/user-facing surfaces.
+
+### Hardening Findings
+
+- Rapid consecutive declined incoming launches remain single-owner: the active settled session stays unchanged, and each incoming launch records conflict plus decline before exiting cleanly.
+- Replacement-session success markers do not appear on declined incoming launches, and no guard-transfer or reacquire markers leak into decline-only scenarios.
+- Mixed decline/accept sequences stay truthful: decline preserves the original owner, and guard transfer occurs only in the later accepted relaunch phase after the original session receives relaunch and release markers.
+- The main hidden coupling was in validator evidence attribution and wrapper lifecycle timing, not in the runtime decline lane itself. Multi-session scenarios needed content-based session identification and could not treat the `cscript` wrapper exit as authoritative runtime completion.
+- Accepted-relaunch, repeated-launch, default startup, and explicit dev-boot proof paths all remained green while the decline-specific pressure tests expanded.
+
+### Hardening Corrections
+
+- `dev/orin_desktop_entrypoint_validation.py` now identifies follow-on runtime logs in relaunch scenarios by session evidence instead of sorted filename order.
+- `dev/orin_desktop_entrypoint_validation.py` now adds reusable coverage for:
+  - rapid consecutive declined relaunch cycles
+  - mixed decline-then-accept relaunch sequencing
+  - decline-path marker timing under repeated incoming launches
+- Multi-session VBS observation loops no longer treat early `cscript` wrapper exit as proof that the underlying launcher/runtime lifecycle has completed.
+- No broader runtime correction was needed in `desktop/single_instance.py` or `desktop/orin_desktop_launcher.pyw`; the decline ownership model itself held under the new pressure tests.
+
+### H-1 Completion Decision
+
+- H-1 Result: `Complete / green`
+- Remaining implementable work inside FB-047: `None`
+- Stop condition: phase boundary reached; Hardening is complete after H-1.
+
+### H-1 Validation Results
+
+- `python -m py_compile desktop\single_instance.py desktop\orin_desktop_launcher.pyw desktop\orin_desktop_main.py dev\orin_desktop_entrypoint_validation.py dev\orin_boot_transition_verification.py`: PASS
+- `python dev\orin_desktop_entrypoint_validation.py`: PASS
+  - report: `dev/logs/desktop_entrypoint_validation/reports/DesktopEntrypointValidationReport_20260426_123114.txt`
+- `python dev\orin_boot_transition_verification.py`: PASS
+  - report: `dev/logs/boot_transition_verification/reports/BootTransitionVerificationReport_20260426_123137.txt`
+- `python dev\orin_branch_governance_validation.py`: PASS
+- `git diff --check`: PASS with line-ending normalization warnings only
+
+### H-1 Stability Notes
+
+- The active settled session remains the sole owner across repeated declined incoming launches, even when those launches arrive in rapid succession.
+- Replacement-session truth remains exclusive to accepted relaunch; declined incoming launches never emit reacquire, replacement-session active, or replacement-session settled markers.
+- Mixed decline/accept proof now distinguishes preserved-session logs, declined incoming-launch logs, and accepted replacement-session logs by content instead of fragile file-order assumptions.
+- The shipped startup route, accepted-relaunch proof, repeated-launch proof, and explicit dev-boot proof remain green after the added decline-lane pressure coverage.
+
 ## User Test Summary
 
 User-Facing Shortcut Path: `Pending Live Validation classification`
@@ -208,13 +253,14 @@ User Test Summary Results: `Pending`
 ## Seam Continuation Decision
 
 Continue Decision: `Continue`
-Next Active Seam: `Hardening`
-Stop Condition: `Stop after FB-047 Hardening only if startup, accepted-relaunch proof, or decline-path ownership truth regresses beyond the admitted runtime/user-facing lane.`
-Continuation Action: `Pressure-test the completed decline-preservation pass on this same branch, preserve active-session ownership through repeated declined incoming launches, and keep accepted-relaunch plus default startup proof green.`
+Next Active Seam: `Live Validation`
+Stop Condition: `Stop after FB-047 Live Validation only if repo truth, real shortcut applicability, User Test Summary classification, or decline-path ownership truth regresses beyond the admitted runtime/user-facing lane.`
+Continuation Action: `Run FB-047 Live Validation on this same branch, classify real desktop shortcut applicability and User Test Summary status, and confirm the hardened decline-preservation proof stays green on the shipped route.`
 
 ## Active Seam
 
 Active seam: `None.`
 
 - WS-1 is complete and validated.
-- `Hardening` is now the next legal phase.
+- H-1 is complete and green.
+- `Live Validation` is now the next legal phase.
