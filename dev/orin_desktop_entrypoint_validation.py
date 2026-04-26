@@ -61,6 +61,9 @@ RELAUNCH_REPLACEMENT_SESSION_ACTIVE_MARKER = (
 RELAUNCH_REPLACEMENT_SESSION_SETTLED_MARKER = (
     "STATUS|SUCCESS|LAUNCHER_RUNTIME|RELAUNCH_REPLACEMENT_SESSION_SETTLED|state=dormant"
 )
+RELAUNCH_DECLINED_SESSION_PRESERVED_MARKER = (
+    "STATUS|SUCCESS|LAUNCHER_RUNTIME|RELAUNCH_DECLINED_SESSION_PRESERVED"
+)
 SINGLE_INSTANCE_RELEASED_MARKER = "STATUS|TRACE|LAUNCHER_RUNTIME|SINGLE_INSTANCE_RELEASED"
 
 EXPECTED_MILESTONES = [
@@ -1181,6 +1184,10 @@ def run_accepted_relaunch_cycle_scenario(
     first_relaunch_request_index = first_marker_index(first_runtime_lines, "RENDERER_MAIN|RELAUNCH_REQUEST_RECEIVED")
     first_shutdown_index = first_marker_index(first_runtime_lines, "RENDERER_MAIN|SHUTDOWN_REQUESTED")
     first_exit_index = first_marker_index(first_runtime_lines, "RENDERER_MAIN|EVENT_LOOP_EXIT|code=0")
+    first_recoverable_complete_index = first_marker_index(
+        first_runtime_lines,
+        POST_SETTLED_RECOVERABLE_COMPLETE_MARKER,
+    )
     first_release_index = first_marker_index(first_runtime_lines, SINGLE_INSTANCE_RELEASED_MARKER)
     first_replacement_active_index = first_marker_index(
         first_runtime_lines,
@@ -1984,6 +1991,367 @@ def run_rapid_consecutive_accepted_relaunch_cycles_scenario():
         "runtime_log": runtime_logs[2] or runtime_logs[1] or runtime_logs[0],
         "stdout": "\n".join(part for part in stdouts if part),
         "stderr": "\n".join(part for part in stderrs if part),
+        "checks": checks,
+    }
+
+
+def run_declined_relaunch_cycle_scenario():
+    scenario_name = "vbs_declined_relaunch_cycle"
+    scenario_root = os.path.join(BASE_LOG_ROOT, scenario_name)
+    preexisting_processes_before, preexisting_processes_killed, preexisting_processes_after = (
+        cleanup_launch_chain_processes_for_log_root(BASE_LOG_ROOT)
+    )
+    reset_dir(scenario_root)
+    scenario_root_entries_after_reset = dir_entry_names(scenario_root)
+
+    cscript_command = resolve_cscript_command()
+    launch_command = cscript_command + ["//nologo", ENTRYPOINT_SCRIPT] if cscript_command else []
+    first_env = build_harness_env(scenario_root)
+    decline_env = build_harness_env(
+        scenario_root,
+        extra_env={"JARVIS_HARNESS_AUTO_DECLINE_RELAUNCH": "1"},
+    )
+
+    first_proc = None
+    incoming_procs = [None, None]
+    first_stdout = ""
+    first_stderr = ""
+    incoming_stdouts = ["", ""]
+    incoming_stderrs = ["", ""]
+    first_runtime_log = ""
+    incoming_runtime_logs = ["", ""]
+    first_runtime_lines = []
+    incoming_runtime_lines = [[], []]
+    first_settled_seen = False
+    active_session_changed_before_manual_shutdown = False
+    shutdown_hotkey_sent = False
+    shutdown_hotkey_detail = "hotkey not sent"
+    shutdown_hotkey_attempts = 0
+
+    try:
+        if scenario_root_entries_after_reset or not launch_command:
+            pass
+        else:
+            first_proc = subprocess.Popen(
+                launch_command,
+                cwd=ROOT_DIR,
+                env=first_env,
+                **hidden_subprocess_kwargs(),
+            )
+
+            first_deadline = time.time() + 25.0
+            while time.time() < first_deadline:
+                runtime_logs = files_matching_sorted(scenario_root, "Runtime_")
+                if runtime_logs and not first_runtime_log:
+                    first_runtime_log = runtime_logs[0]
+                if first_runtime_log:
+                    first_runtime_lines = read_lines(first_runtime_log)
+                    if any(AUTHORITATIVE_DESKTOP_SETTLED_MARKER in line for line in first_runtime_lines):
+                        first_settled_seen = True
+                        break
+                if first_proc.poll() is not None:
+                    break
+                time.sleep(0.2)
+
+            for index in range(len(incoming_procs)):
+                incoming_procs[index] = subprocess.Popen(
+                    launch_command,
+                    cwd=ROOT_DIR,
+                    env=decline_env,
+                    **hidden_subprocess_kwargs(),
+                )
+
+                decline_deadline = time.time() + 15.0
+                while time.time() < decline_deadline:
+                    runtime_logs = files_matching_sorted(scenario_root, "Runtime_")
+                    known_logs = {first_runtime_log, *[path for path in incoming_runtime_logs[:index] if path]}
+                    new_logs = [path for path in runtime_logs if path not in known_logs]
+                    if new_logs and not incoming_runtime_logs[index]:
+                        incoming_runtime_logs[index] = new_logs[0]
+
+                    if first_runtime_log:
+                        first_runtime_lines = read_lines(first_runtime_log)
+                        if any("RENDERER_MAIN|RELAUNCH_REQUEST_RECEIVED" in line for line in first_runtime_lines):
+                            active_session_changed_before_manual_shutdown = True
+                        if any("RENDERER_MAIN|SHUTDOWN_REQUESTED" in line for line in first_runtime_lines):
+                            active_session_changed_before_manual_shutdown = True
+                        if any(SINGLE_INSTANCE_RELEASED_MARKER in line for line in first_runtime_lines):
+                            active_session_changed_before_manual_shutdown = True
+                        if any(
+                            RELAUNCH_REPLACEMENT_SESSION_ACTIVE_MARKER in line
+                            or RELAUNCH_REPLACEMENT_SESSION_SETTLED_MARKER in line
+                            for line in first_runtime_lines
+                        ):
+                            active_session_changed_before_manual_shutdown = True
+
+                    if incoming_runtime_logs[index]:
+                        incoming_runtime_lines[index] = read_lines(incoming_runtime_logs[index])
+                        if any(
+                            RELAUNCH_DECLINED_SESSION_PRESERVED_MARKER in line
+                            for line in incoming_runtime_lines[index]
+                        ):
+                            break
+                    if incoming_procs[index].poll() is not None and incoming_runtime_logs[index]:
+                        break
+                    time.sleep(0.2)
+
+            if first_settled_seen:
+                shutdown_hotkey_attempts += 1
+                shutdown_hotkey_sent, shutdown_hotkey_detail = send_shutdown_hotkey()
+
+            shutdown_deadline = time.time() + 20.0
+            while time.time() < shutdown_deadline:
+                first_runtime_lines = read_lines(first_runtime_log)
+                shutdown_seen = any(
+                    "RENDERER_MAIN|SHUTDOWN_REQUESTED" in line for line in first_runtime_lines
+                )
+                exit_seen = any(
+                    "RENDERER_MAIN|EVENT_LOOP_EXIT|code=0" in line for line in first_runtime_lines
+                )
+                release_seen = any(
+                    SINGLE_INSTANCE_RELEASED_MARKER in line for line in first_runtime_lines
+                )
+
+                if shutdown_hotkey_sent and not shutdown_seen and shutdown_hotkey_attempts < 2:
+                    shutdown_hotkey_attempts += 1
+                    shutdown_hotkey_sent, shutdown_hotkey_detail = send_shutdown_hotkey()
+
+                if shutdown_seen and exit_seen and release_seen:
+                    break
+                time.sleep(0.2)
+    finally:
+        all_procs = [first_proc, *incoming_procs]
+        for index, proc in enumerate(all_procs):
+            if proc is None:
+                continue
+            try:
+                if proc.poll() is None:
+                    terminate_process_tree(proc)
+                stdout_text, stderr_text = proc.communicate(timeout=5)
+            except Exception:
+                stdout_text = ""
+                stderr_text = ""
+
+            if index == 0:
+                first_stdout = (stdout_text or "").strip()
+                first_stderr = (stderr_text or "").strip()
+            else:
+                incoming_stdouts[index - 1] = (stdout_text or "").strip()
+                incoming_stderrs[index - 1] = (stderr_text or "").strip()
+
+    first_runtime_lines = read_lines(first_runtime_log)
+    incoming_runtime_lines = [read_lines(path) for path in incoming_runtime_logs]
+
+    residual_launch_chain_processes_before, residual_launch_chain_killed, residual_launch_chain_processes_after = (
+        cleanup_launch_chain_processes_for_log_root(BASE_LOG_ROOT)
+    )
+
+    first_settled_index = first_marker_index(first_runtime_lines, AUTHORITATIVE_DESKTOP_SETTLED_MARKER)
+    first_relaunch_request_index = first_marker_index(first_runtime_lines, "RENDERER_MAIN|RELAUNCH_REQUEST_RECEIVED")
+    first_shutdown_index = first_marker_index(first_runtime_lines, "RENDERER_MAIN|SHUTDOWN_REQUESTED")
+    first_exit_index = first_marker_index(first_runtime_lines, "RENDERER_MAIN|EVENT_LOOP_EXIT|code=0")
+    first_recoverable_complete_index = first_marker_index(
+        first_runtime_lines,
+        POST_SETTLED_RECOVERABLE_COMPLETE_MARKER,
+    )
+    first_release_index = first_marker_index(first_runtime_lines, SINGLE_INSTANCE_RELEASED_MARKER)
+    first_replacement_active_index = first_marker_index(
+        first_runtime_lines,
+        RELAUNCH_REPLACEMENT_SESSION_ACTIVE_MARKER,
+    )
+    first_replacement_settled_index = first_marker_index(
+        first_runtime_lines,
+        RELAUNCH_REPLACEMENT_SESSION_SETTLED_MARKER,
+    )
+
+    incoming_indexes = []
+    for lines in incoming_runtime_lines:
+        incoming_indexes.append(
+            {
+                "conflict": first_marker_index(lines, "SINGLE_INSTANCE_CONFLICT_DETECTED"),
+                "prompt_decline": max(
+                    first_marker_index(lines, "REPLACE_PROMPT_DECLINED"),
+                    first_marker_index(lines, "REPLACE_PROMPT_AUTO_DECLINED"),
+                ),
+                "decline_success": first_marker_index(lines, RELAUNCH_DECLINED_SESSION_PRESERVED_MARKER),
+                "already_running": first_marker_index(
+                    lines,
+                    "STATUS|SKIP|LAUNCHER_RUNTIME|ALREADY_RUNNING",
+                ),
+                "runtime_start": first_marker_index(lines, "STATUS|START|LAUNCHER_RUNTIME"),
+                "renderer_spawn": first_marker_index(
+                    lines,
+                    "STATUS|SUCCESS|RENDERER_PROCESS_SPAWN",
+                ),
+                "prompt_accept": max(
+                    first_marker_index(lines, "REPLACE_PROMPT_ACCEPTED"),
+                    first_marker_index(lines, "REPLACE_PROMPT_AUTO_ACCEPTED"),
+                ),
+                "signal_sent": first_marker_index(lines, "RELAUNCH_SIGNAL_SENT"),
+                "reacquire": first_marker_index(lines, "RELAUNCH_ACQUIRED_AFTER_WAIT"),
+                "replacement_confirmed": first_marker_index(
+                    lines,
+                    "RELAUNCH_REPLACEMENT_SESSION_CONFIRMED",
+                ),
+                "replacement_active": first_marker_index(
+                    lines,
+                    RELAUNCH_REPLACEMENT_SESSION_ACTIVE_MARKER,
+                ),
+                "settled": first_marker_index(lines, AUTHORITATIVE_DESKTOP_SETTLED_MARKER),
+                "replacement_settled": first_marker_index(
+                    lines,
+                    RELAUNCH_REPLACEMENT_SESSION_SETTLED_MARKER,
+                ),
+                "release": first_marker_index(lines, SINGLE_INSTANCE_RELEASED_MARKER),
+            }
+        )
+
+    ordering_detail = (
+        f"first_settled={first_settled_index}, first_relaunch_request={first_relaunch_request_index}, "
+        f"first_shutdown={first_shutdown_index}, first_exit={first_exit_index}, "
+        f"first_recoverable_complete={first_recoverable_complete_index}, first_release={first_release_index}, "
+        f"first_replacement_active={first_replacement_active_index}, "
+        f"first_replacement_settled={first_replacement_settled_index}, "
+        f"incoming1={incoming_indexes[0]}, incoming2={incoming_indexes[1]}"
+    )
+
+    checks = {
+        "cscript_available": line_status(
+            bool(cscript_command),
+            cscript_command[0] if cscript_command else "missing Windows Script Host entrypoint",
+        ),
+        "scenario_log_root_cleared_before_launch": line_status(
+            not scenario_root_entries_after_reset,
+            "empty" if not scenario_root_entries_after_reset else ", ".join(scenario_root_entries_after_reset[:5]),
+        ),
+        "three_runtime_logs_created": line_status(
+            bool(first_runtime_log)
+            and all(incoming_runtime_logs)
+            and len({first_runtime_log, *incoming_runtime_logs}) == 3,
+            ", ".join(path or "missing" for path in [first_runtime_log, *incoming_runtime_logs]),
+        ),
+        "active_session_reached_settled_before_declines": line_status(
+            first_settled_index >= 0,
+            AUTHORITATIVE_DESKTOP_SETTLED_MARKER if first_settled_index >= 0 else "missing authoritative settled marker",
+        ),
+        "active_session_unchanged_during_declines": line_status(
+            not active_session_changed_before_manual_shutdown and first_relaunch_request_index < 0,
+            ordering_detail,
+        ),
+        "active_session_replacement_markers_absent": line_status(
+            first_replacement_active_index < 0 and first_replacement_settled_index < 0,
+            ordering_detail,
+        ),
+        "active_session_lifecycle_completed_after_declines": line_status(
+            (
+                first_shutdown_index > first_settled_index >= 0
+                and first_exit_index > first_shutdown_index
+                and first_release_index > first_exit_index
+            )
+            or (
+                first_recoverable_complete_index > first_settled_index >= 0
+                and first_release_index > first_recoverable_complete_index
+            ),
+            ordering_detail,
+        ),
+        "active_session_shutdown_hotkey_optional": line_status(
+            True,
+            shutdown_hotkey_detail if shutdown_hotkey_sent else "not sent",
+        ),
+        "incoming_launches_conflict_and_decline": line_status(
+            all(
+                info["conflict"] >= 0 and info["prompt_decline"] > info["conflict"] >= 0
+                for info in incoming_indexes
+            ),
+            ordering_detail,
+        ),
+        "incoming_launches_record_preserved_session_success": line_status(
+            all(
+                info["decline_success"] > info["prompt_decline"] >= 0
+                for info in incoming_indexes
+            ),
+            ordering_detail,
+        ),
+        "incoming_launches_never_start_runtime_ownership": line_status(
+            all(
+                info["runtime_start"] < 0 and info["renderer_spawn"] < 0 and info["settled"] < 0
+                for info in incoming_indexes
+            ),
+            ordering_detail,
+        ),
+        "incoming_launches_emit_no_replacement_markers": line_status(
+            all(
+                info["prompt_accept"] < 0
+                and info["signal_sent"] < 0
+                and info["reacquire"] < 0
+                and info["replacement_confirmed"] < 0
+                and info["replacement_active"] < 0
+                and info["replacement_settled"] < 0
+                and info["release"] < 0
+                for info in incoming_indexes
+            ),
+            ordering_detail,
+        ),
+        "incoming_launches_generic_already_running_marker_absent": line_status(
+            all(info["already_running"] < 0 for info in incoming_indexes),
+            ordering_detail,
+        ),
+        "incoming_launches_no_failure_flow": line_status(
+            all(
+                not any("STATUS|SUCCESS|LAUNCHER_RUNTIME|FAILURE_FLOW_COMPLETE" in line for line in lines)
+                for lines in incoming_runtime_lines
+            ),
+            "STATUS|SUCCESS|LAUNCHER_RUNTIME|FAILURE_FLOW_COMPLETE absent",
+        ),
+        "no_relaunch_wait_timeout_in_incoming_launches": line_status(
+            all(
+                not any("RELAUNCH_WAIT_TIMEOUT" in line for line in lines)
+                for lines in incoming_runtime_lines
+            ),
+            "RELAUNCH_WAIT_TIMEOUT absent",
+        ),
+        "single_instance_guard_remained_with_active_session": line_status(
+            first_relaunch_request_index < 0
+            and all(info["reacquire"] < 0 for info in incoming_indexes)
+            and (
+                first_release_index > first_exit_index >= 0
+                or first_release_index > first_recoverable_complete_index >= 0
+            ),
+            ordering_detail,
+        ),
+        "traceback_absent": line_status(
+            "Traceback" not in first_stderr
+            and all("Traceback" not in stderr for stderr in incoming_stderrs),
+            "\n".join(
+                part for part in [first_stderr, *incoming_stderrs, first_stdout, *incoming_stdouts] if part
+            ) or "no traceback in launcher output",
+        ),
+        "scenario_preflight_cleanup_optional": line_status(
+            not preexisting_processes_after,
+            "no prior validation-owned launcher/runtime processes detected"
+            if not preexisting_processes_before
+            else (
+                f"detected {len(preexisting_processes_before)} prior process(es); "
+                f"killed={','.join(str(pid) for pid in preexisting_processes_killed) or 'none'}"
+            ),
+        ),
+        "launch_chain_cleanup_optional": line_status(
+            not residual_launch_chain_processes_after,
+            "no residual validation-owned launcher/runtime processes detected"
+            if not residual_launch_chain_processes_before
+            else (
+                f"detected {len(residual_launch_chain_processes_before)} residual process(es); "
+                f"killed={','.join(str(pid) for pid in residual_launch_chain_killed) or 'none'}"
+            ),
+        ),
+    }
+
+    return {
+        "scenario_name": scenario_name,
+        "log_root": scenario_root,
+        "runtime_log": first_runtime_log,
+        "stdout": "\n".join(part for part in [first_stdout, *incoming_stdouts] if part),
+        "stderr": "\n".join(part for part in [first_stderr, *incoming_stderrs] if part),
         "checks": checks,
     }
 
@@ -2845,6 +3213,7 @@ def run_validation():
         "vbs_accepted_relaunch_cycle_slow_shutdown",
         {"JARVIS_HARNESS_RELAUNCH_SHUTDOWN_DELAY_SECONDS": "1.6"},
     )
+    declined_relaunch_result = run_declined_relaunch_cycle_scenario()
     relaunch_after_recoverable_result = run_relaunch_after_recoverable_exit_scenario()
     consecutive_relaunch_cycles_result = run_rapid_consecutive_accepted_relaunch_cycles_scenario()
     main_invalid_argument_result = run_main_invalid_argument_scenario()
@@ -2879,6 +3248,8 @@ def run_validation():
         checks[f"{accepted_relaunch_result['scenario_name']}::{check_name}"] = check_result
     for check_name, check_result in accepted_relaunch_slow_shutdown_result["checks"].items():
         checks[f"{accepted_relaunch_slow_shutdown_result['scenario_name']}::{check_name}"] = check_result
+    for check_name, check_result in declined_relaunch_result["checks"].items():
+        checks[f"{declined_relaunch_result['scenario_name']}::{check_name}"] = check_result
     for check_name, check_result in relaunch_after_recoverable_result["checks"].items():
         checks[f"{relaunch_after_recoverable_result['scenario_name']}::{check_name}"] = check_result
     for check_name, check_result in consecutive_relaunch_cycles_result["checks"].items():

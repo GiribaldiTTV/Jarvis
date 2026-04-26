@@ -13,6 +13,7 @@ This branch record owns FB-047 `Branch Readiness` while the backlog item remains
 This pass closes FB-046 post-release canon on the next legal `feature/` branch surface, advances latest public prerelease truth to `v1.6.10-prebeta`, clears merged-unreleased release debt, and admits the first bounded runtime/user-facing relaunch-decline preservation slice without promoting FB-047 before `Workstream`.
 
 Historical traceability note: `feature/fb-046-post-merge-canon-sync` was a bounded repair-only post-merge canon-sync branch only and did not imply FB-046 or FB-047 Branch Readiness admission or active branch truth.
+Historical traceability note: Branch Readiness is complete historical proof only. Active execution truth now lives in `Docs/workstreams/FB-047_active_session_relaunch_decline_preservation.md`.
 
 ## Current Phase
 
@@ -20,17 +21,17 @@ Historical traceability note: `feature/fb-046-post-merge-canon-sync` was a bound
 
 ## Phase Status
 
-- Repo State: `Active Branch`
-- Active Branch: `feature/fb-047-active-session-relaunch-decline-preservation`
-- Active Branch Authority Record: `Docs/branch_records/feature_fb_047_active_session_relaunch_decline_preservation.md`
+- Repo State: `Historical Traceability`
+- Historical Branch: `feature/fb-047-active-session-relaunch-decline-preservation`
+- Historical posture: `Branch Readiness completed before promotion; active execution truth moved to Docs/workstreams/FB-047_active_session_relaunch_decline_preservation.md.`
 - Latest Public Prerelease: `v1.6.10-prebeta`
 - Latest Public Release Commit: `36cf07495dc8e239b20b11afb5194355b77ffd8b`
 - Latest Public Prerelease Publication: `https://github.com/GiribaldiTTV/Nexus-Desktop-AI/releases/tag/v1.6.10-prebeta`
 - Latest Public Prerelease Title: `Pre-Beta v1.6.10`
 - FB-046 is now `Released / Closed` historical proof in `v1.6.10-prebeta`.
 - Merged-unreleased release debt is clear after publication, validation, and post-release canon closure.
-- FB-047 Branch Readiness is active on this branch, and the first bounded relaunch-decline preservation slice is admitted.
-- Active seam: `None.`
+- FB-047 Branch Readiness is complete historical proof, and active execution truth now lives in the promoted canonical workstream doc on this same branch.
+- Active seam: `None.` This record is now preserved historical Branch Readiness truth.
 
 ## Branch Class
 

@@ -67,11 +67,11 @@ Current merged truth indicates:
 - latest public prerelease title: `Pre-Beta v1.6.10`
 - merged unreleased non-doc implementation debt exists: no
 - the latest public released implementation milestones are FB-046 Active-session relaunch reacquisition and settled re-entry proof in `v1.6.10-prebeta`; FB-044 Boot-to-desktop handoff outcome refinement and FB-045 Active-session relaunch outcome refinement remain released in `v1.6.9-prebeta`; FB-043 Top-level desktop entrypoint ownership and `main.py` handoff refinement remains released in `v1.6.8-prebeta`; FB-042 Desktop entrypoint runtime refinement remains released in `v1.6.7-prebeta`; FB-005 Workspace and folder organization remains released in `v1.6.6-prebeta`; FB-030 ORIN voice/audio direction refinement remains released in `v1.6.5-prebeta`; FB-015 Boot and desktop phase-boundary model plus FB-029 ORIN legal-safe rebrand, future ARIA persona option, and repo licensing hardening remain released in `v1.6.4-prebeta`
-- current phase after `v1.6.10-prebeta` release closure: `Branch Readiness`
-- phase status after `v1.6.10-prebeta` release closure: FB-044 and FB-045 are Released / Closed in `v1.6.9-prebeta`; FB-046 is Released / Closed in `v1.6.10-prebeta`; release debt is clear after publication, validation, and post-release canon closure; and FB-047 now holds the selected-only active Branch Readiness lane on `feature/fb-047-active-session-relaunch-decline-preservation`.
-- current active workstream: none; release debt is clear and no promoted implementation workstream is active yet
+- current phase after `v1.6.10-prebeta` release closure: `Workstream`
+- phase status after `v1.6.10-prebeta` release closure: FB-044 and FB-045 are Released / Closed in `v1.6.9-prebeta`; FB-046 is Released / Closed in `v1.6.10-prebeta`; release debt is clear after publication, validation, and post-release canon closure; and FB-047 is now the active promoted workstream on `feature/fb-047-active-session-relaunch-decline-preservation`.
+- current active workstream: FB-047 Active-session relaunch decline session-preservation proof
 - current branch after `v1.6.10-prebeta` release closure: `feature/fb-047-active-session-relaunch-decline-preservation`
-- next concern: complete FB-047 Branch Readiness truth and carry the admitted relaunch-decline preservation slice into `Workstream` without widening beyond the bounded runtime/user-facing lane.
+- next concern: pressure-test the completed FB-047 decline-preservation pass in `Hardening` without widening beyond the bounded runtime/user-facing lane.
 
 That means the released FB-027 interaction baseline, the released FB-036 authoring-and-callable-group milestone, the released FB-041 deterministic callable-group execution milestone, the released FB-037 built-in catalog milestone, the released FB-038 tray quick-task UX milestone, the released FB-039 external trigger intake architecture milestone, the released FB-040 monitoring/thermal architecture milestone, the released FB-031 UI/UX architecture milestone, the released FB-032 source-of-truth migration milestone, the released FB-004 future boot-orchestrator architecture milestone, the released FB-015 plus FB-029 planning milestones, the released FB-030 voice/audio planning milestone, and the released FB-005 bounded workspace-path slice are now part of the current public shared pre-Beta baseline.
 
@@ -86,49 +86,59 @@ Latest Public Release Commit: 36cf07495dc8e239b20b11afb5194355b77ffd8b
 Latest Public Prerelease Publication: https://github.com/GiribaldiTTV/Nexus-Desktop-AI/releases/tag/v1.6.10-prebeta
 Latest Public Prerelease Title: Pre-Beta v1.6.10
 Release Debt: Clear after `v1.6.10-prebeta` publication, validation, and post-release canon closure.
-Current active workstream: None
+Current active workstream: FB-047 Active-session relaunch decline session-preservation proof
 Current Active Workstream Before Release: None
 Current Active Branch: `feature/fb-047-active-session-relaunch-decline-preservation`
 Active Branch Before Release: `None`
-Current Active Branch Authority Record: `Docs/branch_records/feature_fb_047_active_session_relaunch_decline_preservation.md`
-Current Active Canonical Workstream Doc: `None`
+Current Active Branch Authority Record: `None`
+Current Active Canonical Workstream Doc: `Docs/workstreams/FB-047_active_session_relaunch_decline_preservation.md`
 Historical Active Workstream Before Release: FB-046 Active-session relaunch reacquisition and settled re-entry proof
 Historical Active Branch Before Release: `feature/fb-046-active-session-relaunch-reacquisition`
 Earlier Historical Active Workstream Before Release: FB-045 Active-session relaunch outcome refinement
 Earlier Historical Active Branch Before Release: `feature/fb-045-active-session-relaunch-stability`
-Selected Next Workstream: FB-047 Active-session relaunch decline session-preservation proof.
-Selected Next Record State: Registry-only.
-Selected Next Implementation Branch: `feature/fb-047-active-session-relaunch-decline-preservation`
+Selected Next Workstream: None selected while FB-047 remains the active promoted workstream.
+Selected Next Record State: None.
+Selected Next Implementation Branch: `None`
 Repair-Only Branch Handling: `feature/fb-046-post-merge-canon-sync` is a bounded repair-only post-merge canon-sync `feature/` branch and did not imply Branch Readiness admission or active branch truth for FB-046.
 Historical Branch Readiness State: Complete on `feature/fb-046-active-session-relaunch-reacquisition`.
-Current Branch Readiness State: Complete on `feature/fb-047-active-session-relaunch-decline-preservation`. Post-release canon closure is complete, and the first bounded relaunch-decline preservation slice is admitted.
+Current Branch Readiness State: Historical proof complete on `feature/fb-047-active-session-relaunch-decline-preservation`; active execution truth now lives in the promoted canonical workstream doc.
 Historical Workstream State: FB-046 is Released / Closed in `v1.6.10-prebeta`; FB-044 and FB-045 remain Released / Closed historical proof in `v1.6.9-prebeta`.
 Historical Hardening State: Complete on `feature/fb-046-active-session-relaunch-reacquisition`.
 Historical Live Validation State: Complete on `feature/fb-046-active-session-relaunch-reacquisition`.
 PR Readiness State: Historical proof complete on `feature/fb-046-active-session-relaunch-reacquisition`; PR #92 merged into `main` at `36cf07495dc8e239b20b11afb5194355b77ffd8b`.
 Release Execution State: `v1.6.10-prebeta` is live at https://github.com/GiribaldiTTV/Nexus-Desktop-AI/releases/tag/v1.6.10-prebeta on commit `36cf07495dc8e239b20b11afb5194355b77ffd8b`.
-Current Branch Objective: close FB-046 post-release canon and admit the first bounded runtime/user-facing FB-047 relaunch-decline preservation slice while preserving selected-only truth until `Workstream` begins.
-Next Legal Phase: Workstream.
-Active Workstream Chain: Release debt is clear; FB-047 now holds the selected-only active Branch Readiness lane on `feature/fb-047-active-session-relaunch-decline-preservation`; the first bounded relaunch-decline preservation slice is admitted; and `Workstream` is the next legal phase.
+Current Branch Objective: complete the full currently implementable FB-047 runtime/user-facing relaunch-decline preservation pass by proving repeated declined incoming launches preserve active ownership and exit truthfully.
+Next Legal Phase: Hardening.
+Active Workstream Chain: Release debt is clear; FB-047 is the active promoted workstream on `feature/fb-047-active-session-relaunch-decline-preservation`; WS-1 is complete and validated; `Backlog Completion State` is `Implemented Complete`; and `Hardening` is the next legal phase.
 
 ## Current Merged-Unreleased Workstream
 
 None.
 
+## Promoted Canonical Workstreams
+
+- `Docs/workstreams/FB-047_active_session_relaunch_decline_preservation.md`
+- `Docs/workstreams/FB-046_active_session_relaunch_reacquisition.md`
+- `Docs/workstreams/FB-045_active_session_relaunch_outcome_refinement.md`
+- `Docs/workstreams/FB-044_boot_desktop_handoff_outcome_refinement.md`
+
 ## Selected Next Workstream
 
-- ID: `FB-047`
-- Title: `Active-session relaunch decline session-preservation proof`
-- Record State: `Registry-only`
-- Priority: `High`
-- Minimal Scope: Prove and refine the relaunch-decline lane across `desktop/single_instance.py`, `desktop/orin_desktop_launcher.pyw`, `desktop/orin_desktop_main.py`, and the minimum required reusable validator surfaces so declining replacement preserves the active settled session and cleanly terminates the incoming launch without dual ownership or false successor markers.
-- Branch: `feature/fb-047-active-session-relaunch-decline-preservation`
-- Branch Creation Gate: cleared; `v1.6.10-prebeta` is published and validated, updated `main` is revalidated, and FB-047 Branch Readiness has admitted the first bounded runtime/user-facing relaunch-decline preservation slice
-- Selection Basis: FB-047 is the smallest repo-grounded runtime/user-facing successor after FB-046 because accepted relaunch is now fully proven end to end, but the complementary decline path still lacks first-class proof that declining replacement preserves the settled active session, keeps single-instance ownership with that session, and terminates the incoming launch truthfully without dual ownership or false replacement-session success markers.
+`None selected yet while FB-047 remains the active promoted workstream.`
 
 ## Active Promoted Workstream
 
-`None.`
+[Docs/workstreams/FB-047_active_session_relaunch_decline_preservation.md](Docs/workstreams/FB-047_active_session_relaunch_decline_preservation.md)
+
+### FB-047 Active-session relaunch decline session-preservation proof
+
+status: `In Progress`
+record state: `Promoted`
+priority: `High`
+canonical workstream doc: `Docs/workstreams/FB-047_active_session_relaunch_decline_preservation.md`
+branch: `feature/fb-047-active-session-relaunch-decline-preservation`
+phase status: release debt is clear after `v1.6.10-prebeta` publication, validation, and post-release canon closure; FB-047 is now the active promoted workstream on `feature/fb-047-active-session-relaunch-decline-preservation`; WS-1 is complete and validated; `Backlog Completion State` is `Implemented Complete`; and `Hardening` is next.
+next legal seam: `Hardening`
 
 ## Latest Released Workstream Context
 
@@ -139,14 +149,14 @@ record state: `Closed`
 priority: `High`
 canonical workstream doc: `Docs/workstreams/FB-046_active_session_relaunch_reacquisition.md`
 branch: `feature/fb-046-active-session-relaunch-reacquisition`
-phase status: Released / Closed in `v1.6.10-prebeta`; PR #92 merged into `main` at `36cf07495dc8e239b20b11afb5194355b77ffd8b`; the release is live on the same commit; release debt is clear; and FB-047 now holds the selected-only active Branch Readiness lane on `feature/fb-047-active-session-relaunch-decline-preservation`.
+phase status: Released / Closed in `v1.6.10-prebeta`; PR #92 merged into `main` at `36cf07495dc8e239b20b11afb5194355b77ffd8b`; the release is live on the same commit; release debt is clear; and FB-047 is now the active promoted workstream on `feature/fb-047-active-session-relaunch-decline-preservation`.
 next legal seam: none; this record is now historical released truth
 Release Target: `v1.6.10-prebeta`
 Release Floor: `patch prerelease`
 Version Rationale: FB-046 delivers a bounded runtime/user-facing relaunch-reacquisition refinement on the existing desktop startup family without opening a new product lane or materially expanded feature family.
 Release Scope: completed FB-046 WS-1 accepted relaunch replacement-session settled re-entry proof, H-1 relaunch lifecycle hardening, LV-1 real desktop shortcut evidence, reusable validation evidence, merged-unreleased release-debt truth, and selected-next FB-047 successor lock for the bounded runtime/user-facing lane only.
 Release Artifacts: Tag `v1.6.10-prebeta`; release title `Pre-Beta v1.6.10`; rich Markdown release notes summarize the bounded FB-046 relaunch-reacquisition runtime/user-facing package, real shortcut evidence, and the FB-047 successor lane without repeating the release title inside the notes body, and GitHub-generated `## What's Changed` plus `**Full Changelog**:` must be included.
-Post-Release Truth: FB-046 is Released / Closed in `v1.6.10-prebeta`; release debt is clear; and FB-047 now holds the selected-only active Branch Readiness lane on `feature/fb-047-active-session-relaunch-decline-preservation` until `Workstream` promotion begins.
+Post-Release Truth: FB-046 is Released / Closed in `v1.6.10-prebeta`; release debt is clear; and FB-047 is now the active promoted workstream on `feature/fb-047-active-session-relaunch-decline-preservation`.
 minimal scope: complete the bounded accepted relaunch lane across `desktop/single_instance.py`, `desktop/orin_desktop_launcher.pyw`, `desktop/orin_desktop_main.py`, `dev/orin_desktop_entrypoint_validation.py`, and `dev/orin_boot_transition_verification.py` so the replacement session reacquires the guard and returns to authoritative settled without widening into `main.py`, `Audio/`, `logs/`, `jarvis_visual/`, installer work, or broader boot-orchestrator implementation
 branch-readiness carry-forward: preserved in `Docs/branch_records/feature_fb_046_active_session_relaunch_reacquisition.md`
 
@@ -256,7 +266,7 @@ The 2026-04-23 priority reading is updated during FB-005 Branch Readiness:
 - FB-043 is now Released / Closed in `v1.6.8-prebeta`.
 - FB-044 and FB-045 are now Released / Closed in `v1.6.9-prebeta`.
 
-Current-branch clarity: latest public prerelease is `v1.6.10-prebeta`; FB-044 and FB-045 are released and closed in `v1.6.9-prebeta`; FB-046 is released and closed in `v1.6.10-prebeta`; release debt is clear; and FB-047 now holds the selected-only active Branch Readiness lane on `feature/fb-047-active-session-relaunch-decline-preservation`, with the first bounded relaunch-decline preservation slice admitted and `Workstream` next.
+Current-branch clarity: latest public prerelease is `v1.6.10-prebeta`; FB-044 and FB-045 are released and closed in `v1.6.9-prebeta`; FB-046 is released and closed in `v1.6.10-prebeta`; release debt is clear; and FB-047 is now the active promoted workstream on `feature/fb-047-active-session-relaunch-decline-preservation`, with WS-1 complete, `Backlog Completion State` at `Implemented Complete`, and `Hardening` next.
 
 ## Current Merged-Unreleased Workstream
 
