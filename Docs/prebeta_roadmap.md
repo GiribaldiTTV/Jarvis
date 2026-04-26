@@ -137,7 +137,7 @@ Post-Release Truth: FB-046 becomes Released / Closed in v1.6.10-prebeta after pu
 - Record State: `Registry-only`
 - Priority: `High`
 - Minimal Scope: Prove and refine the relaunch-decline lane across `desktop/single_instance.py`, `desktop/orin_desktop_launcher.pyw`, `desktop/orin_desktop_main.py`, and the minimum required reusable validator surfaces so declining replacement preserves the active settled session and cleanly terminates the incoming launch without dual ownership or false successor markers.
-- Branch: `Not created`
+- Branch: Not created
 - Branch Creation Gate: after `v1.6.10-prebeta` is published and validated, updated `main` is revalidated, and FB-047 Branch Readiness admits the first bounded runtime/user-facing relaunch-decline preservation slice
 - Selection Basis: FB-047 is the smallest repo-grounded runtime/user-facing successor after FB-046 because accepted relaunch is now fully proven end to end, but the complementary decline path still lacks first-class proof that declining replacement preserves the settled active session, keeps single-instance ownership with that session, and terminates the incoming launch truthfully without dual ownership or false replacement-session success markers.
 
