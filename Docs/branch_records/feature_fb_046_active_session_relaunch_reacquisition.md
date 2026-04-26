@@ -13,6 +13,7 @@ This branch record owns FB-046 `Branch Readiness` while the backlog item remains
 This pass closes FB-044 and FB-045 post-release canon on the next legal `feature/` branch surface, advances latest public prerelease truth to `v1.6.9-prebeta`, clears merged-unreleased release debt, and admits the first bounded runtime/user-facing relaunch-reacquisition slice without promoting FB-046 before `Workstream`.
 
 Historical traceability note: `feature/fb-046-post-merge-canon-sync` was a bounded repair-only post-merge canon-sync branch only and did not imply FB-046 Branch Readiness admission or active branch truth.
+Historical traceability note: Branch Readiness is complete historical proof only. Active execution truth now lives in `Docs/workstreams/FB-046_active_session_relaunch_reacquisition.md`.
 
 ## Current Phase
 
@@ -20,16 +21,17 @@ Historical traceability note: `feature/fb-046-post-merge-canon-sync` was a bound
 
 ## Phase Status
 
-- Repo State: `Active Branch`
-- Active Branch: `feature/fb-046-active-session-relaunch-reacquisition`
+- Repo State: `Historical Traceability`
+- Historical Branch: `feature/fb-046-active-session-relaunch-reacquisition`
+- Historical posture: `Branch Readiness completed before promotion; active execution truth moved to Docs/workstreams/FB-046_active_session_relaunch_reacquisition.md.`
 - Latest Public Prerelease: `v1.6.9-prebeta`
 - Latest Public Release Commit: `348fd55b944435e3cae80b97acd0bb857fd65d56`
 - Latest Public Prerelease Publication: `https://github.com/GiribaldiTTV/Nexus-Desktop-AI/releases/tag/v1.6.9-prebeta`
 - Latest Public Prerelease Title: `Pre-Beta v1.6.9`
 - FB-044 and FB-045 are now `Released / Closed` historical proof in `v1.6.9-prebeta`.
 - Merged-unreleased release debt is clear after publication, validation, and post-release canon closure.
-- FB-046 remains selected-only / `Registry-only` during this Branch Readiness pass.
-- Active seam: `None.` Branch Readiness has admitted the first bounded FB-046 runtime/user-facing slice; `Workstream` is the next legal phase.
+- FB-046 Branch Readiness is complete historical proof, and active execution truth now lives in the promoted canonical workstream doc on this same branch.
+- Active seam: `None.` This record is now preserved historical Branch Readiness truth.
 
 ## Branch Class
 

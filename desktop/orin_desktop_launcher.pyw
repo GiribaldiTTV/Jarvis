@@ -1356,10 +1356,44 @@ def finalize_failure(
 
 def main():
     run_id = create_run_id()
+    single_instance_state = {
+        "replacement_session": False,
+        "replacement_session_settled_recorded": False,
+        "released": False,
+    }
 
     def log_single_instance_event(event):
+        if event in {"RELAUNCH_ACQUIRED_AFTER_WAIT", "RELAUNCH_REPLACEMENT_SESSION_CONFIRMED"}:
+            single_instance_state["replacement_session"] = True
         runtime(f"Single-instance flow: {event}")
         runtime_event("STATUS", "TRACE", "LAUNCHER_RUNTIME", event)
+
+    def record_relaunch_replacement_settled():
+        if (
+            not single_instance_state["replacement_session"]
+            or single_instance_state["replacement_session_settled_recorded"]
+        ):
+            return
+
+        single_instance_state["replacement_session_settled_recorded"] = True
+        runtime("Replacement session reached authoritative desktop-settled state after relaunch")
+        runtime_event(
+            "STATUS",
+            "SUCCESS",
+            "LAUNCHER_RUNTIME",
+            "RELAUNCH_REPLACEMENT_SESSION_SETTLED",
+            "state=dormant",
+        )
+
+    def release_single_instance_resources():
+        if single_instance_state["released"]:
+            return
+
+        single_instance_state["released"] = True
+        runtime("Single-instance flow: SINGLE_INSTANCE_RELEASED")
+        runtime_event("STATUS", "TRACE", "LAUNCHER_RUNTIME", "SINGLE_INSTANCE_RELEASED")
+        runtime_instance_guard.release()
+        runtime_relaunch_signal.close()
 
     if not acquire_or_prompt_replace(
         runtime_instance_guard,
@@ -1385,6 +1419,9 @@ def main():
     runtime(f"Python executable: {pythonw()}")
     runtime(f"Working directory: {ROOT_DIR}")
     runtime(f"Renderer target: {TARGET_SCRIPT}")
+    if single_instance_state["replacement_session"]:
+        runtime("Replacement session confirmed after accepted relaunch")
+        runtime_event("STATUS", "TRACE", "LAUNCHER_RUNTIME", "RELAUNCH_REPLACEMENT_SESSION_ACTIVE")
 
     diagnostics_opened = False
     recovery_voice_spoken = False
@@ -1422,6 +1459,7 @@ def main():
 
     for attempt in range(1, MAX_RECOVERY_ATTEMPTS + 1):
         if exit_if_relaunch_requested("before_renderer_attempt"):
+            release_single_instance_resources()
             return 0
 
         runtime(f"Renderer launch attempt {attempt}/{MAX_RECOVERY_ATTEMPTS}")
@@ -1470,6 +1508,7 @@ def main():
             )
 
         if startup_observation == "settled" and post_settled_classification == "valid_termination":
+            record_relaunch_replacement_settled()
             runtime("Renderer exited normally")
             runtime_event("STATUS", "SUCCESS", "RECOVERY_ATTEMPT", f"INDEX={attempt}", "RENDERER_EXIT=0")
             write_status("TRACE", "Renderer exited normally")
@@ -1484,9 +1523,11 @@ def main():
                 "NORMAL_EXIT_COMPLETE",
                 attempt,
             )
+            release_single_instance_resources()
             return 0
 
         if startup_observation == "settled" and post_settled_classification == "recoverable_condition":
+            record_relaunch_replacement_settled()
             marker_details = [
                 f"EXIT={last_code}",
                 f"RELAUNCH_REQUESTED={'true' if post_settled_exit_markers['relaunch_requested'] else 'false'}",
@@ -1532,6 +1573,7 @@ def main():
                 "POST_SETTLED_RECOVERABLE_COMPLETE",
                 attempt,
             )
+            release_single_instance_resources()
             return 0
 
         if last_code == STARTUP_ABORT_CONTROL_FLOW_RESULT:
@@ -1657,6 +1699,7 @@ def main():
             runtime_event("STATUS", "SUCCESS", "RECOVERY_COOLDOWN", f"INDEX={attempt}")
 
     if exit_if_relaunch_requested("before_failure_finalization"):
+        release_single_instance_resources()
         return 0
 
     failure_stability = select_failure_stability(
@@ -1780,6 +1823,7 @@ def main():
         last_failure_cause,
         last_failure_origin,
     )
+    release_single_instance_resources()
 
 
 if __name__ == "__main__":
