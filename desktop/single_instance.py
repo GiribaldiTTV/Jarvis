@@ -1,5 +1,6 @@
 import atexit
 import ctypes
+import os
 import time
 from ctypes import wintypes
 from typing import Callable
@@ -55,6 +56,11 @@ WAIT_TIMEOUT = 258
 
 FOREGROUND_DIALOG_FLAGS = MB_SYSTEMMODAL | MB_SETFOREGROUND | MB_TOPMOST
 _qt_dialog_app = None
+
+
+def harness_auto_accept_relaunch():
+    value = (os.environ.get("JARVIS_HARNESS_AUTO_ACCEPT_RELAUNCH") or "").strip().casefold()
+    return value in {"1", "true", "yes", "on"}
 
 
 class SingleInstanceGuard:
@@ -379,17 +385,20 @@ def acquire_or_prompt_replace(
 
     log_event("SINGLE_INSTANCE_CONFLICT_DETECTED")
 
-    if not show_replace_running_dialog(
-        title,
-        message,
-        eyebrow_text=eyebrow_text,
-        primary_button_text=primary_button_text,
-        secondary_button_text=secondary_button_text,
-    ):
-        log_event("REPLACE_PROMPT_DECLINED")
-        return False
+    if harness_auto_accept_relaunch():
+        log_event("REPLACE_PROMPT_AUTO_ACCEPTED")
+    else:
+        if not show_replace_running_dialog(
+            title,
+            message,
+            eyebrow_text=eyebrow_text,
+            primary_button_text=primary_button_text,
+            secondary_button_text=secondary_button_text,
+        ):
+            log_event("REPLACE_PROMPT_DECLINED")
+            return False
 
-    log_event("REPLACE_PROMPT_ACCEPTED")
+        log_event("REPLACE_PROMPT_ACCEPTED")
 
     if not relaunch_signal.signal():
         log_event("RELAUNCH_SIGNAL_FAILED")
@@ -408,6 +417,7 @@ def acquire_or_prompt_replace(
         if guard.acquire():
             relaunch_signal.clear()
             log_event("RELAUNCH_ACQUIRED_AFTER_WAIT")
+            log_event("RELAUNCH_REPLACEMENT_SESSION_CONFIRMED")
             return True
         time.sleep(max(0.05, poll_interval_seconds))
 
