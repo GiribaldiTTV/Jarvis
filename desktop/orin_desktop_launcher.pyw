@@ -1358,6 +1358,8 @@ def main():
     run_id = create_run_id()
     single_instance_state = {
         "declined_relaunch": False,
+        "signal_failed_relaunch": False,
+        "wait_timeout_relaunch": False,
         "replacement_session": False,
         "replacement_session_settled_recorded": False,
         "released": False,
@@ -1366,6 +1368,10 @@ def main():
     def log_single_instance_event(event):
         if event in {"REPLACE_PROMPT_DECLINED", "REPLACE_PROMPT_AUTO_DECLINED"}:
             single_instance_state["declined_relaunch"] = True
+        if event == "RELAUNCH_SIGNAL_FAILED":
+            single_instance_state["signal_failed_relaunch"] = True
+        if event == "RELAUNCH_WAIT_TIMEOUT":
+            single_instance_state["wait_timeout_relaunch"] = True
         if event in {"RELAUNCH_ACQUIRED_AFTER_WAIT", "RELAUNCH_REPLACEMENT_SESSION_CONFIRMED"}:
             single_instance_state["replacement_session"] = True
         runtime(f"Single-instance flow: {event}")
@@ -1415,6 +1421,26 @@ def main():
                 "SUCCESS",
                 "LAUNCHER_RUNTIME",
                 "RELAUNCH_DECLINED_SESSION_PRESERVED",
+            )
+        elif single_instance_state["signal_failed_relaunch"]:
+            runtime(
+                "Incoming launch exited after accepted relaunch signal failure: current session preserved"
+            )
+            runtime_event(
+                "STATUS",
+                "WARNING",
+                "LAUNCHER_RUNTIME",
+                "RELAUNCH_SIGNAL_FAILED_SESSION_PRESERVED",
+            )
+        elif single_instance_state["wait_timeout_relaunch"]:
+            runtime(
+                "Incoming launch exited after accepted relaunch wait timeout: current session preserved"
+            )
+            runtime_event(
+                "STATUS",
+                "WARNING",
+                "LAUNCHER_RUNTIME",
+                "RELAUNCH_WAIT_TIMEOUT_SESSION_PRESERVED",
             )
         else:
             runtime("Launcher start blocked: Nexus Desktop AI is already running")

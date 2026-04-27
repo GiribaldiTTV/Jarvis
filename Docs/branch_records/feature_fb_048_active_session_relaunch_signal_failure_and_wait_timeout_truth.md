@@ -8,7 +8,7 @@
 
 ## Purpose / Why It Exists
 
-This branch record owns FB-048 `Branch Readiness` while the backlog item remains `Registry-only` and before a promoted canonical workstream record exists.
+This branch record preserves the historical FB-048 `Branch Readiness` authority now that the backlog item has been promoted into its canonical workstream record.
 
 This pass closes FB-047 post-release canon on the next legal `feature/` branch surface, advances latest public prerelease truth to `v1.6.11-prebeta`, clears merged-unreleased release debt, and admits the first bounded runtime/user-facing relaunch signal-failure and wait-timeout truth slice without promoting FB-048 before `Workstream`.
 
@@ -20,18 +20,18 @@ Historical traceability note: `feature/fb-046-post-merge-canon-sync` was a bound
 
 ## Phase Status
 
-- Repo State: `Active Branch`
-- Current Active Branch: `feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeout-truth`
-- Current Active Branch Authority Record: `Docs/branch_records/feature_fb_048_active_session_relaunch_signal_failure_and_wait_timeout_truth.md`
-- Current Active Canonical Workstream Doc: `None`
+- Repo State: `Historical Traceability`
+- Historical Branch: `feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeout-truth`
+- Historical Active Branch Authority Record Before Promotion: `Docs/branch_records/feature_fb_048_active_session_relaunch_signal_failure_and_wait_timeout_truth.md`
+- Current Active Canonical Workstream Doc: `Docs/workstreams/FB-048_active_session_relaunch_signal_failure_and_wait_timeout_truth.md`
 - Latest Public Prerelease: `v1.6.11-prebeta`
 - Latest Public Release Commit: `4ca70572fbc8033bc96fcd299dd309464e81393a`
 - Latest Public Prerelease Publication: `https://github.com/GiribaldiTTV/Nexus-Desktop-AI/releases/tag/v1.6.11-prebeta`
 - Latest Public Prerelease Title: `Pre-Beta v1.6.11`
 - FB-047 is now `Released / Closed` historical proof in `v1.6.11-prebeta`.
 - Merged-unreleased release debt is clear after publication, validation, and post-release canon closure.
-- FB-048 remains `Registry-only`; Branch Readiness is the active phase on this branch; promotion is deferred until actual `Workstream` execution begins.
-- Active seam: `None.` Branch Readiness is complete and WS-1 is admitted.
+- FB-048 is now the active promoted workstream on the same branch; this record remains historical Branch Readiness traceability only.
+- Active seam: `None.` Branch Readiness is preserved historical truth after promotion.
 
 ## Branch Class
 

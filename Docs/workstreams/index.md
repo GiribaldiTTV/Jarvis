@@ -83,7 +83,7 @@ For an active or recently closed canonical workstream, keep these durable tracea
 Active here means the current promoted truth owner.
 That may be an executable branch owner or another explicitly promoted current-truth owner.
 
-- `None.`
+- `Docs/workstreams/FB-048_active_session_relaunch_signal_failure_and_wait_timeout_truth.md`
 
 ### Merged / Release Debt Owners
 
