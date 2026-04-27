@@ -62,9 +62,11 @@ This branch must not change runtime behavior. Its job is to repair and harden so
 - Slice R4-S5 result: complete and green. The FB-042 and FB-027 dossier shells, routing, and shared index-template surfaces now validate cleanly as stable Phase 4 family-dossier structure, no historical rows or narrative bodies were migrated yet, and FB-049 remains the only selected-next user-facing candidate.
 - Historical Workstream Seam: `Phase 5 - Historical Pass Record Conversion / Slice R5-S1 - Convert FB-043 through FB-048 workstream records`
 - Slice R5-S1 result: complete and green. FB-043 through FB-048 now preserve explicit `Historical Pass Record` identity inside their canonical workstream docs, each record now routes to the FB-042 family dossier with the correct `Pass ID`, the FB-042 dossier pass index plus slice/seam ledger now carry summary rows for `F042-P02` through `F042-P07`, full historical narrative remains in the preserved workstream records, and FB-049 remains the only selected-next user-facing candidate.
-- Current Workstream Seam: `Phase 5 - Historical Pass Record Conversion / Slice R5-S2 - Convert FB-036, FB-037, FB-038, and FB-041 workstream records`
-- Slice Status: in progress. Phase 5 continues at R5-S2 because the first historical FB-027 alias workstream records still remain to be converted on this same branch, Completion Status is not green yet, no waiver is recorded, and continuation is still required.
-- Next Active Seam: `Phase 5 - Historical Pass Record Conversion / Slice R5-S2 - Convert FB-036, FB-037, FB-038, and FB-041 workstream records`
+- Historical Workstream Seam: `Phase 5 - Historical Pass Record Conversion / Slice R5-S2 - Convert FB-036, FB-037, FB-038, and FB-041 workstream records`
+- Slice R5-S2 result: complete and green. FB-036, FB-037, FB-038, and FB-041 now preserve explicit `Historical Pass Record` identity inside their canonical workstream docs, each record now routes to the FB-027 family dossier with the correct `Pass ID`, the FB-027 dossier pass index plus slice/seam ledger now carry summary rows for `F027-P02` through `F027-P05`, full historical narrative remains in the preserved workstream records, and FB-049 remains the only selected-next user-facing candidate.
+- Current Workstream Seam: `Phase 5 - Historical Pass Record Conversion / Slice R5-S3 - Convert corresponding branch records`
+- Slice Status: in progress. Phase 5 continues at R5-S3 because corresponding preserved branch-record truth still remains to be normalized where it exists on this same branch, Completion Status is not green yet, no waiver is recorded, and continuation is still required.
+- Next Active Seam: `Phase 5 - Historical Pass Record Conversion / Slice R5-S3 - Convert corresponding branch records`
 
 ## Branch Class
 
@@ -283,10 +285,10 @@ Seam 1: `Phase 1 - Validator Bootstrap`
 
 ## Active Seam
 
-Active seam: `Phase 5 - Historical Pass Record Conversion / Slice R5-S2 - Convert FB-036, FB-037, FB-038, and FB-041 workstream records`
+Active seam: `Phase 5 - Historical Pass Record Conversion / Slice R5-S3 - Convert corresponding branch records`
 
 Phase 1 `Validator Bootstrap`, Phase 2 / Slice R2-S1 `Backlog Section Skeleton`, Phase 2 / Slice R2-S2 `Add classification markers in place`, Phase 2 / Slice R2-S3 `Move support / governance lanes`, Phase 2 / Slice R2-S4 `Move historical pass aliases`, Phase 2 / Slice R2-S5 `Backlog ordering and selection-truth hardening`, Phase 3 / Slice R3-S1 `Retitle FB-042 as the runtime family anchor`, Phase 3 / Slice R3-S2 `Map FB-043 through FB-048 under FB-042 as historical aliases`, Phase 3 / Slice R3-S3 `Retitle FB-027 as the interaction/action family anchor`, Phase 3 / Slice R3-S4 `Map FB-036, FB-037, FB-038, and FB-041 under FB-027 as historical aliases`, Phase 3 / Slice R3-S5 `Future-selection hardening`, Phase 4 / Slice R4-S1 `Convert the FB-042 dossier shell`, Phase 4 / Slice R4-S2 `Convert the FB-027 dossier shell`, Phase 4 / Slice R4-S3 `Add pass index and slice/seam ledger structure`, Phase 4 / Slice R4-S4 `Add validator/helper and artifact indexes`, and Phase 4 / Slice R4-S5 `Dossier stability validation` are complete and green.
-Next active seam: `Phase 5 - Historical Pass Record Conversion / Slice R5-S2 - Convert FB-036, FB-037, FB-038, and FB-041 workstream records`.
+Next active seam: `Phase 5 - Historical Pass Record Conversion / Slice R5-S3 - Convert corresponding branch records`.
 
 - Phase 0 `Reform Readiness` is complete.
 - Workstream Phase 1 `Validator Bootstrap` is complete and green.
@@ -306,7 +308,8 @@ Next active seam: `Phase 5 - Historical Pass Record Conversion / Slice R5-S2 - C
 - Phase 4 / Slice R4-S4 `Add validator/helper and artifact indexes` is complete and green.
 - Phase 4 / Slice R4-S5 `Dossier stability validation` is complete and green.
 - Phase 5 / Slice R5-S1 `Convert FB-043 through FB-048 workstream records` is complete and green.
-- Phase 5 / Slice R5-S2 `Convert FB-036, FB-037, FB-038, and FB-041 workstream records` is the current active seam on this branch.
+- Phase 5 / Slice R5-S2 `Convert FB-036, FB-037, FB-038, and FB-041 workstream records` is complete and green.
+- Phase 5 / Slice R5-S3 `Convert corresponding branch records` is the current active seam on this branch.
 
 ## Seam Continuation Decision
 
@@ -316,6 +319,6 @@ Completion Status: `In Progress`
 Waiver Status: `None`
 Continue Decision: `Continue`
 Stop Basis: `None`
-Next Active Seam: `Phase 5 - Historical Pass Record Conversion / Slice R5-S2 - Convert FB-036, FB-037, FB-038, and FB-041 workstream records`
+Next Active Seam: `Phase 5 - Historical Pass Record Conversion / Slice R5-S3 - Convert corresponding branch records`
 Stop Condition: `Stop only if Workstream Completion Status turns Green, or if a named blocker or waiver turns Completion Status Red before the next seam completes.`
-Continuation Action: `Execute Slice R5-S2 on this same branch and continue bounded seam-to-seam and slice-to-slice while Completion Status remains In Progress.`
+Continuation Action: `Execute Slice R5-S3 on this same branch and continue bounded seam-to-seam and slice-to-slice while Completion Status remains In Progress.`

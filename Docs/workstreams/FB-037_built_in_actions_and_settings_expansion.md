@@ -4,6 +4,7 @@
 
 - ID: `FB-037`
 - Title: `Curated built-in system actions and Nexus settings expansion`
+- Lifetime Dossier Doc: `Docs/workstreams/FB-027_interaction_shared_action_family_dossier.md`
 
 ## Record State
 
@@ -20,6 +21,20 @@
 ## Target Version
 
 - `v1.4.0-prebeta`
+
+## Historical Pass Record Identity
+
+- Family Anchor ID: `FB-027`
+- Family Anchor Title: `Interaction and shared-action family anchor`
+- Family Dossier Doc: `Docs/workstreams/FB-027_interaction_shared_action_family_dossier.md`
+- Backlog Registry Class: `Historical Pass Alias`
+- Historical Alias Of: `FB-027`
+- Pass ID: `F027-P04`
+- Alias Role: `Historical Pass Record`
+- Standalone Selection Status: `Not independently selectable`
+- Converted By Seam: `Phase 5 - Historical Pass Record Conversion / Slice R5-S2 - Convert FB-036, FB-037, FB-038, and FB-041 workstream records`
+- Historical Branch Record Preservation: `No separate implementation branch-authority record is preserved for FB-037; release-packaging authority remains in Docs/branch_records/codex_fb_037_release_debt_packaging.md.`
+- Preservation Rule: `This record keeps the detailed branch-local execution, validation, release, and artifact history; the family dossier owns cross-pass indexing.`
 
 ## Canonical Branch
 
