@@ -1162,6 +1162,14 @@ REFORM_R6_S5_ACTIVE_SEAM_NEXT_PHRASE = (
     "Phase 6 / Slice R6-S5 `Final drift sweep` is the next active seam on this branch."
 )
 REFORM_R6_S5_CONTINUATION_PHRASE = "Execute Slice R6-S5"
+REFORM_R7_S1_SEAM = (
+    "Phase 7 - Validator Finalization / Slice R7-S1 - Remove temporary dual-shape tolerance"
+)
+REFORM_R7_S1_STATE_NEXT_PHRASE = "Slice R7-S1 `Remove temporary dual-shape tolerance` is next"
+REFORM_R7_S1_ACTIVE_SEAM_NEXT_PHRASE = (
+    "Phase 7 / Slice R7-S1 `Remove temporary dual-shape tolerance` is the next active seam on this branch."
+)
+REFORM_R7_S1_CONTINUATION_PHRASE = "Execute Slice R7-S1"
 REFORM_FB042_DOSSIER_PATH = Path(
     "Docs/workstreams/FB-042_desktop_startup_runtime_family_dossier.md"
 )
@@ -2847,43 +2855,31 @@ def _validate_backlog_family_reform_bootstrap(
     if not _is_backlog_family_reform_branch(current_branch):
         return
 
-    has_current_backlog_shape = _has_all_headings(backlog_text, CURRENT_BACKLOG_SHAPE_HEADINGS)
     has_reform_backlog_shape = _has_all_headings(backlog_text, REFORM_BACKLOG_SHAPE_HEADINGS)
     require(
-        has_current_backlog_shape or has_reform_backlog_shape,
+        has_reform_backlog_shape,
         (
-            "Docs/feature_backlog.md: validator bootstrap on "
-            f"{BACKLOG_FAMILY_REFORM_BRANCH} must accept either the current backlog shape "
-            "or the reform backlog-family shape"
+            "Docs/feature_backlog.md: validator finalization on "
+            f"{BACKLOG_FAMILY_REFORM_BRANCH} requires the reform backlog-family shape"
         ),
     )
-    if _has_any_heading(backlog_text, REFORM_BACKLOG_TRIGGER_HEADINGS):
-        require(
-            has_reform_backlog_shape,
-            (
-                "Docs/feature_backlog.md: reform backlog-family headings must land as a complete "
-                "set once introduced on the migration branch"
-            ),
-        )
+    require(
+        not _has_any_heading(backlog_text, CURRENT_BACKLOG_SHAPE_HEADINGS[1:]),
+        (
+            "Docs/feature_backlog.md: validator finalization on "
+            f"{BACKLOG_FAMILY_REFORM_BRANCH} must not rely on the pre-reform "
+            "`Closed Canonical Workstreams` backlog shape"
+        ),
+    )
 
-    has_current_index_shape = _has_all_headings(index_text, CURRENT_WORKSTREAM_INDEX_SHAPE_HEADINGS)
     has_reform_index_shape = _has_all_headings(index_text, REFORM_WORKSTREAM_INDEX_SHAPE_HEADINGS)
     require(
-        has_current_index_shape or has_reform_index_shape,
+        has_reform_index_shape,
         (
-            "Docs/workstreams/index.md: validator bootstrap on "
-            f"{BACKLOG_FAMILY_REFORM_BRANCH} must accept either the current workstream-index "
-            "shape or the reform family-index split"
+            "Docs/workstreams/index.md: validator finalization on "
+            f"{BACKLOG_FAMILY_REFORM_BRANCH} requires the reform family-index split"
         ),
     )
-    if _has_any_heading(index_text, REFORM_WORKSTREAM_INDEX_SHAPE_HEADINGS):
-        require(
-            has_reform_index_shape,
-            (
-                "Docs/workstreams/index.md: reform workstream-index headings must land as a "
-                "complete split once introduced on the migration branch"
-            ),
-        )
 
     registry_classes = [
         _clean_release_value(_extract_colon_value(entry["block"], "Registry Class"))
@@ -3722,6 +3718,17 @@ def _validate_backlog_family_reform_seam_truth(
             and TRANSITIONAL_CURRENT_REGISTRY_ORDER_HEADING not in backlog_text
         )
 
+    def temporary_dual_shape_tolerance_removed() -> bool:
+        validator_text = _read_text(Path("dev/orin_branch_governance_validation.py"))
+        return (
+            "must accept either the current backlog shape or the reform backlog-family shape"
+            not in validator_text
+            and "must accept either the current workstream-index shape or the reform family-index split"
+            not in validator_text
+            and "requires the reform backlog-family shape" in validator_text
+            and "requires the reform family-index split" in validator_text
+        )
+
     if historical_pass_branch_records_converted():
         require(
             REFORM_R5_S3_STATE_NEXT_PHRASE not in backlog_workstream_state,
@@ -4086,6 +4093,62 @@ def _validate_backlog_family_reform_seam_truth(
                 "Docs/branch_records/feature_backlog_family_governance_reform.md: Phase Status "
                 "`Next Active Seam` must advance past R6-S5 once the final Phase 6 drift sweep "
                 "is clean"
+            ),
+        )
+
+    if temporary_dual_shape_tolerance_removed():
+        require(
+            REFORM_R7_S1_STATE_NEXT_PHRASE not in backlog_workstream_state,
+            (
+                "Docs/feature_backlog.md: R7-S1 must not remain the next seam once temporary "
+                "dual-shape tolerance is removed"
+            ),
+        )
+        require(
+            REFORM_R7_S1_STATE_NEXT_PHRASE not in roadmap_workstream_state,
+            (
+                "Docs/prebeta_roadmap.md: R7-S1 must not remain the next seam once temporary "
+                "dual-shape tolerance is removed"
+            ),
+        )
+        require(
+            phase_status_next_seam != REFORM_R7_S1_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Phase Status "
+                "`Next Active Seam` must advance past R7-S1 once temporary dual-shape tolerance "
+                "is removed"
+            ),
+        )
+        require(
+            REFORM_R7_S1_ACTIVE_SEAM_NEXT_PHRASE not in active_seam_section,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Active Seam "
+                "must not keep R7-S1 as the next active seam once temporary dual-shape tolerance "
+                "is removed"
+            ),
+        )
+        require(
+            active_seam_next != REFORM_R7_S1_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Active Seam "
+                "`Next active seam` must advance past R7-S1 once temporary dual-shape tolerance "
+                "is removed"
+            ),
+        )
+        require(
+            continuation_next_seam != REFORM_R7_S1_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Seam "
+                "Continuation Decision must not keep R7-S1 as `Next Active Seam` once temporary "
+                "dual-shape tolerance is removed"
+            ),
+        )
+        require(
+            REFORM_R7_S1_CONTINUATION_PHRASE not in continuation_section,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Seam "
+                "Continuation Decision must not keep an R7-S1 continuation action once temporary "
+                "dual-shape tolerance is removed"
             ),
         )
         require(
