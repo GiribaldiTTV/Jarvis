@@ -151,6 +151,18 @@ Before answering “what phase are we in?” or “what’s next?”, run the ph
 - `Next Legal Phase`
 - `Plan To Reach That Phase`
 
+For governed execution output, also return:
+
+- `Seam Status`
+- `Slice Status`
+- `Waiver Status`
+- `Continue Decision`
+- `Stop Basis`
+
+Generic `Results` or `Validation` headings are not enough by themselves.
+A green seam does not authorize stop while `Slice Status` remains non-green.
+If `Slice Status` is not green and no named blocker or waiver stops work, Codex must continue rather than returning `Await Next Instruction`.
+
 ## Branch And Lane Governance
 
 PR-readiness is not the default checkpoint after a clean slice.

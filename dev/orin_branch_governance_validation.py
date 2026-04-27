@@ -246,11 +246,78 @@ REUSABLE_GUIDANCE_RETIRED_SEAM_TERMS = {
 }
 
 REQUIRED_WORKSTREAM_CONTINUATION_MARKERS = (
+    "Seam Status:",
+    "Slice Status:",
+    "Waiver Status:",
     "Continue Decision:",
+    "Stop Basis:",
     "Next Active Seam:",
     "Stop Condition:",
     "Continuation Action:",
 )
+
+CONTINUATION_SEAM_STATUS_LABEL = "Seam Status"
+CONTINUATION_SLICE_STATUS_LABEL = "Slice Status"
+CONTINUATION_WAIVER_STATUS_LABEL = "Waiver Status"
+CONTINUATION_STOP_BASIS_LABEL = "Stop Basis"
+CONTINUATION_ALLOWED_SEAM_STATUSES = {"green", "in progress", "blocked"}
+CONTINUATION_ALLOWED_SLICE_STATUSES = {"green", "in progress", "blocked", "waived"}
+CONTINUATION_ALLOWED_WAIVER_STATUSES = {"none", "approved", "required"}
+CONTINUATION_ALLOWED_DECISIONS = {"continue", "stop"}
+CONTINUATION_ALLOWED_STOP_BASES = {"none", "slice green", "named blocker", "waiver"}
+
+GOVERNED_OUTPUT_CONTRACT_REQUIRED_PHRASES = {
+    Path("Docs/phase_governance.md"): (
+        "Seam Status:",
+        "Slice Status:",
+        "Waiver Status:",
+        "Continue Decision:",
+        "Stop Basis:",
+        "A green seam does not authorize stop while `Slice Status` is not green.",
+        "`Await Next Instruction` is only legal when `Slice Status: Green`, or when a named blocker or waiver explicitly stops continuation.",
+        "`Backlog Completion Unproven` keeps the branch in `Workstream`; by itself it is not authority to return `Await Next Instruction` while the current slice remains in progress.",
+    ),
+    Path("Docs/development_rules.md"): (
+        "Seam Status",
+        "Slice Status",
+        "Waiver Status",
+        "Continue Decision",
+        "Stop Basis",
+        "If `Slice Status` is not green and no named blocker or waiver stops work, Codex must continue rather than returning `Await Next Instruction`.",
+    ),
+    Path("Docs/codex_modes.md"): (
+        "Seam Status",
+        "Slice Status",
+        "Waiver Status",
+        "Continue Decision",
+        "Stop Basis",
+        "If `Slice Status` is not green and no named blocker or waiver stops work, Workflow mode must continue rather than returning `Await Next Instruction`.",
+    ),
+    Path("Docs/codex_user_guide.md"): (
+        "Seam Status:",
+        "Slice Status:",
+        "Waiver Status:",
+        "Continue Decision:",
+        "Stop Basis:",
+        "If `Slice Status` is not green and no named blocker or waiver stops work, Codex must continue instead of returning `Await Next Instruction`.",
+    ),
+    Path("Docs/orin_task_template.md"): (
+        "Seam Status:",
+        "Slice Status:",
+        "Waiver Status:",
+        "Continue Decision:",
+        "Stop Basis:",
+        "If `Slice Status` is not green and no named blocker or waiver stops work, Codex must continue instead of returning `Await Next Instruction`.",
+    ),
+    Path("Docs/nexus_startup_contract.md"): (
+        "Seam Status",
+        "Slice Status",
+        "Waiver Status",
+        "Continue Decision",
+        "Stop Basis",
+        "If `Slice Status` is not green and no named blocker or waiver stops work, the generated prompt must require continuation rather than `Await Next Instruction`.",
+    ),
+}
 
 WORKSTREAM_TO_PR_DEFAULT_GUARD_DOCS = (
     Path("Docs/phase_governance.md"),
@@ -1597,6 +1664,177 @@ def _validate_slice_continuation_policy(
         )
 
 
+def _validate_governed_output_state(
+    require,
+    source_path: str,
+    *,
+    continuation_section: str,
+    active_seam_section: str,
+    blockers: list[str],
+) -> None:
+    seam_status = _extract_marker_value(continuation_section, CONTINUATION_SEAM_STATUS_LABEL)
+    slice_status = _extract_marker_value(continuation_section, CONTINUATION_SLICE_STATUS_LABEL)
+    waiver_status = _extract_marker_value(continuation_section, CONTINUATION_WAIVER_STATUS_LABEL)
+    continue_decision = _extract_marker_value(continuation_section, "Continue Decision")
+    stop_basis = _extract_marker_value(continuation_section, CONTINUATION_STOP_BASIS_LABEL)
+    continuation_action = _extract_marker_value(continuation_section, "Continuation Action")
+    active_seam = _extract_marker_value(active_seam_section, "Active seam")
+
+    normalized_seam_status = seam_status.strip().casefold()
+    normalized_slice_status = slice_status.strip().casefold()
+    normalized_waiver_status = waiver_status.strip().casefold()
+    normalized_decision = continue_decision.strip().casefold()
+    normalized_stop_basis = stop_basis.strip().casefold()
+    stop_authorizing_blockers = [
+        blocker for blocker in blockers if blocker != BACKLOG_COMPLETION_UNPROVEN_BLOCKER
+    ]
+
+    require(
+        normalized_seam_status in CONTINUATION_ALLOWED_SEAM_STATUSES,
+        (
+            f"{source_path}: {CONTINUATION_SEAM_STATUS_LABEL} '{seam_status}' must be one of "
+            f"{', '.join(sorted(CONTINUATION_ALLOWED_SEAM_STATUSES))}"
+        ),
+    )
+    require(
+        normalized_slice_status in CONTINUATION_ALLOWED_SLICE_STATUSES,
+        (
+            f"{source_path}: {CONTINUATION_SLICE_STATUS_LABEL} '{slice_status}' must be one of "
+            f"{', '.join(sorted(CONTINUATION_ALLOWED_SLICE_STATUSES))}"
+        ),
+    )
+    require(
+        normalized_waiver_status in CONTINUATION_ALLOWED_WAIVER_STATUSES,
+        (
+            f"{source_path}: {CONTINUATION_WAIVER_STATUS_LABEL} '{waiver_status}' must be one of "
+            f"{', '.join(sorted(CONTINUATION_ALLOWED_WAIVER_STATUSES))}"
+        ),
+    )
+    require(
+        normalized_decision in CONTINUATION_ALLOWED_DECISIONS,
+        (
+            f"{source_path}: Continue Decision '{continue_decision}' must be one of "
+            f"{', '.join(sorted(CONTINUATION_ALLOWED_DECISIONS))}"
+        ),
+    )
+    require(
+        normalized_stop_basis in CONTINUATION_ALLOWED_STOP_BASES,
+        (
+            f"{source_path}: {CONTINUATION_STOP_BASIS_LABEL} '{stop_basis}' must be one of "
+            f"{', '.join(sorted(CONTINUATION_ALLOWED_STOP_BASES))}"
+        ),
+    )
+
+    if normalized_slice_status == "green":
+        require(
+            normalized_decision == "stop",
+            (
+                f"{source_path}: a green slice must stop and await next instruction rather than "
+                "continuing execution"
+            ),
+        )
+        require(
+            normalized_stop_basis == "slice green",
+            (
+                f"{source_path}: {CONTINUATION_STOP_BASIS_LABEL} must be 'Slice Green' when "
+                f"{CONTINUATION_SLICE_STATUS_LABEL} is Green"
+            ),
+        )
+    else:
+        require(
+            normalized_stop_basis != "slice green",
+            (
+                f"{source_path}: {CONTINUATION_STOP_BASIS_LABEL} must not be 'Slice Green' while "
+                f"{CONTINUATION_SLICE_STATUS_LABEL} is not Green"
+            ),
+        )
+
+    if normalized_decision == "continue":
+        require(
+            normalized_slice_status != "green",
+            (
+                f"{source_path}: Continue Decision must not be Continue when "
+                f"{CONTINUATION_SLICE_STATUS_LABEL} is Green"
+            ),
+        )
+        require(
+            normalized_stop_basis == "none",
+            (
+                f"{source_path}: Continue Decision Continue requires "
+                f"'{CONTINUATION_STOP_BASIS_LABEL}: None'"
+            ),
+        )
+        require(
+            normalized_waiver_status == "none",
+            (
+                f"{source_path}: Continue Decision Continue requires "
+                f"'{CONTINUATION_WAIVER_STATUS_LABEL}: None'"
+            ),
+        )
+        require(
+            active_seam.casefold() not in {"none", "none."},
+            (
+                f"{source_path}: Continue Decision Continue requires an actual active seam instead "
+                "of `Active seam: None.`"
+            ),
+        )
+        require(
+            "await next instruction" not in continuation_action.casefold(),
+            (
+                f"{source_path}: Continue Decision Continue must not tell Codex to await the next "
+                "instruction"
+            ),
+        )
+        require(
+            "when instructed" not in continuation_action.casefold(),
+            (
+                f"{source_path}: Continue Decision Continue must not gate the next seam behind "
+                "'when instructed' wording"
+            ),
+        )
+    else:
+        if normalized_slice_status == "green":
+            pass
+        elif normalized_waiver_status != "none":
+            require(
+                normalized_stop_basis == "waiver",
+                (
+                    f"{source_path}: non-green stop with waiver status requires "
+                    f"'{CONTINUATION_STOP_BASIS_LABEL}: Waiver'"
+                ),
+            )
+        elif stop_authorizing_blockers:
+            require(
+                normalized_stop_basis == "named blocker",
+                (
+                    f"{source_path}: non-green stop with active blockers requires "
+                    f"'{CONTINUATION_STOP_BASIS_LABEL}: Named Blocker'"
+                ),
+            )
+        else:
+            require(
+                False,
+                (
+                    f"{source_path}: Continue Decision Stop is invalid while "
+                    f"{CONTINUATION_SLICE_STATUS_LABEL} is not Green and no named blocker or "
+                    "waiver is recorded"
+                ),
+            )
+
+    if (
+        normalized_slice_status != "green"
+        and not stop_authorizing_blockers
+        and normalized_waiver_status == "none"
+    ):
+        require(
+            normalized_decision == "continue",
+            (
+                f"{source_path}: non-green slice with no named blocker or waiver must keep "
+                "Continue Decision at Continue"
+            ),
+        )
+
+
 def _validate_backlog_completion_strategy(
     require,
     source_path: str,
@@ -2150,6 +2388,10 @@ def _validate_backlog_family_reform_seam_truth(
     phase_status_section = _section(branch_record_text, "Phase Status")
     active_seam_section = _section(branch_record_text, "Active Seam")
     continuation_section = _section(branch_record_text, "Seam Continuation Decision")
+    continuation_slice_status = _extract_marker_value(
+        continuation_section, CONTINUATION_SLICE_STATUS_LABEL
+    )
+    continuation_decision = _extract_marker_value(continuation_section, "Continue Decision")
     phase_status_next_seam = _extract_marker_value(phase_status_section, "Next Active Seam")
     continuation_next_seam = _extract_marker_value(continuation_section, "Next Active Seam")
     active_seam_match = re.search(r"^Next active seam:\s*`([^`]+)`", active_seam_section, flags=re.M)
@@ -2328,6 +2570,29 @@ def _validate_backlog_family_reform_seam_truth(
                 "FB-042 dossier shell exists"
             ),
         )
+
+    if (
+        continuation_slice_status.strip().casefold() != "green"
+        and continuation_decision.strip().casefold() == "continue"
+    ):
+        for source_name, current_state in (
+            ("Docs/feature_backlog.md", backlog_workstream_state),
+            ("Docs/prebeta_roadmap.md", roadmap_workstream_state),
+        ):
+            require(
+                "in progress and green" not in current_state.casefold(),
+                (
+                    f"{source_name}: Current Workstream State must not report green while "
+                    "the reform branch continuation record still has `Slice Status: In Progress`"
+                ),
+            )
+            require(
+                "next when instructed" not in current_state.casefold(),
+                (
+                    f"{source_name}: Current Workstream State must not await instruction while "
+                    "the reform branch continuation record still requires continuation"
+                ),
+            )
 
 
 def _validate_backlog_family_dossier_shell(
@@ -3369,6 +3634,14 @@ def main() -> int:
                 f"{relative_path}: merged-unreleased release-debt contract is missing '{required_phrase}'",
             )
 
+    for relative_path, required_phrases in GOVERNED_OUTPUT_CONTRACT_REQUIRED_PHRASES.items():
+        text = _read_text(relative_path)
+        for required_phrase in required_phrases:
+            require(
+                required_phrase in text,
+                f"{relative_path}: governed output state contract is missing '{required_phrase}'",
+            )
+
     for relative_path in MERGE_STABLE_CURRENT_STATE_DOCS:
         text = _read_text(relative_path)
         for required_phrase in MERGE_STABLE_CURRENT_STATE_PHRASES:
@@ -3897,6 +4170,8 @@ def main() -> int:
                 ),
             )
 
+        active_seam_section = _section(workstream_text, "Active Seam")
+
         if current_phase == "Branch Readiness":
             for heading in REQUIRED_BRANCH_READINESS_DURABILITY_HEADINGS:
                 require(
@@ -3924,8 +4199,6 @@ def main() -> int:
                         f"with '{marker}'"
                     ),
                 )
-
-            active_seam_section = _section(workstream_text, "Active Seam")
             require(
                 "Active seam:" in active_seam_section,
                 f"{canonical_path}: Active Seam section must clearly identify the active seam",
@@ -3942,6 +4215,13 @@ def main() -> int:
                     marker in continuation_section,
                     f"{canonical_path}: Seam Continuation Decision is missing '{marker}'",
                 )
+            _validate_governed_output_state(
+                require,
+                canonical_path,
+                continuation_section=continuation_section,
+                active_seam_section=active_seam_section,
+                blockers=blockers,
+            )
 
         if current_phase in {"Live Validation", "PR Readiness"}:
             require(
@@ -4616,6 +4896,8 @@ def main() -> int:
                 blockers=list(info["blockers"]),
                 next_legal_phase=str(info["next_legal_phase"]),
             )
+            active_seam_section = _section(record_text, "Active Seam")
+
             if current_phase == "Branch Readiness":
                 for heading in REQUIRED_BRANCH_READINESS_DURABILITY_HEADINGS:
                     require(
@@ -4634,7 +4916,6 @@ def main() -> int:
                             f"with '{marker}'"
                         ),
                     )
-                active_seam_section = _section(record_text, "Active Seam")
                 require(
                     "Active seam:" in active_seam_section,
                     f"{branch_record_path}: Active Seam section must clearly identify the active seam",
@@ -4650,6 +4931,13 @@ def main() -> int:
                         marker in continuation_section,
                         f"{branch_record_path}: Seam Continuation Decision is missing '{marker}'",
                     )
+                _validate_governed_output_state(
+                    require,
+                    branch_record_path,
+                    continuation_section=continuation_section,
+                    active_seam_section=active_seam_section,
+                    blockers=list(info["blockers"]),
+                )
         if branch_record_path in active_branch_record_paths and str(info["current_phase"]) == "Release Readiness":
             status_output = _git_status_porcelain(tracked_only=True)
             require(

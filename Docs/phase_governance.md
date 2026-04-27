@@ -84,6 +84,28 @@ Codex must not use direct-main repair; `main` is protected and file-frozen for C
 - if the validation contract, timeout contract, harness behavior, active seam, or blocker set changes materially during late-phase work, canon must be updated before continued execution is recommended
 - auxiliary guidance docs should be timeless by default and must not quietly become current-state owners
 
+## Governed Output State Contract
+
+For phase-sensitive execution in `Branch Readiness`, `Workstream`, `Hardening`, `Live Validation`, or `PR Readiness`, Codex must not rely on generic headings such as `Results` or `Validation` alone.
+
+The response or status handoff must explicitly report:
+
+- `Seam Status:`
+- `Slice Status:`
+- `Blockers:`
+- `Waiver Status:`
+- `Continue Decision:`
+- `Stop Basis:`
+
+`Green` means complete for the level it names.
+A green seam does not authorize stop while `Slice Status` is not green.
+
+If `Slice Status` is not green and no named stop-authorizing blocker or waiver is recorded, `Continue Decision` must be `Continue` and Codex must start the next seam instead of returning `Await Next Instruction`.
+
+`Await Next Instruction` is only legal when `Slice Status: Green`, or when a named blocker or waiver explicitly stops continuation.
+
+`Backlog Completion Unproven` keeps the branch in `Workstream`; by itself it is not authority to return `Await Next Instruction` while the current slice remains in progress.
+
 ## Canonical Governance Rules
 
 ### Source-Of-Truth Enforcement

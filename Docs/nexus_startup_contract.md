@@ -160,10 +160,20 @@ Generated prompts for startup-sensitive passes should request:
 - `Canonical Workstream`
 - `Reuse Baseline`
 - `Active Seam` when applicable
+- `Seam Status`
+- `Slice Status`
+- `Blockers`
+- `Waiver Status`
+- `Continue Decision`
+- `Stop Basis`
 - `Validation Results`
 - `Ready-To-Commit Decision` when files changed
 - `Next Legal Phase`
 - `Next Safe Move`
+
+Generic `Results` or `Validation` headings are not enough by themselves for governed execution output.
+A green seam does not authorize stop while `Slice Status` remains non-green.
+If `Slice Status` is not green and no named blocker or waiver stops work, the generated prompt must require continuation rather than `Await Next Instruction`.
 
 When a pass creates or changes files before `PR Readiness` and validation is green, generated prompts must point to the Pre-PR Durability Rule in `Docs/development_rules.md` and `Docs/phase_governance.md`.
 This loader does not own durability behavior.

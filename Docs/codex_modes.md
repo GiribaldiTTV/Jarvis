@@ -179,6 +179,7 @@ In Workflow mode, Codex must not:
 Workflow mode should usually return:
 
 - changes applied
+- exact governed state markers: `Seam Status`, `Slice Status`, `Blockers`, `Waiver Status`, `Continue Decision`, and `Stop Basis`
 - validation performed
 - a distinct summary of validator results
 - a distinct summary of synthetic or headless validation results and the supporting validation artifacts created or used
@@ -201,6 +202,10 @@ Workflow mode should usually return:
 - if `User-Facing Shortcut Validation: WAIVED` is used, the response-level `## User Test Summary` section and the canonical workstream `## User Test Summary` artifact must include `User-Facing Shortcut Waiver Reason:`
 - remaining drift or known gaps
 - whether the approved phase is complete
+
+Generic `Results` or `Validation` summaries do not replace the governed state markers above.
+A green seam does not authorize stop while `Slice Status` is still non-green.
+If `Slice Status` is not green and no named blocker or waiver stops work, Workflow mode must continue rather than returning `Await Next Instruction`.
 
 Pre-PR Durability Rule:
 

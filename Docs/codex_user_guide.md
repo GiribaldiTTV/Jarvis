@@ -93,7 +93,19 @@ For bounded multi-seam Workstream execution, also include:
 - `Remaining Implementable Work: <None / short summary>` when Workstream continuation or phase exit matters
 - `Future-Dependent Blockers: <None / short summary>` when Workstream continuation or phase exit matters
 
+For governed execution returns, request or supply these exact output markers:
+
+- `Seam Status:`
+- `Slice Status:`
+- `Blockers:`
+- `Waiver Status:`
+- `Continue Decision:`
+- `Stop Basis:`
+
 Use owning canon after load to derive the per-seam gate, entry seam, `Next-Seam Continuation Required`, the rule that a slice is a bounded admitted backlog-completion unit and a seam is the current execution checkpoint inside or between slices, the rule that seams inside the current slice may be predeclared in canon or discovered from repo truth while the slice remains in progress, the rule that there is no repo-wide cap on how many slices a branch or workstream may carry, same-branch backlog completion as a branch-level posture, backlog completion state, future-dependent blockers, `Backlog-Split User Approval`, `Backlog-Split Reason`, the rule that reporting `Next Safe Move` is not a substitute for execution while the current slice still requires seams, the rule that a continue decision must be acted on immediately by starting the next seam needed inside the current slice, and the rule that once the current slice is green Codex must return green status and await the next instruction instead of auto-starting a new slice or later phase.
+
+A green seam does not authorize stop while `Slice Status` remains non-green.
+If `Slice Status` is not green and no named blocker or waiver stops work, Codex must continue instead of returning `Await Next Instruction`.
 
 For Release Readiness, also include:
 

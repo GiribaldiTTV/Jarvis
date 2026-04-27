@@ -177,6 +177,19 @@ If a required User Test Summary handoff is outstanding, use `User Test Summary R
 Live Validation green requires an exact `## User Test Summary` state before final green.
 For relevant desktop user-facing Live Validation, apply the `User-Facing Shortcut Live Validation Gate` / `desktop-shortcut` blocker path before User Test Summary handoff: declare `User-Facing Shortcut Path:`, record `User-Facing Shortcut Validation: PENDING`, `PASS`, `FAIL`, or `WAIVED`, and keep `User-Facing Shortcut Validation Pending` as a blocker until the declared desktop shortcut or equivalent user entrypoint is passable or explicitly waived.
 
+For phase-sensitive execution, the response must explicitly report:
+
+- `Seam Status:`
+- `Slice Status:`
+- `Blockers:`
+- `Waiver Status:`
+- `Continue Decision:`
+- `Stop Basis:`
+
+Do not rely on generic `Results` or `Validation` headings by themselves.
+A green seam does not authorize stop while `Slice Status` remains non-green.
+If `Slice Status` is not green and no named blocker or waiver stops work, Codex must continue instead of returning `Await Next Instruction`.
+
 Default expectation:
 
 - if task mode is `analysis-only` or `planning-only`, do not patch
