@@ -882,6 +882,36 @@ REQUIRED_BRANCH_RECORD_HEADINGS = (
 )
 
 BACKLOG_FAMILY_REFORM_BRANCH = "feature/backlog-family-governance-reform"
+BACKLOG_FAMILY_REFORM_BRANCH_RECORD = Path(
+    "Docs/branch_records/feature_backlog_family_governance_reform.md"
+)
+REFORM_R3_S2_SEAM = (
+    "Phase 3 - Family Anchor Migration / Slice R3-S2 - Map FB-043 through FB-048 under "
+    "FB-042 as historical aliases"
+)
+REFORM_R3_S4_SEAM = (
+    "Phase 3 - Family Anchor Migration / Slice R3-S4 - Map FB-036, FB-037, FB-038, and "
+    "FB-041 under FB-027 as historical aliases"
+)
+REFORM_R3_S2_STATE_NEXT_PHRASE = (
+    "Slice R3-S2 `Map FB-043 through FB-048 under FB-042 as historical aliases` is next"
+)
+REFORM_R3_S4_STATE_NEXT_PHRASE = (
+    "Slice R3-S4 `Map FB-036, FB-037, FB-038, and FB-041 under FB-027 as historical aliases` "
+    "is next"
+)
+REFORM_R3_S2_ACTIVE_SEAM_NEXT_PHRASE = (
+    "Phase 3 / Slice R3-S2 `Map FB-043 through FB-048 under FB-042 as historical aliases` "
+    "is the next active seam on this branch."
+)
+REFORM_R3_S4_ACTIVE_SEAM_NEXT_PHRASE = (
+    "Phase 3 / Slice R3-S4 `Map FB-036, FB-037, FB-038, and FB-041 under FB-027 as "
+    "historical aliases` is the next active seam on this branch."
+)
+REFORM_R3_S2_CONTINUATION_PHRASE = "Execute Slice R3-S2"
+REFORM_R3_S4_CONTINUATION_PHRASE = "Execute Slice R3-S4"
+REFORM_FB042_ALIAS_IDS = ("FB-043", "FB-044", "FB-045", "FB-046", "FB-047", "FB-048")
+REFORM_FB027_ALIAS_IDS = ("FB-036", "FB-037", "FB-038", "FB-041")
 
 CURRENT_BACKLOG_SHAPE_HEADINGS = (
     "## Registry Items",
@@ -1082,6 +1112,35 @@ def _clean_release_value(value: str) -> str:
 def _backlog_id_number(workstream_id: str) -> int:
     match = re.fullmatch(r"FB-(\d+)", workstream_id)
     return int(match.group(1)) if match else -1
+
+
+def _backlog_entry_by_id(
+    backlog_entries: list[dict[str, str]],
+    workstream_id: str,
+) -> dict[str, str] | None:
+    for entry in backlog_entries:
+        if entry["id"] == workstream_id:
+            return entry
+    return None
+
+
+def _historical_alias_mapping_matches(
+    backlog_entries: list[dict[str, str]],
+    *,
+    alias_ids: tuple[str, ...],
+    family_anchor_id: str,
+) -> bool:
+    for alias_id in alias_ids:
+        entry = _backlog_entry_by_id(backlog_entries, alias_id)
+        if not entry:
+            return False
+        registry_class = _clean_release_value(_extract_colon_value(entry["block"], "Registry Class"))
+        historical_alias_of = _clean_release_value(
+            _extract_colon_value(entry["block"], "Historical Alias Of")
+        )
+        if registry_class != "Historical Pass Alias" or historical_alias_of != family_anchor_id:
+            return False
+    return True
 
 
 def _latest_public_prerelease(roadmap_text: str) -> str:
@@ -2025,6 +2084,165 @@ def _validate_backlog_family_reform_bootstrap(
             (
                 "Docs/feature_backlog.md: selected-next backlog entries must remain inside "
                 "'User-Facing Feature Families' after Slice R2-S5"
+            ),
+        )
+
+
+def _validate_backlog_family_reform_seam_truth(
+    require,
+    *,
+    current_branch: str,
+    backlog_entries: list[dict[str, str]],
+    backlog_text: str,
+    roadmap_text: str,
+) -> None:
+    if not _is_backlog_family_reform_branch(current_branch):
+        return
+
+    branch_record_text = _read_text(BACKLOG_FAMILY_REFORM_BRANCH_RECORD)
+    backlog_workstream_state = _extract_colon_value(backlog_text, "Current Workstream State")
+    roadmap_workstream_state = _extract_colon_value(roadmap_text, "Current Workstream State")
+    phase_status_section = _section(branch_record_text, "Phase Status")
+    active_seam_section = _section(branch_record_text, "Active Seam")
+    continuation_section = _section(branch_record_text, "Seam Continuation Decision")
+    phase_status_next_seam = _extract_marker_value(phase_status_section, "Next Active Seam")
+    continuation_next_seam = _extract_marker_value(continuation_section, "Next Active Seam")
+    active_seam_match = re.search(r"^Next active seam:\s*`([^`]+)`", active_seam_section, flags=re.M)
+    active_seam_next = active_seam_match.group(1).strip() if active_seam_match else ""
+
+    if _historical_alias_mapping_matches(
+        backlog_entries,
+        alias_ids=REFORM_FB042_ALIAS_IDS,
+        family_anchor_id="FB-042",
+    ):
+        require(
+            REFORM_R3_S2_STATE_NEXT_PHRASE not in backlog_workstream_state,
+            (
+                "Docs/feature_backlog.md: R3-S2 must not remain the next seam once FB-043 "
+                "through FB-048 already declare `Historical Alias Of: FB-042`"
+            ),
+        )
+        require(
+            REFORM_R3_S2_STATE_NEXT_PHRASE not in roadmap_workstream_state,
+            (
+                "Docs/prebeta_roadmap.md: R3-S2 must not remain the next seam once FB-043 "
+                "through FB-048 already declare `Historical Alias Of: FB-042`"
+            ),
+        )
+        require(
+            REFORM_R3_S2_STATE_NEXT_PHRASE not in phase_status_section,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Phase Status "
+                "must not report R3-S2 as next once FB-043 through FB-048 already declare "
+                "`Historical Alias Of: FB-042`"
+            ),
+        )
+        require(
+            phase_status_next_seam != REFORM_R3_S2_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Phase Status "
+                "`Next Active Seam` must advance past R3-S2 once the FB-042 alias mapping is "
+                "already satisfied in repo truth"
+            ),
+        )
+        require(
+            REFORM_R3_S2_ACTIVE_SEAM_NEXT_PHRASE not in active_seam_section,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Active Seam "
+                "must not keep R3-S2 as the next active seam once the FB-042 alias mapping is "
+                "already satisfied in repo truth"
+            ),
+        )
+        require(
+            active_seam_next != REFORM_R3_S2_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Active Seam "
+                "`Next active seam` must advance past R3-S2 once the FB-042 alias mapping is "
+                "already satisfied in repo truth"
+            ),
+        )
+        require(
+            continuation_next_seam != REFORM_R3_S2_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Seam "
+                "Continuation Decision must not keep R3-S2 as `Next Active Seam` once the "
+                "FB-042 alias mapping is already satisfied in repo truth"
+            ),
+        )
+        require(
+            REFORM_R3_S2_CONTINUATION_PHRASE not in continuation_section,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Seam "
+                "Continuation Decision must not keep an R3-S2 continuation action once the "
+                "FB-042 alias mapping is already satisfied in repo truth"
+            ),
+        )
+
+    if _historical_alias_mapping_matches(
+        backlog_entries,
+        alias_ids=REFORM_FB027_ALIAS_IDS,
+        family_anchor_id="FB-027",
+    ):
+        require(
+            REFORM_R3_S4_STATE_NEXT_PHRASE not in backlog_workstream_state,
+            (
+                "Docs/feature_backlog.md: R3-S4 must not remain the next seam once FB-036, "
+                "FB-037, FB-038, and FB-041 already declare `Historical Alias Of: FB-027`"
+            ),
+        )
+        require(
+            REFORM_R3_S4_STATE_NEXT_PHRASE not in roadmap_workstream_state,
+            (
+                "Docs/prebeta_roadmap.md: R3-S4 must not remain the next seam once FB-036, "
+                "FB-037, FB-038, and FB-041 already declare `Historical Alias Of: FB-027`"
+            ),
+        )
+        require(
+            REFORM_R3_S4_STATE_NEXT_PHRASE not in phase_status_section,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Phase Status "
+                "must not report R3-S4 as next once FB-036, FB-037, FB-038, and FB-041 already "
+                "declare `Historical Alias Of: FB-027`"
+            ),
+        )
+        require(
+            phase_status_next_seam != REFORM_R3_S4_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Phase Status "
+                "`Next Active Seam` must advance past R3-S4 once the FB-027 alias mapping is "
+                "already satisfied in repo truth"
+            ),
+        )
+        require(
+            REFORM_R3_S4_ACTIVE_SEAM_NEXT_PHRASE not in active_seam_section,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Active Seam "
+                "must not keep R3-S4 as the next active seam once the FB-027 alias mapping is "
+                "already satisfied in repo truth"
+            ),
+        )
+        require(
+            active_seam_next != REFORM_R3_S4_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Active Seam "
+                "`Next active seam` must advance past R3-S4 once the FB-027 alias mapping is "
+                "already satisfied in repo truth"
+            ),
+        )
+        require(
+            continuation_next_seam != REFORM_R3_S4_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Seam "
+                "Continuation Decision must not keep R3-S4 as `Next Active Seam` once the "
+                "FB-027 alias mapping is already satisfied in repo truth"
+            ),
+        )
+        require(
+            REFORM_R3_S4_CONTINUATION_PHRASE not in continuation_section,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Seam "
+                "Continuation Decision must not keep an R3-S4 continuation action once the "
+                "FB-027 alias mapping is already satisfied in repo truth"
             ),
         )
 
@@ -3039,6 +3257,13 @@ def main() -> int:
         backlog_text=backlog_text,
         index_text=index_text,
         backlog_entries=backlog_entries,
+    )
+    _validate_backlog_family_reform_seam_truth(
+        require,
+        current_branch=current_git_branch,
+        backlog_entries=backlog_entries,
+        backlog_text=backlog_text,
+        roadmap_text=roadmap_text,
     )
     for entry in backlog_entries:
         post_release_truth_count = _count_field_occurrences(entry["block"], "Post-Release Truth")

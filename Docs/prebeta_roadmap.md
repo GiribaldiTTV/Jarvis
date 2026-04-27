@@ -71,9 +71,9 @@ Current merged truth indicates:
 - phase status after `v1.6.12-prebeta` release closure: FB-048 is Released / Closed in `v1.6.12-prebeta`; release debt is clear after publication, validation, and post-release canon closure; `feature/backlog-family-governance-reform` is the active docs-only governance reform branch authority surface; and FB-049 remains selected next, `Registry-only`, and branch-not-created.
 - current active workstream: none; current active branch authority owner is `feature/backlog-family-governance-reform`
 - current branch after `v1.6.12-prebeta` release closure: `feature/backlog-family-governance-reform`
-- next concern: continue Phase 3 family-anchor migration by mapping FB-043 through FB-048 under FB-042 while preserving FB-049 as selected next and branch-not-created.
+- next concern: continue Phase 3 family-anchor migration by hardening future family-anchor selection truth while preserving FB-049 as selected next and branch-not-created.
 
-That means the released FB-027 interaction baseline, the released FB-036 authoring-and-callable-group milestone, the released FB-041 deterministic callable-group execution milestone, the released FB-037 built-in catalog milestone, the released FB-038 tray quick-task UX milestone, the released FB-039 external trigger intake architecture milestone, the released FB-040 monitoring/thermal architecture milestone, the released FB-031 UI/UX architecture milestone, the released FB-032 source-of-truth migration milestone, the released FB-004 future boot-orchestrator architecture milestone, the released FB-015 plus FB-029 planning milestones, the released FB-030 voice/audio planning milestone, and the released FB-005 bounded workspace-path slice are now part of the current public shared pre-Beta baseline.
+That means the released FB-027 interaction and shared-action family anchor, the released FB-036 authoring-and-callable-group milestone, the released FB-041 deterministic callable-group execution milestone, the released FB-037 built-in catalog milestone, the released FB-038 tray quick-task UX milestone, the released FB-039 external trigger intake architecture milestone, the released FB-040 monitoring/thermal architecture milestone, the released FB-031 UI/UX architecture milestone, the released FB-032 source-of-truth migration milestone, the released FB-004 future boot-orchestrator architecture milestone, the released FB-015 plus FB-029 planning milestones, the released FB-030 voice/audio planning milestone, and the released FB-005 bounded workspace-path slice are now part of the current public shared pre-Beta baseline.
 
 ## Current Branch Execution Posture
 
@@ -102,7 +102,7 @@ Selected Next Implementation Branch: `Not created`
 Repair-Only Branch Handling: `feature/fb-046-post-merge-canon-sync` is a bounded repair-only post-merge canon-sync `feature/` branch and did not imply Branch Readiness admission or active branch truth for FB-046.
 Historical Branch Readiness State: Complete on `feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeout-truth`.
 Current Branch Readiness State: Historical complete on `feature/backlog-family-governance-reform`. Phase 0 `Reform Readiness` admitted the branch authority record and cleared the path into Workstream.
-Current Workstream State: Phase 3 `Family Anchor Migration` is active on `feature/backlog-family-governance-reform`; Slice R3-S1 `Retitle FB-042 as the runtime family anchor` is complete and green, FB-042 is now titled `Desktop startup runtime family anchor`, `Registry Class: Feature Family` and `Family Anchor: Self` are preserved, historical aliases remain in place in the `Historical Consolidated Pass Aliases` section, FB-049 remains the only selected-next user-facing candidate, and Slice R3-S2 `Map FB-043 through FB-048 under FB-042 as historical aliases` is next.
+Current Workstream State: Phase 3 `Family Anchor Migration` is active on `feature/backlog-family-governance-reform`; Slice R3-S3 `Retitle FB-027 as the interaction/action family anchor` is complete and green, FB-027 is now titled `Interaction and shared-action family anchor`, FB-042 remains `Desktop startup runtime family anchor`, both records preserve `Registry Class: Feature Family` and `Family Anchor: Self`, the planned R3-S2 and R3-S4 alias-mapping slices are already satisfied in repo truth because their historical alias records already declare `Historical Alias Of: FB-042` and `Historical Alias Of: FB-027`, FB-049 remains the only selected-next user-facing candidate, and Slice R3-S5 `Future-selection hardening` is next.
 Historical Workstream State: FB-048 is Released / Closed in `v1.6.12-prebeta`; FB-047 is Released / Closed in `v1.6.11-prebeta`; FB-046 is Released / Closed in `v1.6.10-prebeta`; FB-044 and FB-045 remain Released / Closed historical proof in `v1.6.9-prebeta`.
 Historical Hardening State: Complete on `feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeout-truth`.
 Historical Live Validation State: Complete on `feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeout-truth`.
@@ -462,7 +462,7 @@ Post-Release Truth: FB-015 is Released / Closed in `v1.6.4-prebeta`; FB-029 is a
 
 ## Recently Closed Workstreams
 
-### FB-027 Interaction System Baseline
+### FB-027 Interaction and shared-action family anchor
 
 - status: `closed`
 - lane type: `implementation`
@@ -470,7 +470,7 @@ Post-Release Truth: FB-015 is Released / Closed in `v1.6.4-prebeta`; FB-029 is a
 - target version: `v1.2.9-prebeta`
 - release state: `released`
 - canonical workstream doc: `Docs/workstreams/FB-027_interaction_system_baseline.md`
-- sequencing note: remains the locked interaction baseline below the later released FB-036 authoring and callable-group milestone
+- sequencing note: preserves the first released interaction baseline and now anchors the later shared-action follow-through family below FB-036, FB-037, FB-038, and FB-041
 
 ### FB-035 Release-Context Fallback Hardening
 
@@ -523,7 +523,7 @@ Post-Release Truth: FB-015 is Released / Closed in `v1.6.4-prebeta`; FB-029 is a
 
 Current merged truth indicates:
 
-- the released FB-027 baseline remains part of the locked current interaction floor
+- the released FB-027 family anchor remains part of the locked current interaction floor
 - the released FB-036 authoring-and-callable-group milestone is now part of the locked current pre-Beta baseline
 - the released FB-041 deterministic callable-group execution milestone is now part of the locked current pre-Beta baseline
 - the released FB-037 built-in catalog milestone is now part of the locked current pre-Beta baseline
@@ -542,7 +542,7 @@ Current merged truth indicates:
 - successor-lane branch creation for FB-039 is historical; FB-039 is released and no longer an executable active implementation branch
 - if a branch changes release-facing canon, those canon updates must land on that same branch before PR readiness is allowed
 - escaped post-merge canon repair must ride a legal branch surface; `main` is protected and must not be patched directly by Codex
-- the released FB-027 baseline does not authorize further saved-action authoring, resolution, voice, Action Studio, routines, profiles, hotkey cleanup, or shutdown-confirmation work by inertia
+- the released FB-027 family anchor does not authorize further saved-action authoring, resolution, voice, Action Studio, routines, profiles, hotkey cleanup, or shutdown-confirmation work by inertia
 - remaining open backlog candidates now explicitly recorded in the backlog include:
   - FB-004 for future boot orchestrator layer, released and closed in `v1.6.3-prebeta`
   - FB-015 for boot and desktop phase-boundary model, released and closed in `v1.6.4-prebeta`

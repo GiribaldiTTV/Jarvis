@@ -81,7 +81,7 @@ Selected Next Implementation Branch: Not created.
 Historical Repair-Only Branch Handling: `feature/fb-046-post-merge-canon-sync` was a bounded repair-only post-merge canon-sync `feature/` branch and did not imply Branch Readiness admission or active branch truth for FB-046.
 Historical Branch Readiness State: Complete on `feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeout-truth`.
 Current Branch Readiness State: Historical complete on `feature/backlog-family-governance-reform`. Phase 0 `Reform Readiness` admitted the branch authority record and cleared the path into Workstream.
-Current Workstream State: Phase 3 `Family Anchor Migration` is active on `feature/backlog-family-governance-reform`; Slice R3-S1 `Retitle FB-042 as the runtime family anchor` is complete and green, FB-042 is now titled `Desktop startup runtime family anchor`, `Registry Class: Feature Family` and `Family Anchor: Self` are preserved, historical aliases remain in place in the `Historical Consolidated Pass Aliases` section, FB-049 remains the only selected-next user-facing candidate, and Slice R3-S2 `Map FB-043 through FB-048 under FB-042 as historical aliases` is next.
+Current Workstream State: Phase 3 `Family Anchor Migration` is active on `feature/backlog-family-governance-reform`; Slice R3-S3 `Retitle FB-027 as the interaction/action family anchor` is complete and green, FB-027 is now titled `Interaction and shared-action family anchor`, FB-042 remains `Desktop startup runtime family anchor`, both records preserve `Registry Class: Feature Family` and `Family Anchor: Self`, the planned R3-S2 and R3-S4 alias-mapping slices are already satisfied in repo truth because their historical alias records already declare `Historical Alias Of: FB-042` and `Historical Alias Of: FB-027`, FB-049 remains the only selected-next user-facing candidate, and Slice R3-S5 `Future-selection hardening` is next.
 Current Branch Class: implementation.
 Current Implementation Delta Class: docs-only.
 Historical Workstream State: FB-048 is Released / Closed in `v1.6.12-prebeta`; FB-047 is Released / Closed in `v1.6.11-prebeta`; FB-046 is Released / Closed in `v1.6.10-prebeta`; FB-044 and FB-045 remain Released / Closed historical proof in `v1.6.9-prebeta`.
@@ -100,7 +100,7 @@ Next Legal Phase: Workstream.
 
 ## Backlog Governance Sync
 
-Last Reviewed: 2026-04-27 during Backlog Family Governance Reform Phase 3 / Slice R3-S1.
+Last Reviewed: 2026-04-27 during Backlog Family Governance Reform Phase 3 / Slice R3-S3.
 
 Open-candidate priority review:
 
@@ -269,7 +269,7 @@ Minimal Scope: Complete the bounded docs/canon voice/audio planning seam chain: 
 Summary: Preserve future ORIN voice-direction refinement as its own bounded persona-facing lane.
 Why it matters: Voice identity should be intentional and should not piggyback on unrelated runtime or canon work.
 
-### [ID: FB-027] Interaction system baseline and shared action model
+### [ID: FB-027] Interaction and shared-action family anchor
 
 Status: Released (v1.2.9-prebeta)
 Record State: Closed
@@ -279,8 +279,8 @@ Priority: High
 Release Stage: pre-Beta
 Target Version: v1.2.9-prebeta
 Canonical Workstream Doc: Docs/workstreams/FB-027_interaction_system_baseline.md
-Summary: Lock the typed-first interaction baseline and deliver bounded shared-action follow-through through the released URL-target milestone plus the later released saved-action inventory and guided-access milestone.
-Why it matters: Future interaction work needs one authoritative baseline and truthful released-state posture so the URL-target milestone and the later inventory-and-guided-access milestone remain visible as bounded released steps rather than drifting back into ambiguous follow-through language.
+Summary: Anchor the typed-first interaction and shared-action family while preserving the released FB-027 baseline as the first historical proof.
+Why it matters: Future authoring, callable-group, built-in action, and tray task follow-through should reuse one interaction/action family identity instead of drifting into separate near-duplicate feature-family records.
 
 ### Historical Consolidated Pass Aliases
 
