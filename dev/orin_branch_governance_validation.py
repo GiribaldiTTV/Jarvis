@@ -1130,6 +1130,14 @@ REFORM_R6_S1_ACTIVE_SEAM_NEXT_PHRASE = (
     "Phase 6 / Slice R6-S1 `Roadmap anchor conversion` is the next active seam on this branch."
 )
 REFORM_R6_S1_CONTINUATION_PHRASE = "Execute Slice R6-S1"
+REFORM_R6_S2_SEAM = (
+    "Phase 6 - Roadmap And Index Alignment / Slice R6-S2 - Workstream index split"
+)
+REFORM_R6_S2_STATE_NEXT_PHRASE = "Slice R6-S2 `Workstream index split` is next"
+REFORM_R6_S2_ACTIVE_SEAM_NEXT_PHRASE = (
+    "Phase 6 / Slice R6-S2 `Workstream index split` is the next active seam on this branch."
+)
+REFORM_R6_S2_CONTINUATION_PHRASE = "Execute Slice R6-S2"
 REFORM_FB042_DOSSIER_PATH = Path(
     "Docs/workstreams/FB-042_desktop_startup_runtime_family_dossier.md"
 )
@@ -1456,7 +1464,6 @@ REFORM_R5_S5_TRACEABILITY_REQUIRED_PHRASES = {
 }
 
 REFORM_R6_S1_ROADMAP_REQUIRED_PHRASES = (
-    "- next concern: split the canonical workstream index in Phase 6 / Slice R6-S2 while preserving the converted roadmap family-anchor framing, the stabilized FB-042 and FB-027 dossier routing, the hardened Workstream-completion continuation rule, and FB-049 as selected next and branch-not-created.",
     "- historical pass coverage: `FB-043`, `FB-044`, `FB-045`, `FB-046`, `FB-047`, `FB-048`",
     "- historical pass coverage: `FB-036`, `FB-037`, `FB-038`, `FB-041`",
     "pass id: `F042-P07`",
@@ -1470,6 +1477,22 @@ REFORM_R6_S1_ROADMAP_REQUIRED_PHRASES = (
     "pass id: `F027-P03`",
     "pass id: `F027-P02`",
     "Phase 5 / Slice R5-S5 indexed the preserved branch trace; validator/helper and artifact migration remain pending",
+)
+
+REFORM_R6_S2_INDEX_REQUIRED_PHRASES = (
+    "### Family Anchor Records",
+    "- `Docs/workstreams/FB-042_desktop_entrypoint_runtime_refinement.md`",
+    "- `Docs/workstreams/FB-027_interaction_system_baseline.md`",
+    "### Historical Pass Alias Records",
+    "#### FB-042 Family",
+    "- `Docs/workstreams/FB-043_top_level_entrypoint_handoff_refinement.md`",
+    "- `Docs/workstreams/FB-048_active_session_relaunch_signal_failure_and_wait_timeout_truth.md`",
+    "#### FB-027 Family",
+    "- `Docs/workstreams/FB-036_saved_action_authoring.md`",
+    "- `Docs/workstreams/FB-038_taskbar_tray_quick_task_ux.md`",
+    "### Other Closed Workstreams",
+    "- `Docs/workstreams/FB-005_workspace_and_folder_organization.md`",
+    "- `Docs/workstreams/FB-035_release_context_fallback_hardening.md`",
 )
 
 CURRENT_BACKLOG_SHAPE_HEADINGS = (
@@ -1518,25 +1541,24 @@ CURRENT_WORKSTREAM_INDEX_SHAPE_HEADINGS = (
 )
 
 REFORM_WORKSTREAM_INDEX_SHAPE_HEADINGS = (
-    "### Active Family Dossiers",
+    "### Family Anchor Records",
     "### Historical Pass Alias Records",
-    "### Support / Historical Records",
+    "### Other Closed Workstreams",
 )
 
 REFORM_WORKSTREAM_ACTIVE_HEADINGS = (
     "Active",
-    "Active Family Dossiers",
 )
 
 REFORM_WORKSTREAM_CLOSED_HEADINGS = (
     "Closed",
+    "Family Anchor Records",
     "Historical Pass Alias Records",
-    "Support / Historical Records",
+    "Other Closed Workstreams",
 )
 
 REFORM_WORKSTREAM_RELEASE_DEBT_HEADINGS = (
     "Merged / Release Debt Owners",
-    "Merged / Release Debt Family Dossiers",
 )
 
 VALID_BACKLOG_REGISTRY_CLASSES = (
@@ -3574,6 +3596,10 @@ def _validate_backlog_family_reform_seam_truth(
             phrase in roadmap_text for phrase in REFORM_R6_S1_ROADMAP_REQUIRED_PHRASES
         )
 
+    def workstream_index_split_complete() -> bool:
+        workstreams_index_text = _read_text(Path("Docs/workstreams/index.md"))
+        return all(phrase in workstreams_index_text for phrase in REFORM_R6_S2_INDEX_REQUIRED_PHRASES)
+
     if historical_pass_branch_records_converted():
         require(
             REFORM_R5_S3_STATE_NEXT_PHRASE not in backlog_workstream_state,
@@ -3773,6 +3799,62 @@ def _validate_backlog_family_reform_seam_truth(
                 "Docs/branch_records/feature_backlog_family_governance_reform.md: Seam "
                 "Continuation Decision must not keep R6-S1 as `Next Active Seam` once the "
                 "roadmap anchor conversion is complete"
+            ),
+        )
+
+    if workstream_index_split_complete():
+        require(
+            REFORM_R6_S2_STATE_NEXT_PHRASE not in backlog_workstream_state,
+            (
+                "Docs/feature_backlog.md: R6-S2 must not remain the next seam once the "
+                "canonical workstream index is split by family anchor and historical pass role"
+            ),
+        )
+        require(
+            REFORM_R6_S2_STATE_NEXT_PHRASE not in roadmap_workstream_state,
+            (
+                "Docs/prebeta_roadmap.md: R6-S2 must not remain the next seam once the "
+                "canonical workstream index is split by family anchor and historical pass role"
+            ),
+        )
+        require(
+            phase_status_next_seam != REFORM_R6_S2_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Phase Status "
+                "`Next Active Seam` must advance past R6-S2 once the canonical workstream "
+                "index split is complete"
+            ),
+        )
+        require(
+            REFORM_R6_S2_ACTIVE_SEAM_NEXT_PHRASE not in active_seam_section,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Active Seam "
+                "must not keep R6-S2 as the next active seam once the canonical workstream "
+                "index split is complete"
+            ),
+        )
+        require(
+            active_seam_next != REFORM_R6_S2_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Active Seam "
+                "`Next active seam` must advance past R6-S2 once the canonical workstream "
+                "index split is complete"
+            ),
+        )
+        require(
+            continuation_next_seam != REFORM_R6_S2_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Seam "
+                "Continuation Decision must not keep R6-S2 as `Next Active Seam` once the "
+                "canonical workstream index split is complete"
+            ),
+        )
+        require(
+            REFORM_R6_S2_CONTINUATION_PHRASE not in continuation_section,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Seam "
+                "Continuation Decision must not keep an R6-S2 continuation action once the "
+                "canonical workstream index split is complete"
             ),
         )
         require(
@@ -4085,6 +4167,16 @@ def _validate_backlog_family_historical_pass_records(require, *, current_branch:
             phrase in r6_s1_roadmap_text,
             (
                 "Docs/prebeta_roadmap.md: required R6-S1 roadmap anchor-conversion marker "
+                f"'{phrase}' is missing"
+            ),
+        )
+
+    r6_s2_index_text = _read_text(Path("Docs/workstreams/index.md"))
+    for phrase in REFORM_R6_S2_INDEX_REQUIRED_PHRASES:
+        require(
+            phrase in r6_s2_index_text,
+            (
+                "Docs/workstreams/index.md: required R6-S2 workstream-index split marker "
                 f"'{phrase}' is missing"
             ),
         )

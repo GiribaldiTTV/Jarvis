@@ -98,13 +98,31 @@ These records are not active implementation branch owners after merge.
 
 ### Closed
 
-- `Docs/workstreams/FB-048_active_session_relaunch_signal_failure_and_wait_timeout_truth.md`
-- `Docs/workstreams/FB-047_active_session_relaunch_decline_preservation.md`
-- `Docs/workstreams/FB-046_active_session_relaunch_reacquisition.md`
-- `Docs/workstreams/FB-045_active_session_relaunch_outcome_refinement.md`
-- `Docs/workstreams/FB-044_boot_desktop_handoff_outcome_refinement.md`
-- `Docs/workstreams/FB-043_top_level_entrypoint_handoff_refinement.md`
+### Family Anchor Records
+
 - `Docs/workstreams/FB-042_desktop_entrypoint_runtime_refinement.md`
+- `Docs/workstreams/FB-027_interaction_system_baseline.md`
+
+### Historical Pass Alias Records
+
+#### FB-042 Family
+
+- `Docs/workstreams/FB-043_top_level_entrypoint_handoff_refinement.md`
+- `Docs/workstreams/FB-044_boot_desktop_handoff_outcome_refinement.md`
+- `Docs/workstreams/FB-045_active_session_relaunch_outcome_refinement.md`
+- `Docs/workstreams/FB-046_active_session_relaunch_reacquisition.md`
+- `Docs/workstreams/FB-047_active_session_relaunch_decline_preservation.md`
+- `Docs/workstreams/FB-048_active_session_relaunch_signal_failure_and_wait_timeout_truth.md`
+
+#### FB-027 Family
+
+- `Docs/workstreams/FB-036_saved_action_authoring.md`
+- `Docs/workstreams/FB-041_deterministic_callable_group_execution_layer.md`
+- `Docs/workstreams/FB-037_built_in_actions_and_settings_expansion.md`
+- `Docs/workstreams/FB-038_taskbar_tray_quick_task_ux.md`
+
+### Other Closed Workstreams
+
 - `Docs/workstreams/FB-005_workspace_and_folder_organization.md`
 - `Docs/workstreams/FB-030_orin_voice_audio_direction_refinement.md`
 - `Docs/workstreams/FB-029_orin_identity_licensing_hardening.md`
@@ -114,11 +132,6 @@ These records are not active implementation branch owners after merge.
 - `Docs/workstreams/FB-031_nexus_desktop_ai_ui_ux_overhaul_planning.md`
 - `Docs/workstreams/FB-040_monitoring_thermals_performance_hud_surface.md`
 - `Docs/workstreams/FB-039_external_trigger_plugin_integration_architecture.md`
-- `Docs/workstreams/FB-038_taskbar_tray_quick_task_ux.md`
-- `Docs/workstreams/FB-037_built_in_actions_and_settings_expansion.md`
-- `Docs/workstreams/FB-041_deterministic_callable_group_execution_layer.md`
-- `Docs/workstreams/FB-036_saved_action_authoring.md`
-- `Docs/workstreams/FB-027_interaction_system_baseline.md`
 - `Docs/workstreams/FB-035_release_context_fallback_hardening.md`
 - `Docs/workstreams/FB-034_recoverable_diagnostics.md`
 - `Docs/workstreams/FB-025_boot_desktop_milestone_taxonomy_clarification.md`
