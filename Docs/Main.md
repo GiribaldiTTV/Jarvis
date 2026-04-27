@@ -143,6 +143,8 @@ Rules:
 
 Use these for promoted work that needs a stable feature-state, branch-local validation/evidence record, active seam trail, durable artifact/reuse history, and closure history:
 
+For the family-governance model, use `Docs/workstreams/index.md` first to distinguish family anchors, historical pass alias records, and other closed workstreams before loading the specific canonical record.
+
 - `Docs/workstreams/index.md`
 - `Docs/workstreams/FB-047_active_session_relaunch_decline_preservation.md`
 - `Docs/workstreams/FB-048_active_session_relaunch_signal_failure_and_wait_timeout_truth.md`
@@ -170,9 +172,12 @@ Use these for promoted work that needs a stable feature-state, branch-local vali
 - `Docs/workstreams/FB-033_startup_snapshot_harness_follow_through.md`
 - `Docs/workstreams/FB-028_history_state_relocation.md`
 
-### Family Dossiers And Alias Records
+### Family Dossiers And Historical Pass Alias Routing
 
 Use these for additive family-lifetime traceability surfaces that layer over existing workstream history without replacing the canonical workstream docs in one pass:
+
+- load the `Lifetime Dossier Doc` named by backlog or roadmap when the task touches a `Feature Family` anchor or a `Historical Pass Alias`
+- use `Docs/workstreams/index.md` to locate the split family-anchor versus historical-pass record set before choosing the exact canonical workstream doc
 
 - `Docs/workstreams/index.md`
 - `Docs/workstreams/FB-042_desktop_startup_runtime_family_dossier.md`

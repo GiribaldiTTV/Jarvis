@@ -1138,6 +1138,14 @@ REFORM_R6_S2_ACTIVE_SEAM_NEXT_PHRASE = (
     "Phase 6 / Slice R6-S2 `Workstream index split` is the next active seam on this branch."
 )
 REFORM_R6_S2_CONTINUATION_PHRASE = "Execute Slice R6-S2"
+REFORM_R6_S3_SEAM = (
+    "Phase 6 - Roadmap And Index Alignment / Slice R6-S3 - Main / router / loader alignment"
+)
+REFORM_R6_S3_STATE_NEXT_PHRASE = "Slice R6-S3 `Main / router / loader alignment` is next"
+REFORM_R6_S3_ACTIVE_SEAM_NEXT_PHRASE = (
+    "Phase 6 / Slice R6-S3 `Main / router / loader alignment` is the next active seam on this branch."
+)
+REFORM_R6_S3_CONTINUATION_PHRASE = "Execute Slice R6-S3"
 REFORM_FB042_DOSSIER_PATH = Path(
     "Docs/workstreams/FB-042_desktop_startup_runtime_family_dossier.md"
 )
@@ -1494,6 +1502,18 @@ REFORM_R6_S2_INDEX_REQUIRED_PHRASES = (
     "- `Docs/workstreams/FB-005_workspace_and_folder_organization.md`",
     "- `Docs/workstreams/FB-035_release_context_fallback_hardening.md`",
 )
+
+REFORM_R6_S3_ROUTER_REQUIRED_PHRASES = {
+    Path("Docs/Main.md"): (
+        "For the family-governance model, use `Docs/workstreams/index.md` first to distinguish family anchors, historical pass alias records, and other closed workstreams before loading the specific canonical record.",
+        "### Family Dossiers And Historical Pass Alias Routing",
+        "- load the `Lifetime Dossier Doc` named by backlog or roadmap when the task touches a `Feature Family` anchor or a `Historical Pass Alias`",
+    ),
+    Path("Docs/nexus_startup_contract.md"): (
+        "- `Docs/workstreams/index.md` owns canonical workstream-record routing, including family anchors, historical pass aliases, and other closed-workstream splits.",
+        "9. If the tracked item declares a `Lifetime Dossier Doc`, or if it is a `Feature Family` anchor or `Historical Pass Alias` routed through a family dossier, load that dossier too.",
+    ),
+}
 
 CURRENT_BACKLOG_SHAPE_HEADINGS = (
     "## Registry Items",
@@ -3600,6 +3620,15 @@ def _validate_backlog_family_reform_seam_truth(
         workstreams_index_text = _read_text(Path("Docs/workstreams/index.md"))
         return all(phrase in workstreams_index_text for phrase in REFORM_R6_S2_INDEX_REQUIRED_PHRASES)
 
+    def main_router_loader_aligned() -> bool:
+        for doc_path, required_phrases in REFORM_R6_S3_ROUTER_REQUIRED_PHRASES.items():
+            if not doc_path.is_file():
+                return False
+            doc_text = _read_text(doc_path)
+            if any(phrase not in doc_text for phrase in required_phrases):
+                return False
+        return True
+
     if historical_pass_branch_records_converted():
         require(
             REFORM_R5_S3_STATE_NEXT_PHRASE not in backlog_workstream_state,
@@ -3849,6 +3878,62 @@ def _validate_backlog_family_reform_seam_truth(
                 "canonical workstream index split is complete"
             ),
         )
+
+    if main_router_loader_aligned():
+        require(
+            REFORM_R6_S3_STATE_NEXT_PHRASE not in backlog_workstream_state,
+            (
+                "Docs/feature_backlog.md: R6-S3 must not remain the next seam once Main/router/"
+                "loader alignment is complete"
+            ),
+        )
+        require(
+            REFORM_R6_S3_STATE_NEXT_PHRASE not in roadmap_workstream_state,
+            (
+                "Docs/prebeta_roadmap.md: R6-S3 must not remain the next seam once Main/router/"
+                "loader alignment is complete"
+            ),
+        )
+        require(
+            phase_status_next_seam != REFORM_R6_S3_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Phase Status "
+                "`Next Active Seam` must advance past R6-S3 once Main/router/loader alignment "
+                "is complete"
+            ),
+        )
+        require(
+            REFORM_R6_S3_ACTIVE_SEAM_NEXT_PHRASE not in active_seam_section,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Active Seam "
+                "must not keep R6-S3 as the next active seam once Main/router/loader "
+                "alignment is complete"
+            ),
+        )
+        require(
+            active_seam_next != REFORM_R6_S3_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Active Seam "
+                "`Next active seam` must advance past R6-S3 once Main/router/loader "
+                "alignment is complete"
+            ),
+        )
+        require(
+            continuation_next_seam != REFORM_R6_S3_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Seam "
+                "Continuation Decision must not keep R6-S3 as `Next Active Seam` once "
+                "Main/router/loader alignment is complete"
+            ),
+        )
+        require(
+            REFORM_R6_S3_CONTINUATION_PHRASE not in continuation_section,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Seam "
+                "Continuation Decision must not keep an R6-S3 continuation action once "
+                "Main/router/loader alignment is complete"
+            ),
+        )
         require(
             REFORM_R6_S2_CONTINUATION_PHRASE not in continuation_section,
             (
@@ -3950,7 +4035,7 @@ def _validate_backlog_family_dossier_shell(
         return
 
     index_dossier_section = _section(index_text, "Family Dossier Records")
-    main_dossier_routes = _subsection(main_text, "Family Dossiers And Alias Records")
+    main_dossier_routes = _subsection(main_text, "Family Dossiers And Historical Pass Alias Routing")
 
     def require_dossier_shell(
         *,
@@ -4008,7 +4093,7 @@ def _validate_backlog_family_dossier_shell(
         require(
             str(dossier_path).replace("\\", "/") in main_dossier_routes,
             (
-                "Docs/Main.md: Family Dossiers And Alias Records must route the "
+                "Docs/Main.md: Family Dossiers And Historical Pass Alias Routing must route the "
                 f"{backlog_id} dossier shell"
             ),
         )
@@ -4180,6 +4265,20 @@ def _validate_backlog_family_historical_pass_records(require, *, current_branch:
                 f"'{phrase}' is missing"
             ),
         )
+
+    for doc_path, required_phrases in REFORM_R6_S3_ROUTER_REQUIRED_PHRASES.items():
+        require(
+            doc_path.is_file(),
+            f"{doc_path}: R6-S3 router/loader surface must exist on the reform branch",
+        )
+        if not doc_path.is_file():
+            continue
+        doc_text = _read_text(doc_path)
+        for phrase in required_phrases:
+            require(
+                phrase in doc_text,
+                f"{doc_path}: required R6-S3 router/loader marker '{phrase}' is missing",
+            )
 
 
 def _roadmap_section_for_id(text: str, workstream_id: str) -> str:
