@@ -16,7 +16,7 @@ This branch must not change runtime behavior. Its job is to repair and harden so
 
 ## Current Phase
 
-- Phase: `Branch Readiness`
+- Phase: `Workstream`
 
 ## Phase Status
 
@@ -34,8 +34,11 @@ This branch must not change runtime behavior. Its job is to repair and harden so
 - Selected Next Workstream: FB-049 Active-session pre-settled incoming-launch conflict truth.
 - Selected Next Record State: Registry-only.
 - Selected Next Implementation Branch: Not created.
-- Active Seam: `Phase 0 - Reform Readiness`
-- Branch Readiness closure result: complete and green. The branch authority record is admitted, docs-only approval and release posture are recorded, phased migration rules are in place, and Workstream Phase 1 may begin on this branch.
+- Historical Active Seam: `Phase 0 - Reform Readiness`
+- Branch Readiness closure result: complete and green. The branch authority record is admitted, docs-only approval and release posture are recorded, phased migration rules are in place.
+- Current Workstream Seam: `Phase 1 - Validator Bootstrap`
+- Validator bootstrap result: complete and green. The validator is now temporarily dual-shape aware for the migration branch, current backlog/workstream shape protections remain active, reform-shape headings are recognized when introduced, and no backlog migration landed in this seam.
+- Next Active Seam: `Phase 2 - Backlog Structure Migration`
 
 ## Branch Class
 
@@ -43,7 +46,7 @@ This branch must not change runtime behavior. Its job is to repair and harden so
 
 ## Blockers
 
-None. Phase 0 prerequisites are satisfied, FB-048 release debt is cleared, merged `main` is revalidated, and this branch stays inside the approved docs-only governance boundary.
+- `Backlog Completion Unproven`
 
 ## Entry Basis
 
@@ -64,7 +67,7 @@ None. Phase 0 prerequisites are satisfied, FB-048 release debt is cleared, merge
 
 ## Rollback Target
 
-- `Branch Readiness`
+- `Workstream`
 
 ## Next Legal Phase
 
@@ -147,6 +150,12 @@ Post-Release Truth: this branch closes as historical branch-authority traceabili
 Branch Completion Goal: `Complete the full approved backlog/workstream governance reform on this same branch unless repo truth exposes a documented stop condition that requires explicit USER replanning.`
 Known Future-Dependent Blockers: `None proven during Branch Readiness.`
 Branch Closure Rule: `Do not leave Workstream after only the first reform seam; continue on this same branch until the approved phased governance migration is complete or a documented stop condition blocks continuation.`
+
+## Backlog Completion Status
+
+Backlog Completion State: `In Progress`
+Remaining Implementable Work: `Phase 2 through Phase 7 backlog/workstream governance reform slices remain to execute on this same branch.`
+Future-Dependent Blockers: `None`
 
 ## Stop Conditions
 
@@ -250,4 +259,12 @@ Seam 1: `Phase 1 - Validator Bootstrap`
 Active seam: `None.`
 
 - Phase 0 `Reform Readiness` is complete.
-- `Workstream` Phase 1 `Validator Bootstrap` is now the next legal phase on this branch.
+- Workstream Phase 1 `Validator Bootstrap` is complete and green.
+- Phase 2 `Backlog Structure Migration` is the next active seam on this branch.
+
+## Seam Continuation Decision
+
+Continue Decision: `Continue`
+Next Active Seam: `Phase 2 - Backlog Structure Migration`
+Stop Condition: `Stop only if repo truth shows the planned family-governance model conflicts with release history, selected-next truth, or validator protection and cannot be repaired without weakening the governance model.`
+Continuation Action: `Execute Slice R2-S1 by introducing the new backlog section skeleton without reclassifying or moving entries yet.`

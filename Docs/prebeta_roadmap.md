@@ -101,7 +101,8 @@ Selected Next Record State: Registry-only.
 Selected Next Implementation Branch: `Not created`
 Repair-Only Branch Handling: `feature/fb-046-post-merge-canon-sync` is a bounded repair-only post-merge canon-sync `feature/` branch and did not imply Branch Readiness admission or active branch truth for FB-046.
 Historical Branch Readiness State: Complete on `feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeout-truth`.
-Current Branch Readiness State: Complete on `feature/backlog-family-governance-reform`. Phase 0 reform readiness is closed green, the active branch authority record is admitted, and Workstream Phase 1 may begin on the same branch.
+Current Branch Readiness State: Historical complete on `feature/backlog-family-governance-reform`. Phase 0 `Reform Readiness` admitted the branch authority record and cleared the path into Workstream.
+Current Workstream State: Phase 1 `Validator Bootstrap` is complete and green on `feature/backlog-family-governance-reform`; current-shape protections remain active, reform-shape headings are now validator-aware for this branch, no backlog migration landed in this seam, and Phase 2 `Backlog Structure Migration` is next.
 Historical Workstream State: FB-048 is Released / Closed in `v1.6.12-prebeta`; FB-047 is Released / Closed in `v1.6.11-prebeta`; FB-046 is Released / Closed in `v1.6.10-prebeta`; FB-044 and FB-045 remain Released / Closed historical proof in `v1.6.9-prebeta`.
 Historical Hardening State: Complete on `feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeout-truth`.
 Historical Live Validation State: Complete on `feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeout-truth`.

@@ -881,6 +881,61 @@ REQUIRED_BRANCH_RECORD_HEADINGS = (
     "## Next Legal Phase",
 )
 
+BACKLOG_FAMILY_REFORM_BRANCH = "feature/backlog-family-governance-reform"
+
+CURRENT_BACKLOG_SHAPE_HEADINGS = (
+    "## Registry Items",
+    "## Closed Canonical Workstreams",
+)
+
+REFORM_BACKLOG_SHAPE_HEADINGS = (
+    "### User-Facing Feature Families",
+    "### Historical Consolidated Pass Aliases",
+    "### Support / Architecture / Governance Lanes",
+    "## Historical Implemented Registry-Only Items",
+)
+
+REFORM_BACKLOG_TRIGGER_HEADINGS = (
+    "### User-Facing Feature Families",
+    "### Historical Consolidated Pass Aliases",
+    "### Support / Architecture / Governance Lanes",
+)
+
+CURRENT_WORKSTREAM_INDEX_SHAPE_HEADINGS = (
+    "### Active",
+    "### Merged / Release Debt Owners",
+    "### Closed",
+)
+
+REFORM_WORKSTREAM_INDEX_SHAPE_HEADINGS = (
+    "### Active Family Dossiers",
+    "### Historical Pass Alias Records",
+    "### Support / Historical Records",
+)
+
+REFORM_WORKSTREAM_ACTIVE_HEADINGS = (
+    "Active",
+    "Active Family Dossiers",
+)
+
+REFORM_WORKSTREAM_CLOSED_HEADINGS = (
+    "Closed",
+    "Historical Pass Alias Records",
+    "Support / Historical Records",
+)
+
+REFORM_WORKSTREAM_RELEASE_DEBT_HEADINGS = (
+    "Merged / Release Debt Owners",
+    "Merged / Release Debt Family Dossiers",
+)
+
+VALID_BACKLOG_REGISTRY_CLASSES = (
+    "Feature Family",
+    "Historical Pass Alias",
+    "Support Lane",
+    "Historical Implemented Registry-Only",
+)
+
 
 def _read_text(relative_path: Path) -> str:
     return (ROOT_DIR / relative_path).read_text(encoding="utf-8")
@@ -901,6 +956,21 @@ def _section(text: str, heading: str) -> str:
 def _subsection(text: str, heading_prefix: str) -> str:
     match = re.search(rf"(?ms)^### {re.escape(heading_prefix)}.*?\n(.*?)(?=^### |\Z)", text)
     return match.group(0).strip() if match else ""
+
+
+def _has_all_headings(text: str, headings: tuple[str, ...]) -> bool:
+    return all(heading in text for heading in headings)
+
+
+def _has_any_heading(text: str, headings: tuple[str, ...]) -> bool:
+    return any(heading in text for heading in headings)
+
+
+def _collect_index_paths_from_headings(text: str, headings: tuple[str, ...]) -> set[str]:
+    paths: set[str] = set()
+    for heading in headings:
+        paths.update(re.findall(r"Docs/workstreams/[A-Za-z0-9._-]+\.md", _subsection(text, heading)))
+    return paths
 
 
 def _extract_backtick_values(text: str) -> list[str]:
@@ -1690,23 +1760,131 @@ def _requires_user_facing_shortcut_gate(text: str) -> bool:
 
 
 def _collect_active_index_paths(text: str) -> set[str]:
-    active_section = _subsection(text, "Active")
-    return set(re.findall(r"Docs/workstreams/[A-Za-z0-9._-]+\.md", active_section))
+    return _collect_index_paths_from_headings(text, REFORM_WORKSTREAM_ACTIVE_HEADINGS)
 
 
 def _collect_closed_index_paths(text: str) -> set[str]:
-    closed_section = _subsection(text, "Closed")
-    return set(re.findall(r"Docs/workstreams/[A-Za-z0-9._-]+\.md", closed_section))
+    return _collect_index_paths_from_headings(text, REFORM_WORKSTREAM_CLOSED_HEADINGS)
 
 
 def _collect_release_debt_index_paths(text: str) -> set[str]:
-    release_debt_section = _subsection(text, "Merged / Release Debt Owners")
-    return set(re.findall(r"Docs/workstreams/[A-Za-z0-9._-]+\.md", release_debt_section))
+    return _collect_index_paths_from_headings(text, REFORM_WORKSTREAM_RELEASE_DEBT_HEADINGS)
 
 
 def _collect_branch_record_paths(text: str, heading_prefix: str) -> set[str]:
     section = _section(text, heading_prefix)
     return set(re.findall(r"Docs/branch_records/[A-Za-z0-9._-]+\.md", section))
+
+
+def _is_backlog_family_reform_branch(branch_name: str) -> bool:
+    normalized = (branch_name or "").strip()
+    return normalized in {
+        BACKLOG_FAMILY_REFORM_BRANCH,
+        f"origin/{BACKLOG_FAMILY_REFORM_BRANCH}",
+    }
+
+
+def _validate_backlog_family_reform_bootstrap(
+    require,
+    *,
+    current_branch: str,
+    backlog_text: str,
+    index_text: str,
+    backlog_entries: list[dict[str, str]],
+) -> None:
+    if not _is_backlog_family_reform_branch(current_branch):
+        return
+
+    has_current_backlog_shape = _has_all_headings(backlog_text, CURRENT_BACKLOG_SHAPE_HEADINGS)
+    has_reform_backlog_shape = _has_all_headings(backlog_text, REFORM_BACKLOG_SHAPE_HEADINGS)
+    require(
+        has_current_backlog_shape or has_reform_backlog_shape,
+        (
+            "Docs/feature_backlog.md: validator bootstrap on "
+            f"{BACKLOG_FAMILY_REFORM_BRANCH} must accept either the current backlog shape "
+            "or the reform backlog-family shape"
+        ),
+    )
+    if _has_any_heading(backlog_text, REFORM_BACKLOG_TRIGGER_HEADINGS):
+        require(
+            has_reform_backlog_shape,
+            (
+                "Docs/feature_backlog.md: reform backlog-family headings must land as a complete "
+                "set once introduced on the migration branch"
+            ),
+        )
+
+    has_current_index_shape = _has_all_headings(index_text, CURRENT_WORKSTREAM_INDEX_SHAPE_HEADINGS)
+    has_reform_index_shape = _has_all_headings(index_text, REFORM_WORKSTREAM_INDEX_SHAPE_HEADINGS)
+    require(
+        has_current_index_shape or has_reform_index_shape,
+        (
+            "Docs/workstreams/index.md: validator bootstrap on "
+            f"{BACKLOG_FAMILY_REFORM_BRANCH} must accept either the current workstream-index "
+            "shape or the reform family-index split"
+        ),
+    )
+    if _has_any_heading(index_text, REFORM_WORKSTREAM_INDEX_SHAPE_HEADINGS):
+        require(
+            has_reform_index_shape,
+            (
+                "Docs/workstreams/index.md: reform workstream-index headings must land as a "
+                "complete split once introduced on the migration branch"
+            ),
+        )
+
+    for entry in backlog_entries:
+        block = entry["block"]
+        registry_class = _clean_release_value(_extract_colon_value(block, "Registry Class"))
+        if not registry_class:
+            continue
+
+        require(
+            registry_class in VALID_BACKLOG_REGISTRY_CLASSES,
+            (
+                f"Docs/feature_backlog.md: {entry['id']} has invalid Registry Class "
+                f"'{registry_class}'"
+            ),
+        )
+
+        if registry_class == "Feature Family":
+            family_anchor = _clean_release_value(_extract_colon_value(block, "Family Anchor"))
+            require(
+                family_anchor == "Self",
+                (
+                    f"Docs/feature_backlog.md: {entry['id']} Feature Family entry must declare "
+                    "`Family Anchor: Self`"
+                ),
+            )
+        elif registry_class == "Historical Pass Alias":
+            alias_of = _clean_release_value(_extract_colon_value(block, "Historical Alias Of"))
+            pass_id = _clean_release_value(_extract_colon_value(block, "Pass ID"))
+            alias_role = _clean_release_value(_extract_colon_value(block, "Alias Role"))
+            independently_selectable = _clean_release_value(
+                _extract_colon_value(block, "Selectable Independently")
+            )
+            require(
+                bool(alias_of),
+                f"Docs/feature_backlog.md: {entry['id']} Historical Pass Alias must declare Historical Alias Of",
+            )
+            require(
+                bool(pass_id),
+                f"Docs/feature_backlog.md: {entry['id']} Historical Pass Alias must declare Pass ID",
+            )
+            require(
+                alias_role == "Historical Pass Record",
+                (
+                    f"Docs/feature_backlog.md: {entry['id']} Historical Pass Alias must declare "
+                    "`Alias Role: Historical Pass Record`"
+                ),
+            )
+            require(
+                independently_selectable.casefold() == "no",
+                (
+                    f"Docs/feature_backlog.md: {entry['id']} Historical Pass Alias must declare "
+                    "`Selectable Independently: No`"
+                ),
+            )
 
 
 def _roadmap_section_for_id(text: str, workstream_id: str) -> str:
@@ -2713,6 +2891,13 @@ def main() -> int:
         )
 
     backlog_entries = _parse_backlog_sections(backlog_text)
+    _validate_backlog_family_reform_bootstrap(
+        require,
+        current_branch=current_git_branch,
+        backlog_text=backlog_text,
+        index_text=index_text,
+        backlog_entries=backlog_entries,
+    )
     for entry in backlog_entries:
         post_release_truth_count = _count_field_occurrences(entry["block"], "Post-Release Truth")
         require(
