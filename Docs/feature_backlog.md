@@ -80,7 +80,7 @@ Selected Next Implementation Branch: Not created.
 Historical Repair-Only Branch Handling: `feature/fb-046-post-merge-canon-sync` was a bounded repair-only post-merge canon-sync `feature/` branch and did not imply Branch Readiness admission or active branch truth for FB-046.
 Historical Branch Readiness State: Complete on `feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeout-truth`.
 Current Branch Readiness State: Historical complete on `feature/backlog-family-governance-reform`. Phase 0 `Reform Readiness` admitted the branch authority record and cleared the path into Workstream.
-Current Workstream State: Phase 2 `Backlog Structure Migration` is active on `feature/backlog-family-governance-reform`; Slice R2-S3 `Move support / governance lanes` is complete and green, support / architecture / governance lanes now live in their dedicated section while user-facing families and historical pass aliases remain in transitional locations, no entries were renamed in this seam, and Slice R2-S4 `Move historical pass aliases` is next.
+Current Workstream State: Phase 2 `Backlog Structure Migration` is active on `feature/backlog-family-governance-reform`; Slice R2-S4 `Move historical pass aliases` is complete and green, historical pass aliases now live in their dedicated section while the remaining user-facing family entries stay in transitional or historical locations, no entries were renamed in this seam, and Slice R2-S5 `Backlog ordering and selection-truth hardening` is next.
 Current Branch Class: implementation.
 Current Implementation Delta Class: docs-only.
 Historical Workstream State: FB-048 is Released / Closed in `v1.6.12-prebeta`; FB-047 is Released / Closed in `v1.6.11-prebeta`; FB-046 is Released / Closed in `v1.6.10-prebeta`; FB-044 and FB-045 remain Released / Closed historical proof in `v1.6.9-prebeta`.
@@ -99,7 +99,7 @@ Next Legal Phase: Workstream.
 
 ## Backlog Governance Sync
 
-Last Reviewed: 2026-04-27 during Backlog Family Governance Reform Branch Readiness.
+Last Reviewed: 2026-04-27 during Backlog Family Governance Reform Phase 2 / Slice R2-S4.
 
 Open-candidate priority review:
 
@@ -123,15 +123,264 @@ Current-branch clarity: latest public prerelease is `v1.6.12-prebeta`; FB-044 an
 
 ### User-Facing Feature Families
 
-Placeholder only in Slice R2-S1. No entries move under this heading until Slice R2-S2 through Slice R2-S4 perform the actual classification and relocation work.
+Still intentionally empty after Slice R2-S4. The remaining user-facing family entries stay in transitional or historical locations until Slice R2-S5 hardens final Phase 2 ordering without pulling the Phase 3 family-anchor retitles forward.
 
 ### Historical Consolidated Pass Aliases
 
-Placeholder only in Slice R2-S1. No entries move under this heading until the historical alias migration seam lands later in Phase 2.
+Closed historical pass alias records now live here in descending `FB-XXX` order. Family-anchor retitles and deeper alias-to-family mapping stay deferred to Phase 3.
+
+### [ID: FB-048] Active-session relaunch signal-failure and wait-timeout truth
+
+Status: Released (v1.6.12-prebeta)
+Record State: Closed
+Registry Class: Historical Pass Alias
+Historical Alias Of: FB-042
+Pass ID: F042-P07
+Alias Role: Historical Pass Record
+Selectable Independently: No
+Priority: High
+Release Stage: Released
+Target Version: v1.6.12-prebeta
+Selection / Unblock: Implemented complete. `feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeout-truth` delivered the admitted failure/timeout truth slice chain, the follow-up repair and canon/governance containment PRs are merged on `main`, and `v1.6.12-prebeta` is now published, validated, and closed through post-release canon sync.
+Next Workstream: Selected successor is FB-049 after this merged-unreleased release window clears.
+Branch Creation Gate: Satisfied during FB-048 Branch Readiness after `v1.6.11-prebeta` publication, validation, updated-`main` revalidation, and first-slice admission.
+Branch: feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeout-truth
+Canonical Workstream Doc: Docs/workstreams/FB-048_active_session_relaunch_signal_failure_and_wait_timeout_truth.md
+Historical Branch Readiness Record: Docs/branch_records/feature_fb_048_active_session_relaunch_signal_failure_and_wait_timeout_truth.md
+Branch Readiness: Historical complete. The branch objective, target end-state, admitted WS-1 slice, validation coverage, rollback conditions, and same-branch backlog-completion posture remain preserved in the historical Branch Readiness record.
+Workstream: Released. WS-1 `accepted relaunch failure-path truthful outcome proof` is complete and validated; H-1 failure/timeout lifecycle hardening is complete and green; LV-1 is complete and green with real desktop shortcut evidence plus reusable failure/timeout lifecycle proof; accepted relaunch signal-failure emits an explicit preserved-session marker and accepted relaunch wait-timeout emits an explicit replacement-unconfirmed marker instead of collapsing into a generic already-running skip; repeated signal-failure launches preserve the active settled owner even under rapid repetition; near-deadline reacquire no longer falls through to a false timeout; mixed failure -> decline -> accept -> failure sequencing keeps failure, decline, and success classification distinct; `Backlog Completion State` is `Implemented Complete`; PR #94, PR #96, and PR #97 are complete historical proof; the lane is released and closed in `v1.6.12-prebeta`; and the branch's governance/validator hardening is now part of the released canonical baseline.
+Backlog Completion State: Implemented Complete
+PR Readiness: Complete historical proof. PR #94 merged the bounded FB-048 implementation package; PR #96 merged the post-merge review repair that corrected wait-timeout truth and the non-Windows validator guard; and PR #97 merged the post-sync canon plus merge-stable governance containment on `main`.
+Release Target: v1.6.12-prebeta
+Release Floor: patch prerelease
+Version Rationale: FB-048 delivers a bounded runtime/user-facing relaunch signal-failure and wait-timeout refinement on the existing desktop startup family without opening a new product lane or materially expanded feature family.
+Release Scope: completed FB-048 WS-1 accepted relaunch failure-path truthful outcome proof, H-1 failure/timeout lifecycle hardening, LV-1 real desktop shortcut evidence, reusable validation evidence, PR package history, merged-unreleased release-debt truth, selected-next FB-049 successor lock, and merge-stable current-state governance hardening plus validator guardrails for the bounded runtime/user-facing lane only.
+Release Artifacts: Tag v1.6.12-prebeta; release title Pre-Beta v1.6.12; rich Markdown release notes summarize the bounded FB-048 relaunch failure/timeout runtime/user-facing package, real shortcut evidence, and the FB-049 successor lane without repeating the release title inside the notes body, and GitHub-generated `## What's Changed` plus `**Full Changelog**:` must be included.
+Post-Release Truth: FB-048 is Released / Closed in `v1.6.12-prebeta`; release debt is clear; the governance reform branch may proceed through its approved docs-only branch-authority record; and FB-049 remains selected next, `Registry-only`, and branch-not-created until that branch completes and later FB-049 Branch Readiness admits the first bounded pre-settled incoming-launch conflict truth slice.
+Minimal Scope: Prove and refine the accepted relaunch failure lane across `desktop/single_instance.py`, `desktop/orin_desktop_launcher.pyw`, `desktop/orin_desktop_main.py`, and the minimum required reusable validator surfaces so relaunch-signal failure or reacquire wait-timeout preserves truthful ownership, emits explicit failure-path markers, and avoids false replacement-session or guard-transfer claims.
+Summary: Make accepted-but-unfinished relaunch failures as truthful as accepted and declined success paths.
+Why it matters: Users should get an explicit, proven outcome when relaunch was requested but the current session could not be signaled or did not release in time.
+
+### [ID: FB-047] Active-session relaunch decline session-preservation proof
+
+Status: Released (v1.6.11-prebeta)
+Record State: Closed
+Registry Class: Historical Pass Alias
+Historical Alias Of: FB-042
+Pass ID: F042-P06
+Alias Role: Historical Pass Record
+Selectable Independently: No
+Priority: High
+Release Stage: Released
+Target Version: v1.6.11-prebeta
+Selection / Unblock: Implemented complete. `feature/fb-047-active-session-relaunch-decline-preservation` delivered the admitted decline-preservation slice chain, PR #93 merged into `main`, and `v1.6.11-prebeta` is now published, validated, and closed through post-release canon sync.
+Next Workstream: Released / closed historical proof. No remaining implementable FB-047 work remains on this backlog lane.
+Branch Creation Gate: Historical complete. `v1.6.10-prebeta` was published and validated, updated `main` was revalidated, and FB-047 Branch Readiness admitted the bounded runtime/user-facing relaunch-decline preservation slice before promotion.
+Branch: feature/fb-047-active-session-relaunch-decline-preservation
+Canonical Workstream Doc: Docs/workstreams/FB-047_active_session_relaunch_decline_preservation.md
+Historical Branch Readiness Record: Docs/branch_records/feature_fb_047_active_session_relaunch_decline_preservation.md
+Branch Readiness: Historical complete. The branch objective, target end-state, admitted WS-1 slice, validation contract, rollback conditions, and same-branch backlog-completion posture remain preserved in the historical branch-readiness record.
+Workstream: Released. WS-1 `declined relaunch incoming-launch truthful exit proof` is complete and validated; harness-driven decline proof records explicit preserved-session success markers instead of a generic already-running skip; repeated incoming declined launches preserve the active settled session and never emit replacement-session markers; H-1 decline-lifecycle hardening is complete / green; LV-1 real desktop shortcut evidence and reusable decline-lifecycle proof are complete / green; `Backlog Completion State` is `Implemented Complete`; PR-1 / PR-2 / PR-3 are complete historical proof; and the branch is now Released / Closed in `v1.6.11-prebeta`.
+Backlog Completion State: Implemented Complete
+PR Readiness: Complete. PR-1 merge-target canon completeness, PR-2 selected-next workstream selection, and PR-3 live PR creation plus validation are complete historical proof; PR #93 merged into `main` at `4ca70572fbc8033bc96fcd299dd309464e81393a`.
+Release Target: v1.6.11-prebeta
+Release Floor: patch prerelease
+Version Rationale: FB-047 delivers a bounded runtime/user-facing relaunch-decline preservation refinement on the existing desktop startup family without opening a new product lane or materially expanded feature family.
+Release Scope: completed FB-047 WS-1 declined relaunch incoming-launch truthful exit proof, H-1 decline lifecycle hardening, LV-1 real desktop shortcut evidence, reusable validation evidence, PR package history, release publication, and selected-next FB-048 successor admission for the bounded runtime/user-facing lane only.
+Release Artifacts: Tag v1.6.11-prebeta; release title Pre-Beta v1.6.11; rich Markdown release notes summarize the bounded FB-047 relaunch-decline preservation runtime/user-facing package, real shortcut evidence, and the FB-048 successor lane without repeating the release title inside the notes body, and GitHub-generated `## What's Changed` plus `**Full Changelog**:` must be included.
+Post-Release Truth: FB-047 is Released / Closed in `v1.6.11-prebeta`; release debt is clear; and FB-048 is now the active promoted workstream on `feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeout-truth`.
+Minimal Scope: Prove and refine the relaunch-decline lane across `desktop/single_instance.py`, `desktop/orin_desktop_launcher.pyw`, `desktop/orin_desktop_main.py`, and the minimum required reusable validator surfaces so declining replacement preserves the active settled session and cleanly terminates the incoming launch without dual ownership or false successor markers.
+Summary: Make relaunch decline as provable and truthful as accepted relaunch.
+Why it matters: The runtime should be just as explicit when the user keeps the current settled session as when the user accepts replacement.
+
+### [ID: FB-046] Active-session relaunch reacquisition and settled re-entry proof
+
+Status: Released (v1.6.10-prebeta)
+Record State: Closed
+Registry Class: Historical Pass Alias
+Historical Alias Of: FB-042
+Pass ID: F042-P05
+Alias Role: Historical Pass Record
+Selectable Independently: No
+Priority: High
+Release Stage: Released
+Target Version: v1.6.10-prebeta
+Release Title: Pre-Beta v1.6.10
+Selection / Unblock: Implemented complete. `feature/fb-046-active-session-relaunch-reacquisition` delivered the admitted relaunch-reacquisition slice chain, PR #92 merged into `main`, and `v1.6.10-prebeta` is now published and validated.
+Next Workstream: Released / closed historical proof. No remaining implementable FB-046 work remains on this backlog lane.
+Branch: feature/fb-046-active-session-relaunch-reacquisition
+Repair-Only Branch Handling: `feature/fb-046-post-merge-canon-sync` is a bounded repair-only post-merge canon-sync `feature/` branch and does not imply Branch Readiness admission or active branch truth for FB-046.
+Canonical Workstream Doc: Docs/workstreams/FB-046_active_session_relaunch_reacquisition.md
+Historical Branch Readiness Record: Docs/branch_records/feature_fb_046_active_session_relaunch_reacquisition.md
+Branch Readiness: Historical complete. The admitted slice, validation contract, rollback conditions, and same-branch backlog-completion posture remain preserved in the historical branch-readiness record.
+Workstream: Released. WS-1 accepted relaunch replacement-session settled re-entry proof is complete and validated; accepted relaunch now proves prior-session shutdown, single-instance guard release, replacement-session reacquisition, replacement-session authoritative settled re-entry, and truthful post-settled lifecycle completion without dual ownership; H-1 relaunch lifecycle hardening is complete and green across slow shutdown, recoverable-exit relaunch, and rapid consecutive relaunch-cycle proof; LV-1 is complete and green with real desktop shortcut evidence plus a focused User Test Summary waiver; `Backlog Completion State` is `Implemented Complete`; and the released branch is now historical proof in `v1.6.10-prebeta`.
+Backlog Completion State: Implemented Complete
+PR Readiness: Complete. PR-1 merge-target canon completeness, PR-2 selected-next workstream selection, and PR-3 live PR creation plus validation are complete; PR #92 merged into `main` at `36cf07495dc8e239b20b11afb5194355b77ffd8b`.
+Release Readiness: Complete. `main` validated green for `v1.6.10-prebeta` release packaging before release execution.
+Release Execution: `v1.6.10-prebeta` is live at https://github.com/GiribaldiTTV/Nexus-Desktop-AI/releases/tag/v1.6.10-prebeta on commit `36cf07495dc8e239b20b11afb5194355b77ffd8b`.
+Release Target: v1.6.10-prebeta
+Release Floor: patch prerelease
+Version Rationale: FB-046 delivers a bounded runtime/user-facing relaunch-reacquisition refinement on the existing desktop startup family without opening a new product lane or materially expanded feature family.
+Release Scope: completed FB-046 WS-1 accepted relaunch replacement-session settled re-entry proof, H-1 relaunch lifecycle hardening, LV-1 real desktop shortcut evidence, reusable validation evidence, PR package history, merged-unreleased release-debt truth, and selected-next FB-047 successor lock for the bounded runtime/user-facing lane only.
+Release Artifacts: Tag v1.6.10-prebeta; release title Pre-Beta v1.6.10; rich Markdown release notes summarize the bounded FB-046 relaunch-reacquisition runtime/user-facing package, real shortcut evidence, and the FB-047 successor lane without repeating the release title inside the notes body, and GitHub-generated `## What's Changed` plus `**Full Changelog**:` must be included.
+Post-Release Truth: FB-046 is Released / Closed in `v1.6.10-prebeta`; release debt is clear; and after merge FB-047 becomes the merged-unreleased release-debt owner for `v1.6.11-prebeta`, while FB-048 is selected next, `Registry-only`, and branch-not-created.
+Minimal Scope: Complete the bounded relaunch-reacquisition runtime/user-facing pass across `desktop/single_instance.py`, `desktop/orin_desktop_launcher.pyw`, `desktop/orin_desktop_main.py`, `dev/orin_boot_transition_verification.py`, and the minimum required reusable validator surfaces so a confirmed relaunch request closes the active session, reacquires the runtime guard, and returns the replacement session to authoritative settled state without widening into `main.py`, `Audio/`, `logs/`, `jarvis_visual/`, installer work, or broader boot-orchestrator scope.
+Summary: Turn accepted relaunch into a full replacement-session completion proof surface instead of a partial signal-and-exit story.
+Why it matters: The repo now proves who owns the runtime after relaunch, when the old session is truly gone, and when the replacement session has actually made it back to authoritative settled state.
+
+### [ID: FB-045] Active-session relaunch outcome refinement
+
+Status: Released (v1.6.9-prebeta)
+Record State: Closed
+Registry Class: Historical Pass Alias
+Historical Alias Of: FB-042
+Pass ID: F042-P04
+Alias Role: Historical Pass Record
+Selectable Independently: No
+Priority: High
+Release Stage: Released
+Target Version: v1.6.9-prebeta
+Release Title: Pre-Beta v1.6.9
+Selection / Unblock: FB-045 was selected because updated-main `Release Readiness` for FB-044 found a reproducible post-settled runtime failure after the authoritative settled marker. `feature/fb-045-active-session-relaunch-stability` corrected that lifecycle boundary, merged through PR #90, and is now released historical proof in `v1.6.9-prebeta`.
+Next Workstream: Released / closed historical proof. No remaining implementable FB-045 work remains on this backlog lane.
+Branch: feature/fb-045-active-session-relaunch-stability
+Canonical Workstream Doc: Docs/workstreams/FB-045_active_session_relaunch_outcome_refinement.md
+Historical Branch-Readiness Record: Docs/branch_records/feature_fb_045_active_session_relaunch_stability.md
+Branch Readiness: Historical complete. The blocker classification, admitted WS-1 slice, validation contract, rollback conditions, and same-branch backlog-completion posture remain preserved in the historical branch-readiness record.
+Workstream: Released. WS-1 `post-settled runtime stability refinement` is complete and validated; H-1 post-settled lifecycle hardening is complete and green; LV-1 live validation is complete and green with real desktop shortcut evidence and a focused User Test Summary waiver; PR-1 / PR-2 / PR-3 are complete historical proof; and the blocker-clearing package is now released historical proof inside `v1.6.9-prebeta`.
+Backlog Completion State: Implemented Complete
+Minimal Scope: Classify post-settled abnormal renderer exits as a recoverable lifecycle condition after authoritative settled is already proven, keep settled truth authoritative, preserve green startup paths, and avoid widening beyond launcher / validator relaunch-stability scope.
+Summary: Clear the FB-044 release blocker by fixing launcher lifecycle classification after settled and proving that result across primary-workspace and disposable-copy validation.
+Why it matters: Keeps startup truth honest, prevents post-settled runtime exits from being mislabeled as startup failure, and unblocks the path back to FB-044 `Release Readiness`.
+
+### [ID: FB-044] Boot-to-desktop handoff outcome refinement
+
+Status: Released (v1.6.9-prebeta)
+Record State: Closed
+Registry Class: Historical Pass Alias
+Historical Alias Of: FB-042
+Pass ID: F042-P03
+Alias Role: Historical Pass Record
+Selectable Independently: No
+Priority: High
+Release Stage: Released
+Target Version: v1.6.9-prebeta
+Release Title: Pre-Beta v1.6.9
+Selection / Unblock: Implemented complete. `feature/fb-044-boot-desktop-handoff-outcome-refinement` delivered WS-1 `desktop-settled handoff outcome refinement`; FB-045 on `feature/fb-045-active-session-relaunch-stability` delivered the blocker-clearing lifecycle follow-through inside the same release window; PR #89, PR #90, and PR #91 merged; and `v1.6.9-prebeta` is now published, validated, and in post-release canon closure.
+Next Workstream: Released / closed historical proof. No remaining implementable FB-044 work remains on this backlog lane.
+Branch: feature/fb-044-boot-desktop-handoff-outcome-refinement
+Canonical Workstream Doc: Docs/workstreams/FB-044_boot_desktop_handoff_outcome_refinement.md
+Historical Branch Authority Record: Docs/branch_records/feature_fb_044_boot_desktop_handoff_outcome_refinement.md
+Branch Readiness: Complete. Historical Branch Readiness truth is preserved in the branch authority record.
+Workstream: Released. WS-1 `desktop-settled handoff outcome refinement` is complete and validated; H-1 settled-state hardening is complete and green; LV-1 live validation is complete and green with real desktop shortcut evidence and a narrow User Test Summary waiver; PR-1 / PR-2 / PR-3 are complete historical proof; `Backlog Completion State` is `Implemented Complete`; FB-045's blocker-clearing lifecycle follow-through is released historical proof in the same package; and `v1.6.9-prebeta` is now live and validated.
+Release Target: v1.6.9-prebeta
+Release Floor: patch prerelease
+Version Rationale: FB-044 delivers a bounded runtime/user-facing boot-to-desktop settled-outcome refinement on the existing startup family without opening a new product lane or materially expanded runtime family.
+Release Scope: complete the bounded FB-044 settled-outcome slice chain on this same branch across `main.py`, `desktop/orin_desktop_launcher.pyw`, `desktop/orin_desktop_main.py`, `dev/orin_boot_transition_verification.py`, and `dev/orin_desktop_entrypoint_validation.py`, along with H-1, LV-1, PR package history, release publication, and the released FB-045 blocker-clearing lifecycle follow-through inside the same `v1.6.9-prebeta` package.
+Release Artifacts: Tag v1.6.9-prebeta; release title Pre-Beta v1.6.9; rich Markdown release notes summarize the bounded FB-044 boot-to-desktop settled-outcome refinement, the FB-045 blocker-clearing lifecycle classification result, real shortcut evidence, and the FB-046 successor lane without repeating the release title inside the notes body, and GitHub-generated `## What's Changed` plus `**Full Changelog**:` must be included.
+Post-Release Truth: FB-044 and FB-045 are Released / Closed in `v1.6.9-prebeta`; release debt is clear; and after merge FB-046 becomes the merged-unreleased release-debt owner for `v1.6.10-prebeta`, while FB-047 is selected next, `Registry-only`, and branch-not-created.
+Minimal Scope: Complete the bounded runtime/user-facing boot-to-desktop handoff refinement lane across `main.py`, `desktop/orin_desktop_launcher.pyw`, `desktop/orin_desktop_main.py`, `dev/orin_boot_transition_verification.py`, and `dev/orin_desktop_entrypoint_validation.py`, while keeping `Audio/`, `logs/`, `jarvis_visual/`, installer work, and broader future boot-orchestrator implementation out of scope.
+Summary: Continue the entrypoint/runtime lane by making desktop-settled outcome proof explicit and shared across boot, launcher, renderer, and validation paths.
+Why it matters: Builds directly on FB-043's ownership cleanup and turns the remaining boot/desktop proof ambiguity into a bounded runtime-bearing implementation result instead of lingering branch-readiness truth.
+
+### [ID: FB-043] Top-level desktop entrypoint ownership and main.py handoff refinement
+
+Status: Released (v1.6.8-prebeta)
+Record State: Closed
+Registry Class: Historical Pass Alias
+Historical Alias Of: FB-042
+Pass ID: F042-P02
+Alias Role: Historical Pass Record
+Selectable Independently: No
+Priority: High
+Release Stage: Released
+Target Version: v1.6.8-prebeta
+Release Title: Pre-Beta v1.6.8
+Selection / Unblock: Implemented complete. `feature/fb-043-top-level-entrypoint-handoff-refinement` delivered WS-1 `main.py` direct-launch handoff refinement plus WS-2 explicit launch-intent refinement, the branch merged through PR #88, and `v1.6.8-prebeta` is now published and validated.
+Branch: feature/fb-043-top-level-entrypoint-handoff-refinement
+Repair-Only Branch Handling: `feature/fb-043-release-debt-marker-repair` is a repair-only `feature/` branch and does not imply Branch Readiness admission or active branch truth.
+Canonical Workstream Doc: Docs/workstreams/FB-043_top_level_entrypoint_handoff_refinement.md
+Branch Readiness: Complete. The former branch-readiness authority on `feature/fb-043-top-level-entrypoint-handoff-refinement` admitted WS-1 with exact owned paths, validation coverage, rollback conditions, same-branch continuation posture, and the branch-level closure rule before promotion.
+Workstream: Released. WS-1 `main.py` direct-launch handoff refinement and WS-2 explicit launch-intent refinement are complete and validated; plain no-argument direct `main.py` launches and explicit `--desktop-entrypoint` launches now hand off to the canonical desktop chain; explicit dev boot paths remain verifiable through recognized boot arguments, including the legacy dev launcher's explicit manual/voice contract; invalid direct-launch args now fail fast with guidance; H-1 entrypoint hardening is complete and green; LV-1 live validation is complete and green with real desktop shortcut evidence and a narrow User Test Summary waiver; PR-1 / PR-2 / PR-3 are complete; `Backlog Completion State` is `Implemented Complete`; and the released branch is now historical proof in `v1.6.8-prebeta`.
+Release Target: v1.6.8-prebeta
+Release Floor: patch prerelease
+Version Rationale: FB-043 delivers a bounded runtime/user-facing top-level desktop entrypoint ownership and `main.py` handoff refinement on the existing launch path without opening a new product lane or materially expanded runtime family.
+Release Scope: complete the bounded FB-043 top-level entrypoint slice chain on this same branch: WS-1 `main.py` direct-launch handoff refinement plus WS-2 explicit launch-intent refinement across `main.py`, the minimal required launcher-contract surfaces, `dev/orin_desktop_entrypoint_validation.py`, and `dev/orin_boot_transition_verification.py`, along with H-1, LV-1, PR package history, and merged-unreleased release-debt truth.
+Release Artifacts: Tag v1.6.8-prebeta; release title Pre-Beta v1.6.8; rich Markdown release notes summarize the bounded FB-043 top-level entrypoint ownership and `main.py` handoff refinement, explicit launch-intent outcome, real shortcut evidence, and the FB-044 successor lane without repeating the release title inside the notes body, and GitHub-generated `## What's Changed` plus `**Full Changelog**:` must be included.
+Release Execution: `v1.6.8-prebeta` is live at https://github.com/GiribaldiTTV/Nexus-Desktop-AI/releases/tag/v1.6.8-prebeta on commit `5e695af5fada05e4ad6b25731bce328ede8a09ee`.
+Post-Release Truth: FB-043 is Released / Closed in `v1.6.8-prebeta`; FB-044 and FB-045 are Released / Closed in `v1.6.9-prebeta`; release debt is clear; and after merge FB-046 becomes the merged-unreleased release-debt owner for `v1.6.10-prebeta`, while FB-047 is selected next, `Registry-only`, and branch-not-created.
+Minimal Scope: Complete the bounded top-level entrypoint slice chain on this same branch: WS-1 `main.py` direct-launch handoff refinement plus WS-2 explicit launch-intent refinement across `main.py`, the minimal required launcher-contract surfaces, `dev/orin_desktop_entrypoint_validation.py`, and `dev/orin_boot_transition_verification.py`, while keeping `Audio/`, `logs/`, `jarvis_visual/`, installer work, and broader workspace reshaping out of scope.
+Summary: Continue the desktop entrypoint runtime lane by clarifying and tightening top-level ownership and handoff on the shipped launch path.
+Why it matters: Builds directly on FB-042's user-facing launch-path improvement and keeps the next branch implementation-bearing instead of slipping back into planning-only governance work.
+
+### [ID: FB-041] Deterministic callable-group execution layer
+
+Status: Released (v1.3.1-prebeta)
+Record State: Closed
+Registry Class: Historical Pass Alias
+Historical Alias Of: FB-027
+Pass ID: F027-P03
+Alias Role: Historical Pass Record
+Selectable Independently: No
+Priority: High
+Release Stage: pre-Beta
+Target Version: v1.3.1-prebeta
+Canonical Workstream Doc: Docs/workstreams/FB-041_deterministic_callable_group_execution_layer.md
+Summary: Released the first bounded callable-group follow-through execution layer for deterministic linear member execution in stored order with stop-on-failure, terminal success or failure propagation, and runtime progression markers.
+Why it matters: FB-041 closes the released FB-036 callable-group execution follow-through by supporting full stored-order group execution without reopening authoring, changing single-action behavior, or widening into scheduling, branching, retries, nested groups, or parallelism.
+
+### [ID: FB-038] Taskbar / tray quick-task UX and Create Custom Task surface
+
+Status: Released (v1.4.1-prebeta)
+Record State: Closed
+Registry Class: Historical Pass Alias
+Historical Alias Of: FB-027
+Pass ID: F027-P05
+Alias Role: Historical Pass Record
+Selectable Independently: No
+Priority: Medium
+Release Stage: pre-Beta
+Target Version: v1.4.1-prebeta
+Release Title: Pre-Beta v1.4.1
+Canonical Workstream Doc: Docs/workstreams/FB-038_taskbar_tray_quick_task_ux.md
+Summary: Released the FB-038 tray quick-task UX milestone, including tray identity/discoverability, tray Open Command Overlay, tray Create Custom Task dialog-open/no-write route, tray-origin create completion through the existing FB-036 authoring path, catalog reload and exact-match resolution, confirm/result execution, and startup first-visible Core Visualization sequencing repair.
+Why it matters: Taskbar and tray interaction now has an explicit released UX lane that remains bounded to the shared action model rather than becoming a parallel authoring or launcher surface.
+
+### [ID: FB-037] Curated built-in system actions and Nexus settings expansion
+
+Status: Released (v1.4.0-prebeta)
+Record State: Closed
+Registry Class: Historical Pass Alias
+Historical Alias Of: FB-027
+Pass ID: F027-P04
+Alias Role: Historical Pass Record
+Selectable Independently: No
+Priority: High
+Release Stage: pre-Beta
+Target Version: v1.4.0-prebeta
+Canonical Workstream Doc: Docs/workstreams/FB-037_built_in_actions_and_settings_expansion.md
+Summary: Released the first curated Windows utility built-in catalog under the shared action model, including Task Manager, Calculator, Notepad, and Paint while preserving saved-action override authority, authoring collision protection, confirm/result surfaces, and callable-group behavior.
+Why it matters: Standard product actions now feel native and inspectable under the shared action model instead of being pushed into user-defined saved actions as ad hoc customization. Common Windows actions ship as first-class built-ins, while saved actions remain the seam for personal or non-standard tasks.
+
+### [ID: FB-036] Limited saved-action authoring and type-first custom task UX
+
+Status: Released (v1.3.0-prebeta)
+Record State: Closed
+Registry Class: Historical Pass Alias
+Historical Alias Of: FB-027
+Pass ID: F027-P02
+Alias Role: Historical Pass Record
+Selectable Independently: No
+Priority: High
+Release Stage: pre-Beta
+Target Version: v1.3.0-prebeta
+Canonical Workstream Doc: Docs/workstreams/FB-036_saved_action_authoring.md
+Summary: Released the bounded custom-task authoring, callable-group management, inline group quick-create, and exact-green validation hardening milestone above the locked FB-027 interaction baseline.
+Why it matters: Nexus now supports deliberate in-product custom-task and callable-group authoring without reopening the typed-first overlay contract, widening into Action Studio, or weakening exact-match resolution boundaries.
 
 ### Support / Architecture / Governance Lanes
 
-Placeholder only in Slice R2-S1. No entries move under this heading until the support-lane migration seam lands later in Phase 2.
+Closed support, architecture, and governance lanes now live here in descending `FB-XXX` order while the remaining family and alias relocation work continues through Phase 2.
 
 ### [ID: FB-035] Support-report release-context fallback hardening
 
@@ -342,7 +591,7 @@ Why it matters: Keeps the longer-term boot-to-desktop product direction explicit
 
 ### Transitional Current Registry Order
 
-Slice R2-S1 keeps all existing registry entries below in their pre-reform order and wording so structure can land before classification.
+Phase 2 now keeps only the remaining not-yet-relocated user-facing family entries here in their pre-reform order and wording until Slice R2-S5 hardens final ordering and selected-next truth.
 
 ### [ID: FB-049] Active-session pre-settled incoming-launch conflict truth
 
@@ -359,190 +608,6 @@ Branch Readiness: Not started. Must begin on a new `feature/` branch only after 
 Minimal Scope: Prove and refine the pre-settled incoming-launch conflict lane across `desktop/single_instance.py`, `desktop/orin_desktop_launcher.pyw`, `desktop/orin_desktop_main.py`, and the minimum required reusable validator surfaces so startup-phase ownership stays explicit, incoming launches exit truthfully before authoritative settled is reached, and settled-session relaunch semantics are not falsely claimed.
 Summary: Make startup-phase incoming-launch conflicts as truthful as settled-session relaunch conflicts.
 Why it matters: Users should get an explicit, proven outcome when a second launch collides with an already-owning startup-phase session before the desktop has reached authoritative settled state.
-
-### [ID: FB-048] Active-session relaunch signal-failure and wait-timeout truth
-
-Status: Released (v1.6.12-prebeta)
-Record State: Closed
-Registry Class: Historical Pass Alias
-Historical Alias Of: FB-042
-Pass ID: F042-P07
-Alias Role: Historical Pass Record
-Selectable Independently: No
-Priority: High
-Release Stage: Released
-Target Version: v1.6.12-prebeta
-Selection / Unblock: Implemented complete. `feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeout-truth` delivered the admitted failure/timeout truth slice chain, the follow-up repair and canon/governance containment PRs are merged on `main`, and `v1.6.12-prebeta` is now published, validated, and closed through post-release canon sync.
-Next Workstream: Selected successor is FB-049 after this merged-unreleased release window clears.
-Branch Creation Gate: Satisfied during FB-048 Branch Readiness after `v1.6.11-prebeta` publication, validation, updated-`main` revalidation, and first-slice admission.
-Branch: feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeout-truth
-Canonical Workstream Doc: Docs/workstreams/FB-048_active_session_relaunch_signal_failure_and_wait_timeout_truth.md
-Historical Branch Readiness Record: Docs/branch_records/feature_fb_048_active_session_relaunch_signal_failure_and_wait_timeout_truth.md
-Branch Readiness: Historical complete. The branch objective, target end-state, admitted WS-1 slice, validation coverage, rollback conditions, and same-branch backlog-completion posture remain preserved in the historical Branch Readiness record.
-Workstream: Released. WS-1 `accepted relaunch failure-path truthful outcome proof` is complete and validated; H-1 failure/timeout lifecycle hardening is complete and green; LV-1 is complete and green with real desktop shortcut evidence plus reusable failure/timeout lifecycle proof; accepted relaunch signal-failure emits an explicit preserved-session marker and accepted relaunch wait-timeout emits an explicit replacement-unconfirmed marker instead of collapsing into a generic already-running skip; repeated signal-failure launches preserve the active settled owner even under rapid repetition; near-deadline reacquire no longer falls through to a false timeout; mixed failure -> decline -> accept -> failure sequencing keeps failure, decline, and success classification distinct; `Backlog Completion State` is `Implemented Complete`; PR #94, PR #96, and PR #97 are complete historical proof; the lane is released and closed in `v1.6.12-prebeta`; and the branch's governance/validator hardening is now part of the released canonical baseline.
-Backlog Completion State: Implemented Complete
-PR Readiness: Complete historical proof. PR #94 merged the bounded FB-048 implementation package; PR #96 merged the post-merge review repair that corrected wait-timeout truth and the non-Windows validator guard; and PR #97 merged the post-sync canon plus merge-stable governance containment on `main`.
-Release Target: v1.6.12-prebeta
-Release Floor: patch prerelease
-Version Rationale: FB-048 delivers a bounded runtime/user-facing relaunch signal-failure and wait-timeout refinement on the existing desktop startup family without opening a new product lane or materially expanded feature family.
-Release Scope: completed FB-048 WS-1 accepted relaunch failure-path truthful outcome proof, H-1 failure/timeout lifecycle hardening, LV-1 real desktop shortcut evidence, reusable validation evidence, PR package history, merged-unreleased release-debt truth, selected-next FB-049 successor lock, and merge-stable current-state governance hardening plus validator guardrails for the bounded runtime/user-facing lane only.
-Release Artifacts: Tag v1.6.12-prebeta; release title Pre-Beta v1.6.12; rich Markdown release notes summarize the bounded FB-048 relaunch failure/timeout runtime/user-facing package, real shortcut evidence, and the FB-049 successor lane without repeating the release title inside the notes body, and GitHub-generated `## What's Changed` plus `**Full Changelog**:` must be included.
-Post-Release Truth: FB-048 is Released / Closed in `v1.6.12-prebeta`; release debt is clear; the governance reform branch may proceed through its approved docs-only branch-authority record; and FB-049 remains selected next, `Registry-only`, and branch-not-created until that branch completes and later FB-049 Branch Readiness admits the first bounded pre-settled incoming-launch conflict truth slice.
-Minimal Scope: Prove and refine the accepted relaunch failure lane across `desktop/single_instance.py`, `desktop/orin_desktop_launcher.pyw`, `desktop/orin_desktop_main.py`, and the minimum required reusable validator surfaces so relaunch-signal failure or reacquire wait-timeout preserves truthful ownership, emits explicit failure-path markers, and avoids false replacement-session or guard-transfer claims.
-Summary: Make accepted-but-unfinished relaunch failures as truthful as accepted and declined success paths.
-Why it matters: Users should get an explicit, proven outcome when relaunch was requested but the current session could not be signaled or did not release in time.
-
-### [ID: FB-047] Active-session relaunch decline session-preservation proof
-
-Status: Released (v1.6.11-prebeta)
-Record State: Closed
-Registry Class: Historical Pass Alias
-Historical Alias Of: FB-042
-Pass ID: F042-P06
-Alias Role: Historical Pass Record
-Selectable Independently: No
-Priority: High
-Release Stage: Released
-Target Version: v1.6.11-prebeta
-Selection / Unblock: Implemented complete. `feature/fb-047-active-session-relaunch-decline-preservation` delivered the admitted decline-preservation slice chain, PR #93 merged into `main`, and `v1.6.11-prebeta` is now published, validated, and closed through post-release canon sync.
-Next Workstream: Released / closed historical proof. No remaining implementable FB-047 work remains on this backlog lane.
-Branch Creation Gate: Historical complete. `v1.6.10-prebeta` was published and validated, updated `main` was revalidated, and FB-047 Branch Readiness admitted the bounded runtime/user-facing relaunch-decline preservation slice before promotion.
-Branch: feature/fb-047-active-session-relaunch-decline-preservation
-Canonical Workstream Doc: Docs/workstreams/FB-047_active_session_relaunch_decline_preservation.md
-Historical Branch Readiness Record: Docs/branch_records/feature_fb_047_active_session_relaunch_decline_preservation.md
-Branch Readiness: Historical complete. The branch objective, target end-state, admitted WS-1 slice, validation contract, rollback conditions, and same-branch backlog-completion posture remain preserved in the historical branch-readiness record.
-Workstream: Released. WS-1 `declined relaunch incoming-launch truthful exit proof` is complete and validated; harness-driven decline proof records explicit preserved-session success markers instead of a generic already-running skip; repeated incoming declined launches preserve the active settled session and never emit replacement-session markers; H-1 decline-lifecycle hardening is complete / green; LV-1 real desktop shortcut evidence and reusable decline-lifecycle proof are complete / green; `Backlog Completion State` is `Implemented Complete`; PR-1 / PR-2 / PR-3 are complete historical proof; and the branch is now Released / Closed in `v1.6.11-prebeta`.
-Backlog Completion State: Implemented Complete
-PR Readiness: Complete. PR-1 merge-target canon completeness, PR-2 selected-next workstream selection, and PR-3 live PR creation plus validation are complete historical proof; PR #93 merged into `main` at `4ca70572fbc8033bc96fcd299dd309464e81393a`.
-Release Target: v1.6.11-prebeta
-Release Floor: patch prerelease
-Version Rationale: FB-047 delivers a bounded runtime/user-facing relaunch-decline preservation refinement on the existing desktop startup family without opening a new product lane or materially expanded feature family.
-Release Scope: completed FB-047 WS-1 declined relaunch incoming-launch truthful exit proof, H-1 decline lifecycle hardening, LV-1 real desktop shortcut evidence, reusable validation evidence, PR package history, release publication, and selected-next FB-048 successor admission for the bounded runtime/user-facing lane only.
-Release Artifacts: Tag v1.6.11-prebeta; release title Pre-Beta v1.6.11; rich Markdown release notes summarize the bounded FB-047 relaunch-decline preservation runtime/user-facing package, real shortcut evidence, and the FB-048 successor lane without repeating the release title inside the notes body, and GitHub-generated `## What's Changed` plus `**Full Changelog**:` must be included.
-Post-Release Truth: FB-047 is Released / Closed in `v1.6.11-prebeta`; release debt is clear; and FB-048 is now the active promoted workstream on `feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeout-truth`.
-Minimal Scope: Prove and refine the relaunch-decline lane across `desktop/single_instance.py`, `desktop/orin_desktop_launcher.pyw`, `desktop/orin_desktop_main.py`, and the minimum required reusable validator surfaces so declining replacement preserves the active settled session and cleanly terminates the incoming launch without dual ownership or false successor markers.
-Summary: Make relaunch decline as provable and truthful as accepted relaunch.
-Why it matters: The runtime should be just as explicit when the user keeps the current settled session as when the user accepts replacement.
-
-### [ID: FB-046] Active-session relaunch reacquisition and settled re-entry proof
-
-Status: Released (v1.6.10-prebeta)
-Record State: Closed
-Registry Class: Historical Pass Alias
-Historical Alias Of: FB-042
-Pass ID: F042-P05
-Alias Role: Historical Pass Record
-Selectable Independently: No
-Priority: High
-Release Stage: Released
-Target Version: v1.6.10-prebeta
-Release Title: Pre-Beta v1.6.10
-Selection / Unblock: Implemented complete. `feature/fb-046-active-session-relaunch-reacquisition` delivered the admitted relaunch-reacquisition slice chain, PR #92 merged into `main`, and `v1.6.10-prebeta` is now published and validated.
-Next Workstream: Released / closed historical proof. No remaining implementable FB-046 work remains on this backlog lane.
-Branch: feature/fb-046-active-session-relaunch-reacquisition
-Repair-Only Branch Handling: `feature/fb-046-post-merge-canon-sync` is a bounded repair-only post-merge canon-sync `feature/` branch and does not imply Branch Readiness admission or active branch truth for FB-046.
-Canonical Workstream Doc: Docs/workstreams/FB-046_active_session_relaunch_reacquisition.md
-Historical Branch Readiness Record: Docs/branch_records/feature_fb_046_active_session_relaunch_reacquisition.md
-Branch Readiness: Historical complete. The admitted slice, validation contract, rollback conditions, and same-branch backlog-completion posture remain preserved in the historical branch-readiness record.
-Workstream: Released. WS-1 accepted relaunch replacement-session settled re-entry proof is complete and validated; accepted relaunch now proves prior-session shutdown, single-instance guard release, replacement-session reacquisition, replacement-session authoritative settled re-entry, and truthful post-settled lifecycle completion without dual ownership; H-1 relaunch lifecycle hardening is complete and green across slow shutdown, recoverable-exit relaunch, and rapid consecutive relaunch-cycle proof; LV-1 is complete and green with real desktop shortcut evidence plus a focused User Test Summary waiver; `Backlog Completion State` is `Implemented Complete`; and the released branch is now historical proof in `v1.6.10-prebeta`.
-Backlog Completion State: Implemented Complete
-PR Readiness: Complete. PR-1 merge-target canon completeness, PR-2 selected-next workstream selection, and PR-3 live PR creation plus validation are complete; PR #92 merged into `main` at `36cf07495dc8e239b20b11afb5194355b77ffd8b`.
-Release Readiness: Complete. `main` validated green for `v1.6.10-prebeta` release packaging before release execution.
-Release Execution: `v1.6.10-prebeta` is live at https://github.com/GiribaldiTTV/Nexus-Desktop-AI/releases/tag/v1.6.10-prebeta on commit `36cf07495dc8e239b20b11afb5194355b77ffd8b`.
-Release Target: v1.6.10-prebeta
-Release Floor: patch prerelease
-Version Rationale: FB-046 delivers a bounded runtime/user-facing relaunch-reacquisition refinement on the existing desktop startup family without opening a new product lane or materially expanded feature family.
-Release Scope: completed FB-046 WS-1 accepted relaunch replacement-session settled re-entry proof, H-1 relaunch lifecycle hardening, LV-1 real desktop shortcut evidence, reusable validation evidence, PR package history, merged-unreleased release-debt truth, and selected-next FB-047 successor lock for the bounded runtime/user-facing lane only.
-Release Artifacts: Tag v1.6.10-prebeta; release title Pre-Beta v1.6.10; rich Markdown release notes summarize the bounded FB-046 relaunch-reacquisition runtime/user-facing package, real shortcut evidence, and the FB-047 successor lane without repeating the release title inside the notes body, and GitHub-generated `## What's Changed` plus `**Full Changelog**:` must be included.
-Post-Release Truth: FB-046 is Released / Closed in `v1.6.10-prebeta`; release debt is clear; and after merge FB-047 becomes the merged-unreleased release-debt owner for `v1.6.11-prebeta`, while FB-048 is selected next, `Registry-only`, and branch-not-created.
-Minimal Scope: Complete the bounded relaunch-reacquisition runtime/user-facing pass across `desktop/single_instance.py`, `desktop/orin_desktop_launcher.pyw`, `desktop/orin_desktop_main.py`, `dev/orin_boot_transition_verification.py`, and the minimum required reusable validator surfaces so a confirmed relaunch request closes the active session, reacquires the runtime guard, and returns the replacement session to authoritative settled state without widening into `main.py`, `Audio/`, `logs/`, `jarvis_visual/`, installer work, or broader boot-orchestrator scope.
-Summary: Turn accepted relaunch into a full replacement-session completion proof surface instead of a partial signal-and-exit story.
-Why it matters: The repo now proves who owns the runtime after relaunch, when the old session is truly gone, and when the replacement session has actually made it back to authoritative settled state.
-
-### [ID: FB-045] Active-session relaunch outcome refinement
-
-Status: Released (v1.6.9-prebeta)
-Record State: Closed
-Registry Class: Historical Pass Alias
-Historical Alias Of: FB-042
-Pass ID: F042-P04
-Alias Role: Historical Pass Record
-Selectable Independently: No
-Priority: High
-Release Stage: Released
-Target Version: v1.6.9-prebeta
-Release Title: Pre-Beta v1.6.9
-Selection / Unblock: FB-045 was selected because updated-main `Release Readiness` for FB-044 found a reproducible post-settled runtime failure after the authoritative settled marker. `feature/fb-045-active-session-relaunch-stability` corrected that lifecycle boundary, merged through PR #90, and is now released historical proof in `v1.6.9-prebeta`.
-Next Workstream: Released / closed historical proof. No remaining implementable FB-045 work remains on this backlog lane.
-Branch: feature/fb-045-active-session-relaunch-stability
-Canonical Workstream Doc: Docs/workstreams/FB-045_active_session_relaunch_outcome_refinement.md
-Historical Branch-Readiness Record: Docs/branch_records/feature_fb_045_active_session_relaunch_stability.md
-Branch Readiness: Historical complete. The blocker classification, admitted WS-1 slice, validation contract, rollback conditions, and same-branch backlog-completion posture remain preserved in the historical branch-readiness record.
-Workstream: Released. WS-1 `post-settled runtime stability refinement` is complete and validated; H-1 post-settled lifecycle hardening is complete and green; LV-1 live validation is complete and green with real desktop shortcut evidence and a focused User Test Summary waiver; PR-1 / PR-2 / PR-3 are complete historical proof; and the blocker-clearing package is now released historical proof inside `v1.6.9-prebeta`.
-Backlog Completion State: Implemented Complete
-Minimal Scope: Classify post-settled abnormal renderer exits as a recoverable lifecycle condition after authoritative settled is already proven, keep settled truth authoritative, preserve green startup paths, and avoid widening beyond launcher / validator relaunch-stability scope.
-Summary: Clear the FB-044 release blocker by fixing launcher lifecycle classification after settled and proving that result across primary-workspace and disposable-copy validation.
-Why it matters: Keeps startup truth honest, prevents post-settled runtime exits from being mislabeled as startup failure, and unblocks the path back to FB-044 `Release Readiness`.
-
-### [ID: FB-044] Boot-to-desktop handoff outcome refinement
-
-Status: Released (v1.6.9-prebeta)
-Record State: Closed
-Registry Class: Historical Pass Alias
-Historical Alias Of: FB-042
-Pass ID: F042-P03
-Alias Role: Historical Pass Record
-Selectable Independently: No
-Priority: High
-Release Stage: Released
-Target Version: v1.6.9-prebeta
-Release Title: Pre-Beta v1.6.9
-Selection / Unblock: Implemented complete. `feature/fb-044-boot-desktop-handoff-outcome-refinement` delivered WS-1 `desktop-settled handoff outcome refinement`; FB-045 on `feature/fb-045-active-session-relaunch-stability` delivered the blocker-clearing lifecycle follow-through inside the same release window; PR #89, PR #90, and PR #91 merged; and `v1.6.9-prebeta` is now published, validated, and in post-release canon closure.
-Next Workstream: Released / closed historical proof. No remaining implementable FB-044 work remains on this backlog lane.
-Branch: feature/fb-044-boot-desktop-handoff-outcome-refinement
-Canonical Workstream Doc: Docs/workstreams/FB-044_boot_desktop_handoff_outcome_refinement.md
-Historical Branch Authority Record: Docs/branch_records/feature_fb_044_boot_desktop_handoff_outcome_refinement.md
-Branch Readiness: Complete. Historical Branch Readiness truth is preserved in the branch authority record.
-Workstream: Released. WS-1 `desktop-settled handoff outcome refinement` is complete and validated; H-1 settled-state hardening is complete and green; LV-1 live validation is complete and green with real desktop shortcut evidence and a narrow User Test Summary waiver; PR-1 / PR-2 / PR-3 are complete historical proof; `Backlog Completion State` is `Implemented Complete`; FB-045's blocker-clearing lifecycle follow-through is released historical proof in the same package; and `v1.6.9-prebeta` is now live and validated.
-Release Target: v1.6.9-prebeta
-Release Floor: patch prerelease
-Version Rationale: FB-044 delivers a bounded runtime/user-facing boot-to-desktop settled-outcome refinement on the existing startup family without opening a new product lane or materially expanded runtime family.
-Release Scope: complete the bounded FB-044 settled-outcome slice chain on this same branch across `main.py`, `desktop/orin_desktop_launcher.pyw`, `desktop/orin_desktop_main.py`, `dev/orin_boot_transition_verification.py`, and `dev/orin_desktop_entrypoint_validation.py`, along with H-1, LV-1, PR package history, release publication, and the released FB-045 blocker-clearing lifecycle follow-through inside the same `v1.6.9-prebeta` package.
-Release Artifacts: Tag v1.6.9-prebeta; release title Pre-Beta v1.6.9; rich Markdown release notes summarize the bounded FB-044 boot-to-desktop settled-outcome refinement, the FB-045 blocker-clearing lifecycle classification result, real shortcut evidence, and the FB-046 successor lane without repeating the release title inside the notes body, and GitHub-generated `## What's Changed` plus `**Full Changelog**:` must be included.
-Post-Release Truth: FB-044 and FB-045 are Released / Closed in `v1.6.9-prebeta`; release debt is clear; and after merge FB-046 becomes the merged-unreleased release-debt owner for `v1.6.10-prebeta`, while FB-047 is selected next, `Registry-only`, and branch-not-created.
-Minimal Scope: Complete the bounded runtime/user-facing boot-to-desktop handoff refinement lane across `main.py`, `desktop/orin_desktop_launcher.pyw`, `desktop/orin_desktop_main.py`, `dev/orin_boot_transition_verification.py`, and `dev/orin_desktop_entrypoint_validation.py`, while keeping `Audio/`, `logs/`, `jarvis_visual/`, installer work, and broader future boot-orchestrator implementation out of scope.
-Summary: Continue the entrypoint/runtime lane by making desktop-settled outcome proof explicit and shared across boot, launcher, renderer, and validation paths.
-Why it matters: Builds directly on FB-043's ownership cleanup and turns the remaining boot/desktop proof ambiguity into a bounded runtime-bearing implementation result instead of lingering branch-readiness truth.
-
-### [ID: FB-043] Top-level desktop entrypoint ownership and main.py handoff refinement
-
-Status: Released (v1.6.8-prebeta)
-Record State: Closed
-Registry Class: Historical Pass Alias
-Historical Alias Of: FB-042
-Pass ID: F042-P02
-Alias Role: Historical Pass Record
-Selectable Independently: No
-Priority: High
-Release Stage: Released
-Target Version: v1.6.8-prebeta
-Release Title: Pre-Beta v1.6.8
-Selection / Unblock: Implemented complete. `feature/fb-043-top-level-entrypoint-handoff-refinement` delivered WS-1 `main.py` direct-launch handoff refinement plus WS-2 explicit launch-intent refinement, the branch merged through PR #88, and `v1.6.8-prebeta` is now published and validated.
-Branch: feature/fb-043-top-level-entrypoint-handoff-refinement
-Repair-Only Branch Handling: `feature/fb-043-release-debt-marker-repair` is a repair-only `feature/` branch and does not imply Branch Readiness admission or active branch truth.
-Canonical Workstream Doc: Docs/workstreams/FB-043_top_level_entrypoint_handoff_refinement.md
-Branch Readiness: Complete. The former branch-readiness authority on `feature/fb-043-top-level-entrypoint-handoff-refinement` admitted WS-1 with exact owned paths, validation coverage, rollback conditions, same-branch continuation posture, and the branch-level closure rule before promotion.
-Workstream: Released. WS-1 `main.py` direct-launch handoff refinement and WS-2 explicit launch-intent refinement are complete and validated; plain no-argument direct `main.py` launches and explicit `--desktop-entrypoint` launches now hand off to the canonical desktop chain; explicit dev boot paths remain verifiable through recognized boot arguments, including the legacy dev launcher's explicit manual/voice contract; invalid direct-launch args now fail fast with guidance; H-1 entrypoint hardening is complete and green; LV-1 live validation is complete and green with real desktop shortcut evidence and a narrow User Test Summary waiver; PR-1 / PR-2 / PR-3 are complete; `Backlog Completion State` is `Implemented Complete`; and the released branch is now historical proof in `v1.6.8-prebeta`.
-Release Target: v1.6.8-prebeta
-Release Floor: patch prerelease
-Version Rationale: FB-043 delivers a bounded runtime/user-facing top-level desktop entrypoint ownership and `main.py` handoff refinement on the existing launch path without opening a new product lane or materially expanded runtime family.
-Release Scope: complete the bounded FB-043 top-level entrypoint slice chain on this same branch: WS-1 `main.py` direct-launch handoff refinement plus WS-2 explicit launch-intent refinement across `main.py`, the minimal required launcher-contract surfaces, `dev/orin_desktop_entrypoint_validation.py`, and `dev/orin_boot_transition_verification.py`, along with H-1, LV-1, PR package history, and merged-unreleased release-debt truth.
-Release Artifacts: Tag v1.6.8-prebeta; release title Pre-Beta v1.6.8; rich Markdown release notes summarize the bounded FB-043 top-level entrypoint ownership and `main.py` handoff refinement, explicit launch-intent outcome, real shortcut evidence, and the FB-044 successor lane without repeating the release title inside the notes body, and GitHub-generated `## What's Changed` plus `**Full Changelog**:` must be included.
-Release Execution: `v1.6.8-prebeta` is live at https://github.com/GiribaldiTTV/Nexus-Desktop-AI/releases/tag/v1.6.8-prebeta on commit `5e695af5fada05e4ad6b25731bce328ede8a09ee`.
-Post-Release Truth: FB-043 is Released / Closed in `v1.6.8-prebeta`; FB-044 and FB-045 are Released / Closed in `v1.6.9-prebeta`; release debt is clear; and after merge FB-046 becomes the merged-unreleased release-debt owner for `v1.6.10-prebeta`, while FB-047 is selected next, `Registry-only`, and branch-not-created.
-Minimal Scope: Complete the bounded top-level entrypoint slice chain on this same branch: WS-1 `main.py` direct-launch handoff refinement plus WS-2 explicit launch-intent refinement across `main.py`, the minimal required launcher-contract surfaces, `dev/orin_desktop_entrypoint_validation.py`, and `dev/orin_boot_transition_verification.py`, while keeping `Audio/`, `logs/`, `jarvis_visual/`, installer work, and broader workspace reshaping out of scope.
-Summary: Continue the desktop entrypoint runtime lane by clarifying and tightening top-level ownership and handoff on the shipped launch path.
-Why it matters: Builds directly on FB-042's user-facing launch-path improvement and keeps the next branch implementation-bearing instead of slipping back into planning-only governance work.
 
 ### [ID: FB-042] Desktop entrypoint runtime refinement
 
@@ -608,38 +673,6 @@ Why it matters: Voice identity should be intentional and should not piggyback on
 
 ## Closed Canonical Workstreams
 
-### [ID: FB-048] Active-session relaunch signal-failure and wait-timeout truth
-
-Status: Released (v1.6.12-prebeta)
-Record State: Closed
-Registry Class: Historical Pass Alias
-Historical Alias Of: FB-042
-Pass ID: F042-P07
-Alias Role: Historical Pass Record
-Selectable Independently: No
-Priority: High
-Release Stage: Released
-Target Version: v1.6.12-prebeta
-Canonical Workstream Doc: Docs/workstreams/FB-048_active_session_relaunch_signal_failure_and_wait_timeout_truth.md
-Summary: Released the bounded accepted-relaunch failure and wait-timeout truth lane, including explicit signal-failure preserved-session outcomes, explicit wait-timeout replacement-unconfirmed outcomes, real shortcut proof, repair containment, and merge-stable governance hardening that keeps current-state canon from drifting back into branch-only PR narration.
-Why it matters: FB-048 closes the accepted-but-unfinished relaunch failure gap so failure and timeout outcomes are as truthful as accepted success and declined preservation.
-
-### [ID: FB-041] Deterministic callable-group execution layer
-
-Status: Released (v1.3.1-prebeta)
-Record State: Closed
-Registry Class: Historical Pass Alias
-Historical Alias Of: FB-027
-Pass ID: F027-P03
-Alias Role: Historical Pass Record
-Selectable Independently: No
-Priority: High
-Release Stage: pre-Beta
-Target Version: v1.3.1-prebeta
-Canonical Workstream Doc: Docs/workstreams/FB-041_deterministic_callable_group_execution_layer.md
-Summary: Released the first bounded callable-group follow-through execution layer for deterministic linear member execution in stored order with stop-on-failure, terminal success or failure propagation, and runtime progression markers.
-Why it matters: FB-041 closes the released FB-036 callable-group execution follow-through by supporting full stored-order group execution without reopening authoring, changing single-action behavior, or widening into scheduling, branching, retries, nested groups, or parallelism.
-
 ### [ID: FB-040] Monitoring, thermals, and performance HUD surface
 
 Status: Released (v1.6.0-prebeta)
@@ -682,55 +715,6 @@ Release Artifacts: Tag v1.5.0-prebeta; release title Pre-Beta v1.5.0; inclusion-
 Post-Release Truth: FB-039 is Released / Closed in v1.5.0-prebeta; release debt is clear; FB-040 Branch Readiness is admitted on `feature/fb-040-monitoring-thermals-performance-hud-surface`.
 Summary: Track future plugin and integration lifecycle design for external trigger surfaces such as Stream Deck and other installed integration points.
 Why it matters: Plugin-backed action triggering needs explicit lifecycle, safety, and ownership boundaries before it becomes part of the product.
-
-### [ID: FB-038] Taskbar / tray quick-task UX and Create Custom Task surface
-
-Status: Released (v1.4.1-prebeta)
-Record State: Closed
-Registry Class: Historical Pass Alias
-Historical Alias Of: FB-027
-Pass ID: F027-P05
-Alias Role: Historical Pass Record
-Selectable Independently: No
-Priority: Medium
-Release Stage: pre-Beta
-Target Version: v1.4.1-prebeta
-Release Title: Pre-Beta v1.4.1
-Canonical Workstream Doc: Docs/workstreams/FB-038_taskbar_tray_quick_task_ux.md
-Summary: Released the FB-038 tray quick-task UX milestone, including tray identity/discoverability, tray Open Command Overlay, tray Create Custom Task dialog-open/no-write route, tray-origin create completion through the existing FB-036 authoring path, catalog reload and exact-match resolution, confirm/result execution, and startup first-visible Core Visualization sequencing repair.
-Why it matters: Taskbar and tray interaction now has an explicit released UX lane that remains bounded to the shared action model rather than becoming a parallel authoring or launcher surface.
-
-### [ID: FB-037] Curated built-in system actions and Nexus settings expansion
-
-Status: Released (v1.4.0-prebeta)
-Record State: Closed
-Registry Class: Historical Pass Alias
-Historical Alias Of: FB-027
-Pass ID: F027-P04
-Alias Role: Historical Pass Record
-Selectable Independently: No
-Priority: High
-Release Stage: pre-Beta
-Target Version: v1.4.0-prebeta
-Canonical Workstream Doc: Docs/workstreams/FB-037_built_in_actions_and_settings_expansion.md
-Summary: Released the first curated Windows utility built-in catalog under the shared action model, including Task Manager, Calculator, Notepad, and Paint while preserving saved-action override authority, authoring collision protection, confirm/result surfaces, and callable-group behavior.
-Why it matters: Standard product actions now feel native and inspectable under the shared action model instead of being pushed into user-defined saved actions as ad hoc customization. Common Windows actions ship as first-class built-ins, while saved actions remain the seam for personal or non-standard tasks.
-
-### [ID: FB-036] Limited saved-action authoring and type-first custom task UX
-
-Status: Released (v1.3.0-prebeta)
-Record State: Closed
-Registry Class: Historical Pass Alias
-Historical Alias Of: FB-027
-Pass ID: F027-P02
-Alias Role: Historical Pass Record
-Selectable Independently: No
-Priority: High
-Release Stage: pre-Beta
-Target Version: v1.3.0-prebeta
-Canonical Workstream Doc: Docs/workstreams/FB-036_saved_action_authoring.md
-Summary: Released the bounded custom-task authoring, callable-group management, inline group quick-create, and exact-green validation hardening milestone above the locked FB-027 interaction baseline.
-Why it matters: Nexus now supports deliberate in-product custom-task and callable-group authoring without reopening the typed-first overlay contract, widening into Action Studio, or weakening exact-match resolution boundaries.
 
 ### [ID: FB-031] Nexus Desktop AI UI/UX overhaul planning
 

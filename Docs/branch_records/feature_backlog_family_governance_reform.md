@@ -42,9 +42,9 @@ This branch must not change runtime behavior. Its job is to repair and harden so
 - Slice R2-S1 result: complete and green. The planned backlog-family section skeleton now exists as placeholder headings only, no backlog entries were moved, reclassified, renamed, or rewritten in that seam.
 - Historical Workstream Seam: `Phase 2 - Backlog Structure Migration / Slice R2-S2 - Add classification markers in place`
 - Slice R2-S2 result: complete and green. Reform classification markers now exist in place across the current backlog entries, no entries were moved or renamed in that seam, and transitional ordering remained intact under `### Transitional Current Registry Order`.
-- Current Workstream Seam: `Phase 2 - Backlog Structure Migration / Slice R2-S3 - Move support / governance lanes`
-- Slice R2-S3 result: complete and green. Support / architecture / governance lanes now live in their dedicated section, user-facing families and historical pass aliases remain in transitional locations, no entries were renamed in this seam, and Slice R2-S4 `Move historical pass aliases` is next.
-- Next Active Seam: `Phase 2 - Backlog Structure Migration / Slice R2-S4 - Move historical pass aliases`
+- Current Workstream Seam: `Phase 2 - Backlog Structure Migration / Slice R2-S4 - Move historical pass aliases`
+- Slice R2-S4 result: complete and green. Historical pass aliases now live in their dedicated section, the remaining user-facing family entries stay in transitional or historical locations, no entries were renamed in this seam, and Slice R2-S5 `Backlog ordering and selection-truth hardening` is next.
+- Next Active Seam: `Phase 2 - Backlog Structure Migration / Slice R2-S5 - Backlog ordering and selection-truth hardening`
 
 ## Branch Class
 
@@ -264,19 +264,20 @@ Seam 1: `Phase 1 - Validator Bootstrap`
 
 Active seam: `None.`
 
-Phase 1 `Validator Bootstrap`, Phase 2 / Slice R2-S1 `Backlog Section Skeleton`, Phase 2 / Slice R2-S2 `Add classification markers in place`, and Phase 2 / Slice R2-S3 `Move support / governance lanes` are complete and green.
-Next active seam: `Phase 2 - Backlog Structure Migration / Slice R2-S4 - Move historical pass aliases`.
+Phase 1 `Validator Bootstrap`, Phase 2 / Slice R2-S1 `Backlog Section Skeleton`, Phase 2 / Slice R2-S2 `Add classification markers in place`, Phase 2 / Slice R2-S3 `Move support / governance lanes`, and Phase 2 / Slice R2-S4 `Move historical pass aliases` are complete and green.
+Next active seam: `Phase 2 - Backlog Structure Migration / Slice R2-S5 - Backlog ordering and selection-truth hardening`.
 
 - Phase 0 `Reform Readiness` is complete.
 - Workstream Phase 1 `Validator Bootstrap` is complete and green.
 - Phase 2 / Slice R2-S1 `Backlog Section Skeleton` is complete and green.
 - Phase 2 / Slice R2-S2 `Add classification markers in place` is complete and green.
 - Phase 2 / Slice R2-S3 `Move support / governance lanes` is complete and green.
-- Phase 2 / Slice R2-S4 `Move historical pass aliases` is the next active seam on this branch.
+- Phase 2 / Slice R2-S4 `Move historical pass aliases` is complete and green.
+- Phase 2 / Slice R2-S5 `Backlog ordering and selection-truth hardening` is the next active seam on this branch.
 
 ## Seam Continuation Decision
 
 Continue Decision: `Continue`
-Next Active Seam: `Phase 2 - Backlog Structure Migration / Slice R2-S4 - Move historical pass aliases`
+Next Active Seam: `Phase 2 - Backlog Structure Migration / Slice R2-S5 - Backlog ordering and selection-truth hardening`
 Stop Condition: `Stop only if repo truth shows the planned family-governance model conflicts with release history, selected-next truth, or validator protection and cannot be repaired without weakening the governance model.`
-Continuation Action: `Execute Slice R2-S4 by moving historical pass aliases into their dedicated section while preserving user-facing family anchors, release history, and selected-next truth.`
+Continuation Action: `Execute Slice R2-S5 by hardening backlog ordering and selected-next truth without pulling the Phase 3 family-anchor retitles or alias-to-family dossier mapping forward.`
