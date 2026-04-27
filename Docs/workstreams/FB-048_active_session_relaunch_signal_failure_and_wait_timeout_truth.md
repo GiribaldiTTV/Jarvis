@@ -33,7 +33,7 @@ Latest Public Prerelease Title: `Pre-Beta v1.6.11`
 FB-047 is `Released / Closed` historical proof in `v1.6.11-prebeta`.
 Merged-unreleased release debt is clear after publication, validation, and post-release canon closure.
 FB-048 is now the active promoted runtime/user-facing workstream on this branch.
-Active seam: `None.` H-1 is complete and `Live Validation` is next.
+Active seam: `None.` LV-1 is complete and `PR Readiness` is next.
 
 ## Branch Class
 
@@ -64,7 +64,7 @@ None.
 
 ## Next Legal Phase
 
-- `Live Validation`
+- `PR Readiness`
 
 ## Purpose / Why It Matters
 
@@ -241,16 +241,56 @@ H-1 pressure-tested the completed FB-048 accepted-failure lane across rapid repe
 - Guard transfer remains exclusive to accepted relaunch success; failure, timeout, and decline lanes all preserve the current active owner even under mixed sequencing.
 - The shipped startup path, accepted-success relaunch proof, declined-preservation proof, repeated-launch proof, and explicit dev-boot proof remain green after the added failure/timeout hardening coverage.
 
+## Live Validation Record
+
+LV-1 validates the completed FB-048 relaunch signal-failure and wait-timeout slice chain against live repo truth, the declared real desktop shortcut path, explicit dev boot-proof evidence, exact User Test Summary state, and branch cleanliness. This pass stays bounded to the admitted relaunch/runtime ownership surfaces and does not reopen `main.py`, `Audio/`, `logs/`, `jarvis_visual/`, installer work, or broader boot-orchestrator scope.
+
+### Live Validation Findings
+
+- Repo Truth Alignment: `Docs/feature_backlog.md`, `Docs/prebeta_roadmap.md`, and this workstream record align on FB-048 as the active promoted runtime/user-facing implementation workstream, latest public prerelease `v1.6.11-prebeta`, WS-1 complete, H-1 complete, and PR Readiness next after LV-1 completion.
+- Branch Truth Alignment: the checked-out branch is `feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeout-truth`, aligned with origin on the hardened failure/timeout baseline before this LV-1 pass.
+- User-Facing Shortcut Applicability: applicable and exercised. FB-048 changes user-facing accepted-relaunch failure and timeout outcome truth on the shipped desktop runtime family, so final Live Validation used the real declared desktop shortcut rather than helper-only proof as the final user-facing shortcut gate.
+- Real Shortcut Gate Result: PASS. Launching through `C:\Users\anden\OneDrive\Desktop\Nexus Desktop Launcher.lnk` exercised the active branch runtime, produced dedicated evidence under `dev/logs/fb_048_live_validation/20260427_073332/desktop_shortcut_gate`, reached launcher-owned `DESKTOP_SETTLED_OBSERVED|state=dormant`, reached renderer `STARTUP_READY`, recorded `WINDOW_SHOW_REQUESTED` and `TRAY_ENTRY_READY|available=true`, reached the authoritative settled marker, and completed on the clean-shutdown lifecycle path with no launcher failure flow.
+- Production Launch Path Evidence: PASS. Fresh reusable entrypoint validation still proves the VBS default path, VBS fallback path, direct `main.py` desktop handoff, repeated-launch stability, accepted relaunch, slow accepted relaunch, repeated signal-failure launches, accepted relaunch wait-timeout, declined relaunch, rapid consecutive declined launches, mixed failure/decline/accept/failure relaunch sequencing, relaunch after recoverable post-settled exit, rapid consecutive accepted relaunch cycles, and no-dual-ownership guard behavior on the active branch.
+- Explicit Dev Boot-Proof Route Evidence: PASS. `python dev\orin_boot_transition_verification.py` still proves the explicit `auto_handoff_skip_import` boot-profile route reaches the ordered boot markers, converges on the authoritative settled marker, and exits cleanly.
+- Failure Lifecycle Integrity: PASS. Real execution on the declared shortcut route lands on valid clean termination after settled; fresh reusable multi-session proof demonstrates accepted signal-failure and wait-timeout paths preserve the active owner, emit explicit preserved-session markers, never leak replacement-session markers, and mixed failure/decline/accept/failure sequencing only transfers ownership in the accepted phase.
+- User Test Summary Applicability: focused waiver. The completed FB-048 delta is the full currently implementable relaunch signal-failure and wait-timeout pass for this backlog item, but it does not add a new settings journey, persisted user-content path, or broader operator workflow that a filled manual User Test Summary would materially validate beyond the captured real-shortcut evidence, reusable multi-session failure/timeout proof, production-path validation, and explicit dev boot proof.
+- Desktop Export Applicability: no desktop `User Test Summary.txt` export is required for LV-1 because User Test Summary results are waived for this focused relaunch-failure refinement.
+- Cleanup: the real shortcut pass left no residual launcher/runtime processes after shutdown and post-validation cleanup.
+
+### Live Validation Completion Decision
+
+- LV-1 Result: `Complete / green with real desktop shortcut evidence and waiver-based User Test Summary digestion recorded`
+- User-facing shortcut gate: `PASS` with exact markers in `## User Test Summary`
+- User Test Summary results gate: `WAIVED` with exact markers in `## User Test Summary`
+- Validation Layer: repo-truth alignment, real desktop shortcut launch evidence, reusable production-path validation, explicit dev boot proof, reusable failure/timeout lifecycle proof, and governance validation
+- Continue/Stop Decision: stop at the Live Validation phase boundary after validation because FB-048 LV-1 proof is green and the next normal phase is `PR Readiness`.
+
+### LV-1 Validation Results
+
+- Real desktop shortcut gate: PASS; report `dev/logs/fb_048_live_validation/20260427_073332/desktop_shortcut_gate/DesktopShortcutGateReport.json`
+- `python dev\orin_desktop_entrypoint_validation.py`: PASS
+  - report: `dev/logs/desktop_entrypoint_validation/reports/DesktopEntrypointValidationReport_20260427_073611.txt`
+- `python dev\orin_boot_transition_verification.py`: PASS
+  - report: `dev/logs/boot_transition_verification/reports/BootTransitionVerificationReport_20260427_073629.txt`
+- `python dev\orin_branch_governance_validation.py`: PASS
+- `git diff --check`: PASS
+- LV-1 phase-state scan: PASS; current authority surfaces report FB-048 Live Validation complete and PR Readiness as the next legal phase.
+
 ## User Test Summary
 
-Not yet classified. FB-048 is still pre-Live-Validation; exact User Test Summary status belongs to the later Live Validation pass if the branch advances.
+- User-Facing Shortcut Path: `C:\Users\anden\OneDrive\Desktop\Nexus Desktop Launcher.lnk`
+- User-Facing Shortcut Validation: `PASS`
+- User Test Summary Results: `WAIVED`
+- User Test Summary Waiver Reason: The completed FB-048 delta is the full currently implementable relaunch signal-failure and wait-timeout pass for the existing desktop runtime path and is already covered by fresh real-shortcut evidence, reusable multi-session failure/timeout proof, production-path validation, and explicit dev boot verification. It does not add a new settings journey, persisted user-content path, or broader operator workflow that a filled manual User Test Summary would materially validate beyond that captured evidence.
+- Desktop User Test Summary Export: `Not required; waiver path`
 
 ## Seam Continuation Decision
 
-Continue Decision: `Advance after H-1 because backlog completion is implemented complete, hardening is green, and the next legal phase is Live Validation`
-Next Active Seam: `FB-048 Live Validation`
-Stop Condition: `Reached Live Validation gate after H-1 completion`
-Continuation Action: `Validate repo-truth alignment, user-facing shortcut applicability, exact User Test Summary state, production launch path, explicit dev-boot proof, and hardened failure/timeout proof on the active branch`
+Continue Decision: `Advance after LV-1 because backlog completion is implemented complete and the next legal phase is PR Readiness`
+Next Active Seam: `None`
+Stop Condition: `Reached PR Readiness gate after LV-1 completion`
+Continuation Action: `Prepare merge-target canon, successor-lock truth, PR package details, and live PR state for the completed relaunch failure/timeout slice`
 
 ## Active Seam
 
@@ -258,5 +298,6 @@ Active seam: `None.`
 
 - WS-1 is complete and validated.
 - H-1 is complete and green.
+- LV-1 is complete and green.
 - `Backlog Completion State` is `Implemented Complete`.
-- `Live Validation` is the next legal phase.
+- `PR Readiness` is the next legal phase.

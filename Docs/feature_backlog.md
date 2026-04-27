@@ -82,12 +82,12 @@ Historical Branch Readiness State (current branch): Complete on `feature/fb-048-
 Historical Workstream State: FB-047 is Released / Closed in `v1.6.11-prebeta`; FB-046 is Released / Closed in `v1.6.10-prebeta`; FB-044 and FB-045 remain Released / Closed historical proof in `v1.6.9-prebeta`.
 Release Execution State: `v1.6.11-prebeta` is live at https://github.com/GiribaldiTTV/Nexus-Desktop-AI/releases/tag/v1.6.11-prebeta on commit `4ca70572fbc8033bc96fcd299dd309464e81393a`.
 Current Branch Objective: complete the active promoted FB-048 runtime/user-facing pass so accepted relaunch signal-failure and wait-timeout lanes become first-class truthful outcomes on the active branch.
-Next Legal Phase: Live Validation.
-Active Workstream Chain: FB-047 is Released / Closed in `v1.6.11-prebeta`; release debt is clear; FB-048 is now the active promoted workstream on `feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeout-truth`; WS-1 accepted relaunch failure-path truthful outcome proof is complete / validated; H-1 failure/timeout lifecycle hardening is complete / green; `Backlog Completion State` is `Implemented Complete`; and `Live Validation` is the next legal phase.
+Next Legal Phase: PR Readiness.
+Active Workstream Chain: FB-047 is Released / Closed in `v1.6.11-prebeta`; release debt is clear; FB-048 is now the active promoted workstream on `feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeout-truth`; WS-1 accepted relaunch failure-path truthful outcome proof is complete / validated; H-1 failure/timeout lifecycle hardening is complete / green; LV-1 real desktop shortcut evidence plus reusable failure/timeout lifecycle proof are complete / green; `Backlog Completion State` is `Implemented Complete`; and `PR Readiness` is the next legal phase.
 
 ## Backlog Governance Sync
 
-Last Reviewed: 2026-04-27 during FB-048 H-1 completion.
+Last Reviewed: 2026-04-27 during FB-048 LV-1 completion.
 
 Open-candidate priority review:
 
@@ -102,9 +102,9 @@ Open-candidate priority review:
 - FB-045 is now Released / Closed in `v1.6.9-prebeta`.
 - FB-046 is now Released / Closed in `v1.6.10-prebeta`.
 - FB-047 is now Released / Closed in `v1.6.11-prebeta`.
-- FB-048 is the active promoted workstream on `feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeout-truth`; WS-1 is complete / validated; H-1 is complete / green; and `Live Validation` is next.
+- FB-048 is the active promoted workstream on `feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeout-truth`; WS-1 is complete / validated; H-1 is complete / green; LV-1 is complete / green; and `PR Readiness` is next.
 
-Current-branch clarity: latest public prerelease is `v1.6.11-prebeta`; FB-044 and FB-045 are released and closed in `v1.6.9-prebeta`; FB-046 is released and closed in `v1.6.10-prebeta`; FB-047 is released and closed in `v1.6.11-prebeta`; merged-unreleased release debt is clear; repo state is now an active promoted `feature/` workstream branch; and FB-048 is active on `feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeout-truth` with WS-1 complete / validated, H-1 complete / green, `Backlog Completion State` at `Implemented Complete`, and `Live Validation` next.
+Current-branch clarity: latest public prerelease is `v1.6.11-prebeta`; FB-044 and FB-045 are released and closed in `v1.6.9-prebeta`; FB-046 is released and closed in `v1.6.10-prebeta`; FB-047 is released and closed in `v1.6.11-prebeta`; merged-unreleased release debt is clear; repo state is now an active promoted `feature/` workstream branch; and FB-048 is active on `feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeout-truth` with WS-1 complete / validated, H-1 complete / green, LV-1 complete / green, `Backlog Completion State` at `Implemented Complete`, and `PR Readiness` next.
 
 ## Registry Items
 
@@ -114,13 +114,13 @@ Status: In Progress
 Record State: Promoted
 Priority: High
 Selection / Unblock: Selected during FB-047 PR Readiness because accepted relaunch success and declined relaunch preservation are now first-class proven surfaces, but the accepted incoming-launch failure lane still lacked equivalent proof when relaunch signaling failed or the current session did not release before the reacquire wait deadline. That gate is now satisfied, and WS-1 is complete / validated on the active promoted workstream branch.
-Next Workstream: Active. WS-1 accepted relaunch failure-path truthful outcome proof is complete / validated, H-1 failure/timeout lifecycle hardening is complete / green, `Backlog Completion State` is `Implemented Complete`, and `Live Validation` is next.
+Next Workstream: Active. WS-1 accepted relaunch failure-path truthful outcome proof is complete / validated, H-1 failure/timeout lifecycle hardening is complete / green, LV-1 real desktop shortcut evidence plus reusable failure/timeout lifecycle proof are complete / green, `Backlog Completion State` is `Implemented Complete`, and `PR Readiness` is next.
 Branch Creation Gate: Satisfied during FB-048 Branch Readiness after `v1.6.11-prebeta` publication, validation, updated-`main` revalidation, and first-slice admission.
 Branch: feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeout-truth
 Canonical Workstream Doc: Docs/workstreams/FB-048_active_session_relaunch_signal_failure_and_wait_timeout_truth.md
 Historical Branch Readiness Record: Docs/branch_records/feature_fb_048_active_session_relaunch_signal_failure_and_wait_timeout_truth.md
 Branch Readiness: Historical complete. The branch objective, target end-state, admitted WS-1 slice, validation coverage, rollback conditions, and same-branch backlog-completion posture remain preserved in the historical Branch Readiness record.
-Workstream: WS-1 `accepted relaunch failure-path truthful outcome proof` is complete and validated; H-1 failure/timeout lifecycle hardening is complete and green; accepted relaunch signal-failure and wait-timeout now emit explicit preserved-session markers instead of collapsing into a generic already-running skip; repeated signal-failure launches preserve the active settled owner even under rapid repetition; near-deadline reacquire no longer falls through to a false timeout; mixed failure -> decline -> accept -> failure sequencing keeps failure, decline, and success classification distinct; and already-green startup, accepted-success, declined-preservation, repeated-launch, and explicit dev-boot proof paths remain green.
+Workstream: WS-1 `accepted relaunch failure-path truthful outcome proof` is complete and validated; H-1 failure/timeout lifecycle hardening is complete and green; LV-1 is complete and green with real desktop shortcut evidence plus reusable failure/timeout lifecycle proof; accepted relaunch signal-failure and wait-timeout now emit explicit preserved-session markers instead of collapsing into a generic already-running skip; repeated signal-failure launches preserve the active settled owner even under rapid repetition; near-deadline reacquire no longer falls through to a false timeout; mixed failure -> decline -> accept -> failure sequencing keeps failure, decline, and success classification distinct; and already-green startup, accepted-success, declined-preservation, repeated-launch, and explicit dev-boot proof paths remain green.
 Backlog Completion State: Implemented Complete
 Minimal Scope: Prove and refine the accepted relaunch failure lane across `desktop/single_instance.py`, `desktop/orin_desktop_launcher.pyw`, `desktop/orin_desktop_main.py`, and the minimum required reusable validator surfaces so relaunch-signal failure or reacquire wait-timeout preserves truthful ownership, emits explicit failure-path markers, and avoids false replacement-session or guard-transfer claims.
 Summary: Make accepted-but-unfinished relaunch failures as truthful as accepted and declined success paths.
