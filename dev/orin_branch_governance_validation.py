@@ -1178,6 +1178,10 @@ REFORM_R7_S2_ACTIVE_SEAM_NEXT_PHRASE = (
     "Phase 7 / Slice R7-S2 `Add hard anti-drift checks` is the next active seam on this branch."
 )
 REFORM_R7_S2_CONTINUATION_PHRASE = "Execute Slice R7-S2"
+REFORM_HARDENING_H1_SEAM = "Hardening H1 - Post-Workstream Governance Validation"
+REFORM_HARDENING_H1_STATE_PHRASE = (
+    "Hardening H1 `Post-Workstream Governance Validation` is in progress"
+)
 REFORM_FB042_DOSSIER_PATH = Path(
     "Docs/workstreams/FB-042_desktop_startup_runtime_family_dossier.md"
 )
@@ -3069,6 +3073,12 @@ def _validate_backlog_family_reform_seam_truth(
     continuation_next_seam = _extract_marker_value(continuation_section, "Next Active Seam")
     active_seam_match = re.search(r"^Next active seam:\s*`([^`]+)`", active_seam_section, flags=re.M)
     active_seam_next = active_seam_match.group(1).strip() if active_seam_match else ""
+    active_seam_current = _extract_marker_value(active_seam_section, "Active seam")
+    current_phase = _extract_marker_value(_section(branch_record_text, "Current Phase"), "Phase")
+    next_legal_phase = _extract_first_backtick_value(_section(branch_record_text, "Next Legal Phase"))
+    phase_status_hardening_seam = _extract_marker_value(phase_status_section, "Current Hardening Seam")
+    backlog_next_legal_phase = _extract_colon_value(backlog_text, "Next Legal Phase").rstrip(".")
+    roadmap_next_legal_phase = _extract_colon_value(roadmap_text, "Next Legal Phase").rstrip(".")
 
     if _historical_alias_mapping_matches(
         backlog_entries,
@@ -4188,6 +4198,75 @@ def _validate_backlog_family_reform_seam_truth(
             (
                 "Docs/feature_backlog.md: R7-S2 must not remain the next seam once hard anti-"
                 "drift checks are enforced"
+            ),
+        )
+
+    if (
+        REFORM_HARDENING_H1_STATE_PHRASE in backlog_workstream_state
+        and REFORM_HARDENING_H1_STATE_PHRASE in roadmap_workstream_state
+    ):
+        require(
+            current_phase == "Hardening",
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Current Phase "
+                "must transition to `Hardening` once the reform branch current-state summaries "
+                "declare Hardening H1 in progress"
+            ),
+        )
+        require(
+            next_legal_phase == "Live Validation",
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Next Legal Phase "
+                "must advance to `Live Validation` once the branch has transitioned into Hardening"
+            ),
+        )
+        require(
+            backlog_next_legal_phase == "Live Validation",
+            (
+                "Docs/feature_backlog.md: Next Legal Phase must advance to `Live Validation` "
+                "once the reform branch current-state summary declares Hardening H1 in progress"
+            ),
+        )
+        require(
+            roadmap_next_legal_phase == "Live Validation",
+            (
+                "Docs/prebeta_roadmap.md: Next Legal Phase must advance to `Live Validation` "
+                "once the reform branch current-state summary declares Hardening H1 in progress"
+            ),
+        )
+        require(
+            phase_status_hardening_seam == REFORM_HARDENING_H1_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Phase Status "
+                "must name Hardening H1 as the current hardening seam during the phase handoff repair"
+            ),
+        )
+        require(
+            phase_status_next_seam == REFORM_HARDENING_H1_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Phase Status "
+                "`Next Active Seam` must point to Hardening H1 during the phase handoff repair"
+            ),
+        )
+        require(
+            active_seam_current == REFORM_HARDENING_H1_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Active Seam "
+                "must name Hardening H1 as the current active seam during the phase handoff repair"
+            ),
+        )
+        require(
+            "Active seam: `None.`" not in active_seam_section,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Active Seam "
+                "must remove the stale `Active seam: None.` marker once Hardening H1 is admitted"
+            ),
+        )
+        require(
+            active_seam_next == REFORM_HARDENING_H1_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Active Seam "
+                "`Next active seam` must point to Hardening H1 during the phase handoff repair"
             ),
         )
         require(
