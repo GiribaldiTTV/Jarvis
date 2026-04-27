@@ -129,6 +129,10 @@ Use these for tracked identity and near-term sequencing:
 Rules:
 
 - backlog owns identity
+- backlog identity is the user-facing feature-family registry by default
+- separate backlog identities for non-user-facing runtime, developer-tooling, docs/governance, or canon-only work require explicit USER approval
+- backlog is not the seam-by-seam traceability surface for continuation, blocker-clearing, or validator follow-through; canonical workstreams and branch authority records own that history
+- continuation or reopening on an existing feature family should reuse that same backlog identity by default unless the USER explicitly approves a backlog split or the work is materially a new user-facing feature family
 - backlog candidate selection is priority-led; `Priority` and deferred-context fields are the selection inputs for open items
 - `Target Version` is not an open-backlog selection input and belongs only to release posture, release debt, or historical closed/implemented evidence
 - deferred open backlog entries must explain `Deferred Since:`, `Deferred Because:`, and `Selection / Unblock:` before they can be selected efficiently

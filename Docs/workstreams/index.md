@@ -28,6 +28,8 @@ Use `Docs/validation_helper_registry.md` for durable root `dev/` helper naming, 
 - `Registry-only` backlog items do not require a canonical workstream execution record yet
 - when a backlog item moves from `Registry-only` to `Promoted`, its canonical workstream doc must be created at a stable `Docs/workstreams/FB-XXX_slug.md` path
 - once promoted, the canonical workstream doc becomes the durable execution and traceability record for that lane and must be updated throughout the active branch, not just at closeout
+- workstream docs and branch authority records are the default traceability surface for multi-slice continuation, blocker-clearing, and repair history inside one backlog identity
+- if later work continues the same user-facing feature family, preserve that continuation traceability here or in branch records instead of creating a near-duplicate backlog ID by default
 - backlog remains the identity registry and points here through `Canonical Workstream Doc`
 - roadmap consumes this layer for sequencing but does not duplicate its full execution story
 - repo-wide phase, timeout, proof-authority, seam, stop-loss, validation-helper, and desktop UI audit rules live in `Docs/phase_governance.md`, not in individual workstream docs
