@@ -103,10 +103,23 @@ A green seam does not authorize stop while `Slice Status` is not green.
 A green slice does not authorize stop while `Completion Status` is not green.
 
 `Completion Status` is the `Workstream`-level bounded gate:
+It is the exact `Phase: Workstream Status` field for stop authority.
 
 - `In Progress` = more same-branch `Workstream` work remains and continuation is required
 - `Red` = a named blocker or waiver currently stops bounded `Workstream` continuation
 - `Green` = `Workstream` backlog completion is proven complete and `Hardening` is the next legal phase
+
+`Phase: Workstream` must remain bounded at all times.
+The only lawful `Workstream` stop conditions are:
+
+- `Completion Status: Green`, with `Hardening` as the next legal phase
+- `Completion Status: Red`, justified by a named blocker or waiver
+
+`Phase: Workstream` must remain bounded at all times, and the only lawful `Workstream` stop conditions are `Completion Status: Green` with `Hardening` next, or `Completion Status: Red` justified by a named blocker or waiver.
+
+`Phase: Workstream` must remain bounded at all times; the only lawful `Workstream` stop conditions are `Completion Status: Green` with `Hardening` next, or `Completion Status: Red` justified by a named blocker or waiver.
+
+Crossing into a new seam, slice, seam family, slice family, or work family is not stop authority by itself.
 
 If `Completion Status` is `In Progress` and no named stop-authorizing blocker or waiver is recorded, `Continue Decision` must be `Continue` and Codex must start the next seam or next admitted slice instead of returning `Await Next Instruction`.
 
@@ -115,6 +128,7 @@ If `Completion Status` is `In Progress` and no named stop-authorizing blocker or
 `Backlog Completion Unproven` keeps the branch in `Workstream`; by itself it is not authority to return `Await Next Instruction` while `Completion Status` remains `In Progress`.
 Use these governed state markers as execution control, not as documentation-only summary fields.
 If `Continue Decision` is `Continue`, Codex must not end on a final seam-closeout response, rollback path, or next-seam recommendation; it must keep executing until a lawful `Stop` decision exists.
+If `Completion Status` is `Red`, `Continuation Action` must explicitly state the blocker-clearing action or waiver-clearing action needed before bounded `Workstream` continuation may resume.
 
 ## Canonical Governance Rules
 
@@ -1196,6 +1210,7 @@ Do not send a final closeout response after a green entry seam while the next se
 when a slice turns green during `Workstream`, advance immediately to the next admitted slice while `Completion Status` remains `In Progress`
 `Workstream` reaches `Hardening` only when `Completion Status: Green`
 `Completion Status: Red` means a named blocker or waiver currently stops bounded Workstream continuation
+If `Completion Status` is `Red`, report the blocker or waiver and the action needed to clear it before continuation can resume.
 
 A bounded stop condition blocks continuation; it does not by itself authorize stopping the backlog item after only one slice, advancing to `Hardening`, or closing the branch while `Backlog Completion State` remains `In Progress`.
 

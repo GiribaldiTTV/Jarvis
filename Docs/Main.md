@@ -256,6 +256,9 @@ These are reference layers, not active workstream or roadmap owners.
 - during `Workstream`, `bounded multi-seam workflow` is the primary model inside the current slice; execute one active seam at a time, validate it, record evidence, report `continue` or `stop`, and keep going until all required seams in the current slice are complete and the slice status is green, then advance into the next admitted slice while `Completion Status` remains `In Progress`, unless a named blocker or waiver requirement turns `Completion Status` red
 - a task-level `Return:` block, rollback request, commit request, or next-seam recommendation is not stop authority while `Continue Decision` remains `Continue`
 - when `Continue Decision` is `Continue`, do not end on a seam-complete final response; keep executing until a lawful `Stop` decision exists
+- `Phase: Workstream` must remain bounded at all times; the only lawful `Workstream` stop conditions are `Completion Status: Green` with `Hardening` next, or `Completion Status: Red` justified by a named blocker or waiver
+- if `Completion Status` is `Red`, `Continuation Action` must report the blocker-clearing action or waiver-clearing action needed before bounded `Workstream` continuation may resume
+- treat `Completion Status` as the exact `Phase: Workstream Status` gate for stop authority
 - Workstream must execute admitted implementation slices one slice at a time, keep re-evaluating the backlog item after each seam and slice, and keep later slices on the same branch by default when scope, phase, risk, and validation authority remain green unless the USER explicitly approves a docs-only bypass or backlog split.
 - Docs-only Workstreams require explicit USER approval.
 - Planning-loop bypass requires `Planning-Loop Bypass User Approval: APPROVED` and `Planning-Loop Bypass Reason:`.
