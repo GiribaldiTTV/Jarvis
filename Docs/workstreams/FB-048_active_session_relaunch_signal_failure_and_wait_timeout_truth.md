@@ -38,11 +38,12 @@ Latest Public Prerelease Publication: `https://github.com/GiribaldiTTV/Nexus-Des
 Latest Public Prerelease Title: `Pre-Beta v1.6.11`
 FB-047 is `Released / Closed` historical proof in `v1.6.11-prebeta`.
 Release debt is active after merge until `v1.6.12-prebeta` is published, validated, and post-release canon closure completes.
-Historical repair branch after merge: `feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeout-truth`
-Historical repair packaging commit after merge: `85dc5552f6044cd167ad64039c626503fcc3067d`
 Merged `main` now contains the repair lane. `origin/main` is `24cdb49dd76867212f8f7d025e86fbec4758df45`.
-PR #94 is merged. Follow-up blocker-clearing PR #96 is also merged on `main`, carrying the repaired wait-timeout semantics and non-Windows validator guard into the release-debt package before release packaging continues.
-Active seam: `Post-merge canon sync (PR #96 containment)`. FB-049 remains selected next as a branch-not-created `Registry-only` successor, and this bounded PR Readiness pass now converts stale PR-open / branch-only wording to merged truth without widening runtime scope.
+Repaired wait-timeout replacement-unconfirmed semantics and the non-Windows validator guard are contained on `main`.
+Selected Next Workstream: FB-049 Active-session pre-settled incoming-launch conflict truth.
+Selected Next Record State: Registry-only.
+Selected Next Implementation Branch: Not created.
+Canonical current-state rule: merge-stable current-state owners keep only merged-unreleased release-debt truth here; live PR state, conflict/readiness details, review-resolution details, and blocker-clearing repair-lane narration are preserved only in the explicit historical PR sections below and in operator output.
 
 ## Branch Class
 
@@ -341,7 +342,7 @@ PR Readiness validates the completed bounded FB-048 runtime slice chain for merg
 - Release Title: `Pre-Beta v1.6.12`.
 - Release Floor: `patch prerelease`.
 - Version Rationale: `patch prerelease` remains required because the delivered FB-048 delta is a bounded runtime/user-facing relaunch signal-failure and wait-timeout refinement on the existing desktop startup family, not a new capability lane or materially expanded feature family.
-- Release Scope: complete WS-1 accepted relaunch failure-path truthful outcome proof, H-1 failure/timeout lifecycle hardening, LV-1 real shortcut evidence, selected-next successor lock, and PR package history.
+- Release Scope: complete WS-1 accepted relaunch failure-path truthful outcome proof, H-1 failure/timeout lifecycle hardening, LV-1 real shortcut evidence, selected-next successor lock, PR package history, and merge-stable current-state governance hardening plus validator guardrails.
 - Release Artifacts: Tag `v1.6.12-prebeta`; release title `Pre-Beta v1.6.12`; rich Markdown release notes summarize the bounded FB-048 relaunch failure/timeout runtime/user-facing package without repeating the release title inside the notes body, and GitHub-generated `## What's Changed` plus `**Full Changelog**:` must be included.
 - Post-Release Truth: FB-048 is Released / Closed in `v1.6.12-prebeta` after publication and validation; release debt then clears, and FB-049 Branch Readiness may begin only after updated `main` is revalidated and the first bounded runtime/user-facing pre-settled incoming-launch conflict truth slice is admitted.
 
@@ -449,6 +450,15 @@ This follow-up PR Readiness pass packages the post-merge review repair commit th
 - Repaired runtime semantics validation: PASS via `python dev\orin_desktop_entrypoint_validation.py`; report `dev/logs/desktop_entrypoint_validation/reports/DesktopEntrypointValidationReport_20260427_081138.txt`.
 - Repair containment audit: PASS. `origin/main` contains repair commit `85dc5552f6044cd167ad64039c626503fcc3067d` through merge commit `24cdb49dd76867212f8f7d025e86fbec4758df45`.
 
+## Merge-Stable Current-State Governance Hardening
+
+This bounded governance hardening pass closes the recurring drift where merge-target current-state owners inherited live PR-open state, repair-containment narration, or blocker-clearing branch details that immediately became stale after merge.
+
+- `Docs/feature_backlog.md` and `Docs/prebeta_roadmap.md` current-state owner sections now keep only merge-stable merged-unreleased release-debt truth during the FB-048 release window.
+- The canonical workstream `## Phase Status` block now keeps only merge-stable release-debt truth, selected-next truth, and release posture while leaving live PR details in explicit historical PR sections.
+- Live PR state, mergeability, review-thread state, repair-commit containment, and blocker-clearing branch narration remain preserved as historical traceability in `## Historical PR Package State`, `## PR Readiness Record`, `## Post-Merge Review Repair`, and `## Follow-Up PR Readiness Record`.
+- Governance docs and the validator now hard-block future attempts to place branch-local PR narration into merge-stable current-state owner sections during merged-unreleased release-debt windows.
+
 ## Seam Continuation Decision
 
 Continue Decision: `Advance into bounded post-merge canon sync because repaired branch truth is already contained on main but merged canon still carries stale PR-open / branch-only wording`
@@ -458,7 +468,7 @@ Continuation Action: `Sync stale PR #96 open / branch-only wording across backlo
 
 ## Active Seam
 
-Active seam: `Post-merge canon sync (PR #96 containment).`
+Active seam: `None.`
 
 - WS-1 is complete and validated.
 - H-1 is complete and green.
@@ -466,4 +476,5 @@ Active seam: `Post-merge canon sync (PR #96 containment).`
 - Historical PR #94 Readiness is complete after live PR creation and validation.
 - Follow-up PR Readiness is complete historical proof; PR #96 is merged on `main`, and repair commit `85dc5552f6044cd167ad64039c626503fcc3067d` is now contained on `main`.
 - `Backlog Completion State` is `Implemented Complete`.
-- Bounded post-merge canon sync is the current legal PR Readiness seam before `Release Readiness` resumes on updated `main`.
+- Historical follow-up PR repair packaging and merge-stable current-state governance hardening are preserved above.
+- `Release Readiness` resumes on updated `main` after this bounded canon-and-governance sync merges.

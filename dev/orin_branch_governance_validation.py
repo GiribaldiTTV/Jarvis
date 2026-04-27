@@ -689,6 +689,60 @@ MERGED_UNRELEASED_CONTRACT_PHRASES = (
     "Next-Branch Creation Gate:",
 )
 
+MERGE_STABLE_CURRENT_STATE_DOCS = (
+    Path("Docs/phase_governance.md"),
+    Path("Docs/Main.md"),
+)
+
+MERGE_STABLE_CURRENT_STATE_PHRASES = (
+    "merge-target current-state owners must be merge-stable",
+    "Docs/feature_backlog.md",
+    "Docs/prebeta_roadmap.md",
+    "canonical workstream `## Phase Status` block",
+    "live PR state",
+    "operator output",
+    "explicit historical PR sections",
+    "Current Branch Execution Posture",
+    "PR Readiness State:",
+    "Current Branch Objective:",
+    "Active Workstream Chain:",
+)
+
+MERGE_STABLE_CURRENT_STATE_OWNER_MARKERS = (
+    "PR Readiness State:",
+    "Current Branch Objective:",
+    "Active Workstream Chain:",
+    "Post-Merge Review Repair Commit:",
+    "Post-Merge Review Repair Commit On Main:",
+    "Post-Merge Review Repair Scope:",
+)
+
+MERGE_STABLE_CURRENT_STATE_OWNER_BANNED_PHRASES = (
+    " is open",
+    "non-draft",
+    "mergeable",
+    "review-thread",
+    "not contained on `main`",
+    "this branch now carries",
+    "branch-only",
+    "follow-up blocker-clearing pr",
+    "current blocker-clearing pr lane",
+)
+
+MERGE_STABLE_PHASE_STATUS_BANNED_PHRASES = (
+    "repair branch after merge",
+    "repair packaging commit after merge",
+    "pr #",
+    "open against `main`",
+    "mergeable",
+    "non-draft",
+    "review-thread",
+    "active seam:",
+    "this bounded pr readiness pass",
+    "branch-only",
+    "not yet contained on `main`",
+)
+
 REQUIRED_RELEASE_BEARING_MARKERS = (
     "Release Target:",
     "Release Scope:",
@@ -2610,6 +2664,14 @@ def main() -> int:
                 f"{relative_path}: merged-unreleased release-debt contract is missing '{required_phrase}'",
             )
 
+    for relative_path in MERGE_STABLE_CURRENT_STATE_DOCS:
+        text = _read_text(relative_path)
+        for required_phrase in MERGE_STABLE_CURRENT_STATE_PHRASES:
+            require(
+                required_phrase in text,
+                f"{relative_path}: merge-stable current-state guidance is missing '{required_phrase}'",
+            )
+
     if _git_current_branch() == "main":
         status_output = _git_status_porcelain(tracked_only=True)
         require(
@@ -3509,6 +3571,43 @@ def main() -> int:
                     "v<major>.<minor>.<patch>-prebeta"
                 ),
             )
+            backlog_posture = _section(backlog_text, "Current Branch Execution Posture")
+            roadmap_posture = _section(roadmap_text, "Current Branch Execution Posture")
+            for source_name, posture_text in (
+                ("Docs/feature_backlog.md", backlog_posture),
+                ("Docs/prebeta_roadmap.md", roadmap_posture),
+            ):
+                require(
+                    bool(posture_text),
+                    f"{source_name}: merged-unreleased release-debt owner requires a Current Branch Execution Posture section",
+                )
+                posture_lower = posture_text.casefold()
+                for marker in MERGE_STABLE_CURRENT_STATE_OWNER_MARKERS:
+                    require(
+                        marker not in posture_text,
+                        (
+                            f"{source_name}: merge-stable current-state owner must not include "
+                            f"'{marker}' during merged-unreleased release-debt windows"
+                        ),
+                    )
+                for forbidden_phrase in MERGE_STABLE_CURRENT_STATE_OWNER_BANNED_PHRASES:
+                    require(
+                        forbidden_phrase.casefold() not in posture_lower,
+                        (
+                            f"{source_name}: merge-stable current-state owner must not include "
+                            f"time-sensitive PR narration '{forbidden_phrase}' during "
+                            "merged-unreleased release-debt windows"
+                        ),
+                    )
+            phase_status_lower = phase_status_section.casefold()
+            for forbidden_phrase in MERGE_STABLE_PHASE_STATUS_BANNED_PHRASES:
+                require(
+                    forbidden_phrase.casefold() not in phase_status_lower,
+                    (
+                        f"{canonical_path}: merged-unreleased `## Phase Status` must not include "
+                        f"time-sensitive PR narration '{forbidden_phrase}'"
+                    ),
+                )
 
             release_sources = (
                 ("Docs/feature_backlog.md", entry["block"]),
