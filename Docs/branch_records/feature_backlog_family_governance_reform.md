@@ -42,9 +42,9 @@ This branch must not change runtime behavior. Its job is to repair and harden so
 - Slice R2-S1 result: complete and green. The planned backlog-family section skeleton now exists as placeholder headings only, no backlog entries were moved, reclassified, renamed, or rewritten in that seam.
 - Historical Workstream Seam: `Phase 2 - Backlog Structure Migration / Slice R2-S2 - Add classification markers in place`
 - Slice R2-S2 result: complete and green. Reform classification markers now exist in place across the current backlog entries, no entries were moved or renamed in that seam, and transitional ordering remained intact under `### Transitional Current Registry Order`.
-- Current Workstream Seam: `Phase 2 - Backlog Structure Migration / Slice R2-S5 - Backlog ordering and selection-truth hardening`
-- Slice R2-S5 result: complete and green. User-facing feature-family records now live in their dedicated section ahead of historical aliases and support lanes, FB-049 remains the only selected-next user-facing candidate, no entries were renamed in this seam, and Phase 3 / Slice R3-S1 `Retitle FB-042 as the runtime family anchor` is next.
-- Next Active Seam: `Phase 3 - Family Anchor Migration / Slice R3-S1 - Retitle FB-042 as the runtime family anchor`
+- Current Workstream Seam: `Phase 3 - Family Anchor Migration / Slice R3-S1 - Retitle FB-042 as the runtime family anchor`
+- Slice R3-S1 result: complete and green. FB-042 is now titled `Desktop startup runtime family anchor`, `Registry Class: Feature Family` and `Family Anchor: Self` are preserved, historical aliases remain in place in the `Historical Consolidated Pass Aliases` section, FB-049 remains the only selected-next user-facing candidate, and Slice R3-S2 `Map FB-043 through FB-048 under FB-042 as historical aliases` is next.
+- Next Active Seam: `Phase 3 - Family Anchor Migration / Slice R3-S2 - Map FB-043 through FB-048 under FB-042 as historical aliases`
 
 ## Branch Class
 
@@ -160,7 +160,7 @@ Branch Closure Rule: `Do not leave Workstream after only the first reform seam; 
 ## Backlog Completion Status
 
 Backlog Completion State: `In Progress`
-Remaining Implementable Work: `Phase 2 through Phase 7 backlog/workstream governance reform slices remain to execute on this same branch.`
+Remaining Implementable Work: `Phase 3 through Phase 7 backlog/workstream governance reform slices remain to execute on this same branch.`
 Future-Dependent Blockers: `None`
 
 ## Stop Conditions
@@ -264,8 +264,8 @@ Seam 1: `Phase 1 - Validator Bootstrap`
 
 Active seam: `None.`
 
-Phase 1 `Validator Bootstrap`, Phase 2 / Slice R2-S1 `Backlog Section Skeleton`, Phase 2 / Slice R2-S2 `Add classification markers in place`, Phase 2 / Slice R2-S3 `Move support / governance lanes`, Phase 2 / Slice R2-S4 `Move historical pass aliases`, and Phase 2 / Slice R2-S5 `Backlog ordering and selection-truth hardening` are complete and green.
-Next active seam: `Phase 3 - Family Anchor Migration / Slice R3-S1 - Retitle FB-042 as the runtime family anchor`.
+Phase 1 `Validator Bootstrap`, Phase 2 / Slice R2-S1 `Backlog Section Skeleton`, Phase 2 / Slice R2-S2 `Add classification markers in place`, Phase 2 / Slice R2-S3 `Move support / governance lanes`, Phase 2 / Slice R2-S4 `Move historical pass aliases`, Phase 2 / Slice R2-S5 `Backlog ordering and selection-truth hardening`, and Phase 3 / Slice R3-S1 `Retitle FB-042 as the runtime family anchor` are complete and green.
+Next active seam: `Phase 3 - Family Anchor Migration / Slice R3-S2 - Map FB-043 through FB-048 under FB-042 as historical aliases`.
 
 - Phase 0 `Reform Readiness` is complete.
 - Workstream Phase 1 `Validator Bootstrap` is complete and green.
@@ -274,11 +274,12 @@ Next active seam: `Phase 3 - Family Anchor Migration / Slice R3-S1 - Retitle FB-
 - Phase 2 / Slice R2-S3 `Move support / governance lanes` is complete and green.
 - Phase 2 / Slice R2-S4 `Move historical pass aliases` is complete and green.
 - Phase 2 / Slice R2-S5 `Backlog ordering and selection-truth hardening` is complete and green.
-- Phase 3 / Slice R3-S1 `Retitle FB-042 as the runtime family anchor` is the next active seam on this branch.
+- Phase 3 / Slice R3-S1 `Retitle FB-042 as the runtime family anchor` is complete and green.
+- Phase 3 / Slice R3-S2 `Map FB-043 through FB-048 under FB-042 as historical aliases` is the next active seam on this branch.
 
 ## Seam Continuation Decision
 
 Continue Decision: `Continue`
-Next Active Seam: `Phase 3 - Family Anchor Migration / Slice R3-S1 - Retitle FB-042 as the runtime family anchor`
+Next Active Seam: `Phase 3 - Family Anchor Migration / Slice R3-S2 - Map FB-043 through FB-048 under FB-042 as historical aliases`
 Stop Condition: `Stop only if repo truth shows the planned family-governance model conflicts with release history, selected-next truth, or validator protection and cannot be repaired without weakening the governance model.`
-Continuation Action: `Execute Slice R3-S1 by retitling FB-042 into the runtime family anchor without rewriting the historical alias records or pulling deeper alias-to-family dossier mapping forward.`
+Continuation Action: `Execute Slice R3-S2 by hardening the FB-043 through FB-048 alias-to-FB-042 family mapping in place without moving entries, changing selected-next truth, or widening into dossier conversion.`

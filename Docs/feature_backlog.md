@@ -81,7 +81,7 @@ Selected Next Implementation Branch: Not created.
 Historical Repair-Only Branch Handling: `feature/fb-046-post-merge-canon-sync` was a bounded repair-only post-merge canon-sync `feature/` branch and did not imply Branch Readiness admission or active branch truth for FB-046.
 Historical Branch Readiness State: Complete on `feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeout-truth`.
 Current Branch Readiness State: Historical complete on `feature/backlog-family-governance-reform`. Phase 0 `Reform Readiness` admitted the branch authority record and cleared the path into Workstream.
-Current Workstream State: Phase 2 `Backlog Structure Migration` is active on `feature/backlog-family-governance-reform`; Slice R2-S5 `Backlog ordering and selection-truth hardening` is complete and green, user-facing feature-family records now live in their dedicated section ahead of historical aliases and support lanes, FB-049 remains the only selected-next user-facing candidate, no entries were renamed in this seam, and Phase 3 / Slice R3-S1 `Retitle FB-042 as the runtime family anchor` is next.
+Current Workstream State: Phase 3 `Family Anchor Migration` is active on `feature/backlog-family-governance-reform`; Slice R3-S1 `Retitle FB-042 as the runtime family anchor` is complete and green, FB-042 is now titled `Desktop startup runtime family anchor`, `Registry Class: Feature Family` and `Family Anchor: Self` are preserved, historical aliases remain in place in the `Historical Consolidated Pass Aliases` section, FB-049 remains the only selected-next user-facing candidate, and Slice R3-S2 `Map FB-043 through FB-048 under FB-042 as historical aliases` is next.
 Current Branch Class: implementation.
 Current Implementation Delta Class: docs-only.
 Historical Workstream State: FB-048 is Released / Closed in `v1.6.12-prebeta`; FB-047 is Released / Closed in `v1.6.11-prebeta`; FB-046 is Released / Closed in `v1.6.10-prebeta`; FB-044 and FB-045 remain Released / Closed historical proof in `v1.6.9-prebeta`.
@@ -100,7 +100,7 @@ Next Legal Phase: Workstream.
 
 ## Backlog Governance Sync
 
-Last Reviewed: 2026-04-27 during Backlog Family Governance Reform Phase 2 / Slice R2-S5.
+Last Reviewed: 2026-04-27 during Backlog Family Governance Reform Phase 3 / Slice R3-S1.
 
 Open-candidate priority review:
 
@@ -109,7 +109,7 @@ Open-candidate priority review:
 - FB-029 is released and closed in `v1.6.4-prebeta`; it no longer owns release debt or active branch truth.
 - FB-030 remains `Medium` as historical planning priority, but it is now Released / Closed in `v1.6.5-prebeta` and no longer owns release debt or active branch truth.
 - FB-005 remains `Low` as historical workspace priority, but it is now Released / Closed in `v1.6.6-prebeta` and no longer owns release debt or selected-next truth.
-- FB-042 is now Released / Closed in `v1.6.7-prebeta`; the bounded runtime/user-facing launch-path slice is complete historical proof.
+- FB-042 is now Released / Closed in `v1.6.7-prebeta`; the released launch-path slice is preserved as the first historical proof under the runtime family anchor.
 - FB-043 is now Released / Closed in `v1.6.8-prebeta`.
 - FB-044 is now Released / Closed in `v1.6.9-prebeta`.
 - FB-045 is now Released / Closed in `v1.6.9-prebeta`.
@@ -142,7 +142,7 @@ Minimal Scope: Prove and refine the pre-settled incoming-launch conflict lane ac
 Summary: Make startup-phase incoming-launch conflicts as truthful as settled-session relaunch conflicts.
 Why it matters: Users should get an explicit, proven outcome when a second launch collides with an already-owning startup-phase session before the desktop has reached authoritative settled state.
 
-### [ID: FB-042] Desktop entrypoint runtime refinement
+### [ID: FB-042] Desktop startup runtime family anchor
 
 Status: Released (v1.6.7-prebeta)
 Record State: Closed
@@ -157,7 +157,7 @@ Branch: feature/fb-042-desktop-entrypoint-runtime-refinement
 Canonical Workstream Doc: Docs/workstreams/FB-042_desktop_entrypoint_runtime_refinement.md
 Branch Readiness: Complete. Planning/framing now happens before Workstream, and the admitted WS-1 slice is recorded with owned paths, non-goals, validation coverage, rollback limits, and user-facing shortcut contract in the canonical workstream doc.
 Workstream: Released. WS-1 desktop shortcut launch-path runtime refinement is complete and validated on the real `launch_orin_desktop.vbs` -> `desktop/orin_desktop_launcher.pyw` -> `desktop/orin_desktop_main.py` path, H-1 hardening is complete, LV-1 is complete, and release publication is complete.
-Branch Meaning: Historical source-branch execution owned the real desktop entrypoint/runtime launch path, and that bounded runtime slice is now released historical truth.
+Branch Meaning: Historical source-branch execution owned the real desktop entrypoint/runtime launch path, and that bounded runtime slice now serves as the first released historical proof under this runtime family anchor.
 Release Target: v1.6.7-prebeta
 Release Floor: patch prerelease
 Version Rationale: FB-042 delivers a bounded runtime/user-facing launch-path reliability and startup-error-handling refinement on the existing desktop entrypoint path, but it does not introduce a new product lane, broader runtime family, or materially expanded capability beyond the shipped launch chain.
@@ -167,8 +167,8 @@ Post-Release Truth: FB-042 is Released / Closed in `v1.6.7-prebeta`; FB-043 is R
 Current Active Workstream: None
 Promotion Gate: Historical proof complete. `v1.6.7-prebeta` was published and validated, updated `main` was revalidated, and FB-043 then completed its promoted runtime workstream on `feature/fb-043-top-level-entrypoint-handoff-refinement`.
 Minimal Scope: Execute only WS-1 desktop shortcut launch-path runtime refinement across `launch_orin_desktop.vbs`, `desktop/orin_desktop_launcher.pyw`, `desktop/orin_desktop_main.py`, and `dev/orin_desktop_entrypoint_validation.py`, while keeping `main.py`, broader workspace follow-through, audio, logs, visual assets, and installer redesign out of scope.
-Summary: Start FB-042 on the real desktop launch path users actually touch instead of reopening a broader planning-only Step 5 bucket.
-Why it matters: Creates actual runtime/user-facing follow-through now while keeping larger entrypoint and workspace reshaping bounded and explicit.
+Summary: Anchor the desktop startup runtime family at the real launch path while preserving the released FB-042 slice as the first historical proof.
+Why it matters: Future launch-path, handoff, and relaunch follow-through should reuse one runtime family identity instead of drifting into separate near-duplicate feature-family records.
 
 ### [ID: FB-040] Monitoring, thermals, and performance HUD surface
 
