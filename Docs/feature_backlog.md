@@ -81,7 +81,7 @@ Selected Next Implementation Branch: Not created.
 Historical Repair-Only Branch Handling: `feature/fb-046-post-merge-canon-sync` was a bounded repair-only post-merge canon-sync `feature/` branch and did not imply Branch Readiness admission or active branch truth for FB-046.
 Historical Branch Readiness State: Complete on `feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeout-truth`.
 Current Branch Readiness State: Historical complete on `feature/backlog-family-governance-reform`. Phase 0 `Reform Readiness` admitted the branch authority record and cleared the path into Workstream.
-Current Workstream State: Phase 3 `Family Anchor Migration` is complete and green on `feature/backlog-family-governance-reform`; Slice R3-S5 `Future-selection hardening` is complete and green, seam-governance truth now keeps execution seam-to-seam only inside the current slice until that slice is green or a named blocker or waiver requirement is hit, seams may be discovered from repo truth while the current slice remains in progress, a green slice must return green status and await the next instruction instead of auto-starting the next slice or later phase, FB-049 remains the only selected-next user-facing candidate, and Phase 4 / Slice R4-S1 `Convert the FB-042 dossier shell` is next when instructed.
+Current Workstream State: Phase 4 `Lifetime Dossier Conversion` is in progress and green on `feature/backlog-family-governance-reform`; Slice R4-S1 `Convert the FB-042 dossier shell` is complete and green, the initial FB-042 lifetime dossier shell now exists as an additive family-traceability surface with no historical content migrated yet, FB-049 remains the only selected-next user-facing candidate, and Phase 4 / Slice R4-S2 `Convert the FB-027 dossier shell` is next when instructed.
 Current Branch Class: implementation.
 Current Implementation Delta Class: docs-only.
 Historical Workstream State: FB-048 is Released / Closed in `v1.6.12-prebeta`; FB-047 is Released / Closed in `v1.6.11-prebeta`; FB-046 is Released / Closed in `v1.6.10-prebeta`; FB-044 and FB-045 remain Released / Closed historical proof in `v1.6.9-prebeta`.
@@ -100,7 +100,7 @@ Next Legal Phase: Workstream.
 
 ## Backlog Governance Sync
 
-Last Reviewed: 2026-04-27 during Backlog Family Governance Reform Phase 3 / Slice R3-S5.
+Last Reviewed: 2026-04-27 during Backlog Family Governance Reform Phase 4 / Slice R4-S1.
 
 Open-candidate priority review:
 
@@ -155,6 +155,8 @@ Release Title: Pre-Beta v1.6.7
 Selection / Unblock: Implemented for the first bounded runtime/user-facing slice. `feature/fb-042-desktop-entrypoint-runtime-refinement` delivered WS-1 desktop shortcut launch-path runtime refinement, the branch merged through PR #86, PR #87 cleared the final release-debt marker drift, and `v1.6.7-prebeta` is now published and validated.
 Branch: feature/fb-042-desktop-entrypoint-runtime-refinement
 Canonical Workstream Doc: Docs/workstreams/FB-042_desktop_entrypoint_runtime_refinement.md
+Lifetime Dossier Doc: Docs/workstreams/FB-042_desktop_startup_runtime_family_dossier.md
+Lifetime Dossier State: Shell only. Introduced in Phase 4 / Slice R4-S1; no historical pass content has migrated yet.
 Branch Readiness: Complete. Planning/framing now happens before Workstream, and the admitted WS-1 slice is recorded with owned paths, non-goals, validation coverage, rollback limits, and user-facing shortcut contract in the canonical workstream doc.
 Workstream: Released. WS-1 desktop shortcut launch-path runtime refinement is complete and validated on the real `launch_orin_desktop.vbs` -> `desktop/orin_desktop_launcher.pyw` -> `desktop/orin_desktop_main.py` path, H-1 hardening is complete, LV-1 is complete, and release publication is complete.
 Branch Meaning: Historical source-branch execution owned the real desktop entrypoint/runtime launch path, and that bounded runtime slice now serves as the first released historical proof under this runtime family anchor.

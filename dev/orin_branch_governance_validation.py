@@ -924,6 +924,39 @@ REFORM_R3_S2_CONTINUATION_PHRASE = "Execute Slice R3-S2"
 REFORM_R3_S4_CONTINUATION_PHRASE = "Execute Slice R3-S4"
 REFORM_FB042_ALIAS_IDS = ("FB-043", "FB-044", "FB-045", "FB-046", "FB-047", "FB-048")
 REFORM_FB027_ALIAS_IDS = ("FB-036", "FB-037", "FB-038", "FB-041")
+REFORM_R4_S1_SEAM = (
+    "Phase 4 - Lifetime Dossier Conversion / Slice R4-S1 - Convert the FB-042 dossier shell"
+)
+REFORM_R4_S1_STATE_NEXT_PHRASE = (
+    "Slice R4-S1 `Convert the FB-042 dossier shell` is next"
+)
+REFORM_FB042_DOSSIER_PATH = Path(
+    "Docs/workstreams/FB-042_desktop_startup_runtime_family_dossier.md"
+)
+REFORM_FB042_DOSSIER_REQUIRED_HEADINGS = (
+    "## Dossier Identity",
+    "## Dossier Purpose",
+    "## Current Dossier Status",
+    "## Lifetime Tracking Scope",
+    "## Historical Alias Coverage",
+    "## Historical Anchor Record",
+    "## Pass Index",
+    "## Slice And Seam Ledger",
+    "## Validator And Helper Index",
+    "## Artifact Index",
+    "## Migration Notes",
+)
+REFORM_FB042_DOSSIER_REQUIRED_PHRASES = (
+    "Dossier State: `Shell only`",
+    "Historical Content Migration: `Not started`",
+    "Alias Record Conversion Status: `Not started`",
+    "Pass Index Status: `Reserved for Slice R4-S3`",
+    "Slice / Seam Ledger Status: `Reserved for Slice R4-S3`",
+    "Validator / Helper Index Status: `Reserved for Slice R4-S4`",
+    "Artifact Index Status: `Reserved for Slice R4-S4`",
+    "no alias content moved into this dossier in R4-S1",
+    "R4-S1 intentionally does not migrate historical narrative, proof logs, pass summaries, or alias record bodies into the dossier.",
+)
 
 CURRENT_BACKLOG_SHAPE_HEADINGS = (
     "## Registry Items",
@@ -2258,6 +2291,123 @@ def _validate_backlog_family_reform_seam_truth(
             ),
         )
 
+    if REFORM_FB042_DOSSIER_PATH.is_file():
+        require(
+            REFORM_R4_S1_STATE_NEXT_PHRASE not in backlog_workstream_state,
+            (
+                "Docs/feature_backlog.md: R4-S1 must not remain the next seam once the FB-042 "
+                "dossier shell exists in repo truth"
+            ),
+        )
+        require(
+            REFORM_R4_S1_STATE_NEXT_PHRASE not in roadmap_workstream_state,
+            (
+                "Docs/prebeta_roadmap.md: R4-S1 must not remain the next seam once the FB-042 "
+                "dossier shell exists in repo truth"
+            ),
+        )
+        require(
+            phase_status_next_seam != REFORM_R4_S1_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Phase Status "
+                "`Next Active Seam` must advance past R4-S1 once the FB-042 dossier shell exists"
+            ),
+        )
+        require(
+            active_seam_next != REFORM_R4_S1_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Active Seam "
+                "`Next active seam` must advance past R4-S1 once the FB-042 dossier shell exists"
+            ),
+        )
+        require(
+            continuation_next_seam != REFORM_R4_S1_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Seam "
+                "Continuation Decision must not keep R4-S1 as `Next Active Seam` once the "
+                "FB-042 dossier shell exists"
+            ),
+        )
+
+
+def _validate_backlog_family_dossier_shell(
+    require,
+    *,
+    current_branch: str,
+    backlog_entries: list[dict[str, str]],
+    roadmap_text: str,
+    index_text: str,
+    main_text: str,
+) -> None:
+    if not _is_backlog_family_reform_branch(current_branch):
+        return
+
+    require(
+        REFORM_FB042_DOSSIER_PATH.is_file(),
+        (
+            "Docs/workstreams/FB-042_desktop_startup_runtime_family_dossier.md: FB-042 dossier "
+            "shell must exist on the backlog-family reform branch after R4-S1"
+        ),
+    )
+    if not REFORM_FB042_DOSSIER_PATH.is_file():
+        return
+
+    dossier_text = _read_text(REFORM_FB042_DOSSIER_PATH)
+    fb042_entry = _backlog_entry_by_id(backlog_entries, "FB-042")
+    fb042_roadmap_section = _roadmap_section_for_id(roadmap_text, "FB-042")
+    index_dossier_section = _section(index_text, "Family Dossier Records")
+    main_dossier_routes = _subsection(main_text, "Family Dossiers And Alias Records")
+
+    for heading in REFORM_FB042_DOSSIER_REQUIRED_HEADINGS:
+        require(
+            heading in dossier_text,
+            f"{REFORM_FB042_DOSSIER_PATH}: required heading '{heading}' is missing",
+        )
+
+    for phrase in REFORM_FB042_DOSSIER_REQUIRED_PHRASES:
+        require(
+            phrase in dossier_text,
+            f"{REFORM_FB042_DOSSIER_PATH}: required dossier-shell marker '{phrase}' is missing",
+        )
+
+    require(
+        bool(fb042_entry),
+        "Docs/feature_backlog.md: FB-042 backlog entry is missing",
+    )
+    if fb042_entry:
+        require(
+            f"Lifetime Dossier Doc: {REFORM_FB042_DOSSIER_PATH.as_posix()}" in fb042_entry["block"],
+            (
+                "Docs/feature_backlog.md: FB-042 must cite the lifetime dossier shell after R4-S1"
+            ),
+        )
+
+    require(
+        bool(fb042_roadmap_section),
+        "Docs/prebeta_roadmap.md: FB-042 roadmap section is missing",
+    )
+    if fb042_roadmap_section:
+        require(
+            str(REFORM_FB042_DOSSIER_PATH).replace("\\", "/") in fb042_roadmap_section,
+            (
+                "Docs/prebeta_roadmap.md: FB-042 roadmap section must cite the lifetime dossier "
+                "shell after R4-S1"
+            ),
+        )
+
+    require(
+        str(REFORM_FB042_DOSSIER_PATH).replace("\\", "/") in index_dossier_section,
+        (
+            "Docs/workstreams/index.md: Family Dossier Records must list the FB-042 dossier shell"
+        ),
+    )
+    require(
+        str(REFORM_FB042_DOSSIER_PATH).replace("\\", "/") in main_dossier_routes,
+        (
+            "Docs/Main.md: Family Dossiers And Alias Records must route the FB-042 dossier shell"
+        ),
+    )
+
 
 def _roadmap_section_for_id(text: str, workstream_id: str) -> str:
     match = re.search(rf"(?ms)^### {re.escape(workstream_id)}.*?(?=^### |\Z)", text)
@@ -3276,6 +3426,14 @@ def main() -> int:
         backlog_entries=backlog_entries,
         backlog_text=backlog_text,
         roadmap_text=roadmap_text,
+    )
+    _validate_backlog_family_dossier_shell(
+        require,
+        current_branch=current_git_branch,
+        backlog_entries=backlog_entries,
+        roadmap_text=roadmap_text,
+        index_text=index_text,
+        main_text=main_text,
     )
     for entry in backlog_entries:
         post_release_truth_count = _count_field_occurrences(entry["block"], "Post-Release Truth")

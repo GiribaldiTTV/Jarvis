@@ -60,6 +60,8 @@ Use `Docs/validation_helper_registry.md` for durable root `dev/` helper naming, 
 - only generalized cross-branch lessons should be distilled into `Docs/incident_patterns.md`
 - closed workstream docs remain historical lane truth and must not be treated as active execution authority by inertia
 - closed workstream docs may explicitly state that no separate ongoing `UTS` artifact remains
+- family dossiers are additive lifetime traceability surfaces for feature-family anchors; they do not replace the canonical workstream docs that preserve branch-local historical proof
+- family dossiers may begin as shell-only records before pass indexes, slice/seam ledgers, validator/helper indexes, artifact indexes, or migrated historical bodies are populated
 
 ## Minimum Durable Traceability Content
 
@@ -123,6 +125,13 @@ These records are not active implementation branch owners after merge.
 - `Docs/workstreams/FB-033_startup_snapshot_harness_follow_through.md`
 - `Docs/workstreams/FB-028_history_state_relocation.md`
 
+## Family Dossier Records
+
+Family dossiers are additive lifetime traceability surfaces for family anchors.
+Use them to gather long-lived family routing and migration indexes without rewriting the underlying historical workstream records in one pass.
+
+- `Docs/workstreams/FB-042_desktop_startup_runtime_family_dossier.md`
+
 ## Naming Pattern
 
 Use:
@@ -130,3 +139,9 @@ Use:
 - `Docs/workstreams/FB-XXX_slug.md`
 
 for backlog-backed canonical workstream records.
+
+Use:
+
+- `Docs/workstreams/FB-XXX_slug_family_dossier.md`
+
+for family-dossier records that layer over an existing family anchor without replacing its historical workstream docs.

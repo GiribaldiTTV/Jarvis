@@ -170,6 +170,13 @@ Use these for promoted work that needs a stable feature-state, branch-local vali
 - `Docs/workstreams/FB-033_startup_snapshot_harness_follow_through.md`
 - `Docs/workstreams/FB-028_history_state_relocation.md`
 
+### Family Dossiers And Alias Records
+
+Use these for additive family-lifetime traceability surfaces that layer over existing workstream history without replacing the canonical workstream docs in one pass:
+
+- `Docs/workstreams/index.md`
+- `Docs/workstreams/FB-042_desktop_startup_runtime_family_dossier.md`
+
 ### Branch Authority Records
 
 Use these for selected `Registry-only` backlog branches in `Branch Readiness`, and for approved branches that do not map to a promoted backlog workstream but still need a durable repo-owned phase authority record:
