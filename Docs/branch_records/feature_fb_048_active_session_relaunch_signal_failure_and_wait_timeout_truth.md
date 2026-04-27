@@ -44,7 +44,7 @@ Historical traceability note: `feature/fb-046-post-merge-canon-sync` was a bound
 - Latest Public Prerelease Title: `Pre-Beta v1.6.11`
 - FB-047 is now `Released / Closed` historical proof in `v1.6.11-prebeta`.
 - Merged-unreleased release debt is clear after publication, validation, and post-release canon closure.
-- FB-048 is now the active promoted workstream on the same branch; this record remains historical Branch Readiness traceability only.
+- FB-048 later promoted into the canonical workstream on the same branch; this record remains historical Branch Readiness traceability only.
 - Active seam: `None.` Branch Readiness is preserved historical truth after promotion.
 
 ## Branch Class

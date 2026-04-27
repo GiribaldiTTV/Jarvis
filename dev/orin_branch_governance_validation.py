@@ -1102,6 +1102,18 @@ REFORM_R5_S3_ACTIVE_SEAM_NEXT_PHRASE = (
     "this branch."
 )
 REFORM_R5_S3_CONTINUATION_PHRASE = "Execute Slice R5-S3"
+REFORM_R5_S4_SEAM = (
+    "Phase 5 - Historical Pass Record Conversion / Slice R5-S4 - Strip future-selection "
+    "language from alias records"
+)
+REFORM_R5_S4_STATE_NEXT_PHRASE = (
+    "Slice R5-S4 `Strip future-selection language from alias records` is next"
+)
+REFORM_R5_S4_ACTIVE_SEAM_NEXT_PHRASE = (
+    "Phase 5 / Slice R5-S4 `Strip future-selection language from alias records` is the next "
+    "active seam on this branch."
+)
+REFORM_R5_S4_CONTINUATION_PHRASE = "Execute Slice R5-S4"
 REFORM_FB042_DOSSIER_PATH = Path(
     "Docs/workstreams/FB-042_desktop_startup_runtime_family_dossier.md"
 )
@@ -1283,6 +1295,130 @@ REFORM_HISTORICAL_PASS_BRANCH_RECORDS = {
         "pass_id": "F027-P04",
         "workstream_record": "Docs/workstreams/FB-037_built_in_actions_and_settings_expansion.md",
         "preservation_rule": "This record keeps the preserved release-packaging trace for the historical pass; the family dossier owns cross-pass indexing.",
+    },
+}
+
+REFORM_R5_S4_HISTORICAL_LANGUAGE_DOCS = {
+    Path("Docs/feature_backlog.md"): {
+        "required": (
+            "later runtime-family continuation moved through FB-048 on `feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeout-truth` while this alias entry remained released historical proof.",
+        ),
+        "prohibited": (
+            "Post-Release Truth: FB-047 is Released / Closed in `v1.6.11-prebeta`; release debt is clear; and FB-048 is now the active promoted workstream on `feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeout-truth`.",
+        ),
+    },
+    Path("Docs/prebeta_roadmap.md"): {
+        "required": (
+            "later runtime-family continuation moved through FB-048 on `feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeout-truth`, which later completed its own released historical pass.",
+            "Historical follow-through at that release boundary: FB-044 Boot-to-desktop handoff outcome refinement.",
+        ),
+        "prohibited": (
+            "phase status: Released / Closed in `v1.6.11-prebeta`; PR #93 merged into `main` at `4ca70572fbc8033bc96fcd299dd309464e81393a`; the release is live on the same commit; release debt is clear; and FB-048 is now the active promoted workstream on `feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeout-truth` with WS-1 complete / validated.",
+            "Post-Release Truth: FB-047 is Released / Closed in `v1.6.11-prebeta`; release debt is clear; and FB-048 is now the active promoted workstream on `feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeout-truth`.",
+            "phase status: Released / Closed in `v1.6.10-prebeta`; PR #92 merged into `main` at `36cf07495dc8e239b20b11afb5194355b77ffd8b`; the release is live on the same commit; FB-047 is now Released / Closed in `v1.6.11-prebeta`; release debt is clear; and FB-048 is the active promoted workstream on `feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeout-truth`.",
+            "Post-Release Truth: FB-046 is Released / Closed in `v1.6.10-prebeta`; FB-047 is Released / Closed in `v1.6.11-prebeta`; release debt is clear; and FB-048 is the active promoted workstream on `feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeout-truth`.",
+            "Current Active Workstream: FB-044 Boot-to-desktop handoff outcome refinement.",
+        ),
+    },
+    Path("Docs/workstreams/FB-038_taskbar_tray_quick_task_ux.md"): {
+        "required": (
+            "Historical Selected-Next At Release Time: FB-039 External trigger and plugin integration architecture.",
+        ),
+        "prohibited": (
+            "Selected Next Workstream: FB-039 External trigger and plugin integration architecture.",
+        ),
+    },
+    Path("Docs/workstreams/FB-043_top_level_entrypoint_handoff_refinement.md"): {
+        "required": (
+            "Historical Selected-Next At Release Time: FB-044 Boot-to-desktop handoff outcome refinement",
+            "Historical successor state after merge: FB-044 remained selected next, `Registry-only`, and branch-not-created until `v1.6.8-prebeta` was published, validated, updated `main` was revalidated, and bounded Branch Readiness admitted the first runtime/back-end slice.",
+            "Historical Selected-Next At PR Package Time: FB-044 Boot-to-desktop handoff outcome refinement.",
+        ),
+        "prohibited": (
+            "Selected Next Workstream:",
+            "Selected Next Basis:",
+            "Selected Next Record State At PR Package Time:",
+            "Selected Next Implementation Branch At PR Package Time:",
+            "Successor state after merge:",
+        ),
+    },
+    Path("Docs/workstreams/FB-044_boot_desktop_handoff_outcome_refinement.md"): {
+        "required": (
+            "Historical Selected-Next At Release Time: FB-045 Active-session relaunch outcome refinement",
+            "Historical successor state after merge: FB-045 remained selected next, `Registry-only`, and branch-not-created until `v1.6.9-prebeta` was published, validated, updated `main` was revalidated, and bounded Branch Readiness admitted the first runtime/user-facing relaunch slice.",
+            "Historical Selected-Next At PR Package Time: FB-045 Active-session relaunch outcome refinement.",
+        ),
+        "prohibited": (
+            "Selected Next Workstream:",
+            "Selected Next Basis:",
+            "Selected Next Record State At PR Package Time:",
+            "Selected Next Implementation Branch At PR Package Time:",
+            "Successor state after merge:",
+        ),
+    },
+    Path("Docs/workstreams/FB-045_active_session_relaunch_outcome_refinement.md"): {
+        "required": (
+            "Historical Selected-Next At Release Time: FB-046 Active-session relaunch reacquisition and settled re-entry proof",
+            "Historical successor state after merge: FB-046 remained selected next, `Registry-only`, and branch-not-created until `v1.6.9-prebeta` was published, validated, updated `main` was revalidated, and bounded Branch Readiness admitted the first relaunch-reacquisition slice.",
+            "Historical Selected-Next At PR Package Time: FB-046 Active-session relaunch reacquisition and settled re-entry proof.",
+        ),
+        "prohibited": (
+            "Selected Next Workstream:",
+            "Selected Next Basis:",
+            "Selected Next Record State At PR Package Time:",
+            "Selected Next Implementation Branch At PR Package Time:",
+            "Successor state after merge:",
+        ),
+    },
+    Path("Docs/workstreams/FB-046_active_session_relaunch_reacquisition.md"): {
+        "required": (
+            "Historical Selected-Next At Release Time: FB-047 Active-session relaunch decline session-preservation proof",
+            "Historical successor state after merge: FB-047 remained selected next, `Registry-only`, and branch-not-created until `v1.6.10-prebeta` was published, validated, updated `main` was revalidated, and bounded Branch Readiness admitted the first relaunch-decline preservation slice.",
+            "Historical Selected-Next At PR Package Time: FB-047 Active-session relaunch decline session-preservation proof.",
+        ),
+        "prohibited": (
+            "Selected Next Workstream:",
+            "Selected Next Basis:",
+            "Selected Next Record State At PR Package Time:",
+            "Selected Next Implementation Branch At PR Package Time:",
+            "Successor state after merge:",
+        ),
+    },
+    Path("Docs/workstreams/FB-047_active_session_relaunch_decline_preservation.md"): {
+        "required": (
+            "Historical Selected-Next At Release Time: FB-048 Active-session relaunch signal-failure and wait-timeout truth",
+            "Historical successor state after merge: FB-048 later became the promoted follow-through workstream on `feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeout-truth`, where WS-1, H-1, LV-1, and PR Readiness later completed before release closure.",
+            "Historical Selected-Next At PR Package Time: FB-048 Active-session relaunch signal-failure and wait-timeout truth.",
+        ),
+        "prohibited": (
+            "Selected Next Workstream:",
+            "Selected Next Basis:",
+            "Selected Next Record State At PR Package Time:",
+            "Selected Next Implementation Branch At PR Package Time:",
+            "Successor state after merge:",
+        ),
+    },
+    Path("Docs/workstreams/FB-048_active_session_relaunch_signal_failure_and_wait_timeout_truth.md"): {
+        "required": (
+            "Historical Selected-Next At Release Time: FB-049 Active-session pre-settled incoming-launch conflict truth",
+            "Historical successor state after merge: FB-049 remained selected next, `Registry-only`, and branch-not-created until `v1.6.12-prebeta` was published, validated, updated `main` was revalidated, and bounded Branch Readiness admitted the first pre-settled incoming-launch conflict truth slice.",
+            "Historical Selected-Next At PR Package Time: FB-049 Active-session pre-settled incoming-launch conflict truth.",
+        ),
+        "prohibited": (
+            "Selected Next Workstream:",
+            "Selected Next Basis:",
+            "Selected Next Record State At PR Package Time:",
+            "Selected Next Implementation Branch At PR Package Time:",
+            "Successor state after merge:",
+        ),
+    },
+    Path("Docs/branch_records/feature_fb_048_active_session_relaunch_signal_failure_and_wait_timeout_truth.md"): {
+        "required": (
+            "FB-048 later promoted into the canonical workstream on the same branch; this record remains historical Branch Readiness traceability only.",
+        ),
+        "prohibited": (
+            "FB-048 is now the active promoted workstream on the same branch; this record remains historical Branch Readiness traceability only.",
+        ),
     },
 }
 
@@ -3363,6 +3499,17 @@ def _validate_backlog_family_reform_seam_truth(
                 return False
         return True
 
+    def historical_alias_future_selection_language_stripped() -> bool:
+        for doc_path, expectations in REFORM_R5_S4_HISTORICAL_LANGUAGE_DOCS.items():
+            if not doc_path.is_file():
+                return False
+            doc_text = _read_text(doc_path)
+            if any(phrase not in doc_text for phrase in expectations["required"]):
+                return False
+            if any(phrase in doc_text for phrase in expectations["prohibited"]):
+                return False
+        return True
+
     if historical_pass_branch_records_converted():
         require(
             REFORM_R5_S3_STATE_NEXT_PHRASE not in backlog_workstream_state,
@@ -3418,6 +3565,62 @@ def _validate_backlog_family_reform_seam_truth(
                 "Docs/branch_records/feature_backlog_family_governance_reform.md: Seam "
                 "Continuation Decision must not keep an R5-S3 continuation action once the "
                 "preserved corresponding branch records are converted"
+            ),
+        )
+
+    if historical_alias_future_selection_language_stripped():
+        require(
+            REFORM_R5_S4_STATE_NEXT_PHRASE not in backlog_workstream_state,
+            (
+                "Docs/feature_backlog.md: R5-S4 must not remain the next seam once live-sounding "
+                "future-selection language is stripped from the converted historical alias set"
+            ),
+        )
+        require(
+            REFORM_R5_S4_STATE_NEXT_PHRASE not in roadmap_workstream_state,
+            (
+                "Docs/prebeta_roadmap.md: R5-S4 must not remain the next seam once live-sounding "
+                "future-selection language is stripped from the converted historical alias set"
+            ),
+        )
+        require(
+            phase_status_next_seam != REFORM_R5_S4_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Phase Status "
+                "`Next Active Seam` must advance past R5-S4 once historical alias records are "
+                "reframed as historical-only follow-through surfaces"
+            ),
+        )
+        require(
+            REFORM_R5_S4_ACTIVE_SEAM_NEXT_PHRASE not in active_seam_section,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Active Seam "
+                "must not keep R5-S4 as the next active seam once historical alias future-"
+                "selection language is stripped"
+            ),
+        )
+        require(
+            active_seam_next != REFORM_R5_S4_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Active Seam "
+                "`Next active seam` must advance past R5-S4 once historical alias future-"
+                "selection language is stripped"
+            ),
+        )
+        require(
+            continuation_next_seam != REFORM_R5_S4_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Seam "
+                "Continuation Decision must not keep R5-S4 as `Next Active Seam` once "
+                "historical alias future-selection language is stripped"
+            ),
+        )
+        require(
+            REFORM_R5_S4_CONTINUATION_PHRASE not in continuation_section,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Seam "
+                "Continuation Decision must not keep an R5-S4 continuation action once "
+                "historical alias future-selection language is stripped"
             ),
         )
 
@@ -3665,6 +3868,25 @@ def _validate_backlog_family_historical_pass_records(require, *, current_branch:
             require(
                 phrase in branch_record_text,
                 f"{branch_record_path}: required historical pass-branch marker '{phrase}' is missing",
+            )
+
+    for doc_path, expectations in REFORM_R5_S4_HISTORICAL_LANGUAGE_DOCS.items():
+        require(
+            doc_path.is_file(),
+            f"{doc_path}: R5-S4 historical-only language surface must exist on the reform branch",
+        )
+        if not doc_path.is_file():
+            continue
+        doc_text = _read_text(doc_path)
+        for phrase in expectations["required"]:
+            require(
+                phrase in doc_text,
+                f"{doc_path}: required R5-S4 historical-language marker '{phrase}' is missing",
+            )
+        for phrase in expectations["prohibited"]:
+            require(
+                phrase not in doc_text,
+                f"{doc_path}: stale future-selection phrase '{phrase}' must be removed in R5-S4",
             )
 
 

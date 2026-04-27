@@ -39,7 +39,7 @@ Latest Public Prerelease Publication: https://github.com/GiribaldiTTV/Nexus-Desk
 Latest Public Prerelease Title: Pre-Beta v1.6.11
 FB-046 is Released / Closed historical proof in v1.6.10-prebeta.
 Release debt is clear after publication, validation, and post-release canon closure.
-Current successor lane: FB-047 is now Released / Closed in `v1.6.11-prebeta`, and FB-048 is the active Branch Readiness authority record on `feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeout-truth`; WS-1 accepted relaunch failure-path truthful outcome proof is admitted there, and `Workstream` is next.
+Historical follow-through after release: later runtime-family continuation moved through FB-047 and then FB-048 inside the same FB-042 family; this record remains released historical proof only.
 Active seam: None. This record is now preserved released historical truth.
 
 ## Branch Class
@@ -338,14 +338,14 @@ Version Rationale: FB-046 remains a bounded runtime/user-facing relaunch-reacqui
 Release Scope: completed FB-046 WS-1 accepted relaunch replacement-session settled re-entry proof, H-1 relaunch lifecycle hardening, LV-1 real desktop shortcut evidence, reusable validation evidence, merged-unreleased release-debt truth, and selected-next FB-047 successor lock for the bounded runtime/user-facing lane only
 Release Artifacts: Tag v1.6.10-prebeta; release title Pre-Beta v1.6.10; rich Markdown release notes summarize the bounded FB-046 relaunch-reacquisition runtime/user-facing package, real shortcut evidence, and the FB-047 successor lane without repeating the release title inside the notes body, and GitHub-generated `## What's Changed` plus `**Full Changelog**:` must be included
 Post-Release Truth: FB-046 is Released / Closed in `v1.6.10-prebeta`; FB-047 is Released / Closed in `v1.6.11-prebeta`; release debt is clear; and FB-048 is selected next, `Registry-only`, and active on `feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeout-truth` until promotion.
-Selected Next Workstream: FB-047 Active-session relaunch decline session-preservation proof
-Next-Branch Creation Gate: After `v1.6.10-prebeta` is published and validated, updated `main` is revalidated, and FB-047 Branch Readiness admits the first bounded runtime/user-facing relaunch-decline preservation slice; branch creation remains blocked until then
+Historical Selected-Next At Release Time: FB-047 Active-session relaunch decline session-preservation proof
+Historical Next-Branch Creation Gate: After `v1.6.10-prebeta` was published and validated, updated `main` was revalidated, and FB-047 Branch Readiness admitted the first bounded runtime/user-facing relaunch-decline preservation slice; branch creation remained blocked until then
 
 ## Post-Merge State
 
 - Post-merge repo state: `No Active Branch` because FB-046 will own merged-unreleased release debt on `main` for `v1.6.10-prebeta`.
 - Pending release scope after merge: the completed bounded FB-046 relaunch-reacquisition slice chain only.
-- Successor state after merge: FB-047 remains selected next, `Registry-only`, and branch-not-created until `v1.6.10-prebeta` is published, validated, updated `main` is revalidated, and bounded Branch Readiness admits the first relaunch-decline preservation slice.
+- Historical successor state after merge: FB-047 remained selected next, `Registry-only`, and branch-not-created until `v1.6.10-prebeta` was published, validated, updated `main` was revalidated, and bounded Branch Readiness admitted the first relaunch-decline preservation slice.
 
 ## Release Window Audit
 
@@ -376,10 +376,10 @@ PR Readiness validates the completed bounded FB-046 runtime slice chain for merg
 
 ### PR-2 Selected-Next Workstream Findings
 
-- Selected Next Workstream: FB-047 Active-session relaunch decline session-preservation proof.
-- Selected Next Basis: FB-047 is the smallest repo-grounded runtime/user-facing successor after FB-046 because accepted relaunch is now fully proven end to end, but the complementary decline path still lacks first-class proof that declining replacement preserves the settled active session, keeps single-instance ownership with that session, and terminates the incoming launch truthfully without dual ownership or false replacement-session success markers.
-- Selected Next Record State At PR Package Time: `Registry-only`.
-- Selected Next Implementation Branch At PR Package Time: Not created.
+- Historical Selected-Next At PR Package Time: FB-047 Active-session relaunch decline session-preservation proof.
+- Historical Selected-Next Basis: FB-047 is the smallest repo-grounded runtime/user-facing successor after FB-046 because accepted relaunch is now fully proven end to end, but the complementary decline path still lacks first-class proof that declining replacement preserves the settled active session, keeps single-instance ownership with that session, and terminates the incoming launch truthfully without dual ownership or false replacement-session success markers.
+- Historical Selected-Next Record State At PR Package Time: `Registry-only`.
+- Historical Selected-Next Implementation Branch At PR Package Time: Not created.
 - Branch Creation Gate At PR Package Time: After `v1.6.10-prebeta` is published and validated, updated `main` is revalidated, and FB-047 Branch Readiness admits the first bounded runtime/user-facing relaunch-decline preservation slice.
 - Branch Containment At PR Package Time: PASS. No local or remote branch exists for FB-047, and no open FB-047 PR exists.
 

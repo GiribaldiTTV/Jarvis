@@ -81,7 +81,7 @@ Selected Next Implementation Branch: Not created.
 Historical Repair-Only Branch Handling: `feature/fb-046-post-merge-canon-sync` was a bounded repair-only post-merge canon-sync `feature/` branch and did not imply Branch Readiness admission or active branch truth for FB-046.
 Historical Branch Readiness State: Complete on `feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeout-truth`.
 Current Branch Readiness State: Historical complete on `feature/backlog-family-governance-reform`. Phase 0 `Reform Readiness` admitted the branch authority record and cleared the path into Workstream.
-Current Workstream State: Phase 5 `Historical Pass Record Conversion` continues on `feature/backlog-family-governance-reform`; Seam Status: In Progress for R5-S4 `Strip future-selection language from alias records`; Slice Status: In Progress; Completion Status: In Progress; Blockers: `Backlog Completion Unproven` remains the non-green Workstream completion marker while later reform slices remain on this same branch; Waiver Status: None; Continue Decision: Continue; Stop Basis: None; R5-S1 converted FB-043 through FB-048 into explicit FB-042 historical pass records, R5-S2 converted FB-036, FB-037, FB-038, and FB-041 into explicit FB-027 historical pass records, R5-S3 converted the preserved corresponding branch-record trace where it exists, the family dossiers now reflect workstream plus preserved branch-record migration truth without moving full narrative bodies into the dossiers, continuation is required into Phase 5 / Slice R5-S4 on this same branch, and FB-049 remains the only selected-next user-facing candidate.
+Current Workstream State: Phase 5 `Historical Pass Record Conversion` continues on `feature/backlog-family-governance-reform`; Seam Status: In Progress for R5-S5 `Traceability sweep`; Slice Status: In Progress; Completion Status: In Progress; Blockers: `Backlog Completion Unproven` remains the non-green Workstream completion marker while later reform slices remain on this same branch; Waiver Status: None; Continue Decision: Continue; Stop Basis: None; R5-S1 converted FB-043 through FB-048 into explicit FB-042 historical pass records, R5-S2 converted FB-036, FB-037, FB-038, and FB-041 into explicit FB-027 historical pass records, R5-S3 converted the preserved corresponding branch-record trace where it exists, R5-S4 stripped live-sounding future-selection and successor-lane wording from the converted alias backlog, roadmap, workstream, and preserved branch-record surfaces while preserving historical release and PR-package facts, continuation is required into Phase 5 / Slice R5-S5 on this same branch, and FB-049 remains the only selected-next user-facing candidate.
 Current Branch Class: implementation.
 Current Implementation Delta Class: docs-only.
 Historical Workstream State: FB-048 is Released / Closed in `v1.6.12-prebeta`; FB-047 is Released / Closed in `v1.6.11-prebeta`; FB-046 is Released / Closed in `v1.6.10-prebeta`; FB-044 and FB-045 remain Released / Closed historical proof in `v1.6.9-prebeta`.
@@ -303,7 +303,7 @@ Priority: High
 Release Stage: Released
 Target Version: v1.6.12-prebeta
 Selection / Unblock: Implemented complete. `feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeout-truth` delivered the admitted failure/timeout truth slice chain, the follow-up repair and canon/governance containment PRs are merged on `main`, and `v1.6.12-prebeta` is now published, validated, and closed through post-release canon sync.
-Next Workstream: Selected successor is FB-049 after this merged-unreleased release window clears.
+Historical Follow-Through: repo-level selected-next truth later moved to FB-049 after this release window; this alias record does not independently own successor selection.
 Branch Creation Gate: Satisfied during FB-048 Branch Readiness after `v1.6.11-prebeta` publication, validation, updated-`main` revalidation, and first-slice admission.
 Branch: feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeout-truth
 Canonical Workstream Doc: Docs/workstreams/FB-048_active_session_relaunch_signal_failure_and_wait_timeout_truth.md
@@ -335,7 +335,7 @@ Priority: High
 Release Stage: Released
 Target Version: v1.6.11-prebeta
 Selection / Unblock: Implemented complete. `feature/fb-047-active-session-relaunch-decline-preservation` delivered the admitted decline-preservation slice chain, PR #93 merged into `main`, and `v1.6.11-prebeta` is now published, validated, and closed through post-release canon sync.
-Next Workstream: Released / closed historical proof. No remaining implementable FB-047 work remains on this backlog lane.
+Historical Follow-Through: released / closed historical proof. No remaining implementable FB-047 work remains on this backlog lane, and later runtime-family continuation is preserved elsewhere in family history.
 Branch Creation Gate: Historical complete. `v1.6.10-prebeta` was published and validated, updated `main` was revalidated, and FB-047 Branch Readiness admitted the bounded runtime/user-facing relaunch-decline preservation slice before promotion.
 Branch: feature/fb-047-active-session-relaunch-decline-preservation
 Canonical Workstream Doc: Docs/workstreams/FB-047_active_session_relaunch_decline_preservation.md
@@ -349,7 +349,7 @@ Release Floor: patch prerelease
 Version Rationale: FB-047 delivers a bounded runtime/user-facing relaunch-decline preservation refinement on the existing desktop startup family without opening a new product lane or materially expanded feature family.
 Release Scope: completed FB-047 WS-1 declined relaunch incoming-launch truthful exit proof, H-1 decline lifecycle hardening, LV-1 real desktop shortcut evidence, reusable validation evidence, PR package history, release publication, and selected-next FB-048 successor admission for the bounded runtime/user-facing lane only.
 Release Artifacts: Tag v1.6.11-prebeta; release title Pre-Beta v1.6.11; rich Markdown release notes summarize the bounded FB-047 relaunch-decline preservation runtime/user-facing package, real shortcut evidence, and the FB-048 successor lane without repeating the release title inside the notes body, and GitHub-generated `## What's Changed` plus `**Full Changelog**:` must be included.
-Post-Release Truth: FB-047 is Released / Closed in `v1.6.11-prebeta`; release debt is clear; and FB-048 is now the active promoted workstream on `feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeout-truth`.
+Post-Release Truth: FB-047 is Released / Closed in `v1.6.11-prebeta`; release debt is clear; and later runtime-family continuation moved through FB-048 on `feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeout-truth` while this alias entry remained released historical proof.
 Minimal Scope: Prove and refine the relaunch-decline lane across `desktop/single_instance.py`, `desktop/orin_desktop_launcher.pyw`, `desktop/orin_desktop_main.py`, and the minimum required reusable validator surfaces so declining replacement preserves the active settled session and cleanly terminates the incoming launch without dual ownership or false successor markers.
 Summary: Make relaunch decline as provable and truthful as accepted relaunch.
 Why it matters: The runtime should be just as explicit when the user keeps the current settled session as when the user accepts replacement.
@@ -368,7 +368,7 @@ Release Stage: Released
 Target Version: v1.6.10-prebeta
 Release Title: Pre-Beta v1.6.10
 Selection / Unblock: Implemented complete. `feature/fb-046-active-session-relaunch-reacquisition` delivered the admitted relaunch-reacquisition slice chain, PR #92 merged into `main`, and `v1.6.10-prebeta` is now published and validated.
-Next Workstream: Released / closed historical proof. No remaining implementable FB-046 work remains on this backlog lane.
+Historical Follow-Through: released / closed historical proof. No remaining implementable FB-046 work remains on this backlog lane, and later runtime-family continuation is preserved elsewhere in family history.
 Branch: feature/fb-046-active-session-relaunch-reacquisition
 Repair-Only Branch Handling: `feature/fb-046-post-merge-canon-sync` is a bounded repair-only post-merge canon-sync `feature/` branch and does not imply Branch Readiness admission or active branch truth for FB-046.
 Canonical Workstream Doc: Docs/workstreams/FB-046_active_session_relaunch_reacquisition.md
@@ -403,7 +403,7 @@ Release Stage: Released
 Target Version: v1.6.9-prebeta
 Release Title: Pre-Beta v1.6.9
 Selection / Unblock: FB-045 was selected because updated-main `Release Readiness` for FB-044 found a reproducible post-settled runtime failure after the authoritative settled marker. `feature/fb-045-active-session-relaunch-stability` corrected that lifecycle boundary, merged through PR #90, and is now released historical proof in `v1.6.9-prebeta`.
-Next Workstream: Released / closed historical proof. No remaining implementable FB-045 work remains on this backlog lane.
+Historical Follow-Through: released / closed historical proof. No remaining implementable FB-045 work remains on this backlog lane, and later runtime-family continuation is preserved elsewhere in family history.
 Branch: feature/fb-045-active-session-relaunch-stability
 Canonical Workstream Doc: Docs/workstreams/FB-045_active_session_relaunch_outcome_refinement.md
 Historical Branch-Readiness Record: Docs/branch_records/feature_fb_045_active_session_relaunch_stability.md
@@ -428,7 +428,7 @@ Release Stage: Released
 Target Version: v1.6.9-prebeta
 Release Title: Pre-Beta v1.6.9
 Selection / Unblock: Implemented complete. `feature/fb-044-boot-desktop-handoff-outcome-refinement` delivered WS-1 `desktop-settled handoff outcome refinement`; FB-045 on `feature/fb-045-active-session-relaunch-stability` delivered the blocker-clearing lifecycle follow-through inside the same release window; PR #89, PR #90, and PR #91 merged; and `v1.6.9-prebeta` is now published, validated, and in post-release canon closure.
-Next Workstream: Released / closed historical proof. No remaining implementable FB-044 work remains on this backlog lane.
+Historical Follow-Through: released / closed historical proof. No remaining implementable FB-044 work remains on this backlog lane, and later runtime-family continuation is preserved elsewhere in family history.
 Branch: feature/fb-044-boot-desktop-handoff-outcome-refinement
 Canonical Workstream Doc: Docs/workstreams/FB-044_boot_desktop_handoff_outcome_refinement.md
 Historical Branch Authority Record: Docs/branch_records/feature_fb_044_boot_desktop_handoff_outcome_refinement.md

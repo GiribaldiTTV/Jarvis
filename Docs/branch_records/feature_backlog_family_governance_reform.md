@@ -66,9 +66,11 @@ This branch must not change runtime behavior. Its job is to repair and harden so
 - Slice R5-S2 result: complete and green. FB-036, FB-037, FB-038, and FB-041 now preserve explicit `Historical Pass Record` identity inside their canonical workstream docs, each record now routes to the FB-027 family dossier with the correct `Pass ID`, the FB-027 dossier pass index plus slice/seam ledger now carry summary rows for `F027-P02` through `F027-P05`, full historical narrative remains in the preserved workstream records, and FB-049 remains the only selected-next user-facing candidate.
 - Historical Workstream Seam: `Phase 5 - Historical Pass Record Conversion / Slice R5-S3 - Convert corresponding branch records`
 - Slice R5-S3 result: complete and green. The preserved corresponding branch records now carry matching historical-pass identity where they exist, including FB-043 through FB-048 Branch Readiness records and the preserved FB-037 release-packaging record; FB-036, FB-038, and FB-041 do not have separate preserved branch-authority records to convert; full historical narrative remains in the preserved workstream and branch-record surfaces; and FB-049 remains the only selected-next user-facing candidate.
-- Current Workstream Seam: `Phase 5 - Historical Pass Record Conversion / Slice R5-S4 - Strip future-selection language from alias records`
-- Slice Status: in progress. Phase 5 continues at R5-S4 because several historical alias records still preserve future-selection or successor-lane wording that now belongs in historical-only framing, Completion Status is not green yet, no waiver is recorded, and continuation is still required.
-- Next Active Seam: `Phase 5 - Historical Pass Record Conversion / Slice R5-S4 - Strip future-selection language from alias records`
+- Historical Workstream Seam: `Phase 5 - Historical Pass Record Conversion / Slice R5-S4 - Strip future-selection language from alias records`
+- Slice R5-S4 result: complete and green. The converted FB-042 and FB-027 historical alias surfaces now frame selected-next and successor facts as historical-only follow-through instead of live selection ownership, preserved release and PR-package history remain intact, preserved branch-record trace stays historical-only, and FB-049 remains the only selected-next user-facing candidate.
+- Current Workstream Seam: `Phase 5 - Historical Pass Record Conversion / Slice R5-S5 - Traceability sweep`
+- Slice Status: in progress. Phase 5 continues at R5-S5 because the converted historical-pass surfaces still need a final traceability consistency sweep across family dossiers, backlog, roadmap, and preserved branch-record routing before Phase 5 can turn green, Completion Status is not green yet, no waiver is recorded, and continuation is still required.
+- Next Active Seam: `Phase 5 - Historical Pass Record Conversion / Slice R5-S5 - Traceability sweep`
 
 ## Branch Class
 
@@ -185,7 +187,7 @@ Branch Closure Rule: `Do not leave Workstream after only the first reform seam; 
 
 Backlog Completion State: `In Progress`
 Completion Status: `In Progress`
-Remaining Implementable Work: `Phase 5 / Slice R5-S1 through Phase 7 backlog/workstream governance reform slices remain to execute on this same branch.`
+Remaining Implementable Work: `Phase 5 / Slice R5-S5 through Phase 7 backlog/workstream governance reform slices remain to execute on this same branch.`
 Future-Dependent Blockers: `None`
 
 ## Stop Conditions
@@ -287,10 +289,10 @@ Seam 1: `Phase 1 - Validator Bootstrap`
 
 ## Active Seam
 
-Active seam: `Phase 5 - Historical Pass Record Conversion / Slice R5-S4 - Strip future-selection language from alias records`
+Active seam: `Phase 5 - Historical Pass Record Conversion / Slice R5-S5 - Traceability sweep`
 
 Phase 1 `Validator Bootstrap`, Phase 2 / Slice R2-S1 `Backlog Section Skeleton`, Phase 2 / Slice R2-S2 `Add classification markers in place`, Phase 2 / Slice R2-S3 `Move support / governance lanes`, Phase 2 / Slice R2-S4 `Move historical pass aliases`, Phase 2 / Slice R2-S5 `Backlog ordering and selection-truth hardening`, Phase 3 / Slice R3-S1 `Retitle FB-042 as the runtime family anchor`, Phase 3 / Slice R3-S2 `Map FB-043 through FB-048 under FB-042 as historical aliases`, Phase 3 / Slice R3-S3 `Retitle FB-027 as the interaction/action family anchor`, Phase 3 / Slice R3-S4 `Map FB-036, FB-037, FB-038, and FB-041 under FB-027 as historical aliases`, Phase 3 / Slice R3-S5 `Future-selection hardening`, Phase 4 / Slice R4-S1 `Convert the FB-042 dossier shell`, Phase 4 / Slice R4-S2 `Convert the FB-027 dossier shell`, Phase 4 / Slice R4-S3 `Add pass index and slice/seam ledger structure`, Phase 4 / Slice R4-S4 `Add validator/helper and artifact indexes`, and Phase 4 / Slice R4-S5 `Dossier stability validation` are complete and green.
-Next active seam: `Phase 5 - Historical Pass Record Conversion / Slice R5-S4 - Strip future-selection language from alias records`.
+Next active seam: `Phase 5 - Historical Pass Record Conversion / Slice R5-S5 - Traceability sweep`.
 
 - Phase 0 `Reform Readiness` is complete.
 - Workstream Phase 1 `Validator Bootstrap` is complete and green.
@@ -312,7 +314,8 @@ Next active seam: `Phase 5 - Historical Pass Record Conversion / Slice R5-S4 - S
 - Phase 5 / Slice R5-S1 `Convert FB-043 through FB-048 workstream records` is complete and green.
 - Phase 5 / Slice R5-S2 `Convert FB-036, FB-037, FB-038, and FB-041 workstream records` is complete and green.
 - Phase 5 / Slice R5-S3 `Convert corresponding branch records` is complete and green.
-- Phase 5 / Slice R5-S4 `Strip future-selection language from alias records` is the current active seam on this branch.
+- Phase 5 / Slice R5-S4 `Strip future-selection language from alias records` is complete and green.
+- Phase 5 / Slice R5-S5 `Traceability sweep` is the current active seam on this branch.
 
 ## Seam Continuation Decision
 
@@ -322,6 +325,6 @@ Completion Status: `In Progress`
 Waiver Status: `None`
 Continue Decision: `Continue`
 Stop Basis: `None`
-Next Active Seam: `Phase 5 - Historical Pass Record Conversion / Slice R5-S4 - Strip future-selection language from alias records`
+Next Active Seam: `Phase 5 - Historical Pass Record Conversion / Slice R5-S5 - Traceability sweep`
 Stop Condition: `Stop only if Workstream Completion Status turns Green, or if a named blocker or waiver turns Completion Status Red before the next seam completes.`
-Continuation Action: `Execute Slice R5-S4 on this same branch and continue bounded seam-to-seam and slice-to-slice while Completion Status remains In Progress.`
+Continuation Action: `Execute Slice R5-S5 on this same branch and continue bounded seam-to-seam and slice-to-slice while Completion Status remains In Progress.`

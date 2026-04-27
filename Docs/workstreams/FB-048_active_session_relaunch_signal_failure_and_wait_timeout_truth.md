@@ -40,9 +40,7 @@ Latest Public Prerelease Title: `Pre-Beta v1.6.12`
 FB-048 is `Released / Closed` historical proof in `v1.6.12-prebeta`.
 Release debt is clear after publication, validation, and post-release canon closure.
 Merged `main` contains the repaired wait-timeout replacement-unconfirmed semantics, the non-Windows validator guard, and the merge-stable governance hardening that shipped with the FB-048 package.
-Selected Next Workstream: FB-049 Active-session pre-settled incoming-launch conflict truth.
-Selected Next Record State: Registry-only.
-Selected Next Implementation Branch: Not created.
+Historical follow-through after release: repo-level selected-next truth later moved to FB-049 while this record remained released historical proof only.
 Current active execution surface is the approved docs-only governance reform branch authority record; this FB-048 workstream is now preserved released historical truth.
 
 ## Branch Class
@@ -324,14 +322,14 @@ Version Rationale: FB-048 remains a bounded runtime/user-facing relaunch signal-
 Release Scope: completed FB-048 WS-1 accepted relaunch failure-path truthful outcome proof, H-1 failure/timeout lifecycle hardening, LV-1 real desktop shortcut evidence, reusable validation evidence, merged-unreleased release-debt truth, and selected-next FB-049 successor lock for the bounded runtime/user-facing lane only
 Release Artifacts: Tag v1.6.12-prebeta; release title Pre-Beta v1.6.12; rich Markdown release notes summarize the bounded FB-048 relaunch failure/timeout runtime/user-facing package, real shortcut evidence, and the FB-049 successor lane without repeating the release title inside the notes body, and GitHub-generated `## What's Changed` plus `**Full Changelog**:` must be included
 Post-Release Truth: FB-048 is Released / Closed in `v1.6.12-prebeta`; release debt is clear; and FB-049 Branch Readiness may begin only after updated `main` is revalidated and the first bounded pre-settled incoming-launch conflict truth slice is admitted.
-Selected Next Workstream: FB-049 Active-session pre-settled incoming-launch conflict truth
-Next-Branch Creation Gate: After `v1.6.12-prebeta` is published and validated, updated `main` is revalidated, and FB-049 Branch Readiness admits the first bounded runtime/user-facing pre-settled incoming-launch conflict truth slice; branch creation remains blocked until then
+Historical Selected-Next At Release Time: FB-049 Active-session pre-settled incoming-launch conflict truth
+Historical Next-Branch Creation Gate: After `v1.6.12-prebeta` was published and validated, updated `main` was revalidated, and FB-049 Branch Readiness admitted the first bounded runtime/user-facing pre-settled incoming-launch conflict truth slice; branch creation remained blocked until then
 
 ## Post-Merge State
 
 - Post-merge repo state: `No Active Branch` because FB-048 will own merged-unreleased release debt on `main` for `v1.6.12-prebeta`.
 - Pending release scope after merge: the completed bounded FB-048 relaunch failure/timeout slice chain only.
-- Successor state after merge: FB-049 remains selected next, `Registry-only`, and branch-not-created until `v1.6.12-prebeta` is published, validated, updated `main` is revalidated, and bounded Branch Readiness admits the first pre-settled incoming-launch conflict truth slice.
+- Historical successor state after merge: FB-049 remained selected next, `Registry-only`, and branch-not-created until `v1.6.12-prebeta` was published, validated, updated `main` was revalidated, and bounded Branch Readiness admitted the first pre-settled incoming-launch conflict truth slice.
 
 ## Release Window Audit
 
@@ -362,10 +360,10 @@ PR Readiness validates the completed bounded FB-048 runtime slice chain for merg
 
 ### PR-2 Selected-Next Workstream Findings
 
-- Selected Next Workstream: FB-049 Active-session pre-settled incoming-launch conflict truth.
-- Selected Next Basis: FB-049 is the smallest repo-grounded runtime/user-facing successor after FB-048 because settled-session relaunch now has first-class success, decline, signal-failure, and wait-timeout truth, but the repo still lacks equivalent proof when an incoming launch collides with an already-owning startup-phase session before authoritative settled is reached.
-- Selected Next Record State At PR Package Time: `Registry-only`.
-- Selected Next Implementation Branch At PR Package Time: Not created.
+- Historical Selected-Next At PR Package Time: FB-049 Active-session pre-settled incoming-launch conflict truth.
+- Historical Selected-Next Basis: FB-049 is the smallest repo-grounded runtime/user-facing successor after FB-048 because settled-session relaunch now has first-class success, decline, signal-failure, and wait-timeout truth, but the repo still lacks equivalent proof when an incoming launch collides with an already-owning startup-phase session before authoritative settled is reached.
+- Historical Selected-Next Record State At PR Package Time: `Registry-only`.
+- Historical Selected-Next Implementation Branch At PR Package Time: Not created.
 - Branch Creation Gate At PR Package Time: After `v1.6.12-prebeta` is published and validated, updated `main` is revalidated, and FB-049 Branch Readiness admits the first bounded runtime/user-facing pre-settled incoming-launch conflict truth slice.
 - Branch Containment At PR Package Time: PASS. No local or remote branch exists for FB-049, and no open FB-049 PR exists.
 

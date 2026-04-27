@@ -189,7 +189,7 @@ Version Rationale: FB-038 is tray UX, startup sequencing fix, and governance rep
 Release Scope: FB-038 tray/task UX milestone only: tray identity/discoverability, tray Open Command Overlay, tray Create Custom Task dialog-open/no-write route, tray-origin create completion through existing FB-036 authoring, catalog reload, exact-match resolution, confirm/result execution, and startup first-visible Core Visualization repair.
 Release Artifacts: tag `v1.4.1-prebeta`; release title `Pre-Beta v1.4.1`; release notes summarizing FB-038 user-facing tray/task UX, validation evidence, and retained FB-038 evidence helpers.
 Post-Release Truth: FB-038 is `Closed` / `Released (v1.4.1-prebeta)`, release debt is clear, roadmap latest public prerelease is `v1.4.1-prebeta`, and repo-level admission later admitted FB-039 Branch Readiness from updated `main`.
-Selected Next Workstream: FB-039 External trigger and plugin integration architecture.
+Historical Selected-Next At Release Time: FB-039 External trigger and plugin integration architecture.
 Historical Next-Branch Creation Gate: FB-039 remained selected-only and `Branch: Not created` until updated `main` passed the repo-level admission gate; this is superseded by current active FB-039 Branch Readiness.
 
 ## Bounded Objective
