@@ -108,7 +108,7 @@ Historical Live Validation State: Complete on `feature/fb-048-active-session-rel
 Post-Merge Review Repair Commit: `4a1d1e7689f5d2b9adcfeec5e390071fad4e3724`
 Post-Merge Review Repair Commit On Main: No. `origin/main` is `597f35ea04b8c49437681752a30fc22f96342226`
 Post-Merge Review Repair Scope: truthfully classify accepted relaunch wait-timeout as replacement unconfirmed instead of session preserved, and guard the focused wait-boundary validator scenario on non-Windows hosts
-PR Readiness State: Follow-up blocker-clearing PR in progress on `feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeout-truth`; PR #94 is merged on `main`, the review-repair commit above is not yet contained on `main`, and this branch is packaging the repaired semantics plus canon truth as the next PR against `main`.
+PR Readiness State: Historical PR #94 is merged on `main`, and the follow-up blocker-clearing PR package is now live on `feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeout-truth`; repair commit `85dc5552f6044cd167ad64039c626503fcc3067d` is still not contained on `main`; PR #96 is open, non-draft, and mergeable against `main`; and this branch now carries the repaired semantics plus canon truth as the current blocker-clearing PR lane.
 Release Execution State: `v1.6.11-prebeta` is live at https://github.com/GiribaldiTTV/Nexus-Desktop-AI/releases/tag/v1.6.11-prebeta on commit `4ca70572fbc8033bc96fcd299dd309464e81393a`.
 Release Target: v1.6.12-prebeta
 Release Floor: patch prerelease
