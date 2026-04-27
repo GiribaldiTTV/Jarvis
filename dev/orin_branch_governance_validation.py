@@ -1154,6 +1154,14 @@ REFORM_R6_S4_ACTIVE_SEAM_NEXT_PHRASE = (
     "Phase 6 / Slice R6-S4 `Selected-next truth validation` is the next active seam on this branch."
 )
 REFORM_R6_S4_CONTINUATION_PHRASE = "Execute Slice R6-S4"
+REFORM_R6_S5_SEAM = (
+    "Phase 6 - Roadmap And Index Alignment / Slice R6-S5 - Final drift sweep"
+)
+REFORM_R6_S5_STATE_NEXT_PHRASE = "Slice R6-S5 `Final drift sweep` is next"
+REFORM_R6_S5_ACTIVE_SEAM_NEXT_PHRASE = (
+    "Phase 6 / Slice R6-S5 `Final drift sweep` is the next active seam on this branch."
+)
+REFORM_R6_S5_CONTINUATION_PHRASE = "Execute Slice R6-S5"
 REFORM_FB042_DOSSIER_PATH = Path(
     "Docs/workstreams/FB-042_desktop_startup_runtime_family_dossier.md"
 )
@@ -3700,6 +3708,20 @@ def _validate_backlog_family_reform_seam_truth(
             return False
         return True
 
+    def phase6_drift_sweep_clean() -> bool:
+        main_text = _read_text(Path("Docs/Main.md"))
+        index_text = _read_text(Path("Docs/workstreams/index.md"))
+        return (
+            main_router_loader_aligned()
+            and selected_next_truth_validated()
+            and "### Family Dossiers And Historical Pass Alias Routing" in main_text
+            and "### Family Dossiers And Alias Records" not in main_text
+            and "### Family Anchor Records" in index_text
+            and "### Historical Pass Alias Records" in index_text
+            and "### Other Closed Workstreams" in index_text
+            and TRANSITIONAL_CURRENT_REGISTRY_ORDER_HEADING not in backlog_text
+        )
+
     if historical_pass_branch_records_converted():
         require(
             REFORM_R5_S3_STATE_NEXT_PHRASE not in backlog_workstream_state,
@@ -4040,6 +4062,62 @@ def _validate_backlog_family_reform_seam_truth(
                 "Docs/branch_records/feature_backlog_family_governance_reform.md: Seam "
                 "Continuation Decision must not keep R6-S4 as `Next Active Seam` once "
                 "selected-next truth is validated"
+            ),
+        )
+
+    if phase6_drift_sweep_clean():
+        require(
+            REFORM_R6_S5_STATE_NEXT_PHRASE not in backlog_workstream_state,
+            (
+                "Docs/feature_backlog.md: R6-S5 must not remain the next seam once the final "
+                "Phase 6 drift sweep is clean"
+            ),
+        )
+        require(
+            REFORM_R6_S5_STATE_NEXT_PHRASE not in roadmap_workstream_state,
+            (
+                "Docs/prebeta_roadmap.md: R6-S5 must not remain the next seam once the final "
+                "Phase 6 drift sweep is clean"
+            ),
+        )
+        require(
+            phase_status_next_seam != REFORM_R6_S5_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Phase Status "
+                "`Next Active Seam` must advance past R6-S5 once the final Phase 6 drift sweep "
+                "is clean"
+            ),
+        )
+        require(
+            REFORM_R6_S5_ACTIVE_SEAM_NEXT_PHRASE not in active_seam_section,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Active Seam "
+                "must not keep R6-S5 as the next active seam once the final Phase 6 drift sweep "
+                "is clean"
+            ),
+        )
+        require(
+            active_seam_next != REFORM_R6_S5_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Active Seam "
+                "`Next active seam` must advance past R6-S5 once the final Phase 6 drift sweep "
+                "is clean"
+            ),
+        )
+        require(
+            continuation_next_seam != REFORM_R6_S5_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Seam "
+                "Continuation Decision must not keep R6-S5 as `Next Active Seam` once the final "
+                "Phase 6 drift sweep is clean"
+            ),
+        )
+        require(
+            REFORM_R6_S5_CONTINUATION_PHRASE not in continuation_section,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Seam "
+                "Continuation Decision must not keep an R6-S5 continuation action once the final "
+                "Phase 6 drift sweep is clean"
             ),
         )
         require(

@@ -78,9 +78,11 @@ This branch must not change runtime behavior. Its job is to repair and harden so
 - Slice R6-S3 result: complete and green. `Docs/Main.md` and `Docs/nexus_startup_contract.md` now explicitly route family-anchor and historical-pass work through the split workstream index plus lifetime dossiers when declared, keeping router and loader behavior aligned with the converted family model while preserving FB-049 as the only selected-next user-facing candidate.
 - Historical Workstream Seam: `Phase 6 - Roadmap And Index Alignment / Slice R6-S4 - Selected-next truth validation`
 - Slice R6-S4 result: complete and green. Selected-next truth is now explicitly validated across backlog, roadmap, branch authority, and validator expectations; FB-049 remains the only selected-next user-facing candidate, remains `Registry-only`, remains branch-not-created, and historical aliases plus support lanes remain non-selectable historical or support-only records.
-- Current Workstream Seam: `Phase 6 - Roadmap And Index Alignment / Slice R6-S5 - Final drift sweep`
-- Slice Status: in progress. Phase 6 continues at R6-S5 because the converted family model still needs one final drift sweep across backlog, roadmap, branch authority, routing, and validator surfaces before the Roadmap And Index Alignment phase can turn green, Completion Status is not green yet, no waiver is recorded, and continuation is still required.
-- Next Active Seam: `Phase 6 - Roadmap And Index Alignment / Slice R6-S5 - Final drift sweep`
+- Historical Workstream Seam: `Phase 6 - Roadmap And Index Alignment / Slice R6-S5 - Final drift sweep`
+- Slice R6-S5 result: complete and green. The final Phase 6 drift sweep found no remaining current-state family-governance drift across backlog, roadmap, branch authority, routing, or validator surfaces; the family-anchor model now reads cleanly end-to-end through the current-state docs; and FB-049 remains the only selected-next user-facing candidate, `Registry-only`, and branch-not-created.
+- Current Workstream Seam: `Phase 7 - Validator Finalization / Slice R7-S1 - Remove temporary dual-shape tolerance`
+- Slice Status: in progress. Phase 7 continues at R7-S1 because the validator still carries temporary migration tolerance for the pre-reform backlog and workstream-index shapes, Completion Status is not green yet, no waiver is recorded, and continuation is still required.
+- Next Active Seam: `Phase 7 - Validator Finalization / Slice R7-S1 - Remove temporary dual-shape tolerance`
 
 ## Branch Class
 
@@ -197,7 +199,7 @@ Branch Closure Rule: `Do not leave Workstream after only the first reform seam; 
 
 Backlog Completion State: `In Progress`
 Completion Status: `In Progress`
-Remaining Implementable Work: `Phase 6 / Slice R6-S5 through Phase 7 backlog/workstream governance reform slices remain to execute on this same branch.`
+Remaining Implementable Work: `Phase 7 / Slice R7-S1 through Slice R7-S2 remain to execute on this same branch.`
 Future-Dependent Blockers: `None`
 
 ## Stop Conditions
@@ -299,10 +301,10 @@ Seam 1: `Phase 1 - Validator Bootstrap`
 
 ## Active Seam
 
-Active seam: `Phase 6 - Roadmap And Index Alignment / Slice R6-S5 - Final drift sweep`
+Active seam: `Phase 7 - Validator Finalization / Slice R7-S1 - Remove temporary dual-shape tolerance`
 
 Phase 1 `Validator Bootstrap`, Phase 2 / Slice R2-S1 `Backlog Section Skeleton`, Phase 2 / Slice R2-S2 `Add classification markers in place`, Phase 2 / Slice R2-S3 `Move support / governance lanes`, Phase 2 / Slice R2-S4 `Move historical pass aliases`, Phase 2 / Slice R2-S5 `Backlog ordering and selection-truth hardening`, Phase 3 / Slice R3-S1 `Retitle FB-042 as the runtime family anchor`, Phase 3 / Slice R3-S2 `Map FB-043 through FB-048 under FB-042 as historical aliases`, Phase 3 / Slice R3-S3 `Retitle FB-027 as the interaction/action family anchor`, Phase 3 / Slice R3-S4 `Map FB-036, FB-037, FB-038, and FB-041 under FB-027 as historical aliases`, Phase 3 / Slice R3-S5 `Future-selection hardening`, Phase 4 / Slice R4-S1 `Convert the FB-042 dossier shell`, Phase 4 / Slice R4-S2 `Convert the FB-027 dossier shell`, Phase 4 / Slice R4-S3 `Add pass index and slice/seam ledger structure`, Phase 4 / Slice R4-S4 `Add validator/helper and artifact indexes`, and Phase 4 / Slice R4-S5 `Dossier stability validation` are complete and green.
-Next active seam: `Phase 6 - Roadmap And Index Alignment / Slice R6-S5 - Final drift sweep`.
+Next active seam: `Phase 7 - Validator Finalization / Slice R7-S1 - Remove temporary dual-shape tolerance`.
 
 - Phase 0 `Reform Readiness` is complete.
 - Workstream Phase 1 `Validator Bootstrap` is complete and green.
@@ -330,7 +332,8 @@ Next active seam: `Phase 6 - Roadmap And Index Alignment / Slice R6-S5 - Final d
 - Phase 6 / Slice R6-S2 `Workstream index split` is complete and green.
 - Phase 6 / Slice R6-S3 `Main / router / loader alignment` is complete and green.
 - Phase 6 / Slice R6-S4 `Selected-next truth validation` is complete and green.
-- Phase 6 / Slice R6-S5 `Final drift sweep` is the current active seam on this branch.
+- Phase 6 / Slice R6-S5 `Final drift sweep` is complete and green.
+- Phase 7 / Slice R7-S1 `Remove temporary dual-shape tolerance` is the current active seam on this branch.
 
 ## Seam Continuation Decision
 
@@ -340,6 +343,6 @@ Completion Status: `In Progress`
 Waiver Status: `None`
 Continue Decision: `Continue`
 Stop Basis: `None`
-Next Active Seam: `Phase 6 - Roadmap And Index Alignment / Slice R6-S5 - Final drift sweep`
+Next Active Seam: `Phase 7 - Validator Finalization / Slice R7-S1 - Remove temporary dual-shape tolerance`
 Stop Condition: `Stop only if Workstream Completion Status turns Green, or if a named blocker or waiver turns Completion Status Red before the next seam completes.`
-Continuation Action: `Execute Slice R6-S5 on this same branch and continue bounded seam-to-seam and slice-to-slice while Completion Status remains In Progress.`
+Continuation Action: `Execute Slice R7-S1 on this same branch and continue bounded seam-to-seam and slice-to-slice while Completion Status remains In Progress.`
