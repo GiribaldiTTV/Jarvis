@@ -334,7 +334,7 @@ Next-Branch Creation Gate: Satisfied during FB-048 Branch Readiness after `v1.6.
 
 - Post-merge repo state: `No Active Branch` because FB-047 will own merged-unreleased release debt on `main` for `v1.6.11-prebeta`.
 - Pending release scope after merge: the completed bounded FB-047 relaunch-decline preservation slice chain only.
-- Successor state after merge: FB-048 is now the active promoted workstream on `feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeout-truth`, with WS-1 complete / validated and `Hardening` next.
+- Successor state after merge: FB-048 is now the active promoted workstream on `feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeout-truth`, with WS-1 complete / validated, H-1 complete / green, and `Live Validation` next.
 
 ## Release Window Audit
 

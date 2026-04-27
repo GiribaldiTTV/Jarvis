@@ -443,13 +443,25 @@ def acquire_or_prompt_replace(
 
     effective_wait_seconds = harness_relaunch_wait_seconds(wait_seconds)
     deadline = time.time() + max(0.5, effective_wait_seconds)
-    while time.time() < deadline:
+    sleep_seconds = max(0.05, poll_interval_seconds)
+    while True:
         if guard.acquire():
             relaunch_signal.clear()
             log_event("RELAUNCH_ACQUIRED_AFTER_WAIT")
             log_event("RELAUNCH_REPLACEMENT_SESSION_CONFIRMED")
             return True
-        time.sleep(max(0.05, poll_interval_seconds))
+
+        remaining_seconds = deadline - time.time()
+        if remaining_seconds <= 0:
+            break
+
+        time.sleep(min(sleep_seconds, remaining_seconds))
+
+    if guard.acquire():
+        relaunch_signal.clear()
+        log_event("RELAUNCH_ACQUIRED_AFTER_WAIT")
+        log_event("RELAUNCH_REPLACEMENT_SESSION_CONFIRMED")
+        return True
 
     log_event("RELAUNCH_WAIT_TIMEOUT")
     if not harness_suppress_already_running_dialogs():

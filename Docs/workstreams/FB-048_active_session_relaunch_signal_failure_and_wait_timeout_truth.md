@@ -33,7 +33,7 @@ Latest Public Prerelease Title: `Pre-Beta v1.6.11`
 FB-047 is `Released / Closed` historical proof in `v1.6.11-prebeta`.
 Merged-unreleased release debt is clear after publication, validation, and post-release canon closure.
 FB-048 is now the active promoted runtime/user-facing workstream on this branch.
-Active seam: `None.` WS-1 is complete and `Hardening` is next.
+Active seam: `None.` H-1 is complete and `Live Validation` is next.
 
 ## Branch Class
 
@@ -64,7 +64,7 @@ None.
 
 ## Next Legal Phase
 
-- `Hardening`
+- `Live Validation`
 
 ## Purpose / Why It Matters
 
@@ -197,21 +197,66 @@ Single-instance ownership stays truthful across failure, decline, and success la
 - failure-path incoming launches never emit replacement-session active, settled, reacquire, or guard-release markers
 - accepted relaunch transfer remains isolated to the actual success lane
 
+## H-1 Hardening Record
+
+H-1 pressure-tested the completed FB-048 accepted-failure lane across rapid repeated signal-failure launches, wait-window boundary classification, preserved-session marker timing, single-instance ownership under failure and timeout stress, mixed failure/decline/accept/failure sequencing, and validator classification consistency without widening beyond the admitted runtime/user-facing surfaces.
+
+### Hardening Findings
+
+- Rapid consecutive signal-failure launches remain single-owner: the active settled session stays unchanged, each incoming launch records accepted conflict plus explicit signal-failure preserved-session truth, and no reacquire or replacement-session markers leak into the failed incoming launches.
+- Wait-window classification is now stable at the boundary: early release before the deadline reacquires truthfully, exact-boundary release no longer falls through to a false timeout because the guard now gets one final reacquire attempt at the deadline, and late release still resolves to the explicit wait-timeout preserved-session outcome.
+- Mixed failure -> decline -> accept -> failure sequencing stays truthful: failure preserves the original owner, decline preserves the same owner without relaunch request delivery, accepted relaunch is still the only lane that transfers guard ownership, and a later failure against the accepted replacement session preserves that replacement owner without triggering another guard transfer.
+- The main hidden coupling was in the single-instance wait-loop boundary itself and in validator breadth, not in launcher classification. The launcher already emitted the right preserved-session markers once the boundary reacquire logic and mixed-sequence proof were tightened.
+- Accepted-success relaunch proof, declined-preservation proof, repeated-launch proof, default startup proof, and explicit dev-boot proof all remained green while the failure/timeout hardening surface expanded.
+
+### Hardening Corrections
+
+- `desktop/single_instance.py` now sleeps only up to the remaining relaunch wait window and performs one final reacquire attempt at the deadline before classifying the incoming launch as a wait-timeout preserved-session outcome.
+- `dev/orin_desktop_entrypoint_validation.py` now adds reusable coverage for:
+  - focused single-instance early / exact-boundary / late wait-window classification
+  - three rapid consecutive accepted relaunch signal-failure launches
+  - mixed failure -> decline -> accept -> failure relaunch sequencing
+- No broader runtime correction was needed in `desktop/orin_desktop_launcher.pyw` or `desktop/orin_desktop_main.py`; the launcher failure/timeout outcome model itself held under the new pressure tests once the wait boundary stopped over-timing out.
+
+### H-1 Completion Decision
+
+- H-1 Result: `Complete / green`
+- Remaining implementable work inside FB-048: `None`
+- Stop condition: phase boundary reached; Hardening is complete after H-1.
+
+### H-1 Validation Results
+
+- `python -m py_compile desktop\single_instance.py desktop\orin_desktop_launcher.pyw desktop\orin_desktop_main.py dev\orin_desktop_entrypoint_validation.py dev\orin_boot_transition_verification.py`: PASS
+- `python dev\orin_desktop_entrypoint_validation.py`: PASS
+  - report: `dev/logs/desktop_entrypoint_validation/reports/DesktopEntrypointValidationReport_20260427_072445.txt`
+- `python dev\orin_boot_transition_verification.py`: PASS
+  - report: `dev/logs/boot_transition_verification/reports/BootTransitionVerificationReport_20260427_072001.txt`
+- `python dev\orin_branch_governance_validation.py`: PASS
+- `git diff --check`: PASS with line-ending normalization warnings only
+
+### H-1 Stability Notes
+
+- Near-deadline accepted relaunch release no longer risks a false wait-timeout classification just because the last poll slept past the boundary.
+- Failure-path incoming launches still never emit replacement-session active, settled, reacquire, or guard-release markers.
+- Guard transfer remains exclusive to accepted relaunch success; failure, timeout, and decline lanes all preserve the current active owner even under mixed sequencing.
+- The shipped startup path, accepted-success relaunch proof, declined-preservation proof, repeated-launch proof, and explicit dev-boot proof remain green after the added failure/timeout hardening coverage.
+
 ## User Test Summary
 
 Not yet classified. FB-048 is still pre-Live-Validation; exact User Test Summary status belongs to the later Live Validation pass if the branch advances.
 
 ## Seam Continuation Decision
 
-Continue Decision: `Advance after WS-1 because backlog completion is implemented complete, validation is green, and the next legal phase is Hardening`
-Next Active Seam: `Post-settled accepted-failure lifecycle hardening`
-Stop Condition: `Reached Hardening gate after WS-1 completion`
-Continuation Action: `Pressure-test accepted relaunch signal-failure and wait-timeout timing, ownership, and mixed-lifecycle classification without widening beyond the admitted surfaces`
+Continue Decision: `Advance after H-1 because backlog completion is implemented complete, hardening is green, and the next legal phase is Live Validation`
+Next Active Seam: `FB-048 Live Validation`
+Stop Condition: `Reached Live Validation gate after H-1 completion`
+Continuation Action: `Validate repo-truth alignment, user-facing shortcut applicability, exact User Test Summary state, production launch path, explicit dev-boot proof, and hardened failure/timeout proof on the active branch`
 
 ## Active Seam
 
 Active seam: `None.`
 
 - WS-1 is complete and validated.
+- H-1 is complete and green.
 - `Backlog Completion State` is `Implemented Complete`.
-- `Hardening` is the next legal phase.
+- `Live Validation` is the next legal phase.

@@ -400,6 +400,165 @@ def build_harness_env(scenario_root, target_script="", extra_env=None):
     return env
 
 
+def run_single_instance_wait_boundary_scenario():
+    if ROOT_DIR not in sys.path:
+        sys.path.insert(0, ROOT_DIR)
+
+    from desktop.single_instance import acquire_or_prompt_replace
+
+    class FakeGuard:
+        def __init__(self, release_after_seconds):
+            self.release_after_seconds = max(0.0, float(release_after_seconds))
+            self.started_at = time.monotonic()
+            self.acquire_attempts = 0
+            self.conflict_reported = False
+
+        def acquire(self):
+            self.acquire_attempts += 1
+            if not self.conflict_reported:
+                self.conflict_reported = True
+                return False
+            return (time.monotonic() - self.started_at) >= self.release_after_seconds
+
+        def release(self):
+            return None
+
+    class FakeSignal:
+        def __init__(self):
+            self.signal_calls = 0
+            self.clear_calls = 0
+
+        def signal(self):
+            self.signal_calls += 1
+            return True
+
+        def clear(self):
+            self.clear_calls += 1
+
+    scenario_name = "single_instance_wait_boundary_classification"
+    original_env = {
+        key: os.environ.get(key)
+        for key in (
+            "JARVIS_HARNESS_AUTO_ACCEPT_RELAUNCH",
+            "JARVIS_HARNESS_AUTO_DECLINE_RELAUNCH",
+            "JARVIS_HARNESS_FORCE_RELAUNCH_SIGNAL_FAILURE",
+            "JARVIS_HARNESS_SUPPRESS_ALREADY_RUNNING_DIALOGS",
+            "JARVIS_HARNESS_RELAUNCH_WAIT_SECONDS",
+        )
+    }
+    case_definitions = (
+        ("early_release", 0.45, 0.5, True),
+        ("exact_boundary_release", 0.5, 0.5, True),
+        ("late_release", 0.65, 0.5, False),
+    )
+    case_results = []
+
+    try:
+        os.environ["JARVIS_HARNESS_AUTO_ACCEPT_RELAUNCH"] = "1"
+        os.environ["JARVIS_HARNESS_SUPPRESS_ALREADY_RUNNING_DIALOGS"] = "1"
+        for key in (
+            "JARVIS_HARNESS_AUTO_DECLINE_RELAUNCH",
+            "JARVIS_HARNESS_FORCE_RELAUNCH_SIGNAL_FAILURE",
+            "JARVIS_HARNESS_RELAUNCH_WAIT_SECONDS",
+        ):
+            os.environ.pop(key, None)
+
+        for case_name, release_after_seconds, wait_seconds, expected_success in case_definitions:
+            guard = FakeGuard(release_after_seconds)
+            signal = FakeSignal()
+            events = []
+            started_at = time.monotonic()
+            acquired = acquire_or_prompt_replace(
+                guard,
+                signal,
+                "Nexus Desktop AI Session Active",
+                "Boundary test",
+                wait_seconds=wait_seconds,
+                poll_interval_seconds=0.1,
+                event_logger=events.append,
+            )
+            elapsed_seconds = time.monotonic() - started_at
+            case_results.append(
+                {
+                    "case_name": case_name,
+                    "release_after_seconds": release_after_seconds,
+                    "wait_seconds": wait_seconds,
+                    "expected_success": expected_success,
+                    "acquired": acquired,
+                    "elapsed_seconds": elapsed_seconds,
+                    "events": events,
+                    "signal_calls": signal.signal_calls,
+                    "clear_calls": signal.clear_calls,
+                    "acquire_attempts": guard.acquire_attempts,
+                }
+            )
+    finally:
+        for key, value in original_env.items():
+            if value is None:
+                os.environ.pop(key, None)
+            else:
+                os.environ[key] = value
+
+    checks = {}
+    for case in case_results:
+        prefix = case["case_name"]
+        detail = (
+            f"release_after={case['release_after_seconds']:.2f}s, wait={case['wait_seconds']:.2f}s, "
+            f"elapsed={case['elapsed_seconds']:.3f}s, signal_calls={case['signal_calls']}, "
+            f"clear_calls={case['clear_calls']}, acquire_attempts={case['acquire_attempts']}, "
+            f"events={case['events']}"
+        )
+        conflict_index = first_marker_index(case["events"], "SINGLE_INSTANCE_CONFLICT_DETECTED")
+        prompt_accept_index = first_marker_index(case["events"], "REPLACE_PROMPT_AUTO_ACCEPTED")
+        signal_sent_index = first_marker_index(case["events"], "RELAUNCH_SIGNAL_SENT")
+        reacquire_index = first_marker_index(case["events"], "RELAUNCH_ACQUIRED_AFTER_WAIT")
+        replacement_confirmed_index = first_marker_index(
+            case["events"],
+            "RELAUNCH_REPLACEMENT_SESSION_CONFIRMED",
+        )
+        wait_timeout_index = first_marker_index(case["events"], "RELAUNCH_WAIT_TIMEOUT")
+        signal_failed_index = first_marker_index(case["events"], "RELAUNCH_SIGNAL_FAILED")
+
+        checks[f"{prefix}_conflict_accept_and_signal_order"] = line_status(
+            conflict_index >= 0
+            and prompt_accept_index > conflict_index
+            and signal_sent_index > prompt_accept_index,
+            detail,
+        )
+        checks[f"{prefix}_classification_matches_expected_boundary"] = line_status(
+            case["acquired"] is case["expected_success"],
+            detail,
+        )
+
+        if case["expected_success"]:
+            checks[f"{prefix}_reacquires_without_timeout"] = line_status(
+                reacquire_index > signal_sent_index >= 0
+                and replacement_confirmed_index >= reacquire_index
+                and wait_timeout_index < 0
+                and signal_failed_index < 0
+                and case["clear_calls"] == 1,
+                detail,
+            )
+        else:
+            checks[f"{prefix}_times_out_without_replacement_markers"] = line_status(
+                wait_timeout_index > signal_sent_index >= 0
+                and reacquire_index < 0
+                and replacement_confirmed_index < 0
+                and signal_failed_index < 0
+                and case["clear_calls"] == 0,
+                detail,
+            )
+
+    return {
+        "scenario_name": scenario_name,
+        "log_root": "focused single-instance guard boundary proof",
+        "runtime_log": "",
+        "stdout": "",
+        "stderr": "",
+        "checks": checks,
+    }
+
+
 def validate_tray_overlay_route():
     previous_qt_platform = os.environ.get("QT_QPA_PLATFORM")
     os.environ["QT_QPA_PLATFORM"] = "offscreen"
@@ -2013,15 +2172,15 @@ def run_repeated_signal_failure_relaunch_scenario():
     )
 
     first_proc = None
-    incoming_procs = [None, None]
+    incoming_procs = [None, None, None]
     first_stdout = ""
     first_stderr = ""
-    incoming_stdouts = ["", ""]
-    incoming_stderrs = ["", ""]
+    incoming_stdouts = ["", "", ""]
+    incoming_stderrs = ["", "", ""]
     first_runtime_log = ""
-    incoming_runtime_logs = ["", ""]
+    incoming_runtime_logs = ["", "", ""]
     first_runtime_lines = []
-    incoming_runtime_lines = [[], []]
+    incoming_runtime_lines = [[], [], []]
     first_settled_seen = False
     active_session_changed_before_manual_shutdown = False
     shutdown_hotkey_sent = False
@@ -2225,10 +2384,10 @@ def run_repeated_signal_failure_relaunch_scenario():
             not scenario_root_entries_after_reset,
             "empty" if not scenario_root_entries_after_reset else ", ".join(scenario_root_entries_after_reset[:5]),
         ),
-        "three_runtime_logs_created": line_status(
+        "four_runtime_logs_created": line_status(
             bool(first_runtime_log)
             and all(incoming_runtime_logs)
-            and len({first_runtime_log, *incoming_runtime_logs}) == 3,
+            and len({first_runtime_log, *incoming_runtime_logs}) == 4,
             ", ".join(path or "missing" for path in [first_runtime_log, *incoming_runtime_logs]),
         ),
         "active_session_reached_settled_before_failures": line_status(
@@ -2921,7 +3080,10 @@ def run_declined_relaunch_cycle_scenario():
         f"first_recoverable_complete={first_recoverable_complete_index}, first_release={first_release_index}, "
         f"first_replacement_active={first_replacement_active_index}, "
         f"first_replacement_settled={first_replacement_settled_index}, "
-        f"incoming1={incoming_indexes[0]}, incoming2={incoming_indexes[1]}"
+        + ", ".join(
+            f"incoming{index + 1}={info}"
+            for index, info in enumerate(incoming_indexes)
+        )
     )
 
     checks = {
@@ -4323,6 +4485,724 @@ def run_mixed_decline_then_accept_relaunch_scenario():
     }
 
 
+def run_mixed_failure_decline_accept_failure_relaunch_scenario():
+    scenario_name = "vbs_failure_decline_accept_failure_relaunch_cycle"
+    scenario_root = os.path.join(BASE_LOG_ROOT, scenario_name)
+    preexisting_processes_before, preexisting_processes_killed, preexisting_processes_after = (
+        cleanup_launch_chain_processes_for_log_root(BASE_LOG_ROOT)
+    )
+    reset_dir(scenario_root)
+    scenario_root_entries_after_reset = dir_entry_names(scenario_root)
+
+    cscript_command = resolve_cscript_command()
+    launch_command = cscript_command + ["//nologo", ENTRYPOINT_SCRIPT] if cscript_command else []
+    first_env = build_harness_env(scenario_root)
+    failure_env = build_harness_env(
+        scenario_root,
+        extra_env={
+            "JARVIS_HARNESS_AUTO_ACCEPT_RELAUNCH": "1",
+            "JARVIS_HARNESS_FORCE_RELAUNCH_SIGNAL_FAILURE": "1",
+        },
+    )
+    decline_env = build_harness_env(
+        scenario_root,
+        extra_env={"JARVIS_HARNESS_AUTO_DECLINE_RELAUNCH": "1"},
+    )
+    accept_env = build_harness_env(
+        scenario_root,
+        extra_env={"JARVIS_HARNESS_AUTO_ACCEPT_RELAUNCH": "1"},
+    )
+
+    first_proc = None
+    first_failure_proc = None
+    decline_proc = None
+    accept_proc = None
+    final_failure_proc = None
+
+    first_stdout = ""
+    first_stderr = ""
+    first_failure_stdout = ""
+    first_failure_stderr = ""
+    decline_stdout = ""
+    decline_stderr = ""
+    accept_stdout = ""
+    accept_stderr = ""
+    final_failure_stdout = ""
+    final_failure_stderr = ""
+
+    first_runtime_log = ""
+    first_failure_runtime_log = ""
+    decline_runtime_log = ""
+    accept_runtime_log = ""
+    final_failure_runtime_log = ""
+
+    first_runtime_lines = []
+    first_failure_runtime_lines = []
+    decline_runtime_lines = []
+    accept_runtime_lines = []
+    final_failure_runtime_lines = []
+
+    first_settled_seen = False
+    accept_settled_seen = False
+    active_session_changed_before_accept_phase = False
+    accepted_session_changed_during_final_failure = False
+    accept_shutdown_hotkey_sent = False
+    accept_shutdown_hotkey_detail = "hotkey not sent"
+    accept_shutdown_hotkey_attempts = 0
+
+    try:
+        if scenario_root_entries_after_reset or not launch_command:
+            pass
+        else:
+            first_proc = subprocess.Popen(
+                launch_command,
+                cwd=ROOT_DIR,
+                env=first_env,
+                **hidden_subprocess_kwargs(),
+            )
+
+            first_deadline = time.time() + 25.0
+            while time.time() < first_deadline:
+                runtime_logs = files_matching_sorted(scenario_root, "Runtime_")
+                if runtime_logs and not first_runtime_log:
+                    first_runtime_log = runtime_logs[0]
+                if first_runtime_log:
+                    first_runtime_lines = read_lines(first_runtime_log)
+                    if any(AUTHORITATIVE_DESKTOP_SETTLED_MARKER in line for line in first_runtime_lines):
+                        first_settled_seen = True
+                        break
+                if first_proc.poll() is not None:
+                    break
+                time.sleep(0.2)
+
+            first_failure_proc = subprocess.Popen(
+                launch_command,
+                cwd=ROOT_DIR,
+                env=failure_env,
+                **hidden_subprocess_kwargs(),
+            )
+
+            failure_deadline = time.time() + 15.0
+            while time.time() < failure_deadline:
+                runtime_logs = files_matching_sorted(scenario_root, "Runtime_")
+                new_failure_logs = [path for path in runtime_logs if path != first_runtime_log]
+                if new_failure_logs and not first_failure_runtime_log:
+                    first_failure_runtime_log = new_failure_logs[0]
+
+                if first_runtime_log:
+                    first_runtime_lines = read_lines(first_runtime_log)
+                    if any("RENDERER_MAIN|RELAUNCH_REQUEST_RECEIVED" in line for line in first_runtime_lines):
+                        active_session_changed_before_accept_phase = True
+                    if any("RENDERER_MAIN|SHUTDOWN_REQUESTED" in line for line in first_runtime_lines):
+                        active_session_changed_before_accept_phase = True
+                    if any(SINGLE_INSTANCE_RELEASED_MARKER in line for line in first_runtime_lines):
+                        active_session_changed_before_accept_phase = True
+                    if any(
+                        RELAUNCH_REPLACEMENT_SESSION_ACTIVE_MARKER in line
+                        or RELAUNCH_REPLACEMENT_SESSION_SETTLED_MARKER in line
+                        for line in first_runtime_lines
+                    ):
+                        active_session_changed_before_accept_phase = True
+
+                if first_failure_runtime_log:
+                    first_failure_runtime_lines = read_lines(first_failure_runtime_log)
+                    if any(
+                        RELAUNCH_SIGNAL_FAILED_SESSION_PRESERVED_MARKER in line
+                        for line in first_failure_runtime_lines
+                    ):
+                        break
+                if first_failure_proc.poll() is not None and first_failure_runtime_log:
+                    break
+                time.sleep(0.2)
+
+            decline_proc = subprocess.Popen(
+                launch_command,
+                cwd=ROOT_DIR,
+                env=decline_env,
+                **hidden_subprocess_kwargs(),
+            )
+
+            decline_deadline = time.time() + 15.0
+            while time.time() < decline_deadline:
+                runtime_logs = files_matching_sorted(scenario_root, "Runtime_")
+                known_logs = {first_runtime_log, first_failure_runtime_log}
+                new_decline_logs = [path for path in runtime_logs if path not in known_logs]
+                if new_decline_logs and not decline_runtime_log:
+                    decline_runtime_log = new_decline_logs[0]
+
+                if first_runtime_log:
+                    first_runtime_lines = read_lines(first_runtime_log)
+                    if any("RENDERER_MAIN|RELAUNCH_REQUEST_RECEIVED" in line for line in first_runtime_lines):
+                        active_session_changed_before_accept_phase = True
+                    if any("RENDERER_MAIN|SHUTDOWN_REQUESTED" in line for line in first_runtime_lines):
+                        active_session_changed_before_accept_phase = True
+                    if any(SINGLE_INSTANCE_RELEASED_MARKER in line for line in first_runtime_lines):
+                        active_session_changed_before_accept_phase = True
+                    if any(
+                        RELAUNCH_REPLACEMENT_SESSION_ACTIVE_MARKER in line
+                        or RELAUNCH_REPLACEMENT_SESSION_SETTLED_MARKER in line
+                        for line in first_runtime_lines
+                    ):
+                        active_session_changed_before_accept_phase = True
+
+                if decline_runtime_log:
+                    decline_runtime_lines = read_lines(decline_runtime_log)
+                    if any(
+                        RELAUNCH_DECLINED_SESSION_PRESERVED_MARKER in line
+                        for line in decline_runtime_lines
+                    ):
+                        break
+                if decline_proc.poll() is not None and decline_runtime_log:
+                    break
+                time.sleep(0.2)
+
+            accept_proc = subprocess.Popen(
+                launch_command,
+                cwd=ROOT_DIR,
+                env=accept_env,
+                **hidden_subprocess_kwargs(),
+            )
+
+            accept_deadline = time.time() + 35.0
+            while time.time() < accept_deadline:
+                runtime_logs = files_matching_sorted(scenario_root, "Runtime_")
+                known_logs = {
+                    first_runtime_log,
+                    first_failure_runtime_log,
+                    decline_runtime_log,
+                }
+                new_accept_logs = [path for path in runtime_logs if path not in known_logs]
+                if new_accept_logs and not accept_runtime_log:
+                    accept_runtime_log = new_accept_logs[0]
+
+                if accept_runtime_log:
+                    accept_runtime_lines = read_lines(accept_runtime_log)
+                    accept_reacquired_seen = any(
+                        "RELAUNCH_ACQUIRED_AFTER_WAIT" in line for line in accept_runtime_lines
+                    )
+                    accept_settled_seen = any(
+                        AUTHORITATIVE_DESKTOP_SETTLED_MARKER in line for line in accept_runtime_lines
+                    )
+                    if accept_reacquired_seen and accept_settled_seen:
+                        break
+                time.sleep(0.2)
+
+            final_failure_proc = subprocess.Popen(
+                launch_command,
+                cwd=ROOT_DIR,
+                env=failure_env,
+                **hidden_subprocess_kwargs(),
+            )
+
+            final_failure_deadline = time.time() + 15.0
+            while time.time() < final_failure_deadline:
+                runtime_logs = files_matching_sorted(scenario_root, "Runtime_")
+                known_logs = {
+                    first_runtime_log,
+                    first_failure_runtime_log,
+                    decline_runtime_log,
+                    accept_runtime_log,
+                }
+                new_final_failure_logs = [path for path in runtime_logs if path not in known_logs]
+                if new_final_failure_logs and not final_failure_runtime_log:
+                    final_failure_runtime_log = new_final_failure_logs[0]
+
+                if accept_runtime_log:
+                    accept_runtime_lines = read_lines(accept_runtime_log)
+                    if any("RENDERER_MAIN|RELAUNCH_REQUEST_RECEIVED" in line for line in accept_runtime_lines):
+                        accepted_session_changed_during_final_failure = True
+                    if any("RENDERER_MAIN|SHUTDOWN_REQUESTED" in line for line in accept_runtime_lines):
+                        accepted_session_changed_during_final_failure = True
+                    if any(SINGLE_INSTANCE_RELEASED_MARKER in line for line in accept_runtime_lines):
+                        accepted_session_changed_during_final_failure = True
+
+                if final_failure_runtime_log:
+                    final_failure_runtime_lines = read_lines(final_failure_runtime_log)
+                    if any(
+                        RELAUNCH_SIGNAL_FAILED_SESSION_PRESERVED_MARKER in line
+                        for line in final_failure_runtime_lines
+                    ):
+                        break
+                if final_failure_proc.poll() is not None and final_failure_runtime_log:
+                    break
+                time.sleep(0.2)
+
+            if accept_settled_seen:
+                accept_shutdown_hotkey_attempts += 1
+                accept_shutdown_hotkey_sent, accept_shutdown_hotkey_detail = send_shutdown_hotkey()
+
+            shutdown_deadline = time.time() + 20.0
+            while time.time() < shutdown_deadline:
+                accept_runtime_lines = read_lines(accept_runtime_log)
+                accept_shutdown_seen = any(
+                    "RENDERER_MAIN|SHUTDOWN_REQUESTED" in line for line in accept_runtime_lines
+                )
+                accept_exit_seen = any(
+                    "RENDERER_MAIN|EVENT_LOOP_EXIT|code=0" in line for line in accept_runtime_lines
+                )
+                accept_release_seen = any(
+                    SINGLE_INSTANCE_RELEASED_MARKER in line for line in accept_runtime_lines
+                )
+                if (
+                    accept_settled_seen
+                    and accept_shutdown_hotkey_sent
+                    and not accept_shutdown_seen
+                    and accept_shutdown_hotkey_attempts < 2
+                ):
+                    accept_shutdown_hotkey_attempts += 1
+                    accept_shutdown_hotkey_sent, accept_shutdown_hotkey_detail = send_shutdown_hotkey()
+                if accept_shutdown_seen and accept_exit_seen and accept_release_seen:
+                    break
+                if accept_proc is not None and accept_proc.poll() is not None and accept_release_seen:
+                    break
+                time.sleep(0.2)
+    finally:
+        proc_map = (
+            (first_proc, "first"),
+            (first_failure_proc, "first_failure"),
+            (decline_proc, "decline"),
+            (accept_proc, "accept"),
+            (final_failure_proc, "final_failure"),
+        )
+        for proc, label in proc_map:
+            if proc is None:
+                continue
+            try:
+                if proc.poll() is None:
+                    terminate_process_tree(proc)
+                stdout_text, stderr_text = proc.communicate(timeout=5)
+            except Exception:
+                stdout_text = ""
+                stderr_text = ""
+
+            if label == "first":
+                first_stdout = (stdout_text or "").strip()
+                first_stderr = (stderr_text or "").strip()
+            elif label == "first_failure":
+                first_failure_stdout = (stdout_text or "").strip()
+                first_failure_stderr = (stderr_text or "").strip()
+            elif label == "decline":
+                decline_stdout = (stdout_text or "").strip()
+                decline_stderr = (stderr_text or "").strip()
+            elif label == "accept":
+                accept_stdout = (stdout_text or "").strip()
+                accept_stderr = (stderr_text or "").strip()
+            else:
+                final_failure_stdout = (stdout_text or "").strip()
+                final_failure_stderr = (stderr_text or "").strip()
+
+    first_runtime_lines = read_lines(first_runtime_log)
+    first_failure_runtime_lines = read_lines(first_failure_runtime_log)
+    decline_runtime_lines = read_lines(decline_runtime_log)
+    accept_runtime_lines = read_lines(accept_runtime_log)
+    final_failure_runtime_lines = read_lines(final_failure_runtime_log)
+
+    residual_launch_chain_processes_before, residual_launch_chain_killed, residual_launch_chain_processes_after = (
+        cleanup_launch_chain_processes_for_log_root(BASE_LOG_ROOT)
+    )
+
+    first_settled_index = first_marker_index(first_runtime_lines, AUTHORITATIVE_DESKTOP_SETTLED_MARKER)
+    first_relaunch_request_index = first_marker_index(first_runtime_lines, "RENDERER_MAIN|RELAUNCH_REQUEST_RECEIVED")
+    first_shutdown_index = first_marker_index(first_runtime_lines, "RENDERER_MAIN|SHUTDOWN_REQUESTED")
+    first_exit_index = first_marker_index(first_runtime_lines, "RENDERER_MAIN|EVENT_LOOP_EXIT|code=0")
+    first_release_index = first_marker_index(first_runtime_lines, SINGLE_INSTANCE_RELEASED_MARKER)
+
+    first_failure_conflict_index = first_marker_index(first_failure_runtime_lines, "SINGLE_INSTANCE_CONFLICT_DETECTED")
+    first_failure_prompt_accept_index = max(
+        first_marker_index(first_failure_runtime_lines, "REPLACE_PROMPT_ACCEPTED"),
+        first_marker_index(first_failure_runtime_lines, "REPLACE_PROMPT_AUTO_ACCEPTED"),
+    )
+    first_failure_signal_failed_index = first_marker_index(first_failure_runtime_lines, "RELAUNCH_SIGNAL_FAILED")
+    first_failure_outcome_index = first_marker_index(
+        first_failure_runtime_lines,
+        RELAUNCH_SIGNAL_FAILED_SESSION_PRESERVED_MARKER,
+    )
+    first_failure_runtime_start_index = first_marker_index(
+        first_failure_runtime_lines,
+        "STATUS|START|LAUNCHER_RUNTIME",
+    )
+    first_failure_renderer_spawn_index = first_marker_index(
+        first_failure_runtime_lines,
+        "STATUS|SUCCESS|RENDERER_PROCESS_SPAWN",
+    )
+    first_failure_signal_sent_index = first_marker_index(first_failure_runtime_lines, "RELAUNCH_SIGNAL_SENT")
+    first_failure_reacquire_index = first_marker_index(first_failure_runtime_lines, "RELAUNCH_ACQUIRED_AFTER_WAIT")
+    first_failure_replacement_active_index = first_marker_index(
+        first_failure_runtime_lines,
+        RELAUNCH_REPLACEMENT_SESSION_ACTIVE_MARKER,
+    )
+    first_failure_replacement_settled_index = first_marker_index(
+        first_failure_runtime_lines,
+        RELAUNCH_REPLACEMENT_SESSION_SETTLED_MARKER,
+    )
+    first_failure_release_index = first_marker_index(first_failure_runtime_lines, SINGLE_INSTANCE_RELEASED_MARKER)
+
+    decline_conflict_index = first_marker_index(decline_runtime_lines, "SINGLE_INSTANCE_CONFLICT_DETECTED")
+    decline_prompt_decline_index = max(
+        first_marker_index(decline_runtime_lines, "REPLACE_PROMPT_DECLINED"),
+        first_marker_index(decline_runtime_lines, "REPLACE_PROMPT_AUTO_DECLINED"),
+    )
+    decline_outcome_index = first_marker_index(
+        decline_runtime_lines,
+        RELAUNCH_DECLINED_SESSION_PRESERVED_MARKER,
+    )
+    decline_runtime_start_index = first_marker_index(decline_runtime_lines, "STATUS|START|LAUNCHER_RUNTIME")
+    decline_renderer_spawn_index = first_marker_index(
+        decline_runtime_lines,
+        "STATUS|SUCCESS|RENDERER_PROCESS_SPAWN",
+    )
+    decline_prompt_accept_index = max(
+        first_marker_index(decline_runtime_lines, "REPLACE_PROMPT_ACCEPTED"),
+        first_marker_index(decline_runtime_lines, "REPLACE_PROMPT_AUTO_ACCEPTED"),
+    )
+    decline_signal_sent_index = first_marker_index(decline_runtime_lines, "RELAUNCH_SIGNAL_SENT")
+    decline_reacquire_index = first_marker_index(decline_runtime_lines, "RELAUNCH_ACQUIRED_AFTER_WAIT")
+    decline_replacement_active_index = first_marker_index(
+        decline_runtime_lines,
+        RELAUNCH_REPLACEMENT_SESSION_ACTIVE_MARKER,
+    )
+    decline_replacement_settled_index = first_marker_index(
+        decline_runtime_lines,
+        RELAUNCH_REPLACEMENT_SESSION_SETTLED_MARKER,
+    )
+    decline_release_index = first_marker_index(decline_runtime_lines, SINGLE_INSTANCE_RELEASED_MARKER)
+
+    accept_conflict_index = first_marker_index(accept_runtime_lines, "SINGLE_INSTANCE_CONFLICT_DETECTED")
+    accept_prompt_accept_index = max(
+        first_marker_index(accept_runtime_lines, "REPLACE_PROMPT_ACCEPTED"),
+        first_marker_index(accept_runtime_lines, "REPLACE_PROMPT_AUTO_ACCEPTED"),
+    )
+    accept_signal_sent_index = first_marker_index(accept_runtime_lines, "RELAUNCH_SIGNAL_SENT")
+    accept_reacquire_index = first_marker_index(accept_runtime_lines, "RELAUNCH_ACQUIRED_AFTER_WAIT")
+    accept_replacement_confirmed_index = first_marker_index(
+        accept_runtime_lines,
+        "RELAUNCH_REPLACEMENT_SESSION_CONFIRMED",
+    )
+    accept_replacement_active_index = first_marker_index(
+        accept_runtime_lines,
+        RELAUNCH_REPLACEMENT_SESSION_ACTIVE_MARKER,
+    )
+    accept_relaunch_request_index = first_marker_index(
+        accept_runtime_lines,
+        "RENDERER_MAIN|RELAUNCH_REQUEST_RECEIVED",
+    )
+    accept_settled_index = first_marker_index(accept_runtime_lines, AUTHORITATIVE_DESKTOP_SETTLED_MARKER)
+    accept_launcher_settled_observed_index = first_marker_index(
+        accept_runtime_lines,
+        LAUNCHER_SETTLED_OBSERVED_MARKER,
+    )
+    accept_replacement_settled_index = first_marker_index(
+        accept_runtime_lines,
+        RELAUNCH_REPLACEMENT_SESSION_SETTLED_MARKER,
+    )
+    accept_recoverable_complete_index = first_marker_index(
+        accept_runtime_lines,
+        POST_SETTLED_RECOVERABLE_COMPLETE_MARKER,
+    )
+    accept_shutdown_index = first_marker_index(accept_runtime_lines, "RENDERER_MAIN|SHUTDOWN_REQUESTED")
+    accept_exit_index = first_marker_index(accept_runtime_lines, "RENDERER_MAIN|EVENT_LOOP_EXIT|code=0")
+    accept_release_index = first_marker_index(accept_runtime_lines, SINGLE_INSTANCE_RELEASED_MARKER)
+    accept_decline_index = max(
+        first_marker_index(accept_runtime_lines, "REPLACE_PROMPT_DECLINED"),
+        first_marker_index(accept_runtime_lines, "REPLACE_PROMPT_AUTO_DECLINED"),
+    )
+    accept_failure_outcome_index = first_marker_index(
+        accept_runtime_lines,
+        RELAUNCH_SIGNAL_FAILED_SESSION_PRESERVED_MARKER,
+    )
+
+    final_failure_conflict_index = first_marker_index(final_failure_runtime_lines, "SINGLE_INSTANCE_CONFLICT_DETECTED")
+    final_failure_prompt_accept_index = max(
+        first_marker_index(final_failure_runtime_lines, "REPLACE_PROMPT_ACCEPTED"),
+        first_marker_index(final_failure_runtime_lines, "REPLACE_PROMPT_AUTO_ACCEPTED"),
+    )
+    final_failure_signal_failed_index = first_marker_index(final_failure_runtime_lines, "RELAUNCH_SIGNAL_FAILED")
+    final_failure_outcome_index = first_marker_index(
+        final_failure_runtime_lines,
+        RELAUNCH_SIGNAL_FAILED_SESSION_PRESERVED_MARKER,
+    )
+    final_failure_runtime_start_index = first_marker_index(
+        final_failure_runtime_lines,
+        "STATUS|START|LAUNCHER_RUNTIME",
+    )
+    final_failure_renderer_spawn_index = first_marker_index(
+        final_failure_runtime_lines,
+        "STATUS|SUCCESS|RENDERER_PROCESS_SPAWN",
+    )
+    final_failure_signal_sent_index = first_marker_index(final_failure_runtime_lines, "RELAUNCH_SIGNAL_SENT")
+    final_failure_reacquire_index = first_marker_index(final_failure_runtime_lines, "RELAUNCH_ACQUIRED_AFTER_WAIT")
+    final_failure_replacement_active_index = first_marker_index(
+        final_failure_runtime_lines,
+        RELAUNCH_REPLACEMENT_SESSION_ACTIVE_MARKER,
+    )
+    final_failure_replacement_settled_index = first_marker_index(
+        final_failure_runtime_lines,
+        RELAUNCH_REPLACEMENT_SESSION_SETTLED_MARKER,
+    )
+    final_failure_release_index = first_marker_index(final_failure_runtime_lines, SINGLE_INSTANCE_RELEASED_MARKER)
+
+    ordering_detail = (
+        f"first_settled={first_settled_index}, first_relaunch_request={first_relaunch_request_index}, "
+        f"first_shutdown={first_shutdown_index}, first_exit={first_exit_index}, first_release={first_release_index}, "
+        f"failure1_conflict={first_failure_conflict_index}, failure1_prompt_accept={first_failure_prompt_accept_index}, "
+        f"failure1_signal_failed={first_failure_signal_failed_index}, failure1_outcome={first_failure_outcome_index}, "
+        f"failure1_runtime_start={first_failure_runtime_start_index}, failure1_signal_sent={first_failure_signal_sent_index}, "
+        f"failure1_reacquire={first_failure_reacquire_index}, failure1_replacement_active={first_failure_replacement_active_index}, "
+        f"decline_conflict={decline_conflict_index}, decline_prompt_decline={decline_prompt_decline_index}, "
+        f"decline_outcome={decline_outcome_index}, decline_runtime_start={decline_runtime_start_index}, "
+        f"decline_signal_sent={decline_signal_sent_index}, decline_reacquire={decline_reacquire_index}, "
+        f"accept_conflict={accept_conflict_index}, accept_prompt_accept={accept_prompt_accept_index}, "
+        f"accept_signal_sent={accept_signal_sent_index}, accept_reacquire={accept_reacquire_index}, "
+        f"accept_replacement_active={accept_replacement_active_index}, accept_settled={accept_settled_index}, "
+        f"accept_replacement_settled={accept_replacement_settled_index}, accept_shutdown={accept_shutdown_index}, "
+        f"accept_exit={accept_exit_index}, accept_release={accept_release_index}, "
+        f"failure2_conflict={final_failure_conflict_index}, failure2_prompt_accept={final_failure_prompt_accept_index}, "
+        f"failure2_signal_failed={final_failure_signal_failed_index}, failure2_outcome={final_failure_outcome_index}, "
+        f"failure2_runtime_start={final_failure_runtime_start_index}, failure2_signal_sent={final_failure_signal_sent_index}, "
+        f"failure2_reacquire={final_failure_reacquire_index}, failure2_replacement_active={final_failure_replacement_active_index}"
+    )
+
+    checks = {
+        "cscript_available": line_status(
+            bool(cscript_command),
+            cscript_command[0] if cscript_command else "missing Windows Script Host entrypoint",
+        ),
+        "scenario_log_root_cleared_before_launch": line_status(
+            not scenario_root_entries_after_reset,
+            "empty" if not scenario_root_entries_after_reset else ", ".join(scenario_root_entries_after_reset[:5]),
+        ),
+        "five_runtime_logs_created": line_status(
+            all(
+                [
+                    first_runtime_log,
+                    first_failure_runtime_log,
+                    decline_runtime_log,
+                    accept_runtime_log,
+                    final_failure_runtime_log,
+                ]
+            )
+            and len(
+                {
+                    first_runtime_log,
+                    first_failure_runtime_log,
+                    decline_runtime_log,
+                    accept_runtime_log,
+                    final_failure_runtime_log,
+                }
+            )
+            == 5,
+            ", ".join(
+                path or "missing"
+                for path in (
+                    first_runtime_log,
+                    first_failure_runtime_log,
+                    decline_runtime_log,
+                    accept_runtime_log,
+                    final_failure_runtime_log,
+                )
+            ),
+        ),
+        "first_session_settled_before_mixed_sequence": line_status(
+            first_settled_index >= 0,
+            AUTHORITATIVE_DESKTOP_SETTLED_MARKER if first_settled_index >= 0 else "missing authoritative settled marker",
+        ),
+        "first_session_preserved_during_failure_and_decline": line_status(
+            not active_session_changed_before_accept_phase,
+            ordering_detail,
+        ),
+        "first_failure_launch_conflict_accept_and_signal_failure": line_status(
+            first_failure_conflict_index >= 0
+            and first_failure_prompt_accept_index > first_failure_conflict_index
+            and first_failure_signal_failed_index > first_failure_prompt_accept_index
+            and first_failure_outcome_index > first_failure_signal_failed_index,
+            ordering_detail,
+        ),
+        "first_failure_launch_never_starts_runtime_ownership": line_status(
+            first_failure_runtime_start_index < 0
+            and first_failure_renderer_spawn_index < 0
+            and first_failure_signal_sent_index < 0
+            and first_failure_reacquire_index < 0
+            and first_failure_replacement_active_index < 0
+            and first_failure_replacement_settled_index < 0
+            and first_failure_release_index < 0,
+            ordering_detail,
+        ),
+        "decline_launch_conflict_and_decline": line_status(
+            decline_conflict_index >= 0 and decline_prompt_decline_index > decline_conflict_index >= 0,
+            ordering_detail,
+        ),
+        "decline_launch_never_starts_runtime_ownership": line_status(
+            decline_runtime_start_index < 0
+            and decline_renderer_spawn_index < 0
+            and decline_prompt_accept_index < 0
+            and decline_signal_sent_index < 0
+            and decline_reacquire_index < 0
+            and decline_replacement_active_index < 0
+            and decline_replacement_settled_index < 0
+            and decline_release_index < 0,
+            ordering_detail,
+        ),
+        "accept_launch_transfers_ownership_cleanly": line_status(
+            first_relaunch_request_index >= 0
+            and first_shutdown_index > first_relaunch_request_index
+            and first_exit_index > first_shutdown_index
+            and first_release_index > first_exit_index
+            and accept_conflict_index >= 0
+            and accept_prompt_accept_index > accept_conflict_index
+            and accept_signal_sent_index > accept_prompt_accept_index
+            and accept_reacquire_index > accept_signal_sent_index
+            and accept_replacement_confirmed_index >= accept_reacquire_index
+            and accept_replacement_active_index > accept_reacquire_index
+            and accept_settled_index > accept_replacement_active_index
+            and accept_launcher_settled_observed_index >= accept_settled_index
+            and accept_replacement_settled_index > accept_settled_index
+            and accept_decline_index < 0
+            and accept_failure_outcome_index < 0,
+            ordering_detail,
+        ),
+        "accepted_session_preserved_during_final_failure": line_status(
+            not accepted_session_changed_during_final_failure and accept_relaunch_request_index < 0,
+            ordering_detail,
+        ),
+        "final_failure_launch_conflict_accept_and_signal_failure": line_status(
+            final_failure_conflict_index >= 0
+            and final_failure_prompt_accept_index > final_failure_conflict_index
+            and final_failure_signal_failed_index > final_failure_prompt_accept_index
+            and final_failure_outcome_index > final_failure_signal_failed_index,
+            ordering_detail,
+        ),
+        "final_failure_launch_never_starts_runtime_ownership": line_status(
+            final_failure_runtime_start_index < 0
+            and final_failure_renderer_spawn_index < 0
+            and final_failure_signal_sent_index < 0
+            and final_failure_reacquire_index < 0
+            and final_failure_replacement_active_index < 0
+            and final_failure_replacement_settled_index < 0
+            and final_failure_release_index < 0,
+            ordering_detail,
+        ),
+        "accepted_session_lifecycle_completed_after_final_failure": line_status(
+            (
+                accept_shutdown_index > accept_settled_index >= 0
+                and accept_exit_index > accept_shutdown_index
+                and accept_release_index > accept_exit_index
+            )
+            or (
+                accept_recoverable_complete_index > accept_settled_index >= 0
+                and accept_release_index > accept_recoverable_complete_index
+            ),
+            ordering_detail,
+        ),
+        "accepted_session_shutdown_hotkey_optional": line_status(
+            True,
+            accept_shutdown_hotkey_detail if accept_shutdown_hotkey_sent else "not needed before lifecycle completion",
+        ),
+        "guard_transfers_only_in_accept_phase": line_status(
+            first_failure_reacquire_index < 0
+            and decline_reacquire_index < 0
+            and accept_reacquire_index >= 0
+            and final_failure_reacquire_index < 0,
+            ordering_detail,
+        ),
+        "classification_stays_distinct_across_failure_decline_accept_failure": line_status(
+            first_failure_outcome_index >= 0
+            and decline_outcome_index >= 0
+            and accept_replacement_settled_index >= 0
+            and final_failure_outcome_index >= 0
+            and not any(RELAUNCH_DECLINED_SESSION_PRESERVED_MARKER in line for line in first_failure_runtime_lines)
+            and not any(RELAUNCH_SIGNAL_FAILED_SESSION_PRESERVED_MARKER in line for line in decline_runtime_lines)
+            and not any(RELAUNCH_DECLINED_SESSION_PRESERVED_MARKER in line for line in accept_runtime_lines)
+            and not any(RELAUNCH_SIGNAL_FAILED_SESSION_PRESERVED_MARKER in line for line in accept_runtime_lines)
+            and not any(RELAUNCH_REPLACEMENT_SESSION_SETTLED_MARKER in line for line in first_failure_runtime_lines)
+            and not any(RELAUNCH_REPLACEMENT_SESSION_SETTLED_MARKER in line for line in decline_runtime_lines)
+            and not any(RELAUNCH_REPLACEMENT_SESSION_SETTLED_MARKER in line for line in final_failure_runtime_lines),
+            ordering_detail,
+        ),
+        "no_failure_flow_in_incoming_mixed_sequence": line_status(
+            not any("STATUS|SUCCESS|LAUNCHER_RUNTIME|FAILURE_FLOW_COMPLETE" in line for line in first_failure_runtime_lines)
+            and not any("STATUS|SUCCESS|LAUNCHER_RUNTIME|FAILURE_FLOW_COMPLETE" in line for line in decline_runtime_lines)
+            and not any("STATUS|SUCCESS|LAUNCHER_RUNTIME|FAILURE_FLOW_COMPLETE" in line for line in accept_runtime_lines)
+            and not any("STATUS|SUCCESS|LAUNCHER_RUNTIME|FAILURE_FLOW_COMPLETE" in line for line in final_failure_runtime_lines),
+            "STATUS|SUCCESS|LAUNCHER_RUNTIME|FAILURE_FLOW_COMPLETE absent",
+        ),
+        "traceback_absent": line_status(
+            all(
+                "Traceback" not in stderr
+                for stderr in (
+                    first_stderr,
+                    first_failure_stderr,
+                    decline_stderr,
+                    accept_stderr,
+                    final_failure_stderr,
+                )
+            ),
+            "\n".join(
+                part
+                for part in (
+                    first_stderr,
+                    first_failure_stderr,
+                    decline_stderr,
+                    accept_stderr,
+                    final_failure_stderr,
+                    first_stdout,
+                    first_failure_stdout,
+                    decline_stdout,
+                    accept_stdout,
+                    final_failure_stdout,
+                )
+                if part
+            ) or "no traceback in launcher output",
+        ),
+        "scenario_preflight_cleanup_optional": line_status(
+            not preexisting_processes_after,
+            "no prior validation-owned launcher/runtime processes detected"
+            if not preexisting_processes_before
+            else (
+                f"detected {len(preexisting_processes_before)} prior process(es); "
+                f"killed={','.join(str(pid) for pid in preexisting_processes_killed) or 'none'}"
+            ),
+        ),
+        "launch_chain_cleanup_optional": line_status(
+            not residual_launch_chain_processes_after,
+            "no residual validation-owned launcher/runtime processes detected"
+            if not residual_launch_chain_processes_before
+            else (
+                f"detected {len(residual_launch_chain_processes_before)} residual process(es); "
+                f"killed={','.join(str(pid) for pid in residual_launch_chain_killed) or 'none'}"
+            ),
+        ),
+    }
+
+    return {
+        "scenario_name": scenario_name,
+        "log_root": scenario_root,
+        "runtime_log": accept_runtime_log or final_failure_runtime_log or first_runtime_log,
+        "stdout": "\n".join(
+            part
+            for part in (
+                first_stdout,
+                first_failure_stdout,
+                decline_stdout,
+                accept_stdout,
+                final_failure_stdout,
+            )
+            if part
+        ),
+        "stderr": "\n".join(
+            part
+            for part in (
+                first_stderr,
+                first_failure_stderr,
+                decline_stderr,
+                accept_stderr,
+                final_failure_stderr,
+            )
+            if part
+        ),
+        "checks": checks,
+    }
+
+
 def run_main_default_handoff_scenario():
     scenario_result = run_launch_chain_scenario(
         "main_default_handoff",
@@ -5175,6 +6055,7 @@ def run_validation():
     main_handoff_result = run_main_default_handoff_scenario()
     main_explicit_handoff_result = run_main_explicit_desktop_handoff_scenario()
     repeated_entrypoint_result = run_repeated_entrypoint_launch_scenario()
+    single_instance_wait_boundary_result = run_single_instance_wait_boundary_scenario()
     accepted_relaunch_result = run_accepted_relaunch_cycle_scenario()
     accepted_relaunch_slow_shutdown_result = run_accepted_relaunch_cycle_scenario(
         "vbs_accepted_relaunch_cycle_slow_shutdown",
@@ -5186,6 +6067,9 @@ def run_validation():
     rapid_declined_relaunch_result = run_rapid_consecutive_declined_relaunch_cycles_scenario()
     mixed_signal_failure_accept_result = run_mixed_signal_failure_then_accept_relaunch_scenario()
     mixed_decline_accept_result = run_mixed_decline_then_accept_relaunch_scenario()
+    mixed_failure_decline_accept_failure_result = (
+        run_mixed_failure_decline_accept_failure_relaunch_scenario()
+    )
     relaunch_after_recoverable_result = run_relaunch_after_recoverable_exit_scenario()
     consecutive_relaunch_cycles_result = run_rapid_consecutive_accepted_relaunch_cycles_scenario()
     main_invalid_argument_result = run_main_invalid_argument_scenario()
@@ -5216,6 +6100,8 @@ def run_validation():
         checks[f"{main_invalid_argument_result['scenario_name']}::{check_name}"] = check_result
     for check_name, check_result in repeated_entrypoint_result["checks"].items():
         checks[f"{repeated_entrypoint_result['scenario_name']}::{check_name}"] = check_result
+    for check_name, check_result in single_instance_wait_boundary_result["checks"].items():
+        checks[f"{single_instance_wait_boundary_result['scenario_name']}::{check_name}"] = check_result
     for check_name, check_result in accepted_relaunch_result["checks"].items():
         checks[f"{accepted_relaunch_result['scenario_name']}::{check_name}"] = check_result
     for check_name, check_result in accepted_relaunch_slow_shutdown_result["checks"].items():
@@ -5232,6 +6118,8 @@ def run_validation():
         checks[f"{mixed_signal_failure_accept_result['scenario_name']}::{check_name}"] = check_result
     for check_name, check_result in mixed_decline_accept_result["checks"].items():
         checks[f"{mixed_decline_accept_result['scenario_name']}::{check_name}"] = check_result
+    for check_name, check_result in mixed_failure_decline_accept_failure_result["checks"].items():
+        checks[f"{mixed_failure_decline_accept_failure_result['scenario_name']}::{check_name}"] = check_result
     for check_name, check_result in relaunch_after_recoverable_result["checks"].items():
         checks[f"{relaunch_after_recoverable_result['scenario_name']}::{check_name}"] = check_result
     for check_name, check_result in consecutive_relaunch_cycles_result["checks"].items():
@@ -5262,6 +6150,7 @@ def run_validation():
         ],
         "nonlaunch_scenarios": [
             repeated_entrypoint_result,
+            single_instance_wait_boundary_result,
             accepted_relaunch_result,
             accepted_relaunch_slow_shutdown_result,
             repeated_signal_failure_result,
@@ -5270,6 +6159,7 @@ def run_validation():
             rapid_declined_relaunch_result,
             mixed_signal_failure_accept_result,
             mixed_decline_accept_result,
+            mixed_failure_decline_accept_failure_result,
             relaunch_after_recoverable_result,
             consecutive_relaunch_cycles_result,
             main_invalid_argument_result,
