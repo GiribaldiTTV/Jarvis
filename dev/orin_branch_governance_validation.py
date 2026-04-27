@@ -172,9 +172,10 @@ MULTI_SEAM_CONTRACT_PHRASES = (
     "there is no repo-wide cap on how many slices a branch or workstream may carry",
     "same-branch backlog completion is the branch-level default: later slices for the same backlog item stay on the same branch when scope, phase, risk, and validation authority remain green",
     "continue seam-to-seam inside the current slice until all required seams are complete and the slice status is green",
-    "once the current slice is green, return green status and await the next instruction",
-    "do not auto-start a new slice or later phase after the current slice turns green",
-    "Branch Readiness must evaluate the whole backlog item, define the first admitted slice, record the same-branch continuation posture for later slices after the current slice turns green, and record any known future-dependent blockers before Workstream begins.",
+    "when a slice turns green during `Workstream`, advance immediately to the next admitted slice while `Completion Status` remains `In Progress`",
+    "`Workstream` reaches `Hardening` only when `Completion Status: Green`",
+    "`Completion Status: Red` means a named blocker or waiver currently stops bounded Workstream continuation",
+    "Branch Readiness must evaluate the whole backlog item, define the first admitted slice, record the same-branch continuation posture until `Completion Status` becomes green, and record any known future-dependent blockers before Workstream begins.",
     "Workstream must execute admitted implementation slices one slice at a time",
     "`Workstream` may not advance to `Hardening` while remaining implementable work is still available on the current backlog item",
     "Backlog-Split User Approval",
@@ -188,7 +189,8 @@ MULTI_SEAM_PRIMARY_REPAIR_PHRASES = (
     "Legacy `Single-Seam Fallback` and `Single-Seam Mode Waiver` terms are retired and must not be used in active source-of-truth.",
     "A bounded stop condition blocks the workflow. It does not by itself authorize splitting the backlog item across branches.",
     "Stopping after the first slice or splitting the backlog item across branches requires an explicit `Backlog-Split User Approval` or a named bounded stop condition.",
-    "Do not auto-start a new slice or later phase after the current slice turns green.",
+    "when a slice turns green during `Workstream`, advance immediately to the next admitted slice while `Completion Status` remains `In Progress`",
+    "`Completion Status: Red` means a named blocker or waiver currently stops bounded Workstream continuation",
 )
 
 MULTI_SEAM_PROHIBITED_CATEGORY_STOP_PHRASES = (
@@ -229,8 +231,9 @@ MULTI_SEAM_PROMPT_PHRASES = (
     "there is no repo-wide cap on how many slices a branch or workstream may carry",
     "same-branch backlog completion is the branch-level default: later slices for the same backlog item stay on the same branch when scope, phase, risk, and validation authority remain green",
     "continue seam-to-seam inside the current slice until all required seams are complete and the slice status is green",
-    "once the current slice is green, return green status and await the next instruction",
-    "do not auto-start a new slice or later phase after the current slice turns green",
+    "when a slice turns green during `Workstream`, advance immediately to the next admitted slice while `Completion Status` remains `In Progress`",
+    "`Workstream` reaches `Hardening` only when `Completion Status: Green`",
+    "`Completion Status: Red` means a named blocker or waiver currently stops bounded Workstream continuation",
     "Backlog Completion State",
     "Backlog-Split User Approval",
     "Backlog-Split Reason",
@@ -248,6 +251,7 @@ REUSABLE_GUIDANCE_RETIRED_SEAM_TERMS = {
 REQUIRED_WORKSTREAM_CONTINUATION_MARKERS = (
     "Seam Status:",
     "Slice Status:",
+    "Completion Status:",
     "Waiver Status:",
     "Continue Decision:",
     "Stop Basis:",
@@ -258,64 +262,73 @@ REQUIRED_WORKSTREAM_CONTINUATION_MARKERS = (
 
 CONTINUATION_SEAM_STATUS_LABEL = "Seam Status"
 CONTINUATION_SLICE_STATUS_LABEL = "Slice Status"
+CONTINUATION_COMPLETION_STATUS_LABEL = "Completion Status"
 CONTINUATION_WAIVER_STATUS_LABEL = "Waiver Status"
 CONTINUATION_STOP_BASIS_LABEL = "Stop Basis"
 CONTINUATION_ALLOWED_SEAM_STATUSES = {"green", "in progress", "blocked"}
 CONTINUATION_ALLOWED_SLICE_STATUSES = {"green", "in progress", "blocked", "waived"}
+CONTINUATION_ALLOWED_COMPLETION_STATUSES = {"green", "in progress", "red"}
 CONTINUATION_ALLOWED_WAIVER_STATUSES = {"none", "approved", "required"}
 CONTINUATION_ALLOWED_DECISIONS = {"continue", "stop"}
-CONTINUATION_ALLOWED_STOP_BASES = {"none", "slice green", "named blocker", "waiver"}
+CONTINUATION_ALLOWED_STOP_BASES = {"none", "workstream green", "named blocker", "waiver"}
 
 GOVERNED_OUTPUT_CONTRACT_REQUIRED_PHRASES = {
     Path("Docs/phase_governance.md"): (
         "Seam Status:",
         "Slice Status:",
+        "Completion Status:",
         "Waiver Status:",
         "Continue Decision:",
         "Stop Basis:",
         "A green seam does not authorize stop while `Slice Status` is not green.",
-        "`Await Next Instruction` is only legal when `Slice Status: Green`, or when a named blocker or waiver explicitly stops continuation.",
-        "`Backlog Completion Unproven` keeps the branch in `Workstream`; by itself it is not authority to return `Await Next Instruction` while the current slice remains in progress.",
+        "A green slice does not authorize stop while `Completion Status` is not green.",
+        "`Await Next Instruction` is only legal in `Workstream` when `Completion Status: Green`, or when `Completion Status: Red` is justified by a named blocker or waiver.",
+        "`Backlog Completion Unproven` keeps the branch in `Workstream`; by itself it is not authority to return `Await Next Instruction` while `Completion Status` remains `In Progress`.",
     ),
     Path("Docs/development_rules.md"): (
         "Seam Status",
         "Slice Status",
+        "Completion Status",
         "Waiver Status",
         "Continue Decision",
         "Stop Basis",
-        "If `Slice Status` is not green and no named blocker or waiver stops work, Codex must continue rather than returning `Await Next Instruction`.",
+        "If `Completion Status` is `In Progress` and no named blocker or waiver stops work, Codex must continue rather than returning `Await Next Instruction`.",
     ),
     Path("Docs/codex_modes.md"): (
         "Seam Status",
         "Slice Status",
+        "Completion Status",
         "Waiver Status",
         "Continue Decision",
         "Stop Basis",
-        "If `Slice Status` is not green and no named blocker or waiver stops work, Workflow mode must continue rather than returning `Await Next Instruction`.",
+        "If `Completion Status` is `In Progress` and no named blocker or waiver stops work, Workflow mode must continue rather than returning `Await Next Instruction`.",
     ),
     Path("Docs/codex_user_guide.md"): (
         "Seam Status:",
         "Slice Status:",
+        "Completion Status:",
         "Waiver Status:",
         "Continue Decision:",
         "Stop Basis:",
-        "If `Slice Status` is not green and no named blocker or waiver stops work, Codex must continue instead of returning `Await Next Instruction`.",
+        "If `Completion Status` is `In Progress` and no named blocker or waiver stops work, Codex must continue instead of returning `Await Next Instruction`.",
     ),
     Path("Docs/orin_task_template.md"): (
         "Seam Status:",
         "Slice Status:",
+        "Completion Status:",
         "Waiver Status:",
         "Continue Decision:",
         "Stop Basis:",
-        "If `Slice Status` is not green and no named blocker or waiver stops work, Codex must continue instead of returning `Await Next Instruction`.",
+        "If `Completion Status` is `In Progress` and no named blocker or waiver stops work, Codex must continue instead of returning `Await Next Instruction`.",
     ),
     Path("Docs/nexus_startup_contract.md"): (
         "Seam Status",
         "Slice Status",
+        "Completion Status",
         "Waiver Status",
         "Continue Decision",
         "Stop Basis",
-        "If `Slice Status` is not green and no named blocker or waiver stops work, the generated prompt must require continuation rather than `Await Next Instruction`.",
+        "If `Completion Status` is `In Progress` and no named blocker or waiver stops work, the generated prompt must require continuation rather than `Await Next Instruction`.",
     ),
 }
 
@@ -365,7 +378,7 @@ PLANNING_LOOP_GUARDRAIL_DOCS = (
 
 PLANNING_LOOP_GUARDRAIL_PHRASES = (
     "Branch Readiness owns planning, framing, affected-surface mapping, implementation delta classification, admitted-slice definition, and whole-backlog closure strategy before Workstream begins.",
-    "Branch Readiness must evaluate the whole backlog item, define the first admitted slice, record the same-branch continuation posture for later slices after the current slice turns green, and record any known future-dependent blockers before Workstream begins.",
+    "Branch Readiness must evaluate the whole backlog item, define the first admitted slice, record the same-branch continuation posture until `Completion Status` becomes green, and record any known future-dependent blockers before Workstream begins.",
     "Workstream must execute admitted implementation slices one slice at a time, keep re-evaluating the backlog item after each seam and slice, and keep later slices on the same branch by default when scope, phase, risk, and validation authority remain green unless the USER explicitly approves a docs-only bypass or backlog split.",
     "Docs-only Workstreams require explicit USER approval.",
     "Planning-Loop Bypass User Approval: APPROVED",
@@ -1694,6 +1707,9 @@ def _validate_governed_output_state(
 ) -> None:
     seam_status = _extract_marker_value(continuation_section, CONTINUATION_SEAM_STATUS_LABEL)
     slice_status = _extract_marker_value(continuation_section, CONTINUATION_SLICE_STATUS_LABEL)
+    completion_status = _extract_marker_value(
+        continuation_section, CONTINUATION_COMPLETION_STATUS_LABEL
+    )
     waiver_status = _extract_marker_value(continuation_section, CONTINUATION_WAIVER_STATUS_LABEL)
     continue_decision = _extract_marker_value(continuation_section, "Continue Decision")
     stop_basis = _extract_marker_value(continuation_section, CONTINUATION_STOP_BASIS_LABEL)
@@ -1702,6 +1718,7 @@ def _validate_governed_output_state(
 
     normalized_seam_status = seam_status.strip().casefold()
     normalized_slice_status = slice_status.strip().casefold()
+    normalized_completion_status = completion_status.strip().casefold()
     normalized_waiver_status = waiver_status.strip().casefold()
     normalized_decision = continue_decision.strip().casefold()
     normalized_stop_basis = stop_basis.strip().casefold()
@@ -1721,6 +1738,13 @@ def _validate_governed_output_state(
         (
             f"{source_path}: {CONTINUATION_SLICE_STATUS_LABEL} '{slice_status}' must be one of "
             f"{', '.join(sorted(CONTINUATION_ALLOWED_SLICE_STATUSES))}"
+        ),
+    )
+    require(
+        normalized_completion_status in CONTINUATION_ALLOWED_COMPLETION_STATUSES,
+        (
+            f"{source_path}: {CONTINUATION_COMPLETION_STATUS_LABEL} '{completion_status}' must be "
+            f"one of {', '.join(sorted(CONTINUATION_ALLOWED_COMPLETION_STATUSES))}"
         ),
     )
     require(
@@ -1747,48 +1771,84 @@ def _validate_governed_output_state(
 
     if normalized_slice_status == "green":
         require(
-            normalized_decision == "stop",
+            normalized_completion_status == "green",
             (
-                f"{source_path}: a green slice must stop and await next instruction rather than "
-                "continuing execution"
-            ),
-        )
-        require(
-            normalized_stop_basis == "slice green",
-            (
-                f"{source_path}: {CONTINUATION_STOP_BASIS_LABEL} must be 'Slice Green' when "
-                f"{CONTINUATION_SLICE_STATUS_LABEL} is Green"
+                f"{source_path}: a green slice must immediately advance to the next admitted slice "
+                "unless Workstream Completion Status is Green"
             ),
         )
     else:
         require(
-            normalized_stop_basis != "slice green",
+            normalized_stop_basis != "workstream green",
             (
-                f"{source_path}: {CONTINUATION_STOP_BASIS_LABEL} must not be 'Slice Green' while "
-                f"{CONTINUATION_SLICE_STATUS_LABEL} is not Green"
+                f"{source_path}: {CONTINUATION_STOP_BASIS_LABEL} must not be 'Workstream Green' "
+                f"while {CONTINUATION_SLICE_STATUS_LABEL} is not Green"
             ),
         )
 
-    if normalized_decision == "continue":
+    if normalized_completion_status == "green":
         require(
-            normalized_slice_status != "green",
+            normalized_decision == "stop",
             (
-                f"{source_path}: Continue Decision must not be Continue when "
-                f"{CONTINUATION_SLICE_STATUS_LABEL} is Green"
+                f"{source_path}: {CONTINUATION_COMPLETION_STATUS_LABEL} Green must stop and hand "
+                "off to Hardening"
+            ),
+        )
+        require(
+            normalized_stop_basis == "workstream green",
+            (
+                f"{source_path}: {CONTINUATION_STOP_BASIS_LABEL} must be 'Workstream Green' when "
+                f"{CONTINUATION_COMPLETION_STATUS_LABEL} is Green"
+            ),
+        )
+        require(
+            normalized_slice_status == "green",
+            (
+                f"{source_path}: {CONTINUATION_COMPLETION_STATUS_LABEL} Green requires "
+                f"{CONTINUATION_SLICE_STATUS_LABEL} Green"
+            ),
+        )
+        require(
+            normalized_waiver_status == "none",
+            (
+                f"{source_path}: {CONTINUATION_COMPLETION_STATUS_LABEL} Green must not carry a "
+                "waiver status"
+            ),
+        )
+    elif normalized_completion_status == "in progress":
+        require(
+            normalized_decision == "continue",
+            (
+                f"{source_path}: {CONTINUATION_COMPLETION_STATUS_LABEL} In Progress requires "
+                "Continue Decision Continue"
             ),
         )
         require(
             normalized_stop_basis == "none",
             (
-                f"{source_path}: Continue Decision Continue requires "
+                f"{source_path}: {CONTINUATION_COMPLETION_STATUS_LABEL} In Progress requires "
                 f"'{CONTINUATION_STOP_BASIS_LABEL}: None'"
             ),
         )
         require(
             normalized_waiver_status == "none",
             (
-                f"{source_path}: Continue Decision Continue requires "
+                f"{source_path}: {CONTINUATION_COMPLETION_STATUS_LABEL} In Progress requires "
                 f"'{CONTINUATION_WAIVER_STATUS_LABEL}: None'"
+            ),
+        )
+        require(
+            normalized_slice_status != "green",
+            (
+                f"{source_path}: {CONTINUATION_COMPLETION_STATUS_LABEL} In Progress requires the "
+                "record to advance past a completed slice instead of stopping on slice-green truth"
+            ),
+        )
+        require(
+            not stop_authorizing_blockers,
+            (
+                f"{source_path}: {CONTINUATION_COMPLETION_STATUS_LABEL} In Progress must not keep "
+                "a stop-authorizing blocker active"
             ),
         )
         require(
@@ -1813,13 +1873,26 @@ def _validate_governed_output_state(
             ),
         )
     else:
-        if normalized_slice_status == "green":
-            pass
-        elif normalized_waiver_status != "none":
+        require(
+            normalized_decision == "stop",
+            (
+                f"{source_path}: {CONTINUATION_COMPLETION_STATUS_LABEL} Red requires Continue "
+                "Decision Stop"
+            ),
+        )
+        require(
+            normalized_slice_status != "green",
+            (
+                f"{source_path}: {CONTINUATION_COMPLETION_STATUS_LABEL} Red must not leave a green "
+                "slice recorded as the current active Workstream state"
+            ),
+        )
+        if normalized_waiver_status != "none":
             require(
                 normalized_stop_basis == "waiver",
                 (
-                    f"{source_path}: non-green stop with waiver status requires "
+                    f"{source_path}: {CONTINUATION_COMPLETION_STATUS_LABEL} Red with waiver status "
+                    "requires "
                     f"'{CONTINUATION_STOP_BASIS_LABEL}: Waiver'"
                 ),
             )
@@ -1827,7 +1900,8 @@ def _validate_governed_output_state(
             require(
                 normalized_stop_basis == "named blocker",
                 (
-                    f"{source_path}: non-green stop with active blockers requires "
+                    f"{source_path}: {CONTINUATION_COMPLETION_STATUS_LABEL} Red with active "
+                    "blockers requires "
                     f"'{CONTINUATION_STOP_BASIS_LABEL}: Named Blocker'"
                 ),
             )
@@ -1835,9 +1909,8 @@ def _validate_governed_output_state(
             require(
                 False,
                 (
-                    f"{source_path}: Continue Decision Stop is invalid while "
-                    f"{CONTINUATION_SLICE_STATUS_LABEL} is not Green and no named blocker or "
-                    "waiver is recorded"
+                    f"{source_path}: {CONTINUATION_COMPLETION_STATUS_LABEL} Red is invalid without "
+                    "a named blocker or waiver"
                 ),
             )
 
@@ -1920,12 +1993,23 @@ def _validate_backlog_completion_status(
     )
     status_section = _section(text, BACKLOG_COMPLETION_STATUS_HEADING)
     state_value = _extract_marker_value(status_section, BACKLOG_COMPLETION_STATE_LABEL)
+    completion_status_value = _extract_marker_value(
+        status_section, CONTINUATION_COMPLETION_STATUS_LABEL
+    )
     remaining_work = _extract_marker_value(status_section, REMAINING_IMPLEMENTABLE_WORK_LABEL)
     future_blockers = _extract_marker_value(status_section, FUTURE_DEPENDENT_BLOCKERS_LABEL)
     normalized_state = state_value.strip().casefold()
+    normalized_completion_status = completion_status_value.strip().casefold()
     normalized_remaining = remaining_work.strip().casefold()
     normalized_future = future_blockers.strip().casefold()
     has_backlog_blocker = BACKLOG_COMPLETION_UNPROVEN_BLOCKER in blockers
+    continuation_section = _section(text, "Seam Continuation Decision")
+    continuation_waiver_status = _extract_marker_value(
+        continuation_section, CONTINUATION_WAIVER_STATUS_LABEL
+    ).strip().casefold()
+    stop_authorizing_blockers = [
+        blocker for blocker in blockers if blocker != BACKLOG_COMPLETION_UNPROVEN_BLOCKER
+    ]
 
     require(
         bool(state_value),
@@ -1939,6 +2023,22 @@ def _validate_backlog_completion_status(
         bool(future_blockers),
         f"{source_path}: {BACKLOG_COMPLETION_STATUS_HEADING} is missing '{FUTURE_DEPENDENT_BLOCKERS_LABEL}:'",
     )
+    if current_phase == "Workstream":
+        require(
+            bool(completion_status_value),
+            (
+                f"{source_path}: {BACKLOG_COMPLETION_STATUS_HEADING} is missing "
+                f"'{CONTINUATION_COMPLETION_STATUS_LABEL}:'"
+            ),
+        )
+        require(
+            normalized_completion_status in CONTINUATION_ALLOWED_COMPLETION_STATUSES,
+            (
+                f"{source_path}: {CONTINUATION_COMPLETION_STATUS_LABEL} "
+                f"'{completion_status_value}' must be one of "
+                f"{', '.join(sorted(CONTINUATION_ALLOWED_COMPLETION_STATUSES))}"
+            ),
+        )
     require(
         normalized_state
         in {
@@ -1981,6 +2081,25 @@ def _validate_backlog_completion_status(
                 f"'{BACKLOG_COMPLETION_UNPROVEN_BLOCKER}'"
             ),
         )
+        if current_phase == "Workstream":
+            if continuation_waiver_status != "none" or stop_authorizing_blockers:
+                require(
+                    normalized_completion_status == "red",
+                    (
+                        f"{source_path}: {BACKLOG_COMPLETION_STATE_LABEL} In Progress with a "
+                        "stop-authorizing blocker or waiver requires "
+                        f"'{CONTINUATION_COMPLETION_STATUS_LABEL}: Red'"
+                    ),
+                )
+            else:
+                require(
+                    normalized_completion_status == "in progress",
+                    (
+                        f"{source_path}: {BACKLOG_COMPLETION_STATE_LABEL} In Progress without a "
+                        "stop-authorizing blocker or waiver requires "
+                        f"'{CONTINUATION_COMPLETION_STATUS_LABEL}: In Progress'"
+                    ),
+                )
     elif normalized_state == BACKLOG_COMPLETION_IMPLEMENTED_COMPLETE:
         require(
             normalized_remaining in {"", "none", "n/a", "na"},
@@ -2003,6 +2122,21 @@ def _validate_backlog_completion_status(
                 "backlog completion is proven"
             ),
         )
+        if current_phase == "Workstream":
+            require(
+                normalized_completion_status == "green",
+                (
+                    f"{source_path}: {BACKLOG_COMPLETION_STATE_LABEL} Implemented Complete requires "
+                    f"'{CONTINUATION_COMPLETION_STATUS_LABEL}: Green' before Workstream can exit"
+                ),
+            )
+            require(
+                next_legal_phase == "Hardening",
+                (
+                    f"{source_path}: {BACKLOG_COMPLETION_STATE_LABEL} Implemented Complete in "
+                    "Workstream must advance Next Legal Phase to `Hardening`"
+                ),
+            )
     elif normalized_state == BACKLOG_COMPLETION_IMPLEMENTED_COMPLETE_FUTURE:
         require(
             normalized_remaining in {"", "none", "n/a", "na"},
@@ -2025,6 +2159,22 @@ def _validate_backlog_completion_status(
                 "only future-dependent blockers remain"
             ),
         )
+        if current_phase == "Workstream":
+            require(
+                normalized_completion_status == "green",
+                (
+                    f"{source_path}: {BACKLOG_COMPLETION_STATE_LABEL} Implemented Complete Except "
+                    f"Future Dependency requires '{CONTINUATION_COMPLETION_STATUS_LABEL}: Green' "
+                    "before Workstream can exit"
+                ),
+            )
+            require(
+                next_legal_phase == "Hardening",
+                (
+                    f"{source_path}: {BACKLOG_COMPLETION_STATE_LABEL} Implemented Complete Except "
+                    "Future Dependency in Workstream must advance Next Legal Phase to `Hardening`"
+                ),
+            )
 
 
 def _validate_release_window_audit(require, source_path: str, text: str) -> None:
@@ -2411,6 +2561,9 @@ def _validate_backlog_family_reform_seam_truth(
     continuation_slice_status = _extract_marker_value(
         continuation_section, CONTINUATION_SLICE_STATUS_LABEL
     )
+    continuation_completion_status = _extract_marker_value(
+        continuation_section, CONTINUATION_COMPLETION_STATUS_LABEL
+    )
     continuation_decision = _extract_marker_value(continuation_section, "Continue Decision")
     phase_status_next_seam = _extract_marker_value(phase_status_section, "Next Active Seam")
     continuation_next_seam = _extract_marker_value(continuation_section, "Next Active Seam")
@@ -2630,7 +2783,7 @@ def _validate_backlog_family_reform_seam_truth(
         )
 
     if (
-        continuation_slice_status.strip().casefold() != "green"
+        continuation_completion_status.strip().casefold() == "in progress"
         and continuation_decision.strip().casefold() == "continue"
     ):
         for source_name, current_state in (
@@ -2645,10 +2798,31 @@ def _validate_backlog_family_reform_seam_truth(
                 ),
             )
             require(
+                "completion status: in progress" in current_state.casefold(),
+                (
+                    f"{source_name}: Current Workstream State must report "
+                    "`Completion Status: In Progress` while reform continuation remains active"
+                ),
+            )
+            require(
+                "continue decision: continue" in current_state.casefold(),
+                (
+                    f"{source_name}: Current Workstream State must report "
+                    "`Continue Decision: Continue` while reform continuation remains active"
+                ),
+            )
+            require(
                 "next when instructed" not in current_state.casefold(),
                 (
                     f"{source_name}: Current Workstream State must not await instruction while "
                     "the reform branch continuation record still requires continuation"
+                ),
+            )
+            require(
+                "slice green" not in current_state.casefold(),
+                (
+                    f"{source_name}: Current Workstream State must not report slice-green stop "
+                    "authority while reform continuation remains active"
                 ),
             )
 

@@ -252,8 +252,8 @@ These are reference layers, not active workstream or roadmap owners.
   6. `Release Readiness`
 - `Branch Readiness` must plan the whole branch at phase level before Workstream begins, including objective, target end-state, expected seam families and risk classes, validation contract, User Test Summary strategy, later-phase needs, and first seam or seam sequence
 - Branch Readiness owns planning, framing, affected-surface mapping, implementation delta classification, admitted-slice definition, and whole-backlog closure strategy before Workstream begins.
-- Branch Readiness must evaluate the whole backlog item, define the first admitted slice, record the same-branch continuation posture for later slices after the current slice turns green, and record any known future-dependent blockers before Workstream begins.
-- during `Workstream`, `bounded multi-seam workflow` is the primary model inside the current slice; execute one active seam at a time, validate it, record evidence, report `continue` or `stop`, and keep going until all required seams in the current slice are complete and the slice status is green unless a named blocker or waiver requirement is hit
+- Branch Readiness must evaluate the whole backlog item, define the first admitted slice, record the same-branch continuation posture until `Completion Status` becomes green, and record any known future-dependent blockers before Workstream begins.
+- during `Workstream`, `bounded multi-seam workflow` is the primary model inside the current slice; execute one active seam at a time, validate it, record evidence, report `continue` or `stop`, and keep going until all required seams in the current slice are complete and the slice status is green, then advance into the next admitted slice while `Completion Status` remains `In Progress`, unless a named blocker or waiver requirement turns `Completion Status` red
 - Workstream must execute admitted implementation slices one slice at a time, keep re-evaluating the backlog item after each seam and slice, and keep later slices on the same branch by default when scope, phase, risk, and validation authority remain green unless the USER explicitly approves a docs-only bypass or backlog split.
 - Docs-only Workstreams require explicit USER approval.
 - Planning-loop bypass requires `Planning-Loop Bypass User Approval: APPROVED` and `Planning-Loop Bypass Reason:`.
@@ -265,8 +265,9 @@ These are reference layers, not active workstream or roadmap owners.
 - there is no repo-wide cap on how many slices a branch or workstream may carry
 - same-branch backlog completion is the branch-level default: later slices for the same backlog item stay on the same branch when scope, phase, risk, and validation authority remain green.
 - `Next-Seam Continuation Required` means continue seam-to-seam inside the current slice until all required seams are complete and the slice status is green.
-- once the current slice is green, return green status and await the next instruction.
-- do not auto-start a new slice or later phase after the current slice turns green.
+- when a slice turns green during `Workstream`, advance immediately to the next admitted slice while `Completion Status` remains `In Progress`
+- `Workstream` reaches `Hardening` only when `Completion Status: Green`
+- `Completion Status: Red` means a named blocker or waiver currently stops bounded Workstream continuation
 - `Workstream` may not advance to `Hardening` while remaining implementable work is still available on the current backlog item.
 - use `Backlog Completion State: In Progress`, `Implemented Complete`, or `Implemented Complete Except Future Dependency` to record whether more same-branch slices are still required
 - stopping after the first slice or splitting the backlog item across branches requires an explicit `Backlog-Split User Approval` or a named bounded stop condition

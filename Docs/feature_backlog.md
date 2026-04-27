@@ -81,7 +81,7 @@ Selected Next Implementation Branch: Not created.
 Historical Repair-Only Branch Handling: `feature/fb-046-post-merge-canon-sync` was a bounded repair-only post-merge canon-sync `feature/` branch and did not imply Branch Readiness admission or active branch truth for FB-046.
 Historical Branch Readiness State: Complete on `feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeout-truth`.
 Current Branch Readiness State: Historical complete on `feature/backlog-family-governance-reform`. Phase 0 `Reform Readiness` admitted the branch authority record and cleared the path into Workstream.
-Current Workstream State: Phase 4 `Lifetime Dossier Conversion` reached Slice R4-S2 green on `feature/backlog-family-governance-reform`; Seam Status: Green for R4-S2 `Convert the FB-027 dossier shell`; Slice Status: Green; Blockers: `Backlog Completion Unproven` remains branch-level only for later reform slices; Waiver Status: None; Stop Basis: `Slice Green`; the initial FB-027 lifetime dossier shell now exists with no historical pass content migrated yet, Phase 4 / Slice R4-S3 `Add pass index and slice/seam ledger structure` is the next legal seam when instructed, and FB-049 remains the only selected-next user-facing candidate.
+Current Workstream State: Phase 4 `Lifetime Dossier Conversion` continues on `feature/backlog-family-governance-reform`; Seam Status: In Progress for R4-S3 `Add pass index and slice/seam ledger structure`; Slice Status: In Progress; Completion Status: In Progress; Blockers: `Backlog Completion Unproven` remains the non-green Workstream completion marker while later reform slices remain on this same branch; Waiver Status: None; Continue Decision: Continue; Stop Basis: None; R4-S2 created the initial FB-027 lifetime dossier shell with no historical pass content migrated yet, continuation is required into Phase 4 / Slice R4-S3 on this same branch, and FB-049 remains the only selected-next user-facing candidate.
 Current Branch Class: implementation.
 Current Implementation Delta Class: docs-only.
 Historical Workstream State: FB-048 is Released / Closed in `v1.6.12-prebeta`; FB-047 is Released / Closed in `v1.6.11-prebeta`; FB-046 is Released / Closed in `v1.6.10-prebeta`; FB-044 and FB-045 remain Released / Closed historical proof in `v1.6.9-prebeta`.
@@ -100,7 +100,7 @@ Next Legal Phase: Workstream.
 
 ## Backlog Governance Sync
 
-Last Reviewed: 2026-04-27 during Backlog Family Governance Reform Phase 4 / Slice R4-S2.
+Last Reviewed: 2026-04-27 during Backlog Family Governance Reform Workstream completion-status hardening.
 
 Open-candidate priority review:
 

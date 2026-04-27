@@ -74,7 +74,7 @@ If any required file cannot be read, any authority owner is ambiguous, or live r
 - Incident patterns are reusable lessons, not case-history authority.
 - `main` is protected for Codex work and may be read but not mutated.
 - Branch Readiness owns planning, framing, affected-surface mapping, implementation delta classification, admitted-slice definition, and whole-backlog closure strategy before Workstream begins.
-- Branch Readiness must evaluate the whole backlog item, define the first admitted slice, record the same-branch continuation posture for later slices after the current slice turns green, and record any known future-dependent blockers before Workstream begins.
+- Branch Readiness must evaluate the whole backlog item, define the first admitted slice, record the same-branch continuation posture until `Completion Status` becomes green, and record any known future-dependent blockers before Workstream begins.
 - Workstream must execute admitted implementation slices one slice at a time, keep re-evaluating the backlog item after each seam and slice, and keep later slices on the same branch by default when scope, phase, risk, and validation authority remain green unless the USER explicitly approves a docs-only bypass or backlog split.
 - Docs-only Workstreams require explicit USER approval.
 - Planning-loop bypass requires `Planning-Loop Bypass User Approval: APPROVED` and `Planning-Loop Bypass Reason:`.
@@ -162,6 +162,7 @@ Generated prompts for startup-sensitive passes should request:
 - `Active Seam` when applicable
 - `Seam Status`
 - `Slice Status`
+- `Completion Status`
 - `Blockers`
 - `Waiver Status`
 - `Continue Decision`
@@ -173,7 +174,8 @@ Generated prompts for startup-sensitive passes should request:
 
 Generic `Results` or `Validation` headings are not enough by themselves for governed execution output.
 A green seam does not authorize stop while `Slice Status` remains non-green.
-If `Slice Status` is not green and no named blocker or waiver stops work, the generated prompt must require continuation rather than `Await Next Instruction`.
+A green slice does not authorize stop while `Completion Status` remains non-green.
+If `Completion Status` is `In Progress` and no named blocker or waiver stops work, the generated prompt must require continuation rather than `Await Next Instruction`.
 
 When a pass creates or changes files before `PR Readiness` and validation is green, generated prompts must point to the Pre-PR Durability Rule in `Docs/development_rules.md` and `Docs/phase_governance.md`.
 This loader does not own durability behavior.
@@ -230,8 +232,9 @@ Workstream prompt notes for ChatGPT preflight live outside the prompt body and c
 - there is no repo-wide cap on how many slices a branch or workstream may carry
 - seams inside the current slice may be predeclared in canon or discovered from repo truth while the slice remains in progress
 - same-branch backlog completion is the branch-level default: later slices for the same backlog item stay on the same branch when scope, phase, risk, and validation authority remain green
-- once the current slice is green, return green status and await the next instruction
-- do not auto-start a new slice or later phase after the current slice turns green
+- when a slice turns green during `Workstream`, advance immediately to the next admitted slice while `Completion Status` remains `In Progress`
+- `Workstream` reaches `Hardening` only when `Completion Status: Green`
+- `Completion Status: Red` means a named blocker or waiver currently stops bounded Workstream continuation
 - continue decision must be acted on immediately by starting the next seam needed inside the current slice
 - `Workstream` may not advance to `Hardening` while remaining implementable work is still available on the current backlog item
 - use `Backlog Completion State: In Progress`, `Implemented Complete`, or `Implemented Complete Except Future Dependency` to record whether more same-branch slices are still required

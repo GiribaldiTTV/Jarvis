@@ -137,14 +137,15 @@ In Workflow mode, Codex should:
 - when the current Workstream slice contains a seam chain, use bounded multi-seam workflow as the primary model while executing one active seam at a time
 - when a prompt names an active seam, treat it as the entry seam, not a terminal boundary
 - `Next-Seam Continuation Required` means continue seam-to-seam inside the current slice until all required seams are complete and the slice status is green
-- Branch Readiness must evaluate the whole backlog item, define the first admitted slice, record the same-branch continuation posture for later slices after the current slice turns green, and record any known future-dependent blockers before Workstream begins.
+- Branch Readiness must evaluate the whole backlog item, define the first admitted slice, record the same-branch continuation posture until `Completion Status` becomes green, and record any known future-dependent blockers before Workstream begins.
 - Workstream must execute admitted implementation slices one slice at a time, keep re-evaluating the backlog item after each seam and slice, and keep later slices on the same branch by default when scope, phase, risk, and validation authority remain green unless the USER explicitly approves a docs-only bypass or backlog split.
 - a slice is a bounded admitted backlog-completion unit; a seam is the current execution checkpoint inside or between slices
 - seams inside the current slice may be predeclared in canon or discovered from repo truth while the slice remains in progress
 - there is no repo-wide cap on how many slices a branch or workstream may carry
 - same-branch backlog completion is the branch-level default: later slices for the same backlog item stay on the same branch when scope, phase, risk, and validation authority remain green.
-- once the current slice is green, return green status and await the next instruction.
-- do not auto-start a new slice or later phase after the current slice turns green.
+- when a slice turns green during `Workstream`, advance immediately to the next admitted slice while `Completion Status` remains `In Progress`
+- `Workstream` reaches `Hardening` only when `Completion Status: Green`
+- `Completion Status: Red` means a named blocker or waiver currently stops bounded Workstream continuation
 - `Workstream` may not advance to `Hardening` while remaining implementable work is still available on the current backlog item.
 - use `Backlog Completion State: In Progress`, `Implemented Complete`, or `Implemented Complete Except Future Dependency` to record whether more same-branch slices are still required
 - reporting `Next Safe Move` is not a substitute for execution when continuation authority passes
@@ -179,7 +180,7 @@ In Workflow mode, Codex must not:
 Workflow mode should usually return:
 
 - changes applied
-- exact governed state markers: `Seam Status`, `Slice Status`, `Blockers`, `Waiver Status`, `Continue Decision`, and `Stop Basis`
+- exact governed state markers: `Seam Status`, `Slice Status`, `Completion Status`, `Blockers`, `Waiver Status`, `Continue Decision`, and `Stop Basis`
 - validation performed
 - a distinct summary of validator results
 - a distinct summary of synthetic or headless validation results and the supporting validation artifacts created or used
@@ -205,7 +206,8 @@ Workflow mode should usually return:
 
 Generic `Results` or `Validation` summaries do not replace the governed state markers above.
 A green seam does not authorize stop while `Slice Status` is still non-green.
-If `Slice Status` is not green and no named blocker or waiver stops work, Workflow mode must continue rather than returning `Await Next Instruction`.
+A green slice does not authorize stop while `Completion Status` is still non-green.
+If `Completion Status` is `In Progress` and no named blocker or waiver stops work, Workflow mode must continue rather than returning `Await Next Instruction`.
 
 Pre-PR Durability Rule:
 

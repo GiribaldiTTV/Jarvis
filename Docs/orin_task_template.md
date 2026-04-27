@@ -150,7 +150,7 @@ Seams inside the current slice may be predeclared in canon or discovered from re
 There is no repo-wide cap on how many slices a branch or workstream may carry.
 same-branch backlog completion is the branch-level default: later slices for the same backlog item stay on the same branch when scope, phase, risk, and validation authority remain green.
 Branch Readiness owns planning, framing, affected-surface mapping, implementation delta classification, admitted-slice definition, and whole-backlog closure strategy before Workstream begins.
-Branch Readiness must evaluate the whole backlog item, define the first admitted slice, record the same-branch continuation posture for later slices after the current slice turns green, and record any known future-dependent blockers before Workstream begins.
+Branch Readiness must evaluate the whole backlog item, define the first admitted slice, record the same-branch continuation posture until `Completion Status` becomes green, and record any known future-dependent blockers before Workstream begins.
 Workstream must execute admitted implementation slices one slice at a time, keep re-evaluating the backlog item after each seam and slice, and keep later slices on the same branch by default when scope, phase, risk, and validation authority remain green unless the USER explicitly approves a docs-only bypass or backlog split.
 Docs-only Workstreams require explicit USER approval.
 Planning-loop bypass requires `Planning-Loop Bypass User Approval: APPROVED` and `Planning-Loop Bypass Reason:`.
@@ -159,8 +159,9 @@ reporting `Next Safe Move` is not a substitute for execution when continuation a
 reporting Next Safe Move is not a substitute for execution when continuation authority passes.
 A `continue` decision must be acted on immediately by starting the next seam needed inside the current slice.
 continue decision must be acted on immediately by starting the next seam needed inside the current slice.
-Once the current slice is green, return green status and await the next instruction.
-Do not auto-start a new slice or later phase after the current slice turns green.
+when a slice turns green during `Workstream`, advance immediately to the next admitted slice while `Completion Status` remains `In Progress`
+`Workstream` reaches `Hardening` only when `Completion Status: Green`
+`Completion Status: Red` means a named blocker or waiver currently stops bounded Workstream continuation
 Legacy `Single-Seam Fallback` and `Single-Seam Mode Waiver` wording is retired in active source-of-truth.
 `Workstream` may not advance to `Hardening` while remaining implementable work is still available on the current backlog item.
 Use `Backlog Completion State: In Progress`, `Implemented Complete`, or `Implemented Complete Except Future Dependency` to record whether more same-branch slices are still required.
@@ -181,6 +182,7 @@ For phase-sensitive execution, the response must explicitly report:
 
 - `Seam Status:`
 - `Slice Status:`
+- `Completion Status:`
 - `Blockers:`
 - `Waiver Status:`
 - `Continue Decision:`
@@ -188,7 +190,8 @@ For phase-sensitive execution, the response must explicitly report:
 
 Do not rely on generic `Results` or `Validation` headings by themselves.
 A green seam does not authorize stop while `Slice Status` remains non-green.
-If `Slice Status` is not green and no named blocker or waiver stops work, Codex must continue instead of returning `Await Next Instruction`.
+A green slice does not authorize stop while `Completion Status` remains non-green.
+If `Completion Status` is `In Progress` and no named blocker or waiver stops work, Codex must continue instead of returning `Await Next Instruction`.
 
 Default expectation:
 
@@ -334,7 +337,7 @@ After analysis is complete and execution scope is approved, follow these discipl
 - recognize that a slice is a bounded admitted backlog-completion unit while a seam is the current execution checkpoint inside or between slices
 - keep same-branch backlog completion as the branch-level default so later slices stay on the same branch whenever validation stays green
 - seams inside the current slice may be predeclared in canon or discovered from repo truth while the slice remains in progress
-- once the current slice is green, return green status and await the next instruction instead of auto-starting another slice
+- when a slice turns green during `Workstream`, advance immediately to the next admitted slice while `Completion Status` remains `In Progress`
 - preserve architecture boundaries
 - keep source-of-truth docs aligned with actual implemented state
 - production behavior must remain unchanged unless explicitly in scope
