@@ -29,7 +29,7 @@
 - Validator / Helper Index Status: `Structure introduced in Slice R4-S4`
 - Artifact Index Status: `Structure introduced in Slice R4-S4`
 - Dossier Stability Validation Status: `Validated in Slice R4-S5`
-- Last Structural Update: `2026-04-27 during Phase 5 / Slice R5-S1`
+- Last Structural Update: `2026-04-27 during Phase 5 / Slice R5-S5`
 
 ## Lifetime Tracking Scope
 
@@ -64,6 +64,20 @@ Pass Index Population State: `FB-043 through FB-048 historical pass rows migrate
 | `F042-P05` | `Historical pass alias` | `Docs/workstreams/FB-046_active_session_relaunch_reacquisition.md` | `Converted in Slice R5-S1` | `Released in v1.6.10-prebeta; preserves accepted relaunch reacquisition and replacement-session settled re-entry proof.` |
 | `F042-P06` | `Historical pass alias` | `Docs/workstreams/FB-047_active_session_relaunch_decline_preservation.md` | `Converted in Slice R5-S1` | `Released in v1.6.11-prebeta; preserves decline-preservation and session-owner continuity proof.` |
 | `F042-P07` | `Historical pass alias` | `Docs/workstreams/FB-048_active_session_relaunch_signal_failure_and_wait_timeout_truth.md` | `Converted in Slice R5-S1` | `Released in v1.6.12-prebeta; preserves accepted relaunch signal-failure and wait-timeout truth.` |
+
+### Preserved Branch Trace Index
+
+Preserved Branch Trace Status: `Populated in Slice R5-S5`
+Trace Index Population State: `All converted FB-042 pass records now point to the preserved branch-readiness trace that exists for each pass`
+
+| Pass ID | Preserved Branch Trace | Traceability State | Notes |
+| --- | --- | --- | --- |
+| `F042-P02` | `Docs/branch_records/feature_fb_043_top_level_entrypoint_handoff_refinement.md` | `Indexed in Slice R5-S5` | `Preserved Branch Readiness trace for the first post-anchor runtime follow-through.` |
+| `F042-P03` | `Docs/branch_records/feature_fb_044_boot_desktop_handoff_outcome_refinement.md` | `Indexed in Slice R5-S5` | `Preserved Branch Readiness trace for the desktop-settled handoff outcome refinement pass.` |
+| `F042-P04` | `Docs/branch_records/feature_fb_045_active_session_relaunch_stability.md` | `Indexed in Slice R5-S5` | `Preserved Branch Readiness trace for the blocker-clearing post-settled runtime follow-through pass.` |
+| `F042-P05` | `Docs/branch_records/feature_fb_046_active_session_relaunch_reacquisition.md` | `Indexed in Slice R5-S5` | `Preserved Branch Readiness trace for accepted relaunch reacquisition and settled re-entry proof.` |
+| `F042-P06` | `Docs/branch_records/feature_fb_047_active_session_relaunch_decline_preservation.md` | `Indexed in Slice R5-S5` | `Preserved Branch Readiness trace for decline-preservation follow-through under the same family.` |
+| `F042-P07` | `Docs/branch_records/feature_fb_048_active_session_relaunch_signal_failure_and_wait_timeout_truth.md` | `Indexed in Slice R5-S5` | `Preserved Branch Readiness trace for the accepted-failure and wait-timeout truth pass.` |
 
 ## Slice And Seam Ledger
 
@@ -105,5 +119,6 @@ Artifact Index Population State: `No historical artifact entries migrated yet`
 - R4-S5 validates that the FB-042 dossier shell, routing, and index-template surfaces remain stable after the Phase 4 structural slices, and it does so without migrating historical rows or narrative content.
 - R5-S1 converts FB-043 through FB-048 workstream records into explicit FB-042 historical pass records and populates family pass-index plus slice/seam summary rows without migrating full narrative, validator/helper, artifact, or branch-record bodies into the dossier itself.
 - R5-S3 converts the preserved FB-043 through FB-048 Branch Readiness records into matching FB-042 historical pass-record traceability without creating new branch records or migrating those branch-record bodies into the dossier itself.
+- R5-S5 completes the Phase 5 traceability sweep by indexing the preserved FB-043 through FB-048 branch-readiness traces directly in the family dossier and confirming the dossier, backlog, roadmap, alias workstream, and branch-record routing stay aligned without migrating narrative bodies.
 - Later Phase 4 and Phase 5 slices will populate indexes and convert historical records incrementally.
 - Until later migration lands, the existing workstream and alias records remain the authoritative detailed history.

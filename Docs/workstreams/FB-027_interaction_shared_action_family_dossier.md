@@ -29,7 +29,7 @@
 - Validator / Helper Index Status: `Structure introduced in Slice R4-S4`
 - Artifact Index Status: `Structure introduced in Slice R4-S4`
 - Dossier Stability Validation Status: `Validated in Slice R4-S5`
-- Last Structural Update: `2026-04-27 during Phase 5 / Slice R5-S2`
+- Last Structural Update: `2026-04-27 during Phase 5 / Slice R5-S5`
 
 ## Lifetime Tracking Scope
 
@@ -62,6 +62,18 @@ Pass Index Population State: `FB-036, FB-037, FB-038, and FB-041 historical pass
 | `F027-P03` | `Historical pass alias` | `Docs/workstreams/FB-041_deterministic_callable_group_execution_layer.md` | `Converted in Slice R5-S2` | `Released in v1.3.1-prebeta; preserves deterministic callable-group execution follow-through and bounded runtime progression markers.` |
 | `F027-P04` | `Historical pass alias` | `Docs/workstreams/FB-037_built_in_actions_and_settings_expansion.md` | `Converted in Slice R5-S2` | `Released in v1.4.0-prebeta; preserves the first curated built-in catalog and settings expansion lane.` |
 | `F027-P05` | `Historical pass alias` | `Docs/workstreams/FB-038_taskbar_tray_quick_task_ux.md` | `Converted in Slice R5-S2` | `Released in v1.4.1-prebeta; preserves tray quick-task UX, tray-origin create flow, and window-initialization repair history.` |
+
+### Preserved Branch Trace Index
+
+Preserved Branch Trace Status: `Populated in Slice R5-S5`
+Trace Index Population State: `Converted FB-027 pass records now explicitly show where preserved branch-record trace exists and where no separate branch record exists`
+
+| Pass ID | Preserved Branch Trace | Traceability State | Notes |
+| --- | --- | --- | --- |
+| `F027-P02` | `None preserved` | `Confirmed in Slice R5-S5` | `FB-036 does not have a separate preserved branch-authority record beyond the canonical workstream history.` |
+| `F027-P03` | `None preserved` | `Confirmed in Slice R5-S5` | `FB-041 does not have a separate preserved branch-authority record beyond the canonical workstream history.` |
+| `F027-P04` | `Docs/branch_records/codex_fb_037_release_debt_packaging.md` | `Indexed in Slice R5-S5` | `Preserved release-packaging trace for the FB-037 historical pass.` |
+| `F027-P05` | `None preserved` | `Confirmed in Slice R5-S5` | `FB-038 does not have a separate preserved branch-authority record beyond the canonical workstream history.` |
 
 ## Slice And Seam Ledger
 
@@ -101,5 +113,6 @@ Artifact Index Population State: `No historical artifact entries migrated yet`
 - R4-S5 validates that the FB-027 dossier shell, routing, and index-template surfaces remain stable after the Phase 4 structural slices, and it does so without migrating historical rows or narrative content.
 - R5-S2 converts FB-036, FB-037, FB-038, and FB-041 workstream records into explicit FB-027 historical pass records and populates family pass-index plus slice/seam summary rows without migrating full narrative, validator/helper, artifact, or branch-record bodies into the dossier itself.
 - R5-S3 converts the preserved corresponding branch-record trace where it exists for the FB-027 family, which currently means the FB-037 release-packaging record; FB-036, FB-038, and FB-041 do not have separate preserved branch-authority records to convert.
+- R5-S5 completes the Phase 5 traceability sweep by indexing the preserved FB-037 branch-record trace, explicitly calling out the passes that do not have separate branch records, and confirming the dossier, backlog, roadmap, alias workstream, and branch-record routing stay aligned without migrating narrative bodies.
 - Later Phase 4 and Phase 5 slices will populate indexes and convert historical records incrementally.
 - Until later migration lands, the existing workstream and alias records remain the authoritative detailed history.

@@ -1114,6 +1114,14 @@ REFORM_R5_S4_ACTIVE_SEAM_NEXT_PHRASE = (
     "active seam on this branch."
 )
 REFORM_R5_S4_CONTINUATION_PHRASE = "Execute Slice R5-S4"
+REFORM_R5_S5_SEAM = (
+    "Phase 5 - Historical Pass Record Conversion / Slice R5-S5 - Traceability sweep"
+)
+REFORM_R5_S5_STATE_NEXT_PHRASE = "Slice R5-S5 `Traceability sweep` is next"
+REFORM_R5_S5_ACTIVE_SEAM_NEXT_PHRASE = (
+    "Phase 5 / Slice R5-S5 `Traceability sweep` is the next active seam on this branch."
+)
+REFORM_R5_S5_CONTINUATION_PHRASE = "Execute Slice R5-S5"
 REFORM_FB042_DOSSIER_PATH = Path(
     "Docs/workstreams/FB-042_desktop_startup_runtime_family_dossier.md"
 )
@@ -1420,6 +1428,23 @@ REFORM_R5_S4_HISTORICAL_LANGUAGE_DOCS = {
             "FB-048 is now the active promoted workstream on the same branch; this record remains historical Branch Readiness traceability only.",
         ),
     },
+}
+
+REFORM_R5_S5_TRACEABILITY_REQUIRED_PHRASES = {
+    Path("Docs/workstreams/FB-042_desktop_startup_runtime_family_dossier.md"): (
+        "Preserved Branch Trace Status: `Populated in Slice R5-S5`",
+        "Trace Index Population State: `All converted FB-042 pass records now point to the preserved branch-readiness trace that exists for each pass`",
+        "| `F042-P02` | `Docs/branch_records/feature_fb_043_top_level_entrypoint_handoff_refinement.md` | `Indexed in Slice R5-S5` | `Preserved Branch Readiness trace for the first post-anchor runtime follow-through.` |",
+        "| `F042-P07` | `Docs/branch_records/feature_fb_048_active_session_relaunch_signal_failure_and_wait_timeout_truth.md` | `Indexed in Slice R5-S5` | `Preserved Branch Readiness trace for the accepted-failure and wait-timeout truth pass.` |",
+        "R5-S5 completes the Phase 5 traceability sweep by indexing the preserved FB-043 through FB-048 branch-readiness traces directly in the family dossier and confirming the dossier, backlog, roadmap, alias workstream, and branch-record routing stay aligned without migrating narrative bodies.",
+    ),
+    Path("Docs/workstreams/FB-027_interaction_shared_action_family_dossier.md"): (
+        "Preserved Branch Trace Status: `Populated in Slice R5-S5`",
+        "Trace Index Population State: `Converted FB-027 pass records now explicitly show where preserved branch-record trace exists and where no separate branch record exists`",
+        "| `F027-P02` | `None preserved` | `Confirmed in Slice R5-S5` | `FB-036 does not have a separate preserved branch-authority record beyond the canonical workstream history.` |",
+        "| `F027-P04` | `Docs/branch_records/codex_fb_037_release_debt_packaging.md` | `Indexed in Slice R5-S5` | `Preserved release-packaging trace for the FB-037 historical pass.` |",
+        "R5-S5 completes the Phase 5 traceability sweep by indexing the preserved FB-037 branch-record trace, explicitly calling out the passes that do not have separate branch records, and confirming the dossier, backlog, roadmap, alias workstream, and branch-record routing stay aligned without migrating narrative bodies.",
+    ),
 }
 
 CURRENT_BACKLOG_SHAPE_HEADINGS = (
@@ -3510,6 +3535,15 @@ def _validate_backlog_family_reform_seam_truth(
                 return False
         return True
 
+    def historical_pass_traceability_sweep_complete() -> bool:
+        for doc_path, required_phrases in REFORM_R5_S5_TRACEABILITY_REQUIRED_PHRASES.items():
+            if not doc_path.is_file():
+                return False
+            doc_text = _read_text(doc_path)
+            if any(phrase not in doc_text for phrase in required_phrases):
+                return False
+        return True
+
     if historical_pass_branch_records_converted():
         require(
             REFORM_R5_S3_STATE_NEXT_PHRASE not in backlog_workstream_state,
@@ -3613,6 +3647,62 @@ def _validate_backlog_family_reform_seam_truth(
                 "Docs/branch_records/feature_backlog_family_governance_reform.md: Seam "
                 "Continuation Decision must not keep R5-S4 as `Next Active Seam` once "
                 "historical alias future-selection language is stripped"
+            ),
+        )
+
+    if historical_pass_traceability_sweep_complete():
+        require(
+            REFORM_R5_S5_STATE_NEXT_PHRASE not in backlog_workstream_state,
+            (
+                "Docs/feature_backlog.md: R5-S5 must not remain the next seam once preserved "
+                "branch trace is indexed and the historical pass traceability sweep is complete"
+            ),
+        )
+        require(
+            REFORM_R5_S5_STATE_NEXT_PHRASE not in roadmap_workstream_state,
+            (
+                "Docs/prebeta_roadmap.md: R5-S5 must not remain the next seam once preserved "
+                "branch trace is indexed and the historical pass traceability sweep is complete"
+            ),
+        )
+        require(
+            phase_status_next_seam != REFORM_R5_S5_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Phase Status "
+                "`Next Active Seam` must advance past R5-S5 once the historical pass "
+                "traceability sweep is complete"
+            ),
+        )
+        require(
+            REFORM_R5_S5_ACTIVE_SEAM_NEXT_PHRASE not in active_seam_section,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Active Seam "
+                "must not keep R5-S5 as the next active seam once the historical pass "
+                "traceability sweep is complete"
+            ),
+        )
+        require(
+            active_seam_next != REFORM_R5_S5_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Active Seam "
+                "`Next active seam` must advance past R5-S5 once the historical pass "
+                "traceability sweep is complete"
+            ),
+        )
+        require(
+            continuation_next_seam != REFORM_R5_S5_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Seam "
+                "Continuation Decision must not keep R5-S5 as `Next Active Seam` once the "
+                "historical pass traceability sweep is complete"
+            ),
+        )
+        require(
+            REFORM_R5_S5_CONTINUATION_PHRASE not in continuation_section,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Seam "
+                "Continuation Decision must not keep an R5-S5 continuation action once the "
+                "historical pass traceability sweep is complete"
             ),
         )
         require(
@@ -3887,6 +3977,20 @@ def _validate_backlog_family_historical_pass_records(require, *, current_branch:
             require(
                 phrase not in doc_text,
                 f"{doc_path}: stale future-selection phrase '{phrase}' must be removed in R5-S4",
+            )
+
+    for doc_path, required_phrases in REFORM_R5_S5_TRACEABILITY_REQUIRED_PHRASES.items():
+        require(
+            doc_path.is_file(),
+            f"{doc_path}: R5-S5 traceability surface must exist on the reform branch",
+        )
+        if not doc_path.is_file():
+            continue
+        doc_text = _read_text(doc_path)
+        for phrase in required_phrases:
+            require(
+                phrase in doc_text,
+                f"{doc_path}: required R5-S5 traceability marker '{phrase}' is missing",
             )
 
 
