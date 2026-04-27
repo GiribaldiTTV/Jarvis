@@ -41,7 +41,6 @@ Historical note:
 
 ## Promoted Canonical Workstreams
 
-- `Docs/workstreams/FB-048_active_session_relaunch_signal_failure_and_wait_timeout_truth.md`
 - `Docs/workstreams/FB-047_active_session_relaunch_decline_preservation.md`
 - `Docs/workstreams/FB-046_active_session_relaunch_reacquisition.md`
 - `Docs/workstreams/FB-045_active_session_relaunch_outcome_refinement.md`
@@ -49,27 +48,27 @@ Historical note:
 
 ## Active Promoted Workstream
 
-[Docs/workstreams/FB-048_active_session_relaunch_signal_failure_and_wait_timeout_truth.md](Docs/workstreams/FB-048_active_session_relaunch_signal_failure_and_wait_timeout_truth.md)
+`None.`
 
-FB-044 Boot-to-desktop handoff outcome refinement and FB-045 Active-session relaunch outcome refinement are Released / Closed historical proof through `v1.6.9-prebeta`; FB-046 Active-session relaunch reacquisition and settled re-entry proof is Released / Closed historical proof through `v1.6.10-prebeta`; FB-047 Active-session relaunch decline session-preservation proof is now Released / Closed historical proof through `v1.6.11-prebeta`; latest public prerelease truth is `v1.6.11-prebeta`; FB-048 now owns the merged-unreleased release-debt window for `v1.6.12-prebeta` on `main`; and FB-049 is now the selected-next `Registry-only` successor lane with branch not created.
+FB-044 Boot-to-desktop handoff outcome refinement and FB-045 Active-session relaunch outcome refinement are Released / Closed historical proof through `v1.6.9-prebeta`; FB-046 Active-session relaunch reacquisition and settled re-entry proof is Released / Closed historical proof through `v1.6.10-prebeta`; FB-047 Active-session relaunch decline session-preservation proof is Released / Closed historical proof through `v1.6.11-prebeta`; FB-048 Active-session relaunch signal-failure and wait-timeout truth is now Released / Closed historical proof through `v1.6.12-prebeta`; latest public prerelease truth is `v1.6.12-prebeta`; release debt is clear after publication, validation, and post-release canon closure; `feature/backlog-family-governance-reform` is now the active docs-only governance reform branch authority surface; and FB-049 remains the selected-next `Registry-only` successor lane with branch not created.
 Released baseline truth is aligned: FB-040 is released and closed in `v1.6.0-prebeta`, FB-031 is released and closed in `v1.6.1-prebeta`, FB-032 is released and closed in `v1.6.2-prebeta`, FB-004 is released and closed in `v1.6.3-prebeta`, FB-015 plus FB-029 are released and closed in `v1.6.4-prebeta`, FB-030 is released and closed in `v1.6.5-prebeta`, FB-005 is released and closed in `v1.6.6-prebeta`, FB-042 is released and closed in `v1.6.7-prebeta`, FB-043 is released and closed in `v1.6.8-prebeta`, FB-044 plus FB-045 are released and closed in `v1.6.9-prebeta`, and FB-046 is now released and closed in `v1.6.10-prebeta`.
 FB-039 is released and closed in `v1.5.0-prebeta`.
 FB-038 remains released and closed in `v1.4.1-prebeta`.
 
 ## Current Branch Execution Posture
 
-Merged-Unreleased Release-Debt Owner: FB-048 Active-session relaunch signal-failure and wait-timeout truth.
-Repo State: No Active Branch.
+Merged-Unreleased Release-Debt Owner: None.
+Repo State: Active Branch.
 Merged-Main Repo State: No Active Branch.
-Latest Public Prerelease: v1.6.11-prebeta.
-Latest Public Release Commit: 4ca70572fbc8033bc96fcd299dd309464e81393a.
-Latest Public Prerelease Publication: https://github.com/GiribaldiTTV/Nexus-Desktop-AI/releases/tag/v1.6.11-prebeta.
-Latest Public Prerelease Title: Pre-Beta v1.6.11.
-Release Debt: Active after merge until v1.6.12-prebeta is published, validated, and post-release canon closure completes.
+Latest Public Prerelease: v1.6.12-prebeta.
+Latest Public Release Commit: b06c359e58b47cfe26fe8c4b39ac04fde519dee9.
+Latest Public Prerelease Publication: https://github.com/GiribaldiTTV/Nexus-Desktop-AI/releases/tag/v1.6.12-prebeta.
+Latest Public Prerelease Title: Pre-Beta v1.6.12.
+Release Debt: Clear after v1.6.12-prebeta publication, validation, and post-release canon closure.
 Current Active Workstream: None.
-Current Active Workstream Before Release: FB-048 Active-session relaunch signal-failure and wait-timeout truth.
-Current Active Branch: None.
-Current Active Branch Authority Record: None.
+Current Active Workstream Before Reform: None.
+Current Active Branch: feature/backlog-family-governance-reform.
+Current Active Branch Authority Record: Docs/branch_records/feature_backlog_family_governance_reform.md.
 Current Active Canonical Workstream Doc: None.
 Historical Active Workstream Before Release: FB-048 Active-session relaunch signal-failure and wait-timeout truth.
 Earlier Historical Active Workstream Before Release: FB-047 Active-session relaunch decline session-preservation proof.
@@ -80,24 +79,26 @@ Selected Next Record State: Registry-only.
 Selected Next Implementation Branch: Not created.
 Historical Repair-Only Branch Handling: `feature/fb-046-post-merge-canon-sync` was a bounded repair-only post-merge canon-sync `feature/` branch and did not imply Branch Readiness admission or active branch truth for FB-046.
 Historical Branch Readiness State: Complete on `feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeout-truth`.
-Current Branch Readiness State: Not started for FB-049. Branch creation remains blocked until `v1.6.12-prebeta` is published and validated, updated `main` is revalidated, and FB-049 Branch Readiness admits the first bounded pre-settled incoming-launch conflict truth slice.
-Historical Workstream State: FB-048 is merge-target complete and now owns merged-unreleased release debt for `v1.6.12-prebeta` on `main`; FB-047 is Released / Closed in `v1.6.11-prebeta`; FB-046 is Released / Closed in `v1.6.10-prebeta`; FB-044 and FB-045 remain Released / Closed historical proof in `v1.6.9-prebeta`.
+Current Branch Readiness State: Complete on `feature/backlog-family-governance-reform`. Active seam `Phase 0 - Reform Readiness` is complete, the branch authority record is admitted, and Workstream Phase 1 may begin on the same branch.
+Current Branch Class: implementation.
+Current Implementation Delta Class: docs-only.
+Historical Workstream State: FB-048 is Released / Closed in `v1.6.12-prebeta`; FB-047 is Released / Closed in `v1.6.11-prebeta`; FB-046 is Released / Closed in `v1.6.10-prebeta`; FB-044 and FB-045 remain Released / Closed historical proof in `v1.6.9-prebeta`.
 Historical Hardening State: Complete on `feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeout-truth`.
 Historical Live Validation State: Complete on `feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeout-truth`.
 Canonical Current-State Rule: merge-target current-state owners stay merge-stable during merged-unreleased release-debt windows; live PR state, conflict/readiness details, review-resolution details, and blocker-clearing repair-lane narration live only in explicit historical PR sections of the canonical workstream and in operator output.
-Release Execution State: `v1.6.11-prebeta` is live at https://github.com/GiribaldiTTV/Nexus-Desktop-AI/releases/tag/v1.6.11-prebeta on commit `4ca70572fbc8033bc96fcd299dd309464e81393a`.
-Release Target: v1.6.12-prebeta.
+Release Execution State: `v1.6.12-prebeta` is live at https://github.com/GiribaldiTTV/Nexus-Desktop-AI/releases/tag/v1.6.12-prebeta on commit `b06c359e58b47cfe26fe8c4b39ac04fde519dee9`.
+Release Target: v1.6.13-prebeta.
 Release Floor: patch prerelease.
-Version Rationale: FB-048 delivers a bounded runtime/user-facing relaunch signal-failure and wait-timeout refinement on the existing desktop startup family without opening a new product lane or materially expanded feature family, so the next release remains a patch prerelease.
-Release Scope: completed FB-048 WS-1 accepted relaunch failure-path truthful outcome proof, H-1 failure/timeout lifecycle hardening, LV-1 real desktop shortcut evidence, reusable validation evidence, merged-unreleased release-debt truth, selected-next FB-049 successor lock, and merge-stable current-state governance hardening plus validator guardrails that keep live PR state out of merged-unreleased current-state owners for the bounded runtime/user-facing lane only.
-Release Artifacts: Tag v1.6.12-prebeta; release title Pre-Beta v1.6.12; rich Markdown release notes summarize the bounded FB-048 relaunch failure/timeout runtime/user-facing package, real shortcut evidence, and the FB-049 successor lane without repeating the release title inside the notes body, and GitHub-generated `## What's Changed` plus `**Full Changelog**:` must be included.
-Post-Release Truth: FB-048 is Released / Closed in `v1.6.12-prebeta` after publication and validation; release debt then clears; and FB-049 remains selected next, `Registry-only`, and branch-not-created until updated `main` is revalidated and Branch Readiness admits the first bounded pre-settled incoming-launch conflict truth slice.
-Next-Branch Creation Gate: After `v1.6.12-prebeta` is published and validated, updated `main` is revalidated, and FB-049 Branch Readiness admits the first bounded runtime/user-facing pre-settled incoming-launch conflict truth slice; branch creation remains blocked until then.
-Next Legal Phase: Release Readiness.
+Version Rationale: the backlog family governance reform is a release-bearing docs-only implementation branch that changes backlog/workstream/branch-authority source-of-truth and validator behavior without widening runtime or user-facing product behavior, so the next release remains a patch prerelease.
+Release Scope: close FB-048 post-release canon, admit the docs-only feature-family governance reform branch, restructure backlog/workstream governance toward family-anchor traceability, and add validator guardrails that prevent continuation-pass backlog drift and merge-unstable current-state narration from recurring.
+Release Artifacts: Tag v1.6.13-prebeta; release title Pre-Beta v1.6.13; rich Markdown release notes summarize the governance reform branch authority, phased family-governance migration, and validator hardening without repeating the release title inside the notes body, and GitHub-generated `## What's Changed` plus `**Full Changelog**:` must be included.
+Post-Release Truth: the governance reform branch closes as historical branch-authority traceability after publication and validation; latest public prerelease advances to `v1.6.13-prebeta`; release debt clears; and FB-049 remains selected next, `Registry-only`, and branch-not-created until updated `main` is revalidated and FB-049 Branch Readiness admits the first bounded pre-settled incoming-launch conflict truth slice.
+Next-Branch Creation Gate: FB-049 branch creation remains blocked until the governance reform branch completes, merges, releases, updated `main` is revalidated, and FB-049 Branch Readiness admits the first bounded runtime/user-facing pre-settled incoming-launch conflict truth slice.
+Next Legal Phase: Workstream.
 
 ## Backlog Governance Sync
 
-Last Reviewed: 2026-04-27 during FB-048 PR Readiness packaging.
+Last Reviewed: 2026-04-27 during Backlog Family Governance Reform Branch Readiness.
 
 Open-candidate priority review:
 
@@ -112,10 +113,10 @@ Open-candidate priority review:
 - FB-045 is now Released / Closed in `v1.6.9-prebeta`.
 - FB-046 is now Released / Closed in `v1.6.10-prebeta`.
 - FB-047 is now Released / Closed in `v1.6.11-prebeta`.
-- FB-048 is merge-target complete and now owns merged-unreleased release debt for `v1.6.12-prebeta` on `main`.
+- FB-048 is Released / Closed in `v1.6.12-prebeta`; release debt is clear after publication, validation, and post-release canon closure.
 - FB-049 is selected next, `Registry-only`, and branch-not-created.
 
-Current-branch clarity: latest public prerelease is `v1.6.11-prebeta`; FB-044 and FB-045 are released and closed in `v1.6.9-prebeta`; FB-046 is released and closed in `v1.6.10-prebeta`; FB-047 is released and closed in `v1.6.11-prebeta`; merged `main` repo state is `No Active Branch`; FB-048 owns merged-unreleased release debt for `v1.6.12-prebeta`; and FB-049 remains selected next, `Registry-only`, and branch-not-created until post-release revalidation and Branch Readiness admission occur.
+Current-branch clarity: latest public prerelease is `v1.6.12-prebeta`; FB-044 and FB-045 are released and closed in `v1.6.9-prebeta`; FB-046 is released and closed in `v1.6.10-prebeta`; FB-047 is released and closed in `v1.6.11-prebeta`; FB-048 is released and closed in `v1.6.12-prebeta`; merged `main` repo state is steady-state `No Active Branch`; the current execution base is `feature/backlog-family-governance-reform` through an active branch-authority record; and FB-049 remains selected next, `Registry-only`, and branch-not-created until the governance reform branch completes and later FB-049 Branch Readiness admission occurs.
 
 ## Registry Items
 
@@ -135,27 +136,27 @@ Why it matters: Users should get an explicit, proven outcome when a second launc
 
 ### [ID: FB-048] Active-session relaunch signal-failure and wait-timeout truth
 
-Status: Merged unreleased (v1.6.12-prebeta)
-Record State: Promoted
+Status: Released (v1.6.12-prebeta)
+Record State: Closed
 Priority: High
-Release Stage: merged unreleased
+Release Stage: Released
 Target Version: v1.6.12-prebeta
-Selection / Unblock: Promoted on `feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeout-truth`. WS-1 accepted relaunch failure-path truthful outcome proof is complete and validated, H-1 failure/timeout lifecycle hardening is complete and green, LV-1 live validation is complete and green with real shortcut evidence, startup and explicit dev-boot proof remain green, and PR Readiness packages this lane as the merged-unreleased release-debt owner for `v1.6.12-prebeta`.
+Selection / Unblock: Implemented complete. `feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeout-truth` delivered the admitted failure/timeout truth slice chain, the follow-up repair and canon/governance containment PRs are merged on `main`, and `v1.6.12-prebeta` is now published, validated, and closed through post-release canon sync.
 Next Workstream: Selected successor is FB-049 after this merged-unreleased release window clears.
 Branch Creation Gate: Satisfied during FB-048 Branch Readiness after `v1.6.11-prebeta` publication, validation, updated-`main` revalidation, and first-slice admission.
 Branch: feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeout-truth
 Canonical Workstream Doc: Docs/workstreams/FB-048_active_session_relaunch_signal_failure_and_wait_timeout_truth.md
 Historical Branch Readiness Record: Docs/branch_records/feature_fb_048_active_session_relaunch_signal_failure_and_wait_timeout_truth.md
 Branch Readiness: Historical complete. The branch objective, target end-state, admitted WS-1 slice, validation coverage, rollback conditions, and same-branch backlog-completion posture remain preserved in the historical Branch Readiness record.
-Workstream: WS-1 `accepted relaunch failure-path truthful outcome proof` is complete and validated; H-1 failure/timeout lifecycle hardening is complete and green; LV-1 is complete and green with real desktop shortcut evidence plus reusable failure/timeout lifecycle proof; accepted relaunch signal-failure now emits an explicit preserved-session marker and accepted relaunch wait-timeout now emits an explicit replacement-unconfirmed marker instead of collapsing into a generic already-running skip; repeated signal-failure launches preserve the active settled owner even under rapid repetition; near-deadline reacquire no longer falls through to a false timeout; mixed failure -> decline -> accept -> failure sequencing keeps failure, decline, and success classification distinct; `Backlog Completion State` is `Implemented Complete`; PR-1 merge-target canon completeness and PR-2 selected-next successor lock are complete on this branch; this lane now owns the merged-unreleased release-debt window for `v1.6.12-prebeta` on `main`; and the branch now includes bounded governance/validator hardening that keeps live PR state out of merge-stable current-state owners.
+Workstream: Released. WS-1 `accepted relaunch failure-path truthful outcome proof` is complete and validated; H-1 failure/timeout lifecycle hardening is complete and green; LV-1 is complete and green with real desktop shortcut evidence plus reusable failure/timeout lifecycle proof; accepted relaunch signal-failure emits an explicit preserved-session marker and accepted relaunch wait-timeout emits an explicit replacement-unconfirmed marker instead of collapsing into a generic already-running skip; repeated signal-failure launches preserve the active settled owner even under rapid repetition; near-deadline reacquire no longer falls through to a false timeout; mixed failure -> decline -> accept -> failure sequencing keeps failure, decline, and success classification distinct; `Backlog Completion State` is `Implemented Complete`; PR #94, PR #96, and PR #97 are complete historical proof; the lane is released and closed in `v1.6.12-prebeta`; and the branch's governance/validator hardening is now part of the released canonical baseline.
 Backlog Completion State: Implemented Complete
-PR Readiness: Historical PR #94 packaging is complete and merged. Historical follow-up blocker-clearing PR #96 is also merged on `main` at `24cdb49dd76867212f8f7d025e86fbec4758df45`; repair commits `4a1d1e7689f5d2b9adcfeec5e390071fad4e3724` and `85dc5552f6044cd167ad64039c626503fcc3067d` are now contained on `main`; and the current branch now hardens governance so future merge-target current-state owners do not inherit live PR-open or branch-only repair narration.
+PR Readiness: Complete historical proof. PR #94 merged the bounded FB-048 implementation package; PR #96 merged the post-merge review repair that corrected wait-timeout truth and the non-Windows validator guard; and PR #97 merged the post-sync canon plus merge-stable governance containment on `main`.
 Release Target: v1.6.12-prebeta
 Release Floor: patch prerelease
 Version Rationale: FB-048 delivers a bounded runtime/user-facing relaunch signal-failure and wait-timeout refinement on the existing desktop startup family without opening a new product lane or materially expanded feature family.
 Release Scope: completed FB-048 WS-1 accepted relaunch failure-path truthful outcome proof, H-1 failure/timeout lifecycle hardening, LV-1 real desktop shortcut evidence, reusable validation evidence, PR package history, merged-unreleased release-debt truth, selected-next FB-049 successor lock, and merge-stable current-state governance hardening plus validator guardrails for the bounded runtime/user-facing lane only.
 Release Artifacts: Tag v1.6.12-prebeta; release title Pre-Beta v1.6.12; rich Markdown release notes summarize the bounded FB-048 relaunch failure/timeout runtime/user-facing package, real shortcut evidence, and the FB-049 successor lane without repeating the release title inside the notes body, and GitHub-generated `## What's Changed` plus `**Full Changelog**:` must be included.
-Post-Release Truth: FB-048 is Released / Closed in `v1.6.12-prebeta` after publication and validation; release debt then clears; and FB-049 remains selected next, `Registry-only`, and branch-not-created until updated `main` is revalidated and Branch Readiness admits the first bounded pre-settled incoming-launch conflict truth slice.
+Post-Release Truth: FB-048 is Released / Closed in `v1.6.12-prebeta`; release debt is clear; the governance reform branch may proceed through its approved docs-only branch-authority record; and FB-049 remains selected next, `Registry-only`, and branch-not-created until that branch completes and later FB-049 Branch Readiness admits the first bounded pre-settled incoming-launch conflict truth slice.
 Minimal Scope: Prove and refine the accepted relaunch failure lane across `desktop/single_instance.py`, `desktop/orin_desktop_launcher.pyw`, `desktop/orin_desktop_main.py`, and the minimum required reusable validator surfaces so relaunch-signal failure or reacquire wait-timeout preserves truthful ownership, emits explicit failure-path markers, and avoids false replacement-session or guard-transfer claims.
 Summary: Make accepted-but-unfinished relaunch failures as truthful as accepted and declined success paths.
 Why it matters: Users should get an explicit, proven outcome when relaunch was requested but the current session could not be signaled or did not release in time.
@@ -437,6 +438,17 @@ Summary: Continue workspace organization only through explicitly approved path-s
 Why it matters: Keeps folder and ownership cleanup deliberate instead of letting it blur into unrelated feature work.
 
 ## Closed Canonical Workstreams
+
+### [ID: FB-048] Active-session relaunch signal-failure and wait-timeout truth
+
+Status: Released (v1.6.12-prebeta)
+Record State: Closed
+Priority: High
+Release Stage: Released
+Target Version: v1.6.12-prebeta
+Canonical Workstream Doc: Docs/workstreams/FB-048_active_session_relaunch_signal_failure_and_wait_timeout_truth.md
+Summary: Released the bounded accepted-relaunch failure and wait-timeout truth lane, including explicit signal-failure preserved-session outcomes, explicit wait-timeout replacement-unconfirmed outcomes, real shortcut proof, repair containment, and merge-stable governance hardening that keeps current-state canon from drifting back into branch-only PR narration.
+Why it matters: FB-048 closes the accepted-but-unfinished relaunch failure gap so failure and timeout outcomes are as truthful as accepted success and declined preservation.
 
 ### [ID: FB-041] Deterministic callable-group execution layer
 

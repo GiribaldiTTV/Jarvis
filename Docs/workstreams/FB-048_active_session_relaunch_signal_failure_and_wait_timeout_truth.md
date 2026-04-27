@@ -7,11 +7,11 @@
 
 ## Record State
 
-- `Promoted`
+- `Closed`
 
 ## Status
 
-- `Merged unreleased (v1.6.12-prebeta)`
+- `Released (v1.6.12-prebeta)`
 
 ## Target Version
 
@@ -23,27 +23,24 @@
 
 ## Current Phase
 
-- Phase: `Release Readiness`
+- Phase: `Closed`
 
 ## Phase Status
 
-Merged-Unreleased Release-Debt Owner: FB-048 Active-session relaunch signal-failure and wait-timeout truth
-Repo State: `No Active Branch`
-Repo State: No Active Branch
-Historical Active Branch Before Merge: `feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeout-truth`
-Historical Active Canonical Workstream Doc Before Merge: `Docs/workstreams/FB-048_active_session_relaunch_signal_failure_and_wait_timeout_truth.md`
-Latest Public Prerelease: `v1.6.11-prebeta`
-Latest Public Release Commit: `4ca70572fbc8033bc96fcd299dd309464e81393a`
-Latest Public Prerelease Publication: `https://github.com/GiribaldiTTV/Nexus-Desktop-AI/releases/tag/v1.6.11-prebeta`
-Latest Public Prerelease Title: `Pre-Beta v1.6.11`
-FB-047 is `Released / Closed` historical proof in `v1.6.11-prebeta`.
-Release debt is active after merge until `v1.6.12-prebeta` is published, validated, and post-release canon closure completes.
-Merged `main` now contains the repair lane and the repaired FB-048 truth needed for the `v1.6.12-prebeta` release window.
-Repaired wait-timeout replacement-unconfirmed semantics and the non-Windows validator guard are contained on `main`.
+Repo State: `Active Branch`
+Current Active Branch: `feature/backlog-family-governance-reform`
+Current Active Branch Authority Record: `Docs/branch_records/feature_backlog_family_governance_reform.md`
+Latest Public Prerelease: v1.6.12-prebeta
+Latest Public Release Commit: `b06c359e58b47cfe26fe8c4b39ac04fde519dee9`
+Latest Public Prerelease Publication: `https://github.com/GiribaldiTTV/Nexus-Desktop-AI/releases/tag/v1.6.12-prebeta`
+Latest Public Prerelease Title: `Pre-Beta v1.6.12`
+FB-048 is `Released / Closed` historical proof in `v1.6.12-prebeta`.
+Release debt is clear after publication, validation, and post-release canon closure.
+Merged `main` contains the repaired wait-timeout replacement-unconfirmed semantics, the non-Windows validator guard, and the merge-stable governance hardening that shipped with the FB-048 package.
 Selected Next Workstream: FB-049 Active-session pre-settled incoming-launch conflict truth.
 Selected Next Record State: Registry-only.
 Selected Next Implementation Branch: Not created.
-Canonical current-state rule: merge-stable current-state owners keep only merged-unreleased release-debt truth here; live PR state, conflict/readiness details, review-resolution details, and blocker-clearing repair-lane narration are preserved only in the explicit historical PR sections below and in operator output.
+Current active execution surface is the approved docs-only governance reform branch authority record; this FB-048 workstream is now preserved released historical truth.
 
 ## Branch Class
 
@@ -51,7 +48,7 @@ Canonical current-state rule: merge-stable current-state owners keep only merged
 
 ## Blockers
 
-None.
+None. This record is closed historical truth.
 
 ## Entry Basis
 
@@ -74,7 +71,7 @@ None.
 
 ## Next Legal Phase
 
-- `Release Readiness`
+- `Closed`
 
 ## Purpose / Why It Matters
 
@@ -301,7 +298,7 @@ Governance Drift Found: No.
 Historical Merged-Unreleased Release-Debt Owner At PR Package Time: FB-048 Active-session relaunch signal-failure and wait-timeout truth
 Historical Repo State At PR Package Time: No Active Branch
 Target Version: v1.6.12-prebeta
-Latest Public Prerelease: v1.6.11-prebeta
+Latest Public Prerelease At PR Package Time: v1.6.11-prebeta
 Release Debt: Active after merge until `v1.6.12-prebeta` is published, validated, and post-release canon closure completes
 Release Target: v1.6.12-prebeta
 Release Title: Pre-Beta v1.6.12
