@@ -17,16 +17,17 @@
 - This dossier is the additive lifetime traceability surface for the FB-042 runtime family anchor.
 - It layers over the existing FB-042 historical workstream record instead of replacing or rewriting that record.
 - Slice R4-S1 introduces only the shell structure required for later family-level migration and indexing.
+- Slice R4-S3 adds pass index and slice/seam ledger templates without migrating historical family content into them yet.
 
 ## Current Dossier Status
 
 - Historical Content Migration: `Not started`
 - Alias Record Conversion Status: `Not started`
-- Pass Index Status: `Reserved for Slice R4-S3`
-- Slice / Seam Ledger Status: `Reserved for Slice R4-S3`
+- Pass Index Status: `Structure introduced in Slice R4-S3`
+- Slice / Seam Ledger Status: `Structure introduced in Slice R4-S3`
 - Validator / Helper Index Status: `Reserved for Slice R4-S4`
 - Artifact Index Status: `Reserved for Slice R4-S4`
-- Last Structural Update: `2026-04-27 during Phase 4 / Slice R4-S1`
+- Last Structural Update: `2026-04-27 during Phase 4 / Slice R4-S3`
 
 ## Lifetime Tracking Scope
 
@@ -50,15 +51,21 @@
 
 ## Pass Index
 
-Pass Index Status: `Reserved for Slice R4-S3`
+Pass Index Status: `Structure introduced in Slice R4-S3`
+Pass Index Population State: `No historical pass entries migrated yet`
 
-- No family pass index is populated in R4-S1.
+| Pass ID | Family Role | Source Record | Migration State | Notes |
+| --- | --- | --- | --- | --- |
+| `Placeholder only` | `Reserve rows for anchor or alias pass history` | `Populate from existing historical workstream records in later slices` | `Not started` | `R4-S3 adds shared pass-index structure only; no historical pass data migrates in this slice.` |
 
 ## Slice And Seam Ledger
 
-Slice / Seam Ledger Status: `Reserved for Slice R4-S3`
+Slice / Seam Ledger Status: `Structure introduced in Slice R4-S3`
+Ledger Population State: `No historical slice or seam entries migrated yet`
 
-- No lifetime slice or seam ledger entries are populated in R4-S1.
+| Phase / Slice | Seam / Scope | Classification | Migration State | Notes |
+| --- | --- | --- | --- | --- |
+| `Placeholder only` | `Reserve rows for future converted seams` | `Anchor or alias family history` | `Not started` | `R4-S3 adds shared ledger structure only; no historical slice or seam data migrates in this slice.` |
 
 ## Validator And Helper Index
 
@@ -75,5 +82,6 @@ Artifact Index Status: `Reserved for Slice R4-S4`
 ## Migration Notes
 
 - R4-S1 intentionally does not migrate historical narrative, proof logs, pass summaries, or alias record bodies into the dossier.
+- R4-S3 introduces pass index and slice/seam ledger templates only; it does not migrate historical pass rows, ledger rows, proof logs, or alias record bodies into the dossier.
 - Later Phase 4 and Phase 5 slices will populate indexes and convert historical records incrementally.
 - Until later migration lands, the existing workstream and alias records remain the authoritative detailed history.

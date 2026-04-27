@@ -81,7 +81,7 @@ Selected Next Implementation Branch: Not created.
 Historical Repair-Only Branch Handling: `feature/fb-046-post-merge-canon-sync` was a bounded repair-only post-merge canon-sync `feature/` branch and did not imply Branch Readiness admission or active branch truth for FB-046.
 Historical Branch Readiness State: Complete on `feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeout-truth`.
 Current Branch Readiness State: Historical complete on `feature/backlog-family-governance-reform`. Phase 0 `Reform Readiness` admitted the branch authority record and cleared the path into Workstream.
-Current Workstream State: Phase 4 `Lifetime Dossier Conversion` continues on `feature/backlog-family-governance-reform`; Seam Status: In Progress for R4-S3 `Add pass index and slice/seam ledger structure`; Slice Status: In Progress; Completion Status: In Progress; Blockers: `Backlog Completion Unproven` remains the non-green Workstream completion marker while later reform slices remain on this same branch; Waiver Status: None; Continue Decision: Continue; Stop Basis: None; R4-S2 created the initial FB-027 lifetime dossier shell with no historical pass content migrated yet, continuation is required into Phase 4 / Slice R4-S3 on this same branch, and FB-049 remains the only selected-next user-facing candidate.
+Current Workstream State: Phase 4 `Lifetime Dossier Conversion` continues on `feature/backlog-family-governance-reform`; Seam Status: In Progress for R4-S4 `Add validator/helper and artifact indexes`; Slice Status: In Progress; Completion Status: In Progress; Blockers: `Backlog Completion Unproven` remains the non-green Workstream completion marker while later reform slices remain on this same branch; Waiver Status: None; Continue Decision: Continue; Stop Basis: None; R4-S3 added structure-only pass index and slice/seam ledger templates to the FB-042 and FB-027 dossiers with no historical pass content migrated yet, continuation is required into Phase 4 / Slice R4-S4 on this same branch, and FB-049 remains the only selected-next user-facing candidate.
 Current Branch Class: implementation.
 Current Implementation Delta Class: docs-only.
 Historical Workstream State: FB-048 is Released / Closed in `v1.6.12-prebeta`; FB-047 is Released / Closed in `v1.6.11-prebeta`; FB-046 is Released / Closed in `v1.6.10-prebeta`; FB-044 and FB-045 remain Released / Closed historical proof in `v1.6.9-prebeta`.
@@ -100,7 +100,7 @@ Next Legal Phase: Workstream.
 
 ## Backlog Governance Sync
 
-Last Reviewed: 2026-04-27 during Backlog Family Governance Reform Workstream completion-status hardening.
+Last Reviewed: 2026-04-27 during Backlog Family Governance Reform Phase 4 / Slice R4-S3 pass-index and ledger structure hardening.
 
 Open-candidate priority review:
 
@@ -156,7 +156,7 @@ Selection / Unblock: Implemented for the first bounded runtime/user-facing slice
 Branch: feature/fb-042-desktop-entrypoint-runtime-refinement
 Canonical Workstream Doc: Docs/workstreams/FB-042_desktop_entrypoint_runtime_refinement.md
 Lifetime Dossier Doc: Docs/workstreams/FB-042_desktop_startup_runtime_family_dossier.md
-Lifetime Dossier State: Shell only. Introduced in Phase 4 / Slice R4-S1; no historical pass content has migrated yet.
+Lifetime Dossier State: Structured shell. Phase 4 / Slice R4-S1 introduced the dossier shell, and Phase 4 / Slice R4-S3 added pass index and slice/seam ledger templates; no historical pass content has migrated yet.
 Branch Readiness: Complete. Planning/framing now happens before Workstream, and the admitted WS-1 slice is recorded with owned paths, non-goals, validation coverage, rollback limits, and user-facing shortcut contract in the canonical workstream doc.
 Workstream: Released. WS-1 desktop shortcut launch-path runtime refinement is complete and validated on the real `launch_orin_desktop.vbs` -> `desktop/orin_desktop_launcher.pyw` -> `desktop/orin_desktop_main.py` path, H-1 hardening is complete, LV-1 is complete, and release publication is complete.
 Branch Meaning: Historical source-branch execution owned the real desktop entrypoint/runtime launch path, and that bounded runtime slice now serves as the first released historical proof under this runtime family anchor.
@@ -282,7 +282,7 @@ Release Stage: pre-Beta
 Target Version: v1.2.9-prebeta
 Canonical Workstream Doc: Docs/workstreams/FB-027_interaction_system_baseline.md
 Lifetime Dossier Doc: Docs/workstreams/FB-027_interaction_shared_action_family_dossier.md
-Lifetime Dossier State: Shell only. Introduced in Phase 4 / Slice R4-S2; no historical pass content has migrated yet.
+Lifetime Dossier State: Structured shell. Phase 4 / Slice R4-S2 introduced the dossier shell, and Phase 4 / Slice R4-S3 added pass index and slice/seam ledger templates; no historical pass content has migrated yet.
 Summary: Anchor the typed-first interaction and shared-action family while preserving the released FB-027 baseline as the first historical proof.
 Why it matters: Future authoring, callable-group, built-in action, and tray task follow-through should reuse one interaction/action family identity instead of drifting into separate near-duplicate feature-family records.
 

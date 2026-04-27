@@ -1016,6 +1016,13 @@ REFORM_R4_S2_SEAM = (
 REFORM_R4_S2_STATE_NEXT_PHRASE = (
     "Slice R4-S2 `Convert the FB-027 dossier shell` is next"
 )
+REFORM_R4_S3_SEAM = (
+    "Phase 4 - Lifetime Dossier Conversion / Slice R4-S3 - Add pass index and slice/seam ledger "
+    "structure"
+)
+REFORM_R4_S3_STATE_NEXT_PHRASE = (
+    "Slice R4-S3 `Add pass index and slice/seam ledger structure` is next"
+)
 REFORM_FB042_DOSSIER_PATH = Path(
     "Docs/workstreams/FB-042_desktop_startup_runtime_family_dossier.md"
 )
@@ -1039,23 +1046,37 @@ REFORM_FB042_DOSSIER_REQUIRED_PHRASES = (
     "Dossier State: `Shell only`",
     "Historical Content Migration: `Not started`",
     "Alias Record Conversion Status: `Not started`",
-    "Pass Index Status: `Reserved for Slice R4-S3`",
-    "Slice / Seam Ledger Status: `Reserved for Slice R4-S3`",
+    "Pass Index Status: `Structure introduced in Slice R4-S3`",
+    "Pass Index Population State: `No historical pass entries migrated yet`",
+    "| Pass ID | Family Role | Source Record | Migration State | Notes |",
+    "| `Placeholder only` | `Reserve rows for anchor or alias pass history` | `Populate from existing historical workstream records in later slices` | `Not started` | `R4-S3 adds shared pass-index structure only; no historical pass data migrates in this slice.` |",
+    "Slice / Seam Ledger Status: `Structure introduced in Slice R4-S3`",
+    "Ledger Population State: `No historical slice or seam entries migrated yet`",
+    "| Phase / Slice | Seam / Scope | Classification | Migration State | Notes |",
+    "| `Placeholder only` | `Reserve rows for future converted seams` | `Anchor or alias family history` | `Not started` | `R4-S3 adds shared ledger structure only; no historical slice or seam data migrates in this slice.` |",
     "Validator / Helper Index Status: `Reserved for Slice R4-S4`",
     "Artifact Index Status: `Reserved for Slice R4-S4`",
     "no alias content moved into this dossier in R4-S1",
     "R4-S1 intentionally does not migrate historical narrative, proof logs, pass summaries, or alias record bodies into the dossier.",
+    "R4-S3 introduces pass index and slice/seam ledger templates only; it does not migrate historical pass rows, ledger rows, proof logs, or alias record bodies into the dossier.",
 )
 REFORM_FB027_DOSSIER_REQUIRED_PHRASES = (
     "Dossier State: `Shell only`",
     "Historical Content Migration: `Not started`",
     "Alias Record Conversion Status: `Not started`",
-    "Pass Index Status: `Reserved for Slice R4-S3`",
-    "Slice / Seam Ledger Status: `Reserved for Slice R4-S3`",
+    "Pass Index Status: `Structure introduced in Slice R4-S3`",
+    "Pass Index Population State: `No historical pass entries migrated yet`",
+    "| Pass ID | Family Role | Source Record | Migration State | Notes |",
+    "| `Placeholder only` | `Reserve rows for anchor or alias pass history` | `Populate from existing historical workstream records in later slices` | `Not started` | `R4-S3 adds shared pass-index structure only; no historical pass data migrates in this slice.` |",
+    "Slice / Seam Ledger Status: `Structure introduced in Slice R4-S3`",
+    "Ledger Population State: `No historical slice or seam entries migrated yet`",
+    "| Phase / Slice | Seam / Scope | Classification | Migration State | Notes |",
+    "| `Placeholder only` | `Reserve rows for future converted seams` | `Anchor or alias family history` | `Not started` | `R4-S3 adds shared ledger structure only; no historical slice or seam data migrates in this slice.` |",
     "Validator / Helper Index Status: `Reserved for Slice R4-S4`",
     "Artifact Index Status: `Reserved for Slice R4-S4`",
     "no alias content moved into this dossier in R4-S2",
     "R4-S2 intentionally does not migrate historical narrative, proof logs, pass summaries, or alias record bodies into the dossier.",
+    "R4-S3 introduces pass index and slice/seam ledger templates only; it does not migrate historical pass rows, ledger rows, proof logs, or alias record bodies into the dossier.",
 )
 
 CURRENT_BACKLOG_SHAPE_HEADINGS = (
@@ -2779,6 +2800,57 @@ def _validate_backlog_family_reform_seam_truth(
                 "Docs/branch_records/feature_backlog_family_governance_reform.md: Seam "
                 "Continuation Decision must not keep R4-S2 as `Next Active Seam` once the "
                 "FB-027 dossier shell exists"
+            ),
+        )
+
+    def dossier_has_r4_s3_structure(dossier_path: Path) -> bool:
+        if not dossier_path.is_file():
+            return False
+        dossier_text = _read_text(dossier_path)
+        return (
+            "Pass Index Status: `Structure introduced in Slice R4-S3`" in dossier_text
+            and "Slice / Seam Ledger Status: `Structure introduced in Slice R4-S3`" in dossier_text
+        )
+
+    if dossier_has_r4_s3_structure(REFORM_FB042_DOSSIER_PATH) and dossier_has_r4_s3_structure(
+        REFORM_FB027_DOSSIER_PATH
+    ):
+        require(
+            REFORM_R4_S3_STATE_NEXT_PHRASE not in backlog_workstream_state,
+            (
+                "Docs/feature_backlog.md: R4-S3 must not remain the next seam once both family "
+                "dossiers carry the shared pass-index and slice/seam-ledger structures"
+            ),
+        )
+        require(
+            REFORM_R4_S3_STATE_NEXT_PHRASE not in roadmap_workstream_state,
+            (
+                "Docs/prebeta_roadmap.md: R4-S3 must not remain the next seam once both family "
+                "dossiers carry the shared pass-index and slice/seam-ledger structures"
+            ),
+        )
+        require(
+            phase_status_next_seam != REFORM_R4_S3_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Phase Status "
+                "`Next Active Seam` must advance past R4-S3 once both family dossiers carry the "
+                "shared pass-index and slice/seam-ledger structures"
+            ),
+        )
+        require(
+            active_seam_next != REFORM_R4_S3_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Active Seam "
+                "`Next active seam` must advance past R4-S3 once both family dossiers carry the "
+                "shared pass-index and slice/seam-ledger structures"
+            ),
+        )
+        require(
+            continuation_next_seam != REFORM_R4_S3_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Seam "
+                "Continuation Decision must not keep R4-S3 as `Next Active Seam` once both "
+                "family dossiers carry the shared pass-index and slice/seam-ledger structures"
             ),
         )
 
