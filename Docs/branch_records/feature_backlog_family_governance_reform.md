@@ -42,9 +42,9 @@ This branch must not change runtime behavior. Its job is to repair and harden so
 - Slice R2-S1 result: complete and green. The planned backlog-family section skeleton now exists as placeholder headings only, no backlog entries were moved, reclassified, renamed, or rewritten in that seam.
 - Historical Workstream Seam: `Phase 2 - Backlog Structure Migration / Slice R2-S2 - Add classification markers in place`
 - Slice R2-S2 result: complete and green. Reform classification markers now exist in place across the current backlog entries, no entries were moved or renamed in that seam, and transitional ordering remained intact under `### Transitional Current Registry Order`.
-- Current Workstream Seam: `Phase 2 - Backlog Structure Migration / Slice R2-S4 - Move historical pass aliases`
-- Slice R2-S4 result: complete and green. Historical pass aliases now live in their dedicated section, the remaining user-facing family entries stay in transitional or historical locations, no entries were renamed in this seam, and Slice R2-S5 `Backlog ordering and selection-truth hardening` is next.
-- Next Active Seam: `Phase 2 - Backlog Structure Migration / Slice R2-S5 - Backlog ordering and selection-truth hardening`
+- Current Workstream Seam: `Phase 2 - Backlog Structure Migration / Slice R2-S5 - Backlog ordering and selection-truth hardening`
+- Slice R2-S5 result: complete and green. User-facing feature-family records now live in their dedicated section ahead of historical aliases and support lanes, FB-049 remains the only selected-next user-facing candidate, no entries were renamed in this seam, and Phase 3 / Slice R3-S1 `Retitle FB-042 as the runtime family anchor` is next.
+- Next Active Seam: `Phase 3 - Family Anchor Migration / Slice R3-S1 - Retitle FB-042 as the runtime family anchor`
 
 ## Branch Class
 
@@ -264,8 +264,8 @@ Seam 1: `Phase 1 - Validator Bootstrap`
 
 Active seam: `None.`
 
-Phase 1 `Validator Bootstrap`, Phase 2 / Slice R2-S1 `Backlog Section Skeleton`, Phase 2 / Slice R2-S2 `Add classification markers in place`, Phase 2 / Slice R2-S3 `Move support / governance lanes`, and Phase 2 / Slice R2-S4 `Move historical pass aliases` are complete and green.
-Next active seam: `Phase 2 - Backlog Structure Migration / Slice R2-S5 - Backlog ordering and selection-truth hardening`.
+Phase 1 `Validator Bootstrap`, Phase 2 / Slice R2-S1 `Backlog Section Skeleton`, Phase 2 / Slice R2-S2 `Add classification markers in place`, Phase 2 / Slice R2-S3 `Move support / governance lanes`, Phase 2 / Slice R2-S4 `Move historical pass aliases`, and Phase 2 / Slice R2-S5 `Backlog ordering and selection-truth hardening` are complete and green.
+Next active seam: `Phase 3 - Family Anchor Migration / Slice R3-S1 - Retitle FB-042 as the runtime family anchor`.
 
 - Phase 0 `Reform Readiness` is complete.
 - Workstream Phase 1 `Validator Bootstrap` is complete and green.
@@ -273,11 +273,12 @@ Next active seam: `Phase 2 - Backlog Structure Migration / Slice R2-S5 - Backlog
 - Phase 2 / Slice R2-S2 `Add classification markers in place` is complete and green.
 - Phase 2 / Slice R2-S3 `Move support / governance lanes` is complete and green.
 - Phase 2 / Slice R2-S4 `Move historical pass aliases` is complete and green.
-- Phase 2 / Slice R2-S5 `Backlog ordering and selection-truth hardening` is the next active seam on this branch.
+- Phase 2 / Slice R2-S5 `Backlog ordering and selection-truth hardening` is complete and green.
+- Phase 3 / Slice R3-S1 `Retitle FB-042 as the runtime family anchor` is the next active seam on this branch.
 
 ## Seam Continuation Decision
 
 Continue Decision: `Continue`
-Next Active Seam: `Phase 2 - Backlog Structure Migration / Slice R2-S5 - Backlog ordering and selection-truth hardening`
+Next Active Seam: `Phase 3 - Family Anchor Migration / Slice R3-S1 - Retitle FB-042 as the runtime family anchor`
 Stop Condition: `Stop only if repo truth shows the planned family-governance model conflicts with release history, selected-next truth, or validator protection and cannot be repaired without weakening the governance model.`
-Continuation Action: `Execute Slice R2-S5 by hardening backlog ordering and selected-next truth without pulling the Phase 3 family-anchor retitles or alias-to-family dossier mapping forward.`
+Continuation Action: `Execute Slice R3-S1 by retitling FB-042 into the runtime family anchor without rewriting the historical alias records or pulling deeper alias-to-family dossier mapping forward.`

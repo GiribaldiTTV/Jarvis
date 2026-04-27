@@ -901,6 +901,27 @@ REFORM_BACKLOG_TRIGGER_HEADINGS = (
     "### Support / Architecture / Governance Lanes",
 )
 
+REFORM_BACKLOG_ORDERED_HEADINGS = (
+    "### User-Facing Feature Families",
+    "### Historical Consolidated Pass Aliases",
+    "### Support / Architecture / Governance Lanes",
+    "## Historical Implemented Registry-Only Items",
+)
+
+TRANSITIONAL_CURRENT_REGISTRY_ORDER_HEADING = "### Transitional Current Registry Order"
+
+REFORM_BACKLOG_SECTION_CLASS_RULES = (
+    ("User-Facing Feature Families", "Feature Family"),
+    ("Historical Consolidated Pass Aliases", "Historical Pass Alias"),
+    ("Support / Architecture / Governance Lanes", "Support Lane"),
+)
+
+REFORM_BACKLOG_SECTION_NEXT_HEADINGS = {
+    "User-Facing Feature Families": "### Historical Consolidated Pass Aliases",
+    "Historical Consolidated Pass Aliases": "### Support / Architecture / Governance Lanes",
+    "Support / Architecture / Governance Lanes": "## Historical Implemented Registry-Only Items",
+}
+
 CURRENT_WORKSTREAM_INDEX_SHAPE_HEADINGS = (
     "### Active",
     "### Merged / Release Debt Owners",
@@ -1017,6 +1038,24 @@ def _parse_backlog_sections(text: str) -> list[dict[str, str]]:
     return entries
 
 
+def _parse_backlog_subsection(text: str, heading_prefix: str) -> list[dict[str, str]]:
+    heading = f"### {heading_prefix}"
+    start = text.find(heading)
+    if start < 0:
+        return []
+    start = text.find("\n", start)
+    if start < 0:
+        return []
+    start += 1
+
+    next_heading = REFORM_BACKLOG_SECTION_NEXT_HEADINGS.get(heading_prefix)
+    end = text.find(next_heading, start) if next_heading else -1
+    if end < 0:
+        end = len(text)
+
+    return _parse_backlog_sections(text[start:end])
+
+
 def _is_open_backlog_candidate(entry: dict[str, str]) -> bool:
     status = entry["status"].strip().casefold()
     normalized_status = _normalize_status(entry["status"])
@@ -1038,6 +1077,11 @@ def _extract_colon_values(block: str, label: str) -> list[str]:
 
 def _clean_release_value(value: str) -> str:
     return value.strip().strip("`").strip()
+
+
+def _backlog_id_number(workstream_id: str) -> int:
+    match = re.fullmatch(r"FB-(\d+)", workstream_id)
+    return int(match.group(1)) if match else -1
 
 
 def _latest_public_prerelease(roadmap_text: str) -> str:
@@ -1903,6 +1947,86 @@ def _validate_backlog_family_reform_bootstrap(
                     "`Selectable Independently: No`"
                 ),
             )
+
+    if has_reform_backlog_shape:
+        reform_heading_positions = [backlog_text.find(heading) for heading in REFORM_BACKLOG_ORDERED_HEADINGS]
+        require(
+            reform_heading_positions == sorted(reform_heading_positions),
+            (
+                "Docs/feature_backlog.md: reform backlog-family headings must remain ordered as "
+                "User-Facing Feature Families, Historical Consolidated Pass Aliases, Support / "
+                "Architecture / Governance Lanes, then Historical Implemented Registry-Only Items"
+            ),
+        )
+        require(
+            TRANSITIONAL_CURRENT_REGISTRY_ORDER_HEADING not in backlog_text,
+            (
+                "Docs/feature_backlog.md: transitional current registry order heading must be "
+                "removed after Slice R2-S5 ordering hardening"
+            ),
+        )
+
+        reform_section_entries = {
+            heading: _parse_backlog_subsection(backlog_text, heading)
+            for heading, _ in REFORM_BACKLOG_SECTION_CLASS_RULES
+        }
+        feature_family_ids = {entry["id"] for entry in reform_section_entries["User-Facing Feature Families"]}
+        require(
+            bool(feature_family_ids),
+            (
+                "Docs/feature_backlog.md: User-Facing Feature Families must contain the selectable "
+                "feature-family records after Slice R2-S5"
+            ),
+        )
+
+        for heading, expected_registry_class in REFORM_BACKLOG_SECTION_CLASS_RULES:
+            section_entries = reform_section_entries[heading]
+            section_ids = [entry["id"] for entry in section_entries]
+            require(
+                section_ids == sorted(section_ids, key=_backlog_id_number, reverse=True),
+                (
+                    f"Docs/feature_backlog.md: {heading} entries must remain in descending "
+                    "`FB-XXX` order"
+                ),
+            )
+            for section_entry in section_entries:
+                actual_registry_class = _clean_release_value(
+                    _extract_colon_value(section_entry["block"], "Registry Class")
+                )
+                require(
+                    actual_registry_class == expected_registry_class,
+                    (
+                        f"Docs/feature_backlog.md: {section_entry['id']} must live under "
+                        f"'{heading}' with Registry Class '{expected_registry_class}'"
+                    ),
+                )
+
+        for registry_class_name, heading in (
+            ("Feature Family", "User-Facing Feature Families"),
+            ("Historical Pass Alias", "Historical Consolidated Pass Aliases"),
+            ("Support Lane", "Support / Architecture / Governance Lanes"),
+        ):
+            class_ids = {
+                entry["id"]
+                for entry, registry_class in zip(backlog_entries, registry_classes)
+                if registry_class == registry_class_name
+            }
+            require(
+                class_ids == {entry["id"] for entry in reform_section_entries[heading]},
+                (
+                    f"Docs/feature_backlog.md: all {registry_class_name} entries must live under "
+                    f"'{heading}' after Slice R2-S5"
+                ),
+            )
+
+        selected_next_ids = {entry["id"] for entry in _selected_next_workstream_entries(backlog_entries)}
+        require(
+            selected_next_ids <= feature_family_ids,
+            (
+                "Docs/feature_backlog.md: selected-next backlog entries must remain inside "
+                "'User-Facing Feature Families' after Slice R2-S5"
+            ),
+        )
 
 
 def _roadmap_section_for_id(text: str, workstream_id: str) -> str:
