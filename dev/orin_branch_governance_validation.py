@@ -1170,6 +1170,14 @@ REFORM_R7_S1_ACTIVE_SEAM_NEXT_PHRASE = (
     "Phase 7 / Slice R7-S1 `Remove temporary dual-shape tolerance` is the next active seam on this branch."
 )
 REFORM_R7_S1_CONTINUATION_PHRASE = "Execute Slice R7-S1"
+REFORM_R7_S2_SEAM = (
+    "Phase 7 - Validator Finalization / Slice R7-S2 - Add hard anti-drift checks"
+)
+REFORM_R7_S2_STATE_NEXT_PHRASE = "Slice R7-S2 `Add hard anti-drift checks` is next"
+REFORM_R7_S2_ACTIVE_SEAM_NEXT_PHRASE = (
+    "Phase 7 / Slice R7-S2 `Add hard anti-drift checks` is the next active seam on this branch."
+)
+REFORM_R7_S2_CONTINUATION_PHRASE = "Execute Slice R7-S2"
 REFORM_FB042_DOSSIER_PATH = Path(
     "Docs/workstreams/FB-042_desktop_startup_runtime_family_dossier.md"
 )
@@ -3720,14 +3728,31 @@ def _validate_backlog_family_reform_seam_truth(
 
     def temporary_dual_shape_tolerance_removed() -> bool:
         validator_text = _read_text(Path("dev/orin_branch_governance_validation.py"))
+        old_backlog_tolerance_phrase = (
+            "must accept either the current backlog shape "
+            "or the reform backlog-family shape"
+        )
+        old_index_tolerance_phrase = (
+            "must accept either the current workstream-index shape "
+            "or the reform family-index split"
+        )
         return (
-            "must accept either the current backlog shape or the reform backlog-family shape"
-            not in validator_text
-            and "must accept either the current workstream-index shape or the reform family-index split"
-            not in validator_text
+            old_backlog_tolerance_phrase not in validator_text
+            and old_index_tolerance_phrase not in validator_text
             and "requires the reform backlog-family shape" in validator_text
             and "requires the reform family-index split" in validator_text
         )
+
+    def hard_anti_drift_checks_enforced() -> bool:
+        validator_text = _read_text(Path("dev/orin_branch_governance_validation.py"))
+        required_phrases = (
+            "reform hard anti-drift requires selected-next truth to remain validated across backlog, roadmap, branch authority, and validator expectations",
+            "reform hard anti-drift requires the sweep-clean Phase 6 family-governance routing surfaces to remain intact",
+            "reform hard anti-drift requires temporary dual-shape tolerance to stay removed",
+            "reform hard anti-drift: historical pass alias",
+            "reform hard anti-drift: support lane",
+        )
+        return all(phrase in validator_text for phrase in required_phrases)
 
     if historical_pass_branch_records_converted():
         require(
@@ -4102,6 +4127,104 @@ def _validate_backlog_family_reform_seam_truth(
             (
                 "Docs/feature_backlog.md: R7-S1 must not remain the next seam once temporary "
                 "dual-shape tolerance is removed"
+            ),
+        )
+
+    require(
+        selected_next_truth_validated(),
+        (
+            "Docs/feature_backlog.md / Docs/prebeta_roadmap.md / "
+            "Docs/branch_records/feature_backlog_family_governance_reform.md: reform hard anti-"
+            "drift requires selected-next truth to remain validated across backlog, roadmap, "
+            "branch authority, and validator expectations"
+        ),
+    )
+    require(
+        phase6_drift_sweep_clean(),
+        (
+            "Docs/Main.md / Docs/workstreams/index.md / Docs/feature_backlog.md: reform hard anti-"
+            "drift requires the sweep-clean Phase 6 family-governance routing surfaces to remain "
+            "intact"
+        ),
+    )
+    require(
+        temporary_dual_shape_tolerance_removed(),
+        (
+            "dev/orin_branch_governance_validation.py: reform hard anti-drift requires temporary "
+            "dual-shape tolerance to stay removed"
+        ),
+    )
+    for entry in backlog_entries:
+        registry_class = _clean_release_value(_extract_colon_value(entry["block"], "Registry Class"))
+        status_value = _clean_release_value(_extract_colon_value(entry["block"], "Status"))
+        next_workstream_value = _clean_release_value(
+            _extract_colon_value(entry["block"], "Next Workstream")
+        )
+        branch_value = _clean_release_value(_extract_colon_value(entry["block"], "Branch"))
+        if registry_class == "Historical Pass Alias":
+            require(
+                status_value.casefold() != "selected next"
+                and next_workstream_value.casefold() != "selected"
+                and branch_value.casefold() != "not created",
+                (
+                    f"Docs/feature_backlog.md: reform hard anti-drift: historical pass alias "
+                    f"{entry['id']} must not regain live selected-next or branch-not-created markers"
+                ),
+            )
+        if registry_class == "Support Lane":
+            require(
+                status_value.casefold() != "selected next"
+                and next_workstream_value.casefold() != "selected"
+                and branch_value.casefold() != "not created",
+                (
+                    f"Docs/feature_backlog.md: reform hard anti-drift: support lane {entry['id']} "
+                    "must not regain live selected-next or branch-not-created markers"
+                ),
+            )
+
+    if hard_anti_drift_checks_enforced():
+        require(
+            REFORM_R7_S2_STATE_NEXT_PHRASE not in backlog_workstream_state,
+            (
+                "Docs/feature_backlog.md: R7-S2 must not remain the next seam once hard anti-"
+                "drift checks are enforced"
+            ),
+        )
+        require(
+            REFORM_R7_S2_STATE_NEXT_PHRASE not in roadmap_workstream_state,
+            (
+                "Docs/prebeta_roadmap.md: R7-S2 must not remain the next seam once hard anti-"
+                "drift checks are enforced"
+            ),
+        )
+        require(
+            phase_status_next_seam != REFORM_R7_S2_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Phase Status "
+                "`Next Active Seam` must advance past R7-S2 once hard anti-drift checks are enforced"
+            ),
+        )
+        require(
+            REFORM_R7_S2_ACTIVE_SEAM_NEXT_PHRASE not in active_seam_section,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Active Seam "
+                "must not keep R7-S2 as the next active seam once hard anti-drift checks are enforced"
+            ),
+        )
+        require(
+            continuation_next_seam != REFORM_R7_S2_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Seam "
+                "Continuation Decision must not keep R7-S2 as `Next Active Seam` once hard anti-"
+                "drift checks are enforced"
+            ),
+        )
+        require(
+            REFORM_R7_S2_CONTINUATION_PHRASE not in continuation_section,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Seam "
+                "Continuation Decision must not keep an R7-S2 continuation action once hard anti-"
+                "drift checks are enforced"
             ),
         )
         require(

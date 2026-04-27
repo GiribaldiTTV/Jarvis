@@ -82,9 +82,11 @@ This branch must not change runtime behavior. Its job is to repair and harden so
 - Slice R6-S5 result: complete and green. The final Phase 6 drift sweep found no remaining current-state family-governance drift across backlog, roadmap, branch authority, routing, or validator surfaces; the family-anchor model now reads cleanly end-to-end through the current-state docs; and FB-049 remains the only selected-next user-facing candidate, `Registry-only`, and branch-not-created.
 - Historical Workstream Seam: `Phase 7 - Validator Finalization / Slice R7-S1 - Remove temporary dual-shape tolerance`
 - Slice R7-S1 result: complete and green. The validator no longer accepts the old pre-reform backlog-family or workstream-index migration posture as an alternative on the reform branch; it now requires the finalized reform backlog-family shape and the family-index split while preserving FB-049 selected-next truth and the converted family-routing model.
-- Current Workstream Seam: `Phase 7 - Validator Finalization / Slice R7-S2 - Add hard anti-drift checks`
-- Slice Status: in progress. Phase 7 continues at R7-S2 because the validator still needs its final hard anti-drift guardrails before Workstream completion can turn green, Completion Status is not green yet, no waiver is recorded, and continuation is still required.
-- Next Active Seam: `Phase 7 - Validator Finalization / Slice R7-S2 - Add hard anti-drift checks`
+- Historical Workstream Seam: `Phase 7 - Validator Finalization / Slice R7-S2 - Add hard anti-drift checks`
+- Slice R7-S2 result: complete and green. Hard anti-drift checks now permanently enforce the validated FB-049 selected-next lock, the sweep-clean family-governance routing surfaces, the removed temporary dual-shape tolerance, and the non-selectable boundaries for historical aliases plus support lanes; the full Workstream is now complete and green, and Hardening is the next legal phase.
+- Current Workstream Seam: `None`
+- Slice Status: green. Phase 7 is complete and green, Workstream completion is proven, no waiver is recorded, and the next legal phase is Hardening.
+- Next Active Seam: `None`
 
 ## Branch Class
 
@@ -92,7 +94,7 @@ This branch must not change runtime behavior. Its job is to repair and harden so
 
 ## Blockers
 
-- `Backlog Completion Unproven`
+- None.
 
 ## Entry Basis
 
@@ -117,7 +119,7 @@ This branch must not change runtime behavior. Its job is to repair and harden so
 
 ## Next Legal Phase
 
-- `Workstream`
+- `Hardening`
 
 ## Scope
 
@@ -199,9 +201,9 @@ Branch Closure Rule: `Do not leave Workstream after only the first reform seam; 
 
 ## Backlog Completion Status
 
-Backlog Completion State: `In Progress`
-Completion Status: `In Progress`
-Remaining Implementable Work: `Phase 7 / Slice R7-S2 remains to execute on this same branch.`
+Backlog Completion State: `Implemented Complete`
+Completion Status: `Green`
+Remaining Implementable Work: `None`
 Future-Dependent Blockers: `None`
 
 ## Stop Conditions
@@ -303,10 +305,10 @@ Seam 1: `Phase 1 - Validator Bootstrap`
 
 ## Active Seam
 
-Active seam: `Phase 7 - Validator Finalization / Slice R7-S2 - Add hard anti-drift checks`
+Active seam: `None.`
 
 Phase 1 `Validator Bootstrap`, Phase 2 / Slice R2-S1 `Backlog Section Skeleton`, Phase 2 / Slice R2-S2 `Add classification markers in place`, Phase 2 / Slice R2-S3 `Move support / governance lanes`, Phase 2 / Slice R2-S4 `Move historical pass aliases`, Phase 2 / Slice R2-S5 `Backlog ordering and selection-truth hardening`, Phase 3 / Slice R3-S1 `Retitle FB-042 as the runtime family anchor`, Phase 3 / Slice R3-S2 `Map FB-043 through FB-048 under FB-042 as historical aliases`, Phase 3 / Slice R3-S3 `Retitle FB-027 as the interaction/action family anchor`, Phase 3 / Slice R3-S4 `Map FB-036, FB-037, FB-038, and FB-041 under FB-027 as historical aliases`, Phase 3 / Slice R3-S5 `Future-selection hardening`, Phase 4 / Slice R4-S1 `Convert the FB-042 dossier shell`, Phase 4 / Slice R4-S2 `Convert the FB-027 dossier shell`, Phase 4 / Slice R4-S3 `Add pass index and slice/seam ledger structure`, Phase 4 / Slice R4-S4 `Add validator/helper and artifact indexes`, and Phase 4 / Slice R4-S5 `Dossier stability validation` are complete and green.
-Next active seam: `Phase 7 - Validator Finalization / Slice R7-S2 - Add hard anti-drift checks`.
+Next active seam: `None.`
 
 - Phase 0 `Reform Readiness` is complete.
 - Workstream Phase 1 `Validator Bootstrap` is complete and green.
@@ -336,16 +338,17 @@ Next active seam: `Phase 7 - Validator Finalization / Slice R7-S2 - Add hard ant
 - Phase 6 / Slice R6-S4 `Selected-next truth validation` is complete and green.
 - Phase 6 / Slice R6-S5 `Final drift sweep` is complete and green.
 - Phase 7 / Slice R7-S1 `Remove temporary dual-shape tolerance` is complete and green.
-- Phase 7 / Slice R7-S2 `Add hard anti-drift checks` is the current active seam on this branch.
+- Phase 7 / Slice R7-S2 `Add hard anti-drift checks` is complete and green.
+- Workstream completion is green; Hardening is the next legal phase on this branch.
 
 ## Seam Continuation Decision
 
-Seam Status: `In Progress`
-Slice Status: `In Progress`
-Completion Status: `In Progress`
+Seam Status: `Green`
+Slice Status: `Green`
+Completion Status: `Green`
 Waiver Status: `None`
-Continue Decision: `Continue`
-Stop Basis: `None`
-Next Active Seam: `Phase 7 - Validator Finalization / Slice R7-S2 - Add hard anti-drift checks`
-Stop Condition: `Stop only if Workstream Completion Status turns Green, or if a named blocker or waiver turns Completion Status Red before the next seam completes.`
-Continuation Action: `Execute Slice R7-S2 on this same branch and continue bounded seam-to-seam and slice-to-slice while Completion Status remains In Progress.`
+Continue Decision: `Stop`
+Stop Basis: `Workstream Green`
+Next Active Seam: `None`
+Stop Condition: `Workstream Completion Status is Green; Hardening is the next legal phase.`
+Continuation Action: `Stop Workstream execution and begin Hardening on this same branch.`
