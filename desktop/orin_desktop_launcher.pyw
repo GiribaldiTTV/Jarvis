@@ -1434,13 +1434,13 @@ def main():
             )
         elif single_instance_state["wait_timeout_relaunch"]:
             runtime(
-                "Incoming launch exited after accepted relaunch wait timeout: current session preserved"
+                "Incoming launch exited after accepted relaunch wait timeout: replacement session not confirmed"
             )
             runtime_event(
                 "STATUS",
                 "WARNING",
                 "LAUNCHER_RUNTIME",
-                "RELAUNCH_WAIT_TIMEOUT_SESSION_PRESERVED",
+                "RELAUNCH_WAIT_TIMEOUT_REPLACEMENT_UNCONFIRMED",
             )
         else:
             runtime("Launcher start blocked: Nexus Desktop AI is already running")

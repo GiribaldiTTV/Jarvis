@@ -59,7 +59,7 @@ None.
 
 - accepted relaunch signal-failure and wait-timeout lanes are proven end to end across launcher path, single-instance ownership truth, and reusable validators
 - active-session ownership remains truthful in failure and timeout lanes
-- incoming failure-path launches emit explicit preserved-session markers and never emit false replacement-session markers
+- incoming failure-path launches emit explicit signal-failure preserved-session markers or wait-timeout replacement-unconfirmed markers and never emit false replacement-session markers
 - repeated and mixed launch scenarios distinguish failure, decline, and success without ownership drift
 - the branch does not leave `Workstream` until FB-048 records `Backlog Completion State`
 
@@ -164,9 +164,9 @@ Future-Dependent Blockers: `None`
 
 - `desktop/single_instance.py` now exposes harness-only relaunch signal-failure, relaunch wait override, and already-running dialog suppression hooks so accepted failure lanes can be proven without changing production prompt behavior.
 - `desktop/orin_desktop_main.py` now exposes a harness-only relaunch-request ignore path so wait-timeout can be exercised while the active session truthfully remains owner.
-- `desktop/orin_desktop_launcher.pyw` now classifies accepted relaunch failure as explicit preserved-session outcomes with:
+- `desktop/orin_desktop_launcher.pyw` now classifies accepted relaunch failure as explicit truthful outcomes with:
   - `STATUS|WARNING|LAUNCHER_RUNTIME|RELAUNCH_SIGNAL_FAILED_SESSION_PRESERVED`
-  - `STATUS|WARNING|LAUNCHER_RUNTIME|RELAUNCH_WAIT_TIMEOUT_SESSION_PRESERVED`
+  - `STATUS|WARNING|LAUNCHER_RUNTIME|RELAUNCH_WAIT_TIMEOUT_REPLACEMENT_UNCONFIRMED`
   instead of collapsing those lanes into the generic `ALREADY_RUNNING` skip marker.
 - `dev/orin_desktop_entrypoint_validation.py` now proves:
   - repeated accepted relaunch signal-failure launches preserve the active settled owner and emit explicit failure markers
@@ -189,7 +189,7 @@ Future-Dependent Blockers: `None`
 Accepted relaunch failure is now a first-class proven lifecycle:
 
 - if signal delivery fails, the incoming launch records explicit signal-failure preserved-session truth and exits cleanly without claiming replacement ownership
-- if the active session receives the request but does not release before the reacquire deadline, the incoming launch records explicit wait-timeout preserved-session truth and exits cleanly without claiming replacement ownership
+- if the active session receives the request but does not release before the reacquire deadline, the incoming launch records explicit wait-timeout replacement-unconfirmed truth and exits cleanly without claiming replacement ownership
 - repeated failure attempts preserve the same settled owner
 - later accepted relaunch success still transfers ownership only when guard release and reacquisition actually happen
 
@@ -209,14 +209,14 @@ H-1 pressure-tested the completed FB-048 accepted-failure lane across rapid repe
 ### Hardening Findings
 
 - Rapid consecutive signal-failure launches remain single-owner: the active settled session stays unchanged, each incoming launch records accepted conflict plus explicit signal-failure preserved-session truth, and no reacquire or replacement-session markers leak into the failed incoming launches.
-- Wait-window classification is now stable at the boundary: early release before the deadline reacquires truthfully, exact-boundary release no longer falls through to a false timeout because the guard now gets one final reacquire attempt at the deadline, and late release still resolves to the explicit wait-timeout preserved-session outcome.
+- Wait-window classification is now stable at the boundary: early release before the deadline reacquires truthfully, exact-boundary release no longer falls through to a false timeout because the guard now gets one final reacquire attempt at the deadline, and late release still resolves to the explicit wait-timeout replacement-unconfirmed outcome.
 - Mixed failure -> decline -> accept -> failure sequencing stays truthful: failure preserves the original owner, decline preserves the same owner without relaunch request delivery, accepted relaunch is still the only lane that transfers guard ownership, and a later failure against the accepted replacement session preserves that replacement owner without triggering another guard transfer.
 - The main hidden coupling was in the single-instance wait-loop boundary itself and in validator breadth, not in launcher classification. The launcher already emitted the right preserved-session markers once the boundary reacquire logic and mixed-sequence proof were tightened.
 - Accepted-success relaunch proof, declined-preservation proof, repeated-launch proof, default startup proof, and explicit dev-boot proof all remained green while the failure/timeout hardening surface expanded.
 
 ### Hardening Corrections
 
-- `desktop/single_instance.py` now sleeps only up to the remaining relaunch wait window and performs one final reacquire attempt at the deadline before classifying the incoming launch as a wait-timeout preserved-session outcome.
+- `desktop/single_instance.py` now sleeps only up to the remaining relaunch wait window and performs one final reacquire attempt at the deadline before classifying the incoming launch as a wait-timeout replacement-unconfirmed outcome.
 - `dev/orin_desktop_entrypoint_validation.py` now adds reusable coverage for:
   - focused single-instance early / exact-boundary / late wait-window classification
   - three rapid consecutive accepted relaunch signal-failure launches
@@ -258,7 +258,7 @@ LV-1 validates the completed FB-048 relaunch signal-failure and wait-timeout sli
 - Real Shortcut Gate Result: PASS. Launching through `C:\Users\anden\OneDrive\Desktop\Nexus Desktop Launcher.lnk` exercised the active branch runtime, produced dedicated evidence under `dev/logs/fb_048_live_validation/20260427_073332/desktop_shortcut_gate`, reached launcher-owned `DESKTOP_SETTLED_OBSERVED|state=dormant`, reached renderer `STARTUP_READY`, recorded `WINDOW_SHOW_REQUESTED` and `TRAY_ENTRY_READY|available=true`, reached the authoritative settled marker, and completed on the clean-shutdown lifecycle path with no launcher failure flow.
 - Production Launch Path Evidence: PASS. Fresh reusable entrypoint validation still proves the VBS default path, VBS fallback path, direct `main.py` desktop handoff, repeated-launch stability, accepted relaunch, slow accepted relaunch, repeated signal-failure launches, accepted relaunch wait-timeout, declined relaunch, rapid consecutive declined launches, mixed failure/decline/accept/failure relaunch sequencing, relaunch after recoverable post-settled exit, rapid consecutive accepted relaunch cycles, and no-dual-ownership guard behavior on the active branch.
 - Explicit Dev Boot-Proof Route Evidence: PASS. `python dev\orin_boot_transition_verification.py` still proves the explicit `auto_handoff_skip_import` boot-profile route reaches the ordered boot markers, converges on the authoritative settled marker, and exits cleanly.
-- Failure Lifecycle Integrity: PASS. Real execution on the declared shortcut route lands on valid clean termination after settled; fresh reusable multi-session proof demonstrates accepted signal-failure and wait-timeout paths preserve the active owner, emit explicit preserved-session markers, never leak replacement-session markers, and mixed failure/decline/accept/failure sequencing only transfers ownership in the accepted phase.
+- Failure Lifecycle Integrity: PASS. Real execution on the declared shortcut route lands on valid clean termination after settled; fresh reusable multi-session proof demonstrates accepted signal-failure paths preserve the active owner, wait-timeout paths leave replacement-session confirmation unresolved, replacement-session markers never leak into those lanes, and mixed failure/decline/accept/failure sequencing only transfers ownership in the accepted phase.
 - User Test Summary Applicability: focused waiver. The completed FB-048 delta is the full currently implementable relaunch signal-failure and wait-timeout pass for this backlog item, but it does not add a new settings journey, persisted user-content path, or broader operator workflow that a filled manual User Test Summary would materially validate beyond the captured real-shortcut evidence, reusable multi-session failure/timeout proof, production-path validation, and explicit dev boot proof.
 - Desktop Export Applicability: no desktop `User Test Summary.txt` export is required for LV-1 because User Test Summary results are waived for this focused relaunch-failure refinement.
 - Cleanup: the real shortcut pass left no residual launcher/runtime processes after shutdown and post-validation cleanup.
@@ -355,7 +355,7 @@ PR Readiness validates the completed bounded FB-048 runtime slice chain for merg
 - PR Title: `FB-048 Active-Session Relaunch Signal-Failure And Wait-Timeout Truth`
 - Base Branch: `main`
 - Head Branch: `feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeout-truth`
-- PR Summary: Deliver the bounded FB-048 runtime/user-facing relaunch failure/timeout slice by proving accepted relaunch signal-failure and wait-timeout preserve the active session truthfully, emit explicit preserved-session markers without false replacement-session ownership, preserve real desktop shortcut and explicit dev boot proof, align merge-target canon for `v1.6.12-prebeta`, and select FB-049 as the next pre-settled incoming-launch conflict truth lane.
+- PR Summary: Deliver the bounded FB-048 runtime/user-facing relaunch failure/timeout slice by proving accepted relaunch signal-failure preserves the active session truthfully, accepted relaunch wait-timeout leaves replacement-session confirmation unresolved without false ownership claims, preserve real desktop shortcut and explicit dev boot proof, align merge-target canon for `v1.6.12-prebeta`, and select FB-049 as the next pre-settled incoming-launch conflict truth lane.
 - PR URL: https://github.com/GiribaldiTTV/Nexus-Desktop-AI/pull/94
 - PR State At PR Package Time: OPEN, non-draft, base `main`, head `feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeout-truth`.
 - Review Thread State: PASS. Zero top-level PR comments and zero submitted reviews at PR package time.
@@ -366,7 +366,7 @@ PR Readiness validates the completed bounded FB-048 runtime slice chain for merg
 - PR-1 Result: Complete / green.
 - PR-2 Result: Complete / green.
 - PR-3 Result: Complete / green.
-- Failure Lifecycle Integrity: accepted relaunch signal-failure and wait-timeout now preserve the active settled owner, emit explicit preserved-session warnings instead of generic already-running truth, never leak replacement-session markers, and keep ownership transfer exclusive to accepted relaunch success.
+- Failure Lifecycle Integrity: accepted relaunch signal-failure now preserves the active settled owner explicitly, accepted relaunch wait-timeout now reports replacement-session confirmation as unresolved instead of claiming preservation, replacement-session markers never leak into those lanes, and ownership transfer remains exclusive to accepted relaunch success.
 - Next legal action after merge: file-frozen Release Readiness on updated `main` for `v1.6.12-prebeta`.
 
 ### PR Readiness Validation Results
@@ -386,6 +386,13 @@ PR Readiness validates the completed bounded FB-048 runtime slice chain for merg
 - User Test Summary Results: `WAIVED`
 - User Test Summary Waiver Reason: The completed FB-048 delta is the full currently implementable relaunch signal-failure and wait-timeout pass for the existing desktop runtime path and is already covered by fresh real-shortcut evidence, reusable multi-session failure/timeout proof, production-path validation, and explicit dev boot verification. It does not add a new settings journey, persisted user-content path, or broader operator workflow that a filled manual User Test Summary would materially validate beyond that captured evidence.
 - Desktop User Test Summary Export: `Not required; waiver path`
+
+## Post-Merge Review Repair
+
+PR #94 later received two actionable review threads that were repaired on the still-available FB-048 branch before release packaging continued:
+
+- `desktop/orin_desktop_launcher.pyw` no longer labels accepted relaunch wait-timeout as a preserved-session outcome. The launcher now emits `STATUS|WARNING|LAUNCHER_RUNTIME|RELAUNCH_WAIT_TIMEOUT_REPLACEMENT_UNCONFIRMED`, which matches what the timeout actually proves: replacement-session reacquisition was not confirmed before the deadline.
+- `dev/orin_desktop_entrypoint_validation.py` now guards the focused single-instance wait-boundary scenario on non-Windows hosts so the validator does not import `desktop.single_instance` and trip over `ctypes.windll` outside Windows.
 
 ## Seam Continuation Decision
 
