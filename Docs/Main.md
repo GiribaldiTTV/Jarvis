@@ -176,6 +176,7 @@ Use these for additive family-lifetime traceability surfaces that layer over exi
 
 - `Docs/workstreams/index.md`
 - `Docs/workstreams/FB-042_desktop_startup_runtime_family_dossier.md`
+- `Docs/workstreams/FB-027_interaction_shared_action_family_dossier.md`
 
 ### Branch Authority Records
 

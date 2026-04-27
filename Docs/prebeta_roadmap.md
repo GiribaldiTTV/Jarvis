@@ -71,7 +71,7 @@ Current merged truth indicates:
 - phase status after `v1.6.12-prebeta` release closure: FB-048 is Released / Closed in `v1.6.12-prebeta`; release debt is clear after publication, validation, and post-release canon closure; `feature/backlog-family-governance-reform` is the active docs-only governance reform branch authority surface; and FB-049 remains selected next, `Registry-only`, and branch-not-created.
 - current active workstream: none; current active branch authority owner is `feature/backlog-family-governance-reform`
 - current branch after `v1.6.12-prebeta` release closure: `feature/backlog-family-governance-reform`
-- next concern: convert the FB-027 dossier shell in Phase 4 / Slice R4-S2 while preserving the new FB-042 dossier shell, the hardened current-slice seam-governance rule, and FB-049 as selected next and branch-not-created.
+- next concern: add the shared pass index and slice/seam ledger structure in Phase 4 / Slice R4-S3 while preserving the new FB-042 and FB-027 dossier shells, the hardened current-slice seam-governance rule, and FB-049 as selected next and branch-not-created.
 
 That means the released FB-027 interaction and shared-action family anchor, the released FB-036 authoring-and-callable-group milestone, the released FB-041 deterministic callable-group execution milestone, the released FB-037 built-in catalog milestone, the released FB-038 tray quick-task UX milestone, the released FB-039 external trigger intake architecture milestone, the released FB-040 monitoring/thermal architecture milestone, the released FB-031 UI/UX architecture milestone, the released FB-032 source-of-truth migration milestone, the released FB-004 future boot-orchestrator architecture milestone, the released FB-015 plus FB-029 planning milestones, the released FB-030 voice/audio planning milestone, and the released FB-005 bounded workspace-path slice are now part of the current public shared pre-Beta baseline.
 
@@ -102,7 +102,7 @@ Selected Next Implementation Branch: `Not created`
 Repair-Only Branch Handling: `feature/fb-046-post-merge-canon-sync` is a bounded repair-only post-merge canon-sync `feature/` branch and did not imply Branch Readiness admission or active branch truth for FB-046.
 Historical Branch Readiness State: Complete on `feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeout-truth`.
 Current Branch Readiness State: Historical complete on `feature/backlog-family-governance-reform`. Phase 0 `Reform Readiness` admitted the branch authority record and cleared the path into Workstream.
-Current Workstream State: Phase 4 `Lifetime Dossier Conversion` remains in progress on `feature/backlog-family-governance-reform`; Seam Status: Green for R4-S1 `Convert the FB-042 dossier shell`; Slice Status: In Progress because R4-S2 through R4-S5 remain on the same branch; Blockers: `Backlog Completion Unproven`; Waiver Status: None; continuation is required beginning with Phase 4 / Slice R4-S2 `Convert the FB-027 dossier shell`, and FB-049 remains the only selected-next user-facing candidate.
+Current Workstream State: Phase 4 `Lifetime Dossier Conversion` reached Slice R4-S2 green on `feature/backlog-family-governance-reform`; Seam Status: Green for R4-S2 `Convert the FB-027 dossier shell`; Slice Status: Green; Blockers: `Backlog Completion Unproven` remains branch-level only for later reform slices; Waiver Status: None; Stop Basis: `Slice Green`; the initial FB-027 lifetime dossier shell now exists with no historical pass content migrated yet, Phase 4 / Slice R4-S3 `Add pass index and slice/seam ledger structure` is the next legal seam when instructed, and FB-049 remains the only selected-next user-facing candidate.
 Historical Workstream State: FB-048 is Released / Closed in `v1.6.12-prebeta`; FB-047 is Released / Closed in `v1.6.11-prebeta`; FB-046 is Released / Closed in `v1.6.10-prebeta`; FB-044 and FB-045 remain Released / Closed historical proof in `v1.6.9-prebeta`.
 Historical Hardening State: Complete on `feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeout-truth`.
 Historical Live Validation State: Complete on `feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeout-truth`.
@@ -472,6 +472,8 @@ Post-Release Truth: FB-015 is Released / Closed in `v1.6.4-prebeta`; FB-029 is a
 - target version: `v1.2.9-prebeta`
 - release state: `released`
 - canonical workstream doc: `Docs/workstreams/FB-027_interaction_system_baseline.md`
+- lifetime dossier doc: `Docs/workstreams/FB-027_interaction_shared_action_family_dossier.md`
+- lifetime dossier state: shell only; no historical pass migration has landed yet
 - sequencing note: preserves the first released interaction baseline and now anchors the later shared-action follow-through family below FB-036, FB-037, FB-038, and FB-041
 
 ### FB-035 Release-Context Fallback Hardening

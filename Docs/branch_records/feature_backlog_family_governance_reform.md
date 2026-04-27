@@ -52,9 +52,11 @@ This branch must not change runtime behavior. Its job is to repair and harden so
 - Slice R3-S4 result: repo-truth satisfied and green. FB-036, FB-037, FB-038, and FB-041 already declare `Historical Alias Of: FB-027`; that mapping survived the earlier relocation seams unchanged and required no additional move or reclassification here.
 - Historical Workstream Seam: `Phase 4 - Lifetime Dossier Conversion / Slice R4-S1 - Convert the FB-042 dossier shell`
 - Slice R4-S1 result: complete and green. The initial FB-042 lifetime dossier shell now exists as an additive family-traceability surface, it defines the reserved lifetime-tracking sections needed for later migration, the existing FB-042 anchor workstream record remains intact, no historical content or alias record bodies were migrated yet, and FB-049 remains the only selected-next user-facing candidate.
-- Current Workstream Seam: `Phase 4 - Lifetime Dossier Conversion / Slice R4-S2 - Convert the FB-027 dossier shell`
-- Slice Status: in progress. Phase 4 is not green yet because R4-S2 through R4-S5 remain on this same branch, no waiver is recorded, and continuation is still required.
-- Next Active Seam: `Phase 4 - Lifetime Dossier Conversion / Slice R4-S2 - Convert the FB-027 dossier shell`
+- Historical Workstream Seam: `Phase 4 - Lifetime Dossier Conversion / Slice R4-S2 - Convert the FB-027 dossier shell`
+- Slice R4-S2 result: complete and green. The initial FB-027 lifetime dossier shell now exists as an additive family-traceability surface, it mirrors the FB-042 shell structure, the existing FB-027 anchor workstream record remains intact, no historical content or alias record bodies were migrated yet, and FB-049 remains the only selected-next user-facing candidate.
+- Current Workstream Seam: `None`
+- Slice Status: green. Slice R4-S2 is complete, no waiver is recorded, and the branch stops here until the next slice is explicitly instructed.
+- Next Active Seam: `Phase 4 - Lifetime Dossier Conversion / Slice R4-S3 - Add pass index and slice/seam ledger structure`
 
 ## Branch Class
 
@@ -170,7 +172,7 @@ Branch Closure Rule: `Do not leave Workstream after only the first reform seam; 
 ## Backlog Completion Status
 
 Backlog Completion State: `In Progress`
-Remaining Implementable Work: `Phase 4 / Slice R4-S2 through Phase 7 backlog/workstream governance reform slices remain to execute on this same branch.`
+Remaining Implementable Work: `Phase 4 / Slice R4-S3 through Phase 7 backlog/workstream governance reform slices remain to execute on this same branch.`
 Future-Dependent Blockers: `None`
 
 ## Stop Conditions
@@ -272,10 +274,10 @@ Seam 1: `Phase 1 - Validator Bootstrap`
 
 ## Active Seam
 
-Active seam: `Phase 4 - Lifetime Dossier Conversion / Slice R4-S2 - Convert the FB-027 dossier shell`
+Active seam: `None`
 
-Phase 1 `Validator Bootstrap`, Phase 2 / Slice R2-S1 `Backlog Section Skeleton`, Phase 2 / Slice R2-S2 `Add classification markers in place`, Phase 2 / Slice R2-S3 `Move support / governance lanes`, Phase 2 / Slice R2-S4 `Move historical pass aliases`, Phase 2 / Slice R2-S5 `Backlog ordering and selection-truth hardening`, Phase 3 / Slice R3-S1 `Retitle FB-042 as the runtime family anchor`, Phase 3 / Slice R3-S2 `Map FB-043 through FB-048 under FB-042 as historical aliases`, Phase 3 / Slice R3-S3 `Retitle FB-027 as the interaction/action family anchor`, Phase 3 / Slice R3-S4 `Map FB-036, FB-037, FB-038, and FB-041 under FB-027 as historical aliases`, Phase 3 / Slice R3-S5 `Future-selection hardening`, and Phase 4 / Slice R4-S1 `Convert the FB-042 dossier shell` are complete and green.
-Next active seam: `Phase 4 - Lifetime Dossier Conversion / Slice R4-S2 - Convert the FB-027 dossier shell`.
+Phase 1 `Validator Bootstrap`, Phase 2 / Slice R2-S1 `Backlog Section Skeleton`, Phase 2 / Slice R2-S2 `Add classification markers in place`, Phase 2 / Slice R2-S3 `Move support / governance lanes`, Phase 2 / Slice R2-S4 `Move historical pass aliases`, Phase 2 / Slice R2-S5 `Backlog ordering and selection-truth hardening`, Phase 3 / Slice R3-S1 `Retitle FB-042 as the runtime family anchor`, Phase 3 / Slice R3-S2 `Map FB-043 through FB-048 under FB-042 as historical aliases`, Phase 3 / Slice R3-S3 `Retitle FB-027 as the interaction/action family anchor`, Phase 3 / Slice R3-S4 `Map FB-036, FB-037, FB-038, and FB-041 under FB-027 as historical aliases`, Phase 3 / Slice R3-S5 `Future-selection hardening`, Phase 4 / Slice R4-S1 `Convert the FB-042 dossier shell`, and Phase 4 / Slice R4-S2 `Convert the FB-027 dossier shell` are complete and green.
+Next active seam: `Phase 4 - Lifetime Dossier Conversion / Slice R4-S3 - Add pass index and slice/seam ledger structure`.
 
 - Phase 0 `Reform Readiness` is complete.
 - Workstream Phase 1 `Validator Bootstrap` is complete and green.
@@ -290,15 +292,16 @@ Next active seam: `Phase 4 - Lifetime Dossier Conversion / Slice R4-S2 - Convert
 - Phase 3 / Slice R3-S4 `Map FB-036, FB-037, FB-038, and FB-041 under FB-027 as historical aliases` is complete and green from preexisting in-place alias truth.
 - Phase 3 / Slice R3-S5 `Future-selection hardening` is complete and green.
 - Phase 4 / Slice R4-S1 `Convert the FB-042 dossier shell` is complete and green.
-- Phase 4 / Slice R4-S2 `Convert the FB-027 dossier shell` is the current active seam on this branch.
+- Phase 4 / Slice R4-S2 `Convert the FB-027 dossier shell` is complete and green.
+- Phase 4 / Slice R4-S3 `Add pass index and slice/seam ledger structure` is the next active seam on this branch when instructed.
 
 ## Seam Continuation Decision
 
 Seam Status: `Green`
-Slice Status: `In Progress`
+Slice Status: `Green`
 Waiver Status: `None`
-Continue Decision: `Continue`
-Stop Basis: `None`
-Next Active Seam: `Phase 4 - Lifetime Dossier Conversion / Slice R4-S2 - Convert the FB-027 dossier shell`
-Stop Condition: `Stop only if repo truth shows the planned family-governance model conflicts with release history, selected-next truth, or validator protection and cannot be repaired without weakening the governance model.`
-Continuation Action: `Execute Slice R4-S2 on this same branch; do not stop while Slice Status remains In Progress unless a named blocker or waiver changes state.`
+Continue Decision: `Stop`
+Stop Basis: `Slice Green`
+Next Active Seam: `Phase 4 - Lifetime Dossier Conversion / Slice R4-S3 - Add pass index and slice/seam ledger structure`
+Stop Condition: `Stop because Slice R4-S2 is complete and green; resume only on explicit instruction for the next seam.`
+Continuation Action: `Await the next instruction before beginning Slice R4-S3 on this same branch.`

@@ -81,7 +81,7 @@ Selected Next Implementation Branch: Not created.
 Historical Repair-Only Branch Handling: `feature/fb-046-post-merge-canon-sync` was a bounded repair-only post-merge canon-sync `feature/` branch and did not imply Branch Readiness admission or active branch truth for FB-046.
 Historical Branch Readiness State: Complete on `feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeout-truth`.
 Current Branch Readiness State: Historical complete on `feature/backlog-family-governance-reform`. Phase 0 `Reform Readiness` admitted the branch authority record and cleared the path into Workstream.
-Current Workstream State: Phase 4 `Lifetime Dossier Conversion` remains in progress on `feature/backlog-family-governance-reform`; Seam Status: Green for R4-S1 `Convert the FB-042 dossier shell`; Slice Status: In Progress because R4-S2 through R4-S5 remain on the same branch; Blockers: `Backlog Completion Unproven`; Waiver Status: None; continuation is required beginning with Phase 4 / Slice R4-S2 `Convert the FB-027 dossier shell`, and FB-049 remains the only selected-next user-facing candidate.
+Current Workstream State: Phase 4 `Lifetime Dossier Conversion` reached Slice R4-S2 green on `feature/backlog-family-governance-reform`; Seam Status: Green for R4-S2 `Convert the FB-027 dossier shell`; Slice Status: Green; Blockers: `Backlog Completion Unproven` remains branch-level only for later reform slices; Waiver Status: None; Stop Basis: `Slice Green`; the initial FB-027 lifetime dossier shell now exists with no historical pass content migrated yet, Phase 4 / Slice R4-S3 `Add pass index and slice/seam ledger structure` is the next legal seam when instructed, and FB-049 remains the only selected-next user-facing candidate.
 Current Branch Class: implementation.
 Current Implementation Delta Class: docs-only.
 Historical Workstream State: FB-048 is Released / Closed in `v1.6.12-prebeta`; FB-047 is Released / Closed in `v1.6.11-prebeta`; FB-046 is Released / Closed in `v1.6.10-prebeta`; FB-044 and FB-045 remain Released / Closed historical proof in `v1.6.9-prebeta`.
@@ -100,7 +100,7 @@ Next Legal Phase: Workstream.
 
 ## Backlog Governance Sync
 
-Last Reviewed: 2026-04-27 during Backlog Family Governance Reform Phase 4 / Slice R4-S1.
+Last Reviewed: 2026-04-27 during Backlog Family Governance Reform Phase 4 / Slice R4-S2.
 
 Open-candidate priority review:
 
@@ -281,6 +281,8 @@ Priority: High
 Release Stage: pre-Beta
 Target Version: v1.2.9-prebeta
 Canonical Workstream Doc: Docs/workstreams/FB-027_interaction_system_baseline.md
+Lifetime Dossier Doc: Docs/workstreams/FB-027_interaction_shared_action_family_dossier.md
+Lifetime Dossier State: Shell only. Introduced in Phase 4 / Slice R4-S2; no historical pass content has migrated yet.
 Summary: Anchor the typed-first interaction and shared-action family while preserving the released FB-027 baseline as the first historical proof.
 Why it matters: Future authoring, callable-group, built-in action, and tray task follow-through should reuse one interaction/action family identity instead of drifting into separate near-duplicate feature-family records.
 

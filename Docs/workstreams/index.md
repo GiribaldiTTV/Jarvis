@@ -131,6 +131,7 @@ Family dossiers are additive lifetime traceability surfaces for family anchors.
 Use them to gather long-lived family routing and migration indexes without rewriting the underlying historical workstream records in one pass.
 
 - `Docs/workstreams/FB-042_desktop_startup_runtime_family_dossier.md`
+- `Docs/workstreams/FB-027_interaction_shared_action_family_dossier.md`
 
 ## Naming Pattern
 
