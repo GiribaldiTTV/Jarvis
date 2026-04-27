@@ -1833,9 +1833,27 @@ def _validate_backlog_family_reform_bootstrap(
             ),
         )
 
-    for entry in backlog_entries:
+    registry_classes = [
+        _clean_release_value(_extract_colon_value(entry["block"], "Registry Class"))
+        for entry in backlog_entries
+    ]
+    if any(registry_classes):
+        missing_registry_class_ids = [
+            entry["id"]
+            for entry, registry_class in zip(backlog_entries, registry_classes)
+            if not registry_class
+        ]
+        require(
+            not missing_registry_class_ids,
+            (
+                "Docs/feature_backlog.md: once reform classification markers land on the "
+                "migration branch, every backlog entry must declare a valid Registry Class "
+                "before later relocation seams begin"
+            ),
+        )
+
+    for entry, registry_class in zip(backlog_entries, registry_classes):
         block = entry["block"]
-        registry_class = _clean_release_value(_extract_colon_value(block, "Registry Class"))
         if not registry_class:
             continue
 

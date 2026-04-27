@@ -38,9 +38,11 @@ This branch must not change runtime behavior. Its job is to repair and harden so
 - Branch Readiness closure result: complete and green. The branch authority record is admitted, docs-only approval and release posture are recorded, phased migration rules are in place.
 - Historical Workstream Seam: `Phase 1 - Validator Bootstrap`
 - Validator bootstrap result: complete and green. The validator is now temporarily dual-shape aware for the migration branch, current backlog/workstream shape protections remain active, reform-shape headings are recognized when introduced, and no backlog migration landed in that seam.
-- Current Workstream Seam: `Phase 2 - Backlog Structure Migration / Slice R2-S1 - Backlog Section Skeleton`
-- Slice R2-S1 result: complete and green. The planned backlog-family section skeleton now exists as placeholder headings only, no backlog entries were moved, reclassified, renamed, or rewritten in this seam, and Slice R2-S2 `Add classification markers in place` is next.
-- Next Active Seam: `Phase 2 - Backlog Structure Migration / Slice R2-S2 - Add classification markers in place`
+- Historical Workstream Seam: `Phase 2 - Backlog Structure Migration / Slice R2-S1 - Backlog Section Skeleton`
+- Slice R2-S1 result: complete and green. The planned backlog-family section skeleton now exists as placeholder headings only, no backlog entries were moved, reclassified, renamed, or rewritten in that seam.
+- Current Workstream Seam: `Phase 2 - Backlog Structure Migration / Slice R2-S2 - Add classification markers in place`
+- Slice R2-S2 result: complete and green. Reform classification markers now exist in place across the current backlog entries, no entries were moved or renamed in this seam, transitional ordering remains intact under `### Transitional Current Registry Order`, and Slice R2-S3 `Move support / governance lanes` is next.
+- Next Active Seam: `Phase 2 - Backlog Structure Migration / Slice R2-S3 - Move support / governance lanes`
 
 ## Branch Class
 
@@ -260,17 +262,18 @@ Seam 1: `Phase 1 - Validator Bootstrap`
 
 Active seam: `None.`
 
-Phase 1 `Validator Bootstrap` and Phase 2 / Slice R2-S1 `Backlog Section Skeleton` are complete and green.
-Next active seam: `Phase 2 - Backlog Structure Migration / Slice R2-S2 - Add classification markers in place`.
+Phase 1 `Validator Bootstrap`, Phase 2 / Slice R2-S1 `Backlog Section Skeleton`, and Phase 2 / Slice R2-S2 `Add classification markers in place` are complete and green.
+Next active seam: `Phase 2 - Backlog Structure Migration / Slice R2-S3 - Move support / governance lanes`.
 
 - Phase 0 `Reform Readiness` is complete.
 - Workstream Phase 1 `Validator Bootstrap` is complete and green.
 - Phase 2 / Slice R2-S1 `Backlog Section Skeleton` is complete and green.
-- Phase 2 / Slice R2-S2 `Add classification markers in place` is the next active seam on this branch.
+- Phase 2 / Slice R2-S2 `Add classification markers in place` is complete and green.
+- Phase 2 / Slice R2-S3 `Move support / governance lanes` is the next active seam on this branch.
 
 ## Seam Continuation Decision
 
 Continue Decision: `Continue`
-Next Active Seam: `Phase 2 - Backlog Structure Migration / Slice R2-S2 - Add classification markers in place`
+Next Active Seam: `Phase 2 - Backlog Structure Migration / Slice R2-S3 - Move support / governance lanes`
 Stop Condition: `Stop only if repo truth shows the planned family-governance model conflicts with release history, selected-next truth, or validator protection and cannot be repaired without weakening the governance model.`
-Continuation Action: `Execute Slice R2-S2 by adding classification markers in place without moving, renaming, or rewriting existing backlog entries yet.`
+Continuation Action: `Execute Slice R2-S3 by moving support / architecture / governance lanes into their dedicated section while preserving entry wording, release history, and selected-next truth.`

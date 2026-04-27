@@ -80,7 +80,7 @@ Selected Next Implementation Branch: Not created.
 Historical Repair-Only Branch Handling: `feature/fb-046-post-merge-canon-sync` was a bounded repair-only post-merge canon-sync `feature/` branch and did not imply Branch Readiness admission or active branch truth for FB-046.
 Historical Branch Readiness State: Complete on `feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeout-truth`.
 Current Branch Readiness State: Historical complete on `feature/backlog-family-governance-reform`. Phase 0 `Reform Readiness` admitted the branch authority record and cleared the path into Workstream.
-Current Workstream State: Phase 2 `Backlog Structure Migration` is active on `feature/backlog-family-governance-reform`; Slice R2-S1 `Backlog Section Skeleton` is complete and green, the planned family-governance headings now exist as placeholders only, no backlog entries were moved or reclassified in this seam, and Slice R2-S2 `Add classification markers in place` is next.
+Current Workstream State: Phase 2 `Backlog Structure Migration` is active on `feature/backlog-family-governance-reform`; Slice R2-S2 `Add classification markers in place` is complete and green, reform classification markers now exist across the current backlog entries while transitional ordering remains intact, no entries were moved or renamed in this seam, and Slice R2-S3 `Move support / governance lanes` is next.
 Current Branch Class: implementation.
 Current Implementation Delta Class: docs-only.
 Historical Workstream State: FB-048 is Released / Closed in `v1.6.12-prebeta`; FB-047 is Released / Closed in `v1.6.11-prebeta`; FB-046 is Released / Closed in `v1.6.10-prebeta`; FB-044 and FB-045 remain Released / Closed historical proof in `v1.6.9-prebeta`.
@@ -141,6 +141,8 @@ Slice R2-S1 keeps all existing registry entries below in their pre-reform order 
 
 Status: Selected next
 Record State: Registry-only
+Registry Class: Feature Family
+Family Anchor: Self
 Priority: High
 Selection / Unblock: Selected during FB-048 PR Readiness because settled-session relaunch now has first-class success, decline, signal-failure, and wait-timeout truth, but the repo still lacks equivalent proof when an incoming launch collides with an already-owning startup-phase session before authoritative settled is reached.
 Next Workstream: Selected
@@ -155,6 +157,11 @@ Why it matters: Users should get an explicit, proven outcome when a second launc
 
 Status: Released (v1.6.12-prebeta)
 Record State: Closed
+Registry Class: Historical Pass Alias
+Historical Alias Of: FB-042
+Pass ID: F042-P07
+Alias Role: Historical Pass Record
+Selectable Independently: No
 Priority: High
 Release Stage: Released
 Target Version: v1.6.12-prebeta
@@ -182,6 +189,11 @@ Why it matters: Users should get an explicit, proven outcome when relaunch was r
 
 Status: Released (v1.6.11-prebeta)
 Record State: Closed
+Registry Class: Historical Pass Alias
+Historical Alias Of: FB-042
+Pass ID: F042-P06
+Alias Role: Historical Pass Record
+Selectable Independently: No
 Priority: High
 Release Stage: Released
 Target Version: v1.6.11-prebeta
@@ -209,6 +221,11 @@ Why it matters: The runtime should be just as explicit when the user keeps the c
 
 Status: Released (v1.6.10-prebeta)
 Record State: Closed
+Registry Class: Historical Pass Alias
+Historical Alias Of: FB-042
+Pass ID: F042-P05
+Alias Role: Historical Pass Record
+Selectable Independently: No
 Priority: High
 Release Stage: Released
 Target Version: v1.6.10-prebeta
@@ -239,6 +256,11 @@ Why it matters: The repo now proves who owns the runtime after relaunch, when th
 
 Status: Released (v1.6.9-prebeta)
 Record State: Closed
+Registry Class: Historical Pass Alias
+Historical Alias Of: FB-042
+Pass ID: F042-P04
+Alias Role: Historical Pass Record
+Selectable Independently: No
 Priority: High
 Release Stage: Released
 Target Version: v1.6.9-prebeta
@@ -259,6 +281,11 @@ Why it matters: Keeps startup truth honest, prevents post-settled runtime exits 
 
 Status: Released (v1.6.9-prebeta)
 Record State: Closed
+Registry Class: Historical Pass Alias
+Historical Alias Of: FB-042
+Pass ID: F042-P03
+Alias Role: Historical Pass Record
+Selectable Independently: No
 Priority: High
 Release Stage: Released
 Target Version: v1.6.9-prebeta
@@ -284,6 +311,11 @@ Why it matters: Builds directly on FB-043's ownership cleanup and turns the rema
 
 Status: Released (v1.6.8-prebeta)
 Record State: Closed
+Registry Class: Historical Pass Alias
+Historical Alias Of: FB-042
+Pass ID: F042-P02
+Alias Role: Historical Pass Record
+Selectable Independently: No
 Priority: High
 Release Stage: Released
 Target Version: v1.6.8-prebeta
@@ -309,6 +341,8 @@ Why it matters: Builds directly on FB-042's user-facing launch-path improvement 
 
 Status: Released (v1.6.7-prebeta)
 Record State: Closed
+Registry Class: Feature Family
+Family Anchor: Self
 Priority: Low
 Release Stage: Released
 Target Version: v1.6.7-prebeta
@@ -335,6 +369,8 @@ Why it matters: Creates actual runtime/user-facing follow-through now while keep
 
 Status: Released (v1.6.5-prebeta)
 Record State: Closed
+Registry Class: Feature Family
+Family Anchor: Self
 Priority: Medium
 Release Stage: pre-Beta
 Target Version: v1.6.5-prebeta
@@ -367,6 +403,7 @@ Why it matters: Voice identity should be intentional and should not piggyback on
 
 Status: Released (v1.6.4-prebeta)
 Record State: Closed
+Registry Class: Support Lane
 Priority: High
 Release Stage: pre-Beta
 Target Version: v1.6.4-prebeta
@@ -397,6 +434,7 @@ Why it matters: Product identity, legal posture, and repo ownership still need d
 
 Status: Released (v1.6.4-prebeta)
 Record State: Closed
+Registry Class: Support Lane
 Priority: High
 Release Stage: Slice-staged
 Target Version: v1.6.4-prebeta
@@ -428,6 +466,7 @@ Why it matters: Keeps boot-versus-desktop ownership planning explicit without re
 
 Status: Released (v1.6.6-prebeta)
 Record State: Closed
+Registry Class: Support Lane
 Priority: Low
 Release Stage: Released
 Target Version: v1.6.6-prebeta
@@ -460,6 +499,11 @@ Why it matters: Keeps folder and ownership cleanup deliberate instead of letting
 
 Status: Released (v1.6.12-prebeta)
 Record State: Closed
+Registry Class: Historical Pass Alias
+Historical Alias Of: FB-042
+Pass ID: F042-P07
+Alias Role: Historical Pass Record
+Selectable Independently: No
 Priority: High
 Release Stage: Released
 Target Version: v1.6.12-prebeta
@@ -471,6 +515,11 @@ Why it matters: FB-048 closes the accepted-but-unfinished relaunch failure gap s
 
 Status: Released (v1.3.1-prebeta)
 Record State: Closed
+Registry Class: Historical Pass Alias
+Historical Alias Of: FB-027
+Pass ID: F027-P03
+Alias Role: Historical Pass Record
+Selectable Independently: No
 Priority: High
 Release Stage: pre-Beta
 Target Version: v1.3.1-prebeta
@@ -482,6 +531,8 @@ Why it matters: FB-041 closes the released FB-036 callable-group execution follo
 
 Status: Released (v1.6.0-prebeta)
 Record State: Closed
+Registry Class: Feature Family
+Family Anchor: Self
 Priority: Medium
 Release Stage: pre-Beta
 Target Version: v1.6.0-prebeta
@@ -502,6 +553,8 @@ Why it matters: Monitoring overlays are a separate runtime and status surface an
 
 Status: Released (v1.5.0-prebeta)
 Record State: Closed
+Registry Class: Feature Family
+Family Anchor: Self
 Priority: Medium
 Release Stage: pre-Beta
 Target Version: v1.5.0-prebeta
@@ -521,6 +574,11 @@ Why it matters: Plugin-backed action triggering needs explicit lifecycle, safety
 
 Status: Released (v1.4.1-prebeta)
 Record State: Closed
+Registry Class: Historical Pass Alias
+Historical Alias Of: FB-027
+Pass ID: F027-P05
+Alias Role: Historical Pass Record
+Selectable Independently: No
 Priority: Medium
 Release Stage: pre-Beta
 Target Version: v1.4.1-prebeta
@@ -533,6 +591,11 @@ Why it matters: Taskbar and tray interaction now has an explicit released UX lan
 
 Status: Released (v1.4.0-prebeta)
 Record State: Closed
+Registry Class: Historical Pass Alias
+Historical Alias Of: FB-027
+Pass ID: F027-P04
+Alias Role: Historical Pass Record
+Selectable Independently: No
 Priority: High
 Release Stage: pre-Beta
 Target Version: v1.4.0-prebeta
@@ -544,6 +607,11 @@ Why it matters: Standard product actions now feel native and inspectable under t
 
 Status: Released (v1.3.0-prebeta)
 Record State: Closed
+Registry Class: Historical Pass Alias
+Historical Alias Of: FB-027
+Pass ID: F027-P02
+Alias Role: Historical Pass Record
+Selectable Independently: No
 Priority: High
 Release Stage: pre-Beta
 Target Version: v1.3.0-prebeta
@@ -555,6 +623,7 @@ Why it matters: Nexus now supports deliberate in-product custom-task and callabl
 
 Status: Released (v1.2.7-prebeta)
 Record State: Closed
+Registry Class: Support Lane
 Priority: Medium
 Release Stage: pre-Beta
 Target Version: v1.2.7-prebeta
@@ -566,6 +635,7 @@ Why it matters: Prevents support bundles and issue drafts from reporting an unre
 
 Status: Released (v1.2.6-prebeta)
 Record State: Closed
+Registry Class: Support Lane
 Priority: Medium
 Release Stage: pre-Beta
 Target Version: v1.2.6-prebeta
@@ -577,6 +647,7 @@ Why it matters: Makes the Class 2/Class 3 boundary explicit without widening dia
 
 Status: Released (v1.2.4-prebeta)
 Record State: Closed
+Registry Class: Support Lane
 Priority: Medium
 Release Stage: pre-Beta
 Target Version: v1.2.4-prebeta
@@ -588,6 +659,7 @@ Why it matters: Preserves a repeatable startup evidence path without turning it 
 
 Status: Released (v1.6.2-prebeta)
 Record State: Closed
+Registry Class: Support Lane
 Priority: Medium
 Release Stage: pre-Beta
 Target Version: v1.6.2-prebeta
@@ -614,6 +686,8 @@ Why it matters: The repo now has a controlled identity, naming, and source-of-tr
 
 Status: Released (v1.6.1-prebeta)
 Record State: Closed
+Registry Class: Feature Family
+Family Anchor: Self
 Priority: Medium
 Release Stage: pre-Beta
 Target Version: v1.6.1-prebeta
@@ -634,6 +708,7 @@ Why it matters: The Nexus-era visual language should be planned coherently befor
 
 Status: Released (v1.2.3-prebeta)
 Record State: Closed
+Registry Class: Support Lane
 Priority: Medium
 Release Stage: pre-Beta
 Target Version: v1.2.3-prebeta
@@ -645,6 +720,8 @@ Why it matters: Keeps historical state out of user-visible runtime logs while pr
 
 Status: Released (v1.2.9-prebeta)
 Record State: Closed
+Registry Class: Feature Family
+Family Anchor: Self
 Priority: High
 Release Stage: pre-Beta
 Target Version: v1.2.9-prebeta
@@ -656,6 +733,7 @@ Why it matters: Future interaction work needs one authoritative baseline and tru
 
 Status: Released (v1.2.5-prebeta)
 Record State: Closed
+Registry Class: Support Lane
 Priority: Low
 Release Stage: pre-Beta
 Target Version: v1.2.5-prebeta
@@ -667,6 +745,7 @@ Why it matters: Keeps boot and desktop evidence easier to compare while preservi
 
 Status: Released (v1.6.3-prebeta)
 Record State: Closed
+Registry Class: Support Lane
 Priority: High
 Release Stage: Slice-staged
 Target Version: v1.6.3-prebeta
@@ -693,6 +772,7 @@ Why it matters: Keeps the longer-term boot-to-desktop product direction explicit
 
 Status: Implemented (v1.6.0)
 Record State: Registry-only
+Registry Class: Historical Implemented Registry-Only
 Priority: Medium
 Target Version: v1.6.0
 Summary: Early launcher escalation for repeated identical non-`STARTUP_ABORT` crash outcomes.
@@ -702,6 +782,7 @@ Why it matters: Prevents stable repeated crash evidence from being masked by unn
 
 Status: Implemented (v1.6.0)
 Record State: Registry-only
+Registry Class: Historical Implemented Registry-Only
 Priority: Medium
 Target Version: v1.6.0
 Summary: Conservative launcher handling for mixed crash and abort failure sequences.
@@ -711,6 +792,7 @@ Why it matters: Keeps mixed-pattern outcomes classified without overstating them
 
 Status: Implemented (v1.9.0 rev1)
 Record State: Registry-only
+Registry Class: Historical Implemented Registry-Only
 Priority: Medium
 Target Version: v1.9.0
 Summary: Defined retry exhaustion and diagnostics-entry policy for repeated `STARTUP_ABORT` and repeated identical crash outcomes.
@@ -720,6 +802,7 @@ Why it matters: Makes launcher escalation predictable and evidence-based.
 
 Status: Implemented (v1.6.0)
 Record State: Registry-only
+Registry Class: Historical Implemented Registry-Only
 Priority: Low
 Target Version: v1.6.0
 Summary: Refined launcher summary wording for threshold-based early escalation outcomes.
@@ -729,6 +812,7 @@ Why it matters: Keeps final failed-run reporting aligned with the actual recover
 
 Status: Implemented (v1.6.0)
 Record State: Registry-only
+Registry Class: Historical Implemented Registry-Only
 Priority: Low
 Target Version: v1.6.0
 Summary: Corrected final attempt-pattern reporting for max-attempt identical failures.
@@ -738,6 +822,7 @@ Why it matters: Prevents stable repeated failures from being described as varied
 
 Status: Implemented (v2.2.0 rev2)
 Record State: Registry-only
+Registry Class: Historical Implemented Registry-Only
 Priority: Low
 Target Version: v2.2.0
 Summary: Tuned the shutdown-only voice path so the final line sounds more like controlled power loss.
@@ -747,6 +832,7 @@ Why it matters: Improves late-shutdown presentation without widening diagnostics
 
 Status: Implemented (v1.6.0)
 Record State: Registry-only
+Registry Class: Historical Implemented Registry-Only
 Priority: Low
 Target Version: v1.6.0
 Summary: Aligned mixed-pattern classification with final repeated-failure summaries when cause stayed identical.
@@ -756,6 +842,7 @@ Why it matters: Keeps summary and classification evidence consistent.
 
 Status: Implemented (v1.6.0)
 Record State: Registry-only
+Registry Class: Historical Implemented Registry-Only
 Priority: Medium
 Target Version: v1.6.0
 Summary: Historical closeout and documentation sync for the finalized `v1.6.0` orchestration layer.
@@ -765,6 +852,7 @@ Why it matters: Preserved the old baseline before later historical-memory work.
 
 Status: Implemented (v1.7.0)
 Record State: Registry-only
+Registry Class: Historical Implemented Registry-Only
 Priority: High
 Target Version: v1.7.0
 Summary: Defined the contract for passive cross-run historical memory before implementation.
@@ -774,6 +862,7 @@ Why it matters: Keeps later history and advisory work deterministic and explaina
 
 Status: Implemented (v1.8.0)
 Record State: Registry-only
+Registry Class: Historical Implemented Registry-Only
 Priority: High
 Target Version: v1.8.0
 Summary: Defined how recurring outcomes are recognized across launches without reopening closed runtime classification.
@@ -783,6 +872,7 @@ Why it matters: Cross-run recurrence needs stable fingerprint rules to stay trus
 
 Status: Implemented (v1.8.0)
 Record State: Registry-only
+Registry Class: Historical Implemented Registry-Only
 Priority: Medium
 Target Version: v1.8.0
 Summary: Defined provenance and confidence semantics for advisory outputs.
@@ -792,6 +882,7 @@ Why it matters: Keeps advisory intelligence explanatory instead of becoming hidd
 
 Status: Implemented (v1.8.0 rev1)
 Record State: Registry-only
+Registry Class: Historical Implemented Registry-Only
 Priority: Medium
 Target Version: v1.8.0
 Summary: Added a multi-run regression harness for orchestration and historical-memory validation.
@@ -801,6 +892,7 @@ Why it matters: Gives repeated-run behavior a bounded regression surface.
 
 Status: Implemented (v1.7.0)
 Record State: Registry-only
+Registry Class: Historical Implemented Registry-Only
 Priority: High
 Target Version: v1.7.0
 Summary: Established recorder-only groundwork for passive historical memory.
@@ -810,6 +902,7 @@ Why it matters: Kept early history capture bounded before broader interpretation
 
 Status: Implemented (v1.9.0 rev1)
 Record State: Registry-only
+Registry Class: Historical Implemented Registry-Only
 Priority: Medium
 Target Version: v1.9.0
 Summary: Added support-bundle creation and issue-prefill groundwork around diagnostics workflows.
@@ -819,6 +912,7 @@ Why it matters: Improved manual triage and reporting without automatic submissio
 
 Status: Implemented (v1.9.0 rev1)
 Record State: Registry-only
+Registry Class: Historical Implemented Registry-Only
 Priority: Medium
 Target Version: v1.9.0
 Summary: Added bounded regression coverage for voice-path behavior.
@@ -828,6 +922,7 @@ Why it matters: Protects shutdown and diagnostics voice behavior from silent reg
 
 Status: Implemented (v1.9.0 rev1)
 Record State: Registry-only
+Registry Class: Historical Implemented Registry-Only
 Priority: Medium
 Target Version: v1.9.0
 Summary: Added a helper path for turning support-bundle artifacts into reproducible triage input.
@@ -837,6 +932,7 @@ Why it matters: Improves internal debugging flow without changing product behavi
 
 Status: Implemented (v2.0 rev2)
 Record State: Registry-only
+Registry Class: Historical Implemented Registry-Only
 Priority: High
 Target Version: v2.0
 Summary: Split Dev Toolkit utilities and formalized dev-only evidence roots.
@@ -846,6 +942,7 @@ Why it matters: Keeps internal debugging surfaces structured and separate from l
 
 Status: Implemented (v2.1.0 rev1)
 Record State: Registry-only
+Registry Class: Historical Implemented Registry-Only
 Priority: High
 Target Version: v2.1.0
 Summary: Added the first dev-only boot test lane for controlled boot-path validation.
@@ -855,6 +952,7 @@ Why it matters: Made boot-path validation explicit and reusable inside the toolk
 
 Status: Implemented (v2.1.0 rev2)
 Record State: Registry-only
+Registry Class: Historical Implemented Registry-Only
 Priority: Medium
 Target Version: v2.1.0
 Summary: Surfaced Boot and Transition Checks inside the Dev Toolkit.
@@ -864,6 +962,7 @@ Why it matters: Made transition validation easier to run without ad hoc helper d
 
 Status: Implemented (v2.1.0 rev3)
 Record State: Registry-only
+Registry Class: Historical Implemented Registry-Only
 Priority: High
 Target Version: v2.1.0
 Summary: Closed key renderer observability gaps needed for desktop-startup investigation.
@@ -873,6 +972,7 @@ Why it matters: Strengthened evidence quality for renderer-owned behavior withou
 
 Status: Implemented (v2.1.0 rev4)
 Record State: Registry-only
+Registry Class: Historical Implemented Registry-Only
 Priority: Medium
 Target Version: v2.1.0
 Summary: Refined boot-harness observability for edge-path behavior.
@@ -882,6 +982,7 @@ Why it matters: Improved branch and validation clarity for boot edge cases.
 
 Status: Implemented (v2.2.0 rev1)
 Record State: Registry-only
+Registry Class: Historical Implemented Registry-Only
 Priority: Medium
 Target Version: v2.2.0
 Summary: Added a dedicated Dev Toolkit intake surface for uploaded support bundles and extracted folders.
