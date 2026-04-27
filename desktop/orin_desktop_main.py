@@ -72,11 +72,6 @@ def harness_relaunch_shutdown_delay_seconds():
         return 0.0
 
 
-def harness_ignore_relaunch_request():
-    value = (os.environ.get("JARVIS_HARNESS_IGNORE_RELAUNCH_REQUEST") or "").strip().casefold()
-    return value in {"1", "true", "yes", "on"}
-
-
 class DesktopTrayEntry:
     def __init__(self, app, window, event_logger=None):
         self.app = app
@@ -295,9 +290,6 @@ def main():
     def poll_relaunch_request():
         if relaunch_signal.consume():
             runtime_milestone("RENDERER_MAIN|RELAUNCH_REQUEST_RECEIVED")
-            if harness_ignore_relaunch_request():
-                runtime_milestone("RENDERER_MAIN|HARNESS_RELAUNCH_REQUEST_IGNORED")
-                return
             delay_seconds = harness_relaunch_shutdown_delay_seconds()
             if delay_seconds > 0:
                 runtime_milestone(

@@ -68,26 +68,6 @@ def harness_auto_decline_relaunch():
     return value in {"1", "true", "yes", "on"}
 
 
-def harness_force_relaunch_signal_failure():
-    value = (os.environ.get("JARVIS_HARNESS_FORCE_RELAUNCH_SIGNAL_FAILURE") or "").strip().casefold()
-    return value in {"1", "true", "yes", "on"}
-
-
-def harness_suppress_already_running_dialogs():
-    value = (os.environ.get("JARVIS_HARNESS_SUPPRESS_ALREADY_RUNNING_DIALOGS") or "").strip().casefold()
-    return value in {"1", "true", "yes", "on"}
-
-
-def harness_relaunch_wait_seconds(default_wait_seconds: float) -> float:
-    value = (os.environ.get("JARVIS_HARNESS_RELAUNCH_WAIT_SECONDS") or "").strip()
-    if not value:
-        return default_wait_seconds
-    try:
-        return max(0.05, float(value))
-    except ValueError:
-        return default_wait_seconds
-
-
 class SingleInstanceGuard:
     def __init__(self, mutex_name: str):
         self.mutex_name = mutex_name
@@ -428,47 +408,32 @@ def acquire_or_prompt_replace(
 
         log_event("REPLACE_PROMPT_ACCEPTED")
 
-    if harness_force_relaunch_signal_failure() or not relaunch_signal.signal():
+    if not relaunch_signal.signal():
         log_event("RELAUNCH_SIGNAL_FAILED")
-        if not harness_suppress_already_running_dialogs():
-            show_already_running_dialog(
-                title,
-                "Jarvis could not signal the current instance to close. Please close it manually and try again.",
-                eyebrow_text=eyebrow_text,
-                primary_button_text="Close",
-            )
+        show_already_running_dialog(
+            title,
+            "Jarvis could not signal the current instance to close. Please close it manually and try again.",
+            eyebrow_text=eyebrow_text,
+            primary_button_text="Close",
+        )
         return False
 
     log_event("RELAUNCH_SIGNAL_SENT")
 
-    effective_wait_seconds = harness_relaunch_wait_seconds(wait_seconds)
-    deadline = time.time() + max(0.5, effective_wait_seconds)
-    sleep_seconds = max(0.05, poll_interval_seconds)
-    while True:
+    deadline = time.time() + max(0.5, wait_seconds)
+    while time.time() < deadline:
         if guard.acquire():
             relaunch_signal.clear()
             log_event("RELAUNCH_ACQUIRED_AFTER_WAIT")
             log_event("RELAUNCH_REPLACEMENT_SESSION_CONFIRMED")
             return True
-
-        remaining_seconds = deadline - time.time()
-        if remaining_seconds <= 0:
-            break
-
-        time.sleep(min(sleep_seconds, remaining_seconds))
-
-    if guard.acquire():
-        relaunch_signal.clear()
-        log_event("RELAUNCH_ACQUIRED_AFTER_WAIT")
-        log_event("RELAUNCH_REPLACEMENT_SESSION_CONFIRMED")
-        return True
+        time.sleep(max(0.05, poll_interval_seconds))
 
     log_event("RELAUNCH_WAIT_TIMEOUT")
-    if not harness_suppress_already_running_dialogs():
-        show_already_running_dialog(
-            title,
-            "Jarvis is still closing. Please wait a moment and try again.",
-            eyebrow_text=eyebrow_text,
-            primary_button_text="Close",
-        )
+    show_already_running_dialog(
+        title,
+        "Jarvis is still closing. Please wait a moment and try again.",
+        eyebrow_text=eyebrow_text,
+        primary_button_text="Close",
+    )
     return False
