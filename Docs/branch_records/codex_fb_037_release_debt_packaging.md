@@ -6,6 +6,20 @@
 - Workstream: `FB-037`
 - Branch Class: `release packaging`
 
+## Historical Pass Record Identity
+
+- Family Anchor ID: `FB-027`
+- Family Anchor Title: `Interaction and shared-action family anchor`
+- Family Dossier Doc: `Docs/workstreams/FB-027_interaction_shared_action_family_dossier.md`
+- Backlog Registry Class: `Historical Pass Alias`
+- Historical Alias Of: `FB-027`
+- Pass ID: `F027-P04`
+- Alias Role: `Historical Pass Record`
+- Standalone Selection Status: `Not independently selectable`
+- Converted By Seam: `Phase 5 - Historical Pass Record Conversion / Slice R5-S3 - Convert corresponding branch records`
+- Corresponding Historical Workstream Record: `Docs/workstreams/FB-037_built_in_actions_and_settings_expansion.md`
+- Preservation Rule: `This record keeps the preserved release-packaging trace for the historical pass; the family dossier owns cross-pass indexing.`
+
 ## Purpose / Why It Exists
 
 Open the release-packaging lane for FB-037 after the implementation branch merged to `main` as unreleased implementation debt.

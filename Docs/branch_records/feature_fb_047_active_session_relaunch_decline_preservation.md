@@ -6,6 +6,20 @@
 - Workstream: `FB-047`
 - Branch Class: `implementation`
 
+## Historical Pass Record Identity
+
+- Family Anchor ID: `FB-042`
+- Family Anchor Title: `Desktop startup runtime family anchor`
+- Family Dossier Doc: `Docs/workstreams/FB-042_desktop_startup_runtime_family_dossier.md`
+- Backlog Registry Class: `Historical Pass Alias`
+- Historical Alias Of: `FB-042`
+- Pass ID: `F042-P06`
+- Alias Role: `Historical Pass Record`
+- Standalone Selection Status: `Not independently selectable`
+- Converted By Seam: `Phase 5 - Historical Pass Record Conversion / Slice R5-S3 - Convert corresponding branch records`
+- Corresponding Historical Workstream Record: `Docs/workstreams/FB-047_active_session_relaunch_decline_preservation.md`
+- Preservation Rule: `This record keeps the preserved branch-readiness trace for the historical pass; the family dossier owns cross-pass indexing.`
+
 ## Purpose / Why It Exists
 
 This branch record owns FB-047 `Branch Readiness` while the backlog item remains `Registry-only` and before a promoted canonical workstream record exists.

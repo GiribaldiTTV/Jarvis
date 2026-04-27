@@ -23,7 +23,7 @@
 ## Current Dossier Status
 
 - Historical Content Migration: `In progress`
-- Alias Record Conversion Status: `FB-043 through FB-048 workstream records converted in Slice R5-S1`
+- Alias Record Conversion Status: `FB-043 through FB-048 workstream records converted in Slice R5-S1; corresponding preserved branch-readiness records converted in Slice R5-S3`
 - Pass Index Status: `Populated for FB-043 through FB-048 in Slice R5-S1`
 - Slice / Seam Ledger Status: `Populated for FB-043 through FB-048 in Slice R5-S1`
 - Validator / Helper Index Status: `Structure introduced in Slice R4-S4`
@@ -43,7 +43,7 @@
 
 - Family Alias IDs Preserved In Backlog: `FB-043`, `FB-044`, `FB-045`, `FB-046`, `FB-047`, `FB-048`
 - Alias Preservation Rule: these remain historical aliases of `FB-042` in `Docs/feature_backlog.md` and are not independently selectable.
-- Current Alias Record Migration State: FB-043 through FB-048 now keep their existing historical workstream narratives as explicit FB-042 historical pass records; corresponding branch-record conversion and future-selection cleanup remain later Phase 5 work.
+- Current Alias Record Migration State: FB-043 through FB-048 now keep their existing historical workstream narratives as explicit FB-042 historical pass records, and the preserved corresponding branch-readiness records now carry matching historical pass identity after Slice R5-S3.
 
 ## Historical Anchor Record
 
@@ -104,5 +104,6 @@ Artifact Index Population State: `No historical artifact entries migrated yet`
 - R4-S4 introduces validator/helper and artifact index templates only; it does not migrate historical validator rows, helper rows, artifact rows, proof logs, or alias record bodies into the dossier.
 - R4-S5 validates that the FB-042 dossier shell, routing, and index-template surfaces remain stable after the Phase 4 structural slices, and it does so without migrating historical rows or narrative content.
 - R5-S1 converts FB-043 through FB-048 workstream records into explicit FB-042 historical pass records and populates family pass-index plus slice/seam summary rows without migrating full narrative, validator/helper, artifact, or branch-record bodies into the dossier itself.
+- R5-S3 converts the preserved FB-043 through FB-048 Branch Readiness records into matching FB-042 historical pass-record traceability without creating new branch records or migrating those branch-record bodies into the dossier itself.
 - Later Phase 4 and Phase 5 slices will populate indexes and convert historical records incrementally.
 - Until later migration lands, the existing workstream and alias records remain the authoritative detailed history.

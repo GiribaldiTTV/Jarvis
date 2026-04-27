@@ -23,7 +23,7 @@
 ## Current Dossier Status
 
 - Historical Content Migration: `In progress`
-- Alias Record Conversion Status: `FB-036, FB-037, FB-038, and FB-041 workstream records converted in Slice R5-S2`
+- Alias Record Conversion Status: `FB-036, FB-037, FB-038, and FB-041 workstream records converted in Slice R5-S2; preserved corresponding branch-record trace converted where it exists in Slice R5-S3`
 - Pass Index Status: `Populated for FB-036, FB-037, FB-038, and FB-041 in Slice R5-S2`
 - Slice / Seam Ledger Status: `Populated for FB-036, FB-037, FB-038, and FB-041 in Slice R5-S2`
 - Validator / Helper Index Status: `Structure introduced in Slice R4-S4`
@@ -43,7 +43,7 @@
 
 - Family Alias IDs Preserved In Backlog: `FB-036`, `FB-037`, `FB-038`, `FB-041`
 - Alias Preservation Rule: these remain historical aliases of `FB-027` in `Docs/feature_backlog.md` and are not independently selectable.
-- Current Alias Record Migration State: FB-036, FB-037, FB-038, and FB-041 now keep their existing historical workstream narratives as explicit FB-027 historical pass records; corresponding branch-record conversion and later traceability cleanup remain pending where applicable.
+- Current Alias Record Migration State: FB-036, FB-037, FB-038, and FB-041 now keep their existing historical workstream narratives as explicit FB-027 historical pass records; the preserved corresponding branch-record trace now carries matching historical pass identity where it exists, and FB-036, FB-038, and FB-041 do not have separate preserved branch-authority records to convert.
 
 ## Historical Anchor Record
 
@@ -100,5 +100,6 @@ Artifact Index Population State: `No historical artifact entries migrated yet`
 - R4-S4 introduces validator/helper and artifact index templates only; it does not migrate historical validator rows, helper rows, artifact rows, proof logs, or alias record bodies into the dossier.
 - R4-S5 validates that the FB-027 dossier shell, routing, and index-template surfaces remain stable after the Phase 4 structural slices, and it does so without migrating historical rows or narrative content.
 - R5-S2 converts FB-036, FB-037, FB-038, and FB-041 workstream records into explicit FB-027 historical pass records and populates family pass-index plus slice/seam summary rows without migrating full narrative, validator/helper, artifact, or branch-record bodies into the dossier itself.
+- R5-S3 converts the preserved corresponding branch-record trace where it exists for the FB-027 family, which currently means the FB-037 release-packaging record; FB-036, FB-038, and FB-041 do not have separate preserved branch-authority records to convert.
 - Later Phase 4 and Phase 5 slices will populate indexes and convert historical records incrementally.
 - Until later migration lands, the existing workstream and alias records remain the authoritative detailed history.
