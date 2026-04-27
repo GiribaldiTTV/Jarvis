@@ -38,7 +38,7 @@ Latest Public Prerelease Publication: `https://github.com/GiribaldiTTV/Nexus-Des
 Latest Public Prerelease Title: `Pre-Beta v1.6.11`
 FB-047 is `Released / Closed` historical proof in `v1.6.11-prebeta`.
 Release debt is active after merge until `v1.6.12-prebeta` is published, validated, and post-release canon closure completes.
-Merged `main` now contains the repair lane. `origin/main` is `24cdb49dd76867212f8f7d025e86fbec4758df45`.
+Merged `main` now contains the repair lane and the repaired FB-048 truth needed for the `v1.6.12-prebeta` release window.
 Repaired wait-timeout replacement-unconfirmed semantics and the non-Windows validator guard are contained on `main`.
 Selected Next Workstream: FB-049 Active-session pre-settled incoming-launch conflict truth.
 Selected Next Record State: Registry-only.

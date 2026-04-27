@@ -743,6 +743,11 @@ MERGE_STABLE_PHASE_STATUS_BANNED_PHRASES = (
     "not yet contained on `main`",
 )
 
+MERGE_STABLE_BRANCH_HEAD_PIN_PATTERNS = (
+    re.compile(r"origin/[A-Za-z0-9._/-]+\s+(?:is|remains at)\s+`?[0-9a-f]{7,40}`?", re.IGNORECASE),
+    re.compile(r"`origin/[A-Za-z0-9._/-]+`\s+(?:is|remains at)\s+`?[0-9a-f]{7,40}`?", re.IGNORECASE),
+)
+
 REQUIRED_RELEASE_BEARING_MARKERS = (
     "Release Target:",
     "Release Scope:",
@@ -3599,6 +3604,15 @@ def main() -> int:
                             "merged-unreleased release-debt windows"
                         ),
                     )
+                for forbidden_pattern in MERGE_STABLE_BRANCH_HEAD_PIN_PATTERNS:
+                    require(
+                        forbidden_pattern.search(posture_text) is None,
+                        (
+                            f"{source_name}: merge-stable current-state owner must not pin "
+                            "merge-target branch heads to commit hashes during merged-unreleased "
+                            "release-debt windows"
+                        ),
+                    )
             phase_status_lower = phase_status_section.casefold()
             for forbidden_phrase in MERGE_STABLE_PHASE_STATUS_BANNED_PHRASES:
                 require(
@@ -3606,6 +3620,14 @@ def main() -> int:
                     (
                         f"{canonical_path}: merged-unreleased `## Phase Status` must not include "
                         f"time-sensitive PR narration '{forbidden_phrase}'"
+                    ),
+                )
+            for forbidden_pattern in MERGE_STABLE_BRANCH_HEAD_PIN_PATTERNS:
+                require(
+                    forbidden_pattern.search(phase_status_section) is None,
+                    (
+                        f"{canonical_path}: merged-unreleased `## Phase Status` must not pin "
+                        "merge-target branch heads to commit hashes"
                     ),
                 )
 
