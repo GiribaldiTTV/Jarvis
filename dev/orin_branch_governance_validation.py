@@ -1039,6 +1039,19 @@ REFORM_R4_S3_SEAM = (
 REFORM_R4_S3_STATE_NEXT_PHRASE = (
     "Slice R4-S3 `Add pass index and slice/seam ledger structure` is next"
 )
+REFORM_R4_S4_SEAM = (
+    "Phase 4 - Lifetime Dossier Conversion / Slice R4-S4 - Add validator/helper and artifact "
+    "indexes"
+)
+REFORM_R4_S4_STATE_NEXT_PHRASE = (
+    "Slice R4-S4 `Add validator/helper and artifact indexes` is next"
+)
+REFORM_R4_S5_SEAM = (
+    "Phase 4 - Lifetime Dossier Conversion / Slice R4-S5 - Dossier stability validation"
+)
+REFORM_R4_S5_STATE_NEXT_PHRASE = (
+    "Slice R4-S5 `Dossier stability validation` is next"
+)
 REFORM_FB042_DOSSIER_PATH = Path(
     "Docs/workstreams/FB-042_desktop_startup_runtime_family_dossier.md"
 )
@@ -1070,11 +1083,20 @@ REFORM_FB042_DOSSIER_REQUIRED_PHRASES = (
     "Ledger Population State: `No historical slice or seam entries migrated yet`",
     "| Phase / Slice | Seam / Scope | Classification | Migration State | Notes |",
     "| `Placeholder only` | `Reserve rows for future converted seams` | `Anchor or alias family history` | `Not started` | `R4-S3 adds shared ledger structure only; no historical slice or seam data migrates in this slice.` |",
-    "Validator / Helper Index Status: `Reserved for Slice R4-S4`",
-    "Artifact Index Status: `Reserved for Slice R4-S4`",
+    "Validator / Helper Index Status: `Structure introduced in Slice R4-S4`",
+    "Validator / Helper Index Population State: `No historical validator or helper entries migrated yet`",
+    "| Surface | Classification | Source Record | Migration State | Notes |",
+    "| `Placeholder only` | `Reserve rows for validator, helper, or harness history` | `Populate from existing historical workstream or branch records in later slices` | `Not started` | `R4-S4 adds shared validator/helper index structure only; no historical validator or helper entries migrate in this slice.` |",
+    "Artifact Index Status: `Structure introduced in Slice R4-S4`",
+    "Artifact Index Population State: `No historical artifact entries migrated yet`",
+    "| Artifact Path | Classification | Source Record | Migration State | Notes |",
+    "| `Placeholder only` | `Reserve rows for reusable evidence, report, or helper artifacts` | `Populate from existing historical workstream or branch records in later slices` | `Not started` | `R4-S4 adds shared artifact index structure only; no historical artifact entries migrate in this slice.` |",
+    "Dossier Stability Validation Status: `Validated in Slice R4-S5`",
     "no alias content moved into this dossier in R4-S1",
     "R4-S1 intentionally does not migrate historical narrative, proof logs, pass summaries, or alias record bodies into the dossier.",
     "R4-S3 introduces pass index and slice/seam ledger templates only; it does not migrate historical pass rows, ledger rows, proof logs, or alias record bodies into the dossier.",
+    "R4-S4 introduces validator/helper and artifact index templates only; it does not migrate historical validator rows, helper rows, artifact rows, proof logs, or alias record bodies into the dossier.",
+    "R4-S5 validates that the FB-042 dossier shell, routing, and index-template surfaces remain stable after the Phase 4 structural slices, and it does so without migrating historical rows or narrative content.",
 )
 REFORM_FB027_DOSSIER_REQUIRED_PHRASES = (
     "Dossier State: `Shell only`",
@@ -1088,11 +1110,20 @@ REFORM_FB027_DOSSIER_REQUIRED_PHRASES = (
     "Ledger Population State: `No historical slice or seam entries migrated yet`",
     "| Phase / Slice | Seam / Scope | Classification | Migration State | Notes |",
     "| `Placeholder only` | `Reserve rows for future converted seams` | `Anchor or alias family history` | `Not started` | `R4-S3 adds shared ledger structure only; no historical slice or seam data migrates in this slice.` |",
-    "Validator / Helper Index Status: `Reserved for Slice R4-S4`",
-    "Artifact Index Status: `Reserved for Slice R4-S4`",
+    "Validator / Helper Index Status: `Structure introduced in Slice R4-S4`",
+    "Validator / Helper Index Population State: `No historical validator or helper entries migrated yet`",
+    "| Surface | Classification | Source Record | Migration State | Notes |",
+    "| `Placeholder only` | `Reserve rows for validator, helper, or harness history` | `Populate from existing historical workstream or branch records in later slices` | `Not started` | `R4-S4 adds shared validator/helper index structure only; no historical validator or helper entries migrate in this slice.` |",
+    "Artifact Index Status: `Structure introduced in Slice R4-S4`",
+    "Artifact Index Population State: `No historical artifact entries migrated yet`",
+    "| Artifact Path | Classification | Source Record | Migration State | Notes |",
+    "| `Placeholder only` | `Reserve rows for reusable evidence, report, or helper artifacts` | `Populate from existing historical workstream or branch records in later slices` | `Not started` | `R4-S4 adds shared artifact index structure only; no historical artifact entries migrate in this slice.` |",
+    "Dossier Stability Validation Status: `Validated in Slice R4-S5`",
     "no alias content moved into this dossier in R4-S2",
     "R4-S2 intentionally does not migrate historical narrative, proof logs, pass summaries, or alias record bodies into the dossier.",
     "R4-S3 introduces pass index and slice/seam ledger templates only; it does not migrate historical pass rows, ledger rows, proof logs, or alias record bodies into the dossier.",
+    "R4-S4 introduces validator/helper and artifact index templates only; it does not migrate historical validator rows, helper rows, artifact rows, proof logs, or alias record bodies into the dossier.",
+    "R4-S5 validates that the FB-027 dossier shell, routing, and index-template surfaces remain stable after the Phase 4 structural slices, and it does so without migrating historical rows or narrative content.",
 )
 
 CURRENT_BACKLOG_SHAPE_HEADINGS = (
@@ -2867,6 +2898,105 @@ def _validate_backlog_family_reform_seam_truth(
                 "Docs/branch_records/feature_backlog_family_governance_reform.md: Seam "
                 "Continuation Decision must not keep R4-S3 as `Next Active Seam` once both "
                 "family dossiers carry the shared pass-index and slice/seam-ledger structures"
+            ),
+        )
+
+    def dossier_has_r4_s4_structure(dossier_path: Path) -> bool:
+        if not dossier_path.is_file():
+            return False
+        dossier_text = _read_text(dossier_path)
+        return (
+            "Validator / Helper Index Status: `Structure introduced in Slice R4-S4`" in dossier_text
+            and "Artifact Index Status: `Structure introduced in Slice R4-S4`" in dossier_text
+        )
+
+    if dossier_has_r4_s4_structure(REFORM_FB042_DOSSIER_PATH) and dossier_has_r4_s4_structure(
+        REFORM_FB027_DOSSIER_PATH
+    ):
+        require(
+            REFORM_R4_S4_STATE_NEXT_PHRASE not in backlog_workstream_state,
+            (
+                "Docs/feature_backlog.md: R4-S4 must not remain the next seam once both family "
+                "dossiers carry the shared validator/helper and artifact index structures"
+            ),
+        )
+        require(
+            REFORM_R4_S4_STATE_NEXT_PHRASE not in roadmap_workstream_state,
+            (
+                "Docs/prebeta_roadmap.md: R4-S4 must not remain the next seam once both family "
+                "dossiers carry the shared validator/helper and artifact index structures"
+            ),
+        )
+        require(
+            phase_status_next_seam != REFORM_R4_S4_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Phase Status "
+                "`Next Active Seam` must advance past R4-S4 once both family dossiers carry the "
+                "shared validator/helper and artifact index structures"
+            ),
+        )
+        require(
+            active_seam_next != REFORM_R4_S4_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Active Seam "
+                "`Next active seam` must advance past R4-S4 once both family dossiers carry the "
+                "shared validator/helper and artifact index structures"
+            ),
+        )
+        require(
+            continuation_next_seam != REFORM_R4_S4_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Seam "
+                "Continuation Decision must not keep R4-S4 as `Next Active Seam` once both "
+                "family dossiers carry the shared validator/helper and artifact index structures"
+            ),
+        )
+
+    def dossier_has_r4_s5_stability_validation(dossier_path: Path) -> bool:
+        if not dossier_path.is_file():
+            return False
+        dossier_text = _read_text(dossier_path)
+        return "Dossier Stability Validation Status: `Validated in Slice R4-S5`" in dossier_text
+
+    if dossier_has_r4_s5_stability_validation(
+        REFORM_FB042_DOSSIER_PATH
+    ) and dossier_has_r4_s5_stability_validation(REFORM_FB027_DOSSIER_PATH):
+        require(
+            REFORM_R4_S5_STATE_NEXT_PHRASE not in backlog_workstream_state,
+            (
+                "Docs/feature_backlog.md: R4-S5 must not remain the next seam once both family "
+                "dossiers carry the dossier-stability validation marker"
+            ),
+        )
+        require(
+            REFORM_R4_S5_STATE_NEXT_PHRASE not in roadmap_workstream_state,
+            (
+                "Docs/prebeta_roadmap.md: R4-S5 must not remain the next seam once both family "
+                "dossiers carry the dossier-stability validation marker"
+            ),
+        )
+        require(
+            phase_status_next_seam != REFORM_R4_S5_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Phase Status "
+                "`Next Active Seam` must advance past R4-S5 once both family dossiers carry the "
+                "dossier-stability validation marker"
+            ),
+        )
+        require(
+            active_seam_next != REFORM_R4_S5_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Active Seam "
+                "`Next active seam` must advance past R4-S5 once both family dossiers carry the "
+                "dossier-stability validation marker"
+            ),
+        )
+        require(
+            continuation_next_seam != REFORM_R4_S5_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Seam "
+                "Continuation Decision must not keep R4-S5 as `Next Active Seam` once both "
+                "family dossiers carry the dossier-stability validation marker"
             ),
         )
 
