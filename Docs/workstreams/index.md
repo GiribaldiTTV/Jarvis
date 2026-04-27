@@ -28,6 +28,8 @@ Use `Docs/validation_helper_registry.md` for durable root `dev/` helper naming, 
 - `Registry-only` backlog items do not require a canonical workstream execution record yet
 - when a backlog item moves from `Registry-only` to `Promoted`, its canonical workstream doc must be created at a stable `Docs/workstreams/FB-XXX_slug.md` path
 - once promoted, the canonical workstream doc becomes the durable execution and traceability record for that lane and must be updated throughout the active branch, not just at closeout
+- workstream docs and branch authority records are the default traceability surface for multi-slice continuation, blocker-clearing, and repair history inside one backlog identity
+- if later work continues the same user-facing feature family, preserve that continuation traceability here or in branch records instead of creating a near-duplicate backlog ID by default
 - backlog remains the identity registry and points here through `Canonical Workstream Doc`
 - roadmap consumes this layer for sequencing but does not duplicate its full execution story
 - repo-wide phase, timeout, proof-authority, seam, stop-loss, validation-helper, and desktop UI audit rules live in `Docs/phase_governance.md`, not in individual workstream docs
@@ -90,10 +92,11 @@ That may be an executable branch owner or another explicitly promoted current-tr
 Merged / Release Debt Owners are promoted implementation workstreams whose implementation branch is merge-target complete but whose public release packaging has not yet cleared release debt.
 These records are not active implementation branch owners after merge.
 
-- `Docs/workstreams/FB-047_active_session_relaunch_decline_preservation.md`
+- `Docs/workstreams/FB-048_active_session_relaunch_signal_failure_and_wait_timeout_truth.md`
 
 ### Closed
 
+- `Docs/workstreams/FB-047_active_session_relaunch_decline_preservation.md`
 - `Docs/workstreams/FB-046_active_session_relaunch_reacquisition.md`
 - `Docs/workstreams/FB-045_active_session_relaunch_outcome_refinement.md`
 - `Docs/workstreams/FB-044_boot_desktop_handoff_outcome_refinement.md`
