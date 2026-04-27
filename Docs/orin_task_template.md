@@ -144,21 +144,23 @@ If a governance or canon update is directly required to keep the active current 
 Add `Validation Contract`, `Timeout Contract`, and `Current active seam` when the governed task needs them.
 Add `Seam Sequence` when the Workstream prompt may use bounded multi-seam workflow.
 If `Seam Sequence` is present, Codex must execute one active seam at a time, validate after each seam, and report a continue-or-stop decision before starting the next seam.
-If a prompt names an active seam inside that sequence, treat it as the entry seam, not a terminal boundary.
-After a green seam, `Next-Seam Continuation Required` applies by default when continuation authority conditions pass.
+If a prompt names an active seam, treat it as the entry seam, not a terminal boundary.
+After a green seam, `Next-Seam Continuation Required` applies by continuing seam-to-seam inside the current slice until all required seams are complete and the slice status is green when continuation authority conditions pass.
+Seams inside the current slice may be predeclared in canon or discovered from repo truth while the slice remains in progress.
 There is no repo-wide cap on how many slices a branch or workstream may carry.
-Same-branch backlog completion is the default: admit and execute the additional slices needed to finish the backlog item on the current branch whenever scope, phase, risk, and validation authority remain green.
-Perform all admitted seams in the bounded multi-seam workflow and continue through the additional slices needed to complete the backlog item on the same branch unless an explicit `Backlog-Split User Approval` or a named bounded stop condition is recorded.
+same-branch backlog completion is the branch-level default: later slices for the same backlog item stay on the same branch when scope, phase, risk, and validation authority remain green.
 Branch Readiness owns planning, framing, affected-surface mapping, implementation delta classification, admitted-slice definition, and whole-backlog closure strategy before Workstream begins.
-Branch Readiness must evaluate the whole backlog item, define the first admitted slice, record the same-branch continuation posture for the remaining slices needed to complete the backlog item, and record any known future-dependent blockers before Workstream begins.
-Workstream must execute admitted implementation slices, keep re-evaluating the backlog item after each seam and slice, and continue on the same branch until the backlog item is fully implemented or only future-dependent blockers remain unless the USER explicitly approves a docs-only bypass or backlog split.
+Branch Readiness must evaluate the whole backlog item, define the first admitted slice, record the same-branch continuation posture for later slices after the current slice turns green, and record any known future-dependent blockers before Workstream begins.
+Workstream must execute admitted implementation slices one slice at a time, keep re-evaluating the backlog item after each seam and slice, and keep later slices on the same branch by default when scope, phase, risk, and validation authority remain green unless the USER explicitly approves a docs-only bypass or backlog split.
 Docs-only Workstreams require explicit USER approval.
 Planning-loop bypass requires `Planning-Loop Bypass User Approval: APPROVED` and `Planning-Loop Bypass Reason:`.
 Release-bearing implementation work with no runtime/user-facing, backend/runtime, or developer-tooling delta is blocked unless the USER explicitly approves that release window.
 reporting `Next Safe Move` is not a substitute for execution when continuation authority passes.
 reporting Next Safe Move is not a substitute for execution when continuation authority passes.
-A `continue` decision must be acted on immediately by starting the next seam in the approved sequence.
-continue decision must be acted on immediately by starting the next seam in the approved sequence.
+A `continue` decision must be acted on immediately by starting the next seam needed inside the current slice.
+continue decision must be acted on immediately by starting the next seam needed inside the current slice.
+Once the current slice is green, return green status and await the next instruction.
+Do not auto-start a new slice or later phase after the current slice turns green.
 Legacy `Single-Seam Fallback` and `Single-Seam Mode Waiver` wording is retired in active source-of-truth.
 `Workstream` may not advance to `Hardening` while remaining implementable work is still available on the current backlog item.
 Use `Backlog Completion State: In Progress`, `Implemented Complete`, or `Implemented Complete Except Future Dependency` to record whether more same-branch slices are still required.
@@ -311,13 +313,15 @@ After analysis is complete and execution scope is approved, follow these discipl
 - verify exact failure path or behavior before changing logic
 - no blind iteration
 - one coherent approved subproblem per revision
-- use bounded multi-seam workflow as the primary Workstream model when the approved seams are same-workstream, same-phase, same-branch-class, same approved scope, and same-subsystem-family or tightly coupled
+- use bounded multi-seam workflow as the primary Workstream model when the current slice remains same-workstream, same-phase, same-branch-class, same approved scope, and same-subsystem-family or tightly coupled
 - execute exactly one active seam at a time and validate, record, and decide continue-or-stop before the next seam
-- treat a prompt-named seam inside an approved sequence as the entry seam, not a terminal boundary
-- continue by default after a green seam when `Next-Seam Continuation Required` applies and the continuation authority conditions pass
+- treat a prompt-named seam as the entry seam, not a terminal boundary
+- continue seam-to-seam inside the current slice until all required seams are complete and the slice status is green
+- continue by default after a green seam when `Next-Seam Continuation Required` applies and the current slice still needs another seam
 - recognize that a slice is a bounded admitted backlog-completion unit while a seam is the current execution checkpoint inside or between slices
-- keep same-branch backlog completion as the default and continue through the additional slices needed to finish the backlog item on the current branch whenever validation stays green
-- perform all admitted seams in the bounded multi-seam workflow and continue through the additional slices needed to complete the backlog item on the same branch unless an explicit `Backlog-Split User Approval` or a named bounded stop condition is recorded
+- keep same-branch backlog completion as the branch-level default so later slices stay on the same branch whenever validation stays green
+- seams inside the current slice may be predeclared in canon or discovered from repo truth while the slice remains in progress
+- once the current slice is green, return green status and await the next instruction instead of auto-starting another slice
 - preserve architecture boundaries
 - keep source-of-truth docs aligned with actual implemented state
 - production behavior must remain unchanged unless explicitly in scope
@@ -395,11 +399,11 @@ If the task includes interactive validation, the validation plan should also sta
 
 1. Perform only the approved execution work.
 2. For bounded multi-seam workflow, perform exactly one seam, verify it, record evidence, and decide `continue` or `stop` before starting the next seam.
-3. Continue by default to the next planned seam after a green seam when `Next-Seam Continuation Required` applies and the continuation authority conditions pass.
-4. Reporting `Next Safe Move` is not a substitute for execution when continuation authority passes; A `continue` decision must be acted on immediately by starting the next seam in the approved sequence.
+3. Continue by default to the next seam needed inside the current slice after a green seam when `Next-Seam Continuation Required` applies and the continuation authority conditions pass.
+4. Reporting `Next Safe Move` is not a substitute for execution when continuation authority passes; A `continue` decision must be acted on immediately by starting the next seam needed inside the current slice.
 5. Stop the workflow immediately on validation failure, regression, scope drift, unplanned risk expansion, governance drift, unresolved manual-validation blocker, branch-truth inconsistency, phase boundary, stop-loss trigger, or a declared `Backlog-Split User Approval` boundary.
 6. Clean up session-scoped side effects from the pass unless there is an explicit reason to preserve them.
-7. Report what changed, what was verified, the per-seam continue-or-stop decisions, and what was cleaned up or intentionally left in place.
+7. Once the current slice is green, report green status and await the next instruction instead of auto-starting a new slice or later phase.
 
 ## Verification Requirements
 

@@ -168,16 +168,19 @@ MULTI_SEAM_CONTRACT_PHRASES = (
     "entry seam, not a terminal boundary",
     "a slice is a bounded admitted backlog-completion unit",
     "a seam is the current execution checkpoint inside or between slices",
+    "seams inside the current slice may be predeclared in canon or discovered from repo truth while the slice remains in progress",
     "there is no repo-wide cap on how many slices a branch or workstream may carry",
-    "same-branch backlog completion is the default: admit and execute the additional slices needed to finish the backlog item on the current branch whenever scope, phase, risk, and validation authority remain green",
-    "perform all admitted seams in the bounded multi-seam workflow and continue through the additional slices needed to complete the backlog item on the same branch unless an explicit `Backlog-Split User Approval` or a named bounded stop condition is recorded",
-    "Branch Readiness must evaluate the whole backlog item, define the first admitted slice, record the same-branch continuation posture for the remaining slices needed to complete the backlog item, and record any known future-dependent blockers before Workstream begins.",
-    "Workstream must execute admitted implementation slices, keep re-evaluating the backlog item after each seam and slice, and continue on the same branch until the backlog item is fully implemented or only future-dependent blockers remain unless the USER explicitly approves a docs-only bypass or backlog split.",
+    "same-branch backlog completion is the branch-level default: later slices for the same backlog item stay on the same branch when scope, phase, risk, and validation authority remain green",
+    "continue seam-to-seam inside the current slice until all required seams are complete and the slice status is green",
+    "once the current slice is green, return green status and await the next instruction",
+    "do not auto-start a new slice or later phase after the current slice turns green",
+    "Branch Readiness must evaluate the whole backlog item, define the first admitted slice, record the same-branch continuation posture for later slices after the current slice turns green, and record any known future-dependent blockers before Workstream begins.",
+    "Workstream must execute admitted implementation slices one slice at a time",
     "`Workstream` may not advance to `Hardening` while remaining implementable work is still available on the current backlog item",
     "Backlog-Split User Approval",
     "bounded stop condition",
     "reporting `Next Safe Move` is not a substitute for execution",
-    "A `continue` decision must be acted on immediately",
+    "A `continue` decision must be acted on immediately by starting the next seam needed inside the current slice",
 )
 
 MULTI_SEAM_PRIMARY_REPAIR_PHRASES = (
@@ -185,7 +188,7 @@ MULTI_SEAM_PRIMARY_REPAIR_PHRASES = (
     "Legacy `Single-Seam Fallback` and `Single-Seam Mode Waiver` terms are retired and must not be used in active source-of-truth.",
     "A bounded stop condition blocks the workflow. It does not by itself authorize splitting the backlog item across branches.",
     "Stopping after the first slice or splitting the backlog item across branches requires an explicit `Backlog-Split User Approval` or a named bounded stop condition.",
-    "Perform all admitted seams in the bounded multi-seam workflow and continue through the additional slices needed to complete the backlog item on the same branch unless an explicit `Backlog-Split User Approval` or a named bounded stop condition is recorded.",
+    "Do not auto-start a new slice or later phase after the current slice turns green.",
 )
 
 MULTI_SEAM_PROHIBITED_CATEGORY_STOP_PHRASES = (
@@ -203,6 +206,12 @@ MULTI_SEAM_PROHIBITED_THROTTLE_PHRASES = (
     "unless owning canon supplies `single-seam fallback`",
     "use `single-seam mode waiver` only when",
     "one-seam workflow",
+    "approved seam sequence",
+    "approved sequence",
+    "next planned seam",
+    "additional slices needed to finish the backlog item on the current branch",
+    "additional slices needed to complete the backlog item on the same branch",
+    "starting the next seam in the approved sequence",
 )
 
 MULTI_SEAM_PROMPT_DOCS = (
@@ -216,14 +225,17 @@ MULTI_SEAM_PROMPT_PHRASES = (
     "continue-or-stop",
     "Next-Seam Continuation Required",
     "entry seam, not a terminal boundary",
+    "seams inside the current slice may be predeclared in canon or discovered from repo truth while the slice remains in progress",
     "there is no repo-wide cap on how many slices a branch or workstream may carry",
-    "same-branch backlog completion is the default: admit and execute the additional slices needed to finish the backlog item on the current branch whenever scope, phase, risk, and validation authority remain green",
-    "perform all admitted seams in the bounded multi-seam workflow and continue through the additional slices needed to complete the backlog item on the same branch unless an explicit `Backlog-Split User Approval` or a named bounded stop condition is recorded",
+    "same-branch backlog completion is the branch-level default: later slices for the same backlog item stay on the same branch when scope, phase, risk, and validation authority remain green",
+    "continue seam-to-seam inside the current slice until all required seams are complete and the slice status is green",
+    "once the current slice is green, return green status and await the next instruction",
+    "do not auto-start a new slice or later phase after the current slice turns green",
     "Backlog Completion State",
     "Backlog-Split User Approval",
     "Backlog-Split Reason",
     "reporting Next Safe Move is not a substitute for execution",
-    "continue decision must be acted on immediately",
+    "continue decision must be acted on immediately by starting the next seam needed inside the current slice",
 )
 
 REUSABLE_GUIDANCE_RETIRED_SEAM_TERMS = {
@@ -286,8 +298,8 @@ PLANNING_LOOP_GUARDRAIL_DOCS = (
 
 PLANNING_LOOP_GUARDRAIL_PHRASES = (
     "Branch Readiness owns planning, framing, affected-surface mapping, implementation delta classification, admitted-slice definition, and whole-backlog closure strategy before Workstream begins.",
-    "Branch Readiness must evaluate the whole backlog item, define the first admitted slice, record the same-branch continuation posture for the remaining slices needed to complete the backlog item, and record any known future-dependent blockers before Workstream begins.",
-    "Workstream must execute admitted implementation slices, keep re-evaluating the backlog item after each seam and slice, and continue on the same branch until the backlog item is fully implemented or only future-dependent blockers remain unless the USER explicitly approves a docs-only bypass or backlog split.",
+    "Branch Readiness must evaluate the whole backlog item, define the first admitted slice, record the same-branch continuation posture for later slices after the current slice turns green, and record any known future-dependent blockers before Workstream begins.",
+    "Workstream must execute admitted implementation slices one slice at a time, keep re-evaluating the backlog item after each seam and slice, and keep later slices on the same branch by default when scope, phase, risk, and validation authority remain green unless the USER explicitly approves a docs-only bypass or backlog split.",
     "Docs-only Workstreams require explicit USER approval.",
     "Planning-Loop Bypass User Approval: APPROVED",
     "Planning-Loop Bypass Reason:",

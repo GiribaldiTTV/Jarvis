@@ -93,7 +93,7 @@ For bounded multi-seam Workstream execution, also include:
 - `Remaining Implementable Work: <None / short summary>` when Workstream continuation or phase exit matters
 - `Future-Dependent Blockers: <None / short summary>` when Workstream continuation or phase exit matters
 
-Use owning canon after load to derive the per-seam gate, entry seam, `Next-Seam Continuation Required`, the rule that a slice is a bounded admitted backlog-completion unit and a seam is the current execution checkpoint inside or between slices, the rule that there is no repo-wide cap on how many slices a branch or workstream may carry, same-branch backlog completion, backlog completion state, future-dependent blockers, `Backlog-Split User Approval`, `Backlog-Split Reason`, and the rule that reporting `Next Safe Move` is not a substitute for execution and a continue decision must be acted on immediately by starting the next seam in the approved sequence.
+Use owning canon after load to derive the per-seam gate, entry seam, `Next-Seam Continuation Required`, the rule that a slice is a bounded admitted backlog-completion unit and a seam is the current execution checkpoint inside or between slices, the rule that seams inside the current slice may be predeclared in canon or discovered from repo truth while the slice remains in progress, the rule that there is no repo-wide cap on how many slices a branch or workstream may carry, same-branch backlog completion as a branch-level posture, backlog completion state, future-dependent blockers, `Backlog-Split User Approval`, `Backlog-Split Reason`, the rule that reporting `Next Safe Move` is not a substitute for execution while the current slice still requires seams, the rule that a continue decision must be acted on immediately by starting the next seam needed inside the current slice, and the rule that once the current slice is green Codex must return green status and await the next instruction instead of auto-starting a new slice or later phase.
 
 For Release Readiness, also include:
 
@@ -378,8 +378,8 @@ Use the prompt to name the active seam, validate after each seam, and report con
 Source-truth reminders that stay in canon rather than prompt body:
 
 - Branch Readiness owns planning, framing, affected-surface mapping, implementation delta classification, admitted-slice definition, and whole-backlog closure strategy before Workstream begins.
-- Branch Readiness must evaluate the whole backlog item, define the first admitted slice, record the same-branch continuation posture for the remaining slices needed to complete the backlog item, and record any known future-dependent blockers before Workstream begins.
-- Workstream must execute admitted implementation slices, keep re-evaluating the backlog item after each seam and slice, and continue on the same branch until the backlog item is fully implemented or only future-dependent blockers remain unless the USER explicitly approves a docs-only bypass or backlog split.
+- Branch Readiness must evaluate the whole backlog item, define the first admitted slice, record the same-branch continuation posture for later slices after the current slice turns green, and record any known future-dependent blockers before Workstream begins.
+- Workstream must execute admitted implementation slices one slice at a time, keep re-evaluating the backlog item after each seam and slice, and keep later slices on the same branch by default when scope, phase, risk, and validation authority remain green unless the USER explicitly approves a docs-only bypass or backlog split.
 - Docs-only Workstreams require explicit USER approval.
 - Planning-Loop Bypass User Approval: APPROVED
 - Planning-Loop Bypass Reason:
@@ -388,13 +388,16 @@ Source-truth reminders that stay in canon rather than prompt body:
 - Do not create a `docs/governance` or `emergency canon repair` branch unless explicit `Docs/Governance Branch Waiver: APPROVED` is recorded from the USER.
 - Repair-only `feature/` branch existence does not imply Branch Readiness admission or active branch truth.
 - the prompt-named seam is the entry seam, not a terminal boundary
-- Next-Seam Continuation Required
-- same-branch backlog completion is the default: admit and execute the additional slices needed to finish the backlog item on the current branch whenever scope, phase, risk, and validation authority remain green
-- perform all admitted seams in the bounded multi-seam workflow and continue through the additional slices needed to complete the backlog item on the same branch unless an explicit `Backlog-Split User Approval` or a named bounded stop condition is recorded
+- Next-Seam Continuation Required means continue seam-to-seam inside the current slice until all required seams are complete and the slice status is green
+- seams inside the current slice may be predeclared in canon or discovered from repo truth while the slice remains in progress
+- same-branch backlog completion is the branch-level default: later slices for the same backlog item stay on the same branch when scope, phase, risk, and validation authority remain green
+- once the current slice is green, return green status and await the next instruction
+- do not auto-start a new slice or later phase after the current slice turns green
+- stopping after the first slice or splitting the backlog item across branches requires an explicit `Backlog-Split User Approval` or a named bounded stop condition
 - `Workstream` may not advance to `Hardening` while remaining implementable work is still available on the current backlog item
 - use `Backlog Completion State: In Progress`, `Implemented Complete`, or `Implemented Complete Except Future Dependency` to record whether more same-branch slices are still required
 - reporting Next Safe Move is not a substitute for execution
-- A `continue` decision must be acted on immediately by starting the next seam in the approved sequence.
+- A `continue` decision must be acted on immediately by starting the next seam needed inside the current slice.
 
 High-risk categories such as bug fixes, hotfixes, unclear seams, cross-subsystem changes, settings, protocol, launcher, or UI-model work require smaller seams and stronger gates; they do not automatically cancel bounded multi-seam continuation after a green admitted seam.
 

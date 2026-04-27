@@ -81,7 +81,7 @@ Selected Next Implementation Branch: Not created.
 Historical Repair-Only Branch Handling: `feature/fb-046-post-merge-canon-sync` was a bounded repair-only post-merge canon-sync `feature/` branch and did not imply Branch Readiness admission or active branch truth for FB-046.
 Historical Branch Readiness State: Complete on `feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeout-truth`.
 Current Branch Readiness State: Historical complete on `feature/backlog-family-governance-reform`. Phase 0 `Reform Readiness` admitted the branch authority record and cleared the path into Workstream.
-Current Workstream State: Phase 3 `Family Anchor Migration` is active on `feature/backlog-family-governance-reform`; Slice R3-S3 `Retitle FB-027 as the interaction/action family anchor` is complete and green, FB-027 is now titled `Interaction and shared-action family anchor`, FB-042 remains `Desktop startup runtime family anchor`, both records preserve `Registry Class: Feature Family` and `Family Anchor: Self`, the planned R3-S2 and R3-S4 alias-mapping slices are already satisfied in repo truth because their historical alias records already declare `Historical Alias Of: FB-042` and `Historical Alias Of: FB-027`, FB-049 remains the only selected-next user-facing candidate, and Slice R3-S5 `Future-selection hardening` is next.
+Current Workstream State: Phase 3 `Family Anchor Migration` is complete and green on `feature/backlog-family-governance-reform`; Slice R3-S5 `Future-selection hardening` is complete and green, seam-governance truth now keeps execution seam-to-seam only inside the current slice until that slice is green or a named blocker or waiver requirement is hit, seams may be discovered from repo truth while the current slice remains in progress, a green slice must return green status and await the next instruction instead of auto-starting the next slice or later phase, FB-049 remains the only selected-next user-facing candidate, and Phase 4 / Slice R4-S1 `Convert the FB-042 dossier shell` is next when instructed.
 Current Branch Class: implementation.
 Current Implementation Delta Class: docs-only.
 Historical Workstream State: FB-048 is Released / Closed in `v1.6.12-prebeta`; FB-047 is Released / Closed in `v1.6.11-prebeta`; FB-046 is Released / Closed in `v1.6.10-prebeta`; FB-044 and FB-045 remain Released / Closed historical proof in `v1.6.9-prebeta`.
@@ -100,7 +100,7 @@ Next Legal Phase: Workstream.
 
 ## Backlog Governance Sync
 
-Last Reviewed: 2026-04-27 during Backlog Family Governance Reform Phase 3 / Slice R3-S3.
+Last Reviewed: 2026-04-27 during Backlog Family Governance Reform Phase 3 / Slice R3-S5.
 
 Open-candidate priority review:
 
