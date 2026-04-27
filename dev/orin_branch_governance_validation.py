@@ -1122,6 +1122,14 @@ REFORM_R5_S5_ACTIVE_SEAM_NEXT_PHRASE = (
     "Phase 5 / Slice R5-S5 `Traceability sweep` is the next active seam on this branch."
 )
 REFORM_R5_S5_CONTINUATION_PHRASE = "Execute Slice R5-S5"
+REFORM_R6_S1_SEAM = (
+    "Phase 6 - Roadmap And Index Alignment / Slice R6-S1 - Roadmap anchor conversion"
+)
+REFORM_R6_S1_STATE_NEXT_PHRASE = "Slice R6-S1 `Roadmap anchor conversion` is next"
+REFORM_R6_S1_ACTIVE_SEAM_NEXT_PHRASE = (
+    "Phase 6 / Slice R6-S1 `Roadmap anchor conversion` is the next active seam on this branch."
+)
+REFORM_R6_S1_CONTINUATION_PHRASE = "Execute Slice R6-S1"
 REFORM_FB042_DOSSIER_PATH = Path(
     "Docs/workstreams/FB-042_desktop_startup_runtime_family_dossier.md"
 )
@@ -1446,6 +1454,23 @@ REFORM_R5_S5_TRACEABILITY_REQUIRED_PHRASES = {
         "R5-S5 completes the Phase 5 traceability sweep by indexing the preserved FB-037 branch-record trace, explicitly calling out the passes that do not have separate branch records, and confirming the dossier, backlog, roadmap, alias workstream, and branch-record routing stay aligned without migrating narrative bodies.",
     ),
 }
+
+REFORM_R6_S1_ROADMAP_REQUIRED_PHRASES = (
+    "- next concern: split the canonical workstream index in Phase 6 / Slice R6-S2 while preserving the converted roadmap family-anchor framing, the stabilized FB-042 and FB-027 dossier routing, the hardened Workstream-completion continuation rule, and FB-049 as selected next and branch-not-created.",
+    "- historical pass coverage: `FB-043`, `FB-044`, `FB-045`, `FB-046`, `FB-047`, `FB-048`",
+    "- historical pass coverage: `FB-036`, `FB-037`, `FB-038`, `FB-041`",
+    "pass id: `F042-P07`",
+    "pass id: `F042-P06`",
+    "pass id: `F042-P05`",
+    "pass id: `F042-P04`",
+    "pass id: `F042-P03`",
+    "pass id: `F042-P02`",
+    "pass id: `F027-P05`",
+    "pass id: `F027-P04`",
+    "pass id: `F027-P03`",
+    "pass id: `F027-P02`",
+    "Phase 5 / Slice R5-S5 indexed the preserved branch trace; validator/helper and artifact migration remain pending",
+)
 
 CURRENT_BACKLOG_SHAPE_HEADINGS = (
     "## Registry Items",
@@ -3544,6 +3569,11 @@ def _validate_backlog_family_reform_seam_truth(
                 return False
         return True
 
+    def roadmap_anchor_conversion_complete() -> bool:
+        return all(
+            phrase in roadmap_text for phrase in REFORM_R6_S1_ROADMAP_REQUIRED_PHRASES
+        )
+
     if historical_pass_branch_records_converted():
         require(
             REFORM_R5_S3_STATE_NEXT_PHRASE not in backlog_workstream_state,
@@ -3695,6 +3725,62 @@ def _validate_backlog_family_reform_seam_truth(
                 "Docs/branch_records/feature_backlog_family_governance_reform.md: Seam "
                 "Continuation Decision must not keep R5-S5 as `Next Active Seam` once the "
                 "historical pass traceability sweep is complete"
+            ),
+        )
+
+    if roadmap_anchor_conversion_complete():
+        require(
+            REFORM_R6_S1_STATE_NEXT_PHRASE not in backlog_workstream_state,
+            (
+                "Docs/feature_backlog.md: R6-S1 must not remain the next seam once the roadmap "
+                "anchor conversion is complete"
+            ),
+        )
+        require(
+            REFORM_R6_S1_STATE_NEXT_PHRASE not in roadmap_workstream_state,
+            (
+                "Docs/prebeta_roadmap.md: R6-S1 must not remain the next seam once the roadmap "
+                "anchor conversion is complete"
+            ),
+        )
+        require(
+            phase_status_next_seam != REFORM_R6_S1_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Phase Status "
+                "`Next Active Seam` must advance past R6-S1 once the roadmap anchor conversion "
+                "is complete"
+            ),
+        )
+        require(
+            REFORM_R6_S1_ACTIVE_SEAM_NEXT_PHRASE not in active_seam_section,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Active Seam "
+                "must not keep R6-S1 as the next active seam once the roadmap anchor "
+                "conversion is complete"
+            ),
+        )
+        require(
+            active_seam_next != REFORM_R6_S1_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Active Seam "
+                "`Next active seam` must advance past R6-S1 once the roadmap anchor "
+                "conversion is complete"
+            ),
+        )
+        require(
+            continuation_next_seam != REFORM_R6_S1_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Seam "
+                "Continuation Decision must not keep R6-S1 as `Next Active Seam` once the "
+                "roadmap anchor conversion is complete"
+            ),
+        )
+        require(
+            REFORM_R6_S1_CONTINUATION_PHRASE not in continuation_section,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Seam "
+                "Continuation Decision must not keep an R6-S1 continuation action once the "
+                "roadmap anchor conversion is complete"
             ),
         )
         require(
@@ -3992,6 +4078,16 @@ def _validate_backlog_family_historical_pass_records(require, *, current_branch:
                 phrase in doc_text,
                 f"{doc_path}: required R5-S5 traceability marker '{phrase}' is missing",
             )
+
+    r6_s1_roadmap_text = _read_text(Path("Docs/prebeta_roadmap.md"))
+    for phrase in REFORM_R6_S1_ROADMAP_REQUIRED_PHRASES:
+        require(
+            phrase in r6_s1_roadmap_text,
+            (
+                "Docs/prebeta_roadmap.md: required R6-S1 roadmap anchor-conversion marker "
+                f"'{phrase}' is missing"
+            ),
+        )
 
 
 def _roadmap_section_for_id(text: str, workstream_id: str) -> str:

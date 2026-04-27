@@ -71,7 +71,7 @@ Current merged truth indicates:
 - phase status after `v1.6.12-prebeta` release closure: FB-048 is Released / Closed in `v1.6.12-prebeta`; release debt is clear after publication, validation, and post-release canon closure; `feature/backlog-family-governance-reform` is the active docs-only governance reform branch authority surface; and FB-049 remains selected next, `Registry-only`, and branch-not-created.
 - current active workstream: none; current active branch authority owner is `feature/backlog-family-governance-reform`
 - current branch after `v1.6.12-prebeta` release closure: `feature/backlog-family-governance-reform`
-- next concern: strip future-selection language from alias records in Phase 5 / Slice R5-S4 while preserving the converted FB-042 and FB-027 pass-record family models, the stabilized family dossiers, the hardened Workstream-completion continuation rule, and FB-049 as selected next and branch-not-created.
+- next concern: split the canonical workstream index in Phase 6 / Slice R6-S2 while preserving the converted roadmap family-anchor framing, the stabilized FB-042 and FB-027 dossier routing, the hardened Workstream-completion continuation rule, and FB-049 as selected next and branch-not-created.
 
 That means the released FB-027 interaction and shared-action family anchor, the released FB-036 authoring-and-callable-group milestone, the released FB-041 deterministic callable-group execution milestone, the released FB-037 built-in catalog milestone, the released FB-038 tray quick-task UX milestone, the released FB-039 external trigger intake architecture milestone, the released FB-040 monitoring/thermal architecture milestone, the released FB-031 UI/UX architecture milestone, the released FB-032 source-of-truth migration milestone, the released FB-004 future boot-orchestrator architecture milestone, the released FB-015 plus FB-029 planning milestones, the released FB-030 voice/audio planning milestone, and the released FB-005 bounded workspace-path slice are now part of the current public shared pre-Beta baseline.
 
@@ -102,7 +102,7 @@ Selected Next Implementation Branch: `Not created`
 Repair-Only Branch Handling: `feature/fb-046-post-merge-canon-sync` is a bounded repair-only post-merge canon-sync `feature/` branch and did not imply Branch Readiness admission or active branch truth for FB-046.
 Historical Branch Readiness State: Complete on `feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeout-truth`.
 Current Branch Readiness State: Historical complete on `feature/backlog-family-governance-reform`. Phase 0 `Reform Readiness` admitted the branch authority record and cleared the path into Workstream.
-Current Workstream State: Phase 6 `Roadmap And Index Alignment` continues on `feature/backlog-family-governance-reform`; Seam Status: In Progress for R6-S1 `Roadmap anchor conversion`; Slice Status: In Progress; Completion Status: In Progress; Blockers: `Backlog Completion Unproven` remains the non-green Workstream completion marker while later reform slices remain on this same branch; Waiver Status: None; Continue Decision: Continue; Stop Basis: None; R5-S1 converted FB-043 through FB-048 into explicit FB-042 historical pass records, R5-S2 converted FB-036, FB-037, FB-038, and FB-041 into explicit FB-027 historical pass records, R5-S3 converted the preserved corresponding branch-record trace where it exists, R5-S4 stripped live-sounding future-selection and successor-lane wording from the converted alias backlog, roadmap, workstream, and preserved branch-record surfaces while preserving historical release and PR-package facts, R5-S5 completed the Phase 5 traceability sweep by indexing preserved branch trace in the family dossiers and confirming cross-surface routing alignment, continuation is required into Phase 6 / Slice R6-S1 on this same branch, and FB-049 remains the only selected-next user-facing candidate.
+Current Workstream State: Phase 6 `Roadmap And Index Alignment` continues on `feature/backlog-family-governance-reform`; Seam Status: In Progress for R6-S2 `Workstream index split`; Slice Status: In Progress; Completion Status: In Progress; Blockers: `Backlog Completion Unproven` remains the non-green Workstream completion marker while later reform slices remain on this same branch; Waiver Status: None; Continue Decision: Continue; Stop Basis: None; R5-S1 converted FB-043 through FB-048 into explicit FB-042 historical pass records, R5-S2 converted FB-036, FB-037, FB-038, and FB-041 into explicit FB-027 historical pass records, R5-S3 converted the preserved corresponding branch-record trace where it exists, R5-S4 stripped live-sounding future-selection and successor-lane wording from the converted alias backlog, roadmap, workstream, and preserved branch-record surfaces while preserving historical release and PR-package facts, R5-S5 completed the Phase 5 traceability sweep by indexing preserved branch trace in the family dossiers and confirming cross-surface routing alignment, R6-S1 converted the roadmap runtime and interaction historical alias entries to the family-anchor model with pass IDs plus dossier routing, continuation is required into Phase 6 / Slice R6-S2 on this same branch, and FB-049 remains the only selected-next user-facing candidate.
 Historical Workstream State: FB-048 is Released / Closed in `v1.6.12-prebeta`; FB-047 is Released / Closed in `v1.6.11-prebeta`; FB-046 is Released / Closed in `v1.6.10-prebeta`; FB-044 and FB-045 remain Released / Closed historical proof in `v1.6.9-prebeta`.
 Historical Hardening State: Complete on `feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeout-truth`.
 Historical Live Validation State: Complete on `feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeout-truth`.
@@ -150,6 +150,10 @@ status: `released`
 record state: `Closed`
 priority: `High`
 canonical workstream doc: `Docs/workstreams/FB-048_active_session_relaunch_signal_failure_and_wait_timeout_truth.md`
+roadmap role: `Historical pass alias`
+historical alias of: `FB-042`
+pass id: `F042-P07`
+lifetime dossier doc: `Docs/workstreams/FB-042_desktop_startup_runtime_family_dossier.md`
 branch: `feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeout-truth`
 phase status: Released / Closed in `v1.6.12-prebeta`; PR #94, PR #96, and PR #97 are merged on `main`; the release is live on commit `b06c359e58b47cfe26fe8c4b39ac04fde519dee9`; release debt is clear; and the next active execution surface is the docs-only governance reform branch authority record on `feature/backlog-family-governance-reform`.
 next legal seam: none; this record is now historical released truth
@@ -171,6 +175,10 @@ status: `released`
 record state: `Closed`
 priority: `High`
 canonical workstream doc: `Docs/workstreams/FB-047_active_session_relaunch_decline_preservation.md`
+roadmap role: `Historical pass alias`
+historical alias of: `FB-042`
+pass id: `F042-P06`
+lifetime dossier doc: `Docs/workstreams/FB-042_desktop_startup_runtime_family_dossier.md`
 branch: `feature/fb-047-active-session-relaunch-decline-preservation`
 phase status: Released / Closed in `v1.6.11-prebeta`; PR #93 merged into `main` at `4ca70572fbc8033bc96fcd299dd309464e81393a`; the release is live on the same commit; release debt is clear; and later runtime-family continuation moved through FB-048 on `feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeout-truth`, which later completed its own released historical pass.
 next legal seam: none; this record is now historical released truth
@@ -187,6 +195,10 @@ status: `released`
 record state: `Closed`
 priority: `High`
 canonical workstream doc: `Docs/workstreams/FB-046_active_session_relaunch_reacquisition.md`
+roadmap role: `Historical pass alias`
+historical alias of: `FB-042`
+pass id: `F042-P05`
+lifetime dossier doc: `Docs/workstreams/FB-042_desktop_startup_runtime_family_dossier.md`
 branch: `feature/fb-046-active-session-relaunch-reacquisition`
 phase status: Released / Closed in `v1.6.10-prebeta`; PR #92 merged into `main` at `36cf07495dc8e239b20b11afb5194355b77ffd8b`; the release is live on the same commit; FB-047 is now Released / Closed in `v1.6.11-prebeta`; release debt is clear; and later runtime-family continuation moved through FB-048 on `feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeout-truth`.
 next legal seam: none; this record is now historical released truth
@@ -205,6 +217,10 @@ branch-readiness carry-forward: preserved in `Docs/branch_records/feature_fb_046
 - record state: `Closed`
 - priority: `High`
 - canonical workstream doc: `Docs/workstreams/FB-044_boot_desktop_handoff_outcome_refinement.md`
+- roadmap role: `Historical pass alias`
+- historical alias of: `FB-042`
+- pass id: `F042-P03`
+- lifetime dossier doc: `Docs/workstreams/FB-042_desktop_startup_runtime_family_dossier.md`
 - branch: `feature/fb-044-boot-desktop-handoff-outcome-refinement`
 - phase status: Released / Closed in `v1.6.9-prebeta`; PR #89 merged into `main` at `f71ccbd77b81276a441386b9762c2aac34ceb827`; the release is live on commit `348fd55b944435e3cae80b97acd0bb857fd65d56`; FB-045 is also Released / Closed in the same package; release debt is clear; and after merge FB-046 becomes the merged-unreleased release-debt owner for `v1.6.10-prebeta`, while FB-047 is selected next, `Registry-only`, and branch-not-created.
 - next legal seam: none; this record is now historical released truth.
@@ -221,6 +237,10 @@ Post-Release Truth: FB-044 and FB-045 are Released / Closed in `v1.6.9-prebeta`;
 - record state: `Closed`
 - priority: `High`
 - canonical workstream doc: `Docs/workstreams/FB-045_active_session_relaunch_outcome_refinement.md`
+- roadmap role: `Historical pass alias`
+- historical alias of: `FB-042`
+- pass id: `F042-P04`
+- lifetime dossier doc: `Docs/workstreams/FB-042_desktop_startup_runtime_family_dossier.md`
 - branch: `feature/fb-045-active-session-relaunch-stability`
 - phase status: Released / Closed in `v1.6.9-prebeta`; PR #90 merged into `main` at `d7e9e7d3f06f6e17a0b0537e3c45de103febb75a`; the release is live on commit `348fd55b944435e3cae80b97acd0bb857fd65d56`; FB-044 remains the release-scope owner for the same published package; release debt is clear; and after merge FB-046 becomes the merged-unreleased release-debt owner for `v1.6.10-prebeta`, while FB-047 is selected next, `Registry-only`, and branch-not-created.
 - next legal seam: none; this record is now historical released truth.
@@ -237,8 +257,11 @@ Post-Release Truth: FB-044 and FB-045 are Released / Closed in `v1.6.9-prebeta`;
 - record state: `Closed`
 - priority: `Low`
 - canonical workstream doc: `Docs/workstreams/FB-042_desktop_entrypoint_runtime_refinement.md`
+- roadmap role: `Family anchor`
+- family anchor: `Self`
+- historical pass coverage: `FB-043`, `FB-044`, `FB-045`, `FB-046`, `FB-047`, `FB-048`
 - lifetime dossier doc: `Docs/workstreams/FB-042_desktop_startup_runtime_family_dossier.md`
-- lifetime dossier state: structured shell with partial historical pass migration; Phase 4 / Slice R4-S3 added pass index and slice/seam ledger templates, Phase 4 / Slice R4-S4 added validator/helper and artifact index templates, Phase 4 / Slice R4-S5 validated dossier stability, Phase 5 / Slice R5-S1 converted FB-043 through FB-048 into explicit historical pass records while populating the dossier pass index plus slice/seam ledger summary rows, and Phase 5 / Slice R5-S3 converted the preserved corresponding branch-readiness records; validator/helper and artifact migration remain pending
+- lifetime dossier state: structured shell with partial historical pass migration; Phase 4 / Slice R4-S3 added pass index and slice/seam ledger templates, Phase 4 / Slice R4-S4 added validator/helper and artifact index templates, Phase 4 / Slice R4-S5 validated dossier stability, Phase 5 / Slice R5-S1 converted FB-043 through FB-048 into explicit historical pass records while populating the dossier pass index plus slice/seam ledger summary rows, Phase 5 / Slice R5-S3 converted the preserved corresponding branch-readiness records, and Phase 5 / Slice R5-S5 indexed the preserved branch trace; validator/helper and artifact migration remain pending
 - branch: `feature/fb-042-desktop-entrypoint-runtime-refinement`
 - phase status: Released / Closed in `v1.6.7-prebeta`; PR #86 merged into `main` at `bd25fff6afd089cdc758a0d598eb7a5df520b82b`; PR #87 cleared the final release-debt marker repair; the release is live on commit `8f53d163ad008f7508f55f593b15369749e3ec24`; FB-043 is Released / Closed in `v1.6.8-prebeta`; FB-044 and FB-045 are Released / Closed in `v1.6.9-prebeta`; release debt is clear; and after merge FB-046 becomes the merged-unreleased release-debt owner for `v1.6.10-prebeta`, while FB-047 is selected next, `Registry-only`, and branch-not-created.
 - next legal seam: none; this record is now historical released truth.
@@ -255,6 +278,10 @@ Post-Release Truth: FB-042 is Released / Closed in `v1.6.7-prebeta`; FB-043 is R
 - record state: `Closed`
 - priority: `High`
 - canonical workstream doc: `Docs/workstreams/FB-043_top_level_entrypoint_handoff_refinement.md`
+- roadmap role: `Historical pass alias`
+- historical alias of: `FB-042`
+- pass id: `F042-P02`
+- lifetime dossier doc: `Docs/workstreams/FB-042_desktop_startup_runtime_family_dossier.md`
 - branch: `feature/fb-043-top-level-entrypoint-handoff-refinement`
 - phase status: Released / Closed in `v1.6.8-prebeta`; PR #88 merged into `main` at `5e695af5fada05e4ad6b25731bce328ede8a09ee`; the release is live; FB-044 and FB-045 are now Released / Closed in `v1.6.9-prebeta`; release debt is clear; and after merge FB-046 becomes the merged-unreleased release-debt owner for `v1.6.10-prebeta`, while FB-047 is selected next, `Registry-only`, and branch-not-created.
 - next legal seam: none; this record is now historical released truth.
@@ -428,6 +455,10 @@ Post-Release Truth: FB-015 is Released / Closed in `v1.6.4-prebeta`; FB-029 is a
 - release state: `released`
 - release title: `Pre-Beta v1.4.1`
 - canonical workstream doc: `Docs/workstreams/FB-038_taskbar_tray_quick_task_ux.md`
+- roadmap role: `Historical pass alias`
+- historical alias of: `FB-027`
+- pass id: `F027-P05`
+- lifetime dossier doc: `Docs/workstreams/FB-027_interaction_shared_action_family_dossier.md`
 - sequencing note: released the tray quick-task UX milestone, including tray identity/discoverability, tray Open Command Overlay, tray Create Custom Task dialog-open/no-write route, tray-origin create completion through existing FB-036 authoring, catalog reload, exact-match resolution, confirm/result execution, and startup first-visible Core Visualization sequencing repair
 
 ## Earlier Released Workstream Context
@@ -440,6 +471,10 @@ Post-Release Truth: FB-015 is Released / Closed in `v1.6.4-prebeta`; FB-029 is a
 - target version: `v1.4.0-prebeta`
 - release state: `released`
 - canonical workstream doc: `Docs/workstreams/FB-037_built_in_actions_and_settings_expansion.md`
+- roadmap role: `Historical pass alias`
+- historical alias of: `FB-027`
+- pass id: `F027-P04`
+- lifetime dossier doc: `Docs/workstreams/FB-027_interaction_shared_action_family_dossier.md`
 - sequencing note: released the curated built-in Windows utility catalog for Task Manager, Calculator, Notepad, and Paint while preserving saved-action override authority, authoring collision protection, confirm/result surfaces, and callable-group behavior
 
 ### FB-041 Deterministic Callable-Group Execution Layer
@@ -450,6 +485,10 @@ Post-Release Truth: FB-015 is Released / Closed in `v1.6.4-prebeta`; FB-029 is a
 - target version: `v1.3.1-prebeta`
 - release state: `released`
 - canonical workstream doc: `Docs/workstreams/FB-041_deterministic_callable_group_execution_layer.md`
+- roadmap role: `Historical pass alias`
+- historical alias of: `FB-027`
+- pass id: `F027-P03`
+- lifetime dossier doc: `Docs/workstreams/FB-027_interaction_shared_action_family_dossier.md`
 - sequencing note: released deterministic stored-order callable-group execution, stop-on-failure semantics, group-aware failure-path reuse, and confirm/result status alignment while preserving single-action behavior
 
 ### FB-036 Saved-Action Authoring And Callable Groups
@@ -460,6 +499,10 @@ Post-Release Truth: FB-015 is Released / Closed in `v1.6.4-prebeta`; FB-029 is a
 - target version: `v1.3.0-prebeta`
 - release state: `released`
 - canonical workstream doc: `Docs/workstreams/FB-036_saved_action_authoring.md`
+- roadmap role: `Historical pass alias`
+- historical alias of: `FB-027`
+- pass id: `F027-P02`
+- lifetime dossier doc: `Docs/workstreams/FB-027_interaction_shared_action_family_dossier.md`
 - sequencing note: released bounded custom-task authoring, callable groups, inline group quick-create, explicit trigger modeling, and the final exact-green authoring hardening without changing the locked typed-first overlay contract or widening into Action Studio behavior
 
 ## Recently Closed Workstreams
@@ -472,8 +515,11 @@ Post-Release Truth: FB-015 is Released / Closed in `v1.6.4-prebeta`; FB-029 is a
 - target version: `v1.2.9-prebeta`
 - release state: `released`
 - canonical workstream doc: `Docs/workstreams/FB-027_interaction_system_baseline.md`
+- roadmap role: `Family anchor`
+- family anchor: `Self`
+- historical pass coverage: `FB-036`, `FB-037`, `FB-038`, `FB-041`
 - lifetime dossier doc: `Docs/workstreams/FB-027_interaction_shared_action_family_dossier.md`
-- lifetime dossier state: structured shell with partial historical pass migration; Phase 4 / Slice R4-S3 added pass index and slice/seam ledger templates, Phase 4 / Slice R4-S4 added validator/helper and artifact index templates, Phase 4 / Slice R4-S5 validated dossier stability, Phase 5 / Slice R5-S2 converted FB-036, FB-037, FB-038, and FB-041 into explicit historical pass records while populating the dossier pass index plus slice/seam ledger summary rows, and Phase 5 / Slice R5-S3 converted the preserved corresponding branch-record trace where it exists; validator/helper and artifact migration remain pending
+- lifetime dossier state: structured shell with partial historical pass migration; Phase 4 / Slice R4-S3 added pass index and slice/seam ledger templates, Phase 4 / Slice R4-S4 added validator/helper and artifact index templates, Phase 4 / Slice R4-S5 validated dossier stability, Phase 5 / Slice R5-S2 converted FB-036, FB-037, FB-038, and FB-041 into explicit historical pass records while populating the dossier pass index plus slice/seam ledger summary rows, Phase 5 / Slice R5-S3 converted the preserved corresponding branch-record trace where it exists, and Phase 5 / Slice R5-S5 indexed the preserved branch trace; validator/helper and artifact migration remain pending
 - sequencing note: preserves the first released interaction baseline and now anchors the later shared-action follow-through family below FB-036, FB-037, FB-038, and FB-041
 
 ### FB-035 Release-Context Fallback Hardening
