@@ -208,6 +208,8 @@ Generic `Results` or `Validation` summaries do not replace the governed state ma
 A green seam does not authorize stop while `Slice Status` is still non-green.
 A green slice does not authorize stop while `Completion Status` is still non-green.
 If `Completion Status` is `In Progress` and no named blocker or waiver stops work, Workflow mode must continue rather than returning `Await Next Instruction`.
+Use these governed state markers as execution control, not just reporting.
+If `Continue Decision` is `Continue`, Workflow mode must not end on a seam-complete final response, rollback path, or next-seam recommendation; it must keep executing until a lawful `Stop` decision exists.
 
 Pre-PR Durability Rule:
 

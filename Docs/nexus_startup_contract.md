@@ -176,6 +176,8 @@ Generic `Results` or `Validation` headings are not enough by themselves for gove
 A green seam does not authorize stop while `Slice Status` remains non-green.
 A green slice does not authorize stop while `Completion Status` remains non-green.
 If `Completion Status` is `In Progress` and no named blocker or waiver stops work, the generated prompt must require continuation rather than `Await Next Instruction`.
+Use these governed state markers as execution control, not just reporting.
+If `Continue Decision` is `Continue`, the generated prompt must not let Codex end on a seam-complete final response, rollback path, or next-seam recommendation; it must require continued execution until a lawful `Stop` decision exists.
 
 When a pass creates or changes files before `PR Readiness` and validation is green, generated prompts must point to the Pre-PR Durability Rule in `Docs/development_rules.md` and `Docs/phase_governance.md`.
 This loader does not own durability behavior.
@@ -217,12 +219,19 @@ Return:
 - Canonical Workstream
 - Reuse Baseline
 - Active Seam, if applicable
+- Seam Status
+- Slice Status
+- Completion Status
+- Blockers
+- Waiver Status
+- Continue Decision
+- Stop Basis
 - Files Changed
 - What Was Written or Found
 - Validation Results
 - Ready-To-Commit Decision
-- Next Legal Phase
-- Next Safe Move
+- If `Continue Decision: Stop`: Next Legal Phase
+- If `Continue Decision: Stop`: Next Safe Move
 ```
 
 Workstream prompt notes for ChatGPT preflight live outside the prompt body and come from owning canon after load:
@@ -242,6 +251,8 @@ Workstream prompt notes for ChatGPT preflight live outside the prompt body and c
 - Backlog-Split Reason
 - reporting Next Safe Move is not a substitute for execution
 - continue decision must be acted on immediately
+- the prompt `Return:` block describes the lawful-stop report; it is not permission to stop while `Continue Decision` remains `Continue`
+- when continuation remains active, Codex must use commentary/intermediate updates and keep executing instead of ending on a seam-closeout package
 
 ## Thin Prompt Discipline
 
@@ -276,7 +287,7 @@ That prompt should tell the new chat to read `Docs/nexus_startup_contract.md` fi
 Keep the prompt body thin and neutral.
 Do not add behavior-management lists, protective wording, or freehand `Do not ...` instruction blocks to control Codex behavior.
 
-Every generated prompt should include only the task structure needed to anchor work: Mode, Phase, Workstream, Branch, Branch Class when relevant, active seam when relevant, task context, task, and an output format containing Source-of-Truth, Record State, Branch Truth, Canonical Workstream, Reuse Baseline, Validation Results, Next Legal Phase, and Next Safe Move. When Workstream continuation or phase exit matters, include `Backlog Completion State`, `Remaining Implementable Work`, and `Future-Dependent Blockers` from owning canon instead of implying `Hardening` by inertia.
+Every generated prompt should include only the task structure needed to anchor work: Mode, Phase, Workstream, Branch, Branch Class when relevant, active seam when relevant, task context, task, and an output format containing Source-of-Truth, Record State, Branch Truth, Canonical Workstream, Reuse Baseline, the governed state markers, and Validation Results. Include `Next Legal Phase` and `Next Safe Move` only for lawful-stop output. When Workstream continuation or phase exit matters, include `Backlog Completion State`, `Remaining Implementable Work`, and `Future-Dependent Blockers` from owning canon instead of implying `Hardening` by inertia.
 ```
 
 ## Standard Prompt Templates
@@ -343,12 +354,19 @@ Return:
 - Canonical Workstream
 - Reuse Baseline
 - Active Seam, if applicable
+- Seam Status
+- Slice Status
+- Completion Status
+- Blockers
+- Waiver Status
+- Continue Decision
+- Stop Basis
 - Files Changed
 - What Was Written
 - Validation Results
 - Ready-To-Commit Decision
-- Next Legal Phase
-- Next Safe Move
+- If `Continue Decision: Stop`: Next Legal Phase
+- If `Continue Decision: Stop`: Next Safe Move
 ```
 
 ### Workstream
@@ -382,12 +400,19 @@ Return:
 - Canonical Workstream
 - Reuse Baseline
 - Active Seam, if applicable
+- Seam Status
+- Slice Status
+- Completion Status
+- Blockers
+- Waiver Status
+- Continue Decision
+- Stop Basis
 - Files Changed
 - What Was Written
 - Validation Results
 - Ready-To-Commit Decision
-- Next Legal Phase
-- Next Safe Move
+- If `Continue Decision: Stop`: Next Legal Phase
+- If `Continue Decision: Stop`: Next Safe Move
 ```
 
 ### PR Readiness

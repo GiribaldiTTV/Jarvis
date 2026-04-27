@@ -113,6 +113,8 @@ If `Completion Status` is `In Progress` and no named stop-authorizing blocker or
 `Await Next Instruction` is only legal in `Workstream` when `Completion Status: Green`, or when `Completion Status: Red` is justified by a named blocker or waiver.
 
 `Backlog Completion Unproven` keeps the branch in `Workstream`; by itself it is not authority to return `Await Next Instruction` while `Completion Status` remains `In Progress`.
+Use these governed state markers as execution control, not as documentation-only summary fields.
+If `Continue Decision` is `Continue`, Codex must not end on a final seam-closeout response, rollback path, or next-seam recommendation; it must keep executing until a lawful `Stop` decision exists.
 
 ## Canonical Governance Rules
 
@@ -1214,6 +1216,7 @@ Each active seam follows this governed stage model:
 
 Stage 4 is not permission to churn canon after every seam.
 Repository files are updated only when branch-local truth, evidence, validation contracts, helper records, or governing rules actually changed and the current phase permits file mutation.
+Stage 5 becomes a terminal closeout only when `Continue Decision: Stop`; otherwise it is a status checkpoint and execution must continue into the next admitted seam or slice.
 
 ### Required Per-Seam Declaration
 

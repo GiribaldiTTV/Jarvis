@@ -192,6 +192,8 @@ Do not rely on generic `Results` or `Validation` headings by themselves.
 A green seam does not authorize stop while `Slice Status` remains non-green.
 A green slice does not authorize stop while `Completion Status` remains non-green.
 If `Completion Status` is `In Progress` and no named blocker or waiver stops work, Codex must continue instead of returning `Await Next Instruction`.
+Use these governed state markers as execution control, not just reporting.
+If `Continue Decision` is `Continue`, Codex must not end on a seam-complete final response, rollback path, or next-seam recommendation; it must keep executing until a lawful `Stop` decision exists.
 
 Default expectation:
 
@@ -419,7 +421,7 @@ If the task includes interactive validation, the validation plan should also sta
 4. Reporting `Next Safe Move` is not a substitute for execution when continuation authority passes; A `continue` decision must be acted on immediately by starting the next seam needed inside the current slice.
 5. Stop the workflow immediately on validation failure, regression, scope drift, unplanned risk expansion, governance drift, unresolved manual-validation blocker, branch-truth inconsistency, phase boundary, stop-loss trigger, or a declared `Backlog-Split User Approval` boundary.
 6. Clean up session-scoped side effects from the pass unless there is an explicit reason to preserve them.
-7. Once the current slice is green, report green status and await the next instruction instead of auto-starting a new slice or later phase.
+7. Once the current slice is green during `Workstream`, advance into the next admitted slice while `Completion Status` remains `In Progress`; await the next instruction only after a lawful `Stop` decision.
 
 ## Verification Requirements
 

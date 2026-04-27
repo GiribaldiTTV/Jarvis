@@ -214,6 +214,7 @@ MULTI_SEAM_PROHIBITED_THROTTLE_PHRASES = (
     "additional slices needed to finish the backlog item on the current branch",
     "additional slices needed to complete the backlog item on the same branch",
     "starting the next seam in the approved sequence",
+    "Once the current slice is green, report green status and await the next instruction instead of auto-starting a new slice or later phase.",
 )
 
 MULTI_SEAM_PROMPT_DOCS = (
@@ -284,6 +285,8 @@ GOVERNED_OUTPUT_CONTRACT_REQUIRED_PHRASES = {
         "A green slice does not authorize stop while `Completion Status` is not green.",
         "`Await Next Instruction` is only legal in `Workstream` when `Completion Status: Green`, or when `Completion Status: Red` is justified by a named blocker or waiver.",
         "`Backlog Completion Unproven` keeps the branch in `Workstream`; by itself it is not authority to return `Await Next Instruction` while `Completion Status` remains `In Progress`.",
+        "Use these governed state markers as execution control, not as documentation-only summary fields.",
+        "If `Continue Decision` is `Continue`, Codex must not end on a final seam-closeout response, rollback path, or next-seam recommendation; it must keep executing until a lawful `Stop` decision exists.",
     ),
     Path("Docs/development_rules.md"): (
         "Seam Status",
@@ -293,6 +296,8 @@ GOVERNED_OUTPUT_CONTRACT_REQUIRED_PHRASES = {
         "Continue Decision",
         "Stop Basis",
         "If `Completion Status` is `In Progress` and no named blocker or waiver stops work, Codex must continue rather than returning `Await Next Instruction`.",
+        "Use these governed state markers as execution control, not just reporting.",
+        "If `Continue Decision` is `Continue`, do not end on a seam-complete final response, rollback path, or next-seam recommendation; keep executing until a lawful `Stop` decision exists.",
     ),
     Path("Docs/codex_modes.md"): (
         "Seam Status",
@@ -302,6 +307,8 @@ GOVERNED_OUTPUT_CONTRACT_REQUIRED_PHRASES = {
         "Continue Decision",
         "Stop Basis",
         "If `Completion Status` is `In Progress` and no named blocker or waiver stops work, Workflow mode must continue rather than returning `Await Next Instruction`.",
+        "Use these governed state markers as execution control, not just reporting.",
+        "If `Continue Decision` is `Continue`, Workflow mode must not end on a seam-complete final response, rollback path, or next-seam recommendation; it must keep executing until a lawful `Stop` decision exists.",
     ),
     Path("Docs/codex_user_guide.md"): (
         "Seam Status:",
@@ -311,6 +318,9 @@ GOVERNED_OUTPUT_CONTRACT_REQUIRED_PHRASES = {
         "Continue Decision:",
         "Stop Basis:",
         "If `Completion Status` is `In Progress` and no named blocker or waiver stops work, Codex must continue instead of returning `Await Next Instruction`.",
+        "Use these governed state markers as execution control, not just reporting.",
+        "If `Continue Decision` is `Continue`, Codex must not end on a seam-complete final response, rollback path, or next-seam recommendation; it must keep executing until a lawful `Stop` decision exists.",
+        "Treat a prompt `Return:` block as the lawful-stop report, not as permission to stop while `Continue Decision` remains `Continue`.",
     ),
     Path("Docs/orin_task_template.md"): (
         "Seam Status:",
@@ -320,6 +330,9 @@ GOVERNED_OUTPUT_CONTRACT_REQUIRED_PHRASES = {
         "Continue Decision:",
         "Stop Basis:",
         "If `Completion Status` is `In Progress` and no named blocker or waiver stops work, Codex must continue instead of returning `Await Next Instruction`.",
+        "Use these governed state markers as execution control, not just reporting.",
+        "If `Continue Decision` is `Continue`, Codex must not end on a seam-complete final response, rollback path, or next-seam recommendation; it must keep executing until a lawful `Stop` decision exists.",
+        "Once the current slice is green during `Workstream`, advance into the next admitted slice while `Completion Status` remains `In Progress`; await the next instruction only after a lawful `Stop` decision.",
     ),
     Path("Docs/nexus_startup_contract.md"): (
         "Seam Status",
@@ -329,6 +342,9 @@ GOVERNED_OUTPUT_CONTRACT_REQUIRED_PHRASES = {
         "Continue Decision",
         "Stop Basis",
         "If `Completion Status` is `In Progress` and no named blocker or waiver stops work, the generated prompt must require continuation rather than `Await Next Instruction`.",
+        "Use these governed state markers as execution control, not just reporting.",
+        "If `Continue Decision` is `Continue`, the generated prompt must not let Codex end on a seam-complete final response, rollback path, or next-seam recommendation; it must require continued execution until a lawful `Stop` decision exists.",
+        "the prompt `Return:` block describes the lawful-stop report; it is not permission to stop while `Continue Decision` remains `Continue`",
     ),
 }
 
