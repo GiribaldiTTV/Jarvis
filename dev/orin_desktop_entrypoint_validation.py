@@ -67,8 +67,8 @@ RELAUNCH_DECLINED_SESSION_PRESERVED_MARKER = (
 RELAUNCH_SIGNAL_FAILED_SESSION_PRESERVED_MARKER = (
     "STATUS|WARNING|LAUNCHER_RUNTIME|RELAUNCH_SIGNAL_FAILED_SESSION_PRESERVED"
 )
-RELAUNCH_WAIT_TIMEOUT_SESSION_PRESERVED_MARKER = (
-    "STATUS|WARNING|LAUNCHER_RUNTIME|RELAUNCH_WAIT_TIMEOUT_SESSION_PRESERVED"
+RELAUNCH_WAIT_TIMEOUT_REPLACEMENT_UNCONFIRMED_MARKER = (
+    "STATUS|WARNING|LAUNCHER_RUNTIME|RELAUNCH_WAIT_TIMEOUT_REPLACEMENT_UNCONFIRMED"
 )
 SINGLE_INSTANCE_RELEASED_MARKER = "STATUS|TRACE|LAUNCHER_RUNTIME|SINGLE_INSTANCE_RELEASED"
 
@@ -401,6 +401,22 @@ def build_harness_env(scenario_root, target_script="", extra_env=None):
 
 
 def run_single_instance_wait_boundary_scenario():
+    scenario_name = "single_instance_wait_boundary_classification"
+    if os.name != "nt":
+        return {
+            "scenario_name": scenario_name,
+            "log_root": "focused single-instance guard boundary proof",
+            "runtime_log": "",
+            "stdout": "",
+            "stderr": "",
+            "checks": {
+                "platform_guard": line_status(
+                    True,
+                    "skipped on non-Windows; desktop.single_instance imports ctypes.windll",
+                ),
+            },
+        }
+
     if ROOT_DIR not in sys.path:
         sys.path.insert(0, ROOT_DIR)
 
@@ -435,7 +451,6 @@ def run_single_instance_wait_boundary_scenario():
         def clear(self):
             self.clear_calls += 1
 
-    scenario_name = "single_instance_wait_boundary_classification"
     original_env = {
         key: os.environ.get(key)
         for key in (
@@ -2604,7 +2619,7 @@ def run_accepted_relaunch_wait_timeout_scenario():
                 if incoming_runtime_log:
                     incoming_runtime_lines = read_lines(incoming_runtime_log)
                     if any(
-                        RELAUNCH_WAIT_TIMEOUT_SESSION_PRESERVED_MARKER in line
+                        RELAUNCH_WAIT_TIMEOUT_REPLACEMENT_UNCONFIRMED_MARKER in line
                         for line in incoming_runtime_lines
                     ):
                         break
@@ -2688,7 +2703,7 @@ def run_accepted_relaunch_wait_timeout_scenario():
     incoming_wait_timeout_index = first_marker_index(incoming_runtime_lines, "RELAUNCH_WAIT_TIMEOUT")
     incoming_wait_timeout_outcome_index = first_marker_index(
         incoming_runtime_lines,
-        RELAUNCH_WAIT_TIMEOUT_SESSION_PRESERVED_MARKER,
+        RELAUNCH_WAIT_TIMEOUT_REPLACEMENT_UNCONFIRMED_MARKER,
     )
     incoming_runtime_start_index = first_marker_index(
         incoming_runtime_lines,
