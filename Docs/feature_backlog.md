@@ -80,7 +80,7 @@ Selected Next Implementation Branch: Not created.
 Historical Repair-Only Branch Handling: `feature/fb-046-post-merge-canon-sync` was a bounded repair-only post-merge canon-sync `feature/` branch and did not imply Branch Readiness admission or active branch truth for FB-046.
 Historical Branch Readiness State: Complete on `feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeout-truth`.
 Current Branch Readiness State: Historical complete on `feature/backlog-family-governance-reform`. Phase 0 `Reform Readiness` admitted the branch authority record and cleared the path into Workstream.
-Current Workstream State: Phase 1 `Validator Bootstrap` is complete and green on `feature/backlog-family-governance-reform`; current-shape protections remain active, reform-shape headings are now validator-aware for this branch, no backlog migration landed in this seam, and Phase 2 `Backlog Structure Migration` is next.
+Current Workstream State: Phase 2 `Backlog Structure Migration` is active on `feature/backlog-family-governance-reform`; Slice R2-S1 `Backlog Section Skeleton` is complete and green, the planned family-governance headings now exist as placeholders only, no backlog entries were moved or reclassified in this seam, and Slice R2-S2 `Add classification markers in place` is next.
 Current Branch Class: implementation.
 Current Implementation Delta Class: docs-only.
 Historical Workstream State: FB-048 is Released / Closed in `v1.6.12-prebeta`; FB-047 is Released / Closed in `v1.6.11-prebeta`; FB-046 is Released / Closed in `v1.6.10-prebeta`; FB-044 and FB-045 remain Released / Closed historical proof in `v1.6.9-prebeta`.
@@ -120,6 +120,22 @@ Open-candidate priority review:
 Current-branch clarity: latest public prerelease is `v1.6.12-prebeta`; FB-044 and FB-045 are released and closed in `v1.6.9-prebeta`; FB-046 is released and closed in `v1.6.10-prebeta`; FB-047 is released and closed in `v1.6.11-prebeta`; FB-048 is released and closed in `v1.6.12-prebeta`; merged `main` repo state is steady-state `No Active Branch`; the current execution base is `feature/backlog-family-governance-reform` through an active branch-authority record; and FB-049 remains selected next, `Registry-only`, and branch-not-created until the governance reform branch completes and later FB-049 Branch Readiness admission occurs.
 
 ## Registry Items
+
+### User-Facing Feature Families
+
+Placeholder only in Slice R2-S1. No entries move under this heading until Slice R2-S2 through Slice R2-S4 perform the actual classification and relocation work.
+
+### Historical Consolidated Pass Aliases
+
+Placeholder only in Slice R2-S1. No entries move under this heading until the historical alias migration seam lands later in Phase 2.
+
+### Support / Architecture / Governance Lanes
+
+Placeholder only in Slice R2-S1. No entries move under this heading until the support-lane migration seam lands later in Phase 2.
+
+### Transitional Current Registry Order
+
+Slice R2-S1 keeps all existing registry entries below in their pre-reform order and wording so structure can land before classification.
 
 ### [ID: FB-049] Active-session pre-settled incoming-launch conflict truth
 
