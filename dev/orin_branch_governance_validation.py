@@ -1146,6 +1146,14 @@ REFORM_R6_S3_ACTIVE_SEAM_NEXT_PHRASE = (
     "Phase 6 / Slice R6-S3 `Main / router / loader alignment` is the next active seam on this branch."
 )
 REFORM_R6_S3_CONTINUATION_PHRASE = "Execute Slice R6-S3"
+REFORM_R6_S4_SEAM = (
+    "Phase 6 - Roadmap And Index Alignment / Slice R6-S4 - Selected-next truth validation"
+)
+REFORM_R6_S4_STATE_NEXT_PHRASE = "Slice R6-S4 `Selected-next truth validation` is next"
+REFORM_R6_S4_ACTIVE_SEAM_NEXT_PHRASE = (
+    "Phase 6 / Slice R6-S4 `Selected-next truth validation` is the next active seam on this branch."
+)
+REFORM_R6_S4_CONTINUATION_PHRASE = "Execute Slice R6-S4"
 REFORM_FB042_DOSSIER_PATH = Path(
     "Docs/workstreams/FB-042_desktop_startup_runtime_family_dossier.md"
 )
@@ -3629,6 +3637,69 @@ def _validate_backlog_family_reform_seam_truth(
                 return False
         return True
 
+    def selected_next_truth_validated() -> bool:
+        selected_entries = _selected_next_workstream_entries(backlog_entries)
+        if len(selected_entries) != 1:
+            return False
+
+        selected_entry = selected_entries[0]
+        selected_block = selected_entry["block"]
+        roadmap_selected_section = _next_workstream_roadmap_section(roadmap_text)
+
+        if selected_entry["id"] != "FB-049" or selected_entry["record_state"] != "Registry-only":
+            return False
+        if any(
+            phrase not in selected_block
+            for phrase in (
+                "Status: Selected next",
+                "Registry Class: Feature Family",
+                "Next Workstream: Selected",
+                "Branch: Not created",
+            )
+        ):
+            return False
+        if len(re.findall(r"^Status:\s*Selected next\s*$", backlog_text, flags=re.M)) != 1:
+            return False
+        if len(re.findall(r"^Next Workstream:\s*Selected\s*$", backlog_text, flags=re.M)) != 1:
+            return False
+        if any(
+            phrase not in roadmap_selected_section
+            for phrase in (
+                "- ID: `FB-049`",
+                "- Record State: `Registry-only`",
+                "- Branch: Not created",
+            )
+        ):
+            return False
+        if any(
+            phrase not in backlog_text
+            for phrase in (
+                "Selected Next Workstream: FB-049 Active-session pre-settled incoming-launch conflict truth.",
+                "Selected Next Record State: Registry-only.",
+                "Selected Next Implementation Branch: Not created.",
+            )
+        ):
+            return False
+        if any(
+            phrase not in roadmap_text
+            for phrase in (
+                "Selected Next Workstream: FB-049 Active-session pre-settled incoming-launch conflict truth.",
+                "Selected Next Record State: Registry-only.",
+                "Selected Next Implementation Branch: `Not created`",
+            )
+        ):
+            return False
+        if any(
+            phrase not in phase_status_section
+            for phrase in (
+                "Selected Next Workstream: FB-049 Active-session pre-settled incoming-launch conflict truth.",
+                "Selected Next Record State: Registry-only.",
+                "Selected Next Implementation Branch: Not created.",
+            )
+        ):
+            return False
+        return True
+
     if historical_pass_branch_records_converted():
         require(
             REFORM_R5_S3_STATE_NEXT_PHRASE not in backlog_workstream_state,
@@ -3924,6 +3995,59 @@ def _validate_backlog_family_reform_seam_truth(
                 "Docs/branch_records/feature_backlog_family_governance_reform.md: Seam "
                 "Continuation Decision must not keep R6-S3 as `Next Active Seam` once "
                 "Main/router/loader alignment is complete"
+            ),
+        )
+
+    if selected_next_truth_validated():
+        require(
+            REFORM_R6_S4_STATE_NEXT_PHRASE not in backlog_workstream_state,
+            (
+                "Docs/feature_backlog.md: R6-S4 must not remain the next seam once selected-next "
+                "truth is validated across the family-governance surfaces"
+            ),
+        )
+        require(
+            REFORM_R6_S4_STATE_NEXT_PHRASE not in roadmap_workstream_state,
+            (
+                "Docs/prebeta_roadmap.md: R6-S4 must not remain the next seam once selected-next "
+                "truth is validated across the family-governance surfaces"
+            ),
+        )
+        require(
+            phase_status_next_seam != REFORM_R6_S4_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Phase Status "
+                "`Next Active Seam` must advance past R6-S4 once selected-next truth is validated"
+            ),
+        )
+        require(
+            REFORM_R6_S4_ACTIVE_SEAM_NEXT_PHRASE not in active_seam_section,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Active Seam "
+                "must not keep R6-S4 as the next active seam once selected-next truth is validated"
+            ),
+        )
+        require(
+            active_seam_next != REFORM_R6_S4_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Active Seam "
+                "`Next active seam` must advance past R6-S4 once selected-next truth is validated"
+            ),
+        )
+        require(
+            continuation_next_seam != REFORM_R6_S4_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Seam "
+                "Continuation Decision must not keep R6-S4 as `Next Active Seam` once "
+                "selected-next truth is validated"
+            ),
+        )
+        require(
+            REFORM_R6_S4_CONTINUATION_PHRASE not in continuation_section,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Seam "
+                "Continuation Decision must not keep an R6-S4 continuation action once "
+                "selected-next truth is validated"
             ),
         )
         require(
