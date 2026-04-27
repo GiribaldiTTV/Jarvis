@@ -84,7 +84,7 @@ Current Branch Readiness State: Not started for FB-049. Branch creation remains 
 Historical Workstream State: FB-048 is merge-target complete and will become the merged-unreleased release-debt owner for `v1.6.12-prebeta` after merge; FB-047 is Released / Closed in `v1.6.11-prebeta`; FB-046 is Released / Closed in `v1.6.10-prebeta`; FB-044 and FB-045 remain Released / Closed historical proof in `v1.6.9-prebeta`.
 Historical Hardening State: Complete on `feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeout-truth`.
 Historical Live Validation State: Complete on `feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeout-truth`.
-PR Readiness State: In progress on `feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeout-truth`; PR-1 merge-target canon completeness and PR-2 selected-next successor lock are complete, and PR-3 live PR creation plus validation is pending.
+PR Readiness State: Complete on `feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeout-truth`; PR-1 merge-target canon completeness, PR-2 selected-next successor lock, and PR-3 live PR creation plus validation are complete; PR #94 is open, non-draft, and mergeable.
 Release Execution State: `v1.6.11-prebeta` is live at https://github.com/GiribaldiTTV/Nexus-Desktop-AI/releases/tag/v1.6.11-prebeta on commit `4ca70572fbc8033bc96fcd299dd309464e81393a`.
 Release Target: v1.6.12-prebeta.
 Release Floor: patch prerelease.
@@ -95,7 +95,7 @@ Post-Release Truth: FB-048 is Released / Closed in `v1.6.12-prebeta` after publi
 Next-Branch Creation Gate: After `v1.6.12-prebeta` is published and validated, updated `main` is revalidated, and FB-049 Branch Readiness admits the first bounded runtime/user-facing pre-settled incoming-launch conflict truth slice; branch creation remains blocked until then.
 Current Branch Objective: carry the merged-unreleased FB-048 relaunch failure/timeout package through `Release Readiness` on updated `main` after merge while preserving FB-049 as selected next and branch-not-created.
 Next Legal Phase: Release Readiness.
-Active Workstream Chain: FB-047 is Released / Closed in `v1.6.11-prebeta`; FB-048 is merge-target complete and prepared to own merged-unreleased release debt for `v1.6.12-prebeta`; WS-1, H-1, and LV-1 are complete and green; PR-1 merge-target canon completeness and PR-2 selected-next successor lock are complete; FB-049 is selected next, `Registry-only`, and branch-not-created; and `Release Readiness` is the next legal phase after merge.
+Active Workstream Chain: FB-047 is Released / Closed in `v1.6.11-prebeta`; FB-048 is merge-target complete and prepared to own merged-unreleased release debt for `v1.6.12-prebeta`; WS-1, H-1, and LV-1 are complete and green; PR-1 merge-target canon completeness, PR-2 selected-next successor lock, and PR-3 live PR creation plus validation are complete; FB-049 is selected next, `Registry-only`, and branch-not-created; and `Release Readiness` is the next legal phase after merge.
 
 ## Backlog Governance Sync
 
@@ -151,7 +151,7 @@ Historical Branch Readiness Record: Docs/branch_records/feature_fb_048_active_se
 Branch Readiness: Historical complete. The branch objective, target end-state, admitted WS-1 slice, validation coverage, rollback conditions, and same-branch backlog-completion posture remain preserved in the historical Branch Readiness record.
 Workstream: WS-1 `accepted relaunch failure-path truthful outcome proof` is complete and validated; H-1 failure/timeout lifecycle hardening is complete and green; LV-1 is complete and green with real desktop shortcut evidence plus reusable failure/timeout lifecycle proof; accepted relaunch signal-failure and wait-timeout now emit explicit preserved-session markers instead of collapsing into a generic already-running skip; repeated signal-failure launches preserve the active settled owner even under rapid repetition; near-deadline reacquire no longer falls through to a false timeout; mixed failure -> decline -> accept -> failure sequencing keeps failure, decline, and success classification distinct; `Backlog Completion State` is `Implemented Complete`; PR-1 merge-target canon completeness and PR-2 selected-next successor lock are complete on this branch; and after merge this lane becomes the merged-unreleased release-debt owner for `v1.6.12-prebeta`.
 Backlog Completion State: Implemented Complete
-PR Readiness: In progress. PR-1 merge-target canon completeness and PR-2 selected-next workstream selection are complete; PR-3 live PR creation plus validation is pending.
+PR Readiness: Complete. PR-1 merge-target canon completeness, PR-2 selected-next workstream selection, and PR-3 live PR creation plus validation are complete; PR #94 is open, non-draft, and mergeable.
 Release Target: v1.6.12-prebeta
 Release Floor: patch prerelease
 Version Rationale: FB-048 delivers a bounded runtime/user-facing relaunch signal-failure and wait-timeout refinement on the existing desktop startup family without opening a new product lane or materially expanded feature family.
