@@ -38,11 +38,11 @@ Latest Public Prerelease Publication: `https://github.com/GiribaldiTTV/Nexus-Des
 Latest Public Prerelease Title: `Pre-Beta v1.6.11`
 FB-047 is `Released / Closed` historical proof in `v1.6.11-prebeta`.
 Release debt is active after merge until `v1.6.12-prebeta` is published, validated, and post-release canon closure completes.
-Current repair branch after merge: `feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeout-truth`
-Current repair commit after merge: `85dc5552f6044cd167ad64039c626503fcc3067d`
-Merged `main` does not yet contain the repair commit. `origin/main` is `597f35ea04b8c49437681752a30fc22f96342226`.
-PR #94 is merged. Follow-up blocker-clearing PR #96 is now open against `main` to carry the repaired wait-timeout semantics and non-Windows validator guard before release packaging continues honestly.
-Active seam: `Post-merge review repair PR`. FB-049 remains selected next as a branch-not-created `Registry-only` successor, and merged-main `Release Readiness` resumes only after PR #96 merges.
+Historical repair branch after merge: `feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeout-truth`
+Historical repair packaging commit after merge: `85dc5552f6044cd167ad64039c626503fcc3067d`
+Merged `main` now contains the repair lane. `origin/main` is `24cdb49dd76867212f8f7d025e86fbec4758df45`.
+PR #94 is merged. Follow-up blocker-clearing PR #96 is also merged on `main`, carrying the repaired wait-timeout semantics and non-Windows validator guard into the release-debt package before release packaging continues.
+Active seam: `Post-merge canon sync (PR #96 containment)`. FB-049 remains selected next as a branch-not-created `Registry-only` successor, and this bounded PR Readiness pass now converts stale PR-open / branch-only wording to merged truth without widening runtime scope.
 
 ## Branch Class
 
@@ -336,7 +336,7 @@ PR Readiness validates the completed bounded FB-048 runtime slice chain for merg
 - Merge Target: `main`.
 - Head Branch: `feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeout-truth`.
 - Source-of-Truth Alignment: PASS. `Docs/Main.md`, `Docs/feature_backlog.md`, `Docs/prebeta_roadmap.md`, `Docs/workstreams/index.md`, and this workstream record align on FB-048 as the merged-unreleased release-debt owner for `v1.6.12-prebeta`.
-- Release-Debt Framing: PASS. `v1.6.11-prebeta` is the latest public prerelease; after merge, FB-048 becomes the merged-unreleased release-debt owner for `v1.6.12-prebeta`.
+- Release-Debt Framing: PASS. `v1.6.11-prebeta` is the latest public prerelease; FB-048 now owns the merged-unreleased release-debt window for `v1.6.12-prebeta` on `main`.
 - Release Target: `v1.6.12-prebeta`.
 - Release Title: `Pre-Beta v1.6.12`.
 - Release Floor: `patch prerelease`.
@@ -397,7 +397,7 @@ PR #94 later received two actionable review threads that were repaired on the st
 
 - `desktop/orin_desktop_launcher.pyw` no longer labels accepted relaunch wait-timeout as a preserved-session outcome. The launcher now emits `STATUS|WARNING|LAUNCHER_RUNTIME|RELAUNCH_WAIT_TIMEOUT_REPLACEMENT_UNCONFIRMED`, which matches what the timeout actually proves: replacement-session reacquisition was not confirmed before the deadline.
 - `dev/orin_desktop_entrypoint_validation.py` now guards the focused single-instance wait-boundary scenario on non-Windows hosts so the validator does not import `desktop.single_instance` and trip over `ctypes.windll` outside Windows.
-- The repair branch now packages those fixes plus synced canon truth on commit `85dc5552f6044cd167ad64039c626503fcc3067d`; `origin/main` remains at `597f35ea04b8c49437681752a30fc22f96342226` until PR #96 merges.
+- Historical repair packaging commit `85dc5552f6044cd167ad64039c626503fcc3067d` plus repair commit `4a1d1e7689f5d2b9adcfeec5e390071fad4e3724` are now contained on `main` through PR #96 merge commit `24cdb49dd76867212f8f7d025e86fbec4758df45`.
 
 ## Follow-Up PR Readiness Record
 
@@ -407,9 +407,9 @@ This follow-up PR Readiness pass packages the post-merge review repair commit th
 
 - Active repair branch: `feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeout-truth`
 - Repair commit: `85dc5552f6044cd167ad64039c626503fcc3067d`
-- Merged `main`: `597f35ea04b8c49437681752a30fc22f96342226`
-- Repair containment on `main`: `NO`
-- Containment finding: the repaired wait-timeout replacement-unconfirmed semantics and non-Windows validator guard exist on the FB-048 branch only and therefore require a follow-up PR against `main`.
+- Merged `main`: `24cdb49dd76867212f8f7d025e86fbec4758df45`
+- Repair containment on `main`: `YES`
+- Containment finding: the repaired wait-timeout replacement-unconfirmed semantics and non-Windows validator guard are now contained on `main` through PR #96.
 
 ### FPR-2 Merge-Target Canon Findings
 
@@ -425,20 +425,21 @@ This follow-up PR Readiness pass packages the post-merge review repair commit th
 - Head Branch: `feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeout-truth`
 - PR Summary: Carry the post-merge FB-048 review repair that changes accepted relaunch wait-timeout from a false preserved-session claim to an explicit replacement-unconfirmed outcome, adds the non-Windows guard for the focused wait-boundary validator scenario, and syncs canon so merged-main release packaging truth matches the repaired branch semantics.
 - PR URL: https://github.com/GiribaldiTTV/Nexus-Desktop-AI/pull/96
-- PR State: `OPEN`, non-draft
+- PR State: `MERGED`, non-draft
+- Merge Commit: `24cdb49dd76867212f8f7d025e86fbec4758df45`
 - Base Branch: `main`
 - Head Branch: `feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeout-truth`
 - Merge Readiness: `MERGEABLE`
 - Merge State Status: `CLEAN`
-- Review Thread State: all actionable PR #94 review threads are resolved; PR #96 currently has zero top-level comments and zero submitted reviews.
+- Review Thread State: all actionable PR #94 review threads were resolved before PR #96 merged; PR #96 merged cleanly after carrying the repaired wait-timeout semantics, the non-Windows validator guard, and synced canon truth.
 
 ### Follow-Up PR Readiness Completion Decision
 
 - FPR-1 Result: Complete / green.
 - FPR-2 Result: Complete / green.
 - FPR-3 Result: Complete / green.
-- Repair containment status: the blocker-clearing repair remains branch-only until PR #96 merges; containment on `main` is still `NO`.
-- Next legal action after merge: resume file-frozen Release Readiness on updated `main` for `v1.6.12-prebeta`.
+- Repair containment status: the blocker-clearing repair is now contained on `main`; containment on `main` is `YES`.
+- Next legal action after this bounded canon sync: package the updated canon-only truth on the still-available FB-048 branch, merge it, then resume file-frozen Release Readiness on updated `main` for `v1.6.12-prebeta`.
 
 ### Follow-Up PR Readiness Validation Results
 
@@ -446,23 +447,23 @@ This follow-up PR Readiness pass packages the post-merge review repair commit th
 - `python dev\orin_branch_governance_validation.py --pr-readiness-gate`: PASS after live PR #96 creation and validation.
 - `git diff --check`: PASS with line-ending normalization warnings only.
 - Repaired runtime semantics validation: PASS via `python dev\orin_desktop_entrypoint_validation.py`; report `dev/logs/desktop_entrypoint_validation/reports/DesktopEntrypointValidationReport_20260427_081138.txt`.
-- Repair containment audit: PASS. `origin/main` does not contain commit `85dc5552f6044cd167ad64039c626503fcc3067d`.
+- Repair containment audit: PASS. `origin/main` contains repair commit `85dc5552f6044cd167ad64039c626503fcc3067d` through merge commit `24cdb49dd76867212f8f7d025e86fbec4758df45`.
 
 ## Seam Continuation Decision
 
-Continue Decision: `Advance after the follow-up blocker-clearing PR is created and validated because repaired branch truth is not yet contained on main`
-Next Active Seam: `None`
-Stop Condition: `Reached follow-up PR creation and validation gate`
-Continuation Action: `Merge PR #96, then resume file-frozen Release Readiness on updated main while preserving FB-049 as selected next and branch-not-created`
+Continue Decision: `Advance into bounded post-merge canon sync because repaired branch truth is already contained on main but merged canon still carries stale PR-open / branch-only wording`
+Next Active Seam: `Post-merge canon sync (PR #96 containment)`
+Stop Condition: `Reached bounded post-merge canon-sync PR readiness gate`
+Continuation Action: `Sync stale PR #96 open / branch-only wording across backlog, roadmap, and this workstream; then package the bounded canon-only follow-up PR while preserving merged-unreleased release-debt truth, Repo State: No Active Branch, and FB-049 as selected next and branch-not-created`
 
 ## Active Seam
 
-Active seam: `None.`
+Active seam: `Post-merge canon sync (PR #96 containment).`
 
 - WS-1 is complete and validated.
 - H-1 is complete and green.
 - LV-1 is complete and green.
 - Historical PR #94 Readiness is complete after live PR creation and validation.
-- Follow-up PR Readiness is complete after live PR #96 creation and validation; repair commit `85dc5552f6044cd167ad64039c626503fcc3067d` is still not yet contained on `main`.
+- Follow-up PR Readiness is complete historical proof; PR #96 is merged on `main`, and repair commit `85dc5552f6044cd167ad64039c626503fcc3067d` is now contained on `main`.
 - `Backlog Completion State` is `Implemented Complete`.
-- `Release Readiness` resumes only after PR #96 merges.
+- Bounded post-merge canon sync is the current legal PR Readiness seam before `Release Readiness` resumes on updated `main`.
