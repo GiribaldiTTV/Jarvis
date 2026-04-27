@@ -5,7 +5,7 @@
 - Family ID: `FB-042`
 - Family Title: `Desktop startup runtime family anchor`
 - Dossier Type: `Lifetime family dossier`
-- Dossier State: `Shell only`
+- Dossier State: `Structured shell with partial historical pass migration`
 - Family Anchor: `Self`
 - Backlog Anchor Record: `Docs/feature_backlog.md`
 - Roadmap Anchor Section: `Docs/prebeta_roadmap.md`
@@ -22,14 +22,14 @@
 
 ## Current Dossier Status
 
-- Historical Content Migration: `Not started`
-- Alias Record Conversion Status: `Not started`
-- Pass Index Status: `Structure introduced in Slice R4-S3`
-- Slice / Seam Ledger Status: `Structure introduced in Slice R4-S3`
+- Historical Content Migration: `In progress`
+- Alias Record Conversion Status: `FB-043 through FB-048 workstream records converted in Slice R5-S1`
+- Pass Index Status: `Populated for FB-043 through FB-048 in Slice R5-S1`
+- Slice / Seam Ledger Status: `Populated for FB-043 through FB-048 in Slice R5-S1`
 - Validator / Helper Index Status: `Structure introduced in Slice R4-S4`
 - Artifact Index Status: `Structure introduced in Slice R4-S4`
 - Dossier Stability Validation Status: `Validated in Slice R4-S5`
-- Last Structural Update: `2026-04-27 during Phase 4 / Slice R4-S4`
+- Last Structural Update: `2026-04-27 during Phase 5 / Slice R5-S1`
 
 ## Lifetime Tracking Scope
 
@@ -43,7 +43,7 @@
 
 - Family Alias IDs Preserved In Backlog: `FB-043`, `FB-044`, `FB-045`, `FB-046`, `FB-047`, `FB-048`
 - Alias Preservation Rule: these remain historical aliases of `FB-042` in `Docs/feature_backlog.md` and are not independently selectable.
-- Current Alias Record Migration State: each alias still keeps its existing historical workstream record; no alias content moved into this dossier in R4-S1.
+- Current Alias Record Migration State: FB-043 through FB-048 now keep their existing historical workstream narratives as explicit FB-042 historical pass records; corresponding branch-record conversion and future-selection cleanup remain later Phase 5 work.
 
 ## Historical Anchor Record
 
@@ -53,21 +53,31 @@
 
 ## Pass Index
 
-Pass Index Status: `Structure introduced in Slice R4-S3`
-Pass Index Population State: `No historical pass entries migrated yet`
+Pass Index Status: `Populated for FB-043 through FB-048 in Slice R5-S1`
+Pass Index Population State: `FB-043 through FB-048 historical pass rows migrated; additional family migration remains pending`
 
 | Pass ID | Family Role | Source Record | Migration State | Notes |
 | --- | --- | --- | --- | --- |
-| `Placeholder only` | `Reserve rows for anchor or alias pass history` | `Populate from existing historical workstream records in later slices` | `Not started` | `R4-S3 adds shared pass-index structure only; no historical pass data migrates in this slice.` |
+| `F042-P02` | `Historical pass alias` | `Docs/workstreams/FB-043_top_level_entrypoint_handoff_refinement.md` | `Converted in Slice R5-S1` | `Released in v1.6.8-prebeta; preserves the top-level entrypoint and explicit main.py handoff refinement chain.` |
+| `F042-P03` | `Historical pass alias` | `Docs/workstreams/FB-044_boot_desktop_handoff_outcome_refinement.md` | `Converted in Slice R5-S1` | `Released in v1.6.9-prebeta; preserves the desktop-settled handoff outcome refinement chain.` |
+| `F042-P04` | `Historical pass alias` | `Docs/workstreams/FB-045_active_session_relaunch_outcome_refinement.md` | `Converted in Slice R5-S1` | `Released in v1.6.9-prebeta; preserves the post-settled lifecycle classification follow-through for the same release package.` |
+| `F042-P05` | `Historical pass alias` | `Docs/workstreams/FB-046_active_session_relaunch_reacquisition.md` | `Converted in Slice R5-S1` | `Released in v1.6.10-prebeta; preserves accepted relaunch reacquisition and replacement-session settled re-entry proof.` |
+| `F042-P06` | `Historical pass alias` | `Docs/workstreams/FB-047_active_session_relaunch_decline_preservation.md` | `Converted in Slice R5-S1` | `Released in v1.6.11-prebeta; preserves decline-preservation and session-owner continuity proof.` |
+| `F042-P07` | `Historical pass alias` | `Docs/workstreams/FB-048_active_session_relaunch_signal_failure_and_wait_timeout_truth.md` | `Converted in Slice R5-S1` | `Released in v1.6.12-prebeta; preserves accepted relaunch signal-failure and wait-timeout truth.` |
 
 ## Slice And Seam Ledger
 
-Slice / Seam Ledger Status: `Structure introduced in Slice R4-S3`
-Ledger Population State: `No historical slice or seam entries migrated yet`
+Slice / Seam Ledger Status: `Populated for FB-043 through FB-048 in Slice R5-S1`
+Ledger Population State: `Historical summary rows added for FB-043 through FB-048; deeper family migration remains pending`
 
 | Phase / Slice | Seam / Scope | Classification | Migration State | Notes |
 | --- | --- | --- | --- | --- |
-| `Placeholder only` | `Reserve rows for future converted seams` | `Anchor or alias family history` | `Not started` | `R4-S3 adds shared ledger structure only; no historical slice or seam data migrates in this slice.` |
+| `FB-043 / WS-1, WS-2, H-1, LV-1, PR historical proof` | `Top-level entrypoint ownership and explicit main.py handoff refinement` | `Historical pass chain` | `Converted in Slice R5-S1` | `Detailed branch-local narrative stays in the preserved FB-043 workstream record.` |
+| `FB-044 / WS-1, H-1, LV-1, PR historical proof` | `Desktop-settled handoff outcome refinement` | `Historical pass chain` | `Converted in Slice R5-S1` | `Released together with FB-045 in v1.6.9-prebeta; detailed narrative stays in the preserved FB-044 workstream record.` |
+| `FB-045 / WS-1, H-1, LV-1, PR historical proof` | `Post-settled runtime stability follow-through` | `Historical pass chain` | `Converted in Slice R5-S1` | `Release-package relationship to FB-044 remains preserved in the workstream and backlog records.` |
+| `FB-046 / WS-1, H-1, LV-1, PR, Release historical proof` | `Accepted relaunch reacquisition and replacement-session settled re-entry` | `Historical pass chain` | `Converted in Slice R5-S1` | `Preserves accepted relaunch ownership-transfer proof and release history.` |
+| `FB-047 / WS-1, H-1, LV-1, PR, Release historical proof` | `Declined relaunch preserved-session truth` | `Historical pass chain` | `Converted in Slice R5-S1` | `Preserves repeated decline-owner continuity proof and successor relationship to FB-048.` |
+| `FB-048 / WS-1, H-1, LV-1, PR, Release historical proof` | `Accepted relaunch signal-failure and wait-timeout truth` | `Historical pass chain` | `Converted in Slice R5-S1` | `Preserves failure/timeout truth, review-repair containment, and selected-next FB-049 lock.` |
 
 ## Validator And Helper Index
 
@@ -93,5 +103,6 @@ Artifact Index Population State: `No historical artifact entries migrated yet`
 - R4-S3 introduces pass index and slice/seam ledger templates only; it does not migrate historical pass rows, ledger rows, proof logs, or alias record bodies into the dossier.
 - R4-S4 introduces validator/helper and artifact index templates only; it does not migrate historical validator rows, helper rows, artifact rows, proof logs, or alias record bodies into the dossier.
 - R4-S5 validates that the FB-042 dossier shell, routing, and index-template surfaces remain stable after the Phase 4 structural slices, and it does so without migrating historical rows or narrative content.
+- R5-S1 converts FB-043 through FB-048 workstream records into explicit FB-042 historical pass records and populates family pass-index plus slice/seam summary rows without migrating full narrative, validator/helper, artifact, or branch-record bodies into the dossier itself.
 - Later Phase 4 and Phase 5 slices will populate indexes and convert historical records incrementally.
 - Until later migration lands, the existing workstream and alias records remain the authoritative detailed history.

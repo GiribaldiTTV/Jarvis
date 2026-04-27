@@ -1068,6 +1068,18 @@ REFORM_R4_S5_SEAM = (
 REFORM_R4_S5_STATE_NEXT_PHRASE = (
     "Slice R4-S5 `Dossier stability validation` is next"
 )
+REFORM_R5_S1_SEAM = (
+    "Phase 5 - Historical Pass Record Conversion / Slice R5-S1 - Convert FB-043 through FB-048 "
+    "workstream records"
+)
+REFORM_R5_S1_STATE_NEXT_PHRASE = (
+    "Slice R5-S1 `Convert FB-043 through FB-048 workstream records` is next"
+)
+REFORM_R5_S1_ACTIVE_SEAM_NEXT_PHRASE = (
+    "Phase 5 / Slice R5-S1 `Convert FB-043 through FB-048 workstream records` is the next "
+    "active seam on this branch."
+)
+REFORM_R5_S1_CONTINUATION_PHRASE = "Execute Slice R5-S1"
 REFORM_FB042_DOSSIER_PATH = Path(
     "Docs/workstreams/FB-042_desktop_startup_runtime_family_dossier.md"
 )
@@ -1088,17 +1100,22 @@ REFORM_FAMILY_DOSSIER_REQUIRED_HEADINGS = (
     "## Migration Notes",
 )
 REFORM_FB042_DOSSIER_REQUIRED_PHRASES = (
-    "Dossier State: `Shell only`",
-    "Historical Content Migration: `Not started`",
-    "Alias Record Conversion Status: `Not started`",
-    "Pass Index Status: `Structure introduced in Slice R4-S3`",
-    "Pass Index Population State: `No historical pass entries migrated yet`",
+    "Dossier State: `Structured shell with partial historical pass migration`",
+    "Historical Content Migration: `In progress`",
+    "Alias Record Conversion Status: `FB-043 through FB-048 workstream records converted in Slice R5-S1`",
+    "Pass Index Status: `Populated for FB-043 through FB-048 in Slice R5-S1`",
+    "Pass Index Population State: `FB-043 through FB-048 historical pass rows migrated; additional family migration remains pending`",
     "| Pass ID | Family Role | Source Record | Migration State | Notes |",
-    "| `Placeholder only` | `Reserve rows for anchor or alias pass history` | `Populate from existing historical workstream records in later slices` | `Not started` | `R4-S3 adds shared pass-index structure only; no historical pass data migrates in this slice.` |",
-    "Slice / Seam Ledger Status: `Structure introduced in Slice R4-S3`",
-    "Ledger Population State: `No historical slice or seam entries migrated yet`",
+    "| `F042-P02` | `Historical pass alias` | `Docs/workstreams/FB-043_top_level_entrypoint_handoff_refinement.md` | `Converted in Slice R5-S1` | `Released in v1.6.8-prebeta; preserves the top-level entrypoint and explicit main.py handoff refinement chain.` |",
+    "| `F042-P03` | `Historical pass alias` | `Docs/workstreams/FB-044_boot_desktop_handoff_outcome_refinement.md` | `Converted in Slice R5-S1` | `Released in v1.6.9-prebeta; preserves the desktop-settled handoff outcome refinement chain.` |",
+    "| `F042-P04` | `Historical pass alias` | `Docs/workstreams/FB-045_active_session_relaunch_outcome_refinement.md` | `Converted in Slice R5-S1` | `Released in v1.6.9-prebeta; preserves the post-settled lifecycle classification follow-through for the same release package.` |",
+    "| `F042-P05` | `Historical pass alias` | `Docs/workstreams/FB-046_active_session_relaunch_reacquisition.md` | `Converted in Slice R5-S1` | `Released in v1.6.10-prebeta; preserves accepted relaunch reacquisition and replacement-session settled re-entry proof.` |",
+    "| `F042-P06` | `Historical pass alias` | `Docs/workstreams/FB-047_active_session_relaunch_decline_preservation.md` | `Converted in Slice R5-S1` | `Released in v1.6.11-prebeta; preserves decline-preservation and session-owner continuity proof.` |",
+    "| `F042-P07` | `Historical pass alias` | `Docs/workstreams/FB-048_active_session_relaunch_signal_failure_and_wait_timeout_truth.md` | `Converted in Slice R5-S1` | `Released in v1.6.12-prebeta; preserves accepted relaunch signal-failure and wait-timeout truth.` |",
+    "Slice / Seam Ledger Status: `Populated for FB-043 through FB-048 in Slice R5-S1`",
+    "Ledger Population State: `Historical summary rows added for FB-043 through FB-048; deeper family migration remains pending`",
     "| Phase / Slice | Seam / Scope | Classification | Migration State | Notes |",
-    "| `Placeholder only` | `Reserve rows for future converted seams` | `Anchor or alias family history` | `Not started` | `R4-S3 adds shared ledger structure only; no historical slice or seam data migrates in this slice.` |",
+    "| `FB-043 / WS-1, WS-2, H-1, LV-1, PR historical proof` | `Top-level entrypoint ownership and explicit main.py handoff refinement` | `Historical pass chain` | `Converted in Slice R5-S1` | `Detailed branch-local narrative stays in the preserved FB-043 workstream record.` |",
     "Validator / Helper Index Status: `Structure introduced in Slice R4-S4`",
     "Validator / Helper Index Population State: `No historical validator or helper entries migrated yet`",
     "| Surface | Classification | Source Record | Migration State | Notes |",
@@ -1108,11 +1125,12 @@ REFORM_FB042_DOSSIER_REQUIRED_PHRASES = (
     "| Artifact Path | Classification | Source Record | Migration State | Notes |",
     "| `Placeholder only` | `Reserve rows for reusable evidence, report, or helper artifacts` | `Populate from existing historical workstream or branch records in later slices` | `Not started` | `R4-S4 adds shared artifact index structure only; no historical artifact entries migrate in this slice.` |",
     "Dossier Stability Validation Status: `Validated in Slice R4-S5`",
-    "no alias content moved into this dossier in R4-S1",
+    "Current Alias Record Migration State: FB-043 through FB-048 now keep their existing historical workstream narratives as explicit FB-042 historical pass records; corresponding branch-record conversion and future-selection cleanup remain later Phase 5 work.",
     "R4-S1 intentionally does not migrate historical narrative, proof logs, pass summaries, or alias record bodies into the dossier.",
     "R4-S3 introduces pass index and slice/seam ledger templates only; it does not migrate historical pass rows, ledger rows, proof logs, or alias record bodies into the dossier.",
     "R4-S4 introduces validator/helper and artifact index templates only; it does not migrate historical validator rows, helper rows, artifact rows, proof logs, or alias record bodies into the dossier.",
     "R4-S5 validates that the FB-042 dossier shell, routing, and index-template surfaces remain stable after the Phase 4 structural slices, and it does so without migrating historical rows or narrative content.",
+    "R5-S1 converts FB-043 through FB-048 workstream records into explicit FB-042 historical pass records and populates family pass-index plus slice/seam summary rows without migrating full narrative, validator/helper, artifact, or branch-record bodies into the dossier itself.",
 )
 REFORM_FB027_DOSSIER_REQUIRED_PHRASES = (
     "Dossier State: `Shell only`",
@@ -1141,6 +1159,33 @@ REFORM_FB027_DOSSIER_REQUIRED_PHRASES = (
     "R4-S4 introduces validator/helper and artifact index templates only; it does not migrate historical validator rows, helper rows, artifact rows, proof logs, or alias record bodies into the dossier.",
     "R4-S5 validates that the FB-027 dossier shell, routing, and index-template surfaces remain stable after the Phase 4 structural slices, and it does so without migrating historical rows or narrative content.",
 )
+
+REFORM_FB042_HISTORICAL_PASS_DOCS = {
+    Path("Docs/workstreams/FB-043_top_level_entrypoint_handoff_refinement.md"): {
+        "pass_id": "F042-P02",
+        "branch_record": "Docs/branch_records/feature_fb_043_top_level_entrypoint_handoff_refinement.md",
+    },
+    Path("Docs/workstreams/FB-044_boot_desktop_handoff_outcome_refinement.md"): {
+        "pass_id": "F042-P03",
+        "branch_record": "Docs/branch_records/feature_fb_044_boot_desktop_handoff_outcome_refinement.md",
+    },
+    Path("Docs/workstreams/FB-045_active_session_relaunch_outcome_refinement.md"): {
+        "pass_id": "F042-P04",
+        "branch_record": "Docs/branch_records/feature_fb_045_active_session_relaunch_stability.md",
+    },
+    Path("Docs/workstreams/FB-046_active_session_relaunch_reacquisition.md"): {
+        "pass_id": "F042-P05",
+        "branch_record": "Docs/branch_records/feature_fb_046_active_session_relaunch_reacquisition.md",
+    },
+    Path("Docs/workstreams/FB-047_active_session_relaunch_decline_preservation.md"): {
+        "pass_id": "F042-P06",
+        "branch_record": "Docs/branch_records/feature_fb_047_active_session_relaunch_decline_preservation.md",
+    },
+    Path("Docs/workstreams/FB-048_active_session_relaunch_signal_failure_and_wait_timeout_truth.md"): {
+        "pass_id": "F042-P07",
+        "branch_record": "Docs/branch_records/feature_fb_048_active_session_relaunch_signal_failure_and_wait_timeout_truth.md",
+    },
+}
 
 CURRENT_BACKLOG_SHAPE_HEADINGS = (
     "## Registry Items",
@@ -3040,6 +3085,83 @@ def _validate_backlog_family_reform_seam_truth(
             ),
         )
 
+    def fb042_workstream_pass_records_converted() -> bool:
+        for workstream_path, info in REFORM_FB042_HISTORICAL_PASS_DOCS.items():
+            if not workstream_path.is_file():
+                return False
+            workstream_text = _read_text(workstream_path)
+            required_phrases = (
+                "## Historical Pass Record Identity",
+                "Family Anchor ID: `FB-042`",
+                "Family Dossier Doc: `Docs/workstreams/FB-042_desktop_startup_runtime_family_dossier.md`",
+                "Backlog Registry Class: `Historical Pass Alias`",
+                "Historical Alias Of: `FB-042`",
+                f"Pass ID: `{info['pass_id']}`",
+                "Alias Role: `Historical Pass Record`",
+                "Standalone Selection Status: `Not independently selectable`",
+                "Converted By Seam: `Phase 5 - Historical Pass Record Conversion / Slice R5-S1 - Convert FB-043 through FB-048 workstream records`",
+                f"Historical Branch Readiness Record: `{info['branch_record']}`",
+            )
+            if any(phrase not in workstream_text for phrase in required_phrases):
+                return False
+        return True
+
+    if fb042_workstream_pass_records_converted():
+        require(
+            REFORM_R5_S1_STATE_NEXT_PHRASE not in backlog_workstream_state,
+            (
+                "Docs/feature_backlog.md: R5-S1 must not remain the next seam once FB-043 "
+                "through FB-048 are converted into explicit FB-042 historical pass records"
+            ),
+        )
+        require(
+            REFORM_R5_S1_STATE_NEXT_PHRASE not in roadmap_workstream_state,
+            (
+                "Docs/prebeta_roadmap.md: R5-S1 must not remain the next seam once FB-043 "
+                "through FB-048 are converted into explicit FB-042 historical pass records"
+            ),
+        )
+        require(
+            phase_status_next_seam != REFORM_R5_S1_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Phase Status "
+                "`Next Active Seam` must advance past R5-S1 once FB-043 through FB-048 are "
+                "converted into explicit FB-042 historical pass records"
+            ),
+        )
+        require(
+            REFORM_R5_S1_ACTIVE_SEAM_NEXT_PHRASE not in active_seam_section,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Active Seam "
+                "must not keep R5-S1 as the next active seam once the FB-042 historical pass "
+                "record conversion is complete"
+            ),
+        )
+        require(
+            active_seam_next != REFORM_R5_S1_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Active Seam "
+                "`Next active seam` must advance past R5-S1 once the FB-042 historical pass "
+                "record conversion is complete"
+            ),
+        )
+        require(
+            continuation_next_seam != REFORM_R5_S1_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Seam "
+                "Continuation Decision must not keep R5-S1 as `Next Active Seam` once the "
+                "FB-042 historical pass record conversion is complete"
+            ),
+        )
+        require(
+            REFORM_R5_S1_CONTINUATION_PHRASE not in continuation_section,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Seam "
+                "Continuation Decision must not keep an R5-S1 continuation action once the "
+                "FB-042 historical pass record conversion is complete"
+            ),
+        )
+
     if (
         continuation_completion_status.strip().casefold() == "in progress"
         and continuation_decision.strip().casefold() == "continue"
@@ -3194,6 +3316,41 @@ def _validate_backlog_family_dossier_shell(
         required_phrases=REFORM_FB027_DOSSIER_REQUIRED_PHRASES,
         seam_label="R4-S2",
     )
+
+
+def _validate_backlog_family_historical_pass_records(require, *, current_branch: str) -> None:
+    if not _is_backlog_family_reform_branch(current_branch):
+        return
+
+    for workstream_path, info in REFORM_FB042_HISTORICAL_PASS_DOCS.items():
+        require(
+            workstream_path.is_file(),
+            f"{workstream_path}: historical pass record must exist on the reform branch",
+        )
+        if not workstream_path.is_file():
+            continue
+        workstream_text = _read_text(workstream_path)
+        required_phrases = (
+            "Lifetime Dossier Doc: `Docs/workstreams/FB-042_desktop_startup_runtime_family_dossier.md`",
+            "Historical pass-record conversion to the FB-042 family model is complete in `Phase 5 / Slice R5-S1` on `feature/backlog-family-governance-reform`.",
+            "## Historical Pass Record Identity",
+            "Family Anchor ID: `FB-042`",
+            "Family Anchor Title: `Desktop startup runtime family anchor`",
+            "Family Dossier Doc: `Docs/workstreams/FB-042_desktop_startup_runtime_family_dossier.md`",
+            "Backlog Registry Class: `Historical Pass Alias`",
+            "Historical Alias Of: `FB-042`",
+            f"Pass ID: `{info['pass_id']}`",
+            "Alias Role: `Historical Pass Record`",
+            "Standalone Selection Status: `Not independently selectable`",
+            "Converted By Seam: `Phase 5 - Historical Pass Record Conversion / Slice R5-S1 - Convert FB-043 through FB-048 workstream records`",
+            f"Historical Branch Readiness Record: `{info['branch_record']}`",
+            "Preservation Rule: `This record keeps the detailed branch-local execution, validation, release, and PR history; the family dossier owns cross-pass indexing.`",
+        )
+        for phrase in required_phrases:
+            require(
+                phrase in workstream_text,
+                f"{workstream_path}: required historical pass-record marker '{phrase}' is missing",
+            )
 
 
 def _roadmap_section_for_id(text: str, workstream_id: str) -> str:
@@ -4229,6 +4386,10 @@ def main() -> int:
         roadmap_text=roadmap_text,
         index_text=index_text,
         main_text=main_text,
+    )
+    _validate_backlog_family_historical_pass_records(
+        require,
+        current_branch=current_git_branch,
     )
     for entry in backlog_entries:
         post_release_truth_count = _count_field_occurrences(entry["block"], "Post-Release Truth")

@@ -4,6 +4,7 @@
 
 - ID: `FB-045`
 - Title: `Active-session relaunch outcome refinement`
+- Lifetime Dossier Doc: `Docs/workstreams/FB-042_desktop_startup_runtime_family_dossier.md`
 
 ## Record State
 
@@ -27,6 +28,8 @@
 
 ## Phase Status
 
+- Historical pass-record conversion to the FB-042 family model is complete in `Phase 5 / Slice R5-S1` on `feature/backlog-family-governance-reform`.
+- This record is preserved as `Pass ID: F042-P04` under the FB-042 family dossier and remains not independently selectable.
 - Repo State: `Active Branch`
 - Current Active Branch: `feature/fb-046-active-session-relaunch-reacquisition`
 - Current Active Branch Authority Record: `Docs/branch_records/feature_fb_046_active_session_relaunch_reacquisition.md`
@@ -71,6 +74,20 @@ None.
 ## Next Legal Phase
 
 - `Closed`
+
+## Historical Pass Record Identity
+
+- Family Anchor ID: `FB-042`
+- Family Anchor Title: `Desktop startup runtime family anchor`
+- Family Dossier Doc: `Docs/workstreams/FB-042_desktop_startup_runtime_family_dossier.md`
+- Backlog Registry Class: `Historical Pass Alias`
+- Historical Alias Of: `FB-042`
+- Pass ID: `F042-P04`
+- Alias Role: `Historical Pass Record`
+- Standalone Selection Status: `Not independently selectable`
+- Converted By Seam: `Phase 5 - Historical Pass Record Conversion / Slice R5-S1 - Convert FB-043 through FB-048 workstream records`
+- Historical Branch Readiness Record: `Docs/branch_records/feature_fb_045_active_session_relaunch_stability.md`
+- Preservation Rule: `This record keeps the detailed branch-local execution, validation, release, and PR history; the family dossier owns cross-pass indexing.`
 
 ## Purpose / Why It Matters
 
