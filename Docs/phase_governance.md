@@ -538,6 +538,8 @@ Hard blockers:
   PR Readiness cannot be green while the worktree is dirty, required docs changes are uncommitted, required canon exists only in the working tree, or branch truth is not durable in commit history
 - `Docs Sync Incomplete`:
   docs sync, Governance Drift Audit, validator alignment, and any required post-merge state wording must be complete and mutually consistent
+  merge-target current-state owners must be merge-stable: during merged-unreleased release-debt windows, `Docs/feature_backlog.md`, `Docs/prebeta_roadmap.md`, and the canonical workstream `## Phase Status` block may describe only the truth that will still be correct after merge
+  merge-target branch-head hash assertions such as ``origin/main` is `<sha>`` or ``origin/main` remains at `<sha>`` are operator facts only and must not appear in merge-stable current-state owner sections
 - `User-Facing Shortcut Validation Pending`:
   Live Validation and PR Readiness cannot be final-green for a relevant desktop user-facing workstream until the final Live Validation closeout has launched through the declared user-facing desktop shortcut or equivalent user entrypoint, recorded `User-Facing Shortcut Validation: PASS` or `User-Facing Shortcut Validation: WAIVED`, and preserved the evidence before User Test Summary handoff
 - `User Test Summary Results Pending`:
@@ -561,6 +563,8 @@ The PR-readiness validator gate must be run in its PR-specific mode before repor
 If the normal governance validator passes but the PR-specific gate reports dirty worktree or unresolved PR blockers, the result is not PR-ready.
 
 `PR package ready` is the state where local branch truth, merge-target canon, next-workstream selection, and copy-ready PR details are complete. It is not `PR Readiness GREEN`.
+
+Live PR creation and validation facts are required for operator output and PR validation, but they are not merge-target current-state truth. Keep live PR state such as `open`, `non-draft`, `mergeable`, review-thread counts, repair-commit containment timing, blocker-clearing branch narration, and merge-target branch-head hash assertions in operator output and explicit historical PR sections only. Do not place those time-sensitive claims in merge-target current-state owner sections such as backlog or roadmap `## Current Branch Execution Posture`, `PR Readiness State:`, `Current Branch Objective:`, `Active Workstream Chain:`, or the canonical workstream merged-unreleased `## Phase Status` block.
 
 `PR Readiness GREEN` requires all `PR package ready` conditions plus:
 
