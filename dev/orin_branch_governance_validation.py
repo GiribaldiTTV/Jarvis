@@ -7393,6 +7393,20 @@ def _run_pr_live_state_gate(
         closeout_watcher_state = _load_json_file(PR101_CLOSEOUT_CANON_WATCHER_STATE_PATH)
     else:
         closeout_watcher_state = None
+    if (
+        closeout_watcher_state is not None
+        and (not mergeable or mergeable == "UNKNOWN" or not merge_state or merge_state == "UNKNOWN")
+    ):
+        watcher_mergeable = closeout_watcher_state.get("mergeable")
+        watcher_merge_state = str(closeout_watcher_state.get("mergeableState") or "").upper()
+        if watcher_mergeable is True:
+            mergeable = "MERGEABLE"
+            merge_state = watcher_merge_state or "CLEAN"
+        elif watcher_mergeable is False:
+            mergeable = "CONFLICTING"
+            merge_state = watcher_merge_state or "DIRTY"
+        elif watcher_merge_state:
+            merge_state = watcher_merge_state
     normalized_recorded_status = recorded_bot_review_status.strip().casefold()
     manual_comment_resolution_clear = (
         normalized_recorded_status == BOT_REVIEW_SIGNAL_STATUS_COMMENT_ADDRESSED.casefold()
