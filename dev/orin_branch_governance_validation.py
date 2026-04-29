@@ -6709,11 +6709,6 @@ def _automation_planning_runtime_proof_status(current_head_sha: str) -> tuple[bo
 
 
 def _automation_closeout_repair_watcher_proof_status(current_head_sha: str) -> tuple[bool, str]:
-    heartbeat_proven, heartbeat_message = _automation_last_run_proof(
-        AUTOMATION_CLOSEOUT_PR101_THREAD_WATCHER_NAME
-    )
-    if not heartbeat_proven:
-        return False, heartbeat_message
     if not AUTOMATION_CLOSEOUT_PR101_WATCHER_SCRIPT_PATH.is_file():
         return (
             False,
@@ -6748,14 +6743,65 @@ def _automation_closeout_repair_watcher_proof_status(current_head_sha: str) -> t
             f"watcher state file '{AUTOMATION_CLOSEOUT_PR101_WATCHER_STATE_PATH}' is missing lastRunLocal proof",
         )
 
+    thread_id = str(state.get("threadId") or "").strip()
+    thread_rollout_path_raw = str(state.get("threadRolloutPath") or "").strip()
+    last_thread_emit_at = str(state.get("lastThreadEmitAt") or "").strip()
+    last_thread_emit_message = str(state.get("lastThreadEmitMessage") or "").strip()
+    if not thread_id:
+        return (
+            False,
+            f"watcher state file '{AUTOMATION_CLOSEOUT_PR101_WATCHER_STATE_PATH}' is missing threadId proof",
+        )
+    if not thread_rollout_path_raw:
+        return (
+            False,
+            f"watcher state file '{AUTOMATION_CLOSEOUT_PR101_WATCHER_STATE_PATH}' is missing threadRolloutPath proof",
+        )
+    if not last_thread_emit_at or not last_thread_emit_message:
+        return (
+            False,
+            (
+                f"watcher state file '{AUTOMATION_CLOSEOUT_PR101_WATCHER_STATE_PATH}' is missing "
+                "same-thread transcript emission proof"
+            ),
+        )
+
+    thread_rollout_path = Path(thread_rollout_path_raw)
+    if not thread_rollout_path.is_file():
+        return (
+            False,
+            f"same-thread rollout transcript '{thread_rollout_path}' is missing",
+        )
+    try:
+        transcript_tail = thread_rollout_path.read_text(encoding="utf-8")[-2_000_000:]
+    except OSError as exc:
+        return False, f"same-thread rollout transcript '{thread_rollout_path}' could not be read: {exc}"
+    if last_thread_emit_message not in transcript_tail:
+        return (
+            False,
+            (
+                "same-thread transcript proof is stale; the last emitted watcher message from "
+                f"'{AUTOMATION_CLOSEOUT_PR101_WATCHER_STATE_PATH}' is not present in "
+                f"'{thread_rollout_path}'"
+            ),
+        )
+
+    heartbeat_proven, heartbeat_message = _automation_last_run_proof(
+        AUTOMATION_CLOSEOUT_PR101_THREAD_WATCHER_NAME
+    )
+    proof_fragments = [
+        (
+            "same-thread transcript proof is present via "
+            f"'{thread_rollout_path}' and '{AUTOMATION_CLOSEOUT_PR101_WATCHER_STATE_PATH}' "
+            f"on thread '{thread_id}'"
+        )
+    ]
+    if heartbeat_proven:
+        proof_fragments.append(heartbeat_message)
+
     return (
         True,
-        (
-            "same-thread watcher scheduler proof is present via "
-            f"'{AUTOMATION_CLOSEOUT_PR101_THREAD_WATCHER_NAME}', and bounded PR watcher fallback proof is present via "
-            f"'{AUTOMATION_CLOSEOUT_PR101_WATCHER_STATE_PATH}' and "
-            f"'{AUTOMATION_CLOSEOUT_PR101_WATCHER_LATEST_PATH}'"
-        ),
+        "; ".join(proof_fragments),
     )
 
 
@@ -6886,14 +6932,30 @@ def _automation_closeout_repair_fallback_pr_view_for_branch(
         return None, "active branch record is missing `Live PR`"
     pr_number_match = re.search(r"/pull/(\d+)", pr_url)
     pr_number = int(pr_number_match.group(1)) if pr_number_match else 101
-    bot_approval = "Bot approval proof:" in phase_status_section
+    watcher_state = _load_json_file(AUTOMATION_CLOSEOUT_PR101_WATCHER_STATE_PATH) or {}
+    bot_approval = bool(watcher_state.get("botApproval")) or "Bot approval proof:" in phase_status_section
+    bot_comment_count = int(watcher_state.get("botCommentCount") or 0)
+    merged = bool(watcher_state.get("merged"))
+    state_value = str(watcher_state.get("prState") or "OPEN").upper()
+    if merged and state_value != "CLOSED":
+        state_value = "CLOSED"
+    mergeable_value = watcher_state.get("mergeable")
+    if mergeable_value is True:
+        mergeable = "MERGEABLE"
+        merge_state = "CLEAN"
+    elif mergeable_value is False:
+        mergeable = "CONFLICTING"
+        merge_state = "DIRTY"
+    else:
+        mergeable = "UNKNOWN"
+        merge_state = "UNKNOWN"
 
     return {
         "id": "",
         "number": pr_number,
-        "state": "OPEN",
-        "mergeable": "MERGEABLE",
-        "mergeStateStatus": "CLEAN",
+        "state": state_value,
+        "mergeable": mergeable,
+        "mergeStateStatus": merge_state,
         "reviewDecision": "APPROVED" if bot_approval else "",
         "isDraft": False,
         "headRefName": branch_name,
@@ -6903,7 +6965,7 @@ def _automation_closeout_repair_fallback_pr_view_for_branch(
         "repositoryFullName": repository_full_name,
         "fallbackLocalState": True,
         "botApproval": bot_approval,
-        "botCommentCount": 0,
+        "botCommentCount": bot_comment_count,
     }, ""
 
 
