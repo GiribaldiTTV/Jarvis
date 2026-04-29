@@ -47,10 +47,11 @@ Do not use this layer to replace:
 
 ## Active Branch Authority Records
 
-- `Docs/branch_records/feature_automation_planning.md`
+None.
 
 ## Historical Branch Authority Records
 
+- `Docs/branch_records/feature_automation_planning.md`
 - `Docs/branch_records/feature_backlog_family_governance_reform.md`
 - `Docs/branch_records/feature_fb_048_active_session_relaunch_signal_failure_and_wait_timeout_truth.md`
 - `Docs/branch_records/feature_fb_047_active_session_relaunch_decline_preservation.md`
