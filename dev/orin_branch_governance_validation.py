@@ -407,6 +407,77 @@ PRE_PR_DURABILITY_PHRASES = (
     "automatically commit and push",
 )
 
+AUTOMATION_RUNTIME_PROOF_CONTRACT_REQUIRED_PHRASES = {
+    Path("Docs/Main.md"): (
+        "Automation Runtime Unproven",
+        "`ACTIVE` is configuration state, not run proof",
+        "thread or inbox output",
+        "automation memory/log/state-file updates",
+        "scheduler last-run evidence",
+        "bounded fallback",
+        "target-scoped",
+        "phase-scoped",
+        "self-terminating or explicitly deleted",
+    ),
+    Path("Docs/phase_governance.md"): (
+        "Automation Runtime Unproven",
+        "`ACTIVE` is configuration state, not run proof",
+        "thread or inbox output",
+        "automation memory/log/state-file updates",
+        "scheduler last-run evidence",
+        "bounded fallback",
+        "target-scoped",
+        "phase-scoped",
+        "self-terminating or explicitly deleted",
+    ),
+    Path("Docs/development_rules.md"): (
+        "Automation Runtime Unproven",
+        "`ACTIVE` is configuration state, not run proof",
+        "thread/inbox output",
+        "automation memory/log/state-file updates",
+        "scheduler last-run evidence",
+        "bounded fallback",
+        "target-scoped",
+        "phase-scoped",
+        "self-terminating or explicitly deleted",
+    ),
+    Path("Docs/codex_modes.md"): (
+        "Automation Runtime Unproven",
+        "`ACTIVE` is configuration state, not run proof",
+        "thread or inbox output",
+        "automation memory/log/state-file updates",
+        "scheduler last-run evidence",
+        "bounded fallback",
+        "target-scoped",
+        "phase-scoped",
+        "self-terminating or explicitly deleted",
+    ),
+    Path("Docs/codex_user_guide.md"): (
+        "Automation Runtime Unproven",
+        "`ACTIVE` is configuration state, not run proof",
+        "thread or inbox output",
+        "automation memory/log/state-file updates",
+        "scheduler last-run evidence",
+        "bounded fallback",
+        "target-scoped",
+        "phase-scoped",
+        "self-terminating or explicitly deleted",
+    ),
+}
+
+AUTOMATION_RUNTIME_PROOF_CURRENT_STATE_REQUIRED_PHRASES = {
+    Path("Docs/feature_backlog.md"): (
+        "the PR watcher remains the only minute-scale heartbeat automation",
+        "`ACTIVE` alone is not treated as run proof",
+        "fallback helper must stay narrowed to the live PR and bounded to `PR Readiness`",
+    ),
+    Path("Docs/prebeta_roadmap.md"): (
+        "the PR watcher remains the only minute-scale heartbeat automation",
+        "`ACTIVE` alone is not treated as run proof",
+        "fallback helper must stay narrowed to the live PR and bounded to `PR Readiness`",
+    ),
+}
+
 PLANNING_LOOP_GUARDRAIL_DOCS = (
     Path("Docs/phase_governance.md"),
     Path("Docs/development_rules.md"),
@@ -1035,6 +1106,10 @@ BACKLOG_FAMILY_REFORM_BRANCH = "feature/backlog-family-governance-reform"
 BACKLOG_FAMILY_REFORM_BRANCH_RECORD = Path(
     "Docs/branch_records/feature_backlog_family_governance_reform.md"
 )
+AUTOMATION_PLANNING_BRANCH = "feature/automation-planning"
+AUTOMATION_PLANNING_BRANCH_RECORD = Path(
+    "Docs/branch_records/feature_automation_planning.md"
+)
 REFORM_R3_S2_SEAM = (
     "Phase 3 - Family Anchor Migration / Slice R3-S2 - Map FB-043 through FB-048 under "
     "FB-042 as historical aliases"
@@ -1223,6 +1298,44 @@ REFORM_PR_READINESS_PR2_STATE_PHRASE = (
 REFORM_RELEASE_READINESS_RR1_SEAM = "Release Readiness RR1 - Reform Branch Release Validation"
 REFORM_RELEASE_READINESS_RR1_STATE_PHRASE = (
     "Release Readiness RR1 `Reform Branch Release Validation` is in progress"
+)
+AUTOMATION_HARDENING_H1_SEAM = "Hardening H1 - Automation Catalog Validation"
+AUTOMATION_HARDENING_H1_STATE_PHRASE = (
+    "Hardening H1 `Automation Catalog Validation` is in progress"
+)
+AUTOMATION_LIVE_VALIDATION_LV1_SEAM = "Live Validation LV1 - Automation Catalog Final Validation"
+AUTOMATION_LIVE_VALIDATION_LV1_STATE_PHRASE = (
+    "Live Validation LV1 `Automation Catalog Final Validation` is in progress"
+)
+AUTOMATION_PR_READINESS_PR1_SEAM = "PR Readiness PR1 - Automation Catalog PR Validation"
+AUTOMATION_PR_READINESS_PR1_STATE_PHRASE = (
+    "PR Readiness PR1 `Automation Catalog PR Validation` is in progress"
+)
+AUTOMATION_PR99_NATIVE_HEARTBEAT_PATH = (
+    Path.home() / ".codex" / "automations" / "pr99-heartbeat-watch" / "automation.toml"
+)
+AUTOMATION_PR99_FALLBACK_SCRIPT_PATH = (
+    Path.home() / ".codex" / "watchers" / "pr99-watch.ps1"
+)
+AUTOMATION_PR99_FALLBACK_STATE_PATH = (
+    Path.home() / ".codex" / "watchers" / "pr99-watch-state.json"
+)
+AUTOMATION_PR99_FALLBACK_LATEST_PATH = (
+    Path.home() / ".codex" / "watchers" / "pr99-watch-latest.txt"
+)
+AUTOMATION_PLANNING_RUNTIME_PROOF_REQUIRED_PHRASES = (
+    "## Automation Runtime Proof And Fallback Contract",
+    "`Automation Status: ACTIVE` is configuration state only; it is not run proof.",
+    "Live automation proof requires at least one of: thread or inbox output, automation memory/log/state-file updates, or scheduler last-run evidence.",
+    "If the preferred Codex heartbeat remains `ACTIVE` without run evidence, keep the owning phase blocked until native run evidence exists or a bounded fallback watcher is activated.",
+    "Any bounded fallback watcher must be target-scoped to the live PR, phase-scoped to `PR Readiness`, read-only, and self-terminating or explicitly deleted when the PR becomes `merged` or `closed` or the branch leaves `PR Readiness`.",
+    "`Release Window Sentinel` and `Post-Merge Closure Watch` may remain durable read-only waiting monitors outside their owned windows, but they must not create merge, release, or green authority by themselves.",
+    "PR Readiness PR1 runtime-proof status:",
+    "$CODEX_HOME/automations/pr99-heartbeat-watch/automation.toml",
+    "$CODEX_HOME/watchers/pr99-watch.ps1",
+    "pause or delete any native heartbeat instance that remains `ACTIVE` without run evidence once a bounded fallback or repaired native runtime path takes over",
+    "delete any fallback helper immediately when the PR becomes `merged` or `closed` or the branch leaves `PR Readiness`",
+    "Post-merge PR watcher fallback handling: any temporary PR-specific fallback helper must be removed or already self-terminated before this record becomes historical traceability only.",
 )
 
 BOT_REVIEW_SIGNAL_HEADING = "PR Bot Review Signal"
@@ -2920,6 +3033,14 @@ def _is_backlog_family_reform_branch(branch_name: str) -> bool:
     return normalized in {
         BACKLOG_FAMILY_REFORM_BRANCH,
         f"origin/{BACKLOG_FAMILY_REFORM_BRANCH}",
+    }
+
+
+def _is_automation_planning_branch(branch_name: str) -> bool:
+    normalized = (branch_name or "").strip()
+    return normalized in {
+        AUTOMATION_PLANNING_BRANCH,
+        f"origin/{AUTOMATION_PLANNING_BRANCH}",
     }
 
 
@@ -4918,6 +5039,330 @@ def _validate_backlog_family_reform_seam_truth(
             )
 
 
+def _validate_automation_planning_phase_truth(
+    require,
+    *,
+    current_branch: str,
+    backlog_text: str,
+    roadmap_text: str,
+) -> None:
+    if not _is_automation_planning_branch(current_branch):
+        return
+
+    branch_record_text = _read_text(AUTOMATION_PLANNING_BRANCH_RECORD)
+    backlog_workstream_state = _extract_colon_value(backlog_text, "Current Workstream State")
+    roadmap_workstream_state = _extract_colon_value(roadmap_text, "Current Workstream State")
+    phase_status_section = _section(branch_record_text, "Phase Status")
+    active_seam_section = _section(branch_record_text, "Active Seam")
+    continuation_section = _section(branch_record_text, "Seam Continuation Decision")
+    phase_status_next_seam = _extract_marker_value(phase_status_section, "Next Active Seam")
+    continuation_next_seam = _extract_marker_value(continuation_section, "Next Active Seam")
+    active_seam_match = re.search(r"^Next active seam:\s*`([^`]+)`", active_seam_section, flags=re.M)
+    active_seam_next = active_seam_match.group(1).strip() if active_seam_match else ""
+    active_seam_current = _extract_marker_value(active_seam_section, "Active seam")
+    current_phase = _extract_marker_value(_section(branch_record_text, "Current Phase"), "Phase")
+    next_legal_phase = _extract_first_backtick_value(_section(branch_record_text, "Next Legal Phase"))
+    phase_status_hardening_seam = _extract_marker_value(phase_status_section, "Current Hardening Seam")
+    phase_status_live_validation_seam = _extract_marker_value(
+        phase_status_section, "Current Live Validation Seam"
+    )
+    phase_status_pr_readiness_seam = _extract_marker_value(
+        phase_status_section, "Current PR Readiness Seam"
+    )
+    backlog_next_legal_phase = _extract_colon_value(backlog_text, "Next Legal Phase").rstrip(".")
+    roadmap_next_legal_phase = _extract_colon_value(roadmap_text, "Next Legal Phase").rstrip(".")
+
+    if (
+        AUTOMATION_HARDENING_H1_STATE_PHRASE in backlog_workstream_state
+        and AUTOMATION_HARDENING_H1_STATE_PHRASE in roadmap_workstream_state
+    ):
+        require(
+            current_phase == "Hardening",
+            (
+                "Docs/branch_records/feature_automation_planning.md: Current Phase must "
+                "transition to `Hardening` once the automation-planning branch current-state "
+                "summaries declare Hardening H1 in progress"
+            ),
+        )
+        require(
+            next_legal_phase == "Live Validation",
+            (
+                "Docs/branch_records/feature_automation_planning.md: Next Legal Phase must "
+                "advance to `Live Validation` once the branch has transitioned into Hardening"
+            ),
+        )
+        require(
+            backlog_next_legal_phase == "Live Validation",
+            (
+                "Docs/feature_backlog.md: Next Legal Phase must advance to `Live Validation` "
+                "once the automation-planning branch current-state summary declares Hardening "
+                "H1 in progress"
+            ),
+        )
+        require(
+            roadmap_next_legal_phase == "Live Validation",
+            (
+                "Docs/prebeta_roadmap.md: Next Legal Phase must advance to `Live Validation` "
+                "once the automation-planning branch current-state summary declares Hardening "
+                "H1 in progress"
+            ),
+        )
+        require(
+            phase_status_hardening_seam == AUTOMATION_HARDENING_H1_SEAM,
+            (
+                "Docs/branch_records/feature_automation_planning.md: Phase Status must name "
+                "Hardening H1 as the current hardening seam during the phase-admission repair"
+            ),
+        )
+        require(
+            phase_status_next_seam == AUTOMATION_HARDENING_H1_SEAM,
+            (
+                "Docs/branch_records/feature_automation_planning.md: Phase Status `Next Active "
+                "Seam` must point to Hardening H1 during the phase-admission repair"
+            ),
+        )
+        require(
+            active_seam_current == AUTOMATION_HARDENING_H1_SEAM,
+            (
+                "Docs/branch_records/feature_automation_planning.md: Active Seam must name "
+                "Hardening H1 as the current active seam during the phase-admission repair"
+            ),
+        )
+        require(
+            "Active seam: `None.`" not in active_seam_section,
+            (
+                "Docs/branch_records/feature_automation_planning.md: Active Seam must remove "
+                "the stale `Active seam: None.` marker once Hardening H1 is admitted"
+            ),
+        )
+        require(
+            active_seam_next == AUTOMATION_HARDENING_H1_SEAM,
+            (
+                "Docs/branch_records/feature_automation_planning.md: Active Seam `Next active "
+                "seam` must point to Hardening H1 during the phase-admission repair"
+            ),
+        )
+
+    if (
+        AUTOMATION_LIVE_VALIDATION_LV1_STATE_PHRASE in backlog_workstream_state
+        and AUTOMATION_LIVE_VALIDATION_LV1_STATE_PHRASE in roadmap_workstream_state
+    ):
+        require(
+            current_phase == "Live Validation",
+            (
+                "Docs/branch_records/feature_automation_planning.md: Current Phase must "
+                "transition to `Live Validation` once the automation-planning branch current-state "
+                "summaries declare Live Validation LV1 in progress"
+            ),
+        )
+        require(
+            next_legal_phase == "PR Readiness",
+            (
+                "Docs/branch_records/feature_automation_planning.md: Next Legal Phase must "
+                "advance to `PR Readiness` once the branch has transitioned into Live Validation"
+            ),
+        )
+        require(
+            backlog_next_legal_phase == "PR Readiness",
+            (
+                "Docs/feature_backlog.md: Next Legal Phase must advance to `PR Readiness` "
+                "once the automation-planning branch current-state summary declares Live Validation "
+                "LV1 in progress"
+            ),
+        )
+        require(
+            roadmap_next_legal_phase == "PR Readiness",
+            (
+                "Docs/prebeta_roadmap.md: Next Legal Phase must advance to `PR Readiness` "
+                "once the automation-planning branch current-state summary declares Live Validation "
+                "LV1 in progress"
+            ),
+        )
+        require(
+            phase_status_hardening_seam != AUTOMATION_HARDENING_H1_SEAM,
+            (
+                "Docs/branch_records/feature_automation_planning.md: Phase Status must stop "
+                "naming Hardening H1 as the current seam once Live Validation LV1 is admitted"
+            ),
+        )
+        require(
+            phase_status_live_validation_seam == AUTOMATION_LIVE_VALIDATION_LV1_SEAM,
+            (
+                "Docs/branch_records/feature_automation_planning.md: Phase Status must name "
+                "Live Validation LV1 as the current live-validation seam during the phase "
+                "admission repair"
+            ),
+        )
+        require(
+            phase_status_next_seam == AUTOMATION_LIVE_VALIDATION_LV1_SEAM,
+            (
+                "Docs/branch_records/feature_automation_planning.md: Phase Status `Next Active "
+                "Seam` must point to Live Validation LV1 during the phase admission repair"
+            ),
+        )
+        require(
+            active_seam_current == AUTOMATION_LIVE_VALIDATION_LV1_SEAM,
+            (
+                "Docs/branch_records/feature_automation_planning.md: Active Seam must name "
+                "Live Validation LV1 as the current active seam during the phase admission repair"
+            ),
+        )
+        require(
+            active_seam_next == AUTOMATION_LIVE_VALIDATION_LV1_SEAM,
+            (
+                "Docs/branch_records/feature_automation_planning.md: Active Seam `Next active "
+                "seam` must point to Live Validation LV1 during the phase admission repair"
+            ),
+        )
+        require(
+            continuation_next_seam == AUTOMATION_LIVE_VALIDATION_LV1_SEAM,
+            (
+                "Docs/branch_records/feature_automation_planning.md: Seam Continuation Decision "
+                "must point to Live Validation LV1 once the branch enters Live Validation"
+            ),
+        )
+        require(
+            AUTOMATION_HARDENING_H1_STATE_PHRASE not in backlog_workstream_state,
+            (
+                "Docs/feature_backlog.md: Current Workstream State must stop reporting Hardening "
+                "H1 as in progress once Live Validation LV1 is admitted"
+            ),
+        )
+        require(
+            AUTOMATION_HARDENING_H1_STATE_PHRASE not in roadmap_workstream_state,
+            (
+                "Docs/prebeta_roadmap.md: Current Workstream State must stop reporting Hardening "
+                "H1 as in progress once Live Validation LV1 is admitted"
+            ),
+        )
+
+    if (
+        AUTOMATION_PR_READINESS_PR1_STATE_PHRASE in backlog_workstream_state
+        and AUTOMATION_PR_READINESS_PR1_STATE_PHRASE in roadmap_workstream_state
+    ):
+        require(
+            current_phase == "PR Readiness",
+            (
+                "Docs/branch_records/feature_automation_planning.md: Current Phase must "
+                "transition to `PR Readiness` once the automation-planning branch current-state "
+                "summaries declare PR Readiness PR1 in progress"
+            ),
+        )
+        require(
+            next_legal_phase == "Release Readiness",
+            (
+                "Docs/branch_records/feature_automation_planning.md: Next Legal Phase must "
+                "advance to `Release Readiness` once the branch has transitioned into PR Readiness"
+            ),
+        )
+        require(
+            backlog_next_legal_phase == "Release Readiness",
+            (
+                "Docs/feature_backlog.md: Next Legal Phase must advance to `Release Readiness` "
+                "once the automation-planning branch current-state summary declares PR Readiness "
+                "PR1 in progress"
+            ),
+        )
+        require(
+            roadmap_next_legal_phase == "Release Readiness",
+            (
+                "Docs/prebeta_roadmap.md: Next Legal Phase must advance to `Release Readiness` "
+                "once the automation-planning branch current-state summary declares PR Readiness "
+                "PR1 in progress"
+            ),
+        )
+        require(
+            phase_status_live_validation_seam != AUTOMATION_LIVE_VALIDATION_LV1_SEAM,
+            (
+                "Docs/branch_records/feature_automation_planning.md: Phase Status must stop "
+                "naming Live Validation LV1 as the current seam once PR Readiness PR1 is admitted"
+            ),
+        )
+        require(
+            phase_status_pr_readiness_seam == AUTOMATION_PR_READINESS_PR1_SEAM,
+            (
+                "Docs/branch_records/feature_automation_planning.md: Phase Status must name "
+                "PR Readiness PR1 as the current PR-readiness seam during the phase admission repair"
+            ),
+        )
+        require(
+            phase_status_next_seam == AUTOMATION_PR_READINESS_PR1_SEAM,
+            (
+                "Docs/branch_records/feature_automation_planning.md: Phase Status `Next Active "
+                "Seam` must point to PR Readiness PR1 during the phase admission repair"
+            ),
+        )
+        require(
+            active_seam_current == AUTOMATION_PR_READINESS_PR1_SEAM,
+            (
+                "Docs/branch_records/feature_automation_planning.md: Active Seam must name "
+                "PR Readiness PR1 as the current active seam during the phase admission repair"
+            ),
+        )
+        require(
+            active_seam_next == AUTOMATION_PR_READINESS_PR1_SEAM,
+            (
+                "Docs/branch_records/feature_automation_planning.md: Active Seam `Next active "
+                "seam` must point to PR Readiness PR1 during the phase admission repair"
+            ),
+        )
+        require(
+            continuation_next_seam == AUTOMATION_PR_READINESS_PR1_SEAM,
+            (
+                "Docs/branch_records/feature_automation_planning.md: Seam Continuation Decision "
+                "must point to PR Readiness PR1 once the branch enters PR Readiness"
+            ),
+        )
+        require(
+            AUTOMATION_LIVE_VALIDATION_LV1_STATE_PHRASE not in backlog_workstream_state,
+            (
+                "Docs/feature_backlog.md: Current Workstream State must stop reporting Live "
+                "Validation LV1 as in progress once PR Readiness PR1 is admitted"
+            ),
+        )
+        require(
+            AUTOMATION_LIVE_VALIDATION_LV1_STATE_PHRASE not in roadmap_workstream_state,
+            (
+                "Docs/prebeta_roadmap.md: Current Workstream State must stop reporting Live "
+                "Validation LV1 as in progress once PR Readiness PR1 is admitted"
+            ),
+        )
+
+
+def _validate_automation_planning_runtime_truth(
+    require,
+    *,
+    current_branch: str,
+    backlog_text: str,
+    roadmap_text: str,
+) -> None:
+    if not _is_automation_planning_branch(current_branch):
+        return
+
+    branch_record_text = _read_text(AUTOMATION_PLANNING_BRANCH_RECORD)
+
+    for required_phrase in AUTOMATION_PLANNING_RUNTIME_PROOF_REQUIRED_PHRASES:
+        require(
+            required_phrase in branch_record_text,
+            (
+                "Docs/branch_records/feature_automation_planning.md: automation runtime-proof "
+                f"contract is missing '{required_phrase}'"
+            ),
+        )
+
+    for source_name, source_text in (
+        ("Docs/feature_backlog.md", backlog_text),
+        ("Docs/prebeta_roadmap.md", roadmap_text),
+    ):
+        require(
+            "pr-heartbeat-watcher" not in source_text,
+            (
+                f"{source_name}: current-state automation summary must not regress to the retired "
+                "`pr-heartbeat-watcher` id"
+            ),
+        )
+
+
 def _validate_backlog_family_dossier_shell(
     require,
     *,
@@ -5606,8 +6051,16 @@ def _gh_pr_view_for_branch(branch_name: str) -> tuple[dict[str, object] | None, 
     rest_payload, rest_error = _github_rest_pr_view_for_branch(branch_name, repository_full_name)
     if rest_payload:
         return rest_payload, ""
+    fallback_payload, fallback_error = _automation_planning_fallback_pr_view_for_branch(branch_name)
+    if fallback_payload:
+        return fallback_payload, ""
     if gh_error:
-        return None, f"{gh_error}; {rest_error}"
+        combined_error = f"{gh_error}; {rest_error}"
+        if fallback_error:
+            combined_error = f"{combined_error}; {fallback_error}"
+        return None, combined_error
+    if fallback_error:
+        return None, f"{rest_error}; {fallback_error}"
     return None, rest_error
 
 
@@ -6037,6 +6490,119 @@ def _branch_record_bot_review_state(record_text: str) -> tuple[str, str]:
     )
 
 
+def _load_json_file(path: Path) -> dict[str, object] | None:
+    if not path.is_file():
+        return None
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return None
+    return data if isinstance(data, dict) else None
+
+
+def _automation_planning_runtime_proof_status(current_head_sha: str) -> tuple[bool, str]:
+    if not AUTOMATION_PR99_NATIVE_HEARTBEAT_PATH.is_file():
+        return (
+            False,
+            f"preferred native heartbeat config '{AUTOMATION_PR99_NATIVE_HEARTBEAT_PATH}' is missing",
+        )
+    if not AUTOMATION_PR99_FALLBACK_SCRIPT_PATH.is_file():
+        return (
+            False,
+            f"bounded fallback helper '{AUTOMATION_PR99_FALLBACK_SCRIPT_PATH}' is missing",
+        )
+    if not AUTOMATION_PR99_FALLBACK_LATEST_PATH.is_file():
+        return (
+            False,
+            f"fallback latest-status file '{AUTOMATION_PR99_FALLBACK_LATEST_PATH}' is missing",
+        )
+
+    state = _load_json_file(AUTOMATION_PR99_FALLBACK_STATE_PATH)
+    if not state:
+        return (
+            False,
+            f"fallback state file '{AUTOMATION_PR99_FALLBACK_STATE_PATH}' is missing or invalid",
+        )
+
+    recorded_head_sha = str(state.get("headSha") or "")
+    if current_head_sha and recorded_head_sha and recorded_head_sha != current_head_sha:
+        return (
+            False,
+            (
+                "fallback runtime proof is stale; state-file head "
+                f"'{recorded_head_sha}' does not match current head '{current_head_sha}'"
+            ),
+        )
+
+    if not str(state.get("lastRunLocal") or "").strip():
+        return (
+            False,
+            f"fallback state file '{AUTOMATION_PR99_FALLBACK_STATE_PATH}' is missing lastRunLocal proof",
+        )
+
+    return (
+        True,
+        (
+            "bounded fallback runtime proof is present via "
+            f"'{AUTOMATION_PR99_FALLBACK_STATE_PATH}' and "
+            f"'{AUTOMATION_PR99_FALLBACK_LATEST_PATH}'"
+        ),
+    )
+
+
+def _automation_planning_fallback_pr_view_for_branch(
+    branch_name: str,
+) -> tuple[dict[str, object] | None, str]:
+    if not _is_automation_planning_branch(branch_name):
+        return None, ""
+
+    state = _load_json_file(AUTOMATION_PR99_FALLBACK_STATE_PATH)
+    if not state:
+        return None, (
+            f"automation fallback state file '{AUTOMATION_PR99_FALLBACK_STATE_PATH}' "
+            "is missing or invalid"
+        )
+
+    repository_full_name, repository_error = _git_origin_repository_full_name()
+    if repository_error:
+        return None, repository_error
+
+    mergeable_value = str(state.get("mergeable") or "").casefold()
+    if mergeable_value == "true":
+        mergeable = "MERGEABLE"
+        merge_state = "CLEAN"
+    elif mergeable_value == "false":
+        mergeable = "CONFLICTING"
+        merge_state = "DIRTY"
+    else:
+        mergeable = "UNKNOWN"
+        merge_state = "UNKNOWN"
+
+    state_value = str(state.get("state") or "").upper() or "UNKNOWN"
+    if bool(state.get("merged")) and state_value != "CLOSED":
+        state_value = "CLOSED"
+
+    bot_approval = bool(state.get("botApproval"))
+    bot_comment_count = int(state.get("botCommentCount") or 0)
+    return {
+        "id": "",
+        "number": 99,
+        "state": state_value,
+        "mergeable": mergeable,
+        "mergeStateStatus": merge_state,
+        "reviewDecision": "APPROVED" if bot_approval else "",
+        "isDraft": bool(state.get("draft")),
+        "headRefName": branch_name,
+        "baseRefName": "main",
+        "title": "Automation Catalog",
+        "url": f"https://github.com/{repository_full_name}/pull/99",
+        "repositoryFullName": repository_full_name,
+        "fallbackLocalState": True,
+        "botApproval": bot_approval,
+        "botCommentCount": bot_comment_count,
+    }, ""
+
+
 def _run_pr_live_state_gate(
     require,
     *,
@@ -6070,8 +6636,12 @@ def _run_pr_live_state_gate(
     merge_state = str(pr_info.get("mergeStateStatus") or "")
     review_decision = str(pr_info.get("reviewDecision") or "")
     repository_full_name = str(pr_info.get("repositoryFullName") or "")
+    fallback_local_state = bool(pr_info.get("fallbackLocalState"))
+    fallback_bot_approval = bool(pr_info.get("botApproval"))
+    fallback_bot_comment_count = int(pr_info.get("botCommentCount") or 0)
     if (
         repository_full_name
+        and not fallback_local_state
         and (not mergeable or mergeable == "UNKNOWN" or not merge_state or merge_state == "UNKNOWN")
     ):
         rest_pr_info, rest_pr_error = _github_rest_pr_view_for_branch(branch_name, repository_full_name)
@@ -6084,11 +6654,25 @@ def _run_pr_live_state_gate(
             mergeable = str(pr_info.get("mergeable") or mergeable)
             merge_state = str(pr_info.get("mergeStateStatus") or merge_state)
             review_decision = str(pr_info.get("reviewDecision") or review_decision)
+            fallback_local_state = bool(pr_info.get("fallbackLocalState"))
+            fallback_bot_approval = bool(pr_info.get("botApproval"))
+            fallback_bot_comment_count = int(pr_info.get("botCommentCount") or 0)
     current_head_sha = _git_head_sha()
     current_head_time = _git_head_commit_time()
     recorded_bot_review_status, recorded_bot_review_head = _branch_record_bot_review_state(
         active_branch_record_text
     )
+    if _is_automation_planning_branch(branch_name):
+        runtime_proven, runtime_proof_message = _automation_planning_runtime_proof_status(
+            current_head_sha
+        )
+        require(
+            runtime_proven,
+            (
+                "PR readiness gate: Automation Runtime Unproven blocker is active; "
+                f"{runtime_proof_message}"
+            ),
+        )
     normalized_recorded_status = recorded_bot_review_status.strip().casefold()
     manual_comment_resolution_clear = (
         normalized_recorded_status == BOT_REVIEW_SIGNAL_STATUS_COMMENT_ADDRESSED.casefold()
@@ -6153,7 +6737,7 @@ def _run_pr_live_state_gate(
         ),
     )
 
-    if not manual_comment_resolution_clear:
+    if not manual_comment_resolution_clear and not fallback_local_state:
         unresolved_codex_threads, thread_error = _gh_unresolved_codex_threads(
             str(pr_info.get("id") or ""),
             pr_info,
@@ -6174,6 +6758,28 @@ def _run_pr_live_state_gate(
         )
 
     if manual_comment_resolution_clear:
+        return
+
+    if fallback_local_state:
+        if fallback_bot_comment_count > 0:
+            require(
+                False,
+                (
+                    "PR readiness gate: PR Validation Pending blocker is active; bounded fallback "
+                    f"runtime proof for PR {pr_url or pr_info.get('number')} reports "
+                    f"{fallback_bot_comment_count} bot comment(s); fix, push, resolve, and "
+                    "record comment-addressed closeout before PR green"
+                ),
+            )
+        if not fallback_bot_approval:
+            require(
+                False,
+                (
+                    "PR readiness gate: PR Validation Pending blocker is active; Bot Review Signal Pending "
+                    f"for live PR '{pr_url or pr_info.get('number') or 'UNKNOWN'}' according to "
+                    "the bounded fallback watcher state"
+                ),
+            )
         return
 
     live_signal, signal_error = _github_pr_bot_signal_for_live_pr(
@@ -6411,6 +7017,22 @@ def main() -> int:
             require(
                 required_phrase in text,
                 f"{relative_path}: Pre-PR Durability Rule is missing '{required_phrase}'",
+            )
+
+    for relative_path, required_phrases in AUTOMATION_RUNTIME_PROOF_CONTRACT_REQUIRED_PHRASES.items():
+        text = _read_text(relative_path)
+        for required_phrase in required_phrases:
+            require(
+                required_phrase in text,
+                f"{relative_path}: automation runtime-proof governance is missing '{required_phrase}'",
+            )
+
+    for relative_path, required_phrases in AUTOMATION_RUNTIME_PROOF_CURRENT_STATE_REQUIRED_PHRASES.items():
+        text = _read_text(relative_path)
+        for required_phrase in required_phrases:
+            require(
+                required_phrase in text,
+                f"{relative_path}: current-state runtime-proof summary is missing '{required_phrase}'",
             )
 
     for relative_path in PLANNING_LOOP_GUARDRAIL_DOCS:
@@ -6685,6 +7307,18 @@ def main() -> int:
         require,
         current_branch=current_git_branch,
         backlog_entries=backlog_entries,
+        backlog_text=backlog_text,
+        roadmap_text=roadmap_text,
+    )
+    _validate_automation_planning_phase_truth(
+        require,
+        current_branch=current_git_branch,
+        backlog_text=backlog_text,
+        roadmap_text=roadmap_text,
+    )
+    _validate_automation_planning_runtime_truth(
+        require,
+        current_branch=current_git_branch,
         backlog_text=backlog_text,
         roadmap_text=roadmap_text,
     )

@@ -327,6 +327,8 @@ That means:
   - a missing PR keeps `PR Creation Pending` active
   - unresolved Codex comments/issues, requested changes, unknown mergeability, unknown PR state, or inability to inspect the PR keep `PR Validation Pending` or `PR State Unknown` active
   - for Codex-created PRs, `Bot Review Signal Pending` also keeps PR Readiness non-green until the live PR has a thumbs-up reaction or a bot comment from the Codex GitHub bot; a bot comment keeps `PR Validation Pending` active until the branch fixes the comment on the same PR, pushes, resolves the comment, and records that current-head comment-resolution closeout; no later thumbs-up is required
+  - phase-critical automation cannot clear a gate merely because its card, config, or automation list says `ACTIVE`; `ACTIVE` is configuration state, not run proof, so keep `Automation Runtime Unproven` active until thread/inbox output, automation memory/log/state-file updates, scheduler last-run evidence, or another accepted run proof exists
+  - if the preferred Codex automation remains `ACTIVE` without run evidence, the owning phase stays blocked until run evidence exists or a bounded fallback is activated; any bounded fallback must be target-scoped, phase-scoped, read-only, and self-terminating or explicitly deleted when its terminal condition or phase exit occurs
 - no PR-ready with a PR Readiness scope miss:
   - named blockers are `PR Readiness Scope Missed`, `Between-Branch Canon Repair Attempt`, and `Next Branch Created Too Early`
   - PR Readiness must complete branch-authority cleanup, merge-target canon, post-merge truth, next-workstream selection, next-branch deferral, and release-debt routing on the active branch before green
