@@ -59,14 +59,14 @@ FB-038 remains released and closed in `v1.4.1-prebeta`.
 ## Current Branch Execution Posture
 
 Merged-Unreleased Release-Debt Owner: None.
-Repo State: Branch-owned docs/governance surface.
+Repo State: Branch-owned implementation surface.
 Merged-Main Repo State: No Active Branch.
 Latest Public Prerelease: v1.6.12-prebeta.
 Latest Public Release Commit: b06c359e58b47cfe26fe8c4b39ac04fde519dee9.
 Latest Public Prerelease Publication: https://github.com/GiribaldiTTV/Nexus-Desktop-AI/releases/tag/v1.6.12-prebeta.
 Latest Public Prerelease Title: Pre-Beta v1.6.12.
 Release Debt: Clear after v1.6.12-prebeta publication, validation, and post-release canon closure.
-Current Active Workstream: None.
+Current Active Workstream: Automation Implementation.
 Current Active Workstream Before Reform: None.
 Current Active Branch: feature/automation-planning.
 Current Active Branch Authority Record: Docs/branch_records/feature_automation_planning.md.
@@ -80,10 +80,10 @@ Selected Next Record State: Registry-only.
 Selected Next Implementation Branch: Not created.
 Historical Repair-Only Branch Handling: `feature/fb-046-post-merge-canon-sync` was a bounded repair-only post-merge canon-sync `feature/` branch and did not imply Branch Readiness admission or active branch truth for FB-046.
 Historical Branch Readiness State: Complete on `feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeout-truth`.
-Current Branch Readiness State: Complete and green on `feature/automation-planning`. The current branch now carries a complete automation-planning Branch Readiness frame under explicit `Docs/Governance Branch Waiver: APPROVED`, including admitted scope, watcher-policy boundaries, repo-hygiene candidate rules, and the future Workstream activation gate, while preserving the already-landed merged-main post-merge canon repair.
-Current Workstream State: None. No automation implementation slice is admitted yet; the branch remains at the pre-Workstream admission boundary until a valid first automation candidate satisfies the recorded activation gate; backlog-family governance reform remains historical traceability only after PR #98 merged; release packaging for `v1.6.13-prebeta` remains pending historical release posture; and FB-049 remains the only selected-next user-facing candidate.
-Current Branch Class: docs/governance.
-Current Implementation Delta Class: docs-only.
+Current Branch Readiness State: Complete and green historical basis on `feature/automation-planning`. The branch's automation-planning governance frame, watcher-policy boundaries, repo-hygiene candidate rules, and first activation gate remain preserved as the admission basis for the current Workstream slice.
+Current Workstream State: Complete and green on `feature/automation-planning`. `Workstream WS1 - First Automation Admission (PR Heartbeat Watcher)` is now admitted and created as heartbeat automation `pr-heartbeat-watcher`; target truth is the next active PR created from `feature/automation-planning` unless a later explicit PR number is provided; cadence is every 1 minute; stop condition is PR state `merged` or `closed`; no additional automation candidates are admitted on this branch; backlog-family governance reform remains historical traceability only after PR #98 merged; release packaging for `v1.6.13-prebeta` remains pending historical release posture; and FB-049 remains the only selected-next user-facing candidate.
+Current Branch Class: implementation.
+Current Implementation Delta Class: developer-tooling.
 Historical Workstream State: FB-048 is Released / Closed in `v1.6.12-prebeta`; FB-047 is Released / Closed in `v1.6.11-prebeta`; FB-046 is Released / Closed in `v1.6.10-prebeta`; FB-044 and FB-045 remain Released / Closed historical proof in `v1.6.9-prebeta`.
 Historical Hardening State: Complete on `feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeout-truth`.
 Historical Live Validation State: Complete on `feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeout-truth`.
@@ -96,7 +96,7 @@ Release Scope: close FB-048 post-release canon, admit the docs-only feature-fami
 Release Artifacts: Tag v1.6.13-prebeta; release title Pre-Beta v1.6.13; rich Markdown release notes summarize the governance reform branch authority, phased family-governance migration, and validator hardening without repeating the release title inside the notes body, and GitHub-generated `## What's Changed` plus `**Full Changelog**:` must be included.
 Post-Release Truth: the governance reform branch closes as historical branch-authority traceability after publication and validation; latest public prerelease advances to `v1.6.13-prebeta`; release debt clears; and FB-049 remains selected next, `Registry-only`, and branch-not-created until updated `main` is revalidated and FB-049 Branch Readiness admits the first bounded pre-settled incoming-launch conflict truth slice.
 Next-Branch Creation Gate: FB-049 branch creation remains blocked until the governance reform branch completes, merges, releases, updated `main` is revalidated, and FB-049 Branch Readiness admits the first bounded runtime/user-facing pre-settled incoming-launch conflict truth slice.
-Next Legal Phase: Release Readiness.
+Next Legal Phase: Hardening.
 
 ## Backlog Governance Sync
 
