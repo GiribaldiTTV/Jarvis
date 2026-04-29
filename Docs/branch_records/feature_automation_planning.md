@@ -14,7 +14,7 @@ Branch Readiness closed green at `6cc2159`. Workstream then executed as one boun
 
 ## Current Phase
 
-- Phase: `Hardening`
+- Phase: `Live Validation`
 
 ## Phase Status
 
@@ -57,9 +57,11 @@ Branch Readiness closed green at `6cc2159`. Workstream then executed as one boun
 - Historical Workstream Slice: `WS8 - Post-Merge Closure Watch`
 - WS8 result: complete and green. Cron automation `post-merge-closure-watch` now watches for merge or release-publication follow-through every hour and reports waiting truth until post-merge or post-release closure becomes relevant.
 - Historical Workstream Status: complete and green. The full admitted automation catalog is now implemented on this branch, no additional automation candidates are admitted, and FB-049 remains selected next, `Registry-only`, and branch-not-created.
-- Current Hardening Seam: `Hardening H1 - Automation Catalog Validation`
-- Hardening H1 status: in progress. This seam is validating Workstream-to-Hardening authority alignment, all eight automation records, automation id/cadence class/target/stop-condition/output-boundary truth, heartbeat-vs-cron separation, operational rollback pause/delete paths, and preserved FB-049 selected-next truth with no waiver recorded.
-- Next Active Seam: `Hardening H1 - Automation Catalog Validation`
+- Historical Hardening Seam: `Hardening H1 - Automation Catalog Validation`
+- Hardening H1 result: complete and green. Authority-aligned hardening validation confirmed all eight automation records, automation id/cadence class/target/stop-condition/output-boundary truth, heartbeat-vs-cron separation, operational rollback pause/delete paths, and preserved FB-049 selected-next truth with no repair candidates.
+- Current Live Validation Seam: `Live Validation LV1 - Automation Catalog Final Validation`
+- Live Validation LV1 status: in progress. This seam is validating the completed automation catalog against live branch truth, heartbeat-versus-cron separation, operational rollback availability, clean branch/origin alignment, and preserved FB-049 selected-next truth with no waiver recorded.
+- Next Active Seam: `Live Validation LV1 - Automation Catalog Final Validation`
 
 ## Branch Class
 
@@ -92,7 +94,7 @@ None.
 
 ## Next Legal Phase
 
-- `Live Validation`
+- `PR Readiness`
 
 ## Scope
 
@@ -335,19 +337,21 @@ Seam 8: `WS8 - Post-Merge Closure Watch`
 
 ## Active Seam
 
-Active seam: `Hardening H1 - Automation Catalog Validation`
-Next active seam: `Hardening H1 - Automation Catalog Validation`
+Active seam: `Live Validation LV1 - Automation Catalog Final Validation`
+Next active seam: `Live Validation LV1 - Automation Catalog Final Validation`
 
 - Workstream WS1 through WS8 remain complete and green historical truth on this branch.
+- Hardening H1 `Automation Catalog Validation` is complete and green on this branch.
+- Live Validation LV1 `Automation Catalog Final Validation` is the current active seam on this branch.
 
 ## Seam Continuation Decision
 
-Seam Status: `Green`
-Slice Status: `Green`
+Seam Status: `In Progress`
+Slice Status: `In Progress`
 Completion Status: `Green`
 Waiver Status: `None`
-Continue Decision: `Stop`
-Stop Basis: `Workstream Green`
-Next Active Seam: `None. Workstream is complete and green; Hardening H1 - Automation Catalog Validation is next legal seam.`
-Stop Condition: `All admitted automation slices are implemented, validated, and authority-synced on this branch.`
-Continuation Action: `Route to Hardening H1 - Automation Catalog Validation.`
+Continue Decision: `Continue`
+Stop Basis: `None`
+Next Active Seam: `Live Validation LV1 - Automation Catalog Final Validation`
+Stop Condition: `Stop only if Live Validation LV1 turns green and PR Readiness becomes the next legal phase, or if a named blocker or waiver stops Live Validation before LV1 completes.`
+Continuation Action: `Execute Live Validation LV1 automation-catalog final validation while preserving the completed Workstream, Hardening, cadence boundaries, rollback paths, and FB-049 selected-next truth.`

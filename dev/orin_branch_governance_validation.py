@@ -1232,6 +1232,10 @@ AUTOMATION_HARDENING_H1_SEAM = "Hardening H1 - Automation Catalog Validation"
 AUTOMATION_HARDENING_H1_STATE_PHRASE = (
     "Hardening H1 `Automation Catalog Validation` is in progress"
 )
+AUTOMATION_LIVE_VALIDATION_LV1_SEAM = "Live Validation LV1 - Automation Catalog Final Validation"
+AUTOMATION_LIVE_VALIDATION_LV1_STATE_PHRASE = (
+    "Live Validation LV1 `Automation Catalog Final Validation` is in progress"
+)
 
 BOT_REVIEW_SIGNAL_HEADING = "PR Bot Review Signal"
 BOT_REVIEW_SIGNAL_STATUS_LABEL = "Bot Review Signal Status"
@@ -4949,13 +4953,18 @@ def _validate_automation_planning_phase_truth(
     roadmap_workstream_state = _extract_colon_value(roadmap_text, "Current Workstream State")
     phase_status_section = _section(branch_record_text, "Phase Status")
     active_seam_section = _section(branch_record_text, "Active Seam")
+    continuation_section = _section(branch_record_text, "Seam Continuation Decision")
     phase_status_next_seam = _extract_marker_value(phase_status_section, "Next Active Seam")
+    continuation_next_seam = _extract_marker_value(continuation_section, "Next Active Seam")
     active_seam_match = re.search(r"^Next active seam:\s*`([^`]+)`", active_seam_section, flags=re.M)
     active_seam_next = active_seam_match.group(1).strip() if active_seam_match else ""
     active_seam_current = _extract_marker_value(active_seam_section, "Active seam")
     current_phase = _extract_marker_value(_section(branch_record_text, "Current Phase"), "Phase")
     next_legal_phase = _extract_first_backtick_value(_section(branch_record_text, "Next Legal Phase"))
     phase_status_hardening_seam = _extract_marker_value(phase_status_section, "Current Hardening Seam")
+    phase_status_live_validation_seam = _extract_marker_value(
+        phase_status_section, "Current Live Validation Seam"
+    )
     backlog_next_legal_phase = _extract_colon_value(backlog_text, "Next Legal Phase").rstrip(".")
     roadmap_next_legal_phase = _extract_colon_value(roadmap_text, "Next Legal Phase").rstrip(".")
 
@@ -5027,6 +5036,99 @@ def _validate_automation_planning_phase_truth(
             (
                 "Docs/branch_records/feature_automation_planning.md: Active Seam `Next active "
                 "seam` must point to Hardening H1 during the phase-admission repair"
+            ),
+        )
+
+    if (
+        AUTOMATION_LIVE_VALIDATION_LV1_STATE_PHRASE in backlog_workstream_state
+        and AUTOMATION_LIVE_VALIDATION_LV1_STATE_PHRASE in roadmap_workstream_state
+    ):
+        require(
+            current_phase == "Live Validation",
+            (
+                "Docs/branch_records/feature_automation_planning.md: Current Phase must "
+                "transition to `Live Validation` once the automation-planning branch current-state "
+                "summaries declare Live Validation LV1 in progress"
+            ),
+        )
+        require(
+            next_legal_phase == "PR Readiness",
+            (
+                "Docs/branch_records/feature_automation_planning.md: Next Legal Phase must "
+                "advance to `PR Readiness` once the branch has transitioned into Live Validation"
+            ),
+        )
+        require(
+            backlog_next_legal_phase == "PR Readiness",
+            (
+                "Docs/feature_backlog.md: Next Legal Phase must advance to `PR Readiness` "
+                "once the automation-planning branch current-state summary declares Live Validation "
+                "LV1 in progress"
+            ),
+        )
+        require(
+            roadmap_next_legal_phase == "PR Readiness",
+            (
+                "Docs/prebeta_roadmap.md: Next Legal Phase must advance to `PR Readiness` "
+                "once the automation-planning branch current-state summary declares Live Validation "
+                "LV1 in progress"
+            ),
+        )
+        require(
+            phase_status_hardening_seam != AUTOMATION_HARDENING_H1_SEAM,
+            (
+                "Docs/branch_records/feature_automation_planning.md: Phase Status must stop "
+                "naming Hardening H1 as the current seam once Live Validation LV1 is admitted"
+            ),
+        )
+        require(
+            phase_status_live_validation_seam == AUTOMATION_LIVE_VALIDATION_LV1_SEAM,
+            (
+                "Docs/branch_records/feature_automation_planning.md: Phase Status must name "
+                "Live Validation LV1 as the current live-validation seam during the phase "
+                "admission repair"
+            ),
+        )
+        require(
+            phase_status_next_seam == AUTOMATION_LIVE_VALIDATION_LV1_SEAM,
+            (
+                "Docs/branch_records/feature_automation_planning.md: Phase Status `Next Active "
+                "Seam` must point to Live Validation LV1 during the phase admission repair"
+            ),
+        )
+        require(
+            active_seam_current == AUTOMATION_LIVE_VALIDATION_LV1_SEAM,
+            (
+                "Docs/branch_records/feature_automation_planning.md: Active Seam must name "
+                "Live Validation LV1 as the current active seam during the phase admission repair"
+            ),
+        )
+        require(
+            active_seam_next == AUTOMATION_LIVE_VALIDATION_LV1_SEAM,
+            (
+                "Docs/branch_records/feature_automation_planning.md: Active Seam `Next active "
+                "seam` must point to Live Validation LV1 during the phase admission repair"
+            ),
+        )
+        require(
+            continuation_next_seam == AUTOMATION_LIVE_VALIDATION_LV1_SEAM,
+            (
+                "Docs/branch_records/feature_automation_planning.md: Seam Continuation Decision "
+                "must point to Live Validation LV1 once the branch enters Live Validation"
+            ),
+        )
+        require(
+            AUTOMATION_HARDENING_H1_STATE_PHRASE not in backlog_workstream_state,
+            (
+                "Docs/feature_backlog.md: Current Workstream State must stop reporting Hardening "
+                "H1 as in progress once Live Validation LV1 is admitted"
+            ),
+        )
+        require(
+            AUTOMATION_HARDENING_H1_STATE_PHRASE not in roadmap_workstream_state,
+            (
+                "Docs/prebeta_roadmap.md: Current Workstream State must stop reporting Hardening "
+                "H1 as in progress once Live Validation LV1 is admitted"
             ),
         )
 
