@@ -561,6 +561,7 @@ Any tracked file mutation while Codex is on `main` is a `Main Write Attempt`.
 When a `PR Readiness` pass is package-ready, green, or reports `PR READY: YES`, require a standardized `Next Branch` block and inclusion-only copy-ready `PR Creation Details` operator blocks.
 This keeps successor-branch handling and PR creation instructions from being reinvented or omitted while keeping operator copy concise.
 For Codex-created PRs, `PR Readiness GREEN` also requires the live PR to clear `Bot Review Signal Pending` through either a thumbs-up reaction or a bot comment from the Codex GitHub bot. A bot comment keeps `PR Validation Pending` active until the branch fixes the comment on the same PR, pushes, resolves the comment, and records that current-head comment-resolution closeout; no later thumbs-up is required.
+`Automation Runtime Unproven` also keeps PR Readiness non-green for any phase-critical automation gate. A card, config file, or automation list showing `ACTIVE` is configuration state, not run proof. Accept run evidence only from thread or inbox output, automation memory/log/state-file updates, or scheduler last-run evidence. If the preferred Codex automation remains `ACTIVE` without run evidence, keep the owning phase blocked until run evidence exists or a bounded fallback is activated. Any bounded fallback must be target-scoped, phase-scoped, read-only, and self-terminating or explicitly deleted when its terminal condition or phase exit occurs.
 
 Required `Next Branch` block:
 

@@ -41,7 +41,7 @@ Branch Readiness closed green at `6cc2159`. Workstream then executed as one boun
 - BR4 result: complete and green. The Workstream admission gate, valid first automation candidate criteria, minimal first implementation slice, activation validation contract, and rollback/containment rules were made explicit; docs/governance-only status remained in force until a later valid implementation slice was expressly admitted.
 - Historical Branch Readiness Status: complete and green at `6cc2159`. The branch owns a complete automation-planning governance frame, the activation gate is proven, and the carried post-merge canon repair remains preserved on this same branch.
 - Historical Workstream Slice: `WS1 - PR Heartbeat Watcher`
-- WS1 result: complete and green. Heartbeat automation `pr-heartbeat-watcher` now monitors the next active PR created from `feature/automation-planning` or a later explicit PR number, runs every minute on the current thread, and stops when the PR becomes `merged` or `closed`.
+- WS1 result: complete and green. The `PR Heartbeat Watcher` owns the minute-scale preferred native Codex heartbeat path for this branch's PR contract. `ACTIVE` alone is not run proof; live status requires run evidence. If the preferred native heartbeat remains `ACTIVE` without run evidence, a bounded PR-specific fallback watcher may temporarily carry the same read-only monitoring contract during `PR Readiness`, narrowed to the live PR and self-deleting when the PR becomes `merged` or `closed` or the branch leaves `PR Readiness`.
 - Historical Workstream Slice: `WS2 - Phase And Authority Drift Watch`
 - WS2 result: complete and green. Cron automation `phase-drift-watch` now audits branch phase, active seam, next legal phase, active authority routing, and current-state summary surfaces every hour.
 - Historical Workstream Slice: `WS3 - Selected-Next Lock Audit`
@@ -63,6 +63,7 @@ Branch Readiness closed green at `6cc2159`. Workstream then executed as one boun
 - Live Validation LV1 result: complete and green. Final authority-aligned validation confirmed all eight automation records, heartbeat-versus-cron separation, operational rollback availability, clean branch/origin alignment, and preserved FB-049 selected-next truth with no repair candidates.
 - Current PR Readiness Seam: `PR Readiness PR1 - Automation Catalog PR Validation`
 - PR Readiness PR1 status: in progress. This seam is admitting PR Readiness authority, preserving clean durable branch truth, validating merge-target canon and release-window posture, creating the live PR, validating live PR state against the automation catalog contract, and preserving FB-049 selected-next truth with no waiver recorded.
+- PR Readiness PR1 runtime-proof status: the phase-critical PR watcher now requires explicit run evidence before it can clear PR-facing automation truth. Native Codex heartbeat is preferred, but if it remains `ACTIVE` without run evidence, a bounded fallback watcher may operate only for the live PR during `PR Readiness` and must self-delete when the PR becomes terminal or the branch leaves `PR Readiness`.
 - Next Active Seam: `PR Readiness PR1 - Automation Catalog PR Validation`
 
 ## Branch Class
@@ -110,7 +111,7 @@ None.
   - `Release Window Sentinel`
   - `Post-Merge Closure Watch`
 - minimum branch-authority and current-state sync needed to keep that catalog truthful
-- thread-attached heartbeat behavior only for the PR watcher
+- thread-attached heartbeat behavior only for the PR watcher, with a bounded phase-scoped fallback permitted only when native runtime proof is missing
 - cron-backed repo-hygiene monitoring only for the declared slower recurring automations
 
 ## Explicit Non-Goals
@@ -151,7 +152,8 @@ Backlog-Split Reason: `None`
   - `Docs/branch_records/feature_automation_planning.md`
   - `Docs/feature_backlog.md`
   - `Docs/prebeta_roadmap.md`
-  - `$CODEX_HOME/automations/pr-heartbeat-watcher/automation.toml`
+  - `$CODEX_HOME/automations/pr99-heartbeat-watch/automation.toml`
+  - `$CODEX_HOME/watchers/pr99-watch.ps1`
   - `$CODEX_HOME/automations/phase-drift-watch/automation.toml`
   - `$CODEX_HOME/automations/selected-next-lock-audit/automation.toml`
   - `$CODEX_HOME/automations/main-revalidation-gate-watch/automation.toml`
@@ -161,10 +163,10 @@ Backlog-Split Reason: `None`
   - `$CODEX_HOME/automations/post-merge-closure-watch/automation.toml`
 - Admitted Slice Chain:
   - `WS1 - PR Heartbeat Watcher`
-    - automation id: `pr-heartbeat-watcher`
-    - target: `next active PR created from feature/automation-planning` unless later narrowed to an explicit PR number
+    - automation id: `current live native instance pr99-heartbeat-watch`; earlier generic branch-local id `pr-heartbeat-watcher` is historical only
+    - target: `next active PR created from feature/automation-planning` unless later narrowed to an explicit PR number; PR-specific fallback may narrow to the live PR only
     - cadence: `heartbeat / every 1 minute`
-    - stop condition: `PR state becomes merged or closed`
+    - stop condition: `PR state becomes merged or closed`; any fallback helper must also stop when branch phase leaves `PR Readiness`
   - `WS2 - Phase And Authority Drift Watch`
     - automation id: `phase-drift-watch`
     - target: `active branch phase, seam, next legal phase, authority record, and current-state surfaces`
@@ -194,12 +196,12 @@ Backlog-Split Reason: `None`
     - automation id: `release-window-sentinel`
     - target: `PR Readiness or Release Readiness entry for the active branch`
     - cadence: `cron / every hour`
-    - stop condition: `none on this slice; remains active as admitted lifecycle automation`
+    - stop condition: `no terminal branch state on this slice; outside its owned window it may remain active only as a read-only waiting monitor`
   - `WS8 - Post-Merge Closure Watch`
     - automation id: `post-merge-closure-watch`
     - target: `merge or release-publication follow-through for the active branch`
     - cadence: `cron / every hour`
-    - stop condition: `none on this slice; remains active as admitted lifecycle automation`
+    - stop condition: `no terminal branch state on this slice; outside its owned window it may remain active only as a read-only waiting monitor`
 - Allowed Signals:
   - PR state, mergeability, head commit changes, bot-review approval, unresolved comment presence when provable
   - branch phase, active seam, next legal phase, current-state authority routing
@@ -211,6 +213,7 @@ Backlog-Split Reason: `None`
 - Allowed Outputs:
   - thread-attached status updates for the heartbeat watcher
   - inbox status updates for cron automations
+  - phase-bounded local log/state-file updates for a PR-specific fallback helper when native heartbeat runtime proof is missing
   - governed state markers
   - blocker identification
   - ready/not-ready posture
@@ -228,16 +231,30 @@ Backlog-Split Reason: `None`
 - run `git diff --check`
 - inspect all admitted automation TOML records under `$CODEX_HOME/automations/`
 - confirm the PR watcher remains the only minute-scale heartbeat automation
+- confirm the PR watcher is treated as live only when run evidence exists; `ACTIVE` alone is not proof
+- if native heartbeat run evidence is missing, confirm any fallback helper stays narrowed to the live PR, remains read-only, and is phase-scoped to `PR Readiness`
 - confirm the repo-hygiene and lifecycle monitors remain cron-based on their admitted hourly or 6-hour cadences
 - confirm branch truth shows the full slice chain completed before Workstream green
 - confirm FB-049 remains selected next, `Registry-only`, and branch-not-created
 
+## Automation Runtime Proof And Fallback Contract
+
+- `Automation Status: ACTIVE` is configuration state only; it is not run proof.
+- Live automation proof requires at least one of: thread or inbox output, automation memory/log/state-file updates, or scheduler last-run evidence.
+- Preferred runtime for the `PR Heartbeat Watcher` is native Codex thread-attached heartbeat behavior.
+- If the preferred Codex heartbeat remains `ACTIVE` without run evidence, keep the owning phase blocked until native run evidence exists or a bounded fallback watcher is activated.
+- Any bounded fallback watcher must be target-scoped to the live PR, phase-scoped to `PR Readiness`, read-only, and self-terminating or explicitly deleted when the PR becomes `merged` or `closed` or the branch leaves `PR Readiness`.
+- `Release Window Sentinel` and `Post-Merge Closure Watch` may remain durable read-only waiting monitors outside their owned windows, but they must not create merge, release, or green authority by themselves.
+
 ## Rollback And Containment Requirements
 
 - disable or delete any automation whose target, cadence, or output surface drifts away from the admitted contract
+- pause or delete any native heartbeat instance that remains `ACTIVE` without run evidence once a bounded fallback or repaired native runtime path takes over
+- delete any fallback helper immediately when the PR becomes `merged` or `closed` or the branch leaves `PR Readiness`
 - rollback if branch authority, backlog, or roadmap truth drifts away from the completed automation catalog
 - rollback if any automation widens into mutation-capable behavior, extra targets, or extra phase authority
 - containment must keep the heartbeat watcher thread-attached and the cron automations workspace-scoped on their declared cadences
+- containment must keep any fallback helper narrowed to the live PR and phase-bounded to `PR Readiness`
 - any future target narrowing is allowed only inside the already admitted watcher contract; widening to unrelated targets is not
 
 ## Branch Objective
@@ -361,23 +378,24 @@ Continuation Action: `Execute PR Readiness PR1 automation-catalog PR validation,
 
 ## Governance Drift Audit
 
-- Governance Drift Found: No
-- Drift Type: None active after this admission repair.
-- Why Current Canon Failed To Prevent It: Live Validation closed green, but this branch had not yet advanced its active authority markers into PR Readiness or created the live PR needed for PR-state validation.
-- Required Canon Changes: advance the active branch authority into `PR Readiness PR1`, sync backlog and roadmap current-state summaries, and keep the automation-planning validator phase-truth coverage aligned with the new active seam.
-- Whether The Drift Blocks Merge: Yes until PR Readiness authority is admitted and the live PR exists.
+- Governance Drift Found: Yes, repaired on this branch.
+- Drift Type: automation runtime-proof and fallback-containment gap.
+- Why Current Canon Failed To Prevent It: the branch truth treated the PR heartbeat watcher as effectively live once it existed and showed `ACTIVE`, but the native Codex heartbeat runtime produced no run evidence and the branch had no explicit bounded fallback rule.
+- Required Canon Changes: record that `ACTIVE` is configuration state rather than run proof, require explicit run evidence for phase-critical automation, allow only target-scoped and phase-scoped bounded fallback helpers, and keep lifecycle waiting monitors from implying merge or release authority by themselves.
+- Whether The Drift Blocks Merge: Yes until PR watcher runtime proof exists through native evidence or a bounded fallback and the repaired governance truth is durable on the branch.
 - Whether User Confirmation Is Required: No for the current approved automation-catalog validation branch.
-- Missing blocker check: no blocker is missing after this repair; PR phase admission, live PR creation, PR validation, release-window posture, post-merge state, and FB-049 selected-next preservation are all represented in current governance.
-- Weak phase entry or exit rule check: no unresolved weakness remains after this repair; PR creation and live PR validation now occur in PR Readiness instead of being left implicit after Live Validation.
+- Missing blocker check: no blocker is missing after this repair; PR phase admission, live PR creation, PR validation, runtime-proof enforcement, release-window posture, post-merge state, and FB-049 selected-next preservation are all represented in current governance.
+- Weak phase entry or exit rule check: no unresolved weakness remains after this repair; PR creation and live PR validation now occur in PR Readiness instead of being left implicit after Live Validation, and PR-critical automation now carries an explicit phase-bounded fallback rule.
 - Weak source-of-truth ownership rule check: no unresolved weakness remains; the branch authority record owns active phase truth, while backlog and roadmap remain synchronized subordinate mirrors.
-- Stale prompt scaffolding or operator example check: no blocking stale scaffolding remains after this repair; PR Readiness now carries explicit active-seam truth.
-- Missing validator requirement check: the automation-planning validator now enforces PR1 phase admission markers in addition to the earlier Hardening and Live Validation phase-truth checks.
+- Stale prompt scaffolding or operator example check: no blocking stale scaffolding remains after this repair; PR Readiness now carries explicit active-seam truth and automation runtime-proof language.
+- Missing validator requirement check: the automation-planning validator now enforces PR1 phase admission markers, runtime-proof language, fallback containment, and lifecycle waiting-monitor boundaries in addition to the earlier Hardening and Live Validation phase-truth checks.
 
 ## Post-Merge State
 
 - Post-merge repo state: `No Active Branch` after merge, while merged current-state canon carries the still-unreleased pre-Beta posture and this branch authority record becomes historical traceability only.
 - Post-merge selected-next truth: FB-049 remains selected next, `Registry-only`, and branch-not-created until updated `main` is revalidated and FB-049 Branch Readiness admits the first bounded pre-settled incoming-launch conflict truth slice.
 - Post-merge automation-catalog truth: merged canon must preserve the admitted eight-record automation catalog, the heartbeat-versus-cron cadence split, the rollback/containment rules, and the clean FB-049 selected-next lock.
+- Post-merge PR watcher fallback handling: any temporary PR-specific fallback helper must be removed or already self-terminated before this record becomes historical traceability only.
 - Post-merge branch-record handling: this record must leave `Active Branch Authority Records` after merge and move to historical traceability once later release packaging and publication are complete.
 - Post-merge successor handling: no successor implementation branch opens during this automation-catalog PR; later successor work remains the future FB-049 branch only after its stated gate clears.
 
