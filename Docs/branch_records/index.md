@@ -50,10 +50,12 @@ Do not use this layer to replace:
 
 ## Active Branch Authority Records
 
-- `Docs/branch_records/feature_automation_planning_post_merge_closeout_repair.md`
+`None.`
 
 ## Historical Branch Authority Records
 
+- `Docs/branch_records/feature_pr101_post_merge_closeout_canon_repair.md`
+- `Docs/branch_records/feature_automation_planning_post_merge_closeout_repair.md`
 - `Docs/branch_records/feature_automation_planning_post_merge_canon_repair.md`
 - `Docs/branch_records/feature_automation_planning.md`
 - `Docs/branch_records/feature_backlog_family_governance_reform.md`
