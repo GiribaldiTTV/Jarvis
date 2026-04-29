@@ -33,6 +33,14 @@ It does not reopen automation implementation, widen into release execution, muta
 - Current Branch Readiness Seam: `Branch Readiness BR1 - PR101 Post-Merge Closeout Canon Repair Admission`
 - BR1 result: complete and green historical truth. This seam admitted the bounded closeout-canon repair branch, cleared stale active-branch authority for the merged PR #101 repair branch, moved that earlier repair record to historical-only traceability, preserved merged-main `No Active Branch` truth, preserved same-thread watcher merge-verification and shutdown proof, preserved pending `v1.6.13-prebeta` release posture, and preserved FB-049 selected-next truth.
 - Current PR Readiness Seam: `PR Readiness PR1 - PR101 Post-Merge Closeout Canon Repair PR Validation`
+- Live PR: `https://github.com/GiribaldiTTV/Nexus-Desktop-AI/pull/102`
+- Live PR State: `open`
+- Live PR Head Commit: `bbbbb5ecb7fda74184d113aa9c581d48f70ce620`
+- Live PR Merge Status: `green at PR-entry time`
+- PR watcher runtime: authoritative same working thread watcher `Codex PR101 Post-Merge Closeout Canon Repair Watch` uses `$CODEX_HOME/watchers/pr101-post-merge-closeout-canon-repair-watch.ps1` plus repo helper `dev/pr_same_thread_watcher.py` to emit only status-change updates into the working thread transcript while PR #102 remains open
+- PR watcher run proof: same-thread transcript proof is preserved via `$CODEX_HOME/watchers/pr101-post-merge-closeout-canon-repair-watch-state.json`, `$CODEX_HOME/watchers/pr101-post-merge-closeout-canon-repair-watch-latest.txt`, and `$CODEX_HOME/watchers/pr101-post-merge-closeout-canon-repair-watch.log`
+- PR watcher proof timestamps: first same-thread status-change emission for PR #102 was recorded at `2026-04-29T23:48:27.523993Z`
+- Bot approval proof: pending
 - Next Active Seam: `PR Readiness PR1 - PR101 Post-Merge Closeout Canon Repair PR Validation`
 
 ## Branch Class
@@ -41,8 +49,8 @@ It does not reopen automation implementation, widen into release execution, muta
 
 ## Blockers
 
-- `PR Creation Pending`
-- `PR Watcher Provisioning Unproven`
+- `PR Validation Pending`
+- `Bot Review Signal Pending`
 
 ## Entry Basis
 
@@ -111,8 +119,8 @@ Waiver Status: `None`
 Continue Decision: `Stop`
 Stop Basis: `Named Blocker`
 Next Active Seam: `PR Readiness PR1 - PR101 Post-Merge Closeout Canon Repair PR Validation`
-Stop Condition: `Stop while live PR creation, watcher provisioning, merge-status proof, or bot-review signal state are not yet proven.`
-Continuation Action: `Create the live repair PR, provision the same working thread watcher, and rerun PR Readiness validation against the live PR state.`
+Stop Condition: `Stop while bot-review signal state is not yet green or while later PR2 merge verification has not yet been admitted.`
+Continuation Action: `Keep PR #102 on the same working thread watcher, wait for the bot-review signal to clear PR1, and admit PR2 on this same branch before Release Readiness.`
 
 ## Branch Objective
 
@@ -163,7 +171,7 @@ Non-Includes: Release Readiness admission before merge verification, implementat
 - Drift Type: stale post-merge active-branch authority after PR #101 merge
 - Why Current Canon Failed To Prevent It: the previous closeout repair merged cleanly, but its active branch-authority record remained in place on merged `main` because the final post-merge closeout step did not complete on the same repair surface before the source branch disappeared
 - Required Canon Changes: admit this bounded repair branch, keep merged-main current-state owners stable at `No Active Branch`, keep prior repair traceability historical-only, and require same-thread watcher provisioning proof on the live repair PR before PR green
-- Whether The Drift Blocks Merge: `Yes until the live repair PR is created and validated`
+- Whether The Drift Blocks Merge: `Yes until the live repair PR exists, same-thread watcher proof is present, and PR-entry validation is green`
 - Whether User Confirmation Is Required: `No for this bounded approved repair branch`
 - Missing blocker check: `PR Watcher Provisioning Unproven` must stay a standard blocker until the current live repair PR has explicit watcher target, runtime path, run proof, and teardown proof
 - Weak source-of-truth ownership rule check: transient repair PR execution truth belongs only in this active branch-authority record while merged-main current-state owners remain `No Active Branch`
