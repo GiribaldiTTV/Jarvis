@@ -3,9 +3,17 @@ import re
 import subprocess
 import sys
 from pathlib import Path
+from urllib import error as urllib_error
+from urllib import parse as urllib_parse
+from urllib import request as urllib_request
 
 
 ROOT_DIR = Path(__file__).resolve().parent.parent
+GITHUB_API_HEADERS = {
+    "Accept": "application/vnd.github+json",
+    "User-Agent": "orin-branch-governance-validation",
+}
+GITHUB_API_TIMEOUT_SECONDS = 20
 
 PHASES = (
     "Branch Readiness",
@@ -5005,30 +5013,255 @@ def _git_branch_names() -> tuple[list[str], str]:
     return sorted(set(names)), "; ".join(error for error in errors if error)
 
 
-def _gh_pr_view_for_branch(branch_name: str) -> tuple[dict[str, object] | None, str]:
-    fields = (
-        "id,number,state,mergeable,mergeStateStatus,reviewDecision,isDraft,"
-        "headRefName,baseRefName,title,url"
-    )
+def _git_origin_repository_full_name() -> tuple[str, str]:
     completed = subprocess.run(
-        ("gh", "pr", "view", branch_name, "--json", fields),
+        ("git", "remote", "get-url", "origin"),
         cwd=ROOT_DIR,
         text=True,
-        encoding="utf-8",
-        errors="replace",
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         check=False,
     )
     if completed.returncode != 0:
-        return None, completed.stderr.strip() or completed.stdout.strip() or "gh pr view failed"
+        return "", completed.stderr.strip() or "git remote get-url origin failed"
+
+    remote_url = completed.stdout.strip()
+    match = re.search(r"github\.com[:/](?P<owner>[^/]+)/(?P<repo>[^/]+?)(?:\.git)?$", remote_url)
+    if not match:
+        return "", f"could not parse GitHub origin remote '{remote_url}'"
+    return f"{match.group('owner')}/{match.group('repo')}", ""
+
+
+def _github_api_json(url: str) -> tuple[object | None, str]:
+    request = urllib_request.Request(url, headers=GITHUB_API_HEADERS)
     try:
-        return json.loads(completed.stdout), ""
+        with urllib_request.urlopen(request, timeout=GITHUB_API_TIMEOUT_SECONDS) as response:
+            payload = response.read().decode("utf-8", "replace")
+    except urllib_error.HTTPError as exc:
+        details = exc.read().decode("utf-8", "replace")
+        message = details.strip() or exc.reason or "GitHub API HTTP error"
+        return None, f"{exc.code} {message}"
+    except urllib_error.URLError as exc:
+        return None, str(exc.reason or exc)
+    except OSError as exc:
+        return None, str(exc)
+
+    try:
+        return json.loads(payload), ""
     except json.JSONDecodeError as exc:
-        return None, f"could not parse gh pr view JSON: {exc}"
+        return None, f"could not parse GitHub API JSON: {exc}"
 
 
-def _gh_unresolved_codex_threads(pr_node_id: str) -> tuple[list[str], str]:
+def _github_rest_review_decision(
+    repository_full_name: str,
+    pr_number: int,
+    requested_reviewers: list[object],
+    requested_teams: list[object],
+) -> tuple[str, str]:
+    reviews_payload, reviews_error = _github_api_json(
+        f"https://api.github.com/repos/{repository_full_name}/pulls/{pr_number}/reviews"
+    )
+    if reviews_error:
+        return "", reviews_error
+
+    latest_by_author: dict[str, str] = {}
+    for review in reviews_payload or []:
+        author = str(((review.get("user") or {}).get("login")) or "").casefold()
+        state = str(review.get("state") or "").upper()
+        if author and state:
+            latest_by_author[author] = state
+
+    if any(state == "CHANGES_REQUESTED" for state in latest_by_author.values()):
+        return "CHANGES_REQUESTED", ""
+    if requested_reviewers or requested_teams:
+        return "REVIEW_REQUIRED", ""
+    if any(state == "APPROVED" for state in latest_by_author.values()):
+        return "APPROVED", ""
+    return "", ""
+
+
+def _github_rest_pr_view_for_branch(
+    branch_name: str,
+    repository_full_name: str,
+) -> tuple[dict[str, object] | None, str]:
+    if not repository_full_name:
+        return None, "GitHub origin repository is unknown"
+
+    owner = repository_full_name.split("/", 1)[0]
+    pulls_url = (
+        "https://api.github.com/repos/"
+        f"{repository_full_name}/pulls?state=all&head={urllib_parse.quote(f'{owner}:{branch_name}', safe=':')}"
+    )
+    pulls_payload, pulls_error = _github_api_json(pulls_url)
+    if pulls_error:
+        return None, f"REST pull lookup failed: {pulls_error}"
+    pulls = pulls_payload or []
+    if not pulls:
+        return None, f"REST pull lookup found no PR for branch '{branch_name}'"
+
+    pull = max(
+        pulls,
+        key=lambda item: int(item.get("number") or 0),
+    )
+    pr_number = int(pull.get("number") or 0)
+    if not pr_number:
+        return None, f"REST pull lookup returned no PR number for branch '{branch_name}'"
+
+    detail_payload, detail_error = _github_api_json(
+        f"https://api.github.com/repos/{repository_full_name}/pulls/{pr_number}"
+    )
+    if detail_error:
+        return None, f"REST pull detail lookup failed: {detail_error}"
+
+    requested_reviewers = list(detail_payload.get("requested_reviewers") or [])
+    requested_teams = list(detail_payload.get("requested_teams") or [])
+    review_decision, review_error = _github_rest_review_decision(
+        repository_full_name,
+        pr_number,
+        requested_reviewers,
+        requested_teams,
+    )
+    if review_error:
+        return None, f"REST review lookup failed: {review_error}"
+
+    mergeable_value = detail_payload.get("mergeable")
+    if mergeable_value is True:
+        mergeable = "MERGEABLE"
+    elif mergeable_value is False:
+        mergeable = "CONFLICTING"
+    else:
+        mergeable = "UNKNOWN"
+
+    return {
+        "id": detail_payload.get("node_id") or "",
+        "number": pr_number,
+        "state": str(detail_payload.get("state") or "").upper(),
+        "mergeable": mergeable,
+        "mergeStateStatus": str(detail_payload.get("mergeable_state") or "").upper(),
+        "reviewDecision": review_decision,
+        "isDraft": bool(detail_payload.get("draft")),
+        "headRefName": str(((detail_payload.get("head") or {}).get("ref")) or ""),
+        "baseRefName": str(((detail_payload.get("base") or {}).get("ref")) or ""),
+        "title": str(detail_payload.get("title") or ""),
+        "url": str(detail_payload.get("html_url") or ""),
+        "repositoryFullName": repository_full_name,
+    }, ""
+
+
+def _codex_related_author_or_body(author: str, body: str) -> bool:
+    author_lower = author.casefold()
+    body_lower = body.casefold()
+    return "codex" in author_lower or "openai" in author_lower or "codex" in body_lower
+
+
+def _github_rest_unresolved_codex_threads(
+    repository_full_name: str,
+    pr_number: int,
+) -> tuple[list[str], str]:
+    if not repository_full_name or not pr_number:
+        return [], "REST fallback is missing PR identity"
+
+    issue_comments_payload, issue_comments_error = _github_api_json(
+        f"https://api.github.com/repos/{repository_full_name}/issues/{pr_number}/comments"
+    )
+    if issue_comments_error:
+        return [], f"REST issue-comment lookup failed: {issue_comments_error}"
+
+    review_comments_payload, review_comments_error = _github_api_json(
+        f"https://api.github.com/repos/{repository_full_name}/pulls/{pr_number}/comments"
+    )
+    if review_comments_error:
+        return [], f"REST review-comment lookup failed: {review_comments_error}"
+
+    reviews_payload, reviews_error = _github_api_json(
+        f"https://api.github.com/repos/{repository_full_name}/pulls/{pr_number}/reviews"
+    )
+    if reviews_error:
+        return [], f"REST review lookup failed: {reviews_error}"
+
+    unresolved: list[str] = []
+    for comment in issue_comments_payload or []:
+        author = str(((comment.get("user") or {}).get("login")) or "")
+        body = str(comment.get("body") or "")
+        if _codex_related_author_or_body(author, body):
+            unresolved.append(author.casefold() or "unknown-author")
+
+    codex_review_comment_found = False
+    for comment in review_comments_payload or []:
+        author = str(((comment.get("user") or {}).get("login")) or "")
+        body = str(comment.get("body") or "")
+        if _codex_related_author_or_body(author, body):
+            codex_review_comment_found = True
+            unresolved.append(author.casefold() or "unknown-author")
+
+    for review in reviews_payload or []:
+        author = str(((review.get("user") or {}).get("login")) or "")
+        body = str(review.get("body") or "")
+        state = str(review.get("state") or "").upper()
+        if _codex_related_author_or_body(author, body) and state in {"COMMENTED", "CHANGES_REQUESTED"}:
+            unresolved.append(author.casefold() or "unknown-author")
+
+    if codex_review_comment_found:
+        return (
+            sorted(set(unresolved)),
+            "could not confirm resolution status for Codex review-thread comments via REST fallback",
+        )
+    return sorted(set(unresolved)), ""
+
+
+def _gh_pr_view_for_branch(branch_name: str) -> tuple[dict[str, object] | None, str]:
+    fields = (
+        "id,number,state,mergeable,mergeStateStatus,reviewDecision,isDraft,"
+        "headRefName,baseRefName,title,url"
+    )
+    repository_full_name, repository_error = _git_origin_repository_full_name()
+    gh_error = ""
+    try:
+        completed = subprocess.run(
+            ("gh", "pr", "view", branch_name, "--json", fields),
+            cwd=ROOT_DIR,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            check=False,
+        )
+    except FileNotFoundError as exc:
+        completed = None
+        gh_error = str(exc)
+
+    if completed is not None and completed.returncode == 0:
+        try:
+            payload = json.loads(completed.stdout)
+        except json.JSONDecodeError as exc:
+            return None, f"could not parse gh pr view JSON: {exc}"
+        if repository_full_name:
+            payload.setdefault("repositoryFullName", repository_full_name)
+        return payload, ""
+
+    if completed is not None:
+        gh_error = completed.stderr.strip() or completed.stdout.strip() or "gh pr view failed"
+    if repository_error:
+        return None, gh_error or repository_error
+
+    rest_payload, rest_error = _github_rest_pr_view_for_branch(branch_name, repository_full_name)
+    if rest_payload:
+        return rest_payload, ""
+    if gh_error:
+        return None, f"{gh_error}; {rest_error}"
+    return None, rest_error
+
+
+def _gh_unresolved_codex_threads(
+    pr_node_id: str,
+    pr_info: dict[str, object] | None = None,
+) -> tuple[list[str], str]:
+    repository_full_name = str((pr_info or {}).get("repositoryFullName") or "")
+    pr_number = int((pr_info or {}).get("number") or 0)
+
+    if not pr_node_id and repository_full_name and pr_number:
+        return _github_rest_unresolved_codex_threads(repository_full_name, pr_number)
     if not pr_node_id:
         return [], "PR node id is missing"
 
@@ -5051,18 +5284,30 @@ query($id: ID!) {
   }
 }
 """
-    completed = subprocess.run(
-        ("gh", "api", "graphql", "-f", f"query={query}", "-F", f"id={pr_node_id}"),
-        cwd=ROOT_DIR,
-        text=True,
-        encoding="utf-8",
-        errors="replace",
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        check=False,
-    )
-    if completed.returncode != 0:
-        return [], completed.stderr.strip() or completed.stdout.strip() or "gh api graphql failed"
+    gh_error = ""
+    try:
+        completed = subprocess.run(
+            ("gh", "api", "graphql", "-f", f"query={query}", "-F", f"id={pr_node_id}"),
+            cwd=ROOT_DIR,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            check=False,
+        )
+    except FileNotFoundError as exc:
+        completed = None
+        gh_error = str(exc)
+    if completed is None or completed.returncode != 0:
+        if completed is not None:
+            gh_error = completed.stderr.strip() or completed.stdout.strip() or "gh api graphql failed"
+        if repository_full_name and pr_number:
+            unresolved, rest_error = _github_rest_unresolved_codex_threads(repository_full_name, pr_number)
+            if not rest_error:
+                return unresolved, ""
+            return [], f"{gh_error}; {rest_error}" if gh_error else rest_error
+        return [], gh_error or "gh api graphql failed"
 
     try:
         payload = json.loads(completed.stdout)
@@ -5498,7 +5743,10 @@ def _run_pr_live_state_gate(require) -> None:
         ),
     )
 
-    unresolved_codex_threads, thread_error = _gh_unresolved_codex_threads(str(pr_info.get("id") or ""))
+    unresolved_codex_threads, thread_error = _gh_unresolved_codex_threads(
+        str(pr_info.get("id") or ""),
+        pr_info,
+    )
     require(
         not thread_error,
         (
