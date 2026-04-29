@@ -6052,6 +6052,21 @@ def _run_pr_live_state_gate(
     mergeable = str(pr_info.get("mergeable") or "")
     merge_state = str(pr_info.get("mergeStateStatus") or "")
     review_decision = str(pr_info.get("reviewDecision") or "")
+    repository_full_name = str(pr_info.get("repositoryFullName") or "")
+    if (
+        repository_full_name
+        and (not mergeable or mergeable == "UNKNOWN" or not merge_state or merge_state == "UNKNOWN")
+    ):
+        rest_pr_info, rest_pr_error = _github_rest_pr_view_for_branch(branch_name, repository_full_name)
+        if rest_pr_info and not rest_pr_error:
+            pr_info = rest_pr_info
+            pr_url = str(pr_info.get("url") or pr_url)
+            pr_state = str(pr_info.get("state") or pr_state)
+            pr_head = str(pr_info.get("headRefName") or pr_head)
+            pr_base = str(pr_info.get("baseRefName") or pr_base)
+            mergeable = str(pr_info.get("mergeable") or mergeable)
+            merge_state = str(pr_info.get("mergeStateStatus") or merge_state)
+            review_decision = str(pr_info.get("reviewDecision") or review_decision)
     current_head_sha = _git_head_sha()
     current_head_time = _git_head_commit_time()
     recorded_bot_review_status, recorded_bot_review_head = _branch_record_bot_review_state(
