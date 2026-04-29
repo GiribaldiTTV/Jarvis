@@ -6696,7 +6696,7 @@ def _automation_closeout_repair_watcher_proof_status(current_head_sha: str) -> t
             f"watcher state file '{AUTOMATION_CLOSEOUT_PR101_WATCHER_STATE_PATH}' is missing or invalid",
         )
 
-    recorded_head_sha = str(state.get("headSha") or "")
+    recorded_head_sha = str(state.get("localHeadSha") or state.get("headSha") or "")
     if current_head_sha and recorded_head_sha and recorded_head_sha != current_head_sha:
         return (
             False,
@@ -6856,6 +6856,9 @@ def _run_pr_live_state_gate(
                 f"{watcher_proof_message}"
             ),
         )
+        closeout_watcher_state = _load_json_file(AUTOMATION_CLOSEOUT_PR101_WATCHER_STATE_PATH)
+    else:
+        closeout_watcher_state = None
     normalized_recorded_status = recorded_bot_review_status.strip().casefold()
     manual_comment_resolution_clear = (
         normalized_recorded_status == BOT_REVIEW_SIGNAL_STATUS_COMMENT_ADDRESSED.casefold()
@@ -6969,6 +6972,29 @@ def _run_pr_live_state_gate(
         str(pr_info.get("repositoryFullName") or ""),
         int(pr_info.get("number") or 0),
     )
+    if signal_error and closeout_watcher_state:
+        fallback_bot_comment_count = int(closeout_watcher_state.get("botCommentCount") or 0)
+        fallback_bot_approval = bool(closeout_watcher_state.get("botApproval"))
+        if fallback_bot_comment_count > 0:
+            require(
+                False,
+                (
+                    "PR readiness gate: PR Validation Pending blocker is active; bounded watcher "
+                    f"proof for live PR '{pr_url or pr_info.get('number') or 'UNKNOWN'}' reports "
+                    f"{fallback_bot_comment_count} bot comment(s); fix, push, resolve, and "
+                    "record comment-addressed closeout before PR green"
+                ),
+            )
+        if not fallback_bot_approval:
+            require(
+                False,
+                (
+                    "PR readiness gate: PR Validation Pending blocker is active; Bot Review Signal Pending "
+                    f"for live PR '{pr_url or pr_info.get('number') or 'UNKNOWN'}' according to "
+                    "the bounded watcher state"
+                ),
+            )
+        return
     require(
         not signal_error,
         (
