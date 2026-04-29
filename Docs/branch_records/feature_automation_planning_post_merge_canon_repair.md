@@ -8,9 +8,9 @@
 
 ## Purpose / Why It Exists
 
-This bounded repair branch exists only to clean the merged-main canon drift left behind after PR #99 merged and the source branch `feature/automation-planning` was deleted.
+This bounded repair branch existed only to clean the merged-main canon drift left behind after PR #99 merged and the source branch `feature/automation-planning` was deleted.
 
-It does not reopen automation implementation, admit Release Readiness on the deleted source branch, create a successor implementation branch, or change FB-049 selected-next truth. Its job is only to restore truthful merged-main ownership, keep `feature_automation_planning.md` historical-only, and retire the stale PR99 watcher lifecycle state.
+It did not reopen automation implementation, admit Release Readiness on the deleted source branch, create a successor implementation branch, or change FB-049 selected-next truth. Its job was only to restore truthful merged-main ownership, keep `feature_automation_planning.md` historical-only, and retire the stale PR99 watcher lifecycle state. This record is now preserved as historical traceability after PR #100 later merged the follow-up closeout repair.
 
 ## Current Phase
 
@@ -18,11 +18,9 @@ It does not reopen automation implementation, admit Release Readiness on the del
 
 ## Phase Status
 
-- Repo State: `Branch-owned repair surface`
+- Repo State: `No Active Branch`
 - Merged-Main Repo State: `No Active Branch`
-- `Active Branch`: `feature/automation-planning-post-merge-canon-repair`
-- Current Active Branch: `feature/automation-planning-post-merge-canon-repair`
-- Current Active Branch Authority Record: `Docs/branch_records/feature_automation_planning_post_merge_canon_repair.md`
+- Historical traceability record after PR #100 merged at `ebeeb2a0d80bbe3b2097bcae8132233b701126c6` and the source branch `feature/automation-planning-post-merge-canon-repair` disappeared.
 - Current Active Canonical Workstream Doc: `None`
 - Latest Public Prerelease: `v1.6.12-prebeta`
 - Latest Public Release Commit: `b06c359e58b47cfe26fe8c4b39ac04fde519dee9`
@@ -32,9 +30,9 @@ It does not reopen automation implementation, admit Release Readiness on the del
 - Selected Next Record State: `Registry-only`
 - Selected Next Implementation Branch: `Not created`
 - Historical source branch: `feature/automation-planning` merged through PR #99 at `daf727e9875c0b1c4de9672e36d6dd9411411001` and was then deleted.
-- Current PR Readiness Seam: `PR Readiness PR1 - Post-Merge Canon Repair PR Validation`
-- PR Readiness PR1 status: in progress. This seam admits PR Readiness for the bounded repair branch, preserves merged-main `No Active Branch` truth, keeps `feature_automation_planning.md` historical-only, preserves retired PR99 watcher cleanup proof, preserves pending `v1.6.13-prebeta` release posture, opens the live repair PR, and preserves FB-049 selected-next truth without widening back into automation implementation.
-- Next Active Seam: `PR Readiness PR1 - Post-Merge Canon Repair PR Validation`
+- Historical PR Readiness Seam: `PR Readiness PR1 - Post-Merge Canon Repair PR Validation`
+- PR Readiness PR1 result: complete and green historical truth. This seam admitted PR Readiness for the bounded repair branch, preserved merged-main `No Active Branch` truth, kept `feature_automation_planning.md` historical-only, preserved retired PR99 watcher cleanup proof, preserved pending `v1.6.13-prebeta` release posture, opened live PR #100, and preserved FB-049 selected-next truth without widening back into automation implementation.
+- Historical merge result: PR #100 later merged this repair branch into `main`, after which a final bounded closeout repair branch carried the last stale active-branch cleanup and recurrence hardening.
 
 ## Branch Class
 
@@ -42,8 +40,7 @@ It does not reopen automation implementation, admit Release Readiness on the del
 
 ## Blockers
 
-- `PR Validation Pending`
-- `Bot Review Signal Pending`
+- `None`
 
 ## Entry Basis
 
@@ -103,22 +100,22 @@ It does not reopen automation implementation, admit Release Readiness on the del
 
 ## Active Seam
 
-Active seam: `PR Readiness PR1 - Post-Merge Canon Repair PR Validation`
-Next active seam: `PR Readiness PR1 - Post-Merge Canon Repair PR Validation`
+Active seam: `None. Historical traceability record only.`
+Next active seam: `None. Historical traceability record only.`
 
-- This is the current active seam on this repair branch.
+- This branch is merged historical traceability only.
 
 ## Seam Continuation Decision
 
-Seam Status: `In Progress`
-Slice Status: `In Progress`
-Completion Status: `In Progress`
+Seam Status: `Green`
+Slice Status: `Green`
+Completion Status: `Green`
 Waiver Status: `None`
-Continue Decision: `Continue`
-Stop Basis: `None`
-Next Active Seam: `PR Readiness PR1 - Post-Merge Canon Repair PR Validation`
-Stop Condition: `Stop only if PR Readiness PR1 turns green and Release Readiness becomes the next legal phase, or if a named blocker or waiver stops PR Readiness before PR1 completes.`
-Continuation Action: `Create the live repair PR, validate merged-main canon and watcher cleanup against that live PR surface, preserve pending release posture, and keep FB-049 selected-next truth unchanged.`
+Continue Decision: `Stop`
+Stop Basis: `Historical traceability only after PR #100 merged`
+Next Active Seam: `None`
+Stop Condition: `Branch is merged historical traceability only; no further same-branch execution is legal.`
+Continuation Action: `None. Historical traceability record only.`
 
 ## Governance Drift Audit
 
@@ -126,17 +123,17 @@ Continuation Action: `Create the live repair PR, validate merged-main canon and 
 - Drift Type: stale merged-main active-branch canon after PR #99 merge, plus stale PR99 watcher lifecycle state
 - Why Current Canon Failed To Prevent It: the merged source branch moved to historical-only truth, but merged-main current-state mirrors and watcher cleanup were not closed on the same active repair surface before the deleted source branch disappeared
 - Required Canon Changes: admit a bounded repair branch, move the merged automation-planning record to historical-only traceability, clear merged-main active branch authority, and require watcher lifecycle retirement to stay aligned with branch deletion
-- Whether The Drift Blocks Merge: `Yes until this repair branch owns the PR and the repaired canon is validated on its live PR surface`
+- Whether The Drift Blocks Merge: `No after PR #100. This branch is preserved only as historical traceability now.`
 - Whether User Confirmation Is Required: `No for this bounded approved repair branch`
-- Missing blocker check: no missing blocker remains after this admission; PR creation, merged-main canon sync, historical-only traceability, watcher retirement, pending release posture, and FB-049 selected-next preservation are all represented
-- Weak source-of-truth ownership rule check: no unresolved weakness remains once this branch owns the repair; merged-main truth stays subordinate to the active repair branch until this PR merges
+- Missing blocker check: no missing blocker remained on this branch once PR #100 was created and merged; historical-only traceability, watcher retirement, pending release posture, and FB-049 selected-next preservation remain preserved
+- Weak source-of-truth ownership rule check: this branch repaired the first stale state, but the later closeout branch had to tighten merge-stable current-state ownership further so transient repair-branch execution truth no longer leaks into backlog and roadmap when merged-main truth remains `No Active Branch`
 
 ## Post-Merge State
 
 - Post-merge repo state: `No Active Branch`
-- Post-merge repair truth: merged-main canon keeps `feature_automation_planning.md` historical-only, keeps active branch authority records empty, and preserves retired PR99 watcher cleanup truth
+- Post-merge repair truth: merged-main canon keeps `feature_automation_planning.md` historical-only, keeps this record historical-only, keeps active branch authority records empty, and preserves retired PR99 watcher cleanup truth
 - Post-merge selected-next truth: FB-049 remains selected next, `Registry-only`, and branch-not-created until updated `main` is revalidated and later Branch Readiness admits the first bounded FB-049 slice
-- Post-merge branch-record handling: this repair record leaves `Active Branch Authority Records` after merge and becomes preserved historical traceability only if later repo policy still needs it
+- Post-merge branch-record handling: this repair record has left `Active Branch Authority Records` and is preserved as historical traceability only
 - Post-merge successor handling: no successor branch opens by inertia from this repair; later branch admission remains separately gated
 
 ## Release Window Audit
@@ -145,4 +142,3 @@ Release Window Audit: PASS
 Remaining Known Release Blockers: None
 Another Pre-Release Repair PR Required: NO
 Release Window Split Waiver: None
-
