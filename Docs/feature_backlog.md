@@ -51,7 +51,7 @@ Historical note:
 
 `None.`
 
-FB-044 Boot-to-desktop handoff outcome refinement and FB-045 Active-session relaunch outcome refinement are Released / Closed historical proof through `v1.6.9-prebeta`; FB-046 Active-session relaunch reacquisition and settled re-entry proof is Released / Closed historical proof through `v1.6.10-prebeta`; FB-047 Active-session relaunch decline session-preservation proof is Released / Closed historical proof through `v1.6.11-prebeta`; FB-048 Active-session relaunch signal-failure and wait-timeout truth is now Released / Closed historical proof through `v1.6.12-prebeta`; latest public prerelease truth is `v1.6.12-prebeta`; release debt is clear after publication, validation, and post-release canon closure; `feature/backlog-family-governance-reform` is now the active docs-only governance reform branch authority surface; and FB-049 remains the selected-next `Registry-only` successor lane with branch not created.
+FB-044 Boot-to-desktop handoff outcome refinement and FB-045 Active-session relaunch outcome refinement are Released / Closed historical proof through `v1.6.9-prebeta`; FB-046 Active-session relaunch reacquisition and settled re-entry proof is Released / Closed historical proof through `v1.6.10-prebeta`; FB-047 Active-session relaunch decline session-preservation proof is Released / Closed historical proof through `v1.6.11-prebeta`; FB-048 Active-session relaunch signal-failure and wait-timeout truth is now Released / Closed historical proof through `v1.6.12-prebeta`; latest public prerelease truth is `v1.6.12-prebeta`; release debt is clear after publication, validation, and post-release canon closure; the merged backlog-family governance reform package is now unreleased historical branch proof for `v1.6.13-prebeta` while repo state is steady-state `No Active Branch`; and FB-049 remains the selected-next `Registry-only` successor lane with branch not created.
 Released baseline truth is aligned: FB-040 is released and closed in `v1.6.0-prebeta`, FB-031 is released and closed in `v1.6.1-prebeta`, FB-032 is released and closed in `v1.6.2-prebeta`, FB-004 is released and closed in `v1.6.3-prebeta`, FB-015 plus FB-029 are released and closed in `v1.6.4-prebeta`, FB-030 is released and closed in `v1.6.5-prebeta`, FB-005 is released and closed in `v1.6.6-prebeta`, FB-042 is released and closed in `v1.6.7-prebeta`, FB-043 is released and closed in `v1.6.8-prebeta`, FB-044 plus FB-045 are released and closed in `v1.6.9-prebeta`, and FB-046 is now released and closed in `v1.6.10-prebeta`.
 FB-039 is released and closed in `v1.5.0-prebeta`.
 FB-038 remains released and closed in `v1.4.1-prebeta`.
@@ -59,7 +59,7 @@ FB-038 remains released and closed in `v1.4.1-prebeta`.
 ## Current Branch Execution Posture
 
 Merged-Unreleased Release-Debt Owner: None.
-Repo State: Active Branch.
+Repo State: No Active Branch.
 Merged-Main Repo State: No Active Branch.
 Latest Public Prerelease: v1.6.12-prebeta.
 Latest Public Release Commit: b06c359e58b47cfe26fe8c4b39ac04fde519dee9.
@@ -68,8 +68,8 @@ Latest Public Prerelease Title: Pre-Beta v1.6.12.
 Release Debt: Clear after v1.6.12-prebeta publication, validation, and post-release canon closure.
 Current Active Workstream: None.
 Current Active Workstream Before Reform: None.
-Current Active Branch: feature/backlog-family-governance-reform.
-Current Active Branch Authority Record: Docs/branch_records/feature_backlog_family_governance_reform.md.
+Current Active Branch: None.
+Current Active Branch Authority Record: None.
 Current Active Canonical Workstream Doc: None.
 Historical Active Workstream Before Release: FB-048 Active-session relaunch signal-failure and wait-timeout truth.
 Earlier Historical Active Workstream Before Release: FB-047 Active-session relaunch decline session-preservation proof.
@@ -80,10 +80,10 @@ Selected Next Record State: Registry-only.
 Selected Next Implementation Branch: Not created.
 Historical Repair-Only Branch Handling: `feature/fb-046-post-merge-canon-sync` was a bounded repair-only post-merge canon-sync `feature/` branch and did not imply Branch Readiness admission or active branch truth for FB-046.
 Historical Branch Readiness State: Complete on `feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeout-truth`.
-Current Branch Readiness State: Historical complete on `feature/backlog-family-governance-reform`. Phase 0 `Reform Readiness` admitted the branch authority record and cleared the path into Workstream.
-Current Workstream State: Workstream completion remains green on `feature/backlog-family-governance-reform`; Hardening H1 `Post-Workstream Governance Validation`, Live Validation LV1 `Reform Branch Final Validation`, PR Readiness PR1 `Reform Branch PR Validation`, and PR Readiness PR2 `Bot Review Signal Monitoring` are complete and green; the live PR-level thumbs-up from `chatgpt-codex-connector[bot]` already clears the bot-review gate for this branch, the active branch authority has re-entered `Release Readiness`, and Release Readiness RR1 `Reform Branch Release Validation` is in progress; no backlog-family shape, selected-next truth, lifetime-dossier routing, family-index split, or alias/support non-selectability truth changed during this PR-owned governance repair; and FB-049 remains the only selected-next user-facing candidate.
-Current Branch Class: implementation.
-Current Implementation Delta Class: docs-only.
+Current Branch Readiness State: None. The merged backlog-family governance reform branch is historical traceability only after PR #98 merged.
+Current Workstream State: Backlog Family Governance Reform is merged and unreleased on `main` for `v1.6.13-prebeta`; Workstream completion, Hardening H1, Live Validation LV1, PR Readiness PR1, and PR Readiness PR2 remain preserved green historical truth on `feature/backlog-family-governance-reform`; merged repo state is steady-state `No Active Branch`; release packaging and publication are the remaining release-bearing concerns; and FB-049 remains the only selected-next user-facing candidate.
+Current Branch Class: None.
+Current Implementation Delta Class: None.
 Historical Workstream State: FB-048 is Released / Closed in `v1.6.12-prebeta`; FB-047 is Released / Closed in `v1.6.11-prebeta`; FB-046 is Released / Closed in `v1.6.10-prebeta`; FB-044 and FB-045 remain Released / Closed historical proof in `v1.6.9-prebeta`.
 Historical Hardening State: Complete on `feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeout-truth`.
 Historical Live Validation State: Complete on `feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeout-truth`.
@@ -118,7 +118,7 @@ Open-candidate priority review:
 - FB-048 is Released / Closed in `v1.6.12-prebeta`; release debt is clear after publication, validation, and post-release canon closure.
 - FB-049 is selected next, `Registry-only`, and branch-not-created.
 
-Current-branch clarity: latest public prerelease is `v1.6.12-prebeta`; FB-044 and FB-045 are released and closed in `v1.6.9-prebeta`; FB-046 is released and closed in `v1.6.10-prebeta`; FB-047 is released and closed in `v1.6.11-prebeta`; FB-048 is released and closed in `v1.6.12-prebeta`; merged `main` repo state is steady-state `No Active Branch`; the current execution base is `feature/backlog-family-governance-reform` through an active branch-authority record; and FB-049 remains selected next, `Registry-only`, and branch-not-created until the governance reform branch completes and later FB-049 Branch Readiness admission occurs.
+Current-branch clarity: latest public prerelease is `v1.6.12-prebeta`; FB-044 and FB-045 are released and closed in `v1.6.9-prebeta`; FB-046 is released and closed in `v1.6.10-prebeta`; FB-047 is released and closed in `v1.6.11-prebeta`; FB-048 is released and closed in `v1.6.12-prebeta`; merged `main` repo state is steady-state `No Active Branch`; the merged backlog-family governance reform branch is historical traceability only while release packaging for `v1.6.13-prebeta` remains pending; and FB-049 remains selected next, `Registry-only`, and branch-not-created until updated `main` is revalidated and later FB-049 Branch Readiness admission occurs.
 
 ## Registry Items
 

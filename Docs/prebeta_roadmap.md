@@ -68,17 +68,17 @@ Current merged truth indicates:
 - merged unreleased non-doc implementation debt exists: no
 - the latest public released implementation milestones are FB-048 Active-session relaunch signal-failure and wait-timeout truth in `v1.6.12-prebeta`; FB-047 Active-session relaunch decline session-preservation proof in `v1.6.11-prebeta`; FB-046 Active-session relaunch reacquisition and settled re-entry proof remains released in `v1.6.10-prebeta`; FB-044 Boot-to-desktop handoff outcome refinement and FB-045 Active-session relaunch outcome refinement remain released in `v1.6.9-prebeta`; FB-043 Top-level desktop entrypoint ownership and `main.py` handoff refinement remains released in `v1.6.8-prebeta`; FB-042 Desktop startup runtime family anchor remains released in `v1.6.7-prebeta`; FB-005 Workspace and folder organization remains released in `v1.6.6-prebeta`; FB-030 ORIN voice/audio direction refinement remains released in `v1.6.5-prebeta`; FB-015 Boot and desktop phase-boundary model plus FB-029 ORIN legal-safe rebrand, future ARIA persona option, and repo licensing hardening remain released in `v1.6.4-prebeta`
 - current phase after `v1.6.12-prebeta` release closure: `Release Readiness`
-- phase status after `v1.6.12-prebeta` release closure: FB-048 is Released / Closed in `v1.6.12-prebeta`; release debt is clear after publication, validation, and post-release canon closure; `feature/backlog-family-governance-reform` is the active docs-only governance reform branch authority surface; and FB-049 remains selected next, `Registry-only`, and branch-not-created.
-- current active workstream: none; current active branch authority owner is `feature/backlog-family-governance-reform`
-- current branch after `v1.6.12-prebeta` release closure: `feature/backlog-family-governance-reform`
-- next concern: continue Release Readiness RR1 now that PR Readiness PR2 has accepted the live PR-level thumbs-up from `chatgpt-codex-connector[bot]`, while preserving the converted roadmap family-anchor framing, the split workstream index, the aligned routing/loader surfaces, and the validated FB-049 selected-next lock.
+- phase status after `v1.6.12-prebeta` release closure: FB-048 is Released / Closed in `v1.6.12-prebeta`; release debt is clear after publication, validation, and post-release canon closure; the merged backlog-family governance reform package is now unreleased historical branch proof for `v1.6.13-prebeta` while repo state is steady-state `No Active Branch`; and FB-049 remains selected next, `Registry-only`, and branch-not-created.
+- current active workstream: none; repo state is steady-state `No Active Branch`
+- current branch after `v1.6.12-prebeta` release closure: `No Active Branch`
+- next concern: finish merged-main canon closure for the backlog-family governance reform release package, then continue release packaging for `v1.6.13-prebeta` while preserving the converted roadmap family-anchor framing, the split workstream index, the aligned routing/loader surfaces, and the validated FB-049 selected-next lock.
 
 That means the released FB-027 interaction and shared-action family anchor, the released FB-036 authoring-and-callable-group milestone, the released FB-041 deterministic callable-group execution milestone, the released FB-037 built-in catalog milestone, the released FB-038 tray quick-task UX milestone, the released FB-039 external trigger intake architecture milestone, the released FB-040 monitoring/thermal architecture milestone, the released FB-031 UI/UX architecture milestone, the released FB-032 source-of-truth migration milestone, the released FB-004 future boot-orchestrator architecture milestone, the released FB-015 plus FB-029 planning milestones, the released FB-030 voice/audio planning milestone, and the released FB-005 bounded workspace-path slice are now part of the current public shared pre-Beta baseline.
 
 ## Current Branch Execution Posture
 
 Merged-Unreleased Release-Debt Owner: None.
-Repo State: Active Branch.
+Repo State: No Active Branch.
 Merged-Main Repo State: No Active Branch.
 
 Latest Public Prerelease: v1.6.12-prebeta
@@ -88,9 +88,9 @@ Latest Public Prerelease Title: Pre-Beta v1.6.12
 Release Debt: Clear after `v1.6.12-prebeta` publication, validation, and post-release canon closure.
 Current active workstream: None
 Current Active Workstream Before Reform: None
-Current Active Branch: `feature/backlog-family-governance-reform`
+Current Active Branch: `None`
 Active Branch Before Release: `feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeout-truth`
-Current Active Branch Authority Record: `Docs/branch_records/feature_backlog_family_governance_reform.md`
+Current Active Branch Authority Record: `None`
 Current Active Canonical Workstream Doc: `None`
 Historical Active Workstream Before Release: FB-048 Active-session relaunch signal-failure and wait-timeout truth
 Historical Active Branch Before Release: `feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeout-truth`
@@ -101,8 +101,8 @@ Selected Next Record State: Registry-only.
 Selected Next Implementation Branch: `Not created`
 Repair-Only Branch Handling: `feature/fb-046-post-merge-canon-sync` is a bounded repair-only post-merge canon-sync `feature/` branch and did not imply Branch Readiness admission or active branch truth for FB-046.
 Historical Branch Readiness State: Complete on `feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeout-truth`.
-Current Branch Readiness State: Historical complete on `feature/backlog-family-governance-reform`. Phase 0 `Reform Readiness` admitted the branch authority record and cleared the path into Workstream.
-Current Workstream State: Workstream completion remains green on `feature/backlog-family-governance-reform`; Hardening H1 `Post-Workstream Governance Validation`, Live Validation LV1 `Reform Branch Final Validation`, PR Readiness PR1 `Reform Branch PR Validation`, and PR Readiness PR2 `Bot Review Signal Monitoring` are complete and green; the live PR-level thumbs-up from `chatgpt-codex-connector[bot]` already clears the bot-review gate for this branch, the active branch authority has re-entered `Release Readiness`, and Release Readiness RR1 `Reform Branch Release Validation` is in progress; no backlog-family shape, selected-next truth, lifetime-dossier routing, family-index split, or alias/support non-selectability truth changed during this PR-owned governance repair; and FB-049 remains the only selected-next user-facing candidate.
+Current Branch Readiness State: None. The merged backlog-family governance reform branch is historical traceability only after PR #98 merged.
+Current Workstream State: Backlog Family Governance Reform is merged and unreleased on `main` for `v1.6.13-prebeta`; Workstream completion, Hardening H1, Live Validation LV1, PR Readiness PR1, and PR Readiness PR2 remain preserved green historical truth on `feature/backlog-family-governance-reform`; merged repo state is steady-state `No Active Branch`; release packaging and publication are the remaining release-bearing concerns; and FB-049 remains the only selected-next user-facing candidate.
 Historical Workstream State: FB-048 is Released / Closed in `v1.6.12-prebeta`; FB-047 is Released / Closed in `v1.6.11-prebeta`; FB-046 is Released / Closed in `v1.6.10-prebeta`; FB-044 and FB-045 remain Released / Closed historical proof in `v1.6.9-prebeta`.
 Historical Hardening State: Complete on `feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeout-truth`.
 Historical Live Validation State: Complete on `feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeout-truth`.
