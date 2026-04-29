@@ -47,7 +47,7 @@ Do not use this layer to replace:
 
 ## Active Branch Authority Records
 
-`None.`
+- `Docs/branch_records/feature_automation_planning.md`
 
 ## Historical Branch Authority Records
 
