@@ -223,6 +223,8 @@ Governance-only branches are not used for new Nexus work.
 There is no emergency direct-main repair path for Codex.
 If canon drift is discovered before merge, repair it on the owning branch before PR green.
 If canon drift is discovered after merge, repair it on the still-available prior branch when that branch remains the legal repair surface, or block the next active branch's `Branch Readiness` and repair there before implementation.
+If a stale-canon or governance-drift class is discovered, the same branch or next legal repair surface must also patch the canon or validator rule that allowed it before the repair is considered complete.
+merge-stable current-state owners such as backlog and roadmap must not mirror transient repair-branch ownership while merged-main truth remains `No Active Branch`.
 Any tracked file mutation while Codex is on `main` is a `Main Write Attempt` blocker.
 
 Active-branch-first remains the normal rule for tightly coupled canon and governance work.
@@ -327,6 +329,7 @@ That means:
   - a missing PR keeps `PR Creation Pending` active
   - unresolved Codex comments/issues, requested changes, unknown mergeability, unknown PR state, or inability to inspect the PR keep `PR Validation Pending` or `PR State Unknown` active
   - for Codex-created PRs, `Bot Review Signal Pending` also keeps PR Readiness non-green until the live PR has a thumbs-up reaction or a bot comment from the Codex GitHub bot; a bot comment keeps `PR Validation Pending` active until the branch fixes the comment on the same PR, pushes, resolves the comment, and records that current-head comment-resolution closeout; no later thumbs-up is required
+  - if a branch expects watcher-based PR monitoring, `PR Watcher Provisioning Unproven` also keeps the gate blocked until the watcher target, runtime path, run-proof method, fallback, teardown rule, and replacement provisioning for the next live PR are explicit and proven
   - phase-critical automation cannot clear a gate merely because its card, config, or automation list says `ACTIVE`; `ACTIVE` is configuration state, not run proof, so keep `Automation Runtime Unproven` active until thread/inbox output, automation memory/log/state-file updates, scheduler last-run evidence, or another accepted run proof exists
   - if the preferred Codex automation remains `ACTIVE` without run evidence, the owning phase stays blocked until run evidence exists or a bounded fallback is activated; any bounded fallback must be target-scoped, phase-scoped, read-only, and self-terminating or explicitly deleted when its terminal condition or phase exit occurs
 - no PR-ready with a PR Readiness scope miss:
@@ -401,6 +404,7 @@ If governance drift is discovered:
 - stop normal progression immediately
 - if the drift is directly coupled to the active branch's truth, phase, readiness, validation, closeout, or release state, fix it on that active branch after the boundary is explicit
 - otherwise, produce the exact required canon delta and wait for user confirmation
+- if the same drift class could recur, the repair must also harden the canon or validator rule that allowed it instead of only patching the one stale surface
 
 Do not defer known governance weaknesses silently to a later branch.
 

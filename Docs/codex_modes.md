@@ -161,6 +161,8 @@ In Workflow mode, Codex should:
 - All fixes and repairs use a new `feature/` branch by default.
 - Do not create a `docs/governance` or `emergency canon repair` branch unless explicit `Docs/Governance Branch Waiver: APPROVED` is recorded from the USER.
 - Repair-only `feature/` branch existence does not imply Branch Readiness admission or active branch truth.
+- if a stale-canon or governance-drift class is discovered, the same branch or next legal repair surface must patch the canon or validator rule that allowed it before the repair is considered complete
+- merge-stable current-state owners such as backlog and roadmap must not mirror transient repair-branch ownership while merged-main truth remains `No Active Branch`
 
 ### What Codex Must Not Do
 
@@ -233,6 +235,7 @@ When the approved phase is `PR Readiness`, the output must also explicitly inclu
 - confirmation that `Release Window Audit Incomplete` is clear, including the normal green posture `Remaining Known Release Blockers: None`, `Another Pre-Release Repair PR Required: NO`, and `Release Window Split Waiver: None`, unless an explicit user-approved split waiver is recorded
 - confirmation that `PR Creation Pending`, `PR Validation Pending`, and `PR State Unknown` are clear before reporting `PR Readiness GREEN`
 - confirmation that `Bot Review Signal Pending` is clear for the live PR, either through a thumbs-up reaction or a bot comment-resolution closeout; no later thumbs-up is required after the comment-resolution path
+- confirmation that `PR Watcher Provisioning Unproven` is clear whenever the branch expects watcher-based PR monitoring, including explicit watcher target, runtime path, run-proof method, fallback, teardown, and replacement provisioning for the live PR
 - confirmation that `PR package ready` is not being collapsed into `PR Readiness GREEN`
 - confirmation that no PR-owned docs or canon work is being deferred to Release Readiness, updated `main`, or a governance-only branch
 - confirmation that `main` remains protected and that no Codex file mutation, staging, commit, generation, refresh, or repair work is being performed on `main`
@@ -305,7 +308,7 @@ If release debt, updated-`main` revalidation, or another admission gate blocks b
 The `PR Creation Details` block is preparation material only; it must not imply PR creation, merge execution, release execution, next-branch creation, or PR Readiness GREEN has occurred.
 Each PR operator field must be its own copy-ready block and must be usable independently.
 The PR summary must include implemented branch truth only. Do not include exclusion lists, `Not Included` sections, or defensive scope language.
-PR Readiness GREEN requires the PR to exist, be open, be non-draft, have no conflicts, match merge-target canon, have no unresolved Codex comments/issues or requested changes, clear the live PR bot-review signal through either a thumbs-up reaction or a bot comment-resolution closeout, and avoid `Automation Runtime Unproven`; no later thumbs-up is required after the comment-resolution path. A phase-critical automation cannot clear a gate merely because its card, config, or automation list says `ACTIVE`; `ACTIVE` is configuration state, not run proof. Accept run evidence only from thread or inbox output, automation memory/log/state-file updates, or scheduler last-run evidence. If the preferred Codex automation remains `ACTIVE` without run evidence, keep the owning phase blocked until run evidence exists or a bounded fallback is activated. Any bounded fallback must be target-scoped, phase-scoped, read-only, and self-terminating or explicitly deleted when its terminal condition or phase exit occurs.
+PR Readiness GREEN requires the PR to exist, be open, be non-draft, have no conflicts, match merge-target canon, have no unresolved Codex comments/issues or requested changes, clear the live PR bot-review signal through either a thumbs-up reaction or a bot comment-resolution closeout, clear `PR Watcher Provisioning Unproven` whenever watcher-based PR monitoring is expected, and avoid `Automation Runtime Unproven`; no later thumbs-up is required after the comment-resolution path. A phase-critical automation cannot clear a gate merely because its card, config, or automation list says `ACTIVE`; `ACTIVE` is configuration state, not run proof. Accept run evidence only from thread or inbox output, automation memory/log/state-file updates, or scheduler last-run evidence. If the preferred Codex automation remains `ACTIVE` without run evidence, keep the owning phase blocked until run evidence exists or a bounded fallback is activated. Any bounded fallback must be target-scoped, phase-scoped, read-only, and self-terminating or explicitly deleted when its terminal condition or phase exit occurs.
 
 When the approved phase is `Release Readiness`, the output must also explicitly include:
 

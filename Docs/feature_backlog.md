@@ -59,17 +59,17 @@ FB-038 remains released and closed in `v1.4.1-prebeta`.
 ## Current Branch Execution Posture
 
 Merged-Unreleased Release-Debt Owner: None.
-Repo State: Branch-owned repair surface.
+Repo State: No Active Branch.
 Merged-Main Repo State: No Active Branch.
 Latest Public Prerelease: v1.6.12-prebeta.
 Latest Public Release Commit: b06c359e58b47cfe26fe8c4b39ac04fde519dee9.
 Latest Public Prerelease Publication: https://github.com/GiribaldiTTV/Nexus-Desktop-AI/releases/tag/v1.6.12-prebeta.
 Latest Public Prerelease Title: Pre-Beta v1.6.12.
 Release Debt: Clear after v1.6.12-prebeta publication, validation, and post-release canon closure.
-Current Active Workstream: Automation Planning Post-Merge Canon Repair.
+Current Active Workstream: None.
 Current Active Workstream Before Reform: None.
-Current Active Branch: feature/automation-planning-post-merge-canon-repair.
-Current Active Branch Authority Record: Docs/branch_records/feature_automation_planning_post_merge_canon_repair.md.
+Current Active Branch: None.
+Current Active Branch Authority Record: None.
 Current Active Canonical Workstream Doc: None.
 Historical Active Workstream Before Release: Automation Implementation.
 Earlier Historical Active Workstream Before Release: FB-048 Active-session relaunch signal-failure and wait-timeout truth.
@@ -80,9 +80,9 @@ Selected Next Record State: Registry-only.
 Selected Next Implementation Branch: Not created.
 Historical Repair-Only Branch Handling: `feature/fb-046-post-merge-canon-sync` was a bounded repair-only post-merge canon-sync `feature/` branch and did not imply Branch Readiness admission or active branch truth for FB-046.
 Historical Branch Readiness State: Complete on `feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeout-truth`.
-Current Branch Readiness State: Bounded repair branch admitted directly from updated `main`; no new backlog-backed implementation workstream is opened by this repair.
-Current Workstream State: PR Readiness PR1 `Post-Merge Canon Repair PR Validation` is in progress on `feature/automation-planning-post-merge-canon-repair`. This bounded emergency canon repair preserves merged-main `No Active Branch` truth, keeps `feature/automation-planning` historical-only after PR #99, preserves retired PR99 watcher cleanup proof, preserves pending `v1.6.13-prebeta` release posture, and preserves FB-049 as the only selected-next user-facing candidate. the PR watcher remains the only minute-scale heartbeat automation in preserved branch truth. Historical runtime-proof governance remains preserved as `ACTIVE` alone is not treated as run proof, and any fallback helper must stay narrowed to the live PR and bounded to `PR Readiness`.
-Current Branch Class: emergency canon repair.
+Current Branch Readiness State: None on merge-stable current-state surfaces. If a bounded closeout repair branch is temporarily active, that execution truth belongs only in its branch authority record and must not be mirrored here while merged-main truth remains `No Active Branch`.
+Current Workstream State: None. Merged-main current-state owners remain steady-state `No Active Branch` while pending `v1.6.13-prebeta` release posture and FB-049 selected-next truth remain preserved. the PR watcher remains the only minute-scale heartbeat automation in preserved branch truth. Historical runtime-proof governance remains preserved as `ACTIVE` alone is not treated as run proof, any fallback helper must stay narrowed to the live PR and bounded to `PR Readiness`, and future branches that depend on PR-bot monitoring must treat `PR Watcher Provisioning Unproven` as a blocker until watcher target, runtime path, run proof, fallback, and teardown rules are explicit and proven.
+Current Branch Class: None.
 Current Implementation Delta Class: None.
 Historical Workstream State: Automation catalog implementation is merged historical branch proof after PR #99; FB-048 is Released / Closed in `v1.6.12-prebeta`; FB-047 is Released / Closed in `v1.6.11-prebeta`; FB-046 is Released / Closed in `v1.6.10-prebeta`; FB-044 and FB-045 remain Released / Closed historical proof in `v1.6.9-prebeta`.
 Historical Hardening State: Complete on `feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeout-truth`.

@@ -202,6 +202,7 @@ Do not create a `docs/governance` or `emergency canon repair` branch unless expl
 Repair-only `feature/` branch existence does not imply Branch Readiness admission or active branch truth.
 Tightly coupled governance and canon repair must ride on the active branch that owns the affected truth.
 It must not be used to avoid carrying supporting canon sync on an already-active implementation branch.
+If a stale-canon or governance-drift class is discovered, the same branch or next legal repair surface must patch the canon or validator rule that allowed it before the repair is considered complete.
 
 ### Protected Main Law
 
@@ -233,6 +234,7 @@ The branch must either:
 
 - move the record into the historical branch-record list with merge-safe phase-status wording, or
 - remove the record entirely if no durable historical value remains
+- when post-merge truth will remain `No Active Branch`, merge-stable current-state owners such as backlog and roadmap must not mirror transient repair-branch ownership; that transient execution truth belongs only in the active branch authority record until merge
 
 ### Repo-Level Admission Gate
 
@@ -298,6 +300,7 @@ The default named blockers are:
 - `PR Creation Pending`
 - `PR Validation Pending`
 - `PR State Unknown`
+- `PR Watcher Provisioning Unproven`
 - `PR Readiness Scope Missed`
 - `Release Window Audit Incomplete`
 - `Release Readiness Scope Drift`
@@ -600,6 +603,8 @@ Hard blockers:
   PR Readiness cannot be green if Codex cannot inspect the PR state, mergeability/conflict state, base/head alignment, or Codex review-thread state.
 - `Bot Review Signal Pending`:
   for Codex-created PRs, PR Readiness cannot be green until the live PR has received either a thumbs-up reaction or a bot comment from the Codex GitHub bot; a thumbs-up reaction on the live PR clears the gate, while a bot comment keeps `PR Validation Pending` active until the branch fixes the comment on the same PR, pushes, resolves the comment, and records that current-head comment-resolution closeout; no later thumbs-up is required
+- `PR Watcher Provisioning Unproven`:
+  if the branch expects watcher-based PR monitoring, the watcher target, runtime path, run-proof method, fallback, and teardown rule must be explicit and replacement provisioning for the next live PR must be proven before PR Readiness can turn green
 - `Automation Runtime Unproven`:
   phase-critical automation cannot clear a gate merely because its card, config, or automation list says `ACTIVE`; `ACTIVE` is configuration state, not run proof. Accept run evidence only from thread or inbox output, automation memory/log/state-file updates, or scheduler last-run evidence. If the preferred Codex automation remains `ACTIVE` without run evidence, keep the owning phase blocked until run evidence exists or a bounded fallback is activated. Any bounded fallback must be target-scoped, phase-scoped, read-only, and self-terminating or explicitly deleted when its terminal condition or phase exit occurs.
 - `PR Readiness Scope Missed`:
@@ -626,6 +631,7 @@ Live PR creation and validation facts are required for operator output and PR va
 - the PR has no conflicts
 - PR state is inspectable rather than unknown
 - no unresolved Codex comments/issues or requested changes remain
+- `PR Watcher Provisioning Unproven` is clear whenever watcher-based PR monitoring is expected
 - the live PR has either a thumbs-up reaction from the Codex GitHub bot or a recorded current-head bot comment-resolution closeout; no later thumbs-up is required after the comment-resolution path
 
 ### PR Readiness Response Contract
@@ -1485,6 +1491,7 @@ Exit:
 - admitted implementation slice is explicit, or an explicit USER-approved docs-only bypass is recorded
 - branch-level execution plan is explicit enough to enter Workstream without inventing the lane shape mid-execution
 - branch-level closure rule is explicit enough to keep the backlog item on one branch until it is fully implementable and complete or only future-dependent blockers remain
+- when later PR Readiness or watcher-based bot monitoring is expected, explicit watcher-provisioning truth for the future PR gate: target-binding rule, runtime path, run-proof method, fallback rule, teardown rule, and the named blocker `PR Watcher Provisioning Unproven` until that contract is proven
 
 ### Workstream
 

@@ -662,6 +662,7 @@ PR_READINESS_BLOCKER_PHRASES = (
     "next-workstream",
     "desktop-shortcut",
     "User Test Summary Results Pending",
+    "PR Watcher Provisioning Unproven",
     "PR Readiness Scope Missed",
     "Release Window Audit Incomplete",
     "Between-Branch Canon Repair Attempt",
@@ -770,6 +771,21 @@ BOT_REVIEW_SIGNAL_PHRASES = (
     "thumbs-up reaction",
     "bot comment",
     "no later thumbs-up is required",
+)
+
+GOVERNANCE_RECURRENCE_DOCS = (
+    Path("Docs/phase_governance.md"),
+    Path("Docs/development_rules.md"),
+    Path("Docs/Main.md"),
+    Path("Docs/codex_modes.md"),
+    Path("Docs/codex_user_guide.md"),
+    Path("Docs/branch_records/index.md"),
+)
+
+GOVERNANCE_RECURRENCE_PHRASES = (
+    "patch the canon or validator rule that allowed it before the repair is considered complete",
+    "merge-stable current-state owners such as backlog and roadmap must not mirror transient repair-branch ownership",
+    "PR Watcher Provisioning Unproven",
 )
 
 POST_MERGE_PR_BLOCKERS = (
@@ -7176,6 +7192,14 @@ def main() -> int:
                 f"{relative_path}: bot-review signal contract is missing '{required_phrase}'",
             )
 
+    for relative_path in GOVERNANCE_RECURRENCE_DOCS:
+        text = _read_text(relative_path)
+        for required_phrase in GOVERNANCE_RECURRENCE_PHRASES:
+            require(
+                required_phrase in text,
+                f"{relative_path}: governance recurrence guidance is missing '{required_phrase}'",
+            )
+
     for relative_path in UTS_RESULTS_BLOCKER_DOCS:
         text = _read_text(relative_path)
         for required_phrase in UTS_RESULTS_BLOCKER_PHRASES:
@@ -7294,6 +7318,20 @@ def main() -> int:
                 "so `Active Branch Authority Records` must be empty on main"
             ),
         )
+    if current_git_branch not in {"", "main"} and merged_no_active_branch_truth:
+        for relative_path, text in (
+            ("Docs/feature_backlog.md", backlog_text),
+            ("Docs/prebeta_roadmap.md", roadmap_text),
+        ):
+            require(
+                f"Current Active Branch: {current_git_branch}" not in text
+                and f"Current Active Branch: `{current_git_branch}`" not in text,
+                (
+                    f"{relative_path}: merge-stable current-state owners must not mirror transient "
+                    f"repair-branch ownership for '{current_git_branch}' while merged-main truth remains "
+                    "`No Active Branch`"
+                ),
+            )
 
     backlog_entries = _parse_backlog_sections(backlog_text)
     _validate_backlog_family_reform_bootstrap(
