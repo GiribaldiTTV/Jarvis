@@ -232,6 +232,7 @@ When the approved phase is `PR Readiness`, the output must also explicitly inclu
 - confirmation that `PR Readiness Scope Missed`, `Between-Branch Canon Repair Attempt`, and `Next Branch Created Too Early` are clear
 - confirmation that `Release Window Audit Incomplete` is clear, including the normal green posture `Remaining Known Release Blockers: None`, `Another Pre-Release Repair PR Required: NO`, and `Release Window Split Waiver: None`, unless an explicit user-approved split waiver is recorded
 - confirmation that `PR Creation Pending`, `PR Validation Pending`, and `PR State Unknown` are clear before reporting `PR Readiness GREEN`
+- confirmation that `Bot Review Signal Pending` is clear for the current PR head, either through a thumbs-up reaction or a bot comment-resolution closeout; no later thumbs-up is required after the comment-resolution path
 - confirmation that `PR package ready` is not being collapsed into `PR Readiness GREEN`
 - confirmation that no PR-owned docs or canon work is being deferred to Release Readiness, updated `main`, or a governance-only branch
 - confirmation that `main` remains protected and that no Codex file mutation, staging, commit, generation, refresh, or repair work is being performed on `main`
@@ -304,7 +305,7 @@ If release debt, updated-`main` revalidation, or another admission gate blocks b
 The `PR Creation Details` block is preparation material only; it must not imply PR creation, merge execution, release execution, next-branch creation, or PR Readiness GREEN has occurred.
 Each PR operator field must be its own copy-ready block and must be usable independently.
 The PR summary must include implemented branch truth only. Do not include exclusion lists, `Not Included` sections, or defensive scope language.
-PR Readiness GREEN requires the PR to exist, be open, be non-draft, have no conflicts, match merge-target canon, and have no unresolved Codex comments/issues or requested changes.
+PR Readiness GREEN requires the PR to exist, be open, be non-draft, have no conflicts, match merge-target canon, have no unresolved Codex comments/issues or requested changes, and clear the current PR head's bot-review signal through either a thumbs-up reaction or a bot comment-resolution closeout; no later thumbs-up is required after the comment-resolution path.
 
 When the approved phase is `Release Readiness`, the output must also explicitly include:
 

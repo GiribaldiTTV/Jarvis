@@ -598,6 +598,8 @@ Hard blockers:
   PR Readiness cannot be green until the existing PR has been validated as open, non-draft, conflict-free, aligned to the merge-target canon, and clear of unresolved Codex comments/issues or requested changes.
 - `PR State Unknown`:
   PR Readiness cannot be green if Codex cannot inspect the PR state, mergeability/conflict state, base/head alignment, or Codex review-thread state.
+- `Bot Review Signal Pending`:
+  for Codex-created PRs, PR Readiness cannot be green until the current PR head has received either a thumbs-up reaction or a bot comment from the Codex GitHub bot; a thumbs-up reaction clears the gate, while a bot comment keeps `PR Validation Pending` active until the branch fixes the comment on the same PR, pushes, resolves the comment, and records that current-head comment-resolution closeout; no later thumbs-up is required
 - `PR Readiness Scope Missed`:
   PR Readiness cannot be green if branch-authority cleanup, merge-target canon, post-merge truth, next-workstream selection, next-branch deferral, or release-debt routing is incomplete or being deferred to Release Readiness, updated `main`, or a later governance-only branch
 - `Release Window Audit Incomplete`:
@@ -622,6 +624,7 @@ Live PR creation and validation facts are required for operator output and PR va
 - the PR has no conflicts
 - PR state is inspectable rather than unknown
 - no unresolved Codex comments/issues or requested changes remain
+- the current PR head has either a thumbs-up reaction from the Codex GitHub bot or a recorded current-head bot comment-resolution closeout; no later thumbs-up is required after the comment-resolution path
 
 ### PR Readiness Response Contract
 

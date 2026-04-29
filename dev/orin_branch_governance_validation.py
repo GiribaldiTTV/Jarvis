@@ -2,6 +2,7 @@ import json
 import re
 import subprocess
 import sys
+from datetime import datetime, timezone
 from pathlib import Path
 from urllib import error as urllib_error
 from urllib import parse as urllib_parse
@@ -683,6 +684,23 @@ PR_LIVE_STATE_PHRASES = (
     "PR State Unknown",
 )
 
+BOT_REVIEW_SIGNAL_DOCS = (
+    Path("Docs/phase_governance.md"),
+    Path("Docs/development_rules.md"),
+    Path("Docs/Main.md"),
+    Path("Docs/codex_modes.md"),
+    Path("Docs/orin_task_template.md"),
+    Path("Docs/codex_user_guide.md"),
+)
+
+BOT_REVIEW_SIGNAL_PHRASES = (
+    "Bot Review Signal Pending",
+    "current PR head",
+    "thumbs-up reaction",
+    "bot comment",
+    "no later thumbs-up is required",
+)
+
 POST_MERGE_PR_BLOCKERS = (
     "PR Creation Pending",
     "PR Validation Pending",
@@ -1198,10 +1216,25 @@ REFORM_PR_READINESS_PR1_SEAM = "PR Readiness PR1 - Reform Branch PR Validation"
 REFORM_PR_READINESS_PR1_STATE_PHRASE = (
     "PR Readiness PR1 `Reform Branch PR Validation` is in progress"
 )
+REFORM_PR_READINESS_PR2_SEAM = "PR Readiness PR2 - Bot Review Signal Monitoring"
+REFORM_PR_READINESS_PR2_STATE_PHRASE = (
+    "PR Readiness PR2 `Bot Review Signal Monitoring` is in progress"
+)
 REFORM_RELEASE_READINESS_RR1_SEAM = "Release Readiness RR1 - Reform Branch Release Validation"
 REFORM_RELEASE_READINESS_RR1_STATE_PHRASE = (
     "Release Readiness RR1 `Reform Branch Release Validation` is in progress"
 )
+
+BOT_REVIEW_SIGNAL_HEADING = "PR Bot Review Signal"
+BOT_REVIEW_SIGNAL_STATUS_LABEL = "Bot Review Signal Status"
+BOT_REVIEW_SIGNAL_HEAD_SHA_LABEL = "Bot Review Signal Head SHA"
+BOT_REVIEW_SIGNAL_SOURCE_LABEL = "Bot Review Signal Source"
+BOT_REVIEW_SIGNAL_TIMESTAMP_LABEL = "Bot Review Signal Timestamp"
+BOT_REVIEW_SIGNAL_ACTOR_LABEL = "Bot Review Signal Actor"
+BOT_REVIEW_SIGNAL_STATUS_PENDING = "Pending"
+BOT_REVIEW_SIGNAL_STATUS_APPROVED = "Approved"
+BOT_REVIEW_SIGNAL_STATUS_COMMENT_ADDRESSED = "Comment addressed"
+BOT_REVIEW_BOT_LOGIN = "chatgpt-codex-connector[bot]"
 REFORM_FB042_DOSSIER_PATH = Path(
     "Docs/workstreams/FB-042_desktop_startup_runtime_family_dossier.md"
 )
@@ -1966,6 +1999,20 @@ def _branch_record_branch_sets(
         branch_class_map[branch_name] = branch_class
         branch_class_map[prefixed_branch_name] = branch_class
     return branch_class_map, all_repair_branch_names, active_repair_branch_names
+
+
+def _active_branch_record_for_branch(
+    active_branch_record_paths: set[str],
+    branch_name: str,
+) -> tuple[str, str]:
+    for branch_record_path in active_branch_record_paths:
+        record_path = ROOT_DIR / Path(branch_record_path)
+        if not record_path.is_file():
+            continue
+        record_text = _read_text(Path(branch_record_path))
+        if _extract_branch_identity_branch(record_text) == branch_name:
+            return branch_record_path, record_text
+    return "", ""
 
 
 def _user_test_summary_section(text: str) -> str:
@@ -4565,6 +4612,97 @@ def _validate_backlog_family_reform_seam_truth(
         )
 
     if (
+        REFORM_PR_READINESS_PR2_STATE_PHRASE in backlog_workstream_state
+        and REFORM_PR_READINESS_PR2_STATE_PHRASE in roadmap_workstream_state
+    ):
+        require(
+            current_phase == "PR Readiness",
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Current Phase "
+                "must return to `PR Readiness` once the reform branch current-state summaries "
+                "declare PR Readiness PR2 in progress"
+            ),
+        )
+        require(
+            next_legal_phase == "PR Readiness",
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Next Legal Phase "
+                "must remain `PR Readiness` while PR Readiness PR2 is blocked on a fresh bot-review signal"
+            ),
+        )
+        require(
+            backlog_next_legal_phase == "PR Readiness",
+            (
+                "Docs/feature_backlog.md: Next Legal Phase must remain `PR Readiness` while the "
+                "reform branch current-state summary declares PR Readiness PR2 in progress"
+            ),
+        )
+        require(
+            roadmap_next_legal_phase == "PR Readiness",
+            (
+                "Docs/prebeta_roadmap.md: Next Legal Phase must remain `PR Readiness` while the "
+                "reform branch current-state summary declares PR Readiness PR2 in progress"
+            ),
+        )
+        require(
+            phase_status_pr_readiness_seam == REFORM_PR_READINESS_PR2_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Phase Status "
+                "must name PR Readiness PR2 as the current PR-readiness seam during bot-review monitoring"
+            ),
+        )
+        require(
+            phase_status_next_seam == REFORM_PR_READINESS_PR2_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Phase Status "
+                "`Next Active Seam` must point to PR Readiness PR2 during bot-review monitoring"
+            ),
+        )
+        require(
+            active_seam_current == REFORM_PR_READINESS_PR2_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Active Seam "
+                "must name PR Readiness PR2 as the current active seam during bot-review monitoring"
+            ),
+        )
+        require(
+            active_seam_next == REFORM_PR_READINESS_PR2_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Active Seam "
+                "`Next active seam` must point to PR Readiness PR2 during bot-review monitoring"
+            ),
+        )
+        require(
+            continuation_next_seam == REFORM_PR_READINESS_PR2_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Seam "
+                "Continuation Decision must point to PR Readiness PR2 while the fresh bot-review signal is pending"
+            ),
+        )
+        require(
+            phase_status_release_readiness_seam != REFORM_RELEASE_READINESS_RR1_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Phase Status "
+                "must stop naming Release Readiness RR1 as the current seam once the branch returns "
+                "to PR Readiness PR2"
+            ),
+        )
+        require(
+            REFORM_RELEASE_READINESS_RR1_STATE_PHRASE not in backlog_workstream_state,
+            (
+                "Docs/feature_backlog.md: Current Workstream State must stop reporting Release "
+                "Readiness RR1 as in progress once the branch returns to PR Readiness PR2"
+            ),
+        )
+        require(
+            REFORM_RELEASE_READINESS_RR1_STATE_PHRASE not in roadmap_workstream_state,
+            (
+                "Docs/prebeta_roadmap.md: Current Workstream State must stop reporting Release "
+                "Readiness RR1 as in progress once the branch returns to PR Readiness PR2"
+            ),
+        )
+
+    if (
         REFORM_RELEASE_READINESS_RR1_STATE_PHRASE in backlog_workstream_state
         and REFORM_RELEASE_READINESS_RR1_STATE_PHRASE in roadmap_workstream_state
     ):
@@ -5089,6 +5227,34 @@ def _git_current_branch() -> str:
     return completed.stdout.strip()
 
 
+def _git_head_sha() -> str:
+    completed = subprocess.run(
+        ("git", "rev-parse", "HEAD"),
+        cwd=ROOT_DIR,
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        check=False,
+    )
+    if completed.returncode != 0:
+        return ""
+    return completed.stdout.strip()
+
+
+def _git_head_commit_time() -> datetime | None:
+    completed = subprocess.run(
+        ("git", "show", "-s", "--format=%cI", "HEAD"),
+        cwd=ROOT_DIR,
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        check=False,
+    )
+    if completed.returncode != 0:
+        return None
+    return _parse_iso8601_timestamp(completed.stdout.strip())
+
+
 def _git_branch_names() -> tuple[list[str], str]:
     names: list[str] = []
     errors: list[str] = []
@@ -5148,6 +5314,22 @@ def _github_api_json(url: str) -> tuple[object | None, str]:
         return json.loads(payload), ""
     except json.JSONDecodeError as exc:
         return None, f"could not parse GitHub API JSON: {exc}"
+
+
+def _parse_iso8601_timestamp(value: str) -> datetime | None:
+    if not value:
+        return None
+    try:
+        return datetime.fromisoformat(value.replace("Z", "+00:00")).astimezone(timezone.utc)
+    except ValueError:
+        return None
+
+
+def _bot_login_matches(login: str) -> bool:
+    lowered = login.casefold()
+    if lowered == BOT_REVIEW_BOT_LOGIN.casefold():
+        return True
+    return "codex" in lowered and "connector" in lowered and "bot" in lowered
 
 
 def _github_rest_review_decision(
@@ -5305,6 +5487,67 @@ def _github_rest_unresolved_codex_threads(
             "could not confirm resolution status for Codex review-thread comments via REST fallback",
         )
     return sorted(set(unresolved)), ""
+
+
+def _github_pr_bot_signal_for_current_head(
+    repository_full_name: str,
+    pr_number: int,
+    current_head_time: datetime | None,
+) -> tuple[dict[str, str], str]:
+    signal = {"status": "pending", "source": "", "timestamp": "", "actor": ""}
+    if not repository_full_name or not pr_number:
+        return signal, "current PR identity is incomplete"
+    if current_head_time is None:
+        return signal, "current PR head commit time could not be determined"
+
+    reactions_payload, reactions_error = _github_api_json(
+        f"https://api.github.com/repos/{repository_full_name}/issues/{pr_number}/reactions"
+    )
+    if reactions_error:
+        return signal, f"reaction lookup failed: {reactions_error}"
+    for reaction in reactions_payload or []:
+        actor = str(((reaction.get("user") or {}).get("login")) or "")
+        created_at = str(reaction.get("created_at") or "")
+        created_time = _parse_iso8601_timestamp(created_at)
+        content = str(reaction.get("content") or "")
+        if (
+            _bot_login_matches(actor)
+            and content == "+1"
+            and created_time is not None
+            and created_time >= current_head_time
+        ):
+            return {
+                "status": BOT_REVIEW_SIGNAL_STATUS_APPROVED.casefold(),
+                "source": "thumbs-up reaction",
+                "timestamp": created_at,
+                "actor": actor,
+            }, ""
+
+    for url, source_name in (
+        (f"https://api.github.com/repos/{repository_full_name}/issues/{pr_number}/comments", "issue comment"),
+        (f"https://api.github.com/repos/{repository_full_name}/pulls/{pr_number}/reviews", "review comment"),
+        (f"https://api.github.com/repos/{repository_full_name}/pulls/{pr_number}/comments", "inline review comment"),
+    ):
+        payload, payload_error = _github_api_json(url)
+        if payload_error:
+            return signal, f"{source_name} lookup failed: {payload_error}"
+        for item in payload or []:
+            actor = str(((item.get("user") or {}).get("login")) or "")
+            created_at = str(
+                item.get("submitted_at")
+                or item.get("created_at")
+                or ""
+            )
+            created_time = _parse_iso8601_timestamp(created_at)
+            if _bot_login_matches(actor) and created_time is not None and created_time >= current_head_time:
+                return {
+                    "status": "comment",
+                    "source": source_name,
+                    "timestamp": created_at,
+                    "actor": actor,
+                }, ""
+
+    return signal, ""
 
 
 def _gh_pr_view_for_branch(branch_name: str) -> tuple[dict[str, object] | None, str]:
@@ -5769,7 +6012,20 @@ def _run_open_backlog_selection_governance(require, backlog_entries: list[dict[s
                 )
 
 
-def _run_pr_live_state_gate(require) -> None:
+def _branch_record_bot_review_state(record_text: str) -> tuple[str, str]:
+    review_section = _section(record_text, BOT_REVIEW_SIGNAL_HEADING)
+    return (
+        _extract_marker_value(review_section, BOT_REVIEW_SIGNAL_STATUS_LABEL),
+        _extract_marker_value(review_section, BOT_REVIEW_SIGNAL_HEAD_SHA_LABEL),
+    )
+
+
+def _run_pr_live_state_gate(
+    require,
+    *,
+    active_branch_record_path: str = "",
+    active_branch_record_text: str = "",
+) -> None:
     branch_name = _git_current_branch()
     require(
         bool(branch_name),
@@ -5796,6 +6052,33 @@ def _run_pr_live_state_gate(require) -> None:
     mergeable = str(pr_info.get("mergeable") or "")
     merge_state = str(pr_info.get("mergeStateStatus") or "")
     review_decision = str(pr_info.get("reviewDecision") or "")
+    current_head_sha = _git_head_sha()
+    current_head_time = _git_head_commit_time()
+    recorded_bot_review_status, recorded_bot_review_head = _branch_record_bot_review_state(
+        active_branch_record_text
+    )
+    normalized_recorded_status = recorded_bot_review_status.strip().casefold()
+    manual_comment_resolution_clear = (
+        normalized_recorded_status == BOT_REVIEW_SIGNAL_STATUS_COMMENT_ADDRESSED.casefold()
+        and recorded_bot_review_head == current_head_sha
+    )
+    if (
+        normalized_recorded_status in {
+            BOT_REVIEW_SIGNAL_STATUS_APPROVED.casefold(),
+            BOT_REVIEW_SIGNAL_STATUS_COMMENT_ADDRESSED.casefold(),
+        }
+        and recorded_bot_review_head
+        and current_head_sha
+        and recorded_bot_review_head != current_head_sha
+    ):
+        require(
+            False,
+            (
+                "PR readiness gate: PR Validation Pending blocker is active; recorded bot-review "
+                f"signal head '{recorded_bot_review_head}' in {active_branch_record_path or 'the active branch record'} "
+                f"does not match current head '{current_head_sha}'"
+            ),
+        )
 
     require(
         pr_state == "OPEN",
@@ -5841,24 +6124,68 @@ def _run_pr_live_state_gate(require) -> None:
         ),
     )
 
-    unresolved_codex_threads, thread_error = _gh_unresolved_codex_threads(
-        str(pr_info.get("id") or ""),
-        pr_info,
+    if not manual_comment_resolution_clear:
+        unresolved_codex_threads, thread_error = _gh_unresolved_codex_threads(
+            str(pr_info.get("id") or ""),
+            pr_info,
+        )
+        require(
+            not thread_error,
+            (
+                "PR readiness gate: PR State Unknown blocker is active; "
+                f"could not inspect Codex review threads for PR {pr_url or pr_info.get('number')}: {thread_error}"
+            ),
+        )
+        require(
+            not unresolved_codex_threads,
+            (
+                "PR readiness gate: PR Validation Pending blocker is active; "
+                "unresolved Codex comments/issues remain on the PR"
+            ),
+        )
+
+    if manual_comment_resolution_clear:
+        return
+
+    live_signal, signal_error = _github_pr_bot_signal_for_current_head(
+        str(pr_info.get("repositoryFullName") or ""),
+        int(pr_info.get("number") or 0),
+        current_head_time,
     )
     require(
-        not thread_error,
+        not signal_error,
         (
             "PR readiness gate: PR State Unknown blocker is active; "
-            f"could not inspect Codex review threads for PR {pr_url or pr_info.get('number')}: {thread_error}"
+            f"could not inspect bot-review signal state for PR {pr_url or pr_info.get('number')}: {signal_error}"
         ),
     )
-    require(
-        not unresolved_codex_threads,
-        (
-            "PR readiness gate: PR Validation Pending blocker is active; "
-            "unresolved Codex comments/issues remain on the PR"
-        ),
-    )
+    if signal_error:
+        return
+
+    signal_status = live_signal.get("status", "")
+    signal_source = live_signal.get("source", "")
+    signal_timestamp = live_signal.get("timestamp", "")
+    signal_actor = live_signal.get("actor", "")
+    if signal_status == "comment":
+        require(
+            False,
+            (
+                "PR readiness gate: PR Validation Pending blocker is active; bot review comment "
+                f"detected from '{signal_actor or BOT_REVIEW_BOT_LOGIN}' via {signal_source or 'comment'} "
+                f"at '{signal_timestamp or 'unknown time'}' for current PR head "
+                f"'{current_head_sha or pr_info.get('headRefName') or 'UNKNOWN'}'; fix, push, resolve the "
+                "comment, and then PR green may return without waiting for a later thumbs-up"
+            ),
+        )
+    elif signal_status != BOT_REVIEW_SIGNAL_STATUS_APPROVED.casefold():
+        require(
+            False,
+            (
+                "PR readiness gate: PR Validation Pending blocker is active; Bot Review Signal Pending "
+                f"for current PR head '{current_head_sha or pr_info.get('headRefName') or 'UNKNOWN'}'; wait "
+                "for a thumbs-up reaction or a bot comment on the current PR head"
+            ),
+        )
 
 
 def _run_pr_readiness_gate(
@@ -5867,6 +6194,8 @@ def _run_pr_readiness_gate(
     roadmap_text: str,
     ignored_branch_names: set[str],
     branch_record_class_map: dict[str, str],
+    active_branch_record_path: str,
+    active_branch_record_text: str,
 ) -> None:
     status_output = _git_status_porcelain()
     require(
@@ -5884,7 +6213,11 @@ def _run_pr_readiness_gate(
         ignored_branch_names,
         branch_record_class_map,
     )
-    _run_pr_live_state_gate(require)
+    _run_pr_live_state_gate(
+        require,
+        active_branch_record_path=active_branch_record_path,
+        active_branch_record_text=active_branch_record_text,
+    )
 
 
 def main() -> int:
@@ -6185,6 +6518,14 @@ def main() -> int:
                 f"{relative_path}: PR live-state completion contract is missing '{required_phrase}'",
             )
 
+    for relative_path in BOT_REVIEW_SIGNAL_DOCS:
+        text = _read_text(relative_path)
+        for required_phrase in BOT_REVIEW_SIGNAL_PHRASES:
+            require(
+                required_phrase in text,
+                f"{relative_path}: bot-review signal contract is missing '{required_phrase}'",
+            )
+
     for relative_path in UTS_RESULTS_BLOCKER_DOCS:
         text = _read_text(relative_path)
         for required_phrase in UTS_RESULTS_BLOCKER_PHRASES:
@@ -6281,6 +6622,10 @@ def main() -> int:
     branch_record_class_map, all_repair_branch_names, active_repair_branch_names = _branch_record_branch_sets(
         active_branch_record_paths,
         historical_branch_record_paths,
+        current_git_branch,
+    )
+    active_branch_record_path, active_branch_record_text = _active_branch_record_for_branch(
+        active_branch_record_paths,
         current_git_branch,
     )
     ignored_selected_next_branch_names = _selected_next_ignored_branch_names(
@@ -6565,6 +6910,8 @@ def main() -> int:
             roadmap_text,
             ignored_selected_next_branch_names,
             branch_record_class_map,
+            active_branch_record_path,
+            active_branch_record_text,
         )
 
     selected_entries = _selected_next_workstream_entries(backlog_entries)
