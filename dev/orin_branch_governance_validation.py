@@ -1198,6 +1198,10 @@ REFORM_PR_READINESS_PR1_SEAM = "PR Readiness PR1 - Reform Branch PR Validation"
 REFORM_PR_READINESS_PR1_STATE_PHRASE = (
     "PR Readiness PR1 `Reform Branch PR Validation` is in progress"
 )
+REFORM_RELEASE_READINESS_RR1_SEAM = "Release Readiness RR1 - Reform Branch Release Validation"
+REFORM_RELEASE_READINESS_RR1_STATE_PHRASE = (
+    "Release Readiness RR1 `Reform Branch Release Validation` is in progress"
+)
 REFORM_FB042_DOSSIER_PATH = Path(
     "Docs/workstreams/FB-042_desktop_startup_runtime_family_dossier.md"
 )
@@ -3099,6 +3103,9 @@ def _validate_backlog_family_reform_seam_truth(
     phase_status_pr_readiness_seam = _extract_marker_value(
         phase_status_section, "Current PR Readiness Seam"
     )
+    phase_status_release_readiness_seam = _extract_marker_value(
+        phase_status_section, "Current Release Readiness Seam"
+    )
     backlog_next_legal_phase = _extract_colon_value(backlog_text, "Next Legal Phase").rstrip(".")
     roadmap_next_legal_phase = _extract_colon_value(roadmap_text, "Next Legal Phase").rstrip(".")
 
@@ -4554,6 +4561,97 @@ def _validate_backlog_family_reform_seam_truth(
                 "Docs/branch_records/feature_backlog_family_governance_reform.md: Seam "
                 "Continuation Decision must not keep an R7-S1 continuation action once temporary "
                 "dual-shape tolerance is removed"
+            ),
+        )
+
+    if (
+        REFORM_RELEASE_READINESS_RR1_STATE_PHRASE in backlog_workstream_state
+        and REFORM_RELEASE_READINESS_RR1_STATE_PHRASE in roadmap_workstream_state
+    ):
+        require(
+            current_phase == "Release Readiness",
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Current Phase "
+                "must transition to `Release Readiness` once the reform branch current-state "
+                "summaries declare Release Readiness RR1 in progress"
+            ),
+        )
+        require(
+            next_legal_phase == "Release Readiness",
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Next Legal Phase "
+                "must remain `Release Readiness` while the reform branch is inside active RR1 "
+                "file-frozen validation"
+            ),
+        )
+        require(
+            backlog_next_legal_phase == "Release Readiness",
+            (
+                "Docs/feature_backlog.md: Next Legal Phase must remain `Release Readiness` "
+                "while the reform branch current-state summary declares Release Readiness RR1 in progress"
+            ),
+        )
+        require(
+            roadmap_next_legal_phase == "Release Readiness",
+            (
+                "Docs/prebeta_roadmap.md: Next Legal Phase must remain `Release Readiness` "
+                "while the reform branch current-state summary declares Release Readiness RR1 in progress"
+            ),
+        )
+        require(
+            phase_status_pr_readiness_seam != REFORM_PR_READINESS_PR1_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Phase Status "
+                "must stop naming PR Readiness PR1 as the current seam once Release Readiness RR1 is admitted"
+            ),
+        )
+        require(
+            phase_status_release_readiness_seam == REFORM_RELEASE_READINESS_RR1_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Phase Status "
+                "must name Release Readiness RR1 as the current release-readiness seam during the phase admission repair"
+            ),
+        )
+        require(
+            phase_status_next_seam == REFORM_RELEASE_READINESS_RR1_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Phase Status "
+                "`Next Active Seam` must point to Release Readiness RR1 during the phase admission repair"
+            ),
+        )
+        require(
+            active_seam_current == REFORM_RELEASE_READINESS_RR1_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Active Seam "
+                "must name Release Readiness RR1 as the current active seam during the phase admission repair"
+            ),
+        )
+        require(
+            active_seam_next == REFORM_RELEASE_READINESS_RR1_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Active Seam "
+                "`Next active seam` must point to Release Readiness RR1 during the phase admission repair"
+            ),
+        )
+        require(
+            continuation_next_seam == REFORM_RELEASE_READINESS_RR1_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Seam "
+                "Continuation Decision must point to Release Readiness RR1 once the branch enters Release Readiness"
+            ),
+        )
+        require(
+            REFORM_PR_READINESS_PR1_STATE_PHRASE not in backlog_workstream_state,
+            (
+                "Docs/feature_backlog.md: Current Workstream State must stop reporting PR Readiness PR1 "
+                "as in progress once Release Readiness RR1 is admitted"
+            ),
+        )
+        require(
+            REFORM_PR_READINESS_PR1_STATE_PHRASE not in roadmap_workstream_state,
+            (
+                "Docs/prebeta_roadmap.md: Current Workstream State must stop reporting PR Readiness PR1 "
+                "as in progress once Release Readiness RR1 is admitted"
             ),
         )
         require(
