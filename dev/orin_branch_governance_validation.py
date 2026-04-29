@@ -1,5 +1,6 @@
 import json
 import re
+import sqlite3
 import subprocess
 import sys
 from datetime import datetime, timezone
@@ -663,6 +664,7 @@ PR_READINESS_BLOCKER_PHRASES = (
     "desktop-shortcut",
     "User Test Summary Results Pending",
     "PR Merge Status Unproven",
+    "PR Merge Verification Pending",
     "PR Watcher Provisioning Unproven",
     "PR Readiness Scope Missed",
     "Release Window Audit Incomplete",
@@ -756,6 +758,7 @@ PR_LIVE_STATE_PHRASES = (
     "PR Validation Pending",
     "PR State Unknown",
     "PR Merge Status Unproven",
+    "PR Merge Verification Pending",
 )
 
 BOT_REVIEW_SIGNAL_DOCS = (
@@ -773,6 +776,24 @@ BOT_REVIEW_SIGNAL_PHRASES = (
     "thumbs-up reaction",
     "bot comment",
     "no later thumbs-up is required",
+)
+
+PR_WATCHER_THREAD_CONTRACT_DOCS = (
+    Path("Docs/phase_governance.md"),
+    Path("Docs/development_rules.md"),
+    Path("Docs/Main.md"),
+    Path("Docs/codex_modes.md"),
+    Path("Docs/orin_task_template.md"),
+    Path("Docs/codex_user_guide.md"),
+    Path("Docs/incident_patterns.md"),
+)
+
+PR_WATCHER_THREAD_CONTRACT_PHRASES = (
+    "same working thread",
+    "minute cadence",
+    "reports only when a watched PR status changes",
+    "PR Merge Verification Pending",
+    "merge-watch seam",
 )
 
 GOVERNANCE_RECURRENCE_DOCS = (
@@ -1346,6 +1367,11 @@ AUTOMATION_PR_READINESS_PR1_STATE_PHRASE = (
 AUTOMATION_CLOSEOUT_PR_READINESS_PR1_SEAM = (
     "PR Readiness PR1 - Post-Merge Closeout Repair PR Validation"
 )
+AUTOMATION_CLOSEOUT_PR_READINESS_PR2_SEAM = (
+    "PR Readiness PR2 - Post-Merge Closeout Repair Merge Verification Watch"
+)
+AUTOMATION_CLOSEOUT_PR101_THREAD_WATCHER_NAME = "PR101 Same-Thread Merge Watch"
+CODEX_AUTOMATION_DB_PATH = Path.home() / ".codex" / "sqlite" / "codex-dev.db"
 AUTOMATION_PR99_NATIVE_HEARTBEAT_PATH = (
     Path.home() / ".codex" / "automations" / "pr99-heartbeat-watch" / "automation.toml"
 )
@@ -5441,44 +5467,41 @@ def _validate_automation_closeout_repair_phase_truth(
             ),
         )
         require(
-            phase_status_pr_readiness_seam == AUTOMATION_CLOSEOUT_PR_READINESS_PR1_SEAM,
+            phase_status_pr_readiness_seam == AUTOMATION_CLOSEOUT_PR_READINESS_PR2_SEAM,
             (
                 "Docs/branch_records/feature_automation_planning_post_merge_closeout_repair.md: "
-                "Phase Status must name PR Readiness PR1 as the current PR-readiness seam"
+                "Phase Status must name PR Readiness PR2 as the current PR-readiness seam "
+                "once merge-watch governance is admitted"
             ),
         )
         require(
-            phase_status_next_seam == AUTOMATION_CLOSEOUT_PR_READINESS_PR1_SEAM,
+            phase_status_next_seam == AUTOMATION_CLOSEOUT_PR_READINESS_PR2_SEAM,
             (
                 "Docs/branch_records/feature_automation_planning_post_merge_closeout_repair.md: "
-                "Phase Status `Next Active Seam` must point to PR Readiness PR1"
+                "Phase Status `Next Active Seam` must point to PR Readiness PR2 during the "
+                "merge-verification watch"
             ),
         )
         require(
-            active_seam_current == AUTOMATION_CLOSEOUT_PR_READINESS_PR1_SEAM,
+            active_seam_current == AUTOMATION_CLOSEOUT_PR_READINESS_PR2_SEAM,
             (
                 "Docs/branch_records/feature_automation_planning_post_merge_closeout_repair.md: "
-                "Active Seam must name PR Readiness PR1 as the current active seam"
+                "Active Seam must name PR Readiness PR2 as the current active seam"
             ),
         )
         require(
-            active_seam_next == AUTOMATION_CLOSEOUT_PR_READINESS_PR1_SEAM,
+            active_seam_next == AUTOMATION_CLOSEOUT_PR_READINESS_PR2_SEAM,
             (
                 "Docs/branch_records/feature_automation_planning_post_merge_closeout_repair.md: "
-                "Active Seam `Next active seam` must point to PR Readiness PR1"
+                "Active Seam `Next active seam` must point to PR Readiness PR2"
             ),
         )
         require(
-            continuation_next_seam
-            == (
-                "None"
-                if seam_status == "Green"
-                else AUTOMATION_CLOSEOUT_PR_READINESS_PR1_SEAM
-            ),
+            continuation_next_seam == AUTOMATION_CLOSEOUT_PR_READINESS_PR2_SEAM,
             (
                 "Docs/branch_records/feature_automation_planning_post_merge_closeout_repair.md: "
-                "Seam Continuation Decision must point to PR Readiness PR1 once the branch "
-                "enters `PR Readiness`"
+                "Seam Continuation Decision must point to PR Readiness PR2 while merge "
+                "verification is pending"
             ),
         )
         require(
@@ -5486,6 +5509,14 @@ def _validate_automation_closeout_repair_phase_truth(
             (
                 "Docs/branch_records/feature_automation_planning_post_merge_closeout_repair.md: "
                 "PR Readiness truth must include `Release Window Audit: PASS`"
+            ),
+        )
+        blockers_section = _section(branch_record_text, "Blockers")
+        require(
+            "PR Merge Verification Pending" in blockers_section,
+            (
+                "Docs/branch_records/feature_automation_planning_post_merge_closeout_repair.md: "
+                "PR Readiness PR2 must carry `PR Merge Verification Pending` until merge is verified"
             ),
         )
 
@@ -6678,6 +6709,11 @@ def _automation_planning_runtime_proof_status(current_head_sha: str) -> tuple[bo
 
 
 def _automation_closeout_repair_watcher_proof_status(current_head_sha: str) -> tuple[bool, str]:
+    heartbeat_proven, heartbeat_message = _automation_last_run_proof(
+        AUTOMATION_CLOSEOUT_PR101_THREAD_WATCHER_NAME
+    )
+    if not heartbeat_proven:
+        return False, heartbeat_message
     if not AUTOMATION_CLOSEOUT_PR101_WATCHER_SCRIPT_PATH.is_file():
         return (
             False,
@@ -6715,10 +6751,65 @@ def _automation_closeout_repair_watcher_proof_status(current_head_sha: str) -> t
     return (
         True,
         (
-            "bounded PR watcher runtime proof is present via "
+            "same-thread watcher scheduler proof is present via "
+            f"'{AUTOMATION_CLOSEOUT_PR101_THREAD_WATCHER_NAME}', and bounded PR watcher fallback proof is present via "
             f"'{AUTOMATION_CLOSEOUT_PR101_WATCHER_STATE_PATH}' and "
             f"'{AUTOMATION_CLOSEOUT_PR101_WATCHER_LATEST_PATH}'"
         ),
+    )
+
+
+def _automation_last_run_proof(automation_name: str) -> tuple[bool, str]:
+    if not CODEX_AUTOMATION_DB_PATH.is_file():
+        return False, f"automation state database '{CODEX_AUTOMATION_DB_PATH}' is missing"
+    connection = None
+    try:
+        connection = sqlite3.connect(CODEX_AUTOMATION_DB_PATH)
+        connection.row_factory = sqlite3.Row
+        cursor = connection.cursor()
+        cursor.execute(
+            "SELECT id, status, last_run_at FROM automations WHERE name = ? ORDER BY updated_at DESC LIMIT 1",
+            (automation_name,),
+        )
+        automation_row = cursor.fetchone()
+        if automation_row is None:
+            return False, f"same-thread watcher automation '{automation_name}' is missing"
+        automation_id = str(automation_row["id"] or "").strip()
+        status = str(automation_row["status"] or "").strip()
+        last_run_at = automation_row["last_run_at"]
+        cursor.execute(
+            "SELECT thread_id, updated_at FROM automation_runs WHERE automation_id = ? ORDER BY updated_at DESC LIMIT 1",
+            (automation_id,),
+        )
+        latest_run = cursor.fetchone()
+    except sqlite3.Error as exc:
+        return False, f"automation state inspection failed for '{automation_name}': {exc}"
+    finally:
+        try:
+            connection.close()
+        except Exception:
+            pass
+
+    if status != "ACTIVE":
+        return False, f"same-thread watcher automation '{automation_name}' is not ACTIVE"
+    automation_toml = Path.home() / ".codex" / "automations" / automation_id / "automation.toml"
+    if not automation_toml.is_file():
+        return False, f"same-thread watcher automation '{automation_name}' is missing '{automation_toml}'"
+    automation_text = automation_toml.read_text(encoding="utf-8")
+    if 'kind = "heartbeat"' not in automation_text:
+        return False, f"same-thread watcher automation '{automation_name}' is not a heartbeat automation"
+    if 'target_thread_id = "' not in automation_text:
+        return False, f"same-thread watcher automation '{automation_name}' is not bound to a thread"
+    if last_run_at is None and latest_run is None:
+        return (
+            False,
+            f"same-thread watcher automation '{automation_name}' has no scheduler last-run or automation-run proof yet",
+        )
+    run_timestamp = latest_run["updated_at"] if latest_run is not None else last_run_at
+    thread_id = str(latest_run["thread_id"] or "").strip() if latest_run is not None else "unknown"
+    return (
+        True,
+        f"same-thread watcher automation '{automation_name}' has scheduler last-run proof at '{run_timestamp}' on thread '{thread_id}'",
     )
 
 
@@ -6966,6 +7057,15 @@ def _run_pr_live_state_gate(
                     "the bounded fallback watcher state"
                 ),
             )
+        if closeout_watcher_state is not None and not bool(closeout_watcher_state.get("merged")):
+            require(
+                False,
+                (
+                    "PR readiness gate: PR Merge Verification Pending blocker is active; the same-thread "
+                    f"watcher contract for live PR '{pr_url or pr_info.get('number') or 'UNKNOWN'}' "
+                    "has not yet verified a merged state"
+                ),
+            )
         return
 
     live_signal, signal_error = _github_pr_bot_signal_for_live_pr(
@@ -6992,6 +7092,15 @@ def _run_pr_live_state_gate(
                     "PR readiness gate: PR Validation Pending blocker is active; Bot Review Signal Pending "
                     f"for live PR '{pr_url or pr_info.get('number') or 'UNKNOWN'}' according to "
                     "the bounded watcher state"
+                ),
+            )
+        if not bool(closeout_watcher_state.get("merged")):
+            require(
+                False,
+                (
+                    "PR readiness gate: PR Merge Verification Pending blocker is active; the same-thread "
+                    f"watcher contract for live PR '{pr_url or pr_info.get('number') or 'UNKNOWN'}' "
+                    "has not yet verified a merged state"
                 ),
             )
         return
@@ -7027,6 +7136,17 @@ def _run_pr_live_state_gate(
                 "PR readiness gate: PR Validation Pending blocker is active; Bot Review Signal Pending "
                 f"for live PR '{pr_url or pr_info.get('number') or 'UNKNOWN'}'; wait "
                 "for a thumbs-up reaction or a bot comment on the live PR"
+            ),
+        )
+        return
+
+    if closeout_watcher_state is not None and not bool(closeout_watcher_state.get("merged")):
+        require(
+            False,
+            (
+                "PR readiness gate: PR Merge Verification Pending blocker is active; the same-thread "
+                f"watcher contract for live PR '{pr_url or pr_info.get('number') or 'UNKNOWN'}' "
+                "has not yet verified a merged state"
             ),
         )
 
@@ -7383,6 +7503,14 @@ def main() -> int:
             require(
                 required_phrase in text,
                 f"{relative_path}: bot-review signal contract is missing '{required_phrase}'",
+            )
+
+    for relative_path in PR_WATCHER_THREAD_CONTRACT_DOCS:
+        text = _read_text(relative_path)
+        for required_phrase in PR_WATCHER_THREAD_CONTRACT_PHRASES:
+            require(
+                required_phrase in text,
+                f"{relative_path}: PR watcher same-thread contract is missing '{required_phrase}'",
             )
 
     for relative_path in GOVERNANCE_RECURRENCE_DOCS:

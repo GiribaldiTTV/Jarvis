@@ -301,6 +301,7 @@ The default named blockers are:
 - `PR Validation Pending`
 - `PR State Unknown`
 - `PR Merge Status Unproven`
+- `PR Merge Verification Pending`
 - `PR Watcher Provisioning Unproven`
 - `PR Readiness Scope Missed`
 - `Release Window Audit Incomplete`
@@ -607,7 +608,9 @@ Hard blockers:
 - `Bot Review Signal Pending`:
   for Codex-created PRs, PR Readiness cannot be green until the live PR has received either a thumbs-up reaction or a bot comment from the Codex GitHub bot; a thumbs-up reaction on the live PR clears the gate, while a bot comment keeps `PR Validation Pending` active until the branch fixes the comment on the same PR, pushes, resolves the comment, and records that current-head comment-resolution closeout; no later thumbs-up is required
 - `PR Watcher Provisioning Unproven`:
-  if the branch expects watcher-based PR monitoring, the watcher target, runtime path, run-proof method, fallback, and teardown rule must be explicit and replacement provisioning for the next live PR must be proven before PR Readiness can turn green
+  if the branch expects watcher-based PR monitoring, the watcher target, runtime path, run-proof method, fallback, teardown rule, replacement provisioning for the next live PR, and same working thread contract must be explicit and proven before PR Readiness can turn green. Standard operating procedure from now on is a same working thread watcher at minute cadence that reports only when a watched PR status changes.
+- `PR Merge Verification Pending`:
+  after PR creation, live PR validation, green merge status, and bot-review approval are complete, PR Readiness continues into a merge-watch seam and stays non-green until the same working thread watcher verifies that the live PR is actually `merged`
 - `Automation Runtime Unproven`:
   phase-critical automation cannot clear a gate merely because its card, config, or automation list says `ACTIVE`; `ACTIVE` is configuration state, not run proof. Accept run evidence only from thread or inbox output, automation memory/log/state-file updates, or scheduler last-run evidence. If the preferred Codex automation remains `ACTIVE` without run evidence, keep the owning phase blocked until run evidence exists or a bounded fallback is activated. Any bounded fallback must be target-scoped, phase-scoped, read-only, and self-terminating or explicitly deleted when its terminal condition or phase exit occurs.
 - `PR Readiness Scope Missed`:
@@ -636,6 +639,7 @@ Live PR creation and validation facts are required for operator output and PR va
 - no unresolved Codex comments/issues or requested changes remain
 - `PR Watcher Provisioning Unproven` is clear whenever watcher-based PR monitoring is expected
 - `PR Merge Status Unproven` is clear only after the live PR has explicitly reported a green merge status
+- `PR Merge Verification Pending` is clear only after the same working thread watcher has verified that the live PR is `merged`
 - the live PR has either a thumbs-up reaction from the Codex GitHub bot or a recorded current-head bot comment-resolution closeout; no later thumbs-up is required after the comment-resolution path
 
 ### PR Readiness Response Contract
@@ -1432,7 +1436,7 @@ The canonical rule is narrower:
 - `Workstream` -> `Hardening` only after the current Workstream work reports `Completion Status: Green`, no remaining implementable work is still available on that backlog item, `Backlog Completion State` is `Implemented Complete` or `Implemented Complete Except Future Dependency`, direct validation is green, User Test Summary obligations are current for user-facing changes, and no same-slice correctness gap remains
 - `Hardening` -> `Live Validation` only after repo-side hardening proof is sufficient for interactive or manual closeout work
 - `Live Validation` -> `PR Readiness` only after branch-local proof is sufficient for closeout, returned evidence has been digested into the authority record, and `User Test Summary Results Pending` is absent or cleared by a documented waiver
-- `PR Readiness` -> `Release Readiness` only after merge-target canon completeness passes, the Governance Drift Audit passes, the next-workstream selection gate passes, branch creation remains deferred to `Branch Readiness`, and any release target/scope/artifact truth needed for release review is already available without file mutation
+- `PR Readiness` -> `Release Readiness` only after merge-target canon completeness passes, the Governance Drift Audit passes, the next-workstream selection gate passes, branch creation remains deferred to `Branch Readiness`, the same working thread watcher has verified that the live PR is `merged`, and any release target/scope/artifact truth needed for release review is already available without file mutation
 - `Release Readiness` stays restricted to analysis-only release target, scope, artifact, release-execution authorization, and release-state confirmation work; it does not transition into a docs-sync phase or a file-mutation phase
 
 There is no default direct `Workstream` -> `PR Readiness` transition.
