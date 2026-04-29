@@ -34,9 +34,11 @@ It begins with the already-landed post-merge canon repair at `0a1c23c` and uses 
 - BR1 result: complete and green. The automation-planning purpose is now explicit from repo truth, admitted scope and out-of-scope boundaries are defined, the branch remains `docs/governance` and `docs-only`, the first bounded planning seam chain is explicit, no automation implementation or rollout work has begun, and FB-049 remains the only selected-next user-facing candidate.
 - Historical Branch Readiness Seam: `Branch Readiness BR2 - PR Watcher And Recurring Monitor Policy`
 - BR2 result: complete and green. PR watcher, bot-review, recurring status-update, signal, output, and prohibited-action boundaries are now explicit; heartbeat-vs-cron policy is defined; the branch remains `docs/governance` and `docs-only`; no automation implementation, activation, deletion, or scheduling work has begun; and FB-049 remains the only selected-next user-facing candidate.
-- Current Branch Readiness Seam: `Branch Readiness BR3 - Repo-Hygiene Automation Candidates And Rollout Boundaries`
-- Branch Readiness Status: in progress. This branch remains admitted under explicit `Docs/Governance Branch Waiver: APPROVED`, the carried post-merge canon repair from `0a1c23c` remains on this same branch as the required prior-miss closure surface, BR3 is now defining repo-hygiene automation candidates and rollout boundaries, no automation implementation or rollout work has begun, merged backlog-family governance reform truth remains historical traceability only after PR #98 merged, and FB-049 remains the only selected-next user-facing candidate.
-- Next Active Seam: `Branch Readiness BR3 - Repo-Hygiene Automation Candidates And Rollout Boundaries`
+- Historical Branch Readiness Seam: `Branch Readiness BR3 - Repo-Hygiene Automation Candidates And Rollout Boundaries`
+- BR3 result: complete and green. Repo-hygiene watcher candidates, heartbeat-vs-cron classification, rollout boundaries, required activation evidence, and repo-hygiene prohibited actions are now explicit; the branch remains `docs/governance` and `docs-only`; no automation implementation, activation, deletion, or scheduling work has begun; and FB-049 remains the only selected-next user-facing candidate.
+- Current Branch Readiness Seam: `Branch Readiness BR4 - Future Automation Activation Evidence And Workstream Admission Gate`
+- Branch Readiness Status: in progress. This branch remains admitted under explicit `Docs/Governance Branch Waiver: APPROVED`, the carried post-merge canon repair from `0a1c23c` remains on this same branch as the required prior-miss closure surface, BR4 is now defining the future activation evidence contract and the first legal Workstream admission gate for any later automation implementation, no automation implementation or rollout work has begun, merged backlog-family governance reform truth remains historical traceability only after PR #98 merged, and FB-049 remains the only selected-next user-facing candidate.
+- Next Active Seam: `Branch Readiness BR4 - Future Automation Activation Evidence And Workstream Admission Gate`
 
 ## Branch Class
 
@@ -139,6 +141,11 @@ Goal: Make the later automation implementation surface explicit so reusable watc
 Scope: Planning-only rules for cron versus heartbeat usage, reporting cadence, blocker handling, branch-local ownership, and future rollout prerequisites.
 Non-Includes: No automation catalog is activated, no scheduling state is written, and no runtime, backend, or user-facing feature work is admitted.
 
+Seam 4: Define the future automation activation evidence contract and first Workstream admission gate.
+Goal: State exactly what evidence and approvals must exist before any named automation is created, scheduled, or activated and what the first legal Workstream seam must prove.
+Scope: Planning-only admission gating for later automation implementation, validation, owner-phase declaration, and activation proof requirements.
+Non-Includes: No automation is created or scheduled, no implementation files are changed, and no later Workstream or PR phase is entered in this seam.
+
 ## PR Watcher Policy
 
 - PR watcher monitoring is planning-approved only for live PR state on the active branch or another PR surface explicitly named by the USER.
@@ -205,6 +212,81 @@ Non-Includes: No automation catalog is activated, no scheduling state is written
 - using cron-style automation as a substitute for minute-scale heartbeat monitoring
 - using heartbeat monitoring to bypass later phase gates, blockers, waivers, or release controls
 
+## Repo-Hygiene Watcher Candidates
+
+- `Phase And Authority Drift Watch`
+  - watches branch phase, active seam, branch class, active branch authority routing, and merge-stable current-state truth for contradiction or drift
+- `Selected-Next Lock Audit`
+  - watches that FB-049 remains the only selected-next user-facing candidate and stays branch-not-created until later legal admission
+- `Release Window Sentinel`
+  - watches release-window blockers, unresolved release-debt posture, and release-phase readiness truth during active release-bearing windows
+- `Main Revalidation Gate Watch`
+  - watches whether updated `main` has been revalidated and whether a later selected-next branch gate has legally cleared
+- `Toolchain Availability Watch`
+  - watches whether required local validator/runtime tools remain available before later automation or validation work depends on them
+- `Post-Merge Closure Watch`
+  - watches whether a merged branch has completed its required post-merge or post-release closure truth
+- `Automation Drift Audit`
+  - watches whether future automations themselves drift from their approved owner branch, phase, cadence, stop condition, or output contract
+
+## Repo-Hygiene Heartbeat Vs Cron Classification
+
+- Heartbeat-eligible:
+  - `Release Window Sentinel` when an active PR, merge, release, or post-merge closure event is being watched in near real time on a named thread
+  - `Post-Merge Closure Watch` when a short-lived merge, release publication, or closeout event is actively awaited and minute-scale confirmation is useful
+  - `Toolchain Availability Watch` only as a short-lived blocker-confirmation loop when a current active branch is waiting on tool recovery and the USER explicitly wants minute-scale updates
+- Cron-only:
+  - `Phase And Authority Drift Watch`
+  - `Selected-Next Lock Audit`
+  - `Main Revalidation Gate Watch`
+  - `Automation Drift Audit`
+  - `Toolchain Availability Watch` for normal background hygiene outside a short-lived blocker-confirmation loop
+- Conditional cadence rule:
+  - heartbeat is only allowed for named short-lived operator-facing watches
+  - cron is the default class for durable repo-hygiene monitoring
+
+## Rollout Boundaries
+
+- Repo-hygiene automations must remain read-only by default.
+- Activate one named automation candidate at a time; do not bulk-enable a catalog.
+- Each automation must declare:
+  - owning branch
+  - owning phase
+  - monitored target
+  - cadence class
+  - stop condition
+  - allowed outputs
+- Heartbeat monitors must be thread-attached and self-terminating.
+- Cron monitors must remain hourly-or-slower and workspace-scoped.
+- Repo-hygiene automation must not silently widen into PR creation, release execution, canon mutation, backlog mutation, or successor-branch admission.
+- Any future mutation-capable automation requires a separate later seam and explicit scope widening approval; BR3 does not admit that surface.
+
+## Required Activation Evidence
+
+- explicit USER approval for the named automation candidate
+- active branch authority record names the automation candidate or explicitly admits the owning seam family
+- current branch is phase-correct and clean, with branch governance validation passing
+- monitored target, allowed signals, allowed outputs, and prohibited actions are explicitly recorded
+- cadence class is justified:
+  - heartbeat requires a named short-lived target and stop condition
+  - cron requires a durable hygiene purpose and supported schedule class
+- stop or self-termination rule is explicit
+- required tool, connector, and credential availability is proven for the monitored target
+- no conflict exists with current blockers, waivers, release freeze, or selected-next truth
+- if the automation could ever mutate repo truth, a later seam must explicitly admit that implementation surface before activation
+
+## Repo-Hygiene Prohibited Actions
+
+- automatic repo, canon, validator, backlog, roadmap, or branch-record mutation
+- automatic branch creation, PR creation, PR merge, issue creation, tag creation, or release publication
+- automatic selected-next truth changes or FB-049 branch admission
+- automatic enabling of additional automations from inside another automation
+- minute-scale cron scheduling or pseudo-heartbeat behavior on cron jobs
+- heartbeat monitors without a named stop condition
+- cross-branch or cross-phase monitoring that ignores the recorded owning branch and phase
+- monitoring unrelated connectors, inboxes, or repos outside the named target
+- treating repo-hygiene alerts as authorization to bypass later Workstream, PR Readiness, or Release Readiness gates
+
 ## Active Seam
 
-- Active seam: `Branch Readiness BR3 - Repo-Hygiene Automation Candidates And Rollout Boundaries`
+- Active seam: `Branch Readiness BR4 - Future Automation Activation Evidence And Workstream Admission Gate`
