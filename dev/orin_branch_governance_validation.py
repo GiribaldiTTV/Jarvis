@@ -1182,6 +1182,10 @@ REFORM_HARDENING_H1_SEAM = "Hardening H1 - Post-Workstream Governance Validation
 REFORM_HARDENING_H1_STATE_PHRASE = (
     "Hardening H1 `Post-Workstream Governance Validation` is in progress"
 )
+REFORM_LIVE_VALIDATION_LV1_SEAM = "Live Validation LV1 - Reform Branch Final Validation"
+REFORM_LIVE_VALIDATION_LV1_STATE_PHRASE = (
+    "Live Validation LV1 `Reform Branch Final Validation` is in progress"
+)
 REFORM_FB042_DOSSIER_PATH = Path(
     "Docs/workstreams/FB-042_desktop_startup_runtime_family_dossier.md"
 )
@@ -3077,6 +3081,9 @@ def _validate_backlog_family_reform_seam_truth(
     current_phase = _extract_marker_value(_section(branch_record_text, "Current Phase"), "Phase")
     next_legal_phase = _extract_first_backtick_value(_section(branch_record_text, "Next Legal Phase"))
     phase_status_hardening_seam = _extract_marker_value(phase_status_section, "Current Hardening Seam")
+    phase_status_live_validation_seam = _extract_marker_value(
+        phase_status_section, "Current Live Validation Seam"
+    )
     backlog_next_legal_phase = _extract_colon_value(backlog_text, "Next Legal Phase").rstrip(".")
     roadmap_next_legal_phase = _extract_colon_value(roadmap_text, "Next Legal Phase").rstrip(".")
 
@@ -4335,6 +4342,97 @@ def _validate_backlog_family_reform_seam_truth(
                 "Docs/branch_records/feature_backlog_family_governance_reform.md: Active Seam "
                 "`Next active seam` must advance past R7-S1 once temporary dual-shape tolerance "
                 "is removed"
+            ),
+        )
+
+    if (
+        REFORM_LIVE_VALIDATION_LV1_STATE_PHRASE in backlog_workstream_state
+        and REFORM_LIVE_VALIDATION_LV1_STATE_PHRASE in roadmap_workstream_state
+    ):
+        require(
+            current_phase == "Live Validation",
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Current Phase "
+                "must transition to `Live Validation` once the reform branch current-state summaries "
+                "declare Live Validation LV1 in progress"
+            ),
+        )
+        require(
+            next_legal_phase == "PR Readiness",
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Next Legal Phase "
+                "must advance to `PR Readiness` once the branch has transitioned into Live Validation"
+            ),
+        )
+        require(
+            backlog_next_legal_phase == "PR Readiness",
+            (
+                "Docs/feature_backlog.md: Next Legal Phase must advance to `PR Readiness` "
+                "once the reform branch current-state summary declares Live Validation LV1 in progress"
+            ),
+        )
+        require(
+            roadmap_next_legal_phase == "PR Readiness",
+            (
+                "Docs/prebeta_roadmap.md: Next Legal Phase must advance to `PR Readiness` "
+                "once the reform branch current-state summary declares Live Validation LV1 in progress"
+            ),
+        )
+        require(
+            phase_status_hardening_seam != REFORM_HARDENING_H1_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Phase Status "
+                "must stop naming Hardening H1 as the current seam once Live Validation LV1 is admitted"
+            ),
+        )
+        require(
+            phase_status_live_validation_seam == REFORM_LIVE_VALIDATION_LV1_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Phase Status "
+                "must name Live Validation LV1 as the current live-validation seam during the phase admission repair"
+            ),
+        )
+        require(
+            phase_status_next_seam == REFORM_LIVE_VALIDATION_LV1_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Phase Status "
+                "`Next Active Seam` must point to Live Validation LV1 during the phase admission repair"
+            ),
+        )
+        require(
+            active_seam_current == REFORM_LIVE_VALIDATION_LV1_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Active Seam "
+                "must name Live Validation LV1 as the current active seam during the phase admission repair"
+            ),
+        )
+        require(
+            active_seam_next == REFORM_LIVE_VALIDATION_LV1_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Active Seam "
+                "`Next active seam` must point to Live Validation LV1 during the phase admission repair"
+            ),
+        )
+        require(
+            continuation_next_seam == REFORM_LIVE_VALIDATION_LV1_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Seam "
+                "Continuation Decision must point to Live Validation LV1 once the branch enters "
+                "Live Validation"
+            ),
+        )
+        require(
+            REFORM_HARDENING_H1_STATE_PHRASE not in backlog_workstream_state,
+            (
+                "Docs/feature_backlog.md: Current Workstream State must stop reporting Hardening H1 "
+                "as in progress once Live Validation LV1 is admitted"
+            ),
+        )
+        require(
+            REFORM_HARDENING_H1_STATE_PHRASE not in roadmap_workstream_state,
+            (
+                "Docs/prebeta_roadmap.md: Current Workstream State must stop reporting Hardening H1 "
+                "as in progress once Live Validation LV1 is admitted"
             ),
         )
         require(

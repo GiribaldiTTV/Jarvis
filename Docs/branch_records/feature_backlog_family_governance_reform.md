@@ -16,7 +16,7 @@ This branch must not change runtime behavior. Its job is to repair and harden so
 
 ## Current Phase
 
-- Phase: `Hardening`
+- Phase: `Live Validation`
 
 ## Phase Status
 
@@ -84,9 +84,11 @@ This branch must not change runtime behavior. Its job is to repair and harden so
 - Slice R7-S1 result: complete and green. The validator no longer accepts the old pre-reform backlog-family or workstream-index migration posture as an alternative on the reform branch; it now requires the finalized reform backlog-family shape and the family-index split while preserving FB-049 selected-next truth and the converted family-routing model.
 - Historical Workstream Seam: `Phase 7 - Validator Finalization / Slice R7-S2 - Add hard anti-drift checks`
 - Slice R7-S2 result: complete and green. Hard anti-drift checks now permanently enforce the validated FB-049 selected-next lock, the sweep-clean family-governance routing surfaces, the removed temporary dual-shape tolerance, and the non-selectable boundaries for historical aliases plus support lanes; the full Workstream is now complete and green, and Hardening is the next legal phase.
-- Current Hardening Seam: `Hardening H1 - Post-Workstream Governance Validation`
-- Hardening Status: in progress. Workstream completion remains green after Phase 7 validator finalization, H1 is validating post-workstream governance alignment before broader Hardening conclusions are recorded, no waiver is recorded, and FB-049 remains the only selected-next user-facing candidate.
-- Next Active Seam: `Hardening H1 - Post-Workstream Governance Validation`
+- Historical Hardening Seam: `Hardening H1 - Post-Workstream Governance Validation`
+- Hardening H1 result: complete and green. Post-workstream governance validation confirmed final backlog-family shape, the FB-049 selected-next lock, alias/support non-selectability, lifetime dossier routing, family-index split, Workstream-to-Hardening authority alignment, and removed temporary dual-shape tolerance with no repair candidates.
+- Current Live Validation Seam: `Live Validation LV1 - Reform Branch Final Validation`
+- Live Validation Status: in progress. Workstream completion remains green, Hardening H1 remains preserved complete and green historical truth, LV1 is rerunning final reform-branch validation against validator and drift-sweep truth, no waiver is recorded, and FB-049 remains the only selected-next user-facing candidate.
+- Next Active Seam: `Live Validation LV1 - Reform Branch Final Validation`
 
 ## Branch Class
 
@@ -119,7 +121,7 @@ This branch must not change runtime behavior. Its job is to repair and harden so
 
 ## Next Legal Phase
 
-- `Live Validation`
+- `PR Readiness`
 
 ## Scope
 
@@ -305,10 +307,10 @@ Seam 1: `Phase 1 - Validator Bootstrap`
 
 ## Active Seam
 
-Active seam: `Hardening H1 - Post-Workstream Governance Validation`
+Active seam: `Live Validation LV1 - Reform Branch Final Validation`
 
-Phase 1 `Validator Bootstrap`, Phase 2 / Slice R2-S1 `Backlog Section Skeleton`, Phase 2 / Slice R2-S2 `Add classification markers in place`, Phase 2 / Slice R2-S3 `Move support / governance lanes`, Phase 2 / Slice R2-S4 `Move historical pass aliases`, Phase 2 / Slice R2-S5 `Backlog ordering and selection-truth hardening`, Phase 3 / Slice R3-S1 `Retitle FB-042 as the runtime family anchor`, Phase 3 / Slice R3-S2 `Map FB-043 through FB-048 under FB-042 as historical aliases`, Phase 3 / Slice R3-S3 `Retitle FB-027 as the interaction/action family anchor`, Phase 3 / Slice R3-S4 `Map FB-036, FB-037, FB-038, and FB-041 under FB-027 as historical aliases`, Phase 3 / Slice R3-S5 `Future-selection hardening`, Phase 4 / Slice R4-S1 `Convert the FB-042 dossier shell`, Phase 4 / Slice R4-S2 `Convert the FB-027 dossier shell`, Phase 4 / Slice R4-S3 `Add pass index and slice/seam ledger structure`, Phase 4 / Slice R4-S4 `Add validator/helper and artifact indexes`, and Phase 4 / Slice R4-S5 `Dossier stability validation` are complete and green.
-Next active seam: `Hardening H1 - Post-Workstream Governance Validation`.
+Phase 1 `Validator Bootstrap`, Phase 2 / Slice R2-S1 `Backlog Section Skeleton`, Phase 2 / Slice R2-S2 `Add classification markers in place`, Phase 2 / Slice R2-S3 `Move support / governance lanes`, Phase 2 / Slice R2-S4 `Move historical pass aliases`, Phase 2 / Slice R2-S5 `Backlog ordering and selection-truth hardening`, Phase 3 / Slice R3-S1 `Retitle FB-042 as the runtime family anchor`, Phase 3 / Slice R3-S2 `Map FB-043 through FB-048 under FB-042 as historical aliases`, Phase 3 / Slice R3-S3 `Retitle FB-027 as the interaction/action family anchor`, Phase 3 / Slice R3-S4 `Map FB-036, FB-037, FB-038, and FB-041 under FB-027 as historical aliases`, Phase 3 / Slice R3-S5 `Future-selection hardening`, Phase 4 / Slice R4-S1 `Convert the FB-042 dossier shell`, Phase 4 / Slice R4-S2 `Convert the FB-027 dossier shell`, Phase 4 / Slice R4-S3 `Add pass index and slice/seam ledger structure`, Phase 4 / Slice R4-S4 `Add validator/helper and artifact indexes`, Phase 4 / Slice R4-S5 `Dossier stability validation`, and Hardening H1 `Post-Workstream Governance Validation` are complete and green.
+Next active seam: `Live Validation LV1 - Reform Branch Final Validation`.
 
 - Phase 0 `Reform Readiness` is complete.
 - Workstream Phase 1 `Validator Bootstrap` is complete and green.
@@ -340,7 +342,8 @@ Next active seam: `Hardening H1 - Post-Workstream Governance Validation`.
 - Phase 7 / Slice R7-S1 `Remove temporary dual-shape tolerance` is complete and green.
 - Phase 7 / Slice R7-S2 `Add hard anti-drift checks` is complete and green.
 - Workstream completion is green and remains preserved historical truth on this branch.
-- Hardening H1 `Post-Workstream Governance Validation` is the current active seam on this branch.
+- Hardening H1 `Post-Workstream Governance Validation` is complete and green on this branch.
+- Live Validation LV1 `Reform Branch Final Validation` is the current active seam on this branch.
 
 ## Seam Continuation Decision
 
@@ -350,6 +353,6 @@ Completion Status: `Green`
 Waiver Status: `None`
 Continue Decision: `Continue`
 Stop Basis: `None`
-Next Active Seam: `Hardening H1 - Post-Workstream Governance Validation`
-Stop Condition: `Stop only if Hardening H1 turns green and the branch is ready to advance to Live Validation, or if a named blocker or waiver stops Hardening before H1 completes.`
-Continuation Action: `Execute Hardening H1 post-workstream governance validation on this same branch while preserving the completed Workstream truth.`
+Next Active Seam: `Live Validation LV1 - Reform Branch Final Validation`
+Stop Condition: `Stop only if Live Validation LV1 turns green and the branch is ready to advance to PR Readiness, or if a named blocker or waiver stops Live Validation before LV1 completes.`
+Continuation Action: `Execute Live Validation LV1 reform-branch final validation on this same branch while preserving the completed Workstream and Hardening truth.`
