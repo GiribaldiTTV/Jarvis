@@ -16,7 +16,7 @@ This branch must not change runtime behavior. Its job is to repair and harden so
 
 ## Current Phase
 
-- Phase: `Live Validation`
+- Phase: `PR Readiness`
 
 ## Phase Status
 
@@ -86,9 +86,11 @@ This branch must not change runtime behavior. Its job is to repair and harden so
 - Slice R7-S2 result: complete and green. Hard anti-drift checks now permanently enforce the validated FB-049 selected-next lock, the sweep-clean family-governance routing surfaces, the removed temporary dual-shape tolerance, and the non-selectable boundaries for historical aliases plus support lanes; the full Workstream is now complete and green, and Hardening is the next legal phase.
 - Historical Hardening Seam: `Hardening H1 - Post-Workstream Governance Validation`
 - Hardening H1 result: complete and green. Post-workstream governance validation confirmed final backlog-family shape, the FB-049 selected-next lock, alias/support non-selectability, lifetime dossier routing, family-index split, Workstream-to-Hardening authority alignment, and removed temporary dual-shape tolerance with no repair candidates.
-- Current Live Validation Seam: `Live Validation LV1 - Reform Branch Final Validation`
-- Live Validation Status: in progress. Workstream completion remains green, Hardening H1 remains preserved complete and green historical truth, LV1 is rerunning final reform-branch validation against validator and drift-sweep truth, no waiver is recorded, and FB-049 remains the only selected-next user-facing candidate.
-- Next Active Seam: `Live Validation LV1 - Reform Branch Final Validation`
+- Historical Live Validation Seam: `Live Validation LV1 - Reform Branch Final Validation`
+- Live Validation LV1 result: complete and green. Final reform-branch validation reconfirmed backlog-family shape and ordering, the FB-049 selected-next lock, alias/support non-selectability, lifetime dossier routing, family-index split, and Live Validation phase authority alignment with no repair candidates.
+- Current PR Readiness Seam: `PR Readiness PR1 - Reform Branch PR Validation`
+- PR Readiness Status: in progress. Workstream completion remains green, Hardening H1 and Live Validation LV1 remain preserved complete and green historical truth, PR1 is validating merge-target branch truth, governance drift posture, release-window posture, and post-merge state before broader PR Readiness conclusions are recorded, no waiver is recorded, and FB-049 remains the only selected-next user-facing candidate.
+- Next Active Seam: `PR Readiness PR1 - Reform Branch PR Validation`
 
 ## Branch Class
 
@@ -121,7 +123,7 @@ This branch must not change runtime behavior. Its job is to repair and harden so
 
 ## Next Legal Phase
 
-- `PR Readiness`
+- `Release Readiness`
 
 ## Scope
 
@@ -307,10 +309,10 @@ Seam 1: `Phase 1 - Validator Bootstrap`
 
 ## Active Seam
 
-Active seam: `Live Validation LV1 - Reform Branch Final Validation`
+Active seam: `PR Readiness PR1 - Reform Branch PR Validation`
 
-Phase 1 `Validator Bootstrap`, Phase 2 / Slice R2-S1 `Backlog Section Skeleton`, Phase 2 / Slice R2-S2 `Add classification markers in place`, Phase 2 / Slice R2-S3 `Move support / governance lanes`, Phase 2 / Slice R2-S4 `Move historical pass aliases`, Phase 2 / Slice R2-S5 `Backlog ordering and selection-truth hardening`, Phase 3 / Slice R3-S1 `Retitle FB-042 as the runtime family anchor`, Phase 3 / Slice R3-S2 `Map FB-043 through FB-048 under FB-042 as historical aliases`, Phase 3 / Slice R3-S3 `Retitle FB-027 as the interaction/action family anchor`, Phase 3 / Slice R3-S4 `Map FB-036, FB-037, FB-038, and FB-041 under FB-027 as historical aliases`, Phase 3 / Slice R3-S5 `Future-selection hardening`, Phase 4 / Slice R4-S1 `Convert the FB-042 dossier shell`, Phase 4 / Slice R4-S2 `Convert the FB-027 dossier shell`, Phase 4 / Slice R4-S3 `Add pass index and slice/seam ledger structure`, Phase 4 / Slice R4-S4 `Add validator/helper and artifact indexes`, Phase 4 / Slice R4-S5 `Dossier stability validation`, and Hardening H1 `Post-Workstream Governance Validation` are complete and green.
-Next active seam: `Live Validation LV1 - Reform Branch Final Validation`.
+Phase 1 `Validator Bootstrap`, Phase 2 / Slice R2-S1 `Backlog Section Skeleton`, Phase 2 / Slice R2-S2 `Add classification markers in place`, Phase 2 / Slice R2-S3 `Move support / governance lanes`, Phase 2 / Slice R2-S4 `Move historical pass aliases`, Phase 2 / Slice R2-S5 `Backlog ordering and selection-truth hardening`, Phase 3 / Slice R3-S1 `Retitle FB-042 as the runtime family anchor`, Phase 3 / Slice R3-S2 `Map FB-043 through FB-048 under FB-042 as historical aliases`, Phase 3 / Slice R3-S3 `Retitle FB-027 as the interaction/action family anchor`, Phase 3 / Slice R3-S4 `Map FB-036, FB-037, FB-038, and FB-041 under FB-027 as historical aliases`, Phase 3 / Slice R3-S5 `Future-selection hardening`, Phase 4 / Slice R4-S1 `Convert the FB-042 dossier shell`, Phase 4 / Slice R4-S2 `Convert the FB-027 dossier shell`, Phase 4 / Slice R4-S3 `Add pass index and slice/seam ledger structure`, Phase 4 / Slice R4-S4 `Add validator/helper and artifact indexes`, Phase 4 / Slice R4-S5 `Dossier stability validation`, Hardening H1 `Post-Workstream Governance Validation`, and Live Validation LV1 `Reform Branch Final Validation` are complete and green.
+Next active seam: `PR Readiness PR1 - Reform Branch PR Validation`.
 
 - Phase 0 `Reform Readiness` is complete.
 - Workstream Phase 1 `Validator Bootstrap` is complete and green.
@@ -343,7 +345,8 @@ Next active seam: `Live Validation LV1 - Reform Branch Final Validation`.
 - Phase 7 / Slice R7-S2 `Add hard anti-drift checks` is complete and green.
 - Workstream completion is green and remains preserved historical truth on this branch.
 - Hardening H1 `Post-Workstream Governance Validation` is complete and green on this branch.
-- Live Validation LV1 `Reform Branch Final Validation` is the current active seam on this branch.
+- Live Validation LV1 `Reform Branch Final Validation` is complete and green on this branch.
+- PR Readiness PR1 `Reform Branch PR Validation` is the current active seam on this branch.
 
 ## Seam Continuation Decision
 
@@ -353,6 +356,35 @@ Completion Status: `Green`
 Waiver Status: `None`
 Continue Decision: `Continue`
 Stop Basis: `None`
-Next Active Seam: `Live Validation LV1 - Reform Branch Final Validation`
-Stop Condition: `Stop only if Live Validation LV1 turns green and the branch is ready to advance to PR Readiness, or if a named blocker or waiver stops Live Validation before LV1 completes.`
-Continuation Action: `Execute Live Validation LV1 reform-branch final validation on this same branch while preserving the completed Workstream and Hardening truth.`
+Next Active Seam: `PR Readiness PR1 - Reform Branch PR Validation`
+Stop Condition: `Stop only if PR Readiness PR1 turns green and the branch is ready to advance to Release Readiness, or if a named blocker or waiver stops PR Readiness before PR1 completes.`
+Continuation Action: `Execute PR Readiness PR1 reform-branch PR validation on this same branch while preserving the completed Workstream, Hardening, and Live Validation truth.`
+
+## Governance Drift Audit
+
+- Governance Drift Found: No
+- Drift Type: None for this PR Readiness admission repair; the branch only needed phase-authority advancement from completed Live Validation into active PR Readiness.
+- Why Current Canon Failed To Prevent It: The reform-branch validator already enforced Workstream-to-Hardening and Hardening-to-Live-Validation admission truth, but it did not yet hard-fail when current-state summaries and branch authority failed to advance from completed Live Validation into active PR Readiness.
+- Required Canon Changes: branch-specific PR Readiness phase-admission checks on the reform branch so PR1 current-state summaries, active seam truth, and next-legal-phase truth stay aligned.
+- Whether The Drift Blocks Merge: No after this repair; this repair resolves the active PR Readiness admission drift.
+- Whether User Confirmation Is Required: No for the current approved governance pass.
+- Missing blocker check: no missing PR Readiness blocker remains after this admission repair; branch cleanliness, backlog-family truth, selected-next lock, alias/support non-selectability, family routing, phase ownership, release-window posture, and post-merge-state posture are all represented in current governance.
+- Weak phase entry or exit rule check: no unresolved weakness remains after this repair; PR Readiness is reached only after Live Validation green and now requires explicit PR1 phase-authority alignment plus PR-only audit sections.
+- Weak source-of-truth ownership rule check: no unresolved weakness remains; the branch authority record remains the phase owner for this docs-only governance reform branch, while backlog, roadmap, workstream index, and family dossiers remain the subordinate source-of-truth layers they already own.
+- Stale prompt scaffolding or operator example check: no blocking stale prompt scaffolding remains after this repair; PR1 now states the required branch posture directly in active truth surfaces.
+- Missing validator requirement check: the reform-branch validator now enforces PR Readiness phase-admission alignment in addition to the earlier Workstream, Hardening, and Live Validation phase-admission checks.
+
+## Post-Merge State
+
+- Post-merge repo state: `No Active Branch` after merge, while merged current-state canon carries the released `v1.6.13-prebeta` posture and this branch authority record becomes historical traceability only.
+- Post-merge selected-next truth: FB-049 remains selected next, `Registry-only`, and branch-not-created until updated `main` is revalidated and FB-049 Branch Readiness admits the first bounded pre-settled incoming-launch conflict truth slice.
+- Post-merge family-governance truth: merged canon must preserve the finalized backlog-family ordering, the FB-049 selected-next lock, historical alias/support non-selectability, lifetime dossier routing, family-index split, and removed temporary dual-shape tolerance.
+- Post-merge branch-record handling: this record must leave `Active Branch Authority Records` after merge and move to historical traceability once release packaging and publication are complete.
+- Post-merge successor handling: no successor implementation branch opens during this reform branch merge itself; later successor work remains the future FB-049 branch only after its stated gate clears.
+
+## Release Window Audit
+
+Release Window Audit: PASS
+Remaining Known Release Blockers: None
+Another Pre-Release Repair PR Required: NO
+Release Window Split Waiver: None
