@@ -10,7 +10,7 @@
 
 This branch began as a USER-approved `docs/governance` automation-planning surface so the repo could define watcher policy, cadence boundaries, activation evidence, and rollback rules on the same branch that already carried the merged-main post-merge canon repair at `0a1c23c`.
 
-Branch Readiness closed green at `6cc2159`. This Workstream entry admits exactly one bounded implementation slice: `PR Heartbeat Watcher`. The branch now owns only that developer-tooling automation slice and the minimum authority-sync docs needed to keep repo truth aligned.
+Branch Readiness closed green at `6cc2159`. Workstream then executed as one bounded same-branch automation catalog pass: each automation candidate landed as its own slice, all slices stayed inside the approved developer-tooling boundary, and phase advancement only became legal after the full admitted catalog was created and authority-synced.
 
 ## Current Phase
 
@@ -39,11 +39,25 @@ Branch Readiness closed green at `6cc2159`. This Workstream entry admits exactly
 - BR3 result: complete and green. Repo-hygiene watcher candidates, heartbeat-vs-cron classification, rollout boundaries, required activation evidence, and repo-hygiene prohibited actions were defined while the branch remained planning-only.
 - Historical Branch Readiness Seam: `Branch Readiness BR4 - Future Automation Activation Evidence And Workstream Admission Gate`
 - BR4 result: complete and green. The Workstream admission gate, valid first automation candidate criteria, minimal first implementation slice, activation validation contract, and rollback/containment rules were made explicit; docs/governance-only status remained in force until a later valid implementation slice was expressly admitted.
-- Historical Branch Readiness Status: complete and green at `6cc2159`. The branch owns a complete automation-planning governance frame, the first activation gate is proven, and the carried post-merge canon repair remains preserved on this same branch.
-- Current Workstream Seam: `Workstream WS1 - First Automation Admission (PR Heartbeat Watcher)`
-- WS1 result: complete and green. The first bounded automation candidate is admitted and created as heartbeat automation `pr-heartbeat-watcher`; target truth is `the next active PR created from feature/automation-planning` unless the USER later pins an explicit PR number; cadence is one-minute heartbeat; stop condition is PR state `merged` or `closed`; allowed signals and outputs match the admitted slice; no additional automation candidates are admitted; and FB-049 remains selected next, `Registry-only`, and branch-not-created.
-- Workstream Status: complete and green. Later automation candidates remain outside current admission and require a new bounded slice.
-- Next Active Seam: `None. Workstream is complete and green; Hardening H1 - PR Heartbeat Watcher Validation is next legal seam.`
+- Historical Branch Readiness Status: complete and green at `6cc2159`. The branch owns a complete automation-planning governance frame, the activation gate is proven, and the carried post-merge canon repair remains preserved on this same branch.
+- Historical Workstream Slice: `WS1 - PR Heartbeat Watcher`
+- WS1 result: complete and green. Heartbeat automation `pr-heartbeat-watcher` now monitors the next active PR created from `feature/automation-planning` or a later explicit PR number, runs every minute on the current thread, and stops when the PR becomes `merged` or `closed`.
+- Historical Workstream Slice: `WS2 - Phase And Authority Drift Watch`
+- WS2 result: complete and green. Cron automation `phase-drift-watch` now audits branch phase, active seam, next legal phase, active authority routing, and current-state summary surfaces every hour.
+- Historical Workstream Slice: `WS3 - Selected-Next Lock Audit`
+- WS3 result: complete and green. Cron automation `selected-next-lock-audit` now audits FB-049 selected-next lock truth every six hours.
+- Historical Workstream Slice: `WS4 - Main Revalidation Gate Watch`
+- WS4 result: complete and green. Cron automation `main-revalidation-gate-watch` now audits updated-`main` revalidation and next-branch admission-gate truth every six hours.
+- Historical Workstream Slice: `WS5 - Toolchain Availability Watch`
+- WS5 result: complete and green. Cron automation `toolchain-availability-watch` now audits local validator/runtime tool availability every six hours.
+- Historical Workstream Slice: `WS6 - Automation Drift Audit`
+- WS6 result: complete and green. Cron automation `automation-drift-audit` now audits automation owner-branch, phase, cadence, stop-condition, and output-contract drift every six hours.
+- Historical Workstream Slice: `WS7 - Release Window Sentinel`
+- WS7 result: complete and green. Cron automation `release-window-sentinel` now watches for PR Readiness or Release Readiness entry every hour and reports waiting truth until those phases become active.
+- Historical Workstream Slice: `WS8 - Post-Merge Closure Watch`
+- WS8 result: complete and green. Cron automation `post-merge-closure-watch` now watches for merge or release-publication follow-through every hour and reports waiting truth until post-merge or post-release closure becomes relevant.
+- Workstream Status: complete and green. The full admitted automation catalog is now implemented on this branch, no additional automation candidates are admitted, and FB-049 remains selected next, `Registry-only`, and branch-not-created.
+- Next Active Seam: `None. Workstream is complete and green; Hardening H1 - Automation Catalog Validation is next legal seam.`
 
 ## Branch Class
 
@@ -57,19 +71,18 @@ None.
 ## Entry Basis
 
 - Branch Readiness closed green at `6cc2159`.
-- The USER admitted one bounded first automation candidate: `PR Heartbeat Watcher`.
-- The candidate fits the recorded heartbeat-only policy, rollout boundaries, activation evidence contract, and rollback/containment rules already defined on this branch.
-- The active automation record exists at `$CODEX_HOME/automations/pr-heartbeat-watcher/automation.toml`.
-- No live PR exists yet for `feature/automation-planning`, so the admitted target contract truthfully falls back to the next active PR created from this branch until the USER or repo later provides an explicit PR number.
+- The USER directed this branch to remain in bounded same-branch Workstream execution until the planned automation catalog was complete instead of stopping after WS1.
+- The active automation records now exist under `$CODEX_HOME/automations/`.
+- The full admitted automation catalog stays inside the previously approved planner boundaries: one minute heartbeat only for the PR watcher, slower recurring cron jobs for repo-hygiene and lifecycle monitors.
 - FB-049 remains selected next, `Registry-only`, and branch-not-created.
 
 ## Exit Criteria
 
-- exactly one automation candidate is admitted and created on this branch
-- target, cadence, stop condition, allowed signals, allowed outputs, and prohibited actions are durably recorded
-- branch authority, backlog, and roadmap current-state truth all reflect the active implementation slice
+- the full admitted automation catalog is created and active
+- each automation candidate is durably recorded with owner, cadence, target, stop condition, and allowed outputs
+- branch authority, backlog, and roadmap current-state truth all reflect the completed catalog instead of a single-slice stop
 - branch-governance validation passes with no phase/class drift
-- no additional automation candidate is admitted implicitly
+- no extra automation candidate is admitted implicitly
 
 ## Rollback Target
 
@@ -81,22 +94,28 @@ None.
 
 ## Scope
 
-- one bounded developer-tooling automation candidate only: `PR Heartbeat Watcher`
-- minimum branch-authority and current-state sync needed to keep that candidate truthful
-- thread-attached heartbeat watcher behavior only for the declared PR target contract
-- validator-backed proof that the admitted slice is bounded and phase-aligned
+- one bounded same-branch automation catalog pass covering:
+  - `PR Heartbeat Watcher`
+  - `Phase And Authority Drift Watch`
+  - `Selected-Next Lock Audit`
+  - `Main Revalidation Gate Watch`
+  - `Toolchain Availability Watch`
+  - `Automation Drift Audit`
+  - `Release Window Sentinel`
+  - `Post-Merge Closure Watch`
+- minimum branch-authority and current-state sync needed to keep that catalog truthful
+- thread-attached heartbeat behavior only for the PR watcher
+- cron-backed repo-hygiene monitoring only for the declared slower recurring automations
 
 ## Explicit Non-Goals
 
-- no second automation candidate
-- no cron automation rollout
 - no runtime or product behavior changes
 - no backend/service implementation
-- no release execution
 - no PR creation, PR merge, or issue creation
+- no automation that mutates repo truth, merges PRs, or resolves review threads automatically
 - no selected-next truth changes
 - no FB-049 branch admission
-- no automation that mutates repo truth, merges PRs, or resolves review threads automatically
+- no widening beyond the eight admitted automation candidates
 
 ## Planning-Loop Guardrail
 
@@ -105,8 +124,8 @@ Docs-Only Workstream: `No`
 Planning-Loop Bypass User Approval: `None`
 Planning-Loop Bypass Reason: `None`
 
-- This branch is now in a real implementation Workstream because it created one developer-tooling automation candidate instead of remaining planning-only.
-- Any widening into runtime/user-facing, backend/runtime, docs-only governance drift, or multi-automation rollout would invalidate this single-slice admission and must stop the branch.
+- This branch is a real developer-tooling implementation Workstream.
+- Any widening into runtime/user-facing, backend/runtime, or unplanned automation classes would invalidate this admission and must stop the branch.
 
 ## Slice Continuation Policy
 
@@ -114,127 +133,209 @@ Slice Continuation Default: `Same-branch backlog completion`
 Backlog-Split User Approval: `None`
 Backlog-Split Reason: `None`
 
-- WS1 is the only admitted implementation slice on this branch.
-- Additional automation candidates remain future work and require a new explicit USER-approved admission; they must not be silently appended to WS1.
-- This branch must not auto-widen from the PR heartbeat watcher into bot-comment repair, release sentinels, repo-hygiene cron jobs, or mutation-capable automation without a later bounded slice admission.
+- Each automation candidate lands as its own bounded slice on the same branch.
+- Phase advancement is legal only after the full admitted slice chain is complete and green.
+- Additional automation candidates remain future work and require a new explicit USER-approved admission; they must not be silently appended to this catalog.
 
 ## Admitted Implementation Slice
 
-- Slice ID: `WS1 - PR Heartbeat Watcher`
-- Candidate: `PR Heartbeat Watcher`
-- Automation Id: `pr-heartbeat-watcher`
-- Goal: admit and create one bounded thread-attached heartbeat watcher that monitors the active PR for `feature/automation-planning` and reports governed status without mutating repo truth.
-- Implementation Delta: developer-tooling automation configuration plus the minimum authority-sync docs required to record the slice truthfully.
+- Workstream Shape: `bounded same-branch multi-slice automation catalog`
+- Catalog Goal: implement the approved PR watcher plus repo-hygiene and lifecycle monitors without widening into runtime/product work or mutation-capable automation.
 - Exact Affected Surfaces:
   - `Docs/branch_records/feature_automation_planning.md`
   - `Docs/feature_backlog.md`
   - `Docs/prebeta_roadmap.md`
   - `$CODEX_HOME/automations/pr-heartbeat-watcher/automation.toml`
-- Target:
-  - `next active PR created from head branch feature/automation-planning`
-  - if the USER later provides or the repo later proves an explicit PR number, the watcher may narrow to that PR without widening the slice
-- Cadence: `heartbeat / every 1 minute`
-- Stop Condition: `stop when PR state becomes merged or closed`
+  - `$CODEX_HOME/automations/phase-drift-watch/automation.toml`
+  - `$CODEX_HOME/automations/selected-next-lock-audit/automation.toml`
+  - `$CODEX_HOME/automations/main-revalidation-gate-watch/automation.toml`
+  - `$CODEX_HOME/automations/toolchain-availability-watch/automation.toml`
+  - `$CODEX_HOME/automations/automation-drift-audit/automation.toml`
+  - `$CODEX_HOME/automations/release-window-sentinel/automation.toml`
+  - `$CODEX_HOME/automations/post-merge-closure-watch/automation.toml`
+- Admitted Slice Chain:
+  - `WS1 - PR Heartbeat Watcher`
+    - automation id: `pr-heartbeat-watcher`
+    - target: `next active PR created from feature/automation-planning` unless later narrowed to an explicit PR number
+    - cadence: `heartbeat / every 1 minute`
+    - stop condition: `PR state becomes merged or closed`
+  - `WS2 - Phase And Authority Drift Watch`
+    - automation id: `phase-drift-watch`
+    - target: `active branch phase, seam, next legal phase, authority record, and current-state surfaces`
+    - cadence: `cron / every hour`
+    - stop condition: `none on this slice; remains active as admitted hygiene automation`
+  - `WS3 - Selected-Next Lock Audit`
+    - automation id: `selected-next-lock-audit`
+    - target: `FB-049 selected-next truth`
+    - cadence: `cron / every 6 hours`
+    - stop condition: `none on this slice; remains active as admitted hygiene automation`
+  - `WS4 - Main Revalidation Gate Watch`
+    - automation id: `main-revalidation-gate-watch`
+    - target: `updated-main revalidation and next-branch admission gate truth`
+    - cadence: `cron / every 6 hours`
+    - stop condition: `none on this slice; remains active as admitted hygiene automation`
+  - `WS5 - Toolchain Availability Watch`
+    - automation id: `toolchain-availability-watch`
+    - target: `local validator and runtime tool availability`
+    - cadence: `cron / every 6 hours`
+    - stop condition: `none on this slice; remains active as admitted hygiene automation`
+  - `WS6 - Automation Drift Audit`
+    - automation id: `automation-drift-audit`
+    - target: `automation owner-branch, phase, cadence, stop-condition, and output-contract drift`
+    - cadence: `cron / every 6 hours`
+    - stop condition: `none on this slice; remains active as admitted hygiene automation`
+  - `WS7 - Release Window Sentinel`
+    - automation id: `release-window-sentinel`
+    - target: `PR Readiness or Release Readiness entry for the active branch`
+    - cadence: `cron / every hour`
+    - stop condition: `none on this slice; remains active as admitted lifecycle automation`
+  - `WS8 - Post-Merge Closure Watch`
+    - automation id: `post-merge-closure-watch`
+    - target: `merge or release-publication follow-through for the active branch`
+    - cadence: `cron / every hour`
+    - stop condition: `none on this slice; remains active as admitted lifecycle automation`
 - Allowed Signals:
-  - PR state: `open`, `closed`, `merged`, `draft`
-  - mergeability status
-  - head commit changes
-  - bot-review approval state
-  - unresolved comment presence when provable
+  - PR state, mergeability, head commit changes, bot-review approval, unresolved comment presence when provable
+  - branch phase, active seam, next legal phase, current-state authority routing
+  - selected-next truth markers
+  - updated-`main` revalidation and branch-admission gate evidence
+  - local validator/runtime tool availability
+  - automation configuration drift across owner, phase, cadence, stop condition, and output contract
+  - PR/readiness/release/post-merge waiting or active-state truth when the relevant phase becomes active
 - Allowed Outputs:
-  - thread-attached status updates
+  - thread-attached status updates for the heartbeat watcher
+  - inbox status updates for cron automations
   - governed state markers
   - blocker identification
   - ready/not-ready posture
-- In-Scope Actions:
-  - create and keep the single heartbeat watcher active on the current thread
-  - report target-not-yet-created truth while no PR exists
-  - report PR state, head change, mergeability, bot-review approval, and unresolved comment presence when provable
-  - report governed state markers, blockers, and ready/not-ready posture
 - Prohibited Actions:
   - no PR creation
   - no PR merge
   - no automated code fixes
-  - no automation scheduling beyond the admitted one-minute heartbeat
-  - no second automation candidate
-  - no repo mutation from watcher output alone
+  - no runtime/backend/user-facing mutations
+  - no selected-next changes
+  - no additional automation candidates without a new admitted slice
 
 ## Validation Contract
 
 - run `python dev\orin_branch_governance_validation.py`
 - run `git diff --check`
-- inspect `$CODEX_HOME/automations/pr-heartbeat-watcher/automation.toml`
-- confirm the automation record stays `kind = "heartbeat"`, `status = "ACTIVE"`, `rrule = "FREQ=MINUTELY;INTERVAL=1"`, and its prompt stop condition requires PR state `merged` or `closed`
-- confirm no live PR exists yet for `feature/automation-planning`; until one exists, watcher truth must report waiting for target creation instead of inventing a PR number
-- confirm branch truth remains implementation-only for this one watcher and FB-049 remains selected next, `Registry-only`, and branch-not-created
+- inspect all admitted automation TOML records under `$CODEX_HOME/automations/`
+- confirm the PR watcher remains the only minute-scale heartbeat automation
+- confirm the repo-hygiene and lifecycle monitors remain cron-based on their admitted hourly or 6-hour cadences
+- confirm branch truth shows the full slice chain completed before Workstream green
+- confirm FB-049 remains selected next, `Registry-only`, and branch-not-created
 
 ## Rollback And Containment Requirements
 
-- disable or delete `pr-heartbeat-watcher` before broad rollback if the watcher monitors the wrong repo, wrong branch, wrong PR, or wrong thread
-- rollback if the watcher ignores the recorded stop condition, posts outside the allowed thread surface, or widens into unauthorized mutation behavior
-- rollback if branch authority, backlog, or roadmap truth drifts away from the single admitted watcher slice
-- containment must keep the watcher limited to `feature/automation-planning`, one-minute heartbeat cadence, the declared signal set, and thread-attached output only
-- if a later explicit PR number is recorded, narrowing the target is allowed; widening to additional PRs is not
+- disable or delete any automation whose target, cadence, or output surface drifts away from the admitted contract
+- rollback if branch authority, backlog, or roadmap truth drifts away from the completed automation catalog
+- rollback if any automation widens into mutation-capable behavior, extra targets, or extra phase authority
+- containment must keep the heartbeat watcher thread-attached and the cron automations workspace-scoped on their declared cadences
+- any future target narrowing is allowed only inside the already admitted watcher contract; widening to unrelated targets is not
 
 ## Branch Objective
 
-- transition this branch from planning-only truth into one admitted implementation slice without widening beyond that slice
-- prove the repo can carry a real automation candidate on the same branch that defined its governance boundaries
-- preserve FB-049 selected-next truth while the active branch truth shifts from docs/governance planning to developer-tooling Workstream execution
+- carry the full planned automation catalog through bounded same-branch Workstream execution
+- keep slice-by-slice truth aligned so Workstream turns green only after the whole admitted catalog exists
+- preserve FB-049 selected-next truth while the current branch owns developer-tooling automation implementation
 
 ## Target End-State
 
-- branch authority, backlog, and roadmap all show `feature/automation-planning` in `Workstream`
-- `PR Heartbeat Watcher` is the only admitted implementation slice and it exists as an active heartbeat automation
-- target truth is explicit even before a live PR exists
-- Workstream closes green with `Hardening` next because no further same-branch automation slice is admitted
+- branch authority, backlog, and roadmap all show `feature/automation-planning` in completed Workstream state
+- all eight admitted automation candidates exist with truthful cadence, target, and stop-condition records
+- phase progression is lawful because Workstream only turns green after the full slice chain completes
+- Hardening can begin against the completed automation catalog instead of a prematurely closed single-slice branch
 
 ## Backlog Completion Strategy
 
-Branch Completion Goal: `Implement exactly one bounded PR Heartbeat Watcher candidate on this branch, keep all later automation candidates out of scope, and close Workstream green once the watcher and authority-sync truth are validated.`
-Known Future-Dependent Blockers: `A later explicit PR number or the next active PR created from feature/automation-planning must exist before live PR-state evidence can accumulate; later automation candidates require explicit USER approval and a new admitted slice.`
-Branch Closure Rule: `Do not widen beyond WS1. Once the single admitted watcher exists, phase/class truth is aligned, and validation is green, Workstream may close green and route to Hardening.`
+Branch Completion Goal: `Implement the full admitted automation catalog on this branch, one bounded slice at a time, and only close Workstream green after all admitted automation slices are created and authority-synced.`
+Known Future-Dependent Blockers: `None proven within the admitted automation catalog.`
+Branch Closure Rule: `Do not advance to Hardening after only one automation slice. Stay in Workstream until WS1 through WS8 are complete and green on this branch.`
 
 ## Backlog Completion Status
 
-Backlog Completion State: `Implemented Complete Except Future Dependency`
+Backlog Completion State: `Implemented Complete`
 Completion Status: `Green`
 Remaining Implementable Work: `None`
-Future-Dependent Blockers: `A live PR target for feature/automation-planning must exist before the watcher can accumulate live PR evidence; any later automation candidate requires explicit USER approval and a new admitted slice.`
+Future-Dependent Blockers: `None`
 
 ## Expected Seam Families And Risk Classes
 
-- branch-authority and current-state truth alignment for implementation-phase transition
-- automation target, cadence, and stop-condition enforcement
-- thread-attached status-output containment and signal-scope enforcement
-- rollback and disable-path proof for the single watcher
-- later hardening proof for configuration truth without widening into additional automation rollout
+- heartbeat watcher implementation and thread-attachment containment
+- cron hygiene watcher implementation and cadence containment
+- owner-phase/current-state drift enforcement
+- selected-next truth protection
+- toolchain and automation contract availability monitoring
+- later readiness and post-merge lifecycle monitoring without mutation-capable widening
 
 ## User Test Summary Strategy
 
-- This Workstream is developer-tooling only and does not change runtime or user-facing product behavior, so no manual user test summary artifact is required for WS1.
-- Later Hardening must validate automation configuration truth, target fallback truth, cadence truth, and stop-condition truth rather than runtime UX behavior.
+- This Workstream is developer-tooling only and does not change runtime or user-facing product behavior, so no manual user test summary artifact is required for these slices.
+- Hardening should validate the automation catalog configuration, cadence truth, target truth, and output containment rather than product UX behavior.
 
 ## Later-Phase Expectations
 
-- Hardening H1 should validate the live automation record, thread attachment, target fallback truth, cadence, stop condition, and scope containment for `pr-heartbeat-watcher`.
-- Any later live-PR behavioral proof may only validate this same watcher; it must not admit a second automation candidate by implication.
-- PR Readiness or Release Readiness are not admitted by WS1 itself.
-- Later automation candidates remain outside this branch's admitted Workstream until a new bounded slice is explicitly recorded.
+- Hardening H1 should validate the live automation catalog, with special focus on the PR heartbeat watcher target fallback, the cron cadence split, and catalog-wide containment.
+- Live Validation should verify the catalog remains phase-aligned and reports truthful waiting/active posture as the branch later enters PR or release phases.
+- PR Readiness or Release Readiness are not admitted by Workstream itself; they remain later phase gates.
+- Additional automation candidates remain outside current admission until a new bounded slice chain is explicitly recorded.
 
 ## Initial Workstream Seam Sequence
 
-Seam 1: `WS1 - First Automation Admission (PR Heartbeat Watcher)`
+Seam 1: `WS1 - PR Heartbeat Watcher`
 
-- Goal: admit and create one bounded heartbeat watcher for the next active PR created from `feature/automation-planning` while keeping outputs, signals, cadence, and stop condition inside the recorded governance frame.
-- Scope: one automation candidate, one thread-attached heartbeat watcher, authority-sync docs, and the minimum validation needed to prove the slice is bounded and truthful.
-- Non-Includes: no second automation candidate, no cron job, no runtime/backend/user-facing work, no PR creation or merge, no automated code-fix behavior, and no selected-next truth changes.
+- Goal: create the minute-scale thread heartbeat watcher for the branch PR target contract.
+- Scope: one heartbeat watcher only, plus authority-sync truth.
+- Non-Includes: no cron automations, no additional targets, no PR creation or merge, and no product-file mutation.
+
+Seam 2: `WS2 - Phase And Authority Drift Watch`
+
+- Goal: create the primary hourly branch-truth drift monitor.
+- Scope: one cron audit only.
+- Non-Includes: no selected-next or release-window logic in this seam.
+
+Seam 3: `WS3 - Selected-Next Lock Audit`
+
+- Goal: create the selected-next truth audit.
+- Scope: one cron audit only.
+- Non-Includes: no phase drift or toolchain work in this seam.
+
+Seam 4: `WS4 - Main Revalidation Gate Watch`
+
+- Goal: create the updated-`main` and branch-admission gate audit.
+- Scope: one cron audit only.
+- Non-Includes: no toolchain or automation drift work in this seam.
+
+Seam 5: `WS5 - Toolchain Availability Watch`
+
+- Goal: create the local validator/runtime availability audit.
+- Scope: one cron audit only.
+- Non-Includes: no automation drift or release-window work in this seam.
+
+Seam 6: `WS6 - Automation Drift Audit`
+
+- Goal: create the catalog-wide automation contract drift audit.
+- Scope: one cron audit only.
+- Non-Includes: no release-window or post-merge closure work in this seam.
+
+Seam 7: `WS7 - Release Window Sentinel`
+
+- Goal: create the release-window lifecycle monitor without entering those phases early.
+- Scope: one cron lifecycle monitor only.
+- Non-Includes: no post-merge closure work in this seam.
+
+Seam 8: `WS8 - Post-Merge Closure Watch`
+
+- Goal: create the post-merge/post-release closure lifecycle monitor and finish the admitted catalog.
+- Scope: one cron lifecycle monitor only.
+- Non-Includes: no extra automation candidates and no phase bounce before the catalog is complete.
 
 ## Active Seam
 
-- Active seam: `None. Workstream is complete and green; Hardening H1 - PR Heartbeat Watcher Validation is next legal seam.`
-- WS1 was the only admitted Workstream seam on this branch.
-- Later automation candidates remain outside current admission.
+- Active seam: `None. Workstream is complete and green; Hardening H1 - Automation Catalog Validation is next legal seam.`
+- WS1 through WS8 completed on this same branch.
+- No additional automation candidate is currently admitted.
 
 ## Seam Continuation Decision
 
@@ -244,6 +345,6 @@ Completion Status: `Green`
 Waiver Status: `None`
 Continue Decision: `Stop`
 Stop Basis: `Workstream Green`
-Next Active Seam: `None. Workstream is complete and green; Hardening H1 - PR Heartbeat Watcher Validation is next legal seam.`
-Stop Condition: `The single admitted implementation slice is implemented and validated, and no additional automation candidate is admitted on this branch.`
-Continuation Action: `Route to Hardening H1 - PR Heartbeat Watcher Validation.`
+Next Active Seam: `None. Workstream is complete and green; Hardening H1 - Automation Catalog Validation is next legal seam.`
+Stop Condition: `All admitted automation slices are implemented, validated, and authority-synced on this branch.`
+Continuation Action: `Route to Hardening H1 - Automation Catalog Validation.`
