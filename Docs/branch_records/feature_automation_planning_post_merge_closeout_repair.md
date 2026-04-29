@@ -14,7 +14,7 @@ It does not reopen automation implementation, create a successor implementation 
 
 ## Current Phase
 
-- Phase: `Branch Readiness`
+- Phase: `PR Readiness`
 
 ## Phase Status
 
@@ -32,9 +32,11 @@ It does not reopen automation implementation, create a successor implementation 
 - Selected Next Record State: `Registry-only`
 - Selected Next Implementation Branch: `Not created`
 - Historical source branch: `feature/automation-planning-post-merge-canon-repair` merged through PR #100 at `ebeeb2a0d80bbe3b2097bcae8132233b701126c6` and is now historical-only traceability.
-- Current Branch Readiness Seam: `Branch Readiness BR1 - PR100 Post-Merge Closeout Repair Admission`
-- BR1 result: complete and green. This seam admits the bounded closeout-repair branch, clears stale active-branch authority for the merged PR #100 repair branch, moves that earlier repair record to historical-only traceability, preserves merged-main `No Active Branch` truth, preserves pending `v1.6.13-prebeta` release posture, preserves retired PR99 watcher cleanup proof, preserves FB-049 selected-next truth, and hardens the recurring governance rules so stale-canon recurrence and missing PR-watcher replacement provisioning become explicit blockers instead of repeat surprises.
-- Next Active Seam: `None. Branch Readiness is complete and green; PR Readiness PR1 - Post-Merge Closeout Repair PR Validation is next legal seam.`
+- Historical Branch Readiness Seam: `Branch Readiness BR1 - PR100 Post-Merge Closeout Repair Admission`
+- BR1 result: complete and green historical truth. This seam admitted the bounded closeout-repair branch, cleared stale active-branch authority for the merged PR #100 repair branch, moved that earlier repair record to historical-only traceability, preserved merged-main `No Active Branch` truth, preserved pending `v1.6.13-prebeta` release posture, preserved retired PR99 watcher cleanup proof, preserved FB-049 selected-next truth, and hardened the recurring governance rules so stale-canon recurrence and missing PR-watcher replacement provisioning became explicit blockers instead of repeat surprises.
+- Current PR Readiness Seam: `PR Readiness PR1 - Post-Merge Closeout Repair PR Validation`
+- PR Readiness PR1 status: in progress. This seam admits PR Readiness for the bounded closeout-repair branch, preserves merged-main `No Active Branch` truth, preserves historical-only prior repair traceability, preserves `PR Watcher Provisioning Unproven` canon hardening, and owns live PR creation plus validation on this same branch.
+- Next Active Seam: `PR Readiness PR1 - Post-Merge Closeout Repair PR Validation`
 
 ## Branch Class
 
@@ -42,7 +44,7 @@ It does not reopen automation implementation, create a successor implementation 
 
 ## Blockers
 
-- `None`
+- `None recorded in canon before live PR validation. Active live-PR blockers, if any, are owned by PR Readiness PR1 after PR creation.`
 
 ## Entry Basis
 
@@ -69,7 +71,7 @@ It does not reopen automation implementation, create a successor implementation 
 
 ## Next Legal Phase
 
-- `PR Readiness`
+- `Release Readiness`
 
 ## Scope
 
@@ -141,22 +143,22 @@ Non-Includes: implementation reopening, release execution, successor branch admi
 
 ## Active Seam
 
-Active seam: `Branch Readiness BR1 - PR100 Post-Merge Closeout Repair Admission`
-Next active seam: `None. Branch Readiness is complete and green; PR Readiness PR1 - Post-Merge Closeout Repair PR Validation is next legal seam.`
+Active seam: `PR Readiness PR1 - Post-Merge Closeout Repair PR Validation`
+Next active seam: `PR Readiness PR1 - Post-Merge Closeout Repair PR Validation`
 
-- This seam is complete and green on this repair branch.
+- This seam is in progress on this repair branch.
 
 ## Seam Continuation Decision
 
-Seam Status: `Green`
-Slice Status: `Green`
-Completion Status: `Green`
+Seam Status: `In Progress`
+Slice Status: `In Progress`
+Completion Status: `In Progress`
 Waiver Status: `None`
-Continue Decision: `Stop`
-Stop Basis: `Branch Readiness BR1 green; next legal phase is PR Readiness`
-Next Active Seam: `None`
-Stop Condition: `Stop after branch-admission repair is complete and the next legal phase is PR Readiness.`
-Continuation Action: `None. Branch Readiness is complete; the next legal move is PR Readiness PR1 on this same repair branch.`
+Continue Decision: `Continue`
+Stop Basis: `None`
+Next Active Seam: `PR Readiness PR1 - Post-Merge Closeout Repair PR Validation`
+Stop Condition: `Stop only if PR Readiness turns Red with a named blocker or waiver, or once PR Readiness PR1 is green and the branch advances to Release Readiness.`
+Continuation Action: `Create and validate the live repair PR on this same branch, then continue within PR Readiness until green or a named blocker stops the seam.`
 
 ## Governance Drift Audit
 
@@ -178,3 +180,10 @@ Continuation Action: `None. Branch Readiness is complete; the next legal move is
 - Post-merge watcher governance truth: future branches that rely on PR-bot monitoring must treat `PR Watcher Provisioning Unproven` as a blocker until the watcher target, runtime path, run proof, fallback, and teardown rules are explicit and proven
 - Post-merge branch-record handling: this record must leave `Active Branch Authority Records` after merge and become preserved historical traceability only
 - Post-merge successor handling: no successor branch opens by inertia from this repair; later branch admission remains separately gated
+
+## Release Window Audit
+
+Release Window Audit: PASS
+Remaining Known Release Blockers: None
+Another Pre-Release Repair PR Required: NO
+Release Window Split Waiver: None

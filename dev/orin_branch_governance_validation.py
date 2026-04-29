@@ -1126,6 +1126,10 @@ AUTOMATION_PLANNING_BRANCH = "feature/automation-planning"
 AUTOMATION_PLANNING_BRANCH_RECORD = Path(
     "Docs/branch_records/feature_automation_planning.md"
 )
+AUTOMATION_CLOSEOUT_REPAIR_BRANCH = "feature/automation-planning-post-merge-closeout-repair"
+AUTOMATION_CLOSEOUT_REPAIR_BRANCH_RECORD = Path(
+    "Docs/branch_records/feature_automation_planning_post_merge_closeout_repair.md"
+)
 REFORM_R3_S2_SEAM = (
     "Phase 3 - Family Anchor Migration / Slice R3-S2 - Map FB-043 through FB-048 under "
     "FB-042 as historical aliases"
@@ -1326,6 +1330,9 @@ AUTOMATION_LIVE_VALIDATION_LV1_STATE_PHRASE = (
 AUTOMATION_PR_READINESS_PR1_SEAM = "PR Readiness PR1 - Automation Catalog PR Validation"
 AUTOMATION_PR_READINESS_PR1_STATE_PHRASE = (
     "PR Readiness PR1 `Automation Catalog PR Validation` is in progress"
+)
+AUTOMATION_CLOSEOUT_PR_READINESS_PR1_SEAM = (
+    "PR Readiness PR1 - Post-Merge Closeout Repair PR Validation"
 )
 AUTOMATION_PR99_NATIVE_HEARTBEAT_PATH = (
     Path.home() / ".codex" / "automations" / "pr99-heartbeat-watch" / "automation.toml"
@@ -3057,6 +3064,14 @@ def _is_automation_planning_branch(branch_name: str) -> bool:
     return normalized in {
         AUTOMATION_PLANNING_BRANCH,
         f"origin/{AUTOMATION_PLANNING_BRANCH}",
+    }
+
+
+def _is_automation_closeout_repair_branch(branch_name: str) -> bool:
+    normalized = (branch_name or "").strip()
+    return normalized in {
+        AUTOMATION_CLOSEOUT_REPAIR_BRANCH,
+        f"origin/{AUTOMATION_CLOSEOUT_REPAIR_BRANCH}",
     }
 
 
@@ -5379,6 +5394,84 @@ def _validate_automation_planning_runtime_truth(
         )
 
 
+def _validate_automation_closeout_repair_phase_truth(
+    require,
+    *,
+    current_branch: str,
+) -> None:
+    if not _is_automation_closeout_repair_branch(current_branch):
+        return
+
+    branch_record_text = _read_text(AUTOMATION_CLOSEOUT_REPAIR_BRANCH_RECORD)
+    current_phase = _extract_marker_value(_section(branch_record_text, "Current Phase"), "Phase")
+    next_legal_phase = _extract_first_backtick_value(_section(branch_record_text, "Next Legal Phase"))
+    phase_status_section = _section(branch_record_text, "Phase Status")
+    active_seam_section = _section(branch_record_text, "Active Seam")
+    continuation_section = _section(branch_record_text, "Seam Continuation Decision")
+    release_window_section = _section(branch_record_text, "Release Window Audit")
+    phase_status_pr_readiness_seam = _extract_marker_value(
+        phase_status_section, "Current PR Readiness Seam"
+    )
+    phase_status_next_seam = _extract_marker_value(phase_status_section, "Next Active Seam")
+    active_seam_current = _extract_marker_value(active_seam_section, "Active seam")
+    active_seam_match = re.search(r"^Next active seam:\s*`([^`]+)`", active_seam_section, flags=re.M)
+    active_seam_next = active_seam_match.group(1).strip() if active_seam_match else ""
+    continuation_next_seam = _extract_marker_value(continuation_section, "Next Active Seam")
+
+    if current_phase == "PR Readiness":
+        require(
+            next_legal_phase == "Release Readiness",
+            (
+                "Docs/branch_records/feature_automation_planning_post_merge_closeout_repair.md: "
+                "Next Legal Phase must advance to `Release Readiness` once the branch enters "
+                "`PR Readiness`"
+            ),
+        )
+        require(
+            phase_status_pr_readiness_seam == AUTOMATION_CLOSEOUT_PR_READINESS_PR1_SEAM,
+            (
+                "Docs/branch_records/feature_automation_planning_post_merge_closeout_repair.md: "
+                "Phase Status must name PR Readiness PR1 as the current PR-readiness seam"
+            ),
+        )
+        require(
+            phase_status_next_seam == AUTOMATION_CLOSEOUT_PR_READINESS_PR1_SEAM,
+            (
+                "Docs/branch_records/feature_automation_planning_post_merge_closeout_repair.md: "
+                "Phase Status `Next Active Seam` must point to PR Readiness PR1"
+            ),
+        )
+        require(
+            active_seam_current == AUTOMATION_CLOSEOUT_PR_READINESS_PR1_SEAM,
+            (
+                "Docs/branch_records/feature_automation_planning_post_merge_closeout_repair.md: "
+                "Active Seam must name PR Readiness PR1 as the current active seam"
+            ),
+        )
+        require(
+            active_seam_next == AUTOMATION_CLOSEOUT_PR_READINESS_PR1_SEAM,
+            (
+                "Docs/branch_records/feature_automation_planning_post_merge_closeout_repair.md: "
+                "Active Seam `Next active seam` must point to PR Readiness PR1"
+            ),
+        )
+        require(
+            continuation_next_seam == AUTOMATION_CLOSEOUT_PR_READINESS_PR1_SEAM,
+            (
+                "Docs/branch_records/feature_automation_planning_post_merge_closeout_repair.md: "
+                "Seam Continuation Decision must point to PR Readiness PR1 once the branch "
+                "enters `PR Readiness`"
+            ),
+        )
+        require(
+            "Release Window Audit: PASS" in release_window_section,
+            (
+                "Docs/branch_records/feature_automation_planning_post_merge_closeout_repair.md: "
+                "PR Readiness truth must include `Release Window Audit: PASS`"
+            ),
+        )
+
+
 def _validate_backlog_family_dossier_shell(
     require,
     *,
@@ -7359,6 +7452,10 @@ def main() -> int:
         current_branch=current_git_branch,
         backlog_text=backlog_text,
         roadmap_text=roadmap_text,
+    )
+    _validate_automation_closeout_repair_phase_truth(
+        require,
+        current_branch=current_git_branch,
     )
     _validate_backlog_family_dossier_shell(
         require,
