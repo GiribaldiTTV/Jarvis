@@ -1035,6 +1035,10 @@ BACKLOG_FAMILY_REFORM_BRANCH = "feature/backlog-family-governance-reform"
 BACKLOG_FAMILY_REFORM_BRANCH_RECORD = Path(
     "Docs/branch_records/feature_backlog_family_governance_reform.md"
 )
+AUTOMATION_PLANNING_BRANCH = "feature/automation-planning"
+AUTOMATION_PLANNING_BRANCH_RECORD = Path(
+    "Docs/branch_records/feature_automation_planning.md"
+)
 REFORM_R3_S2_SEAM = (
     "Phase 3 - Family Anchor Migration / Slice R3-S2 - Map FB-043 through FB-048 under "
     "FB-042 as historical aliases"
@@ -1223,6 +1227,10 @@ REFORM_PR_READINESS_PR2_STATE_PHRASE = (
 REFORM_RELEASE_READINESS_RR1_SEAM = "Release Readiness RR1 - Reform Branch Release Validation"
 REFORM_RELEASE_READINESS_RR1_STATE_PHRASE = (
     "Release Readiness RR1 `Reform Branch Release Validation` is in progress"
+)
+AUTOMATION_HARDENING_H1_SEAM = "Hardening H1 - Automation Catalog Validation"
+AUTOMATION_HARDENING_H1_STATE_PHRASE = (
+    "Hardening H1 `Automation Catalog Validation` is in progress"
 )
 
 BOT_REVIEW_SIGNAL_HEADING = "PR Bot Review Signal"
@@ -2920,6 +2928,14 @@ def _is_backlog_family_reform_branch(branch_name: str) -> bool:
     return normalized in {
         BACKLOG_FAMILY_REFORM_BRANCH,
         f"origin/{BACKLOG_FAMILY_REFORM_BRANCH}",
+    }
+
+
+def _is_automation_planning_branch(branch_name: str) -> bool:
+    normalized = (branch_name or "").strip()
+    return normalized in {
+        AUTOMATION_PLANNING_BRANCH,
+        f"origin/{AUTOMATION_PLANNING_BRANCH}",
     }
 
 
@@ -4918,6 +4934,103 @@ def _validate_backlog_family_reform_seam_truth(
             )
 
 
+def _validate_automation_planning_phase_truth(
+    require,
+    *,
+    current_branch: str,
+    backlog_text: str,
+    roadmap_text: str,
+) -> None:
+    if not _is_automation_planning_branch(current_branch):
+        return
+
+    branch_record_text = _read_text(AUTOMATION_PLANNING_BRANCH_RECORD)
+    backlog_workstream_state = _extract_colon_value(backlog_text, "Current Workstream State")
+    roadmap_workstream_state = _extract_colon_value(roadmap_text, "Current Workstream State")
+    phase_status_section = _section(branch_record_text, "Phase Status")
+    active_seam_section = _section(branch_record_text, "Active Seam")
+    phase_status_next_seam = _extract_marker_value(phase_status_section, "Next Active Seam")
+    active_seam_match = re.search(r"^Next active seam:\s*`([^`]+)`", active_seam_section, flags=re.M)
+    active_seam_next = active_seam_match.group(1).strip() if active_seam_match else ""
+    active_seam_current = _extract_marker_value(active_seam_section, "Active seam")
+    current_phase = _extract_marker_value(_section(branch_record_text, "Current Phase"), "Phase")
+    next_legal_phase = _extract_first_backtick_value(_section(branch_record_text, "Next Legal Phase"))
+    phase_status_hardening_seam = _extract_marker_value(phase_status_section, "Current Hardening Seam")
+    backlog_next_legal_phase = _extract_colon_value(backlog_text, "Next Legal Phase").rstrip(".")
+    roadmap_next_legal_phase = _extract_colon_value(roadmap_text, "Next Legal Phase").rstrip(".")
+
+    if (
+        AUTOMATION_HARDENING_H1_STATE_PHRASE in backlog_workstream_state
+        and AUTOMATION_HARDENING_H1_STATE_PHRASE in roadmap_workstream_state
+    ):
+        require(
+            current_phase == "Hardening",
+            (
+                "Docs/branch_records/feature_automation_planning.md: Current Phase must "
+                "transition to `Hardening` once the automation-planning branch current-state "
+                "summaries declare Hardening H1 in progress"
+            ),
+        )
+        require(
+            next_legal_phase == "Live Validation",
+            (
+                "Docs/branch_records/feature_automation_planning.md: Next Legal Phase must "
+                "advance to `Live Validation` once the branch has transitioned into Hardening"
+            ),
+        )
+        require(
+            backlog_next_legal_phase == "Live Validation",
+            (
+                "Docs/feature_backlog.md: Next Legal Phase must advance to `Live Validation` "
+                "once the automation-planning branch current-state summary declares Hardening "
+                "H1 in progress"
+            ),
+        )
+        require(
+            roadmap_next_legal_phase == "Live Validation",
+            (
+                "Docs/prebeta_roadmap.md: Next Legal Phase must advance to `Live Validation` "
+                "once the automation-planning branch current-state summary declares Hardening "
+                "H1 in progress"
+            ),
+        )
+        require(
+            phase_status_hardening_seam == AUTOMATION_HARDENING_H1_SEAM,
+            (
+                "Docs/branch_records/feature_automation_planning.md: Phase Status must name "
+                "Hardening H1 as the current hardening seam during the phase-admission repair"
+            ),
+        )
+        require(
+            phase_status_next_seam == AUTOMATION_HARDENING_H1_SEAM,
+            (
+                "Docs/branch_records/feature_automation_planning.md: Phase Status `Next Active "
+                "Seam` must point to Hardening H1 during the phase-admission repair"
+            ),
+        )
+        require(
+            active_seam_current == AUTOMATION_HARDENING_H1_SEAM,
+            (
+                "Docs/branch_records/feature_automation_planning.md: Active Seam must name "
+                "Hardening H1 as the current active seam during the phase-admission repair"
+            ),
+        )
+        require(
+            "Active seam: `None.`" not in active_seam_section,
+            (
+                "Docs/branch_records/feature_automation_planning.md: Active Seam must remove "
+                "the stale `Active seam: None.` marker once Hardening H1 is admitted"
+            ),
+        )
+        require(
+            active_seam_next == AUTOMATION_HARDENING_H1_SEAM,
+            (
+                "Docs/branch_records/feature_automation_planning.md: Active Seam `Next active "
+                "seam` must point to Hardening H1 during the phase-admission repair"
+            ),
+        )
+
+
 def _validate_backlog_family_dossier_shell(
     require,
     *,
@@ -6685,6 +6798,12 @@ def main() -> int:
         require,
         current_branch=current_git_branch,
         backlog_entries=backlog_entries,
+        backlog_text=backlog_text,
+        roadmap_text=roadmap_text,
+    )
+    _validate_automation_planning_phase_truth(
+        require,
+        current_branch=current_git_branch,
         backlog_text=backlog_text,
         roadmap_text=roadmap_text,
     )

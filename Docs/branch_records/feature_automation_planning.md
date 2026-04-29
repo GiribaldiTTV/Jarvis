@@ -14,7 +14,7 @@ Branch Readiness closed green at `6cc2159`. Workstream then executed as one boun
 
 ## Current Phase
 
-- Phase: `Workstream`
+- Phase: `Hardening`
 
 ## Phase Status
 
@@ -56,8 +56,10 @@ Branch Readiness closed green at `6cc2159`. Workstream then executed as one boun
 - WS7 result: complete and green. Cron automation `release-window-sentinel` now watches for PR Readiness or Release Readiness entry every hour and reports waiting truth until those phases become active.
 - Historical Workstream Slice: `WS8 - Post-Merge Closure Watch`
 - WS8 result: complete and green. Cron automation `post-merge-closure-watch` now watches for merge or release-publication follow-through every hour and reports waiting truth until post-merge or post-release closure becomes relevant.
-- Workstream Status: complete and green. The full admitted automation catalog is now implemented on this branch, no additional automation candidates are admitted, and FB-049 remains selected next, `Registry-only`, and branch-not-created.
-- Next Active Seam: `None. Workstream is complete and green; Hardening H1 - Automation Catalog Validation is next legal seam.`
+- Historical Workstream Status: complete and green. The full admitted automation catalog is now implemented on this branch, no additional automation candidates are admitted, and FB-049 remains selected next, `Registry-only`, and branch-not-created.
+- Current Hardening Seam: `Hardening H1 - Automation Catalog Validation`
+- Hardening H1 status: in progress. This seam is validating Workstream-to-Hardening authority alignment, all eight automation records, automation id/cadence class/target/stop-condition/output-boundary truth, heartbeat-vs-cron separation, operational rollback pause/delete paths, and preserved FB-049 selected-next truth with no waiver recorded.
+- Next Active Seam: `Hardening H1 - Automation Catalog Validation`
 
 ## Branch Class
 
@@ -90,7 +92,7 @@ None.
 
 ## Next Legal Phase
 
-- `Hardening`
+- `Live Validation`
 
 ## Scope
 
@@ -333,9 +335,10 @@ Seam 8: `WS8 - Post-Merge Closure Watch`
 
 ## Active Seam
 
-- Active seam: `None. Workstream is complete and green; Hardening H1 - Automation Catalog Validation is next legal seam.`
-- WS1 through WS8 completed on this same branch.
-- No additional automation candidate is currently admitted.
+Active seam: `Hardening H1 - Automation Catalog Validation`
+Next active seam: `Hardening H1 - Automation Catalog Validation`
+
+- Workstream WS1 through WS8 remain complete and green historical truth on this branch.
 
 ## Seam Continuation Decision
 
