@@ -59,17 +59,17 @@ FB-038 remains released and closed in `v1.4.1-prebeta`.
 ## Current Branch Execution Posture
 
 Merged-Unreleased Release-Debt Owner: None.
-Repo State: No Active Branch.
+Repo State: Branch-owned repair surface.
 Merged-Main Repo State: No Active Branch.
 Latest Public Prerelease: v1.6.12-prebeta.
 Latest Public Release Commit: b06c359e58b47cfe26fe8c4b39ac04fde519dee9.
 Latest Public Prerelease Publication: https://github.com/GiribaldiTTV/Nexus-Desktop-AI/releases/tag/v1.6.12-prebeta.
 Latest Public Prerelease Title: Pre-Beta v1.6.12.
 Release Debt: Clear after v1.6.12-prebeta publication, validation, and post-release canon closure.
-Current Active Workstream: None.
+Current Active Workstream: Automation Planning Post-Merge Canon Repair.
 Current Active Workstream Before Reform: None.
-Current Active Branch: None.
-Current Active Branch Authority Record: None.
+Current Active Branch: feature/automation-planning-post-merge-canon-repair.
+Current Active Branch Authority Record: Docs/branch_records/feature_automation_planning_post_merge_canon_repair.md.
 Current Active Canonical Workstream Doc: None.
 Historical Active Workstream Before Release: Automation Implementation.
 Earlier Historical Active Workstream Before Release: FB-048 Active-session relaunch signal-failure and wait-timeout truth.
@@ -80,9 +80,9 @@ Selected Next Record State: Registry-only.
 Selected Next Implementation Branch: Not created.
 Historical Repair-Only Branch Handling: `feature/fb-046-post-merge-canon-sync` was a bounded repair-only post-merge canon-sync `feature/` branch and did not imply Branch Readiness admission or active branch truth for FB-046.
 Historical Branch Readiness State: Complete on `feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeout-truth`.
-Current Branch Readiness State: None active. Historical automation-planning Branch Readiness closed complete and green on `feature/automation-planning`, and its governance frame, watcher-policy boundaries, repo-hygiene candidate rules, and activation gate remain preserved only as historical admission basis for the merged automation-catalog branch.
-Current Workstream State: None active. The merged `feature/automation-planning` branch is historical traceability only after PR #99 merged into `main` at `daf727e9875c0b1c4de9672e36d6dd9411411001` and the source branch was deleted. The bounded same-branch automation catalog remains preserved as merged historical branch proof through `WS1` `PR Heartbeat Watcher`, hourly `phase-drift-watch`, six-hour `selected-next-lock-audit`, six-hour `main-revalidation-gate-watch`, six-hour `toolchain-availability-watch`, six-hour `automation-drift-audit`, hourly `release-window-sentinel`, and hourly `post-merge-closure-watch`; Hardening H1, Live Validation LV1, and PR Readiness PR1 remain complete and green historical truth; the PR watcher remains the only minute-scale heartbeat automation in preserved branch truth; historical runtime-proof governance is preserved as `ACTIVE` alone is not treated as run proof, and any fallback helper must stay narrowed to the live PR and bounded to `PR Readiness`; the stale PR99 watcher lifecycle is retired; backlog-family governance reform remains historical traceability only after PR #98 merged; release packaging for `v1.6.13-prebeta` remains pending historical release posture; and FB-049 remains the only selected-next user-facing candidate.
-Current Branch Class: None.
+Current Branch Readiness State: Bounded repair branch admitted directly from updated `main`; no new backlog-backed implementation workstream is opened by this repair.
+Current Workstream State: PR Readiness PR1 `Post-Merge Canon Repair PR Validation` is in progress on `feature/automation-planning-post-merge-canon-repair`. This bounded emergency canon repair preserves merged-main `No Active Branch` truth, keeps `feature/automation-planning` historical-only after PR #99, preserves retired PR99 watcher cleanup proof, preserves pending `v1.6.13-prebeta` release posture, and preserves FB-049 as the only selected-next user-facing candidate. the PR watcher remains the only minute-scale heartbeat automation in preserved branch truth. Historical runtime-proof governance remains preserved as `ACTIVE` alone is not treated as run proof, and any fallback helper must stay narrowed to the live PR and bounded to `PR Readiness`.
+Current Branch Class: emergency canon repair.
 Current Implementation Delta Class: None.
 Historical Workstream State: Automation catalog implementation is merged historical branch proof after PR #99; FB-048 is Released / Closed in `v1.6.12-prebeta`; FB-047 is Released / Closed in `v1.6.11-prebeta`; FB-046 is Released / Closed in `v1.6.10-prebeta`; FB-044 and FB-045 remain Released / Closed historical proof in `v1.6.9-prebeta`.
 Historical Hardening State: Complete on `feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeout-truth`.
@@ -96,7 +96,7 @@ Release Scope: preserve the merged backlog-family governance reform and merged a
 Release Artifacts: Tag v1.6.13-prebeta; release title Pre-Beta v1.6.13; rich Markdown release notes summarize the merged governance reform, the merged automation catalog, and the validator/runtime-proof hardening without repeating the release title inside the notes body, and GitHub-generated `## What's Changed` plus `**Full Changelog**:` must be included.
 Post-Release Truth: the backlog-family governance reform and automation-catalog branches remain historical branch-authority traceability after publication and validation; latest public prerelease advances to `v1.6.13-prebeta`; release debt clears; and FB-049 remains selected next, `Registry-only`, and branch-not-created until updated `main` is revalidated and FB-049 Branch Readiness admits the first bounded pre-settled incoming-launch conflict truth slice.
 Next-Branch Creation Gate: FB-049 branch creation remains blocked until the merged `v1.6.13-prebeta` package is published, validated, updated `main` is revalidated, and FB-049 Branch Readiness admits the first bounded runtime/user-facing pre-settled incoming-launch conflict truth slice.
-Next Legal Phase: Branch Readiness.
+Next Legal Phase: Release Readiness.
 
 ## Backlog Governance Sync
 
