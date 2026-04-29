@@ -300,6 +300,7 @@ The default named blockers are:
 - `PR Creation Pending`
 - `PR Validation Pending`
 - `PR State Unknown`
+- `PR Merge Status Unproven`
 - `PR Watcher Provisioning Unproven`
 - `PR Readiness Scope Missed`
 - `Release Window Audit Incomplete`
@@ -601,6 +602,8 @@ Hard blockers:
   PR Readiness cannot be green until the existing PR has been validated as open, non-draft, conflict-free, aligned to the merge-target canon, and clear of unresolved Codex comments/issues or requested changes.
 - `PR State Unknown`:
   PR Readiness cannot be green if Codex cannot inspect the PR state, mergeability/conflict state, base/head alignment, or Codex review-thread state.
+- `PR Merge Status Unproven`:
+  PR Readiness cannot be green until the live PR has explicitly reported a green merge status. Treat unknown, unset, conflicting, dirty, blocked, or otherwise non-green mergeability/merge-state results as an active blocker until GitHub reports the PR merge status as green.
 - `Bot Review Signal Pending`:
   for Codex-created PRs, PR Readiness cannot be green until the live PR has received either a thumbs-up reaction or a bot comment from the Codex GitHub bot; a thumbs-up reaction on the live PR clears the gate, while a bot comment keeps `PR Validation Pending` active until the branch fixes the comment on the same PR, pushes, resolves the comment, and records that current-head comment-resolution closeout; no later thumbs-up is required
 - `PR Watcher Provisioning Unproven`:
@@ -632,6 +635,7 @@ Live PR creation and validation facts are required for operator output and PR va
 - PR state is inspectable rather than unknown
 - no unresolved Codex comments/issues or requested changes remain
 - `PR Watcher Provisioning Unproven` is clear whenever watcher-based PR monitoring is expected
+- `PR Merge Status Unproven` is clear only after the live PR has explicitly reported a green merge status
 - the live PR has either a thumbs-up reaction from the Codex GitHub bot or a recorded current-head bot comment-resolution closeout; no later thumbs-up is required after the comment-resolution path
 
 ### PR Readiness Response Contract

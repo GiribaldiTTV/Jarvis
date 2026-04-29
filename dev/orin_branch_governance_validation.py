@@ -662,6 +662,7 @@ PR_READINESS_BLOCKER_PHRASES = (
     "next-workstream",
     "desktop-shortcut",
     "User Test Summary Results Pending",
+    "PR Merge Status Unproven",
     "PR Watcher Provisioning Unproven",
     "PR Readiness Scope Missed",
     "Release Window Audit Incomplete",
@@ -754,6 +755,7 @@ PR_LIVE_STATE_PHRASES = (
     "PR Creation Pending",
     "PR Validation Pending",
     "PR State Unknown",
+    "PR Merge Status Unproven",
 )
 
 BOT_REVIEW_SIGNAL_DOCS = (
@@ -1130,6 +1132,16 @@ AUTOMATION_CLOSEOUT_REPAIR_BRANCH = "feature/automation-planning-post-merge-clos
 AUTOMATION_CLOSEOUT_REPAIR_BRANCH_RECORD = Path(
     "Docs/branch_records/feature_automation_planning_post_merge_closeout_repair.md"
 )
+AUTOMATION_CLOSEOUT_PR101_WATCHER_SCRIPT_PATH = (
+    Path.home() / ".codex" / "watchers" / "pr101-watch.ps1"
+)
+AUTOMATION_CLOSEOUT_PR101_WATCHER_STATE_PATH = (
+    Path.home() / ".codex" / "watchers" / "pr101-watch-state.json"
+)
+AUTOMATION_CLOSEOUT_PR101_WATCHER_LATEST_PATH = (
+    Path.home() / ".codex" / "watchers" / "pr101-watch-latest.txt"
+)
+AUTOMATION_CLOSEOUT_PR101_WATCHER_TASK_NAME = "Codex PR101 Watch"
 REFORM_R3_S2_SEAM = (
     "Phase 3 - Family Anchor Migration / Slice R3-S2 - Map FB-043 through FB-048 under "
     "FB-042 as historical aliases"
@@ -5409,6 +5421,7 @@ def _validate_automation_closeout_repair_phase_truth(
     active_seam_section = _section(branch_record_text, "Active Seam")
     continuation_section = _section(branch_record_text, "Seam Continuation Decision")
     release_window_section = _section(branch_record_text, "Release Window Audit")
+    seam_status = _extract_marker_value(continuation_section, "Seam Status")
     phase_status_pr_readiness_seam = _extract_marker_value(
         phase_status_section, "Current PR Readiness Seam"
     )
@@ -5456,7 +5469,12 @@ def _validate_automation_closeout_repair_phase_truth(
             ),
         )
         require(
-            continuation_next_seam == AUTOMATION_CLOSEOUT_PR_READINESS_PR1_SEAM,
+            continuation_next_seam
+            == (
+                "None"
+                if seam_status == "Green"
+                else AUTOMATION_CLOSEOUT_PR_READINESS_PR1_SEAM
+            ),
             (
                 "Docs/branch_records/feature_automation_planning_post_merge_closeout_repair.md: "
                 "Seam Continuation Decision must point to PR Readiness PR1 once the branch "
@@ -6659,6 +6677,51 @@ def _automation_planning_runtime_proof_status(current_head_sha: str) -> tuple[bo
     )
 
 
+def _automation_closeout_repair_watcher_proof_status(current_head_sha: str) -> tuple[bool, str]:
+    if not AUTOMATION_CLOSEOUT_PR101_WATCHER_SCRIPT_PATH.is_file():
+        return (
+            False,
+            f"bounded fallback watcher '{AUTOMATION_CLOSEOUT_PR101_WATCHER_SCRIPT_PATH}' is missing",
+        )
+    if not AUTOMATION_CLOSEOUT_PR101_WATCHER_LATEST_PATH.is_file():
+        return (
+            False,
+            f"watcher latest-status file '{AUTOMATION_CLOSEOUT_PR101_WATCHER_LATEST_PATH}' is missing",
+        )
+
+    state = _load_json_file(AUTOMATION_CLOSEOUT_PR101_WATCHER_STATE_PATH)
+    if not state:
+        return (
+            False,
+            f"watcher state file '{AUTOMATION_CLOSEOUT_PR101_WATCHER_STATE_PATH}' is missing or invalid",
+        )
+
+    recorded_head_sha = str(state.get("headSha") or "")
+    if current_head_sha and recorded_head_sha and recorded_head_sha != current_head_sha:
+        return (
+            False,
+            (
+                "watcher runtime proof is stale; state-file head "
+                f"'{recorded_head_sha}' does not match current head '{current_head_sha}'"
+            ),
+        )
+
+    if not str(state.get("lastRunLocal") or "").strip():
+        return (
+            False,
+            f"watcher state file '{AUTOMATION_CLOSEOUT_PR101_WATCHER_STATE_PATH}' is missing lastRunLocal proof",
+        )
+
+    return (
+        True,
+        (
+            "bounded PR watcher runtime proof is present via "
+            f"'{AUTOMATION_CLOSEOUT_PR101_WATCHER_STATE_PATH}' and "
+            f"'{AUTOMATION_CLOSEOUT_PR101_WATCHER_LATEST_PATH}'"
+        ),
+    )
+
+
 def _automation_planning_fallback_pr_view_for_branch(
     branch_name: str,
 ) -> tuple[dict[str, object] | None, str]:
@@ -6782,6 +6845,17 @@ def _run_pr_live_state_gate(
                 f"{runtime_proof_message}"
             ),
         )
+    if _is_automation_closeout_repair_branch(branch_name):
+        watcher_proven, watcher_proof_message = _automation_closeout_repair_watcher_proof_status(
+            current_head_sha
+        )
+        require(
+            watcher_proven,
+            (
+                "PR readiness gate: PR Watcher Provisioning Unproven blocker is active; "
+                f"{watcher_proof_message}"
+            ),
+        )
     normalized_recorded_status = recorded_bot_review_status.strip().casefold()
     manual_comment_resolution_clear = (
         normalized_recorded_status == BOT_REVIEW_SIGNAL_STATUS_COMMENT_ADDRESSED.casefold()
@@ -6824,18 +6898,18 @@ def _run_pr_live_state_gate(
             f"PR base '{pr_base}' does not match merge-target canon 'main'"
         ),
     )
+    merge_status_green = mergeable == "MERGEABLE" and merge_state not in {
+        "BLOCKED",
+        "DIRTY",
+        "UNKNOWN",
+        "DRAFT",
+    }
     require(
-        mergeable == "MERGEABLE",
+        merge_status_green,
         (
-            "PR readiness gate: PR Validation Pending blocker is active; "
-            f"PR mergeability is '{mergeable or 'UNKNOWN'}'"
-        ),
-    )
-    require(
-        merge_state not in {"BLOCKED", "DIRTY", "UNKNOWN", "DRAFT"},
-        (
-            "PR readiness gate: PR Validation Pending blocker is active; "
-            f"PR merge state is '{merge_state or 'UNKNOWN'}'"
+            "PR readiness gate: PR Merge Status Unproven blocker is active; "
+            f"PR mergeability is '{mergeable or 'UNKNOWN'}' and merge state is "
+            f"'{merge_state or 'UNKNOWN'}'"
         ),
     )
     require(

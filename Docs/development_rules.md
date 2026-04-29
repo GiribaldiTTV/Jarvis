@@ -327,7 +327,8 @@ That means:
   - the GitHub PR must exist before final green
   - the PR must be open, non-draft, conflict-free, inspectable, and aligned to merge-target canon
   - a missing PR keeps `PR Creation Pending` active
-  - unresolved Codex comments/issues, requested changes, unknown mergeability, unknown PR state, or inability to inspect the PR keep `PR Validation Pending` or `PR State Unknown` active
+  - unresolved Codex comments/issues, requested changes, or inability to inspect the PR keep `PR Validation Pending` or `PR State Unknown` active
+  - until the live PR explicitly reports a green merge status, keep `PR Merge Status Unproven` active; unknown, unset, conflicting, dirty, blocked, or otherwise non-green mergeability/merge-state results do not clear the gate
   - for Codex-created PRs, `Bot Review Signal Pending` also keeps PR Readiness non-green until the live PR has a thumbs-up reaction or a bot comment from the Codex GitHub bot; a bot comment keeps `PR Validation Pending` active until the branch fixes the comment on the same PR, pushes, resolves the comment, and records that current-head comment-resolution closeout; no later thumbs-up is required
   - if a branch expects watcher-based PR monitoring, `PR Watcher Provisioning Unproven` also keeps the gate blocked until the watcher target, runtime path, run-proof method, fallback, teardown rule, and replacement provisioning for the next live PR are explicit and proven
   - phase-critical automation cannot clear a gate merely because its card, config, or automation list says `ACTIVE`; `ACTIVE` is configuration state, not run proof, so keep `Automation Runtime Unproven` active until thread/inbox output, automation memory/log/state-file updates, scheduler last-run evidence, or another accepted run proof exists

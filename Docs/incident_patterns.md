@@ -24,7 +24,7 @@ Branch-local "what worked" notes should stay in the canonical workstream doc fir
 - root-cause pattern:
   validation proves branch behavior or produces a copy-ready PR package, but process blockers are not named strongly enough as pre-merge gates
 - fix pattern:
-  require PR Readiness to clear stale canon, post-merge-state handling, next-workstream selection with minimal scope and no branch created yet, dirty branch / durable commit state, docs-sync / Governance Drift Audit blockers, PR creation, and PR validation before reporting `PR READY: YES` or `PR Readiness GREEN`; `PR package ready` is not green, missing PRs carry `PR Creation Pending`, unknown PR inspection carries `PR State Unknown`, and unresolved live PR issues carry `PR Validation Pending`
+  require PR Readiness to clear stale canon, post-merge-state handling, next-workstream selection with minimal scope and no branch created yet, dirty branch / durable commit state, docs-sync / Governance Drift Audit blockers, PR creation, explicit green merge-status proof, and PR validation before reporting `PR READY: YES` or `PR Readiness GREEN`; `PR package ready` is not green, missing PRs carry `PR Creation Pending`, unknown PR inspection carries `PR State Unknown`, mergeability or merge-state that has not explicitly reported green carries `PR Merge Status Unproven`, and unresolved live PR issues carry `PR Validation Pending`
 - validation pattern:
   run the normal branch governance validator plus the PR-readiness gate mode; the gate must fail while the worktree is dirty, while required post-merge truth is not encoded, while the next workstream is undefined, unscoped, or already branched, while the PR does not exist, or while PR state cannot be inspected
 - source references:
