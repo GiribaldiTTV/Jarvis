@@ -1236,6 +1236,10 @@ AUTOMATION_LIVE_VALIDATION_LV1_SEAM = "Live Validation LV1 - Automation Catalog 
 AUTOMATION_LIVE_VALIDATION_LV1_STATE_PHRASE = (
     "Live Validation LV1 `Automation Catalog Final Validation` is in progress"
 )
+AUTOMATION_PR_READINESS_PR1_SEAM = "PR Readiness PR1 - Automation Catalog PR Validation"
+AUTOMATION_PR_READINESS_PR1_STATE_PHRASE = (
+    "PR Readiness PR1 `Automation Catalog PR Validation` is in progress"
+)
 
 BOT_REVIEW_SIGNAL_HEADING = "PR Bot Review Signal"
 BOT_REVIEW_SIGNAL_STATUS_LABEL = "Bot Review Signal Status"
@@ -4965,6 +4969,9 @@ def _validate_automation_planning_phase_truth(
     phase_status_live_validation_seam = _extract_marker_value(
         phase_status_section, "Current Live Validation Seam"
     )
+    phase_status_pr_readiness_seam = _extract_marker_value(
+        phase_status_section, "Current PR Readiness Seam"
+    )
     backlog_next_legal_phase = _extract_colon_value(backlog_text, "Next Legal Phase").rstrip(".")
     roadmap_next_legal_phase = _extract_colon_value(roadmap_text, "Next Legal Phase").rstrip(".")
 
@@ -5129,6 +5136,98 @@ def _validate_automation_planning_phase_truth(
             (
                 "Docs/prebeta_roadmap.md: Current Workstream State must stop reporting Hardening "
                 "H1 as in progress once Live Validation LV1 is admitted"
+            ),
+        )
+
+    if (
+        AUTOMATION_PR_READINESS_PR1_STATE_PHRASE in backlog_workstream_state
+        and AUTOMATION_PR_READINESS_PR1_STATE_PHRASE in roadmap_workstream_state
+    ):
+        require(
+            current_phase == "PR Readiness",
+            (
+                "Docs/branch_records/feature_automation_planning.md: Current Phase must "
+                "transition to `PR Readiness` once the automation-planning branch current-state "
+                "summaries declare PR Readiness PR1 in progress"
+            ),
+        )
+        require(
+            next_legal_phase == "Release Readiness",
+            (
+                "Docs/branch_records/feature_automation_planning.md: Next Legal Phase must "
+                "advance to `Release Readiness` once the branch has transitioned into PR Readiness"
+            ),
+        )
+        require(
+            backlog_next_legal_phase == "Release Readiness",
+            (
+                "Docs/feature_backlog.md: Next Legal Phase must advance to `Release Readiness` "
+                "once the automation-planning branch current-state summary declares PR Readiness "
+                "PR1 in progress"
+            ),
+        )
+        require(
+            roadmap_next_legal_phase == "Release Readiness",
+            (
+                "Docs/prebeta_roadmap.md: Next Legal Phase must advance to `Release Readiness` "
+                "once the automation-planning branch current-state summary declares PR Readiness "
+                "PR1 in progress"
+            ),
+        )
+        require(
+            phase_status_live_validation_seam != AUTOMATION_LIVE_VALIDATION_LV1_SEAM,
+            (
+                "Docs/branch_records/feature_automation_planning.md: Phase Status must stop "
+                "naming Live Validation LV1 as the current seam once PR Readiness PR1 is admitted"
+            ),
+        )
+        require(
+            phase_status_pr_readiness_seam == AUTOMATION_PR_READINESS_PR1_SEAM,
+            (
+                "Docs/branch_records/feature_automation_planning.md: Phase Status must name "
+                "PR Readiness PR1 as the current PR-readiness seam during the phase admission repair"
+            ),
+        )
+        require(
+            phase_status_next_seam == AUTOMATION_PR_READINESS_PR1_SEAM,
+            (
+                "Docs/branch_records/feature_automation_planning.md: Phase Status `Next Active "
+                "Seam` must point to PR Readiness PR1 during the phase admission repair"
+            ),
+        )
+        require(
+            active_seam_current == AUTOMATION_PR_READINESS_PR1_SEAM,
+            (
+                "Docs/branch_records/feature_automation_planning.md: Active Seam must name "
+                "PR Readiness PR1 as the current active seam during the phase admission repair"
+            ),
+        )
+        require(
+            active_seam_next == AUTOMATION_PR_READINESS_PR1_SEAM,
+            (
+                "Docs/branch_records/feature_automation_planning.md: Active Seam `Next active "
+                "seam` must point to PR Readiness PR1 during the phase admission repair"
+            ),
+        )
+        require(
+            continuation_next_seam == AUTOMATION_PR_READINESS_PR1_SEAM,
+            (
+                "Docs/branch_records/feature_automation_planning.md: Seam Continuation Decision "
+                "must point to PR Readiness PR1 once the branch enters PR Readiness"
+            ),
+        )
+        require(
+            AUTOMATION_LIVE_VALIDATION_LV1_STATE_PHRASE not in backlog_workstream_state,
+            (
+                "Docs/feature_backlog.md: Current Workstream State must stop reporting Live "
+                "Validation LV1 as in progress once PR Readiness PR1 is admitted"
+            ),
+        )
+        require(
+            AUTOMATION_LIVE_VALIDATION_LV1_STATE_PHRASE not in roadmap_workstream_state,
+            (
+                "Docs/prebeta_roadmap.md: Current Workstream State must stop reporting Live "
+                "Validation LV1 as in progress once PR Readiness PR1 is admitted"
             ),
         )
 

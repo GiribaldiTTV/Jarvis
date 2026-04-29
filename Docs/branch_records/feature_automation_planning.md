@@ -14,7 +14,7 @@ Branch Readiness closed green at `6cc2159`. Workstream then executed as one boun
 
 ## Current Phase
 
-- Phase: `Live Validation`
+- Phase: `PR Readiness`
 
 ## Phase Status
 
@@ -59,9 +59,11 @@ Branch Readiness closed green at `6cc2159`. Workstream then executed as one boun
 - Historical Workstream Status: complete and green. The full admitted automation catalog is now implemented on this branch, no additional automation candidates are admitted, and FB-049 remains selected next, `Registry-only`, and branch-not-created.
 - Historical Hardening Seam: `Hardening H1 - Automation Catalog Validation`
 - Hardening H1 result: complete and green. Authority-aligned hardening validation confirmed all eight automation records, automation id/cadence class/target/stop-condition/output-boundary truth, heartbeat-vs-cron separation, operational rollback pause/delete paths, and preserved FB-049 selected-next truth with no repair candidates.
-- Current Live Validation Seam: `Live Validation LV1 - Automation Catalog Final Validation`
-- Live Validation LV1 status: in progress. This seam is validating the completed automation catalog against live branch truth, heartbeat-versus-cron separation, operational rollback availability, clean branch/origin alignment, and preserved FB-049 selected-next truth with no waiver recorded.
-- Next Active Seam: `Live Validation LV1 - Automation Catalog Final Validation`
+- Historical Live Validation Seam: `Live Validation LV1 - Automation Catalog Final Validation`
+- Live Validation LV1 result: complete and green. Final authority-aligned validation confirmed all eight automation records, heartbeat-versus-cron separation, operational rollback availability, clean branch/origin alignment, and preserved FB-049 selected-next truth with no repair candidates.
+- Current PR Readiness Seam: `PR Readiness PR1 - Automation Catalog PR Validation`
+- PR Readiness PR1 status: in progress. This seam is admitting PR Readiness authority, preserving clean durable branch truth, validating merge-target canon and release-window posture, creating the live PR, validating live PR state against the automation catalog contract, and preserving FB-049 selected-next truth with no waiver recorded.
+- Next Active Seam: `PR Readiness PR1 - Automation Catalog PR Validation`
 
 ## Branch Class
 
@@ -94,7 +96,7 @@ None.
 
 ## Next Legal Phase
 
-- `PR Readiness`
+- `Release Readiness`
 
 ## Scope
 
@@ -337,12 +339,13 @@ Seam 8: `WS8 - Post-Merge Closure Watch`
 
 ## Active Seam
 
-Active seam: `Live Validation LV1 - Automation Catalog Final Validation`
-Next active seam: `Live Validation LV1 - Automation Catalog Final Validation`
+Active seam: `PR Readiness PR1 - Automation Catalog PR Validation`
+Next active seam: `PR Readiness PR1 - Automation Catalog PR Validation`
 
 - Workstream WS1 through WS8 remain complete and green historical truth on this branch.
 - Hardening H1 `Automation Catalog Validation` is complete and green on this branch.
-- Live Validation LV1 `Automation Catalog Final Validation` is the current active seam on this branch.
+- Live Validation LV1 `Automation Catalog Final Validation` is complete and green on this branch.
+- PR Readiness PR1 `Automation Catalog PR Validation` is the current active seam on this branch.
 
 ## Seam Continuation Decision
 
@@ -352,6 +355,35 @@ Completion Status: `Green`
 Waiver Status: `None`
 Continue Decision: `Continue`
 Stop Basis: `None`
-Next Active Seam: `Live Validation LV1 - Automation Catalog Final Validation`
-Stop Condition: `Stop only if Live Validation LV1 turns green and PR Readiness becomes the next legal phase, or if a named blocker or waiver stops Live Validation before LV1 completes.`
-Continuation Action: `Execute Live Validation LV1 automation-catalog final validation while preserving the completed Workstream, Hardening, cadence boundaries, rollback paths, and FB-049 selected-next truth.`
+Next Active Seam: `PR Readiness PR1 - Automation Catalog PR Validation`
+Stop Condition: `Stop only if PR Readiness PR1 turns green and Release Readiness becomes the next legal phase, or if a named blocker or waiver stops PR Readiness before PR1 completes.`
+Continuation Action: `Execute PR Readiness PR1 automation-catalog PR validation, create the live PR, validate live PR state, and preserve the completed Workstream, Hardening, Live Validation, cadence boundaries, rollback paths, and FB-049 selected-next truth.`
+
+## Governance Drift Audit
+
+- Governance Drift Found: No
+- Drift Type: None active after this admission repair.
+- Why Current Canon Failed To Prevent It: Live Validation closed green, but this branch had not yet advanced its active authority markers into PR Readiness or created the live PR needed for PR-state validation.
+- Required Canon Changes: advance the active branch authority into `PR Readiness PR1`, sync backlog and roadmap current-state summaries, and keep the automation-planning validator phase-truth coverage aligned with the new active seam.
+- Whether The Drift Blocks Merge: Yes until PR Readiness authority is admitted and the live PR exists.
+- Whether User Confirmation Is Required: No for the current approved automation-catalog validation branch.
+- Missing blocker check: no blocker is missing after this repair; PR phase admission, live PR creation, PR validation, release-window posture, post-merge state, and FB-049 selected-next preservation are all represented in current governance.
+- Weak phase entry or exit rule check: no unresolved weakness remains after this repair; PR creation and live PR validation now occur in PR Readiness instead of being left implicit after Live Validation.
+- Weak source-of-truth ownership rule check: no unresolved weakness remains; the branch authority record owns active phase truth, while backlog and roadmap remain synchronized subordinate mirrors.
+- Stale prompt scaffolding or operator example check: no blocking stale scaffolding remains after this repair; PR Readiness now carries explicit active-seam truth.
+- Missing validator requirement check: the automation-planning validator now enforces PR1 phase admission markers in addition to the earlier Hardening and Live Validation phase-truth checks.
+
+## Post-Merge State
+
+- Post-merge repo state: `No Active Branch` after merge, while merged current-state canon carries the still-unreleased pre-Beta posture and this branch authority record becomes historical traceability only.
+- Post-merge selected-next truth: FB-049 remains selected next, `Registry-only`, and branch-not-created until updated `main` is revalidated and FB-049 Branch Readiness admits the first bounded pre-settled incoming-launch conflict truth slice.
+- Post-merge automation-catalog truth: merged canon must preserve the admitted eight-record automation catalog, the heartbeat-versus-cron cadence split, the rollback/containment rules, and the clean FB-049 selected-next lock.
+- Post-merge branch-record handling: this record must leave `Active Branch Authority Records` after merge and move to historical traceability once later release packaging and publication are complete.
+- Post-merge successor handling: no successor implementation branch opens during this automation-catalog PR; later successor work remains the future FB-049 branch only after its stated gate clears.
+
+## Release Window Audit
+
+Release Window Audit: PASS
+Remaining Known Release Blockers: None
+Another Pre-Release Repair PR Required: NO
+Release Window Split Waiver: None
