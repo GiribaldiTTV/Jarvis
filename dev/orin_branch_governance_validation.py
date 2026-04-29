@@ -695,7 +695,7 @@ BOT_REVIEW_SIGNAL_DOCS = (
 
 BOT_REVIEW_SIGNAL_PHRASES = (
     "Bot Review Signal Pending",
-    "current PR head",
+    "live PR",
     "thumbs-up reaction",
     "bot comment",
     "no later thumbs-up is required",
@@ -5489,22 +5489,20 @@ def _github_rest_unresolved_codex_threads(
     return sorted(set(unresolved)), ""
 
 
-def _github_pr_bot_signal_for_current_head(
+def _github_pr_bot_signal_for_live_pr(
     repository_full_name: str,
     pr_number: int,
-    current_head_time: datetime | None,
 ) -> tuple[dict[str, str], str]:
     signal = {"status": "pending", "source": "", "timestamp": "", "actor": ""}
     if not repository_full_name or not pr_number:
-        return signal, "current PR identity is incomplete"
-    if current_head_time is None:
-        return signal, "current PR head commit time could not be determined"
+        return signal, "live PR identity is incomplete"
 
     reactions_payload, reactions_error = _github_api_json(
         f"https://api.github.com/repos/{repository_full_name}/issues/{pr_number}/reactions"
     )
     if reactions_error:
         return signal, f"reaction lookup failed: {reactions_error}"
+    latest_approval: dict[str, object] | None = None
     for reaction in reactions_payload or []:
         actor = str(((reaction.get("user") or {}).get("login")) or "")
         created_at = str(reaction.get("created_at") or "")
@@ -5514,15 +5512,15 @@ def _github_pr_bot_signal_for_current_head(
             _bot_login_matches(actor)
             and content == "+1"
             and created_time is not None
-            and created_time >= current_head_time
         ):
-            return {
-                "status": BOT_REVIEW_SIGNAL_STATUS_APPROVED.casefold(),
-                "source": "thumbs-up reaction",
-                "timestamp": created_at,
-                "actor": actor,
-            }, ""
+            if latest_approval is None or created_time >= latest_approval["time"]:
+                latest_approval = {
+                    "time": created_time,
+                    "timestamp": created_at,
+                    "actor": actor,
+                }
 
+    latest_comment: dict[str, object] | None = None
     for url, source_name in (
         (f"https://api.github.com/repos/{repository_full_name}/issues/{pr_number}/comments", "issue comment"),
         (f"https://api.github.com/repos/{repository_full_name}/pulls/{pr_number}/reviews", "review comment"),
@@ -5539,13 +5537,32 @@ def _github_pr_bot_signal_for_current_head(
                 or ""
             )
             created_time = _parse_iso8601_timestamp(created_at)
-            if _bot_login_matches(actor) and created_time is not None and created_time >= current_head_time:
-                return {
-                    "status": "comment",
-                    "source": source_name,
-                    "timestamp": created_at,
-                    "actor": actor,
-                }, ""
+            if _bot_login_matches(actor) and created_time is not None:
+                if latest_comment is None or created_time >= latest_comment["time"]:
+                    latest_comment = {
+                        "time": created_time,
+                        "source": source_name,
+                        "timestamp": created_at,
+                        "actor": actor,
+                    }
+
+    if latest_comment and (
+        latest_approval is None or latest_comment["time"] >= latest_approval["time"]
+    ):
+        return {
+            "status": "comment",
+            "source": str(latest_comment["source"]),
+            "timestamp": str(latest_comment["timestamp"]),
+            "actor": str(latest_comment["actor"]),
+        }, ""
+
+    if latest_approval:
+        return {
+            "status": BOT_REVIEW_SIGNAL_STATUS_APPROVED.casefold(),
+            "source": "thumbs-up reaction",
+            "timestamp": str(latest_approval["timestamp"]),
+            "actor": str(latest_approval["actor"]),
+        }, ""
 
     return signal, ""
 
@@ -6078,10 +6095,7 @@ def _run_pr_live_state_gate(
         and recorded_bot_review_head == current_head_sha
     )
     if (
-        normalized_recorded_status in {
-            BOT_REVIEW_SIGNAL_STATUS_APPROVED.casefold(),
-            BOT_REVIEW_SIGNAL_STATUS_COMMENT_ADDRESSED.casefold(),
-        }
+        normalized_recorded_status == BOT_REVIEW_SIGNAL_STATUS_COMMENT_ADDRESSED.casefold()
         and recorded_bot_review_head
         and current_head_sha
         and recorded_bot_review_head != current_head_sha
@@ -6162,10 +6176,9 @@ def _run_pr_live_state_gate(
     if manual_comment_resolution_clear:
         return
 
-    live_signal, signal_error = _github_pr_bot_signal_for_current_head(
+    live_signal, signal_error = _github_pr_bot_signal_for_live_pr(
         str(pr_info.get("repositoryFullName") or ""),
         int(pr_info.get("number") or 0),
-        current_head_time,
     )
     require(
         not signal_error,
@@ -6187,8 +6200,8 @@ def _run_pr_live_state_gate(
             (
                 "PR readiness gate: PR Validation Pending blocker is active; bot review comment "
                 f"detected from '{signal_actor or BOT_REVIEW_BOT_LOGIN}' via {signal_source or 'comment'} "
-                f"at '{signal_timestamp or 'unknown time'}' for current PR head "
-                f"'{current_head_sha or pr_info.get('headRefName') or 'UNKNOWN'}'; fix, push, resolve the "
+                f"at '{signal_timestamp or 'unknown time'}' on live PR "
+                f"'{pr_url or pr_info.get('number') or 'UNKNOWN'}'; fix, push, resolve the "
                 "comment, and then PR green may return without waiting for a later thumbs-up"
             ),
         )
@@ -6197,8 +6210,8 @@ def _run_pr_live_state_gate(
             False,
             (
                 "PR readiness gate: PR Validation Pending blocker is active; Bot Review Signal Pending "
-                f"for current PR head '{current_head_sha or pr_info.get('headRefName') or 'UNKNOWN'}'; wait "
-                "for a thumbs-up reaction or a bot comment on the current PR head"
+                f"for live PR '{pr_url or pr_info.get('number') or 'UNKNOWN'}'; wait "
+                "for a thumbs-up reaction or a bot comment on the live PR"
             ),
         )
 

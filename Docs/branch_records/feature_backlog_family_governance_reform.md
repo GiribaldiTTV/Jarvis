@@ -16,7 +16,7 @@ This branch must not change runtime behavior. Its job is to repair and harden so
 
 ## Current Phase
 
-- Phase: `PR Readiness`
+- Phase: `Release Readiness`
 
 ## Phase Status
 
@@ -89,12 +89,12 @@ This branch must not change runtime behavior. Its job is to repair and harden so
 - Historical Live Validation Seam: `Live Validation LV1 - Reform Branch Final Validation`
 - Live Validation LV1 result: complete and green. Final reform-branch validation reconfirmed backlog-family shape and ordering, the FB-049 selected-next lock, alias/support non-selectability, lifetime dossier routing, family-index split, and Live Validation phase authority alignment with no repair candidates.
 - Historical PR Readiness Seam: `PR Readiness PR1 - Reform Branch PR Validation`
-- PR Readiness PR1 result: historically complete under the earlier live-PR gate. That result is now superseded for current branch truth because later PR-owned governance repair requires a fresh bot-review signal for the current PR head before PR green can stand.
-- Historical Release Readiness Seam: `Release Readiness RR1 - Reform Branch Release Validation`
-- Release Readiness RR1 result: admitted but not green. The branch returned to PR Readiness before release execution because PR-owned bot-review signal governance was added after RR1 admission and the current PR head still needs a fresh thumbs-up reaction or a bot-comment resolution closeout.
-- Current PR Readiness Seam: `PR Readiness PR2 - Bot Review Signal Monitoring`
-- PR Readiness Status: in progress. Workstream completion remains green, Hardening H1 and Live Validation LV1 remain preserved complete and green historical truth, RR1 is deferred, PR2 is monitoring the current PR head for a fresh bot-review signal on PR #98, no waiver is recorded, and FB-049 remains the only selected-next user-facing candidate.
-- Next Active Seam: `PR Readiness PR2 - Bot Review Signal Monitoring`
+- PR Readiness PR1 result: complete and green. Live PR creation, branch-clean durability, merge-target canon, next-workstream selection, release-window posture, post-merge state, and live PR validation are complete, no waiver is recorded, and FB-049 remains the only selected-next user-facing candidate.
+- Historical PR Readiness Seam: `PR Readiness PR2 - Bot Review Signal Monitoring`
+- PR Readiness PR2 result: complete and green. The live PR-level `+1` from `chatgpt-codex-connector[bot]` already satisfies the bot-review approval gate for PR #98, no bot comments or review threads remain open, no waiver is recorded, and RR1 is re-entered.
+- Current Release Readiness Seam: `Release Readiness RR1 - Reform Branch Release Validation`
+- Release Readiness Status: in progress. Workstream completion remains green, Hardening H1, Live Validation LV1, PR Readiness PR1, and PR Readiness PR2 remain preserved complete and green historical truth, RR1 is now validating release-target semantics, release-scope truth, release-artifact truth, and release-execution readiness without file mutation, no waiver is recorded, and FB-049 remains the only selected-next user-facing candidate.
+- Next Active Seam: `Release Readiness RR1 - Reform Branch Release Validation`
 
 ## Branch Class
 
@@ -102,8 +102,7 @@ This branch must not change runtime behavior. Its job is to repair and harden so
 
 ## Blockers
 
-- PR Validation Pending.
-- Bot Review Signal Pending for the current pushed PR head on PR #98. The preserved `+1` from `chatgpt-codex-connector[bot]` at `2026-04-29T12:19:17Z` applied to earlier head `1cfdea39355cc11cf8914eb7b2e9193d635714c5` and is historical only after later pushes.
+- None.
 
 ## Entry Basis
 
@@ -128,7 +127,7 @@ This branch must not change runtime behavior. Its job is to repair and harden so
 
 ## Next Legal Phase
 
-- `PR Readiness`
+- `Release Readiness`
 
 ## Scope
 
@@ -314,10 +313,10 @@ Seam 1: `Phase 1 - Validator Bootstrap`
 
 ## Active Seam
 
-Active seam: `PR Readiness PR2 - Bot Review Signal Monitoring`
+Active seam: `Release Readiness RR1 - Reform Branch Release Validation`
 
 Phase 1 `Validator Bootstrap`, Phase 2 / Slice R2-S1 `Backlog Section Skeleton`, Phase 2 / Slice R2-S2 `Add classification markers in place`, Phase 2 / Slice R2-S3 `Move support / governance lanes`, Phase 2 / Slice R2-S4 `Move historical pass aliases`, Phase 2 / Slice R2-S5 `Backlog ordering and selection-truth hardening`, Phase 3 / Slice R3-S1 `Retitle FB-042 as the runtime family anchor`, Phase 3 / Slice R3-S2 `Map FB-043 through FB-048 under FB-042 as historical aliases`, Phase 3 / Slice R3-S3 `Retitle FB-027 as the interaction/action family anchor`, Phase 3 / Slice R3-S4 `Map FB-036, FB-037, FB-038, and FB-041 under FB-027 as historical aliases`, Phase 3 / Slice R3-S5 `Future-selection hardening`, Phase 4 / Slice R4-S1 `Convert the FB-042 dossier shell`, Phase 4 / Slice R4-S2 `Convert the FB-027 dossier shell`, Phase 4 / Slice R4-S3 `Add pass index and slice/seam ledger structure`, Phase 4 / Slice R4-S4 `Add validator/helper and artifact indexes`, Phase 4 / Slice R4-S5 `Dossier stability validation`, Hardening H1 `Post-Workstream Governance Validation`, and Live Validation LV1 `Reform Branch Final Validation` are complete and green.
-Next active seam: `PR Readiness PR2 - Bot Review Signal Monitoring`.
+Next active seam: `Release Readiness RR1 - Reform Branch Release Validation`.
 
 - Phase 0 `Reform Readiness` is complete.
 - Workstream Phase 1 `Validator Bootstrap` is complete and green.
@@ -351,35 +350,35 @@ Next active seam: `PR Readiness PR2 - Bot Review Signal Monitoring`.
 - Workstream completion is green and remains preserved historical truth on this branch.
 - Hardening H1 `Post-Workstream Governance Validation` is complete and green on this branch.
 - Live Validation LV1 `Reform Branch Final Validation` is complete and green on this branch.
-- PR Readiness PR1 `Reform Branch PR Validation` is historically complete under the earlier live-PR gate and is now superseded for current-head bot-review monitoring.
-- Release Readiness RR1 `Reform Branch Release Validation` was admitted but is deferred pending the current PR head's fresh bot-review signal.
-- PR Readiness PR2 `Bot Review Signal Monitoring` is the current active seam on this branch.
+- PR Readiness PR1 `Reform Branch PR Validation` is complete and green on this branch.
+- PR Readiness PR2 `Bot Review Signal Monitoring` is complete and green under the live-PR approval rule.
+- Release Readiness RR1 `Reform Branch Release Validation` is the current active seam on this branch.
 
 ## Seam Continuation Decision
 
-Seam Status: `Blocked`
+Seam Status: `In Progress`
 Slice Status: `In Progress`
 Completion Status: `Green`
 Waiver Status: `None`
-Continue Decision: `Stop`
-Stop Basis: `Named Blocker`
-Next Active Seam: `PR Readiness PR2 - Bot Review Signal Monitoring`
-Stop Condition: `Stop until the current PR head receives either a fresh thumbs-up reaction or a bot-comment resolution closeout, or until a named waiver changes that rule.`
-Continuation Action: `Monitor PR #98 every 1 minute for the current PR head; if a fresh thumbs-up reaction appears, clear PR2 and re-enter Release Readiness; if a bot comment appears, fix it on this same branch, push, resolve the comment, record the current-head comment-resolution closeout, and then report PR green without waiting for a later thumbs-up.`
+Continue Decision: `Continue`
+Stop Basis: `None`
+Next Active Seam: `Release Readiness RR1 - Reform Branch Release Validation`
+Stop Condition: `Stop only if Release Readiness RR1 turns green and release execution is ready, or if a named blocker or waiver stops Release Readiness before RR1 completes.`
+Continuation Action: `Execute Release Readiness RR1 reform-branch release validation without file mutation while preserving the completed Workstream, Hardening, Live Validation, and PR Readiness truth.`
 
 ## Governance Drift Audit
 
 - Governance Drift Found: No
-- Drift Type: PR-owned scope drift was found after RR1 admission. The branch had treated local PR readiness as enough, but the approved bot-review-signal rule now requires a fresh signal for the current PR head before PR green can stand.
-- Why Current Canon Failed To Prevent It: The existing PR gate covered PR existence, mergeability, review-decision state, and unresolved Codex comment state, but it did not yet require the initial bot-review signal for the current PR head or distinguish stale bot approval on an earlier head from fresh signal on the current head.
-- Required Canon Changes: add explicit `Bot Review Signal Pending` governance, teach the validator to detect fresh thumbs-up and bot-comment signal paths for the current PR head, and return the reform branch from RR1 to PR2 when that PR-owned gate is still pending.
-- Whether The Drift Blocks Merge: Yes for the current head. The branch is blocked in PR Readiness until PR2 clears.
+- Drift Type: The temporary PR2 blocker over-scoped bot approval to the current pushed head instead of the live PR. That live-gate defect is now repaired.
+- Why Current Canon Failed To Prevent It: The added bot-review-signal rule correctly prevented silent PR green without bot approval, but the first implementation treated older live-PR approval as stale immediately after later pushes instead of recognizing PR-scoped approval until a later bot comment requires action.
+- Required Canon Changes: keep `Bot Review Signal Pending` as a real PR Readiness blocker, but treat thumbs-up approval as live-PR scope rather than current-head-only scope while preserving the existing comment-resolution closeout path.
+- Whether The Drift Blocks Merge: No after this repair. The live PR already carries bot approval, PR2 closes green, and the branch is back in RR1.
 - Whether User Confirmation Is Required: No for the current approved governance pass.
-- Missing blocker check: no missing blocker remains after this repair; branch cleanliness, backlog-family truth, selected-next lock, alias/support non-selectability, family routing, phase ownership, release-window posture, post-merge-state posture, live PR validation, and the current-head bot-review signal gate are all represented in current governance.
-- Weak phase entry or exit rule check: no unresolved weakness remains after this repair; PR Readiness is now required again while current-head bot-review signal is pending, and Release Readiness may not resume until that PR-owned gate clears.
+- Missing blocker check: no missing blocker remains after this repair; branch cleanliness, backlog-family truth, selected-next lock, alias/support non-selectability, family routing, phase ownership, release-window posture, post-merge-state posture, live PR validation, and the live-PR bot-review signal gate are all represented in current governance.
+- Weak phase entry or exit rule check: no unresolved weakness remains after this repair; PR2 now closes green because the live PR already holds bot approval and no bot comments/issues remain unresolved, so RR1 may resume.
 - Weak source-of-truth ownership rule check: no unresolved weakness remains; the branch authority record remains the phase owner for this docs-only governance reform branch, while backlog, roadmap, workstream index, and family dossiers remain the subordinate source-of-truth layers they already own.
-- Stale prompt scaffolding or operator example check: no blocking stale prompt scaffolding remains after this repair; PR2 now states the required bot-review monitoring posture directly in active truth surfaces.
-- Missing validator requirement check: the reform-branch validator now enforces fresh bot-review signal handling for the current PR head, PR2 phase-truth alignment, and the durable `gh`-free PR gate.
+- Stale prompt scaffolding or operator example check: no blocking stale prompt scaffolding remains after this repair; PR2 now reads as completed historical truth and RR1 again states the required file-frozen branch posture directly in active truth surfaces.
+- Missing validator requirement check: the reform-branch validator now enforces live-PR bot-review signal handling instead of over-scoped current-head freshness, alongside the durable `gh`-free PR gate.
 
 ## Post-Merge State
 
@@ -401,11 +400,11 @@ Release Window Split Waiver: None
 - Live PR: `https://github.com/GiribaldiTTV/Nexus-Desktop-AI/pull/98`
 - Head Branch: `feature/backlog-family-governance-reform`
 - Base Branch: `main`
-- Bot Review Signal Status: `Pending`
-- Bot Review Signal Head SHA: `Pending fresh pushed head for this repair pass`
-- Bot Review Signal Source: `Fresh thumbs-up reaction or fresh bot comment on the current PR head is still pending.`
-- Bot Review Signal Timestamp: `Pending`
+- Bot Review Signal Status: `Approved`
+- Bot Review Signal Head SHA: `Live PR approval is PR-scoped; current branch head at PR2 closeout is 526ebb35b102021be137d0f4590299687e895e28.`
+- Bot Review Signal Source: `Thumbs-up reaction on live PR #98.`
+- Bot Review Signal Timestamp: `2026-04-29T12:19:17Z`
 - Bot Review Signal Actor: `chatgpt-codex-connector[bot]`
-- Fresh-signal rule: the current PR head must receive either a thumbs-up reaction or a bot comment from `chatgpt-codex-connector[bot]`; if the bot comments, fix it on this same branch, push, resolve the comment, set `Bot Review Signal Status: Comment addressed` for the current head, and then PR green may return without waiting for a later thumbs-up.
-- Historical signal preserved: `+1` from `chatgpt-codex-connector[bot]` was observed at `2026-04-29T12:19:17Z` for earlier head `1cfdea39355cc11cf8914eb7b2e9193d635714c5`; that signal is historical only after later pushes.
-- Polling Cadence: `1 minute`
+- Live-PR rule: the live PR must have either a thumbs-up reaction or a bot comment from `chatgpt-codex-connector[bot]`; if the bot comments, fix it on this same branch, push, resolve the comment, set `Bot Review Signal Status: Comment addressed` for the current head, and then PR green may return without waiting for a later thumbs-up.
+- Live PR approval preserved: `+1` from `chatgpt-codex-connector[bot]` was observed at `2026-04-29T12:19:17Z`; under the corrected live-PR rule, that approval remains valid for PR #98 unless a later bot comment requires action.
+- Polling Cadence: `Completed; PR2 monitor no longer required.`
