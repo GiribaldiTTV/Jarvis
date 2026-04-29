@@ -14,12 +14,13 @@ It does not reopen automation implementation, widen into release execution, muta
 
 ## Current Phase
 
-- Phase: `Branch Readiness`
+- Phase: `PR Readiness`
 
 ## Phase Status
 
 - Repo State: `No Active Branch`
 - Merged-Main Repo State: `No Active Branch`
+- `Active Branch`: `feature/pr101-post-merge-closeout-canon-repair`
 - Current Active Canonical Workstream Doc: `None`
 - Latest Public Prerelease: `v1.6.12-prebeta`
 - Latest Public Release Commit: `b06c359e58b47cfe26fe8c4b39ac04fde519dee9`
@@ -31,7 +32,8 @@ It does not reopen automation implementation, widen into release execution, muta
 - Historical source branch: `feature/automation-planning-post-merge-closeout-repair` merged through PR #101 at `c697f3eb24f3a0b4c1c8c84c9bb722ec7fc7d01e` and is now historical-only traceability.
 - Current Branch Readiness Seam: `Branch Readiness BR1 - PR101 Post-Merge Closeout Canon Repair Admission`
 - BR1 result: complete and green historical truth. This seam admitted the bounded closeout-canon repair branch, cleared stale active-branch authority for the merged PR #101 repair branch, moved that earlier repair record to historical-only traceability, preserved merged-main `No Active Branch` truth, preserved same-thread watcher merge-verification and shutdown proof, preserved pending `v1.6.13-prebeta` release posture, and preserved FB-049 selected-next truth.
-- Next Active Seam: `None. Branch Readiness is complete and green on this bounded repair branch.`
+- Current PR Readiness Seam: `PR Readiness PR1 - PR101 Post-Merge Closeout Canon Repair PR Validation`
+- Next Active Seam: `PR Readiness PR1 - PR101 Post-Merge Closeout Canon Repair PR Validation`
 
 ## Branch Class
 
@@ -39,7 +41,8 @@ It does not reopen automation implementation, widen into release execution, muta
 
 ## Blockers
 
-- `None`
+- `PR Creation Pending`
+- `PR Watcher Provisioning Unproven`
 
 ## Entry Basis
 
@@ -56,6 +59,7 @@ It does not reopen automation implementation, widen into release execution, muta
 - PR #101 watcher merge-verification and shutdown proof remain preserved as historical traceability
 - pending `v1.6.13-prebeta` release posture remains preserved
 - FB-049 remains selected next, `Registry-only`, and branch-not-created
+- the live repair PR exists, watcher provisioning is proven on the same working thread, merge status is green, and bot-review signal state is explicit before PR1 may turn green
 
 ## Rollback Target
 
@@ -83,27 +87,100 @@ It does not reopen automation implementation, widen into release execution, muta
 ## Validation Contract
 
 - run `python dev\orin_branch_governance_validation.py`
+- run `python dev\orin_branch_governance_validation.py --pr-readiness-gate`
 - run `git diff --check`
 - confirm merged-main current-state truth still resolves to `No Active Branch`
-- confirm `Docs/branch_records/index.md` leaves `Active Branch Authority Records` empty
+- confirm `Docs/branch_records/index.md` carries this branch as the only active branch-authority record while merged-main current-state owners stay `No Active Branch`
 - confirm `Docs/branch_records/feature_automation_planning_post_merge_closeout_repair.md` is historical-only
 - confirm PR #101 watcher merge-verification and shutdown proof remain preserved
+- confirm the current live repair PR is same-thread watcher-provisioned before PR green and later remains merge-watchable on the same thread through PR2
 
 ## Active Seam
 
-Active seam: `None. Branch Readiness is complete and green on this bounded repair branch.`
-Next active seam: `None. Branch Readiness is complete and green on this bounded repair branch.`
+Active seam: `PR Readiness PR1 - PR101 Post-Merge Closeout Canon Repair PR Validation`
+Next active seam: `PR Readiness PR1 - PR101 Post-Merge Closeout Canon Repair PR Validation`
 
-- This branch is BR1-complete bounded repair traceability only until later PR Readiness admission.
+- This branch is the active bounded closeout-repair PR surface.
 
 ## Seam Continuation Decision
 
-Seam Status: `Green`
-Slice Status: `Green`
-Completion Status: `Green`
+Seam Status: `Red`
+Slice Status: `Red`
+Completion Status: `Red`
 Waiver Status: `None`
 Continue Decision: `Stop`
-Stop Basis: `Branch Readiness complete and green`
-Next Active Seam: `None`
-Stop Condition: `Stop after stale active-branch authority is cleared and merged-main truth is validator-clean.`
-Continuation Action: `Enter PR Readiness on this same branch only if a live repair PR is needed.`
+Stop Basis: `Named Blocker`
+Next Active Seam: `PR Readiness PR1 - PR101 Post-Merge Closeout Canon Repair PR Validation`
+Stop Condition: `Stop while live PR creation, watcher provisioning, merge-status proof, or bot-review signal state are not yet proven.`
+Continuation Action: `Create the live repair PR, provision the same working thread watcher, and rerun PR Readiness validation against the live PR state.`
+
+## Branch Objective
+
+Land a bounded closeout-repair PR that preserves merged-main `No Active Branch` truth, keeps prior repair traceability historical-only, preserves watcher shutdown proof from PR #101, and proves the next repair PR is governed by the same-thread watcher contract before merge.
+
+## Target End-State
+
+Merged-main current-state owners stay merge-stable at `No Active Branch`, this branch remains the only active repair branch-authority record until merge, PR watcher provisioning is proven on the same working thread, PR2 later holds merge verification until merge is watcher-verified, and after merge this record returns to historical-only traceability.
+
+## Backlog Completion Strategy
+
+Branch Completion Goal: Land this bounded PR101 post-merge closeout canon repair PR and keep merged-main release posture stable without reopening implementation work.
+Known Future-Dependent Blockers: bot-review approval on the live PR and later same-thread merge verification during PR2.
+Branch Closure Rule: Stop this seam when PR1 is either blocked by a named PR-readiness blocker or later green and ready to advance to PR2 on this same branch.
+
+## Expected Seam Families And Risk Classes
+
+- Seam family: branch-authority PR admission repair
+- Seam family: same-thread watcher provisioning proof
+- Seam family: merge-stable current-state owner preservation
+- Risk class: docs/governance truth drift only; no runtime, release-execution, or selected-next mutation risk is admitted
+
+## User Test Summary Strategy
+
+No user-facing runtime or desktop behavior changes are admitted on this branch. Manual user-test handoff is not required unless PR review surfaces a contradiction to the merge-stable canon, which is not expected for this bounded repair.
+
+## Later-Phase Expectations
+
+- `PR Readiness PR2` keeps the current live PR on the same working thread, at minute cadence, reporting only on status changes, until merge is watcher-verified
+- `Release Readiness` is blocked until PR2 clears `PR Merge Verification Pending`
+- if watcher provisioning truth, merge-watch proof, or merged-main branch-authority ownership drift again, this same branch must repair the canon and validator before green
+
+## Initial Workstream Seam Sequence
+
+Seam 1: `PR Readiness PR1 - PR101 Post-Merge Closeout Canon Repair PR Validation`
+Goal: Create and validate the live repair PR for this bounded closeout-canon repair branch.
+Scope: branch-authority PR admission, live PR creation, same-thread watcher provisioning proof, merge-status proof, and bot-review signal validation for this repair only.
+Non-Includes: merged verification green, release execution, successor branch admission, or FB-049 selected-next mutation.
+
+Seam 2: `PR Readiness PR2 - PR101 Post-Merge Closeout Canon Repair Merge Verification Watch`
+Goal: Keep the live repair PR under same-thread watcher control until merged-state verification is durable.
+Scope: same-thread watcher continuation, status-change reporting, merged-state verification, and watcher self-closeout only.
+Non-Includes: Release Readiness admission before merge verification, implementation reopening, or successor branch admission.
+
+## Governance Drift Audit
+
+- Governance Drift Found: `Yes`
+- Drift Type: stale post-merge active-branch authority after PR #101 merge
+- Why Current Canon Failed To Prevent It: the previous closeout repair merged cleanly, but its active branch-authority record remained in place on merged `main` because the final post-merge closeout step did not complete on the same repair surface before the source branch disappeared
+- Required Canon Changes: admit this bounded repair branch, keep merged-main current-state owners stable at `No Active Branch`, keep prior repair traceability historical-only, and require same-thread watcher provisioning proof on the live repair PR before PR green
+- Whether The Drift Blocks Merge: `Yes until the live repair PR is created and validated`
+- Whether User Confirmation Is Required: `No for this bounded approved repair branch`
+- Missing blocker check: `PR Watcher Provisioning Unproven` must stay a standard blocker until the current live repair PR has explicit watcher target, runtime path, run proof, and teardown proof
+- Weak source-of-truth ownership rule check: transient repair PR execution truth belongs only in this active branch-authority record while merged-main current-state owners remain `No Active Branch`
+- Missing validator requirement check: the validator must keep failing if merged-main `No Active Branch` truth coexists with stale active branch authority or if the current repair PR lacks same-thread watcher provisioning proof before PR green
+
+## Post-Merge State
+
+- Post-merge repo state: `No Active Branch`
+- Post-merge repair truth: merged-main canon keeps `Active Branch Authority Records` empty, preserves `feature_automation_planning_post_merge_closeout_repair.md` as historical-only traceability, preserves this repair record as historical-only traceability after merge, preserves PR #101 watcher merge-verification and shutdown proof, and preserves pending `v1.6.13-prebeta` release posture
+- Post-merge selected-next truth: FB-049 remains selected next, `Registry-only`, and branch-not-created until updated `main` is revalidated and later Branch Readiness admits the first bounded FB-049 slice
+- Post-merge watcher governance truth: future branches that rely on PR-bot monitoring must keep a same working thread watcher proven before PR green and keep merge verification under watcher control until merged-state verification is durable
+- Post-merge branch-record handling: this record leaves `Active Branch Authority Records` and becomes historical-only traceability after merge
+- Post-merge successor handling: no successor branch opens by inertia from this repair; later branch admission remains separately gated
+
+## Release Window Audit
+
+Release Window Audit: PASS
+Remaining Known Release Blockers: None
+Another Pre-Release Repair PR Required: NO
+Release Window Split Waiver: None
