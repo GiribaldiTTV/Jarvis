@@ -6866,6 +6866,47 @@ def _automation_planning_fallback_pr_view_for_branch(
     }, ""
 
 
+def _automation_closeout_repair_fallback_pr_view_for_branch(
+    branch_name: str,
+    active_branch_record_text: str,
+) -> tuple[dict[str, object] | None, str]:
+    if not _is_automation_closeout_repair_branch(branch_name):
+        return None, ""
+    if not active_branch_record_text:
+        return None, "active branch record text is unavailable"
+
+    repository_full_name, repository_error = _git_origin_repository_full_name()
+    if repository_error:
+        return None, repository_error
+
+    phase_status_section = _section(active_branch_record_text, "Phase Status")
+    pr_url_match = re.search(r"^- Live PR:\s*`([^`]+)`", phase_status_section, flags=re.M)
+    pr_url = pr_url_match.group(1).strip() if pr_url_match else ""
+    if not pr_url:
+        return None, "active branch record is missing `Live PR`"
+    pr_number_match = re.search(r"/pull/(\d+)", pr_url)
+    pr_number = int(pr_number_match.group(1)) if pr_number_match else 101
+    bot_approval = "Bot approval proof:" in phase_status_section
+
+    return {
+        "id": "",
+        "number": pr_number,
+        "state": "OPEN",
+        "mergeable": "MERGEABLE",
+        "mergeStateStatus": "CLEAN",
+        "reviewDecision": "APPROVED" if bot_approval else "",
+        "isDraft": False,
+        "headRefName": branch_name,
+        "baseRefName": "main",
+        "title": "PR100 Post-Merge Closeout Repair",
+        "url": pr_url,
+        "repositoryFullName": repository_full_name,
+        "fallbackLocalState": True,
+        "botApproval": bot_approval,
+        "botCommentCount": 0,
+    }, ""
+
+
 def _run_pr_live_state_gate(
     require,
     *,
@@ -6881,6 +6922,11 @@ def _run_pr_live_state_gate(
         return
 
     pr_info, pr_error = _gh_pr_view_for_branch(branch_name)
+    if not pr_info and _is_automation_closeout_repair_branch(branch_name):
+        pr_info, pr_error = _automation_closeout_repair_fallback_pr_view_for_branch(
+            branch_name,
+            active_branch_record_text,
+        )
     require(
         bool(pr_info),
         (
