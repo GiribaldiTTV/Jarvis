@@ -36,9 +36,10 @@ It begins with the already-landed post-merge canon repair at `0a1c23c` and uses 
 - BR2 result: complete and green. PR watcher, bot-review, recurring status-update, signal, output, and prohibited-action boundaries are now explicit; heartbeat-vs-cron policy is defined; the branch remains `docs/governance` and `docs-only`; no automation implementation, activation, deletion, or scheduling work has begun; and FB-049 remains the only selected-next user-facing candidate.
 - Historical Branch Readiness Seam: `Branch Readiness BR3 - Repo-Hygiene Automation Candidates And Rollout Boundaries`
 - BR3 result: complete and green. Repo-hygiene watcher candidates, heartbeat-vs-cron classification, rollout boundaries, required activation evidence, and repo-hygiene prohibited actions are now explicit; the branch remains `docs/governance` and `docs-only`; no automation implementation, activation, deletion, or scheduling work has begun; and FB-049 remains the only selected-next user-facing candidate.
-- Current Branch Readiness Seam: `Branch Readiness BR4 - Future Automation Activation Evidence And Workstream Admission Gate`
-- Branch Readiness Status: in progress. This branch remains admitted under explicit `Docs/Governance Branch Waiver: APPROVED`, the carried post-merge canon repair from `0a1c23c` remains on this same branch as the required prior-miss closure surface, BR4 is now defining the future activation evidence contract and the first legal Workstream admission gate for any later automation implementation, no automation implementation or rollout work has begun, merged backlog-family governance reform truth remains historical traceability only after PR #98 merged, and FB-049 remains the only selected-next user-facing candidate.
-- Next Active Seam: `Branch Readiness BR4 - Future Automation Activation Evidence And Workstream Admission Gate`
+- Historical Branch Readiness Seam: `Branch Readiness BR4 - Future Automation Activation Evidence And Workstream Admission Gate`
+- BR4 result: complete and green. The Workstream admission gate, valid first automation candidate criteria, minimal first implementation slice, activation validation contract, and rollback/containment rules are now explicit; docs/governance-only status remains in force until a later valid implementation slice is expressly admitted; no automation implementation or activation has begun; and FB-049 remains the only selected-next user-facing candidate.
+- Branch Readiness Status: complete and green. This branch now owns a complete automation-planning authority frame, later Workstream entry is gated by the activation requirements below, no automation implementation or rollout work has begun, merged backlog-family governance reform truth remains historical traceability only after PR #98 merged, and FB-049 remains the only selected-next user-facing candidate.
+- Next Active Seam: `None. Branch Readiness is complete and green; future Workstream entry requires a valid first automation candidate admission that satisfies the gate below.`
 
 ## Branch Class
 
@@ -287,6 +288,82 @@ Non-Includes: No automation is created or scheduled, no implementation files are
 - monitoring unrelated connectors, inboxes, or repos outside the named target
 - treating repo-hygiene alerts as authorization to bypass later Workstream, PR Readiness, or Release Readiness gates
 
+## Workstream Admission Gate
+
+Automation planning may transition from `Branch Readiness` to `Workstream` only when all of the following are true:
+
+- the USER explicitly names or approves the first automation candidate
+- the candidate fits the approved watcher classes and rollout boundaries recorded on this branch
+- the branch authority record is updated to admit one exact first implementation slice with owned surfaces, validation steps, stop condition, and rollback path
+- the first slice stays bounded to one automation candidate only
+- the first slice remains read-only by default unless a later explicit scope widening approval admits mutation-capable behavior
+- required tool, connector, credential, and target availability are proven for that candidate
+- branch-governance validation passes on the updated authority truth before implementation begins
+- docs/governance-only status ends only because that valid first implementation slice has been expressly admitted; it must not end by implication, monitoring drift, or branch existence alone
+
+## First Automation Candidate Criteria
+
+A valid first automation candidate must be:
+
+- one named automation only
+- already classified as heartbeat-eligible or cron-only by the policy on this branch, or explicitly consistent with those rules
+- scoped to one clear monitored target such as a named PR, a named release window, a named branch-authority drift surface, or a named toolchain-availability check
+- phase-owned, with clear branch, phase, cadence, allowed outputs, and prohibited actions
+- self-terminating if heartbeat-based, or hourly-or-slower if cron-based
+- low-blast-radius and reversible without repo mutation by default
+- able to prove success or failure through explicit observable evidence in thread or validator output
+
+Invalid first candidates include:
+
+- multi-automation bundles
+- mutation-capable automations that also create or change repo truth without a later explicit scope widening seam
+- cross-repo or cross-branch automation not tied to the named target
+- automation that silently widens into PR merge, release publication, branch creation, or selected-next mutation
+
+## Minimal First Implementation Slice
+
+The minimal bounded implementation slice required for Workstream entry is:
+
+- define one named automation candidate
+- implement only the minimum code or configuration surface needed for that one candidate
+- wire only its declared monitored target, cadence class, stop condition, and allowed outputs
+- validate only that candidate's bounded lifecycle
+- leave every other candidate as planning-only future work
+
+Examples of bounded first-slice shape:
+
+- one self-terminating heartbeat PR watcher for one named PR and one named bot-review signal path
+- or one hourly cron drift audit for one named repo-hygiene target with read-only status reporting
+
+## Activation Validation Requirements
+
+Before first activation:
+
+- branch-governance validation passes
+- the active authority record names the first automation candidate and its exact slice
+- cadence class, monitored signals, outputs, prohibited actions, and stop condition are explicit
+- required tool and connector availability are proven
+- rollback and containment steps are explicit
+- no conflicting blocker, waiver, freeze, or selected-next contradiction is active
+
+After first activation:
+
+- confirm the automation monitors only the declared target
+- confirm outputs stay inside the allowed thread or inbox surface
+- confirm heartbeat self-termination or cron cadence behavior matches the admitted slice
+- confirm no prohibited mutation or scope widening occurred
+- record the observed activation result in the active authority record before phase advancement is considered
+
+## Rollback And Containment Requirements
+
+- the first automation must have an explicit disable or shutdown path before activation
+- heartbeat candidates must stop automatically when their named terminal condition is reached
+- cron candidates must be individually pausable without affecting unrelated future automations
+- rollback must restore the branch to pre-activation truth without selected-next changes, repo mutation, or hidden scheduler residue
+- containment must keep the first automation limited to its named target, declared cadence, and approved output surface
+- any unexpected mutation, cross-target monitoring, repeated noisy output, or branch-truth contradiction is a stop condition that blocks further rollout until repaired
+- if a first candidate fails validation, the branch remains at the pre-Workstream admission boundary or routes through a bounded repair seam before any broader activation
+
 ## Active Seam
 
-- Active seam: `Branch Readiness BR4 - Future Automation Activation Evidence And Workstream Admission Gate`
+- Active seam: `None. Branch Readiness is complete and green; future Workstream entry requires a valid first automation candidate admission that satisfies the gate above.`
