@@ -4,6 +4,7 @@
 
 - ID: `FB-027`
 - Title: `Interaction system baseline and shared action model`
+- Lifetime Dossier Doc: `Docs/workstreams/FB-027_interaction_shared_action_family_dossier.md`
 
 ## Record State
 

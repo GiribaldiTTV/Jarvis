@@ -4,6 +4,7 @@
 
 - ID: `FB-038`
 - Title: `Taskbar / tray quick-task UX and Create Custom Task surface`
+- Lifetime Dossier Doc: `Docs/workstreams/FB-027_interaction_shared_action_family_dossier.md`
 
 ## Record State
 
@@ -20,6 +21,20 @@
 ## Target Version
 
 - `v1.4.1-prebeta`
+
+## Historical Pass Record Identity
+
+- Family Anchor ID: `FB-027`
+- Family Anchor Title: `Interaction and shared-action family anchor`
+- Family Dossier Doc: `Docs/workstreams/FB-027_interaction_shared_action_family_dossier.md`
+- Backlog Registry Class: `Historical Pass Alias`
+- Historical Alias Of: `FB-027`
+- Pass ID: `F027-P05`
+- Alias Role: `Historical Pass Record`
+- Standalone Selection Status: `Not independently selectable`
+- Converted By Seam: `Phase 5 - Historical Pass Record Conversion / Slice R5-S2 - Convert FB-036, FB-037, FB-038, and FB-041 workstream records`
+- Historical Branch Record Preservation: `No separate historical branch-authority record is preserved for FB-038; this workstream remains the authoritative branch-local historical record.`
+- Preservation Rule: `This record keeps the detailed branch-local execution, validation, release, and artifact history; the family dossier owns cross-pass indexing.`
 
 ## Canonical Branch
 
@@ -174,7 +189,7 @@ Version Rationale: FB-038 is tray UX, startup sequencing fix, and governance rep
 Release Scope: FB-038 tray/task UX milestone only: tray identity/discoverability, tray Open Command Overlay, tray Create Custom Task dialog-open/no-write route, tray-origin create completion through existing FB-036 authoring, catalog reload, exact-match resolution, confirm/result execution, and startup first-visible Core Visualization repair.
 Release Artifacts: tag `v1.4.1-prebeta`; release title `Pre-Beta v1.4.1`; release notes summarizing FB-038 user-facing tray/task UX, validation evidence, and retained FB-038 evidence helpers.
 Post-Release Truth: FB-038 is `Closed` / `Released (v1.4.1-prebeta)`, release debt is clear, roadmap latest public prerelease is `v1.4.1-prebeta`, and repo-level admission later admitted FB-039 Branch Readiness from updated `main`.
-Selected Next Workstream: FB-039 External trigger and plugin integration architecture.
+Historical Selected-Next At Release Time: FB-039 External trigger and plugin integration architecture.
 Historical Next-Branch Creation Gate: FB-039 remained selected-only and `Branch: Not created` until updated `main` passed the repo-level admission gate; this is superseded by current active FB-039 Branch Readiness.
 
 ## Bounded Objective

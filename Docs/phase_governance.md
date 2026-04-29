@@ -84,6 +84,52 @@ Codex must not use direct-main repair; `main` is protected and file-frozen for C
 - if the validation contract, timeout contract, harness behavior, active seam, or blocker set changes materially during late-phase work, canon must be updated before continued execution is recommended
 - auxiliary guidance docs should be timeless by default and must not quietly become current-state owners
 
+## Governed Output State Contract
+
+For phase-sensitive execution in `Branch Readiness`, `Workstream`, `Hardening`, `Live Validation`, or `PR Readiness`, Codex must not rely on generic headings such as `Results` or `Validation` alone.
+
+The response or status handoff must explicitly report:
+
+- `Seam Status:`
+- `Slice Status:`
+- `Completion Status:`
+- `Blockers:`
+- `Waiver Status:`
+- `Continue Decision:`
+- `Stop Basis:`
+
+`Green` means complete for the level it names.
+A green seam does not authorize stop while `Slice Status` is not green.
+A green slice does not authorize stop while `Completion Status` is not green.
+
+`Completion Status` is the `Workstream`-level bounded gate:
+It is the exact `Phase: Workstream Status` field for stop authority.
+
+- `In Progress` = more same-branch `Workstream` work remains and continuation is required
+- `Red` = a named blocker or waiver currently stops bounded `Workstream` continuation
+- `Green` = `Workstream` backlog completion is proven complete and `Hardening` is the next legal phase
+
+`Phase: Workstream` must remain bounded at all times.
+The only lawful `Workstream` stop conditions are:
+
+- `Completion Status: Green`, with `Hardening` as the next legal phase
+- `Completion Status: Red`, justified by a named blocker or waiver
+
+`Phase: Workstream` must remain bounded at all times, and the only lawful `Workstream` stop conditions are `Completion Status: Green` with `Hardening` next, or `Completion Status: Red` justified by a named blocker or waiver.
+
+`Phase: Workstream` must remain bounded at all times; the only lawful `Workstream` stop conditions are `Completion Status: Green` with `Hardening` next, or `Completion Status: Red` justified by a named blocker or waiver.
+
+Crossing into a new seam, slice, seam family, slice family, or work family is not stop authority by itself.
+
+If `Completion Status` is `In Progress` and no named stop-authorizing blocker or waiver is recorded, `Continue Decision` must be `Continue` and Codex must start the next seam or next admitted slice instead of returning `Await Next Instruction`.
+
+`Await Next Instruction` is only legal in `Workstream` when `Completion Status: Green`, or when `Completion Status: Red` is justified by a named blocker or waiver.
+
+`Backlog Completion Unproven` keeps the branch in `Workstream`; by itself it is not authority to return `Await Next Instruction` while `Completion Status` remains `In Progress`.
+Use these governed state markers as execution control, not as documentation-only summary fields.
+If `Continue Decision` is `Continue`, Codex must not end on a final seam-closeout response, rollback path, or next-seam recommendation; it must keep executing until a lawful `Stop` decision exists.
+If `Completion Status` is `Red`, `Continuation Action` must explicitly state the blocker-clearing action or waiver-clearing action needed before bounded `Workstream` continuation may resume.
+
 ## Canonical Governance Rules
 
 ### Source-Of-Truth Enforcement
@@ -279,8 +325,8 @@ Purpose:
 Core rule:
 
 - Branch Readiness owns planning, framing, affected-surface mapping, implementation delta classification, admitted-slice definition, and whole-backlog closure strategy before Workstream begins.
-- Branch Readiness must evaluate the whole backlog item, define the first admitted slice, record the same-branch continuation posture for the remaining slices needed to complete the backlog item, and record any known future-dependent blockers before Workstream begins.
-- Workstream must execute admitted implementation slices, keep re-evaluating the backlog item after each seam and slice, and continue on the same branch until the backlog item is fully implemented or only future-dependent blockers remain unless the USER explicitly approves a docs-only bypass or backlog split.
+- Branch Readiness must evaluate the whole backlog item, define the first admitted slice, record the same-branch continuation posture until `Completion Status` becomes green, and record any known future-dependent blockers before Workstream begins.
+- Workstream must execute admitted implementation slices one slice at a time, keep re-evaluating the backlog item after each seam and slice, and keep later slices on the same branch by default when scope, phase, risk, and validation authority remain green unless the USER explicitly approves a docs-only bypass or backlog split.
 - Docs-only Workstreams require explicit USER approval.
 - Planning-loop bypass requires `Planning-Loop Bypass User Approval: APPROVED` and `Planning-Loop Bypass Reason:`.
 - Release-bearing implementation work with no runtime/user-facing, backend/runtime, or developer-tooling delta is blocked unless the USER explicitly approves that release window.
@@ -306,6 +352,8 @@ Required active authority markers for implementation branches in `Branch Readine
   - `Backlog Completion State:`
   - `Remaining Implementable Work:`
   - `Future-Dependent Blockers:`
+- in `Workstream`, also require:
+  - `Completion Status:`
 
 Allowed `Implementation Delta Class:` values:
 
@@ -550,6 +598,8 @@ Hard blockers:
   PR Readiness cannot be green until the existing PR has been validated as open, non-draft, conflict-free, aligned to the merge-target canon, and clear of unresolved Codex comments/issues or requested changes.
 - `PR State Unknown`:
   PR Readiness cannot be green if Codex cannot inspect the PR state, mergeability/conflict state, base/head alignment, or Codex review-thread state.
+- `Bot Review Signal Pending`:
+  for Codex-created PRs, PR Readiness cannot be green until the live PR has received either a thumbs-up reaction or a bot comment from the Codex GitHub bot; a thumbs-up reaction on the live PR clears the gate, while a bot comment keeps `PR Validation Pending` active until the branch fixes the comment on the same PR, pushes, resolves the comment, and records that current-head comment-resolution closeout; no later thumbs-up is required
 - `PR Readiness Scope Missed`:
   PR Readiness cannot be green if branch-authority cleanup, merge-target canon, post-merge truth, next-workstream selection, next-branch deferral, or release-debt routing is incomplete or being deferred to Release Readiness, updated `main`, or a later governance-only branch
 - `Release Window Audit Incomplete`:
@@ -574,6 +624,7 @@ Live PR creation and validation facts are required for operator output and PR va
 - the PR has no conflicts
 - PR state is inspectable rather than unknown
 - no unresolved Codex comments/issues or requested changes remain
+- the live PR has either a thumbs-up reaction from the Codex GitHub bot or a recorded current-head bot comment-resolution closeout; no later thumbs-up is required after the comment-resolution path
 
 ### PR Readiness Response Contract
 
@@ -1118,7 +1169,7 @@ Seam workflow applies differently by phase:
 ### Bounded Multi-Seam Workflow
 
 A bounded multi-seam workflow is an ordered sequence of seams executed inside one approved phase boundary.
-It is the default execution model for any governed pass that names an approved seam sequence.
+It is the default execution model for any governed pass working the current slice through one or more seams.
 Every seam in the sequence must stay within:
 
 - the same workstream or equivalent active authority record
@@ -1136,16 +1187,17 @@ Risky categories such as UI, launcher, settings, protocol, cross-subsystem, or p
 A slice is a bounded admitted backlog-completion unit; a seam is the current execution checkpoint inside or between slices.
 `bounded` describes scope and blast radius, not partiality by default. A bounded slice may still be the full currently implementable backlog-completion pass for that backlog item or branch lane.
 There is no repo-wide cap on how many slices a branch or workstream may carry.
-Same-branch backlog completion is the default: admit and execute the additional slices needed to finish the backlog item on the current branch whenever scope, phase, risk, and validation authority remain green.
+Same-branch backlog completion is the branch-level default: later slices for the same backlog item stay on the same branch when scope, phase, risk, and validation authority remain green.
 Future-dependent blockers are remaining backlog work that cannot yet be implemented until another backlog item, dependency, or capability is completed.
 Stopping after the first slice or splitting the backlog item across branches requires an explicit `Backlog-Split User Approval` or a named bounded stop condition, and leaving `Workstream` requires `Backlog Completion State: Implemented Complete` or `Backlog Completion State: Implemented Complete Except Future Dependency`.
 
 ### Default Continuation Duty
 
-`Next-Seam Continuation Required` is the default result after a green seam in a valid bounded multi-seam workflow.
-When a prompt names an `Active Seam` or says to execute a seam that also appears inside an approved seam sequence, that seam is the entry seam, not a terminal boundary.
-After the entry seam validates green, Codex must evaluate the next seam in the sequence and any remaining implementable backlog work from source-of-truth and continue by default when the continuation authority conditions pass.
-Perform all admitted seams in the bounded multi-seam workflow and continue through the additional slices needed to complete the backlog item on the same branch unless an explicit `Backlog-Split User Approval` or a named bounded stop condition is recorded.
+`Next-Seam Continuation Required` means continue seam-to-seam inside the current slice until all required seams are complete and the slice status is green.
+When a prompt names an `Active Seam`, that seam is the entry seam, not a terminal boundary.
+Seams inside the current slice may be predeclared in canon or discovered from repo truth while the slice remains in progress.
+After the entry seam validates green, Codex must evaluate whether the current slice is actually green; if not, Codex must continue by default to the next seam needed inside the current slice when the continuation authority conditions pass.
+Same-branch backlog completion is the branch-level default: later slices for the same backlog item stay on the same branch when scope, phase, risk, and validation authority remain green.
 
 Codex must not stop merely because:
 
@@ -1154,10 +1206,14 @@ Codex must not stop merely because:
 - durability commit and push completed
 - one seam was successfully recorded
 
-reporting `Next Safe Move` is not a substitute for execution when continuation authority passes.
-A `continue` decision must be acted on immediately by starting the next seam in the approved sequence.
+reporting `Next Safe Move` is not a substitute for execution while the current slice still requires seams.
+A `continue` decision must be acted on immediately by starting the next seam needed inside the current slice.
 Durability commit/push after a green seam is a checkpoint, not a stop.
 Do not send a final closeout response after a green entry seam while the next seam remains admitted and no bounded stop condition exists.
+when a slice turns green during `Workstream`, advance immediately to the next admitted slice while `Completion Status` remains `In Progress`
+`Workstream` reaches `Hardening` only when `Completion Status: Green`
+`Completion Status: Red` means a named blocker or waiver currently stops bounded Workstream continuation
+If `Completion Status` is `Red`, report the blocker or waiver and the action needed to clear it before continuation can resume.
 
 A bounded stop condition blocks continuation; it does not by itself authorize stopping the backlog item after only one slice, advancing to `Hardening`, or closing the branch while `Backlog Completion State` remains `In Progress`.
 
@@ -1178,6 +1234,7 @@ Each active seam follows this governed stage model:
 
 Stage 4 is not permission to churn canon after every seam.
 Repository files are updated only when branch-local truth, evidence, validation contracts, helper records, or governing rules actually changed and the current phase permits file mutation.
+Stage 5 becomes a terminal closeout only when `Continue Decision: Stop`; otherwise it is a status checkpoint and execution must continue into the next admitted seam or slice.
 
 ### Required Per-Seam Declaration
 
@@ -1199,7 +1256,7 @@ After each seam, Codex must:
 - update the canonical workstream `User Test Summary` when the seam changes user-visible or operator-facing behavior
 - verify cleanup for artifacts the pass created or opened
 - decide and report `continue` or `stop`
-- continue by default to the next planned seam when `Next-Seam Continuation Required` applies and the continuation authority conditions pass
+- continue by default to the next seam needed inside the current slice when `Next-Seam Continuation Required` applies and the continuation authority conditions pass
 - act on a `continue` decision by starting the next seam before final closeout
 
 ### Continuation Authority
@@ -1218,7 +1275,7 @@ Continuation is allowed only when:
 
 If any continuation condition fails, the whole workflow stops immediately and the next safe move must be reported from the blocking truth.
 If continuation would require broader authority, a different phase, unplanned risk expansion, or weaker validation, Codex must stop and report the blocker rather than treating the downstream seam as activated.
-If all continuation conditions pass and the next planned seam remains inside the approved sequence, continuation is required under `Next-Seam Continuation Required`; do not downgrade a safe continuation into an optional stop.
+If all continuation conditions pass and the current slice still needs another seam, continuation is required under `Next-Seam Continuation Required`; do not downgrade a safe continuation into an optional stop.
 
 ### Bounded Stop Conditions
 
@@ -1250,7 +1307,7 @@ Stopping after the first slice or splitting the backlog item across branches req
 A bounded stop condition blocks the workflow. It does not by itself authorize splitting the backlog item across branches, closing the backlog item, or leaving `Workstream` while remaining implementable work still exists.
 
 `Backlog-Split User Approval` may split an otherwise valid same-branch slice chain across branches only when an explicit USER approval is recorded in source-of-truth, the active authority record, or the operator prompt.
-If no explicit approval is raised and no bounded stop condition is recorded, continue admitting and executing the additional slices needed to complete the backlog item on the same branch.
+If no explicit approval is raised and no bounded stop condition is recorded, keep later slices on the same branch by default and advance into them automatically while `Completion Status` remains `In Progress`.
 If a bounded stop condition is recorded but remaining implementable work still exists on the current backlog item, the branch remains in `Workstream` and carries blocker `Backlog Completion Unproven` until continuation can resume or the remaining work is proven future-dependent.
 When a backlog split is used, the output or authority record must name:
 
@@ -1360,7 +1417,7 @@ The canonical rule is narrower:
 ## Phase Transition Rule
 
 - `Branch Readiness` -> `Workstream` only after branch base, branch class, authority record, branch objective, target end-state, expected seam families and risk classes, validation contract, User Test Summary strategy, later-phase expectations, and first Workstream seam or initial seam sequence are explicit
-- `Workstream` -> `Hardening` only after the approved Workstream seam sequence is complete for the current backlog item, no remaining implementable work is still available on that backlog item, `Backlog Completion State` is `Implemented Complete` or `Implemented Complete Except Future Dependency`, direct validation is green, User Test Summary obligations are current for user-facing changes, and no same-slice correctness gap remains
+- `Workstream` -> `Hardening` only after the current Workstream work reports `Completion Status: Green`, no remaining implementable work is still available on that backlog item, `Backlog Completion State` is `Implemented Complete` or `Implemented Complete Except Future Dependency`, direct validation is green, User Test Summary obligations are current for user-facing changes, and no same-slice correctness gap remains
 - `Hardening` -> `Live Validation` only after repo-side hardening proof is sufficient for interactive or manual closeout work
 - `Live Validation` -> `PR Readiness` only after branch-local proof is sufficient for closeout, returned evidence has been digested into the authority record, and `User Test Summary Results Pending` is absent or cleared by a documented waiver
 - `PR Readiness` -> `Release Readiness` only after merge-target canon completeness passes, the Governance Drift Audit passes, the next-workstream selection gate passes, branch creation remains deferred to `Branch Readiness`, and any release target/scope/artifact truth needed for release review is already available without file mutation
@@ -1433,13 +1490,13 @@ Purpose:
 
 - execute the approved bounded implementation slice or an explicit USER-approved docs-only bypass
 - run normal repo-side regression validation inside that boundary
-- use bounded multi-seam workflow as the primary model when an approved seam chain remains inside its governed boundary and validation stays green
+- use bounded multi-seam workflow as the primary model when the current slice remains inside its governed boundary and validation stays green
 
 Allowed:
 
 - bounded code or docs changes
 - direct verification inside the approved scope
-- one active seam at a time within an approved multi-seam sequence
+- one active seam at a time within the current slice seam chain
 - incremental workstream evidence and User Test Summary updates when branch-local truth changes
 - admission and execution of additional same-branch slices when they remain inside the backlog item, branch objective, expected seam families, risk class envelope, and validation authority already established in Branch Readiness
 

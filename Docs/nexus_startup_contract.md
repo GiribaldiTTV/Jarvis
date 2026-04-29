@@ -21,7 +21,7 @@ This loader routes to these authorities:
 - `Docs/phase_governance.md` owns phase names, blockers, branch classes, phase transitions, proof governance, and seam-governance rules.
 - `Docs/codex_modes.md` owns Analysis and Workflow collaboration posture.
 - `Docs/feature_backlog.md` owns tracked work identity and `Record State`.
-- `Docs/workstreams/index.md` owns canonical workstream-record routing.
+- `Docs/workstreams/index.md` owns canonical workstream-record routing, including family anchors, historical pass aliases, and other closed-workstream splits.
 - the active workstream doc owns branch-local phase truth, evidence, blockers, and next legal phase for promoted work.
 - `Docs/incident_patterns.md` owns generalized recurring drift or validation lessons.
 - `Docs/validation_helper_registry.md` owns durable helper naming, status, reuse, and consolidation obligations when helpers are in scope.
@@ -42,9 +42,10 @@ When ChatGPT or another interface layer generates a Nexus prompt, the generated 
 6. Load the directly relevant authority docs for the task.
 7. If the task maps to a tracked item, load `Docs/feature_backlog.md` and determine its `Record State`.
 8. If the tracked item is `Promoted` or `Closed`, load its canonical workstream doc from the backlog and `Docs/workstreams/index.md`.
-9. If helpers, validation scripts, live-validation harnesses, or shared support are in scope, load `Docs/validation_helper_registry.md`.
-10. If drift, recurrence, release correction, or governance repair is in scope, load `Docs/incident_patterns.md`.
-11. Validate current repo truth before acting:
+9. If the tracked item declares a `Lifetime Dossier Doc`, or if it is a `Feature Family` anchor or `Historical Pass Alias` routed through a family dossier, load that dossier too.
+10. If helpers, validation scripts, live-validation harnesses, or shared support are in scope, load `Docs/validation_helper_registry.md`.
+11. If drift, recurrence, release correction, or governance repair is in scope, load `Docs/incident_patterns.md`.
+12. Validate current repo truth before acting:
     - current branch
     - branch cleanliness and tracked-file mutations
     - whether the branch is the legal execution base
@@ -53,7 +54,7 @@ When ChatGPT or another interface layer generates a Nexus prompt, the generated 
     - branch class
     - blockers
     - next legal phase
-12. State the startup assessment before narrowing scope:
+13. State the startup assessment before narrowing scope:
     - `Source-of-Truth`
     - `Record State`
     - `Branch Truth`
@@ -74,8 +75,8 @@ If any required file cannot be read, any authority owner is ambiguous, or live r
 - Incident patterns are reusable lessons, not case-history authority.
 - `main` is protected for Codex work and may be read but not mutated.
 - Branch Readiness owns planning, framing, affected-surface mapping, implementation delta classification, admitted-slice definition, and whole-backlog closure strategy before Workstream begins.
-- Branch Readiness must evaluate the whole backlog item, define the first admitted slice, record the same-branch continuation posture for the remaining slices needed to complete the backlog item, and record any known future-dependent blockers before Workstream begins.
-- Workstream must execute admitted implementation slices, keep re-evaluating the backlog item after each seam and slice, and continue on the same branch until the backlog item is fully implemented or only future-dependent blockers remain unless the USER explicitly approves a docs-only bypass or backlog split.
+- Branch Readiness must evaluate the whole backlog item, define the first admitted slice, record the same-branch continuation posture until `Completion Status` becomes green, and record any known future-dependent blockers before Workstream begins.
+- Workstream must execute admitted implementation slices one slice at a time, keep re-evaluating the backlog item after each seam and slice, and keep later slices on the same branch by default when scope, phase, risk, and validation authority remain green unless the USER explicitly approves a docs-only bypass or backlog split.
 - Docs-only Workstreams require explicit USER approval.
 - Planning-loop bypass requires `Planning-Loop Bypass User Approval: APPROVED` and `Planning-Loop Bypass Reason:`.
 - Release-bearing implementation work with no runtime/user-facing, backend/runtime, or developer-tooling delta is blocked unless the USER explicitly approves that release window.
@@ -160,10 +161,27 @@ Generated prompts for startup-sensitive passes should request:
 - `Canonical Workstream`
 - `Reuse Baseline`
 - `Active Seam` when applicable
+- `Seam Status`
+- `Slice Status`
+- `Completion Status`
+- `Blockers`
+- `Waiver Status`
+- `Continue Decision`
+- `Stop Basis`
 - `Validation Results`
 - `Ready-To-Commit Decision` when files changed
 - `Next Legal Phase`
 - `Next Safe Move`
+
+Generic `Results` or `Validation` headings are not enough by themselves for governed execution output.
+A green seam does not authorize stop while `Slice Status` remains non-green.
+A green slice does not authorize stop while `Completion Status` remains non-green.
+If `Completion Status` is `In Progress` and no named blocker or waiver stops work, the generated prompt must require continuation rather than `Await Next Instruction`.
+Use these governed state markers as execution control, not just reporting.
+If `Continue Decision` is `Continue`, the generated prompt must not let Codex end on a seam-complete final response, rollback path, or next-seam recommendation; it must require continued execution until a lawful `Stop` decision exists.
+`Phase: Workstream` must remain bounded at all times, and the only lawful `Workstream` stop conditions are `Completion Status: Green` with `Hardening` next, or `Completion Status: Red` justified by a named blocker or waiver.
+If `Completion Status` is `Red`, `Continuation Action` must report the blocker-clearing action or waiver-clearing action needed before bounded `Workstream` continuation may resume.
+Treat `Completion Status` as the exact `Phase: Workstream Status` gate after load.
 
 When a pass creates or changes files before `PR Readiness` and validation is green, generated prompts must point to the Pre-PR Durability Rule in `Docs/development_rules.md` and `Docs/phase_governance.md`.
 This loader does not own durability behavior.
@@ -205,27 +223,40 @@ Return:
 - Canonical Workstream
 - Reuse Baseline
 - Active Seam, if applicable
+- Seam Status
+- Slice Status
+- Completion Status
+- Blockers
+- Waiver Status
+- Continue Decision
+- Stop Basis
 - Files Changed
 - What Was Written or Found
 - Validation Results
 - Ready-To-Commit Decision
-- Next Legal Phase
-- Next Safe Move
+- If `Continue Decision: Stop`: Next Legal Phase
+- If `Continue Decision: Stop`: Next Safe Move
 ```
 
 Workstream prompt notes for ChatGPT preflight live outside the prompt body and come from owning canon after load:
 - validate after each seam and report continue-or-stop
 - the prompt-named seam is the entry seam, not a terminal boundary
-- Next-Seam Continuation Required
+- Next-Seam Continuation Required means continue seam-to-seam inside the current slice until all required seams are complete and the slice status is green
 - there is no repo-wide cap on how many slices a branch or workstream may carry
-- same-branch backlog completion is the default: admit and execute the additional slices needed to finish the backlog item on the current branch whenever scope, phase, risk, and validation authority remain green
-- perform all admitted seams in the bounded multi-seam workflow and continue through the additional slices needed to complete the backlog item on the same branch unless an explicit `Backlog-Split User Approval` or a named bounded stop condition is recorded
+- seams inside the current slice may be predeclared in canon or discovered from repo truth while the slice remains in progress
+- same-branch backlog completion is the branch-level default: later slices for the same backlog item stay on the same branch when scope, phase, risk, and validation authority remain green
+- when a slice turns green during `Workstream`, advance immediately to the next admitted slice while `Completion Status` remains `In Progress`
+- `Workstream` reaches `Hardening` only when `Completion Status: Green`
+- `Completion Status: Red` means a named blocker or waiver currently stops bounded Workstream continuation
+- continue decision must be acted on immediately by starting the next seam needed inside the current slice
 - `Workstream` may not advance to `Hardening` while remaining implementable work is still available on the current backlog item
 - use `Backlog Completion State: In Progress`, `Implemented Complete`, or `Implemented Complete Except Future Dependency` to record whether more same-branch slices are still required
 - Backlog-Split User Approval
 - Backlog-Split Reason
 - reporting Next Safe Move is not a substitute for execution
 - continue decision must be acted on immediately
+- the prompt `Return:` block describes the lawful-stop report; it is not permission to stop while `Continue Decision` remains `Continue`
+- when continuation remains active, Codex must use commentary/intermediate updates and keep executing instead of ending on a seam-closeout package
 
 ## Thin Prompt Discipline
 
@@ -260,7 +291,7 @@ That prompt should tell the new chat to read `Docs/nexus_startup_contract.md` fi
 Keep the prompt body thin and neutral.
 Do not add behavior-management lists, protective wording, or freehand `Do not ...` instruction blocks to control Codex behavior.
 
-Every generated prompt should include only the task structure needed to anchor work: Mode, Phase, Workstream, Branch, Branch Class when relevant, active seam when relevant, task context, task, and an output format containing Source-of-Truth, Record State, Branch Truth, Canonical Workstream, Reuse Baseline, Validation Results, Next Legal Phase, and Next Safe Move. When Workstream continuation or phase exit matters, include `Backlog Completion State`, `Remaining Implementable Work`, and `Future-Dependent Blockers` from owning canon instead of implying `Hardening` by inertia.
+Every generated prompt should include only the task structure needed to anchor work: Mode, Phase, Workstream, Branch, Branch Class when relevant, active seam when relevant, task context, task, and an output format containing Source-of-Truth, Record State, Branch Truth, Canonical Workstream, Reuse Baseline, the governed state markers, and Validation Results. Include `Next Legal Phase` and `Next Safe Move` only for lawful-stop output. When Workstream continuation or phase exit matters, include `Backlog Completion State`, `Remaining Implementable Work`, and `Future-Dependent Blockers` from owning canon instead of implying `Hardening` by inertia.
 ```
 
 ## Standard Prompt Templates
@@ -327,12 +358,19 @@ Return:
 - Canonical Workstream
 - Reuse Baseline
 - Active Seam, if applicable
+- Seam Status
+- Slice Status
+- Completion Status
+- Blockers
+- Waiver Status
+- Continue Decision
+- Stop Basis
 - Files Changed
 - What Was Written
 - Validation Results
 - Ready-To-Commit Decision
-- Next Legal Phase
-- Next Safe Move
+- If `Continue Decision: Stop`: Next Legal Phase
+- If `Continue Decision: Stop`: Next Safe Move
 ```
 
 ### Workstream
@@ -366,12 +404,19 @@ Return:
 - Canonical Workstream
 - Reuse Baseline
 - Active Seam, if applicable
+- Seam Status
+- Slice Status
+- Completion Status
+- Blockers
+- Waiver Status
+- Continue Decision
+- Stop Basis
 - Files Changed
 - What Was Written
 - Validation Results
 - Ready-To-Commit Decision
-- Next Legal Phase
-- Next Safe Move
+- If `Continue Decision: Stop`: Next Legal Phase
+- If `Continue Decision: Stop`: Next Safe Move
 ```
 
 ### PR Readiness

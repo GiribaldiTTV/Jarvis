@@ -139,7 +139,6 @@ Before PR Readiness, each workstream-scoped helper must be resolved in one of th
 
 | Path | Helper Status | Family | Reuse / Consolidation |
 | --- | --- | --- | --- |
-| `dev/orin_codex_recovery_utility.ps1` | Helper Status: Reusable | Codex recovery utility | Reuse for Codex recovery support; do not treat as product validation proof by itself. |
 | `dev/orin_seeded_saved_action_review.ps1` | Helper Status: Reusable | saved-action seeded review | Reuse for seeded saved-action review support. |
 
 ### Active Workstream-Scoped Helpers

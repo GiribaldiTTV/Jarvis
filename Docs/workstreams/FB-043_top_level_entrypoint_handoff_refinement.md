@@ -4,6 +4,7 @@
 
 - ID: `FB-043`
 - Title: `Top-level desktop entrypoint ownership and main.py handoff refinement`
+- Lifetime Dossier Doc: `Docs/workstreams/FB-042_desktop_startup_runtime_family_dossier.md`
 
 ## Record State
 
@@ -27,6 +28,8 @@
 
 ## Phase Status
 
+- Historical pass-record conversion to the FB-042 family model is complete in `Phase 5 / Slice R5-S1` on `feature/backlog-family-governance-reform`.
+- This record is preserved as `Pass ID: F042-P02` under the FB-042 family dossier and remains not independently selectable.
 - `Released / Closed in v1.6.8-prebeta`.
 - Historical source-branch execution completed on `feature/fb-043-top-level-entrypoint-handoff-refinement`.
 - Latest Public Prerelease: v1.6.8-prebeta
@@ -49,8 +52,7 @@
 - PR-2 selected-next workstream selection is complete with FB-044 as the branch-not-created runtime/back-end successor lane.
 - PR-3 live PR creation and validation is complete.
 - PR Readiness, Release Readiness, and Release Execution are complete historical proof.
-- Current Active Workstream: FB-044 Boot-to-desktop handoff outcome refinement.
-- FB-044 now owns the active promoted workstream on `feature/fb-044-boot-desktop-handoff-outcome-refinement`; WS-1 is complete and validated; H-1 settled-state hardening is complete and green; LV-1 live validation is complete and green; and `PR Readiness` is next.
+- Historical follow-through after release: later runtime-family continuation moved through FB-044 and subsequent FB-042-family passes; this record remains released historical proof only.
 - The historical FB-043 branch-authority record is preserved for traceability only and no longer owns active execution truth.
 
 ## Branch Class
@@ -86,6 +88,20 @@ None.
 ## Next Legal Phase
 
 - `Closed`
+
+## Historical Pass Record Identity
+
+- Family Anchor ID: `FB-042`
+- Family Anchor Title: `Desktop startup runtime family anchor`
+- Family Dossier Doc: `Docs/workstreams/FB-042_desktop_startup_runtime_family_dossier.md`
+- Backlog Registry Class: `Historical Pass Alias`
+- Historical Alias Of: `FB-042`
+- Pass ID: `F042-P02`
+- Alias Role: `Historical Pass Record`
+- Standalone Selection Status: `Not independently selectable`
+- Converted By Seam: `Phase 5 - Historical Pass Record Conversion / Slice R5-S1 - Convert FB-043 through FB-048 workstream records`
+- Historical Branch Readiness Record: `Docs/branch_records/feature_fb_043_top_level_entrypoint_handoff_refinement.md`
+- Preservation Rule: `This record keeps the detailed branch-local execution, validation, release, and PR history; the family dossier owns cross-pass indexing.`
 
 ## Purpose / Why It Matters
 
@@ -387,14 +403,14 @@ Version Rationale: FB-043 delivers a bounded runtime/user-facing top-level deskt
 Release Scope: completed FB-043 WS-1 `main.py` direct-launch handoff refinement, WS-2 explicit launch-intent refinement, bounded validator extensions in `dev/orin_desktop_entrypoint_validation.py` and `dev/orin_boot_transition_verification.py`, H-1 hardening proof, LV-1 real desktop shortcut evidence, PR package history, merged-unreleased release-debt truth, and selected-next FB-044 successor lock for the bounded runtime slice only
 Release Artifacts: Tag v1.6.8-prebeta; release title Pre-Beta v1.6.8; rich Markdown release notes summarize the bounded FB-043 top-level entrypoint ownership and `main.py` handoff refinement, explicit launch-intent outcome, real shortcut evidence, and the FB-044 successor lane without repeating the release title inside the notes body, and GitHub-generated `## What's Changed` plus `**Full Changelog**:` must be included
 Post-Release Truth: FB-043 is Released / Closed in `v1.6.8-prebeta` after publication and validation; release debt then clears, and FB-044 Branch Readiness may begin only after updated `main` is revalidated and the first bounded runtime/back-end boot-to-desktop handoff slice is admitted
-Selected Next Workstream: FB-044 Boot-to-desktop handoff outcome refinement
-Next-Branch Creation Gate: After FB-043 merges, `v1.6.8-prebeta` is published and validated, updated `main` is revalidated, and FB-044 Branch Readiness admits the first bounded runtime/back-end boot-to-desktop handoff slice; branch creation remains blocked until then
+Historical Selected-Next At Release Time: FB-044 Boot-to-desktop handoff outcome refinement
+Historical Next-Branch Creation Gate: After FB-043 merged, `v1.6.8-prebeta` was published and validated, updated `main` was revalidated, and FB-044 Branch Readiness admitted the first bounded runtime/back-end boot-to-desktop handoff slice; branch creation remained blocked until then
 
 ## Post-Merge State
 
 - Post-merge repo state: `No Active Branch` because FB-043 will own merged-unreleased release debt on `main` for `v1.6.8-prebeta`.
 - Pending release scope after merge: the completed bounded FB-043 top-level entrypoint slice chain only.
-- Successor state after merge: FB-044 remains selected next, `Registry-only`, and branch-not-created until `v1.6.8-prebeta` is published, validated, updated `main` is revalidated, and bounded Branch Readiness admits the first runtime/back-end slice.
+- Historical successor state after merge: FB-044 remained selected next, `Registry-only`, and branch-not-created until `v1.6.8-prebeta` was published, validated, updated `main` was revalidated, and bounded Branch Readiness admitted the first runtime/back-end slice.
 
 ## Release Window Audit
 
@@ -425,10 +441,10 @@ PR Readiness validates the completed bounded FB-043 runtime slice chain for merg
 
 ### PR-2 Selected-Next Workstream Findings
 
-- Selected Next Workstream: FB-044 Boot-to-desktop handoff outcome refinement.
-- Selected Next Basis: FB-044 is the smallest repo-grounded runtime/back-end successor after FB-043 because top-level entrypoint ownership is now explicit, but the boot-to-desktop handoff outcome contract still needs a bounded follow-through slice across explicit dev boot profiles, launcher-observed startup ownership, and desktop-settled transition proof.
-- Selected Next Record State At PR Package Time: `Registry-only`.
-- Selected Next Implementation Branch At PR Package Time: Not created.
+- Historical Selected-Next At PR Package Time: FB-044 Boot-to-desktop handoff outcome refinement.
+- Historical Selected-Next Basis: FB-044 is the smallest repo-grounded runtime/back-end successor after FB-043 because top-level entrypoint ownership is now explicit, but the boot-to-desktop handoff outcome contract still needs a bounded follow-through slice across explicit dev boot profiles, launcher-observed startup ownership, and desktop-settled transition proof.
+- Historical Selected-Next Record State At PR Package Time: `Registry-only`.
+- Historical Selected-Next Implementation Branch At PR Package Time: Not created.
 - Branch Creation Gate At PR Package Time: After FB-043 merges, `v1.6.8-prebeta` is published and validated, updated `main` is revalidated, and FB-044 Branch Readiness admits the first bounded runtime/back-end boot-to-desktop handoff slice.
 - Branch Containment At PR Package Time: PASS. No local or remote branch exists for FB-044.
 

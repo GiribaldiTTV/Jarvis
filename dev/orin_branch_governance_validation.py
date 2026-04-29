@@ -2,10 +2,19 @@ import json
 import re
 import subprocess
 import sys
+from datetime import datetime, timezone
 from pathlib import Path
+from urllib import error as urllib_error
+from urllib import parse as urllib_parse
+from urllib import request as urllib_request
 
 
 ROOT_DIR = Path(__file__).resolve().parent.parent
+GITHUB_API_HEADERS = {
+    "Accept": "application/vnd.github+json",
+    "User-Agent": "orin-branch-governance-validation",
+}
+GITHUB_API_TIMEOUT_SECONDS = 20
 
 PHASES = (
     "Branch Readiness",
@@ -168,16 +177,21 @@ MULTI_SEAM_CONTRACT_PHRASES = (
     "entry seam, not a terminal boundary",
     "a slice is a bounded admitted backlog-completion unit",
     "a seam is the current execution checkpoint inside or between slices",
+    "seams inside the current slice may be predeclared in canon or discovered from repo truth while the slice remains in progress",
     "there is no repo-wide cap on how many slices a branch or workstream may carry",
-    "same-branch backlog completion is the default: admit and execute the additional slices needed to finish the backlog item on the current branch whenever scope, phase, risk, and validation authority remain green",
-    "perform all admitted seams in the bounded multi-seam workflow and continue through the additional slices needed to complete the backlog item on the same branch unless an explicit `Backlog-Split User Approval` or a named bounded stop condition is recorded",
-    "Branch Readiness must evaluate the whole backlog item, define the first admitted slice, record the same-branch continuation posture for the remaining slices needed to complete the backlog item, and record any known future-dependent blockers before Workstream begins.",
-    "Workstream must execute admitted implementation slices, keep re-evaluating the backlog item after each seam and slice, and continue on the same branch until the backlog item is fully implemented or only future-dependent blockers remain unless the USER explicitly approves a docs-only bypass or backlog split.",
+    "same-branch backlog completion is the branch-level default: later slices for the same backlog item stay on the same branch when scope, phase, risk, and validation authority remain green",
+    "continue seam-to-seam inside the current slice until all required seams are complete and the slice status is green",
+    "when a slice turns green during `Workstream`, advance immediately to the next admitted slice while `Completion Status` remains `In Progress`",
+    "`Workstream` reaches `Hardening` only when `Completion Status: Green`",
+    "`Completion Status: Red` means a named blocker or waiver currently stops bounded Workstream continuation",
+    "`Phase: Workstream` must remain bounded at all times; the only lawful `Workstream` stop conditions are `Completion Status: Green` with `Hardening` next, or `Completion Status: Red` justified by a named blocker or waiver",
+    "Branch Readiness must evaluate the whole backlog item, define the first admitted slice, record the same-branch continuation posture until `Completion Status` becomes green, and record any known future-dependent blockers before Workstream begins.",
+    "Workstream must execute admitted implementation slices one slice at a time",
     "`Workstream` may not advance to `Hardening` while remaining implementable work is still available on the current backlog item",
     "Backlog-Split User Approval",
     "bounded stop condition",
     "reporting `Next Safe Move` is not a substitute for execution",
-    "A `continue` decision must be acted on immediately",
+    "A `continue` decision must be acted on immediately by starting the next seam needed inside the current slice",
 )
 
 MULTI_SEAM_PRIMARY_REPAIR_PHRASES = (
@@ -185,7 +199,8 @@ MULTI_SEAM_PRIMARY_REPAIR_PHRASES = (
     "Legacy `Single-Seam Fallback` and `Single-Seam Mode Waiver` terms are retired and must not be used in active source-of-truth.",
     "A bounded stop condition blocks the workflow. It does not by itself authorize splitting the backlog item across branches.",
     "Stopping after the first slice or splitting the backlog item across branches requires an explicit `Backlog-Split User Approval` or a named bounded stop condition.",
-    "Perform all admitted seams in the bounded multi-seam workflow and continue through the additional slices needed to complete the backlog item on the same branch unless an explicit `Backlog-Split User Approval` or a named bounded stop condition is recorded.",
+    "when a slice turns green during `Workstream`, advance immediately to the next admitted slice while `Completion Status` remains `In Progress`",
+    "`Completion Status: Red` means a named blocker or waiver currently stops bounded Workstream continuation",
 )
 
 MULTI_SEAM_PROHIBITED_CATEGORY_STOP_PHRASES = (
@@ -203,6 +218,13 @@ MULTI_SEAM_PROHIBITED_THROTTLE_PHRASES = (
     "unless owning canon supplies `single-seam fallback`",
     "use `single-seam mode waiver` only when",
     "one-seam workflow",
+    "approved seam sequence",
+    "approved sequence",
+    "next planned seam",
+    "additional slices needed to finish the backlog item on the current branch",
+    "additional slices needed to complete the backlog item on the same branch",
+    "starting the next seam in the approved sequence",
+    "Once the current slice is green, report green status and await the next instruction instead of auto-starting a new slice or later phase.",
 )
 
 MULTI_SEAM_PROMPT_DOCS = (
@@ -216,14 +238,19 @@ MULTI_SEAM_PROMPT_PHRASES = (
     "continue-or-stop",
     "Next-Seam Continuation Required",
     "entry seam, not a terminal boundary",
+    "seams inside the current slice may be predeclared in canon or discovered from repo truth while the slice remains in progress",
     "there is no repo-wide cap on how many slices a branch or workstream may carry",
-    "same-branch backlog completion is the default: admit and execute the additional slices needed to finish the backlog item on the current branch whenever scope, phase, risk, and validation authority remain green",
-    "perform all admitted seams in the bounded multi-seam workflow and continue through the additional slices needed to complete the backlog item on the same branch unless an explicit `Backlog-Split User Approval` or a named bounded stop condition is recorded",
+    "same-branch backlog completion is the branch-level default: later slices for the same backlog item stay on the same branch when scope, phase, risk, and validation authority remain green",
+    "continue seam-to-seam inside the current slice until all required seams are complete and the slice status is green",
+    "when a slice turns green during `Workstream`, advance immediately to the next admitted slice while `Completion Status` remains `In Progress`",
+    "`Workstream` reaches `Hardening` only when `Completion Status: Green`",
+    "`Completion Status: Red` means a named blocker or waiver currently stops bounded Workstream continuation",
+    "`Phase: Workstream` must remain bounded at all times, and the only lawful `Workstream` stop conditions are `Completion Status: Green` with `Hardening` next, or `Completion Status: Red` justified by a named blocker or waiver.",
     "Backlog Completion State",
     "Backlog-Split User Approval",
     "Backlog-Split Reason",
     "reporting Next Safe Move is not a substitute for execution",
-    "continue decision must be acted on immediately",
+    "continue decision must be acted on immediately by starting the next seam needed inside the current slice",
 )
 
 REUSABLE_GUIDANCE_RETIRED_SEAM_TERMS = {
@@ -234,11 +261,117 @@ REUSABLE_GUIDANCE_RETIRED_SEAM_TERMS = {
 }
 
 REQUIRED_WORKSTREAM_CONTINUATION_MARKERS = (
+    "Seam Status:",
+    "Slice Status:",
+    "Completion Status:",
+    "Waiver Status:",
     "Continue Decision:",
+    "Stop Basis:",
     "Next Active Seam:",
     "Stop Condition:",
     "Continuation Action:",
 )
+
+CONTINUATION_SEAM_STATUS_LABEL = "Seam Status"
+CONTINUATION_SLICE_STATUS_LABEL = "Slice Status"
+CONTINUATION_COMPLETION_STATUS_LABEL = "Completion Status"
+CONTINUATION_WAIVER_STATUS_LABEL = "Waiver Status"
+CONTINUATION_STOP_BASIS_LABEL = "Stop Basis"
+CONTINUATION_ALLOWED_SEAM_STATUSES = {"green", "in progress", "blocked"}
+CONTINUATION_ALLOWED_SLICE_STATUSES = {"green", "in progress", "blocked", "waived"}
+CONTINUATION_ALLOWED_COMPLETION_STATUSES = {"green", "in progress", "red"}
+CONTINUATION_ALLOWED_WAIVER_STATUSES = {"none", "approved", "required"}
+CONTINUATION_ALLOWED_DECISIONS = {"continue", "stop"}
+CONTINUATION_ALLOWED_STOP_BASES = {"none", "workstream green", "named blocker", "waiver"}
+
+GOVERNED_OUTPUT_CONTRACT_REQUIRED_PHRASES = {
+    Path("Docs/phase_governance.md"): (
+        "Seam Status:",
+        "Slice Status:",
+        "Completion Status:",
+        "Waiver Status:",
+        "Continue Decision:",
+        "Stop Basis:",
+        "A green seam does not authorize stop while `Slice Status` is not green.",
+        "A green slice does not authorize stop while `Completion Status` is not green.",
+        "`Await Next Instruction` is only legal in `Workstream` when `Completion Status: Green`, or when `Completion Status: Red` is justified by a named blocker or waiver.",
+        "`Backlog Completion Unproven` keeps the branch in `Workstream`; by itself it is not authority to return `Await Next Instruction` while `Completion Status` remains `In Progress`.",
+        "It is the exact `Phase: Workstream Status` field for stop authority.",
+        "Use these governed state markers as execution control, not as documentation-only summary fields.",
+        "If `Continue Decision` is `Continue`, Codex must not end on a final seam-closeout response, rollback path, or next-seam recommendation; it must keep executing until a lawful `Stop` decision exists.",
+        "`Phase: Workstream` must remain bounded at all times.",
+        "If `Completion Status` is `Red`, `Continuation Action` must explicitly state the blocker-clearing action or waiver-clearing action needed before bounded `Workstream` continuation may resume.",
+    ),
+    Path("Docs/development_rules.md"): (
+        "Seam Status",
+        "Slice Status",
+        "Completion Status",
+        "Waiver Status",
+        "Continue Decision",
+        "Stop Basis",
+        "If `Completion Status` is `In Progress` and no named blocker or waiver stops work, Codex must continue rather than returning `Await Next Instruction`.",
+        "Use these governed state markers as execution control, not just reporting.",
+        "If `Continue Decision` is `Continue`, do not end on a seam-complete final response, rollback path, or next-seam recommendation; keep executing until a lawful `Stop` decision exists.",
+        "`Phase: Workstream` must remain bounded at all times, and the only lawful `Workstream` stop conditions are `Completion Status: Green` with `Hardening` next, or `Completion Status: Red` justified by a named blocker or waiver.",
+        "If `Completion Status` is `Red`, `Continuation Action` must report the blocker-clearing action or waiver-clearing action needed before bounded `Workstream` continuation may resume.",
+    ),
+    Path("Docs/codex_modes.md"): (
+        "Seam Status",
+        "Slice Status",
+        "Completion Status",
+        "Waiver Status",
+        "Continue Decision",
+        "Stop Basis",
+        "If `Completion Status` is `In Progress` and no named blocker or waiver stops work, Workflow mode must continue rather than returning `Await Next Instruction`.",
+        "Use these governed state markers as execution control, not just reporting.",
+        "If `Continue Decision` is `Continue`, Workflow mode must not end on a seam-complete final response, rollback path, or next-seam recommendation; it must keep executing until a lawful `Stop` decision exists.",
+        "`Phase: Workstream` must remain bounded at all times, and the only lawful `Workstream` stop conditions are `Completion Status: Green` with `Hardening` next, or `Completion Status: Red` justified by a named blocker or waiver.",
+        "If `Completion Status` is `Red`, `Continuation Action` must report the blocker-clearing action or waiver-clearing action needed before bounded `Workstream` continuation may resume.",
+    ),
+    Path("Docs/codex_user_guide.md"): (
+        "Seam Status:",
+        "Slice Status:",
+        "Completion Status:",
+        "Waiver Status:",
+        "Continue Decision:",
+        "Stop Basis:",
+        "If `Completion Status` is `In Progress` and no named blocker or waiver stops work, Codex must continue instead of returning `Await Next Instruction`.",
+        "Use these governed state markers as execution control, not just reporting.",
+        "If `Continue Decision` is `Continue`, Codex must not end on a seam-complete final response, rollback path, or next-seam recommendation; it must keep executing until a lawful `Stop` decision exists.",
+        "Treat a prompt `Return:` block as the lawful-stop report, not as permission to stop while `Continue Decision` remains `Continue`.",
+        "`Phase: Workstream` must remain bounded at all times, and the only lawful `Workstream` stop conditions are `Completion Status: Green` with `Hardening` next, or `Completion Status: Red` justified by a named blocker or waiver.",
+        "If `Completion Status` is `Red`, `Continuation Action` must report the blocker-clearing action or waiver-clearing action needed before bounded `Workstream` continuation may resume.",
+    ),
+    Path("Docs/orin_task_template.md"): (
+        "Seam Status:",
+        "Slice Status:",
+        "Completion Status:",
+        "Waiver Status:",
+        "Continue Decision:",
+        "Stop Basis:",
+        "If `Completion Status` is `In Progress` and no named blocker or waiver stops work, Codex must continue instead of returning `Await Next Instruction`.",
+        "Use these governed state markers as execution control, not just reporting.",
+        "If `Continue Decision` is `Continue`, Codex must not end on a seam-complete final response, rollback path, or next-seam recommendation; it must keep executing until a lawful `Stop` decision exists.",
+        "Once the current slice is green during `Workstream`, advance into the next admitted slice while `Completion Status` remains `In Progress`; await the next instruction only after a lawful `Stop` decision.",
+        "`Phase: Workstream` must remain bounded at all times, and the only lawful `Workstream` stop conditions are `Completion Status: Green` with `Hardening` next, or `Completion Status: Red` justified by a named blocker or waiver.",
+        "If `Completion Status` is `Red`, `Continuation Action` must report the blocker-clearing action or waiver-clearing action needed before bounded `Workstream` continuation may resume.",
+    ),
+    Path("Docs/nexus_startup_contract.md"): (
+        "Seam Status",
+        "Slice Status",
+        "Completion Status",
+        "Waiver Status",
+        "Continue Decision",
+        "Stop Basis",
+        "If `Completion Status` is `In Progress` and no named blocker or waiver stops work, the generated prompt must require continuation rather than `Await Next Instruction`.",
+        "Use these governed state markers as execution control, not just reporting.",
+        "If `Continue Decision` is `Continue`, the generated prompt must not let Codex end on a seam-complete final response, rollback path, or next-seam recommendation; it must require continued execution until a lawful `Stop` decision exists.",
+        "the prompt `Return:` block describes the lawful-stop report; it is not permission to stop while `Continue Decision` remains `Continue`",
+        "`Phase: Workstream` must remain bounded at all times, and the only lawful `Workstream` stop conditions are `Completion Status: Green` with `Hardening` next, or `Completion Status: Red` justified by a named blocker or waiver.",
+        "If `Completion Status` is `Red`, `Continuation Action` must report the blocker-clearing action or waiver-clearing action needed before bounded `Workstream` continuation may resume.",
+        "Treat `Completion Status` as the exact `Phase: Workstream Status` gate after load.",
+    ),
+}
 
 WORKSTREAM_TO_PR_DEFAULT_GUARD_DOCS = (
     Path("Docs/phase_governance.md"),
@@ -286,8 +419,8 @@ PLANNING_LOOP_GUARDRAIL_DOCS = (
 
 PLANNING_LOOP_GUARDRAIL_PHRASES = (
     "Branch Readiness owns planning, framing, affected-surface mapping, implementation delta classification, admitted-slice definition, and whole-backlog closure strategy before Workstream begins.",
-    "Branch Readiness must evaluate the whole backlog item, define the first admitted slice, record the same-branch continuation posture for the remaining slices needed to complete the backlog item, and record any known future-dependent blockers before Workstream begins.",
-    "Workstream must execute admitted implementation slices, keep re-evaluating the backlog item after each seam and slice, and continue on the same branch until the backlog item is fully implemented or only future-dependent blockers remain unless the USER explicitly approves a docs-only bypass or backlog split.",
+    "Branch Readiness must evaluate the whole backlog item, define the first admitted slice, record the same-branch continuation posture until `Completion Status` becomes green, and record any known future-dependent blockers before Workstream begins.",
+    "Workstream must execute admitted implementation slices one slice at a time, keep re-evaluating the backlog item after each seam and slice, and keep later slices on the same branch by default when scope, phase, risk, and validation authority remain green unless the USER explicitly approves a docs-only bypass or backlog split.",
     "Docs-only Workstreams require explicit USER approval.",
     "Planning-Loop Bypass User Approval: APPROVED",
     "Planning-Loop Bypass Reason:",
@@ -549,6 +682,23 @@ PR_LIVE_STATE_PHRASES = (
     "PR Creation Pending",
     "PR Validation Pending",
     "PR State Unknown",
+)
+
+BOT_REVIEW_SIGNAL_DOCS = (
+    Path("Docs/phase_governance.md"),
+    Path("Docs/development_rules.md"),
+    Path("Docs/Main.md"),
+    Path("Docs/codex_modes.md"),
+    Path("Docs/orin_task_template.md"),
+    Path("Docs/codex_user_guide.md"),
+)
+
+BOT_REVIEW_SIGNAL_PHRASES = (
+    "Bot Review Signal Pending",
+    "live PR",
+    "thumbs-up reaction",
+    "bot comment",
+    "no later thumbs-up is required",
 )
 
 POST_MERGE_PR_BLOCKERS = (
@@ -881,6 +1031,652 @@ REQUIRED_BRANCH_RECORD_HEADINGS = (
     "## Next Legal Phase",
 )
 
+BACKLOG_FAMILY_REFORM_BRANCH = "feature/backlog-family-governance-reform"
+BACKLOG_FAMILY_REFORM_BRANCH_RECORD = Path(
+    "Docs/branch_records/feature_backlog_family_governance_reform.md"
+)
+REFORM_R3_S2_SEAM = (
+    "Phase 3 - Family Anchor Migration / Slice R3-S2 - Map FB-043 through FB-048 under "
+    "FB-042 as historical aliases"
+)
+REFORM_R3_S4_SEAM = (
+    "Phase 3 - Family Anchor Migration / Slice R3-S4 - Map FB-036, FB-037, FB-038, and "
+    "FB-041 under FB-027 as historical aliases"
+)
+REFORM_R3_S2_STATE_NEXT_PHRASE = (
+    "Slice R3-S2 `Map FB-043 through FB-048 under FB-042 as historical aliases` is next"
+)
+REFORM_R3_S4_STATE_NEXT_PHRASE = (
+    "Slice R3-S4 `Map FB-036, FB-037, FB-038, and FB-041 under FB-027 as historical aliases` "
+    "is next"
+)
+REFORM_R3_S2_ACTIVE_SEAM_NEXT_PHRASE = (
+    "Phase 3 / Slice R3-S2 `Map FB-043 through FB-048 under FB-042 as historical aliases` "
+    "is the next active seam on this branch."
+)
+REFORM_R3_S4_ACTIVE_SEAM_NEXT_PHRASE = (
+    "Phase 3 / Slice R3-S4 `Map FB-036, FB-037, FB-038, and FB-041 under FB-027 as "
+    "historical aliases` is the next active seam on this branch."
+)
+REFORM_R3_S2_CONTINUATION_PHRASE = "Execute Slice R3-S2"
+REFORM_R3_S4_CONTINUATION_PHRASE = "Execute Slice R3-S4"
+REFORM_FB042_ALIAS_IDS = ("FB-043", "FB-044", "FB-045", "FB-046", "FB-047", "FB-048")
+REFORM_FB027_ALIAS_IDS = ("FB-036", "FB-037", "FB-038", "FB-041")
+REFORM_R4_S1_SEAM = (
+    "Phase 4 - Lifetime Dossier Conversion / Slice R4-S1 - Convert the FB-042 dossier shell"
+)
+REFORM_R4_S1_STATE_NEXT_PHRASE = (
+    "Slice R4-S1 `Convert the FB-042 dossier shell` is next"
+)
+REFORM_R4_S2_SEAM = (
+    "Phase 4 - Lifetime Dossier Conversion / Slice R4-S2 - Convert the FB-027 dossier shell"
+)
+REFORM_R4_S2_STATE_NEXT_PHRASE = (
+    "Slice R4-S2 `Convert the FB-027 dossier shell` is next"
+)
+REFORM_R4_S3_SEAM = (
+    "Phase 4 - Lifetime Dossier Conversion / Slice R4-S3 - Add pass index and slice/seam ledger "
+    "structure"
+)
+REFORM_R4_S3_STATE_NEXT_PHRASE = (
+    "Slice R4-S3 `Add pass index and slice/seam ledger structure` is next"
+)
+REFORM_R4_S4_SEAM = (
+    "Phase 4 - Lifetime Dossier Conversion / Slice R4-S4 - Add validator/helper and artifact "
+    "indexes"
+)
+REFORM_R4_S4_STATE_NEXT_PHRASE = (
+    "Slice R4-S4 `Add validator/helper and artifact indexes` is next"
+)
+REFORM_R4_S5_SEAM = (
+    "Phase 4 - Lifetime Dossier Conversion / Slice R4-S5 - Dossier stability validation"
+)
+REFORM_R4_S5_STATE_NEXT_PHRASE = (
+    "Slice R4-S5 `Dossier stability validation` is next"
+)
+REFORM_R5_S1_SEAM = (
+    "Phase 5 - Historical Pass Record Conversion / Slice R5-S1 - Convert FB-043 through FB-048 "
+    "workstream records"
+)
+REFORM_R5_S1_STATE_NEXT_PHRASE = (
+    "Slice R5-S1 `Convert FB-043 through FB-048 workstream records` is next"
+)
+REFORM_R5_S1_ACTIVE_SEAM_NEXT_PHRASE = (
+    "Phase 5 / Slice R5-S1 `Convert FB-043 through FB-048 workstream records` is the next "
+    "active seam on this branch."
+)
+REFORM_R5_S1_CONTINUATION_PHRASE = "Execute Slice R5-S1"
+REFORM_R5_S2_SEAM = (
+    "Phase 5 - Historical Pass Record Conversion / Slice R5-S2 - Convert FB-036, FB-037, "
+    "FB-038, and FB-041 workstream records"
+)
+REFORM_R5_S2_STATE_NEXT_PHRASE = (
+    "Slice R5-S2 `Convert FB-036, FB-037, FB-038, and FB-041 workstream records` is next"
+)
+REFORM_R5_S2_ACTIVE_SEAM_NEXT_PHRASE = (
+    "Phase 5 / Slice R5-S2 `Convert FB-036, FB-037, FB-038, and FB-041 workstream records` "
+    "is the next active seam on this branch."
+)
+REFORM_R5_S2_CONTINUATION_PHRASE = "Execute Slice R5-S2"
+REFORM_R5_S3_SEAM = (
+    "Phase 5 - Historical Pass Record Conversion / Slice R5-S3 - Convert corresponding branch "
+    "records"
+)
+REFORM_R5_S3_STATE_NEXT_PHRASE = "Slice R5-S3 `Convert corresponding branch records` is next"
+REFORM_R5_S3_ACTIVE_SEAM_NEXT_PHRASE = (
+    "Phase 5 / Slice R5-S3 `Convert corresponding branch records` is the next active seam on "
+    "this branch."
+)
+REFORM_R5_S3_CONTINUATION_PHRASE = "Execute Slice R5-S3"
+REFORM_R5_S4_SEAM = (
+    "Phase 5 - Historical Pass Record Conversion / Slice R5-S4 - Strip future-selection "
+    "language from alias records"
+)
+REFORM_R5_S4_STATE_NEXT_PHRASE = (
+    "Slice R5-S4 `Strip future-selection language from alias records` is next"
+)
+REFORM_R5_S4_ACTIVE_SEAM_NEXT_PHRASE = (
+    "Phase 5 / Slice R5-S4 `Strip future-selection language from alias records` is the next "
+    "active seam on this branch."
+)
+REFORM_R5_S4_CONTINUATION_PHRASE = "Execute Slice R5-S4"
+REFORM_R5_S5_SEAM = (
+    "Phase 5 - Historical Pass Record Conversion / Slice R5-S5 - Traceability sweep"
+)
+REFORM_R5_S5_STATE_NEXT_PHRASE = "Slice R5-S5 `Traceability sweep` is next"
+REFORM_R5_S5_ACTIVE_SEAM_NEXT_PHRASE = (
+    "Phase 5 / Slice R5-S5 `Traceability sweep` is the next active seam on this branch."
+)
+REFORM_R5_S5_CONTINUATION_PHRASE = "Execute Slice R5-S5"
+REFORM_R6_S1_SEAM = (
+    "Phase 6 - Roadmap And Index Alignment / Slice R6-S1 - Roadmap anchor conversion"
+)
+REFORM_R6_S1_STATE_NEXT_PHRASE = "Slice R6-S1 `Roadmap anchor conversion` is next"
+REFORM_R6_S1_ACTIVE_SEAM_NEXT_PHRASE = (
+    "Phase 6 / Slice R6-S1 `Roadmap anchor conversion` is the next active seam on this branch."
+)
+REFORM_R6_S1_CONTINUATION_PHRASE = "Execute Slice R6-S1"
+REFORM_R6_S2_SEAM = (
+    "Phase 6 - Roadmap And Index Alignment / Slice R6-S2 - Workstream index split"
+)
+REFORM_R6_S2_STATE_NEXT_PHRASE = "Slice R6-S2 `Workstream index split` is next"
+REFORM_R6_S2_ACTIVE_SEAM_NEXT_PHRASE = (
+    "Phase 6 / Slice R6-S2 `Workstream index split` is the next active seam on this branch."
+)
+REFORM_R6_S2_CONTINUATION_PHRASE = "Execute Slice R6-S2"
+REFORM_R6_S3_SEAM = (
+    "Phase 6 - Roadmap And Index Alignment / Slice R6-S3 - Main / router / loader alignment"
+)
+REFORM_R6_S3_STATE_NEXT_PHRASE = "Slice R6-S3 `Main / router / loader alignment` is next"
+REFORM_R6_S3_ACTIVE_SEAM_NEXT_PHRASE = (
+    "Phase 6 / Slice R6-S3 `Main / router / loader alignment` is the next active seam on this branch."
+)
+REFORM_R6_S3_CONTINUATION_PHRASE = "Execute Slice R6-S3"
+REFORM_R6_S4_SEAM = (
+    "Phase 6 - Roadmap And Index Alignment / Slice R6-S4 - Selected-next truth validation"
+)
+REFORM_R6_S4_STATE_NEXT_PHRASE = "Slice R6-S4 `Selected-next truth validation` is next"
+REFORM_R6_S4_ACTIVE_SEAM_NEXT_PHRASE = (
+    "Phase 6 / Slice R6-S4 `Selected-next truth validation` is the next active seam on this branch."
+)
+REFORM_R6_S4_CONTINUATION_PHRASE = "Execute Slice R6-S4"
+REFORM_R6_S5_SEAM = (
+    "Phase 6 - Roadmap And Index Alignment / Slice R6-S5 - Final drift sweep"
+)
+REFORM_R6_S5_STATE_NEXT_PHRASE = "Slice R6-S5 `Final drift sweep` is next"
+REFORM_R6_S5_ACTIVE_SEAM_NEXT_PHRASE = (
+    "Phase 6 / Slice R6-S5 `Final drift sweep` is the next active seam on this branch."
+)
+REFORM_R6_S5_CONTINUATION_PHRASE = "Execute Slice R6-S5"
+REFORM_R7_S1_SEAM = (
+    "Phase 7 - Validator Finalization / Slice R7-S1 - Remove temporary dual-shape tolerance"
+)
+REFORM_R7_S1_STATE_NEXT_PHRASE = "Slice R7-S1 `Remove temporary dual-shape tolerance` is next"
+REFORM_R7_S1_ACTIVE_SEAM_NEXT_PHRASE = (
+    "Phase 7 / Slice R7-S1 `Remove temporary dual-shape tolerance` is the next active seam on this branch."
+)
+REFORM_R7_S1_CONTINUATION_PHRASE = "Execute Slice R7-S1"
+REFORM_R7_S2_SEAM = (
+    "Phase 7 - Validator Finalization / Slice R7-S2 - Add hard anti-drift checks"
+)
+REFORM_R7_S2_STATE_NEXT_PHRASE = "Slice R7-S2 `Add hard anti-drift checks` is next"
+REFORM_R7_S2_ACTIVE_SEAM_NEXT_PHRASE = (
+    "Phase 7 / Slice R7-S2 `Add hard anti-drift checks` is the next active seam on this branch."
+)
+REFORM_R7_S2_CONTINUATION_PHRASE = "Execute Slice R7-S2"
+REFORM_HARDENING_H1_SEAM = "Hardening H1 - Post-Workstream Governance Validation"
+REFORM_HARDENING_H1_STATE_PHRASE = (
+    "Hardening H1 `Post-Workstream Governance Validation` is in progress"
+)
+REFORM_LIVE_VALIDATION_LV1_SEAM = "Live Validation LV1 - Reform Branch Final Validation"
+REFORM_LIVE_VALIDATION_LV1_STATE_PHRASE = (
+    "Live Validation LV1 `Reform Branch Final Validation` is in progress"
+)
+REFORM_PR_READINESS_PR1_SEAM = "PR Readiness PR1 - Reform Branch PR Validation"
+REFORM_PR_READINESS_PR1_STATE_PHRASE = (
+    "PR Readiness PR1 `Reform Branch PR Validation` is in progress"
+)
+REFORM_PR_READINESS_PR2_SEAM = "PR Readiness PR2 - Bot Review Signal Monitoring"
+REFORM_PR_READINESS_PR2_STATE_PHRASE = (
+    "PR Readiness PR2 `Bot Review Signal Monitoring` is in progress"
+)
+REFORM_RELEASE_READINESS_RR1_SEAM = "Release Readiness RR1 - Reform Branch Release Validation"
+REFORM_RELEASE_READINESS_RR1_STATE_PHRASE = (
+    "Release Readiness RR1 `Reform Branch Release Validation` is in progress"
+)
+
+BOT_REVIEW_SIGNAL_HEADING = "PR Bot Review Signal"
+BOT_REVIEW_SIGNAL_STATUS_LABEL = "Bot Review Signal Status"
+BOT_REVIEW_SIGNAL_HEAD_SHA_LABEL = "Bot Review Signal Head SHA"
+BOT_REVIEW_SIGNAL_SOURCE_LABEL = "Bot Review Signal Source"
+BOT_REVIEW_SIGNAL_TIMESTAMP_LABEL = "Bot Review Signal Timestamp"
+BOT_REVIEW_SIGNAL_ACTOR_LABEL = "Bot Review Signal Actor"
+BOT_REVIEW_SIGNAL_STATUS_PENDING = "Pending"
+BOT_REVIEW_SIGNAL_STATUS_APPROVED = "Approved"
+BOT_REVIEW_SIGNAL_STATUS_COMMENT_ADDRESSED = "Comment addressed"
+BOT_REVIEW_BOT_LOGIN = "chatgpt-codex-connector[bot]"
+REFORM_FB042_DOSSIER_PATH = Path(
+    "Docs/workstreams/FB-042_desktop_startup_runtime_family_dossier.md"
+)
+REFORM_FB027_DOSSIER_PATH = Path(
+    "Docs/workstreams/FB-027_interaction_shared_action_family_dossier.md"
+)
+REFORM_FAMILY_DOSSIER_REQUIRED_HEADINGS = (
+    "## Dossier Identity",
+    "## Dossier Purpose",
+    "## Current Dossier Status",
+    "## Lifetime Tracking Scope",
+    "## Historical Alias Coverage",
+    "## Historical Anchor Record",
+    "## Pass Index",
+    "## Slice And Seam Ledger",
+    "## Validator And Helper Index",
+    "## Artifact Index",
+    "## Migration Notes",
+)
+REFORM_FB042_DOSSIER_REQUIRED_PHRASES = (
+    "Dossier State: `Structured shell with partial historical pass migration`",
+    "Historical Content Migration: `In progress`",
+    "Alias Record Conversion Status: `FB-043 through FB-048 workstream records converted in Slice R5-S1; corresponding preserved branch-readiness records converted in Slice R5-S3`",
+    "Pass Index Status: `Populated for FB-043 through FB-048 in Slice R5-S1`",
+    "Pass Index Population State: `FB-043 through FB-048 historical pass rows migrated; additional family migration remains pending`",
+    "| Pass ID | Family Role | Source Record | Migration State | Notes |",
+    "| `F042-P02` | `Historical pass alias` | `Docs/workstreams/FB-043_top_level_entrypoint_handoff_refinement.md` | `Converted in Slice R5-S1` | `Released in v1.6.8-prebeta; preserves the top-level entrypoint and explicit main.py handoff refinement chain.` |",
+    "| `F042-P03` | `Historical pass alias` | `Docs/workstreams/FB-044_boot_desktop_handoff_outcome_refinement.md` | `Converted in Slice R5-S1` | `Released in v1.6.9-prebeta; preserves the desktop-settled handoff outcome refinement chain.` |",
+    "| `F042-P04` | `Historical pass alias` | `Docs/workstreams/FB-045_active_session_relaunch_outcome_refinement.md` | `Converted in Slice R5-S1` | `Released in v1.6.9-prebeta; preserves the post-settled lifecycle classification follow-through for the same release package.` |",
+    "| `F042-P05` | `Historical pass alias` | `Docs/workstreams/FB-046_active_session_relaunch_reacquisition.md` | `Converted in Slice R5-S1` | `Released in v1.6.10-prebeta; preserves accepted relaunch reacquisition and replacement-session settled re-entry proof.` |",
+    "| `F042-P06` | `Historical pass alias` | `Docs/workstreams/FB-047_active_session_relaunch_decline_preservation.md` | `Converted in Slice R5-S1` | `Released in v1.6.11-prebeta; preserves decline-preservation and session-owner continuity proof.` |",
+    "| `F042-P07` | `Historical pass alias` | `Docs/workstreams/FB-048_active_session_relaunch_signal_failure_and_wait_timeout_truth.md` | `Converted in Slice R5-S1` | `Released in v1.6.12-prebeta; preserves accepted relaunch signal-failure and wait-timeout truth.` |",
+    "Slice / Seam Ledger Status: `Populated for FB-043 through FB-048 in Slice R5-S1`",
+    "Ledger Population State: `Historical summary rows added for FB-043 through FB-048; deeper family migration remains pending`",
+    "| Phase / Slice | Seam / Scope | Classification | Migration State | Notes |",
+    "| `FB-043 / WS-1, WS-2, H-1, LV-1, PR historical proof` | `Top-level entrypoint ownership and explicit main.py handoff refinement` | `Historical pass chain` | `Converted in Slice R5-S1` | `Detailed branch-local narrative stays in the preserved FB-043 workstream record.` |",
+    "Validator / Helper Index Status: `Structure introduced in Slice R4-S4`",
+    "Validator / Helper Index Population State: `No historical validator or helper entries migrated yet`",
+    "| Surface | Classification | Source Record | Migration State | Notes |",
+    "| `Placeholder only` | `Reserve rows for validator, helper, or harness history` | `Populate from existing historical workstream or branch records in later slices` | `Not started` | `R4-S4 adds shared validator/helper index structure only; no historical validator or helper entries migrate in this slice.` |",
+    "Artifact Index Status: `Structure introduced in Slice R4-S4`",
+    "Artifact Index Population State: `No historical artifact entries migrated yet`",
+    "| Artifact Path | Classification | Source Record | Migration State | Notes |",
+    "| `Placeholder only` | `Reserve rows for reusable evidence, report, or helper artifacts` | `Populate from existing historical workstream or branch records in later slices` | `Not started` | `R4-S4 adds shared artifact index structure only; no historical artifact entries migrate in this slice.` |",
+    "Dossier Stability Validation Status: `Validated in Slice R4-S5`",
+    "Current Alias Record Migration State: FB-043 through FB-048 now keep their existing historical workstream narratives as explicit FB-042 historical pass records, and the preserved corresponding branch-readiness records now carry matching historical pass identity after Slice R5-S3.",
+    "R4-S1 intentionally does not migrate historical narrative, proof logs, pass summaries, or alias record bodies into the dossier.",
+    "R4-S3 introduces pass index and slice/seam ledger templates only; it does not migrate historical pass rows, ledger rows, proof logs, or alias record bodies into the dossier.",
+    "R4-S4 introduces validator/helper and artifact index templates only; it does not migrate historical validator rows, helper rows, artifact rows, proof logs, or alias record bodies into the dossier.",
+    "R4-S5 validates that the FB-042 dossier shell, routing, and index-template surfaces remain stable after the Phase 4 structural slices, and it does so without migrating historical rows or narrative content.",
+    "R5-S1 converts FB-043 through FB-048 workstream records into explicit FB-042 historical pass records and populates family pass-index plus slice/seam summary rows without migrating full narrative, validator/helper, artifact, or branch-record bodies into the dossier itself.",
+    "R5-S3 converts the preserved FB-043 through FB-048 Branch Readiness records into matching FB-042 historical pass-record traceability without creating new branch records or migrating those branch-record bodies into the dossier itself.",
+)
+REFORM_FB027_DOSSIER_REQUIRED_PHRASES = (
+    "Dossier State: `Structured shell with partial historical pass migration`",
+    "Historical Content Migration: `In progress`",
+    "Alias Record Conversion Status: `FB-036, FB-037, FB-038, and FB-041 workstream records converted in Slice R5-S2; preserved corresponding branch-record trace converted where it exists in Slice R5-S3`",
+    "Pass Index Status: `Populated for FB-036, FB-037, FB-038, and FB-041 in Slice R5-S2`",
+    "Pass Index Population State: `FB-036, FB-037, FB-038, and FB-041 historical pass rows migrated; additional family migration remains pending`",
+    "| Pass ID | Family Role | Source Record | Migration State | Notes |",
+    "| `F027-P02` | `Historical pass alias` | `Docs/workstreams/FB-036_saved_action_authoring.md` | `Converted in Slice R5-S2` | `Released in v1.3.0-prebeta; preserves bounded custom-task authoring, callable-group management, and exact-green validation hardening.` |",
+    "| `F027-P03` | `Historical pass alias` | `Docs/workstreams/FB-041_deterministic_callable_group_execution_layer.md` | `Converted in Slice R5-S2` | `Released in v1.3.1-prebeta; preserves deterministic callable-group execution follow-through and bounded runtime progression markers.` |",
+    "| `F027-P04` | `Historical pass alias` | `Docs/workstreams/FB-037_built_in_actions_and_settings_expansion.md` | `Converted in Slice R5-S2` | `Released in v1.4.0-prebeta; preserves the first curated built-in catalog and settings expansion lane.` |",
+    "| `F027-P05` | `Historical pass alias` | `Docs/workstreams/FB-038_taskbar_tray_quick_task_ux.md` | `Converted in Slice R5-S2` | `Released in v1.4.1-prebeta; preserves tray quick-task UX, tray-origin create flow, and window-initialization repair history.` |",
+    "Slice / Seam Ledger Status: `Populated for FB-036, FB-037, FB-038, and FB-041 in Slice R5-S2`",
+    "Ledger Population State: `Historical summary rows added for FB-036, FB-037, FB-038, and FB-041; deeper family migration remains pending`",
+    "| Phase / Slice | Seam / Scope | Classification | Migration State | Notes |",
+    "| `FB-036 / integrated implementation, hardening, interactive validation closeout` | `Saved-action authoring, callable-group management, inline group quick-create, and exact-green validation hardening` | `Historical pass chain` | `Converted in Slice R5-S2` | `Detailed branch-local narrative, artifacts, and interactive validation history stay in the preserved FB-036 workstream record.` |",
+    "Validator / Helper Index Status: `Structure introduced in Slice R4-S4`",
+    "Validator / Helper Index Population State: `No historical validator or helper entries migrated yet`",
+    "| Surface | Classification | Source Record | Migration State | Notes |",
+    "| `Placeholder only` | `Reserve rows for validator, helper, or harness history` | `Populate from existing historical workstream or branch records in later slices` | `Not started` | `R4-S4 adds shared validator/helper index structure only; no historical validator or helper entries migrate in this slice.` |",
+    "Artifact Index Status: `Structure introduced in Slice R4-S4`",
+    "Artifact Index Population State: `No historical artifact entries migrated yet`",
+    "| Artifact Path | Classification | Source Record | Migration State | Notes |",
+    "| `Placeholder only` | `Reserve rows for reusable evidence, report, or helper artifacts` | `Populate from existing historical workstream or branch records in later slices` | `Not started` | `R4-S4 adds shared artifact index structure only; no historical artifact entries migrate in this slice.` |",
+    "Dossier Stability Validation Status: `Validated in Slice R4-S5`",
+    "Current Alias Record Migration State: FB-036, FB-037, FB-038, and FB-041 now keep their existing historical workstream narratives as explicit FB-027 historical pass records; the preserved corresponding branch-record trace now carries matching historical pass identity where it exists, and FB-036, FB-038, and FB-041 do not have separate preserved branch-authority records to convert.",
+    "R4-S2 intentionally does not migrate historical narrative, proof logs, pass summaries, or alias record bodies into the dossier.",
+    "R4-S3 introduces pass index and slice/seam ledger templates only; it does not migrate historical pass rows, ledger rows, proof logs, or alias record bodies into the dossier.",
+    "R4-S4 introduces validator/helper and artifact index templates only; it does not migrate historical validator rows, helper rows, artifact rows, proof logs, or alias record bodies into the dossier.",
+    "R4-S5 validates that the FB-027 dossier shell, routing, and index-template surfaces remain stable after the Phase 4 structural slices, and it does so without migrating historical rows or narrative content.",
+    "R5-S2 converts FB-036, FB-037, FB-038, and FB-041 workstream records into explicit FB-027 historical pass records and populates family pass-index plus slice/seam summary rows without migrating full narrative, validator/helper, artifact, or branch-record bodies into the dossier itself.",
+    "R5-S3 converts the preserved corresponding branch-record trace where it exists for the FB-027 family, which currently means the FB-037 release-packaging record; FB-036, FB-038, and FB-041 do not have separate preserved branch-authority records to convert.",
+)
+
+REFORM_FB042_HISTORICAL_PASS_DOCS = {
+    Path("Docs/workstreams/FB-043_top_level_entrypoint_handoff_refinement.md"): {
+        "pass_id": "F042-P02",
+        "branch_record": "Docs/branch_records/feature_fb_043_top_level_entrypoint_handoff_refinement.md",
+    },
+    Path("Docs/workstreams/FB-044_boot_desktop_handoff_outcome_refinement.md"): {
+        "pass_id": "F042-P03",
+        "branch_record": "Docs/branch_records/feature_fb_044_boot_desktop_handoff_outcome_refinement.md",
+    },
+    Path("Docs/workstreams/FB-045_active_session_relaunch_outcome_refinement.md"): {
+        "pass_id": "F042-P04",
+        "branch_record": "Docs/branch_records/feature_fb_045_active_session_relaunch_stability.md",
+    },
+    Path("Docs/workstreams/FB-046_active_session_relaunch_reacquisition.md"): {
+        "pass_id": "F042-P05",
+        "branch_record": "Docs/branch_records/feature_fb_046_active_session_relaunch_reacquisition.md",
+    },
+    Path("Docs/workstreams/FB-047_active_session_relaunch_decline_preservation.md"): {
+        "pass_id": "F042-P06",
+        "branch_record": "Docs/branch_records/feature_fb_047_active_session_relaunch_decline_preservation.md",
+    },
+    Path("Docs/workstreams/FB-048_active_session_relaunch_signal_failure_and_wait_timeout_truth.md"): {
+        "pass_id": "F042-P07",
+        "branch_record": "Docs/branch_records/feature_fb_048_active_session_relaunch_signal_failure_and_wait_timeout_truth.md",
+    },
+}
+
+REFORM_FB027_HISTORICAL_PASS_DOCS = {
+    Path("Docs/workstreams/FB-036_saved_action_authoring.md"): {
+        "pass_id": "F027-P02",
+        "branch_record_phrase": "Historical Branch Record Preservation: `No separate historical branch-authority record is preserved for FB-036; this workstream remains the authoritative branch-local historical record.`",
+    },
+    Path("Docs/workstreams/FB-041_deterministic_callable_group_execution_layer.md"): {
+        "pass_id": "F027-P03",
+        "branch_record_phrase": "Historical Branch Record Preservation: `No separate historical branch-authority record is preserved for FB-041; this workstream remains the authoritative branch-local historical record.`",
+    },
+    Path("Docs/workstreams/FB-037_built_in_actions_and_settings_expansion.md"): {
+        "pass_id": "F027-P04",
+        "branch_record_phrase": "Historical Branch Record Preservation: `No separate implementation branch-authority record is preserved for FB-037; release-packaging authority remains in Docs/branch_records/codex_fb_037_release_debt_packaging.md.`",
+    },
+    Path("Docs/workstreams/FB-038_taskbar_tray_quick_task_ux.md"): {
+        "pass_id": "F027-P05",
+        "branch_record_phrase": "Historical Branch Record Preservation: `No separate historical branch-authority record is preserved for FB-038; this workstream remains the authoritative branch-local historical record.`",
+    },
+}
+
+REFORM_HISTORICAL_PASS_BRANCH_RECORDS = {
+    Path("Docs/branch_records/feature_fb_043_top_level_entrypoint_handoff_refinement.md"): {
+        "family_anchor_id": "FB-042",
+        "family_dossier": "Docs/workstreams/FB-042_desktop_startup_runtime_family_dossier.md",
+        "pass_id": "F042-P02",
+        "workstream_record": "Docs/workstreams/FB-043_top_level_entrypoint_handoff_refinement.md",
+        "preservation_rule": "This record keeps the preserved branch-readiness trace for the historical pass; the family dossier owns cross-pass indexing.",
+    },
+    Path("Docs/branch_records/feature_fb_044_boot_desktop_handoff_outcome_refinement.md"): {
+        "family_anchor_id": "FB-042",
+        "family_dossier": "Docs/workstreams/FB-042_desktop_startup_runtime_family_dossier.md",
+        "pass_id": "F042-P03",
+        "workstream_record": "Docs/workstreams/FB-044_boot_desktop_handoff_outcome_refinement.md",
+        "preservation_rule": "This record keeps the preserved branch-readiness trace for the historical pass; the family dossier owns cross-pass indexing.",
+    },
+    Path("Docs/branch_records/feature_fb_045_active_session_relaunch_stability.md"): {
+        "family_anchor_id": "FB-042",
+        "family_dossier": "Docs/workstreams/FB-042_desktop_startup_runtime_family_dossier.md",
+        "pass_id": "F042-P04",
+        "workstream_record": "Docs/workstreams/FB-045_active_session_relaunch_outcome_refinement.md",
+        "preservation_rule": "This record keeps the preserved branch-readiness trace for the historical pass; the family dossier owns cross-pass indexing.",
+    },
+    Path("Docs/branch_records/feature_fb_046_active_session_relaunch_reacquisition.md"): {
+        "family_anchor_id": "FB-042",
+        "family_dossier": "Docs/workstreams/FB-042_desktop_startup_runtime_family_dossier.md",
+        "pass_id": "F042-P05",
+        "workstream_record": "Docs/workstreams/FB-046_active_session_relaunch_reacquisition.md",
+        "preservation_rule": "This record keeps the preserved branch-readiness trace for the historical pass; the family dossier owns cross-pass indexing.",
+    },
+    Path("Docs/branch_records/feature_fb_047_active_session_relaunch_decline_preservation.md"): {
+        "family_anchor_id": "FB-042",
+        "family_dossier": "Docs/workstreams/FB-042_desktop_startup_runtime_family_dossier.md",
+        "pass_id": "F042-P06",
+        "workstream_record": "Docs/workstreams/FB-047_active_session_relaunch_decline_preservation.md",
+        "preservation_rule": "This record keeps the preserved branch-readiness trace for the historical pass; the family dossier owns cross-pass indexing.",
+    },
+    Path("Docs/branch_records/feature_fb_048_active_session_relaunch_signal_failure_and_wait_timeout_truth.md"): {
+        "family_anchor_id": "FB-042",
+        "family_dossier": "Docs/workstreams/FB-042_desktop_startup_runtime_family_dossier.md",
+        "pass_id": "F042-P07",
+        "workstream_record": "Docs/workstreams/FB-048_active_session_relaunch_signal_failure_and_wait_timeout_truth.md",
+        "preservation_rule": "This record keeps the preserved branch-readiness trace for the historical pass; the family dossier owns cross-pass indexing.",
+    },
+    Path("Docs/branch_records/codex_fb_037_release_debt_packaging.md"): {
+        "family_anchor_id": "FB-027",
+        "family_dossier": "Docs/workstreams/FB-027_interaction_shared_action_family_dossier.md",
+        "pass_id": "F027-P04",
+        "workstream_record": "Docs/workstreams/FB-037_built_in_actions_and_settings_expansion.md",
+        "preservation_rule": "This record keeps the preserved release-packaging trace for the historical pass; the family dossier owns cross-pass indexing.",
+    },
+}
+
+REFORM_R5_S4_HISTORICAL_LANGUAGE_DOCS = {
+    Path("Docs/feature_backlog.md"): {
+        "required": (
+            "later runtime-family continuation moved through FB-048 on `feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeout-truth` while this alias entry remained released historical proof.",
+        ),
+        "prohibited": (
+            "Post-Release Truth: FB-047 is Released / Closed in `v1.6.11-prebeta`; release debt is clear; and FB-048 is now the active promoted workstream on `feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeout-truth`.",
+        ),
+    },
+    Path("Docs/prebeta_roadmap.md"): {
+        "required": (
+            "later runtime-family continuation moved through FB-048 on `feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeout-truth`, which later completed its own released historical pass.",
+            "Historical follow-through at that release boundary: FB-044 Boot-to-desktop handoff outcome refinement.",
+        ),
+        "prohibited": (
+            "phase status: Released / Closed in `v1.6.11-prebeta`; PR #93 merged into `main` at `4ca70572fbc8033bc96fcd299dd309464e81393a`; the release is live on the same commit; release debt is clear; and FB-048 is now the active promoted workstream on `feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeout-truth` with WS-1 complete / validated.",
+            "Post-Release Truth: FB-047 is Released / Closed in `v1.6.11-prebeta`; release debt is clear; and FB-048 is now the active promoted workstream on `feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeout-truth`.",
+            "phase status: Released / Closed in `v1.6.10-prebeta`; PR #92 merged into `main` at `36cf07495dc8e239b20b11afb5194355b77ffd8b`; the release is live on the same commit; FB-047 is now Released / Closed in `v1.6.11-prebeta`; release debt is clear; and FB-048 is the active promoted workstream on `feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeout-truth`.",
+            "Post-Release Truth: FB-046 is Released / Closed in `v1.6.10-prebeta`; FB-047 is Released / Closed in `v1.6.11-prebeta`; release debt is clear; and FB-048 is the active promoted workstream on `feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeout-truth`.",
+            "Current Active Workstream: FB-044 Boot-to-desktop handoff outcome refinement.",
+        ),
+    },
+    Path("Docs/workstreams/FB-038_taskbar_tray_quick_task_ux.md"): {
+        "required": (
+            "Historical Selected-Next At Release Time: FB-039 External trigger and plugin integration architecture.",
+        ),
+        "prohibited": (
+            "Selected Next Workstream: FB-039 External trigger and plugin integration architecture.",
+        ),
+    },
+    Path("Docs/workstreams/FB-043_top_level_entrypoint_handoff_refinement.md"): {
+        "required": (
+            "Historical Selected-Next At Release Time: FB-044 Boot-to-desktop handoff outcome refinement",
+            "Historical successor state after merge: FB-044 remained selected next, `Registry-only`, and branch-not-created until `v1.6.8-prebeta` was published, validated, updated `main` was revalidated, and bounded Branch Readiness admitted the first runtime/back-end slice.",
+            "Historical Selected-Next At PR Package Time: FB-044 Boot-to-desktop handoff outcome refinement.",
+        ),
+        "prohibited": (
+            "Selected Next Workstream:",
+            "Selected Next Basis:",
+            "Selected Next Record State At PR Package Time:",
+            "Selected Next Implementation Branch At PR Package Time:",
+            "Successor state after merge:",
+        ),
+    },
+    Path("Docs/workstreams/FB-044_boot_desktop_handoff_outcome_refinement.md"): {
+        "required": (
+            "Historical Selected-Next At Release Time: FB-045 Active-session relaunch outcome refinement",
+            "Historical successor state after merge: FB-045 remained selected next, `Registry-only`, and branch-not-created until `v1.6.9-prebeta` was published, validated, updated `main` was revalidated, and bounded Branch Readiness admitted the first runtime/user-facing relaunch slice.",
+            "Historical Selected-Next At PR Package Time: FB-045 Active-session relaunch outcome refinement.",
+        ),
+        "prohibited": (
+            "Selected Next Workstream:",
+            "Selected Next Basis:",
+            "Selected Next Record State At PR Package Time:",
+            "Selected Next Implementation Branch At PR Package Time:",
+            "Successor state after merge:",
+        ),
+    },
+    Path("Docs/workstreams/FB-045_active_session_relaunch_outcome_refinement.md"): {
+        "required": (
+            "Historical Selected-Next At Release Time: FB-046 Active-session relaunch reacquisition and settled re-entry proof",
+            "Historical successor state after merge: FB-046 remained selected next, `Registry-only`, and branch-not-created until `v1.6.9-prebeta` was published, validated, updated `main` was revalidated, and bounded Branch Readiness admitted the first relaunch-reacquisition slice.",
+            "Historical Selected-Next At PR Package Time: FB-046 Active-session relaunch reacquisition and settled re-entry proof.",
+        ),
+        "prohibited": (
+            "Selected Next Workstream:",
+            "Selected Next Basis:",
+            "Selected Next Record State At PR Package Time:",
+            "Selected Next Implementation Branch At PR Package Time:",
+            "Successor state after merge:",
+        ),
+    },
+    Path("Docs/workstreams/FB-046_active_session_relaunch_reacquisition.md"): {
+        "required": (
+            "Historical Selected-Next At Release Time: FB-047 Active-session relaunch decline session-preservation proof",
+            "Historical successor state after merge: FB-047 remained selected next, `Registry-only`, and branch-not-created until `v1.6.10-prebeta` was published, validated, updated `main` was revalidated, and bounded Branch Readiness admitted the first relaunch-decline preservation slice.",
+            "Historical Selected-Next At PR Package Time: FB-047 Active-session relaunch decline session-preservation proof.",
+        ),
+        "prohibited": (
+            "Selected Next Workstream:",
+            "Selected Next Basis:",
+            "Selected Next Record State At PR Package Time:",
+            "Selected Next Implementation Branch At PR Package Time:",
+            "Successor state after merge:",
+        ),
+    },
+    Path("Docs/workstreams/FB-047_active_session_relaunch_decline_preservation.md"): {
+        "required": (
+            "Historical Selected-Next At Release Time: FB-048 Active-session relaunch signal-failure and wait-timeout truth",
+            "Historical successor state after merge: FB-048 later became the promoted follow-through workstream on `feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeout-truth`, where WS-1, H-1, LV-1, and PR Readiness later completed before release closure.",
+            "Historical Selected-Next At PR Package Time: FB-048 Active-session relaunch signal-failure and wait-timeout truth.",
+        ),
+        "prohibited": (
+            "Selected Next Workstream:",
+            "Selected Next Basis:",
+            "Selected Next Record State At PR Package Time:",
+            "Selected Next Implementation Branch At PR Package Time:",
+            "Successor state after merge:",
+        ),
+    },
+    Path("Docs/workstreams/FB-048_active_session_relaunch_signal_failure_and_wait_timeout_truth.md"): {
+        "required": (
+            "Historical Selected-Next At Release Time: FB-049 Active-session pre-settled incoming-launch conflict truth",
+            "Historical successor state after merge: FB-049 remained selected next, `Registry-only`, and branch-not-created until `v1.6.12-prebeta` was published, validated, updated `main` was revalidated, and bounded Branch Readiness admitted the first pre-settled incoming-launch conflict truth slice.",
+            "Historical Selected-Next At PR Package Time: FB-049 Active-session pre-settled incoming-launch conflict truth.",
+        ),
+        "prohibited": (
+            "Selected Next Workstream:",
+            "Selected Next Basis:",
+            "Selected Next Record State At PR Package Time:",
+            "Selected Next Implementation Branch At PR Package Time:",
+            "Successor state after merge:",
+        ),
+    },
+    Path("Docs/branch_records/feature_fb_048_active_session_relaunch_signal_failure_and_wait_timeout_truth.md"): {
+        "required": (
+            "FB-048 later promoted into the canonical workstream on the same branch; this record remains historical Branch Readiness traceability only.",
+        ),
+        "prohibited": (
+            "FB-048 is now the active promoted workstream on the same branch; this record remains historical Branch Readiness traceability only.",
+        ),
+    },
+}
+
+REFORM_R5_S5_TRACEABILITY_REQUIRED_PHRASES = {
+    Path("Docs/workstreams/FB-042_desktop_startup_runtime_family_dossier.md"): (
+        "Preserved Branch Trace Status: `Populated in Slice R5-S5`",
+        "Trace Index Population State: `All converted FB-042 pass records now point to the preserved branch-readiness trace that exists for each pass`",
+        "| `F042-P02` | `Docs/branch_records/feature_fb_043_top_level_entrypoint_handoff_refinement.md` | `Indexed in Slice R5-S5` | `Preserved Branch Readiness trace for the first post-anchor runtime follow-through.` |",
+        "| `F042-P07` | `Docs/branch_records/feature_fb_048_active_session_relaunch_signal_failure_and_wait_timeout_truth.md` | `Indexed in Slice R5-S5` | `Preserved Branch Readiness trace for the accepted-failure and wait-timeout truth pass.` |",
+        "R5-S5 completes the Phase 5 traceability sweep by indexing the preserved FB-043 through FB-048 branch-readiness traces directly in the family dossier and confirming the dossier, backlog, roadmap, alias workstream, and branch-record routing stay aligned without migrating narrative bodies.",
+    ),
+    Path("Docs/workstreams/FB-027_interaction_shared_action_family_dossier.md"): (
+        "Preserved Branch Trace Status: `Populated in Slice R5-S5`",
+        "Trace Index Population State: `Converted FB-027 pass records now explicitly show where preserved branch-record trace exists and where no separate branch record exists`",
+        "| `F027-P02` | `None preserved` | `Confirmed in Slice R5-S5` | `FB-036 does not have a separate preserved branch-authority record beyond the canonical workstream history.` |",
+        "| `F027-P04` | `Docs/branch_records/codex_fb_037_release_debt_packaging.md` | `Indexed in Slice R5-S5` | `Preserved release-packaging trace for the FB-037 historical pass.` |",
+        "R5-S5 completes the Phase 5 traceability sweep by indexing the preserved FB-037 branch-record trace, explicitly calling out the passes that do not have separate branch records, and confirming the dossier, backlog, roadmap, alias workstream, and branch-record routing stay aligned without migrating narrative bodies.",
+    ),
+}
+
+REFORM_R6_S1_ROADMAP_REQUIRED_PHRASES = (
+    "- historical pass coverage: `FB-043`, `FB-044`, `FB-045`, `FB-046`, `FB-047`, `FB-048`",
+    "- historical pass coverage: `FB-036`, `FB-037`, `FB-038`, `FB-041`",
+    "pass id: `F042-P07`",
+    "pass id: `F042-P06`",
+    "pass id: `F042-P05`",
+    "pass id: `F042-P04`",
+    "pass id: `F042-P03`",
+    "pass id: `F042-P02`",
+    "pass id: `F027-P05`",
+    "pass id: `F027-P04`",
+    "pass id: `F027-P03`",
+    "pass id: `F027-P02`",
+    "Phase 5 / Slice R5-S5 indexed the preserved branch trace; validator/helper and artifact migration remain pending",
+)
+
+REFORM_R6_S2_INDEX_REQUIRED_PHRASES = (
+    "### Family Anchor Records",
+    "- `Docs/workstreams/FB-042_desktop_entrypoint_runtime_refinement.md`",
+    "- `Docs/workstreams/FB-027_interaction_system_baseline.md`",
+    "### Historical Pass Alias Records",
+    "#### FB-042 Family",
+    "- `Docs/workstreams/FB-043_top_level_entrypoint_handoff_refinement.md`",
+    "- `Docs/workstreams/FB-048_active_session_relaunch_signal_failure_and_wait_timeout_truth.md`",
+    "#### FB-027 Family",
+    "- `Docs/workstreams/FB-036_saved_action_authoring.md`",
+    "- `Docs/workstreams/FB-038_taskbar_tray_quick_task_ux.md`",
+    "### Other Closed Workstreams",
+    "- `Docs/workstreams/FB-005_workspace_and_folder_organization.md`",
+    "- `Docs/workstreams/FB-035_release_context_fallback_hardening.md`",
+)
+
+REFORM_R6_S3_ROUTER_REQUIRED_PHRASES = {
+    Path("Docs/Main.md"): (
+        "For the family-governance model, use `Docs/workstreams/index.md` first to distinguish family anchors, historical pass alias records, and other closed workstreams before loading the specific canonical record.",
+        "### Family Dossiers And Historical Pass Alias Routing",
+        "- load the `Lifetime Dossier Doc` named by backlog or roadmap when the task touches a `Feature Family` anchor or a `Historical Pass Alias`",
+    ),
+    Path("Docs/nexus_startup_contract.md"): (
+        "- `Docs/workstreams/index.md` owns canonical workstream-record routing, including family anchors, historical pass aliases, and other closed-workstream splits.",
+        "9. If the tracked item declares a `Lifetime Dossier Doc`, or if it is a `Feature Family` anchor or `Historical Pass Alias` routed through a family dossier, load that dossier too.",
+    ),
+}
+
+CURRENT_BACKLOG_SHAPE_HEADINGS = (
+    "## Registry Items",
+    "## Closed Canonical Workstreams",
+)
+
+REFORM_BACKLOG_SHAPE_HEADINGS = (
+    "### User-Facing Feature Families",
+    "### Historical Consolidated Pass Aliases",
+    "### Support / Architecture / Governance Lanes",
+    "## Historical Implemented Registry-Only Items",
+)
+
+REFORM_BACKLOG_TRIGGER_HEADINGS = (
+    "### User-Facing Feature Families",
+    "### Historical Consolidated Pass Aliases",
+    "### Support / Architecture / Governance Lanes",
+)
+
+REFORM_BACKLOG_ORDERED_HEADINGS = (
+    "### User-Facing Feature Families",
+    "### Historical Consolidated Pass Aliases",
+    "### Support / Architecture / Governance Lanes",
+    "## Historical Implemented Registry-Only Items",
+)
+
+TRANSITIONAL_CURRENT_REGISTRY_ORDER_HEADING = "### Transitional Current Registry Order"
+
+REFORM_BACKLOG_SECTION_CLASS_RULES = (
+    ("User-Facing Feature Families", "Feature Family"),
+    ("Historical Consolidated Pass Aliases", "Historical Pass Alias"),
+    ("Support / Architecture / Governance Lanes", "Support Lane"),
+)
+
+REFORM_BACKLOG_SECTION_NEXT_HEADINGS = {
+    "User-Facing Feature Families": "### Historical Consolidated Pass Aliases",
+    "Historical Consolidated Pass Aliases": "### Support / Architecture / Governance Lanes",
+    "Support / Architecture / Governance Lanes": "## Historical Implemented Registry-Only Items",
+}
+
+CURRENT_WORKSTREAM_INDEX_SHAPE_HEADINGS = (
+    "### Active",
+    "### Merged / Release Debt Owners",
+    "### Closed",
+)
+
+REFORM_WORKSTREAM_INDEX_SHAPE_HEADINGS = (
+    "### Family Anchor Records",
+    "### Historical Pass Alias Records",
+    "### Other Closed Workstreams",
+)
+
+REFORM_WORKSTREAM_ACTIVE_HEADINGS = (
+    "Active",
+)
+
+REFORM_WORKSTREAM_CLOSED_HEADINGS = (
+    "Closed",
+    "Family Anchor Records",
+    "Historical Pass Alias Records",
+    "Other Closed Workstreams",
+)
+
+REFORM_WORKSTREAM_RELEASE_DEBT_HEADINGS = (
+    "Merged / Release Debt Owners",
+)
+
+VALID_BACKLOG_REGISTRY_CLASSES = (
+    "Feature Family",
+    "Historical Pass Alias",
+    "Support Lane",
+    "Historical Implemented Registry-Only",
+)
+
 
 def _read_text(relative_path: Path) -> str:
     return (ROOT_DIR / relative_path).read_text(encoding="utf-8")
@@ -901,6 +1697,21 @@ def _section(text: str, heading: str) -> str:
 def _subsection(text: str, heading_prefix: str) -> str:
     match = re.search(rf"(?ms)^### {re.escape(heading_prefix)}.*?\n(.*?)(?=^### |\Z)", text)
     return match.group(0).strip() if match else ""
+
+
+def _has_all_headings(text: str, headings: tuple[str, ...]) -> bool:
+    return all(heading in text for heading in headings)
+
+
+def _has_any_heading(text: str, headings: tuple[str, ...]) -> bool:
+    return any(heading in text for heading in headings)
+
+
+def _collect_index_paths_from_headings(text: str, headings: tuple[str, ...]) -> set[str]:
+    paths: set[str] = set()
+    for heading in headings:
+        paths.update(re.findall(r"Docs/workstreams/[A-Za-z0-9._-]+\.md", _subsection(text, heading)))
+    return paths
 
 
 def _extract_backtick_values(text: str) -> list[str]:
@@ -947,6 +1758,24 @@ def _parse_backlog_sections(text: str) -> list[dict[str, str]]:
     return entries
 
 
+def _parse_backlog_subsection(text: str, heading_prefix: str) -> list[dict[str, str]]:
+    heading = f"### {heading_prefix}"
+    start = text.find(heading)
+    if start < 0:
+        return []
+    start = text.find("\n", start)
+    if start < 0:
+        return []
+    start += 1
+
+    next_heading = REFORM_BACKLOG_SECTION_NEXT_HEADINGS.get(heading_prefix)
+    end = text.find(next_heading, start) if next_heading else -1
+    if end < 0:
+        end = len(text)
+
+    return _parse_backlog_sections(text[start:end])
+
+
 def _is_open_backlog_candidate(entry: dict[str, str]) -> bool:
     status = entry["status"].strip().casefold()
     normalized_status = _normalize_status(entry["status"])
@@ -968,6 +1797,40 @@ def _extract_colon_values(block: str, label: str) -> list[str]:
 
 def _clean_release_value(value: str) -> str:
     return value.strip().strip("`").strip()
+
+
+def _backlog_id_number(workstream_id: str) -> int:
+    match = re.fullmatch(r"FB-(\d+)", workstream_id)
+    return int(match.group(1)) if match else -1
+
+
+def _backlog_entry_by_id(
+    backlog_entries: list[dict[str, str]],
+    workstream_id: str,
+) -> dict[str, str] | None:
+    for entry in backlog_entries:
+        if entry["id"] == workstream_id:
+            return entry
+    return None
+
+
+def _historical_alias_mapping_matches(
+    backlog_entries: list[dict[str, str]],
+    *,
+    alias_ids: tuple[str, ...],
+    family_anchor_id: str,
+) -> bool:
+    for alias_id in alias_ids:
+        entry = _backlog_entry_by_id(backlog_entries, alias_id)
+        if not entry:
+            return False
+        registry_class = _clean_release_value(_extract_colon_value(entry["block"], "Registry Class"))
+        historical_alias_of = _clean_release_value(
+            _extract_colon_value(entry["block"], "Historical Alias Of")
+        )
+        if registry_class != "Historical Pass Alias" or historical_alias_of != family_anchor_id:
+            return False
+    return True
 
 
 def _latest_public_prerelease(roadmap_text: str) -> str:
@@ -1136,6 +1999,20 @@ def _branch_record_branch_sets(
         branch_class_map[branch_name] = branch_class
         branch_class_map[prefixed_branch_name] = branch_class
     return branch_class_map, all_repair_branch_names, active_repair_branch_names
+
+
+def _active_branch_record_for_branch(
+    active_branch_record_paths: set[str],
+    branch_name: str,
+) -> tuple[str, str]:
+    for branch_record_path in active_branch_record_paths:
+        record_path = ROOT_DIR / Path(branch_record_path)
+        if not record_path.is_file():
+            continue
+        record_text = _read_text(Path(branch_record_path))
+        if _extract_branch_identity_branch(record_text) == branch_name:
+            return branch_record_path, record_text
+    return "", ""
 
 
 def _user_test_summary_section(text: str) -> str:
@@ -1379,6 +2256,261 @@ def _validate_slice_continuation_policy(
         )
 
 
+def _validate_governed_output_state(
+    require,
+    source_path: str,
+    *,
+    continuation_section: str,
+    active_seam_section: str,
+    blockers: list[str],
+) -> None:
+    seam_status = _extract_marker_value(continuation_section, CONTINUATION_SEAM_STATUS_LABEL)
+    slice_status = _extract_marker_value(continuation_section, CONTINUATION_SLICE_STATUS_LABEL)
+    completion_status = _extract_marker_value(
+        continuation_section, CONTINUATION_COMPLETION_STATUS_LABEL
+    )
+    waiver_status = _extract_marker_value(continuation_section, CONTINUATION_WAIVER_STATUS_LABEL)
+    continue_decision = _extract_marker_value(continuation_section, "Continue Decision")
+    stop_basis = _extract_marker_value(continuation_section, CONTINUATION_STOP_BASIS_LABEL)
+    continuation_action = _extract_marker_value(continuation_section, "Continuation Action")
+    active_seam = _extract_marker_value(active_seam_section, "Active seam")
+
+    normalized_seam_status = seam_status.strip().casefold()
+    normalized_slice_status = slice_status.strip().casefold()
+    normalized_completion_status = completion_status.strip().casefold()
+    normalized_waiver_status = waiver_status.strip().casefold()
+    normalized_decision = continue_decision.strip().casefold()
+    normalized_stop_basis = stop_basis.strip().casefold()
+    stop_authorizing_blockers = [
+        blocker for blocker in blockers if blocker != BACKLOG_COMPLETION_UNPROVEN_BLOCKER
+    ]
+
+    require(
+        normalized_seam_status in CONTINUATION_ALLOWED_SEAM_STATUSES,
+        (
+            f"{source_path}: {CONTINUATION_SEAM_STATUS_LABEL} '{seam_status}' must be one of "
+            f"{', '.join(sorted(CONTINUATION_ALLOWED_SEAM_STATUSES))}"
+        ),
+    )
+    require(
+        normalized_slice_status in CONTINUATION_ALLOWED_SLICE_STATUSES,
+        (
+            f"{source_path}: {CONTINUATION_SLICE_STATUS_LABEL} '{slice_status}' must be one of "
+            f"{', '.join(sorted(CONTINUATION_ALLOWED_SLICE_STATUSES))}"
+        ),
+    )
+    require(
+        normalized_completion_status in CONTINUATION_ALLOWED_COMPLETION_STATUSES,
+        (
+            f"{source_path}: {CONTINUATION_COMPLETION_STATUS_LABEL} '{completion_status}' must be "
+            f"one of {', '.join(sorted(CONTINUATION_ALLOWED_COMPLETION_STATUSES))}"
+        ),
+    )
+    require(
+        normalized_waiver_status in CONTINUATION_ALLOWED_WAIVER_STATUSES,
+        (
+            f"{source_path}: {CONTINUATION_WAIVER_STATUS_LABEL} '{waiver_status}' must be one of "
+            f"{', '.join(sorted(CONTINUATION_ALLOWED_WAIVER_STATUSES))}"
+        ),
+    )
+    require(
+        normalized_decision in CONTINUATION_ALLOWED_DECISIONS,
+        (
+            f"{source_path}: Continue Decision '{continue_decision}' must be one of "
+            f"{', '.join(sorted(CONTINUATION_ALLOWED_DECISIONS))}"
+        ),
+    )
+    require(
+        normalized_stop_basis in CONTINUATION_ALLOWED_STOP_BASES,
+        (
+            f"{source_path}: {CONTINUATION_STOP_BASIS_LABEL} '{stop_basis}' must be one of "
+            f"{', '.join(sorted(CONTINUATION_ALLOWED_STOP_BASES))}"
+        ),
+    )
+
+    if normalized_slice_status == "green":
+        require(
+            normalized_completion_status == "green",
+            (
+                f"{source_path}: a green slice must immediately advance to the next admitted slice "
+                "unless Workstream Completion Status is Green"
+            ),
+        )
+    else:
+        require(
+            normalized_stop_basis != "workstream green",
+            (
+                f"{source_path}: {CONTINUATION_STOP_BASIS_LABEL} must not be 'Workstream Green' "
+                f"while {CONTINUATION_SLICE_STATUS_LABEL} is not Green"
+            ),
+        )
+
+    if normalized_completion_status == "green":
+        require(
+            normalized_decision == "stop",
+            (
+                f"{source_path}: {CONTINUATION_COMPLETION_STATUS_LABEL} Green must stop and hand "
+                "off to Hardening"
+            ),
+        )
+        require(
+            normalized_stop_basis == "workstream green",
+            (
+                f"{source_path}: {CONTINUATION_STOP_BASIS_LABEL} must be 'Workstream Green' when "
+                f"{CONTINUATION_COMPLETION_STATUS_LABEL} is Green"
+            ),
+        )
+        require(
+            normalized_slice_status == "green",
+            (
+                f"{source_path}: {CONTINUATION_COMPLETION_STATUS_LABEL} Green requires "
+                f"{CONTINUATION_SLICE_STATUS_LABEL} Green"
+            ),
+        )
+        require(
+            normalized_waiver_status == "none",
+            (
+                f"{source_path}: {CONTINUATION_COMPLETION_STATUS_LABEL} Green must not carry a "
+                "waiver status"
+            ),
+        )
+    elif normalized_completion_status == "in progress":
+        require(
+            normalized_decision == "continue",
+            (
+                f"{source_path}: {CONTINUATION_COMPLETION_STATUS_LABEL} In Progress requires "
+                "Continue Decision Continue"
+            ),
+        )
+        require(
+            normalized_stop_basis == "none",
+            (
+                f"{source_path}: {CONTINUATION_COMPLETION_STATUS_LABEL} In Progress requires "
+                f"'{CONTINUATION_STOP_BASIS_LABEL}: None'"
+            ),
+        )
+        require(
+            normalized_waiver_status == "none",
+            (
+                f"{source_path}: {CONTINUATION_COMPLETION_STATUS_LABEL} In Progress requires "
+                f"'{CONTINUATION_WAIVER_STATUS_LABEL}: None'"
+            ),
+        )
+        require(
+            normalized_slice_status != "green",
+            (
+                f"{source_path}: {CONTINUATION_COMPLETION_STATUS_LABEL} In Progress requires the "
+                "record to advance past a completed slice instead of stopping on slice-green truth"
+            ),
+        )
+        require(
+            not stop_authorizing_blockers,
+            (
+                f"{source_path}: {CONTINUATION_COMPLETION_STATUS_LABEL} In Progress must not keep "
+                "a stop-authorizing blocker active"
+            ),
+        )
+        require(
+            active_seam.casefold() not in {"none", "none."},
+            (
+                f"{source_path}: Continue Decision Continue requires an actual active seam instead "
+                "of `Active seam: None.`"
+            ),
+        )
+        require(
+            "await next instruction" not in continuation_action.casefold(),
+            (
+                f"{source_path}: Continue Decision Continue must not tell Codex to await the next "
+                "instruction"
+            ),
+        )
+        require(
+            "when instructed" not in continuation_action.casefold(),
+            (
+                f"{source_path}: Continue Decision Continue must not gate the next seam behind "
+                "'when instructed' wording"
+            ),
+        )
+    else:
+        require(
+            normalized_decision == "stop",
+            (
+                f"{source_path}: {CONTINUATION_COMPLETION_STATUS_LABEL} Red requires Continue "
+                "Decision Stop"
+            ),
+        )
+        require(
+            normalized_slice_status != "green",
+            (
+                f"{source_path}: {CONTINUATION_COMPLETION_STATUS_LABEL} Red must not leave a green "
+                "slice recorded as the current active Workstream state"
+            ),
+        )
+        if normalized_waiver_status != "none":
+            require(
+                normalized_stop_basis == "waiver",
+                (
+                    f"{source_path}: {CONTINUATION_COMPLETION_STATUS_LABEL} Red with waiver status "
+                    "requires "
+                    f"'{CONTINUATION_STOP_BASIS_LABEL}: Waiver'"
+                ),
+            )
+        elif stop_authorizing_blockers:
+            require(
+                normalized_stop_basis == "named blocker",
+                (
+                    f"{source_path}: {CONTINUATION_COMPLETION_STATUS_LABEL} Red with active "
+                    "blockers requires "
+                    f"'{CONTINUATION_STOP_BASIS_LABEL}: Named Blocker'"
+                ),
+            )
+        else:
+            require(
+                False,
+                (
+                    f"{source_path}: {CONTINUATION_COMPLETION_STATUS_LABEL} Red is invalid without "
+                    "a named blocker or waiver"
+                ),
+            )
+        require(
+            continuation_action.strip().casefold() not in {"", "none", "none.", "n/a", "na"},
+            (
+                f"{source_path}: {CONTINUATION_COMPLETION_STATUS_LABEL} Red requires "
+                "'Continuation Action' to report the blocker-clearing action or "
+                "waiver-clearing action"
+            ),
+        )
+        require(
+            "execute slice" not in continuation_action.casefold(),
+            (
+                f"{source_path}: {CONTINUATION_COMPLETION_STATUS_LABEL} Red must not keep an "
+                "execution continuation action; it must report the blocker-clearing action or "
+                "waiver-clearing action instead"
+            ),
+        )
+        require(
+            "await next instruction" not in continuation_action.casefold(),
+            (
+                f"{source_path}: {CONTINUATION_COMPLETION_STATUS_LABEL} Red must not use "
+                "'Await Next Instruction' as the continuation action; it must report the "
+                "blocker-clearing action or waiver-clearing action instead"
+            ),
+        )
+
+    if (
+        normalized_slice_status != "green"
+        and not stop_authorizing_blockers
+        and normalized_waiver_status == "none"
+    ):
+        require(
+            normalized_decision == "continue",
+            (
+                f"{source_path}: non-green slice with no named blocker or waiver must keep "
+                "Continue Decision at Continue"
+            ),
+        )
+
+
 def _validate_backlog_completion_strategy(
     require,
     source_path: str,
@@ -1444,12 +2576,23 @@ def _validate_backlog_completion_status(
     )
     status_section = _section(text, BACKLOG_COMPLETION_STATUS_HEADING)
     state_value = _extract_marker_value(status_section, BACKLOG_COMPLETION_STATE_LABEL)
+    completion_status_value = _extract_marker_value(
+        status_section, CONTINUATION_COMPLETION_STATUS_LABEL
+    )
     remaining_work = _extract_marker_value(status_section, REMAINING_IMPLEMENTABLE_WORK_LABEL)
     future_blockers = _extract_marker_value(status_section, FUTURE_DEPENDENT_BLOCKERS_LABEL)
     normalized_state = state_value.strip().casefold()
+    normalized_completion_status = completion_status_value.strip().casefold()
     normalized_remaining = remaining_work.strip().casefold()
     normalized_future = future_blockers.strip().casefold()
     has_backlog_blocker = BACKLOG_COMPLETION_UNPROVEN_BLOCKER in blockers
+    continuation_section = _section(text, "Seam Continuation Decision")
+    continuation_waiver_status = _extract_marker_value(
+        continuation_section, CONTINUATION_WAIVER_STATUS_LABEL
+    ).strip().casefold()
+    stop_authorizing_blockers = [
+        blocker for blocker in blockers if blocker != BACKLOG_COMPLETION_UNPROVEN_BLOCKER
+    ]
 
     require(
         bool(state_value),
@@ -1463,6 +2606,22 @@ def _validate_backlog_completion_status(
         bool(future_blockers),
         f"{source_path}: {BACKLOG_COMPLETION_STATUS_HEADING} is missing '{FUTURE_DEPENDENT_BLOCKERS_LABEL}:'",
     )
+    if current_phase == "Workstream":
+        require(
+            bool(completion_status_value),
+            (
+                f"{source_path}: {BACKLOG_COMPLETION_STATUS_HEADING} is missing "
+                f"'{CONTINUATION_COMPLETION_STATUS_LABEL}:'"
+            ),
+        )
+        require(
+            normalized_completion_status in CONTINUATION_ALLOWED_COMPLETION_STATUSES,
+            (
+                f"{source_path}: {CONTINUATION_COMPLETION_STATUS_LABEL} "
+                f"'{completion_status_value}' must be one of "
+                f"{', '.join(sorted(CONTINUATION_ALLOWED_COMPLETION_STATUSES))}"
+            ),
+        )
     require(
         normalized_state
         in {
@@ -1505,6 +2664,25 @@ def _validate_backlog_completion_status(
                 f"'{BACKLOG_COMPLETION_UNPROVEN_BLOCKER}'"
             ),
         )
+        if current_phase == "Workstream":
+            if continuation_waiver_status != "none" or stop_authorizing_blockers:
+                require(
+                    normalized_completion_status == "red",
+                    (
+                        f"{source_path}: {BACKLOG_COMPLETION_STATE_LABEL} In Progress with a "
+                        "stop-authorizing blocker or waiver requires "
+                        f"'{CONTINUATION_COMPLETION_STATUS_LABEL}: Red'"
+                    ),
+                )
+            else:
+                require(
+                    normalized_completion_status == "in progress",
+                    (
+                        f"{source_path}: {BACKLOG_COMPLETION_STATE_LABEL} In Progress without a "
+                        "stop-authorizing blocker or waiver requires "
+                        f"'{CONTINUATION_COMPLETION_STATUS_LABEL}: In Progress'"
+                    ),
+                )
     elif normalized_state == BACKLOG_COMPLETION_IMPLEMENTED_COMPLETE:
         require(
             normalized_remaining in {"", "none", "n/a", "na"},
@@ -1527,6 +2705,21 @@ def _validate_backlog_completion_status(
                 "backlog completion is proven"
             ),
         )
+        if current_phase == "Workstream":
+            require(
+                normalized_completion_status == "green",
+                (
+                    f"{source_path}: {BACKLOG_COMPLETION_STATE_LABEL} Implemented Complete requires "
+                    f"'{CONTINUATION_COMPLETION_STATUS_LABEL}: Green' before Workstream can exit"
+                ),
+            )
+            require(
+                next_legal_phase == "Hardening",
+                (
+                    f"{source_path}: {BACKLOG_COMPLETION_STATE_LABEL} Implemented Complete in "
+                    "Workstream must advance Next Legal Phase to `Hardening`"
+                ),
+            )
     elif normalized_state == BACKLOG_COMPLETION_IMPLEMENTED_COMPLETE_FUTURE:
         require(
             normalized_remaining in {"", "none", "n/a", "na"},
@@ -1549,6 +2742,22 @@ def _validate_backlog_completion_status(
                 "only future-dependent blockers remain"
             ),
         )
+        if current_phase == "Workstream":
+            require(
+                normalized_completion_status == "green",
+                (
+                    f"{source_path}: {BACKLOG_COMPLETION_STATE_LABEL} Implemented Complete Except "
+                    f"Future Dependency requires '{CONTINUATION_COMPLETION_STATUS_LABEL}: Green' "
+                    "before Workstream can exit"
+                ),
+            )
+            require(
+                next_legal_phase == "Hardening",
+                (
+                    f"{source_path}: {BACKLOG_COMPLETION_STATE_LABEL} Implemented Complete Except "
+                    "Future Dependency in Workstream must advance Next Legal Phase to `Hardening`"
+                ),
+            )
 
 
 def _validate_release_window_audit(require, source_path: str, text: str) -> None:
@@ -1690,23 +2899,2292 @@ def _requires_user_facing_shortcut_gate(text: str) -> bool:
 
 
 def _collect_active_index_paths(text: str) -> set[str]:
-    active_section = _subsection(text, "Active")
-    return set(re.findall(r"Docs/workstreams/[A-Za-z0-9._-]+\.md", active_section))
+    return _collect_index_paths_from_headings(text, REFORM_WORKSTREAM_ACTIVE_HEADINGS)
 
 
 def _collect_closed_index_paths(text: str) -> set[str]:
-    closed_section = _subsection(text, "Closed")
-    return set(re.findall(r"Docs/workstreams/[A-Za-z0-9._-]+\.md", closed_section))
+    return _collect_index_paths_from_headings(text, REFORM_WORKSTREAM_CLOSED_HEADINGS)
 
 
 def _collect_release_debt_index_paths(text: str) -> set[str]:
-    release_debt_section = _subsection(text, "Merged / Release Debt Owners")
-    return set(re.findall(r"Docs/workstreams/[A-Za-z0-9._-]+\.md", release_debt_section))
+    return _collect_index_paths_from_headings(text, REFORM_WORKSTREAM_RELEASE_DEBT_HEADINGS)
 
 
 def _collect_branch_record_paths(text: str, heading_prefix: str) -> set[str]:
     section = _section(text, heading_prefix)
     return set(re.findall(r"Docs/branch_records/[A-Za-z0-9._-]+\.md", section))
+
+
+def _is_backlog_family_reform_branch(branch_name: str) -> bool:
+    normalized = (branch_name or "").strip()
+    return normalized in {
+        BACKLOG_FAMILY_REFORM_BRANCH,
+        f"origin/{BACKLOG_FAMILY_REFORM_BRANCH}",
+    }
+
+
+def _validate_backlog_family_reform_bootstrap(
+    require,
+    *,
+    current_branch: str,
+    backlog_text: str,
+    index_text: str,
+    backlog_entries: list[dict[str, str]],
+) -> None:
+    if not _is_backlog_family_reform_branch(current_branch):
+        return
+
+    has_reform_backlog_shape = _has_all_headings(backlog_text, REFORM_BACKLOG_SHAPE_HEADINGS)
+    require(
+        has_reform_backlog_shape,
+        (
+            "Docs/feature_backlog.md: validator finalization on "
+            f"{BACKLOG_FAMILY_REFORM_BRANCH} requires the reform backlog-family shape"
+        ),
+    )
+    require(
+        not _has_any_heading(backlog_text, CURRENT_BACKLOG_SHAPE_HEADINGS[1:]),
+        (
+            "Docs/feature_backlog.md: validator finalization on "
+            f"{BACKLOG_FAMILY_REFORM_BRANCH} must not rely on the pre-reform "
+            "`Closed Canonical Workstreams` backlog shape"
+        ),
+    )
+
+    has_reform_index_shape = _has_all_headings(index_text, REFORM_WORKSTREAM_INDEX_SHAPE_HEADINGS)
+    require(
+        has_reform_index_shape,
+        (
+            "Docs/workstreams/index.md: validator finalization on "
+            f"{BACKLOG_FAMILY_REFORM_BRANCH} requires the reform family-index split"
+        ),
+    )
+
+    registry_classes = [
+        _clean_release_value(_extract_colon_value(entry["block"], "Registry Class"))
+        for entry in backlog_entries
+    ]
+    if any(registry_classes):
+        missing_registry_class_ids = [
+            entry["id"]
+            for entry, registry_class in zip(backlog_entries, registry_classes)
+            if not registry_class
+        ]
+        require(
+            not missing_registry_class_ids,
+            (
+                "Docs/feature_backlog.md: once reform classification markers land on the "
+                "migration branch, every backlog entry must declare a valid Registry Class "
+                "before later relocation seams begin"
+            ),
+        )
+
+    for entry, registry_class in zip(backlog_entries, registry_classes):
+        block = entry["block"]
+        if not registry_class:
+            continue
+
+        require(
+            registry_class in VALID_BACKLOG_REGISTRY_CLASSES,
+            (
+                f"Docs/feature_backlog.md: {entry['id']} has invalid Registry Class "
+                f"'{registry_class}'"
+            ),
+        )
+
+        if registry_class == "Feature Family":
+            family_anchor = _clean_release_value(_extract_colon_value(block, "Family Anchor"))
+            require(
+                family_anchor == "Self",
+                (
+                    f"Docs/feature_backlog.md: {entry['id']} Feature Family entry must declare "
+                    "`Family Anchor: Self`"
+                ),
+            )
+        elif registry_class == "Historical Pass Alias":
+            alias_of = _clean_release_value(_extract_colon_value(block, "Historical Alias Of"))
+            pass_id = _clean_release_value(_extract_colon_value(block, "Pass ID"))
+            alias_role = _clean_release_value(_extract_colon_value(block, "Alias Role"))
+            independently_selectable = _clean_release_value(
+                _extract_colon_value(block, "Selectable Independently")
+            )
+            require(
+                bool(alias_of),
+                f"Docs/feature_backlog.md: {entry['id']} Historical Pass Alias must declare Historical Alias Of",
+            )
+            require(
+                bool(pass_id),
+                f"Docs/feature_backlog.md: {entry['id']} Historical Pass Alias must declare Pass ID",
+            )
+            require(
+                alias_role == "Historical Pass Record",
+                (
+                    f"Docs/feature_backlog.md: {entry['id']} Historical Pass Alias must declare "
+                    "`Alias Role: Historical Pass Record`"
+                ),
+            )
+            require(
+                independently_selectable.casefold() == "no",
+                (
+                    f"Docs/feature_backlog.md: {entry['id']} Historical Pass Alias must declare "
+                    "`Selectable Independently: No`"
+                ),
+            )
+
+    if has_reform_backlog_shape:
+        reform_heading_positions = [backlog_text.find(heading) for heading in REFORM_BACKLOG_ORDERED_HEADINGS]
+        require(
+            reform_heading_positions == sorted(reform_heading_positions),
+            (
+                "Docs/feature_backlog.md: reform backlog-family headings must remain ordered as "
+                "User-Facing Feature Families, Historical Consolidated Pass Aliases, Support / "
+                "Architecture / Governance Lanes, then Historical Implemented Registry-Only Items"
+            ),
+        )
+        require(
+            TRANSITIONAL_CURRENT_REGISTRY_ORDER_HEADING not in backlog_text,
+            (
+                "Docs/feature_backlog.md: transitional current registry order heading must be "
+                "removed after Slice R2-S5 ordering hardening"
+            ),
+        )
+
+        reform_section_entries = {
+            heading: _parse_backlog_subsection(backlog_text, heading)
+            for heading, _ in REFORM_BACKLOG_SECTION_CLASS_RULES
+        }
+        feature_family_ids = {entry["id"] for entry in reform_section_entries["User-Facing Feature Families"]}
+        require(
+            bool(feature_family_ids),
+            (
+                "Docs/feature_backlog.md: User-Facing Feature Families must contain the selectable "
+                "feature-family records after Slice R2-S5"
+            ),
+        )
+
+        for heading, expected_registry_class in REFORM_BACKLOG_SECTION_CLASS_RULES:
+            section_entries = reform_section_entries[heading]
+            section_ids = [entry["id"] for entry in section_entries]
+            require(
+                section_ids == sorted(section_ids, key=_backlog_id_number, reverse=True),
+                (
+                    f"Docs/feature_backlog.md: {heading} entries must remain in descending "
+                    "`FB-XXX` order"
+                ),
+            )
+            for section_entry in section_entries:
+                actual_registry_class = _clean_release_value(
+                    _extract_colon_value(section_entry["block"], "Registry Class")
+                )
+                require(
+                    actual_registry_class == expected_registry_class,
+                    (
+                        f"Docs/feature_backlog.md: {section_entry['id']} must live under "
+                        f"'{heading}' with Registry Class '{expected_registry_class}'"
+                    ),
+                )
+
+        for registry_class_name, heading in (
+            ("Feature Family", "User-Facing Feature Families"),
+            ("Historical Pass Alias", "Historical Consolidated Pass Aliases"),
+            ("Support Lane", "Support / Architecture / Governance Lanes"),
+        ):
+            class_ids = {
+                entry["id"]
+                for entry, registry_class in zip(backlog_entries, registry_classes)
+                if registry_class == registry_class_name
+            }
+            require(
+                class_ids == {entry["id"] for entry in reform_section_entries[heading]},
+                (
+                    f"Docs/feature_backlog.md: all {registry_class_name} entries must live under "
+                    f"'{heading}' after Slice R2-S5"
+                ),
+            )
+
+        selected_next_ids = {entry["id"] for entry in _selected_next_workstream_entries(backlog_entries)}
+        require(
+            selected_next_ids <= feature_family_ids,
+            (
+                "Docs/feature_backlog.md: selected-next backlog entries must remain inside "
+                "'User-Facing Feature Families' after Slice R2-S5"
+            ),
+        )
+
+
+def _validate_backlog_family_reform_seam_truth(
+    require,
+    *,
+    current_branch: str,
+    backlog_entries: list[dict[str, str]],
+    backlog_text: str,
+    roadmap_text: str,
+) -> None:
+    if not _is_backlog_family_reform_branch(current_branch):
+        return
+
+    branch_record_text = _read_text(BACKLOG_FAMILY_REFORM_BRANCH_RECORD)
+    backlog_workstream_state = _extract_colon_value(backlog_text, "Current Workstream State")
+    roadmap_workstream_state = _extract_colon_value(roadmap_text, "Current Workstream State")
+    phase_status_section = _section(branch_record_text, "Phase Status")
+    active_seam_section = _section(branch_record_text, "Active Seam")
+    continuation_section = _section(branch_record_text, "Seam Continuation Decision")
+    continuation_slice_status = _extract_marker_value(
+        continuation_section, CONTINUATION_SLICE_STATUS_LABEL
+    )
+    continuation_completion_status = _extract_marker_value(
+        continuation_section, CONTINUATION_COMPLETION_STATUS_LABEL
+    )
+    continuation_decision = _extract_marker_value(continuation_section, "Continue Decision")
+    phase_status_next_seam = _extract_marker_value(phase_status_section, "Next Active Seam")
+    continuation_next_seam = _extract_marker_value(continuation_section, "Next Active Seam")
+    active_seam_match = re.search(r"^Next active seam:\s*`([^`]+)`", active_seam_section, flags=re.M)
+    active_seam_next = active_seam_match.group(1).strip() if active_seam_match else ""
+    active_seam_current = _extract_marker_value(active_seam_section, "Active seam")
+    current_phase = _extract_marker_value(_section(branch_record_text, "Current Phase"), "Phase")
+    next_legal_phase = _extract_first_backtick_value(_section(branch_record_text, "Next Legal Phase"))
+    phase_status_hardening_seam = _extract_marker_value(phase_status_section, "Current Hardening Seam")
+    phase_status_live_validation_seam = _extract_marker_value(
+        phase_status_section, "Current Live Validation Seam"
+    )
+    phase_status_pr_readiness_seam = _extract_marker_value(
+        phase_status_section, "Current PR Readiness Seam"
+    )
+    phase_status_release_readiness_seam = _extract_marker_value(
+        phase_status_section, "Current Release Readiness Seam"
+    )
+    backlog_next_legal_phase = _extract_colon_value(backlog_text, "Next Legal Phase").rstrip(".")
+    roadmap_next_legal_phase = _extract_colon_value(roadmap_text, "Next Legal Phase").rstrip(".")
+
+    if _historical_alias_mapping_matches(
+        backlog_entries,
+        alias_ids=REFORM_FB042_ALIAS_IDS,
+        family_anchor_id="FB-042",
+    ):
+        require(
+            REFORM_R3_S2_STATE_NEXT_PHRASE not in backlog_workstream_state,
+            (
+                "Docs/feature_backlog.md: R3-S2 must not remain the next seam once FB-043 "
+                "through FB-048 already declare `Historical Alias Of: FB-042`"
+            ),
+        )
+        require(
+            REFORM_R3_S2_STATE_NEXT_PHRASE not in roadmap_workstream_state,
+            (
+                "Docs/prebeta_roadmap.md: R3-S2 must not remain the next seam once FB-043 "
+                "through FB-048 already declare `Historical Alias Of: FB-042`"
+            ),
+        )
+        require(
+            REFORM_R3_S2_STATE_NEXT_PHRASE not in phase_status_section,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Phase Status "
+                "must not report R3-S2 as next once FB-043 through FB-048 already declare "
+                "`Historical Alias Of: FB-042`"
+            ),
+        )
+        require(
+            phase_status_next_seam != REFORM_R3_S2_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Phase Status "
+                "`Next Active Seam` must advance past R3-S2 once the FB-042 alias mapping is "
+                "already satisfied in repo truth"
+            ),
+        )
+        require(
+            REFORM_R3_S2_ACTIVE_SEAM_NEXT_PHRASE not in active_seam_section,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Active Seam "
+                "must not keep R3-S2 as the next active seam once the FB-042 alias mapping is "
+                "already satisfied in repo truth"
+            ),
+        )
+        require(
+            active_seam_next != REFORM_R3_S2_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Active Seam "
+                "`Next active seam` must advance past R3-S2 once the FB-042 alias mapping is "
+                "already satisfied in repo truth"
+            ),
+        )
+        require(
+            continuation_next_seam != REFORM_R3_S2_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Seam "
+                "Continuation Decision must not keep R3-S2 as `Next Active Seam` once the "
+                "FB-042 alias mapping is already satisfied in repo truth"
+            ),
+        )
+        require(
+            REFORM_R3_S2_CONTINUATION_PHRASE not in continuation_section,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Seam "
+                "Continuation Decision must not keep an R3-S2 continuation action once the "
+                "FB-042 alias mapping is already satisfied in repo truth"
+            ),
+        )
+
+    if _historical_alias_mapping_matches(
+        backlog_entries,
+        alias_ids=REFORM_FB027_ALIAS_IDS,
+        family_anchor_id="FB-027",
+    ):
+        require(
+            REFORM_R3_S4_STATE_NEXT_PHRASE not in backlog_workstream_state,
+            (
+                "Docs/feature_backlog.md: R3-S4 must not remain the next seam once FB-036, "
+                "FB-037, FB-038, and FB-041 already declare `Historical Alias Of: FB-027`"
+            ),
+        )
+        require(
+            REFORM_R3_S4_STATE_NEXT_PHRASE not in roadmap_workstream_state,
+            (
+                "Docs/prebeta_roadmap.md: R3-S4 must not remain the next seam once FB-036, "
+                "FB-037, FB-038, and FB-041 already declare `Historical Alias Of: FB-027`"
+            ),
+        )
+        require(
+            REFORM_R3_S4_STATE_NEXT_PHRASE not in phase_status_section,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Phase Status "
+                "must not report R3-S4 as next once FB-036, FB-037, FB-038, and FB-041 already "
+                "declare `Historical Alias Of: FB-027`"
+            ),
+        )
+        require(
+            phase_status_next_seam != REFORM_R3_S4_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Phase Status "
+                "`Next Active Seam` must advance past R3-S4 once the FB-027 alias mapping is "
+                "already satisfied in repo truth"
+            ),
+        )
+        require(
+            REFORM_R3_S4_ACTIVE_SEAM_NEXT_PHRASE not in active_seam_section,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Active Seam "
+                "must not keep R3-S4 as the next active seam once the FB-027 alias mapping is "
+                "already satisfied in repo truth"
+            ),
+        )
+        require(
+            active_seam_next != REFORM_R3_S4_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Active Seam "
+                "`Next active seam` must advance past R3-S4 once the FB-027 alias mapping is "
+                "already satisfied in repo truth"
+            ),
+        )
+        require(
+            continuation_next_seam != REFORM_R3_S4_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Seam "
+                "Continuation Decision must not keep R3-S4 as `Next Active Seam` once the "
+                "FB-027 alias mapping is already satisfied in repo truth"
+            ),
+        )
+        require(
+            REFORM_R3_S4_CONTINUATION_PHRASE not in continuation_section,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Seam "
+                "Continuation Decision must not keep an R3-S4 continuation action once the "
+                "FB-027 alias mapping is already satisfied in repo truth"
+            ),
+        )
+
+    if REFORM_FB042_DOSSIER_PATH.is_file():
+        require(
+            REFORM_R4_S1_STATE_NEXT_PHRASE not in backlog_workstream_state,
+            (
+                "Docs/feature_backlog.md: R4-S1 must not remain the next seam once the FB-042 "
+                "dossier shell exists in repo truth"
+            ),
+        )
+        require(
+            REFORM_R4_S1_STATE_NEXT_PHRASE not in roadmap_workstream_state,
+            (
+                "Docs/prebeta_roadmap.md: R4-S1 must not remain the next seam once the FB-042 "
+                "dossier shell exists in repo truth"
+            ),
+        )
+        require(
+            phase_status_next_seam != REFORM_R4_S1_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Phase Status "
+                "`Next Active Seam` must advance past R4-S1 once the FB-042 dossier shell exists"
+            ),
+        )
+        require(
+            active_seam_next != REFORM_R4_S1_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Active Seam "
+                "`Next active seam` must advance past R4-S1 once the FB-042 dossier shell exists"
+            ),
+        )
+        require(
+            continuation_next_seam != REFORM_R4_S1_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Seam "
+                "Continuation Decision must not keep R4-S1 as `Next Active Seam` once the "
+                "FB-042 dossier shell exists"
+            ),
+        )
+
+    if REFORM_FB027_DOSSIER_PATH.is_file():
+        require(
+            REFORM_R4_S2_STATE_NEXT_PHRASE not in backlog_workstream_state,
+            (
+                "Docs/feature_backlog.md: R4-S2 must not remain the next seam once the FB-027 "
+                "dossier shell exists in repo truth"
+            ),
+        )
+        require(
+            REFORM_R4_S2_STATE_NEXT_PHRASE not in roadmap_workstream_state,
+            (
+                "Docs/prebeta_roadmap.md: R4-S2 must not remain the next seam once the FB-027 "
+                "dossier shell exists in repo truth"
+            ),
+        )
+        require(
+            phase_status_next_seam != REFORM_R4_S2_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Phase Status "
+                "`Next Active Seam` must advance past R4-S2 once the FB-027 dossier shell exists"
+            ),
+        )
+        require(
+            active_seam_next != REFORM_R4_S2_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Active Seam "
+                "`Next active seam` must advance past R4-S2 once the FB-027 dossier shell exists"
+            ),
+        )
+        require(
+            continuation_next_seam != REFORM_R4_S2_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Seam "
+                "Continuation Decision must not keep R4-S2 as `Next Active Seam` once the "
+                "FB-027 dossier shell exists"
+            ),
+        )
+
+    def dossier_has_r4_s3_structure(dossier_path: Path) -> bool:
+        if not dossier_path.is_file():
+            return False
+        dossier_text = _read_text(dossier_path)
+        return (
+            "Pass Index Status: `Structure introduced in Slice R4-S3`" in dossier_text
+            and "Slice / Seam Ledger Status: `Structure introduced in Slice R4-S3`" in dossier_text
+        )
+
+    if dossier_has_r4_s3_structure(REFORM_FB042_DOSSIER_PATH) and dossier_has_r4_s3_structure(
+        REFORM_FB027_DOSSIER_PATH
+    ):
+        require(
+            REFORM_R4_S3_STATE_NEXT_PHRASE not in backlog_workstream_state,
+            (
+                "Docs/feature_backlog.md: R4-S3 must not remain the next seam once both family "
+                "dossiers carry the shared pass-index and slice/seam-ledger structures"
+            ),
+        )
+        require(
+            REFORM_R4_S3_STATE_NEXT_PHRASE not in roadmap_workstream_state,
+            (
+                "Docs/prebeta_roadmap.md: R4-S3 must not remain the next seam once both family "
+                "dossiers carry the shared pass-index and slice/seam-ledger structures"
+            ),
+        )
+        require(
+            phase_status_next_seam != REFORM_R4_S3_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Phase Status "
+                "`Next Active Seam` must advance past R4-S3 once both family dossiers carry the "
+                "shared pass-index and slice/seam-ledger structures"
+            ),
+        )
+        require(
+            active_seam_next != REFORM_R4_S3_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Active Seam "
+                "`Next active seam` must advance past R4-S3 once both family dossiers carry the "
+                "shared pass-index and slice/seam-ledger structures"
+            ),
+        )
+        require(
+            continuation_next_seam != REFORM_R4_S3_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Seam "
+                "Continuation Decision must not keep R4-S3 as `Next Active Seam` once both "
+                "family dossiers carry the shared pass-index and slice/seam-ledger structures"
+            ),
+        )
+
+    def dossier_has_r4_s4_structure(dossier_path: Path) -> bool:
+        if not dossier_path.is_file():
+            return False
+        dossier_text = _read_text(dossier_path)
+        return (
+            "Validator / Helper Index Status: `Structure introduced in Slice R4-S4`" in dossier_text
+            and "Artifact Index Status: `Structure introduced in Slice R4-S4`" in dossier_text
+        )
+
+    if dossier_has_r4_s4_structure(REFORM_FB042_DOSSIER_PATH) and dossier_has_r4_s4_structure(
+        REFORM_FB027_DOSSIER_PATH
+    ):
+        require(
+            REFORM_R4_S4_STATE_NEXT_PHRASE not in backlog_workstream_state,
+            (
+                "Docs/feature_backlog.md: R4-S4 must not remain the next seam once both family "
+                "dossiers carry the shared validator/helper and artifact index structures"
+            ),
+        )
+        require(
+            REFORM_R4_S4_STATE_NEXT_PHRASE not in roadmap_workstream_state,
+            (
+                "Docs/prebeta_roadmap.md: R4-S4 must not remain the next seam once both family "
+                "dossiers carry the shared validator/helper and artifact index structures"
+            ),
+        )
+        require(
+            phase_status_next_seam != REFORM_R4_S4_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Phase Status "
+                "`Next Active Seam` must advance past R4-S4 once both family dossiers carry the "
+                "shared validator/helper and artifact index structures"
+            ),
+        )
+        require(
+            active_seam_next != REFORM_R4_S4_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Active Seam "
+                "`Next active seam` must advance past R4-S4 once both family dossiers carry the "
+                "shared validator/helper and artifact index structures"
+            ),
+        )
+        require(
+            continuation_next_seam != REFORM_R4_S4_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Seam "
+                "Continuation Decision must not keep R4-S4 as `Next Active Seam` once both "
+                "family dossiers carry the shared validator/helper and artifact index structures"
+            ),
+        )
+
+    def dossier_has_r4_s5_stability_validation(dossier_path: Path) -> bool:
+        if not dossier_path.is_file():
+            return False
+        dossier_text = _read_text(dossier_path)
+        return "Dossier Stability Validation Status: `Validated in Slice R4-S5`" in dossier_text
+
+    if dossier_has_r4_s5_stability_validation(
+        REFORM_FB042_DOSSIER_PATH
+    ) and dossier_has_r4_s5_stability_validation(REFORM_FB027_DOSSIER_PATH):
+        require(
+            REFORM_R4_S5_STATE_NEXT_PHRASE not in backlog_workstream_state,
+            (
+                "Docs/feature_backlog.md: R4-S5 must not remain the next seam once both family "
+                "dossiers carry the dossier-stability validation marker"
+            ),
+        )
+        require(
+            REFORM_R4_S5_STATE_NEXT_PHRASE not in roadmap_workstream_state,
+            (
+                "Docs/prebeta_roadmap.md: R4-S5 must not remain the next seam once both family "
+                "dossiers carry the dossier-stability validation marker"
+            ),
+        )
+        require(
+            phase_status_next_seam != REFORM_R4_S5_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Phase Status "
+                "`Next Active Seam` must advance past R4-S5 once both family dossiers carry the "
+                "dossier-stability validation marker"
+            ),
+        )
+        require(
+            active_seam_next != REFORM_R4_S5_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Active Seam "
+                "`Next active seam` must advance past R4-S5 once both family dossiers carry the "
+                "dossier-stability validation marker"
+            ),
+        )
+        require(
+            continuation_next_seam != REFORM_R4_S5_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Seam "
+                "Continuation Decision must not keep R4-S5 as `Next Active Seam` once both "
+                "family dossiers carry the dossier-stability validation marker"
+            ),
+        )
+
+    def fb042_workstream_pass_records_converted() -> bool:
+        for workstream_path, info in REFORM_FB042_HISTORICAL_PASS_DOCS.items():
+            if not workstream_path.is_file():
+                return False
+            workstream_text = _read_text(workstream_path)
+            required_phrases = (
+                "## Historical Pass Record Identity",
+                "Family Anchor ID: `FB-042`",
+                "Family Dossier Doc: `Docs/workstreams/FB-042_desktop_startup_runtime_family_dossier.md`",
+                "Backlog Registry Class: `Historical Pass Alias`",
+                "Historical Alias Of: `FB-042`",
+                f"Pass ID: `{info['pass_id']}`",
+                "Alias Role: `Historical Pass Record`",
+                "Standalone Selection Status: `Not independently selectable`",
+                "Converted By Seam: `Phase 5 - Historical Pass Record Conversion / Slice R5-S1 - Convert FB-043 through FB-048 workstream records`",
+                f"Historical Branch Readiness Record: `{info['branch_record']}`",
+            )
+            if any(phrase not in workstream_text for phrase in required_phrases):
+                return False
+        return True
+
+    if fb042_workstream_pass_records_converted():
+        require(
+            REFORM_R5_S1_STATE_NEXT_PHRASE not in backlog_workstream_state,
+            (
+                "Docs/feature_backlog.md: R5-S1 must not remain the next seam once FB-043 "
+                "through FB-048 are converted into explicit FB-042 historical pass records"
+            ),
+        )
+        require(
+            REFORM_R5_S1_STATE_NEXT_PHRASE not in roadmap_workstream_state,
+            (
+                "Docs/prebeta_roadmap.md: R5-S1 must not remain the next seam once FB-043 "
+                "through FB-048 are converted into explicit FB-042 historical pass records"
+            ),
+        )
+        require(
+            phase_status_next_seam != REFORM_R5_S1_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Phase Status "
+                "`Next Active Seam` must advance past R5-S1 once FB-043 through FB-048 are "
+                "converted into explicit FB-042 historical pass records"
+            ),
+        )
+        require(
+            REFORM_R5_S1_ACTIVE_SEAM_NEXT_PHRASE not in active_seam_section,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Active Seam "
+                "must not keep R5-S1 as the next active seam once the FB-042 historical pass "
+                "record conversion is complete"
+            ),
+        )
+        require(
+            active_seam_next != REFORM_R5_S1_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Active Seam "
+                "`Next active seam` must advance past R5-S1 once the FB-042 historical pass "
+                "record conversion is complete"
+            ),
+        )
+        require(
+            continuation_next_seam != REFORM_R5_S1_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Seam "
+                "Continuation Decision must not keep R5-S1 as `Next Active Seam` once the "
+                "FB-042 historical pass record conversion is complete"
+            ),
+        )
+        require(
+            REFORM_R5_S1_CONTINUATION_PHRASE not in continuation_section,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Seam "
+                "Continuation Decision must not keep an R5-S1 continuation action once the "
+                "FB-042 historical pass record conversion is complete"
+            ),
+        )
+
+    def fb027_workstream_pass_records_converted() -> bool:
+        for workstream_path, info in REFORM_FB027_HISTORICAL_PASS_DOCS.items():
+            if not workstream_path.is_file():
+                return False
+            workstream_text = _read_text(workstream_path)
+            required_phrases = (
+                "Lifetime Dossier Doc: `Docs/workstreams/FB-027_interaction_shared_action_family_dossier.md`",
+                "## Historical Pass Record Identity",
+                "Family Anchor ID: `FB-027`",
+                "Family Dossier Doc: `Docs/workstreams/FB-027_interaction_shared_action_family_dossier.md`",
+                "Backlog Registry Class: `Historical Pass Alias`",
+                "Historical Alias Of: `FB-027`",
+                f"Pass ID: `{info['pass_id']}`",
+                "Alias Role: `Historical Pass Record`",
+                "Standalone Selection Status: `Not independently selectable`",
+                "Converted By Seam: `Phase 5 - Historical Pass Record Conversion / Slice R5-S2 - Convert FB-036, FB-037, FB-038, and FB-041 workstream records`",
+                info["branch_record_phrase"],
+            )
+            if any(phrase not in workstream_text for phrase in required_phrases):
+                return False
+        return True
+
+    if fb027_workstream_pass_records_converted():
+        require(
+            REFORM_R5_S2_STATE_NEXT_PHRASE not in backlog_workstream_state,
+            (
+                "Docs/feature_backlog.md: R5-S2 must not remain the next seam once FB-036, "
+                "FB-037, FB-038, and FB-041 are converted into explicit FB-027 historical pass "
+                "records"
+            ),
+        )
+        require(
+            REFORM_R5_S2_STATE_NEXT_PHRASE not in roadmap_workstream_state,
+            (
+                "Docs/prebeta_roadmap.md: R5-S2 must not remain the next seam once FB-036, "
+                "FB-037, FB-038, and FB-041 are converted into explicit FB-027 historical pass "
+                "records"
+            ),
+        )
+        require(
+            phase_status_next_seam != REFORM_R5_S2_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Phase Status "
+                "`Next Active Seam` must advance past R5-S2 once FB-036, FB-037, FB-038, and "
+                "FB-041 are converted into explicit FB-027 historical pass records"
+            ),
+        )
+        require(
+            REFORM_R5_S2_ACTIVE_SEAM_NEXT_PHRASE not in active_seam_section,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Active Seam "
+                "must not keep R5-S2 as the next active seam once the FB-027 historical pass "
+                "record conversion is complete"
+            ),
+        )
+        require(
+            active_seam_next != REFORM_R5_S2_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Active Seam "
+                "`Next active seam` must advance past R5-S2 once the FB-027 historical pass "
+                "record conversion is complete"
+            ),
+        )
+        require(
+            continuation_next_seam != REFORM_R5_S2_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Seam "
+                "Continuation Decision must not keep R5-S2 as `Next Active Seam` once the "
+                "FB-027 historical pass record conversion is complete"
+            ),
+        )
+        require(
+            REFORM_R5_S2_CONTINUATION_PHRASE not in continuation_section,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Seam "
+                "Continuation Decision must not keep an R5-S2 continuation action once the "
+                "FB-027 historical pass record conversion is complete"
+            ),
+        )
+
+    def historical_pass_branch_records_converted() -> bool:
+        for branch_record_path, info in REFORM_HISTORICAL_PASS_BRANCH_RECORDS.items():
+            if not branch_record_path.is_file():
+                return False
+            branch_record_text = _read_text(branch_record_path)
+            required_phrases = (
+                "## Historical Pass Record Identity",
+                f"Family Anchor ID: `{info['family_anchor_id']}`",
+                f"Family Dossier Doc: `{info['family_dossier']}`",
+                "Backlog Registry Class: `Historical Pass Alias`",
+                f"Historical Alias Of: `{info['family_anchor_id']}`",
+                f"Pass ID: `{info['pass_id']}`",
+                "Alias Role: `Historical Pass Record`",
+                "Standalone Selection Status: `Not independently selectable`",
+                "Converted By Seam: `Phase 5 - Historical Pass Record Conversion / Slice R5-S3 - Convert corresponding branch records`",
+                f"Corresponding Historical Workstream Record: `{info['workstream_record']}`",
+                f"Preservation Rule: `{info['preservation_rule']}`",
+            )
+            if any(phrase not in branch_record_text for phrase in required_phrases):
+                return False
+        return True
+
+    def historical_alias_future_selection_language_stripped() -> bool:
+        for doc_path, expectations in REFORM_R5_S4_HISTORICAL_LANGUAGE_DOCS.items():
+            if not doc_path.is_file():
+                return False
+            doc_text = _read_text(doc_path)
+            if any(phrase not in doc_text for phrase in expectations["required"]):
+                return False
+            if any(phrase in doc_text for phrase in expectations["prohibited"]):
+                return False
+        return True
+
+    def historical_pass_traceability_sweep_complete() -> bool:
+        for doc_path, required_phrases in REFORM_R5_S5_TRACEABILITY_REQUIRED_PHRASES.items():
+            if not doc_path.is_file():
+                return False
+            doc_text = _read_text(doc_path)
+            if any(phrase not in doc_text for phrase in required_phrases):
+                return False
+        return True
+
+    def roadmap_anchor_conversion_complete() -> bool:
+        return all(
+            phrase in roadmap_text for phrase in REFORM_R6_S1_ROADMAP_REQUIRED_PHRASES
+        )
+
+    def workstream_index_split_complete() -> bool:
+        workstreams_index_text = _read_text(Path("Docs/workstreams/index.md"))
+        return all(phrase in workstreams_index_text for phrase in REFORM_R6_S2_INDEX_REQUIRED_PHRASES)
+
+    def main_router_loader_aligned() -> bool:
+        for doc_path, required_phrases in REFORM_R6_S3_ROUTER_REQUIRED_PHRASES.items():
+            if not doc_path.is_file():
+                return False
+            doc_text = _read_text(doc_path)
+            if any(phrase not in doc_text for phrase in required_phrases):
+                return False
+        return True
+
+    def selected_next_truth_validated() -> bool:
+        selected_entries = _selected_next_workstream_entries(backlog_entries)
+        if len(selected_entries) != 1:
+            return False
+
+        selected_entry = selected_entries[0]
+        selected_block = selected_entry["block"]
+        roadmap_selected_section = _next_workstream_roadmap_section(roadmap_text)
+
+        if selected_entry["id"] != "FB-049" or selected_entry["record_state"] != "Registry-only":
+            return False
+        if any(
+            phrase not in selected_block
+            for phrase in (
+                "Status: Selected next",
+                "Registry Class: Feature Family",
+                "Next Workstream: Selected",
+                "Branch: Not created",
+            )
+        ):
+            return False
+        if len(re.findall(r"^Status:\s*Selected next\s*$", backlog_text, flags=re.M)) != 1:
+            return False
+        if len(re.findall(r"^Next Workstream:\s*Selected\s*$", backlog_text, flags=re.M)) != 1:
+            return False
+        if any(
+            phrase not in roadmap_selected_section
+            for phrase in (
+                "- ID: `FB-049`",
+                "- Record State: `Registry-only`",
+                "- Branch: Not created",
+            )
+        ):
+            return False
+        if any(
+            phrase not in backlog_text
+            for phrase in (
+                "Selected Next Workstream: FB-049 Active-session pre-settled incoming-launch conflict truth.",
+                "Selected Next Record State: Registry-only.",
+                "Selected Next Implementation Branch: Not created.",
+            )
+        ):
+            return False
+        if any(
+            phrase not in roadmap_text
+            for phrase in (
+                "Selected Next Workstream: FB-049 Active-session pre-settled incoming-launch conflict truth.",
+                "Selected Next Record State: Registry-only.",
+                "Selected Next Implementation Branch: `Not created`",
+            )
+        ):
+            return False
+        if any(
+            phrase not in phase_status_section
+            for phrase in (
+                "Selected Next Workstream: FB-049 Active-session pre-settled incoming-launch conflict truth.",
+                "Selected Next Record State: Registry-only.",
+                "Selected Next Implementation Branch: Not created.",
+            )
+        ):
+            return False
+        return True
+
+    def phase6_drift_sweep_clean() -> bool:
+        main_text = _read_text(Path("Docs/Main.md"))
+        index_text = _read_text(Path("Docs/workstreams/index.md"))
+        return (
+            main_router_loader_aligned()
+            and selected_next_truth_validated()
+            and "### Family Dossiers And Historical Pass Alias Routing" in main_text
+            and "### Family Dossiers And Alias Records" not in main_text
+            and "### Family Anchor Records" in index_text
+            and "### Historical Pass Alias Records" in index_text
+            and "### Other Closed Workstreams" in index_text
+            and TRANSITIONAL_CURRENT_REGISTRY_ORDER_HEADING not in backlog_text
+        )
+
+    def temporary_dual_shape_tolerance_removed() -> bool:
+        validator_text = _read_text(Path("dev/orin_branch_governance_validation.py"))
+        old_backlog_tolerance_phrase = (
+            "must accept either the current backlog shape "
+            "or the reform backlog-family shape"
+        )
+        old_index_tolerance_phrase = (
+            "must accept either the current workstream-index shape "
+            "or the reform family-index split"
+        )
+        return (
+            old_backlog_tolerance_phrase not in validator_text
+            and old_index_tolerance_phrase not in validator_text
+            and "requires the reform backlog-family shape" in validator_text
+            and "requires the reform family-index split" in validator_text
+        )
+
+    def hard_anti_drift_checks_enforced() -> bool:
+        validator_text = _read_text(Path("dev/orin_branch_governance_validation.py"))
+        required_phrases = (
+            "reform hard anti-drift requires selected-next truth to remain validated across backlog, roadmap, branch authority, and validator expectations",
+            "reform hard anti-drift requires the sweep-clean Phase 6 family-governance routing surfaces to remain intact",
+            "reform hard anti-drift requires temporary dual-shape tolerance to stay removed",
+            "reform hard anti-drift: historical pass alias",
+            "reform hard anti-drift: support lane",
+        )
+        return all(phrase in validator_text for phrase in required_phrases)
+
+    if historical_pass_branch_records_converted():
+        require(
+            REFORM_R5_S3_STATE_NEXT_PHRASE not in backlog_workstream_state,
+            (
+                "Docs/feature_backlog.md: R5-S3 must not remain the next seam once the "
+                "preserved corresponding branch records are converted into explicit historical "
+                "pass records"
+            ),
+        )
+        require(
+            REFORM_R5_S3_STATE_NEXT_PHRASE not in roadmap_workstream_state,
+            (
+                "Docs/prebeta_roadmap.md: R5-S3 must not remain the next seam once the "
+                "preserved corresponding branch records are converted into explicit historical "
+                "pass records"
+            ),
+        )
+        require(
+            phase_status_next_seam != REFORM_R5_S3_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Phase Status "
+                "`Next Active Seam` must advance past R5-S3 once the preserved corresponding "
+                "branch records are converted"
+            ),
+        )
+        require(
+            REFORM_R5_S3_ACTIVE_SEAM_NEXT_PHRASE not in active_seam_section,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Active Seam "
+                "must not keep R5-S3 as the next active seam once the preserved corresponding "
+                "branch records are converted"
+            ),
+        )
+        require(
+            active_seam_next != REFORM_R5_S3_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Active Seam "
+                "`Next active seam` must advance past R5-S3 once the preserved corresponding "
+                "branch records are converted"
+            ),
+        )
+        require(
+            continuation_next_seam != REFORM_R5_S3_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Seam "
+                "Continuation Decision must not keep R5-S3 as `Next Active Seam` once the "
+                "preserved corresponding branch records are converted"
+            ),
+        )
+        require(
+            REFORM_R5_S3_CONTINUATION_PHRASE not in continuation_section,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Seam "
+                "Continuation Decision must not keep an R5-S3 continuation action once the "
+                "preserved corresponding branch records are converted"
+            ),
+        )
+
+    if historical_alias_future_selection_language_stripped():
+        require(
+            REFORM_R5_S4_STATE_NEXT_PHRASE not in backlog_workstream_state,
+            (
+                "Docs/feature_backlog.md: R5-S4 must not remain the next seam once live-sounding "
+                "future-selection language is stripped from the converted historical alias set"
+            ),
+        )
+        require(
+            REFORM_R5_S4_STATE_NEXT_PHRASE not in roadmap_workstream_state,
+            (
+                "Docs/prebeta_roadmap.md: R5-S4 must not remain the next seam once live-sounding "
+                "future-selection language is stripped from the converted historical alias set"
+            ),
+        )
+        require(
+            phase_status_next_seam != REFORM_R5_S4_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Phase Status "
+                "`Next Active Seam` must advance past R5-S4 once historical alias records are "
+                "reframed as historical-only follow-through surfaces"
+            ),
+        )
+        require(
+            REFORM_R5_S4_ACTIVE_SEAM_NEXT_PHRASE not in active_seam_section,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Active Seam "
+                "must not keep R5-S4 as the next active seam once historical alias future-"
+                "selection language is stripped"
+            ),
+        )
+        require(
+            active_seam_next != REFORM_R5_S4_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Active Seam "
+                "`Next active seam` must advance past R5-S4 once historical alias future-"
+                "selection language is stripped"
+            ),
+        )
+        require(
+            continuation_next_seam != REFORM_R5_S4_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Seam "
+                "Continuation Decision must not keep R5-S4 as `Next Active Seam` once "
+                "historical alias future-selection language is stripped"
+            ),
+        )
+
+    if historical_pass_traceability_sweep_complete():
+        require(
+            REFORM_R5_S5_STATE_NEXT_PHRASE not in backlog_workstream_state,
+            (
+                "Docs/feature_backlog.md: R5-S5 must not remain the next seam once preserved "
+                "branch trace is indexed and the historical pass traceability sweep is complete"
+            ),
+        )
+        require(
+            REFORM_R5_S5_STATE_NEXT_PHRASE not in roadmap_workstream_state,
+            (
+                "Docs/prebeta_roadmap.md: R5-S5 must not remain the next seam once preserved "
+                "branch trace is indexed and the historical pass traceability sweep is complete"
+            ),
+        )
+        require(
+            phase_status_next_seam != REFORM_R5_S5_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Phase Status "
+                "`Next Active Seam` must advance past R5-S5 once the historical pass "
+                "traceability sweep is complete"
+            ),
+        )
+        require(
+            REFORM_R5_S5_ACTIVE_SEAM_NEXT_PHRASE not in active_seam_section,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Active Seam "
+                "must not keep R5-S5 as the next active seam once the historical pass "
+                "traceability sweep is complete"
+            ),
+        )
+        require(
+            active_seam_next != REFORM_R5_S5_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Active Seam "
+                "`Next active seam` must advance past R5-S5 once the historical pass "
+                "traceability sweep is complete"
+            ),
+        )
+        require(
+            continuation_next_seam != REFORM_R5_S5_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Seam "
+                "Continuation Decision must not keep R5-S5 as `Next Active Seam` once the "
+                "historical pass traceability sweep is complete"
+            ),
+        )
+
+    if roadmap_anchor_conversion_complete():
+        require(
+            REFORM_R6_S1_STATE_NEXT_PHRASE not in backlog_workstream_state,
+            (
+                "Docs/feature_backlog.md: R6-S1 must not remain the next seam once the roadmap "
+                "anchor conversion is complete"
+            ),
+        )
+        require(
+            REFORM_R6_S1_STATE_NEXT_PHRASE not in roadmap_workstream_state,
+            (
+                "Docs/prebeta_roadmap.md: R6-S1 must not remain the next seam once the roadmap "
+                "anchor conversion is complete"
+            ),
+        )
+        require(
+            phase_status_next_seam != REFORM_R6_S1_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Phase Status "
+                "`Next Active Seam` must advance past R6-S1 once the roadmap anchor conversion "
+                "is complete"
+            ),
+        )
+        require(
+            REFORM_R6_S1_ACTIVE_SEAM_NEXT_PHRASE not in active_seam_section,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Active Seam "
+                "must not keep R6-S1 as the next active seam once the roadmap anchor "
+                "conversion is complete"
+            ),
+        )
+        require(
+            active_seam_next != REFORM_R6_S1_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Active Seam "
+                "`Next active seam` must advance past R6-S1 once the roadmap anchor "
+                "conversion is complete"
+            ),
+        )
+        require(
+            continuation_next_seam != REFORM_R6_S1_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Seam "
+                "Continuation Decision must not keep R6-S1 as `Next Active Seam` once the "
+                "roadmap anchor conversion is complete"
+            ),
+        )
+
+    if workstream_index_split_complete():
+        require(
+            REFORM_R6_S2_STATE_NEXT_PHRASE not in backlog_workstream_state,
+            (
+                "Docs/feature_backlog.md: R6-S2 must not remain the next seam once the "
+                "canonical workstream index is split by family anchor and historical pass role"
+            ),
+        )
+        require(
+            REFORM_R6_S2_STATE_NEXT_PHRASE not in roadmap_workstream_state,
+            (
+                "Docs/prebeta_roadmap.md: R6-S2 must not remain the next seam once the "
+                "canonical workstream index is split by family anchor and historical pass role"
+            ),
+        )
+        require(
+            phase_status_next_seam != REFORM_R6_S2_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Phase Status "
+                "`Next Active Seam` must advance past R6-S2 once the canonical workstream "
+                "index split is complete"
+            ),
+        )
+        require(
+            REFORM_R6_S2_ACTIVE_SEAM_NEXT_PHRASE not in active_seam_section,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Active Seam "
+                "must not keep R6-S2 as the next active seam once the canonical workstream "
+                "index split is complete"
+            ),
+        )
+        require(
+            active_seam_next != REFORM_R6_S2_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Active Seam "
+                "`Next active seam` must advance past R6-S2 once the canonical workstream "
+                "index split is complete"
+            ),
+        )
+        require(
+            continuation_next_seam != REFORM_R6_S2_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Seam "
+                "Continuation Decision must not keep R6-S2 as `Next Active Seam` once the "
+                "canonical workstream index split is complete"
+            ),
+        )
+
+    if main_router_loader_aligned():
+        require(
+            REFORM_R6_S3_STATE_NEXT_PHRASE not in backlog_workstream_state,
+            (
+                "Docs/feature_backlog.md: R6-S3 must not remain the next seam once Main/router/"
+                "loader alignment is complete"
+            ),
+        )
+        require(
+            REFORM_R6_S3_STATE_NEXT_PHRASE not in roadmap_workstream_state,
+            (
+                "Docs/prebeta_roadmap.md: R6-S3 must not remain the next seam once Main/router/"
+                "loader alignment is complete"
+            ),
+        )
+        require(
+            phase_status_next_seam != REFORM_R6_S3_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Phase Status "
+                "`Next Active Seam` must advance past R6-S3 once Main/router/loader alignment "
+                "is complete"
+            ),
+        )
+        require(
+            REFORM_R6_S3_ACTIVE_SEAM_NEXT_PHRASE not in active_seam_section,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Active Seam "
+                "must not keep R6-S3 as the next active seam once Main/router/loader "
+                "alignment is complete"
+            ),
+        )
+        require(
+            active_seam_next != REFORM_R6_S3_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Active Seam "
+                "`Next active seam` must advance past R6-S3 once Main/router/loader "
+                "alignment is complete"
+            ),
+        )
+        require(
+            continuation_next_seam != REFORM_R6_S3_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Seam "
+                "Continuation Decision must not keep R6-S3 as `Next Active Seam` once "
+                "Main/router/loader alignment is complete"
+            ),
+        )
+
+    if selected_next_truth_validated():
+        require(
+            REFORM_R6_S4_STATE_NEXT_PHRASE not in backlog_workstream_state,
+            (
+                "Docs/feature_backlog.md: R6-S4 must not remain the next seam once selected-next "
+                "truth is validated across the family-governance surfaces"
+            ),
+        )
+        require(
+            REFORM_R6_S4_STATE_NEXT_PHRASE not in roadmap_workstream_state,
+            (
+                "Docs/prebeta_roadmap.md: R6-S4 must not remain the next seam once selected-next "
+                "truth is validated across the family-governance surfaces"
+            ),
+        )
+        require(
+            phase_status_next_seam != REFORM_R6_S4_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Phase Status "
+                "`Next Active Seam` must advance past R6-S4 once selected-next truth is validated"
+            ),
+        )
+        require(
+            REFORM_R6_S4_ACTIVE_SEAM_NEXT_PHRASE not in active_seam_section,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Active Seam "
+                "must not keep R6-S4 as the next active seam once selected-next truth is validated"
+            ),
+        )
+        require(
+            active_seam_next != REFORM_R6_S4_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Active Seam "
+                "`Next active seam` must advance past R6-S4 once selected-next truth is validated"
+            ),
+        )
+        require(
+            continuation_next_seam != REFORM_R6_S4_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Seam "
+                "Continuation Decision must not keep R6-S4 as `Next Active Seam` once "
+                "selected-next truth is validated"
+            ),
+        )
+
+    if phase6_drift_sweep_clean():
+        require(
+            REFORM_R6_S5_STATE_NEXT_PHRASE not in backlog_workstream_state,
+            (
+                "Docs/feature_backlog.md: R6-S5 must not remain the next seam once the final "
+                "Phase 6 drift sweep is clean"
+            ),
+        )
+        require(
+            REFORM_R6_S5_STATE_NEXT_PHRASE not in roadmap_workstream_state,
+            (
+                "Docs/prebeta_roadmap.md: R6-S5 must not remain the next seam once the final "
+                "Phase 6 drift sweep is clean"
+            ),
+        )
+        require(
+            phase_status_next_seam != REFORM_R6_S5_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Phase Status "
+                "`Next Active Seam` must advance past R6-S5 once the final Phase 6 drift sweep "
+                "is clean"
+            ),
+        )
+
+    if temporary_dual_shape_tolerance_removed():
+        require(
+            REFORM_R7_S1_STATE_NEXT_PHRASE not in backlog_workstream_state,
+            (
+                "Docs/feature_backlog.md: R7-S1 must not remain the next seam once temporary "
+                "dual-shape tolerance is removed"
+            ),
+        )
+
+    require(
+        selected_next_truth_validated(),
+        (
+            "Docs/feature_backlog.md / Docs/prebeta_roadmap.md / "
+            "Docs/branch_records/feature_backlog_family_governance_reform.md: reform hard anti-"
+            "drift requires selected-next truth to remain validated across backlog, roadmap, "
+            "branch authority, and validator expectations"
+        ),
+    )
+    require(
+        phase6_drift_sweep_clean(),
+        (
+            "Docs/Main.md / Docs/workstreams/index.md / Docs/feature_backlog.md: reform hard anti-"
+            "drift requires the sweep-clean Phase 6 family-governance routing surfaces to remain "
+            "intact"
+        ),
+    )
+    require(
+        temporary_dual_shape_tolerance_removed(),
+        (
+            "dev/orin_branch_governance_validation.py: reform hard anti-drift requires temporary "
+            "dual-shape tolerance to stay removed"
+        ),
+    )
+    for entry in backlog_entries:
+        registry_class = _clean_release_value(_extract_colon_value(entry["block"], "Registry Class"))
+        status_value = _clean_release_value(_extract_colon_value(entry["block"], "Status"))
+        next_workstream_value = _clean_release_value(
+            _extract_colon_value(entry["block"], "Next Workstream")
+        )
+        branch_value = _clean_release_value(_extract_colon_value(entry["block"], "Branch"))
+        if registry_class == "Historical Pass Alias":
+            require(
+                status_value.casefold() != "selected next"
+                and next_workstream_value.casefold() != "selected"
+                and branch_value.casefold() != "not created",
+                (
+                    f"Docs/feature_backlog.md: reform hard anti-drift: historical pass alias "
+                    f"{entry['id']} must not regain live selected-next or branch-not-created markers"
+                ),
+            )
+        if registry_class == "Support Lane":
+            require(
+                status_value.casefold() != "selected next"
+                and next_workstream_value.casefold() != "selected"
+                and branch_value.casefold() != "not created",
+                (
+                    f"Docs/feature_backlog.md: reform hard anti-drift: support lane {entry['id']} "
+                    "must not regain live selected-next or branch-not-created markers"
+                ),
+            )
+
+    if hard_anti_drift_checks_enforced():
+        require(
+            REFORM_R7_S2_STATE_NEXT_PHRASE not in backlog_workstream_state,
+            (
+                "Docs/feature_backlog.md: R7-S2 must not remain the next seam once hard anti-"
+                "drift checks are enforced"
+            ),
+        )
+
+    if (
+        REFORM_HARDENING_H1_STATE_PHRASE in backlog_workstream_state
+        and REFORM_HARDENING_H1_STATE_PHRASE in roadmap_workstream_state
+    ):
+        require(
+            current_phase == "Hardening",
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Current Phase "
+                "must transition to `Hardening` once the reform branch current-state summaries "
+                "declare Hardening H1 in progress"
+            ),
+        )
+        require(
+            next_legal_phase == "Live Validation",
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Next Legal Phase "
+                "must advance to `Live Validation` once the branch has transitioned into Hardening"
+            ),
+        )
+        require(
+            backlog_next_legal_phase == "Live Validation",
+            (
+                "Docs/feature_backlog.md: Next Legal Phase must advance to `Live Validation` "
+                "once the reform branch current-state summary declares Hardening H1 in progress"
+            ),
+        )
+        require(
+            roadmap_next_legal_phase == "Live Validation",
+            (
+                "Docs/prebeta_roadmap.md: Next Legal Phase must advance to `Live Validation` "
+                "once the reform branch current-state summary declares Hardening H1 in progress"
+            ),
+        )
+        require(
+            phase_status_hardening_seam == REFORM_HARDENING_H1_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Phase Status "
+                "must name Hardening H1 as the current hardening seam during the phase handoff repair"
+            ),
+        )
+        require(
+            phase_status_next_seam == REFORM_HARDENING_H1_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Phase Status "
+                "`Next Active Seam` must point to Hardening H1 during the phase handoff repair"
+            ),
+        )
+        require(
+            active_seam_current == REFORM_HARDENING_H1_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Active Seam "
+                "must name Hardening H1 as the current active seam during the phase handoff repair"
+            ),
+        )
+        require(
+            "Active seam: `None.`" not in active_seam_section,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Active Seam "
+                "must remove the stale `Active seam: None.` marker once Hardening H1 is admitted"
+            ),
+        )
+        require(
+            active_seam_next == REFORM_HARDENING_H1_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Active Seam "
+                "`Next active seam` must point to Hardening H1 during the phase handoff repair"
+            ),
+        )
+        require(
+            REFORM_R7_S2_STATE_NEXT_PHRASE not in roadmap_workstream_state,
+            (
+                "Docs/prebeta_roadmap.md: R7-S2 must not remain the next seam once hard anti-"
+                "drift checks are enforced"
+            ),
+        )
+        require(
+            phase_status_next_seam != REFORM_R7_S2_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Phase Status "
+                "`Next Active Seam` must advance past R7-S2 once hard anti-drift checks are enforced"
+            ),
+        )
+        require(
+            REFORM_R7_S2_ACTIVE_SEAM_NEXT_PHRASE not in active_seam_section,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Active Seam "
+                "must not keep R7-S2 as the next active seam once hard anti-drift checks are enforced"
+            ),
+        )
+        require(
+            continuation_next_seam != REFORM_R7_S2_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Seam "
+                "Continuation Decision must not keep R7-S2 as `Next Active Seam` once hard anti-"
+                "drift checks are enforced"
+            ),
+        )
+        require(
+            REFORM_R7_S2_CONTINUATION_PHRASE not in continuation_section,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Seam "
+                "Continuation Decision must not keep an R7-S2 continuation action once hard anti-"
+                "drift checks are enforced"
+            ),
+        )
+        require(
+            REFORM_R7_S1_STATE_NEXT_PHRASE not in roadmap_workstream_state,
+            (
+                "Docs/prebeta_roadmap.md: R7-S1 must not remain the next seam once temporary "
+                "dual-shape tolerance is removed"
+            ),
+        )
+        require(
+            phase_status_next_seam != REFORM_R7_S1_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Phase Status "
+                "`Next Active Seam` must advance past R7-S1 once temporary dual-shape tolerance "
+                "is removed"
+            ),
+        )
+        require(
+            REFORM_R7_S1_ACTIVE_SEAM_NEXT_PHRASE not in active_seam_section,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Active Seam "
+                "must not keep R7-S1 as the next active seam once temporary dual-shape tolerance "
+                "is removed"
+            ),
+        )
+        require(
+            active_seam_next != REFORM_R7_S1_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Active Seam "
+                "`Next active seam` must advance past R7-S1 once temporary dual-shape tolerance "
+                "is removed"
+            ),
+        )
+
+    if (
+        REFORM_LIVE_VALIDATION_LV1_STATE_PHRASE in backlog_workstream_state
+        and REFORM_LIVE_VALIDATION_LV1_STATE_PHRASE in roadmap_workstream_state
+    ):
+        require(
+            current_phase == "Live Validation",
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Current Phase "
+                "must transition to `Live Validation` once the reform branch current-state summaries "
+                "declare Live Validation LV1 in progress"
+            ),
+        )
+        require(
+            next_legal_phase == "PR Readiness",
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Next Legal Phase "
+                "must advance to `PR Readiness` once the branch has transitioned into Live Validation"
+            ),
+        )
+        require(
+            backlog_next_legal_phase == "PR Readiness",
+            (
+                "Docs/feature_backlog.md: Next Legal Phase must advance to `PR Readiness` "
+                "once the reform branch current-state summary declares Live Validation LV1 in progress"
+            ),
+        )
+        require(
+            roadmap_next_legal_phase == "PR Readiness",
+            (
+                "Docs/prebeta_roadmap.md: Next Legal Phase must advance to `PR Readiness` "
+                "once the reform branch current-state summary declares Live Validation LV1 in progress"
+            ),
+        )
+        require(
+            phase_status_hardening_seam != REFORM_HARDENING_H1_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Phase Status "
+                "must stop naming Hardening H1 as the current seam once Live Validation LV1 is admitted"
+            ),
+        )
+        require(
+            phase_status_live_validation_seam == REFORM_LIVE_VALIDATION_LV1_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Phase Status "
+                "must name Live Validation LV1 as the current live-validation seam during the phase admission repair"
+            ),
+        )
+        require(
+            phase_status_next_seam == REFORM_LIVE_VALIDATION_LV1_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Phase Status "
+                "`Next Active Seam` must point to Live Validation LV1 during the phase admission repair"
+            ),
+        )
+        require(
+            active_seam_current == REFORM_LIVE_VALIDATION_LV1_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Active Seam "
+                "must name Live Validation LV1 as the current active seam during the phase admission repair"
+            ),
+        )
+        require(
+            active_seam_next == REFORM_LIVE_VALIDATION_LV1_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Active Seam "
+                "`Next active seam` must point to Live Validation LV1 during the phase admission repair"
+            ),
+        )
+        require(
+            continuation_next_seam == REFORM_LIVE_VALIDATION_LV1_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Seam "
+                "Continuation Decision must point to Live Validation LV1 once the branch enters "
+                "Live Validation"
+            ),
+        )
+        require(
+            REFORM_HARDENING_H1_STATE_PHRASE not in backlog_workstream_state,
+            (
+                "Docs/feature_backlog.md: Current Workstream State must stop reporting Hardening H1 "
+                "as in progress once Live Validation LV1 is admitted"
+            ),
+        )
+        require(
+            REFORM_HARDENING_H1_STATE_PHRASE not in roadmap_workstream_state,
+            (
+                "Docs/prebeta_roadmap.md: Current Workstream State must stop reporting Hardening H1 "
+                "as in progress once Live Validation LV1 is admitted"
+            ),
+        )
+
+    if (
+        REFORM_PR_READINESS_PR1_STATE_PHRASE in backlog_workstream_state
+        and REFORM_PR_READINESS_PR1_STATE_PHRASE in roadmap_workstream_state
+    ):
+        require(
+            current_phase == "PR Readiness",
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Current Phase "
+                "must transition to `PR Readiness` once the reform branch current-state summaries "
+                "declare PR Readiness PR1 in progress"
+            ),
+        )
+        require(
+            next_legal_phase == "Release Readiness",
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Next Legal Phase "
+                "must advance to `Release Readiness` once the branch has transitioned into PR Readiness"
+            ),
+        )
+        require(
+            backlog_next_legal_phase == "Release Readiness",
+            (
+                "Docs/feature_backlog.md: Next Legal Phase must advance to `Release Readiness` "
+                "once the reform branch current-state summary declares PR Readiness PR1 in progress"
+            ),
+        )
+        require(
+            roadmap_next_legal_phase == "Release Readiness",
+            (
+                "Docs/prebeta_roadmap.md: Next Legal Phase must advance to `Release Readiness` "
+                "once the reform branch current-state summary declares PR Readiness PR1 in progress"
+            ),
+        )
+        require(
+            phase_status_live_validation_seam != REFORM_LIVE_VALIDATION_LV1_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Phase Status "
+                "must stop naming Live Validation LV1 as the current seam once PR Readiness PR1 is admitted"
+            ),
+        )
+        require(
+            phase_status_pr_readiness_seam == REFORM_PR_READINESS_PR1_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Phase Status "
+                "must name PR Readiness PR1 as the current PR-readiness seam during the phase admission repair"
+            ),
+        )
+        require(
+            phase_status_next_seam == REFORM_PR_READINESS_PR1_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Phase Status "
+                "`Next Active Seam` must point to PR Readiness PR1 during the phase admission repair"
+            ),
+        )
+        require(
+            active_seam_current == REFORM_PR_READINESS_PR1_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Active Seam "
+                "must name PR Readiness PR1 as the current active seam during the phase admission repair"
+            ),
+        )
+        require(
+            active_seam_next == REFORM_PR_READINESS_PR1_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Active Seam "
+                "`Next active seam` must point to PR Readiness PR1 during the phase admission repair"
+            ),
+        )
+        require(
+            continuation_next_seam == REFORM_PR_READINESS_PR1_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Seam "
+                "Continuation Decision must point to PR Readiness PR1 once the branch enters PR Readiness"
+            ),
+        )
+        require(
+            REFORM_LIVE_VALIDATION_LV1_STATE_PHRASE not in backlog_workstream_state,
+            (
+                "Docs/feature_backlog.md: Current Workstream State must stop reporting Live Validation LV1 "
+                "as in progress once PR Readiness PR1 is admitted"
+            ),
+        )
+        require(
+            REFORM_LIVE_VALIDATION_LV1_STATE_PHRASE not in roadmap_workstream_state,
+            (
+                "Docs/prebeta_roadmap.md: Current Workstream State must stop reporting Live Validation LV1 "
+                "as in progress once PR Readiness PR1 is admitted"
+            ),
+        )
+        require(
+            continuation_next_seam != REFORM_R7_S1_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Seam "
+                "Continuation Decision must not keep R7-S1 as `Next Active Seam` once temporary "
+                "dual-shape tolerance is removed"
+            ),
+        )
+        require(
+            REFORM_R7_S1_CONTINUATION_PHRASE not in continuation_section,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Seam "
+                "Continuation Decision must not keep an R7-S1 continuation action once temporary "
+                "dual-shape tolerance is removed"
+            ),
+        )
+
+    if (
+        REFORM_PR_READINESS_PR2_STATE_PHRASE in backlog_workstream_state
+        and REFORM_PR_READINESS_PR2_STATE_PHRASE in roadmap_workstream_state
+    ):
+        require(
+            current_phase == "PR Readiness",
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Current Phase "
+                "must return to `PR Readiness` once the reform branch current-state summaries "
+                "declare PR Readiness PR2 in progress"
+            ),
+        )
+        require(
+            next_legal_phase == "PR Readiness",
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Next Legal Phase "
+                "must remain `PR Readiness` while PR Readiness PR2 is blocked on a fresh bot-review signal"
+            ),
+        )
+        require(
+            backlog_next_legal_phase == "PR Readiness",
+            (
+                "Docs/feature_backlog.md: Next Legal Phase must remain `PR Readiness` while the "
+                "reform branch current-state summary declares PR Readiness PR2 in progress"
+            ),
+        )
+        require(
+            roadmap_next_legal_phase == "PR Readiness",
+            (
+                "Docs/prebeta_roadmap.md: Next Legal Phase must remain `PR Readiness` while the "
+                "reform branch current-state summary declares PR Readiness PR2 in progress"
+            ),
+        )
+        require(
+            phase_status_pr_readiness_seam == REFORM_PR_READINESS_PR2_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Phase Status "
+                "must name PR Readiness PR2 as the current PR-readiness seam during bot-review monitoring"
+            ),
+        )
+        require(
+            phase_status_next_seam == REFORM_PR_READINESS_PR2_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Phase Status "
+                "`Next Active Seam` must point to PR Readiness PR2 during bot-review monitoring"
+            ),
+        )
+        require(
+            active_seam_current == REFORM_PR_READINESS_PR2_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Active Seam "
+                "must name PR Readiness PR2 as the current active seam during bot-review monitoring"
+            ),
+        )
+        require(
+            active_seam_next == REFORM_PR_READINESS_PR2_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Active Seam "
+                "`Next active seam` must point to PR Readiness PR2 during bot-review monitoring"
+            ),
+        )
+        require(
+            continuation_next_seam == REFORM_PR_READINESS_PR2_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Seam "
+                "Continuation Decision must point to PR Readiness PR2 while the fresh bot-review signal is pending"
+            ),
+        )
+        require(
+            phase_status_release_readiness_seam != REFORM_RELEASE_READINESS_RR1_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Phase Status "
+                "must stop naming Release Readiness RR1 as the current seam once the branch returns "
+                "to PR Readiness PR2"
+            ),
+        )
+        require(
+            REFORM_RELEASE_READINESS_RR1_STATE_PHRASE not in backlog_workstream_state,
+            (
+                "Docs/feature_backlog.md: Current Workstream State must stop reporting Release "
+                "Readiness RR1 as in progress once the branch returns to PR Readiness PR2"
+            ),
+        )
+        require(
+            REFORM_RELEASE_READINESS_RR1_STATE_PHRASE not in roadmap_workstream_state,
+            (
+                "Docs/prebeta_roadmap.md: Current Workstream State must stop reporting Release "
+                "Readiness RR1 as in progress once the branch returns to PR Readiness PR2"
+            ),
+        )
+
+    if (
+        REFORM_RELEASE_READINESS_RR1_STATE_PHRASE in backlog_workstream_state
+        and REFORM_RELEASE_READINESS_RR1_STATE_PHRASE in roadmap_workstream_state
+    ):
+        require(
+            current_phase == "Release Readiness",
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Current Phase "
+                "must transition to `Release Readiness` once the reform branch current-state "
+                "summaries declare Release Readiness RR1 in progress"
+            ),
+        )
+        require(
+            next_legal_phase == "Release Readiness",
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Next Legal Phase "
+                "must remain `Release Readiness` while the reform branch is inside active RR1 "
+                "file-frozen validation"
+            ),
+        )
+        require(
+            backlog_next_legal_phase == "Release Readiness",
+            (
+                "Docs/feature_backlog.md: Next Legal Phase must remain `Release Readiness` "
+                "while the reform branch current-state summary declares Release Readiness RR1 in progress"
+            ),
+        )
+        require(
+            roadmap_next_legal_phase == "Release Readiness",
+            (
+                "Docs/prebeta_roadmap.md: Next Legal Phase must remain `Release Readiness` "
+                "while the reform branch current-state summary declares Release Readiness RR1 in progress"
+            ),
+        )
+        require(
+            phase_status_pr_readiness_seam != REFORM_PR_READINESS_PR1_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Phase Status "
+                "must stop naming PR Readiness PR1 as the current seam once Release Readiness RR1 is admitted"
+            ),
+        )
+        require(
+            phase_status_release_readiness_seam == REFORM_RELEASE_READINESS_RR1_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Phase Status "
+                "must name Release Readiness RR1 as the current release-readiness seam during the phase admission repair"
+            ),
+        )
+        require(
+            phase_status_next_seam == REFORM_RELEASE_READINESS_RR1_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Phase Status "
+                "`Next Active Seam` must point to Release Readiness RR1 during the phase admission repair"
+            ),
+        )
+        require(
+            active_seam_current == REFORM_RELEASE_READINESS_RR1_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Active Seam "
+                "must name Release Readiness RR1 as the current active seam during the phase admission repair"
+            ),
+        )
+        require(
+            active_seam_next == REFORM_RELEASE_READINESS_RR1_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Active Seam "
+                "`Next active seam` must point to Release Readiness RR1 during the phase admission repair"
+            ),
+        )
+        require(
+            continuation_next_seam == REFORM_RELEASE_READINESS_RR1_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Seam "
+                "Continuation Decision must point to Release Readiness RR1 once the branch enters Release Readiness"
+            ),
+        )
+        require(
+            REFORM_PR_READINESS_PR1_STATE_PHRASE not in backlog_workstream_state,
+            (
+                "Docs/feature_backlog.md: Current Workstream State must stop reporting PR Readiness PR1 "
+                "as in progress once Release Readiness RR1 is admitted"
+            ),
+        )
+        require(
+            REFORM_PR_READINESS_PR1_STATE_PHRASE not in roadmap_workstream_state,
+            (
+                "Docs/prebeta_roadmap.md: Current Workstream State must stop reporting PR Readiness PR1 "
+                "as in progress once Release Readiness RR1 is admitted"
+            ),
+        )
+        require(
+            REFORM_R6_S5_ACTIVE_SEAM_NEXT_PHRASE not in active_seam_section,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Active Seam "
+                "must not keep R6-S5 as the next active seam once the final Phase 6 drift sweep "
+                "is clean"
+            ),
+        )
+        require(
+            active_seam_next != REFORM_R6_S5_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Active Seam "
+                "`Next active seam` must advance past R6-S5 once the final Phase 6 drift sweep "
+                "is clean"
+            ),
+        )
+        require(
+            continuation_next_seam != REFORM_R6_S5_SEAM,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Seam "
+                "Continuation Decision must not keep R6-S5 as `Next Active Seam` once the final "
+                "Phase 6 drift sweep is clean"
+            ),
+        )
+        require(
+            REFORM_R6_S5_CONTINUATION_PHRASE not in continuation_section,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Seam "
+                "Continuation Decision must not keep an R6-S5 continuation action once the final "
+                "Phase 6 drift sweep is clean"
+            ),
+        )
+        require(
+            REFORM_R6_S4_CONTINUATION_PHRASE not in continuation_section,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Seam "
+                "Continuation Decision must not keep an R6-S4 continuation action once "
+                "selected-next truth is validated"
+            ),
+        )
+        require(
+            REFORM_R6_S3_CONTINUATION_PHRASE not in continuation_section,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Seam "
+                "Continuation Decision must not keep an R6-S3 continuation action once "
+                "Main/router/loader alignment is complete"
+            ),
+        )
+        require(
+            REFORM_R6_S2_CONTINUATION_PHRASE not in continuation_section,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Seam "
+                "Continuation Decision must not keep an R6-S2 continuation action once the "
+                "canonical workstream index split is complete"
+            ),
+        )
+        require(
+            REFORM_R6_S1_CONTINUATION_PHRASE not in continuation_section,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Seam "
+                "Continuation Decision must not keep an R6-S1 continuation action once the "
+                "roadmap anchor conversion is complete"
+            ),
+        )
+        require(
+            REFORM_R5_S5_CONTINUATION_PHRASE not in continuation_section,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Seam "
+                "Continuation Decision must not keep an R5-S5 continuation action once the "
+                "historical pass traceability sweep is complete"
+            ),
+        )
+        require(
+            REFORM_R5_S4_CONTINUATION_PHRASE not in continuation_section,
+            (
+                "Docs/branch_records/feature_backlog_family_governance_reform.md: Seam "
+                "Continuation Decision must not keep an R5-S4 continuation action once "
+                "historical alias future-selection language is stripped"
+            ),
+        )
+
+    if (
+        continuation_completion_status.strip().casefold() == "in progress"
+        and continuation_decision.strip().casefold() == "continue"
+    ):
+        for source_name, current_state in (
+            ("Docs/feature_backlog.md", backlog_workstream_state),
+            ("Docs/prebeta_roadmap.md", roadmap_workstream_state),
+        ):
+            require(
+                "in progress and green" not in current_state.casefold(),
+                (
+                    f"{source_name}: Current Workstream State must not report green while "
+                    "the reform branch continuation record still has `Slice Status: In Progress`"
+                ),
+            )
+            require(
+                "completion status: in progress" in current_state.casefold(),
+                (
+                    f"{source_name}: Current Workstream State must report "
+                    "`Completion Status: In Progress` while reform continuation remains active"
+                ),
+            )
+            require(
+                "continue decision: continue" in current_state.casefold(),
+                (
+                    f"{source_name}: Current Workstream State must report "
+                    "`Continue Decision: Continue` while reform continuation remains active"
+                ),
+            )
+            require(
+                "next when instructed" not in current_state.casefold(),
+                (
+                    f"{source_name}: Current Workstream State must not await instruction while "
+                    "the reform branch continuation record still requires continuation"
+                ),
+            )
+            require(
+                "slice green" not in current_state.casefold(),
+                (
+                    f"{source_name}: Current Workstream State must not report slice-green stop "
+                    "authority while reform continuation remains active"
+                ),
+            )
+
+
+def _validate_backlog_family_dossier_shell(
+    require,
+    *,
+    current_branch: str,
+    backlog_entries: list[dict[str, str]],
+    roadmap_text: str,
+    index_text: str,
+    main_text: str,
+) -> None:
+    if not _is_backlog_family_reform_branch(current_branch):
+        return
+
+    require(
+        REFORM_FB042_DOSSIER_PATH.is_file(),
+        (
+            "Docs/workstreams/FB-042_desktop_startup_runtime_family_dossier.md: FB-042 dossier "
+            "shell must exist on the backlog-family reform branch after R4-S1"
+        ),
+    )
+    if not REFORM_FB042_DOSSIER_PATH.is_file():
+        return
+
+    index_dossier_section = _section(index_text, "Family Dossier Records")
+    main_dossier_routes = _subsection(main_text, "Family Dossiers And Historical Pass Alias Routing")
+
+    def require_dossier_shell(
+        *,
+        backlog_id: str,
+        dossier_path: Path,
+        required_phrases: tuple[str, ...],
+        seam_label: str,
+    ) -> None:
+        dossier_text = _read_text(dossier_path)
+        backlog_entry = _backlog_entry_by_id(backlog_entries, backlog_id)
+        roadmap_section = _roadmap_section_for_id(roadmap_text, backlog_id)
+
+        for heading in REFORM_FAMILY_DOSSIER_REQUIRED_HEADINGS:
+            require(
+                heading in dossier_text,
+                f"{dossier_path}: required heading '{heading}' is missing",
+            )
+
+        for phrase in required_phrases:
+            require(
+                phrase in dossier_text,
+                f"{dossier_path}: required dossier-shell marker '{phrase}' is missing",
+            )
+
+        require(
+            bool(backlog_entry),
+            f"Docs/feature_backlog.md: {backlog_id} backlog entry is missing",
+        )
+        if backlog_entry:
+            require(
+                f"Lifetime Dossier Doc: {dossier_path.as_posix()}" in backlog_entry["block"],
+                (
+                    f"Docs/feature_backlog.md: {backlog_id} must cite the lifetime dossier shell "
+                    f"after {seam_label}"
+                ),
+            )
+
+        require(
+            bool(roadmap_section),
+            f"Docs/prebeta_roadmap.md: {backlog_id} roadmap section is missing",
+        )
+        if roadmap_section:
+            require(
+                str(dossier_path).replace("\\", "/") in roadmap_section,
+                (
+                    f"Docs/prebeta_roadmap.md: {backlog_id} roadmap section must cite the "
+                    f"lifetime dossier shell after {seam_label}"
+                ),
+            )
+
+        require(
+            str(dossier_path).replace("\\", "/") in index_dossier_section,
+            f"Docs/workstreams/index.md: Family Dossier Records must list the {backlog_id} dossier shell",
+        )
+        require(
+            str(dossier_path).replace("\\", "/") in main_dossier_routes,
+            (
+                "Docs/Main.md: Family Dossiers And Historical Pass Alias Routing must route the "
+                f"{backlog_id} dossier shell"
+            ),
+        )
+
+    require_dossier_shell(
+        backlog_id="FB-042",
+        dossier_path=REFORM_FB042_DOSSIER_PATH,
+        required_phrases=REFORM_FB042_DOSSIER_REQUIRED_PHRASES,
+        seam_label="R4-S1",
+    )
+
+    require(
+        REFORM_FB027_DOSSIER_PATH.is_file(),
+        (
+            "Docs/workstreams/FB-027_interaction_shared_action_family_dossier.md: FB-027 "
+            "dossier shell must exist on the backlog-family reform branch after R4-S2"
+        ),
+    )
+    if not REFORM_FB027_DOSSIER_PATH.is_file():
+        return
+
+    require_dossier_shell(
+        backlog_id="FB-027",
+        dossier_path=REFORM_FB027_DOSSIER_PATH,
+        required_phrases=REFORM_FB027_DOSSIER_REQUIRED_PHRASES,
+        seam_label="R4-S2",
+    )
+
+
+def _validate_backlog_family_historical_pass_records(require, *, current_branch: str) -> None:
+    if not _is_backlog_family_reform_branch(current_branch):
+        return
+
+    for workstream_path, info in REFORM_FB042_HISTORICAL_PASS_DOCS.items():
+        require(
+            workstream_path.is_file(),
+            f"{workstream_path}: historical pass record must exist on the reform branch",
+        )
+        if not workstream_path.is_file():
+            continue
+        workstream_text = _read_text(workstream_path)
+        required_phrases = (
+            "Lifetime Dossier Doc: `Docs/workstreams/FB-042_desktop_startup_runtime_family_dossier.md`",
+            "Historical pass-record conversion to the FB-042 family model is complete in `Phase 5 / Slice R5-S1` on `feature/backlog-family-governance-reform`.",
+            "## Historical Pass Record Identity",
+            "Family Anchor ID: `FB-042`",
+            "Family Anchor Title: `Desktop startup runtime family anchor`",
+            "Family Dossier Doc: `Docs/workstreams/FB-042_desktop_startup_runtime_family_dossier.md`",
+            "Backlog Registry Class: `Historical Pass Alias`",
+            "Historical Alias Of: `FB-042`",
+            f"Pass ID: `{info['pass_id']}`",
+            "Alias Role: `Historical Pass Record`",
+            "Standalone Selection Status: `Not independently selectable`",
+            "Converted By Seam: `Phase 5 - Historical Pass Record Conversion / Slice R5-S1 - Convert FB-043 through FB-048 workstream records`",
+            f"Historical Branch Readiness Record: `{info['branch_record']}`",
+            "Preservation Rule: `This record keeps the detailed branch-local execution, validation, release, and PR history; the family dossier owns cross-pass indexing.`",
+        )
+        for phrase in required_phrases:
+            require(
+                phrase in workstream_text,
+                f"{workstream_path}: required historical pass-record marker '{phrase}' is missing",
+            )
+
+    for workstream_path, info in REFORM_FB027_HISTORICAL_PASS_DOCS.items():
+        require(
+            workstream_path.is_file(),
+            f"{workstream_path}: historical pass record must exist on the reform branch",
+        )
+        if not workstream_path.is_file():
+            continue
+        workstream_text = _read_text(workstream_path)
+        required_phrases = (
+            "Lifetime Dossier Doc: `Docs/workstreams/FB-027_interaction_shared_action_family_dossier.md`",
+            "## Historical Pass Record Identity",
+            "Family Anchor ID: `FB-027`",
+            "Family Anchor Title: `Interaction and shared-action family anchor`",
+            "Family Dossier Doc: `Docs/workstreams/FB-027_interaction_shared_action_family_dossier.md`",
+            "Backlog Registry Class: `Historical Pass Alias`",
+            "Historical Alias Of: `FB-027`",
+            f"Pass ID: `{info['pass_id']}`",
+            "Alias Role: `Historical Pass Record`",
+            "Standalone Selection Status: `Not independently selectable`",
+            "Converted By Seam: `Phase 5 - Historical Pass Record Conversion / Slice R5-S2 - Convert FB-036, FB-037, FB-038, and FB-041 workstream records`",
+            info["branch_record_phrase"],
+            "Preservation Rule: `This record keeps the detailed branch-local execution, validation, release, and artifact history; the family dossier owns cross-pass indexing.`",
+        )
+        for phrase in required_phrases:
+            require(
+                phrase in workstream_text,
+                f"{workstream_path}: required historical pass-record marker '{phrase}' is missing",
+            )
+
+    for branch_record_path, info in REFORM_HISTORICAL_PASS_BRANCH_RECORDS.items():
+        require(
+            branch_record_path.is_file(),
+            f"{branch_record_path}: historical branch record must exist on the reform branch",
+        )
+        if not branch_record_path.is_file():
+            continue
+        branch_record_text = _read_text(branch_record_path)
+        required_phrases = (
+            "## Historical Pass Record Identity",
+            f"Family Anchor ID: `{info['family_anchor_id']}`",
+            f"Family Dossier Doc: `{info['family_dossier']}`",
+            "Backlog Registry Class: `Historical Pass Alias`",
+            f"Historical Alias Of: `{info['family_anchor_id']}`",
+            f"Pass ID: `{info['pass_id']}`",
+            "Alias Role: `Historical Pass Record`",
+            "Standalone Selection Status: `Not independently selectable`",
+            "Converted By Seam: `Phase 5 - Historical Pass Record Conversion / Slice R5-S3 - Convert corresponding branch records`",
+            f"Corresponding Historical Workstream Record: `{info['workstream_record']}`",
+            f"Preservation Rule: `{info['preservation_rule']}`",
+        )
+        for phrase in required_phrases:
+            require(
+                phrase in branch_record_text,
+                f"{branch_record_path}: required historical pass-branch marker '{phrase}' is missing",
+            )
+
+    for doc_path, expectations in REFORM_R5_S4_HISTORICAL_LANGUAGE_DOCS.items():
+        require(
+            doc_path.is_file(),
+            f"{doc_path}: R5-S4 historical-only language surface must exist on the reform branch",
+        )
+        if not doc_path.is_file():
+            continue
+        doc_text = _read_text(doc_path)
+        for phrase in expectations["required"]:
+            require(
+                phrase in doc_text,
+                f"{doc_path}: required R5-S4 historical-language marker '{phrase}' is missing",
+            )
+        for phrase in expectations["prohibited"]:
+            require(
+                phrase not in doc_text,
+                f"{doc_path}: stale future-selection phrase '{phrase}' must be removed in R5-S4",
+            )
+
+    for doc_path, required_phrases in REFORM_R5_S5_TRACEABILITY_REQUIRED_PHRASES.items():
+        require(
+            doc_path.is_file(),
+            f"{doc_path}: R5-S5 traceability surface must exist on the reform branch",
+        )
+        if not doc_path.is_file():
+            continue
+        doc_text = _read_text(doc_path)
+        for phrase in required_phrases:
+            require(
+                phrase in doc_text,
+                f"{doc_path}: required R5-S5 traceability marker '{phrase}' is missing",
+            )
+
+    r6_s1_roadmap_text = _read_text(Path("Docs/prebeta_roadmap.md"))
+    for phrase in REFORM_R6_S1_ROADMAP_REQUIRED_PHRASES:
+        require(
+            phrase in r6_s1_roadmap_text,
+            (
+                "Docs/prebeta_roadmap.md: required R6-S1 roadmap anchor-conversion marker "
+                f"'{phrase}' is missing"
+            ),
+        )
+
+    r6_s2_index_text = _read_text(Path("Docs/workstreams/index.md"))
+    for phrase in REFORM_R6_S2_INDEX_REQUIRED_PHRASES:
+        require(
+            phrase in r6_s2_index_text,
+            (
+                "Docs/workstreams/index.md: required R6-S2 workstream-index split marker "
+                f"'{phrase}' is missing"
+            ),
+        )
+
+    for doc_path, required_phrases in REFORM_R6_S3_ROUTER_REQUIRED_PHRASES.items():
+        require(
+            doc_path.is_file(),
+            f"{doc_path}: R6-S3 router/loader surface must exist on the reform branch",
+        )
+        if not doc_path.is_file():
+            continue
+        doc_text = _read_text(doc_path)
+        for phrase in required_phrases:
+            require(
+                phrase in doc_text,
+                f"{doc_path}: required R6-S3 router/loader marker '{phrase}' is missing",
+            )
 
 
 def _roadmap_section_for_id(text: str, workstream_id: str) -> str:
@@ -1749,6 +5227,34 @@ def _git_current_branch() -> str:
     return completed.stdout.strip()
 
 
+def _git_head_sha() -> str:
+    completed = subprocess.run(
+        ("git", "rev-parse", "HEAD"),
+        cwd=ROOT_DIR,
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        check=False,
+    )
+    if completed.returncode != 0:
+        return ""
+    return completed.stdout.strip()
+
+
+def _git_head_commit_time() -> datetime | None:
+    completed = subprocess.run(
+        ("git", "show", "-s", "--format=%cI", "HEAD"),
+        cwd=ROOT_DIR,
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        check=False,
+    )
+    if completed.returncode != 0:
+        return None
+    return _parse_iso8601_timestamp(completed.stdout.strip())
+
+
 def _git_branch_names() -> tuple[list[str], str]:
     names: list[str] = []
     errors: list[str] = []
@@ -1771,30 +5277,349 @@ def _git_branch_names() -> tuple[list[str], str]:
     return sorted(set(names)), "; ".join(error for error in errors if error)
 
 
-def _gh_pr_view_for_branch(branch_name: str) -> tuple[dict[str, object] | None, str]:
-    fields = (
-        "id,number,state,mergeable,mergeStateStatus,reviewDecision,isDraft,"
-        "headRefName,baseRefName,title,url"
-    )
+def _git_origin_repository_full_name() -> tuple[str, str]:
     completed = subprocess.run(
-        ("gh", "pr", "view", branch_name, "--json", fields),
+        ("git", "remote", "get-url", "origin"),
         cwd=ROOT_DIR,
         text=True,
-        encoding="utf-8",
-        errors="replace",
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         check=False,
     )
     if completed.returncode != 0:
-        return None, completed.stderr.strip() or completed.stdout.strip() or "gh pr view failed"
+        return "", completed.stderr.strip() or "git remote get-url origin failed"
+
+    remote_url = completed.stdout.strip()
+    match = re.search(r"github\.com[:/](?P<owner>[^/]+)/(?P<repo>[^/]+?)(?:\.git)?$", remote_url)
+    if not match:
+        return "", f"could not parse GitHub origin remote '{remote_url}'"
+    return f"{match.group('owner')}/{match.group('repo')}", ""
+
+
+def _github_api_json(url: str) -> tuple[object | None, str]:
+    request = urllib_request.Request(url, headers=GITHUB_API_HEADERS)
     try:
-        return json.loads(completed.stdout), ""
+        with urllib_request.urlopen(request, timeout=GITHUB_API_TIMEOUT_SECONDS) as response:
+            payload = response.read().decode("utf-8", "replace")
+    except urllib_error.HTTPError as exc:
+        details = exc.read().decode("utf-8", "replace")
+        message = details.strip() or exc.reason or "GitHub API HTTP error"
+        return None, f"{exc.code} {message}"
+    except urllib_error.URLError as exc:
+        return None, str(exc.reason or exc)
+    except OSError as exc:
+        return None, str(exc)
+
+    try:
+        return json.loads(payload), ""
     except json.JSONDecodeError as exc:
-        return None, f"could not parse gh pr view JSON: {exc}"
+        return None, f"could not parse GitHub API JSON: {exc}"
 
 
-def _gh_unresolved_codex_threads(pr_node_id: str) -> tuple[list[str], str]:
+def _parse_iso8601_timestamp(value: str) -> datetime | None:
+    if not value:
+        return None
+    try:
+        return datetime.fromisoformat(value.replace("Z", "+00:00")).astimezone(timezone.utc)
+    except ValueError:
+        return None
+
+
+def _bot_login_matches(login: str) -> bool:
+    lowered = login.casefold()
+    if lowered == BOT_REVIEW_BOT_LOGIN.casefold():
+        return True
+    return "codex" in lowered and "connector" in lowered and "bot" in lowered
+
+
+def _github_rest_review_decision(
+    repository_full_name: str,
+    pr_number: int,
+    requested_reviewers: list[object],
+    requested_teams: list[object],
+) -> tuple[str, str]:
+    reviews_payload, reviews_error = _github_api_json(
+        f"https://api.github.com/repos/{repository_full_name}/pulls/{pr_number}/reviews"
+    )
+    if reviews_error:
+        return "", reviews_error
+
+    latest_by_author: dict[str, str] = {}
+    for review in reviews_payload or []:
+        author = str(((review.get("user") or {}).get("login")) or "").casefold()
+        state = str(review.get("state") or "").upper()
+        if author and state:
+            latest_by_author[author] = state
+
+    if any(state == "CHANGES_REQUESTED" for state in latest_by_author.values()):
+        return "CHANGES_REQUESTED", ""
+    if requested_reviewers or requested_teams:
+        return "REVIEW_REQUIRED", ""
+    if any(state == "APPROVED" for state in latest_by_author.values()):
+        return "APPROVED", ""
+    return "", ""
+
+
+def _github_rest_pr_view_for_branch(
+    branch_name: str,
+    repository_full_name: str,
+) -> tuple[dict[str, object] | None, str]:
+    if not repository_full_name:
+        return None, "GitHub origin repository is unknown"
+
+    owner = repository_full_name.split("/", 1)[0]
+    pulls_url = (
+        "https://api.github.com/repos/"
+        f"{repository_full_name}/pulls?state=all&head={urllib_parse.quote(f'{owner}:{branch_name}', safe=':')}"
+    )
+    pulls_payload, pulls_error = _github_api_json(pulls_url)
+    if pulls_error:
+        return None, f"REST pull lookup failed: {pulls_error}"
+    pulls = pulls_payload or []
+    if not pulls:
+        return None, f"REST pull lookup found no PR for branch '{branch_name}'"
+
+    pull = max(
+        pulls,
+        key=lambda item: int(item.get("number") or 0),
+    )
+    pr_number = int(pull.get("number") or 0)
+    if not pr_number:
+        return None, f"REST pull lookup returned no PR number for branch '{branch_name}'"
+
+    detail_payload, detail_error = _github_api_json(
+        f"https://api.github.com/repos/{repository_full_name}/pulls/{pr_number}"
+    )
+    if detail_error:
+        return None, f"REST pull detail lookup failed: {detail_error}"
+
+    requested_reviewers = list(detail_payload.get("requested_reviewers") or [])
+    requested_teams = list(detail_payload.get("requested_teams") or [])
+    review_decision, review_error = _github_rest_review_decision(
+        repository_full_name,
+        pr_number,
+        requested_reviewers,
+        requested_teams,
+    )
+    if review_error:
+        return None, f"REST review lookup failed: {review_error}"
+
+    mergeable_value = detail_payload.get("mergeable")
+    if mergeable_value is True:
+        mergeable = "MERGEABLE"
+    elif mergeable_value is False:
+        mergeable = "CONFLICTING"
+    else:
+        mergeable = "UNKNOWN"
+
+    return {
+        "id": detail_payload.get("node_id") or "",
+        "number": pr_number,
+        "state": str(detail_payload.get("state") or "").upper(),
+        "mergeable": mergeable,
+        "mergeStateStatus": str(detail_payload.get("mergeable_state") or "").upper(),
+        "reviewDecision": review_decision,
+        "isDraft": bool(detail_payload.get("draft")),
+        "headRefName": str(((detail_payload.get("head") or {}).get("ref")) or ""),
+        "baseRefName": str(((detail_payload.get("base") or {}).get("ref")) or ""),
+        "title": str(detail_payload.get("title") or ""),
+        "url": str(detail_payload.get("html_url") or ""),
+        "repositoryFullName": repository_full_name,
+    }, ""
+
+
+def _codex_related_author_or_body(author: str, body: str) -> bool:
+    author_lower = author.casefold()
+    body_lower = body.casefold()
+    return "codex" in author_lower or "openai" in author_lower or "codex" in body_lower
+
+
+def _github_rest_unresolved_codex_threads(
+    repository_full_name: str,
+    pr_number: int,
+) -> tuple[list[str], str]:
+    if not repository_full_name or not pr_number:
+        return [], "REST fallback is missing PR identity"
+
+    issue_comments_payload, issue_comments_error = _github_api_json(
+        f"https://api.github.com/repos/{repository_full_name}/issues/{pr_number}/comments"
+    )
+    if issue_comments_error:
+        return [], f"REST issue-comment lookup failed: {issue_comments_error}"
+
+    review_comments_payload, review_comments_error = _github_api_json(
+        f"https://api.github.com/repos/{repository_full_name}/pulls/{pr_number}/comments"
+    )
+    if review_comments_error:
+        return [], f"REST review-comment lookup failed: {review_comments_error}"
+
+    reviews_payload, reviews_error = _github_api_json(
+        f"https://api.github.com/repos/{repository_full_name}/pulls/{pr_number}/reviews"
+    )
+    if reviews_error:
+        return [], f"REST review lookup failed: {reviews_error}"
+
+    unresolved: list[str] = []
+    for comment in issue_comments_payload or []:
+        author = str(((comment.get("user") or {}).get("login")) or "")
+        body = str(comment.get("body") or "")
+        if _codex_related_author_or_body(author, body):
+            unresolved.append(author.casefold() or "unknown-author")
+
+    codex_review_comment_found = False
+    for comment in review_comments_payload or []:
+        author = str(((comment.get("user") or {}).get("login")) or "")
+        body = str(comment.get("body") or "")
+        if _codex_related_author_or_body(author, body):
+            codex_review_comment_found = True
+            unresolved.append(author.casefold() or "unknown-author")
+
+    for review in reviews_payload or []:
+        author = str(((review.get("user") or {}).get("login")) or "")
+        body = str(review.get("body") or "")
+        state = str(review.get("state") or "").upper()
+        if _codex_related_author_or_body(author, body) and state in {"COMMENTED", "CHANGES_REQUESTED"}:
+            unresolved.append(author.casefold() or "unknown-author")
+
+    if codex_review_comment_found:
+        return (
+            sorted(set(unresolved)),
+            "could not confirm resolution status for Codex review-thread comments via REST fallback",
+        )
+    return sorted(set(unresolved)), ""
+
+
+def _github_pr_bot_signal_for_live_pr(
+    repository_full_name: str,
+    pr_number: int,
+) -> tuple[dict[str, str], str]:
+    signal = {"status": "pending", "source": "", "timestamp": "", "actor": ""}
+    if not repository_full_name or not pr_number:
+        return signal, "live PR identity is incomplete"
+
+    reactions_payload, reactions_error = _github_api_json(
+        f"https://api.github.com/repos/{repository_full_name}/issues/{pr_number}/reactions"
+    )
+    if reactions_error:
+        return signal, f"reaction lookup failed: {reactions_error}"
+    latest_approval: dict[str, object] | None = None
+    for reaction in reactions_payload or []:
+        actor = str(((reaction.get("user") or {}).get("login")) or "")
+        created_at = str(reaction.get("created_at") or "")
+        created_time = _parse_iso8601_timestamp(created_at)
+        content = str(reaction.get("content") or "")
+        if (
+            _bot_login_matches(actor)
+            and content == "+1"
+            and created_time is not None
+        ):
+            if latest_approval is None or created_time >= latest_approval["time"]:
+                latest_approval = {
+                    "time": created_time,
+                    "timestamp": created_at,
+                    "actor": actor,
+                }
+
+    latest_comment: dict[str, object] | None = None
+    for url, source_name in (
+        (f"https://api.github.com/repos/{repository_full_name}/issues/{pr_number}/comments", "issue comment"),
+        (f"https://api.github.com/repos/{repository_full_name}/pulls/{pr_number}/reviews", "review comment"),
+        (f"https://api.github.com/repos/{repository_full_name}/pulls/{pr_number}/comments", "inline review comment"),
+    ):
+        payload, payload_error = _github_api_json(url)
+        if payload_error:
+            return signal, f"{source_name} lookup failed: {payload_error}"
+        for item in payload or []:
+            actor = str(((item.get("user") or {}).get("login")) or "")
+            created_at = str(
+                item.get("submitted_at")
+                or item.get("created_at")
+                or ""
+            )
+            created_time = _parse_iso8601_timestamp(created_at)
+            if _bot_login_matches(actor) and created_time is not None:
+                if latest_comment is None or created_time >= latest_comment["time"]:
+                    latest_comment = {
+                        "time": created_time,
+                        "source": source_name,
+                        "timestamp": created_at,
+                        "actor": actor,
+                    }
+
+    if latest_comment and (
+        latest_approval is None or latest_comment["time"] >= latest_approval["time"]
+    ):
+        return {
+            "status": "comment",
+            "source": str(latest_comment["source"]),
+            "timestamp": str(latest_comment["timestamp"]),
+            "actor": str(latest_comment["actor"]),
+        }, ""
+
+    if latest_approval:
+        return {
+            "status": BOT_REVIEW_SIGNAL_STATUS_APPROVED.casefold(),
+            "source": "thumbs-up reaction",
+            "timestamp": str(latest_approval["timestamp"]),
+            "actor": str(latest_approval["actor"]),
+        }, ""
+
+    return signal, ""
+
+
+def _gh_pr_view_for_branch(branch_name: str) -> tuple[dict[str, object] | None, str]:
+    fields = (
+        "id,number,state,mergeable,mergeStateStatus,reviewDecision,isDraft,"
+        "headRefName,baseRefName,title,url"
+    )
+    repository_full_name, repository_error = _git_origin_repository_full_name()
+    gh_error = ""
+    try:
+        completed = subprocess.run(
+            ("gh", "pr", "view", branch_name, "--json", fields),
+            cwd=ROOT_DIR,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            check=False,
+        )
+    except FileNotFoundError as exc:
+        completed = None
+        gh_error = str(exc)
+
+    if completed is not None and completed.returncode == 0:
+        try:
+            payload = json.loads(completed.stdout)
+        except json.JSONDecodeError as exc:
+            return None, f"could not parse gh pr view JSON: {exc}"
+        if repository_full_name:
+            payload.setdefault("repositoryFullName", repository_full_name)
+        return payload, ""
+
+    if completed is not None:
+        gh_error = completed.stderr.strip() or completed.stdout.strip() or "gh pr view failed"
+    if repository_error:
+        return None, gh_error or repository_error
+
+    rest_payload, rest_error = _github_rest_pr_view_for_branch(branch_name, repository_full_name)
+    if rest_payload:
+        return rest_payload, ""
+    if gh_error:
+        return None, f"{gh_error}; {rest_error}"
+    return None, rest_error
+
+
+def _gh_unresolved_codex_threads(
+    pr_node_id: str,
+    pr_info: dict[str, object] | None = None,
+) -> tuple[list[str], str]:
+    repository_full_name = str((pr_info or {}).get("repositoryFullName") or "")
+    pr_number = int((pr_info or {}).get("number") or 0)
+
+    if not pr_node_id and repository_full_name and pr_number:
+        return _github_rest_unresolved_codex_threads(repository_full_name, pr_number)
     if not pr_node_id:
         return [], "PR node id is missing"
 
@@ -1817,18 +5642,30 @@ query($id: ID!) {
   }
 }
 """
-    completed = subprocess.run(
-        ("gh", "api", "graphql", "-f", f"query={query}", "-F", f"id={pr_node_id}"),
-        cwd=ROOT_DIR,
-        text=True,
-        encoding="utf-8",
-        errors="replace",
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        check=False,
-    )
-    if completed.returncode != 0:
-        return [], completed.stderr.strip() or completed.stdout.strip() or "gh api graphql failed"
+    gh_error = ""
+    try:
+        completed = subprocess.run(
+            ("gh", "api", "graphql", "-f", f"query={query}", "-F", f"id={pr_node_id}"),
+            cwd=ROOT_DIR,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            check=False,
+        )
+    except FileNotFoundError as exc:
+        completed = None
+        gh_error = str(exc)
+    if completed is None or completed.returncode != 0:
+        if completed is not None:
+            gh_error = completed.stderr.strip() or completed.stdout.strip() or "gh api graphql failed"
+        if repository_full_name and pr_number:
+            unresolved, rest_error = _github_rest_unresolved_codex_threads(repository_full_name, pr_number)
+            if not rest_error:
+                return unresolved, ""
+            return [], f"{gh_error}; {rest_error}" if gh_error else rest_error
+        return [], gh_error or "gh api graphql failed"
 
     try:
         payload = json.loads(completed.stdout)
@@ -2192,7 +6029,20 @@ def _run_open_backlog_selection_governance(require, backlog_entries: list[dict[s
                 )
 
 
-def _run_pr_live_state_gate(require) -> None:
+def _branch_record_bot_review_state(record_text: str) -> tuple[str, str]:
+    review_section = _section(record_text, BOT_REVIEW_SIGNAL_HEADING)
+    return (
+        _extract_marker_value(review_section, BOT_REVIEW_SIGNAL_STATUS_LABEL),
+        _extract_marker_value(review_section, BOT_REVIEW_SIGNAL_HEAD_SHA_LABEL),
+    )
+
+
+def _run_pr_live_state_gate(
+    require,
+    *,
+    active_branch_record_path: str = "",
+    active_branch_record_text: str = "",
+) -> None:
     branch_name = _git_current_branch()
     require(
         bool(branch_name),
@@ -2219,6 +6069,45 @@ def _run_pr_live_state_gate(require) -> None:
     mergeable = str(pr_info.get("mergeable") or "")
     merge_state = str(pr_info.get("mergeStateStatus") or "")
     review_decision = str(pr_info.get("reviewDecision") or "")
+    repository_full_name = str(pr_info.get("repositoryFullName") or "")
+    if (
+        repository_full_name
+        and (not mergeable or mergeable == "UNKNOWN" or not merge_state or merge_state == "UNKNOWN")
+    ):
+        rest_pr_info, rest_pr_error = _github_rest_pr_view_for_branch(branch_name, repository_full_name)
+        if rest_pr_info and not rest_pr_error:
+            pr_info = rest_pr_info
+            pr_url = str(pr_info.get("url") or pr_url)
+            pr_state = str(pr_info.get("state") or pr_state)
+            pr_head = str(pr_info.get("headRefName") or pr_head)
+            pr_base = str(pr_info.get("baseRefName") or pr_base)
+            mergeable = str(pr_info.get("mergeable") or mergeable)
+            merge_state = str(pr_info.get("mergeStateStatus") or merge_state)
+            review_decision = str(pr_info.get("reviewDecision") or review_decision)
+    current_head_sha = _git_head_sha()
+    current_head_time = _git_head_commit_time()
+    recorded_bot_review_status, recorded_bot_review_head = _branch_record_bot_review_state(
+        active_branch_record_text
+    )
+    normalized_recorded_status = recorded_bot_review_status.strip().casefold()
+    manual_comment_resolution_clear = (
+        normalized_recorded_status == BOT_REVIEW_SIGNAL_STATUS_COMMENT_ADDRESSED.casefold()
+        and recorded_bot_review_head == current_head_sha
+    )
+    if (
+        normalized_recorded_status == BOT_REVIEW_SIGNAL_STATUS_COMMENT_ADDRESSED.casefold()
+        and recorded_bot_review_head
+        and current_head_sha
+        and recorded_bot_review_head != current_head_sha
+    ):
+        require(
+            False,
+            (
+                "PR readiness gate: PR Validation Pending blocker is active; recorded bot-review "
+                f"signal head '{recorded_bot_review_head}' in {active_branch_record_path or 'the active branch record'} "
+                f"does not match current head '{current_head_sha}'"
+            ),
+        )
 
     require(
         pr_state == "OPEN",
@@ -2264,21 +6153,67 @@ def _run_pr_live_state_gate(require) -> None:
         ),
     )
 
-    unresolved_codex_threads, thread_error = _gh_unresolved_codex_threads(str(pr_info.get("id") or ""))
+    if not manual_comment_resolution_clear:
+        unresolved_codex_threads, thread_error = _gh_unresolved_codex_threads(
+            str(pr_info.get("id") or ""),
+            pr_info,
+        )
+        require(
+            not thread_error,
+            (
+                "PR readiness gate: PR State Unknown blocker is active; "
+                f"could not inspect Codex review threads for PR {pr_url or pr_info.get('number')}: {thread_error}"
+            ),
+        )
+        require(
+            not unresolved_codex_threads,
+            (
+                "PR readiness gate: PR Validation Pending blocker is active; "
+                "unresolved Codex comments/issues remain on the PR"
+            ),
+        )
+
+    if manual_comment_resolution_clear:
+        return
+
+    live_signal, signal_error = _github_pr_bot_signal_for_live_pr(
+        str(pr_info.get("repositoryFullName") or ""),
+        int(pr_info.get("number") or 0),
+    )
     require(
-        not thread_error,
+        not signal_error,
         (
             "PR readiness gate: PR State Unknown blocker is active; "
-            f"could not inspect Codex review threads for PR {pr_url or pr_info.get('number')}: {thread_error}"
+            f"could not inspect bot-review signal state for PR {pr_url or pr_info.get('number')}: {signal_error}"
         ),
     )
-    require(
-        not unresolved_codex_threads,
-        (
-            "PR readiness gate: PR Validation Pending blocker is active; "
-            "unresolved Codex comments/issues remain on the PR"
-        ),
-    )
+    if signal_error:
+        return
+
+    signal_status = live_signal.get("status", "")
+    signal_source = live_signal.get("source", "")
+    signal_timestamp = live_signal.get("timestamp", "")
+    signal_actor = live_signal.get("actor", "")
+    if signal_status == "comment":
+        require(
+            False,
+            (
+                "PR readiness gate: PR Validation Pending blocker is active; bot review comment "
+                f"detected from '{signal_actor or BOT_REVIEW_BOT_LOGIN}' via {signal_source or 'comment'} "
+                f"at '{signal_timestamp or 'unknown time'}' on live PR "
+                f"'{pr_url or pr_info.get('number') or 'UNKNOWN'}'; fix, push, resolve the "
+                "comment, and then PR green may return without waiting for a later thumbs-up"
+            ),
+        )
+    elif signal_status != BOT_REVIEW_SIGNAL_STATUS_APPROVED.casefold():
+        require(
+            False,
+            (
+                "PR readiness gate: PR Validation Pending blocker is active; Bot Review Signal Pending "
+                f"for live PR '{pr_url or pr_info.get('number') or 'UNKNOWN'}'; wait "
+                "for a thumbs-up reaction or a bot comment on the live PR"
+            ),
+        )
 
 
 def _run_pr_readiness_gate(
@@ -2287,6 +6222,8 @@ def _run_pr_readiness_gate(
     roadmap_text: str,
     ignored_branch_names: set[str],
     branch_record_class_map: dict[str, str],
+    active_branch_record_path: str,
+    active_branch_record_text: str,
 ) -> None:
     status_output = _git_status_porcelain()
     require(
@@ -2304,7 +6241,11 @@ def _run_pr_readiness_gate(
         ignored_branch_names,
         branch_record_class_map,
     )
-    _run_pr_live_state_gate(require)
+    _run_pr_live_state_gate(
+        require,
+        active_branch_record_path=active_branch_record_path,
+        active_branch_record_text=active_branch_record_text,
+    )
 
 
 def main() -> int:
@@ -2605,6 +6546,14 @@ def main() -> int:
                 f"{relative_path}: PR live-state completion contract is missing '{required_phrase}'",
             )
 
+    for relative_path in BOT_REVIEW_SIGNAL_DOCS:
+        text = _read_text(relative_path)
+        for required_phrase in BOT_REVIEW_SIGNAL_PHRASES:
+            require(
+                required_phrase in text,
+                f"{relative_path}: bot-review signal contract is missing '{required_phrase}'",
+            )
+
     for relative_path in UTS_RESULTS_BLOCKER_DOCS:
         text = _read_text(relative_path)
         for required_phrase in UTS_RESULTS_BLOCKER_PHRASES:
@@ -2669,6 +6618,14 @@ def main() -> int:
                 f"{relative_path}: merged-unreleased release-debt contract is missing '{required_phrase}'",
             )
 
+    for relative_path, required_phrases in GOVERNED_OUTPUT_CONTRACT_REQUIRED_PHRASES.items():
+        text = _read_text(relative_path)
+        for required_phrase in required_phrases:
+            require(
+                required_phrase in text,
+                f"{relative_path}: governed output state contract is missing '{required_phrase}'",
+            )
+
     for relative_path in MERGE_STABLE_CURRENT_STATE_DOCS:
         text = _read_text(relative_path)
         for required_phrase in MERGE_STABLE_CURRENT_STATE_PHRASES:
@@ -2695,6 +6652,10 @@ def main() -> int:
         historical_branch_record_paths,
         current_git_branch,
     )
+    active_branch_record_path, active_branch_record_text = _active_branch_record_for_branch(
+        active_branch_record_paths,
+        current_git_branch,
+    )
     ignored_selected_next_branch_names = _selected_next_ignored_branch_names(
         current_git_branch,
         all_repair_branch_names,
@@ -2713,6 +6674,32 @@ def main() -> int:
         )
 
     backlog_entries = _parse_backlog_sections(backlog_text)
+    _validate_backlog_family_reform_bootstrap(
+        require,
+        current_branch=current_git_branch,
+        backlog_text=backlog_text,
+        index_text=index_text,
+        backlog_entries=backlog_entries,
+    )
+    _validate_backlog_family_reform_seam_truth(
+        require,
+        current_branch=current_git_branch,
+        backlog_entries=backlog_entries,
+        backlog_text=backlog_text,
+        roadmap_text=roadmap_text,
+    )
+    _validate_backlog_family_dossier_shell(
+        require,
+        current_branch=current_git_branch,
+        backlog_entries=backlog_entries,
+        roadmap_text=roadmap_text,
+        index_text=index_text,
+        main_text=main_text,
+    )
+    _validate_backlog_family_historical_pass_records(
+        require,
+        current_branch=current_git_branch,
+    )
     for entry in backlog_entries:
         post_release_truth_count = _count_field_occurrences(entry["block"], "Post-Release Truth")
         require(
@@ -2951,6 +6938,8 @@ def main() -> int:
             roadmap_text,
             ignored_selected_next_branch_names,
             branch_record_class_map,
+            active_branch_record_path,
+            active_branch_record_text,
         )
 
     selected_entries = _selected_next_workstream_entries(backlog_entries)
@@ -3175,6 +7164,8 @@ def main() -> int:
                 ),
             )
 
+        active_seam_section = _section(workstream_text, "Active Seam")
+
         if current_phase == "Branch Readiness":
             for heading in REQUIRED_BRANCH_READINESS_DURABILITY_HEADINGS:
                 require(
@@ -3202,8 +7193,6 @@ def main() -> int:
                         f"with '{marker}'"
                     ),
                 )
-
-            active_seam_section = _section(workstream_text, "Active Seam")
             require(
                 "Active seam:" in active_seam_section,
                 f"{canonical_path}: Active Seam section must clearly identify the active seam",
@@ -3220,6 +7209,13 @@ def main() -> int:
                     marker in continuation_section,
                     f"{canonical_path}: Seam Continuation Decision is missing '{marker}'",
                 )
+            _validate_governed_output_state(
+                require,
+                canonical_path,
+                continuation_section=continuation_section,
+                active_seam_section=active_seam_section,
+                blockers=blockers,
+            )
 
         if current_phase in {"Live Validation", "PR Readiness"}:
             require(
@@ -3894,6 +7890,8 @@ def main() -> int:
                 blockers=list(info["blockers"]),
                 next_legal_phase=str(info["next_legal_phase"]),
             )
+            active_seam_section = _section(record_text, "Active Seam")
+
             if current_phase == "Branch Readiness":
                 for heading in REQUIRED_BRANCH_READINESS_DURABILITY_HEADINGS:
                     require(
@@ -3912,7 +7910,6 @@ def main() -> int:
                             f"with '{marker}'"
                         ),
                     )
-                active_seam_section = _section(record_text, "Active Seam")
                 require(
                     "Active seam:" in active_seam_section,
                     f"{branch_record_path}: Active Seam section must clearly identify the active seam",
@@ -3928,6 +7925,13 @@ def main() -> int:
                         marker in continuation_section,
                         f"{branch_record_path}: Seam Continuation Decision is missing '{marker}'",
                     )
+                _validate_governed_output_state(
+                    require,
+                    branch_record_path,
+                    continuation_section=continuation_section,
+                    active_seam_section=active_seam_section,
+                    blockers=list(info["blockers"]),
+                )
         if branch_record_path in active_branch_record_paths and str(info["current_phase"]) == "Release Readiness":
             status_output = _git_status_porcelain(tracked_only=True)
             require(

@@ -6,6 +6,20 @@
 - Workstream: `FB-048`
 - Branch Class: `implementation`
 
+## Historical Pass Record Identity
+
+- Family Anchor ID: `FB-042`
+- Family Anchor Title: `Desktop startup runtime family anchor`
+- Family Dossier Doc: `Docs/workstreams/FB-042_desktop_startup_runtime_family_dossier.md`
+- Backlog Registry Class: `Historical Pass Alias`
+- Historical Alias Of: `FB-042`
+- Pass ID: `F042-P07`
+- Alias Role: `Historical Pass Record`
+- Standalone Selection Status: `Not independently selectable`
+- Converted By Seam: `Phase 5 - Historical Pass Record Conversion / Slice R5-S3 - Convert corresponding branch records`
+- Corresponding Historical Workstream Record: `Docs/workstreams/FB-048_active_session_relaunch_signal_failure_and_wait_timeout_truth.md`
+- Preservation Rule: `This record keeps the preserved branch-readiness trace for the historical pass; the family dossier owns cross-pass indexing.`
+
 ## Purpose / Why It Exists
 
 This branch record preserves the historical FB-048 `Branch Readiness` authority now that the backlog item has been promoted into its canonical workstream record.
@@ -30,7 +44,7 @@ Historical traceability note: `feature/fb-046-post-merge-canon-sync` was a bound
 - Latest Public Prerelease Title: `Pre-Beta v1.6.11`
 - FB-047 is now `Released / Closed` historical proof in `v1.6.11-prebeta`.
 - Merged-unreleased release debt is clear after publication, validation, and post-release canon closure.
-- FB-048 is now the active promoted workstream on the same branch; this record remains historical Branch Readiness traceability only.
+- FB-048 later promoted into the canonical workstream on the same branch; this record remains historical Branch Readiness traceability only.
 - Active seam: `None.` Branch Readiness is preserved historical truth after promotion.
 
 ## Branch Class

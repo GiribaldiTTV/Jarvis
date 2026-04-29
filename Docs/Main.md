@@ -143,6 +143,8 @@ Rules:
 
 Use these for promoted work that needs a stable feature-state, branch-local validation/evidence record, active seam trail, durable artifact/reuse history, and closure history:
 
+For the family-governance model, use `Docs/workstreams/index.md` first to distinguish family anchors, historical pass alias records, and other closed workstreams before loading the specific canonical record.
+
 - `Docs/workstreams/index.md`
 - `Docs/workstreams/FB-047_active_session_relaunch_decline_preservation.md`
 - `Docs/workstreams/FB-048_active_session_relaunch_signal_failure_and_wait_timeout_truth.md`
@@ -169,6 +171,17 @@ Use these for promoted work that needs a stable feature-state, branch-local vali
 - `Docs/workstreams/FB-025_boot_desktop_milestone_taxonomy_clarification.md`
 - `Docs/workstreams/FB-033_startup_snapshot_harness_follow_through.md`
 - `Docs/workstreams/FB-028_history_state_relocation.md`
+
+### Family Dossiers And Historical Pass Alias Routing
+
+Use these for additive family-lifetime traceability surfaces that layer over existing workstream history without replacing the canonical workstream docs in one pass:
+
+- load the `Lifetime Dossier Doc` named by backlog or roadmap when the task touches a `Feature Family` anchor or a `Historical Pass Alias`
+- use `Docs/workstreams/index.md` to locate the split family-anchor versus historical-pass record set before choosing the exact canonical workstream doc
+
+- `Docs/workstreams/index.md`
+- `Docs/workstreams/FB-042_desktop_startup_runtime_family_dossier.md`
+- `Docs/workstreams/FB-027_interaction_shared_action_family_dossier.md`
 
 ### Branch Authority Records
 
@@ -244,22 +257,31 @@ These are reference layers, not active workstream or roadmap owners.
   6. `Release Readiness`
 - `Branch Readiness` must plan the whole branch at phase level before Workstream begins, including objective, target end-state, expected seam families and risk classes, validation contract, User Test Summary strategy, later-phase needs, and first seam or seam sequence
 - Branch Readiness owns planning, framing, affected-surface mapping, implementation delta classification, admitted-slice definition, and whole-backlog closure strategy before Workstream begins.
-- Branch Readiness must evaluate the whole backlog item, define the first admitted slice, record the same-branch continuation posture for the remaining slices needed to complete the backlog item, and record any known future-dependent blockers before Workstream begins.
-- during `Workstream`, `bounded multi-seam workflow` is the primary model for approved seam chains; execute one active seam at a time, validate it, record evidence, report `continue` or `stop`, and continue by default when `Next-Seam Continuation Required` applies
-- Workstream must execute admitted implementation slices, keep re-evaluating the backlog item after each seam and slice, and continue on the same branch until the backlog item is fully implemented or only future-dependent blockers remain unless the USER explicitly approves a docs-only bypass or backlog split.
+- Branch Readiness must evaluate the whole backlog item, define the first admitted slice, record the same-branch continuation posture until `Completion Status` becomes green, and record any known future-dependent blockers before Workstream begins.
+- during `Workstream`, `bounded multi-seam workflow` is the primary model inside the current slice; execute one active seam at a time, validate it, record evidence, report `continue` or `stop`, and keep going until all required seams in the current slice are complete and the slice status is green, then advance into the next admitted slice while `Completion Status` remains `In Progress`, unless a named blocker or waiver requirement turns `Completion Status` red
+- a task-level `Return:` block, rollback request, commit request, or next-seam recommendation is not stop authority while `Continue Decision` remains `Continue`
+- when `Continue Decision` is `Continue`, do not end on a seam-complete final response; keep executing until a lawful `Stop` decision exists
+- `Phase: Workstream` must remain bounded at all times; the only lawful `Workstream` stop conditions are `Completion Status: Green` with `Hardening` next, or `Completion Status: Red` justified by a named blocker or waiver
+- if `Completion Status` is `Red`, `Continuation Action` must report the blocker-clearing action or waiver-clearing action needed before bounded `Workstream` continuation may resume
+- treat `Completion Status` as the exact `Phase: Workstream Status` gate for stop authority
+- Workstream must execute admitted implementation slices one slice at a time, keep re-evaluating the backlog item after each seam and slice, and keep later slices on the same branch by default when scope, phase, risk, and validation authority remain green unless the USER explicitly approves a docs-only bypass or backlog split.
 - Docs-only Workstreams require explicit USER approval.
 - Planning-loop bypass requires `Planning-Loop Bypass User Approval: APPROVED` and `Planning-Loop Bypass Reason:`.
 - Release-bearing implementation work with no runtime/user-facing, backend/runtime, or developer-tooling delta is blocked unless the USER explicitly approves that release window.
 - branch existence, branch rename, backlog promotion, repair-only traceability, or release-bearing posture do not count as Workstream progress by themselves
-- when a prompt names an active seam inside an approved seam sequence, treat it as the entry seam, not a terminal boundary; a slice is a bounded admitted backlog-completion unit, while a seam is the current execution checkpoint inside or between slices
+- when a prompt names an active seam, treat it as the entry seam, not a terminal boundary; a slice is a bounded admitted backlog-completion unit, while a seam is the current execution checkpoint inside or between slices
+- seams inside the current slice may be predeclared in canon or discovered from repo truth while the slice remains in progress
 - `bounded` describes scope and blast radius, not partiality by default; a bounded slice may still be the full currently implementable backlog-completion pass for that backlog item or branch lane
 - there is no repo-wide cap on how many slices a branch or workstream may carry
-- Same-branch backlog completion is the default: admit and execute the additional slices needed to finish the backlog item on the current branch whenever scope, phase, risk, and validation authority remain green.
-- Perform all admitted seams in the bounded multi-seam workflow and continue through the additional slices needed to complete the backlog item on the same branch unless an explicit `Backlog-Split User Approval` or a named bounded stop condition is recorded.
+- same-branch backlog completion is the branch-level default: later slices for the same backlog item stay on the same branch when scope, phase, risk, and validation authority remain green.
+- `Next-Seam Continuation Required` means continue seam-to-seam inside the current slice until all required seams are complete and the slice status is green.
+- when a slice turns green during `Workstream`, advance immediately to the next admitted slice while `Completion Status` remains `In Progress`
+- `Workstream` reaches `Hardening` only when `Completion Status: Green`
+- `Completion Status: Red` means a named blocker or waiver currently stops bounded Workstream continuation
 - `Workstream` may not advance to `Hardening` while remaining implementable work is still available on the current backlog item.
 - use `Backlog Completion State: In Progress`, `Implemented Complete`, or `Implemented Complete Except Future Dependency` to record whether more same-branch slices are still required
 - stopping after the first slice or splitting the backlog item across branches requires an explicit `Backlog-Split User Approval` or a named bounded stop condition
-- reporting `Next Safe Move` is not a substitute for execution when continuation authority passes; A `continue` decision must be acted on immediately by starting the next seam in the approved sequence
+- reporting `Next Safe Move` is not a substitute for execution while the current slice still requires seams; A `continue` decision must be acted on immediately by starting the next seam needed inside the current slice
 - category labels such as bug fix, hotfix, high-risk, cross-subsystem, settings, protocol, launcher, or UI-model work require smaller seams and stronger gates; they are not automatic stop authority when the next seam remains admitted and green
 - `Workstream` completion does not imply PR readiness; the normal next legal phase is `Hardening`, followed by `Live Validation` and then `PR Readiness`
 - `Post-Release Canon Repair` is not a normal phase or branch; escaped canon repair must ride the prior legal branch or the next active branch's `Branch Readiness`, never direct `main`
@@ -289,7 +311,7 @@ These are reference layers, not active workstream or roadmap owners.
   12. commit all required docs, canon, validator, and branch-truth changes so the worktree is clean and truth is durable in commit history
   13. run the normal branch governance validator and the PR-readiness gate mode
   14. report `PR package ready`, create the PR, and validate the live PR state before reporting `PR READY: YES`
-  15. only after the PR exists, has no conflicts, has no unresolved Codex comments/issues, and matches merge-target canon may the branch report `PR Readiness GREEN`
+  15. only after the PR exists, has no conflicts, has no unresolved Codex comments/issues, matches merge-target canon, and clears any bot-review signal requirement for the live PR may the branch report `PR Readiness GREEN`
 - PR creation details must use the operator copy-block contract from `Docs/phase_governance.md`: separate copy-ready blocks for `PR Title`, `Base Branch`, `Head Branch`, and `PR Summary`; the summary reports included implementation and validation truth only
 - merge-target current-state owners must be merge-stable before PR green. For merged-unreleased release-debt windows, `Docs/feature_backlog.md`, `Docs/prebeta_roadmap.md`, and the canonical workstream `## Phase Status` block may describe only the truth that will still be correct after merge.
 - do not pin merge-target branch heads in those current-state owner sections. Statements such as ``origin/main` is `<sha>``, ``origin/main` remains at `<sha>``, or equivalent branch-head hash assertions are time-sensitive operator facts, not merge-stable current-state truth.
@@ -298,6 +320,7 @@ These are reference layers, not active workstream or roadmap owners.
 - PR Readiness also owns `Release Window Audit Incomplete`; if the branch is inside an unreleased release window, it must audit the current blocker set and clear it on the same branch by default instead of knowingly teeing up another blocker-clearing PR before release
 - the normal green posture for that audit is `Remaining Known Release Blockers: None`, `Another Pre-Release Repair PR Required: NO`, and `Release Window Split Waiver: None`; only an explicit user-approved `Release Window Split Waiver` may allow a deliberate split
 - PR Readiness also owns `PR Creation Pending`, `PR Validation Pending`, and `PR State Unknown`; `PR package ready` is not `PR Readiness GREEN`
+- PR Readiness also owns `Bot Review Signal Pending` for Codex-created PRs: watch the live PR until the Codex GitHub bot gives either a thumbs-up reaction or a bot comment; a thumbs-up reaction on the live PR clears the gate, while a bot comment keeps `PR Validation Pending` active until the branch fixes the comment on the same PR, pushes, resolves the comment, and records that current-head comment-resolution closeout; no later thumbs-up is required
 - PR Readiness also owns the merged-unreleased release-debt owner contract when a branch will merge unreleased implementation work; the merge-target canon must already contain `Merged-Unreleased Release-Debt Owner:`, `Repo State: No Active Branch`, `Release Target:`, `Release Floor:`, `Version Rationale:`, `Release Scope:`, `Release Artifacts:`, `Post-Release Truth:`, `Selected Next Workstream:`, and `Next-Branch Creation Gate:` before PR green
 - PR Readiness must validate release target semantics from the latest public prerelease and declared `Release Floor:` before green; marker presence is insufficient if the version is wrong
 - the normal `Release Readiness` sequence for a release-bearing branch must clear `Release Target Undefined` before reporting green:

@@ -4,14 +4,15 @@
 
 - ID: `FB-048`
 - Title: `Active-session relaunch signal-failure and wait-timeout truth`
+- Lifetime Dossier Doc: `Docs/workstreams/FB-042_desktop_startup_runtime_family_dossier.md`
 
 ## Record State
 
-- `Promoted`
+- `Closed`
 
 ## Status
 
-- `Merged unreleased (v1.6.12-prebeta)`
+- `Released (v1.6.12-prebeta)`
 
 ## Target Version
 
@@ -23,27 +24,24 @@
 
 ## Current Phase
 
-- Phase: `Release Readiness`
+- Phase: `Closed`
 
 ## Phase Status
 
-Merged-Unreleased Release-Debt Owner: FB-048 Active-session relaunch signal-failure and wait-timeout truth
-Repo State: `No Active Branch`
-Repo State: No Active Branch
-Historical Active Branch Before Merge: `feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeout-truth`
-Historical Active Canonical Workstream Doc Before Merge: `Docs/workstreams/FB-048_active_session_relaunch_signal_failure_and_wait_timeout_truth.md`
-Latest Public Prerelease: `v1.6.11-prebeta`
-Latest Public Release Commit: `4ca70572fbc8033bc96fcd299dd309464e81393a`
-Latest Public Prerelease Publication: `https://github.com/GiribaldiTTV/Nexus-Desktop-AI/releases/tag/v1.6.11-prebeta`
-Latest Public Prerelease Title: `Pre-Beta v1.6.11`
-FB-047 is `Released / Closed` historical proof in `v1.6.11-prebeta`.
-Release debt is active after merge until `v1.6.12-prebeta` is published, validated, and post-release canon closure completes.
-Merged `main` now contains the repair lane and the repaired FB-048 truth needed for the `v1.6.12-prebeta` release window.
-Repaired wait-timeout replacement-unconfirmed semantics and the non-Windows validator guard are contained on `main`.
-Selected Next Workstream: FB-049 Active-session pre-settled incoming-launch conflict truth.
-Selected Next Record State: Registry-only.
-Selected Next Implementation Branch: Not created.
-Canonical current-state rule: merge-stable current-state owners keep only merged-unreleased release-debt truth here; live PR state, conflict/readiness details, review-resolution details, and blocker-clearing repair-lane narration are preserved only in the explicit historical PR sections below and in operator output.
+- Historical pass-record conversion to the FB-042 family model is complete in `Phase 5 / Slice R5-S1` on `feature/backlog-family-governance-reform`.
+- This record is preserved as `Pass ID: F042-P07` under the FB-042 family dossier and remains not independently selectable.
+Repo State: `Active Branch`
+Current Active Branch: `feature/backlog-family-governance-reform`
+Current Active Branch Authority Record: `Docs/branch_records/feature_backlog_family_governance_reform.md`
+Latest Public Prerelease: v1.6.12-prebeta
+Latest Public Release Commit: `b06c359e58b47cfe26fe8c4b39ac04fde519dee9`
+Latest Public Prerelease Publication: `https://github.com/GiribaldiTTV/Nexus-Desktop-AI/releases/tag/v1.6.12-prebeta`
+Latest Public Prerelease Title: `Pre-Beta v1.6.12`
+FB-048 is `Released / Closed` historical proof in `v1.6.12-prebeta`.
+Release debt is clear after publication, validation, and post-release canon closure.
+Merged `main` contains the repaired wait-timeout replacement-unconfirmed semantics, the non-Windows validator guard, and the merge-stable governance hardening that shipped with the FB-048 package.
+Historical follow-through after release: repo-level selected-next truth later moved to FB-049 while this record remained released historical proof only.
+Current active execution surface is the approved docs-only governance reform branch authority record; this FB-048 workstream is now preserved released historical truth.
 
 ## Branch Class
 
@@ -51,7 +49,7 @@ Canonical current-state rule: merge-stable current-state owners keep only merged
 
 ## Blockers
 
-None.
+None. This record is closed historical truth.
 
 ## Entry Basis
 
@@ -74,7 +72,21 @@ None.
 
 ## Next Legal Phase
 
-- `Release Readiness`
+- `Closed`
+
+## Historical Pass Record Identity
+
+- Family Anchor ID: `FB-042`
+- Family Anchor Title: `Desktop startup runtime family anchor`
+- Family Dossier Doc: `Docs/workstreams/FB-042_desktop_startup_runtime_family_dossier.md`
+- Backlog Registry Class: `Historical Pass Alias`
+- Historical Alias Of: `FB-042`
+- Pass ID: `F042-P07`
+- Alias Role: `Historical Pass Record`
+- Standalone Selection Status: `Not independently selectable`
+- Converted By Seam: `Phase 5 - Historical Pass Record Conversion / Slice R5-S1 - Convert FB-043 through FB-048 workstream records`
+- Historical Branch Readiness Record: `Docs/branch_records/feature_fb_048_active_session_relaunch_signal_failure_and_wait_timeout_truth.md`
+- Preservation Rule: `This record keeps the detailed branch-local execution, validation, release, and PR history; the family dossier owns cross-pass indexing.`
 
 ## Purpose / Why It Matters
 
@@ -301,7 +313,7 @@ Governance Drift Found: No.
 Historical Merged-Unreleased Release-Debt Owner At PR Package Time: FB-048 Active-session relaunch signal-failure and wait-timeout truth
 Historical Repo State At PR Package Time: No Active Branch
 Target Version: v1.6.12-prebeta
-Latest Public Prerelease: v1.6.11-prebeta
+Latest Public Prerelease At PR Package Time: v1.6.11-prebeta
 Release Debt: Active after merge until `v1.6.12-prebeta` is published, validated, and post-release canon closure completes
 Release Target: v1.6.12-prebeta
 Release Title: Pre-Beta v1.6.12
@@ -310,14 +322,14 @@ Version Rationale: FB-048 remains a bounded runtime/user-facing relaunch signal-
 Release Scope: completed FB-048 WS-1 accepted relaunch failure-path truthful outcome proof, H-1 failure/timeout lifecycle hardening, LV-1 real desktop shortcut evidence, reusable validation evidence, merged-unreleased release-debt truth, and selected-next FB-049 successor lock for the bounded runtime/user-facing lane only
 Release Artifacts: Tag v1.6.12-prebeta; release title Pre-Beta v1.6.12; rich Markdown release notes summarize the bounded FB-048 relaunch failure/timeout runtime/user-facing package, real shortcut evidence, and the FB-049 successor lane without repeating the release title inside the notes body, and GitHub-generated `## What's Changed` plus `**Full Changelog**:` must be included
 Post-Release Truth: FB-048 is Released / Closed in `v1.6.12-prebeta`; release debt is clear; and FB-049 Branch Readiness may begin only after updated `main` is revalidated and the first bounded pre-settled incoming-launch conflict truth slice is admitted.
-Selected Next Workstream: FB-049 Active-session pre-settled incoming-launch conflict truth
-Next-Branch Creation Gate: After `v1.6.12-prebeta` is published and validated, updated `main` is revalidated, and FB-049 Branch Readiness admits the first bounded runtime/user-facing pre-settled incoming-launch conflict truth slice; branch creation remains blocked until then
+Historical Selected-Next At Release Time: FB-049 Active-session pre-settled incoming-launch conflict truth
+Historical Next-Branch Creation Gate: After `v1.6.12-prebeta` was published and validated, updated `main` was revalidated, and FB-049 Branch Readiness admitted the first bounded runtime/user-facing pre-settled incoming-launch conflict truth slice; branch creation remained blocked until then
 
 ## Post-Merge State
 
 - Post-merge repo state: `No Active Branch` because FB-048 will own merged-unreleased release debt on `main` for `v1.6.12-prebeta`.
 - Pending release scope after merge: the completed bounded FB-048 relaunch failure/timeout slice chain only.
-- Successor state after merge: FB-049 remains selected next, `Registry-only`, and branch-not-created until `v1.6.12-prebeta` is published, validated, updated `main` is revalidated, and bounded Branch Readiness admits the first pre-settled incoming-launch conflict truth slice.
+- Historical successor state after merge: FB-049 remained selected next, `Registry-only`, and branch-not-created until `v1.6.12-prebeta` was published, validated, updated `main` was revalidated, and bounded Branch Readiness admitted the first pre-settled incoming-launch conflict truth slice.
 
 ## Release Window Audit
 
@@ -348,10 +360,10 @@ PR Readiness validates the completed bounded FB-048 runtime slice chain for merg
 
 ### PR-2 Selected-Next Workstream Findings
 
-- Selected Next Workstream: FB-049 Active-session pre-settled incoming-launch conflict truth.
-- Selected Next Basis: FB-049 is the smallest repo-grounded runtime/user-facing successor after FB-048 because settled-session relaunch now has first-class success, decline, signal-failure, and wait-timeout truth, but the repo still lacks equivalent proof when an incoming launch collides with an already-owning startup-phase session before authoritative settled is reached.
-- Selected Next Record State At PR Package Time: `Registry-only`.
-- Selected Next Implementation Branch At PR Package Time: Not created.
+- Historical Selected-Next At PR Package Time: FB-049 Active-session pre-settled incoming-launch conflict truth.
+- Historical Selected-Next Basis: FB-049 is the smallest repo-grounded runtime/user-facing successor after FB-048 because settled-session relaunch now has first-class success, decline, signal-failure, and wait-timeout truth, but the repo still lacks equivalent proof when an incoming launch collides with an already-owning startup-phase session before authoritative settled is reached.
+- Historical Selected-Next Record State At PR Package Time: `Registry-only`.
+- Historical Selected-Next Implementation Branch At PR Package Time: Not created.
 - Branch Creation Gate At PR Package Time: After `v1.6.12-prebeta` is published and validated, updated `main` is revalidated, and FB-049 Branch Readiness admits the first bounded runtime/user-facing pre-settled incoming-launch conflict truth slice.
 - Branch Containment At PR Package Time: PASS. No local or remote branch exists for FB-049, and no open FB-049 PR exists.
 

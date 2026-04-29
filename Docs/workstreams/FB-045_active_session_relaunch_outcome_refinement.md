@@ -4,6 +4,7 @@
 
 - ID: `FB-045`
 - Title: `Active-session relaunch outcome refinement`
+- Lifetime Dossier Doc: `Docs/workstreams/FB-042_desktop_startup_runtime_family_dossier.md`
 
 ## Record State
 
@@ -27,6 +28,8 @@
 
 ## Phase Status
 
+- Historical pass-record conversion to the FB-042 family model is complete in `Phase 5 / Slice R5-S1` on `feature/backlog-family-governance-reform`.
+- This record is preserved as `Pass ID: F042-P04` under the FB-042 family dossier and remains not independently selectable.
 - Repo State: `Active Branch`
 - Current Active Branch: `feature/fb-046-active-session-relaunch-reacquisition`
 - Current Active Branch Authority Record: `Docs/branch_records/feature_fb_046_active_session_relaunch_reacquisition.md`
@@ -38,7 +41,7 @@
 - Release debt is clear after publication, validation, and post-release canon closure.
 - Historical source branch: `feature/fb-045-active-session-relaunch-stability`
 - Historical release owner for the shipped package: FB-044 on `feature/fb-044-boot-desktop-handoff-outcome-refinement`
-- Current post-release successor lane: FB-046 is now the active promoted workstream on `feature/fb-046-active-session-relaunch-reacquisition`; WS-1 accepted relaunch replacement-session settled re-entry proof, H-1 relaunch lifecycle hardening, and LV-1 live validation are complete and validated there; and `PR Readiness` is next.
+- Historical follow-through after release: later runtime-family continuation moved into FB-046 and subsequent FB-042-family passes; this record remains released historical proof only.
 - Active seam: `None.` This record is now preserved released historical truth.
 
 ## Branch Class
@@ -71,6 +74,20 @@ None.
 ## Next Legal Phase
 
 - `Closed`
+
+## Historical Pass Record Identity
+
+- Family Anchor ID: `FB-042`
+- Family Anchor Title: `Desktop startup runtime family anchor`
+- Family Dossier Doc: `Docs/workstreams/FB-042_desktop_startup_runtime_family_dossier.md`
+- Backlog Registry Class: `Historical Pass Alias`
+- Historical Alias Of: `FB-042`
+- Pass ID: `F042-P04`
+- Alias Role: `Historical Pass Record`
+- Standalone Selection Status: `Not independently selectable`
+- Converted By Seam: `Phase 5 - Historical Pass Record Conversion / Slice R5-S1 - Convert FB-043 through FB-048 workstream records`
+- Historical Branch Readiness Record: `Docs/branch_records/feature_fb_045_active_session_relaunch_stability.md`
+- Preservation Rule: `This record keeps the detailed branch-local execution, validation, release, and PR history; the family dossier owns cross-pass indexing.`
 
 ## Purpose / Why It Matters
 
@@ -350,14 +367,14 @@ Version Rationale: FB-044 remains the merged-unreleased release-debt owner, and 
 Release Scope: completed FB-044 WS-1 `desktop-settled handoff outcome refinement`, H-1 settled-state hardening, LV-1 real desktop shortcut evidence, merged-unreleased release-debt truth, completed FB-045 WS-1 `post-settled runtime stability refinement`, H-1 post-settled lifecycle hardening, LV-1 real desktop shortcut evidence, PR package history, and selected-next FB-046 successor lock for the bounded runtime/user-facing lane only
 Release Artifacts: Tag v1.6.9-prebeta; release title Pre-Beta v1.6.9; rich Markdown release notes summarize the bounded FB-044 boot-to-desktop settled-outcome refinement, the FB-045 blocker-clearing lifecycle classification result, real shortcut evidence, and the FB-046 successor lane without repeating the release title inside the notes body, and GitHub-generated `## What's Changed` plus `**Full Changelog**:` must be included
 Post-Release Truth: FB-044 and FB-045 are Released / Closed in `v1.6.9-prebeta` after publication and validation; release debt then clears, and FB-046 Branch Readiness may begin only after updated `main` is revalidated and the first bounded runtime/user-facing relaunch-reacquisition slice is admitted
-Selected Next Workstream: FB-046 Active-session relaunch reacquisition and settled re-entry proof
-Next-Branch Creation Gate: After `v1.6.9-prebeta` is published and validated, updated `main` is revalidated, and FB-046 Branch Readiness admits the first bounded runtime/user-facing relaunch-reacquisition slice; branch creation remains blocked until then
+Historical Selected-Next At Release Time: FB-046 Active-session relaunch reacquisition and settled re-entry proof
+Historical Next-Branch Creation Gate: After `v1.6.9-prebeta` was published and validated, updated `main` was revalidated, and FB-046 Branch Readiness admitted the first bounded runtime/user-facing relaunch-reacquisition slice; branch creation remained blocked until then
 
 ## Post-Merge State
 
 - Post-merge repo state: `No Active Branch` because FB-044 remains the merged-unreleased release-debt owner on `main` for `v1.6.9-prebeta`.
 - Pending release scope after merge: the completed bounded FB-044 settled-outcome package plus the completed bounded FB-045 blocker-clearing lifecycle-classification correction only.
-- Successor state after merge: FB-046 remains selected next, `Registry-only`, and branch-not-created until `v1.6.9-prebeta` is published, validated, updated `main` is revalidated, and bounded Branch Readiness admits the first relaunch-reacquisition slice.
+- Historical successor state after merge: FB-046 remained selected next, `Registry-only`, and branch-not-created until `v1.6.9-prebeta` was published, validated, updated `main` was revalidated, and bounded Branch Readiness admitted the first relaunch-reacquisition slice.
 
 ## Release Window Audit
 
@@ -389,10 +406,10 @@ PR Readiness validates the completed bounded FB-045 blocker-clearing runtime sli
 
 ### PR-2 Selected-Next Workstream Findings
 
-- Selected Next Workstream: FB-046 Active-session relaunch reacquisition and settled re-entry proof.
-- Selected Next Basis: FB-046 is the smallest repo-grounded runtime/user-facing successor after FB-045 because the current code already contains the relaunch prompt, named relaunch signal, wait-for-reacquire loop, and runtime shutdown-on-relaunch handling, but the repo does not yet treat full accepted relaunch completion and replacement-session return to authoritative settled as a first-class proof surface.
-- Selected Next Record State At PR Package Time: `Registry-only`.
-- Selected Next Implementation Branch At PR Package Time: Not created.
+- Historical Selected-Next At PR Package Time: FB-046 Active-session relaunch reacquisition and settled re-entry proof.
+- Historical Selected-Next Basis: FB-046 is the smallest repo-grounded runtime/user-facing successor after FB-045 because the current code already contains the relaunch prompt, named relaunch signal, wait-for-reacquire loop, and runtime shutdown-on-relaunch handling, but the repo does not yet treat full accepted relaunch completion and replacement-session return to authoritative settled as a first-class proof surface.
+- Historical Selected-Next Record State At PR Package Time: `Registry-only`.
+- Historical Selected-Next Implementation Branch At PR Package Time: Not created.
 - Branch Creation Gate At PR Package Time: After `v1.6.9-prebeta` is published and validated, updated `main` is revalidated, and FB-046 Branch Readiness admits the first bounded runtime/user-facing relaunch-reacquisition slice.
 - Branch Containment At PR Package Time: PASS. No local or remote branch exists for FB-046.
 

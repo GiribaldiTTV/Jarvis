@@ -4,6 +4,7 @@
 
 - ID: `FB-042`
 - Title: `Desktop entrypoint runtime refinement`
+- Lifetime Dossier Doc: `Docs/workstreams/FB-042_desktop_startup_runtime_family_dossier.md`
 
 ## Record State
 
