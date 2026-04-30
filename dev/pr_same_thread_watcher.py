@@ -6,6 +6,8 @@ import re
 import sqlite3
 import subprocess
 import sys
+import uuid
+from shutil import which
 from datetime import datetime, timezone
 from pathlib import Path
 from urllib import error as urllib_error
@@ -212,14 +214,28 @@ def append_thread_message(
     message: str,
 ) -> str:
     timestamp = utc_now_iso()
+    started_at = int(utc_now().timestamp())
+    completed_at = int(utc_now().timestamp())
+    turn_id = str(uuid.uuid4())
     payloads = (
+        {
+            "timestamp": timestamp,
+            "type": "event_msg",
+            "payload": {
+                "type": "task_started",
+                "turn_id": turn_id,
+                "started_at": started_at,
+                "model_context_window": 258400,
+                "collaboration_mode_kind": "default",
+            },
+        },
         {
             "timestamp": timestamp,
             "type": "event_msg",
             "payload": {
                 "type": "agent_message",
                 "message": message,
-                "phase": "commentary",
+                "phase": "final_answer",
                 "memory_citation": None,
             },
         },
@@ -230,7 +246,18 @@ def append_thread_message(
                 "type": "message",
                 "role": "assistant",
                 "content": [{"type": "output_text", "text": message}],
-                "phase": "commentary",
+                "phase": "final_answer",
+            },
+        },
+        {
+            "timestamp": timestamp,
+            "type": "event_msg",
+            "payload": {
+                "type": "task_complete",
+                "turn_id": turn_id,
+                "last_agent_message": message,
+                "completed_at": completed_at,
+                "duration_ms": 0,
             },
         },
     )
@@ -256,6 +283,53 @@ def append_thread_message(
             except Exception:
                 pass
     return timestamp
+
+
+def find_codex_exe(explicit_path: str) -> Path | None:
+    candidates = []
+    if explicit_path:
+        candidates.append(Path(explicit_path))
+    if which("codex"):
+        candidates.append(Path(which("codex") or ""))
+    candidates.append(Path.home() / "codex-debug" / "codex.exe")
+
+    for candidate in candidates:
+        if candidate and candidate.is_file():
+            return candidate
+    return None
+
+
+def emit_via_codex_resume(
+    *,
+    codex_exe: Path,
+    repo_root: Path,
+    thread_id: str,
+    message: str,
+    output_path: Path,
+) -> str:
+    ensure_parent(output_path)
+    prompt = f"Post exactly this single sentence to the user and nothing else: {message}"
+    process = subprocess.run(
+        [
+            str(codex_exe),
+            "exec",
+            "resume",
+            thread_id,
+            prompt,
+            "--dangerously-bypass-approvals-and-sandbox",
+            "-o",
+            str(output_path),
+        ],
+        cwd=repo_root,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    if process.returncode != 0:
+        stderr = process.stderr.strip()
+        stdout = process.stdout.strip()
+        raise RuntimeError(stderr or stdout or f"codex resume failed with exit code {process.returncode}")
+    return utc_now_iso()
 
 
 def signature_for(status: dict[str, object]) -> str:
@@ -313,6 +387,10 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--thread-rollout-path", required=True)
     parser.add_argument("--state-db-path", required=True)
     parser.add_argument("--required-phase", default="PR Readiness")
+    parser.add_argument("--codex-exe", default="")
+    parser.add_argument("--resume-output-path", default="")
+    parser.add_argument("--force-emit", action="store_true")
+    parser.add_argument("--override-thread-message", default="")
     return parser.parse_args()
 
 
@@ -325,6 +403,12 @@ def main() -> int:
     log_path = Path(args.log_path)
     thread_rollout_path = Path(args.thread_rollout_path)
     state_db_path = Path(args.state_db_path)
+    codex_exe = find_codex_exe(args.codex_exe)
+    resume_output_path = (
+        Path(args.resume_output_path)
+        if args.resume_output_path
+        else latest_path.with_name(f"{latest_path.stem}-resume.txt")
+    )
 
     phase = branch_phase(branch_record_path)
     if phase != args.required_phase:
@@ -382,32 +466,45 @@ def main() -> int:
 
     current_signature = signature_for(status)
     previous_signature = str(existing_state.get("lastSignature") or "")
-    should_emit = current_signature != previous_signature or not str(
+    should_emit = args.force_emit or current_signature != previous_signature or not str(
         existing_state.get("lastThreadEmitAt") or ""
     ).strip()
 
     if should_emit:
-        message = (
+        message = args.override_thread_message or (
             error_thread_message(args.pr_number, str(status.get("error")))
             if status.get("error")
             else current_thread_message(status)
         )
-        emitted_at = append_thread_message(
-            thread_id=args.thread_id,
-            rollout_path=thread_rollout_path,
-            state_db_path=state_db_path,
-            message=message,
-        )
+        emit_method = "codex_resume"
+        if codex_exe is not None:
+            emitted_at = emit_via_codex_resume(
+                codex_exe=codex_exe,
+                repo_root=repo_root,
+                thread_id=args.thread_id,
+                message=message,
+                output_path=resume_output_path,
+            )
+        else:
+            emit_method = "rollout_fallback"
+            emitted_at = append_thread_message(
+                thread_id=args.thread_id,
+                rollout_path=thread_rollout_path,
+                state_db_path=state_db_path,
+                message=message,
+            )
         status["lastThreadEmitAt"] = emitted_at
         status["lastThreadEmitMessage"] = message
         status["lastThreadEmitSignature"] = current_signature
-        append_log(log_path, f"Emitted same-thread update at {emitted_at}")
+        status["lastThreadEmitMethod"] = emit_method
+        append_log(log_path, f"Emitted same-thread update at {emitted_at} via {emit_method}")
     else:
         status["lastThreadEmitAt"] = existing_state.get("lastThreadEmitAt", "")
         status["lastThreadEmitMessage"] = existing_state.get("lastThreadEmitMessage", "")
         status["lastThreadEmitSignature"] = existing_state.get(
             "lastThreadEmitSignature", previous_signature
         )
+        status["lastThreadEmitMethod"] = existing_state.get("lastThreadEmitMethod", "")
 
     status["lastSignature"] = current_signature
     save_json(state_path, status)
