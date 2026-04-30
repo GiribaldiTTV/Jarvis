@@ -5675,6 +5675,16 @@ def _validate_pr101_closeout_canon_repair_phase_truth(
                 "PR Readiness PR2 must carry `PR Merge Verification Pending` until merge is verified"
             ),
         )
+    else:
+        require(
+            False,
+            (
+                "Docs/branch_records/feature_pr101_post_merge_closeout_canon_repair.md: "
+                "Current PR Readiness Seam must be exactly "
+                f"`{PR101_CLOSEOUT_CANON_PR_READINESS_PR1_SEAM}` or "
+                f"`{PR101_CLOSEOUT_CANON_PR_READINESS_PR2_SEAM}` while Phase is `PR Readiness`"
+            ),
+        )
 
 
 def _validate_backlog_family_dossier_shell(
@@ -6903,6 +6913,7 @@ def _automation_closeout_repair_watcher_proof_status(current_head_sha: str) -> t
     thread_rollout_path_raw = str(state.get("threadRolloutPath") or "").strip()
     last_thread_emit_at = str(state.get("lastThreadEmitAt") or "").strip()
     last_thread_emit_message = str(state.get("lastThreadEmitMessage") or "").strip()
+    last_thread_emit_method = str(state.get("lastThreadEmitMethod") or "").strip()
     if not thread_id:
         return (
             False,
@@ -6919,6 +6930,15 @@ def _automation_closeout_repair_watcher_proof_status(current_head_sha: str) -> t
             (
                 f"watcher state file '{AUTOMATION_CLOSEOUT_PR101_WATCHER_STATE_PATH}' is missing "
                 "same-thread transcript emission proof"
+            ),
+        )
+    if last_thread_emit_method != "codex_resume":
+        return (
+            False,
+            (
+                f"watcher state file '{AUTOMATION_CLOSEOUT_PR101_WATCHER_STATE_PATH}' must record "
+                "`lastThreadEmitMethod` as `codex_resume`; manual rollout-file injection does not count "
+                f"as same-thread proof (found '{last_thread_emit_method or 'missing'}')"
             ),
         )
 
@@ -7002,6 +7022,7 @@ def _pr101_closeout_canon_repair_watcher_proof_status(
     thread_rollout_path_raw = str(state.get("threadRolloutPath") or "").strip()
     last_thread_emit_at = str(state.get("lastThreadEmitAt") or "").strip()
     last_thread_emit_message = str(state.get("lastThreadEmitMessage") or "").strip()
+    last_thread_emit_method = str(state.get("lastThreadEmitMethod") or "").strip()
     if not thread_id:
         return (
             False,
@@ -7018,6 +7039,15 @@ def _pr101_closeout_canon_repair_watcher_proof_status(
             (
                 f"watcher state file '{PR101_CLOSEOUT_CANON_WATCHER_STATE_PATH}' is missing "
                 "same-thread transcript emission proof"
+            ),
+        )
+    if last_thread_emit_method != "codex_resume":
+        return (
+            False,
+            (
+                f"watcher state file '{PR101_CLOSEOUT_CANON_WATCHER_STATE_PATH}' must record "
+                "`lastThreadEmitMethod` as `codex_resume`; manual rollout-file injection does not count "
+                f"as same-thread proof (found '{last_thread_emit_method or 'missing'}')"
             ),
         )
 
