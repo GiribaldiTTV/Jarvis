@@ -6824,6 +6824,17 @@ def _load_json_file(path: Path) -> dict[str, object] | None:
     return data if isinstance(data, dict) else None
 
 
+def _phase_status_bot_approval_proven(phase_status_section: str) -> bool:
+    marker_value = _extract_marker_value(phase_status_section, "Bot approval proof").strip()
+    normalized = marker_value.casefold()
+    return normalized not in {
+        "",
+        "pending",
+        "not required after same-head comment-addressed closeout.",
+        "not required after same-head comment-addressed closeout",
+    }
+
+
 def _automation_planning_runtime_proof_status(current_head_sha: str) -> tuple[bool, str]:
     if not AUTOMATION_PR99_NATIVE_HEARTBEAT_PATH.is_file():
         return (
@@ -7218,7 +7229,9 @@ def _automation_closeout_repair_fallback_pr_view_for_branch(
     pr_number_match = re.search(r"/pull/(\d+)", pr_url)
     pr_number = int(pr_number_match.group(1)) if pr_number_match else 101
     watcher_state = _load_json_file(AUTOMATION_CLOSEOUT_PR101_WATCHER_STATE_PATH) or {}
-    bot_approval = bool(watcher_state.get("botApproval")) or "Bot approval proof:" in phase_status_section
+    bot_approval = bool(watcher_state.get("botApproval")) or _phase_status_bot_approval_proven(
+        phase_status_section
+    )
     bot_comment_count = int(watcher_state.get("botCommentCount") or 0)
     merged = bool(watcher_state.get("merged"))
     state_value = str(watcher_state.get("prState") or "OPEN").upper()
@@ -7277,7 +7290,9 @@ def _pr101_closeout_canon_repair_fallback_pr_view_for_branch(
         return None, f"active branch record has an invalid Live PR URL '{pr_url}'"
     pr_number = int(pr_number_match.group(1))
     watcher_state = _load_json_file(PR101_CLOSEOUT_CANON_WATCHER_STATE_PATH) or {}
-    bot_approval = bool(watcher_state.get("botApproval")) or "Bot approval proof:" in phase_status_section
+    bot_approval = bool(watcher_state.get("botApproval")) or _phase_status_bot_approval_proven(
+        phase_status_section
+    )
     bot_comment_count = int(watcher_state.get("botCommentCount") or 0)
     merged = bool(watcher_state.get("merged"))
     state_value = str(watcher_state.get("prState") or "OPEN").upper()
