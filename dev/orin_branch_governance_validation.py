@@ -6023,6 +6023,31 @@ def _git_head_sha() -> str:
     return completed.stdout.strip()
 
 
+def _git_ref_sha(ref: str) -> str:
+    completed = subprocess.run(
+        ("git", "rev-parse", ref),
+        cwd=ROOT_DIR,
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        check=False,
+    )
+    if completed.returncode != 0:
+        return ""
+    return completed.stdout.strip()
+
+
+def _is_merged_main_snapshot() -> bool:
+    current_branch = _git_current_branch()
+    if current_branch == "main":
+        return True
+    if current_branch:
+        return False
+    head_sha = _git_head_sha()
+    origin_main_sha = _git_ref_sha("refs/remotes/origin/main")
+    return bool(head_sha and origin_main_sha and head_sha == origin_main_sha)
+
+
 def _git_head_commit_time() -> datetime | None:
     completed = subprocess.run(
         ("git", "show", "-s", "--format=%cI", "HEAD"),
@@ -8208,11 +8233,11 @@ def main() -> int:
                 f"{relative_path}: merge-stable current-state guidance is missing '{required_phrase}'",
             )
 
-    if _git_current_branch() == "main":
+    if _is_merged_main_snapshot():
         status_output = _git_status_porcelain(tracked_only=True)
         require(
             not status_output,
-            "Main Write Attempt blocker is active; Codex must not leave tracked file mutations on protected main",
+            "Main Write Attempt blocker is active; Codex must not leave tracked file mutations on merged-main validation surfaces",
         )
 
     active_index_paths = _collect_active_index_paths(index_text)
@@ -8238,12 +8263,48 @@ def main() -> int:
     merged_no_active_branch_truth = (
         "Repo State: No Active Branch" in backlog_text or "Repo State: No Active Branch" in roadmap_text
     )
-    if current_git_branch == "main" and merged_no_active_branch_truth:
+    if _is_merged_main_snapshot() and merged_no_active_branch_truth:
         require(
             not active_branch_record_paths,
             (
                 "Docs/branch_records/index.md: merged current-state canon declares `No Active Branch`, "
                 "so `Active Branch Authority Records` must be empty on main"
+            ),
+        )
+        pr101_closeout_record_text = _read_text(PR101_CLOSEOUT_CANON_REPAIR_BRANCH_RECORD)
+        pr101_closeout_phase = _extract_marker_value(
+            _section(pr101_closeout_record_text, "Current Phase"),
+            "Phase",
+        )
+        pr101_closeout_phase_status = _section(pr101_closeout_record_text, "Phase Status")
+        require(
+            pr101_closeout_phase == "Historical Traceability",
+            (
+                "Docs/branch_records/feature_pr101_post_merge_closeout_canon_repair.md: "
+                "merged-main post-merge closeout record must report `Phase: Historical Traceability`"
+            ),
+        )
+        require(
+            "Historical repair PR: PR #102 merged at `2026-04-30T00:37:19Z`"
+            in pr101_closeout_phase_status,
+            (
+                "Docs/branch_records/feature_pr101_post_merge_closeout_canon_repair.md: "
+                "historical PR #102 merge proof is missing from Phase Status"
+            ),
+        )
+        require(
+            "Historical watcher shutdown proof:" in pr101_closeout_phase_status,
+            (
+                "Docs/branch_records/feature_pr101_post_merge_closeout_canon_repair.md: "
+                "historical watcher shutdown proof is missing from Phase Status"
+            ),
+        )
+        require(
+            "Current PR Readiness Seam:" not in pr101_closeout_phase_status
+            and "Live PR State: `open`" not in pr101_closeout_phase_status,
+            (
+                "Docs/branch_records/feature_pr101_post_merge_closeout_canon_repair.md: "
+                "historical closeout record must not retain active PR-readiness or live-PR state on merged main"
             ),
         )
     if current_git_branch not in {"", "main"} and merged_no_active_branch_truth:
@@ -8995,7 +9056,7 @@ def main() -> int:
                 f"{canonical_path}: Governance Drift Audit is missing 'Governance Drift Found:'",
             )
 
-        if current_phase == "Release Readiness" and _git_current_branch() == "main":
+        if current_phase == "Release Readiness" and _is_merged_main_snapshot():
             status_output = _git_status_porcelain(tracked_only=True)
             require(
                 not status_output,
