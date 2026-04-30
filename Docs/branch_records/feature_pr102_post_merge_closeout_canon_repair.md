@@ -33,6 +33,14 @@ It does not reopen implementation, widen into release execution, mutate FB-049 s
 - Historical Branch Readiness Seam: `Branch Readiness BR1 - PR102 Post-Merge Closeout Canon Repair Admission`
 - BR1 result: complete and green historical truth. This seam admitted the repair surface, cleared stale active-branch authority for the merged PR102 repair branch, moved that earlier repair record to historical-only traceability, preserved merged-main `No Active Branch` truth, preserved PR #102 watcher merge-verification and shutdown proof, preserved pending `v1.6.13-prebeta` release posture, preserved FB-049 selected-next truth, and hardened detached merged-main validator coverage.
 - Current PR Readiness Seam: `PR Readiness PR1 - PR102 Post-Merge Closeout Canon Repair PR Validation`
+- Live PR: `https://github.com/GiribaldiTTV/Nexus-Desktop-AI/pull/103`
+- Live PR State: `open`
+- Live PR Head Commit At PR Creation: `a1d765e088ea086d4caaeef0a9727ae39ff0d8cb`
+- Live PR Merge Status: `green at PR-entry time`
+- PR watcher runtime: authoritative same working thread watcher `Codex PR102 Post-Merge Closeout Canon Repair Watch` uses `$CODEX_HOME/watchers/pr102-post-merge-closeout-canon-repair-watch.ps1` plus repo helper `dev/pr_same_thread_watcher.py` to emit only status-change updates into the working thread transcript through the official Codex thread-resume path while PR #103 remains open
+- PR watcher run proof: same-thread transcript proof is preserved via `$CODEX_HOME/watchers/pr102-post-merge-closeout-canon-repair-watch-state.json`, `$CODEX_HOME/watchers/pr102-post-merge-closeout-canon-repair-watch-latest.txt`, and `$CODEX_HOME/watchers/pr102-post-merge-closeout-canon-repair-watch.log`
+- PR watcher proof timestamps: first same-thread status-change emission for PR #103 was recorded at `2026-04-30T23:31:52.243504Z`
+- Bot approval proof: `pending live bot signal on PR #103.`
 - Next Active Seam: `PR Readiness PR1 - PR102 Post-Merge Closeout Canon Repair PR Validation`
 
 ## Branch Class
@@ -42,7 +50,8 @@ It does not reopen implementation, widen into release execution, mutate FB-049 s
 ## Blockers
 
 - `PR Creation Pending`
-- `PR State Unproven`
+- `PR Validation Pending`
+- `Bot Review Signal Pending`
 
 ## Entry Basis
 
@@ -111,8 +120,8 @@ Waiver Status: `None`
 Continue Decision: `Stop`
 Stop Basis: `Named Blockers`
 Next Active Seam: `PR Readiness PR1 - PR102 Post-Merge Closeout Canon Repair PR Validation`
-Stop Condition: `Stop while the live repair PR has not yet been created and validated.`
-Continuation Action: `Create the live repair PR, prove same-thread watcher provisioning on the live PR, and clear PR1 before PR2 merge verification may be admitted.`
+Stop Condition: `Stop while PR #103 is awaiting bot-review signal clearance on the same working thread.`
+Continuation Action: `Keep PR #103 on the same working thread watcher, clear PR1 when bot-review signal requirements are met, and only then admit PR2 merge verification watch.`
 
 ## Branch Objective
 
@@ -125,8 +134,8 @@ Merged-main current-state owners stay merge-stable at `No Active Branch`, this b
 ## Backlog Completion Strategy
 
 Branch Completion Goal: Land this bounded PR102 post-merge closeout canon repair PR and keep merged-main release posture stable without reopening implementation work.
-Known Future-Dependent Blockers: live PR creation, same-thread watcher provisioning proof, bot-review signal, and later same-thread merge verification during PR2.
-Branch Closure Rule: Stop this seam while PR1 is blocked by `PR Creation Pending`, `PR State Unproven`, or later PR-entry blockers, and clear it only when the live repair PR is created, watcher-provisioned, and PR-entry validation is green.
+Known Future-Dependent Blockers: bot-review signal on PR #103 and later same-thread merge verification during PR2.
+Branch Closure Rule: Stop this seam while PR1 is blocked by `PR Validation Pending` / `Bot Review Signal Pending`, and clear it only when the live repair PR is watcher-provisioned and PR-entry validation is green.
 
 ## Expected Seam Families And Risk Classes
 
@@ -183,3 +192,15 @@ Release Window Audit: PASS
 Remaining Known Release Blockers: None
 Another Pre-Release Repair PR Required: NO
 Release Window Split Waiver: None
+
+## PR Bot Review Signal
+
+- Live PR: `https://github.com/GiribaldiTTV/Nexus-Desktop-AI/pull/103`
+- Head Branch: `feature/pr102-post-merge-closeout-canon-repair`
+- Base Branch: `main`
+- Bot Review Signal Status: `Pending`
+- Bot Review Signal Head SHA: `a1d765e088ea086d4caaeef0a9727ae39ff0d8cb`
+- Bot Review Signal Source: `Waiting for either a thumbs-up reaction or a bot comment from chatgpt-codex-connector[bot] on PR #103.`
+- Bot Review Signal Timestamp: `2026-04-30T23:31:52.243504Z`
+- Bot Review Signal Actor: `chatgpt-codex-connector[bot]`
+- Live-PR rule: the live PR must have either a thumbs-up reaction or a bot comment from `chatgpt-codex-connector[bot]`; if the bot comments, fix it on this same branch, push, resolve the comment, set `Bot Review Signal Status: Comment addressed` for the current head, and then PR green may return without waiting for a later thumbs-up.
