@@ -303,6 +303,7 @@ The default named blockers are:
 - `PR Merge Status Unproven`
 - `PR Merge Verification Pending`
 - `PR Watcher Provisioning Unproven`
+- `PR Watcher Routing Unverified`
 - `PR Readiness Scope Missed`
 - `Release Window Audit Incomplete`
 - `Release Readiness Scope Drift`
@@ -608,9 +609,11 @@ Hard blockers:
 - `Bot Review Signal Pending`:
   for Codex-created PRs, PR Readiness cannot be green until the live PR has received either a thumbs-up reaction or a bot comment from the Codex GitHub bot; a thumbs-up reaction on the live PR clears the gate, while a bot comment keeps `PR Validation Pending` active until the branch fixes the comment on the same PR, pushes, resolves the comment, and records that current-head comment-resolution closeout; no later thumbs-up is required
 - `PR Watcher Provisioning Unproven`:
-  if the branch expects watcher-based PR monitoring, the watcher target, runtime path, run-proof method, fallback, teardown rule, replacement provisioning for the next live PR, and same working thread contract must be explicit and proven before PR Readiness can turn green. Standard operating procedure from now on is a same working thread watcher at minute cadence that reports only when a watched PR status changes. Accepted same-thread proof may come from native Codex heartbeat run evidence or from a bounded local same-thread watcher that posts those status-change updates through the official Codex thread-resume path into the working thread transcript. Manual rollout-file or transcript-file injection does not count as same-thread proof.
+  if the branch expects watcher-based PR monitoring, the watcher target, approved reporting surface, routing proof, runtime path, run-proof method, fallback, teardown rule, and replacement provisioning for the next live PR must be explicit and proven before PR Readiness can turn green. Standard operating procedure from now on is a watcher on an approved Codex reporting surface at minute cadence that reports only when a watched PR status changes. The current working thread is the default surface, but an explicitly recorded dedicated watcher-host thread is allowed when that is the validated user-visible route. Accepted watcher proof may come from native Codex heartbeat run evidence or from a bounded local watcher that posts those status-change updates through the official Codex thread-resume path into the approved transcript. Manual rollout-file or transcript-file injection does not count as proof.
+- `PR Watcher Routing Unverified`:
+  even after watcher provisioning exists and run proof is present, PR Readiness cannot be green until the approved reporting surface is explicitly recorded and a validation pass confirms the configured thread/host target, state-file target, and transcript target all point to that recorded surface and that at least one watcher emission has landed there
 - `PR Merge Verification Pending`:
-  after PR creation, live PR validation, green merge status, and bot-review approval are complete, PR Readiness continues into a merge-watch seam and stays non-green until the same working thread watcher verifies that the live PR is actually `merged`
+  after PR creation, live PR validation, green merge status, and bot-review approval are complete, PR Readiness continues into a merge-watch seam and stays non-green until the watcher on the approved reporting surface verifies that the live PR is actually `merged`
 - `Automation Runtime Unproven`:
   phase-critical automation cannot clear a gate merely because its card, config, or automation list says `ACTIVE`; `ACTIVE` is configuration state, not run proof. Accept run evidence only from thread or inbox output, automation memory/log/state-file updates, or scheduler last-run evidence. If the preferred Codex automation remains `ACTIVE` without run evidence, keep the owning phase blocked until run evidence exists or a bounded fallback is activated. Any bounded fallback must be target-scoped, phase-scoped, read-only, and self-terminating or explicitly deleted when its terminal condition or phase exit occurs.
 - `PR Readiness Scope Missed`:
@@ -638,8 +641,9 @@ Live PR creation and validation facts are required for operator output and PR va
 - PR state is inspectable rather than unknown
 - no unresolved Codex comments/issues or requested changes remain
 - `PR Watcher Provisioning Unproven` is clear whenever watcher-based PR monitoring is expected
+- `PR Watcher Routing Unverified` is clear only after the recorded watcher reporting surface and the live watcher route have been cross-checked and proven to match
 - `PR Merge Status Unproven` is clear only after the live PR has explicitly reported a green merge status
-- `PR Merge Verification Pending` is clear only after the same working thread watcher has verified that the live PR is `merged`
+- `PR Merge Verification Pending` is clear only after the watcher on the approved reporting surface has verified that the live PR is `merged`
 - the live PR has either a thumbs-up reaction from the Codex GitHub bot or a recorded current-head bot comment-resolution closeout; no later thumbs-up is required after the comment-resolution path
 
 ### PR Readiness Response Contract
@@ -1436,7 +1440,7 @@ The canonical rule is narrower:
 - `Workstream` -> `Hardening` only after the current Workstream work reports `Completion Status: Green`, no remaining implementable work is still available on that backlog item, `Backlog Completion State` is `Implemented Complete` or `Implemented Complete Except Future Dependency`, direct validation is green, User Test Summary obligations are current for user-facing changes, and no same-slice correctness gap remains
 - `Hardening` -> `Live Validation` only after repo-side hardening proof is sufficient for interactive or manual closeout work
 - `Live Validation` -> `PR Readiness` only after branch-local proof is sufficient for closeout, returned evidence has been digested into the authority record, and `User Test Summary Results Pending` is absent or cleared by a documented waiver
-- `PR Readiness` -> `Release Readiness` only after merge-target canon completeness passes, the Governance Drift Audit passes, the next-workstream selection gate passes, branch creation remains deferred to `Branch Readiness`, the same working thread watcher has verified that the live PR is `merged`, and any release target/scope/artifact truth needed for release review is already available without file mutation
+- `PR Readiness` -> `Release Readiness` only after merge-target canon completeness passes, the Governance Drift Audit passes, the next-workstream selection gate passes, branch creation remains deferred to `Branch Readiness`, the watcher on the approved reporting surface has verified that the live PR is `merged`, and any release target/scope/artifact truth needed for release review is already available without file mutation
 - `Release Readiness` stays restricted to analysis-only release target, scope, artifact, release-execution authorization, and release-state confirmation work; it does not transition into a docs-sync phase or a file-mutation phase
 
 There is no default direct `Workstream` -> `PR Readiness` transition.
@@ -1499,7 +1503,7 @@ Exit:
 - admitted implementation slice is explicit, or an explicit USER-approved docs-only bypass is recorded
 - branch-level execution plan is explicit enough to enter Workstream without inventing the lane shape mid-execution
 - branch-level closure rule is explicit enough to keep the backlog item on one branch until it is fully implementable and complete or only future-dependent blockers remain
-- when later PR Readiness or watcher-based bot monitoring is expected, explicit watcher-provisioning truth for the future PR gate: target-binding rule, runtime path, run-proof method, fallback rule, teardown rule, and the named blocker `PR Watcher Provisioning Unproven` until that contract is proven
+- when later PR Readiness or watcher-based bot monitoring is expected, explicit watcher-provisioning truth for the future PR gate: target-binding rule, approved reporting surface, runtime path, run-proof method, fallback rule, teardown rule, the named blocker `PR Watcher Provisioning Unproven` until that contract is proven, and the named blocker `PR Watcher Routing Unverified` until the configured watcher route is cross-checked against that recorded reporting surface
 
 ### Workstream
 

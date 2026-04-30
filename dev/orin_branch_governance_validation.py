@@ -666,6 +666,7 @@ PR_READINESS_BLOCKER_PHRASES = (
     "PR Merge Status Unproven",
     "PR Merge Verification Pending",
     "PR Watcher Provisioning Unproven",
+    "PR Watcher Routing Unverified",
     "PR Readiness Scope Missed",
     "Release Window Audit Incomplete",
     "Between-Branch Canon Repair Attempt",
@@ -789,9 +790,10 @@ PR_WATCHER_THREAD_CONTRACT_DOCS = (
 )
 
 PR_WATCHER_THREAD_CONTRACT_PHRASES = (
-    "same working thread",
+    "approved reporting surface",
     "minute cadence",
     "reports only when a watched PR status changes",
+    "PR Watcher Routing Unverified",
     "PR Merge Verification Pending",
     "merge-watch seam",
 )
@@ -809,6 +811,7 @@ GOVERNANCE_RECURRENCE_PHRASES = (
     "patch the canon or validator rule that allowed it before the repair is considered complete",
     "merge-stable current-state owners such as backlog and roadmap must not mirror transient repair-branch ownership",
     "PR Watcher Provisioning Unproven",
+    "PR Watcher Routing Unverified",
 )
 
 POST_MERGE_PR_BLOCKERS = (
@@ -1191,6 +1194,7 @@ PR102_CLOSEOUT_CANON_WATCHER_LATEST_PATH = (
     Path.home() / ".codex" / "watchers" / "pr102-post-merge-closeout-canon-repair-watch-latest.txt"
 )
 PR102_CLOSEOUT_CANON_WATCHER_TASK_NAME = "Codex PR102 Post-Merge Closeout Canon Repair Watch"
+CODEX_THREAD_STATE_DB_PATH = Path.home() / ".codex" / "state_5.sqlite"
 REFORM_R3_S2_SEAM = (
     "Phase 3 - Family Anchor Migration / Slice R3-S2 - Map FB-043 through FB-048 under "
     "FB-042 as historical aliases"
@@ -5757,6 +5761,20 @@ def _validate_pr102_closeout_canon_repair_phase_truth(
     if current_phase != "PR Readiness":
         return
 
+    for marker_name in (
+        "PR watcher reporting surface",
+        "PR watcher reporting thread ID",
+        "PR watcher reporting transcript",
+        "PR watcher route verification",
+    ):
+        require(
+            bool(_extract_marker_value(phase_status_section, marker_name)),
+            (
+                "Docs/branch_records/feature_pr102_post_merge_closeout_canon_repair.md: "
+                f"Phase Status must record `{marker_name}` while PR watcher governance is active"
+            ),
+        )
+
     if phase_status_pr_readiness_seam == PR102_CLOSEOUT_CANON_PR_READINESS_PR1_SEAM:
         require(
             next_legal_phase == "PR Readiness",
@@ -7534,6 +7552,121 @@ def _automation_last_run_proof(automation_name: str) -> tuple[bool, str]:
     )
 
 
+def _watcher_route_alignment_status(
+    *,
+    branch_record_text: str,
+    watcher_script_path: Path,
+    watcher_state_path: Path,
+) -> tuple[bool, str]:
+    phase_status_section = _section(branch_record_text, "Phase Status")
+    reporting_surface = _extract_marker_value(phase_status_section, "PR watcher reporting surface")
+    expected_thread_id = _extract_marker_value(phase_status_section, "PR watcher reporting thread ID")
+    expected_rollout_path_raw = _extract_marker_value(
+        phase_status_section, "PR watcher reporting transcript"
+    )
+    route_verification = _extract_marker_value(phase_status_section, "PR watcher route verification")
+
+    if not reporting_surface:
+        return False, "active branch record is missing `PR watcher reporting surface`"
+    if not expected_thread_id:
+        return False, "active branch record is missing `PR watcher reporting thread ID`"
+    if not expected_rollout_path_raw:
+        return False, "active branch record is missing `PR watcher reporting transcript`"
+    if "PASS" not in route_verification:
+        return (
+            False,
+            "active branch record is missing a `PR watcher route verification` PASS marker",
+        )
+
+    state = _load_json_file(watcher_state_path)
+    if not state:
+        return False, f"watcher state file '{watcher_state_path}' is missing or invalid"
+
+    state_thread_id = str(state.get("threadId") or "").strip()
+    state_rollout_path_raw = str(state.get("threadRolloutPath") or "").strip()
+    if state_thread_id != expected_thread_id:
+        return (
+            False,
+            (
+                "watcher state route is pointed at the wrong thread; state-file thread "
+                f"'{state_thread_id or 'missing'}' does not match recorded thread "
+                f"'{expected_thread_id}'"
+            ),
+        )
+    if Path(state_rollout_path_raw) != Path(expected_rollout_path_raw):
+        return (
+            False,
+            (
+                "watcher state route is pointed at the wrong transcript; state-file transcript "
+                f"'{state_rollout_path_raw or 'missing'}' does not match recorded transcript "
+                f"'{expected_rollout_path_raw}'"
+            ),
+        )
+
+    if not watcher_script_path.is_file():
+        return False, f"watcher wrapper '{watcher_script_path}' is missing"
+    try:
+        script_text = watcher_script_path.read_text(encoding="utf-8")
+    except OSError as exc:
+        return False, f"watcher wrapper '{watcher_script_path}' could not be read: {exc}"
+    if f"--thread-id '{expected_thread_id}'" not in script_text:
+        return (
+            False,
+            (
+                f"watcher wrapper '{watcher_script_path}' is not pointed at recorded thread "
+                f"'{expected_thread_id}'"
+            ),
+        )
+    if f"--thread-rollout-path '{expected_rollout_path_raw}'" not in script_text:
+        return (
+            False,
+            (
+                f"watcher wrapper '{watcher_script_path}' is not pointed at recorded transcript "
+                f"'{expected_rollout_path_raw}'"
+            ),
+        )
+
+    if not CODEX_THREAD_STATE_DB_PATH.is_file():
+        return False, f"Codex thread database '{CODEX_THREAD_STATE_DB_PATH}' is missing"
+    connection = None
+    try:
+        connection = sqlite3.connect(CODEX_THREAD_STATE_DB_PATH)
+        connection.row_factory = sqlite3.Row
+        cursor = connection.cursor()
+        cursor.execute(
+            "SELECT rollout_path FROM threads WHERE id = ?",
+            (expected_thread_id,),
+        )
+        row = cursor.fetchone()
+    except sqlite3.Error as exc:
+        return False, f"Codex thread-route inspection failed: {exc}"
+    finally:
+        try:
+            connection.close()
+        except Exception:
+            pass
+    if row is None:
+        return False, f"recorded watcher thread '{expected_thread_id}' is missing from Codex thread state"
+    db_rollout_path_raw = str(row["rollout_path"] or "").strip()
+    if Path(db_rollout_path_raw) != Path(expected_rollout_path_raw):
+        return (
+            False,
+            (
+                "Codex thread state points at the wrong transcript; thread-db transcript "
+                f"'{db_rollout_path_raw or 'missing'}' does not match recorded transcript "
+                f"'{expected_rollout_path_raw}'"
+            ),
+        )
+
+    return (
+        True,
+        (
+            f"watcher reporting surface '{reporting_surface}' is explicitly recorded and the "
+            f"wrapper/state/thread-db route agrees on thread '{expected_thread_id}'"
+        ),
+    )
+
+
 def _automation_planning_fallback_pr_view_for_branch(
     branch_name: str,
 ) -> tuple[dict[str, object] | None, str]:
@@ -7890,6 +8023,18 @@ def _run_pr_live_state_gate(
             (
                 "PR readiness gate: PR Watcher Provisioning Unproven blocker is active; "
                 f"{watcher_proof_message}"
+            ),
+        )
+        watcher_route_proven, watcher_route_message = _watcher_route_alignment_status(
+            branch_record_text=active_branch_record_text,
+            watcher_script_path=PR102_CLOSEOUT_CANON_WATCHER_SCRIPT_PATH,
+            watcher_state_path=PR102_CLOSEOUT_CANON_WATCHER_STATE_PATH,
+        )
+        require(
+            watcher_route_proven,
+            (
+                "PR readiness gate: PR Watcher Routing Unverified blocker is active; "
+                f"{watcher_route_message}"
             ),
         )
         closeout_watcher_state = _load_json_file(PR102_CLOSEOUT_CANON_WATCHER_STATE_PATH)
