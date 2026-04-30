@@ -1430,6 +1430,19 @@ BOT_REVIEW_SIGNAL_STATUS_PENDING = "Pending"
 BOT_REVIEW_SIGNAL_STATUS_APPROVED = "Approved"
 BOT_REVIEW_SIGNAL_STATUS_COMMENT_ADDRESSED = "Comment addressed"
 BOT_REVIEW_BOT_LOGIN = "chatgpt-codex-connector[bot]"
+BOT_REVIEW_COMMENT_CLOSEOUT_ALLOWED_FILES = {
+    "Docs/Main.md",
+    "Docs/codex_modes.md",
+    "Docs/codex_user_guide.md",
+    "Docs/development_rules.md",
+    "Docs/incident_patterns.md",
+    "Docs/orin_task_template.md",
+    "Docs/phase_governance.md",
+    "dev/orin_branch_governance_validation.py",
+}
+BOT_REVIEW_COMMENT_CLOSEOUT_ALLOWED_PREFIXES = (
+    "Docs/branch_records/",
+)
 REFORM_FB042_DOSSIER_PATH = Path(
     "Docs/workstreams/FB-042_desktop_startup_runtime_family_dossier.md"
 )
@@ -6065,6 +6078,72 @@ def _git_origin_repository_full_name() -> tuple[str, str]:
     return f"{match.group('owner')}/{match.group('repo')}", ""
 
 
+def _git_changed_files(base_sha: str, head_sha: str) -> tuple[list[str], str]:
+    completed = subprocess.run(
+        ("git", "diff", "--name-only", f"{base_sha}..{head_sha}"),
+        cwd=ROOT_DIR,
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        check=False,
+    )
+    if completed.returncode != 0:
+        return [], completed.stderr.strip() or completed.stdout.strip() or "git diff failed"
+    files = [line.strip().replace("\\", "/") for line in completed.stdout.splitlines() if line.strip()]
+    return files, ""
+
+
+def _git_is_ancestor(ancestor_sha: str, descendant_sha: str) -> tuple[bool, str]:
+    completed = subprocess.run(
+        ("git", "merge-base", "--is-ancestor", ancestor_sha, descendant_sha),
+        cwd=ROOT_DIR,
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        check=False,
+    )
+    if completed.returncode == 0:
+        return True, ""
+    if completed.returncode == 1:
+        return False, ""
+    return False, completed.stderr.strip() or completed.stdout.strip() or "git merge-base failed"
+
+
+def _is_allowed_bot_review_comment_closeout_path(path: str) -> bool:
+    normalized = path.replace("\\", "/")
+    if normalized in BOT_REVIEW_COMMENT_CLOSEOUT_ALLOWED_FILES:
+        return True
+    return any(normalized.startswith(prefix) for prefix in BOT_REVIEW_COMMENT_CLOSEOUT_ALLOWED_PREFIXES)
+
+
+def _bot_review_comment_closeout_followthrough_ok(
+    recorded_head_sha: str,
+    current_head_sha: str,
+) -> tuple[bool, str]:
+    is_ancestor, ancestor_error = _git_is_ancestor(recorded_head_sha, current_head_sha)
+    if ancestor_error:
+        return False, ancestor_error
+    if not is_ancestor:
+        return (
+            False,
+            f"recorded bot-review head '{recorded_head_sha}' is not an ancestor of current head '{current_head_sha}'",
+        )
+
+    changed_files, diff_error = _git_changed_files(recorded_head_sha, current_head_sha)
+    if diff_error:
+        return False, diff_error
+    disallowed_files = [
+        path for path in changed_files if not _is_allowed_bot_review_comment_closeout_path(path)
+    ]
+    if disallowed_files:
+        return (
+            False,
+            "comment-addressed follow-through after the recorded head changed disallowed files: "
+            + ", ".join(disallowed_files),
+        )
+    return True, ""
+
+
 def _github_api_json(url: str) -> tuple[object | None, str]:
     request = urllib_request.Request(url, headers=GITHUB_API_HEADERS)
     try:
@@ -7453,24 +7532,27 @@ def _run_pr_live_state_gate(
         elif watcher_merge_state:
             merge_state = watcher_merge_state
     normalized_recorded_status = recorded_bot_review_status.strip().casefold()
-    manual_comment_resolution_clear = (
-        normalized_recorded_status == BOT_REVIEW_SIGNAL_STATUS_COMMENT_ADDRESSED.casefold()
-        and recorded_bot_review_head == current_head_sha
-    )
-    if (
-        normalized_recorded_status == BOT_REVIEW_SIGNAL_STATUS_COMMENT_ADDRESSED.casefold()
-        and recorded_bot_review_head
-        and current_head_sha
-        and recorded_bot_review_head != current_head_sha
-    ):
-        require(
-            False,
-            (
-                "PR readiness gate: PR Validation Pending blocker is active; recorded bot-review "
-                f"signal head '{recorded_bot_review_head}' in {active_branch_record_path or 'the active branch record'} "
-                f"does not match current head '{current_head_sha}'"
-            ),
-        )
+    manual_comment_resolution_clear = False
+    if normalized_recorded_status == BOT_REVIEW_SIGNAL_STATUS_COMMENT_ADDRESSED.casefold():
+        if recorded_bot_review_head == current_head_sha and current_head_sha:
+            manual_comment_resolution_clear = True
+        elif recorded_bot_review_head and current_head_sha:
+            followthrough_ok, followthrough_error = _bot_review_comment_closeout_followthrough_ok(
+                recorded_bot_review_head,
+                current_head_sha,
+            )
+            require(
+                followthrough_ok,
+                (
+                    "PR readiness gate: PR Validation Pending blocker is active; recorded bot-review "
+                    f"signal head '{recorded_bot_review_head}' in "
+                    f"{active_branch_record_path or 'the active branch record'} does not match current "
+                    f"head '{current_head_sha}', and the later follow-through is not limited to bounded "
+                    f"closeout/governance files: {followthrough_error}"
+                ),
+            )
+            if followthrough_ok:
+                manual_comment_resolution_clear = True
 
     require(
         pr_state == "OPEN",
