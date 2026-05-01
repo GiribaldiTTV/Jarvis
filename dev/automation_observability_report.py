@@ -190,6 +190,7 @@ def memory_tail(automation_id: str, line_count: int = 4) -> list[str]:
 
 def build_report() -> tuple[dict[str, object], list[Finding]]:
     findings: list[Finding] = []
+    now = utc_now()
     if not AUTOMATION_DB.is_file():
         findings.append(
             Finding(
@@ -199,10 +200,18 @@ def build_report() -> tuple[dict[str, object], list[Finding]]:
                 str(AUTOMATION_DB),
             )
         )
-        return {"generated_at": utc_now().isoformat(), "automations": []}, findings
+        return {
+            "generated_at": now.isoformat(),
+            "automation_db": str(AUTOMATION_DB),
+            "automation_dir": str(AUTOMATION_DIR),
+            "automations": [],
+            "finding_counts": {
+                severity: sum(1 for finding in findings if finding.severity == severity)
+                for severity in ("BLOCKER", "BLOCKER_CANDIDATE", "REVIEW_REQUIRED", "REVIEW_INFO")
+            },
+        }, findings
 
     tomls = automation_toml_map()
-    now = utc_now()
     rows: list[dict[str, object]] = []
     with sqlite3.connect(AUTOMATION_DB) as connection:
         connection.row_factory = sqlite3.Row
