@@ -57,7 +57,6 @@ It preserves merged-main `No Active Branch` truth, keeps PR #105 watcher merge/s
 
 ## Blockers
 
-- `Bot Review Signal Pending`
 - `PR Merge Verification Pending`
 
 ## Entry Basis
@@ -133,8 +132,8 @@ Waiver Status: `None`
 Continue Decision: `Stop`
 Stop Basis: `Named blockers`
 Next Active Seam: `PR Readiness PR1 - PR105 Closeout Repair and Observability Gate Validation`
-Stop Condition: `Bot review signal and watcher merge verification are not both complete.`
-Continuation Action: `Keep PR Readiness active until bot-review signal clears, then continue to the merge-watch seam and wait for watcher-verified PR merge.`
+Stop Condition: `Watcher merge verification is not complete.`
+Continuation Action: `Keep PR Readiness active until the watcher verifies PR #106 merge.`
 
 ## Governance Drift Audit
 
@@ -156,8 +155,8 @@ Continuation Action: `Keep PR Readiness active until bot-review signal clears, t
 
 ## PR Bot Review Signal
 
-- Bot Review Signal Status: `Pending`
-- Bot Review Signal Head SHA: `Current live PR head`
-- Bot Review Signal Source: `Pending live PR #106 Codex connector signal; authenticated GitHub connector found no review threads during initial validation`
-- Bot Review Signal Timestamp: `Pending`
-- Bot Review Signal Actor: `chatgpt-codex-connector[bot]`
+- Bot Review Signal Status: `Comment addressed`
+- Bot Review Signal Head SHA: `Current live PR head after same-branch comment-closeout follow-through; addressed fix commit 6ded9dbe0d06931c8fff5ab730061bf476a02864.`
+- Bot Review Signal Source: `Resolved Codex review thread PRRT_kwDORwnWIs5_BQKf after same-branch fix/push/reply/resolve closeout on PR #106; addressed fix commit 6ded9dbe0d06931c8fff5ab730061bf476a02864.`
+- Bot Review Signal Timestamp: `2026-05-01T17:54:43Z`
+- Bot Review Signal Actor: `chatgpt-codex-connector[bot] / GiribaldiTTV`
