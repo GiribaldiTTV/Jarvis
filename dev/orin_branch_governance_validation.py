@@ -797,6 +797,7 @@ PR_WATCHER_THREAD_CONTRACT_PHRASES = (
     "reports only when a watched PR status changes",
     "source-of-truth",
     "copy/paste Codex prompt basis",
+    "delivery proof",
     "PR Watcher Routing Unverified",
     "PR Merge Verification Pending",
     "merge-watch seam",
@@ -811,6 +812,11 @@ PR_WATCHER_OUTPUT_CONTRACT_PHRASES = (
     "Copy/Paste Codex Prompt:",
     "Mode: Release Readiness",
     "PR Merge Verification Pending",
+    "lastThreadDeliveryProven",
+    "lastThreadDeliveryProof",
+    "verified transcript fallback",
+    "record_visible_delivery",
+    "final thread delivery proof is missing",
 )
 
 GOVERNANCE_RECURRENCE_DOCS = (

@@ -34,7 +34,8 @@ Do not use this layer to replace:
 - before PR merge, any branch that still relies on an active branch authority record must either move that record into `Historical Branch Authority Records` or remove it entirely so merged truth does not leave a stale active branch owner behind
 - if a stale-canon or governance-drift class is discovered on a branch, that branch or the next legal repair surface must patch the canon or validator rule that allowed it before the repair is considered complete
 - `PR Watcher Provisioning Unproven` is the standard blocker when a branch expects watcher-based PR monitoring but its watcher target, approved reporting surface, runtime path, run-proof method, fallback, teardown, or replacement provisioning for the next live PR is not yet explicit and proven
-- `PR Watcher Routing Unverified` is the standard blocker when a branch expects watcher-based PR monitoring but the configured watcher target has not yet been cross-checked against the recorded reporting surface and proven to land there
+- `PR Watcher Routing Unverified` is the standard blocker when a branch expects watcher-based PR monitoring but the configured watcher target and delivery proof have not yet been cross-checked against the recorded reporting surface and proven to land there
+- PR watcher delivery proof requires assistant-message transcript presence plus Codex thread-state refresh plus automation run/inbox visibility for the approved reporting surface; a watcher must not retire after merge until that final delivery proof is present
 - historical branch authority records are preserved traceability records, not live execution authority
 - historical-only closeout traceability records must report `Phase: Historical Traceability` and must not retain live PR state, active seam ownership, or open-PR narration
 - each active branch authority record must carry the modern phase-state block:
