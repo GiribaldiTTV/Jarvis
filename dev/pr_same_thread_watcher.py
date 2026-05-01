@@ -149,6 +149,81 @@ def fetch_pr_page(repo_full_name: str, pr_number: int) -> str:
         return response.read().decode("utf-8", "replace")
 
 
+def fetch_github_json(url: str) -> object:
+    request = urllib_request.Request(
+        url,
+        headers={
+            "Accept": "application/vnd.github+json",
+            "User-Agent": "Codex PR watcher",
+        },
+    )
+    with urllib_request.urlopen(request, timeout=30) as response:
+        return json.loads(response.read().decode("utf-8", "replace"))
+
+
+def _is_bot_user(item: object) -> bool:
+    if not isinstance(item, dict):
+        return False
+    user = item.get("user") or {}
+    if not isinstance(user, dict):
+        return False
+    login = str(user.get("login") or "")
+    return login.casefold() == BOT_LOGIN.casefold()
+
+
+def fetch_rest_bot_signal(
+    repo_full_name: str,
+    pr_number: int,
+    head_sha: str,
+) -> tuple[bool, int, str]:
+    api_root = f"https://api.github.com/repos/{repo_full_name}"
+    bot_approval = False
+    bot_comment_count = 0
+    errors: list[str] = []
+
+    try:
+        reactions = fetch_github_json(f"{api_root}/issues/{pr_number}/reactions")
+        if isinstance(reactions, list):
+            bot_approval = any(
+                _is_bot_user(reaction) and str(reaction.get("content") or "") == "+1"
+                for reaction in reactions
+                if isinstance(reaction, dict)
+            )
+    except (OSError, json.JSONDecodeError) as exc:
+        errors.append(f"reaction lookup failed: {exc}")
+
+    # Issue comments are not commit-scoped; treat bot issue comments as current PR feedback.
+    try:
+        issue_comments = fetch_github_json(f"{api_root}/issues/{pr_number}/comments")
+        if isinstance(issue_comments, list):
+            bot_comment_count += sum(
+                1 for comment in issue_comments if _is_bot_user(comment)
+            )
+    except (OSError, json.JSONDecodeError) as exc:
+        errors.append(f"issue-comment lookup failed: {exc}")
+
+    for url in (
+        f"{api_root}/pulls/{pr_number}/reviews",
+        f"{api_root}/pulls/{pr_number}/comments",
+    ):
+        try:
+            items = fetch_github_json(url)
+        except (OSError, json.JSONDecodeError) as exc:
+            errors.append(f"{url.rsplit('/', 1)[-1]} lookup failed: {exc}")
+            continue
+        if not isinstance(items, list):
+            continue
+        for item in items:
+            if not _is_bot_user(item):
+                continue
+            commit_id = str(item.get("commit_id") or "")
+            if head_sha and commit_id and commit_id != head_sha:
+                continue
+            bot_comment_count += 1
+
+    return bot_approval, bot_comment_count, "; ".join(errors)
+
+
 def _json_string_field(html: str, key: str) -> str:
     match = re.search(rf'"{re.escape(key)}":"((?:[^"\\]|\\.)*)"', html)
     if not match:
@@ -838,6 +913,17 @@ def build_status(
 ) -> dict[str, object]:
     html = fetch_pr_page(repo_full_name, pr_number)
     pr_status = parse_pr_page(html, repo_full_name, pr_number)
+    rest_approval, rest_comment_count, rest_signal_error = fetch_rest_bot_signal(
+        repo_full_name,
+        pr_number,
+        str(pr_status.get("headSha") or ""),
+    )
+    pr_status["botApproval"] = bool(pr_status.get("botApproval")) or rest_approval
+    pr_status["botCommentCount"] = max(
+        int(pr_status.get("botCommentCount") or 0),
+        rest_comment_count,
+    )
+    pr_status["botSignalError"] = rest_signal_error
     local_head = run_git(repo_root, "rev-parse", "HEAD")
     local_branch = run_git(repo_root, "rev-parse", "--abbrev-ref", "HEAD")
     mergeable, merge_error = compute_local_merge(repo_root, str(pr_status.get("baseRef") or "main"))
