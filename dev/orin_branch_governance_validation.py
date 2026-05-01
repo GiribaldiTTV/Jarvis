@@ -25,6 +25,7 @@ PHASES = (
     "PR Readiness",
     "Release Readiness",
 )
+HISTORICAL_TRACEABILITY_PHASE = "Historical Traceability"
 
 BRANCH_CLASSES = (
     "implementation",
@@ -1163,6 +1164,10 @@ PR101_CLOSEOUT_CANON_REPAIR_BRANCH_RECORD = Path(
 PR102_CLOSEOUT_CANON_REPAIR_BRANCH = "feature/pr102-post-merge-closeout-canon-repair"
 PR102_CLOSEOUT_CANON_REPAIR_BRANCH_RECORD = Path(
     "Docs/branch_records/feature_pr102_post_merge_closeout_canon_repair.md"
+)
+PR103_CLOSEOUT_CANON_REPAIR_BRANCH = "feature/pr103-post-merge-closeout-canon-repair"
+PR103_CLOSEOUT_CANON_REPAIR_BRANCH_RECORD = Path(
+    "Docs/branch_records/feature_pr103_post_merge_closeout_canon_repair.md"
 )
 AUTOMATION_CLOSEOUT_PR101_WATCHER_SCRIPT_PATH = (
     Path.home() / ".codex" / "watchers" / "pr101-watch.ps1"
@@ -10026,8 +10031,12 @@ def main() -> int:
 
         info = _parse_workstream_doc(record_text)
         normalized_record_status = _normalize_status(str(info["status"]))
+        current_phase = str(info["current_phase"])
+        allowed_branch_record_phases = set(PHASES)
+        if branch_record_path in historical_branch_record_paths:
+            allowed_branch_record_phases.add(HISTORICAL_TRACEABILITY_PHASE)
         require(
-            str(info["current_phase"]) in PHASES,
+            current_phase in allowed_branch_record_phases,
             f"{branch_record_path}: Current Phase '{info['current_phase']}' is not in the canonical phase enum",
         )
         require(
@@ -10066,7 +10075,6 @@ def main() -> int:
             f"{branch_record_path}: Next Legal Phase '{info['next_legal_phase']}' is not in the canonical phase enum",
         )
         if branch_record_path in active_branch_record_paths:
-            current_phase = str(info["current_phase"])
             _validate_planning_loop_guardrail(
                 require,
                 branch_record_path,
@@ -10204,6 +10212,25 @@ def main() -> int:
             require(
                 "historical" in phase_status_section.lower(),
                 f"{branch_record_path}: historical branch record should make its historical merged posture explicit",
+            )
+        if branch_record_path in {
+            str(PR101_CLOSEOUT_CANON_REPAIR_BRANCH_RECORD),
+            str(PR102_CLOSEOUT_CANON_REPAIR_BRANCH_RECORD),
+        } and branch_record_path in historical_branch_record_paths:
+            require(
+                current_phase == HISTORICAL_TRACEABILITY_PHASE,
+                (
+                    f"{branch_record_path}: historical post-merge closeout record must report "
+                    f"`Phase: {HISTORICAL_TRACEABILITY_PHASE}`"
+                ),
+            )
+            require(
+                "Current PR Readiness Seam:" not in phase_status_section
+                and "Live PR State: `open`" not in phase_status_section,
+                (
+                    f"{branch_record_path}: historical post-merge closeout record must not retain "
+                    "active PR-readiness or open-PR narration"
+                ),
             )
 
     if errors:
