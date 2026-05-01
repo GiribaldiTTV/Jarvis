@@ -31,6 +31,7 @@ BRANCH_CLASSES = (
     "implementation",
     "docs/governance",
     "emergency canon repair",
+    "repair/dev-tooling-governance",
     "release packaging",
 )
 

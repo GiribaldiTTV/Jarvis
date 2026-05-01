@@ -254,17 +254,31 @@ def current_thread_message(status: dict[str, object]) -> str:
     next_legal_phase = str(status.get("branchRecordNextLegalPhase") or "Release Readiness")
     thread_id = str(status.get("threadId") or "UNKNOWN")
     last_run = str(status.get("lastRunLocal") or "UNKNOWN")
-    blockers = (
-        "None for PR merge verification"
-        if status.get("merged")
-        else "PR Merge Verification Pending"
-    )
+    merge_watch_active = "pr2" in active_seam.casefold() or "merge verification" in active_seam.casefold()
+    bot_comment_count = int(status.get("botCommentCount") or 0)
+    bot_approval = bool(status.get("botApproval"))
+    blockers_list: list[str] = []
+    if status.get("merged"):
+        blockers_list.append("None for PR merge verification")
+    else:
+        if bot_comment_count > 0:
+            blockers_list.append("PR Validation Pending")
+        elif not bot_approval:
+            blockers_list.append("Bot Review Signal Pending")
+        if merge_status_label != "green":
+            blockers_list.append("PR Merge Status Unproven")
+        if merge_watch_active or not blockers_list:
+            blockers_list.append("PR Merge Verification Pending")
+    blockers = "; ".join(blockers_list)
     completion_status = "Green" if status.get("merged") else "Red"
-    continue_decision = (
-        "Stop watcher and proceed to Release Readiness validation from updated main"
-        if status.get("merged")
-        else "Stop; remain in PR Readiness PR2 until merge verification clears"
-    )
+    if status.get("merged"):
+        continue_decision = "Stop watcher and proceed to Release Readiness validation from updated main"
+    elif merge_watch_active:
+        continue_decision = "Stop; remain in PR Readiness PR2 until merge verification clears"
+    elif "PR Merge Verification Pending" in blockers_list and len(blockers_list) == 1:
+        continue_decision = "Continue into PR Readiness PR2 merge-watch with Release Readiness still blocked"
+    else:
+        continue_decision = "Stop; remain in PR Readiness PR1 until live PR blockers clear"
     repair_status = str(status.get("lastRepairAttemptStatus") or "").strip().casefold()
     repair_summary = str(status.get("lastRepairWorkerSummary") or "").strip()
     repair_summary = repair_summary.splitlines()[0].strip() if repair_summary else ""
@@ -378,12 +392,21 @@ def current_thread_message(status: dict[str, object]) -> str:
             ]
         )
     else:
+        if merge_watch_active or "PR Merge Verification Pending" in blockers_list:
+            next_prompt_basis = (
+                "- No Release Readiness prompt is legal yet.\n"
+                "- Keep PR Readiness PR2 active until this watcher reports `merged=true`."
+            )
+        else:
+            next_prompt_basis = (
+                "- No Release Readiness prompt is legal yet.\n"
+                "- Keep PR Readiness PR1 active until live PR validation blockers clear."
+            )
         lines.extend(
             [
                 "",
                 "Next Prompt Basis:",
-                "- No Release Readiness prompt is legal yet.",
-                "- Keep PR Readiness PR2 active until this watcher reports `merged=true`.",
+                *next_prompt_basis.splitlines(),
             ]
         )
 

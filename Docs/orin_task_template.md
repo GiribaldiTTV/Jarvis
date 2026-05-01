@@ -57,7 +57,7 @@ Phase:
 [Branch Readiness / Workstream / Hardening / Live Validation / PR Readiness / Release Readiness]
 
 Branch Class:
-[implementation / repair on new feature branch / release packaging / docs/governance historical context only with explicit Docs/Governance Branch Waiver: APPROVED / emergency canon repair historical context only with explicit Docs/Governance Branch Waiver: APPROVED]
+[implementation / repair/dev-tooling-governance / repair on new feature branch / release packaging / docs/governance historical context only with explicit Docs/Governance Branch Waiver: APPROVED / emergency canon repair historical context only with explicit Docs/Governance Branch Waiver: APPROVED]
 
 Implementation Delta Class:
 [runtime/user-facing / backend/runtime / developer-tooling / docs-only / comma-separated non-docs-only values]
