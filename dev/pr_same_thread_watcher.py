@@ -196,12 +196,29 @@ def current_thread_message(status: dict[str, object]) -> str:
     state_label = str(status.get("prState") or "UNKNOWN").casefold()
     merged_label = "true" if status.get("merged") else "false"
     draft_label = "true" if status.get("draft") else "false"
+    repair_status = str(status.get("lastRepairAttemptStatus") or "").strip().casefold()
+    repair_summary = str(status.get("lastRepairWorkerSummary") or "").strip()
+    repair_summary = repair_summary.splitlines()[0].strip() if repair_summary else ""
+    repair_clause = ""
+    if repair_status == "succeeded":
+        repair_clause = (
+            f" Auto-repair worker completed for the current PR comment. {repair_summary}"
+            if repair_summary
+            else " Auto-repair worker completed for the current PR comment."
+        )
+    elif repair_status == "failed":
+        repair_clause = (
+            f" Auto-repair worker failed for the current PR comment: {repair_summary}"
+            if repair_summary
+            else " Auto-repair worker failed for the current PR comment."
+        )
 
     return (
         f"PR watcher update for PR #{pr_number}: state={state_label}, merged={merged_label}, "
         f"draft={draft_label}, merge-status {merge_status_label}, remote head {remote_head}, "
         f"local head {local_head}, bot approval {bot_approval_label}, {bot_comment_label}. "
         f"{watcher_blocker} {merge_status_blocker} {merge_verification_blocker} {release_posture}"
+        f"{repair_clause}"
     )
 
 
@@ -338,6 +355,75 @@ def emit_via_codex_resume(
         stdout = process.stdout.strip()
         raise RuntimeError(stderr or stdout or f"codex resume failed with exit code {process.returncode}")
     return utc_now_iso()
+
+
+def build_comment_repair_worker_prompt(
+    *,
+    repo_full_name: str,
+    pr_number: int,
+    branch_record_path: Path,
+) -> str:
+    return (
+        f"You are operating on the current checked-out branch for {repo_full_name} PR #{pr_number}.\n"
+        "Goal: address actionable unresolved review feedback from chatgpt-codex-connector[bot] on this PR only.\n"
+        "Use the GitHub connector/tools available in this environment.\n\n"
+        "Required workflow:\n"
+        "1. Inspect the live unresolved review threads/comments for this PR.\n"
+        "2. If there are no unresolved actionable bot review comments, make no code changes and say so clearly.\n"
+        "3. If there are actionable unresolved bot review comments, implement the minimum fix on this same branch only.\n"
+        "4. Run the minimum relevant validation.\n"
+        "5. Commit and push the fix.\n"
+        "6. Reply to each addressed top-level bot review comment with a concise resolution note naming the new commit SHA.\n"
+        "7. Resolve each addressed review thread.\n"
+        f"8. Update {branch_record_path} so the bot-review state truth reflects `Comment addressed` for the current head when applicable.\n"
+        "9. Do not merge the PR. Do not widen scope. Do not create a new branch.\n\n"
+        "Respond with a short final summary only."
+    )
+
+
+def run_comment_repair_worker(
+    *,
+    codex_exe: Path,
+    repo_root: Path,
+    repo_full_name: str,
+    pr_number: int,
+    branch_record_path: Path,
+    output_path: Path,
+) -> tuple[bool, str]:
+    ensure_parent(output_path)
+    prompt = build_comment_repair_worker_prompt(
+        repo_full_name=repo_full_name,
+        pr_number=pr_number,
+        branch_record_path=branch_record_path,
+    )
+    process = _subprocess_run(
+        [
+            str(codex_exe),
+            "exec",
+            "-",
+            "--dangerously-bypass-approvals-and-sandbox",
+            "-C",
+            str(repo_root),
+            "-o",
+            str(output_path),
+        ],
+        cwd=repo_root,
+        input=prompt,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    summary = ""
+    if output_path.is_file():
+        try:
+            summary = output_path.read_text(encoding="utf-8").strip()
+        except OSError:
+            summary = ""
+    if not summary:
+        summary = process.stderr.strip() or process.stdout.strip()
+    if not summary:
+        summary = f"codex exec exited with code {process.returncode}"
+    return process.returncode == 0, summary
 
 
 def _normalize_id(value: str) -> str:
@@ -498,6 +584,8 @@ def signature_for(status: dict[str, object]) -> str:
         "botApproval": status.get("botApproval"),
         "botCommentCount": status.get("botCommentCount"),
         "error": status.get("error"),
+        "lastRepairAttemptStatus": status.get("lastRepairAttemptStatus"),
+        "lastRepairAttemptKey": status.get("lastRepairAttemptKey"),
     }
     return json.dumps(fields, sort_keys=True, separators=(",", ":"))
 
@@ -611,6 +699,11 @@ def main() -> int:
     status["phase"] = phase
     status["threadId"] = args.thread_id
     status["threadRolloutPath"] = str(thread_rollout_path)
+    status["lastRepairAttemptKey"] = existing_state.get("lastRepairAttemptKey", "")
+    status["lastRepairAttemptAt"] = existing_state.get("lastRepairAttemptAt", "")
+    status["lastRepairAttemptStatus"] = existing_state.get("lastRepairAttemptStatus", "")
+    status["lastRepairWorkerSummary"] = existing_state.get("lastRepairWorkerSummary", "")
+    status["lastRepairWorkerOutputPath"] = existing_state.get("lastRepairWorkerOutputPath", "")
 
     line = (
         f"PR #{args.pr_number} state={status.get('prState')} merged={status.get('merged')} "
@@ -643,11 +736,73 @@ def main() -> int:
     status["visibleThreadAutomationId"] = automation_id
     status["visibleThreadAutomationName"] = automation_name
 
+    repair_triggered = False
+    repair_output_path = latest_path.with_name(f"{latest_path.stem}-worker.txt")
+    bot_comment_count = int(status.get("botCommentCount") or 0)
+    repair_key = f"{status.get('headSha') or ''}:{bot_comment_count}"
+    if (
+        codex_exe is not None
+        and not bool(status.get("merged"))
+        and str(status.get("prState") or "").upper() != "CLOSED"
+        and bot_comment_count > 0
+        and repair_key
+        and (
+            repair_key != str(existing_state.get("lastRepairAttemptKey") or "")
+            or str(existing_state.get("lastRepairAttemptStatus") or "").strip().casefold()
+            == "failed"
+        )
+    ):
+        repair_triggered = True
+        append_log(
+            log_path,
+            f"Triggering bounded comment-repair worker for PR #{args.pr_number} with key {repair_key}.",
+        )
+        status["lastRepairAttemptKey"] = repair_key
+        status["lastRepairAttemptAt"] = utc_now_iso()
+        repair_ok, repair_summary = run_comment_repair_worker(
+            codex_exe=codex_exe,
+            repo_root=repo_root,
+            repo_full_name=args.repo_full_name,
+            pr_number=args.pr_number,
+            branch_record_path=branch_record_path,
+            output_path=repair_output_path,
+        )
+        status["lastRepairAttemptStatus"] = "succeeded" if repair_ok else "failed"
+        status["lastRepairWorkerSummary"] = repair_summary
+        status["lastRepairWorkerOutputPath"] = str(repair_output_path)
+        append_log(
+            log_path,
+            (
+                f"Comment-repair worker {'completed' if repair_ok else 'failed'} for PR "
+                f"#{args.pr_number}: {repair_summary}"
+            ),
+        )
+        try:
+            refreshed_status = build_status(
+                repo_full_name=args.repo_full_name,
+                pr_number=args.pr_number,
+                repo_root=repo_root,
+            )
+            refreshed_status["phase"] = phase
+            refreshed_status["threadId"] = args.thread_id
+            refreshed_status["threadRolloutPath"] = str(thread_rollout_path)
+            refreshed_status["lastRepairAttemptKey"] = status["lastRepairAttemptKey"]
+            refreshed_status["lastRepairAttemptAt"] = status["lastRepairAttemptAt"]
+            refreshed_status["lastRepairAttemptStatus"] = status["lastRepairAttemptStatus"]
+            refreshed_status["lastRepairWorkerSummary"] = status["lastRepairWorkerSummary"]
+            refreshed_status["lastRepairWorkerOutputPath"] = status["lastRepairWorkerOutputPath"]
+            status = refreshed_status
+        except Exception as exc:  # pragma: no cover - defensive runtime path
+            append_log(log_path, f"Post-repair status refresh failed: {exc}")
+
     current_signature = signature_for(status)
     previous_signature = str(existing_state.get("lastSignature") or "")
-    should_emit = args.force_emit or current_signature != previous_signature or not str(
-        existing_state.get("lastThreadEmitAt") or ""
-    ).strip()
+    should_emit = (
+        repair_triggered
+        or args.force_emit
+        or current_signature != previous_signature
+        or not str(existing_state.get("lastThreadEmitAt") or "").strip()
+    )
 
     if should_emit:
         message = args.override_thread_message or (

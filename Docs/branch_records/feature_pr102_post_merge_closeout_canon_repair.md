@@ -39,7 +39,7 @@ It does not reopen implementation, widen into release execution, mutate FB-049 s
 - Live PR State: `open`
 - Live PR Head Commit At PR Creation: `a1d765e088ea086d4caaeef0a9727ae39ff0d8cb`
 - Live PR Merge Status: `green at PR-entry time`
-- PR watcher runtime: authoritative PR watcher `Codex PR102 Post-Merge Closeout Canon Repair Watch` uses `$CODEX_HOME/watchers/pr102-post-merge-closeout-canon-repair-watch-launcher.pyw` plus repo helper `dev/pr_same_thread_watcher.py` to emit only status-change updates into the approved Codex reporting-surface transcript through the official Codex thread-resume path while PR #103 remains open
+- PR watcher runtime: authoritative PR watcher `Codex PR102 Post-Merge Closeout Canon Repair Watch` uses `$CODEX_HOME/watchers/pr102-post-merge-closeout-canon-repair-watch-launcher.pyw` plus repo helper `dev/pr_same_thread_watcher.py` to emit only status-change updates into the approved Codex reporting-surface transcript through the official Codex thread-resume path while PR #103 remains open, and actionable bot comments now trigger a bounded same-branch `codex exec` repair worker from that watcher runtime
 - PR watcher action contract: thumbs-up reaction on PR #103 clears PR-entry validation green; one or more actionable bot comments on PR #103 trigger the bounded same-branch PR comment-repair worker, which must fix the issue, commit, push, reply, resolve the corresponding review thread, and then report `Comment addressed` for the current head before PR1 can clear
 - PR watcher reporting surface: `Dedicated watcher-host thread 'PR103 Watch Host thread'`
 - PR watcher reporting thread ID: `019de0c1-bb76-7d31-a3d0-f88aa471b7e6`
