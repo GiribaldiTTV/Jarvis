@@ -39,6 +39,7 @@ EXPECTED_WAITING_MARKERS = (
     "need v1.6.13-prebeta publish",
     "release readiness is not legal yet",
     "pr merge verification pending` remains active",
+    "still waiting on merge verification",
 )
 
 
