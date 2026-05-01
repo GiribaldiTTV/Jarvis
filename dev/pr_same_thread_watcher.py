@@ -187,12 +187,11 @@ def current_thread_message(status: dict[str, object]) -> str:
         else "`PR Merge Verification Pending` remains active."
     )
     release_posture = (
-        "`Release Readiness` is now legal."
+        "Merge verification is complete; run Release Readiness source-of-truth validation "
+        "before claiming release legality."
         if status.get("merged")
         else "`Release Readiness` is not legal yet."
     )
-    # Audit pending: merge verification alone should not claim Release Readiness
-    # until merged-main canon validation also passes.
     remote_head = str(status.get("headSha") or "UNKNOWN")
     local_head = str(status.get("localHeadSha") or "UNKNOWN")
     state_label = str(status.get("prState") or "UNKNOWN").casefold()
@@ -574,6 +573,46 @@ def ensure_visible_thread_host(
     return True, f"visible watcher host '{automation_name}' is registered for thread '{thread_id}'"
 
 
+def retire_visible_thread_host(
+    *,
+    automation_db_path: Path,
+    automation_id: str,
+) -> tuple[bool, str]:
+    now_ms = int(utc_now().timestamp() * 1000)
+    automation_dir = Path.home() / ".codex" / "automations" / automation_id
+    automation_toml = automation_dir / "automation.toml"
+    connection = None
+    try:
+        if automation_toml.is_file():
+            automation_toml.unlink()
+        try:
+            automation_dir.rmdir()
+        except OSError:
+            pass
+
+        if automation_db_path.is_file():
+            connection = sqlite3.connect(automation_db_path)
+            connection.execute("DELETE FROM automations WHERE id = ?", (automation_id,))
+            connection.execute(
+                """
+                UPDATE automation_runs
+                SET status = 'COMPLETED', updated_at = ?
+                WHERE automation_id = ?
+                """,
+                (now_ms, automation_id),
+            )
+            connection.commit()
+    except (OSError, sqlite3.Error) as exc:
+        return False, f"failed to retire visible watcher host '{automation_id}': {exc}"
+    finally:
+        try:
+            if connection is not None:
+                connection.close()
+        except Exception:
+            pass
+    return True, f"visible watcher host '{automation_id}' retired"
+
+
 def signature_for(status: dict[str, object]) -> str:
     fields = {
         "prState": status.get("prState"),
@@ -847,8 +886,14 @@ def main() -> int:
 
     if bool(status.get("merged")) or str(status.get("prState") or "").upper() == "CLOSED":
         append_log(log_path, "Stopping watcher because PR is closed or merged.")
-        # Audit pending: when a dedicated visible host automation exists, it should
-        # be paused or deleted here as part of the same terminal cleanup.
+        retired, retire_message = retire_visible_thread_host(
+            automation_db_path=automation_db_path,
+            automation_id=automation_id,
+        )
+        append_log(log_path, retire_message)
+        status["visibleThreadHostRetired"] = retired
+        status["visibleThreadHostRetireMessage"] = retire_message
+        save_json(state_path, status)
         stop_task(args.task_name)
 
     return 0
