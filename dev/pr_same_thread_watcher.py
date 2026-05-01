@@ -187,7 +187,8 @@ def current_thread_message(status: dict[str, object]) -> str:
         else "`PR Merge Verification Pending` remains active."
     )
     release_posture = (
-        "`Release Readiness` is now legal."
+        "Merge verification is complete; run Release Readiness source-of-truth validation "
+        "before claiming release legality."
         if status.get("merged")
         else "`Release Readiness` is not legal yet."
     )
@@ -451,25 +452,34 @@ def ensure_visible_thread_host(
         "scheduled watcher surface in the app."
     )
     ensure_parent(automation_toml)
-    if not automation_toml.is_file():
-        automation_toml.write_text(
-            "\n".join(
-                [
-                    "version = 1",
-                    f'id = "{automation_id}"',
-                    'kind = "heartbeat"',
-                    f'name = "{automation_name}"',
-                    f'prompt = "{automation_prompt}"',
-                    'status = "ACTIVE"',
-                    'rrule = "FREQ=MINUTELY;INTERVAL=1"',
-                    'target_thread_id = "' + thread_id + '"',
-                    f'created_at = {now_ms}',
-                    f'updated_at = {now_ms}',
-                    "",
-                ]
-            ),
-            encoding="utf-8",
-        )
+    created_at = now_ms
+    if automation_toml.is_file():
+        try:
+            existing_text = automation_toml.read_text(encoding="utf-8")
+            existing_created_at = re.search(r"^created_at = (\d+)$", existing_text, flags=re.M)
+            if existing_created_at:
+                created_at = int(existing_created_at.group(1))
+        except (OSError, ValueError):
+            created_at = now_ms
+    # Always rewrite the host config so a stale target_thread_id cannot survive retargeting.
+    automation_toml.write_text(
+        "\n".join(
+            [
+                "version = 1",
+                f'id = "{automation_id}"',
+                'kind = "heartbeat"',
+                f'name = "{automation_name}"',
+                f'prompt = "{automation_prompt}"',
+                'status = "ACTIVE"',
+                'rrule = "FREQ=MINUTELY;INTERVAL=1"',
+                'target_thread_id = "' + thread_id + '"',
+                f"created_at = {created_at}",
+                f"updated_at = {now_ms}",
+                "",
+            ]
+        ),
+        encoding="utf-8",
+    )
 
     connection = None
     try:
@@ -570,6 +580,46 @@ def ensure_visible_thread_host(
         except Exception:
             pass
     return True, f"visible watcher host '{automation_name}' is registered for thread '{thread_id}'"
+
+
+def retire_visible_thread_host(
+    *,
+    automation_db_path: Path,
+    automation_id: str,
+) -> tuple[bool, str]:
+    now_ms = int(utc_now().timestamp() * 1000)
+    automation_dir = Path.home() / ".codex" / "automations" / automation_id
+    automation_toml = automation_dir / "automation.toml"
+    connection = None
+    try:
+        if automation_toml.is_file():
+            automation_toml.unlink()
+        try:
+            automation_dir.rmdir()
+        except OSError:
+            pass
+
+        if automation_db_path.is_file():
+            connection = sqlite3.connect(automation_db_path)
+            connection.execute("DELETE FROM automations WHERE id = ?", (automation_id,))
+            connection.execute(
+                """
+                UPDATE automation_runs
+                SET status = 'COMPLETED', updated_at = ?
+                WHERE automation_id = ?
+                """,
+                (now_ms, automation_id),
+            )
+            connection.commit()
+    except (OSError, sqlite3.Error) as exc:
+        return False, f"failed to retire visible watcher host '{automation_id}': {exc}"
+    finally:
+        try:
+            if connection is not None:
+                connection.close()
+        except Exception:
+            pass
+    return True, f"visible watcher host '{automation_id}' retired"
 
 
 def signature_for(status: dict[str, object]) -> str:
@@ -845,6 +895,14 @@ def main() -> int:
 
     if bool(status.get("merged")) or str(status.get("prState") or "").upper() == "CLOSED":
         append_log(log_path, "Stopping watcher because PR is closed or merged.")
+        retired, retire_message = retire_visible_thread_host(
+            automation_db_path=automation_db_path,
+            automation_id=automation_id,
+        )
+        append_log(log_path, retire_message)
+        status["visibleThreadHostRetired"] = retired
+        status["visibleThreadHostRetireMessage"] = retire_message
+        save_json(state_path, status)
         stop_task(args.task_name)
 
     return 0

@@ -25,6 +25,7 @@ PHASES = (
     "PR Readiness",
     "Release Readiness",
 )
+HISTORICAL_TRACEABILITY_PHASE = "Historical Traceability"
 
 BRANCH_CLASSES = (
     "implementation",
@@ -1164,6 +1165,10 @@ PR102_CLOSEOUT_CANON_REPAIR_BRANCH = "feature/pr102-post-merge-closeout-canon-re
 PR102_CLOSEOUT_CANON_REPAIR_BRANCH_RECORD = Path(
     "Docs/branch_records/feature_pr102_post_merge_closeout_canon_repair.md"
 )
+PR103_CLOSEOUT_CANON_REPAIR_BRANCH = "feature/pr103-post-merge-closeout-canon-repair"
+PR103_CLOSEOUT_CANON_REPAIR_BRANCH_RECORD = Path(
+    "Docs/branch_records/feature_pr103_post_merge_closeout_canon_repair.md"
+)
 AUTOMATION_CLOSEOUT_PR101_WATCHER_SCRIPT_PATH = (
     Path.home() / ".codex" / "watchers" / "pr101-watch.ps1"
 )
@@ -1197,6 +1202,19 @@ PR102_CLOSEOUT_CANON_WATCHER_LATEST_PATH = (
     Path.home() / ".codex" / "watchers" / "pr102-post-merge-closeout-canon-repair-watch-latest.txt"
 )
 PR102_CLOSEOUT_CANON_WATCHER_TASK_NAME = "Codex PR102 Post-Merge Closeout Canon Repair Watch"
+PR103_CLOSEOUT_CANON_WATCHER_SCRIPT_PATH = (
+    Path.home()
+    / ".codex"
+    / "watchers"
+    / "pr103-post-merge-closeout-canon-repair-watch-launcher.pyw"
+)
+PR103_CLOSEOUT_CANON_WATCHER_STATE_PATH = (
+    Path.home() / ".codex" / "watchers" / "pr103-post-merge-closeout-canon-repair-watch-state.json"
+)
+PR103_CLOSEOUT_CANON_WATCHER_LATEST_PATH = (
+    Path.home() / ".codex" / "watchers" / "pr103-post-merge-closeout-canon-repair-watch-latest.txt"
+)
+PR103_CLOSEOUT_CANON_WATCHER_TASK_NAME = "Codex PR103 Post-Merge Closeout Canon Repair Watch"
 CODEX_THREAD_STATE_DB_PATH = Path.home() / ".codex" / "state_5.sqlite"
 REFORM_R3_S2_SEAM = (
     "Phase 3 - Family Anchor Migration / Slice R3-S2 - Map FB-043 through FB-048 under "
@@ -1420,6 +1438,13 @@ PR102_CLOSEOUT_CANON_PR_READINESS_PR2_SEAM = (
     "PR Readiness PR2 - PR102 Post-Merge Closeout Canon Repair Merge Verification Watch"
 )
 PR102_CLOSEOUT_CANON_THREAD_WATCHER_NAME = "PR102 Post-Merge Closeout Canon Repair Same-Thread Watch"
+PR103_CLOSEOUT_CANON_PR_READINESS_PR1_SEAM = (
+    "PR Readiness PR1 - PR103 Post-Merge Closeout Canon Repair PR Validation"
+)
+PR103_CLOSEOUT_CANON_PR_READINESS_PR2_SEAM = (
+    "PR Readiness PR2 - PR103 Post-Merge Closeout Canon Repair Merge Verification Watch"
+)
+PR103_CLOSEOUT_CANON_THREAD_WATCHER_NAME = "PR103 Post-Merge Closeout Canon Repair Same-Thread Watch"
 CODEX_AUTOMATION_DB_PATH = Path.home() / ".codex" / "sqlite" / "codex-dev.db"
 AUTOMATION_PR99_NATIVE_HEARTBEAT_PATH = (
     Path.home() / ".codex" / "automations" / "pr99-heartbeat-watch" / "automation.toml"
@@ -3188,6 +3213,14 @@ def _is_pr102_closeout_canon_repair_branch(branch_name: str) -> bool:
     return normalized in {
         PR102_CLOSEOUT_CANON_REPAIR_BRANCH,
         f"origin/{PR102_CLOSEOUT_CANON_REPAIR_BRANCH}",
+    }
+
+
+def _is_pr103_closeout_canon_repair_branch(branch_name: str) -> bool:
+    normalized = (branch_name or "").strip()
+    return normalized in {
+        PR103_CLOSEOUT_CANON_REPAIR_BRANCH,
+        f"origin/{PR103_CLOSEOUT_CANON_REPAIR_BRANCH}",
     }
 
 
@@ -5887,6 +5920,157 @@ def _validate_pr102_closeout_canon_repair_phase_truth(
         )
 
 
+def _validate_pr103_closeout_canon_repair_phase_truth(
+    require,
+    *,
+    current_branch: str,
+) -> None:
+    if not _is_pr103_closeout_canon_repair_branch(current_branch):
+        return
+
+    branch_record_text = _read_text(PR103_CLOSEOUT_CANON_REPAIR_BRANCH_RECORD)
+    current_phase = _extract_marker_value(_section(branch_record_text, "Current Phase"), "Phase")
+    next_legal_phase = _extract_first_backtick_value(_section(branch_record_text, "Next Legal Phase"))
+    phase_status_section = _section(branch_record_text, "Phase Status")
+    active_seam_section = _section(branch_record_text, "Active Seam")
+    continuation_section = _section(branch_record_text, "Seam Continuation Decision")
+    release_window_section = _section(branch_record_text, "Release Window Audit")
+    phase_status_pr_readiness_seam = _extract_marker_value(
+        phase_status_section, "Current PR Readiness Seam"
+    )
+    phase_status_next_seam = _extract_marker_value(phase_status_section, "Next Active Seam")
+    active_seam_current = _extract_marker_value(active_seam_section, "Active seam")
+    active_seam_match = re.search(r"^Next active seam:\s*`([^`]+)`", active_seam_section, flags=re.M)
+    active_seam_next = active_seam_match.group(1).strip() if active_seam_match else ""
+    continuation_next_seam = _extract_marker_value(continuation_section, "Next Active Seam")
+    blockers_section = _section(branch_record_text, "Blockers")
+
+    if current_phase != "PR Readiness":
+        return
+
+    for marker_name in (
+        "PR watcher reporting surface",
+        "PR watcher reporting thread ID",
+        "PR watcher reporting transcript",
+        "PR watcher route verification",
+    ):
+        require(
+            bool(_extract_marker_value(phase_status_section, marker_name)),
+            (
+                "Docs/branch_records/feature_pr103_post_merge_closeout_canon_repair.md: "
+                f"Phase Status must record `{marker_name}` while PR watcher governance is active"
+            ),
+        )
+
+    if phase_status_pr_readiness_seam == PR103_CLOSEOUT_CANON_PR_READINESS_PR1_SEAM:
+        require(
+            next_legal_phase == "PR Readiness",
+            (
+                "Docs/branch_records/feature_pr103_post_merge_closeout_canon_repair.md: "
+                "Next Legal Phase must remain `PR Readiness` while PR Readiness PR1 is active "
+                "and PR2 merge-verification has not yet been admitted"
+            ),
+        )
+        require(
+            phase_status_next_seam == PR103_CLOSEOUT_CANON_PR_READINESS_PR1_SEAM,
+            (
+                "Docs/branch_records/feature_pr103_post_merge_closeout_canon_repair.md: "
+                "Phase Status `Next Active Seam` must point to PR Readiness PR1 during PR1 "
+                "admission and live PR creation"
+            ),
+        )
+        require(
+            active_seam_current == PR103_CLOSEOUT_CANON_PR_READINESS_PR1_SEAM,
+            (
+                "Docs/branch_records/feature_pr103_post_merge_closeout_canon_repair.md: "
+                "Active Seam must name PR Readiness PR1 as the current active seam"
+            ),
+        )
+        require(
+            active_seam_next == PR103_CLOSEOUT_CANON_PR_READINESS_PR1_SEAM,
+            (
+                "Docs/branch_records/feature_pr103_post_merge_closeout_canon_repair.md: "
+                "Active Seam `Next active seam` must point to PR Readiness PR1 while PR1 is active"
+            ),
+        )
+        require(
+            continuation_next_seam == PR103_CLOSEOUT_CANON_PR_READINESS_PR1_SEAM,
+            (
+                "Docs/branch_records/feature_pr103_post_merge_closeout_canon_repair.md: "
+                "Seam Continuation Decision must point to PR Readiness PR1 while PR1 blockers "
+                "are active"
+            ),
+        )
+        require(
+            "Release Window Audit: PASS" in release_window_section,
+            (
+                "Docs/branch_records/feature_pr103_post_merge_closeout_canon_repair.md: "
+                "PR Readiness truth must include `Release Window Audit: PASS`"
+            ),
+        )
+    elif phase_status_pr_readiness_seam == PR103_CLOSEOUT_CANON_PR_READINESS_PR2_SEAM:
+        require(
+            next_legal_phase == "Release Readiness",
+            (
+                "Docs/branch_records/feature_pr103_post_merge_closeout_canon_repair.md: "
+                "Next Legal Phase must advance to `Release Readiness` once PR Readiness PR2 is active"
+            ),
+        )
+        require(
+            phase_status_next_seam == PR103_CLOSEOUT_CANON_PR_READINESS_PR2_SEAM,
+            (
+                "Docs/branch_records/feature_pr103_post_merge_closeout_canon_repair.md: "
+                "Phase Status `Next Active Seam` must point to PR Readiness PR2 during merge watch"
+            ),
+        )
+        require(
+            active_seam_current == PR103_CLOSEOUT_CANON_PR_READINESS_PR2_SEAM,
+            (
+                "Docs/branch_records/feature_pr103_post_merge_closeout_canon_repair.md: "
+                "Active Seam must name PR Readiness PR2 as the current active seam"
+            ),
+        )
+        require(
+            active_seam_next == PR103_CLOSEOUT_CANON_PR_READINESS_PR2_SEAM,
+            (
+                "Docs/branch_records/feature_pr103_post_merge_closeout_canon_repair.md: "
+                "Active Seam `Next active seam` must point to PR Readiness PR2"
+            ),
+        )
+        require(
+            continuation_next_seam == PR103_CLOSEOUT_CANON_PR_READINESS_PR2_SEAM,
+            (
+                "Docs/branch_records/feature_pr103_post_merge_closeout_canon_repair.md: "
+                "Seam Continuation Decision must point to PR Readiness PR2 while merge "
+                "verification is pending"
+            ),
+        )
+        require(
+            "Release Window Audit: PASS" in release_window_section,
+            (
+                "Docs/branch_records/feature_pr103_post_merge_closeout_canon_repair.md: "
+                "PR Readiness truth must include `Release Window Audit: PASS`"
+            ),
+        )
+        require(
+            "PR Merge Verification Pending" in blockers_section,
+            (
+                "Docs/branch_records/feature_pr103_post_merge_closeout_canon_repair.md: "
+                "PR Readiness PR2 must carry `PR Merge Verification Pending` until merge is verified"
+            ),
+        )
+    else:
+        require(
+            False,
+            (
+                "Docs/branch_records/feature_pr103_post_merge_closeout_canon_repair.md: "
+                "Current PR Readiness Seam must be exactly "
+                f"`{PR103_CLOSEOUT_CANON_PR_READINESS_PR1_SEAM}` or "
+                f"`{PR103_CLOSEOUT_CANON_PR_READINESS_PR2_SEAM}` while Phase is `PR Readiness`"
+            ),
+        )
+
+
 def _validate_backlog_family_dossier_shell(
     require,
     *,
@@ -7501,6 +7685,115 @@ def _pr102_closeout_canon_repair_watcher_proof_status(
     )
 
 
+def _pr103_closeout_canon_repair_watcher_proof_status(
+    current_head_sha: str,
+) -> tuple[bool, str]:
+    if not PR103_CLOSEOUT_CANON_WATCHER_SCRIPT_PATH.is_file():
+        return (
+            False,
+            f"bounded same-thread watcher '{PR103_CLOSEOUT_CANON_WATCHER_SCRIPT_PATH}' is missing",
+        )
+    if not PR103_CLOSEOUT_CANON_WATCHER_LATEST_PATH.is_file():
+        return (
+            False,
+            f"watcher latest-status file '{PR103_CLOSEOUT_CANON_WATCHER_LATEST_PATH}' is missing",
+        )
+
+    state = _load_json_file(PR103_CLOSEOUT_CANON_WATCHER_STATE_PATH)
+    if not state:
+        return (
+            False,
+            f"watcher state file '{PR103_CLOSEOUT_CANON_WATCHER_STATE_PATH}' is missing or invalid",
+        )
+
+    recorded_head_sha = str(state.get("localHeadSha") or state.get("headSha") or "")
+    if current_head_sha and recorded_head_sha and recorded_head_sha != current_head_sha:
+        return (
+            False,
+            (
+                "watcher runtime proof is stale; state-file head "
+                f"'{recorded_head_sha}' does not match current head '{current_head_sha}'"
+            ),
+        )
+
+    if not str(state.get("lastRunLocal") or "").strip():
+        return (
+            False,
+            f"watcher state file '{PR103_CLOSEOUT_CANON_WATCHER_STATE_PATH}' is missing lastRunLocal proof",
+        )
+
+    thread_id = str(state.get("threadId") or "").strip()
+    thread_rollout_path_raw = str(state.get("threadRolloutPath") or "").strip()
+    last_thread_emit_at = str(state.get("lastThreadEmitAt") or "").strip()
+    last_thread_emit_message = str(state.get("lastThreadEmitMessage") or "").strip()
+    last_thread_emit_method = str(state.get("lastThreadEmitMethod") or "").strip()
+    if not thread_id:
+        return (
+            False,
+            f"watcher state file '{PR103_CLOSEOUT_CANON_WATCHER_STATE_PATH}' is missing threadId proof",
+        )
+    if not thread_rollout_path_raw:
+        return (
+            False,
+            f"watcher state file '{PR103_CLOSEOUT_CANON_WATCHER_STATE_PATH}' is missing threadRolloutPath proof",
+        )
+    if not last_thread_emit_at or not last_thread_emit_message:
+        return (
+            False,
+            (
+                f"watcher state file '{PR103_CLOSEOUT_CANON_WATCHER_STATE_PATH}' is missing "
+                "same-thread transcript emission proof"
+            ),
+        )
+    if last_thread_emit_method != "codex_resume":
+        return (
+            False,
+            (
+                f"watcher state file '{PR103_CLOSEOUT_CANON_WATCHER_STATE_PATH}' must record "
+                "`lastThreadEmitMethod` as `codex_resume`; manual rollout-file injection does not count "
+                f"as same-thread proof (found '{last_thread_emit_method or 'missing'}')"
+            ),
+        )
+
+    thread_rollout_path = Path(thread_rollout_path_raw)
+    if not thread_rollout_path.is_file():
+        return (
+            False,
+            f"same-thread rollout transcript '{thread_rollout_path}' is missing",
+        )
+    try:
+        transcript_tail = thread_rollout_path.read_text(encoding="utf-8")[-2_000_000:]
+    except OSError as exc:
+        return False, f"same-thread rollout transcript '{thread_rollout_path}' could not be read: {exc}"
+    if last_thread_emit_message not in transcript_tail:
+        return (
+            False,
+            (
+                "same-thread transcript proof is stale; the last emitted watcher message from "
+                f"'{PR103_CLOSEOUT_CANON_WATCHER_STATE_PATH}' is not present in "
+                f"'{thread_rollout_path}'"
+            ),
+        )
+
+    heartbeat_proven, heartbeat_message = _automation_last_run_proof(
+        PR103_CLOSEOUT_CANON_THREAD_WATCHER_NAME
+    )
+    proof_fragments = [
+        (
+            "same-thread transcript proof is present via "
+            f"'{thread_rollout_path}' and '{PR103_CLOSEOUT_CANON_WATCHER_STATE_PATH}' "
+            f"on thread '{thread_id}'"
+        )
+    ]
+    if heartbeat_proven:
+        proof_fragments.append(heartbeat_message)
+
+    return (
+        True,
+        "; ".join(proof_fragments),
+    )
+
+
 def _automation_last_run_proof(automation_name: str) -> tuple[bool, str]:
     if not CODEX_AUTOMATION_DB_PATH.is_file():
         return False, f"automation state database '{CODEX_AUTOMATION_DB_PATH}' is missing"
@@ -7674,11 +7967,29 @@ def _watcher_route_alignment_status(
             ),
         )
 
+    expected_rollout_path = Path(expected_rollout_path_raw)
+    if not expected_rollout_path.is_file():
+        return False, f"recorded watcher transcript '{expected_rollout_path}' is missing"
+    try:
+        transcript_tail = expected_rollout_path.read_text(encoding="utf-8")[-2_000_000:]
+    except OSError as exc:
+        return False, f"recorded watcher transcript '{expected_rollout_path}' could not be read: {exc}"
+    branch_name = _extract_marker_value(_section(branch_record_text, "Branch Identity"), "Branch")
+    if branch_name and branch_name not in transcript_tail:
+        return (
+            False,
+            (
+                "recorded watcher transcript does not prove it is the active working thread; "
+                f"branch '{branch_name}' is absent from '{expected_rollout_path}'"
+            ),
+        )
+
     return (
         True,
         (
             f"watcher reporting surface '{reporting_surface}' is explicitly recorded and the "
-            f"wrapper/state/thread-db route agrees on thread '{expected_thread_id}'"
+            f"wrapper/state/thread-db route agrees on thread '{expected_thread_id}', and the "
+            "transcript contains the active branch marker"
         ),
     )
 
@@ -7917,6 +8228,67 @@ def _pr102_closeout_canon_repair_fallback_pr_view_for_branch(
     }, ""
 
 
+def _pr103_closeout_canon_repair_fallback_pr_view_for_branch(
+    branch_name: str,
+    active_branch_record_text: str,
+) -> tuple[dict[str, object] | None, str]:
+    if not _is_pr103_closeout_canon_repair_branch(branch_name):
+        return None, ""
+    if not active_branch_record_text:
+        return None, "active branch record text is unavailable"
+
+    repository_full_name, repository_error = _git_origin_repository_full_name()
+    if repository_error:
+        return None, repository_error
+
+    phase_status_section = _section(active_branch_record_text, "Phase Status")
+    pr_url_match = re.search(r"^- Live PR:\s*`([^`]+)`", phase_status_section, flags=re.M)
+    pr_url = pr_url_match.group(1).strip() if pr_url_match else ""
+    if not pr_url:
+        return None, "active branch record is missing `Live PR`"
+    pr_number_match = re.search(r"/pull/(\d+)", pr_url)
+    if not pr_number_match:
+        return None, f"active branch record has an invalid Live PR URL '{pr_url}'"
+    pr_number = int(pr_number_match.group(1))
+    watcher_state = _load_json_file(PR103_CLOSEOUT_CANON_WATCHER_STATE_PATH) or {}
+    bot_approval = bool(watcher_state.get("botApproval")) or _phase_status_bot_approval_proven(
+        phase_status_section
+    )
+    bot_comment_count = int(watcher_state.get("botCommentCount") or 0)
+    merged = bool(watcher_state.get("merged"))
+    state_value = str(watcher_state.get("prState") or "OPEN").upper()
+    if merged and state_value != "CLOSED":
+        state_value = "CLOSED"
+    mergeable_value = watcher_state.get("mergeable")
+    if mergeable_value is True:
+        mergeable = "MERGEABLE"
+        merge_state = "CLEAN"
+    elif mergeable_value is False:
+        mergeable = "CONFLICTING"
+        merge_state = "DIRTY"
+    else:
+        mergeable = "UNKNOWN"
+        merge_state = "UNKNOWN"
+
+    return {
+        "id": "",
+        "number": pr_number,
+        "state": state_value,
+        "mergeable": mergeable,
+        "mergeStateStatus": merge_state,
+        "reviewDecision": "APPROVED" if bot_approval else "",
+        "isDraft": False,
+        "headRefName": branch_name,
+        "baseRefName": "main",
+        "title": "PR103 Post-Merge Closeout Canon Repair",
+        "url": pr_url,
+        "repositoryFullName": repository_full_name,
+        "fallbackLocalState": True,
+        "botApproval": bot_approval,
+        "botCommentCount": bot_comment_count,
+    }, ""
+
+
 def _run_pr_live_state_gate(
     require,
     *,
@@ -7944,6 +8316,11 @@ def _run_pr_live_state_gate(
         )
     if not pr_info and _is_pr102_closeout_canon_repair_branch(branch_name):
         pr_info, pr_error = _pr102_closeout_canon_repair_fallback_pr_view_for_branch(
+            branch_name,
+            active_branch_record_text,
+        )
+    if not pr_info and _is_pr103_closeout_canon_repair_branch(branch_name):
+        pr_info, pr_error = _pr103_closeout_canon_repair_fallback_pr_view_for_branch(
             branch_name,
             active_branch_record_text,
         )
@@ -8054,6 +8431,30 @@ def _run_pr_live_state_gate(
             ),
         )
         closeout_watcher_state = _load_json_file(PR102_CLOSEOUT_CANON_WATCHER_STATE_PATH)
+    elif _is_pr103_closeout_canon_repair_branch(branch_name):
+        watcher_proven, watcher_proof_message = _pr103_closeout_canon_repair_watcher_proof_status(
+            current_head_sha
+        )
+        require(
+            watcher_proven,
+            (
+                "PR readiness gate: PR Watcher Provisioning Unproven blocker is active; "
+                f"{watcher_proof_message}"
+            ),
+        )
+        watcher_route_proven, watcher_route_message = _watcher_route_alignment_status(
+            branch_record_text=active_branch_record_text,
+            watcher_script_path=PR103_CLOSEOUT_CANON_WATCHER_SCRIPT_PATH,
+            watcher_state_path=PR103_CLOSEOUT_CANON_WATCHER_STATE_PATH,
+        )
+        require(
+            watcher_route_proven,
+            (
+                "PR readiness gate: PR Watcher Routing Unverified blocker is active; "
+                f"{watcher_route_message}"
+            ),
+        )
+        closeout_watcher_state = _load_json_file(PR103_CLOSEOUT_CANON_WATCHER_STATE_PATH)
     else:
         closeout_watcher_state = None
     if (
@@ -8165,6 +8566,7 @@ def _run_pr_live_state_gate(
                 AUTOMATION_CLOSEOUT_PR_READINESS_PR2_SEAM,
                 PR101_CLOSEOUT_CANON_PR_READINESS_PR2_SEAM,
                 PR102_CLOSEOUT_CANON_PR_READINESS_PR2_SEAM,
+                PR103_CLOSEOUT_CANON_PR_READINESS_PR2_SEAM,
             }
             and not bool(closeout_watcher_state.get("merged"))
         ):
@@ -8205,6 +8607,7 @@ def _run_pr_live_state_gate(
                 AUTOMATION_CLOSEOUT_PR_READINESS_PR2_SEAM,
                 PR101_CLOSEOUT_CANON_PR_READINESS_PR2_SEAM,
                 PR102_CLOSEOUT_CANON_PR_READINESS_PR2_SEAM,
+                PR103_CLOSEOUT_CANON_PR_READINESS_PR2_SEAM,
             }
             and not bool(closeout_watcher_state.get("merged"))
         ):
@@ -8250,6 +8653,7 @@ def _run_pr_live_state_gate(
                 AUTOMATION_CLOSEOUT_PR_READINESS_PR2_SEAM,
                 PR101_CLOSEOUT_CANON_PR_READINESS_PR2_SEAM,
                 PR102_CLOSEOUT_CANON_PR_READINESS_PR2_SEAM,
+                PR103_CLOSEOUT_CANON_PR_READINESS_PR2_SEAM,
             }
             and not bool(closeout_watcher_state.get("merged"))
         ):
@@ -8305,6 +8709,7 @@ def _run_pr_live_state_gate(
             AUTOMATION_CLOSEOUT_PR_READINESS_PR2_SEAM,
             PR101_CLOSEOUT_CANON_PR_READINESS_PR2_SEAM,
             PR102_CLOSEOUT_CANON_PR_READINESS_PR2_SEAM,
+            PR103_CLOSEOUT_CANON_PR_READINESS_PR2_SEAM,
         }
         and not bool(closeout_watcher_state.get("merged"))
     ):
@@ -8893,6 +9298,10 @@ def main() -> int:
         current_branch=current_git_branch,
     )
     _validate_pr102_closeout_canon_repair_phase_truth(
+        require,
+        current_branch=current_git_branch,
+    )
+    _validate_pr103_closeout_canon_repair_phase_truth(
         require,
         current_branch=current_git_branch,
     )
@@ -10026,8 +10435,12 @@ def main() -> int:
 
         info = _parse_workstream_doc(record_text)
         normalized_record_status = _normalize_status(str(info["status"]))
+        current_phase = str(info["current_phase"])
+        allowed_branch_record_phases = set(PHASES)
+        if branch_record_path in historical_branch_record_paths:
+            allowed_branch_record_phases.add(HISTORICAL_TRACEABILITY_PHASE)
         require(
-            str(info["current_phase"]) in PHASES,
+            current_phase in allowed_branch_record_phases,
             f"{branch_record_path}: Current Phase '{info['current_phase']}' is not in the canonical phase enum",
         )
         require(
@@ -10066,7 +10479,6 @@ def main() -> int:
             f"{branch_record_path}: Next Legal Phase '{info['next_legal_phase']}' is not in the canonical phase enum",
         )
         if branch_record_path in active_branch_record_paths:
-            current_phase = str(info["current_phase"])
             _validate_planning_loop_guardrail(
                 require,
                 branch_record_path,
@@ -10204,6 +10616,25 @@ def main() -> int:
             require(
                 "historical" in phase_status_section.lower(),
                 f"{branch_record_path}: historical branch record should make its historical merged posture explicit",
+            )
+        if branch_record_path in {
+            str(PR101_CLOSEOUT_CANON_REPAIR_BRANCH_RECORD),
+            str(PR102_CLOSEOUT_CANON_REPAIR_BRANCH_RECORD),
+        } and branch_record_path in historical_branch_record_paths:
+            require(
+                current_phase == HISTORICAL_TRACEABILITY_PHASE,
+                (
+                    f"{branch_record_path}: historical post-merge closeout record must report "
+                    f"`Phase: {HISTORICAL_TRACEABILITY_PHASE}`"
+                ),
+            )
+            require(
+                "Current PR Readiness Seam:" not in phase_status_section
+                and "Live PR State: `open`" not in phase_status_section,
+                (
+                    f"{branch_record_path}: historical post-merge closeout record must not retain "
+                    "active PR-readiness or open-PR narration"
+                ),
             )
 
     if errors:

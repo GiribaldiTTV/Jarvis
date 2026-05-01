@@ -35,6 +35,7 @@ Do not use this layer to replace:
 - `PR Watcher Provisioning Unproven` is the standard blocker when a branch expects watcher-based PR monitoring but its watcher target, approved reporting surface, runtime path, run-proof method, fallback, teardown, or replacement provisioning for the next live PR is not yet explicit and proven
 - `PR Watcher Routing Unverified` is the standard blocker when a branch expects watcher-based PR monitoring but the configured watcher target has not yet been cross-checked against the recorded reporting surface and proven to land there
 - historical branch authority records are preserved traceability records, not live execution authority
+- historical-only closeout traceability records must report `Phase: Historical Traceability` and must not retain live PR state, active seam ownership, or open-PR narration
 - each active branch authority record must carry the modern phase-state block:
   - `## Current Phase`
   - `## Phase Status`
@@ -51,10 +52,11 @@ Do not use this layer to replace:
 
 ## Active Branch Authority Records
 
-- `Docs/branch_records/feature_pr102_post_merge_closeout_canon_repair.md`
+- `Docs/branch_records/feature_pr103_post_merge_closeout_canon_repair.md`
 
 ## Historical Branch Authority Records
 
+- `Docs/branch_records/feature_pr102_post_merge_closeout_canon_repair.md`
 - `Docs/branch_records/feature_pr101_post_merge_closeout_canon_repair.md`
 - `Docs/branch_records/feature_automation_planning_post_merge_closeout_repair.md`
 - `Docs/branch_records/feature_automation_planning_post_merge_canon_repair.md`

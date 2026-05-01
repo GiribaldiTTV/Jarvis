@@ -15,7 +15,7 @@ It no longer owns live execution, PR readiness, watcher control, or release gati
 
 ## Current Phase
 
-- Phase: `PR Readiness`
+- Phase: `Historical Traceability`
 
 ## Phase Status
 
