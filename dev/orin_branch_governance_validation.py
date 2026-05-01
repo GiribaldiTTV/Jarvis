@@ -1185,7 +1185,10 @@ PR101_CLOSEOUT_CANON_WATCHER_LATEST_PATH = (
 )
 PR101_CLOSEOUT_CANON_WATCHER_TASK_NAME = "Codex PR101 Post-Merge Closeout Canon Repair Watch"
 PR102_CLOSEOUT_CANON_WATCHER_SCRIPT_PATH = (
-    Path.home() / ".codex" / "watchers" / "pr102-post-merge-closeout-canon-repair-watch.ps1"
+    Path.home()
+    / ".codex"
+    / "watchers"
+    / "pr102-post-merge-closeout-canon-repair-watch-launcher.pyw"
 )
 PR102_CLOSEOUT_CANON_WATCHER_STATE_PATH = (
     Path.home() / ".codex" / "watchers" / "pr102-post-merge-closeout-canon-repair-watch-state.json"
@@ -7609,7 +7612,13 @@ def _watcher_route_alignment_status(
         script_text = watcher_script_path.read_text(encoding="utf-8")
     except OSError as exc:
         return False, f"watcher wrapper '{watcher_script_path}' could not be read: {exc}"
-    if f"--thread-id '{expected_thread_id}'" not in script_text:
+    thread_route_markers = (
+        f"--thread-id '{expected_thread_id}'",
+        f'"--thread-id", "{expected_thread_id}"',
+        f"'--thread-id', '{expected_thread_id}'",
+        f'"{expected_thread_id}"',
+    )
+    if not any(marker in script_text for marker in thread_route_markers):
         return (
             False,
             (
@@ -7617,7 +7626,14 @@ def _watcher_route_alignment_status(
                 f"'{expected_thread_id}'"
             ),
         )
-    if f"--thread-rollout-path '{expected_rollout_path_raw}'" not in script_text:
+    rollout_route_markers = (
+        f"--thread-rollout-path '{expected_rollout_path_raw}'",
+        f'"--thread-rollout-path", r"{expected_rollout_path_raw}"',
+        f'"--thread-rollout-path", "{expected_rollout_path_raw}"',
+        f"'--thread-rollout-path', '{expected_rollout_path_raw}'",
+        expected_rollout_path_raw,
+    )
+    if not any(marker in script_text for marker in rollout_route_markers):
         return (
             False,
             (
@@ -8215,6 +8231,7 @@ def _run_pr_live_state_gate(
             in {
                 AUTOMATION_CLOSEOUT_PR_READINESS_PR2_SEAM,
                 PR101_CLOSEOUT_CANON_PR_READINESS_PR2_SEAM,
+                PR102_CLOSEOUT_CANON_PR_READINESS_PR2_SEAM,
             }
             and not bool(closeout_watcher_state.get("merged"))
         ):
@@ -8269,6 +8286,7 @@ def _run_pr_live_state_gate(
         in {
             AUTOMATION_CLOSEOUT_PR_READINESS_PR2_SEAM,
             PR101_CLOSEOUT_CANON_PR_READINESS_PR2_SEAM,
+            PR102_CLOSEOUT_CANON_PR_READINESS_PR2_SEAM,
         }
         and not bool(closeout_watcher_state.get("merged"))
     ):

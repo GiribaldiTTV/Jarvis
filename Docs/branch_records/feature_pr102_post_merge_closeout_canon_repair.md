@@ -37,7 +37,8 @@ It does not reopen implementation, widen into release execution, mutate FB-049 s
 - Live PR State: `open`
 - Live PR Head Commit At PR Creation: `a1d765e088ea086d4caaeef0a9727ae39ff0d8cb`
 - Live PR Merge Status: `green at PR-entry time`
-- PR watcher runtime: authoritative PR watcher `Codex PR102 Post-Merge Closeout Canon Repair Watch` uses `$CODEX_HOME/watchers/pr102-post-merge-closeout-canon-repair-watch.ps1` plus repo helper `dev/pr_same_thread_watcher.py` to emit only status-change updates into the approved Codex reporting-surface transcript through the official Codex thread-resume path while PR #103 remains open
+- PR watcher runtime: authoritative PR watcher `Codex PR102 Post-Merge Closeout Canon Repair Watch` uses `$CODEX_HOME/watchers/pr102-post-merge-closeout-canon-repair-watch-launcher.pyw` plus repo helper `dev/pr_same_thread_watcher.py` to emit only status-change updates into the approved Codex reporting-surface transcript through the official Codex thread-resume path while PR #103 remains open
+- PR watcher action contract: thumbs-up reaction on PR #103 clears PR-entry validation green; one or more actionable bot comments on PR #103 trigger the bounded same-branch PR comment-repair worker, which must fix the issue, commit, push, reply, resolve the corresponding review thread, and then report `Comment addressed` for the current head before PR1 can clear
 - PR watcher reporting surface: `Dedicated watcher-host thread 'PR103 Watch Host thread'`
 - PR watcher reporting thread ID: `019de0c1-bb76-7d31-a3d0-f88aa471b7e6`
 - PR watcher reporting transcript: `C:\Users\anden\.codex\sessions\2026\04\30\rollout-2026-04-30T16-38-06-019de0c1-bb76-7d31-a3d0-f88aa471b7e6.jsonl`
@@ -107,6 +108,7 @@ It does not reopen implementation, widen into release execution, mutate FB-049 s
 - confirm `Docs/branch_records/feature_pr101_post_merge_closeout_canon_repair.md` is historical-only traceability
 - confirm PR #102 merge-verification and watcher shutdown proof remain preserved
 - confirm the live PR watcher is pointed at the recorded reporting surface and that the wrapper target, state-file target, and transcript target agree before PR1 clears
+- confirm the live PR watcher action contract is explicit and bounded to the current PR: thumbs-up reaction means PR-entry green, while actionable bot comments must trigger same-branch fix/push/reply/resolve flow before PR1 clears
 - confirm detached `origin/main` validation snapshots now fail if stale active branch authority survives merge
 
 ## Active Seam
@@ -208,4 +210,4 @@ Release Window Split Waiver: None
 - Bot Review Signal Source: `Waiting for either a thumbs-up reaction or a bot comment from chatgpt-codex-connector[bot] on PR #103.`
 - Bot Review Signal Timestamp: `2026-04-30T23:31:52.243504Z`
 - Bot Review Signal Actor: `chatgpt-codex-connector[bot]`
-- Live-PR rule: the live PR must have either a thumbs-up reaction or a bot comment from `chatgpt-codex-connector[bot]`; if the bot comments, fix it on this same branch, push, resolve the comment, set `Bot Review Signal Status: Comment addressed` for the current head, and then PR green may return without waiting for a later thumbs-up.
+- Live-PR rule: the live PR must have either a thumbs-up reaction or a bot comment from `chatgpt-codex-connector[bot]`; if the bot comments, the approved watcher action contract is to trigger the bounded same-branch PR comment-repair worker, fix it on this same branch, push, reply, resolve the comment, set `Bot Review Signal Status: Comment addressed` for the current head, and then PR green may return without waiting for a later thumbs-up.
