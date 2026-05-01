@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import re
 import sqlite3
 import subprocess
@@ -16,6 +17,7 @@ from urllib import request as urllib_request
 
 BOT_LOGIN = "chatgpt-codex-connector[bot]"
 BOT_APPROVAL_TEXT = f"{BOT_LOGIN} reacted with thumbs up emoji"
+CREATE_NO_WINDOW = 0x08000000 if os.name == "nt" else 0
 
 
 def utc_now() -> datetime:
@@ -35,6 +37,12 @@ def append_log(path: Path, message: str) -> None:
     timestamp = utc_now().strftime("%Y-%m-%d %H:%M:%S")
     with path.open("a", encoding="utf-8") as handle:
         handle.write(f"[{timestamp}] {message}\n")
+
+
+def _subprocess_run(args: list[str], **kwargs) -> subprocess.CompletedProcess[str]:
+    if CREATE_NO_WINDOW:
+        kwargs.setdefault("creationflags", CREATE_NO_WINDOW)
+    return subprocess.run(args, **kwargs)
 
 
 def load_state(path: Path) -> dict[str, object]:
@@ -58,7 +66,7 @@ def set_text(path: Path, value: str) -> None:
 
 
 def stop_task(task_name: str) -> None:
-    subprocess.run(
+    _subprocess_run(
         ["schtasks", "/Delete", "/TN", task_name, "/F"],
         check=False,
         stdout=subprocess.DEVNULL,
@@ -67,7 +75,7 @@ def stop_task(task_name: str) -> None:
 
 
 def run_git(repo_root: Path, *args: str, check: bool = True) -> str:
-    process = subprocess.run(
+    process = _subprocess_run(
         ["git", *args],
         cwd=repo_root,
         capture_output=True,
@@ -148,7 +156,7 @@ def parse_pr_page(html: str, repo_full_name: str, pr_number: int) -> dict[str, o
 def compute_local_merge(repo_root: Path, base_branch: str) -> tuple[bool | None, str]:
     try:
         run_git(repo_root, "fetch", "origin", base_branch, "--prune")
-        process = subprocess.run(
+        process = _subprocess_run(
             ["git", "merge-tree", "--write-tree", "--quiet", f"origin/{base_branch}", "HEAD"],
             cwd=repo_root,
             capture_output=True,
@@ -188,12 +196,29 @@ def current_thread_message(status: dict[str, object]) -> str:
     state_label = str(status.get("prState") or "UNKNOWN").casefold()
     merged_label = "true" if status.get("merged") else "false"
     draft_label = "true" if status.get("draft") else "false"
+    repair_status = str(status.get("lastRepairAttemptStatus") or "").strip().casefold()
+    repair_summary = str(status.get("lastRepairWorkerSummary") or "").strip()
+    repair_summary = repair_summary.splitlines()[0].strip() if repair_summary else ""
+    repair_clause = ""
+    if repair_status == "succeeded":
+        repair_clause = (
+            f" Auto-repair worker completed for the current PR comment. {repair_summary}"
+            if repair_summary
+            else " Auto-repair worker completed for the current PR comment."
+        )
+    elif repair_status == "failed":
+        repair_clause = (
+            f" Auto-repair worker failed for the current PR comment: {repair_summary}"
+            if repair_summary
+            else " Auto-repair worker failed for the current PR comment."
+        )
 
     return (
         f"PR watcher update for PR #{pr_number}: state={state_label}, merged={merged_label}, "
         f"draft={draft_label}, merge-status {merge_status_label}, remote head {remote_head}, "
         f"local head {local_head}, bot approval {bot_approval_label}, {bot_comment_label}. "
         f"{watcher_blocker} {merge_status_blocker} {merge_verification_blocker} {release_posture}"
+        f"{repair_clause}"
     )
 
 
@@ -309,7 +334,7 @@ def emit_via_codex_resume(
 ) -> str:
     ensure_parent(output_path)
     prompt = f"Post exactly this single sentence to the user and nothing else: {message}"
-    process = subprocess.run(
+    process = _subprocess_run(
         [
             str(codex_exe),
             "exec",
@@ -332,6 +357,221 @@ def emit_via_codex_resume(
     return utc_now_iso()
 
 
+def build_comment_repair_worker_prompt(
+    *,
+    repo_full_name: str,
+    pr_number: int,
+    branch_record_path: Path,
+) -> str:
+    return (
+        f"You are operating on the current checked-out branch for {repo_full_name} PR #{pr_number}.\n"
+        "Goal: address actionable unresolved review feedback from chatgpt-codex-connector[bot] on this PR only.\n"
+        "Use the GitHub connector/tools available in this environment.\n\n"
+        "Required workflow:\n"
+        "1. Inspect the live unresolved review threads/comments for this PR.\n"
+        "2. If there are no unresolved actionable bot review comments, make no code changes and say so clearly.\n"
+        "3. If there are actionable unresolved bot review comments, implement the minimum fix on this same branch only.\n"
+        "4. Run the minimum relevant validation.\n"
+        "5. Commit and push the fix.\n"
+        "6. Reply to each addressed top-level bot review comment with a concise resolution note naming the new commit SHA.\n"
+        "7. Resolve each addressed review thread.\n"
+        f"8. Update {branch_record_path} so the bot-review state truth reflects `Comment addressed` for the current head when applicable.\n"
+        "9. Do not merge the PR. Do not widen scope. Do not create a new branch.\n\n"
+        "Respond with a short final summary only."
+    )
+
+
+def run_comment_repair_worker(
+    *,
+    codex_exe: Path,
+    repo_root: Path,
+    repo_full_name: str,
+    pr_number: int,
+    branch_record_path: Path,
+    output_path: Path,
+) -> tuple[bool, str]:
+    ensure_parent(output_path)
+    prompt = build_comment_repair_worker_prompt(
+        repo_full_name=repo_full_name,
+        pr_number=pr_number,
+        branch_record_path=branch_record_path,
+    )
+    process = _subprocess_run(
+        [
+            str(codex_exe),
+            "exec",
+            "-",
+            "--dangerously-bypass-approvals-and-sandbox",
+            "-C",
+            str(repo_root),
+            "-o",
+            str(output_path),
+        ],
+        cwd=repo_root,
+        input=prompt,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    summary = ""
+    if output_path.is_file():
+        try:
+            summary = output_path.read_text(encoding="utf-8").strip()
+        except OSError:
+            summary = ""
+    if not summary:
+        summary = process.stderr.strip() or process.stdout.strip()
+    if not summary:
+        summary = f"codex exec exited with code {process.returncode}"
+    return process.returncode == 0, summary
+
+
+def _normalize_id(value: str) -> str:
+    normalized = re.sub(r"[^a-z0-9]+", "-", value.casefold()).strip("-")
+    return normalized or "watcher-host"
+
+
+def ensure_visible_thread_host(
+    *,
+    automation_db_path: Path,
+    automation_id: str,
+    automation_name: str,
+    repo_root: Path,
+    thread_id: str,
+    thread_title: str,
+    inbox_title: str,
+    inbox_summary: str,
+) -> tuple[bool, str]:
+    ensure_parent(automation_db_path)
+    now_ms = int(utc_now().timestamp() * 1000)
+    automation_dir = Path.home() / ".codex" / "automations" / automation_id
+    automation_toml = automation_dir / "automation.toml"
+    automation_prompt = (
+        "Host a visible Codex thread for the local PR watcher so status-change updates from the "
+        "scheduled watcher surface in the app."
+    )
+    ensure_parent(automation_toml)
+    if not automation_toml.is_file():
+        automation_toml.write_text(
+            "\n".join(
+                [
+                    "version = 1",
+                    f'id = "{automation_id}"',
+                    'kind = "heartbeat"',
+                    f'name = "{automation_name}"',
+                    f'prompt = "{automation_prompt}"',
+                    'status = "ACTIVE"',
+                    'rrule = "FREQ=MINUTELY;INTERVAL=1"',
+                    'target_thread_id = "' + thread_id + '"',
+                    f'created_at = {now_ms}',
+                    f'updated_at = {now_ms}',
+                    "",
+                ]
+            ),
+            encoding="utf-8",
+        )
+
+    connection = None
+    try:
+        connection = sqlite3.connect(automation_db_path)
+        connection.execute(
+            """
+            INSERT INTO automations (
+                id, name, prompt, status, next_run_at, last_run_at, cwds, rrule, model,
+                reasoning_effort, created_at, updated_at
+            ) VALUES (?, ?, ?, 'ACTIVE', NULL, ?, ?, 'FREQ=MINUTELY;INTERVAL=1', ?, ?, ?, ?)
+            ON CONFLICT(id) DO UPDATE SET
+                name = excluded.name,
+                prompt = excluded.prompt,
+                status = 'ACTIVE',
+                cwds = excluded.cwds,
+                rrule = excluded.rrule,
+                model = excluded.model,
+                reasoning_effort = excluded.reasoning_effort,
+                updated_at = excluded.updated_at
+            """,
+            (
+                automation_id,
+                automation_name,
+                automation_prompt,
+                now_ms,
+                json.dumps([str(repo_root)]),
+                "gpt-5.4-mini",
+                "low",
+                now_ms,
+                now_ms,
+            ),
+        )
+        existing_created_at = connection.execute(
+            "SELECT created_at FROM automation_runs WHERE thread_id = ?",
+            (thread_id,),
+        ).fetchone()
+        created_at = int(existing_created_at[0]) if existing_created_at else now_ms
+        connection.execute(
+            """
+            INSERT INTO automation_runs (
+                thread_id, automation_id, status, read_at, thread_title, source_cwd,
+                inbox_title, inbox_summary, created_at, updated_at,
+                archived_user_message, archived_assistant_message, archived_reason
+            ) VALUES (?, ?, 'PENDING_REVIEW', NULL, ?, ?, ?, ?, ?, ?, NULL, NULL, NULL)
+            ON CONFLICT(thread_id) DO UPDATE SET
+                automation_id = excluded.automation_id,
+                status = 'PENDING_REVIEW',
+                read_at = NULL,
+                thread_title = excluded.thread_title,
+                source_cwd = excluded.source_cwd,
+                inbox_title = excluded.inbox_title,
+                inbox_summary = excluded.inbox_summary,
+                updated_at = excluded.updated_at
+            """,
+            (
+                thread_id,
+                automation_id,
+                thread_title,
+                str(repo_root),
+                inbox_title,
+                inbox_summary,
+                created_at,
+                now_ms,
+            ),
+        )
+        inbox_id = f"{automation_id}:{thread_id}"
+        existing_inbox_created_at = connection.execute(
+            "SELECT created_at FROM inbox_items WHERE id = ?",
+            (inbox_id,),
+        ).fetchone()
+        inbox_created_at = (
+            int(existing_inbox_created_at[0]) if existing_inbox_created_at else now_ms
+        )
+        connection.execute(
+            """
+            INSERT INTO inbox_items (id, title, description, thread_id, read_at, created_at)
+            VALUES (?, ?, ?, ?, NULL, ?)
+            ON CONFLICT(id) DO UPDATE SET
+                title = excluded.title,
+                description = excluded.description,
+                thread_id = excluded.thread_id,
+                read_at = NULL
+            """,
+            (
+                inbox_id,
+                inbox_title,
+                inbox_summary,
+                thread_id,
+                inbox_created_at,
+            ),
+        )
+        connection.commit()
+    except sqlite3.Error as exc:
+        return False, f"failed to register visible watcher host in Codex app state: {exc}"
+    finally:
+        try:
+            connection.close()
+        except Exception:
+            pass
+    return True, f"visible watcher host '{automation_name}' is registered for thread '{thread_id}'"
+
+
 def signature_for(status: dict[str, object]) -> str:
     fields = {
         "prState": status.get("prState"),
@@ -344,6 +584,8 @@ def signature_for(status: dict[str, object]) -> str:
         "botApproval": status.get("botApproval"),
         "botCommentCount": status.get("botCommentCount"),
         "error": status.get("error"),
+        "lastRepairAttemptStatus": status.get("lastRepairAttemptStatus"),
+        "lastRepairAttemptKey": status.get("lastRepairAttemptKey"),
     }
     return json.dumps(fields, sort_keys=True, separators=(",", ":"))
 
@@ -389,6 +631,11 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--required-phase", default="PR Readiness")
     parser.add_argument("--codex-exe", default="")
     parser.add_argument("--resume-output-path", default="")
+    parser.add_argument("--automation-db-path", default=str(Path.home() / ".codex" / "sqlite" / "codex-dev.db"))
+    parser.add_argument("--ui-automation-id", default="")
+    parser.add_argument("--ui-automation-name", default="")
+    parser.add_argument("--ui-thread-title", default="")
+    parser.add_argument("--ui-inbox-title", default="")
     parser.add_argument("--force-emit", action="store_true")
     parser.add_argument("--override-thread-message", default="")
     return parser.parse_args()
@@ -403,6 +650,7 @@ def main() -> int:
     log_path = Path(args.log_path)
     thread_rollout_path = Path(args.thread_rollout_path)
     state_db_path = Path(args.state_db_path)
+    automation_db_path = Path(args.automation_db_path)
     codex_exe = find_codex_exe(args.codex_exe)
     resume_output_path = (
         Path(args.resume_output_path)
@@ -451,6 +699,11 @@ def main() -> int:
     status["phase"] = phase
     status["threadId"] = args.thread_id
     status["threadRolloutPath"] = str(thread_rollout_path)
+    status["lastRepairAttemptKey"] = existing_state.get("lastRepairAttemptKey", "")
+    status["lastRepairAttemptAt"] = existing_state.get("lastRepairAttemptAt", "")
+    status["lastRepairAttemptStatus"] = existing_state.get("lastRepairAttemptStatus", "")
+    status["lastRepairWorkerSummary"] = existing_state.get("lastRepairWorkerSummary", "")
+    status["lastRepairWorkerOutputPath"] = existing_state.get("lastRepairWorkerOutputPath", "")
 
     line = (
         f"PR #{args.pr_number} state={status.get('prState')} merged={status.get('merged')} "
@@ -464,11 +717,92 @@ def main() -> int:
     set_text(latest_path, line)
     append_log(log_path, line)
 
+    automation_id = args.ui_automation_id.strip() or _normalize_id(f"local-pr-{args.pr_number}-watch-host")
+    automation_name = args.ui_automation_name.strip() or f"PR #{args.pr_number} Watch Host"
+    thread_title = args.ui_thread_title.strip() or automation_name
+    inbox_title = args.ui_inbox_title.strip() or f"PR #{args.pr_number} watcher update"
+    visible_thread_ok, visible_thread_message = ensure_visible_thread_host(
+        automation_db_path=automation_db_path,
+        automation_id=automation_id,
+        automation_name=automation_name,
+        repo_root=repo_root,
+        thread_id=args.thread_id,
+        thread_title=thread_title,
+        inbox_title=inbox_title,
+        inbox_summary=line,
+    )
+    append_log(log_path, visible_thread_message)
+    status["visibleThreadRegistered"] = visible_thread_ok
+    status["visibleThreadAutomationId"] = automation_id
+    status["visibleThreadAutomationName"] = automation_name
+
+    repair_triggered = False
+    repair_output_path = latest_path.with_name(f"{latest_path.stem}-worker.txt")
+    bot_comment_count = int(status.get("botCommentCount") or 0)
+    repair_key = f"{status.get('headSha') or ''}:{bot_comment_count}"
+    if (
+        codex_exe is not None
+        and not bool(status.get("merged"))
+        and str(status.get("prState") or "").upper() != "CLOSED"
+        and bot_comment_count > 0
+        and repair_key
+        and (
+            repair_key != str(existing_state.get("lastRepairAttemptKey") or "")
+            or str(existing_state.get("lastRepairAttemptStatus") or "").strip().casefold()
+            == "failed"
+        )
+    ):
+        repair_triggered = True
+        append_log(
+            log_path,
+            f"Triggering bounded comment-repair worker for PR #{args.pr_number} with key {repair_key}.",
+        )
+        status["lastRepairAttemptKey"] = repair_key
+        status["lastRepairAttemptAt"] = utc_now_iso()
+        repair_ok, repair_summary = run_comment_repair_worker(
+            codex_exe=codex_exe,
+            repo_root=repo_root,
+            repo_full_name=args.repo_full_name,
+            pr_number=args.pr_number,
+            branch_record_path=branch_record_path,
+            output_path=repair_output_path,
+        )
+        status["lastRepairAttemptStatus"] = "succeeded" if repair_ok else "failed"
+        status["lastRepairWorkerSummary"] = repair_summary
+        status["lastRepairWorkerOutputPath"] = str(repair_output_path)
+        append_log(
+            log_path,
+            (
+                f"Comment-repair worker {'completed' if repair_ok else 'failed'} for PR "
+                f"#{args.pr_number}: {repair_summary}"
+            ),
+        )
+        try:
+            refreshed_status = build_status(
+                repo_full_name=args.repo_full_name,
+                pr_number=args.pr_number,
+                repo_root=repo_root,
+            )
+            refreshed_status["phase"] = phase
+            refreshed_status["threadId"] = args.thread_id
+            refreshed_status["threadRolloutPath"] = str(thread_rollout_path)
+            refreshed_status["lastRepairAttemptKey"] = status["lastRepairAttemptKey"]
+            refreshed_status["lastRepairAttemptAt"] = status["lastRepairAttemptAt"]
+            refreshed_status["lastRepairAttemptStatus"] = status["lastRepairAttemptStatus"]
+            refreshed_status["lastRepairWorkerSummary"] = status["lastRepairWorkerSummary"]
+            refreshed_status["lastRepairWorkerOutputPath"] = status["lastRepairWorkerOutputPath"]
+            status = refreshed_status
+        except Exception as exc:  # pragma: no cover - defensive runtime path
+            append_log(log_path, f"Post-repair status refresh failed: {exc}")
+
     current_signature = signature_for(status)
     previous_signature = str(existing_state.get("lastSignature") or "")
-    should_emit = args.force_emit or current_signature != previous_signature or not str(
-        existing_state.get("lastThreadEmitAt") or ""
-    ).strip()
+    should_emit = (
+        repair_triggered
+        or args.force_emit
+        or current_signature != previous_signature
+        or not str(existing_state.get("lastThreadEmitAt") or "").strip()
+    )
 
     if should_emit:
         message = args.override_thread_message or (
