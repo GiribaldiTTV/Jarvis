@@ -95,6 +95,53 @@ def branch_phase(branch_record_path: Path) -> str:
     return match.group(1).strip() if match else ""
 
 
+def _record_value(text: str, label: str) -> str:
+    patterns = (
+        rf"^- {re.escape(label)}:\s*`([^`]+)`\s*$",
+        rf"^- {re.escape(label)}:\s*(.+?)\s*$",
+        rf"^{re.escape(label)}:\s*`([^`]+)`\s*$",
+        rf"^{re.escape(label)}:\s*(.+?)\s*$",
+    )
+    for pattern in patterns:
+        match = re.search(pattern, text, flags=re.M)
+        if match:
+            return match.group(1).strip().strip("`")
+    return ""
+
+
+def _record_section(text: str, heading: str) -> str:
+    match = re.search(
+        rf"^## {re.escape(heading)}\s*$([\s\S]*?)(?=^## |\Z)",
+        text,
+        flags=re.M,
+    )
+    return match.group(1).strip() if match else ""
+
+
+def branch_record_snapshot(branch_record_path: Path) -> dict[str, str]:
+    if not branch_record_path.is_file():
+        return {}
+    text = branch_record_path.read_text(encoding="utf-8")
+    identity = _record_section(text, "Branch Identity")
+    active_seam = _record_section(text, "Active Seam")
+    next_legal_section = _record_section(text, "Next Legal Phase")
+    next_legal_match = re.search(r"`([^`]+)`", next_legal_section)
+    next_legal_phase = (
+        _record_value(next_legal_section, "Next Legal Phase")
+        or (next_legal_match.group(1).strip() if next_legal_match else next_legal_section.strip())
+    )
+    return {
+        "branchRecordPath": str(branch_record_path),
+        "branchRecordBranch": _record_value(identity, "Branch"),
+        "branchRecordWorkstream": _record_value(identity, "Workstream"),
+        "branchRecordClass": _record_value(identity, "Branch Class"),
+        "branchRecordPhase": _record_value(_record_section(text, "Current Phase"), "Phase"),
+        "branchRecordNextLegalPhase": next_legal_phase,
+        "branchRecordActiveSeam": _record_value(active_seam, "Active seam"),
+        "branchRecordNextActiveSeam": _record_value(active_seam, "Next active seam"),
+    }
+
+
 def fetch_pr_page(repo_full_name: str, pr_number: int) -> str:
     url = f"https://github.com/{repo_full_name}/pull/{pr_number}"
     request = urllib_request.Request(url, headers={"User-Agent": "Codex"})
@@ -197,6 +244,27 @@ def current_thread_message(status: dict[str, object]) -> str:
     state_label = str(status.get("prState") or "UNKNOWN").casefold()
     merged_label = "true" if status.get("merged") else "false"
     draft_label = "true" if status.get("draft") else "false"
+    pr_url = str(status.get("prUrl") or "")
+    merged_at = str(status.get("mergedTime") or "")
+    workstream = str(status.get("branchRecordWorkstream") or "Unknown Workstream")
+    branch_name = str(status.get("branchRecordBranch") or status.get("localBranch") or "Unknown Branch")
+    branch_class = str(status.get("branchRecordClass") or "implementation validation")
+    branch_phase_value = str(status.get("branchRecordPhase") or status.get("phase") or "PR Readiness")
+    active_seam = str(status.get("branchRecordActiveSeam") or "PR Readiness PR2 - Merge Verification Watch")
+    next_legal_phase = str(status.get("branchRecordNextLegalPhase") or "Release Readiness")
+    thread_id = str(status.get("threadId") or "UNKNOWN")
+    last_run = str(status.get("lastRunLocal") or "UNKNOWN")
+    blockers = (
+        "None for PR merge verification"
+        if status.get("merged")
+        else "PR Merge Verification Pending"
+    )
+    completion_status = "Green" if status.get("merged") else "Red"
+    continue_decision = (
+        "Stop watcher and proceed to Release Readiness validation from updated main"
+        if status.get("merged")
+        else "Stop; remain in PR Readiness PR2 until merge verification clears"
+    )
     repair_status = str(status.get("lastRepairAttemptStatus") or "").strip().casefold()
     repair_summary = str(status.get("lastRepairWorkerSummary") or "").strip()
     repair_summary = repair_summary.splitlines()[0].strip() if repair_summary else ""
@@ -214,13 +282,112 @@ def current_thread_message(status: dict[str, object]) -> str:
             else " Auto-repair worker failed for the current PR comment."
         )
 
-    return (
-        f"PR watcher update for PR #{pr_number}: state={state_label}, merged={merged_label}, "
-        f"draft={draft_label}, merge-status {merge_status_label}, remote head {remote_head}, "
-        f"local head {local_head}, bot approval {bot_approval_label}, {bot_comment_label}. "
-        f"{watcher_blocker} {merge_status_blocker} {merge_verification_blocker} {release_posture}"
-        f"{repair_clause}"
+    lines = [
+        f"PR watcher source-of-truth update for PR #{pr_number}",
+        "",
+        "Governed State:",
+        f"- Workstream: {workstream}",
+        f"- Branch: {branch_name}",
+        f"- Branch Class: {branch_class}",
+        f"- Current Phase: {branch_phase_value}",
+        f"- Active Seam: {active_seam}",
+        f"- Next Legal Phase: {next_legal_phase}",
+        f"- Completion Status: {completion_status}",
+        f"- Blockers: {blockers}",
+        f"- Continue Decision: {continue_decision}",
+        "",
+        "Live PR Truth:",
+        f"- PR URL: {pr_url or f'PR #{pr_number}'}",
+        f"- State: {state_label}",
+        f"- Merged: {merged_label}",
+        f"- Draft: {draft_label}",
+        f"- Merge Status: {merge_status_label}",
+        f"- Remote Head: {remote_head}",
+        f"- Local Head: {local_head}",
+        f"- Bot Approval: {bot_approval_label}",
+        f"- Bot Comments: {bot_comment_label}",
+    ]
+    if merged_at:
+        lines.append(f"- Merged At: {merged_at}")
+
+    lines.extend(
+        [
+            "",
+            "Watcher Proof:",
+            f"- Reporting Thread: {thread_id}",
+            f"- Last Watcher Run: {last_run}",
+            f"- {watcher_blocker}",
+            f"- {merge_status_blocker}",
+            f"- {merge_verification_blocker}",
+            f"- {release_posture}",
+        ]
     )
+    if repair_clause:
+        lines.append(f"- {repair_clause.strip()}")
+
+    if status.get("merged"):
+        release_seam = f"Release Readiness RR1 - {workstream} Release Validation"
+        lines.extend(
+            [
+                "",
+                "Copy/Paste Codex Prompt:",
+                "```text",
+                "Project Context:",
+                "Mode: Release Readiness",
+                "Phase: Release Readiness",
+                f"Workstream: {workstream}",
+                "Branch: main",
+                f"Branch Class: {branch_class}",
+                "",
+                "Load:",
+                "Docs/Main.md",
+                "",
+                "Active Seam:",
+                release_seam,
+                "",
+                "Context:",
+                (
+                    f"PR #{pr_number} merged into main"
+                    + (f" at `{merged_at}`" if merged_at else "")
+                    + f". The same-thread watcher verified merged state from `{branch_name}` "
+                    f"at `{last_run}`, cleared `PR Merge Verification Pending`, emitted the "
+                    "thread update, and retired its watcher host."
+                ),
+                "",
+                "Task:",
+                "Run Release Readiness validation from updated main.",
+                "",
+                "Scope:",
+                f"- Validate PR #{pr_number} merge truth.",
+                "- Validate same-thread watcher merge-verification proof.",
+                "- Validate watcher shutdown/deletion proof.",
+                "- Validate merged-main canon and branch-record posture.",
+                "- Validate pending release posture and selected-next truth remain preserved.",
+                "- Identify release blockers or bounded repair candidates.",
+                "",
+                "Return:",
+                "- governed state markers",
+                "- validation commands and results",
+                "- merge verification findings",
+                "- watcher lifecycle findings",
+                "- release readiness findings",
+                "- repair candidates, if any",
+                "- rollback path",
+                "- continue/stop decision",
+                "```",
+            ]
+        )
+    else:
+        lines.extend(
+            [
+                "",
+                "Next Prompt Basis:",
+                "- No Release Readiness prompt is legal yet.",
+                "- Keep PR Readiness PR2 active until this watcher reports `merged=true`.",
+            ]
+        )
+
+    return "\n".join(lines)
 
 
 def error_thread_message(pr_number: int, message: str) -> str:
@@ -334,7 +501,7 @@ def emit_via_codex_resume(
     output_path: Path,
 ) -> str:
     ensure_parent(output_path)
-    prompt = f"Post exactly this single sentence to the user and nothing else: {message}"
+    prompt = f"Post exactly the following PR watcher update to the user and nothing else:\n\n{message}"
     process = _subprocess_run(
         [
             str(codex_exe),
@@ -747,6 +914,7 @@ def main() -> int:
             pass
 
     status["phase"] = phase
+    status.update(branch_record_snapshot(branch_record_path))
     status["threadId"] = args.thread_id
     status["threadRolloutPath"] = str(thread_rollout_path)
     status["lastRepairAttemptKey"] = existing_state.get("lastRepairAttemptKey", "")
@@ -834,6 +1002,7 @@ def main() -> int:
                 repo_root=repo_root,
             )
             refreshed_status["phase"] = phase
+            refreshed_status.update(branch_record_snapshot(branch_record_path))
             refreshed_status["threadId"] = args.thread_id
             refreshed_status["threadRolloutPath"] = str(thread_rollout_path)
             refreshed_status["lastRepairAttemptKey"] = status["lastRepairAttemptKey"]

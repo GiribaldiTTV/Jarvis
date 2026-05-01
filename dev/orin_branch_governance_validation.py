@@ -794,9 +794,22 @@ PR_WATCHER_THREAD_CONTRACT_PHRASES = (
     "approved reporting surface",
     "minute cadence",
     "reports only when a watched PR status changes",
+    "source-of-truth",
+    "copy/paste Codex prompt basis",
     "PR Watcher Routing Unverified",
     "PR Merge Verification Pending",
     "merge-watch seam",
+)
+
+PR_WATCHER_OUTPUT_CONTRACT_SOURCE = Path("dev/pr_same_thread_watcher.py")
+PR_WATCHER_OUTPUT_CONTRACT_PHRASES = (
+    "PR watcher source-of-truth update",
+    "Governed State:",
+    "Live PR Truth:",
+    "Watcher Proof:",
+    "Copy/Paste Codex Prompt:",
+    "Mode: Release Readiness",
+    "PR Merge Verification Pending",
 )
 
 GOVERNANCE_RECURRENCE_DOCS = (
@@ -9084,6 +9097,13 @@ def main() -> int:
                 required_phrase in text,
                 f"{relative_path}: PR watcher same-thread contract is missing '{required_phrase}'",
             )
+
+    watcher_output_source = _read_text(PR_WATCHER_OUTPUT_CONTRACT_SOURCE)
+    for required_phrase in PR_WATCHER_OUTPUT_CONTRACT_PHRASES:
+        require(
+            required_phrase in watcher_output_source,
+            f"{PR_WATCHER_OUTPUT_CONTRACT_SOURCE}: watcher output contract is missing '{required_phrase}'",
+        )
 
     for relative_path in GOVERNANCE_RECURRENCE_DOCS:
         text = _read_text(relative_path)
