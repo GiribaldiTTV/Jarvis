@@ -415,6 +415,7 @@ If governance drift is discovered:
 - if the drift is directly coupled to the active branch's truth, phase, readiness, validation, closeout, or release state, fix it on that active branch after the boundary is explicit
 - otherwise, produce the exact required canon delta and wait for user confirmation
 - if the same drift class could recur, the repair must also harden the canon or validator rule that allowed it instead of only patching the one stale surface
+- every repeated or carried blocker must include a recurrence analysis before green: what failed, why current governance/validation missed it, what prevents the same failure next time, and whether canon or validator coverage must change
 
 Do not defer known governance weaknesses silently to a later branch.
 

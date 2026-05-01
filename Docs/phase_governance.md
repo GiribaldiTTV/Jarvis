@@ -953,6 +953,7 @@ The audit must explicitly check whether the branch exposed:
 - stale prompt scaffolding or stale operator examples
 - a missing validator requirement
 - a serial release-window repair pattern that should be consolidated onto the current branch instead of landing as another pre-release PR
+- a repeated or carried blocker class whose repair must include recurrence analysis before green
 
 If governance drift is found and unresolved, the branch is blocked by `Governance Drift`.
 
@@ -966,6 +967,9 @@ If governance drift is discovered in any earlier phase:
 - produce the exact required canon delta and wait for user confirmation when the repair would exceed the active branch boundary
 
 Do not defer known governance weaknesses silently to a later branch.
+
+Repeated or carried blockers must not be closed by surface cleanup alone.
+Before the branch can report green, record what failed, why current governance or validation missed it, what prevents recurrence, and whether canon or validator coverage changed or was explicitly judged sufficient.
 
 ### Manual Evidence And Review Digestion Rule
 

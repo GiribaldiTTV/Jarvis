@@ -303,16 +303,17 @@ These are reference layers, not active workstream or roadmap owners.
   1. validate current branch truth
   2. complete the merge-target canon updates on that same branch
   3. run the Governance Drift Audit
-  4. clear the stale-canon blocker by proving current-state canon and merge-target canon reflect the branch's true state
-  5. select the next workstream from current canon
-  6. confirm the next workstream is recorded in backlog and roadmap
-  7. confirm the next workstream has canon-valid record state and minimal scope
-  8. confirm no branch exists yet for that next workstream while PR Readiness is encoding selected-next truth
-  9. defer successor branch creation to `Branch Readiness` after merge and updated-`main` revalidation
-  10. encode the machine-checkable selected-next markers: `Next Workstream: Selected` and `Minimal Scope:` in backlog, plus `## Selected Next Workstream` with truthful branch status such as `Branch: Not created` before branch creation or the active Branch Readiness branch name after creation in roadmap
-  11. If post-merge truth will resolve to `No Active Branch` because `Release Debt` or another repo-level admission blocker remains open, successor branch creation remains deferred; next-workstream selection is still required unless the user explicitly approves a no-next-workstream steady-state outcome in canon.
-  12. commit all required docs, canon, validator, and branch-truth changes so the worktree is clean and truth is durable in commit history
-  13. run the normal branch governance validator and the PR-readiness gate mode
+  4. record recurrence analysis for repeated or carried blocker classes before green
+  5. clear the stale-canon blocker by proving current-state canon and merge-target canon reflect the branch's true state
+  6. select the next workstream from current canon
+  7. confirm the next workstream is recorded in backlog and roadmap
+  8. confirm the next workstream has canon-valid record state and minimal scope
+  9. confirm no branch exists yet for that next workstream while PR Readiness is encoding selected-next truth
+  10. defer successor branch creation to `Branch Readiness` after merge and updated-`main` revalidation
+  11. encode the machine-checkable selected-next markers: `Next Workstream: Selected` and `Minimal Scope:` in backlog, plus `## Selected Next Workstream` with truthful branch status such as `Branch: Not created` before branch creation or the active Branch Readiness branch name after creation in roadmap
+  12. If post-merge truth will resolve to `No Active Branch` because `Release Debt` or another repo-level admission blocker remains open, successor branch creation remains deferred; next-workstream selection is still required unless the user explicitly approves a no-next-workstream steady-state outcome in canon.
+  13. commit all required docs, canon, validator, and branch-truth changes so the worktree is clean and truth is durable in commit history
+  14. run the normal branch governance validator and the PR-readiness gate mode
   14. report `PR package ready`, create the PR, and validate the live PR state before reporting `PR READY: YES`
   15. only after the PR exists, has no conflicts, has no unresolved Codex comments/issues, matches merge-target canon, and clears any bot-review signal requirement for the live PR may the branch report `PR Readiness GREEN`
 - PR creation details must use the operator copy-block contract from `Docs/phase_governance.md`: separate copy-ready blocks for `PR Title`, `Base Branch`, `Head Branch`, and `PR Summary`; the summary reports included implementation and validation truth only

@@ -273,6 +273,29 @@ def pr107_merge_watch_pending_is_expected() -> bool:
     )
 
 
+def pr107_merge_handoff_failure_is_carried() -> bool:
+    record = read_repo_text("Docs/branch_records/feature_fb_049_runtime_branch_readiness.md")
+    backlog = read_repo_text("Docs/feature_backlog.md")
+    roadmap = read_repo_text("Docs/prebeta_roadmap.md")
+    workstream = read_repo_text("Docs/workstreams/FB-030_orin_voice_audio_direction_refinement.md")
+    required_markers = (
+        "PR Watcher Merge Handoff Missing",
+        "PR #107 merged",
+        "watcher handoff failure",
+        "feature/fb-030-voice-audio-runtime-branch-readiness",
+    )
+    return all(
+        marker in surface
+        for marker, surface in (
+            (required_markers[0], record),
+            (required_markers[1], record),
+            (required_markers[2], backlog),
+            (required_markers[2], roadmap),
+            (required_markers[3], workstream),
+        )
+    )
+
+
 def classify_pending_review(title: str, summary: str) -> str:
     text = f"{title}\n{summary}".casefold()
     if (
@@ -313,6 +336,15 @@ def classify_pending_review(title: str, summary: str) -> str:
             or "pr #107 has not merged yet" in text
         )
         and pr107_merge_watch_pending_is_expected()
+    ):
+        return "REVIEW_INFO"
+    if (
+        (
+            "fb-049 pr readiness remains blocked" in text
+            or "pr #107 merge verification still pending" in text
+            or "fb-049 still waiting on merge verification" in text
+        )
+        and pr107_merge_handoff_failure_is_carried()
     ):
         return "REVIEW_INFO"
     if any(marker in text for marker in EXPECTED_WAITING_MARKERS):
