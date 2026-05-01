@@ -16,7 +16,7 @@ It also carries the post-merge blocker left after PR #106: `Docs/branch_records/
 
 ## Current Phase
 
-- Phase: `Hardening`
+- Phase: `Live Validation`
 
 ## Phase Status
 
@@ -36,8 +36,9 @@ It also carries the post-merge blocker left after PR #106: `Docs/branch_records/
 - Selected Next Implementation Branch: `feature/fb-049-runtime-branch-readiness`
 - Current Branch Readiness Seam: `Historical complete; BR1 cleared the carried post-merge blocker`
 - Current Workstream Seam: `Historical complete; WS1 implemented the pre-settled incoming-launch truthful-exit proof`
-- Current Hardening Seam: `Hardening H1 - Pre-Settled Incoming-Launch Conflict Validation`
-- Next Active Seam: `Live Validation LV1 - Pre-Settled Incoming-Launch Conflict Live Validation`
+- Current Hardening Seam: `Historical complete; H1 validated the pre-settled incoming-launch conflict runtime proof`
+- Current Live Validation Seam: `Live Validation LV1 - Pre-Settled Incoming-Launch Conflict Live Validation`
+- Next Active Seam: `PR Readiness PR1 - FB-049 Runtime Branch PR Validation`
 - Automation Observability Report: `Strict mode passes; current automation findings are informational only`
 
 ## Branch Class
@@ -46,7 +47,7 @@ It also carries the post-merge blocker left after PR #106: `Docs/branch_records/
 
 ## Blockers
 
-None. The carried stale active-branch authority blocker is cleared, WS1 runtime proof is implemented, Hardening H1 is authority-aligned, and no additional implementable FB-049 slices are known in this branch scope.
+None. The carried stale active-branch authority blocker is cleared, WS1 runtime proof is implemented, Hardening H1 is green, Live Validation LV1 is authority-aligned, and no additional implementable FB-049 slices are known in this branch scope.
 
 ## Entry Basis
 
@@ -63,21 +64,22 @@ None. The carried stale active-branch authority blocker is cleared, WS1 runtime 
 - Backlog and roadmap current-state surfaces identify this branch as the active FB-049 runtime-focused surface without claiming merge or release completion.
 - The first bounded FB-049 runtime slice is implemented with exact affected paths, non-goals, validation expectations, rollback boundary, and same-branch completion posture.
 - Branch governance validation, automation observability strict report, focused runtime proof, and desktop entrypoint validation are green before Hardening admission.
-- Hardening phase authority reports `Phase: Hardening` with `Hardening H1 - Pre-Settled Incoming-Launch Conflict Validation` as the active seam before H1 can be treated as authority-aligned.
+- Hardening phase authority reported `Phase: Hardening` with `Hardening H1 - Pre-Settled Incoming-Launch Conflict Validation` as the active seam before H1 was treated as authority-aligned.
+- Live Validation phase authority reports `Phase: Live Validation` with `Live Validation LV1 - Pre-Settled Incoming-Launch Conflict Live Validation` as the active seam before LV1 can be treated as authority-aligned.
 
 ## Rollback Target
 
-- `Workstream`
+- `Hardening`
 
 ## Next Legal Phase
 
-- `Live Validation`
+- `PR Readiness`
 
 ## Branch Objective
 
 - preserve the completed carried PR106 post-merge stale active-branch authority repair
 - preserve completed FB-049 Workstream WS1 runtime proof
-- validate the pre-settled incoming-launch conflict truth under Hardening H1
+- validate the pre-settled incoming-launch conflict truth under Live Validation LV1
 - keep pending `v1.6.13-prebeta` release posture and FB-049 selected-next truth consistent
 
 ## Target End-State
@@ -85,7 +87,7 @@ None. The carried stale active-branch authority blocker is cleared, WS1 runtime 
 - active branch authority belongs to `feature/fb-049-runtime-branch-readiness`
 - PR105/PR106 closeout repair proof is historical-only traceability
 - FB-049 remains `Registry-only` until Workstream promotion is warranted by implementation execution
-- Workstream WS1 remains implemented complete and Hardening H1 is the active validation seam
+- Workstream WS1 remains implemented complete, Hardening H1 is historical green, and Live Validation LV1 is the active validation seam
 - same-branch backlog completion remains the default unless only future-dependent blockers remain
 
 ## Backlog Completion Strategy
@@ -130,7 +132,7 @@ Completion Status: `Green`
 
 - Workstream must execute the admitted runtime slice before any Hardening or PR Readiness claim.
 - Hardening must pressure-test the pre-settled ownership and truthful-exit paths against existing settled-session relaunch proof.
-- Live Validation must use real desktop entrypoint evidence where feasible and record User Test Summary status exactly.
+- Live Validation uses real desktop shortcut and closest available live-equivalent pre-settled conflict evidence where feasible, and records User Test Summary status exactly.
 - PR Readiness must provision the current-PR watcher on an approved reporting surface, verify bot-review state, keep PR2 merge watch active until `merged=true`, and prevent stale branch authority from escaping after merge.
 
 ## Planning-Loop Guardrail
@@ -221,25 +223,41 @@ Non-Includes: no PR creation or Release Readiness work.
 - `desktop/orin_desktop_main.py` now sets `Local\JarvisRuntimeDesktopSettledV1` and writes `desktop_settled.signal` only when it emits the authoritative `DESKTOP_OUTCOME|SETTLED|state=dormant` marker.
 - `dev/orin_desktop_entrypoint_validation.py` now includes `launcher_pre_settled_incoming_conflict`, a focused production-launcher proof that starts an owner in a pre-settled hold, launches a second process, and proves the second process exits `0` with `STATUS|SKIP|LAUNCHER_RUNTIME|PRE_SETTLED_INCOMING_CONFLICT_SESSION_PRESERVED` without borrowing settled relaunch semantics or mutating the owner; the legacy settled relaunch validators now wait for actual owner settled truth and use controlled fake renderers where headless desktop exits would otherwise mask the launcher contract.
 
+## LV1 Live Validation Proof
+
+- Real User-Facing Shortcut Evidence: `C:\Users\anden\OneDrive\Desktop\Nexus Desktop Launcher.lnk` launches `C:\Nexus Desktop AI\launch_orin_desktop.vbs`, reaches `DESKTOP_OUTCOME|SETTLED|state=dormant`, records `STATUS|SUCCESS|LAUNCHER_RUNTIME|DESKTOP_SETTLED_OBSERVED|state=dormant`, shuts down through `Ctrl+Alt+End`, and leaves no validation-owned residual launch-chain processes.
+- Shortcut Runtime Log: `C:\Nexus Desktop AI\dev\logs\desktop_entrypoint_validation\lv1_user_facing_shortcut_launch\Runtime_20260501_140926_7B89.txt`
+- Closest Live-Equivalent Conflict Evidence: `launcher_pre_settled_incoming_conflict` uses the production launcher with a controlled pre-settled owner to make the race deterministic, launches a second incoming session, and proves the incoming launch exits `0` with `STATUS|SKIP|LAUNCHER_RUNTIME|PRE_SETTLED_INCOMING_CONFLICT_SESSION_PRESERVED`.
+- Conflict Runtime Log: `C:\Nexus Desktop AI\dev\logs\desktop_entrypoint_validation\launcher_pre_settled_incoming_conflict\Runtime_20260501_140934_55F7.txt`
+- Preserved-Session Findings: the original owner remains unchanged, no prompt is shown, no relaunch signal is sent, no renderer is spawned by the incoming conflicting launch, no replacement ownership is taken, and no authoritative settled truth is borrowed from the preserved owner.
+
+## User Test Summary
+
+- User-Facing Shortcut Path: `C:\Users\anden\OneDrive\Desktop\Nexus Desktop Launcher.lnk`
+- User-Facing Shortcut Validation: `PASS`
+- User Test Summary Results: `WAIVED`
+- User Test Summary Waiver Reason: The completed FB-049 delta is a focused startup lifecycle and truthful-exit refinement for a pre-settled incoming-launch collision. LV1 covered the real user-facing shortcut launch path plus deterministic production-launcher conflict proof, full desktop entrypoint validation, and boot transition verification. It does not add a new manual task flow, settings journey, persisted user-content path, or broader operator workflow that a filled manual User Test Summary would materially validate beyond the captured evidence.
+- Desktop User Test Summary Export: `Not required; waiver path`
+
 ## Active Seam
 
-Active seam: `Hardening H1 - Pre-Settled Incoming-Launch Conflict Validation`
-Previous seam: `Workstream WS1 - Pre-Settled Incoming-Launch Conflict Truthful Exit Proof`
-Next active seam: `Live Validation LV1 - Pre-Settled Incoming-Launch Conflict Live Validation`
+Active seam: `Live Validation LV1 - Pre-Settled Incoming-Launch Conflict Live Validation`
+Previous seam: `Hardening H1 - Pre-Settled Incoming-Launch Conflict Validation`
+Next active seam: `PR Readiness PR1 - FB-049 Runtime Branch PR Validation`
 
-- H1 validates the admitted WS1 runtime/user-facing slice and preserves proof that an incoming launch during startup-phase ownership exits with explicit pre-settled preserved-session truth instead of settled-session relaunch semantics.
+- LV1 validates the admitted WS1 runtime/user-facing slice through the real desktop shortcut path plus closest available live-equivalent pre-settled conflict proof, preserving evidence that an incoming launch during startup-phase ownership exits with explicit pre-settled preserved-session truth instead of settled-session relaunch semantics.
 
 ## Seam Continuation Decision
 
-Seam Status: `Active`
+Seam Status: `Green`
 Slice Status: `Green`
 Completion Status: `Green`
-Waiver Status: `None`
+Waiver Status: `User Test Summary Results WAIVED`
 Continue Decision: `Stop`
-Stop Basis: `Hardening phase admission repaired`
-Next Active Seam: `Hardening H1 - Pre-Settled Incoming-Launch Conflict Validation`
-Stop Condition: `Hardening phase authority is aligned; H1 validation must run on the authority-aligned branch before Live Validation admission.`
-Continuation Action: `Run Hardening H1 validation on the authority-aligned branch and advance only if validation remains green.`
+Stop Basis: `Live Validation LV1 green`
+Next Active Seam: `PR Readiness PR1 - FB-049 Runtime Branch PR Validation`
+Stop Condition: `Live Validation proof is recorded and green; PR Readiness still requires phase admission, live PR creation, current-PR watcher provisioning, bot-review state, and PR2 merge-watch proof before Release Readiness.`
+Continuation Action: `Admit PR Readiness for the FB-049 runtime branch only after durable LV1 truth is committed and pushed.`
 
 ## Governance Drift Audit
 

@@ -167,6 +167,18 @@ def fb049_active_phase_truth_is_aligned() -> bool:
         "Current Hardening State: Active on `Hardening H1 - Pre-Settled Incoming-Launch Conflict Validation`",
         "Current Hardening State: `Active on Hardening H1 - Pre-Settled Incoming-Launch Conflict Validation`",
     )
+    live_validation_record_markers = (
+        "Phase: `Live Validation`",
+        "Current Live Validation Seam: `Live Validation LV1 - Pre-Settled Incoming-Launch Conflict Live Validation`",
+        "Active seam: `Live Validation LV1 - Pre-Settled Incoming-Launch Conflict Live Validation`",
+        "User-Facing Shortcut Validation: `PASS`",
+        "User Test Summary Results: `WAIVED`",
+        "Next Active Seam: `PR Readiness PR1 - FB-049 Runtime Branch PR Validation`",
+    )
+    live_validation_surface_markers = (
+        "Current Live Validation State: Green on `Live Validation LV1 - Pre-Settled Incoming-Launch Conflict Live Validation`",
+        "Current Live Validation State: `Green on Live Validation LV1 - Pre-Settled Incoming-Launch Conflict Live Validation`",
+    )
     stale_markers = (
         "Current Workstream State: Not started",
         "Current Workstream State: `Not started`",
@@ -182,8 +194,13 @@ def fb049_active_phase_truth_is_aligned() -> bool:
         and hardening_surface_markers[0] in backlog
         and hardening_surface_markers[1] in roadmap
     )
+    live_validation_aligned = (
+        all(marker in record for marker in live_validation_record_markers)
+        and live_validation_surface_markers[0] in backlog
+        and live_validation_surface_markers[1] in roadmap
+    )
     return (
-        (workstream_aligned or hardening_aligned)
+        (workstream_aligned or hardening_aligned or live_validation_aligned)
         and not any(marker in backlog or marker in roadmap for marker in stale_markers)
     )
 
@@ -208,8 +225,11 @@ def classify_pending_review(title: str, summary: str) -> str:
             "phase drift found on fb-049 branch" in text
             or "fb-049 branch still in workstream" in text
             or "fb-049 remains in workstream posture" in text
+            or "fb-049 remains in hardening wait state" in text
+            or "fb-049 still in hardening" in text
             or "branch remains in workstream" in text
             or "release window sentinel still waiting" in text
+            or "phase has not reached pr or release readiness" in text
         )
         and fb049_active_phase_truth_is_aligned()
     ):
