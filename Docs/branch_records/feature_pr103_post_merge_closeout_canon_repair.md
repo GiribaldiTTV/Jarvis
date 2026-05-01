@@ -5,22 +5,22 @@
 - Branch: `feature/pr103-post-merge-closeout-canon-repair`
 - Workstream: `PR103 Post-Merge Closeout Canon Repair`
 - Branch Class: `emergency canon repair`
+- Record State: `Historical-only traceability`
 
 ## Purpose / Why It Exists
 
-This bounded repair branch exists only to close the merged-main branch-record drift left behind after PR #103 merged into `main`.
+This preserved record captures the bounded repair branch that closed the merged-main branch-record drift left behind after PR #103 merged into `main`, then later merged through PR #104.
 
-It does not reopen implementation, widen into release execution, mutate FB-049 selected-next truth, or change the already-proven PR watcher operating contract. Its job is only to clear the stale active-branch authority that still points at the now-merged PR102 repair surface, move the prior closeout records into fully historical phase truth, preserve PR #103 merge and watcher shutdown proof as traceability, and harden validator coverage so historical-only closeout records cannot retain live phase truth on future branches.
+It no longer owns live execution, PR readiness, watcher control, or release gating. It remains only to preserve PR #104 merge proof, the same-thread watcher verification and shutdown proof, the pending `v1.6.13-prebeta` release posture, and unchanged FB-049 selected-next truth.
 
 ## Current Phase
 
-- Phase: `PR Readiness`
+- Phase: `Historical Traceability`
 
 ## Phase Status
 
 - Repo State: `No Active Branch`
 - Merged-Main Repo State: `No Active Branch`
-- `Active Branch`: `feature/pr103-post-merge-closeout-canon-repair`
 - Current Active Canonical Workstream Doc: `None`
 - Latest Public Prerelease: `v1.6.12-prebeta`
 - Latest Public Release Commit: `b06c359e58b47cfe26fe8c4b39ac04fde519dee9`
@@ -36,18 +36,19 @@ It does not reopen implementation, widen into release execution, mutate FB-049 s
 - Historical watcher proof files: `$CODEX_HOME/watchers/pr102-post-merge-closeout-canon-repair-watch-state.json`, `$CODEX_HOME/watchers/pr102-post-merge-closeout-canon-repair-watch-latest.txt`, and `$CODEX_HOME/watchers/pr102-post-merge-closeout-canon-repair-watch.log`
 - Historical watcher merge verification: watcher recorded merged verification at `2026-05-01T01:09:08.338902Z`, after GitHub merge truth was observable.
 - Historical watcher shutdown proof: scheduled task `Codex PR102 Post-Merge Closeout Canon Repair Watch` is absent and the watcher log records self-stop after merged verification.
-- Current PR Readiness Seam: `PR Readiness PR2 - PR103 Post-Merge Closeout Canon Repair Merge Verification Watch`
-- Next Active Seam: `PR Readiness PR2 - PR103 Post-Merge Closeout Canon Repair Merge Verification Watch`
+- Historical PR Readiness Seam: `PR Readiness PR2 - PR103 Post-Merge Closeout Canon Repair Merge Verification Watch`
+- Historical Next Active Seam: `None`
 - Live PR: `https://github.com/GiribaldiTTV/Nexus-Desktop-AI/pull/104`
-- Live PR State: `open`
-- Live PR Head: `feature/pr103-post-merge-closeout-canon-repair`
-- Live PR Base: `main`
+- Historical Live PR State: `merged`
+- Historical Live PR Head: `feature/pr103-post-merge-closeout-canon-repair`
+- Historical Live PR Base: `main`
 - PR watcher reporting surface: `Current Codex working thread`
 - PR watcher reporting thread ID: `019dd083-0317-7b42-afb3-20b6818a1fa7`
 - PR watcher reporting transcript: `\\?\C:\Users\anden\.codex\sessions\2026\04\27\rollout-2026-04-27T12-55-40-019dd083-0317-7b42-afb3-20b6818a1fa7.jsonl`
 - PR watcher route verification: `PASS after watcher wrapper, watcher state, Codex thread DB, and active-branch transcript marker all point at the recorded reporting surface`
 - PR watcher runtime proof: `PASS via $CODEX_HOME/watchers/pr103-post-merge-closeout-canon-repair-watch-state.json and codex_resume transcript emission`
-- PR1 live validation result: `Green; PR #104 is open, non-draft, targets main, merge status is clean, bot approval is present, and watcher provisioning/routing is proven`
+- Historical PR1 live validation result: `Green; PR #104 was open, non-draft, targeted main, merge status was clean, bot approval was present, and watcher provisioning/routing was proven`
+- Historical outcome: this record is historical-only traceability; merged-main active branch authority returned to `No Active Branch`.
 
 ## Branch Class
 
@@ -55,7 +56,7 @@ It does not reopen implementation, widen into release execution, mutate FB-049 s
 
 ## Blockers
 
-- `PR Merge Verification Pending`
+- `None`
 
 ## Entry Basis
 
@@ -140,22 +141,22 @@ Recommended fix after review: on the next suitable PR, create a bounded test com
 
 ## Active Seam
 
-Active seam: `PR Readiness PR2 - PR103 Post-Merge Closeout Canon Repair Merge Verification Watch`
-Next active seam: `PR Readiness PR2 - PR103 Post-Merge Closeout Canon Repair Merge Verification Watch`
+Active seam: `None`
+Next active seam: `None`
 
-- This branch is the active bounded closeout-repair PR surface while PR #104 remains under watcher merge verification.
+- This record is no longer a live branch authority surface.
 
 ## Seam Continuation Decision
 
-Seam Status: `Red`
-Slice Status: `Red`
-Completion Status: `Red`
+Seam Status: `Green`
+Slice Status: `Green`
+Completion Status: `Green`
 Waiver Status: `None`
 Continue Decision: `Stop`
-Stop Basis: `PR Readiness blockers`
-Next Active Seam: `PR Readiness PR2 - PR103 Post-Merge Closeout Canon Repair Merge Verification Watch`
-Stop Condition: `PR #104 is live and PR1 is green, but Release Readiness is not legal until the watcher verifies the PR is merged.`
-Continuation Action: `Keep PR #104 under the approved watcher route until it verifies merged state, then rerun the PR readiness gate and enter Release Readiness only after `PR Merge Verification Pending` clears.`
+Stop Basis: `Historical-only traceability`
+Next Active Seam: `None`
+Stop Condition: `Merged historical repair record.`
+Continuation Action: `None.`
 
 ## Branch Objective
 

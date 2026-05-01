@@ -8,6 +8,7 @@ Use this layer for:
 
 - active `Registry-only` backlog branches in `Branch Readiness` before a promoted canonical workstream exists
 - `release packaging` branches
+- active `repair/dev-tooling-governance` feature branches when USER-admitted repair scope includes developer-tooling plus governance hardening
 - preserved historical `docs/governance` or `emergency canon repair` records
 
 when those branches need a durable repo-owned phase authority record.
@@ -52,10 +53,11 @@ Do not use this layer to replace:
 
 ## Active Branch Authority Records
 
-- `Docs/branch_records/feature_pr103_post_merge_closeout_canon_repair.md`
+- `Docs/branch_records/feature_pr104_watcher_next_prompt_format_repair.md`
 
 ## Historical Branch Authority Records
 
+- `Docs/branch_records/feature_pr103_post_merge_closeout_canon_repair.md`
 - `Docs/branch_records/feature_pr102_post_merge_closeout_canon_repair.md`
 - `Docs/branch_records/feature_pr101_post_merge_closeout_canon_repair.md`
 - `Docs/branch_records/feature_automation_planning_post_merge_closeout_repair.md`
