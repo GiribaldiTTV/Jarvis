@@ -100,6 +100,24 @@ It does not reopen implementation, widen into release execution, mutate FB-049 s
 - confirm PR #103 merge-verification and watcher shutdown proof remain preserved
 - confirm the validator now rejects historical-only closeout records that retain live phase truth
 
+## Source-Of-Truth Audit Findings Pending Review
+
+Finding 1: `Watcher host helper remains active after merge`.
+Evidence: the PR #103 runner task self-deleted and `Codex PR102 Post-Merge Closeout Canon Repair Watch` is absent, but the dedicated host automation `local-pr103-watch-host` remains `ACTIVE` and still has scheduler state after PR #103 merged.
+Recommended fix after review: update `dev/pr_same_thread_watcher.py` and governance validation so a dedicated watcher-host helper is paused or deleted when the PR watcher stops for `merged`, `closed`, or phase exit; then remove the PR #103 host helper operationally.
+
+Finding 2: `Watcher terminal message overclaims release legality`.
+Evidence: the final PR #103 watcher message said `Release Readiness is now legal` immediately after merge verification, but merged-main canon validation still found branch-record drift that blocked Release Readiness.
+Recommended fix after review: change `dev/pr_same_thread_watcher.py` so merge verification only clears `PR Merge Verification Pending` and reports that Release Readiness requires a separate source-of-truth validation pass.
+
+Finding 3: `Cron automation audit surface is ambiguous during worktree repair`.
+Evidence: the standing cron monitor TOML and SQLite state point at `C:\Nexus Desktop AI`, while this active repair branch is executing from `C:\Nexus Desktop AI\.codex-release-validate`; the root checkout is useful for merged-main truth, but it is not the active repair-branch checkout.
+Recommended fix after review: record whether standing repo-hygiene cron monitors are merged-main-only or active-branch-aware, and require retargeting or explicit CWD proof when a repair branch runs from a separate worktree.
+
+Finding 4: `PR comment self-heal worker is wired but not end-to-end proven`.
+Evidence: `dev/pr_same_thread_watcher.py` can trigger a bounded comment-repair worker, but PR #103's actionable Codex review comment was resolved before that worker path existed, so no fresh bot-comment cycle has proven automatic fix, commit, push, reply, and resolve behavior.
+Recommended fix after review: on the next suitable PR, create a bounded test comment cycle with `@codex review` and require watcher-generated repair proof before marking the self-heal path fully proven.
+
 ## Active Seam
 
 Active seam: `Branch Readiness BR1 - PR103 Post-Merge Closeout Canon Repair Admission`

@@ -191,6 +191,8 @@ def current_thread_message(status: dict[str, object]) -> str:
         if status.get("merged")
         else "`Release Readiness` is not legal yet."
     )
+    # Audit pending: merge verification alone should not claim Release Readiness
+    # until merged-main canon validation also passes.
     remote_head = str(status.get("headSha") or "UNKNOWN")
     local_head = str(status.get("localHeadSha") or "UNKNOWN")
     state_label = str(status.get("prState") or "UNKNOWN").casefold()
@@ -845,6 +847,8 @@ def main() -> int:
 
     if bool(status.get("merged")) or str(status.get("prState") or "").upper() == "CLOSED":
         append_log(log_path, "Stopping watcher because PR is closed or merged.")
+        # Audit pending: when a dedicated visible host automation exists, it should
+        # be paused or deleted here as part of the same terminal cleanup.
         stop_task(args.task_name)
 
     return 0
