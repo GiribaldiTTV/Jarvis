@@ -36,7 +36,7 @@ It repairs the watcher output format, hardens the governance language that requi
 - Live PR Head: `feature/pr104-watcher-next-prompt-format-repair`
 - Live PR Base: `main`
 - Live PR Initial Head Commit: `e6618f1a2e9253a87c476d068e91987b7f2591c5`
-- Live PR Comment-Closeout Head Commit: `53c7c78d12e2e136e27740f7e12e982f70811e88`
+- Live PR Comment-Closeout Head Commit: `2d944360f7d3bbe8233b872fb5cb3e2d4d70df32`
 - PR watcher reporting surface: `Current Codex working thread`
 - PR watcher reporting thread ID: `019dd083-0317-7b42-afb3-20b6818a1fa7`
 - PR watcher reporting transcript: `\\?\C:\Users\anden\.codex\sessions\2026\04\27\rollout-2026-04-27T12-55-40-019dd083-0317-7b42-afb3-20b6818a1fa7.jsonl`
@@ -151,7 +151,7 @@ Continuation Action: `Keep the approved watcher route running until it verifies 
 ## PR Bot Review Signal
 
 - Bot Review Signal Status: `Comment addressed`
-- Bot Review Signal Head SHA: `53c7c78d12e2e136e27740f7e12e982f70811e88`
-- Bot Review Signal Source: `Resolved Codex review thread PRRT_kwDORwnWIs5_AxBE after same-branch fix/push/reply/resolve closeout on PR #105.`
+- Bot Review Signal Head SHA: `2d944360f7d3bbe8233b872fb5cb3e2d4d70df32`
+- Bot Review Signal Source: `Resolved Codex review thread PRRT_kwDORwnWIs5_AxBE after same-branch fix/push/reply/resolve closeout on PR #105, with final watcher REST-head follow-through included.`
 - Bot Review Signal Timestamp: `2026-05-01T17:11:23Z`
 - Bot Review Signal Actor: `chatgpt-codex-connector[bot] / GiribaldiTTV`
