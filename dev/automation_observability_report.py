@@ -179,6 +179,18 @@ def fb049_active_phase_truth_is_aligned() -> bool:
         "Current Live Validation State: Green on `Live Validation LV1 - Pre-Settled Incoming-Launch Conflict Live Validation`",
         "Current Live Validation State: `Green on Live Validation LV1 - Pre-Settled Incoming-Launch Conflict Live Validation`",
     )
+    pr_readiness_record_markers = (
+        "Phase: `PR Readiness`",
+        "Current PR Readiness Seam: `PR Readiness PR1 - FB-049 Runtime Branch PR Validation`",
+        "Active seam: `PR Readiness PR1 - FB-049 Runtime Branch PR Validation`",
+        "Live PR Number: `107`",
+        "Same-Thread Watcher: `pr107-same-thread-merge-watch`",
+        "Next active seam: `PR Readiness PR2 - FB-049 Runtime Branch Merge Verification Watch`",
+    )
+    pr_readiness_surface_markers = (
+        "Current PR Readiness State: Active on `PR Readiness PR1 - FB-049 Runtime Branch PR Validation` for PR #107",
+        "Current PR Readiness State: `Active on PR Readiness PR1 - FB-049 Runtime Branch PR Validation for PR #107`",
+    )
     stale_markers = (
         "Current Workstream State: Not started",
         "Current Workstream State: `Not started`",
@@ -199,8 +211,13 @@ def fb049_active_phase_truth_is_aligned() -> bool:
         and live_validation_surface_markers[0] in backlog
         and live_validation_surface_markers[1] in roadmap
     )
+    pr_readiness_aligned = (
+        all(marker in record for marker in pr_readiness_record_markers)
+        and pr_readiness_surface_markers[0] in backlog
+        and pr_readiness_surface_markers[1] in roadmap
+    )
     return (
-        (workstream_aligned or hardening_aligned or live_validation_aligned)
+        (workstream_aligned or hardening_aligned or live_validation_aligned or pr_readiness_aligned)
         and not any(marker in backlog or marker in roadmap for marker in stale_markers)
     )
 
@@ -230,6 +247,7 @@ def classify_pending_review(title: str, summary: str) -> str:
             or "branch remains in workstream" in text
             or "release window sentinel still waiting" in text
             or "phase has not reached pr or release readiness" in text
+            or "phase has not reached pr readiness" in text
         )
         and fb049_active_phase_truth_is_aligned()
     ):
@@ -313,6 +331,7 @@ def build_report() -> tuple[dict[str, object], list[Finding]]:
             latest_title = str(run["inbox_title"] or "") if run else ""
             latest_summary = str(run["inbox_summary"] or "") if run else ""
             latest_status = str(run["status"] or "") if run else ""
+            next_run_at = int(row["next_run_at"]) if row["next_run_at"] else None
 
             if status == "ACTIVE" and not toml_path:
                 findings.append(
@@ -324,14 +343,31 @@ def build_report() -> tuple[dict[str, object], list[Finding]]:
                     )
                 )
             if status == "ACTIVE" and not newest_proof_ms:
-                findings.append(
-                    Finding(
-                        "BLOCKER_CANDIDATE",
-                        automation_id,
-                        "Active automation has no run proof",
-                        "No scheduler last_run_at and no automation_runs row were found.",
-                    )
+                first_run_grace_active = (
+                    next_run_at is not None
+                    and (
+                        dt.datetime.fromtimestamp(next_run_at / 1000, tz=dt.timezone.utc) - now
+                    ).total_seconds()
+                    > -10 * 60
                 )
+                if first_run_grace_active:
+                    findings.append(
+                        Finding(
+                            "REVIEW_INFO",
+                            automation_id,
+                            "Active automation awaiting first run proof",
+                            "No scheduler last_run_at or automation_runs row exists yet, but the first scheduled run remains inside the initial grace window.",
+                        )
+                    )
+                else:
+                    findings.append(
+                        Finding(
+                            "BLOCKER_CANDIDATE",
+                            automation_id,
+                            "Active automation has no run proof",
+                            "No scheduler last_run_at and no automation_runs row were found.",
+                        )
+                    )
             if status == "ACTIVE" and age_seconds is not None and age_seconds > freshness_limit_seconds(rrule):
                 findings.append(
                     Finding(
