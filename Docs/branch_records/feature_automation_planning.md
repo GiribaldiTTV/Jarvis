@@ -77,7 +77,8 @@ None.
 
 - Branch Readiness closed green at `6cc2159`.
 - The USER directed this branch to remain in bounded same-branch Workstream execution until the planned automation catalog was complete instead of stopping after WS1.
-- The active automation records now exist under `$CODEX_HOME/automations/`.
+- The standing cron automation records now exist under `$CODEX_HOME/automations/`.
+- The PR99 heartbeat/fallback watcher artifacts are historical PR-specific proof, not standing active automation records after PR #99 merge and `PR Readiness` phase exit.
 - The full admitted automation catalog stays inside the previously approved planner boundaries: one minute heartbeat only for the PR watcher, slower recurring cron jobs for repo-hygiene and lifecycle monitors.
 - FB-049 remains selected next, `Registry-only`, and branch-not-created.
 
@@ -150,8 +151,8 @@ Backlog-Split Reason: `None`
   - `Docs/branch_records/feature_automation_planning.md`
   - `Docs/feature_backlog.md`
   - `Docs/prebeta_roadmap.md`
-  - `$CODEX_HOME/automations/pr99-heartbeat-watch/automation.toml`
-  - `$CODEX_HOME/watchers/pr99-watch.ps1`
+  - `$CODEX_HOME/automations/pr99-heartbeat-watch/automation.toml` (historical PR99-specific proof; retired after PR #99 merge, not a standing active automation)
+  - `$CODEX_HOME/watchers/pr99-watch.ps1` (historical PR99-specific fallback proof; retired after PR #99 merge, not a standing active automation)
   - `$CODEX_HOME/automations/phase-drift-watch/automation.toml`
   - `$CODEX_HOME/automations/selected-next-lock-audit/automation.toml`
   - `$CODEX_HOME/automations/main-revalidation-gate-watch/automation.toml`
@@ -161,7 +162,7 @@ Backlog-Split Reason: `None`
   - `$CODEX_HOME/automations/post-merge-closure-watch/automation.toml`
 - Admitted Slice Chain:
   - `WS1 - PR Heartbeat Watcher`
-    - automation id: `current live native instance pr99-heartbeat-watch`; earlier generic branch-local id `pr-heartbeat-watcher` is historical only
+    - automation id: historical PR99-specific native instance `pr99-heartbeat-watch`; earlier generic branch-local id `pr-heartbeat-watcher` is historical only, and future PR watcher instances are provisioned per current live PR during that branch's `PR Readiness`
     - target: `next active PR created from feature/automation-planning` unless later narrowed to an explicit PR number; PR-specific fallback may narrow to the live PR only
     - cadence: `heartbeat / every 1 minute`
     - stop condition: `PR state becomes merged or closed`; any fallback helper must also stop when branch phase leaves `PR Readiness`
@@ -393,8 +394,8 @@ Continuation Action: `None. Historical traceability record only.`
 
 - Post-merge repo state: `No Active Branch` after merge, while merged current-state canon carries the still-unreleased `v1.6.13-prebeta` posture and this branch authority record is now historical traceability only.
 - Post-merge selected-next truth: FB-049 remains selected next, `Registry-only`, and branch-not-created until updated `main` is revalidated and FB-049 Branch Readiness admits the first bounded pre-settled incoming-launch conflict truth slice.
-- Post-merge automation-catalog truth: merged canon must preserve the admitted eight-record automation catalog, the heartbeat-versus-cron cadence split, the rollback/containment rules, and the clean FB-049 selected-next lock.
-- Post-merge PR watcher fallback handling: the temporary PR-specific fallback helper and the paused native `pr99-heartbeat-watch` lifecycle are retired after PR #99 merge and phase exit from `PR Readiness`.
+- Post-merge automation-catalog truth: merged canon must preserve the admitted eight-record automation catalog, the heartbeat-versus-cron cadence split, the rollback/containment rules, and the clean FB-049 selected-next lock; PR heartbeat watchers are dynamic PR-specific instances rather than a standing active TOML requirement after their target PR merges.
+- Post-merge PR watcher fallback handling: the temporary PR-specific fallback helper and the paused native `pr99-heartbeat-watch` lifecycle are retired after PR #99 merge and phase exit from `PR Readiness`; missing live PR99 TOML/script files after retirement are not automation drift by themselves.
 - Post-merge branch-record handling: this record has left `Active Branch Authority Records` and is preserved under historical traceability only.
 - Post-merge successor handling: no successor implementation branch opens during this automation-catalog PR; later successor work remains the future FB-049 branch only after its stated gate clears.
 

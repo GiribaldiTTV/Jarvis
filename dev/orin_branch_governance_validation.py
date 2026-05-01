@@ -669,6 +669,7 @@ PR_READINESS_BLOCKER_PHRASES = (
     "PR Merge Verification Pending",
     "PR Watcher Provisioning Unproven",
     "PR Watcher Routing Unverified",
+    "Automation Observability Review Pending",
     "PR Readiness Scope Missed",
     "Release Window Audit Incomplete",
     "Between-Branch Canon Repair Attempt",
@@ -833,6 +834,35 @@ GOVERNANCE_RECURRENCE_PHRASES = (
     "merge-stable current-state owners such as backlog and roadmap must not mirror transient repair-branch ownership",
     "PR Watcher Provisioning Unproven",
     "PR Watcher Routing Unverified",
+)
+
+AUTOMATION_OBSERVABILITY_SOURCE = Path("dev/automation_observability_report.py")
+AUTOMATION_OBSERVABILITY_DOCS = (
+    Path("Docs/Main.md"),
+    Path("Docs/phase_governance.md"),
+    Path("Docs/development_rules.md"),
+    Path("Docs/codex_modes.md"),
+    Path("Docs/codex_user_guide.md"),
+    Path("Docs/orin_task_template.md"),
+    Path("Docs/incident_patterns.md"),
+    Path("Docs/branch_records/index.md"),
+)
+AUTOMATION_OBSERVABILITY_PHRASES = (
+    "Automation Observability",
+    "dev/automation_observability_report.py",
+    "Codex automation run/inbox",
+    "$CODEX_HOME/automations/*/memory.md",
+    "BLOCKER_CANDIDATE",
+    "REVIEW_REQUIRED",
+)
+AUTOMATION_OBSERVABILITY_SOURCE_PHRASES = (
+    "Automation Observability Source-of-Truth Report",
+    "automation_runs",
+    "inbox_items",
+    "memory.md",
+    "BLOCKER_CANDIDATE",
+    "REVIEW_REQUIRED",
+    "--strict",
 )
 
 POST_MERGE_PR_BLOCKERS = (
@@ -9111,6 +9141,23 @@ def main() -> int:
             required_phrase in watcher_output_source,
             f"{PR_WATCHER_OUTPUT_CONTRACT_SOURCE}: watcher output contract is missing '{required_phrase}'",
         )
+
+    automation_observability_source = _read_text(AUTOMATION_OBSERVABILITY_SOURCE)
+    for required_phrase in AUTOMATION_OBSERVABILITY_SOURCE_PHRASES:
+        require(
+            required_phrase in automation_observability_source,
+            (
+                f"{AUTOMATION_OBSERVABILITY_SOURCE}: automation observability helper "
+                f"is missing '{required_phrase}'"
+            ),
+        )
+    for relative_path in AUTOMATION_OBSERVABILITY_DOCS:
+        text = _read_text(relative_path)
+        for required_phrase in AUTOMATION_OBSERVABILITY_PHRASES:
+            require(
+                required_phrase in text,
+                f"{relative_path}: automation observability contract is missing '{required_phrase}'",
+            )
 
     for relative_path in GOVERNANCE_RECURRENCE_DOCS:
         text = _read_text(relative_path)

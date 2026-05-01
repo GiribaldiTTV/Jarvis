@@ -338,6 +338,7 @@ That means:
   - after live PR creation, live PR validation, merge-status green, and bot-review approval, PR Readiness continues into a merge-watch seam
   - `PR Merge Verification Pending` keeps PR Readiness blocked until that watcher on the approved reporting surface verifies that the live PR is `merged`
   - phase-critical automation cannot clear a gate merely because its card, config, or automation list says `ACTIVE`; `ACTIVE` is configuration state, not run proof, so keep `Automation Runtime Unproven` active until thread/inbox output, automation memory/log/state-file updates, scheduler last-run evidence, or another accepted run proof exists
+  - Automation Observability Review Pending is checked with `dev/automation_observability_report.py`; standing automation findings in Codex automation run/inbox rows or `$CODEX_HOME/automations/*/memory.md` are promoted into source-of-truth work only when classified as `BLOCKER_CANDIDATE` or `REVIEW_REQUIRED`, and any such finding needs a bounded repair seam before repo canon changes
   - if the preferred Codex automation remains `ACTIVE` without run evidence, the owning phase stays blocked until run evidence exists or a bounded fallback is activated; any bounded fallback must be target-scoped, phase-scoped, read-only, and self-terminating or explicitly deleted when its terminal condition or phase exit occurs
 - no PR-ready with a PR Readiness scope miss:
   - named blockers are `PR Readiness Scope Missed`, `Between-Branch Canon Repair Attempt`, and `Next Branch Created Too Early`
