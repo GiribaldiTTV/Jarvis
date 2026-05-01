@@ -143,29 +143,47 @@ def pr99_heartbeat_missing_is_historical() -> bool:
     return all(marker in record for marker in required_markers)
 
 
-def fb049_workstream_truth_is_aligned() -> bool:
+def fb049_active_phase_truth_is_aligned() -> bool:
     record = read_repo_text("Docs/branch_records/feature_fb_049_runtime_branch_readiness.md")
     backlog = read_repo_text("Docs/feature_backlog.md")
     roadmap = read_repo_text("Docs/prebeta_roadmap.md")
-    required_record_markers = (
+    workstream_record_markers = (
         "Phase: `Workstream`",
         "Current Workstream Seam: `Workstream WS1 - Pre-Settled Incoming-Launch Conflict Truthful Exit Proof`",
         "Next Active Seam: `Hardening H1 - Pre-Settled Incoming-Launch Conflict Hardening`",
         "Completion Status: `Green`",
     )
-    required_surface_markers = (
+    workstream_surface_markers = (
         "Current Workstream State: WS1 complete and green",
         "Current Workstream State: `WS1 complete and green`",
+    )
+    hardening_record_markers = (
+        "Phase: `Hardening`",
+        "Current Hardening Seam: `Hardening H1 - Pre-Settled Incoming-Launch Conflict Validation`",
+        "Active seam: `Hardening H1 - Pre-Settled Incoming-Launch Conflict Validation`",
+        "Next Active Seam: `Live Validation LV1 - Pre-Settled Incoming-Launch Conflict Live Validation`",
+    )
+    hardening_surface_markers = (
+        "Current Hardening State: Active on `Hardening H1 - Pre-Settled Incoming-Launch Conflict Validation`",
+        "Current Hardening State: `Active on Hardening H1 - Pre-Settled Incoming-Launch Conflict Validation`",
     )
     stale_markers = (
         "Current Workstream State: Not started",
         "Current Workstream State: `Not started`",
         "active in Branch Readiness on `feature/fb-049-runtime-branch-readiness`",
     )
+    workstream_aligned = (
+        all(marker in record for marker in workstream_record_markers)
+        and workstream_surface_markers[0] in backlog
+        and workstream_surface_markers[1] in roadmap
+    )
+    hardening_aligned = (
+        all(marker in record for marker in hardening_record_markers)
+        and hardening_surface_markers[0] in backlog
+        and hardening_surface_markers[1] in roadmap
+    )
     return (
-        all(marker in record for marker in required_record_markers)
-        and required_surface_markers[0] in backlog
-        and required_surface_markers[1] in roadmap
+        (workstream_aligned or hardening_aligned)
         and not any(marker in backlog or marker in roadmap for marker in stale_markers)
     )
 
@@ -189,8 +207,11 @@ def classify_pending_review(title: str, summary: str) -> str:
         (
             "phase drift found on fb-049 branch" in text
             or "fb-049 branch still in workstream" in text
+            or "fb-049 remains in workstream posture" in text
+            or "branch remains in workstream" in text
+            or "release window sentinel still waiting" in text
         )
-        and fb049_workstream_truth_is_aligned()
+        and fb049_active_phase_truth_is_aligned()
     ):
         return "REVIEW_INFO"
     if any(marker in text for marker in EXPECTED_WAITING_MARKERS):

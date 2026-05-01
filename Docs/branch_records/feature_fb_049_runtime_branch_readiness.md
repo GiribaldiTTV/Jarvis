@@ -16,7 +16,7 @@ It also carries the post-merge blocker left after PR #106: `Docs/branch_records/
 
 ## Current Phase
 
-- Phase: `Workstream`
+- Phase: `Hardening`
 
 ## Phase Status
 
@@ -35,8 +35,9 @@ It also carries the post-merge blocker left after PR #106: `Docs/branch_records/
 - Selected Next Record State: `Registry-only`
 - Selected Next Implementation Branch: `feature/fb-049-runtime-branch-readiness`
 - Current Branch Readiness Seam: `Historical complete; BR1 cleared the carried post-merge blocker`
-- Current Workstream Seam: `Workstream WS1 - Pre-Settled Incoming-Launch Conflict Truthful Exit Proof`
-- Next Active Seam: `Hardening H1 - Pre-Settled Incoming-Launch Conflict Hardening`
+- Current Workstream Seam: `Historical complete; WS1 implemented the pre-settled incoming-launch truthful-exit proof`
+- Current Hardening Seam: `Hardening H1 - Pre-Settled Incoming-Launch Conflict Validation`
+- Next Active Seam: `Live Validation LV1 - Pre-Settled Incoming-Launch Conflict Live Validation`
 - Automation Observability Report: `Strict mode passes; current automation findings are informational only`
 
 ## Branch Class
@@ -45,7 +46,7 @@ It also carries the post-merge blocker left after PR #106: `Docs/branch_records/
 
 ## Blockers
 
-None. The carried stale active-branch authority blocker is cleared, WS1 runtime proof is implemented, and no additional implementable FB-049 slices are known in this branch scope.
+None. The carried stale active-branch authority blocker is cleared, WS1 runtime proof is implemented, Hardening H1 is authority-aligned, and no additional implementable FB-049 slices are known in this branch scope.
 
 ## Entry Basis
 
@@ -62,20 +63,21 @@ None. The carried stale active-branch authority blocker is cleared, WS1 runtime 
 - Backlog and roadmap current-state surfaces identify this branch as the active FB-049 runtime-focused surface without claiming merge or release completion.
 - The first bounded FB-049 runtime slice is implemented with exact affected paths, non-goals, validation expectations, rollback boundary, and same-branch completion posture.
 - Branch governance validation, automation observability strict report, focused runtime proof, and desktop entrypoint validation are green before Hardening admission.
+- Hardening phase authority reports `Phase: Hardening` with `Hardening H1 - Pre-Settled Incoming-Launch Conflict Validation` as the active seam before H1 can be treated as authority-aligned.
 
 ## Rollback Target
 
-- `Branch Readiness`
+- `Workstream`
 
 ## Next Legal Phase
 
-- `Hardening`
+- `Live Validation`
 
 ## Branch Objective
 
-- clear the carried PR106 post-merge stale active-branch authority blocker on the next legitimate runtime-focused backlog branch
-- admit FB-049 Branch Readiness without starting implementation
-- define the smallest runtime-bearing slice for pre-settled incoming-launch conflict truth
+- preserve the completed carried PR106 post-merge stale active-branch authority repair
+- preserve completed FB-049 Workstream WS1 runtime proof
+- validate the pre-settled incoming-launch conflict truth under Hardening H1
 - keep pending `v1.6.13-prebeta` release posture and FB-049 selected-next truth consistent
 
 ## Target End-State
@@ -83,7 +85,7 @@ None. The carried stale active-branch authority blocker is cleared, WS1 runtime 
 - active branch authority belongs to `feature/fb-049-runtime-branch-readiness`
 - PR105/PR106 closeout repair proof is historical-only traceability
 - FB-049 remains `Registry-only` until Workstream promotion is warranted by implementation execution
-- Workstream can begin with a bounded runtime/user-facing slice focused on pre-settled incoming-launch conflict truth
+- Workstream WS1 remains implemented complete and Hardening H1 is the active validation seam
 - same-branch backlog completion remains the default unless only future-dependent blockers remain
 
 ## Backlog Completion Strategy
@@ -221,22 +223,23 @@ Non-Includes: no PR creation or Release Readiness work.
 
 ## Active Seam
 
-Active seam: `Workstream WS1 - Pre-Settled Incoming-Launch Conflict Truthful Exit Proof`
-Next active seam: `Hardening H1 - Pre-Settled Incoming-Launch Conflict Hardening`
+Active seam: `Hardening H1 - Pre-Settled Incoming-Launch Conflict Validation`
+Previous seam: `Workstream WS1 - Pre-Settled Incoming-Launch Conflict Truthful Exit Proof`
+Next active seam: `Live Validation LV1 - Pre-Settled Incoming-Launch Conflict Live Validation`
 
-- WS1 implements the admitted runtime/user-facing slice and proves that an incoming launch during startup-phase ownership exits with explicit pre-settled preserved-session truth instead of settled-session relaunch semantics.
+- H1 validates the admitted WS1 runtime/user-facing slice and preserves proof that an incoming launch during startup-phase ownership exits with explicit pre-settled preserved-session truth instead of settled-session relaunch semantics.
 
 ## Seam Continuation Decision
 
-Seam Status: `Green`
+Seam Status: `Active`
 Slice Status: `Green`
 Completion Status: `Green`
 Waiver Status: `None`
 Continue Decision: `Stop`
-Stop Basis: `Workstream green`
-Next Active Seam: `Hardening H1 - Pre-Settled Incoming-Launch Conflict Hardening`
-Stop Condition: `WS1 is implemented and validated; no additional implementable FB-049 Workstream slice is known.`
-Continuation Action: `Begin Hardening H1 only after this branch remains clean, current, and governance-green.`
+Stop Basis: `Hardening phase admission repaired`
+Next Active Seam: `Hardening H1 - Pre-Settled Incoming-Launch Conflict Validation`
+Stop Condition: `Hardening phase authority is aligned; H1 validation must run on the authority-aligned branch before Live Validation admission.`
+Continuation Action: `Run Hardening H1 validation on the authority-aligned branch and advance only if validation remains green.`
 
 ## Governance Drift Audit
 
