@@ -37,7 +37,7 @@ It preserves merged-main `No Active Branch` truth, keeps PR #105 watcher merge/s
 - Live PR Head Branch: `feature/pr105-post-merge-closeout-canon-repair`
 - Live PR Base Branch: `main`
 - Live PR Initial Head Commit: `28f52632f2a56200404d711de082f1004c4b33b7`
-- Live PR Current Head Commit: `2d777fd344bba2734579ebb846c70887546d903a`
+- Live PR Current Head Commit: `8fbe2d86f517be6bc8dad8bf152455924056955f`
 - Live PR Merge Status: `green / mergeable_state clean`
 - Same-thread Watcher: `Provisioned for PR #106`
 - Same-thread Watcher Task: `Codex PR105 Post-Merge Closeout Canon Repair Watch`
@@ -158,7 +158,7 @@ Continuation Action: `Keep PR Readiness PR2 active until the same-thread watcher
 ## PR Bot Review Signal
 
 - Bot Review Signal Status: `Comment addressed`
-- Bot Review Signal Head SHA: `2d777fd344bba2734579ebb846c70887546d903a`
+- Bot Review Signal Head SHA: `8fbe2d86f517be6bc8dad8bf152455924056955f`
 - Bot Review Signal Source: `Watcher-led bounded comment repair resolved GitHub review thread PRRT_kwDORwnWIs5_BQKf after fix commit 6ded9dbe0d06931c8fff5ab730061bf476a02864 and branch-record closeout commit 2d777fd344bba2734579ebb846c70887546d903a`
 - Bot Review Signal Timestamp: `2026-05-01T17:56:14Z`
 - Bot Review Signal Actor: `chatgpt-codex-connector[bot] / GiribaldiTTV`
