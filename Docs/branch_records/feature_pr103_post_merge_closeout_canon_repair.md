@@ -36,8 +36,8 @@ It does not reopen implementation, widen into release execution, mutate FB-049 s
 - Historical watcher proof files: `$CODEX_HOME/watchers/pr102-post-merge-closeout-canon-repair-watch-state.json`, `$CODEX_HOME/watchers/pr102-post-merge-closeout-canon-repair-watch-latest.txt`, and `$CODEX_HOME/watchers/pr102-post-merge-closeout-canon-repair-watch.log`
 - Historical watcher merge verification: watcher recorded merged verification at `2026-05-01T01:09:08.338902Z`, after GitHub merge truth was observable.
 - Historical watcher shutdown proof: scheduled task `Codex PR102 Post-Merge Closeout Canon Repair Watch` is absent and the watcher log records self-stop after merged verification.
-- Current PR Readiness Seam: `PR Readiness PR1 - PR103 Post-Merge Closeout Canon Repair PR Validation`
-- Next Active Seam: `PR Readiness PR1 - PR103 Post-Merge Closeout Canon Repair PR Validation`
+- Current PR Readiness Seam: `PR Readiness PR2 - PR103 Post-Merge Closeout Canon Repair Merge Verification Watch`
+- Next Active Seam: `PR Readiness PR2 - PR103 Post-Merge Closeout Canon Repair Merge Verification Watch`
 - Live PR: `https://github.com/GiribaldiTTV/Nexus-Desktop-AI/pull/104`
 - Live PR State: `open`
 - Live PR Head: `feature/pr103-post-merge-closeout-canon-repair`
@@ -46,6 +46,8 @@ It does not reopen implementation, widen into release execution, mutate FB-049 s
 - PR watcher reporting thread ID: `019de0c1-bb76-7d31-a3d0-f88aa471b7e6`
 - PR watcher reporting transcript: `C:\Users\anden\.codex\sessions\2026\04\30\rollout-2026-04-30T16-38-06-019de0c1-bb76-7d31-a3d0-f88aa471b7e6.jsonl`
 - PR watcher route verification: `PASS after watcher wrapper, watcher state, and Codex thread DB all point at the recorded reporting surface`
+- PR watcher runtime proof: `PASS via $CODEX_HOME/watchers/pr103-post-merge-closeout-canon-repair-watch-state.json and codex_resume transcript emission`
+- PR1 live validation result: `Green; PR #104 is open, non-draft, targets main, merge status is clean, bot approval is present, and watcher provisioning/routing is proven`
 
 ## Branch Class
 
@@ -53,8 +55,7 @@ It does not reopen implementation, widen into release execution, mutate FB-049 s
 
 ## Blockers
 
-- `Bot Review Signal Pending`
-- `PR Merge Status Unproven`
+- `PR Merge Verification Pending`
 
 ## Entry Basis
 
@@ -81,7 +82,7 @@ It does not reopen implementation, widen into release execution, mutate FB-049 s
 
 ## Next Legal Phase
 
-- `PR Readiness`
+- `Release Readiness`
 
 ## Scope
 
@@ -139,10 +140,10 @@ Recommended fix after review: on the next suitable PR, create a bounded test com
 
 ## Active Seam
 
-Active seam: `PR Readiness PR1 - PR103 Post-Merge Closeout Canon Repair PR Validation`
-Next active seam: `PR Readiness PR1 - PR103 Post-Merge Closeout Canon Repair PR Validation`
+Active seam: `PR Readiness PR2 - PR103 Post-Merge Closeout Canon Repair Merge Verification Watch`
+Next active seam: `PR Readiness PR2 - PR103 Post-Merge Closeout Canon Repair Merge Verification Watch`
 
-- This branch is the active bounded closeout-repair PR surface while PR #104 validates the PR103 post-merge canon repair.
+- This branch is the active bounded closeout-repair PR surface while PR #104 remains under watcher merge verification.
 
 ## Seam Continuation Decision
 
@@ -152,9 +153,9 @@ Completion Status: `Red`
 Waiver Status: `None`
 Continue Decision: `Stop`
 Stop Basis: `PR Readiness blockers`
-Next Active Seam: `PR Readiness PR1 - PR103 Post-Merge Closeout Canon Repair PR Validation`
-Stop Condition: `PR #104 is live but PR readiness is not green until merge status and bot-review signal are proven.`
-Continuation Action: `Keep PR #104 under the approved watcher route and rerun the PR readiness gate after the live PR reports green merge status and a valid bot-review signal.`
+Next Active Seam: `PR Readiness PR2 - PR103 Post-Merge Closeout Canon Repair Merge Verification Watch`
+Stop Condition: `PR #104 is live and PR1 is green, but Release Readiness is not legal until the watcher verifies the PR is merged.`
+Continuation Action: `Keep PR #104 under the approved watcher route until it verifies merged state, then rerun the PR readiness gate and enter Release Readiness only after `PR Merge Verification Pending` clears.`
 
 ## Branch Objective
 
@@ -224,11 +225,11 @@ Non-Includes: release readiness, implementation reopening, or successor branch a
 
 ## PR Bot Review Signal
 
-- Bot Review Signal Status: `Pending`
-- Bot Review Signal Head SHA: `Pending live PR #104 bot-review signal`
-- Bot Review Signal Source: `Pending thumbs-up reaction or bot comment-resolution closeout on PR #104`
-- Bot Review Signal Timestamp: `Pending`
-- Bot Review Signal Actor: `chatgpt-codex-connector[bot] pending`
+- Bot Review Signal Status: `Approved`
+- Bot Review Signal Head SHA: `Live PR #104 current head verified by watcher state`
+- Bot Review Signal Source: `Watcher-observed chatgpt-codex-connector[bot] thumbs-up signal on PR #104`
+- Bot Review Signal Timestamp: `2026-05-01T16:30:54.007455Z`
+- Bot Review Signal Actor: `chatgpt-codex-connector[bot]`
 
 ## Historical PR Bot Review Signal
 
