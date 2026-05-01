@@ -8158,6 +8158,24 @@ def _run_pr_live_state_gate(
         )
 
     if manual_comment_resolution_clear:
+        if (
+            closeout_watcher_state is not None
+            and current_pr_readiness_seam
+            in {
+                AUTOMATION_CLOSEOUT_PR_READINESS_PR2_SEAM,
+                PR101_CLOSEOUT_CANON_PR_READINESS_PR2_SEAM,
+                PR102_CLOSEOUT_CANON_PR_READINESS_PR2_SEAM,
+            }
+            and not bool(closeout_watcher_state.get("merged"))
+        ):
+            require(
+                False,
+                (
+                    "PR readiness gate: PR Merge Verification Pending blocker is active; the same-thread "
+                    f"watcher contract for live PR '{pr_url or pr_info.get('number') or 'UNKNOWN'}' "
+                    "has not yet verified a merged state"
+                ),
+            )
         return
 
     if fallback_local_state:
