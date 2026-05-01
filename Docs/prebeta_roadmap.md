@@ -68,7 +68,7 @@ Current merged truth indicates:
 - merged unreleased non-doc implementation debt exists: no
 - the latest public released implementation milestones are FB-048 Active-session relaunch signal-failure and wait-timeout truth in `v1.6.12-prebeta`; FB-047 Active-session relaunch decline session-preservation proof in `v1.6.11-prebeta`; FB-046 Active-session relaunch reacquisition and settled re-entry proof remains released in `v1.6.10-prebeta`; FB-044 Boot-to-desktop handoff outcome refinement and FB-045 Active-session relaunch outcome refinement remain released in `v1.6.9-prebeta`; FB-043 Top-level desktop entrypoint ownership and `main.py` handoff refinement remains released in `v1.6.8-prebeta`; FB-042 Desktop startup runtime family anchor remains released in `v1.6.7-prebeta`; FB-005 Workspace and folder organization remains released in `v1.6.6-prebeta`; FB-030 ORIN voice/audio direction refinement remains released in `v1.6.5-prebeta`; FB-015 Boot and desktop phase-boundary model plus FB-029 ORIN legal-safe rebrand, future ARIA persona option, and repo licensing hardening remain released in `v1.6.4-prebeta`
 - current phase after `v1.6.12-prebeta` release closure: `No Active Branch`
-- phase status after `v1.6.12-prebeta` release closure: FB-048 is Released / Closed in `v1.6.12-prebeta`; release debt is clear after publication, validation, and post-release canon closure; the merged backlog-family governance reform package plus the merged automation-catalog package remain unreleased historical branch proof for `v1.6.13-prebeta`; repo current-state is steady-state `No Active Branch`; PR #99 is merged, the source branch is deleted, the stale PR99 watcher lifecycle is retired, and FB-049 remains selected next, `Registry-only`, and branch-not-created.
+- phase status after `v1.6.12-prebeta` release closure: FB-048 is Released / Closed in `v1.6.12-prebeta`; release debt is clear after publication, validation, and post-release canon closure; the merged backlog-family governance reform package plus the merged automation-catalog package remain unreleased historical branch proof for `v1.6.13-prebeta`; merged-main current-state remains `No Active Branch`; PR #99 is merged, the source branch is deleted, the stale PR99 watcher lifecycle is retired, and FB-049 remains selected next, `Registry-only`, now active in Branch Readiness on `feature/fb-049-runtime-branch-readiness`.
 - current active workstream: `None`; merged-main repo truth is `No Active Branch`
 - current branch after `v1.6.12-prebeta` release closure: `None`
 - next concern: keep merged-main release posture and selected-next truth stable, then admit any later release-packaging or successor branch through bounded Branch Readiness instead of reviving deleted automation-branch state by inertia.
@@ -78,7 +78,7 @@ That means the released FB-027 interaction and shared-action family anchor, the 
 ## Current Branch Execution Posture
 
 Merged-Unreleased Release-Debt Owner: None.
-Repo State: No Active Branch.
+Repo State: Active Branch.
 Merged-Main Repo State: No Active Branch.
 
 Latest Public Prerelease: v1.6.12-prebeta
@@ -98,13 +98,13 @@ Earlier Historical Active Workstream Before Release: FB-048 Active-session relau
 Earlier Historical Active Branch Before Release: `feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeout-truth`
 Selected Next Workstream: FB-049 Active-session pre-settled incoming-launch conflict truth.
 Selected Next Record State: Registry-only.
-Selected Next Implementation Branch: `Not created`
+Selected Next Implementation Branch: `feature/fb-049-runtime-branch-readiness`
 Repair-Only Branch Handling: `feature/fb-046-post-merge-canon-sync` is a bounded repair-only post-merge canon-sync `feature/` branch and did not imply Branch Readiness admission or active branch truth for FB-046.
 Historical Branch Readiness State: Complete on `feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeout-truth`.
-Current Branch Readiness State: None on merge-stable current-state surfaces. If a bounded closeout repair branch is temporarily active, that execution truth belongs only in its branch authority record and must not be mirrored here while merged-main truth remains `No Active Branch`. The same branch-authority-only rule applies once that bounded repair branch advances into PR Readiness.
-Current Workstream State: `None`. Merged-main current-state owners remain steady-state `No Active Branch` while pending `v1.6.13-prebeta` release posture and FB-049 selected-next truth remain preserved. the PR watcher remains the only minute-scale heartbeat automation in preserved branch truth. Historical runtime-proof governance remains preserved as `ACTIVE` alone is not treated as run proof, any fallback helper must stay narrowed to the live PR and bounded to `PR Readiness`, and future branches that depend on PR-bot monitoring must treat `PR Watcher Provisioning Unproven`, `PR Watcher Routing Unverified`, and `PR Merge Verification Pending` as blockers until an approved watcher reporting surface is explicit, minute-cadence, reports only when a watched PR status changes, is proven by run evidence, and is cross-checked against the configured watcher route, and until that watcher later verifies the live PR is merged. Live PR state, merge-watch state, bot-review state, and blocker-clearing narration for any bounded closeout repair branch remain branch-authority truth only until merge is verified.
-Current Branch Class: `None`
-Current Implementation Delta Class: `None`
+Current Branch Readiness State: Active on `feature/fb-049-runtime-branch-readiness`; BR1 clears the carried stale active-branch authority from PR #106 before implementation starts and admits the first bounded runtime/user-facing FB-049 slice.
+Current Workstream State: `Not started`. Merged-main current-state owners remain `No Active Branch` while the branch authority record owns active Branch Readiness truth. Pending `v1.6.13-prebeta` release posture and FB-049 selected-next truth remain preserved. the PR watcher remains the only minute-scale heartbeat automation in preserved branch truth. Historical runtime-proof governance remains preserved as `ACTIVE` alone is not treated as run proof, any fallback helper must stay narrowed to the live PR and bounded to `PR Readiness`, and future branches that depend on PR-bot monitoring must treat `PR Watcher Provisioning Unproven`, `PR Watcher Routing Unverified`, and `PR Merge Verification Pending` as blockers until an approved watcher reporting surface is explicit, minute-cadence, reports only when a watched PR status changes, is proven by run evidence, and is cross-checked against the configured watcher route, and until that watcher later verifies the live PR is merged.
+Current Branch Class: `implementation`
+Current Implementation Delta Class: `runtime/user-facing`
 Historical Workstream State: automation catalog implementation is merged historical branch proof after PR #99; FB-048 is Released / Closed in `v1.6.12-prebeta`; FB-047 is Released / Closed in `v1.6.11-prebeta`; FB-046 is Released / Closed in `v1.6.10-prebeta`; FB-044 and FB-045 remain Released / Closed historical proof in `v1.6.9-prebeta`.
 Historical Hardening State: Complete on `feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeout-truth`.
 Historical Live Validation State: Complete on `feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeout-truth`.
@@ -115,8 +115,8 @@ Release Floor: patch prerelease
 Version Rationale: the approved governance reform is a release-bearing docs-only implementation branch that changes source-of-truth structure and validator governance without widening runtime or user-facing behavior, so the next release remains a patch prerelease.
 Release Scope: preserve the merged backlog-family governance reform and merged automation-catalog branch truth as unreleased historical branch proof for `v1.6.13-prebeta`, keep selected-next and no-active-branch canon stable on merged `main`, and require any later release-packaging or successor admission to start from updated merged-main truth instead of reviving deleted branch state.
 Release Artifacts: Tag v1.6.13-prebeta; release title Pre-Beta v1.6.13; rich Markdown release notes summarize the merged governance reform, the merged automation catalog, and the validator/runtime-proof hardening without repeating the release title inside the notes body, and GitHub-generated `## What's Changed` plus `**Full Changelog**:` must be included.
-Post-Release Truth: the governance reform and automation-catalog branches remain historical branch-authority traceability after publication and validation; latest public prerelease advances to `v1.6.13-prebeta`; release debt clears; and FB-049 remains selected next, `Registry-only`, and branch-not-created until updated `main` is revalidated and FB-049 Branch Readiness admits the first bounded pre-settled incoming-launch conflict truth slice.
-Next-Branch Creation Gate: FB-049 branch creation remains blocked until the merged `v1.6.13-prebeta` package is published, validated, updated `main` is revalidated, and FB-049 Branch Readiness admits the first bounded runtime/user-facing pre-settled incoming-launch conflict truth slice.
+Post-Release Truth: the governance reform and automation-catalog branches remain historical branch-authority traceability after publication and validation; latest public prerelease advances to `v1.6.13-prebeta`; release debt clears; and FB-049 remains selected next, `Registry-only`, with Branch Readiness active on `feature/fb-049-runtime-branch-readiness` after updated `main` revalidation and carried-blocker admission.
+Next-Branch Creation Gate: Cleared by FB-049 BR1 on `feature/fb-049-runtime-branch-readiness`; the branch exists only as the runtime-focused Branch Readiness surface and must clear carried canon drift before Workstream implementation starts.
 Next Legal Phase: Release Readiness.
 
 ## Merged-Unreleased Release-Debt Owner
@@ -138,8 +138,8 @@ Next Legal Phase: Release Readiness.
 - Record State: `Registry-only`
 - Priority: `High`
 - Minimal Scope: Prove and refine the pre-settled incoming-launch conflict lane across `desktop/single_instance.py`, `desktop/orin_desktop_launcher.pyw`, `desktop/orin_desktop_main.py`, and the minimum required reusable validator surfaces so startup-phase ownership stays explicit, incoming launches exit truthfully before authoritative settled is reached, and settled-session relaunch semantics are not falsely claimed.
-- Branch: Not created
-- Branch Creation Gate: after `v1.6.12-prebeta` is published and validated, updated `main` is revalidated, and FB-049 Branch Readiness admits the first bounded runtime/user-facing pre-settled incoming-launch conflict truth slice
+- Branch: `feature/fb-049-runtime-branch-readiness`
+- Branch Creation Gate: cleared by BR1 after updated `main` revalidation and carried post-merge blocker admission
 - Selection Basis: FB-049 is the smallest repo-grounded runtime/user-facing successor after FB-048 because settled-session relaunch now has first-class success, decline, signal-failure, and wait-timeout truth, but the repo still lacks equivalent proof when an incoming launch collides with an already-owning startup-phase session before authoritative settled is reached.
 
 ## Active Promoted Workstream

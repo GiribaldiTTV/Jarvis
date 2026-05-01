@@ -56,10 +56,11 @@ Do not use this layer to replace:
 
 ## Active Branch Authority Records
 
-- `Docs/branch_records/feature_pr105_post_merge_closeout_canon_repair.md`
+- `Docs/branch_records/feature_fb_049_runtime_branch_readiness.md`
 
 ## Historical Branch Authority Records
 
+- `Docs/branch_records/feature_pr105_post_merge_closeout_canon_repair.md`
 - `Docs/branch_records/feature_pr104_watcher_next_prompt_format_repair.md`
 - `Docs/branch_records/feature_pr103_post_merge_closeout_canon_repair.md`
 - `Docs/branch_records/feature_pr102_post_merge_closeout_canon_repair.md`
