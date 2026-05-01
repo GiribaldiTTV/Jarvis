@@ -452,25 +452,34 @@ def ensure_visible_thread_host(
         "scheduled watcher surface in the app."
     )
     ensure_parent(automation_toml)
-    if not automation_toml.is_file():
-        automation_toml.write_text(
-            "\n".join(
-                [
-                    "version = 1",
-                    f'id = "{automation_id}"',
-                    'kind = "heartbeat"',
-                    f'name = "{automation_name}"',
-                    f'prompt = "{automation_prompt}"',
-                    'status = "ACTIVE"',
-                    'rrule = "FREQ=MINUTELY;INTERVAL=1"',
-                    'target_thread_id = "' + thread_id + '"',
-                    f'created_at = {now_ms}',
-                    f'updated_at = {now_ms}',
-                    "",
-                ]
-            ),
-            encoding="utf-8",
-        )
+    created_at = now_ms
+    if automation_toml.is_file():
+        try:
+            existing_text = automation_toml.read_text(encoding="utf-8")
+            existing_created_at = re.search(r"^created_at = (\d+)$", existing_text, flags=re.M)
+            if existing_created_at:
+                created_at = int(existing_created_at.group(1))
+        except (OSError, ValueError):
+            created_at = now_ms
+    # Always rewrite the host config so a stale target_thread_id cannot survive retargeting.
+    automation_toml.write_text(
+        "\n".join(
+            [
+                "version = 1",
+                f'id = "{automation_id}"',
+                'kind = "heartbeat"',
+                f'name = "{automation_name}"',
+                f'prompt = "{automation_prompt}"',
+                'status = "ACTIVE"',
+                'rrule = "FREQ=MINUTELY;INTERVAL=1"',
+                'target_thread_id = "' + thread_id + '"',
+                f"created_at = {created_at}",
+                f"updated_at = {now_ms}",
+                "",
+            ]
+        ),
+        encoding="utf-8",
+    )
 
     connection = None
     try:

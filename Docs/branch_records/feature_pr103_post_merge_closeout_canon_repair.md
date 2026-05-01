@@ -43,9 +43,9 @@ It does not reopen implementation, widen into release execution, mutate FB-049 s
 - Live PR Head: `feature/pr103-post-merge-closeout-canon-repair`
 - Live PR Base: `main`
 - PR watcher reporting surface: `Current Codex working thread`
-- PR watcher reporting thread ID: `019de0c1-bb76-7d31-a3d0-f88aa471b7e6`
-- PR watcher reporting transcript: `C:\Users\anden\.codex\sessions\2026\04\30\rollout-2026-04-30T16-38-06-019de0c1-bb76-7d31-a3d0-f88aa471b7e6.jsonl`
-- PR watcher route verification: `PASS after watcher wrapper, watcher state, and Codex thread DB all point at the recorded reporting surface`
+- PR watcher reporting thread ID: `019dd083-0317-7b42-afb3-20b6818a1fa7`
+- PR watcher reporting transcript: `\\?\C:\Users\anden\.codex\sessions\2026\04\27\rollout-2026-04-27T12-55-40-019dd083-0317-7b42-afb3-20b6818a1fa7.jsonl`
+- PR watcher route verification: `PASS after watcher wrapper, watcher state, Codex thread DB, and active-branch transcript marker all point at the recorded reporting surface`
 - PR watcher runtime proof: `PASS via $CODEX_HOME/watchers/pr103-post-merge-closeout-canon-repair-watch-state.json and codex_resume transcript emission`
 - PR1 live validation result: `Green; PR #104 is open, non-draft, targets main, merge status is clean, bot approval is present, and watcher provisioning/routing is proven`
 

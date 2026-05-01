@@ -7967,11 +7967,29 @@ def _watcher_route_alignment_status(
             ),
         )
 
+    expected_rollout_path = Path(expected_rollout_path_raw)
+    if not expected_rollout_path.is_file():
+        return False, f"recorded watcher transcript '{expected_rollout_path}' is missing"
+    try:
+        transcript_tail = expected_rollout_path.read_text(encoding="utf-8")[-2_000_000:]
+    except OSError as exc:
+        return False, f"recorded watcher transcript '{expected_rollout_path}' could not be read: {exc}"
+    branch_name = _extract_marker_value(_section(branch_record_text, "Branch Identity"), "Branch")
+    if branch_name and branch_name not in transcript_tail:
+        return (
+            False,
+            (
+                "recorded watcher transcript does not prove it is the active working thread; "
+                f"branch '{branch_name}' is absent from '{expected_rollout_path}'"
+            ),
+        )
+
     return (
         True,
         (
             f"watcher reporting surface '{reporting_surface}' is explicitly recorded and the "
-            f"wrapper/state/thread-db route agrees on thread '{expected_thread_id}'"
+            f"wrapper/state/thread-db route agrees on thread '{expected_thread_id}', and the "
+            "transcript contains the active branch marker"
         ),
     )
 
