@@ -70,6 +70,9 @@ RELAUNCH_SIGNAL_FAILED_SESSION_PRESERVED_MARKER = (
 RELAUNCH_WAIT_TIMEOUT_REPLACEMENT_UNCONFIRMED_MARKER = (
     "STATUS|WARNING|LAUNCHER_RUNTIME|RELAUNCH_WAIT_TIMEOUT_REPLACEMENT_UNCONFIRMED"
 )
+PRE_SETTLED_INCOMING_CONFLICT_SESSION_PRESERVED_MARKER = (
+    "STATUS|SKIP|LAUNCHER_RUNTIME|PRE_SETTLED_INCOMING_CONFLICT_SESSION_PRESERVED"
+)
 SINGLE_INSTANCE_RELEASED_MARKER = "STATUS|TRACE|LAUNCHER_RUNTIME|SINGLE_INSTANCE_RELEASED"
 
 EXPECTED_MILESTONES = [
@@ -570,6 +573,252 @@ def run_single_instance_wait_boundary_scenario():
         "runtime_log": "",
         "stdout": "",
         "stderr": "",
+        "checks": checks,
+    }
+
+
+def run_pre_settled_incoming_conflict_scenario():
+    scenario_name = "launcher_pre_settled_incoming_conflict"
+    if os.name != "nt":
+        return {
+            "scenario_name": scenario_name,
+            "log_root": "focused pre-settled incoming conflict proof",
+            "runtime_log": "",
+            "stdout": "",
+            "stderr": "",
+            "checks": {
+                "platform_guard": line_status(
+                    True,
+                    "skipped on non-Windows; desktop.single_instance imports ctypes.windll",
+                ),
+            },
+        }
+
+    scenario_root = os.path.join(BASE_LOG_ROOT, scenario_name)
+    preexisting_processes_before, preexisting_processes_killed, preexisting_processes_after = (
+        cleanup_launch_chain_processes_for_log_root(BASE_LOG_ROOT)
+    )
+    reset_dir(scenario_root)
+    fake_renderer_script = os.path.join(scenario_root, "fake_renderer_pre_settled_owner.py")
+    fake_renderer_source = r'''
+import datetime
+import sys
+import time
+
+runtime_log = ""
+for index, arg in enumerate(sys.argv):
+    if arg == "--runtime-log" and index + 1 < len(sys.argv):
+        runtime_log = sys.argv[index + 1]
+        break
+
+def log(event):
+    if not runtime_log:
+        return
+    ts = datetime.datetime.now().strftime("%H:%M:%S")
+    with open(runtime_log, "a", encoding="utf-8") as f:
+        f.write(f"[{ts}] {event}\n")
+
+log("FAKE_RENDERER|PRE_SETTLED_HOLD_BEGIN")
+time.sleep(4.0)
+log("DESKTOP_OUTCOME|SETTLED|state=dormant")
+log("FAKE_RENDERER|SETTLED_AFTER_HOLD")
+time.sleep(8.0)
+log("FAKE_RENDERER|EVENT_LOOP_EXIT|code=0")
+'''
+    with open(fake_renderer_script, "w", encoding="utf-8") as f:
+        f.write(fake_renderer_source.lstrip())
+
+    launch_command = [sys.executable, LAUNCHER_SCRIPT]
+    env = build_harness_env(
+        scenario_root,
+        target_script=fake_renderer_script,
+        extra_env={"JARVIS_HARNESS_AUTO_ACCEPT_RELAUNCH": "1"},
+    )
+
+    first_proc = None
+    second_proc = None
+    first_stdout = ""
+    first_stderr = ""
+    second_stdout = ""
+    second_stderr = ""
+    first_runtime_log = ""
+    second_runtime_log = ""
+    first_pre_settled_before_second = False
+    first_settled_before_second = False
+
+    try:
+        if launch_command:
+            first_proc = subprocess.Popen(
+                launch_command,
+                cwd=ROOT_DIR,
+                env=env,
+                **hidden_subprocess_kwargs(),
+            )
+
+            first_deadline = time.time() + 12.0
+            while time.time() < first_deadline:
+                runtime_logs = files_matching_sorted(scenario_root, "Runtime_")
+                if runtime_logs and not first_runtime_log:
+                    first_runtime_log = runtime_logs[0]
+                if first_runtime_log:
+                    first_runtime_lines = read_lines(first_runtime_log)
+                    first_pre_settled_before_second = any(
+                        "FAKE_RENDERER|PRE_SETTLED_HOLD_BEGIN" in line
+                        for line in first_runtime_lines
+                    )
+                    first_settled_before_second = any(
+                        AUTHORITATIVE_DESKTOP_SETTLED_MARKER in line
+                        for line in first_runtime_lines
+                    )
+                    if first_pre_settled_before_second and not first_settled_before_second:
+                        break
+                if first_proc.poll() is not None and not first_runtime_log:
+                    break
+                time.sleep(0.1)
+
+            second_proc = subprocess.Popen(
+                launch_command,
+                cwd=ROOT_DIR,
+                env=env,
+                **hidden_subprocess_kwargs(),
+            )
+
+            second_deadline = time.time() + 12.0
+            while time.time() < second_deadline:
+                runtime_logs = files_matching_sorted(scenario_root, "Runtime_")
+                new_logs = [path for path in runtime_logs if path != first_runtime_log]
+                if new_logs and not second_runtime_log:
+                    second_runtime_log = new_logs[0]
+                if second_runtime_log:
+                    second_runtime_lines = read_lines(second_runtime_log)
+                    if any(
+                        PRE_SETTLED_INCOMING_CONFLICT_SESSION_PRESERVED_MARKER in line
+                        for line in second_runtime_lines
+                    ):
+                        break
+                if second_proc.poll() is not None and second_runtime_log:
+                    break
+                time.sleep(0.1)
+
+            if second_proc is not None:
+                try:
+                    second_proc.wait(timeout=5)
+                except subprocess.TimeoutExpired:
+                    terminate_process_tree(second_proc)
+    finally:
+        for proc, label in ((second_proc, "second"), (first_proc, "first")):
+            if proc is None:
+                continue
+            try:
+                if proc.poll() is None:
+                    terminate_process_tree(proc)
+                stdout_text, stderr_text = proc.communicate(timeout=5)
+            except Exception:
+                stdout_text = ""
+                stderr_text = ""
+            if label == "first":
+                first_stdout = (stdout_text or "").strip()
+                first_stderr = (stderr_text or "").strip()
+            else:
+                second_stdout = (stdout_text or "").strip()
+                second_stderr = (stderr_text or "").strip()
+
+    first_runtime_lines = read_lines(first_runtime_log)
+    second_runtime_lines = read_lines(second_runtime_log)
+    residual_launch_chain_processes_before, residual_launch_chain_killed, residual_launch_chain_processes_after = (
+        cleanup_launch_chain_processes_for_log_root(BASE_LOG_ROOT)
+    )
+
+    first_owner_detail = (
+        f"first_log={first_runtime_log or 'missing'}, second_log={second_runtime_log or 'missing'}, "
+        f"first_pre_settled_before_second={first_pre_settled_before_second}, "
+        f"first_settled_before_second={first_settled_before_second}, "
+        f"preexisting_killed={','.join(str(pid) for pid in preexisting_processes_killed) or 'none'}"
+    )
+    second_detail = "; ".join(second_runtime_lines[-8:]) if second_runtime_lines else "missing second runtime log"
+
+    checks = {
+        "preflight_cleanup_clear": line_status(
+            not preexisting_processes_after,
+            "no preexisting validation-owned launcher/runtime processes"
+            if not preexisting_processes_after
+            else "; ".join(
+                f"{process['pid']}::{process['command_line']}" for process in preexisting_processes_after
+            ),
+        ),
+        "fake_renderer_written": line_status(os.path.exists(fake_renderer_script), fake_renderer_script),
+        "first_owner_started_but_not_settled_before_second": line_status(
+            bool(first_runtime_log)
+            and first_pre_settled_before_second
+            and not first_settled_before_second,
+            first_owner_detail,
+        ),
+        "second_conflicting_launch_exited_zero": line_status(
+            second_proc is not None and second_proc.returncode == 0,
+            f"returncode={getattr(second_proc, 'returncode', 'missing')}",
+        ),
+        "second_pre_settled_conflict_detected": line_status(
+            any("PRE_SETTLED_CONFLICT_DETECTED" in line for line in second_runtime_lines),
+            second_detail,
+        ),
+        "second_pre_settled_session_preserved_marker": line_status(
+            any(
+                PRE_SETTLED_INCOMING_CONFLICT_SESSION_PRESERVED_MARKER in line
+                for line in second_runtime_lines
+            ),
+            PRE_SETTLED_INCOMING_CONFLICT_SESSION_PRESERVED_MARKER,
+        ),
+        "second_launch_never_borrows_settled_relaunch_semantics": line_status(
+            not any(
+                marker in line
+                for line in second_runtime_lines
+                for marker in (
+                    "REPLACE_PROMPT_ACCEPTED",
+                    "REPLACE_PROMPT_AUTO_ACCEPTED",
+                    "RELAUNCH_SIGNAL_SENT",
+                    "RELAUNCH_ACQUIRED_AFTER_WAIT",
+                    "RELAUNCH_REPLACEMENT_SESSION_CONFIRMED",
+                    RELAUNCH_REPLACEMENT_SESSION_ACTIVE_MARKER,
+                    RELAUNCH_REPLACEMENT_SESSION_SETTLED_MARKER,
+                )
+            ),
+            second_detail,
+        ),
+        "second_launch_never_starts_runtime_ownership": line_status(
+            not any("STATUS|START|LAUNCHER_RUNTIME" in line for line in second_runtime_lines)
+            and not any("STATUS|SUCCESS|RENDERER_PROCESS_SPAWN" in line for line in second_runtime_lines)
+            and not any(AUTHORITATIVE_DESKTOP_SETTLED_MARKER in line for line in second_runtime_lines),
+            second_detail,
+        ),
+        "first_owner_not_changed_by_pre_settled_conflict": line_status(
+            not any("RENDERER_MAIN|RELAUNCH_REQUEST_RECEIVED" in line for line in first_runtime_lines)
+            and not any("RENDERER_MAIN|SHUTDOWN_REQUESTED" in line for line in first_runtime_lines)
+            and not any(SINGLE_INSTANCE_RELEASED_MARKER in line for line in first_runtime_lines),
+            first_owner_detail,
+        ),
+        "no_residual_launch_chain_processes_for_log_root": line_status(
+            not residual_launch_chain_processes_after,
+            "none"
+            if not residual_launch_chain_processes_after
+            else "; ".join(
+                f"{process['pid']}::{process['command_line']}" for process in residual_launch_chain_processes_after
+            ),
+        ),
+        "traceback_absent": line_status(
+            all(
+                "Traceback" not in text
+                for text in (first_stdout, first_stderr, second_stdout, second_stderr)
+            ),
+            (first_stderr or second_stderr or first_stdout or second_stdout or "no traceback in subprocess output"),
+        ),
+    }
+
+    return {
+        "scenario_name": scenario_name,
+        "log_root": scenario_root,
+        "runtime_log": second_runtime_log,
+        "stdout": "\n".join(text for text in (first_stdout, second_stdout) if text),
+        "stderr": "\n".join(text for text in (first_stderr, second_stderr) if text),
         "checks": checks,
     }
 
@@ -2174,12 +2423,84 @@ def run_repeated_signal_failure_relaunch_scenario():
     )
     reset_dir(scenario_root)
     scenario_root_entries_after_reset = dir_entry_names(scenario_root)
+    fake_renderer_script = os.path.join(scenario_root, "fake_renderer_relaunch_owner.py")
+    fake_renderer_source = r'''
+import datetime
+import os
+import sys
+import time
+
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "..", "..")))
+
+from desktop.single_instance import NamedSignal
+
+RUNTIME_RELAUNCH_EVENT = r"Local\JarvisRuntimeRelaunchRequestV1"
+RUNTIME_DESKTOP_SETTLED_EVENT = r"Local\JarvisRuntimeDesktopSettledV1"
+
+runtime_log = ""
+for index, arg in enumerate(sys.argv):
+    if arg == "--runtime-log" and index + 1 < len(sys.argv):
+        runtime_log = sys.argv[index + 1]
+        break
+
+def env_flag(name):
+    return (os.environ.get(name) or "").strip().casefold() in {"1", "true", "yes", "on"}
+
+def log(event):
+    if not runtime_log:
+        return
+    ts = datetime.datetime.now().strftime("%H:%M:%S")
+    with open(runtime_log, "a", encoding="utf-8") as stream:
+        stream.write(f"[{ts}] {event}\n")
+
+def write_settled_file():
+    if not runtime_log:
+        return
+    signal_path = os.path.join(os.path.dirname(runtime_log), "desktop_settled.signal")
+    with open(signal_path, "w", encoding="utf-8") as stream:
+        stream.write(
+            f"{datetime.datetime.now(datetime.timezone.utc).isoformat()}|fake renderer authoritative settled\n"
+        )
+
+relaunch_signal = NamedSignal(RUNTIME_RELAUNCH_EVENT)
+settled_signal = NamedSignal(RUNTIME_DESKTOP_SETTLED_EVENT)
+try:
+    log("RENDERER_MAIN|START")
+    log("RENDERER_MAIN|STARTUP_READY")
+    log("RENDERER_MAIN|PASSIVE_DEFAULT_HANDOFF_REQUESTED|state=dormant")
+    if settled_signal.signal():
+        log("RENDERER_MAIN|DESKTOP_SETTLED_SIGNAL_SET")
+    write_settled_file()
+    log("RENDERER_MAIN|DESKTOP_SETTLED_SIGNAL_FILE_SET")
+    log("DESKTOP_OUTCOME|SETTLED|state=dormant")
+
+    deadline = time.time() + 5.0
+    while time.time() < deadline:
+        if relaunch_signal.consume():
+            log("RENDERER_MAIN|RELAUNCH_REQUEST_RECEIVED")
+            if env_flag("JARVIS_HARNESS_IGNORE_RELAUNCH_REQUEST"):
+                log("RENDERER_MAIN|HARNESS_RELAUNCH_REQUEST_IGNORED")
+                deadline = time.time() + 3.0
+                continue
+            break
+        time.sleep(0.05)
+
+    time.sleep(0.25)
+    log("RENDERER_MAIN|SHUTDOWN_REQUESTED")
+    log("RENDERER_MAIN|EVENT_LOOP_EXIT|code=0")
+finally:
+    relaunch_signal.close()
+    settled_signal.close()
+'''
+    with open(fake_renderer_script, "w", encoding="utf-8") as f:
+        f.write(fake_renderer_source.lstrip())
 
     cscript_command = resolve_cscript_command()
     launch_command = cscript_command + ["//nologo", ENTRYPOINT_SCRIPT] if cscript_command else []
-    first_env = build_harness_env(scenario_root)
+    first_env = build_harness_env(scenario_root, target_script=fake_renderer_script)
     failure_env = build_harness_env(
         scenario_root,
+        target_script=fake_renderer_script,
         extra_env={
             "JARVIS_HARNESS_AUTO_ACCEPT_RELAUNCH": "1",
             "JARVIS_HARNESS_FORCE_RELAUNCH_SIGNAL_FAILURE": "1",
@@ -2223,7 +2544,7 @@ def run_repeated_signal_failure_relaunch_scenario():
                     if any(AUTHORITATIVE_DESKTOP_SETTLED_MARKER in line for line in first_runtime_lines):
                         first_settled_seen = True
                         break
-                if first_proc.poll() is not None:
+                if first_proc.poll() is not None and not first_runtime_log:
                     break
                 time.sleep(0.2)
 
@@ -2533,15 +2854,85 @@ def run_accepted_relaunch_wait_timeout_scenario():
     )
     reset_dir(scenario_root)
     scenario_root_entries_after_reset = dir_entry_names(scenario_root)
+    fake_renderer_script = os.path.join(scenario_root, "fake_renderer_ignore_relaunch.py")
+    fake_renderer_source = r'''
+import datetime
+import os
+import sys
+import time
+
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "..", "..")))
+
+from desktop.single_instance import NamedSignal
+
+RUNTIME_RELAUNCH_EVENT = r"Local\JarvisRuntimeRelaunchRequestV1"
+RUNTIME_DESKTOP_SETTLED_EVENT = r"Local\JarvisRuntimeDesktopSettledV1"
+
+runtime_log = ""
+for index, arg in enumerate(sys.argv):
+    if arg == "--runtime-log" and index + 1 < len(sys.argv):
+        runtime_log = sys.argv[index + 1]
+        break
+
+def log(event):
+    if not runtime_log:
+        return
+    ts = datetime.datetime.now().strftime("%H:%M:%S")
+    with open(runtime_log, "a", encoding="utf-8") as stream:
+        stream.write(f"[{ts}] {event}\n")
+
+def write_settled_file():
+    if not runtime_log:
+        return
+    signal_path = os.path.join(os.path.dirname(runtime_log), "desktop_settled.signal")
+    with open(signal_path, "w", encoding="utf-8") as stream:
+        stream.write(
+            f"{datetime.datetime.now(datetime.timezone.utc).isoformat()}|fake renderer authoritative settled\n"
+        )
+
+relaunch_signal = NamedSignal(RUNTIME_RELAUNCH_EVENT)
+settled_signal = NamedSignal(RUNTIME_DESKTOP_SETTLED_EVENT)
+try:
+    log("RENDERER_MAIN|START")
+    log("RENDERER_MAIN|STARTUP_READY")
+    log("RENDERER_MAIN|PASSIVE_DEFAULT_HANDOFF_REQUESTED|state=dormant")
+    if settled_signal.signal():
+        log("RENDERER_MAIN|DESKTOP_SETTLED_SIGNAL_SET")
+    write_settled_file()
+    log("RENDERER_MAIN|DESKTOP_SETTLED_SIGNAL_FILE_SET")
+    log("DESKTOP_OUTCOME|SETTLED|state=dormant")
+
+    deadline = time.time() + 8.0
+    ignored = False
+    while time.time() < deadline:
+        if relaunch_signal.consume():
+            log("RENDERER_MAIN|RELAUNCH_REQUEST_RECEIVED")
+            log("RENDERER_MAIN|HARNESS_RELAUNCH_REQUEST_IGNORED")
+            ignored = True
+            break
+        time.sleep(0.05)
+
+    if ignored:
+        time.sleep(2.5)
+    log("RENDERER_MAIN|SHUTDOWN_REQUESTED")
+    log("RENDERER_MAIN|EVENT_LOOP_EXIT|code=0")
+finally:
+    relaunch_signal.close()
+    settled_signal.close()
+'''
+    with open(fake_renderer_script, "w", encoding="utf-8") as f:
+        f.write(fake_renderer_source.lstrip())
 
     cscript_command = resolve_cscript_command()
     launch_command = cscript_command + ["//nologo", ENTRYPOINT_SCRIPT] if cscript_command else []
     first_env = build_harness_env(
         scenario_root,
+        target_script=fake_renderer_script,
         extra_env={"JARVIS_HARNESS_IGNORE_RELAUNCH_REQUEST": "1"},
     )
     timeout_env = build_harness_env(
         scenario_root,
+        target_script=fake_renderer_script,
         extra_env={
             "JARVIS_HARNESS_AUTO_ACCEPT_RELAUNCH": "1",
             "JARVIS_HARNESS_RELAUNCH_WAIT_SECONDS": "0.75",
@@ -2585,7 +2976,7 @@ def run_accepted_relaunch_wait_timeout_scenario():
                     if any(AUTHORITATIVE_DESKTOP_SETTLED_MARKER in line for line in first_runtime_lines):
                         first_settled_seen = True
                         break
-                if first_proc.poll() is not None:
+                if first_proc.poll() is not None and not first_runtime_log:
                     break
                 time.sleep(0.2)
 
@@ -3602,12 +3993,77 @@ def run_mixed_signal_failure_then_accept_relaunch_scenario():
     )
     reset_dir(scenario_root)
     scenario_root_entries_after_reset = dir_entry_names(scenario_root)
+    fake_renderer_script = os.path.join(scenario_root, "fake_renderer_relaunch_owner.py")
+    fake_renderer_source = r'''
+import datetime
+import os
+import sys
+import time
+
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "..", "..")))
+
+from desktop.single_instance import NamedSignal
+
+RUNTIME_RELAUNCH_EVENT = r"Local\JarvisRuntimeRelaunchRequestV1"
+RUNTIME_DESKTOP_SETTLED_EVENT = r"Local\JarvisRuntimeDesktopSettledV1"
+
+runtime_log = ""
+for index, arg in enumerate(sys.argv):
+    if arg == "--runtime-log" and index + 1 < len(sys.argv):
+        runtime_log = sys.argv[index + 1]
+        break
+
+def log(event):
+    if not runtime_log:
+        return
+    ts = datetime.datetime.now().strftime("%H:%M:%S")
+    with open(runtime_log, "a", encoding="utf-8") as stream:
+        stream.write(f"[{ts}] {event}\n")
+
+def write_settled_file():
+    if not runtime_log:
+        return
+    signal_path = os.path.join(os.path.dirname(runtime_log), "desktop_settled.signal")
+    with open(signal_path, "w", encoding="utf-8") as stream:
+        stream.write(
+            f"{datetime.datetime.now(datetime.timezone.utc).isoformat()}|fake renderer authoritative settled\n"
+        )
+
+relaunch_signal = NamedSignal(RUNTIME_RELAUNCH_EVENT)
+settled_signal = NamedSignal(RUNTIME_DESKTOP_SETTLED_EVENT)
+try:
+    log("RENDERER_MAIN|START")
+    log("RENDERER_MAIN|STARTUP_READY")
+    log("RENDERER_MAIN|PASSIVE_DEFAULT_HANDOFF_REQUESTED|state=dormant")
+    if settled_signal.signal():
+        log("RENDERER_MAIN|DESKTOP_SETTLED_SIGNAL_SET")
+    write_settled_file()
+    log("RENDERER_MAIN|DESKTOP_SETTLED_SIGNAL_FILE_SET")
+    log("DESKTOP_OUTCOME|SETTLED|state=dormant")
+
+    deadline = time.time() + 5.0
+    while time.time() < deadline:
+        if relaunch_signal.consume():
+            log("RENDERER_MAIN|RELAUNCH_REQUEST_RECEIVED")
+            break
+        time.sleep(0.05)
+
+    time.sleep(0.25)
+    log("RENDERER_MAIN|SHUTDOWN_REQUESTED")
+    log("RENDERER_MAIN|EVENT_LOOP_EXIT|code=0")
+finally:
+    relaunch_signal.close()
+    settled_signal.close()
+'''
+    with open(fake_renderer_script, "w", encoding="utf-8") as f:
+        f.write(fake_renderer_source.lstrip())
 
     cscript_command = resolve_cscript_command()
     launch_command = cscript_command + ["//nologo", ENTRYPOINT_SCRIPT] if cscript_command else []
-    first_env = build_harness_env(scenario_root)
+    first_env = build_harness_env(scenario_root, target_script=fake_renderer_script)
     failure_env = build_harness_env(
         scenario_root,
+        target_script=fake_renderer_script,
         extra_env={
             "JARVIS_HARNESS_AUTO_ACCEPT_RELAUNCH": "1",
             "JARVIS_HARNESS_FORCE_RELAUNCH_SIGNAL_FAILURE": "1",
@@ -3661,7 +4117,7 @@ def run_mixed_signal_failure_then_accept_relaunch_scenario():
                     if any(AUTHORITATIVE_DESKTOP_SETTLED_MARKER in line for line in first_runtime_lines):
                         first_settled_seen = True
                         break
-                if first_proc.poll() is not None:
+                if first_proc.poll() is not None and not first_runtime_log:
                     break
                 time.sleep(0.2)
 
@@ -4091,7 +4547,7 @@ def run_mixed_decline_then_accept_relaunch_scenario():
                     if any(AUTHORITATIVE_DESKTOP_SETTLED_MARKER in line for line in first_runtime_lines):
                         first_settled_seen = True
                         break
-                if first_proc.poll() is not None:
+                if first_proc.poll() is not None and not first_runtime_log:
                     break
                 time.sleep(0.2)
 
@@ -4508,12 +4964,77 @@ def run_mixed_failure_decline_accept_failure_relaunch_scenario():
     )
     reset_dir(scenario_root)
     scenario_root_entries_after_reset = dir_entry_names(scenario_root)
+    fake_renderer_script = os.path.join(scenario_root, "fake_renderer_relaunch_owner.py")
+    fake_renderer_source = r'''
+import datetime
+import os
+import sys
+import time
+
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "..", "..")))
+
+from desktop.single_instance import NamedSignal
+
+RUNTIME_RELAUNCH_EVENT = r"Local\JarvisRuntimeRelaunchRequestV1"
+RUNTIME_DESKTOP_SETTLED_EVENT = r"Local\JarvisRuntimeDesktopSettledV1"
+
+runtime_log = ""
+for index, arg in enumerate(sys.argv):
+    if arg == "--runtime-log" and index + 1 < len(sys.argv):
+        runtime_log = sys.argv[index + 1]
+        break
+
+def log(event):
+    if not runtime_log:
+        return
+    ts = datetime.datetime.now().strftime("%H:%M:%S")
+    with open(runtime_log, "a", encoding="utf-8") as stream:
+        stream.write(f"[{ts}] {event}\n")
+
+def write_settled_file():
+    if not runtime_log:
+        return
+    signal_path = os.path.join(os.path.dirname(runtime_log), "desktop_settled.signal")
+    with open(signal_path, "w", encoding="utf-8") as stream:
+        stream.write(
+            f"{datetime.datetime.now(datetime.timezone.utc).isoformat()}|fake renderer authoritative settled\n"
+        )
+
+relaunch_signal = NamedSignal(RUNTIME_RELAUNCH_EVENT)
+settled_signal = NamedSignal(RUNTIME_DESKTOP_SETTLED_EVENT)
+try:
+    log("RENDERER_MAIN|START")
+    log("RENDERER_MAIN|STARTUP_READY")
+    log("RENDERER_MAIN|PASSIVE_DEFAULT_HANDOFF_REQUESTED|state=dormant")
+    if settled_signal.signal():
+        log("RENDERER_MAIN|DESKTOP_SETTLED_SIGNAL_SET")
+    write_settled_file()
+    log("RENDERER_MAIN|DESKTOP_SETTLED_SIGNAL_FILE_SET")
+    log("DESKTOP_OUTCOME|SETTLED|state=dormant")
+
+    deadline = time.time() + 5.0
+    while time.time() < deadline:
+        if relaunch_signal.consume():
+            log("RENDERER_MAIN|RELAUNCH_REQUEST_RECEIVED")
+            break
+        time.sleep(0.05)
+
+    time.sleep(0.25)
+    log("RENDERER_MAIN|SHUTDOWN_REQUESTED")
+    log("RENDERER_MAIN|EVENT_LOOP_EXIT|code=0")
+finally:
+    relaunch_signal.close()
+    settled_signal.close()
+'''
+    with open(fake_renderer_script, "w", encoding="utf-8") as f:
+        f.write(fake_renderer_source.lstrip())
 
     cscript_command = resolve_cscript_command()
     launch_command = cscript_command + ["//nologo", ENTRYPOINT_SCRIPT] if cscript_command else []
-    first_env = build_harness_env(scenario_root)
+    first_env = build_harness_env(scenario_root, target_script=fake_renderer_script)
     failure_env = build_harness_env(
         scenario_root,
+        target_script=fake_renderer_script,
         extra_env={
             "JARVIS_HARNESS_AUTO_ACCEPT_RELAUNCH": "1",
             "JARVIS_HARNESS_FORCE_RELAUNCH_SIGNAL_FAILURE": "1",
@@ -4521,10 +5042,12 @@ def run_mixed_failure_decline_accept_failure_relaunch_scenario():
     )
     decline_env = build_harness_env(
         scenario_root,
+        target_script=fake_renderer_script,
         extra_env={"JARVIS_HARNESS_AUTO_DECLINE_RELAUNCH": "1"},
     )
     accept_env = build_harness_env(
         scenario_root,
+        target_script=fake_renderer_script,
         extra_env={"JARVIS_HARNESS_AUTO_ACCEPT_RELAUNCH": "1"},
     )
 
@@ -4586,7 +5109,7 @@ def run_mixed_failure_decline_accept_failure_relaunch_scenario():
                     if any(AUTHORITATIVE_DESKTOP_SETTLED_MARKER in line for line in first_runtime_lines):
                         first_settled_seen = True
                         break
-                if first_proc.poll() is not None:
+                if first_proc.poll() is not None and not first_runtime_log:
                     break
                 time.sleep(0.2)
 
@@ -6071,6 +6594,7 @@ def run_validation():
     main_explicit_handoff_result = run_main_explicit_desktop_handoff_scenario()
     repeated_entrypoint_result = run_repeated_entrypoint_launch_scenario()
     single_instance_wait_boundary_result = run_single_instance_wait_boundary_scenario()
+    pre_settled_conflict_result = run_pre_settled_incoming_conflict_scenario()
     accepted_relaunch_result = run_accepted_relaunch_cycle_scenario()
     accepted_relaunch_slow_shutdown_result = run_accepted_relaunch_cycle_scenario(
         "vbs_accepted_relaunch_cycle_slow_shutdown",
@@ -6117,6 +6641,8 @@ def run_validation():
         checks[f"{repeated_entrypoint_result['scenario_name']}::{check_name}"] = check_result
     for check_name, check_result in single_instance_wait_boundary_result["checks"].items():
         checks[f"{single_instance_wait_boundary_result['scenario_name']}::{check_name}"] = check_result
+    for check_name, check_result in pre_settled_conflict_result["checks"].items():
+        checks[f"{pre_settled_conflict_result['scenario_name']}::{check_name}"] = check_result
     for check_name, check_result in accepted_relaunch_result["checks"].items():
         checks[f"{accepted_relaunch_result['scenario_name']}::{check_name}"] = check_result
     for check_name, check_result in accepted_relaunch_slow_shutdown_result["checks"].items():
@@ -6166,6 +6692,7 @@ def run_validation():
         "nonlaunch_scenarios": [
             repeated_entrypoint_result,
             single_instance_wait_boundary_result,
+            pre_settled_conflict_result,
             accepted_relaunch_result,
             accepted_relaunch_slow_shutdown_result,
             repeated_signal_failure_result,

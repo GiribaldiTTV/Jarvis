@@ -33,14 +33,18 @@ CRASH_DIR = os.path.join(LOG_DIR, "crash")
 STATUS_FILE = os.path.join(LOG_DIR, "diagnostics_status.txt")
 STOP_SIGNAL_FILE = os.path.join(LOG_DIR, "diagnostics_stop.signal")
 STARTUP_ABORT_SIGNAL_FILE = os.path.join(LOG_DIR, "renderer_startup_abort.signal")
+DESKTOP_SETTLED_SIGNAL_FILE = os.path.join(LOG_DIR, "desktop_settled.signal")
+ACTIVE_RUNTIME_OWNER_FILE = os.path.join(LOG_DIR, "active_runtime_owner.json")
 DIAGNOSTICS_SCRIPT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "orin_diagnostics.pyw")
 VOICE_SCRIPT = os.path.join(ROOT_DIR, "Audio", "orin_error_voice.py")
 HARNESS_DISABLE_DIAGNOSTICS = env_flag("JARVIS_HARNESS_DISABLE_DIAGNOSTICS")
 HARNESS_DISABLE_VOICE = env_flag("JARVIS_HARNESS_DISABLE_VOICE")
 RUNTIME_INSTANCE_MUTEX = r"Local\JarvisRuntimeSingletonV1"
 RUNTIME_RELAUNCH_EVENT = r"Local\JarvisRuntimeRelaunchRequestV1"
+RUNTIME_DESKTOP_SETTLED_EVENT = r"Local\JarvisRuntimeDesktopSettledV1"
 runtime_instance_guard = SingleInstanceGuard(RUNTIME_INSTANCE_MUTEX)
 runtime_relaunch_signal = NamedSignal(RUNTIME_RELAUNCH_EVENT)
+runtime_desktop_settled_signal = NamedSignal(RUNTIME_DESKTOP_SETTLED_EVENT)
 
 MAX_RECOVERY_ATTEMPTS = 3
 RECOVERY_COOLDOWN_SECONDS = 1.2
@@ -788,6 +792,63 @@ def runtime_log_contains_since(pattern, start_offset=0):
         return False
 
 
+def write_desktop_settled_signal_file(reason):
+    try:
+        with open(DESKTOP_SETTLED_SIGNAL_FILE, "w", encoding="utf-8") as f:
+            f.write(f"{datetime.datetime.now(datetime.timezone.utc).isoformat()}|{reason}\n")
+        runtime_event("FILE", "CREATE_OR_RESET", os.path.basename(DESKTOP_SETTLED_SIGNAL_FILE), "SUCCESS", reason)
+        return True
+    except Exception as exc:
+        runtime_event("FILE", "CREATE_OR_RESET", os.path.basename(DESKTOP_SETTLED_SIGNAL_FILE), "FAILED", reason, exc)
+        return False
+
+
+def write_active_runtime_owner_file(reason):
+    try:
+        with open(ACTIVE_RUNTIME_OWNER_FILE, "w", encoding="utf-8") as f:
+            json.dump(
+                {
+                    "runtime_file": RUNTIME_FILE,
+                    "recorded_at": datetime.datetime.now(datetime.timezone.utc).isoformat(),
+                    "reason": reason,
+                },
+                f,
+            )
+        runtime_event("FILE", "CREATE_OR_RESET", os.path.basename(ACTIVE_RUNTIME_OWNER_FILE), "SUCCESS", reason)
+        return True
+    except Exception as exc:
+        runtime_event("FILE", "CREATE_OR_RESET", os.path.basename(ACTIVE_RUNTIME_OWNER_FILE), "FAILED", reason, exc)
+        return False
+
+
+def active_owner_runtime_log_contains(pattern):
+    try:
+        with open(ACTIVE_RUNTIME_OWNER_FILE, "r", encoding="utf-8") as f:
+            owner = json.load(f)
+        runtime_file = os.path.abspath(str(owner.get("runtime_file") or ""))
+        if not runtime_file:
+            return False
+        if not runtime_file.startswith(os.path.abspath(LOG_DIR) + os.sep):
+            return False
+        if not os.path.isfile(runtime_file):
+            return False
+        with open(runtime_file, "r", encoding="utf-8", errors="ignore") as f:
+            return pattern in f.read()
+    except Exception:
+        return False
+
+
+def active_desktop_settled_signal_present():
+    return os.path.isfile(DESKTOP_SETTLED_SIGNAL_FILE) or active_owner_runtime_log_contains(
+        AUTHORITATIVE_DESKTOP_SETTLED_MARKER
+    )
+
+
+def clear_active_runtime_owner(reason):
+    delete_file(DESKTOP_SETTLED_SIGNAL_FILE, reason)
+    delete_file(ACTIVE_RUNTIME_OWNER_FILE, reason)
+
+
 def observe_authoritative_desktop_settled(proc, log_start_offset):
     settled_marker = AUTHORITATIVE_DESKTOP_SETTLED_MARKER
     startup_abort_marker = "RENDERER_MAIN|STARTUP_ABORTED"
@@ -801,6 +862,8 @@ def observe_authoritative_desktop_settled(proc, log_start_offset):
 
     while True:
         if runtime_log_contains_since(settled_marker, log_start_offset):
+            runtime_desktop_settled_signal.signal()
+            write_desktop_settled_signal_file("launcher observed authoritative settled")
             runtime_event(
                 "STATUS",
                 "SUCCESS",
@@ -855,6 +918,8 @@ def observe_authoritative_desktop_settled(proc, log_start_offset):
             continue
 
     if runtime_log_contains_since(settled_marker, log_start_offset):
+        runtime_desktop_settled_signal.signal()
+        write_desktop_settled_signal_file("launcher observed authoritative settled after exit")
         runtime_event(
             "STATUS",
             "SUCCESS",
@@ -1358,6 +1423,7 @@ def main():
     run_id = create_run_id()
     single_instance_state = {
         "declined_relaunch": False,
+        "pre_settled_conflict": False,
         "signal_failed_relaunch": False,
         "wait_timeout_relaunch": False,
         "replacement_session": False,
@@ -1366,8 +1432,14 @@ def main():
     }
 
     def log_single_instance_event(event):
+        if event == "SINGLE_INSTANCE_ACQUIRED":
+            runtime_desktop_settled_signal.clear()
+            clear_active_runtime_owner("startup settled signal reset")
+            write_active_runtime_owner_file("startup owner acquired")
         if event in {"REPLACE_PROMPT_DECLINED", "REPLACE_PROMPT_AUTO_DECLINED"}:
             single_instance_state["declined_relaunch"] = True
+        if event == "PRE_SETTLED_CONFLICT_SESSION_PRESERVED":
+            single_instance_state["pre_settled_conflict"] = True
         if event == "RELAUNCH_SIGNAL_FAILED":
             single_instance_state["signal_failed_relaunch"] = True
         if event == "RELAUNCH_WAIT_TIMEOUT":
@@ -1399,8 +1471,11 @@ def main():
             return
 
         single_instance_state["released"] = True
+        runtime_desktop_settled_signal.clear()
+        clear_active_runtime_owner("runtime release")
         runtime_instance_guard.release()
         runtime_relaunch_signal.close()
+        runtime_desktop_settled_signal.close()
         runtime("Single-instance flow: SINGLE_INSTANCE_RELEASED")
         runtime_event("STATUS", "TRACE", "LAUNCHER_RUNTIME", "SINGLE_INSTANCE_RELEASED")
 
@@ -1413,8 +1488,25 @@ def main():
         primary_button_text="Relaunch Desktop Runtime",
         secondary_button_text="Keep Current Session",
         event_logger=log_single_instance_event,
+        active_session_settled_signal=runtime_desktop_settled_signal,
+        active_session_settled_checker=active_desktop_settled_signal_present,
+        pre_settled_conflict_message=(
+            "Nexus Desktop AI is still starting. Please wait for the current startup to finish "
+            "before relaunching the desktop runtime."
+        ),
     ):
-        if single_instance_state["declined_relaunch"]:
+        if single_instance_state["pre_settled_conflict"]:
+            runtime(
+                "Incoming launch exited cleanly: active session is still starting; "
+                "startup-phase owner preserved"
+            )
+            runtime_event(
+                "STATUS",
+                "SKIP",
+                "LAUNCHER_RUNTIME",
+                "PRE_SETTLED_INCOMING_CONFLICT_SESSION_PRESERVED",
+            )
+        elif single_instance_state["declined_relaunch"]:
             runtime("Incoming launch exited cleanly: current session preserved after relaunch decline")
             runtime_event(
                 "STATUS",

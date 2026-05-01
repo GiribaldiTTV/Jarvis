@@ -21,6 +21,7 @@ from desktop.single_instance import NamedSignal
 RUNTIME_LOG_FILE = ""
 STARTUP_ABORT_SIGNAL_FILE = ""
 RUNTIME_RELAUNCH_EVENT = r"Local\JarvisRuntimeRelaunchRequestV1"
+RUNTIME_DESKTOP_SETTLED_EVENT = r"Local\JarvisRuntimeDesktopSettledV1"
 TRAY_IDENTITY_LABEL = "Nexus Desktop AI"
 TRAY_DISCOVERY_MESSAGE = (
     "Nexus Desktop AI is running in the Windows notification area. "
@@ -55,6 +56,18 @@ def runtime_milestone(event):
             f.write(f"[{ts}] {event}\n")
     except Exception:
         pass
+
+
+def write_desktop_settled_signal_file():
+    if not RUNTIME_LOG_FILE:
+        return False
+    try:
+        signal_path = os.path.join(os.path.dirname(RUNTIME_LOG_FILE), "desktop_settled.signal")
+        with open(signal_path, "w", encoding="utf-8") as f:
+            f.write(f"{datetime.datetime.now(datetime.timezone.utc).isoformat()}|renderer authoritative settled\n")
+        return True
+    except Exception:
+        return False
 
 
 def overlay_trace_enabled():
@@ -274,6 +287,7 @@ def main():
     runtime_milestone("RENDERER_MAIN|SHUTDOWN_BUS_READY")
     hotkeys = GlobalHotkeyManager(bus)
     relaunch_signal = NamedSignal(RUNTIME_RELAUNCH_EVENT)
+    desktop_settled_signal = NamedSignal(RUNTIME_DESKTOP_SETTLED_EVENT)
     shutdown_started = False
     shutdown_force_kill_timer = None
     if exit_if_startup_abort_requested():
@@ -335,6 +349,10 @@ def main():
             return
         window.set_visual_state("dormant")
         runtime_milestone("RENDERER_MAIN|PASSIVE_DEFAULT_HANDOFF_REQUESTED|state=dormant")
+        if desktop_settled_signal.signal():
+            runtime_milestone("RENDERER_MAIN|DESKTOP_SETTLED_SIGNAL_SET")
+        if write_desktop_settled_signal_file():
+            runtime_milestone("RENDERER_MAIN|DESKTOP_SETTLED_SIGNAL_FILE_SET")
         runtime_milestone(AUTHORITATIVE_DESKTOP_SETTLED_MARKER)
 
     startup_ready_marked = False
@@ -377,6 +395,7 @@ def main():
     exit_code = app.exec()
     relaunch_timer.stop()
     relaunch_signal.close()
+    desktop_settled_signal.close()
     tray_entry.close()
     hotkeys.stop()
     runtime_milestone(f"RENDERER_MAIN|EVENT_LOOP_EXIT|code={exit_code}")

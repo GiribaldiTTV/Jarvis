@@ -143,6 +143,33 @@ def pr99_heartbeat_missing_is_historical() -> bool:
     return all(marker in record for marker in required_markers)
 
 
+def fb049_workstream_truth_is_aligned() -> bool:
+    record = read_repo_text("Docs/branch_records/feature_fb_049_runtime_branch_readiness.md")
+    backlog = read_repo_text("Docs/feature_backlog.md")
+    roadmap = read_repo_text("Docs/prebeta_roadmap.md")
+    required_record_markers = (
+        "Phase: `Workstream`",
+        "Current Workstream Seam: `Workstream WS1 - Pre-Settled Incoming-Launch Conflict Truthful Exit Proof`",
+        "Next Active Seam: `Hardening H1 - Pre-Settled Incoming-Launch Conflict Hardening`",
+        "Completion Status: `Green`",
+    )
+    required_surface_markers = (
+        "Current Workstream State: WS1 complete and green",
+        "Current Workstream State: `WS1 complete and green`",
+    )
+    stale_markers = (
+        "Current Workstream State: Not started",
+        "Current Workstream State: `Not started`",
+        "active in Branch Readiness on `feature/fb-049-runtime-branch-readiness`",
+    )
+    return (
+        all(marker in record for marker in required_record_markers)
+        and required_surface_markers[0] in backlog
+        and required_surface_markers[1] in roadmap
+        and not any(marker in backlog or marker in roadmap for marker in stale_markers)
+    )
+
+
 def classify_pending_review(title: str, summary: str) -> str:
     text = f"{title}\n{summary}".casefold()
     if (
@@ -156,6 +183,14 @@ def classify_pending_review(title: str, summary: str) -> str:
     if (
         "live toml for ws1 pr99-heartbeat-watch is absent" in text
         and pr99_heartbeat_missing_is_historical()
+    ):
+        return "REVIEW_INFO"
+    if (
+        (
+            "phase drift found on fb-049 branch" in text
+            or "fb-049 branch still in workstream" in text
+        )
+        and fb049_workstream_truth_is_aligned()
     ):
         return "REVIEW_INFO"
     if any(marker in text for marker in EXPECTED_WAITING_MARKERS):

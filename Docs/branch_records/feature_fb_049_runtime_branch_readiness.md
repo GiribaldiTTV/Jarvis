@@ -16,7 +16,7 @@ It also carries the post-merge blocker left after PR #106: `Docs/branch_records/
 
 ## Current Phase
 
-- Phase: `Branch Readiness`
+- Phase: `Workstream`
 
 ## Phase Status
 
@@ -34,8 +34,9 @@ It also carries the post-merge blocker left after PR #106: `Docs/branch_records/
 - Selected Next Workstream: `FB-049 Active-session pre-settled incoming-launch conflict truth`
 - Selected Next Record State: `Registry-only`
 - Selected Next Implementation Branch: `feature/fb-049-runtime-branch-readiness`
-- Current Branch Readiness Seam: `BR1 - FB-049 Admission With Carried Post-Merge Blocker`
-- Next Active Seam: `Workstream WS1 - Pre-Settled Incoming-Launch Conflict Truth`
+- Current Branch Readiness Seam: `Historical complete; BR1 cleared the carried post-merge blocker`
+- Current Workstream Seam: `Workstream WS1 - Pre-Settled Incoming-Launch Conflict Truthful Exit Proof`
+- Next Active Seam: `Hardening H1 - Pre-Settled Incoming-Launch Conflict Hardening`
 - Automation Observability Report: `Strict mode passes; current automation findings are informational only`
 
 ## Branch Class
@@ -44,7 +45,7 @@ It also carries the post-merge blocker left after PR #106: `Docs/branch_records/
 
 ## Blockers
 
-None. The carried stale active-branch authority blocker is cleared in this Branch Readiness pass, and FB-049 implementation is not started until Workstream.
+None. The carried stale active-branch authority blocker is cleared, WS1 runtime proof is implemented, and no additional implementable FB-049 slices are known in this branch scope.
 
 ## Entry Basis
 
@@ -58,9 +59,9 @@ None. The carried stale active-branch authority blocker is cleared in this Branc
 
 - `Docs/branch_records/index.md` lists this FB-049 branch record as the only active branch authority record.
 - `Docs/branch_records/feature_pr105_post_merge_closeout_canon_repair.md` is historical-only traceability and no longer active authority.
-- Backlog and roadmap current-state surfaces identify this branch as the active FB-049 Branch Readiness surface without claiming Workstream implementation has started.
-- The first bounded FB-049 runtime slice is defined with exact affected paths, non-goals, validation expectations, rollback boundary, and same-branch continuation posture.
-- Branch governance validation and automation observability strict report are green before Workstream admission.
+- Backlog and roadmap current-state surfaces identify this branch as the active FB-049 runtime-focused surface without claiming merge or release completion.
+- The first bounded FB-049 runtime slice is implemented with exact affected paths, non-goals, validation expectations, rollback boundary, and same-branch completion posture.
+- Branch governance validation, automation observability strict report, focused runtime proof, and desktop entrypoint validation are green before Hardening admission.
 
 ## Rollback Target
 
@@ -68,7 +69,7 @@ None. The carried stale active-branch authority blocker is cleared in this Branc
 
 ## Next Legal Phase
 
-- `Workstream`
+- `Hardening`
 
 ## Branch Objective
 
@@ -90,6 +91,16 @@ None. The carried stale active-branch authority blocker is cleared in this Branc
 Branch Completion Goal: `Complete FB-049 on this same branch unless only future-dependent blockers remain after the pre-settled incoming-launch conflict truth work is exhausted.`
 Known Future-Dependent Blockers: `None proven during Branch Readiness.`
 Branch Closure Rule: `Do not leave Workstream after WS-1 while more implementable FB-049 work remains; exit Workstream only when Backlog Completion State becomes Implemented Complete or Implemented Complete Except Future Dependency.`
+
+## Backlog Completion Status
+
+Backlog Completion State: `Implemented Complete`
+Remaining Implementable Work: `None`
+Future-Dependent Blockers: `None`
+Completion Status: `Green`
+
+- WS1 implements the full currently admitted FB-049 runtime/user-facing slice: incoming launches that collide with an owning startup-phase session before authoritative settled now exit truthfully without false settled-session relaunch, guard-transfer, replacement-session, or authoritative-settled claims.
+- No additional same-branch FB-049 runtime slice is known after the pre-settled incoming-launch conflict proof.
 
 ## Affected Surface Ownership
 
@@ -201,12 +212,19 @@ Non-Includes: no PR creation or Release Readiness work.
 - run `git diff --check`
 - during Workstream, run the relevant desktop entrypoint and boot-transition validators before any phase advancement
 
+## WS1 Runtime Proof
+
+- `desktop/single_instance.py` now exposes non-consuming named-signal state through `NamedSignal.is_set()` and uses an optional active-session settled signal to distinguish pre-settled ownership conflicts from settled relaunch prompts.
+- `desktop/orin_desktop_launcher.pyw` now clears `Local\JarvisRuntimeDesktopSettledV1`, `desktop_settled.signal`, and `active_runtime_owner.json` when it acquires runtime ownership, writes the active-owner breadcrumb, passes the settled signal/checker into the single-instance conflict path, emits `PRE_SETTLED_INCOMING_CONFLICT_SESSION_PRESERVED` for incoming pre-settled conflicts, and avoids relaunch prompts, relaunch signals, renderer spawn, replacement-session markers, and settled claims for that lane.
+- `desktop/orin_desktop_main.py` now sets `Local\JarvisRuntimeDesktopSettledV1` and writes `desktop_settled.signal` only when it emits the authoritative `DESKTOP_OUTCOME|SETTLED|state=dormant` marker.
+- `dev/orin_desktop_entrypoint_validation.py` now includes `launcher_pre_settled_incoming_conflict`, a focused production-launcher proof that starts an owner in a pre-settled hold, launches a second process, and proves the second process exits `0` with `STATUS|SKIP|LAUNCHER_RUNTIME|PRE_SETTLED_INCOMING_CONFLICT_SESSION_PRESERVED` without borrowing settled relaunch semantics or mutating the owner; the legacy settled relaunch validators now wait for actual owner settled truth and use controlled fake renderers where headless desktop exits would otherwise mask the launcher contract.
+
 ## Active Seam
 
-Active seam: `BR1 - FB-049 Admission With Carried Post-Merge Blocker`
-Next active seam: `Workstream WS1 - Pre-Settled Incoming-Launch Conflict Truth`
+Active seam: `Workstream WS1 - Pre-Settled Incoming-Launch Conflict Truthful Exit Proof`
+Next active seam: `Hardening H1 - Pre-Settled Incoming-Launch Conflict Hardening`
 
-- BR1 clears the carried post-merge branch-authority blocker, creates this active FB-049 Branch Readiness record, syncs current-state truth, and admits the first bounded runtime slice for later Workstream execution.
+- WS1 implements the admitted runtime/user-facing slice and proves that an incoming launch during startup-phase ownership exits with explicit pre-settled preserved-session truth instead of settled-session relaunch semantics.
 
 ## Seam Continuation Decision
 
@@ -216,9 +234,9 @@ Completion Status: `Green`
 Waiver Status: `None`
 Continue Decision: `Stop`
 Stop Basis: `Workstream green`
-Next Active Seam: `Workstream WS1 - Pre-Settled Incoming-Launch Conflict Truth`
-Stop Condition: `Branch Readiness BR1 is complete; runtime implementation has not started.`
-Continuation Action: `Begin Workstream WS1 only after a Workstream prompt confirms this branch remains clean, current, and governance-green.`
+Next Active Seam: `Hardening H1 - Pre-Settled Incoming-Launch Conflict Hardening`
+Stop Condition: `WS1 is implemented and validated; no additional implementable FB-049 Workstream slice is known.`
+Continuation Action: `Begin Hardening H1 only after this branch remains clean, current, and governance-green.`
 
 ## Governance Drift Audit
 
