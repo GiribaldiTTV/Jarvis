@@ -139,6 +139,8 @@ def branch_record_snapshot(branch_record_path: Path) -> dict[str, str]:
         "branchRecordNextLegalPhase": next_legal_phase,
         "branchRecordActiveSeam": _record_value(active_seam, "Active seam"),
         "branchRecordNextActiveSeam": _record_value(active_seam, "Next active seam"),
+        "branchRecordBotReviewStatus": _record_value(_record_section(text, "PR Bot Review Signal"), "Bot Review Signal Status"),
+        "branchRecordBotReviewHead": _record_value(_record_section(text, "PR Bot Review Signal"), "Bot Review Signal Head SHA"),
     }
 
 
@@ -294,10 +296,20 @@ def current_thread_message(status: dict[str, object]) -> str:
     pr_number = status["prNumber"]
     merge_status_green = status.get("mergeable") is True
     merge_status_label = "green" if merge_status_green else "not green"
-    bot_approval_label = "present" if status.get("botApproval") else "pending"
+    recorded_bot_status = str(status.get("branchRecordBotReviewStatus") or "").strip()
+    recorded_bot_resolved = recorded_bot_status.casefold() in {"approved", "comment addressed"}
+    bot_signal_resolved = bool(status.get("botApproval")) or recorded_bot_resolved
+    if status.get("botApproval"):
+        bot_approval_label = "present"
+    elif recorded_bot_status:
+        bot_approval_label = recorded_bot_status
+    else:
+        bot_approval_label = "pending"
     bot_comment_count = int(status.get("botCommentCount") or 0)
     if bot_comment_count:
         bot_comment_label = f"{bot_comment_count} provable bot comment(s)"
+    elif recorded_bot_status.casefold() == "comment addressed":
+        bot_comment_label = "comment addressed in branch record"
     else:
         bot_comment_label = "no provable bot comments"
 
@@ -331,14 +343,13 @@ def current_thread_message(status: dict[str, object]) -> str:
     last_run = str(status.get("lastRunLocal") or "UNKNOWN")
     merge_watch_active = "pr2" in active_seam.casefold() or "merge verification" in active_seam.casefold()
     bot_comment_count = int(status.get("botCommentCount") or 0)
-    bot_approval = bool(status.get("botApproval"))
     blockers_list: list[str] = []
     if status.get("merged"):
         blockers_list.append("None for PR merge verification")
     else:
-        if bot_comment_count > 0:
+        if bot_comment_count > 0 and not recorded_bot_resolved:
             blockers_list.append("PR Validation Pending")
-        elif not bot_approval:
+        elif not bot_signal_resolved:
             blockers_list.append("Bot Review Signal Pending")
         if merge_status_label != "green":
             blockers_list.append("PR Merge Status Unproven")
@@ -349,7 +360,7 @@ def current_thread_message(status: dict[str, object]) -> str:
     if status.get("merged"):
         continue_decision = "Stop watcher and proceed to Release Readiness validation from updated main"
     elif merge_watch_active:
-        continue_decision = "Stop; remain in PR Readiness PR2 until merge verification clears"
+        continue_decision = "Continue; remain in PR Readiness PR2 until merge verification clears"
     elif "PR Merge Verification Pending" in blockers_list and len(blockers_list) == 1:
         continue_decision = "Continue into PR Readiness PR2 merge-watch with Release Readiness still blocked"
     else:
