@@ -366,6 +366,11 @@ class NamedSignal:
             return False
         return bool(ResetEvent(self.handle))
 
+    def is_set(self) -> bool:
+        if not self.handle:
+            return False
+        return WaitForSingleObject(self.handle, 0) == WAIT_OBJECT_0
+
     def consume(self) -> bool:
         if not self.handle:
             return False
@@ -394,6 +399,9 @@ def acquire_or_prompt_replace(
     eyebrow_text: str = "JARVIS",
     primary_button_text: str = "Close Current And Relaunch",
     secondary_button_text: str = "Keep Current",
+    active_session_settled_signal: NamedSignal | None = None,
+    active_session_settled_checker: Callable[[], bool] | None = None,
+    pre_settled_conflict_message: str = "",
 ) -> bool:
     def log_event(event: str) -> None:
         if not callable(event_logger):
@@ -409,6 +417,32 @@ def acquire_or_prompt_replace(
         return True
 
     log_event("SINGLE_INSTANCE_CONFLICT_DETECTED")
+
+    if active_session_settled_signal is not None or callable(active_session_settled_checker):
+        active_session_settled = False
+        if active_session_settled_signal is not None:
+            active_session_settled = active_session_settled_signal.is_set()
+        if not active_session_settled and callable(active_session_settled_checker):
+            try:
+                active_session_settled = bool(active_session_settled_checker())
+            except Exception:
+                active_session_settled = False
+
+    if (
+        (active_session_settled_signal is not None or callable(active_session_settled_checker))
+        and not active_session_settled
+    ):
+        log_event("PRE_SETTLED_CONFLICT_DETECTED")
+        if not harness_suppress_already_running_dialogs():
+            show_already_running_dialog(
+                title,
+                pre_settled_conflict_message
+                or "Nexus Desktop AI is still starting. Please wait for the current startup to finish and try again.",
+                eyebrow_text=eyebrow_text,
+                primary_button_text="Close",
+            )
+        log_event("PRE_SETTLED_CONFLICT_SESSION_PRESERVED")
+        return False
 
     if harness_auto_accept_relaunch():
         log_event("REPLACE_PROMPT_AUTO_ACCEPTED")

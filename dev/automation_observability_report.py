@@ -40,6 +40,11 @@ EXPECTED_WAITING_MARKERS = (
     "release readiness is not legal yet",
     "pr merge verification pending` remains active",
     "still waiting on merge verification",
+    "merge verification still pending",
+    "merge watch still pending",
+    "watcher still pending",
+    "pr #107 has not merged yet",
+    "watch for merged=true",
 )
 
 
@@ -143,6 +148,131 @@ def pr99_heartbeat_missing_is_historical() -> bool:
     return all(marker in record for marker in required_markers)
 
 
+def fb049_active_phase_truth_is_aligned() -> bool:
+    record = read_repo_text("Docs/branch_records/feature_fb_049_runtime_branch_readiness.md")
+    backlog = read_repo_text("Docs/feature_backlog.md")
+    roadmap = read_repo_text("Docs/prebeta_roadmap.md")
+    workstream_record_markers = (
+        "Phase: `Workstream`",
+        "Current Workstream Seam: `Workstream WS1 - Pre-Settled Incoming-Launch Conflict Truthful Exit Proof`",
+        "Next Active Seam: `Hardening H1 - Pre-Settled Incoming-Launch Conflict Hardening`",
+        "Completion Status: `Green`",
+    )
+    workstream_surface_markers = (
+        "Current Workstream State: WS1 complete and green",
+        "Current Workstream State: `WS1 complete and green`",
+    )
+    hardening_record_markers = (
+        "Phase: `Hardening`",
+        "Current Hardening Seam: `Hardening H1 - Pre-Settled Incoming-Launch Conflict Validation`",
+        "Active seam: `Hardening H1 - Pre-Settled Incoming-Launch Conflict Validation`",
+        "Next Active Seam: `Live Validation LV1 - Pre-Settled Incoming-Launch Conflict Live Validation`",
+    )
+    hardening_surface_markers = (
+        "Current Hardening State: Active on `Hardening H1 - Pre-Settled Incoming-Launch Conflict Validation`",
+        "Current Hardening State: `Active on Hardening H1 - Pre-Settled Incoming-Launch Conflict Validation`",
+    )
+    live_validation_record_markers = (
+        "Phase: `Live Validation`",
+        "Current Live Validation Seam: `Live Validation LV1 - Pre-Settled Incoming-Launch Conflict Live Validation`",
+        "Active seam: `Live Validation LV1 - Pre-Settled Incoming-Launch Conflict Live Validation`",
+        "User-Facing Shortcut Validation: `PASS`",
+        "User Test Summary Results: `WAIVED`",
+        "Next Active Seam: `PR Readiness PR1 - FB-049 Runtime Branch PR Validation`",
+    )
+    live_validation_surface_markers = (
+        "Current Live Validation State: Green on `Live Validation LV1 - Pre-Settled Incoming-Launch Conflict Live Validation`",
+        "Current Live Validation State: `Green on Live Validation LV1 - Pre-Settled Incoming-Launch Conflict Live Validation`",
+    )
+    pr_readiness_pr1_record_markers = (
+        "Phase: `PR Readiness`",
+        "Current PR Readiness Seam: `PR Readiness PR1 - FB-049 Runtime Branch PR Validation`",
+        "Active seam: `PR Readiness PR1 - FB-049 Runtime Branch PR Validation`",
+        "Live PR Number: `107`",
+        "Same-Thread Watcher: `pr107-same-thread-merge-watch`",
+        "Next active seam: `PR Readiness PR2 - FB-049 Runtime Branch Merge Verification Watch`",
+    )
+    pr_readiness_pr1_surface_markers = (
+        "Current PR Readiness State: Active on `PR Readiness PR1 - FB-049 Runtime Branch PR Validation` for PR #107",
+        "Current PR Readiness State: `Active on PR Readiness PR1 - FB-049 Runtime Branch PR Validation for PR #107`",
+    )
+    pr_readiness_pr2_record_markers = (
+        "Phase: `PR Readiness`",
+        "Current PR Readiness Seam: `PR Readiness PR2 - FB-049 Runtime Branch Merge Verification Watch`",
+        "Active seam: `PR Readiness PR2 - FB-049 Runtime Branch Merge Verification Watch`",
+        "Previous seam: `PR Readiness PR1 - FB-049 Runtime Branch PR Validation`",
+        "Live PR Number: `107`",
+        "Same-Thread Watcher: `pr107-same-thread-merge-watch`",
+        "PR2 Merge Watch Posture: `PR Merge Verification Pending`",
+    )
+    pr_readiness_pr2_surface_markers = (
+        "Current PR Readiness State: PR1 is historical green for PR #107 live-surface validation; active on `PR Readiness PR2 - FB-049 Runtime Branch Merge Verification Watch`",
+        "Current PR Readiness State: `PR1 is historical green for PR #107 live-surface validation`; active on `PR Readiness PR2 - FB-049 Runtime Branch Merge Verification Watch`",
+    )
+    stale_markers = (
+        "Current Workstream State: Not started",
+        "Current Workstream State: `Not started`",
+        "active in Branch Readiness on `feature/fb-049-runtime-branch-readiness`",
+    )
+    workstream_aligned = (
+        all(marker in record for marker in workstream_record_markers)
+        and workstream_surface_markers[0] in backlog
+        and workstream_surface_markers[1] in roadmap
+    )
+    hardening_aligned = (
+        all(marker in record for marker in hardening_record_markers)
+        and hardening_surface_markers[0] in backlog
+        and hardening_surface_markers[1] in roadmap
+    )
+    live_validation_aligned = (
+        all(marker in record for marker in live_validation_record_markers)
+        and live_validation_surface_markers[0] in backlog
+        and live_validation_surface_markers[1] in roadmap
+    )
+    pr_readiness_pr1_aligned = (
+        all(marker in record for marker in pr_readiness_pr1_record_markers)
+        and pr_readiness_pr1_surface_markers[0] in backlog
+        and pr_readiness_pr1_surface_markers[1] in roadmap
+    )
+    pr_readiness_pr2_aligned = (
+        all(marker in record for marker in pr_readiness_pr2_record_markers)
+        and pr_readiness_pr2_surface_markers[0] in backlog
+        and pr_readiness_pr2_surface_markers[1] in roadmap
+    )
+    return (
+        (
+            workstream_aligned
+            or hardening_aligned
+            or live_validation_aligned
+            or pr_readiness_pr1_aligned
+            or pr_readiness_pr2_aligned
+        )
+        and not any(marker in backlog or marker in roadmap for marker in stale_markers)
+    )
+
+
+def pr107_merge_watch_pending_is_expected() -> bool:
+    record = read_repo_text("Docs/branch_records/feature_fb_049_runtime_branch_readiness.md")
+    backlog = read_repo_text("Docs/feature_backlog.md")
+    roadmap = read_repo_text("Docs/prebeta_roadmap.md")
+    record_markers = (
+        "Current PR Readiness Seam: `PR Readiness PR2 - FB-049 Runtime Branch Merge Verification Watch`",
+        "Same-Thread Watcher: `pr107-same-thread-merge-watch`",
+        "PR2 Merge Watch Posture: `PR Merge Verification Pending`",
+        "Stop Basis: `PR Merge Verification Pending`",
+        "Stop Condition: `PR #107 is not watcher-verified as merged.`",
+    )
+    surface_markers = (
+        "Current PR Readiness State: PR1 is historical green for PR #107 live-surface validation; active on `PR Readiness PR2 - FB-049 Runtime Branch Merge Verification Watch`",
+        "Current PR Readiness State: `PR1 is historical green for PR #107 live-surface validation`; active on `PR Readiness PR2 - FB-049 Runtime Branch Merge Verification Watch`",
+    )
+    return (
+        all(marker in record for marker in record_markers)
+        and surface_markers[0] in backlog
+        and surface_markers[1] in roadmap
+    )
+
+
 def classify_pending_review(title: str, summary: str) -> str:
     text = f"{title}\n{summary}".casefold()
     if (
@@ -156,6 +286,33 @@ def classify_pending_review(title: str, summary: str) -> str:
     if (
         "live toml for ws1 pr99-heartbeat-watch is absent" in text
         and pr99_heartbeat_missing_is_historical()
+    ):
+        return "REVIEW_INFO"
+    if (
+        (
+            "phase drift found on fb-049 branch" in text
+            or "fb-049 branch still in workstream" in text
+            or "fb-049 remains in workstream posture" in text
+            or "fb-049 remains in hardening wait state" in text
+            or "fb-049 still in hardening" in text
+            or "branch remains in workstream" in text
+            or "release window sentinel still waiting" in text
+            or "phase has not reached pr or release readiness" in text
+            or "phase has not reached pr readiness" in text
+        )
+        and fb049_active_phase_truth_is_aligned()
+    ):
+        return "REVIEW_INFO"
+    if (
+        (
+            "live pr #107 watcher needs explicit contract" in text
+            or "fb-049 admission gate cleared" in text
+            or "fb-049 merge watch still pending" in text
+            or "pr readiness watcher still pending" in text
+            or "pr #107 merge verification still pending" in text
+            or "pr #107 has not merged yet" in text
+        )
+        and pr107_merge_watch_pending_is_expected()
     ):
         return "REVIEW_INFO"
     if any(marker in text for marker in EXPECTED_WAITING_MARKERS):
@@ -237,6 +394,7 @@ def build_report() -> tuple[dict[str, object], list[Finding]]:
             latest_title = str(run["inbox_title"] or "") if run else ""
             latest_summary = str(run["inbox_summary"] or "") if run else ""
             latest_status = str(run["status"] or "") if run else ""
+            next_run_at = int(row["next_run_at"]) if row["next_run_at"] else None
 
             if status == "ACTIVE" and not toml_path:
                 findings.append(
@@ -248,14 +406,31 @@ def build_report() -> tuple[dict[str, object], list[Finding]]:
                     )
                 )
             if status == "ACTIVE" and not newest_proof_ms:
-                findings.append(
-                    Finding(
-                        "BLOCKER_CANDIDATE",
-                        automation_id,
-                        "Active automation has no run proof",
-                        "No scheduler last_run_at and no automation_runs row were found.",
-                    )
+                first_run_grace_active = (
+                    next_run_at is not None
+                    and (
+                        dt.datetime.fromtimestamp(next_run_at / 1000, tz=dt.timezone.utc) - now
+                    ).total_seconds()
+                    > -10 * 60
                 )
+                if first_run_grace_active:
+                    findings.append(
+                        Finding(
+                            "REVIEW_INFO",
+                            automation_id,
+                            "Active automation awaiting first run proof",
+                            "No scheduler last_run_at or automation_runs row exists yet, but the first scheduled run remains inside the initial grace window.",
+                        )
+                    )
+                else:
+                    findings.append(
+                        Finding(
+                            "BLOCKER_CANDIDATE",
+                            automation_id,
+                            "Active automation has no run proof",
+                            "No scheduler last_run_at and no automation_runs row were found.",
+                        )
+                    )
             if status == "ACTIVE" and age_seconds is not None and age_seconds > freshness_limit_seconds(rrule):
                 findings.append(
                     Finding(
