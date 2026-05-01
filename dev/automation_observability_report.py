@@ -40,6 +40,11 @@ EXPECTED_WAITING_MARKERS = (
     "release readiness is not legal yet",
     "pr merge verification pending` remains active",
     "still waiting on merge verification",
+    "merge verification still pending",
+    "merge watch still pending",
+    "watcher still pending",
+    "pr #107 has not merged yet",
+    "watch for merged=true",
 )
 
 
@@ -179,7 +184,7 @@ def fb049_active_phase_truth_is_aligned() -> bool:
         "Current Live Validation State: Green on `Live Validation LV1 - Pre-Settled Incoming-Launch Conflict Live Validation`",
         "Current Live Validation State: `Green on Live Validation LV1 - Pre-Settled Incoming-Launch Conflict Live Validation`",
     )
-    pr_readiness_record_markers = (
+    pr_readiness_pr1_record_markers = (
         "Phase: `PR Readiness`",
         "Current PR Readiness Seam: `PR Readiness PR1 - FB-049 Runtime Branch PR Validation`",
         "Active seam: `PR Readiness PR1 - FB-049 Runtime Branch PR Validation`",
@@ -187,9 +192,22 @@ def fb049_active_phase_truth_is_aligned() -> bool:
         "Same-Thread Watcher: `pr107-same-thread-merge-watch`",
         "Next active seam: `PR Readiness PR2 - FB-049 Runtime Branch Merge Verification Watch`",
     )
-    pr_readiness_surface_markers = (
+    pr_readiness_pr1_surface_markers = (
         "Current PR Readiness State: Active on `PR Readiness PR1 - FB-049 Runtime Branch PR Validation` for PR #107",
         "Current PR Readiness State: `Active on PR Readiness PR1 - FB-049 Runtime Branch PR Validation for PR #107`",
+    )
+    pr_readiness_pr2_record_markers = (
+        "Phase: `PR Readiness`",
+        "Current PR Readiness Seam: `PR Readiness PR2 - FB-049 Runtime Branch Merge Verification Watch`",
+        "Active seam: `PR Readiness PR2 - FB-049 Runtime Branch Merge Verification Watch`",
+        "Previous seam: `PR Readiness PR1 - FB-049 Runtime Branch PR Validation`",
+        "Live PR Number: `107`",
+        "Same-Thread Watcher: `pr107-same-thread-merge-watch`",
+        "PR2 Merge Watch Posture: `PR Merge Verification Pending`",
+    )
+    pr_readiness_pr2_surface_markers = (
+        "Current PR Readiness State: PR1 is historical green for PR #107 live-surface validation; active on `PR Readiness PR2 - FB-049 Runtime Branch Merge Verification Watch`",
+        "Current PR Readiness State: `PR1 is historical green for PR #107 live-surface validation`; active on `PR Readiness PR2 - FB-049 Runtime Branch Merge Verification Watch`",
     )
     stale_markers = (
         "Current Workstream State: Not started",
@@ -211,14 +229,47 @@ def fb049_active_phase_truth_is_aligned() -> bool:
         and live_validation_surface_markers[0] in backlog
         and live_validation_surface_markers[1] in roadmap
     )
-    pr_readiness_aligned = (
-        all(marker in record for marker in pr_readiness_record_markers)
-        and pr_readiness_surface_markers[0] in backlog
-        and pr_readiness_surface_markers[1] in roadmap
+    pr_readiness_pr1_aligned = (
+        all(marker in record for marker in pr_readiness_pr1_record_markers)
+        and pr_readiness_pr1_surface_markers[0] in backlog
+        and pr_readiness_pr1_surface_markers[1] in roadmap
+    )
+    pr_readiness_pr2_aligned = (
+        all(marker in record for marker in pr_readiness_pr2_record_markers)
+        and pr_readiness_pr2_surface_markers[0] in backlog
+        and pr_readiness_pr2_surface_markers[1] in roadmap
     )
     return (
-        (workstream_aligned or hardening_aligned or live_validation_aligned or pr_readiness_aligned)
+        (
+            workstream_aligned
+            or hardening_aligned
+            or live_validation_aligned
+            or pr_readiness_pr1_aligned
+            or pr_readiness_pr2_aligned
+        )
         and not any(marker in backlog or marker in roadmap for marker in stale_markers)
+    )
+
+
+def pr107_merge_watch_pending_is_expected() -> bool:
+    record = read_repo_text("Docs/branch_records/feature_fb_049_runtime_branch_readiness.md")
+    backlog = read_repo_text("Docs/feature_backlog.md")
+    roadmap = read_repo_text("Docs/prebeta_roadmap.md")
+    record_markers = (
+        "Current PR Readiness Seam: `PR Readiness PR2 - FB-049 Runtime Branch Merge Verification Watch`",
+        "Same-Thread Watcher: `pr107-same-thread-merge-watch`",
+        "PR2 Merge Watch Posture: `PR Merge Verification Pending`",
+        "Stop Basis: `PR Merge Verification Pending`",
+        "Stop Condition: `PR #107 is not watcher-verified as merged.`",
+    )
+    surface_markers = (
+        "Current PR Readiness State: PR1 is historical green for PR #107 live-surface validation; active on `PR Readiness PR2 - FB-049 Runtime Branch Merge Verification Watch`",
+        "Current PR Readiness State: `PR1 is historical green for PR #107 live-surface validation`; active on `PR Readiness PR2 - FB-049 Runtime Branch Merge Verification Watch`",
+    )
+    return (
+        all(marker in record for marker in record_markers)
+        and surface_markers[0] in backlog
+        and surface_markers[1] in roadmap
     )
 
 
@@ -250,6 +301,18 @@ def classify_pending_review(title: str, summary: str) -> str:
             or "phase has not reached pr readiness" in text
         )
         and fb049_active_phase_truth_is_aligned()
+    ):
+        return "REVIEW_INFO"
+    if (
+        (
+            "live pr #107 watcher needs explicit contract" in text
+            or "fb-049 admission gate cleared" in text
+            or "fb-049 merge watch still pending" in text
+            or "pr readiness watcher still pending" in text
+            or "pr #107 merge verification still pending" in text
+            or "pr #107 has not merged yet" in text
+        )
+        and pr107_merge_watch_pending_is_expected()
     ):
         return "REVIEW_INFO"
     if any(marker in text for marker in EXPECTED_WAITING_MARKERS):

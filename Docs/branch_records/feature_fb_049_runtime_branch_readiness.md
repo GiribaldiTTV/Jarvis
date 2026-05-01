@@ -38,11 +38,11 @@ It also carries the post-merge blocker left after PR #106: `Docs/branch_records/
 - Current Workstream Seam: `Historical complete; WS1 implemented the pre-settled incoming-launch truthful-exit proof`
 - Current Hardening Seam: `Historical complete; H1 validated the pre-settled incoming-launch conflict runtime proof`
 - Current Live Validation Seam: `Historical complete; LV1 validated real shortcut launch and closest available pre-settled conflict proof`
-- Current PR Readiness Seam: `PR Readiness PR1 - FB-049 Runtime Branch PR Validation`
+- Current PR Readiness Seam: `PR Readiness PR2 - FB-049 Runtime Branch Merge Verification Watch`
 - Next Active Seam: `PR Readiness PR2 - FB-049 Runtime Branch Merge Verification Watch`
 - Live PR: `https://github.com/GiribaldiTTV/Nexus-Desktop-AI/pull/107`
 - Live PR Number: `107`
-- Live PR State: `open; draft=false; merged=false at PR1 admission`
+- Live PR State: `open; draft=false; mergeable_state=clean; merged=false at PR1 validation`
 - Same-Thread Watcher: `pr107-same-thread-merge-watch`
 - Same-Thread Watcher Reporting Surface: `current Codex working thread`
 - Same-Thread Watcher Cadence: `FREQ=MINUTELY;INTERVAL=1`
@@ -76,7 +76,7 @@ The carried stale active-branch authority blocker is cleared, WS1 runtime proof 
 - Branch governance validation, automation observability strict report, focused runtime proof, and desktop entrypoint validation are green before Hardening admission.
 - Hardening phase authority reported `Phase: Hardening` with `Hardening H1 - Pre-Settled Incoming-Launch Conflict Validation` as the active seam before H1 was treated as authority-aligned.
 - Live Validation phase authority reported `Phase: Live Validation` with `Live Validation LV1 - Pre-Settled Incoming-Launch Conflict Live Validation` as the active seam before LV1 was treated as authority-aligned.
-- PR Readiness phase authority reports `Phase: PR Readiness` with `PR Readiness PR1 - FB-049 Runtime Branch PR Validation` as the active seam before PR1 can be treated as authority-aligned.
+- PR Readiness phase authority reported `Phase: PR Readiness` with `PR Readiness PR1 - FB-049 Runtime Branch PR Validation` before PR1 was treated as authority-aligned, then moved to PR2 merge-watch posture after PR1 validation passed.
 
 ## Rollback Target
 
@@ -98,7 +98,7 @@ The carried stale active-branch authority blocker is cleared, WS1 runtime proof 
 - active branch authority belongs to `feature/fb-049-runtime-branch-readiness`
 - PR105/PR106 closeout repair proof is historical-only traceability
 - FB-049 remains `Registry-only` until Workstream promotion is warranted by implementation execution
-- Workstream WS1 remains implemented complete, Hardening H1 is historical green, Live Validation LV1 is historical green, and PR Readiness PR1 is the active validation seam
+- Workstream WS1 remains implemented complete, Hardening H1 is historical green, Live Validation LV1 is historical green, PR Readiness PR1 is historical green, and PR Readiness PR2 is the active merge-watch seam
 - same-branch backlog completion remains the default unless only future-dependent blockers remain
 
 ## Backlog Completion Strategy
@@ -259,6 +259,13 @@ Non-Includes: no PR creation or Release Readiness work.
 - PR Created At: `2026-05-01T21:27:45Z`
 - PR Initial State: `open; draft=false; merged=false`
 - PR Initial Head SHA: `bf758288377d101d6b9e521cc1af91e4d98c3816`
+- PR Validated Head SHA: `d199eee0e1515f7c078c5d9faae37f1923b53f27`
+- PR Mergeability: `mergeable=true; mergeable_state=clean`
+- Bot Review Signal: `chatgpt-codex-connector[bot] +1 PR reaction at 2026-05-01T21:31:03Z`
+- PR Comments: `0`
+- PR Review Threads: `0`
+- PR Reviews: `0`
+- Commit Status Contexts: `0`
 - Same-Thread Watcher ID: `pr107-same-thread-merge-watch`
 - Same-Thread Watcher Kind: `heartbeat`
 - Same-Thread Watcher Cadence: `FREQ=MINUTELY;INTERVAL=1`
@@ -267,20 +274,26 @@ Non-Includes: no PR creation or Release Readiness work.
 - Same-Thread Watcher Allowed Outputs: status-change updates, governed state markers, blocker identification, ready/not-ready posture, and Release Readiness handoff only after `merged=true`
 - Same-Thread Watcher Prohibited Actions: no repository file edits, branch creation, PR merge, or Release Readiness execution
 - PR2 Merge Watch Posture: `PR Merge Verification Pending` remains active until the same-thread watcher verifies `merged=true`
+- PR Readiness Validator Repair: `dev/orin_desktop_entrypoint_validation.py` was hardened after fresh PR validation exposed harness-only flake in runtime-log ordering, validation child cleanup, and mixed signal-failure/accept replacement shutdown determinism; product runtime behavior was not changed.
+- Branch Governance Validation: `PASS; 2078 checks`
+- Automation Observability Strict Report: `PASS; active automation findings are REVIEW_INFO only while PR2 merge verification remains pending`
+- Desktop Entrypoint Validation: `PASS; C:\Nexus Desktop AI\dev\logs\desktop_entrypoint_validation\reports\DesktopEntrypointValidationReport_20260501_150635.txt`
+- Boot Transition Verification: `PASS; C:\Nexus Desktop AI\dev\logs\boot_transition_verification\reports\BootTransitionVerificationReport_20260501_150756.txt`
 
 ## Active Seam
 
-Active seam: `PR Readiness PR1 - FB-049 Runtime Branch PR Validation`
-Previous seam: `Live Validation LV1 - Pre-Settled Incoming-Launch Conflict Live Validation`
+Active seam: `PR Readiness PR2 - FB-049 Runtime Branch Merge Verification Watch`
+Previous seam: `PR Readiness PR1 - FB-049 Runtime Branch PR Validation`
 Next active seam: `PR Readiness PR2 - FB-049 Runtime Branch Merge Verification Watch`
 
-- PR1 validates the live PR surface, branch authority alignment, bot-review state where available, mergeability, watcher provisioning proof, and readiness blockers for PR #107.
+- PR1 validated the live PR surface, branch authority alignment, bot-review state, mergeability, watcher provisioning proof, and readiness blockers for PR #107.
+- PR2 keeps the branch in PR Readiness until the same-thread watcher verifies `merged=true` and watcher shutdown/deletion proof is available.
 
 ## Seam Continuation Decision
 
-Seam Status: `Active`
+Seam Status: `Red`
 Slice Status: `Green`
-Completion Status: `Green`
+Completion Status: `Red`
 Waiver Status: `User Test Summary Results WAIVED`
 Continue Decision: `Stop`
 Stop Basis: `PR Merge Verification Pending`

@@ -200,10 +200,16 @@ def files_matching_sorted(folder_path, prefix):
         path = os.path.join(folder_path, name)
         if not os.path.isfile(path):
             continue
-        matches.append((name.lower(), path))
+        timestamp_match = re.match(r"^Runtime_(\d{8}_\d{6})_", name, re.IGNORECASE)
+        timestamp_key = timestamp_match.group(1) if timestamp_match else name.lower()
+        try:
+            creation_time = os.path.getctime(path)
+        except OSError:
+            creation_time = 0.0
+        matches.append((timestamp_key, creation_time, name.lower(), path))
 
-    matches.sort(key=lambda item: item[0])
-    return [path for _name, path in matches]
+    matches.sort(key=lambda item: (item[0], item[1], item[2]))
+    return [path for _timestamp, _creation_time, _name, path in matches]
 
 
 def dir_entry_names(path):
@@ -341,13 +347,14 @@ def cleanup_launch_chain_processes_for_log_root(base_log_root):
 
     for process in before:
         try:
-            run_hidden_command(["taskkill", "/PID", str(process["pid"]), "/F"], timeout_seconds=10)
+            run_hidden_command(["taskkill", "/PID", str(process["pid"]), "/T", "/F"], timeout_seconds=10)
             killed.append(process["pid"])
         except Exception:
             pass
 
-    time.sleep(0.3)
-    after = list_launch_chain_processes_for_log_root(base_log_root)
+    no_processes, after = wait_for_no_launch_chain_processes_for_log_root(base_log_root, timeout_seconds=5.0)
+    if no_processes:
+        after = []
     return before, killed, after
 
 
@@ -672,8 +679,6 @@ log("FAKE_RENDERER|EVENT_LOOP_EXIT|code=0")
                     )
                     if first_pre_settled_before_second and not first_settled_before_second:
                         break
-                if first_proc.poll() is not None and not first_runtime_log:
-                    break
                 time.sleep(0.1)
 
             second_proc = subprocess.Popen(
@@ -2544,8 +2549,6 @@ finally:
                     if any(AUTHORITATIVE_DESKTOP_SETTLED_MARKER in line for line in first_runtime_lines):
                         first_settled_seen = True
                         break
-                if first_proc.poll() is not None and not first_runtime_log:
-                    break
                 time.sleep(0.2)
 
             for index in range(len(incoming_procs)):
@@ -2976,8 +2979,6 @@ finally:
                     if any(AUTHORITATIVE_DESKTOP_SETTLED_MARKER in line for line in first_runtime_lines):
                         first_settled_seen = True
                         break
-                if first_proc.poll() is not None and not first_runtime_log:
-                    break
                 time.sleep(0.2)
 
             incoming_proc = subprocess.Popen(
@@ -4071,6 +4072,7 @@ finally:
     )
     accept_env = build_harness_env(
         scenario_root,
+        target_script=fake_renderer_script,
         extra_env={"JARVIS_HARNESS_AUTO_ACCEPT_RELAUNCH": "1"},
     )
 
@@ -4117,8 +4119,6 @@ finally:
                     if any(AUTHORITATIVE_DESKTOP_SETTLED_MARKER in line for line in first_runtime_lines):
                         first_settled_seen = True
                         break
-                if first_proc.poll() is not None and not first_runtime_log:
-                    break
                 time.sleep(0.2)
 
             failure_proc = subprocess.Popen(
@@ -4547,8 +4547,6 @@ def run_mixed_decline_then_accept_relaunch_scenario():
                     if any(AUTHORITATIVE_DESKTOP_SETTLED_MARKER in line for line in first_runtime_lines):
                         first_settled_seen = True
                         break
-                if first_proc.poll() is not None and not first_runtime_log:
-                    break
                 time.sleep(0.2)
 
             decline_proc = subprocess.Popen(
@@ -5109,8 +5107,6 @@ finally:
                     if any(AUTHORITATIVE_DESKTOP_SETTLED_MARKER in line for line in first_runtime_lines):
                         first_settled_seen = True
                         break
-                if first_proc.poll() is not None and not first_runtime_log:
-                    break
                 time.sleep(0.2)
 
             first_failure_proc = subprocess.Popen(
