@@ -8339,6 +8339,86 @@ def _pr103_closeout_canon_repair_fallback_pr_view_for_branch(
     }, ""
 
 
+def _active_branch_watcher_state_path(active_branch_record_text: str) -> Path | None:
+    match = re.search(
+        r"\$CODEX_HOME/watchers/([^`,]+-state\.json)",
+        active_branch_record_text,
+    )
+    if not match:
+        return None
+    return Path.home() / ".codex" / "watchers" / match.group(1)
+
+
+def _active_branch_watcher_fallback_pr_view_for_branch(
+    branch_name: str,
+    active_branch_record_text: str,
+) -> tuple[dict[str, object] | None, str]:
+    if not active_branch_record_text:
+        return None, "active branch record text is unavailable"
+
+    repository_full_name, repository_error = _git_origin_repository_full_name()
+    if repository_error:
+        return None, repository_error
+
+    phase_status_section = _section(active_branch_record_text, "Phase Status")
+    pr_url_match = re.search(r"^- Live PR:\s*`([^`]+)`", phase_status_section, flags=re.M)
+    pr_url = pr_url_match.group(1).strip() if pr_url_match else ""
+    if not pr_url:
+        return None, "active branch record is missing `Live PR`"
+    pr_number_match = re.search(r"/pull/(\d+)", pr_url)
+    if not pr_number_match:
+        return None, f"active branch record has an invalid Live PR URL '{pr_url}'"
+    watcher_state_path = _active_branch_watcher_state_path(active_branch_record_text)
+    if watcher_state_path is None:
+        return None, "active branch record is missing same-thread watcher state proof"
+    watcher_state = _load_json_file(watcher_state_path) or {}
+    if not watcher_state:
+        return None, f"same-thread watcher state file '{watcher_state_path}' is missing or invalid"
+    state_branch = str(watcher_state.get("headRef") or "")
+    if state_branch and state_branch != branch_name:
+        return None, (
+            f"same-thread watcher state file '{watcher_state_path}' targets '{state_branch}', "
+            f"not current branch '{branch_name}'"
+        )
+
+    bot_approval = bool(watcher_state.get("botApproval")) or _phase_status_bot_approval_proven(
+        phase_status_section
+    )
+    bot_comment_count = int(watcher_state.get("botCommentCount") or 0)
+    merged = bool(watcher_state.get("merged"))
+    state_value = str(watcher_state.get("prState") or "OPEN").upper()
+    if merged and state_value != "CLOSED":
+        state_value = "CLOSED"
+    mergeable_value = watcher_state.get("mergeable")
+    if mergeable_value is True:
+        mergeable = "MERGEABLE"
+        merge_state = str(watcher_state.get("mergeableState") or "CLEAN").upper()
+    elif mergeable_value is False:
+        mergeable = "CONFLICTING"
+        merge_state = str(watcher_state.get("mergeableState") or "DIRTY").upper()
+    else:
+        mergeable = "UNKNOWN"
+        merge_state = str(watcher_state.get("mergeableState") or "UNKNOWN").upper()
+
+    return {
+        "id": "",
+        "number": int(pr_number_match.group(1)),
+        "state": state_value,
+        "mergeable": mergeable,
+        "mergeStateStatus": merge_state,
+        "reviewDecision": "APPROVED" if bot_approval else "",
+        "isDraft": bool(watcher_state.get("draft")),
+        "headRefName": state_branch or branch_name,
+        "baseRefName": str(watcher_state.get("baseRef") or "main"),
+        "title": str(watcher_state.get("title") or ""),
+        "url": pr_url,
+        "repositoryFullName": repository_full_name,
+        "fallbackLocalState": True,
+        "botApproval": bot_approval,
+        "botCommentCount": bot_comment_count,
+    }, ""
+
+
 def _run_pr_live_state_gate(
     require,
     *,
@@ -8371,6 +8451,11 @@ def _run_pr_live_state_gate(
         )
     if not pr_info and _is_pr103_closeout_canon_repair_branch(branch_name):
         pr_info, pr_error = _pr103_closeout_canon_repair_fallback_pr_view_for_branch(
+            branch_name,
+            active_branch_record_text,
+        )
+    if not pr_info:
+        pr_info, pr_error = _active_branch_watcher_fallback_pr_view_for_branch(
             branch_name,
             active_branch_record_text,
         )
