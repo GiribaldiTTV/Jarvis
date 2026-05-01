@@ -53,10 +53,11 @@ Do not use this layer to replace:
 
 ## Active Branch Authority Records
 
-- `Docs/branch_records/feature_pr104_watcher_next_prompt_format_repair.md`
+None.
 
 ## Historical Branch Authority Records
 
+- `Docs/branch_records/feature_pr104_watcher_next_prompt_format_repair.md`
 - `Docs/branch_records/feature_pr103_post_merge_closeout_canon_repair.md`
 - `Docs/branch_records/feature_pr102_post_merge_closeout_canon_repair.md`
 - `Docs/branch_records/feature_pr101_post_merge_closeout_canon_repair.md`

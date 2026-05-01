@@ -5,6 +5,7 @@
 - Branch: `feature/pr104-watcher-next-prompt-format-repair`
 - Workstream: `PR104 Watcher Next-Prompt Format Repair`
 - Branch Class: `repair/dev-tooling-governance`
+- Record State: `Historical-only traceability`
 
 ## Purpose / Why It Exists
 
@@ -12,15 +13,16 @@ This bounded repair branch exists to make the PR watcher handoff usable as a sou
 
 It repairs the watcher output format, hardens the governance language that requires that output shape, and adds validator coverage so the watcher cannot silently regress to a loose one-line status. It also closes the escaped branch-authority drift where `feature/pr103-post-merge-closeout-canon-repair` remained listed as active after PR #104 merged.
 
+It no longer owns live execution, PR readiness, watcher control, or release gating. It remains only to preserve PR #105 merge proof, same-thread watcher verification and shutdown proof, watcher handoff-format governance, pending `v1.6.13-prebeta` release posture, and unchanged FB-049 selected-next truth.
+
 ## Current Phase
 
-- Phase: `PR Readiness`
+- Phase: `Historical Traceability`
 
 ## Phase Status
 
 - Repo State: `No Active Branch`
 - Merged-Main Repo State: `No Active Branch`
-- `Active Branch`: `feature/pr104-watcher-next-prompt-format-repair`
 - Current Active Canonical Workstream Doc: `None`
 - Latest Public Prerelease: `v1.6.12-prebeta`
 - Latest Public Release Commit: `b06c359e58b47cfe26fe8c4b39ac04fde519dee9`
@@ -29,24 +31,28 @@ It repairs the watcher output format, hardens the governance language that requi
 - Selected Next Workstream: `FB-049 Active-session pre-settled incoming-launch conflict truth`
 - Selected Next Record State: `Registry-only`
 - Selected Next Implementation Branch: `Not created`
-- Current PR Readiness Seam: `PR Readiness PR2 - Watcher Next-Prompt Format Repair Merge Verification Watch`
-- Next Active Seam: `PR Readiness PR2 - Watcher Next-Prompt Format Repair Merge Verification Watch`
-- Live PR: `https://github.com/GiribaldiTTV/Nexus-Desktop-AI/pull/105`
-- Live PR State: `open`
-- Live PR Head: `feature/pr104-watcher-next-prompt-format-repair`
-- Live PR Base: `main`
-- Live PR Initial Head Commit: `e6618f1a2e9253a87c476d068e91987b7f2591c5`
-- Live PR Comment-Closeout Head Commit: `2d944360f7d3bbe8233b872fb5cb3e2d4d70df32`
-- PR watcher reporting surface: `Current Codex working thread`
-- PR watcher reporting thread ID: `019dd083-0317-7b42-afb3-20b6818a1fa7`
-- PR watcher reporting transcript: `\\?\C:\Users\anden\.codex\sessions\2026\04\27\rollout-2026-04-27T12-55-40-019dd083-0317-7b42-afb3-20b6818a1fa7.jsonl`
-- PR watcher runtime: `Codex PR104 Watcher Next-Prompt Format Repair Watch` using `$CODEX_HOME/watchers/pr104-watcher-next-prompt-format-repair-watch-launcher.pyw` plus repo helper `dev/pr_same_thread_watcher.py`
-- PR watcher state file: `$CODEX_HOME/watchers/pr104-watcher-next-prompt-format-repair-watch-state.json`
-- PR watcher latest-status file: `$CODEX_HOME/watchers/pr104-watcher-next-prompt-format-repair-watch-latest.txt`
-- PR watcher log file: `$CODEX_HOME/watchers/pr104-watcher-next-prompt-format-repair-watch.log`
-- PR watcher route verification: `PASS after watcher wrapper, watcher state, Codex thread DB, and active-branch transcript marker all point at the recorded reporting surface`
-- PR watcher runtime proof: `PASS via $CODEX_HOME/watchers/pr104-watcher-next-prompt-format-repair-watch-state.json and codex_resume transcript emission at 2026-05-01T17:08:38.399940Z`
-- PR1 live validation result: `Green after same-branch comment closeout; PR #105 is open, non-draft, targets main, merge status is clean, watcher provisioning/routing is proven, and the bot review comment is addressed and resolved`
+- Historical source branch: `feature/pr104-watcher-next-prompt-format-repair` merged through PR #105 at `e66d748114f9ba8789a3a812e986d451dd999777`.
+- Historical repair PR: PR #105 merged at `2026-05-01T17:16:30Z` via merge commit `e66d748114f9ba8789a3a812e986d451dd999777`.
+- Historical repair head commit: `a594ad55438e9902f0b895dfbc738253f12ddb90`
+- Historical PR Readiness Seam: `PR Readiness PR2 - Watcher Next-Prompt Format Repair Merge Verification Watch`
+- Historical Next Active Seam: `None`
+- Historical Live PR: `https://github.com/GiribaldiTTV/Nexus-Desktop-AI/pull/105`
+- Historical Live PR State: `merged`
+- Historical Live PR Head: `feature/pr104-watcher-next-prompt-format-repair`
+- Historical Live PR Base: `main`
+- Historical Live PR Initial Head Commit: `e6618f1a2e9253a87c476d068e91987b7f2591c5`
+- Historical Live PR Comment-Closeout Head Commit: `2d944360f7d3bbe8233b872fb5cb3e2d4d70df32`
+- Historical same-thread watcher runtime: `Codex PR104 Watcher Next-Prompt Format Repair Watch` used `$CODEX_HOME/watchers/pr104-watcher-next-prompt-format-repair-watch-launcher.pyw` plus repo helper `dev/pr_same_thread_watcher.py` to emit status-change updates into the approved Codex reporting-surface transcript through the Codex thread-resume path while PR #105 remained open.
+- Historical watcher proof files: `$CODEX_HOME/watchers/pr104-watcher-next-prompt-format-repair-watch-state.json`, `$CODEX_HOME/watchers/pr104-watcher-next-prompt-format-repair-watch-latest.txt`, `$CODEX_HOME/watchers/pr104-watcher-next-prompt-format-repair-watch-resume.txt`, and `$CODEX_HOME/watchers/pr104-watcher-next-prompt-format-repair-watch.log`
+- Historical watcher reporting surface: `Current Codex working thread`
+- Historical watcher reporting thread ID: `019dd083-0317-7b42-afb3-20b6818a1fa7`
+- Historical watcher reporting transcript: `\\?\C:\Users\anden\.codex\sessions\2026\04\27\rollout-2026-04-27T12-55-40-019dd083-0317-7b42-afb3-20b6818a1fa7.jsonl`
+- Historical watcher route verification: `PASS after watcher wrapper, watcher state, Codex thread DB, and active-branch transcript marker all pointed at the recorded reporting surface`
+- Historical watcher merge verification: watcher recorded merged verification at `2026-05-01T17:16:40.944392Z`, after GitHub merge truth was observable.
+- Historical watcher runtime proof: `PASS via $CODEX_HOME/watchers/pr104-watcher-next-prompt-format-repair-watch-state.json and codex_resume transcript emission at 2026-05-01T17:17:01.779562Z`
+- Historical watcher shutdown proof: scheduled task `Codex PR104 Watcher Next-Prompt Format Repair Watch` is absent and the watcher log records self-stop after merged verification.
+- Historical PR1 live validation result: `Green after same-branch comment closeout; PR #105 was open, non-draft, targeted main, merge status was clean, watcher provisioning/routing was proven, and the bot review comment was addressed and resolved`
+- Historical outcome: this record is historical-only traceability; merged-main active branch authority returned to `No Active Branch`.
 
 ## Branch Class
 
@@ -54,24 +60,25 @@ It repairs the watcher output format, hardens the governance language that requi
 
 ## Blockers
 
-- `PR Merge Verification Pending`
+- `None`
 
 ## Entry Basis
 
 - The bounded watcher handoff-format repair is complete at `e6618f1`.
 - The live watcher output now emits governed state, live PR truth, watcher proof, blocker state, continue/stop decision, and a Release Readiness prompt basis only after `merged=true`.
-- PR #105 is live for this branch.
+- PR #105 was the live PR for this branch and is now merged.
 - The branch-authority index still carried stale active authority for the merged PR103 closeout branch, so this PR Readiness seam also repairs that escaped canon drift before merge.
 
 ## Exit Criteria
 
-- `Docs/branch_records/index.md` carries only this branch as active authority while PR #105 is open.
+- `Docs/branch_records/index.md` carries no active authority record on merged-main surfaces after PR #105 merge verification.
+- `Docs/branch_records/feature_pr104_watcher_next_prompt_format_repair.md` is historical-only traceability.
 - `Docs/branch_records/feature_pr103_post_merge_closeout_canon_repair.md` is historical-only traceability.
 - Watcher handoff packet format enforcement remains present in governance docs and validator coverage.
 - Sample watcher handoff generation passes against preserved watcher state.
-- PR #105 is open, non-draft, targets `main`, and reports green merge status.
-- PR watcher provisioning and routing are proven against the recorded reporting surface.
-- Bot-review signal is resolved by thumbs-up or same-branch comment closeout.
+- PR #105 merge truth and watcher merge verification are preserved.
+- PR watcher provisioning, routing, merge verification, and shutdown are proven against the recorded reporting surface and watcher artifacts.
+- Bot-review signal is resolved by same-branch comment closeout.
 
 ## Rollback Target
 
@@ -113,22 +120,22 @@ It repairs the watcher output format, hardens the governance language that requi
 
 ## Active Seam
 
-Active seam: `PR Readiness PR2 - Watcher Next-Prompt Format Repair Merge Verification Watch`
-Next active seam: `PR Readiness PR2 - Watcher Next-Prompt Format Repair Merge Verification Watch`
+Active seam: `None`
+Next active seam: `None`
 
-- This branch is the active bounded PR surface while PR #105 remains under watcher merge verification.
+- This record is historical-only traceability after PR #105 merge verification.
 
 ## Seam Continuation Decision
 
-Seam Status: `Red`
-Slice Status: `Red`
-Completion Status: `Red`
+Seam Status: `Historical`
+Slice Status: `Historical`
+Completion Status: `Historical`
 Waiver Status: `None`
-Continue Decision: `Continue`
+Continue Decision: `Stop`
 Stop Basis: `None`
-Next Active Seam: `PR Readiness PR2 - Watcher Next-Prompt Format Repair Merge Verification Watch`
-Stop Condition: `No phase advancement is legal while PR merge verification remains pending.`
-Continuation Action: `Keep the approved watcher route running until it verifies PR #105 is merged, then enter Release Readiness only through source-of-truth validation.`
+Next Active Seam: `None`
+Stop Condition: `PR #105 is merged and watcher merge verification is complete.`
+Continuation Action: `Use updated main for Release Readiness validation or the next bounded repair surface if merged-main canon drift is found.`
 
 ## Governance Drift Audit
 
@@ -143,10 +150,10 @@ Continuation Action: `Keep the approved watcher route running until it verifies 
 ## Post-Merge State
 
 - Post-merge repo state: `No Active Branch`
-- Post-merge repair truth: merged-main canon must clear `Active Branch Authority Records`, preserve this record as historical-only traceability, and keep watcher handoff-format governance and validator coverage intact.
+- Post-merge repair truth: merged-main canon cleared `Active Branch Authority Records`, preserves this record as historical-only traceability, and keeps watcher handoff-format governance and validator coverage intact.
 - Post-merge selected-next truth: FB-049 remains selected next, `Registry-only`, and branch-not-created until updated `main` is revalidated and later Branch Readiness admits the first bounded FB-049 slice.
 - Post-merge watcher governance truth: approved-reporting-surface watcher provisioning, routing verification, and merge verification remain standard SOP for future PR-bearing branches.
-- Post-merge branch-record handling: this record leaves `Active Branch Authority Records` and becomes historical-only traceability after merge.
+- Post-merge branch-record handling: this record left `Active Branch Authority Records` and is historical-only traceability after merge.
 
 ## PR Bot Review Signal
 
