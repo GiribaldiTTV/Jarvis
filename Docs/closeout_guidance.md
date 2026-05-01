@@ -60,7 +60,7 @@ Use a rebaseline when:
 - do not create retroactive closeouts for every missed small prerelease
 - do not rewrite historical closeouts just to modernize wording
 - do not use closeouts or rebaselines as substitutes for workstream records
-- do not force release-dependent canon repair into `Release Readiness`; PR-owned canon must be complete before PR green, and escaped misses block the next active branch's `Branch Readiness`
+- do not force release-dependent canon repair into `Release Readiness`; PR-owned canon must be complete before PR green, and escaped misses block the next legitimate runtime-focused backlog branch's `Branch Readiness`
 
 ## Post-Release Rule
 
@@ -74,8 +74,12 @@ Examples:
 
 When those facts change, the owning branch must carry the release-state canon before it reports PR-ready or release-ready.
 Release Readiness is not a broad docs-sync phase.
-If a required canon update escapes PR Readiness and the owning branch has already merged, the miss becomes a blocker in the next active branch's `Branch Readiness`; repair it there before implementation begins.
+If a required canon update escapes PR Readiness and the owning branch has already merged, the miss becomes a blocker in the next legitimate runtime-focused backlog branch's `Branch Readiness`; repair it there before implementation begins.
 Do not open a governance-only branch or between-branch canon repair lane for routine closeout cleanup.
+Standalone docs/governance, emergency canon repair, and repair-only feature branches are blocked for future Nexus work.
+Governance, docs, source-of-truth, and validator repairs must ride inside the next legitimate runtime-focused backlog branch during `Branch Readiness` or `PR Readiness`.
+If no runtime-focused branch is legally admitted yet, record the drift as a blocker and wait instead of creating a repair branch by inertia.
+Historical repair-only branch records remain traceability only and do not authorize new repair-only branch creation.
 Do not repair directly on `main`; `main` is protected and read-only for Codex work.
 There is no emergency direct-main repair path for Codex.
 Any tracked file mutation while Codex is on `main` is a `Main Write Attempt`.
@@ -96,5 +100,5 @@ The live GitHub release body must not repeat that title as a leading `# <release
 - use `Docs/validation_helper_registry.md` for helper naming, helper status, and consolidation truth when closeout or release notes mention validation helpers
 - do not let this guidance doc become a live current-state owner
 - create new closeouts or rebaselines only when they materially improve future planning clarity
-- keep escaped post-release canon drift as a protected-main blocker that must be repaired on a legal branch surface, not as a planned governance-only branch or direct-main write
+- keep escaped post-release canon drift as a protected-main blocker that must be repaired on the next legitimate runtime-focused backlog branch, not as a planned governance-only branch, repair-only feature branch, or direct-main write
 - prevent recurrence during PR Readiness by carrying the exact release-state closure plan for latest public prerelease, released/closed workstream state, release-debt clearing, and release title format before a release-bearing branch reports PR-ready

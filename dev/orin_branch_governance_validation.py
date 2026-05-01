@@ -35,6 +35,11 @@ BRANCH_CLASSES = (
     "release packaging",
 )
 
+BLOCKED_FUTURE_ACTIVE_BRANCH_CLASSES = (
+    "docs/governance",
+    "emergency canon repair",
+)
+
 PROMPT_CONTRACT_DOCS = (
     Path("Docs/phase_governance.md"),
     Path("Docs/development_rules.md"),
@@ -669,6 +674,7 @@ PR_READINESS_BLOCKER_PHRASES = (
     "PR Merge Verification Pending",
     "PR Watcher Provisioning Unproven",
     "PR Watcher Routing Unverified",
+    "Automation Observability Review Pending",
     "PR Readiness Scope Missed",
     "Release Window Audit Incomplete",
     "Between-Branch Canon Repair Attempt",
@@ -797,6 +803,7 @@ PR_WATCHER_THREAD_CONTRACT_PHRASES = (
     "reports only when a watched PR status changes",
     "source-of-truth",
     "copy/paste Codex prompt basis",
+    "delivery proof",
     "PR Watcher Routing Unverified",
     "PR Merge Verification Pending",
     "merge-watch seam",
@@ -811,6 +818,11 @@ PR_WATCHER_OUTPUT_CONTRACT_PHRASES = (
     "Copy/Paste Codex Prompt:",
     "Mode: Release Readiness",
     "PR Merge Verification Pending",
+    "lastThreadDeliveryProven",
+    "lastThreadDeliveryProof",
+    "verified transcript fallback",
+    "record_visible_delivery",
+    "final thread delivery proof is missing",
 )
 
 GOVERNANCE_RECURRENCE_DOCS = (
@@ -827,6 +839,35 @@ GOVERNANCE_RECURRENCE_PHRASES = (
     "merge-stable current-state owners such as backlog and roadmap must not mirror transient repair-branch ownership",
     "PR Watcher Provisioning Unproven",
     "PR Watcher Routing Unverified",
+)
+
+AUTOMATION_OBSERVABILITY_SOURCE = Path("dev/automation_observability_report.py")
+AUTOMATION_OBSERVABILITY_DOCS = (
+    Path("Docs/Main.md"),
+    Path("Docs/phase_governance.md"),
+    Path("Docs/development_rules.md"),
+    Path("Docs/codex_modes.md"),
+    Path("Docs/codex_user_guide.md"),
+    Path("Docs/orin_task_template.md"),
+    Path("Docs/incident_patterns.md"),
+    Path("Docs/branch_records/index.md"),
+)
+AUTOMATION_OBSERVABILITY_PHRASES = (
+    "Automation Observability",
+    "dev/automation_observability_report.py",
+    "Codex automation run/inbox",
+    "$CODEX_HOME/automations/*/memory.md",
+    "BLOCKER_CANDIDATE",
+    "REVIEW_REQUIRED",
+)
+AUTOMATION_OBSERVABILITY_SOURCE_PHRASES = (
+    "Automation Observability Source-of-Truth Report",
+    "automation_runs",
+    "inbox_items",
+    "memory.md",
+    "BLOCKER_CANDIDATE",
+    "REVIEW_REQUIRED",
+    "--strict",
 )
 
 POST_MERGE_PR_BLOCKERS = (
@@ -927,7 +968,7 @@ RELEASE_READINESS_FILE_FREEZE_PHRASES = (
     "Release Readiness File Mutation Attempt",
     "analysis-only",
     "return to `PR Readiness`",
-    "next active branch's `Branch Readiness`",
+    "next legitimate runtime-focused backlog branch's `Branch Readiness`",
 )
 
 PROTECTED_MAIN_DOCS = (
@@ -1121,9 +1162,10 @@ FEATURE_BRANCH_REPAIR_CONTRACT_DOCS = (
 )
 
 FEATURE_BRANCH_REPAIR_CONTRACT_PHRASES = (
-    "All fixes and repairs use a new `feature/` branch by default.",
-    "Do not create a `docs/governance` or `emergency canon repair` branch unless explicit `Docs/Governance Branch Waiver: APPROVED` is recorded from the USER.",
-    "Repair-only `feature/` branch existence does not imply Branch Readiness admission or active branch truth.",
+    "Standalone docs/governance, emergency canon repair, and repair-only feature branches are blocked for future Nexus work.",
+    "Governance, docs, source-of-truth, and validator repairs must ride inside the next legitimate runtime-focused backlog branch during `Branch Readiness` or `PR Readiness`.",
+    "If no runtime-focused branch is legally admitted yet, record the drift as a blocker and wait instead of creating a repair branch by inertia.",
+    "Historical repair-only branch records remain traceability only and do not authorize new repair-only branch creation.",
 )
 
 BRANCH_RECORD_INDEX = Path("Docs/branch_records/index.md")
@@ -1499,10 +1541,12 @@ BOT_REVIEW_SIGNAL_STATUS_COMMENT_ADDRESSED = "Comment addressed"
 BOT_REVIEW_BOT_LOGIN = "chatgpt-codex-connector[bot]"
 BOT_REVIEW_COMMENT_CLOSEOUT_ALLOWED_FILES = {
     "Docs/Main.md",
+    "Docs/closeout_guidance.md",
     "Docs/codex_modes.md",
     "Docs/codex_user_guide.md",
     "Docs/development_rules.md",
     "Docs/incident_patterns.md",
+    "Docs/nexus_startup_contract.md",
     "Docs/orin_task_template.md",
     "Docs/phase_governance.md",
     "dev/orin_branch_governance_validation.py",
@@ -8303,6 +8347,86 @@ def _pr103_closeout_canon_repair_fallback_pr_view_for_branch(
     }, ""
 
 
+def _active_branch_watcher_state_path(active_branch_record_text: str) -> Path | None:
+    match = re.search(
+        r"\$CODEX_HOME/watchers/([^`,]+-state\.json)",
+        active_branch_record_text,
+    )
+    if not match:
+        return None
+    return Path.home() / ".codex" / "watchers" / match.group(1)
+
+
+def _active_branch_watcher_fallback_pr_view_for_branch(
+    branch_name: str,
+    active_branch_record_text: str,
+) -> tuple[dict[str, object] | None, str]:
+    if not active_branch_record_text:
+        return None, "active branch record text is unavailable"
+
+    repository_full_name, repository_error = _git_origin_repository_full_name()
+    if repository_error:
+        return None, repository_error
+
+    phase_status_section = _section(active_branch_record_text, "Phase Status")
+    pr_url_match = re.search(r"^- Live PR:\s*`([^`]+)`", phase_status_section, flags=re.M)
+    pr_url = pr_url_match.group(1).strip() if pr_url_match else ""
+    if not pr_url:
+        return None, "active branch record is missing `Live PR`"
+    pr_number_match = re.search(r"/pull/(\d+)", pr_url)
+    if not pr_number_match:
+        return None, f"active branch record has an invalid Live PR URL '{pr_url}'"
+    watcher_state_path = _active_branch_watcher_state_path(active_branch_record_text)
+    if watcher_state_path is None:
+        return None, "active branch record is missing same-thread watcher state proof"
+    watcher_state = _load_json_file(watcher_state_path) or {}
+    if not watcher_state:
+        return None, f"same-thread watcher state file '{watcher_state_path}' is missing or invalid"
+    state_branch = str(watcher_state.get("headRef") or "")
+    if state_branch and state_branch != branch_name:
+        return None, (
+            f"same-thread watcher state file '{watcher_state_path}' targets '{state_branch}', "
+            f"not current branch '{branch_name}'"
+        )
+
+    bot_approval = bool(watcher_state.get("botApproval")) or _phase_status_bot_approval_proven(
+        phase_status_section
+    )
+    bot_comment_count = int(watcher_state.get("botCommentCount") or 0)
+    merged = bool(watcher_state.get("merged"))
+    state_value = str(watcher_state.get("prState") or "OPEN").upper()
+    if merged and state_value != "CLOSED":
+        state_value = "CLOSED"
+    mergeable_value = watcher_state.get("mergeable")
+    if mergeable_value is True:
+        mergeable = "MERGEABLE"
+        merge_state = str(watcher_state.get("mergeableState") or "CLEAN").upper()
+    elif mergeable_value is False:
+        mergeable = "CONFLICTING"
+        merge_state = str(watcher_state.get("mergeableState") or "DIRTY").upper()
+    else:
+        mergeable = "UNKNOWN"
+        merge_state = str(watcher_state.get("mergeableState") or "UNKNOWN").upper()
+
+    return {
+        "id": "",
+        "number": int(pr_number_match.group(1)),
+        "state": state_value,
+        "mergeable": mergeable,
+        "mergeStateStatus": merge_state,
+        "reviewDecision": "APPROVED" if bot_approval else "",
+        "isDraft": bool(watcher_state.get("draft")),
+        "headRefName": state_branch or branch_name,
+        "baseRefName": str(watcher_state.get("baseRef") or "main"),
+        "title": str(watcher_state.get("title") or ""),
+        "url": pr_url,
+        "repositoryFullName": repository_full_name,
+        "fallbackLocalState": True,
+        "botApproval": bot_approval,
+        "botCommentCount": bot_comment_count,
+    }, ""
+
+
 def _run_pr_live_state_gate(
     require,
     *,
@@ -8335,6 +8459,11 @@ def _run_pr_live_state_gate(
         )
     if not pr_info and _is_pr103_closeout_canon_repair_branch(branch_name):
         pr_info, pr_error = _pr103_closeout_canon_repair_fallback_pr_view_for_branch(
+            branch_name,
+            active_branch_record_text,
+        )
+    if not pr_info:
+        pr_info, pr_error = _active_branch_watcher_fallback_pr_view_for_branch(
             branch_name,
             active_branch_record_text,
         )
@@ -9105,6 +9234,23 @@ def main() -> int:
             required_phrase in watcher_output_source,
             f"{PR_WATCHER_OUTPUT_CONTRACT_SOURCE}: watcher output contract is missing '{required_phrase}'",
         )
+
+    automation_observability_source = _read_text(AUTOMATION_OBSERVABILITY_SOURCE)
+    for required_phrase in AUTOMATION_OBSERVABILITY_SOURCE_PHRASES:
+        require(
+            required_phrase in automation_observability_source,
+            (
+                f"{AUTOMATION_OBSERVABILITY_SOURCE}: automation observability helper "
+                f"is missing '{required_phrase}'"
+            ),
+        )
+    for relative_path in AUTOMATION_OBSERVABILITY_DOCS:
+        text = _read_text(relative_path)
+        for required_phrase in AUTOMATION_OBSERVABILITY_PHRASES:
+            require(
+                required_phrase in text,
+                f"{relative_path}: automation observability contract is missing '{required_phrase}'",
+            )
 
     for relative_path in GOVERNANCE_RECURRENCE_DOCS:
         text = _read_text(relative_path)
@@ -10469,6 +10615,15 @@ def main() -> int:
             f"{branch_record_path}: Branch Class '{info['branch_class']}' is not in the canonical branch-class enum",
         )
         branch_class = str(info["branch_class"])
+        if branch_record_path in active_branch_record_paths:
+            require(
+                branch_class not in BLOCKED_FUTURE_ACTIVE_BRANCH_CLASSES,
+                (
+                    f"{branch_record_path}: active branch class '{branch_class}' is blocked for future "
+                    "Nexus work; governance/docs/source-of-truth repairs must ride inside the next "
+                    "legitimate runtime-focused backlog branch"
+                ),
+            )
         has_non_release_marker = NON_RELEASE_BRANCH_MARKER in record_text
         if branch_class in RELEASE_BEARING_BRANCH_CLASSES:
             for required_marker in REQUIRED_RELEASE_BEARING_MARKERS:

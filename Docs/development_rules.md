@@ -66,7 +66,7 @@ Use this layered ownership model:
 - User Test Summary = validation-contract layer owned by workstreams
 - phase governance = repo-wide execution, exact phase enum, blockers, branch classes, proof, timeout, seam, stop-loss, validation-helper, Governance Drift Audit, phase resolver, and desktop UI audit contract
 - validation helper registry = repo-wide helper naming, helper ownership, reuse-first inventory, workstream-scoped exception markers, and consolidation contract
-- branch authority records = repo-owned phase owners for selected `Registry-only` backlog branches in `Branch Readiness`, approved `release packaging` branches, and preserved historical `docs/governance` or `emergency canon repair` records; new fixes and repairs still use a new `feature/` branch by default
+- branch authority records = repo-owned phase owners for selected `Registry-only` backlog branches in `Branch Readiness`, approved `release packaging` branches, active runtime-focused branches that must carry bounded governance/source-of-truth repairs before PR green, and preserved historical repair records; standalone docs/governance, emergency canon repair, and repair-only feature branches are blocked for future Nexus work
 - `Docs/Main.md` = routing authority aligned to merged truth
 
 Use `Docs/phase_governance.md` for:
@@ -222,7 +222,7 @@ Governance-only branches are not used for new Nexus work.
 `main` is protected for Codex work: Codex may read it for truth validation but must not edit, stage, commit, generate, refresh, or directly repair files on it.
 There is no emergency direct-main repair path for Codex.
 If canon drift is discovered before merge, repair it on the owning branch before PR green.
-If canon drift is discovered after merge, repair it on the still-available prior branch when that branch remains the legal repair surface, or block the next active branch's `Branch Readiness` and repair there before implementation.
+If canon drift is discovered after merge, do not open or resurrect a standalone repair branch for that drift; block the next legitimate runtime-focused backlog branch's `Branch Readiness` and repair there before implementation.
 If a stale-canon or governance-drift class is discovered, the same branch or next legal repair surface must also patch the canon or validator rule that allowed it before the repair is considered complete.
 merge-stable current-state owners such as backlog and roadmap must not mirror transient repair-branch ownership while merged-main truth remains `No Active Branch`.
 Any tracked file mutation while Codex is on `main` is a `Main Write Attempt` blocker.
@@ -232,9 +232,10 @@ When a governance or canon update is directly required to keep the active branch
 That allowance does not permit unrelated governance churn, product scope expansion, validation weakening, stop-condition weakening, or phase-authority bypass.
 Do not use a standalone `docs/governance` branch to carry routine canon or governance work that belongs on an already-active implementation or release branch.
 Do not open a governance-only branch for between-branch canon repair.
-All fixes and repairs use a new `feature/` branch by default.
-Do not create a `docs/governance` or `emergency canon repair` branch unless explicit `Docs/Governance Branch Waiver: APPROVED` is recorded from the USER.
-Repair-only `feature/` branch existence does not imply Branch Readiness admission or active branch truth.
+Standalone docs/governance, emergency canon repair, and repair-only feature branches are blocked for future Nexus work.
+Governance, docs, source-of-truth, and validator repairs must ride inside the next legitimate runtime-focused backlog branch during `Branch Readiness` or `PR Readiness`.
+If no runtime-focused branch is legally admitted yet, record the drift as a blocker and wait instead of creating a repair branch by inertia.
+Historical repair-only branch records remain traceability only and do not authorize new repair-only branch creation.
 If PR Readiness missed required canon or docs work and the owning branch has already merged, the next active branch must treat the miss as a `Branch Readiness` blocker and repair it before implementation begins.
 
 Pre-PR Durability Rule:
@@ -330,13 +331,15 @@ That means:
   - unresolved Codex comments/issues, requested changes, or inability to inspect the PR keep `PR Validation Pending` or `PR State Unknown` active
   - until the live PR explicitly reports a green merge status, keep `PR Merge Status Unproven` active; unknown, unset, conflicting, dirty, blocked, or otherwise non-green mergeability/merge-state results do not clear the gate
   - for Codex-created PRs, `Bot Review Signal Pending` also keeps PR Readiness non-green until the live PR has a thumbs-up reaction or a bot comment from the Codex GitHub bot; a bot comment keeps `PR Validation Pending` active until the branch fixes the comment on the same PR, pushes, resolves the comment, and records that current-head comment-resolution closeout; no later thumbs-up is required
-  - if a branch expects watcher-based PR monitoring, `PR Watcher Provisioning Unproven` also keeps the gate blocked until the watcher target, approved reporting surface, routing proof, runtime path, run-proof method, fallback, teardown rule, and replacement provisioning for the next live PR are explicit and proven; accepted watcher proof may come from native Codex heartbeat run evidence or from a bounded local watcher that posts status-change updates through the official Codex thread-resume path into the approved reporting-surface transcript, and manual rollout-file or transcript-file injection does not count as proof
-  - `PR Watcher Routing Unverified` also keeps the gate blocked until the approved reporting surface is explicitly recorded and the configured thread/host target, state-file target, and transcript target have been cross-checked against it
+  - if a branch expects watcher-based PR monitoring, `PR Watcher Provisioning Unproven` also keeps the gate blocked until the watcher target, approved reporting surface, routing proof, runtime path, run-proof method, fallback, teardown rule, and replacement provisioning for the next live PR are explicit and proven; accepted watcher proof may come from native Codex heartbeat run evidence or from a bounded local watcher that posts status-change updates through the official Codex thread-resume path into the approved reporting-surface transcript, records delivery proof through assistant-message transcript presence, Codex thread-state refresh, and automation run/inbox visibility, and manual rollout-file or transcript-file injection does not count as proof
+  - `PR Watcher Routing Unverified` also keeps the gate blocked until the approved reporting surface is explicitly recorded and the configured thread/host target, state-file target, transcript target, and delivery proof have been cross-checked against it
   - standard operating procedure from now on is a watcher on an approved Codex reporting surface at minute cadence that reports only when a watched PR status changes; the current working thread is the default surface, but an explicitly recorded dedicated watcher-host thread is allowed when that is the validated user-visible route
   - watcher status-change output must be source-of-truth shaped with governed state markers, live PR truth, watcher proof, blocker state, continue/stop decision, and, after `merged=true`, a copy/paste Codex prompt basis for the next legal Release Readiness validation; the watcher may clear merge-verification blockers but must not independently claim Release Readiness legality
+  - if final merge delivery proof is missing, the watcher must keep running and retry instead of retiring
   - after live PR creation, live PR validation, merge-status green, and bot-review approval, PR Readiness continues into a merge-watch seam
   - `PR Merge Verification Pending` keeps PR Readiness blocked until that watcher on the approved reporting surface verifies that the live PR is `merged`
   - phase-critical automation cannot clear a gate merely because its card, config, or automation list says `ACTIVE`; `ACTIVE` is configuration state, not run proof, so keep `Automation Runtime Unproven` active until thread/inbox output, automation memory/log/state-file updates, scheduler last-run evidence, or another accepted run proof exists
+  - Automation Observability Review Pending is checked with `dev/automation_observability_report.py`; standing automation findings in Codex automation run/inbox rows or `$CODEX_HOME/automations/*/memory.md` are promoted into source-of-truth work only when classified as `BLOCKER_CANDIDATE` or `REVIEW_REQUIRED`, and any such finding needs a bounded repair seam before repo canon changes
   - if the preferred Codex automation remains `ACTIVE` without run evidence, the owning phase stays blocked until run evidence exists or a bounded fallback is activated; any bounded fallback must be target-scoped, phase-scoped, read-only, and self-terminating or explicitly deleted when its terminal condition or phase exit occurs
 - no PR-ready with a PR Readiness scope miss:
   - named blockers are `PR Readiness Scope Missed`, `Between-Branch Canon Repair Attempt`, and `Next Branch Created Too Early`
@@ -347,7 +350,7 @@ That means:
   - a release-bearing branch must explicitly declare `Release Target:`, `Release Floor:`, `Version Rationale:`, `Release Scope:`, and `Release Artifacts:` before Release Readiness can report green
   - stale or semantically mismatched release target truth is still `Release Target Undefined`, even when all fields are present
   - Release Readiness is analysis-only for repository files; it may produce release package information in the response, but it must not edit, stage, commit, generate, or refresh source, docs, canon, validator, helper, release-note, or handoff files
-  - if Release Readiness analysis discovers missing, stale, or ambiguous release target/scope/artifact truth, do not patch in Release Readiness; return to `PR Readiness` on the active branch if unmerged, or defer the repair to the next active branch's `Branch Readiness` if already merged
+  - if Release Readiness analysis discovers missing, stale, or ambiguous release target/scope/artifact truth, do not patch in Release Readiness; return to `PR Readiness` on the active branch if unmerged, or defer the repair to the next legitimate runtime-focused backlog branch's `Branch Readiness` if already merged
   - tracked file changes while the authority record says `Release Readiness` are blocked as `Release Readiness File Mutation Attempt`
   - release-bearing includes `release packaging` branches and any branch that creates, prepares, validates, tags, publishes, or transitions release-facing artifacts or release-state canon
   - the only non-release waiver is `Release Branch: No`
@@ -366,14 +369,15 @@ That means:
 - post-release canon repair is emergency-only:
   - use it only when canon drift already exists on updated `main` and could not be prevented before merge or release
 - governance-only branches are not used for new Nexus work:
-  - governance and canon repair ride on the active branch when tied to that branch's truth
+  - governance and canon repair ride on the active runtime-focused branch when tied to that branch's truth
   - between-branch canon repair is blocked
-  - all fixes and repairs use a new `feature/` branch by default
-  - `docs/governance` and `emergency canon repair` branches are waiver-only historical paths that require `Docs/Governance Branch Waiver: APPROVED` from the USER
-  - repair-only `feature/` branch existence does not imply Branch Readiness admission or active branch truth
+  - standalone docs/governance, emergency canon repair, and repair-only feature branches are blocked for future Nexus work
+  - governance, docs, source-of-truth, and validator repairs must ride inside the next legitimate runtime-focused backlog branch during `Branch Readiness` or `PR Readiness`
+  - if no runtime-focused branch is legally admitted yet, record the drift as a blocker and wait instead of creating a repair branch by inertia
+  - historical repair-only branch records remain traceability only and do not authorize new repair-only branch creation
   - direct writes to `main` are blocked as `Main Write Attempt`
   - Release Readiness must not absorb docs sync or canon cleanup that PR Readiness should have completed
-  - Release Readiness must not mutate files to repair a discovered gap; use `PR Readiness` before merge or the next active branch's `Branch Readiness` after merge
+  - Release Readiness must not mutate files to repair a discovered gap; use `PR Readiness` before merge or the next legitimate runtime-focused backlog branch's `Branch Readiness` after merge
 - do not use canon sync as an excuse for broad unrelated documentation churn
 
 Local docs overlays are reference material only until revalidated against updated `origin/main`.

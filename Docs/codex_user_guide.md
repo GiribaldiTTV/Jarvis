@@ -337,7 +337,7 @@ If that docs pass changes validation or harness behavior assumptions, canon must
 
 This is not a planned `docs/governance` branch from `No Active Branch`.
 Do not repair directly on `main`.
-Use this recipe to classify escaped canon drift, then repair it on the still-available prior branch when that remains the legal repair surface, or in the next active branch's `Branch Readiness` before implementation.
+Use this recipe to classify escaped canon drift, then record it as a blocker for the next legitimate runtime-focused backlog branch's `Branch Readiness` before implementation.
 
 ### Governance Repair On The Active Branch
 
@@ -352,11 +352,15 @@ or:
 Use this only when:
 
 - the repair is directly required to keep the active branch truthful, executable, phase-correct, readiness-correct, validation-correct, closeout-correct, or release-correct
-- a prior PR Readiness miss escaped and must be cleared in the next active branch's `Branch Readiness`
+- a prior PR Readiness miss escaped and must be cleared in the next legitimate runtime-focused backlog branch's `Branch Readiness`
 - the work can stay docs/governance-only without changing product/runtime behavior
 - the prompt blocks implementation until the Branch Readiness blocker is cleared
 
 Do not use a governance-only branch or between-branch canon repair lane for this work.
+Standalone docs/governance, emergency canon repair, and repair-only feature branches are blocked for future Nexus work.
+Governance, docs, source-of-truth, and validator repairs must ride inside the next legitimate runtime-focused backlog branch during `Branch Readiness` or `PR Readiness`.
+If no runtime-focused branch is legally admitted yet, record the drift as a blocker and wait instead of creating a repair branch by inertia.
+Historical repair-only branch records remain traceability only and do not authorize new repair-only branch creation.
 
 During `pre-Beta`, this path remains non-default and explicitly justified.
 In later Beta, public, or steady-state repo operation, it may become a normal maintenance path.
@@ -404,9 +408,11 @@ Source-truth reminders that stay in canon rather than prompt body:
 - Planning-Loop Bypass User Approval: APPROVED
 - Planning-Loop Bypass Reason:
 - Release-bearing implementation work with no runtime/user-facing, backend/runtime, or developer-tooling delta is blocked unless the USER explicitly approves that release window.
-- All fixes and repairs use a new `feature/` branch by default.
-- Do not create a `docs/governance` or `emergency canon repair` branch unless explicit `Docs/Governance Branch Waiver: APPROVED` is recorded from the USER.
-- Repair-only `feature/` branch existence does not imply Branch Readiness admission or active branch truth.
+- Do not create a `docs/governance`, `emergency canon repair`, or repair-only feature branch for future Nexus work.
+- Standalone docs/governance, emergency canon repair, and repair-only feature branches are blocked for future Nexus work.
+- Governance, docs, source-of-truth, and validator repairs must ride inside the next legitimate runtime-focused backlog branch during `Branch Readiness` or `PR Readiness`.
+- If no runtime-focused branch is legally admitted yet, record the drift as a blocker and wait instead of creating a repair branch by inertia.
+- Historical repair-only branch records remain traceability only and do not authorize new repair-only branch creation.
 - the prompt-named seam is the entry seam, not a terminal boundary
 - Next-Seam Continuation Required means continue seam-to-seam inside the current slice until all required seams are complete and the slice status is green
 - seams inside the current slice may be predeclared in canon or discovered from repo truth while the slice remains in progress
@@ -449,7 +455,7 @@ Use `Release Branch: No` only for preserved historical records.
 Do not use `Release Branch: No` for `implementation` or `release packaging` branches.
 If a release-bearing branch lacks `Release Target:`, `Release Floor:`, `Version Rationale:`, `Release Scope:`, or `Release Artifacts:`, Release Readiness is blocked by `Release Target Undefined`.
 If the declared target is semantically wrong for the latest public prerelease and declared release floor, it is also blocked by `Release Target Undefined`.
-If Release Readiness analysis discovers missing, stale, or ambiguous release truth that requires a file update, do not patch in Release Readiness. Return to `PR Readiness` before merge, or defer the repair to the next active branch's `Branch Readiness` after merge. Treat any file mutation while the authority record says `Release Readiness` as `Release Readiness File Mutation Attempt`.
+If Release Readiness analysis discovers missing, stale, or ambiguous release truth that requires a file update, do not patch in Release Readiness. Return to `PR Readiness` before merge, or defer the repair to the next legitimate runtime-focused backlog branch's `Branch Readiness` after merge. Treat any file mutation while the authority record says `Release Readiness` as `Release Readiness File Mutation Attempt`.
 Release Readiness consumes inherited release truth only; it must not create `Release Target:`, `Release Floor:`, `Version Rationale:`, `Release Scope:`, `Release Artifacts:`, merged-unreleased owner, or post-release truth in repository files.
 
 ### Run A Narrow Fix Pass
@@ -562,12 +568,14 @@ When a `PR Readiness` pass is package-ready, green, or reports `PR READY: YES`, 
 This keeps successor-branch handling and PR creation instructions from being reinvented or omitted while keeping operator copy concise.
 For Codex-created PRs, `PR Readiness GREEN` also requires the live PR to clear `Bot Review Signal Pending` through either a thumbs-up reaction or a bot comment from the Codex GitHub bot. A bot comment keeps `PR Validation Pending` active until the branch fixes the comment on the same PR, pushes, resolves the comment, and records that current-head comment-resolution closeout; no later thumbs-up is required.
 `PR Merge Status Unproven` also keeps PR Readiness non-green until the live PR explicitly reports a green merge status. Unknown, unset, conflicting, dirty, blocked, or otherwise non-green mergeability or merge-state results do not clear the gate.
-If the branch expects watcher-based PR monitoring, `PR Watcher Provisioning Unproven` also keeps the gate blocked until the watcher target, approved reporting surface, routing proof, runtime path, run-proof method, fallback, teardown rule, replacement provisioning for the live PR, and the live bot-review action contract are explicit and proven. Accepted watcher proof may come from native Codex heartbeat run evidence or from a bounded local watcher that posts status-change updates through the official Codex thread-resume path into the approved reporting-surface transcript. Manual rollout-file or transcript-file injection does not count as proof.
-`PR Watcher Routing Unverified` also keeps the gate blocked until the approved reporting surface is explicitly recorded and the configured thread/host target, state-file target, and transcript target have been cross-checked against it.
+If the branch expects watcher-based PR monitoring, `PR Watcher Provisioning Unproven` also keeps the gate blocked until the watcher target, approved reporting surface, routing proof, runtime path, run-proof method, fallback, teardown rule, replacement provisioning for the live PR, and the live bot-review action contract are explicit and proven. Accepted watcher proof may come from native Codex heartbeat run evidence or from a bounded local watcher that posts status-change updates through the official Codex thread-resume path into the approved reporting-surface transcript and records delivery proof through assistant-message transcript presence, Codex thread-state refresh, and automation run/inbox visibility. Manual rollout-file or transcript-file injection does not count as proof.
+`PR Watcher Routing Unverified` also keeps the gate blocked until the approved reporting surface is explicitly recorded and the configured thread/host target, state-file target, transcript target, and delivery proof have been cross-checked against it.
 Standard operating procedure from now on is a watcher on an approved Codex reporting surface at minute cadence that reports only when a watched PR status changes. The current working thread is the default surface, but an explicitly recorded dedicated watcher-host thread is allowed when that is the validated user-visible route. That watcher contract must also say what happens next: thumbs-up reaction means report green for PR-entry validation; one or more actionable bot comments means trigger the bounded same-branch PR comment-repair worker, fix the issue, commit, push, reply, resolve the corresponding review thread, and then report `Comment addressed` / green for the current head.
 Watcher status-change output must be source-of-truth shaped with governed state markers, live PR truth, watcher proof, blocker state, continue/stop decision, and, after `merged=true`, a copy/paste Codex prompt basis for the next legal Release Readiness validation. The watcher may clear merge-verification blockers but must not independently claim Release Readiness legality.
+If final merge delivery proof is missing, the watcher must keep running and retry instead of retiring.
 After live PR creation, live PR validation, merge-status green, and bot-review approval are complete, PR Readiness continues into a merge-watch seam and `PR Merge Verification Pending` stays active until that watcher on the approved reporting surface verifies that the PR is `merged`.
 `Automation Runtime Unproven` also keeps PR Readiness non-green for any phase-critical automation gate. A card, config file, or automation list showing `ACTIVE` is configuration state, not run proof. Accept run evidence only from thread or inbox output, automation memory/log/state-file updates, or scheduler last-run evidence. If the preferred Codex automation remains `ACTIVE` without run evidence, keep the owning phase blocked until run evidence exists or a bounded fallback is activated. Any bounded fallback must be target-scoped, phase-scoped, read-only, and self-terminating or explicitly deleted when its terminal condition or phase exit occurs.
+Use `dev/automation_observability_report.py` when you need the current automation health picture. This clears or confirms Automation Observability Review Pending by reading Codex automation run/inbox rows plus `$CODEX_HOME/automations/*/memory.md`; `BLOCKER_CANDIDATE` and `REVIEW_REQUIRED` findings are bounded repair candidates, while `REVIEW_INFO` is informational unless it contradicts repo truth.
 
 Required `Next Branch` block:
 
@@ -669,7 +677,7 @@ The key distinction is prompt length, not analysis depth.
 - prefer ChatGPT preflight analysis over control-language blocks; if risk stays red, return analysis instead of thickening the prompt
 - use `Analyze for drift` before merge, release, or major canon carry-forward decisions
 - use evidence-digestion language when returned validation evidence should control the next move, rather than implying that phase advancement is automatic
-- in `PR Readiness`, require hard blocker checks before accepting `PR READY: YES`: `stale-canon`, `post-merge`, `next-workstream`, `dirty`, `docs-sync`, `desktop-shortcut`, `uts-results`, `PR Readiness Scope Missed`, `Release Window Audit Incomplete`, `Between-Branch Canon Repair Attempt`, `Next Branch Created Too Early`, `PR Merge Status Unproven` until the live PR reports a green merge status, `PR Watcher Provisioning Unproven` until the watcher contract is explicit and proven, `PR Watcher Routing Unverified` until the configured watcher route is proven to match the recorded reporting surface, `PR Merge Verification Pending` until that watcher verifies the live PR is merged, and `Bot Review Signal Pending` for the live PR until a thumbs-up reaction or bot comment-resolution closeout exists
+- in `PR Readiness`, require hard blocker checks before accepting `PR READY: YES`: `stale-canon`, `post-merge`, `next-workstream`, `dirty`, `docs-sync`, `desktop-shortcut`, `uts-results`, `PR Readiness Scope Missed`, `Release Window Audit Incomplete`, `Between-Branch Canon Repair Attempt`, `Next Branch Created Too Early`, `PR Merge Status Unproven` until the live PR reports a green merge status, `PR Watcher Provisioning Unproven` until the watcher contract is explicit and proven, `PR Watcher Routing Unverified` until the configured watcher route and delivery proof are proven to match the recorded reporting surface, `PR Merge Verification Pending` until that watcher verifies the live PR is merged, and `Bot Review Signal Pending` for the live PR until a thumbs-up reaction or bot comment-resolution closeout exists
 - when the branch is inside an unreleased release window, require a `Release Window Audit` and treat serial blocker-clearing PRs as a failure by default; the green posture is `Remaining Known Release Blockers: None`, `Another Pre-Release Repair PR Required: NO`, and `Release Window Split Waiver: None` unless the user explicitly approves a split waiver
 - in `PR Readiness`, require the standardized `## Next Branch` block and, when package-ready or green, the copy-ready `## PR Creation Details` operator blocks
 - before `PR Readiness`, apply the Pre-PR Durability Rule: when a bounded phase pass or durability seam changes source, docs, canon, validator, helper registry, workstream authority, or branch-truth files and validation is green, Codex must commit and push those changes on the active branch instead of stopping at a copy-ready, staged-only, or uncommitted state; only a documented `Durability Waiver`, failed validation, legally file-frozen `Release Readiness`, or a named Codex self-imposed blocker may stop commit/push, and self-imposed blockers must automatically commit and push once lifted

@@ -7,6 +7,7 @@ import re
 import sqlite3
 import subprocess
 import sys
+import time
 import uuid
 from shutil import which
 from datetime import datetime, timezone
@@ -617,6 +618,254 @@ def append_thread_message(
     return timestamp
 
 
+def _assistant_messages_from_record(record: object) -> list[str]:
+    if not isinstance(record, dict):
+        return []
+    payload = record.get("payload")
+    if not isinstance(payload, dict):
+        return []
+
+    messages: list[str] = []
+    if payload.get("type") == "agent_message":
+        message = payload.get("message")
+        if isinstance(message, str):
+            messages.append(message)
+    if payload.get("type") == "task_complete":
+        message = payload.get("last_agent_message")
+        if isinstance(message, str):
+            messages.append(message)
+    if payload.get("type") == "message" and payload.get("role") == "assistant":
+        for item in payload.get("content") or []:
+            if isinstance(item, dict) and item.get("type") == "output_text":
+                text = item.get("text")
+                if isinstance(text, str):
+                    messages.append(text)
+    return messages
+
+
+def transcript_has_assistant_message(rollout_path: Path, message: str) -> bool:
+    if not rollout_path.is_file():
+        return False
+    try:
+        lines = rollout_path.read_text(encoding="utf-8", errors="replace").splitlines()
+    except OSError:
+        return False
+    for line in reversed(lines[-400:]):
+        try:
+            record = json.loads(line)
+        except json.JSONDecodeError:
+            continue
+        if any(candidate == message for candidate in _assistant_messages_from_record(record)):
+            return True
+    return False
+
+
+def wait_for_assistant_transcript_message(
+    rollout_path: Path,
+    message: str,
+    *,
+    attempts: int = 6,
+    delay_seconds: float = 0.5,
+) -> bool:
+    for attempt in range(max(1, attempts)):
+        if transcript_has_assistant_message(rollout_path, message):
+            return True
+        if attempt < attempts - 1:
+            time.sleep(delay_seconds)
+    return False
+
+
+def touch_codex_thread_state(state_db_path: Path, thread_id: str) -> tuple[bool, str]:
+    if not state_db_path.is_file():
+        return False, f"Codex thread state database '{state_db_path}' is missing"
+    connection = None
+    try:
+        connection = sqlite3.connect(state_db_path)
+        cursor = connection.execute(
+            "UPDATE threads SET updated_at = ? WHERE id = ?",
+            (int(utc_now().timestamp()), thread_id),
+        )
+        connection.commit()
+        if cursor.rowcount == 0:
+            return False, f"Codex thread '{thread_id}' was not found in '{state_db_path}'"
+    except sqlite3.Error as exc:
+        return False, f"failed to refresh Codex thread state for '{thread_id}': {exc}"
+    finally:
+        try:
+            if connection is not None:
+                connection.close()
+        except Exception:
+            pass
+    return True, f"Codex thread state refreshed for '{thread_id}'"
+
+
+def record_visible_delivery(
+    *,
+    automation_db_path: Path,
+    automation_id: str,
+    thread_id: str,
+    thread_title: str,
+    source_cwd: Path,
+    inbox_title: str,
+    message: str,
+) -> tuple[bool, str]:
+    if not automation_db_path.is_file():
+        return False, f"Codex automation database '{automation_db_path}' is missing"
+    now_ms = int(utc_now().timestamp() * 1000)
+    connection = None
+    try:
+        connection = sqlite3.connect(automation_db_path)
+        existing_run_created_at = connection.execute(
+            "SELECT created_at FROM automation_runs WHERE thread_id = ?",
+            (thread_id,),
+        ).fetchone()
+        run_created_at = (
+            int(existing_run_created_at[0]) if existing_run_created_at else now_ms
+        )
+        connection.execute(
+            """
+            INSERT INTO automation_runs (
+                thread_id, automation_id, status, read_at, thread_title, source_cwd,
+                inbox_title, inbox_summary, created_at, updated_at,
+                archived_user_message, archived_assistant_message, archived_reason
+            ) VALUES (?, ?, 'PENDING_REVIEW', NULL, ?, ?, ?, ?, ?, ?, NULL, NULL, NULL)
+            ON CONFLICT(thread_id) DO UPDATE SET
+                automation_id = excluded.automation_id,
+                status = 'PENDING_REVIEW',
+                read_at = NULL,
+                thread_title = excluded.thread_title,
+                source_cwd = excluded.source_cwd,
+                inbox_title = excluded.inbox_title,
+                inbox_summary = excluded.inbox_summary,
+                updated_at = excluded.updated_at
+            """,
+            (
+                thread_id,
+                automation_id,
+                thread_title,
+                str(source_cwd),
+                inbox_title,
+                message,
+                run_created_at,
+                now_ms,
+            ),
+        )
+        inbox_id = f"{automation_id}:{thread_id}"
+        existing_inbox_created_at = connection.execute(
+            "SELECT created_at FROM inbox_items WHERE id = ?",
+            (inbox_id,),
+        ).fetchone()
+        inbox_created_at = (
+            int(existing_inbox_created_at[0]) if existing_inbox_created_at else now_ms
+        )
+        connection.execute(
+            """
+            INSERT INTO inbox_items (id, title, description, thread_id, read_at, created_at)
+            VALUES (?, ?, ?, ?, NULL, ?)
+            ON CONFLICT(id) DO UPDATE SET
+                title = excluded.title,
+                description = excluded.description,
+                thread_id = excluded.thread_id,
+                read_at = NULL
+            """,
+            (
+                inbox_id,
+                inbox_title,
+                message,
+                thread_id,
+                inbox_created_at,
+            ),
+        )
+        connection.commit()
+    except sqlite3.Error as exc:
+        return False, f"failed to record visible watcher delivery in Codex app state: {exc}"
+    finally:
+        try:
+            if connection is not None:
+                connection.close()
+        except Exception:
+            pass
+    return True, f"Codex automation run and inbox delivery recorded for '{thread_id}'"
+
+
+def deliver_thread_update(
+    *,
+    codex_exe: Path | None,
+    repo_root: Path,
+    thread_id: str,
+    rollout_path: Path,
+    state_db_path: Path,
+    automation_db_path: Path,
+    automation_id: str,
+    thread_title: str,
+    inbox_title: str,
+    message: str,
+    output_path: Path,
+) -> tuple[str, str, bool, str]:
+    attempts: list[str] = []
+    emitted_at = ""
+    used_codex_resume = False
+    used_fallback = False
+
+    if codex_exe is not None:
+        try:
+            emitted_at = emit_via_codex_resume(
+                codex_exe=codex_exe,
+                repo_root=repo_root,
+                thread_id=thread_id,
+                message=message,
+                output_path=output_path,
+            )
+            used_codex_resume = True
+            attempts.append("codex_resume command returned")
+        except Exception as exc:
+            attempts.append(f"codex_resume failed: {exc}")
+
+    transcript_proven = wait_for_assistant_transcript_message(rollout_path, message)
+    if not transcript_proven:
+        emitted_at = append_thread_message(
+            thread_id=thread_id,
+            rollout_path=rollout_path,
+            state_db_path=state_db_path,
+            message=message,
+        )
+        used_fallback = True
+        attempts.append("verified transcript fallback appended assistant message")
+        transcript_proven = wait_for_assistant_transcript_message(
+            rollout_path,
+            message,
+            attempts=3,
+            delay_seconds=0.25,
+        )
+
+    thread_state_ok, thread_state_message = touch_codex_thread_state(state_db_path, thread_id)
+    visible_delivery_ok, visible_delivery_message = record_visible_delivery(
+        automation_db_path=automation_db_path,
+        automation_id=automation_id,
+        thread_id=thread_id,
+        thread_title=thread_title,
+        source_cwd=repo_root,
+        inbox_title=inbox_title,
+        message=message,
+    )
+    attempts.extend(
+        [
+            f"assistant transcript proof={'present' if transcript_proven else 'missing'}",
+            thread_state_message,
+            visible_delivery_message,
+        ]
+    )
+
+    emit_method = "rollout_fallback"
+    if used_codex_resume and used_fallback:
+        emit_method = "codex_resume+verified_fallback"
+    elif used_codex_resume:
+        emit_method = "codex_resume"
+
+    delivery_proven = transcript_proven and thread_state_ok and visible_delivery_ok
+    return emitted_at or utc_now_iso(), emit_method, delivery_proven, "; ".join(attempts)
+
+
 def find_codex_exe(explicit_path: str) -> Path | None:
     candidates = []
     if explicit_path:
@@ -1175,6 +1424,7 @@ def main() -> int:
         or args.force_emit
         or current_signature != previous_signature
         or not str(existing_state.get("lastThreadEmitAt") or "").strip()
+        or not bool(existing_state.get("lastThreadDeliveryProven"))
     )
 
     if should_emit:
@@ -1183,28 +1433,32 @@ def main() -> int:
             if status.get("error")
             else current_thread_message(status)
         )
-        emit_method = "codex_resume"
-        if codex_exe is not None:
-            emitted_at = emit_via_codex_resume(
-                codex_exe=codex_exe,
-                repo_root=repo_root,
-                thread_id=args.thread_id,
-                message=message,
-                output_path=resume_output_path,
-            )
-        else:
-            emit_method = "rollout_fallback"
-            emitted_at = append_thread_message(
-                thread_id=args.thread_id,
-                rollout_path=thread_rollout_path,
-                state_db_path=state_db_path,
-                message=message,
-            )
+        emitted_at, emit_method, delivery_proven, delivery_proof = deliver_thread_update(
+            codex_exe=codex_exe,
+            repo_root=repo_root,
+            thread_id=args.thread_id,
+            rollout_path=thread_rollout_path,
+            state_db_path=state_db_path,
+            automation_db_path=automation_db_path,
+            automation_id=automation_id,
+            thread_title=thread_title,
+            inbox_title=inbox_title,
+            message=message,
+            output_path=resume_output_path,
+        )
         status["lastThreadEmitAt"] = emitted_at
         status["lastThreadEmitMessage"] = message
         status["lastThreadEmitSignature"] = current_signature
         status["lastThreadEmitMethod"] = emit_method
-        append_log(log_path, f"Emitted same-thread update at {emitted_at} via {emit_method}")
+        status["lastThreadDeliveryProven"] = delivery_proven
+        status["lastThreadDeliveryProof"] = delivery_proof
+        append_log(
+            log_path,
+            (
+                f"Emitted same-thread update at {emitted_at} via {emit_method}; "
+                f"delivery_proven={delivery_proven}; {delivery_proof}"
+            ),
+        )
     else:
         status["lastThreadEmitAt"] = existing_state.get("lastThreadEmitAt", "")
         status["lastThreadEmitMessage"] = existing_state.get("lastThreadEmitMessage", "")
@@ -1212,11 +1466,26 @@ def main() -> int:
             "lastThreadEmitSignature", previous_signature
         )
         status["lastThreadEmitMethod"] = existing_state.get("lastThreadEmitMethod", "")
+        status["lastThreadDeliveryProven"] = existing_state.get(
+            "lastThreadDeliveryProven",
+            False,
+        )
+        status["lastThreadDeliveryProof"] = existing_state.get("lastThreadDeliveryProof", "")
 
     status["lastSignature"] = current_signature
     save_json(state_path, status)
 
     if bool(status.get("merged")) or str(status.get("prState") or "").upper() == "CLOSED":
+        if not bool(status.get("lastThreadDeliveryProven")):
+            message = (
+                "Watcher is not stopping because final thread delivery proof is missing; "
+                "it will retry on the next scheduled run."
+            )
+            append_log(log_path, message)
+            status["visibleThreadHostRetired"] = False
+            status["visibleThreadHostRetireMessage"] = message
+            save_json(state_path, status)
+            return 0
         append_log(log_path, "Stopping watcher because PR is closed or merged.")
         retired, retire_message = retire_visible_thread_host(
             automation_db_path=automation_db_path,
