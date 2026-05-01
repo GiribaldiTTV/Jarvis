@@ -55,7 +55,7 @@ Do not use this layer to replace:
 
 ## Active Branch Authority Records
 
-None.
+- `Docs/branch_records/feature_pr105_post_merge_closeout_canon_repair.md`
 
 ## Historical Branch Authority Records
 

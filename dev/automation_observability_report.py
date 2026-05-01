@@ -37,6 +37,8 @@ EXPECTED_WAITING_MARKERS = (
     "no action",
     "remains green",
     "need v1.6.13-prebeta publish",
+    "release readiness is not legal yet",
+    "pr merge verification pending` remains active",
 )
 
 
@@ -142,6 +144,14 @@ def pr99_heartbeat_missing_is_historical() -> bool:
 
 def classify_pending_review(title: str, summary: str) -> str:
     text = f"{title}\n{summary}".casefold()
+    if (
+        title.casefold().startswith("pr #")
+        and "watcher update" in title.casefold()
+        and "mergeable_state=clean" in text
+        and "merged=false" in text
+        and "botcomments=0" in text
+    ):
+        return "REVIEW_INFO"
     if (
         "live toml for ws1 pr99-heartbeat-watch is absent" in text
         and pr99_heartbeat_missing_is_historical()
