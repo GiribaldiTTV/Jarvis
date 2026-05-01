@@ -24,11 +24,12 @@ Do not use this layer to replace:
 - active `Registry-only` backlog branches may use this layer during `Branch Readiness` before promotion
 - active-branch-first remains the default during `pre-Beta`
 - new governance-only branches are not used for Nexus work
-- All fixes and repairs use a new `feature/` branch by default.
-- Do not create a `docs/governance` or `emergency canon repair` branch unless explicit `Docs/Governance Branch Waiver: APPROVED` is recorded from the USER.
-- Repair-only `feature/` branch existence does not imply Branch Readiness admission or active branch truth.
+- Standalone docs/governance, emergency canon repair, and repair-only feature branches are blocked for future Nexus work.
+- Governance, docs, source-of-truth, and validator repairs must ride inside the next legitimate runtime-focused backlog branch during `Branch Readiness` or `PR Readiness`.
+- If no runtime-focused branch is legally admitted yet, record the drift as a blocker and wait instead of creating a repair branch by inertia.
+- Historical repair-only branch records remain traceability only and do not authorize new repair-only branch creation.
 - between-branch canon repair is blocked
-- missed PR Readiness canon work must be carried by the next active branch's `Branch Readiness` before implementation begins
+- missed PR Readiness canon work must be carried by the next legitimate runtime-focused backlog branch's `Branch Readiness` before implementation begins
 - the `Active Branch Authority Records` list is only for branches that are still the current execution base
 - when merged-main truth is `No Active Branch`, merge-stable current-state owners such as backlog and roadmap must not mirror transient repair-branch ownership; that transient repair execution truth belongs only in the active branch authority record until merge
 - before PR merge, any branch that still relies on an active branch authority record must either move that record into `Historical Branch Authority Records` or remove it entirely so merged truth does not leave a stale active branch owner behind

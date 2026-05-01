@@ -93,6 +93,7 @@ It preserves merged-main `No Active Branch` truth, keeps PR #105 watcher merge/s
 - automation observability source-of-truth gate only
 - validator hardening for automation observability only
 - PR106 watcher provisioning and PR Readiness validation only
+- runtime-branch-only governance/source-of-truth repair carriage rule only
 
 ## Explicit Non-Goals
 
@@ -101,6 +102,7 @@ It preserves merged-main `No Active Branch` truth, keeps PR #105 watcher merge/s
 - no FB-049 branch creation
 - no mutation of merge-stable backlog or roadmap current-state truth away from `No Active Branch`
 - no claim that Release Readiness is legal before watcher-verified PR merge
+- no future standalone docs/governance, emergency canon repair, post-merge closeout canon repair, or repair-only feature branch loop
 
 ## Validation Contract
 
@@ -140,17 +142,19 @@ Continuation Action: `Keep PR Readiness PR2 active until the same-thread watcher
 ## Governance Drift Audit
 
 - Governance Drift Found: `Yes`
-- Drift Type: post-merge closeout canon drift and automation observability gap
-- Why Current Canon Failed To Prevent It: prior post-merge repairs repeatedly left stale branch authority behind, and standing automation results were visible in Codex automation state without a single governed source-of-truth reader.
-- Required Canon Changes: clear stale active branch authority, preserve PR #105 watcher proof historically, add `dev/automation_observability_report.py`, classify automation findings as `BLOCKER_CANDIDATE`, `REVIEW_REQUIRED`, or `REVIEW_INFO`, and require bounded repair seams before automation findings mutate repo canon.
+- Drift Type: post-merge closeout canon drift, automation observability gap, and repair-branch recurrence loop
+- Why Current Canon Failed To Prevent It: prior post-merge repairs repeatedly left stale branch authority behind, standing automation results were visible in Codex automation state without a single governed source-of-truth reader, and the earlier branch rules still allowed standalone repair/canon branches to become the next move by inertia.
+- Required Canon Changes: clear stale active branch authority, preserve PR #105 watcher proof historically, add `dev/automation_observability_report.py`, classify automation findings as `BLOCKER_CANDIDATE`, `REVIEW_REQUIRED`, or `REVIEW_INFO`, require bounded repair seams before automation findings mutate repo canon, and block standalone docs/governance, emergency canon repair, and repair-only feature branches for future Nexus work.
+- Runtime-Branch Repair Carriage Rule: `Governance, docs, source-of-truth, and validator repairs must ride inside the next legitimate runtime-focused backlog branch during Branch Readiness or PR Readiness.`
+- No-Repair-Branch Loop Rule: `If no runtime-focused branch is legally admitted yet, record the drift as a blocker and wait instead of creating a repair branch by inertia.`
 - Whether The Drift Blocks Merge: `No for PR1 after watcher-led comment closeout; Release Readiness remains blocked by PR Merge Verification Pending until PR #106 is watcher-verified as merged`
 - Whether User Confirmation Is Required: `No; USER requested this bounded closeout repair and observability gate`
-- Missing validator requirement check: validator coverage now requires the automation observability helper and governance contract phrases.
+- Missing validator requirement check: validator coverage now requires the automation observability helper, governance contract phrases, and runtime-branch-only repair carriage phrases.
 
 ## Post-Merge State
 
 - Post-merge repo state: `No Active Branch`
-- Post-merge repair truth: after PR #106 merge, this branch authority record must move to historical-only traceability and `Docs/branch_records/index.md` must clear `Active Branch Authority Records`.
+- Post-merge repair truth: after PR #106 merge, do not create a standalone closeout canon-repair branch. If any active-branch authority drift remains on merged `main`, record it as a blocker for the next legitimate runtime-focused backlog branch's `Branch Readiness` and repair it there before implementation.
 - Post-merge watcher truth: PR #106 same-thread watcher merge verification and shutdown proof must be preserved before Release Readiness can be claimed.
 - Post-merge selected-next truth: FB-049 remains selected next, `Registry-only`, and branch-not-created until `v1.6.13-prebeta` is published, validated, updated `main` is revalidated, and FB-049 Branch Readiness admits the first bounded slice.
 - Post-merge release posture: pending `v1.6.13-prebeta` release posture remains preserved.

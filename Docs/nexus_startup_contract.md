@@ -126,14 +126,15 @@ Generated prompts must require default startup validation:
 Additional validation is phase- and workstream-specific and must be read from the active workstream doc and `Docs/phase_governance.md`.
 This file does not own those execution validation rules.
 
-For docs/governance-only passes, which are historical/waiver-only rather than the default repair path, validation must include:
+For historical docs/governance-only records, which are traceability-only rather than a future repair path, validation must include:
 
 - governance alignment check against owning canon
 - duplication check so the new doc routes rather than re-owning detailed policy
 - conflict check against phase governance, protected-main law, and durability rules
-- All fixes and repairs use a new `feature/` branch by default.
-- Do not create a `docs/governance` or `emergency canon repair` branch unless explicit `Docs/Governance Branch Waiver: APPROVED` is recorded from the USER.
-- Repair-only `feature/` branch existence does not imply Branch Readiness admission or active branch truth.
+- Standalone docs/governance, emergency canon repair, and repair-only feature branches are blocked for future Nexus work.
+- Governance, docs, source-of-truth, and validator repairs must ride inside the next legitimate runtime-focused backlog branch during `Branch Readiness` or `PR Readiness`.
+- If no runtime-focused branch is legally admitted yet, record the drift as a blocker and wait instead of creating a repair branch by inertia.
+- Historical repair-only branch records remain traceability only and do not authorize new repair-only branch creation.
 
 ## Loader Stop Conditions
 
@@ -197,7 +198,7 @@ Mode: <Analysis / Workflow>
 Phase: <canonical phase or analysis-only>
 Workstream: <FB-XXX or No Active Branch>
 Branch: <branch name>
-Branch Class: <implementation / repair on new feature branch / release packaging / docs/governance historical context only with explicit waiver / as canon allows>
+Branch Class: <implementation / release packaging / historical repair context only as canon allows>
 
 First, read as a loader map only:
 - Docs/nexus_startup_contract.md

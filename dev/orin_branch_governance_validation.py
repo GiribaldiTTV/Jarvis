@@ -35,6 +35,11 @@ BRANCH_CLASSES = (
     "release packaging",
 )
 
+BLOCKED_FUTURE_ACTIVE_BRANCH_CLASSES = (
+    "docs/governance",
+    "emergency canon repair",
+)
+
 PROMPT_CONTRACT_DOCS = (
     Path("Docs/phase_governance.md"),
     Path("Docs/development_rules.md"),
@@ -963,7 +968,7 @@ RELEASE_READINESS_FILE_FREEZE_PHRASES = (
     "Release Readiness File Mutation Attempt",
     "analysis-only",
     "return to `PR Readiness`",
-    "next active branch's `Branch Readiness`",
+    "next legitimate runtime-focused backlog branch's `Branch Readiness`",
 )
 
 PROTECTED_MAIN_DOCS = (
@@ -1157,9 +1162,10 @@ FEATURE_BRANCH_REPAIR_CONTRACT_DOCS = (
 )
 
 FEATURE_BRANCH_REPAIR_CONTRACT_PHRASES = (
-    "All fixes and repairs use a new `feature/` branch by default.",
-    "Do not create a `docs/governance` or `emergency canon repair` branch unless explicit `Docs/Governance Branch Waiver: APPROVED` is recorded from the USER.",
-    "Repair-only `feature/` branch existence does not imply Branch Readiness admission or active branch truth.",
+    "Standalone docs/governance, emergency canon repair, and repair-only feature branches are blocked for future Nexus work.",
+    "Governance, docs, source-of-truth, and validator repairs must ride inside the next legitimate runtime-focused backlog branch during `Branch Readiness` or `PR Readiness`.",
+    "If no runtime-focused branch is legally admitted yet, record the drift as a blocker and wait instead of creating a repair branch by inertia.",
+    "Historical repair-only branch records remain traceability only and do not authorize new repair-only branch creation.",
 )
 
 BRANCH_RECORD_INDEX = Path("Docs/branch_records/index.md")
@@ -1535,10 +1541,12 @@ BOT_REVIEW_SIGNAL_STATUS_COMMENT_ADDRESSED = "Comment addressed"
 BOT_REVIEW_BOT_LOGIN = "chatgpt-codex-connector[bot]"
 BOT_REVIEW_COMMENT_CLOSEOUT_ALLOWED_FILES = {
     "Docs/Main.md",
+    "Docs/closeout_guidance.md",
     "Docs/codex_modes.md",
     "Docs/codex_user_guide.md",
     "Docs/development_rules.md",
     "Docs/incident_patterns.md",
+    "Docs/nexus_startup_contract.md",
     "Docs/orin_task_template.md",
     "Docs/phase_governance.md",
     "dev/orin_branch_governance_validation.py",
@@ -10607,6 +10615,15 @@ def main() -> int:
             f"{branch_record_path}: Branch Class '{info['branch_class']}' is not in the canonical branch-class enum",
         )
         branch_class = str(info["branch_class"])
+        if branch_record_path in active_branch_record_paths:
+            require(
+                branch_class not in BLOCKED_FUTURE_ACTIVE_BRANCH_CLASSES,
+                (
+                    f"{branch_record_path}: active branch class '{branch_class}' is blocked for future "
+                    "Nexus work; governance/docs/source-of-truth repairs must ride inside the next "
+                    "legitimate runtime-focused backlog branch"
+                ),
+            )
         has_non_release_marker = NON_RELEASE_BRANCH_MARKER in record_text
         if branch_class in RELEASE_BEARING_BRANCH_CLASSES:
             for required_marker in REQUIRED_RELEASE_BEARING_MARKERS:

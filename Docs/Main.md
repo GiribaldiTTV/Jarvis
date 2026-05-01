@@ -40,8 +40,8 @@ There is no emergency direct-main repair path for Codex.
 If drift is discovered:
 
 - before merge, return to the owning branch and repair it before PR green
-- after merge, repair on the still-available prior branch if that branch remains the legal repair surface
-- if the prior branch is unavailable, block the next active branch in `Branch Readiness` and repair there before implementation
+- after merge, do not open or resurrect a standalone repair branch for that drift
+- block the next legitimate runtime-focused backlog branch in `Branch Readiness` and repair the drift there before implementation
 
 Any tracked file mutation while Codex is on `main` is a `Main Write Attempt` blocker.
 
@@ -58,7 +58,7 @@ Use this ownership split unless a validated source conflict requires a temporary
 - User Test Summary = validation-contract layer owned by the relevant workstream
 - phase governance = repo-wide execution, proof, timeout, seam, stop-loss, validation-helper, and desktop UI audit contract
 - validation helper registry = repo-wide helper naming, ownership, reuse, workstream-scoped exception, and consolidation contract
-- branch authority records = repo-owned phase owners for selected `Registry-only` backlog branches in `Branch Readiness`, approved `release packaging` branches, and preserved historical `docs/governance` or `emergency canon repair` records; new fixes and repairs still use a new `feature/` branch by default
+- branch authority records = repo-owned phase owners for selected `Registry-only` backlog branches in `Branch Readiness`, approved `release packaging` branches, active runtime-focused branches that must carry bounded governance/source-of-truth repairs before PR green, and preserved historical repair records; standalone docs/governance, emergency canon repair, and repair-only feature branches are blocked for future Nexus work
 - `Docs/Main.md` = routing authority aligned to merged truth
 
 ## Analysis-First Prompt Baseline
@@ -286,14 +286,15 @@ These are reference layers, not active workstream or roadmap owners.
 - reporting `Next Safe Move` is not a substitute for execution while the current slice still requires seams; A `continue` decision must be acted on immediately by starting the next seam needed inside the current slice
 - category labels such as bug fix, hotfix, high-risk, cross-subsystem, settings, protocol, launcher, or UI-model work require smaller seams and stronger gates; they are not automatic stop authority when the next seam remains admitted and green
 - `Workstream` completion does not imply PR readiness; the normal next legal phase is `Hardening`, followed by `Live Validation` and then `PR Readiness`
-- `Post-Release Canon Repair` is not a normal phase or branch; escaped canon repair must ride the prior legal branch or the next active branch's `Branch Readiness`, never direct `main`
+- `Post-Release Canon Repair` is not a normal phase or branch; escaped canon repair must ride the next legitimate runtime-focused backlog branch's `Branch Readiness`, never direct `main` or a standalone repair branch
 - before any next implementation branch may enter `Branch Readiness`, the repo-level admission gate from `Docs/phase_governance.md` must pass on updated `main`
 - if repo truth resolves to blocked `No Active Branch`, report the blocking repair path
 - if repo truth resolves to steady-state `No Active Branch`, do not invent a next implementation branch by inertia
-- governance-only branches are not used for new Nexus work; governance or canon repair rides on the active branch that owns the affected truth, or on the next active branch's `Branch Readiness` if a PR Readiness miss escaped the prior branch
-- All fixes and repairs use a new `feature/` branch by default.
-- Do not create a `docs/governance` or `emergency canon repair` branch unless explicit `Docs/Governance Branch Waiver: APPROVED` is recorded from the USER.
-- Repair-only `feature/` branch existence does not imply Branch Readiness admission or active branch truth.
+- governance-only branches are not used for new Nexus work; governance or canon repair rides on the active runtime-focused branch that owns the affected truth, or on the next legitimate runtime-focused backlog branch's `Branch Readiness` if a PR Readiness miss escaped the prior branch
+- Standalone docs/governance, emergency canon repair, and repair-only feature branches are blocked for future Nexus work.
+- Governance, docs, source-of-truth, and validator repairs must ride inside the next legitimate runtime-focused backlog branch during `Branch Readiness` or `PR Readiness`.
+- If no runtime-focused branch is legally admitted yet, record the drift as a blocker and wait instead of creating a repair branch by inertia.
+- Historical repair-only branch records remain traceability only and do not authorize new repair-only branch creation.
 - Pre-PR Durability Rule: before `PR Readiness`, when a bounded phase pass or durability seam changes source, docs, canon, validator, helper registry, workstream authority, or branch-truth files and validation is green, Codex must commit and push those changes on the active branch instead of stopping at a copy-ready, staged-only, or uncommitted state
 - the Pre-PR Durability Rule applies through `Branch Readiness`, `Workstream`, `Hardening`, and `Live Validation`; `PR Readiness` remains the later merge-target gate and must still prove clean durable branch truth
 - prompt-level requests to stop before commit/push are not durability exceptions; only a documented `Durability Waiver`, failed validation, legally file-frozen `Release Readiness`, or a named Codex self-imposed blocker may stop commit/push, and self-imposed blockers must automatically commit and push once lifted
@@ -344,9 +345,9 @@ These are reference layers, not active workstream or roadmap owners.
   6. never let the waiver clear `Release Debt`, weaken post-merge truth, weaken validation, or permit premature next-workstream branch creation
 - Release Readiness is not a docs-sync phase and not a file-mutation phase; it is analysis-only for repository files and is restricted to release-target validation, release-scope validation, release-artifact validation, GitHub release package information, final release-execution authorization or confirmation, and release-state confirmation after release execution
 - Release package details must use the operator copy-block contract from `Docs/phase_governance.md`: separate copy-ready blocks for `Release Title`, `Release Tag`, `Target Commit`, and `Release Notes`; release notes are detailed, user-facing, inclusion-only, Markdown-friendly, must not start with or repeat the release title as `# <release title>`, and must be combined with GitHub-generated `## What's Changed` plus the generated `**Full Changelog**:` compare link to the previous release during Release Execution
-- Release Readiness must not edit, stage, commit, generate, or refresh source, docs, canon, validator, helper, release-note, or handoff files; if such work is discovered before merge, return to `PR Readiness`, and if discovered after merge, defer it to the next active branch's `Branch Readiness`
+- Release Readiness must not edit, stage, commit, generate, or refresh source, docs, canon, validator, helper, release-note, or handoff files; if such work is discovered before merge, return to `PR Readiness`, and if discovered after merge, defer it to the next legitimate runtime-focused backlog branch's `Branch Readiness`
 - tracked file changes while the authority record says `Release Readiness` are blocked as `Release Readiness File Mutation Attempt`
-- a post-release canon repair must not mutate `main`; if merged canon is stale, carry the repair on the still-available prior branch or block the next active branch's `Branch Readiness`
+- a post-release canon repair must not mutate `main`; if merged canon is stale, record the drift as a blocker for the next legitimate runtime-focused backlog branch's `Branch Readiness`
 - returned `UTS`, screenshot, interactive, PR-review, or release-review evidence must be digested into the authority record before phase advancement is recommended
 - while a required User Test Summary handoff is outstanding, the active branch must report `User Test Summary Results Pending`; automated validators and live helper evidence may be green, but final phase advancement is blocked until the filled User Test Summary is submitted or waived, digested into the authority record, and blockers are reevaluated
 - Live Validation green requires an exact `## User Test Summary` state before final green.

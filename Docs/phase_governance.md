@@ -38,7 +38,7 @@ For phase-sensitive execution, prompts must include:
 
 Add these fields when relevant:
 
-- `Branch Class: <implementation / repair on new feature branch / docs/governance historical context only with explicit waiver / emergency canon repair historical context only with explicit waiver / release packaging>`
+- `Branch Class: <implementation / release packaging / historical repair context only as canon allows>`
 - `Active Seam: <seam name>`
 - `Seam Sequence: <ordered seam list>` when the current phase permits a bounded multi-seam pipeline
 - `Validation Contract: <summary or authority reference>`
@@ -194,12 +194,14 @@ This path is for:
 
 - selected backlog items that remain `Registry-only` during `Branch Readiness`
 - explicitly approved non-backlog branch classes such as `release packaging`
-- preserved historical `docs/governance` or `emergency canon repair` records
+- active runtime-focused branches that must carry bounded governance/source-of-truth repairs before PR green
+- preserved historical repair records
 
 `docs/governance` branch records may exist as historical records, but new governance-only branches are not used in the normal Nexus flow.
-All fixes and repairs use a new `feature/` branch by default.
-Do not create a `docs/governance` or `emergency canon repair` branch unless explicit `Docs/Governance Branch Waiver: APPROVED` is recorded from the USER.
-Repair-only `feature/` branch existence does not imply Branch Readiness admission or active branch truth.
+Standalone docs/governance, emergency canon repair, and repair-only feature branches are blocked for future Nexus work.
+Governance, docs, source-of-truth, and validator repairs must ride inside the next legitimate runtime-focused backlog branch during `Branch Readiness` or `PR Readiness`.
+If no runtime-focused branch is legally admitted yet, record the drift as a blocker and wait instead of creating a repair branch by inertia.
+Historical repair-only branch records remain traceability only and do not authorize new repair-only branch creation.
 Tightly coupled governance and canon repair must ride on the active branch that owns the affected truth.
 It must not be used to avoid carrying supporting canon sync on an already-active implementation branch.
 If a stale-canon or governance-drift class is discovered, the same branch or next legal repair surface must patch the canon or validator rule that allowed it before the repair is considered complete.
@@ -226,7 +228,7 @@ Forbidden on `main`:
 There is no emergency direct-main repair path for Codex.
 Any tracked file mutation while Codex is on `main` is a `Main Write Attempt` blocker.
 If drift is discovered before merge, return to the owning branch and repair it before PR green.
-If drift is discovered after merge, repair on the still-available prior branch when that branch remains the legal repair surface, or block the next active branch's `Branch Readiness` and repair there before implementation.
+If drift is discovered after merge, do not open or resurrect a standalone repair branch for that drift; block the next legitimate runtime-focused backlog branch's `Branch Readiness` and repair there before implementation.
 
 While the branch is active, that branch authority record is the branch-local phase owner.
 Before PR merge, merged truth must no longer treat that record as an active branch owner by inertia.
@@ -433,7 +435,7 @@ Branch admission is class-sensitive.
 - must not be used for between-branch canon repair
 - must not be used to carry PR Readiness work after the branch that owned that work has merged
 - if governance or canon work is directly required to keep the current branch truthful, executable, phase-correct, readiness-correct, validation-correct, closeout-correct, or release-correct, that work must ride on the active current branch inside its current phase and branch class
-- if a PR Readiness miss is discovered after merge, the next active branch's `Branch Readiness` must carry the repair before implementation begins
+- if a PR Readiness miss is discovered after merge, the next legitimate runtime-focused backlog branch's `Branch Readiness` must carry the repair before implementation begins
 - if no active branch exists and no next workstream can be selected, the repo remains `No Active Branch`; Codex must not repair directly on `main`
 
 `release packaging`
@@ -446,9 +448,9 @@ Branch admission is class-sensitive.
 - is preserved only as historical vocabulary
 - is not a normal branch lane in the current Nexus flow
 - does not authorize direct-main repair by Codex
-- when explicitly approved as a temporary blocker-clearing branch surface, it exists only to repair current-state or release-readiness drift
+- does not authorize new temporary blocker-clearing branch surfaces for future Nexus work
 - it does not promote the associated workstream and does not satisfy or consume selected-next implementation-branch creation
-- if escaped canon drift exists, the default repair is the still-available prior branch when legal, or the next active branch's `Branch Readiness`
+- if escaped canon drift exists, the default repair is the next legitimate runtime-focused backlog branch's `Branch Readiness`
 
 ### Merge-Target Canon Completeness Gate
 
@@ -527,7 +529,7 @@ Post-release closure is mandatory after release execution:
 - `Docs/feature_backlog.md` must mark the owner `Record State: Closed` and `Status: Released`
 - `Docs/workstreams/index.md` must remove the owner from `Merged / Release Debt Owners` and list it under `Closed`
 - the canonical workstream doc must record `Latest Public Prerelease:`, `Release Title:`, released/closed state, and cleared release debt
-- if this closure is missed after merge or release, the next active branch's `Branch Readiness` is blocked until the closure is repaired and validator coverage is updated so the miss cannot recur
+- if this closure is missed after merge or release, the next legitimate runtime-focused backlog branch's `Branch Readiness` is blocked until the closure is repaired and validator coverage is updated so the miss cannot recur
 
 ### Successor Lane Lock Gate
 
@@ -793,7 +795,7 @@ Routing after digestion:
 
 Release Readiness must not report green while any release target blocker remains unresolved.
 
-Release Readiness is an analysis-only file-freeze phase. Required release target, scope, and artifact truth must already exist before entering Release Readiness, normally as PR-owned merge-target canon or a PR-ready response package. If Release Readiness analysis discovers that those fields are missing, ambiguous, stale, or require source-file changes, do not patch files inside Release Readiness. Return the active branch to `PR Readiness` if it has not merged; if the branch has already merged, defer the repair to the next active branch's `Branch Readiness`.
+Release Readiness is an analysis-only file-freeze phase. Required release target, scope, and artifact truth must already exist before entering Release Readiness, normally as PR-owned merge-target canon or a PR-ready response package. If Release Readiness analysis discovers that those fields are missing, ambiguous, stale, or require source-file changes, do not patch files inside Release Readiness. Return the active branch to `PR Readiness` if it has not merged; if the branch has already merged, defer the repair to the next legitimate runtime-focused backlog branch's `Branch Readiness`.
 
 Hard blocker:
 
@@ -823,7 +825,7 @@ It does not waive `Release Debt`, merge-target canon completeness, post-merge tr
 
 If release target markers are missing on a release-bearing branch, the branch is blocked by `Release Target Undefined`.
 If `Release Branch: No` appears outside a preserved historical record, the branch is blocked by `Phase Waiver Missing`.
-If any source, docs, canon, validator, helper, or release-note file is modified while the active phase remains `Release Readiness`, the branch is blocked by `Release Readiness File Mutation Attempt` and must return to `PR Readiness` or defer to the next active branch's `Branch Readiness` before the change can be made.
+If any source, docs, canon, validator, helper, or release-note file is modified while the active phase remains `Release Readiness`, the branch is blocked by `Release Readiness File Mutation Attempt` and must return to `PR Readiness` or defer to the next legitimate runtime-focused backlog branch's `Branch Readiness` before the change can be made.
 
 ### Release Readiness Scope Boundary
 
@@ -899,7 +901,7 @@ The `## What's Changed` section and `**Full Changelog**:` compare link must be p
 
 If Release Readiness discovers missing PR-owned canon or docs work, stop immediately and classify the issue as `PR Readiness Scope Missed` and `Release Readiness Scope Drift`.
 If the branch has not merged, return to `PR Readiness` and repair the miss there before any Release Readiness output can be treated as green.
-If the branch has already merged, the next active branch's `Branch Readiness` must repair the miss before implementation begins and must update governance or validator coverage so the miss cannot recur.
+If the branch has already merged, the next legitimate runtime-focused backlog branch's `Branch Readiness` must repair the miss before implementation begins and must update governance or validator coverage so the miss cannot recur.
 
 ### Release Window Audit
 
@@ -1027,7 +1029,7 @@ That validator should verify at minimum:
 - active-branch governance and canon updates remain the primary path when tightly coupled to the active branch's truth, phase, readiness, validation, closeout, or release state
 - governance-only branches are not used for new Nexus work, and between-branch canon repair attempts are blocked
 - Release Readiness cannot absorb PR Readiness docs sync or canon repair
-- prior-branch canon misses block the next active branch in Branch Readiness before implementation can begin
+- prior-branch canon misses block the next legitimate runtime-focused backlog branch in Branch Readiness before implementation can begin
 - the canonical `bounded multi-seam workflow` contract is present in governance and operator scaffolds
 - prompt scaffolds teach `Seam Sequence`, per-seam validation, and continue-or-stop decisions for multi-seam Workstream execution
 - docs do not teach direct `Workstream` -> `PR Readiness` as the default path
@@ -1705,7 +1707,7 @@ Required evidence:
 - explicit `Release Target:`, `Release Floor:`, `Version Rationale:`, `Release Scope:`, and `Release Artifacts:` markers for release-bearing branches
 - or explicit `Release Branch: No` only for preserved historical records
 - release-context verification
-- clean tracked-file state; any required file update must be routed back to `PR Readiness` before merge or to the next active branch's `Branch Readiness` after merge
+- clean tracked-file state; any required file update must be routed back to `PR Readiness` before merge or to the next legitimate runtime-focused backlog branch's `Branch Readiness` after merge
 - no unresolved blocker
 
 Exit:
@@ -1743,7 +1745,7 @@ When `No Active Branch` is steady-state:
 - do not start the next implementation branch by inertia
 - it is valid for `Next Safe Move` to say explicitly that no branch should open yet
 - a release packaging branch may still enter `Branch Readiness` if its branch-class admission rules pass
-- governance-only branches are not used; governance or canon repair must ride on the still-available prior branch or the next active branch's `Branch Readiness`
+- governance-only branches are not used; governance or canon repair must ride on the next legitimate runtime-focused backlog branch's `Branch Readiness`
 
 ## Exception Path: Post-Release Canon Repair
 
@@ -1754,8 +1756,8 @@ Purpose:
 Allowed:
 
 - read-only drift analysis on `main`
-- repair on the still-available prior branch when that branch remains the legal repair surface
-- repair in the next active branch's `Branch Readiness` before implementation when the prior branch is unavailable
+- blocker annotation when drift is discovered after merge
+- repair in the next legitimate runtime-focused backlog branch's `Branch Readiness` before implementation
 
 Forbidden:
 
@@ -1763,6 +1765,7 @@ Forbidden:
 - using post-release repair instead of the merge-target canon completeness gate
 - turning the repair path into a new implementation lane by accident
 - opening a governance-only branch
+- opening a repair-only feature branch
 - using Release Readiness as a broad docs-sync phase
 - mutating `main`
 
@@ -1772,7 +1775,7 @@ Required evidence:
 - latest release truth
 - explicit canon drift
 - explicit reason the drift could not be prevented before merge or release
-- explicit legal repair surface: prior branch or next active branch's `Branch Readiness`
+- explicit legal repair surface: next legitimate runtime-focused backlog branch's `Branch Readiness`
 
 Exit:
 

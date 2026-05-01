@@ -53,7 +53,7 @@ Branch-local "what worked" notes should stay in the canonical workstream doc fir
 - root-cause pattern:
   canon treated release target/scope/artifact definition as something Release Readiness could repair in-place instead of analysis-only output or a blocker that returns to the owning earlier phase
 - fix pattern:
-  treat Release Readiness as analysis-only for repository files; it may produce release package information in the response, but any required source, docs, canon, validator, helper, release-note, or handoff-file mutation must return to `PR Readiness` before merge or defer to the next active branch's `Branch Readiness` after merge
+  treat Release Readiness as analysis-only for repository files; it may produce release package information in the response, but any required source, docs, canon, validator, helper, release-note, or handoff-file mutation must return to `PR Readiness` before merge or defer to the next legitimate runtime-focused backlog branch's `Branch Readiness` after merge
 - validation pattern:
   run `python dev/orin_branch_governance_validation.py`; it must enforce `Release Readiness File Mutation Attempt` file-freeze language in governance docs and fail if tracked files are dirty while an active authority record says `Release Readiness`
 - source references:
@@ -70,9 +70,9 @@ Branch-local "what worked" notes should stay in the canonical workstream doc fir
 - Common Cause:
   PR Readiness checks prove behavior or release artifacts but do not prove that merged-main branch records, roadmap state, post-merge state, and selected-next branch timing are already durable before green
 - Required Response:
-  classify the issue as `PR Readiness Scope Missed`; if it appears during Release Readiness, also classify `Release Readiness Scope Drift`; if a successor branch already exists, keep that branch in `Branch Readiness` and repair the miss before any implementation begins
+  classify the issue as `PR Readiness Scope Missed`; if it appears during Release Readiness, also classify `Release Readiness Scope Drift`; do not open a standalone closeout or canon-repair branch; carry the miss as a blocker into the next legitimate runtime-focused backlog branch's `Branch Readiness` and repair it before any implementation begins
 - Prevention:
-  block governance-only branches, block between-branch canon repair, block all Codex direct `main` writes, require branch-authority cleanup before PR green, and extend the validator whenever a miss exposes a machine-checkable gap
+  block governance-only branches, block repair-only feature branches, block between-branch canon repair, block all Codex direct `main` writes, require branch-authority cleanup before PR green, and extend the validator whenever a miss exposes a machine-checkable gap
 - source references:
   - `Docs/phase_governance.md`
   - `dev/orin_branch_governance_validation.py`
@@ -105,7 +105,7 @@ Branch-local "what worked" notes should stay in the canonical workstream doc fir
 - root-cause pattern:
   older governance left room for emergency direct-main repair, which can bypass PR review and make protected branch truth harder to audit
 - fix pattern:
-  `main` is protected for Codex work; there is no emergency direct-main repair path, and any required file mutation must ride the still-available prior branch or the next active branch's `Branch Readiness`
+  `main` is protected for Codex work; there is no emergency direct-main repair path, and any required file mutation after merge must be recorded as a blocker for the next legitimate runtime-focused backlog branch's `Branch Readiness`
 - validation pattern:
   run `python dev/orin_branch_governance_validation.py`; it must enforce protected-main language and fail with `Main Write Attempt` if tracked file mutation exists while Codex is on `main`
 - source references:

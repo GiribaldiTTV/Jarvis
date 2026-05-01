@@ -57,7 +57,7 @@ Phase:
 [Branch Readiness / Workstream / Hardening / Live Validation / PR Readiness / Release Readiness]
 
 Branch Class:
-[implementation / repair/dev-tooling-governance / repair on new feature branch / release packaging / docs/governance historical context only with explicit Docs/Governance Branch Waiver: APPROVED / emergency canon repair historical context only with explicit Docs/Governance Branch Waiver: APPROVED]
+[implementation / release packaging / historical repair context only as canon allows]
 
 Implementation Delta Class:
 [runtime/user-facing / backend/runtime / developer-tooling / docs-only / comma-separated non-docs-only values]
@@ -136,6 +136,10 @@ If the task is phase-sensitive and the exact `Phase` field is missing, stop and 
 If repo state is blocked `No Active Branch`, implementation is blocked and the task should resolve the blocking repair path instead of starting implementation.
 If repo state is steady-state `No Active Branch`, do not start implementation by inertia.
 Do not open a governance-only branch or between-branch canon repair lane.
+Standalone docs/governance, emergency canon repair, and repair-only feature branches are blocked for future Nexus work.
+Governance, docs, source-of-truth, and validator repairs must ride inside the next legitimate runtime-focused backlog branch during `Branch Readiness` or `PR Readiness`.
+If no runtime-focused branch is legally admitted yet, record the drift as a blocker and wait instead of creating a repair branch by inertia.
+Historical repair-only branch records remain traceability only and do not authorize new repair-only branch creation.
 Release-packaging branches may proceed only when the branch-class admission rules from `C:\Nexus Desktop AI\Docs\phase_governance.md` allow them.
 `main` is protected for Codex work: Codex may read `main` for truth validation, but must not edit, stage, commit, generate, refresh, or directly repair repository files on `main`.
 Any tracked file mutation while Codex is on `main` is a `Main Write Attempt`.
@@ -171,7 +175,7 @@ For `PR Readiness`, release-bearing merge-target canon must prove the target is 
 For release-version planning, `patch prerelease` is the default for architecture-only planning, admission contracts, validation-only work, documentation/canon repair, governance repair, and non-user-facing milestones that do not add executable product behavior; `minor prerelease` requires a new executable, runtime, operator-facing, user-facing, or materially expanded product capability lane.
 After a public prerelease tag exists for a release-debt owner, prompts must route durable closure before implementation: latest public prerelease truth advances, the released owner becomes Released / Closed, release debt clears, and the workstreams index moves the owner to Closed.
 `Release Readiness` is analysis-only for repository files. It may produce release package information in the response, but it must not edit, stage, commit, generate, or refresh source, docs, canon, validator, helper, release-note, or handoff files.
-If a file change is needed during `Release Readiness`, classify `Release Readiness File Mutation Attempt`, return to `PR Readiness` before merge, or defer to the next active branch's `Branch Readiness` after merge.
+If a file change is needed during `Release Readiness`, classify `Release Readiness File Mutation Attempt`, return to `PR Readiness` before merge, or defer to the next legitimate runtime-focused backlog branch's `Branch Readiness` after merge.
 Use `Release Branch: No` only for preserved historical records.
 Do not use `Release Branch: No` for `implementation` or `release packaging` branches.
 If a required User Test Summary handoff is outstanding, use `User Test Summary Results: PENDING`, list `User Test Summary Results Pending` under blockers, and do not report final phase advancement as green until the filled User Test Summary is submitted or waived, digested, and blockers are reevaluated.
@@ -538,7 +542,7 @@ Stop and explicitly report if:
 - critical evidence is missing
 - the task would require reopening locked architecture
 - safe verification is not possible
-- the task is in `Release Readiness` and requires any source, docs, canon, validator, helper, release-note, or handoff-file mutation; return to `PR Readiness` before merge or defer to the next active branch's `Branch Readiness` after merge
+- the task is in `Release Readiness` and requires any source, docs, canon, validator, helper, release-note, or handoff-file mutation; return to `PR Readiness` before merge or defer to the next legitimate runtime-focused backlog branch's `Branch Readiness` after merge
 - the task is on `main` and requires any repository file mutation; treat it as `Main Write Attempt` and move the repair to a legal branch surface
 - the task needs a new branch basis because the current one is stale, merged, or no longer the right execution base
 - `User Test Summary Results Pending` remains active while the task attempts to advance phase, PR readiness, merge readiness, or final green status
@@ -642,8 +646,9 @@ During Release Execution, use GitHub-generated release notes through the GitHub 
 - Do not reopen closed version behavior without explicit approval.
 - Do not smuggle in policy or authority changes outside the approved task.
 - Do not modify backlog status or add backlog items unless the task explicitly authorizes backlog updates.
-- Do not force tightly coupled governance or canon updates onto a separate docs/governance branch when the active branch owns the affected truth and the update can stay inside its current phase, branch class, validation rules, and stop conditions.
-- Do not open a governance-only branch or between-branch repair window for missed PR Readiness work; carry the repair in the next active branch's `Branch Readiness` before implementation begins.
-- All fixes and repairs use a new `feature/` branch by default.
-- Do not create a `docs/governance` or `emergency canon repair` branch unless explicit `Docs/Governance Branch Waiver: APPROVED` is recorded from the USER.
-- Repair-only `feature/` branch existence does not imply Branch Readiness admission or active branch truth.
+- Do not force tightly coupled governance or canon updates onto a separate docs/governance branch when the active runtime-focused branch owns the affected truth and the update can stay inside its current phase, branch class, validation rules, and stop conditions.
+- Do not open a governance-only branch or between-branch repair window for missed PR Readiness work; carry the repair in the next legitimate runtime-focused backlog branch's `Branch Readiness` before implementation begins.
+- Standalone docs/governance, emergency canon repair, and repair-only feature branches are blocked for future Nexus work.
+- Governance, docs, source-of-truth, and validator repairs must ride inside the next legitimate runtime-focused backlog branch during `Branch Readiness` or `PR Readiness`.
+- If no runtime-focused branch is legally admitted yet, record the drift as a blocker and wait instead of creating a repair branch by inertia.
+- Historical repair-only branch records remain traceability only and do not authorize new repair-only branch creation.

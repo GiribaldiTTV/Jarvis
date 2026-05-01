@@ -66,7 +66,7 @@ Use this layered ownership model:
 - User Test Summary = validation-contract layer owned by workstreams
 - phase governance = repo-wide execution, exact phase enum, blockers, branch classes, proof, timeout, seam, stop-loss, validation-helper, Governance Drift Audit, phase resolver, and desktop UI audit contract
 - validation helper registry = repo-wide helper naming, helper ownership, reuse-first inventory, workstream-scoped exception markers, and consolidation contract
-- branch authority records = repo-owned phase owners for selected `Registry-only` backlog branches in `Branch Readiness`, approved `release packaging` branches, and preserved historical `docs/governance` or `emergency canon repair` records; new fixes and repairs still use a new `feature/` branch by default
+- branch authority records = repo-owned phase owners for selected `Registry-only` backlog branches in `Branch Readiness`, approved `release packaging` branches, active runtime-focused branches that must carry bounded governance/source-of-truth repairs before PR green, and preserved historical repair records; standalone docs/governance, emergency canon repair, and repair-only feature branches are blocked for future Nexus work
 - `Docs/Main.md` = routing authority aligned to merged truth
 
 Use `Docs/phase_governance.md` for:
@@ -222,7 +222,7 @@ Governance-only branches are not used for new Nexus work.
 `main` is protected for Codex work: Codex may read it for truth validation but must not edit, stage, commit, generate, refresh, or directly repair files on it.
 There is no emergency direct-main repair path for Codex.
 If canon drift is discovered before merge, repair it on the owning branch before PR green.
-If canon drift is discovered after merge, repair it on the still-available prior branch when that branch remains the legal repair surface, or block the next active branch's `Branch Readiness` and repair there before implementation.
+If canon drift is discovered after merge, do not open or resurrect a standalone repair branch for that drift; block the next legitimate runtime-focused backlog branch's `Branch Readiness` and repair there before implementation.
 If a stale-canon or governance-drift class is discovered, the same branch or next legal repair surface must also patch the canon or validator rule that allowed it before the repair is considered complete.
 merge-stable current-state owners such as backlog and roadmap must not mirror transient repair-branch ownership while merged-main truth remains `No Active Branch`.
 Any tracked file mutation while Codex is on `main` is a `Main Write Attempt` blocker.
@@ -232,9 +232,10 @@ When a governance or canon update is directly required to keep the active branch
 That allowance does not permit unrelated governance churn, product scope expansion, validation weakening, stop-condition weakening, or phase-authority bypass.
 Do not use a standalone `docs/governance` branch to carry routine canon or governance work that belongs on an already-active implementation or release branch.
 Do not open a governance-only branch for between-branch canon repair.
-All fixes and repairs use a new `feature/` branch by default.
-Do not create a `docs/governance` or `emergency canon repair` branch unless explicit `Docs/Governance Branch Waiver: APPROVED` is recorded from the USER.
-Repair-only `feature/` branch existence does not imply Branch Readiness admission or active branch truth.
+Standalone docs/governance, emergency canon repair, and repair-only feature branches are blocked for future Nexus work.
+Governance, docs, source-of-truth, and validator repairs must ride inside the next legitimate runtime-focused backlog branch during `Branch Readiness` or `PR Readiness`.
+If no runtime-focused branch is legally admitted yet, record the drift as a blocker and wait instead of creating a repair branch by inertia.
+Historical repair-only branch records remain traceability only and do not authorize new repair-only branch creation.
 If PR Readiness missed required canon or docs work and the owning branch has already merged, the next active branch must treat the miss as a `Branch Readiness` blocker and repair it before implementation begins.
 
 Pre-PR Durability Rule:
@@ -349,7 +350,7 @@ That means:
   - a release-bearing branch must explicitly declare `Release Target:`, `Release Floor:`, `Version Rationale:`, `Release Scope:`, and `Release Artifacts:` before Release Readiness can report green
   - stale or semantically mismatched release target truth is still `Release Target Undefined`, even when all fields are present
   - Release Readiness is analysis-only for repository files; it may produce release package information in the response, but it must not edit, stage, commit, generate, or refresh source, docs, canon, validator, helper, release-note, or handoff files
-  - if Release Readiness analysis discovers missing, stale, or ambiguous release target/scope/artifact truth, do not patch in Release Readiness; return to `PR Readiness` on the active branch if unmerged, or defer the repair to the next active branch's `Branch Readiness` if already merged
+  - if Release Readiness analysis discovers missing, stale, or ambiguous release target/scope/artifact truth, do not patch in Release Readiness; return to `PR Readiness` on the active branch if unmerged, or defer the repair to the next legitimate runtime-focused backlog branch's `Branch Readiness` if already merged
   - tracked file changes while the authority record says `Release Readiness` are blocked as `Release Readiness File Mutation Attempt`
   - release-bearing includes `release packaging` branches and any branch that creates, prepares, validates, tags, publishes, or transitions release-facing artifacts or release-state canon
   - the only non-release waiver is `Release Branch: No`
@@ -368,14 +369,15 @@ That means:
 - post-release canon repair is emergency-only:
   - use it only when canon drift already exists on updated `main` and could not be prevented before merge or release
 - governance-only branches are not used for new Nexus work:
-  - governance and canon repair ride on the active branch when tied to that branch's truth
+  - governance and canon repair ride on the active runtime-focused branch when tied to that branch's truth
   - between-branch canon repair is blocked
-  - all fixes and repairs use a new `feature/` branch by default
-  - `docs/governance` and `emergency canon repair` branches are waiver-only historical paths that require `Docs/Governance Branch Waiver: APPROVED` from the USER
-  - repair-only `feature/` branch existence does not imply Branch Readiness admission or active branch truth
+  - standalone docs/governance, emergency canon repair, and repair-only feature branches are blocked for future Nexus work
+  - governance, docs, source-of-truth, and validator repairs must ride inside the next legitimate runtime-focused backlog branch during `Branch Readiness` or `PR Readiness`
+  - if no runtime-focused branch is legally admitted yet, record the drift as a blocker and wait instead of creating a repair branch by inertia
+  - historical repair-only branch records remain traceability only and do not authorize new repair-only branch creation
   - direct writes to `main` are blocked as `Main Write Attempt`
   - Release Readiness must not absorb docs sync or canon cleanup that PR Readiness should have completed
-  - Release Readiness must not mutate files to repair a discovered gap; use `PR Readiness` before merge or the next active branch's `Branch Readiness` after merge
+  - Release Readiness must not mutate files to repair a discovered gap; use `PR Readiness` before merge or the next legitimate runtime-focused backlog branch's `Branch Readiness` after merge
 - do not use canon sync as an excuse for broad unrelated documentation churn
 
 Local docs overlays are reference material only until revalidated against updated `origin/main`.

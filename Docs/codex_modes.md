@@ -158,9 +158,10 @@ In Workflow mode, Codex should:
 - Docs-only Workstreams require explicit USER approval.
 - Planning-loop bypass requires `Planning-Loop Bypass User Approval: APPROVED` and `Planning-Loop Bypass Reason:`.
 - Release-bearing implementation work with no runtime/user-facing, backend/runtime, or developer-tooling delta is blocked unless the USER explicitly approves that release window.
-- All fixes and repairs use a new `feature/` branch by default.
-- Do not create a `docs/governance` or `emergency canon repair` branch unless explicit `Docs/Governance Branch Waiver: APPROVED` is recorded from the USER.
-- Repair-only `feature/` branch existence does not imply Branch Readiness admission or active branch truth.
+- Standalone docs/governance, emergency canon repair, and repair-only feature branches are blocked for future Nexus work.
+- Governance, docs, source-of-truth, and validator repairs must ride inside the next legitimate runtime-focused backlog branch during `Branch Readiness` or `PR Readiness`.
+- If no runtime-focused branch is legally admitted yet, record the drift as a blocker and wait instead of creating a repair branch by inertia.
+- Historical repair-only branch records remain traceability only and do not authorize new repair-only branch creation.
 - if a stale-canon or governance-drift class is discovered, the same branch or next legal repair surface must patch the canon or validator rule that allowed it before the repair is considered complete
 - merge-stable current-state owners such as backlog and roadmap must not mirror transient repair-branch ownership while merged-main truth remains `No Active Branch`
 
@@ -175,7 +176,7 @@ In Workflow mode, Codex must not:
 - stop after a green seam merely because the prompt task named only the entry seam, the output asks for `Next Safe Move`, durability completed, or one seam was recorded
 - treat branch existence, branch rename, backlog promotion, repair-only traceability, or release-bearing posture as Workstream progress by themselves
 - treat planning or canon-only output on an implementation branch as valid Workstream progress without explicit USER-approved bypass markers
-- open a `docs/governance` or `emergency canon repair` branch for a fix or repair without explicit USER waiver
+- open a `docs/governance`, `emergency canon repair`, or repair-only feature branch for future Nexus work
 
 ### Expected Outputs
 
@@ -333,7 +334,7 @@ When the approved phase is `Release Readiness`, the output must also explicitly 
 - confirmation that `Release Debt`, post-merge truth, validation, and successor branch deferral remain governed by their normal blockers
 - confirmation that Release Readiness is not being used as a docs-sync or branch-authority cleanup phase
 - confirmation that Release Readiness is analysis-only for repository files and that no source, docs, canon, validator, helper, release-note, or handoff files were edited, staged, committed, generated, or refreshed
-- if any file change is needed, classification as `Release Readiness File Mutation Attempt`, then return to `PR Readiness` before merge or defer to the next active branch's `Branch Readiness` after merge instead of patching inside Release Readiness
+- if any file change is needed, classification as `Release Readiness File Mutation Attempt`, then return to `PR Readiness` before merge or defer to the next legitimate runtime-focused backlog branch's `Branch Readiness` after merge instead of patching inside Release Readiness
 - when Release Readiness is green for release execution, inclusion-only release operator copy blocks with this exact shape:
 
 ````markdown
@@ -479,8 +480,8 @@ When release-dependent truth changes:
 - do not use Release Readiness as a docs-sync phase
 - do not use Release Readiness as a file-mutation phase; release package information may be generated as response text only
 - do not open a governance-only branch or between-branch repair window
-- if a PR Readiness miss escapes after merge, block the next active branch in `Branch Readiness` and repair the miss before implementation begins
-- do not use direct-main emergency repair; `main` is protected for Codex work and repair must ride the still-available prior branch or the next active branch's `Branch Readiness`
+- if a PR Readiness miss escapes after merge, block the next legitimate runtime-focused backlog branch in `Branch Readiness` and repair the miss before implementation begins
+- do not use direct-main emergency repair; `main` is protected for Codex work and repair must ride the next legitimate runtime-focused backlog branch's `Branch Readiness`
 
 ## Shared Rules Across Both Modes
 
@@ -498,7 +499,11 @@ When release-dependent truth changes:
 - User Test Summary belongs to workstream-owned validation
 - incident patterns are generalized knowledge, not case history
 - governance and canon updates should ride on the active current branch when they are directly required to keep that branch truthful, executable, phase-correct, readiness-correct, validation-correct, closeout-correct, or release-correct
-- governance-only branches are not used for new Nexus work; tightly coupled governance repair rides on the active branch, and escaped PR misses block the next active branch's `Branch Readiness`
+- governance-only branches are not used for new Nexus work; tightly coupled governance repair rides on the active runtime-focused branch, and escaped PR misses block the next legitimate runtime-focused backlog branch's `Branch Readiness`
+- Standalone docs/governance, emergency canon repair, and repair-only feature branches are blocked for future Nexus work.
+- Governance, docs, source-of-truth, and validator repairs must ride inside the next legitimate runtime-focused backlog branch during `Branch Readiness` or `PR Readiness`.
+- If no runtime-focused branch is legally admitted yet, record the drift as a blocker and wait instead of creating a repair branch by inertia.
+- Historical repair-only branch records remain traceability only and do not authorize new repair-only branch creation.
 - active-branch governance updates must not weaken validation, stop conditions, phase authority, branch-class authority, or scope control
 - `main` is protected for Codex work; Codex may read `main` for truth validation, but any tracked file mutation, staging, commit, generation, refresh, or direct repair on `main` is a `Main Write Attempt`
 - There is no emergency direct-main repair path for Codex.

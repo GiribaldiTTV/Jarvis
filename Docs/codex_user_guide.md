@@ -337,7 +337,7 @@ If that docs pass changes validation or harness behavior assumptions, canon must
 
 This is not a planned `docs/governance` branch from `No Active Branch`.
 Do not repair directly on `main`.
-Use this recipe to classify escaped canon drift, then repair it on the still-available prior branch when that remains the legal repair surface, or in the next active branch's `Branch Readiness` before implementation.
+Use this recipe to classify escaped canon drift, then record it as a blocker for the next legitimate runtime-focused backlog branch's `Branch Readiness` before implementation.
 
 ### Governance Repair On The Active Branch
 
@@ -352,11 +352,15 @@ or:
 Use this only when:
 
 - the repair is directly required to keep the active branch truthful, executable, phase-correct, readiness-correct, validation-correct, closeout-correct, or release-correct
-- a prior PR Readiness miss escaped and must be cleared in the next active branch's `Branch Readiness`
+- a prior PR Readiness miss escaped and must be cleared in the next legitimate runtime-focused backlog branch's `Branch Readiness`
 - the work can stay docs/governance-only without changing product/runtime behavior
 - the prompt blocks implementation until the Branch Readiness blocker is cleared
 
 Do not use a governance-only branch or between-branch canon repair lane for this work.
+Standalone docs/governance, emergency canon repair, and repair-only feature branches are blocked for future Nexus work.
+Governance, docs, source-of-truth, and validator repairs must ride inside the next legitimate runtime-focused backlog branch during `Branch Readiness` or `PR Readiness`.
+If no runtime-focused branch is legally admitted yet, record the drift as a blocker and wait instead of creating a repair branch by inertia.
+Historical repair-only branch records remain traceability only and do not authorize new repair-only branch creation.
 
 During `pre-Beta`, this path remains non-default and explicitly justified.
 In later Beta, public, or steady-state repo operation, it may become a normal maintenance path.
@@ -404,9 +408,11 @@ Source-truth reminders that stay in canon rather than prompt body:
 - Planning-Loop Bypass User Approval: APPROVED
 - Planning-Loop Bypass Reason:
 - Release-bearing implementation work with no runtime/user-facing, backend/runtime, or developer-tooling delta is blocked unless the USER explicitly approves that release window.
-- All fixes and repairs use a new `feature/` branch by default.
-- Do not create a `docs/governance` or `emergency canon repair` branch unless explicit `Docs/Governance Branch Waiver: APPROVED` is recorded from the USER.
-- Repair-only `feature/` branch existence does not imply Branch Readiness admission or active branch truth.
+- Do not create a `docs/governance`, `emergency canon repair`, or repair-only feature branch for future Nexus work.
+- Standalone docs/governance, emergency canon repair, and repair-only feature branches are blocked for future Nexus work.
+- Governance, docs, source-of-truth, and validator repairs must ride inside the next legitimate runtime-focused backlog branch during `Branch Readiness` or `PR Readiness`.
+- If no runtime-focused branch is legally admitted yet, record the drift as a blocker and wait instead of creating a repair branch by inertia.
+- Historical repair-only branch records remain traceability only and do not authorize new repair-only branch creation.
 - the prompt-named seam is the entry seam, not a terminal boundary
 - Next-Seam Continuation Required means continue seam-to-seam inside the current slice until all required seams are complete and the slice status is green
 - seams inside the current slice may be predeclared in canon or discovered from repo truth while the slice remains in progress
@@ -449,7 +455,7 @@ Use `Release Branch: No` only for preserved historical records.
 Do not use `Release Branch: No` for `implementation` or `release packaging` branches.
 If a release-bearing branch lacks `Release Target:`, `Release Floor:`, `Version Rationale:`, `Release Scope:`, or `Release Artifacts:`, Release Readiness is blocked by `Release Target Undefined`.
 If the declared target is semantically wrong for the latest public prerelease and declared release floor, it is also blocked by `Release Target Undefined`.
-If Release Readiness analysis discovers missing, stale, or ambiguous release truth that requires a file update, do not patch in Release Readiness. Return to `PR Readiness` before merge, or defer the repair to the next active branch's `Branch Readiness` after merge. Treat any file mutation while the authority record says `Release Readiness` as `Release Readiness File Mutation Attempt`.
+If Release Readiness analysis discovers missing, stale, or ambiguous release truth that requires a file update, do not patch in Release Readiness. Return to `PR Readiness` before merge, or defer the repair to the next legitimate runtime-focused backlog branch's `Branch Readiness` after merge. Treat any file mutation while the authority record says `Release Readiness` as `Release Readiness File Mutation Attempt`.
 Release Readiness consumes inherited release truth only; it must not create `Release Target:`, `Release Floor:`, `Version Rationale:`, `Release Scope:`, `Release Artifacts:`, merged-unreleased owner, or post-release truth in repository files.
 
 ### Run A Narrow Fix Pass
