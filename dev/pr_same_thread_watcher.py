@@ -226,6 +226,36 @@ def fetch_rest_bot_signal(
     return bot_approval, bot_comment_count, "; ".join(errors)
 
 
+def fetch_rest_pr_status(
+    repo_full_name: str,
+    pr_number: int,
+) -> tuple[dict[str, object], str]:
+    try:
+        detail = fetch_github_json(f"https://api.github.com/repos/{repo_full_name}/pulls/{pr_number}")
+    except (OSError, json.JSONDecodeError) as exc:
+        return {}, f"PR detail lookup failed: {exc}"
+    if not isinstance(detail, dict):
+        return {}, "PR detail lookup returned an unexpected payload"
+
+    head = detail.get("head") or {}
+    base = detail.get("base") or {}
+    return {
+        "repo": repo_full_name,
+        "prNumber": pr_number,
+        "prUrl": str(detail.get("html_url") or f"https://github.com/{repo_full_name}/pull/{pr_number}"),
+        "prState": str(detail.get("state") or "UNKNOWN").upper(),
+        "merged": bool(detail.get("merged")),
+        "draft": bool(detail.get("draft")),
+        "headRef": str(head.get("ref") or ""),
+        "baseRef": str(base.get("ref") or "main"),
+        "headSha": str(head.get("sha") or ""),
+        "title": str(detail.get("title") or ""),
+        "createdTime": str(detail.get("created_at") or ""),
+        "mergedTime": str(detail.get("merged_at") or ""),
+        "closedTime": str(detail.get("closed_at") or ""),
+    }, ""
+
+
 def _json_string_field(html: str, key: str) -> str:
     match = re.search(rf'"{re.escape(key)}":"((?:[^"\\]|\\.)*)"', html)
     if not match:
@@ -924,6 +954,9 @@ def build_status(
 ) -> dict[str, object]:
     html = fetch_pr_page(repo_full_name, pr_number)
     pr_status = parse_pr_page(html, repo_full_name, pr_number)
+    rest_status, rest_status_error = fetch_rest_pr_status(repo_full_name, pr_number)
+    if rest_status:
+        pr_status.update(rest_status)
     rest_approval, rest_comment_count, rest_signal_error = fetch_rest_bot_signal(
         repo_full_name,
         pr_number,
@@ -935,6 +968,7 @@ def build_status(
         rest_comment_count,
     )
     pr_status["botSignalError"] = rest_signal_error
+    pr_status["prStatusError"] = rest_status_error
     local_head = run_git(repo_root, "rev-parse", "HEAD")
     local_branch = run_git(repo_root, "rev-parse", "--abbrev-ref", "HEAD")
     mergeable, merge_error = compute_local_merge(repo_root, str(pr_status.get("baseRef") or "main"))

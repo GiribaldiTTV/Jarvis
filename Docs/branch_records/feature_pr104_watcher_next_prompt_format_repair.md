@@ -36,7 +36,7 @@ It repairs the watcher output format, hardens the governance language that requi
 - Live PR Head: `feature/pr104-watcher-next-prompt-format-repair`
 - Live PR Base: `main`
 - Live PR Initial Head Commit: `e6618f1a2e9253a87c476d068e91987b7f2591c5`
-- Live PR Current Head Commit: `53c7c78d12e2e136e27740f7e12e982f70811e88`
+- Live PR Comment-Closeout Head Commit: `53c7c78d12e2e136e27740f7e12e982f70811e88`
 - PR watcher reporting surface: `Current Codex working thread`
 - PR watcher reporting thread ID: `019dd083-0317-7b42-afb3-20b6818a1fa7`
 - PR watcher reporting transcript: `\\?\C:\Users\anden\.codex\sessions\2026\04\27\rollout-2026-04-27T12-55-40-019dd083-0317-7b42-afb3-20b6818a1fa7.jsonl`
