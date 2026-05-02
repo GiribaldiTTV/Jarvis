@@ -6572,6 +6572,20 @@ def _git_is_ancestor(ancestor_sha: str, descendant_sha: str) -> tuple[bool, str]
     return False, completed.stderr.strip() or completed.stdout.strip() or "git merge-base failed"
 
 
+def _local_merge_tree_clean() -> tuple[bool, str]:
+    completed = subprocess.run(
+        ("git", "merge-tree", "--write-tree", "origin/main", "HEAD"),
+        cwd=ROOT_DIR,
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        check=False,
+    )
+    if completed.returncode == 0:
+        return True, ""
+    return False, completed.stderr.strip() or completed.stdout.strip() or "git merge-tree failed"
+
+
 def _is_allowed_bot_review_comment_closeout_path(path: str) -> bool:
     normalized = path.replace("\\", "/")
     if normalized in BOT_REVIEW_COMMENT_CLOSEOUT_ALLOWED_FILES:
@@ -8661,6 +8675,15 @@ def _run_pr_live_state_gate(
             merge_state = watcher_merge_state or "DIRTY"
         elif watcher_merge_state:
             merge_state = watcher_merge_state
+    if not fallback_local_state and (
+        not mergeable or mergeable == "UNKNOWN" or not merge_state or merge_state == "UNKNOWN"
+    ):
+        local_merge_clean, local_merge_error = _local_merge_tree_clean()
+        if local_merge_clean:
+            mergeable = "MERGEABLE"
+            merge_state = "CLEAN"
+        elif local_merge_error:
+            merge_state = merge_state or "UNKNOWN"
     normalized_recorded_status = recorded_bot_review_status.strip().casefold()
     manual_comment_resolution_clear = False
     if normalized_recorded_status == BOT_REVIEW_SIGNAL_STATUS_COMMENT_ADDRESSED.casefold():
@@ -8922,6 +8945,17 @@ def _run_pr_readiness_gate(
     active_branch_record_path: str,
     active_branch_record_text: str,
 ) -> None:
+    if not active_branch_record_text:
+        branch_name = _git_current_branch()
+        for entry in backlog_entries:
+            entry_branch = _extract_colon_value(entry["block"], "Branch").strip("`")
+            if entry_branch != branch_name:
+                continue
+            canonical_path = entry["canonical_path"]
+            if canonical_path:
+                active_branch_record_path = canonical_path
+                active_branch_record_text = _read_text(Path(canonical_path))
+            break
     status_output = _git_status_porcelain()
     require(
         not status_output,
