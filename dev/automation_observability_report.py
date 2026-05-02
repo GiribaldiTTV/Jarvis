@@ -34,10 +34,12 @@ GREEN_WORDS = (
 EXPECTED_WAITING_MARKERS = (
     "waiting phase",
     "waiting state",
+    "waiting on hardening",
     "waiting on phase transition",
     "waiting for pr or release readiness",
     "not yet active",
     "no action",
+    "pr and release readiness are not active yet",
     "pr readiness not active",
     "release readiness not active",
     "no merge or release-publication follow-through",
