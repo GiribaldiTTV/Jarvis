@@ -883,12 +883,17 @@ def find_codex_exe(explicit_path: str) -> Path | None:
     candidates = []
     if explicit_path:
         candidates.append(Path(explicit_path))
+    if which("codex.exe"):
+        candidates.append(Path(which("codex.exe") or ""))
     if which("codex"):
-        candidates.append(Path(which("codex") or ""))
+        codex_path = Path(which("codex") or "")
+        if codex_path.suffix.lower() != ".exe":
+            candidates.append(codex_path.with_suffix(".exe"))
+        candidates.append(codex_path)
     candidates.append(Path.home() / "codex-debug" / "codex.exe")
 
     for candidate in candidates:
-        if candidate and candidate.is_file():
+        if candidate and candidate.is_file() and candidate.suffix.lower() == ".exe":
             return candidate
     return None
 
