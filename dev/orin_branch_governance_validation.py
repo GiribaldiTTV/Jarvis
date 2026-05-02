@@ -8442,9 +8442,11 @@ def _active_branch_watcher_fallback_pr_view_for_branch(
 
     phase_status_section = _section(active_branch_record_text, "Phase Status")
     pr_url_match = re.search(r"^- Live PR:\s*`([^`]+)`", phase_status_section, flags=re.M)
+    if not pr_url_match:
+        pr_url_match = re.search(r"^- PR URL:\s*`([^`]+)`", active_branch_record_text, flags=re.M)
     pr_url = pr_url_match.group(1).strip() if pr_url_match else ""
     if not pr_url:
-        return None, "active branch record is missing `Live PR`"
+        return None, "active branch record is missing `Live PR` or `PR URL`"
     pr_number_match = re.search(r"/pull/(\d+)", pr_url)
     if not pr_number_match:
         return None, f"active branch record has an invalid Live PR URL '{pr_url}'"
@@ -8461,8 +8463,11 @@ def _active_branch_watcher_fallback_pr_view_for_branch(
             f"not current branch '{branch_name}'"
         )
 
-    bot_approval = bool(watcher_state.get("botApproval")) or _phase_status_bot_approval_proven(
-        phase_status_section
+    recorded_bot_status, _recorded_bot_head = _branch_record_bot_review_state(active_branch_record_text)
+    bot_approval = (
+        bool(watcher_state.get("botApproval"))
+        or _phase_status_bot_approval_proven(phase_status_section)
+        or recorded_bot_status.strip().casefold() in {"approved", "comment addressed"}
     )
     bot_comment_count = int(watcher_state.get("botCommentCount") or 0)
     merged = bool(watcher_state.get("merged"))
