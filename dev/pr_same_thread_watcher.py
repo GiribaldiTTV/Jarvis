@@ -883,6 +883,15 @@ def find_codex_exe(explicit_path: str) -> Path | None:
     candidates = []
     if explicit_path:
         candidates.append(Path(explicit_path))
+    candidates.append(Path.home() / ".codex" / ".sandbox-bin" / "codex.exe")
+    candidates.append(Path.home() / "codex-debug" / "codex.exe")
+    local_app_data = os.environ.get("LOCALAPPDATA")
+    if local_app_data:
+        candidates.extend(
+            Path(local_app_data)
+            .joinpath("Packages")
+            .glob("OpenAI.Codex_*/*/Local/OpenAI/Codex/bin/codex.exe")
+        )
     if which("codex.exe"):
         candidates.append(Path(which("codex.exe") or ""))
     if which("codex"):
@@ -890,7 +899,6 @@ def find_codex_exe(explicit_path: str) -> Path | None:
         if codex_path.suffix.lower() != ".exe":
             candidates.append(codex_path.with_suffix(".exe"))
         candidates.append(codex_path)
-    candidates.append(Path.home() / "codex-debug" / "codex.exe")
 
     for candidate in candidates:
         if candidate and candidate.is_file() and candidate.suffix.lower() == ".exe":
