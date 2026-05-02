@@ -27,7 +27,7 @@
 
 ## Current Phase
 
-- Phase: `Branch Readiness`
+- Phase: `Workstream`
 
 ## Phase Status
 
@@ -46,8 +46,10 @@
 - Selected Next Workstream: `FB-030 ORIN voice/audio direction refinement runtime follow-through`
 - Selected Next Record State: `Promoted`
 - Selected Next Implementation Branch: `feature/fb-030-voice-audio-runtime-branch-readiness`
-- Current Branch Readiness Seam: `BR1 - FB-030 Voice/Audio Runtime Admission With Carried FB-049 PR2 Blocker`
-- Current Workstream Seam: `Not started`
+- Current Branch Readiness Seam: `Historical complete; BR1 admitted FB-030 runtime follow-through and cleared the carried FB-049 PR2 blocker before implementation`
+- Current Workstream Seam: `Workstream WS1 - Voice/Audio Runtime Availability and Truthful Diagnostics Proof`
+- Current Workstream Seam Status: `Complete / green`
+- Current Hardening Seam: `Not started; next legal phase after WS1 completion`
 - Release Debt: `Merged unreleased runtime and governance proof remains pending v1.6.13-prebeta packaging`
 
 ## Branch Class
@@ -77,11 +79,11 @@ None.
 
 ## Rollback Target
 
-- `Branch Readiness`
+- `Workstream`
 
 ## Next Legal Phase
 
-- `Workstream`
+- `Hardening`
 
 ## Branch Objective
 
@@ -118,6 +120,16 @@ Backlog-Split Reason: `None`
 
 - FB-030 runtime follow-through must remain bounded by the voice/audio affected-surface map and implementation-admission contract already recorded in this workstream.
 - Additional runtime seams continue on this same branch when they stay inside the same voice/audio feature family and validation surface.
+
+## Backlog Completion Status
+
+Backlog Completion State: `Implemented Complete Except Future Dependency`
+Remaining Implementable Work: `None`
+Future-Dependent Blockers: `ARIA activation, persona-default changes, prompt or public-copy rewrites, audio-asset redesign, and broader voice/audio UX changes require separate explicit admission beyond WS1`
+Completion Status: `Green`
+
+- WS1 completes the currently admitted FB-030 runtime follow-through slice by making voice/audio availability, bypass, degraded, and unavailable outcomes machine-checkable without changing persona defaults, audio assets, public copy, or unrelated launcher behavior.
+- No additional same-branch FB-030 runtime work is admitted by current repo truth after WS1; broader voice/audio direction work remains future-dependent until explicitly selected and bounded.
 
 ## Admitted Implementation Slice
 
@@ -169,6 +181,19 @@ Non-Includes: no PR creation or Release Readiness work.
 - Carried Blocker Repair: FB-049 active branch authority is moved to historical-only traceability, active branch authority records are cleared, and FB-030 becomes the active promoted workstream authority.
 - Recurrence Analysis: PR Readiness missed merge-target closeout and watcher-handoff proof, allowing stale FB-049 active authority to escape after merge; Branch Readiness must therefore require recurrence analysis and validator/governance hardening before implementation whenever a carried blocker class repeats.
 - First Runtime Slice Candidate: `WS1 voice/audio runtime availability and truthful diagnostics proof`.
+
+## Workstream WS1 Result
+
+- Runtime Behavior Changed: `Audio/orin_voice.py` now returns and prints voice diagnostic payloads for available, degraded, unavailable, and bypass-equivalent caller states instead of flattening playback failures into silent completion.
+- Runtime Behavior Changed: `main.py` now records quiet-mode bypass diagnostics, preserves successful voice completion markers only for available or degraded playback, and emits truthful unavailable markers when speech cannot be completed.
+- Runtime Behavior Changed: `Audio/orin_error_voice.py` now writes `VOICE_DIAGNOSTIC` payloads for launcher/error voice flows; shutdown slowdown failure falls back to the base shutdown source as a degraded available state instead of becoming a false unavailable shutdown voice failure.
+- Runtime Behavior Changed: `desktop/orin_desktop_launcher.pyw` now surfaces launcher voice diagnostics through `VOICE|DIAGNOSTIC|...|state=...` runtime events, including bypass, missing-script, subprocess, and launcher/error voice status lanes.
+- Diagnostics Behavior Proved: `dev/orin_voice_regression_harness.py` now validates launcher diagnostic markers, direct normal voice diagnostics, direct shutdown/recovery/error voice diagnostics, and semantic marker formatting for available, degraded, unavailable, and bypassed states.
+- Automation Observability Proof: `dev/automation_observability_report.py` classifies normal waiting-phase monitor output as `REVIEW_INFO` so strict automation observability remains green while real blocker, missing, unproven, or stale proof findings still fail.
+- WS1 Validation Evidence: `python dev\orin_voice_regression_harness.py` PASS; report `dev\logs\voice_regression_harness\reports\VoiceRegressionReport_20260501_174015.txt`.
+- Startup Compatibility Evidence: `python dev\orin_boot_transition_verification.py` PASS; report `dev\logs\boot_transition_verification\reports\BootTransitionVerificationReport_20260501_173620.txt`.
+- Desktop Entry Compatibility Evidence: `python dev\orin_desktop_entrypoint_validation.py` PASS when run sequentially after the voice harness; report `dev\logs\desktop_entrypoint_validation\reports\DesktopEntrypointValidationReport_20260501_174215.txt`.
+- WS1 Continuation Finding: `Implemented Complete Except Future Dependency`; Hardening is the next legal phase.
 
 ## Validation Contract
 
@@ -336,18 +361,12 @@ Seam 3: Validation and admission contract for future voice/audio implementation
 
 ## Active Seam
 
-Active seam: none. The admitted WS-1 through WS-3 Workstream seam chain, H-1 hardening, and LV-1 Live Validation are complete, and PR Readiness is the active phase.
+Active seam: `Workstream WS1 - Voice/Audio Runtime Availability and Truthful Diagnostics Proof`
 
-- Workstream result: complete and green; Hardening and Live Validation are complete, and PR Readiness is active.
-- WS-1 Status: Completed / executed.
-- WS-1 Boundary: docs/canon current voice/audio surface inventory and ownership mapping only.
-- WS-1 Non-Includes: no runtime code edits, no prompt changes, no audio asset changes, no UI changes, no persona-default changes, no diagnostics implementation changes, no release edits, and no public release editing.
-- WS-2 Status: Completed / executed.
-- WS-2 Boundary: docs/canon lifecycle, persona-state, and ownership-handoff framing for boot, recovery, shutdown, telemetry, and diagnostics voice/audio transitions only.
-- WS-2 Non-Includes: no runtime code edits, no prompt changes, no audio asset changes, no UI changes, no persona-default changes, no diagnostics implementation changes, no release edits, and no public release editing.
-- WS-3 Status: Completed / executed.
-- WS-3 Boundary: docs/canon validation, implementation-admission, rollback, and user-facing trigger framing for future voice/audio work only.
-- WS-3 Non-Includes: no runtime code edits, no prompt changes, no audio asset changes, no UI changes, no persona-default changes, no diagnostics implementation changes, no release edits, and no public release editing.
+- Current Workstream result: complete and green; Hardening is the next legal phase.
+- WS1 Boundary: runtime availability and truthful diagnostic proof only across the admitted voice/audio paths.
+- WS1 Non-Includes: no persona-default change, no ARIA activation, no prompt rewrite beyond diagnostic truth, no audio asset redesign, no public-copy change, no release-note change, and no broad launcher or renderer redesign.
+- Historical FB-030 planning WS-1 through WS-3 records remain preserved below as released `v1.6.5-prebeta` traceability and do not redefine the current WS1 runtime follow-through slice.
 
 ## WS-1 Execution Record
 
@@ -821,10 +840,15 @@ PR Readiness validates the completed docs/canon-only FB-030 milestone for merge 
 
 ## Seam Continuation Decision
 
-Continue Decision: `stop`
-Next Active Seam: `none`
-Stop Condition: `PR #81 is merged and merged-unreleased release-debt truth is now the controlling current-state frame`
-Continuation Action: validate file-frozen Release Readiness on updated `main` for `v1.6.5-prebeta`.
+Seam Status: `Green`
+Slice Status: `Green`
+Completion Status: `Green`
+Waiver Status: `None`
+Continue Decision: `Stop`
+Stop Basis: `Workstream Green`
+Next Active Seam: `Hardening H1 - Voice/Audio Runtime Availability and Truthful Diagnostics Validation`
+Stop Condition: `WS1 runtime availability and truthful diagnostics proof is implemented, validator-backed, and has no remaining same-branch implementable work admitted by current repo truth.`
+Continuation Action: `Advance to Hardening H1 for authority-aligned validation of the WS1 runtime diagnostics proof.`
 
 ## Reuse Baseline
 

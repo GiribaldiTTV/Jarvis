@@ -50,6 +50,59 @@ def write_status(status_file: str, stop_signal_file: str, kind: str, msg: str):
         pass
 
 
+def _marker_value(value) -> str:
+    text = str(value if value is not None else "")
+    cleaned = []
+    for ch in text:
+        if ch.isalnum() or ch in {"_", "-", ".", ":", "\\"}:
+            cleaned.append(ch)
+        elif ch.isspace():
+            cleaned.append("_")
+        else:
+            cleaned.append("_")
+    result = "".join(cleaned).strip("_")
+    while "__" in result:
+        result = result.replace("__", "_")
+    return result[:160] or "none"
+
+
+def voice_runtime_diagnostic(state: str, *, reason: str, available=None, degraded=False, **fields):
+    normalized_state = (state or "unavailable").strip().lower().replace(" ", "_")
+    if available is None:
+        available = normalized_state in {"available", "degraded"}
+    payload = {
+        "state": normalized_state,
+        "available": bool(available),
+        "degraded": bool(degraded or normalized_state == "degraded"),
+        "reason": reason or "unspecified",
+    }
+    payload.update({key: value for key, value in fields.items() if value not in (None, "")})
+    return payload
+
+
+def voice_diagnostic_payload(diagnostic: dict) -> str:
+    ordered = ["state", "available", "degraded", "reason", "mode", "detail"]
+    parts = []
+    emitted = set()
+    for key in ordered:
+        if key in diagnostic:
+            value = diagnostic[key]
+            if isinstance(value, bool):
+                value = str(value).lower()
+            parts.append(f"{key}={_marker_value(value)}")
+            emitted.add(key)
+    for key in sorted(set(diagnostic) - emitted):
+        value = diagnostic[key]
+        if isinstance(value, bool):
+            value = str(value).lower()
+        parts.append(f"{key}={_marker_value(value)}")
+    return "|".join(parts)
+
+
+def write_voice_diagnostic(status_file: str, stop_signal_file: str, diagnostic: dict):
+    write_status(status_file, stop_signal_file, "VOICE_DIAGNOSTIC", voice_diagnostic_payload(diagnostic))
+
+
 class OrinErrorSpeaker:
     def __init__(self, status_file: str = "", display_text: str = "", stop_signal_file: str = ""):
         self.app = QApplication.instance() or QApplication(sys.argv)
@@ -122,7 +175,8 @@ class OrinErrorSpeaker:
 
             slowed_path = apply_shutdown_source_slowdown(source_path)
             if not slowed_path:
-                raise RuntimeError("failed to assemble shutdown slowed source")
+                self.prepare_degraded_reason = "shutdown_slowdown_fallback"
+                return source_path, temp_paths
 
             temp_paths.append(slowed_path)
             return slowed_path, temp_paths
@@ -137,6 +191,7 @@ class OrinErrorSpeaker:
     async def prepare_audio(self, spoken_text: str, display_text: str):
         temp_paths = []
         try:
+            self.prepare_degraded_reason = ""
             normalized_display = normalize_line(display_text or spoken_text)
             effect_mode = effect_mode_for_display_text(normalized_display)
 
@@ -179,18 +234,33 @@ class OrinErrorSpeaker:
         position_changed_connected = False
         playback_state_connected = False
         media_status_connected = False
+        playback_finished = False
+        invalid_media = False
+        timed_out = False
+        degraded_reason = ""
+        diagnostic = voice_runtime_diagnostic(
+            "unavailable",
+            reason="not_started",
+            available=False,
+            mode="error_voice",
+        )
 
         try:
             self.last_sync = ""
             self.media_started = False
             base_audio_path, temp_paths, schedule, effect_mode = await self.prepare_audio(text, self.display_text or text)
+            degraded_reason = getattr(self, "prepare_degraded_reason", "")
             duration = get_duration_seconds(base_audio_path)
 
             if duration < 1.2:
                 playback_path = base_audio_path
             else:
                 effected = apply_error_effect(base_audio_path)
-                playback_path = effected if effected and os.path.exists(effected) else base_audio_path
+                if effected and os.path.exists(effected):
+                    playback_path = effected
+                else:
+                    degraded_reason = degraded_reason or "effect_fallback"
+                    playback_path = base_audio_path
 
             if playback_path != base_audio_path:
                 processed_path = playback_path
@@ -238,7 +308,9 @@ class OrinErrorSpeaker:
                     self.media_started = True
 
             def on_media_status_changed(status):
+                nonlocal playback_finished, invalid_media
                 if status == QMediaPlayer.MediaStatus.EndOfMedia:
+                    playback_finished = True
                     if self.sync_timer:
                         self.sync_timer.stop()
                     if not self.should_stop():
@@ -246,9 +318,15 @@ class OrinErrorSpeaker:
                         write_status(self.status_file, self.stop_signal_file, "VOICE_FINAL", final_text)
                     loop.quit()
                 elif status == QMediaPlayer.MediaStatus.InvalidMedia:
+                    invalid_media = True
                     if self.sync_timer:
                         self.sync_timer.stop()
                     loop.quit()
+
+            def on_playback_timeout():
+                nonlocal timed_out
+                timed_out = True
+                loop.quit()
 
             self.player.positionChanged.connect(on_position_changed)
             position_changed_connected = True
@@ -264,10 +342,59 @@ class OrinErrorSpeaker:
             self.player.setSource(QUrl.fromLocalFile(playback_path))
             self.player.play()
 
-            QTimer.singleShot(25000, loop.quit)
+            QTimer.singleShot(25000, on_playback_timeout)
             loop.exec()
 
-            return 0
+            if playback_finished:
+                if degraded_reason:
+                    diagnostic = voice_runtime_diagnostic(
+                        "degraded",
+                        reason=degraded_reason,
+                        available=True,
+                        degraded=True,
+                        mode=effect_mode,
+                    )
+                else:
+                    diagnostic = voice_runtime_diagnostic(
+                        "available",
+                        reason="playback_completed",
+                        available=True,
+                        mode=effect_mode,
+                    )
+            elif invalid_media:
+                diagnostic = voice_runtime_diagnostic(
+                    "unavailable",
+                    reason="invalid_media",
+                    available=False,
+                    mode=effect_mode,
+                )
+            elif timed_out:
+                diagnostic = voice_runtime_diagnostic(
+                    "unavailable",
+                    reason="playback_timeout",
+                    available=False,
+                    mode=effect_mode,
+                )
+            else:
+                diagnostic = voice_runtime_diagnostic(
+                    "unavailable",
+                    reason="playback_interrupted",
+                    available=False,
+                    mode=effect_mode,
+                )
+
+            write_voice_diagnostic(self.status_file, self.stop_signal_file, diagnostic)
+            return 0 if diagnostic.get("available") else 2
+        except Exception as exc:
+            diagnostic = voice_runtime_diagnostic(
+                "unavailable",
+                reason="exception",
+                available=False,
+                mode="error_voice",
+                detail=f"{exc.__class__.__name__}:{exc}",
+            )
+            write_voice_diagnostic(self.status_file, self.stop_signal_file, diagnostic)
+            return 2
 
         finally:
             if self.sync_timer:

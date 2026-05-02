@@ -4,11 +4,61 @@ import asyncio
 import tempfile
 import math
 import array
+import traceback
 
 import edge_tts
 from PySide6.QtCore import QUrl, QEventLoop, QTimer
 from PySide6.QtMultimedia import QMediaPlayer, QAudioOutput
 from PySide6.QtWidgets import QApplication
+
+
+def _marker_value(value) -> str:
+    text = str(value if value is not None else "")
+    cleaned = []
+    for ch in text:
+        if ch.isalnum() or ch in {"_", "-", ".", ":", "\\"}:
+            cleaned.append(ch)
+        elif ch.isspace():
+            cleaned.append("_")
+        else:
+            cleaned.append("_")
+    result = "".join(cleaned).strip("_")
+    while "__" in result:
+        result = result.replace("__", "_")
+    return result[:160] or "none"
+
+
+def voice_runtime_diagnostic(state: str, *, reason: str, available=None, degraded=False, **fields):
+    normalized_state = (state or "unavailable").strip().lower().replace(" ", "_")
+    if available is None:
+        available = normalized_state in {"available", "degraded"}
+    payload = {
+        "state": normalized_state,
+        "available": bool(available),
+        "degraded": bool(degraded or normalized_state == "degraded"),
+        "reason": reason or "unspecified",
+    }
+    payload.update({key: value for key, value in fields.items() if value not in (None, "")})
+    return payload
+
+
+def voice_diagnostic_marker(diagnostic: dict, prefix: str = "VOICE_DIAGNOSTIC") -> str:
+    ordered = ["state", "available", "degraded", "reason", "mode", "stage", "detail"]
+    parts = [prefix]
+    emitted = set()
+    for key in ordered:
+        if key in diagnostic:
+            value = diagnostic[key]
+            if isinstance(value, bool):
+                value = str(value).lower()
+            parts.append(f"{key}={_marker_value(value)}")
+            emitted.add(key)
+    for key in sorted(set(diagnostic) - emitted):
+        value = diagnostic[key]
+        if isinstance(value, bool):
+            value = str(value).lower()
+        parts.append(f"{key}={_marker_value(value)}")
+    return "|".join(parts)
 
 
 class OrinSpeaker:
@@ -24,6 +74,16 @@ class OrinSpeaker:
         os.close(fd)
         processed_path = None
         media_status_connected = False
+        playback_finished = False
+        invalid_media = False
+        timed_out = False
+        degraded_reason = ""
+        diagnostic = voice_runtime_diagnostic(
+            "unavailable",
+            reason="not_started",
+            available=False,
+            mode=mode,
+        )
 
         try:
             communicate = edge_tts.Communicate(
@@ -34,9 +94,17 @@ class OrinSpeaker:
             )
             await communicate.save(source_path)
 
-            if not os.path.exists(source_path):
+            if not os.path.exists(source_path) or os.path.getsize(source_path) <= 0:
                 print(f"ERROR: audio file was not created: {source_path}")
-                return
+                diagnostic = voice_runtime_diagnostic(
+                    "unavailable",
+                    reason="audio_file_missing",
+                    available=False,
+                    mode=mode,
+                    detail=source_path,
+                )
+                print(voice_diagnostic_marker(diagnostic))
+                return diagnostic
 
             playback_path = source_path
 
@@ -46,25 +114,87 @@ class OrinSpeaker:
                     if processed_path and os.path.exists(processed_path):
                         playback_path = processed_path
                 except Exception as e:
+                    degraded_reason = "effect_fallback"
                     print(f"WARNING: malfunction post-process failed, using clean TTS: {e}")
 
             loop = QEventLoop()
 
             def on_media_status_changed(status):
+                nonlocal playback_finished, invalid_media
                 if status == QMediaPlayer.MediaStatus.EndOfMedia:
+                    playback_finished = True
                     loop.quit()
                 elif status == QMediaPlayer.MediaStatus.InvalidMedia:
+                    invalid_media = True
                     print("ERROR: Invalid media")
                     loop.quit()
+
+            def on_playback_timeout():
+                nonlocal timed_out
+                timed_out = True
+                loop.quit()
 
             self.player.mediaStatusChanged.connect(on_media_status_changed)
             media_status_connected = True
             self.player.setSource(QUrl.fromLocalFile(playback_path))
             self.player.play()
 
-            QTimer.singleShot(20000, loop.quit)
+            QTimer.singleShot(20000, on_playback_timeout)
             loop.exec()
 
+            if playback_finished:
+                if degraded_reason:
+                    diagnostic = voice_runtime_diagnostic(
+                        "degraded",
+                        reason=degraded_reason,
+                        available=True,
+                        degraded=True,
+                        mode=mode,
+                    )
+                else:
+                    diagnostic = voice_runtime_diagnostic(
+                        "available",
+                        reason="playback_completed",
+                        available=True,
+                        mode=mode,
+                    )
+            elif invalid_media:
+                diagnostic = voice_runtime_diagnostic(
+                    "unavailable",
+                    reason="invalid_media",
+                    available=False,
+                    mode=mode,
+                )
+            elif timed_out:
+                diagnostic = voice_runtime_diagnostic(
+                    "unavailable",
+                    reason="playback_timeout",
+                    available=False,
+                    mode=mode,
+                )
+            else:
+                diagnostic = voice_runtime_diagnostic(
+                    "unavailable",
+                    reason="playback_interrupted",
+                    available=False,
+                    mode=mode,
+                )
+
+            print(voice_diagnostic_marker(diagnostic))
+            return diagnostic
+        except Exception as exc:
+            diagnostic = voice_runtime_diagnostic(
+                "unavailable",
+                reason="exception",
+                available=False,
+                mode=mode,
+                detail=f"{exc.__class__.__name__}:{exc}",
+            )
+            print(f"ERROR: voice playback failed: {exc}")
+            print(voice_diagnostic_marker(diagnostic))
+            if os.environ.get("NEXUS_VOICE_DEBUG_TRACEBACK"):
+                traceback.print_exc()
+            return diagnostic
         finally:
             self.player.stop()
             self.player.setSource(QUrl())

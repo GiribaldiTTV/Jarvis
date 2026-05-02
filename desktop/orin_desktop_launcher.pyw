@@ -777,6 +777,17 @@ def write_status(kind, msg):
     runtime_event("STATUS", kind, msg)
 
 
+def latest_voice_diagnostic():
+    try:
+        with open(STATUS_FILE, "r", encoding="utf-8", errors="ignore") as f:
+            for line in reversed(f.read().splitlines()):
+                if line.startswith("VOICE_DIAGNOSTIC|"):
+                    return line.split("|", 1)[1]
+    except Exception:
+        pass
+    return ""
+
+
 def write_state(state):
     write_status("STATE", state)
     runtime_event("PHASE", state)
@@ -1289,11 +1300,17 @@ def speak(spoken_text, display_text=None):
     if HARNESS_DISABLE_VOICE:
         runtime(f"VOICE skipped by harness seam: {spoken_text}")
         runtime_event("VOICE", "SKIP", spoken_text, "HARNESS_DISABLED")
+        diagnostic = "state=bypassed|available=false|degraded=false|reason=harness_disabled|mode=launcher"
+        write_status("VOICE_DIAGNOSTIC", diagnostic)
+        runtime_event("VOICE", "DIAGNOSTIC", spoken_text, diagnostic)
         return 0
 
     if not os.path.exists(VOICE_SCRIPT):
         runtime(f"Voice script missing: {VOICE_SCRIPT}")
         runtime_event("STATUS", "FAIL", "VOICE_SCRIPT", "MISSING")
+        diagnostic = "state=unavailable|available=false|degraded=false|reason=script_missing|mode=launcher"
+        write_status("VOICE_DIAGNOSTIC", diagnostic)
+        runtime_event("VOICE", "DIAGNOSTIC", spoken_text, diagnostic)
         return 1
 
     display_text = display_text or spoken_text
@@ -1312,6 +1329,13 @@ def speak(spoken_text, display_text=None):
     runtime(f"VOICE CMD: {' '.join(cmd[2:])}")
     result = subprocess.run(cmd, **hidden_window_kwargs())
     runtime(f"VOICE EXIT CODE: {result.returncode} :: {spoken_text}")
+    diagnostic = latest_voice_diagnostic()
+    if not diagnostic:
+        if result.returncode == 0:
+            diagnostic = "state=available|available=true|degraded=false|reason=legacy_exit_zero|mode=launcher"
+        else:
+            diagnostic = f"state=unavailable|available=false|degraded=false|reason=voice_exit_{result.returncode}|mode=launcher"
+    runtime_event("VOICE", "DIAGNOSTIC", spoken_text, diagnostic)
     runtime_event("VOICE", "END", spoken_text, f"EXIT={result.returncode}")
     return result.returncode
 

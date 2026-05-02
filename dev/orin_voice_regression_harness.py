@@ -160,6 +160,7 @@ def run_launcher_lane(name, target_script, log_root, expected_lane_markers):
     for line in EXPECTED_LAUNCHER_LINES:
         start_fragment = f"VOICE|START|{line}"
         end_fragment = f"VOICE|END|{line}|EXIT=0"
+        diagnostic_fragment = f"VOICE|DIAGNOSTIC|{line}|state="
         checks[f"voice_start::{line}"] = line_status(
             contains_line_fragment(runtime_lines, start_fragment),
             start_fragment
@@ -167,6 +168,14 @@ def run_launcher_lane(name, target_script, log_root, expected_lane_markers):
         checks[f"voice_end::{line}"] = line_status(
             contains_line_fragment(runtime_lines, end_fragment),
             end_fragment
+        )
+        checks[f"voice_diagnostic::{line}"] = line_status(
+            contains_line_fragment(runtime_lines, diagnostic_fragment),
+            diagnostic_fragment
+        )
+        checks[f"voice_no_false_unavailable::{line}"] = line_status(
+            not contains_line_fragment(runtime_lines, f"VOICE|DIAGNOSTIC|{line}|state=unavailable"),
+            f"VOICE|DIAGNOSTIC|{line}|state=unavailable"
         )
 
     checks["final_shutdown_complete"] = line_status(
@@ -218,6 +227,7 @@ def run_error_voice_probe(line_text, probe_root):
 
     status_lines = read_lines(status_file)
     sync_lines = [line for line in status_lines if line.startswith("VOICE_SYNC|")]
+    diagnostic_lines = [line for line in status_lines if line.startswith("VOICE_DIAGNOSTIC|")]
     final_line = f"VOICE_FINAL|{line_text}"
 
     return {
@@ -229,6 +239,13 @@ def run_error_voice_probe(line_text, probe_root):
             "exit_code": line_status(result.returncode == 0, f"voice exit={result.returncode}"),
             "voice_sync_emitted": line_status(bool(sync_lines), sync_lines[-1] if sync_lines else "missing VOICE_SYNC"),
             "voice_final_emitted": line_status(final_line in status_lines, final_line),
+            "voice_diagnostic_emitted": line_status(bool(diagnostic_lines), diagnostic_lines[-1] if diagnostic_lines else "missing VOICE_DIAGNOSTIC"),
+            "voice_diagnostic_available_or_degraded": line_status(
+                bool(diagnostic_lines)
+                and ("state=available" in diagnostic_lines[-1] or "state=degraded" in diagnostic_lines[-1])
+                and "available=true" in diagnostic_lines[-1],
+                diagnostic_lines[-1] if diagnostic_lines else "missing VOICE_DIAGNOSTIC",
+            ),
             "stop_signal_absent": line_status(not os.path.exists(stop_signal_file), stop_signal_file),
         },
     }
@@ -265,11 +282,12 @@ def enum_name(value):
 speaker.player.mediaStatusChanged.connect(lambda status: statuses.append(enum_name(status)))
 speaker.player.playbackStateChanged.connect(lambda state: states.append(enum_name(state)))
 
-asyncio.run(speaker.speak(r"{NORMAL_VOICE_PROBE_TEXT}"))
+diagnostic = asyncio.run(speaker.speak(r"{NORMAL_VOICE_PROBE_TEXT}"))
 
 print(json.dumps({{
     "statuses": statuses,
     "states": states,
+    "diagnostic": diagnostic,
     "playing_seen": "PlayingState" in states,
     "end_seen": "EndOfMedia" in statuses,
     "invalid_seen": "InvalidMedia" in statuses,
@@ -290,6 +308,67 @@ print(json.dumps({{
             "playing_state_seen": line_status(bool(payload and payload.get("playing_seen")), payload.get("states") if payload else "missing payload"),
             "end_of_media_seen": line_status(bool(payload and payload.get("end_seen")), payload.get("statuses") if payload else "missing payload"),
             "invalid_media_absent": line_status(bool(payload) and not payload.get("invalid_seen"), payload.get("statuses") if payload else "missing payload"),
+            "diagnostic_available": line_status(
+                bool(payload and payload.get("diagnostic", {}).get("state") == "available" and payload.get("diagnostic", {}).get("available") is True),
+                payload.get("diagnostic") if payload else "missing payload",
+            ),
+        },
+    }
+
+
+def run_diagnostic_semantics_probe():
+    probe_script = f"""
+import importlib.util
+import json
+
+module_path = r"{NORMAL_VOICE_SCRIPT}"
+spec = importlib.util.spec_from_file_location("orin_voice_probe", module_path)
+module = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(module)
+
+scenarios = {{
+    "available": module.voice_runtime_diagnostic("available", reason="playback_completed", available=True, mode="test"),
+    "degraded": module.voice_runtime_diagnostic("degraded", reason="effect_fallback", available=True, degraded=True, mode="test"),
+    "unavailable": module.voice_runtime_diagnostic("unavailable", reason="audio_file_missing", available=False, mode="test"),
+    "bypassed": module.voice_runtime_diagnostic("bypassed", reason="quiet_mode", available=False, mode="quiet"),
+}}
+markers = {{name: module.voice_diagnostic_marker(value) for name, value in scenarios.items()}}
+print(json.dumps({{"scenarios": scenarios, "markers": markers}}))
+"""
+    result = run_command([sys.executable, "-c", probe_script], timeout_seconds=30)
+    payload = parse_last_json_line(result.stdout.strip()) or {}
+    scenarios = payload.get("scenarios") or {}
+    markers = payload.get("markers") or {}
+    return {
+        "stdout": result.stdout.strip(),
+        "stderr": result.stderr.strip(),
+        "payload": payload,
+        "checks": {
+            "exit_code": line_status(result.returncode == 0, f"diagnostic semantics exit={result.returncode}"),
+            "available_truth": line_status(
+                scenarios.get("available", {}).get("available") is True
+                and scenarios.get("available", {}).get("state") == "available",
+                scenarios.get("available"),
+            ),
+            "degraded_truth": line_status(
+                scenarios.get("degraded", {}).get("available") is True
+                and scenarios.get("degraded", {}).get("degraded") is True,
+                scenarios.get("degraded"),
+            ),
+            "unavailable_truth": line_status(
+                scenarios.get("unavailable", {}).get("available") is False
+                and scenarios.get("unavailable", {}).get("state") == "unavailable",
+                scenarios.get("unavailable"),
+            ),
+            "bypassed_truth": line_status(
+                scenarios.get("bypassed", {}).get("available") is False
+                and scenarios.get("bypassed", {}).get("state") == "bypassed",
+                scenarios.get("bypassed"),
+            ),
+            "markers_emit_state": line_status(
+                all("VOICE_DIAGNOSTIC|state=" in marker for marker in markers.values()),
+                markers,
+            ),
         },
     }
 
@@ -302,7 +381,7 @@ def collect_failures(section):
     return failures
 
 
-def build_report_text(branch_state, report_path, launcher_sections, probe_sections, normal_section, overall_ok):
+def build_report_text(branch_state, report_path, launcher_sections, probe_sections, normal_section, semantics_section, overall_ok):
     lines = [
         "JARVIS VOICE REGRESSION HARNESS",
         f"Report: {report_path}",
@@ -336,6 +415,11 @@ def build_report_text(branch_state, report_path, launcher_sections, probe_sectio
 
     lines.append("Normal voice direct probe:")
     for key, value in normal_section["checks"].items():
+        lines.append(f"  {'PASS' if value['ok'] else 'FAIL'} :: {key} :: {value['detail']}")
+    lines.append("")
+
+    lines.append("Voice diagnostic semantics probe:")
+    for key, value in semantics_section["checks"].items():
         lines.append(f"  {'PASS' if value['ok'] else 'FAIL'} :: {key} :: {value['detail']}")
 
     return "\n".join(lines) + "\n"
@@ -406,6 +490,7 @@ def main(argv):
         )
 
     normal_section = run_normal_voice_probe(normal_probe_root)
+    semantics_section = run_diagnostic_semantics_probe()
 
     launcher_sections = [repeated_crash, startup_abort]
     failures = []
@@ -415,6 +500,7 @@ def main(argv):
     for section in probe_sections:
         failures.extend(collect_failures(section))
     failures.extend(collect_failures(normal_section))
+    failures.extend(collect_failures(semantics_section))
 
     overall_ok = not failures
     stamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -427,6 +513,7 @@ def main(argv):
         launcher_sections=launcher_sections,
         probe_sections=probe_sections,
         normal_section=normal_section,
+        semantics_section=semantics_section,
         overall_ok=overall_ok,
     )
 
@@ -441,6 +528,7 @@ def main(argv):
                 "launcher_sections": launcher_sections,
                 "probe_sections": probe_sections,
                 "normal_section": normal_section,
+                "semantics_section": semantics_section,
                 "report_path": report_path,
             },
             f,
