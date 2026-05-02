@@ -259,11 +259,11 @@ Release Window Split Waiver: None
 
 ## PR Bot Review Signal
 
-- Bot Review Signal Status: `Pending`
-- Bot Review Signal Head SHA: `Pending live PR bot-review signal`
-- Bot Review Signal Source: `Pending thumbs-up reaction or bot comment on the live PR`
-- Bot Review Signal Timestamp: `Pending`
-- Bot Review Signal Actor: `chatgpt-codex-connector[bot]`
+- Bot Review Signal Status: `Comment addressed`
+- Bot Review Signal Head SHA: `0f479a04b798959ead72d32c80c61eff8d0f5007`
+- Bot Review Signal Source: `Resolved GitHub review thread PRRT_kwDORwnWIs5_F65P after same-branch fix commit 0f479a04b798959ead72d32c80c61eff8d0f5007 and PR #108 reply/resolve closeout.`
+- Bot Review Signal Timestamp: `2026-05-02T04:26:57Z`
+- Bot Review Signal Actor: `chatgpt-codex-connector[bot] / GiribaldiTTV`
 
 ## Validation Contract
 
