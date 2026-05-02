@@ -1559,6 +1559,7 @@ BOT_REVIEW_COMMENT_CLOSEOUT_ALLOWED_FILES = {
     "Docs/workstreams/FB-030_orin_voice_audio_direction_refinement.md",
     "dev/automation_observability_report.py",
     "dev/orin_branch_governance_validation.py",
+    "dev/pr_same_thread_watcher.py",
 }
 BOT_REVIEW_COMMENT_CLOSEOUT_ALLOWED_PREFIXES = (
     "Docs/branch_records/",
