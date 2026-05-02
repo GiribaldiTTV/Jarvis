@@ -1178,6 +1178,11 @@ NEXT_WORKSTREAM_BRANCH_NOT_CREATED_PHRASES = (
     "No branch created",
     "not branched",
 )
+NO_NEXT_WORKSTREAM_MARKERS = (
+    "Selected Next Workstream: None",
+    "No valid open runtime-focused backlog candidate remains",
+    "Branch: Not created",
+)
 
 VALID_NEXT_WORKSTREAM_RECORD_STATES = (
     "Registry-only",
@@ -1545,10 +1550,14 @@ BOT_REVIEW_COMMENT_CLOSEOUT_ALLOWED_FILES = {
     "Docs/codex_modes.md",
     "Docs/codex_user_guide.md",
     "Docs/development_rules.md",
+    "Docs/feature_backlog.md",
     "Docs/incident_patterns.md",
     "Docs/nexus_startup_contract.md",
     "Docs/orin_task_template.md",
     "Docs/phase_governance.md",
+    "Docs/prebeta_roadmap.md",
+    "Docs/workstreams/FB-030_orin_voice_audio_direction_refinement.md",
+    "dev/automation_observability_report.py",
     "dev/orin_branch_governance_validation.py",
 }
 BOT_REVIEW_COMMENT_CLOSEOUT_ALLOWED_PREFIXES = (
@@ -7005,6 +7014,21 @@ def _selected_next_workstream_entries(backlog_entries: list[dict[str, str]]) -> 
     ]
 
 
+def _open_successor_candidate_entries(backlog_entries: list[dict[str, str]]) -> list[dict[str, str]]:
+    current_branch = _git_current_branch()
+    candidates: list[dict[str, str]] = []
+    for entry in backlog_entries:
+        if not _is_open_backlog_candidate(entry):
+            continue
+        entry_branch = _extract_colon_value(entry["block"], "Branch").strip("`")
+        if entry_branch and current_branch and entry_branch == current_branch:
+            continue
+        if entry["status"].strip().casefold() == "active":
+            continue
+        candidates.append(entry)
+    return candidates
+
+
 def _next_workstream_roadmap_section(roadmap_text: str) -> str:
     return _section(roadmap_text, "Selected Next Workstream")
 
@@ -7198,6 +7222,29 @@ def _run_next_workstream_gate(
     branch_record_class_map: dict[str, str],
 ) -> None:
     selected_entries = _selected_next_workstream_entries(backlog_entries)
+    if not selected_entries:
+        successor_candidates = _open_successor_candidate_entries(backlog_entries)
+        roadmap_section = _next_workstream_roadmap_section(roadmap_text)
+        require(
+            not successor_candidates,
+            (
+                "PR readiness gate: Next Workstream Undefined blocker is active; no selected "
+                "next workstream is recorded, but open successor candidate(s) remain: "
+                + ", ".join(entry["id"] for entry in successor_candidates)
+            ),
+        )
+        require(
+            bool(roadmap_section)
+            and all(marker.casefold() in roadmap_section.casefold() for marker in NO_NEXT_WORKSTREAM_MARKERS),
+            (
+                "PR readiness gate: Next Workstream Undefined blocker is active; "
+                "Docs/prebeta_roadmap.md must explicitly record that no selected-next "
+                "workstream is available, no valid open runtime-focused backlog candidate remains, "
+                "and no successor branch is created"
+            ),
+        )
+        return
+
     require(
         len(selected_entries) == 1,
         (

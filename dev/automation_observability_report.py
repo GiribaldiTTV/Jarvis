@@ -43,6 +43,7 @@ EXPECTED_WAITING_MARKERS = (
     "pr readiness not active",
     "release readiness not active",
     "no merge or release-publication follow-through",
+    "no merge or release follow-through",
     "remains green",
     "need v1.6.13-prebeta publish",
     "release readiness is not legal yet",
@@ -304,8 +305,35 @@ def pr107_merge_handoff_failure_is_carried() -> bool:
     )
 
 
+def fb049_selected_next_local_ref_finding_is_historical() -> bool:
+    backlog = read_repo_text("Docs/feature_backlog.md")
+    roadmap = read_repo_text("Docs/prebeta_roadmap.md")
+    fb049_record = read_repo_text("Docs/branch_records/feature_fb_049_runtime_branch_readiness.md")
+    workstream = read_repo_text("Docs/workstreams/FB-030_orin_voice_audio_direction_refinement.md")
+    return all(
+        marker in surface
+        for marker, surface in (
+            ("Status: Merged unreleased", backlog),
+            ("Next Workstream: Historical complete", backlog),
+            ("PR #107 merged", backlog),
+            ("PR Watcher Merge Handoff Missing", backlog),
+            ("Selected Next Workstream: None", backlog),
+            ("No valid open runtime-focused backlog candidate remains", roadmap),
+            ("PR #107 merged", fb049_record),
+            ("watcher handoff failure", workstream),
+        )
+    )
+
+
 def classify_pending_review(title: str, summary: str) -> str:
     text = f"{title}\n{summary}".casefold()
+    if "no blocker remains" in text:
+        return "REVIEW_INFO"
+    if (
+        "fb-049 selected-next canon conflicts with local ref" in text
+        and fb049_selected_next_local_ref_finding_is_historical()
+    ):
+        return "REVIEW_INFO"
     if (
         title.casefold().startswith("pr #")
         and "watcher update" in title.casefold()

@@ -558,6 +558,7 @@ This gate requires all of the following before PR creation is allowed:
 Machine-checkable canon markers:
 
 - the selected backlog entry must include `Next Workstream: Selected`
+- if no valid open runtime-focused successor candidate remains after excluding the current active branch and historical/implemented/merged entries, PR Readiness may instead record `Selected Next Workstream: None`, `No valid open runtime-focused backlog candidate remains`, and `Branch: Not created` in the roadmap selected-next section; this is a stop-state, not permission to create a repair-only or speculative branch
 - the selected backlog entry must include `Minimal Scope:`
 - the roadmap must include `## Selected Next Workstream`
 - the roadmap selected-next section must include the same workstream id, its `Record State`, `Minimal Scope:`, and truthful branch status such as `Branch: Not created` before branch creation or the active Branch Readiness branch name after creation
