@@ -783,6 +783,8 @@ def latest_voice_diagnostic():
             for line in reversed(f.read().splitlines()):
                 if line.startswith("VOICE_DIAGNOSTIC|"):
                     return line.split("|", 1)[1]
+                if line.startswith("VOICE_CLEAR|"):
+                    break
     except Exception:
         pass
     return ""
