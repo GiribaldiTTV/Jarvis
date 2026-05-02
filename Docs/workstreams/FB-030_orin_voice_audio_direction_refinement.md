@@ -27,7 +27,7 @@
 
 ## Current Phase
 
-- Phase: `Live Validation`
+- Phase: `PR Readiness`
 
 ## Phase Status
 
@@ -53,7 +53,9 @@
 - Current Hardening Seam Status: `Complete / green`
 - Current Live Validation Seam: `Live Validation LV1 - Voice/Audio Runtime Availability and Truthful Diagnostics Live Validation`
 - Current Live Validation Seam Status: `Complete / green`
-- Current PR Readiness Seam: `Not started; next legal phase after LV1 completion`
+- Current PR Readiness Seam: `PR Readiness PR1 - FB-030 Runtime Branch PR Validation`
+- Current PR Readiness Seam Status: `In progress; live PR creation, same-thread watcher provisioning, and PR-surface validation are active`
+- Next Active Seam: `PR Readiness PR1 - FB-030 Runtime Branch PR Validation`
 - Release Debt: `Merged unreleased runtime and governance proof remains pending v1.6.13-prebeta packaging`
 
 ## Branch Class
@@ -62,7 +64,12 @@
 
 ## Blockers
 
-None.
+- `PR Creation Pending`
+- `PR Watcher Provisioning Unproven`
+- `PR Watcher Routing Unverified`
+- `Bot Review Signal Pending`
+- `PR Merge Status Unproven`
+- `PR Merge Verification Pending`
 
 ## Entry Basis
 
@@ -83,7 +90,7 @@ None.
 
 ## Rollback Target
 
-- `Live Validation`
+- `PR Readiness`
 
 ## Next Legal Phase
 
@@ -225,6 +232,38 @@ Non-Includes: no PR creation or Release Readiness work.
 - LV1 Validation Evidence: `python dev\orin_boot_transition_verification.py` PASS; report `dev\logs\boot_transition_verification\reports\BootTransitionVerificationReport_20260501_184156.txt`.
 - Repair Candidates: `None`.
 - LV1 Continuation Finding: `Live Validation LV1 complete and green`; PR Readiness is the next legal phase.
+
+## PR Readiness PR1 Admission
+
+- Phase Admission: `PASS`; branch authority advances from `Live Validation` to `PR Readiness`, admits `PR Readiness PR1 - FB-030 Runtime Branch PR Validation`, and preserves WS1, H1, and LV1 as historical complete/green proof.
+- Scope Boundary: PR1 may create and validate the live PR, provision the same-thread watcher, validate bot-review/mergeability/readiness state, and record PR2 merge-watch posture.
+- Non-Includes: no merge, no Release Readiness work, no release packaging, no runtime widening, no prompt/persona/audio asset redesign, and no public-copy change.
+- Initial Blockers: `PR Creation Pending`, `PR Watcher Provisioning Unproven`, `PR Watcher Routing Unverified`, `Bot Review Signal Pending`, `PR Merge Status Unproven`, and `PR Merge Verification Pending` remain active until the live PR and watcher proof are recorded.
+- PR2 Posture: after PR1 validates the live PR surface, PR Readiness must continue into `PR Readiness PR2 - FB-030 Runtime Branch Merge Verification Watch`; Release Readiness remains blocked until the watcher verifies `merged=true`.
+
+## Post-Merge State
+
+- No Active Branch Handling: after the FB-030 PR merges, merged-main current-state surfaces must return to `No Active Branch`; this workstream record becomes historical traceability and must not retain live PR state, active seam ownership, or open-PR narration as merged-main active authority.
+- Branch Authority Closeout Requirement: before Release Readiness can treat the merge as complete, the same-thread watcher must verify `merged=true`, emit source-of-truth handoff proof, and retire or be deleted.
+- Successor Branch Handling: no successor branch is created from PR Readiness; any later backlog successor must be admitted through its own Branch Readiness from updated merged-main truth.
+- PR2 Merge Watch Dependency: `PR Merge Verification Pending` remains active until the same-thread watcher verifies the live PR merged state.
+
+## Release Window Audit
+
+Release Window Audit: PASS
+Window Scope: FB-030 WS1 voice/audio runtime availability and truthful diagnostics proof, H1 validation, LV1 live-equivalent validation, and PR Readiness live PR/watcher validation for the bounded runtime diagnostics lane.
+Known Window Blockers Reviewed: stale post-merge canon recurrence, prior PR watcher handoff failure, live PR creation, same-thread watcher routing, bot-review signal, merge status, PR2 merge verification, pending `v1.6.13-prebeta` release posture, and selected runtime-slice containment.
+Remaining Known Release Blockers: None
+Another Pre-Release Repair PR Required: NO
+Release Window Split Waiver: None
+
+## PR Bot Review Signal
+
+- Bot Review Signal Status: `Pending`
+- Bot Review Signal Head SHA: `Pending live PR bot-review signal`
+- Bot Review Signal Source: `Pending thumbs-up reaction or bot comment on the live PR`
+- Bot Review Signal Timestamp: `Pending`
+- Bot Review Signal Actor: `chatgpt-codex-connector[bot]`
 
 ## Validation Contract
 
@@ -392,10 +431,12 @@ Seam 3: Validation and admission contract for future voice/audio implementation
 
 ## Active Seam
 
-Active seam: `Live Validation LV1 - Voice/Audio Runtime Availability and Truthful Diagnostics Live Validation`
+Active seam: `PR Readiness PR1 - FB-030 Runtime Branch PR Validation`
 
-- Current Live Validation seam: `Live Validation LV1 - Voice/Audio Runtime Availability and Truthful Diagnostics Live Validation`.
-- Current Live Validation result: complete and green; PR Readiness is the next legal phase.
+- Current PR Readiness seam: `PR Readiness PR1 - FB-030 Runtime Branch PR Validation`.
+- Current PR Readiness result: in progress; live PR creation, same-thread watcher provisioning, and PR-surface validation are active.
+- Next active seam: `PR Readiness PR1 - FB-030 Runtime Branch PR Validation`.
+- Historical Live Validation result: complete and green.
 - Historical Hardening result: complete and green.
 - Historical Workstream result: complete and green.
 - WS1 Boundary: runtime availability and truthful diagnostic proof only across the admitted voice/audio paths.
@@ -810,13 +851,13 @@ Release Scope: Voice/audio trigger-surface inventory, playback-authority invento
 Release Artifacts: Tag v1.6.5-prebeta; release title Pre-Beta v1.6.5; rich Markdown release notes summarize the FB-030 voice/audio direction planning frame without repeating the release title inside the notes body, and GitHub-generated `## What's Changed` plus `**Full Changelog**:` must be included
 Post-Release Truth: FB-030 is Released / Closed in v1.6.5-prebeta; FB-005 is Released / Closed in v1.6.6-prebeta; FB-042 is Released / Closed in `v1.6.7-prebeta`; FB-043 is Released / Closed in `v1.6.8-prebeta`; FB-044 and FB-045 are Released / Closed in `v1.6.9-prebeta`; release debt is clear; and FB-046 remains selected-only / `Registry-only` on `feature/fb-046-active-session-relaunch-reacquisition` with Branch Readiness complete and `Workstream` next
 
-## Post-Merge State
+## Historical v1.6.5 Post-Merge State
 
 - Historical post-merge state before release execution: repo state becomes `No Active Branch` because FB-030 will own merged-unreleased release debt on `main` for `v1.6.5-prebeta`.
 - Historical pending-package state: the pending release scope contains the completed FB-030 docs/canon-only voice/audio planning milestone only.
 - Historical successor state: FB-005 remains selected next planning-only, and its implementation branch becomes the blocked Branch Readiness surface only after release debt clears and updated-main revalidation completes.
 
-## PR Readiness Record
+## Historical v1.6.5 PR Readiness Record
 
 PR Readiness validates the completed docs/canon-only FB-030 milestone for merge to `main`. This record aligns the `v1.6.5-prebeta` release-debt package, selects the next planning lane, prepares durable PR package details, and then records live PR validation before reporting green.
 
@@ -881,8 +922,8 @@ Waiver Status: `None`
 Continue Decision: `Stop`
 Stop Basis: `Workstream Green`
 Next Active Seam: `PR Readiness PR1 - FB-030 Runtime Branch PR Validation`
-Stop Condition: `Live Validation LV1 is complete and green with live-equivalent voice/audio diagnostics, desktop entrypoint, boot transition, branch governance, and automation observability proof recorded.`
-Continuation Action: `Advance to PR Readiness PR1 only after an explicit PR Readiness prompt admits the live PR surface and same-thread watcher provisioning gate.`
+Stop Condition: `PR Readiness PR1 is admitted and remains in progress until the live PR, same-thread watcher, bot-review signal, mergeability, branch governance, automation observability, and runtime validation gates are recorded.`
+Continuation Action: `Create or verify the live PR, provision the same-thread watcher, validate PR1, then continue within PR Readiness into PR2 merge-watch posture until watcher-verified merge clears the final blocker.`
 
 ## Reuse Baseline
 
