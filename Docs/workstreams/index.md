@@ -87,7 +87,7 @@ For an active or recently closed canonical workstream, keep these durable tracea
 Active here means the current promoted truth owner.
 That may be an executable branch owner or another explicitly promoted current-truth owner.
 
-- `None.`
+- `Docs/workstreams/FB-030_orin_voice_audio_direction_refinement.md`
 
 ### Merged / Release Debt Owners
 
@@ -124,7 +124,6 @@ These records are not active implementation branch owners after merge.
 ### Other Closed Workstreams
 
 - `Docs/workstreams/FB-005_workspace_and_folder_organization.md`
-- `Docs/workstreams/FB-030_orin_voice_audio_direction_refinement.md`
 - `Docs/workstreams/FB-029_orin_identity_licensing_hardening.md`
 - `Docs/workstreams/FB-015_boot_and_desktop_phase_boundary_model.md`
 - `Docs/workstreams/FB-004_future_boot_orchestrator_layer.md`

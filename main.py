@@ -238,7 +238,7 @@ from PySide6.QtCore import Qt, QTimer, QObject, Signal, QPropertyAnimation, QUrl
 from PySide6.QtGui import QGuiApplication, QKeyEvent
 from PySide6.QtWebEngineWidgets import QWebEngineView
 
-from Audio.orin_voice import OrinSpeaker
+from Audio.orin_voice import OrinSpeaker, voice_diagnostic_marker, voice_runtime_diagnostic
 from desktop.desktop_renderer import DesktopRuntimeWindow
 from desktop.workerw_utils import attach_window_to_desktop, make_window_noninteractive
 from desktop.single_instance import (
@@ -996,6 +996,14 @@ class BootRuntimeSystem:
         self.emit_bus(self.bus.hide_command_input)
 
         if self.audio_mode == "quiet":
+            diagnostic = voice_runtime_diagnostic(
+                "bypassed",
+                reason="quiet_mode",
+                available=False,
+                mode=self.audio_mode,
+                stage=self.awaiting_stage,
+            )
+            self.runtime_milestone(f"BOOT_MAIN|{voice_diagnostic_marker(diagnostic)}")
             self.runtime_milestone(f"BOOT_MAIN|VOICE_BYPASSED|stage={self.awaiting_stage}")
             self.voice_busy = False
             self.set_visual_state("idle")
@@ -1012,14 +1020,64 @@ class BootRuntimeSystem:
         self.set_visual_state("speaking")
         self.start_voice_visualizer(text)
         self.runtime_milestone(f"BOOT_MAIN|VOICE_STARTED|stage={self.awaiting_stage}")
+        diagnostic = voice_runtime_diagnostic(
+            "unavailable",
+            reason="not_completed",
+            available=False,
+            mode=self.audio_mode,
+            stage=self.awaiting_stage,
+        )
 
         try:
-            asyncio.run(self.speaker.speak(text))
+            if not self.speaker:
+                diagnostic = voice_runtime_diagnostic(
+                    "unavailable",
+                    reason="speaker_not_initialized",
+                    available=False,
+                    mode=self.audio_mode,
+                    stage=self.awaiting_stage,
+                )
+            else:
+                result = asyncio.run(self.speaker.speak(text))
+                if isinstance(result, dict):
+                    diagnostic = {
+                        **result,
+                        "mode": result.get("mode", self.audio_mode),
+                        "stage": self.awaiting_stage,
+                    }
+                else:
+                    diagnostic = voice_runtime_diagnostic(
+                        "available",
+                        reason="legacy_speaker_return",
+                        available=True,
+                        mode=self.audio_mode,
+                        stage=self.awaiting_stage,
+                    )
+        except Exception as exc:
+            diagnostic = voice_runtime_diagnostic(
+                "unavailable",
+                reason="speaker_exception",
+                available=False,
+                mode=self.audio_mode,
+                stage=self.awaiting_stage,
+                detail=f"{exc.__class__.__name__}:{exc}",
+            )
         finally:
             self.stop_voice_visualizer()
             self.voice_busy = False
             self.set_visual_state("idle")
-            self.runtime_milestone(f"BOOT_MAIN|VOICE_COMPLETED|stage={self.awaiting_stage}")
+            self.runtime_milestone(f"BOOT_MAIN|{voice_diagnostic_marker(diagnostic)}")
+            if diagnostic.get("state") == "available":
+                self.runtime_milestone(f"BOOT_MAIN|VOICE_COMPLETED|stage={self.awaiting_stage}")
+            elif diagnostic.get("state") == "degraded":
+                self.runtime_milestone(
+                    f"BOOT_MAIN|VOICE_DEGRADED|stage={self.awaiting_stage}|reason={diagnostic.get('reason', 'unspecified')}"
+                )
+                self.runtime_milestone(f"BOOT_MAIN|VOICE_COMPLETED|stage={self.awaiting_stage}")
+            else:
+                self.runtime_milestone(
+                    f"BOOT_MAIN|VOICE_UNAVAILABLE|stage={self.awaiting_stage}|reason={diagnostic.get('reason', 'unspecified')}"
+                )
 
             if self.pending_input_after_voice and self.awaiting_stage != "complete":
                 self.sleep_ms(180)

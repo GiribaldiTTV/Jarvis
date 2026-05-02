@@ -7,11 +7,11 @@
 
 ## Record State
 
-- `Closed`
+- `Promoted`
 
 ## Status
 
-- `Released (v1.6.5-prebeta)`
+- `Active`
 
 ## Release Stage
 
@@ -23,33 +23,40 @@
 
 ## Canonical Branch
 
-- `feature/fb-030-orin-voice-audio-direction-refinement`
+- `feature/fb-030-voice-audio-runtime-branch-readiness`
 
 ## Current Phase
 
-- Phase: `Closed`
+- Phase: `PR Readiness`
 
 ## Phase Status
 
-- `Released / Closed in v1.6.5-prebeta.`
-- FB-015 and FB-029 are released and closed in `v1.6.4-prebeta`.
-- Latest Public Prerelease: v1.6.9-prebeta
-- Release Title: Pre-Beta v1.6.5
-- Release debt is clear after live release validation and post-release canon closure.
-- FB-005 is now released and closed in `v1.6.6-prebeta`; FB-042 is now Released / Closed in `v1.6.7-prebeta`; FB-043 is Released / Closed in `v1.6.8-prebeta`; FB-044 and FB-045 are Released / Closed in `v1.6.9-prebeta`; release debt is clear; and FB-046 remains selected-only / `Registry-only` on `feature/fb-046-active-session-relaunch-reacquisition` with Branch Readiness complete and `Workstream` next.
-- FB-030 is now closed historical lane truth and no longer owns active implementation or release-debt truth.
-- Release Execution published `v1.6.5-prebeta` on commit `7c2933d6427feb08a1139ba7f5ba2393eb61f1e1`.
-- The voice/audio design goal and affected-surface map are now explicitly recorded before any runtime voice, shutdown voice, recovery voice, diagnostics, UI, asset, or public-claim change is admitted.
-- WS-1 current voice/audio surface inventory and ownership map is complete and durably recorded below.
-- WS-2 lifecycle and persona-state framing for voice/audio transitions is complete and durably recorded below.
-- WS-3 validation and admission contract for future voice/audio implementation is complete and durably recorded below.
-- H-1 hardening pressure test is complete and durably recorded below.
-- LV-1 repo-truth alignment, user-facing shortcut applicability, User Test Summary applicability, desktop export applicability, cleanup posture, and waiver handling are complete and durably recorded below.
-- PR-1 merge-target canon completeness is complete and durably recorded below.
-- PR-2 selected-next workstream selection is complete and durably recorded below.
-- PR-3 live PR creation plus validation are complete and durably recorded below.
-- FB-005 is now preserved as historical released workspace/path proof for the bounded WS-1 `desktop/orin_desktop_test.py` -> `dev/desktop/orin_desktop_test.py` branch outcome under the earlier path-sensitive posture.
-- No runtime voice behavior, shutdown voice behavior, recovery voice behavior, persona default, public copy, audio asset, or release-note wording change has started.
+- Repo State: `Active Branch`
+- Active Branch: `feature/fb-030-voice-audio-runtime-branch-readiness`
+- Workstream: `FB-030 ORIN voice/audio direction refinement`
+- Current Active Canonical Workstream Doc: `Docs/workstreams/FB-030_orin_voice_audio_direction_refinement.md`
+- Latest Public Prerelease: `v1.6.12-prebeta`
+- Latest Public Release Commit: `b06c359e58b47cfe26fe8c4b39ac04fde519dee9`
+- Pending Release Posture: `v1.6.13-prebeta remains the patch prerelease target for merged governance, automation-catalog, and FB-049 runtime proof until release packaging updates it`
+- Carried Blocker: `Merged-main active branch authority drift for Docs/branch_records/feature_fb_049_runtime_branch_readiness.md after PR #107 merge`
+- Carried Blocker Status: `Cleared in BR1 by moving FB-049 branch authority to historical-only traceability and clearing branch-record active authority`
+- Watcher Failure Context: `PR #107 merged through GitHub truth, but pr107-same-thread-merge-watch failed to emit the required same-thread merged handoff before cleanup`
+- Watcher Failure Classification: `PR Watcher Merge Handoff Missing`
+- Recurrence Analysis Requirement: `Blocker Recurrence Analysis Required is now carried as a standard Branch Readiness repair condition whenever stale canon or watcher-handoff failure is found`
+- Selected Next Workstream: `FB-030 ORIN voice/audio direction refinement runtime follow-through`
+- Selected Next Record State: `Promoted`
+- Selected Next Implementation Branch: `feature/fb-030-voice-audio-runtime-branch-readiness`
+- Current Branch Readiness Seam: `Historical complete; BR1 admitted FB-030 runtime follow-through and cleared the carried FB-049 PR2 blocker before implementation`
+- Current Workstream Seam: `Historical complete; Workstream WS1 - Voice/Audio Runtime Availability and Truthful Diagnostics Proof`
+- Current Workstream Seam Status: `Complete / green`
+- Current Hardening Seam: `Hardening H1 - Voice/Audio Runtime Availability and Truthful Diagnostics Validation`
+- Current Hardening Seam Status: `Complete / green`
+- Current Live Validation Seam: `Live Validation LV1 - Voice/Audio Runtime Availability and Truthful Diagnostics Live Validation`
+- Current Live Validation Seam Status: `Complete / green`
+- Current PR Readiness Seam: `PR Readiness PR1 - FB-030 Runtime Branch PR Validation`
+- Current PR Readiness Seam Status: `Complete / green; PR #108 is live, mergeable, bot comment is addressed, and same-thread watcher proof is recorded`
+- Next Active Seam: `PR Readiness PR2 - FB-030 Runtime Branch Merge Verification Watch`
+- Release Debt: `Merged unreleased runtime and governance proof remains pending v1.6.13-prebeta packaging`
 
 ## Branch Class
 
@@ -57,31 +64,241 @@
 
 ## Blockers
 
-None.
+- `PR Merge Verification Pending`
 
 ## Entry Basis
 
-- `v1.6.4-prebeta` is live at `d2268b71feefa062c8117eae29f8ec17879a724f`.
-- FB-015 and FB-029 release debt is live-cleared and canon is now closed on this branch surface.
-- The historical FB-030 repair-only branch records are preserved for traceability, but they do not own current execution truth.
-- FB-030 was already selected next in canon and remained blocked only by open release debt plus the missing explicit voice/audio design goal and affected-surface map.
-- This Branch Readiness pass supplies that missing planning frame so Workstream can begin without admitting runtime implementation by inertia.
+- PR #107 merged into `main` at `2026-05-01T22:17:44Z` with merge commit `22dfb15e554472220b9621b01439286b3afe1dda`.
+- The PR #107 GitHub merge truth is valid, but the same-thread watcher handoff failed and was cleaned up, so `PR Watcher Merge Handoff Missing` must be preserved as a carried governance finding.
+- Merged `main` still carried stale active branch authority for `Docs/branch_records/feature_fb_049_runtime_branch_readiness.md`.
+- Per current governance, stale PR Readiness canon must not create another repair-only branch; it must be repaired inside the next legitimate runtime-focused backlog branch's Branch Readiness before implementation begins.
+- FB-030 is selected as the next runtime-focused successor because its released planning canon already owns the voice/audio affected-surface map, implementation-admission contract, validation contract, and exact runtime surfaces needed for a bounded first runtime follow-through slice.
 
 ## Exit Criteria
 
-- FB-030 is promoted from `Registry-only` to `Promoted`.
-- The branch objective, target end-state, design goal, affected-surface map, seam families, validation contract, User Test Summary strategy, later-phase expectations, and first Workstream seam are durably recorded.
-- FB-015 and FB-029 are durably closed as released workstreams in `v1.6.4-prebeta`, latest public prerelease truth is advanced, and merged-unreleased release debt is cleared in canon.
-- Repo truth routes active branch ownership to FB-030 on `feature/fb-030-orin-voice-audio-direction-refinement`.
-- Workstream can begin with WS-1 current voice/audio surface inventory and ownership map without admitting runtime voice/audio implementation.
+- `Docs/branch_records/index.md` has no active branch-authority record for merged-main FB-049 state while FB-030 owns active promoted workstream truth through this canonical workstream doc.
+- `Docs/branch_records/feature_fb_049_runtime_branch_readiness.md` is historical-only traceability and preserves PR #107 merge truth, watcher handoff failure, and cleanup proof without active PR narration.
+- Backlog, roadmap, and workstream index current-state surfaces identify FB-030 as the active Branch Readiness runtime follow-through branch.
+- The first bounded runtime slice is admitted with exact affected surfaces, non-goals, validation requirements, rollback path, and same-branch continuation posture.
+- The carried blocker analysis records why stale canon and watcher handoff failure recurred and how governance/validator coverage prevents repeat closeout-repair loops.
+- Branch governance validation, automation observability report, and diff checks pass before Workstream admission.
 
 ## Rollback Target
 
-- `Branch Readiness`
+- `PR Readiness`
 
 ## Next Legal Phase
 
-- `Branch Readiness`
+- `PR Readiness`
+
+## Branch Objective
+
+- Re-open FB-030 as a runtime-focused follow-through lane without disturbing the historical `v1.6.5-prebeta` planning release proof.
+- Repair the escaped FB-049 post-merge stale canon and watcher-handoff failure inside this legitimate runtime Branch Readiness pass before any voice/audio implementation starts.
+- Admit the smallest runtime slice that can begin turning the existing FB-030 voice/audio implementation-admission contract into executable proof.
+
+## Target End-State
+
+- FB-049 is historical-only after PR #107 merge, and no merged-main active branch authority remains stale.
+- FB-030 is the active promoted workstream on `feature/fb-030-voice-audio-runtime-branch-readiness`.
+- Workstream may begin with a bounded runtime slice that improves voice/audio execution truth without changing persona defaults, public identity claims, audio assets, or unrelated launcher behavior.
+
+## Backlog Completion Strategy
+
+Branch Completion Goal: `Complete the admitted FB-030 runtime follow-through on this branch unless only future-dependent voice/audio blockers remain.`
+Known Future-Dependent Blockers: `None proven during Branch Readiness.`
+Branch Closure Rule: `Do not stop after the first runtime slice if additional same-branch FB-030 voice/audio work remains implementable inside the admitted branch class and validation boundary.`
+
+## Planning-Loop Guardrail
+
+Implementation Delta Class: `runtime/user-facing`
+Docs-Only Workstream: `No`
+Planning-Loop Bypass User Approval: `None`
+Planning-Loop Bypass Reason: `None`
+
+- This branch is runtime-focused. Governance/source-of-truth repairs are allowed only because they are carried blockers that must be cleared before implementation starts.
+
+## Slice Continuation Policy
+
+Slice Continuation Default: `Same-branch backlog completion`
+Backlog-Split User Approval: `None`
+Backlog-Split Reason: `None`
+
+- FB-030 runtime follow-through must remain bounded by the voice/audio affected-surface map and implementation-admission contract already recorded in this workstream.
+- Additional runtime seams continue on this same branch when they stay inside the same voice/audio feature family and validation surface.
+
+## Backlog Completion Status
+
+Backlog Completion State: `Implemented Complete Except Future Dependency`
+Remaining Implementable Work: `None`
+Future-Dependent Blockers: `ARIA activation, persona-default changes, prompt or public-copy rewrites, audio-asset redesign, and broader voice/audio UX changes require separate explicit admission beyond WS1`
+Completion Status: `Green`
+
+- WS1 completes the currently admitted FB-030 runtime follow-through slice by making voice/audio availability, bypass, degraded, and unavailable outcomes machine-checkable without changing persona defaults, audio assets, public copy, or unrelated launcher behavior.
+- No additional same-branch FB-030 runtime work is admitted by current repo truth after WS1; broader voice/audio direction work remains future-dependent until explicitly selected and bounded.
+
+## Admitted Implementation Slice
+
+- Slice ID: `WS1 voice/audio runtime availability and truthful diagnostics proof`
+- Goal: prove the current ORIN voice/audio runtime can report availability, quiet-mode bypass, and synthesis/playback failure truth without making false persona, recovery, shutdown, or successful-audio claims.
+- Runtime/User-Facing Delta: voice/audio execution truth becomes explicit and validator-backed for the first bounded runtime follow-through path.
+- Exact Affected Paths:
+  - `Audio/orin_voice.py`
+  - `Audio/orin_error_voice.py`
+  - `main.py`
+  - `desktop/orin_desktop_launcher.pyw`
+  - `dev/orin_voice_regression_harness.py`
+- In-Scope Paths:
+  - voice/audio runtime availability classification
+  - quiet-mode no-audio truth preservation
+  - synthesis/playback failure diagnostics that do not claim spoken success
+  - minimum validator updates required to prove the behavior
+  - direct source-of-truth updates required to keep FB-030 branch truth aligned
+- Out-Of-Scope Paths:
+  - persona-default changes
+  - ARIA activation
+  - prompt rewrites unrelated to availability/failure truth
+  - audio asset redesign
+  - public copy or release-note changes
+  - broad launcher, renderer, installer, or visual redesign
+- Rollback Boundary: revert the bounded runtime and validator changes for WS1 plus the WS1 status/proof docs, while preserving the BR1 carried-blocker canon repair unless the branch itself is abandoned.
+
+## Initial Workstream Seam Sequence
+
+Seam 1: `WS1-A - Voice/Audio Availability Surface Proof`
+Goal: identify and prove the current voice/audio availability, quiet bypass, and failure-reporting paths across normal and launcher/error voice callers.
+Scope: inspect and minimally instrument the admitted affected paths so voice/audio execution truth is observable without claiming successful speech when synthesis or playback fails.
+Non-Includes: no persona activation, no audio asset redesign, no broad prompt rewrite, no public-copy change, and no unrelated launcher or renderer behavior change.
+
+Seam 2: `WS1-B - Truthful Runtime Failure Classification`
+Goal: implement the smallest runtime change required so voice/audio failure, quiet bypass, and success markers are distinct and validator-verifiable.
+Scope: bounded runtime and diagnostics changes in the admitted paths plus validator coverage.
+Non-Includes: no shutdown/recovery voice redesign, no ARIA rollout, no UX redesign, and no release packaging.
+
+Seam 3: `WS1-C - Validation And Continuation Decision`
+Goal: run the focused voice regression harness, branch governance validation, and automation observability report, then decide whether additional same-branch FB-030 runtime seams remain.
+Scope: validation, proof recording, User Test Summary applicability, and backlog-completion state only.
+Non-Includes: no PR creation or Release Readiness work.
+
+## Branch Readiness BR1 Result
+
+- Source-of-Truth Determination: FB-049 is no longer a valid selected-next branch because PR #107 merged; FB-030 is the strongest legitimate runtime successor because repo truth already records its voice/audio implementation-admission contract and affected runtime surfaces.
+- Carried Blocker Classification: `PR Watcher Merge Handoff Missing`, `Merged-Main Active Branch Authority Drift`, and `Blocker Recurrence Analysis Required`.
+- Carried Blocker Repair: FB-049 active branch authority is moved to historical-only traceability, active branch authority records are cleared, and FB-030 becomes the active promoted workstream authority.
+- Recurrence Analysis: PR Readiness missed merge-target closeout and watcher-handoff proof, allowing stale FB-049 active authority to escape after merge; Branch Readiness must therefore require recurrence analysis and validator/governance hardening before implementation whenever a carried blocker class repeats.
+- First Runtime Slice Candidate: `WS1 voice/audio runtime availability and truthful diagnostics proof`.
+
+## Workstream WS1 Result
+
+- Runtime Behavior Changed: `Audio/orin_voice.py` now returns and prints voice diagnostic payloads for available, degraded, unavailable, and bypass-equivalent caller states instead of flattening playback failures into silent completion.
+- Runtime Behavior Changed: `main.py` now records quiet-mode bypass diagnostics, preserves successful voice completion markers only for available or degraded playback, and emits truthful unavailable markers when speech cannot be completed.
+- Runtime Behavior Changed: `Audio/orin_error_voice.py` now writes `VOICE_DIAGNOSTIC` payloads for launcher/error voice flows; shutdown slowdown failure falls back to the base shutdown source as a degraded available state instead of becoming a false unavailable shutdown voice failure.
+- Runtime Behavior Changed: `desktop/orin_desktop_launcher.pyw` now surfaces launcher voice diagnostics through `VOICE|DIAGNOSTIC|...|state=...` runtime events, including bypass, missing-script, subprocess, and launcher/error voice status lanes.
+- Diagnostics Behavior Proved: `dev/orin_voice_regression_harness.py` now validates launcher diagnostic markers, direct normal voice diagnostics, direct shutdown/recovery/error voice diagnostics, and semantic marker formatting for available, degraded, unavailable, and bypassed states.
+- Automation Observability Proof: `dev/automation_observability_report.py` classifies normal waiting-phase monitor output as `REVIEW_INFO` so strict automation observability remains green while real blocker, missing, unproven, or stale proof findings still fail.
+- WS1 Validation Evidence: `python dev\orin_voice_regression_harness.py` PASS; report `dev\logs\voice_regression_harness\reports\VoiceRegressionReport_20260501_174015.txt`.
+- Startup Compatibility Evidence: `python dev\orin_boot_transition_verification.py` PASS; report `dev\logs\boot_transition_verification\reports\BootTransitionVerificationReport_20260501_173620.txt`.
+- Desktop Entry Compatibility Evidence: `python dev\orin_desktop_entrypoint_validation.py` PASS when run sequentially after the voice harness; report `dev\logs\desktop_entrypoint_validation\reports\DesktopEntrypointValidationReport_20260501_174215.txt`.
+- WS1 Continuation Finding: `Implemented Complete Except Future Dependency`; Hardening is the next legal phase.
+
+## Hardening H1 Result
+
+- Phase Admission: `PASS`; branch authority advances from `Workstream` to `Hardening`, admits `Hardening H1 - Voice/Audio Runtime Availability and Truthful Diagnostics Validation`, and preserves WS1 as historical complete/green.
+- Diagnostics Validation: `PASS`; the H1 validation stack confirms `available`, `degraded`, `unavailable`, and `bypassed` diagnostic states remain machine-checkable through the voice regression harness.
+- Runtime Surface Validation: `PASS`; `Audio/orin_voice.py`, `Audio/orin_error_voice.py`, `main.py`, `desktop/orin_desktop_launcher.pyw`, and `dev/orin_voice_regression_harness.py` remain the bounded WS1 proof surface.
+- Startup Compatibility Validation: `PASS`; desktop entrypoint and boot transition validation remain green after WS1.
+- Governance Validation: `PASS`; branch governance and automation observability remain green with informational automation findings only.
+- H1 Validation Evidence: `python dev\orin_voice_regression_harness.py` PASS; report `dev\logs\voice_regression_harness\reports\VoiceRegressionReport_20260501_180436.txt`.
+- H1 Validation Evidence: `python dev\orin_desktop_entrypoint_validation.py` PASS; report `dev\logs\desktop_entrypoint_validation\reports\DesktopEntrypointValidationReport_20260501_180647.txt`.
+- H1 Validation Evidence: `python dev\orin_boot_transition_verification.py` PASS; report `dev\logs\boot_transition_verification\reports\BootTransitionVerificationReport_20260501_180708.txt`.
+- Repair Candidates: `None`.
+- H1 Continuation Finding: `Hardening H1 complete and green`; Live Validation is the next legal phase.
+
+## Live Validation LV1 Result
+
+- Phase Admission: `PASS`; branch authority advances from `Hardening` to `Live Validation`, admits `Live Validation LV1 - Voice/Audio Runtime Availability and Truthful Diagnostics Live Validation`, and preserves WS1 plus H1 as historical complete/green.
+- Live-Equivalent Voice/Audio Validation: `PASS`; `python dev\orin_voice_regression_harness.py` exercised direct normal voice playback, launcher/error voice lanes, degraded shutdown fallback, unavailable diagnostic semantics, and quiet/bypassed diagnostic semantics.
+- Launcher And Main Runtime Validation: `PASS`; launcher failure/recovery/shutdown voice diagnostics, `main.py` quiet boot transition behavior, and production desktop entrypoint compatibility remain green through the live-equivalent validators.
+- Diagnostic Truth Validation: `PASS`; `available`, `degraded`, `unavailable`, and `bypassed` diagnostics remain distinct and no false voice-success claim was found.
+- Startup Compatibility Validation: `PASS`; desktop entrypoint and boot transition validation remain green after LV1.
+- Governance Validation: `PASS`; branch governance and automation observability remain green with informational automation findings only.
+- LV1 Validation Evidence: `python dev\orin_voice_regression_harness.py` PASS; report `dev\logs\voice_regression_harness\reports\VoiceRegressionReport_20260501_183931.txt`.
+- LV1 Validation Evidence: `python dev\orin_desktop_entrypoint_validation.py` PASS; report `dev\logs\desktop_entrypoint_validation\reports\DesktopEntrypointValidationReport_20260501_184135.txt`.
+- LV1 Validation Evidence: `python dev\orin_boot_transition_verification.py` PASS; report `dev\logs\boot_transition_verification\reports\BootTransitionVerificationReport_20260501_184156.txt`.
+- Repair Candidates: `None`.
+- LV1 Continuation Finding: `Live Validation LV1 complete and green`; PR Readiness is the next legal phase.
+
+## PR Readiness PR1 Result
+
+- Phase Admission: `PASS`; branch authority advances from `Live Validation` to `PR Readiness`, admits `PR Readiness PR1 - FB-030 Runtime Branch PR Validation`, and preserves WS1, H1, and LV1 as historical complete/green proof.
+- Scope Boundary: PR1 may create and validate the live PR, provision the same-thread watcher, validate bot-review/mergeability/readiness state, and record PR2 merge-watch posture.
+- Non-Includes: no merge, no Release Readiness work, no release packaging, no runtime widening, no prompt/persona/audio asset redesign, and no public-copy change.
+- PR Creation Validation: `PASS`; PR #108 is live at `https://github.com/GiribaldiTTV/Nexus-Desktop-AI/pull/108`, open, non-draft, base `main`, head `feature/fb-030-voice-audio-runtime-branch-readiness`, and current remote head `ea1ab2274ebb19911ab0de75d72da10994cba1b7`.
+- Mergeability Validation: `PASS`; PR #108 reports mergeable with clean merge state after live PR creation and watcher inspection.
+- Bot Review Validation: `PASS`; the Codex bot raised one actionable P1 review thread, the watcher-triggered repair worker fixed it in commit `0f479a04b798959ead72d32c80c61eff8d0f5007`, replied on the bot thread, resolved review thread `PRRT_kwDORwnWIs5_F65P`, and recorded closeout in commit `ea1ab2274ebb19911ab0de75d72da10994cba1b7`.
+- Same-Thread Watcher Validation: `PASS`; native heartbeat `pr108-same-thread-merge-watch` is active for this thread, and bounded watcher host `local-pr108-watch-host` emitted a source-of-truth PR #108 status update through the approved Codex thread route with transcript, thread-state, automation-run, and inbox delivery proof.
+- Cleared Blockers: `PR Creation Pending`, `PR Watcher Provisioning Unproven`, `PR Watcher Routing Unverified`, `Bot Review Signal Pending`, and `PR Merge Status Unproven`.
+- Remaining Blocker: `PR Merge Verification Pending` until the watcher verifies `merged=true`.
+- PR2 Posture: after PR1 validates the live PR surface, PR Readiness must continue into `PR Readiness PR2 - FB-030 Runtime Branch Merge Verification Watch`; Release Readiness remains blocked until the watcher verifies `merged=true`.
+
+## Post-Merge State
+
+- No Active Branch Handling: after the FB-030 PR merges, merged-main current-state surfaces must return to `No Active Branch`; this workstream record becomes historical traceability and must not retain live PR state, active seam ownership, or open-PR narration as merged-main active authority.
+- Branch Authority Closeout Requirement: before Release Readiness can treat the merge as complete, the same-thread watcher must verify `merged=true`, emit source-of-truth handoff proof, and retire or be deleted.
+- Successor Branch Handling: no successor branch is created from PR Readiness; any later backlog successor must be admitted through its own Branch Readiness from updated merged-main truth.
+- PR2 Merge Watch Dependency: `PR Merge Verification Pending` remains active until the same-thread watcher verifies the live PR merged state.
+
+## Release Window Audit
+
+Release Window Audit: PASS
+Window Scope: FB-030 WS1 voice/audio runtime availability and truthful diagnostics proof, H1 validation, LV1 live-equivalent validation, and PR Readiness live PR/watcher validation for the bounded runtime diagnostics lane.
+Known Window Blockers Reviewed: stale post-merge canon recurrence, prior PR watcher handoff failure, live PR creation, same-thread watcher routing, bot-review signal, merge status, PR2 merge verification, pending `v1.6.13-prebeta` release posture, and selected runtime-slice containment.
+Remaining Known Release Blockers: None
+Another Pre-Release Repair PR Required: NO
+Release Window Split Waiver: None
+
+## PR Bot Review Signal
+
+- Bot Review Signal Status: `Comment addressed`
+- Bot Review Signal Head SHA: `0f479a04b798959ead72d32c80c61eff8d0f5007`
+- Bot Review Signal Source: `Resolved GitHub review thread PRRT_kwDORwnWIs5_F65P after same-branch fix commit 0f479a04b798959ead72d32c80c61eff8d0f5007 and PR #108 reply/resolve closeout.`
+- Bot Review Signal Timestamp: `2026-05-02T04:26:57Z`
+- Bot Review Signal Actor: `chatgpt-codex-connector[bot] / GiribaldiTTV`
+
+## PR Creation Details
+
+- PR URL: `https://github.com/GiribaldiTTV/Nexus-Desktop-AI/pull/108`
+- PR State: `open`
+- Draft State: `false`
+- Base Branch: `main`
+- Head Branch: `feature/fb-030-voice-audio-runtime-branch-readiness`
+- Head SHA: `ea1ab2274ebb19911ab0de75d72da10994cba1b7`
+- Mergeability: `MERGEABLE / CLEAN`
+- Review Thread State: `PASS`; review thread `PRRT_kwDORwnWIs5_F65P` is resolved.
+- Bot Review State: `Comment addressed`; no unresolved actionable Codex review thread remains.
+
+## PR Watcher Provisioning Proof
+
+- Native Heartbeat Watcher: `pr108-same-thread-merge-watch`
+- Native Heartbeat Config: `$CODEX_HOME/automations/pr108-same-thread-merge-watch/automation.toml`
+- Native Heartbeat Cadence: `FREQ=MINUTELY;INTERVAL=1`
+- Native Heartbeat Target Thread: `019dd083-0317-7b42-afb3-20b6818a1fa7`
+- Bounded Same-Thread Route Proof: `local-pr108-watch-host`
+- Bounded Watcher State: `$CODEX_HOME/watchers/pr108-fb030-runtime-diagnostics-watch-state.json`
+- Bounded Watcher Latest: `$CODEX_HOME/watchers/pr108-fb030-runtime-diagnostics-watch-latest.txt`
+- Last Watcher Run: `2026-05-02T04:28:01.995410Z`
+- Last Thread Emit: `2026-05-02T04:28:19.912121Z`
+- Last Thread Emit Method: `codex_resume`
+- Delivery Proof: `assistant transcript proof=present; Codex thread state refreshed; Codex automation run and inbox delivery recorded`
+- Stop Condition: watcher remains bounded to PR #108 and PR Readiness, and must retire or be deleted after PR #108 becomes `merged` or `closed`.
+
+## Validation Contract
+
+- run `python dev\orin_branch_governance_validation.py`
+- run `python dev\automation_observability_report.py --strict`
+- run `git diff --check`
+- before Workstream implementation starts, confirm FB-049 is historical-only, active branch authority records are clear, FB-030 is the active promoted workstream, and the carried watcher-handoff failure is recorded with recurrence analysis
+- during WS1, run the focused voice/audio regression harness and any affected desktop entrypoint or boot-transition checks required by the actual runtime change
 
 ## Release Closure
 
@@ -241,18 +458,17 @@ Seam 3: Validation and admission contract for future voice/audio implementation
 
 ## Active Seam
 
-Active seam: none. The admitted WS-1 through WS-3 Workstream seam chain, H-1 hardening, and LV-1 Live Validation are complete, and PR Readiness is the active phase.
+Active seam: `PR Readiness PR1 - FB-030 Runtime Branch PR Validation`
 
-- Workstream result: complete and green; Hardening and Live Validation are complete, and PR Readiness is active.
-- WS-1 Status: Completed / executed.
-- WS-1 Boundary: docs/canon current voice/audio surface inventory and ownership mapping only.
-- WS-1 Non-Includes: no runtime code edits, no prompt changes, no audio asset changes, no UI changes, no persona-default changes, no diagnostics implementation changes, no release edits, and no public release editing.
-- WS-2 Status: Completed / executed.
-- WS-2 Boundary: docs/canon lifecycle, persona-state, and ownership-handoff framing for boot, recovery, shutdown, telemetry, and diagnostics voice/audio transitions only.
-- WS-2 Non-Includes: no runtime code edits, no prompt changes, no audio asset changes, no UI changes, no persona-default changes, no diagnostics implementation changes, no release edits, and no public release editing.
-- WS-3 Status: Completed / executed.
-- WS-3 Boundary: docs/canon validation, implementation-admission, rollback, and user-facing trigger framing for future voice/audio work only.
-- WS-3 Non-Includes: no runtime code edits, no prompt changes, no audio asset changes, no UI changes, no persona-default changes, no diagnostics implementation changes, no release edits, and no public release editing.
+- Current PR Readiness seam: `PR Readiness PR1 - FB-030 Runtime Branch PR Validation`.
+- Current PR Readiness result: complete and green for PR1; PR2 merge-watch remains pending.
+- Next active seam: `PR Readiness PR2 - FB-030 Runtime Branch Merge Verification Watch`.
+- Historical Live Validation result: complete and green.
+- Historical Hardening result: complete and green.
+- Historical Workstream result: complete and green.
+- WS1 Boundary: runtime availability and truthful diagnostic proof only across the admitted voice/audio paths.
+- WS1 Non-Includes: no persona-default change, no ARIA activation, no prompt rewrite beyond diagnostic truth, no audio asset redesign, no public-copy change, no release-note change, and no broad launcher or renderer redesign.
+- Historical FB-030 planning WS-1 through WS-3 records remain preserved below as released `v1.6.5-prebeta` traceability and do not redefine the current WS1 runtime follow-through slice.
 
 ## WS-1 Execution Record
 
@@ -599,7 +815,7 @@ H-1 is docs/canon only. It pressure-tests whether the completed FB-030 voice/aud
 - User Test Summary Applicability: not applicable for H-1 because it changes docs/canon only and adds no user-visible behavior.
 - Continue/Stop Decision: stop at the phase boundary. Hardening is complete, and the next legal phase is Live Validation.
 
-## Live Validation Record
+## Historical v1.6.5 Live Validation Record
 
 LV-1 validated the completed FB-030 docs/canon-only milestone against live repo truth, branch truth, and user-facing/manual validation applicability. The branch remains docs/canon-only for this milestone: no runtime voice behavior change, shutdown voice behavior change, recovery voice behavior change, diagnostics implementation change, renderer behavior change, desktop shortcut change, visible voice/audio UI change, audio-asset change, persona-default change, release-note change, or operator-facing invocation change has been added.
 
@@ -633,11 +849,11 @@ LV-1 validated the completed FB-030 docs/canon-only milestone against live repo 
 
 ## User Test Summary
 
-- User-Facing Shortcut Path: Not applicable - FB-030 Live Validation is docs/canon only and does not change any user-facing desktop shortcut, equivalent production entrypoint behavior, runtime behavior, launcher behavior, renderer behavior, visible UI behavior, installer behavior, or other operator-facing invocation path.
-- User-Facing Shortcut Validation: WAIVED
-- User-Facing Shortcut Waiver Reason: FB-030 LV-1 validates docs/canon only. The completed milestone changes no user-facing desktop shortcut behavior, equivalent production entrypoint behavior, runtime behavior, launcher behavior, renderer behavior, visible UI behavior, installer behavior, or other operator-facing invocation path, so exercising the existing shortcut would not validate the FB-030 delta.
+- User-Facing Shortcut Path: `launch_orin_desktop.vbs` / `desktop/orin_desktop_launcher.pyw` validated through `python dev\orin_desktop_entrypoint_validation.py`; dev boot transition validated through `python dev\orin_boot_transition_verification.py`; direct voice and launcher/error voice diagnostics validated through `python dev\orin_voice_regression_harness.py`.
+- User-Facing Shortcut Validation: PASS
+- User-Facing Shortcut Waiver Reason: None; closest live-equivalent production entrypoint and dev boot paths were exercised by automated validators instead of a manual desktop export.
 - User Test Summary Results: WAIVED
-- User Test Summary Waiver Reason: The milestone remains docs/canon-only and validator-proven through repo/canon checks; a filled manual User Test Summary would not materially validate behavior because no user-visible setup, display, runtime, shortcut, launcher, renderer, installer, or invocation surface changed.
+- User Test Summary Waiver Reason: LV1 changes runtime diagnostic truth without changing intended visible UI, audio wording, operator workflow, installer behavior, or manual setup steps; automated live-equivalent validators provide the required behavior proof, so a manually filled desktop User Test Summary would not add coverage for this diagnostics-only runtime delta.
 
 ## Governance Drift Audit
 
@@ -662,13 +878,13 @@ Release Scope: Voice/audio trigger-surface inventory, playback-authority invento
 Release Artifacts: Tag v1.6.5-prebeta; release title Pre-Beta v1.6.5; rich Markdown release notes summarize the FB-030 voice/audio direction planning frame without repeating the release title inside the notes body, and GitHub-generated `## What's Changed` plus `**Full Changelog**:` must be included
 Post-Release Truth: FB-030 is Released / Closed in v1.6.5-prebeta; FB-005 is Released / Closed in v1.6.6-prebeta; FB-042 is Released / Closed in `v1.6.7-prebeta`; FB-043 is Released / Closed in `v1.6.8-prebeta`; FB-044 and FB-045 are Released / Closed in `v1.6.9-prebeta`; release debt is clear; and FB-046 remains selected-only / `Registry-only` on `feature/fb-046-active-session-relaunch-reacquisition` with Branch Readiness complete and `Workstream` next
 
-## Post-Merge State
+## Historical v1.6.5 Post-Merge State
 
 - Historical post-merge state before release execution: repo state becomes `No Active Branch` because FB-030 will own merged-unreleased release debt on `main` for `v1.6.5-prebeta`.
 - Historical pending-package state: the pending release scope contains the completed FB-030 docs/canon-only voice/audio planning milestone only.
 - Historical successor state: FB-005 remains selected next planning-only, and its implementation branch becomes the blocked Branch Readiness surface only after release debt clears and updated-main revalidation completes.
 
-## PR Readiness Record
+## Historical v1.6.5 PR Readiness Record
 
 PR Readiness validates the completed docs/canon-only FB-030 milestone for merge to `main`. This record aligns the `v1.6.5-prebeta` release-debt package, selects the next planning lane, prepares durable PR package details, and then records live PR validation before reporting green.
 
@@ -726,10 +942,15 @@ PR Readiness validates the completed docs/canon-only FB-030 milestone for merge 
 
 ## Seam Continuation Decision
 
-Continue Decision: `stop`
-Next Active Seam: `none`
-Stop Condition: `PR #81 is merged and merged-unreleased release-debt truth is now the controlling current-state frame`
-Continuation Action: validate file-frozen Release Readiness on updated `main` for `v1.6.5-prebeta`.
+Seam Status: `Green`
+Slice Status: `Green`
+Completion Status: `Green`
+Waiver Status: `None`
+Continue Decision: `Stop`
+Stop Basis: `PR1 Green / PR2 Merge Verification Pending`
+Next Active Seam: `PR Readiness PR2 - FB-030 Runtime Branch Merge Verification Watch`
+Stop Condition: `PR Readiness PR1 is complete and green with live PR, same-thread watcher, bot-review closeout, mergeability, branch governance, automation observability, and runtime validation proof recorded.`
+Continuation Action: `Remain in PR Readiness and continue into PR2 merge-watch posture until watcher-verified merge clears PR Merge Verification Pending.`
 
 ## Reuse Baseline
 

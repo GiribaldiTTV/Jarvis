@@ -10,44 +10,44 @@
 
 ## Purpose / Why It Exists
 
-This branch is the runtime-focused Branch Readiness surface for FB-049, the selected-next `Registry-only` backlog item.
+This record is historical-only traceability for the completed FB-049 runtime branch.
 
 It also carries the post-merge blocker left after PR #106: `Docs/branch_records/index.md` still listed `Docs/branch_records/feature_pr105_post_merge_closeout_canon_repair.md` as active even though PR #106 merged and its watcher verified merge/shutdown. Per current governance, that stale canon repair must ride inside the next legitimate runtime-focused backlog branch's `Branch Readiness` instead of spawning another repair-only branch.
 
 ## Current Phase
 
-- Phase: `PR Readiness`
+- Phase: `Historical Traceability`
 
 ## Phase Status
 
-- Repo State: `Active Branch`
-- Active Branch: `feature/fb-049-runtime-branch-readiness`
-- Branch Authority State: `Active Branch`
+- Repo State: `Historical merged branch`
+- Branch Authority State: `Historical traceability only`
 - Workstream: `FB-049 Active-session pre-settled incoming-launch conflict truth`
 - Backlog Record State: `Registry-only`
 - Current Active Canonical Workstream Doc: `None`
 - Latest Public Prerelease: `v1.6.12-prebeta`
 - Latest Public Release Commit: `b06c359e58b47cfe26fe8c4b39ac04fde519dee9`
-- Pending Release Posture: `v1.6.13-prebeta remains the patch prerelease target for merged governance and automation-catalog proof`
+- Pending Release Posture: `v1.6.13-prebeta remains the patch prerelease target for merged governance, automation-catalog, and FB-049 runtime proof`
 - Carried Blocker: `Stale active-branch authority for Docs/branch_records/feature_pr105_post_merge_closeout_canon_repair.md`
 - Carried Blocker Status: `Cleared in BR1 by moving PR105 closeout record to historical-only traceability`
-- Selected Next Workstream: `FB-049 Active-session pre-settled incoming-launch conflict truth`
-- Selected Next Record State: `Registry-only`
-- Selected Next Implementation Branch: `feature/fb-049-runtime-branch-readiness`
+- Historical Merge Truth: `PR #107 merged into main at 2026-05-01T22:17:44Z; merge commit 22dfb15e554472220b9621b01439286b3afe1dda; head SHA fc00346b111158c6f57d976fef7a215a940027c1`
+- Watcher Failure Classification: `PR Watcher Merge Handoff Missing`
+- Watcher Cleanup Proof: `pr107-same-thread-merge-watch deleted after failure confirmation; no same-thread handoff, automation run, or inbox proof was found`
+- Carried Forward Repair Surface: `FB-030 Branch Readiness on feature/fb-030-voice-audio-runtime-branch-readiness`
 - Current Branch Readiness Seam: `Historical complete; BR1 cleared the carried post-merge blocker`
 - Current Workstream Seam: `Historical complete; WS1 implemented the pre-settled incoming-launch truthful-exit proof`
 - Current Hardening Seam: `Historical complete; H1 validated the pre-settled incoming-launch conflict runtime proof`
 - Current Live Validation Seam: `Historical complete; LV1 validated real shortcut launch and closest available pre-settled conflict proof`
-- Current PR Readiness Seam: `PR Readiness PR2 - FB-049 Runtime Branch Merge Verification Watch`
-- Next Active Seam: `PR Readiness PR2 - FB-049 Runtime Branch Merge Verification Watch`
+- Current PR Readiness Seam: `Historical complete with watcher handoff failure classified`
+- Next Active Seam: `None; historical-only record`
 - Live PR: `https://github.com/GiribaldiTTV/Nexus-Desktop-AI/pull/107`
 - Live PR Number: `107`
-- Live PR State: `open; draft=false; mergeable_state=clean; merged=false at PR1 validation`
+- Live PR State: `merged=true; closed=true`
 - Same-Thread Watcher: `pr107-same-thread-merge-watch`
 - Same-Thread Watcher Reporting Surface: `current Codex working thread`
 - Same-Thread Watcher Cadence: `FREQ=MINUTELY;INTERVAL=1`
 - Same-Thread Watcher Stop Condition: `PR #107 merged=true or closed=true`
-- Automation Observability Report: `Strict mode passes; newly created watcher first-run proof may be pending inside the initial scheduler grace window, and watcher provisioning alone is not merge proof`
+- Automation Observability Report: `historical watcher handoff failure preserved; active observability review moves to FB-030`
 
 ## Branch Class
 
@@ -55,9 +55,9 @@ It also carries the post-merge blocker left after PR #106: `Docs/branch_records/
 
 ## Blockers
 
-- `PR Merge Verification Pending`
+None.
 
-The carried stale active-branch authority blocker is cleared, WS1 runtime proof is implemented, Hardening H1 is green, Live Validation LV1 is green, and PR #107 is live. Release Readiness remains blocked until the same-thread watcher verifies `merged=true`.
+The carried stale active-branch authority blocker is cleared in the successor FB-030 Branch Readiness branch. PR #107 merge truth is valid, but watcher handoff failure remains historical evidence and recurrence input.
 
 ## Entry Basis
 
@@ -80,11 +80,11 @@ The carried stale active-branch authority blocker is cleared, WS1 runtime proof 
 
 ## Rollback Target
 
-- `Live Validation`
+- `PR Readiness`
 
 ## Next Legal Phase
 
-- `PR Readiness`
+- `Release Readiness`
 
 ## Branch Objective
 
@@ -273,7 +273,7 @@ Non-Includes: no PR creation or Release Readiness work.
 - Same-Thread Watcher Stop Condition: `PR #107 merged=true or closed=true`
 - Same-Thread Watcher Allowed Outputs: status-change updates, governed state markers, blocker identification, ready/not-ready posture, and Release Readiness handoff only after `merged=true`
 - Same-Thread Watcher Prohibited Actions: no repository file edits, branch creation, PR merge, or Release Readiness execution
-- PR2 Merge Watch Posture: `PR Merge Verification Pending` remains active until the same-thread watcher verifies `merged=true`
+- PR2 Merge Watch Posture: historical failure classified as `PR Watcher Merge Handoff Missing`; GitHub merge truth is valid, but same-thread handoff proof did not arrive before cleanup
 - PR Readiness Validator Repair: `dev/orin_desktop_entrypoint_validation.py` was hardened after fresh PR validation exposed harness-only flake in runtime-log ordering, validation child cleanup, and mixed signal-failure/accept replacement shutdown determinism; product runtime behavior was not changed.
 - Branch Governance Validation: `PASS; 2078 checks`
 - Automation Observability Strict Report: `PASS; active automation findings are REVIEW_INFO only while PR2 merge verification remains pending`
@@ -282,24 +282,24 @@ Non-Includes: no PR creation or Release Readiness work.
 
 ## Active Seam
 
-Active seam: `PR Readiness PR2 - FB-049 Runtime Branch Merge Verification Watch`
+Active seam: `None; historical-only traceability`
 Previous seam: `PR Readiness PR1 - FB-049 Runtime Branch PR Validation`
-Next active seam: `PR Readiness PR2 - FB-049 Runtime Branch Merge Verification Watch`
+Next active seam: `None`
 
 - PR1 validated the live PR surface, branch authority alignment, bot-review state, mergeability, watcher provisioning proof, and readiness blockers for PR #107.
-- PR2 keeps the branch in PR Readiness until the same-thread watcher verifies `merged=true` and watcher shutdown/deletion proof is available.
+- PR2 ended with GitHub merge truth valid but same-thread watcher handoff missing. The watcher failure and cleanup proof are preserved here, and the repair is carried by FB-030 Branch Readiness.
 
 ## Seam Continuation Decision
 
-Seam Status: `Red`
+Seam Status: `Historical`
 Slice Status: `Green`
-Completion Status: `Red`
+Completion Status: `Historical complete with carried watcher failure`
 Waiver Status: `User Test Summary Results WAIVED`
 Continue Decision: `Stop`
-Stop Basis: `PR Merge Verification Pending`
-Next Active Seam: `PR Readiness PR2 - FB-049 Runtime Branch Merge Verification Watch`
-Stop Condition: `PR #107 is not watcher-verified as merged.`
-Continuation Action: `Keep PR #107 in PR Readiness, keep the same-thread watcher active, and advance to Release Readiness only after watcher verification proves merged=true and watcher shutdown/deletion proof is available.`
+Stop Basis: `Historical-only branch record`
+Next Active Seam: `None`
+Stop Condition: `PR #107 is merged and this branch record is no longer active authority.`
+Continuation Action: `Carry PR Watcher Merge Handoff Missing and stale active-branch authority repair into FB-030 Branch Readiness before implementation starts.`
 
 ## Post-Merge State
 
@@ -307,7 +307,7 @@ Continuation Action: `Keep PR #107 in PR Readiness, keep the same-thread watcher
 - No Active Branch Handling: after PR #107 merges, merged-main current-state surfaces must remain `No Active Branch`; this branch authority record becomes historical traceability only and must not retain live PR state, active seam ownership, or open-PR narration as merged-main active authority.
 - Branch Authority Closeout Requirement: before Release Readiness or release packaging can treat the merge as complete, the same-thread watcher must verify `merged=true`, the watcher shutdown/deletion proof must be available, and active branch authority must not escape onto merged `main` as stale canon.
 - Successor Branch Handling: no successor branch is created from PR Readiness; any later backlog successor must be admitted through its own Branch Readiness from updated merged-main truth.
-- PR2 Merge Watch Dependency: `PR Merge Verification Pending` remains active until the same-thread watcher proves PR #107 merged.
+- PR2 Merge Watch Dependency: GitHub merge truth is valid; same-thread watcher handoff failure is preserved as `PR Watcher Merge Handoff Missing`.
 
 ## Release Window Audit
 
@@ -319,9 +319,9 @@ Release Window Split Waiver: None
 ## Governance Drift Audit
 
 - Governance Drift Found: `Yes`
-- Drift Type: `Carried post-merge stale active-branch authority`
-- Why Current Canon Failed To Prevent It: PR #106 merged before `Docs/branch_records/index.md` was made merge-stable; the stale active branch record escaped onto merged `main`.
-- Required Canon Changes: move `Docs/branch_records/feature_pr105_post_merge_closeout_canon_repair.md` to historical-only traceability, list this FB-049 record as the active branch authority, and keep the repair inside this runtime-focused Branch Readiness pass.
-- Whether The Drift Blocks Implementation: `Yes until BR1 repair and validation are green`
-- Whether User Confirmation Is Required: `No; USER explicitly admitted FB-049 BR1 with this carried blocker`
-- Missing Validator Requirement Check: `None added in BR1; existing merged-main active-branch drift validator caught the blocker`
+- Drift Type: `Carried post-merge stale active-branch authority and PR watcher merge handoff failure`
+- Why Current Canon Failed To Prevent It: PR Readiness allowed merge-target closeout to depend on a same-thread watcher that did not deliver the final handoff before cleanup, and this branch record remained active after PR #107 merged.
+- Required Canon Changes: move this branch authority record to historical-only traceability, clear `Docs/branch_records/index.md` active branch authority, preserve PR #107 merge truth and watcher failure proof, and carry recurrence analysis into FB-030 Branch Readiness.
+- Whether The Drift Blocks Implementation: `Yes until FB-030 BR1 repair and validation are green`
+- Whether User Confirmation Is Required: `No; USER explicitly required the next runtime branch analysis and recurrence-prevention repair before implementation`
+- Missing Validator Requirement Check: `Validator already catches merged-main active-branch drift; FB-030 BR1 records the recurrence-analysis requirement so repeated blockers must include a prevention plan before implementation.`

@@ -558,6 +558,7 @@ This gate requires all of the following before PR creation is allowed:
 Machine-checkable canon markers:
 
 - the selected backlog entry must include `Next Workstream: Selected`
+- if no valid open runtime-focused successor candidate remains after excluding the current active branch and historical/implemented/merged entries, PR Readiness may instead record `Selected Next Workstream: None`, `No valid open runtime-focused backlog candidate remains`, and `Branch: Not created` in the roadmap selected-next section; this is a stop-state, not permission to create a repair-only or speculative branch
 - the selected backlog entry must include `Minimal Scope:`
 - the roadmap must include `## Selected Next Workstream`
 - the roadmap selected-next section must include the same workstream id, its `Record State`, `Minimal Scope:`, and truthful branch status such as `Branch: Not created` before branch creation or the active Branch Readiness branch name after creation
@@ -953,6 +954,7 @@ The audit must explicitly check whether the branch exposed:
 - stale prompt scaffolding or stale operator examples
 - a missing validator requirement
 - a serial release-window repair pattern that should be consolidated onto the current branch instead of landing as another pre-release PR
+- a repeated or carried blocker class whose repair must include recurrence analysis before green
 
 If governance drift is found and unresolved, the branch is blocked by `Governance Drift`.
 
@@ -966,6 +968,9 @@ If governance drift is discovered in any earlier phase:
 - produce the exact required canon delta and wait for user confirmation when the repair would exceed the active branch boundary
 
 Do not defer known governance weaknesses silently to a later branch.
+
+Repeated or carried blockers must not be closed by surface cleanup alone.
+Before the branch can report green, record what failed, why current governance or validation missed it, what prevents recurrence, and whether canon or validator coverage changed or was explicitly judged sufficient.
 
 ### Manual Evidence And Review Digestion Rule
 

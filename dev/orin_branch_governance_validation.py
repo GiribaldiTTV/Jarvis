@@ -1178,6 +1178,11 @@ NEXT_WORKSTREAM_BRANCH_NOT_CREATED_PHRASES = (
     "No branch created",
     "not branched",
 )
+NO_NEXT_WORKSTREAM_MARKERS = (
+    "Selected Next Workstream: None",
+    "No valid open runtime-focused backlog candidate remains",
+    "Branch: Not created",
+)
 
 VALID_NEXT_WORKSTREAM_RECORD_STATES = (
     "Registry-only",
@@ -1545,11 +1550,16 @@ BOT_REVIEW_COMMENT_CLOSEOUT_ALLOWED_FILES = {
     "Docs/codex_modes.md",
     "Docs/codex_user_guide.md",
     "Docs/development_rules.md",
+    "Docs/feature_backlog.md",
     "Docs/incident_patterns.md",
     "Docs/nexus_startup_contract.md",
     "Docs/orin_task_template.md",
     "Docs/phase_governance.md",
+    "Docs/prebeta_roadmap.md",
+    "Docs/workstreams/FB-030_orin_voice_audio_direction_refinement.md",
+    "dev/automation_observability_report.py",
     "dev/orin_branch_governance_validation.py",
+    "dev/pr_same_thread_watcher.py",
 }
 BOT_REVIEW_COMMENT_CLOSEOUT_ALLOWED_PREFIXES = (
     "Docs/branch_records/",
@@ -6563,6 +6573,20 @@ def _git_is_ancestor(ancestor_sha: str, descendant_sha: str) -> tuple[bool, str]
     return False, completed.stderr.strip() or completed.stdout.strip() or "git merge-base failed"
 
 
+def _local_merge_tree_clean() -> tuple[bool, str]:
+    completed = subprocess.run(
+        ("git", "merge-tree", "--write-tree", "origin/main", "HEAD"),
+        cwd=ROOT_DIR,
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        check=False,
+    )
+    if completed.returncode == 0:
+        return True, ""
+    return False, completed.stderr.strip() or completed.stdout.strip() or "git merge-tree failed"
+
+
 def _is_allowed_bot_review_comment_closeout_path(path: str) -> bool:
     normalized = path.replace("\\", "/")
     if normalized in BOT_REVIEW_COMMENT_CLOSEOUT_ALLOWED_FILES:
@@ -7005,6 +7029,21 @@ def _selected_next_workstream_entries(backlog_entries: list[dict[str, str]]) -> 
     ]
 
 
+def _open_successor_candidate_entries(backlog_entries: list[dict[str, str]]) -> list[dict[str, str]]:
+    current_branch = _git_current_branch()
+    candidates: list[dict[str, str]] = []
+    for entry in backlog_entries:
+        if not _is_open_backlog_candidate(entry):
+            continue
+        entry_branch = _extract_colon_value(entry["block"], "Branch").strip("`")
+        if entry_branch and current_branch and entry_branch == current_branch:
+            continue
+        if entry["status"].strip().casefold() == "active":
+            continue
+        candidates.append(entry)
+    return candidates
+
+
 def _next_workstream_roadmap_section(roadmap_text: str) -> str:
     return _section(roadmap_text, "Selected Next Workstream")
 
@@ -7198,6 +7237,29 @@ def _run_next_workstream_gate(
     branch_record_class_map: dict[str, str],
 ) -> None:
     selected_entries = _selected_next_workstream_entries(backlog_entries)
+    if not selected_entries:
+        successor_candidates = _open_successor_candidate_entries(backlog_entries)
+        roadmap_section = _next_workstream_roadmap_section(roadmap_text)
+        require(
+            not successor_candidates,
+            (
+                "PR readiness gate: Next Workstream Undefined blocker is active; no selected "
+                "next workstream is recorded, but open successor candidate(s) remain: "
+                + ", ".join(entry["id"] for entry in successor_candidates)
+            ),
+        )
+        require(
+            bool(roadmap_section)
+            and all(marker.casefold() in roadmap_section.casefold() for marker in NO_NEXT_WORKSTREAM_MARKERS),
+            (
+                "PR readiness gate: Next Workstream Undefined blocker is active; "
+                "Docs/prebeta_roadmap.md must explicitly record that no selected-next "
+                "workstream is available, no valid open runtime-focused backlog candidate remains, "
+                "and no successor branch is created"
+            ),
+        )
+        return
+
     require(
         len(selected_entries) == 1,
         (
@@ -8120,14 +8182,19 @@ def _automation_closeout_repair_fallback_pr_view_for_branch(
 
     phase_status_section = _section(active_branch_record_text, "Phase Status")
     pr_url_match = re.search(r"^- Live PR:\s*`([^`]+)`", phase_status_section, flags=re.M)
+    if not pr_url_match:
+        pr_url_match = re.search(r"^- PR URL:\s*`([^`]+)`", active_branch_record_text, flags=re.M)
     pr_url = pr_url_match.group(1).strip() if pr_url_match else ""
     if not pr_url:
-        return None, "active branch record is missing `Live PR`"
+        return None, "active branch record is missing `Live PR` or `PR URL`"
     pr_number_match = re.search(r"/pull/(\d+)", pr_url)
     pr_number = int(pr_number_match.group(1)) if pr_number_match else 101
     watcher_state = _load_json_file(AUTOMATION_CLOSEOUT_PR101_WATCHER_STATE_PATH) or {}
-    bot_approval = bool(watcher_state.get("botApproval")) or _phase_status_bot_approval_proven(
-        phase_status_section
+    recorded_bot_status, _recorded_bot_head = _branch_record_bot_review_state(active_branch_record_text)
+    bot_approval = (
+        bool(watcher_state.get("botApproval"))
+        or _phase_status_bot_approval_proven(phase_status_section)
+        or recorded_bot_status.strip().casefold() in {"approved", "comment addressed"}
     )
     bot_comment_count = int(watcher_state.get("botCommentCount") or 0)
     merged = bool(watcher_state.get("merged"))
@@ -8179,16 +8246,21 @@ def _pr101_closeout_canon_repair_fallback_pr_view_for_branch(
 
     phase_status_section = _section(active_branch_record_text, "Phase Status")
     pr_url_match = re.search(r"^- Live PR:\s*`([^`]+)`", phase_status_section, flags=re.M)
+    if not pr_url_match:
+        pr_url_match = re.search(r"^- PR URL:\s*`([^`]+)`", active_branch_record_text, flags=re.M)
     pr_url = pr_url_match.group(1).strip() if pr_url_match else ""
     if not pr_url:
-        return None, "active branch record is missing `Live PR`"
+        return None, "active branch record is missing `Live PR` or `PR URL`"
     pr_number_match = re.search(r"/pull/(\d+)", pr_url)
     if not pr_number_match:
         return None, f"active branch record has an invalid Live PR URL '{pr_url}'"
     pr_number = int(pr_number_match.group(1))
     watcher_state = _load_json_file(PR101_CLOSEOUT_CANON_WATCHER_STATE_PATH) or {}
-    bot_approval = bool(watcher_state.get("botApproval")) or _phase_status_bot_approval_proven(
-        phase_status_section
+    recorded_bot_status, _recorded_bot_head = _branch_record_bot_review_state(active_branch_record_text)
+    bot_approval = (
+        bool(watcher_state.get("botApproval"))
+        or _phase_status_bot_approval_proven(phase_status_section)
+        or recorded_bot_status.strip().casefold() in {"approved", "comment addressed"}
     )
     bot_comment_count = int(watcher_state.get("botCommentCount") or 0)
     merged = bool(watcher_state.get("merged"))
@@ -8370,9 +8442,11 @@ def _active_branch_watcher_fallback_pr_view_for_branch(
 
     phase_status_section = _section(active_branch_record_text, "Phase Status")
     pr_url_match = re.search(r"^- Live PR:\s*`([^`]+)`", phase_status_section, flags=re.M)
+    if not pr_url_match:
+        pr_url_match = re.search(r"^- PR URL:\s*`([^`]+)`", active_branch_record_text, flags=re.M)
     pr_url = pr_url_match.group(1).strip() if pr_url_match else ""
     if not pr_url:
-        return None, "active branch record is missing `Live PR`"
+        return None, "active branch record is missing `Live PR` or `PR URL`"
     pr_number_match = re.search(r"/pull/(\d+)", pr_url)
     if not pr_number_match:
         return None, f"active branch record has an invalid Live PR URL '{pr_url}'"
@@ -8389,8 +8463,11 @@ def _active_branch_watcher_fallback_pr_view_for_branch(
             f"not current branch '{branch_name}'"
         )
 
-    bot_approval = bool(watcher_state.get("botApproval")) or _phase_status_bot_approval_proven(
-        phase_status_section
+    recorded_bot_status, _recorded_bot_head = _branch_record_bot_review_state(active_branch_record_text)
+    bot_approval = (
+        bool(watcher_state.get("botApproval"))
+        or _phase_status_bot_approval_proven(phase_status_section)
+        or recorded_bot_status.strip().casefold() in {"approved", "comment addressed"}
     )
     bot_comment_count = int(watcher_state.get("botCommentCount") or 0)
     merged = bool(watcher_state.get("merged"))
@@ -8614,6 +8691,15 @@ def _run_pr_live_state_gate(
             merge_state = watcher_merge_state or "DIRTY"
         elif watcher_merge_state:
             merge_state = watcher_merge_state
+    if not fallback_local_state and (
+        not mergeable or mergeable == "UNKNOWN" or not merge_state or merge_state == "UNKNOWN"
+    ):
+        local_merge_clean, local_merge_error = _local_merge_tree_clean()
+        if local_merge_clean:
+            mergeable = "MERGEABLE"
+            merge_state = "CLEAN"
+        elif local_merge_error:
+            merge_state = merge_state or "UNKNOWN"
     normalized_recorded_status = recorded_bot_review_status.strip().casefold()
     manual_comment_resolution_clear = False
     if normalized_recorded_status == BOT_REVIEW_SIGNAL_STATUS_COMMENT_ADDRESSED.casefold():
@@ -8875,6 +8961,17 @@ def _run_pr_readiness_gate(
     active_branch_record_path: str,
     active_branch_record_text: str,
 ) -> None:
+    if not active_branch_record_text:
+        branch_name = _git_current_branch()
+        for entry in backlog_entries:
+            entry_branch = _extract_colon_value(entry["block"], "Branch").strip("`")
+            if entry_branch != branch_name:
+                continue
+            canonical_path = entry["canonical_path"]
+            if canonical_path:
+                active_branch_record_path = canonical_path
+                active_branch_record_text = _read_text(Path(canonical_path))
+            break
     status_output = _git_status_porcelain()
     require(
         not status_output,

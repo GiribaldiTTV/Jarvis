@@ -88,6 +88,19 @@ def run_git(repo_root: Path, *args: str, check: bool = True) -> str:
     return process.stdout.strip()
 
 
+def git_is_ancestor(repo_root: Path, ancestor_sha: str, descendant_sha: str) -> bool:
+    if not ancestor_sha or not descendant_sha:
+        return False
+    process = _subprocess_run(
+        ["git", "merge-base", "--is-ancestor", ancestor_sha, descendant_sha],
+        cwd=repo_root,
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+        check=False,
+    )
+    return process.returncode == 0
+
+
 def branch_phase(branch_record_path: Path) -> str:
     if not branch_record_path.is_file():
         return ""
@@ -870,12 +883,25 @@ def find_codex_exe(explicit_path: str) -> Path | None:
     candidates = []
     if explicit_path:
         candidates.append(Path(explicit_path))
-    if which("codex"):
-        candidates.append(Path(which("codex") or ""))
+    candidates.append(Path.home() / ".codex" / ".sandbox-bin" / "codex.exe")
     candidates.append(Path.home() / "codex-debug" / "codex.exe")
+    local_app_data = os.environ.get("LOCALAPPDATA")
+    if local_app_data:
+        candidates.extend(
+            Path(local_app_data)
+            .joinpath("Packages")
+            .glob("OpenAI.Codex_*/*/Local/OpenAI/Codex/bin/codex.exe")
+        )
+    if which("codex.exe"):
+        candidates.append(Path(which("codex.exe") or ""))
+    if which("codex"):
+        codex_path = Path(which("codex") or "")
+        if codex_path.suffix.lower() != ".exe":
+            candidates.append(codex_path.with_suffix(".exe"))
+        candidates.append(codex_path)
 
     for candidate in candidates:
-        if candidate and candidate.is_file():
+        if candidate and candidate.is_file() and candidate.suffix.lower() == ".exe":
             return candidate
     return None
 
@@ -1360,12 +1386,23 @@ def main() -> int:
     repair_triggered = False
     repair_output_path = latest_path.with_name(f"{latest_path.stem}-worker.txt")
     bot_comment_count = int(status.get("botCommentCount") or 0)
+    recorded_bot_status = str(status.get("branchRecordBotReviewStatus") or "").strip().casefold()
+    recorded_bot_head = str(status.get("branchRecordBotReviewHead") or "").strip()
+    current_head = str(status.get("localHeadSha") or status.get("headSha") or "").strip()
+    recorded_comment_addressed = (
+        recorded_bot_status in {"approved", "comment addressed"}
+        and (
+            recorded_bot_head == current_head
+            or git_is_ancestor(repo_root, recorded_bot_head, current_head)
+        )
+    )
     repair_key = f"{status.get('headSha') or ''}:{bot_comment_count}"
     if (
         codex_exe is not None
         and not bool(status.get("merged"))
         and str(status.get("prState") or "").upper() != "CLOSED"
         and bot_comment_count > 0
+        and not recorded_comment_addressed
         and repair_key
         and (
             repair_key != str(existing_state.get("lastRepairAttemptKey") or "")
