@@ -27,7 +27,7 @@
 
 ## Current Phase
 
-- Phase: `Hardening`
+- Phase: `Live Validation`
 
 ## Phase Status
 
@@ -51,7 +51,9 @@
 - Current Workstream Seam Status: `Complete / green`
 - Current Hardening Seam: `Hardening H1 - Voice/Audio Runtime Availability and Truthful Diagnostics Validation`
 - Current Hardening Seam Status: `Complete / green`
-- Current Live Validation Seam: `Not started; next legal phase after H1 completion`
+- Current Live Validation Seam: `Live Validation LV1 - Voice/Audio Runtime Availability and Truthful Diagnostics Live Validation`
+- Current Live Validation Seam Status: `Complete / green`
+- Current PR Readiness Seam: `Not started; next legal phase after LV1 completion`
 - Release Debt: `Merged unreleased runtime and governance proof remains pending v1.6.13-prebeta packaging`
 
 ## Branch Class
@@ -81,11 +83,11 @@ None.
 
 ## Rollback Target
 
-- `Hardening`
+- `Live Validation`
 
 ## Next Legal Phase
 
-- `Live Validation`
+- `PR Readiness`
 
 ## Branch Objective
 
@@ -209,6 +211,20 @@ Non-Includes: no PR creation or Release Readiness work.
 - H1 Validation Evidence: `python dev\orin_boot_transition_verification.py` PASS; report `dev\logs\boot_transition_verification\reports\BootTransitionVerificationReport_20260501_180708.txt`.
 - Repair Candidates: `None`.
 - H1 Continuation Finding: `Hardening H1 complete and green`; Live Validation is the next legal phase.
+
+## Live Validation LV1 Result
+
+- Phase Admission: `PASS`; branch authority advances from `Hardening` to `Live Validation`, admits `Live Validation LV1 - Voice/Audio Runtime Availability and Truthful Diagnostics Live Validation`, and preserves WS1 plus H1 as historical complete/green.
+- Live-Equivalent Voice/Audio Validation: `PASS`; `python dev\orin_voice_regression_harness.py` exercised direct normal voice playback, launcher/error voice lanes, degraded shutdown fallback, unavailable diagnostic semantics, and quiet/bypassed diagnostic semantics.
+- Launcher And Main Runtime Validation: `PASS`; launcher failure/recovery/shutdown voice diagnostics, `main.py` quiet boot transition behavior, and production desktop entrypoint compatibility remain green through the live-equivalent validators.
+- Diagnostic Truth Validation: `PASS`; `available`, `degraded`, `unavailable`, and `bypassed` diagnostics remain distinct and no false voice-success claim was found.
+- Startup Compatibility Validation: `PASS`; desktop entrypoint and boot transition validation remain green after LV1.
+- Governance Validation: `PASS`; branch governance and automation observability remain green with informational automation findings only.
+- LV1 Validation Evidence: `python dev\orin_voice_regression_harness.py` PASS; report `dev\logs\voice_regression_harness\reports\VoiceRegressionReport_20260501_183931.txt`.
+- LV1 Validation Evidence: `python dev\orin_desktop_entrypoint_validation.py` PASS; report `dev\logs\desktop_entrypoint_validation\reports\DesktopEntrypointValidationReport_20260501_184135.txt`.
+- LV1 Validation Evidence: `python dev\orin_boot_transition_verification.py` PASS; report `dev\logs\boot_transition_verification\reports\BootTransitionVerificationReport_20260501_184156.txt`.
+- Repair Candidates: `None`.
+- LV1 Continuation Finding: `Live Validation LV1 complete and green`; PR Readiness is the next legal phase.
 
 ## Validation Contract
 
@@ -376,10 +392,11 @@ Seam 3: Validation and admission contract for future voice/audio implementation
 
 ## Active Seam
 
-Active seam: `Hardening H1 - Voice/Audio Runtime Availability and Truthful Diagnostics Validation`
+Active seam: `Live Validation LV1 - Voice/Audio Runtime Availability and Truthful Diagnostics Live Validation`
 
-- Current Hardening seam: `Hardening H1 - Voice/Audio Runtime Availability and Truthful Diagnostics Validation`.
-- Current Hardening result: complete and green; Live Validation is the next legal phase.
+- Current Live Validation seam: `Live Validation LV1 - Voice/Audio Runtime Availability and Truthful Diagnostics Live Validation`.
+- Current Live Validation result: complete and green; PR Readiness is the next legal phase.
+- Historical Hardening result: complete and green.
 - Historical Workstream result: complete and green.
 - WS1 Boundary: runtime availability and truthful diagnostic proof only across the admitted voice/audio paths.
 - WS1 Non-Includes: no persona-default change, no ARIA activation, no prompt rewrite beyond diagnostic truth, no audio asset redesign, no public-copy change, no release-note change, and no broad launcher or renderer redesign.
@@ -730,7 +747,7 @@ H-1 is docs/canon only. It pressure-tests whether the completed FB-030 voice/aud
 - User Test Summary Applicability: not applicable for H-1 because it changes docs/canon only and adds no user-visible behavior.
 - Continue/Stop Decision: stop at the phase boundary. Hardening is complete, and the next legal phase is Live Validation.
 
-## Live Validation Record
+## Historical v1.6.5 Live Validation Record
 
 LV-1 validated the completed FB-030 docs/canon-only milestone against live repo truth, branch truth, and user-facing/manual validation applicability. The branch remains docs/canon-only for this milestone: no runtime voice behavior change, shutdown voice behavior change, recovery voice behavior change, diagnostics implementation change, renderer behavior change, desktop shortcut change, visible voice/audio UI change, audio-asset change, persona-default change, release-note change, or operator-facing invocation change has been added.
 
@@ -764,11 +781,11 @@ LV-1 validated the completed FB-030 docs/canon-only milestone against live repo 
 
 ## User Test Summary
 
-- User-Facing Shortcut Path: Not applicable - FB-030 Live Validation is docs/canon only and does not change any user-facing desktop shortcut, equivalent production entrypoint behavior, runtime behavior, launcher behavior, renderer behavior, visible UI behavior, installer behavior, or other operator-facing invocation path.
-- User-Facing Shortcut Validation: WAIVED
-- User-Facing Shortcut Waiver Reason: FB-030 LV-1 validates docs/canon only. The completed milestone changes no user-facing desktop shortcut behavior, equivalent production entrypoint behavior, runtime behavior, launcher behavior, renderer behavior, visible UI behavior, installer behavior, or other operator-facing invocation path, so exercising the existing shortcut would not validate the FB-030 delta.
+- User-Facing Shortcut Path: `launch_orin_desktop.vbs` / `desktop/orin_desktop_launcher.pyw` validated through `python dev\orin_desktop_entrypoint_validation.py`; dev boot transition validated through `python dev\orin_boot_transition_verification.py`; direct voice and launcher/error voice diagnostics validated through `python dev\orin_voice_regression_harness.py`.
+- User-Facing Shortcut Validation: PASS
+- User-Facing Shortcut Waiver Reason: None; closest live-equivalent production entrypoint and dev boot paths were exercised by automated validators instead of a manual desktop export.
 - User Test Summary Results: WAIVED
-- User Test Summary Waiver Reason: The milestone remains docs/canon-only and validator-proven through repo/canon checks; a filled manual User Test Summary would not materially validate behavior because no user-visible setup, display, runtime, shortcut, launcher, renderer, installer, or invocation surface changed.
+- User Test Summary Waiver Reason: LV1 changes runtime diagnostic truth without changing intended visible UI, audio wording, operator workflow, installer behavior, or manual setup steps; automated live-equivalent validators provide the required behavior proof, so a manually filled desktop User Test Summary would not add coverage for this diagnostics-only runtime delta.
 
 ## Governance Drift Audit
 
@@ -863,9 +880,9 @@ Completion Status: `Green`
 Waiver Status: `None`
 Continue Decision: `Stop`
 Stop Basis: `Workstream Green`
-Next Active Seam: `Hardening H1 - Voice/Audio Runtime Availability and Truthful Diagnostics Validation`
-Stop Condition: `WS1 runtime availability and truthful diagnostics proof is implemented, validator-backed, and has no remaining same-branch implementable work admitted by current repo truth.`
-Continuation Action: `Advance to Hardening H1 for authority-aligned validation of the WS1 runtime diagnostics proof.`
+Next Active Seam: `PR Readiness PR1 - FB-030 Runtime Branch PR Validation`
+Stop Condition: `Live Validation LV1 is complete and green with live-equivalent voice/audio diagnostics, desktop entrypoint, boot transition, branch governance, and automation observability proof recorded.`
+Continuation Action: `Advance to PR Readiness PR1 only after an explicit PR Readiness prompt admits the live PR surface and same-thread watcher provisioning gate.`
 
 ## Reuse Baseline
 
