@@ -668,6 +668,7 @@ PR_READINESS_BLOCKER_PHRASES = (
     "dirty",
     "docs-sync",
     "next-workstream",
+    "Next Runtime Candidate Selection Pending",
     "desktop-shortcut",
     "User Test Summary Results Pending",
     "PR Merge Status Unproven",
@@ -1178,12 +1179,6 @@ NEXT_WORKSTREAM_BRANCH_NOT_CREATED_PHRASES = (
     "No branch created",
     "not branched",
 )
-NO_NEXT_WORKSTREAM_MARKERS = (
-    "Selected Next Workstream: None",
-    "No valid open runtime-focused backlog candidate remains",
-    "Branch: Not created",
-)
-
 VALID_NEXT_WORKSTREAM_RECORD_STATES = (
     "Registry-only",
     "Promoted",
@@ -7239,23 +7234,14 @@ def _run_next_workstream_gate(
     selected_entries = _selected_next_workstream_entries(backlog_entries)
     if not selected_entries:
         successor_candidates = _open_successor_candidate_entries(backlog_entries)
-        roadmap_section = _next_workstream_roadmap_section(roadmap_text)
         require(
-            not successor_candidates,
+            False,
             (
-                "PR readiness gate: Next Workstream Undefined blocker is active; no selected "
-                "next workstream is recorded, but open successor candidate(s) remain: "
-                + ", ".join(entry["id"] for entry in successor_candidates)
-            ),
-        )
-        require(
-            bool(roadmap_section)
-            and all(marker.casefold() in roadmap_section.casefold() for marker in NO_NEXT_WORKSTREAM_MARKERS),
-            (
-                "PR readiness gate: Next Workstream Undefined blocker is active; "
-                "Docs/prebeta_roadmap.md must explicitly record that no selected-next "
-                "workstream is available, no valid open runtime-focused backlog candidate remains, "
-                "and no successor branch is created"
+                "PR readiness gate: Next Runtime Candidate Selection Pending blocker is active; "
+                "PR Readiness cannot advance to Release Readiness until exactly one real runtime "
+                "candidate is selected, canon-defined, minimally scoped, and explicitly not branched yet. "
+                "Open candidate(s): "
+                + (", ".join(entry["id"] for entry in successor_candidates) or "none found; stop in PR Readiness")
             ),
         )
         return
@@ -7275,6 +7261,7 @@ def _run_next_workstream_gate(
     selected_record_state = selected["record_state"]
     selected_block = selected["block"]
     selected_scope = _extract_colon_value(selected_block, "Minimal Scope")
+    selected_registry_class = _clean_release_value(_extract_colon_value(selected_block, "Registry Class"))
     roadmap_section = _next_workstream_roadmap_section(roadmap_text)
     repair_only_handling, explicitly_handled_repair_branches = _selected_next_repair_only_branch_info(
         [selected_block, roadmap_section]
@@ -7288,12 +7275,28 @@ def _run_next_workstream_gate(
         ),
     )
     require(
+        selected_registry_class == "Feature Family",
+        (
+            "PR readiness gate: Next Runtime Candidate Selection Pending blocker is active; "
+            f"{selected_id} must be a real runtime Feature Family candidate, not "
+            f"Registry Class '{selected_registry_class}'"
+        ),
+    )
+    require(
         bool(selected_scope),
         (
             "PR readiness gate: Next Workstream Undefined blocker is active; "
             f"{selected_id} must define '{NEXT_WORKSTREAM_MINIMAL_SCOPE_LABEL}' in Docs/feature_backlog.md"
         ),
     )
+    if selected_scope:
+        require(
+            "runtime" in selected_scope.casefold(),
+            (
+                "PR readiness gate: Next Runtime Candidate Selection Pending blocker is active; "
+                f"{selected_id} Minimal Scope must explicitly name a runtime slice"
+            ),
+        )
     require(
         bool(roadmap_section),
         (

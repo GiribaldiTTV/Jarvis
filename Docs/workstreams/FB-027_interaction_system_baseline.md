@@ -185,6 +185,7 @@ Non-Includes: no PR creation or release work.
 - Candidate Basis: FB-027 is a user-facing feature-family anchor with `Priority: High`; its released baseline explicitly names shutdown-hotkey confirmation as future runtime work before Beta.
 - Carried Blocker Classification: `FB-030 Post-Merge Canon Drift / Selected-Next Revalidation Required`.
 - Carried Blocker Repair: FB-030 is moved to merged-unreleased release-debt truth for `v1.6.13-prebeta`, stale PR2 merge-watch wording is removed from current-state surfaces, PR #108 merge/watcher proof remains historical traceability, and FB-027 becomes the active runtime branch.
+- Governance Hardening: PR Readiness now carries `Next Runtime Candidate Selection Pending` as a hard blocker until exactly one real runtime candidate is selected, scoped, mirrored in roadmap, and left unbranched for the next Branch Readiness pass.
 - First Runtime Slice Candidate: `WS1 shutdown hotkey confirmation runtime proof`.
 
 ## Current Release-Truth Note

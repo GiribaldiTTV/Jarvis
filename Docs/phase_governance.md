@@ -535,11 +535,11 @@ Post-release closure is mandatory after release execution:
 
 Rule:
 
-- a branch is not `PR Readiness`-complete unless the next workstream is selected, canon-defined, assigned a valid record state, minimally scoped, and explicitly not branched yet
+- a branch is not `PR Readiness`-complete unless the next real runtime workstream is selected, canon-defined, assigned a valid record state, minimally scoped as a runtime slice, and explicitly not branched yet
 
 Exception:
 
-- If post-merge truth will resolve to `No Active Branch` because `Release Debt` or another repo-level admission blocker remains open, successor branch creation remains deferred; next-workstream selection is still required unless the user explicitly approves a no-next-workstream steady-state outcome in canon.
+- If post-merge truth will resolve to `No Active Branch` because `Release Debt` or another repo-level admission blocker remains open, successor branch creation remains deferred; next-workstream selection is still required. If no real runtime successor can be selected, `Next Runtime Candidate Selection Pending` remains a PR Readiness blocker and the branch must stop in PR Readiness rather than advance to Release Readiness.
 
 This gate requires all of the following before PR creation is allowed:
 
@@ -547,6 +547,7 @@ This gate requires all of the following before PR creation is allowed:
 - that workstream exists in `Docs/feature_backlog.md`
 - that workstream is recorded in `Docs/prebeta_roadmap.md`
 - that workstream has a canon-valid `Record State`
+- that workstream is a real runtime `Feature Family` candidate
 - that workstream has `Priority` defined
 - if that workstream is deferred, the backlog entry records `Deferred Since:`, `Deferred Because:`, and `Selection / Unblock:`
 - that workstream has minimal scope defined before PR green
@@ -558,7 +559,6 @@ This gate requires all of the following before PR creation is allowed:
 Machine-checkable canon markers:
 
 - the selected backlog entry must include `Next Workstream: Selected`
-- if no valid open runtime-focused successor candidate remains after excluding the current active branch and historical/implemented/merged entries, PR Readiness may instead record `Selected Next Workstream: None`, `No valid open runtime-focused backlog candidate remains`, and `Branch: Not created` in the roadmap selected-next section; this is a stop-state, not permission to create a repair-only or speculative branch
 - the selected backlog entry must include `Minimal Scope:`
 - the roadmap must include `## Selected Next Workstream`
 - the roadmap selected-next section must include the same workstream id, its `Record State`, `Minimal Scope:`, and truthful branch status such as `Branch: Not created` before branch creation or the active Branch Readiness branch name after creation
@@ -573,6 +573,7 @@ When the exception applies, the branch must instead:
 Temporary `emergency canon repair` branches that are explicitly recorded as repair-only must not be treated as the selected-next implementation branch for this gate. Validator and canon checks should distinguish those repair branches from real successor implementation-branch creation.
 
 If the next workstream is not selected, is not recorded in backlog and roadmap, lacks valid record state, or lacks minimal scope, the branch is blocked by `Next Workstream Undefined`.
+If no real runtime candidate is selected before attempting to leave PR Readiness, the branch is blocked by `Next Runtime Candidate Selection Pending`.
 If a selected deferred workstream lacks deferred-context fields, the branch is blocked by `Deferred Selection Context Missing`.
 If a successor branch is created before `Branch Readiness`, the branch is blocked by `Successor Lock Missing`.
 
@@ -582,13 +583,15 @@ PR Readiness must not report green while any pre-merge process blocker remains u
 
 Hard blockers:
 
-- canonical shorthand: `stale-canon`, `post-merge`, `dirty`, `docs-sync`, `next-workstream`, `deferred-context`, `desktop-shortcut`, `uts-results`
+- canonical shorthand: `stale-canon`, `post-merge`, `dirty`, `docs-sync`, `next-workstream`, `Next Runtime Candidate Selection Pending`, `deferred-context`, `desktop-shortcut`, `uts-results`
 - `Stale Canon`:
   current-state canon and merge-target canon must already reflect the branch's true state and the state that will be true after merge
 - `Post-Merge State Unresolved`:
   post-merge truth must already encode either the `No Active Branch` / `Release Debt` path or the successor-workstream planning, canon sync, and branch-creation deferral required when post-merge truth will admit another branch
 - `Next Workstream Undefined`:
   PR Readiness cannot be green until the next workstream exists in canon, is recorded in backlog and roadmap, has a valid record state, has minimal scope defined, and has no branch created yet
+- `Next Runtime Candidate Selection Pending`:
+  PR Readiness cannot advance to Release Readiness until exactly one real runtime candidate is selected from repo truth, recorded as `Next Workstream: Selected`, scoped with a runtime `Minimal Scope:`, mirrored in roadmap `## Selected Next Workstream`, and left unbranched until the next Branch Readiness pass
 - `Deferred Selection Context Missing`:
   PR Readiness cannot be green when the selected next workstream is deferred but lacks `Deferred Since:`, `Deferred Because:`, or `Selection / Unblock:` in the backlog entry
 - `Dirty Branch`:
@@ -1737,7 +1740,7 @@ Use it when:
 - blocked:
   - a blocker or repair path must be cleared before the next implementation lane may begin
 - steady-state:
-  - no implementation branch is currently selected, and it is valid for the next safe move to be no branch at all until a new approved need exists
+  - outside PR Readiness closeout, no implementation branch is currently selected, and it is valid for the next safe move to be no branch at all until a new approved need exists; PR Readiness closeout is stricter and must select the next real runtime candidate before leaving the phase
 
 When `No Active Branch` is blocked:
 

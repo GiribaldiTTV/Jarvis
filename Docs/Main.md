@@ -300,7 +300,7 @@ These are reference layers, not active workstream or roadmap owners.
 - the Pre-PR Durability Rule applies through `Branch Readiness`, `Workstream`, `Hardening`, and `Live Validation`; `PR Readiness` remains the later merge-target gate and must still prove clean durable branch truth
 - prompt-level requests to stop before commit/push are not durability exceptions; only a documented `Durability Waiver`, failed validation, legally file-frozen `Release Readiness`, or a named Codex self-imposed blocker may stop commit/push, and self-imposed blockers must automatically commit and push once lifted
 - the normal `PR Readiness` sequence for a branch that changes release-facing canon is:
-  0. clear the hard PR Readiness blockers: `stale-canon`, `post-merge`, `dirty`, `docs-sync`, `next-workstream`, and `uts-results`
+  0. clear the hard PR Readiness blockers: `stale-canon`, `post-merge`, `dirty`, `docs-sync`, `next-workstream`, `Next Runtime Candidate Selection Pending`, and `uts-results`
   1. validate current branch truth
   2. complete the merge-target canon updates on that same branch
   3. run the Governance Drift Audit
@@ -311,8 +311,8 @@ These are reference layers, not active workstream or roadmap owners.
   8. confirm the next workstream has canon-valid record state and minimal scope
   9. confirm no branch exists yet for that next workstream while PR Readiness is encoding selected-next truth
   10. defer successor branch creation to `Branch Readiness` after merge and updated-`main` revalidation
-  11. encode the machine-checkable selected-next markers: `Next Workstream: Selected` and `Minimal Scope:` in backlog, plus `## Selected Next Workstream` with truthful branch status such as `Branch: Not created` before branch creation or the active Branch Readiness branch name after creation in roadmap
-  12. If post-merge truth will resolve to `No Active Branch` because `Release Debt` or another repo-level admission blocker remains open, successor branch creation remains deferred; next-workstream selection is still required unless the user explicitly approves a no-next-workstream steady-state outcome in canon.
+  11. encode the machine-checkable selected-next markers: `Next Workstream: Selected` and runtime `Minimal Scope:` in backlog, plus `## Selected Next Workstream` with truthful branch status such as `Branch: Not created` before branch creation or the active Branch Readiness branch name after creation in roadmap
+  12. If post-merge truth will resolve to `No Active Branch` because `Release Debt` or another repo-level admission blocker remains open, successor branch creation remains deferred; next-workstream selection is still required. If no real runtime candidate can be selected, `Next Runtime Candidate Selection Pending` remains active and the branch stops in PR Readiness.
   13. commit all required docs, canon, validator, and branch-truth changes so the worktree is clean and truth is durable in commit history
   14. run the normal branch governance validator and the PR-readiness gate mode
   14. report `PR package ready`, create the PR, and validate the live PR state before reporting `PR READY: YES`
@@ -322,6 +322,7 @@ These are reference layers, not active workstream or roadmap owners.
 - do not pin merge-target branch heads in those current-state owner sections. Statements such as ``origin/main` is `<sha>``, ``origin/main` remains at `<sha>``, or equivalent branch-head hash assertions are time-sensitive operator facts, not merge-stable current-state truth.
 - live PR state such as `open`, `non-draft`, `mergeable`, review-thread counts, repair-commit containment timing, or blocker-clearing branch narration belongs only in operator output and explicit historical PR sections such as `## Historical PR Package State`, `## PR Readiness Record`, `## Post-Merge Review Repair`, or `## Follow-Up PR Readiness Record`; do not place that live PR narration in merge-target current-state owner sections such as `Current Branch Execution Posture`, `PR Readiness State:`, `Current Branch Objective:`, `Active Workstream Chain:`, or the merged-unreleased `## Phase Status` block
 - PR Readiness also owns `PR Readiness Scope Missed`, `Between-Branch Canon Repair Attempt`, and `Next Branch Created Too Early`; none may be deferred into Release Readiness or a later side branch
+- PR Readiness also owns `Next Runtime Candidate Selection Pending`; do not advance to Release Readiness until exactly one real runtime Feature Family candidate is selected, canon-defined, minimally scoped as a runtime slice, mirrored in roadmap, and explicitly not branched yet
 - PR Readiness also owns `Release Window Audit Incomplete`; if the branch is inside an unreleased release window, it must audit the current blocker set and clear it on the same branch by default instead of knowingly teeing up another blocker-clearing PR before release
 - the normal green posture for that audit is `Remaining Known Release Blockers: None`, `Another Pre-Release Repair PR Required: NO`, and `Release Window Split Waiver: None`; only an explicit user-approved `Release Window Split Waiver` may allow a deliberate split
 - PR Readiness also owns `PR Creation Pending`, `PR Validation Pending`, and `PR State Unknown`; `PR package ready` is not `PR Readiness GREEN`
