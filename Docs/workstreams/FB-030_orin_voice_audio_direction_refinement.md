@@ -11,7 +11,7 @@
 
 ## Status
 
-- `Active`
+- `Merged unreleased`
 
 ## Release Stage
 
@@ -19,7 +19,20 @@
 
 ## Target Version
 
-- `v1.6.5-prebeta`
+- `v1.6.13-prebeta`
+
+## Current Release-Debt Contract
+
+Merged-Unreleased Release-Debt Owner: FB-049 Active-session pre-settled incoming-launch conflict truth plus FB-030 voice/audio runtime diagnostics proof plus merged governance/automation proof package for v1.6.13-prebeta
+Repo State: No Active Branch
+Release Target: v1.6.13-prebeta
+Release Floor: patch prerelease
+Version Rationale: FB-030 adds bounded runtime diagnostics truth for voice/audio availability without opening a new feature family or materially widening product scope.
+Release Scope: merged governance reform, automation catalog proof, FB-049 runtime proof, and FB-030 voice/audio runtime diagnostics proof.
+Release Artifacts: Tag v1.6.13-prebeta; release title Pre-Beta v1.6.13; rich Markdown release notes summarize the merged governance reform, automation catalog, FB-049 runtime proof, and FB-030 voice/audio diagnostics proof, with GitHub-generated What's Changed and Full Changelog sections.
+Post-Release Truth: after v1.6.13-prebeta publication and validation, merged governance reform, automation catalog, FB-049 runtime proof, and FB-030 runtime diagnostics proof become released historical traceability; release debt clears; and later runtime work must start from updated main.
+Selected Next Workstream: FB-027 interaction and shared-action runtime follow-through
+Next-Branch Creation Gate: Cleared by FB-027 BR1 after updated-main revalidation and carried FB-030 post-merge canon repair.
 
 ## Canonical Branch
 
@@ -27,25 +40,34 @@
 
 ## Current Phase
 
-- Phase: `PR Readiness`
+- Phase: `Release Readiness`
 
 ## Phase Status
 
-- Repo State: `Active Branch`
-- Active Branch: `feature/fb-030-voice-audio-runtime-branch-readiness`
-- Workstream: `FB-030 ORIN voice/audio direction refinement`
+- Merged-Unreleased Release-Debt Owner: `FB-049 Active-session pre-settled incoming-launch conflict truth plus FB-030 voice/audio runtime diagnostics proof plus merged governance/automation proof package for v1.6.13-prebeta`
+- Repo State: `No Active Branch`
+- Merged-Main Repo State: No Active Branch
+- Workstream: `FB-030 ORIN voice/audio direction refinement runtime follow-through`
 - Current Active Canonical Workstream Doc: `Docs/workstreams/FB-030_orin_voice_audio_direction_refinement.md`
 - Latest Public Prerelease: `v1.6.12-prebeta`
+- Pending Release Posture: `v1.6.13-prebeta remains the patch prerelease target for merged governance, automation-catalog, FB-049 runtime proof, and FB-030 runtime diagnostics proof until release packaging updates it`
+- Release Target: `v1.6.13-prebeta`
+- Release Floor: `patch prerelease`
+- Version Rationale: `FB-030 adds bounded runtime diagnostics truth for voice/audio availability without opening a new feature family or materially widening product scope.`
+- Release Scope: `merged governance reform, automation catalog proof, FB-049 runtime proof, and FB-030 voice/audio runtime diagnostics proof`
+- Release Artifacts: `Tag v1.6.13-prebeta; release title Pre-Beta v1.6.13; rich Markdown release notes summarize the merged governance reform, automation catalog, FB-049 runtime proof, and FB-030 voice/audio diagnostics proof, with GitHub-generated What's Changed and Full Changelog sections.`
+- Post-Release Truth: `after v1.6.13-prebeta publication and validation, merged governance reform, automation catalog, FB-049 runtime proof, and FB-030 runtime diagnostics proof become released historical traceability; release debt clears; and later runtime work must start from updated main.`
+- Selected Next Workstream: `FB-027 interaction and shared-action runtime follow-through`
+- Next-Branch Creation Gate: `Cleared by FB-027 BR1 after updated-main revalidation and carried FB-030 post-merge canon repair.`
+- Latest Public Prerelease: `v1.6.12-prebeta`
 - Latest Public Release Commit: `b06c359e58b47cfe26fe8c4b39ac04fde519dee9`
-- Pending Release Posture: `v1.6.13-prebeta remains the patch prerelease target for merged governance, automation-catalog, and FB-049 runtime proof until release packaging updates it`
-- Carried Blocker: `Merged-main active branch authority drift for Docs/branch_records/feature_fb_049_runtime_branch_readiness.md after PR #107 merge`
+- Carried Blocker: `Merged-main active branch authority drift for Docs/branch_records/feature_fb_049_runtime_branch_readiness.md after the FB-049 merge`
 - Carried Blocker Status: `Cleared in BR1 by moving FB-049 branch authority to historical-only traceability and clearing branch-record active authority`
-- Watcher Failure Context: `PR #107 merged through GitHub truth, but pr107-same-thread-merge-watch failed to emit the required same-thread merged handoff before cleanup`
+- Watcher Failure Context: `FB-049 merged through GitHub truth, but pr107-same-thread-merge-watch failed to emit the required same-thread merged handoff before cleanup`
 - Watcher Failure Classification: `PR Watcher Merge Handoff Missing`
 - Recurrence Analysis Requirement: `Blocker Recurrence Analysis Required is now carried as a standard Branch Readiness repair condition whenever stale canon or watcher-handoff failure is found`
-- Selected Next Workstream: `FB-030 ORIN voice/audio direction refinement runtime follow-through`
 - Selected Next Record State: `Promoted`
-- Selected Next Implementation Branch: `feature/fb-030-voice-audio-runtime-branch-readiness`
+- Selected Next Implementation Branch: `feature/fb-027-shutdown-confirmation-runtime-branch-readiness`
 - Current Branch Readiness Seam: `Historical complete; BR1 admitted FB-030 runtime follow-through and cleared the carried FB-049 PR2 blocker before implementation`
 - Current Workstream Seam: `Historical complete; Workstream WS1 - Voice/Audio Runtime Availability and Truthful Diagnostics Proof`
 - Current Workstream Seam Status: `Complete / green`
@@ -53,9 +75,9 @@
 - Current Hardening Seam Status: `Complete / green`
 - Current Live Validation Seam: `Live Validation LV1 - Voice/Audio Runtime Availability and Truthful Diagnostics Live Validation`
 - Current Live Validation Seam Status: `Complete / green`
-- Current PR Readiness Seam: `PR Readiness PR1 - FB-030 Runtime Branch PR Validation`
-- Current PR Readiness Seam Status: `Complete / green; PR #108 is live, mergeable, bot comment is addressed, and same-thread watcher proof is recorded`
-- Next Active Seam: `PR Readiness PR2 - FB-030 Runtime Branch Merge Verification Watch`
+- Current PR Readiness Seam: `Historical complete; PR Readiness PR1 - FB-030 Runtime Branch PR Validation and PR Readiness PR2 - FB-030 Runtime Branch Merge Verification Watch`
+- Current PR Readiness Seam Status: `Complete / green; merge verification proof and watcher cleanup are preserved in historical traceability`
+- Next Release Seam: `Release Readiness RR1 - FB-030 Runtime Release Readiness Validation`
 - Release Debt: `Merged unreleased runtime and governance proof remains pending v1.6.13-prebeta packaging`
 
 ## Branch Class
@@ -64,7 +86,7 @@
 
 ## Blockers
 
-- `PR Merge Verification Pending`
+None.
 
 ## Entry Basis
 
@@ -85,11 +107,11 @@
 
 ## Rollback Target
 
-- `PR Readiness`
+- `Release Readiness`
 
 ## Next Legal Phase
 
-- `PR Readiness`
+- `Release Readiness`
 
 ## Branch Objective
 

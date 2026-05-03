@@ -146,6 +146,7 @@ Use these for promoted work that needs a stable feature-state, branch-local vali
 For the family-governance model, use `Docs/workstreams/index.md` first to distinguish family anchors, historical pass alias records, and other closed workstreams before loading the specific canonical record.
 
 - `Docs/workstreams/index.md`
+- `Docs/workstreams/FB-027_interaction_system_baseline.md`
 - `Docs/workstreams/FB-047_active_session_relaunch_decline_preservation.md`
 - `Docs/workstreams/FB-048_active_session_relaunch_signal_failure_and_wait_timeout_truth.md`
 - `Docs/workstreams/FB-046_active_session_relaunch_reacquisition.md`

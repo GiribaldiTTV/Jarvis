@@ -87,21 +87,20 @@ For an active or recently closed canonical workstream, keep these durable tracea
 Active here means the current promoted truth owner.
 That may be an executable branch owner or another explicitly promoted current-truth owner.
 
-- `Docs/workstreams/FB-030_orin_voice_audio_direction_refinement.md`
+- `Docs/workstreams/FB-027_interaction_system_baseline.md`
 
 ### Merged / Release Debt Owners
 
 Merged / Release Debt Owners are promoted implementation workstreams whose implementation branch is merge-target complete but whose public release packaging has not yet cleared release debt.
 These records are not active implementation branch owners after merge.
 
-- `None.`
+- `Docs/workstreams/FB-030_orin_voice_audio_direction_refinement.md`
 
 ### Closed
 
 ### Family Anchor Records
 
 - `Docs/workstreams/FB-042_desktop_entrypoint_runtime_refinement.md`
-- `Docs/workstreams/FB-027_interaction_system_baseline.md`
 
 ### Historical Pass Alias Records
 
