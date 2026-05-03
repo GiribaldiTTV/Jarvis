@@ -12,6 +12,8 @@ if ROOT_DIR not in sys.path:
     sys.path.insert(0, ROOT_DIR)
 
 import desktop.desktop_renderer as renderer_mod
+import desktop.orin_desktop_main as desktop_main_mod
+from desktop.hotkeys import GlobalHotkeyManager
 from desktop.saved_action_authoring import SavedActionDraft, create_saved_action_from_draft
 from desktop.interaction_overlay_model import CommandOverlayModel
 from desktop.shared_action_model import (
@@ -55,6 +57,26 @@ class _FakeTimer:
 
     def start(self, duration_ms):
         self.started_with = duration_ms
+
+
+class _FakeEmitter:
+    def __init__(self):
+        self.emissions = []
+
+    def emit(self, *args):
+        self.emissions.append(args)
+
+
+class _FakeShutdownBus:
+    def __init__(self):
+        self.shutdown_requested = _FakeEmitter()
+        self.shutdown_confirmation_requested = _FakeEmitter()
+        self.command_overlay_toggle_requested = _FakeEmitter()
+        self.command_overlay_text_requested = _FakeEmitter()
+        self.command_overlay_backspace_requested = _FakeEmitter()
+        self.command_overlay_submit_requested = _FakeEmitter()
+        self.command_overlay_escape_requested = _FakeEmitter()
+        self.command_overlay_global_click_requested = _FakeEmitter()
 
 
 class _FakeInputLine:
@@ -861,6 +883,74 @@ def _test_catalog_reload_seam_surfaces_new_saved_actions_without_phase_change():
         )
 
 
+def _test_shutdown_hotkeys_route_to_confirmation_not_direct_shutdown():
+    try:
+        from pynput import keyboard as pynput_keyboard
+    except Exception as exc:
+        raise AssertionError(f"shutdown hotkey validation could not import pynput keyboard: {exc}") from exc
+
+    for trigger in (pynput_keyboard.Key.end, pynput_keyboard.KeyCode.from_char("2")):
+        bus = _FakeShutdownBus()
+        hotkeys = GlobalHotkeyManager(bus)
+        hotkeys._pressed.update({pynput_keyboard.Key.ctrl_l, pynput_keyboard.Key.alt_l})
+
+        hotkeys._on_press(trigger)
+
+        _assert(
+            bus.shutdown_confirmation_requested.emissions == [("hotkey",)],
+            "shutdown hotkey should request confirmation exactly once",
+        )
+        _assert(
+            bus.shutdown_requested.emissions == [],
+            "shutdown hotkey must not emit direct shutdown before confirmation",
+        )
+
+
+def _test_shutdown_confirmation_runtime_markers_are_truthful():
+    requested = desktop_main_mod.shutdown_confirmation_requested_marker("hotkey")
+    accepted = desktop_main_mod.shutdown_confirmation_runtime_markers("accepted", "hotkey")
+    cancelled = desktop_main_mod.shutdown_confirmation_runtime_markers("cancelled", "hotkey")
+    timed_out = desktop_main_mod.shutdown_confirmation_runtime_markers("timeout", "hotkey")
+
+    _assert(
+        requested == "RENDERER_MAIN|SHUTDOWN_CONFIRMATION_REQUESTED|source=hotkey",
+        "shutdown confirmation should emit a deterministic requested marker",
+    )
+    _assert(
+        desktop_main_mod.shutdown_confirmation_allows_shutdown("accepted"),
+        "accepted confirmation should allow the existing shutdown path",
+    )
+    _assert(
+        not desktop_main_mod.shutdown_confirmation_allows_shutdown("cancelled"),
+        "cancelled confirmation should preserve the active session",
+    )
+    _assert(
+        not desktop_main_mod.shutdown_confirmation_allows_shutdown("timeout"),
+        "timed-out confirmation should preserve the active session",
+    )
+    _assert(
+        accepted == (
+            "RENDERER_MAIN|SHUTDOWN_CONFIRMATION_ACCEPTED|source=hotkey",
+            "RENDERER_MAIN|SHUTDOWN_CONFIRMATION_CLEAN_SHUTDOWN_REQUESTED|source=hotkey",
+        ),
+        "accepted confirmation markers should truthfully precede clean shutdown",
+    )
+    _assert(
+        cancelled == (
+            "RENDERER_MAIN|SHUTDOWN_CONFIRMATION_CANCELLED|source=hotkey",
+            "RENDERER_MAIN|SHUTDOWN_CONFIRMATION_SESSION_PRESERVED|source=hotkey|reason=cancelled",
+        ),
+        "cancelled confirmation markers should truthfully preserve the session",
+    )
+    _assert(
+        timed_out == (
+            "RENDERER_MAIN|SHUTDOWN_CONFIRMATION_TIMEOUT|source=hotkey",
+            "RENDERER_MAIN|SHUTDOWN_CONFIRMATION_SESSION_PRESERVED|source=hotkey|reason=timeout",
+        ),
+        "timed-out confirmation markers should truthfully preserve the session",
+    )
+
+
 def main():
     tests = [
         ("typed-first open enters entry mode", _test_open_starts_in_typed_first_entry_mode),
@@ -879,6 +969,8 @@ def main():
         ("trigger-generated saved action phrases stay exact and bounded", _test_trigger_generated_saved_action_phrases_stay_exact_and_bounded),
         ("entry payload surfaces saved-action inventory guidance", _test_entry_payload_surfaces_saved_action_inventory_guidance),
         ("catalog reload seam surfaces new saved actions", _test_catalog_reload_seam_surfaces_new_saved_actions_without_phase_change),
+        ("shutdown hotkeys route to confirmation not direct shutdown", _test_shutdown_hotkeys_route_to_confirmation_not_direct_shutdown),
+        ("shutdown confirmation runtime markers are truthful", _test_shutdown_confirmation_runtime_markers_are_truthful),
     ]
 
     for name, fn in tests:

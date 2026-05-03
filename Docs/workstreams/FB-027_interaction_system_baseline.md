@@ -16,7 +16,7 @@
 
 ## Current Phase
 
-- Phase: `Branch Readiness`
+- Phase: `Workstream`
 
 ## Phase Status
 
@@ -31,8 +31,8 @@
 - Current Branch Readiness Seam: `Branch Readiness BR1 - FB-027 Runtime Admission With Carried FB-030 Post-Merge Blocker`
 - Current Branch Readiness Seam Status: `Complete / green`
 - Current Workstream Seam: `Workstream WS1 - Shutdown Hotkey Confirmation Runtime Proof`
-- Current Workstream Seam Status: `Not started`
-- Next Legal Phase: `Workstream`
+- Current Workstream Seam Status: `Complete / green`
+- Next Legal Phase: `Hardening`
 
 ## Branch Class
 
@@ -66,7 +66,7 @@ Rollback Path: revert the FB-027 Branch Readiness admission commit and return to
 
 ## Next Legal Phase
 
-- `Workstream`
+- `Hardening`
 
 ## Branch Objective
 
@@ -75,9 +75,11 @@ Rollback Path: revert the FB-027 Branch Readiness admission commit and return to
 
 ## Active Seam
 
-Active seam: `Branch Readiness BR1 - FB-027 Runtime Admission With Carried FB-030 Post-Merge Blocker`
+Active seam: `Workstream WS1 - Shutdown Hotkey Confirmation Runtime Proof`
 
 - `Branch Readiness BR1 - FB-027 Runtime Admission With Carried FB-030 Post-Merge Blocker`
+- Seam Status: `Complete / green`
+- `Workstream WS1 - Shutdown Hotkey Confirmation Runtime Proof`
 - Seam Status: `Complete / green`
 
 ## Expected Seam Families And Risk Classes
@@ -132,10 +134,13 @@ Branch Closure Rule: `Do not widen beyond shutdown confirmation without explicit
 
 ## Backlog Completion Status
 
-Backlog Completion State: `In Progress`
-Remaining Implementable Work: `WS1 shutdown hotkey confirmation runtime proof`
-Future-Dependent Blockers: `None proven during Branch Readiness`
-Completion Status: `In Progress`
+Backlog Completion State: `Implemented Complete`
+Remaining Implementable Work: `None`
+Future-Dependent Blockers: `None`
+Completion Status: `Green`
+
+- WS1 implements the admitted shutdown-hotkey confirmation runtime proof without changing overlay command resolution, saved actions, callable groups, tray behavior, relaunch ownership, hotkey mappings, or release packaging.
+- Additional FB-027 work remains out of scope unless a later same-branch seam is explicitly admitted under the slice continuation policy.
 
 ## Admitted Implementation Slice
 
@@ -187,6 +192,31 @@ Non-Includes: no PR creation or release work.
 - Carried Blocker Repair: FB-030 is moved to merged-unreleased release-debt truth for `v1.6.13-prebeta`, stale PR2 merge-watch wording is removed from current-state surfaces, PR #108 merge/watcher proof remains historical traceability, and FB-027 becomes the active runtime branch.
 - Governance Hardening: PR Readiness now carries `Next Runtime Candidate Selection Pending` as a hard blocker until exactly one real runtime candidate is selected, scoped, mirrored in roadmap, and left unbranched for the next Branch Readiness pass.
 - First Runtime Slice Candidate: `WS1 shutdown hotkey confirmation runtime proof`.
+
+## Workstream WS1 Result
+
+- Runtime Path Located: `desktop/hotkeys.py` emitted direct shutdown through `ShutdownBus.shutdown_requested`; `desktop/orin_desktop_main.py` consumed that signal and immediately entered `do_shutdown()`.
+- Runtime Behavior Changed: `Ctrl+Alt+End` and `Ctrl+Alt+2` now emit `shutdown_confirmation_requested` and route through an explicit confirmation gate before shutdown.
+- Prompt Behavior: the normal runtime displays a top-level confirmation prompt asking whether to shut down Nexus Desktop AI.
+- Accepted Path: accepted confirmation emits `RENDERER_MAIN|SHUTDOWN_CONFIRMATION_ACCEPTED|source=hotkey` and `RENDERER_MAIN|SHUTDOWN_CONFIRMATION_CLEAN_SHUTDOWN_REQUESTED|source=hotkey`, then proceeds through the existing `RENDERER_MAIN|SHUTDOWN_REQUESTED` and renderer shutdown path.
+- Cancelled Path: declined confirmation emits `RENDERER_MAIN|SHUTDOWN_CONFIRMATION_CANCELLED|source=hotkey` and `RENDERER_MAIN|SHUTDOWN_CONFIRMATION_SESSION_PRESERVED|source=hotkey|reason=cancelled` without calling shutdown.
+- Timeout Path: unanswered confirmation expires to `RENDERER_MAIN|SHUTDOWN_CONFIRMATION_TIMEOUT|source=hotkey` and `RENDERER_MAIN|SHUTDOWN_CONFIRMATION_SESSION_PRESERVED|source=hotkey|reason=timeout` without calling shutdown.
+- Validation Proof: `dev/orin_interaction_baseline_validation.py` proves both shutdown hotkeys route to confirmation rather than direct shutdown and proves accepted, cancelled, and timeout marker truth.
+- Live-Equivalent Runtime Proof: `dev/orin_desktop_entrypoint_validation.py` now runs harness shutdown with `NEXUS_SHUTDOWN_CONFIRMATION_DECISION=accepted` and validates the confirmation-requested, accepted, and clean-shutdown-request markers before the existing clean shutdown markers.
+- WS1 Continuation Decision: Workstream WS1 is complete / green; next legal phase is `Hardening H1 - Shutdown Hotkey Confirmation Runtime Validation`.
+
+## Seam Continuation Decision
+
+Seam Status: `Green`
+Slice Status: `Green`
+Completion Status: `Green`
+Waiver Status: `None`
+Continue Decision: `Stop`
+Stop Basis: `Workstream Green`
+Stop Condition: `None`
+Continuation Action: `Advance to Hardening H1 for shutdown-hotkey confirmation validation.`
+Decision Basis: `Workstream WS1 is complete / green and requires Hardening validation before any Live Validation or PR Readiness move.`
+Next Active Seam: `Hardening H1 - Shutdown Hotkey Confirmation Runtime Validation`
 
 ## Current Release-Truth Note
 

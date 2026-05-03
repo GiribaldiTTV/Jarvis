@@ -36,6 +36,7 @@ EXPECTED_MAIN_HANDOFF_MARKERS = (
     "def handoff_to_canonical_desktop_entrypoint():",
     "\\\\dev\\\\launchers\\\\launch_orin_main_",
 )
+SHUTDOWN_CONFIRMATION_DECISION_ENV = "NEXUS_SHUTDOWN_CONFIRMATION_DECISION"
 MAIN_EXPLICIT_DESKTOP_ARG = "--desktop-entrypoint"
 MAIN_INVALID_DIRECT_ARG = "--not-a-real-entrypoint-flag"
 EXPECTED_MAIN_INVALID_ARG_MARKERS = (
@@ -403,6 +404,7 @@ def build_harness_env(scenario_root, target_script="", extra_env=None):
     env["JARVIS_HARNESS_DISABLE_VOICE"] = "1"
     env["JARVIS_HARNESS_SUPPRESS_ALREADY_RUNNING_DIALOGS"] = "1"
     env["QT_QPA_PLATFORM"] = "offscreen"
+    env[SHUTDOWN_CONFIRMATION_DECISION_ENV] = "accepted"
     if target_script:
         env["JARVIS_HARNESS_TARGET_SCRIPT"] = target_script
     if extra_env:
@@ -1117,6 +1119,7 @@ def run_launch_chain_scenario(
     env["JARVIS_HARNESS_DISABLE_DIAGNOSTICS"] = "1"
     env["JARVIS_HARNESS_DISABLE_VOICE"] = "1"
     env["QT_QPA_PLATFORM"] = "offscreen"
+    env[SHUTDOWN_CONFIRMATION_DECISION_ENV] = "accepted"
 
     if force_path_fallback:
         env["NEXUS_DESKTOP_SKIP_PREFERRED_PYTHONW"] = "1"
@@ -1149,6 +1152,9 @@ def run_launch_chain_scenario(
     runtime_lines = []
     settled_seen = False
     shutdown_requested_seen = False
+    shutdown_confirmation_requested_seen = False
+    shutdown_confirmation_accepted_seen = False
+    shutdown_confirmation_clean_request_seen = False
     renderer_exit_seen = False
     launcher_settled_observed_seen = False
     hotkey_sent = False
@@ -1176,6 +1182,18 @@ def run_launch_chain_scenario(
         while time.time() < post_ready_deadline:
             runtime_log = latest_file_matching(scenario_root, "Runtime_")
             runtime_lines = read_lines(runtime_log)
+            shutdown_confirmation_requested_seen = any(
+                "RENDERER_MAIN|SHUTDOWN_CONFIRMATION_REQUESTED|source=hotkey" in line
+                for line in runtime_lines
+            )
+            shutdown_confirmation_accepted_seen = any(
+                "RENDERER_MAIN|SHUTDOWN_CONFIRMATION_ACCEPTED|source=hotkey" in line
+                for line in runtime_lines
+            )
+            shutdown_confirmation_clean_request_seen = any(
+                "RENDERER_MAIN|SHUTDOWN_CONFIRMATION_CLEAN_SHUTDOWN_REQUESTED|source=hotkey" in line
+                for line in runtime_lines
+            )
             shutdown_requested_seen = any("RENDERER_MAIN|SHUTDOWN_REQUESTED" in line for line in runtime_lines)
             renderer_exit_seen = any("RENDERER_MAIN|EVENT_LOOP_EXIT|code=0" in line for line in runtime_lines)
             launcher_settled_observed_seen = any(
@@ -1238,6 +1256,18 @@ def run_launch_chain_scenario(
         "shutdown_hotkey_sent": line_status(
             hotkey_sent,
             hotkey_detail,
+        ),
+        "shutdown_confirmation_requested_marker": line_status(
+            shutdown_confirmation_requested_seen,
+            "RENDERER_MAIN|SHUTDOWN_CONFIRMATION_REQUESTED|source=hotkey",
+        ),
+        "shutdown_confirmation_accepted_marker": line_status(
+            shutdown_confirmation_accepted_seen,
+            "RENDERER_MAIN|SHUTDOWN_CONFIRMATION_ACCEPTED|source=hotkey",
+        ),
+        "shutdown_confirmation_clean_request_marker": line_status(
+            shutdown_confirmation_clean_request_seen,
+            "RENDERER_MAIN|SHUTDOWN_CONFIRMATION_CLEAN_SHUTDOWN_REQUESTED|source=hotkey",
         ),
         "completion_path_classified": line_status(
             (shutdown_requested_seen and renderer_exit_seen) or post_settled_recoverable_seen,

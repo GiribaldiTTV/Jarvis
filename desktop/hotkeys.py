@@ -6,6 +6,7 @@ from pynput import keyboard as pynput_keyboard, mouse as pynput_mouse
 
 class ShutdownBus(QObject):
     shutdown_requested = Signal()
+    shutdown_confirmation_requested = Signal(str)
     command_overlay_toggle_requested = Signal()
     command_overlay_text_requested = Signal(str)
     command_overlay_backspace_requested = Signal()
@@ -259,8 +260,8 @@ class GlobalHotkeyManager:
 
         if ctrl_down and alt_down and shutdown_down and not self._shutdown_fired:
             self._shutdown_fired = True
-            self._log_debug("event=shutdown_hotkey")
-            self.bus.shutdown_requested.emit()
+            self._log_debug("event=shutdown_confirmation_hotkey")
+            self.bus.shutdown_confirmation_requested.emit("hotkey")
             return
 
         if ctrl_down and alt_down and overlay_down and not self._overlay_toggle_fired:

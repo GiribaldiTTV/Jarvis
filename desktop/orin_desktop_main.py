@@ -11,8 +11,8 @@ if ROOT_DIR not in sys.path:
     sys.path.insert(0, ROOT_DIR)
 
 from PySide6.QtGui import QAction
-from PySide6.QtCore import QTimer
-from PySide6.QtWidgets import QApplication, QMenu, QStyle, QSystemTrayIcon
+from PySide6.QtCore import QTimer, Qt
+from PySide6.QtWidgets import QApplication, QMenu, QMessageBox, QStyle, QSystemTrayIcon
 
 from desktop.desktop_renderer import DesktopRuntimeWindow
 from desktop.hotkeys import ShutdownBus, GlobalHotkeyManager
@@ -29,6 +29,12 @@ TRAY_DISCOVERY_MESSAGE = (
 )
 TRAY_DISCOVERY_DURATION_MS = 4500
 AUTHORITATIVE_DESKTOP_SETTLED_MARKER = "DESKTOP_OUTCOME|SETTLED|state=dormant"
+SHUTDOWN_CONFIRMATION_DECISION_ENV = "NEXUS_SHUTDOWN_CONFIRMATION_DECISION"
+SHUTDOWN_CONFIRMATION_TIMEOUT_ENV = "NEXUS_SHUTDOWN_CONFIRMATION_TIMEOUT_MS"
+SHUTDOWN_CONFIRMATION_ACCEPTED = "accepted"
+SHUTDOWN_CONFIRMATION_CANCELLED = "cancelled"
+SHUTDOWN_CONFIRMATION_TIMEOUT = "timeout"
+SHUTDOWN_CONFIRMATION_DEFAULT_TIMEOUT_MS = 15000
 
 
 def parse_runtime_log_arg(argv):
@@ -56,6 +62,95 @@ def runtime_milestone(event):
             f.write(f"[{ts}] {event}\n")
     except Exception:
         pass
+
+
+def normalize_shutdown_confirmation_decision(value):
+    normalized = (str(value or "").strip().casefold())
+    if normalized in {"accept", "accepted", "yes", "y", "true", "1"}:
+        return SHUTDOWN_CONFIRMATION_ACCEPTED
+    if normalized in {"cancel", "cancelled", "decline", "declined", "no", "n", "false", "0"}:
+        return SHUTDOWN_CONFIRMATION_CANCELLED
+    if normalized in {"timeout", "timed_out", "expired"}:
+        return SHUTDOWN_CONFIRMATION_TIMEOUT
+    return ""
+
+
+def shutdown_confirmation_timeout_ms():
+    value = (os.environ.get(SHUTDOWN_CONFIRMATION_TIMEOUT_ENV) or "").strip()
+    if not value:
+        return SHUTDOWN_CONFIRMATION_DEFAULT_TIMEOUT_MS
+    try:
+        return min(120000, max(1000, int(value)))
+    except ValueError:
+        return SHUTDOWN_CONFIRMATION_DEFAULT_TIMEOUT_MS
+
+
+def shutdown_confirmation_allows_shutdown(decision):
+    return normalize_shutdown_confirmation_decision(decision) == SHUTDOWN_CONFIRMATION_ACCEPTED
+
+
+def shutdown_confirmation_runtime_markers(decision, source="hotkey"):
+    normalized = normalize_shutdown_confirmation_decision(decision) or SHUTDOWN_CONFIRMATION_CANCELLED
+    safe_source = str(source or "hotkey").replace("|", "_")
+    if normalized == SHUTDOWN_CONFIRMATION_ACCEPTED:
+        return (
+            f"RENDERER_MAIN|SHUTDOWN_CONFIRMATION_ACCEPTED|source={safe_source}",
+            f"RENDERER_MAIN|SHUTDOWN_CONFIRMATION_CLEAN_SHUTDOWN_REQUESTED|source={safe_source}",
+        )
+    if normalized == SHUTDOWN_CONFIRMATION_TIMEOUT:
+        return (
+            f"RENDERER_MAIN|SHUTDOWN_CONFIRMATION_TIMEOUT|source={safe_source}",
+            f"RENDERER_MAIN|SHUTDOWN_CONFIRMATION_SESSION_PRESERVED|source={safe_source}|reason=timeout",
+        )
+    return (
+        f"RENDERER_MAIN|SHUTDOWN_CONFIRMATION_CANCELLED|source={safe_source}",
+        f"RENDERER_MAIN|SHUTDOWN_CONFIRMATION_SESSION_PRESERVED|source={safe_source}|reason=cancelled",
+    )
+
+
+def shutdown_confirmation_requested_marker(source="hotkey"):
+    safe_source = str(source or "hotkey").replace("|", "_")
+    return f"RENDERER_MAIN|SHUTDOWN_CONFIRMATION_REQUESTED|source={safe_source}"
+
+
+def _show_shutdown_confirmation_dialog(timeout_ms):
+    message_box = QMessageBox()
+    message_box.setWindowTitle("Confirm shutdown")
+    message_box.setText("Shut down Nexus Desktop AI?")
+    message_box.setInformativeText(
+        "Choose Yes to close the desktop runtime, or No to keep the current session running."
+    )
+    message_box.setIcon(QMessageBox.Icon.Warning)
+    message_box.setStandardButtons(QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
+    message_box.setDefaultButton(QMessageBox.StandardButton.No)
+    message_box.setEscapeButton(QMessageBox.StandardButton.No)
+    message_box.setWindowModality(Qt.WindowModality.ApplicationModal)
+    message_box.setWindowFlag(Qt.WindowType.WindowStaysOnTopHint, True)
+
+    timed_out = {"value": False}
+
+    def expire_confirmation():
+        timed_out["value"] = True
+        message_box.reject()
+
+    timer = QTimer(message_box)
+    timer.setSingleShot(True)
+    timer.timeout.connect(expire_confirmation)
+    timer.start(max(1000, int(timeout_ms)))
+
+    try:
+        message_box.show()
+        message_box.raise_()
+        message_box.activateWindow()
+        result = message_box.exec()
+    finally:
+        timer.stop()
+
+    if timed_out["value"]:
+        return SHUTDOWN_CONFIRMATION_TIMEOUT
+    if result == QMessageBox.StandardButton.Yes:
+        return SHUTDOWN_CONFIRMATION_ACCEPTED
+    return SHUTDOWN_CONFIRMATION_CANCELLED
 
 
 def write_desktop_settled_signal_file():
@@ -289,6 +384,7 @@ def main():
     relaunch_signal = NamedSignal(RUNTIME_RELAUNCH_EVENT)
     desktop_settled_signal = NamedSignal(RUNTIME_DESKTOP_SETTLED_EVENT)
     shutdown_started = False
+    shutdown_confirmation_active = False
     shutdown_force_kill_timer = None
     if exit_if_startup_abort_requested():
         return 0
@@ -306,6 +402,43 @@ def main():
         shutdown_force_kill_timer.daemon = True
         shutdown_force_kill_timer.start()
 
+    def request_shutdown_confirmation(source="hotkey"):
+        nonlocal shutdown_confirmation_active
+        safe_source = str(source or "hotkey").replace("|", "_")
+        if shutdown_started:
+            runtime_milestone(
+                f"RENDERER_MAIN|SHUTDOWN_CONFIRMATION_IGNORED|source={safe_source}|reason=shutdown_started"
+            )
+            return
+        if shutdown_confirmation_active:
+            runtime_milestone(
+                f"RENDERER_MAIN|SHUTDOWN_CONFIRMATION_IGNORED|source={safe_source}|reason=already_active"
+            )
+            return
+
+        shutdown_confirmation_active = True
+        try:
+            runtime_milestone(shutdown_confirmation_requested_marker(safe_source))
+            env_decision = normalize_shutdown_confirmation_decision(
+                os.environ.get(SHUTDOWN_CONFIRMATION_DECISION_ENV)
+            )
+            if env_decision:
+                runtime_milestone(
+                    "RENDERER_MAIN|SHUTDOWN_CONFIRMATION_DECISION_SOURCE"
+                    f"|source={safe_source}|mode=harness_env|decision={env_decision}"
+                )
+                decision = env_decision
+            else:
+                decision = _show_shutdown_confirmation_dialog(shutdown_confirmation_timeout_ms())
+
+            for marker in shutdown_confirmation_runtime_markers(decision, safe_source):
+                runtime_milestone(marker)
+
+            if shutdown_confirmation_allows_shutdown(decision):
+                do_shutdown()
+        finally:
+            shutdown_confirmation_active = False
+
     def poll_relaunch_request():
         if relaunch_signal.consume():
             runtime_milestone("RENDERER_MAIN|RELAUNCH_REQUEST_RECEIVED")
@@ -321,6 +454,7 @@ def main():
             do_shutdown()
 
     bus.shutdown_requested.connect(do_shutdown)
+    bus.shutdown_confirmation_requested.connect(request_shutdown_confirmation)
     bus.command_overlay_toggle_requested.connect(window.toggle_command_overlay)
     bus.command_overlay_text_requested.connect(window.handle_overlay_text_requested)
     bus.command_overlay_backspace_requested.connect(window.handle_overlay_backspace_requested)
@@ -341,7 +475,7 @@ def main():
 
     print("Nexus Desktop AI Desktop Runtime - Version 1.02")
     print("Command Overlay: Ctrl + Alt + Home or Ctrl + Alt + 1")
-    print("Hotkey: Ctrl + Alt + End or Ctrl + Alt + 2")
+    print("Hotkey: Ctrl + Alt + End or Ctrl + Alt + 2 (confirmation required)")
 
     def settle_passive_default_handoff():
         if exit_if_startup_abort_requested(hotkeys, tray_entry):
