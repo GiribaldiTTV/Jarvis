@@ -37,14 +37,14 @@ This branch must not create runtime work, select FAM-006 or any other runtime FA
 - Single-Slice Package User Approval: `Not required - the admitted release-packaging package has five concrete admitted slices`
 - PR #110 Closeout State: `Cleared on this branch before release-readiness work`
 - PR URL: `https://github.com/GiribaldiTTV/Nexus-Desktop-AI/pull/111`
-- Live PR State: `OPEN / non-draft / mergeable CLEAN`
+- Live PR State: `OPEN / non-draft / mergeable BLOCKED pending Codex review closeout`
 - Live PR Base: `main`
 - Live PR Head: `codex/v1.6.13-prebeta-release-packaging`
 - PR Creation Head SHA: `182727d8f7ff3162760d969c9e6928e680272398`
 - PR Watcher State: `Provisioned`
 - PR Watcher ID: `pr-111-same-thread-merge-watcher`
 - PR Watcher Route: `same Codex thread 019df2d2-6580-7b82-a49f-59f49da0911c`
-- Bot Review Signal Status: `Pending live bot signal`
+- Bot Review Signal Status: `Comment received; same-branch repair recorded, GitHub closeout pending`
 - Runtime Package Admission: `Not approved`
 - Selected Next Runtime FAM: `None - not approved`
 - Selected Next Implementation Branch: `Not created`
@@ -63,7 +63,7 @@ This branch must not create runtime work, select FAM-006 or any other runtime FA
 
 ## Blockers
 
-- `Bot Review Signal Pending`
+- `PR Validation Pending`
 - `PR Merge Verification Pending`
 
 ## Entry Basis
@@ -228,6 +228,7 @@ Repair Scope: branch authority index and historical branch-authority closeout on
 Release Window Audit: PASS
 Audit Incomplete: `No`
 Remaining Known Release Blockers: None
+PR Readiness Gate Scope Note: `PR Readiness gates remain tracked separately in ## Blockers and do not count as release-window blockers unless they require another pre-release repair PR.`
 Another Pre-Release Repair PR Required: NO
 Release Window Split Waiver: None
 Release Execution Approval State: `NOT APPROVED`
@@ -244,7 +245,7 @@ Release Artifact Creation Approval State: `NOT APPROVED`
 - PR State: `OPEN`
 - PR Draft State: `false`
 - PR Mergeability: `MERGEABLE`
-- PR Merge State: `CLEAN`
+- PR Merge State: `BLOCKED pending Codex review closeout`
 - PR Review Decision: `Pending / empty`
 - PR Status Checks: `No status checks reported`
 - PR Summary: `Release-packaging source-truth sync for v1.6.13-prebeta; no release execution, tag creation, GitHub Release creation, release artifact creation, runtime branch, runtime package, or selected-next runtime truth.`
@@ -261,6 +262,15 @@ Release Artifact Creation Approval State: `NOT APPROVED`
 - Watcher Routing Proof: `PASS - automation config records target_thread_id 019df2d2-6580-7b82-a49f-59f49da0911c for this thread`
 - Watcher Runtime Proof: `Pending first heartbeat run`
 - Watcher Teardown Rule: `Delete after watcher verifies PR #111 merged=true or USER explicitly stops the watcher`
+
+## PR Bot Review Signal
+
+- Bot Review Signal Status: `Comment received; same-branch repair recorded`
+- Bot Review Signal Head SHA: `082938a521084c670cc36432633adf3a5e4b3109`
+- Bot Review Signal Source: `Codex review thread PRRT_kwDORwnWIs5_c5UG on PR #111 reported a P2 source-truth contradiction between ## Blockers and Release Window Audit; this same-branch repair keeps release-window blockers scoped separately from PR Readiness gates.`
+- Bot Review Signal Timestamp: `2026-05-04T19:32:11Z`
+- Bot Review Signal Actor: `chatgpt-codex-connector[bot]`
+- Bot Review Signal Closeout State: `Same-branch repair recorded; GitHub review-thread closeout pending`
 
 ## Branch Readiness Stage 2 Validation Record
 
@@ -300,7 +310,7 @@ Release Artifact Creation Approval State: `NOT APPROVED`
 - Selected-Next Runtime Truth Approval State: `NOT APPROVED`
 - FAM-006 Selection State: `Recommendation-only / not selected`
 - PR Creation State: `Complete - PR #111`
-- Live PR Validation State: `PASS for open, non-draft, base/head, mergeability, and clean merge state`
-- Bot Review Signal State: `Pending live bot signal`
+- Live PR Validation State: `PASS for open, non-draft, base/head, and mergeability; merge state is blocked pending Codex review closeout`
+- Bot Review Signal State: `Comment received; P2 source-truth blocker summary repair recorded, GitHub closeout pending`
 - PR Watcher State: `Provisioned and routed; runtime proof pending first heartbeat run`
 - Next PR Readiness Seam: `PR Readiness Stage 2 - v1.6.13-prebeta Release Packaging Live PR Validation And Merge Watch`
