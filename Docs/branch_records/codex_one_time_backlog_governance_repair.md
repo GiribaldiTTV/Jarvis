@@ -113,6 +113,15 @@ Remaining Known Release Blockers: None
 Another Pre-Release Repair PR Required: NO
 Release Window Split Waiver: None
 
+## PR Bot Review Signal
+
+Bot Review Signal Status: Comment addressed
+Bot Review Signal Head SHA: 8443afc81ba5d275c95c14526557dc03af50a12f
+Bot Review Signal Source: PR #110 Codex review threads `PRRT_kwDORwnWIs5_Z8yC` and `PRRT_kwDORwnWIs5_Z8yM` fixed on the same branch and resolved in GitHub
+Bot Review Signal Timestamp: 2026-05-04T16:29:31.9888140Z
+Bot Review Signal Actor: chatgpt-codex-connector[bot]
+Bot Review Signal Notes: `P1` taxonomy lookup crash risk is guarded before `FRESH_FAMILY_TAXONOMY` access; `P2` successor-selection approval classification now differentiates `Backlog Addition User Approval Missing` from `Next Runtime Candidate Selection Pending`.
+
 ## Hardening H1 Record
 
 - Phase Admission: `PASS`
