@@ -67,18 +67,18 @@ Current merged truth indicates:
 - latest public prerelease title: `Pre-Beta v1.6.12`
 - merged unreleased non-doc implementation debt exists: yes; FB-049 runtime proof is merged through PR #107 and FB-030 voice/audio runtime diagnostics proof is merged through PR #108; both await `v1.6.13-prebeta` release packaging
 - the latest public released implementation milestones are FB-048 Active-session relaunch signal-failure and wait-timeout truth in `v1.6.12-prebeta`; FB-047 Active-session relaunch decline session-preservation proof in `v1.6.11-prebeta`; FB-046 Active-session relaunch reacquisition and settled re-entry proof remains released in `v1.6.10-prebeta`; FB-044 Boot-to-desktop handoff outcome refinement and FB-045 Active-session relaunch outcome refinement remain released in `v1.6.9-prebeta`; FB-043 Top-level desktop entrypoint ownership and `main.py` handoff refinement remains released in `v1.6.8-prebeta`; FB-042 Desktop startup runtime family anchor remains released in `v1.6.7-prebeta`; FB-005 Workspace and folder organization remains released in `v1.6.6-prebeta`; FB-030 ORIN voice/audio direction refinement remains released in `v1.6.5-prebeta`; FB-015 Boot and desktop phase-boundary model plus FB-029 ORIN legal-safe rebrand, future ARIA persona option, and repo licensing hardening remain released in `v1.6.4-prebeta`
-- current phase after `v1.6.12-prebeta` release closure: `PR Readiness`
-- phase status after `v1.6.12-prebeta` release closure: FB-048 is Released / Closed in `v1.6.12-prebeta`; release debt is clear after publication, validation, and post-release canon closure; the merged backlog-family governance reform package, merged automation-catalog package, FB-049 runtime proof, and merged FB-030 runtime diagnostics proof remain unreleased historical proof for `v1.6.13-prebeta`; merged-main current-state remains `No Active Branch`; PR #108 merge truth and forced watcher-verification proof are preserved; FB-030 is merged-unreleased release debt; and FB-027 is selected, `Promoted`, and active in PR Readiness PR2 on PR #109 after completing LV1 shutdown-hotkey confirmation live validation and PR1 bot-review closeout on `feature/fb-027-shutdown-confirmation-runtime-branch-readiness`.
-- current active workstream: `FB-027 interaction and shared-action runtime follow-through`; merged-main current active workstream: none; merged-main repo truth is `No Active Branch`
-- current branch after `v1.6.12-prebeta` release closure: `feature/fb-027-shutdown-confirmation-runtime-branch-readiness`
-- next concern: enter PR Readiness for the bounded shutdown-hotkey confirmation runtime proof without reopening standalone docs/governance repair branches.
+- current phase after `v1.6.12-prebeta` release closure: no active implementation phase; release-debt validation may proceed only when release packaging is explicitly admitted
+- phase status after `v1.6.12-prebeta` release closure: FB-048 is Released / Closed in `v1.6.12-prebeta`; release debt is clear after publication, validation, and post-release canon closure; the merged backlog-family governance reform package, merged automation-catalog package, FB-049 runtime proof, and merged FB-030 runtime diagnostics proof remain unreleased historical proof for `v1.6.13-prebeta`; merged-main current-state remains `No Active Branch`; PR #108 merge truth and forced watcher-verification proof are preserved; FB-030 is merged-unreleased release debt; and PR #109 is merged historical FB-027 family evidence for shutdown-hotkey confirmation, not an active backlog lane or standalone release-version driver.
+- current active workstream: none; merged-main current active workstream: none; merged-main repo truth is `No Active Branch`
+- current branch after `v1.6.12-prebeta` release closure: none
+- next concern: do not admit a backlog identity, successor branch, or release-version driver without explicit USER approval; if Codex reaches that need, `Backlog Addition User Approval Missing` requires the still-not-closed backlog list.
 
-That means the released FB-027 interaction and shared-action family anchor remains part of the current public shared pre-Beta baseline while its new shutdown-confirmation runtime follow-through is active and unreleased; the released FB-036 authoring-and-callable-group milestone, the released FB-041 deterministic callable-group execution milestone, the released FB-037 built-in catalog milestone, the released FB-038 tray quick-task UX milestone, the released FB-039 external trigger intake architecture milestone, the released FB-040 monitoring/thermal architecture milestone, the released FB-031 UI/UX architecture milestone, the released FB-032 source-of-truth migration milestone, the released FB-004 future boot-orchestrator architecture milestone, the released FB-015 plus FB-029 planning milestones, the released FB-030 voice/audio planning milestone, and the released FB-005 bounded workspace-path slice are also part of the current public shared pre-Beta baseline.
+That means the released FB-027 interaction and shared-action family anchor remains part of the current public shared pre-Beta baseline, and PR #109 is preserved under that family as aggregation evidence; the released FB-036 authoring-and-callable-group milestone, the released FB-041 deterministic callable-group execution milestone, the released FB-037 built-in catalog milestone, the released FB-038 tray quick-task UX milestone, the released FB-039 external trigger intake architecture milestone, the released FB-040 monitoring/thermal architecture milestone, the released FB-031 UI/UX architecture milestone, the released FB-032 source-of-truth migration milestone, the released FB-004 future boot-orchestrator architecture milestone, the released FB-015 plus FB-029 planning milestones, the released FB-030 voice/audio planning milestone, and the released FB-005 bounded workspace-path slice are also part of the current public shared pre-Beta baseline.
 
 ## Current Branch Execution Posture
 
 Merged-Unreleased Release-Debt Owner: FB-049 Active-session pre-settled incoming-launch conflict truth plus FB-030 voice/audio runtime diagnostics proof plus merged governance/automation proof package for v1.6.13-prebeta
-Repo State: Active Branch.
+Repo State: No Active Branch.
 Merged-Main Repo State: No Active Branch.
 
 Latest Public Prerelease: v1.6.12-prebeta
@@ -87,28 +87,30 @@ Latest Public Prerelease Publication: https://github.com/GiribaldiTTV/Nexus-Desk
 Latest Public Prerelease Title: Pre-Beta v1.6.12
 Release Debt: Clear after `v1.6.12-prebeta` publication, validation, and post-release canon closure.
 Merged-main current active workstream: None
-Current active workstream: FB-027 interaction and shared-action runtime follow-through
+Current active workstream: none
 Current Active Workstream Before Reform: None
-Current Execution Branch: `feature/fb-027-shutdown-confirmation-runtime-branch-readiness`
+Current Execution Branch: none
 Active Branch Before Release: `feature/automation-planning`
 Current Active Branch Authority Record: `None`
-Current Active Canonical Workstream Doc: `Docs/workstreams/FB-027_interaction_system_baseline.md`
+Current Active Canonical Workstream Doc: none
 Historical Active Workstream Before Release: Automation Implementation
 Historical Active Branch Before Release: `feature/automation-planning`
 Earlier Historical Active Workstream Before Release: FB-048 Active-session relaunch signal-failure and wait-timeout truth
 Earlier Historical Active Branch Before Release: `feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeout-truth`
-Selected Next Workstream: FB-027 legacy numeric shutdown hotkey cleanup runtime follow-through.
-Selected Next Record State: Promoted.
+Selected Next Workstream: None - blocked by `Backlog Addition User Approval Missing` until explicit USER approval.
+Selected Next Record State: None.
 Selected Next Implementation Branch: Not created.
+Backlog Addition User Approval Missing: Active for any attempted new backlog item, backlog split, promotion, or successor selection without explicit USER approval.
 Repair-Only Branch Handling: `feature/fb-046-post-merge-canon-sync` is a bounded repair-only post-merge canon-sync `feature/` branch and did not imply Branch Readiness admission or active branch truth for FB-046.
 Historical Branch Readiness State: Complete on `feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeout-truth`.
-Current Branch Readiness State: Complete / green on `feature/fb-027-shutdown-confirmation-runtime-branch-readiness`; BR1 carried and repaired FB-030 post-merge canon drift, revalidated selected-next truth, and admitted the first bounded FB-027 runtime slice before implementation started.
-Current Workstream State: `Complete / green for FB-027 WS1 shutdown hotkey confirmation runtime proof`. Shutdown hotkeys now request confirmation before shutdown, accepted confirmation proceeds through the existing clean shutdown path, and cancelled or timed-out confirmation preserves the active session with truthful markers. Historical FB-030 state is merged-unreleased release debt: WS1, H1, LV1, PR1, and PR2 are complete and green, PR #108 is merged, watcher verification proof exists through a forced run, and PR108 watcher automations are retired. FB-049 remains historical complete after PR #107 merge, with GitHub merge truth valid and `PR Watcher Merge Handoff Missing` preserved as a carried governance finding. Historical runtime-proof governance remains preserved: the PR watcher remains the only minute-scale heartbeat automation, `ACTIVE` alone is not treated as run proof, and any fallback helper must stay narrowed to the live PR and bounded to `PR Readiness`.
-Current Hardening State: `Complete / green for FB-027 H1 shutdown hotkey confirmation runtime validation`. Accepted, cancelled, timeout, clean-shutdown, and session-preservation behavior remain validated through interaction baseline, desktop entrypoint, boot transition, branch governance, and automation observability review.
-Current Live Validation State: `Complete / green for FB-027 LV1 shutdown hotkey confirmation live validation`. Closest live-equivalent desktop entrypoint validation sent the shutdown hotkey through the active desktop runtime path, observed confirmation and clean-shutdown markers, and recorded User Test Summary results as `PASS`.
-Current PR Surface Owner: `Docs/workstreams/FB-027_interaction_system_baseline.md` owns live PR #109, watcher, bot-review, and PR2 merge-watch details; roadmap current-state remains merge-stable while FB-027 stays in PR Readiness until watcher-verified merge.
-Current Branch Class: `implementation`
-Current Implementation Delta Class: `runtime/user-facing`
+Current Branch Readiness State: none active.
+Current Workstream State: no active workstream; FB-027 PR #109 shutdown-hotkey confirmation proof is merged historical family evidence and aggregation material only.
+Current Hardening State: none active.
+Current Live Validation State: none active.
+Current PR Surface Owner: none; PR #109 merge/bot-review/watcher proof remains historical in `Docs/workstreams/FB-027_interaction_system_baseline.md`.
+Current Branch Class: none
+Current Implementation Delta Class: none
+Historical runtime-proof governance remains preserved: the PR watcher remains the only minute-scale heartbeat automation, `ACTIVE` alone is not treated as run proof, and any fallback helper must stay narrowed to the live PR and bounded to `PR Readiness`.
 Historical Workstream State: automation catalog implementation is merged historical branch proof after PR #99; FB-048 is Released / Closed in `v1.6.12-prebeta`; FB-047 is Released / Closed in `v1.6.11-prebeta`; FB-046 is Released / Closed in `v1.6.10-prebeta`; FB-044 and FB-045 remain Released / Closed historical proof in `v1.6.9-prebeta`.
 Historical Hardening State: Complete on `feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeout-truth`.
 Historical Live Validation State: Complete on `feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeout-truth`.
@@ -119,17 +121,16 @@ Release Floor: patch prerelease
 Version Rationale: the approved governance reform is a release-bearing docs-only implementation branch that changes source-of-truth structure and validator governance without widening runtime or user-facing behavior, so the next release remains a patch prerelease.
 Release Scope: preserve the merged backlog-family governance reform, merged automation-catalog branch truth, FB-049 runtime proof, and FB-030 voice/audio runtime diagnostics proof as unreleased historical proof for `v1.6.13-prebeta`, keep no-active-branch merged-main canon stable, and require later release packaging or successor admission to start from updated merged-main truth.
 Release Artifacts: Tag v1.6.13-prebeta; release title Pre-Beta v1.6.13; rich Markdown release notes summarize the merged governance reform, the merged automation catalog, and the validator/runtime-proof hardening without repeating the release title inside the notes body, and GitHub-generated `## What's Changed` plus `**Full Changelog**:` must be included.
-Post-Release Truth: the governance reform, automation-catalog branch, FB-049 runtime branch, and FB-030 runtime diagnostics branch remain historical traceability after publication and validation; latest public prerelease advances to `v1.6.13-prebeta`; release debt clears; and FB-027 remains the active runtime follow-through lane until its admitted shutdown-confirmation slice completes or stops.
-Next-Branch Creation Gate: Cleared by FB-027 BR1 on `feature/fb-027-shutdown-confirmation-runtime-branch-readiness` after the stale FB-030 active/PR2 current-state drift was carried into Branch Readiness.
-Next Legal Phase: PR Readiness.
+Post-Release Truth: the governance reform, automation-catalog branch, FB-049 runtime branch, and FB-030 runtime diagnostics branch remain historical traceability after publication and validation; latest public prerelease advances to `v1.6.13-prebeta`; release debt clears; and later runtime work requires explicit USER-approved backlog identity or successor selection from updated main.
+Next-Branch Creation Gate: Blocked by `Backlog Addition User Approval Missing` until explicit USER approval selects a backlog identity or release/support lane.
+Next Legal Phase: No active implementation phase; release-debt validation may proceed only when release packaging is explicitly admitted.
 
 ## Merged-Unreleased Release-Debt Owner
 
-`FB-049 Active-session pre-settled incoming-launch conflict truth`, `FB-030 voice/audio runtime diagnostics proof`, and the merged governance/automation proof package remain pending for `v1.6.13-prebeta`; FB-027 is active branch work and is not merged release debt yet.
+`FB-049 Active-session pre-settled incoming-launch conflict truth`, `FB-030 voice/audio runtime diagnostics proof`, and the merged governance/automation proof package remain pending for `v1.6.13-prebeta`; FB-027 PR #109 is merged family aggregation evidence and is not merged release debt or a standalone release-version driver.
 
 ## Promoted Canonical Workstreams
 
-- `Docs/workstreams/FB-027_interaction_system_baseline.md`
 - `Docs/workstreams/FB-048_active_session_relaunch_signal_failure_and_wait_timeout_truth.md`
 - `Docs/workstreams/FB-047_active_session_relaunch_decline_preservation.md`
 - `Docs/workstreams/FB-046_active_session_relaunch_reacquisition.md`
@@ -138,30 +139,32 @@ Next Legal Phase: PR Readiness.
 
 ## Selected Next Workstream
 
-- ID: `FB-027`
-- Selected Next Workstream: `FB-027 legacy numeric shutdown hotkey cleanup runtime follow-through`
-- Record State: `Promoted`
-- Minimal Scope: Remove legacy numeric shutdown hotkeys `Ctrl+Alt+1` and `Ctrl+Alt+2` through a bounded runtime/user-facing slice while preserving the primary overlay and shutdown shortcuts, confirmation behavior, saved actions, callable groups, tray behavior, relaunch ownership, and release packaging.
+- ID: `None`
+- Selected Next Workstream: `None - USER approval required`
+- Record State: `None`
+- Minimal Scope: `None`
 - Branch: Not created
-- Branch Status: No branch created for the successor slice.
-- Selection Basis: FB-027's canonical deferred-forward truth already names removing the legacy numeric hotkeys before Beta, and selecting the next same-family runtime slice before leaving PR Readiness keeps successor planning explicit without creating a branch early.
+- Branch Status: No branch may be created until explicit USER approval selects a backlog identity or release/support lane.
+- Selection Basis: `Backlog Addition User Approval Missing`; Codex must output the still-not-closed backlog list instead of inventing successor truth.
 
 ## Active Promoted Workstream
 
-- `Docs/workstreams/FB-027_interaction_system_baseline.md`
+None.
 
 ### FB-027 Interaction and shared-action family anchor
 
-- status: `Active`
-- record state: `Promoted`
+- status: `Released (v1.2.9-prebeta) / family aggregation hold`
+- record state: `Closed`
 - priority: `High`
 - canonical workstream doc: `Docs/workstreams/FB-027_interaction_system_baseline.md`
 - lifetime dossier doc: `Docs/workstreams/FB-027_interaction_shared_action_family_dossier.md`
-- branch: `feature/fb-027-shutdown-confirmation-runtime-branch-readiness`
-- phase status: PR Readiness PR1 is complete / green and PR2 merge-watch is active; live PR details are owned by the canonical FB-027 workstream record.
-- next legal seam: `PR Readiness PR2 - FB-027 Runtime Branch Merge Verification Watch`
+- branch: none
+- phase status: Released family anchor with merged PR #109 shutdown-hotkey confirmation preserved as family aggregation evidence; no active workstream or selected-next lane exists.
+- next legal seam: none; future same-family continuation requires explicit USER approval.
 - historical baseline: released `v1.2.9-prebeta` typed-first interaction baseline plus saved-action inventory and guided-access follow-through remain preserved as the first FB-027 proof.
-- Minimal Scope: Add confirm-before-exit behavior for `Ctrl+Alt+End` and `Ctrl+Alt+2` shutdown hotkeys across `desktop/orin_desktop_main.py`, `desktop/hotkeys.py`, `desktop/desktop_renderer.py`, and the minimum required validator surfaces, while leaving overlay command resolution, saved actions, callable groups, built-in catalog entries, tray behavior, relaunch ownership, hotkey remapping, and release packaging out of scope.
+- Standalone Release Driver: No
+- Aggregation Target: Future USER-approved FB-027 family release or larger approved release aggregation.
+- Minimal Scope: Historical PR #109 aggregation evidence added confirm-before-exit behavior for `Ctrl+Alt+End` and `Ctrl+Alt+2`; no next same-family runtime slice is selected.
 
 ### FB-048 Active-session relaunch signal-failure and wait-timeout truth
 
@@ -338,8 +341,8 @@ Version Rationale: FB-030 adds bounded runtime diagnostics truth for voice/audio
 Release Scope: merged governance reform, automation catalog proof, FB-049 runtime proof, and FB-030 voice/audio runtime diagnostics proof.
 Release Artifacts: Tag v1.6.13-prebeta; release title Pre-Beta v1.6.13; rich Markdown release notes summarize the merged governance reform, automation catalog, FB-049 runtime proof, and FB-030 voice/audio diagnostics proof, with GitHub-generated `What's Changed` and `Full Changelog` sections.
 Post-Release Truth: after v1.6.13-prebeta publication and validation, merged governance reform, automation catalog, FB-049 runtime proof, and FB-030 runtime diagnostics proof become released historical traceability; release debt clears; and later runtime work must start from updated main.
-Selected Next Workstream: FB-027 interaction and shared-action runtime follow-through
-Next-Branch Creation Gate: Cleared by FB-027 BR1 on `feature/fb-027-shutdown-confirmation-runtime-branch-readiness` after the stale FB-030 active/PR2 current-state drift was carried into Branch Readiness.
+Selected Next Workstream: None - blocked by `Backlog Addition User Approval Missing` until explicit USER approval.
+Next-Branch Creation Gate: Blocked by `Backlog Addition User Approval Missing` until explicit USER approval selects a backlog identity or release/support lane.
 Historical Planning Release: `v1.6.5-prebeta` remains the released planning/admission proof for the original voice/audio direction milestone.
 - Minimal Scope: Completed WS1 voice/audio runtime availability and truthful diagnostics proof across `Audio/orin_voice.py`, `Audio/orin_error_voice.py`, `main.py`, `desktop/orin_desktop_launcher.pyw`, and `dev/orin_voice_regression_harness.py`, while preserving ORIN as the only shipped persona, keeping ARIA dormant, avoiding prompt or asset redesign, and avoiding public-copy or release-note changes before release phases.
 
@@ -351,13 +354,13 @@ The 2026-04-23 priority reading is updated during FB-005 Branch Readiness:
 - FB-015 is released and closed in `v1.6.4-prebeta`; it no longer owns release debt or active branch truth.
 - FB-029 is released and closed in `v1.6.4-prebeta`; it no longer owns release debt or active branch truth.
 - FB-030 remains `Medium` as historical planning priority, and its runtime diagnostics follow-through is now merged-unreleased release debt for `v1.6.13-prebeta` after PR #108.
-- FB-027 is `High`, promoted, and active as the current runtime-focused PR Readiness lane for shutdown-hotkey confirmation.
+- FB-027 is `High` as a released / closed family anchor; PR #109 shutdown-hotkey confirmation is merged family evidence and aggregation material, not an active selected-next lane or standalone release-version driver.
 - FB-005 remains `Low` as historical workspace priority, but it is now Released / Closed in `v1.6.6-prebeta` and no longer owns release debt or selected-next truth.
 - FB-042 is now Released / Closed in `v1.6.7-prebeta`; the released launch-path slice is preserved as the first historical proof under the runtime family anchor.
 - FB-043 is now Released / Closed in `v1.6.8-prebeta`.
 - FB-044 and FB-045 are now Released / Closed in `v1.6.9-prebeta`.
 
-Current-branch clarity: latest public prerelease is `v1.6.12-prebeta`; FB-044 and FB-045 are released and closed in `v1.6.9-prebeta`; FB-046 is released and closed in `v1.6.10-prebeta`; FB-047 is released and closed in `v1.6.11-prebeta`; FB-048 is released and closed in `v1.6.12-prebeta`; merged-main repo state remains `No Active Branch`; FB-049 and FB-030 are merged-unreleased historical proof for pending `v1.6.13-prebeta`; and FB-027 is selected, `Promoted`, and active in PR Readiness after completing LV1 on `feature/fb-027-shutdown-confirmation-runtime-branch-readiness`.
+Current-branch clarity: latest public prerelease is `v1.6.12-prebeta`; FB-044 and FB-045 are released and closed in `v1.6.9-prebeta`; FB-046 is released and closed in `v1.6.10-prebeta`; FB-047 is released and closed in `v1.6.11-prebeta`; FB-048 is released and closed in `v1.6.12-prebeta`; merged-main repo state remains `No Active Branch`; FB-049 and FB-030 are merged-unreleased historical proof for pending `v1.6.13-prebeta`; FB-027 is released / closed with PR #109 preserved as aggregation evidence; and selected-next truth is blocked by `Backlog Addition User Approval Missing` until explicit USER approval.
 
 ## Current Merged-Unreleased Workstream
 

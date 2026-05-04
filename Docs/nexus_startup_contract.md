@@ -434,15 +434,15 @@ Branch Class: implementation
 Read first:
 - Docs/nexus_startup_contract.md
 
-Use the loader map to load owning canon. Validate branch truth, authority-record phase truth, clean durable branch state, merge-target canon, next-workstream selection, release-window audit truth, helper retention, PR creation requirements, and PR validation requirements from owning canon.
+Use the loader map to load owning canon. Validate branch truth, authority-record phase truth, clean durable branch state, merge-target canon, USER approval for next-workstream selection, `Backlog Addition User Approval Missing` / `Backlog Exhaustion User Decision Pending` state, release-window audit truth, helper retention, PR creation requirements, and PR validation requirements from owning canon.
 
 Task:
 <PR Readiness task>
 
-Use owning canon to keep this pass inside PR-readiness packaging, merge-target validation, next-workstream selection, release-window audit truth, and PR creation or PR validation evidence.
+Use owning canon to keep this pass inside PR-readiness packaging, merge-target validation, USER-approved next-workstream selection, release-window audit truth, and PR creation or PR validation evidence.
 Report PR Readiness green only when canon and live PR truth both satisfy the gate.
 
-Stop if PR state, branch truth, post-merge canon, next-workstream truth, or required validation is unknown.
+Stop if PR state, branch truth, post-merge canon, USER approval for next-workstream truth, or required validation is unknown.
 
 Return:
 - Source-of-Truth

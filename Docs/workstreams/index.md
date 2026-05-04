@@ -87,7 +87,7 @@ For an active or recently closed canonical workstream, keep these durable tracea
 Active here means the current promoted truth owner.
 That may be an executable branch owner or another explicitly promoted current-truth owner.
 
-- `Docs/workstreams/FB-027_interaction_system_baseline.md`
+None.
 
 ### Merged / Release Debt Owners
 
@@ -101,6 +101,7 @@ These records are not active implementation branch owners after merge.
 ### Family Anchor Records
 
 - `Docs/workstreams/FB-042_desktop_entrypoint_runtime_refinement.md`
+- `Docs/workstreams/FB-027_interaction_system_baseline.md`
 
 ### Historical Pass Alias Records
 

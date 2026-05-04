@@ -669,6 +669,8 @@ PR_READINESS_BLOCKER_PHRASES = (
     "docs-sync",
     "next-workstream",
     "Next Runtime Candidate Selection Pending",
+    "Backlog Addition User Approval Missing",
+    "Backlog Exhaustion User Decision Pending",
     "desktop-shortcut",
     "User Test Summary Results Pending",
     "PR Merge Status Unproven",
@@ -1173,6 +1175,8 @@ BRANCH_RECORD_INDEX = Path("Docs/branch_records/index.md")
 
 NEXT_WORKSTREAM_SELECTION_MARKER = "Next Workstream: Selected"
 NEXT_WORKSTREAM_MINIMAL_SCOPE_LABEL = "Minimal Scope:"
+BACKLOG_ADDITION_USER_APPROVAL_BLOCKER = "Backlog Addition User Approval Missing"
+BACKLOG_EXHAUSTION_USER_DECISION_BLOCKER = "Backlog Exhaustion User Decision Pending"
 NEXT_WORKSTREAM_BRANCH_NOT_CREATED_PHRASES = (
     "Branch: Not created",
     "Branch: Deferred to Branch Readiness",
@@ -7040,6 +7044,42 @@ def _open_successor_candidate_entries(backlog_entries: list[dict[str, str]]) -> 
     return candidates
 
 
+def _is_not_closed_backlog_entry(entry: dict[str, str]) -> bool:
+    status = entry["status"].strip().casefold()
+    normalized_status = _normalize_status(entry["status"])
+    return (
+        entry["record_state"] != "Closed"
+        and normalized_status not in {"released", "closed"}
+        and not status.startswith("implemented")
+    )
+
+
+def _format_not_closed_backlog_entries(backlog_entries: list[dict[str, str]]) -> str:
+    rows: list[str] = []
+    for entry in backlog_entries:
+        if not _is_not_closed_backlog_entry(entry):
+            continue
+        block = entry["block"]
+        fields = [
+            f"{entry['id']} {entry['title']}",
+            f"Status={entry['status'] or 'unknown'}",
+            f"Record State={entry['record_state'] or 'unknown'}",
+            f"Priority={_extract_colon_value(block, 'Priority') or 'unknown'}",
+        ]
+        for label in (
+            "Selection / Unblock",
+            "Deferred Since",
+            "Deferred Because",
+            "Branch",
+            "Minimal Scope",
+        ):
+            value = _extract_colon_value(block, label)
+            if value:
+                fields.append(f"{label}={value}")
+        rows.append("; ".join(fields))
+    return " | ".join(rows)
+
+
 def _next_workstream_roadmap_section(roadmap_text: str) -> str:
     return _section(roadmap_text, "Selected Next Workstream")
 
@@ -7234,15 +7274,24 @@ def _run_next_workstream_gate(
 ) -> None:
     selected_entries = _selected_next_workstream_entries(backlog_entries)
     if not selected_entries:
-        successor_candidates = _open_successor_candidate_entries(backlog_entries)
+        not_closed_entries = _format_not_closed_backlog_entries(backlog_entries)
+        if not_closed_entries:
+            require(
+                False,
+                (
+                    f"PR readiness gate: {BACKLOG_ADDITION_USER_APPROVAL_BLOCKER} blocker is active; "
+                    "Codex must not create, split, promote, or select a backlog identity without explicit "
+                    "USER approval. Still-not-closed backlog item(s): "
+                    f"{not_closed_entries}"
+                ),
+            )
+            return
         require(
             False,
             (
-                "PR readiness gate: Next Runtime Candidate Selection Pending blocker is active; "
-                "PR Readiness cannot advance to Release Readiness until exactly one real runtime "
-                "candidate is selected, canon-defined, minimally scoped, and explicitly not branched yet. "
-                "Open candidate(s): "
-                + (", ".join(entry["id"] for entry in successor_candidates) or "none found; stop in PR Readiness")
+                f"PR readiness gate: {BACKLOG_EXHAUSTION_USER_DECISION_BLOCKER} blocker is active; "
+                "no still-not-closed backlog items remain, and USER direction is required before Codex "
+                "may create any new backlog identity."
             ),
         )
         return

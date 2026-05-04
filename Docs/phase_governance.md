@@ -318,6 +318,8 @@ The default named blockers are:
 - `Phase Waiver Missing`
 - `Planning-Loop Guardrail`
 - `Backlog Completion Unproven`
+- `Backlog Addition User Approval Missing`
+- `Backlog Exhaustion User Decision Pending`
 
 Blockers stop progression immediately and must be reported before any later-phase recommendation.
 
@@ -535,13 +537,46 @@ Post-release closure is mandatory after release execution:
 
 Rule:
 
-- a branch is not `PR Readiness`-complete unless the next real runtime workstream is selected, canon-defined, assigned a valid record state, minimally scoped as a runtime slice, and explicitly not branched yet
+- PR Readiness successor selection is allowed only when the USER has already approved selecting or continuing a backlog identity for the next branch, or when existing canon already contains that explicit USER-approved selection.
+- A branch is not `PR Readiness`-complete when a USER-approved successor exists unless that next real runtime workstream is selected, canon-defined, assigned a valid record state, minimally scoped as a runtime slice, and explicitly not branched yet.
 
 Exception:
 
-- If post-merge truth will resolve to `No Active Branch` because `Release Debt` or another repo-level admission blocker remains open, successor branch creation remains deferred; next-workstream selection is still required. If no real runtime successor can be selected, `Next Runtime Candidate Selection Pending` remains a PR Readiness blocker and the branch must stop in PR Readiness rather than advance to Release Readiness.
+- If USER approval for a new or successor backlog identity is absent, `Backlog Addition User Approval Missing` supersedes `Next Runtime Candidate Selection Pending`; Codex must not select, split, promote, or create a successor backlog identity by inertia.
+- If post-merge truth will resolve to `No Active Branch` because `Release Debt` or another repo-level admission blocker remains open, successor branch creation remains deferred. If USER approval for successor selection is absent, the branch stops on `Backlog Addition User Approval Missing` and records no selected-next truth.
+- If USER approval exists but no real runtime successor can be selected, `Next Runtime Candidate Selection Pending` remains a PR Readiness blocker and the branch must stop in PR Readiness rather than advance to Release Readiness.
 
-This gate requires all of the following before PR creation is allowed:
+### Backlog Identity Admission Gate
+
+Backlog IDs are major user-facing feature-family or major release/support lanes.
+
+They are not default identities for:
+
+- small single-seam runtime proofs
+- governance repairs
+- validation follow-through
+- hotfixes
+- blocker-clearing repair traces
+- branch-readiness or PR-readiness closeout details
+
+Codex must not create a new backlog item, split an existing backlog identity, promote a new selected-next backlog identity, or encode successor selection without explicit USER approval in the prompt or source-of-truth.
+
+When Codex believes a new backlog item or successor identity is needed but USER approval is absent, Codex must stop on `Backlog Addition User Approval Missing`.
+The blocker output must include all backlog entries that are still not closed, with:
+
+- ID
+- title
+- Status
+- Record State
+- Priority
+- Selection / Unblock, deferred-context, branch, and minimal-scope fields when present
+
+If no backlog entries remain open, Codex must stop on `Backlog Exhaustion User Decision Pending` and wait for USER direction.
+
+Small or single-seam runtime follow-through inside an existing family must be recorded in the canonical workstream, lifetime family dossier, branch authority record, or historical PR trace as family evidence or aggregation material.
+It must not mint a standalone backlog identity, successor lane, branch family, or release-version driver unless the USER explicitly approves a larger feature-family release, release aggregation, or backlog split.
+
+When USER-approved successor selection exists, this gate requires all of the following before PR creation is allowed:
 
 - the next workstream identity is selected from current canon using open backlog `Priority` plus deferred-context readiness, not `Target Version`
 - that workstream exists in `Docs/feature_backlog.md`
@@ -563,17 +598,18 @@ Machine-checkable canon markers:
 - the roadmap must include `## Selected Next Workstream`
 - the roadmap selected-next section must include the same workstream id, its `Record State`, `Minimal Scope:`, and truthful branch status such as `Branch: Not created` before branch creation or the active Branch Readiness branch name after creation
 
-When the exception applies, the branch must instead:
+When post-merge `No Active Branch` handling applies, the branch must instead:
 
 - make the post-merge `No Active Branch` state explicit in current-state canon
 - name the blocking admission item explicitly
-- keep the selected next workstream as canon planning only
+- keep selected-next truth absent unless explicit USER approval exists
 - avoid creating or executing the next implementation branch by inertia
 
 Temporary `emergency canon repair` branches that are explicitly recorded as repair-only must not be treated as the selected-next implementation branch for this gate. Validator and canon checks should distinguish those repair branches from real successor implementation-branch creation.
 
 If the next workstream is not selected, is not recorded in backlog and roadmap, lacks valid record state, or lacks minimal scope, the branch is blocked by `Next Workstream Undefined`.
-If no real runtime candidate is selected before attempting to leave PR Readiness, the branch is blocked by `Next Runtime Candidate Selection Pending`.
+If no real runtime candidate is selected before attempting to leave PR Readiness after USER-approved successor selection exists, the branch is blocked by `Next Runtime Candidate Selection Pending`.
+If USER approval for new or successor backlog selection is absent, the branch is blocked first by `Backlog Addition User Approval Missing`.
 If a selected deferred workstream lacks deferred-context fields, the branch is blocked by `Deferred Selection Context Missing`.
 If a successor branch is created before `Branch Readiness`, the branch is blocked by `Successor Lock Missing`.
 
@@ -583,7 +619,7 @@ PR Readiness must not report green while any pre-merge process blocker remains u
 
 Hard blockers:
 
-- canonical shorthand: `stale-canon`, `post-merge`, `dirty`, `docs-sync`, `next-workstream`, `Next Runtime Candidate Selection Pending`, `deferred-context`, `desktop-shortcut`, `uts-results`
+- canonical shorthand: `stale-canon`, `post-merge`, `dirty`, `docs-sync`, `next-workstream`, `Next Runtime Candidate Selection Pending`, `Backlog Addition User Approval Missing`, `Backlog Exhaustion User Decision Pending`, `deferred-context`, `desktop-shortcut`, `uts-results`
 - `Stale Canon`:
   current-state canon and merge-target canon must already reflect the branch's true state and the state that will be true after merge
 - `Post-Merge State Unresolved`:
@@ -591,7 +627,11 @@ Hard blockers:
 - `Next Workstream Undefined`:
   PR Readiness cannot be green until the next workstream exists in canon, is recorded in backlog and roadmap, has a valid record state, has minimal scope defined, and has no branch created yet
 - `Next Runtime Candidate Selection Pending`:
-  PR Readiness cannot advance to Release Readiness until exactly one real runtime candidate is selected from repo truth, recorded as `Next Workstream: Selected`, scoped with a runtime `Minimal Scope:`, mirrored in roadmap `## Selected Next Workstream`, and left unbranched until the next Branch Readiness pass
+  PR Readiness cannot advance to Release Readiness after USER-approved successor selection exists until exactly one real runtime candidate is selected from repo truth, recorded as `Next Workstream: Selected`, scoped with a runtime `Minimal Scope:`, mirrored in roadmap `## Selected Next Workstream`, and left unbranched until the next Branch Readiness pass
+- `Backlog Addition User Approval Missing`:
+  PR Readiness and Branch Readiness cannot add, split, promote, or select a backlog identity without explicit USER approval. When this blocker is active, Codex must output the still-not-closed backlog list instead of creating selected-next truth.
+- `Backlog Exhaustion User Decision Pending`:
+  If the still-not-closed backlog list is empty and new work would require a new backlog identity, Codex must stop for USER direction instead of inventing the next lane.
 - `Deferred Selection Context Missing`:
   PR Readiness cannot be green when the selected next workstream is deferred but lacks `Deferred Since:`, `Deferred Because:`, or `Selection / Unblock:` in the backlog entry
 - `Dirty Branch`:
@@ -817,6 +857,10 @@ A branch is release-bearing when:
 
 - its branch class is `release packaging`
 - or it creates, prepares, validates, tags, publishes, or transitions release-facing artifacts or release-state canon
+
+Small single-seam runtime proof that merges inside an existing family may be marked as aggregation evidence instead of a standalone release driver when the USER has not approved it as a release-version driver.
+That record must declare the proof as `Standalone Release Driver: No` or equivalent aggregation-hold truth and identify the larger USER-approved family release or future aggregation target when one exists.
+Such aggregation-hold evidence does not by itself justify a new release version, selected-next lane, or release packaging branch.
 
 The only non-release waiver is:
 
@@ -1454,7 +1498,7 @@ The canonical rule is narrower:
 - `Workstream` -> `Hardening` only after the current Workstream work reports `Completion Status: Green`, no remaining implementable work is still available on that backlog item, `Backlog Completion State` is `Implemented Complete` or `Implemented Complete Except Future Dependency`, direct validation is green, User Test Summary obligations are current for user-facing changes, and no same-slice correctness gap remains
 - `Hardening` -> `Live Validation` only after repo-side hardening proof is sufficient for interactive or manual closeout work
 - `Live Validation` -> `PR Readiness` only after branch-local proof is sufficient for closeout, returned evidence has been digested into the authority record, and `User Test Summary Results Pending` is absent or cleared by a documented waiver
-- `PR Readiness` -> `Release Readiness` only after merge-target canon completeness passes, the Governance Drift Audit passes, the next-workstream selection gate passes, branch creation remains deferred to `Branch Readiness`, the watcher on the approved reporting surface has verified that the live PR is `merged`, and any release target/scope/artifact truth needed for release review is already available without file mutation
+- `PR Readiness` -> `Release Readiness` only after merge-target canon completeness passes, the Governance Drift Audit passes, either the USER-approved next-workstream selection gate passes or `Backlog Addition User Approval Missing`/`Backlog Exhaustion User Decision Pending` is explicitly blocking selection with no selected-next truth, branch creation remains deferred to `Branch Readiness`, the watcher on the approved reporting surface has verified that the live PR is `merged`, and any release target/scope/artifact truth needed for release review is already available without file mutation
 - `Release Readiness` stays restricted to analysis-only release target, scope, artifact, release-execution authorization, and release-state confirmation work; it does not transition into a docs-sync phase or a file-mutation phase
 
 There is no default direct `Workstream` -> `PR Readiness` transition.
@@ -1740,7 +1784,7 @@ Use it when:
 - blocked:
   - a blocker or repair path must be cleared before the next implementation lane may begin
 - steady-state:
-  - outside PR Readiness closeout, no implementation branch is currently selected, and it is valid for the next safe move to be no branch at all until a new approved need exists; PR Readiness closeout is stricter and must select the next real runtime candidate before leaving the phase
+  - outside PR Readiness closeout, no implementation branch is currently selected, and it is valid for the next safe move to be no branch at all until a new approved need exists; PR Readiness closeout must either use explicit USER approval to select the next real runtime candidate or stop on `Backlog Addition User Approval Missing`/`Backlog Exhaustion User Decision Pending` without inventing selected-next truth
 
 When `No Active Branch` is blocked:
 

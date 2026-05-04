@@ -24,8 +24,8 @@
 
 - Historical Content Migration: `In progress`
 - Alias Record Conversion Status: `FB-036, FB-037, FB-038, and FB-041 workstream records converted in Slice R5-S2; preserved corresponding branch-record trace converted where it exists in Slice R5-S3`
-- Pass Index Status: `Populated for FB-036, FB-037, FB-038, and FB-041 in Slice R5-S2`
-- Slice / Seam Ledger Status: `Populated for FB-036, FB-037, FB-038, and FB-041 in Slice R5-S2`
+- Pass Index Status: `Populated for FB-036, FB-037, FB-038, FB-041, and PR #109 aggregation evidence`
+- Slice / Seam Ledger Status: `Populated for FB-036, FB-037, FB-038, FB-041, and PR #109 aggregation evidence`
 - Validator / Helper Index Status: `Structure introduced in Slice R4-S4`
 - Artifact Index Status: `Structure introduced in Slice R4-S4`
 - Dossier Stability Validation Status: `Validated in Slice R4-S5`
@@ -53,8 +53,8 @@
 
 ## Pass Index
 
-Pass Index Status: `Populated for FB-036, FB-037, FB-038, and FB-041 in Slice R5-S2`
-Pass Index Population State: `FB-036, FB-037, FB-038, and FB-041 historical pass rows migrated; additional family migration remains pending`
+Pass Index Status: `Populated for FB-036, FB-037, FB-038, FB-041, and PR #109 aggregation evidence`
+Pass Index Population State: `FB-036, FB-037, FB-038, and FB-041 historical pass rows migrated; PR #109 shutdown-hotkey confirmation is indexed as aggregation evidence, not as a standalone release driver; additional family migration remains pending`
 
 | Pass ID | Family Role | Source Record | Migration State | Notes |
 | --- | --- | --- | --- | --- |
@@ -62,6 +62,7 @@ Pass Index Population State: `FB-036, FB-037, FB-038, and FB-041 historical pass
 | `F027-P03` | `Historical pass alias` | `Docs/workstreams/FB-041_deterministic_callable_group_execution_layer.md` | `Converted in Slice R5-S2` | `Released in v1.3.1-prebeta; preserves deterministic callable-group execution follow-through and bounded runtime progression markers.` |
 | `F027-P04` | `Historical pass alias` | `Docs/workstreams/FB-037_built_in_actions_and_settings_expansion.md` | `Converted in Slice R5-S2` | `Released in v1.4.0-prebeta; preserves the first curated built-in catalog and settings expansion lane.` |
 | `F027-P05` | `Historical pass alias` | `Docs/workstreams/FB-038_taskbar_tray_quick_task_ux.md` | `Converted in Slice R5-S2` | `Released in v1.4.1-prebeta; preserves tray quick-task UX, tray-origin create flow, and window-initialization repair history.` |
+| `F027-P06` | `Aggregation evidence` | `Docs/workstreams/FB-027_interaction_system_baseline.md` | `Indexed by one-time backlog governance repair` | `PR #109 merged shutdown-hotkey confirmation runtime proof; Standalone Release Driver: No; aggregation target is a future USER-approved FB-027 family release or larger approved release aggregation.` |
 
 ### Preserved Branch Trace Index
 
@@ -74,11 +75,12 @@ Trace Index Population State: `Converted FB-027 pass records now explicitly show
 | `F027-P03` | `None preserved` | `Confirmed in Slice R5-S5` | `FB-041 does not have a separate preserved branch-authority record beyond the canonical workstream history.` |
 | `F027-P04` | `Docs/branch_records/codex_fb_037_release_debt_packaging.md` | `Indexed in Slice R5-S5` | `Preserved release-packaging trace for the FB-037 historical pass.` |
 | `F027-P05` | `None preserved` | `Confirmed in Slice R5-S5` | `FB-038 does not have a separate preserved branch-authority record beyond the canonical workstream history.` |
+| `F027-P06` | `None preserved` | `Indexed by one-time backlog governance repair` | `PR #109 proof stays in the canonical FB-027 workstream historical trace; no separate backlog ID, selected-next branch, or release-version-driver record exists.` |
 
 ## Slice And Seam Ledger
 
-Slice / Seam Ledger Status: `Populated for FB-036, FB-037, FB-038, and FB-041 in Slice R5-S2`
-Ledger Population State: `Historical summary rows added for FB-036, FB-037, FB-038, and FB-041; deeper family migration remains pending`
+Slice / Seam Ledger Status: `Populated for FB-036, FB-037, FB-038, FB-041, and PR #109 aggregation evidence`
+Ledger Population State: `Historical summary rows added for FB-036, FB-037, FB-038, and FB-041; PR #109 shutdown-hotkey confirmation indexed as aggregation evidence; deeper family migration remains pending`
 
 | Phase / Slice | Seam / Scope | Classification | Migration State | Notes |
 | --- | --- | --- | --- | --- |
@@ -86,6 +88,7 @@ Ledger Population State: `Historical summary rows added for FB-036, FB-037, FB-0
 | `FB-041 / execution-layer release chain` | `Deterministic callable-group execution follow-through with stop-on-failure runtime markers` | `Historical pass chain` | `Converted in Slice R5-S2` | `Detailed release, governance drift, and closeout history stay in the preserved FB-041 workstream record.` |
 | `FB-037 / multi-seam implementation, hardening, live validation, release packaging` | `Curated built-in system actions and Nexus settings expansion` | `Historical pass chain` | `Converted in Slice R5-S2` | `Detailed branch-local built-in catalog, helper repair, and release-debt packaging history stay in the preserved FB-037 workstream record.` |
 | `FB-038 / workstream, hardening re-entry, live validation, release closeout` | `Tray quick-task UX, tray-origin create surface, and startup-visibility repair` | `Historical pass chain` | `Converted in Slice R5-S2` | `Detailed tray UX, H1-H4 hardening, live evidence, and waiver history stay in the preserved FB-038 workstream record.` |
+| `PR #109 / shutdown-hotkey confirmation` | `Confirm-before-exit runtime proof for shutdown hotkeys with accept, cancel, timeout, and session-preservation evidence` | `Aggregation evidence` | `Indexed by one-time backlog governance repair` | `Preserved as FB-027 family evidence only; Standalone Release Driver: No; future same-family continuation requires explicit USER approval before selection or branching.` |
 
 ## Validator And Helper Index
 

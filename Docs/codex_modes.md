@@ -162,6 +162,8 @@ In Workflow mode, Codex should:
 - Governance, docs, source-of-truth, and validator repairs must ride inside the next legitimate runtime-focused backlog branch during `Branch Readiness` or `PR Readiness`.
 - If no runtime-focused branch is legally admitted yet, record the drift as a blocker and wait instead of creating a repair branch by inertia.
 - Historical repair-only branch records remain traceability only and do not authorize new repair-only branch creation.
+- Codex must not create, split, promote, or select a backlog identity without explicit USER approval; if approval is absent, stop on `Backlog Addition User Approval Missing` and output the still-not-closed backlog list, or `Backlog Exhaustion User Decision Pending` if that list is empty.
+- Small single-seam runtime proofs, validation follow-through, governance repairs, and blocker-clearing traces stay inside existing family/workstream/branch-record traceability by default and are not standalone release-version drivers without explicit USER approval.
 - if a stale-canon or governance-drift class is discovered, the same branch or next legal repair surface must patch the canon or validator rule that allowed it before the repair is considered complete
 - merge-stable current-state owners such as backlog and roadmap must not mirror transient repair-branch ownership while merged-main truth remains `No Active Branch`
 
@@ -231,8 +233,8 @@ When the approved phase is `PR Readiness`, the output must also explicitly inclu
 - confirmation that the merge-target canon completeness gate passed
 - confirmation that the Governance Drift Audit ran
 - whether governance drift was found
-- confirmation that stale-canon, post-merge-state, next-workstream, dirty-branch, docs-sync/drift-audit, and `User Test Summary Results Pending` blockers are clear
-- confirmation that `Next Runtime Candidate Selection Pending` is clear by selecting exactly one real runtime candidate before leaving PR Readiness
+- confirmation that stale-canon, post-merge-state, next-workstream, dirty-branch, docs-sync/drift-audit, `Backlog Addition User Approval Missing`, `Backlog Exhaustion User Decision Pending`, and `User Test Summary Results Pending` blockers are clear
+- confirmation that `Next Runtime Candidate Selection Pending` is clear by selecting exactly one real runtime candidate before leaving PR Readiness when explicit USER approval for successor selection exists, or that `Backlog Addition User Approval Missing` is active with the still-not-closed backlog list when approval is absent
 - confirmation that `PR Readiness Scope Missed`, `Between-Branch Canon Repair Attempt`, and `Next Branch Created Too Early` are clear
 - confirmation that `Release Window Audit Incomplete` is clear, including the normal green posture `Remaining Known Release Blockers: None`, `Another Pre-Release Repair PR Required: NO`, and `Release Window Split Waiver: None`, unless an explicit user-approved split waiver is recorded
 - confirmation that `PR Creation Pending`, `PR Validation Pending`, `PR State Unknown`, and `PR Merge Status Unproven` are clear before reporting `PR Readiness GREEN`
@@ -246,14 +248,14 @@ When the approved phase is `PR Readiness`, the output must also explicitly inclu
 - confirmation that `main` remains protected and that no Codex file mutation, staging, commit, generation, refresh, or repair work is being performed on `main`
 - confirmation that branch truth is committed and durable, not only present in the working tree
 - confirmation that the normal governance validator and the PR-readiness gate mode passed
-- for the selected next workstream:
+- for the selected next workstream when explicit USER approval for successor selection exists:
   - the selected next workstream identity
   - the next workstream `Record State`
   - the backlog `Priority` used as the primary selection signal
   - confirmation that `Target Version` was not used to rank, select, defer, or skip the open backlog candidate
   - if the selected item is deferred, confirmation that `Deferred Since:`, `Deferred Because:`, and `Selection / Unblock:` are present
   - the minimal scope recorded in canon
-  - confirmation that backlog includes `Next Workstream: Selected` and `Minimal Scope:` and roadmap includes `## Selected Next Workstream`
+  - confirmation that, when explicit USER approval for successor selection exists, backlog includes `Next Workstream: Selected` and `Minimal Scope:` and roadmap includes `## Selected Next Workstream`; otherwise report `Backlog Addition User Approval Missing` with the still-not-closed backlog list
   - confirmation that the selected next workstream is a real runtime Feature Family candidate and that `Minimal Scope:` names a runtime slice
   - confirmation that no branch exists yet for that next workstream
   - confirmation that successor branch creation is deferred to `Branch Readiness` after merge and updated-`main` revalidation
@@ -453,18 +455,18 @@ That default blocks the next implementation lane by default.
 It does not authorize a governance-only branch.
 Release packaging may begin only when `Docs/phase_governance.md` says that branch class may begin from `No Active Branch`.
 
-If release debt or another repo-level admission blocker means no next implementation branch may legally begin execution, report repo state as `No Active Branch` instead of inventing a next implementation phase.
+If release debt, `Backlog Addition User Approval Missing`, `Backlog Exhaustion User Decision Pending`, or another repo-level admission blocker means no next implementation branch may legally begin execution, report repo state as `No Active Branch` instead of inventing a next implementation phase.
 If repo truth is a steady-state `No Active Branch`, say so explicitly instead of pretending a new implementation branch should open automatically.
 
 ### Fresh Branch Start After A Closed Workstream
 
 After a workstream is merged and closed, the next implementation workstream should execute from updated `main` on a fresh branch.
 
-During `PR Readiness`, the next workstream must be a real runtime candidate, selected, canon-defined, minimally scoped as a runtime slice, and explicitly not branched yet.
+During `PR Readiness`, the next workstream must be a real runtime candidate, selected, canon-defined, minimally scoped as a runtime slice, and explicitly not branched yet only after explicit USER approval for successor selection exists.
 
 That successor branch is created only during `Branch Readiness` after the current branch merges and updated `main` is revalidated.
 
-If post-merge truth will resolve to `No Active Branch` because `Release Debt` or another repo-level admission blocker remains open, successor branch creation remains deferred; next-workstream selection is still required. If no real runtime candidate can be selected, `Next Runtime Candidate Selection Pending` blocks Release Readiness and the branch stops in PR Readiness.
+If post-merge truth will resolve to `No Active Branch` because `Release Debt` or another repo-level admission blocker remains open, successor branch creation remains deferred. If USER approval for successor selection is absent, `Backlog Addition User Approval Missing` blocks selection and the branch stops with the still-not-closed backlog list. If USER approval exists but no real runtime candidate can be selected, `Next Runtime Candidate Selection Pending` blocks Release Readiness and the branch stops in PR Readiness.
 
 If a branch is stale, merged, or identical to `main`, call it out explicitly and stop using it as the base for next-lane planning.
 
