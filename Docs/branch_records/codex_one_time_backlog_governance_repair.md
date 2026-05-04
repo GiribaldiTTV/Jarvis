@@ -26,9 +26,9 @@ This branch must not change runtime behavior. Its job is to harden governance, v
 - Workstream: `One-time backlog governance repair`
 - USER Approval: explicit in the 2026-05-04 instruction to fix the governance drift in a one-time governance branch.
 - Drift Finding: legacy FB-027 / PR #109 was allowed to become active selected-next and release-facing truth even though it was a small single-seam runtime follow-through.
-- Repair Scope: backlog identity admission blocker, selected-next permission blocker, FAM-003 legacy FB-027 aggregation-hold correction, PR #109 standalone release-driver removal, historical backlog-item consolidation into family/source-of-truth trace, fresh broad `FAM-###` namespace introduction, FAM -> Package -> Slice -> Seam taxonomy correction, single-slice package blocker, package completion markers, and validator alignment.
+- Repair Scope: backlog identity admission blocker, selected-next permission blocker, FAM-003 legacy FB-027 aggregation-hold correction, PR #109 standalone release-driver removal, historical backlog-item consolidation into family/source-of-truth trace, fresh broad `FAM-###` namespace introduction, FAM -> Package -> Slice -> Seam taxonomy correction, single-slice package blocker, package completion markers, PR Readiness Stage 1 / Stage 2 organization, and validator alignment.
 - Runtime Scope: none.
-- Current Seam: `Workstream WS2 - Family Package / Slice Taxonomy Correction`
+- Current Seam: `Hardening H1-R2 - PR Readiness Stage Gate Governance Repair`
 
 ## Branch Class
 
@@ -48,7 +48,7 @@ This branch must not change runtime behavior. Its job is to harden governance, v
 
 ## Exit Criteria
 
-- `Docs/phase_governance.md`, `Docs/development_rules.md`, `Docs/Main.md`, and prompt surfaces define `Backlog Addition User Approval Missing`, `Backlog Exhaustion User Decision Pending`, `Single-Slice Package User Approval Missing`, and `Package Completion Unproven`.
+- `Docs/phase_governance.md`, `Docs/development_rules.md`, `Docs/Main.md`, and prompt surfaces define `Backlog Addition User Approval Missing`, `Backlog Exhaustion User Decision Pending`, `Single-Slice Package User Approval Missing`, `Package Completion Unproven`, and `PR Readiness Execution User Approval Missing`.
 - Current-state truth no longer marks FAM-003 legacy FB-027 / PR #109 as an active backlog lane, selected-next lane, or standalone release-version driver.
 - FAM-003 legacy FB-027 lifetime family trace records PR #109 as aggregation evidence with `Standalone Release Driver: No`.
 - Former standalone historical pass aliases, support/governance lanes, and old registry-only implemented IDs are no longer parseable backlog entries; they route through feature-family trace tables, `Docs/workstreams/index.md`, family dossiers, canonical workstream records, or same-file historical trace.
@@ -56,7 +56,7 @@ This branch must not change runtime behavior. Its job is to harden governance, v
 - Each live FAM records package and slice trace so every slice points to exactly one family and one package, packages carry completion state, PR numbers remain evidence only, and single-slice package admission is blocked without explicit USER approval.
 - FAM-001 legacy FB-049 runtime proof, FAM-004 legacy FB-030 runtime diagnostics proof, pending `v1.6.13-prebeta` posture, FAM-004 merged-unreleased truth, and prior FAM-001 historical merge truth remain preserved.
 - Governance validator behavior is aligned so absent USER approval blocks selected-next truth instead of forcing candidate creation.
-- Hardening H1 validates that historical evidence rows, future placeholders, deferred ideas, and future-package-required rows do not count as admitted slices, that package completion cannot be green while admitted slices remain incomplete, and that `Single-Slice Package User Approval Missing` plus `Package Completion Unproven` are present in blocker catalogs.
+- Hardening H1 validates that historical evidence rows, future placeholders, deferred ideas, and future-package-required rows do not count as admitted slices, that package completion cannot be green while admitted slices remain incomplete, that `Single-Slice Package User Approval Missing` plus `Package Completion Unproven` are present in blocker catalogs, and that PR Readiness is organized as a USER-reviewed Stage 1 analysis gate followed by an approved Stage 2 execution gate.
 - Validation commands pass or any residual repair candidate is explicitly listed before PR work.
 
 ## Rollback Target
@@ -71,7 +71,7 @@ Rollback Path: revert this branch to restore the pre-repair governance and curre
 
 ## Active Seam
 
-Active seam: `Hardening H1-R1 - Single-Slice Blocker Catalog Consistency Repair`
+Active seam: `Hardening H1-R2 - PR Readiness Stage Gate Governance Repair`
 
 ## Seam Continuation Decision
 
@@ -81,9 +81,9 @@ Completion Status: `Green`
 Waiver Status: `None`
 Continue Decision: `Stop`
 Stop Basis: `Hardening Green`
-Stop Condition: `Hardening H1-R1 single-slice blocker catalog consistency repair complete`
+Stop Condition: `Hardening H1-R2 PR Readiness stage gate governance repair complete`
 Continuation Action: `Proceed to Live Validation for repo-truth / live-equivalent validation of the one-time governance repair.`
-Decision Basis: `Validator and source-of-truth now distinguish admitted concrete slices from historical evidence, merged evidence, future placeholders, deferred ideas, and future-package-required rows; single-slice package drift is blocked unless explicit USER approval grants a waiver; blocker catalogs include Single-Slice Package User Approval Missing and Package Completion Unproven.`
+Decision Basis: `Validator and source-of-truth now distinguish admitted concrete slices from historical evidence, merged evidence, future placeholders, deferred ideas, and future-package-required rows; single-slice package drift is blocked unless explicit USER approval grants a waiver; blocker catalogs include Single-Slice Package User Approval Missing and Package Completion Unproven; PR Readiness Stage 1 now stops for USER review before Stage 2 work begins.`
 Next Active Seam: `Live Validation LV1 - One-Time Backlog Governance Repair Live Validation`
 
 ## Hardening H1 Record
@@ -107,6 +107,17 @@ Next Active Seam: `Live Validation LV1 - One-Time Backlog Governance Repair Live
 - Placeholder Drift Rule: `PASS`; historical evidence, merged evidence, future placeholders, deferred placeholders, deferred ideas, and future-package-required rows do not count, and vague placeholder rows cannot be marked admitted.
 - Package Completion Rule: `PASS`; package completion cannot be green while admitted slices remain incomplete.
 - Validation: `PASS`; branch governance validation passed 2739 checks, Python compile validation passed, diff validation passed, and automation observability separated stale external automation memory from repo-source blockers.
+
+## Hardening H1-R2 Record
+
+- Phase Admission: `PASS`
+- Active Seam: `Hardening H1-R2 - PR Readiness Stage Gate Governance Repair`
+- PR Readiness Stage Model: `PASS`; `PR Readiness` remains one canonical phase and is organized into `PR Readiness Stage 1 - Analysis Gate` followed by `PR Readiness Stage 2 - Execution Gate`.
+- Stage 1 No-Work Rule: `PASS`; Stage 1 allows no repository file mutation, staging, commit, push, PR creation, watcher provisioning, next-branch creation, release work, or canon edits.
+- Stage 1 Packet Rule: `PASS`; Stage 1 must output `## PR Readiness Stage 1 Analysis Packet` with planned PR details, next branch posture, watcher plan, validations, expected file changes, drift findings, blockers, waivers, rollback path, and Stage 2 green-light need.
+- Stage 2 Approval Blocker: `PASS`; `PR Readiness Execution User Approval Missing` blocks Stage 2 until explicit USER approval to enter Stage 2 is recorded.
+- Stage 2 Behavior Preservation: `PASS`; Stage 2 performs the existing PR Readiness sequence without weakening PR creation, watcher, bot-review, mergeability, merge-watch, or validator gates.
+- Validation: `PASS`; branch governance validation passed 2814 checks, Python compile validation passed, diff validation passed, and automation observability reported review rows as external automation memory rather than repo-source blockers.
 
 ## Governance Drift Audit
 

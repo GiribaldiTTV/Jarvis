@@ -230,6 +230,9 @@ Pre-PR Durability Rule:
 
 When the approved phase is `PR Readiness`, the output must also explicitly include:
 
+- the current PR Readiness stage: `PR Readiness Stage 1 - Analysis Gate` or `PR Readiness Stage 2 - Execution Gate`
+- for Stage 1, the `## PR Readiness Stage 1 Analysis Packet`, confirmation that there was no repository file mutation, and `PR Readiness Execution User Approval Missing` as the stop blocker until explicit USER approval to enter Stage 2 is recorded
+- for Stage 2, confirmation that USER approval to enter Stage 2 exists before any repository mutation, staging, commit, push, PR creation, watcher provisioning, next-branch creation, release work, or canon edits occur
 - confirmation that the merge-target canon completeness gate passed
 - confirmation that the Governance Drift Audit ran
 - whether governance drift was found

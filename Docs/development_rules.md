@@ -301,6 +301,12 @@ That means:
   - when release debt or another admission blocker applies, the branch must also record `No Active Branch` plus the blocking admission item explicitly in merged current-state canon
 - no PR-ready with unresolved post-merge planning:
   - if post-merge truth needs `No Active Branch` handling, release-debt handling, next-workstream planning, next-workstream canon sync, minimal scope, or branch-creation deferral, that handling must already be complete inside PR Readiness
+- no PR Readiness Stage 2 without USER review approval:
+  - `PR Readiness Stage 1 - Analysis Gate` is analysis-only and must produce `## PR Readiness Stage 1 Analysis Packet`
+  - Stage 1 allows no repository file mutation, staging, commit, push, PR creation, watcher provisioning, next-branch creation, release work, or canon edits
+  - the packet must include governed state markers, planned PR title/base/head/summary, planned merge-target canon updates, planned next-branch block, planned watcher provisioning and reporting surface, planned validations, expected file changes, drift findings, blocker and waiver findings, release-window audit posture, rollback path, and the exact Stage 2 green-light decision needed from the USER
+  - `PR Readiness Execution User Approval Missing` blocks `PR Readiness Stage 2 - Execution Gate` until explicit USER approval to enter Stage 2 is recorded
+  - Stage 2 preserves the existing PR Readiness work sequence: apply required canon, commit and push durable truth, run the normal validator and PR-readiness gate mode, create the PR, provision and prove the watcher, validate live PR state, handle bot-review signals, and continue merge-watch
 - no PR-ready with an incomplete merged-unreleased release-debt owner contract:
   - if merge will create unreleased implementation release debt, PR Readiness must leave merge-target canon in the exact post-merge shape
   - required machine-checkable fields are `Merged-Unreleased Release-Debt Owner:`, `Repo State: No Active Branch`, `Release Target:`, `Release Floor:`, `Version Rationale:`, `Release Scope:`, `Release Artifacts:`, `Post-Release Truth:`, `Selected Next Workstream:`, and `Next-Branch Creation Gate:`

@@ -302,6 +302,7 @@ The default named blockers are:
 - `PR Creation Pending`
 - `PR Validation Pending`
 - `PR State Unknown`
+- `PR Readiness Execution User Approval Missing`
 - `PR Merge Status Unproven`
 - `PR Merge Verification Pending`
 - `PR Watcher Provisioning Unproven`
@@ -650,7 +651,7 @@ PR Readiness must not report green while any pre-merge process blocker remains u
 
 Hard blockers:
 
-- canonical shorthand: `stale-canon`, `post-merge`, `dirty`, `docs-sync`, `next-workstream`, `Next Runtime Candidate Selection Pending`, `Backlog Addition User Approval Missing`, `Backlog Exhaustion User Decision Pending`, `Single-Slice Package User Approval Missing`, `Package Completion Unproven`, `deferred-context`, `desktop-shortcut`, `uts-results`
+- canonical shorthand: `stale-canon`, `post-merge`, `dirty`, `docs-sync`, `next-workstream`, `Next Runtime Candidate Selection Pending`, `Backlog Addition User Approval Missing`, `Backlog Exhaustion User Decision Pending`, `Single-Slice Package User Approval Missing`, `Package Completion Unproven`, `PR Readiness Execution User Approval Missing`, `deferred-context`, `desktop-shortcut`, `uts-results`
 - `Stale Canon`:
   current-state canon and merge-target canon must already reflect the branch's true state and the state that will be true after merge
 - `Post-Merge State Unresolved`:
@@ -685,6 +686,8 @@ Hard blockers:
   PR Readiness cannot be green until the existing PR has been validated as open, non-draft, conflict-free, aligned to the merge-target canon, and clear of unresolved Codex comments/issues or requested changes.
 - `PR State Unknown`:
   PR Readiness cannot be green if Codex cannot inspect the PR state, mergeability/conflict state, base/head alignment, or Codex review-thread state.
+- `PR Readiness Execution User Approval Missing`:
+  PR Readiness Stage 1 - Analysis Gate is a no-work review pass. PR Readiness cannot enter PR Readiness Stage 2 - Execution Gate, mutate repository files, stage, commit, push, create the PR, provision the watcher, create a next branch, or perform release work until the Stage 1 packet is returned and explicit USER approval to enter Stage 2 is recorded.
 - `PR Merge Status Unproven`:
   PR Readiness cannot be green until the live PR has explicitly reported a green merge status. Treat unknown, unset, conflicting, dirty, blocked, or otherwise non-green mergeability/merge-state results as an active blocker until GitHub reports the PR merge status as green.
 - `Bot Review Signal Pending`:
@@ -713,6 +716,15 @@ Hard blockers:
 The PR-readiness validator gate must be run in its PR-specific mode before reporting `PR READY: YES`.
 If the normal governance validator passes but the PR-specific gate reports dirty worktree or unresolved PR blockers, the result is not PR-ready.
 
+### PR Readiness Stage Gates
+
+`PR Readiness` remains one canonical phase. It is organized into two internal stage gates:
+
+- `PR Readiness Stage 1 - Analysis Gate`: analysis-only; no repository file mutation, staging, commit, push, PR creation, watcher provisioning, next-branch creation, release work, or canon edits are allowed. Stage 1 must output the full `## PR Readiness Stage 1 Analysis Packet` for USER review and then stop on `PR Readiness Execution User Approval Missing`.
+- `PR Readiness Stage 2 - Execution Gate`: begins only after explicit USER approval to enter Stage 2. Stage 2 performs the existing PR Readiness work: apply required merge-target canon, commit and push durable truth, run the normal governance validator and PR-readiness gate mode, create the PR, provision and prove the watcher, validate live PR state, handle bot-review signals, and continue merge-watch until the approved reporting surface verifies merge.
+
+The `## PR Readiness Stage 1 Analysis Packet` must include governed state markers, the planned PR title/base/head/summary, planned merge-target canon updates, planned next-branch block, planned watcher provisioning and reporting surface, planned validations, expected file changes, drift findings, blocker and waiver findings, release-window audit posture, rollback path, and the exact Stage 2 green-light decision needed from the USER. It may recommend Stage 2, but it must not perform Stage 2.
+
 `PR package ready` is the state where local branch truth, merge-target canon, next-workstream selection, and copy-ready PR details are complete. It is not `PR Readiness GREEN`.
 
 Live PR creation and validation facts are required for operator output and PR validation, but they are not merge-target current-state truth. Keep live PR state such as `open`, `non-draft`, `mergeable`, review-thread counts, repair-commit containment timing, blocker-clearing branch narration, and merge-target branch-head hash assertions in operator output and explicit historical PR sections only. Do not place those time-sensitive claims in merge-target current-state owner sections such as backlog or roadmap `## Current Branch Execution Posture`, `PR Readiness State:`, `Current Branch Objective:`, `Active Workstream Chain:`, or the canonical workstream merged-unreleased `## Phase Status` block.
@@ -732,6 +744,29 @@ Live PR creation and validation facts are required for operator output and PR va
 - the live PR has either a thumbs-up reaction from the Codex GitHub bot or a recorded current-head bot comment-resolution closeout; no later thumbs-up is required after the comment-resolution path
 
 ### PR Readiness Response Contract
+
+Every `PR Readiness` response must identify whether it is in `PR Readiness Stage 1 - Analysis Gate` or `PR Readiness Stage 2 - Execution Gate`.
+When the response is Stage 1, it must include this packet and stop on `PR Readiness Execution User Approval Missing` until USER approval to enter Stage 2 is recorded:
+
+```markdown
+## PR Readiness Stage 1 Analysis Packet
+- Current PR Readiness Stage:
+- Repository Mutation Status:
+- Planned PR Title:
+- Planned Base Branch:
+- Planned Head Branch:
+- Planned PR Summary:
+- Planned Merge-Target Canon Updates:
+- Planned Next Branch Block:
+- Planned Watcher Provisioning:
+- Planned Validation Commands:
+- Expected Files To Change:
+- Drift Findings:
+- Blockers And Waivers Needed:
+- Release Window Audit Posture:
+- Rollback Plan:
+- Stage 2 Green-Light Decision Needed:
+```
 
 When `PR Readiness` reports package-ready or `PR package ready`, the response must include a repo-wide standardized `Next Branch` block and markdown-friendly PR operator copy blocks.
 Those package details are the input to PR creation and validation; they are not themselves proof that PR Readiness is GREEN.

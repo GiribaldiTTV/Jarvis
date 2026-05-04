@@ -673,6 +673,7 @@ PR_READINESS_BLOCKER_PHRASES = (
     "Backlog Exhaustion User Decision Pending",
     "Single-Slice Package User Approval Missing",
     "Package Completion Unproven",
+    "PR Readiness Execution User Approval Missing",
     "desktop-shortcut",
     "User Test Summary Results Pending",
     "PR Merge Status Unproven",
@@ -733,6 +734,7 @@ PR_READINESS_RESPONSE_CONTRACT_DOCS = (
 )
 
 PR_READINESS_RESPONSE_CONTRACT_PHRASES = (
+    "## PR Readiness Stage 1 Analysis Packet",
     "## Next Branch",
     "Next Legal Branch Type:",
     "Next Branch Name:",
@@ -749,6 +751,44 @@ PR_READINESS_RESPONSE_CONTRACT_PHRASES = (
     "### PR Summary",
     "inclusion-only",
     "defensive scope language",
+)
+
+PR_READINESS_STAGE_GATE_DOCS = (
+    Path("Docs/phase_governance.md"),
+    Path("Docs/development_rules.md"),
+    Path("Docs/Main.md"),
+    Path("Docs/codex_modes.md"),
+    Path("Docs/orin_task_template.md"),
+    Path("Docs/codex_user_guide.md"),
+    Path("Docs/nexus_startup_contract.md"),
+    Path("Docs/branch_records/index.md"),
+    Path("Docs/branch_records/codex_one_time_backlog_governance_repair.md"),
+)
+
+PR_READINESS_STAGE_GATE_PHRASES = (
+    "PR Readiness Stage 1 - Analysis Gate",
+    "PR Readiness Stage 2 - Execution Gate",
+    "PR Readiness Execution User Approval Missing",
+    "no repository file mutation",
+    "USER approval to enter Stage 2",
+)
+
+PR_READINESS_STAGE_PACKET_DOCS = (
+    Path("Docs/phase_governance.md"),
+    Path("Docs/orin_task_template.md"),
+)
+
+PR_READINESS_STAGE_PACKET_PHRASES = (
+    "## PR Readiness Stage 1 Analysis Packet",
+    "Planned PR Title:",
+    "Planned Base Branch:",
+    "Planned Head Branch:",
+    "Planned PR Summary:",
+    "Planned Merge-Target Canon Updates:",
+    "Planned Next Branch Block:",
+    "Planned Watcher Provisioning:",
+    "Expected Files To Change:",
+    "Stage 2 Green-Light Decision Needed:",
 )
 
 RELEASE_OPERATOR_OUTPUT_CONTRACT_DOCS = (
@@ -9924,6 +9964,22 @@ def main() -> int:
             require(
                 required_phrase in text,
                 f"{relative_path}: PR Readiness response contract is missing '{required_phrase}'",
+            )
+
+    for relative_path in PR_READINESS_STAGE_GATE_DOCS:
+        text = _read_text(relative_path)
+        for required_phrase in PR_READINESS_STAGE_GATE_PHRASES:
+            require(
+                required_phrase in text,
+                f"{relative_path}: PR Readiness stage gate guidance is missing '{required_phrase}'",
+            )
+
+    for relative_path in PR_READINESS_STAGE_PACKET_DOCS:
+        text = _read_text(relative_path)
+        for required_phrase in PR_READINESS_STAGE_PACKET_PHRASES:
+            require(
+                required_phrase in text,
+                f"{relative_path}: PR Readiness Stage 1 packet contract is missing '{required_phrase}'",
             )
 
     for relative_path in RELEASE_OPERATOR_OUTPUT_CONTRACT_DOCS:
