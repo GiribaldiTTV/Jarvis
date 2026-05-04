@@ -7341,13 +7341,24 @@ def _run_next_workstream_gate(
         f"PR readiness gate: could not inspect branch names for selected next workstream: {branch_error}",
     )
     matching_branches = _branch_names_for_workstream(branch_names, selected_id, ignored_branch_names)
+    current_branch = _git_current_branch()
+    selected_next_branch = _extract_colon_value(selected_block, "Selected Next Implementation Branch")
+    current_branch_names = {current_branch, f"origin/{current_branch}"} if current_branch else set()
+    same_family_successor_not_branched = (
+        current_branch
+        and selected_next_branch.casefold() in {"not created", "deferred to branch readiness"}
+        and bool(current_branch_names.intersection(matching_branches))
+    )
     non_repair_matching_branches = [
         branch_name
         for branch_name in matching_branches
         if branch_record_class_map.get(branch_name) != EMERGENCY_CANON_REPAIR_BRANCH_CLASS
         and branch_name not in explicitly_handled_repair_branches
+        and not (same_family_successor_not_branched and branch_name in current_branch_names)
     ]
-    if repair_only_handling and not non_repair_matching_branches:
+    if same_family_successor_not_branched and not non_repair_matching_branches:
+        matching_branches = []
+    elif repair_only_handling and not non_repair_matching_branches:
         matching_branches = []
     else:
         if not non_repair_matching_branches and any(
@@ -9843,6 +9854,20 @@ def main() -> int:
                 ignored_selected_next_branch_names,
             )
             if matching_branches:
+                current_branch_names = (
+                    {current_git_branch, f"origin/{current_git_branch}"}
+                    if current_git_branch
+                    else set()
+                )
+                selected_next_branch = _extract_colon_value(
+                    selected["block"], "Selected Next Implementation Branch"
+                )
+                same_family_successor_not_branched = (
+                    current_branch_names
+                    and selected_next_branch.casefold()
+                    in {"not created", "deferred to branch readiness"}
+                    and bool(current_branch_names.intersection(matching_branches))
+                )
                 repair_only_handling, explicitly_handled_repair_branches = _selected_next_repair_only_branch_info(
                     [selected["block"], roadmap_section]
                 )
@@ -9851,8 +9876,11 @@ def main() -> int:
                     for branch_name in matching_branches
                     if branch_record_class_map.get(branch_name) != EMERGENCY_CANON_REPAIR_BRANCH_CLASS
                     and branch_name not in explicitly_handled_repair_branches
+                    and not (same_family_successor_not_branched and branch_name in current_branch_names)
                 ]
-                if repair_only_handling and not non_repair_matching_branches:
+                if same_family_successor_not_branched and not non_repair_matching_branches:
+                    matching_branches = []
+                elif repair_only_handling and not non_repair_matching_branches:
                     matching_branches = []
                 else:
                     if not non_repair_matching_branches and any(

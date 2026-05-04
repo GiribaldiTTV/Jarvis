@@ -253,14 +253,22 @@ Non-Includes: no PR creation or release work.
 - Phase Admission: `PASS`; branch authority advances from `Live Validation` to `PR Readiness` and admits `PR Readiness PR1 - FB-027 Runtime Branch PR Validation` while preserving WS1, H1, and LV1 as historical complete/green proof.
 - Scope Boundary: PR1 may create and validate the live PR, provision the same-thread watcher, validate bot-review, mergeability, readiness state, and record PR2 merge-watch posture.
 - Non-Includes: no merge, no Release Readiness work, no release packaging, no runtime widening, no overlay-command, saved-action, callable-group, tray, relaunch, or hotkey-remapping changes.
-- PR Creation Validation: `PASS`; PR #109 is live at `https://github.com/GiribaldiTTV/Nexus-Desktop-AI/pull/109`, open, non-draft, base `main`, head `feature/fb-027-shutdown-confirmation-runtime-branch-readiness`, and remote head `9ddeab8d4092a3aeed5f0be6e3ffefd481f177f7` at PR creation.
+- PR Creation Validation: `PASS`; PR #109 is live at `https://github.com/GiribaldiTTV/Nexus-Desktop-AI/pull/109`, open, non-draft, base `main`, head `feature/fb-027-shutdown-confirmation-runtime-branch-readiness`, and current remote head `815c3a8dc044795502aa1fc5b80663f6bf32e45e`.
 - Mergeability Validation: `PASS`; PR #109 reports `MERGEABLE / CLEAN`.
-- Bot Review Validation: `Comment addressed`; the live `chatgpt-codex-connector[bot]` thread on `desktop/orin_desktop_main.py` is fixed on the current head via queued GUI-thread shutdown-confirmation dispatch.
+- Bot Review Validation: `Comment addressed`; the live `chatgpt-codex-connector[bot]` thread on `desktop/orin_desktop_main.py` is fixed on the current head via queued GUI-thread shutdown-confirmation dispatch, replied to with fix commit `815c3a8dc044795502aa1fc5b80663f6bf32e45e`, and resolved as review thread `PRRT_kwDORwnWIs5_Pay4`.
 - Same-Thread Watcher Provisioning: `PASS`; native heartbeat `pr109-same-thread-merge-watch` is active for this thread, targets PR #109, uses `FREQ=MINUTELY;INTERVAL=1`, and must report only watched status changes or merge/close verification.
 - Watcher Routing: `PASS`; the watcher config records target thread `019dd083-0317-7b42-afb3-20b6818a1fa7`, which is the approved current working-thread reporting surface for this branch.
 - Cleared Blockers: `PR Creation Pending`, `PR Watcher Provisioning Unproven`, `PR Watcher Routing Unverified`, and `PR Merge Status Unproven`.
 - Remaining Blockers: `PR Merge Verification Pending`.
 - PR2 Posture: PR Readiness continues in `PR Readiness PR2 - FB-027 Runtime Branch Merge Verification Watch`; Release Readiness remains blocked until the watcher verifies `merged=true`.
+
+## PR Bot Review Signal
+
+- Bot Review Signal Status: `Comment addressed`
+- Bot Review Signal Head SHA: `815c3a8dc044795502aa1fc5b80663f6bf32e45e`
+- Bot Review Signal Source: `Resolved GitHub review thread PRRT_kwDORwnWIs5_Pay4 after same-branch fix commit 815c3a8dc044795502aa1fc5b80663f6bf32e45e and PR #109 reply comment 3179286747.`
+- Bot Review Signal Timestamp: `2026-05-04T03:44:46Z`
+- Bot Review Signal Actor: `chatgpt-codex-connector[bot] / GiribaldiTTV`
 
 ## PR Creation Details
 
@@ -269,9 +277,9 @@ Non-Includes: no PR creation or release work.
 - Draft State: `false`
 - Base Branch: `main`
 - Head Branch: `feature/fb-027-shutdown-confirmation-runtime-branch-readiness`
-- Head SHA: `9ddeab8d4092a3aeed5f0be6e3ffefd481f177f7`
+- Head SHA: `815c3a8dc044795502aa1fc5b80663f6bf32e45e`
 - Mergeability: `MERGEABLE / CLEAN`
-- Bot Review State: `Comment addressed`; the live bot shutdown-confirmation thread is fixed on the current head and PR2 merge verification is now the only remaining readiness blocker.
+- Bot Review State: `Comment addressed`; review thread `PRRT_kwDORwnWIs5_Pay4` is resolved after reply comment `3179286747` and fix commit `815c3a8dc044795502aa1fc5b80663f6bf32e45e`.
 
 ## PR Watcher Provisioning Proof
 
@@ -280,6 +288,8 @@ Non-Includes: no PR creation or release work.
 - Native Heartbeat Cadence: `FREQ=MINUTELY;INTERVAL=1`
 - Native Heartbeat Target Thread: `019dd083-0317-7b42-afb3-20b6818a1fa7`
 - Approved Reporting Surface: current working Codex thread.
+- Bounded Route Probe: `dev/pr_same_thread_watcher.py --force-emit` detected PR #109 state at `2026-05-04T03:38:32Z`, registered the watcher host on thread `019dd083-0317-7b42-afb3-20b6818a1fa7`, detected the live bot comment, and triggered the bounded repair worker that produced fix commit `815c3a8dc044795502aa1fc5b80663f6bf32e45e`.
+- Bounded Route Probe Artifacts: `$CODEX_HOME/watchers/pr109-fb027-shutdown-confirmation-watch.log`; `$CODEX_HOME/watchers/pr109-fb027-shutdown-confirmation-watch-latest.txt`
 - Watched PR: `https://github.com/GiribaldiTTV/Nexus-Desktop-AI/pull/109`
 - Stop Condition: watcher remains bounded to PR #109 and PR Readiness, and must retire or be deleted after PR #109 becomes `merged` or `closed`.
 - Output Boundary: post source-of-truth status updates only when the watched status changes or merge/close is verified; do not edit files, create branches, merge the PR, or perform Release Readiness work.
@@ -290,6 +300,23 @@ Non-Includes: no PR creation or release work.
 - Branch Authority Closeout Requirement: before Release Readiness can treat the merge as complete, the same-thread watcher must verify `merged=true`, emit source-of-truth handoff proof, and retire or be deleted.
 - Successor Branch Handling: no successor branch is created from PR Readiness; the next runtime candidate must be selected and left branch-not-created before leaving PR Readiness.
 - PR2 Merge Watch Dependency: `PR Merge Verification Pending` remains active until the same-thread watcher verifies the live PR merged state.
+
+## Governance Drift Audit
+
+Governance Drift Found: Yes, repaired during PR Readiness.
+
+- Drift Found: live PR bot review found the shutdown-confirmation dialog could be invoked from the hotkey listener thread, and the PR-readiness successor gate did not yet allow same-family successor selection while the current branch still exists.
+- Repair Performed: fix commit `815c3a8dc044795502aa1fc5b80663f6bf32e45e` routes shutdown confirmation through a GUI-thread `QObject` slot with `Qt.ConnectionType.QueuedConnection`, replies to and resolves the bot review thread, and validator hardening now ignores only the current branch when the selected same-family successor explicitly records `Selected Next Implementation Branch: Not created`.
+- Drift After Repair: no unresolved governance drift remains for PR1; PR2 remains blocked only by watcher-verified merge.
+
+## Release Window Audit
+
+Release Window Audit: PASS
+Window Scope: FB-027 WS1 shutdown-hotkey confirmation runtime proof, H1 validation, LV1 live-equivalent validation, PR1 live PR creation, watcher provisioning, live bot-review closeout, and PR2 merge-watch posture for the bounded runtime/user-facing lane.
+Known Window Blockers Reviewed: stale post-merge canon recurrence, next-runtime-candidate selection, live PR creation, same-thread watcher routing, bot-review signal, merge status, PR2 merge verification, pending `v1.6.13-prebeta` release posture, and selected runtime-slice containment.
+Remaining Known Release Blockers: None
+Another Pre-Release Repair PR Required: NO
+Release Window Split Waiver: None
 
 ## Seam Continuation Decision
 
