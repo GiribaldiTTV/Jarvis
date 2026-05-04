@@ -1,0 +1,206 @@
+# Branch Authority Record: codex/v1.6.13-prebeta-release-packaging
+
+## Branch Identity
+
+- Branch: `codex/v1.6.13-prebeta-release-packaging`
+- Workstream: `v1.6.13-prebeta release packaging with carried PR #110 branch-authority closeout`
+- Branch Class: `release packaging`
+
+## Purpose / Why It Exists
+
+This branch is the USER-approved real release-packaging carrier for `v1.6.13-prebeta`.
+
+It exists because PR #110 merged the one-time backlog governance repair, but merged `main` still carried stale branch-authority truth for that repair branch. The USER rejected a standalone governance cleanup branch and approved carrying the PR #110 branch-authority closeout inside this real release-packaging branch before release-readiness validation or release execution begins.
+
+This branch must not create runtime work, select FAM-006 or any other runtime FAM as selected-next truth, admit a runtime package, waive a single-slice package, create release artifacts, publish a release, or mutate `main` directly.
+
+## Current Phase
+
+- Phase: `Branch Readiness`
+
+## Phase Status
+
+- `Active Branch`: `codex/v1.6.13-prebeta-release-packaging`
+- Branch Readiness Stage: `Branch Readiness Stage 2 - Execution Gate`
+- Stage 2 USER Approval: `Granted for this release-packaging carrier branch on 2026-05-04`
+- Branch Readiness Stage 2 Admission: `Green`
+- Release Target: `v1.6.13-prebeta`
+- Release Floor: `patch prerelease`
+- Release Packaging Package: `REL-PKG-001 v1.6.13-prebeta release packaging`
+- Package Admission State: `Admitted`
+- Admitted Slice Count: `5`
+- Package Completion State: `In Progress`
+- Single-Slice Package User Approval: `Not required - the admitted release-packaging package has five concrete admitted slices`
+- PR #110 Closeout State: `Cleared on this branch before release-readiness work`
+- Runtime Package Admission: `Not approved`
+- Selected Next Runtime FAM: `None - not approved`
+- Selected Next Implementation Branch: `Not created`
+- Release Execution: `Not approved`
+- Release Artifacts: `Not created`
+
+## Branch Class
+
+- `release packaging`
+
+## Release-Bearing Markers
+
+- Release Target: `v1.6.13-prebeta`
+- Release Scope: merged backlog-family governance reform from PR #110, merged automation-catalog branch truth, FAM-001 legacy FB-049 runtime proof, and FAM-004 legacy FB-030 voice/audio runtime diagnostics proof.
+- Release Artifacts: planned tag `v1.6.13-prebeta`, release title `Pre-Beta v1.6.13`, inclusion-only Markdown release notes, GitHub-generated `## What's Changed`, and `**Full Changelog**:` section. Branch Readiness does not create, draft, tag, or publish these artifacts.
+
+## Blockers
+
+- None
+
+## Entry Basis
+
+- PR #110 merged on GitHub at `2026-05-04T16:45:56Z` via merge commit `86f68942b37c0947a9655d146017cb53d1fdc774`.
+- PR #110 final head SHA is `c74de00f6b16723ecf03e6298f34bc2b55bcf2d7`.
+- The PR #110 same-thread merge watcher verified `merged=true`, emitted the handoff in the approved Codex thread, and was retired after the terminal merge condition.
+- Merged `main` still listed `Docs/branch_records/codex_one_time_backlog_governance_repair.md` as active and that historical repair record still retained PR Readiness merge-watch truth.
+- USER approved entering Branch Readiness Stage 2, creating this branch from updated `main`, admitting a multi-slice `v1.6.13-prebeta` release-packaging package, and using it as the real carrier for the PR #110 closeout blocker.
+
+## Exit Criteria
+
+- `Docs/branch_records/index.md` lists only this branch authority record as active while the branch is open.
+- `Docs/branch_records/codex_one_time_backlog_governance_repair.md` is historical traceability, not active branch authority.
+- PR #110 merge proof, final head SHA, bot-review thread closeout, watcher `merged=true` handoff, and watcher retirement proof are preserved.
+- `PR Merge Verification Pending` is cleared for the one-time governance repair record.
+- Merged-main current-state truth remains stable: no active runtime workstream, no selected-next runtime truth, pending `v1.6.13-prebeta` release posture preserved, PR numbers evidence only, and legacy global FB IDs historical only.
+- The release-packaging package has multiple concrete admitted slices and does not rely on a single-slice cleanup.
+- Branch governance validation, Python compile validation, diff validation, and automation observability validation are green before handoff to Release Readiness validation.
+
+## Rollback Target
+
+- `Branch Readiness`
+
+Rollback Path: abandon this branch before merge to restore merged `main` to PR #110 merge commit `86f68942b37c0947a9655d146017cb53d1fdc774`; no direct-main mutation is required.
+
+## Next Legal Phase
+
+- `Release Readiness`
+
+Next Legal Phase Gate: `Allowed only after Branch Readiness Stage 2 validation is green and this branch is committed and pushed; release execution and artifact creation still require separate Release Readiness authorization.`
+
+## Branch Objective
+
+Clear the carried PR #110 branch-authority closeout blocker and admit the real `v1.6.13-prebeta` release-packaging carrier so the next pass can validate release target, floor, scope, artifacts, and post-release canon closure without opening runtime work.
+
+## Target End-State
+
+- Branch authority drift from PR #110 is closed as historical traceability.
+- `REL-PKG-001` is admitted as a multi-slice release-packaging package.
+- No runtime FAM, runtime package, selected-next successor, release artifact, tag, draft release, or public release is created during Branch Readiness.
+- The branch is ready to enter `Release Readiness` validation.
+
+## Backlog Completion Strategy
+
+Branch Completion Goal: complete all five admitted release-packaging slices before release execution can be considered.
+Known Future-Dependent Blockers: actual release artifact creation and publication remain future `Release Readiness` / release-execution work and are not authorized in Branch Readiness.
+Branch Closure Rule: the branch cannot advance beyond Branch Readiness until the carried authority closeout is recorded, release target/floor/scope/artifact plan validation is green, and validation handoff is ready.
+
+## Expected Seam Families And Risk Classes
+
+- PR #110 authority closeout: governance/source-of-truth risk; no runtime change.
+- Release target and floor validation: release-governance risk; no artifact creation.
+- Release scope and artifact plan validation: release-note and tag-plan risk; no publication.
+- Post-release canon closure plan: source-of-truth transition risk; no direct-main mutation.
+- Release Readiness handoff: validation and operator-output risk; no PR creation during Branch Readiness.
+
+## User Test Summary Strategy
+
+No desktop User Test Summary is required for this Branch Readiness pass because no runtime, UI, launcher, tray, voice/audio, or user-facing behavior changes are introduced. Release Readiness may still require operator-facing release validation output before execution.
+
+## Later-Phase Expectations
+
+Release Readiness must validate the latest public prerelease, release target, release floor, release scope, release artifact plan, post-release canon plan, and no-selected-next posture before any release execution. Release execution, release artifact creation, tag publication, and GitHub Release publication remain not approved by this Branch Readiness record.
+
+## Initial Workstream Seam Sequence
+
+Seam 1: `BR-S2-S1 - PR #110 Branch-Authority Closeout`
+Goal: clear stale active branch-authority posture from the merged one-time governance repair record and preserve PR #110 merge/watch proof as historical traceability.
+Scope: update branch authority routing and historical closeout truth only on this release-packaging branch.
+Non-Includes: no runtime branch, runtime package, selected-next truth, release artifact creation, tag, or release publication.
+
+Seam 2: `BR-S2-S2 - Release Target And Floor Validation`
+Goal: validate that `v1.6.13-prebeta` and `patch prerelease` remain the correct release target/floor for the merged proof package.
+Scope: source-truth validation only.
+Non-Includes: no release execution.
+
+Seam 3: `BR-S2-S3 - Release Scope And Artifact Plan Validation`
+Goal: validate inclusion-only release scope and planned artifact surfaces.
+Scope: plan validation only.
+Non-Includes: no release notes artifact, tag, or GitHub Release draft.
+
+Seam 4: `BR-S2-S4 - Post-Release Canon Closure Plan`
+Goal: validate the post-release truth transition plan for `v1.6.13-prebeta`.
+Scope: plan validation only.
+Non-Includes: no post-release canon mutation during Branch Readiness.
+
+Seam 5: `BR-S2-S5 - Release Readiness Handoff`
+Goal: prepare the governed handoff into Release Readiness validation.
+Scope: validation commands and source-of-truth handoff.
+Non-Includes: no PR creation, release execution, or release artifact creation.
+
+## Active Seam
+
+Active seam: `Branch Readiness Stage 2 - v1.6.13-prebeta Release Packaging Carrier Admission`
+
+## Release Packaging Package / Slice Plan
+
+Package ID: `REL-PKG-001`
+Package Name: `v1.6.13-prebeta release packaging`
+Package Type: `release-support`
+Package Admission State: `Admitted`
+Package Completion State: `In Progress`
+Single-Slice Drift Check: `PASS - five concrete admitted release-support slices are defined; Element Coverage rows do not count as slices.`
+
+| Slice ID | Package ID | Slice Name | Admission State | Slice Status | Completion State | Seam Trace |
+| --- | --- | --- | --- | --- | --- | --- |
+| `REL-SLC-001` | `REL-PKG-001` | PR #110 branch-authority closeout | Admitted | Green | Complete | `BR-S2-S1` |
+| `REL-SLC-002` | `REL-PKG-001` | v1.6.13-prebeta release target and floor validation | Admitted | Pending | Not Started | `BR-S2-S2` |
+| `REL-SLC-003` | `REL-PKG-001` | Release scope and artifact plan validation | Admitted | Pending | Not Started | `BR-S2-S3` |
+| `REL-SLC-004` | `REL-PKG-001` | Post-release canon closure plan | Admitted | Pending | Not Started | `BR-S2-S4` |
+| `REL-SLC-005` | `REL-PKG-001` | Validation and Release Readiness handoff | Admitted | Pending | Not Started | `BR-S2-S5` |
+
+## Element Coverage Review
+
+Element Coverage is a non-identity checklist only. It does not count as `Admission State: Admitted`, a slice, a seam, a package, a FAM, selected-next truth, or a release driver.
+
+- User-facing surface: release notes and public release copy only; no UI/runtime change.
+- Runtime/backend behavior: historical merged proof only; no new runtime delta.
+- Fail-safe/recovery: preserve existing runtime proof and release rollback path.
+- Security/privacy: no new runtime permission or data-surface change.
+- Voice/audio: preserve FAM-004 legacy FB-030 runtime diagnostics proof in release scope.
+- External integration: preserve merged automation-catalog proof only.
+- Local AI/capability packs: not in scope.
+- Packaging/install: release tag/title/notes plan validation only.
+- Monitoring/HUD: not in scope; FAM-006 remains recommendation-only, not selected-next truth.
+- Validation: branch governance, compile, diff, and automation observability validation.
+- Release impact: `v1.6.13-prebeta` release target/floor/scope/artifact plan validation.
+
+## Selected-Next / Runtime Non-Approval
+
+- Runtime branch creation: `Not approved`
+- Runtime package admission: `Not approved`
+- FAM-006 selected-next truth: `Not approved`
+- Any other runtime FAM selected-next truth: `Not approved`
+- Single-slice package waiver: `Not approved`
+- Release execution: `Not approved`
+- Release artifact creation: `Not approved`
+
+## Governance Drift Audit
+
+Governance Drift Found: `Yes - carried blocker from PR #110 post-merge authority closeout`
+Drift Type: stale active branch authority after merged PR.
+Repair Surface: this USER-approved real release-packaging carrier branch.
+Standalone Governance Repair: `Blocked`
+Repair Scope: branch authority index and historical branch-authority closeout only; no runtime work and no release execution.
+
+## Branch Readiness Stage 2 Validation Record
+
+- Branch Governance Validation: `PASS`; `python dev/orin_branch_governance_validation.py` passed after active/historical branch-authority routing was corrected.
+- Python Compile Validation: `PASS`; `python -m compileall -q dev` completed successfully.
+- Diff Validation: `PASS`; `git diff --check` completed successfully.
+- Automation Observability Validation: `REVIEW`; `dev/automation_observability_report.py` completed successfully and reported stale external automation-memory rows that remain review inputs, not repo-source blockers.
+- Release Readiness Handoff: `Ready`; next pass may validate release target, release floor, release scope, release artifact plan, and post-release canon plan without performing release execution unless separately approved.
