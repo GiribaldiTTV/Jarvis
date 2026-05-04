@@ -268,7 +268,7 @@ Supporting canon must stay aligned with live truth.
 
 That means:
 
-- PR Readiness hard blocker shorthand is `stale-canon`, `post-merge`, `dirty`, `docs-sync`, `next-workstream`, `deferred-context`, `uts-results`, `pr-created`, and `pr-validated`
+- PR Readiness hard blocker shorthand is `stale-canon`, `post-merge`, `dirty`, `docs-sync`, `next-workstream`, `Next Runtime Candidate Selection Pending`, `deferred-context`, `uts-results`, `pr-created`, and `pr-validated`
 - directly supporting canon and tightly coupled governance may be updated on the active implementation or release branch when that branch changes or depends on the truth
 - no PR-ready without canon-ready:
   - a branch is not PR-ready if merging it would leave `main` canon-stale
@@ -276,13 +276,15 @@ That means:
   - current-state canon and merge-target canon must already reflect the branch's true state and the state that will be true after merge
 - when a branch closes a workstream, changes released milestone posture, changes the current rebaseline, changes closeout-index routing, changes backlog or roadmap release posture, changes workstream-index release posture, or changes `Docs/Main.md` baseline routing, the required release-facing canon updates must already be on that branch before PR creation is allowed
 - no PR-ready with `Next Workstream Undefined`:
-  - If post-merge truth will resolve to `No Active Branch` because `Release Debt` or another repo-level admission blocker remains open, successor branch creation remains deferred; next-workstream selection is still required unless the user explicitly approves a no-next-workstream steady-state outcome in canon.
-  - the next workstream must be selected from canon using open backlog `Priority` plus deferred-context readiness, not `Target Version`
+  - If post-merge truth will resolve to `No Active Branch` because `Release Debt` or another repo-level admission blocker remains open, successor branch creation remains deferred; next-workstream selection is still required.
+  - if no real runtime successor can be selected, keep `Next Runtime Candidate Selection Pending` active and stop in PR Readiness rather than advancing to Release Readiness
+  - the next workstream must be a real runtime `Feature Family` candidate selected from canon using open backlog `Priority` plus deferred-context readiness, not `Target Version`
   - that workstream must be recorded in `Docs/feature_backlog.md` and `Docs/prebeta_roadmap.md`
   - that workstream must have canon-valid `Record State`
   - that workstream must have `Priority` defined
   - if that workstream is deferred, the backlog entry must include `Deferred Since:`, `Deferred Because:`, and `Selection / Unblock:`
   - that workstream must have minimal scope defined before PR green
+  - that minimal scope must explicitly define a runtime slice
   - no branch may exist yet for that next workstream while PR Readiness is encoding selected-next truth
   - the selected backlog entry must include `Next Workstream: Selected` and `Minimal Scope:`
   - `Docs/prebeta_roadmap.md` must include `## Selected Next Workstream` with the same workstream id, `Record State`, `Minimal Scope:`, and truthful branch status such as `Branch: Not created` before branch creation or the active Branch Readiness branch name after creation

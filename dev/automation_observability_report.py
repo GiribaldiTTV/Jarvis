@@ -325,9 +325,49 @@ def fb049_selected_next_local_ref_finding_is_historical() -> bool:
     )
 
 
+def fb030_post_merge_drift_is_carried_into_fb027() -> bool:
+    backlog = read_repo_text("Docs/feature_backlog.md")
+    roadmap = read_repo_text("Docs/prebeta_roadmap.md")
+    fb027_workstream = read_repo_text("Docs/workstreams/FB-027_interaction_system_baseline.md")
+    fb030_workstream = read_repo_text("Docs/workstreams/FB-030_orin_voice_audio_direction_refinement.md")
+    workstream_index = read_repo_text("Docs/workstreams/index.md")
+
+    required_markers = (
+        ("Status: Merged unreleased", backlog),
+        ("PR #108 is merged", backlog),
+        ("watcher verification proof exists through a forced run", backlog),
+        ("FB-027 is selected and active", backlog),
+        ("feature/fb-027-shutdown-confirmation-runtime-branch-readiness", backlog),
+        ("FB-030 is merged-unreleased release debt", roadmap),
+        ("FB-027 is selected, `Promoted`, and active in Branch Readiness", roadmap),
+        ("Phase: `Branch Readiness`", fb027_workstream),
+        ("Selected Runtime Slice: `WS1 shutdown hotkey confirmation runtime proof`", fb027_workstream),
+        ("Carried Blocker Repair: FB-030 is moved to merged-unreleased release-debt truth", fb027_workstream),
+        ("Status\n\n- `Merged unreleased`", fb030_workstream),
+        ("Phase: `Release Readiness`", fb030_workstream),
+        ("Selected Next Workstream: FB-027 interaction and shared-action runtime follow-through", fb030_workstream),
+        ("Release Target: v1.6.13-prebeta", fb030_workstream),
+        ("Docs/workstreams/FB-027_interaction_system_baseline.md", workstream_index),
+        ("Docs/workstreams/FB-030_orin_voice_audio_direction_refinement.md", workstream_index),
+    )
+    return all(marker in surface for marker, surface in required_markers)
+
+
 def classify_pending_review(title: str, summary: str) -> str:
     text = f"{title}\n{summary}".casefold()
     if "no blocker remains" in text:
+        return "REVIEW_INFO"
+    if (
+        (
+            "selected-next lock drift needs review" in text
+            or "fb-049 gate remains cleared" in text
+            or "branch governance audit stays green" in text
+            or "post-merge closure still pending" in text
+            or "fb-030 still in pr merge watch" in text
+            or "selected-next truth drifted from fb-049" in text
+        )
+        and fb030_post_merge_drift_is_carried_into_fb027()
+    ):
         return "REVIEW_INFO"
     if (
         "fb-049 selected-next canon conflicts with local ref" in text

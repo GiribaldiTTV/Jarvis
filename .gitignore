@@ -1,5 +1,6 @@
 # logs and runtime artifacts
 logs/
+/automations/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

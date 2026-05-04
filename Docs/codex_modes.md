@@ -232,6 +232,7 @@ When the approved phase is `PR Readiness`, the output must also explicitly inclu
 - confirmation that the Governance Drift Audit ran
 - whether governance drift was found
 - confirmation that stale-canon, post-merge-state, next-workstream, dirty-branch, docs-sync/drift-audit, and `User Test Summary Results Pending` blockers are clear
+- confirmation that `Next Runtime Candidate Selection Pending` is clear by selecting exactly one real runtime candidate before leaving PR Readiness
 - confirmation that `PR Readiness Scope Missed`, `Between-Branch Canon Repair Attempt`, and `Next Branch Created Too Early` are clear
 - confirmation that `Release Window Audit Incomplete` is clear, including the normal green posture `Remaining Known Release Blockers: None`, `Another Pre-Release Repair PR Required: NO`, and `Release Window Split Waiver: None`, unless an explicit user-approved split waiver is recorded
 - confirmation that `PR Creation Pending`, `PR Validation Pending`, `PR State Unknown`, and `PR Merge Status Unproven` are clear before reporting `PR Readiness GREEN`
@@ -253,6 +254,7 @@ When the approved phase is `PR Readiness`, the output must also explicitly inclu
   - if the selected item is deferred, confirmation that `Deferred Since:`, `Deferred Because:`, and `Selection / Unblock:` are present
   - the minimal scope recorded in canon
   - confirmation that backlog includes `Next Workstream: Selected` and `Minimal Scope:` and roadmap includes `## Selected Next Workstream`
+  - confirmation that the selected next workstream is a real runtime Feature Family candidate and that `Minimal Scope:` names a runtime slice
   - confirmation that no branch exists yet for that next workstream
   - confirmation that successor branch creation is deferred to `Branch Readiness` after merge and updated-`main` revalidation
 - when post-merge truth will resolve to `No Active Branch` because `Release Debt` or another repo-level admission blocker remains open:
@@ -458,11 +460,11 @@ If repo truth is a steady-state `No Active Branch`, say so explicitly instead of
 
 After a workstream is merged and closed, the next implementation workstream should execute from updated `main` on a fresh branch.
 
-During `PR Readiness`, the next workstream must be selected, canon-defined, minimally scoped, and explicitly not branched yet.
+During `PR Readiness`, the next workstream must be a real runtime candidate, selected, canon-defined, minimally scoped as a runtime slice, and explicitly not branched yet.
 
 That successor branch is created only during `Branch Readiness` after the current branch merges and updated `main` is revalidated.
 
-If post-merge truth will resolve to `No Active Branch` because `Release Debt` or another repo-level admission blocker remains open, successor branch creation remains deferred; next-workstream selection is still required unless the user explicitly approves a no-next-workstream steady-state outcome in canon.
+If post-merge truth will resolve to `No Active Branch` because `Release Debt` or another repo-level admission blocker remains open, successor branch creation remains deferred; next-workstream selection is still required. If no real runtime candidate can be selected, `Next Runtime Candidate Selection Pending` blocks Release Readiness and the branch stops in PR Readiness.
 
 If a branch is stale, merged, or identical to `main`, call it out explicitly and stop using it as the base for next-lane planning.
 

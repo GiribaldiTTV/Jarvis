@@ -668,6 +668,7 @@ PR_READINESS_BLOCKER_PHRASES = (
     "dirty",
     "docs-sync",
     "next-workstream",
+    "Next Runtime Candidate Selection Pending",
     "desktop-shortcut",
     "User Test Summary Results Pending",
     "PR Merge Status Unproven",
@@ -1178,12 +1179,6 @@ NEXT_WORKSTREAM_BRANCH_NOT_CREATED_PHRASES = (
     "No branch created",
     "not branched",
 )
-NO_NEXT_WORKSTREAM_MARKERS = (
-    "Selected Next Workstream: None",
-    "No valid open runtime-focused backlog candidate remains",
-    "Branch: Not created",
-)
-
 VALID_NEXT_WORKSTREAM_RECORD_STATES = (
     "Registry-only",
     "Promoted",
@@ -1556,6 +1551,7 @@ BOT_REVIEW_COMMENT_CLOSEOUT_ALLOWED_FILES = {
     "Docs/orin_task_template.md",
     "Docs/phase_governance.md",
     "Docs/prebeta_roadmap.md",
+    "Docs/workstreams/FB-027_interaction_system_baseline.md",
     "Docs/workstreams/FB-030_orin_voice_audio_direction_refinement.md",
     "dev/automation_observability_report.py",
     "dev/orin_branch_governance_validation.py",
@@ -7239,23 +7235,14 @@ def _run_next_workstream_gate(
     selected_entries = _selected_next_workstream_entries(backlog_entries)
     if not selected_entries:
         successor_candidates = _open_successor_candidate_entries(backlog_entries)
-        roadmap_section = _next_workstream_roadmap_section(roadmap_text)
         require(
-            not successor_candidates,
+            False,
             (
-                "PR readiness gate: Next Workstream Undefined blocker is active; no selected "
-                "next workstream is recorded, but open successor candidate(s) remain: "
-                + ", ".join(entry["id"] for entry in successor_candidates)
-            ),
-        )
-        require(
-            bool(roadmap_section)
-            and all(marker.casefold() in roadmap_section.casefold() for marker in NO_NEXT_WORKSTREAM_MARKERS),
-            (
-                "PR readiness gate: Next Workstream Undefined blocker is active; "
-                "Docs/prebeta_roadmap.md must explicitly record that no selected-next "
-                "workstream is available, no valid open runtime-focused backlog candidate remains, "
-                "and no successor branch is created"
+                "PR readiness gate: Next Runtime Candidate Selection Pending blocker is active; "
+                "PR Readiness cannot advance to Release Readiness until exactly one real runtime "
+                "candidate is selected, canon-defined, minimally scoped, and explicitly not branched yet. "
+                "Open candidate(s): "
+                + (", ".join(entry["id"] for entry in successor_candidates) or "none found; stop in PR Readiness")
             ),
         )
         return
@@ -7275,6 +7262,7 @@ def _run_next_workstream_gate(
     selected_record_state = selected["record_state"]
     selected_block = selected["block"]
     selected_scope = _extract_colon_value(selected_block, "Minimal Scope")
+    selected_registry_class = _clean_release_value(_extract_colon_value(selected_block, "Registry Class"))
     roadmap_section = _next_workstream_roadmap_section(roadmap_text)
     repair_only_handling, explicitly_handled_repair_branches = _selected_next_repair_only_branch_info(
         [selected_block, roadmap_section]
@@ -7288,12 +7276,28 @@ def _run_next_workstream_gate(
         ),
     )
     require(
+        selected_registry_class == "Feature Family",
+        (
+            "PR readiness gate: Next Runtime Candidate Selection Pending blocker is active; "
+            f"{selected_id} must be a real runtime Feature Family candidate, not "
+            f"Registry Class '{selected_registry_class}'"
+        ),
+    )
+    require(
         bool(selected_scope),
         (
             "PR readiness gate: Next Workstream Undefined blocker is active; "
             f"{selected_id} must define '{NEXT_WORKSTREAM_MINIMAL_SCOPE_LABEL}' in Docs/feature_backlog.md"
         ),
     )
+    if selected_scope:
+        require(
+            "runtime" in selected_scope.casefold(),
+            (
+                "PR readiness gate: Next Runtime Candidate Selection Pending blocker is active; "
+                f"{selected_id} Minimal Scope must explicitly name a runtime slice"
+            ),
+        )
     require(
         bool(roadmap_section),
         (
@@ -7338,13 +7342,24 @@ def _run_next_workstream_gate(
         f"PR readiness gate: could not inspect branch names for selected next workstream: {branch_error}",
     )
     matching_branches = _branch_names_for_workstream(branch_names, selected_id, ignored_branch_names)
+    current_branch = _git_current_branch()
+    selected_next_branch = _extract_colon_value(selected_block, "Selected Next Implementation Branch")
+    current_branch_names = {current_branch, f"origin/{current_branch}"} if current_branch else set()
+    same_family_successor_not_branched = (
+        current_branch
+        and selected_next_branch.casefold() in {"not created", "deferred to branch readiness"}
+        and bool(current_branch_names.intersection(matching_branches))
+    )
     non_repair_matching_branches = [
         branch_name
         for branch_name in matching_branches
         if branch_record_class_map.get(branch_name) != EMERGENCY_CANON_REPAIR_BRANCH_CLASS
         and branch_name not in explicitly_handled_repair_branches
+        and not (same_family_successor_not_branched and branch_name in current_branch_names)
     ]
-    if repair_only_handling and not non_repair_matching_branches:
+    if same_family_successor_not_branched and not non_repair_matching_branches:
+        matching_branches = []
+    elif repair_only_handling and not non_repair_matching_branches:
         matching_branches = []
     else:
         if not non_repair_matching_branches and any(
@@ -9840,6 +9855,20 @@ def main() -> int:
                 ignored_selected_next_branch_names,
             )
             if matching_branches:
+                current_branch_names = (
+                    {current_git_branch, f"origin/{current_git_branch}"}
+                    if current_git_branch
+                    else set()
+                )
+                selected_next_branch = _extract_colon_value(
+                    selected["block"], "Selected Next Implementation Branch"
+                )
+                same_family_successor_not_branched = (
+                    current_branch_names
+                    and selected_next_branch.casefold()
+                    in {"not created", "deferred to branch readiness"}
+                    and bool(current_branch_names.intersection(matching_branches))
+                )
                 repair_only_handling, explicitly_handled_repair_branches = _selected_next_repair_only_branch_info(
                     [selected["block"], roadmap_section]
                 )
@@ -9848,8 +9877,11 @@ def main() -> int:
                     for branch_name in matching_branches
                     if branch_record_class_map.get(branch_name) != EMERGENCY_CANON_REPAIR_BRANCH_CLASS
                     and branch_name not in explicitly_handled_repair_branches
+                    and not (same_family_successor_not_branched and branch_name in current_branch_names)
                 ]
-                if repair_only_handling and not non_repair_matching_branches:
+                if same_family_successor_not_branched and not non_repair_matching_branches:
+                    matching_branches = []
+                elif repair_only_handling and not non_repair_matching_branches:
                     matching_branches = []
                 else:
                     if not non_repair_matching_branches and any(

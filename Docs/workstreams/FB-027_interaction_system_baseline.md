@@ -8,11 +8,328 @@
 
 ## Record State
 
-- `Closed`
+- `Promoted`
 
 ## Status
 
-- `Released (v1.2.9-prebeta)`
+- `Active`
+
+## Current Phase
+
+- Phase: `PR Readiness`
+
+## Phase Status
+
+- Repo State: `Active Branch`
+- Active Branch: `feature/fb-027-shutdown-confirmation-runtime-branch-readiness`
+- Workstream: `FB-027 interaction and shared-action runtime follow-through`
+- Current Active Canonical Workstream Doc: `Docs/workstreams/FB-027_interaction_system_baseline.md`
+- Carried Blocker: `FB-030 Post-Merge Canon Drift / Selected-Next Revalidation Required`
+- Carried Blocker Status: `Cleared in BR1 by moving FB-030 to merged-unreleased release-debt truth, clearing stale PR2 merge-watch wording from current-state surfaces, and admitting this FB-027 runtime branch from updated main`
+- Selected Runtime Candidate: `FB-027 Interaction and shared-action family anchor`
+- Selected Runtime Slice: `WS1 shutdown hotkey confirmation runtime proof`
+- Current Branch Readiness Seam: `Branch Readiness BR1 - FB-027 Runtime Admission With Carried FB-030 Post-Merge Blocker`
+- Current Branch Readiness Seam Status: `Complete / green`
+- Current Workstream Seam: `Workstream WS1 - Shutdown Hotkey Confirmation Runtime Proof`
+- Current Workstream Seam Status: `Complete / green`
+- Current Hardening Seam: `Hardening H1 - Shutdown Hotkey Confirmation Runtime Validation`
+- Current Hardening Seam Status: `Complete / green`
+- Current Live Validation Seam: `Live Validation LV1 - Shutdown Hotkey Confirmation Live Validation`
+- Current Live Validation Seam Status: `Complete / green`
+- Current PR Readiness Seam: `PR Readiness PR1 - FB-027 Runtime Branch PR Validation`
+- Current PR Readiness Seam Status: `Complete / green`; PR #109 is live, open, non-draft, and mergeable/clean with the live bot review comment addressed on the current head.
+- Current PR2 Merge-Watch Seam: `PR Readiness PR2 - FB-027 Runtime Branch Merge Verification Watch`
+- Current PR2 Merge-Watch Seam Status: `Blocked / red on PR Merge Verification Pending`
+- Live PR: `https://github.com/GiribaldiTTV/Nexus-Desktop-AI/pull/109`
+- Same-Thread Watcher: `pr109-same-thread-merge-watch`
+- Remaining PR Readiness Blockers: `PR Merge Verification Pending`
+- Next Legal Phase: `PR Readiness`
+
+## Branch Class
+
+- `implementation`
+
+## Blockers
+
+- `PR Merge Verification Pending`: Release Readiness remains blocked until the same-thread watcher verifies PR #109 as `merged=true`.
+
+## Entry Basis
+
+- PR #108 merged into `main`; GitHub merge truth and watcher verification proof are preserved in the FB-030 historical post-merge trace.
+- Release Readiness found FB-030 post-merge canon drift after merge, and current governance requires that escaped drift ride the next legitimate runtime-focused backlog branch's Branch Readiness before implementation starts.
+- The user explicitly directed Codex to admit a real runtime candidate instead of waiting in a no-candidate stop-state.
+- FB-027 is the strongest admissible runtime candidate because it is a user-facing feature-family anchor, has `Priority: High`, and its own released baseline names shutdown-hotkey confirmation as future runtime work before Beta.
+
+## Exit Criteria
+
+- FB-030 no longer appears as the active implementation branch on merged-main current-state surfaces.
+- FB-030 is represented as merged-unreleased release debt for `v1.6.13-prebeta`.
+- PR #108 merge truth, forced watcher verification, watcher cleanup proof, FB-049 historical merge truth, and pending release posture remain preserved.
+- FB-027 is recorded as the active runtime-focused Branch Readiness branch.
+- The first bounded runtime slice is explicitly admitted with affected surfaces, non-goals, validation requirements, and rollback path.
+- Branch governance validation, automation observability, and diff checks pass before Workstream begins.
+
+## Rollback Target
+
+- `Branch Readiness`
+
+Rollback Path: revert the FB-027 Branch Readiness admission commit and return to updated main at the PR #108 merge commit if the admitted runtime candidate is abandoned.
+
+## Next Legal Phase
+
+- `PR Readiness`
+
+## Branch Objective
+
+- Add a bounded, user-visible confirmation step for shutdown hotkeys without changing overlay command resolution, saved-action behavior, relaunch ownership, tray behavior, or broader interaction architecture.
+- Repair the carried FB-030 post-merge source-of-truth drift before any FB-027 runtime implementation begins.
+
+## Active Seam
+
+Active seam: `PR Readiness PR2 - FB-027 Runtime Branch Merge Verification Watch`
+
+- `Branch Readiness BR1 - FB-027 Runtime Admission With Carried FB-030 Post-Merge Blocker`
+- Seam Status: `Complete / green`
+- `Workstream WS1 - Shutdown Hotkey Confirmation Runtime Proof`
+- Seam Status: `Complete / green`
+- `Hardening H1 - Shutdown Hotkey Confirmation Runtime Validation`
+- Seam Status: `Complete / green`
+- `Live Validation LV1 - Shutdown Hotkey Confirmation Live Validation`
+- Seam Status: `Complete / green`
+- `PR Readiness PR1 - FB-027 Runtime Branch PR Validation`
+- Seam Status: `Complete / green`
+- `PR Readiness PR2 - FB-027 Runtime Branch Merge Verification Watch`
+- Seam Status: `Blocked / red on PR Merge Verification Pending`
+
+## Expected Seam Families And Risk Classes
+
+- Workstream: `WS1 shutdown hotkey confirmation runtime proof`; Risk Class: `runtime/user-facing shutdown path`.
+- Hardening: validate confirmation accept, cancel, timeout/no-action, and active-session preservation without widening overlay or saved-action behavior.
+- Live Validation: require real or closest live-equivalent shutdown-hotkey evidence before PR Readiness.
+- PR Readiness: require live PR validation, watcher provisioning/routing proof, and PR2 merge-watch handling before Release Readiness.
+
+## User Test Summary Strategy
+
+- Shutdown hotkey confirmation is user-facing and must produce either direct user-facing shortcut validation proof or an explicit waiver before PR Readiness.
+- User validation should cover affirmative confirmation, cancellation/session preservation, and no false shutdown claim when confirmation is declined or expires.
+
+## Later-Phase Expectations
+
+- Workstream may implement only the admitted shutdown-confirmation slice and its validators.
+- Hardening must prove the runtime markers are truthful and that existing overlay, saved-action, and callable-group flows remain unchanged.
+- Live Validation must digest user-facing shortcut applicability before PR Readiness.
+- PR Readiness must provision and prove the current-PR watcher before PR1 can be green.
+
+## Target End-State
+
+- `Ctrl+Alt+End` and `Ctrl+Alt+2` request shutdown confirmation instead of immediately shutting down during normal desktop runtime.
+- An affirmative confirmation proceeds through the existing shutdown path and emits truthful runtime markers.
+- A decline or timeout preserves the active desktop session and emits truthful cancellation or no-shutdown markers.
+- Existing overlay entry, choose, confirm, result, saved-action, callable-group, and built-in-action flows remain unchanged.
+
+## Planning-Loop Guardrail
+
+Implementation Delta Class: `runtime/user-facing`
+Docs-Only Workstream: `No`
+Planning-Loop Bypass User Approval: `None`
+Planning-Loop Bypass Reason: `None`
+
+- This is a runtime-focused branch. Governance/source-of-truth repairs are admitted only as carried blockers that must clear before implementation starts.
+
+## Slice Continuation Policy
+
+Slice Continuation Default: `same-branch backlog completion`
+Backlog-Split User Approval: `None`
+Backlog-Split Reason: `None`
+
+- Additional FB-027 interaction/shared-action slices may continue on this branch only if they remain inside the same shutdown-confirmation risk envelope and validation authority.
+- Broader saved-action authoring, Action Studio, routines, profiles, plugin integration, voice invocation, tray redesign, built-in catalog expansion, hotkey remapping, and unrelated UX redesign remain out of scope.
+
+## Backlog Completion Strategy
+
+Branch Completion Goal: `Complete the admitted shutdown-confirmation runtime proof unless validation exposes a future-dependent blocker.`
+Known Future-Dependent Blockers: `None proven during Branch Readiness.`
+Branch Closure Rule: `Do not widen beyond shutdown confirmation without explicit same-branch scope admission.`
+
+## Backlog Completion Status
+
+Backlog Completion State: `Implemented Complete`
+Remaining Implementable Work: `None`
+Future-Dependent Blockers: `None`
+Completion Status: `Green`
+
+- WS1 implements the admitted shutdown-hotkey confirmation runtime proof without changing overlay command resolution, saved actions, callable groups, tray behavior, relaunch ownership, hotkey mappings, or release packaging.
+- Additional FB-027 work remains out of scope unless a later same-branch seam is explicitly admitted under the slice continuation policy.
+
+## Admitted Implementation Slice
+
+- Slice ID: `WS1 shutdown hotkey confirmation runtime proof`
+- Goal: prove shutdown hotkeys enter an explicit confirmation path before shutdown while preserving active-session ownership and the existing overlay interaction contract.
+- Runtime/User-Facing Delta: shutdown hotkeys become confirm-before-exit instead of immediate shutdown during normal desktop runtime.
+- Exact Affected Paths:
+  - `desktop/orin_desktop_main.py`
+  - `desktop/hotkeys.py`
+  - `desktop/desktop_renderer.py`
+  - `dev/orin_desktop_entrypoint_validation.py`
+  - `dev/orin_interaction_baseline_validation.py`
+- In-Scope:
+  - shutdown-hotkey confirmation request, accept, cancel, and timeout/no-action truth
+  - runtime markers for requested, accepted, cancelled, and completed shutdown confirmation states
+  - validator coverage for confirmation acceptance and cancellation/preservation behavior
+  - source-of-truth status updates required for the active branch
+- Out-Of-Scope:
+  - changing command overlay saved-action resolution
+  - changing built-in catalog entries
+  - changing tray menu structure
+  - adding Action Studio, routines, profiles, plugin integration, or voice invocation
+  - remapping hotkeys or removing existing shutdown hotkeys
+  - changing relaunch ownership, single-instance semantics, startup behavior, or release packaging
+- Rollback Boundary: revert WS1 runtime and validator changes plus WS1 status/proof docs while preserving the BR1 carried FB-030 canon repair unless the entire branch is abandoned.
+
+## Initial Workstream Seam Sequence
+
+Seam 1: `WS1-A - Shutdown Confirmation Surface Map`
+Goal: locate the existing shutdown-hotkey path and define the smallest confirmation surface that can reuse current desktop runtime primitives.
+Scope: inspect `desktop/orin_desktop_main.py`, `desktop/hotkeys.py`, and renderer-facing surfaces; no implementation beyond preparation if needed.
+Non-Includes: no overlay command model redesign, no saved-action changes, no tray redesign.
+
+Seam 2: `WS1-B - Confirmation Runtime Behavior`
+Goal: implement the minimal confirmation behavior and runtime markers for accept/cancel paths.
+Scope: bounded runtime changes in the admitted paths.
+Non-Includes: no new feature family behavior beyond shutdown confirmation.
+
+Seam 3: `WS1-C - Validation And Continuation Decision`
+Goal: validate acceptance, cancellation/session preservation, desktop entrypoint compatibility, and interaction baseline preservation.
+Scope: validator updates, validation evidence, and continuation decision only.
+Non-Includes: no PR creation or release work.
+
+## Branch Readiness BR1 Result
+
+- Source-of-Truth Determination: FB-027 is selected as the next legitimate runtime-focused backlog branch by explicit user direction plus backlog priority and future-work readiness.
+- Candidate Basis: FB-027 is a user-facing feature-family anchor with `Priority: High`; its released baseline explicitly names shutdown-hotkey confirmation as future runtime work before Beta.
+- Carried Blocker Classification: `FB-030 Post-Merge Canon Drift / Selected-Next Revalidation Required`.
+- Carried Blocker Repair: FB-030 is moved to merged-unreleased release-debt truth for `v1.6.13-prebeta`, stale PR2 merge-watch wording is removed from current-state surfaces, PR #108 merge/watcher proof remains historical traceability, and FB-027 becomes the active runtime branch.
+- Governance Hardening: PR Readiness now carries `Next Runtime Candidate Selection Pending` as a hard blocker until exactly one real runtime candidate is selected, scoped, mirrored in roadmap, and left unbranched for the next Branch Readiness pass.
+- First Runtime Slice Candidate: `WS1 shutdown hotkey confirmation runtime proof`.
+
+## Workstream WS1 Result
+
+- Runtime Path Located: `desktop/hotkeys.py` emitted direct shutdown through `ShutdownBus.shutdown_requested`; `desktop/orin_desktop_main.py` consumed that signal and immediately entered `do_shutdown()`.
+- Runtime Behavior Changed: `Ctrl+Alt+End` and `Ctrl+Alt+2` now emit `shutdown_confirmation_requested` and route through an explicit confirmation gate before shutdown.
+- Prompt Behavior: the normal runtime displays a top-level confirmation prompt asking whether to shut down Nexus Desktop AI.
+- Accepted Path: accepted confirmation emits `RENDERER_MAIN|SHUTDOWN_CONFIRMATION_ACCEPTED|source=hotkey` and `RENDERER_MAIN|SHUTDOWN_CONFIRMATION_CLEAN_SHUTDOWN_REQUESTED|source=hotkey`, then proceeds through the existing `RENDERER_MAIN|SHUTDOWN_REQUESTED` and renderer shutdown path.
+- Cancelled Path: declined confirmation emits `RENDERER_MAIN|SHUTDOWN_CONFIRMATION_CANCELLED|source=hotkey` and `RENDERER_MAIN|SHUTDOWN_CONFIRMATION_SESSION_PRESERVED|source=hotkey|reason=cancelled` without calling shutdown.
+- Timeout Path: unanswered confirmation expires to `RENDERER_MAIN|SHUTDOWN_CONFIRMATION_TIMEOUT|source=hotkey` and `RENDERER_MAIN|SHUTDOWN_CONFIRMATION_SESSION_PRESERVED|source=hotkey|reason=timeout` without calling shutdown.
+- Validation Proof: `dev/orin_interaction_baseline_validation.py` proves both shutdown hotkeys route to confirmation rather than direct shutdown and proves accepted, cancelled, and timeout marker truth.
+- Live-Equivalent Runtime Proof: `dev/orin_desktop_entrypoint_validation.py` now runs harness shutdown with `NEXUS_SHUTDOWN_CONFIRMATION_DECISION=accepted` and validates the confirmation-requested, accepted, and clean-shutdown-request markers before the existing clean shutdown markers.
+- WS1 Continuation Decision: Workstream WS1 is complete / green; next legal phase is `Hardening H1 - Shutdown Hotkey Confirmation Runtime Validation`.
+
+## Hardening H1 Result
+
+- Phase Admission: branch authority advanced from `Workstream` to `Hardening` and admitted `Hardening H1 - Shutdown Hotkey Confirmation Runtime Validation`.
+- Confirmation Behavior Finding: both shutdown hotkeys still route to confirmation instead of direct shutdown.
+- Accepted Path Finding: accepted confirmation emits accepted and clean-shutdown-request markers, then proceeds through the existing shutdown path.
+- Cancelled Path Finding: cancelled confirmation emits cancellation plus session-preserved markers and does not request shutdown.
+- Timeout Path Finding: timed-out confirmation emits timeout plus session-preserved markers and does not request shutdown.
+- Runtime Preservation Finding: cancellation and timeout preserve the active session/runtime state by withholding `RENDERER_MAIN|SHUTDOWN_REQUESTED`.
+- Compatibility Finding: interaction baseline, desktop entrypoint, and boot transition validation remain green after the confirmation gate.
+- Automation Observability Finding: current automation observability findings remain review inputs outside the WS1 runtime behavior; no H1 runtime repair candidate is admitted.
+- H1 Continuation Decision: Hardening H1 is complete / green; next legal phase is `Live Validation LV1 - Shutdown Hotkey Confirmation Live Validation`.
+
+## Live Validation LV1 Result
+
+- Phase Admission: branch authority advanced from `Hardening` to `Live Validation` and admitted `Live Validation LV1 - Shutdown Hotkey Confirmation Live Validation`.
+- Live-Equivalent Shortcut Finding: `dev/orin_desktop_entrypoint_validation.py` launches through the desktop entrypoint stack, sends `Ctrl+Alt+End`, and observes `RENDERER_MAIN|SHUTDOWN_CONFIRMATION_REQUESTED|source=hotkey`, `RENDERER_MAIN|SHUTDOWN_CONFIRMATION_ACCEPTED|source=hotkey`, and `RENDERER_MAIN|SHUTDOWN_CONFIRMATION_CLEAN_SHUTDOWN_REQUESTED|source=hotkey` before clean shutdown markers.
+- Alternate Shortcut Finding: `dev/orin_interaction_baseline_validation.py` proves both `Ctrl+Alt+End` and `Ctrl+Alt+2` route to confirmation instead of direct shutdown.
+- Accepted Path Finding: accepted confirmation reaches the existing clean shutdown path.
+- Cancelled Path Finding: cancelled confirmation preserves the active session/runtime state by emitting cancellation and session-preserved markers without allowing shutdown.
+- Timeout Path Finding: timed-out confirmation preserves the active session/runtime state by emitting timeout and session-preserved markers without allowing shutdown.
+- Compatibility Finding: interaction baseline, desktop entrypoint, boot transition, branch governance, and automation observability validation remain green.
+- Automation Observability Finding: strict observability reports only a review-info reminder that FB-027 is waiting for the next phase; no LV1 repair candidate is admitted.
+- LV1 Continuation Decision: Live Validation LV1 is complete / green; next legal phase is `PR Readiness PR1 - FB-027 Runtime Branch PR Validation`.
+
+## PR Readiness PR1 Result
+
+- Phase Admission: `PASS`; branch authority advances from `Live Validation` to `PR Readiness` and admits `PR Readiness PR1 - FB-027 Runtime Branch PR Validation` while preserving WS1, H1, and LV1 as historical complete/green proof.
+- Scope Boundary: PR1 may create and validate the live PR, provision the same-thread watcher, validate bot-review, mergeability, readiness state, and record PR2 merge-watch posture.
+- Non-Includes: no merge, no Release Readiness work, no release packaging, no runtime widening, no overlay-command, saved-action, callable-group, tray, relaunch, or hotkey-remapping changes.
+- PR Creation Validation: `PASS`; PR #109 is live at `https://github.com/GiribaldiTTV/Nexus-Desktop-AI/pull/109`, open, non-draft, base `main`, head `feature/fb-027-shutdown-confirmation-runtime-branch-readiness`, and current remote head `815c3a8dc044795502aa1fc5b80663f6bf32e45e`.
+- Mergeability Validation: `PASS`; PR #109 reports `MERGEABLE / CLEAN`.
+- Bot Review Validation: `Comment addressed`; the live `chatgpt-codex-connector[bot]` thread on `desktop/orin_desktop_main.py` is fixed on the current head via queued GUI-thread shutdown-confirmation dispatch, replied to with fix commit `815c3a8dc044795502aa1fc5b80663f6bf32e45e`, and resolved as review thread `PRRT_kwDORwnWIs5_Pay4`.
+- Same-Thread Watcher Provisioning: `PASS`; native heartbeat `pr109-same-thread-merge-watch` is active for this thread, targets PR #109, uses `FREQ=MINUTELY;INTERVAL=1`, and must report only watched status changes or merge/close verification.
+- Watcher Routing: `PASS`; the watcher config records target thread `019dd083-0317-7b42-afb3-20b6818a1fa7`, which is the approved current working-thread reporting surface for this branch.
+- Cleared Blockers: `PR Creation Pending`, `PR Watcher Provisioning Unproven`, `PR Watcher Routing Unverified`, and `PR Merge Status Unproven`.
+- Remaining Blockers: `PR Merge Verification Pending`.
+- PR2 Posture: PR Readiness continues in `PR Readiness PR2 - FB-027 Runtime Branch Merge Verification Watch`; Release Readiness remains blocked until the watcher verifies `merged=true`.
+
+## PR Bot Review Signal
+
+- Bot Review Signal Status: `Comment addressed`
+- Bot Review Signal Head SHA: `815c3a8dc044795502aa1fc5b80663f6bf32e45e`
+- Bot Review Signal Source: `Resolved GitHub review thread PRRT_kwDORwnWIs5_Pay4 after same-branch fix commit 815c3a8dc044795502aa1fc5b80663f6bf32e45e and PR #109 reply comment 3179286747.`
+- Bot Review Signal Timestamp: `2026-05-04T03:44:46Z`
+- Bot Review Signal Actor: `chatgpt-codex-connector[bot] / GiribaldiTTV`
+
+## PR Creation Details
+
+- PR URL: `https://github.com/GiribaldiTTV/Nexus-Desktop-AI/pull/109`
+- PR State: `open`
+- Draft State: `false`
+- Base Branch: `main`
+- Head Branch: `feature/fb-027-shutdown-confirmation-runtime-branch-readiness`
+- Head SHA: `815c3a8dc044795502aa1fc5b80663f6bf32e45e`
+- Mergeability: `MERGEABLE / CLEAN`
+- Bot Review State: `Comment addressed`; review thread `PRRT_kwDORwnWIs5_Pay4` is resolved after reply comment `3179286747` and fix commit `815c3a8dc044795502aa1fc5b80663f6bf32e45e`.
+
+## PR Watcher Provisioning Proof
+
+- Native Heartbeat Watcher: `pr109-same-thread-merge-watch`
+- Native Heartbeat Config: `$CODEX_HOME/automations/pr109-same-thread-merge-watch/automation.toml`
+- Native Heartbeat Cadence: `FREQ=MINUTELY;INTERVAL=1`
+- Native Heartbeat Target Thread: `019dd083-0317-7b42-afb3-20b6818a1fa7`
+- Approved Reporting Surface: current working Codex thread.
+- Bounded Route Probe: `dev/pr_same_thread_watcher.py --force-emit` detected PR #109 state at `2026-05-04T03:38:32Z`, registered the watcher host on thread `019dd083-0317-7b42-afb3-20b6818a1fa7`, detected the live bot comment, and triggered the bounded repair worker that produced fix commit `815c3a8dc044795502aa1fc5b80663f6bf32e45e`.
+- Bounded Route Probe Artifacts: `$CODEX_HOME/watchers/pr109-fb027-shutdown-confirmation-watch.log`; `$CODEX_HOME/watchers/pr109-fb027-shutdown-confirmation-watch-latest.txt`
+- Watched PR: `https://github.com/GiribaldiTTV/Nexus-Desktop-AI/pull/109`
+- Stop Condition: watcher remains bounded to PR #109 and PR Readiness, and must retire or be deleted after PR #109 becomes `merged` or `closed`.
+- Output Boundary: post source-of-truth status updates only when the watched status changes or merge/close is verified; do not edit files, create branches, merge the PR, or perform Release Readiness work.
+
+## Post-Merge State
+
+- No Active Branch Handling: after the FB-027 PR merges, merged-main current-state surfaces must return to `No Active Branch`; this workstream record becomes historical traceability and must not retain live PR state, active seam ownership, or open-PR narration as merged-main active authority.
+- Branch Authority Closeout Requirement: before Release Readiness can treat the merge as complete, the same-thread watcher must verify `merged=true`, emit source-of-truth handoff proof, and retire or be deleted.
+- Successor Branch Handling: no successor branch is created from PR Readiness; the next runtime candidate must be selected and left branch-not-created before leaving PR Readiness.
+- PR2 Merge Watch Dependency: `PR Merge Verification Pending` remains active until the same-thread watcher verifies the live PR merged state.
+
+## Governance Drift Audit
+
+Governance Drift Found: Yes, repaired during PR Readiness.
+
+- Drift Found: live PR bot review found the shutdown-confirmation dialog could be invoked from the hotkey listener thread, and the PR-readiness successor gate did not yet allow same-family successor selection while the current branch still exists.
+- Repair Performed: fix commit `815c3a8dc044795502aa1fc5b80663f6bf32e45e` routes shutdown confirmation through a GUI-thread `QObject` slot with `Qt.ConnectionType.QueuedConnection`, replies to and resolves the bot review thread, and validator hardening now ignores only the current branch when the selected same-family successor explicitly records `Selected Next Implementation Branch: Not created`.
+- Drift After Repair: no unresolved governance drift remains for PR1; PR2 remains blocked only by watcher-verified merge.
+
+## Release Window Audit
+
+Release Window Audit: PASS
+Window Scope: FB-027 WS1 shutdown-hotkey confirmation runtime proof, H1 validation, LV1 live-equivalent validation, PR1 live PR creation, watcher provisioning, live bot-review closeout, and PR2 merge-watch posture for the bounded runtime/user-facing lane.
+Known Window Blockers Reviewed: stale post-merge canon recurrence, next-runtime-candidate selection, live PR creation, same-thread watcher routing, bot-review signal, merge status, PR2 merge verification, pending `v1.6.13-prebeta` release posture, and selected runtime-slice containment.
+Remaining Known Release Blockers: None
+Another Pre-Release Repair PR Required: NO
+Release Window Split Waiver: None
+
+## Seam Continuation Decision
+
+Seam Status: `Red`
+Slice Status: `Green`
+Completion Status: `Red`
+Waiver Status: `None`
+Continue Decision: `Stop`
+Stop Basis: `Named PR Readiness blockers`
+Stop Condition: `PR Merge Verification Pending`
+Continuation Action: `Continue PR Readiness in PR2 and wait for same-thread watcher verification that PR #109 is merged before entering Release Readiness.`
+Decision Basis: `PR #109 is live and mergeable/clean, the live bot review comment is addressed on the current head, and watcher-verified merge is still pending.`
+Next Active Seam: `PR Readiness PR2 - FB-027 Runtime Branch Merge Verification Watch`
 
 ## Current Release-Truth Note
 
@@ -410,9 +727,13 @@ Future runtime or capability work beyond those released steps must still return 
 
 ## User Test Summary
 
-This workstream now includes user-facing saved-action capability changes beyond the original URL-target milestone, so a workstream-owned User Test Summary should still be considered before any future release promotion that extends FB-027 beyond the currently released inventory-and-guided-access follow-through.
+User-Facing Shortcut Validation: `PASS`
+User-Facing Shortcut Path: `Ctrl+Alt+End through dev/orin_desktop_entrypoint_validation.py closest live-equivalent desktop entrypoint harness; Ctrl+Alt+2 covered by dev/orin_interaction_baseline_validation.py`
+User Test Summary Results: `PASS`
 
-Future user-facing interaction changes should assume a workstream-owned User Test Summary will likely be needed before closure.
+- Live Validation Evidence: closest live-equivalent desktop entrypoint validation sent the shutdown hotkey through the active desktop runtime path and observed confirmation request, accepted confirmation, clean-shutdown request, and clean shutdown markers.
+- Session Preservation Evidence: interaction baseline validation proves cancelled and timeout decisions do not allow shutdown and emit the session-preserved markers.
+- User-Facing Scope Note: no manual user waiver is required for LV1 because the desktop entrypoint harness exercised the live shortcut path closely enough for this bounded branch, while direct `Ctrl+Alt+2` routing remains covered by focused interaction validation.
 
 ## Baseline Lock Summary
 

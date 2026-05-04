@@ -549,15 +549,16 @@ After a workstream is closed, released, merged, or otherwise no longer the right
 
 Prompting should reflect that reality.
 
-PR Readiness selects and minimally scopes the next workstream in canon, but it must also prove no successor branch exists yet at PR-package time.
-Use machine-checkable markers: `Next Workstream: Selected` and `Minimal Scope:` in the backlog entry, plus `## Selected Next Workstream` and branch status such as `Branch: Not created` in the roadmap before the next branch opens or the active Branch Readiness branch name after it legally opens.
+PR Readiness selects and minimally scopes the next real runtime workstream in canon, but it must also prove no successor branch exists yet at PR-package time.
+Use machine-checkable markers: `Next Workstream: Selected` and runtime `Minimal Scope:` in the backlog entry, plus `## Selected Next Workstream` and branch status such as `Branch: Not created` in the roadmap before the next branch opens or the active Branch Readiness branch name after it legally opens.
 Selection must be priority-led: use open backlog `Priority` and deferred-context readiness, not `Target Version`, to choose the next candidate.
 If the selected backlog item is deferred, it must already explain `Deferred Since:`, `Deferred Because:`, and `Selection / Unblock:` before PR Readiness can treat it as selectable.
+If no real runtime candidate can be selected, `Next Runtime Candidate Selection Pending` remains active and the branch stops in PR Readiness instead of advancing to Release Readiness.
 Create the fresh branch only during the next `Branch Readiness` pass after the current branch merges and updated `main` is revalidated.
 If that branch is created and a prior-branch canon miss is discovered, stay in `Branch Readiness`, repair the miss on the active branch, and do not start implementation until the blocker is cleared.
 
 Do not ask Codex to keep planning from an old lane branch when live repo truth shows that branch is stale, merged, or identical to `main`.
-If repo truth is a steady-state `No Active Branch`, it is also valid for the truthful next move to be no branch at all until a new approved need exists.
+If repo truth is a steady-state `No Active Branch`, it is still not valid to leave PR Readiness without selecting the next real runtime candidate for the next branch.
 Do not ask Codex to work directly on `main`; `main` is protected and read-only for Codex work.
 There is no emergency direct-main repair path for Codex.
 Any tracked file mutation while Codex is on `main` is a `Main Write Attempt`.
@@ -574,6 +575,7 @@ Standard operating procedure from now on is a watcher on an approved Codex repor
 Watcher status-change output must be source-of-truth shaped with governed state markers, live PR truth, watcher proof, blocker state, continue/stop decision, and, after `merged=true`, a copy/paste Codex prompt basis for the next legal Release Readiness validation. The watcher may clear merge-verification blockers but must not independently claim Release Readiness legality.
 If final merge delivery proof is missing, the watcher must keep running and retry instead of retiring.
 After live PR creation, live PR validation, merge-status green, and bot-review approval are complete, PR Readiness continues into a merge-watch seam and `PR Merge Verification Pending` stays active until that watcher on the approved reporting surface verifies that the PR is `merged`.
+`Next Runtime Candidate Selection Pending` also keeps PR Readiness non-green until exactly one real runtime Feature Family candidate is selected, canon-defined, minimally scoped as a runtime slice, mirrored in roadmap `## Selected Next Workstream`, and explicitly not branched yet.
 `Automation Runtime Unproven` also keeps PR Readiness non-green for any phase-critical automation gate. A card, config file, or automation list showing `ACTIVE` is configuration state, not run proof. Accept run evidence only from thread or inbox output, automation memory/log/state-file updates, or scheduler last-run evidence. If the preferred Codex automation remains `ACTIVE` without run evidence, keep the owning phase blocked until run evidence exists or a bounded fallback is activated. Any bounded fallback must be target-scoped, phase-scoped, read-only, and self-terminating or explicitly deleted when its terminal condition or phase exit occurs.
 Use `dev/automation_observability_report.py` when you need the current automation health picture. This clears or confirms Automation Observability Review Pending by reading Codex automation run/inbox rows plus `$CODEX_HOME/automations/*/memory.md`; `BLOCKER_CANDIDATE` and `REVIEW_REQUIRED` findings are bounded repair candidates, while `REVIEW_INFO` is informational unless it contradicts repo truth.
 
