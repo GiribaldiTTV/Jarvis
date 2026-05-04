@@ -8,42 +8,36 @@
 
 ## Record State
 
-- `Promoted`
+- `Closed`
 
 ## Status
 
-- `Active`
+- `Released (v1.2.9-prebeta) / family aggregation hold`
 
 ## Current Phase
 
-- Phase: `PR Readiness`
+- Phase: `Historical Traceability`
 
 ## Phase Status
 
-- Repo State: `Active Branch`
-- Active Branch: `feature/fb-027-shutdown-confirmation-runtime-branch-readiness`
-- Workstream: `FB-027 interaction and shared-action runtime follow-through`
-- Current Active Canonical Workstream Doc: `Docs/workstreams/FB-027_interaction_system_baseline.md`
-- Carried Blocker: `FB-030 Post-Merge Canon Drift / Selected-Next Revalidation Required`
-- Carried Blocker Status: `Cleared in BR1 by moving FB-030 to merged-unreleased release-debt truth, clearing stale PR2 merge-watch wording from current-state surfaces, and admitting this FB-027 runtime branch from updated main`
-- Selected Runtime Candidate: `FB-027 Interaction and shared-action family anchor`
-- Selected Runtime Slice: `WS1 shutdown hotkey confirmation runtime proof`
-- Current Branch Readiness Seam: `Branch Readiness BR1 - FB-027 Runtime Admission With Carried FB-030 Post-Merge Blocker`
-- Current Branch Readiness Seam Status: `Complete / green`
-- Current Workstream Seam: `Workstream WS1 - Shutdown Hotkey Confirmation Runtime Proof`
-- Current Workstream Seam Status: `Complete / green`
-- Current Hardening Seam: `Hardening H1 - Shutdown Hotkey Confirmation Runtime Validation`
-- Current Hardening Seam Status: `Complete / green`
-- Current Live Validation Seam: `Live Validation LV1 - Shutdown Hotkey Confirmation Live Validation`
-- Current Live Validation Seam Status: `Complete / green`
-- Current PR Readiness Seam: `PR Readiness PR1 - FB-027 Runtime Branch PR Validation`
-- Current PR Readiness Seam Status: `Complete / green`; PR #109 is live, open, non-draft, and mergeable/clean with the live bot review comment addressed on the current head.
-- Current PR2 Merge-Watch Seam: `PR Readiness PR2 - FB-027 Runtime Branch Merge Verification Watch`
-- Current PR2 Merge-Watch Seam Status: `Blocked / red on PR Merge Verification Pending`
-- Live PR: `https://github.com/GiribaldiTTV/Nexus-Desktop-AI/pull/109`
-- Same-Thread Watcher: `pr109-same-thread-merge-watch`
-- Remaining PR Readiness Blockers: `PR Merge Verification Pending`
-- Next Legal Phase: `PR Readiness`
+- Repo State: `No Active Branch`
+- Active Branch: `None`
+- Workstream: `None active`
+- Current Active Canonical Workstream Doc: `None`
+- Historical Family Anchor: `FB-027 Interaction and shared-action family anchor`
+- Historical Baseline Release: `v1.2.9-prebeta`
+- PR #109 Aggregation Evidence: `Merged shutdown-hotkey confirmation runtime proof`
+- Standalone Release Driver: `No`
+- Aggregation Target: `Future USER-approved FB-027 family release or larger approved release aggregation`
+- Governance Correction: PR #109 is preserved as merged FB-027 family evidence, not as an active backlog lane, selected-next lane, or standalone release-version driver.
+- Backlog Addition User Approval Missing: active for any attempted new backlog item, backlog split, promotion, or successor selection without explicit USER approval.
+- Selected Next Workstream: `None - USER approval required`
+- Selected Next Implementation Branch: `Not created`
+- Preserved WS1 Proof: `Complete / green`
+- Preserved H1 Proof: `Complete / green`
+- Preserved LV1 Proof: `Complete / green`
+- Preserved PR1 / PR2 Proof: PR #109 was created, bot-review was addressed, merge status was clean, same-thread watcher proof existed, and the PR merged; detailed proof remains below as historical trace.
+- Next Legal Phase: `None for this closed family-anchor record`
 
 ## Branch Class
 
@@ -51,42 +45,40 @@
 
 ## Blockers
 
-- `PR Merge Verification Pending`: Release Readiness remains blocked until the same-thread watcher verifies PR #109 as `merged=true`.
+- `Backlog Addition User Approval Missing`: any future FB-027 continuation, selected-next truth, backlog split, or release-version driver requires explicit USER approval first.
 
 ## Entry Basis
 
-- PR #108 merged into `main`; GitHub merge truth and watcher verification proof are preserved in the FB-030 historical post-merge trace.
-- Release Readiness found FB-030 post-merge canon drift after merge, and current governance requires that escaped drift ride the next legitimate runtime-focused backlog branch's Branch Readiness before implementation starts.
-- The user explicitly directed Codex to admit a real runtime candidate instead of waiting in a no-candidate stop-state.
-- FB-027 is the strongest admissible runtime candidate because it is a user-facing feature-family anchor, has `Priority: High`, and its own released baseline names shutdown-hotkey confirmation as future runtime work before Beta.
+- This correction reclassifies PR #109 as FB-027 family aggregation evidence rather than an active backlog/release lane.
+- The USER clarified that backlog IDs are for large feature-family or release-scale work, not governance or small single-seam runtime slices.
+- The USER directed a one-time governance repair and a hard blocker against adding backlog items without explicit USER approval.
+- PR #109 shutdown-hotkey confirmation proof remains preserved, but it does not deserve its own release version.
 
 ## Exit Criteria
 
-- FB-030 no longer appears as the active implementation branch on merged-main current-state surfaces.
-- FB-030 is represented as merged-unreleased release debt for `v1.6.13-prebeta`.
-- PR #108 merge truth, forced watcher verification, watcher cleanup proof, FB-049 historical merge truth, and pending release posture remain preserved.
-- FB-027 is recorded as the active runtime-focused Branch Readiness branch.
-- The first bounded runtime slice is explicitly admitted with affected surfaces, non-goals, validation requirements, and rollback path.
-- Branch governance validation, automation observability, and diff checks pass before Workstream begins.
+- FB-027 no longer appears as the active implementation branch or selected-next lane on merged-main current-state surfaces.
+- PR #109 proof remains preserved as family evidence under FB-027 and its lifetime dossier.
+- FB-049 runtime proof, FB-030 runtime diagnostics proof, pending `v1.6.13-prebeta` posture, and prior FB-049 historical merge truth remain preserved.
+- Future backlog addition, split, promotion, selected-next truth, or release-version driver selection stops on `Backlog Addition User Approval Missing` until explicit USER approval exists.
 
 ## Rollback Target
 
-- `Branch Readiness`
+- `Historical Traceability`
 
-Rollback Path: revert the FB-027 Branch Readiness admission commit and return to updated main at the PR #108 merge commit if the admitted runtime candidate is abandoned.
+Rollback Path: revert this governance-correction branch to restore the prior PR #109 active-lane interpretation; do not revert PR #109 runtime behavior unless the USER explicitly requests a product rollback.
 
 ## Next Legal Phase
 
-- `PR Readiness`
+- `None`
 
 ## Branch Objective
 
-- Add a bounded, user-visible confirmation step for shutdown hotkeys without changing overlay command resolution, saved-action behavior, relaunch ownership, tray behavior, or broader interaction architecture.
-- Repair the carried FB-030 post-merge source-of-truth drift before any FB-027 runtime implementation begins.
+- Preserve the released FB-027 family anchor and PR #109 shutdown-confirmation proof without treating PR #109 as a standalone release-version driver.
+- Keep future FB-027 runtime continuation blocked until explicit USER approval selects a backlog identity or larger family aggregation.
 
 ## Active Seam
 
-Active seam: `PR Readiness PR2 - FB-027 Runtime Branch Merge Verification Watch`
+Active seam: `None - historical traceability only`
 
 - `Branch Readiness BR1 - FB-027 Runtime Admission With Carried FB-030 Post-Merge Blocker`
 - Seam Status: `Complete / green`
@@ -99,14 +91,14 @@ Active seam: `PR Readiness PR2 - FB-027 Runtime Branch Merge Verification Watch`
 - `PR Readiness PR1 - FB-027 Runtime Branch PR Validation`
 - Seam Status: `Complete / green`
 - `PR Readiness PR2 - FB-027 Runtime Branch Merge Verification Watch`
-- Seam Status: `Blocked / red on PR Merge Verification Pending`
+- Seam Status: `Historical complete after PR #109 merge`
 
 ## Expected Seam Families And Risk Classes
 
 - Workstream: `WS1 shutdown hotkey confirmation runtime proof`; Risk Class: `runtime/user-facing shutdown path`.
 - Hardening: validate confirmation accept, cancel, timeout/no-action, and active-session preservation without widening overlay or saved-action behavior.
 - Live Validation: require real or closest live-equivalent shutdown-hotkey evidence before PR Readiness.
-- PR Readiness: require live PR validation, watcher provisioning/routing proof, and PR2 merge-watch handling before Release Readiness.
+- PR Readiness: historical PR #109 validation, watcher provisioning/routing proof, and merge-watch proof are preserved below; no current PR Readiness seam remains active.
 
 ## User Test Summary Strategy
 
@@ -115,10 +107,10 @@ Active seam: `PR Readiness PR2 - FB-027 Runtime Branch Merge Verification Watch`
 
 ## Later-Phase Expectations
 
-- Workstream may implement only the admitted shutdown-confirmation slice and its validators.
-- Hardening must prove the runtime markers are truthful and that existing overlay, saved-action, and callable-group flows remain unchanged.
-- Live Validation must digest user-facing shortcut applicability before PR Readiness.
-- PR Readiness must provision and prove the current-PR watcher before PR1 can be green.
+- Historical PR #109 implemented only the admitted shutdown-confirmation slice and its validators.
+- Historical H1 proved the runtime markers are truthful and that existing overlay, saved-action, and callable-group flows remained unchanged.
+- Historical LV1 digested user-facing shortcut applicability before PR Readiness.
+- Future same-family continuation requires explicit USER approval before selected-next truth, branch creation, or release-version-driver status exists.
 
 ## Target End-State
 
@@ -142,7 +134,7 @@ Slice Continuation Default: `same-branch backlog completion`
 Backlog-Split User Approval: `None`
 Backlog-Split Reason: `None`
 
-- Additional FB-027 interaction/shared-action slices may continue on this branch only if they remain inside the same shutdown-confirmation risk envelope and validation authority.
+- Additional FB-027 interaction/shared-action slices require explicit USER approval before selected-next truth, branch creation, or backlog split.
 - Broader saved-action authoring, Action Studio, routines, profiles, plugin integration, voice invocation, tray redesign, built-in catalog expansion, hotkey remapping, and unrelated UX redesign remain out of scope.
 
 ## Backlog Completion Strategy
@@ -159,7 +151,7 @@ Future-Dependent Blockers: `None`
 Completion Status: `Green`
 
 - WS1 implements the admitted shutdown-hotkey confirmation runtime proof without changing overlay command resolution, saved actions, callable groups, tray behavior, relaunch ownership, hotkey mappings, or release packaging.
-- Additional FB-027 work remains out of scope unless a later same-branch seam is explicitly admitted under the slice continuation policy.
+- Additional FB-027 work remains out of scope unless explicit USER approval admits a future same-family continuation or larger aggregation.
 
 ## Admitted Implementation Slice
 
@@ -205,11 +197,11 @@ Non-Includes: no PR creation or release work.
 
 ## Branch Readiness BR1 Result
 
-- Source-of-Truth Determination: FB-027 is selected as the next legitimate runtime-focused backlog branch by explicit user direction plus backlog priority and future-work readiness.
+- Source-of-Truth Determination: superseded by the one-time governance correction; FB-027 remains a released family anchor, and PR #109 is aggregation evidence rather than an active backlog lane.
 - Candidate Basis: FB-027 is a user-facing feature-family anchor with `Priority: High`; its released baseline explicitly names shutdown-hotkey confirmation as future runtime work before Beta.
 - Carried Blocker Classification: `FB-030 Post-Merge Canon Drift / Selected-Next Revalidation Required`.
-- Carried Blocker Repair: FB-030 is moved to merged-unreleased release-debt truth for `v1.6.13-prebeta`, stale PR2 merge-watch wording is removed from current-state surfaces, PR #108 merge/watcher proof remains historical traceability, and FB-027 becomes the active runtime branch.
-- Governance Hardening: PR Readiness now carries `Next Runtime Candidate Selection Pending` as a hard blocker until exactly one real runtime candidate is selected, scoped, mirrored in roadmap, and left unbranched for the next Branch Readiness pass.
+- Carried Blocker Repair: FB-030 remains merged-unreleased release-debt truth for `v1.6.13-prebeta`; stale PR2 merge-watch wording is removed from current-state surfaces; PR #108 merge/watcher proof remains historical traceability; FB-027 no longer becomes the active runtime branch by inertia.
+- Governance Hardening: `Backlog Addition User Approval Missing` now supersedes automatic next-runtime selection when USER approval is absent; `Next Runtime Candidate Selection Pending` applies only after USER-approved successor selection exists.
 - First Runtime Slice Candidate: `WS1 shutdown hotkey confirmation runtime proof`.
 
 ## Workstream WS1 Result
@@ -251,16 +243,16 @@ Non-Includes: no PR creation or release work.
 ## PR Readiness PR1 Result
 
 - Phase Admission: `PASS`; branch authority advances from `Live Validation` to `PR Readiness` and admits `PR Readiness PR1 - FB-027 Runtime Branch PR Validation` while preserving WS1, H1, and LV1 as historical complete/green proof.
-- Scope Boundary: PR1 may create and validate the live PR, provision the same-thread watcher, validate bot-review, mergeability, readiness state, and record PR2 merge-watch posture.
+- Scope Boundary: PR1 created and validated the live PR, provisioned the same-thread watcher, validated bot-review, mergeability, readiness state, and recorded PR2 merge-watch posture as historical proof.
 - Non-Includes: no merge, no Release Readiness work, no release packaging, no runtime widening, no overlay-command, saved-action, callable-group, tray, relaunch, or hotkey-remapping changes.
-- PR Creation Validation: `PASS`; PR #109 is live at `https://github.com/GiribaldiTTV/Nexus-Desktop-AI/pull/109`, open, non-draft, base `main`, head `feature/fb-027-shutdown-confirmation-runtime-branch-readiness`, and current remote head `815c3a8dc044795502aa1fc5b80663f6bf32e45e`.
-- Mergeability Validation: `PASS`; PR #109 reports `MERGEABLE / CLEAN`.
+- PR Creation Validation: `PASS`; PR #109 was live at `https://github.com/GiribaldiTTV/Nexus-Desktop-AI/pull/109`, non-draft, base `main`, head `feature/fb-027-shutdown-confirmation-runtime-branch-readiness`, and remote head `815c3a8dc044795502aa1fc5b80663f6bf32e45e` before merge.
+- Mergeability Validation: `PASS`; PR #109 reported `MERGEABLE / CLEAN` before merge.
 - Bot Review Validation: `Comment addressed`; the live `chatgpt-codex-connector[bot]` thread on `desktop/orin_desktop_main.py` is fixed on the current head via queued GUI-thread shutdown-confirmation dispatch, replied to with fix commit `815c3a8dc044795502aa1fc5b80663f6bf32e45e`, and resolved as review thread `PRRT_kwDORwnWIs5_Pay4`.
-- Same-Thread Watcher Provisioning: `PASS`; native heartbeat `pr109-same-thread-merge-watch` is active for this thread, targets PR #109, uses `FREQ=MINUTELY;INTERVAL=1`, and must report only watched status changes or merge/close verification.
+- Same-Thread Watcher Provisioning: `PASS`; native heartbeat `pr109-same-thread-merge-watch` targeted PR #109, used `FREQ=MINUTELY;INTERVAL=1`, and reported only watched status changes or merge/close verification.
 - Watcher Routing: `PASS`; the watcher config records target thread `019dd083-0317-7b42-afb3-20b6818a1fa7`, which is the approved current working-thread reporting surface for this branch.
 - Cleared Blockers: `PR Creation Pending`, `PR Watcher Provisioning Unproven`, `PR Watcher Routing Unverified`, and `PR Merge Status Unproven`.
-- Remaining Blockers: `PR Merge Verification Pending`.
-- PR2 Posture: PR Readiness continues in `PR Readiness PR2 - FB-027 Runtime Branch Merge Verification Watch`; Release Readiness remains blocked until the watcher verifies `merged=true`.
+- Remaining Blockers: `None for PR #109 historical proof`.
+- PR2 Posture: Historical complete after PR #109 merged; this proof is retained as family aggregation evidence, not as a standalone release driver.
 
 ## PR Bot Review Signal
 
@@ -273,12 +265,13 @@ Non-Includes: no PR creation or release work.
 ## PR Creation Details
 
 - PR URL: `https://github.com/GiribaldiTTV/Nexus-Desktop-AI/pull/109`
-- PR State: `open`
+- PR State: `merged`
 - Draft State: `false`
 - Base Branch: `main`
 - Head Branch: `feature/fb-027-shutdown-confirmation-runtime-branch-readiness`
 - Head SHA: `815c3a8dc044795502aa1fc5b80663f6bf32e45e`
-- Mergeability: `MERGEABLE / CLEAN`
+- Merge Commit: `9ce8b1a5dd4c38833cb5303eed43868c2c8dbbb9`
+- Mergeability: `MERGEABLE / CLEAN before merge`
 - Bot Review State: `Comment addressed`; review thread `PRRT_kwDORwnWIs5_Pay4` is resolved after reply comment `3179286747` and fix commit `815c3a8dc044795502aa1fc5b80663f6bf32e45e`.
 
 ## PR Watcher Provisioning Proof
@@ -291,45 +284,45 @@ Non-Includes: no PR creation or release work.
 - Bounded Route Probe: `dev/pr_same_thread_watcher.py --force-emit` detected PR #109 state at `2026-05-04T03:38:32Z`, registered the watcher host on thread `019dd083-0317-7b42-afb3-20b6818a1fa7`, detected the live bot comment, and triggered the bounded repair worker that produced fix commit `815c3a8dc044795502aa1fc5b80663f6bf32e45e`.
 - Bounded Route Probe Artifacts: `$CODEX_HOME/watchers/pr109-fb027-shutdown-confirmation-watch.log`; `$CODEX_HOME/watchers/pr109-fb027-shutdown-confirmation-watch-latest.txt`
 - Watched PR: `https://github.com/GiribaldiTTV/Nexus-Desktop-AI/pull/109`
-- Stop Condition: watcher remains bounded to PR #109 and PR Readiness, and must retire or be deleted after PR #109 becomes `merged` or `closed`.
+- Stop Condition: historical watcher bounded to PR #109 and PR Readiness; after PR #109 merged, no active PR2 blocker remains in current-state truth.
 - Output Boundary: post source-of-truth status updates only when the watched status changes or merge/close is verified; do not edit files, create branches, merge the PR, or perform Release Readiness work.
 
 ## Post-Merge State
 
-- No Active Branch Handling: after the FB-027 PR merges, merged-main current-state surfaces must return to `No Active Branch`; this workstream record becomes historical traceability and must not retain live PR state, active seam ownership, or open-PR narration as merged-main active authority.
-- Branch Authority Closeout Requirement: before Release Readiness can treat the merge as complete, the same-thread watcher must verify `merged=true`, emit source-of-truth handoff proof, and retire or be deleted.
-- Successor Branch Handling: no successor branch is created from PR Readiness; the next runtime candidate must be selected and left branch-not-created before leaving PR Readiness.
-- PR2 Merge Watch Dependency: `PR Merge Verification Pending` remains active until the same-thread watcher verifies the live PR merged state.
+- No Active Branch Handling: after PR #109 merged, merged-main current-state surfaces return to `No Active Branch`; this workstream record is historical traceability and must not retain live PR state, active seam ownership, or open-PR narration as merged-main active authority.
+- Branch Authority Closeout Requirement: complete for PR #109 historical proof.
+- Successor Branch Handling: no successor branch is created from PR Readiness; future successor selection requires explicit USER approval and otherwise stops on `Backlog Addition User Approval Missing`.
+- PR2 Merge Watch Dependency: cleared historically for PR #109; no active `PR Merge Verification Pending` remains.
 
 ## Governance Drift Audit
 
-Governance Drift Found: Yes, repaired during PR Readiness.
+Governance Drift Found: Yes, repaired during PR Readiness and corrected further by the one-time backlog governance repair.
 
-- Drift Found: live PR bot review found the shutdown-confirmation dialog could be invoked from the hotkey listener thread, and the PR-readiness successor gate did not yet allow same-family successor selection while the current branch still exists.
-- Repair Performed: fix commit `815c3a8dc044795502aa1fc5b80663f6bf32e45e` routes shutdown confirmation through a GUI-thread `QObject` slot with `Qt.ConnectionType.QueuedConnection`, replies to and resolves the bot review thread, and validator hardening now ignores only the current branch when the selected same-family successor explicitly records `Selected Next Implementation Branch: Not created`.
-- Drift After Repair: no unresolved governance drift remains for PR1; PR2 remains blocked only by watcher-verified merge.
+- Drift Found: live PR bot review found the shutdown-confirmation dialog could be invoked from the hotkey listener thread, and later governance review found that the PR-readiness successor gate pressured same-family successor selection without explicit USER approval.
+- Repair Performed: fix commit `815c3a8dc044795502aa1fc5b80663f6bf32e45e` routes shutdown confirmation through a GUI-thread `QObject` slot with `Qt.ConnectionType.QueuedConnection`, replies to and resolves the bot review thread; the one-time governance correction now blocks selected-next truth behind `Backlog Addition User Approval Missing` unless explicit USER approval exists.
+- Drift After Repair: PR1/PR2 proof remains historical; the remaining governance drift was the automatic backlog/successor pressure, now blocked by `Backlog Addition User Approval Missing`.
 
 ## Release Window Audit
 
 Release Window Audit: PASS
-Window Scope: FB-027 WS1 shutdown-hotkey confirmation runtime proof, H1 validation, LV1 live-equivalent validation, PR1 live PR creation, watcher provisioning, live bot-review closeout, and PR2 merge-watch posture for the bounded runtime/user-facing lane.
-Known Window Blockers Reviewed: stale post-merge canon recurrence, next-runtime-candidate selection, live PR creation, same-thread watcher routing, bot-review signal, merge status, PR2 merge verification, pending `v1.6.13-prebeta` release posture, and selected runtime-slice containment.
+Window Scope: historical FB-027 WS1 shutdown-hotkey confirmation runtime proof, H1 validation, LV1 live-equivalent validation, PR1 live PR creation, watcher provisioning, bot-review closeout, and PR2 merge-watch proof for aggregation evidence only.
+Known Window Blockers Reviewed: stale post-merge canon recurrence, next-runtime-candidate selection pressure, live PR creation, same-thread watcher routing, bot-review signal, merge status, PR2 merge verification, pending `v1.6.13-prebeta` release posture, and selected runtime-slice containment.
 Remaining Known Release Blockers: None
 Another Pre-Release Repair PR Required: NO
 Release Window Split Waiver: None
 
 ## Seam Continuation Decision
 
-Seam Status: `Red`
+Seam Status: `Green`
 Slice Status: `Green`
-Completion Status: `Red`
+Completion Status: `Green`
 Waiver Status: `None`
 Continue Decision: `Stop`
-Stop Basis: `Named PR Readiness blockers`
-Stop Condition: `PR Merge Verification Pending`
-Continuation Action: `Continue PR Readiness in PR2 and wait for same-thread watcher verification that PR #109 is merged before entering Release Readiness.`
-Decision Basis: `PR #109 is live and mergeable/clean, the live bot review comment is addressed on the current head, and watcher-verified merge is still pending.`
-Next Active Seam: `PR Readiness PR2 - FB-027 Runtime Branch Merge Verification Watch`
+Stop Basis: `Workstream Green`
+Stop Condition: `Historical complete`
+Continuation Action: `None for this closed record; future selection is blocked by Backlog Addition User Approval Missing until explicit USER approval.`
+Decision Basis: `PR #109 is merged and preserved as family aggregation evidence, not as active execution truth.`
+Next Active Seam: `None`
 
 ## Current Release-Truth Note
 
@@ -717,7 +710,7 @@ The originally released URL-target milestone is no longer the only released exec
 
 The later inventory-and-guided-access follow-through is now also released in `v1.2.9-prebeta`.
 
-Future runtime or capability work beyond those released steps must still return as an explicitly selected next FB-027 milestone rather than as silent continuation.
+Future runtime or capability work beyond those released steps must still return as an explicitly USER-approved FB-027 family continuation or larger aggregation rather than as silent continuation.
 
 ## Blockers / Holds / Stop Conditions
 

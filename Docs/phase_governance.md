@@ -302,6 +302,7 @@ The default named blockers are:
 - `PR Creation Pending`
 - `PR Validation Pending`
 - `PR State Unknown`
+- `PR Readiness Execution User Approval Missing`
 - `PR Merge Status Unproven`
 - `PR Merge Verification Pending`
 - `PR Watcher Provisioning Unproven`
@@ -318,6 +319,10 @@ The default named blockers are:
 - `Phase Waiver Missing`
 - `Planning-Loop Guardrail`
 - `Backlog Completion Unproven`
+- `Backlog Addition User Approval Missing`
+- `Backlog Exhaustion User Decision Pending`
+- `Single-Slice Package User Approval Missing`
+- `Package Completion Unproven`
 
 Blockers stop progression immediately and must be reported before any later-phase recommendation.
 
@@ -535,13 +540,75 @@ Post-release closure is mandatory after release execution:
 
 Rule:
 
-- a branch is not `PR Readiness`-complete unless the next real runtime workstream is selected, canon-defined, assigned a valid record state, minimally scoped as a runtime slice, and explicitly not branched yet
+- PR Readiness successor selection is allowed only when the USER has already approved selecting or continuing a backlog identity for the next branch, or when existing canon already contains that explicit USER-approved selection.
+- A branch is not `PR Readiness`-complete when a USER-approved successor exists unless that next real runtime workstream is selected, canon-defined, assigned a valid record state, minimally scoped as a runtime slice, and explicitly not branched yet.
 
 Exception:
 
-- If post-merge truth will resolve to `No Active Branch` because `Release Debt` or another repo-level admission blocker remains open, successor branch creation remains deferred; next-workstream selection is still required. If no real runtime successor can be selected, `Next Runtime Candidate Selection Pending` remains a PR Readiness blocker and the branch must stop in PR Readiness rather than advance to Release Readiness.
+- If USER approval for a new or successor backlog identity is absent, `Backlog Addition User Approval Missing` supersedes `Next Runtime Candidate Selection Pending`; Codex must not select, split, promote, or create a successor backlog identity by inertia.
+- If post-merge truth will resolve to `No Active Branch` because `Release Debt` or another repo-level admission blocker remains open, successor branch creation remains deferred. If USER approval for successor selection is absent, the branch stops on `Backlog Addition User Approval Missing` and records no selected-next truth.
+- If USER approval exists but no real runtime successor can be selected, `Next Runtime Candidate Selection Pending` remains a PR Readiness blocker and the branch must stop in PR Readiness rather than advance to Release Readiness.
 
-This gate requires all of the following before PR creation is allowed:
+### Backlog Identity Admission Gate
+
+Backlog IDs are major user-facing feature-family or major release/support lanes.
+The live backlog-family namespace is broad `FAM-###`, starting at `FAM-001`; the old `FB-###` namespace is historical-only and must not be reused for parseable backlog entries.
+
+Canonical identity model:
+
+- `FAM` is a broad long-lived product family.
+- `Package` is a bulk branch/release package under exactly one FAM.
+- `Slice` is a traceable deliverable area inside exactly one package.
+- `Seam` is an execution or validation checkpoint.
+- `PR` is merge/review evidence only.
+- legacy global `FB` is historical trace only.
+
+Branch scope standard:
+
+- branches should carry one family package with multiple admitted slices by default
+- packages must record `Package Completion State:`
+- package slices must trace to exactly one FAM and exactly one package
+- Workstream must continue through every admitted package slice before Hardening unless package state is truthfully `Complete`, `Released Baseline / Open`, `Blocked`, or `Deferred`
+- a package with exactly one admitted slice is blocked by `Single-Slice Package User Approval Missing` unless explicit USER approval records `Single-Slice Package User Approval: Granted`
+- admitted-slice counting is explicit: only `Admission State: Admitted` rows count toward the multi-slice package rule
+- `Historical Evidence`, `Merged Evidence`, `Future Placeholder`, `Deferred Placeholder`, future package required rows, and deferred ideas preserve trace but do not count as admitted slices
+- every admitted slice must have concrete scope, `Package ID`, `FAM ID`, `Slice Status`, `Completion State`, and `Seam Trace`; vague pending/future placeholder rows cannot satisfy the multi-slice rule
+- `Package Completion State: Complete` is blocked while any admitted slice remains incomplete, and completing one admitted slice cannot authorize stopping while another admitted package slice remains incomplete
+
+They are not default identities for:
+
+- small single-seam runtime proofs
+- governance repairs
+- validation follow-through
+- hotfixes
+- blocker-clearing repair traces
+- branch-readiness or PR-readiness closeout details
+
+Codex must not create a new backlog item, split an existing backlog identity, admit a new package, create a new family branch, promote a new selected-next backlog identity, waive a single-slice package, or encode successor selection without explicit USER approval in the prompt or source-of-truth.
+
+When Codex believes a new backlog item, package admission, branch creation, backlog split, promotion, selected-next successor, or single-slice package waiver is needed but USER approval is absent, Codex must stop on `Backlog Addition User Approval Missing`.
+The blocker output must include all FAM entries that are still not closed and all package/slice rows that are not complete, with:
+
+- ID
+- title
+- Status
+- Record State
+- Priority
+- Package ID
+- Package Completion State
+- Slice ID
+- Slice Status
+- Selection / Unblock, deferred-context, branch, and minimal-scope fields when present
+
+If no backlog entries remain open, Codex must stop on `Backlog Exhaustion User Decision Pending` and wait for USER direction.
+
+Small or single-seam runtime follow-through inside an existing family must be recorded in a package/slice trace, canonical workstream, lifetime family dossier, branch authority record, or historical PR trace as family evidence or aggregation material.
+It must not mint a standalone backlog identity, single-slice package, successor lane, branch family, or release-version driver unless the USER explicitly approves a larger feature-family release, release aggregation, backlog split, or single-slice package waiver.
+
+Historical pass aliases, support/governance lanes, and old registry-only implemented IDs are trace rows, not selectable backlog items. Re-promoting one into a parseable backlog identity requires explicit USER approval and a recorded reason that family/workstream/branch traceability is insufficient.
+Any approved new backlog identity must use the fresh broad FAM namespace, not `FB-###`.
+
+When USER-approved successor selection exists, this gate requires all of the following before PR creation is allowed:
 
 - the next workstream identity is selected from current canon using open backlog `Priority` plus deferred-context readiness, not `Target Version`
 - that workstream exists in `Docs/feature_backlog.md`
@@ -563,17 +630,20 @@ Machine-checkable canon markers:
 - the roadmap must include `## Selected Next Workstream`
 - the roadmap selected-next section must include the same workstream id, its `Record State`, `Minimal Scope:`, and truthful branch status such as `Branch: Not created` before branch creation or the active Branch Readiness branch name after creation
 
-When the exception applies, the branch must instead:
+When post-merge `No Active Branch` handling applies, the branch must instead:
 
 - make the post-merge `No Active Branch` state explicit in current-state canon
 - name the blocking admission item explicitly
-- keep the selected next workstream as canon planning only
+- keep selected-next truth absent unless explicit USER approval exists
 - avoid creating or executing the next implementation branch by inertia
 
 Temporary `emergency canon repair` branches that are explicitly recorded as repair-only must not be treated as the selected-next implementation branch for this gate. Validator and canon checks should distinguish those repair branches from real successor implementation-branch creation.
 
 If the next workstream is not selected, is not recorded in backlog and roadmap, lacks valid record state, or lacks minimal scope, the branch is blocked by `Next Workstream Undefined`.
-If no real runtime candidate is selected before attempting to leave PR Readiness, the branch is blocked by `Next Runtime Candidate Selection Pending`.
+If no real runtime candidate is selected before attempting to leave PR Readiness after USER-approved successor selection exists, the branch is blocked by `Next Runtime Candidate Selection Pending`.
+If USER approval for new or successor backlog selection is absent, the branch is blocked first by `Backlog Addition User Approval Missing`.
+Explicit successor-selection approval must be machine-recorded as `Successor Selection User Approval: Granted`; if that approval marker exists but no real runtime Feature Family candidate is selected, `Next Runtime Candidate Selection Pending` supersedes the missing-approval blocker.
+When `Backlog Addition User Approval Missing` is explicitly recorded with post-merge `No Active Branch` truth and no selected-next entry, PR Readiness must not force selected-next truth; it must output the still-not-closed FAM plus not-complete package/slice list, validate the live PR surface, and continue merge-watch or stop on live PR blockers.
 If a selected deferred workstream lacks deferred-context fields, the branch is blocked by `Deferred Selection Context Missing`.
 If a successor branch is created before `Branch Readiness`, the branch is blocked by `Successor Lock Missing`.
 
@@ -583,7 +653,7 @@ PR Readiness must not report green while any pre-merge process blocker remains u
 
 Hard blockers:
 
-- canonical shorthand: `stale-canon`, `post-merge`, `dirty`, `docs-sync`, `next-workstream`, `Next Runtime Candidate Selection Pending`, `deferred-context`, `desktop-shortcut`, `uts-results`
+- canonical shorthand: `stale-canon`, `post-merge`, `dirty`, `docs-sync`, `next-workstream`, `Next Runtime Candidate Selection Pending`, `Backlog Addition User Approval Missing`, `Backlog Exhaustion User Decision Pending`, `Single-Slice Package User Approval Missing`, `Package Completion Unproven`, `PR Readiness Execution User Approval Missing`, `deferred-context`, `desktop-shortcut`, `uts-results`
 - `Stale Canon`:
   current-state canon and merge-target canon must already reflect the branch's true state and the state that will be true after merge
 - `Post-Merge State Unresolved`:
@@ -591,7 +661,17 @@ Hard blockers:
 - `Next Workstream Undefined`:
   PR Readiness cannot be green until the next workstream exists in canon, is recorded in backlog and roadmap, has a valid record state, has minimal scope defined, and has no branch created yet
 - `Next Runtime Candidate Selection Pending`:
-  PR Readiness cannot advance to Release Readiness until exactly one real runtime candidate is selected from repo truth, recorded as `Next Workstream: Selected`, scoped with a runtime `Minimal Scope:`, mirrored in roadmap `## Selected Next Workstream`, and left unbranched until the next Branch Readiness pass
+  PR Readiness cannot advance to Release Readiness after USER-approved successor selection exists until exactly one real runtime candidate is selected from repo truth, recorded as `Next Workstream: Selected`, scoped with a runtime `Minimal Scope:`, mirrored in roadmap `## Selected Next Workstream`, and left unbranched until the next Branch Readiness pass
+- `Backlog Addition User Approval Missing`:
+  PR Readiness and Branch Readiness cannot add, split, promote, package-admit, branch-create, waive a single-slice package, or select a backlog identity without explicit USER approval. When this blocker is active, Codex must output the still-not-closed FAM list plus every not-complete package/slice instead of creating selected-next truth.
+- `Backlog Exhaustion User Decision Pending`:
+  If the still-not-closed FAM plus not-complete package/slice list is empty and new work would require a new backlog identity, Codex must stop for USER direction instead of inventing the next lane.
+- `Branch Readiness Execution User Approval Missing`:
+  Branch Readiness Stage 1 - Analysis Gate is a no-work review pass. Branch Readiness cannot enter Branch Readiness Stage 2 - Execution Gate, mutate repository files, create a branch, admit a package, sync docs, create selected-next truth, prepare PR work, or perform release work until the Stage 1 packet is returned and explicit USER approval to enter Stage 2 is recorded.
+- `Single-Slice Package User Approval Missing`:
+  Branch Readiness and Workstream cannot greenlight a package with exactly one admitted slice unless explicit USER approval records `Single-Slice Package User Approval: Granted`. Historical evidence rows, merged evidence rows, future placeholders, deferred ideas, and future-package-required rows do not count as admitted slices.
+- `Package Completion Unproven`:
+  Workstream cannot advance to Hardening until every admitted package slice is complete, deferred, blocked, or explicitly preserved as released-baseline/open package truth with `Package Completion State:` recorded. Package completion cannot be green while admitted slices remain incomplete.
 - `Deferred Selection Context Missing`:
   PR Readiness cannot be green when the selected next workstream is deferred but lacks `Deferred Since:`, `Deferred Because:`, or `Selection / Unblock:` in the backlog entry
 - `Dirty Branch`:
@@ -610,6 +690,8 @@ Hard blockers:
   PR Readiness cannot be green until the existing PR has been validated as open, non-draft, conflict-free, aligned to the merge-target canon, and clear of unresolved Codex comments/issues or requested changes.
 - `PR State Unknown`:
   PR Readiness cannot be green if Codex cannot inspect the PR state, mergeability/conflict state, base/head alignment, or Codex review-thread state.
+- `PR Readiness Execution User Approval Missing`:
+  PR Readiness Stage 1 - Analysis Gate is a no-work review pass. PR Readiness cannot enter PR Readiness Stage 2 - Execution Gate, mutate repository files, stage, commit, push, create the PR, provision the watcher, create a next branch, or perform release work until the Stage 1 packet is returned and explicit USER approval to enter Stage 2 is recorded.
 - `PR Merge Status Unproven`:
   PR Readiness cannot be green until the live PR has explicitly reported a green merge status. Treat unknown, unset, conflicting, dirty, blocked, or otherwise non-green mergeability/merge-state results as an active blocker until GitHub reports the PR merge status as green.
 - `Bot Review Signal Pending`:
@@ -638,6 +720,15 @@ Hard blockers:
 The PR-readiness validator gate must be run in its PR-specific mode before reporting `PR READY: YES`.
 If the normal governance validator passes but the PR-specific gate reports dirty worktree or unresolved PR blockers, the result is not PR-ready.
 
+### PR Readiness Stage Gates
+
+`PR Readiness` remains one canonical phase. It is organized into two internal stage gates:
+
+- `PR Readiness Stage 1 - Analysis Gate`: analysis-only; no repository file mutation, staging, commit, push, PR creation, watcher provisioning, next-branch creation, release work, or canon edits are allowed. Stage 1 must output the full `## PR Readiness Stage 1 Analysis Packet` for USER review, including next-branch hierarchy and Stage 2 sync plan, and then stop on `PR Readiness Execution User Approval Missing`.
+- `PR Readiness Stage 2 - Execution Gate`: begins only after explicit USER approval to enter Stage 2. Stage 2 performs the existing PR Readiness work: apply required merge-target canon, commit and push durable truth, run the normal governance validator and PR-readiness gate mode, create the PR, provision and prove the watcher, validate live PR state, handle bot-review signals, and continue merge-watch until the approved reporting surface verifies merge.
+
+The `## PR Readiness Stage 1 Analysis Packet` must include governed state markers, the planned PR title/base/head/summary, required post-merge path, ranked runtime FAM candidates, recommended next package, package-size / single-slice drift review, release-debt impact, planned merge-target canon updates, planned next-branch block, planned watcher provisioning and reporting surface, planned validations, expected file changes, Stage 2 sync plan, drift findings, blocker and waiver findings, release-window audit posture, rollback path, and the exact Stage 2 green-light decision needed from the USER. It may recommend Stage 2, but it must not perform Stage 2 or encode selected-next truth.
+
 `PR package ready` is the state where local branch truth, merge-target canon, next-workstream selection, and copy-ready PR details are complete. It is not `PR Readiness GREEN`.
 
 Live PR creation and validation facts are required for operator output and PR validation, but they are not merge-target current-state truth. Keep live PR state such as `open`, `non-draft`, `mergeable`, review-thread counts, repair-commit containment timing, blocker-clearing branch narration, and merge-target branch-head hash assertions in operator output and explicit historical PR sections only. Do not place those time-sensitive claims in merge-target current-state owner sections such as backlog or roadmap `## Current Branch Execution Posture`, `PR Readiness State:`, `Current Branch Objective:`, `Active Workstream Chain:`, or the canonical workstream merged-unreleased `## Phase Status` block.
@@ -657,6 +748,35 @@ Live PR creation and validation facts are required for operator output and PR va
 - the live PR has either a thumbs-up reaction from the Codex GitHub bot or a recorded current-head bot comment-resolution closeout; no later thumbs-up is required after the comment-resolution path
 
 ### PR Readiness Response Contract
+
+Every `PR Readiness` response must identify whether it is in `PR Readiness Stage 1 - Analysis Gate` or `PR Readiness Stage 2 - Execution Gate`.
+When the response is Stage 1, it must include this packet and stop on `PR Readiness Execution User Approval Missing` until USER approval to enter Stage 2 is recorded:
+
+```markdown
+## PR Readiness Stage 1 Analysis Packet
+- Current PR Readiness Stage:
+- Repository Mutation Status:
+- Planned PR Title:
+- Planned Base Branch:
+- Planned Head Branch:
+- Planned PR Summary:
+- Required Post-Merge Path:
+- Ranked Runtime FAM Candidates:
+- Recommended Next Package:
+- Package-Size / Single-Slice Drift Review:
+- Release-Debt Impact:
+- Planned Merge-Target Canon Updates:
+- Planned Next Branch Block:
+- Planned Watcher Provisioning:
+- Planned Validation Commands:
+- Expected Files To Change:
+- Stage 2 Sync Plan:
+- Drift Findings:
+- Blockers And Waivers Needed:
+- Release Window Audit Posture:
+- Rollback Plan:
+- Stage 2 Green-Light Decision Needed:
+```
 
 When `PR Readiness` reports package-ready or `PR package ready`, the response must include a repo-wide standardized `Next Branch` block and markdown-friendly PR operator copy blocks.
 Those package details are the input to PR creation and validation; they are not themselves proof that PR Readiness is GREEN.
@@ -817,6 +937,10 @@ A branch is release-bearing when:
 
 - its branch class is `release packaging`
 - or it creates, prepares, validates, tags, publishes, or transitions release-facing artifacts or release-state canon
+
+Small single-seam runtime proof that merges inside an existing family may be marked as aggregation evidence instead of a standalone release driver when the USER has not approved it as a release-version driver.
+That record must declare the proof as `Standalone Release Driver: No` or equivalent aggregation-hold truth and identify the larger USER-approved family release or future aggregation target when one exists.
+Such aggregation-hold evidence does not by itself justify a new release version, selected-next lane, or release packaging branch.
 
 The only non-release waiver is:
 
@@ -1335,7 +1459,7 @@ Bug fix, hotfix, UI-model, launcher, settings, protocol, policy, cross-subsystem
 
 Legacy `Single-Seam Fallback` and `Single-Seam Mode Waiver` terms are retired and must not be used in active source-of-truth.
 Same-branch backlog completion is the default.
-There is no repo-wide single-slice cap for an active branch or workstream.
+There is no repo-wide cap that forces an admitted multi-slice package to stop after one slice; however package admission defaults to multiple admitted slices, and a package containing exactly one admitted slice requires explicit `Single-Slice Package User Approval: Granted`.
 A bounded stop condition blocks the workflow. It does not by itself authorize splitting the backlog item across branches.
 Stopping after the first slice or splitting the backlog item across branches requires an explicit `Backlog-Split User Approval` or a named bounded stop condition.
 A bounded stop condition blocks the workflow. It does not by itself authorize splitting the backlog item across branches, closing the backlog item, or leaving `Workstream` while remaining implementable work still exists.
@@ -1454,7 +1578,7 @@ The canonical rule is narrower:
 - `Workstream` -> `Hardening` only after the current Workstream work reports `Completion Status: Green`, no remaining implementable work is still available on that backlog item, `Backlog Completion State` is `Implemented Complete` or `Implemented Complete Except Future Dependency`, direct validation is green, User Test Summary obligations are current for user-facing changes, and no same-slice correctness gap remains
 - `Hardening` -> `Live Validation` only after repo-side hardening proof is sufficient for interactive or manual closeout work
 - `Live Validation` -> `PR Readiness` only after branch-local proof is sufficient for closeout, returned evidence has been digested into the authority record, and `User Test Summary Results Pending` is absent or cleared by a documented waiver
-- `PR Readiness` -> `Release Readiness` only after merge-target canon completeness passes, the Governance Drift Audit passes, the next-workstream selection gate passes, branch creation remains deferred to `Branch Readiness`, the watcher on the approved reporting surface has verified that the live PR is `merged`, and any release target/scope/artifact truth needed for release review is already available without file mutation
+- `PR Readiness` -> `Release Readiness` only after merge-target canon completeness passes, the Governance Drift Audit passes, either the USER-approved next-workstream selection gate passes or `Backlog Addition User Approval Missing`/`Backlog Exhaustion User Decision Pending` is explicitly blocking selection with no selected-next truth, branch creation remains deferred to `Branch Readiness`, the watcher on the approved reporting surface has verified that the live PR is `merged`, and any release target/scope/artifact truth needed for release review is already available without file mutation
 - `Release Readiness` stays restricted to analysis-only release target, scope, artifact, release-execution authorization, and release-state confirmation work; it does not transition into a docs-sync phase or a file-mutation phase
 
 There is no default direct `Workstream` -> `PR Readiness` transition.
@@ -1475,6 +1599,15 @@ Purpose:
 - align branch-start canon
 - lock execution, validation, and timeout boundaries
 - plan the whole branch at phase level before implementation begins
+
+Branch Readiness uses two internal stage gates without changing the canonical phase enum:
+
+- `Branch Readiness Stage 1 - Analysis Gate`: analysis-only; no repository file mutation, branch creation, package admission, docs sync, PR work, release work, selected-next truth, or canon edits are allowed. Stage 1 must output `## Branch Readiness Stage 1 Analysis Packet` for USER review and stop on `Branch Readiness Execution User Approval Missing`.
+- `Branch Readiness Stage 2 - Execution Gate`: begins only after explicit USER approval to enter Stage 2. Stage 2 performs approved branch/package admission work, docs sync, branch creation, and authority-record setup only inside the USER-approved FAM/package scope.
+
+The `## Branch Readiness Stage 1 Analysis Packet` must include governed state markers, FAM/package candidate, package-size review, multiple admitted-slice plan, single-slice drift check, Element Coverage review, validation plan, expected docs sync, blockers and waivers, rollback path, and the exact Stage 2 green-light decision needed from the USER.
+
+Element Coverage is a non-identity checklist owned by FAM/package analysis only. Coverage categories are user-facing surface, runtime/backend behavior, fail-safe/recovery, security/privacy, voice/audio, external integration, local AI/capability packs, packaging/install, monitoring/HUD, validation, and release impact. Element Coverage rows never count as `Admission State: Admitted`, slices, seams, packages, FAMs, selected-next truth, or release drivers.
 
 Allowed:
 
@@ -1740,7 +1873,7 @@ Use it when:
 - blocked:
   - a blocker or repair path must be cleared before the next implementation lane may begin
 - steady-state:
-  - outside PR Readiness closeout, no implementation branch is currently selected, and it is valid for the next safe move to be no branch at all until a new approved need exists; PR Readiness closeout is stricter and must select the next real runtime candidate before leaving the phase
+  - outside PR Readiness closeout, no implementation branch is currently selected, and it is valid for the next safe move to be no branch at all until a new approved need exists; PR Readiness closeout must either use explicit USER approval to select the next real runtime candidate or stop on `Backlog Addition User Approval Missing`/`Backlog Exhaustion User Decision Pending` without inventing selected-next truth
 
 When `No Active Branch` is blocked:
 

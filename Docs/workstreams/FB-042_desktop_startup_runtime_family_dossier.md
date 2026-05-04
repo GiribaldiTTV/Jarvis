@@ -3,6 +3,8 @@
 ## Dossier Identity
 
 - Family ID: `FB-042`
+- Broad FAM ID: `FAM-001`
+- Package ID: `PKG-001`
 - Family Title: `Desktop startup runtime family anchor`
 - Dossier Type: `Lifetime family dossier`
 - Dossier State: `Structured shell with partial historical pass migration`
@@ -15,6 +17,7 @@
 ## Dossier Purpose
 
 - This dossier is the additive lifetime traceability surface for the FB-042 runtime family anchor.
+- Under the broad backlog model, this dossier is legacy trace under `FAM-001` Boot Interface / `PKG-001`; `FB-042` remains historical evidence only.
 - It layers over the existing FB-042 historical workstream record instead of replacing or rewriting that record.
 - Slice R4-S1 introduces only the shell structure required for later family-level migration and indexing.
 - Slice R4-S3 adds pass index and slice/seam ledger templates without migrating historical family content into them yet.
@@ -38,11 +41,12 @@
 - alias-to-anchor traceability without reopening independent selection truth
 - future validator/helper and artifact indexes once later slices populate them
 - no new implementation, release, or selected-next authority
+- broad FAM/package traceability for `FAM-001` / `PKG-001` without reusing legacy `FB-###` as live backlog identity
 
 ## Historical Alias Coverage
 
-- Family Alias IDs Preserved In Backlog: `FB-043`, `FB-044`, `FB-045`, `FB-046`, `FB-047`, `FB-048`
-- Alias Preservation Rule: these remain historical aliases of `FB-042` in `Docs/feature_backlog.md` and are not independently selectable.
+- Family Alias IDs Preserved In Dossier / Workstream Index: `FB-043`, `FB-044`, `FB-045`, `FB-046`, `FB-047`, `FB-048`
+- Alias Preservation Rule: these are no longer standalone backlog items; traceability is preserved through the family pass table in `Docs/feature_backlog.md`, this dossier, `Docs/workstreams/index.md`, and the canonical historical workstream records.
 - Current Alias Record Migration State: FB-043 through FB-048 now keep their existing historical workstream narratives as explicit FB-042 historical pass records, and the preserved corresponding branch-readiness records now carry matching historical pass identity after Slice R5-S3.
 
 ## Historical Anchor Record
@@ -119,6 +123,6 @@ Artifact Index Population State: `No historical artifact entries migrated yet`
 - R4-S5 validates that the FB-042 dossier shell, routing, and index-template surfaces remain stable after the Phase 4 structural slices, and it does so without migrating historical rows or narrative content.
 - R5-S1 converts FB-043 through FB-048 workstream records into explicit FB-042 historical pass records and populates family pass-index plus slice/seam summary rows without migrating full narrative, validator/helper, artifact, or branch-record bodies into the dossier itself.
 - R5-S3 converts the preserved FB-043 through FB-048 Branch Readiness records into matching FB-042 historical pass-record traceability without creating new branch records or migrating those branch-record bodies into the dossier itself.
-- R5-S5 completes the Phase 5 traceability sweep by indexing the preserved FB-043 through FB-048 branch-readiness traces directly in the family dossier and confirming the dossier, backlog, roadmap, alias workstream, and branch-record routing stay aligned without migrating narrative bodies.
+- R5-S5 completes the Phase 5 traceability sweep by indexing the preserved FB-043 through FB-048 branch-readiness traces directly in the family dossier and confirming the dossier, backlog trace table, roadmap, alias workstream, and branch-record routing stay aligned without migrating narrative bodies.
 - Later Phase 4 and Phase 5 slices will populate indexes and convert historical records incrementally.
 - Until later migration lands, the existing workstream and alias records remain the authoritative detailed history.

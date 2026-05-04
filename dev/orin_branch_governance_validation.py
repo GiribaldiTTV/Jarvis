@@ -669,6 +669,11 @@ PR_READINESS_BLOCKER_PHRASES = (
     "docs-sync",
     "next-workstream",
     "Next Runtime Candidate Selection Pending",
+    "Backlog Addition User Approval Missing",
+    "Backlog Exhaustion User Decision Pending",
+    "Single-Slice Package User Approval Missing",
+    "Package Completion Unproven",
+    "PR Readiness Execution User Approval Missing",
     "desktop-shortcut",
     "User Test Summary Results Pending",
     "PR Merge Status Unproven",
@@ -680,6 +685,27 @@ PR_READINESS_BLOCKER_PHRASES = (
     "Release Window Audit Incomplete",
     "Between-Branch Canon Repair Attempt",
     "Next Branch Created Too Early",
+)
+
+PACKAGE_SLICE_BLOCKER_CATALOG_DOCS = (
+    Path("Docs/feature_backlog.md"),
+    Path("Docs/prebeta_roadmap.md"),
+    Path("Docs/Main.md"),
+    Path("Docs/phase_governance.md"),
+    Path("Docs/development_rules.md"),
+    Path("Docs/codex_modes.md"),
+    Path("Docs/orin_task_template.md"),
+    Path("Docs/codex_user_guide.md"),
+    Path("Docs/nexus_startup_contract.md"),
+    Path("Docs/workstreams/index.md"),
+    Path("Docs/branch_records/index.md"),
+    Path("Docs/branch_records/codex_one_time_backlog_governance_repair.md"),
+)
+
+PACKAGE_SLICE_BLOCKER_CATALOG_PHRASES = (
+    "Single-Slice Package User Approval Missing",
+    "Package Completion Unproven",
+    "Admission State: Admitted",
 )
 
 RELEASE_WINDOW_AUDIT_DOCS = (
@@ -708,6 +734,7 @@ PR_READINESS_RESPONSE_CONTRACT_DOCS = (
 )
 
 PR_READINESS_RESPONSE_CONTRACT_PHRASES = (
+    "## PR Readiness Stage 1 Analysis Packet",
     "## Next Branch",
     "Next Legal Branch Type:",
     "Next Branch Name:",
@@ -724,6 +751,121 @@ PR_READINESS_RESPONSE_CONTRACT_PHRASES = (
     "### PR Summary",
     "inclusion-only",
     "defensive scope language",
+)
+
+PR_READINESS_STAGE_GATE_DOCS = (
+    Path("Docs/phase_governance.md"),
+    Path("Docs/development_rules.md"),
+    Path("Docs/Main.md"),
+    Path("Docs/codex_modes.md"),
+    Path("Docs/orin_task_template.md"),
+    Path("Docs/codex_user_guide.md"),
+    Path("Docs/nexus_startup_contract.md"),
+    Path("Docs/branch_records/index.md"),
+    Path("Docs/branch_records/codex_one_time_backlog_governance_repair.md"),
+)
+
+PR_READINESS_STAGE_GATE_PHRASES = (
+    "PR Readiness Stage 1 - Analysis Gate",
+    "PR Readiness Stage 2 - Execution Gate",
+    "PR Readiness Execution User Approval Missing",
+    "no repository file mutation",
+    "USER approval to enter Stage 2",
+)
+
+PR_READINESS_STAGE_PACKET_DOCS = (
+    Path("Docs/phase_governance.md"),
+    Path("Docs/orin_task_template.md"),
+)
+
+PR_READINESS_STAGE_PACKET_PHRASES = (
+    "## PR Readiness Stage 1 Analysis Packet",
+    "Planned PR Title:",
+    "Planned Base Branch:",
+    "Planned Head Branch:",
+    "Planned PR Summary:",
+    "Required Post-Merge Path:",
+    "Ranked Runtime FAM Candidates:",
+    "Recommended Next Package:",
+    "Package-Size / Single-Slice Drift Review:",
+    "Release-Debt Impact:",
+    "Planned Merge-Target Canon Updates:",
+    "Planned Next Branch Block:",
+    "Planned Watcher Provisioning:",
+    "Expected Files To Change:",
+    "Stage 2 Sync Plan:",
+    "Stage 2 Green-Light Decision Needed:",
+)
+
+BRANCH_READINESS_STAGE_GATE_DOCS = (
+    Path("Docs/phase_governance.md"),
+    Path("Docs/development_rules.md"),
+    Path("Docs/Main.md"),
+    Path("Docs/codex_modes.md"),
+    Path("Docs/orin_task_template.md"),
+    Path("Docs/codex_user_guide.md"),
+    Path("Docs/nexus_startup_contract.md"),
+    Path("Docs/workstreams/index.md"),
+    Path("Docs/branch_records/index.md"),
+    Path("Docs/branch_records/codex_one_time_backlog_governance_repair.md"),
+)
+
+BRANCH_READINESS_STAGE_GATE_PHRASES = (
+    "Branch Readiness Stage 1 - Analysis Gate",
+    "Branch Readiness Stage 2 - Execution Gate",
+    "Branch Readiness Execution User Approval Missing",
+    "no repository file mutation",
+)
+
+BRANCH_READINESS_STAGE_PACKET_DOCS = (
+    Path("Docs/phase_governance.md"),
+    Path("Docs/development_rules.md"),
+    Path("Docs/Main.md"),
+    Path("Docs/codex_modes.md"),
+    Path("Docs/orin_task_template.md"),
+    Path("Docs/codex_user_guide.md"),
+)
+
+BRANCH_READINESS_STAGE_PACKET_PHRASES = (
+    "## Branch Readiness Stage 1 Analysis Packet",
+    "FAM/package candidate",
+    "package-size review",
+    "multiple admitted-slice plan",
+    "single-slice drift check",
+    "Element Coverage review",
+    "validation plan",
+    "expected docs sync",
+    "Stage 2 green-light decision",
+)
+
+ELEMENT_COVERAGE_DOCS = (
+    Path("Docs/feature_backlog.md"),
+    Path("Docs/Main.md"),
+    Path("Docs/phase_governance.md"),
+    Path("Docs/development_rules.md"),
+    Path("Docs/codex_modes.md"),
+    Path("Docs/orin_task_template.md"),
+    Path("Docs/codex_user_guide.md"),
+    Path("Docs/nexus_startup_contract.md"),
+    Path("Docs/workstreams/index.md"),
+    Path("Docs/branch_records/index.md"),
+    Path("Docs/branch_records/codex_one_time_backlog_governance_repair.md"),
+)
+
+ELEMENT_COVERAGE_PHRASES = (
+    "Element Coverage",
+    "user-facing surface",
+    "runtime/backend behavior",
+    "fail-safe/recovery",
+    "security/privacy",
+    "voice/audio",
+    "external integration",
+    "local AI/capability packs",
+    "packaging/install",
+    "monitoring/HUD",
+    "validation",
+    "release impact",
+    "Element Coverage rows never count as `Admission State: Admitted`, slices, seams, packages, FAMs, selected-next truth, or release drivers",
 )
 
 RELEASE_OPERATOR_OUTPUT_CONTRACT_DOCS = (
@@ -1173,6 +1315,8 @@ BRANCH_RECORD_INDEX = Path("Docs/branch_records/index.md")
 
 NEXT_WORKSTREAM_SELECTION_MARKER = "Next Workstream: Selected"
 NEXT_WORKSTREAM_MINIMAL_SCOPE_LABEL = "Minimal Scope:"
+BACKLOG_ADDITION_USER_APPROVAL_BLOCKER = "Backlog Addition User Approval Missing"
+BACKLOG_EXHAUSTION_USER_DECISION_BLOCKER = "Backlog Exhaustion User Decision Pending"
 NEXT_WORKSTREAM_BRANCH_NOT_CREATED_PHRASES = (
     "Branch: Not created",
     "Branch: Deferred to Branch Readiness",
@@ -1919,13 +2063,13 @@ REFORM_R6_S2_INDEX_REQUIRED_PHRASES = (
 
 REFORM_R6_S3_ROUTER_REQUIRED_PHRASES = {
     Path("Docs/Main.md"): (
-        "For the family-governance model, use `Docs/workstreams/index.md` first to distinguish family anchors, historical pass alias records, and other closed workstreams before loading the specific canonical record.",
-        "### Family Dossiers And Historical Pass Alias Routing",
-        "- load the `Lifetime Dossier Doc` named by backlog or roadmap when the task touches a `Feature Family` anchor or a `Historical Pass Alias`",
+        "For the family-governance model, use `Docs/workstreams/index.md` first to distinguish feature-family anchors, historical family-pass records, and other closed trace records before loading the specific canonical record.",
+        "### Family Dossiers And Historical Pass Trace Routing",
+        "- load the `Lifetime Dossier Doc` named by backlog or roadmap when the task touches a `Feature Family` anchor or a historical family-pass trace row",
     ),
     Path("Docs/nexus_startup_contract.md"): (
-        "- `Docs/workstreams/index.md` owns canonical workstream-record routing, including family anchors, historical pass aliases, and other closed-workstream splits.",
-        "9. If the tracked item declares a `Lifetime Dossier Doc`, or if it is a `Feature Family` anchor or `Historical Pass Alias` routed through a family dossier, load that dossier too.",
+        "- `Docs/workstreams/index.md` owns canonical workstream-record routing, including feature-family anchors, historical family-pass records, and other closed trace records.",
+        "9. If the tracked item declares a `Lifetime Dossier Doc`, or if it is a `Feature Family` anchor or historical family-pass trace row routed through a family dossier, load that dossier too.",
     ),
 }
 
@@ -2002,6 +2146,179 @@ VALID_BACKLOG_REGISTRY_CLASSES = (
     "Historical Implemented Registry-Only",
 )
 
+FRESH_FAMILY_PREFIX = "FAM-"
+FRESH_FAMILY_TAXONOMY = {
+    "FAM-001": {
+        "title": "Boot Interface",
+        "package": "PKG-001",
+        "legacy": ("FB-042", "FB-043", "FB-044", "FB-045", "FB-046", "FB-047", "FB-048", "FB-049"),
+    },
+    "FAM-002": {
+        "title": "Desktop Interface",
+        "package": "PKG-002",
+        "legacy": ("FB-031",),
+    },
+    "FAM-003": {
+        "title": "Interaction and Actions",
+        "package": "PKG-003",
+        "legacy": ("FB-027", "FB-036", "FB-037", "FB-038", "FB-041"),
+    },
+    "FAM-004": {
+        "title": "Voice and Audio",
+        "package": "PKG-004",
+        "legacy": ("FB-030",),
+    },
+    "FAM-005": {
+        "title": "External Integrations",
+        "package": "PKG-005",
+        "legacy": ("FB-039",),
+    },
+    "FAM-006": {
+        "title": "Monitoring and HUD",
+        "package": "PKG-006",
+        "legacy": ("FB-040",),
+    },
+    "FAM-007": {
+        "title": "Local AI and Capability Packs",
+        "package": "PKG-007",
+        "legacy": (),
+    },
+    "FAM-008": {
+        "title": "Packaging and Install Experience",
+        "package": "PKG-008",
+        "legacy": (),
+    },
+    "FAM-009": {
+        "title": "Workspace and Data",
+        "package": "PKG-009",
+        "legacy": ("FB-005", "FB-020", "FB-026", "FB-028"),
+    },
+    "FAM-010": {
+        "title": "Safety and Privacy",
+        "package": "PKG-010",
+        "legacy": (),
+    },
+}
+
+FRESH_FAMILY_NAMESPACE_REQUIRED_PHRASES = (
+    "the old `FB-###` namespace is historical-only after this one-time repair; new live backlog-family identities use `FAM-###`, starting at `FAM-001`, and Codex must not create or reuse a parseable `FB-###` backlog ID",
+    "Selectable user-facing feature-family records now use the fresh `FAM-###` namespace in ascending order from `FAM-001`.",
+    "live backlog-family identities use the fresh broad `FAM-###` namespace starting at `FAM-001`; legacy `FB-###` IDs are historical trace only and must not be reused for new parseable backlog entries",
+    "Only true broad feature-family backlog entries should remain as parseable `### [ID: FAM-XXX]` backlog records by default.",
+    "The live backlog-family namespace is broad `FAM-###`, starting at `FAM-001`; the old `FB-###` namespace is historical-only and must not be reused for parseable backlog entries.",
+)
+
+FAMILY_PACKAGE_MODEL_REQUIRED_PHRASES = (
+    "Canonical Identity Model: `FAM` = broad long-lived product family; `Package` = bulk branch/release package under one family; `Slice` = traceable deliverable area inside a package; `Seam` = execution or validation checkpoint; `PR` = merge/review evidence only; legacy global `FB` = historical trace only.",
+    "Branch Scope Standard: branches must package multiple related admitted slices under exactly one broad family by default.",
+    "Package Completion Standard: Workstream continues through every admitted package slice until `Package Completion State: Complete`, `Released Baseline / Open`, `Blocked`, or `Deferred` is truthfully recorded before Hardening admission.",
+    "Admitted Slice Counting Rule: only rows with `Admission State` equal to `Admitted` count toward a package's admitted-slice total.",
+    "Concrete Admitted Slice Rule: an admitted slice must have a concrete scoped deliverable, `Package ID`, `FAM ID`, `Slice Status`, `Completion State`, and `Seam Trace`; vague pending/future placeholder rows cannot be marked admitted.",
+    "Package Completion Guard: `Package Completion State: Complete` is blocked while any admitted slice remains incomplete, and completing one admitted slice cannot authorize stopping while another admitted slice remains incomplete.",
+    "PR Evidence Standard: PR numbers are evidence only and must not become backlog identities, package identities, release-version drivers, or selected-next successors.",
+    "single-slice packages are blocked by `Single-Slice Package User Approval Missing` unless explicit USER approval records `Single-Slice Package User Approval: Granted`",
+    "package slices must trace to exactly one FAM and exactly one package",
+)
+
+ADMITTED_SLICE_STATE = "admitted"
+NON_ADMITTED_SLICE_STATES = {
+    "historical evidence",
+    "merged evidence",
+    "future placeholder",
+    "deferred placeholder",
+}
+PLACEHOLDER_SLICE_MARKERS = (
+    "future package",
+    "future branch readiness",
+    "pending user-approved",
+    "deferred user-approved",
+    "placeholder",
+    "future-dependent",
+)
+SLICE_TERMINAL_COMPLETION_STATES = {
+    "complete",
+    "released baseline / open",
+    "merged historical evidence",
+    "merged unreleased",
+    "deferred",
+    "blocked",
+}
+PACKAGE_COMPLETE_STATES = {
+    "complete",
+    "implemented complete",
+}
+
+LEGACY_FEATURE_FAMILY_IDS = tuple(
+    dict.fromkeys(
+        legacy_id
+        for family in FRESH_FAMILY_TAXONOMY.values()
+        for legacy_id in family["legacy"]
+    )
+)
+
+CONSOLIDATED_SUPPORT_TRACE_IDS = (
+    "FB-035",
+    "FB-034",
+    "FB-033",
+    "FB-032",
+    "FB-029",
+    "FB-028",
+    "FB-025",
+    "FB-015",
+    "FB-005",
+    "FB-004",
+)
+
+CONSOLIDATED_HISTORICAL_REGISTRY_ONLY_IDS = (
+    "FB-001",
+    "FB-002",
+    "FB-003",
+    "FB-006",
+    "FB-007",
+    "FB-008",
+    "FB-009",
+    "FB-010",
+    "FB-011",
+    "FB-012",
+    "FB-013",
+    "FB-014",
+    "FB-016",
+    "FB-017",
+    "FB-018",
+    "FB-019",
+    "FB-020",
+    "FB-021",
+    "FB-022",
+    "FB-023",
+    "FB-024",
+    "FB-026",
+)
+
+CONSOLIDATED_TRACE_BACKLOG_IDS = (
+    *LEGACY_FEATURE_FAMILY_IDS,
+    *REFORM_FB042_ALIAS_IDS,
+    *REFORM_FB027_ALIAS_IDS,
+    *CONSOLIDATED_SUPPORT_TRACE_IDS,
+    *CONSOLIDATED_HISTORICAL_REGISTRY_ONLY_IDS,
+)
+
+CONSOLIDATED_BACKLOG_TRACE_REQUIRED_PHRASES = (
+    "historical pass aliases, support/governance lanes, and old registry-only implemented records are trace tables, not backlog items",
+    "Former standalone historical pass backlog entries now live here as family traceability only.",
+    "| `FB-048` | `F042-P07` | `FB-042` | `Docs/workstreams/FB-048_active_session_relaunch_signal_failure_and_wait_timeout_truth.md` | `Docs/workstreams/FB-042_desktop_startup_runtime_family_dossier.md` | `v1.6.12-prebeta` | Historical family pass only; not selectable |",
+    "| `FB-043` | `F042-P02` | `FB-042` | `Docs/workstreams/FB-043_top_level_entrypoint_handoff_refinement.md` | `Docs/workstreams/FB-042_desktop_startup_runtime_family_dossier.md` | `v1.6.8-prebeta` | Historical family pass only; not selectable |",
+    "| `FB-041` | `F027-P03` | `FB-027` | `Docs/workstreams/FB-041_deterministic_callable_group_execution_layer.md` | `Docs/workstreams/FB-027_interaction_shared_action_family_dossier.md` | `v1.3.1-prebeta` | Historical family pass only; not selectable |",
+    "| `FB-038` | `F027-P05` | `FB-027` | `Docs/workstreams/FB-038_taskbar_tray_quick_task_ux.md` | `Docs/workstreams/FB-027_interaction_shared_action_family_dossier.md` | `v1.4.1-prebeta` | Historical family pass only; not selectable |",
+    "| `FB-036` | `F027-P02` | `FB-027` | `Docs/workstreams/FB-036_saved_action_authoring.md` | `Docs/workstreams/FB-027_interaction_shared_action_family_dossier.md` | `v1.3.0-prebeta` | Historical family pass only; not selectable |",
+    "Closed support, architecture, and governance lanes are historical traceability only.",
+    "| `FB-035` | Support-report release-context fallback hardening | `Docs/workstreams/FB-035_release_context_fallback_hardening.md` | `v1.2.7-prebeta` | Closed support lane trace |",
+    "| `FB-032` | Nexus-era vision and source-of-truth migration | `Docs/workstreams/FB-032_nexus_era_vision_and_source_of_truth_migration.md` | `v1.6.2-prebeta` | Closed architecture/governance trace |",
+    "| `FB-004` | Future boot orchestrator layer | `Docs/workstreams/FB-004_future_boot_orchestrator_layer.md` | `v1.6.3-prebeta` | Closed architecture trace |",
+    "Old implemented registry-only IDs are preserved as same-file historical trace.",
+    "| `FB-001` | Repeated identical crash early escalation | Implemented `v1.6.0` | Historical registry trace in `Docs/feature_backlog.md` |",
+    "| `FB-026` | Dev Toolkit uploaded-bundle intake surface | Implemented `v2.2.0` | Historical registry trace in `Docs/feature_backlog.md` |",
+)
+
 
 def _read_text(relative_path: Path) -> str:
     return (ROOT_DIR / relative_path).read_text(encoding="utf-8")
@@ -2065,10 +2382,13 @@ def _normalize_status(value: str) -> str:
 
 def _parse_backlog_sections(text: str) -> list[dict[str, str]]:
     entries: list[dict[str, str]] = []
-    matches = list(re.finditer(r"^### \[ID: (?P<id>FB-\d+)\] (?P<title>.+)$", text, flags=re.M))
-    for index, match in enumerate(matches):
+    matches = list(
+        re.finditer(r"^### \[ID: (?P<id>[A-Z]+-\d+)\] (?P<title>.+)$", text, flags=re.M)
+    )
+    for match in matches:
         start = match.start()
-        end = matches[index + 1].start() if index + 1 < len(matches) else len(text)
+        next_heading = re.search(r"(?m)^(?:## |### )", text[match.end() :])
+        end = match.end() + next_heading.start() if next_heading else len(text)
         block = text[start:end]
         entries.append(
             {
@@ -2125,7 +2445,7 @@ def _clean_release_value(value: str) -> str:
 
 
 def _backlog_id_number(workstream_id: str) -> int:
-    match = re.fullmatch(r"FB-(\d+)", workstream_id)
+    match = re.fullmatch(r"[A-Z]+-(\d+)", workstream_id)
     return int(match.group(1)) if match else -1
 
 
@@ -2156,6 +2476,376 @@ def _historical_alias_mapping_matches(
         if registry_class != "Historical Pass Alias" or historical_alias_of != family_anchor_id:
             return False
     return True
+
+
+def _parse_family_package_rows(block: str) -> list[dict[str, str]]:
+    rows: list[dict[str, str]] = []
+    pattern = re.compile(
+        r"^\| `(?P<package>PKG-\d+)` \| `(?P<fam>FAM-\d+)` \| "
+        r"(?P<name>[^|]+) \| (?P<status>[^|]+) \| "
+        r"(?P<completion>[^|]+) \| (?P<branch>[^|]+) \| (?P<evidence>[^|]+) \|$",
+        flags=re.M,
+    )
+    for match in pattern.finditer(block):
+        rows.append({key: value.strip() for key, value in match.groupdict().items()})
+    return rows
+
+
+def _parse_family_slice_rows(block: str) -> list[dict[str, str]]:
+    rows: list[dict[str, str]] = []
+    pattern = re.compile(
+        r"^\| `(?P<slice>SLC-\d+)` \| `(?P<package>PKG-\d+)` \| "
+        r"`(?P<fam>FAM-\d+)` \| (?P<name>[^|]+) \| "
+        r"(?P<admission>[^|]+) \| (?P<status>[^|]+) \| "
+        r"(?P<completion>[^|]+) \| (?P<seam>[^|]+) \|$",
+        flags=re.M,
+    )
+    for match in pattern.finditer(block):
+        rows.append({key: value.strip() for key, value in match.groupdict().items()})
+    return rows
+
+
+def _is_admitted_slice(row: dict[str, str]) -> bool:
+    return _clean_release_value(row.get("admission", "")).casefold() == ADMITTED_SLICE_STATE
+
+
+def _is_package_complete(completion_state: str) -> bool:
+    normalized = _clean_release_value(completion_state).casefold()
+    return normalized in PACKAGE_COMPLETE_STATES
+
+
+def _is_slice_terminal(completion_state: str) -> bool:
+    normalized = _clean_release_value(completion_state).casefold()
+    return normalized in SLICE_TERMINAL_COMPLETION_STATES
+
+
+def _validate_consolidated_backlog_source_truth(
+    require,
+    *,
+    backlog_text: str,
+    main_text: str,
+    development_rules_text: str,
+    phase_governance_text: str,
+    backlog_entries: list[dict[str, str]],
+) -> None:
+    parsed_ids = {entry["id"] for entry in backlog_entries}
+
+    require(
+        not re.search(r"^### \[ID: FB-\d+\]", backlog_text, flags=re.M),
+        "Docs/feature_backlog.md: legacy `FB-###` IDs must not remain parseable backlog entries",
+    )
+    live_family_ids = [entry["id"] for entry in backlog_entries]
+    require(
+        live_family_ids == list(FRESH_FAMILY_TAXONOMY),
+        (
+            "Docs/feature_backlog.md: live family registry must use the fresh FAM namespace "
+            f"in ascending order: {', '.join(FRESH_FAMILY_TAXONOMY)}"
+        ),
+    )
+
+    all_package_rows: list[dict[str, str]] = []
+    all_slice_rows: list[dict[str, str]] = []
+    for entry in backlog_entries:
+        require(
+            entry["id"].startswith(FRESH_FAMILY_PREFIX),
+            (
+                "Docs/feature_backlog.md: live backlog-family entry "
+                f"{entry['id']} must use the fresh `{FRESH_FAMILY_PREFIX}###` namespace"
+            ),
+        )
+        expected_family = FRESH_FAMILY_TAXONOMY.get(entry["id"])
+        require(
+            expected_family is not None,
+            (
+                "Docs/feature_backlog.md: live backlog-family entry "
+                f"{entry['id']} is not part of the canonical fresh FAM taxonomy"
+            ),
+        )
+        if expected_family is None:
+            continue
+        require(
+            entry["title"] == expected_family["title"],
+            (
+                "Docs/feature_backlog.md: live backlog-family entry "
+                f"{entry['id']} must use broad title `{expected_family['title']}`"
+            ),
+        )
+        require(
+            "Legacy FB ID:" not in entry["block"],
+            (
+                "Docs/feature_backlog.md: broad FAM entry "
+                f"{entry['id']} must not retain one-to-one `Legacy FB ID:` mapping"
+            ),
+        )
+        for legacy_id in expected_family["legacy"]:
+            require(
+                legacy_id in entry["block"],
+                (
+                    "Docs/feature_backlog.md: broad FAM entry "
+                    f"{entry['id']} is missing historical trace for {legacy_id}"
+                ),
+            )
+        if not expected_family["legacy"]:
+            require(
+                "No legacy FB" in entry["block"] or "repo vision trace only" in entry["block"],
+                (
+                    "Docs/feature_backlog.md: broad FAM entry "
+                    f"{entry['id']} must state that it has no legacy FB trace"
+                ),
+            )
+
+        package_rows = _parse_family_package_rows(entry["block"])
+        slice_rows = _parse_family_slice_rows(entry["block"])
+        all_package_rows.extend(package_rows)
+        all_slice_rows.extend(slice_rows)
+        expected_package = expected_family["package"]
+
+        require(
+            len(package_rows) == 1,
+            (
+                "Docs/feature_backlog.md: broad FAM entry "
+                f"{entry['id']} must contain exactly one package trace row"
+            ),
+        )
+        if package_rows:
+            package = package_rows[0]
+            require(
+                package["package"] == expected_package and package["fam"] == entry["id"],
+                (
+                    "Docs/feature_backlog.md: broad FAM entry "
+                    f"{entry['id']} package row must trace `{expected_package}` to `{entry['id']}`"
+                ),
+            )
+            require(
+                bool(package["completion"]),
+                (
+                    "Docs/feature_backlog.md: package "
+                    f"{expected_package} must record a package completion state"
+                ),
+            )
+        require(
+            len(slice_rows) >= 2,
+            (
+                "Docs/feature_backlog.md: broad FAM entry "
+                f"{entry['id']} must contain enough trace rows to preserve family context"
+            ),
+        )
+        package_admission_state = _clean_release_value(
+            _extract_colon_value(entry["block"], "Package Admission State")
+        )
+        declared_admitted_slice_count = _clean_release_value(
+            _extract_colon_value(entry["block"], "Admitted Slice Count")
+        )
+        require(
+            bool(package_admission_state),
+            (
+                "Docs/feature_backlog.md: broad FAM entry "
+                f"{entry['id']} must declare `Package Admission State:`"
+            ),
+        )
+        require(
+            bool(declared_admitted_slice_count),
+            (
+                "Docs/feature_backlog.md: broad FAM entry "
+                f"{entry['id']} must declare `Admitted Slice Count:`"
+            ),
+        )
+        single_slice_approval = _clean_release_value(
+            _extract_colon_value(entry["block"], "Single-Slice Package User Approval")
+        )
+        admitted_slice_rows = [row for row in slice_rows if _is_admitted_slice(row)]
+        if declared_admitted_slice_count:
+            require(
+                declared_admitted_slice_count == str(len(admitted_slice_rows)),
+                (
+                    "Docs/feature_backlog.md: broad FAM entry "
+                    f"{entry['id']} declares Admitted Slice Count {declared_admitted_slice_count}, "
+                    f"but validator counted {len(admitted_slice_rows)}"
+                ),
+            )
+        require(
+            len(admitted_slice_rows) != 1 or "Granted" in single_slice_approval,
+            (
+                "Docs/feature_backlog.md: package "
+                f"{expected_package} has exactly one admitted slice without explicit USER approval"
+            ),
+        )
+        if not admitted_slice_rows:
+            require(
+                "no active single-slice package is admitted" in single_slice_approval.casefold(),
+                (
+                    "Docs/feature_backlog.md: package "
+                    f"{expected_package} has no admitted slices, so Single-Slice Package User Approval "
+                    "must not claim multi-slice admission"
+                ),
+            )
+        for slice_row in slice_rows:
+            require(
+                slice_row["fam"] == entry["id"] and slice_row["package"] == expected_package,
+                (
+                    "Docs/feature_backlog.md: slice "
+                    f"{slice_row['slice']} must trace to exactly `{entry['id']}` and `{expected_package}`"
+                ),
+            )
+            require(
+                bool(slice_row["admission"]) and bool(slice_row["status"])
+                and bool(slice_row["completion"]) and bool(slice_row["seam"]),
+                (
+                    "Docs/feature_backlog.md: slice "
+                    f"{slice_row['slice']} must record admission state, status, completion state, and seam trace"
+                ),
+            )
+            normalized_admission = _clean_release_value(slice_row["admission"]).casefold()
+            require(
+                normalized_admission == ADMITTED_SLICE_STATE
+                or normalized_admission in NON_ADMITTED_SLICE_STATES,
+                (
+                    "Docs/feature_backlog.md: slice "
+                    f"{slice_row['slice']} has unsupported Admission State '{slice_row['admission']}'"
+                ),
+            )
+            row_text = " ".join(
+                (
+                    slice_row["name"],
+                    slice_row["status"],
+                    slice_row["completion"],
+                    slice_row["seam"],
+                )
+            ).casefold()
+            has_placeholder_marker = any(marker in row_text for marker in PLACEHOLDER_SLICE_MARKERS)
+            require(
+                not (_is_admitted_slice(slice_row) and has_placeholder_marker),
+                (
+                    "Docs/feature_backlog.md: slice "
+                    f"{slice_row['slice']} is marked admitted while still carrying placeholder/future wording"
+                ),
+            )
+            require(
+                not has_placeholder_marker or not _is_admitted_slice(slice_row),
+                (
+                    "Docs/feature_backlog.md: slice "
+                    f"{slice_row['slice']} future/deferred placeholder row must not count as admitted"
+                ),
+            )
+            if _is_admitted_slice(slice_row):
+                require(
+                    _clean_release_value(slice_row["completion"]).casefold() != "not admitted",
+                    (
+                        "Docs/feature_backlog.md: admitted slice "
+                        f"{slice_row['slice']} must carry a real completion state"
+                    ),
+                )
+        if package_rows and _is_package_complete(package_rows[0]["completion"]):
+            incomplete_admitted = [
+                row["slice"]
+                for row in admitted_slice_rows
+                if not _is_slice_terminal(row["completion"])
+            ]
+            require(
+                not incomplete_admitted,
+                (
+                    "Docs/feature_backlog.md: package "
+                    f"{expected_package} cannot be complete while admitted slices remain incomplete: "
+                    f"{', '.join(incomplete_admitted)}"
+                ),
+            )
+
+    package_to_fams: dict[str, set[str]] = {}
+    for row in all_package_rows:
+        package_to_fams.setdefault(row["package"], set()).add(row["fam"])
+    for package_id, fams in package_to_fams.items():
+        require(
+            len(fams) == 1,
+            f"Docs/feature_backlog.md: package {package_id} must trace to exactly one FAM",
+        )
+
+    slice_ids: set[str] = set()
+    for row in all_slice_rows:
+        require(
+            row["slice"] not in slice_ids,
+            f"Docs/feature_backlog.md: duplicate slice id {row['slice']} is not allowed",
+        )
+        slice_ids.add(row["slice"])
+        require(
+            row["package"] in package_to_fams,
+            f"Docs/feature_backlog.md: slice {row['slice']} references missing package {row['package']}",
+        )
+        require(
+            row["fam"] in package_to_fams[row["package"]],
+            (
+                "Docs/feature_backlog.md: slice "
+                f"{row['slice']} must trace to exactly one FAM and one package"
+            ),
+        )
+
+    require(
+        not re.search(r"^### \[ID: PR-\d+\]", backlog_text, flags=re.M),
+        "Docs/feature_backlog.md: PR numbers must remain evidence only, not parseable backlog identities",
+    )
+
+    for trace_id in CONSOLIDATED_TRACE_BACKLOG_IDS:
+        require(
+            trace_id not in parsed_ids,
+            (
+                "Docs/feature_backlog.md: "
+                f"{trace_id} must remain a consolidated trace row, not a parseable backlog item"
+            ),
+        )
+        require(
+            f"Legacy FB ID: {trace_id}" in backlog_text
+            or f"#### [Former ID: {trace_id}]" in backlog_text
+            or f"| `{trace_id}` |" in backlog_text,
+            (
+                "Docs/feature_backlog.md: "
+                f"{trace_id} consolidated trace is missing after backlog source-of-truth repair"
+            ),
+        )
+
+    for entry in backlog_entries:
+        registry_class = _clean_release_value(_extract_colon_value(entry["block"], "Registry Class"))
+        if registry_class == "Feature Family":
+            continue
+        has_explicit_user_approval = (
+            "USER Approval:" in entry["block"]
+            and "explicit" in entry["block"].casefold()
+        )
+        require(
+            has_explicit_user_approval,
+            (
+                "Docs/feature_backlog.md: parseable non-feature-family backlog entry "
+                f"{entry['id']} requires explicit USER approval; otherwise it must be a trace row "
+                "under the family/source-of-truth consolidation model"
+            ),
+        )
+
+    for phrase in CONSOLIDATED_BACKLOG_TRACE_REQUIRED_PHRASES:
+        require(
+            phrase in backlog_text,
+            (
+                "Docs/feature_backlog.md: consolidated backlog source-of-truth trace is missing "
+                f"required marker '{phrase}'"
+            ),
+        )
+    for phrase in FRESH_FAMILY_NAMESPACE_REQUIRED_PHRASES:
+        require(
+            phrase in "\n".join(
+                (backlog_text, main_text, development_rules_text, phase_governance_text)
+            ),
+            (
+                "governance source-of-truth: fresh family namespace rule is missing "
+                f"required marker '{phrase}'"
+            ),
+        )
+    for phrase in FAMILY_PACKAGE_MODEL_REQUIRED_PHRASES:
+        require(
+            phrase in "\n".join(
+                (backlog_text, main_text, development_rules_text, phase_governance_text)
+            ),
+            (
+                "governance source-of-truth: family package/slice model is missing "
+                f"required marker '{phrase}'"
+            ),
+        )
 
 
 def _latest_public_prerelease(roadmap_text: str) -> str:
@@ -4169,7 +4859,7 @@ def _validate_backlog_family_reform_seam_truth(
         return (
             main_router_loader_aligned()
             and selected_next_truth_validated()
-            and "### Family Dossiers And Historical Pass Alias Routing" in main_text
+            and "### Family Dossiers And Historical Pass Trace Routing" in main_text
             and "### Family Dossiers And Alias Records" not in main_text
             and "### Family Anchor Records" in index_text
             and "### Historical Pass Alias Records" in index_text
@@ -6158,7 +6848,7 @@ def _validate_backlog_family_dossier_shell(
         return
 
     index_dossier_section = _section(index_text, "Family Dossier Records")
-    main_dossier_routes = _subsection(main_text, "Family Dossiers And Historical Pass Alias Routing")
+    main_dossier_routes = _subsection(main_text, "Family Dossiers And Historical Pass Trace Routing")
 
     def require_dossier_shell(
         *,
@@ -6216,7 +6906,7 @@ def _validate_backlog_family_dossier_shell(
         require(
             str(dossier_path).replace("\\", "/") in main_dossier_routes,
             (
-                "Docs/Main.md: Family Dossiers And Historical Pass Alias Routing must route the "
+                "Docs/Main.md: Family Dossiers And Historical Pass Trace Routing must route the "
                 f"{backlog_id} dossier shell"
             ),
         )
@@ -7040,6 +7730,42 @@ def _open_successor_candidate_entries(backlog_entries: list[dict[str, str]]) -> 
     return candidates
 
 
+def _is_not_closed_backlog_entry(entry: dict[str, str]) -> bool:
+    status = entry["status"].strip().casefold()
+    normalized_status = _normalize_status(entry["status"])
+    return (
+        entry["record_state"] != "Closed"
+        and normalized_status not in {"released", "closed"}
+        and not status.startswith("implemented")
+    )
+
+
+def _format_not_closed_backlog_entries(backlog_entries: list[dict[str, str]]) -> str:
+    rows: list[str] = []
+    for entry in backlog_entries:
+        if not _is_not_closed_backlog_entry(entry):
+            continue
+        block = entry["block"]
+        fields = [
+            f"{entry['id']} {entry['title']}",
+            f"Status={entry['status'] or 'unknown'}",
+            f"Record State={entry['record_state'] or 'unknown'}",
+            f"Priority={_extract_colon_value(block, 'Priority') or 'unknown'}",
+        ]
+        for label in (
+            "Selection / Unblock",
+            "Deferred Since",
+            "Deferred Because",
+            "Branch",
+            "Minimal Scope",
+        ):
+            value = _extract_colon_value(block, label)
+            if value:
+                fields.append(f"{label}={value}")
+        rows.append("; ".join(fields))
+    return " | ".join(rows)
+
+
 def _next_workstream_roadmap_section(roadmap_text: str) -> str:
     return _section(roadmap_text, "Selected Next Workstream")
 
@@ -7231,18 +7957,66 @@ def _run_next_workstream_gate(
     roadmap_text: str,
     ignored_branch_names: set[str],
     branch_record_class_map: dict[str, str],
+    active_branch_record_text: str,
 ) -> None:
+    def successor_selection_approval_exists() -> bool:
+        normalized_record = active_branch_record_text.casefold()
+        return any(
+            marker in normalized_record
+            for marker in (
+                "successor selection user approval: granted",
+                "selected-next successor selection: approved",
+                "user approval for successor selection exists",
+            )
+        )
+
+    def explicitly_records_no_selected_next(blocker: str) -> bool:
+        post_merge_state = _section(active_branch_record_text, "Post-Merge State")
+        return (
+            blocker in active_branch_record_text
+            and "No Active Branch" in post_merge_state
+            and "Selected Next Workstream:" in post_merge_state
+            and "None" in post_merge_state
+            and "Selected Next Implementation Branch:" in post_merge_state
+            and "Not created" in post_merge_state
+            and "successor" in post_merge_state.casefold()
+        )
+
     selected_entries = _selected_next_workstream_entries(backlog_entries)
     if not selected_entries:
-        successor_candidates = _open_successor_candidate_entries(backlog_entries)
+        not_closed_entries = _format_not_closed_backlog_entries(backlog_entries)
+        if not_closed_entries:
+            if successor_selection_approval_exists():
+                require(
+                    False,
+                    (
+                        "PR readiness gate: Next Runtime Candidate Selection Pending blocker is active; "
+                        "explicit USER successor-selection approval exists, but no real runtime "
+                        "Feature Family candidate is selected. Still-not-closed backlog item(s): "
+                        f"{not_closed_entries}"
+                    ),
+                )
+                return
+            if explicitly_records_no_selected_next(BACKLOG_ADDITION_USER_APPROVAL_BLOCKER):
+                return
+            require(
+                False,
+                (
+                    f"PR readiness gate: {BACKLOG_ADDITION_USER_APPROVAL_BLOCKER} blocker is active; "
+                    "Codex must not create, split, promote, or select a backlog identity without explicit "
+                    "USER approval. Still-not-closed backlog item(s): "
+                    f"{not_closed_entries}"
+                ),
+            )
+            return
+        if explicitly_records_no_selected_next(BACKLOG_EXHAUSTION_USER_DECISION_BLOCKER):
+            return
         require(
             False,
             (
-                "PR readiness gate: Next Runtime Candidate Selection Pending blocker is active; "
-                "PR Readiness cannot advance to Release Readiness until exactly one real runtime "
-                "candidate is selected, canon-defined, minimally scoped, and explicitly not branched yet. "
-                "Open candidate(s): "
-                + (", ".join(entry["id"] for entry in successor_candidates) or "none found; stop in PR Readiness")
+                f"PR readiness gate: {BACKLOG_EXHAUSTION_USER_DECISION_BLOCKER} blocker is active; "
+                "no still-not-closed backlog items remain, and USER direction is required before Codex "
+                "may create any new backlog identity."
             ),
         )
         return
@@ -9002,6 +9776,7 @@ def _run_pr_readiness_gate(
         roadmap_text,
         ignored_branch_names,
         branch_record_class_map,
+        active_branch_record_text,
     )
     _run_pr_live_state_gate(
         require,
@@ -9020,6 +9795,7 @@ def main() -> int:
     index_text = _read_text(Path("Docs/workstreams/index.md"))
     branch_record_index_text = _read_text(BRANCH_RECORD_INDEX)
     main_text = _read_text(Path("Docs/Main.md"))
+    development_rules_text = _read_text(Path("Docs/development_rules.md"))
     main_canonical_workstream_routes = _subsection(main_text, "Canonical Workstream Records")
 
     def require(condition: bool, message: str) -> None:
@@ -9292,6 +10068,14 @@ def main() -> int:
                 f"{relative_path}: PR Readiness blocker guidance is missing '{required_phrase}'",
             )
 
+    for relative_path in PACKAGE_SLICE_BLOCKER_CATALOG_DOCS:
+        text = _read_text(relative_path)
+        for required_phrase in PACKAGE_SLICE_BLOCKER_CATALOG_PHRASES:
+            require(
+                required_phrase in text,
+                f"{relative_path}: package/slice blocker catalog is missing '{required_phrase}'",
+            )
+
     for relative_path in RELEASE_WINDOW_AUDIT_DOCS:
         text = _read_text(relative_path)
         for required_phrase in RELEASE_WINDOW_AUDIT_PHRASES:
@@ -9306,6 +10090,46 @@ def main() -> int:
             require(
                 required_phrase in text,
                 f"{relative_path}: PR Readiness response contract is missing '{required_phrase}'",
+            )
+
+    for relative_path in PR_READINESS_STAGE_GATE_DOCS:
+        text = _read_text(relative_path)
+        for required_phrase in PR_READINESS_STAGE_GATE_PHRASES:
+            require(
+                required_phrase in text,
+                f"{relative_path}: PR Readiness stage gate guidance is missing '{required_phrase}'",
+            )
+
+    for relative_path in PR_READINESS_STAGE_PACKET_DOCS:
+        text = _read_text(relative_path)
+        for required_phrase in PR_READINESS_STAGE_PACKET_PHRASES:
+            require(
+                required_phrase in text,
+                f"{relative_path}: PR Readiness Stage 1 packet contract is missing '{required_phrase}'",
+            )
+
+    for relative_path in BRANCH_READINESS_STAGE_GATE_DOCS:
+        text = _read_text(relative_path)
+        for required_phrase in BRANCH_READINESS_STAGE_GATE_PHRASES:
+            require(
+                required_phrase in text,
+                f"{relative_path}: Branch Readiness stage gate guidance is missing '{required_phrase}'",
+            )
+
+    for relative_path in BRANCH_READINESS_STAGE_PACKET_DOCS:
+        text = _read_text(relative_path)
+        for required_phrase in BRANCH_READINESS_STAGE_PACKET_PHRASES:
+            require(
+                required_phrase in text,
+                f"{relative_path}: Branch Readiness Stage 1 packet contract is missing '{required_phrase}'",
+            )
+
+    for relative_path in ELEMENT_COVERAGE_DOCS:
+        text = _read_text(relative_path)
+        for required_phrase in ELEMENT_COVERAGE_PHRASES:
+            require(
+                required_phrase in text,
+                f"{relative_path}: Element Coverage governance is missing '{required_phrase}'",
             )
 
     for relative_path in RELEASE_OPERATOR_OUTPUT_CONTRACT_DOCS:
@@ -9542,6 +10366,14 @@ def main() -> int:
             )
 
     backlog_entries = _parse_backlog_sections(backlog_text)
+    _validate_consolidated_backlog_source_truth(
+        require,
+        backlog_text=backlog_text,
+        main_text=main_text,
+        development_rules_text=development_rules_text,
+        phase_governance_text=phase_governance_text,
+        backlog_entries=backlog_entries,
+    )
     _validate_backlog_family_reform_bootstrap(
         require,
         current_branch=current_git_branch,
@@ -9618,61 +10450,47 @@ def main() -> int:
         )
 
     fb038_entry = _entry_by_id(backlog_entries, "FB-038")
-    require(bool(fb038_entry), "Docs/feature_backlog.md: FB-038 backlog entry is missing")
-    if highest_known_prebeta_tag == FB038_RELEASE_TAG and fb038_entry:
+    require(
+        not fb038_entry,
+        "Docs/feature_backlog.md: FB-038 must be a consolidated FB-027 family trace row, not a parseable backlog entry",
+    )
+    require(
+        FB038_CANONICAL_PATH in closed_index_paths,
+        "Docs/workstreams/index.md: FB-038 must remain listed under closed historical pass records",
+    )
+    require(
+        FB038_CANONICAL_PATH not in release_debt_index_paths,
+        "Docs/workstreams/index.md: FB-038 must not remain under Merged / Release Debt Owners after release",
+    )
+    roadmap_lower = roadmap_text.casefold()
+    require(
+        "merged-unreleased release-debt owner: fb-038" not in roadmap_lower,
+        "Docs/prebeta_roadmap.md: FB-038 release must not remain the release-debt owner",
+    )
+    fb038_workstream_path = ROOT_DIR / Path(FB038_CANONICAL_PATH)
+    require(
+        fb038_workstream_path.is_file(),
+        f"{FB038_CANONICAL_PATH}: FB-038 workstream doc does not exist",
+    )
+    if fb038_workstream_path.is_file():
+        fb038_text = _read_text(Path(FB038_CANONICAL_PATH))
+        fb038_info = _parse_workstream_doc(fb038_text)
         require(
-            fb038_entry["record_state"] == "Closed",
-            f"Docs/feature_backlog.md: FB-038 must be Closed after {FB038_RELEASE_TAG} release",
+            fb038_info["record_state"] == "Closed",
+            f"{FB038_CANONICAL_PATH}: Record State must be Closed after {FB038_RELEASE_TAG} release",
         )
         require(
-            _normalize_status(fb038_entry["status"]) == "released",
-            f"Docs/feature_backlog.md: FB-038 must be Released after {FB038_RELEASE_TAG} release",
+            _normalize_status(str(fb038_info["status"])) == "released",
+            f"{FB038_CANONICAL_PATH}: Status must be Released after {FB038_RELEASE_TAG} release",
         )
         require(
-            _clean_release_value(_extract_colon_value(fb038_entry["block"], "Target Version")) == FB038_RELEASE_TAG,
-            f"Docs/feature_backlog.md: FB-038 Target Version must remain {FB038_RELEASE_TAG}",
+            f"Latest Public Prerelease: {FB038_RELEASE_TAG}" in fb038_text,
+            f"{FB038_CANONICAL_PATH}: released-state canon must record latest public prerelease {FB038_RELEASE_TAG}",
         )
         require(
-            _clean_release_value(_extract_colon_value(fb038_entry["block"], "Release Title")) == FB038_RELEASE_TITLE,
-            f"Docs/feature_backlog.md: FB-038 Release Title must be '{FB038_RELEASE_TITLE}'",
+            f"Release Title: {FB038_RELEASE_TITLE}" in fb038_text,
+            f"{FB038_CANONICAL_PATH}: released-state canon must record release title '{FB038_RELEASE_TITLE}'",
         )
-        require(
-            FB038_CANONICAL_PATH in closed_index_paths,
-            "Docs/workstreams/index.md: FB-038 must be listed under Closed after v1.4.1-prebeta release",
-        )
-        require(
-            FB038_CANONICAL_PATH not in release_debt_index_paths,
-            "Docs/workstreams/index.md: FB-038 must not remain under Merged / Release Debt Owners after release",
-        )
-        roadmap_lower = roadmap_text.casefold()
-        require(
-            "merged-unreleased release-debt owner: fb-038" not in roadmap_lower,
-            "Docs/prebeta_roadmap.md: FB-038 release must not remain the release-debt owner",
-        )
-        fb038_workstream_path = ROOT_DIR / Path(FB038_CANONICAL_PATH)
-        require(
-            fb038_workstream_path.is_file(),
-            f"{FB038_CANONICAL_PATH}: FB-038 workstream doc does not exist",
-        )
-        if fb038_workstream_path.is_file():
-            fb038_text = _read_text(Path(FB038_CANONICAL_PATH))
-            fb038_info = _parse_workstream_doc(fb038_text)
-            require(
-                fb038_info["record_state"] == "Closed",
-                f"{FB038_CANONICAL_PATH}: Record State must be Closed after {FB038_RELEASE_TAG} release",
-            )
-            require(
-                _normalize_status(str(fb038_info["status"])) == "released",
-                f"{FB038_CANONICAL_PATH}: Status must be Released after {FB038_RELEASE_TAG} release",
-            )
-            require(
-                f"Latest Public Prerelease: {FB038_RELEASE_TAG}" in fb038_text,
-                f"{FB038_CANONICAL_PATH}: released-state canon must record latest public prerelease {FB038_RELEASE_TAG}",
-            )
-            require(
-                f"Release Title: {FB038_RELEASE_TITLE}" in fb038_text,
-                f"{FB038_CANONICAL_PATH}: released-state canon must record release title '{FB038_RELEASE_TITLE}'",
-            )
 
     if highest_known_prebeta_tag:
         expected_latest_title = _expected_prebeta_release_title(highest_known_prebeta_tag)
@@ -9940,60 +10758,52 @@ def main() -> int:
             "Docs/workstreams/index.md: Active list must be empty when no backlog workstream is Promoted",
         )
 
+    fb041_path = "Docs/workstreams/FB-041_deterministic_callable_group_execution_layer.md"
     fb041_entries = [entry for entry in backlog_entries if entry.get("id") == "FB-041"]
-    require(bool(fb041_entries), "Docs/feature_backlog.md: FB-041 backlog entry is missing")
-    if fb041_entries:
-        fb041_entry = fb041_entries[0]
-        fb041_path = fb041_entry["canonical_path"]
+    require(
+        not fb041_entries,
+        "Docs/feature_backlog.md: FB-041 must be a consolidated FB-027 family trace row, not a parseable backlog entry",
+    )
+    require(
+        fb041_path in closed_index_paths,
+        "Docs/workstreams/index.md: FB-041 must remain listed under closed historical pass records",
+    )
+    require(
+        fb041_path not in active_index_paths,
+        "Docs/workstreams/index.md: FB-041 must not remain under Active after v1.3.1-prebeta release",
+    )
+
+    fb041_doc_path = Path(fb041_path)
+    require(
+        (ROOT_DIR / fb041_doc_path).is_file(),
+        f"{fb041_path}: FB-041 workstream doc does not exist",
+    )
+    if (ROOT_DIR / fb041_doc_path).is_file():
+        fb041_text = _read_text(fb041_doc_path)
+        fb041_info = _parse_workstream_doc(fb041_text)
         require(
-            fb041_entry["record_state"] == "Closed",
-            "Docs/feature_backlog.md: FB-041 must be Closed after v1.3.1-prebeta release",
+            fb041_info["record_state"] == "Closed",
+            f"{fb041_path}: Record State must be Closed after v1.3.1-prebeta release",
         )
         require(
-            _normalize_status(fb041_entry["status"]) == "released",
-            "Docs/feature_backlog.md: FB-041 must be Released after v1.3.1-prebeta release",
-        )
-        require(
-            fb041_path in closed_index_paths,
-            "Docs/workstreams/index.md: FB-041 must be listed under Closed after v1.3.1-prebeta release",
-        )
-        require(
-            fb041_path not in active_index_paths,
-            "Docs/workstreams/index.md: FB-041 must not remain under Active after v1.3.1-prebeta release",
+            _normalize_status(str(fb041_info["status"])) == "released",
+            f"{fb041_path}: Status must be Released after v1.3.1-prebeta release",
         )
 
-        if fb041_path:
-            fb041_doc_path = Path(fb041_path)
-            require(
-                (ROOT_DIR / fb041_doc_path).is_file(),
-                f"{fb041_path}: FB-041 workstream doc does not exist",
-            )
-            if (ROOT_DIR / fb041_doc_path).is_file():
-                fb041_text = _read_text(fb041_doc_path)
-                fb041_info = _parse_workstream_doc(fb041_text)
-                require(
-                    fb041_info["record_state"] == "Closed",
-                    f"{fb041_path}: Record State must be Closed after v1.3.1-prebeta release",
-                )
-                require(
-                    _normalize_status(str(fb041_info["status"])) == "released",
-                    f"{fb041_path}: Status must be Released after v1.3.1-prebeta release",
-                )
-
-        fb041_roadmap_section = _roadmap_section_for_id(roadmap_text, "FB-041")
+    fb041_roadmap_section = _roadmap_section_for_id(roadmap_text, "FB-041")
+    require(
+        bool(fb041_roadmap_section),
+        "Docs/prebeta_roadmap.md: FB-041 release section is missing",
+    )
+    if fb041_roadmap_section:
         require(
-            bool(fb041_roadmap_section),
-            "Docs/prebeta_roadmap.md: FB-041 release section is missing",
+            fb041_path in fb041_roadmap_section,
+            "Docs/prebeta_roadmap.md: FB-041 release section must cite the canonical workstream doc",
         )
-        if fb041_roadmap_section:
-            require(
-                fb041_path in fb041_roadmap_section,
-                "Docs/prebeta_roadmap.md: FB-041 release section must cite the canonical workstream doc",
-            )
-            require(
-                "release state: `released`" in fb041_roadmap_section,
-                "Docs/prebeta_roadmap.md: FB-041 release state must be `released`",
-            )
+        require(
+            "release state: `released`" in fb041_roadmap_section,
+            "Docs/prebeta_roadmap.md: FB-041 release state must be `released`",
+        )
 
     for entry in promoted_entries:
         workstream_id = entry["id"]

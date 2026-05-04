@@ -181,6 +181,10 @@ Default checkpoint:
 Branch Readiness must establish the branch-level execution plan before Workstream begins.
 That plan must name the branch objective, target end-state, expected seam families and risk classes, validation contract, User Test Summary strategy, later-phase needs, and the first Workstream seam or initial seam sequence.
 Branch Readiness owns planning, framing, affected-surface mapping, implementation delta classification, admitted-slice definition, and whole-backlog closure strategy before Workstream begins.
+Branch Readiness is organized inside the same canonical phase as `Branch Readiness Stage 1 - Analysis Gate` followed by `Branch Readiness Stage 2 - Execution Gate`.
+Stage 1 is analysis-only and outputs `## Branch Readiness Stage 1 Analysis Packet`; it allows no repository file mutation, branch creation, package admission, docs sync, PR work, release work, selected-next truth, or canon edits.
+The Branch Readiness Stage 1 packet must include governed state markers, FAM/package candidate, package-size review, multiple admitted-slice plan, single-slice drift check, Element Coverage review, validation plan, expected docs sync, blockers and waivers, rollback path, and the exact Stage 2 green-light decision needed.
+`Branch Readiness Execution User Approval Missing` blocks `Branch Readiness Stage 2 - Execution Gate` until explicit USER approval to enter Stage 2 is recorded.
 Workstream must execute an admitted implementation slice unless the USER explicitly approves a docs-only bypass.
 Workstream must keep re-evaluating the backlog item after each seam and slice and continue on the same branch until the backlog item is fully implemented or only future-dependent blockers remain.
 Docs-only Workstreams require explicit USER approval.
@@ -238,6 +242,14 @@ If no runtime-focused branch is legally admitted yet, record the drift as a bloc
 Historical repair-only branch records remain traceability only and do not authorize new repair-only branch creation.
 If PR Readiness missed required canon or docs work and the owning branch has already merged, the next active branch must treat the miss as a `Branch Readiness` blocker and repair it before implementation begins.
 
+Backlog identity is USER-gated:
+
+- Codex must not create, split, promote, or select a new backlog identity without explicit USER approval.
+- Backlog items are major user-facing feature-family or major release/support lanes, not small single-seam runtime proofs, governance repairs, validation follow-through, hotfixes, or blocker-clearing repair traces.
+- If Codex believes a backlog identity, package admission, branch creation, backlog split, promotion, selected-next successor, or single-slice package waiver is needed but approval is absent, stop on `Backlog Addition User Approval Missing` and output every FAM that is still not closed plus every package or slice that is not complete, including ID, title, Status, Record State, Priority, package state, slice state, and available selection/deferred/minimal-scope fields.
+- If that still-not-closed FAM and not-complete package/slice list is empty, stop on `Backlog Exhaustion User Decision Pending` and wait for USER direction.
+- Small runtime follow-through inside an existing family is family evidence or aggregation material by default; it must not become a standalone release-version driver without explicit USER approval.
+
 Pre-PR Durability Rule:
 
 - before `PR Readiness`, when a bounded phase pass or durability seam changes source, docs, canon, validator, helper registry, workstream authority, or branch-truth files and validation is green, Codex must commit and push those changes on the active branch instead of stopping at a copy-ready, staged-only, or uncommitted state
@@ -268,7 +280,7 @@ Supporting canon must stay aligned with live truth.
 
 That means:
 
-- PR Readiness hard blocker shorthand is `stale-canon`, `post-merge`, `dirty`, `docs-sync`, `next-workstream`, `Next Runtime Candidate Selection Pending`, `deferred-context`, `uts-results`, `pr-created`, and `pr-validated`
+- PR Readiness hard blocker shorthand is `stale-canon`, `post-merge`, `dirty`, `docs-sync`, `next-workstream`, `Next Runtime Candidate Selection Pending`, `Backlog Addition User Approval Missing`, `Backlog Exhaustion User Decision Pending`, `deferred-context`, `uts-results`, `pr-created`, and `pr-validated`
 - directly supporting canon and tightly coupled governance may be updated on the active implementation or release branch when that branch changes or depends on the truth
 - no PR-ready without canon-ready:
   - a branch is not PR-ready if merging it would leave `main` canon-stale
@@ -276,8 +288,11 @@ That means:
   - current-state canon and merge-target canon must already reflect the branch's true state and the state that will be true after merge
 - when a branch closes a workstream, changes released milestone posture, changes the current rebaseline, changes closeout-index routing, changes backlog or roadmap release posture, changes workstream-index release posture, or changes `Docs/Main.md` baseline routing, the required release-facing canon updates must already be on that branch before PR creation is allowed
 - no PR-ready with `Next Workstream Undefined`:
-  - If post-merge truth will resolve to `No Active Branch` because `Release Debt` or another repo-level admission blocker remains open, successor branch creation remains deferred; next-workstream selection is still required.
-  - if no real runtime successor can be selected, keep `Next Runtime Candidate Selection Pending` active and stop in PR Readiness rather than advancing to Release Readiness
+  - If post-merge truth will resolve to `No Active Branch` because `Release Debt` or another repo-level admission blocker remains open, successor branch creation remains deferred; next-workstream selection requires explicit USER approval.
+  - if USER approval for new or successor backlog selection is absent, keep `Backlog Addition User Approval Missing` active, output the still-not-closed FAM list plus every not-complete package and slice, and stop instead of adding selected-next truth
+  - if `Backlog Addition User Approval Missing` is explicitly recorded with post-merge `No Active Branch` truth and no selected-next entry, PR Readiness must not force selected-next truth; it may validate the live PR surface while keeping next branch creation and package admission blocked
+  - explicit successor-selection approval must be machine-recorded as `Successor Selection User Approval: Granted`; if that marker exists but no real runtime Feature Family candidate is selected, `Next Runtime Candidate Selection Pending` supersedes the missing-approval blocker
+  - if USER approval exists but no real runtime successor can be selected, keep `Next Runtime Candidate Selection Pending` active and stop in PR Readiness rather than advancing to Release Readiness
   - the next workstream must be a real runtime `Feature Family` candidate selected from canon using open backlog `Priority` plus deferred-context readiness, not `Target Version`
   - that workstream must be recorded in `Docs/feature_backlog.md` and `Docs/prebeta_roadmap.md`
   - that workstream must have canon-valid `Record State`
@@ -286,12 +301,18 @@ That means:
   - that workstream must have minimal scope defined before PR green
   - that minimal scope must explicitly define a runtime slice
   - no branch may exist yet for that next workstream while PR Readiness is encoding selected-next truth
-  - the selected backlog entry must include `Next Workstream: Selected` and `Minimal Scope:`
-  - `Docs/prebeta_roadmap.md` must include `## Selected Next Workstream` with the same workstream id, `Record State`, `Minimal Scope:`, and truthful branch status such as `Branch: Not created` before branch creation or the active Branch Readiness branch name after creation
+  - after explicit USER approval exists, the selected backlog entry must include `Next Workstream: Selected` and `Minimal Scope:`
+  - after explicit USER approval exists, `Docs/prebeta_roadmap.md` must include `## Selected Next Workstream` with the same workstream id, `Record State`, `Minimal Scope:`, and truthful branch status such as `Branch: Not created` before branch creation or the active Branch Readiness branch name after creation
   - successor branch creation is deferred to `Branch Readiness` after the current branch merges and updated `main` is revalidated
   - when release debt or another admission blocker applies, the branch must also record `No Active Branch` plus the blocking admission item explicitly in merged current-state canon
 - no PR-ready with unresolved post-merge planning:
   - if post-merge truth needs `No Active Branch` handling, release-debt handling, next-workstream planning, next-workstream canon sync, minimal scope, or branch-creation deferral, that handling must already be complete inside PR Readiness
+- no PR Readiness Stage 2 without USER review approval:
+  - `PR Readiness Stage 1 - Analysis Gate` is analysis-only and must produce `## PR Readiness Stage 1 Analysis Packet`
+  - Stage 1 allows no repository file mutation, staging, commit, push, PR creation, watcher provisioning, next-branch creation, release work, or canon edits
+  - the packet must include governed state markers, planned PR title/base/head/summary, required post-merge path, ranked runtime FAM candidates, recommended next package, package-size / single-slice drift review, release-debt impact, planned merge-target canon updates, planned next-branch block, planned watcher provisioning and reporting surface, planned validations, expected file changes, Stage 2 sync plan, drift findings, blocker and waiver findings, release-window audit posture, rollback path, and the exact Stage 2 green-light decision needed from the USER
+  - `PR Readiness Execution User Approval Missing` blocks `PR Readiness Stage 2 - Execution Gate` until explicit USER approval to enter Stage 2 is recorded
+  - Stage 2 preserves the existing PR Readiness work sequence: apply required canon, commit and push durable truth, run the normal validator and PR-readiness gate mode, create the PR, provision and prove the watcher, validate live PR state, handle bot-review signals, and continue merge-watch
 - no PR-ready with an incomplete merged-unreleased release-debt owner contract:
   - if merge will create unreleased implementation release debt, PR Readiness must leave merge-target canon in the exact post-merge shape
   - required machine-checkable fields are `Merged-Unreleased Release-Debt Owner:`, `Repo State: No Active Branch`, `Release Target:`, `Release Floor:`, `Version Rationale:`, `Release Scope:`, `Release Artifacts:`, `Post-Release Truth:`, `Selected Next Workstream:`, and `Next-Branch Creation Gate:`
@@ -355,6 +376,7 @@ That means:
   - if Release Readiness analysis discovers missing, stale, or ambiguous release target/scope/artifact truth, do not patch in Release Readiness; return to `PR Readiness` on the active branch if unmerged, or defer the repair to the next legitimate runtime-focused backlog branch's `Branch Readiness` if already merged
   - tracked file changes while the authority record says `Release Readiness` are blocked as `Release Readiness File Mutation Attempt`
   - release-bearing includes `release packaging` branches and any branch that creates, prepares, validates, tags, publishes, or transitions release-facing artifacts or release-state canon
+  - small single-seam runtime proof inside an existing family may be recorded as aggregation evidence with `Standalone Release Driver: No`; that evidence does not justify a release version by itself unless the USER approves a larger feature-family release or release aggregation
   - the only non-release waiver is `Release Branch: No`
   - `Release Branch: No` is limited to preserved historical records
   - the non-release waiver is not available to `implementation` or `release packaging` branches
@@ -779,6 +801,33 @@ Use `Docs/Main.md` as the routing index for the merged canon.
 
 `Docs/feature_backlog.md` is a controlled registry layer.
 
+Only true broad feature-family backlog entries should remain as parseable `### [ID: FAM-XXX]` backlog records by default. The legacy `FB-###` namespace is historical-only; historical pass aliases, support/governance lanes, and old registry-only implemented IDs are traceability rows that route to family dossiers, canonical workstream records, or same-file historical trace; they must not be selected as backlog items by inertia.
+
+Canonical identity model:
+
+- `FAM` is a broad long-lived product family.
+- `Package` is a bulk branch/release package under exactly one FAM.
+- `Slice` is a traceable deliverable area inside exactly one package.
+- `Seam` is an execution or validation checkpoint.
+- `PR` is merge/review evidence only.
+- legacy global `FB` is historical trace only.
+
+Branch scope standard:
+
+- a branch should carry a family package with multiple admitted slices by default
+- a single-slice package is blocked by `Single-Slice Package User Approval Missing` unless explicit USER approval records `Single-Slice Package User Approval: Granted`
+- every slice must trace to exactly one FAM and exactly one package
+- Workstream must continue through every admitted package slice before Hardening unless the package is truthfully marked `Complete`, `Released Baseline / Open`, `Blocked`, or `Deferred`
+- admitted-slice counting is explicit: only `Admission State: Admitted` rows count; `Historical Evidence`, `Merged Evidence`, `Future Placeholder`, `Deferred Placeholder`, future package required rows, and deferred ideas are not admitted slices
+- an admitted slice must have concrete scope, `Package ID`, `FAM ID`, `Slice Status`, `Completion State`, and `Seam Trace`; vague pending/future placeholder rows cannot satisfy the multi-slice rule
+- `Package Completion Unproven` remains active when package completion is claimed green while any admitted slice remains incomplete, and completing one admitted slice cannot authorize stopping while other admitted package slices remain incomplete
+
+Element Coverage standard:
+
+- Element Coverage is a non-identity checklist owned by FAM/package analysis, Branch Readiness Stage 1, and PR Readiness Stage 1 review
+- coverage categories are user-facing surface, runtime/backend behavior, fail-safe/recovery, security/privacy, voice/audio, external integration, local AI/capability packs, packaging/install, monitoring/HUD, validation, and release impact
+- Element Coverage rows never count as `Admission State: Admitted`, slices, seams, packages, FAMs, selected-next truth, or release drivers
+
 Open backlog selection is priority-led:
 
 - `Priority` is the primary selection signal for open candidate work
@@ -796,8 +845,14 @@ Codex may:
 Codex may not:
 
 - silently add backlog items
+- add, split, promote, package-admit, branch-create, select successor backlog identities, or waive the single-slice package blocker without explicit USER approval
+- create or reuse parseable `FB-###` backlog IDs
+- turn historical trace rows back into parseable backlog entries without explicit USER approval
 - silently change priority or status outside approved work
 - silently mark work complete because a branch merely looks clean
+
+If Codex reaches the approval blocker, it must report `Backlog Addition User Approval Missing` and list every FAM that is still not closed plus every package or slice that is not complete.
+If no still-not-closed entries exist, report `Backlog Exhaustion User Decision Pending` and stop for USER direction.
 
 ## Relationship To `Docs/orin_task_template.md`
 

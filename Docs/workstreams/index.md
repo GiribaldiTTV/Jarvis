@@ -20,13 +20,20 @@ Use `Docs/validation_helper_registry.md` for durable root `dev/` helper naming, 
 
 - workstream docs are the canonical feature-state, branch-local validation/evidence, active-seam, artifact-history, branch-local reuse, and closure records for promoted work
 - a slice is a bounded admitted backlog-completion unit; a seam is the current execution checkpoint inside or between slices
+- under the broad backlog model, a FAM is the long-lived product family, a package is the branch/release unit under one FAM, a slice is the deliverable area inside that package, and a seam is the execution/validation checkpoint
+- PR numbers are merge/review evidence only and must not be used as workstream, package, or backlog identities
 - active implementation workstreams may carry as many slices as needed to complete the backlog item on one branch when phase, scope, risk, and validation authority remain green
 - workstream docs must not encode a one-slice branch cap unless an explicit `Backlog-Split User Approval: APPROVED` or a named bounded stop condition is recorded
+- new package admission defaults to multiple slices; a package with exactly one admitted slice requires explicit `Single-Slice Package User Approval: Granted`
+- only `Admission State: Admitted` rows count toward package admission; historical evidence, merged evidence, future placeholders, deferred ideas, and future-package-required rows do not count as admitted slices
+- package drift blockers are named `Single-Slice Package User Approval Missing` and `Package Completion Unproven`
+- Element Coverage is a non-identity checklist for user-facing surface, runtime/backend behavior, fail-safe/recovery, security/privacy, voice/audio, external integration, local AI/capability packs, packaging/install, monitoring/HUD, validation, and release impact; Element Coverage rows never count as `Admission State: Admitted`, slices, seams, packages, FAMs, selected-next truth, or release drivers
+- Branch Readiness stage-gate governance uses `Branch Readiness Stage 1 - Analysis Gate` for no repository file mutation branch/package review and `Branch Readiness Stage 2 - Execution Gate` for USER-approved execution; `Branch Readiness Execution User Approval Missing` blocks Stage 2
 - active implementation workstreams must record whether the backlog item is still `In Progress`, `Implemented Complete`, or `Implemented Complete Except Future Dependency` before phase exit
 - `Record State` tracks whether the record is `Promoted` or `Closed`
 - `Status` remains the delivery or work field
 - `Registry-only` backlog items do not require a canonical workstream execution record yet
-- when a backlog item moves from `Registry-only` to `Promoted`, its canonical workstream doc must be created at a stable `Docs/workstreams/FB-XXX_slug.md` path
+- when a new broad FAM package moves from `Registry-only` to `Promoted`, its canonical workstream doc should use a stable FAM/package-aware path; existing `Docs/workstreams/FB-XXX_slug.md` paths remain historical trace and must not be treated as live backlog IDs
 - once promoted, the canonical workstream doc becomes the durable execution and traceability record for that lane and must be updated throughout the active branch, not just at closeout
 - workstream docs and branch authority records are the default traceability surface for multi-slice continuation, blocker-clearing, and repair history inside one backlog identity
 - if later work continues the same user-facing feature family, preserve that continuation traceability here or in branch records instead of creating a near-duplicate backlog ID by default
@@ -63,6 +70,16 @@ Use `Docs/validation_helper_registry.md` for durable root `dev/` helper naming, 
 - family dossiers are additive lifetime traceability surfaces for feature-family anchors; they do not replace the canonical workstream docs that preserve branch-local historical proof
 - family dossiers may begin as shell-only records before pass indexes, slice/seam ledgers, validator/helper indexes, artifact indexes, or migrated historical bodies are populated
 
+## Broad Family Routing Overlay
+
+The live backlog routes through broad FAM IDs. Legacy `FB-###` workstream filenames below are durable historical evidence paths only.
+
+| FAM ID | Package ID | Broad Family | Legacy Workstream/Dossier Routing |
+| --- | --- | --- | --- |
+| `FAM-001` | `PKG-001` | Boot Interface | `FB-042` family dossier plus `FB-043` through `FB-049` historical pass/evidence records |
+| `FAM-003` | `PKG-003` | Interaction and Actions | `FB-027` family dossier plus `FB-036`, `FB-037`, `FB-038`, `FB-041`, and PR #109 historical evidence |
+| `FAM-004` | `PKG-004` | Voice and Audio | `FB-030` promoted workstream record and PR #108 merge evidence |
+
 ## Minimum Durable Traceability Content
 
 For an active or recently closed canonical workstream, keep these durable traceability elements current when relevant:
@@ -87,7 +104,7 @@ For an active or recently closed canonical workstream, keep these durable tracea
 Active here means the current promoted truth owner.
 That may be an executable branch owner or another explicitly promoted current-truth owner.
 
-- `Docs/workstreams/FB-027_interaction_system_baseline.md`
+None.
 
 ### Merged / Release Debt Owners
 
@@ -101,8 +118,11 @@ These records are not active implementation branch owners after merge.
 ### Family Anchor Records
 
 - `Docs/workstreams/FB-042_desktop_entrypoint_runtime_refinement.md`
+- `Docs/workstreams/FB-027_interaction_system_baseline.md`
 
 ### Historical Pass Alias Records
+
+These records are no longer standalone backlog items. They are historical family-pass source records routed through the family dossier and preserved canonical workstream docs.
 
 #### FB-042 Family
 
@@ -121,6 +141,8 @@ These records are not active implementation branch owners after merge.
 - `Docs/workstreams/FB-038_taskbar_tray_quick_task_ux.md`
 
 ### Other Closed Workstreams
+
+These closed support, architecture, and governance workstreams are source-of-truth trace records only. They do not become selectable backlog identities again unless the USER explicitly approves a future major release/support lane.
 
 - `Docs/workstreams/FB-005_workspace_and_folder_organization.md`
 - `Docs/workstreams/FB-029_orin_identity_licensing_hardening.md`

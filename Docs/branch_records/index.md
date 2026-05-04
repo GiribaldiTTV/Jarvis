@@ -28,12 +28,17 @@ Do not use this layer to replace:
 - Governance, docs, source-of-truth, and validator repairs must ride inside the next legitimate runtime-focused backlog branch during `Branch Readiness` or `PR Readiness`.
 - If no runtime-focused branch is legally admitted yet, record the drift as a blocker and wait instead of creating a repair branch by inertia.
 - Historical repair-only branch records remain traceability only and do not authorize new repair-only branch creation.
+- The one-time `codex/one-time-backlog-governance-repair` branch is USER-admitted as `repair/dev-tooling-governance` to repair the blocker rule that allowed FB-027/PR #109 drift; it does not reopen governance-only branch creation as a default path.
 - between-branch canon repair is blocked
 - missed PR Readiness canon work must be carried by the next legitimate runtime-focused backlog branch's `Branch Readiness` before implementation begins
 - the `Active Branch Authority Records` list is only for branches that are still the current execution base
 - when merged-main truth is `No Active Branch`, merge-stable current-state owners such as backlog and roadmap must not mirror transient repair-branch ownership; that transient repair execution truth belongs only in the active branch authority record until merge
 - before PR merge, any branch that still relies on an active branch authority record must either move that record into `Historical Branch Authority Records` or remove it entirely so merged truth does not leave a stale active branch owner behind
 - if a stale-canon or governance-drift class is discovered on a branch, that branch or the next legal repair surface must patch the canon or validator rule that allowed it before the repair is considered complete
+- package/slice governance drift blockers are named `Single-Slice Package User Approval Missing` and `Package Completion Unproven`; active branch authority records that repair package admission drift must preserve those names exactly, and only `Admission State: Admitted` rows count toward package admission
+- Element Coverage is a non-identity checklist for user-facing surface, runtime/backend behavior, fail-safe/recovery, security/privacy, voice/audio, external integration, local AI/capability packs, packaging/install, monitoring/HUD, validation, and release impact; Element Coverage rows never count as `Admission State: Admitted`, slices, seams, packages, FAMs, selected-next truth, or release drivers
+- Branch Readiness stage-gate governance uses `Branch Readiness Stage 1 - Analysis Gate` as a no repository file mutation, no branch creation, no package admission, no docs sync review pass and `Branch Readiness Stage 2 - Execution Gate` as the approved work pass; `Branch Readiness Execution User Approval Missing` remains active until USER approval to enter Stage 2 is recorded
+- PR Readiness stage-gate governance uses `PR Readiness Stage 1 - Analysis Gate` as a no repository file mutation review pass and `PR Readiness Stage 2 - Execution Gate` as the approved work pass; `PR Readiness Execution User Approval Missing` remains active until USER approval to enter Stage 2 is recorded
 - `PR Watcher Provisioning Unproven` is the standard blocker when a branch expects watcher-based PR monitoring but its watcher target, approved reporting surface, runtime path, run-proof method, fallback, teardown, or replacement provisioning for the next live PR is not yet explicit and proven
 - `PR Watcher Routing Unverified` is the standard blocker when a branch expects watcher-based PR monitoring but the configured watcher target and delivery proof have not yet been cross-checked against the recorded reporting surface and proven to land there
 - PR watcher delivery proof requires assistant-message transcript presence plus Codex thread-state refresh plus automation run/inbox visibility for the approved reporting surface; a watcher must not retire after merge until that final delivery proof is present
@@ -56,7 +61,7 @@ Do not use this layer to replace:
 
 ## Active Branch Authority Records
 
-None.
+- `Docs/branch_records/codex_one_time_backlog_governance_repair.md`
 
 ## Historical Branch Authority Records
 

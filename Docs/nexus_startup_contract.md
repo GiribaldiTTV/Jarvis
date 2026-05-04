@@ -21,7 +21,15 @@ This loader routes to these authorities:
 - `Docs/phase_governance.md` owns phase names, blockers, branch classes, phase transitions, proof governance, and seam-governance rules.
 - `Docs/codex_modes.md` owns Analysis and Workflow collaboration posture.
 - `Docs/feature_backlog.md` owns tracked work identity and `Record State`.
-- `Docs/workstreams/index.md` owns canonical workstream-record routing, including family anchors, historical pass aliases, and other closed-workstream splits.
+- `Docs/workstreams/index.md` owns canonical workstream-record routing, including feature-family anchors, historical family-pass records, and other closed trace records.
+- live backlog-family IDs use broad `FAM-###`; legacy `FB-###` IDs are historical trace only and must not be reused for new parseable backlog entries.
+- canonical backlog identity model is `FAM` broad product family -> `Package` bulk branch/release package -> `Slice` traceable deliverable area -> `Seam` execution/validation checkpoint; PR numbers are evidence only.
+- package admission, branch creation, backlog splits, successor promotion, and single-slice package waivers require explicit USER approval; otherwise the loader must preserve the `Backlog Addition User Approval Missing` stop posture and require the not-closed FAM plus not-complete package/slice list.
+- only `Admission State: Admitted` slice rows count toward package admission; historical evidence, future placeholders, deferred ideas, and future-package-required rows are trace only.
+- named blockers for package drift are `Single-Slice Package User Approval Missing` and `Package Completion Unproven`.
+- Element Coverage is a non-identity checklist for user-facing surface, runtime/backend behavior, fail-safe/recovery, security/privacy, voice/audio, external integration, local AI/capability packs, packaging/install, monitoring/HUD, validation, and release impact; Element Coverage rows never count as `Admission State: Admitted`, slices, seams, packages, FAMs, selected-next truth, or release drivers.
+- `Branch Readiness` is organized as `Branch Readiness Stage 1 - Analysis Gate` followed by `Branch Readiness Stage 2 - Execution Gate`; Stage 1 requires `## Branch Readiness Stage 1 Analysis Packet`, allows no repository file mutation, branch creation, package admission, docs sync, PR work, release work, selected-next truth, or canon edits, and stops on `Branch Readiness Execution User Approval Missing` until USER approval to enter Stage 2 is recorded.
+- `PR Readiness` is organized as `PR Readiness Stage 1 - Analysis Gate` followed by `PR Readiness Stage 2 - Execution Gate`; Stage 1 requires `## PR Readiness Stage 1 Analysis Packet`, allows no repository file mutation, and stops on `PR Readiness Execution User Approval Missing` until USER approval to enter Stage 2 is recorded.
 - the active workstream doc owns branch-local phase truth, evidence, blockers, and next legal phase for promoted work.
 - `Docs/incident_patterns.md` owns generalized recurring drift or validation lessons.
 - `Docs/validation_helper_registry.md` owns durable helper naming, status, reuse, and consolidation obligations when helpers are in scope.
@@ -42,7 +50,7 @@ When ChatGPT or another interface layer generates a Nexus prompt, the generated 
 6. Load the directly relevant authority docs for the task.
 7. If the task maps to a tracked item, load `Docs/feature_backlog.md` and determine its `Record State`.
 8. If the tracked item is `Promoted` or `Closed`, load its canonical workstream doc from the backlog and `Docs/workstreams/index.md`.
-9. If the tracked item declares a `Lifetime Dossier Doc`, or if it is a `Feature Family` anchor or `Historical Pass Alias` routed through a family dossier, load that dossier too.
+9. If the tracked item declares a `Lifetime Dossier Doc`, or if it is a `Feature Family` anchor or historical family-pass trace row routed through a family dossier, load that dossier too.
 10. If helpers, validation scripts, live-validation harnesses, or shared support are in scope, load `Docs/validation_helper_registry.md`.
 11. If drift, recurrence, release correction, or governance repair is in scope, load `Docs/incident_patterns.md`.
 12. Validate current repo truth before acting:
@@ -434,15 +442,15 @@ Branch Class: implementation
 Read first:
 - Docs/nexus_startup_contract.md
 
-Use the loader map to load owning canon. Validate branch truth, authority-record phase truth, clean durable branch state, merge-target canon, next-workstream selection, release-window audit truth, helper retention, PR creation requirements, and PR validation requirements from owning canon.
+Use the loader map to load owning canon. Validate branch truth, authority-record phase truth, clean durable branch state, merge-target canon, USER approval for next-workstream selection, `Backlog Addition User Approval Missing` / `Backlog Exhaustion User Decision Pending` state, release-window audit truth, helper retention, PR creation requirements, and PR validation requirements from owning canon.
 
 Task:
 <PR Readiness task>
 
-Use owning canon to keep this pass inside PR-readiness packaging, merge-target validation, next-workstream selection, release-window audit truth, and PR creation or PR validation evidence.
+Use owning canon to keep this pass inside PR-readiness packaging, merge-target validation, USER-approved next-workstream selection, release-window audit truth, and PR creation or PR validation evidence.
 Report PR Readiness green only when canon and live PR truth both satisfy the gate.
 
-Stop if PR state, branch truth, post-merge canon, next-workstream truth, or required validation is unknown.
+Stop if PR state, branch truth, post-merge canon, USER approval for next-workstream truth, or required validation is unknown.
 
 Return:
 - Source-of-Truth
