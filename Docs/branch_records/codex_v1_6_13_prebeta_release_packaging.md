@@ -23,7 +23,7 @@ This branch must not create runtime work, select FAM-006 or any other runtime FA
 - `Active Branch`: `codex/v1.6.13-prebeta-release-packaging`
 - PR Readiness Stage: `PR Readiness Stage 2 - Execution Gate`
 - PR Readiness Stage 2 Approval: `Granted for this release-packaging branch on 2026-05-04`
-- Current PR Readiness Seam: `PR Readiness Stage 2 - v1.6.13-prebeta Release Packaging PR Execution Gate`
+- Current PR Readiness Seam: `PR Readiness Stage 2 - v1.6.13-prebeta Release Packaging Live PR Validation And Merge Watch`
 - Branch Readiness Stage: `Branch Readiness Stage 2 - Execution Gate`
 - Stage 2 USER Approval: `Granted for this release-packaging carrier branch on 2026-05-04`
 - Branch Readiness Stage 2 Admission: `Green`
@@ -36,9 +36,15 @@ This branch must not create runtime work, select FAM-006 or any other runtime FA
 - Package Completion State: `Complete`
 - Single-Slice Package User Approval: `Not required - the admitted release-packaging package has five concrete admitted slices`
 - PR #110 Closeout State: `Cleared on this branch before release-readiness work`
-- Live PR State: `Pending PR creation`
-- PR Watcher State: `Pending PR creation`
-- Bot Review Signal Status: `Pending live PR`
+- PR URL: `https://github.com/GiribaldiTTV/Nexus-Desktop-AI/pull/111`
+- Live PR State: `OPEN / non-draft / mergeable CLEAN`
+- Live PR Base: `main`
+- Live PR Head: `codex/v1.6.13-prebeta-release-packaging`
+- PR Creation Head SHA: `182727d8f7ff3162760d969c9e6928e680272398`
+- PR Watcher State: `Provisioned`
+- PR Watcher ID: `pr-111-same-thread-merge-watcher`
+- PR Watcher Route: `same Codex thread 019df2d2-6580-7b82-a49f-59f49da0911c`
+- Bot Review Signal Status: `Pending live bot signal`
 - Runtime Package Admission: `Not approved`
 - Selected Next Runtime FAM: `None - not approved`
 - Selected Next Implementation Branch: `Not created`
@@ -57,8 +63,6 @@ This branch must not create runtime work, select FAM-006 or any other runtime FA
 
 ## Blockers
 
-- `PR Creation Pending`
-- `PR Watcher Provisioning Unproven`
 - `Bot Review Signal Pending`
 - `PR Merge Verification Pending`
 
@@ -166,7 +170,7 @@ Non-Includes: no PR creation, release execution, or release artifact creation.
 
 ## Active Seam
 
-Active seam: `PR Readiness Stage 2 - v1.6.13-prebeta Release Packaging PR Execution Gate`
+Active seam: `PR Readiness Stage 2 - v1.6.13-prebeta Release Packaging Live PR Validation And Merge Watch`
 
 ## Release Packaging Package / Slice Plan
 
@@ -229,6 +233,35 @@ Release Window Split Waiver: None
 Release Execution Approval State: `NOT APPROVED`
 Release Artifact Creation Approval State: `NOT APPROVED`
 
+## PR Creation Details
+
+- PR URL: `https://github.com/GiribaldiTTV/Nexus-Desktop-AI/pull/111`
+- PR Number: `111`
+- PR Title: `[codex] v1.6.13-prebeta release packaging`
+- PR Base: `main`
+- PR Head: `codex/v1.6.13-prebeta-release-packaging`
+- PR Creation Head SHA: `182727d8f7ff3162760d969c9e6928e680272398`
+- PR State: `OPEN`
+- PR Draft State: `false`
+- PR Mergeability: `MERGEABLE`
+- PR Merge State: `CLEAN`
+- PR Review Decision: `Pending / empty`
+- PR Status Checks: `No status checks reported`
+- PR Summary: `Release-packaging source-truth sync for v1.6.13-prebeta; no release execution, tag creation, GitHub Release creation, release artifact creation, runtime branch, runtime package, or selected-next runtime truth.`
+
+## PR Watcher Provisioning
+
+- Watcher ID: `pr-111-same-thread-merge-watcher`
+- Watcher Kind: `heartbeat`
+- Watcher Status: `ACTIVE`
+- Watcher RRULE: `FREQ=MINUTELY;INTERVAL=1`
+- Watcher Config Path: `C:\Users\anden\.codex\automations\pr-111-same-thread-merge-watcher\automation.toml`
+- Watcher Target Thread: `019df2d2-6580-7b82-a49f-59f49da0911c`
+- Watcher Reporting Surface: `same Codex thread`
+- Watcher Routing Proof: `PASS - automation config records target_thread_id 019df2d2-6580-7b82-a49f-59f49da0911c for this thread`
+- Watcher Runtime Proof: `Pending first heartbeat run`
+- Watcher Teardown Rule: `Delete after watcher verifies PR #111 merged=true or USER explicitly stops the watcher`
+
 ## Branch Readiness Stage 2 Validation Record
 
 - Branch Governance Validation: `PASS`; `python dev/orin_branch_governance_validation.py` passed after active/historical branch-authority routing was corrected.
@@ -254,7 +287,7 @@ Release Artifact Creation Approval State: `NOT APPROVED`
 ## PR Readiness Stage 2 Record
 
 - Phase Admission: `PASS`
-- Active Seam: `PR Readiness Stage 2 - v1.6.13-prebeta Release Packaging PR Execution Gate`
+- Active Seam: `PR Readiness Stage 2 - v1.6.13-prebeta Release Packaging Live PR Validation And Merge Watch`
 - Stage 2 USER Approval: `Granted for this release-packaging branch on 2026-05-04`
 - RR1 Source-Truth Sync: `PASS`; file-frozen RR1 validation results are now recorded in this branch authority record.
 - Release Package Completion: `PASS`; all five admitted release-support slices are Green / Complete, and `REL-PKG-001` is Complete.
@@ -266,6 +299,8 @@ Release Artifact Creation Approval State: `NOT APPROVED`
 - Runtime Package Admission Approval State: `NOT APPROVED`
 - Selected-Next Runtime Truth Approval State: `NOT APPROVED`
 - FAM-006 Selection State: `Recommendation-only / not selected`
-- PR Creation State: `Pending`
-- PR Watcher State: `Pending PR creation`
+- PR Creation State: `Complete - PR #111`
+- Live PR Validation State: `PASS for open, non-draft, base/head, mergeability, and clean merge state`
+- Bot Review Signal State: `Pending live bot signal`
+- PR Watcher State: `Provisioned and routed; runtime proof pending first heartbeat run`
 - Next PR Readiness Seam: `PR Readiness Stage 2 - v1.6.13-prebeta Release Packaging Live PR Validation And Merge Watch`
