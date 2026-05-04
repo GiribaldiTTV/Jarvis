@@ -30,8 +30,8 @@ This branch must not change runtime behavior. Its job is to harden governance, v
 - Runtime Scope: none.
 - Current PR Readiness Stage: `PR Readiness Stage 2 - Execution Gate`
 - PR Readiness Stage 2 Approval: `USER approval to enter Stage 2 recorded on 2026-05-04 for this one-time governance repair branch only`
-- Current PR Readiness Seam: `PR Readiness Stage 2 - One-Time Backlog Governance Repair Execution Gate`
-- Current Seam: `PR Readiness Stage 2 - One-Time Backlog Governance Repair Execution Gate`
+- Current PR Readiness Seam: `PR Readiness Stage 2 - One-Time Backlog Governance Repair Merge Watch`
+- Current Seam: `PR Readiness Stage 2 - One-Time Backlog Governance Repair Merge Watch`
 
 ## Branch Class
 
@@ -39,9 +39,6 @@ This branch must not change runtime behavior. Its job is to harden governance, v
 
 ## Blockers
 
-- `PR Creation Pending` until Stage 2 creates and validates the live PR.
-- `PR Watcher Provisioning Unproven` until the same-thread merge watcher is provisioned and routing proof is recorded.
-- `Bot Review Signal Pending` until the live PR receives a qualifying bot approval signal or current-head bot comment-resolution closeout.
 - `PR Merge Verification Pending` until the same-thread watcher verifies the live PR is merged.
 
 ## Entry Basis
@@ -78,9 +75,11 @@ Rollback Path: revert this branch to restore the pre-repair governance and curre
 
 - `Release Readiness`
 
+Next Legal Phase Gate: `Blocked by PR Merge Verification Pending until the same-thread watcher verifies PR #110 merged=true`
+
 ## Active Seam
 
-Active seam: `PR Readiness Stage 2 - One-Time Backlog Governance Repair Execution Gate`
+Active seam: `PR Readiness Stage 2 - One-Time Backlog Governance Repair Merge Watch`
 
 ## Seam Continuation Decision
 
@@ -88,11 +87,11 @@ Seam Status: `In Progress`
 Slice Status: `In Progress`
 Completion Status: `In Progress`
 Waiver Status: `None`
-Continue Decision: `Continue`
-Stop Basis: `None - Stage 2 execution is USER-approved`
-Stop Condition: `PR Readiness Stage 2 validation or live PR blocker`
-Continuation Action: `Sync approved Stage 2 governance changes, validate, commit, push, create the PR, provision the same-thread watcher, validate live PR state, and then continue into PR merge-watch posture without creating a runtime branch, admitting a package, encoding selected-next truth, waiving a single-slice package, or performing release work.`
-Decision Basis: `USER approved PR Readiness Stage 2 for this one-time governance repair branch only after Stage 1-R1 stopped on PR Readiness Execution User Approval Missing.`
+Continue Decision: `Stop`
+Stop Basis: `Merge watch waiting for external PR merge event`
+Stop Condition: `PR Merge Verification Pending`
+Continuation Action: `Keep pr-110-same-thread-merge-watcher active on the approved same-thread route until it verifies PR #110 merged=true, then hand off the next legal Release Readiness validation prompt without performing release work.`
+Decision Basis: `PR #110 is live, non-draft, base/head aligned, mergeable clean, bot-review comments are resolved, watcher provisioning/routing is recorded, and watcher runtime proof exists through same-thread heartbeat output; only merge verification remains.`
 Next Active Seam: `PR Readiness Stage 2 - One-Time Backlog Governance Repair Merge Watch`
 
 ## Post-Merge State
@@ -121,6 +120,18 @@ Bot Review Signal Source: PR #110 Codex review threads `PRRT_kwDORwnWIs5_Z8yC` a
 Bot Review Signal Timestamp: 2026-05-04T16:29:31.9888140Z
 Bot Review Signal Actor: chatgpt-codex-connector[bot]
 Bot Review Signal Notes: `P1` taxonomy lookup crash risk is guarded before `FRESH_FAMILY_TAXONOMY` access; `P2` successor-selection approval classification now differentiates `Backlog Addition User Approval Missing` from `Next Runtime Candidate Selection Pending`.
+
+## PR Readiness Stage 2-R1 Record
+
+- Phase Admission: `PASS`
+- Active Seam: `PR Readiness Stage 2-R1 - PR State and Watcher Runtime Proof Sync`
+- PR #110 Live State: `PASS`; PR #110 is open, non-draft, base `main`, head `codex/one-time-backlog-governance-repair`, head SHA `b3c21c83318d0622ce09f3d681fe47b4567972af` at R1 validation, mergeable `MERGEABLE`, merge state `CLEAN`, and `mergedAt` is null.
+- Bot Review Resolution State: `PASS`; Codex review threads `PRRT_kwDORwnWIs5_Z8yC` and `PRRT_kwDORwnWIs5_Z8yM` are resolved in GitHub, with the first thread outdated and the second resolved on the current PR diff after same-branch fixes.
+- Cleared PR Blockers: `PR Creation Pending`, `Bot Review Signal Pending`, `PR Watcher Provisioning Unproven`, and `PR Watcher Routing Unverified`.
+- Watcher Provisioning Proof: `PASS`; `pr-110-same-thread-merge-watcher` exists at `C:\Users\anden\.codex\automations\pr-110-same-thread-merge-watcher\automation.toml`, status `ACTIVE`, kind `heartbeat`, cadence `FREQ=MINUTELY;INTERVAL=1`, target thread `019df2d2-6580-7b82-a49f-59f49da0911c`, and prompt scope is PR #110 same-thread merge watching only.
+- Watcher Runtime Proof: `PASS via thread-output evidence`; same-thread heartbeat runs at `2026-05-04T16:32:23.507Z` and `2026-05-04T16:33:53.538Z` reported PR #110 unchanged with PR-readiness gate passing. Automation database `last_run` visibility remains absent and is tracked as observability lag, not as `Automation Runtime Unproven`, because thread output is accepted run evidence.
+- Remaining PR Readiness Blocker: `PR Merge Verification Pending`; the watcher has not verified `merged=true`.
+- Not Performed: no merge, Release Readiness entry, release work, branch creation, package admission, selected-next truth, FAM taxonomy change, package/slice/seam model change, Element Coverage model change, Branch Readiness gate change, or PR Readiness gate change.
 
 ## Hardening H1 Record
 
