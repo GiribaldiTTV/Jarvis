@@ -22,7 +22,9 @@ This loader routes to these authorities:
 - `Docs/codex_modes.md` owns Analysis and Workflow collaboration posture.
 - `Docs/feature_backlog.md` owns tracked work identity and `Record State`.
 - `Docs/workstreams/index.md` owns canonical workstream-record routing, including feature-family anchors, historical family-pass records, and other closed trace records.
-- live backlog-family IDs use `FAM-###`; legacy `FB-###` IDs are historical trace only and must not be reused for new parseable backlog entries.
+- live backlog-family IDs use broad `FAM-###`; legacy `FB-###` IDs are historical trace only and must not be reused for new parseable backlog entries.
+- canonical backlog identity model is `FAM` broad product family -> `Package` bulk branch/release package -> `Slice` traceable deliverable area -> `Seam` execution/validation checkpoint; PR numbers are evidence only.
+- package admission, branch creation, backlog splits, successor promotion, and single-slice package waivers require explicit USER approval; otherwise the loader must preserve the `Backlog Addition User Approval Missing` stop posture and require the not-closed FAM plus not-complete package/slice list.
 - the active workstream doc owns branch-local phase truth, evidence, blockers, and next legal phase for promoted work.
 - `Docs/incident_patterns.md` owns generalized recurring drift or validation lessons.
 - `Docs/validation_helper_registry.md` owns durable helper naming, status, reuse, and consolidation obligations when helpers are in scope.

@@ -3,6 +3,8 @@
 ## Dossier Identity
 
 - Family ID: `FB-042`
+- Broad FAM ID: `FAM-001`
+- Package ID: `PKG-001`
 - Family Title: `Desktop startup runtime family anchor`
 - Dossier Type: `Lifetime family dossier`
 - Dossier State: `Structured shell with partial historical pass migration`
@@ -15,6 +17,7 @@
 ## Dossier Purpose
 
 - This dossier is the additive lifetime traceability surface for the FB-042 runtime family anchor.
+- Under the broad backlog model, this dossier is legacy trace under `FAM-001` Boot Interface / `PKG-001`; `FB-042` remains historical evidence only.
 - It layers over the existing FB-042 historical workstream record instead of replacing or rewriting that record.
 - Slice R4-S1 introduces only the shell structure required for later family-level migration and indexing.
 - Slice R4-S3 adds pass index and slice/seam ledger templates without migrating historical family content into them yet.
@@ -38,6 +41,7 @@
 - alias-to-anchor traceability without reopening independent selection truth
 - future validator/helper and artifact indexes once later slices populate them
 - no new implementation, release, or selected-next authority
+- broad FAM/package traceability for `FAM-001` / `PKG-001` without reusing legacy `FB-###` as live backlog identity
 
 ## Historical Alias Coverage
 

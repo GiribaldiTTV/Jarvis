@@ -3,6 +3,8 @@
 ## Dossier Identity
 
 - Family ID: `FB-027`
+- Broad FAM ID: `FAM-003`
+- Package ID: `PKG-003`
 - Family Title: `Interaction and shared-action family anchor`
 - Dossier Type: `Lifetime family dossier`
 - Dossier State: `Structured shell with partial historical pass migration`
@@ -15,6 +17,7 @@
 ## Dossier Purpose
 
 - This dossier is the additive lifetime traceability surface for the FB-027 interaction and shared-action family anchor.
+- Under the broad backlog model, this dossier is legacy trace under `FAM-003` Interaction and Actions / `PKG-003`; `FB-027` remains historical evidence only.
 - It layers over the existing FB-027 historical workstream record instead of replacing or rewriting that record.
 - Slice R4-S2 introduces only the shell structure required for later family-level migration and indexing.
 - Slice R4-S3 adds pass index and slice/seam ledger templates without migrating historical family content into them yet.
@@ -38,6 +41,7 @@
 - alias-to-anchor traceability without reopening independent selection truth
 - future validator/helper and artifact indexes once later slices populate them
 - no new implementation, release, or selected-next authority
+- broad FAM/package traceability for `FAM-003` / `PKG-003` without reusing legacy `FB-###` as live backlog identity
 
 ## Historical Alias Coverage
 

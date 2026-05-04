@@ -26,9 +26,9 @@ This branch must not change runtime behavior. Its job is to harden governance, v
 - Workstream: `One-time backlog governance repair`
 - USER Approval: explicit in the 2026-05-04 instruction to fix the governance drift in a one-time governance branch.
 - Drift Finding: legacy FB-027 / PR #109 was allowed to become active selected-next and release-facing truth even though it was a small single-seam runtime follow-through.
-- Repair Scope: backlog identity admission blocker, selected-next permission blocker, FAM-007 legacy FB-027 aggregation-hold correction, PR #109 standalone release-driver removal, historical backlog-item consolidation into family/source-of-truth trace, fresh `FAM-###` namespace introduction, and validator alignment.
+- Repair Scope: backlog identity admission blocker, selected-next permission blocker, FAM-003 legacy FB-027 aggregation-hold correction, PR #109 standalone release-driver removal, historical backlog-item consolidation into family/source-of-truth trace, fresh broad `FAM-###` namespace introduction, FAM -> Package -> Slice -> Seam taxonomy correction, single-slice package blocker, package completion markers, and validator alignment.
 - Runtime Scope: none.
-- Current Seam: `Governance repair implementation and backlog source-of-truth consolidation`
+- Current Seam: `Workstream WS2 - Family Package / Slice Taxonomy Correction`
 
 ## Branch Class
 
@@ -49,11 +49,12 @@ This branch must not change runtime behavior. Its job is to harden governance, v
 ## Exit Criteria
 
 - `Docs/phase_governance.md`, `Docs/development_rules.md`, `Docs/Main.md`, and prompt surfaces define `Backlog Addition User Approval Missing` and `Backlog Exhaustion User Decision Pending`.
-- Current-state truth no longer marks FAM-007 legacy FB-027 / PR #109 as an active backlog lane, selected-next lane, or standalone release-version driver.
-- FAM-007 legacy FB-027 lifetime family trace records PR #109 as aggregation evidence with `Standalone Release Driver: No`.
+- Current-state truth no longer marks FAM-003 legacy FB-027 / PR #109 as an active backlog lane, selected-next lane, or standalone release-version driver.
+- FAM-003 legacy FB-027 lifetime family trace records PR #109 as aggregation evidence with `Standalone Release Driver: No`.
 - Former standalone historical pass aliases, support/governance lanes, and old registry-only implemented IDs are no longer parseable backlog entries; they route through feature-family trace tables, `Docs/workstreams/index.md`, family dossiers, canonical workstream records, or same-file historical trace.
-- Live backlog-family entries now use the fresh `FAM-###` namespace starting at `FAM-001`; legacy `FB-###` is historical trace only and must not be reused for new parseable backlog identities.
-- FAM-001 legacy FB-049 runtime proof, FAM-006 legacy FB-030 runtime diagnostics proof, pending `v1.6.13-prebeta` posture, FAM-006 merged-unreleased truth, and prior FAM-001 historical merge truth remain preserved.
+- Live backlog-family entries now use the fresh broad `FAM-###` namespace starting at `FAM-001`; legacy `FB-###` is historical trace only and must not be reused for new parseable backlog identities.
+- Each live FAM records package and slice trace so every slice points to exactly one family and one package, packages carry completion state, PR numbers remain evidence only, and single-slice package admission is blocked without explicit USER approval.
+- FAM-001 legacy FB-049 runtime proof, FAM-004 legacy FB-030 runtime diagnostics proof, pending `v1.6.13-prebeta` posture, FAM-004 merged-unreleased truth, and prior FAM-001 historical merge truth remain preserved.
 - Governance validator behavior is aligned so absent USER approval blocks selected-next truth instead of forcing candidate creation.
 - Validation commands pass or any residual repair candidate is explicitly listed before PR work.
 
@@ -69,7 +70,7 @@ Rollback Path: revert this branch to restore the pre-repair governance and curre
 
 ## Active Seam
 
-Active seam: `Governance repair implementation and backlog source-of-truth consolidation`
+Active seam: `Workstream WS2 - Family Package / Slice Taxonomy Correction`
 
 ## Seam Continuation Decision
 
@@ -79,9 +80,9 @@ Completion Status: `Green`
 Waiver Status: `None`
 Continue Decision: `Stop`
 Stop Basis: `Workstream Green`
-Stop Condition: `Governance repair implementation and backlog source-of-truth consolidation complete`
+Stop Condition: `Workstream WS2 family package/slice taxonomy correction complete`
 Continuation Action: `Proceed to Hardening validation for the one-time governance/source-of-truth repair.`
-Decision Basis: `The docs and validator now encode the USER-permission backlog blocker, reclassify FAM-007 legacy FB-027 / PR #109 as family aggregation evidence, consolidate former non-family backlog entries into source-of-truth trace, and reserve legacy FB IDs for historical trace only.`
+Decision Basis: `The docs and validator now encode the broad FAM -> Package -> Slice -> Seam model, keep PR numbers as evidence only, block single-slice packages without explicit USER approval, reclassify FAM-003 legacy FB-027 / PR #109 as family aggregation evidence, and reserve legacy FB IDs for historical trace only.`
 Next Active Seam: `Hardening H1 - One-Time Backlog Governance Repair Validation`
 
 ## Governance Drift Audit
@@ -91,7 +92,7 @@ Governance Drift Found: `Yes`
 - Drift Type: backlog identity drift, legacy namespace collision risk, and selected-next pressure.
 - What Went Wrong: the Successor Lane Lock Gate required a next runtime candidate before PR Readiness closeout, so Codex treated small same-family follow-through as selected-next truth instead of stopping for USER approval.
 - Why Existing Canon Failed: backlog guardrails discouraged new identities, but the PR Readiness successor gate was stronger and mandatory.
-- Repair Performed: add a higher-priority USER-approval blocker, require the still-not-closed backlog list when blocked, classify small single-seam runtime proof as aggregation evidence unless USER approves a release driver, consolidate former non-family backlog entries into family/source-of-truth trace, and move live family identities from legacy `FB-###` to fresh `FAM-###`.
+- Repair Performed: add a higher-priority USER-approval blocker, require the still-not-closed FAM and not-complete package/slice list when blocked, classify small single-seam runtime proof as aggregation evidence unless USER approves a release driver, consolidate former non-family backlog entries into broad family/source-of-truth trace, move live family identities from legacy `FB-###` to fresh `FAM-###`, and correct the temporary one-to-one FAM mapping into FAM -> Package -> Slice -> Seam taxonomy.
 - Whether The Drift Blocks Merge: `Yes until this branch validates`.
 - Whether User Confirmation Is Required: `Already granted for this one-time governance repair; still required for any future backlog addition, split, promotion, successor selection, or standalone release-version driver`.
 
@@ -100,7 +101,7 @@ Governance Drift Found: `Yes`
 - governance docs
 - prompt contracts
 - current-state canon
-- FAM-007 legacy FB-027 family dossier and historical workstream trace
+- FAM-003 legacy FB-027 family dossier and historical workstream trace
 - branch authority routing
 - validator alignment
 

@@ -28,7 +28,7 @@ Backlog-identity guardrails:
 
 - feature backlog items default to user-facing feature families
 - Codex must not create, split, promote, or select a backlog identity without explicit USER approval
-- if that approval is absent, stop on `Backlog Addition User Approval Missing` and output the still-not-closed backlog list; if the list is empty, stop on `Backlog Exhaustion User Decision Pending`
+- if that approval is absent, stop on `Backlog Addition User Approval Missing` and output the still-not-closed FAM list plus every not-complete package and slice; if the list is empty, stop on `Backlog Exhaustion User Decision Pending`
 - a separate backlog identity for non-user-facing runtime, developer-tooling, docs/governance, or canon-only work requires explicit USER approval and a rationale that branch/workstream traceability is insufficient
 - continuation, blocker-clearing, or validation follow-through on an existing feature family should stay inside that same backlog identity by default; do not mint a new backlog item unless the USER explicitly approves a backlog split or the work is materially a new user-facing feature family
 - small single-seam runtime proofs, governance repairs, validation follow-through, and blocker-clearing traces are family evidence or branch/workstream history by default, not standalone release-version drivers
@@ -55,14 +55,14 @@ Historical note:
 
 None.
 
-FB-044 Boot-to-desktop handoff outcome refinement and FB-045 Active-session relaunch outcome refinement are Released / Closed historical proof through `v1.6.9-prebeta`; FB-046 Active-session relaunch reacquisition and settled re-entry proof is Released / Closed historical proof through `v1.6.10-prebeta`; FB-047 Active-session relaunch decline session-preservation proof is Released / Closed historical proof through `v1.6.11-prebeta`; FB-048 Active-session relaunch signal-failure and wait-timeout truth is Released / Closed historical proof through `v1.6.12-prebeta`; latest public prerelease truth is `v1.6.12-prebeta`; the merged backlog-family governance reform package, merged automation-catalog package, FAM-001 legacy FB-049 runtime proof, and FAM-006 legacy FB-030 runtime diagnostics proof are unreleased historical proof for `v1.6.13-prebeta`; PR #108 is merged and FAM-006 is merged-unreleased release debt after watcher-verified merge proof; PR #109 is merged historical FAM-007 legacy FB-027 family evidence for shutdown-hotkey confirmation and is not a standalone release-version driver.
+FB-044 Boot-to-desktop handoff outcome refinement and FB-045 Active-session relaunch outcome refinement are Released / Closed historical proof through `v1.6.9-prebeta`; FB-046 Active-session relaunch reacquisition and settled re-entry proof is Released / Closed historical proof through `v1.6.10-prebeta`; FB-047 Active-session relaunch decline session-preservation proof is Released / Closed historical proof through `v1.6.11-prebeta`; FB-048 Active-session relaunch signal-failure and wait-timeout truth is Released / Closed historical proof through `v1.6.12-prebeta`; latest public prerelease truth is `v1.6.12-prebeta`; the merged backlog-family governance reform package, merged automation-catalog package, FAM-001 legacy FB-049 runtime proof, and FAM-004 legacy FB-030 runtime diagnostics proof are unreleased historical proof for `v1.6.13-prebeta`; PR #108 is merged and FAM-004 is merged-unreleased release debt after watcher-verified merge proof; PR #109 is merged historical FAM-003 legacy FB-027 family evidence for shutdown-hotkey confirmation and is not a standalone release-version driver.
 Released baseline truth is aligned: FB-040 is released and closed in `v1.6.0-prebeta`, FB-031 is released and closed in `v1.6.1-prebeta`, FB-032 is released and closed in `v1.6.2-prebeta`, FB-004 is released and closed in `v1.6.3-prebeta`, FB-015 plus FB-029 are released and closed in `v1.6.4-prebeta`, FB-030 is released and closed in `v1.6.5-prebeta`, FB-005 is released and closed in `v1.6.6-prebeta`, FB-042 is released and closed in `v1.6.7-prebeta`, FB-043 is released and closed in `v1.6.8-prebeta`, FB-044 plus FB-045 are released and closed in `v1.6.9-prebeta`, and FB-046 is now released and closed in `v1.6.10-prebeta`.
 FB-039 is released and closed in `v1.5.0-prebeta`.
 FB-038 remains released and closed in `v1.4.1-prebeta`.
 
 ## Current Branch Execution Posture
 
-Merged-Unreleased Release-Debt Owner: FAM-001 legacy FB-049 Active-session pre-settled incoming-launch conflict truth plus FAM-006 legacy FB-030 voice/audio runtime diagnostics proof plus merged governance/automation proof package for v1.6.13-prebeta
+Merged-Unreleased Release-Debt Owner: FAM-001 legacy FB-049 Active-session pre-settled incoming-launch conflict truth plus FAM-004 legacy FB-030 voice/audio runtime diagnostics proof plus merged governance/automation proof package for v1.6.13-prebeta
 Repo State: No Active Branch.
 Merged-Main Repo State: No Active Branch.
 Latest Public Prerelease: v1.6.12-prebeta.
@@ -87,7 +87,7 @@ Backlog Addition User Approval Missing: Active for any attempted new backlog ite
 Historical Repair-Only Branch Handling: `feature/fb-046-post-merge-canon-sync` was a bounded repair-only post-merge canon-sync `feature/` branch and did not imply Branch Readiness admission or active branch truth for FB-046.
 Historical Branch Readiness State: Complete on `feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeout-truth`.
 Current Branch Readiness State: None active.
-Current Workstream State: No active workstream; FAM-007 legacy FB-027 PR #109 shutdown-hotkey confirmation proof is merged historical family evidence and aggregation material only.
+Current Workstream State: No active workstream; FAM-003 legacy FB-027 PR #109 shutdown-hotkey confirmation proof is merged historical family evidence and aggregation material only.
 Current Hardening State: None active.
 Current Live Validation State: None active.
 Current PR Surface Owner: None; PR #109 merge/bot-review/watcher proof remains historical in `Docs/workstreams/FB-027_interaction_system_baseline.md`.
@@ -102,9 +102,9 @@ Release Execution State: `v1.6.12-prebeta` is live at https://github.com/Giribal
 Release Target: v1.6.13-prebeta.
 Release Floor: patch prerelease.
 Version Rationale: the backlog family governance reform is a release-bearing docs-only implementation branch that changes backlog/workstream/branch-authority source-of-truth and validator behavior without widening runtime or user-facing product behavior, so the next release remains a patch prerelease.
-Release Scope: preserve the merged backlog-family governance reform, merged automation-catalog branch truth, FAM-001 legacy FB-049 runtime proof, and FAM-006 legacy FB-030 voice/audio runtime diagnostics proof as unreleased historical proof for `v1.6.13-prebeta`, keep no-active-branch merged-main canon stable, and require later release packaging or successor admission to start from updated merged-main truth.
+Release Scope: preserve the merged backlog-family governance reform, merged automation-catalog branch truth, FAM-001 legacy FB-049 runtime proof, and FAM-004 legacy FB-030 voice/audio runtime diagnostics proof as unreleased historical proof for `v1.6.13-prebeta`, keep no-active-branch merged-main canon stable, and require later release packaging or successor admission to start from updated merged-main truth.
 Release Artifacts: Tag v1.6.13-prebeta; release title Pre-Beta v1.6.13; rich Markdown release notes summarize the merged governance reform, the merged automation catalog, and the validator/runtime-proof hardening without repeating the release title inside the notes body, and GitHub-generated `## What's Changed` plus `**Full Changelog**:` must be included.
-Post-Release Truth: the backlog-family governance reform, automation-catalog branch, FAM-001 legacy FB-049 runtime branch, and FAM-006 legacy FB-030 runtime diagnostics branch remain historical traceability after publication and validation; latest public prerelease advances to `v1.6.13-prebeta`; release debt clears; and later runtime work requires explicit USER-approved backlog identity or successor selection from updated main.
+Post-Release Truth: the backlog-family governance reform, automation-catalog branch, FAM-001 legacy FB-049 runtime branch, and FAM-004 legacy FB-030 runtime diagnostics branch remain historical traceability after publication and validation; latest public prerelease advances to `v1.6.13-prebeta`; release debt clears; and later runtime work requires explicit USER-approved backlog identity or successor selection from updated main.
 Next-Branch Creation Gate: Blocked by `Backlog Addition User Approval Missing` until explicit USER approval selects a backlog identity or release/support lane.
 Next Legal Phase: No active implementation phase; release-debt validation may proceed only when release packaging is explicitly admitted.
 
@@ -117,8 +117,8 @@ Open-candidate priority review:
 - FB-004 is released and closed in `v1.6.3-prebeta`; it is no longer an active or selected-next branch candidate.
 - FB-015 is released and closed in `v1.6.4-prebeta`; it no longer owns release debt or active branch truth.
 - FB-029 is released and closed in `v1.6.4-prebeta`; it no longer owns release debt or active branch truth.
-- FAM-006 legacy FB-030 is merged-unreleased release debt after PR #108; its historical `v1.6.5-prebeta` planning proof remains preserved, and its runtime follow-through delivered bounded voice/audio availability and truthful diagnostics proof with WS1, H1, LV1, PR1, and PR2 complete.
-- FAM-007 legacy FB-027 is a released / closed family anchor. PR #109 shutdown-hotkey confirmation is preserved as merged historical family evidence and aggregation material, not as an active backlog item or standalone release-version driver.
+- FAM-004 legacy FB-030 is merged-unreleased release debt after PR #108; its historical `v1.6.5-prebeta` planning proof remains preserved, and its runtime follow-through delivered bounded voice/audio availability and truthful diagnostics proof with WS1, H1, LV1, PR1, and PR2 complete.
+- FAM-003 legacy FB-027 is a released baseline family anchor. PR #109 shutdown-hotkey confirmation is preserved as merged historical family evidence and aggregation material, not as an active backlog item or standalone release-version driver.
 - FB-005 remains `Low` as historical workspace priority, but it is now Released / Closed in `v1.6.6-prebeta` and no longer owns release debt or selected-next truth.
 - FB-042 is now Released / Closed in `v1.6.7-prebeta`; the released launch-path slice is preserved as the first historical proof under the runtime family anchor.
 - FB-043 is now Released / Closed in `v1.6.8-prebeta`.
@@ -127,9 +127,9 @@ Open-candidate priority review:
 - FB-046 is now Released / Closed in `v1.6.10-prebeta`.
 - FB-047 is now Released / Closed in `v1.6.11-prebeta`.
 - FB-048 is Released / Closed in `v1.6.12-prebeta`; release debt is clear after publication, validation, and post-release canon closure.
-- FAM-001 legacy FB-049 is historical complete after PR #107 merge; GitHub merge truth is valid, the same-thread watcher handoff failed, cleanup is proven, and the stale active-branch authority plus recurrence analysis is carried and repaired inside FAM-006 legacy FB-030 Branch Readiness.
+- FAM-001 legacy FB-049 is historical complete after PR #107 merge; GitHub merge truth is valid, the same-thread watcher handoff failed, cleanup is proven, and the stale active-branch authority plus recurrence analysis is carried and repaired inside FAM-004 legacy FB-030 Branch Readiness.
 
-Current-branch clarity: latest public prerelease is `v1.6.12-prebeta`; FB-044 and FB-045 are released and closed in `v1.6.9-prebeta`; FB-046 is released and closed in `v1.6.10-prebeta`; FB-047 is released and closed in `v1.6.11-prebeta`; FB-048 is released and closed in `v1.6.12-prebeta`; merged `main` repo state remains `No Active Branch`; the merged backlog-family governance reform branch, merged automation-catalog branch, merged FAM-001 legacy FB-049 runtime branch, and merged FAM-006 legacy FB-030 runtime branch are historical traceability for pending `v1.6.13-prebeta`; FAM-007 legacy FB-027 is a released / closed family anchor with PR #109 preserved as aggregation evidence; and no selected-next backlog identity exists without explicit USER approval.
+Current-branch clarity: latest public prerelease is `v1.6.12-prebeta`; FB-044 and FB-045 are released and closed in `v1.6.9-prebeta`; FB-046 is released and closed in `v1.6.10-prebeta`; FB-047 is released and closed in `v1.6.11-prebeta`; FB-048 is released and closed in `v1.6.12-prebeta`; merged `main` repo state remains `No Active Branch`; the merged backlog-family governance reform branch, merged automation-catalog branch, merged FAM-001 legacy FB-049 runtime branch, and merged FAM-004 legacy FB-030 runtime branch are historical traceability for pending `v1.6.13-prebeta`; FAM-003 legacy FB-027 is a released baseline family anchor with PR #109 preserved as aggregation evidence; and no selected-next backlog identity exists without explicit USER approval.
 
 ## Registry Items
 
@@ -137,7 +137,329 @@ Current-branch clarity: latest public prerelease is `v1.6.12-prebeta`; FB-044 an
 
 Selectable user-facing feature-family records now use the fresh `FAM-###` namespace in ascending order from `FAM-001`. Legacy `FB-###` IDs are preserved only as historical trace fields, former-ID tables, workstream filenames, branch filenames, and release/PR evidence.
 
-### [ID: FAM-001] Active-session pre-settled incoming-launch conflict truth
+Canonical Identity Model: `FAM` = broad long-lived product family; `Package` = bulk branch/release package under one family; `Slice` = traceable deliverable area inside a package; `Seam` = execution or validation checkpoint; `PR` = merge/review evidence only; legacy global `FB` = historical trace only.
+Branch Scope Standard: branches must package multiple related slices under exactly one broad family by default. A package with exactly one slice is blocked by `Single-Slice Package User Approval Missing` unless `Single-Slice Package User Approval: Granted` is recorded with explicit USER approval.
+Package Completion Standard: Workstream continues through every admitted package slice until `Package Completion State: Complete`, `Released Baseline / Open`, `Blocked`, or `Deferred` is truthfully recorded before Hardening admission.
+USER Blocker Output Standard: `Backlog Addition User Approval Missing` must list every not-closed FAM and every not-complete package or slice before stopping.
+PR Evidence Standard: PR numbers are evidence only and must not become backlog identities, package identities, release-version drivers, or selected-next successors.
+
+| FAM ID | Broad Product Family | Family Status | Package Posture | Legacy Trace Coverage |
+| --- | --- | --- | --- | --- |
+| `FAM-001` | Boot Interface | Open / released-baseline aggregation | `PKG-001` released baseline / open | `FB-042`, `FB-043`, `FB-044`, `FB-045`, `FB-046`, `FB-047`, `FB-048`, `FB-049`, PR #86-#107 |
+| `FAM-002` | Desktop Interface | Open / pending user-facing follow-through | `PKG-002` released baseline / open | `FB-031`, UI/UX planning release evidence |
+| `FAM-003` | Interaction and Actions | Open / aggregation-held | `PKG-003` released baseline / open | `FB-027`, `FB-036`, `FB-037`, `FB-038`, `FB-041`, PR #109 |
+| `FAM-004` | Voice and Audio | Merged unreleased / open package | `PKG-004` in progress | `FB-030`, PR #108, `v1.6.5-prebeta`, pending `v1.6.13-prebeta` |
+| `FAM-005` | External Integrations | Pending implementation | `PKG-005` released baseline / open | `FB-039`, Stream Deck and external trigger gap |
+| `FAM-006` | Monitoring and HUD | Pending user-facing surface | `PKG-006` released baseline / open | `FB-040`, HUD surface gap |
+| `FAM-007` | Local AI and Capability Packs | Pending architecture/package | `PKG-007` pending | `Docs/orin_vision.md` local-AI and capability-pack vision |
+| `FAM-008` | Packaging and Install Experience | Pending architecture/package | `PKG-008` pending | `Docs/orin_vision.md`, modular install and GPU-aware architecture gap |
+| `FAM-009` | Workspace and Data | Open / deferred follow-through | `PKG-009` released baseline / open | `FB-005`, `FB-020`, `FB-026`, `FB-028`, workspace/data trace |
+| `FAM-010` | Safety and Privacy | Pending architecture/package | `PKG-010` pending | `Docs/orin_vision.md`, local execution, privacy, and safety boundaries |
+
+### [ID: FAM-001] Boot Interface
+
+Status: Open / released-baseline aggregation
+Record State: Registry-only
+Registry Class: Feature Family
+Family Anchor: Self
+Priority: High
+Family Scope: Startup, boot, desktop entrypoint, single-instance ownership, launch handoff, relaunch semantics, lifecycle transition proof, and boot-to-runtime trust boundaries.
+Package Policy: Branchable work must be a bulk boot-interface package with multiple related slices by default.
+Known Pending Gaps: Boot-family proof remains released-baseline open until future USER-approved package work closes lifecycle follow-through beyond the historical launch/relaunch baselines.
+Package Completion State: Released Baseline / Open
+Single-Slice Package User Approval: Not required - package has multiple slices.
+
+Package Trace:
+
+| Package ID | FAM ID | Package Name | Package Status | Package Completion State | Branch / Release Trace | Legacy FB / PR Evidence |
+| --- | --- | --- | --- | --- | --- | --- |
+| `PKG-001` | `FAM-001` | Startup lifecycle and relaunch truth baseline | Released baseline / open | Released Baseline / Open | `feature/fb-042-desktop-entrypoint-runtime-refinement`; `feature/fb-049-runtime-branch-readiness`; `v1.6.7-prebeta` through pending `v1.6.13-prebeta` | `FB-042`, `FB-043`, `FB-044`, `FB-045`, `FB-046`, `FB-047`, `FB-048`, `FB-049`, PR #86-#107 |
+
+Slice Trace:
+
+| Slice ID | Package ID | FAM ID | Slice Name | Slice Status | Seam Trace |
+| --- | --- | --- | --- | --- | --- |
+| `SLC-001` | `PKG-001` | `FAM-001` | Desktop entrypoint and launch-path baseline | Released | `FB-042`; Branch Readiness, Workstream, Hardening, Live Validation, PR, Release |
+| `SLC-002` | `PKG-001` | `FAM-001` | Top-level entrypoint and boot handoff truth | Released | `FB-043`, `FB-044`; Branch Readiness through Release |
+| `SLC-003` | `PKG-001` | `FAM-001` | Active-session relaunch success, decline, failure, and timeout truth | Released | `FB-045`, `FB-046`, `FB-047`, `FB-048`; Branch Readiness through Release |
+| `SLC-004` | `PKG-001` | `FAM-001` | Pre-settled incoming-launch conflict truth | Merged unreleased evidence | `FB-049`; WS1, H1, LV1, PR #107 |
+
+Summary: Boot Interface owns the long-lived startup and relaunch product surface; old `FB-042` through `FB-049` remain historical proof slices under this family, not reusable live backlog IDs.
+
+### [ID: FAM-002] Desktop Interface
+
+Status: Open / pending user-facing follow-through
+Record State: Registry-only
+Registry Class: Feature Family
+Family Anchor: Self
+Priority: Medium
+Family Scope: Nexus desktop shell, visual language, operator UI, settings presentation, user-facing desktop interaction surfaces, and coherent UI/UX implementation packages.
+Package Policy: Branchable desktop-interface work must package multiple UI/UX slices by default and must not treat one planning pass as a closed family.
+Known Pending Gaps: Nexus-era user-facing HUD/shell presentation, settings and desktop UX implementation remain pending after the historical planning release.
+Package Completion State: Released Baseline / Open
+Single-Slice Package User Approval: Not required - package has multiple slices.
+
+Package Trace:
+
+| Package ID | FAM ID | Package Name | Package Status | Package Completion State | Branch / Release Trace | Legacy FB / PR Evidence |
+| --- | --- | --- | --- | --- | --- | --- |
+| `PKG-002` | `FAM-002` | Desktop shell and UI/UX baseline | Released baseline / open | Released Baseline / Open | `feature/fb-031-nexus-desktop-ai-ui-ux-overhaul-planning`; `v1.6.1-prebeta` | `FB-031`, UI/UX planning release evidence |
+
+Slice Trace:
+
+| Slice ID | Package ID | FAM ID | Slice Name | Slice Status | Seam Trace |
+| --- | --- | --- | --- | --- | --- |
+| `SLC-005` | `PKG-002` | `FAM-002` | Nexus UI/UX source-map and visual-language baseline | Released | `FB-031`; Branch Readiness through Release |
+| `SLC-006` | `PKG-002` | `FAM-002` | User-facing desktop shell implementation follow-through | Pending USER-approved package | Future package seam required |
+
+Summary: Desktop Interface keeps the UI/UX planning baseline as historical proof while leaving the real user-facing desktop work open.
+
+### [ID: FAM-003] Interaction and Actions
+
+Status: Open / aggregation-held
+Record State: Registry-only
+Registry Class: Feature Family
+Family Anchor: Self
+Priority: High
+Family Scope: Typed-first interaction, saved actions, callable groups, built-in actions, tray quick tasks, hotkeys, shared action routing, confirmation flows, and reusable action execution boundaries.
+Package Policy: Branchable interaction work must be a family package with multiple slices by default; small runtime proofs aggregate unless USER approves a release driver.
+Known Pending Gaps: Shared action authoring, built-in/catalog expansion, tray quick-task follow-through, and shutdown confirmation evidence remain aggregation material until a USER-approved package is admitted.
+Package Completion State: Released Baseline / Open
+Single-Slice Package User Approval: Not required - package has multiple slices.
+
+Package Trace:
+
+| Package ID | FAM ID | Package Name | Package Status | Package Completion State | Branch / Release Trace | Legacy FB / PR Evidence |
+| --- | --- | --- | --- | --- | --- | --- |
+| `PKG-003` | `FAM-003` | Shared interaction and action model baseline | Released baseline / open | Released Baseline / Open | `Docs/workstreams/FB-027_interaction_system_baseline.md`; `Docs/workstreams/FB-027_interaction_shared_action_family_dossier.md` | `FB-027`, `FB-036`, `FB-037`, `FB-038`, `FB-041`, PR #109 |
+
+Slice Trace:
+
+| Slice ID | Package ID | FAM ID | Slice Name | Slice Status | Seam Trace |
+| --- | --- | --- | --- | --- | --- |
+| `SLC-007` | `PKG-003` | `FAM-003` | Typed-first interaction and saved-action baseline | Released | `FB-027`, `FB-036`; historical Branch Readiness through Release |
+| `SLC-008` | `PKG-003` | `FAM-003` | Deterministic callable groups, built-ins, settings, and tray quick tasks | Released baseline / open | `FB-037`, `FB-038`, `FB-041`; historical Branch Readiness through Release |
+| `SLC-009` | `PKG-003` | `FAM-003` | Shutdown-hotkey confirmation aggregation proof | Merged historical evidence | PR #109; WS1, H1, LV1, PR Readiness |
+
+Summary: Interaction and Actions replaces the accidental small-branch backlog identity pattern; PR #109 stays trace evidence inside a broader family package.
+
+### [ID: FAM-004] Voice and Audio
+
+Status: Merged unreleased / open package
+Record State: Promoted
+Registry Class: Feature Family
+Family Anchor: Self
+Priority: Medium
+Release Stage: pre-Beta
+Target Version: v1.6.13-prebeta
+Canonical Workstream Doc: Docs/workstreams/FB-030_orin_voice_audio_direction_refinement.md
+Family Scope: ORIN voice output, error voice, quiet/bypass behavior, audio availability diagnostics, persona-safe voice claims, and future cross-family voice integration.
+Package Policy: Branchable voice/audio work must package multiple runtime or integration slices by default; one diagnostic seam alone is aggregation evidence unless USER approves otherwise.
+Known Pending Gaps: Runtime diagnostics proof is merged but unreleased; future voice integration across interaction, desktop, and safety/privacy families remains pending.
+Merged-Unreleased Release-Debt Owner: FAM-001 legacy FB-049 Active-session pre-settled incoming-launch conflict truth plus FAM-004 legacy FB-030 voice/audio runtime diagnostics proof plus merged governance/automation proof package for v1.6.13-prebeta
+Release Target: v1.6.13-prebeta
+Release Floor: patch prerelease
+Version Rationale: The merged voice/audio runtime diagnostics proof adds bounded truthfulness for availability states without opening a standalone new family or release-version driver.
+Release Scope: merged governance reform, automation catalog proof, FAM-001 legacy FB-049 runtime proof, and FAM-004 legacy FB-030 voice/audio runtime diagnostics proof.
+Release Artifacts: Tag v1.6.13-prebeta; release title Pre-Beta v1.6.13; rich Markdown release notes summarize the merged governance reform, automation catalog, FAM-001 legacy FB-049 runtime proof, and FAM-004 legacy FB-030 voice/audio diagnostics proof, with GitHub-generated `What's Changed` and `Full Changelog` sections.
+Post-Release Truth: after v1.6.13-prebeta publication and validation, merged governance reform, automation catalog, FAM-001 legacy FB-049 runtime proof, and FAM-004 legacy FB-030 runtime diagnostics proof become released historical traceability; release debt clears; and later runtime work must start from updated main.
+Selected Next Workstream: None - blocked by `Backlog Addition User Approval Missing` until explicit USER approval.
+Next-Branch Creation Gate: Blocked by `Backlog Addition User Approval Missing` until explicit USER approval selects a backlog identity or release/support lane.
+Package Completion State: In Progress
+Single-Slice Package User Approval: Not required - package has multiple slices.
+
+Package Trace:
+
+| Package ID | FAM ID | Package Name | Package Status | Package Completion State | Branch / Release Trace | Legacy FB / PR Evidence |
+| --- | --- | --- | --- | --- | --- | --- |
+| `PKG-004` | `FAM-004` | Voice/audio truth and integration package | Merged unreleased / open | In Progress | `feature/fb-030-voice-audio-runtime-branch-readiness`; pending `v1.6.13-prebeta` | `FB-030`, PR #108, `v1.6.5-prebeta` planning release |
+
+Slice Trace:
+
+| Slice ID | Package ID | FAM ID | Slice Name | Slice Status | Seam Trace |
+| --- | --- | --- | --- | --- | --- |
+| `SLC-010` | `PKG-004` | `FAM-004` | Voice/audio direction and planning baseline | Released | `FB-030`; `v1.6.5-prebeta` |
+| `SLC-011` | `PKG-004` | `FAM-004` | Truthful voice/audio runtime diagnostics | Merged unreleased evidence | `FB-030`; WS1, H1, LV1, PR #108 |
+| `SLC-012` | `PKG-004` | `FAM-004` | Cross-family voice integration package follow-through | Pending USER-approved package | Future package seam required |
+
+Summary: Voice and Audio carries legacy `FB-030` proof as package evidence while keeping the broader voice integration family open.
+
+### [ID: FAM-005] External Integrations
+
+Status: Pending implementation
+Record State: Registry-only
+Registry Class: Feature Family
+Family Anchor: Self
+Priority: Medium
+Family Scope: Stream Deck, external trigger intake, plugin lifecycle, installed integration points, trusted invocation boundaries, and external action ownership.
+Package Policy: Branchable external-integration work must package multiple implementation and validation slices by default.
+Known Pending Gaps: Stream Deck and external integration implementation remains pending after the historical architecture-only trigger-intake release.
+Package Completion State: Released Baseline / Open
+Single-Slice Package User Approval: Not required - package has multiple slices.
+
+Package Trace:
+
+| Package ID | FAM ID | Package Name | Package Status | Package Completion State | Branch / Release Trace | Legacy FB / PR Evidence |
+| --- | --- | --- | --- | --- | --- | --- |
+| `PKG-005` | `FAM-005` | External trigger and plugin implementation package | Released baseline / open | Released Baseline / Open | `feature/fb-039-external-trigger-plugin-integration-architecture`; `v1.5.0-prebeta` | `FB-039`, Stream Deck/external integration gap |
+
+Slice Trace:
+
+| Slice ID | Package ID | FAM ID | Slice Name | Slice Status | Seam Trace |
+| --- | --- | --- | --- | --- | --- |
+| `SLC-013` | `PKG-005` | `FAM-005` | External trigger architecture and lifecycle baseline | Released | `FB-039`; Branch Readiness through Release |
+| `SLC-014` | `PKG-005` | `FAM-005` | Stream Deck and installed integration implementation | Pending USER-approved package | Future package seam required |
+
+Summary: External Integrations keeps the trigger architecture release as proof while leaving implementation work pending.
+
+### [ID: FAM-006] Monitoring and HUD
+
+Status: Pending user-facing surface
+Record State: Registry-only
+Registry Class: Feature Family
+Family Anchor: Self
+Priority: Medium
+Family Scope: Monitoring surfaces, CPU/GPU thermals, performance telemetry, HUD/overlay presentation, trust-safety display rules, and plugin-fed runtime telemetry.
+Package Policy: Branchable monitoring/HUD work must package source, display, and validation slices by default.
+Known Pending Gaps: HUD user-facing surface and telemetry presentation remain pending after the historical architecture-only monitoring release.
+Package Completion State: Released Baseline / Open
+Single-Slice Package User Approval: Not required - package has multiple slices.
+
+Package Trace:
+
+| Package ID | FAM ID | Package Name | Package Status | Package Completion State | Branch / Release Trace | Legacy FB / PR Evidence |
+| --- | --- | --- | --- | --- | --- | --- |
+| `PKG-006` | `FAM-006` | Monitoring and HUD product-surface package | Released baseline / open | Released Baseline / Open | `feature/fb-040-monitoring-thermals-performance-hud-surface`; `v1.6.0-prebeta` | `FB-040`, HUD user-facing surface gap |
+
+Slice Trace:
+
+| Slice ID | Package ID | FAM ID | Slice Name | Slice Status | Seam Trace |
+| --- | --- | --- | --- | --- | --- |
+| `SLC-015` | `PKG-006` | `FAM-006` | Monitoring and thermal architecture baseline | Released | `FB-040`; Branch Readiness through Release |
+| `SLC-016` | `PKG-006` | `FAM-006` | User-facing HUD and telemetry presentation | Pending USER-approved package | Future package seam required |
+
+Summary: Monitoring and HUD remains open because the released architecture baseline did not ship the user-facing HUD surface.
+
+### [ID: FAM-007] Local AI and Capability Packs
+
+Status: Pending architecture/package
+Record State: Registry-only
+Registry Class: Feature Family
+Family Anchor: Self
+Priority: Medium
+Family Scope: Local AI execution posture, capability-pack boundaries, model/tool capability distribution, local-vs-external runtime choices, and capability governance.
+Package Policy: Branchable local-AI work must package capability boundary, install/runtime, validation, and documentation slices by default.
+Known Pending Gaps: Local AI and capability-pack architecture remains pending as repo-supported project vision and has no USER-approved implementation package yet.
+Package Completion State: Pending
+Single-Slice Package User Approval: Not required - package has multiple slices.
+
+Package Trace:
+
+| Package ID | FAM ID | Package Name | Package Status | Package Completion State | Branch / Release Trace | Legacy FB / PR Evidence |
+| --- | --- | --- | --- | --- | --- | --- |
+| `PKG-007` | `FAM-007` | Local AI and capability-pack architecture package | Pending | Pending | `Docs/orin_vision.md` project vision trace | No legacy FB; repo vision trace only |
+
+Slice Trace:
+
+| Slice ID | Package ID | FAM ID | Slice Name | Slice Status | Seam Trace |
+| --- | --- | --- | --- | --- | --- |
+| `SLC-017` | `PKG-007` | `FAM-007` | Local AI runtime boundary and capability-pack source map | Pending USER-approved package | Future Branch Readiness required |
+| `SLC-018` | `PKG-007` | `FAM-007` | Capability-pack install, validation, and governance follow-through | Pending USER-approved package | Future package seam required |
+
+Summary: Local AI and Capability Packs starts fresh as a broad family without reusing old `FB` numbering.
+
+### [ID: FAM-008] Packaging and Install Experience
+
+Status: Pending architecture/package
+Record State: Registry-only
+Registry Class: Feature Family
+Family Anchor: Self
+Priority: Medium
+Family Scope: Installer, modular setup, GPU-aware runtime selection, dependency packaging, desktop-shortcut installation, release packaging ergonomics, and operator install/upgrade experience.
+Package Policy: Branchable packaging/install work must package installer architecture, runtime detection, user copy, and validation slices by default.
+Known Pending Gaps: Modular install and GPU-aware architecture remain pending and must not be collapsed into a small single-seam branch.
+Package Completion State: Pending
+Single-Slice Package User Approval: Not required - package has multiple slices.
+
+Package Trace:
+
+| Package ID | FAM ID | Package Name | Package Status | Package Completion State | Branch / Release Trace | Legacy FB / PR Evidence |
+| --- | --- | --- | --- | --- | --- | --- |
+| `PKG-008` | `FAM-008` | Modular install and GPU-aware runtime package | Pending | Pending | `Docs/orin_vision.md`; `Docs/architecture.md` | No legacy FB; repo vision trace only |
+
+Slice Trace:
+
+| Slice ID | Package ID | FAM ID | Slice Name | Slice Status | Seam Trace |
+| --- | --- | --- | --- | --- | --- |
+| `SLC-019` | `PKG-008` | `FAM-008` | Modular install architecture and desktop installation path | Pending USER-approved package | Future Branch Readiness required |
+| `SLC-020` | `PKG-008` | `FAM-008` | GPU-aware runtime/dependency selection and validation | Pending USER-approved package | Future package seam required |
+
+Summary: Packaging and Install Experience keeps installer and GPU-aware runtime work as a broad family package, not a one-off branch.
+
+### [ID: FAM-009] Workspace and Data
+
+Status: Open / deferred follow-through
+Record State: Registry-only
+Registry Class: Feature Family
+Family Anchor: Self
+Priority: Low
+Family Scope: Workspace paths, data organization, durable state, conversation/project storage, source-of-truth migration, and folder/data hygiene.
+Package Policy: Branchable workspace/data work must package storage, migration, validation, and UX follow-through slices by default.
+Known Pending Gaps: Workspace and data follow-through remains open even though earlier folder-organization and migration slices are released historical proof.
+Deferred Since: 2026-05-04 one-time backlog governance repair.
+Deferred Because: Workspace/data follow-through requires explicit USER-approved package admission under the broad FAM model.
+Selection / Unblock: USER approval for a FAM-009 package with multiple workspace/data slices, or an explicit USER-approved deferral change.
+Package Completion State: Released Baseline / Open
+Single-Slice Package User Approval: Not required - package has multiple slices.
+
+Package Trace:
+
+| Package ID | FAM ID | Package Name | Package Status | Package Completion State | Branch / Release Trace | Legacy FB / PR Evidence |
+| --- | --- | --- | --- | --- | --- | --- |
+| `PKG-009` | `FAM-009` | Workspace and data truth package | Released baseline / open | Released Baseline / Open | `v1.6.6-prebeta` and historical migration/support trace | `FB-005`, `FB-020`, `FB-026`, `FB-028`, source-of-truth migration evidence |
+
+Slice Trace:
+
+| Slice ID | Package ID | FAM ID | Slice Name | Slice Status | Seam Trace |
+| --- | --- | --- | --- | --- | --- |
+| `SLC-021` | `PKG-009` | `FAM-009` | Workspace/folder organization and migration baseline | Released | `FB-005`, `FB-020`, `FB-026`, `FB-028`; historical workstream/release trace |
+| `SLC-022` | `PKG-009` | `FAM-009` | Durable workspace/data UX and follow-through | Deferred USER-approved package | Future package seam required |
+
+Summary: Workspace and Data keeps old data/workspace IDs as trace while remaining open for broader data-product follow-through.
+
+### [ID: FAM-010] Safety and Privacy
+
+Status: Pending architecture/package
+Record State: Registry-only
+Registry Class: Feature Family
+Family Anchor: Self
+Priority: Medium
+Family Scope: Privacy posture, local execution boundaries, trust/safety copy, consentful integrations, safe automation, model/tool data handling, and license/privacy guardrails.
+Package Policy: Branchable safety/privacy work must package policy, runtime behavior, validation, and user-facing copy slices by default.
+Known Pending Gaps: Safety/privacy is repo-supported by local-execution and trust/safety vision but has no dedicated USER-approved implementation package yet.
+Package Completion State: Pending
+Single-Slice Package User Approval: Not required - package has multiple slices.
+
+Package Trace:
+
+| Package ID | FAM ID | Package Name | Package Status | Package Completion State | Branch / Release Trace | Legacy FB / PR Evidence |
+| --- | --- | --- | --- | --- | --- | --- |
+| `PKG-010` | `FAM-010` | Safety, privacy, and local-execution package | Pending | Pending | `Docs/orin_vision.md`; `Docs/ownership_ip_plan.md`; governance trace | No legacy FB; repo vision trace only |
+
+Slice Trace:
+
+| Slice ID | Package ID | FAM ID | Slice Name | Slice Status | Seam Trace |
+| --- | --- | --- | --- | --- | --- |
+| `SLC-023` | `PKG-010` | `FAM-010` | Privacy/local-execution boundary and user-facing claims | Pending USER-approved package | Future Branch Readiness required |
+| `SLC-024` | `PKG-010` | `FAM-010` | Safe automation, consent, and integration guardrails | Pending USER-approved package | Future package seam required |
+
+Summary: Safety and Privacy is a broad product family only; it is not a reused legacy `FB` lane.
+
+### Legacy One-To-One FAM Mapping Trace
+
+The following entries preserve the earlier one-time repair mapping as historical analysis only. They are not parseable live family records, not branchable identities, and not selected-next candidates under the broad FAM -> Package -> Slice -> Seam model.
+
+#### [Legacy Mapping: FAM-001] Active-session pre-settled incoming-launch conflict truth
 
 Legacy FB ID: FB-049
 Status: Merged unreleased
@@ -156,11 +478,11 @@ Live Validation: Green. `Live Validation LV1 - Pre-Settled Incoming-Launch Confl
 PR Readiness: Historical complete with failure classification. PR #107 merged, GitHub merge truth is valid, and `PR Watcher Merge Handoff Missing` is preserved because `pr107-same-thread-merge-watch` did not emit the required same-thread merged handoff before cleanup.
 Minimal Scope: Prove and refine the pre-settled incoming-launch conflict lane across `desktop/single_instance.py`, `desktop/orin_desktop_launcher.pyw`, `desktop/orin_desktop_main.py`, and the minimum required reusable validator surfaces so startup-phase ownership stays explicit, incoming launches exit truthfully before authoritative settled is reached, and settled-session relaunch semantics are not falsely claimed.
 Historical Merge Truth: PR #107 merged into `main` at `2026-05-01T22:17:44Z`; merge commit `22dfb15e554472220b9621b01439286b3afe1dda`; head SHA `fc00346b111158c6f57d976fef7a215a940027c1`.
-Watcher Failure Truth: same-thread watcher handoff missing; watcher cleanup proven; carried into FAM-006 legacy FB-030 Branch Readiness as `PR Watcher Merge Handoff Missing` plus `Blocker Recurrence Analysis Required`.
+Watcher Failure Truth: same-thread watcher handoff missing; watcher cleanup proven; carried into FAM-004 legacy FB-030 Branch Readiness as `PR Watcher Merge Handoff Missing` plus `Blocker Recurrence Analysis Required`.
 Summary: Make startup-phase incoming-launch conflicts as truthful as settled-session relaunch conflicts.
 Why it matters: Users should get an explicit, proven outcome when a second launch collides with an already-owning startup-phase session before the desktop has reached authoritative settled state.
 
-### [ID: FAM-002] Desktop startup runtime family anchor
+#### [Legacy Mapping: FAM-002] Desktop startup runtime family anchor
 
 Legacy FB ID: FB-042
 Status: Released (v1.6.7-prebeta)
@@ -191,7 +513,7 @@ Minimal Scope: Execute only WS-1 desktop shortcut launch-path runtime refinement
 Summary: Anchor the desktop startup runtime family at the real launch path while preserving the released FB-042 slice as the first historical proof.
 Why it matters: Future launch-path, handoff, and relaunch follow-through should reuse one runtime family identity instead of drifting into separate near-duplicate feature-family records.
 
-### [ID: FAM-003] Monitoring, thermals, and performance HUD surface
+#### [Legacy Mapping: FAM-003] Monitoring, thermals, and performance HUD surface
 
 Legacy FB ID: FB-040
 Status: Released (v1.6.0-prebeta)
@@ -214,7 +536,7 @@ Version Drift Note: FB-040 advanced the public prerelease from `v1.5.0-prebeta` 
 Summary: Track future runtime monitoring and HUD surfaces for GPU / CPU thermals and performance, including possible plugin-fed telemetry inputs.
 Why it matters: Monitoring overlays are a separate runtime and status surface and should not be bolted onto the saved-action system without an explicit product boundary.
 
-### [ID: FAM-004] External trigger and plugin integration architecture
+#### [Legacy Mapping: FAM-004] External trigger and plugin integration architecture
 
 Legacy FB ID: FB-039
 Status: Released (v1.5.0-prebeta)
@@ -236,7 +558,7 @@ Post-Release Truth: FB-039 is Released / Closed in v1.5.0-prebeta; release debt 
 Summary: Track future plugin and integration lifecycle design for external trigger surfaces such as Stream Deck and other installed integration points.
 Why it matters: Plugin-backed action triggering needs explicit lifecycle, safety, and ownership boundaries before it becomes part of the product.
 
-### [ID: FAM-005] Nexus Desktop AI UI/UX overhaul planning
+#### [Legacy Mapping: FAM-005] Nexus Desktop AI UI/UX overhaul planning
 
 Legacy FB ID: FB-031
 Status: Released (v1.6.1-prebeta)
@@ -259,7 +581,7 @@ Post-Release Truth: FB-031 is Released / Closed in v1.6.1-prebeta; release debt 
 Summary: Preserved Nexus-era UI/UX overhaul planning as a deliberate design lane rather than piecemeal visual drift.
 Why it matters: The Nexus-era visual language should be planned coherently before any later UI implementation pass.
 
-### [ID: FAM-006] ORIN voice/audio direction refinement
+#### [Legacy Mapping: FAM-006] ORIN voice/audio direction refinement
 
 Legacy FB ID: FB-030
 Status: Merged unreleased
@@ -280,22 +602,22 @@ Live Validation: Historical complete. LV1 validated live-equivalent voice/audio 
 PR Readiness: Historical complete. PR #108 merged, watcher verification proof exists through a forced run, and PR108 watcher automations are retired.
 Release Readiness: Merged-unreleased release debt pending `v1.6.13-prebeta` packaging.
 Release Execution: Historical `v1.6.5-prebeta` planning release remains live at https://github.com/GiribaldiTTV/Nexus-Desktop-AI/releases/tag/v1.6.5-prebeta on commit `7c2933d6427feb08a1139ba7f5ba2393eb61f1e1`; the runtime diagnostics follow-through is not publicly released until `v1.6.13-prebeta` publication.
-Merged-Unreleased Release-Debt Owner: FAM-001 legacy FB-049 Active-session pre-settled incoming-launch conflict truth plus FAM-006 legacy FB-030 voice/audio runtime diagnostics proof plus merged governance/automation proof package for v1.6.13-prebeta
+Merged-Unreleased Release-Debt Owner: FAM-001 legacy FB-049 Active-session pre-settled incoming-launch conflict truth plus FAM-004 legacy FB-030 voice/audio runtime diagnostics proof plus merged governance/automation proof package for v1.6.13-prebeta
 Repo State: No Active Branch
 Release Target: v1.6.13-prebeta
 Release Floor: patch prerelease
-Version Rationale: FAM-006 legacy FB-030 adds bounded runtime diagnostics truth for voice/audio availability without opening a new feature family or materially widening product scope.
-Release Scope: merged governance reform, automation catalog proof, FAM-001 legacy FB-049 runtime proof, and FAM-006 legacy FB-030 voice/audio runtime diagnostics proof.
-Release Artifacts: Tag v1.6.13-prebeta; release title Pre-Beta v1.6.13; rich Markdown release notes summarize the merged governance reform, automation catalog, FAM-001 legacy FB-049 runtime proof, and FAM-006 legacy FB-030 voice/audio diagnostics proof, with GitHub-generated `What's Changed` and `Full Changelog` sections.
-Post-Release Truth: after v1.6.13-prebeta publication and validation, merged governance reform, automation catalog, FAM-001 legacy FB-049 runtime proof, and FAM-006 legacy FB-030 runtime diagnostics proof become released historical traceability; release debt clears; and later runtime work must start from updated main.
+Version Rationale: FAM-004 legacy FB-030 adds bounded runtime diagnostics truth for voice/audio availability without opening a new feature family or materially widening product scope.
+Release Scope: merged governance reform, automation catalog proof, FAM-001 legacy FB-049 runtime proof, and FAM-004 legacy FB-030 voice/audio runtime diagnostics proof.
+Release Artifacts: Tag v1.6.13-prebeta; release title Pre-Beta v1.6.13; rich Markdown release notes summarize the merged governance reform, automation catalog, FAM-001 legacy FB-049 runtime proof, and FAM-004 legacy FB-030 voice/audio diagnostics proof, with GitHub-generated `What's Changed` and `Full Changelog` sections.
+Post-Release Truth: after v1.6.13-prebeta publication and validation, merged governance reform, automation catalog, FAM-001 legacy FB-049 runtime proof, and FAM-004 legacy FB-030 runtime diagnostics proof become released historical traceability; release debt clears; and later runtime work must start from updated main.
 Selected Next Workstream: None - blocked by `Backlog Addition User Approval Missing` until explicit USER approval.
 Next-Branch Creation Gate: Blocked by `Backlog Addition User Approval Missing` until explicit USER approval selects a backlog identity or release/support lane.
 Historical Planning Release: `v1.6.5-prebeta` remains the released planning/admission proof for the original voice/audio direction milestone.
 Minimal Scope: Completed WS1 voice/audio runtime availability and truthful diagnostics proof across `Audio/orin_voice.py`, `Audio/orin_error_voice.py`, `main.py`, `desktop/orin_desktop_launcher.pyw`, and `dev/orin_voice_regression_harness.py`, while preserving ORIN as the only shipped persona, keeping ARIA dormant, avoiding prompt or asset redesign, and avoiding public-copy or release-note changes before release phases.
-Summary: Turn the released FAM-006 legacy FB-030 voice/audio planning contract into its first bounded runtime truth proof.
+Summary: Turn the released FAM-004 legacy FB-030 voice/audio planning contract into its first bounded runtime truth proof.
 Why it matters: Voice execution, quiet mode, diagnostics, and persona claims must stay truthful when speech succeeds, bypasses, or fails.
 
-### [ID: FAM-007] Interaction and shared-action family anchor
+#### [Legacy Mapping: FAM-007] Interaction and shared-action family anchor
 
 Legacy FB ID: FB-027
 Status: Released (v1.2.9-prebeta) / family aggregation hold
@@ -322,7 +644,7 @@ Release Readiness: Not started and not required for PR #109 as a standalone rele
 Current Active Workstream: None
 Promotion Gate: Closed family anchor. Future continuation requires explicit USER approval under `Backlog Addition User Approval Missing`.
 Standalone Release Driver: No
-Aggregation Target: Future USER-approved FAM-007 legacy FB-027 family release or larger approved release aggregation.
+Aggregation Target: Future USER-approved FAM-003 legacy FB-027 family release or larger approved release aggregation.
 Minimal Scope: Historical PR #109 aggregation evidence adds confirm-before-exit behavior for `Ctrl+Alt+End` and `Ctrl+Alt+2`; no next same-family runtime slice is selected.
 Summary: Anchor the typed-first interaction and shared-action family while preserving PR #109 as family evidence instead of a release-version driver.
 Why it matters: Future authoring, callable-group, built-in action, and tray task follow-through should reuse one interaction/action family identity instead of drifting into separate near-duplicate feature-family records.

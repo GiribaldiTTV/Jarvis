@@ -162,7 +162,7 @@ In Workflow mode, Codex should:
 - Governance, docs, source-of-truth, and validator repairs must ride inside the next legitimate runtime-focused backlog branch during `Branch Readiness` or `PR Readiness`.
 - If no runtime-focused branch is legally admitted yet, record the drift as a blocker and wait instead of creating a repair branch by inertia.
 - Historical repair-only branch records remain traceability only and do not authorize new repair-only branch creation.
-- Codex must not create, split, promote, or select a backlog identity without explicit USER approval; if approval is absent, stop on `Backlog Addition User Approval Missing` and output the still-not-closed backlog list, or `Backlog Exhaustion User Decision Pending` if that list is empty.
+- Codex must not create, split, promote, package-admit, branch-create, select a backlog identity, or waive a single-slice package without explicit USER approval; if approval is absent, stop on `Backlog Addition User Approval Missing` and output the still-not-closed FAM list plus every not-complete package and slice, or `Backlog Exhaustion User Decision Pending` if that list is empty.
 - Small single-seam runtime proofs, validation follow-through, governance repairs, and blocker-clearing traces stay inside existing family/workstream/branch-record traceability by default and are not standalone release-version drivers without explicit USER approval.
 - if a stale-canon or governance-drift class is discovered, the same branch or next legal repair surface must patch the canon or validator rule that allowed it before the repair is considered complete
 - merge-stable current-state owners such as backlog and roadmap must not mirror transient repair-branch ownership while merged-main truth remains `No Active Branch`
@@ -233,8 +233,8 @@ When the approved phase is `PR Readiness`, the output must also explicitly inclu
 - confirmation that the merge-target canon completeness gate passed
 - confirmation that the Governance Drift Audit ran
 - whether governance drift was found
-- confirmation that stale-canon, post-merge-state, next-workstream, dirty-branch, docs-sync/drift-audit, `Backlog Addition User Approval Missing`, `Backlog Exhaustion User Decision Pending`, and `User Test Summary Results Pending` blockers are clear
-- confirmation that `Next Runtime Candidate Selection Pending` is clear by selecting exactly one real runtime candidate before leaving PR Readiness when explicit USER approval for successor selection exists, or that `Backlog Addition User Approval Missing` is active with the still-not-closed backlog list when approval is absent
+- confirmation that stale-canon, post-merge-state, next-workstream, dirty-branch, docs-sync/drift-audit, `Backlog Addition User Approval Missing`, `Backlog Exhaustion User Decision Pending`, `Single-Slice Package User Approval Missing`, `Package Completion Unproven`, and `User Test Summary Results Pending` blockers are clear
+- confirmation that `Next Runtime Candidate Selection Pending` is clear by selecting exactly one real runtime candidate before leaving PR Readiness when explicit USER approval for successor selection exists, or that `Backlog Addition User Approval Missing` is active with the still-not-closed FAM list plus every not-complete package and slice when approval is absent
 - confirmation that `PR Readiness Scope Missed`, `Between-Branch Canon Repair Attempt`, and `Next Branch Created Too Early` are clear
 - confirmation that `Release Window Audit Incomplete` is clear, including the normal green posture `Remaining Known Release Blockers: None`, `Another Pre-Release Repair PR Required: NO`, and `Release Window Split Waiver: None`, unless an explicit user-approved split waiver is recorded
 - confirmation that `PR Creation Pending`, `PR Validation Pending`, `PR State Unknown`, and `PR Merge Status Unproven` are clear before reporting `PR Readiness GREEN`
@@ -255,7 +255,7 @@ When the approved phase is `PR Readiness`, the output must also explicitly inclu
   - confirmation that `Target Version` was not used to rank, select, defer, or skip the open backlog candidate
   - if the selected item is deferred, confirmation that `Deferred Since:`, `Deferred Because:`, and `Selection / Unblock:` are present
   - the minimal scope recorded in canon
-  - confirmation that, when explicit USER approval for successor selection exists, backlog includes `Next Workstream: Selected` and `Minimal Scope:` and roadmap includes `## Selected Next Workstream`; otherwise report `Backlog Addition User Approval Missing` with the still-not-closed backlog list
+  - confirmation that, when explicit USER approval for successor selection exists, backlog includes `Next Workstream: Selected` and `Minimal Scope:` and roadmap includes `## Selected Next Workstream`; otherwise report `Backlog Addition User Approval Missing` with the still-not-closed FAM list plus every not-complete package and slice
   - confirmation that the selected next workstream is a real runtime Feature Family candidate and that `Minimal Scope:` names a runtime slice
   - confirmation that no branch exists yet for that next workstream
   - confirmation that successor branch creation is deferred to `Branch Readiness` after merge and updated-`main` revalidation
@@ -466,7 +466,7 @@ During `PR Readiness`, the next workstream must be a real runtime candidate, sel
 
 That successor branch is created only during `Branch Readiness` after the current branch merges and updated `main` is revalidated.
 
-If post-merge truth will resolve to `No Active Branch` because `Release Debt` or another repo-level admission blocker remains open, successor branch creation remains deferred. If USER approval for successor selection is absent, `Backlog Addition User Approval Missing` blocks selection and the branch stops with the still-not-closed backlog list. If USER approval exists but no real runtime candidate can be selected, `Next Runtime Candidate Selection Pending` blocks Release Readiness and the branch stops in PR Readiness.
+If post-merge truth will resolve to `No Active Branch` because `Release Debt` or another repo-level admission blocker remains open, successor branch creation remains deferred. If USER approval for successor selection is absent, `Backlog Addition User Approval Missing` blocks selection and the branch stops with the still-not-closed FAM list plus every not-complete package and slice. If USER approval exists but no real runtime candidate can be selected, `Next Runtime Candidate Selection Pending` blocks Release Readiness and the branch stops in PR Readiness.
 
 If a branch is stale, merged, or identical to `main`, call it out explicitly and stop using it as the base for next-lane planning.
 

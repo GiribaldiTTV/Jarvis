@@ -2007,25 +2007,83 @@ VALID_BACKLOG_REGISTRY_CLASSES = (
 )
 
 FRESH_FAMILY_PREFIX = "FAM-"
-FRESH_FAMILY_LEGACY_MAP = {
-    "FAM-001": "FB-049",
-    "FAM-002": "FB-042",
-    "FAM-003": "FB-040",
-    "FAM-004": "FB-039",
-    "FAM-005": "FB-031",
-    "FAM-006": "FB-030",
-    "FAM-007": "FB-027",
+FRESH_FAMILY_TAXONOMY = {
+    "FAM-001": {
+        "title": "Boot Interface",
+        "package": "PKG-001",
+        "legacy": ("FB-042", "FB-043", "FB-044", "FB-045", "FB-046", "FB-047", "FB-048", "FB-049"),
+    },
+    "FAM-002": {
+        "title": "Desktop Interface",
+        "package": "PKG-002",
+        "legacy": ("FB-031",),
+    },
+    "FAM-003": {
+        "title": "Interaction and Actions",
+        "package": "PKG-003",
+        "legacy": ("FB-027", "FB-036", "FB-037", "FB-038", "FB-041"),
+    },
+    "FAM-004": {
+        "title": "Voice and Audio",
+        "package": "PKG-004",
+        "legacy": ("FB-030",),
+    },
+    "FAM-005": {
+        "title": "External Integrations",
+        "package": "PKG-005",
+        "legacy": ("FB-039",),
+    },
+    "FAM-006": {
+        "title": "Monitoring and HUD",
+        "package": "PKG-006",
+        "legacy": ("FB-040",),
+    },
+    "FAM-007": {
+        "title": "Local AI and Capability Packs",
+        "package": "PKG-007",
+        "legacy": (),
+    },
+    "FAM-008": {
+        "title": "Packaging and Install Experience",
+        "package": "PKG-008",
+        "legacy": (),
+    },
+    "FAM-009": {
+        "title": "Workspace and Data",
+        "package": "PKG-009",
+        "legacy": ("FB-005", "FB-020", "FB-026", "FB-028"),
+    },
+    "FAM-010": {
+        "title": "Safety and Privacy",
+        "package": "PKG-010",
+        "legacy": (),
+    },
 }
 
 FRESH_FAMILY_NAMESPACE_REQUIRED_PHRASES = (
     "the old `FB-###` namespace is historical-only after this one-time repair; new live backlog-family identities use `FAM-###`, starting at `FAM-001`, and Codex must not create or reuse a parseable `FB-###` backlog ID",
     "Selectable user-facing feature-family records now use the fresh `FAM-###` namespace in ascending order from `FAM-001`.",
-    "live backlog-family identities use the fresh `FAM-###` namespace starting at `FAM-001`; legacy `FB-###` IDs are historical trace only and must not be reused for new parseable backlog entries",
-    "Only true feature-family backlog entries should remain as parseable `### [ID: FAM-XXX]` backlog records by default.",
-    "The live backlog-family namespace is `FAM-###`, starting at `FAM-001`; the old `FB-###` namespace is historical-only and must not be reused for parseable backlog entries.",
+    "live backlog-family identities use the fresh broad `FAM-###` namespace starting at `FAM-001`; legacy `FB-###` IDs are historical trace only and must not be reused for new parseable backlog entries",
+    "Only true broad feature-family backlog entries should remain as parseable `### [ID: FAM-XXX]` backlog records by default.",
+    "The live backlog-family namespace is broad `FAM-###`, starting at `FAM-001`; the old `FB-###` namespace is historical-only and must not be reused for parseable backlog entries.",
 )
 
-LEGACY_FEATURE_FAMILY_IDS = tuple(FRESH_FAMILY_LEGACY_MAP.values())
+FAMILY_PACKAGE_MODEL_REQUIRED_PHRASES = (
+    "Canonical Identity Model: `FAM` = broad long-lived product family; `Package` = bulk branch/release package under one family; `Slice` = traceable deliverable area inside a package; `Seam` = execution or validation checkpoint; `PR` = merge/review evidence only; legacy global `FB` = historical trace only.",
+    "Branch Scope Standard: branches must package multiple related slices under exactly one broad family by default.",
+    "Package Completion Standard: Workstream continues through every admitted package slice until `Package Completion State: Complete`, `Released Baseline / Open`, `Blocked`, or `Deferred` is truthfully recorded before Hardening admission.",
+    "PR Evidence Standard: PR numbers are evidence only and must not become backlog identities, package identities, release-version drivers, or selected-next successors.",
+    "single-slice packages are blocked by `Single-Slice Package User Approval Missing` unless explicit USER approval records `Single-Slice Package User Approval: Granted`",
+    "package slices must trace to exactly one FAM and exactly one package",
+)
+
+LEGACY_FEATURE_FAMILY_IDS = tuple(
+    dict.fromkeys(
+        legacy_id
+        for family in FRESH_FAMILY_TAXONOMY.values()
+        for legacy_id in family["legacy"]
+    )
+)
 
 CONSOLIDATED_SUPPORT_TRACE_IDS = (
     "FB-035",
@@ -2249,6 +2307,32 @@ def _historical_alias_mapping_matches(
     return True
 
 
+def _parse_family_package_rows(block: str) -> list[dict[str, str]]:
+    rows: list[dict[str, str]] = []
+    pattern = re.compile(
+        r"^\| `(?P<package>PKG-\d+)` \| `(?P<fam>FAM-\d+)` \| "
+        r"(?P<name>[^|]+) \| (?P<status>[^|]+) \| "
+        r"(?P<completion>[^|]+) \| (?P<branch>[^|]+) \| (?P<evidence>[^|]+) \|$",
+        flags=re.M,
+    )
+    for match in pattern.finditer(block):
+        rows.append({key: value.strip() for key, value in match.groupdict().items()})
+    return rows
+
+
+def _parse_family_slice_rows(block: str) -> list[dict[str, str]]:
+    rows: list[dict[str, str]] = []
+    pattern = re.compile(
+        r"^\| `(?P<slice>SLC-\d+)` \| `(?P<package>PKG-\d+)` \| "
+        r"`(?P<fam>FAM-\d+)` \| (?P<name>[^|]+) \| "
+        r"(?P<status>[^|]+) \| (?P<seam>[^|]+) \|$",
+        flags=re.M,
+    )
+    for match in pattern.finditer(block):
+        rows.append({key: value.strip() for key, value in match.groupdict().items()})
+    return rows
+
+
 def _validate_consolidated_backlog_source_truth(
     require,
     *,
@@ -2266,12 +2350,15 @@ def _validate_consolidated_backlog_source_truth(
     )
     live_family_ids = [entry["id"] for entry in backlog_entries]
     require(
-        live_family_ids == list(FRESH_FAMILY_LEGACY_MAP),
+        live_family_ids == list(FRESH_FAMILY_TAXONOMY),
         (
             "Docs/feature_backlog.md: live family registry must use the fresh FAM namespace "
-            f"in ascending order: {', '.join(FRESH_FAMILY_LEGACY_MAP)}"
+            f"in ascending order: {', '.join(FRESH_FAMILY_TAXONOMY)}"
         ),
     )
+
+    all_package_rows: list[dict[str, str]] = []
+    all_slice_rows: list[dict[str, str]] = []
     for entry in backlog_entries:
         require(
             entry["id"].startswith(FRESH_FAMILY_PREFIX),
@@ -2280,15 +2367,132 @@ def _validate_consolidated_backlog_source_truth(
                 f"{entry['id']} must use the fresh `{FRESH_FAMILY_PREFIX}###` namespace"
             ),
         )
-        legacy_fb_id = _clean_release_value(_extract_colon_value(entry["block"], "Legacy FB ID"))
-        expected_legacy_fb_id = FRESH_FAMILY_LEGACY_MAP.get(entry["id"])
+        expected_family = FRESH_FAMILY_TAXONOMY[entry["id"]]
         require(
-            legacy_fb_id == expected_legacy_fb_id,
+            entry["title"] == expected_family["title"],
             (
                 "Docs/feature_backlog.md: live backlog-family entry "
-                f"{entry['id']} must declare `Legacy FB ID: {expected_legacy_fb_id}`"
+                f"{entry['id']} must use broad title `{expected_family['title']}`"
             ),
         )
+        require(
+            "Legacy FB ID:" not in entry["block"],
+            (
+                "Docs/feature_backlog.md: broad FAM entry "
+                f"{entry['id']} must not retain one-to-one `Legacy FB ID:` mapping"
+            ),
+        )
+        for legacy_id in expected_family["legacy"]:
+            require(
+                legacy_id in entry["block"],
+                (
+                    "Docs/feature_backlog.md: broad FAM entry "
+                    f"{entry['id']} is missing historical trace for {legacy_id}"
+                ),
+            )
+        if not expected_family["legacy"]:
+            require(
+                "No legacy FB" in entry["block"] or "repo vision trace only" in entry["block"],
+                (
+                    "Docs/feature_backlog.md: broad FAM entry "
+                    f"{entry['id']} must state that it has no legacy FB trace"
+                ),
+            )
+
+        package_rows = _parse_family_package_rows(entry["block"])
+        slice_rows = _parse_family_slice_rows(entry["block"])
+        all_package_rows.extend(package_rows)
+        all_slice_rows.extend(slice_rows)
+        expected_package = expected_family["package"]
+
+        require(
+            len(package_rows) == 1,
+            (
+                "Docs/feature_backlog.md: broad FAM entry "
+                f"{entry['id']} must contain exactly one package trace row"
+            ),
+        )
+        if package_rows:
+            package = package_rows[0]
+            require(
+                package["package"] == expected_package and package["fam"] == entry["id"],
+                (
+                    "Docs/feature_backlog.md: broad FAM entry "
+                    f"{entry['id']} package row must trace `{expected_package}` to `{entry['id']}`"
+                ),
+            )
+            require(
+                bool(package["completion"]),
+                (
+                    "Docs/feature_backlog.md: package "
+                    f"{expected_package} must record a package completion state"
+                ),
+            )
+        require(
+            len(slice_rows) >= 2,
+            (
+                "Docs/feature_backlog.md: broad FAM entry "
+                f"{entry['id']} must contain multiple slice rows or it would be a blocked single-slice package"
+            ),
+        )
+        single_slice_approval = _clean_release_value(
+            _extract_colon_value(entry["block"], "Single-Slice Package User Approval")
+        )
+        require(
+            len(slice_rows) != 1 or "Granted" in single_slice_approval,
+            (
+                "Docs/feature_backlog.md: package "
+                f"{expected_package} has one slice without explicit USER approval"
+            ),
+        )
+        for slice_row in slice_rows:
+            require(
+                slice_row["fam"] == entry["id"] and slice_row["package"] == expected_package,
+                (
+                    "Docs/feature_backlog.md: slice "
+                    f"{slice_row['slice']} must trace to exactly `{entry['id']}` and `{expected_package}`"
+                ),
+            )
+            require(
+                bool(slice_row["status"]) and bool(slice_row["seam"]),
+                (
+                    "Docs/feature_backlog.md: slice "
+                    f"{slice_row['slice']} must record status and seam trace"
+                ),
+            )
+
+    package_to_fams: dict[str, set[str]] = {}
+    for row in all_package_rows:
+        package_to_fams.setdefault(row["package"], set()).add(row["fam"])
+    for package_id, fams in package_to_fams.items():
+        require(
+            len(fams) == 1,
+            f"Docs/feature_backlog.md: package {package_id} must trace to exactly one FAM",
+        )
+
+    slice_ids: set[str] = set()
+    for row in all_slice_rows:
+        require(
+            row["slice"] not in slice_ids,
+            f"Docs/feature_backlog.md: duplicate slice id {row['slice']} is not allowed",
+        )
+        slice_ids.add(row["slice"])
+        require(
+            row["package"] in package_to_fams,
+            f"Docs/feature_backlog.md: slice {row['slice']} references missing package {row['package']}",
+        )
+        require(
+            row["fam"] in package_to_fams[row["package"]],
+            (
+                "Docs/feature_backlog.md: slice "
+                f"{row['slice']} must trace to exactly one FAM and one package"
+            ),
+        )
+
+    require(
+        not re.search(r"^### \[ID: PR-\d+\]", backlog_text, flags=re.M),
+        "Docs/feature_backlog.md: PR numbers must remain evidence only, not parseable backlog identities",
+    )
 
     for trace_id in CONSOLIDATED_TRACE_BACKLOG_IDS:
         require(
@@ -2340,6 +2544,16 @@ def _validate_consolidated_backlog_source_truth(
             ),
             (
                 "governance source-of-truth: fresh family namespace rule is missing "
+                f"required marker '{phrase}'"
+            ),
+        )
+    for phrase in FAMILY_PACKAGE_MODEL_REQUIRED_PHRASES:
+        require(
+            phrase in "\n".join(
+                (backlog_text, main_text, development_rules_text, phase_governance_text)
+            ),
+            (
+                "governance source-of-truth: family package/slice model is missing "
                 f"required marker '{phrase}'"
             ),
         )

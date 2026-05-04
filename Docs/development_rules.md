@@ -242,8 +242,8 @@ Backlog identity is USER-gated:
 
 - Codex must not create, split, promote, or select a new backlog identity without explicit USER approval.
 - Backlog items are major user-facing feature-family or major release/support lanes, not small single-seam runtime proofs, governance repairs, validation follow-through, hotfixes, or blocker-clearing repair traces.
-- If Codex believes a backlog identity or successor selection is needed but approval is absent, stop on `Backlog Addition User Approval Missing` and output every backlog entry that is still not closed, including ID, title, Status, Record State, Priority, and available selection/deferred/minimal-scope fields.
-- If that still-not-closed backlog list is empty, stop on `Backlog Exhaustion User Decision Pending` and wait for USER direction.
+- If Codex believes a backlog identity, package admission, branch creation, backlog split, promotion, selected-next successor, or single-slice package waiver is needed but approval is absent, stop on `Backlog Addition User Approval Missing` and output every FAM that is still not closed plus every package or slice that is not complete, including ID, title, Status, Record State, Priority, package state, slice state, and available selection/deferred/minimal-scope fields.
+- If that still-not-closed FAM and not-complete package/slice list is empty, stop on `Backlog Exhaustion User Decision Pending` and wait for USER direction.
 - Small runtime follow-through inside an existing family is family evidence or aggregation material by default; it must not become a standalone release-version driver without explicit USER approval.
 
 Pre-PR Durability Rule:
@@ -285,7 +285,7 @@ That means:
 - when a branch closes a workstream, changes released milestone posture, changes the current rebaseline, changes closeout-index routing, changes backlog or roadmap release posture, changes workstream-index release posture, or changes `Docs/Main.md` baseline routing, the required release-facing canon updates must already be on that branch before PR creation is allowed
 - no PR-ready with `Next Workstream Undefined`:
   - If post-merge truth will resolve to `No Active Branch` because `Release Debt` or another repo-level admission blocker remains open, successor branch creation remains deferred; next-workstream selection requires explicit USER approval.
-  - if USER approval for new or successor backlog selection is absent, keep `Backlog Addition User Approval Missing` active, output the still-not-closed backlog list, and stop instead of adding selected-next truth
+  - if USER approval for new or successor backlog selection is absent, keep `Backlog Addition User Approval Missing` active, output the still-not-closed FAM list plus every not-complete package and slice, and stop instead of adding selected-next truth
   - if USER approval exists but no real runtime successor can be selected, keep `Next Runtime Candidate Selection Pending` active and stop in PR Readiness rather than advancing to Release Readiness
   - the next workstream must be a real runtime `Feature Family` candidate selected from canon using open backlog `Priority` plus deferred-context readiness, not `Target Version`
   - that workstream must be recorded in `Docs/feature_backlog.md` and `Docs/prebeta_roadmap.md`
@@ -789,7 +789,23 @@ Use `Docs/Main.md` as the routing index for the merged canon.
 
 `Docs/feature_backlog.md` is a controlled registry layer.
 
-Only true feature-family backlog entries should remain as parseable `### [ID: FAM-XXX]` backlog records by default. The legacy `FB-###` namespace is historical-only; historical pass aliases, support/governance lanes, and old registry-only implemented IDs are traceability rows that route to family dossiers, canonical workstream records, or same-file historical trace; they must not be selected as backlog items by inertia.
+Only true broad feature-family backlog entries should remain as parseable `### [ID: FAM-XXX]` backlog records by default. The legacy `FB-###` namespace is historical-only; historical pass aliases, support/governance lanes, and old registry-only implemented IDs are traceability rows that route to family dossiers, canonical workstream records, or same-file historical trace; they must not be selected as backlog items by inertia.
+
+Canonical identity model:
+
+- `FAM` is a broad long-lived product family.
+- `Package` is a bulk branch/release package under exactly one FAM.
+- `Slice` is a traceable deliverable area inside exactly one package.
+- `Seam` is an execution or validation checkpoint.
+- `PR` is merge/review evidence only.
+- legacy global `FB` is historical trace only.
+
+Branch scope standard:
+
+- a branch should carry a family package with multiple admitted slices by default
+- a single-slice package is blocked by `Single-Slice Package User Approval Missing` unless explicit USER approval records `Single-Slice Package User Approval: Granted`
+- every slice must trace to exactly one FAM and exactly one package
+- Workstream must continue through every admitted package slice before Hardening unless the package is truthfully marked `Complete`, `Released Baseline / Open`, `Blocked`, or `Deferred`
 
 Open backlog selection is priority-led:
 
@@ -808,13 +824,13 @@ Codex may:
 Codex may not:
 
 - silently add backlog items
-- add, split, promote, or select backlog identities without explicit USER approval
+- add, split, promote, package-admit, branch-create, select successor backlog identities, or waive the single-slice package blocker without explicit USER approval
 - create or reuse parseable `FB-###` backlog IDs
 - turn historical trace rows back into parseable backlog entries without explicit USER approval
 - silently change priority or status outside approved work
 - silently mark work complete because a branch merely looks clean
 
-If Codex reaches the approval blocker, it must report `Backlog Addition User Approval Missing` and list every backlog entry that is still not closed.
+If Codex reaches the approval blocker, it must report `Backlog Addition User Approval Missing` and list every FAM that is still not closed plus every package or slice that is not complete.
 If no still-not-closed entries exist, report `Backlog Exhaustion User Decision Pending` and stop for USER direction.
 
 ## Relationship To `Docs/orin_task_template.md`

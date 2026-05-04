@@ -549,7 +549,24 @@ Exception:
 ### Backlog Identity Admission Gate
 
 Backlog IDs are major user-facing feature-family or major release/support lanes.
-The live backlog-family namespace is `FAM-###`, starting at `FAM-001`; the old `FB-###` namespace is historical-only and must not be reused for parseable backlog entries.
+The live backlog-family namespace is broad `FAM-###`, starting at `FAM-001`; the old `FB-###` namespace is historical-only and must not be reused for parseable backlog entries.
+
+Canonical identity model:
+
+- `FAM` is a broad long-lived product family.
+- `Package` is a bulk branch/release package under exactly one FAM.
+- `Slice` is a traceable deliverable area inside exactly one package.
+- `Seam` is an execution or validation checkpoint.
+- `PR` is merge/review evidence only.
+- legacy global `FB` is historical trace only.
+
+Branch scope standard:
+
+- branches should carry one family package with multiple admitted slices by default
+- packages must record `Package Completion State:`
+- package slices must trace to exactly one FAM and exactly one package
+- Workstream must continue through every admitted package slice before Hardening unless package state is truthfully `Complete`, `Released Baseline / Open`, `Blocked`, or `Deferred`
+- a package with exactly one slice is blocked by `Single-Slice Package User Approval Missing` unless explicit USER approval records `Single-Slice Package User Approval: Granted`
 
 They are not default identities for:
 
@@ -560,25 +577,29 @@ They are not default identities for:
 - blocker-clearing repair traces
 - branch-readiness or PR-readiness closeout details
 
-Codex must not create a new backlog item, split an existing backlog identity, promote a new selected-next backlog identity, or encode successor selection without explicit USER approval in the prompt or source-of-truth.
+Codex must not create a new backlog item, split an existing backlog identity, admit a new package, create a new family branch, promote a new selected-next backlog identity, waive a single-slice package, or encode successor selection without explicit USER approval in the prompt or source-of-truth.
 
-When Codex believes a new backlog item or successor identity is needed but USER approval is absent, Codex must stop on `Backlog Addition User Approval Missing`.
-The blocker output must include all backlog entries that are still not closed, with:
+When Codex believes a new backlog item, package admission, branch creation, backlog split, promotion, selected-next successor, or single-slice package waiver is needed but USER approval is absent, Codex must stop on `Backlog Addition User Approval Missing`.
+The blocker output must include all FAM entries that are still not closed and all package/slice rows that are not complete, with:
 
 - ID
 - title
 - Status
 - Record State
 - Priority
+- Package ID
+- Package Completion State
+- Slice ID
+- Slice Status
 - Selection / Unblock, deferred-context, branch, and minimal-scope fields when present
 
 If no backlog entries remain open, Codex must stop on `Backlog Exhaustion User Decision Pending` and wait for USER direction.
 
-Small or single-seam runtime follow-through inside an existing family must be recorded in the canonical workstream, lifetime family dossier, branch authority record, or historical PR trace as family evidence or aggregation material.
-It must not mint a standalone backlog identity, successor lane, branch family, or release-version driver unless the USER explicitly approves a larger feature-family release, release aggregation, or backlog split.
+Small or single-seam runtime follow-through inside an existing family must be recorded in a package/slice trace, canonical workstream, lifetime family dossier, branch authority record, or historical PR trace as family evidence or aggregation material.
+It must not mint a standalone backlog identity, single-slice package, successor lane, branch family, or release-version driver unless the USER explicitly approves a larger feature-family release, release aggregation, backlog split, or single-slice package waiver.
 
 Historical pass aliases, support/governance lanes, and old registry-only implemented IDs are trace rows, not selectable backlog items. Re-promoting one into a parseable backlog identity requires explicit USER approval and a recorded reason that family/workstream/branch traceability is insufficient.
-Any approved new backlog identity must use the fresh namespace, not `FB-###`.
+Any approved new backlog identity must use the fresh broad FAM namespace, not `FB-###`.
 
 When USER-approved successor selection exists, this gate requires all of the following before PR creation is allowed:
 
@@ -623,7 +644,7 @@ PR Readiness must not report green while any pre-merge process blocker remains u
 
 Hard blockers:
 
-- canonical shorthand: `stale-canon`, `post-merge`, `dirty`, `docs-sync`, `next-workstream`, `Next Runtime Candidate Selection Pending`, `Backlog Addition User Approval Missing`, `Backlog Exhaustion User Decision Pending`, `deferred-context`, `desktop-shortcut`, `uts-results`
+- canonical shorthand: `stale-canon`, `post-merge`, `dirty`, `docs-sync`, `next-workstream`, `Next Runtime Candidate Selection Pending`, `Backlog Addition User Approval Missing`, `Backlog Exhaustion User Decision Pending`, `Single-Slice Package User Approval Missing`, `Package Completion Unproven`, `deferred-context`, `desktop-shortcut`, `uts-results`
 - `Stale Canon`:
   current-state canon and merge-target canon must already reflect the branch's true state and the state that will be true after merge
 - `Post-Merge State Unresolved`:
@@ -633,9 +654,13 @@ Hard blockers:
 - `Next Runtime Candidate Selection Pending`:
   PR Readiness cannot advance to Release Readiness after USER-approved successor selection exists until exactly one real runtime candidate is selected from repo truth, recorded as `Next Workstream: Selected`, scoped with a runtime `Minimal Scope:`, mirrored in roadmap `## Selected Next Workstream`, and left unbranched until the next Branch Readiness pass
 - `Backlog Addition User Approval Missing`:
-  PR Readiness and Branch Readiness cannot add, split, promote, or select a backlog identity without explicit USER approval. When this blocker is active, Codex must output the still-not-closed backlog list instead of creating selected-next truth.
+  PR Readiness and Branch Readiness cannot add, split, promote, package-admit, branch-create, waive a single-slice package, or select a backlog identity without explicit USER approval. When this blocker is active, Codex must output the still-not-closed FAM list plus every not-complete package/slice instead of creating selected-next truth.
 - `Backlog Exhaustion User Decision Pending`:
-  If the still-not-closed backlog list is empty and new work would require a new backlog identity, Codex must stop for USER direction instead of inventing the next lane.
+  If the still-not-closed FAM plus not-complete package/slice list is empty and new work would require a new backlog identity, Codex must stop for USER direction instead of inventing the next lane.
+- `Single-Slice Package User Approval Missing`:
+  Branch Readiness and Workstream cannot greenlight a package with exactly one admitted slice unless explicit USER approval records `Single-Slice Package User Approval: Granted`.
+- `Package Completion Unproven`:
+  Workstream cannot advance to Hardening until every admitted package slice is complete, deferred, blocked, or explicitly preserved as released-baseline/open package truth with `Package Completion State:` recorded.
 - `Deferred Selection Context Missing`:
   PR Readiness cannot be green when the selected next workstream is deferred but lacks `Deferred Since:`, `Deferred Because:`, or `Selection / Unblock:` in the backlog entry
 - `Dirty Branch`:
@@ -1383,7 +1408,7 @@ Bug fix, hotfix, UI-model, launcher, settings, protocol, policy, cross-subsystem
 
 Legacy `Single-Seam Fallback` and `Single-Seam Mode Waiver` terms are retired and must not be used in active source-of-truth.
 Same-branch backlog completion is the default.
-There is no repo-wide single-slice cap for an active branch or workstream.
+There is no repo-wide cap that forces an admitted multi-slice package to stop after one slice; however package admission defaults to multiple slices, and a package containing exactly one admitted slice requires explicit `Single-Slice Package User Approval: Granted`.
 A bounded stop condition blocks the workflow. It does not by itself authorize splitting the backlog item across branches.
 Stopping after the first slice or splitting the backlog item across branches requires an explicit `Backlog-Split User Approval` or a named bounded stop condition.
 A bounded stop condition blocks the workflow. It does not by itself authorize splitting the backlog item across branches, closing the backlog item, or leaving `Workstream` while remaining implementable work still exists.
