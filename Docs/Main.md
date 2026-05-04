@@ -130,12 +130,13 @@ Rules:
 
 - backlog owns identity
 - backlog identity is the user-facing feature-family registry by default
+- live backlog-family identities use the fresh `FAM-###` namespace starting at `FAM-001`; legacy `FB-###` IDs are historical trace only and must not be reused for new parseable backlog entries
 - separate backlog identities for non-user-facing runtime, developer-tooling, docs/governance, or canon-only work require explicit USER approval
 - Codex must not create, split, promote, or select a new backlog identity without explicit USER approval
 - if Codex reaches a point where it believes a backlog identity or successor selection is needed but approval is absent, stop on `Backlog Addition User Approval Missing` and output the still-not-closed backlog list; if that list is empty, stop on `Backlog Exhaustion User Decision Pending`
 - small single-seam runtime proofs, validation follow-through, governance repairs, and blocker-clearing traces belong in workstream docs, family dossiers, branch records, or historical PR trace by default, not as new backlog IDs or standalone release-version drivers
 - backlog is not the seam-by-seam traceability surface for continuation, blocker-clearing, or validator follow-through; canonical workstreams and branch authority records own that history
-- historical pass aliases, support/governance lanes, and old registry-only implemented IDs in `Docs/feature_backlog.md` are trace rows only; do not treat them as backlog identities or selected-next candidates
+- historical pass aliases, support/governance lanes, old registry-only implemented IDs, and all legacy `FB-###` references in `Docs/feature_backlog.md` are trace rows only; do not treat them as live backlog identities or selected-next candidates
 - continuation or reopening on an existing feature family should reuse that same backlog identity by default unless the USER explicitly approves a backlog split or the work is materially a new user-facing feature family
 - backlog candidate selection is priority-led; `Priority` and deferred-context fields are the selection inputs for open items
 - `Target Version` is not an open-backlog selection input and belongs only to release posture, release debt, or historical closed/implemented evidence

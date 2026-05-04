@@ -549,6 +549,7 @@ Exception:
 ### Backlog Identity Admission Gate
 
 Backlog IDs are major user-facing feature-family or major release/support lanes.
+The live backlog-family namespace is `FAM-###`, starting at `FAM-001`; the old `FB-###` namespace is historical-only and must not be reused for parseable backlog entries.
 
 They are not default identities for:
 
@@ -577,6 +578,7 @@ Small or single-seam runtime follow-through inside an existing family must be re
 It must not mint a standalone backlog identity, successor lane, branch family, or release-version driver unless the USER explicitly approves a larger feature-family release, release aggregation, or backlog split.
 
 Historical pass aliases, support/governance lanes, and old registry-only implemented IDs are trace rows, not selectable backlog items. Re-promoting one into a parseable backlog identity requires explicit USER approval and a recorded reason that family/workstream/branch traceability is insufficient.
+Any approved new backlog identity must use the fresh namespace, not `FB-###`.
 
 When USER-approved successor selection exists, this gate requires all of the following before PR creation is allowed:
 

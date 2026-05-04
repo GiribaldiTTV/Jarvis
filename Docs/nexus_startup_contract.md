@@ -22,6 +22,7 @@ This loader routes to these authorities:
 - `Docs/codex_modes.md` owns Analysis and Workflow collaboration posture.
 - `Docs/feature_backlog.md` owns tracked work identity and `Record State`.
 - `Docs/workstreams/index.md` owns canonical workstream-record routing, including feature-family anchors, historical family-pass records, and other closed trace records.
+- live backlog-family IDs use `FAM-###`; legacy `FB-###` IDs are historical trace only and must not be reused for new parseable backlog entries.
 - the active workstream doc owns branch-local phase truth, evidence, blockers, and next legal phase for promoted work.
 - `Docs/incident_patterns.md` owns generalized recurring drift or validation lessons.
 - `Docs/validation_helper_registry.md` owns durable helper naming, status, reuse, and consolidation obligations when helpers are in scope.

@@ -33,8 +33,9 @@ Backlog-identity guardrails:
 - continuation, blocker-clearing, or validation follow-through on an existing feature family should stay inside that same backlog identity by default; do not mint a new backlog item unless the USER explicitly approves a backlog split or the work is materially a new user-facing feature family
 - small single-seam runtime proofs, governance repairs, validation follow-through, and blocker-clearing traces are family evidence or branch/workstream history by default, not standalone release-version drivers
 - canonical workstream docs and branch authority records own multi-slice, multi-branch, and repair-traceability history for one backlog identity; backlog IDs should not fragment that history by default
-- backlog-family registry sections must keep parseable `### [ID: FB-XXX]` records only for true feature-family backlog entries; historical pass aliases, support/governance lanes, and old registry-only implemented records are trace tables, not backlog items
-- entries within each backlog-family registry section must be kept in descending `FB-XXX` order so the highest backlog ID appears first
+- the old `FB-###` namespace is historical-only after this one-time repair; new live backlog-family identities use `FAM-###`, starting at `FAM-001`, and Codex must not create or reuse a parseable `FB-###` backlog ID
+- backlog-family registry sections must keep parseable `### [ID: FAM-XXX]` records only for true feature-family backlog entries; historical pass aliases, support/governance lanes, and old registry-only implemented records are trace tables, not backlog items
+- entries within the live feature-family registry must be kept in ascending `FAM-XXX` order so the fresh namespace remains simple and conflict-free
 
 Historical note:
 
@@ -54,14 +55,14 @@ Historical note:
 
 None.
 
-FB-044 Boot-to-desktop handoff outcome refinement and FB-045 Active-session relaunch outcome refinement are Released / Closed historical proof through `v1.6.9-prebeta`; FB-046 Active-session relaunch reacquisition and settled re-entry proof is Released / Closed historical proof through `v1.6.10-prebeta`; FB-047 Active-session relaunch decline session-preservation proof is Released / Closed historical proof through `v1.6.11-prebeta`; FB-048 Active-session relaunch signal-failure and wait-timeout truth is Released / Closed historical proof through `v1.6.12-prebeta`; latest public prerelease truth is `v1.6.12-prebeta`; the merged backlog-family governance reform package, merged automation-catalog package, FB-049 runtime proof, and FB-030 runtime diagnostics proof are unreleased historical proof for `v1.6.13-prebeta`; PR #108 is merged and FB-030 is merged-unreleased release debt after watcher-verified merge proof; PR #109 is merged historical FB-027 family evidence for shutdown-hotkey confirmation and is not a standalone release-version driver.
+FB-044 Boot-to-desktop handoff outcome refinement and FB-045 Active-session relaunch outcome refinement are Released / Closed historical proof through `v1.6.9-prebeta`; FB-046 Active-session relaunch reacquisition and settled re-entry proof is Released / Closed historical proof through `v1.6.10-prebeta`; FB-047 Active-session relaunch decline session-preservation proof is Released / Closed historical proof through `v1.6.11-prebeta`; FB-048 Active-session relaunch signal-failure and wait-timeout truth is Released / Closed historical proof through `v1.6.12-prebeta`; latest public prerelease truth is `v1.6.12-prebeta`; the merged backlog-family governance reform package, merged automation-catalog package, FAM-001 legacy FB-049 runtime proof, and FAM-006 legacy FB-030 runtime diagnostics proof are unreleased historical proof for `v1.6.13-prebeta`; PR #108 is merged and FAM-006 is merged-unreleased release debt after watcher-verified merge proof; PR #109 is merged historical FAM-007 legacy FB-027 family evidence for shutdown-hotkey confirmation and is not a standalone release-version driver.
 Released baseline truth is aligned: FB-040 is released and closed in `v1.6.0-prebeta`, FB-031 is released and closed in `v1.6.1-prebeta`, FB-032 is released and closed in `v1.6.2-prebeta`, FB-004 is released and closed in `v1.6.3-prebeta`, FB-015 plus FB-029 are released and closed in `v1.6.4-prebeta`, FB-030 is released and closed in `v1.6.5-prebeta`, FB-005 is released and closed in `v1.6.6-prebeta`, FB-042 is released and closed in `v1.6.7-prebeta`, FB-043 is released and closed in `v1.6.8-prebeta`, FB-044 plus FB-045 are released and closed in `v1.6.9-prebeta`, and FB-046 is now released and closed in `v1.6.10-prebeta`.
 FB-039 is released and closed in `v1.5.0-prebeta`.
 FB-038 remains released and closed in `v1.4.1-prebeta`.
 
 ## Current Branch Execution Posture
 
-Merged-Unreleased Release-Debt Owner: FB-049 Active-session pre-settled incoming-launch conflict truth plus FB-030 voice/audio runtime diagnostics proof plus merged governance/automation proof package for v1.6.13-prebeta
+Merged-Unreleased Release-Debt Owner: FAM-001 legacy FB-049 Active-session pre-settled incoming-launch conflict truth plus FAM-006 legacy FB-030 voice/audio runtime diagnostics proof plus merged governance/automation proof package for v1.6.13-prebeta
 Repo State: No Active Branch.
 Merged-Main Repo State: No Active Branch.
 Latest Public Prerelease: v1.6.12-prebeta.
@@ -86,7 +87,7 @@ Backlog Addition User Approval Missing: Active for any attempted new backlog ite
 Historical Repair-Only Branch Handling: `feature/fb-046-post-merge-canon-sync` was a bounded repair-only post-merge canon-sync `feature/` branch and did not imply Branch Readiness admission or active branch truth for FB-046.
 Historical Branch Readiness State: Complete on `feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeout-truth`.
 Current Branch Readiness State: None active.
-Current Workstream State: No active workstream; FB-027 PR #109 shutdown-hotkey confirmation proof is merged historical family evidence and aggregation material only.
+Current Workstream State: No active workstream; FAM-007 legacy FB-027 PR #109 shutdown-hotkey confirmation proof is merged historical family evidence and aggregation material only.
 Current Hardening State: None active.
 Current Live Validation State: None active.
 Current PR Surface Owner: None; PR #109 merge/bot-review/watcher proof remains historical in `Docs/workstreams/FB-027_interaction_system_baseline.md`.
@@ -101,9 +102,9 @@ Release Execution State: `v1.6.12-prebeta` is live at https://github.com/Giribal
 Release Target: v1.6.13-prebeta.
 Release Floor: patch prerelease.
 Version Rationale: the backlog family governance reform is a release-bearing docs-only implementation branch that changes backlog/workstream/branch-authority source-of-truth and validator behavior without widening runtime or user-facing product behavior, so the next release remains a patch prerelease.
-Release Scope: preserve the merged backlog-family governance reform, merged automation-catalog branch truth, FB-049 runtime proof, and FB-030 voice/audio runtime diagnostics proof as unreleased historical proof for `v1.6.13-prebeta`, keep no-active-branch merged-main canon stable, and require later release packaging or successor admission to start from updated merged-main truth.
+Release Scope: preserve the merged backlog-family governance reform, merged automation-catalog branch truth, FAM-001 legacy FB-049 runtime proof, and FAM-006 legacy FB-030 voice/audio runtime diagnostics proof as unreleased historical proof for `v1.6.13-prebeta`, keep no-active-branch merged-main canon stable, and require later release packaging or successor admission to start from updated merged-main truth.
 Release Artifacts: Tag v1.6.13-prebeta; release title Pre-Beta v1.6.13; rich Markdown release notes summarize the merged governance reform, the merged automation catalog, and the validator/runtime-proof hardening without repeating the release title inside the notes body, and GitHub-generated `## What's Changed` plus `**Full Changelog**:` must be included.
-Post-Release Truth: the backlog-family governance reform, automation-catalog branch, FB-049 runtime branch, and FB-030 runtime diagnostics branch remain historical traceability after publication and validation; latest public prerelease advances to `v1.6.13-prebeta`; release debt clears; and later runtime work requires explicit USER-approved backlog identity or successor selection from updated main.
+Post-Release Truth: the backlog-family governance reform, automation-catalog branch, FAM-001 legacy FB-049 runtime branch, and FAM-006 legacy FB-030 runtime diagnostics branch remain historical traceability after publication and validation; latest public prerelease advances to `v1.6.13-prebeta`; release debt clears; and later runtime work requires explicit USER-approved backlog identity or successor selection from updated main.
 Next-Branch Creation Gate: Blocked by `Backlog Addition User Approval Missing` until explicit USER approval selects a backlog identity or release/support lane.
 Next Legal Phase: No active implementation phase; release-debt validation may proceed only when release packaging is explicitly admitted.
 
@@ -116,8 +117,8 @@ Open-candidate priority review:
 - FB-004 is released and closed in `v1.6.3-prebeta`; it is no longer an active or selected-next branch candidate.
 - FB-015 is released and closed in `v1.6.4-prebeta`; it no longer owns release debt or active branch truth.
 - FB-029 is released and closed in `v1.6.4-prebeta`; it no longer owns release debt or active branch truth.
-- FB-030 is merged-unreleased release debt after PR #108; its historical `v1.6.5-prebeta` planning proof remains preserved, and its runtime follow-through delivered bounded voice/audio availability and truthful diagnostics proof with WS1, H1, LV1, PR1, and PR2 complete.
-- FB-027 is a released / closed family anchor. PR #109 shutdown-hotkey confirmation is preserved as merged historical family evidence and aggregation material, not as an active backlog item or standalone release-version driver.
+- FAM-006 legacy FB-030 is merged-unreleased release debt after PR #108; its historical `v1.6.5-prebeta` planning proof remains preserved, and its runtime follow-through delivered bounded voice/audio availability and truthful diagnostics proof with WS1, H1, LV1, PR1, and PR2 complete.
+- FAM-007 legacy FB-027 is a released / closed family anchor. PR #109 shutdown-hotkey confirmation is preserved as merged historical family evidence and aggregation material, not as an active backlog item or standalone release-version driver.
 - FB-005 remains `Low` as historical workspace priority, but it is now Released / Closed in `v1.6.6-prebeta` and no longer owns release debt or selected-next truth.
 - FB-042 is now Released / Closed in `v1.6.7-prebeta`; the released launch-path slice is preserved as the first historical proof under the runtime family anchor.
 - FB-043 is now Released / Closed in `v1.6.8-prebeta`.
@@ -126,18 +127,19 @@ Open-candidate priority review:
 - FB-046 is now Released / Closed in `v1.6.10-prebeta`.
 - FB-047 is now Released / Closed in `v1.6.11-prebeta`.
 - FB-048 is Released / Closed in `v1.6.12-prebeta`; release debt is clear after publication, validation, and post-release canon closure.
-- FB-049 is historical complete after PR #107 merge; GitHub merge truth is valid, the same-thread watcher handoff failed, cleanup is proven, and the stale active-branch authority plus recurrence analysis is carried and repaired inside FB-030 Branch Readiness.
+- FAM-001 legacy FB-049 is historical complete after PR #107 merge; GitHub merge truth is valid, the same-thread watcher handoff failed, cleanup is proven, and the stale active-branch authority plus recurrence analysis is carried and repaired inside FAM-006 legacy FB-030 Branch Readiness.
 
-Current-branch clarity: latest public prerelease is `v1.6.12-prebeta`; FB-044 and FB-045 are released and closed in `v1.6.9-prebeta`; FB-046 is released and closed in `v1.6.10-prebeta`; FB-047 is released and closed in `v1.6.11-prebeta`; FB-048 is released and closed in `v1.6.12-prebeta`; merged `main` repo state remains `No Active Branch`; the merged backlog-family governance reform branch, merged automation-catalog branch, merged FB-049 runtime branch, and merged FB-030 runtime branch are historical traceability for pending `v1.6.13-prebeta`; FB-027 is a released / closed family anchor with PR #109 preserved as aggregation evidence; and no selected-next backlog identity exists without explicit USER approval.
+Current-branch clarity: latest public prerelease is `v1.6.12-prebeta`; FB-044 and FB-045 are released and closed in `v1.6.9-prebeta`; FB-046 is released and closed in `v1.6.10-prebeta`; FB-047 is released and closed in `v1.6.11-prebeta`; FB-048 is released and closed in `v1.6.12-prebeta`; merged `main` repo state remains `No Active Branch`; the merged backlog-family governance reform branch, merged automation-catalog branch, merged FAM-001 legacy FB-049 runtime branch, and merged FAM-006 legacy FB-030 runtime branch are historical traceability for pending `v1.6.13-prebeta`; FAM-007 legacy FB-027 is a released / closed family anchor with PR #109 preserved as aggregation evidence; and no selected-next backlog identity exists without explicit USER approval.
 
 ## Registry Items
 
 ### User-Facing Feature Families
 
-Selectable user-facing feature-family records now live here in descending `FB-XXX` order. Historical aliases and support/governance lanes remain below in their own sections and are not independent selected-next candidates.
+Selectable user-facing feature-family records now use the fresh `FAM-###` namespace in ascending order from `FAM-001`. Legacy `FB-###` IDs are preserved only as historical trace fields, former-ID tables, workstream filenames, branch filenames, and release/PR evidence.
 
-### [ID: FB-049] Active-session pre-settled incoming-launch conflict truth
+### [ID: FAM-001] Active-session pre-settled incoming-launch conflict truth
 
+Legacy FB ID: FB-049
 Status: Merged unreleased
 Record State: Registry-only
 Registry Class: Feature Family
@@ -154,12 +156,13 @@ Live Validation: Green. `Live Validation LV1 - Pre-Settled Incoming-Launch Confl
 PR Readiness: Historical complete with failure classification. PR #107 merged, GitHub merge truth is valid, and `PR Watcher Merge Handoff Missing` is preserved because `pr107-same-thread-merge-watch` did not emit the required same-thread merged handoff before cleanup.
 Minimal Scope: Prove and refine the pre-settled incoming-launch conflict lane across `desktop/single_instance.py`, `desktop/orin_desktop_launcher.pyw`, `desktop/orin_desktop_main.py`, and the minimum required reusable validator surfaces so startup-phase ownership stays explicit, incoming launches exit truthfully before authoritative settled is reached, and settled-session relaunch semantics are not falsely claimed.
 Historical Merge Truth: PR #107 merged into `main` at `2026-05-01T22:17:44Z`; merge commit `22dfb15e554472220b9621b01439286b3afe1dda`; head SHA `fc00346b111158c6f57d976fef7a215a940027c1`.
-Watcher Failure Truth: same-thread watcher handoff missing; watcher cleanup proven; carried into FB-030 Branch Readiness as `PR Watcher Merge Handoff Missing` plus `Blocker Recurrence Analysis Required`.
+Watcher Failure Truth: same-thread watcher handoff missing; watcher cleanup proven; carried into FAM-006 legacy FB-030 Branch Readiness as `PR Watcher Merge Handoff Missing` plus `Blocker Recurrence Analysis Required`.
 Summary: Make startup-phase incoming-launch conflicts as truthful as settled-session relaunch conflicts.
 Why it matters: Users should get an explicit, proven outcome when a second launch collides with an already-owning startup-phase session before the desktop has reached authoritative settled state.
 
-### [ID: FB-042] Desktop startup runtime family anchor
+### [ID: FAM-002] Desktop startup runtime family anchor
 
+Legacy FB ID: FB-042
 Status: Released (v1.6.7-prebeta)
 Record State: Closed
 Registry Class: Feature Family
@@ -188,8 +191,9 @@ Minimal Scope: Execute only WS-1 desktop shortcut launch-path runtime refinement
 Summary: Anchor the desktop startup runtime family at the real launch path while preserving the released FB-042 slice as the first historical proof.
 Why it matters: Future launch-path, handoff, and relaunch follow-through should reuse one runtime family identity instead of drifting into separate near-duplicate feature-family records.
 
-### [ID: FB-040] Monitoring, thermals, and performance HUD surface
+### [ID: FAM-003] Monitoring, thermals, and performance HUD surface
 
+Legacy FB ID: FB-040
 Status: Released (v1.6.0-prebeta)
 Record State: Closed
 Registry Class: Feature Family
@@ -210,8 +214,9 @@ Version Drift Note: FB-040 advanced the public prerelease from `v1.5.0-prebeta` 
 Summary: Track future runtime monitoring and HUD surfaces for GPU / CPU thermals and performance, including possible plugin-fed telemetry inputs.
 Why it matters: Monitoring overlays are a separate runtime and status surface and should not be bolted onto the saved-action system without an explicit product boundary.
 
-### [ID: FB-039] External trigger and plugin integration architecture
+### [ID: FAM-004] External trigger and plugin integration architecture
 
+Legacy FB ID: FB-039
 Status: Released (v1.5.0-prebeta)
 Record State: Closed
 Registry Class: Feature Family
@@ -231,8 +236,9 @@ Post-Release Truth: FB-039 is Released / Closed in v1.5.0-prebeta; release debt 
 Summary: Track future plugin and integration lifecycle design for external trigger surfaces such as Stream Deck and other installed integration points.
 Why it matters: Plugin-backed action triggering needs explicit lifecycle, safety, and ownership boundaries before it becomes part of the product.
 
-### [ID: FB-031] Nexus Desktop AI UI/UX overhaul planning
+### [ID: FAM-005] Nexus Desktop AI UI/UX overhaul planning
 
+Legacy FB ID: FB-031
 Status: Released (v1.6.1-prebeta)
 Record State: Closed
 Registry Class: Feature Family
@@ -253,8 +259,9 @@ Post-Release Truth: FB-031 is Released / Closed in v1.6.1-prebeta; release debt 
 Summary: Preserved Nexus-era UI/UX overhaul planning as a deliberate design lane rather than piecemeal visual drift.
 Why it matters: The Nexus-era visual language should be planned coherently before any later UI implementation pass.
 
-### [ID: FB-030] ORIN voice/audio direction refinement
+### [ID: FAM-006] ORIN voice/audio direction refinement
 
+Legacy FB ID: FB-030
 Status: Merged unreleased
 Record State: Promoted
 Registry Class: Feature Family
@@ -273,23 +280,24 @@ Live Validation: Historical complete. LV1 validated live-equivalent voice/audio 
 PR Readiness: Historical complete. PR #108 merged, watcher verification proof exists through a forced run, and PR108 watcher automations are retired.
 Release Readiness: Merged-unreleased release debt pending `v1.6.13-prebeta` packaging.
 Release Execution: Historical `v1.6.5-prebeta` planning release remains live at https://github.com/GiribaldiTTV/Nexus-Desktop-AI/releases/tag/v1.6.5-prebeta on commit `7c2933d6427feb08a1139ba7f5ba2393eb61f1e1`; the runtime diagnostics follow-through is not publicly released until `v1.6.13-prebeta` publication.
-Merged-Unreleased Release-Debt Owner: FB-049 Active-session pre-settled incoming-launch conflict truth plus FB-030 voice/audio runtime diagnostics proof plus merged governance/automation proof package for v1.6.13-prebeta
+Merged-Unreleased Release-Debt Owner: FAM-001 legacy FB-049 Active-session pre-settled incoming-launch conflict truth plus FAM-006 legacy FB-030 voice/audio runtime diagnostics proof plus merged governance/automation proof package for v1.6.13-prebeta
 Repo State: No Active Branch
 Release Target: v1.6.13-prebeta
 Release Floor: patch prerelease
-Version Rationale: FB-030 adds bounded runtime diagnostics truth for voice/audio availability without opening a new feature family or materially widening product scope.
-Release Scope: merged governance reform, automation catalog proof, FB-049 runtime proof, and FB-030 voice/audio runtime diagnostics proof.
-Release Artifacts: Tag v1.6.13-prebeta; release title Pre-Beta v1.6.13; rich Markdown release notes summarize the merged governance reform, automation catalog, FB-049 runtime proof, and FB-030 voice/audio diagnostics proof, with GitHub-generated `What's Changed` and `Full Changelog` sections.
-Post-Release Truth: after v1.6.13-prebeta publication and validation, merged governance reform, automation catalog, FB-049 runtime proof, and FB-030 runtime diagnostics proof become released historical traceability; release debt clears; and later runtime work must start from updated main.
+Version Rationale: FAM-006 legacy FB-030 adds bounded runtime diagnostics truth for voice/audio availability without opening a new feature family or materially widening product scope.
+Release Scope: merged governance reform, automation catalog proof, FAM-001 legacy FB-049 runtime proof, and FAM-006 legacy FB-030 voice/audio runtime diagnostics proof.
+Release Artifacts: Tag v1.6.13-prebeta; release title Pre-Beta v1.6.13; rich Markdown release notes summarize the merged governance reform, automation catalog, FAM-001 legacy FB-049 runtime proof, and FAM-006 legacy FB-030 voice/audio diagnostics proof, with GitHub-generated `What's Changed` and `Full Changelog` sections.
+Post-Release Truth: after v1.6.13-prebeta publication and validation, merged governance reform, automation catalog, FAM-001 legacy FB-049 runtime proof, and FAM-006 legacy FB-030 runtime diagnostics proof become released historical traceability; release debt clears; and later runtime work must start from updated main.
 Selected Next Workstream: None - blocked by `Backlog Addition User Approval Missing` until explicit USER approval.
 Next-Branch Creation Gate: Blocked by `Backlog Addition User Approval Missing` until explicit USER approval selects a backlog identity or release/support lane.
 Historical Planning Release: `v1.6.5-prebeta` remains the released planning/admission proof for the original voice/audio direction milestone.
 Minimal Scope: Completed WS1 voice/audio runtime availability and truthful diagnostics proof across `Audio/orin_voice.py`, `Audio/orin_error_voice.py`, `main.py`, `desktop/orin_desktop_launcher.pyw`, and `dev/orin_voice_regression_harness.py`, while preserving ORIN as the only shipped persona, keeping ARIA dormant, avoiding prompt or asset redesign, and avoiding public-copy or release-note changes before release phases.
-Summary: Turn the released FB-030 voice/audio planning contract into its first bounded runtime truth proof.
+Summary: Turn the released FAM-006 legacy FB-030 voice/audio planning contract into its first bounded runtime truth proof.
 Why it matters: Voice execution, quiet mode, diagnostics, and persona claims must stay truthful when speech succeeds, bypasses, or fails.
 
-### [ID: FB-027] Interaction and shared-action family anchor
+### [ID: FAM-007] Interaction and shared-action family anchor
 
+Legacy FB ID: FB-027
 Status: Released (v1.2.9-prebeta) / family aggregation hold
 Record State: Closed
 Registry Class: Feature Family
@@ -314,7 +322,7 @@ Release Readiness: Not started and not required for PR #109 as a standalone rele
 Current Active Workstream: None
 Promotion Gate: Closed family anchor. Future continuation requires explicit USER approval under `Backlog Addition User Approval Missing`.
 Standalone Release Driver: No
-Aggregation Target: Future USER-approved FB-027 family release or larger approved release aggregation.
+Aggregation Target: Future USER-approved FAM-007 legacy FB-027 family release or larger approved release aggregation.
 Minimal Scope: Historical PR #109 aggregation evidence adds confirm-before-exit behavior for `Ctrl+Alt+End` and `Ctrl+Alt+2`; no next same-family runtime slice is selected.
 Summary: Anchor the typed-first interaction and shared-action family while preserving PR #109 as family evidence instead of a release-version driver.
 Why it matters: Future authoring, callable-group, built-in action, and tray task follow-through should reuse one interaction/action family identity instead of drifting into separate near-duplicate feature-family records.

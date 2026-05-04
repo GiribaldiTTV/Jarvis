@@ -2006,6 +2006,27 @@ VALID_BACKLOG_REGISTRY_CLASSES = (
     "Historical Implemented Registry-Only",
 )
 
+FRESH_FAMILY_PREFIX = "FAM-"
+FRESH_FAMILY_LEGACY_MAP = {
+    "FAM-001": "FB-049",
+    "FAM-002": "FB-042",
+    "FAM-003": "FB-040",
+    "FAM-004": "FB-039",
+    "FAM-005": "FB-031",
+    "FAM-006": "FB-030",
+    "FAM-007": "FB-027",
+}
+
+FRESH_FAMILY_NAMESPACE_REQUIRED_PHRASES = (
+    "the old `FB-###` namespace is historical-only after this one-time repair; new live backlog-family identities use `FAM-###`, starting at `FAM-001`, and Codex must not create or reuse a parseable `FB-###` backlog ID",
+    "Selectable user-facing feature-family records now use the fresh `FAM-###` namespace in ascending order from `FAM-001`.",
+    "live backlog-family identities use the fresh `FAM-###` namespace starting at `FAM-001`; legacy `FB-###` IDs are historical trace only and must not be reused for new parseable backlog entries",
+    "Only true feature-family backlog entries should remain as parseable `### [ID: FAM-XXX]` backlog records by default.",
+    "The live backlog-family namespace is `FAM-###`, starting at `FAM-001`; the old `FB-###` namespace is historical-only and must not be reused for parseable backlog entries.",
+)
+
+LEGACY_FEATURE_FAMILY_IDS = tuple(FRESH_FAMILY_LEGACY_MAP.values())
+
 CONSOLIDATED_SUPPORT_TRACE_IDS = (
     "FB-035",
     "FB-034",
@@ -2045,6 +2066,7 @@ CONSOLIDATED_HISTORICAL_REGISTRY_ONLY_IDS = (
 )
 
 CONSOLIDATED_TRACE_BACKLOG_IDS = (
+    *LEGACY_FEATURE_FAMILY_IDS,
     *REFORM_FB042_ALIAS_IDS,
     *REFORM_FB027_ALIAS_IDS,
     *CONSOLIDATED_SUPPORT_TRACE_IDS,
@@ -2131,7 +2153,9 @@ def _normalize_status(value: str) -> str:
 
 def _parse_backlog_sections(text: str) -> list[dict[str, str]]:
     entries: list[dict[str, str]] = []
-    matches = list(re.finditer(r"^### \[ID: (?P<id>FB-\d+)\] (?P<title>.+)$", text, flags=re.M))
+    matches = list(
+        re.finditer(r"^### \[ID: (?P<id>[A-Z]+-\d+)\] (?P<title>.+)$", text, flags=re.M)
+    )
     for match in matches:
         start = match.start()
         next_heading = re.search(r"(?m)^(?:## |### )", text[match.end() :])
@@ -2192,7 +2216,7 @@ def _clean_release_value(value: str) -> str:
 
 
 def _backlog_id_number(workstream_id: str) -> int:
-    match = re.fullmatch(r"FB-(\d+)", workstream_id)
+    match = re.fullmatch(r"[A-Z]+-(\d+)", workstream_id)
     return int(match.group(1)) if match else -1
 
 
@@ -2229,9 +2253,42 @@ def _validate_consolidated_backlog_source_truth(
     require,
     *,
     backlog_text: str,
+    main_text: str,
+    development_rules_text: str,
+    phase_governance_text: str,
     backlog_entries: list[dict[str, str]],
 ) -> None:
     parsed_ids = {entry["id"] for entry in backlog_entries}
+
+    require(
+        not re.search(r"^### \[ID: FB-\d+\]", backlog_text, flags=re.M),
+        "Docs/feature_backlog.md: legacy `FB-###` IDs must not remain parseable backlog entries",
+    )
+    live_family_ids = [entry["id"] for entry in backlog_entries]
+    require(
+        live_family_ids == list(FRESH_FAMILY_LEGACY_MAP),
+        (
+            "Docs/feature_backlog.md: live family registry must use the fresh FAM namespace "
+            f"in ascending order: {', '.join(FRESH_FAMILY_LEGACY_MAP)}"
+        ),
+    )
+    for entry in backlog_entries:
+        require(
+            entry["id"].startswith(FRESH_FAMILY_PREFIX),
+            (
+                "Docs/feature_backlog.md: live backlog-family entry "
+                f"{entry['id']} must use the fresh `{FRESH_FAMILY_PREFIX}###` namespace"
+            ),
+        )
+        legacy_fb_id = _clean_release_value(_extract_colon_value(entry["block"], "Legacy FB ID"))
+        expected_legacy_fb_id = FRESH_FAMILY_LEGACY_MAP.get(entry["id"])
+        require(
+            legacy_fb_id == expected_legacy_fb_id,
+            (
+                "Docs/feature_backlog.md: live backlog-family entry "
+                f"{entry['id']} must declare `Legacy FB ID: {expected_legacy_fb_id}`"
+            ),
+        )
 
     for trace_id in CONSOLIDATED_TRACE_BACKLOG_IDS:
         require(
@@ -2242,7 +2299,9 @@ def _validate_consolidated_backlog_source_truth(
             ),
         )
         require(
-            f"#### [Former ID: {trace_id}]" in backlog_text or f"| `{trace_id}` |" in backlog_text,
+            f"Legacy FB ID: {trace_id}" in backlog_text
+            or f"#### [Former ID: {trace_id}]" in backlog_text
+            or f"| `{trace_id}` |" in backlog_text,
             (
                 "Docs/feature_backlog.md: "
                 f"{trace_id} consolidated trace is missing after backlog source-of-truth repair"
@@ -2271,6 +2330,16 @@ def _validate_consolidated_backlog_source_truth(
             phrase in backlog_text,
             (
                 "Docs/feature_backlog.md: consolidated backlog source-of-truth trace is missing "
+                f"required marker '{phrase}'"
+            ),
+        )
+    for phrase in FRESH_FAMILY_NAMESPACE_REQUIRED_PHRASES:
+        require(
+            phrase in "\n".join(
+                (backlog_text, main_text, development_rules_text, phase_governance_text)
+            ),
+            (
+                "governance source-of-truth: fresh family namespace rule is missing "
                 f"required marker '{phrase}'"
             ),
         )
@@ -9183,6 +9252,7 @@ def main() -> int:
     index_text = _read_text(Path("Docs/workstreams/index.md"))
     branch_record_index_text = _read_text(BRANCH_RECORD_INDEX)
     main_text = _read_text(Path("Docs/Main.md"))
+    development_rules_text = _read_text(Path("Docs/development_rules.md"))
     main_canonical_workstream_routes = _subsection(main_text, "Canonical Workstream Records")
 
     def require(condition: bool, message: str) -> None:
@@ -9708,6 +9778,9 @@ def main() -> int:
     _validate_consolidated_backlog_source_truth(
         require,
         backlog_text=backlog_text,
+        main_text=main_text,
+        development_rules_text=development_rules_text,
+        phase_governance_text=phase_governance_text,
         backlog_entries=backlog_entries,
     )
     _validate_backlog_family_reform_bootstrap(
