@@ -1551,6 +1551,7 @@ BOT_REVIEW_COMMENT_CLOSEOUT_ALLOWED_FILES = {
     "Docs/orin_task_template.md",
     "Docs/phase_governance.md",
     "Docs/prebeta_roadmap.md",
+    "Docs/workstreams/FB-027_interaction_system_baseline.md",
     "Docs/workstreams/FB-030_orin_voice_audio_direction_refinement.md",
     "dev/automation_observability_report.py",
     "dev/orin_branch_governance_validation.py",
