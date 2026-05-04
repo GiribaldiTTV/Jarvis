@@ -15,7 +15,7 @@ This branch must not change runtime behavior. Its job is to harden governance, v
 
 ## Current Phase
 
-- Phase: `Live Validation`
+- Phase: `PR Readiness`
 
 ## Phase Status
 
@@ -28,7 +28,10 @@ This branch must not change runtime behavior. Its job is to harden governance, v
 - Drift Finding: legacy FB-027 / PR #109 was allowed to become active selected-next and release-facing truth even though it was a small single-seam runtime follow-through.
 - Repair Scope: backlog identity admission blocker, selected-next permission blocker, FAM-003 legacy FB-027 aggregation-hold correction, PR #109 standalone release-driver removal, historical backlog-item consolidation into family/source-of-truth trace, fresh broad `FAM-###` namespace introduction, FAM -> Package -> Slice -> Seam taxonomy correction, single-slice package blocker, package completion markers, PR Readiness Stage 1 / Stage 2 organization, and validator alignment.
 - Runtime Scope: none.
-- Current Seam: `Live Validation LV1 - One-Time Backlog Governance Repair Live Validation`
+- Current PR Readiness Stage: `PR Readiness Stage 2 - Execution Gate`
+- PR Readiness Stage 2 Approval: `USER approval to enter Stage 2 recorded on 2026-05-04 for this one-time governance repair branch only`
+- Current PR Readiness Seam: `PR Readiness Stage 2 - One-Time Backlog Governance Repair Execution Gate`
+- Current Seam: `PR Readiness Stage 2 - One-Time Backlog Governance Repair Execution Gate`
 
 ## Branch Class
 
@@ -36,7 +39,10 @@ This branch must not change runtime behavior. Its job is to harden governance, v
 
 ## Blockers
 
-- no active blockers
+- `PR Creation Pending` until Stage 2 creates and validates the live PR.
+- `PR Watcher Provisioning Unproven` until the same-thread merge watcher is provisioned and routing proof is recorded.
+- `Bot Review Signal Pending` until the live PR receives a qualifying bot approval signal or current-head bot comment-resolution closeout.
+- `PR Merge Verification Pending` until the same-thread watcher verifies the live PR is merged.
 
 ## Entry Basis
 
@@ -57,6 +63,9 @@ This branch must not change runtime behavior. Its job is to harden governance, v
 - FAM-001 legacy FB-049 runtime proof, FAM-004 legacy FB-030 runtime diagnostics proof, pending `v1.6.13-prebeta` posture, FAM-004 merged-unreleased truth, and prior FAM-001 historical merge truth remain preserved.
 - Governance validator behavior is aligned so absent USER approval blocks selected-next truth instead of forcing candidate creation.
 - Hardening H1 validates that historical evidence rows, future placeholders, deferred ideas, and future-package-required rows do not count as admitted slices, that package completion cannot be green while admitted slices remain incomplete, that `Single-Slice Package User Approval Missing` plus `Package Completion Unproven` are present in blocker catalogs, and that PR Readiness is organized as a USER-reviewed Stage 1 analysis gate followed by an approved Stage 2 execution gate.
+- Stage 2 validates and syncs the enhanced PR Readiness Stage 1 packet contract so future `## PR Readiness Stage 1 Analysis Packet` outputs include required post-merge path, ranked runtime FAM candidates, recommended next package, package-size / single-slice drift review, release-debt impact, and Stage 2 sync plan.
+- Stage 2 validates and syncs Branch Readiness staging: `Branch Readiness Stage 1 - Analysis Gate` is no repository file mutation analysis, `Branch Readiness Stage 2 - Execution Gate` is approved execution, and `Branch Readiness Execution User Approval Missing` blocks Stage 2 until USER approval is recorded.
+- Stage 2 validates and syncs Element Coverage as a non-identity checklist only: coverage categories are user-facing surface, runtime/backend behavior, fail-safe/recovery, security/privacy, voice/audio, external integration, local AI/capability packs, packaging/install, monitoring/HUD, validation, and release impact. Element Coverage rows never count as `Admission State: Admitted`, slices, seams, packages, FAMs, selected-next truth, or release drivers.
 - Validation commands pass or any residual repair candidate is explicitly listed before PR work.
 
 ## Rollback Target
@@ -67,24 +76,42 @@ Rollback Path: revert this branch to restore the pre-repair governance and curre
 
 ## Next Legal Phase
 
-- `PR Readiness`
+- `Release Readiness`
 
 ## Active Seam
 
-Active seam: `Live Validation LV1 - One-Time Backlog Governance Repair Live Validation`
+Active seam: `PR Readiness Stage 2 - One-Time Backlog Governance Repair Execution Gate`
 
 ## Seam Continuation Decision
 
-Seam Status: `Green`
-Slice Status: `Green`
-Completion Status: `Green`
+Seam Status: `In Progress`
+Slice Status: `In Progress`
+Completion Status: `In Progress`
 Waiver Status: `None`
-Continue Decision: `Stop`
-Stop Basis: `Live Validation Green`
-Stop Condition: `Live Validation LV1 one-time governance repair live-equivalent validation complete`
-Continuation Action: `Proceed to PR Readiness Stage 1 analysis-only review. Do not create a PR, provision a watcher, create a branch, perform release work, or enter PR Readiness Stage 2 without explicit USER approval.`
-Decision Basis: `Live-equivalent repo-source validation proves the broad family/package/slice/seam model, package-admission blockers, PR evidence-only model, legacy FB historical-only model, and PR Readiness Stage 1 / Stage 2 gate are mutually consistent across source truth and validator logic.`
-Next Active Seam: `PR Readiness Stage 1 - One-Time Backlog Governance Repair Analysis Gate`
+Continue Decision: `Continue`
+Stop Basis: `None - Stage 2 execution is USER-approved`
+Stop Condition: `PR Readiness Stage 2 validation or live PR blocker`
+Continuation Action: `Sync approved Stage 2 governance changes, validate, commit, push, create the PR, provision the same-thread watcher, validate live PR state, and then continue into PR merge-watch posture without creating a runtime branch, admitting a package, encoding selected-next truth, waiving a single-slice package, or performing release work.`
+Decision Basis: `USER approved PR Readiness Stage 2 for this one-time governance repair branch only after Stage 1-R1 stopped on PR Readiness Execution User Approval Missing.`
+Next Active Seam: `PR Readiness Stage 2 - One-Time Backlog Governance Repair Merge Watch`
+
+## Post-Merge State
+
+Repo State: `No Active Branch`
+Merged-Main Repo State: `No Active Branch`
+Selected Next Workstream: `None - blocked by Backlog Addition User Approval Missing until explicit USER approval`
+Selected Next Implementation Branch: `Not created`
+Successor Branch Handling: `No successor branch is selected, created, or authorized on this repair branch`
+Release Debt Handling: `pending v1.6.13-prebeta posture remains preserved; release packaging must happen later from updated merged-main truth without using this repair branch as release work`
+Runtime Branch Handling: `No runtime branch may be created from this PR Readiness Stage 2 pass`
+Post-Merge Truth: `After merge, this branch contributes governance-source repair proof only; merged-main current-state remains No Active Branch with pending v1.6.13-prebeta release packaging posture preserved, PR numbers evidence-only, and legacy global FB IDs historical-only.`
+
+## Release Window Audit
+
+Release Window Audit: PASS
+Remaining Known Release Blockers: None
+Another Pre-Release Repair PR Required: NO
+Release Window Split Waiver: None
 
 ## Hardening H1 Record
 

@@ -181,6 +181,10 @@ Default checkpoint:
 Branch Readiness must establish the branch-level execution plan before Workstream begins.
 That plan must name the branch objective, target end-state, expected seam families and risk classes, validation contract, User Test Summary strategy, later-phase needs, and the first Workstream seam or initial seam sequence.
 Branch Readiness owns planning, framing, affected-surface mapping, implementation delta classification, admitted-slice definition, and whole-backlog closure strategy before Workstream begins.
+Branch Readiness is organized inside the same canonical phase as `Branch Readiness Stage 1 - Analysis Gate` followed by `Branch Readiness Stage 2 - Execution Gate`.
+Stage 1 is analysis-only and outputs `## Branch Readiness Stage 1 Analysis Packet`; it allows no repository file mutation, branch creation, package admission, docs sync, PR work, release work, selected-next truth, or canon edits.
+The Branch Readiness Stage 1 packet must include governed state markers, FAM/package candidate, package-size review, multiple admitted-slice plan, single-slice drift check, Element Coverage review, validation plan, expected docs sync, blockers and waivers, rollback path, and the exact Stage 2 green-light decision needed.
+`Branch Readiness Execution User Approval Missing` blocks `Branch Readiness Stage 2 - Execution Gate` until explicit USER approval to enter Stage 2 is recorded.
 Workstream must execute an admitted implementation slice unless the USER explicitly approves a docs-only bypass.
 Workstream must keep re-evaluating the backlog item after each seam and slice and continue on the same branch until the backlog item is fully implemented or only future-dependent blockers remain.
 Docs-only Workstreams require explicit USER approval.
@@ -304,7 +308,7 @@ That means:
 - no PR Readiness Stage 2 without USER review approval:
   - `PR Readiness Stage 1 - Analysis Gate` is analysis-only and must produce `## PR Readiness Stage 1 Analysis Packet`
   - Stage 1 allows no repository file mutation, staging, commit, push, PR creation, watcher provisioning, next-branch creation, release work, or canon edits
-  - the packet must include governed state markers, planned PR title/base/head/summary, planned merge-target canon updates, planned next-branch block, planned watcher provisioning and reporting surface, planned validations, expected file changes, drift findings, blocker and waiver findings, release-window audit posture, rollback path, and the exact Stage 2 green-light decision needed from the USER
+  - the packet must include governed state markers, planned PR title/base/head/summary, required post-merge path, ranked runtime FAM candidates, recommended next package, package-size / single-slice drift review, release-debt impact, planned merge-target canon updates, planned next-branch block, planned watcher provisioning and reporting surface, planned validations, expected file changes, Stage 2 sync plan, drift findings, blocker and waiver findings, release-window audit posture, rollback path, and the exact Stage 2 green-light decision needed from the USER
   - `PR Readiness Execution User Approval Missing` blocks `PR Readiness Stage 2 - Execution Gate` until explicit USER approval to enter Stage 2 is recorded
   - Stage 2 preserves the existing PR Readiness work sequence: apply required canon, commit and push durable truth, run the normal validator and PR-readiness gate mode, create the PR, provision and prove the watcher, validate live PR state, handle bot-review signals, and continue merge-watch
 - no PR-ready with an incomplete merged-unreleased release-debt owner contract:
@@ -815,6 +819,12 @@ Branch scope standard:
 - admitted-slice counting is explicit: only `Admission State: Admitted` rows count; `Historical Evidence`, `Merged Evidence`, `Future Placeholder`, `Deferred Placeholder`, future package required rows, and deferred ideas are not admitted slices
 - an admitted slice must have concrete scope, `Package ID`, `FAM ID`, `Slice Status`, `Completion State`, and `Seam Trace`; vague pending/future placeholder rows cannot satisfy the multi-slice rule
 - `Package Completion Unproven` remains active when package completion is claimed green while any admitted slice remains incomplete, and completing one admitted slice cannot authorize stopping while other admitted package slices remain incomplete
+
+Element Coverage standard:
+
+- Element Coverage is a non-identity checklist owned by FAM/package analysis, Branch Readiness Stage 1, and PR Readiness Stage 1 review
+- coverage categories are user-facing surface, runtime/backend behavior, fail-safe/recovery, security/privacy, voice/audio, external integration, local AI/capability packs, packaging/install, monitoring/HUD, validation, and release impact
+- Element Coverage rows never count as `Admission State: Admitted`, slices, seams, packages, FAMs, selected-next truth, or release drivers
 
 Open backlog selection is priority-led:
 

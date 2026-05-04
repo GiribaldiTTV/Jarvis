@@ -664,6 +664,8 @@ Hard blockers:
   PR Readiness and Branch Readiness cannot add, split, promote, package-admit, branch-create, waive a single-slice package, or select a backlog identity without explicit USER approval. When this blocker is active, Codex must output the still-not-closed FAM list plus every not-complete package/slice instead of creating selected-next truth.
 - `Backlog Exhaustion User Decision Pending`:
   If the still-not-closed FAM plus not-complete package/slice list is empty and new work would require a new backlog identity, Codex must stop for USER direction instead of inventing the next lane.
+- `Branch Readiness Execution User Approval Missing`:
+  Branch Readiness Stage 1 - Analysis Gate is a no-work review pass. Branch Readiness cannot enter Branch Readiness Stage 2 - Execution Gate, mutate repository files, create a branch, admit a package, sync docs, create selected-next truth, prepare PR work, or perform release work until the Stage 1 packet is returned and explicit USER approval to enter Stage 2 is recorded.
 - `Single-Slice Package User Approval Missing`:
   Branch Readiness and Workstream cannot greenlight a package with exactly one admitted slice unless explicit USER approval records `Single-Slice Package User Approval: Granted`. Historical evidence rows, merged evidence rows, future placeholders, deferred ideas, and future-package-required rows do not count as admitted slices.
 - `Package Completion Unproven`:
@@ -720,10 +722,10 @@ If the normal governance validator passes but the PR-specific gate reports dirty
 
 `PR Readiness` remains one canonical phase. It is organized into two internal stage gates:
 
-- `PR Readiness Stage 1 - Analysis Gate`: analysis-only; no repository file mutation, staging, commit, push, PR creation, watcher provisioning, next-branch creation, release work, or canon edits are allowed. Stage 1 must output the full `## PR Readiness Stage 1 Analysis Packet` for USER review and then stop on `PR Readiness Execution User Approval Missing`.
+- `PR Readiness Stage 1 - Analysis Gate`: analysis-only; no repository file mutation, staging, commit, push, PR creation, watcher provisioning, next-branch creation, release work, or canon edits are allowed. Stage 1 must output the full `## PR Readiness Stage 1 Analysis Packet` for USER review, including next-branch hierarchy and Stage 2 sync plan, and then stop on `PR Readiness Execution User Approval Missing`.
 - `PR Readiness Stage 2 - Execution Gate`: begins only after explicit USER approval to enter Stage 2. Stage 2 performs the existing PR Readiness work: apply required merge-target canon, commit and push durable truth, run the normal governance validator and PR-readiness gate mode, create the PR, provision and prove the watcher, validate live PR state, handle bot-review signals, and continue merge-watch until the approved reporting surface verifies merge.
 
-The `## PR Readiness Stage 1 Analysis Packet` must include governed state markers, the planned PR title/base/head/summary, planned merge-target canon updates, planned next-branch block, planned watcher provisioning and reporting surface, planned validations, expected file changes, drift findings, blocker and waiver findings, release-window audit posture, rollback path, and the exact Stage 2 green-light decision needed from the USER. It may recommend Stage 2, but it must not perform Stage 2.
+The `## PR Readiness Stage 1 Analysis Packet` must include governed state markers, the planned PR title/base/head/summary, required post-merge path, ranked runtime FAM candidates, recommended next package, package-size / single-slice drift review, release-debt impact, planned merge-target canon updates, planned next-branch block, planned watcher provisioning and reporting surface, planned validations, expected file changes, Stage 2 sync plan, drift findings, blocker and waiver findings, release-window audit posture, rollback path, and the exact Stage 2 green-light decision needed from the USER. It may recommend Stage 2, but it must not perform Stage 2 or encode selected-next truth.
 
 `PR package ready` is the state where local branch truth, merge-target canon, next-workstream selection, and copy-ready PR details are complete. It is not `PR Readiness GREEN`.
 
@@ -756,11 +758,17 @@ When the response is Stage 1, it must include this packet and stop on `PR Readin
 - Planned Base Branch:
 - Planned Head Branch:
 - Planned PR Summary:
+- Required Post-Merge Path:
+- Ranked Runtime FAM Candidates:
+- Recommended Next Package:
+- Package-Size / Single-Slice Drift Review:
+- Release-Debt Impact:
 - Planned Merge-Target Canon Updates:
 - Planned Next Branch Block:
 - Planned Watcher Provisioning:
 - Planned Validation Commands:
 - Expected Files To Change:
+- Stage 2 Sync Plan:
 - Drift Findings:
 - Blockers And Waivers Needed:
 - Release Window Audit Posture:
@@ -1589,6 +1597,15 @@ Purpose:
 - align branch-start canon
 - lock execution, validation, and timeout boundaries
 - plan the whole branch at phase level before implementation begins
+
+Branch Readiness uses two internal stage gates without changing the canonical phase enum:
+
+- `Branch Readiness Stage 1 - Analysis Gate`: analysis-only; no repository file mutation, branch creation, package admission, docs sync, PR work, release work, selected-next truth, or canon edits are allowed. Stage 1 must output `## Branch Readiness Stage 1 Analysis Packet` for USER review and stop on `Branch Readiness Execution User Approval Missing`.
+- `Branch Readiness Stage 2 - Execution Gate`: begins only after explicit USER approval to enter Stage 2. Stage 2 performs approved branch/package admission work, docs sync, branch creation, and authority-record setup only inside the USER-approved FAM/package scope.
+
+The `## Branch Readiness Stage 1 Analysis Packet` must include governed state markers, FAM/package candidate, package-size review, multiple admitted-slice plan, single-slice drift check, Element Coverage review, validation plan, expected docs sync, blockers and waivers, rollback path, and the exact Stage 2 green-light decision needed from the USER.
+
+Element Coverage is a non-identity checklist owned by FAM/package analysis only. Coverage categories are user-facing surface, runtime/backend behavior, fail-safe/recovery, security/privacy, voice/audio, external integration, local AI/capability packs, packaging/install, monitoring/HUD, validation, and release impact. Element Coverage rows never count as `Admission State: Admitted`, slices, seams, packages, FAMs, selected-next truth, or release drivers.
 
 Allowed:
 

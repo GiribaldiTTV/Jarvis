@@ -146,6 +146,7 @@ Package Completion Guard: `Package Completion State: Complete` is blocked while 
 Named Package Blockers: `Single-Slice Package User Approval Missing` and `Package Completion Unproven`.
 USER Blocker Output Standard: `Backlog Addition User Approval Missing` must list every not-closed FAM and every not-complete package or slice before stopping.
 PR Evidence Standard: PR numbers are evidence only and must not become backlog identities, package identities, release-version drivers, or selected-next successors.
+Element Coverage Standard: Element Coverage is a non-identity checklist for FAM/package review only. Coverage categories are user-facing surface, runtime/backend behavior, fail-safe/recovery, security/privacy, voice/audio, external integration, local AI/capability packs, packaging/install, monitoring/HUD, validation, and release impact. Element Coverage rows never count as `Admission State: Admitted`, slices, seams, packages, FAMs, selected-next truth, or release drivers.
 
 | FAM ID | Broad Product Family | Family Status | Package Posture | Legacy Trace Coverage |
 | --- | --- | --- | --- | --- |

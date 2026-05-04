@@ -784,11 +784,88 @@ PR_READINESS_STAGE_PACKET_PHRASES = (
     "Planned Base Branch:",
     "Planned Head Branch:",
     "Planned PR Summary:",
+    "Required Post-Merge Path:",
+    "Ranked Runtime FAM Candidates:",
+    "Recommended Next Package:",
+    "Package-Size / Single-Slice Drift Review:",
+    "Release-Debt Impact:",
     "Planned Merge-Target Canon Updates:",
     "Planned Next Branch Block:",
     "Planned Watcher Provisioning:",
     "Expected Files To Change:",
+    "Stage 2 Sync Plan:",
     "Stage 2 Green-Light Decision Needed:",
+)
+
+BRANCH_READINESS_STAGE_GATE_DOCS = (
+    Path("Docs/phase_governance.md"),
+    Path("Docs/development_rules.md"),
+    Path("Docs/Main.md"),
+    Path("Docs/codex_modes.md"),
+    Path("Docs/orin_task_template.md"),
+    Path("Docs/codex_user_guide.md"),
+    Path("Docs/nexus_startup_contract.md"),
+    Path("Docs/workstreams/index.md"),
+    Path("Docs/branch_records/index.md"),
+    Path("Docs/branch_records/codex_one_time_backlog_governance_repair.md"),
+)
+
+BRANCH_READINESS_STAGE_GATE_PHRASES = (
+    "Branch Readiness Stage 1 - Analysis Gate",
+    "Branch Readiness Stage 2 - Execution Gate",
+    "Branch Readiness Execution User Approval Missing",
+    "no repository file mutation",
+)
+
+BRANCH_READINESS_STAGE_PACKET_DOCS = (
+    Path("Docs/phase_governance.md"),
+    Path("Docs/development_rules.md"),
+    Path("Docs/Main.md"),
+    Path("Docs/codex_modes.md"),
+    Path("Docs/orin_task_template.md"),
+    Path("Docs/codex_user_guide.md"),
+)
+
+BRANCH_READINESS_STAGE_PACKET_PHRASES = (
+    "## Branch Readiness Stage 1 Analysis Packet",
+    "FAM/package candidate",
+    "package-size review",
+    "multiple admitted-slice plan",
+    "single-slice drift check",
+    "Element Coverage review",
+    "validation plan",
+    "expected docs sync",
+    "Stage 2 green-light decision",
+)
+
+ELEMENT_COVERAGE_DOCS = (
+    Path("Docs/feature_backlog.md"),
+    Path("Docs/Main.md"),
+    Path("Docs/phase_governance.md"),
+    Path("Docs/development_rules.md"),
+    Path("Docs/codex_modes.md"),
+    Path("Docs/orin_task_template.md"),
+    Path("Docs/codex_user_guide.md"),
+    Path("Docs/nexus_startup_contract.md"),
+    Path("Docs/workstreams/index.md"),
+    Path("Docs/branch_records/index.md"),
+    Path("Docs/branch_records/codex_one_time_backlog_governance_repair.md"),
+)
+
+ELEMENT_COVERAGE_PHRASES = (
+    "Element Coverage",
+    "user-facing surface",
+    "runtime/backend behavior",
+    "fail-safe/recovery",
+    "security/privacy",
+    "voice/audio",
+    "external integration",
+    "local AI/capability packs",
+    "packaging/install",
+    "monitoring/HUD",
+    "validation",
+    "release impact",
+    "Element Coverage rows never count as `Admission State: Admitted`, slices, seams, packages, FAMs, selected-next truth, or release drivers",
 )
 
 RELEASE_OPERATOR_OUTPUT_CONTRACT_DOCS = (
@@ -9980,6 +10057,30 @@ def main() -> int:
             require(
                 required_phrase in text,
                 f"{relative_path}: PR Readiness Stage 1 packet contract is missing '{required_phrase}'",
+            )
+
+    for relative_path in BRANCH_READINESS_STAGE_GATE_DOCS:
+        text = _read_text(relative_path)
+        for required_phrase in BRANCH_READINESS_STAGE_GATE_PHRASES:
+            require(
+                required_phrase in text,
+                f"{relative_path}: Branch Readiness stage gate guidance is missing '{required_phrase}'",
+            )
+
+    for relative_path in BRANCH_READINESS_STAGE_PACKET_DOCS:
+        text = _read_text(relative_path)
+        for required_phrase in BRANCH_READINESS_STAGE_PACKET_PHRASES:
+            require(
+                required_phrase in text,
+                f"{relative_path}: Branch Readiness Stage 1 packet contract is missing '{required_phrase}'",
+            )
+
+    for relative_path in ELEMENT_COVERAGE_DOCS:
+        text = _read_text(relative_path)
+        for required_phrase in ELEMENT_COVERAGE_PHRASES:
+            require(
+                required_phrase in text,
+                f"{relative_path}: Element Coverage governance is missing '{required_phrase}'",
             )
 
     for relative_path in RELEASE_OPERATOR_OUTPUT_CONTRACT_DOCS:
