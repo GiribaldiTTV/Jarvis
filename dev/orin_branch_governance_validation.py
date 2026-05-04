@@ -2070,12 +2070,43 @@ FRESH_FAMILY_NAMESPACE_REQUIRED_PHRASES = (
 
 FAMILY_PACKAGE_MODEL_REQUIRED_PHRASES = (
     "Canonical Identity Model: `FAM` = broad long-lived product family; `Package` = bulk branch/release package under one family; `Slice` = traceable deliverable area inside a package; `Seam` = execution or validation checkpoint; `PR` = merge/review evidence only; legacy global `FB` = historical trace only.",
-    "Branch Scope Standard: branches must package multiple related slices under exactly one broad family by default.",
+    "Branch Scope Standard: branches must package multiple related admitted slices under exactly one broad family by default.",
     "Package Completion Standard: Workstream continues through every admitted package slice until `Package Completion State: Complete`, `Released Baseline / Open`, `Blocked`, or `Deferred` is truthfully recorded before Hardening admission.",
+    "Admitted Slice Counting Rule: only rows with `Admission State` equal to `Admitted` count toward a package's admitted-slice total.",
+    "Concrete Admitted Slice Rule: an admitted slice must have a concrete scoped deliverable, `Package ID`, `FAM ID`, `Slice Status`, `Completion State`, and `Seam Trace`; vague pending/future placeholder rows cannot be marked admitted.",
+    "Package Completion Guard: `Package Completion State: Complete` is blocked while any admitted slice remains incomplete, and completing one admitted slice cannot authorize stopping while another admitted slice remains incomplete.",
     "PR Evidence Standard: PR numbers are evidence only and must not become backlog identities, package identities, release-version drivers, or selected-next successors.",
     "single-slice packages are blocked by `Single-Slice Package User Approval Missing` unless explicit USER approval records `Single-Slice Package User Approval: Granted`",
     "package slices must trace to exactly one FAM and exactly one package",
 )
+
+ADMITTED_SLICE_STATE = "admitted"
+NON_ADMITTED_SLICE_STATES = {
+    "historical evidence",
+    "merged evidence",
+    "future placeholder",
+    "deferred placeholder",
+}
+PLACEHOLDER_SLICE_MARKERS = (
+    "future package",
+    "future branch readiness",
+    "pending user-approved",
+    "deferred user-approved",
+    "placeholder",
+    "future-dependent",
+)
+SLICE_TERMINAL_COMPLETION_STATES = {
+    "complete",
+    "released baseline / open",
+    "merged historical evidence",
+    "merged unreleased",
+    "deferred",
+    "blocked",
+}
+PACKAGE_COMPLETE_STATES = {
+    "complete",
+    "implemented complete",
+}
 
 LEGACY_FEATURE_FAMILY_IDS = tuple(
     dict.fromkeys(
@@ -2325,12 +2356,27 @@ def _parse_family_slice_rows(block: str) -> list[dict[str, str]]:
     pattern = re.compile(
         r"^\| `(?P<slice>SLC-\d+)` \| `(?P<package>PKG-\d+)` \| "
         r"`(?P<fam>FAM-\d+)` \| (?P<name>[^|]+) \| "
-        r"(?P<status>[^|]+) \| (?P<seam>[^|]+) \|$",
+        r"(?P<admission>[^|]+) \| (?P<status>[^|]+) \| "
+        r"(?P<completion>[^|]+) \| (?P<seam>[^|]+) \|$",
         flags=re.M,
     )
     for match in pattern.finditer(block):
         rows.append({key: value.strip() for key, value in match.groupdict().items()})
     return rows
+
+
+def _is_admitted_slice(row: dict[str, str]) -> bool:
+    return _clean_release_value(row.get("admission", "")).casefold() == ADMITTED_SLICE_STATE
+
+
+def _is_package_complete(completion_state: str) -> bool:
+    normalized = _clean_release_value(completion_state).casefold()
+    return normalized in PACKAGE_COMPLETE_STATES
+
+
+def _is_slice_terminal(completion_state: str) -> bool:
+    normalized = _clean_release_value(completion_state).casefold()
+    return normalized in SLICE_TERMINAL_COMPLETION_STATES
 
 
 def _validate_consolidated_backlog_source_truth(
@@ -2432,19 +2478,58 @@ def _validate_consolidated_backlog_source_truth(
             len(slice_rows) >= 2,
             (
                 "Docs/feature_backlog.md: broad FAM entry "
-                f"{entry['id']} must contain multiple slice rows or it would be a blocked single-slice package"
+                f"{entry['id']} must contain enough trace rows to preserve family context"
+            ),
+        )
+        package_admission_state = _clean_release_value(
+            _extract_colon_value(entry["block"], "Package Admission State")
+        )
+        declared_admitted_slice_count = _clean_release_value(
+            _extract_colon_value(entry["block"], "Admitted Slice Count")
+        )
+        require(
+            bool(package_admission_state),
+            (
+                "Docs/feature_backlog.md: broad FAM entry "
+                f"{entry['id']} must declare `Package Admission State:`"
+            ),
+        )
+        require(
+            bool(declared_admitted_slice_count),
+            (
+                "Docs/feature_backlog.md: broad FAM entry "
+                f"{entry['id']} must declare `Admitted Slice Count:`"
             ),
         )
         single_slice_approval = _clean_release_value(
             _extract_colon_value(entry["block"], "Single-Slice Package User Approval")
         )
+        admitted_slice_rows = [row for row in slice_rows if _is_admitted_slice(row)]
+        if declared_admitted_slice_count:
+            require(
+                declared_admitted_slice_count == str(len(admitted_slice_rows)),
+                (
+                    "Docs/feature_backlog.md: broad FAM entry "
+                    f"{entry['id']} declares Admitted Slice Count {declared_admitted_slice_count}, "
+                    f"but validator counted {len(admitted_slice_rows)}"
+                ),
+            )
         require(
-            len(slice_rows) != 1 or "Granted" in single_slice_approval,
+            len(admitted_slice_rows) != 1 or "Granted" in single_slice_approval,
             (
                 "Docs/feature_backlog.md: package "
-                f"{expected_package} has one slice without explicit USER approval"
+                f"{expected_package} has exactly one admitted slice without explicit USER approval"
             ),
         )
+        if not admitted_slice_rows:
+            require(
+                "no active single-slice package is admitted" in single_slice_approval.casefold(),
+                (
+                    "Docs/feature_backlog.md: package "
+                    f"{expected_package} has no admitted slices, so Single-Slice Package User Approval "
+                    "must not claim multi-slice admission"
+                ),
+            )
         for slice_row in slice_rows:
             require(
                 slice_row["fam"] == entry["id"] and slice_row["package"] == expected_package,
@@ -2454,10 +2539,65 @@ def _validate_consolidated_backlog_source_truth(
                 ),
             )
             require(
-                bool(slice_row["status"]) and bool(slice_row["seam"]),
+                bool(slice_row["admission"]) and bool(slice_row["status"])
+                and bool(slice_row["completion"]) and bool(slice_row["seam"]),
                 (
                     "Docs/feature_backlog.md: slice "
-                    f"{slice_row['slice']} must record status and seam trace"
+                    f"{slice_row['slice']} must record admission state, status, completion state, and seam trace"
+                ),
+            )
+            normalized_admission = _clean_release_value(slice_row["admission"]).casefold()
+            require(
+                normalized_admission == ADMITTED_SLICE_STATE
+                or normalized_admission in NON_ADMITTED_SLICE_STATES,
+                (
+                    "Docs/feature_backlog.md: slice "
+                    f"{slice_row['slice']} has unsupported Admission State '{slice_row['admission']}'"
+                ),
+            )
+            row_text = " ".join(
+                (
+                    slice_row["name"],
+                    slice_row["status"],
+                    slice_row["completion"],
+                    slice_row["seam"],
+                )
+            ).casefold()
+            has_placeholder_marker = any(marker in row_text for marker in PLACEHOLDER_SLICE_MARKERS)
+            require(
+                not (_is_admitted_slice(slice_row) and has_placeholder_marker),
+                (
+                    "Docs/feature_backlog.md: slice "
+                    f"{slice_row['slice']} is marked admitted while still carrying placeholder/future wording"
+                ),
+            )
+            require(
+                not has_placeholder_marker or not _is_admitted_slice(slice_row),
+                (
+                    "Docs/feature_backlog.md: slice "
+                    f"{slice_row['slice']} future/deferred placeholder row must not count as admitted"
+                ),
+            )
+            if _is_admitted_slice(slice_row):
+                require(
+                    _clean_release_value(slice_row["completion"]).casefold() != "not admitted",
+                    (
+                        "Docs/feature_backlog.md: admitted slice "
+                        f"{slice_row['slice']} must carry a real completion state"
+                    ),
+                )
+        if package_rows and _is_package_complete(package_rows[0]["completion"]):
+            incomplete_admitted = [
+                row["slice"]
+                for row in admitted_slice_rows
+                if not _is_slice_terminal(row["completion"])
+            ]
+            require(
+                not incomplete_admitted,
+                (
+                    "Docs/feature_backlog.md: package "
+                    f"{expected_package} cannot be complete while admitted slices remain incomplete: "
+                    f"{', '.join(incomplete_admitted)}"
                 ),
             )
 

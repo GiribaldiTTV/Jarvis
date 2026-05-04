@@ -15,7 +15,7 @@ This branch must not change runtime behavior. Its job is to harden governance, v
 
 ## Current Phase
 
-- Phase: `Workstream`
+- Phase: `Hardening`
 
 ## Phase Status
 
@@ -56,21 +56,22 @@ This branch must not change runtime behavior. Its job is to harden governance, v
 - Each live FAM records package and slice trace so every slice points to exactly one family and one package, packages carry completion state, PR numbers remain evidence only, and single-slice package admission is blocked without explicit USER approval.
 - FAM-001 legacy FB-049 runtime proof, FAM-004 legacy FB-030 runtime diagnostics proof, pending `v1.6.13-prebeta` posture, FAM-004 merged-unreleased truth, and prior FAM-001 historical merge truth remain preserved.
 - Governance validator behavior is aligned so absent USER approval blocks selected-next truth instead of forcing candidate creation.
+- Hardening H1 validates that historical evidence rows, future placeholders, deferred ideas, and future-package-required rows do not count as admitted slices, and that package completion cannot be green while admitted slices remain incomplete.
 - Validation commands pass or any residual repair candidate is explicitly listed before PR work.
 
 ## Rollback Target
 
-- `Branch Readiness`
+- `Workstream`
 
 Rollback Path: revert this branch to restore the pre-repair governance and current-state interpretation. Do not revert PR #109 runtime behavior unless the USER explicitly requests a product rollback.
 
 ## Next Legal Phase
 
-- `Hardening`
+- `Live Validation`
 
 ## Active Seam
 
-Active seam: `Workstream WS2 - Family Package / Slice Taxonomy Correction`
+Active seam: `Hardening H1 - One-Time Backlog Governance Repair Validation`
 
 ## Seam Continuation Decision
 
@@ -79,11 +80,22 @@ Slice Status: `Green`
 Completion Status: `Green`
 Waiver Status: `None`
 Continue Decision: `Stop`
-Stop Basis: `Workstream Green`
-Stop Condition: `Workstream WS2 family package/slice taxonomy correction complete`
-Continuation Action: `Proceed to Hardening validation for the one-time governance/source-of-truth repair.`
-Decision Basis: `The docs and validator now encode the broad FAM -> Package -> Slice -> Seam model, keep PR numbers as evidence only, block single-slice packages without explicit USER approval, reclassify FAM-003 legacy FB-027 / PR #109 as family aggregation evidence, and reserve legacy FB IDs for historical trace only.`
-Next Active Seam: `Hardening H1 - One-Time Backlog Governance Repair Validation`
+Stop Basis: `Hardening Green`
+Stop Condition: `Hardening H1 one-time governance repair validation complete`
+Continuation Action: `Proceed to Live Validation for repo-truth / live-equivalent validation of the one-time governance repair.`
+Decision Basis: `Validator and source-of-truth now distinguish admitted concrete slices from historical evidence, merged evidence, future placeholders, deferred ideas, and future-package-required rows; single-slice package drift is blocked unless explicit USER approval grants a waiver.`
+Next Active Seam: `Live Validation LV1 - One-Time Backlog Governance Repair Live Validation`
+
+## Hardening H1 Record
+
+- Phase Admission: `PASS`
+- Active Seam: `Hardening H1 - One-Time Backlog Governance Repair Validation`
+- Single-Slice Drift Validation: `PASS`; only `Admission State: Admitted` rows count toward package admission, and current live package trace has no admitted single-slice package.
+- Admitted-Slice Counting Rule: `PASS`; historical evidence, merged evidence, future placeholders, deferred ideas, and future-package-required rows are trace-only and cannot satisfy the multi-slice branch/package rule.
+- Package Completion Validation: `PASS`; package completion cannot be green while admitted slices remain incomplete, and one completed admitted slice cannot authorize stopping while another admitted slice remains incomplete.
+- FAM Taxonomy Validation: `PASS`; broad `FAM-001` through `FAM-010` remain live, no live FAM is closed, and legacy global `FB-###` remains historical trace only.
+- PR Evidence Model: `PASS`; PR #108 and PR #109 remain evidence only, not backlog/package identities or standalone release drivers.
+- Automation Observability: `REVIEW`; external automation memory may contain stale `BLOCKER_CANDIDATE` rows, but repo-source validation separates those rows from source-of-truth blockers.
 
 ## Governance Drift Audit
 

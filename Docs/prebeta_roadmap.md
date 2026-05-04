@@ -33,6 +33,7 @@ That means:
 - backlog owns identity
 - live backlog-family identities now use broad `FAM-###` starting at `FAM-001`; legacy `FB-###` IDs remain historical trace only
 - roadmap references FAM -> Package -> Slice -> Seam posture from the backlog; PR numbers remain merge/review evidence only and must not become selected-next, package, or release-driver identities
+- admitted-slice counting belongs to backlog/source-of-truth validation: only `Admission State: Admitted` rows count, while historical evidence, future placeholders, deferred ideas, and future-package-required rows are sequencing trace only
 - backlog historical pass/support/governance/registry rows are traceability only; `Docs/workstreams/index.md`, family dossiers, and canonical workstream records own the durable source-of-truth routing for those former IDs
 - workstream docs own promoted-work feature-state, branch-local evidence, and closure records
 - phase governance owns repo-wide lifecycle, proof, timeout, and stop-loss rules

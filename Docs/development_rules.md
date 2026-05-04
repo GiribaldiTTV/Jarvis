@@ -806,6 +806,9 @@ Branch scope standard:
 - a single-slice package is blocked by `Single-Slice Package User Approval Missing` unless explicit USER approval records `Single-Slice Package User Approval: Granted`
 - every slice must trace to exactly one FAM and exactly one package
 - Workstream must continue through every admitted package slice before Hardening unless the package is truthfully marked `Complete`, `Released Baseline / Open`, `Blocked`, or `Deferred`
+- admitted-slice counting is explicit: only `Admission State: Admitted` rows count; `Historical Evidence`, `Merged Evidence`, `Future Placeholder`, `Deferred Placeholder`, future package required rows, and deferred ideas are not admitted slices
+- an admitted slice must have concrete scope, `Package ID`, `FAM ID`, `Slice Status`, `Completion State`, and `Seam Trace`; vague pending/future placeholder rows cannot satisfy the multi-slice rule
+- package completion cannot be green while any admitted slice remains incomplete, and completing one admitted slice cannot authorize stopping while other admitted package slices remain incomplete
 
 Open backlog selection is priority-led:
 

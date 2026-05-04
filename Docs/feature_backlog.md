@@ -138,8 +138,11 @@ Current-branch clarity: latest public prerelease is `v1.6.12-prebeta`; FB-044 an
 Selectable user-facing feature-family records now use the fresh `FAM-###` namespace in ascending order from `FAM-001`. Legacy `FB-###` IDs are preserved only as historical trace fields, former-ID tables, workstream filenames, branch filenames, and release/PR evidence.
 
 Canonical Identity Model: `FAM` = broad long-lived product family; `Package` = bulk branch/release package under one family; `Slice` = traceable deliverable area inside a package; `Seam` = execution or validation checkpoint; `PR` = merge/review evidence only; legacy global `FB` = historical trace only.
-Branch Scope Standard: branches must package multiple related slices under exactly one broad family by default. A package with exactly one slice is blocked by `Single-Slice Package User Approval Missing` unless `Single-Slice Package User Approval: Granted` is recorded with explicit USER approval.
+Branch Scope Standard: branches must package multiple related admitted slices under exactly one broad family by default. A package with exactly one admitted slice is blocked by `Single-Slice Package User Approval Missing` unless `Single-Slice Package User Approval: Granted` is recorded with explicit USER approval.
 Package Completion Standard: Workstream continues through every admitted package slice until `Package Completion State: Complete`, `Released Baseline / Open`, `Blocked`, or `Deferred` is truthfully recorded before Hardening admission.
+Admitted Slice Counting Rule: only rows with `Admission State` equal to `Admitted` count toward a package's admitted-slice total. `Historical Evidence`, `Merged Evidence`, `Future Placeholder`, `Deferred Placeholder`, and other non-admitted trace rows preserve context but cannot satisfy the multi-slice package rule.
+Concrete Admitted Slice Rule: an admitted slice must have a concrete scoped deliverable, `Package ID`, `FAM ID`, `Slice Status`, `Completion State`, and `Seam Trace`; vague pending/future placeholder rows cannot be marked admitted.
+Package Completion Guard: `Package Completion State: Complete` is blocked while any admitted slice remains incomplete, and completing one admitted slice cannot authorize stopping while another admitted slice remains incomplete.
 USER Blocker Output Standard: `Backlog Addition User Approval Missing` must list every not-closed FAM and every not-complete package or slice before stopping.
 PR Evidence Standard: PR numbers are evidence only and must not become backlog identities, package identities, release-version drivers, or selected-next successors.
 
@@ -164,10 +167,12 @@ Registry Class: Feature Family
 Family Anchor: Self
 Priority: High
 Family Scope: Startup, boot, desktop entrypoint, single-instance ownership, launch handoff, relaunch semantics, lifecycle transition proof, and boot-to-runtime trust boundaries.
-Package Policy: Branchable work must be a bulk boot-interface package with multiple related slices by default.
+Package Policy: Branchable work must be a bulk boot-interface package with multiple related admitted slices by default.
 Known Pending Gaps: Boot-family proof remains released-baseline open until future USER-approved package work closes lifecycle follow-through beyond the historical launch/relaunch baselines.
+Package Admission State: Historical baseline / no active package admission
+Admitted Slice Count: 0
 Package Completion State: Released Baseline / Open
-Single-Slice Package User Approval: Not required - package has multiple slices.
+Single-Slice Package User Approval: Not required - no active single-slice package is admitted; future package admission must have multiple concrete admitted slices or USER waiver.
 
 Package Trace:
 
@@ -177,12 +182,12 @@ Package Trace:
 
 Slice Trace:
 
-| Slice ID | Package ID | FAM ID | Slice Name | Slice Status | Seam Trace |
-| --- | --- | --- | --- | --- | --- |
-| `SLC-001` | `PKG-001` | `FAM-001` | Desktop entrypoint and launch-path baseline | Released | `FB-042`; Branch Readiness, Workstream, Hardening, Live Validation, PR, Release |
-| `SLC-002` | `PKG-001` | `FAM-001` | Top-level entrypoint and boot handoff truth | Released | `FB-043`, `FB-044`; Branch Readiness through Release |
-| `SLC-003` | `PKG-001` | `FAM-001` | Active-session relaunch success, decline, failure, and timeout truth | Released | `FB-045`, `FB-046`, `FB-047`, `FB-048`; Branch Readiness through Release |
-| `SLC-004` | `PKG-001` | `FAM-001` | Pre-settled incoming-launch conflict truth | Merged unreleased evidence | `FB-049`; WS1, H1, LV1, PR #107 |
+| Slice ID | Package ID | FAM ID | Slice Name | Admission State | Slice Status | Completion State | Seam Trace |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `SLC-001` | `PKG-001` | `FAM-001` | Desktop entrypoint and launch-path baseline | Historical Evidence | Released | Complete | `FB-042`; Branch Readiness, Workstream, Hardening, Live Validation, PR, Release |
+| `SLC-002` | `PKG-001` | `FAM-001` | Top-level entrypoint and boot handoff truth | Historical Evidence | Released | Complete | `FB-043`, `FB-044`; Branch Readiness through Release |
+| `SLC-003` | `PKG-001` | `FAM-001` | Active-session relaunch success, decline, failure, and timeout truth | Historical Evidence | Released | Complete | `FB-045`, `FB-046`, `FB-047`, `FB-048`; Branch Readiness through Release |
+| `SLC-004` | `PKG-001` | `FAM-001` | Pre-settled incoming-launch conflict truth | Merged Evidence | Merged unreleased evidence | Merged Unreleased | `FB-049`; WS1, H1, LV1, PR #107 |
 
 Summary: Boot Interface owns the long-lived startup and relaunch product surface; old `FB-042` through `FB-049` remain historical proof slices under this family, not reusable live backlog IDs.
 
@@ -194,10 +199,12 @@ Registry Class: Feature Family
 Family Anchor: Self
 Priority: Medium
 Family Scope: Nexus desktop shell, visual language, operator UI, settings presentation, user-facing desktop interaction surfaces, and coherent UI/UX implementation packages.
-Package Policy: Branchable desktop-interface work must package multiple UI/UX slices by default and must not treat one planning pass as a closed family.
+Package Policy: Branchable desktop-interface work must package multiple admitted UI/UX slices by default and must not treat one planning pass as a closed family.
 Known Pending Gaps: Nexus-era user-facing HUD/shell presentation, settings and desktop UX implementation remain pending after the historical planning release.
+Package Admission State: Historical baseline / no active package admission
+Admitted Slice Count: 0
 Package Completion State: Released Baseline / Open
-Single-Slice Package User Approval: Not required - package has multiple slices.
+Single-Slice Package User Approval: Not required - no active single-slice package is admitted; future package admission must have multiple concrete admitted slices or USER waiver.
 
 Package Trace:
 
@@ -207,10 +214,10 @@ Package Trace:
 
 Slice Trace:
 
-| Slice ID | Package ID | FAM ID | Slice Name | Slice Status | Seam Trace |
-| --- | --- | --- | --- | --- | --- |
-| `SLC-005` | `PKG-002` | `FAM-002` | Nexus UI/UX source-map and visual-language baseline | Released | `FB-031`; Branch Readiness through Release |
-| `SLC-006` | `PKG-002` | `FAM-002` | User-facing desktop shell implementation follow-through | Pending USER-approved package | Future package seam required |
+| Slice ID | Package ID | FAM ID | Slice Name | Admission State | Slice Status | Completion State | Seam Trace |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `SLC-005` | `PKG-002` | `FAM-002` | Nexus UI/UX source-map and visual-language baseline | Historical Evidence | Released | Complete | `FB-031`; Branch Readiness through Release |
+| `SLC-006` | `PKG-002` | `FAM-002` | User-facing desktop shell implementation follow-through | Future Placeholder | Pending USER-approved package | Not Admitted | Future package seam required |
 
 Summary: Desktop Interface keeps the UI/UX planning baseline as historical proof while leaving the real user-facing desktop work open.
 
@@ -222,10 +229,12 @@ Registry Class: Feature Family
 Family Anchor: Self
 Priority: High
 Family Scope: Typed-first interaction, saved actions, callable groups, built-in actions, tray quick tasks, hotkeys, shared action routing, confirmation flows, and reusable action execution boundaries.
-Package Policy: Branchable interaction work must be a family package with multiple slices by default; small runtime proofs aggregate unless USER approves a release driver.
+Package Policy: Branchable interaction work must be a family package with multiple admitted slices by default; small runtime proofs aggregate unless USER approves a release driver.
 Known Pending Gaps: Shared action authoring, built-in/catalog expansion, tray quick-task follow-through, and shutdown confirmation evidence remain aggregation material until a USER-approved package is admitted.
+Package Admission State: Historical baseline / no active package admission
+Admitted Slice Count: 0
 Package Completion State: Released Baseline / Open
-Single-Slice Package User Approval: Not required - package has multiple slices.
+Single-Slice Package User Approval: Not required - no active single-slice package is admitted; future package admission must have multiple concrete admitted slices or USER waiver.
 
 Package Trace:
 
@@ -235,11 +244,11 @@ Package Trace:
 
 Slice Trace:
 
-| Slice ID | Package ID | FAM ID | Slice Name | Slice Status | Seam Trace |
-| --- | --- | --- | --- | --- | --- |
-| `SLC-007` | `PKG-003` | `FAM-003` | Typed-first interaction and saved-action baseline | Released | `FB-027`, `FB-036`; historical Branch Readiness through Release |
-| `SLC-008` | `PKG-003` | `FAM-003` | Deterministic callable groups, built-ins, settings, and tray quick tasks | Released baseline / open | `FB-037`, `FB-038`, `FB-041`; historical Branch Readiness through Release |
-| `SLC-009` | `PKG-003` | `FAM-003` | Shutdown-hotkey confirmation aggregation proof | Merged historical evidence | PR #109; WS1, H1, LV1, PR Readiness |
+| Slice ID | Package ID | FAM ID | Slice Name | Admission State | Slice Status | Completion State | Seam Trace |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `SLC-007` | `PKG-003` | `FAM-003` | Typed-first interaction and saved-action baseline | Historical Evidence | Released | Complete | `FB-027`, `FB-036`; historical Branch Readiness through Release |
+| `SLC-008` | `PKG-003` | `FAM-003` | Deterministic callable groups, built-ins, settings, and tray quick tasks | Historical Evidence | Released baseline / open | Released Baseline / Open | `FB-037`, `FB-038`, `FB-041`; historical Branch Readiness through Release |
+| `SLC-009` | `PKG-003` | `FAM-003` | Shutdown-hotkey confirmation aggregation proof | Merged Evidence | Merged historical evidence | Merged Historical Evidence | PR #109; WS1, H1, LV1, PR Readiness |
 
 Summary: Interaction and Actions replaces the accidental small-branch backlog identity pattern; PR #109 stays trace evidence inside a broader family package.
 
@@ -254,8 +263,10 @@ Release Stage: pre-Beta
 Target Version: v1.6.13-prebeta
 Canonical Workstream Doc: Docs/workstreams/FB-030_orin_voice_audio_direction_refinement.md
 Family Scope: ORIN voice output, error voice, quiet/bypass behavior, audio availability diagnostics, persona-safe voice claims, and future cross-family voice integration.
-Package Policy: Branchable voice/audio work must package multiple runtime or integration slices by default; one diagnostic seam alone is aggregation evidence unless USER approves otherwise.
+Package Policy: Branchable voice/audio work must package multiple admitted runtime or integration slices by default; one diagnostic seam alone is aggregation evidence unless USER approves otherwise.
 Known Pending Gaps: Runtime diagnostics proof is merged but unreleased; future voice integration across interaction, desktop, and safety/privacy families remains pending.
+Package Admission State: Merged-unreleased historical evidence / no new package admission
+Admitted Slice Count: 0
 Merged-Unreleased Release-Debt Owner: FAM-001 legacy FB-049 Active-session pre-settled incoming-launch conflict truth plus FAM-004 legacy FB-030 voice/audio runtime diagnostics proof plus merged governance/automation proof package for v1.6.13-prebeta
 Release Target: v1.6.13-prebeta
 Release Floor: patch prerelease
@@ -266,7 +277,7 @@ Post-Release Truth: after v1.6.13-prebeta publication and validation, merged gov
 Selected Next Workstream: None - blocked by `Backlog Addition User Approval Missing` until explicit USER approval.
 Next-Branch Creation Gate: Blocked by `Backlog Addition User Approval Missing` until explicit USER approval selects a backlog identity or release/support lane.
 Package Completion State: In Progress
-Single-Slice Package User Approval: Not required - package has multiple slices.
+Single-Slice Package User Approval: Not required - no active single-slice package is admitted; future package admission must have multiple concrete admitted slices or USER waiver.
 
 Package Trace:
 
@@ -276,11 +287,11 @@ Package Trace:
 
 Slice Trace:
 
-| Slice ID | Package ID | FAM ID | Slice Name | Slice Status | Seam Trace |
-| --- | --- | --- | --- | --- | --- |
-| `SLC-010` | `PKG-004` | `FAM-004` | Voice/audio direction and planning baseline | Released | `FB-030`; `v1.6.5-prebeta` |
-| `SLC-011` | `PKG-004` | `FAM-004` | Truthful voice/audio runtime diagnostics | Merged unreleased evidence | `FB-030`; WS1, H1, LV1, PR #108 |
-| `SLC-012` | `PKG-004` | `FAM-004` | Cross-family voice integration package follow-through | Pending USER-approved package | Future package seam required |
+| Slice ID | Package ID | FAM ID | Slice Name | Admission State | Slice Status | Completion State | Seam Trace |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `SLC-010` | `PKG-004` | `FAM-004` | Voice/audio direction and planning baseline | Historical Evidence | Released | Complete | `FB-030`; `v1.6.5-prebeta` |
+| `SLC-011` | `PKG-004` | `FAM-004` | Truthful voice/audio runtime diagnostics | Merged Evidence | Merged unreleased evidence | Merged Unreleased | `FB-030`; WS1, H1, LV1, PR #108 |
+| `SLC-012` | `PKG-004` | `FAM-004` | Cross-family voice integration package follow-through | Future Placeholder | Pending USER-approved package | Not Admitted | Future package seam required |
 
 Summary: Voice and Audio carries legacy `FB-030` proof as package evidence while keeping the broader voice integration family open.
 
@@ -292,10 +303,12 @@ Registry Class: Feature Family
 Family Anchor: Self
 Priority: Medium
 Family Scope: Stream Deck, external trigger intake, plugin lifecycle, installed integration points, trusted invocation boundaries, and external action ownership.
-Package Policy: Branchable external-integration work must package multiple implementation and validation slices by default.
+Package Policy: Branchable external-integration work must package multiple admitted implementation and validation slices by default.
 Known Pending Gaps: Stream Deck and external integration implementation remains pending after the historical architecture-only trigger-intake release.
+Package Admission State: Historical baseline / no active package admission
+Admitted Slice Count: 0
 Package Completion State: Released Baseline / Open
-Single-Slice Package User Approval: Not required - package has multiple slices.
+Single-Slice Package User Approval: Not required - no active single-slice package is admitted; future package admission must have multiple concrete admitted slices or USER waiver.
 
 Package Trace:
 
@@ -305,10 +318,10 @@ Package Trace:
 
 Slice Trace:
 
-| Slice ID | Package ID | FAM ID | Slice Name | Slice Status | Seam Trace |
-| --- | --- | --- | --- | --- | --- |
-| `SLC-013` | `PKG-005` | `FAM-005` | External trigger architecture and lifecycle baseline | Released | `FB-039`; Branch Readiness through Release |
-| `SLC-014` | `PKG-005` | `FAM-005` | Stream Deck and installed integration implementation | Pending USER-approved package | Future package seam required |
+| Slice ID | Package ID | FAM ID | Slice Name | Admission State | Slice Status | Completion State | Seam Trace |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `SLC-013` | `PKG-005` | `FAM-005` | External trigger architecture and lifecycle baseline | Historical Evidence | Released | Complete | `FB-039`; Branch Readiness through Release |
+| `SLC-014` | `PKG-005` | `FAM-005` | Stream Deck and installed integration implementation | Future Placeholder | Pending USER-approved package | Not Admitted | Future package seam required |
 
 Summary: External Integrations keeps the trigger architecture release as proof while leaving implementation work pending.
 
@@ -322,8 +335,10 @@ Priority: Medium
 Family Scope: Monitoring surfaces, CPU/GPU thermals, performance telemetry, HUD/overlay presentation, trust-safety display rules, and plugin-fed runtime telemetry.
 Package Policy: Branchable monitoring/HUD work must package source, display, and validation slices by default.
 Known Pending Gaps: HUD user-facing surface and telemetry presentation remain pending after the historical architecture-only monitoring release.
+Package Admission State: Historical baseline / no active package admission
+Admitted Slice Count: 0
 Package Completion State: Released Baseline / Open
-Single-Slice Package User Approval: Not required - package has multiple slices.
+Single-Slice Package User Approval: Not required - no active single-slice package is admitted; future package admission must have multiple concrete admitted slices or USER waiver.
 
 Package Trace:
 
@@ -333,10 +348,10 @@ Package Trace:
 
 Slice Trace:
 
-| Slice ID | Package ID | FAM ID | Slice Name | Slice Status | Seam Trace |
-| --- | --- | --- | --- | --- | --- |
-| `SLC-015` | `PKG-006` | `FAM-006` | Monitoring and thermal architecture baseline | Released | `FB-040`; Branch Readiness through Release |
-| `SLC-016` | `PKG-006` | `FAM-006` | User-facing HUD and telemetry presentation | Pending USER-approved package | Future package seam required |
+| Slice ID | Package ID | FAM ID | Slice Name | Admission State | Slice Status | Completion State | Seam Trace |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `SLC-015` | `PKG-006` | `FAM-006` | Monitoring and thermal architecture baseline | Historical Evidence | Released | Complete | `FB-040`; Branch Readiness through Release |
+| `SLC-016` | `PKG-006` | `FAM-006` | User-facing HUD and telemetry presentation | Future Placeholder | Pending USER-approved package | Not Admitted | Future package seam required |
 
 Summary: Monitoring and HUD remains open because the released architecture baseline did not ship the user-facing HUD surface.
 
@@ -350,8 +365,10 @@ Priority: Medium
 Family Scope: Local AI execution posture, capability-pack boundaries, model/tool capability distribution, local-vs-external runtime choices, and capability governance.
 Package Policy: Branchable local-AI work must package capability boundary, install/runtime, validation, and documentation slices by default.
 Known Pending Gaps: Local AI and capability-pack architecture remains pending as repo-supported project vision and has no USER-approved implementation package yet.
+Package Admission State: Pending USER approval / no active package admission
+Admitted Slice Count: 0
 Package Completion State: Pending
-Single-Slice Package User Approval: Not required - package has multiple slices.
+Single-Slice Package User Approval: Not required - no active single-slice package is admitted; future package admission must have multiple concrete admitted slices or USER waiver.
 
 Package Trace:
 
@@ -361,10 +378,10 @@ Package Trace:
 
 Slice Trace:
 
-| Slice ID | Package ID | FAM ID | Slice Name | Slice Status | Seam Trace |
-| --- | --- | --- | --- | --- | --- |
-| `SLC-017` | `PKG-007` | `FAM-007` | Local AI runtime boundary and capability-pack source map | Pending USER-approved package | Future Branch Readiness required |
-| `SLC-018` | `PKG-007` | `FAM-007` | Capability-pack install, validation, and governance follow-through | Pending USER-approved package | Future package seam required |
+| Slice ID | Package ID | FAM ID | Slice Name | Admission State | Slice Status | Completion State | Seam Trace |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `SLC-017` | `PKG-007` | `FAM-007` | Local AI runtime boundary and capability-pack source map | Future Placeholder | Pending USER-approved package | Not Admitted | Future Branch Readiness required |
+| `SLC-018` | `PKG-007` | `FAM-007` | Capability-pack install, validation, and governance follow-through | Future Placeholder | Pending USER-approved package | Not Admitted | Future package seam required |
 
 Summary: Local AI and Capability Packs starts fresh as a broad family without reusing old `FB` numbering.
 
@@ -378,8 +395,10 @@ Priority: Medium
 Family Scope: Installer, modular setup, GPU-aware runtime selection, dependency packaging, desktop-shortcut installation, release packaging ergonomics, and operator install/upgrade experience.
 Package Policy: Branchable packaging/install work must package installer architecture, runtime detection, user copy, and validation slices by default.
 Known Pending Gaps: Modular install and GPU-aware architecture remain pending and must not be collapsed into a small single-seam branch.
+Package Admission State: Pending USER approval / no active package admission
+Admitted Slice Count: 0
 Package Completion State: Pending
-Single-Slice Package User Approval: Not required - package has multiple slices.
+Single-Slice Package User Approval: Not required - no active single-slice package is admitted; future package admission must have multiple concrete admitted slices or USER waiver.
 
 Package Trace:
 
@@ -389,10 +408,10 @@ Package Trace:
 
 Slice Trace:
 
-| Slice ID | Package ID | FAM ID | Slice Name | Slice Status | Seam Trace |
-| --- | --- | --- | --- | --- | --- |
-| `SLC-019` | `PKG-008` | `FAM-008` | Modular install architecture and desktop installation path | Pending USER-approved package | Future Branch Readiness required |
-| `SLC-020` | `PKG-008` | `FAM-008` | GPU-aware runtime/dependency selection and validation | Pending USER-approved package | Future package seam required |
+| Slice ID | Package ID | FAM ID | Slice Name | Admission State | Slice Status | Completion State | Seam Trace |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `SLC-019` | `PKG-008` | `FAM-008` | Modular install architecture and desktop installation path | Future Placeholder | Pending USER-approved package | Not Admitted | Future Branch Readiness required |
+| `SLC-020` | `PKG-008` | `FAM-008` | GPU-aware runtime/dependency selection and validation | Future Placeholder | Pending USER-approved package | Not Admitted | Future package seam required |
 
 Summary: Packaging and Install Experience keeps installer and GPU-aware runtime work as a broad family package, not a one-off branch.
 
@@ -409,8 +428,10 @@ Known Pending Gaps: Workspace and data follow-through remains open even though e
 Deferred Since: 2026-05-04 one-time backlog governance repair.
 Deferred Because: Workspace/data follow-through requires explicit USER-approved package admission under the broad FAM model.
 Selection / Unblock: USER approval for a FAM-009 package with multiple workspace/data slices, or an explicit USER-approved deferral change.
+Package Admission State: Historical baseline / no active package admission
+Admitted Slice Count: 0
 Package Completion State: Released Baseline / Open
-Single-Slice Package User Approval: Not required - package has multiple slices.
+Single-Slice Package User Approval: Not required - no active single-slice package is admitted; future package admission must have multiple concrete admitted slices or USER waiver.
 
 Package Trace:
 
@@ -420,10 +441,10 @@ Package Trace:
 
 Slice Trace:
 
-| Slice ID | Package ID | FAM ID | Slice Name | Slice Status | Seam Trace |
-| --- | --- | --- | --- | --- | --- |
-| `SLC-021` | `PKG-009` | `FAM-009` | Workspace/folder organization and migration baseline | Released | `FB-005`, `FB-020`, `FB-026`, `FB-028`; historical workstream/release trace |
-| `SLC-022` | `PKG-009` | `FAM-009` | Durable workspace/data UX and follow-through | Deferred USER-approved package | Future package seam required |
+| Slice ID | Package ID | FAM ID | Slice Name | Admission State | Slice Status | Completion State | Seam Trace |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `SLC-021` | `PKG-009` | `FAM-009` | Workspace/folder organization and migration baseline | Historical Evidence | Released | Complete | `FB-005`, `FB-020`, `FB-026`, `FB-028`; historical workstream/release trace |
+| `SLC-022` | `PKG-009` | `FAM-009` | Durable workspace/data UX and follow-through | Deferred Placeholder | Deferred USER-approved package | Deferred | Future package seam required |
 
 Summary: Workspace and Data keeps old data/workspace IDs as trace while remaining open for broader data-product follow-through.
 
@@ -437,8 +458,10 @@ Priority: Medium
 Family Scope: Privacy posture, local execution boundaries, trust/safety copy, consentful integrations, safe automation, model/tool data handling, and license/privacy guardrails.
 Package Policy: Branchable safety/privacy work must package policy, runtime behavior, validation, and user-facing copy slices by default.
 Known Pending Gaps: Safety/privacy is repo-supported by local-execution and trust/safety vision but has no dedicated USER-approved implementation package yet.
+Package Admission State: Pending USER approval / no active package admission
+Admitted Slice Count: 0
 Package Completion State: Pending
-Single-Slice Package User Approval: Not required - package has multiple slices.
+Single-Slice Package User Approval: Not required - no active single-slice package is admitted; future package admission must have multiple concrete admitted slices or USER waiver.
 
 Package Trace:
 
@@ -448,10 +471,10 @@ Package Trace:
 
 Slice Trace:
 
-| Slice ID | Package ID | FAM ID | Slice Name | Slice Status | Seam Trace |
-| --- | --- | --- | --- | --- | --- |
-| `SLC-023` | `PKG-010` | `FAM-010` | Privacy/local-execution boundary and user-facing claims | Pending USER-approved package | Future Branch Readiness required |
-| `SLC-024` | `PKG-010` | `FAM-010` | Safe automation, consent, and integration guardrails | Pending USER-approved package | Future package seam required |
+| Slice ID | Package ID | FAM ID | Slice Name | Admission State | Slice Status | Completion State | Seam Trace |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `SLC-023` | `PKG-010` | `FAM-010` | Privacy/local-execution boundary and user-facing claims | Future Placeholder | Pending USER-approved package | Not Admitted | Future Branch Readiness required |
+| `SLC-024` | `PKG-010` | `FAM-010` | Safe automation, consent, and integration guardrails | Future Placeholder | Pending USER-approved package | Not Admitted | Future package seam required |
 
 Summary: Safety and Privacy is a broad product family only; it is not a reused legacy `FB` lane.
 

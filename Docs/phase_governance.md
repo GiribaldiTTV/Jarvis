@@ -566,7 +566,11 @@ Branch scope standard:
 - packages must record `Package Completion State:`
 - package slices must trace to exactly one FAM and exactly one package
 - Workstream must continue through every admitted package slice before Hardening unless package state is truthfully `Complete`, `Released Baseline / Open`, `Blocked`, or `Deferred`
-- a package with exactly one slice is blocked by `Single-Slice Package User Approval Missing` unless explicit USER approval records `Single-Slice Package User Approval: Granted`
+- a package with exactly one admitted slice is blocked by `Single-Slice Package User Approval Missing` unless explicit USER approval records `Single-Slice Package User Approval: Granted`
+- admitted-slice counting is explicit: only `Admission State: Admitted` rows count toward the multi-slice package rule
+- `Historical Evidence`, `Merged Evidence`, `Future Placeholder`, `Deferred Placeholder`, future package required rows, and deferred ideas preserve trace but do not count as admitted slices
+- every admitted slice must have concrete scope, `Package ID`, `FAM ID`, `Slice Status`, `Completion State`, and `Seam Trace`; vague pending/future placeholder rows cannot satisfy the multi-slice rule
+- `Package Completion State: Complete` is blocked while any admitted slice remains incomplete, and completing one admitted slice cannot authorize stopping while another admitted package slice remains incomplete
 
 They are not default identities for:
 
@@ -658,9 +662,9 @@ Hard blockers:
 - `Backlog Exhaustion User Decision Pending`:
   If the still-not-closed FAM plus not-complete package/slice list is empty and new work would require a new backlog identity, Codex must stop for USER direction instead of inventing the next lane.
 - `Single-Slice Package User Approval Missing`:
-  Branch Readiness and Workstream cannot greenlight a package with exactly one admitted slice unless explicit USER approval records `Single-Slice Package User Approval: Granted`.
+  Branch Readiness and Workstream cannot greenlight a package with exactly one admitted slice unless explicit USER approval records `Single-Slice Package User Approval: Granted`. Historical evidence rows, merged evidence rows, future placeholders, deferred ideas, and future-package-required rows do not count as admitted slices.
 - `Package Completion Unproven`:
-  Workstream cannot advance to Hardening until every admitted package slice is complete, deferred, blocked, or explicitly preserved as released-baseline/open package truth with `Package Completion State:` recorded.
+  Workstream cannot advance to Hardening until every admitted package slice is complete, deferred, blocked, or explicitly preserved as released-baseline/open package truth with `Package Completion State:` recorded. Package completion cannot be green while admitted slices remain incomplete.
 - `Deferred Selection Context Missing`:
   PR Readiness cannot be green when the selected next workstream is deferred but lacks `Deferred Since:`, `Deferred Because:`, or `Selection / Unblock:` in the backlog entry
 - `Dirty Branch`:
@@ -1408,7 +1412,7 @@ Bug fix, hotfix, UI-model, launcher, settings, protocol, policy, cross-subsystem
 
 Legacy `Single-Seam Fallback` and `Single-Seam Mode Waiver` terms are retired and must not be used in active source-of-truth.
 Same-branch backlog completion is the default.
-There is no repo-wide cap that forces an admitted multi-slice package to stop after one slice; however package admission defaults to multiple slices, and a package containing exactly one admitted slice requires explicit `Single-Slice Package User Approval: Granted`.
+There is no repo-wide cap that forces an admitted multi-slice package to stop after one slice; however package admission defaults to multiple admitted slices, and a package containing exactly one admitted slice requires explicit `Single-Slice Package User Approval: Granted`.
 A bounded stop condition blocks the workflow. It does not by itself authorize splitting the backlog item across branches.
 Stopping after the first slice or splitting the backlog item across branches requires an explicit `Backlog-Split User Approval` or a named bounded stop condition.
 A bounded stop condition blocks the workflow. It does not by itself authorize splitting the backlog item across branches, closing the backlog item, or leaving `Workstream` while remaining implementable work still exists.

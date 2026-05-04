@@ -132,9 +132,12 @@ Rules:
 - backlog identity is the user-facing feature-family registry by default
 - canonical backlog identity model: `FAM` is a broad long-lived product family; `Package` is a bulk branch/release package under exactly one FAM; `Slice` is a traceable deliverable area inside one package; `Seam` is an execution/validation checkpoint; `PR` is merge/review evidence only; legacy global `FB` is historical trace only
 - live backlog-family identities use the fresh broad `FAM-###` namespace starting at `FAM-001`; legacy `FB-###` IDs are historical trace only and must not be reused for new parseable backlog entries
-- branches should be family packages containing multiple slices by default, not one branchable item per small feature or seam
+- branches should be family packages containing multiple admitted slices by default, not one branchable item per small feature or seam
 - single-slice packages are blocked by `Single-Slice Package User Approval Missing` unless explicit USER approval records `Single-Slice Package User Approval: Granted`
 - package slices must trace to exactly one FAM and exactly one package, and Workstream must continue through all admitted package slices until package completion state is recorded before Hardening
+- admitted-slice counting is explicit: only `Admission State: Admitted` slice rows count toward the multi-slice package rule; historical evidence rows, future placeholders, deferred ideas, and future-package-required rows preserve trace but do not satisfy package admission
+- an admitted slice must be concrete and carry `Package ID`, `FAM ID`, `Slice Status`, `Completion State`, and `Seam Trace`; vague pending/future placeholder slices cannot be marked admitted
+- `Package Completion State: Complete` is blocked while any admitted slice remains incomplete, and completing one admitted slice cannot authorize stopping while another admitted package slice remains incomplete
 - separate backlog identities for non-user-facing runtime, developer-tooling, docs/governance, or canon-only work require explicit USER approval
 - Codex must not create, split, promote, or select a new backlog identity without explicit USER approval
 - if Codex reaches a point where it believes a backlog identity, package admission, branch creation, backlog split, promotion, selected-next successor, or single-slice package waiver is needed but approval is absent, stop on `Backlog Addition User Approval Missing` and output the still-not-closed FAM list plus every not-complete package and slice; if that list is empty, stop on `Backlog Exhaustion User Decision Pending`
