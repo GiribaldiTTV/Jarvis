@@ -16,7 +16,7 @@
 
 ## Current Phase
 
-- Phase: `Live Validation`
+- Phase: `PR Readiness`
 
 ## Phase Status
 
@@ -36,6 +36,13 @@
 - Current Hardening Seam Status: `Complete / green`
 - Current Live Validation Seam: `Live Validation LV1 - Shutdown Hotkey Confirmation Live Validation`
 - Current Live Validation Seam Status: `Complete / green`
+- Current PR Readiness Seam: `PR Readiness PR1 - FB-027 Runtime Branch PR Validation`
+- Current PR Readiness Seam Status: `Complete / green`; PR #109 is live, open, non-draft, and mergeable/clean with the live bot review comment addressed on the current head.
+- Current PR2 Merge-Watch Seam: `PR Readiness PR2 - FB-027 Runtime Branch Merge Verification Watch`
+- Current PR2 Merge-Watch Seam Status: `Blocked / red on PR Merge Verification Pending`
+- Live PR: `https://github.com/GiribaldiTTV/Nexus-Desktop-AI/pull/109`
+- Same-Thread Watcher: `pr109-same-thread-merge-watch`
+- Remaining PR Readiness Blockers: `PR Merge Verification Pending`
 - Next Legal Phase: `PR Readiness`
 
 ## Branch Class
@@ -44,7 +51,7 @@
 
 ## Blockers
 
-None.
+- `PR Merge Verification Pending`: Release Readiness remains blocked until the same-thread watcher verifies PR #109 as `merged=true`.
 
 ## Entry Basis
 
@@ -79,7 +86,7 @@ Rollback Path: revert the FB-027 Branch Readiness admission commit and return to
 
 ## Active Seam
 
-Active seam: `Live Validation LV1 - Shutdown Hotkey Confirmation Live Validation`
+Active seam: `PR Readiness PR2 - FB-027 Runtime Branch Merge Verification Watch`
 
 - `Branch Readiness BR1 - FB-027 Runtime Admission With Carried FB-030 Post-Merge Blocker`
 - Seam Status: `Complete / green`
@@ -89,6 +96,10 @@ Active seam: `Live Validation LV1 - Shutdown Hotkey Confirmation Live Validation
 - Seam Status: `Complete / green`
 - `Live Validation LV1 - Shutdown Hotkey Confirmation Live Validation`
 - Seam Status: `Complete / green`
+- `PR Readiness PR1 - FB-027 Runtime Branch PR Validation`
+- Seam Status: `Complete / green`
+- `PR Readiness PR2 - FB-027 Runtime Branch Merge Verification Watch`
+- Seam Status: `Blocked / red on PR Merge Verification Pending`
 
 ## Expected Seam Families And Risk Classes
 
@@ -237,18 +248,61 @@ Non-Includes: no PR creation or release work.
 - Automation Observability Finding: strict observability reports only a review-info reminder that FB-027 is waiting for the next phase; no LV1 repair candidate is admitted.
 - LV1 Continuation Decision: Live Validation LV1 is complete / green; next legal phase is `PR Readiness PR1 - FB-027 Runtime Branch PR Validation`.
 
+## PR Readiness PR1 Result
+
+- Phase Admission: `PASS`; branch authority advances from `Live Validation` to `PR Readiness` and admits `PR Readiness PR1 - FB-027 Runtime Branch PR Validation` while preserving WS1, H1, and LV1 as historical complete/green proof.
+- Scope Boundary: PR1 may create and validate the live PR, provision the same-thread watcher, validate bot-review, mergeability, readiness state, and record PR2 merge-watch posture.
+- Non-Includes: no merge, no Release Readiness work, no release packaging, no runtime widening, no overlay-command, saved-action, callable-group, tray, relaunch, or hotkey-remapping changes.
+- PR Creation Validation: `PASS`; PR #109 is live at `https://github.com/GiribaldiTTV/Nexus-Desktop-AI/pull/109`, open, non-draft, base `main`, head `feature/fb-027-shutdown-confirmation-runtime-branch-readiness`, and remote head `9ddeab8d4092a3aeed5f0be6e3ffefd481f177f7` at PR creation.
+- Mergeability Validation: `PASS`; PR #109 reports `MERGEABLE / CLEAN`.
+- Bot Review Validation: `Comment addressed`; the live `chatgpt-codex-connector[bot]` thread on `desktop/orin_desktop_main.py` is fixed on the current head via queued GUI-thread shutdown-confirmation dispatch.
+- Same-Thread Watcher Provisioning: `PASS`; native heartbeat `pr109-same-thread-merge-watch` is active for this thread, targets PR #109, uses `FREQ=MINUTELY;INTERVAL=1`, and must report only watched status changes or merge/close verification.
+- Watcher Routing: `PASS`; the watcher config records target thread `019dd083-0317-7b42-afb3-20b6818a1fa7`, which is the approved current working-thread reporting surface for this branch.
+- Cleared Blockers: `PR Creation Pending`, `PR Watcher Provisioning Unproven`, `PR Watcher Routing Unverified`, and `PR Merge Status Unproven`.
+- Remaining Blockers: `PR Merge Verification Pending`.
+- PR2 Posture: PR Readiness continues in `PR Readiness PR2 - FB-027 Runtime Branch Merge Verification Watch`; Release Readiness remains blocked until the watcher verifies `merged=true`.
+
+## PR Creation Details
+
+- PR URL: `https://github.com/GiribaldiTTV/Nexus-Desktop-AI/pull/109`
+- PR State: `open`
+- Draft State: `false`
+- Base Branch: `main`
+- Head Branch: `feature/fb-027-shutdown-confirmation-runtime-branch-readiness`
+- Head SHA: `9ddeab8d4092a3aeed5f0be6e3ffefd481f177f7`
+- Mergeability: `MERGEABLE / CLEAN`
+- Bot Review State: `Comment addressed`; the live bot shutdown-confirmation thread is fixed on the current head and PR2 merge verification is now the only remaining readiness blocker.
+
+## PR Watcher Provisioning Proof
+
+- Native Heartbeat Watcher: `pr109-same-thread-merge-watch`
+- Native Heartbeat Config: `$CODEX_HOME/automations/pr109-same-thread-merge-watch/automation.toml`
+- Native Heartbeat Cadence: `FREQ=MINUTELY;INTERVAL=1`
+- Native Heartbeat Target Thread: `019dd083-0317-7b42-afb3-20b6818a1fa7`
+- Approved Reporting Surface: current working Codex thread.
+- Watched PR: `https://github.com/GiribaldiTTV/Nexus-Desktop-AI/pull/109`
+- Stop Condition: watcher remains bounded to PR #109 and PR Readiness, and must retire or be deleted after PR #109 becomes `merged` or `closed`.
+- Output Boundary: post source-of-truth status updates only when the watched status changes or merge/close is verified; do not edit files, create branches, merge the PR, or perform Release Readiness work.
+
+## Post-Merge State
+
+- No Active Branch Handling: after the FB-027 PR merges, merged-main current-state surfaces must return to `No Active Branch`; this workstream record becomes historical traceability and must not retain live PR state, active seam ownership, or open-PR narration as merged-main active authority.
+- Branch Authority Closeout Requirement: before Release Readiness can treat the merge as complete, the same-thread watcher must verify `merged=true`, emit source-of-truth handoff proof, and retire or be deleted.
+- Successor Branch Handling: no successor branch is created from PR Readiness; the next runtime candidate must be selected and left branch-not-created before leaving PR Readiness.
+- PR2 Merge Watch Dependency: `PR Merge Verification Pending` remains active until the same-thread watcher verifies the live PR merged state.
+
 ## Seam Continuation Decision
 
-Seam Status: `Green`
+Seam Status: `Red`
 Slice Status: `Green`
-Completion Status: `Green`
+Completion Status: `Red`
 Waiver Status: `None`
 Continue Decision: `Stop`
-Stop Basis: `Workstream Green`
-Stop Condition: `None`
-Continuation Action: `Advance to PR Readiness PR1 for FB-027 runtime branch PR validation.`
-Decision Basis: `Live Validation LV1 is complete / green and requires PR Readiness before any merge or Release Readiness move.`
-Next Active Seam: `PR Readiness PR1 - FB-027 Runtime Branch PR Validation`
+Stop Basis: `Named PR Readiness blockers`
+Stop Condition: `PR Merge Verification Pending`
+Continuation Action: `Continue PR Readiness in PR2 and wait for same-thread watcher verification that PR #109 is merged before entering Release Readiness.`
+Decision Basis: `PR #109 is live and mergeable/clean, the live bot review comment is addressed on the current head, and watcher-verified merge is still pending.`
+Next Active Seam: `PR Readiness PR2 - FB-027 Runtime Branch Merge Verification Watch`
 
 ## Current Release-Truth Note
 

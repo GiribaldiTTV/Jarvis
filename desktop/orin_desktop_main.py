@@ -11,7 +11,7 @@ if ROOT_DIR not in sys.path:
     sys.path.insert(0, ROOT_DIR)
 
 from PySide6.QtGui import QAction
-from PySide6.QtCore import QTimer, Qt
+from PySide6.QtCore import QObject, QTimer, Qt, Slot
 from PySide6.QtWidgets import QApplication, QMenu, QMessageBox, QStyle, QSystemTrayIcon
 
 from desktop.desktop_renderer import DesktopRuntimeWindow
@@ -35,6 +35,16 @@ SHUTDOWN_CONFIRMATION_ACCEPTED = "accepted"
 SHUTDOWN_CONFIRMATION_CANCELLED = "cancelled"
 SHUTDOWN_CONFIRMATION_TIMEOUT = "timeout"
 SHUTDOWN_CONFIRMATION_DEFAULT_TIMEOUT_MS = 15000
+
+
+class ShutdownConfirmationDispatcher(QObject):
+    def __init__(self, handler, parent=None):
+        super().__init__(parent)
+        self._handler = handler
+
+    @Slot(str)
+    def request(self, source="hotkey"):
+        self._handler(source)
 
 
 def parse_runtime_log_arg(argv):
@@ -453,8 +463,16 @@ def main():
                 time.sleep(delay_seconds)
             do_shutdown()
 
+    shutdown_confirmation_dispatcher = ShutdownConfirmationDispatcher(
+        request_shutdown_confirmation,
+        app,
+    )
+
     bus.shutdown_requested.connect(do_shutdown)
-    bus.shutdown_confirmation_requested.connect(request_shutdown_confirmation)
+    bus.shutdown_confirmation_requested.connect(
+        shutdown_confirmation_dispatcher.request,
+        Qt.ConnectionType.QueuedConnection,
+    )
     bus.command_overlay_toggle_requested.connect(window.toggle_command_overlay)
     bus.command_overlay_text_requested.connect(window.handle_overlay_text_requested)
     bus.command_overlay_backspace_requested.connect(window.handle_overlay_backspace_requested)
