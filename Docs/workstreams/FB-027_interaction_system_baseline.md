@@ -16,7 +16,7 @@
 
 ## Current Phase
 
-- Phase: `Hardening`
+- Phase: `Live Validation`
 
 ## Phase Status
 
@@ -34,7 +34,9 @@
 - Current Workstream Seam Status: `Complete / green`
 - Current Hardening Seam: `Hardening H1 - Shutdown Hotkey Confirmation Runtime Validation`
 - Current Hardening Seam Status: `Complete / green`
-- Next Legal Phase: `Live Validation`
+- Current Live Validation Seam: `Live Validation LV1 - Shutdown Hotkey Confirmation Live Validation`
+- Current Live Validation Seam Status: `Complete / green`
+- Next Legal Phase: `PR Readiness`
 
 ## Branch Class
 
@@ -68,7 +70,7 @@ Rollback Path: revert the FB-027 Branch Readiness admission commit and return to
 
 ## Next Legal Phase
 
-- `Live Validation`
+- `PR Readiness`
 
 ## Branch Objective
 
@@ -77,13 +79,15 @@ Rollback Path: revert the FB-027 Branch Readiness admission commit and return to
 
 ## Active Seam
 
-Active seam: `Hardening H1 - Shutdown Hotkey Confirmation Runtime Validation`
+Active seam: `Live Validation LV1 - Shutdown Hotkey Confirmation Live Validation`
 
 - `Branch Readiness BR1 - FB-027 Runtime Admission With Carried FB-030 Post-Merge Blocker`
 - Seam Status: `Complete / green`
 - `Workstream WS1 - Shutdown Hotkey Confirmation Runtime Proof`
 - Seam Status: `Complete / green`
 - `Hardening H1 - Shutdown Hotkey Confirmation Runtime Validation`
+- Seam Status: `Complete / green`
+- `Live Validation LV1 - Shutdown Hotkey Confirmation Live Validation`
 - Seam Status: `Complete / green`
 
 ## Expected Seam Families And Risk Classes
@@ -221,6 +225,18 @@ Non-Includes: no PR creation or release work.
 - Automation Observability Finding: current automation observability findings remain review inputs outside the WS1 runtime behavior; no H1 runtime repair candidate is admitted.
 - H1 Continuation Decision: Hardening H1 is complete / green; next legal phase is `Live Validation LV1 - Shutdown Hotkey Confirmation Live Validation`.
 
+## Live Validation LV1 Result
+
+- Phase Admission: branch authority advanced from `Hardening` to `Live Validation` and admitted `Live Validation LV1 - Shutdown Hotkey Confirmation Live Validation`.
+- Live-Equivalent Shortcut Finding: `dev/orin_desktop_entrypoint_validation.py` launches through the desktop entrypoint stack, sends `Ctrl+Alt+End`, and observes `RENDERER_MAIN|SHUTDOWN_CONFIRMATION_REQUESTED|source=hotkey`, `RENDERER_MAIN|SHUTDOWN_CONFIRMATION_ACCEPTED|source=hotkey`, and `RENDERER_MAIN|SHUTDOWN_CONFIRMATION_CLEAN_SHUTDOWN_REQUESTED|source=hotkey` before clean shutdown markers.
+- Alternate Shortcut Finding: `dev/orin_interaction_baseline_validation.py` proves both `Ctrl+Alt+End` and `Ctrl+Alt+2` route to confirmation instead of direct shutdown.
+- Accepted Path Finding: accepted confirmation reaches the existing clean shutdown path.
+- Cancelled Path Finding: cancelled confirmation preserves the active session/runtime state by emitting cancellation and session-preserved markers without allowing shutdown.
+- Timeout Path Finding: timed-out confirmation preserves the active session/runtime state by emitting timeout and session-preserved markers without allowing shutdown.
+- Compatibility Finding: interaction baseline, desktop entrypoint, boot transition, branch governance, and automation observability validation remain green.
+- Automation Observability Finding: strict observability reports only a review-info reminder that FB-027 is waiting for the next phase; no LV1 repair candidate is admitted.
+- LV1 Continuation Decision: Live Validation LV1 is complete / green; next legal phase is `PR Readiness PR1 - FB-027 Runtime Branch PR Validation`.
+
 ## Seam Continuation Decision
 
 Seam Status: `Green`
@@ -230,9 +246,9 @@ Waiver Status: `None`
 Continue Decision: `Stop`
 Stop Basis: `Workstream Green`
 Stop Condition: `None`
-Continuation Action: `Advance to Live Validation LV1 for shutdown-hotkey confirmation live validation.`
-Decision Basis: `Hardening H1 is complete / green and requires Live Validation before any PR Readiness move.`
-Next Active Seam: `Live Validation LV1 - Shutdown Hotkey Confirmation Live Validation`
+Continuation Action: `Advance to PR Readiness PR1 for FB-027 runtime branch PR validation.`
+Decision Basis: `Live Validation LV1 is complete / green and requires PR Readiness before any merge or Release Readiness move.`
+Next Active Seam: `PR Readiness PR1 - FB-027 Runtime Branch PR Validation`
 
 ## Current Release-Truth Note
 
@@ -630,9 +646,13 @@ Future runtime or capability work beyond those released steps must still return 
 
 ## User Test Summary
 
-This workstream now includes user-facing saved-action capability changes beyond the original URL-target milestone, so a workstream-owned User Test Summary should still be considered before any future release promotion that extends FB-027 beyond the currently released inventory-and-guided-access follow-through.
+User-Facing Shortcut Validation: `PASS`
+User-Facing Shortcut Path: `Ctrl+Alt+End through dev/orin_desktop_entrypoint_validation.py closest live-equivalent desktop entrypoint harness; Ctrl+Alt+2 covered by dev/orin_interaction_baseline_validation.py`
+User Test Summary Results: `PASS`
 
-Future user-facing interaction changes should assume a workstream-owned User Test Summary will likely be needed before closure.
+- Live Validation Evidence: closest live-equivalent desktop entrypoint validation sent the shutdown hotkey through the active desktop runtime path and observed confirmation request, accepted confirmation, clean-shutdown request, and clean shutdown markers.
+- Session Preservation Evidence: interaction baseline validation proves cancelled and timeout decisions do not allow shutdown and emit the session-preserved markers.
+- User-Facing Scope Note: no manual user waiver is required for LV1 because the desktop entrypoint harness exercised the live shortcut path closely enough for this bounded branch, while direct `Ctrl+Alt+2` routing remains covered by focused interaction validation.
 
 ## Baseline Lock Summary
 
