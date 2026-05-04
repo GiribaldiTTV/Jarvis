@@ -642,6 +642,7 @@ Temporary `emergency canon repair` branches that are explicitly recorded as repa
 If the next workstream is not selected, is not recorded in backlog and roadmap, lacks valid record state, or lacks minimal scope, the branch is blocked by `Next Workstream Undefined`.
 If no real runtime candidate is selected before attempting to leave PR Readiness after USER-approved successor selection exists, the branch is blocked by `Next Runtime Candidate Selection Pending`.
 If USER approval for new or successor backlog selection is absent, the branch is blocked first by `Backlog Addition User Approval Missing`.
+Explicit successor-selection approval must be machine-recorded as `Successor Selection User Approval: Granted`; if that approval marker exists but no real runtime Feature Family candidate is selected, `Next Runtime Candidate Selection Pending` supersedes the missing-approval blocker.
 When `Backlog Addition User Approval Missing` is explicitly recorded with post-merge `No Active Branch` truth and no selected-next entry, PR Readiness must not force selected-next truth; it must output the still-not-closed FAM plus not-complete package/slice list, validate the live PR surface, and continue merge-watch or stop on live PR blockers.
 If a selected deferred workstream lacks deferred-context fields, the branch is blocked by `Deferred Selection Context Missing`.
 If a successor branch is created before `Branch Readiness`, the branch is blocked by `Successor Lock Missing`.

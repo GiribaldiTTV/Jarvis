@@ -2553,7 +2553,16 @@ def _validate_consolidated_backlog_source_truth(
                 f"{entry['id']} must use the fresh `{FRESH_FAMILY_PREFIX}###` namespace"
             ),
         )
-        expected_family = FRESH_FAMILY_TAXONOMY[entry["id"]]
+        expected_family = FRESH_FAMILY_TAXONOMY.get(entry["id"])
+        require(
+            expected_family is not None,
+            (
+                "Docs/feature_backlog.md: live backlog-family entry "
+                f"{entry['id']} is not part of the canonical fresh FAM taxonomy"
+            ),
+        )
+        if expected_family is None:
+            continue
         require(
             entry["title"] == expected_family["title"],
             (
@@ -7950,6 +7959,17 @@ def _run_next_workstream_gate(
     branch_record_class_map: dict[str, str],
     active_branch_record_text: str,
 ) -> None:
+    def successor_selection_approval_exists() -> bool:
+        normalized_record = active_branch_record_text.casefold()
+        return any(
+            marker in normalized_record
+            for marker in (
+                "successor selection user approval: granted",
+                "selected-next successor selection: approved",
+                "user approval for successor selection exists",
+            )
+        )
+
     def explicitly_records_no_selected_next(blocker: str) -> bool:
         post_merge_state = _section(active_branch_record_text, "Post-Merge State")
         return (
@@ -7966,6 +7986,17 @@ def _run_next_workstream_gate(
     if not selected_entries:
         not_closed_entries = _format_not_closed_backlog_entries(backlog_entries)
         if not_closed_entries:
+            if successor_selection_approval_exists():
+                require(
+                    False,
+                    (
+                        "PR readiness gate: Next Runtime Candidate Selection Pending blocker is active; "
+                        "explicit USER successor-selection approval exists, but no real runtime "
+                        "Feature Family candidate is selected. Still-not-closed backlog item(s): "
+                        f"{not_closed_entries}"
+                    ),
+                )
+                return
             if explicitly_records_no_selected_next(BACKLOG_ADDITION_USER_APPROVAL_BLOCKER):
                 return
             require(
