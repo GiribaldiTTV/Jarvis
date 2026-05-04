@@ -41,8 +41,8 @@
 
 ## Historical Alias Coverage
 
-- Family Alias IDs Preserved In Backlog: `FB-043`, `FB-044`, `FB-045`, `FB-046`, `FB-047`, `FB-048`
-- Alias Preservation Rule: these remain historical aliases of `FB-042` in `Docs/feature_backlog.md` and are not independently selectable.
+- Family Alias IDs Preserved In Dossier / Workstream Index: `FB-043`, `FB-044`, `FB-045`, `FB-046`, `FB-047`, `FB-048`
+- Alias Preservation Rule: these are no longer standalone backlog items; traceability is preserved through the family pass table in `Docs/feature_backlog.md`, this dossier, `Docs/workstreams/index.md`, and the canonical historical workstream records.
 - Current Alias Record Migration State: FB-043 through FB-048 now keep their existing historical workstream narratives as explicit FB-042 historical pass records, and the preserved corresponding branch-readiness records now carry matching historical pass identity after Slice R5-S3.
 
 ## Historical Anchor Record
@@ -119,6 +119,6 @@ Artifact Index Population State: `No historical artifact entries migrated yet`
 - R4-S5 validates that the FB-042 dossier shell, routing, and index-template surfaces remain stable after the Phase 4 structural slices, and it does so without migrating historical rows or narrative content.
 - R5-S1 converts FB-043 through FB-048 workstream records into explicit FB-042 historical pass records and populates family pass-index plus slice/seam summary rows without migrating full narrative, validator/helper, artifact, or branch-record bodies into the dossier itself.
 - R5-S3 converts the preserved FB-043 through FB-048 Branch Readiness records into matching FB-042 historical pass-record traceability without creating new branch records or migrating those branch-record bodies into the dossier itself.
-- R5-S5 completes the Phase 5 traceability sweep by indexing the preserved FB-043 through FB-048 branch-readiness traces directly in the family dossier and confirming the dossier, backlog, roadmap, alias workstream, and branch-record routing stay aligned without migrating narrative bodies.
+- R5-S5 completes the Phase 5 traceability sweep by indexing the preserved FB-043 through FB-048 branch-readiness traces directly in the family dossier and confirming the dossier, backlog trace table, roadmap, alias workstream, and branch-record routing stay aligned without migrating narrative bodies.
 - Later Phase 4 and Phase 5 slices will populate indexes and convert historical records incrementally.
 - Until later migration lands, the existing workstream and alias records remain the authoritative detailed history.

@@ -21,7 +21,7 @@ This loader routes to these authorities:
 - `Docs/phase_governance.md` owns phase names, blockers, branch classes, phase transitions, proof governance, and seam-governance rules.
 - `Docs/codex_modes.md` owns Analysis and Workflow collaboration posture.
 - `Docs/feature_backlog.md` owns tracked work identity and `Record State`.
-- `Docs/workstreams/index.md` owns canonical workstream-record routing, including family anchors, historical pass aliases, and other closed-workstream splits.
+- `Docs/workstreams/index.md` owns canonical workstream-record routing, including feature-family anchors, historical family-pass records, and other closed trace records.
 - the active workstream doc owns branch-local phase truth, evidence, blockers, and next legal phase for promoted work.
 - `Docs/incident_patterns.md` owns generalized recurring drift or validation lessons.
 - `Docs/validation_helper_registry.md` owns durable helper naming, status, reuse, and consolidation obligations when helpers are in scope.
@@ -42,7 +42,7 @@ When ChatGPT or another interface layer generates a Nexus prompt, the generated 
 6. Load the directly relevant authority docs for the task.
 7. If the task maps to a tracked item, load `Docs/feature_backlog.md` and determine its `Record State`.
 8. If the tracked item is `Promoted` or `Closed`, load its canonical workstream doc from the backlog and `Docs/workstreams/index.md`.
-9. If the tracked item declares a `Lifetime Dossier Doc`, or if it is a `Feature Family` anchor or `Historical Pass Alias` routed through a family dossier, load that dossier too.
+9. If the tracked item declares a `Lifetime Dossier Doc`, or if it is a `Feature Family` anchor or historical family-pass trace row routed through a family dossier, load that dossier too.
 10. If helpers, validation scripts, live-validation harnesses, or shared support are in scope, load `Docs/validation_helper_registry.md`.
 11. If drift, recurrence, release correction, or governance repair is in scope, load `Docs/incident_patterns.md`.
 12. Validate current repo truth before acting:

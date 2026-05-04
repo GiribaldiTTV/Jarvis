@@ -135,6 +135,7 @@ Rules:
 - if Codex reaches a point where it believes a backlog identity or successor selection is needed but approval is absent, stop on `Backlog Addition User Approval Missing` and output the still-not-closed backlog list; if that list is empty, stop on `Backlog Exhaustion User Decision Pending`
 - small single-seam runtime proofs, validation follow-through, governance repairs, and blocker-clearing traces belong in workstream docs, family dossiers, branch records, or historical PR trace by default, not as new backlog IDs or standalone release-version drivers
 - backlog is not the seam-by-seam traceability surface for continuation, blocker-clearing, or validator follow-through; canonical workstreams and branch authority records own that history
+- historical pass aliases, support/governance lanes, and old registry-only implemented IDs in `Docs/feature_backlog.md` are trace rows only; do not treat them as backlog identities or selected-next candidates
 - continuation or reopening on an existing feature family should reuse that same backlog identity by default unless the USER explicitly approves a backlog split or the work is materially a new user-facing feature family
 - backlog candidate selection is priority-led; `Priority` and deferred-context fields are the selection inputs for open items
 - `Target Version` is not an open-backlog selection input and belongs only to release posture, release debt, or historical closed/implemented evidence
@@ -146,7 +147,7 @@ Rules:
 
 Use these for promoted work that needs a stable feature-state, branch-local validation/evidence record, active seam trail, durable artifact/reuse history, and closure history:
 
-For the family-governance model, use `Docs/workstreams/index.md` first to distinguish family anchors, historical pass alias records, and other closed workstreams before loading the specific canonical record.
+For the family-governance model, use `Docs/workstreams/index.md` first to distinguish feature-family anchors, historical family-pass records, and other closed trace records before loading the specific canonical record.
 
 - `Docs/workstreams/index.md`
 - `Docs/workstreams/FB-027_interaction_system_baseline.md`
@@ -176,12 +177,12 @@ For the family-governance model, use `Docs/workstreams/index.md` first to distin
 - `Docs/workstreams/FB-033_startup_snapshot_harness_follow_through.md`
 - `Docs/workstreams/FB-028_history_state_relocation.md`
 
-### Family Dossiers And Historical Pass Alias Routing
+### Family Dossiers And Historical Pass Trace Routing
 
 Use these for additive family-lifetime traceability surfaces that layer over existing workstream history without replacing the canonical workstream docs in one pass:
 
-- load the `Lifetime Dossier Doc` named by backlog or roadmap when the task touches a `Feature Family` anchor or a `Historical Pass Alias`
-- use `Docs/workstreams/index.md` to locate the split family-anchor versus historical-pass record set before choosing the exact canonical workstream doc
+- load the `Lifetime Dossier Doc` named by backlog or roadmap when the task touches a `Feature Family` anchor or a historical family-pass trace row
+- use `Docs/workstreams/index.md` to locate the split feature-family anchor versus historical-pass record set before choosing the exact canonical workstream doc
 
 - `Docs/workstreams/index.md`
 - `Docs/workstreams/FB-042_desktop_startup_runtime_family_dossier.md`

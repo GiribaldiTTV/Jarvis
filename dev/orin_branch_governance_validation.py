@@ -1923,13 +1923,13 @@ REFORM_R6_S2_INDEX_REQUIRED_PHRASES = (
 
 REFORM_R6_S3_ROUTER_REQUIRED_PHRASES = {
     Path("Docs/Main.md"): (
-        "For the family-governance model, use `Docs/workstreams/index.md` first to distinguish family anchors, historical pass alias records, and other closed workstreams before loading the specific canonical record.",
-        "### Family Dossiers And Historical Pass Alias Routing",
-        "- load the `Lifetime Dossier Doc` named by backlog or roadmap when the task touches a `Feature Family` anchor or a `Historical Pass Alias`",
+        "For the family-governance model, use `Docs/workstreams/index.md` first to distinguish feature-family anchors, historical family-pass records, and other closed trace records before loading the specific canonical record.",
+        "### Family Dossiers And Historical Pass Trace Routing",
+        "- load the `Lifetime Dossier Doc` named by backlog or roadmap when the task touches a `Feature Family` anchor or a historical family-pass trace row",
     ),
     Path("Docs/nexus_startup_contract.md"): (
-        "- `Docs/workstreams/index.md` owns canonical workstream-record routing, including family anchors, historical pass aliases, and other closed-workstream splits.",
-        "9. If the tracked item declares a `Lifetime Dossier Doc`, or if it is a `Feature Family` anchor or `Historical Pass Alias` routed through a family dossier, load that dossier too.",
+        "- `Docs/workstreams/index.md` owns canonical workstream-record routing, including feature-family anchors, historical family-pass records, and other closed trace records.",
+        "9. If the tracked item declares a `Lifetime Dossier Doc`, or if it is a `Feature Family` anchor or historical family-pass trace row routed through a family dossier, load that dossier too.",
     ),
 }
 
@@ -2006,6 +2006,68 @@ VALID_BACKLOG_REGISTRY_CLASSES = (
     "Historical Implemented Registry-Only",
 )
 
+CONSOLIDATED_SUPPORT_TRACE_IDS = (
+    "FB-035",
+    "FB-034",
+    "FB-033",
+    "FB-032",
+    "FB-029",
+    "FB-028",
+    "FB-025",
+    "FB-015",
+    "FB-005",
+    "FB-004",
+)
+
+CONSOLIDATED_HISTORICAL_REGISTRY_ONLY_IDS = (
+    "FB-001",
+    "FB-002",
+    "FB-003",
+    "FB-006",
+    "FB-007",
+    "FB-008",
+    "FB-009",
+    "FB-010",
+    "FB-011",
+    "FB-012",
+    "FB-013",
+    "FB-014",
+    "FB-016",
+    "FB-017",
+    "FB-018",
+    "FB-019",
+    "FB-020",
+    "FB-021",
+    "FB-022",
+    "FB-023",
+    "FB-024",
+    "FB-026",
+)
+
+CONSOLIDATED_TRACE_BACKLOG_IDS = (
+    *REFORM_FB042_ALIAS_IDS,
+    *REFORM_FB027_ALIAS_IDS,
+    *CONSOLIDATED_SUPPORT_TRACE_IDS,
+    *CONSOLIDATED_HISTORICAL_REGISTRY_ONLY_IDS,
+)
+
+CONSOLIDATED_BACKLOG_TRACE_REQUIRED_PHRASES = (
+    "historical pass aliases, support/governance lanes, and old registry-only implemented records are trace tables, not backlog items",
+    "Former standalone historical pass backlog entries now live here as family traceability only.",
+    "| `FB-048` | `F042-P07` | `FB-042` | `Docs/workstreams/FB-048_active_session_relaunch_signal_failure_and_wait_timeout_truth.md` | `Docs/workstreams/FB-042_desktop_startup_runtime_family_dossier.md` | `v1.6.12-prebeta` | Historical family pass only; not selectable |",
+    "| `FB-043` | `F042-P02` | `FB-042` | `Docs/workstreams/FB-043_top_level_entrypoint_handoff_refinement.md` | `Docs/workstreams/FB-042_desktop_startup_runtime_family_dossier.md` | `v1.6.8-prebeta` | Historical family pass only; not selectable |",
+    "| `FB-041` | `F027-P03` | `FB-027` | `Docs/workstreams/FB-041_deterministic_callable_group_execution_layer.md` | `Docs/workstreams/FB-027_interaction_shared_action_family_dossier.md` | `v1.3.1-prebeta` | Historical family pass only; not selectable |",
+    "| `FB-038` | `F027-P05` | `FB-027` | `Docs/workstreams/FB-038_taskbar_tray_quick_task_ux.md` | `Docs/workstreams/FB-027_interaction_shared_action_family_dossier.md` | `v1.4.1-prebeta` | Historical family pass only; not selectable |",
+    "| `FB-036` | `F027-P02` | `FB-027` | `Docs/workstreams/FB-036_saved_action_authoring.md` | `Docs/workstreams/FB-027_interaction_shared_action_family_dossier.md` | `v1.3.0-prebeta` | Historical family pass only; not selectable |",
+    "Closed support, architecture, and governance lanes are historical traceability only.",
+    "| `FB-035` | Support-report release-context fallback hardening | `Docs/workstreams/FB-035_release_context_fallback_hardening.md` | `v1.2.7-prebeta` | Closed support lane trace |",
+    "| `FB-032` | Nexus-era vision and source-of-truth migration | `Docs/workstreams/FB-032_nexus_era_vision_and_source_of_truth_migration.md` | `v1.6.2-prebeta` | Closed architecture/governance trace |",
+    "| `FB-004` | Future boot orchestrator layer | `Docs/workstreams/FB-004_future_boot_orchestrator_layer.md` | `v1.6.3-prebeta` | Closed architecture trace |",
+    "Old implemented registry-only IDs are preserved as same-file historical trace.",
+    "| `FB-001` | Repeated identical crash early escalation | Implemented `v1.6.0` | Historical registry trace in `Docs/feature_backlog.md` |",
+    "| `FB-026` | Dev Toolkit uploaded-bundle intake surface | Implemented `v2.2.0` | Historical registry trace in `Docs/feature_backlog.md` |",
+)
+
 
 def _read_text(relative_path: Path) -> str:
     return (ROOT_DIR / relative_path).read_text(encoding="utf-8")
@@ -2070,9 +2132,10 @@ def _normalize_status(value: str) -> str:
 def _parse_backlog_sections(text: str) -> list[dict[str, str]]:
     entries: list[dict[str, str]] = []
     matches = list(re.finditer(r"^### \[ID: (?P<id>FB-\d+)\] (?P<title>.+)$", text, flags=re.M))
-    for index, match in enumerate(matches):
+    for match in matches:
         start = match.start()
-        end = matches[index + 1].start() if index + 1 < len(matches) else len(text)
+        next_heading = re.search(r"(?m)^(?:## |### )", text[match.end() :])
+        end = match.end() + next_heading.start() if next_heading else len(text)
         block = text[start:end]
         entries.append(
             {
@@ -2160,6 +2223,57 @@ def _historical_alias_mapping_matches(
         if registry_class != "Historical Pass Alias" or historical_alias_of != family_anchor_id:
             return False
     return True
+
+
+def _validate_consolidated_backlog_source_truth(
+    require,
+    *,
+    backlog_text: str,
+    backlog_entries: list[dict[str, str]],
+) -> None:
+    parsed_ids = {entry["id"] for entry in backlog_entries}
+
+    for trace_id in CONSOLIDATED_TRACE_BACKLOG_IDS:
+        require(
+            trace_id not in parsed_ids,
+            (
+                "Docs/feature_backlog.md: "
+                f"{trace_id} must remain a consolidated trace row, not a parseable backlog item"
+            ),
+        )
+        require(
+            f"#### [Former ID: {trace_id}]" in backlog_text or f"| `{trace_id}` |" in backlog_text,
+            (
+                "Docs/feature_backlog.md: "
+                f"{trace_id} consolidated trace is missing after backlog source-of-truth repair"
+            ),
+        )
+
+    for entry in backlog_entries:
+        registry_class = _clean_release_value(_extract_colon_value(entry["block"], "Registry Class"))
+        if registry_class == "Feature Family":
+            continue
+        has_explicit_user_approval = (
+            "USER Approval:" in entry["block"]
+            and "explicit" in entry["block"].casefold()
+        )
+        require(
+            has_explicit_user_approval,
+            (
+                "Docs/feature_backlog.md: parseable non-feature-family backlog entry "
+                f"{entry['id']} requires explicit USER approval; otherwise it must be a trace row "
+                "under the family/source-of-truth consolidation model"
+            ),
+        )
+
+    for phrase in CONSOLIDATED_BACKLOG_TRACE_REQUIRED_PHRASES:
+        require(
+            phrase in backlog_text,
+            (
+                "Docs/feature_backlog.md: consolidated backlog source-of-truth trace is missing "
+                f"required marker '{phrase}'"
+            ),
+        )
 
 
 def _latest_public_prerelease(roadmap_text: str) -> str:
@@ -4173,7 +4287,7 @@ def _validate_backlog_family_reform_seam_truth(
         return (
             main_router_loader_aligned()
             and selected_next_truth_validated()
-            and "### Family Dossiers And Historical Pass Alias Routing" in main_text
+            and "### Family Dossiers And Historical Pass Trace Routing" in main_text
             and "### Family Dossiers And Alias Records" not in main_text
             and "### Family Anchor Records" in index_text
             and "### Historical Pass Alias Records" in index_text
@@ -6162,7 +6276,7 @@ def _validate_backlog_family_dossier_shell(
         return
 
     index_dossier_section = _section(index_text, "Family Dossier Records")
-    main_dossier_routes = _subsection(main_text, "Family Dossiers And Historical Pass Alias Routing")
+    main_dossier_routes = _subsection(main_text, "Family Dossiers And Historical Pass Trace Routing")
 
     def require_dossier_shell(
         *,
@@ -6220,7 +6334,7 @@ def _validate_backlog_family_dossier_shell(
         require(
             str(dossier_path).replace("\\", "/") in main_dossier_routes,
             (
-                "Docs/Main.md: Family Dossiers And Historical Pass Alias Routing must route the "
+                "Docs/Main.md: Family Dossiers And Historical Pass Trace Routing must route the "
                 f"{backlog_id} dossier shell"
             ),
         )
@@ -9591,6 +9705,11 @@ def main() -> int:
             )
 
     backlog_entries = _parse_backlog_sections(backlog_text)
+    _validate_consolidated_backlog_source_truth(
+        require,
+        backlog_text=backlog_text,
+        backlog_entries=backlog_entries,
+    )
     _validate_backlog_family_reform_bootstrap(
         require,
         current_branch=current_git_branch,
@@ -9667,61 +9786,47 @@ def main() -> int:
         )
 
     fb038_entry = _entry_by_id(backlog_entries, "FB-038")
-    require(bool(fb038_entry), "Docs/feature_backlog.md: FB-038 backlog entry is missing")
-    if highest_known_prebeta_tag == FB038_RELEASE_TAG and fb038_entry:
+    require(
+        not fb038_entry,
+        "Docs/feature_backlog.md: FB-038 must be a consolidated FB-027 family trace row, not a parseable backlog entry",
+    )
+    require(
+        FB038_CANONICAL_PATH in closed_index_paths,
+        "Docs/workstreams/index.md: FB-038 must remain listed under closed historical pass records",
+    )
+    require(
+        FB038_CANONICAL_PATH not in release_debt_index_paths,
+        "Docs/workstreams/index.md: FB-038 must not remain under Merged / Release Debt Owners after release",
+    )
+    roadmap_lower = roadmap_text.casefold()
+    require(
+        "merged-unreleased release-debt owner: fb-038" not in roadmap_lower,
+        "Docs/prebeta_roadmap.md: FB-038 release must not remain the release-debt owner",
+    )
+    fb038_workstream_path = ROOT_DIR / Path(FB038_CANONICAL_PATH)
+    require(
+        fb038_workstream_path.is_file(),
+        f"{FB038_CANONICAL_PATH}: FB-038 workstream doc does not exist",
+    )
+    if fb038_workstream_path.is_file():
+        fb038_text = _read_text(Path(FB038_CANONICAL_PATH))
+        fb038_info = _parse_workstream_doc(fb038_text)
         require(
-            fb038_entry["record_state"] == "Closed",
-            f"Docs/feature_backlog.md: FB-038 must be Closed after {FB038_RELEASE_TAG} release",
+            fb038_info["record_state"] == "Closed",
+            f"{FB038_CANONICAL_PATH}: Record State must be Closed after {FB038_RELEASE_TAG} release",
         )
         require(
-            _normalize_status(fb038_entry["status"]) == "released",
-            f"Docs/feature_backlog.md: FB-038 must be Released after {FB038_RELEASE_TAG} release",
+            _normalize_status(str(fb038_info["status"])) == "released",
+            f"{FB038_CANONICAL_PATH}: Status must be Released after {FB038_RELEASE_TAG} release",
         )
         require(
-            _clean_release_value(_extract_colon_value(fb038_entry["block"], "Target Version")) == FB038_RELEASE_TAG,
-            f"Docs/feature_backlog.md: FB-038 Target Version must remain {FB038_RELEASE_TAG}",
+            f"Latest Public Prerelease: {FB038_RELEASE_TAG}" in fb038_text,
+            f"{FB038_CANONICAL_PATH}: released-state canon must record latest public prerelease {FB038_RELEASE_TAG}",
         )
         require(
-            _clean_release_value(_extract_colon_value(fb038_entry["block"], "Release Title")) == FB038_RELEASE_TITLE,
-            f"Docs/feature_backlog.md: FB-038 Release Title must be '{FB038_RELEASE_TITLE}'",
+            f"Release Title: {FB038_RELEASE_TITLE}" in fb038_text,
+            f"{FB038_CANONICAL_PATH}: released-state canon must record release title '{FB038_RELEASE_TITLE}'",
         )
-        require(
-            FB038_CANONICAL_PATH in closed_index_paths,
-            "Docs/workstreams/index.md: FB-038 must be listed under Closed after v1.4.1-prebeta release",
-        )
-        require(
-            FB038_CANONICAL_PATH not in release_debt_index_paths,
-            "Docs/workstreams/index.md: FB-038 must not remain under Merged / Release Debt Owners after release",
-        )
-        roadmap_lower = roadmap_text.casefold()
-        require(
-            "merged-unreleased release-debt owner: fb-038" not in roadmap_lower,
-            "Docs/prebeta_roadmap.md: FB-038 release must not remain the release-debt owner",
-        )
-        fb038_workstream_path = ROOT_DIR / Path(FB038_CANONICAL_PATH)
-        require(
-            fb038_workstream_path.is_file(),
-            f"{FB038_CANONICAL_PATH}: FB-038 workstream doc does not exist",
-        )
-        if fb038_workstream_path.is_file():
-            fb038_text = _read_text(Path(FB038_CANONICAL_PATH))
-            fb038_info = _parse_workstream_doc(fb038_text)
-            require(
-                fb038_info["record_state"] == "Closed",
-                f"{FB038_CANONICAL_PATH}: Record State must be Closed after {FB038_RELEASE_TAG} release",
-            )
-            require(
-                _normalize_status(str(fb038_info["status"])) == "released",
-                f"{FB038_CANONICAL_PATH}: Status must be Released after {FB038_RELEASE_TAG} release",
-            )
-            require(
-                f"Latest Public Prerelease: {FB038_RELEASE_TAG}" in fb038_text,
-                f"{FB038_CANONICAL_PATH}: released-state canon must record latest public prerelease {FB038_RELEASE_TAG}",
-            )
-            require(
-                f"Release Title: {FB038_RELEASE_TITLE}" in fb038_text,
-                f"{FB038_CANONICAL_PATH}: released-state canon must record release title '{FB038_RELEASE_TITLE}'",
-            )
 
     if highest_known_prebeta_tag:
         expected_latest_title = _expected_prebeta_release_title(highest_known_prebeta_tag)
@@ -9989,60 +10094,52 @@ def main() -> int:
             "Docs/workstreams/index.md: Active list must be empty when no backlog workstream is Promoted",
         )
 
+    fb041_path = "Docs/workstreams/FB-041_deterministic_callable_group_execution_layer.md"
     fb041_entries = [entry for entry in backlog_entries if entry.get("id") == "FB-041"]
-    require(bool(fb041_entries), "Docs/feature_backlog.md: FB-041 backlog entry is missing")
-    if fb041_entries:
-        fb041_entry = fb041_entries[0]
-        fb041_path = fb041_entry["canonical_path"]
+    require(
+        not fb041_entries,
+        "Docs/feature_backlog.md: FB-041 must be a consolidated FB-027 family trace row, not a parseable backlog entry",
+    )
+    require(
+        fb041_path in closed_index_paths,
+        "Docs/workstreams/index.md: FB-041 must remain listed under closed historical pass records",
+    )
+    require(
+        fb041_path not in active_index_paths,
+        "Docs/workstreams/index.md: FB-041 must not remain under Active after v1.3.1-prebeta release",
+    )
+
+    fb041_doc_path = Path(fb041_path)
+    require(
+        (ROOT_DIR / fb041_doc_path).is_file(),
+        f"{fb041_path}: FB-041 workstream doc does not exist",
+    )
+    if (ROOT_DIR / fb041_doc_path).is_file():
+        fb041_text = _read_text(fb041_doc_path)
+        fb041_info = _parse_workstream_doc(fb041_text)
         require(
-            fb041_entry["record_state"] == "Closed",
-            "Docs/feature_backlog.md: FB-041 must be Closed after v1.3.1-prebeta release",
+            fb041_info["record_state"] == "Closed",
+            f"{fb041_path}: Record State must be Closed after v1.3.1-prebeta release",
         )
         require(
-            _normalize_status(fb041_entry["status"]) == "released",
-            "Docs/feature_backlog.md: FB-041 must be Released after v1.3.1-prebeta release",
-        )
-        require(
-            fb041_path in closed_index_paths,
-            "Docs/workstreams/index.md: FB-041 must be listed under Closed after v1.3.1-prebeta release",
-        )
-        require(
-            fb041_path not in active_index_paths,
-            "Docs/workstreams/index.md: FB-041 must not remain under Active after v1.3.1-prebeta release",
+            _normalize_status(str(fb041_info["status"])) == "released",
+            f"{fb041_path}: Status must be Released after v1.3.1-prebeta release",
         )
 
-        if fb041_path:
-            fb041_doc_path = Path(fb041_path)
-            require(
-                (ROOT_DIR / fb041_doc_path).is_file(),
-                f"{fb041_path}: FB-041 workstream doc does not exist",
-            )
-            if (ROOT_DIR / fb041_doc_path).is_file():
-                fb041_text = _read_text(fb041_doc_path)
-                fb041_info = _parse_workstream_doc(fb041_text)
-                require(
-                    fb041_info["record_state"] == "Closed",
-                    f"{fb041_path}: Record State must be Closed after v1.3.1-prebeta release",
-                )
-                require(
-                    _normalize_status(str(fb041_info["status"])) == "released",
-                    f"{fb041_path}: Status must be Released after v1.3.1-prebeta release",
-                )
-
-        fb041_roadmap_section = _roadmap_section_for_id(roadmap_text, "FB-041")
+    fb041_roadmap_section = _roadmap_section_for_id(roadmap_text, "FB-041")
+    require(
+        bool(fb041_roadmap_section),
+        "Docs/prebeta_roadmap.md: FB-041 release section is missing",
+    )
+    if fb041_roadmap_section:
         require(
-            bool(fb041_roadmap_section),
-            "Docs/prebeta_roadmap.md: FB-041 release section is missing",
+            fb041_path in fb041_roadmap_section,
+            "Docs/prebeta_roadmap.md: FB-041 release section must cite the canonical workstream doc",
         )
-        if fb041_roadmap_section:
-            require(
-                fb041_path in fb041_roadmap_section,
-                "Docs/prebeta_roadmap.md: FB-041 release section must cite the canonical workstream doc",
-            )
-            require(
-                "release state: `released`" in fb041_roadmap_section,
-                "Docs/prebeta_roadmap.md: FB-041 release state must be `released`",
-            )
+        require(
+            "release state: `released`" in fb041_roadmap_section,
+            "Docs/prebeta_roadmap.md: FB-041 release state must be `released`",
+        )
 
     for entry in promoted_entries:
         workstream_id = entry["id"]

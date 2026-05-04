@@ -105,6 +105,8 @@ These records are not active implementation branch owners after merge.
 
 ### Historical Pass Alias Records
 
+These records are no longer standalone backlog items. They are historical family-pass source records routed through the family dossier and preserved canonical workstream docs.
+
 #### FB-042 Family
 
 - `Docs/workstreams/FB-043_top_level_entrypoint_handoff_refinement.md`
@@ -122,6 +124,8 @@ These records are not active implementation branch owners after merge.
 - `Docs/workstreams/FB-038_taskbar_tray_quick_task_ux.md`
 
 ### Other Closed Workstreams
+
+These closed support, architecture, and governance workstreams are source-of-truth trace records only. They do not become selectable backlog identities again unless the USER explicitly approves a future major release/support lane.
 
 - `Docs/workstreams/FB-005_workspace_and_folder_organization.md`
 - `Docs/workstreams/FB-029_orin_identity_licensing_hardening.md`

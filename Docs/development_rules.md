@@ -789,6 +789,8 @@ Use `Docs/Main.md` as the routing index for the merged canon.
 
 `Docs/feature_backlog.md` is a controlled registry layer.
 
+Only true feature-family backlog entries should remain as parseable `### [ID: FB-XXX]` backlog records by default. Historical pass aliases, support/governance lanes, and old registry-only implemented IDs are traceability rows that route to family dossiers, canonical workstream records, or same-file historical trace; they must not be selected as backlog items by inertia.
+
 Open backlog selection is priority-led:
 
 - `Priority` is the primary selection signal for open candidate work
@@ -807,6 +809,7 @@ Codex may not:
 
 - silently add backlog items
 - add, split, promote, or select backlog identities without explicit USER approval
+- turn historical trace rows back into parseable backlog entries without explicit USER approval
 - silently change priority or status outside approved work
 - silently mark work complete because a branch merely looks clean
 

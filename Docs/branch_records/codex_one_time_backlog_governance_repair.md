@@ -26,9 +26,9 @@ This branch must not change runtime behavior. Its job is to harden governance, v
 - Workstream: `One-time backlog governance repair`
 - USER Approval: explicit in the 2026-05-04 instruction to fix the governance drift in a one-time governance branch.
 - Drift Finding: FB-027 / PR #109 was allowed to become active selected-next and release-facing truth even though it was a small single-seam runtime follow-through.
-- Repair Scope: backlog identity admission blocker, selected-next permission blocker, FB-027 aggregation-hold correction, PR #109 standalone release-driver removal, and validator alignment.
+- Repair Scope: backlog identity admission blocker, selected-next permission blocker, FB-027 aggregation-hold correction, PR #109 standalone release-driver removal, historical backlog-item consolidation into family/source-of-truth trace, and validator alignment.
 - Runtime Scope: none.
-- Current Seam: `Governance repair implementation`
+- Current Seam: `Governance repair implementation and backlog source-of-truth consolidation`
 
 ## Branch Class
 
@@ -44,12 +44,14 @@ This branch must not change runtime behavior. Its job is to harden governance, v
 - USER stated FB-027 / PR #109 should not have been created as its own release-bearing lane and should be folded into the larger interaction/shared-action family category.
 - USER directed a hard blocker for adding any backlog item without explicit USER permission.
 - USER directed the blocker output: when reached, Codex must list all backlog items that are still not closed; if all are closed, Codex must stop for the later USER-controlled blocker.
+- USER then explicitly approved the one-time backlog/source-of-truth consolidation so former small, support, governance, and registry-only backlog entries could be removed as selectable backlog items while preserving traceability.
 
 ## Exit Criteria
 
 - `Docs/phase_governance.md`, `Docs/development_rules.md`, `Docs/Main.md`, and prompt surfaces define `Backlog Addition User Approval Missing` and `Backlog Exhaustion User Decision Pending`.
 - Current-state truth no longer marks FB-027 / PR #109 as an active backlog lane, selected-next lane, or standalone release-version driver.
 - FB-027 lifetime family trace records PR #109 as aggregation evidence with `Standalone Release Driver: No`.
+- Former standalone historical pass aliases, support/governance lanes, and old registry-only implemented IDs are no longer parseable backlog entries; they route through feature-family trace tables, `Docs/workstreams/index.md`, family dossiers, canonical workstream records, or same-file historical trace.
 - FB-049 runtime proof, FB-030 runtime diagnostics proof, pending `v1.6.13-prebeta` posture, FB-030 merged-unreleased truth, and prior FB-049 historical merge truth remain preserved.
 - Governance validator behavior is aligned so absent USER approval blocks selected-next truth instead of forcing candidate creation.
 - Validation commands pass or any residual repair candidate is explicitly listed before PR work.
@@ -66,7 +68,7 @@ Rollback Path: revert this branch to restore the pre-repair governance and curre
 
 ## Active Seam
 
-Active seam: `Governance repair implementation`
+Active seam: `Governance repair implementation and backlog source-of-truth consolidation`
 
 ## Seam Continuation Decision
 
@@ -76,9 +78,9 @@ Completion Status: `Green`
 Waiver Status: `None`
 Continue Decision: `Stop`
 Stop Basis: `Workstream Green`
-Stop Condition: `Governance repair implementation complete`
-Continuation Action: `Proceed to Hardening validation for the one-time governance repair.`
-Decision Basis: `The docs and validator now encode the USER-permission backlog blocker and reclassify FB-027 / PR #109 as family aggregation evidence.`
+Stop Condition: `Governance repair implementation and backlog source-of-truth consolidation complete`
+Continuation Action: `Proceed to Hardening validation for the one-time governance/source-of-truth repair.`
+Decision Basis: `The docs and validator now encode the USER-permission backlog blocker, reclassify FB-027 / PR #109 as family aggregation evidence, and consolidate former non-family backlog entries into source-of-truth trace.`
 Next Active Seam: `Hardening H1 - One-Time Backlog Governance Repair Validation`
 
 ## Governance Drift Audit
@@ -88,7 +90,7 @@ Governance Drift Found: `Yes`
 - Drift Type: backlog identity drift and selected-next pressure.
 - What Went Wrong: the Successor Lane Lock Gate required a next runtime candidate before PR Readiness closeout, so Codex treated small same-family follow-through as selected-next truth instead of stopping for USER approval.
 - Why Existing Canon Failed: backlog guardrails discouraged new identities, but the PR Readiness successor gate was stronger and mandatory.
-- Repair Performed: add a higher-priority USER-approval blocker, require the still-not-closed backlog list when blocked, and classify small single-seam runtime proof as aggregation evidence unless USER approves a release driver.
+- Repair Performed: add a higher-priority USER-approval blocker, require the still-not-closed backlog list when blocked, classify small single-seam runtime proof as aggregation evidence unless USER approves a release driver, and consolidate former non-family backlog entries into family/source-of-truth trace.
 - Whether The Drift Blocks Merge: `Yes until this branch validates`.
 - Whether User Confirmation Is Required: `Already granted for this one-time governance repair; still required for any future backlog addition, split, promotion, successor selection, or standalone release-version driver`.
 

@@ -33,7 +33,7 @@ Backlog-identity guardrails:
 - continuation, blocker-clearing, or validation follow-through on an existing feature family should stay inside that same backlog identity by default; do not mint a new backlog item unless the USER explicitly approves a backlog split or the work is materially a new user-facing feature family
 - small single-seam runtime proofs, governance repairs, validation follow-through, and blocker-clearing traces are family evidence or branch/workstream history by default, not standalone release-version drivers
 - canonical workstream docs and branch authority records own multi-slice, multi-branch, and repair-traceability history for one backlog identity; backlog IDs should not fragment that history by default
-- backlog-family registry sections must remain ordered as `User-Facing Feature Families`, `Historical Consolidated Pass Aliases`, then `Support / Architecture / Governance Lanes`
+- backlog-family registry sections must keep parseable `### [ID: FB-XXX]` records only for true feature-family backlog entries; historical pass aliases, support/governance lanes, and old registry-only implemented records are trace tables, not backlog items
 - entries within each backlog-family registry section must be kept in descending `FB-XXX` order so the highest backlog ID appears first
 
 Historical note:
@@ -321,9 +321,29 @@ Why it matters: Future authoring, callable-group, built-in action, and tray task
 
 ### Historical Consolidated Pass Aliases
 
-Closed historical pass alias records now live here in descending `FB-XXX` order. They remain preserved historical proof only, are not independently selectable, and deeper alias-to-family mapping stays deferred to Phase 3.
+Former standalone historical pass backlog entries now live here as family traceability only. They are not parseable backlog items, are not independently selectable, and must be loaded through the family dossier plus canonical workstream record named below.
 
-### [ID: FB-048] Active-session relaunch signal-failure and wait-timeout truth
+#### FB-042 Desktop Startup Runtime Family Pass Trace
+
+| Former ID | Pass ID | Family Anchor | Source-Of-Truth Record | Lifetime Dossier | Release Trace | Selection State |
+| --- | --- | --- | --- | --- | --- | --- |
+| `FB-048` | `F042-P07` | `FB-042` | `Docs/workstreams/FB-048_active_session_relaunch_signal_failure_and_wait_timeout_truth.md` | `Docs/workstreams/FB-042_desktop_startup_runtime_family_dossier.md` | `v1.6.12-prebeta` | Historical family pass only; not selectable |
+| `FB-047` | `F042-P06` | `FB-042` | `Docs/workstreams/FB-047_active_session_relaunch_decline_preservation.md` | `Docs/workstreams/FB-042_desktop_startup_runtime_family_dossier.md` | `v1.6.11-prebeta` | Historical family pass only; not selectable |
+| `FB-046` | `F042-P05` | `FB-042` | `Docs/workstreams/FB-046_active_session_relaunch_reacquisition.md` | `Docs/workstreams/FB-042_desktop_startup_runtime_family_dossier.md` | `v1.6.10-prebeta` | Historical family pass only; not selectable |
+| `FB-045` | `F042-P04` | `FB-042` | `Docs/workstreams/FB-045_active_session_relaunch_outcome_refinement.md` | `Docs/workstreams/FB-042_desktop_startup_runtime_family_dossier.md` | `v1.6.9-prebeta` | Historical family pass only; not selectable |
+| `FB-044` | `F042-P03` | `FB-042` | `Docs/workstreams/FB-044_boot_desktop_handoff_outcome_refinement.md` | `Docs/workstreams/FB-042_desktop_startup_runtime_family_dossier.md` | `v1.6.9-prebeta` | Historical family pass only; not selectable |
+| `FB-043` | `F042-P02` | `FB-042` | `Docs/workstreams/FB-043_top_level_entrypoint_handoff_refinement.md` | `Docs/workstreams/FB-042_desktop_startup_runtime_family_dossier.md` | `v1.6.8-prebeta` | Historical family pass only; not selectable |
+
+#### FB-027 Interaction And Shared-Action Family Pass Trace
+
+| Former ID | Pass ID | Family Anchor | Source-Of-Truth Record | Lifetime Dossier | Release Trace | Selection State |
+| --- | --- | --- | --- | --- | --- | --- |
+| `FB-041` | `F027-P03` | `FB-027` | `Docs/workstreams/FB-041_deterministic_callable_group_execution_layer.md` | `Docs/workstreams/FB-027_interaction_shared_action_family_dossier.md` | `v1.3.1-prebeta` | Historical family pass only; not selectable |
+| `FB-038` | `F027-P05` | `FB-027` | `Docs/workstreams/FB-038_taskbar_tray_quick_task_ux.md` | `Docs/workstreams/FB-027_interaction_shared_action_family_dossier.md` | `v1.4.1-prebeta` | Historical family pass only; not selectable |
+| `FB-037` | `F027-P04` | `FB-027` | `Docs/workstreams/FB-037_built_in_actions_and_settings_expansion.md` | `Docs/workstreams/FB-027_interaction_shared_action_family_dossier.md` | `v1.4.0-prebeta` | Historical family pass only; not selectable |
+| `FB-036` | `F027-P02` | `FB-027` | `Docs/workstreams/FB-036_saved_action_authoring.md` | `Docs/workstreams/FB-027_interaction_shared_action_family_dossier.md` | `v1.3.0-prebeta` | Historical family pass only; not selectable |
+
+#### [Former ID: FB-048] Active-session relaunch signal-failure and wait-timeout truth
 
 Status: Released (v1.6.12-prebeta)
 Record State: Closed
@@ -355,7 +375,7 @@ Minimal Scope: Prove and refine the accepted relaunch failure lane across `deskt
 Summary: Make accepted-but-unfinished relaunch failures as truthful as accepted and declined success paths.
 Why it matters: Users should get an explicit, proven outcome when relaunch was requested but the current session could not be signaled or did not release in time.
 
-### [ID: FB-047] Active-session relaunch decline session-preservation proof
+#### [Former ID: FB-047] Active-session relaunch decline session-preservation proof
 
 Status: Released (v1.6.11-prebeta)
 Record State: Closed
@@ -387,7 +407,7 @@ Minimal Scope: Prove and refine the relaunch-decline lane across `desktop/single
 Summary: Make relaunch decline as provable and truthful as accepted relaunch.
 Why it matters: The runtime should be just as explicit when the user keeps the current settled session as when the user accepts replacement.
 
-### [ID: FB-046] Active-session relaunch reacquisition and settled re-entry proof
+#### [Former ID: FB-046] Active-session relaunch reacquisition and settled re-entry proof
 
 Status: Released (v1.6.10-prebeta)
 Record State: Closed
@@ -422,7 +442,7 @@ Minimal Scope: Complete the bounded relaunch-reacquisition runtime/user-facing p
 Summary: Turn accepted relaunch into a full replacement-session completion proof surface instead of a partial signal-and-exit story.
 Why it matters: The repo now proves who owns the runtime after relaunch, when the old session is truly gone, and when the replacement session has actually made it back to authoritative settled state.
 
-### [ID: FB-045] Active-session relaunch outcome refinement
+#### [Former ID: FB-045] Active-session relaunch outcome refinement
 
 Status: Released (v1.6.9-prebeta)
 Record State: Closed
@@ -447,7 +467,7 @@ Minimal Scope: Classify post-settled abnormal renderer exits as a recoverable li
 Summary: Clear the FB-044 release blocker by fixing launcher lifecycle classification after settled and proving that result across primary-workspace and disposable-copy validation.
 Why it matters: Keeps startup truth honest, prevents post-settled runtime exits from being mislabeled as startup failure, and unblocks the path back to FB-044 `Release Readiness`.
 
-### [ID: FB-044] Boot-to-desktop handoff outcome refinement
+#### [Former ID: FB-044] Boot-to-desktop handoff outcome refinement
 
 Status: Released (v1.6.9-prebeta)
 Record State: Closed
@@ -477,7 +497,7 @@ Minimal Scope: Complete the bounded runtime/user-facing boot-to-desktop handoff 
 Summary: Continue the entrypoint/runtime lane by making desktop-settled outcome proof explicit and shared across boot, launcher, renderer, and validation paths.
 Why it matters: Builds directly on FB-043's ownership cleanup and turns the remaining boot/desktop proof ambiguity into a bounded runtime-bearing implementation result instead of lingering branch-readiness truth.
 
-### [ID: FB-043] Top-level desktop entrypoint ownership and main.py handoff refinement
+#### [Former ID: FB-043] Top-level desktop entrypoint ownership and main.py handoff refinement
 
 Status: Released (v1.6.8-prebeta)
 Record State: Closed
@@ -507,7 +527,7 @@ Minimal Scope: Complete the bounded top-level entrypoint slice chain on this sam
 Summary: Continue the desktop entrypoint runtime lane by clarifying and tightening top-level ownership and handoff on the shipped launch path.
 Why it matters: Builds directly on FB-042's user-facing launch-path improvement and keeps the next branch implementation-bearing instead of slipping back into planning-only governance work.
 
-### [ID: FB-041] Deterministic callable-group execution layer
+#### [Former ID: FB-041] Deterministic callable-group execution layer
 
 Status: Released (v1.3.1-prebeta)
 Record State: Closed
@@ -523,7 +543,7 @@ Canonical Workstream Doc: Docs/workstreams/FB-041_deterministic_callable_group_e
 Summary: Released the first bounded callable-group follow-through execution layer for deterministic linear member execution in stored order with stop-on-failure, terminal success or failure propagation, and runtime progression markers.
 Why it matters: FB-041 closes the released FB-036 callable-group execution follow-through by supporting full stored-order group execution without reopening authoring, changing single-action behavior, or widening into scheduling, branching, retries, nested groups, or parallelism.
 
-### [ID: FB-038] Taskbar / tray quick-task UX and Create Custom Task surface
+#### [Former ID: FB-038] Taskbar / tray quick-task UX and Create Custom Task surface
 
 Status: Released (v1.4.1-prebeta)
 Record State: Closed
@@ -540,7 +560,7 @@ Canonical Workstream Doc: Docs/workstreams/FB-038_taskbar_tray_quick_task_ux.md
 Summary: Released the FB-038 tray quick-task UX milestone, including tray identity/discoverability, tray Open Command Overlay, tray Create Custom Task dialog-open/no-write route, tray-origin create completion through the existing FB-036 authoring path, catalog reload and exact-match resolution, confirm/result execution, and startup first-visible Core Visualization sequencing repair.
 Why it matters: Taskbar and tray interaction now has an explicit released UX lane that remains bounded to the shared action model rather than becoming a parallel authoring or launcher surface.
 
-### [ID: FB-037] Curated built-in system actions and Nexus settings expansion
+#### [Former ID: FB-037] Curated built-in system actions and Nexus settings expansion
 
 Status: Released (v1.4.0-prebeta)
 Record State: Closed
@@ -556,7 +576,7 @@ Canonical Workstream Doc: Docs/workstreams/FB-037_built_in_actions_and_settings_
 Summary: Released the first curated Windows utility built-in catalog under the shared action model, including Task Manager, Calculator, Notepad, and Paint while preserving saved-action override authority, authoring collision protection, confirm/result surfaces, and callable-group behavior.
 Why it matters: Standard product actions now feel native and inspectable under the shared action model instead of being pushed into user-defined saved actions as ad hoc customization. Common Windows actions ship as first-class built-ins, while saved actions remain the seam for personal or non-standard tasks.
 
-### [ID: FB-036] Limited saved-action authoring and type-first custom task UX
+#### [Former ID: FB-036] Limited saved-action authoring and type-first custom task UX
 
 Status: Released (v1.3.0-prebeta)
 Record State: Closed
@@ -574,9 +594,22 @@ Why it matters: Nexus now supports deliberate in-product custom-task and callabl
 
 ### Support / Architecture / Governance Lanes
 
-Closed support, architecture, and governance lanes now live here in descending `FB-XXX` order. They remain non-user-facing historical lanes and must not be confused with selectable feature-family candidates.
+Closed support, architecture, and governance lanes are historical traceability only. They are not parseable backlog items under the new governance unless the USER explicitly approves a future major release/support lane.
 
-### [ID: FB-035] Support-report release-context fallback hardening
+| Former ID | Historical Lane | Source-Of-Truth Record | Release Trace | Trace Role |
+| --- | --- | --- | --- | --- |
+| `FB-035` | Support-report release-context fallback hardening | `Docs/workstreams/FB-035_release_context_fallback_hardening.md` | `v1.2.7-prebeta` | Closed support lane trace |
+| `FB-034` | Recoverable incident diagnostics surface and failure-class follow-through | `Docs/workstreams/FB-034_recoverable_diagnostics.md` | `v1.2.6-prebeta` | Closed support lane trace |
+| `FB-033` | Dev-only startup snapshot harness follow-through | `Docs/workstreams/FB-033_startup_snapshot_harness_follow_through.md` | `v1.2.4-prebeta` | Closed support lane trace |
+| `FB-032` | Nexus-era vision and source-of-truth migration | `Docs/workstreams/FB-032_nexus_era_vision_and_source_of_truth_migration.md` | `v1.6.2-prebeta` | Closed architecture/governance trace |
+| `FB-029` | ORIN legal-safe rebrand, future ARIA persona option, and repo licensing hardening | `Docs/workstreams/FB-029_orin_identity_licensing_hardening.md` | `v1.6.4-prebeta` | Closed support lane trace |
+| `FB-028` | Relocate launcher history state out of root logs | `Docs/workstreams/FB-028_history_state_relocation.md` | `v1.2.3-prebeta` | Closed support lane trace |
+| `FB-025` | Boot and desktop milestone taxonomy clarification | `Docs/workstreams/FB-025_boot_desktop_milestone_taxonomy_clarification.md` | `v1.2.5-prebeta` | Closed architecture trace |
+| `FB-015` | Boot and desktop phase-boundary model | `Docs/workstreams/FB-015_boot_and_desktop_phase_boundary_model.md` | `v1.6.4-prebeta` | Closed architecture trace |
+| `FB-005` | Workspace and folder organization | `Docs/workstreams/FB-005_workspace_and_folder_organization.md` | `v1.6.6-prebeta` | Closed support/workspace trace |
+| `FB-004` | Future boot orchestrator layer | `Docs/workstreams/FB-004_future_boot_orchestrator_layer.md` | `v1.6.3-prebeta` | Closed architecture trace |
+
+#### [Former ID: FB-035] Support-report release-context fallback hardening
 
 Status: Released (v1.2.7-prebeta)
 Record State: Closed
@@ -588,7 +621,7 @@ Canonical Workstream Doc: Docs/workstreams/FB-035_release_context_fallback_harde
 Summary: Hardened support-report fallback release-context derivation so generated artifacts use released-canon truth when `.git` metadata is unavailable.
 Why it matters: Prevents support bundles and issue drafts from reporting an unreleased higher planned prerelease.
 
-### [ID: FB-034] Recoverable incident diagnostics surface and failure-class follow-through
+#### [Former ID: FB-034] Recoverable incident diagnostics surface and failure-class follow-through
 
 Status: Released (v1.2.6-prebeta)
 Record State: Closed
@@ -600,7 +633,7 @@ Canonical Workstream Doc: Docs/workstreams/FB-034_recoverable_diagnostics.md
 Summary: Closed the first recoverable-diagnostics milestone for one explicitly bounded repeated-identical `launch_failed` incident class.
 Why it matters: Makes the Class 2/Class 3 boundary explicit without widening diagnostics policy or breaking the manual-reporting boundary.
 
-### [ID: FB-033] Dev-only startup snapshot harness follow-through
+#### [Former ID: FB-033] Dev-only startup snapshot harness follow-through
 
 Status: Released (v1.2.4-prebeta)
 Record State: Closed
@@ -612,7 +645,7 @@ Canonical Workstream Doc: Docs/workstreams/FB-033_startup_snapshot_harness_follo
 Summary: Stabilized the env-gated startup snapshot harness as bounded dev-only debugging infrastructure.
 Why it matters: Preserves a repeatable startup evidence path without turning it into normal user-facing behavior.
 
-### [ID: FB-032] Nexus-era vision and source-of-truth migration
+#### [Former ID: FB-032] Nexus-era vision and source-of-truth migration
 
 Status: Released (v1.6.2-prebeta)
 Record State: Closed
@@ -639,7 +672,7 @@ Post-Release Truth: FB-032 is Released / Closed in v1.6.2-prebeta; release debt 
 Summary: Preserved the broader Nexus-era vision and source-of-truth migration foundation above future controlled migration work.
 Why it matters: The repo now has a controlled identity, naming, and source-of-truth migration frame before deeper wording or implementation normalization begins.
 
-### [ID: FB-029] ORIN legal-safe rebrand, future ARIA persona option, and repo licensing hardening
+#### [Former ID: FB-029] ORIN legal-safe rebrand, future ARIA persona option, and repo licensing hardening
 
 Status: Released (v1.6.4-prebeta)
 Record State: Closed
@@ -670,7 +703,7 @@ Minimal Scope: Define the Branch Readiness frame for legal-safe ORIN naming, opt
 Summary: Track future ORIN-era naming, persona, and licensing hardening work without treating the local rebrand overlay as merged truth.
 Why it matters: Product identity, legal posture, and repo ownership still need durable future treatment, but not by accidental carry-forward.
 
-### [ID: FB-028] Relocate launcher history state out of root logs
+#### [Former ID: FB-028] Relocate launcher history state out of root logs
 
 Status: Released (v1.2.3-prebeta)
 Record State: Closed
@@ -682,7 +715,7 @@ Canonical Workstream Doc: Docs/workstreams/FB-028_history_state_relocation.md
 Summary: Moved launcher-owned historical state out of the live root logs tree into a dedicated state location.
 Why it matters: Keeps historical state out of user-visible runtime logs while preserving behavior and fallback rules.
 
-### [ID: FB-025] Boot and desktop milestone taxonomy clarification
+#### [Former ID: FB-025] Boot and desktop milestone taxonomy clarification
 
 Status: Released (v1.2.5-prebeta)
 Record State: Closed
@@ -694,7 +727,7 @@ Canonical Workstream Doc: Docs/workstreams/FB-025_boot_desktop_milestone_taxonom
 Summary: Clarified shared milestone taxonomy between `BOOT_MAIN|...` and `RENDERER_MAIN|...` without collapsing ownership.
 Why it matters: Keeps boot and desktop evidence easier to compare while preserving separate ownership boundaries.
 
-### [ID: FB-015] Boot and desktop phase-boundary model
+#### [Former ID: FB-015] Boot and desktop phase-boundary model
 
 Status: Released (v1.6.4-prebeta)
 Record State: Closed
@@ -726,7 +759,7 @@ Minimal Scope: Complete the bounded docs/canon seam chain for current boot/deskt
 Summary: Preserve the future boot and desktop phase-boundary model above the already-closed milestone taxonomy work.
 Why it matters: Keeps boot-versus-desktop ownership planning explicit without reopening the closed taxonomy milestone by inertia.
 
-### [ID: FB-005] Workspace and folder organization
+#### [Former ID: FB-005] Workspace and folder organization
 
 Status: Released (v1.6.6-prebeta)
 Record State: Closed
@@ -757,7 +790,7 @@ Minimal Scope: Historical executed slice: complete WS-1 dev-only desktop test ha
 Summary: Continue workspace organization only through explicitly approved path-sensitive slices, beginning with the now-completed dev-only desktop test harness move.
 Why it matters: Keeps folder and ownership cleanup deliberate instead of letting it blur into unrelated feature work.
 
-### [ID: FB-004] Future boot orchestrator layer
+#### [Former ID: FB-004] Future boot orchestrator layer
 
 Status: Released (v1.6.3-prebeta)
 Record State: Closed
@@ -785,7 +818,34 @@ Why it matters: Keeps the longer-term boot-to-desktop product direction explicit
 
 ## Historical Implemented Registry-Only Items
 
-### [ID: FB-001] Repeated identical crash early escalation
+Old implemented registry-only IDs are preserved as same-file historical trace. They are not selectable backlog items and do not have standalone canonical workstream records unless a later USER-approved family consolidation creates one.
+
+| Former ID | Historical Title | Historical Status | Trace Authority |
+| --- | --- | --- | --- |
+| `FB-001` | Repeated identical crash early escalation | Implemented `v1.6.0` | Historical registry trace in `Docs/feature_backlog.md` |
+| `FB-002` | Mixed failure-pattern policy | Implemented `v1.6.0` | Historical registry trace in `Docs/feature_backlog.md` |
+| `FB-003` | Retry limit and diagnostics escalation policy | Implemented `v1.9.0` | Historical registry trace in `Docs/feature_backlog.md` |
+| `FB-006` | Threshold-based recovery outcome summary refinement | Implemented `v1.6.0` | Historical registry trace in `Docs/feature_backlog.md` |
+| `FB-007` | Max-attempt identical-failure attempt-pattern correction | Implemented `v1.6.0` | Historical registry trace in `Docs/feature_backlog.md` |
+| `FB-008` | Shutdown voice degradation effect | Implemented `v2.2.0` | Historical registry trace in `Docs/feature_backlog.md` |
+| `FB-009` | Align crash-origin mixed markers with stable repeated-failure summaries | Implemented `v1.6.0` | Historical registry trace in `Docs/feature_backlog.md` |
+| `FB-010` | v1.6.0 closeout and documentation sync | Implemented `v1.6.0` | Historical registry trace in `Docs/feature_backlog.md` |
+| `FB-011` | Historical memory contract | Implemented `v1.7.0` | Historical registry trace in `Docs/feature_backlog.md` |
+| `FB-012` | Failure fingerprint and recurrence model | Implemented `v1.8.0` | Historical registry trace in `Docs/feature_backlog.md` |
+| `FB-013` | Advisory provenance and confidence semantics | Implemented `v1.8.0` | Historical registry trace in `Docs/feature_backlog.md` |
+| `FB-014` | Multi-run orchestration regression harness | Implemented `v1.8.0` | Historical registry trace in `Docs/feature_backlog.md` |
+| `FB-016` | Recorder-only historical memory groundwork | Implemented `v1.7.0` | Historical registry trace in `Docs/feature_backlog.md` |
+| `FB-017` | Support bundle and GitHub issue prefill | Implemented `v1.9.0` | Historical registry trace in `Docs/feature_backlog.md` |
+| `FB-018` | Voice-path regression validation harness | Implemented `v1.9.0` | Historical registry trace in `Docs/feature_backlog.md` |
+| `FB-019` | Support bundle to repro triage helper | Implemented `v1.9.0` | Historical registry trace in `Docs/feature_backlog.md` |
+| `FB-020` | Dev Toolkit utility split and dev-only evidence roots | Implemented `v2.0` | Historical registry trace in `Docs/feature_backlog.md` |
+| `FB-021` | Dev-only Boot Jarvis test lane | Implemented `v2.1.0` | Historical registry trace in `Docs/feature_backlog.md` |
+| `FB-022` | Boot & Transition Checks Dev Toolkit surfacing | Implemented `v2.1.0` | Historical registry trace in `Docs/feature_backlog.md` |
+| `FB-023` | Desktop renderer observability gap closure | Implemented `v2.1.0` | Historical registry trace in `Docs/feature_backlog.md` |
+| `FB-024` | Boot harness edge-path observability refinement | Implemented `v2.1.0` | Historical registry trace in `Docs/feature_backlog.md` |
+| `FB-026` | Dev Toolkit uploaded-bundle intake surface | Implemented `v2.2.0` | Historical registry trace in `Docs/feature_backlog.md` |
+
+#### [Former ID: FB-001] Repeated identical crash early escalation
 
 Status: Implemented (v1.6.0)
 Record State: Registry-only
@@ -795,7 +855,7 @@ Target Version: v1.6.0
 Summary: Early launcher escalation for repeated identical non-`STARTUP_ABORT` crash outcomes.
 Why it matters: Prevents stable repeated crash evidence from being masked by unnecessary retries.
 
-### [ID: FB-002] Mixed failure-pattern policy
+#### [Former ID: FB-002] Mixed failure-pattern policy
 
 Status: Implemented (v1.6.0)
 Record State: Registry-only
@@ -805,7 +865,7 @@ Target Version: v1.6.0
 Summary: Conservative launcher handling for mixed crash and abort failure sequences.
 Why it matters: Keeps mixed-pattern outcomes classified without overstating them as stronger than repeated identical failures.
 
-### [ID: FB-003] Retry limit and diagnostics escalation policy
+#### [Former ID: FB-003] Retry limit and diagnostics escalation policy
 
 Status: Implemented (v1.9.0 rev1)
 Record State: Registry-only
@@ -815,7 +875,7 @@ Target Version: v1.9.0
 Summary: Defined retry exhaustion and diagnostics-entry policy for repeated `STARTUP_ABORT` and repeated identical crash outcomes.
 Why it matters: Makes launcher escalation predictable and evidence-based.
 
-### [ID: FB-006] Threshold-based recovery outcome summary refinement
+#### [Former ID: FB-006] Threshold-based recovery outcome summary refinement
 
 Status: Implemented (v1.6.0)
 Record State: Registry-only
@@ -825,7 +885,7 @@ Target Version: v1.6.0
 Summary: Refined launcher summary wording for threshold-based early escalation outcomes.
 Why it matters: Keeps final failed-run reporting aligned with the actual recovery path.
 
-### [ID: FB-007] Max-attempt identical-failure attempt-pattern correction
+#### [Former ID: FB-007] Max-attempt identical-failure attempt-pattern correction
 
 Status: Implemented (v1.6.0)
 Record State: Registry-only
@@ -835,7 +895,7 @@ Target Version: v1.6.0
 Summary: Corrected final attempt-pattern reporting for max-attempt identical failures.
 Why it matters: Prevents stable repeated failures from being described as varied.
 
-### [ID: FB-008] Shutdown voice degradation effect
+#### [Former ID: FB-008] Shutdown voice degradation effect
 
 Status: Implemented (v2.2.0 rev2)
 Record State: Registry-only
@@ -845,7 +905,7 @@ Target Version: v2.2.0
 Summary: Tuned the shutdown-only voice path so the final line sounds more like controlled power loss.
 Why it matters: Improves late-shutdown presentation without widening diagnostics behavior.
 
-### [ID: FB-009] Align crash-origin mixed markers with stable repeated-failure summaries
+#### [Former ID: FB-009] Align crash-origin mixed markers with stable repeated-failure summaries
 
 Status: Implemented (v1.6.0)
 Record State: Registry-only
@@ -855,7 +915,7 @@ Target Version: v1.6.0
 Summary: Aligned mixed-pattern classification with final repeated-failure summaries when cause stayed identical.
 Why it matters: Keeps summary and classification evidence consistent.
 
-### [ID: FB-010] v1.6.0 closeout and documentation sync
+#### [Former ID: FB-010] v1.6.0 closeout and documentation sync
 
 Status: Implemented (v1.6.0)
 Record State: Registry-only
@@ -865,7 +925,7 @@ Target Version: v1.6.0
 Summary: Historical closeout and documentation sync for the finalized `v1.6.0` orchestration layer.
 Why it matters: Preserved the old baseline before later historical-memory work.
 
-### [ID: FB-011] Historical memory contract
+#### [Former ID: FB-011] Historical memory contract
 
 Status: Implemented (v1.7.0)
 Record State: Registry-only
@@ -875,7 +935,7 @@ Target Version: v1.7.0
 Summary: Defined the contract for passive cross-run historical memory before implementation.
 Why it matters: Keeps later history and advisory work deterministic and explainable.
 
-### [ID: FB-012] Failure fingerprint and recurrence model
+#### [Former ID: FB-012] Failure fingerprint and recurrence model
 
 Status: Implemented (v1.8.0)
 Record State: Registry-only
@@ -885,7 +945,7 @@ Target Version: v1.8.0
 Summary: Defined how recurring outcomes are recognized across launches without reopening closed runtime classification.
 Why it matters: Cross-run recurrence needs stable fingerprint rules to stay trustworthy.
 
-### [ID: FB-013] Advisory provenance and confidence semantics
+#### [Former ID: FB-013] Advisory provenance and confidence semantics
 
 Status: Implemented (v1.8.0)
 Record State: Registry-only
@@ -895,7 +955,7 @@ Target Version: v1.8.0
 Summary: Defined provenance and confidence semantics for advisory outputs.
 Why it matters: Keeps advisory intelligence explanatory instead of becoming hidden policy.
 
-### [ID: FB-014] Multi-run orchestration regression harness
+#### [Former ID: FB-014] Multi-run orchestration regression harness
 
 Status: Implemented (v1.8.0 rev1)
 Record State: Registry-only
@@ -905,7 +965,7 @@ Target Version: v1.8.0
 Summary: Added a multi-run regression harness for orchestration and historical-memory validation.
 Why it matters: Gives repeated-run behavior a bounded regression surface.
 
-### [ID: FB-016] Recorder-only historical memory groundwork
+#### [Former ID: FB-016] Recorder-only historical memory groundwork
 
 Status: Implemented (v1.7.0)
 Record State: Registry-only
@@ -915,7 +975,7 @@ Target Version: v1.7.0
 Summary: Established recorder-only groundwork for passive historical memory.
 Why it matters: Kept early history capture bounded before broader interpretation layers arrived.
 
-### [ID: FB-017] Support bundle and GitHub issue prefill
+#### [Former ID: FB-017] Support bundle and GitHub issue prefill
 
 Status: Implemented (v1.9.0 rev1)
 Record State: Registry-only
@@ -925,7 +985,7 @@ Target Version: v1.9.0
 Summary: Added support-bundle creation and issue-prefill groundwork around diagnostics workflows.
 Why it matters: Improved manual triage and reporting without automatic submission.
 
-### [ID: FB-018] Voice-path regression validation harness
+#### [Former ID: FB-018] Voice-path regression validation harness
 
 Status: Implemented (v1.9.0 rev1)
 Record State: Registry-only
@@ -935,7 +995,7 @@ Target Version: v1.9.0
 Summary: Added bounded regression coverage for voice-path behavior.
 Why it matters: Protects shutdown and diagnostics voice behavior from silent regression.
 
-### [ID: FB-019] Support bundle to repro triage helper
+#### [Former ID: FB-019] Support bundle to repro triage helper
 
 Status: Implemented (v1.9.0 rev1)
 Record State: Registry-only
@@ -945,7 +1005,7 @@ Target Version: v1.9.0
 Summary: Added a helper path for turning support-bundle artifacts into reproducible triage input.
 Why it matters: Improves internal debugging flow without changing product behavior.
 
-### [ID: FB-020] Dev Toolkit utility split and dev-only evidence roots
+#### [Former ID: FB-020] Dev Toolkit utility split and dev-only evidence roots
 
 Status: Implemented (v2.0 rev2)
 Record State: Registry-only
@@ -955,7 +1015,7 @@ Target Version: v2.0
 Summary: Split Dev Toolkit utilities and formalized dev-only evidence roots.
 Why it matters: Keeps internal debugging surfaces structured and separate from live runtime logs.
 
-### [ID: FB-021] Dev-only Boot Jarvis test lane
+#### [Former ID: FB-021] Dev-only Boot Jarvis test lane
 
 Status: Implemented (v2.1.0 rev1)
 Record State: Registry-only
@@ -965,7 +1025,7 @@ Target Version: v2.1.0
 Summary: Added the first dev-only boot test lane for controlled boot-path validation.
 Why it matters: Made boot-path validation explicit and reusable inside the toolkit surface.
 
-### [ID: FB-022] Boot & Transition Checks Dev Toolkit surfacing
+#### [Former ID: FB-022] Boot & Transition Checks Dev Toolkit surfacing
 
 Status: Implemented (v2.1.0 rev2)
 Record State: Registry-only
@@ -975,7 +1035,7 @@ Target Version: v2.1.0
 Summary: Surfaced Boot and Transition Checks inside the Dev Toolkit.
 Why it matters: Made transition validation easier to run without ad hoc helper discovery.
 
-### [ID: FB-023] Desktop renderer observability gap closure
+#### [Former ID: FB-023] Desktop renderer observability gap closure
 
 Status: Implemented (v2.1.0 rev3)
 Record State: Registry-only
@@ -985,7 +1045,7 @@ Target Version: v2.1.0
 Summary: Closed key renderer observability gaps needed for desktop-startup investigation.
 Why it matters: Strengthened evidence quality for renderer-owned behavior without broad redesign.
 
-### [ID: FB-024] Boot harness edge-path observability refinement
+#### [Former ID: FB-024] Boot harness edge-path observability refinement
 
 Status: Implemented (v2.1.0 rev4)
 Record State: Registry-only
@@ -995,7 +1055,7 @@ Target Version: v2.1.0
 Summary: Refined boot-harness observability for edge-path behavior.
 Why it matters: Improved branch and validation clarity for boot edge cases.
 
-### [ID: FB-026] Dev Toolkit uploaded-bundle intake surface
+#### [Former ID: FB-026] Dev Toolkit uploaded-bundle intake surface
 
 Status: Implemented (v2.2.0 rev1)
 Record State: Registry-only

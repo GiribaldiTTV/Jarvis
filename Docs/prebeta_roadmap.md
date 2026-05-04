@@ -31,6 +31,7 @@ This roadmap is subordinate to:
 That means:
 
 - backlog owns identity
+- backlog historical pass/support/governance/registry rows are traceability only; `Docs/workstreams/index.md`, family dossiers, and canonical workstream records own the durable source-of-truth routing for those former IDs
 - workstream docs own promoted-work feature-state, branch-local evidence, and closure records
 - phase governance owns repo-wide lifecycle, proof, timeout, and stop-loss rules
 - closeouts and rebaselines own epoch summaries
@@ -71,7 +72,7 @@ Current merged truth indicates:
 - phase status after `v1.6.12-prebeta` release closure: FB-048 is Released / Closed in `v1.6.12-prebeta`; release debt is clear after publication, validation, and post-release canon closure; the merged backlog-family governance reform package, merged automation-catalog package, FB-049 runtime proof, and merged FB-030 runtime diagnostics proof remain unreleased historical proof for `v1.6.13-prebeta`; merged-main current-state remains `No Active Branch`; PR #108 merge truth and forced watcher-verification proof are preserved; FB-030 is merged-unreleased release debt; and PR #109 is merged historical FB-027 family evidence for shutdown-hotkey confirmation, not an active backlog lane or standalone release-version driver.
 - current active workstream: none; merged-main current active workstream: none; merged-main repo truth is `No Active Branch`
 - current branch after `v1.6.12-prebeta` release closure: none
-- next concern: do not admit a backlog identity, successor branch, or release-version driver without explicit USER approval; if Codex reaches that need, `Backlog Addition User Approval Missing` requires the still-not-closed backlog list.
+- next concern: do not admit a backlog identity, successor branch, or release-version driver without explicit USER approval; if Codex reaches that need, `Backlog Addition User Approval Missing` requires the still-not-closed backlog list. Former small-pass, support/governance, and registry-only IDs are consolidated trace rows, not backlog candidates.
 
 That means the released FB-027 interaction and shared-action family anchor remains part of the current public shared pre-Beta baseline, and PR #109 is preserved under that family as aggregation evidence; the released FB-036 authoring-and-callable-group milestone, the released FB-041 deterministic callable-group execution milestone, the released FB-037 built-in catalog milestone, the released FB-038 tray quick-task UX milestone, the released FB-039 external trigger intake architecture milestone, the released FB-040 monitoring/thermal architecture milestone, the released FB-031 UI/UX architecture milestone, the released FB-032 source-of-truth migration milestone, the released FB-004 future boot-orchestrator architecture milestone, the released FB-015 plus FB-029 planning milestones, the released FB-030 voice/audio planning milestone, and the released FB-005 bounded workspace-path slice are also part of the current public shared pre-Beta baseline.
 

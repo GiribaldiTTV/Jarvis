@@ -576,6 +576,8 @@ If no backlog entries remain open, Codex must stop on `Backlog Exhaustion User D
 Small or single-seam runtime follow-through inside an existing family must be recorded in the canonical workstream, lifetime family dossier, branch authority record, or historical PR trace as family evidence or aggregation material.
 It must not mint a standalone backlog identity, successor lane, branch family, or release-version driver unless the USER explicitly approves a larger feature-family release, release aggregation, or backlog split.
 
+Historical pass aliases, support/governance lanes, and old registry-only implemented IDs are trace rows, not selectable backlog items. Re-promoting one into a parseable backlog identity requires explicit USER approval and a recorded reason that family/workstream/branch traceability is insufficient.
+
 When USER-approved successor selection exists, this gate requires all of the following before PR creation is allowed:
 
 - the next workstream identity is selected from current canon using open backlog `Priority` plus deferred-context readiness, not `Target Version`
