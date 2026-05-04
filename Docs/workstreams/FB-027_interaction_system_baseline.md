@@ -16,7 +16,7 @@
 
 ## Current Phase
 
-- Phase: `Workstream`
+- Phase: `Hardening`
 
 ## Phase Status
 
@@ -32,7 +32,9 @@
 - Current Branch Readiness Seam Status: `Complete / green`
 - Current Workstream Seam: `Workstream WS1 - Shutdown Hotkey Confirmation Runtime Proof`
 - Current Workstream Seam Status: `Complete / green`
-- Next Legal Phase: `Hardening`
+- Current Hardening Seam: `Hardening H1 - Shutdown Hotkey Confirmation Runtime Validation`
+- Current Hardening Seam Status: `Complete / green`
+- Next Legal Phase: `Live Validation`
 
 ## Branch Class
 
@@ -66,7 +68,7 @@ Rollback Path: revert the FB-027 Branch Readiness admission commit and return to
 
 ## Next Legal Phase
 
-- `Hardening`
+- `Live Validation`
 
 ## Branch Objective
 
@@ -75,11 +77,13 @@ Rollback Path: revert the FB-027 Branch Readiness admission commit and return to
 
 ## Active Seam
 
-Active seam: `Workstream WS1 - Shutdown Hotkey Confirmation Runtime Proof`
+Active seam: `Hardening H1 - Shutdown Hotkey Confirmation Runtime Validation`
 
 - `Branch Readiness BR1 - FB-027 Runtime Admission With Carried FB-030 Post-Merge Blocker`
 - Seam Status: `Complete / green`
 - `Workstream WS1 - Shutdown Hotkey Confirmation Runtime Proof`
+- Seam Status: `Complete / green`
+- `Hardening H1 - Shutdown Hotkey Confirmation Runtime Validation`
 - Seam Status: `Complete / green`
 
 ## Expected Seam Families And Risk Classes
@@ -205,6 +209,18 @@ Non-Includes: no PR creation or release work.
 - Live-Equivalent Runtime Proof: `dev/orin_desktop_entrypoint_validation.py` now runs harness shutdown with `NEXUS_SHUTDOWN_CONFIRMATION_DECISION=accepted` and validates the confirmation-requested, accepted, and clean-shutdown-request markers before the existing clean shutdown markers.
 - WS1 Continuation Decision: Workstream WS1 is complete / green; next legal phase is `Hardening H1 - Shutdown Hotkey Confirmation Runtime Validation`.
 
+## Hardening H1 Result
+
+- Phase Admission: branch authority advanced from `Workstream` to `Hardening` and admitted `Hardening H1 - Shutdown Hotkey Confirmation Runtime Validation`.
+- Confirmation Behavior Finding: both shutdown hotkeys still route to confirmation instead of direct shutdown.
+- Accepted Path Finding: accepted confirmation emits accepted and clean-shutdown-request markers, then proceeds through the existing shutdown path.
+- Cancelled Path Finding: cancelled confirmation emits cancellation plus session-preserved markers and does not request shutdown.
+- Timeout Path Finding: timed-out confirmation emits timeout plus session-preserved markers and does not request shutdown.
+- Runtime Preservation Finding: cancellation and timeout preserve the active session/runtime state by withholding `RENDERER_MAIN|SHUTDOWN_REQUESTED`.
+- Compatibility Finding: interaction baseline, desktop entrypoint, and boot transition validation remain green after the confirmation gate.
+- Automation Observability Finding: current automation observability findings remain review inputs outside the WS1 runtime behavior; no H1 runtime repair candidate is admitted.
+- H1 Continuation Decision: Hardening H1 is complete / green; next legal phase is `Live Validation LV1 - Shutdown Hotkey Confirmation Live Validation`.
+
 ## Seam Continuation Decision
 
 Seam Status: `Green`
@@ -214,9 +230,9 @@ Waiver Status: `None`
 Continue Decision: `Stop`
 Stop Basis: `Workstream Green`
 Stop Condition: `None`
-Continuation Action: `Advance to Hardening H1 for shutdown-hotkey confirmation validation.`
-Decision Basis: `Workstream WS1 is complete / green and requires Hardening validation before any Live Validation or PR Readiness move.`
-Next Active Seam: `Hardening H1 - Shutdown Hotkey Confirmation Runtime Validation`
+Continuation Action: `Advance to Live Validation LV1 for shutdown-hotkey confirmation live validation.`
+Decision Basis: `Hardening H1 is complete / green and requires Live Validation before any PR Readiness move.`
+Next Active Seam: `Live Validation LV1 - Shutdown Hotkey Confirmation Live Validation`
 
 ## Current Release-Truth Note
 
