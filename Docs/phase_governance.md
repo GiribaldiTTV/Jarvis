@@ -320,6 +320,8 @@ The default named blockers are:
 - `Backlog Completion Unproven`
 - `Backlog Addition User Approval Missing`
 - `Backlog Exhaustion User Decision Pending`
+- `Single-Slice Package User Approval Missing`
+- `Package Completion Unproven`
 
 Blockers stop progression immediately and must be reported before any later-phase recommendation.
 

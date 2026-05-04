@@ -48,7 +48,7 @@ This branch must not change runtime behavior. Its job is to harden governance, v
 
 ## Exit Criteria
 
-- `Docs/phase_governance.md`, `Docs/development_rules.md`, `Docs/Main.md`, and prompt surfaces define `Backlog Addition User Approval Missing` and `Backlog Exhaustion User Decision Pending`.
+- `Docs/phase_governance.md`, `Docs/development_rules.md`, `Docs/Main.md`, and prompt surfaces define `Backlog Addition User Approval Missing`, `Backlog Exhaustion User Decision Pending`, `Single-Slice Package User Approval Missing`, and `Package Completion Unproven`.
 - Current-state truth no longer marks FAM-003 legacy FB-027 / PR #109 as an active backlog lane, selected-next lane, or standalone release-version driver.
 - FAM-003 legacy FB-027 lifetime family trace records PR #109 as aggregation evidence with `Standalone Release Driver: No`.
 - Former standalone historical pass aliases, support/governance lanes, and old registry-only implemented IDs are no longer parseable backlog entries; they route through feature-family trace tables, `Docs/workstreams/index.md`, family dossiers, canonical workstream records, or same-file historical trace.
@@ -56,7 +56,7 @@ This branch must not change runtime behavior. Its job is to harden governance, v
 - Each live FAM records package and slice trace so every slice points to exactly one family and one package, packages carry completion state, PR numbers remain evidence only, and single-slice package admission is blocked without explicit USER approval.
 - FAM-001 legacy FB-049 runtime proof, FAM-004 legacy FB-030 runtime diagnostics proof, pending `v1.6.13-prebeta` posture, FAM-004 merged-unreleased truth, and prior FAM-001 historical merge truth remain preserved.
 - Governance validator behavior is aligned so absent USER approval blocks selected-next truth instead of forcing candidate creation.
-- Hardening H1 validates that historical evidence rows, future placeholders, deferred ideas, and future-package-required rows do not count as admitted slices, and that package completion cannot be green while admitted slices remain incomplete.
+- Hardening H1 validates that historical evidence rows, future placeholders, deferred ideas, and future-package-required rows do not count as admitted slices, that package completion cannot be green while admitted slices remain incomplete, and that `Single-Slice Package User Approval Missing` plus `Package Completion Unproven` are present in blocker catalogs.
 - Validation commands pass or any residual repair candidate is explicitly listed before PR work.
 
 ## Rollback Target
@@ -71,7 +71,7 @@ Rollback Path: revert this branch to restore the pre-repair governance and curre
 
 ## Active Seam
 
-Active seam: `Hardening H1 - One-Time Backlog Governance Repair Validation`
+Active seam: `Hardening H1-R1 - Single-Slice Blocker Catalog Consistency Repair`
 
 ## Seam Continuation Decision
 
@@ -81,9 +81,9 @@ Completion Status: `Green`
 Waiver Status: `None`
 Continue Decision: `Stop`
 Stop Basis: `Hardening Green`
-Stop Condition: `Hardening H1 one-time governance repair validation complete`
+Stop Condition: `Hardening H1-R1 single-slice blocker catalog consistency repair complete`
 Continuation Action: `Proceed to Live Validation for repo-truth / live-equivalent validation of the one-time governance repair.`
-Decision Basis: `Validator and source-of-truth now distinguish admitted concrete slices from historical evidence, merged evidence, future placeholders, deferred ideas, and future-package-required rows; single-slice package drift is blocked unless explicit USER approval grants a waiver.`
+Decision Basis: `Validator and source-of-truth now distinguish admitted concrete slices from historical evidence, merged evidence, future placeholders, deferred ideas, and future-package-required rows; single-slice package drift is blocked unless explicit USER approval grants a waiver; blocker catalogs include Single-Slice Package User Approval Missing and Package Completion Unproven.`
 Next Active Seam: `Live Validation LV1 - One-Time Backlog Governance Repair Live Validation`
 
 ## Hardening H1 Record
@@ -96,6 +96,17 @@ Next Active Seam: `Live Validation LV1 - One-Time Backlog Governance Repair Live
 - FAM Taxonomy Validation: `PASS`; broad `FAM-001` through `FAM-010` remain live, no live FAM is closed, and legacy global `FB-###` remains historical trace only.
 - PR Evidence Model: `PASS`; PR #108 and PR #109 remain evidence only, not backlog/package identities or standalone release drivers.
 - Automation Observability: `REVIEW`; external automation memory may contain stale `BLOCKER_CANDIDATE` rows, but repo-source validation separates those rows from source-of-truth blockers.
+
+## Hardening H1-R1 Record
+
+- Phase Admission: `PASS`
+- Active Seam: `Hardening H1-R1 - Single-Slice Blocker Catalog Consistency Repair`
+- Blocker Catalog Consistency: `PASS`; `Single-Slice Package User Approval Missing` and `Package Completion Unproven` are named across blocker catalogs, prompt surfaces, branch authority references, and validator-required phrase sets.
+- Single-Slice Package Rule: `PASS`; a package with exactly one admitted slice blocks unless explicit USER approval records `Single-Slice Package User Approval: Granted`.
+- Admitted-Slice Counting Rule: `PASS`; only `Admission State: Admitted` rows count toward package admission.
+- Placeholder Drift Rule: `PASS`; historical evidence, merged evidence, future placeholders, deferred placeholders, deferred ideas, and future-package-required rows do not count, and vague placeholder rows cannot be marked admitted.
+- Package Completion Rule: `PASS`; package completion cannot be green while admitted slices remain incomplete.
+- Validation: `PASS`; branch governance validation passed 2739 checks, Python compile validation passed, diff validation passed, and automation observability separated stale external automation memory from repo-source blockers.
 
 ## Governance Drift Audit
 

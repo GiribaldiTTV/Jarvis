@@ -671,6 +671,8 @@ PR_READINESS_BLOCKER_PHRASES = (
     "Next Runtime Candidate Selection Pending",
     "Backlog Addition User Approval Missing",
     "Backlog Exhaustion User Decision Pending",
+    "Single-Slice Package User Approval Missing",
+    "Package Completion Unproven",
     "desktop-shortcut",
     "User Test Summary Results Pending",
     "PR Merge Status Unproven",
@@ -682,6 +684,27 @@ PR_READINESS_BLOCKER_PHRASES = (
     "Release Window Audit Incomplete",
     "Between-Branch Canon Repair Attempt",
     "Next Branch Created Too Early",
+)
+
+PACKAGE_SLICE_BLOCKER_CATALOG_DOCS = (
+    Path("Docs/feature_backlog.md"),
+    Path("Docs/prebeta_roadmap.md"),
+    Path("Docs/Main.md"),
+    Path("Docs/phase_governance.md"),
+    Path("Docs/development_rules.md"),
+    Path("Docs/codex_modes.md"),
+    Path("Docs/orin_task_template.md"),
+    Path("Docs/codex_user_guide.md"),
+    Path("Docs/nexus_startup_contract.md"),
+    Path("Docs/workstreams/index.md"),
+    Path("Docs/branch_records/index.md"),
+    Path("Docs/branch_records/codex_one_time_backlog_governance_repair.md"),
+)
+
+PACKAGE_SLICE_BLOCKER_CATALOG_PHRASES = (
+    "Single-Slice Package User Approval Missing",
+    "Package Completion Unproven",
+    "Admission State: Admitted",
 )
 
 RELEASE_WINDOW_AUDIT_DOCS = (
@@ -9877,6 +9900,14 @@ def main() -> int:
             require(
                 required_phrase.casefold() in text,
                 f"{relative_path}: PR Readiness blocker guidance is missing '{required_phrase}'",
+            )
+
+    for relative_path in PACKAGE_SLICE_BLOCKER_CATALOG_DOCS:
+        text = _read_text(relative_path)
+        for required_phrase in PACKAGE_SLICE_BLOCKER_CATALOG_PHRASES:
+            require(
+                required_phrase in text,
+                f"{relative_path}: package/slice blocker catalog is missing '{required_phrase}'",
             )
 
     for relative_path in RELEASE_WINDOW_AUDIT_DOCS:

@@ -104,7 +104,9 @@ Earlier Historical Active Branch Before Release: `feature/fb-048-active-session-
 Selected Next Workstream: None - blocked by `Backlog Addition User Approval Missing` until explicit USER approval.
 Selected Next Record State: None.
 Selected Next Implementation Branch: Not created.
-Backlog Addition User Approval Missing: Active for any attempted new backlog item, backlog split, promotion, or successor selection without explicit USER approval.
+Backlog Addition User Approval Missing: Active for any attempted new backlog item, package admission, branch creation, backlog split, promotion, selected-next successor selection, standalone release-driver classification, or single-slice package waiver without explicit USER approval.
+Single-Slice Package User Approval Missing: Active for any package with exactly one admitted slice unless explicit USER approval records `Single-Slice Package User Approval: Granted`.
+Package Completion Unproven: Active when package completion is claimed green while admitted slices remain incomplete.
 Repair-Only Branch Handling: `feature/fb-046-post-merge-canon-sync` is a bounded repair-only post-merge canon-sync `feature/` branch and did not imply Branch Readiness admission or active branch truth for FB-046.
 Historical Branch Readiness State: Complete on `feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeout-truth`.
 Current Branch Readiness State: none active.

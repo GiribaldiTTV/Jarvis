@@ -26,6 +26,7 @@ Use `Docs/validation_helper_registry.md` for durable root `dev/` helper naming, 
 - workstream docs must not encode a one-slice branch cap unless an explicit `Backlog-Split User Approval: APPROVED` or a named bounded stop condition is recorded
 - new package admission defaults to multiple slices; a package with exactly one admitted slice requires explicit `Single-Slice Package User Approval: Granted`
 - only `Admission State: Admitted` rows count toward package admission; historical evidence, merged evidence, future placeholders, deferred ideas, and future-package-required rows do not count as admitted slices
+- package drift blockers are named `Single-Slice Package User Approval Missing` and `Package Completion Unproven`
 - active implementation workstreams must record whether the backlog item is still `In Progress`, `Implemented Complete`, or `Implemented Complete Except Future Dependency` before phase exit
 - `Record State` tracks whether the record is `Promoted` or `Closed`
 - `Status` remains the delivery or work field
