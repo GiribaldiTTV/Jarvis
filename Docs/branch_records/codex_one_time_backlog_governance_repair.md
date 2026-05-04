@@ -15,23 +15,30 @@ This branch must not change runtime behavior. Its job is to harden governance, v
 
 ## Current Phase
 
-- Phase: `PR Readiness`
+- Phase: `Historical Traceability`
 
 ## Phase Status
 
+- Historical record state: `Merged historical traceability`
 - Repo State: `No Active Branch` in merge-stable current-state owners.
-- `Active Branch`: `codex/one-time-backlog-governance-repair`
-- Active Branch Authority Record: `Docs/branch_records/codex_one_time_backlog_governance_repair.md`
-- Active Branch: `codex/one-time-backlog-governance-repair`
+- Historical source branch: `codex/one-time-backlog-governance-repair`
+- Historical Branch Authority Record: `Docs/branch_records/codex_one_time_backlog_governance_repair.md`
 - Workstream: `One-time backlog governance repair`
 - USER Approval: explicit in the 2026-05-04 instruction to fix the governance drift in a one-time governance branch.
 - Drift Finding: legacy FB-027 / PR #109 was allowed to become active selected-next and release-facing truth even though it was a small single-seam runtime follow-through.
 - Repair Scope: backlog identity admission blocker, selected-next permission blocker, FAM-003 legacy FB-027 aggregation-hold correction, PR #109 standalone release-driver removal, historical backlog-item consolidation into family/source-of-truth trace, fresh broad `FAM-###` namespace introduction, FAM -> Package -> Slice -> Seam taxonomy correction, single-slice package blocker, package completion markers, PR Readiness Stage 1 / Stage 2 organization, and validator alignment.
 - Runtime Scope: none.
-- Current PR Readiness Stage: `PR Readiness Stage 2 - Execution Gate`
+- Historical PR Readiness Stage: `PR Readiness Stage 2 - Execution Gate`
 - PR Readiness Stage 2 Approval: `USER approval to enter Stage 2 recorded on 2026-05-04 for this one-time governance repair branch only`
-- Current PR Readiness Seam: `PR Readiness Stage 2 - One-Time Backlog Governance Repair Merge Watch`
-- Current Seam: `PR Readiness Stage 2 - One-Time Backlog Governance Repair Merge Watch`
+- Historical PR Readiness Seam: `PR Readiness Stage 2 - One-Time Backlog Governance Repair Merge Watch`
+- Historical final seam: `PR Readiness Stage 2 - One-Time Backlog Governance Repair Merge Watch`
+- Historical PR URL: `https://github.com/GiribaldiTTV/Nexus-Desktop-AI/pull/110`
+- Historical PR Merge Commit: `86f68942b37c0947a9655d146017cb53d1fdc774`
+- Historical PR Merged At: `2026-05-04T16:45:56Z`
+- Historical Final Head SHA: `c74de00f6b16723ecf03e6298f34bc2b55bcf2d7`
+- Historical Bot Review Closeout: Codex review threads `PRRT_kwDORwnWIs5_Z8yC` and `PRRT_kwDORwnWIs5_Z8yM` were fixed on the same branch and resolved before merge.
+- Historical Watcher Merge Verification: `pr-110-same-thread-merge-watcher` emitted same-thread `merged=true` handoff after PR #110 merged.
+- Historical Watcher Retirement: `pr-110-same-thread-merge-watcher` was deleted after the terminal merge condition.
 
 ## Branch Class
 
@@ -39,7 +46,7 @@ This branch must not change runtime behavior. Its job is to harden governance, v
 
 ## Blockers
 
-- `PR Merge Verification Pending` until the same-thread watcher verifies the live PR is merged.
+- None
 
 ## Entry Basis
 
@@ -75,24 +82,24 @@ Rollback Path: revert this branch to restore the pre-repair governance and curre
 
 - `Release Readiness`
 
-Next Legal Phase Gate: `Blocked by PR Merge Verification Pending until the same-thread watcher verifies PR #110 merged=true`
+Next Legal Phase Gate: `Cleared by PR #110 merged=true watcher handoff; later release packaging proceeds from the active v1.6.13-prebeta release-packaging carrier branch.`
 
 ## Active Seam
 
-Active seam: `PR Readiness Stage 2 - One-Time Backlog Governance Repair Merge Watch`
+Active seam: `None - historical traceability record after PR #110 merge`
 
 ## Seam Continuation Decision
 
 Seam Status: `In Progress`
 Slice Status: `In Progress`
-Completion Status: `In Progress`
+Completion Status: `Green`
 Waiver Status: `None`
 Continue Decision: `Stop`
-Stop Basis: `Merge watch waiting for external PR merge event`
-Stop Condition: `PR Merge Verification Pending`
-Continuation Action: `Keep pr-110-same-thread-merge-watcher active on the approved same-thread route until it verifies PR #110 merged=true, then hand off the next legal Release Readiness validation prompt without performing release work.`
-Decision Basis: `PR #110 is live, non-draft, base/head aligned, mergeable clean, bot-review comments are resolved, watcher provisioning/routing is recorded, and watcher runtime proof exists through same-thread heartbeat output; only merge verification remains.`
-Next Active Seam: `PR Readiness Stage 2 - One-Time Backlog Governance Repair Merge Watch`
+Stop Basis: `Historical merge closeout complete`
+Stop Condition: `None`
+Continuation Action: `No action for this historical record; PR #110 merge proof and watcher retirement are preserved, and release-packaging follow-through is carried by codex/v1.6.13-prebeta-release-packaging.`
+Decision Basis: `PR #110 merged at 2026-05-04T16:45:56Z, Codex bot review threads were resolved, the same-thread watcher emitted merged=true proof, and the watcher was retired.`
+Next Active Seam: `None`
 
 ## Post-Merge State
 
@@ -125,12 +132,13 @@ Bot Review Signal Notes: `P1` taxonomy lookup crash risk is guarded before `FRES
 
 - Phase Admission: `PASS`
 - Active Seam: `PR Readiness Stage 2-R1 - PR State and Watcher Runtime Proof Sync`
-- PR #110 Live State: `PASS`; PR #110 is open, non-draft, base `main`, head `codex/one-time-backlog-governance-repair`, head SHA `b3c21c83318d0622ce09f3d681fe47b4567972af` at R1 validation, mergeable `MERGEABLE`, merge state `CLEAN`, and `mergedAt` is null.
+- PR #110 Historical Final State: `MERGED`; PR #110 merged into `main` at `2026-05-04T16:45:56Z` via merge commit `86f68942b37c0947a9655d146017cb53d1fdc774` with final head SHA `c74de00f6b16723ecf03e6298f34bc2b55bcf2d7`.
 - Bot Review Resolution State: `PASS`; Codex review threads `PRRT_kwDORwnWIs5_Z8yC` and `PRRT_kwDORwnWIs5_Z8yM` are resolved in GitHub, with the first thread outdated and the second resolved on the current PR diff after same-branch fixes.
 - Cleared PR Blockers: `PR Creation Pending`, `Bot Review Signal Pending`, `PR Watcher Provisioning Unproven`, and `PR Watcher Routing Unverified`.
-- Watcher Provisioning Proof: `PASS`; `pr-110-same-thread-merge-watcher` exists at `C:\Users\anden\.codex\automations\pr-110-same-thread-merge-watcher\automation.toml`, status `ACTIVE`, kind `heartbeat`, cadence `FREQ=MINUTELY;INTERVAL=1`, target thread `019df2d2-6580-7b82-a49f-59f49da0911c`, and prompt scope is PR #110 same-thread merge watching only.
-- Watcher Runtime Proof: `PASS via thread-output evidence`; same-thread heartbeat runs at `2026-05-04T16:32:23.507Z` and `2026-05-04T16:33:53.538Z` reported PR #110 unchanged with PR-readiness gate passing. Automation database `last_run` visibility remains absent and is tracked as observability lag, not as `Automation Runtime Unproven`, because thread output is accepted run evidence.
-- Remaining PR Readiness Blocker: `PR Merge Verification Pending`; the watcher has not verified `merged=true`.
+- Watcher Provisioning Proof: `PASS`; `pr-110-same-thread-merge-watcher` existed as a same-thread heartbeat watcher for PR #110 during PR Readiness.
+- Watcher Runtime Proof: `PASS via thread-output evidence`; same-thread heartbeat runs reported PR #110 state during merge watch, then the watcher emitted the terminal `merged=true` handoff after GitHub reported the merge.
+- Watcher Retirement Proof: `PASS`; `pr-110-same-thread-merge-watcher` was deleted after the terminal merge condition.
+- Remaining PR Readiness Blocker: `None`; `PR Merge Verification Pending` is cleared by the watcher merged=true handoff.
 - Not Performed: no merge, Release Readiness entry, release work, branch creation, package admission, selected-next truth, FAM taxonomy change, package/slice/seam model change, Element Coverage model change, Branch Readiness gate change, or PR Readiness gate change.
 
 ## Hardening H1 Record
