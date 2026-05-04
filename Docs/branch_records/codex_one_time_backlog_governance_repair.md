@@ -15,7 +15,7 @@ This branch must not change runtime behavior. Its job is to harden governance, v
 
 ## Current Phase
 
-- Phase: `Hardening`
+- Phase: `Live Validation`
 
 ## Phase Status
 
@@ -28,7 +28,7 @@ This branch must not change runtime behavior. Its job is to harden governance, v
 - Drift Finding: legacy FB-027 / PR #109 was allowed to become active selected-next and release-facing truth even though it was a small single-seam runtime follow-through.
 - Repair Scope: backlog identity admission blocker, selected-next permission blocker, FAM-003 legacy FB-027 aggregation-hold correction, PR #109 standalone release-driver removal, historical backlog-item consolidation into family/source-of-truth trace, fresh broad `FAM-###` namespace introduction, FAM -> Package -> Slice -> Seam taxonomy correction, single-slice package blocker, package completion markers, PR Readiness Stage 1 / Stage 2 organization, and validator alignment.
 - Runtime Scope: none.
-- Current Seam: `Hardening H1-R2 - PR Readiness Stage Gate Governance Repair`
+- Current Seam: `Live Validation LV1 - One-Time Backlog Governance Repair Live Validation`
 
 ## Branch Class
 
@@ -67,11 +67,11 @@ Rollback Path: revert this branch to restore the pre-repair governance and curre
 
 ## Next Legal Phase
 
-- `Live Validation`
+- `PR Readiness`
 
 ## Active Seam
 
-Active seam: `Hardening H1-R2 - PR Readiness Stage Gate Governance Repair`
+Active seam: `Live Validation LV1 - One-Time Backlog Governance Repair Live Validation`
 
 ## Seam Continuation Decision
 
@@ -80,11 +80,11 @@ Slice Status: `Green`
 Completion Status: `Green`
 Waiver Status: `None`
 Continue Decision: `Stop`
-Stop Basis: `Hardening Green`
-Stop Condition: `Hardening H1-R2 PR Readiness stage gate governance repair complete`
-Continuation Action: `Proceed to Live Validation for repo-truth / live-equivalent validation of the one-time governance repair.`
-Decision Basis: `Validator and source-of-truth now distinguish admitted concrete slices from historical evidence, merged evidence, future placeholders, deferred ideas, and future-package-required rows; single-slice package drift is blocked unless explicit USER approval grants a waiver; blocker catalogs include Single-Slice Package User Approval Missing and Package Completion Unproven; PR Readiness Stage 1 now stops for USER review before Stage 2 work begins.`
-Next Active Seam: `Live Validation LV1 - One-Time Backlog Governance Repair Live Validation`
+Stop Basis: `Live Validation Green`
+Stop Condition: `Live Validation LV1 one-time governance repair live-equivalent validation complete`
+Continuation Action: `Proceed to PR Readiness Stage 1 analysis-only review. Do not create a PR, provision a watcher, create a branch, perform release work, or enter PR Readiness Stage 2 without explicit USER approval.`
+Decision Basis: `Live-equivalent repo-source validation proves the broad family/package/slice/seam model, package-admission blockers, PR evidence-only model, legacy FB historical-only model, and PR Readiness Stage 1 / Stage 2 gate are mutually consistent across source truth and validator logic.`
+Next Active Seam: `PR Readiness Stage 1 - One-Time Backlog Governance Repair Analysis Gate`
 
 ## Hardening H1 Record
 
@@ -118,6 +118,25 @@ Next Active Seam: `Live Validation LV1 - One-Time Backlog Governance Repair Live
 - Stage 2 Approval Blocker: `PASS`; `PR Readiness Execution User Approval Missing` blocks Stage 2 until explicit USER approval to enter Stage 2 is recorded.
 - Stage 2 Behavior Preservation: `PASS`; Stage 2 performs the existing PR Readiness sequence without weakening PR creation, watcher, bot-review, mergeability, merge-watch, or validator gates.
 - Validation: `PASS`; branch governance validation passed 2814 checks, Python compile validation passed, diff validation passed, and automation observability reported review rows as external automation memory rather than repo-source blockers.
+
+## Live Validation LV1 Record
+
+- Phase Admission: `PASS`
+- Active Seam: `Live Validation LV1 - One-Time Backlog Governance Repair Live Validation`
+- Live-Equivalent Scope: `Governance/source-of-truth validation only`; no runtime behavior changes, PR creation, watcher provisioning, branch creation, or release work.
+- FAM Package Slice Seam Model: `PASS`; live broad `FAM-###` entries, package rows, slice rows, and seam traces remain the canonical identity model.
+- No Closed By Historical Evidence Alone: `PASS`; live FAM entries remain open, pending, deferred, aggregation-held, merged-unreleased/open, or released-baseline/open where user-facing work remains.
+- PR Evidence Model: `PASS`; PR #108, PR #109, and other PR numbers remain merge/review evidence only and are not backlog, package, branch, selected-next, or release-driver identities.
+- Legacy FB Trace Model: `PASS`; legacy global `FB-###` IDs remain historical trace only and are not live parseable backlog identities.
+- Single-Slice Blockers: `PASS`; `Single-Slice Package User Approval Missing` and `Package Completion Unproven` are named blockers across source truth and validator logic.
+- Admitted-Slice Counting Rule: `PASS`; only `Admission State: Admitted` rows count toward package admission. Historical evidence, merged evidence, future placeholders, deferred placeholders, deferred ideas, and future-package-required rows do not count.
+- Placeholder Drift Rule: `PASS`; vague placeholder rows cannot satisfy package admission.
+- Package Completion Rule: `PASS`; package completion cannot be green while admitted slices remain incomplete.
+- PR Readiness Stage Model: `PASS`; Stage 1 is analysis-only, allows no repository mutation or PR/watcher/branch/release action, outputs `## PR Readiness Stage 1 Analysis Packet`, and stops on `PR Readiness Execution User Approval Missing`; Stage 2 begins only after explicit USER approval and preserves existing PR Readiness execution behavior.
+- Stage 1 Bypass Prevention: `PASS`; Stage 1 cannot be used as a planning loop, taxonomy rewrite, package admission, branch creation, successor selection, or release-driver bypass.
+- USER Blockers: `PASS`; new FAM creation, package admission, single-slice package waiver, branch creation, backlog split, family promotion, selected-next successor selection, standalone release-driver classification, and PR Readiness Stage 2 execution require explicit USER approval.
+- Automation Observability: `PASS`; stale external automation memory remains separated from repo-source blockers.
+- Validation: `PASS`; branch governance validation passed 2814 checks, Python compile validation passed, diff validation passed, and automation observability separated stale external automation memory from repo-source blockers.
 
 ## Governance Drift Audit
 
