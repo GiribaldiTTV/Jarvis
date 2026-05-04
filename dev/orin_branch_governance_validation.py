@@ -7948,11 +7948,26 @@ def _run_next_workstream_gate(
     roadmap_text: str,
     ignored_branch_names: set[str],
     branch_record_class_map: dict[str, str],
+    active_branch_record_text: str,
 ) -> None:
+    def explicitly_records_no_selected_next(blocker: str) -> bool:
+        post_merge_state = _section(active_branch_record_text, "Post-Merge State")
+        return (
+            blocker in active_branch_record_text
+            and "No Active Branch" in post_merge_state
+            and "Selected Next Workstream:" in post_merge_state
+            and "None" in post_merge_state
+            and "Selected Next Implementation Branch:" in post_merge_state
+            and "Not created" in post_merge_state
+            and "successor" in post_merge_state.casefold()
+        )
+
     selected_entries = _selected_next_workstream_entries(backlog_entries)
     if not selected_entries:
         not_closed_entries = _format_not_closed_backlog_entries(backlog_entries)
         if not_closed_entries:
+            if explicitly_records_no_selected_next(BACKLOG_ADDITION_USER_APPROVAL_BLOCKER):
+                return
             require(
                 False,
                 (
@@ -7962,6 +7977,8 @@ def _run_next_workstream_gate(
                     f"{not_closed_entries}"
                 ),
             )
+            return
+        if explicitly_records_no_selected_next(BACKLOG_EXHAUSTION_USER_DECISION_BLOCKER):
             return
         require(
             False,
@@ -9728,6 +9745,7 @@ def _run_pr_readiness_gate(
         roadmap_text,
         ignored_branch_names,
         branch_record_class_map,
+        active_branch_record_text,
     )
     _run_pr_live_state_gate(
         require,

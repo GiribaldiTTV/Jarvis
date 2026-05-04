@@ -290,6 +290,7 @@ That means:
 - no PR-ready with `Next Workstream Undefined`:
   - If post-merge truth will resolve to `No Active Branch` because `Release Debt` or another repo-level admission blocker remains open, successor branch creation remains deferred; next-workstream selection requires explicit USER approval.
   - if USER approval for new or successor backlog selection is absent, keep `Backlog Addition User Approval Missing` active, output the still-not-closed FAM list plus every not-complete package and slice, and stop instead of adding selected-next truth
+  - if `Backlog Addition User Approval Missing` is explicitly recorded with post-merge `No Active Branch` truth and no selected-next entry, PR Readiness must not force selected-next truth; it may validate the live PR surface while keeping next branch creation and package admission blocked
   - if USER approval exists but no real runtime successor can be selected, keep `Next Runtime Candidate Selection Pending` active and stop in PR Readiness rather than advancing to Release Readiness
   - the next workstream must be a real runtime `Feature Family` candidate selected from canon using open backlog `Priority` plus deferred-context readiness, not `Target Version`
   - that workstream must be recorded in `Docs/feature_backlog.md` and `Docs/prebeta_roadmap.md`
