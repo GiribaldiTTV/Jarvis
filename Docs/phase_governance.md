@@ -694,6 +694,12 @@ Hard blockers:
   PR Readiness Stage 1 - Analysis Gate is a no-work review pass. PR Readiness cannot enter PR Readiness Stage 2 - Execution Gate, mutate repository files, stage, commit, push, create the PR, provision the watcher, create a next branch, or perform release work until the Stage 1 packet is returned and explicit USER approval to enter Stage 2 is recorded.
 - `Next Workstream User Waiver Missing`:
   PR Readiness Stage 1 has a hard no-continue gate for next-workstream review. Stage 1 cannot continue to Stage 2 unless the packet analyzes a concrete next-workstream candidate and the candidate work to be done, or an explicit USER waiver records `Next Workstream User Waiver: Granted`. If no legal candidate is found, `Next Workstream Candidate Not Found` remains active until the USER supplies/approves a candidate or grants that waiver.
+- `Next Branch Package Shape Unproven`:
+  PR Readiness Stage 1 must pre-plan the next branch shape before Stage 2 can proceed. The packet must name the broad FAM, candidate package, and multiple concrete candidate slices, while keeping branch creation and selected-next truth blocked unless separately USER-approved.
+- `Single-Slice Branch Drift Risk Unresolved`:
+  PR Readiness Stage 1 cannot continue to Stage 2 when the next-branch pre-plan looks like a single-seam, single-slice, or one-off branch unless explicit USER waiver/approval is recorded. Placeholder slices do not satisfy this review.
+- `Family Organization Drift Risk Unresolved`:
+  PR Readiness Stage 1 cannot continue to Stage 2 when the next-branch pre-plan drifts away from the FAM -> Package -> Slice -> Seam model, reuses old live `FB-###` identity behavior, or treats governance/support work as a standalone feature family without USER approval.
 - `PR Merge Status Unproven`:
   PR Readiness cannot be green until the live PR has explicitly reported a green merge status. Treat unknown, unset, conflicting, dirty, blocked, or otherwise non-green mergeability/merge-state results as an active blocker until GitHub reports the PR merge status as green.
 - `Bot Review Signal Pending`:
@@ -801,6 +807,26 @@ Stage 1 must also include this user-facing block so USER and ChatGPT can review 
 ```
 
 Stage 1 has a hard no-continue gate here: it must analyze a concrete next-workstream candidate and the candidate work to be done, or explicitly record `Next Workstream User Waiver: Granted`. Without that waiver, missing candidate/work analysis stops on `Next Workstream User Waiver Missing` and cannot continue to Stage 2. If no legal next workstream candidate is found, Stage 1 must stop on `Next Workstream Candidate Not Found` and report the still-not-closed FAM list plus every not-complete package and slice. `Backlog Addition User Approval Missing`, `Backlog Exhaustion User Decision Pending`, and `Next Runtime Candidate Selection Pending` still apply according to their existing approval and exhaustion rules.
+
+Stage 1 must also include this next-branch pre-plan gate. It remains analysis-only and cannot create a branch, admit a package, encode selected-next truth, or waive single-slice rules:
+
+```markdown
+## Next Branch Pre-Plan
+- Next Branch Package Shape:
+- Proposed FAM:
+- Proposed Package:
+- Candidate Slices:
+- Candidate Work To Be Done:
+- Single-Slice Drift Review:
+- Family Organization Review:
+- Element Coverage Review:
+- Dependencies / Blockers:
+- Validation / Live-Test Needs:
+- Branch Creation Status:
+- USER Approvals Required:
+```
+
+If the packet cannot show a broad FAM/package with multiple concrete candidate slices, Stage 1 stops on `Next Branch Package Shape Unproven`. If the pre-plan still looks like a single-seam or single-slice branch, Stage 1 stops on `Single-Slice Branch Drift Risk Unresolved`. If the pre-plan drifts away from the family organization model or revives old live `FB-###` branch identity behavior, Stage 1 stops on `Family Organization Drift Risk Unresolved`.
 
 When `PR Readiness` reports package-ready or `PR package ready`, the response must include a repo-wide standardized `Next Branch` block and markdown-friendly PR operator copy blocks.
 Those package details are the input to PR creation and validation; they are not themselves proof that PR Readiness is GREEN.

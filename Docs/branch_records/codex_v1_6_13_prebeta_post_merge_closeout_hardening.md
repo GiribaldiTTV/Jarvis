@@ -247,6 +247,7 @@ Repair Scope: branch authority index, historical release-packaging closeout, rec
 - Recurrence Hardening: `PASS`
 - ChatGPT Loader / Source-Truth Sync: `PASS`
 - PR Readiness Stage 1 Next Workstream Output Correction: `PASS - Stage 1 now requires a user-facing ## Next Workstream block, Candidate Work To Be Done, and Next Workstream User Waiver status; Next Workstream User Waiver Missing blocks continuation without candidate/work analysis or explicit USER waiver, and Next Workstream Candidate Not Found blocks when no legal candidate is found`
+- PR Readiness Stage 1 Next Branch Pre-Plan Correction: `PASS - Stage 1 now requires a no-work ## Next Branch Pre-Plan gate for FAM/package shape, multiple candidate slices, single-slice drift review, family organization review, Element Coverage review, and USER approval needs; Next Branch Package Shape Unproven, Single-Slice Branch Drift Risk Unresolved, and Family Organization Drift Risk Unresolved block continuation when the next branch is too small or drifts from FAM -> Package -> Slice -> Seam`
 - Release Execution Approval State: `NOT APPROVED`
 - Runtime / Selected-Next Approval State: `NOT APPROVED`
 - Validation Handoff: `Ready for file-frozen Release Readiness validation on this branch; post-merge release execution remains blocked until this carrier merges and updated main validates`
