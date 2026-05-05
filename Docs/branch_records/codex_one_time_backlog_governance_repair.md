@@ -168,8 +168,8 @@ Bot Review Signal Notes: `P1` taxonomy lookup crash risk is guarded before `FRES
 - Phase Admission: `PASS`
 - Active Seam: `Hardening H1-R2 - PR Readiness Stage Gate Governance Repair`
 - PR Readiness Stage Model: `PASS`; `PR Readiness` remains one canonical phase and is organized into `PR Readiness Stage 1 - Analysis Gate` followed by `PR Readiness Stage 2 - Execution Gate`.
-- Stage 1 No-Work Rule: `PASS`; Stage 1 allows no repository file mutation, staging, commit, push, PR creation, watcher provisioning, next-branch creation, release work, or canon edits.
-- Stage 1 Packet Rule: `PASS`; Stage 1 must output `## PR Readiness Stage 1 Analysis Packet` with planned PR details, next branch posture, watcher plan, validations, expected file changes, drift findings, blockers, waivers, rollback path, and Stage 2 green-light need.
+- Stage 1 Repair-Gate Rule: `SUPERSEDED`; later repo truth changed Stage 1 from no-work review to an analysis-first blocker repair gate. `PR Readiness Stage 1 Repair Pending` now blocks Stage 2 until repairable current-branch PR-readiness drift/blockers found during Stage 1 are repaired, validated, committed, and pushed.
+- Stage 1 Packet Rule: `PASS`; Stage 1 must output `## PR Readiness Stage 1 Analysis Packet` with planned PR details, next branch posture, watcher plan, validations, expected file changes, Stage 1 repairs made, Stage 1 repair validation, drift findings, blockers, waivers, rollback path, and Stage 2 green-light need.
 - Stage 2 Approval Blocker: `PASS`; `PR Readiness Execution User Approval Missing` blocks Stage 2 until explicit USER approval to enter Stage 2 is recorded.
 - Stage 2 Behavior Preservation: `PASS`; Stage 2 performs the existing PR Readiness sequence without weakening PR creation, watcher, bot-review, mergeability, merge-watch, or validator gates.
 - Validation: `PASS`; branch governance validation passed 2814 checks, Python compile validation passed, diff validation passed, and automation observability reported review rows as external automation memory rather than repo-source blockers.
@@ -187,7 +187,7 @@ Bot Review Signal Notes: `P1` taxonomy lookup crash risk is guarded before `FRES
 - Admitted-Slice Counting Rule: `PASS`; only `Admission State: Admitted` rows count toward package admission. Historical evidence, merged evidence, future placeholders, deferred placeholders, deferred ideas, and future-package-required rows do not count.
 - Placeholder Drift Rule: `PASS`; vague placeholder rows cannot satisfy package admission.
 - Package Completion Rule: `PASS`; package completion cannot be green while admitted slices remain incomplete.
-- PR Readiness Stage Model: `PASS`; Stage 1 is analysis-only, allows no repository mutation or PR/watcher/branch/release action, outputs `## PR Readiness Stage 1 Analysis Packet`, and stops on `PR Readiness Execution User Approval Missing`; Stage 2 begins only after explicit USER approval and preserves existing PR Readiness execution behavior.
+- PR Readiness Stage Model: `SUPERSEDED`; later repo truth changed Stage 1 to an analysis-first blocker repair gate. Stage 1 may repair current-branch PR-readiness drift/blockers and must clear `PR Readiness Stage 1 Repair Pending` before stopping on `PR Readiness Execution User Approval Missing`; Stage 2 begins only after explicit USER approval and preserves existing PR Readiness execution behavior.
 - Stage 1 Bypass Prevention: `PASS`; Stage 1 cannot be used as a planning loop, taxonomy rewrite, package admission, branch creation, successor selection, or release-driver bypass.
 - USER Blockers: `PASS`; new FAM creation, package admission, single-slice package waiver, branch creation, backlog split, family promotion, selected-next successor selection, standalone release-driver classification, and PR Readiness Stage 2 execution require explicit USER approval.
 - Automation Observability: `PASS`; stale external automation memory remains separated from repo-source blockers.

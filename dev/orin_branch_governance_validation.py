@@ -689,6 +689,7 @@ PR_READINESS_BLOCKER_PHRASES = (
     "Next Branch Package Shape Unproven",
     "Single-Slice Branch Drift Risk Unresolved",
     "Family Organization Drift Risk Unresolved",
+    "PR Readiness Stage 1 Repair Pending",
 )
 
 PACKAGE_SLICE_BLOCKER_CATALOG_DOCS = (
@@ -788,7 +789,8 @@ PR_READINESS_STAGE_GATE_PHRASES = (
     "PR Readiness Stage 1 - Analysis Gate",
     "PR Readiness Stage 2 - Execution Gate",
     "PR Readiness Execution User Approval Missing",
-    "no repository file mutation",
+    "analysis-first blocker repair gate",
+    "PR Readiness Stage 1 Repair Pending",
     "USER approval to enter Stage 2",
 )
 
@@ -827,6 +829,9 @@ PR_READINESS_STAGE_PACKET_PHRASES = (
     "Planned Next Branch Block:",
     "Planned Watcher Provisioning:",
     "Expected Files To Change:",
+    "Stage 1 Repairs Made:",
+    "Stage 1 Repair Validation:",
+    "PR Readiness Stage 1 Repair Pending",
     "Stage 2 Sync Plan:",
     "Stage 2 Green-Light Decision Needed:",
 )
