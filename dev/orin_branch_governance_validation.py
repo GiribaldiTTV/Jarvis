@@ -10007,6 +10007,7 @@ def _run_pr_live_state_gate(
 def _run_merge_target_authority_projection_gate(
     require,
     *,
+    active_branch_record_paths: set[str],
     active_branch_record_path: str,
     active_branch_record_text: str,
     merge_stable_branch_record_path: str,
@@ -10019,17 +10020,19 @@ def _run_merge_target_authority_projection_gate(
     if "No Active Branch" not in post_merge_state:
         return
 
+    remaining_active_record_paths = sorted(active_branch_record_paths)
     require(
-        not active_branch_record_path,
+        not remaining_active_record_paths,
         (
             "PR readiness gate: Merge-Target Authority Projection Unproven blocker is active; "
-            f"current branch record '{active_branch_record_path}' is still listed under "
-            "Active Branch Authority Records even though Post-Merge State declares No Active Branch. "
-            "Move it to historical/no-active posture or otherwise make branch-authority truth "
-            "merge-stable before PR green."
+            "Active Branch Authority Records still contains "
+            f"{', '.join(remaining_active_record_paths) or 'UNKNOWN'} even though Post-Merge "
+            "State declares No Active Branch. Move every active authority record to "
+            "historical/no-active posture or otherwise make branch-authority truth merge-stable "
+            "before PR green."
         ),
     )
-    if active_branch_record_path:
+    if remaining_active_record_paths:
         return
 
     phase = _extract_marker_value(_section(branch_record_text, "Current Phase"), "Phase")
@@ -10125,6 +10128,7 @@ def _run_pr_readiness_gate(
     )
     _run_merge_target_authority_projection_gate(
         require,
+        active_branch_record_paths=active_branch_record_paths,
         active_branch_record_path=current_active_branch_record_path,
         active_branch_record_text=current_active_branch_record_text,
         merge_stable_branch_record_path=historical_branch_record_path,
