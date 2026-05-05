@@ -1,4 +1,5 @@
 import json
+import os
 import re
 import sqlite3
 import subprocess
@@ -16,6 +17,8 @@ GITHUB_API_HEADERS = {
     "User-Agent": "orin-branch-governance-validation",
 }
 GITHUB_API_TIMEOUT_SECONDS = 20
+_GITHUB_API_TOKEN = ""
+_GITHUB_API_TOKEN_LOADED = False
 
 PHASES = (
     "Branch Readiness",
@@ -7571,8 +7574,45 @@ def _bot_review_comment_closeout_followthrough_ok(
     return True, ""
 
 
+def _github_api_auth_token() -> str:
+    global _GITHUB_API_TOKEN
+    global _GITHUB_API_TOKEN_LOADED
+
+    if _GITHUB_API_TOKEN_LOADED:
+        return _GITHUB_API_TOKEN
+
+    _GITHUB_API_TOKEN_LOADED = True
+    token = os.environ.get("GH_TOKEN") or os.environ.get("GITHUB_TOKEN") or ""
+    if not token:
+        try:
+            completed = subprocess.run(
+                ("gh", "auth", "token"),
+                cwd=ROOT_DIR,
+                text=True,
+                encoding="utf-8",
+                errors="replace",
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                check=False,
+            )
+        except FileNotFoundError:
+            completed = None
+        if completed is not None and completed.returncode == 0:
+            token = completed.stdout.strip()
+    _GITHUB_API_TOKEN = token.strip()
+    return _GITHUB_API_TOKEN
+
+
+def _github_api_request_headers() -> dict[str, str]:
+    headers = dict(GITHUB_API_HEADERS)
+    token = _github_api_auth_token()
+    if token:
+        headers["Authorization"] = f"Bearer {token}"
+    return headers
+
+
 def _github_api_json(url: str) -> tuple[object | None, str]:
-    request = urllib_request.Request(url, headers=GITHUB_API_HEADERS)
+    request = urllib_request.Request(url, headers=_github_api_request_headers())
     try:
         with urllib_request.urlopen(request, timeout=GITHUB_API_TIMEOUT_SECONDS) as response:
             payload = response.read().decode("utf-8", "replace")
