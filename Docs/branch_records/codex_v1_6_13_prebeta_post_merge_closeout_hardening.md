@@ -83,7 +83,7 @@ Rollback Path: abandon this branch before merge to restore merged `main` to PR #
 
 - `Release Readiness`
 
-Next Legal Phase Gate: `Blocked until this closeout/hardening carrier merges and updated main validates with no active branch authority record, no stale PR Readiness merge-watch blockers, and no missing PR #111 closeout proof. Release execution and artifact creation still require separate Release Readiness authorization.`
+Next Legal Phase Gate: `Ready for file-frozen Release Readiness validation on this branch after Branch Readiness validation is green. Release execution remains blocked until this closeout/hardening carrier merges, updated main validates with no active branch authority record, no stale PR Readiness merge-watch blockers, and no missing PR #111 closeout proof, and the USER separately authorizes release execution and artifact creation.`
 
 ## Branch Objective
 
@@ -248,4 +248,4 @@ Repair Scope: branch authority index, historical release-packaging closeout, rec
 - ChatGPT Loader / Source-Truth Sync: `PASS`
 - Release Execution Approval State: `NOT APPROVED`
 - Runtime / Selected-Next Approval State: `NOT APPROVED`
-- Validation Handoff: `Ready for Release Readiness after this carrier merges and updated main validates`
+- Validation Handoff: `Ready for file-frozen Release Readiness validation on this branch; post-merge release execution remains blocked until this carrier merges and updated main validates`
