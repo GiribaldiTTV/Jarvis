@@ -24,6 +24,8 @@ This branch must not create runtime work, create the FAM-006 runtime branch, adm
 - Historical Branch Readiness Stage: `Complete - Branch Readiness Stage 2 admitted REL-PKG-004 on 2026-05-05`
 - PR Readiness Stage 1-R1 Projection Repair: `Complete - branch authority is historical/no-active before PR creation so merged main remains No Active Branch`
 - PR Readiness Stage 1-R2 Selected-Next Repair: `Complete - USER-approved FAM-006 selected-next truth is synced while branch creation and runtime package admission remain blocked for later Branch Readiness`
+- PR Readiness Stage 2 USER Approval: `Granted for PR #114 creation, same-PR evidence-surface sync, watcher provisioning, bot-review handling, mergeability validation, and merge-watch while merged-main projection remains historical/no-active`
+- PR #114 Evidence Surface Sync: `Complete - live PR body must match USER-approved FAM-006 selected-next truth without authorizing branch creation or runtime package admission`
 - Branch Readiness Stage 2 USER Approval: `Granted for this release-support canon-closure carrier`
 - Branch Authority State: `Historical / merge-stable - not listed as active branch authority in merge-target truth`
 - Post-Merge Authority Projection: `Ready - Active Branch Authority Records is empty and merged-main current-state remains No Active Branch after this carrier merges`
@@ -79,7 +81,7 @@ This branch must not create runtime work, create the FAM-006 runtime branch, adm
 - `Protected-Main Post-Release Closure Local-Only`: `Cleared for carrier preservation after branch creation and push; remote main closure remains a PR Readiness / post-merge validation item until the protected-branch PR merges`
 - `Backlog Addition User Approval Missing`: `Cleared for USER-approved FAM-006 selected-next successor selection only; active for any other attempted runtime backlog identity, runtime package admission, backlog split, family promotion, standalone release-driver classification, branch creation beyond this approved carrier, or single-slice package waiver without explicit USER approval`
 - `Release Execution User Approval Missing`: `Not applicable for v1.6.13-prebeta publication because release execution already completed; active for any future release execution`
-- `PR Readiness Execution User Approval Missing`: `Active until USER approves PR Readiness Stage 2 for this carrier`
+- `PR Readiness Execution User Approval Missing`: `Cleared - USER approved PR Readiness Stage 2 for PR #114; PR execution evidence remains PR/output scoped while this branch record stays historical/no-active for merge-target stability`
 
 ## Entry Basis
 
@@ -256,6 +258,18 @@ Repair: `USER-approved selected-next truth now records FAM-006 Monitoring and HU
 Boundaries: `No FAM-006 branch is created, no runtime package is admitted, no runtime implementation begins, no single-slice waiver is granted, and no release/tag/GitHub Release/artifact work is performed.`
 
 Next Legal Runtime Step: `Branch Readiness Stage 1 - FAM-006 Monitoring and HUD Product Surface Package Analysis Gate after this release/canon closure PR merges and updated main validates clean.`
+
+## PR Readiness Stage 2-R1 PR #114 Evidence Surface Sync Record
+
+Status: `Complete / PR evidence-surface aligned`
+
+Finding: `Live PR #114 body still described FAM-006 as recommendation-only and said no selected-next runtime truth was encoded after USER-approved selected-next truth had already been synced in repo source truth.`
+
+Repair: `PR #114 evidence surface was updated to state FAM-006 Monitoring and HUD is USER-approved selected-next truth, Monitoring and HUD Product Surface Package is the selected next runtime package candidate, the runtime branch is not created, and the runtime package is not admitted.`
+
+Boundary: `This sync does not create runtime work, create the FAM-006 branch, admit the FAM-006 package, waive single-slice rules, execute release work, create a tag, create a GitHub Release, or create release artifacts.`
+
+Merge-Target Projection: `This record remains historical/no-active; merged main must still project No Active Branch with selected-next truth only and no active Branch Readiness, PR Readiness, live PR, or merge-watch ownership.`
 
 ## Historical Seam Record
 
