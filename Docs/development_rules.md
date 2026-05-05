@@ -320,6 +320,7 @@ That means:
   - `Next Branch Package Shape Unproven` blocks Stage 1 continuation if the pre-plan cannot show a broad FAM/package with multiple concrete candidate slices
   - `Single-Slice Branch Drift Risk Unresolved` blocks Stage 1 continuation if the pre-plan looks like single-seam or single-slice drift
   - `Family Organization Drift Risk Unresolved` blocks Stage 1 continuation if the pre-plan drifts away from FAM -> Package -> Slice -> Seam or revives old live `FB-###` identity behavior
+  - `Branch Readiness Fallback Required` blocks Stage 2 and routes the next legal work to `Branch Readiness Stage 1 - Analysis Gate` when next-workstream or next-branch blockers cannot be cleared inside Stage 1 without USER waiver/approval
   - `PR Readiness Execution User Approval Missing` blocks `PR Readiness Stage 2 - Execution Gate` until explicit USER approval to enter Stage 2 is recorded
   - Stage 2 preserves the existing PR Readiness work sequence: apply required canon, commit and push durable truth, run the normal validator and PR-readiness gate mode, create the PR, provision and prove the watcher, validate live PR state, handle bot-review signals, and continue merge-watch
 - no PR-ready with an incomplete merged-unreleased release-debt owner contract:

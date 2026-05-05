@@ -232,7 +232,7 @@ When the approved phase is `PR Readiness`, the output must also explicitly inclu
 
 - the current PR Readiness stage: `PR Readiness Stage 1 - Analysis Gate` or `PR Readiness Stage 2 - Execution Gate`
 - confirmation that Stage 1 is an analysis-first blocker repair gate when the current PR Readiness stage is Stage 1
-- for Stage 1, the `## PR Readiness Stage 1 Analysis Packet`, including required post-merge path, ranked runtime FAM candidates, recommended next package, package-size / single-slice drift review, release-debt impact, Stage 2 sync plan, Stage 1 repairs made and repair validation, a user-facing `## Next Workstream` block with `Recommended Next Workstream:`, candidate slices, `Candidate Work To Be Done:`, `User-Facing Output:`, dependencies/blockers, validation needs, release impact, selection-truth status, branch-creation status, and `Next Workstream User Waiver:`, plus the hard no-continue blocker `Next Workstream User Waiver Missing` unless a concrete candidate/work analysis exists or USER waiver is granted, plus `Next Workstream Candidate Not Found` when no legal next workstream candidate is found, plus a Stage 1-only `## Next Branch Pre-Plan` gate with `Next Branch Package Shape:`, `Single-Slice Drift Review:`, `Family Organization Review:`, and `Element Coverage Review:`, plus `PR Readiness Stage 1 Repair Pending` until repairable PR-readiness drift/blockers found during Stage 1 are fixed, validated, committed, and pushed, and `PR Readiness Execution User Approval Missing` as the stop blocker until explicit USER approval to enter Stage 2 is recorded
+- for Stage 1, the `## PR Readiness Stage 1 Analysis Packet`, including required post-merge path, ranked runtime FAM candidates, recommended next package, package-size / single-slice drift review, release-debt impact, Stage 2 sync plan, Stage 1 repairs made and repair validation, `Branch Readiness Fallback:`, a user-facing `## Next Workstream` block with `Recommended Next Workstream:`, candidate slices, `Candidate Work To Be Done:`, `User-Facing Output:`, dependencies/blockers, validation needs, release impact, selection-truth status, branch-creation status, and `Next Workstream User Waiver:`, plus the hard no-continue blocker `Next Workstream User Waiver Missing` unless a concrete candidate/work analysis exists or USER waiver is granted, plus `Next Workstream Candidate Not Found` when no legal next workstream candidate is found, plus a Stage 1-only `## Next Branch Pre-Plan` gate with `Next Branch Package Shape:`, `Single-Slice Drift Review:`, `Family Organization Review:`, and `Element Coverage Review:`, plus `Branch Readiness Fallback Required` when the next-workstream or next-branch pre-plan must route to `Branch Readiness Stage 1 - Analysis Gate`, plus `PR Readiness Stage 1 Repair Pending` until repairable PR-readiness drift/blockers found during Stage 1 are fixed, validated, committed, and pushed, and `PR Readiness Execution User Approval Missing` as the stop blocker until explicit USER approval to enter Stage 2 is recorded
 - for Stage 2, confirmation that USER approval to enter Stage 2 exists before any repository mutation, staging, commit, push, PR creation, watcher provisioning, next-branch creation, release work, or canon edits occur
 - confirmation that the merge-target canon completeness gate passed
 - confirmation that the Governance Drift Audit ran
@@ -296,7 +296,7 @@ When the approved phase is `PR Readiness`, the output must also explicitly inclu
 ```
 
 - Stage 1 cannot continue to Stage 2 unless this block analyzes a concrete candidate and the work planned for that candidate, or records `Next Workstream User Waiver: Granted`; otherwise report `Next Workstream User Waiver Missing`
-- if no legal next workstream candidate is found, report `Next Workstream Candidate Not Found` and include the still-not-closed FAM list plus every not-complete package and slice
+- if no legal next workstream candidate is found, report `Next Workstream Candidate Not Found`, include the still-not-closed FAM list plus every not-complete package and slice, and mark `Branch Readiness Fallback Required` unless the USER grants a waiver/approval that clears the route
 - a required Stage 1-only `## Next Branch Pre-Plan` section with this exact field shape:
 
 ```markdown
@@ -314,6 +314,8 @@ When the approved phase is `PR Readiness`, the output must also explicitly inclu
 - Branch Creation Status:
 - USER Approvals Required:
 ```
+
+- if the Next Branch Pre-Plan cannot prove a broad FAM/package with multiple concrete candidate slices, or it looks like single-seam/single-slice drift or family-organization drift, report `Branch Readiness Fallback Required` and route the next legal work to `Branch Readiness Stage 1 - Analysis Gate` instead of PR Readiness Stage 2
 
 - if the pre-plan cannot show a broad FAM/package with multiple concrete candidate slices, report `Next Branch Package Shape Unproven`
 - if the pre-plan looks like a single-seam or single-slice branch, report `Single-Slice Branch Drift Risk Unresolved`

@@ -689,6 +689,7 @@ PR_READINESS_BLOCKER_PHRASES = (
     "Next Branch Package Shape Unproven",
     "Single-Slice Branch Drift Risk Unresolved",
     "Family Organization Drift Risk Unresolved",
+    "Branch Readiness Fallback Required",
     "PR Readiness Stage 1 Repair Pending",
 )
 
@@ -755,6 +756,8 @@ PR_READINESS_RESPONSE_CONTRACT_PHRASES = (
     "Next Branch Package Shape Unproven",
     "Single-Slice Branch Drift Risk Unresolved",
     "Family Organization Drift Risk Unresolved",
+    "Branch Readiness Fallback Required",
+    "Branch Readiness Fallback:",
     "## Next Branch",
     "Next Legal Branch Type:",
     "Next Branch Name:",
@@ -820,6 +823,7 @@ PR_READINESS_STAGE_PACKET_PHRASES = (
     "Next Branch Package Shape Unproven",
     "Single-Slice Branch Drift Risk Unresolved",
     "Family Organization Drift Risk Unresolved",
+    "Branch Readiness Fallback Required",
     "Required Post-Merge Path:",
     "Ranked Runtime FAM Candidates:",
     "Recommended Next Package:",
@@ -832,6 +836,7 @@ PR_READINESS_STAGE_PACKET_PHRASES = (
     "Stage 1 Repairs Made:",
     "Stage 1 Repair Validation:",
     "PR Readiness Stage 1 Repair Pending",
+    "Branch Readiness Fallback:",
     "Stage 2 Sync Plan:",
     "Stage 2 Green-Light Decision Needed:",
 )

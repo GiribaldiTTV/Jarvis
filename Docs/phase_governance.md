@@ -702,6 +702,8 @@ Hard blockers:
   PR Readiness Stage 1 cannot continue to Stage 2 when the next-branch pre-plan looks like a single-seam, single-slice, or one-off branch unless explicit USER waiver/approval is recorded. Placeholder slices do not satisfy this review.
 - `Family Organization Drift Risk Unresolved`:
   PR Readiness Stage 1 cannot continue to Stage 2 when the next-branch pre-plan drifts away from the FAM -> Package -> Slice -> Seam model, reuses old live `FB-###` identity behavior, or treats governance/support work as a standalone feature family without USER approval.
+- `Branch Readiness Fallback Required`:
+  PR Readiness Stage 1 cannot continue to Stage 2 when next-workstream or next-branch blockers show that the next legal work needs Branch Readiness analysis instead of PR execution. This includes `Next Workstream Candidate Not Found`, `Next Branch Package Shape Unproven`, `Single-Slice Branch Drift Risk Unresolved`, `Family Organization Drift Risk Unresolved`, or any next-branch/package question that cannot be cleared without USER waiver/approval. The Stage 1 packet must output `Branch Readiness Fallback:` and route the next legal work to `Branch Readiness Stage 1 - Analysis Gate` rather than create a PR, watcher, branch, package, selected-next truth, or release artifact by inertia.
 - `PR Merge Status Unproven`:
   PR Readiness cannot be green until the live PR has explicitly reported a green merge status. Treat unknown, unset, conflicting, dirty, blocked, or otherwise non-green mergeability/merge-state results as an active blocker until GitHub reports the PR merge status as green.
 - `Bot Review Signal Pending`:
@@ -738,7 +740,7 @@ If the normal governance validator passes but the PR-specific gate reports dirty
 - `PR Readiness Stage 1 - Analysis Gate`: analysis-first blocker repair gate. Stage 1 must analyze repo truth, identify PR-readiness drift/blockers, repair any current-branch PR-readiness drift or blocker it finds, validate those repairs, commit and push durable repair truth when files changed, output the full `## PR Readiness Stage 1 Analysis Packet` for USER review, including next-branch hierarchy and Stage 2 sync plan, and then stop on `PR Readiness Execution User Approval Missing`. Stage 1 still cannot create the PR, provision the watcher, create the next branch, execute release work, create tags/artifacts/releases, admit packages, encode selected-next truth, or grant waivers without explicit USER approval.
 - `PR Readiness Stage 2 - Execution Gate`: begins only after explicit USER approval to enter Stage 2. Stage 2 performs the existing PR Readiness work: apply required merge-target canon, commit and push durable truth, run the normal governance validator and PR-readiness gate mode, create the PR, provision and prove the watcher, validate live PR state, handle bot-review signals, and continue merge-watch until the approved reporting surface verifies merge.
 
-The `## PR Readiness Stage 1 Analysis Packet` must include governed state markers, the planned PR title/base/head/summary, required post-merge path, ranked runtime FAM candidates, recommended next package, package-size / single-slice drift review, release-debt impact, planned merge-target canon updates, planned next-branch block, planned watcher provisioning and reporting surface, planned validations, expected Stage 2 file changes, Stage 1 repairs made, Stage 1 repair validation, Stage 2 sync plan, drift findings, blocker and waiver findings, release-window audit posture, rollback path, and the exact Stage 2 green-light decision needed from the USER. It may repair Stage 1 PR-readiness blockers on the current branch, but it must not perform Stage 2, create the PR/watcher, or encode selected-next truth.
+The `## PR Readiness Stage 1 Analysis Packet` must include governed state markers, the planned PR title/base/head/summary, required post-merge path, ranked runtime FAM candidates, recommended next package, package-size / single-slice drift review, release-debt impact, planned merge-target canon updates, planned next-branch block, planned watcher provisioning and reporting surface, planned validations, expected Stage 2 file changes, Stage 1 repairs made, Stage 1 repair validation, Branch Readiness fallback status, Stage 2 sync plan, drift findings, blocker and waiver findings, release-window audit posture, rollback path, and the exact Stage 2 green-light decision needed from the USER. It may repair Stage 1 PR-readiness blockers on the current branch, but it must not perform Stage 2, create the PR/watcher, or encode selected-next truth.
 
 `PR package ready` is the state where local branch truth, merge-target canon, next-workstream selection, and copy-ready PR details are complete. It is not `PR Readiness GREEN`.
 
@@ -784,6 +786,7 @@ When the response is Stage 1, it must include this packet and stop on `PR Readin
 - Expected Files To Change:
 - Stage 1 Repairs Made:
 - Stage 1 Repair Validation:
+- Branch Readiness Fallback:
 - Stage 2 Sync Plan:
 - Drift Findings:
 - Blockers And Waivers Needed:
@@ -810,7 +813,7 @@ Stage 1 must also include this user-facing block so USER and ChatGPT can review 
 - Next Workstream User Waiver:
 ```
 
-Stage 1 has a hard no-continue gate here: it must analyze a concrete next-workstream candidate and the candidate work to be done, or explicitly record `Next Workstream User Waiver: Granted`. Without that waiver, missing candidate/work analysis stops on `Next Workstream User Waiver Missing` and cannot continue to Stage 2. If no legal next workstream candidate is found, Stage 1 must stop on `Next Workstream Candidate Not Found` and report the still-not-closed FAM list plus every not-complete package and slice. `Backlog Addition User Approval Missing`, `Backlog Exhaustion User Decision Pending`, and `Next Runtime Candidate Selection Pending` still apply according to their existing approval and exhaustion rules.
+Stage 1 has a hard no-continue gate here: it must analyze a concrete next-workstream candidate and the candidate work to be done, or explicitly record `Next Workstream User Waiver: Granted`. Without that waiver, missing candidate/work analysis stops on `Next Workstream User Waiver Missing` and cannot continue to Stage 2. If no legal next workstream candidate is found, Stage 1 must stop on `Next Workstream Candidate Not Found`, report the still-not-closed FAM list plus every not-complete package and slice, and mark `Branch Readiness Fallback Required` unless the USER grants a waiver/approval that clears the route. `Backlog Addition User Approval Missing`, `Backlog Exhaustion User Decision Pending`, and `Next Runtime Candidate Selection Pending` still apply according to their existing approval and exhaustion rules.
 
 Stage 1 must also include this next-branch pre-plan gate. It remains analysis-only and cannot create a branch, admit a package, encode selected-next truth, or waive single-slice rules:
 
@@ -830,7 +833,7 @@ Stage 1 must also include this next-branch pre-plan gate. It remains analysis-on
 - USER Approvals Required:
 ```
 
-If the packet cannot show a broad FAM/package with multiple concrete candidate slices, Stage 1 stops on `Next Branch Package Shape Unproven`. If the pre-plan still looks like a single-seam or single-slice branch, Stage 1 stops on `Single-Slice Branch Drift Risk Unresolved`. If the pre-plan drifts away from the family organization model or revives old live `FB-###` branch identity behavior, Stage 1 stops on `Family Organization Drift Risk Unresolved`.
+If the packet cannot show a broad FAM/package with multiple concrete candidate slices, Stage 1 stops on `Next Branch Package Shape Unproven`. If the pre-plan still looks like a single-seam or single-slice branch, Stage 1 stops on `Single-Slice Branch Drift Risk Unresolved`. If the pre-plan drifts away from the family organization model or revives old live `FB-###` branch identity behavior, Stage 1 stops on `Family Organization Drift Risk Unresolved`. Any of those unresolved pre-plan blockers also activates `Branch Readiness Fallback Required` so the next legal route becomes `Branch Readiness Stage 1 - Analysis Gate` instead of PR Readiness Stage 2.
 
 When `PR Readiness` reports package-ready or `PR package ready`, the response must include a repo-wide standardized `Next Branch` block and markdown-friendly PR operator copy blocks.
 Those package details are the input to PR creation and validation; they are not themselves proof that PR Readiness is GREEN.
