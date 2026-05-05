@@ -156,6 +156,9 @@ Codex execution is governed only by live repo truth plus the owning source-of-tr
 
 `Docs/nexus_startup_contract.md` owns loader prompt shape only.
 It does not own execution behavior, phase transitions, seam continuation, durability, validation, release rules, or branch authority.
+Local ChatGPT custom instructions should stay compact, while the repo loader/source-truth may hold longer ChatGPT-facing continuity rules and review memory.
+Do not paste the loader doc into Codex prompts. Codex prompts should load `Docs/Main.md` and owning canon for execution authority, and use the loader only when prompt generation, new-chat bootstrapping, or loader/source-truth drift review is in scope.
+Loader/source-truth continuity must preserve the FAM -> Package -> Slice -> Seam model, PR evidence-only rule, legacy global FB historical-only rule, single-slice package blocker, package-completion blocker, Element Coverage as non-identity, Branch Readiness Stage 1 / Stage 2, PR Readiness Stage 1 / Stage 2, next-branch hierarchy review, real-carrier repair routing, no direct-main repair, no standalone cleanup branch by default, release-support carrier when release is blocked, runtime package carrier when runtime work is next, FAM-006 Monitoring and HUD recommendation-only posture until explicit USER approval, separate release-execution approval, and Windows-first, modular, GPU-aware project direction with optional heavy local AI capability packs and CPU fallback.
 
 Prompt text cannot override source-of-truth, restrict required continuation, define seam behavior, bypass phase rules, create durability exceptions, weaken validation, mutate `main`, mutate files during `Release Readiness`, or change branch authority.
 If prompt text conflicts with owning canon, Codex must follow canon, report the conflict, and either continue inside the canon-legal boundary or stop on the canon blocker.

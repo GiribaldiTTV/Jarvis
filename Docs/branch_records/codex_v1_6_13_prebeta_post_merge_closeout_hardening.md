@@ -24,8 +24,9 @@ This branch must not create runtime work, select FAM-006 or any other runtime FA
 - Branch Readiness Stage: `Complete`
 - PR Readiness Stage: `PR Readiness Stage 1 - Analysis Gate`
 - Branch Readiness Stage 2 USER Approval: `Granted for this release-support closeout carrier on 2026-05-04`
+- Branch Readiness Stage 2-R1 USER Waiver: `Granted on 2026-05-05 for governance ledger and ChatGPT loader/source-truth sync on this active carrier only`
 - PR Readiness Stage 2 USER Approval: `Not granted`
-- Active Seam: `PR Readiness Stage 1-R1 - PR Stage 1 Repair-Gate Governance Sync`
+- Active Seam: `PR Readiness Stage 1 - v1.6.13-prebeta Closeout Hardening PR Analysis Gate`
 - Release Target: `v1.6.13-prebeta`
 - Release Floor: `patch prerelease`
 - Release Support Package: `REL-PKG-002 v1.6.13-prebeta post-merge closeout and recurrence hardening`
@@ -40,6 +41,7 @@ This branch must not create runtime work, select FAM-006 or any other runtime FA
 - FAM-006 Selection State: `Recommendation-only / not selected`
 - Release Execution: `Not approved`
 - Release Artifacts: `Not created`
+- Governance Ledger / Loader Sync State: `Complete - Branch Readiness Stage 2-R1 repaired the remaining ChatGPT loader/source-truth continuity gaps without changing runtime, selected-next, release, PR, branch, or package authority`
 
 ## Branch Class
 
@@ -54,7 +56,7 @@ This branch must not create runtime work, select FAM-006 or any other runtime FA
 ## Blockers
 
 - `PR Readiness Execution User Approval Missing` remains active until the USER approves Stage 2 PR creation and watcher provisioning.
-- `PR Readiness Stage 1 Repair Pending`: `Cleared by this Stage 1 repair-gate sync once this validated branch truth is committed and pushed`
+- `PR Readiness Stage 1 Repair Pending`: `Cleared`
 
 ## Entry Basis
 
@@ -177,7 +179,7 @@ Non-Includes: no release execution or artifact creation.
 
 ## Active Seam
 
-Active seam: `Branch Readiness Stage 2 - v1.6.13-prebeta Post-Merge Closeout and Governance Hardening Carrier Admission`
+Active seam: `PR Readiness Stage 1 - v1.6.13-prebeta Closeout Hardening PR Analysis Gate`
 
 ## Release Support Package / Slice Plan
 
@@ -266,6 +268,23 @@ Repair Scope: branch authority index, historical release-packaging closeout, rec
 - Release Execution Approval State: `NOT APPROVED`
 - Runtime / Selected-Next Approval State: `NOT APPROVED`
 - Validation Handoff: `Ready for file-frozen Release Readiness validation on this branch; post-merge release execution remains blocked until this carrier merges and updated main validates`
+
+## Branch Readiness Stage 2-R1 Governance Ledger / Loader Sync Record
+
+- Phase Admission: `PASS`
+- USER Waiver: `Granted for this source-truth sync on the active release-support carrier only`
+- Active Seam: `Branch Readiness Stage 2-R1 - Governance Ledger and ChatGPT Loader / Source-Truth Sync`
+- Ledger Sync: `PASS - source-truth and prompt surfaces preserve the identity model, broad FAM taxonomy, package/branch rule, USER approval blockers, Branch/PR Readiness staging, selected-next recommendation separation, real-carrier routing, branch authority lifecycle, watcher proof separation, release execution boundary, Element Coverage non-identity rule, ChatGPT loader split, project direction, current workflow, after-release workflow, and absolute guardrails`
+- ChatGPT Loader / New-Chat Source-Truth Sync: `PASS - Docs/nexus_startup_contract.md remains ChatGPT-facing memory only; Codex execution authority remains Docs/Main.md and owning repo canon`
+- Loader Prompt Paste Rule: `PASS - future Codex prompts should load Docs/Main.md and owning canon, not paste the loader doc`
+- Local ChatGPT Instructions Split: `PASS - local ChatGPT custom instructions stay compact while repo loader/source-truth can hold longer ChatGPT-facing continuity rules`
+- FAM-006 Recommendation-Only Posture: `PASS - FAM-006 Monitoring and HUD remains recommendation-only until explicit USER approval; no FAM-006 branch, runtime package, selected-next truth, or single-slice waiver is authorized`
+- Project Direction Preservation: `PASS - Windows-first, modular, GPU-aware direction with optional heavy local AI capability packs and CPU fallback is preserved in loader/source-truth continuity`
+- Release Execution Approval State: `NOT APPROVED`
+- Runtime / Selected-Next Approval State: `NOT APPROVED`
+- PR / Watcher Approval State: `NOT APPROVED in this Stage 2-R1 sync`
+- Validation Handoff: `After this durable sync, rerun PR Readiness Stage 1 before any PR Readiness Stage 2 approval or PR creation`
+- Next Legal Seam: `PR Readiness Stage 1 - v1.6.13-prebeta Closeout Hardening PR Analysis Gate`
 
 ## PR Readiness Stage 1-R1 Repair-Gate Sync Record
 

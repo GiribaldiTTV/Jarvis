@@ -113,6 +113,9 @@ Before planning, patching, reviewing, or recommending the next move, Codex must 
 `Docs/nexus_startup_contract.md` may be used as a compact ChatGPT/new-chat loader map, but it is not Codex execution authority.
 Execution behavior is governed by this document, `Docs/Main.md`, `Docs/phase_governance.md`, `Docs/codex_modes.md`, the active workstream or branch authority record, and directly relevant owning canon.
 Prompt text and loader templates may describe requested task scope, but they must not override source-of-truth, restrict required continuation, define seam behavior, bypass phase rules, change durability requirements, or weaken validation.
+Local ChatGPT custom instructions should stay compact while the repo loader/source-truth may preserve longer ChatGPT-facing continuity rules and review memory.
+Do not paste the loader doc into Codex prompts; Codex prompts should load `Docs/Main.md` and the owning canon for execution authority.
+Loader/source-truth continuity must preserve the broad FAM -> Package -> Slice -> Seam model, PR evidence-only handling, legacy global FB historical-only handling, single-slice/package-completion blockers, Element Coverage as non-identity, Branch/PR Readiness Stage 1 / Stage 2, next-branch hierarchy review, real-carrier repair routing, no direct-main repair, no standalone cleanup branch by default, FAM-006 Monitoring and HUD recommendation-only posture until explicit USER approval, separate release-execution approval, and the Windows-first, modular, GPU-aware direction with optional heavy local AI capability packs and CPU fallback.
 
 That startup pass must make explicit:
 

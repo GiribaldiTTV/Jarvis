@@ -884,6 +884,71 @@ BRANCH_READINESS_STAGE_PACKET_PHRASES = (
     "Stage 2 green-light decision",
 )
 
+CHATGPT_LOADER_SOURCE_TRUTH_SYNC_REQUIRED_PHRASES = {
+    Path("Docs/nexus_startup_contract.md"): (
+        "Local ChatGPT custom instructions should stay compact",
+        "Do not paste this loader doc into Codex prompts",
+        "Codex prompts should load `Docs/Main.md`",
+        "source-truth and governance fixes ride real carriers",
+        "`FAM-006 Monitoring and HUD` remains recommendation-only",
+        "release execution requires separate explicit USER approval",
+        "Windows-first, modular, GPU-aware",
+        "optional heavy local AI capability packs",
+        "CPU fallback",
+    ),
+    Path("Docs/Main.md"): (
+        "Local ChatGPT custom instructions should stay compact",
+        "Do not paste the loader doc into Codex prompts",
+        "Codex prompts should load `Docs/Main.md`",
+        "FAM-006 Monitoring and HUD as recommendation-only until explicit USER approval",
+        "Windows-first, modular, GPU-aware direction with optional heavy local AI capability packs and CPU fallback",
+    ),
+    Path("Docs/phase_governance.md"): (
+        "Local ChatGPT custom instructions should stay compact",
+        "Do not paste the loader doc into Codex prompts",
+        "FAM-006 Monitoring and HUD recommendation-only posture until explicit USER approval",
+        "Windows-first, modular, GPU-aware project direction with optional heavy local AI capability packs and CPU fallback",
+    ),
+    Path("Docs/development_rules.md"): (
+        "Local ChatGPT custom instructions should stay compact",
+        "Do not paste the loader doc into Codex prompts",
+        "FAM-006 Monitoring and HUD recommendation-only posture until explicit USER approval",
+        "Windows-first, modular, GPU-aware direction with optional heavy local AI capability packs and CPU fallback",
+    ),
+    Path("Docs/codex_modes.md"): (
+        "Local ChatGPT custom instructions should stay compact",
+        "Do not paste the loader doc into Codex prompts",
+        "FAM-006 Monitoring and HUD recommendation-only posture until explicit USER approval",
+        "Windows-first, modular, GPU-aware direction with optional heavy local AI capability packs and CPU fallback",
+    ),
+    Path("Docs/codex_user_guide.md"): (
+        "Local ChatGPT custom instructions should stay compact",
+        "Do not paste the loader doc into Codex prompts",
+        "FAM-006 Monitoring and HUD as recommendation-only until explicit USER approval",
+        "Windows-first, modular, GPU-aware product direction with optional heavy local AI capability packs and CPU fallback",
+    ),
+    Path("Docs/orin_task_template.md"): (
+        "Local ChatGPT custom instructions should stay compact",
+        "Do not paste `Docs/nexus_startup_contract.md` into Codex prompts",
+        "FAM-006 Monitoring and HUD recommendation-only posture until explicit USER approval",
+        "Windows-first, modular, GPU-aware direction with optional heavy local AI capability packs and CPU fallback",
+    ),
+    Path("Docs/feature_backlog.md"): (
+        "Canonical Identity Model",
+        "PR Evidence Standard",
+        "Element Coverage Standard",
+        "FAM-006` | Monitoring and HUD",
+        "FAM-007` | Local AI and Capability Packs",
+        "FAM-008` | Packaging and Install Experience",
+    ),
+    Path("Docs/branch_records/codex_v1_6_13_prebeta_post_merge_closeout_hardening.md"): (
+        "Branch Readiness Stage 2-R1 Governance Ledger / Loader Sync Record",
+        "ChatGPT Loader / New-Chat Source-Truth Sync:",
+        "FAM-006 Recommendation-Only Posture:",
+        "Project Direction Preservation:",
+    ),
+}
+
 ELEMENT_COVERAGE_DOCS = (
     Path("Docs/feature_backlog.md"),
     Path("Docs/Main.md"),
@@ -10194,6 +10259,14 @@ def main() -> int:
             require(
                 required_phrase in text,
                 f"{relative_path}: Branch Readiness Stage 1 packet contract is missing '{required_phrase}'",
+            )
+
+    for relative_path, required_phrases in CHATGPT_LOADER_SOURCE_TRUTH_SYNC_REQUIRED_PHRASES.items():
+        text = _read_text(relative_path)
+        for required_phrase in required_phrases:
+            require(
+                required_phrase in text,
+                f"{relative_path}: ChatGPT loader/source-truth sync is missing '{required_phrase}'",
             )
 
     for relative_path in ELEMENT_COVERAGE_DOCS:

@@ -80,6 +80,8 @@ For prompt generation and new-chat bootstrapping, use `Docs/nexus_startup_contra
 
 That file is ChatGPT-facing and interface-only.
 It helps generate complete prompts that load the correct source-of-truth without pasting the full governance stack.
+Local ChatGPT custom instructions should stay compact; the repo loader/source-truth may hold longer ChatGPT-facing continuity rules and review memory without becoming Codex execution authority.
+Do not paste the loader doc into Codex prompts. Codex prompts should load `Docs/Main.md` and the owning canon for execution authority, using the loader only when prompt generation, new-chat bootstrapping, or loader/source-truth drift review is in scope.
 Planning-loop blocking belongs in ChatGPT preflight analysis before prompt generation.
 Once a prompt is allowed, it should stay thin, neutral, and repo-aligned instead of carrying behavior-management lists or protective governance narration.
 It does not own Codex execution behavior, phase transitions, seam continuation, durability, validation, release rules, or branch authority.
@@ -88,6 +90,7 @@ Codex execution remains governed by the owning canon documents listed in this in
 If repo truth resolves to blocked `No Active Branch`, `Next Safe Move` must report the blocking repair path instead of inventing a later phase.
 If repo truth resolves to steady-state `No Active Branch`, `Next Safe Move` may truthfully say that no branch should open yet or may name a release-packaging branch whose admission rules pass.
 Governance-only branches are not used for new Nexus work.
+Loader/source-truth continuity must preserve the broad FAM model, PR evidence-only handling, legacy global FB historical-only handling, single-slice and package-completion blockers, Element Coverage as non-identity, Branch/PR Readiness Stage 1 / Stage 2, next-branch hierarchy review, real-carrier repair routing, no direct-main repair, no standalone cleanup branch by default, FAM-006 Monitoring and HUD as recommendation-only until explicit USER approval, separate release-execution approval, and the Windows-first, modular, GPU-aware direction with optional heavy local AI capability packs and CPU fallback.
 
 ## Routing Layers
 

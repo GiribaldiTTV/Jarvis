@@ -198,6 +198,9 @@ If the task remains materially ambiguous after that baseline, Codex should ask o
 ## Startup Contract For Every Task
 
 Before planning or execution, Codex should follow the startup loading contract in `Docs/Main.md`, using `Docs/nexus_startup_contract.md` only as the ChatGPT/new-chat loader map when prompt generation is in scope.
+Local ChatGPT custom instructions should stay compact; the repo loader/source-truth can hold longer ChatGPT-facing continuity rules, prompt-generation guardrails, and review memory.
+Do not paste the loader doc into Codex prompts. Codex prompts should load `Docs/Main.md` and the owning canon for execution authority, using the loader only when prompt generation, new-chat bootstrapping, or loader/source-truth drift review is in scope.
+ChatGPT loader/source-truth continuity must preserve FAM -> Package -> Slice -> Seam, PR evidence-only handling, legacy global FB historical-only handling, single-slice and package-completion blockers, Element Coverage as non-identity, Branch/PR Readiness Stage 1 / Stage 2, next-branch hierarchy review, real-carrier repair routing, no direct-main repair, no standalone cleanup branch by default, release-support carrier when release is blocked, runtime package carrier when runtime work is next, FAM-006 Monitoring and HUD as recommendation-only until explicit USER approval, separate release-execution approval, and the Windows-first, modular, GPU-aware product direction with optional heavy local AI capability packs and CPU fallback.
 
 For tracked work, that means:
 

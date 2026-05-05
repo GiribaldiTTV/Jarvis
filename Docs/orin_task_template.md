@@ -38,6 +38,9 @@ They do not reduce the required depth of analysis.
 
 When ChatGPT is generating a Codex prompt, treat this template as a construction checklist rather than prompt text to paste wholesale.
 Planning-loop prevention belongs in ChatGPT preflight analysis; once prompt generation is allowed, keep the prompt thin, neutral, and repo-aligned.
+Local ChatGPT custom instructions should stay compact while the repo loader/source-truth may hold longer ChatGPT-facing continuity rules and review memory.
+Do not paste `Docs/nexus_startup_contract.md` into Codex prompts; Codex prompts should load `Docs/Main.md` and owning canon for execution authority.
+Prompt-generation review must preserve FAM -> Package -> Slice -> Seam, PR evidence-only handling, legacy global FB historical-only handling, single-slice/package-completion blockers, Element Coverage as non-identity, Branch/PR Readiness Stage 1 / Stage 2, next-branch hierarchy review, real-carrier repair routing, no direct-main repair, no standalone cleanup branch by default, FAM-006 Monitoring and HUD recommendation-only posture until explicit USER approval, separate release-execution approval, and the Windows-first, modular, GPU-aware direction with optional heavy local AI capability packs and CPU fallback.
 
 ## Current Project State
 

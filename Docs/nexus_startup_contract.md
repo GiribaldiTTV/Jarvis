@@ -9,6 +9,8 @@ It is an interface and prompt-loader layer only.
 It does not replace the owning canon documents, and it must not define or override Codex execution behavior, phase transitions, seam continuation, durability, validation, release rules, branch authority, or stop conditions.
 
 Codex may read this file as a compact loader map, but Codex execution authority comes only from the owning source-of-truth documents after they are loaded.
+Local ChatGPT custom instructions should stay compact; this repo loader/source-truth may hold longer ChatGPT-facing continuity rules, review memory, and prompt-generation guardrails.
+Do not paste this loader doc into Codex prompts. Codex prompts should load `Docs/Main.md` and the owning canon for execution authority, using this loader only when prompt generation, new-chat bootstrapping, or loader/source-truth drift review is actually in scope.
 Seam workflow logic is intentionally out of scope for this contract.
 When seam behavior matters, route to `Docs/phase_governance.md`, `Docs/codex_modes.md`, and the active workstream record.
 
@@ -33,6 +35,10 @@ This loader routes to these authorities:
 - PR Readiness Stage 1 also requires a no-work `## Next Branch Pre-Plan` gate with `Next Branch Package Shape:`, proposed FAM/package, multiple concrete candidate slices, `Candidate Work To Be Done:`, `Single-Slice Drift Review:`, `Family Organization Review:`, `Element Coverage Review:`, dependencies/blockers, validation/live-test needs, branch creation status, and USER approvals required. `Next Branch Package Shape Unproven`, `Single-Slice Branch Drift Risk Unresolved`, and `Family Organization Drift Risk Unresolved` block Stage 1 continuation when the next branch looks too small or drifts from FAM -> Package -> Slice -> Seam; unresolved next-branch shape blockers activate `Branch Readiness Fallback Required` and route the next legal work to `Branch Readiness Stage 1 - Analysis Gate` instead of PR Readiness Stage 2.
 - PR Readiness Stage 1 must also audit the governance/source-of-truth ledger. Identity model drift, FAM taxonomy drift, package/branch rule drift, USER approval blocker drift, real-carrier routing drift, branch-authority lifecycle drift, watcher/automation proof drift, release readiness/execution boundary drift, Element Coverage misuse, ChatGPT loader/source-truth drift, project direction drift, current workflow drift, after-release workflow drift, or absolute-guardrail drift that cannot be cleared as bounded current-branch PR Stage 1 repair activates `Branch Readiness Fallback Required` and routes to `Branch Readiness Stage 1 - Analysis Gate`.
 - post-merge closeout proof must be in merged source truth, not only in a deleted branch, reflog, automation memory, or conversation transcript; if missing proof blocks a release, route it through a real release-support carrier, and if product work is next, route it through the next real runtime package carrier.
+- source-truth and governance fixes ride real carriers: no direct-main repair, no standalone cleanup branch by default, release-support carrier when release is blocked, and runtime package carrier when runtime work is next.
+- `FAM-006 Monitoring and HUD` remains recommendation-only until explicit USER approval selects it as selected-next truth; loader recommendations do not authorize a FAM-006 branch, package admission, runtime package, or single-slice waiver.
+- release execution requires separate explicit USER approval; tag creation, GitHub Release draft/publication, and release artifact creation remain blocked until that approval is recorded.
+- Nexus project direction remains Windows-first, modular, GPU-aware, privacy/local-first where practical, with a lean default install, optional heavy local AI capability packs, preferred GPU use for supported model workloads, and CPU fallback preserved.
 - the active workstream doc owns branch-local phase truth, evidence, blockers, and next legal phase for promoted work.
 - `Docs/incident_patterns.md` owns generalized recurring drift or validation lessons.
 - `Docs/validation_helper_registry.md` owns durable helper naming, status, reuse, and consolidation obligations when helpers are in scope.
@@ -45,11 +51,11 @@ Repair this loader later if it drifted.
 
 When ChatGPT or another interface layer generates a Nexus prompt, the generated prompt must require the executing assistant to:
 
-1. Read `Docs/nexus_startup_contract.md`.
-2. Read `Docs/Main.md`.
-3. Read `Docs/development_rules.md`.
-4. Read `Docs/phase_governance.md`.
-5. Read `Docs/codex_modes.md`.
+1. Read `Docs/Main.md`.
+2. Read `Docs/development_rules.md`.
+3. Read `Docs/phase_governance.md`.
+4. Read `Docs/codex_modes.md`.
+5. Read `Docs/nexus_startup_contract.md` only as a ChatGPT/new-chat loader map when prompt generation, bootstrap continuity, or loader/source-truth drift review is in scope.
 6. Load the directly relevant authority docs for the task.
 7. If the task maps to a tracked item, load `Docs/feature_backlog.md` and determine its `Record State`.
 8. If the tracked item is `Promoted` or `Closed`, load its canonical workstream doc from the backlog and `Docs/workstreams/index.md`.
