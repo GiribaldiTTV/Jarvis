@@ -231,7 +231,7 @@ Pre-PR Durability Rule:
 When the approved phase is `PR Readiness`, the output must also explicitly include:
 
 - the current PR Readiness stage: `PR Readiness Stage 1 - Analysis Gate` or `PR Readiness Stage 2 - Execution Gate`
-- for Stage 1, the `## PR Readiness Stage 1 Analysis Packet`, including required post-merge path, ranked runtime FAM candidates, recommended next package, package-size / single-slice drift review, release-debt impact, Stage 2 sync plan, confirmation that there was no repository file mutation, a user-facing `## Next Workstream` block with `Recommended Next Workstream:`, `User-Facing Output:`, candidate slices, dependencies/blockers, validation needs, release impact, selection-truth status, and branch-creation status, plus `Next Workstream Candidate Not Found` when no legal next workstream candidate is found, and `PR Readiness Execution User Approval Missing` as the stop blocker until explicit USER approval to enter Stage 2 is recorded
+- for Stage 1, the `## PR Readiness Stage 1 Analysis Packet`, including required post-merge path, ranked runtime FAM candidates, recommended next package, package-size / single-slice drift review, release-debt impact, Stage 2 sync plan, confirmation that there was no repository file mutation, a user-facing `## Next Workstream` block with `Recommended Next Workstream:`, candidate slices, `Candidate Work To Be Done:`, `User-Facing Output:`, dependencies/blockers, validation needs, release impact, selection-truth status, branch-creation status, and `Next Workstream User Waiver:`, plus the hard no-continue blocker `Next Workstream User Waiver Missing` unless a concrete candidate/work analysis exists or USER waiver is granted, plus `Next Workstream Candidate Not Found` when no legal next workstream candidate is found, and `PR Readiness Execution User Approval Missing` as the stop blocker until explicit USER approval to enter Stage 2 is recorded
 - for Stage 2, confirmation that USER approval to enter Stage 2 exists before any repository mutation, staging, commit, push, PR creation, watcher provisioning, next-branch creation, release work, or canon edits occur
 - confirmation that the merge-target canon completeness gate passed
 - confirmation that the Governance Drift Audit ran
@@ -282,6 +282,7 @@ When the approved phase is `PR Readiness`, the output must also explicitly inclu
 - Recommended Next Workstream:
 - Recommended Family / Package:
 - Candidate Slices:
+- Candidate Work To Be Done:
 - User-Facing Output:
 - Why This Is Next:
 - Dependencies / Blockers:
@@ -289,8 +290,10 @@ When the approved phase is `PR Readiness`, the output must also explicitly inclu
 - Release Impact:
 - Selection Truth Status:
 - Branch Creation Status:
+- Next Workstream User Waiver:
 ```
 
+- Stage 1 cannot continue to Stage 2 unless this block analyzes a concrete candidate and the work planned for that candidate, or records `Next Workstream User Waiver: Granted`; otherwise report `Next Workstream User Waiver Missing`
 - if no legal next workstream candidate is found, report `Next Workstream Candidate Not Found` and include the still-not-closed FAM list plus every not-complete package and slice
 - a required `## Next Branch` section with this exact field shape:
 

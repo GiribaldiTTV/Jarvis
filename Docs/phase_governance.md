@@ -692,6 +692,8 @@ Hard blockers:
   PR Readiness cannot be green if Codex cannot inspect the PR state, mergeability/conflict state, base/head alignment, or Codex review-thread state.
 - `PR Readiness Execution User Approval Missing`:
   PR Readiness Stage 1 - Analysis Gate is a no-work review pass. PR Readiness cannot enter PR Readiness Stage 2 - Execution Gate, mutate repository files, stage, commit, push, create the PR, provision the watcher, create a next branch, or perform release work until the Stage 1 packet is returned and explicit USER approval to enter Stage 2 is recorded.
+- `Next Workstream User Waiver Missing`:
+  PR Readiness Stage 1 has a hard no-continue gate for next-workstream review. Stage 1 cannot continue to Stage 2 unless the packet analyzes a concrete next-workstream candidate and the candidate work to be done, or an explicit USER waiver records `Next Workstream User Waiver: Granted`. If no legal candidate is found, `Next Workstream Candidate Not Found` remains active until the USER supplies/approves a candidate or grants that waiver.
 - `PR Merge Status Unproven`:
   PR Readiness cannot be green until the live PR has explicitly reported a green merge status. Treat unknown, unset, conflicting, dirty, blocked, or otherwise non-green mergeability/merge-state results as an active blocker until GitHub reports the PR merge status as green.
 - `Bot Review Signal Pending`:
@@ -787,6 +789,7 @@ Stage 1 must also include this user-facing block so USER and ChatGPT can review 
 - Recommended Next Workstream:
 - Recommended Family / Package:
 - Candidate Slices:
+- Candidate Work To Be Done:
 - User-Facing Output:
 - Why This Is Next:
 - Dependencies / Blockers:
@@ -794,9 +797,10 @@ Stage 1 must also include this user-facing block so USER and ChatGPT can review 
 - Release Impact:
 - Selection Truth Status:
 - Branch Creation Status:
+- Next Workstream User Waiver:
 ```
 
-If no legal next workstream candidate is found, Stage 1 must stop on `Next Workstream Candidate Not Found` and report the still-not-closed FAM list plus every not-complete package and slice. `Backlog Addition User Approval Missing`, `Backlog Exhaustion User Decision Pending`, and `Next Runtime Candidate Selection Pending` still apply according to their existing approval and exhaustion rules.
+Stage 1 has a hard no-continue gate here: it must analyze a concrete next-workstream candidate and the candidate work to be done, or explicitly record `Next Workstream User Waiver: Granted`. Without that waiver, missing candidate/work analysis stops on `Next Workstream User Waiver Missing` and cannot continue to Stage 2. If no legal next workstream candidate is found, Stage 1 must stop on `Next Workstream Candidate Not Found` and report the still-not-closed FAM list plus every not-complete package and slice. `Backlog Addition User Approval Missing`, `Backlog Exhaustion User Decision Pending`, and `Next Runtime Candidate Selection Pending` still apply according to their existing approval and exhaustion rules.
 
 When `PR Readiness` reports package-ready or `PR package ready`, the response must include a repo-wide standardized `Next Branch` block and markdown-friendly PR operator copy blocks.
 Those package details are the input to PR creation and validation; they are not themselves proof that PR Readiness is GREEN.
