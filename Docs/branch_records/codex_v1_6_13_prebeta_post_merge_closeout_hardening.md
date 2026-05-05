@@ -28,7 +28,7 @@ This branch must not create runtime work, select FAM-006 or any other runtime FA
 - Branch Readiness Stage 2-R2 USER Waiver: `Granted on 2026-05-05 for PR Readiness Stage 1 readiness-lock governance repair on this active carrier only`
 - Branch Readiness Stage 2-R3 USER Waiver: `Granted on 2026-05-05 for superseded PR Stage 1 repair wording cleanup on this active carrier only`
 - PR Readiness Stage 2 USER Approval: `Granted on 2026-05-05 for final PR execution, PR creation after validation, same-thread watcher provisioning, and same-PR Codex bot-review repair if needed`
-- Active Seam: `PR Readiness Stage 2 - v1.6.13-prebeta Closeout Hardening PR Live Validation and Merge Watch`
+- Active Seam: `PR Readiness Stage 2-R1 - Bot Review and Watcher Runtime Proof Repair`
 - Release Target: `v1.6.13-prebeta`
 - Release Floor: `patch prerelease`
 - Release Support Package: `REL-PKG-002 v1.6.13-prebeta post-merge closeout and recurrence hardening`
@@ -45,7 +45,7 @@ This branch must not create runtime work, select FAM-006 or any other runtime FA
 - Release Artifacts: `Not created`
 - Governance Ledger / Loader Sync State: `Complete - Branch Readiness Stage 2-R1 repaired the remaining ChatGPT loader/source-truth continuity gaps without changing runtime, selected-next, release, PR, branch, or package authority`
 - PR Readiness Stage 1 Readiness-Lock State: `Complete - Branch Readiness Stage 2-R3 superseded contradictory R1 wording and clarified current-branch repair, current-branch Branch Readiness re-entry, and new-carrier fallback outcomes without creating a PR, watcher, runtime branch, runtime package, selected-next truth, release artifact, tag, GitHub Release, or release execution`
-- PR Readiness Stage 2 State: `Live PR #112 created and same-thread watcher configured; watcher runtime proof, bot-review signal, and PR merge verification remain pending`
+- PR Readiness Stage 2 State: `Live PR #112 created; actionable Codex bot review and missing watcher runtime proof are under same-branch repair before Stage 2 can return a green handoff`
 - Live PR: `https://github.com/GiribaldiTTV/Nexus-Desktop-AI/pull/112`
 - PR Number: `#112`
 - PR Title: `Close v1.6.13 post-merge release-support hardening`
@@ -54,7 +54,7 @@ This branch must not create runtime work, select FAM-006 or any other runtime FA
 - PR State: `OPEN / non-draft`
 - PR Mergeability: `MERGEABLE / CLEAN at creation validation`
 - PR Head SHA At Creation: `864d529df0de1f25d375b46f7bd4e2c861387d03`
-- Bot Review Signal State: `Pending - no Codex bot review comment or approval signal observed at creation validation`
+- Bot Review Signal State: `Actionable comment found - GitHub review thread PRRT_kwDORwnWIs5_uWrU on dev/orin_branch_governance_validation.py line 12005 requires same-PR repair and resolution before green`
 - PR Watcher ID: `pr-112-same-thread-merge-watcher`
 - PR Watcher Configuration Proof: `PASS - heartbeat automation created with status ACTIVE and rrule FREQ=MINUTELY;INTERVAL=1`
 - PR Watcher Routing Proof: `PASS - automation destination is the current same thread via target_thread_id recorded in C:\Users\anden\.codex\automations\pr-112-same-thread-merge-watcher\automation.toml`
@@ -80,7 +80,8 @@ This branch must not create runtime work, select FAM-006 or any other runtime FA
 - `PR Watcher Provisioning Unproven`: `Cleared for configuration - pr-112-same-thread-merge-watcher exists and is ACTIVE`
 - `PR Watcher Routing Unverified`: `Cleared for configuration - watcher destination is this same thread`
 - `Automation Runtime Unproven`: `Active for the new watcher until scheduler/runtime evidence lands; configuration state alone is not runtime proof`
-- `Bot Review Signal Pending`: `Active until Codex bot approval or actionable bot-comment closeout is observed on the current PR head`
+- `Bot Review Signal Pending`: `Active - actionable Codex bot review thread PRRT_kwDORwnWIs5_uWrU must be repaired, pushed, replied to, resolved, and recorded before green`
+- `PR Validation Pending`: `Active - PR #112 remains blocked until same-PR bot-review repair closeout and watcher runtime-proof handling are validated`
 - `PR Merge Verification Pending`: `Active until the watcher verifies merged=true`
 
 ## Entry Basis
@@ -392,6 +393,21 @@ Repair Scope: branch authority index, historical release-packaging closeout, rec
 - Release Execution Approval State: `NOT APPROVED`
 - Runtime / Selected-Next Approval State: `NOT APPROVED`
 - Next Legal Seam: `PR Readiness Stage 2 - v1.6.13-prebeta Closeout Hardening Merge Watch`
+
+## PR Readiness Stage 2-R1 Bot Review and Watcher Runtime Proof Repair
+
+- Phase: `PR Readiness`
+- Active Seam: `PR Readiness Stage 2-R1 - Bot Review and Watcher Runtime Proof Repair`
+- Trigger: `USER reported PR release-quality process drift: Codex bot review must be awaited and repaired before green handoff, and watcher configuration was not producing same-thread runtime proof`
+- Codex Bot Review Finding: `ACTIONABLE - review thread PRRT_kwDORwnWIs5_uWrU / comment PRRC_kwDORwnWIs6-JlbJ reported that historical branch records listed under Historical Branch Authority Records could retain active PR-readiness markers when their Phase Status was mistakenly left in a non-historical phase`
+- Bot Review Repair: `IN PROGRESS - dev/orin_branch_governance_validation.py now enforces historical active-PR marker rejection for every indexed historical branch record, regardless of current_phase`
+- PR Release-Quality Process Repair: `IN PROGRESS - source truth now states Stage 2 final handoff cannot be green until bot-review closeout is verified and watcher runtime proof exists or the runtime-proof blocker remains active`
+- Watcher Configuration State: `ACTIVE - pr-112-same-thread-merge-watcher remains configured for the current same thread`
+- Watcher Runtime Proof State: `PENDING - automation observability reported latest=none, so ACTIVE configuration remains insufficient`
+- Watcher Runtime Repair Plan: `Update the heartbeat prompt to require an initial same-thread proof packet on the next scheduler run, then keep Automation Runtime Unproven active until scheduler/run/heartbeat delivery proof lands`
+- Release Execution Approval State: `NOT APPROVED`
+- Runtime / Selected-Next Approval State: `NOT APPROVED`
+- Next Legal Seam: `PR Readiness Stage 2-R1 validation, commit/push, bot-review thread reply/resolution, watcher runtime-proof check, then PR Readiness Stage 2 merge-watch if green`
 
 ## PR Readiness Stage 1-R1 Repair-Gate Sync Record
 

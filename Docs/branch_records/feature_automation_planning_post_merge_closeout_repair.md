@@ -14,7 +14,7 @@ It did not reopen automation implementation, create a successor implementation b
 
 ## Current Phase
 
-- Phase: `PR Readiness`
+- Phase: `Historical Traceability`
 
 ## Phase Status
 
@@ -35,7 +35,7 @@ It did not reopen automation implementation, create a successor implementation b
 - Historical PR Readiness Seam: `PR Readiness PR1 - Post-Merge Closeout Repair PR Validation`
 - PR Readiness PR1 result: complete and green historical truth. This seam admitted PR Readiness for the bounded closeout-repair branch, preserved merged-main `No Active Branch` truth, preserved historical-only prior repair traceability, preserved `PR Watcher Provisioning Unproven` canon hardening, opened live PR #101, proved the live PR merge status was green at PR-entry time, and recorded the bot thumbs-up approval on this same branch.
 - Historical PR Readiness Seam: `PR Readiness PR2 - Post-Merge Closeout Repair Merge Verification Watch`
-- PR Readiness PR2 result: complete and green historical truth. This seam kept PR #101 under same-thread watcher control until merged-state verification became durable, then cleared `PR Merge Verification Pending` when the watcher verified merge.
+- PR Readiness PR2 result: complete and green historical truth. This seam kept PR #101 under same-thread watcher control until merged-state verification became durable, then cleared the merge-verification pending blocker when the watcher verified merge.
 - Live PR: `https://github.com/GiribaldiTTV/Nexus-Desktop-AI/pull/101`
 - Historical merge result: PR #101 merged at `2026-04-29T22:21:52Z` on merge commit `c697f3eb24f3a0b4c1c8c84c9bb722ec7fc7d01e`
 - PR watcher runtime: authoritative same working thread watcher `Codex PR101 Watch` used `$CODEX_HOME/watchers/pr101-watch.ps1` and repo helper `dev/pr_same_thread_watcher.py` to write status-change updates into the working thread transcript while PR #101 remained open; the earlier native heartbeat `PR101 Same-Thread Merge Watch` was retired after failing to produce run proof

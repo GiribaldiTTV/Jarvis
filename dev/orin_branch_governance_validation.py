@@ -1145,6 +1145,8 @@ BOT_REVIEW_SIGNAL_PHRASES = (
     "thumbs-up reaction",
     "bot comment",
     "no later thumbs-up is required",
+    "same-PR Codex bot-review repair loop",
+    "Stage 2 final handoff cannot be green until bot-review closeout is verified",
 )
 
 PR_WATCHER_THREAD_CONTRACT_DOCS = (
@@ -1167,6 +1169,8 @@ PR_WATCHER_THREAD_CONTRACT_PHRASES = (
     "PR Watcher Routing Unverified",
     "PR Merge Verification Pending",
     "merge-watch seam",
+    "Watcher configuration is not runtime proof",
+    "Stage 2 final handoff cannot be green until watcher runtime proof is present or the runtime-proof blocker remains active",
 )
 
 PR_WATCHER_OUTPUT_CONTRACT_SOURCE = Path("dev/pr_same_thread_watcher.py")
@@ -11999,15 +12003,14 @@ def main() -> int:
                 "historical" in phase_status_section.lower(),
                 f"{branch_record_path}: historical branch record should make its historical merged posture explicit",
             )
-            if current_phase == HISTORICAL_TRACEABILITY_PHASE:
-                for active_pr_marker in HISTORICAL_BRANCH_ACTIVE_PR_MARKERS:
-                    require(
-                        active_pr_marker not in phase_status_section,
-                        (
-                            f"{branch_record_path}: historical branch record must not retain "
-                            f"active PR-readiness marker '{active_pr_marker}' in Phase Status"
-                        ),
-                    )
+            for active_pr_marker in HISTORICAL_BRANCH_ACTIVE_PR_MARKERS:
+                require(
+                    active_pr_marker not in phase_status_section,
+                    (
+                        f"{branch_record_path}: historical branch record must not retain "
+                        f"active PR-readiness marker '{active_pr_marker}' in Phase Status"
+                    ),
+                )
         if branch_record_path in {
             str(PR101_CLOSEOUT_CANON_REPAIR_BRANCH_RECORD),
             str(PR102_CLOSEOUT_CANON_REPAIR_BRANCH_RECORD),
