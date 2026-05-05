@@ -65,31 +65,31 @@ Use these release-state values when relevant:
 
 Current merged truth indicates:
 
-- latest public prerelease: `v1.6.12-prebeta`
-- latest public release commit: `b06c359e58b47cfe26fe8c4b39ac04fde519dee9`
-- latest public prerelease publication: `https://github.com/GiribaldiTTV/Nexus-Desktop-AI/releases/tag/v1.6.12-prebeta`
-- latest public prerelease title: `Pre-Beta v1.6.12`
-- merged unreleased non-doc implementation debt exists: yes; `FAM-001` legacy `FB-049` runtime proof is merged through PR #107 and `FAM-004` legacy `FB-030` voice/audio runtime diagnostics proof is merged through PR #108; both await `v1.6.13-prebeta` release packaging
-- the latest public released implementation milestones are FB-048 Active-session relaunch signal-failure and wait-timeout truth in `v1.6.12-prebeta`; FB-047 Active-session relaunch decline session-preservation proof in `v1.6.11-prebeta`; FB-046 Active-session relaunch reacquisition and settled re-entry proof remains released in `v1.6.10-prebeta`; FB-044 Boot-to-desktop handoff outcome refinement and FB-045 Active-session relaunch outcome refinement remain released in `v1.6.9-prebeta`; FB-043 Top-level desktop entrypoint ownership and `main.py` handoff refinement remains released in `v1.6.8-prebeta`; FB-042 Desktop startup runtime family anchor remains released in `v1.6.7-prebeta`; FB-005 Workspace and folder organization remains released in `v1.6.6-prebeta`; FB-030 ORIN voice/audio direction refinement remains released in `v1.6.5-prebeta`; FB-015 Boot and desktop phase-boundary model plus FB-029 ORIN legal-safe rebrand, future ARIA persona option, and repo licensing hardening remain released in `v1.6.4-prebeta`
-- current phase after `v1.6.12-prebeta` release closure: no active implementation phase; release-debt validation may proceed only when release packaging is explicitly admitted
-- phase status after `v1.6.12-prebeta` release closure: FB-048 is Released / Closed in `v1.6.12-prebeta`; release debt is clear after publication, validation, and post-release canon closure; the merged backlog-family governance reform package, merged automation-catalog package, `FAM-001` legacy `FB-049` runtime proof, merged `FAM-004` legacy `FB-030` runtime diagnostics proof, and PR #112 source-truth closeout / merge-target authority hardening proof remain unreleased historical proof for `v1.6.13-prebeta`; merged-main current-state remains `No Active Branch`; PR #108 merge truth and forced watcher-verification proof are preserved; `FAM-004` is merged-unreleased release debt; and PR #109 is merged historical `FAM-003` legacy `FB-027` family evidence for shutdown-hotkey confirmation, not an active backlog lane or standalone release-version driver.
+- latest public prerelease: `v1.6.13-prebeta`
+- latest public release commit: `faaf991d2579dd6478f78245d56956858cc2f59b`
+- latest public prerelease publication: `https://github.com/GiribaldiTTV/Nexus-Desktop-AI/releases/tag/v1.6.13-prebeta`
+- latest public prerelease title: `Pre-Beta v1.6.13`
+- merged unreleased non-doc implementation debt exists: no; `FAM-001` legacy `FB-049` runtime proof, `FAM-004` legacy `FB-030` voice/audio runtime diagnostics proof, PR #110 governance repair, PR #111 release-packaging closeout, PR #112 closeout/hardening, PR #113 source-truth closeout, and merged automation-catalog proof are released historical traceability in `v1.6.13-prebeta`
+- the latest public released implementation milestones are `FAM-001` legacy `FB-049` Active-session pre-settled incoming-launch conflict truth and `FAM-004` legacy `FB-030` voice/audio runtime diagnostics proof in `v1.6.13-prebeta`; FB-048 Active-session relaunch signal-failure and wait-timeout truth in `v1.6.12-prebeta`; FB-047 Active-session relaunch decline session-preservation proof in `v1.6.11-prebeta`; FB-046 Active-session relaunch reacquisition and settled re-entry proof remains released in `v1.6.10-prebeta`; FB-044 Boot-to-desktop handoff outcome refinement and FB-045 Active-session relaunch outcome refinement remain released in `v1.6.9-prebeta`; FB-043 Top-level desktop entrypoint ownership and `main.py` handoff refinement remains released in `v1.6.8-prebeta`; FB-042 Desktop startup runtime family anchor remains released in `v1.6.7-prebeta`; FB-005 Workspace and folder organization remains released in `v1.6.6-prebeta`; FB-030 ORIN voice/audio direction refinement remains released in `v1.6.5-prebeta`; FB-015 Boot and desktop phase-boundary model plus FB-029 ORIN legal-safe rebrand, future ARIA persona option, and repo licensing hardening remain released in `v1.6.4-prebeta`
+- current phase after `v1.6.13-prebeta` release closure: no active implementation phase; release debt is clear, selected-next runtime truth remains unset, and any later runtime or release-support work requires explicit USER-approved Branch Readiness
+- phase status after `v1.6.13-prebeta` release closure: `FAM-001` legacy `FB-049` runtime proof, `FAM-004` legacy `FB-030` runtime diagnostics proof, PR #110 governance repair, PR #111 release-packaging closeout, PR #112 closeout/hardening, PR #113 source-truth closeout / merge-target authority hardening, and merged automation-catalog proof are Released / Closed historical traceability in `v1.6.13-prebeta`; merged-main current-state remains `No Active Branch`; PR #108 merge truth and forced watcher-verification proof are preserved as historical evidence; and PR #109 is merged historical `FAM-003` legacy `FB-027` family evidence for shutdown-hotkey confirmation, not an active backlog lane or standalone release-version driver.
 - current active workstream: none; merged-main current active workstream: none; merged-main repo truth is `No Active Branch`
-- current branch after `v1.6.12-prebeta` release closure: none
+- current branch after `v1.6.13-prebeta` release closure: none
 - next concern: do not admit a backlog identity, package, successor branch, single-slice package waiver, or release-version driver without explicit USER approval; if Codex reaches that need, `Backlog Addition User Approval Missing` requires the still-not-closed FAM list plus every not-complete package and slice. Former small-pass, support/governance, and registry-only IDs are consolidated trace rows, not backlog candidates.
 
 That means the released FB-027 interaction and shared-action family anchor remains part of the current public shared pre-Beta baseline, and PR #109 is preserved under that family as aggregation evidence; the released FB-036 authoring-and-callable-group milestone, the released FB-041 deterministic callable-group execution milestone, the released FB-037 built-in catalog milestone, the released FB-038 tray quick-task UX milestone, the released FB-039 external trigger intake architecture milestone, the released FB-040 monitoring/thermal architecture milestone, the released FB-031 UI/UX architecture milestone, the released FB-032 source-of-truth migration milestone, the released FB-004 future boot-orchestrator architecture milestone, the released FB-015 plus FB-029 planning milestones, the released FB-030 voice/audio planning milestone, and the released FB-005 bounded workspace-path slice are also part of the current public shared pre-Beta baseline.
 
 ## Current Branch Execution Posture
 
-Merged-Unreleased Release-Debt Owner: FAM-001 legacy FB-049 Active-session pre-settled incoming-launch conflict truth plus FAM-004 legacy FB-030 voice/audio runtime diagnostics proof plus merged governance/automation proof package plus PR #112 source-truth closeout / merge-target authority hardening proof for v1.6.13-prebeta
+Released Historical Scope: FAM-001 legacy FB-049 Active-session pre-settled incoming-launch conflict truth plus FAM-004 legacy FB-030 voice/audio runtime diagnostics proof plus merged governance/automation proof package plus PR #112 source-truth closeout / merge-target authority hardening proof plus PR #113 source-truth closeout / merge-target authority hardening proof released in v1.6.13-prebeta
 Repo State: No Active Branch.
 Merged-Main Repo State: No Active Branch.
 
-Latest Public Prerelease: v1.6.12-prebeta
-Latest Public Release Commit: b06c359e58b47cfe26fe8c4b39ac04fde519dee9
-Latest Public Prerelease Publication: https://github.com/GiribaldiTTV/Nexus-Desktop-AI/releases/tag/v1.6.12-prebeta
-Latest Public Prerelease Title: Pre-Beta v1.6.12
-Release Debt: Clear after `v1.6.12-prebeta` publication, validation, and post-release canon closure.
+Latest Public Prerelease: v1.6.13-prebeta
+Latest Public Release Commit: faaf991d2579dd6478f78245d56956858cc2f59b
+Latest Public Prerelease Publication: https://github.com/GiribaldiTTV/Nexus-Desktop-AI/releases/tag/v1.6.13-prebeta
+Latest Public Prerelease Title: Pre-Beta v1.6.13
+Release Debt: Clear after `v1.6.13-prebeta` publication, validation, and post-release canon closure.
 Merged-main current active workstream: None
 Current active workstream: none
 Current Active Workstream Before Reform: None
@@ -121,19 +121,19 @@ Historical Workstream State: automation catalog implementation is merged histori
 Historical Hardening State: Complete on `feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeout-truth`.
 Historical Live Validation State: Complete on `feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeout-truth`.
 Canonical Current-State Rule: merge-target current-state owners stay merge-stable during merged-unreleased release-debt windows; live PR state, conflict/readiness details, review-resolution details, and blocker-clearing repair-lane narration live only in explicit historical PR sections of the canonical workstream and in operator output.
-Release Execution State: `v1.6.12-prebeta` is live at https://github.com/GiribaldiTTV/Nexus-Desktop-AI/releases/tag/v1.6.12-prebeta on commit `b06c359e58b47cfe26fe8c4b39ac04fde519dee9`.
-Release Target: v1.6.13-prebeta
-Release Floor: patch prerelease
-Version Rationale: the approved governance reform is a release-bearing docs-only implementation branch that changes source-of-truth structure and validator governance without widening runtime or user-facing behavior, so the next release remains a patch prerelease.
-Release Scope: preserve the merged backlog-family governance reform, merged automation-catalog branch truth, FAM-001 legacy FB-049 runtime proof, FAM-004 legacy FB-030 voice/audio runtime diagnostics proof, and PR #112 source-truth closeout / merge-target authority hardening proof as unreleased historical proof for `v1.6.13-prebeta`, keep no-active-branch merged-main canon stable, and require later release packaging or successor admission to start from updated merged-main truth.
-Release Artifacts: Tag v1.6.13-prebeta; release title Pre-Beta v1.6.13; rich Markdown release notes summarize the merged governance reform, the merged automation catalog, PR #112 source-truth closeout / merge-target authority hardening, and the validator/runtime-proof hardening without repeating the release title inside the notes body, and GitHub-generated `## What's Changed` plus `**Full Changelog**:` must be included.
-Post-Release Truth: the governance reform, automation-catalog branch, FAM-001 legacy FB-049 runtime branch, FAM-004 legacy FB-030 runtime diagnostics branch, and PR #112 source-truth closeout / merge-target authority hardening proof remain historical traceability after publication and validation; latest public prerelease advances to `v1.6.13-prebeta`; release debt clears; and later runtime work requires explicit USER-approved backlog identity or successor selection from updated main.
+Release Execution State: `v1.6.13-prebeta` is live at https://github.com/GiribaldiTTV/Nexus-Desktop-AI/releases/tag/v1.6.13-prebeta on commit `faaf991d2579dd6478f78245d56956858cc2f59b`.
+Release Target: None - no pending release target after `v1.6.13-prebeta` publication.
+Release Floor: none - release execution is complete for the current approved prerelease.
+Version Rationale: `v1.6.13-prebeta` published the approved patch-prerelease governance, automation, release-support, and bounded runtime-proof tranche without widening runtime selection or creating selected-next truth.
+Release Scope: released historical traceability for PR #110 governance repair, PR #111 release-packaging source-truth closeout, PR #112 post-merge release-support closeout/hardening, PR #113 PR #112 source-truth closeout / merge-target authority hardening, merged automation-catalog truth, `FAM-001` legacy `FB-049` runtime proof, and `FAM-004` legacy `FB-030` voice/audio runtime diagnostics proof.
+Release Artifacts: Published tag `v1.6.13-prebeta`; published GitHub prerelease title `Pre-Beta v1.6.13`; Markdown release notes include a generated `## What's Changed` section plus `**Full Changelog**:`.
+Post-Release Truth: the governance reform, automation-catalog branch, `FAM-001` legacy `FB-049` runtime branch, `FAM-004` legacy `FB-030` runtime diagnostics branch, PR #112 closeout/hardening proof, and PR #113 source-truth closeout / merge-target authority hardening proof are released historical traceability; latest public prerelease is `v1.6.13-prebeta`; release debt is clear; and later runtime work requires explicit USER-approved backlog identity or successor selection from updated main.
 Next-Branch Creation Gate: Blocked by `Backlog Addition User Approval Missing` until explicit USER approval selects a backlog identity or release/support lane.
-Next Legal Phase: No active implementation phase; release-debt validation may proceed only when release packaging is explicitly admitted.
+Next Legal Phase: No active implementation phase; Branch Readiness Stage 1 is required before any later runtime or release-support carrier, and selected-next truth remains blocked until explicit USER approval.
 
-## Merged-Unreleased Release-Debt Owner
+## Released Historical Scope
 
-`FAM-001` legacy `FB-049` Active-session pre-settled incoming-launch conflict truth, `FAM-004` legacy `FB-030` voice/audio runtime diagnostics proof, the merged governance/automation proof package, and PR #112 source-truth closeout / merge-target authority hardening proof remain pending for `v1.6.13-prebeta`; legacy `FB-027` PR #109 is merged `FAM-003` family aggregation evidence and is not merged release debt or a standalone release-version driver.
+`FAM-001` legacy `FB-049` Active-session pre-settled incoming-launch conflict truth, `FAM-004` legacy `FB-030` voice/audio runtime diagnostics proof, the merged governance/automation proof package, PR #112 source-truth closeout / merge-target authority hardening proof, and PR #113 source-truth closeout / merge-target authority hardening proof are released historical traceability in `v1.6.13-prebeta`; legacy `FB-027` PR #109 is merged `FAM-003` family aggregation evidence and is not merged release debt or a standalone release-version driver.
 
 ## Promoted Canonical Workstreams
 
@@ -332,21 +332,23 @@ Post-Release Truth: FB-005 is Released / Closed in `v1.6.6-prebeta`; FB-042 is R
 
 ### FAM-004 Voice and Audio (legacy FB-030)
 
-- status: `Merged unreleased`
-- record state: `Promoted`
+- status: `Released`
+- record state: `Closed`
 - priority: `Medium`
 - canonical workstream doc: `Docs/workstreams/FB-030_orin_voice_audio_direction_refinement.md`
 - branch: `feature/fb-030-voice-audio-runtime-branch-readiness`
-- phase status: Merged-unreleased release debt for `v1.6.13-prebeta`; WS1, H1, LV1, PR1, and PR2 are complete and green, PR #108 is merged, watcher verification proof exists through a forced run, and PR108 watcher automations are retired. Historical `v1.6.5-prebeta` planning proof remains preserved.
-- next legal seam: `Release Readiness RR1 - FAM-004 Runtime Release Readiness Validation`
-Merged-Unreleased Release-Debt Owner: FAM-001 legacy FB-049 Active-session pre-settled incoming-launch conflict truth plus FAM-004 legacy FB-030 voice/audio runtime diagnostics proof plus merged governance/automation proof package plus PR #112 source-truth closeout / merge-target authority hardening proof for v1.6.13-prebeta
+- phase status: Released / Closed in `v1.6.13-prebeta`; WS1, H1, LV1, PR1, and PR2 are complete and green, PR #108 is merged, watcher verification proof exists through a forced run, PR108 watcher automations are retired, and historical `v1.6.5-prebeta` planning proof remains preserved.
+- next legal seam: none; released historical traceability only until USER approves a future voice/audio package.
+Released Historical Scope: FAM-001 legacy FB-049 Active-session pre-settled incoming-launch conflict truth plus FAM-004 legacy FB-030 voice/audio runtime diagnostics proof plus merged governance/automation proof package plus PR #112 source-truth closeout / merge-target authority hardening proof plus PR #113 source-truth closeout / merge-target authority hardening proof released in v1.6.13-prebeta
 Repo State: No Active Branch
-Release Target: v1.6.13-prebeta
-Release Floor: patch prerelease
-Version Rationale: FAM-004 legacy FB-030 adds bounded runtime diagnostics truth for voice/audio availability without opening a new feature family or materially widening product scope.
-Release Scope: merged governance reform, automation catalog proof, FAM-001 legacy FB-049 runtime proof, FAM-004 legacy FB-030 voice/audio runtime diagnostics proof, and PR #112 source-truth closeout / merge-target authority hardening proof.
-Release Artifacts: Tag v1.6.13-prebeta; release title Pre-Beta v1.6.13; rich Markdown release notes summarize the merged governance reform, automation catalog, FAM-001 legacy FB-049 runtime proof, FAM-004 legacy FB-030 voice/audio diagnostics proof, and PR #112 source-truth closeout / merge-target authority hardening, with GitHub-generated `What's Changed` and `Full Changelog` sections.
-Post-Release Truth: after v1.6.13-prebeta publication and validation, merged governance reform, automation catalog, FAM-001 legacy FB-049 runtime proof, FAM-004 legacy FB-030 runtime diagnostics proof, and PR #112 source-truth closeout / merge-target authority hardening become released historical traceability; release debt clears; and later runtime work must start from updated main.
+Latest Public Prerelease: v1.6.13-prebeta
+Release Title: Pre-Beta v1.6.13
+Release Target: None - released in v1.6.13-prebeta.
+Release Floor: none - release execution is complete.
+Version Rationale: FAM-004 legacy FB-030 added bounded runtime diagnostics truth for voice/audio availability without opening a new feature family or materially widening product scope.
+Release Scope: released governance reform, automation catalog proof, FAM-001 legacy FB-049 runtime proof, FAM-004 legacy FB-030 voice/audio runtime diagnostics proof, PR #112 source-truth closeout / merge-target authority hardening proof, and PR #113 source-truth closeout / merge-target authority hardening proof.
+Release Artifacts: Published tag `v1.6.13-prebeta`; published GitHub prerelease title `Pre-Beta v1.6.13`; release notes include generated `What's Changed` and `Full Changelog` sections.
+Post-Release Truth: merged governance reform, automation catalog, FAM-001 legacy FB-049 runtime proof, FAM-004 legacy FB-030 runtime diagnostics proof, PR #112 source-truth closeout / merge-target authority hardening, and PR #113 source-truth closeout / merge-target authority hardening are released historical traceability; release debt is clear; and later runtime work must start from updated main.
 Selected Next Workstream: None - blocked by `Backlog Addition User Approval Missing` until explicit USER approval.
 Next-Branch Creation Gate: Blocked by `Backlog Addition User Approval Missing` until explicit USER approval selects a backlog identity or release/support lane.
 Historical Planning Release: `v1.6.5-prebeta` remains the released planning/admission proof for the original voice/audio direction milestone.
@@ -359,18 +361,18 @@ The 2026-04-23 priority reading is updated during FB-005 Branch Readiness:
 - FB-004 is released and closed in `v1.6.3-prebeta`; it is no longer an active or selected-next branch candidate.
 - FB-015 is released and closed in `v1.6.4-prebeta`; it no longer owns release debt or active branch truth.
 - FB-029 is released and closed in `v1.6.4-prebeta`; it no longer owns release debt or active branch truth.
-- FAM-004 legacy FB-030 remains `Medium` as historical planning priority, and its runtime diagnostics follow-through is now merged-unreleased release debt for `v1.6.13-prebeta` after PR #108.
+- FAM-004 legacy FB-030 remains `Medium` as historical planning priority, and its runtime diagnostics follow-through is now released historical traceability in `v1.6.13-prebeta` after PR #108 and release execution.
 - FAM-003 legacy FB-027 is `High` as a released baseline family anchor; PR #109 shutdown-hotkey confirmation is merged family evidence and aggregation material, not an active selected-next lane or standalone release-version driver.
 - FB-005 remains `Low` as historical workspace priority, but it is now Released / Closed in `v1.6.6-prebeta` and no longer owns release debt or selected-next truth.
 - FB-042 is now Released / Closed in `v1.6.7-prebeta`; the released launch-path slice is preserved as the first historical proof under the runtime family anchor.
 - FB-043 is now Released / Closed in `v1.6.8-prebeta`.
 - FB-044 and FB-045 are now Released / Closed in `v1.6.9-prebeta`.
 
-Current-branch clarity: latest public prerelease is `v1.6.12-prebeta`; FB-044 and FB-045 are released and closed in `v1.6.9-prebeta`; FB-046 is released and closed in `v1.6.10-prebeta`; FB-047 is released in `v1.6.11-prebeta`; FB-048 is released and closed in `v1.6.12-prebeta`; merged-main repo state remains `No Active Branch`; FAM-001 legacy FB-049, FAM-004 legacy FB-030, and PR #112 source-truth closeout / merge-target authority hardening proof are merged-unreleased historical proof for pending `v1.6.13-prebeta`; FAM-003 legacy FB-027 is released baseline with PR #109 preserved as aggregation evidence; and selected-next truth is blocked by `Backlog Addition User Approval Missing` until explicit USER approval.
+Current-branch clarity: latest public prerelease is `v1.6.13-prebeta`; FB-044 and FB-045 are released and closed in `v1.6.9-prebeta`; FB-046 is released and closed in `v1.6.10-prebeta`; FB-047 is released in `v1.6.11-prebeta`; FB-048 is released and closed in `v1.6.12-prebeta`; merged-main repo state remains `No Active Branch`; FAM-001 legacy FB-049, FAM-004 legacy FB-030, PR #112 source-truth closeout / merge-target authority hardening proof, and PR #113 source-truth closeout / merge-target authority hardening proof are released historical traceability in `v1.6.13-prebeta`; FAM-003 legacy FB-027 is released baseline with PR #109 preserved as aggregation evidence; and selected-next truth is blocked by `Backlog Addition User Approval Missing` until explicit USER approval.
 
-## Current Merged-Unreleased Workstream
+## Current Released Historical Workstream
 
-FAM-001 legacy FB-049 Active-session pre-settled incoming-launch conflict truth, FAM-004 legacy FB-030 voice/audio runtime diagnostics proof, the merged governance/automation proof package, and PR #112 source-truth closeout / merge-target authority hardening proof remain pending for `v1.6.13-prebeta`.
+FAM-001 legacy FB-049 Active-session pre-settled incoming-launch conflict truth, FAM-004 legacy FB-030 voice/audio runtime diagnostics proof, the merged governance/automation proof package, PR #112 source-truth closeout / merge-target authority hardening proof, and PR #113 source-truth closeout / merge-target authority hardening proof are released historical traceability in `v1.6.13-prebeta`.
 
 ## Latest Released Workstream Context
 
