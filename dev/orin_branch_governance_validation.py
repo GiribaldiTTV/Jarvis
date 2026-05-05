@@ -668,6 +668,7 @@ PR_READINESS_BLOCKER_PHRASES = (
     "dirty",
     "docs-sync",
     "next-workstream",
+    "Next Workstream User Waiver Missing",
     "Next Runtime Candidate Selection Pending",
     "Backlog Addition User Approval Missing",
     "Backlog Exhaustion User Decision Pending",
@@ -685,6 +686,12 @@ PR_READINESS_BLOCKER_PHRASES = (
     "Release Window Audit Incomplete",
     "Between-Branch Canon Repair Attempt",
     "Next Branch Created Too Early",
+    "Next Branch Package Shape Unproven",
+    "Single-Slice Branch Drift Risk Unresolved",
+    "Family Organization Drift Risk Unresolved",
+    "Current-Branch Branch Readiness Re-entry Required",
+    "New Carrier Branch Required",
+    "PR Readiness Stage 1 Repair Pending",
 )
 
 PACKAGE_SLICE_BLOCKER_CATALOG_DOCS = (
@@ -735,6 +742,25 @@ PR_READINESS_RESPONSE_CONTRACT_DOCS = (
 
 PR_READINESS_RESPONSE_CONTRACT_PHRASES = (
     "## PR Readiness Stage 1 Analysis Packet",
+    "## Next Workstream",
+    "Recommended Next Workstream:",
+    "Candidate Work To Be Done:",
+    "User-Facing Output:",
+    "Next Workstream User Waiver:",
+    "Next Workstream User Waiver Missing",
+    "Next Workstream Candidate Not Found",
+    "## Next Branch Pre-Plan",
+    "Next Branch Package Shape:",
+    "Single-Slice Drift Review:",
+    "Family Organization Review:",
+    "Element Coverage Review:",
+    "Next Branch Package Shape Unproven",
+    "Single-Slice Branch Drift Risk Unresolved",
+    "Family Organization Drift Risk Unresolved",
+    "Current-Branch Branch Readiness Re-entry Required",
+    "New Carrier Branch Required",
+    "Branch Readiness Fallback:",
+    "Governance Ledger Fallback:",
     "## Next Branch",
     "Next Legal Branch Type:",
     "Next Branch Name:",
@@ -769,7 +795,8 @@ PR_READINESS_STAGE_GATE_PHRASES = (
     "PR Readiness Stage 1 - Analysis Gate",
     "PR Readiness Stage 2 - Execution Gate",
     "PR Readiness Execution User Approval Missing",
-    "no repository file mutation",
+    "analysis-first blocker repair gate",
+    "PR Readiness Stage 1 Repair Pending",
     "USER approval to enter Stage 2",
 )
 
@@ -784,18 +811,143 @@ PR_READINESS_STAGE_PACKET_PHRASES = (
     "Planned Base Branch:",
     "Planned Head Branch:",
     "Planned PR Summary:",
+    "## Next Workstream",
+    "Recommended Next Workstream:",
+    "Candidate Work To Be Done:",
+    "User-Facing Output:",
+    "Next Workstream User Waiver:",
+    "Next Workstream User Waiver Missing",
+    "Next Workstream Candidate Not Found",
+    "## Next Branch Pre-Plan",
+    "Next Branch Package Shape:",
+    "Single-Slice Drift Review:",
+    "Family Organization Review:",
+    "Element Coverage Review:",
+    "Next Branch Package Shape Unproven",
+    "Single-Slice Branch Drift Risk Unresolved",
+    "Family Organization Drift Risk Unresolved",
+    "Current-Branch Branch Readiness Re-entry Required",
+    "New Carrier Branch Required",
     "Required Post-Merge Path:",
     "Ranked Runtime FAM Candidates:",
     "Recommended Next Package:",
+    "Recommended Next Package USER Waiver:",
     "Package-Size / Single-Slice Drift Review:",
+    "Element Coverage Review:",
     "Release-Debt Impact:",
+    "Required Current-Branch Source-Truth Sync:",
     "Planned Merge-Target Canon Updates:",
     "Planned Next Branch Block:",
     "Planned Watcher Provisioning:",
     "Expected Files To Change:",
+    "Stage 1 Repairs Made:",
+    "Stage 1 Repair Validation:",
+    "PR Readiness Stage 1 Repair Pending",
+    "Governance Ledger Fallback:",
+    "Branch Readiness Fallback:",
+    "Stage 1 Outcome:",
     "Stage 2 Sync Plan:",
     "Stage 2 Green-Light Decision Needed:",
 )
+
+PR_READINESS_STAGE1_READINESS_LOCK_REQUIRED_PHRASES = {
+    Path("Docs/phase_governance.md"): (
+        "analysis-first readiness-lock gate",
+        "Stage 1 Ready For Stage 2",
+        "PR Readiness Stage 1 Repair Required",
+        "Current-Branch Branch Readiness Re-entry Required",
+        "New Carrier Branch Required",
+        "Stage 1 USER Waiver Required",
+        "Stage 2 begins only after",
+        "Stage 2 owns final PR execution only",
+        "PR creation is blocked while any Stage 1 blocker",
+        "next-workstream/package hierarchy is reviewed in PR Readiness Stage 1",
+        "Branch Readiness fallback is real carrier branch/package analysis",
+    ),
+    Path("Docs/development_rules.md"): (
+        "PR Readiness Stage 1 is the Stage 2 readiness-lock gate",
+        "Stage 1 Ready For Stage 2",
+        "PR Readiness Stage 1 Repair Required",
+        "Current-Branch Branch Readiness Re-entry Required",
+        "New Carrier Branch Required",
+        "Stage 1 USER Waiver Required",
+        "Stage 2 owns final PR execution only",
+    ),
+    Path("Docs/Main.md"): (
+        "Stage 1 is the Stage 2 readiness-lock gate",
+        "Stage 1 Ready For Stage 2",
+        "PR Readiness Stage 1 Repair Required",
+        "Current-Branch Branch Readiness Re-entry Required",
+        "New Carrier Branch Required",
+        "Stage 1 USER Waiver Required",
+        "Stage 2 owns final PR execution only",
+        "next-workstream/package hierarchy is reviewed in PR Readiness Stage 1",
+        "Branch Readiness fallback is not workstream selection by default",
+    ),
+    Path("Docs/codex_modes.md"): (
+        "PR Readiness Stage 1 is the Stage 2 readiness-lock gate",
+        "Stage 1 Ready For Stage 2",
+        "PR Readiness Stage 1 Repair Required",
+        "Current-Branch Branch Readiness Re-entry Required",
+        "New Carrier Branch Required",
+        "Stage 1 USER Waiver Required",
+        "Stage 2 owns final PR execution only",
+        "PR creation is blocked while any Stage 1 blocker",
+    ),
+    Path("Docs/orin_task_template.md"): (
+        "PR Readiness Stage 1 is the Stage 2 readiness-lock gate",
+        "Stage 1 Ready For Stage 2",
+        "PR Readiness Stage 1 Repair Required",
+        "Current-Branch Branch Readiness Re-entry Required",
+        "New Carrier Branch Required",
+        "Stage 1 USER Waiver Required",
+        "Stage 2 owns final PR execution only",
+        "Stage 1 Outcome:",
+    ),
+    Path("Docs/codex_user_guide.md"): (
+        "analysis-first readiness-lock gate",
+        "Stage 1 Ready For Stage 2",
+        "PR Readiness Stage 1 Repair Required",
+        "Current-Branch Branch Readiness Re-entry Required",
+        "New Carrier Branch Required",
+        "Stage 1 USER Waiver Required",
+        "Stage 2 owns final PR execution only",
+        "Next-workstream/package hierarchy is reviewed in PR Readiness Stage 1",
+        "Branch Readiness fallback is real carrier branch/package analysis",
+    ),
+    Path("Docs/nexus_startup_contract.md"): (
+        "analysis-first readiness-lock gate",
+        "Stage 1 Ready For Stage 2",
+        "PR Readiness Stage 1 Repair Required",
+        "Current-Branch Branch Readiness Re-entry Required",
+        "New Carrier Branch Required",
+        "Stage 1 USER Waiver Required",
+        "Stage 2 begins only after",
+        "Stage 2 sync plan",
+        "Branch Readiness fallback is real carrier branch/package analysis",
+    ),
+    Path("Docs/branch_records/index.md"): (
+        "analysis-first readiness-lock gate",
+        "Stage 1 Ready For Stage 2",
+        "PR Readiness Stage 1 Repair Required",
+        "Current-Branch Branch Readiness Re-entry Required",
+        "New Carrier Branch Required",
+        "Stage 1 USER Waiver Required",
+        "approved final PR execution pass",
+        "Branch Readiness fallback is real carrier branch/package analysis",
+    ),
+    Path("Docs/branch_records/codex_v1_6_13_prebeta_post_merge_closeout_hardening.md"): (
+        "Branch Readiness Stage 2-R2 PR Readiness Stage 1 Readiness-Lock Governance Repair",
+        "Branch Readiness Stage 2-R3 Superseded PR Stage 1 Repair Wording Cleanup",
+        "Stage 1 Readiness-Lock Finding:",
+        "Stage 1 Outcome Model:",
+        "Current-Branch Branch Readiness Re-entry Required:",
+        "New Carrier Branch Required:",
+        "Stage 2 Final-Execution Boundary:",
+        "Branch Readiness Fallback Clarification:",
+        "PR Creation Blocker:",
+    ),
+}
 
 BRANCH_READINESS_STAGE_GATE_DOCS = (
     Path("Docs/phase_governance.md"),
@@ -837,6 +989,71 @@ BRANCH_READINESS_STAGE_PACKET_PHRASES = (
     "expected docs sync",
     "Stage 2 green-light decision",
 )
+
+CHATGPT_LOADER_SOURCE_TRUTH_SYNC_REQUIRED_PHRASES = {
+    Path("Docs/nexus_startup_contract.md"): (
+        "Local ChatGPT custom instructions should stay compact",
+        "Do not paste this loader doc into Codex prompts",
+        "Codex prompts should load `Docs/Main.md`",
+        "source-truth and governance fixes ride real carriers",
+        "`FAM-006 Monitoring and HUD` remains recommendation-only",
+        "release execution requires separate explicit USER approval",
+        "Windows-first, modular, GPU-aware",
+        "optional heavy local AI capability packs",
+        "CPU fallback",
+    ),
+    Path("Docs/Main.md"): (
+        "Local ChatGPT custom instructions should stay compact",
+        "Do not paste the loader doc into Codex prompts",
+        "Codex prompts should load `Docs/Main.md`",
+        "FAM-006 Monitoring and HUD as recommendation-only until explicit USER approval",
+        "Windows-first, modular, GPU-aware direction with optional heavy local AI capability packs and CPU fallback",
+    ),
+    Path("Docs/phase_governance.md"): (
+        "Local ChatGPT custom instructions should stay compact",
+        "Do not paste the loader doc into Codex prompts",
+        "FAM-006 Monitoring and HUD recommendation-only posture until explicit USER approval",
+        "Windows-first, modular, GPU-aware project direction with optional heavy local AI capability packs and CPU fallback",
+    ),
+    Path("Docs/development_rules.md"): (
+        "Local ChatGPT custom instructions should stay compact",
+        "Do not paste the loader doc into Codex prompts",
+        "FAM-006 Monitoring and HUD recommendation-only posture until explicit USER approval",
+        "Windows-first, modular, GPU-aware direction with optional heavy local AI capability packs and CPU fallback",
+    ),
+    Path("Docs/codex_modes.md"): (
+        "Local ChatGPT custom instructions should stay compact",
+        "Do not paste the loader doc into Codex prompts",
+        "FAM-006 Monitoring and HUD recommendation-only posture until explicit USER approval",
+        "Windows-first, modular, GPU-aware direction with optional heavy local AI capability packs and CPU fallback",
+    ),
+    Path("Docs/codex_user_guide.md"): (
+        "Local ChatGPT custom instructions should stay compact",
+        "Do not paste the loader doc into Codex prompts",
+        "FAM-006 Monitoring and HUD as recommendation-only until explicit USER approval",
+        "Windows-first, modular, GPU-aware product direction with optional heavy local AI capability packs and CPU fallback",
+    ),
+    Path("Docs/orin_task_template.md"): (
+        "Local ChatGPT custom instructions should stay compact",
+        "Do not paste `Docs/nexus_startup_contract.md` into Codex prompts",
+        "FAM-006 Monitoring and HUD recommendation-only posture until explicit USER approval",
+        "Windows-first, modular, GPU-aware direction with optional heavy local AI capability packs and CPU fallback",
+    ),
+    Path("Docs/feature_backlog.md"): (
+        "Canonical Identity Model",
+        "PR Evidence Standard",
+        "Element Coverage Standard",
+        "FAM-006` | Monitoring and HUD",
+        "FAM-007` | Local AI and Capability Packs",
+        "FAM-008` | Packaging and Install Experience",
+    ),
+    Path("Docs/branch_records/codex_v1_6_13_prebeta_post_merge_closeout_hardening.md"): (
+        "Branch Readiness Stage 2-R1 Governance Ledger / Loader Sync Record",
+        "ChatGPT Loader / New-Chat Source-Truth Sync:",
+        "FAM-006 Recommendation-Only Posture:",
+        "Project Direction Preservation:",
+    ),
+}
 
 ELEMENT_COVERAGE_DOCS = (
     Path("Docs/feature_backlog.md"),
@@ -928,6 +1145,8 @@ BOT_REVIEW_SIGNAL_PHRASES = (
     "thumbs-up reaction",
     "bot comment",
     "no later thumbs-up is required",
+    "same-PR Codex bot-review repair loop",
+    "Stage 2 final handoff cannot be green until bot-review closeout is verified",
 )
 
 PR_WATCHER_THREAD_CONTRACT_DOCS = (
@@ -950,6 +1169,8 @@ PR_WATCHER_THREAD_CONTRACT_PHRASES = (
     "PR Watcher Routing Unverified",
     "PR Merge Verification Pending",
     "merge-watch seam",
+    "Watcher configuration is not runtime proof",
+    "Stage 2 final handoff cannot be green until watcher runtime proof is present or the runtime-proof blocker remains active",
 )
 
 PR_WATCHER_OUTPUT_CONTRACT_SOURCE = Path("dev/pr_same_thread_watcher.py")
@@ -982,6 +1203,32 @@ GOVERNANCE_RECURRENCE_PHRASES = (
     "merge-stable current-state owners such as backlog and roadmap must not mirror transient repair-branch ownership",
     "PR Watcher Provisioning Unproven",
     "PR Watcher Routing Unverified",
+)
+
+POST_MERGE_CLOSEOUT_PROOF_DOCS = (
+    Path("Docs/phase_governance.md"),
+    Path("Docs/development_rules.md"),
+    Path("Docs/Main.md"),
+    Path("Docs/codex_modes.md"),
+    Path("Docs/codex_user_guide.md"),
+    Path("Docs/orin_task_template.md"),
+    Path("Docs/nexus_startup_contract.md"),
+    Path("Docs/branch_records/index.md"),
+)
+
+POST_MERGE_CLOSEOUT_PROOF_PHRASES = (
+    "post-merge closeout proof must be in merged source truth",
+    "not only in a deleted branch, reflog, automation memory, or conversation transcript",
+    "real release-support carrier",
+    "next real runtime package carrier",
+)
+
+HISTORICAL_BRANCH_ACTIVE_PR_MARKERS = (
+    "Current PR Readiness Seam:",
+    "Live PR State: `OPEN",
+    "Live PR State: `open",
+    "PR Validation Pending",
+    "PR Merge Verification Pending",
 )
 
 AUTOMATION_OBSERVABILITY_SOURCE = Path("dev/automation_observability_report.py")
@@ -10108,6 +10355,14 @@ def main() -> int:
                 f"{relative_path}: PR Readiness Stage 1 packet contract is missing '{required_phrase}'",
             )
 
+    for relative_path, required_phrases in PR_READINESS_STAGE1_READINESS_LOCK_REQUIRED_PHRASES.items():
+        text = _read_text(relative_path)
+        for required_phrase in required_phrases:
+            require(
+                required_phrase in text,
+                f"{relative_path}: PR Readiness Stage 1 readiness-lock guidance is missing '{required_phrase}'",
+            )
+
     for relative_path in BRANCH_READINESS_STAGE_GATE_DOCS:
         text = _read_text(relative_path)
         for required_phrase in BRANCH_READINESS_STAGE_GATE_PHRASES:
@@ -10122,6 +10377,14 @@ def main() -> int:
             require(
                 required_phrase in text,
                 f"{relative_path}: Branch Readiness Stage 1 packet contract is missing '{required_phrase}'",
+            )
+
+    for relative_path, required_phrases in CHATGPT_LOADER_SOURCE_TRUTH_SYNC_REQUIRED_PHRASES.items():
+        text = _read_text(relative_path)
+        for required_phrase in required_phrases:
+            require(
+                required_phrase in text,
+                f"{relative_path}: ChatGPT loader/source-truth sync is missing '{required_phrase}'",
             )
 
     for relative_path in ELEMENT_COVERAGE_DOCS:
@@ -10194,6 +10457,14 @@ def main() -> int:
             require(
                 required_phrase in text,
                 f"{relative_path}: governance recurrence guidance is missing '{required_phrase}'",
+            )
+
+    for relative_path in POST_MERGE_CLOSEOUT_PROOF_DOCS:
+        text = _read_text(relative_path).casefold()
+        for required_phrase in POST_MERGE_CLOSEOUT_PROOF_PHRASES:
+            require(
+                required_phrase.casefold() in text,
+                f"{relative_path}: post-merge closeout proof guidance is missing '{required_phrase}'",
             )
 
     for relative_path in UTS_RESULTS_BLOCKER_DOCS:
@@ -11732,6 +12003,14 @@ def main() -> int:
                 "historical" in phase_status_section.lower(),
                 f"{branch_record_path}: historical branch record should make its historical merged posture explicit",
             )
+            for active_pr_marker in HISTORICAL_BRANCH_ACTIVE_PR_MARKERS:
+                require(
+                    active_pr_marker not in phase_status_section,
+                    (
+                        f"{branch_record_path}: historical branch record must not retain "
+                        f"active PR-readiness marker '{active_pr_marker}' in Phase Status"
+                    ),
+                )
         if branch_record_path in {
             str(PR101_CLOSEOUT_CANON_REPAIR_BRANCH_RECORD),
             str(PR102_CLOSEOUT_CANON_REPAIR_BRANCH_RECORD),

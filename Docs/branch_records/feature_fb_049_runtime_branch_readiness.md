@@ -38,7 +38,7 @@ It also carries the post-merge blocker left after PR #106: `Docs/branch_records/
 - Current Workstream Seam: `Historical complete; WS1 implemented the pre-settled incoming-launch truthful-exit proof`
 - Current Hardening Seam: `Historical complete; H1 validated the pre-settled incoming-launch conflict runtime proof`
 - Current Live Validation Seam: `Historical complete; LV1 validated real shortcut launch and closest available pre-settled conflict proof`
-- Current PR Readiness Seam: `Historical complete with watcher handoff failure classified`
+- Historical PR Readiness Seam: `Complete with watcher handoff failure classified`
 - Next Active Seam: `None; historical-only record`
 - Live PR: `https://github.com/GiribaldiTTV/Nexus-Desktop-AI/pull/107`
 - Live PR Number: `107`

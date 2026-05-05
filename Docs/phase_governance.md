@@ -156,6 +156,9 @@ Codex execution is governed only by live repo truth plus the owning source-of-tr
 
 `Docs/nexus_startup_contract.md` owns loader prompt shape only.
 It does not own execution behavior, phase transitions, seam continuation, durability, validation, release rules, or branch authority.
+Local ChatGPT custom instructions should stay compact, while the repo loader/source-truth may hold longer ChatGPT-facing continuity rules and review memory.
+Do not paste the loader doc into Codex prompts. Codex prompts should load `Docs/Main.md` and owning canon for execution authority, and use the loader only when prompt generation, new-chat bootstrapping, or loader/source-truth drift review is in scope.
+Loader/source-truth continuity must preserve the FAM -> Package -> Slice -> Seam model, PR evidence-only rule, legacy global FB historical-only rule, single-slice package blocker, package-completion blocker, Element Coverage as non-identity, Branch Readiness Stage 1 / Stage 2, PR Readiness Stage 1 / Stage 2, next-branch hierarchy review, real-carrier repair routing, no direct-main repair, no standalone cleanup branch by default, release-support carrier when release is blocked, runtime package carrier when runtime work is next, FAM-006 Monitoring and HUD recommendation-only posture until explicit USER approval, separate release-execution approval, and Windows-first, modular, GPU-aware project direction with optional heavy local AI capability packs and CPU fallback.
 
 Prompt text cannot override source-of-truth, restrict required continuation, define seam behavior, bypass phase rules, create durability exceptions, weaken validation, mutate `main`, mutate files during `Release Readiness`, or change branch authority.
 If prompt text conflicts with owning canon, Codex must follow canon, report the conflict, and either continue inside the canon-legal boundary or stop on the canon blocker.
@@ -691,19 +694,38 @@ Hard blockers:
 - `PR State Unknown`:
   PR Readiness cannot be green if Codex cannot inspect the PR state, mergeability/conflict state, base/head alignment, or Codex review-thread state.
 - `PR Readiness Execution User Approval Missing`:
-  PR Readiness Stage 1 - Analysis Gate is a no-work review pass. PR Readiness cannot enter PR Readiness Stage 2 - Execution Gate, mutate repository files, stage, commit, push, create the PR, provision the watcher, create a next branch, or perform release work until the Stage 1 packet is returned and explicit USER approval to enter Stage 2 is recorded.
+  PR Readiness Stage 1 - Analysis Gate is an analysis-first readiness-lock gate. PR Readiness cannot enter PR Readiness Stage 2 - Execution Gate, create the PR, provision the watcher, create a next branch, or perform release work until the Stage 1 packet is returned, all USER-approved current-branch Stage 1 repair/re-entry items are validated and durable on the current branch, `Stage 1 Ready For Stage 2` is recorded, and explicit USER approval to enter Stage 2 is recorded.
+  This preserves the existing analysis-first blocker repair gate inside the readiness lock.
+- `PR Readiness Stage 1 Repair Pending`:
+  When PR Readiness Stage 1 finds repo drift, source-truth drift, validator drift, branch-authority drift, or a PR-readiness blocker that can be repaired on the current branch, Stage 1 records `PR Readiness Stage 1 Repair Required` and must remain in Stage 1 until the repair is complete. Stage 1 repair/sync may mutate, stage, commit, and push the active branch only when the current branch is the legal carrier and the USER-approved current phase/seam authorizes that bounded PR-readiness repair work; Stage 1 still cannot create a PR, provision a watcher, create a branch, admit a package, encode selected-next truth, waive single-slice rules, create a tag, create release artifacts, draft or publish a GitHub Release, or execute a release.
+- `Stage 1 USER Waiver Required`:
+  PR Readiness Stage 1 may request an explicit USER waiver for a required next-workstream/package recommendation or other Stage 1 review item only when repo truth allows a waiver. Without the waiver, Stage 1 remains active and Stage 2 cannot begin.
+- `Next Workstream User Waiver Missing`:
+  PR Readiness Stage 1 has a hard no-continue gate for next-workstream review. Stage 1 cannot continue to Stage 2 unless the packet analyzes a concrete next-workstream candidate and the candidate work to be done, or an explicit USER waiver records `Next Workstream User Waiver: Granted`. If no legal candidate is found, `Next Workstream Candidate Not Found` remains active until the USER supplies/approves a candidate or grants that waiver.
+- `Next Branch Package Shape Unproven`:
+  PR Readiness Stage 1 must pre-plan the next branch shape before Stage 2 can proceed. The packet must name the broad FAM, candidate package, and multiple concrete candidate slices, while keeping branch creation and selected-next truth blocked unless separately USER-approved.
+- `Single-Slice Branch Drift Risk Unresolved`:
+  PR Readiness Stage 1 cannot continue to Stage 2 when the next-branch pre-plan looks like a single-seam, single-slice, or one-off branch unless explicit USER waiver/approval is recorded. Placeholder slices do not satisfy this review.
+- `Family Organization Drift Risk Unresolved`:
+  PR Readiness Stage 1 cannot continue to Stage 2 when the next-branch pre-plan drifts away from the FAM -> Package -> Slice -> Seam model, reuses old live `FB-###` identity behavior, or treats governance/support work as a standalone feature family without USER approval.
+- `Current-Branch Branch Readiness Re-entry Required`:
+  PR Readiness Stage 1 cannot continue to Stage 2 when next-workstream, next-branch, or governance/source-of-truth ledger blockers show that the current branch is still the legal carrier, but the fix is broader than bounded PR-readiness sync and must re-enter Branch Readiness on the same branch. This includes branch-shape drift, package/slice admission drift, or ledger repair that needs the current carrier's Branch Readiness authority before PR execution.
+- `New Carrier Branch Required`:
+  PR Readiness Stage 1 cannot continue to Stage 2 when the current branch is stale, merged, invalid, or legally cannot own the blocker, so a new real carrier branch is required. This applies to `Next Workstream Candidate Not Found`, `Next Branch Package Shape Unproven`, `Single-Slice Branch Drift Risk Unresolved`, `Family Organization Drift Risk Unresolved`, or ledger items that cannot be cleared without USER waiver/approval or a new Branch Readiness carrier. Ledger-triggered fallback covers identity model drift, FAM taxonomy drift, package/branch rule drift, USER approval blocker drift, Branch Readiness or PR Readiness staging drift, selected-next recommendation drift, real-carrier routing drift, branch-authority lifecycle drift, watcher/automation proof drift, release readiness/execution boundary drift, Element Coverage misuse, ChatGPT loader/source-truth drift, project direction drift, current workflow drift, after-release workflow drift, and absolute-guardrail drift. The Stage 1 packet must output `Governance Ledger Fallback:` and `Branch Readiness Fallback:` and route the next legal work to Branch Readiness rather than create a PR, watcher, branch, package, selected-next truth, or release artifact by inertia. Branch Readiness fallback is real carrier branch/package analysis when PR Stage 1 cannot legally clear the blocker on the current branch; it is not workstream selection by default.
 - `PR Merge Status Unproven`:
   PR Readiness cannot be green until the live PR has explicitly reported a green merge status. Treat unknown, unset, conflicting, dirty, blocked, or otherwise non-green mergeability/merge-state results as an active blocker until GitHub reports the PR merge status as green.
 - `Bot Review Signal Pending`:
-  for Codex-created PRs, PR Readiness cannot be green until the live PR has received either a thumbs-up reaction or a bot comment from the Codex GitHub bot; a thumbs-up reaction on the live PR clears the gate, while a bot comment keeps `PR Validation Pending` active until the branch fixes the comment on the same PR, pushes, resolves the comment, and records that current-head comment-resolution closeout; no later thumbs-up is required
+  for Codex-created PRs, PR Readiness cannot be green until the live PR has received either a thumbs-up reaction or a bot comment from the Codex GitHub bot; a thumbs-up reaction on the live PR clears the gate, while a bot comment keeps `PR Validation Pending` active until the branch fixes the comment on the same PR, pushes, replies to and resolves the review thread, and records that current-head comment-resolution closeout; no later thumbs-up is required. This is the same-PR Codex bot-review repair loop. Stage 2 final handoff cannot be green until bot-review closeout is verified.
 - `PR Watcher Provisioning Unproven`:
   if the branch expects watcher-based PR monitoring, the watcher target, approved reporting surface, routing proof, runtime path, run-proof method, fallback, teardown rule, replacement provisioning for the next live PR, and the live bot-review action contract must be explicit and proven before PR Readiness can turn green. Standard operating procedure from now on is a watcher on an approved Codex reporting surface at minute cadence that reports only when a watched PR status changes. The current working thread is the default surface, but an explicitly recorded dedicated watcher-host thread is allowed when that is the validated user-visible route. Accepted watcher proof may come from native Codex heartbeat run evidence or from a bounded local watcher that posts those status-change updates through the official Codex thread-resume path into the approved transcript and records delivery proof through assistant-message transcript presence, Codex thread-state refresh, and automation run/inbox visibility. Manual rollout-file or transcript-file injection does not count as proof.
+  Watcher configuration is not runtime proof. Stage 2 final handoff cannot be green until watcher runtime proof is present or the runtime-proof blocker remains active.
   Watcher status-change output must be shaped as a source-of-truth handoff packet: governed state markers, live PR truth, watcher proof, blocker state, continue/stop decision, and, after `merged=true`, a copy/paste Codex prompt basis for the next legal Release Readiness validation. The watcher may clear `PR Merge Verification Pending`; it must not independently claim Release Readiness legality.
   The action contract is part of provisioning proof: thumbs-up reaction means report green for PR-entry validation; one or more actionable bot comments means trigger the bounded same-branch PR comment-repair worker, fix the issue, commit, push, reply, resolve the corresponding review thread, and then record `Comment addressed` for the current head. If the repair worker cannot complete safely, keep `PR Validation Pending` active and surface the exact blocking comment.
 - `PR Watcher Routing Unverified`:
   even after watcher provisioning exists and run proof is present, PR Readiness cannot be green until the approved reporting surface is explicitly recorded and a validation pass confirms the configured thread/host target, state-file target, transcript target, and delivery proof all point to that recorded surface and that at least one watcher emission has landed there. If final merge delivery proof is missing, the watcher must keep running and retry instead of retiring.
 - `PR Merge Verification Pending`:
   after PR creation, live PR validation, green merge status, and bot-review approval are complete, PR Readiness continues into a merge-watch seam and stays non-green until the watcher on the approved reporting surface verifies that the live PR is actually `merged`
+  Post-merge closeout proof must be in merged source truth, not only in a deleted branch, reflog, automation memory, or conversation transcript. If missing proof blocks a release, carry it on a real release-support carrier; if product work is next, carry it on the next real runtime package carrier.
 - `Automation Runtime Unproven`:
   phase-critical automation cannot clear a gate merely because its card, config, or automation list says `ACTIVE`; `ACTIVE` is configuration state, not run proof. Accept run evidence only from thread or inbox output, automation memory/log/state-file updates, or scheduler last-run evidence. If the preferred Codex automation remains `ACTIVE` without run evidence, keep the owning phase blocked until run evidence exists or a bounded fallback is activated. Any bounded fallback must be target-scoped, phase-scoped, read-only, and self-terminating or explicitly deleted when its terminal condition or phase exit occurs.
 - `Automation Observability Review Pending`:
@@ -724,10 +746,11 @@ If the normal governance validator passes but the PR-specific gate reports dirty
 
 `PR Readiness` remains one canonical phase. It is organized into two internal stage gates:
 
-- `PR Readiness Stage 1 - Analysis Gate`: analysis-only; no repository file mutation, staging, commit, push, PR creation, watcher provisioning, next-branch creation, release work, or canon edits are allowed. Stage 1 must output the full `## PR Readiness Stage 1 Analysis Packet` for USER review, including next-branch hierarchy and Stage 2 sync plan, and then stop on `PR Readiness Execution User Approval Missing`.
-- `PR Readiness Stage 2 - Execution Gate`: begins only after explicit USER approval to enter Stage 2. Stage 2 performs the existing PR Readiness work: apply required merge-target canon, commit and push durable truth, run the normal governance validator and PR-readiness gate mode, create the PR, provision and prove the watcher, validate live PR state, handle bot-review signals, and continue merge-watch until the approved reporting surface verifies merge.
+- `PR Readiness Stage 1 - Analysis Gate`: analysis-first readiness-lock gate. Stage 1 must analyze repo truth, identify PR-readiness drift/blockers, output the full `## PR Readiness Stage 1 Analysis Packet` for USER review, including next-branch hierarchy and Stage 2 sync plan, and remain active until one outcome is recorded: `Stage 1 Ready For Stage 2`, `PR Readiness Stage 1 Repair Required`, `Current-Branch Branch Readiness Re-entry Required`, `New Carrier Branch Required`, or `Stage 1 USER Waiver Required`. Bounded Stage 1 repair/sync is allowed only when the current branch is the legal carrier and the USER-approved current phase/seam authorizes that repair; repair truth must be validated, committed, and pushed before Stage 1 can be declared ready. Stage 1 still cannot create the PR, provision the watcher, create the next branch, execute release work, create tags/artifacts/releases, admit packages, encode selected-next truth, or grant waivers without explicit USER approval.
+  This preserves the existing analysis-first blocker repair gate inside the readiness lock.
+- `PR Readiness Stage 2 - Execution Gate`: begins only after explicit USER approval to enter Stage 2 and only when Stage 1 reports `Stage 1 Ready For Stage 2`. Stage 2 owns final PR execution only: final PR package sync, commit/push if needed, PR creation, watcher provisioning, bot-review handling, mergeability validation, and merge-watch.
 
-The `## PR Readiness Stage 1 Analysis Packet` must include governed state markers, the planned PR title/base/head/summary, required post-merge path, ranked runtime FAM candidates, recommended next package, package-size / single-slice drift review, release-debt impact, planned merge-target canon updates, planned next-branch block, planned watcher provisioning and reporting surface, planned validations, expected file changes, Stage 2 sync plan, drift findings, blocker and waiver findings, release-window audit posture, rollback path, and the exact Stage 2 green-light decision needed from the USER. It may recommend Stage 2, but it must not perform Stage 2 or encode selected-next truth.
+The `## PR Readiness Stage 1 Analysis Packet` must include governed state markers, the planned PR title/base/head/summary, required post-merge path, release-debt impact, ranked runtime FAM candidates, recommended next package or explicit USER waiver, package-size / single-slice drift review, Element Coverage review, required current-branch source-truth sync, planned merge-target canon updates, planned next-branch block, planned watcher provisioning and reporting surface, planned validations, expected Stage 2 file changes, Stage 1 repairs made, Stage 1 repair validation, Governance Ledger fallback status, Branch Readiness fallback status, Stage 2 sync plan, drift findings, blocker and waiver findings, release-window audit posture, rollback path, and the exact Stage 2 green-light decision needed from the USER. It may repair Stage 1 PR-readiness blockers on the current branch, but it must not perform Stage 2, create the PR/watcher, or encode selected-next truth. PR creation is blocked while any Stage 1 blocker, Stage 1 repair item, next-workstream hierarchy item, branch-shape review item, or Stage 2 sync prerequisite remains unresolved.
 
 `PR package ready` is the state where local branch truth, merge-target canon, next-workstream selection, and copy-ready PR details are complete. It is not `PR Readiness GREEN`.
 
@@ -760,16 +783,25 @@ When the response is Stage 1, it must include this packet and stop on `PR Readin
 - Planned Base Branch:
 - Planned Head Branch:
 - Planned PR Summary:
+- User-Facing Next Workstream Block:
 - Required Post-Merge Path:
 - Ranked Runtime FAM Candidates:
 - Recommended Next Package:
+- Recommended Next Package USER Waiver:
 - Package-Size / Single-Slice Drift Review:
+- Element Coverage Review:
 - Release-Debt Impact:
+- Required Current-Branch Source-Truth Sync:
 - Planned Merge-Target Canon Updates:
 - Planned Next Branch Block:
 - Planned Watcher Provisioning:
 - Planned Validation Commands:
 - Expected Files To Change:
+- Stage 1 Repairs Made:
+- Stage 1 Repair Validation:
+- Governance Ledger Fallback:
+- Branch Readiness Fallback:
+- Stage 1 Outcome:
 - Stage 2 Sync Plan:
 - Drift Findings:
 - Blockers And Waivers Needed:
@@ -777,6 +809,50 @@ When the response is Stage 1, it must include this packet and stop on `PR Readin
 - Rollback Plan:
 - Stage 2 Green-Light Decision Needed:
 ```
+
+Allowed Stage 1 outcomes are exactly `Stage 1 Ready For Stage 2`, `PR Readiness Stage 1 Repair Required`, `Current-Branch Branch Readiness Re-entry Required`, `New Carrier Branch Required`, and `Stage 1 USER Waiver Required`. `PR Readiness Stage 1 Repair Required` means bounded current-branch PR-readiness repair/sync remains in Stage 1 before Stage 2. `Current-Branch Branch Readiness Re-entry Required` means the current branch is still the legal carrier, but the fix is broader than PR-readiness sync and must re-enter Branch Readiness on the same branch. `New Carrier Branch Required` means the current branch is stale, merged, invalid, or legally cannot own the blocker, so a new real carrier branch is required. Stage 2 may begin only after `Stage 1 Ready For Stage 2` is recorded and explicit USER approval to enter Stage 2 exists.
+Stage 2 begins only after `Stage 1 Ready For Stage 2` and explicit USER approval.
+The next-workstream/package hierarchy is reviewed in PR Readiness Stage 1, not selected in Branch Readiness by default.
+
+Stage 1 must also include this user-facing block so USER and ChatGPT can review the successor/runtime path before Stage 2. This is analysis output only; it does not encode selected-next truth, create a branch, admit a package, or waive any blocker:
+
+```markdown
+## Next Workstream
+- Recommended Next Workstream:
+- Recommended Family / Package:
+- Candidate Slices:
+- Candidate Work To Be Done:
+- User-Facing Output:
+- Why This Is Next:
+- Dependencies / Blockers:
+- Validation Needs:
+- Release Impact:
+- Selection Truth Status:
+- Branch Creation Status:
+- Next Workstream User Waiver:
+```
+
+Stage 1 has a hard no-continue gate here: it must analyze a concrete next-workstream candidate and the candidate work to be done, or explicitly record `Next Workstream User Waiver: Granted`. Without that waiver, missing candidate/work analysis stops on `Next Workstream User Waiver Missing` and cannot continue to Stage 2. If no legal next workstream candidate is found, Stage 1 must stop on `Next Workstream Candidate Not Found`, report the still-not-closed FAM list plus every not-complete package and slice, and record `Stage 1 USER Waiver Required` unless the USER grants a waiver/approval that clears the route. `Backlog Addition User Approval Missing`, `Backlog Exhaustion User Decision Pending`, and `Next Runtime Candidate Selection Pending` still apply according to their existing approval and exhaustion rules.
+
+Stage 1 must also include this next-branch pre-plan gate. It remains analysis-only and cannot create a branch, admit a package, encode selected-next truth, or waive single-slice rules:
+
+```markdown
+## Next Branch Pre-Plan
+- Next Branch Package Shape:
+- Proposed FAM:
+- Proposed Package:
+- Candidate Slices:
+- Candidate Work To Be Done:
+- Single-Slice Drift Review:
+- Family Organization Review:
+- Element Coverage Review:
+- Dependencies / Blockers:
+- Validation / Live-Test Needs:
+- Branch Creation Status:
+- USER Approvals Required:
+```
+
+If the packet cannot show a broad FAM/package with multiple concrete candidate slices, Stage 1 stops on `Next Branch Package Shape Unproven`. If the pre-plan still looks like a single-seam or single-slice branch, Stage 1 stops on `Single-Slice Branch Drift Risk Unresolved`. If the pre-plan drifts away from the family organization model or revives old live `FB-###` branch identity behavior, Stage 1 stops on `Family Organization Drift Risk Unresolved`. Any unresolved pre-plan blocker must be classified as `Current-Branch Branch Readiness Re-entry Required` when the current branch remains the legal carrier, or `New Carrier Branch Required` when the current branch is stale, merged, invalid, or legally cannot own the blocker. Branch Readiness fallback is carrier/branch/package admission after PR Stage 1 has identified the work direction; it is not workstream selection by default.
 
 When `PR Readiness` reports package-ready or `PR package ready`, the response must include a repo-wide standardized `Next Branch` block and markdown-friendly PR operator copy blocks.
 Those package details are the input to PR creation and validation; they are not themselves proof that PR Readiness is GREEN.
