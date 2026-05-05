@@ -26,6 +26,7 @@ This branch must not create runtime work, select FAM-006 or any other runtime FA
 - Branch Readiness Stage 2 USER Approval: `Granted for this release-support closeout carrier on 2026-05-04`
 - Branch Readiness Stage 2-R1 USER Waiver: `Granted on 2026-05-05 for governance ledger and ChatGPT loader/source-truth sync on this active carrier only`
 - Branch Readiness Stage 2-R2 USER Waiver: `Granted on 2026-05-05 for PR Readiness Stage 1 readiness-lock governance repair on this active carrier only`
+- Branch Readiness Stage 2-R3 USER Waiver: `Granted on 2026-05-05 for superseded PR Stage 1 repair wording cleanup on this active carrier only`
 - PR Readiness Stage 2 USER Approval: `Not granted`
 - Active Seam: `PR Readiness Stage 1 - v1.6.13-prebeta Closeout Hardening PR Analysis Gate`
 - Release Target: `v1.6.13-prebeta`
@@ -43,7 +44,7 @@ This branch must not create runtime work, select FAM-006 or any other runtime FA
 - Release Execution: `Not approved`
 - Release Artifacts: `Not created`
 - Governance Ledger / Loader Sync State: `Complete - Branch Readiness Stage 2-R1 repaired the remaining ChatGPT loader/source-truth continuity gaps without changing runtime, selected-next, release, PR, branch, or package authority`
-- PR Readiness Stage 1 Readiness-Lock State: `Complete - Branch Readiness Stage 2-R2 encoded Stage 1 readiness outcomes and Stage 2 final-execution boundaries without creating a PR, watcher, runtime branch, runtime package, selected-next truth, release artifact, tag, GitHub Release, or release execution`
+- PR Readiness Stage 1 Readiness-Lock State: `Complete - Branch Readiness Stage 2-R3 superseded contradictory R1 wording and clarified current-branch repair, current-branch Branch Readiness re-entry, and new-carrier fallback outcomes without creating a PR, watcher, runtime branch, runtime package, selected-next truth, release artifact, tag, GitHub Release, or release execution`
 
 ## Branch Class
 
@@ -264,9 +265,9 @@ Repair Scope: branch authority index, historical release-packaging closeout, rec
 - ChatGPT Loader / Source-Truth Sync: `PASS`
 - PR Readiness Stage 1 Next Workstream Output Correction: `PASS - Stage 1 now requires a user-facing ## Next Workstream block, Candidate Work To Be Done, and Next Workstream User Waiver status; Next Workstream User Waiver Missing blocks continuation without candidate/work analysis or explicit USER waiver, and Next Workstream Candidate Not Found blocks when no legal candidate is found`
 - PR Readiness Stage 1 Next Branch Pre-Plan Correction: `PASS - Stage 1 now requires a no-work ## Next Branch Pre-Plan gate for FAM/package shape, multiple candidate slices, single-slice drift review, family organization review, Element Coverage review, and USER approval needs; Next Branch Package Shape Unproven, Single-Slice Branch Drift Risk Unresolved, and Family Organization Drift Risk Unresolved block continuation when the next branch is too small or drifts from FAM -> Package -> Slice -> Seam`
-- PR Readiness Stage 1 Repair-Gate Correction: `PASS - Stage 1 is now an analysis-first blocker repair gate; PR Readiness Stage 1 Repair Pending blocks Stage 2 until repairable current-branch PR-readiness drift/blockers found during Stage 1 are fixed, validated, committed, and pushed, while PR creation, watcher provisioning, branch creation, release execution, tags, artifacts, GitHub Releases, runtime package admission, selected-next truth, and single-slice waivers remain outside Stage 1 without explicit USER approval`
-- PR Readiness Stage 1 Branch Readiness Fallback Correction: `PASS - Branch Readiness Fallback Required blocks Stage 2 when next-workstream or next-branch pre-plan blockers cannot be cleared inside Stage 1 without USER waiver/approval; the next legal route becomes Branch Readiness Stage 1 - Analysis Gate`
-- PR Readiness Stage 1 Governance Ledger Fallback Correction: `PASS - Branch Readiness Fallback Required also blocks Stage 2 when ledger-wide governance/source-of-truth drift cannot be cleared as bounded current-branch PR Stage 1 repair; ledger fallback routes to Branch Readiness Stage 1 - Analysis Gate`
+- PR Readiness Stage 1 Repair-Gate Correction: `SUPERSEDED BY STAGE 2-R3 - Stage 1 remains an analysis-first blocker repair gate; repairable current-branch PR-readiness drift/blockers may be fixed, validated, committed, and pushed only when the current branch is the legal carrier and the USER-approved current phase/seam authorizes that repair, while PR creation, watcher provisioning, branch creation, release execution, tags, artifacts, GitHub Releases, runtime package admission, selected-next truth, and single-slice waivers remain outside Stage 1 without explicit USER approval`
+- PR Readiness Stage 1 Branch Readiness Fallback Correction: `SUPERSEDED BY STAGE 2-R3 - unresolved next-workstream or next-branch pre-plan blockers now classify as Current-Branch Branch Readiness Re-entry Required or New Carrier Branch Required according to legal carrier ownership`
+- PR Readiness Stage 1 Governance Ledger Fallback Correction: `SUPERSEDED BY STAGE 2-R3 - ledger-wide governance/source-of-truth drift now routes to same-branch Branch Readiness re-entry when the current branch is still the legal carrier, or to a new real carrier branch when the current branch cannot legally own the blocker`
 - Release Execution Approval State: `NOT APPROVED`
 - Runtime / Selected-Next Approval State: `NOT APPROVED`
 - Validation Handoff: `Ready for file-frozen Release Readiness validation on this branch; post-merge release execution remains blocked until this carrier merges and updated main validates`
@@ -294,7 +295,7 @@ Repair Scope: branch authority index, historical release-packaging closeout, rec
 - USER Waiver: `Granted for this readiness-lock governance repair on the active release-support carrier only`
 - Active Seam: `Branch Readiness Stage 2-R2 - PR Readiness Stage 1 Readiness-Lock Governance Repair`
 - Stage 1 Readiness-Lock Finding: `PASS - PR Readiness Stage 1 remains active until next-workstream/package hierarchy, release-debt impact, ranked runtime FAM candidates, recommended next package or explicit USER waiver, package-size review, single-slice drift review, Element Coverage review, required current-branch source-truth sync, Stage 2 sync plan, PR title/base/head/summary, watcher plan, blockers, and USER decisions are clean or routed`
-- Stage 1 Outcome Model: `PASS - allowed outcomes are Stage 1 Ready For Stage 2, PR Readiness Stage 1 Repair Required, Branch Readiness Fallback Required, and Stage 1 USER Waiver Required`
+- Stage 1 Outcome Model: `SUPERSEDED BY STAGE 2-R3 - Stage 2-R3 replaces the older Branch Readiness Fallback Required outcome with Current-Branch Branch Readiness Re-entry Required and New Carrier Branch Required`
 - Stage 1 Repair / Sync Pass Rule: `PASS - bounded current-branch Stage 1 repairs remain in Stage 1 and must be validated, committed, and pushed before Stage 1 can be declared ready`
 - Stage 2 Final-Execution Boundary: `PASS - Stage 2 begins only after Stage 1 Ready For Stage 2 plus explicit USER approval and owns final PR package sync, commit/push if needed, PR creation, watcher provisioning, bot-review handling, mergeability validation, and merge-watch`
 - Branch Readiness Fallback Clarification: `PASS - Branch Readiness fallback is real carrier branch/package analysis when PR Stage 1 cannot legally clear the blocker on the current branch; it is not workstream selection by default`
@@ -305,13 +306,36 @@ Repair Scope: branch authority index, historical release-packaging closeout, rec
 - Validation Handoff: `After this durable sync, rerun PR Readiness Stage 1 and require Stage 1 Ready For Stage 2 before any PR Readiness Stage 2 approval or PR creation`
 - Next Legal Seam: `PR Readiness Stage 1 - v1.6.13-prebeta Closeout Hardening PR Analysis Gate`
 
-## PR Readiness Stage 1-R1 Repair-Gate Sync Record
+## Branch Readiness Stage 2-R3 Superseded PR Stage 1 Repair Wording Cleanup
 
 - Phase Admission: `PASS`
+- USER Waiver: `Granted for this superseded PR Stage 1 repair wording cleanup on the active release-support carrier only`
+- Active Seam: `Branch Readiness Stage 2-R3 - Superseded PR Stage 1 Repair Wording Cleanup`
+- Contradictory Wording Found: `PASS - the older PR Readiness Stage 1-R1 Repair-Gate Sync Record implied Stage 1 could stop being analysis-first/no-execution when repairable current-branch PR-readiness drift/blockers were found`
+- Superseded R1 Wording Cleanup: `PASS - the R1 wording is now explicitly superseded by Stage 2-R2 and Stage 2-R3 and no longer implies uncontrolled Stage 1 mutation or execution`
+- Stage 1 Readiness-Lock Finding: `PASS - PR Readiness Stage 1 remains the Stage 2 readiness-lock gate and stays active until next-workstream/package hierarchy, release-debt impact, recommended next package or USER waiver, package-size review, single-slice drift review, Element Coverage review, required current-branch sync, Stage 2 sync plan, PR details, watcher plan, blockers, and USER decisions are clean or routed`
+- Stage 1 Outcome Model: `PASS - allowed outcomes are Stage 1 Ready For Stage 2, PR Readiness Stage 1 Repair Required, Current-Branch Branch Readiness Re-entry Required, New Carrier Branch Required, and Stage 1 USER Waiver Required`
+- PR Readiness Stage 1 Repair Required: `PASS - bounded current-branch PR-readiness repair/sync remains in Stage 1 before Stage 2 and may mutate durable truth only when the current branch is the legal carrier and the USER-approved current phase/seam authorizes that repair`
+- Current-Branch Branch Readiness Re-entry Required: `PASS - the current branch is still the legal carrier, but the fix is broader than PR-readiness sync and must re-enter Branch Readiness on the same branch`
+- New Carrier Branch Required: `PASS - the current branch is stale, merged, invalid, or legally cannot own the blocker, so a new real carrier branch is required`
+- Stage 2 Final-Execution Boundary: `PASS - Stage 2 begins only after Stage 1 Ready For Stage 2 plus explicit USER approval and owns final PR package sync, commit/push if needed, PR creation, watcher provisioning, bot-review handling, mergeability validation, and merge-watch`
+- Branch Readiness Fallback Clarification: `PASS - Branch Readiness fallback is carrier/branch/package admission after PR Stage 1 identifies the work direction; it is not workstream selection by default`
+- Next-Workstream / Selected-Next Clarification: `PASS - next-workstream/package hierarchy is reviewed and recommended in PR Readiness Stage 1, while selected-next truth requires explicit USER approval`
+- PR Creation Blocker: `PASS - PR creation remains blocked while any Stage 1 blocker, Stage 1 repair item, current-branch Branch Readiness re-entry item, next-workstream hierarchy item, branch-shape review item, or Stage 2 sync prerequisite remains unresolved`
+- Release Execution Approval State: `NOT APPROVED`
+- Runtime / Selected-Next Approval State: `NOT APPROVED`
+- PR / Watcher Approval State: `NOT APPROVED in this Stage 2-R3 sync`
+- Validation Handoff: `After this durable sync, rerun PR Readiness Stage 1 and require Stage 1 Ready For Stage 2 before any PR Readiness Stage 2 approval or PR creation`
+- Next Legal Seam: `PR Readiness Stage 1 - v1.6.13-prebeta Closeout Hardening PR Analysis Gate`
+
+## PR Readiness Stage 1-R1 Repair-Gate Sync Record
+
+- Superseded By: `Branch Readiness Stage 2-R2 and Branch Readiness Stage 2-R3`
+- Phase Admission: `PASS - historical only`
 - Active Seam: `PR Readiness Stage 1-R1 - PR Stage 1 Repair-Gate Governance Sync`
-- Stage 1 Repair Finding: `PASS - PR Readiness Stage 1 no longer remains a no-mutation analysis-only gate when repairable current-branch PR-readiness drift/blockers are found`
+- Stage 1 Repair Finding: `SUPERSEDED - PR Readiness Stage 1 remains the Stage 2 readiness-lock gate; bounded repair/sync may occur only when the current branch is the legal carrier and the USER-approved current phase/seam authorizes that repair`
 - Stage 1 Repair Boundary: `PASS - PR creation, watcher provisioning, branch creation, package admission, selected-next truth, single-slice waivers, release execution, tags, GitHub Releases, and release artifacts remain outside Stage 1 without explicit USER approval`
-- Branch Readiness Fallback Rule: `PASS - Branch Readiness Fallback Required routes unresolved next-workstream or next-branch shape blockers to Branch Readiness Stage 1 instead of PR Readiness Stage 2`
-- Governance Ledger Fallback Rule: `PASS - Branch Readiness Fallback Required routes ledger-wide identity, FAM/package, approval, real-carrier, branch-authority, watcher, release, Element Coverage, loader, project-direction, workflow, and absolute-guardrail drift to Branch Readiness Stage 1 when it is broader than bounded current-branch PR Stage 1 repair`
+- Current-Branch Branch Readiness Re-entry Rule: `PASS - unresolved current-branch blockers broader than PR-readiness sync route to Branch Readiness re-entry on the same legal carrier`
+- New Carrier Branch Rule: `PASS - blockers the current branch cannot legally own require a new real carrier branch instead of PR Readiness Stage 2`
 - Stage 1 Repair Durability: `PASS - this repair-gate sync is committed and pushed as the durable Stage 1 repair record`
 - Next Legal Seam: `PR Readiness Stage 1 - v1.6.13-prebeta Closeout Hardening PR Analysis Gate`
