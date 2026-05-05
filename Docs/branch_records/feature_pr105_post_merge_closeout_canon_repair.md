@@ -38,7 +38,7 @@ It preserves PR #105 and PR #106 watcher merge/shutdown proof as historical trac
 - Selected Next Workstream: `FB-049 Active-session pre-settled incoming-launch conflict truth`
 - Selected Next Record State: `Registry-only`
 - Selected Next Implementation Branch: `Not created`
-- Current PR Readiness Seam: `Historical only; completed by PR #106 merge verification`
+- Historical PR Readiness Seam: `Completed by PR #106 merge verification`
 - Next Active Seam: `None`
 - Live PR: `https://github.com/GiribaldiTTV/Nexus-Desktop-AI/pull/106`
 - Live PR State: `merged / historical`

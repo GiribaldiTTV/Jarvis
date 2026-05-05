@@ -595,6 +595,8 @@ If final merge delivery proof is missing, the watcher must keep running and retr
 After live PR creation, live PR validation, merge-status green, and bot-review approval are complete, PR Readiness continues into a merge-watch seam and `PR Merge Verification Pending` stays active until that watcher on the approved reporting surface verifies that the PR is `merged`.
 `Backlog Addition User Approval Missing` also keeps PR Readiness non-green when Codex would need to add, split, promote, package-admit, branch-create, waive a single-slice package, or select a backlog identity without explicit USER approval; its output is the still-not-closed FAM list plus every not-complete package and slice.
 
+Post-merge closeout proof must be in merged source truth, not only in a deleted branch, reflog, automation memory, or conversation transcript. If missing proof blocks a release, carry it on a real release-support carrier; if product work is next, carry it on the next real runtime package carrier.
+
 For single-slice drift hardening, only slice rows with `Admission State: Admitted` count toward package admission. Historical evidence rows, merged evidence rows, future placeholders, deferred ideas, and future-package-required rows keep traceability but do not satisfy the multi-slice rule.
 `Backlog Exhaustion User Decision Pending` keeps PR Readiness non-green when that still-not-closed list is empty and USER direction is required.
 `Next Runtime Candidate Selection Pending` also keeps PR Readiness non-green after approval exists until exactly one real runtime Feature Family candidate is selected, canon-defined, minimally scoped as a runtime slice, mirrored in roadmap `## Selected Next Workstream`, and explicitly not branched yet.

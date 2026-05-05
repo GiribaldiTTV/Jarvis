@@ -345,6 +345,10 @@ That means:
   - automated validators and live helper evidence may be green, but final phase advancement remains blocked while a required User Test Summary handoff is outstanding
   - returned User Test Summary results must be submitted or explicitly waived, digested into the active authority record, and reevaluated before PR Readiness can report green
   - if returned results expose mismatch, regression, cleanup failure, ambiguity, or scope drift, route back to `Workstream` or `Hardening` instead of advancing
+- no Release Readiness with missing merged closeout proof:
+  - post-merge closeout proof must be in merged source truth, not only in a deleted branch, reflog, automation memory, or conversation transcript
+  - if missing proof blocks a release, carry it on a real release-support carrier; if product work is next, carry it on the next real runtime package carrier
+  - direct-main repair remains blocked
 - no PR-ready before PR creation and PR validation:
   - `PR package ready` is not `PR Readiness GREEN`
   - PR creation is part of PR Readiness completion, not a later phase

@@ -984,6 +984,32 @@ GOVERNANCE_RECURRENCE_PHRASES = (
     "PR Watcher Routing Unverified",
 )
 
+POST_MERGE_CLOSEOUT_PROOF_DOCS = (
+    Path("Docs/phase_governance.md"),
+    Path("Docs/development_rules.md"),
+    Path("Docs/Main.md"),
+    Path("Docs/codex_modes.md"),
+    Path("Docs/codex_user_guide.md"),
+    Path("Docs/orin_task_template.md"),
+    Path("Docs/nexus_startup_contract.md"),
+    Path("Docs/branch_records/index.md"),
+)
+
+POST_MERGE_CLOSEOUT_PROOF_PHRASES = (
+    "post-merge closeout proof must be in merged source truth",
+    "not only in a deleted branch, reflog, automation memory, or conversation transcript",
+    "real release-support carrier",
+    "next real runtime package carrier",
+)
+
+HISTORICAL_BRANCH_ACTIVE_PR_MARKERS = (
+    "Current PR Readiness Seam:",
+    "Live PR State: `OPEN",
+    "Live PR State: `open",
+    "PR Validation Pending",
+    "PR Merge Verification Pending",
+)
+
 AUTOMATION_OBSERVABILITY_SOURCE = Path("dev/automation_observability_report.py")
 AUTOMATION_OBSERVABILITY_DOCS = (
     Path("Docs/Main.md"),
@@ -10196,6 +10222,14 @@ def main() -> int:
                 f"{relative_path}: governance recurrence guidance is missing '{required_phrase}'",
             )
 
+    for relative_path in POST_MERGE_CLOSEOUT_PROOF_DOCS:
+        text = _read_text(relative_path).casefold()
+        for required_phrase in POST_MERGE_CLOSEOUT_PROOF_PHRASES:
+            require(
+                required_phrase.casefold() in text,
+                f"{relative_path}: post-merge closeout proof guidance is missing '{required_phrase}'",
+            )
+
     for relative_path in UTS_RESULTS_BLOCKER_DOCS:
         text = _read_text(relative_path)
         for required_phrase in UTS_RESULTS_BLOCKER_PHRASES:
@@ -11732,6 +11766,15 @@ def main() -> int:
                 "historical" in phase_status_section.lower(),
                 f"{branch_record_path}: historical branch record should make its historical merged posture explicit",
             )
+            if current_phase == HISTORICAL_TRACEABILITY_PHASE:
+                for active_pr_marker in HISTORICAL_BRANCH_ACTIVE_PR_MARKERS:
+                    require(
+                        active_pr_marker not in phase_status_section,
+                        (
+                            f"{branch_record_path}: historical branch record must not retain "
+                            f"active PR-readiness marker '{active_pr_marker}' in Phase Status"
+                        ),
+                    )
         if branch_record_path in {
             str(PR101_CLOSEOUT_CANON_REPAIR_BRANCH_RECORD),
             str(PR102_CLOSEOUT_CANON_REPAIR_BRANCH_RECORD),

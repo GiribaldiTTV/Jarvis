@@ -308,6 +308,7 @@ These are reference layers, not active workstream or roadmap owners.
 - governance-only branches are not used for new Nexus work; governance or canon repair rides on the active runtime-focused branch that owns the affected truth, or on the next legitimate runtime-focused backlog branch's `Branch Readiness` if a PR Readiness miss escaped the prior branch
 - Standalone docs/governance, emergency canon repair, and repair-only feature branches are blocked for future Nexus work.
 - Governance, docs, source-of-truth, and validator repairs must ride inside the next legitimate runtime-focused backlog branch during `Branch Readiness` or `PR Readiness`.
+- If a release is blocked by missing post-merge closeout proof, that proof may ride a real release-support carrier; if product work is next, it may ride the next real runtime package carrier. Post-merge closeout proof must be in merged source truth, not only in a deleted branch, reflog, automation memory, or conversation transcript.
 - If no runtime-focused branch is legally admitted yet, record the drift as a blocker and wait instead of creating a repair branch by inertia.
 - Historical repair-only branch records remain traceability only and do not authorize new repair-only branch creation.
 - the normal `Branch Readiness` sequence for a candidate branch is organized inside the same canonical phase:

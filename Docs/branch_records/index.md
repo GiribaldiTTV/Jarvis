@@ -29,6 +29,7 @@ Do not use this layer to replace:
 - If USER explicitly admits a real release-support or release-packaging carrier before the next runtime-focused branch, blocker-clearing governance closeout may ride inside that carrier's `Branch Readiness` before release-readiness work begins.
 - If no runtime-focused branch is legally admitted yet, record the drift as a blocker and wait instead of creating a repair branch by inertia.
 - Historical repair-only branch records remain traceability only and do not authorize new repair-only branch creation.
+- Post-merge closeout proof must be in merged source truth, not only in a deleted branch, reflog, automation memory, or conversation transcript. If missing proof blocks release, carry the closeout on a real release-support carrier; if product work is next, carry it on the next real runtime package carrier.
 - The one-time `codex/one-time-backlog-governance-repair` branch is USER-admitted as `repair/dev-tooling-governance` to repair the blocker rule that allowed FB-027/PR #109 drift; it does not reopen governance-only branch creation as a default path.
 - between-branch canon repair is blocked
 - missed PR Readiness canon work must be carried by the next legitimate runtime-focused backlog branch's `Branch Readiness` before implementation begins
@@ -62,10 +63,11 @@ Do not use this layer to replace:
 
 ## Active Branch Authority Records
 
-- `Docs/branch_records/codex_v1_6_13_prebeta_release_packaging.md`
+- `Docs/branch_records/codex_v1_6_13_prebeta_post_merge_closeout_hardening.md`
 
 ## Historical Branch Authority Records
 
+- `Docs/branch_records/codex_v1_6_13_prebeta_release_packaging.md`
 - `Docs/branch_records/codex_one_time_backlog_governance_repair.md`
 - `Docs/branch_records/feature_fb_049_runtime_branch_readiness.md`
 - `Docs/branch_records/feature_pr105_post_merge_closeout_canon_repair.md`

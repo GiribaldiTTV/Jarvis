@@ -8,22 +8,24 @@
 
 ## Purpose / Why It Exists
 
-This branch is the USER-approved real release-packaging carrier for `v1.6.13-prebeta`.
+This branch was the USER-approved real release-packaging carrier for `v1.6.13-prebeta`.
 
 It exists because PR #110 merged the one-time backlog governance repair, but merged `main` still carried stale branch-authority truth for that repair branch. The USER rejected a standalone governance cleanup branch and approved carrying the PR #110 branch-authority closeout inside this real release-packaging branch before release-readiness validation or release execution begins.
 
-This branch must not create runtime work, select FAM-006 or any other runtime FAM as selected-next truth, admit a runtime package, waive a single-slice package, create release artifacts, publish a release, or mutate `main` directly.
+This historical record preserves the release-packaging carrier truth. It must not create runtime work, select FAM-006 or any other runtime FAM as selected-next truth, admit a runtime package, waive a single-slice package, create release artifacts, publish a release, or mutate `main` directly.
 
 ## Current Phase
 
-- Phase: `PR Readiness`
+- Phase: `Historical Traceability`
 
 ## Phase Status
 
-- `Active Branch`: `codex/v1.6.13-prebeta-release-packaging`
-- PR Readiness Stage: `PR Readiness Stage 2 - Execution Gate`
-- PR Readiness Stage 2 Approval: `Granted for this release-packaging branch on 2026-05-04`
-- Current PR Readiness Seam: `PR Readiness Stage 2 - v1.6.13-prebeta Release Packaging Live PR Validation And Merge Watch`
+- Historical record state: `Merged historical traceability`
+- Repo State: `No Active Branch`
+- Historical Branch: `codex/v1.6.13-prebeta-release-packaging`
+- Historical Branch Authority Record: `Docs/branch_records/codex_v1_6_13_prebeta_release_packaging.md`
+- Historical PR Readiness Stage: `PR Readiness Stage 2 - Execution Gate`
+- Historical PR Readiness Seam: `PR Readiness Stage 2 - v1.6.13-prebeta Release Packaging Live PR Validation And Merge Watch`
 - Branch Readiness Stage: `Branch Readiness Stage 2 - Execution Gate`
 - Stage 2 USER Approval: `Granted for this release-packaging carrier branch on 2026-05-04`
 - Branch Readiness Stage 2 Admission: `Green`
@@ -36,15 +38,18 @@ This branch must not create runtime work, select FAM-006 or any other runtime FA
 - Package Completion State: `Complete`
 - Single-Slice Package User Approval: `Not required - the admitted release-packaging package has five concrete admitted slices`
 - PR #110 Closeout State: `Cleared on this branch before release-readiness work`
-- PR URL: `https://github.com/GiribaldiTTV/Nexus-Desktop-AI/pull/111`
-- Live PR State: `OPEN / non-draft / mergeable BLOCKED pending Codex review closeout`
-- Live PR Base: `main`
-- Live PR Head: `codex/v1.6.13-prebeta-release-packaging`
+- Historical PR URL: `https://github.com/GiribaldiTTV/Nexus-Desktop-AI/pull/111`
+- Historical PR State: `MERGED`
+- Historical PR Base: `main`
+- Historical PR Head: `codex/v1.6.13-prebeta-release-packaging`
 - PR Creation Head SHA: `182727d8f7ff3162760d969c9e6928e680272398`
-- PR Watcher State: `Provisioned`
-- PR Watcher ID: `pr-111-same-thread-merge-watcher`
-- PR Watcher Route: `same Codex thread 019df2d2-6580-7b82-a49f-59f49da0911c`
-- Bot Review Signal Status: `Comment received; same-branch repair recorded, GitHub closeout pending`
+- Historical Final Head SHA: `969b285940342cbf761f7fa6a37c6692d99c62b4`
+- Historical Merge Commit: `b38fc9b4626ff5591c31f7282805577fd62603ed`
+- Historical Merged At: `2026-05-04T19:38:59Z`
+- Historical PR Watcher State: `Terminal merge condition reached and watcher retired`
+- Historical PR Watcher ID: `pr-111-same-thread-merge-watcher`
+- Historical PR Watcher Route: `same Codex thread 019df2d2-6580-7b82-a49f-59f49da0911c`
+- Bot Review Signal Status: `Comment addressed`
 - Runtime Package Admission: `Not approved`
 - Selected Next Runtime FAM: `None - not approved`
 - Selected Next Implementation Branch: `Not created`
@@ -63,8 +68,7 @@ This branch must not create runtime work, select FAM-006 or any other runtime FA
 
 ## Blockers
 
-- `PR Validation Pending`
-- `PR Merge Verification Pending`
+- None
 
 ## Entry Basis
 
@@ -76,7 +80,7 @@ This branch must not create runtime work, select FAM-006 or any other runtime FA
 
 ## Exit Criteria
 
-- `Docs/branch_records/index.md` lists only this branch authority record as active while the branch is open.
+- `Docs/branch_records/index.md` listed only this branch authority record as active while the branch was open.
 - `Docs/branch_records/codex_one_time_backlog_governance_repair.md` is historical traceability, not active branch authority.
 - PR #110 merge proof, final head SHA, bot-review thread closeout, watcher `merged=true` handoff, and watcher retirement proof are preserved.
 - `PR Merge Verification Pending` is cleared for the one-time governance repair record.
@@ -88,13 +92,13 @@ This branch must not create runtime work, select FAM-006 or any other runtime FA
 
 - `Branch Readiness`
 
-Rollback Path: abandon this branch before merge to restore merged `main` to PR #110 merge commit `86f68942b37c0947a9655d146017cb53d1fdc774`; no direct-main mutation is required.
+Rollback Path: revert PR #111 merge commit `b38fc9b4626ff5591c31f7282805577fd62603ed` only if the USER explicitly requests release-packaging rollback; do not mutate `main` directly.
 
 ## Next Legal Phase
 
 - `Release Readiness`
 
-Next Legal Phase Gate: `Blocked until the live PR exists, targets main, is mergeable, bot-review signal is closed out, the same-thread PR watcher is provisioned/routed, and the watcher verifies merged=true. Release execution and artifact creation still require separate Release Readiness authorization.`
+Next Legal Phase Gate: `Cleared for this historical record by PR #111 merge truth, resolved Codex review thread PRRT_kwDORwnWIs5_c5UG, and retired watcher proof. Release execution and artifact creation still require separate Release Readiness authorization.`
 
 ## Branch Objective
 
@@ -170,7 +174,7 @@ Non-Includes: no PR creation, release execution, or release artifact creation.
 
 ## Active Seam
 
-Active seam: `PR Readiness Stage 2 - v1.6.13-prebeta Release Packaging Live PR Validation And Merge Watch`
+Active seam: `None - historical traceability record after PR #111 merge`
 
 ## Release Packaging Package / Slice Plan
 
@@ -242,10 +246,10 @@ Release Artifact Creation Approval State: `NOT APPROVED`
 - PR Base: `main`
 - PR Head: `codex/v1.6.13-prebeta-release-packaging`
 - PR Creation Head SHA: `182727d8f7ff3162760d969c9e6928e680272398`
-- PR State: `OPEN`
+- PR State: `MERGED`
 - PR Draft State: `false`
 - PR Mergeability: `MERGEABLE`
-- PR Merge State: `BLOCKED pending Codex review closeout`
+- PR Merge State: `MERGED`
 - PR Review Decision: `Pending / empty`
 - PR Status Checks: `No status checks reported`
 - PR Summary: `Release-packaging source-truth sync for v1.6.13-prebeta; no release execution, tag creation, GitHub Release creation, release artifact creation, runtime branch, runtime package, or selected-next runtime truth.`
@@ -254,23 +258,23 @@ Release Artifact Creation Approval State: `NOT APPROVED`
 
 - Watcher ID: `pr-111-same-thread-merge-watcher`
 - Watcher Kind: `heartbeat`
-- Watcher Status: `ACTIVE`
+- Watcher Status: `Retired after terminal merge condition`
 - Watcher RRULE: `FREQ=MINUTELY;INTERVAL=1`
 - Watcher Config Path: `C:\Users\anden\.codex\automations\pr-111-same-thread-merge-watcher\automation.toml`
 - Watcher Target Thread: `019df2d2-6580-7b82-a49f-59f49da0911c`
 - Watcher Reporting Surface: `same Codex thread`
 - Watcher Routing Proof: `PASS - automation config records target_thread_id 019df2d2-6580-7b82-a49f-59f49da0911c for this thread`
-- Watcher Runtime Proof: `Pending first heartbeat run`
-- Watcher Teardown Rule: `Delete after watcher verifies PR #111 merged=true or USER explicitly stops the watcher`
+- Watcher Runtime Proof: `PASS via same-thread heartbeat handoff and live GitHub merge truth`
+- Watcher Teardown Rule: `Completed - watcher deleted after PR #111 merged=true`
 
 ## PR Bot Review Signal
 
-- Bot Review Signal Status: `Comment received; same-branch repair recorded`
-- Bot Review Signal Head SHA: `082938a521084c670cc36432633adf3a5e4b3109`
-- Bot Review Signal Source: `Codex review thread PRRT_kwDORwnWIs5_c5UG on PR #111 reported a P2 source-truth contradiction between ## Blockers and Release Window Audit; this same-branch repair keeps release-window blockers scoped separately from PR Readiness gates.`
-- Bot Review Signal Timestamp: `2026-05-04T19:32:11Z`
-- Bot Review Signal Actor: `chatgpt-codex-connector[bot]`
-- Bot Review Signal Closeout State: `Same-branch repair recorded; GitHub review-thread closeout pending`
+- Bot Review Signal Status: `Comment addressed`
+- Bot Review Signal Head SHA: `969b285940342cbf761f7fa6a37c6692d99c62b4`
+- Bot Review Signal Source: `Codex review thread PRRT_kwDORwnWIs5_c5UG on PR #111 was fixed by same-branch repair commit 969b285940342cbf761f7fa6a37c6692d99c62b4 and resolved in GitHub; no later thumbs-up is required.`
+- Bot Review Signal Timestamp: `2026-05-04T19:38:55Z`
+- Bot Review Signal Actor: `chatgpt-codex-connector[bot] / GiribaldiTTV`
+- Bot Review Signal Closeout State: `Resolved in GitHub`
 
 ## Branch Readiness Stage 2 Validation Record
 
@@ -310,7 +314,7 @@ Release Artifact Creation Approval State: `NOT APPROVED`
 - Selected-Next Runtime Truth Approval State: `NOT APPROVED`
 - FAM-006 Selection State: `Recommendation-only / not selected`
 - PR Creation State: `Complete - PR #111`
-- Live PR Validation State: `PASS for open, non-draft, base/head, and mergeability; merge state is blocked pending Codex review closeout`
-- Bot Review Signal State: `Comment received; P2 source-truth blocker summary repair recorded, GitHub closeout pending`
-- PR Watcher State: `Provisioned and routed; runtime proof pending first heartbeat run`
-- Next PR Readiness Seam: `PR Readiness Stage 2 - v1.6.13-prebeta Release Packaging Live PR Validation And Merge Watch`
+- Historical PR Validation State: `PASS; PR #111 merged into main`
+- Bot Review Signal State: `Comment addressed; GitHub review thread PRRT_kwDORwnWIs5_c5UG resolved after same-branch fix commit 969b285940342cbf761f7fa6a37c6692d99c62b4`
+- PR Watcher State: `Retired after terminal merge condition`
+- Next PR Readiness Seam: `None - historical traceability`
