@@ -10,32 +10,38 @@
 
 ## Record State
 
-- `Promoted`
+- `Closed`
 
 ## Status
 
-- `Merged unreleased`
+- `Released`
 
 ## Release Stage
 
-- `pre-Beta`
+- `Released`
 
 ## Target Version
 
 - `v1.6.13-prebeta`
 
-## Current Release-Debt Contract
+## Current Released-State Contract
 
-Merged-Unreleased Release-Debt Owner: FAM-001 legacy FB-049 Active-session pre-settled incoming-launch conflict truth plus FAM-004 legacy FB-030 voice/audio runtime diagnostics proof plus merged governance/automation proof package for v1.6.13-prebeta
+Released Historical Scope: FAM-001 legacy FB-049 Active-session pre-settled incoming-launch conflict truth plus FAM-004 legacy FB-030 voice/audio runtime diagnostics proof plus merged governance/automation proof package plus PR #112 source-truth closeout / merge-target authority hardening proof plus PR #113 source-truth closeout / merge-target authority hardening proof released in v1.6.13-prebeta
 Repo State: No Active Branch
-Release Target: v1.6.13-prebeta
-Release Floor: patch prerelease
-Version Rationale: FAM-004 legacy FB-030 adds bounded runtime diagnostics truth for voice/audio availability without opening a new feature family or materially widening product scope.
-Release Scope: merged governance reform, automation catalog proof, FAM-001 legacy FB-049 runtime proof, and FAM-004 legacy FB-030 voice/audio runtime diagnostics proof.
-Release Artifacts: Tag v1.6.13-prebeta; release title Pre-Beta v1.6.13; rich Markdown release notes summarize the merged governance reform, automation catalog, FAM-001 legacy FB-049 runtime proof, and FAM-004 legacy FB-030 voice/audio diagnostics proof, with GitHub-generated What's Changed and Full Changelog sections.
-Post-Release Truth: after v1.6.13-prebeta publication and validation, merged governance reform, automation catalog, FAM-001 legacy FB-049 runtime proof, and FAM-004 legacy FB-030 runtime diagnostics proof become released historical traceability; release debt clears; and later runtime work must start from updated main.
-Selected Next Workstream: None - blocked by `Backlog Addition User Approval Missing` until explicit USER approval.
-Next-Branch Creation Gate: Blocked by `Backlog Addition User Approval Missing` until explicit USER approval selects a backlog identity or release/support lane.
+Latest Public Prerelease: v1.6.13-prebeta
+Release Title: Pre-Beta v1.6.13
+Release Target: None - released in v1.6.13-prebeta.
+Release Floor: none - release execution is complete.
+Version Rationale: FAM-004 legacy FB-030 added bounded runtime diagnostics truth for voice/audio availability without opening a new feature family or materially widening product scope.
+Release Scope: released governance reform, automation catalog proof, FAM-001 legacy FB-049 runtime proof, FAM-004 legacy FB-030 voice/audio runtime diagnostics proof, PR #112 source-truth closeout / merge-target authority hardening proof, and PR #113 source-truth closeout / merge-target authority hardening proof.
+Release Artifacts: Published tag `v1.6.13-prebeta`; published GitHub prerelease title `Pre-Beta v1.6.13`; release notes include generated `What's Changed` and `Full Changelog` sections.
+Post-Release Truth: merged governance reform, automation catalog, FAM-001 legacy FB-049 runtime proof, FAM-004 legacy FB-030 runtime diagnostics proof, PR #112 source-truth closeout / merge-target authority hardening, and PR #113 source-truth closeout / merge-target authority hardening are released historical traceability; release debt is clear; and later runtime work must start from updated main.
+Selected Next Workstream: FAM-006 Monitoring and HUD.
+Selected Next Runtime Package Candidate: Monitoring and HUD Product Surface Package.
+Selected Next Status: USER-approved selected-next candidate / pending Branch Readiness.
+Selected Next Implementation Branch: Not created.
+Runtime Package Admission: Not admitted.
+Next-Branch Creation Gate: Blocked until the post-release canon closure PR merges, updated main validates clean, and USER approves Branch Readiness for the FAM-006 Monitoring and HUD Product Surface Package.
 
 ## Canonical Branch
 
@@ -43,27 +49,31 @@ Next-Branch Creation Gate: Blocked by `Backlog Addition User Approval Missing` u
 
 ## Current Phase
 
-- Phase: `Release Readiness`
+- Phase: `Closed`
 
 ## Phase Status
 
-- Merged-Unreleased Release-Debt Owner: `FAM-001 legacy FB-049 Active-session pre-settled incoming-launch conflict truth plus FAM-004 legacy FB-030 voice/audio runtime diagnostics proof plus merged governance/automation proof package for v1.6.13-prebeta`
+- Released Historical Scope: `FAM-001 legacy FB-049 Active-session pre-settled incoming-launch conflict truth plus FAM-004 legacy FB-030 voice/audio runtime diagnostics proof plus merged governance/automation proof package plus PR #112 source-truth closeout / merge-target authority hardening proof plus PR #113 source-truth closeout / merge-target authority hardening proof released in v1.6.13-prebeta`
 - Repo State: `No Active Branch`
 - Merged-Main Repo State: No Active Branch
 - Workstream: `FB-030 ORIN voice/audio direction refinement runtime follow-through`
-- Current Active Canonical Workstream Doc: `Docs/workstreams/FB-030_orin_voice_audio_direction_refinement.md`
-- Latest Public Prerelease: `v1.6.12-prebeta`
-- Pending Release Posture: `v1.6.13-prebeta remains the patch prerelease target for merged governance, automation-catalog, FAM-001 legacy FB-049 runtime proof, and FAM-004 legacy FB-030 runtime diagnostics proof until release packaging updates it`
-- Release Target: `v1.6.13-prebeta`
-- Release Floor: `patch prerelease`
-- Version Rationale: `FAM-004 legacy FB-030 adds bounded runtime diagnostics truth for voice/audio availability without opening a new feature family or materially widening product scope.`
-- Release Scope: `merged governance reform, automation catalog proof, FAM-001 legacy FB-049 runtime proof, and FAM-004 legacy FB-030 voice/audio runtime diagnostics proof`
-- Release Artifacts: `Tag v1.6.13-prebeta; release title Pre-Beta v1.6.13; rich Markdown release notes summarize the merged governance reform, automation catalog, FAM-001 legacy FB-049 runtime proof, and FAM-004 legacy FB-030 voice/audio diagnostics proof, with GitHub-generated What's Changed and Full Changelog sections.`
-- Post-Release Truth: `after v1.6.13-prebeta publication and validation, merged governance reform, automation catalog, FAM-001 legacy FB-049 runtime proof, and FAM-004 legacy FB-030 runtime diagnostics proof become released historical traceability; release debt clears; and later runtime work must start from updated main.`
-- Selected Next Workstream: `None - blocked by Backlog Addition User Approval Missing until explicit USER approval.`
-- Next-Branch Creation Gate: `Blocked by Backlog Addition User Approval Missing until explicit USER approval selects a backlog identity or release/support lane.`
-- Latest Public Prerelease: `v1.6.12-prebeta`
-- Latest Public Release Commit: `b06c359e58b47cfe26fe8c4b39ac04fde519dee9`
+- Current Active Canonical Workstream Doc: `None - this record is closed historical traceability`
+- Latest Public Prerelease: `v1.6.13-prebeta`
+- Release Title: `Pre-Beta v1.6.13`
+- Release Target: `None - released in v1.6.13-prebeta.`
+- Release Floor: `none - release execution is complete.`
+- Version Rationale: `FAM-004 legacy FB-030 added bounded runtime diagnostics truth for voice/audio availability without opening a new feature family or materially widening product scope.`
+- Release Scope: `released governance reform, automation catalog proof, FAM-001 legacy FB-049 runtime proof, FAM-004 legacy FB-030 voice/audio runtime diagnostics proof, PR #112 source-truth closeout / merge-target authority hardening proof, and PR #113 source-truth closeout / merge-target authority hardening proof`
+- Release Artifacts: `Published tag v1.6.13-prebeta; published GitHub prerelease title Pre-Beta v1.6.13; release notes include generated What's Changed and Full Changelog sections.`
+- Post-Release Truth: `merged governance reform, automation catalog, FAM-001 legacy FB-049 runtime proof, FAM-004 legacy FB-030 runtime diagnostics proof, PR #112 source-truth closeout / merge-target authority hardening, and PR #113 source-truth closeout / merge-target authority hardening are released historical traceability; release debt is clear; and later runtime work must start from updated main.`
+- Selected Next Workstream: `FAM-006 Monitoring and HUD.`
+- Selected Next Runtime Package Candidate: `Monitoring and HUD Product Surface Package.`
+- Selected Next Status: `USER-approved selected-next candidate / pending Branch Readiness.`
+- Selected Next Implementation Branch: `Not created.`
+- Runtime Package Admission: `Not admitted.`
+- Next-Branch Creation Gate: `Blocked until the post-release canon closure PR merges, updated main validates clean, and USER approves Branch Readiness for the FAM-006 Monitoring and HUD Product Surface Package.`
+- Latest Public Prerelease: `v1.6.13-prebeta`
+- Latest Public Release Commit: `faaf991d2579dd6478f78245d56956858cc2f59b`
 - Carried Blocker: `Merged-main active branch authority drift for Docs/branch_records/feature_fb_049_runtime_branch_readiness.md after the FB-049 merge`
 - Carried Blocker Status: `Cleared in BR1 by moving FB-049 branch authority to historical-only traceability and clearing branch-record active authority`
 - Watcher Failure Context: `FB-049 merged through GitHub truth, but pr107-same-thread-merge-watch failed to emit the required same-thread merged handoff before cleanup`
@@ -80,8 +90,8 @@ Next-Branch Creation Gate: Blocked by `Backlog Addition User Approval Missing` u
 - Current Live Validation Seam Status: `Complete / green`
 - Current PR Readiness Seam: `Historical complete; PR Readiness PR1 - FB-030 Runtime Branch PR Validation and PR Readiness PR2 - FB-030 Runtime Branch Merge Verification Watch`
 - Current PR Readiness Seam Status: `Complete / green; merge verification proof and watcher cleanup are preserved in historical traceability`
-- Next Release Seam: `Release Readiness RR1 - FAM-004 Runtime Release Readiness Validation`
-- Release Debt: `Merged unreleased runtime and governance proof remains pending v1.6.13-prebeta packaging`
+- Next Release Seam: `None - released historical traceability until USER approves future work`
+- Release Debt: `Clear after v1.6.13-prebeta publication, validation, and post-release canon closure`
 
 ## Branch Class
 

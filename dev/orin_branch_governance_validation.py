@@ -1000,7 +1000,7 @@ CHATGPT_LOADER_SOURCE_TRUTH_SYNC_REQUIRED_PHRASES = {
         "Do not paste this loader doc into Codex prompts",
         "Codex prompts should load `Docs/Main.md`",
         "source-truth and governance fixes ride real carriers",
-        "`FAM-006 Monitoring and HUD` remains recommendation-only",
+        "FAM-006 Monitoring and HUD selected-next truth is allowed only after explicit USER approval",
         "release execution requires separate explicit USER approval",
         "Windows-first, modular, GPU-aware",
         "optional heavy local AI capability packs",
@@ -1010,37 +1010,37 @@ CHATGPT_LOADER_SOURCE_TRUTH_SYNC_REQUIRED_PHRASES = {
         "Local ChatGPT custom instructions should stay compact",
         "Do not paste the loader doc into Codex prompts",
         "Codex prompts should load `Docs/Main.md`",
-        "FAM-006 Monitoring and HUD as recommendation-only until explicit USER approval",
+        "FAM-006 Monitoring and HUD selected-next truth only after explicit USER approval",
         "Windows-first, modular, GPU-aware direction with optional heavy local AI capability packs and CPU fallback",
     ),
     Path("Docs/phase_governance.md"): (
         "Local ChatGPT custom instructions should stay compact",
         "Do not paste the loader doc into Codex prompts",
-        "FAM-006 Monitoring and HUD recommendation-only posture until explicit USER approval",
+        "FAM-006 Monitoring and HUD selected-next truth only after explicit USER approval",
         "Windows-first, modular, GPU-aware project direction with optional heavy local AI capability packs and CPU fallback",
     ),
     Path("Docs/development_rules.md"): (
         "Local ChatGPT custom instructions should stay compact",
         "Do not paste the loader doc into Codex prompts",
-        "FAM-006 Monitoring and HUD recommendation-only posture until explicit USER approval",
+        "FAM-006 Monitoring and HUD selected-next truth only after explicit USER approval",
         "Windows-first, modular, GPU-aware direction with optional heavy local AI capability packs and CPU fallback",
     ),
     Path("Docs/codex_modes.md"): (
         "Local ChatGPT custom instructions should stay compact",
         "Do not paste the loader doc into Codex prompts",
-        "FAM-006 Monitoring and HUD recommendation-only posture until explicit USER approval",
+        "FAM-006 Monitoring and HUD selected-next truth only after explicit USER approval",
         "Windows-first, modular, GPU-aware direction with optional heavy local AI capability packs and CPU fallback",
     ),
     Path("Docs/codex_user_guide.md"): (
         "Local ChatGPT custom instructions should stay compact",
         "Do not paste the loader doc into Codex prompts",
-        "FAM-006 Monitoring and HUD as recommendation-only until explicit USER approval",
+        "FAM-006 Monitoring and HUD selected-next truth only after explicit USER approval",
         "Windows-first, modular, GPU-aware product direction with optional heavy local AI capability packs and CPU fallback",
     ),
     Path("Docs/orin_task_template.md"): (
         "Local ChatGPT custom instructions should stay compact",
         "Do not paste `Docs/nexus_startup_contract.md` into Codex prompts",
-        "FAM-006 Monitoring and HUD recommendation-only posture until explicit USER approval",
+        "FAM-006 Monitoring and HUD selected-next truth only after explicit USER approval",
         "Windows-first, modular, GPU-aware direction with optional heavy local AI capability packs and CPU fallback",
     ),
     Path("Docs/feature_backlog.md"): (
@@ -1380,6 +1380,22 @@ PROTECTED_MAIN_PHRASES = (
     "main` is protected",
     "Main Write Attempt",
     "no emergency direct-main",
+)
+
+PROTECTED_MAIN_RELEASE_CLOSURE_DOCS = (
+    Path("Docs/phase_governance.md"),
+    Path("Docs/development_rules.md"),
+    Path("Docs/Main.md"),
+    Path("Docs/nexus_startup_contract.md"),
+    Path("Docs/branch_records/index.md"),
+)
+
+PROTECTED_MAIN_RELEASE_CLOSURE_PHRASES = (
+    "release execution is not fully closed until post-release canon closure lands in remote source truth",
+    "a local-only post-release closure commit is a blocker",
+    "protected-main branch rejection must route to a real release-support closure branch/PR",
+    "post-release validation must compare published GitHub release/tag truth against remote repo source truth",
+    "runtime Branch Readiness remains blocked until release publication and canon closure are both complete",
 )
 
 MERGED_UNRELEASED_CONTRACT_DOCS = (
@@ -8273,6 +8289,18 @@ def _run_next_workstream_gate(
             )
         )
 
+    def successor_selection_defer_waiver_exists() -> bool:
+        normalized_record = active_branch_record_text.casefold()
+        return any(
+            marker in normalized_record
+            for marker in (
+                "next workstream user waiver: granted",
+                "selected-next defer user waiver: granted",
+                "selected-next user waiver: granted",
+                "user-approved selected-next defer",
+            )
+        )
+
     def explicitly_records_no_selected_next(blocker: str) -> bool:
         post_merge_state = _section(active_branch_record_text, "Post-Merge State")
         return (
@@ -8301,6 +8329,17 @@ def _run_next_workstream_gate(
                 )
                 return
             if explicitly_records_no_selected_next(BACKLOG_ADDITION_USER_APPROVAL_BLOCKER):
+                if successor_selection_defer_waiver_exists():
+                    return
+                require(
+                    False,
+                    (
+                        "PR readiness gate: Next Workstream User Waiver Missing blocker is active; "
+                        "recommendation-only next workstream analysis is not enough for Stage 2 when "
+                        "no selected-next truth is encoded. Record USER-approved selected-next truth "
+                        "or an explicit USER waiver/defer before PR READY: YES"
+                    ),
+                )
                 return
             require(
                 False,
@@ -10672,6 +10711,14 @@ def main() -> int:
                 f"{relative_path}: protected-main governance is missing '{required_phrase}'",
             )
 
+    for relative_path in PROTECTED_MAIN_RELEASE_CLOSURE_DOCS:
+        text = _read_text(relative_path).casefold()
+        for required_phrase in PROTECTED_MAIN_RELEASE_CLOSURE_PHRASES:
+            require(
+                required_phrase.casefold() in text,
+                f"{relative_path}: protected-main release-closure governance is missing '{required_phrase}'",
+            )
+
     for relative_path in MERGED_UNRELEASED_CONTRACT_DOCS:
         text = _read_text(relative_path)
         for required_phrase in MERGED_UNRELEASED_CONTRACT_PHRASES:
@@ -10702,6 +10749,19 @@ def main() -> int:
             not status_output,
             "Main Write Attempt blocker is active; Codex must not leave tracked file mutations on merged-main validation surfaces",
         )
+        current_branch = _git_current_branch()
+        head_sha = _git_head_sha()
+        origin_main_sha = _git_ref_sha("refs/remotes/origin/main")
+        if current_branch == "main" and head_sha and origin_main_sha:
+            require(
+                head_sha == origin_main_sha,
+                (
+                    "Protected-main release closure blocker is active; local `main` contains commits "
+                    "that are not in `origin/main`. A local-only post-release closure commit is not "
+                    "completed source truth and must route through a real release-support closure "
+                    "branch/PR before release execution can be considered fully closed."
+                ),
+            )
 
     active_index_paths = _collect_active_index_paths(index_text)
     closed_index_paths = _collect_closed_index_paths(index_text)

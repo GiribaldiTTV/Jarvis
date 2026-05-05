@@ -111,9 +111,11 @@ None.
 Merged / Release Debt Owners are promoted implementation workstreams whose implementation branch is merge-target complete but whose public release packaging has not yet cleared release debt.
 These records are not active implementation branch owners after merge.
 
-- `Docs/workstreams/FB-030_orin_voice_audio_direction_refinement.md`
+None.
 
 ### Closed
+
+- `Docs/workstreams/FB-030_orin_voice_audio_direction_refinement.md`
 
 ### Family Anchor Records
 
