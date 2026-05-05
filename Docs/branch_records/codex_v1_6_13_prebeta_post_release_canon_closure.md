@@ -16,15 +16,16 @@ This branch must not create runtime work, select FAM-006 or any other runtime FA
 
 ## Current Phase
 
-- Phase: `Branch Readiness`
+- Phase: `Historical Traceability`
 
 ## Phase Status
 
-- Active Branch: `codex/v1.6.13-prebeta-post-release-canon-closure`
-- Branch Readiness Stage: `Complete - Branch Readiness Stage 2 admitted REL-PKG-004 on 2026-05-05`
+- Historical Branch: `codex/v1.6.13-prebeta-post-release-canon-closure`
+- Historical Branch Readiness Stage: `Complete - Branch Readiness Stage 2 admitted REL-PKG-004 on 2026-05-05`
+- PR Readiness Stage 1-R1 Projection Repair: `Complete - branch authority is historical/no-active before PR creation so merged main remains No Active Branch`
 - Branch Readiness Stage 2 USER Approval: `Granted for this release-support canon-closure carrier`
-- Branch Authority State: `Active Branch authority for this carrier only; merge-target current-state truth remains No Active Branch`
-- Active Authority Marker: `Active Branch`
+- Branch Authority State: `Historical / merge-stable - not listed as active branch authority in merge-target truth`
+- Post-Merge Authority Projection: `Ready - Active Branch Authority Records is empty and merged-main current-state remains No Active Branch after this carrier merges`
 - Release Target: `v1.6.13-prebeta`
 - Release Floor: `patch prerelease`
 - Release Support Package: `REL-PKG-004 v1.6.13-prebeta post-release canon closure and protected-main hardening`
@@ -233,8 +234,8 @@ Goal: finish Branch Readiness with validation proof and hand off to PR Readiness
 Scope: governance validator, compileall, diff check, release/tag checks, automation observability, and branch push.
 Non-Includes: PR creation.
 
-## Active Seam
+## Historical Seam Record
 
-Active seam: `Branch Readiness Stage 2 - v1.6.13-prebeta Post-Release Canon Closure Carrier Admission`
+Last completed seam: `Branch Readiness Stage 2 - v1.6.13-prebeta Post-Release Canon Closure Carrier Admission`
 
-Seam Status: `Complete for Branch Readiness Stage 2; PR creation remains reserved for later USER-approved PR Readiness Stage 2`
+Seam Status: `Historical / merge-stable - Branch Readiness Stage 2 completed, PR creation remains reserved for later USER-approved PR Readiness Stage 2 operator action, and this record must not merge active seam ownership into main`

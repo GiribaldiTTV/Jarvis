@@ -71,10 +71,11 @@ Do not use this layer to replace:
 
 ## Active Branch Authority Records
 
-- `Docs/branch_records/codex_v1_6_13_prebeta_post_release_canon_closure.md`
+None - merge-target current-state truth is `No Active Branch`; the `v1.6.13-prebeta` post-release canon closure carrier is preserved under historical authority so it cannot merge active branch ownership back into `main`.
 
 ## Historical Branch Authority Records
 
+- `Docs/branch_records/codex_v1_6_13_prebeta_post_release_canon_closure.md`
 - `Docs/branch_records/codex_v1_6_13_prebeta_pr112_source_truth_closeout.md`
 - `Docs/branch_records/codex_v1_6_13_prebeta_post_merge_closeout_hardening.md`
 - `Docs/branch_records/codex_v1_6_13_prebeta_release_packaging.md`
