@@ -761,6 +761,7 @@ When the response is Stage 1, it must include this packet and stop on `PR Readin
 - Planned Base Branch:
 - Planned Head Branch:
 - Planned PR Summary:
+- User-Facing Next Workstream Block:
 - Required Post-Merge Path:
 - Ranked Runtime FAM Candidates:
 - Recommended Next Package:
@@ -778,6 +779,24 @@ When the response is Stage 1, it must include this packet and stop on `PR Readin
 - Rollback Plan:
 - Stage 2 Green-Light Decision Needed:
 ```
+
+Stage 1 must also include this user-facing block so USER and ChatGPT can review the successor/runtime path before Stage 2. This is analysis output only; it does not encode selected-next truth, create a branch, admit a package, or waive any blocker:
+
+```markdown
+## Next Workstream
+- Recommended Next Workstream:
+- Recommended Family / Package:
+- Candidate Slices:
+- User-Facing Output:
+- Why This Is Next:
+- Dependencies / Blockers:
+- Validation Needs:
+- Release Impact:
+- Selection Truth Status:
+- Branch Creation Status:
+```
+
+If no legal next workstream candidate is found, Stage 1 must stop on `Next Workstream Candidate Not Found` and report the still-not-closed FAM list plus every not-complete package and slice. `Backlog Addition User Approval Missing`, `Backlog Exhaustion User Decision Pending`, and `Next Runtime Candidate Selection Pending` still apply according to their existing approval and exhaustion rules.
 
 When `PR Readiness` reports package-ready or `PR package ready`, the response must include a repo-wide standardized `Next Branch` block and markdown-friendly PR operator copy blocks.
 Those package details are the input to PR creation and validation; they are not themselves proof that PR Readiness is GREEN.

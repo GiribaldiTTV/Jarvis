@@ -231,7 +231,7 @@ Pre-PR Durability Rule:
 When the approved phase is `PR Readiness`, the output must also explicitly include:
 
 - the current PR Readiness stage: `PR Readiness Stage 1 - Analysis Gate` or `PR Readiness Stage 2 - Execution Gate`
-- for Stage 1, the `## PR Readiness Stage 1 Analysis Packet`, including required post-merge path, ranked runtime FAM candidates, recommended next package, package-size / single-slice drift review, release-debt impact, Stage 2 sync plan, confirmation that there was no repository file mutation, and `PR Readiness Execution User Approval Missing` as the stop blocker until explicit USER approval to enter Stage 2 is recorded
+- for Stage 1, the `## PR Readiness Stage 1 Analysis Packet`, including required post-merge path, ranked runtime FAM candidates, recommended next package, package-size / single-slice drift review, release-debt impact, Stage 2 sync plan, confirmation that there was no repository file mutation, a user-facing `## Next Workstream` block with `Recommended Next Workstream:`, `User-Facing Output:`, candidate slices, dependencies/blockers, validation needs, release impact, selection-truth status, and branch-creation status, plus `Next Workstream Candidate Not Found` when no legal next workstream candidate is found, and `PR Readiness Execution User Approval Missing` as the stop blocker until explicit USER approval to enter Stage 2 is recorded
 - for Stage 2, confirmation that USER approval to enter Stage 2 exists before any repository mutation, staging, commit, push, PR creation, watcher provisioning, next-branch creation, release work, or canon edits occur
 - confirmation that the merge-target canon completeness gate passed
 - confirmation that the Governance Drift Audit ran
@@ -275,6 +275,23 @@ When the approved phase is `PR Readiness`, the output must also explicitly inclu
   - `Post-Release Truth:`
   - confirmation that the release target is semantically correct from the latest public prerelease and declared release floor
   - confirmation that branch creation remains deferred and no next implementation branch may execute by inertia
+- a required user-facing `## Next Workstream` section with this exact field shape during Stage 1:
+
+```markdown
+## Next Workstream
+- Recommended Next Workstream:
+- Recommended Family / Package:
+- Candidate Slices:
+- User-Facing Output:
+- Why This Is Next:
+- Dependencies / Blockers:
+- Validation Needs:
+- Release Impact:
+- Selection Truth Status:
+- Branch Creation Status:
+```
+
+- if no legal next workstream candidate is found, report `Next Workstream Candidate Not Found` and include the still-not-closed FAM list plus every not-complete package and slice
 - a required `## Next Branch` section with this exact field shape:
 
 ```markdown

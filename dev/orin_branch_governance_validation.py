@@ -735,6 +735,10 @@ PR_READINESS_RESPONSE_CONTRACT_DOCS = (
 
 PR_READINESS_RESPONSE_CONTRACT_PHRASES = (
     "## PR Readiness Stage 1 Analysis Packet",
+    "## Next Workstream",
+    "Recommended Next Workstream:",
+    "User-Facing Output:",
+    "Next Workstream Candidate Not Found",
     "## Next Branch",
     "Next Legal Branch Type:",
     "Next Branch Name:",
@@ -784,6 +788,10 @@ PR_READINESS_STAGE_PACKET_PHRASES = (
     "Planned Base Branch:",
     "Planned Head Branch:",
     "Planned PR Summary:",
+    "## Next Workstream",
+    "Recommended Next Workstream:",
+    "User-Facing Output:",
+    "Next Workstream Candidate Not Found",
     "Required Post-Merge Path:",
     "Ranked Runtime FAM Candidates:",
     "Recommended Next Package:",
