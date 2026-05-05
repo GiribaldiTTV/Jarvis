@@ -25,6 +25,7 @@ This branch must not create runtime work, select FAM-006 or any other runtime FA
 - PR Readiness Stage: `PR Readiness Stage 1 - Analysis Gate`
 - Branch Readiness Stage 2 USER Approval: `Granted for this release-support closeout carrier on 2026-05-04`
 - Branch Readiness Stage 2-R1 USER Waiver: `Granted on 2026-05-05 for governance ledger and ChatGPT loader/source-truth sync on this active carrier only`
+- Branch Readiness Stage 2-R2 USER Waiver: `Granted on 2026-05-05 for PR Readiness Stage 1 readiness-lock governance repair on this active carrier only`
 - PR Readiness Stage 2 USER Approval: `Not granted`
 - Active Seam: `PR Readiness Stage 1 - v1.6.13-prebeta Closeout Hardening PR Analysis Gate`
 - Release Target: `v1.6.13-prebeta`
@@ -42,6 +43,7 @@ This branch must not create runtime work, select FAM-006 or any other runtime FA
 - Release Execution: `Not approved`
 - Release Artifacts: `Not created`
 - Governance Ledger / Loader Sync State: `Complete - Branch Readiness Stage 2-R1 repaired the remaining ChatGPT loader/source-truth continuity gaps without changing runtime, selected-next, release, PR, branch, or package authority`
+- PR Readiness Stage 1 Readiness-Lock State: `Complete - Branch Readiness Stage 2-R2 encoded Stage 1 readiness outcomes and Stage 2 final-execution boundaries without creating a PR, watcher, runtime branch, runtime package, selected-next truth, release artifact, tag, GitHub Release, or release execution`
 
 ## Branch Class
 
@@ -90,7 +92,7 @@ Rollback Path: abandon this branch before merge to restore merged `main` to PR #
 
 Next Legal Seam: `PR Readiness Stage 1 - v1.6.13-prebeta Closeout Hardening PR Analysis Gate`
 
-Next Legal Phase Gate: `Rerun PR Readiness Stage 1 after this repair-gate sync is durable. Stage 2 remains blocked by PR Readiness Execution User Approval Missing until the USER explicitly approves PR creation and watcher provisioning. Release execution remains blocked until this closeout/hardening carrier merges, updated main validates with no active branch authority record, no stale PR Readiness merge-watch blockers, and no missing PR #111 closeout proof, and the USER separately authorizes release execution and artifact creation.`
+Next Legal Phase Gate: `Rerun PR Readiness Stage 1 after this readiness-lock sync is durable. Stage 2 remains blocked until PR Readiness Stage 1 records Stage 1 Ready For Stage 2 and the USER explicitly approves PR creation and watcher provisioning. Release execution remains blocked until this closeout/hardening carrier merges, updated main validates with no active branch authority record, no stale PR Readiness merge-watch blockers, and no missing PR #111 closeout proof, and the USER separately authorizes release execution and artifact creation.`
 
 ## Release Window Audit
 
@@ -284,6 +286,23 @@ Repair Scope: branch authority index, historical release-packaging closeout, rec
 - Runtime / Selected-Next Approval State: `NOT APPROVED`
 - PR / Watcher Approval State: `NOT APPROVED in this Stage 2-R1 sync`
 - Validation Handoff: `After this durable sync, rerun PR Readiness Stage 1 before any PR Readiness Stage 2 approval or PR creation`
+- Next Legal Seam: `PR Readiness Stage 1 - v1.6.13-prebeta Closeout Hardening PR Analysis Gate`
+
+## Branch Readiness Stage 2-R2 PR Readiness Stage 1 Readiness-Lock Governance Repair
+
+- Phase Admission: `PASS`
+- USER Waiver: `Granted for this readiness-lock governance repair on the active release-support carrier only`
+- Active Seam: `Branch Readiness Stage 2-R2 - PR Readiness Stage 1 Readiness-Lock Governance Repair`
+- Stage 1 Readiness-Lock Finding: `PASS - PR Readiness Stage 1 remains active until next-workstream/package hierarchy, release-debt impact, ranked runtime FAM candidates, recommended next package or explicit USER waiver, package-size review, single-slice drift review, Element Coverage review, required current-branch source-truth sync, Stage 2 sync plan, PR title/base/head/summary, watcher plan, blockers, and USER decisions are clean or routed`
+- Stage 1 Outcome Model: `PASS - allowed outcomes are Stage 1 Ready For Stage 2, PR Readiness Stage 1 Repair Required, Branch Readiness Fallback Required, and Stage 1 USER Waiver Required`
+- Stage 1 Repair / Sync Pass Rule: `PASS - bounded current-branch Stage 1 repairs remain in Stage 1 and must be validated, committed, and pushed before Stage 1 can be declared ready`
+- Stage 2 Final-Execution Boundary: `PASS - Stage 2 begins only after Stage 1 Ready For Stage 2 plus explicit USER approval and owns final PR package sync, commit/push if needed, PR creation, watcher provisioning, bot-review handling, mergeability validation, and merge-watch`
+- Branch Readiness Fallback Clarification: `PASS - Branch Readiness fallback is real carrier branch/package analysis when PR Stage 1 cannot legally clear the blocker on the current branch; it is not workstream selection by default`
+- PR Creation Blocker: `PASS - PR creation remains blocked while any Stage 1 blocker, Stage 1 repair item, next-workstream hierarchy item, branch-shape review item, or Stage 2 sync prerequisite remains unresolved`
+- Release Execution Approval State: `NOT APPROVED`
+- Runtime / Selected-Next Approval State: `NOT APPROVED`
+- PR / Watcher Approval State: `NOT APPROVED in this Stage 2-R2 sync`
+- Validation Handoff: `After this durable sync, rerun PR Readiness Stage 1 and require Stage 1 Ready For Stage 2 before any PR Readiness Stage 2 approval or PR creation`
 - Next Legal Seam: `PR Readiness Stage 1 - v1.6.13-prebeta Closeout Hardening PR Analysis Gate`
 
 ## PR Readiness Stage 1-R1 Repair-Gate Sync Record

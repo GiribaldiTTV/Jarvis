@@ -41,6 +41,8 @@ Planning-loop prevention belongs in ChatGPT preflight analysis; once prompt gene
 Local ChatGPT custom instructions should stay compact while the repo loader/source-truth may hold longer ChatGPT-facing continuity rules and review memory.
 Do not paste `Docs/nexus_startup_contract.md` into Codex prompts; Codex prompts should load `Docs/Main.md` and owning canon for execution authority.
 Prompt-generation review must preserve FAM -> Package -> Slice -> Seam, PR evidence-only handling, legacy global FB historical-only handling, single-slice/package-completion blockers, Element Coverage as non-identity, Branch/PR Readiness Stage 1 / Stage 2, next-branch hierarchy review, real-carrier repair routing, no direct-main repair, no standalone cleanup branch by default, FAM-006 Monitoring and HUD recommendation-only posture until explicit USER approval, separate release-execution approval, and the Windows-first, modular, GPU-aware direction with optional heavy local AI capability packs and CPU fallback.
+PR Readiness Stage 1 is the Stage 2 readiness-lock gate. Stage 1 must analyze next-workstream/package hierarchy, release-debt impact, ranked runtime FAM candidates, recommended next package or explicit USER waiver, package-size risk, single-slice drift risk, Element Coverage risk, required current-branch source-truth sync, Stage 2 sync plan, PR title/base/head/summary, watcher plan, blockers, and USER decisions before Stage 2 can begin. Allowed Stage 1 outcomes are `Stage 1 Ready For Stage 2`, `PR Readiness Stage 1 Repair Required`, `Branch Readiness Fallback Required`, and `Stage 1 USER Waiver Required`. Stage 2 begins only after `Stage 1 Ready For Stage 2` plus explicit USER approval and owns final PR execution only: final PR package sync, commit/push if needed, PR creation, watcher provisioning, bot-review handling, mergeability validation, and merge-watch.
+Stage 2 owns final PR execution only after the readiness-lock outcome is green.
 
 ## Current Project State
 
@@ -599,8 +601,11 @@ If the phase is `PR Readiness`, the final response must include:
 - Required Post-Merge Path:
 - Ranked Runtime FAM Candidates:
 - Recommended Next Package:
+- Recommended Next Package USER Waiver:
 - Package-Size / Single-Slice Drift Review:
+- Element Coverage Review:
 - Release-Debt Impact:
+- Required Current-Branch Source-Truth Sync:
 - Planned Merge-Target Canon Updates:
 - Planned Next Branch Block:
 - Planned Watcher Provisioning:
@@ -610,6 +615,7 @@ If the phase is `PR Readiness`, the final response must include:
 - Stage 1 Repair Validation:
 - Governance Ledger Fallback:
 - Branch Readiness Fallback:
+- Stage 1 Outcome:
 - Stage 2 Sync Plan:
 - Drift Findings:
 - Blockers And Waivers Needed:
@@ -618,7 +624,7 @@ If the phase is `PR Readiness`, the final response must include:
 - Stage 2 Green-Light Decision Needed:
 ```
 
-If the current stage is `PR Readiness Stage 1 - Analysis Gate`, the final response must also report Stage 1 repair findings, Stage 1 repairs made, validation results, files changed or none, whether `PR Readiness Stage 1 Repair Pending` is clear, state `PR Readiness Execution User Approval Missing`, and stop for USER approval to enter Stage 2.
+If the current stage is `PR Readiness Stage 1 - Analysis Gate`, the final response must also report Stage 1 repair findings, Stage 1 repairs made, validation results, files changed or none, whether `PR Readiness Stage 1 Repair Pending` is clear, and one explicit readiness-lock outcome: `Stage 1 Ready For Stage 2`, `PR Readiness Stage 1 Repair Required`, `Branch Readiness Fallback Required`, or `Stage 1 USER Waiver Required`. It must state `PR Readiness Execution User Approval Missing` and stop for USER approval to enter Stage 2 unless Stage 1 is ready and USER approval already exists.
 
 If the phase is `Branch Readiness` and the current stage is `Branch Readiness Stage 1 - Analysis Gate`, the final response must include:
 

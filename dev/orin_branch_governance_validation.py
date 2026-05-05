@@ -828,8 +828,11 @@ PR_READINESS_STAGE_PACKET_PHRASES = (
     "Required Post-Merge Path:",
     "Ranked Runtime FAM Candidates:",
     "Recommended Next Package:",
+    "Recommended Next Package USER Waiver:",
     "Package-Size / Single-Slice Drift Review:",
+    "Element Coverage Review:",
     "Release-Debt Impact:",
+    "Required Current-Branch Source-Truth Sync:",
     "Planned Merge-Target Canon Updates:",
     "Planned Next Branch Block:",
     "Planned Watcher Provisioning:",
@@ -839,9 +842,91 @@ PR_READINESS_STAGE_PACKET_PHRASES = (
     "PR Readiness Stage 1 Repair Pending",
     "Governance Ledger Fallback:",
     "Branch Readiness Fallback:",
+    "Stage 1 Outcome:",
     "Stage 2 Sync Plan:",
     "Stage 2 Green-Light Decision Needed:",
 )
+
+PR_READINESS_STAGE1_READINESS_LOCK_REQUIRED_PHRASES = {
+    Path("Docs/phase_governance.md"): (
+        "analysis-first readiness-lock gate",
+        "Stage 1 Ready For Stage 2",
+        "PR Readiness Stage 1 Repair Required",
+        "Branch Readiness Fallback Required",
+        "Stage 1 USER Waiver Required",
+        "Stage 2 begins only after",
+        "Stage 2 owns final PR execution only",
+        "PR creation is blocked while any Stage 1 blocker",
+        "next-workstream/package hierarchy is reviewed in PR Readiness Stage 1",
+        "Branch Readiness fallback is real carrier branch/package analysis",
+    ),
+    Path("Docs/development_rules.md"): (
+        "PR Readiness Stage 1 is the Stage 2 readiness-lock gate",
+        "Stage 1 Ready For Stage 2",
+        "PR Readiness Stage 1 Repair Required",
+        "Stage 1 USER Waiver Required",
+        "Stage 2 owns final PR execution only",
+    ),
+    Path("Docs/Main.md"): (
+        "Stage 1 is the Stage 2 readiness-lock gate",
+        "Stage 1 Ready For Stage 2",
+        "PR Readiness Stage 1 Repair Required",
+        "Stage 1 USER Waiver Required",
+        "Stage 2 owns final PR execution only",
+        "next-workstream/package hierarchy is reviewed in PR Readiness Stage 1",
+        "Branch Readiness fallback is not workstream selection by default",
+    ),
+    Path("Docs/codex_modes.md"): (
+        "PR Readiness Stage 1 is the Stage 2 readiness-lock gate",
+        "Stage 1 Ready For Stage 2",
+        "PR Readiness Stage 1 Repair Required",
+        "Stage 1 USER Waiver Required",
+        "Stage 2 owns final PR execution only",
+        "PR creation is blocked while any Stage 1 blocker",
+    ),
+    Path("Docs/orin_task_template.md"): (
+        "PR Readiness Stage 1 is the Stage 2 readiness-lock gate",
+        "Stage 1 Ready For Stage 2",
+        "PR Readiness Stage 1 Repair Required",
+        "Stage 1 USER Waiver Required",
+        "Stage 2 owns final PR execution only",
+        "Stage 1 Outcome:",
+    ),
+    Path("Docs/codex_user_guide.md"): (
+        "analysis-first readiness-lock gate",
+        "Stage 1 Ready For Stage 2",
+        "PR Readiness Stage 1 Repair Required",
+        "Stage 1 USER Waiver Required",
+        "Stage 2 owns final PR execution only",
+        "Next-workstream/package hierarchy is reviewed in PR Readiness Stage 1",
+        "Branch Readiness fallback is real carrier branch/package analysis",
+    ),
+    Path("Docs/nexus_startup_contract.md"): (
+        "analysis-first readiness-lock gate",
+        "Stage 1 Ready For Stage 2",
+        "PR Readiness Stage 1 Repair Required",
+        "Stage 1 USER Waiver Required",
+        "Stage 2 begins only after",
+        "Stage 2 sync plan",
+        "Branch Readiness fallback is real carrier branch/package analysis",
+    ),
+    Path("Docs/branch_records/index.md"): (
+        "analysis-first readiness-lock gate",
+        "Stage 1 Ready For Stage 2",
+        "PR Readiness Stage 1 Repair Required",
+        "Stage 1 USER Waiver Required",
+        "approved final PR execution pass",
+        "Branch Readiness fallback is real carrier branch/package analysis",
+    ),
+    Path("Docs/branch_records/codex_v1_6_13_prebeta_post_merge_closeout_hardening.md"): (
+        "Branch Readiness Stage 2-R2 PR Readiness Stage 1 Readiness-Lock Governance Repair",
+        "Stage 1 Readiness-Lock Finding:",
+        "Stage 1 Outcome Model:",
+        "Stage 2 Final-Execution Boundary:",
+        "Branch Readiness Fallback Clarification:",
+        "PR Creation Blocker:",
+    ),
+}
 
 BRANCH_READINESS_STAGE_GATE_DOCS = (
     Path("Docs/phase_governance.md"),
@@ -10243,6 +10328,14 @@ def main() -> int:
             require(
                 required_phrase in text,
                 f"{relative_path}: PR Readiness Stage 1 packet contract is missing '{required_phrase}'",
+            )
+
+    for relative_path, required_phrases in PR_READINESS_STAGE1_READINESS_LOCK_REQUIRED_PHRASES.items():
+        text = _read_text(relative_path)
+        for required_phrase in required_phrases:
+            require(
+                required_phrase in text,
+                f"{relative_path}: PR Readiness Stage 1 readiness-lock guidance is missing '{required_phrase}'",
             )
 
     for relative_path in BRANCH_READINESS_STAGE_GATE_DOCS:
