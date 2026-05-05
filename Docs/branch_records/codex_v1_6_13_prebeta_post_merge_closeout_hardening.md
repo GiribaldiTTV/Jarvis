@@ -28,7 +28,7 @@ This branch must not create runtime work, select FAM-006 or any other runtime FA
 - Branch Readiness Stage 2-R2 USER Waiver: `Granted on 2026-05-05 for PR Readiness Stage 1 readiness-lock governance repair on this active carrier only`
 - Branch Readiness Stage 2-R3 USER Waiver: `Granted on 2026-05-05 for superseded PR Stage 1 repair wording cleanup on this active carrier only`
 - PR Readiness Stage 2 USER Approval: `Granted on 2026-05-05 for final PR execution, PR creation after validation, same-thread watcher provisioning, and same-PR Codex bot-review repair if needed`
-- Active Seam: `PR Readiness Stage 2-R1 - Bot Review and Watcher Runtime Proof Repair`
+- Active Seam: `PR Readiness Stage 2 - v1.6.13-prebeta Closeout Hardening Merge Watch`
 - Release Target: `v1.6.13-prebeta`
 - Release Floor: `patch prerelease`
 - Release Support Package: `REL-PKG-002 v1.6.13-prebeta post-merge closeout and recurrence hardening`
@@ -45,7 +45,7 @@ This branch must not create runtime work, select FAM-006 or any other runtime FA
 - Release Artifacts: `Not created`
 - Governance Ledger / Loader Sync State: `Complete - Branch Readiness Stage 2-R1 repaired the remaining ChatGPT loader/source-truth continuity gaps without changing runtime, selected-next, release, PR, branch, or package authority`
 - PR Readiness Stage 1 Readiness-Lock State: `Complete - Branch Readiness Stage 2-R3 superseded contradictory R1 wording and clarified current-branch repair, current-branch Branch Readiness re-entry, and new-carrier fallback outcomes without creating a PR, watcher, runtime branch, runtime package, selected-next truth, release artifact, tag, GitHub Release, or release execution`
-- PR Readiness Stage 2 State: `Live PR #112 created; Codex bot review thread repaired on the same PR and resolved; watcher runtime proof remains pending before Stage 2 can return a green watcher handoff`
+- PR Readiness Stage 2 State: `Live PR #112 created; Codex bot review thread repaired on the same PR and resolved; watcher runtime proof is proven through bounded same-thread fallback; PR merge verification remains pending`
 - Live PR: `https://github.com/GiribaldiTTV/Nexus-Desktop-AI/pull/112`
 - PR Number: `#112`
 - PR Title: `Close v1.6.13 post-merge release-support hardening`
@@ -58,7 +58,7 @@ This branch must not create runtime work, select FAM-006 or any other runtime FA
 - PR Watcher ID: `pr-112-same-thread-merge-watcher`
 - PR Watcher Configuration Proof: `PASS - heartbeat automation created with status ACTIVE and rrule FREQ=MINUTELY;INTERVAL=1`
 - PR Watcher Routing Proof: `PASS - automation destination is the current same thread via target_thread_id recorded in C:\Users\anden\.codex\automations\pr-112-same-thread-merge-watcher\automation.toml`
-- PR Watcher Runtime Proof: `Pending - scheduler/run/heartbeat delivery proof has not landed yet; ACTIVE configuration state is not runtime proof`
+- PR Watcher Runtime Proof: `PASS - bounded same-thread fallback emitted a PR #112 source-of-truth packet, recorded Codex automation run/inbox delivery, and scheduled task Codex PR112 Closeout Hardening Watch is active for minute-cadence merge-watch`
 
 ## Branch Class
 
@@ -79,9 +79,9 @@ This branch must not create runtime work, select FAM-006 or any other runtime FA
 - `PR Merge Status Unproven`: `Cleared at creation validation - PR #112 reported MERGEABLE / CLEAN`
 - `PR Watcher Provisioning Unproven`: `Cleared for configuration - pr-112-same-thread-merge-watcher exists and is ACTIVE`
 - `PR Watcher Routing Unverified`: `Cleared for configuration - watcher destination is this same thread`
-- `Automation Runtime Unproven`: `Active for the new watcher until scheduler/runtime evidence lands; configuration state alone is not runtime proof`
+- `Automation Runtime Unproven`: `Cleared for PR #112 watcher by bounded same-thread fallback proof at C:\Users\anden\.codex\watchers\pr112-closeout-hardening-watch-state.json; native heartbeat latest=none remains stale but no longer owns merge-watch proof`
 - `Bot Review Signal Pending`: `Cleared by same-PR comment-addressed closeout for review thread PRRT_kwDORwnWIs5_uWrU at repair commit adc295d`
-- `PR Validation Pending`: `Cleared for Codex bot-review thread resolution; PR live state and watcher runtime-proof handling remain under Stage 2 validation`
+- `PR Validation Pending`: `Cleared for Codex bot-review thread resolution and watcher runtime-proof handling`
 - `PR Merge Verification Pending`: `Active until the watcher verifies merged=true`
 
 ## PR Bot Review Signal
@@ -213,7 +213,7 @@ Non-Includes: no release execution or artifact creation.
 
 ## Active Seam
 
-Active seam: `PR Readiness Stage 2-R1 - Bot Review and Watcher Runtime Proof Repair`
+Active seam: `PR Readiness Stage 2 - v1.6.13-prebeta Closeout Hardening Merge Watch`
 
 ## Release Support Package / Slice Plan
 
@@ -411,12 +411,13 @@ Repair Scope: branch authority index, historical release-packaging closeout, rec
 - Bot Review Repair: `PASS - adc295ddffca0f122082f376b20e88d6d3645d82 enforces historical active-PR marker rejection for every indexed historical branch record, regardless of current_phase, and cleaned the stale PR #101 historical marker caught by the guard`
 - Bot Review Thread Closeout: `PASS - replied to review thread PRRT_kwDORwnWIs5_uWrU with repair evidence and resolved the thread in GitHub`
 - PR Release-Quality Process Repair: `PASS - source truth now states Stage 2 final handoff cannot be green until bot-review closeout is verified and watcher runtime proof exists or the runtime-proof blocker remains active`
-- Watcher Configuration State: `ACTIVE - pr-112-same-thread-merge-watcher remains configured for the current same thread`
-- Watcher Runtime Proof State: `PENDING - automation observability reported latest=none, so ACTIVE configuration remains insufficient`
-- Watcher Runtime Repair Plan: `Update the heartbeat prompt to require an initial same-thread proof packet on the next scheduler run, then keep Automation Runtime Unproven active until scheduler/run/heartbeat delivery proof lands`
+- Watcher Configuration State: `ACTIVE - pr-112-same-thread-merge-watcher remains configured for the current same thread; native heartbeat did not emit after reset`
+- Watcher Runtime Proof State: `PASS - bounded local watcher fallback emitted a same-thread PR #112 source-of-truth packet at 2026-05-05T17:13:52Z and automation observability reports pr-112-same-thread-merge-watcher latest=PENDING_REVIEW`
+- Watcher Runtime Proof Artifacts: `C:\Users\anden\.codex\watchers\pr112-closeout-hardening-watch-state.json, C:\Users\anden\.codex\watchers\pr112-closeout-hardening-watch-latest.txt, C:\Users\anden\.codex\watchers\pr112-closeout-hardening-watch.log`
+- Watcher Scheduled Task Proof: `PASS - Windows task Codex PR112 Closeout Hardening Watch exists, runs at minute cadence, and logged subsequent PR #112 checks`
 - Release Execution Approval State: `NOT APPROVED`
 - Runtime / Selected-Next Approval State: `NOT APPROVED`
-- Next Legal Seam: `PR Readiness Stage 2-R1 validation and watcher runtime-proof check, then PR Readiness Stage 2 merge-watch if green`
+- Next Legal Seam: `PR Readiness Stage 2 - v1.6.13-prebeta Closeout Hardening Merge Watch until watcher reports merged=true`
 
 ## PR Readiness Stage 1-R1 Repair-Gate Sync Record
 
