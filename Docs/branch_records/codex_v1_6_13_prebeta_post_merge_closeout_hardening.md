@@ -22,13 +22,13 @@ This branch must not create runtime work, select FAM-006 or any other runtime FA
 
 - `Active Branch`: `codex/v1.6.13-prebeta-post-merge-closeout-hardening`
 - Branch Readiness Stage: `Complete`
-- PR Readiness Stage: `PR Readiness Stage 2 - Execution Gate`
+- PR Readiness Stage: `PR Readiness Stage 2 - Execution Gate / Merge Watch`
 - Branch Readiness Stage 2 USER Approval: `Granted for this release-support closeout carrier on 2026-05-04`
 - Branch Readiness Stage 2-R1 USER Waiver: `Granted on 2026-05-05 for governance ledger and ChatGPT loader/source-truth sync on this active carrier only`
 - Branch Readiness Stage 2-R2 USER Waiver: `Granted on 2026-05-05 for PR Readiness Stage 1 readiness-lock governance repair on this active carrier only`
 - Branch Readiness Stage 2-R3 USER Waiver: `Granted on 2026-05-05 for superseded PR Stage 1 repair wording cleanup on this active carrier only`
 - PR Readiness Stage 2 USER Approval: `Granted on 2026-05-05 for final PR execution, PR creation after validation, same-thread watcher provisioning, and same-PR Codex bot-review repair if needed`
-- Active Seam: `PR Readiness Stage 2 - v1.6.13-prebeta Closeout Hardening PR Execution Gate`
+- Active Seam: `PR Readiness Stage 2 - v1.6.13-prebeta Closeout Hardening PR Live Validation and Merge Watch`
 - Release Target: `v1.6.13-prebeta`
 - Release Floor: `patch prerelease`
 - Release Support Package: `REL-PKG-002 v1.6.13-prebeta post-merge closeout and recurrence hardening`
@@ -45,7 +45,20 @@ This branch must not create runtime work, select FAM-006 or any other runtime FA
 - Release Artifacts: `Not created`
 - Governance Ledger / Loader Sync State: `Complete - Branch Readiness Stage 2-R1 repaired the remaining ChatGPT loader/source-truth continuity gaps without changing runtime, selected-next, release, PR, branch, or package authority`
 - PR Readiness Stage 1 Readiness-Lock State: `Complete - Branch Readiness Stage 2-R3 superseded contradictory R1 wording and clarified current-branch repair, current-branch Branch Readiness re-entry, and new-carrier fallback outcomes without creating a PR, watcher, runtime branch, runtime package, selected-next truth, release artifact, tag, GitHub Release, or release execution`
-- PR Readiness Stage 2 State: `Admitted - final PR execution pass may create the PR after validation, provision the same-thread PR watcher after PR creation, validate live PR state, handle same-PR Codex bot-review findings if any, and enter merge-watch`
+- PR Readiness Stage 2 State: `Live PR #112 created and same-thread watcher configured; watcher runtime proof, bot-review signal, and PR merge verification remain pending`
+- Live PR: `https://github.com/GiribaldiTTV/Nexus-Desktop-AI/pull/112`
+- PR Number: `#112`
+- PR Title: `Close v1.6.13 post-merge release-support hardening`
+- PR Base: `main`
+- PR Head: `codex/v1.6.13-prebeta-post-merge-closeout-hardening`
+- PR State: `OPEN / non-draft`
+- PR Mergeability: `MERGEABLE / CLEAN at creation validation`
+- PR Head SHA At Creation: `864d529df0de1f25d375b46f7bd4e2c861387d03`
+- Bot Review Signal State: `Pending - no Codex bot review comment or approval signal observed at creation validation`
+- PR Watcher ID: `pr-112-same-thread-merge-watcher`
+- PR Watcher Configuration Proof: `PASS - heartbeat automation created with status ACTIVE and rrule FREQ=MINUTELY;INTERVAL=1`
+- PR Watcher Routing Proof: `PASS - automation destination is the current same thread via target_thread_id recorded in C:\Users\anden\.codex\automations\pr-112-same-thread-merge-watcher\automation.toml`
+- PR Watcher Runtime Proof: `Pending - scheduler/run/heartbeat delivery proof has not landed yet; ACTIVE configuration state is not runtime proof`
 
 ## Branch Class
 
@@ -61,10 +74,13 @@ This branch must not create runtime work, select FAM-006 or any other runtime FA
 
 - `PR Readiness Execution User Approval Missing`: `Cleared - USER approved Stage 2 on 2026-05-05 for this closeout/hardening carrier only`
 - `PR Readiness Stage 1 Repair Pending`: `Cleared`
-- `PR Creation Pending`: `Active until the live PR exists after Stage 2 validation`
-- `PR Watcher Provisioning Unproven`: `Active until the standard same-thread watcher is provisioned for the live PR`
-- `PR Watcher Routing Unverified`: `Active until watcher routing proof points to this same thread`
+- `PR Creation Pending`: `Cleared - live PR #112 exists`
+- `PR State Unknown`: `Cleared - live PR #112 inspected through GitHub CLI`
+- `PR Merge Status Unproven`: `Cleared at creation validation - PR #112 reported MERGEABLE / CLEAN`
+- `PR Watcher Provisioning Unproven`: `Cleared for configuration - pr-112-same-thread-merge-watcher exists and is ACTIVE`
+- `PR Watcher Routing Unverified`: `Cleared for configuration - watcher destination is this same thread`
 - `Automation Runtime Unproven`: `Active for the new watcher until scheduler/runtime evidence lands; configuration state alone is not runtime proof`
+- `Bot Review Signal Pending`: `Active until Codex bot approval or actionable bot-comment closeout is observed on the current PR head`
 - `PR Merge Verification Pending`: `Active until the watcher verifies merged=true`
 
 ## Entry Basis
@@ -97,7 +113,7 @@ Rollback Path: abandon this branch before merge to restore merged `main` to PR #
 
 - `PR Readiness`
 
-Next Legal Seam: `PR Readiness Stage 2 - v1.6.13-prebeta Closeout Hardening PR Execution Gate`
+Next Legal Seam: `PR Readiness Stage 2 - v1.6.13-prebeta Closeout Hardening PR Live Validation and Merge Watch`
 
 Next Legal Phase Gate: `Stage 2 may create the PR after validation, provision the same-thread watcher after PR creation, validate live PR state, and record merge-watch posture. Release execution remains blocked until this closeout/hardening carrier merges, updated main validates with no active branch authority record, no stale PR Readiness merge-watch blockers, and no missing PR #111 closeout proof, and the USER separately authorizes release execution and artifact creation.`
 
@@ -356,6 +372,26 @@ Repair Scope: branch authority index, historical release-packaging closeout, rec
 - FAM-006 Selection State: `Recommendation-only / not selected`
 - Single-Slice Waiver State: `NOT APPROVED / not required`
 - Next Legal Seam: `PR Readiness Stage 2 - v1.6.13-prebeta Closeout Hardening PR Live Validation and Merge Watch`
+
+## PR Readiness Stage 2 Live PR and Watcher Proof Record
+
+- Live PR State: `PASS - PR #112 is open, non-draft, base main, head codex/v1.6.13-prebeta-post-merge-closeout-hardening`
+- Live PR URL: `https://github.com/GiribaldiTTV/Nexus-Desktop-AI/pull/112`
+- PR Title: `Close v1.6.13 post-merge release-support hardening`
+- PR Head SHA At Creation: `864d529df0de1f25d375b46f7bd4e2c861387d03`
+- Mergeability State: `PASS - GitHub reported MERGEABLE / CLEAN at creation validation`
+- Status Checks: `None reported at creation validation`
+- Review Decision: `None reported at creation validation`
+- Codex Bot Review State: `Pending - no Codex bot review comment or approval signal observed at creation validation`
+- Watcher Configuration Proof: `PASS - pr-112-same-thread-merge-watcher heartbeat automation created with status ACTIVE`
+- Watcher Configuration Path: `C:\Users\anden\.codex\automations\pr-112-same-thread-merge-watcher\automation.toml`
+- Watcher Routing Proof: `PASS - watcher destination is the current same thread; route target is recorded in automation.toml`
+- Watcher Runtime Proof: `Pending - no scheduler/run/heartbeat delivery proof has landed yet; ACTIVE configuration state does not count as runtime proof`
+- Merge-Watch Posture: `Active - PR Readiness remains in merge-watch until watcher verifies merged=true`
+- PR Merge Verification Pending: `Active`
+- Release Execution Approval State: `NOT APPROVED`
+- Runtime / Selected-Next Approval State: `NOT APPROVED`
+- Next Legal Seam: `PR Readiness Stage 2 - v1.6.13-prebeta Closeout Hardening Merge Watch`
 
 ## PR Readiness Stage 1-R1 Repair-Gate Sync Record
 
