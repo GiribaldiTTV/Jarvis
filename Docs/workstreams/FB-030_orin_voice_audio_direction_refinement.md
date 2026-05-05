@@ -36,8 +36,12 @@ Version Rationale: FAM-004 legacy FB-030 added bounded runtime diagnostics truth
 Release Scope: released governance reform, automation catalog proof, FAM-001 legacy FB-049 runtime proof, FAM-004 legacy FB-030 voice/audio runtime diagnostics proof, PR #112 source-truth closeout / merge-target authority hardening proof, and PR #113 source-truth closeout / merge-target authority hardening proof.
 Release Artifacts: Published tag `v1.6.13-prebeta`; published GitHub prerelease title `Pre-Beta v1.6.13`; release notes include generated `What's Changed` and `Full Changelog` sections.
 Post-Release Truth: merged governance reform, automation catalog, FAM-001 legacy FB-049 runtime proof, FAM-004 legacy FB-030 runtime diagnostics proof, PR #112 source-truth closeout / merge-target authority hardening, and PR #113 source-truth closeout / merge-target authority hardening are released historical traceability; release debt is clear; and later runtime work must start from updated main.
-Selected Next Workstream: None - blocked by `Backlog Addition User Approval Missing` until explicit USER approval.
-Next-Branch Creation Gate: Blocked by `Backlog Addition User Approval Missing` until explicit USER approval selects a backlog identity or release/support lane.
+Selected Next Workstream: FAM-006 Monitoring and HUD.
+Selected Next Runtime Package Candidate: Monitoring and HUD Product Surface Package.
+Selected Next Status: USER-approved selected-next candidate / pending Branch Readiness.
+Selected Next Implementation Branch: Not created.
+Runtime Package Admission: Not admitted.
+Next-Branch Creation Gate: Blocked until the post-release canon closure PR merges, updated main validates clean, and USER approves Branch Readiness for the FAM-006 Monitoring and HUD Product Surface Package.
 
 ## Canonical Branch
 
@@ -62,8 +66,12 @@ Next-Branch Creation Gate: Blocked by `Backlog Addition User Approval Missing` u
 - Release Scope: `released governance reform, automation catalog proof, FAM-001 legacy FB-049 runtime proof, FAM-004 legacy FB-030 voice/audio runtime diagnostics proof, PR #112 source-truth closeout / merge-target authority hardening proof, and PR #113 source-truth closeout / merge-target authority hardening proof`
 - Release Artifacts: `Published tag v1.6.13-prebeta; published GitHub prerelease title Pre-Beta v1.6.13; release notes include generated What's Changed and Full Changelog sections.`
 - Post-Release Truth: `merged governance reform, automation catalog, FAM-001 legacy FB-049 runtime proof, FAM-004 legacy FB-030 runtime diagnostics proof, PR #112 source-truth closeout / merge-target authority hardening, and PR #113 source-truth closeout / merge-target authority hardening are released historical traceability; release debt is clear; and later runtime work must start from updated main.`
-- Selected Next Workstream: `None - blocked by Backlog Addition User Approval Missing until explicit USER approval.`
-- Next-Branch Creation Gate: `Blocked by Backlog Addition User Approval Missing until explicit USER approval selects a backlog identity or release/support lane.`
+- Selected Next Workstream: `FAM-006 Monitoring and HUD.`
+- Selected Next Runtime Package Candidate: `Monitoring and HUD Product Surface Package.`
+- Selected Next Status: `USER-approved selected-next candidate / pending Branch Readiness.`
+- Selected Next Implementation Branch: `Not created.`
+- Runtime Package Admission: `Not admitted.`
+- Next-Branch Creation Gate: `Blocked until the post-release canon closure PR merges, updated main validates clean, and USER approves Branch Readiness for the FAM-006 Monitoring and HUD Product Surface Package.`
 - Latest Public Prerelease: `v1.6.13-prebeta`
 - Latest Public Release Commit: `faaf991d2579dd6478f78245d56956858cc2f59b`
 - Carried Blocker: `Merged-main active branch authority drift for Docs/branch_records/feature_fb_049_runtime_branch_readiness.md after the FB-049 merge`

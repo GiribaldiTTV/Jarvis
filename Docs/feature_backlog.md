@@ -80,10 +80,14 @@ Historical Active Workstream Before Release: Automation Implementation.
 Earlier Historical Active Workstream Before Release: FB-048 Active-session relaunch signal-failure and wait-timeout truth.
 Historical Active Branch Before Release: feature/automation-planning.
 Earlier Historical Active Branch Before Release: feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeout-truth.
-Selected Next Workstream: None - blocked by `Backlog Addition User Approval Missing` until explicit USER approval.
-Selected Next Record State: None.
+Selected Next Workstream: FAM-006 Monitoring and HUD.
+Selected Next Record State: Registry-only.
+Selected Next Runtime Package Candidate: Monitoring and HUD Product Surface Package.
 Selected Next Implementation Branch: Not created.
-Backlog Addition User Approval Missing: Active for any attempted new backlog item, backlog split, promotion, or successor selection without explicit USER approval.
+Selected Next Status: USER-approved selected-next candidate / pending Branch Readiness.
+Runtime Package Admission: Not admitted.
+Next Legal Runtime Step: Branch Readiness Stage 1 - FAM-006 Monitoring and HUD Product Surface Package Analysis Gate after this release/canon closure PR merges and updated main validates clean.
+Backlog Addition User Approval Missing: Cleared for USER-approved FAM-006 selected-next successor selection only; active for any other attempted new backlog item, backlog split, promotion, runtime package admission, branch creation, or single-slice package waiver without explicit USER approval.
 Historical Repair-Only Branch Handling: `feature/fb-046-post-merge-canon-sync` was a bounded repair-only post-merge canon-sync `feature/` branch and did not imply Branch Readiness admission or active branch truth for FB-046.
 Historical Branch Readiness State: Complete on `feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeout-truth`.
 Current Branch Readiness State: None active.
@@ -101,12 +105,12 @@ Canonical Current-State Rule: merge-target current-state owners stay merge-stabl
 Release Execution State: `v1.6.13-prebeta` is live at https://github.com/GiribaldiTTV/Nexus-Desktop-AI/releases/tag/v1.6.13-prebeta on commit `faaf991d2579dd6478f78245d56956858cc2f59b`.
 Release Target: None - no pending release target after `v1.6.13-prebeta` publication.
 Release Floor: none - release execution is complete for the current approved prerelease.
-Version Rationale: `v1.6.13-prebeta` published the approved patch-prerelease governance, automation, release-support, and bounded runtime-proof tranche without widening runtime selection or creating selected-next truth.
+Version Rationale: `v1.6.13-prebeta` published the approved patch-prerelease governance, automation, release-support, and bounded runtime-proof tranche; after publication, USER-approved selected-next truth now points to FAM-006 while branch creation and runtime package admission remain blocked for later Branch Readiness.
 Release Scope: released historical traceability for PR #110 governance repair, PR #111 release-packaging source-truth closeout, PR #112 post-merge release-support closeout/hardening, PR #113 PR #112 source-truth closeout / merge-target authority hardening, merged automation-catalog truth, `FAM-001` legacy `FB-049` runtime proof, and `FAM-004` legacy `FB-030` voice/audio runtime diagnostics proof.
 Release Artifacts: Published tag `v1.6.13-prebeta`; published GitHub prerelease title `Pre-Beta v1.6.13`; Markdown release notes include a generated `## What's Changed` section plus `**Full Changelog**:`.
-Post-Release Truth: the backlog-family governance reform, automation-catalog branch, `FAM-001` legacy `FB-049` runtime branch, `FAM-004` legacy `FB-030` runtime diagnostics branch, PR #112 closeout/hardening proof, and PR #113 source-truth closeout / merge-target authority hardening proof are released historical traceability; latest public prerelease is `v1.6.13-prebeta`; release debt is clear; and later runtime work requires explicit USER-approved backlog identity or successor selection from updated main.
-Next-Branch Creation Gate: Blocked by `Backlog Addition User Approval Missing` until explicit USER approval selects a backlog identity or release/support lane.
-Next Legal Phase: No active implementation phase; Branch Readiness Stage 1 is required before any later runtime or release-support carrier, and selected-next truth remains blocked until explicit USER approval.
+Post-Release Truth: the backlog-family governance reform, automation-catalog branch, `FAM-001` legacy `FB-049` runtime branch, `FAM-004` legacy `FB-030` runtime diagnostics branch, PR #112 closeout/hardening proof, and PR #113 source-truth closeout / merge-target authority hardening proof are released historical traceability; latest public prerelease is `v1.6.13-prebeta`; release debt is clear; USER-approved selected-next truth points to FAM-006; and later runtime work still requires Branch Readiness before branch creation or package admission.
+Next-Branch Creation Gate: Blocked until this post-release canon closure PR merges, updated main validates clean, and USER approves Branch Readiness for the FAM-006 Monitoring and HUD Product Surface Package.
+Next Legal Phase: No active implementation phase; Branch Readiness Stage 1 is required before creating the FAM-006 runtime branch or admitting the runtime package.
 
 ## Backlog Governance Sync
 
@@ -129,7 +133,7 @@ Open-candidate priority review:
 - FB-048 is Released / Closed in `v1.6.12-prebeta`; release debt is clear after publication, validation, and post-release canon closure.
 - FAM-001 legacy FB-049 is historical complete after PR #107 merge; GitHub merge truth is valid, the same-thread watcher handoff failed, cleanup is proven, and the stale active-branch authority plus recurrence analysis is carried and repaired inside FAM-004 legacy FB-030 Branch Readiness.
 
-Current-branch clarity: latest public prerelease is `v1.6.13-prebeta`; FB-044 and FB-045 are released and closed in `v1.6.9-prebeta`; FB-046 is released and closed in `v1.6.10-prebeta`; FB-047 is released and closed in `v1.6.11-prebeta`; FB-048 is released and closed in `v1.6.12-prebeta`; merged `main` repo state remains `No Active Branch`; the backlog-family governance reform branch, automation-catalog branch, FAM-001 legacy FB-049 runtime branch, FAM-004 legacy FB-030 runtime branch, PR #112 source-truth closeout / merge-target authority hardening proof, and PR #113 source-truth closeout / merge-target authority hardening proof are released historical traceability in `v1.6.13-prebeta`; FAM-003 legacy FB-027 is a released baseline family anchor with PR #109 preserved as aggregation evidence; and no selected-next backlog identity exists without explicit USER approval.
+Current-branch clarity: latest public prerelease is `v1.6.13-prebeta`; FB-044 and FB-045 are released and closed in `v1.6.9-prebeta`; FB-046 is released and closed in `v1.6.10-prebeta`; FB-047 is released and closed in `v1.6.11-prebeta`; FB-048 is released and closed in `v1.6.12-prebeta`; merged `main` repo state remains `No Active Branch`; the backlog-family governance reform branch, automation-catalog branch, FAM-001 legacy FB-049 runtime branch, FAM-004 legacy FB-030 runtime branch, PR #112 source-truth closeout / merge-target authority hardening proof, and PR #113 source-truth closeout / merge-target authority hardening proof are released historical traceability in `v1.6.13-prebeta`; FAM-003 legacy FB-027 is a released baseline family anchor with PR #109 preserved as aggregation evidence; and USER-approved selected-next truth now points to FAM-006 while branch creation and runtime package admission remain blocked for later Branch Readiness.
 
 ## Registry Items
 
@@ -278,8 +282,8 @@ Version Rationale: The voice/audio runtime diagnostics proof added bounded truth
 Release Scope: released governance reform, automation catalog proof, FAM-001 legacy FB-049 runtime proof, FAM-004 legacy FB-030 voice/audio runtime diagnostics proof, PR #112 source-truth closeout / merge-target authority hardening proof, and PR #113 source-truth closeout / merge-target authority hardening proof.
 Release Artifacts: Published tag `v1.6.13-prebeta`; published GitHub prerelease title `Pre-Beta v1.6.13`; release notes include generated `What's Changed` and `Full Changelog` sections.
 Post-Release Truth: merged governance reform, automation catalog, FAM-001 legacy FB-049 runtime proof, FAM-004 legacy FB-030 runtime diagnostics proof, PR #112 source-truth closeout / merge-target authority hardening, and PR #113 source-truth closeout / merge-target authority hardening are released historical traceability; release debt is clear; and later runtime work must start from updated main.
-Selected Next Workstream: None - blocked by `Backlog Addition User Approval Missing` until explicit USER approval.
-Next-Branch Creation Gate: Blocked by `Backlog Addition User Approval Missing` until explicit USER approval selects a backlog identity or release/support lane.
+Selected Next Workstream: FAM-006 Monitoring and HUD.
+Next-Branch Creation Gate: Blocked until this post-release canon closure PR merges, updated main validates clean, and USER approves Branch Readiness for the FAM-006 Monitoring and HUD Product Surface Package.
 Package Completion State: Released Baseline / Open
 Single-Slice Package User Approval: Not required - no active single-slice package is admitted; future package admission must have multiple concrete admitted slices or USER waiver.
 
@@ -336,6 +340,15 @@ Record State: Registry-only
 Registry Class: Feature Family
 Family Anchor: Self
 Priority: Medium
+Next Workstream: Selected
+Selected Next Workstream: FAM-006 Monitoring and HUD
+Selected Next Runtime Package Candidate: Monitoring and HUD Product Surface Package
+Selected Next Status: USER-approved selected-next candidate / pending Branch Readiness
+Selected Next Implementation Branch: Not created
+Branch Creation Status: Not created
+Runtime Package Admission: Not admitted
+Next Legal Runtime Step: Branch Readiness Stage 1 - FAM-006 Monitoring and HUD Product Surface Package Analysis Gate after this release/canon closure PR merges and updated main validates clean
+Minimal Scope: runtime package candidate for HUD visual/user-facing surface, runtime telemetry source/adapters, desktop placement and renderer ownership, settings or user controls visibility, fail-safe/no-data/degraded-status behavior, validation/live desktop proof, and optional voice/status integration only if later admitted.
 Family Scope: Monitoring surfaces, CPU/GPU thermals, performance telemetry, HUD/overlay presentation, trust-safety display rules, and plugin-fed runtime telemetry.
 Package Policy: Branchable monitoring/HUD work must package source, display, and validation slices by default.
 Known Pending Gaps: HUD user-facing surface and telemetry presentation remain pending after the historical architecture-only monitoring release.
@@ -357,7 +370,9 @@ Slice Trace:
 | `SLC-015` | `PKG-006` | `FAM-006` | Monitoring and thermal architecture baseline | Historical Evidence | Released | Complete | `FB-040`; Branch Readiness through Release |
 | `SLC-016` | `PKG-006` | `FAM-006` | User-facing HUD and telemetry presentation | Future Placeholder | Pending USER-approved package | Not Admitted | Future package seam required |
 
-Summary: Monitoring and HUD remains open because the released architecture baseline did not ship the user-facing HUD surface.
+Selected-Next Candidate Slice Shape: HUD visual/user-facing surface; runtime telemetry source/adapters; desktop placement / renderer ownership; settings or user controls visibility; fail-safe / no-data / degraded-status behavior; validation / live desktop proof; optional voice/status integration only if later admitted.
+Element Coverage Review: user-facing surface, runtime/backend behavior, settings/configuration, fail-safe/recovery, voice/audio integration as optional later admission, monitoring/HUD/observability, validation/live-test requirements, and release/documentation impact are planning coverage only and do not count as admitted slices.
+Summary: Monitoring and HUD remains open because the released architecture baseline did not ship the user-facing HUD surface; it is now the USER-approved selected-next runtime direction, but no FAM-006 branch exists and no runtime package is admitted yet.
 
 ### [ID: FAM-007] Local AI and Capability Packs
 
@@ -644,9 +659,9 @@ Release Floor: none - release execution is complete.
 Version Rationale: FAM-004 legacy FB-030 added bounded runtime diagnostics truth for voice/audio availability without opening a new feature family or materially widening product scope.
 Release Scope: released governance reform, automation catalog proof, FAM-001 legacy FB-049 runtime proof, FAM-004 legacy FB-030 voice/audio runtime diagnostics proof, PR #112 source-truth closeout / merge-target authority hardening proof, and PR #113 source-truth closeout / merge-target authority hardening proof.
 Release Artifacts: Published tag `v1.6.13-prebeta`; published GitHub prerelease title `Pre-Beta v1.6.13`; release notes include generated `What's Changed` and `Full Changelog` sections.
-Post-Release Truth: merged governance reform, automation catalog, FAM-001 legacy FB-049 runtime proof, FAM-004 legacy FB-030 runtime diagnostics proof, PR #112 source-truth closeout / merge-target authority hardening, and PR #113 source-truth closeout / merge-target authority hardening are released historical traceability; release debt is clear; and later runtime work must start from updated main.
-Selected Next Workstream: None - blocked by `Backlog Addition User Approval Missing` until explicit USER approval.
-Next-Branch Creation Gate: Blocked by `Backlog Addition User Approval Missing` until explicit USER approval selects a backlog identity or release/support lane.
+Post-Release Truth: merged governance reform, automation catalog, FAM-001 legacy FB-049 runtime proof, FAM-004 legacy FB-030 runtime diagnostics proof, PR #112 source-truth closeout / merge-target authority hardening, and PR #113 source-truth closeout / merge-target authority hardening are released historical traceability; release debt is clear; USER-approved selected-next truth points to FAM-006; and later runtime branch creation plus package admission remain blocked until Branch Readiness.
+Selected Next Workstream: FAM-006 Monitoring and HUD.
+Next-Branch Creation Gate: Blocked until this post-release canon closure PR merges, updated main validates clean, and USER approves Branch Readiness for the FAM-006 Monitoring and HUD Product Surface Package.
 Historical Planning Release: `v1.6.5-prebeta` remains the released planning/admission proof for the original voice/audio direction milestone.
 Minimal Scope: Completed WS1 voice/audio runtime availability and truthful diagnostics proof across `Audio/orin_voice.py`, `Audio/orin_error_voice.py`, `main.py`, `desktop/orin_desktop_launcher.pyw`, and `dev/orin_voice_regression_harness.py`, while preserving ORIN as the only shipped persona, keeping ARIA dormant, avoiding prompt or asset redesign, and avoiding public-copy or release-note changes before release phases.
 Summary: Turn the released FAM-004 legacy FB-030 voice/audio planning contract into its first bounded runtime truth proof.
