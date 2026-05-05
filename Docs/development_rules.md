@@ -413,6 +413,11 @@ That means:
   - keep normal source-of-truth scope, non-goals, stop conditions, and blockers in canon records; the inclusion-only rule applies to operator-facing PR and release packages
 - post-release canon repair is emergency-only:
   - use it only when canon drift already exists on updated `main` and could not be prevented before merge or release
+  - release execution is not fully closed until post-release canon closure lands in remote source truth
+  - a local-only post-release closure commit is a blocker, not completed source truth
+  - protected-main branch rejection must route to a real release-support closure branch/PR, not direct-main mutation
+  - post-release validation must compare published GitHub release/tag truth against remote repo source truth
+  - runtime Branch Readiness remains blocked until release publication and canon closure are both complete
 - governance-only branches are not used for new Nexus work:
   - governance and canon repair ride on the active runtime-focused branch when tied to that branch's truth
   - between-branch canon repair is blocked

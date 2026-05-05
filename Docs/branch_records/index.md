@@ -30,6 +30,9 @@ Do not use this layer to replace:
 - If no runtime-focused branch is legally admitted yet, record the drift as a blocker and wait instead of creating a repair branch by inertia.
 - Historical repair-only branch records remain traceability only and do not authorize new repair-only branch creation.
 - Post-merge closeout proof must be in merged source truth, not only in a deleted branch, reflog, automation memory, or conversation transcript. If missing proof blocks release, carry the closeout on a real release-support carrier; if product work is next, carry it on the next real runtime package carrier.
+- Post-release canon closure must land in remote source truth after release execution. A local-only post-release closure commit is a blocker, not completed source truth; protected-main branch rejection must route to a real release-support closure branch/PR rather than direct-main mutation or standalone cleanup by default.
+- Release execution is not fully closed until post-release canon closure lands in remote source truth.
+- Post-release validation must compare published GitHub release/tag truth against remote repo source truth before release execution is considered fully closed, and runtime Branch Readiness remains blocked until release publication and canon closure are both complete.
 - The one-time `codex/one-time-backlog-governance-repair` branch is USER-admitted as `repair/dev-tooling-governance` to repair the blocker rule that allowed FB-027/PR #109 drift; it does not reopen governance-only branch creation as a default path.
 - between-branch canon repair is blocked
 - missed PR Readiness canon work must be carried by the next legitimate runtime-focused backlog branch's `Branch Readiness` before implementation begins
@@ -68,7 +71,7 @@ Do not use this layer to replace:
 
 ## Active Branch Authority Records
 
-None - merge-target current-state truth is `No Active Branch`; the PR #112 source-truth closeout carrier is preserved under historical authority so it cannot merge active branch ownership back into `main`.
+- `Docs/branch_records/codex_v1_6_13_prebeta_post_release_canon_closure.md`
 
 ## Historical Branch Authority Records
 

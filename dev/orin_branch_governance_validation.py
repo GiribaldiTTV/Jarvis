@@ -1382,6 +1382,22 @@ PROTECTED_MAIN_PHRASES = (
     "no emergency direct-main",
 )
 
+PROTECTED_MAIN_RELEASE_CLOSURE_DOCS = (
+    Path("Docs/phase_governance.md"),
+    Path("Docs/development_rules.md"),
+    Path("Docs/Main.md"),
+    Path("Docs/nexus_startup_contract.md"),
+    Path("Docs/branch_records/index.md"),
+)
+
+PROTECTED_MAIN_RELEASE_CLOSURE_PHRASES = (
+    "release execution is not fully closed until post-release canon closure lands in remote source truth",
+    "a local-only post-release closure commit is a blocker",
+    "protected-main branch rejection must route to a real release-support closure branch/PR",
+    "post-release validation must compare published GitHub release/tag truth against remote repo source truth",
+    "runtime Branch Readiness remains blocked until release publication and canon closure are both complete",
+)
+
 MERGED_UNRELEASED_CONTRACT_DOCS = (
     Path("Docs/phase_governance.md"),
     Path("Docs/development_rules.md"),
@@ -10672,6 +10688,14 @@ def main() -> int:
                 f"{relative_path}: protected-main governance is missing '{required_phrase}'",
             )
 
+    for relative_path in PROTECTED_MAIN_RELEASE_CLOSURE_DOCS:
+        text = _read_text(relative_path).casefold()
+        for required_phrase in PROTECTED_MAIN_RELEASE_CLOSURE_PHRASES:
+            require(
+                required_phrase.casefold() in text,
+                f"{relative_path}: protected-main release-closure governance is missing '{required_phrase}'",
+            )
+
     for relative_path in MERGED_UNRELEASED_CONTRACT_DOCS:
         text = _read_text(relative_path)
         for required_phrase in MERGED_UNRELEASED_CONTRACT_PHRASES:
@@ -10702,6 +10726,19 @@ def main() -> int:
             not status_output,
             "Main Write Attempt blocker is active; Codex must not leave tracked file mutations on merged-main validation surfaces",
         )
+        current_branch = _git_current_branch()
+        head_sha = _git_head_sha()
+        origin_main_sha = _git_ref_sha("refs/remotes/origin/main")
+        if current_branch == "main" and head_sha and origin_main_sha:
+            require(
+                head_sha == origin_main_sha,
+                (
+                    "Protected-main release closure blocker is active; local `main` contains commits "
+                    "that are not in `origin/main`. A local-only post-release closure commit is not "
+                    "completed source truth and must route through a real release-support closure "
+                    "branch/PR before release execution can be considered fully closed."
+                ),
+            )
 
     active_index_paths = _collect_active_index_paths(index_text)
     closed_index_paths = _collect_closed_index_paths(index_text)

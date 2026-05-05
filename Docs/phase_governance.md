@@ -538,6 +538,11 @@ Post-release closure is mandatory after release execution:
 - `Docs/feature_backlog.md` must mark the owner `Record State: Closed` and `Status: Released`
 - `Docs/workstreams/index.md` must remove the owner from `Merged / Release Debt Owners` and list it under `Closed`
 - the canonical workstream doc must record `Latest Public Prerelease:`, `Release Title:`, released/closed state, and cleared release debt
+- release execution is not fully closed until post-release canon closure lands in remote source truth
+- a local-only post-release closure commit is a blocker, not completed source truth
+- protected-main branch rejection must route to a real release-support closure branch/PR instead of direct-main mutation
+- post-release validation must compare published GitHub release/tag truth against remote repo source truth
+- runtime Branch Readiness remains blocked until release publication and canon closure are both complete
 - if this closure is missed after merge or release, the next legitimate runtime-focused backlog branch's `Branch Readiness` is blocked until the closure is repaired and validator coverage is updated so the miss cannot recur
 
 ### Successor Lane Lock Gate
@@ -1980,6 +1985,7 @@ Allowed:
 - read-only drift analysis on `main`
 - blocker annotation when drift is discovered after merge
 - repair in the next legitimate runtime-focused backlog branch's `Branch Readiness` before implementation
+- repair in a USER-approved real release-support closure branch/PR when release publication has completed but protected `main` prevents post-release canon closure from landing directly
 
 Forbidden:
 
@@ -1988,6 +1994,7 @@ Forbidden:
 - turning the repair path into a new implementation lane by accident
 - opening a governance-only branch
 - opening a repair-only feature branch
+- treating a local-only post-release closure commit as completed source truth
 - using Release Readiness as a broad docs-sync phase
 - mutating `main`
 
@@ -1998,7 +2005,9 @@ Required evidence:
 - explicit canon drift
 - explicit reason the drift could not be prevented before merge or release
 - explicit legal repair surface: next legitimate runtime-focused backlog branch's `Branch Readiness`
+- if protected-main release closure is the blocker, explicit legal repair surface: a real release-support closure branch/PR that carries the closure into remote source truth
 
 Exit:
 
 - canon aligned to released truth
+- remote source truth contains the post-release closure, not only a local commit

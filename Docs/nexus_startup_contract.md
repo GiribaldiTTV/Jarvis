@@ -41,6 +41,11 @@ This loader routes to these authorities:
 - source-truth and governance fixes ride real carriers: no direct-main repair, no standalone cleanup branch by default, release-support carrier when release is blocked, and runtime package carrier when runtime work is next.
 - `FAM-006 Monitoring and HUD` remains recommendation-only until explicit USER approval selects it as selected-next truth; loader recommendations do not authorize a FAM-006 branch, package admission, runtime package, or single-slice waiver.
 - release execution requires separate explicit USER approval; tag creation, GitHub Release draft/publication, and release artifact creation remain blocked until that approval is recorded.
+- release execution and post-release canon closure are separate; release execution is not fully closed until post-release canon closure lands in remote source truth.
+- a local-only post-release closure commit is a blocker, not completed source truth; protected-main branch rejection must route to a real release-support closure branch/PR.
+- post-release validation must compare published GitHub release/tag truth against remote repo source truth.
+- runtime Branch Readiness remains blocked until release publication and canon closure are both complete.
+- runtime work starts only after release publication and canon closure both land and validate; FAM-006 remains recommendation-only until explicit USER approval.
 - Nexus project direction remains Windows-first, modular, GPU-aware, privacy/local-first where practical, with a lean default install, optional heavy local AI capability packs, preferred GPU use for supported model workloads, and CPU fallback preserved.
 - the active workstream doc owns branch-local phase truth, evidence, blockers, and next legal phase for promoted work.
 - `Docs/incident_patterns.md` owns generalized recurring drift or validation lessons.
