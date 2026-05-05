@@ -307,6 +307,7 @@ The default named blockers are:
 - `PR State Unknown`
 - `PR Readiness Execution User Approval Missing`
 - `PR Merge Status Unproven`
+- `Merge-Target Authority Projection Unproven`
 - `PR Merge Verification Pending`
 - `PR Watcher Provisioning Unproven`
 - `PR Watcher Routing Unverified`
@@ -755,6 +756,10 @@ The `## PR Readiness Stage 1 Analysis Packet` must include governed state marker
 `PR package ready` is the state where local branch truth, merge-target canon, next-workstream selection, and copy-ready PR details are complete. It is not `PR Readiness GREEN`.
 
 Live PR creation and validation facts are required for operator output and PR validation, but they are not merge-target current-state truth. Keep live PR state such as `open`, `non-draft`, `mergeable`, review-thread counts, repair-commit containment timing, blocker-clearing branch narration, and merge-target branch-head hash assertions in operator output and explicit historical PR sections only. Do not place those time-sensitive claims in merge-target current-state owner sections such as backlog or roadmap `## Current Branch Execution Posture`, `PR Readiness State:`, `Current Branch Objective:`, `Active Workstream Chain:`, or the canonical workstream merged-unreleased `## Phase Status` block.
+
+Merge-target post-merge-stable authority projection is mandatory before PR green. If post-merge truth will be `No Active Branch`, the PR branch must not merge an active branch authority record into `main`; the active authority record must be moved to historical/no-active posture or otherwise made merge-stable before PR green. Historical branch records must not retain active PR Readiness phase, active seam ownership, live/open PR wording, merge-watch ownership, or `PR Merge Verification Pending`. Operational PR/watcher facts may live in operator output or explicit historical PR sections, but merged current-state owners and historical authority records must already describe the post-merge truth that will remain valid after merge.
+
+`Merge-Target Authority Projection Unproven` blocks PR green whenever that post-merge-stable authority projection is missing or would leave active branch-authority truth in merged `main`.
 
 `PR Readiness GREEN` requires all `PR package ready` conditions plus:
 

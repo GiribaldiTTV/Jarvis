@@ -1,4 +1,5 @@
 import json
+import os
 import re
 import sqlite3
 import subprocess
@@ -16,6 +17,8 @@ GITHUB_API_HEADERS = {
     "User-Agent": "orin-branch-governance-validation",
 }
 GITHUB_API_TIMEOUT_SECONDS = 20
+_GITHUB_API_TOKEN = ""
+_GITHUB_API_TOKEN_LOADED = False
 
 PHASES = (
     "Branch Readiness",
@@ -679,6 +682,7 @@ PR_READINESS_BLOCKER_PHRASES = (
     "User Test Summary Results Pending",
     "PR Merge Status Unproven",
     "PR Merge Verification Pending",
+    "Merge-Target Authority Projection Unproven",
     "PR Watcher Provisioning Unproven",
     "PR Watcher Routing Unverified",
     "Automation Observability Review Pending",
@@ -1405,6 +1409,7 @@ MERGE_STABLE_CURRENT_STATE_DOCS = (
 
 MERGE_STABLE_CURRENT_STATE_PHRASES = (
     "merge-target current-state owners must be merge-stable",
+    "Merge-target post-merge-stable authority projection is mandatory before PR green",
     "Docs/feature_backlog.md",
     "Docs/prebeta_roadmap.md",
     "canonical workstream `## Phase Status` block",
@@ -3268,6 +3273,20 @@ def _active_branch_record_for_branch(
     branch_name: str,
 ) -> tuple[str, str]:
     for branch_record_path in active_branch_record_paths:
+        record_path = ROOT_DIR / Path(branch_record_path)
+        if not record_path.is_file():
+            continue
+        record_text = _read_text(Path(branch_record_path))
+        if _extract_branch_identity_branch(record_text) == branch_name:
+            return branch_record_path, record_text
+    return "", ""
+
+
+def _branch_record_for_branch(
+    branch_record_paths: set[str],
+    branch_name: str,
+) -> tuple[str, str]:
+    for branch_record_path in branch_record_paths:
         record_path = ROOT_DIR / Path(branch_record_path)
         if not record_path.is_file():
             continue
@@ -7555,8 +7574,45 @@ def _bot_review_comment_closeout_followthrough_ok(
     return True, ""
 
 
+def _github_api_auth_token() -> str:
+    global _GITHUB_API_TOKEN
+    global _GITHUB_API_TOKEN_LOADED
+
+    if _GITHUB_API_TOKEN_LOADED:
+        return _GITHUB_API_TOKEN
+
+    _GITHUB_API_TOKEN_LOADED = True
+    token = os.environ.get("GH_TOKEN") or os.environ.get("GITHUB_TOKEN") or ""
+    if not token:
+        try:
+            completed = subprocess.run(
+                ("gh", "auth", "token"),
+                cwd=ROOT_DIR,
+                text=True,
+                encoding="utf-8",
+                errors="replace",
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                check=False,
+            )
+        except FileNotFoundError:
+            completed = None
+        if completed is not None and completed.returncode == 0:
+            token = completed.stdout.strip()
+    _GITHUB_API_TOKEN = token.strip()
+    return _GITHUB_API_TOKEN
+
+
+def _github_api_request_headers() -> dict[str, str]:
+    headers = dict(GITHUB_API_HEADERS)
+    token = _github_api_auth_token()
+    if token:
+        headers["Authorization"] = f"Bearer {token}"
+    return headers
+
+
 def _github_api_json(url: str) -> tuple[object | None, str]:
-    request = urllib_request.Request(url, headers=GITHUB_API_HEADERS)
+    request = urllib_request.Request(url, headers=_github_api_request_headers())
     try:
         with urllib_request.urlopen(request, timeout=GITHUB_API_TIMEOUT_SECONDS) as response:
             payload = response.read().decode("utf-8", "replace")
@@ -9988,6 +10044,66 @@ def _run_pr_live_state_gate(
         )
 
 
+def _run_merge_target_authority_projection_gate(
+    require,
+    *,
+    active_branch_record_paths: set[str],
+    active_branch_record_path: str,
+    active_branch_record_text: str,
+    merge_stable_branch_record_path: str,
+    merge_stable_branch_record_text: str,
+) -> None:
+    branch_record_text = merge_stable_branch_record_text or active_branch_record_text
+    if not branch_record_text:
+        return
+    post_merge_state = _section(branch_record_text, "Post-Merge State")
+    if "No Active Branch" not in post_merge_state:
+        return
+
+    remaining_active_record_paths = sorted(active_branch_record_paths)
+    require(
+        not remaining_active_record_paths,
+        (
+            "PR readiness gate: Merge-Target Authority Projection Unproven blocker is active; "
+            "Active Branch Authority Records still contains "
+            f"{', '.join(remaining_active_record_paths) or 'UNKNOWN'} even though Post-Merge "
+            "State declares No Active Branch. Move every active authority record to "
+            "historical/no-active posture or otherwise make branch-authority truth merge-stable "
+            "before PR green."
+        ),
+    )
+    if remaining_active_record_paths:
+        return
+
+    phase = _extract_marker_value(_section(branch_record_text, "Current Phase"), "Phase")
+    phase_status = _section(branch_record_text, "Phase Status")
+    require(
+        merge_stable_branch_record_path and phase == HISTORICAL_TRACEABILITY_PHASE,
+        (
+            "PR readiness gate: Merge-Target Authority Projection Unproven blocker is active; "
+            "the current branch record must be listed under Historical Branch Authority Records "
+            f"with `Phase: {HISTORICAL_TRACEABILITY_PHASE}` before PR green when post-merge "
+            "truth is No Active Branch"
+        ),
+    )
+    require(
+        "`Active Branch`" not in phase_status,
+        (
+            "PR readiness gate: Merge-Target Authority Projection Unproven blocker is active; "
+            "historical/no-active branch-authority Phase Status still declares `Active Branch`"
+        ),
+    )
+    for active_pr_marker in HISTORICAL_BRANCH_ACTIVE_PR_MARKERS:
+        require(
+            active_pr_marker not in phase_status,
+            (
+                "PR readiness gate: Merge-Target Authority Projection Unproven blocker is active; "
+                f"historical/no-active branch-authority Phase Status still retains "
+                f"active PR-readiness marker '{active_pr_marker}'"
+            ),
+        )
+
+
 def _run_pr_readiness_gate(
     require,
     backlog_entries: list[dict[str, str]],
@@ -9997,17 +10113,42 @@ def _run_pr_readiness_gate(
     active_branch_record_path: str,
     active_branch_record_text: str,
 ) -> None:
+    branch_name = _git_current_branch()
+    branch_record_index_text = _read_text(BRANCH_RECORD_INDEX)
+    active_branch_record_paths = _collect_branch_record_paths(
+        branch_record_index_text,
+        "Active Branch Authority Records",
+    )
+    historical_branch_record_paths = _collect_branch_record_paths(
+        branch_record_index_text,
+        "Historical Branch Authority Records",
+    )
+    current_active_branch_record_path, current_active_branch_record_text = _active_branch_record_for_branch(
+        active_branch_record_paths,
+        branch_name,
+    )
+    historical_branch_record_path, historical_branch_record_text = _branch_record_for_branch(
+        historical_branch_record_paths,
+        branch_name,
+    )
+    if current_active_branch_record_text:
+        active_branch_record_path = current_active_branch_record_path
+        active_branch_record_text = current_active_branch_record_text
     if not active_branch_record_text:
-        branch_name = _git_current_branch()
-        for entry in backlog_entries:
-            entry_branch = _extract_colon_value(entry["block"], "Branch").strip("`")
-            if entry_branch != branch_name:
-                continue
-            canonical_path = entry["canonical_path"]
-            if canonical_path:
-                active_branch_record_path = canonical_path
-                active_branch_record_text = _read_text(Path(canonical_path))
-            break
+        if historical_branch_record_text:
+            active_branch_record_path = historical_branch_record_path
+            active_branch_record_text = historical_branch_record_text
+        else:
+            branch_name = _git_current_branch()
+            for entry in backlog_entries:
+                entry_branch = _extract_colon_value(entry["block"], "Branch").strip("`")
+                if entry_branch != branch_name:
+                    continue
+                canonical_path = entry["canonical_path"]
+                if canonical_path:
+                    active_branch_record_path = canonical_path
+                    active_branch_record_text = _read_text(Path(canonical_path))
+                break
     status_output = _git_status_porcelain()
     require(
         not status_output,
@@ -10024,6 +10165,14 @@ def _run_pr_readiness_gate(
         ignored_branch_names,
         branch_record_class_map,
         active_branch_record_text,
+    )
+    _run_merge_target_authority_projection_gate(
+        require,
+        active_branch_record_paths=active_branch_record_paths,
+        active_branch_record_path=current_active_branch_record_path,
+        active_branch_record_text=current_active_branch_record_text,
+        merge_stable_branch_record_path=historical_branch_record_path,
+        merge_stable_branch_record_text=historical_branch_record_text,
     )
     _run_pr_live_state_gate(
         require,

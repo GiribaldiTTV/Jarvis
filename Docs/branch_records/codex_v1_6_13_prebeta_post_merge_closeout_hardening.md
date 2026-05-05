@@ -16,19 +16,19 @@ This branch must not create runtime work, select FAM-006 or any other runtime FA
 
 ## Current Phase
 
-- Phase: `PR Readiness`
+- Phase: `Historical Traceability`
 
 ## Phase Status
 
-- `Active Branch`: `codex/v1.6.13-prebeta-post-merge-closeout-hardening`
-- Branch Readiness Stage: `Complete`
-- PR Readiness Stage: `PR Readiness Stage 2 - Execution Gate / Merge Watch`
+- Historical Branch: `codex/v1.6.13-prebeta-post-merge-closeout-hardening`
+- Historical Branch Readiness Stage: `Complete`
+- Historical PR Readiness Stage: `Complete - PR #112 merged`
 - Branch Readiness Stage 2 USER Approval: `Granted for this release-support closeout carrier on 2026-05-04`
 - Branch Readiness Stage 2-R1 USER Waiver: `Granted on 2026-05-05 for governance ledger and ChatGPT loader/source-truth sync on this active carrier only`
 - Branch Readiness Stage 2-R2 USER Waiver: `Granted on 2026-05-05 for PR Readiness Stage 1 readiness-lock governance repair on this active carrier only`
 - Branch Readiness Stage 2-R3 USER Waiver: `Granted on 2026-05-05 for superseded PR Stage 1 repair wording cleanup on this active carrier only`
 - PR Readiness Stage 2 USER Approval: `Granted on 2026-05-05 for final PR execution, PR creation after validation, same-thread watcher provisioning, and same-PR Codex bot-review repair if needed`
-- Active Seam: `PR Readiness Stage 2 - v1.6.13-prebeta Closeout Hardening Merge Watch`
+- Historical Final Seam: `PR Readiness Stage 2 - v1.6.13-prebeta Closeout Hardening Merge Watch`
 - Release Target: `v1.6.13-prebeta`
 - Release Floor: `patch prerelease`
 - Release Support Package: `REL-PKG-002 v1.6.13-prebeta post-merge closeout and recurrence hardening`
@@ -45,20 +45,23 @@ This branch must not create runtime work, select FAM-006 or any other runtime FA
 - Release Artifacts: `Not created`
 - Governance Ledger / Loader Sync State: `Complete - Branch Readiness Stage 2-R1 repaired the remaining ChatGPT loader/source-truth continuity gaps without changing runtime, selected-next, release, PR, branch, or package authority`
 - PR Readiness Stage 1 Readiness-Lock State: `Complete - Branch Readiness Stage 2-R3 superseded contradictory R1 wording and clarified current-branch repair, current-branch Branch Readiness re-entry, and new-carrier fallback outcomes without creating a PR, watcher, runtime branch, runtime package, selected-next truth, release artifact, tag, GitHub Release, or release execution`
-- PR Readiness Stage 2 State: `Live PR #112 created; Codex bot review thread repaired on the same PR and resolved; watcher runtime proof is proven through bounded same-thread fallback; PR merge verification remains pending`
+- PR Readiness Stage 2 State: `Historical complete - PR #112 merged, Codex bot review thread repaired on the same PR and resolved, watcher terminal proof is reconstructed in the PR #112 closeout record, and merge verification is cleared`
 - Live PR: `https://github.com/GiribaldiTTV/Nexus-Desktop-AI/pull/112`
 - PR Number: `#112`
 - PR Title: `Close v1.6.13 post-merge release-support hardening`
 - PR Base: `main`
 - PR Head: `codex/v1.6.13-prebeta-post-merge-closeout-hardening`
-- PR State: `OPEN / non-draft`
+- PR State: `MERGED`
+- PR Merged At: `2026-05-05T17:23:59Z`
+- PR Merge Commit: `76e3cfe32b7166ceda7d99cc61f0bbcf6b278046`
+- PR Final Merged Head SHA: `d4cbfcbe45c23761587608e805476414f0f30bbc`
 - PR Mergeability: `MERGEABLE / CLEAN at creation validation`
 - PR Head SHA At Creation: `864d529df0de1f25d375b46f7bd4e2c861387d03`
 - Bot Review Signal State: `Comment addressed - GitHub review thread PRRT_kwDORwnWIs5_uWrU was repaired by adc295d, replied to, and resolved`
 - PR Watcher ID: `pr-112-same-thread-merge-watcher`
 - PR Watcher Configuration Proof: `PASS - heartbeat automation created with status ACTIVE and rrule FREQ=MINUTELY;INTERVAL=1`
 - PR Watcher Routing Proof: `PASS - automation destination is the current same thread via target_thread_id recorded in C:\Users\anden\.codex\automations\pr-112-same-thread-merge-watcher\automation.toml`
-- PR Watcher Runtime Proof: `PASS - bounded same-thread fallback emitted a PR #112 source-of-truth packet, recorded Codex automation run/inbox delivery, and scheduled task Codex PR112 Closeout Hardening Watch is active for minute-cadence merge-watch`
+- PR Watcher Runtime Proof: `PASS - bounded same-thread fallback emitted a PR #112 source-of-truth packet, recorded Codex automation run/inbox delivery, verified merged=true at 2026-05-05T17:24:03.563074Z, and retired the visible watcher host after terminal delivery proof`
 
 ## Branch Class
 
@@ -82,7 +85,7 @@ This branch must not create runtime work, select FAM-006 or any other runtime FA
 - `Automation Runtime Unproven`: `Cleared for PR #112 watcher by bounded same-thread fallback proof at C:\Users\anden\.codex\watchers\pr112-closeout-hardening-watch-state.json; native heartbeat latest=none remains stale but no longer owns merge-watch proof`
 - `Bot Review Signal Pending`: `Cleared by same-PR comment-addressed closeout for review thread PRRT_kwDORwnWIs5_uWrU at repair commit adc295d`
 - `PR Validation Pending`: `Cleared for Codex bot-review thread resolution and watcher runtime-proof handling`
-- `PR Merge Verification Pending`: `Active until the watcher verifies merged=true`
+- `PR Merge Verification`: `Cleared - watcher state/log proof verified merged=true and watcher retirement after terminal delivery`
 
 ## PR Bot Review Signal
 
@@ -107,7 +110,7 @@ This branch must not create runtime work, select FAM-006 or any other runtime FA
 - `Docs/branch_records/index.md` lists only this closeout/hardening carrier as active while this branch is open.
 - `Docs/branch_records/codex_v1_6_13_prebeta_release_packaging.md` is historical traceability, not active branch authority.
 - PR #111 merge proof, final merged head SHA, Codex review closeout, watcher terminal merge condition, and watcher retirement proof are recorded in merged-source-ready truth.
-- Stale PR Readiness / merge-watch / `PR Merge Verification Pending` wording is cleared from the historical release-packaging branch record.
+- Stale PR Readiness / merge-watch / merge-verification blocker wording is cleared from the historical release-packaging branch record.
 - Recurrence hardening blocks or reports historical branch authority records that retain active phase/seam/PR blocker truth after merge.
 - ChatGPT loader/source-truth surfaces preserve the real-carrier repair routing rule.
 - Branch governance validation, Python compile validation, diff validation, and automation observability validation complete before handoff to Release Readiness validation.
@@ -120,22 +123,22 @@ Rollback Path: abandon this branch before merge to restore merged `main` to PR #
 
 ## Next Legal Phase
 
-- `PR Readiness`
+- `Release Readiness`
 
-Next Legal Seam: `PR Readiness Stage 2 - v1.6.13-prebeta Closeout Hardening PR Live Validation and Merge Watch`
+Next Legal Seam: `Historical trace only - Release Readiness resumes through the PR #112 source-truth closeout carrier`
 
 Next Legal Phase Gate: `Stage 2 may create the PR after validation, provision the same-thread watcher after PR creation, validate live PR state, and record merge-watch posture. Release execution remains blocked until this closeout/hardening carrier merges, updated main validates with no active branch authority record, no stale PR Readiness merge-watch blockers, and no missing PR #111 closeout proof, and the USER separately authorizes release execution and artifact creation.`
 
 ## Release Window Audit
 
-Release Window Audit: PASS
-Remaining Known Release Blockers: None
-Another Pre-Release Repair PR Required: NO
+Release Window Audit: HISTORICAL PASS
+Remaining Known Release Blockers: PR #112 source-truth closeout carrier must merge so watcher terminal proof and historical branch-authority truth are represented in merged source truth.
+Another Pre-Release Repair PR Required: `Yes - codex/v1.6.13-prebeta-pr112-source-truth-closeout is the approved real release-support carrier`
 Release Window Split Waiver: None
 
 ## Branch Objective
 
-Clear the PR #111 post-merge source-truth blocker and add bounded recurrence hardening so a merged branch cannot leave active branch authority, stale PR Readiness / merge-watch blockers, or watcher closeout proof outside merged source truth.
+Historical objective: this branch cleared the PR #111 post-merge source-truth blocker and added recurrence hardening. PR #112 later merged this branch, and the remaining source-truth closeout is carried by `codex/v1.6.13-prebeta-pr112-source-truth-closeout`.
 
 ## Target End-State
 
@@ -192,7 +195,7 @@ Scope: branch authority routing only.
 Non-Includes: no direct-main mutation.
 
 Seam 3: `BR-S2-S3 - Release Packaging Historical Record Cleanup`
-Goal: clear stale PR Readiness / merge-watch / `PR Merge Verification Pending` wording from historical release-packaging truth.
+Goal: clear stale PR Readiness / merge-watch / merge-verification blocker wording from historical release-packaging truth.
 Scope: historical record correction only.
 Non-Includes: no release publication.
 
@@ -213,7 +216,7 @@ Non-Includes: no release execution or artifact creation.
 
 ## Active Seam
 
-Active seam: `PR Readiness Stage 2 - v1.6.13-prebeta Closeout Hardening Merge Watch`
+Historical final seam: `PR Readiness Stage 2 - v1.6.13-prebeta Closeout Hardening Merge Watch`
 
 ## Release Support Package / Slice Plan
 
@@ -289,7 +292,7 @@ Repair Scope: branch authority index, historical release-packaging closeout, rec
 ## Branch Readiness Stage 2 Validation Record
 
 - Phase Admission: `PASS`
-- Active Seam: `Branch Readiness Stage 2 - v1.6.13-prebeta Post-Merge Closeout and Governance Hardening Carrier Admission`
+- Recorded Seam: `Branch Readiness Stage 2 - v1.6.13-prebeta Post-Merge Closeout and Governance Hardening Carrier Admission`
 - PR #111 Closeout Reconstruction: `PASS`
 - Branch Authority Historical Transition: `PASS`
 - Recurrence Hardening: `PASS`
@@ -307,7 +310,7 @@ Repair Scope: branch authority index, historical release-packaging closeout, rec
 
 - Phase Admission: `PASS`
 - USER Waiver: `Granted for this source-truth sync on the active release-support carrier only`
-- Active Seam: `Branch Readiness Stage 2-R1 - Governance Ledger and ChatGPT Loader / Source-Truth Sync`
+- Recorded Seam: `Branch Readiness Stage 2-R1 - Governance Ledger and ChatGPT Loader / Source-Truth Sync`
 - Ledger Sync: `PASS - source-truth and prompt surfaces preserve the identity model, broad FAM taxonomy, package/branch rule, USER approval blockers, Branch/PR Readiness staging, selected-next recommendation separation, real-carrier routing, branch authority lifecycle, watcher proof separation, release execution boundary, Element Coverage non-identity rule, ChatGPT loader split, project direction, current workflow, after-release workflow, and absolute guardrails`
 - ChatGPT Loader / New-Chat Source-Truth Sync: `PASS - Docs/nexus_startup_contract.md remains ChatGPT-facing memory only; Codex execution authority remains Docs/Main.md and owning repo canon`
 - Loader Prompt Paste Rule: `PASS - future Codex prompts should load Docs/Main.md and owning canon, not paste the loader doc`
@@ -324,7 +327,7 @@ Repair Scope: branch authority index, historical release-packaging closeout, rec
 
 - Phase Admission: `PASS`
 - USER Waiver: `Granted for this readiness-lock governance repair on the active release-support carrier only`
-- Active Seam: `Branch Readiness Stage 2-R2 - PR Readiness Stage 1 Readiness-Lock Governance Repair`
+- Recorded Seam: `Branch Readiness Stage 2-R2 - PR Readiness Stage 1 Readiness-Lock Governance Repair`
 - Stage 1 Readiness-Lock Finding: `PASS - PR Readiness Stage 1 remains active until next-workstream/package hierarchy, release-debt impact, ranked runtime FAM candidates, recommended next package or explicit USER waiver, package-size review, single-slice drift review, Element Coverage review, required current-branch source-truth sync, Stage 2 sync plan, PR title/base/head/summary, watcher plan, blockers, and USER decisions are clean or routed`
 - Stage 1 Outcome Model: `SUPERSEDED BY STAGE 2-R3 - Stage 2-R3 replaces the older Branch Readiness Fallback Required outcome with Current-Branch Branch Readiness Re-entry Required and New Carrier Branch Required`
 - Stage 1 Repair / Sync Pass Rule: `PASS - bounded current-branch Stage 1 repairs remain in Stage 1 and must be validated, committed, and pushed before Stage 1 can be declared ready`
@@ -341,7 +344,7 @@ Repair Scope: branch authority index, historical release-packaging closeout, rec
 
 - Phase Admission: `PASS`
 - USER Waiver: `Granted for this superseded PR Stage 1 repair wording cleanup on the active release-support carrier only`
-- Active Seam: `Branch Readiness Stage 2-R3 - Superseded PR Stage 1 Repair Wording Cleanup`
+- Recorded Seam: `Branch Readiness Stage 2-R3 - Superseded PR Stage 1 Repair Wording Cleanup`
 - Contradictory Wording Found: `PASS - the older PR Readiness Stage 1-R1 Repair-Gate Sync Record implied Stage 1 could stop being analysis-first/no-execution when repairable current-branch PR-readiness drift/blockers were found`
 - Superseded R1 Wording Cleanup: `PASS - the R1 wording is now explicitly superseded by Stage 2-R2 and Stage 2-R3 and no longer implies uncontrolled Stage 1 mutation or execution`
 - Stage 1 Readiness-Lock Finding: `PASS - PR Readiness Stage 1 remains the Stage 2 readiness-lock gate and stays active until next-workstream/package hierarchy, release-debt impact, recommended next package or USER waiver, package-size review, single-slice drift review, Element Coverage review, required current-branch sync, Stage 2 sync plan, PR details, watcher plan, blockers, and USER decisions are clean or routed`
@@ -363,7 +366,7 @@ Repair Scope: branch authority index, historical release-packaging closeout, rec
 
 - Phase Admission: `PASS`
 - USER Approval: `Granted on 2026-05-05 for PR Readiness Stage 2 on this closeout/hardening carrier only`
-- Active Seam: `PR Readiness Stage 2 - v1.6.13-prebeta Closeout Hardening PR Execution Gate`
+- Recorded Seam: `PR Readiness Stage 2 - v1.6.13-prebeta Closeout Hardening PR Execution Gate`
 - Stage 1 Readiness-Lock Handoff: `PASS - PR Readiness Stage 1 reported Stage 1 Ready For Stage 2 with no Stage 1 repair, current-branch Branch Readiness re-entry, new-carrier fallback, or USER waiver remaining active`
 - REL-PKG-002 Completion: `PASS - six admitted release-support slices remain Admitted / Green / Complete`
 - Final Source-Truth Sync: `PASS - Stage 2 admission, approval state, PR creation blockers, watcher-proof separation, and merge-watch posture are recorded before live PR creation`
@@ -384,20 +387,20 @@ Repair Scope: branch authority index, historical release-packaging closeout, rec
 
 ## PR Readiness Stage 2 Live PR and Watcher Proof Record
 
-- Live PR State: `PASS - PR #112 is open, non-draft, base main, head codex/v1.6.13-prebeta-post-merge-closeout-hardening`
+- Historical PR State: `PASS - PR #112 merged at 2026-05-05T17:23:59Z, base main, head codex/v1.6.13-prebeta-post-merge-closeout-hardening`
 - Live PR URL: `https://github.com/GiribaldiTTV/Nexus-Desktop-AI/pull/112`
 - PR Title: `Close v1.6.13 post-merge release-support hardening`
 - PR Head SHA At Creation: `864d529df0de1f25d375b46f7bd4e2c861387d03`
 - Mergeability State: `PASS - GitHub reported MERGEABLE / CLEAN at creation validation`
 - Status Checks: `None reported at creation validation`
 - Review Decision: `None reported at creation validation`
-- Codex Bot Review State: `Pending - no Codex bot review comment or approval signal observed at creation validation`
+- Codex Bot Review State: `Resolved - GitHub review thread PRRT_kwDORwnWIs5_uWrU was repaired, replied to, resolved, and is outdated`
 - Watcher Configuration Proof: `PASS - pr-112-same-thread-merge-watcher heartbeat automation created with status ACTIVE`
 - Watcher Configuration Path: `C:\Users\anden\.codex\automations\pr-112-same-thread-merge-watcher\automation.toml`
 - Watcher Routing Proof: `PASS - watcher destination is the current same thread; route target is recorded in automation.toml`
-- Watcher Runtime Proof: `Pending - no scheduler/run/heartbeat delivery proof has landed yet; ACTIVE configuration state does not count as runtime proof`
-- Merge-Watch Posture: `Active - PR Readiness remains in merge-watch until watcher verifies merged=true`
-- PR Merge Verification Pending: `Active`
+- Watcher Runtime Proof: `PASS - watcher state/log proof verified merged=true at 2026-05-05T17:24:03.563074Z with terminal delivery proof`
+- Merge-Watch Posture: `Historical complete - watcher verified merged=true and retired`
+- PR Merge Verification: `Cleared`
 - Release Execution Approval State: `NOT APPROVED`
 - Runtime / Selected-Next Approval State: `NOT APPROVED`
 - Next Legal Seam: `PR Readiness Stage 2 - v1.6.13-prebeta Closeout Hardening Merge Watch`
@@ -405,7 +408,7 @@ Repair Scope: branch authority index, historical release-packaging closeout, rec
 ## PR Readiness Stage 2-R1 Bot Review and Watcher Runtime Proof Repair
 
 - Phase: `PR Readiness`
-- Active Seam: `PR Readiness Stage 2-R1 - Bot Review and Watcher Runtime Proof Repair`
+- Recorded Seam: `PR Readiness Stage 2-R1 - Bot Review and Watcher Runtime Proof Repair`
 - Trigger: `USER reported PR release-quality process drift: Codex bot review must be awaited and repaired before green handoff, and watcher configuration was not producing same-thread runtime proof`
 - Codex Bot Review Finding: `ACTIONABLE - review thread PRRT_kwDORwnWIs5_uWrU / comment PRRC_kwDORwnWIs6-JlbJ reported that historical branch records listed under Historical Branch Authority Records could retain active PR-readiness markers when their Phase Status was mistakenly left in a non-historical phase`
 - Bot Review Repair: `PASS - adc295ddffca0f122082f376b20e88d6d3645d82 enforces historical active-PR marker rejection for every indexed historical branch record, regardless of current_phase, and cleaned the stale PR #101 historical marker caught by the guard`
@@ -414,16 +417,16 @@ Repair Scope: branch authority index, historical release-packaging closeout, rec
 - Watcher Configuration State: `ACTIVE - pr-112-same-thread-merge-watcher remains configured for the current same thread; native heartbeat did not emit after reset`
 - Watcher Runtime Proof State: `PASS - bounded local watcher fallback emitted a same-thread PR #112 source-of-truth packet at 2026-05-05T17:13:52Z and automation observability reports pr-112-same-thread-merge-watcher latest=PENDING_REVIEW`
 - Watcher Runtime Proof Artifacts: `C:\Users\anden\.codex\watchers\pr112-closeout-hardening-watch-state.json, C:\Users\anden\.codex\watchers\pr112-closeout-hardening-watch-latest.txt, C:\Users\anden\.codex\watchers\pr112-closeout-hardening-watch.log`
-- Watcher Scheduled Task Proof: `PASS - Windows task Codex PR112 Closeout Hardening Watch exists, runs at minute cadence, and logged subsequent PR #112 checks`
+- Watcher Scheduled Task Proof: `PASS - Windows task Codex PR112 Closeout Hardening Watch ran through terminal merged=true proof and stopped after watcher retirement`
 - Release Execution Approval State: `NOT APPROVED`
 - Runtime / Selected-Next Approval State: `NOT APPROVED`
-- Next Legal Seam: `PR Readiness Stage 2 - v1.6.13-prebeta Closeout Hardening Merge Watch until watcher reports merged=true`
+- Next Legal Seam: `Historical trace only - PR #112 source-truth closeout rides codex/v1.6.13-prebeta-pr112-source-truth-closeout`
 
 ## PR Readiness Stage 1-R1 Repair-Gate Sync Record
 
 - Superseded By: `Branch Readiness Stage 2-R2 and Branch Readiness Stage 2-R3`
 - Phase Admission: `PASS - historical only`
-- Active Seam: `PR Readiness Stage 1-R1 - PR Stage 1 Repair-Gate Governance Sync`
+- Recorded Seam: `PR Readiness Stage 1-R1 - PR Stage 1 Repair-Gate Governance Sync`
 - Stage 1 Repair Finding: `SUPERSEDED - PR Readiness Stage 1 remains the Stage 2 readiness-lock gate; bounded repair/sync may occur only when the current branch is the legal carrier and the USER-approved current phase/seam authorizes that repair`
 - Stage 1 Repair Boundary: `PASS - PR creation, watcher provisioning, branch creation, package admission, selected-next truth, single-slice waivers, release execution, tags, GitHub Releases, and release artifacts remain outside Stage 1 without explicit USER approval`
 - Current-Branch Branch Readiness Re-entry Rule: `PASS - unresolved current-branch blockers broader than PR-readiness sync route to Branch Readiness re-entry on the same legal carrier`

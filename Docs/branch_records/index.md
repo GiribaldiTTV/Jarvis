@@ -36,6 +36,8 @@ Do not use this layer to replace:
 - the `Active Branch Authority Records` list is only for branches that are still the current execution base
 - when merged-main truth is `No Active Branch`, merge-stable current-state owners such as backlog and roadmap must not mirror transient repair-branch ownership; that transient repair execution truth belongs only in the active branch authority record until merge
 - before PR merge, any branch that still relies on an active branch authority record must either move that record into `Historical Branch Authority Records` or remove it entirely so merged truth does not leave a stale active branch owner behind
+- Merge-target post-merge-stable authority projection is mandatory before PR Readiness can report green: merge-target files must already describe the branch-authority state that will remain true after merge, and any active branch authority record that would otherwise land in `main` must be moved to historical/no-active posture or otherwise made merge-stable before PR green.
+- Operational PR/watcher state may live in operator output or explicit historical PR sections, but merged current-state owners and historical branch records must not retain active branch truth, active PR Readiness phase, live/open PR wording, merge-watch ownership, or `PR Merge Verification Pending`.
 - if a stale-canon or governance-drift class is discovered on a branch, that branch or the next legal repair surface must patch the canon or validator rule that allowed it before the repair is considered complete
 - package/slice governance drift blockers are named `Single-Slice Package User Approval Missing` and `Package Completion Unproven`; active branch authority records that repair package admission drift must preserve those names exactly, and only `Admission State: Admitted` rows count toward package admission
 - Element Coverage is a non-identity checklist for user-facing surface, runtime/backend behavior, fail-safe/recovery, security/privacy, voice/audio, external integration, local AI/capability packs, packaging/install, monitoring/HUD, validation, and release impact; Element Coverage rows never count as `Admission State: Admitted`, slices, seams, packages, FAMs, selected-next truth, or release drivers
@@ -66,10 +68,12 @@ Do not use this layer to replace:
 
 ## Active Branch Authority Records
 
-- `Docs/branch_records/codex_v1_6_13_prebeta_post_merge_closeout_hardening.md`
+None - merge-target current-state truth is `No Active Branch`; the PR #112 source-truth closeout carrier is preserved under historical authority so it cannot merge active branch ownership back into `main`.
 
 ## Historical Branch Authority Records
 
+- `Docs/branch_records/codex_v1_6_13_prebeta_pr112_source_truth_closeout.md`
+- `Docs/branch_records/codex_v1_6_13_prebeta_post_merge_closeout_hardening.md`
 - `Docs/branch_records/codex_v1_6_13_prebeta_release_packaging.md`
 - `Docs/branch_records/codex_one_time_backlog_governance_repair.md`
 - `Docs/branch_records/feature_fb_049_runtime_branch_readiness.md`

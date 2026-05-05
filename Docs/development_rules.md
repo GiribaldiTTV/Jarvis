@@ -291,6 +291,7 @@ That means:
   - a branch is not PR-ready if merging it would leave `main` canon-stale
 - no PR-ready with stale canon:
   - current-state canon and merge-target canon must already reflect the branch's true state and the state that will be true after merge
+  - Merge-target post-merge-stable authority projection is mandatory before PR green: `Merge-Target Authority Projection Unproven` blocks PR green when post-merge truth will be `No Active Branch` but the PR branch would merge an active branch authority record into `main`; the active authority record must be moved to historical/no-active posture or otherwise made merge-stable before PR green, and historical branch records must not retain active PR Readiness phase, active seam ownership, live/open PR wording, merge-watch ownership, or `PR Merge Verification Pending`
 - when a branch closes a workstream, changes released milestone posture, changes the current rebaseline, changes closeout-index routing, changes backlog or roadmap release posture, changes workstream-index release posture, or changes `Docs/Main.md` baseline routing, the required release-facing canon updates must already be on that branch before PR creation is allowed
 - no PR-ready with `Next Workstream Undefined`:
   - If post-merge truth will resolve to `No Active Branch` because `Release Debt` or another repo-level admission blocker remains open, successor branch creation remains deferred; next-workstream selection requires explicit USER approval.
