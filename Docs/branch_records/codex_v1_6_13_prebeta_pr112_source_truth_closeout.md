@@ -8,7 +8,7 @@
 
 ## Purpose / Why It Exists
 
-This branch is the USER-approved real release-support carrier for the PR #112 post-merge source-truth closeout blocker.
+This record is the USER-approved real release-support carrier trace for the PR #112 post-merge source-truth closeout blocker.
 
 It exists because PR #112 merged the prior closeout/hardening carrier, but merged `main` still retained stale active branch-authority truth: `Docs/branch_records/index.md` listed `Docs/branch_records/codex_v1_6_13_prebeta_post_merge_closeout_hardening.md` as active, and that record still reported `Phase: PR Readiness`, active merge-watch seam, live/open PR wording, and `PR Merge Verification Pending`.
 
@@ -16,14 +16,18 @@ This branch must not create runtime work, select FAM-006 or any other runtime FA
 
 ## Current Phase
 
-- Phase: `Branch Readiness`
+- Phase: `Historical Traceability`
 
 ## Phase Status
 
-- `Active Branch`: `codex/v1.6.13-prebeta-pr112-source-truth-closeout`
-- Branch Readiness Stage: `Branch Readiness Stage 2 - Execution Gate`
-- Branch Readiness Stage 2 USER Approval: `Granted on 2026-05-05 for this release-support closeout and merge-target authority hardening carrier only`
-- Active Seam: `Branch Readiness Stage 2 - PR #112 Post-Merge Source-Truth Closeout and Merge-Target Authority Hardening Carrier Admission`
+- Historical Branch: `codex/v1.6.13-prebeta-pr112-source-truth-closeout`
+- Branch Readiness Stage: `Complete - Branch Readiness Stage 2 admitted REL-PKG-003 on 2026-05-05`
+- PR Readiness Stage 1 Outcome: `Stage 1 Ready For Stage 2`
+- PR Readiness Stage 2 USER Approval: `Granted on 2026-05-05 for this release-support closeout carrier only`
+- PR Readiness Stage 2 Admission: `Recorded - final PR execution may create the live PR and watcher only after this merge-stable source-truth sync is committed and pushed`
+- Historical Seam Record: `PR Readiness Stage 2 - PR #112 Source-Truth Closeout PR Execution Gate / merge-target authority projection sync`
+- Branch Authority State: `Historical / merge-stable - not listed as active branch authority in merged-main truth`
+- Post-Merge Authority Projection: `Ready - Active Branch Authority Records is empty and merged-main current-state remains No Active Branch after this carrier merges`
 - Release Target: `v1.6.13-prebeta`
 - Release Floor: `patch prerelease`
 - Release Support Package: `REL-PKG-003 v1.6.13-prebeta PR #112 source-truth closeout and merge-target authority hardening`
@@ -40,7 +44,8 @@ This branch must not create runtime work, select FAM-006 or any other runtime FA
 - Release Artifacts: `Not created`
 - Tag Creation: `Not approved`
 - GitHub Release Creation: `Not approved`
-- Merge-Target Authority Projection: `Hardened - future PR Readiness must make active branch authority merge-stable before PR green`
+- Merge-Target Authority Projection: `Cleared for this carrier - branch authority is historical/no-active before PR green`
+- PR Watcher Terminal Proof Expectation: `Stage 2 live watcher output must verify merged=true and retirement proof after the PR merges; merged source truth remains no-active and must not require direct-main mutation`
 - ChatGPT Loader / Source-Truth Sync State: `Complete - loader/source-truth guardrails preserve merge-target post-merge-stable authority projection while keeping Codex execution authority in Docs/Main.md`
 
 ## Branch Class
@@ -65,7 +70,9 @@ This branch must not create runtime work, select FAM-006 or any other runtime FA
 - `Package Completion Unproven`: `Cleared - all seven admitted slices are complete in this Branch Readiness Stage 2 pass`
 - `Backlog Addition User Approval Missing`: `Active for any attempted runtime backlog identity, runtime package admission, backlog split, family promotion, selected-next successor selection, standalone release-driver classification, branch creation beyond this approved carrier, or single-slice package waiver without explicit USER approval`
 - `Release Execution User Approval Missing`: `Active - release execution is reserved for later explicit USER approval`
-- `PR Creation Pending`: `Not applicable in Branch Readiness Stage 2`
+- `PR Readiness Execution User Approval Missing`: `Cleared - USER approved Stage 2 on 2026-05-05 for this carrier only`
+- `Merge-Target Authority Projection Unproven`: `Cleared - this carrier is historical/no-active before PR green`
+- `PR Creation Pending`: `Operational Stage 2 item only - live PR creation happens after this merge-stable sync is committed and pushed and must not land as merged current-state branch authority`
 
 ## Entry Basis
 
@@ -79,7 +86,7 @@ This branch must not create runtime work, select FAM-006 or any other runtime FA
 
 ## Exit Criteria
 
-- `Docs/branch_records/index.md` lists this release-support carrier as the only active branch authority record while this branch is open.
+- `Docs/branch_records/index.md` lists no active branch authority records for merged-main truth and preserves this release-support carrier under historical authority.
 - `Docs/branch_records/codex_v1_6_13_prebeta_post_merge_closeout_hardening.md` is historical traceability only.
 - PR #112 merge proof, final merged head SHA, Codex review closeout, watcher terminal merge condition, watcher delivery proof, and watcher retirement proof are recorded in repo source truth.
 - Stale PR Readiness / merge-watch / live-open-PR / `PR Merge Verification Pending` wording is cleared from the historical PR #112 closeout/hardening branch record.
@@ -117,7 +124,7 @@ Clear the PR #112 post-merge source-truth blocker and add bounded merge-target a
 
 - PR #112 closeout proof is reconstructed and durable.
 - The PR #112 closeout/hardening branch authority record is historical traceability only.
-- The active branch-authority index is ready to become empty after this carrier later moves itself to historical/no-active posture during PR Readiness.
+- The active branch-authority index is empty before PR green so this carrier cannot merge active branch ownership back into `main`.
 - Validator and source-truth guardrails catch merge-target active-authority drift before PR green.
 - No runtime FAM, runtime package, selected-next successor, release artifact, tag, draft release, public release, or release execution is created during Branch Readiness.
 
@@ -125,7 +132,7 @@ Clear the PR #112 post-merge source-truth blocker and add bounded merge-target a
 
 Branch Completion Goal: complete all seven admitted release-support closeout/hardening slices before Release Readiness can resume.
 Known Future-Dependent Blockers: actual release artifact creation and publication remain future `Release Readiness` / release-execution work and are not authorized in Branch Readiness.
-Branch Closure Rule: the branch cannot advance beyond Branch Readiness until PR #112 closeout proof, branch-authority historical transition, release-source sync, recurrence hardening, loader guardrail sync, and validation handoff are complete.
+Branch Closure Rule: the branch cannot advance beyond PR Readiness Stage 2 execution until PR #112 closeout proof, branch-authority historical transition, release-source sync, recurrence hardening, loader guardrail sync, merge-target projection sync, live PR validation, watcher proof, bot-review closeout, and merge-watch are complete or truthfully blocked.
 
 ## Expected Seam Families And Risk Classes
 
@@ -229,9 +236,9 @@ Goal: validate the branch and hand off to the next legal Release Readiness reval
 Scope: branch governance validation, Python compile validation, diff validation, and automation observability validation.
 Non-Includes: release execution.
 
-## Active Seam
+## Historical Seam Record
 
-Active seam: `Branch Readiness Stage 2 - PR #112 Post-Merge Source-Truth Closeout and Merge-Target Authority Hardening Carrier Admission`
+Historical seam: `PR Readiness Stage 2 - PR #112 Source-Truth Closeout PR Execution Gate / merge-target authority projection sync`
 
 ## PR #112 Closeout Record
 
@@ -256,7 +263,7 @@ Active seam: `Branch Readiness Stage 2 - PR #112 Post-Merge Source-Truth Closeou
 ## Branch Readiness Stage 2 Validation Record
 
 - Phase Admission: `PASS`
-- Active Seam: `Branch Readiness Stage 2 - PR #112 Post-Merge Source-Truth Closeout and Merge-Target Authority Hardening Carrier Admission`
+- Historical Seam: `Branch Readiness Stage 2 - PR #112 Post-Merge Source-Truth Closeout and Merge-Target Authority Hardening Carrier Admission`
 - REL-PKG-003 Admission: `PASS - seven concrete admitted release-support slices`
 - PR #112 Closeout Reconstruction: `PASS`
 - Branch Authority Historical Transition: `PASS`
@@ -269,3 +276,13 @@ Active seam: `Branch Readiness Stage 2 - PR #112 Post-Merge Source-Truth Closeou
 - FAM-006 Selection State: `Recommendation-only / not selected`
 - Single-Slice Waiver State: `Not approved / not required`
 - Next Legal Seam: `Release Readiness RR1 - v1.6.13-prebeta PR #112 Source-Truth Closeout Validation`
+
+## PR Readiness Stage 2 Merge-Stable Sync Record
+
+- Stage 2 Admission Result: `Approved by USER on 2026-05-05 for this carrier only`
+- Merge-Target Projection Result: `PASS - this record is historical/no-active and Docs/branch_records/index.md has no active branch authority record before PR green`
+- Final PR Execution Boundary: `Stage 2 may create the live PR, provision the same-thread watcher, validate bot review and mergeability, and continue merge-watch after this sync is committed and pushed`
+- Live PR Current-State Rule: `Operational live PR and watcher facts may be reported in PR output and watcher handoff packets, but merged current-state owners must remain No Active Branch and this record must not regain active PR Readiness or live-open PR posture`
+- Release Execution Approval State: `NOT APPROVED`
+- Runtime / Selected-Next Approval State: `NOT APPROVED`
+- FAM-006 Selection State: `Recommendation-only / not selected`
