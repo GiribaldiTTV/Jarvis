@@ -33,6 +33,7 @@ from PySide6.QtWebEngineWidgets import QWebEngineView
 from .interaction_overlay_model import CommandOverlayModel
 from .monitoring_hud_controls import build_monitoring_hud_controls_visibility_contract
 from .monitoring_hud_placement import build_monitoring_hud_placement_contract
+from .monitoring_hud_status import build_monitoring_hud_status_snapshot
 from .monitoring_hud_telemetry import build_monitoring_hud_telemetry_snapshot
 from .saved_action_authoring import (
     CallableGroupDraft,
@@ -5583,6 +5584,7 @@ class DesktopRuntimeWindow(QWidget):
         self._publish_monitoring_hud_telemetry_boundary()
         self._publish_monitoring_hud_placement_ownership()
         self._publish_monitoring_hud_controls_visibility()
+        self._publish_monitoring_hud_status_behavior()
         self._apply_pending_visual_state()
         self._apply_pending_voice_level()
         self._apply_command_overlay_state()
@@ -6874,6 +6876,7 @@ class DesktopRuntimeWindow(QWidget):
         self._publish_monitoring_hud_telemetry_boundary()
         self._publish_monitoring_hud_placement_ownership()
         self._publish_monitoring_hud_controls_visibility()
+        self._publish_monitoring_hud_status_behavior()
         for probe_event in get_last_workerw_probe_events():
             self._log_event(f"RENDERER_MAIN|{probe_event}")
 
@@ -6908,6 +6911,30 @@ class DesktopRuntimeWindow(QWidget):
             slice="SLC-027",
             controls="hud-controls-visibility",
             persistence="not_persisted",
+        )
+
+    def _monitoring_hud_status_snapshot(self) -> dict[str, str]:
+        return build_monitoring_hud_status_snapshot(
+            page_ready=self._page_ready,
+            desktop_mode=self.desktop_mode,
+            event_route_present=callable(self.event_logger),
+        ).as_dict()
+
+    def _publish_monitoring_hud_status_behavior(self):
+        status_json = json.dumps(self._monitoring_hud_status_snapshot(), sort_keys=True)
+        self._run_javascript(
+            f"""
+            if (window.setMonitoringHudStatusBehavior) {{
+                window.setMonitoringHudStatusBehavior({status_json});
+            }}
+            """
+        )
+        self._emit_runtime_signal(
+            "MONITORING_HUD_STATUS_BEHAVIOR_READY",
+            package="PKG-006",
+            slice="SLC-028",
+            status="hud-local-readiness-status",
+            source_truth="renderer_local",
         )
 
     def request_shutdown(self):

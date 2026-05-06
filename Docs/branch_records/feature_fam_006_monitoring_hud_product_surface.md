@@ -36,7 +36,7 @@ This branch may execute the admitted PKG-006 implementation slices during Workst
 
 ## Phase Status
 
-- Workstream Stage: `WS5 - Fail-Safe No-Data And Degraded-Status Behavior`
+- Workstream Stage: `WS6 - Validation And Live Desktop Proof`
 - Active Branch: `feature/fam-006-monitoring-hud-product-surface`
 - Branch Authority Mode: `Active Branch`
 - Workstream Entry Source-Truth Transition: `Performed - Branch Readiness Stage 2 terminal evidence reconciled before runtime implementation`
@@ -49,7 +49,7 @@ This branch may execute the admitted PKG-006 implementation slices during Workst
 - Admitted Slice Count: `6`
 - Package Completion State: `In Progress`
 - Single-Slice Package User Approval: `Not required - PKG-006 has six concrete admitted slices; no waiver granted`
-- Runtime Implementation State: `Started - SLC-016 visual baseline, SLC-025 telemetry boundary, SLC-026 placement ownership, and SLC-027 controls visibility complete; SLC-028 active`
+- Runtime Implementation State: `Started - SLC-016 visual baseline, SLC-025 telemetry boundary, SLC-026 placement ownership, SLC-027 controls visibility, and SLC-028 status behavior complete; SLC-029 active`
 - PR Creation State: `Not approved in Workstream`
 - Watcher Provisioning State: `Not approved in Workstream`
 - Release Work State: `Not approved; v1.6.13-prebeta release execution is already complete and no new release work is in scope`
@@ -108,7 +108,7 @@ Rollback Path: revert the current Workstream commit on `feature/fam-006-monitori
 
 - `Workstream`
 
-Next Legal Seam: `Workstream WS5 - Fail-Safe No-Data And Degraded-Status Behavior`
+Next Legal Seam: `Workstream WS6 - Validation And Live Desktop Proof`
 
 Next Legal Phase Gate: Workstream remains active until every admitted PKG-006 implementation slice is complete, blocked by a named blocker, deferred by valid future dependency, or split by explicit USER approval. Hardening is blocked while admitted implementable slices remain incomplete.
 
@@ -127,7 +127,7 @@ Turn the historical FAM-006 monitoring/thermal architecture baseline into a visi
 ## Backlog Completion Status
 
 Backlog Completion State: `In Progress`
-Remaining Implementable Work: `SLC-028 fail-safe/no-data/degraded states and SLC-029 validation/live desktop proof remain implementable on this branch.`
+Remaining Implementable Work: `SLC-029 validation/live desktop proof remains implementable on this branch.`
 Future-Dependent Blockers: `SLC-030 optional voice/spoken status integration is deferred and requires later USER widening approval if spoken/audio behavior, voice integration, persona voice, FAM-004, or cross-family behavior is needed.`
 Completion Status: `In Progress`
 
@@ -162,8 +162,8 @@ Primary Entry Slice: `SLC-016 HUD visual and user-facing monitoring surface`
 | `SLC-025` | `PKG-006` | `FAM-006` | Runtime telemetry source and adapter boundary | Admitted | Green | Complete | `BR-S2-S2`; `WS2`; `desktop/monitoring_hud_telemetry.py`; `dev/orin_monitoring_hud_surface_validation.py` |
 | `SLC-026` | `PKG-006` | `FAM-006` | Desktop placement and renderer ownership | Admitted | Green | Complete | `BR-S2-S3`; `WS3`; `desktop/monitoring_hud_placement.py`; `dev/orin_monitoring_hud_surface_validation.py` |
 | `SLC-027` | `PKG-006` | `FAM-006` | Settings and user controls visibility | Admitted | Green | Complete | `BR-S2-S4`; `WS4`; `desktop/monitoring_hud_controls.py`; `dev/orin_monitoring_hud_surface_validation.py` |
-| `SLC-028` | `PKG-006` | `FAM-006` | Fail-safe, no-data, and degraded-status behavior | Admitted | Workstream active | In Progress | `BR-S2-S5`; `WS5` |
-| `SLC-029` | `PKG-006` | `FAM-006` | Validation and live desktop proof | Admitted | Pending Workstream | In Progress | `BR-S2-S6`; planned `WS6` |
+| `SLC-028` | `PKG-006` | `FAM-006` | Fail-safe, no-data, and degraded-status behavior | Admitted | Green | Complete | `BR-S2-S5`; `WS5`; `desktop/monitoring_hud_status.py`; `dev/orin_monitoring_hud_surface_validation.py` |
+| `SLC-029` | `PKG-006` | `FAM-006` | Validation and live desktop proof | Admitted | Workstream active | In Progress | `BR-S2-S6`; `WS6` |
 
 ## Deferred / Future Slice Ledger
 
@@ -215,18 +215,23 @@ Seam 4: `WS4 - Settings And User Controls Visibility`
 Goal: expose settings or user-control visibility for the Monitoring/HUD surface after renderer ownership is explicit.
 Scope: settings and user controls visibility only.
 Non-Includes: fail-safe semantics, live validation proof, voice/audio behavior, release execution, PR creation, watcher provisioning, or package completion claims.
-Status: `Active - SLC-027 in progress`
 Status: `Green - SLC-027 complete with read-only controls visibility proof`
 
 Seam 5: `WS5 - Fail-Safe No-Data And Degraded-Status Behavior`
 Goal: model truthful no-data and degraded-status behavior for the Monitoring/HUD surface after controls visibility is explicit.
 Scope: fail-safe, no-data, and degraded-status behavior only.
 Non-Includes: live validation proof, voice/audio behavior, release execution, PR creation, watcher provisioning, or package completion claims.
-Status: `Active - SLC-028 in progress`
+Status: `Green - SLC-028 complete with no-data and degraded-status behavior proof`
+
+Seam 6: `WS6 - Validation And Live Desktop Proof`
+Goal: validate the bounded Monitoring/HUD package surface and collect live desktop proof after fail-safe status behavior is explicit.
+Scope: validation and live desktop proof only.
+Non-Includes: new telemetry sources, placement ownership changes, settings/control behavior, fail-safe behavior changes, voice/audio behavior, release execution, PR creation, watcher provisioning, or package completion claims until validation proof is complete.
+Status: `Active - SLC-029 in progress`
 
 ## Active Seam
 
-Active seam: `WS5 - Fail-Safe No-Data And Degraded-Status Behavior`
+Active seam: `WS6 - Validation And Live Desktop Proof`
 
 Seam Status: `In Progress`
 Slice Status: `In Progress`
@@ -243,9 +248,9 @@ Completion Status: `In Progress`
 Waiver Status: `None`
 Continue Decision: `Continue`
 Stop Basis: `None`
-Next Active Seam: `WS5 - Fail-Safe No-Data And Degraded-Status Behavior`
+Next Active Seam: `WS6 - Validation And Live Desktop Proof`
 Stop Condition: `None`
-Continuation Action: `Continue SLC-028 by adding fail-safe, no-data, and degraded-status behavior without consuming live validation, voice/audio, PR, watcher, release, tag, artifact, or direct-main work.`
+Continuation Action: `Continue SLC-029 by validating the Monitoring/HUD package surface and collecting live desktop proof without adding new telemetry, placement, controls, fail-safe behavior, voice/audio, PR, watcher, release, tag, artifact, or direct-main work.`
 
 ## WS1 Implementation Record
 
@@ -283,6 +288,15 @@ Continuation Action: `Continue SLC-028 by adding fail-safe, no-data, and degrade
 - Controls visibility validation: `dev/orin_monitoring_hud_surface_validation.py proves SLC-027 controls markers, renderer-published controls visibility, active SLC-027 surface copy, and no hardware polling, persisted preference change, fail-safe semantics, or voice/audio widening`
 - SLC-027 Completion State: `Green / Complete`
 - Boundary preservation: `No fail-safe/no-data semantics, live validation proof, voice/audio behavior, release work, PR work, watcher work, tags, GitHub Releases, artifacts, or direct-main mutation`
+
+## WS5 Implementation Record
+
+- Runtime files touched: `desktop/monitoring_hud_status.py`, `desktop/desktop_renderer.py`, `jarvis_visual/orin_core.html`, `jarvis_visual/orin_core.css`, `jarvis_visual/orin_core.js`
+- Status behavior: `DesktopRuntimeWindow publishes a local HUD status-behavior snapshot through hud-local-readiness-status with package PKG-006 and slice SLC-028`
+- Status behavior surface: `Monitoring HUD shows fail-safe state, no-data behavior, and degraded behavior copy without claiming unavailable telemetry, recovery automation, or voice/audio behavior`
+- Status behavior validation: `dev/orin_monitoring_hud_surface_validation.py proves SLC-028 status markers, renderer-published status behavior, active SLC-028 surface copy, and no hardware polling, settings persistence, live proof, or voice/audio widening`
+- SLC-028 Completion State: `Green / Complete`
+- Boundary preservation: `No live desktop proof, voice/audio behavior, release work, PR work, watcher work, tags, GitHub Releases, artifacts, or direct-main mutation`
 
 ## Validation Plan
 

@@ -25,6 +25,9 @@ const monitoringHudPlacementPointer = document.getElementById("monitoring-hud-pl
 const monitoringHudControlsVisibility = document.getElementById("monitoring-hud-controls-visibility");
 const monitoringHudControlsSurface = document.getElementById("monitoring-hud-controls-surface");
 const monitoringHudControlsPersistence = document.getElementById("monitoring-hud-controls-persistence");
+const monitoringHudStatusLabel = document.getElementById("monitoring-hud-status-label");
+const monitoringHudNoDataBehavior = document.getElementById("monitoring-hud-no-data-behavior");
+const monitoringHudDegradedBehavior = document.getElementById("monitoring-hud-degraded-behavior");
 
 let w = 0;
 let h = 0;
@@ -73,6 +76,15 @@ let monitoringHudControls = {
   visibilityState: "Waiting for desktop mode",
   controlSurface: "Read-only HUD controls preview",
   persistence: "Not persisted"
+};
+let monitoringHudStatus = {
+  packageId: "PKG-006",
+  sliceId: "SLC-028",
+  statusId: "hud-local-readiness-status",
+  statusKind: "no-data",
+  statusLabel: "Waiting for source truth",
+  noDataBehavior: "Do not imply telemetry",
+  degradedBehavior: "Name local readiness gap"
 };
 
 const backParticles = [];
@@ -1293,6 +1305,25 @@ window.setMonitoringHudControlsVisibility = function(contract) {
   }
 };
 
+window.setMonitoringHudStatusBehavior = function(snapshot) {
+  monitoringHudStatus = Object.assign({}, monitoringHudStatus, snapshot || {});
+  if (monitoringHud) {
+    monitoringHud.dataset.statusPackage = monitoringHudStatus.packageId || "PKG-006";
+    monitoringHud.dataset.statusSlice = monitoringHudStatus.sliceId || "SLC-028";
+    monitoringHud.dataset.statusId = monitoringHudStatus.statusId || "hud-local-readiness-status";
+    monitoringHud.dataset.statusKind = monitoringHudStatus.statusKind || "no-data";
+  }
+  if (monitoringHudStatusLabel) {
+    monitoringHudStatusLabel.textContent = monitoringHudStatus.statusLabel || "Waiting for source truth";
+  }
+  if (monitoringHudNoDataBehavior) {
+    monitoringHudNoDataBehavior.textContent = monitoringHudStatus.noDataBehavior || "Do not imply telemetry";
+  }
+  if (monitoringHudDegradedBehavior) {
+    monitoringHudDegradedBehavior.textContent = monitoringHudStatus.degradedBehavior || "Name local readiness gap";
+  }
+};
+
 window.setCoreVisualState("boot");
 window.setCoreVoiceLevel(0);
 window.setCommandOverlayState({ visible: false });
@@ -1300,4 +1331,5 @@ window.setDesktopSurfaceMode(false);
 window.setMonitoringHudTelemetry({});
 window.setMonitoringHudPlacementOwnership({});
 window.setMonitoringHudControlsVisibility({});
+window.setMonitoringHudStatusBehavior({});
 requestAnimationFrame(frame);
