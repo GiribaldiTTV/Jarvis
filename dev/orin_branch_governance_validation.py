@@ -130,6 +130,8 @@ REQUIRED_BRANCH_READINESS_COMPLETION_MARKERS = (
 
 PRODUCT_DEFINITION_PLAN_HEADING = "Product Definition Plan"
 USER_VISION_QUESTION_PACKET_HEADING = "USER Vision Question Packet"
+USER_VISION_INPUT_HANDOFF_HEADING = "USER Vision Input Handoff"
+USER_VISION_INPUT_ARTIFACT_PATH = Path(r"C:\Users\anden\OneDrive\Desktop\User Vision Input.txt")
 REQUIRED_PRODUCT_DEFINITION_MARKERS = (
     "Product Vision:",
     "User-Facing Goal:",
@@ -205,11 +207,26 @@ PRODUCT_PLANNING_INCOMPLETE_BLOCKER = "Branch Readiness Planning Incomplete"
 PRODUCT_PLANNING_WAIVER_MARKER = "Planning Completion Waiver:"
 PRODUCT_PLANNING_COMPLETE_VALUES = {"complete", "waived"}
 PRODUCT_PLANNING_INCOMPLETE_VALUES = {"incomplete", "pending", "blocked"}
+USER_VISION_INPUT_PENDING_BLOCKER = "USER Vision Input Pending"
+USER_VISION_INPUT_FILE_MISSING_BLOCKER = "USER Vision Input File Missing"
+USER_VISION_INPUT_ANSWERS_PENDING_BLOCKER = "USER Vision Input Answers Pending"
+USER_VISION_INPUT_DIGEST_PENDING_BLOCKER = "USER Vision Input Digest Pending"
+USER_VISION_INPUT_HANDOFF_MARKERS = (
+    "USER Vision Input Artifact Path:",
+    "USER Vision Input Artifact State:",
+    "USER Vision Input Answer State:",
+    "USER Vision Input Digest State:",
+    "Repo Source Truth Update Rule:",
+)
 PRODUCT_PLANNING_BLOCKERS = (
     "Product Vision Input Missing",
     "USER Vision Question Packet Missing",
     "USER Vision Recommendation Missing",
     "USER Vision Questions Unanswered",
+    USER_VISION_INPUT_PENDING_BLOCKER,
+    USER_VISION_INPUT_FILE_MISSING_BLOCKER,
+    USER_VISION_INPUT_ANSWERS_PENDING_BLOCKER,
+    USER_VISION_INPUT_DIGEST_PENDING_BLOCKER,
     "Branch Reach Unproven",
     "Feature Element Breakdown Missing",
     "Acceptance Criteria Missing",
@@ -4162,6 +4179,7 @@ def _validate_product_definition_plan(
                             f"is missing '{marker}'"
                         ),
                     )
+        _validate_user_vision_input_handoff(require, source_path, text, blockers)
         require(
             current_phase == "Branch Readiness",
             (
@@ -4210,6 +4228,119 @@ def _validate_product_definition_plan(
             (
                 f"{source_path}: Workstream implementation requires complete or "
                 "USER-waived family-package planning"
+            ),
+        )
+
+
+def _validate_user_vision_input_handoff(
+    require,
+    source_path: str,
+    text: str,
+    blockers: list[str],
+) -> None:
+    if not any(
+        blocker in blockers
+        for blocker in (
+            USER_VISION_INPUT_PENDING_BLOCKER,
+            USER_VISION_INPUT_FILE_MISSING_BLOCKER,
+            USER_VISION_INPUT_ANSWERS_PENDING_BLOCKER,
+            USER_VISION_INPUT_DIGEST_PENDING_BLOCKER,
+        )
+    ):
+        return
+
+    handoff_section = _section(text, USER_VISION_INPUT_HANDOFF_HEADING)
+    require(
+        bool(handoff_section),
+        (
+            f"{source_path}: USER vision input blockers require "
+            f"'## {USER_VISION_INPUT_HANDOFF_HEADING}'"
+        ),
+    )
+    if not handoff_section:
+        return
+
+    for marker in USER_VISION_INPUT_HANDOFF_MARKERS:
+        require(
+            marker in handoff_section,
+            f"{source_path}: {USER_VISION_INPUT_HANDOFF_HEADING} is missing '{marker}'",
+        )
+
+    artifact_path = _extract_marker_value(handoff_section, "USER Vision Input Artifact Path:")
+    artifact_state = _extract_marker_value(handoff_section, "USER Vision Input Artifact State:")
+    answer_state = _extract_marker_value(handoff_section, "USER Vision Input Answer State:")
+    digest_state = _extract_marker_value(handoff_section, "USER Vision Input Digest State:")
+    source_truth_rule = _extract_marker_value(handoff_section, "Repo Source Truth Update Rule:")
+    artifact_exists = USER_VISION_INPUT_ARTIFACT_PATH.exists()
+
+    require(
+        str(USER_VISION_INPUT_ARTIFACT_PATH) in artifact_path,
+        (
+            f"{source_path}: USER vision input handoff must point to "
+            f"{USER_VISION_INPUT_ARTIFACT_PATH}"
+        ),
+    )
+    require(
+        bool(artifact_state),
+        f"{source_path}: USER vision input handoff is missing artifact state",
+    )
+    require(
+        bool(answer_state),
+        f"{source_path}: USER vision input handoff is missing answer state",
+    )
+    require(
+        bool(digest_state),
+        f"{source_path}: USER vision input handoff is missing digest state",
+    )
+    require(
+        "recommendations" in source_truth_rule.casefold()
+        and "not" in source_truth_rule.casefold()
+        and "digest" in source_truth_rule.casefold(),
+        (
+            f"{source_path}: USER vision input handoff must state that Codex "
+            "recommendations/unanswered prompts are not USER-approved repo truth "
+            "until a later digest pass"
+        ),
+    )
+
+    if artifact_exists:
+        require(
+            USER_VISION_INPUT_FILE_MISSING_BLOCKER not in blockers,
+            (
+                f"{source_path}: {USER_VISION_INPUT_FILE_MISSING_BLOCKER} must not remain "
+                f"active while {USER_VISION_INPUT_ARTIFACT_PATH} exists"
+            ),
+        )
+    else:
+        require(
+            USER_VISION_INPUT_FILE_MISSING_BLOCKER in blockers,
+            (
+                f"{source_path}: missing {USER_VISION_INPUT_ARTIFACT_PATH} must block on "
+                f"'{USER_VISION_INPUT_FILE_MISSING_BLOCKER}'"
+            ),
+        )
+
+    if "pending" in answer_state.casefold() or "incomplete" in answer_state.casefold():
+        require(
+            USER_VISION_INPUT_ANSWERS_PENDING_BLOCKER in blockers,
+            (
+                f"{source_path}: pending USER vision input answers must block on "
+                f"'{USER_VISION_INPUT_ANSWERS_PENDING_BLOCKER}'"
+            ),
+        )
+    if "pending" in digest_state.casefold() or "not digested" in digest_state.casefold():
+        require(
+            USER_VISION_INPUT_DIGEST_PENDING_BLOCKER in blockers,
+            (
+                f"{source_path}: undigested USER vision input answers must block on "
+                f"'{USER_VISION_INPUT_DIGEST_PENDING_BLOCKER}'"
+            ),
+        )
+        require(
+            USER_VISION_INPUT_PENDING_BLOCKER in blockers,
+            (
+                f"{source_path}: USER vision input cannot be considered complete until "
+                f"'{USER_VISION_INPUT_PENDING_BLOCKER}' is cleared by a later digest pass"
             ),
         )
 

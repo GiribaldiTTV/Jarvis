@@ -36,8 +36,8 @@ This branch may execute the admitted PKG-006 implementation slices during Workst
 
 ## Phase Status
 
-- Branch Readiness Stage: `Complete - Stage 2-R3 USER Vision Question Packet governance repair`
-- Workstream Stage: `Blocked - scaffold and bounded contracts are credited, but planning revalidation and USER vision answers are required before WS7 implementation resumes`
+- Branch Readiness Stage: `Complete - Stage 2-R4 USER Vision Input artifact governance and handoff creation`
+- Workstream Stage: `Blocked - scaffold and bounded contracts are credited, but USER Vision Input answers, digest, and planning revalidation are required before WS7 implementation resumes`
 - Hardening Stage: `Reopened - prior H1 is scaffold/marker hardening evidence only, not product-complete proof`
 - Active Branch: `feature/fam-006-monitoring-hud-product-surface`
 - Branch Authority Mode: `Active Branch`
@@ -66,6 +66,9 @@ This branch may execute the admitted PKG-006 implementation slices during Workst
 
 - `Product Vision Input Missing`
 - `USER Vision Questions Unanswered`
+- `USER Vision Input Pending`
+- `USER Vision Input Answers Pending`
+- `USER Vision Input Digest Pending`
 - `Branch Reach Unproven`
 - `Feature Element Breakdown Missing`
 - `Acceptance Criteria Missing`
@@ -73,7 +76,7 @@ This branch may execute the admitted PKG-006 implementation slices during Workst
 - `Current Branch vs Future Package Boundary Missing`
 - `Branch Readiness Planning Incomplete`
 
-Package completion is not currently claimed. `Package Completion Unproven` is therefore preserved as the guardrail that blocks any future `Package Completion State: Complete` claim until visible product proof, screenshot proof, and USER Test Summary acceptance are digested. The prior H1 evidence remains scaffold/marker hardening evidence only. The planning blockers above are planning blockers, not implementation blockers; they block Workstream entry or continuation until cleared by Branch Readiness planning revalidation or explicitly waived by USER. Live Validation, PR Readiness, PR creation, watcher provisioning, release, tag, artifact, and direct-main work remain governed by their own phase gates.
+Package completion is not currently claimed. `Package Completion Unproven` is therefore preserved as the guardrail that blocks any future `Package Completion State: Complete` claim until visible product proof, screenshot proof, and USER Test Summary acceptance are digested. The prior H1 evidence remains scaffold/marker hardening evidence only. The planning blockers above are planning blockers, not implementation blockers; they block Workstream entry or continuation until cleared by Branch Readiness planning revalidation or explicitly waived by USER. The USER Vision Input artifact is a USER-facing handoff only, not repo source truth; its answers remain pending and must be digested into repo source truth in a later USER-approved Branch Readiness pass before any planning blocker clears. Live Validation, PR Readiness, PR creation, watcher provisioning, release, tag, artifact, and direct-main work remain governed by their own phase gates.
 
 ## Cleared Governance Notes
 
@@ -83,6 +86,7 @@ Package completion is not currently claimed. `Package Completion Unproven` is th
 - Branch Readiness Execution User Approval Missing is cleared for the USER-approved Stage 2-R2 planning-governance/source-truth repair only; it is not approval to resume WS7 implementation.
 - USER Vision Question Packet Missing is cleared by Stage 2-R3 because the FAM-006 packet now records structured decision context.
 - USER Vision Recommendation Missing is cleared by Stage 2-R3 because the FAM-006 packet includes Codex recommendations, rationale, alternatives, tradeoffs, and current-branch/future-package impact.
+- USER Vision Input File Missing is cleared by Stage 2-R4 because `C:\Users\anden\OneDrive\Desktop\User Vision Input.txt` exists as the governed USER-facing input artifact.
 - Backlog Addition User Approval Missing remains active for any new FAM/package, backlog split, family promotion beyond this branch authority, runtime branch outside this carrier, or single-slice waiver.
 
 ## Entry Basis
@@ -173,9 +177,9 @@ Screenshot / Live / User Test Summary Proof Requirements: screenshots must clear
 
 Implementation Sequence Proposal: Stage 1-R3 revalidates planning; if USER answers and planning are sufficient, Workstream resumes with WS7 product visibility/acceptance baseline; then reopened placement/control/status/validation evidence is updated only as needed inside admitted PKG-006 scope before Hardening and Live Validation can return.
 
-Planning Blockers: `Product Vision Input Missing`; `USER Vision Questions Unanswered`; `Branch Reach Unproven`; `Feature Element Breakdown Missing`; `Acceptance Criteria Missing`; `User-Facing Proof Standard Missing`; `Current Branch vs Future Package Boundary Missing`; `Branch Readiness Planning Incomplete`.
+Planning Blockers: `Product Vision Input Missing`; `USER Vision Questions Unanswered`; `USER Vision Input Pending`; `USER Vision Input Answers Pending`; `USER Vision Input Digest Pending`; `Branch Reach Unproven`; `Feature Element Breakdown Missing`; `Acceptance Criteria Missing`; `User-Facing Proof Standard Missing`; `Current Branch vs Future Package Boundary Missing`; `Branch Readiness Planning Incomplete`.
 
-USER Decisions Needed: answer HUD vision questions, approve or revise Codex product interpretation, approve current-branch versus future-package boundaries, approve screenshot/UTS proof standard, and decide whether any planning item is explicitly waived.
+USER Decisions Needed: complete `C:\Users\anden\OneDrive\Desktop\User Vision Input.txt`, then approve a later digest pass to summarize the completed answers into repo source truth; answer HUD vision questions, approve or revise Codex product interpretation, approve current-branch versus future-package boundaries, approve screenshot/UTS proof standard, and decide whether any planning item is explicitly waived.
 
 Planning Packet Status: Incomplete
 
@@ -187,6 +191,24 @@ User Test Summary Strategy: USER-facing acceptance remains required before final
 
 Visible User-Facing Proof Required: Yes
 Visible User-Facing Proof: PENDING
+
+## USER Vision Input Handoff
+
+USER Vision Input Artifact Path: `C:\Users\anden\OneDrive\Desktop\User Vision Input.txt`
+
+USER Vision Input Artifact State: `Generated - USER-facing desktop artifact exists outside repo source truth`
+
+USER Vision Input Answer State: `Pending - USER has not completed answers in the artifact`
+
+USER Vision Input Digest State: `Pending - Codex has not read and digested completed answers into repo source truth`
+
+Repo Source Truth Update Rule: `Codex recommendations and unanswered prompts are not USER-approved answers; repo source truth updates only after Codex reads and digests the completed desktop artifact in a later USER-approved Branch Readiness pass.`
+
+Artifact Purpose: `USER-facing input only; not repo source truth until digested.`
+
+Artifact Answer Options: `1. Accept Codex recommendation; 2. Change recommendation with USER-written changes; 3. Defer / future package / waive with USER-written reason.`
+
+Next Digest Route: `Branch Readiness Stage 2-R5 - USER Vision Input Digest And Planning Source-Truth Sync after USER completes the artifact and approves the digest pass.`
 
 ## USER Vision Question Packet
 
@@ -353,26 +375,26 @@ Status: `Next - begins after Branch Readiness Stage 2-R1 source-truth repair`
 
 ## Active Seam
 
-Active seam: `Branch Readiness Stage 2-R3 - USER Vision Question Packet Governance Repair`
+Active seam: `Branch Readiness Stage 2-R4 - USER Vision Input Artifact Governance And Handoff Creation`
 
 Seam Status: `Green`
-Slice Status: `Planning-governance repair complete`
-Completion Status: `Green for Branch Readiness repair only / planning remains incomplete`
+Slice Status: `USER Vision Input artifact handoff created`
+Completion Status: `Green for Branch Readiness handoff only / USER answers and digest remain pending`
 Waiver Status: `None`
 Continue Decision: `Stop`
-Stop Basis: `Branch Readiness Planning Incomplete`
+Stop Basis: `USER Vision Input Answers Pending / USER Vision Input Digest Pending / Branch Readiness Planning Incomplete`
 
 ## Seam Continuation Decision
 
 Seam Status: `Green`
-Slice Status: `Planning-governance repair complete`
-Completion Status: `Green for Branch Readiness repair only / planning remains incomplete`
+Slice Status: `USER Vision Input artifact handoff created`
+Completion Status: `Green for Branch Readiness handoff only / USER answers and digest remain pending`
 Waiver Status: `None`
 Continue Decision: `Stop`
-Stop Basis: `Branch Readiness Planning Incomplete`
-Next Active Seam: `Branch Readiness Stage 1-R3 - FAM-006 Product Planning Sufficiency Revalidation`
-Stop Condition: `Branch Readiness Planning Incomplete`
-Continuation Action: `Run Branch Readiness Stage 1-R3 to revalidate planning after USER vision answers and ChatGPT review; Workstream WS7 remains blocked until planning is complete or explicitly USER-waived. Do not add PR, watcher, release, tag, artifact, direct-main, voice/audio, Stream Deck/plugin telemetry, local AI, installer, or future-package scope.`
+Stop Basis: `USER Vision Input Answers Pending / USER Vision Input Digest Pending / Branch Readiness Planning Incomplete`
+Next Active Seam: `Branch Readiness Stage 2-R5 - USER Vision Input Digest And Planning Source-Truth Sync`
+Stop Condition: `USER Vision Input Answers Pending / USER Vision Input Digest Pending / Branch Readiness Planning Incomplete`
+Continuation Action: `USER completes C:\Users\anden\OneDrive\Desktop\User Vision Input.txt, then a later USER-approved Branch Readiness digest pass reads and summarizes the completed answers into repo source truth before Branch Readiness Stage 1-R3 revalidates planning; Workstream WS7 remains blocked until planning is complete or explicitly USER-waived. Do not add PR, watcher, release, tag, artifact, direct-main, voice/audio, Stream Deck/plugin telemetry, local AI, installer, or future-package scope.`
 
 ## WS1 Implementation Record
 
