@@ -42,6 +42,7 @@ This branch may execute the admitted PKG-006 implementation slices during Workst
 - Workstream Entry Source-Truth Transition: `Performed - Branch Readiness Stage 2 terminal evidence reconciled before runtime implementation`
 - Branch Creation: `Created from updated main at 3c68cd881a9f6bf447f09ac0949d556e97bce4f4`
 - Branch Admission Commit: `8ae84cb784fc07dfe4f445359de4cf20a13552fa`
+- Branch Rename State: `Renamed to feature/fam-006-monitoring-hud-product-surface after USER direction to avoid codex-prefixed active branch names; old origin codex-prefixed branch deleted after feature branch push`
 - Branch Authority State: `Active branch authority`
 - Selected Next Source: `USER-approved selected-next truth matured into active FAM-006 Workstream`
 - Package Admission State: `Admitted`
@@ -80,6 +81,7 @@ The blocker above is active because PKG-006 still has admitted implementable sli
 - `Docs/branch_records/index.md` reported `No Active Branch` before Branch Readiness Stage 2.
 - USER approval cleared Branch Readiness Stage 2 execution for this branch, package admission, source-truth sync, validation, commit, and push.
 - Branch Readiness Stage 2 committed and pushed `8ae84cb784fc07dfe4f445359de4cf20a13552fa`, admitting PKG-006 and stopping before runtime implementation.
+- USER later directed the active branch name to use `feature/` instead of `codex/`; this branch authority record and the active backlog/roadmap/workstream surfaces were renamed to match, while historical codex-prefixed branch records remain historical traceability only.
 
 ## Exit Criteria
 
