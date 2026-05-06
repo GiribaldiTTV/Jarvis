@@ -102,9 +102,9 @@ Current runtime evidence boundaries remain:
 - live launcher/runtime truth under `<runtime root>/logs`
 - live crash truth under `<runtime root>/logs/crash`
 - dev, toolkit, and harness evidence under `<runtime root>/dev/logs/<lane>/...`
-- normal historical state under `%LOCALAPPDATA%/Nexus Desktop AI/state/jarvis_history_v1.jsonl`
+- normal historical state under `%LOCALAPPDATA%/Nexus Desktop AI/state/nexus_history_v1.jsonl`
 
-The current desktop launcher resolves the live root from the repository/runtime root. Older `C:/Jarvis/...` references remain historical wording unless an admitted implementation seam changes current path behavior.
+The current desktop launcher resolves the live root from the repository/runtime root. Older `C:/Nexus/...` references remain historical wording unless an admitted implementation seam changes current path behavior.
 
 ## Future Orchestration Direction
 

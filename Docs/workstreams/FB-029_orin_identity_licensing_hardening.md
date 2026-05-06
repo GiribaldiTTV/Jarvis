@@ -202,9 +202,9 @@ WS-1 inventoried the current identity, persona-option, and licensing source-of-t
 - Routing and canon ownership lives in `Docs/Main.md`, `Docs/feature_backlog.md`, `Docs/prebeta_roadmap.md`, and this workstream record. Those surfaces own current-truth routing, identity registry state, branch-local execution truth, and release-debt posture.
 - Current product and repo identity surfaces say `Nexus Desktop AI` is the repository, product, and tooling-shell identity. That wording is aligned across `README.md`, `Docs/orin_vision.md`, `Docs/orin_display_naming_guidance.md`, and `Docs/ownership_ip_plan.md`.
 - Current persona identity surfaces say `ORIN` is the shipped pre-Beta persona. That wording is aligned across `README.md`, `Docs/orin_vision.md`, `Docs/orin_display_naming_guidance.md`, `Docs/ownership_ip_plan.md`, and the released-persona gate in `assistant_personas.py`.
-- Runtime presentation surfaces already carrying the current identity include `desktop/orin_desktop_launcher.pyw`, `desktop/orin_desktop_main.py`, `desktop/orin_diagnostics.pyw`, `main.py`, and `jarvis_visual/orin_core*.html`. Those files present `Nexus Desktop AI`, `ORIN`, or the full ORIN expansion in current runtime-visible contexts.
+- Runtime presentation surfaces already carrying the current identity include `desktop/orin_desktop_launcher.pyw`, `desktop/orin_desktop_main.py`, `desktop/orin_diagnostics.pyw`, `main.py`, and `nexus_visual/orin_core*.html`. Those files present `Nexus Desktop AI`, `ORIN`, or the full ORIN expansion in current runtime-visible contexts.
 - `README.md` is a valid identity-orientation surface, but it is not a reliable release-truth owner because its `Latest public prerelease` line is stale at `v1.2.9-prebeta`. Release truth remains owned by backlog, roadmap, merged-unreleased release-debt canon, and later release packaging records.
-- Preserved historical or compatibility identity surfaces remain real and must be inventoried, not guessed away. `Docs/architecture.md` explicitly preserves Jarvis historical context, while current runtime code still carries Jarvis-named mutexes, relaunch events, history filenames, harness environment flags, prompt class names, comments, and some fallback messages.
+- Preserved historical or compatibility identity surfaces remain real and must be inventoried, not guessed away. `Docs/architecture.md` explicitly preserves Nexus historical context, while current runtime code still carries Nexus-named mutexes, relaunch events, history filenames, harness environment flags, prompt class names, comments, and some fallback messages.
 
 ### Current Persona-Option Source-Of-Truth Surfaces
 
@@ -238,8 +238,8 @@ WS-2 defines the boundary vocabulary that separates canonical current identity, 
 
 - Canonical current identity surfaces are the docs and registries that intentionally define present product truth: `Docs/Main.md`, the backlog/workstream record-state surfaces, `README.md` identity orientation, `Docs/orin_vision.md`, `Docs/orin_display_naming_guidance.md`, `Docs/ownership_ip_plan.md`, and the released-persona gate in `assistant_personas.py`.
 - Runtime presentation surfaces are downstream implementations that display the current identity to the user or operator, such as launcher labels, tray labels, diagnostics titles, ORIN visual titles, and boot-harness subtitles. They should follow canonical identity surfaces but do not own naming policy by themselves.
-- Historical-preserved surfaces are older Jarvis releases, closeouts, historical docs, and historical notes explicitly marked as preserved context. They remain valid history and should not be rewritten as if they were current product truth.
-- Compatibility artifact surfaces are still-real technical identifiers that retain Jarvis naming for continuity, such as mutex names, event names, environment flags, history filenames, class names, or fallback prompts. Their presence does not weaken current Nexus / ORIN truth, but they also are not silently admitted for renaming by this branch.
+- Historical-preserved surfaces are older Nexus releases, closeouts, historical docs, and historical notes explicitly marked as preserved context. They remain valid history and should not be rewritten as if they were current product truth.
+- Compatibility artifact surfaces are still-real technical identifiers that retain Nexus naming for continuity, such as mutex names, event names, environment flags, history filenames, class names, or fallback prompts. Their presence does not weaken current Nexus / ORIN truth, but they also are not silently admitted for renaming by this branch.
 - Orientation-only summary surfaces may restate current identity for onboarding or repo orientation, but they cannot override canonical backlog, roadmap, workstream, or release truth when those layers disagree.
 
 ### Persona-Option Boundary Framing
@@ -296,7 +296,7 @@ Before any future license text, ownership reference, trademark claim, entity tra
 - Docs/canon-only naming or licensing planning seams require repo-governance validation, clean branch truth, and no unapproved implementation changes.
 - Runtime, UI, tray, diagnostics, boot-harness, installer, shortcut, or asset naming changes are user-facing and must add the canonical `## User Test Summary` artifact plus any required shortcut or interactive desktop validation.
 - Release titles, release notes, GitHub release pages, `README.md` release-posture lines, and other public release-facing identity surfaces must be treated as release-scope changes and routed through PR/Release Readiness rather than casual docs cleanup.
-- Historical-preserved Jarvis surfaces may remain untouched by default; removing or renaming them requires an explicit compatibility decision, affected-surface inventory, and rollback plan.
+- Historical-preserved Nexus surfaces may remain untouched by default; removing or renaming them requires an explicit compatibility decision, affected-surface inventory, and rollback plan.
 - Helper reuse remains reuse-first. Docs/canon seams do not need new helpers, and later runtime or UI changes must consult `Docs/validation_helper_registry.md` before creating new validation helpers.
 
 ### WS-3 Completion Decision
@@ -494,8 +494,8 @@ Continuation Action: rerun file-frozen Release Readiness for the inherited `v1.6
 - `desktop/orin_diagnostics.pyw`
 - `desktop/single_instance.py`
 - `main.py`
-- `jarvis_visual/orin_core.html`
-- `jarvis_visual/orin_core_desktop.html`
+- `nexus_visual/orin_core.html`
+- `nexus_visual/orin_core_desktop.html`
 - `dev/orin_branch_governance_validation.py`
 
 ## Exit Criteria

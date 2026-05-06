@@ -38,7 +38,7 @@ This means:
 
 - use `Nexus Desktop AI` for product-level, tooling-shell, or platform identity
 - use ORIN naming guidance only where the assistant persona itself is being presented
-- keep legacy `Jarvis` wording only where the reference is historical or where a still-real runtime artifact continues to use that name
+- keep legacy `Nexus` wording only where the reference is historical or where a still-real runtime artifact continues to use that name
 
 ## Default Short Form
 

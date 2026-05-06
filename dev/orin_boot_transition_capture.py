@@ -21,7 +21,7 @@ REPORTS_DIR = os.path.join(BASE_LOG_ROOT, "reports")
 CAPTURES_DIR = os.path.join(BASE_LOG_ROOT, "captures")
 BOOT_RUNTIME_ROOT = os.path.join(DEV_LOGS_DIR, "boot_auto_handoff_skip_import")
 MAIN_SCRIPT = os.path.join(ROOT_DIR, "main.py")
-RUNTIME_RELAUNCH_EVENT = "Local\\JarvisRuntimeRelaunchRequestV1"
+RUNTIME_RELAUNCH_EVENT = "Local\\NexusRuntimeRelaunchRequestV1"
 
 REPORT_PREFIX = "BootTransitionCaptureReport_"
 CAPTURE_MARKERS = (

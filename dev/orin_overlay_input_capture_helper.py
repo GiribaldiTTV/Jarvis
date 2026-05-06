@@ -564,7 +564,7 @@ def _test_ambiguous_choose_confirm_execute_path():
         _assert(window._command_model.phase == "confirm", "digit choice should enter confirm state")
         window.handle_overlay_submit_requested()
         _assert(
-            launches and launches[0][0] == "open_jarvis_docs",
+            launches and launches[0][0] == "open_nexus_docs",
             "confirm path should launch the selected docs action",
         )
     finally:

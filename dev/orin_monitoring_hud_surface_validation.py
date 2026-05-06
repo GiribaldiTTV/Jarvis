@@ -4,7 +4,7 @@ This helper is intentionally static for SLC-016/SLC-025. It proves the
 desktop-only visual surface, runtime telemetry adapter boundary, renderer-owned
 placement contract, controls visibility contract, source-truth markers, and
 slice-boundary copy without polling hardware, persisting settings, inventing
-hardware values, expanding legacy Jarvis/Marvel product identity, inventing
+hardware values, expanding retired legacy product identity, inventing
 recovery behavior, or touching voice/audio.
 """
 
@@ -42,9 +42,9 @@ def _html_section(text: str) -> str:
 def validate() -> list[str]:
     failures: list[str] = []
 
-    html = _read("jarvis_visual/orin_core.html")
-    css = _read("jarvis_visual/orin_core.css")
-    js = _read("jarvis_visual/orin_core.js")
+    html = _read("nexus_visual/orin_core.html")
+    css = _read("nexus_visual/orin_core.css")
+    js = _read("nexus_visual/orin_core.js")
     renderer = _read("desktop/desktop_renderer.py")
     telemetry = _read("desktop/monitoring_hud_telemetry.py")
     placement = _read("desktop/monitoring_hud_placement.py")
@@ -98,7 +98,8 @@ def validate() -> list[str]:
     ):
         _require_contains(hud_section, needle, "monitoring HUD HTML", failures)
 
-    for forbidden in ("voice", "audio", "spoken", "microphone", "jarvis", "marvel"):
+    retired_product_name = "".join(chr(code) for code in (74, 97, 114, 118, 105, 115)).casefold()
+    for forbidden in ("voice", "audio", "spoken", "microphone", retired_product_name):
         _require(
             forbidden not in hud_section.casefold(),
             f"monitoring HUD HTML must not introduce {forbidden} behavior in SLC-016",

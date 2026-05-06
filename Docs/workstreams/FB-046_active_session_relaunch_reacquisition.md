@@ -103,7 +103,7 @@ FB-046 exists to make accepted relaunch a complete runtime story instead of a pa
 - no `main.py` ownership rewrite
 - no `Audio/` changes
 - no `logs/` ownership changes
-- no `jarvis_visual/` relocation or reorganization
+- no `nexus_visual/` relocation or reorganization
 - no installer or shortcut-registration redesign
 - no broader boot-orchestrator implementation
 
@@ -255,7 +255,7 @@ H-1 pressure-tested the completed FB-046 relaunch-reacquisition lane across fast
 
 ## Live Validation Record
 
-LV-1 validates the completed FB-046 relaunch-reacquisition slice chain against live repo truth, the declared real desktop shortcut path, explicit dev boot-proof evidence, exact User Test Summary state, and branch cleanliness. This pass stays bounded to the admitted relaunch/runtime ownership surfaces and does not reopen `main.py`, `Audio/`, `logs/`, `jarvis_visual/`, installer work, or broader boot-orchestrator scope.
+LV-1 validates the completed FB-046 relaunch-reacquisition slice chain against live repo truth, the declared real desktop shortcut path, explicit dev boot-proof evidence, exact User Test Summary state, and branch cleanliness. This pass stays bounded to the admitted relaunch/runtime ownership surfaces and does not reopen `main.py`, `Audio/`, `logs/`, `nexus_visual/`, installer work, or broader boot-orchestrator scope.
 
 ### Live Validation Findings
 

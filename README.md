@@ -55,7 +55,7 @@ Top-level folders currently include:
 - `desktop/` for launcher, renderer, interaction, and diagnostics runtime surfaces
 - `dev/` for toolkit surfaces, validators, harnesses, and internal helpers
 - `Docs/` for source-of-truth, architecture, planning, and guidance
-- `jarvis_visual/` for current visual assets and bridge-side UI resources
+- `nexus_visual/` for current visual assets and bridge-side UI resources
 - `logs/` for local runtime artifacts
 
 ## Source-Of-Truth Routing
@@ -80,7 +80,7 @@ Use:
 - `Nexus Desktop AI` for the product, repo, and tooling shell
 - `ORIN` for the current assistant persona
 
-Older `Jarvis` references remain only where they are:
+Older `Nexus` references remain only where they are:
 
 - preserved historical context
 - still-real runtime artifact names

@@ -570,7 +570,7 @@ WS-1 inventories the current voice/audio trigger surfaces, playback modules, tra
   - Classification: `telemetry`, `passive observer`
   - Ownership: forwards clamped voice-level values into the renderer page once ready
   - Notes: no playback, no transcript, and no prompt ownership
-- `jarvis_visual/orin_core.js`
+- `nexus_visual/orin_core.js`
   - Classification: `telemetry`, `passive observer`
   - Ownership: visual sink for `window.setCoreVoiceLevel(...)`
   - Notes: represents perceived speaking intensity only and must not be treated as evidence of actual audio playback
@@ -604,7 +604,7 @@ WS-1 inventories the current voice/audio trigger surfaces, playback modules, tra
   - `Audio/orin_error_voice.py` owns synchronized and final transcript writes.
   - `desktop/orin_diagnostics.pyw` is only the observer and history surface.
 - Renderer telemetry does not equal playback authority.
-  - `desktop/desktop_renderer.py` and `jarvis_visual/orin_core.js` only reflect voice levels pushed from callers.
+  - `desktop/desktop_renderer.py` and `nexus_visual/orin_core.js` only reflect voice levels pushed from callers.
   - They do not prove that audio actually played, completed, or reached the user.
 - Diagnostics transcript and history do not equal repo-wide spoken truth.
   - The diagnostics panel only reflects the launcher or error-voice path fed by status-file writes.
@@ -668,7 +668,7 @@ Renderer telemetry and observer lifecycle:
 
 1. Callers may emit voice-level changes even before the renderer page is ready.
 2. `desktop/desktop_renderer.py` stores a pending clamped voice level until `RENDERER_MAIN|VISUAL_PAGE_READY`, then forwards only numeric intensity to `window.setCoreVoiceLevel(...)`.
-3. `jarvis_visual/orin_core.js` is a passive visual sink; it reflects perceived speaking intensity and does not own prompts, playback timing, or transcript truth.
+3. `nexus_visual/orin_core.js` is a passive visual sink; it reflects perceived speaking intensity and does not own prompts, playback timing, or transcript truth.
 4. `desktop/orin_diagnostics.pyw` is also observer-only: it clears current voice on `VOICE_CLEAR`, mirrors in-progress speech on `VOICE_SYNC`, and appends history only on `VOICE_FINAL` when the final line is non-empty and not a duplicate of the most recent stored line.
 5. Renderer telemetry and diagnostics history are separate observer families. Neither is sufficient by itself to claim repo-wide playback authority or audible completion.
 
@@ -712,7 +712,7 @@ Observer and persona states:
 - `desktop/orin_desktop_launcher.pyw` owns when recovery, malfunction, failure, and shutdown speech is requested in the production failure path; `Audio/orin_error_voice.py` owns execution timing, transcript synchronization, and shutdown-effect playback for those lines.
 - `desktop/orin_diagnostics.pyw` is not allowed to invent, reorder, or validate speech on its own. It only renders launcher/error-voice status-file updates.
 - `desktop/orin_desktop_main.py` and `desktop/hotkeys.py` may request shutdown, but they do not own shutdown speech and must not grow independent voice authority by inertia.
-- `desktop/desktop_renderer.py` and `jarvis_visual/orin_core.js` own telemetry display only. They do not own prompt wording, transcript truth, or audible completion.
+- `desktop/desktop_renderer.py` and `nexus_visual/orin_core.js` own telemetry display only. They do not own prompt wording, transcript truth, or audible completion.
 - `assistant_personas.py` owns current persona/tone posture and release gating, but it is not yet the sole runtime playback-routing source.
 
 ### Transition Ambiguities Captured For Later Seams
@@ -740,7 +740,7 @@ WS-3 defines the validation and admission contract required before any later FB-
 
 Before any later FB-030 implementation seam may edit voice/audio behavior or user-facing persona surfaces, it must record:
 
-- the exact affected surface classes, such as boot caller/prompt flow in `main.py`, launcher recovery/failure policy in `desktop/orin_desktop_launcher.pyw`, playback authorities in `Audio/orin_voice.py` and `Audio/orin_error_voice.py`, shutdown-request callers in `desktop/orin_desktop_main.py` or `desktop/hotkeys.py`, renderer telemetry in `desktop/desktop_renderer.py` / `jarvis_visual/orin_core.js`, diagnostics transcript/history in `desktop/orin_diagnostics.pyw`, persona registry truth in `assistant_personas.py`, audio assets/effect pipelines, or public/release-facing docs
+- the exact affected surface classes, such as boot caller/prompt flow in `main.py`, launcher recovery/failure policy in `desktop/orin_desktop_launcher.pyw`, playback authorities in `Audio/orin_voice.py` and `Audio/orin_error_voice.py`, shutdown-request callers in `desktop/orin_desktop_main.py` or `desktop/hotkeys.py`, renderer telemetry in `desktop/desktop_renderer.py` / `nexus_visual/orin_core.js`, diagnostics transcript/history in `desktop/orin_diagnostics.pyw`, persona registry truth in `assistant_personas.py`, audio assets/effect pipelines, or public/release-facing docs
 - the ownership class of each touched surface: `playback authority`, `caller`, `passive observer`, `transcript/history`, `telemetry`, `persona/tone source`, or `documentation surface`
 - the lifecycle family being changed: boot speech, quiet-mode bypass, malfunction speech, retry speech, failure-finalization speech, shutdown speech, telemetry-only visualization, diagnostics history, persona posture, or public explanatory surface
 - the exact before/after state vocabulary and runtime markers that will prove the change, including any boot `BOOT_MAIN|VOICE_*` markers, launcher runtime events, diagnostics `VOICE_CLEAR` / `VOICE_SYNC` / `VOICE_FINAL` semantics, renderer telemetry behavior, or new markers if the seam introduces them
@@ -781,13 +781,13 @@ Launcher recovery, failure, or shutdown speech seams:
 
 Diagnostics transcript/history seams:
 
-- `dev/orin_diagnostics_report_issue_validation.py` only after repair or with an explicit recorded bypass, because the current helper still points at legacy `jarvis_diagnostics.pyw`
+- `dev/orin_diagnostics_report_issue_validation.py` only after repair or with an explicit recorded bypass, because the current helper still points at legacy `nexus_diagnostics.pyw`
 - `dev/orin_recoverable_launch_failed_validation.py` when launcher-failure diagnostics semantics are affected
 - proof of `VOICE_CLEAR`, `VOICE_SYNC`, `VOICE_FINAL`, deduplicated history append behavior, and any change to whether diagnostics is launcher-path-only or repo-wide
 
 Renderer telemetry or visible voice-UI seams:
 
-- proof that `desktop/desktop_renderer.py` and `jarvis_visual/orin_core.js` remain telemetry-only unless the seam explicitly widens their authority
+- proof that `desktop/desktop_renderer.py` and `nexus_visual/orin_core.js` remain telemetry-only unless the seam explicitly widens their authority
 - live visual validation whenever meaningful visible voice/audio UI changes
 - explicit statement that telemetry is supporting evidence only and does not replace playback or transcript proof
 
@@ -829,7 +829,7 @@ H-1 is docs/canon only. It pressure-tests whether the completed FB-030 voice/aud
 ### Hardening Findings
 
 - Governance Gap: current-state canon still reflected Workstream-active / Hardening-next truth even though the admitted WS-1 through WS-3 seam chain had already finished. H-1 corrects current phase-state truth to Hardening-complete / Live-Validation-next.
-- Validation Gap: `dev/orin_diagnostics_report_issue_validation.py` is still registered as reusable diagnostics proof, but the file currently targets legacy `jarvis_diagnostics.pyw`. That means diagnostics issue/report validation is repair-gated for FB-030 until the helper is fixed or explicitly bypassed.
+- Validation Gap: `dev/orin_diagnostics_report_issue_validation.py` is still registered as reusable diagnostics proof, but the file currently targets legacy `nexus_diagnostics.pyw`. That means diagnostics issue/report validation is repair-gated for FB-030 until the helper is fixed or explicitly bypassed.
 - Duplicate-Trigger Risk Review: the current shutdown model is coherent but intentionally split. `main.py` owns boot-lane shutdown speech before emitting `shutdown_requested`, while launcher failure finalization owns `Recovery failed.` then `Shutting down.` in the production failure lane. Future seams that touch shared shutdown-request handling, retry/failure transitions, or terminal shutdown wording need explicit precedence and idempotence proof.
 - Cross-Path Conflict Review: normal ORIN boot speech, launcher error/shutdown speech, diagnostics history, renderer telemetry, and persona registry tone truth can coexist without contradiction today, but they are not one unified authority. Diagnostics remains launcher-path-only transcript truth, renderer voice level remains telemetry-only, and persona registry truth still sits upstream of implementation-local routing. Later changes must explicitly declare whether boot and launcher voice lanes are meant to stay aligned or intentionally diverge.
 - Scope Check: WS-1 through WS-3 and H-1 remain docs/canon only. No runtime prompt edits, shutdown voice edits, recovery voice edits, diagnostics implementation edits, renderer/UI edits, asset edits, release-note edits, or persona-default changes were introduced.
@@ -1004,6 +1004,6 @@ Continuation Action: `Remain in PR Readiness and continue into PR2 merge-watch p
 - `desktop/desktop_renderer.py`
 - `desktop/orin_diagnostics.pyw`
 - `desktop/hotkeys.py`
-- `jarvis_visual/orin_core.js`
+- `nexus_visual/orin_core.js`
 - `Audio/orin_voice.py`
 - `Audio/orin_error_voice.py`

@@ -65,7 +65,7 @@ The next implementation workstream must be chosen from refreshed backlog, workst
 
 ## Historical Relationship
 
-The preserved historical Jarvis closeout line remains valid historical context.
+The preserved historical Nexus closeout line remains valid historical context.
 
 Use:
 

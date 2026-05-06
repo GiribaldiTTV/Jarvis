@@ -118,7 +118,7 @@ FB-043 continues the runtime-bearing desktop entrypoint lane after FB-042 by res
 
 - no `Audio/` changes
 - no `logs/` ownership changes
-- no `jarvis_visual/` relocation or reorganization
+- no `nexus_visual/` relocation or reorganization
 - no installer or shortcut-registration redesign
 - no broader workspace reshaping
 - no unrelated tray, task, or runtime UX expansion
@@ -202,7 +202,7 @@ Future-Dependent Blockers: `None`
 - Out-Of-Scope Paths:
   - `Audio/`
   - `logs/`
-  - `jarvis_visual/`
+  - `nexus_visual/`
   - installer, packaging, or shortcut-registration redesign
   - broader workspace or root ownership reshaping beyond the top-level handoff seam
   - unrelated runtime UX expansion
@@ -245,7 +245,7 @@ Future-Dependent Blockers: `None`
 - Out-Of-Scope Paths:
   - `Audio/`
   - `logs/`
-  - `jarvis_visual/`
+  - `nexus_visual/`
   - installer, packaging, or shortcut-registration redesign
   - broader workspace or root ownership reshaping beyond the top-level handoff seam
   - unrelated runtime UX expansion
@@ -333,7 +333,7 @@ H-1 pressure-tested the completed FB-043 slice chain across explicit launch-inte
 
 ## Live Validation Record
 
-LV-1 validates the completed FB-043 slice chain against live repo truth, the declared real desktop shortcut path, explicit dev boot-profile evidence, exact User Test Summary state, and branch cleanliness. This pass keeps the lane bounded to the admitted top-level entrypoint surfaces and does not reopen `Audio/`, `logs/`, `jarvis_visual/`, installer work, or broader workspace reshaping.
+LV-1 validates the completed FB-043 slice chain against live repo truth, the declared real desktop shortcut path, explicit dev boot-profile evidence, exact User Test Summary state, and branch cleanliness. This pass keeps the lane bounded to the admitted top-level entrypoint surfaces and does not reopen `Audio/`, `logs/`, `nexus_visual/`, installer work, or broader workspace reshaping.
 
 ### Live Validation Findings
 

@@ -133,7 +133,7 @@ None.
   - `main.py`
   - `Docs/workspace_layout_plan.md` except for direct path-truth notes if required by implementation
   - `Audio/`
-  - `jarvis_visual/`
+  - `nexus_visual/`
   - `logs/`
   - installer/config packaging surfaces
   - unrelated tray/task/action authoring code outside the entrypoint path
@@ -211,7 +211,7 @@ Seam 1: `WS-1 desktop shortcut launch-path runtime refinement`
 
 ## H-1 Hardening Record
 
-H-1 pressure-tested the completed WS-1 runtime delta across launch-path ownership, fallback execution behavior, PATH-based Python resolution, launcher/runtime cleanup boundaries, validator preflight and process isolation, rollback viability, and cross-environment edge cases without widening into `main.py`, `Audio/`, `logs/`, `jarvis_visual/`, installer work, or broader workspace reshaping.
+H-1 pressure-tested the completed WS-1 runtime delta across launch-path ownership, fallback execution behavior, PATH-based Python resolution, launcher/runtime cleanup boundaries, validator preflight and process isolation, rollback viability, and cross-environment edge cases without widening into `main.py`, `Audio/`, `logs/`, `nexus_visual/`, installer work, or broader workspace reshaping.
 
 ### Hardening Findings
 
@@ -219,7 +219,7 @@ H-1 pressure-tested the completed WS-1 runtime delta across launch-path ownershi
 - Default-path and forced-fallback execution both succeed through the real `launch_orin_desktop.vbs` -> `desktop/orin_desktop_launcher.pyw` -> `desktop/orin_desktop_main.py` chain.
 - A real PATH-resolution edge case exists on Windows: `where pyw.exe` can succeed through Windows app aliases even when a usable registered Python 3 launcher is not yet proven.
 - Validator cleanup boundaries remain acceptable because preflight and cleanup target only validation-owned launch-chain processes under `dev/logs/desktop_entrypoint_validation`.
-- Hidden-coupling pressure tests found no new launch-fallback symbol leakage into `main.py`, `Audio/`, or `jarvis_visual/`.
+- Hidden-coupling pressure tests found no new launch-fallback symbol leakage into `main.py`, `Audio/`, or `nexus_visual/`.
 - The final `pythonw.exe` PATH fallback remains environment-sensitive if it points at a mismatched install, but the preferred installed path plus the explicit `py -0p` registration check now reduce that risk materially.
 
 ### Hardening Corrections
@@ -241,7 +241,7 @@ H-1 pressure-tested the completed WS-1 runtime delta across launch-path ownershi
 - `python dev\orin_desktop_entrypoint_validation.py`: PASS; report `dev/logs/desktop_entrypoint_validation/reports/DesktopEntrypointValidationReport_20260424_133627.txt`.
 - `python dev\orin_branch_governance_validation.py`: PASS.
 - `git diff --check`: PASS.
-- Hidden-coupling scan: PASS; no new fallback-resolution markers leaked into `main.py`, `Audio/`, or `jarvis_visual/`.
+- Hidden-coupling scan: PASS; no new fallback-resolution markers leaked into `main.py`, `Audio/`, or `nexus_visual/`.
 
 ## Live Validation Record
 

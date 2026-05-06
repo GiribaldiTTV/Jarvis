@@ -20,8 +20,8 @@ from desktop.single_instance import NamedSignal
 
 RUNTIME_LOG_FILE = ""
 STARTUP_ABORT_SIGNAL_FILE = ""
-RUNTIME_RELAUNCH_EVENT = r"Local\JarvisRuntimeRelaunchRequestV1"
-RUNTIME_DESKTOP_SETTLED_EVENT = r"Local\JarvisRuntimeDesktopSettledV1"
+RUNTIME_RELAUNCH_EVENT = r"Local\NexusRuntimeRelaunchRequestV1"
+RUNTIME_DESKTOP_SETTLED_EVENT = r"Local\NexusRuntimeDesktopSettledV1"
 TRAY_IDENTITY_LABEL = "Nexus Desktop AI"
 TRAY_DISCOVERY_MESSAGE = (
     "Nexus Desktop AI is running in the Windows notification area. "
@@ -181,7 +181,7 @@ def overlay_trace_enabled():
 
 
 def harness_relaunch_shutdown_delay_seconds():
-    value = (os.environ.get("JARVIS_HARNESS_RELAUNCH_SHUTDOWN_DELAY_SECONDS") or "").strip()
+    value = (os.environ.get("NEXUS_HARNESS_RELAUNCH_SHUTDOWN_DELAY_SECONDS") or "").strip()
     if not value:
         return 0.0
     try:
@@ -191,7 +191,7 @@ def harness_relaunch_shutdown_delay_seconds():
 
 
 def harness_ignore_relaunch_request():
-    value = (os.environ.get("JARVIS_HARNESS_IGNORE_RELAUNCH_REQUEST") or "").strip().casefold()
+    value = (os.environ.get("NEXUS_HARNESS_IGNORE_RELAUNCH_REQUEST") or "").strip().casefold()
     return value in {"1", "true", "yes", "on"}
 
 
@@ -372,7 +372,7 @@ def main():
     if exit_if_startup_abort_requested():
         return 0
 
-    visual_html_path = os.path.join(ROOT_DIR, "jarvis_visual", "orin_core.html")
+    visual_html_path = os.path.join(ROOT_DIR, "nexus_visual", "orin_core.html")
     runtime_milestone("RENDERER_MAIN|VISUAL_HTML_RESOLVED")
     if exit_if_startup_abort_requested():
         return 0

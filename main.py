@@ -255,8 +255,8 @@ AUTO_STAGE_COMMANDS = {
     "command_1": "engage hud",
     "command_2": "no",
 }
-RUNTIME_INSTANCE_MUTEX = r"Local\JarvisRuntimeSingletonV1"
-RUNTIME_RELAUNCH_EVENT = r"Local\JarvisRuntimeRelaunchRequestV1"
+RUNTIME_INSTANCE_MUTEX = r"Local\NexusRuntimeSingletonV1"
+RUNTIME_RELAUNCH_EVENT = r"Local\NexusRuntimeRelaunchRequestV1"
 runtime_instance_guard = SingleInstanceGuard(RUNTIME_INSTANCE_MUTEX)
 runtime_relaunch_signal = NamedSignal(RUNTIME_RELAUNCH_EVENT)
 
@@ -631,7 +631,7 @@ class BootRuntimeWindow(BaseWindow):
 
 
 # ---------------------------
-# Main Jarvis system
+# Main Nexus system
 # ---------------------------
 
 class BootRuntimeSystem:
@@ -715,7 +715,7 @@ class BootRuntimeSystem:
             self.left_screen = other_sorted[0]
             self.right_screen = other_sorted[1]
 
-        visual_html = os.path.join(self.base_dir, "jarvis_visual", "orin_core.html")
+        visual_html = os.path.join(self.base_dir, "nexus_visual", "orin_core.html")
 
         self.left_window = BootSideWindow(self.left_screen, "LEFT MODULE")
         self.boot_center_window = BootRuntimeWindow(self.center_screen, visual_html)

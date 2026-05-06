@@ -70,7 +70,7 @@ None. The merged-main release blocker is now owned by the admitted FB-045 slice 
 - FB-045 owns a bounded blocker-clearing runtime/user-facing slice on a normal `feature/` branch.
 - The admitted slice records exact affected paths, in-scope/out-of-scope limits, validation coverage, rollback conditions, and same-branch backlog-completion posture.
 - Current-state canon preserves FB-044 as the merged-unreleased release-debt owner while also making the active FB-045 Branch Readiness branch explicit.
-- Branch Readiness resolves without widening into `Audio/`, `logs/`, `jarvis_visual/`, installer changes, or broader future boot-orchestrator work.
+- Branch Readiness resolves without widening into `Audio/`, `logs/`, `nexus_visual/`, installer changes, or broader future boot-orchestrator work.
 
 ## Rollback Target
 
@@ -158,7 +158,7 @@ Backlog-Split Reason: `None`
   - `main.py`
   - `Audio/`
   - `logs/`
-  - `jarvis_visual/`
+  - `nexus_visual/`
   - installer, packaging, or shortcut-registration redesign
   - broader boot-orchestrator implementation
   - unrelated tray, task, or runtime UX expansion
@@ -172,7 +172,7 @@ Backlog-Split Reason: `None`
   - no `main.py` ownership rewrite
   - no audio-path rewiring
   - no `logs/` ownership changes
-  - no `jarvis_visual/` relocation or reorganization
+  - no `nexus_visual/` relocation or reorganization
   - no installer or shortcut-registration redesign
   - no broader boot-orchestrator buildout
 
@@ -190,7 +190,7 @@ Backlog-Split Reason: `None`
 
 - rollback if the already-green primary-workspace desktop shortcut / VBS / launcher / renderer path regresses before or at settled
 - rollback if explicit dev boot proof regresses or drifts away from the authoritative settled contract
-- rollback if the slice widens into `main.py`, `Audio/`, `logs/`, `jarvis_visual/`, installer behavior, or broader orchestrator work
+- rollback if the slice widens into `main.py`, `Audio/`, `logs/`, `nexus_visual/`, installer behavior, or broader orchestrator work
 - rollback if post-settled failure handling becomes less truthful by hiding crashes behind false clean-shutdown or false relaunch-success markers
 
 ## User Test Summary Strategy

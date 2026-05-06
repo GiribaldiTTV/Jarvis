@@ -18,7 +18,7 @@ DEV_LOGS_DIR = os.path.join(ROOT_DIR, "dev", "logs")
 BASE_LOG_ROOT = os.path.join(DEV_LOGS_DIR, "desktop_toolkit_validation")
 REPORTS_DIR = os.path.join(BASE_LOG_ROOT, "reports")
 
-DEV_LAUNCHER_SCRIPT = os.path.join(ROOT_DIR, "dev", "launchers", "jarvis_dev_launcher.pyw")
+DEV_LAUNCHER_SCRIPT = os.path.join(ROOT_DIR, "dev", "launchers", "nexus_dev_launcher.pyw")
 DEV_LAUNCHERS_DIR = os.path.join(ROOT_DIR, "dev", "launchers")
 
 REPORT_PREFIX = "DesktopToolkitValidationReport_"
@@ -28,7 +28,7 @@ DESKTOP_CASES = (
         "name": "Toolkit Desktop Helper: Healthy Desktop Validation",
         "lane_key": "desktopHealthy",
         "lane_label": "Healthy Desktop Launch Validation",
-        "expected_launcher": "launch_jarvis_desktop_entrypoint_validation.vbs",
+        "expected_launcher": "launch_nexus_desktop_entrypoint_validation.vbs",
         "report_root": os.path.join(DEV_LOGS_DIR, "desktop_entrypoint_validation", "reports"),
         "report_prefix": "DesktopEntrypointValidationReport_",
         "timeout_seconds": 60,
@@ -37,7 +37,7 @@ DESKTOP_CASES = (
         "name": "Toolkit Desktop Helper: Healthy Launcher Validation",
         "lane_key": "launcherHealthy",
         "lane_label": "Healthy Launcher Path Validation",
-        "expected_launcher": "launch_jarvis_desktop_launcher_healthy_validation.vbs",
+        "expected_launcher": "launch_nexus_desktop_launcher_healthy_validation.vbs",
         "report_root": os.path.join(DEV_LOGS_DIR, "desktop_launcher_healthy_validation", "reports"),
         "report_prefix": "DesktopLauncherHealthyValidationReport_",
         "timeout_seconds": 90,
@@ -324,7 +324,7 @@ def collect_failures(section):
 
 def build_report_text(branch_state, report_path, sections, overall_ok):
     lines = [
-        "JARVIS DESKTOP TOOLKIT VALIDATION",
+        "NEXUS DESKTOP TOOLKIT VALIDATION",
         f"Report: {report_path}",
         f"Branch: {branch_state}",
         f"Overall Result: {'PASS' if overall_ok else 'FAIL'}",
@@ -358,7 +358,7 @@ def main(argv):
     ensure_dir(REPORTS_DIR)
 
     dev_launcher_module = load_module_from_path(
-        "jarvis_dev_launcher_desktop_toolkit_validation_module",
+        "nexus_dev_launcher_desktop_toolkit_validation_module",
         DEV_LAUNCHER_SCRIPT,
     )
 

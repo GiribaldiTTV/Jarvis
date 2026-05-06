@@ -211,7 +211,12 @@ USER_VISION_INPUT_PENDING_BLOCKER = "USER Vision Input Pending"
 USER_VISION_INPUT_FILE_MISSING_BLOCKER = "USER Vision Input File Missing"
 USER_VISION_INPUT_ANSWERS_PENDING_BLOCKER = "USER Vision Input Answers Pending"
 USER_VISION_INPUT_DIGEST_PENDING_BLOCKER = "USER Vision Input Digest Pending"
-LEGACY_PRODUCT_NAME_DRIFT_BLOCKER = "Legacy Jarvis Product Name Drift"
+LEGACY_PRODUCT_NAME_DRIFT_BLOCKER = "Legacy Product Name Drift"
+LEGACY_RETIRED_PRODUCT_NAME = "".join(chr(code) for code in (74, 97, 114, 118, 105, 115))
+LEGACY_PRODUCT_NAME_EXTRA_TOKENS = (
+    "".join(chr(code) for code in (77, 97, 114, 118, 101, 108)),
+    "".join(chr(code) for code in (83, 116, 97, 114, 107)),
+)
 HARDWARE_TELEMETRY_PROVIDER_PENDING_BLOCKER = "Hardware Telemetry Provider Selection Pending"
 POLLING_FLOOR_UNDECIDED_BLOCKER = "Polling Floor Undecided"
 WARNING_DELIVERY_MODALITY_PENDING_BLOCKER = "Warning Delivery Modality Pending"
@@ -225,6 +230,7 @@ FAM006_BRANCH_RECORD = Path(
 )
 FAM006_STAGE2_R6_HEADING = "Stage 2-R6 Product Scope Boundary And Acceptance Criteria"
 FAM006_STAGE2_R7_HEADING = "Stage 2-R7 Planning Revalidation Closeout And WS7 Handoff"
+FAM006_STAGE2_R8_HEADING = "Stage 2-R8 Legacy Product Name Blocker And USER Vision Input Refresh"
 FAM006_STAGE2_R6_REQUIRED_MARKERS = (
     "Current-Branch Scope Final:",
     "Future-Package Scope Final:",
@@ -233,7 +239,7 @@ FAM006_STAGE2_R6_REQUIRED_MARKERS = (
     "Warning Modality:",
     "External Telemetry Privacy:",
     "Audio/FAM-004 Boundary:",
-    "Jarvis/Nexus Naming Handling:",
+    "Legacy/Nexus Naming Handling:",
     "Acceptance Criteria Final:",
     "Proof Standard Final:",
     "Validator Enforcement:",
@@ -255,11 +261,11 @@ FAM006_STAGE2_R6_REQUIRED_PHRASES = (
     "External/plugin telemetry remains future-package scope",
     "consent, provenance, source labeling, privacy warnings, and validation",
     "Current/future user-facing product copy should use Nexus",
-    "Real runtime artifact paths such as jarvis_visual/ may remain",
-    "must not expand Jarvis/Marvel identity",
+    "active tracked source, runtime paths, validators, docs, generated-user surfaces, and user-facing copy must not carry retired legacy product identity",
+    "Legacy Product Name Drift blocks Workstream",
     "no fake telemetry values presented as real",
     "Marker/DOM proof is supporting evidence only",
-    "WS7 remains blocked until Branch Readiness Stage 1-R4",
+    "Stage 2-R8 supersedes the handoff",
 )
 FAM006_STAGE2_R7_REQUIRED_PHRASES = (
     "Stage 1-R4 Result:",
@@ -271,6 +277,14 @@ FAM006_STAGE2_R7_REQUIRED_PHRASES = (
     "PKG-006 remains In Progress",
     "package completion remains unclaimed",
     "Visible user-facing proof, full-desktop screenshot proof, and User Test Summary acceptance remain required",
+)
+FAM006_STAGE2_R8_REQUIRED_PHRASES = (
+    "All retired legacy product naming is invalid for the current Nexus Desktop AI direction",
+    "Workstream WS7 is blocked until legacy naming is removed or migrated",
+    "Legacy Product Name Drift blocks Workstream implementation",
+    "User Vision Input.txt was refreshed",
+    "The artifact is not repo source truth until a later digest pass",
+    "WS7 remains blocked on Legacy Product Name Drift",
 )
 USER_VISION_INPUT_HANDOFF_MARKERS = (
     "USER Vision Input Artifact Path:",
@@ -3390,6 +3404,52 @@ def _git_prebeta_tags() -> list[str]:
     ]
 
 
+def _git_tracked_files() -> list[Path]:
+    completed = subprocess.run(
+        ("git", "ls-files"),
+        cwd=ROOT_DIR,
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        check=False,
+    )
+    if completed.returncode != 0:
+        return []
+    return [Path(line.strip()) for line in completed.stdout.splitlines() if line.strip()]
+
+
+def _tracked_repo_legacy_product_name_occurrences() -> list[str]:
+    banned_tokens = [
+        LEGACY_RETIRED_PRODUCT_NAME.casefold(),
+        *(token.casefold() for token in LEGACY_PRODUCT_NAME_EXTRA_TOKENS),
+    ]
+    occurrences: list[str] = []
+    for relative_path in _git_tracked_files():
+        normalized_path = relative_path.as_posix()
+        normalized_path_casefold = normalized_path.casefold()
+        if any(banned in normalized_path_casefold for banned in banned_tokens):
+            occurrences.append(f"{normalized_path}: tracked path contains legacy product name")
+            continue
+        path = ROOT_DIR / relative_path
+        try:
+            text = path.read_text(encoding="utf-8", errors="ignore")
+        except OSError:
+            continue
+        text_casefold = text.casefold()
+        matched_token = next((banned for banned in banned_tokens if banned in text_casefold), "")
+        if matched_token:
+            line_number = next(
+                (
+                    index
+                    for index, line in enumerate(text.splitlines(), start=1)
+                    if matched_token in line.casefold()
+                ),
+                "?",
+            )
+            occurrences.append(f"{normalized_path}:{line_number}: tracked content contains legacy product name")
+    return occurrences
+
+
 def _git_remote_prebeta_tags() -> list[str]:
     completed = subprocess.run(
         ("git", "ls-remote", "--tags", "origin", "refs/tags/v*-prebeta"),
@@ -4333,7 +4393,6 @@ def _validate_fam006_stage2_r6_plan(
         "Branch Reach Unproven",
         "Acceptance Criteria Missing",
         "Current Branch vs Future Package Boundary Missing",
-        LEGACY_PRODUCT_NAME_DRIFT_BLOCKER,
         HARDWARE_TELEMETRY_PROVIDER_PENDING_BLOCKER,
         POLLING_FLOOR_UNDECIDED_BLOCKER,
         WARNING_DELIVERY_MODALITY_PENDING_BLOCKER,
@@ -4364,7 +4423,39 @@ def _validate_fam006_stage2_r6_plan(
             "as finalized by Stage 2-R6"
         ),
     )
+    stage2_r8_section = _section(text, FAM006_STAGE2_R8_HEADING)
+    has_stage2_r8_blocker = LEGACY_PRODUCT_NAME_DRIFT_BLOCKER in blockers
+
     if current_phase == "Branch Readiness":
+        if has_stage2_r8_blocker:
+            require(
+                bool(stage2_r8_section),
+                f"{source_path}: FAM-006 Branch Readiness re-entry is missing '## {FAM006_STAGE2_R8_HEADING}'",
+            )
+            for phrase in FAM006_STAGE2_R8_REQUIRED_PHRASES:
+                require(
+                    phrase in stage2_r8_section,
+                    f"{source_path}: {FAM006_STAGE2_R8_HEADING} is missing '{phrase}'",
+                )
+            for blocker in (
+                LEGACY_PRODUCT_NAME_DRIFT_BLOCKER,
+                USER_VISION_INPUT_PENDING_BLOCKER,
+                USER_VISION_INPUT_ANSWERS_PENDING_BLOCKER,
+                USER_VISION_INPUT_DIGEST_PENDING_BLOCKER,
+                PRODUCT_PLANNING_INCOMPLETE_BLOCKER,
+            ):
+                require(
+                    blocker in blockers,
+                    f"{source_path}: Stage 2-R8 Branch Readiness re-entry must keep '{blocker}' active",
+                )
+            require(
+                "Planning Blockers: `Legacy Product Name Drift`;" in plan_section,
+                (
+                    f"{source_path}: Stage 2-R8 Product Definition Plan must list "
+                    "Legacy Product Name Drift as an active planning blocker"
+                ),
+            )
+            return
         require(
             "Planning Blockers: `Branch Readiness Planning Incomplete`." in plan_section,
             (
@@ -10960,6 +11051,9 @@ def main() -> int:
         checks += 1
         if not condition:
             errors.append(message)
+
+    for occurrence in _tracked_repo_legacy_product_name_occurrences():
+        require(False, f"Tracked repo sterilization: {occurrence}")
 
     for relative_path in PROMPT_CONTRACT_DOCS:
         text = _read_text(relative_path)

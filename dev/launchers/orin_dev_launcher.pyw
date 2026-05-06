@@ -41,8 +41,8 @@ BOOT_TRANSITION_CAPTURE_FRAMES_DIR = os.path.join(BOOT_TRANSITION_CAPTURE_ROOT, 
 SUPPORT_BUNDLE_TRIAGE_SCRIPT = os.path.join(ROOT_DIR, "dev", "orin_support_bundle_triage.py")
 
 PYTHONW_PATH = r"C:\Users\anden\AppData\Local\Python\pythoncore-3.14-64\pythonw.exe"
-DEV_TOOLKIT_MUTEX = r"Local\JarvisDevToolkitSingletonV1"
-DEV_TOOLKIT_RELAUNCH_EVENT = r"Local\JarvisDevToolkitRelaunchRequestV1"
+DEV_TOOLKIT_MUTEX = r"Local\NexusDevToolkitSingletonV1"
+DEV_TOOLKIT_RELAUNCH_EVENT = r"Local\NexusDevToolkitRelaunchRequestV1"
 dev_toolkit_guard = SingleInstanceGuard(DEV_TOOLKIT_MUTEX)
 dev_toolkit_relaunch_signal = NamedSignal(DEV_TOOLKIT_RELAUNCH_EVENT)
 
@@ -1136,7 +1136,7 @@ class DevLauncherWindow(QWidget):
     def _build_global_utilities_panel(self, layout):
         button_rows = (
             [
-                ("Project Root", self.open_jarvis_root, "Open Project Root"),
+                ("Project Root", self.open_nexus_root, "Open Project Root"),
                 ("Dev Folder", self.open_dev_folder, "Open Dev Folder"),
                 ("Dev Logs", self.open_dev_logs_root, "Open Dev Logs Root"),
                 ("Latest Toolkit Log", self.open_latest_toolkit_session_log, "Open Latest Toolkit Session Log"),
@@ -2691,7 +2691,7 @@ class DevLauncherWindow(QWidget):
             return
         self.open_path(source_path, f"Opened selected support bundle source: {source_path}")
 
-    def open_jarvis_root(self):
+    def open_nexus_root(self):
         self.open_path(ROOT_DIR, f"Opened: Project root :: {ROOT_DIR}")
 
     def open_dev_folder(self):

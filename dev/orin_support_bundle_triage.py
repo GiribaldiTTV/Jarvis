@@ -12,7 +12,7 @@ DEV_LOGS_DIR = os.path.join(ROOT_DIR, "dev", "logs")
 DEFAULT_BASE_LOG_ROOT = os.path.join(DEV_LOGS_DIR, "support_bundle_triage")
 MANIFEST_FILENAME = "manifest.json"
 
-DESKTOP_LAUNCHER_REGRESSION_HARNESS = os.path.join(ROOT_DIR, "dev", "jarvis_desktop_launcher_regression_harness.py")
+DESKTOP_LAUNCHER_REGRESSION_HARNESS = os.path.join(ROOT_DIR, "dev", "nexus_desktop_launcher_regression_harness.py")
 
 SUPPORTED_CLASSES = {
     "launcher_repeated_identical_crash_threshold": {
@@ -99,7 +99,7 @@ def extract_bundle_if_needed(bundle_path, base_log_root):
     if not zipfile.is_zipfile(normalized):
         raise SupportBundleTriageError("The support bundle path must be a .zip file or an extracted bundle folder.")
 
-    temp_root = tempfile.mkdtemp(prefix="jarvis_support_bundle_", dir=base_log_root)
+    temp_root = tempfile.mkdtemp(prefix="nexus_support_bundle_", dir=base_log_root)
     cleanup_dir = temp_root
     with zipfile.ZipFile(normalized, "r") as archive:
         archive.extractall(temp_root)
@@ -265,7 +265,7 @@ def summarize_bundle(bundle_root, source_path, manifest_path, manifest, runtime_
         "runtime_log_present": make_check(bool(runtime_log_path), runtime_log_path or "runtime log missing from bundle"),
         "crash_log_present_or_optional": make_check(bool(crash_log_path) or not any(entry.get("kind") == "crash_log" for entry in manifest.get("bundled_files", [])), crash_log_path or "crash log not bundled"),
         "run_identity_present": make_check(bool(manifest.get("run_identity")), manifest.get("run_identity") or "missing run_identity"),
-        "jarvis_version_present": make_check(bool(manifest.get("jarvis_version")), manifest.get("jarvis_version") or "missing jarvis_version"),
+        "nexus_version_present": make_check(bool(manifest.get("nexus_version")), manifest.get("nexus_version") or "missing nexus_version"),
         "classification_confident_or_safe_fallback": make_check(
             classification["classification_key"] != "unknown" or classification["confidence"] == "low",
             classification["classification_label"],
@@ -287,7 +287,7 @@ def summarize_bundle(bundle_root, source_path, manifest_path, manifest, runtime_
 def build_report_text(report_path, result):
     classification = result["classification"]
     lines = [
-        "JARVIS SUPPORT BUNDLE TRIAGE",
+        "NEXUS SUPPORT BUNDLE TRIAGE",
         f"Report: {report_path}",
         f"Source: {result['source_path']}",
         f"Bundle Root: {result['bundle_root']}",
@@ -297,7 +297,7 @@ def build_report_text(report_path, result):
         "",
         "Bundle Context:",
         f"  Run Identity: {result['manifest'].get('run_identity', 'unknown')}",
-        f"  Jarvis Version: {result['manifest'].get('jarvis_version', 'unknown')}",
+        f"  Nexus Version: {result['manifest'].get('nexus_version', 'unknown')}",
         f"  Bundle Created At: {result['manifest'].get('bundle_created_at', 'unknown')}",
         "",
         "Classification:",
@@ -385,7 +385,7 @@ def triage_bundle(source_path, log_root_override=None):
 
 def main(argv):
     if not argv:
-        print("Usage: python dev/jarvis_support_bundle_triage.py <support_bundle_zip_or_folder>")
+        print("Usage: python dev/nexus_support_bundle_triage.py <support_bundle_zip_or_folder>")
         return 1
 
     source_path = argv[0]

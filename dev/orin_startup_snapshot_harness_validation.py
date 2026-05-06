@@ -179,15 +179,15 @@ def run_scenario(scenario):
     live_log_snapshot_before = snapshot_tree(LIVE_LOG_ROOT)
 
     env = os.environ.copy()
-    env["JARVIS_HARNESS_LOG_ROOT"] = log_root_abs
-    env["JARVIS_HARNESS_DISABLE_DIAGNOSTICS"] = "1"
-    env["JARVIS_HARNESS_DISABLE_VOICE"] = "1"
-    env["JARVIS_HARNESS_STARTUP_SNAPSHOT_DIR"] = snapshot_dir_abs
+    env["NEXUS_HARNESS_LOG_ROOT"] = log_root_abs
+    env["NEXUS_HARNESS_DISABLE_DIAGNOSTICS"] = "1"
+    env["NEXUS_HARNESS_DISABLE_VOICE"] = "1"
+    env["NEXUS_HARNESS_STARTUP_SNAPSHOT_DIR"] = snapshot_dir_abs
     env["QT_QPA_PLATFORM"] = "offscreen"
     if scenario["target_script"]:
-        env["JARVIS_HARNESS_TARGET_SCRIPT"] = os.path.abspath(scenario["target_script"])
+        env["NEXUS_HARNESS_TARGET_SCRIPT"] = os.path.abspath(scenario["target_script"])
     else:
-        env.pop("JARVIS_HARNESS_TARGET_SCRIPT", None)
+        env.pop("NEXUS_HARNESS_TARGET_SCRIPT", None)
 
     proc = subprocess.Popen(
         [sys.executable, LAUNCHER_SCRIPT],

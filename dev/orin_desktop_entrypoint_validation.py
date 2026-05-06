@@ -399,14 +399,14 @@ def resolve_cscript_command():
 
 def build_harness_env(scenario_root, target_script="", extra_env=None):
     env = os.environ.copy()
-    env["JARVIS_HARNESS_LOG_ROOT"] = scenario_root
-    env["JARVIS_HARNESS_DISABLE_DIAGNOSTICS"] = "1"
-    env["JARVIS_HARNESS_DISABLE_VOICE"] = "1"
-    env["JARVIS_HARNESS_SUPPRESS_ALREADY_RUNNING_DIALOGS"] = "1"
+    env["NEXUS_HARNESS_LOG_ROOT"] = scenario_root
+    env["NEXUS_HARNESS_DISABLE_DIAGNOSTICS"] = "1"
+    env["NEXUS_HARNESS_DISABLE_VOICE"] = "1"
+    env["NEXUS_HARNESS_SUPPRESS_ALREADY_RUNNING_DIALOGS"] = "1"
     env["QT_QPA_PLATFORM"] = "offscreen"
     env[SHUTDOWN_CONFIRMATION_DECISION_ENV] = "accepted"
     if target_script:
-        env["JARVIS_HARNESS_TARGET_SCRIPT"] = target_script
+        env["NEXUS_HARNESS_TARGET_SCRIPT"] = target_script
     if extra_env:
         env.update(extra_env)
     return env
@@ -466,11 +466,11 @@ def run_single_instance_wait_boundary_scenario():
     original_env = {
         key: os.environ.get(key)
         for key in (
-            "JARVIS_HARNESS_AUTO_ACCEPT_RELAUNCH",
-            "JARVIS_HARNESS_AUTO_DECLINE_RELAUNCH",
-            "JARVIS_HARNESS_FORCE_RELAUNCH_SIGNAL_FAILURE",
-            "JARVIS_HARNESS_SUPPRESS_ALREADY_RUNNING_DIALOGS",
-            "JARVIS_HARNESS_RELAUNCH_WAIT_SECONDS",
+            "NEXUS_HARNESS_AUTO_ACCEPT_RELAUNCH",
+            "NEXUS_HARNESS_AUTO_DECLINE_RELAUNCH",
+            "NEXUS_HARNESS_FORCE_RELAUNCH_SIGNAL_FAILURE",
+            "NEXUS_HARNESS_SUPPRESS_ALREADY_RUNNING_DIALOGS",
+            "NEXUS_HARNESS_RELAUNCH_WAIT_SECONDS",
         )
     }
     case_definitions = (
@@ -481,12 +481,12 @@ def run_single_instance_wait_boundary_scenario():
     case_results = []
 
     try:
-        os.environ["JARVIS_HARNESS_AUTO_ACCEPT_RELAUNCH"] = "1"
-        os.environ["JARVIS_HARNESS_SUPPRESS_ALREADY_RUNNING_DIALOGS"] = "1"
+        os.environ["NEXUS_HARNESS_AUTO_ACCEPT_RELAUNCH"] = "1"
+        os.environ["NEXUS_HARNESS_SUPPRESS_ALREADY_RUNNING_DIALOGS"] = "1"
         for key in (
-            "JARVIS_HARNESS_AUTO_DECLINE_RELAUNCH",
-            "JARVIS_HARNESS_FORCE_RELAUNCH_SIGNAL_FAILURE",
-            "JARVIS_HARNESS_RELAUNCH_WAIT_SECONDS",
+            "NEXUS_HARNESS_AUTO_DECLINE_RELAUNCH",
+            "NEXUS_HARNESS_FORCE_RELAUNCH_SIGNAL_FAILURE",
+            "NEXUS_HARNESS_RELAUNCH_WAIT_SECONDS",
         ):
             os.environ.pop(key, None)
 
@@ -641,7 +641,7 @@ log("FAKE_RENDERER|EVENT_LOOP_EXIT|code=0")
     env = build_harness_env(
         scenario_root,
         target_script=fake_renderer_script,
-        extra_env={"JARVIS_HARNESS_AUTO_ACCEPT_RELAUNCH": "1"},
+        extra_env={"NEXUS_HARNESS_AUTO_ACCEPT_RELAUNCH": "1"},
     )
 
     first_proc = None
@@ -1115,9 +1115,9 @@ def run_launch_chain_scenario(
     scenario_root_entries_after_reset = dir_entry_names(scenario_root)
 
     env = os.environ.copy()
-    env["JARVIS_HARNESS_LOG_ROOT"] = scenario_root
-    env["JARVIS_HARNESS_DISABLE_DIAGNOSTICS"] = "1"
-    env["JARVIS_HARNESS_DISABLE_VOICE"] = "1"
+    env["NEXUS_HARNESS_LOG_ROOT"] = scenario_root
+    env["NEXUS_HARNESS_DISABLE_DIAGNOSTICS"] = "1"
+    env["NEXUS_HARNESS_DISABLE_VOICE"] = "1"
     env["QT_QPA_PLATFORM"] = "offscreen"
     env[SHUTDOWN_CONFIRMATION_DECISION_ENV] = "accepted"
 
@@ -1526,7 +1526,7 @@ def run_accepted_relaunch_cycle_scenario(
     second_shutdown_hotkey_attempts = 0
 
     expected_shutdown_delay = (
-        (first_session_extra_env or {}).get("JARVIS_HARNESS_RELAUNCH_SHUTDOWN_DELAY_SECONDS", "").strip()
+        (first_session_extra_env or {}).get("NEXUS_HARNESS_RELAUNCH_SHUTDOWN_DELAY_SECONDS", "").strip()
     )
     env = build_harness_env(scenario_root, extra_env=first_session_extra_env)
 
@@ -1559,7 +1559,7 @@ def run_accepted_relaunch_cycle_scenario(
 
             second_env = build_harness_env(
                 scenario_root,
-                extra_env={"JARVIS_HARNESS_AUTO_ACCEPT_RELAUNCH": "1"},
+                extra_env={"NEXUS_HARNESS_AUTO_ACCEPT_RELAUNCH": "1"},
             )
             second_launch_attempted = True
             second_proc = subprocess.Popen(
@@ -2141,7 +2141,7 @@ def run_rapid_consecutive_accepted_relaunch_cycles_scenario():
     first_env = build_harness_env(scenario_root)
     relaunch_env = build_harness_env(
         scenario_root,
-        extra_env={"JARVIS_HARNESS_AUTO_ACCEPT_RELAUNCH": "1"},
+        extra_env={"NEXUS_HARNESS_AUTO_ACCEPT_RELAUNCH": "1"},
     )
 
     processes = [None, None, None]
@@ -2469,8 +2469,8 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..",
 
 from desktop.single_instance import NamedSignal
 
-RUNTIME_RELAUNCH_EVENT = r"Local\JarvisRuntimeRelaunchRequestV1"
-RUNTIME_DESKTOP_SETTLED_EVENT = r"Local\JarvisRuntimeDesktopSettledV1"
+RUNTIME_RELAUNCH_EVENT = r"Local\NexusRuntimeRelaunchRequestV1"
+RUNTIME_DESKTOP_SETTLED_EVENT = r"Local\NexusRuntimeDesktopSettledV1"
 
 runtime_log = ""
 for index, arg in enumerate(sys.argv):
@@ -2513,7 +2513,7 @@ try:
     while time.time() < deadline:
         if relaunch_signal.consume():
             log("RENDERER_MAIN|RELAUNCH_REQUEST_RECEIVED")
-            if env_flag("JARVIS_HARNESS_IGNORE_RELAUNCH_REQUEST"):
+            if env_flag("NEXUS_HARNESS_IGNORE_RELAUNCH_REQUEST"):
                 log("RENDERER_MAIN|HARNESS_RELAUNCH_REQUEST_IGNORED")
                 deadline = time.time() + 3.0
                 continue
@@ -2537,8 +2537,8 @@ finally:
         scenario_root,
         target_script=fake_renderer_script,
         extra_env={
-            "JARVIS_HARNESS_AUTO_ACCEPT_RELAUNCH": "1",
-            "JARVIS_HARNESS_FORCE_RELAUNCH_SIGNAL_FAILURE": "1",
+            "NEXUS_HARNESS_AUTO_ACCEPT_RELAUNCH": "1",
+            "NEXUS_HARNESS_FORCE_RELAUNCH_SIGNAL_FAILURE": "1",
         },
     )
 
@@ -2898,8 +2898,8 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..",
 
 from desktop.single_instance import NamedSignal
 
-RUNTIME_RELAUNCH_EVENT = r"Local\JarvisRuntimeRelaunchRequestV1"
-RUNTIME_DESKTOP_SETTLED_EVENT = r"Local\JarvisRuntimeDesktopSettledV1"
+RUNTIME_RELAUNCH_EVENT = r"Local\NexusRuntimeRelaunchRequestV1"
+RUNTIME_DESKTOP_SETTLED_EVENT = r"Local\NexusRuntimeDesktopSettledV1"
 
 runtime_log = ""
 for index, arg in enumerate(sys.argv):
@@ -2961,14 +2961,14 @@ finally:
     first_env = build_harness_env(
         scenario_root,
         target_script=fake_renderer_script,
-        extra_env={"JARVIS_HARNESS_IGNORE_RELAUNCH_REQUEST": "1"},
+        extra_env={"NEXUS_HARNESS_IGNORE_RELAUNCH_REQUEST": "1"},
     )
     timeout_env = build_harness_env(
         scenario_root,
         target_script=fake_renderer_script,
         extra_env={
-            "JARVIS_HARNESS_AUTO_ACCEPT_RELAUNCH": "1",
-            "JARVIS_HARNESS_RELAUNCH_WAIT_SECONDS": "0.75",
+            "NEXUS_HARNESS_AUTO_ACCEPT_RELAUNCH": "1",
+            "NEXUS_HARNESS_RELAUNCH_WAIT_SECONDS": "0.75",
         },
     )
 
@@ -3316,7 +3316,7 @@ def run_declined_relaunch_cycle_scenario():
     first_env = build_harness_env(scenario_root)
     decline_env = build_harness_env(
         scenario_root,
-        extra_env={"JARVIS_HARNESS_AUTO_DECLINE_RELAUNCH": "1"},
+        extra_env={"NEXUS_HARNESS_AUTO_DECLINE_RELAUNCH": "1"},
     )
 
     first_proc = None
@@ -3678,7 +3678,7 @@ def run_rapid_consecutive_declined_relaunch_cycles_scenario():
     first_env = build_harness_env(scenario_root)
     decline_env = build_harness_env(
         scenario_root,
-        extra_env={"JARVIS_HARNESS_AUTO_DECLINE_RELAUNCH": "1"},
+        extra_env={"NEXUS_HARNESS_AUTO_DECLINE_RELAUNCH": "1"},
     )
 
     first_proc = None
@@ -4035,8 +4035,8 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..",
 
 from desktop.single_instance import NamedSignal
 
-RUNTIME_RELAUNCH_EVENT = r"Local\JarvisRuntimeRelaunchRequestV1"
-RUNTIME_DESKTOP_SETTLED_EVENT = r"Local\JarvisRuntimeDesktopSettledV1"
+RUNTIME_RELAUNCH_EVENT = r"Local\NexusRuntimeRelaunchRequestV1"
+RUNTIME_DESKTOP_SETTLED_EVENT = r"Local\NexusRuntimeDesktopSettledV1"
 
 runtime_log = ""
 for index, arg in enumerate(sys.argv):
@@ -4096,14 +4096,14 @@ finally:
         scenario_root,
         target_script=fake_renderer_script,
         extra_env={
-            "JARVIS_HARNESS_AUTO_ACCEPT_RELAUNCH": "1",
-            "JARVIS_HARNESS_FORCE_RELAUNCH_SIGNAL_FAILURE": "1",
+            "NEXUS_HARNESS_AUTO_ACCEPT_RELAUNCH": "1",
+            "NEXUS_HARNESS_FORCE_RELAUNCH_SIGNAL_FAILURE": "1",
         },
     )
     accept_env = build_harness_env(
         scenario_root,
         target_script=fake_renderer_script,
-        extra_env={"JARVIS_HARNESS_AUTO_ACCEPT_RELAUNCH": "1"},
+        extra_env={"NEXUS_HARNESS_AUTO_ACCEPT_RELAUNCH": "1"},
     )
 
     first_proc = None
@@ -4527,11 +4527,11 @@ def run_mixed_decline_then_accept_relaunch_scenario():
     first_env = build_harness_env(scenario_root)
     decline_env = build_harness_env(
         scenario_root,
-        extra_env={"JARVIS_HARNESS_AUTO_DECLINE_RELAUNCH": "1"},
+        extra_env={"NEXUS_HARNESS_AUTO_DECLINE_RELAUNCH": "1"},
     )
     accept_env = build_harness_env(
         scenario_root,
-        extra_env={"JARVIS_HARNESS_AUTO_ACCEPT_RELAUNCH": "1"},
+        extra_env={"NEXUS_HARNESS_AUTO_ACCEPT_RELAUNCH": "1"},
     )
 
     first_proc = None
@@ -5003,8 +5003,8 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..",
 
 from desktop.single_instance import NamedSignal
 
-RUNTIME_RELAUNCH_EVENT = r"Local\JarvisRuntimeRelaunchRequestV1"
-RUNTIME_DESKTOP_SETTLED_EVENT = r"Local\JarvisRuntimeDesktopSettledV1"
+RUNTIME_RELAUNCH_EVENT = r"Local\NexusRuntimeRelaunchRequestV1"
+RUNTIME_DESKTOP_SETTLED_EVENT = r"Local\NexusRuntimeDesktopSettledV1"
 
 runtime_log = ""
 for index, arg in enumerate(sys.argv):
@@ -5064,19 +5064,19 @@ finally:
         scenario_root,
         target_script=fake_renderer_script,
         extra_env={
-            "JARVIS_HARNESS_AUTO_ACCEPT_RELAUNCH": "1",
-            "JARVIS_HARNESS_FORCE_RELAUNCH_SIGNAL_FAILURE": "1",
+            "NEXUS_HARNESS_AUTO_ACCEPT_RELAUNCH": "1",
+            "NEXUS_HARNESS_FORCE_RELAUNCH_SIGNAL_FAILURE": "1",
         },
     )
     decline_env = build_harness_env(
         scenario_root,
         target_script=fake_renderer_script,
-        extra_env={"JARVIS_HARNESS_AUTO_DECLINE_RELAUNCH": "1"},
+        extra_env={"NEXUS_HARNESS_AUTO_DECLINE_RELAUNCH": "1"},
     )
     accept_env = build_harness_env(
         scenario_root,
         target_script=fake_renderer_script,
-        extra_env={"JARVIS_HARNESS_AUTO_ACCEPT_RELAUNCH": "1"},
+        extra_env={"NEXUS_HARNESS_AUTO_ACCEPT_RELAUNCH": "1"},
     )
 
     first_proc = None
@@ -5887,10 +5887,10 @@ def run_missing_settled_signal_scenario():
         )
 
     env = os.environ.copy()
-    env["JARVIS_HARNESS_LOG_ROOT"] = scenario_root
-    env["JARVIS_HARNESS_TARGET_SCRIPT"] = fake_renderer_script
-    env["JARVIS_HARNESS_DISABLE_DIAGNOSTICS"] = "1"
-    env["JARVIS_HARNESS_DISABLE_VOICE"] = "1"
+    env["NEXUS_HARNESS_LOG_ROOT"] = scenario_root
+    env["NEXUS_HARNESS_TARGET_SCRIPT"] = fake_renderer_script
+    env["NEXUS_HARNESS_DISABLE_DIAGNOSTICS"] = "1"
+    env["NEXUS_HARNESS_DISABLE_VOICE"] = "1"
     env["QT_QPA_PLATFORM"] = "offscreen"
 
     result = run_hidden_command(
@@ -6013,10 +6013,10 @@ def run_rapid_pre_settled_exit_scenario():
         )
 
     env = os.environ.copy()
-    env["JARVIS_HARNESS_LOG_ROOT"] = scenario_root
-    env["JARVIS_HARNESS_TARGET_SCRIPT"] = fake_renderer_script
-    env["JARVIS_HARNESS_DISABLE_DIAGNOSTICS"] = "1"
-    env["JARVIS_HARNESS_DISABLE_VOICE"] = "1"
+    env["NEXUS_HARNESS_LOG_ROOT"] = scenario_root
+    env["NEXUS_HARNESS_TARGET_SCRIPT"] = fake_renderer_script
+    env["NEXUS_HARNESS_DISABLE_DIAGNOSTICS"] = "1"
+    env["NEXUS_HARNESS_DISABLE_VOICE"] = "1"
     env["QT_QPA_PLATFORM"] = "offscreen"
 
     result = run_hidden_command(
@@ -6125,10 +6125,10 @@ def run_post_settled_clean_exit_precedence_scenario():
         )
 
     env = os.environ.copy()
-    env["JARVIS_HARNESS_LOG_ROOT"] = scenario_root
-    env["JARVIS_HARNESS_TARGET_SCRIPT"] = fake_renderer_script
-    env["JARVIS_HARNESS_DISABLE_DIAGNOSTICS"] = "1"
-    env["JARVIS_HARNESS_DISABLE_VOICE"] = "1"
+    env["NEXUS_HARNESS_LOG_ROOT"] = scenario_root
+    env["NEXUS_HARNESS_TARGET_SCRIPT"] = fake_renderer_script
+    env["NEXUS_HARNESS_DISABLE_DIAGNOSTICS"] = "1"
+    env["NEXUS_HARNESS_DISABLE_VOICE"] = "1"
     env["QT_QPA_PLATFORM"] = "offscreen"
 
     result = run_hidden_command(
@@ -6246,10 +6246,10 @@ def run_post_settled_recoverable_exit_scenario(
         )
 
     env = os.environ.copy()
-    env["JARVIS_HARNESS_LOG_ROOT"] = scenario_root
-    env["JARVIS_HARNESS_TARGET_SCRIPT"] = fake_renderer_script
-    env["JARVIS_HARNESS_DISABLE_DIAGNOSTICS"] = "1"
-    env["JARVIS_HARNESS_DISABLE_VOICE"] = "1"
+    env["NEXUS_HARNESS_LOG_ROOT"] = scenario_root
+    env["NEXUS_HARNESS_TARGET_SCRIPT"] = fake_renderer_script
+    env["NEXUS_HARNESS_DISABLE_DIAGNOSTICS"] = "1"
+    env["NEXUS_HARNESS_DISABLE_VOICE"] = "1"
     env["QT_QPA_PLATFORM"] = "offscreen"
 
     result = run_hidden_command(
@@ -6624,7 +6624,7 @@ def run_validation():
     accepted_relaunch_result = run_accepted_relaunch_cycle_scenario()
     accepted_relaunch_slow_shutdown_result = run_accepted_relaunch_cycle_scenario(
         "vbs_accepted_relaunch_cycle_slow_shutdown",
-        {"JARVIS_HARNESS_RELAUNCH_SHUTDOWN_DELAY_SECONDS": "1.6"},
+        {"NEXUS_HARNESS_RELAUNCH_SHUTDOWN_DELAY_SECONDS": "1.6"},
     )
     repeated_signal_failure_result = run_repeated_signal_failure_relaunch_scenario()
     accepted_relaunch_wait_timeout_result = run_accepted_relaunch_wait_timeout_scenario()
@@ -6750,7 +6750,7 @@ def run_validation():
 
 def build_report_text(report_path, result, overall_ok):
     lines = [
-        "JARVIS DESKTOP ENTRYPOINT VALIDATION",
+        "NEXUS DESKTOP ENTRYPOINT VALIDATION",
         f"Report: {report_path}",
         f"Branch: {result['branch_state']}",
         f"Overall Result: {'PASS' if overall_ok else 'FAIL'}",

@@ -214,7 +214,7 @@ Primary current and candidate UI/UX surface families:
 - Status and observability surface: non-invasive status indicators, future monitoring/HUD surfaces, runtime health readback, and system-state presentation boundaries.
 - Diagnostics and support surface: recoverable diagnostics, support-report paths, dev toolkit surfaces, validation helpers, and operator-facing error triage language.
 - Extension and integration surface: future plugin, external-trigger, companion-tool, and integration management surfaces, limited here to UI/UX planning vocabulary only.
-- Historical naming/identity surface: legacy Jarvis terms, Nexus naming, product copy, and migration wording that affects user-facing comprehension.
+- Historical naming/identity surface: retired legacy terms, Nexus naming, product copy, and migration wording that affects user-facing comprehension.
 
 ### Visual-Language Ownership Vocabulary
 

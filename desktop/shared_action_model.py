@@ -33,7 +33,7 @@ class CommandAction:
 
 DEFAULT_COMMAND_ACTIONS = (
     CommandAction(
-        id="open_jarvis_workspace",
+        id="open_nexus_workspace",
         title="Open Nexus Workspace",
         target_kind="folder",
         target=str(ROOT_DIR),
@@ -41,20 +41,20 @@ DEFAULT_COMMAND_ACTIONS = (
             "open nexus workspace",
             "open nexus folder",
             "open workspace",
-            "open jarvis workspace",
-            "open jarvis folder",
+            "open nexus workspace",
+            "open nexus folder",
         ),
     ),
     CommandAction(
-        id="open_jarvis_docs",
+        id="open_nexus_docs",
         title="Open Nexus Docs",
         target_kind="folder",
         target=str(ROOT_DIR / "docs"),
         aliases=(
             "open nexus docs",
             "open docs",
-            "open jarvis docs",
-            "open jarvis folder",
+            "open nexus docs",
+            "open nexus folder",
             "open nexus folder",
         ),
     ),
@@ -452,8 +452,8 @@ def _build_default_command_groups() -> tuple[CommandGroup, ...]:
         action.id
         for action in DEFAULT_COMMAND_ACTIONS
         if action.id in {
-            "open_jarvis_workspace",
-            "open_jarvis_docs",
+            "open_nexus_workspace",
+            "open_nexus_docs",
             "open_windows_explorer",
             "open_saved_actions_file",
             "open_saved_actions_folder",

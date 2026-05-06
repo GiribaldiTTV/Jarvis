@@ -72,7 +72,7 @@ None.
 ## Branch Objective
 
 - Establish the Nexus-era vision and source-of-truth migration lane before any implementation begins.
-- Define how current Nexus identity, historical Jarvis/ORIN references, AI/persona identity, UI/product identity, source-of-truth ownership, and migration admission rules relate to each other.
+- Define how current Nexus identity, historical Nexus/ORIN references, AI/persona identity, UI/product identity, source-of-truth ownership, and migration admission rules relate to each other.
 - Keep naming, wording, persona, UI, runtime, and release changes deliberate instead of allowing a broad rebrand or source migration to happen by drift.
 
 ## Target End-State
@@ -139,7 +139,7 @@ None.
 Seam 1: Current-vs-historical source-of-truth inventory and naming policy
 
 - Status: Completed.
-- Goal: inventory the authoritative current and historical source layers, then define the naming policy that separates Nexus current truth from preserved Jarvis/ORIN-era history.
+- Goal: inventory the authoritative current and historical source layers, then define the naming policy that separates Nexus current truth from preserved Nexus/ORIN-era history.
 - Scope: docs/canon inventory, source-of-truth ownership map, current-vs-historical terminology policy, preservation rules, contradiction capture, and migration candidates for later seams.
 - Non-Includes: no source code edits, no runtime behavior, no UI implementation, no persona implementation, no release work, no public wording migration, and no historical rewrite that destroys traceability.
 
@@ -212,8 +212,8 @@ Current source-of-truth layers:
 
 - Routing and layer ownership: `Docs/Main.md` owns the source-of-truth routing map, protected-main rule, current layer split, and current active workstream routing.
 - Execution governance: `Docs/development_rules.md`, `Docs/phase_governance.md`, `Docs/codex_modes.md`, and `Docs/orin_task_template.md` own execution posture, phase names, blocker rules, seam behavior, durability, proof authority, and prompt contract.
-- Product and identity intent: `Docs/orin_vision.md` owns current product intent for `Nexus Desktop AI` and the `ORIN` assistant layer; it records that older Jarvis releases are preserved history and do not define the active public Nexus release line.
-- Architecture and orchestration truth: `Docs/architecture.md` and `Docs/orchestration.md` own the current runtime path, launcher/renderer ownership, runtime evidence boundaries, and explicit current legacy-named artifacts such as `launch_orin_desktop.vbs`, `desktop/orin_desktop_launcher.pyw`, `desktop/orin_desktop_main.py`, `%LOCALAPPDATA%/Nexus Desktop AI/state/jarvis_history_v1.jsonl`, `C:/Jarvis/logs`, `C:/Jarvis/logs/crash`, and `C:/Jarvis/dev/logs/<lane>/...`.
+- Product and identity intent: `Docs/orin_vision.md` owns current product intent for `Nexus Desktop AI` and the `ORIN` assistant layer; it records that older Nexus releases are preserved history and do not define the active public Nexus release line.
+- Architecture and orchestration truth: `Docs/architecture.md` and `Docs/orchestration.md` own the current runtime path, launcher/renderer ownership, runtime evidence boundaries, and explicit current legacy-named artifacts such as `launch_orin_desktop.vbs`, `desktop/orin_desktop_launcher.pyw`, `desktop/orin_desktop_main.py`, `%LOCALAPPDATA%/Nexus Desktop AI/state/nexus_history_v1.jsonl`, `C:/Nexus/logs`, `C:/Nexus/logs/crash`, and `C:/Nexus/dev/logs/<lane>/...`.
 - Persona display guidance: `Docs/orin_display_naming_guidance.md` owns display-form guidance for `ORIN`, `O.R.I.N.`, and `Operational Response and Intelligence Nexus`; it does not own rollout sequencing or broad source rewrites.
 - Registry and sequencing: `Docs/feature_backlog.md` owns tracked identity and record state; `Docs/prebeta_roadmap.md` owns sequencing, release posture, current active lane, and current release debt posture.
 - Promoted workstream truth: `Docs/workstreams/index.md` routes active, merged-unreleased, and closed workstream records; this FB-032 record owns branch-local execution, evidence, active seam history, and reuse notes for the current lane.
@@ -226,10 +226,10 @@ Current source-of-truth layers:
 Historical source-of-truth layers:
 
 - Closed workstream docs under `Docs/workstreams/` preserve released lane truth and are not active execution authority by inertia.
-- Historical closeout docs under `Docs/closeouts/` preserve older Jarvis-era and epoch-level history; they must be routed through `Docs/closeout_index.md`.
+- Historical closeout docs under `Docs/closeouts/` preserve older Nexus-era and epoch-level history; they must be routed through `Docs/closeout_index.md`.
 - Public release tags, GitHub release notes, PRs, branch names, commit history, and release-era issue context remain historical evidence and must not be modernized by wording preference. Presentation-only release-note template repair is allowed when explicitly admitted by governance and when it preserves release facts, generated changelog links, and release-era scope.
-- Older Jarvis-named release records, docs, and closeouts remain preserved historical records unless a current source explicitly identifies a still-real runtime artifact that keeps the name.
-- Current runtime artifacts with historical names, including `jarvis_history_v1.jsonl` and `C:/Jarvis/...` evidence roots, are not historical-only references; they are current runtime truth until an admitted implementation seam changes the underlying path or file contract.
+- Older Nexus-named release records, docs, and closeouts remain preserved historical records unless a current source explicitly identifies a still-real runtime artifact that keeps the name.
+- Current runtime artifacts with historical names, including `nexus_history_v1.jsonl` and `C:/Nexus/...` evidence roots, are not historical-only references; they are current runtime truth until an admitted implementation seam changes the underlying path or file contract.
 - Future-facing planning docs may contain deferred Nexus/ORIN or ARIA concepts; those sections are planning truth only and must not be recast as current shipped behavior.
 
 ### Naming Policy For Canonical Vs Historical Surfaces
@@ -238,10 +238,10 @@ Use this policy before any later FB-032 classification, mapping, or migration se
 
 - Current product, repository, release, and platform-shell identity should use `Nexus Desktop AI` on first clear mention, with `Nexus` acceptable where the product context is unambiguous.
 - Assistant persona identity should use `ORIN` by default; use `O.R.I.N.` or `Operational Response and Intelligence Nexus` only where `Docs/orin_display_naming_guidance.md` admits that presentation form.
-- Current source-of-truth docs may mention `Jarvis` only for preserved historical context, exact legacy artifact names, exact runtime/log/state paths, exact branch/tag/commit/PR history, or quoted source material.
+- Current source-of-truth docs may mention `Nexus` only for preserved historical context, exact legacy artifact names, exact runtime/log/state paths, exact branch/tag/commit/PR history, or quoted source material.
 - Historical closeouts, closed workstream history, release notes, tags, branch names, commit messages, and old public context should preserve their release-era names. Do not rewrite them merely to make wording look modern; release-note template repairs must preserve historical names and facts while removing duplicated title formatting or other governance-defined presentation drift.
-- Current runtime paths or files that still contain `Jarvis` or `orin` names must be cited exactly. If explanatory copy is needed, say that the artifact name is legacy or current-runtime-with-legacy-name rather than silently renaming it.
-- Do not run broad search/replace across `Jarvis`, `ORIN`, `Nexus`, or related identity terms. Every future edit must be admitted by classification, source owner, surface type, and validation impact.
+- Current runtime paths or files that still contain `Nexus` or `orin` names must be cited exactly. If explanatory copy is needed, say that the artifact name is legacy or current-runtime-with-legacy-name rather than silently renaming it.
+- Do not run broad search/replace across `Nexus`, `ORIN`, `Nexus`, or related identity terms. Every future edit must be admitted by classification, source owner, surface type, and validation impact.
 - Backlog entries keep tracked identity and minimal scope; roadmap keeps sequencing and release posture; workstream docs keep execution/evidence detail. Do not duplicate full execution story just to normalize wording.
 - Future or deferred concepts must be labeled as future, planning, deferred, or post-Beta when they are not current runtime truth.
 - User-facing copy, persona behavior, UI naming, runtime paths, helper names, release notes, and historical records require separate migration admission decisions. A policy-valid term in one surface does not authorize changing another surface.
@@ -265,7 +265,7 @@ WS-2 is docs/canon only. It classifies the surfaces found by WS-1 so later migra
 | Current routing and governance canon | `Docs/Main.md`, `Docs/development_rules.md`, `Docs/phase_governance.md`, `Docs/codex_modes.md`, `Docs/orin_task_template.md`, `Docs/codex_user_guide.md` | Current governance/source-of-truth layer | May receive current Nexus-era wording when the owning rule is current and no historical quote or exact artifact is being altered. Broad identity replacement remains forbidden. |
 | Current product and architecture canon | `Docs/orin_vision.md`, `Docs/architecture.md`, `Docs/orchestration.md`, `Docs/boot_access_design.md`, `Docs/orin_display_naming_guidance.md` | Product, architecture, orchestration, boot-planning, and persona-display layers | May distinguish `Nexus Desktop AI` product identity, `ORIN` assistant identity, current runtime truth, future planning, and historical notes. Must preserve exact runtime path names. |
 | Current registry and sequencing canon | `Docs/feature_backlog.md`, `Docs/prebeta_roadmap.md`, `Docs/workstreams/index.md`, active FB-032 record | Backlog, roadmap, and active workstream layers | May reflect current active Workstream truth and approved scope. Must not duplicate full execution story outside the canonical workstream record. |
-| Current legacy-named runtime artifacts | `launch_orin_desktop.vbs`, `desktop/orin_desktop_launcher.pyw`, `desktop/orin_desktop_main.py`, `%LOCALAPPDATA%/Nexus Desktop AI/state/jarvis_history_v1.jsonl`, `C:/Jarvis/logs`, `C:/Jarvis/logs/crash`, `C:/Jarvis/dev/logs/<lane>/...` | Runtime code, architecture, orchestration, and development rules | Must be cited exactly. Treat as current runtime truth with legacy names, not as wording to modernize in docs or code without a later implementation seam. |
+| Current legacy-named runtime artifacts | `launch_orin_desktop.vbs`, `desktop/orin_desktop_launcher.pyw`, `desktop/orin_desktop_main.py`, `%LOCALAPPDATA%/Nexus Desktop AI/state/nexus_history_v1.jsonl`, `C:/Nexus/logs`, `C:/Nexus/logs/crash`, `C:/Nexus/dev/logs/<lane>/...` | Runtime code, architecture, orchestration, and development rules | Must be cited exactly. Treat as current runtime truth with legacy names, not as wording to modernize in docs or code without a later implementation seam. |
 | Preserved historical lane records | closed `Docs/workstreams/FB-*.md`, `Docs/closeouts/*.md`, historical branch/PR/commit/release context | Workstream history, closeout index, public release history, Git history | Preserve release-era names and facts. Add supersession notes only when current truth requires clarification; do not rewrite historical records for style. |
 | Public release and PR surfaces | GitHub releases, release tags, generated changelogs, PR titles/summaries, historical review state | GitHub/public release history plus release governance | Preserve published historical truth. New release notes use current release-note governance and current product identity where appropriate. Explicit governance repairs may normalize release-note presentation, such as removing duplicated title headings, when release facts and generated changelog links are preserved. |
 | Future planning surfaces | future boot model, post-Beta AI vision, ARIA possibility, deferred backlog items | Product vision, boot design, backlog, roadmap | Label as future, deferred, planning, or post-Beta. Do not recast as current shipped behavior. |
@@ -274,7 +274,7 @@ WS-2 is docs/canon only. It classifies the surfaces found by WS-1 so later migra
 ### Mapping Rules
 
 - `Canonical-current`: owner docs may use current Nexus/ORIN wording when they are stating current truth, but must preserve exact artifact names and historical evidence.
-- `Canonical-current-with-legacy-name`: current runtime artifacts with `Jarvis` or `orin` in their names remain exact current truth until a later implementation seam changes the artifact contract.
+- `Canonical-current-with-legacy-name`: current runtime artifacts with `Nexus` or `orin` in their names remain exact current truth until a later implementation seam changes the artifact contract.
 - `Historical-preserved`: historical closeouts, release-era workstream sections, tags, PRs, branch names, commit messages, and release notes keep their historical names.
 - `Future-planning`: future concepts stay explicitly future-facing and must not be used to claim current runtime, UI, or release behavior.
 - `User-facing-controlled`: UI copy, persona behavior, shortcut naming, runtime labels, and operator-facing text require later admission, evidence, and UTS classification before change.
@@ -359,7 +359,7 @@ H-1 is docs/canon only. It pressure-tests whether the WS-1 through WS-3 migratio
 
 - Governance Gap: bounded multi-seam continuation drift was already found and repaired in GOV-WS1. The validator now enforces the continuation rule and the active Workstream seam-continuation record. No new open governance gap remains in H-1.
 - Validation Gap: no dedicated migration classifier helper exists, but H-1 does not require one because the completed milestone is docs/canon-only. The current validation gate remains `python dev\orin_branch_governance_validation.py`, `git diff --check`, targeted phase-state searches, and source-owner review. A later controlled migration execution seam may need stronger targeted validation depending on the affected surface class.
-- Ambiguity Check: the policy separates `Nexus Desktop AI` product identity, `ORIN` assistant persona identity, `O.R.I.N.` / full expansion display forms, preserved historical `Jarvis` references, and current legacy-named runtime artifacts. No unresolved naming ambiguity blocks Live Validation.
+- Ambiguity Check: the policy separates `Nexus Desktop AI` product identity, `ORIN` assistant persona identity, `O.R.I.N.` / full expansion display forms, preserved historical `Nexus` references, and current legacy-named runtime artifacts. No unresolved naming ambiguity blocks Live Validation.
 - Contradiction Check: WS-2 resolves the likely contradiction between current runtime truth and historical naming by classifying legacy-named runtime artifacts as current truth with legacy names. Historical records remain preserved evidence rather than current product claims.
 - Scope Check: WS-1 through WS-3 and H-1 did not execute migration, rename source code, change runtime paths, change user-facing copy, change persona behavior, change UI, change release artifacts, or rewrite historical records.
 - Migration-Readiness Risk: the branch is ready to validate the migration policy and admission contract, but it is not ready to execute controlled migration by inertia. Any later migration execution still requires surface class, owner, affected artifacts, validation gate, rollback target, User Test Summary/shortcut classification, and historical preservation proof.
@@ -494,7 +494,7 @@ Governance Drift Found: Yes, repaired during GOV-WS1.
 - FB-031 post-release canon closure is complete.
 - FB-032 Branch Readiness no longer has selected-only / registry-only drift after this promotion record.
 - No contradiction remains between backlog, roadmap, workstream index, and main routing for FB-032.
-- WS-1 found no reason to reinterpret historical Jarvis records as current Nexus truth and no reason to rename current legacy-named runtime paths without a later admitted implementation seam.
+- WS-1 found no reason to reinterpret historical Nexus records as current Nexus truth and no reason to rename current legacy-named runtime paths without a later admitted implementation seam.
 - WS-2 classified current legacy-named runtime artifacts as current truth with legacy names, historical lane records as preservation surfaces, and user-facing/runtime/persona surfaces as controlled-admission surfaces.
 - WS-3 defined controlled migration admission gates and stop conditions; no controlled migration execution is admitted by inertia.
 - H-1 found no new governance gap, contradiction, scope issue, or migration-readiness blocker after current-state canon was advanced to Hardening-complete / Live-Validation-next truth.

@@ -57,7 +57,7 @@ None.
 - `v1.6.8-prebeta` is published and validated on commit `5e695af5fada05e4ad6b25731bce328ede8a09ee`.
 - FB-044 is merged on `main` and remains the release-debt owner for `v1.6.9-prebeta`.
 - Updated-main `Release Readiness` previously reproduced a disposable-clone failure after authoritative settled was already observed: the renderer exited `3221226505`, stderr reported GPU context loss, and launcher failure flow fired even though startup success had already been proven.
-- FB-045 was admitted to resolve that ambiguity without widening into `main.py`, `Audio/`, `logs/`, `jarvis_visual/`, installer changes, or broader boot-orchestrator work.
+- FB-045 was admitted to resolve that ambiguity without widening into `main.py`, `Audio/`, `logs/`, `nexus_visual/`, installer changes, or broader boot-orchestrator work.
 
 ## Exit Criteria
 
@@ -105,7 +105,7 @@ FB-045 exists to close the last blocker between FB-044's settled-outcome package
 - no `main.py` ownership rewrite
 - no `Audio/` changes
 - no `logs/` ownership changes
-- no `jarvis_visual/` relocation or reorganization
+- no `nexus_visual/` relocation or reorganization
 - no installer or shortcut-registration redesign
 - no broader future boot-orchestrator implementation
 
@@ -184,7 +184,7 @@ Future-Dependent Blockers: `None`
   - `main.py`
   - `Audio/`
   - `logs/`
-  - `jarvis_visual/`
+  - `nexus_visual/`
   - installer, packaging, or shortcut-registration redesign
   - broader future boot-orchestrator implementation
 
@@ -287,7 +287,7 @@ H-1 pressure-tested the completed FB-045 slice chain across recoverable-classifi
 
 ## Live Validation Record
 
-LV-1 validates the completed FB-045 relaunch-stability slice chain against live repo truth, the declared real desktop shortcut path, explicit dev boot-proof evidence, exact User Test Summary state, and branch cleanliness. This pass stays bounded to the admitted launcher/runtime lifecycle surfaces and does not reopen `main.py`, `Audio/`, `logs/`, `jarvis_visual/`, installer work, or broader boot-orchestrator scope.
+LV-1 validates the completed FB-045 relaunch-stability slice chain against live repo truth, the declared real desktop shortcut path, explicit dev boot-proof evidence, exact User Test Summary state, and branch cleanliness. This pass stays bounded to the admitted launcher/runtime lifecycle surfaces and does not reopen `main.py`, `Audio/`, `logs/`, `nexus_visual/`, installer work, or broader boot-orchestrator scope.
 
 ### Live Validation Findings
 

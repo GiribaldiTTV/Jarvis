@@ -229,8 +229,8 @@ def run_validation():
             str(second_manifest.get("manual_issue_submission_required")),
         ),
         "bundle_manifest_carries_current_public_release_tag": line_status(
-            second_manifest.get("jarvis_version") == expected_public_release_tag,
-            repr(second_manifest.get("jarvis_version")),
+            second_manifest.get("nexus_version") == expected_public_release_tag,
+            repr(second_manifest.get("nexus_version")),
         ),
         "bundle_manifest_carries_truthful_release_context": line_status(
             second_manifest.get("release_context") == expected_release_context
@@ -246,8 +246,8 @@ def run_validation():
             roadmap_fallback_bundle or "missing roadmap fallback bundle zip",
         ),
         "roadmap_fallback_bundle_manifest_carries_current_public_release_tag": line_status(
-            roadmap_fallback_manifest.get("jarvis_version") == expected_public_release_tag,
-            repr(roadmap_fallback_manifest.get("jarvis_version")),
+            roadmap_fallback_manifest.get("nexus_version") == expected_public_release_tag,
+            repr(roadmap_fallback_manifest.get("nexus_version")),
         ),
         "roadmap_fallback_bundle_manifest_carries_truthful_release_context": line_status(
             roadmap_fallback_manifest.get("release_context") == expected_release_context

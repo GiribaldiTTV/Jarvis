@@ -245,11 +245,11 @@ class DiagnosticsWindow(QWidget):
         root.setContentsMargins(18, 18, 18, 18)
         root.setSpacing(10)
 
-        self.stark = QLabel("NEXUS DESKTOP AI")
-        self.stark.setAlignment(Qt.AlignCenter)
-        self.stark.setFont(QFont("Consolas", 19, QFont.Bold))
-        self.stark.setStyleSheet("color:#d4af37;")
-        root.addWidget(self.stark)
+        self.title_label = QLabel("NEXUS DESKTOP AI")
+        self.title_label.setAlignment(Qt.AlignCenter)
+        self.title_label.setFont(QFont("Consolas", 19, QFont.Bold))
+        self.title_label.setStyleSheet("color:#d4af37;")
+        root.addWidget(self.title_label)
 
         title = QLabel("SYSTEM DIAGNOSTICS")
         title.setAlignment(Qt.AlignCenter)
@@ -299,10 +299,10 @@ class DiagnosticsWindow(QWidget):
 
         persona_title = QLabel("ORIN")
         persona_title.setFont(QFont("Consolas", 12, QFont.Bold))
-        jarvis_section = QVBoxLayout()
-        jarvis_section.setContentsMargins(0, 8, 0, 0)
-        jarvis_section.setSpacing(4)
-        jarvis_section.addWidget(persona_title)
+        nexus_section = QVBoxLayout()
+        nexus_section.setContentsMargins(0, 8, 0, 0)
+        nexus_section.setSpacing(4)
+        nexus_section.addWidget(persona_title)
 
         speech_panel = QFrame()
         speech_panel.setObjectName("panel")
@@ -314,8 +314,8 @@ class DiagnosticsWindow(QWidget):
         self.speech.setMinimumHeight(120)
         speech_layout.addWidget(self.speech)
         speech_panel.setLayout(speech_layout)
-        jarvis_section.addWidget(speech_panel, 1)
-        root.addLayout(jarvis_section, 1)
+        nexus_section.addWidget(speech_panel, 1)
+        root.addLayout(nexus_section, 1)
 
         btn_layout = QHBoxLayout()
         self.report_btn = QPushButton("Report Issue")

@@ -106,7 +106,7 @@ FB-044 continues the entrypoint/runtime lane after FB-043 by resolving the last 
 
 - no `Audio/` changes
 - no `logs/` ownership changes
-- no `jarvis_visual/` relocation or reorganization
+- no `nexus_visual/` relocation or reorganization
 - no installer or shortcut-registration redesign
 - no broader future boot-orchestrator implementation
 - no unrelated tray, task, or runtime UX expansion
@@ -191,7 +191,7 @@ Future-Dependent Blockers: `None`
 - Out-Of-Scope Paths:
   - `Audio/`
   - `logs/`
-  - `jarvis_visual/`
+  - `nexus_visual/`
   - installer, packaging, or shortcut-registration redesign
   - broader future boot-orchestrator implementation
   - unrelated runtime UX expansion
@@ -283,7 +283,7 @@ H-1 pressure-tested the completed FB-044 settled-outcome slice chain across auth
 
 ## Live Validation Record
 
-LV-1 validates the completed FB-044 settled-outcome slice chain against live repo truth, the declared real desktop shortcut path, explicit dev boot-profile evidence, the exact User Test Summary state, and branch cleanliness. This pass stays bounded to the admitted entrypoint/runtime ownership surfaces and does not reopen `Audio/`, `logs/`, `jarvis_visual/`, installer work, or broader future boot-orchestrator implementation.
+LV-1 validates the completed FB-044 settled-outcome slice chain against live repo truth, the declared real desktop shortcut path, explicit dev boot-profile evidence, the exact User Test Summary state, and branch cleanliness. This pass stays bounded to the admitted entrypoint/runtime ownership surfaces and does not reopen `Audio/`, `logs/`, `nexus_visual/`, installer work, or broader future boot-orchestrator implementation.
 
 ### Live Validation Findings
 

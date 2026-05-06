@@ -39,7 +39,7 @@ Backlog-identity guardrails:
 
 Historical note:
 
-- older implemented entries may preserve older Jarvis-era titles as historical identity
+- older implemented entries may preserve older Nexus-era titles as historical identity
 - those preserved titles are not current runtime-path claims
 - older entries may also preserve earlier backlog-admission behavior that split docs/governance work or same-family continuation into separate backlog identities
 - preserve that history for traceability, but do not treat it as the default backlog model going forward
@@ -71,7 +71,7 @@ Latest Public Prerelease Publication: https://github.com/GiribaldiTTV/Nexus-Desk
 Latest Public Prerelease Title: Pre-Beta v1.6.13.
 Release Debt: Clear after v1.6.13-prebeta publication, validation, and post-release canon closure.
 Merged-main Current Active Workstream: None.
-Current Active Workstream: FAM-006 Monitoring and HUD Product Surface Package WS7 - Monitoring HUD Product Visibility And Acceptance Baseline; Stage 2-R7 recorded the Stage 1-R4 planning revalidation PASS and handed the branch back to Workstream under finalized Stage 2-R6 boundaries.
+Current Active Workstream: None - FAM-006 Workstream WS7 is blocked by Branch Readiness re-entry for legacy product-name drift and refreshed USER Vision Input.
 Current Active Workstream Before Reform: None.
 Current Execution Branch: feature/fam-006-monitoring-hud-product-surface.
 Current Active Branch Authority Record: Docs/branch_records/feature_fam_006_monitoring_hud_product_surface.md.
@@ -86,12 +86,12 @@ Selected Next Runtime Package Candidate: Monitoring and HUD Product Surface Pack
 Selected Next Implementation Branch: feature/fam-006-monitoring-hud-product-surface.
 Selected Next Status: USER-approved selected-next candidate matured into active FAM-006 package execution; product completion reopened after completion-truth drift review.
 Runtime Package Admission: Admitted for PKG-006 during USER-approved Branch Readiness Stage 2; product completion is reopened.
-Next Legal Runtime Step: Workstream WS7 - Monitoring HUD Product Visibility And Acceptance Baseline under the Stage 2-R6 finalized current-branch/future-package boundaries, provider-contract-first telemetry path, polling posture, warning modality, privacy deferrals, audio/FAM-004 boundary, legacy Jarvis naming handling, and acceptance criteria.
+Next Legal Runtime Step: Branch Readiness Stage 1-R5 - Legacy Product Name Removal And USER Vision Input Rebaseline; Workstream WS7 is blocked until legacy product naming is removed/migrated or legally resolved and refreshed USER Vision Input is answered, digested, and revalidated.
 Backlog Addition User Approval Missing: Cleared for USER-approved FAM-006 selected-next successor selection, Branch Readiness Stage 2 branch creation, and PKG-006 runtime package admission only; active for any other attempted new backlog item, backlog split, promotion beyond FAM-006, branch creation outside this carrier, or single-slice package waiver without explicit USER approval.
 Historical Repair-Only Branch Handling: `feature/fb-046-post-merge-canon-sync` was a bounded repair-only post-merge canon-sync `feature/` branch and did not imply Branch Readiness admission or active branch truth for FB-046.
 Historical Branch Readiness State: Complete on `feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeout-truth`.
-Current Branch Readiness State: Complete through Stage 2-R7 planning revalidation closeout and WS7 handoff for PKG-006; prior Branch Readiness admission commit `8ae84cb784fc07dfe4f445359de4cf20a13552fa` remains historical admission evidence.
-Current Workstream State: Active at WS7 - USER input widened FAM-006 from a local readiness/status HUD to an optional Nexus/NDAI hardware-monitoring HUD; Stage 2-R6 finalized current-branch boundaries, future-package deferrals, provider-contract-first telemetry posture, polling posture, warning posture, privacy deferrals, audio/FAM-004 boundary, Jarvis/Nexus naming handling, and acceptance criteria; Stage 1-R4 revalidated the plan as sufficient; SLC-016, SLC-026, SLC-027, SLC-028, and SLC-029 are reopened/in progress, while SLC-025 remains complete as local telemetry-boundary contract proof.
+Current Branch Readiness State: Active re-entry after Stage 2-R8 legacy product-name blocker and USER Vision Input refresh; prior Branch Readiness admission commit `8ae84cb784fc07dfe4f445359de4cf20a13552fa` and Stage 2-R7 handoff remain historical evidence only.
+Current Workstream State: Blocked before WS7 - USER correction reopened `Legacy Product Name Drift`; retired legacy product naming in active tracked source, runtime paths, validators, docs, generated-user surfaces, or user-facing copy must be removed/migrated or legally resolved before Workstream resumes; refreshed USER Vision Input answers and digest are pending.
 Current Hardening State: Reopened - prior H1 is scaffold/marker hardening evidence only, not product-complete proof.
 Current Live Validation State: Blocked until Workstream product repair and Hardening re-complete.
 Current PR Surface Owner: None; PR #109 merge/bot-review/watcher proof remains historical in `Docs/workstreams/FB-027_interaction_system_baseline.md`.
@@ -108,7 +108,7 @@ Release Floor: none - release execution is complete for the current approved pre
 Version Rationale: `v1.6.13-prebeta` published the approved patch-prerelease governance, automation, release-support, and bounded runtime-proof tranche; after publication and post-release closure, USER approved FAM-006 Branch Readiness Stage 2 to create the runtime branch and admit the Monitoring and HUD Product Surface Package.
 Release Scope: released historical traceability for PR #110 governance repair, PR #111 release-packaging source-truth closeout, PR #112 post-merge release-support closeout/hardening, PR #113 PR #112 source-truth closeout / merge-target authority hardening, merged automation-catalog truth, `FAM-001` legacy `FB-049` runtime proof, and `FAM-004` legacy `FB-030` voice/audio runtime diagnostics proof.
 Release Artifacts: Published tag `v1.6.13-prebeta`; published GitHub prerelease title `Pre-Beta v1.6.13`; Markdown release notes include a generated `## What's Changed` section plus `**Full Changelog**:`.
-Post-Release Truth: the backlog-family governance reform, automation-catalog branch, `FAM-001` legacy `FB-049` runtime branch, `FAM-004` legacy `FB-030` runtime diagnostics branch, PR #112 closeout/hardening proof, and PR #113 source-truth closeout / merge-target authority hardening proof are released historical traceability; latest public prerelease is `v1.6.13-prebeta`; release debt is clear; USER-approved FAM-006 is active on `feature/fam-006-monitoring-hud-product-surface`, product completion remains reopened because marker/screenshot capture did not prove a clearly visible HUD, and Stage 2-R7 handed the finalized hardware-monitoring HUD direction back to Workstream WS7.
+Post-Release Truth: the backlog-family governance reform, automation-catalog branch, `FAM-001` legacy `FB-049` runtime branch, `FAM-004` legacy `FB-030` runtime diagnostics branch, PR #112 closeout/hardening proof, and PR #113 source-truth closeout / merge-target authority hardening proof are released historical traceability; latest public prerelease is `v1.6.13-prebeta`; release debt is clear; USER-approved FAM-006 remains active on `feature/fam-006-monitoring-hud-product-surface`, product completion remains reopened, and WS7 is blocked by Branch Readiness re-entry for legacy product-name drift plus refreshed USER Vision Input.
 Next-Branch Creation Gate: Cleared for `feature/fam-006-monitoring-hud-product-surface` only by USER-approved Branch Readiness Stage 2; any additional branch creation remains blocked.
 Next Legal Phase: Branch Readiness.
 
@@ -159,7 +159,7 @@ Element Coverage Standard: Element Coverage is a non-identity checklist for FAM/
 | `FAM-003` | Interaction and Actions | Open / aggregation-held | `PKG-003` released baseline / open | `FB-027`, `FB-036`, `FB-037`, `FB-038`, `FB-041`, PR #109 |
 | `FAM-004` | Voice and Audio | Open / released-baseline aggregation | `PKG-004` released baseline / open | `FB-030`, PR #108, `v1.6.5-prebeta`, `v1.6.13-prebeta` |
 | `FAM-005` | External Integrations | Pending implementation | `PKG-005` released baseline / open | `FB-039`, Stream Deck and external trigger gap |
-| `FAM-006` | Monitoring and HUD | Workstream active / runtime package admitted | `PKG-006` admitted / in progress | `FB-040`, HUD surface gap |
+| `FAM-006` | Monitoring and HUD | Branch Readiness re-entry / runtime package admitted | `PKG-006` admitted / in progress; WS7 blocked | `FB-040`, HUD surface gap |
 | `FAM-007` | Local AI and Capability Packs | Pending architecture/package | `PKG-007` pending | `Docs/orin_vision.md` local-AI and capability-pack vision |
 | `FAM-008` | Packaging and Install Experience | Pending architecture/package | `PKG-008` pending | `Docs/orin_vision.md`, modular install and GPU-aware architecture gap |
 | `FAM-009` | Workspace and Data | Open / deferred follow-through | `PKG-009` released baseline / open | `FB-005`, `FB-020`, `FB-026`, `FB-028`, workspace/data trace |
@@ -281,7 +281,7 @@ Release Floor: none - release execution is complete.
 Version Rationale: The voice/audio runtime diagnostics proof added bounded truthfulness for availability states without opening a standalone new family or release-version driver.
 Release Scope: released governance reform, automation catalog proof, FAM-001 legacy FB-049 runtime proof, FAM-004 legacy FB-030 voice/audio runtime diagnostics proof, PR #112 source-truth closeout / merge-target authority hardening proof, and PR #113 source-truth closeout / merge-target authority hardening proof.
 Release Artifacts: Published tag `v1.6.13-prebeta`; published GitHub prerelease title `Pre-Beta v1.6.13`; release notes include generated `What's Changed` and `Full Changelog` sections.
-Post-Release Truth: merged governance reform, automation catalog, FAM-001 legacy FB-049 runtime proof, FAM-004 legacy FB-030 runtime diagnostics proof, PR #112 source-truth closeout / merge-target authority hardening, and PR #113 source-truth closeout / merge-target authority hardening are released historical traceability; release debt is clear; and the later runtime package has USER-approved FAM-006 scaffold/boundary proof on `feature/fam-006-monitoring-hud-product-surface`; product completion is reopened and Workstream WS7 is active after Stage 2-R7 planning revalidation closeout.
+Post-Release Truth: merged governance reform, automation catalog, FAM-001 legacy FB-049 runtime proof, FAM-004 legacy FB-030 runtime diagnostics proof, PR #112 source-truth closeout / merge-target authority hardening, and PR #113 source-truth closeout / merge-target authority hardening are released historical traceability; release debt is clear; and the later runtime package has USER-approved FAM-006 scaffold/boundary proof on `feature/fam-006-monitoring-hud-product-surface`; product completion is reopened and Workstream WS7 is blocked by Branch Readiness re-entry for legacy product-name sterilization plus refreshed USER Vision Input.
 Selected Next Workstream: FAM-006 Monitoring and HUD.
 Next-Branch Creation Gate: Cleared for `feature/fam-006-monitoring-hud-product-surface` only by USER-approved Branch Readiness Stage 2.
 Package Completion State: Released Baseline / Open
@@ -340,7 +340,7 @@ Record State: Registry-only
 Registry Class: Feature Family
 Family Anchor: Self
 Priority: Medium
-Next Workstream: Workstream Complete
+Next Workstream: Branch Readiness re-entry
 Selected Next Workstream: FAM-006 Monitoring and HUD - active package execution / product completion reopened.
 Selected Next Runtime Package Candidate: Monitoring and HUD Product Surface Package
 Selected Next Status: USER-approved selected-next candidate matured into active package execution; product completion reopened after Branch Readiness Stage 2-R1 rebaseline
@@ -348,7 +348,7 @@ Selected Next Implementation Branch: feature/fam-006-monitoring-hud-product-surf
 Branch Creation Status: Created in Branch Readiness Stage 2 from updated main at `3c68cd881a9f6bf447f09ac0949d556e97bce4f4`
 Runtime Package Admission: Admitted for `PKG-006`
 Active Branch Authority Record: Docs/branch_records/feature_fam_006_monitoring_hud_product_surface.md
-Next Legal Runtime Step: Workstream WS7 - Monitoring HUD Product Visibility And Acceptance Baseline; Live Validation remains blocked until product repair and Hardening re-complete.
+Next Legal Runtime Step: Branch Readiness Stage 1-R5 - Legacy Product Name Removal And USER Vision Input Rebaseline; Workstream WS7 remains blocked until legacy product-name sterilization and refreshed USER Vision Input are answered, digested, and revalidated.
 Minimal Scope: admitted runtime package for optional Nexus/NDAI hardware-monitoring HUD visual/user-facing surface, provider-contract-first telemetry health/setup/unavailable states, desktop placement and renderer ownership, settings or user controls visibility, fail-safe/setup/reconnect/no-data/degraded-status behavior, visual/non-invasive warning posture, and validation/live desktop proof; audio/spoken warnings, Stream Deck/plugin telemetry implementation, full sensor-platform parity, broad hardware provider platform work, advanced graphs/history/persistence, local AI, installer/capability-pack work, and broad repo-wide legacy naming migration remain deferred unless later admitted.
 Family Scope: Monitoring surfaces, CPU/GPU thermals, performance telemetry, HUD/overlay presentation, trust-safety display rules, and plugin-fed runtime telemetry.
 Package Policy: Branchable monitoring/HUD work must package source, display, and validation slices by default.
@@ -363,7 +363,7 @@ Package Trace:
 
 | Package ID | FAM ID | Package Name | Package Status | Package Completion State | Branch / Release Trace | Legacy FB / PR Evidence |
 | --- | --- | --- | --- | --- | --- | --- |
-| `PKG-006` | `FAM-006` | Monitoring and HUD product-surface package | Stage 2-R7 planning revalidation closeout complete / WS7 product visibility and acceptance repair active | In Progress | `feature/fam-006-monitoring-hud-product-surface`; historical baseline `feature/fb-040-monitoring-thermals-performance-hud-surface`; `v1.6.0-prebeta` | `FB-040`, HUD user-facing surface gap |
+| `PKG-006` | `FAM-006` | Monitoring and HUD product-surface package | Branch Readiness re-entry active / WS7 blocked pending naming and USER-input revalidation | In Progress | `feature/fam-006-monitoring-hud-product-surface`; historical baseline `feature/fb-040-monitoring-thermals-performance-hud-surface`; `v1.6.0-prebeta` | `FB-040`, HUD user-facing surface gap |
 
 Slice Trace:
 
@@ -381,7 +381,7 @@ Slice Trace:
 Admitted Slice Shape: HUD visual/user-facing surface; runtime telemetry source/adapters; desktop placement / renderer ownership; settings or user controls visibility; fail-safe / no-data / degraded-status behavior; validation / live desktop proof.
 Deferred/Future Slice Shape: optional voice/status integration is not admitted because spoken/audio behavior, voice integration, persona voice, or FAM-004 cross-family widening requires later explicit USER approval.
 Element Coverage Review: user-facing surface, runtime/backend behavior, settings/configuration, fail-safe/recovery, voice/audio integration as deferred coverage only, monitoring/HUD/observability, validation/live-test requirements, release/documentation impact, security/privacy posture, external integration, local AI/capability-pack impact, and packaging/install impact are planning coverage only and do not count as admitted slices.
-Summary: Monitoring and HUD scaffold/boundary work is credited, but package completion is reopened. Stage 1-R4 and Stage 2-R7 revalidated and closed the planning latch, so the branch remains active for Workstream WS7 product visibility and acceptance repair; no PR has been created and no release work is authorized.
+Summary: Monitoring and HUD scaffold/boundary work is credited, but package completion is reopened. Stage 1-R4 and Stage 2-R7 remain historical planning evidence; USER correction reopened Branch Readiness for legacy product-name sterilization and refreshed USER Vision Input, so WS7 is blocked until Stage 1-R5 revalidates clean; no PR has been created and no release work is authorized.
 
 ### [ID: FAM-007] Local AI and Capability Packs
 
@@ -668,7 +668,7 @@ Release Floor: none - release execution is complete.
 Version Rationale: FAM-004 legacy FB-030 added bounded runtime diagnostics truth for voice/audio availability without opening a new feature family or materially widening product scope.
 Release Scope: released governance reform, automation catalog proof, FAM-001 legacy FB-049 runtime proof, FAM-004 legacy FB-030 voice/audio runtime diagnostics proof, PR #112 source-truth closeout / merge-target authority hardening proof, and PR #113 source-truth closeout / merge-target authority hardening proof.
 Release Artifacts: Published tag `v1.6.13-prebeta`; published GitHub prerelease title `Pre-Beta v1.6.13`; release notes include generated `What's Changed` and `Full Changelog` sections.
-Post-Release Truth: merged governance reform, automation catalog, FAM-001 legacy FB-049 runtime proof, FAM-004 legacy FB-030 runtime diagnostics proof, PR #112 source-truth closeout / merge-target authority hardening, and PR #113 source-truth closeout / merge-target authority hardening are released historical traceability; release debt is clear; USER-approved selected-next truth points to FAM-006; and product completion is reopened on `feature/fam-006-monitoring-hud-product-surface` with `PKG-006` admitted and Workstream WS7 active after Stage 2-R7 planning revalidation closeout.
+Post-Release Truth: merged governance reform, automation catalog, FAM-001 legacy FB-049 runtime proof, FAM-004 legacy FB-030 runtime diagnostics proof, PR #112 source-truth closeout / merge-target authority hardening, and PR #113 source-truth closeout / merge-target authority hardening are released historical traceability; release debt is clear; USER-approved selected-next truth points to FAM-006; and product completion is reopened on `feature/fam-006-monitoring-hud-product-surface` with `PKG-006` admitted and Workstream WS7 blocked by Branch Readiness re-entry for legacy product-name sterilization plus refreshed USER Vision Input.
 Selected Next Workstream: FAM-006 Monitoring and HUD.
 Next-Branch Creation Gate: Cleared for `feature/fam-006-monitoring-hud-product-surface` only by USER-approved Branch Readiness Stage 2.
 Historical Planning Release: `v1.6.5-prebeta` remains the released planning/admission proof for the original voice/audio direction milestone.
@@ -827,7 +827,7 @@ Version Rationale: FB-046 delivers a bounded runtime/user-facing relaunch-reacqu
 Release Scope: completed FB-046 WS-1 accepted relaunch replacement-session settled re-entry proof, H-1 relaunch lifecycle hardening, LV-1 real desktop shortcut evidence, reusable validation evidence, PR package history, merged-unreleased release-debt truth, and selected-next FB-047 successor lock for the bounded runtime/user-facing lane only.
 Release Artifacts: Tag v1.6.10-prebeta; release title Pre-Beta v1.6.10; rich Markdown release notes summarize the bounded FB-046 relaunch-reacquisition runtime/user-facing package, real shortcut evidence, and the FB-047 successor lane without repeating the release title inside the notes body, and GitHub-generated `## What's Changed` plus `**Full Changelog**:` must be included.
 Post-Release Truth: FB-046 is Released / Closed in `v1.6.10-prebeta`; release debt is clear; and after merge FB-047 becomes the merged-unreleased release-debt owner for `v1.6.11-prebeta`, while FB-048 is selected next, `Registry-only`, and branch-not-created.
-Minimal Scope: Complete the bounded relaunch-reacquisition runtime/user-facing pass across `desktop/single_instance.py`, `desktop/orin_desktop_launcher.pyw`, `desktop/orin_desktop_main.py`, `dev/orin_boot_transition_verification.py`, and the minimum required reusable validator surfaces so a confirmed relaunch request closes the active session, reacquires the runtime guard, and returns the replacement session to authoritative settled state without widening into `main.py`, `Audio/`, `logs/`, `jarvis_visual/`, installer work, or broader boot-orchestrator scope.
+Minimal Scope: Complete the bounded relaunch-reacquisition runtime/user-facing pass across `desktop/single_instance.py`, `desktop/orin_desktop_launcher.pyw`, `desktop/orin_desktop_main.py`, `dev/orin_boot_transition_verification.py`, and the minimum required reusable validator surfaces so a confirmed relaunch request closes the active session, reacquires the runtime guard, and returns the replacement session to authoritative settled state without widening into `main.py`, `Audio/`, `logs/`, `nexus_visual/`, installer work, or broader boot-orchestrator scope.
 Summary: Turn accepted relaunch into a full replacement-session completion proof surface instead of a partial signal-and-exit story.
 Why it matters: The repo now proves who owns the runtime after relaunch, when the old session is truly gone, and when the replacement session has actually made it back to authoritative settled state.
 
@@ -882,7 +882,7 @@ Version Rationale: FB-044 delivers a bounded runtime/user-facing boot-to-desktop
 Release Scope: complete the bounded FB-044 settled-outcome slice chain on this same branch across `main.py`, `desktop/orin_desktop_launcher.pyw`, `desktop/orin_desktop_main.py`, `dev/orin_boot_transition_verification.py`, and `dev/orin_desktop_entrypoint_validation.py`, along with H-1, LV-1, PR package history, release publication, and the released FB-045 blocker-clearing lifecycle follow-through inside the same `v1.6.9-prebeta` package.
 Release Artifacts: Tag v1.6.9-prebeta; release title Pre-Beta v1.6.9; rich Markdown release notes summarize the bounded FB-044 boot-to-desktop settled-outcome refinement, the FB-045 blocker-clearing lifecycle classification result, real shortcut evidence, and the FB-046 successor lane without repeating the release title inside the notes body, and GitHub-generated `## What's Changed` plus `**Full Changelog**:` must be included.
 Post-Release Truth: FB-044 and FB-045 are Released / Closed in `v1.6.9-prebeta`; release debt is clear; and after merge FB-046 becomes the merged-unreleased release-debt owner for `v1.6.10-prebeta`, while FB-047 is selected next, `Registry-only`, and branch-not-created.
-Minimal Scope: Complete the bounded runtime/user-facing boot-to-desktop handoff refinement lane across `main.py`, `desktop/orin_desktop_launcher.pyw`, `desktop/orin_desktop_main.py`, `dev/orin_boot_transition_verification.py`, and `dev/orin_desktop_entrypoint_validation.py`, while keeping `Audio/`, `logs/`, `jarvis_visual/`, installer work, and broader future boot-orchestrator implementation out of scope.
+Minimal Scope: Complete the bounded runtime/user-facing boot-to-desktop handoff refinement lane across `main.py`, `desktop/orin_desktop_launcher.pyw`, `desktop/orin_desktop_main.py`, `dev/orin_boot_transition_verification.py`, and `dev/orin_desktop_entrypoint_validation.py`, while keeping `Audio/`, `logs/`, `nexus_visual/`, installer work, and broader future boot-orchestrator implementation out of scope.
 Summary: Continue the entrypoint/runtime lane by making desktop-settled outcome proof explicit and shared across boot, launcher, renderer, and validation paths.
 Why it matters: Builds directly on FB-043's ownership cleanup and turns the remaining boot/desktop proof ambiguity into a bounded runtime-bearing implementation result instead of lingering branch-readiness truth.
 
@@ -912,7 +912,7 @@ Release Scope: complete the bounded FB-043 top-level entrypoint slice chain on t
 Release Artifacts: Tag v1.6.8-prebeta; release title Pre-Beta v1.6.8; rich Markdown release notes summarize the bounded FB-043 top-level entrypoint ownership and `main.py` handoff refinement, explicit launch-intent outcome, real shortcut evidence, and the FB-044 successor lane without repeating the release title inside the notes body, and GitHub-generated `## What's Changed` plus `**Full Changelog**:` must be included.
 Release Execution: `v1.6.8-prebeta` is live at https://github.com/GiribaldiTTV/Nexus-Desktop-AI/releases/tag/v1.6.8-prebeta on commit `5e695af5fada05e4ad6b25731bce328ede8a09ee`.
 Post-Release Truth: FB-043 is Released / Closed in `v1.6.8-prebeta`; FB-044 and FB-045 are Released / Closed in `v1.6.9-prebeta`; release debt is clear; and after merge FB-046 becomes the merged-unreleased release-debt owner for `v1.6.10-prebeta`, while FB-047 is selected next, `Registry-only`, and branch-not-created.
-Minimal Scope: Complete the bounded top-level entrypoint slice chain on this same branch: WS-1 `main.py` direct-launch handoff refinement plus WS-2 explicit launch-intent refinement across `main.py`, the minimal required launcher-contract surfaces, `dev/orin_desktop_entrypoint_validation.py`, and `dev/orin_boot_transition_verification.py`, while keeping `Audio/`, `logs/`, `jarvis_visual/`, installer work, and broader workspace reshaping out of scope.
+Minimal Scope: Complete the bounded top-level entrypoint slice chain on this same branch: WS-1 `main.py` direct-launch handoff refinement plus WS-2 explicit launch-intent refinement across `main.py`, the minimal required launcher-contract surfaces, `dev/orin_desktop_entrypoint_validation.py`, and `dev/orin_boot_transition_verification.py`, while keeping `Audio/`, `logs/`, `nexus_visual/`, installer work, and broader workspace reshaping out of scope.
 Summary: Continue the desktop entrypoint runtime lane by clarifying and tightening top-level ownership and handoff on the shipped launch path.
 Why it matters: Builds directly on FB-042's user-facing launch-path improvement and keeps the next branch implementation-bearing instead of slipping back into planning-only governance work.
 
@@ -1228,7 +1228,7 @@ Old implemented registry-only IDs are preserved as same-file historical trace. T
 | `FB-018` | Voice-path regression validation harness | Implemented `v1.9.0` | Historical registry trace in `Docs/feature_backlog.md` |
 | `FB-019` | Support bundle to repro triage helper | Implemented `v1.9.0` | Historical registry trace in `Docs/feature_backlog.md` |
 | `FB-020` | Dev Toolkit utility split and dev-only evidence roots | Implemented `v2.0` | Historical registry trace in `Docs/feature_backlog.md` |
-| `FB-021` | Dev-only Boot Jarvis test lane | Implemented `v2.1.0` | Historical registry trace in `Docs/feature_backlog.md` |
+| `FB-021` | Dev-only Boot Nexus test lane | Implemented `v2.1.0` | Historical registry trace in `Docs/feature_backlog.md` |
 | `FB-022` | Boot & Transition Checks Dev Toolkit surfacing | Implemented `v2.1.0` | Historical registry trace in `Docs/feature_backlog.md` |
 | `FB-023` | Desktop renderer observability gap closure | Implemented `v2.1.0` | Historical registry trace in `Docs/feature_backlog.md` |
 | `FB-024` | Boot harness edge-path observability refinement | Implemented `v2.1.0` | Historical registry trace in `Docs/feature_backlog.md` |
@@ -1404,7 +1404,7 @@ Target Version: v2.0
 Summary: Split Dev Toolkit utilities and formalized dev-only evidence roots.
 Why it matters: Keeps internal debugging surfaces structured and separate from live runtime logs.
 
-#### [Former ID: FB-021] Dev-only Boot Jarvis test lane
+#### [Former ID: FB-021] Dev-only Boot Nexus test lane
 
 Status: Implemented (v2.1.0 rev1)
 Record State: Registry-only

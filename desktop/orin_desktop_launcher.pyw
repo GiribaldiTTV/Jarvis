@@ -27,8 +27,8 @@ def env_path_override(name, default_path):
 ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DEFAULT_TARGET_SCRIPT = os.path.join(ROOT_DIR, "desktop", "orin_desktop_main.py")
 DEFAULT_LOG_DIR = os.path.join(ROOT_DIR, "logs")
-TARGET_SCRIPT = env_path_override("JARVIS_HARNESS_TARGET_SCRIPT", DEFAULT_TARGET_SCRIPT)
-LOG_DIR = env_path_override("JARVIS_HARNESS_LOG_ROOT", DEFAULT_LOG_DIR)
+TARGET_SCRIPT = env_path_override("NEXUS_HARNESS_TARGET_SCRIPT", DEFAULT_TARGET_SCRIPT)
+LOG_DIR = env_path_override("NEXUS_HARNESS_LOG_ROOT", DEFAULT_LOG_DIR)
 CRASH_DIR = os.path.join(LOG_DIR, "crash")
 STATUS_FILE = os.path.join(LOG_DIR, "diagnostics_status.txt")
 STOP_SIGNAL_FILE = os.path.join(LOG_DIR, "diagnostics_stop.signal")
@@ -37,11 +37,11 @@ DESKTOP_SETTLED_SIGNAL_FILE = os.path.join(LOG_DIR, "desktop_settled.signal")
 ACTIVE_RUNTIME_OWNER_FILE = os.path.join(LOG_DIR, "active_runtime_owner.json")
 DIAGNOSTICS_SCRIPT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "orin_diagnostics.pyw")
 VOICE_SCRIPT = os.path.join(ROOT_DIR, "Audio", "orin_error_voice.py")
-HARNESS_DISABLE_DIAGNOSTICS = env_flag("JARVIS_HARNESS_DISABLE_DIAGNOSTICS")
-HARNESS_DISABLE_VOICE = env_flag("JARVIS_HARNESS_DISABLE_VOICE")
-RUNTIME_INSTANCE_MUTEX = r"Local\JarvisRuntimeSingletonV1"
-RUNTIME_RELAUNCH_EVENT = r"Local\JarvisRuntimeRelaunchRequestV1"
-RUNTIME_DESKTOP_SETTLED_EVENT = r"Local\JarvisRuntimeDesktopSettledV1"
+HARNESS_DISABLE_DIAGNOSTICS = env_flag("NEXUS_HARNESS_DISABLE_DIAGNOSTICS")
+HARNESS_DISABLE_VOICE = env_flag("NEXUS_HARNESS_DISABLE_VOICE")
+RUNTIME_INSTANCE_MUTEX = r"Local\NexusRuntimeSingletonV1"
+RUNTIME_RELAUNCH_EVENT = r"Local\NexusRuntimeRelaunchRequestV1"
+RUNTIME_DESKTOP_SETTLED_EVENT = r"Local\NexusRuntimeDesktopSettledV1"
 runtime_instance_guard = SingleInstanceGuard(RUNTIME_INSTANCE_MUTEX)
 runtime_relaunch_signal = NamedSignal(RUNTIME_RELAUNCH_EVENT)
 runtime_desktop_settled_signal = NamedSignal(RUNTIME_DESKTOP_SETTLED_EVENT)
@@ -58,7 +58,7 @@ CONSECUTIVE_IDENTICAL_CRASH_THRESHOLD = 2
 AUTHORITATIVE_DESKTOP_SETTLED_MARKER = "DESKTOP_OUTCOME|SETTLED|state=dormant"
 HISTORY_SCHEMA_VERSION = 1
 HISTORY_STABILITY_WINDOW_SIZE = 5
-HISTORY_FILENAME = "jarvis_history_v1.jsonl"
+HISTORY_FILENAME = "nexus_history_v1.jsonl"
 HISTORY_STATE_DIRNAME = "Nexus Desktop AI"
 HISTORY_STATE_SUBDIR = "state"
 ADVISORY_CONFIDENCE_DIRECT_EVIDENCE = "direct_evidence"
@@ -391,7 +391,7 @@ def normalize_history_run_id(run_id):
 
 
 def prepare_history_storage_path(path=None, legacy_path=None):
-    harness_log_root = os.environ.get("JARVIS_HARNESS_LOG_ROOT", "")
+    harness_log_root = os.environ.get("NEXUS_HARNESS_LOG_ROOT", "")
     path = os.path.abspath(path or history_file(harness_log_root=harness_log_root))
     parent_dir = os.path.dirname(path)
     if not parent_dir:

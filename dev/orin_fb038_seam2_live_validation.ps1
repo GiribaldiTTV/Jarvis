@@ -632,7 +632,7 @@ try {
     Stop-Runtime -Paths $paths
     Wait-ForMarker -Paths $paths -Pattern "RENDERER_MAIN\|TRAY_ICON_HIDDEN" -TimeoutSeconds 8 | Out-Null
 
-    $leftovers = @(Get-Process | Where-Object { $_.ProcessName -match "^(Nexus|orin|jarvis)$" })
+    $leftovers = @(Get-Process | Where-Object { $_.ProcessName -match "^(Nexus|orin|nexus)$" })
     if ($leftovers.Count -gt 0) {
         Fail-Validation -Paths $paths -Message ("leftover runtime process count=" + $leftovers.Count) -Before $beforeSnapshot -After $afterSnapshot
     }

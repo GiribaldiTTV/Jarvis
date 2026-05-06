@@ -16,7 +16,7 @@ REPORTS_DIR = os.path.join(BASE_LOG_ROOT, "reports")
 BOOT_RUNTIME_ROOT = os.path.join(DEV_LOGS_DIR, "boot_auto_handoff_skip_import")
 MAIN_SCRIPT = os.path.join(ROOT_DIR, "main.py")
 LEGACY_DEV_LAUNCHER = os.path.join(ROOT_DIR, "dev", "launchers", "launch_orin_main_dev.vbs")
-RUNTIME_RELAUNCH_EVENT = r"Local\JarvisRuntimeRelaunchRequestV1"
+RUNTIME_RELAUNCH_EVENT = r"Local\NexusRuntimeRelaunchRequestV1"
 AUTHORITATIVE_DESKTOP_SETTLED_MARKER = "DESKTOP_OUTCOME|SETTLED|state=dormant"
 
 EXPECTED_SEQUENCE = [

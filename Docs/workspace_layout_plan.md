@@ -21,7 +21,7 @@ Current repo-root items with planning significance include:
 - `Audio/`
 - `desktop/`
 - `Docs/`
-- `jarvis_visual/`
+- `nexus_visual/`
 - `logs/`
 
 Current merged desktop runtime path is:
@@ -41,11 +41,11 @@ Current audio runtime surfaces are:
 
 Current visual assets remain under:
 
-- `jarvis_visual/`
+- `nexus_visual/`
 
 Historical note:
 
-- older Jarvis-named move history remains historical context only
+- older Nexus-named move history remains historical context only
 - current repo truth for the desktop and audio surfaces is ORIN-named as listed above
 
 ## Current Major Folder Ownership
@@ -69,7 +69,7 @@ Historical note:
 
 - voice and audio-effect implementation
 
-`jarvis_visual/`
+`nexus_visual/`
 
 - current visual assets used by the desktop surfaces
 
@@ -113,7 +113,7 @@ It means current merged truth still keeps those surfaces at root.
 
 `Audio/` remains the current home for the voice layer.
 
-`jarvis_visual/` remains the current visual-asset home until a later explicitly chosen visual-layout change says otherwise.
+`nexus_visual/` remains the current visual-asset home until a later explicitly chosen visual-layout change says otherwise.
 
 ## Naming And Path Normalization
 
@@ -125,9 +125,9 @@ Current merged truth includes mixed historical naming:
 Examples of still-current names:
 
 - `Audio/`
-- `jarvis_visual/`
-- `%LOCALAPPDATA%/Nexus Desktop AI/state/jarvis_history_v1.jsonl`
-- `C:/Jarvis/logs`
+- `nexus_visual/`
+- `%LOCALAPPDATA%/Nexus Desktop AI/state/nexus_history_v1.jsonl`
+- `C:/Nexus/logs`
 
 Those names should be treated as current runtime or repo truth where they still exist, not automatically rewritten in planning docs.
 
@@ -144,7 +144,7 @@ Examples include:
 - `dev/desktop/orin_desktop_test.py`
 - `Audio/orin_voice.py`
 - `Audio/orin_error_voice.py`
-- `jarvis_visual/`
+- `nexus_visual/`
 
 Future layout work should continue to treat those as controlled surfaces rather than casual rename targets.
 

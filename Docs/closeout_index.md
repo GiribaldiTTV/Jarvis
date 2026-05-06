@@ -18,7 +18,7 @@ Use `Docs/closeout_guidance.md` for policy and cadence questions.
 - file:
   - `Docs/closeouts/nexus_prebeta_rebaseline_through_v1.4.0-prebeta.md`
 
-## Historical Jarvis Closeouts
+## Historical Nexus Closeouts
 
 ### v1.6.0
 
