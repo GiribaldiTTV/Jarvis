@@ -96,6 +96,12 @@ Before PR Readiness, each workstream-scoped helper must be resolved in one of th
 | `dev/orin_launcher_live_window_audit.ps1` | Helper Status: Reusable | live window audit helper | Extend or parameterize for launcher/window live validation before creating another launcher live audit helper. |
 | `dev/orin_overlay_input_capture_helper.py` | Helper Status: Reusable | overlay input helper | Reuse for overlay input-capture support instead of duplicating low-level input helpers. |
 
+### Monitoring And HUD
+
+| Path | Helper Status | Family | Reuse / Consolidation |
+| --- | --- | --- | --- |
+| `dev/orin_monitoring_hud_surface_validation.py` | Helper Status: Reusable | monitoring HUD surface validator | Extend for static Monitoring/HUD visual-surface markers, desktop-mode activation, slice-boundary copy, and no-telemetry/no-settings/no-voice boundary checks before creating another HUD surface validator. |
+
 ### Shared Action, Interaction, And Saved Actions
 
 | Path | Helper Status | Family | Reuse / Consolidation |

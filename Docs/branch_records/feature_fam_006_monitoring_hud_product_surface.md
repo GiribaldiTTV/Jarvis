@@ -36,7 +36,7 @@ This branch may execute the admitted PKG-006 implementation slices during Workst
 
 ## Phase Status
 
-- Workstream Stage: `WS1 - HUD Visual And User-Facing Surface Baseline`
+- Workstream Stage: `WS2 - Runtime Telemetry Source And Adapter Boundary`
 - Active Branch: `feature/fam-006-monitoring-hud-product-surface`
 - Branch Authority Mode: `Active Branch`
 - Workstream Entry Source-Truth Transition: `Performed - Branch Readiness Stage 2 terminal evidence reconciled before runtime implementation`
@@ -49,7 +49,7 @@ This branch may execute the admitted PKG-006 implementation slices during Workst
 - Admitted Slice Count: `6`
 - Package Completion State: `In Progress`
 - Single-Slice Package User Approval: `Not required - PKG-006 has six concrete admitted slices; no waiver granted`
-- Runtime Implementation State: `Started - SLC-016 visual baseline only`
+- Runtime Implementation State: `Started - SLC-016 visual baseline complete; SLC-025 active`
 - PR Creation State: `Not approved in Workstream`
 - Watcher Provisioning State: `Not approved in Workstream`
 - Release Work State: `Not approved; v1.6.13-prebeta release execution is already complete and no new release work is in scope`
@@ -108,7 +108,7 @@ Rollback Path: revert the current Workstream commit on `feature/fam-006-monitori
 
 - `Workstream`
 
-Next Legal Seam: `Workstream WS1 - HUD Visual And User-Facing Surface Baseline`
+Next Legal Seam: `Workstream WS2 - Runtime Telemetry Source And Adapter Boundary`
 
 Next Legal Phase Gate: Workstream remains active until every admitted PKG-006 implementation slice is complete, blocked by a named blocker, deferred by valid future dependency, or split by explicit USER approval. Hardening is blocked while admitted implementable slices remain incomplete.
 
@@ -127,7 +127,7 @@ Turn the historical FAM-006 monitoring/thermal architecture baseline into a visi
 ## Backlog Completion Status
 
 Backlog Completion State: `In Progress`
-Remaining Implementable Work: `SLC-016 visual baseline remains active; SLC-025 telemetry adapters, SLC-026 desktop placement and renderer ownership, SLC-027 settings/user controls, SLC-028 fail-safe/no-data/degraded states, and SLC-029 validation/live desktop proof remain implementable on this branch.`
+Remaining Implementable Work: `SLC-025 telemetry adapters, SLC-026 desktop placement and renderer ownership, SLC-027 settings/user controls, SLC-028 fail-safe/no-data/degraded states, and SLC-029 validation/live desktop proof remain implementable on this branch.`
 Future-Dependent Blockers: `SLC-030 optional voice/spoken status integration is deferred and requires later USER widening approval if spoken/audio behavior, voice integration, persona voice, FAM-004, or cross-family behavior is needed.`
 Completion Status: `In Progress`
 
@@ -156,8 +156,8 @@ Primary Entry Slice: `SLC-016 HUD visual and user-facing monitoring surface`
 
 | Slice ID | Package ID | FAM ID | Slice Name | Admission State | Slice Status | Completion State | Seam Trace |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| `SLC-016` | `PKG-006` | `FAM-006` | HUD visual and user-facing monitoring surface | Admitted | Workstream active | In Progress | `BR-S2-S1`; `WS1` |
-| `SLC-025` | `PKG-006` | `FAM-006` | Runtime telemetry source and adapter boundary | Admitted | Pending Workstream | In Progress | `BR-S2-S2`; planned `WS2` |
+| `SLC-016` | `PKG-006` | `FAM-006` | HUD visual and user-facing monitoring surface | Admitted | Green | Complete | `BR-S2-S1`; `WS1`; `dev/orin_monitoring_hud_surface_validation.py` |
+| `SLC-025` | `PKG-006` | `FAM-006` | Runtime telemetry source and adapter boundary | Admitted | Workstream active | In Progress | `BR-S2-S2`; `WS2` |
 | `SLC-026` | `PKG-006` | `FAM-006` | Desktop placement and renderer ownership | Admitted | Pending Workstream | In Progress | `BR-S2-S3`; planned `WS3` |
 | `SLC-027` | `PKG-006` | `FAM-006` | Settings and user controls visibility | Admitted | Pending Workstream | In Progress | `BR-S2-S4`; planned `WS4` |
 | `SLC-028` | `PKG-006` | `FAM-006` | Fail-safe, no-data, and degraded-status behavior | Admitted | Pending Workstream | In Progress | `BR-S2-S5`; planned `WS5` |
@@ -195,15 +195,17 @@ Seam 1: `WS1 - HUD Visual And User-Facing Surface Baseline`
 Goal: create a visible, passive Monitoring/HUD surface baseline in the desktop visualization.
 Scope: user-facing HUD presentation bounded by FAM-006 package authority; static boundary copy may name later slices without implementing them.
 Non-Includes: telemetry collection/adapters, settings/control behavior, fail-safe/no-data logic, voice/audio behavior, plugin-fed telemetry, installer changes, release execution, PR creation, watcher provisioning, or package completion claims.
+Status: `Green - SLC-016 complete with durable static helper proof`
 
 Seam 2: `WS2 - Runtime Telemetry Source And Adapter Boundary`
 Goal: define and implement the runtime telemetry adapter boundary after WS1 establishes the visible surface.
 Scope: local, non-invasive telemetry source boundaries only.
 Non-Includes: UI placement ownership, settings controls, fail-safe semantics, voice/audio behavior, release execution, PR creation, watcher provisioning, or package completion claims.
+Status: `Active - SLC-025 in progress`
 
 ## Active Seam
 
-Active seam: `WS1 - HUD Visual And User-Facing Surface Baseline`
+Active seam: `WS2 - Runtime Telemetry Source And Adapter Boundary`
 
 Seam Status: `In Progress`
 Slice Status: `In Progress`
@@ -220,9 +222,9 @@ Completion Status: `In Progress`
 Waiver Status: `None`
 Continue Decision: `Continue`
 Stop Basis: `None`
-Next Active Seam: `WS1 - HUD Visual And User-Facing Surface Baseline`
+Next Active Seam: `WS2 - Runtime Telemetry Source And Adapter Boundary`
 Stop Condition: `None`
-Continuation Action: `Continue SLC-016 by refining and validating the HUD visual baseline, then advance to the next admitted slice only after SLC-016 is truthfully green.`
+Continuation Action: `Continue SLC-025 by defining the runtime telemetry source and adapter boundary without consuming desktop placement, settings, fail-safe, validation, voice/audio, PR, watcher, release, tag, artifact, or direct-main work.`
 
 ## WS1 Implementation Record
 
@@ -230,12 +232,15 @@ Continuation Action: `Continue SLC-016 by refining and validating the HUD visual
 - Runtime files touched: `desktop/desktop_renderer.py`, `jarvis_visual/orin_core.html`, `jarvis_visual/orin_core.css`, `jarvis_visual/orin_core.js`
 - HUD baseline behavior: `DesktopRuntimeWindow enables desktop-mode visualization and emits MONITORING_HUD_BASELINE_READY with package PKG-006, slice SLC-016, baseline visual_only`
 - HUD baseline surface: `Static, visible Monitoring HUD card hidden outside desktop mode and surfaced only when DesktopRuntimeWindow enables desktop surface mode`
+- HUD baseline validation: `dev/orin_monitoring_hud_surface_validation.py proves the visible desktop-only surface, SLC/package markers, boundary copy for later slices, and no telemetry/settings/fail-safe/voice/audio widening`
+- SLC-016 Completion State: `Green / Complete`
 - Boundary preservation: `No telemetry adapters, settings controls, fail-safe/no-data logic, voice/audio behavior, plugin-fed telemetry, release work, PR work, watcher work, tags, GitHub Releases, artifacts, or direct-main mutation`
 
 ## Validation Plan
 
 - `git status --short --branch`
 - `python dev/orin_branch_governance_validation.py`
+- `python dev/orin_monitoring_hud_surface_validation.py`
 - `python -m compileall -q dev`
 - `git diff --check`
 - focused static HUD baseline validation for the desktop visualization markers

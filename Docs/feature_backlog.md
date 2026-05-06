@@ -71,7 +71,7 @@ Latest Public Prerelease Publication: https://github.com/GiribaldiTTV/Nexus-Desk
 Latest Public Prerelease Title: Pre-Beta v1.6.13.
 Release Debt: Clear after v1.6.13-prebeta publication, validation, and post-release canon closure.
 Merged-main Current Active Workstream: None.
-Current Active Workstream: FAM-006 Monitoring and HUD Product Surface Package Workstream WS1.
+Current Active Workstream: FAM-006 Monitoring and HUD Product Surface Package Workstream WS2.
 Current Active Workstream Before Reform: None.
 Current Execution Branch: feature/fam-006-monitoring-hud-product-surface.
 Current Active Branch Authority Record: Docs/branch_records/feature_fam_006_monitoring_hud_product_surface.md.
@@ -85,13 +85,13 @@ Selected Next Record State: Registry-only.
 Selected Next Runtime Package Candidate: Monitoring and HUD Product Surface Package.
 Selected Next Implementation Branch: feature/fam-006-monitoring-hud-product-surface.
 Selected Next Status: USER-approved selected-next candidate matured into active FAM-006 Workstream package execution.
-Runtime Package Admission: Admitted for PKG-006 during USER-approved Branch Readiness Stage 2; Workstream WS1 is active.
-Next Legal Runtime Step: Continue Workstream WS1 on SLC-016, preserving later admitted slices for telemetry, placement, settings, fail-safe, and validation work.
+Runtime Package Admission: Admitted for PKG-006 during USER-approved Branch Readiness Stage 2; Workstream WS2 is active.
+Next Legal Runtime Step: Continue Workstream WS2 on SLC-025 telemetry source and adapter boundary, preserving later admitted slices for placement, settings, fail-safe, and validation work.
 Backlog Addition User Approval Missing: Cleared for USER-approved FAM-006 selected-next successor selection, Branch Readiness Stage 2 branch creation, and PKG-006 runtime package admission only; active for any other attempted new backlog item, backlog split, promotion beyond FAM-006, branch creation outside this carrier, or single-slice package waiver without explicit USER approval.
 Historical Repair-Only Branch Handling: `feature/fb-046-post-merge-canon-sync` was a bounded repair-only post-merge canon-sync `feature/` branch and did not imply Branch Readiness admission or active branch truth for FB-046.
 Historical Branch Readiness State: Complete on `feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeout-truth`.
 Current Branch Readiness State: Complete for PKG-006 Monitoring and HUD Product Surface Package; terminal commit `8ae84cb784fc07dfe4f445359de4cf20a13552fa`.
-Current Workstream State: Active - Workstream WS1 for SLC-016 HUD visual and user-facing monitoring surface; FAM-003 legacy FB-027 PR #109 shutdown-hotkey confirmation proof is merged historical family evidence and aggregation material only.
+Current Workstream State: Active - Workstream WS2 for SLC-025 runtime telemetry source and adapter boundary; SLC-016 HUD visual/user-facing surface is complete; FAM-003 legacy FB-027 PR #109 shutdown-hotkey confirmation proof is merged historical family evidence and aggregation material only.
 Current Hardening State: None active.
 Current Live Validation State: None active.
 Current PR Surface Owner: None; PR #109 merge/bot-review/watcher proof remains historical in `Docs/workstreams/FB-027_interaction_system_baseline.md`.
@@ -108,7 +108,7 @@ Release Floor: none - release execution is complete for the current approved pre
 Version Rationale: `v1.6.13-prebeta` published the approved patch-prerelease governance, automation, release-support, and bounded runtime-proof tranche; after publication and post-release closure, USER approved FAM-006 Branch Readiness Stage 2 to create the runtime branch and admit the Monitoring and HUD Product Surface Package.
 Release Scope: released historical traceability for PR #110 governance repair, PR #111 release-packaging source-truth closeout, PR #112 post-merge release-support closeout/hardening, PR #113 PR #112 source-truth closeout / merge-target authority hardening, merged automation-catalog truth, `FAM-001` legacy `FB-049` runtime proof, and `FAM-004` legacy `FB-030` voice/audio runtime diagnostics proof.
 Release Artifacts: Published tag `v1.6.13-prebeta`; published GitHub prerelease title `Pre-Beta v1.6.13`; Markdown release notes include a generated `## What's Changed` section plus `**Full Changelog**:`.
-Post-Release Truth: the backlog-family governance reform, automation-catalog branch, `FAM-001` legacy `FB-049` runtime branch, `FAM-004` legacy `FB-030` runtime diagnostics branch, PR #112 closeout/hardening proof, and PR #113 source-truth closeout / merge-target authority hardening proof are released historical traceability; latest public prerelease is `v1.6.13-prebeta`; release debt is clear; USER-approved FAM-006 Workstream WS1 is active on `feature/fam-006-monitoring-hud-product-surface`.
+Post-Release Truth: the backlog-family governance reform, automation-catalog branch, `FAM-001` legacy `FB-049` runtime branch, `FAM-004` legacy `FB-030` runtime diagnostics branch, PR #112 closeout/hardening proof, and PR #113 source-truth closeout / merge-target authority hardening proof are released historical traceability; latest public prerelease is `v1.6.13-prebeta`; release debt is clear; USER-approved FAM-006 Workstream WS2 is active on `feature/fam-006-monitoring-hud-product-surface`.
 Next-Branch Creation Gate: Cleared for `feature/fam-006-monitoring-hud-product-surface` only by USER-approved Branch Readiness Stage 2; any additional branch creation remains blocked.
 Next Legal Phase: Workstream continuation on PKG-006.
 
@@ -133,7 +133,7 @@ Open-candidate priority review:
 - FB-048 is Released / Closed in `v1.6.12-prebeta`; release debt is clear after publication, validation, and post-release canon closure.
 - FAM-001 legacy FB-049 is historical complete after PR #107 merge; GitHub merge truth is valid, the same-thread watcher handoff failed, cleanup is proven, and the stale active-branch authority plus recurrence analysis is carried and repaired inside FAM-004 legacy FB-030 Branch Readiness.
 
-Current-branch clarity: latest public prerelease is `v1.6.13-prebeta`; FB-044 and FB-045 are released and closed in `v1.6.9-prebeta`; FB-046 is released and closed in `v1.6.10-prebeta`; FB-047 is released and closed in `v1.6.11-prebeta`; FB-048 is released and closed in `v1.6.12-prebeta`; merged `main` repo state remains `No Active Branch`; the backlog-family governance reform branch, automation-catalog branch, FAM-001 legacy FB-049 runtime branch, FAM-004 legacy FB-030 runtime branch, PR #112 source-truth closeout / merge-target authority hardening proof, and PR #113 source-truth closeout / merge-target authority hardening proof are released historical traceability in `v1.6.13-prebeta`; FAM-003 legacy FB-027 is a released baseline family anchor with PR #109 preserved as aggregation evidence; and USER-approved FAM-006 selected-next truth has matured into Workstream WS1 on `feature/fam-006-monitoring-hud-product-surface` with `PKG-006` admitted and runtime implementation started only inside admitted SLC-016 visual baseline scope.
+Current-branch clarity: latest public prerelease is `v1.6.13-prebeta`; FB-044 and FB-045 are released and closed in `v1.6.9-prebeta`; FB-046 is released and closed in `v1.6.10-prebeta`; FB-047 is released and closed in `v1.6.11-prebeta`; FB-048 is released and closed in `v1.6.12-prebeta`; merged `main` repo state remains `No Active Branch`; the backlog-family governance reform branch, automation-catalog branch, FAM-001 legacy FB-049 runtime branch, FAM-004 legacy FB-030 runtime branch, PR #112 source-truth closeout / merge-target authority hardening proof, and PR #113 source-truth closeout / merge-target authority hardening proof are released historical traceability in `v1.6.13-prebeta`; FAM-003 legacy FB-027 is a released baseline family anchor with PR #109 preserved as aggregation evidence; and USER-approved FAM-006 selected-next truth has matured into Workstream WS2 on `feature/fam-006-monitoring-hud-product-surface` with `PKG-006` admitted, SLC-016 complete, and SLC-025 active.
 
 ## Registry Items
 
@@ -281,7 +281,7 @@ Release Floor: none - release execution is complete.
 Version Rationale: The voice/audio runtime diagnostics proof added bounded truthfulness for availability states without opening a standalone new family or release-version driver.
 Release Scope: released governance reform, automation catalog proof, FAM-001 legacy FB-049 runtime proof, FAM-004 legacy FB-030 voice/audio runtime diagnostics proof, PR #112 source-truth closeout / merge-target authority hardening proof, and PR #113 source-truth closeout / merge-target authority hardening proof.
 Release Artifacts: Published tag `v1.6.13-prebeta`; published GitHub prerelease title `Pre-Beta v1.6.13`; release notes include generated `What's Changed` and `Full Changelog` sections.
-Post-Release Truth: merged governance reform, automation catalog, FAM-001 legacy FB-049 runtime proof, FAM-004 legacy FB-030 runtime diagnostics proof, PR #112 source-truth closeout / merge-target authority hardening, and PR #113 source-truth closeout / merge-target authority hardening are released historical traceability; release debt is clear; and the later runtime package has now entered USER-approved FAM-006 Workstream WS1 on `feature/fam-006-monitoring-hud-product-surface`.
+Post-Release Truth: merged governance reform, automation catalog, FAM-001 legacy FB-049 runtime proof, FAM-004 legacy FB-030 runtime diagnostics proof, PR #112 source-truth closeout / merge-target authority hardening, and PR #113 source-truth closeout / merge-target authority hardening are released historical traceability; release debt is clear; and the later runtime package has now entered USER-approved FAM-006 Workstream WS2 on `feature/fam-006-monitoring-hud-product-surface`.
 Selected Next Workstream: FAM-006 Monitoring and HUD.
 Next-Branch Creation Gate: Cleared for `feature/fam-006-monitoring-hud-product-surface` only by USER-approved Branch Readiness Stage 2.
 Package Completion State: Released Baseline / Open
@@ -348,11 +348,11 @@ Selected Next Implementation Branch: feature/fam-006-monitoring-hud-product-surf
 Branch Creation Status: Created in Branch Readiness Stage 2 from updated main at `3c68cd881a9f6bf447f09ac0949d556e97bce4f4`
 Runtime Package Admission: Admitted for `PKG-006`
 Active Branch Authority Record: Docs/branch_records/feature_fam_006_monitoring_hud_product_surface.md
-Next Legal Runtime Step: Continue Workstream WS1 on SLC-016; runtime implementation is authorized only inside admitted PKG-006 slices on this branch.
+Next Legal Runtime Step: Continue Workstream WS2 on SLC-025; runtime implementation is authorized only inside admitted PKG-006 slices on this branch.
 Minimal Scope: admitted runtime package for HUD visual/user-facing surface, runtime telemetry source/adapters, desktop placement and renderer ownership, settings or user controls visibility, fail-safe/no-data/degraded-status behavior, and validation/live desktop proof; optional voice/status integration remains deferred unless it is later proven to be narrow HUD-status copy inside FAM-006.
 Family Scope: Monitoring surfaces, CPU/GPU thermals, performance telemetry, HUD/overlay presentation, trust-safety display rules, and plugin-fed runtime telemetry.
 Package Policy: Branchable monitoring/HUD work must package source, display, and validation slices by default.
-Known Pending Gaps: HUD user-facing surface and telemetry presentation remain pending after the historical architecture-only monitoring release.
+Known Pending Gaps: telemetry presentation, adapter truth, desktop placement ownership, settings controls, fail-safe states, and live proof remain pending after the SLC-016 HUD visual baseline.
 Package Admission State: Admitted
 Admitted Slice Count: 6
 Package Completion State: In Progress
@@ -369,8 +369,8 @@ Slice Trace:
 | Slice ID | Package ID | FAM ID | Slice Name | Admission State | Slice Status | Completion State | Seam Trace |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | `SLC-015` | `PKG-006` | `FAM-006` | Monitoring and thermal architecture baseline | Historical Evidence | Released | Complete | `FB-040`; Branch Readiness through Release |
-| `SLC-016` | `PKG-006` | `FAM-006` | HUD visual and user-facing monitoring surface | Admitted | Workstream active | In Progress | `BR-S2-S1`; `WS1` |
-| `SLC-025` | `PKG-006` | `FAM-006` | Runtime telemetry source and adapter boundary | Admitted | Branch Readiness admitted | In Progress | `BR-S2-S2`; planned Workstream slice |
+| `SLC-016` | `PKG-006` | `FAM-006` | HUD visual and user-facing monitoring surface | Admitted | Green | Complete | `BR-S2-S1`; `WS1`; `dev/orin_monitoring_hud_surface_validation.py` |
+| `SLC-025` | `PKG-006` | `FAM-006` | Runtime telemetry source and adapter boundary | Admitted | Workstream active | In Progress | `BR-S2-S2`; `WS2` |
 | `SLC-026` | `PKG-006` | `FAM-006` | Desktop placement and renderer ownership | Admitted | Branch Readiness admitted | In Progress | `BR-S2-S3`; planned Workstream slice |
 | `SLC-027` | `PKG-006` | `FAM-006` | Settings and user controls visibility | Admitted | Branch Readiness admitted | In Progress | `BR-S2-S4`; planned Workstream slice |
 | `SLC-028` | `PKG-006` | `FAM-006` | Fail-safe, no-data, and degraded-status behavior | Admitted | Branch Readiness admitted | In Progress | `BR-S2-S5`; planned Workstream slice |
@@ -380,7 +380,7 @@ Slice Trace:
 Admitted Slice Shape: HUD visual/user-facing surface; runtime telemetry source/adapters; desktop placement / renderer ownership; settings or user controls visibility; fail-safe / no-data / degraded-status behavior; validation / live desktop proof.
 Deferred/Future Slice Shape: optional voice/status integration is not admitted because spoken/audio behavior, voice integration, persona voice, or FAM-004 cross-family widening requires later explicit USER approval.
 Element Coverage Review: user-facing surface, runtime/backend behavior, settings/configuration, fail-safe/recovery, voice/audio integration as deferred coverage only, monitoring/HUD/observability, validation/live-test requirements, release/documentation impact, security/privacy posture, external integration, local AI/capability-pack impact, and packaging/install impact are planning coverage only and do not count as admitted slices.
-Summary: Monitoring and HUD remains open because the released architecture baseline did not ship the user-facing HUD surface; it is now the USER-approved active runtime package branch with six admitted slices, WS1 visual baseline work active, no PR created, and no release work authorized.
+Summary: Monitoring and HUD remains open because the released architecture baseline did not ship the user-facing HUD surface or telemetry presentation; it is now the USER-approved active runtime package branch with six admitted slices, SLC-016 complete, SLC-025 active, no PR created, and no release work authorized.
 
 ### [ID: FAM-007] Local AI and Capability Packs
 
@@ -667,7 +667,7 @@ Release Floor: none - release execution is complete.
 Version Rationale: FAM-004 legacy FB-030 added bounded runtime diagnostics truth for voice/audio availability without opening a new feature family or materially widening product scope.
 Release Scope: released governance reform, automation catalog proof, FAM-001 legacy FB-049 runtime proof, FAM-004 legacy FB-030 voice/audio runtime diagnostics proof, PR #112 source-truth closeout / merge-target authority hardening proof, and PR #113 source-truth closeout / merge-target authority hardening proof.
 Release Artifacts: Published tag `v1.6.13-prebeta`; published GitHub prerelease title `Pre-Beta v1.6.13`; release notes include generated `What's Changed` and `Full Changelog` sections.
-Post-Release Truth: merged governance reform, automation catalog, FAM-001 legacy FB-049 runtime proof, FAM-004 legacy FB-030 runtime diagnostics proof, PR #112 source-truth closeout / merge-target authority hardening, and PR #113 source-truth closeout / merge-target authority hardening are released historical traceability; release debt is clear; USER-approved selected-next truth points to FAM-006; and Workstream WS1 is active on `feature/fam-006-monitoring-hud-product-surface` with `PKG-006` admitted and runtime implementation started only inside SLC-016.
+Post-Release Truth: merged governance reform, automation catalog, FAM-001 legacy FB-049 runtime proof, FAM-004 legacy FB-030 runtime diagnostics proof, PR #112 source-truth closeout / merge-target authority hardening, and PR #113 source-truth closeout / merge-target authority hardening are released historical traceability; release debt is clear; USER-approved selected-next truth points to FAM-006; and Workstream WS2 is active on `feature/fam-006-monitoring-hud-product-surface` with `PKG-006` admitted, SLC-016 complete, and SLC-025 active.
 Selected Next Workstream: FAM-006 Monitoring and HUD.
 Next-Branch Creation Gate: Cleared for `feature/fam-006-monitoring-hud-product-surface` only by USER-approved Branch Readiness Stage 2.
 Historical Planning Release: `v1.6.5-prebeta` remains the released planning/admission proof for the original voice/audio direction milestone.
