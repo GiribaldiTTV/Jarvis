@@ -608,12 +608,33 @@ body.desktop-mode #monitoring-hud {
   color: rgba(164, 206, 222, 0.82);
 }
 
+.monitoring-hud__telemetry {
+  margin-top: 14px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 7px 12px;
+  padding: 12px;
+  border-radius: 16px;
+  border: 1px solid rgba(118, 226, 255, 0.14);
+  background: rgba(4, 16, 28, 0.44);
+  color: rgba(170, 211, 224, 0.84);
+  font-size: 12px;
+}
+
 .monitoring-hud__grid strong {
   font-size: 11px;
   font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: rgba(137, 235, 255, 0.78);
+}
+
+.monitoring-hud__telemetry strong {
+  font-size: 11px;
+  font-weight: 650;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: rgba(148, 242, 214, 0.82);
 }
 
 @media (max-width: 760px), (max-height: 620px) {

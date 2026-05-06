@@ -15,6 +15,10 @@ const commandConfirmTitle = document.getElementById("command-confirm-title");
 const commandConfirmKind = document.getElementById("command-confirm-kind");
 const commandConfirmTarget = document.getElementById("command-confirm-target");
 const monitoringHud = document.getElementById("monitoring-hud");
+const monitoringHudRuntimeStatus = document.getElementById("monitoring-hud-runtime-status");
+const monitoringHudAdapterStatus = document.getElementById("monitoring-hud-adapter-status");
+const monitoringHudSourceScope = document.getElementById("monitoring-hud-source-scope");
+const monitoringHudHardwarePolling = document.getElementById("monitoring-hud-hardware-polling");
 
 let w = 0;
 let h = 0;
@@ -39,6 +43,14 @@ let commandOverlayState = {
   typed_request: "",
   pending_action: null,
   ambiguous_titles: []
+};
+let monitoringHudTelemetry = {
+  packageId: "PKG-006",
+  sliceId: "SLC-025",
+  adapterStatus: "Boundary pending",
+  sourceScope: "Local runtime readiness",
+  hardwarePolling: "Not performed",
+  sources: []
 };
 
 const backParticles = [];
@@ -1200,8 +1212,30 @@ window.setDesktopSurfaceMode = function(enabled) {
   }
 };
 
+window.setMonitoringHudTelemetry = function(snapshot) {
+  monitoringHudTelemetry = Object.assign({}, monitoringHudTelemetry, snapshot || {});
+  if (monitoringHud) {
+    monitoringHud.dataset.telemetryPackage = monitoringHudTelemetry.packageId || "PKG-006";
+    monitoringHud.dataset.telemetrySlice = monitoringHudTelemetry.sliceId || "SLC-025";
+    monitoringHud.dataset.telemetryAdapter = monitoringHudTelemetry.adapterId || "desktop-runtime-boundary";
+  }
+  if (monitoringHudRuntimeStatus) {
+    monitoringHudRuntimeStatus.textContent = "Runtime boundary online";
+  }
+  if (monitoringHudAdapterStatus) {
+    monitoringHudAdapterStatus.textContent = monitoringHudTelemetry.adapterStatus || "Boundary ready";
+  }
+  if (monitoringHudSourceScope) {
+    monitoringHudSourceScope.textContent = monitoringHudTelemetry.sourceScope || "Local runtime readiness";
+  }
+  if (monitoringHudHardwarePolling) {
+    monitoringHudHardwarePolling.textContent = monitoringHudTelemetry.hardwarePolling || "Not performed";
+  }
+};
+
 window.setCoreVisualState("boot");
 window.setCoreVoiceLevel(0);
 window.setCommandOverlayState({ visible: false });
 window.setDesktopSurfaceMode(false);
+window.setMonitoringHudTelemetry({});
 requestAnimationFrame(frame);

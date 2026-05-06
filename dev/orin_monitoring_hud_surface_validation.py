@@ -1,8 +1,9 @@
-"""Validate the FAM-006 Monitoring HUD visual baseline contract.
+"""Validate the FAM-006 Monitoring HUD visual and telemetry boundary contract.
 
-This helper is intentionally static for SLC-016. It proves the desktop-only
-visual surface, source-truth markers, and slice-boundary copy without sampling
-telemetry, changing settings, modeling fail-safe states, or touching voice/audio.
+This helper is intentionally static for SLC-016/SLC-025. It proves the
+desktop-only visual surface, runtime telemetry adapter boundary, source-truth
+markers, and slice-boundary copy without polling hardware, changing settings,
+modeling fail-safe states, or touching voice/audio.
 """
 
 from __future__ import annotations
@@ -43,21 +44,27 @@ def validate() -> list[str]:
     css = _read("jarvis_visual/orin_core.css")
     js = _read("jarvis_visual/orin_core.js")
     renderer = _read("desktop/desktop_renderer.py")
+    telemetry = _read("desktop/monitoring_hud_telemetry.py")
 
     hud_section = _html_section(html)
     _require(bool(hud_section), "orin_core.html is missing the monitoring-hud section", failures)
     for needle in (
         'data-package="PKG-006"',
         'data-slice="SLC-016"',
+        'data-slice="SLC-025"',
         'aria-label="Monitoring HUD visual baseline"',
+        'aria-label="Runtime telemetry adapter boundary"',
         'aria-hidden="true"',
         "FAM-006 Monitoring HUD",
         "System surface baseline",
         "Visual layer online",
-        "Pending SLC-025",
+        "Active SLC-025",
         "Pending SLC-026",
         "Pending SLC-027",
         "Pending SLC-028",
+        "Adapter boundary",
+        "Local runtime only",
+        "Not performed",
     ):
         _require_contains(hud_section, needle, "monitoring HUD HTML", failures)
 
@@ -84,20 +91,57 @@ def validate() -> list[str]:
         'body.classList.toggle("desktop-mode", isEnabled)',
         'monitoringHud.setAttribute("aria-hidden", isEnabled ? "false" : "true")',
         'monitoringHud.dataset.renderState = isEnabled ? "visual-baseline" : "hidden"',
+        "window.setMonitoringHudTelemetry = function(snapshot)",
+        'monitoringHud.dataset.telemetrySlice = monitoringHudTelemetry.sliceId || "SLC-025"',
+        'monitoringHudRuntimeStatus.textContent = "Runtime boundary online"',
         "window.setDesktopSurfaceMode(false)",
+        "window.setMonitoringHudTelemetry({})",
     ):
         _require_contains(js, needle, "monitoring HUD JavaScript", failures)
 
     for needle in (
+        "from .monitoring_hud_telemetry import build_monitoring_hud_telemetry_snapshot",
         "def _apply_desktop_surface_mode(self):",
+        "def _monitoring_hud_telemetry_snapshot(self) -> dict[str, object]:",
+        "def _publish_monitoring_hud_telemetry_boundary(self):",
+        "build_monitoring_hud_telemetry_snapshot(",
         "window.setDesktopSurfaceMode(true)",
+        "window.setMonitoringHudTelemetry",
         "MONITORING_HUD_BASELINE_READY",
+        "MONITORING_HUD_TELEMETRY_BOUNDARY_READY",
         'package="PKG-006"',
         'slice="SLC-016"',
+        'slice="SLC-025"',
+        'adapter="desktop-runtime-boundary"',
+        'hardware_polling="not_performed"',
         'baseline="visual_only"',
         "self._apply_desktop_surface_mode()",
+        "self._publish_monitoring_hud_telemetry_boundary()",
     ):
         _require_contains(renderer, needle, "desktop renderer HUD hook", failures)
+
+    for needle in (
+        'PACKAGE_ID = "PKG-006"',
+        'SLICE_ID = "SLC-025"',
+        'ADAPTER_ID = "desktop-runtime-boundary"',
+        "class MonitoringHudTelemetrySnapshot",
+        "def build_monitoring_hud_telemetry_snapshot(",
+        'adapter_status="Boundary ready"',
+        'source_scope="Local runtime readiness"',
+        'hardware_polling="Not performed"',
+        'MonitoringHudSource("Visual page"',
+        'MonitoringHudSource("Desktop surface"',
+        'MonitoringHudSource("Runtime log"',
+        'MonitoringHudSource("Event route"',
+    ):
+        _require_contains(telemetry, needle, "monitoring HUD telemetry adapter", failures)
+
+    for forbidden in ("psutil", "subprocess", "wmi", "pynvml", "win32", "powershell"):
+        _require(
+            forbidden not in telemetry.casefold(),
+            f"monitoring HUD telemetry adapter must not perform {forbidden} collection in SLC-025",
+            failures,
+        )
 
     desktop_mode_method = re.search(
         r"def _apply_desktop_surface_mode\(self\):.*?def _on_load_finished",
@@ -123,7 +167,7 @@ def main() -> int:
             print(f"- {failure}")
         return 1
 
-    print("PASS: FAM-006 SLC-016 HUD visual baseline is visible, bounded, and marker-backed")
+    print("PASS: FAM-006 HUD visual baseline and telemetry boundary are bounded and marker-backed")
     return 0
 
 

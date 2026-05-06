@@ -53,11 +53,23 @@
     <div class="monitoring-hud__title">System surface baseline</div>
     <div class="monitoring-hud__status">
       <span class="monitoring-hud__status-dot"></span>
-      <span>Visual layer online</span>
+      <span id="monitoring-hud-runtime-status">Visual layer online</span>
+    </div>
+    <div
+      class="monitoring-hud__telemetry"
+      data-slice="SLC-025"
+      aria-label="Runtime telemetry adapter boundary"
+    >
+      <span>Adapter boundary</span>
+      <strong id="monitoring-hud-adapter-status">Awaiting runtime snapshot</strong>
+      <span>Source scope</span>
+      <strong id="monitoring-hud-source-scope">Local runtime only</strong>
+      <span>Hardware polling</span>
+      <strong id="monitoring-hud-hardware-polling">Not performed</strong>
     </div>
     <div class="monitoring-hud__grid" aria-label="Package boundary preview">
       <span>Telemetry adapters</span>
-      <strong>Pending SLC-025</strong>
+      <strong>Active SLC-025</strong>
       <span>Desktop ownership</span>
       <strong>Pending SLC-026</strong>
       <span>User controls</span>
