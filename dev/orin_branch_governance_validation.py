@@ -211,6 +211,14 @@ USER_VISION_INPUT_PENDING_BLOCKER = "USER Vision Input Pending"
 USER_VISION_INPUT_FILE_MISSING_BLOCKER = "USER Vision Input File Missing"
 USER_VISION_INPUT_ANSWERS_PENDING_BLOCKER = "USER Vision Input Answers Pending"
 USER_VISION_INPUT_DIGEST_PENDING_BLOCKER = "USER Vision Input Digest Pending"
+LEGACY_PRODUCT_NAME_DRIFT_BLOCKER = "Legacy Jarvis Product Name Drift"
+HARDWARE_TELEMETRY_PROVIDER_PENDING_BLOCKER = "Hardware Telemetry Provider Selection Pending"
+POLLING_FLOOR_UNDECIDED_BLOCKER = "Polling Floor Undecided"
+WARNING_DELIVERY_MODALITY_PENDING_BLOCKER = "Warning Delivery Modality Pending"
+EXTERNAL_TELEMETRY_PRIVACY_MODEL_MISSING_BLOCKER = "External Telemetry Privacy Model Missing"
+AUDIO_WARNING_CROSS_FAMILY_APPROVAL_MISSING_BLOCKER = (
+    "Audio Warning Cross-Family Approval Missing"
+)
 USER_VISION_INPUT_HANDOFF_MARKERS = (
     "USER Vision Input Artifact Path:",
     "USER Vision Input Artifact State:",
@@ -227,6 +235,12 @@ PRODUCT_PLANNING_BLOCKERS = (
     USER_VISION_INPUT_FILE_MISSING_BLOCKER,
     USER_VISION_INPUT_ANSWERS_PENDING_BLOCKER,
     USER_VISION_INPUT_DIGEST_PENDING_BLOCKER,
+    LEGACY_PRODUCT_NAME_DRIFT_BLOCKER,
+    HARDWARE_TELEMETRY_PROVIDER_PENDING_BLOCKER,
+    POLLING_FLOOR_UNDECIDED_BLOCKER,
+    WARNING_DELIVERY_MODALITY_PENDING_BLOCKER,
+    EXTERNAL_TELEMETRY_PRIVACY_MODEL_MISSING_BLOCKER,
+    AUDIO_WARNING_CROSS_FAMILY_APPROVAL_MISSING_BLOCKER,
     "Branch Reach Unproven",
     "Feature Element Breakdown Missing",
     "Acceptance Criteria Missing",
@@ -4238,7 +4252,7 @@ def _validate_user_vision_input_handoff(
     text: str,
     blockers: list[str],
 ) -> None:
-    if not any(
+    has_user_vision_input_blocker = any(
         blocker in blockers
         for blocker in (
             USER_VISION_INPUT_PENDING_BLOCKER,
@@ -4246,7 +4260,8 @@ def _validate_user_vision_input_handoff(
             USER_VISION_INPUT_ANSWERS_PENDING_BLOCKER,
             USER_VISION_INPUT_DIGEST_PENDING_BLOCKER,
         )
-    ):
+    )
+    if not has_user_vision_input_blocker and f"## {USER_VISION_INPUT_HANDOFF_HEADING}" not in text:
         return
 
     handoff_section = _section(text, USER_VISION_INPUT_HANDOFF_HEADING)
@@ -4271,6 +4286,8 @@ def _validate_user_vision_input_handoff(
     answer_state = _extract_marker_value(handoff_section, "USER Vision Input Answer State:")
     digest_state = _extract_marker_value(handoff_section, "USER Vision Input Digest State:")
     source_truth_rule = _extract_marker_value(handoff_section, "Repo Source Truth Update Rule:")
+    normalized_answer_state = answer_state.casefold()
+    normalized_digest_state = digest_state.casefold()
     artifact_exists = USER_VISION_INPUT_ARTIFACT_PATH.exists()
 
     require(
@@ -4303,7 +4320,11 @@ def _validate_user_vision_input_handoff(
         ),
     )
 
-    if artifact_exists:
+    if (
+        USER_VISION_INPUT_FILE_MISSING_BLOCKER in blockers
+        or USER_VISION_INPUT_ANSWERS_PENDING_BLOCKER in blockers
+        or USER_VISION_INPUT_DIGEST_PENDING_BLOCKER in blockers
+    ) and artifact_exists:
         require(
             USER_VISION_INPUT_FILE_MISSING_BLOCKER not in blockers,
             (
@@ -4311,16 +4332,16 @@ def _validate_user_vision_input_handoff(
                 f"active while {USER_VISION_INPUT_ARTIFACT_PATH} exists"
             ),
         )
-    else:
+    elif USER_VISION_INPUT_FILE_MISSING_BLOCKER in blockers:
         require(
-            USER_VISION_INPUT_FILE_MISSING_BLOCKER in blockers,
+            not artifact_exists,
             (
-                f"{source_path}: missing {USER_VISION_INPUT_ARTIFACT_PATH} must block on "
-                f"'{USER_VISION_INPUT_FILE_MISSING_BLOCKER}'"
+                f"{source_path}: {USER_VISION_INPUT_FILE_MISSING_BLOCKER} is active, "
+                f"but {USER_VISION_INPUT_ARTIFACT_PATH} exists"
             ),
         )
 
-    if "pending" in answer_state.casefold() or "incomplete" in answer_state.casefold():
+    if "pending" in normalized_answer_state or "incomplete" in normalized_answer_state:
         require(
             USER_VISION_INPUT_ANSWERS_PENDING_BLOCKER in blockers,
             (
@@ -4328,7 +4349,16 @@ def _validate_user_vision_input_handoff(
                 f"'{USER_VISION_INPUT_ANSWERS_PENDING_BLOCKER}'"
             ),
         )
-    if "pending" in digest_state.casefold() or "not digested" in digest_state.casefold():
+    elif "complete" in normalized_answer_state or "completed" in normalized_answer_state:
+        require(
+            USER_VISION_INPUT_ANSWERS_PENDING_BLOCKER not in blockers,
+            (
+                f"{source_path}: {USER_VISION_INPUT_ANSWERS_PENDING_BLOCKER} must clear "
+                "after USER vision input answers are recorded complete"
+            ),
+        )
+
+    if "pending" in normalized_digest_state or "not digested" in normalized_digest_state:
         require(
             USER_VISION_INPUT_DIGEST_PENDING_BLOCKER in blockers,
             (
@@ -4341,6 +4371,21 @@ def _validate_user_vision_input_handoff(
             (
                 f"{source_path}: USER vision input cannot be considered complete until "
                 f"'{USER_VISION_INPUT_PENDING_BLOCKER}' is cleared by a later digest pass"
+            ),
+        )
+    elif "digest" in normalized_digest_state or "digested" in normalized_digest_state:
+        require(
+            USER_VISION_INPUT_DIGEST_PENDING_BLOCKER not in blockers,
+            (
+                f"{source_path}: {USER_VISION_INPUT_DIGEST_PENDING_BLOCKER} must clear "
+                "after USER vision input is digested into repo source truth"
+            ),
+        )
+        require(
+            USER_VISION_INPUT_PENDING_BLOCKER not in blockers,
+            (
+                f"{source_path}: {USER_VISION_INPUT_PENDING_BLOCKER} must clear after "
+                "USER vision input is digested into repo source truth"
             ),
         )
 
