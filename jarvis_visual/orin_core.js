@@ -22,6 +22,9 @@ const monitoringHudHardwarePolling = document.getElementById("monitoring-hud-har
 const monitoringHudPlacementOwner = document.getElementById("monitoring-hud-placement-owner");
 const monitoringHudPlacementAnchor = document.getElementById("monitoring-hud-placement-anchor");
 const monitoringHudPlacementPointer = document.getElementById("monitoring-hud-placement-pointer");
+const monitoringHudControlsVisibility = document.getElementById("monitoring-hud-controls-visibility");
+const monitoringHudControlsSurface = document.getElementById("monitoring-hud-controls-surface");
+const monitoringHudControlsPersistence = document.getElementById("monitoring-hud-controls-persistence");
 
 let w = 0;
 let h = 0;
@@ -62,6 +65,14 @@ let monitoringHudPlacement = {
   rendererOwner: "DesktopRuntimeWindow",
   anchor: "Top-right inside desktop visual surface",
   pointerModel: "Non-interactive pass-through"
+};
+let monitoringHudControls = {
+  packageId: "PKG-006",
+  sliceId: "SLC-027",
+  controlsId: "hud-controls-visibility",
+  visibilityState: "Waiting for desktop mode",
+  controlSurface: "Read-only HUD controls preview",
+  persistence: "Not persisted"
 };
 
 const backParticles = [];
@@ -1263,10 +1274,30 @@ window.setMonitoringHudPlacementOwnership = function(contract) {
   }
 };
 
+window.setMonitoringHudControlsVisibility = function(contract) {
+  monitoringHudControls = Object.assign({}, monitoringHudControls, contract || {});
+  if (monitoringHud) {
+    monitoringHud.dataset.controlsPackage = monitoringHudControls.packageId || "PKG-006";
+    monitoringHud.dataset.controlsSlice = monitoringHudControls.sliceId || "SLC-027";
+    monitoringHud.dataset.controlsId = monitoringHudControls.controlsId || "hud-controls-visibility";
+    monitoringHud.dataset.controlsState = "visible-read-only";
+  }
+  if (monitoringHudControlsVisibility) {
+    monitoringHudControlsVisibility.textContent = monitoringHudControls.visibilityState || "Desktop mode visible";
+  }
+  if (monitoringHudControlsSurface) {
+    monitoringHudControlsSurface.textContent = monitoringHudControls.controlSurface || "Read-only preview";
+  }
+  if (monitoringHudControlsPersistence) {
+    monitoringHudControlsPersistence.textContent = monitoringHudControls.persistence || "Not persisted";
+  }
+};
+
 window.setCoreVisualState("boot");
 window.setCoreVoiceLevel(0);
 window.setCommandOverlayState({ visible: false });
 window.setDesktopSurfaceMode(false);
 window.setMonitoringHudTelemetry({});
 window.setMonitoringHudPlacementOwnership({});
+window.setMonitoringHudControlsVisibility({});
 requestAnimationFrame(frame);

@@ -609,7 +609,8 @@ body.desktop-mode #monitoring-hud {
 }
 
 .monitoring-hud__telemetry,
-.monitoring-hud__placement {
+.monitoring-hud__placement,
+.monitoring-hud__controls {
   margin-top: 14px;
   display: grid;
   grid-template-columns: 1fr auto;
@@ -631,7 +632,8 @@ body.desktop-mode #monitoring-hud {
 }
 
 .monitoring-hud__telemetry strong,
-.monitoring-hud__placement strong {
+.monitoring-hud__placement strong,
+.monitoring-hud__controls strong {
   font-size: 11px;
   font-weight: 650;
   letter-spacing: 0.07em;

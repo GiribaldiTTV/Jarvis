@@ -31,6 +31,7 @@ from PySide6.QtGui import QColor, QFont, QPainterPath, QRegion
 from PySide6.QtWebEngineWidgets import QWebEngineView
 
 from .interaction_overlay_model import CommandOverlayModel
+from .monitoring_hud_controls import build_monitoring_hud_controls_visibility_contract
 from .monitoring_hud_placement import build_monitoring_hud_placement_contract
 from .monitoring_hud_telemetry import build_monitoring_hud_telemetry_snapshot
 from .saved_action_authoring import (
@@ -5581,6 +5582,7 @@ class DesktopRuntimeWindow(QWidget):
         self._apply_desktop_surface_mode()
         self._publish_monitoring_hud_telemetry_boundary()
         self._publish_monitoring_hud_placement_ownership()
+        self._publish_monitoring_hud_controls_visibility()
         self._apply_pending_visual_state()
         self._apply_pending_voice_level()
         self._apply_command_overlay_state()
@@ -6871,6 +6873,7 @@ class DesktopRuntimeWindow(QWidget):
         )
         self._publish_monitoring_hud_telemetry_boundary()
         self._publish_monitoring_hud_placement_ownership()
+        self._publish_monitoring_hud_controls_visibility()
         for probe_event in get_last_workerw_probe_events():
             self._log_event(f"RENDERER_MAIN|{probe_event}")
 
@@ -6881,6 +6884,31 @@ class DesktopRuntimeWindow(QWidget):
         if attached:
             QTimer.singleShot(260, self._reinforce_desktop_mode)
             QTimer.singleShot(900, self._reinforce_desktop_mode)
+
+    def _monitoring_hud_controls_visibility_contract(self) -> dict[str, str]:
+        return build_monitoring_hud_controls_visibility_contract(
+            desktop_mode=self.desktop_mode,
+        ).as_dict()
+
+    def _publish_monitoring_hud_controls_visibility(self):
+        controls_json = json.dumps(
+            self._monitoring_hud_controls_visibility_contract(),
+            sort_keys=True,
+        )
+        self._run_javascript(
+            f"""
+            if (window.setMonitoringHudControlsVisibility) {{
+                window.setMonitoringHudControlsVisibility({controls_json});
+            }}
+            """
+        )
+        self._emit_runtime_signal(
+            "MONITORING_HUD_CONTROLS_VISIBILITY_READY",
+            package="PKG-006",
+            slice="SLC-027",
+            controls="hud-controls-visibility",
+            persistence="not_persisted",
+        )
 
     def request_shutdown(self):
         if self._is_shutting_down:
