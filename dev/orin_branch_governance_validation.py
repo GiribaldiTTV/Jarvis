@@ -129,6 +129,7 @@ REQUIRED_BRANCH_READINESS_COMPLETION_MARKERS = (
 )
 
 PRODUCT_DEFINITION_PLAN_HEADING = "Product Definition Plan"
+USER_VISION_QUESTION_PACKET_HEADING = "USER Vision Question Packet"
 REQUIRED_PRODUCT_DEFINITION_MARKERS = (
     "Product Vision:",
     "User-Facing Goal:",
@@ -153,12 +154,61 @@ REQUIRED_PRODUCT_DEFINITION_MARKERS = (
     "Planning Revalidation Status:",
     "User Test Summary Strategy:",
 )
+REQUIRED_USER_VISION_QUESTION_PACKET_MARKERS = (
+    "Question ID",
+    "Category",
+    "Decision needed",
+    "Why this matters",
+    "Feature area affected",
+    "Codex recommendation",
+    "Why Codex recommends it",
+    "Alternatives/options",
+    "Tradeoffs/risks",
+    "Current-branch impact",
+    "Future-package impact",
+    "Safe default if USER is unsure",
+    "Required before implementation",
+    "May waive/defer",
+    "Exact response format requested",
+)
+REQUIRED_USER_VISION_QUESTION_PACKET_CATEGORIES = (
+    "Product goal / user outcome",
+    "Visual identity / style",
+    "Layout / placement",
+    "Information hierarchy",
+    "Data/source model",
+    "Controls/settings model",
+    "Fail-safe/no-data/degraded behavior",
+    "Interaction model",
+    "Accessibility/readability",
+    "Privacy/security boundaries",
+    "Performance constraints",
+    "Validation proof standard",
+    "User Test Summary acceptance criteria",
+    "Current-branch vs future-package boundaries",
+    "Release impact",
+)
+FAM_006_USER_VISION_PACKET_MARKERS = (
+    "HUD form factor",
+    "HUD placement",
+    "always-visible vs reveal/toggle behavior",
+    "visual style",
+    "first useful status content",
+    "telemetry depth",
+    "controls/settings behavior",
+    "fail-safe/no-data/degraded copy",
+    "screenshot proof standard",
+    "UTS acceptance standard",
+    "current branch work vs future package work",
+)
 PRODUCT_PLANNING_INCOMPLETE_BLOCKER = "Branch Readiness Planning Incomplete"
 PRODUCT_PLANNING_WAIVER_MARKER = "Planning Completion Waiver:"
 PRODUCT_PLANNING_COMPLETE_VALUES = {"complete", "waived"}
 PRODUCT_PLANNING_INCOMPLETE_VALUES = {"incomplete", "pending", "blocked"}
 PRODUCT_PLANNING_BLOCKERS = (
     "Product Vision Input Missing",
+    "USER Vision Question Packet Missing",
+    "USER Vision Recommendation Missing",
     "USER Vision Questions Unanswered",
     "Branch Reach Unproven",
     "Feature Element Breakdown Missing",
@@ -1058,6 +1108,7 @@ BRANCH_READINESS_STAGE_PACKET_PHRASES = (
     "Codex product interpretation",
     "Codex implementation recommendation",
     "USER/ChatGPT review checkpoint",
+    "USER Vision Question Packet",
     "full feature element breakdown",
     "current branch vs future package boundaries",
     "affected surfaces",
@@ -1071,6 +1122,7 @@ BRANCH_READINESS_STAGE_PACKET_PHRASES = (
     "validation plan",
     "expected docs sync",
     "Branch Readiness Planning Incomplete",
+    "USER Vision Recommendation Missing",
     "Stage 2 green-light decision",
 )
 
@@ -4076,6 +4128,40 @@ def _validate_product_definition_plan(
                 f"'{PRODUCT_PLANNING_INCOMPLETE_BLOCKER}' under Blockers"
             ),
         )
+        question_packet = _section(text, USER_VISION_QUESTION_PACKET_HEADING)
+        require(
+            bool(question_packet),
+            (
+                f"{source_path}: incomplete family-package planning with USER input "
+                f"needed must include '## {USER_VISION_QUESTION_PACKET_HEADING}'"
+            ),
+        )
+        if question_packet:
+            for marker in REQUIRED_USER_VISION_QUESTION_PACKET_MARKERS:
+                require(
+                    marker in question_packet,
+                    (
+                        f"{source_path}: {USER_VISION_QUESTION_PACKET_HEADING} is "
+                        f"missing '{marker}'"
+                    ),
+                )
+            for category in REQUIRED_USER_VISION_QUESTION_PACKET_CATEGORIES:
+                require(
+                    category in question_packet,
+                    (
+                        f"{source_path}: {USER_VISION_QUESTION_PACKET_HEADING} is "
+                        f"missing required category '{category}'"
+                    ),
+                )
+            if "FAM-006" in text:
+                for marker in FAM_006_USER_VISION_PACKET_MARKERS:
+                    require(
+                        marker in question_packet,
+                        (
+                            f"{source_path}: FAM-006 {USER_VISION_QUESTION_PACKET_HEADING} "
+                            f"is missing '{marker}'"
+                        ),
+                    )
         require(
             current_phase == "Branch Readiness",
             (

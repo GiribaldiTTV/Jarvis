@@ -71,7 +71,7 @@ Latest Public Prerelease Publication: https://github.com/GiribaldiTTV/Nexus-Desk
 Latest Public Prerelease Title: Pre-Beta v1.6.13.
 Release Debt: Clear after v1.6.13-prebeta publication, validation, and post-release canon closure.
 Merged-main Current Active Workstream: None.
-Current Active Workstream: FAM-006 Monitoring and HUD Product Surface Package Branch Readiness planning-governance repair complete; Workstream product repair blocked pending planning revalidation.
+Current Active Workstream: FAM-006 Monitoring and HUD Product Surface Package Branch Readiness USER Vision Question Packet repair complete; Workstream product repair blocked pending USER answers and planning revalidation.
 Current Active Workstream Before Reform: None.
 Current Execution Branch: feature/fam-006-monitoring-hud-product-surface.
 Current Active Branch Authority Record: Docs/branch_records/feature_fam_006_monitoring_hud_product_surface.md.
@@ -86,11 +86,11 @@ Selected Next Runtime Package Candidate: Monitoring and HUD Product Surface Pack
 Selected Next Implementation Branch: feature/fam-006-monitoring-hud-product-surface.
 Selected Next Status: USER-approved selected-next candidate matured into active FAM-006 package execution; product completion reopened after completion-truth drift review.
 Runtime Package Admission: Admitted for PKG-006 during USER-approved Branch Readiness Stage 2; product completion is reopened.
-Next Legal Runtime Step: Branch Readiness Stage 1-R3 planning sufficiency revalidation; Workstream WS7 remains blocked until USER vision answers and planning revalidation are complete or explicitly USER-waived.
+Next Legal Runtime Step: Branch Readiness Stage 1-R3 planning sufficiency revalidation using the structured USER Vision Question Packet; Workstream WS7 remains blocked until USER vision answers and planning revalidation are complete or explicitly USER-waived.
 Backlog Addition User Approval Missing: Cleared for USER-approved FAM-006 selected-next successor selection, Branch Readiness Stage 2 branch creation, and PKG-006 runtime package admission only; active for any other attempted new backlog item, backlog split, promotion beyond FAM-006, branch creation outside this carrier, or single-slice package waiver without explicit USER approval.
 Historical Repair-Only Branch Handling: `feature/fb-046-post-merge-canon-sync` was a bounded repair-only post-merge canon-sync `feature/` branch and did not imply Branch Readiness admission or active branch truth for FB-046.
 Historical Branch Readiness State: Complete on `feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeout-truth`.
-Current Branch Readiness State: Stage 2-R2 family-package product planning gate governance repair complete for PKG-006; prior Branch Readiness admission commit `8ae84cb784fc07dfe4f445359de4cf20a13552fa` remains historical admission evidence.
+Current Branch Readiness State: Stage 2-R3 USER Vision Question Packet governance repair complete for PKG-006; prior Branch Readiness admission commit `8ae84cb784fc07dfe4f445359de4cf20a13552fa` remains historical admission evidence.
 Current Workstream State: Blocked pending Branch Readiness planning revalidation - scaffold and boundary contracts exist, but product-visible HUD completion is not proven; SLC-016, SLC-026, SLC-027, SLC-028, and SLC-029 are reopened/in progress, while SLC-025 remains complete as local telemetry-boundary contract proof.
 Current Hardening State: Reopened - prior H1 is scaffold/marker hardening evidence only, not product-complete proof.
 Current Live Validation State: Blocked until Workstream product repair and Hardening re-complete.
@@ -348,7 +348,7 @@ Selected Next Implementation Branch: feature/fam-006-monitoring-hud-product-surf
 Branch Creation Status: Created in Branch Readiness Stage 2 from updated main at `3c68cd881a9f6bf447f09ac0949d556e97bce4f4`
 Runtime Package Admission: Admitted for `PKG-006`
 Active Branch Authority Record: Docs/branch_records/feature_fam_006_monitoring_hud_product_surface.md
-Next Legal Runtime Step: Branch Readiness Stage 1-R3 planning sufficiency revalidation; Workstream WS7 and Live Validation remain blocked until product planning, product repair, and Hardening re-complete.
+Next Legal Runtime Step: Branch Readiness Stage 1-R3 planning sufficiency revalidation using the structured USER Vision Question Packet; Workstream WS7 and Live Validation remain blocked until product planning, product repair, and Hardening re-complete.
 Minimal Scope: admitted runtime package for HUD visual/user-facing surface, runtime telemetry source/adapters, desktop placement and renderer ownership, settings or user controls visibility, fail-safe/no-data/degraded-status behavior, and validation/live desktop proof; optional voice/status integration remains deferred unless it is later proven to be narrow HUD-status copy inside FAM-006.
 Family Scope: Monitoring surfaces, CPU/GPU thermals, performance telemetry, HUD/overlay presentation, trust-safety display rules, and plugin-fed runtime telemetry.
 Package Policy: Branchable monitoring/HUD work must package source, display, and validation slices by default.
