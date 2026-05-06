@@ -24,7 +24,7 @@ This branch may execute the admitted PKG-006 implementation slices during Workst
 
 ## Status
 
-- `Branch Readiness Active - Product scope rebaseline complete / Workstream reopened`
+- `Branch Readiness Active - Planning governance repair complete / Workstream blocked`
 
 ## Canonical Branch
 
@@ -36,8 +36,8 @@ This branch may execute the admitted PKG-006 implementation slices during Workst
 
 ## Phase Status
 
-- Branch Readiness Stage: `Complete - Stage 2-R1 FAM-006 product scope rebaseline and completion-truth repair`
-- Workstream Stage: `Reopened - scaffold and bounded contracts are credited, but visible product completion remains unproven`
+- Branch Readiness Stage: `Complete - Stage 2-R2 family package product planning gate governance repair`
+- Workstream Stage: `Blocked - scaffold and bounded contracts are credited, but planning revalidation and USER vision answers are required before WS7 implementation resumes`
 - Hardening Stage: `Reopened - prior H1 is scaffold/marker hardening evidence only, not product-complete proof`
 - Active Branch: `feature/fam-006-monitoring-hud-product-surface`
 - Branch Authority Mode: `Active Branch`
@@ -64,15 +64,23 @@ This branch may execute the admitted PKG-006 implementation slices during Workst
 
 ## Blockers
 
-- `None active for Branch Readiness Stage 2-R1 completion`
+- `Product Vision Input Missing`
+- `USER Vision Questions Unanswered`
+- `Branch Reach Unproven`
+- `Feature Element Breakdown Missing`
+- `Acceptance Criteria Missing`
+- `User-Facing Proof Standard Missing`
+- `Current Branch vs Future Package Boundary Missing`
+- `Branch Readiness Planning Incomplete`
 
-Package completion is not currently claimed. `Package Completion Unproven` is therefore preserved as the guardrail that blocks any future `Package Completion State: Complete` claim until visible product proof, screenshot proof, and USER Test Summary acceptance are digested. The prior H1 evidence remains scaffold/marker hardening evidence only. Live Validation, PR Readiness, PR creation, watcher provisioning, release, tag, artifact, and direct-main work remain governed by their own phase gates.
+Package completion is not currently claimed. `Package Completion Unproven` is therefore preserved as the guardrail that blocks any future `Package Completion State: Complete` claim until visible product proof, screenshot proof, and USER Test Summary acceptance are digested. The prior H1 evidence remains scaffold/marker hardening evidence only. The planning blockers above are planning blockers, not implementation blockers; they block Workstream entry or continuation until cleared by Branch Readiness planning revalidation or explicitly waived by USER. Live Validation, PR Readiness, PR creation, watcher provisioning, release, tag, artifact, and direct-main work remain governed by their own phase gates.
 
 ## Cleared Governance Notes
 
 - Branch Readiness Execution User Approval Missing is cleared for the completed Branch Readiness Stage 2 package-admission pass.
 - Single-Slice Package User Approval Missing is not active because PKG-006 has six admitted slices and no single-slice waiver is granted.
 - Package Completion Unproven is reactivated as a completion guard for any future product-complete claim; it is not listed as the active Branch Readiness blocker because this record no longer claims package completion.
+- Branch Readiness Execution User Approval Missing is cleared for the USER-approved Stage 2-R2 planning-governance/source-truth repair only; it is not approval to resume WS7 implementation.
 - Backlog Addition User Approval Missing remains active for any new FAM/package, backlog split, family promotion beyond this branch authority, runtime branch outside this carrier, or single-slice waiver.
 
 ## Entry Basis
@@ -89,6 +97,7 @@ Package completion is not currently claimed. `Package Completion Unproven` is th
 
 - Every admitted PKG-006 implementation slice is truthfully complete or legally deferred/split by explicit USER approval.
 - `Package Completion State` is not marked complete while admitted slices remain incomplete.
+- Family-package product planning is complete, revalidated, USER-reviewed, and recorded before Workstream implementation resumes.
 - Optional voice/audio widening remains deferred unless later USER approval expands scope.
 - Element Coverage remains a non-identity checklist only.
 - The branch reaches Hardening only after Workstream completion is truthfully green.
@@ -108,11 +117,11 @@ Rollback Path: revert the current Workstream commit on `feature/fam-006-monitori
 
 ## Next Legal Phase
 
-- `Workstream`
+- `Branch Readiness`
 
-Next Legal Seam: `Workstream WS7 - Monitoring HUD Product Visibility And Acceptance Baseline`
+Next Legal Seam: `Branch Readiness Stage 1-R3 - FAM-006 Product Planning Sufficiency Revalidation`
 
-Next Legal Phase Gate: Workstream may resume only inside the reopened PKG-006 product scope. It must not create a PR, watcher, release, tag, artifact, direct-main mutation, voice/audio widening, Stream Deck/plugin telemetry, local AI, installer/capability-pack work, or a new FAM/package without later explicit USER approval.
+Next Legal Phase Gate: Branch Readiness Stage 1-R3 must revalidate that the planning packet is complete or explicitly USER-waived before Workstream WS7 can resume. Workstream remains blocked while any planning blocker remains active. It must not create a PR, watcher, release, tag, artifact, direct-main mutation, voice/audio widening, Stream Deck/plugin telemetry, local AI, installer/capability-pack work, or a new FAM/package without later explicit USER approval.
 
 ## Branch Objective
 
@@ -132,17 +141,47 @@ Product Vision: FAM-006 should give the user a visible, trustworthy desktop Moni
 
 User-Facing Goal: the user should be able to launch the normal desktop surface, immediately see a deliberate Monitoring/HUD panel or card, understand what it is reporting, and know when the HUD is waiting on source truth or naming a degraded local-readiness state.
 
+USER Vision Questions: confirm preferred HUD form factor, placement, status hierarchy, always-visible versus reveal/toggle behavior, minimum useful local status content, accessibility/readability expectations, whether basic CPU/RAM/GPU/thermal telemetry belongs in this package or a future adapter package, and what screenshot standard proves "I can see it."
+
+Codex Product Interpretation: the package should feel like a real desktop feature rather than a debug marker: a visible Monitoring/HUD card with clear hierarchy, truthful local readiness labels, obvious unavailable-data wording, and a product-level entrypoint/proof path.
+
+Codex Implementation Recommendation: keep WS7 focused on a readable first-class HUD panel/card, local status copy, visual hierarchy, and screenshot/UTS acceptance prep; defer deeper telemetry polling, graphs, alerts, persisted dashboards, voice/audio, Stream Deck/plugin feeds, local AI, installer/capability-pack work, and vendor-specific sensor assumptions.
+
+USER/ChatGPT Review Checkpoint: Required before WS7 resumes; USER vision answers and ChatGPT review should verify the HUD form factor, placement, status hierarchy, proof standard, and current-branch versus future-package boundaries.
+
+Full Feature Element Breakdown: visual HUD identity; layout and information hierarchy; local runtime/status source model; desktop placement and renderer ownership; settings/control visibility; fail-safe/no-data/degraded behavior; performance constraints; privacy/security boundaries; accessibility/readability; screenshot and User Test Summary validation; future graphs, alerts, voice/audio, Stream Deck, plugin telemetry, local AI, installer, and capability-pack boundaries.
+
+Current Branch vs Future Package Boundaries: current branch owns visible HUD product surface, truthful local readiness/status copy, bounded renderer placement, control visibility, no-data/degraded labels, screenshot proof, and UTS acceptance; future packages own advanced graphs, alerts, persistence, hardware/vendor polling, plugin telemetry, Stream Deck integration, voice/spoken behavior, local AI, installer/capability-pack changes, and broader monitoring automation.
+
 Affected Surfaces: `jarvis_visual/orin_core.html`, `jarvis_visual/orin_core.css`, `jarvis_visual/orin_core.js`, `desktop/desktop_renderer.py`, local monitoring HUD helper modules under `desktop/`, HUD validators, live-validation helpers, branch authority truth, backlog/roadmap summaries, and User Test Summary evidence.
 
 Data/Control Model: use local, non-invasive renderer/runtime readiness facts by default; do not add hardware/vendor polling, persisted settings, plugin-fed telemetry, Stream Deck, voice/audio behavior, local AI, installer/capability-pack changes, or external telemetry without later USER approval.
+
+Branch Reach / Package-Size Review: PKG-006 remains a broad runtime package because it spans visual HUD surface, local status/telemetry boundary, renderer placement, controls visibility, no-data/degraded states, validation, and UTS acceptance rather than one toggle, one marker, or one proof helper.
+
+Why Branch Is Large Enough: the current branch covers multiple admitted slices and multiple affected product/technical surfaces, and it must reconcile visual design, data truth, placement, controls, fail-safe state, and validation proof before package completion.
+
+Why Not Split Into Tiny Branches: splitting WS7 or the reopened product repair into one-off visual/proof branches would recreate the drift this package is meant to prevent; same-branch continuation keeps FAM -> Package -> Slice -> Seam traceability and avoids cleanup-branch churn.
 
 Acceptance Criteria: the HUD must be visible in captured proof, readable, intentionally placed, truthful about data limits, useful to a non-developer user, accessibility/readability checked, and accepted through User Test Summary results or a documented waiver.
 
 Validation Proof Requirements: static validators and runtime markers are supporting proof only; product completion requires screenshot or launched-process evidence that visibly shows the HUD panel/card, plus USER-facing shortcut or equivalent entrypoint proof when Live Validation begins.
 
-User Test Summary Strategy: USER-facing acceptance remains required before final product-green or PR readiness; returned User Test Summary results must be digested into this record, and `User Test Summary Results Pending` blocks final advancement until PASS or WAIVED.
+Screenshot / Live / User Test Summary Proof Requirements: screenshots must clearly show the HUD panel/card without relying on DOM markers; live proof must use the normal desktop path or a documented equivalent; User Test Summary must confirm the HUD is visible, understandable, useful, and not misleading.
 
-USER Vision Questions: confirm preferred HUD form factor, placement, status hierarchy, always-visible versus reveal/toggle behavior, minimum useful local status content, accessibility/readability expectations, whether basic CPU/RAM/GPU/thermal telemetry belongs in this package or a future adapter package, and what screenshot standard proves "I can see it."
+Implementation Sequence Proposal: Stage 1-R3 revalidates planning; if USER answers and planning are sufficient, Workstream resumes with WS7 product visibility/acceptance baseline; then reopened placement/control/status/validation evidence is updated only as needed inside admitted PKG-006 scope before Hardening and Live Validation can return.
+
+Planning Blockers: `Product Vision Input Missing`; `USER Vision Questions Unanswered`; `Branch Reach Unproven`; `Feature Element Breakdown Missing`; `Acceptance Criteria Missing`; `User-Facing Proof Standard Missing`; `Current Branch vs Future Package Boundary Missing`; `Branch Readiness Planning Incomplete`.
+
+USER Decisions Needed: answer HUD vision questions, approve or revise Codex product interpretation, approve current-branch versus future-package boundaries, approve screenshot/UTS proof standard, and decide whether any planning item is explicitly waived.
+
+Planning Packet Status: Incomplete
+
+Planning Revalidation Status: Pending
+
+Planning Completion Waiver: None
+
+User Test Summary Strategy: USER-facing acceptance remains required before final product-green or PR readiness; returned User Test Summary results must be digested into this record, and `User Test Summary Results Pending` blocks final advancement until PASS or WAIVED.
 
 Visible User-Facing Proof Required: Yes
 Visible User-Facing Proof: PENDING
@@ -288,26 +327,26 @@ Status: `Next - begins after Branch Readiness Stage 2-R1 source-truth repair`
 
 ## Active Seam
 
-Active seam: `Branch Readiness Stage 2-R1 - FAM-006 Product Scope Rebaseline And Completion-Truth Repair`
+Active seam: `Branch Readiness Stage 2-R2 - Family Package Product Planning Gate Governance Repair`
 
 Seam Status: `Green`
-Slice Status: `Rebaseline complete`
-Completion Status: `Green for Branch Readiness repair only / package remains In Progress`
+Slice Status: `Planning-governance repair complete`
+Completion Status: `Green for Branch Readiness repair only / planning remains incomplete`
 Waiver Status: `None`
 Continue Decision: `Stop`
-Stop Basis: `Branch Readiness Stage 2-R1 source-truth repair complete`
+Stop Basis: `Branch Readiness Planning Incomplete`
 
 ## Seam Continuation Decision
 
 Seam Status: `Green`
-Slice Status: `Rebaseline complete`
-Completion Status: `Green for Branch Readiness repair only / package remains In Progress`
+Slice Status: `Planning-governance repair complete`
+Completion Status: `Green for Branch Readiness repair only / planning remains incomplete`
 Waiver Status: `None`
 Continue Decision: `Stop`
-Stop Basis: `Branch Readiness Stage 2-R1 source-truth repair complete`
-Next Active Seam: `Workstream WS7 - Monitoring HUD Product Visibility And Acceptance Baseline`
-Stop Condition: `None`
-Continuation Action: `Enter Workstream WS7 only after this Branch Readiness rebaseline repair is durable; do not add PR, watcher, release, tag, artifact, direct-main, voice/audio, Stream Deck/plugin telemetry, local AI, installer, or future-package scope.`
+Stop Basis: `Branch Readiness Planning Incomplete`
+Next Active Seam: `Branch Readiness Stage 1-R3 - FAM-006 Product Planning Sufficiency Revalidation`
+Stop Condition: `Branch Readiness Planning Incomplete`
+Continuation Action: `Run Branch Readiness Stage 1-R3 to revalidate planning after USER vision answers and ChatGPT review; Workstream WS7 remains blocked until planning is complete or explicitly USER-waived. Do not add PR, watcher, release, tag, artifact, direct-main, voice/audio, Stream Deck/plugin telemetry, local AI, installer, or future-package scope.`
 
 ## WS1 Implementation Record
 
@@ -377,7 +416,7 @@ Continuation Action: `Enter Workstream WS7 only after this Branch Readiness reba
 - Hardening screenshot: `dev/logs/fam_006_monitoring_hud_live_validation/20260506_100956/monitoring_hud_desktop.png`
 - Static validation: `python dev/orin_branch_governance_validation.py` PASS; `python dev/orin_monitoring_hud_surface_validation.py` PASS; `python -m compileall -q dev desktop` PASS; `git diff --check` PASS
 - Live validation: `powershell -NoProfile -ExecutionPolicy Bypass -File dev\orin_monitoring_hud_live_validation.ps1` PASS with HUD baseline, telemetry, placement, controls, status, startup-ready, and desktop-settled markers observed
-- H1 Continuation Finding: `Hardening H1 scaffold/marker pressure test passed, but product completion is reopened`; Workstream WS7 is the next legal seam
+- H1 Continuation Finding: `Hardening H1 scaffold/marker pressure test passed, but product completion is reopened`; Branch Readiness Stage 1-R3 planning sufficiency revalidation is the next legal seam before WS7 can resume
 - Boundary preservation: `No new telemetry sources, placement behavior, settings/control behavior, fail-safe behavior, voice/audio behavior, PR work, watcher work, release work, tags, GitHub Releases, artifacts, or direct-main mutation`
 
 ## User Test Summary

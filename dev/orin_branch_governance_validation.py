@@ -132,12 +132,40 @@ PRODUCT_DEFINITION_PLAN_HEADING = "Product Definition Plan"
 REQUIRED_PRODUCT_DEFINITION_MARKERS = (
     "Product Vision:",
     "User-Facing Goal:",
+    "USER Vision Questions:",
+    "Codex Product Interpretation:",
+    "Codex Implementation Recommendation:",
+    "USER/ChatGPT Review Checkpoint:",
+    "Full Feature Element Breakdown:",
+    "Current Branch vs Future Package Boundaries:",
     "Affected Surfaces:",
     "Data/Control Model:",
+    "Branch Reach / Package-Size Review:",
+    "Why Branch Is Large Enough:",
+    "Why Not Split Into Tiny Branches:",
     "Acceptance Criteria:",
     "Validation Proof Requirements:",
+    "Screenshot / Live / User Test Summary Proof Requirements:",
+    "Implementation Sequence Proposal:",
+    "Planning Blockers:",
+    "USER Decisions Needed:",
+    "Planning Packet Status:",
+    "Planning Revalidation Status:",
     "User Test Summary Strategy:",
-    "USER Vision Questions:",
+)
+PRODUCT_PLANNING_INCOMPLETE_BLOCKER = "Branch Readiness Planning Incomplete"
+PRODUCT_PLANNING_WAIVER_MARKER = "Planning Completion Waiver:"
+PRODUCT_PLANNING_COMPLETE_VALUES = {"complete", "waived"}
+PRODUCT_PLANNING_INCOMPLETE_VALUES = {"incomplete", "pending", "blocked"}
+PRODUCT_PLANNING_BLOCKERS = (
+    "Product Vision Input Missing",
+    "USER Vision Questions Unanswered",
+    "Branch Reach Unproven",
+    "Feature Element Breakdown Missing",
+    "Acceptance Criteria Missing",
+    "User-Facing Proof Standard Missing",
+    "Current Branch vs Future Package Boundary Missing",
+    PRODUCT_PLANNING_INCOMPLETE_BLOCKER,
 )
 VISIBLE_USER_FACING_PROOF_REQUIRED_LABEL = "Visible User-Facing Proof Required:"
 VISIBLE_USER_FACING_PROOF_LABEL = "Visible User-Facing Proof:"
@@ -1026,11 +1054,23 @@ BRANCH_READINESS_STAGE_PACKET_PHRASES = (
     "single-slice drift check",
     "Element Coverage review",
     "product vision",
-    "affected surfaces",
-    "acceptance criteria",
     "USER vision questions",
+    "Codex product interpretation",
+    "Codex implementation recommendation",
+    "USER/ChatGPT review checkpoint",
+    "full feature element breakdown",
+    "current branch vs future package boundaries",
+    "affected surfaces",
+    "branch reach",
+    "why the branch is large enough",
+    "why it should not split into tiny branches",
+    "acceptance criteria",
+    "screenshot",
+    "User Test Summary",
+    "implementation sequence proposal",
     "validation plan",
     "expected docs sync",
+    "Branch Readiness Planning Incomplete",
     "Stage 2 green-light decision",
 )
 
@@ -3985,10 +4025,12 @@ def _validate_product_definition_plan(
     *,
     branch_class: str,
     current_phase: str,
+    blockers: list[str],
+    next_legal_phase: str,
 ) -> None:
     if branch_class != "implementation":
         return
-    if current_phase != "Branch Readiness":
+    if current_phase not in {"Branch Readiness", "Workstream"}:
         return
 
     require(
@@ -4003,6 +4045,86 @@ def _validate_product_definition_plan(
         require(
             marker in plan_section,
             f"{source_path}: {PRODUCT_DEFINITION_PLAN_HEADING} is missing '{marker}'",
+        )
+
+    planning_status = _extract_marker_value(plan_section, "Planning Packet Status:")
+    revalidation_status = _extract_marker_value(plan_section, "Planning Revalidation Status:")
+    planning_waiver = _extract_marker_value(plan_section, PRODUCT_PLANNING_WAIVER_MARKER)
+    normalized_status = planning_status.strip().casefold()
+    normalized_revalidation = revalidation_status.strip().casefold()
+    normalized_waiver = planning_waiver.strip().casefold()
+    has_planning_blocker = PRODUCT_PLANNING_INCOMPLETE_BLOCKER in blockers
+
+    require(
+        bool(planning_status),
+        f"{source_path}: {PRODUCT_DEFINITION_PLAN_HEADING} is missing 'Planning Packet Status:' value",
+    )
+    require(
+        bool(revalidation_status),
+        f"{source_path}: {PRODUCT_DEFINITION_PLAN_HEADING} is missing 'Planning Revalidation Status:' value",
+    )
+    require(
+        PRODUCT_PLANNING_WAIVER_MARKER in plan_section,
+        f"{source_path}: {PRODUCT_DEFINITION_PLAN_HEADING} is missing '{PRODUCT_PLANNING_WAIVER_MARKER}'",
+    )
+
+    if normalized_status in PRODUCT_PLANNING_INCOMPLETE_VALUES:
+        require(
+            has_planning_blocker,
+            (
+                f"{source_path}: incomplete family-package planning must record "
+                f"'{PRODUCT_PLANNING_INCOMPLETE_BLOCKER}' under Blockers"
+            ),
+        )
+        require(
+            current_phase == "Branch Readiness",
+            (
+                f"{source_path}: incomplete family-package planning must stay in "
+                "`Branch Readiness` and cannot enter implementation"
+            ),
+        )
+        require(
+            next_legal_phase == "Branch Readiness",
+            (
+                f"{source_path}: incomplete family-package planning must keep "
+                "Next Legal Phase at `Branch Readiness`"
+            ),
+        )
+    elif normalized_status == "waived":
+        require(
+            "user" in normalized_waiver and (
+                "approved" in normalized_waiver
+                or "approval" in normalized_waiver
+                or "waiver" in normalized_waiver
+            ),
+            (
+                f"{source_path}: waived family-package planning requires "
+                f"'{PRODUCT_PLANNING_WAIVER_MARKER}' to record explicit USER waiver"
+            ),
+        )
+    else:
+        require(
+            normalized_status in PRODUCT_PLANNING_COMPLETE_VALUES,
+            (
+                f"{source_path}: Planning Packet Status '{planning_status}' must be "
+                "Complete, Incomplete, Pending, Blocked, or Waived"
+            ),
+        )
+        require(
+            normalized_revalidation in {"pass", "green", "complete", "waived"},
+            (
+                f"{source_path}: complete family-package planning requires "
+                "'Planning Revalidation Status:' to be PASS, Green, Complete, or Waived"
+            ),
+        )
+
+    if current_phase == "Workstream":
+        require(
+            normalized_status in PRODUCT_PLANNING_COMPLETE_VALUES,
+            (
+                f"{source_path}: Workstream implementation requires complete or "
+                "USER-waived family-package planning"
+            ),
         )
 
 
@@ -11569,6 +11691,8 @@ def main() -> int:
                 workstream_text,
                 branch_class=branch_class,
                 current_phase=current_phase,
+                blockers=blockers,
+                next_legal_phase=str(workstream_info["next_legal_phase"]),
             )
 
             initial_seam_sequence = _section(workstream_text, "Initial Workstream Seam Sequence")
@@ -12293,6 +12417,8 @@ def main() -> int:
                 record_text,
                 branch_class=branch_class,
                 current_phase=current_phase,
+                blockers=list(info["blockers"]),
+                next_legal_phase=str(info["next_legal_phase"]),
             )
             _validate_backlog_completion_status(
                 require,
