@@ -86,6 +86,7 @@ Planning-loop blocking belongs in ChatGPT preflight analysis before prompt gener
 Once a prompt is allowed, it should stay thin, neutral, and repo-aligned instead of carrying behavior-management lists or protective governance narration.
 It does not own Codex execution behavior, phase transitions, seam continuation, durability, validation, release rules, or branch authority.
 Codex execution remains governed by the owning canon documents listed in this index, especially `Docs/development_rules.md`, `Docs/phase_governance.md`, `Docs/codex_modes.md`, and the active workstream or branch authority record.
+ChatGPT-authored prompt additions are analysis/review input only: they may add evidence checks, validation reminders, review questions, and candidate blockers for Codex to reconcile against repo canon, but they must not become a second governing authority or remove, narrow, reorder, or prohibit canon-required Codex steps without USER-approved source-truth change.
 
 If repo truth resolves to blocked `No Active Branch`, `Next Safe Move` must report the blocking repair path instead of inventing a later phase.
 If repo truth resolves to steady-state `No Active Branch`, `Next Safe Move` may truthfully say that no branch should open yet or may name a release-packaging branch whose admission rules pass.

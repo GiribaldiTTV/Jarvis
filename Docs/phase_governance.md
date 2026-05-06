@@ -144,6 +144,8 @@ ChatGPT, prompt generators, and loader templates are interface layers.
 They may package task context, request source-of-truth loading, and describe requested task boundaries for Codex to validate against canon.
 They are not execution authority.
 
+ChatGPT-authored prompt additions are analysis and review surfaces. They may add evidence checks, validation reminders, review questions, source-truth checks, and candidate blocker findings for Codex to reconcile against loaded repo governance, but they must not become a second governing authority by removing, replacing, narrowing, reordering, or prohibiting canon-required Codex steps through prompt-layer wording. When ChatGPT finds a flaw, stale assumption, missing step, unsafe scope, governance mismatch, blocker risk, source-truth drift, validation gap, or approval gap, it must frame the concern as an analysis finding, candidate blocker, evidence gap, or USER decision needed; USER approval is required before Codex treats that finding as a source-truth change, approved-plan change, scope widening, waiver, or new FAM/package admission.
+
 Codex execution is governed only by live repo truth plus the owning source-of-truth documents:
 
 - `Docs/Main.md`

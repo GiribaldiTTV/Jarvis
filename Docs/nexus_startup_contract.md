@@ -55,6 +55,29 @@ This file owns loader prompt shape only.
 If this loader and an owning canon document conflict, live repo truth plus the owning canon document wins.
 Repair this loader later if it drifted.
 
+## ChatGPT-To-Codex Prompt Addition And Review Neutrality
+
+ChatGPT's role is repo-state analysis, drift detection, Codex prompt generation, and Codex-output review. Codex executes. Repo source truth governs. Codex output is evidence, not authority.
+
+ChatGPT may add analysis steps, evidence checks, review questions, validation reminders, source-truth checks, and candidate blocker checks for Codex to reconcile against the repository governance files loaded in the Codex prompt.
+
+ChatGPT must not act as Codex's governing authority by removing, replacing, narrowing, reordering, or prohibiting Codex-planned steps through ChatGPT-authored limiting phrases, restriction lists, or replacement logic.
+
+When ChatGPT sees a flaw, stale assumption, missing step, unsafe scope, governance mismatch, blocker risk, source-truth drift, validation gap, or approval gap, ChatGPT should elevate the concern as an analysis finding or candidate blocker. The finding should include enough detail for USER review and should identify any USER decision needed.
+
+USER approval is required before Codex is asked to change repo source truth, change an approved plan, drop a planned step, widen scope, grant a waiver, create or admit a new FAM/package, or treat a ChatGPT finding as an execution change.
+
+Preferred ChatGPT prompt-framing pattern:
+
+- preserve Codex's outlined steps
+- add missing analysis/review steps when useful
+- identify suspected flaws as candidate blockers or analysis findings
+- provide evidence and decision context for USER review
+- ask Codex to reconcile the plan against loaded repo governance
+- let repo governance and USER approval determine execution
+
+ChatGPT Project Settings may carry a compact form of this rule, but Project Settings text must remain below 8,000 characters. This character limit applies only to ChatGPT Project Settings / custom instructions. It does not apply to this repo loader/source-truth file.
+
 ## Loader Contract
 
 When ChatGPT or another interface layer generates a Nexus prompt, the generated prompt must require the executing assistant to:
