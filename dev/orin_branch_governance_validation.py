@@ -128,6 +128,21 @@ REQUIRED_BRANCH_READINESS_COMPLETION_MARKERS = (
     "Branch Closure Rule:",
 )
 
+PRODUCT_DEFINITION_PLAN_HEADING = "Product Definition Plan"
+REQUIRED_PRODUCT_DEFINITION_MARKERS = (
+    "Product Vision:",
+    "User-Facing Goal:",
+    "Affected Surfaces:",
+    "Data/Control Model:",
+    "Acceptance Criteria:",
+    "Validation Proof Requirements:",
+    "User Test Summary Strategy:",
+    "USER Vision Questions:",
+)
+VISIBLE_USER_FACING_PROOF_REQUIRED_LABEL = "Visible User-Facing Proof Required:"
+VISIBLE_USER_FACING_PROOF_LABEL = "Visible User-Facing Proof:"
+VISIBLE_USER_FACING_PROOF_PASS_VALUES = {"pass", "waived"}
+
 SUCCESSOR_LOCK_WAIVER_DOCS = (
     Path("Docs/phase_governance.md"),
     Path("Docs/development_rules.md"),
@@ -1010,6 +1025,10 @@ BRANCH_READINESS_STAGE_PACKET_PHRASES = (
     "multiple admitted-slice plan",
     "single-slice drift check",
     "Element Coverage review",
+    "product vision",
+    "affected surfaces",
+    "acceptance criteria",
+    "USER vision questions",
     "validation plan",
     "expected docs sync",
     "Stage 2 green-light decision",
@@ -3959,6 +3978,34 @@ def _validate_backlog_completion_strategy(
     )
 
 
+def _validate_product_definition_plan(
+    require,
+    source_path: str,
+    text: str,
+    *,
+    branch_class: str,
+    current_phase: str,
+) -> None:
+    if branch_class != "implementation":
+        return
+    if current_phase != "Branch Readiness":
+        return
+
+    require(
+        f"## {PRODUCT_DEFINITION_PLAN_HEADING}" in text,
+        (
+            f"{source_path}: implementation Branch Readiness is missing "
+            f"'## {PRODUCT_DEFINITION_PLAN_HEADING}'"
+        ),
+    )
+    plan_section = _section(text, PRODUCT_DEFINITION_PLAN_HEADING)
+    for marker in REQUIRED_PRODUCT_DEFINITION_MARKERS:
+        require(
+            marker in plan_section,
+            f"{source_path}: {PRODUCT_DEFINITION_PLAN_HEADING} is missing '{marker}'",
+        )
+
+
 def _validate_backlog_completion_status(
     require,
     source_path: str,
@@ -4088,6 +4135,29 @@ def _validate_backlog_completion_status(
                     ),
                 )
     elif normalized_state == BACKLOG_COMPLETION_IMPLEMENTED_COMPLETE:
+        visible_proof_required = _extract_marker_value(
+            text, VISIBLE_USER_FACING_PROOF_REQUIRED_LABEL
+        ).strip().casefold()
+        visible_proof = _extract_marker_value(
+            text, VISIBLE_USER_FACING_PROOF_LABEL
+        ).strip().casefold()
+        if visible_proof_required in {"yes", "required", "true"}:
+            require(
+                visible_proof in VISIBLE_USER_FACING_PROOF_PASS_VALUES,
+                (
+                    f"{source_path}: {BACKLOG_COMPLETION_STATE_LABEL} Implemented Complete "
+                    f"requires '{VISIBLE_USER_FACING_PROOF_LABEL} PASS' or WAIVED when "
+                    f"'{VISIBLE_USER_FACING_PROOF_REQUIRED_LABEL} Yes' is recorded"
+                ),
+            )
+            require(
+                _parse_uts_result_state(text) not in {"", "PENDING", "FAIL"},
+                (
+                    f"{source_path}: {BACKLOG_COMPLETION_STATE_LABEL} Implemented Complete "
+                    "requires returned User Test Summary results or a documented waiver when "
+                    "visible user-facing proof is required"
+                ),
+            )
         require(
             normalized_remaining in {"", "none", "n/a", "na"},
             (
@@ -11493,6 +11563,13 @@ def main() -> int:
                 branch_class=branch_class,
                 current_phase=current_phase,
             )
+            _validate_product_definition_plan(
+                require,
+                canonical_path,
+                workstream_text,
+                branch_class=branch_class,
+                current_phase=current_phase,
+            )
 
             initial_seam_sequence = _section(workstream_text, "Initial Workstream Seam Sequence")
             for marker in REQUIRED_BRANCH_READINESS_FIRST_SEAM_MARKERS:
@@ -12204,6 +12281,13 @@ def main() -> int:
                 current_phase=current_phase,
             )
             _validate_backlog_completion_strategy(
+                require,
+                branch_record_path,
+                record_text,
+                branch_class=branch_class,
+                current_phase=current_phase,
+            )
+            _validate_product_definition_plan(
                 require,
                 branch_record_path,
                 record_text,

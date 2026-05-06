@@ -592,7 +592,7 @@ Next-workstream/package hierarchy is reviewed in PR Readiness Stage 1, not selec
 
 `Branch Readiness` also uses two internal gates without changing the canonical phase enum.
 `Branch Readiness Stage 1 - Analysis Gate` is a no-work review pass: no repository file mutation, branch creation, package admission, docs sync, PR work, release work, selected-next truth, or canon edits.
-Stage 1 must return `## Branch Readiness Stage 1 Analysis Packet` with governed state markers, FAM/package candidate, package-size review, multiple admitted-slice plan, single-slice drift check, Element Coverage review, validation plan, expected docs sync, blockers and waivers, rollback path, and the exact Stage 2 green-light decision needed.
+Stage 1 must return `## Branch Readiness Stage 1 Analysis Packet` with governed state markers, FAM/package candidate, package-size review, multiple admitted-slice plan, single-slice drift check, Element Coverage review, product vision, affected surfaces, acceptance criteria, USER vision questions, validation plan, expected docs sync, blockers and waivers, rollback path, and the exact Stage 2 green-light decision needed.
 `Branch Readiness Execution User Approval Missing` remains active until explicit USER approval to enter Stage 2 is recorded.
 `Branch Readiness Stage 2 - Execution Gate` then performs only the approved branch/package admission work, docs sync, branch creation, and authority-record setup.
 

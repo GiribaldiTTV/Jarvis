@@ -1698,7 +1698,7 @@ Branch Readiness uses two internal stage gates without changing the canonical ph
 - `Branch Readiness Stage 1 - Analysis Gate`: analysis-only; no repository file mutation, branch creation, package admission, docs sync, PR work, release work, selected-next truth, or canon edits are allowed. Stage 1 must output `## Branch Readiness Stage 1 Analysis Packet` for USER review and stop on `Branch Readiness Execution User Approval Missing`.
 - `Branch Readiness Stage 2 - Execution Gate`: begins only after explicit USER approval to enter Stage 2. Stage 2 performs approved branch/package admission work, docs sync, branch creation, and authority-record setup only inside the USER-approved FAM/package scope.
 
-The `## Branch Readiness Stage 1 Analysis Packet` must include governed state markers, FAM/package candidate, package-size review, multiple admitted-slice plan, single-slice drift check, Element Coverage review, validation plan, expected docs sync, blockers and waivers, rollback path, and the exact Stage 2 green-light decision needed from the USER.
+The `## Branch Readiness Stage 1 Analysis Packet` must include governed state markers, FAM/package candidate, package-size review, multiple admitted-slice plan, single-slice drift check, Element Coverage review, product vision, affected surfaces, acceptance criteria, USER vision questions, validation plan, expected docs sync, blockers and waivers, rollback path, and the exact Stage 2 green-light decision needed from the USER.
 
 Element Coverage is a non-identity checklist owned by FAM/package analysis only. Coverage categories are user-facing surface, runtime/backend behavior, fail-safe/recovery, security/privacy, voice/audio, external integration, local AI/capability packs, packaging/install, monitoring/HUD, validation, and release impact. Element Coverage rows never count as `Admission State: Admitted`, slices, seams, packages, FAMs, selected-next truth, or release drivers.
 
@@ -1724,6 +1724,7 @@ Required evidence:
 - explicit branch class
 - explicit phase block in the authority record
 - branch objective and target end-state
+- product vision, affected surfaces, acceptance criteria, and USER vision questions for family/package product work before implementation
 - affected-surface mapping and implementation delta classification
 - expected seam families and risk classes
 - backlog-completion strategy for the whole backlog item, including any known future-dependent blockers
