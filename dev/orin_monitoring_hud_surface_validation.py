@@ -4,6 +4,7 @@ This helper is intentionally static for SLC-016/SLC-025. It proves the
 desktop-only visual surface, runtime telemetry adapter boundary, renderer-owned
 placement contract, controls visibility contract, source-truth markers, and
 slice-boundary copy without polling hardware, persisting settings, inventing
+hardware values, expanding legacy Jarvis/Marvel product identity, inventing
 recovery behavior, or touching voice/audio.
 """
 
@@ -97,10 +98,20 @@ def validate() -> list[str]:
     ):
         _require_contains(hud_section, needle, "monitoring HUD HTML", failures)
 
-    for forbidden in ("voice", "audio", "spoken", "microphone"):
+    for forbidden in ("voice", "audio", "spoken", "microphone", "jarvis", "marvel"):
         _require(
             forbidden not in hud_section.casefold(),
             f"monitoring HUD HTML must not introduce {forbidden} behavior in SLC-016",
+            failures,
+        )
+
+    for forbidden_metric in ("cpu temp", "gpu temp", "thermal value", "fake metric", "mock metric"):
+        _require(
+            forbidden_metric not in hud_section.casefold(),
+            (
+                "monitoring HUD HTML must not present hardware metric values before "
+                f"provider-contract proof exists: {forbidden_metric}"
+            ),
             failures,
         )
 

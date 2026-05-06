@@ -36,8 +36,8 @@ This branch may execute the admitted PKG-006 implementation slices during Workst
 
 ## Phase Status
 
-- Branch Readiness Stage: `Complete - Stage 2-R5 USER Vision Input digest and planning source-truth sync`
-- Workstream Stage: `Blocked - USER vision input is digested, but planning revalidation, branch reach, telemetry provider, polling floor, warning modality, privacy, audio boundary, and legacy-name drift blockers remain before WS7 implementation resumes`
+- Branch Readiness Stage: `Complete - Stage 2-R6 product scope boundary and acceptance criteria repair`
+- Workstream Stage: `Blocked - product boundaries, provider path, polling posture, warning posture, privacy deferrals, audio/FAM-004 boundary, Jarvis/Nexus naming handling, and acceptance criteria are finalized, but Stage 1 revalidation remains required before WS7 implementation resumes`
 - Hardening Stage: `Reopened - prior H1 is scaffold/marker hardening evidence only, not product-complete proof`
 - Active Branch: `feature/fam-006-monitoring-hud-product-surface`
 - Branch Authority Mode: `Active Branch`
@@ -64,18 +64,9 @@ This branch may execute the admitted PKG-006 implementation slices during Workst
 
 ## Blockers
 
-- `Branch Reach Unproven`
-- `Acceptance Criteria Missing`
-- `Current Branch vs Future Package Boundary Missing`
-- `Legacy Jarvis Product Name Drift`
-- `Hardware Telemetry Provider Selection Pending`
-- `Polling Floor Undecided`
-- `Warning Delivery Modality Pending`
-- `External Telemetry Privacy Model Missing`
-- `Audio Warning Cross-Family Approval Missing`
 - `Branch Readiness Planning Incomplete`
 
-Package completion is not currently claimed. `Package Completion Unproven` is therefore preserved as the guardrail that blocks any future `Package Completion State: Complete` claim until visible product proof, screenshot proof, and USER Test Summary acceptance are digested. The prior H1 evidence remains scaffold/marker hardening evidence only. The planning blockers above are planning blockers, not implementation blockers; they block Workstream entry or continuation until cleared by Branch Readiness planning revalidation or explicitly waived by USER. The completed USER Vision Input has been digested into this source-truth record, so the USER-input artifact blockers are cleared; planning remains incomplete because the digest materially widened the product goal and exposed unresolved branch reach, telemetry, polling, warning, privacy, audio, and naming-drift decisions. Live Validation, PR Readiness, PR creation, watcher provisioning, release, tag, artifact, and direct-main work remain governed by their own phase gates.
+Package completion is not currently claimed. `Package Completion Unproven` is therefore preserved as the guardrail that blocks any future `Package Completion State: Complete` claim until visible product proof, screenshot proof, and USER Test Summary acceptance are digested. The prior H1 evidence remains scaffold/marker hardening evidence only. Stage 2-R6 finalized the previously unresolved product-planning boundaries, so those prior scope, criteria, naming, telemetry, polling, warning, privacy, and audio-boundary blockers are now cleared or deferred in the governance notes below rather than active here. `Branch Readiness Planning Incomplete` remains active as the revalidation stop basis until Branch Readiness Stage 1 revalidates the finalized Stage 2-R6 plan. Live Validation, PR Readiness, PR creation, watcher provisioning, release, tag, artifact, and direct-main work remain governed by their own phase gates.
 
 ## Cleared Governance Notes
 
@@ -89,7 +80,16 @@ Package completion is not currently claimed. `Package Completion Unproven` is th
 - USER Vision Input Pending is cleared by Stage 2-R5 because the completed desktop artifact has been read and digested into this branch authority record.
 - USER Vision Input Answers Pending is cleared by Stage 2-R5 because every artifact question carries a USER answer.
 - USER Vision Input Digest Pending is cleared by Stage 2-R5 because the completed artifact is summarized under `USER Vision Input Digest Summary`.
-- Product Vision Input Missing and USER Vision Questions Unanswered are cleared by Stage 2-R5; the remaining blockers are planning, scope, telemetry, warning, privacy, audio-boundary, and naming-drift blockers.
+- Product Vision Input Missing and USER Vision Questions Unanswered are cleared by Stage 2-R5; the remaining scope, telemetry, warning, privacy, audio-boundary, and naming-drift blockers were finalized, cleared, or deferred by Stage 2-R6.
+- Branch Reach Unproven is cleared by Stage 2-R6 because the current branch is finalized as a coherent Monitoring HUD product-surface repair spanning shell, visual cards, overlay behavior, toggle posture, provider health states, no-data/degraded copy, warning posture, screenshot proof, and UTS preparation.
+- Acceptance Criteria Missing is cleared by Stage 2-R6 because the current-branch acceptance criteria are finalized under `Acceptance Criteria`.
+- Current Branch vs Future Package Boundary Missing is cleared by Stage 2-R6 because current-branch scope and future-package deferrals are finalized under `Current Branch vs Future Package Boundaries`.
+- Legacy Jarvis Product Name Drift is cleared as an active planning blocker by Stage 2-R6 because FAM-006 touched user-facing surfaces now have a controlled Nexus/NDAI naming rule, while legacy runtime artifact paths remain controlled migration candidates.
+- Hardware Telemetry Provider Selection Pending is cleared as an active planning blocker by Stage 2-R6 because WS7 is provider-contract-first: it may show provider health/setup/unavailable states, while live hardware values wait for a safe provider and validation path.
+- Polling Floor Undecided is cleared as an active planning blocker by Stage 2-R6 because the branch records no polling until provider selection, `1s-2s` as first practical default if polling is admitted, `500ms` minimum only with performance proof, and `1ms` unsafe until explicit proof or waiver.
+- Warning Delivery Modality Pending is cleared as an active planning blocker by Stage 2-R6 because current-branch warnings are visual/non-invasive only, with screen flash requiring accessibility review and audio/spoken warning deferred to FAM-004/cross-family approval.
+- External Telemetry Privacy Model Missing is cleared as an active planning blocker by Stage 2-R6 because broad external/plugin telemetry is deferred to a future package requiring consent, provenance, source labeling, privacy warnings, and validation.
+- Audio Warning Cross-Family Approval Missing is cleared as an active planning blocker by Stage 2-R6 because audio/spoken alerts are explicitly deferred outside current PKG-006 and require later FAM-004/cross-family approval.
 - Backlog Addition User Approval Missing remains active for any new FAM/package, backlog split, family promotion beyond this branch authority, runtime branch outside this carrier, or single-slice waiver.
 
 ## Entry Basis
@@ -128,9 +128,9 @@ Rollback Path: revert the current Workstream commit on `feature/fam-006-monitori
 
 - `Branch Readiness`
 
-Next Legal Seam: `Branch Readiness Stage 1-R3 - FAM-006 Product Planning Sufficiency Revalidation`
+Next Legal Seam: `Branch Readiness Stage 1-R4 - FAM-006 Product Planning Boundary Revalidation`
 
-Next Legal Phase Gate: Branch Readiness Stage 1-R3 must revalidate that the planning packet is complete or explicitly USER-waived before Workstream WS7 can resume. Workstream remains blocked while any planning blocker remains active. It must not create a PR, watcher, release, tag, artifact, direct-main mutation, voice/audio widening, Stream Deck/plugin telemetry, local AI, installer/capability-pack work, or a new FAM/package without later explicit USER approval.
+Next Legal Phase Gate: Branch Readiness Stage 1-R4 must revalidate that the Stage 2-R6 finalized planning packet is complete or explicitly USER-waived before Workstream WS7 can resume. Workstream remains blocked while `Branch Readiness Planning Incomplete` remains active. It must not create a PR, watcher, release, tag, artifact, direct-main mutation, voice/audio widening, Stream Deck/plugin telemetry, local AI, installer/capability-pack work, broad hardware provider implementation, or a new FAM/package without later explicit USER approval.
 
 ## Branch Objective
 
@@ -157,37 +157,37 @@ USER Vision Questions: completed in `C:\Users\anden\OneDrive\Desktop\User Vision
 
 Codex Product Interpretation: the package should feel like a standalone Nexus Desktop AI monitoring product surface rather than a debug marker: a polished sci-fi hardware-monitoring overlay with a card model, user-controlled visibility/anchoring, truthful sensor availability, safe telemetry boundaries, clear warning posture, and no expansion of Marvel/Jarvis product identity on current/future user-facing surfaces.
 
-Codex Implementation Recommendation: do not resume WS7 until Branch Readiness Stage 1 revalidates the widened product plan. Current-branch candidates should focus on the Nexus-branded standalone HUD shell/module, futuristic card/panel baseline, movable/anchorable overlay, click-through/no-focus-steal anchored mode, toggle on/off, basic sensor-card model, setup/reconnect/no-data/degraded states, full-desktop screenshot proof, and UTS preparation. Initial hardware telemetry, CPU/GPU thermal/load defaults, and threshold warnings should enter current branch only after provider, polling floor, privacy, warning modality, and validation proof are selected. Full HWInfo/HWMonitor-level coverage, plugin/external telemetry ecosystem, audio/spoken alerts, Stream Deck, advanced graphs/history/persistence, local AI, installer, and capability-pack work should remain future packages unless USER explicitly widens scope.
+Codex Implementation Recommendation: do not resume WS7 until Branch Readiness Stage 1 revalidates the finalized Stage 2-R6 product plan. Current-branch scope is finalized as the Nexus/NDAI-branded standalone Monitoring HUD shell/module, futuristic visible card/panel baseline, movable and anchorable overlay behavior, click-through/no-focus-steal anchored mode, toggle on/off posture, basic sensor-card model, provider health/setup/unavailable states, setup/reconnect/no-data/degraded copy, visual/non-invasive warning states, full-desktop screenshot proof, and User Test Summary preparation. WS7 is provider-contract-first: live CPU/GPU/thermal/load values may appear only when a safe provider and validation path are defined, and fake values are outside valid product proof. Full HWInfo/HWMonitor-level coverage, broad plugin/external telemetry ecosystem, audio/spoken alerts, Stream Deck, advanced graphs/history/persistence, local AI, installer, capability-pack work, and ultra-low polling intervals remain future packages unless USER explicitly widens scope.
 
-USER/ChatGPT Review Checkpoint: Required before WS7 resumes; Branch Readiness Stage 1-R3 must review this digest, classify current-branch versus future-package scope, validate that the branch remains large enough but not uncontrolled, and identify whether another Stage 2 planning repair is needed before implementation.
+USER/ChatGPT Review Checkpoint: Required before WS7 resumes; Branch Readiness Stage 1-R4 must review the Stage 2-R6 finalized boundaries, validate that the branch remains large enough but not uncontrolled, and decide whether WS7 can resume or another planning repair is still needed.
 
 Full Feature Element Breakdown: Nexus/NDAI futuristic visual HUD identity; standalone HUD shell/module; movable and anchorable overlay layout; click-through and non-focus-stealing anchored behavior; toggle on/off controls; configurable sensor-card model; telemetry provider and adapter boundary; CPU/GPU thermal and load defaults when technically viable; per-card polling and performance constraints; warning thresholds and non-invasive visual warning behavior; setup/reconnect/no-data/degraded behavior; privacy/security boundaries for local, plugin, and external telemetry; accessibility/readability; screenshot and User Test Summary validation; release-bearing posture later; and future boundaries for full sensor-platform coverage, audio/spoken alerts, Stream Deck, plugin ecosystem, advanced graphs/history/persistence, local AI, installer, and capability packs.
 
-Current Branch vs Future Package Boundaries: unresolved pending Stage 1-R3 revalidation. Current-branch candidates are the Nexus-branded standalone HUD shell/module, futuristic card/panel baseline, movable/anchorable overlay behavior, click-through/no-focus-steal anchored behavior, toggle on/off, basic sensor-card model, safe initial telemetry only if provider/validation are defined, CPU/GPU thermal/load defaults if technically viable, visual/non-invasive threshold warning model, setup/reconnect/no-data/degraded states, full-desktop and refined screenshot proof, and UTS preparation. Future-package candidates are full HWInfo/HWMonitor-level coverage, plugin/external telemetry ecosystem, audio/spoken alerts or FAM-004 integration, Stream Deck, advanced graphs/history/persistence/dashboards, local AI/capability-pack monitoring, installer/capability-pack work, and very low polling intervals until performance proof exists.
+Current Branch vs Future Package Boundaries: finalized by Stage 2-R6. Current branch owns the Nexus/NDAI-branded standalone Monitoring HUD shell/module, futuristic visible card/panel baseline, movable and anchorable overlay behavior, click-through/no-focus-steal anchored mode, toggle on/off posture, basic sensor-card model, provider health/setup/unavailable states, setup/reconnect/no-data/degraded copy, visual/non-invasive warning states, full-desktop screenshot proof, refined/cropped detail proof when useful, and User Test Summary preparation. Current branch may show live CPU/GPU thermal/load values only when a safe provider and validation path are defined; otherwise it must show truthful provider health/setup/unavailable states. Future-package candidates are full HWInfo/HWMonitor-level sensor coverage, broad plugin/external telemetry ecosystem, audio/spoken alerts or FAM-004 integration, Stream Deck, graphs/history/persistence/dashboards, local AI/capability-pack monitoring, installer/capability-pack work, and ultra-low polling intervals until performance proof exists.
 
 Affected Surfaces: current legacy-named visual surfaces `jarvis_visual/orin_core.html`, `jarvis_visual/orin_core.css`, and `jarvis_visual/orin_core.js`; `desktop/desktop_renderer.py`; local monitoring HUD helper modules under `desktop/`; HUD validators; live-validation helpers; branch authority truth; backlog/roadmap summaries; future User Test Summary evidence; and any later controlled Nexus/NDAI naming migration surfaces admitted by branch revalidation.
 
-Data/Control Model: USER wants hardware-monitoring data rather than Nexus readiness as the core product value. Hardware telemetry provider selection remains pending; no fake metrics are allowed. Per-card polling is desired but the safe polling floor is undecided; `1ms` per-card polling is unsafe until proven. Plugin/external telemetry is desired later but requires a privacy/permission model. Toggle, anchoring, click-through, and no-focus-steal behavior are desired current-branch candidates. Audio/spoken warnings remain blocked on FAM-004/cross-family approval.
+Data/Control Model: USER wants hardware-monitoring data rather than Nexus readiness as the core product value. Stage 2-R6 sets WS7 to provider-contract-first: current branch may show provider health, setup, unavailable, no-data, degraded, and reconnect states, but live CPU/GPU/thermal/load values require a safe provider and validation path before they can appear as real values. Fake metrics are blocked. No polling occurs until a provider is selected; if polling enters an admitted seam, the first practical default is `1s-2s`, `500ms` minimum requires performance proof, `1ms` per-card polling is unsafe until explicit proof/waiver, and UI repaint cadence stays decoupled from sensor sample cadence. Plugin/external telemetry is future-package scope requiring consent, provenance, source labeling, privacy warnings, and validation. Toggle, anchoring, click-through, no-focus-steal, and visual/non-invasive warning states are current-branch scope. Audio/spoken warnings remain outside current PKG-006 and require later FAM-004/cross-family approval.
 
-Branch Reach / Package-Size Review: PKG-006 remains broad, but branch reach is not yet proven under the widened hardware-monitoring direction. It spans HUD shell, visual identity, overlay placement, click-through/no-focus behavior, controls/toggle posture, sensor-card model, telemetry provider boundary, warning thresholds, no-data/degraded/setup states, validation, and UTS acceptance. Stage 1-R3 must decide whether the current branch can safely carry this scope or whether specific pieces require future packages without creating tiny one-seam branches.
+Branch Reach / Package-Size Review: PKG-006 branch reach is finalized as broad and coherent under the widened hardware-monitoring HUD direction. It spans HUD shell, visual identity, overlay placement, click-through/no-focus behavior, controls/toggle posture, sensor-card model, provider health/setup/unavailable states, visual warning posture, no-data/degraded/setup states, validation, and UTS acceptance. Broad provider platform work, external/plugin telemetry, audio, Stream Deck, graphs/history/persistence, local AI, installer, and ultra-low polling are deferred so the branch stays large enough without becoming uncontrolled.
 
-Why Branch Is Large Enough: the current branch already contains six admitted slices and touches visual UI, renderer ownership, local telemetry contracts, controls visibility, status behavior, validation helpers, source truth, and UTS expectations. The new USER direction adds enough coherent product surface to remain a large package, but its implementation must be sequenced through bounded seams and cannot become an uncontrolled full monitoring-platform rewrite.
+Why Branch Is Large Enough: the current branch already contains six admitted slices and touches visual UI, renderer ownership, local telemetry contracts, controls visibility, status behavior, validation helpers, source truth, and UTS expectations. The finalized Stage 2-R6 scope adds enough coherent product surface to remain a large package while retaining bounded seams and avoiding a full monitoring-platform rewrite.
 
 Why Not Split Into Tiny Branches: splitting WS7 or the reopened product repair into one-off visual/proof branches would recreate the drift this package is meant to prevent; same-branch continuation keeps FAM -> Package -> Slice -> Seam traceability and avoids cleanup-branch churn.
 
-Acceptance Criteria: provisional and still blocked. The HUD must be visibly Nexus/NDAI-styled, optional, movable, anchorable, click-through/non-focus-stealing when anchored, readable, intentionally placed, truthful about connected/unavailable telemetry, safe under selected polling constraints, useful for CPU/GPU thermal/load monitoring if those defaults enter current scope, clear about warning thresholds and warning modality, privacy-aware for telemetry sources, and accepted through User Test Summary results or a documented waiver before PR Readiness.
+Acceptance Criteria: finalized by Stage 2-R6. The HUD must be visibly present in the normal or documented equivalent desktop path; use Nexus/NDAI visual identity; be readable and intentionally placed; support movable and anchorable posture; provide click-through/no-focus-steal anchored-mode design proof or explicitly staged validation; represent toggle/on-off posture; show a visible and understandable sensor-card model; represent provider setup/unavailable, reconnect, no-data, and degraded states truthfully; avoid fake telemetry values; show visual/non-invasive warning posture through card badge, color state, text label, or restrained accent; avoid screen flash unless accessibility review admits it; preserve audio/spoken warnings as future FAM-004/cross-family scope; provide full-desktop screenshot proof of placement; allow refined/cropped proof to supplement detail after full proof exists; and require User Test Summary confirmation of visibility, readability, usefulness, truthfulness, no misleading claims, and manual-only checks before product completion or PR Readiness.
 
 Validation Proof Requirements: static validators and runtime markers are supporting proof only; product completion requires a full-desktop screenshot that proves placement and visible HUD presence, followed by refined/cropped screenshot proof for detail if useful. Video is not required by USER. Polling behavior, warning behavior, and other items that cannot be fully automated must be explicitly represented in User Test Summary.
 
 Screenshot / Live / User Test Summary Proof Requirements: screenshots must clearly show the HUD panel/card without relying on DOM markers; full-desktop proof comes first to validate positioning, then refined/cropped screenshots may support visual detail. Live proof must use the normal desktop path or a documented equivalent. User Test Summary remains a blocker before PR Readiness and must confirm visibility, readability, usefulness, no focus steal/click-through expectations, warning behavior where applicable, no misleading telemetry, and any manual-only polling or settings proof.
 
-Implementation Sequence Proposal: Stage 2-R5 records this digest; Stage 1-R3 revalidates whether the widened product plan is ready and whether current-branch/future-package boundaries are sufficient. If revalidation is green, Workstream may resume with a bounded WS7 product-scope seam. If revalidation finds scope gaps, another Stage 2 planning/source-truth repair should adjust slices, blockers, and boundaries before runtime implementation resumes. No WS7 implementation begins during this digest pass.
+Implementation Sequence Proposal: Stage 2-R6 records finalized boundaries, provider posture, polling posture, warning posture, privacy deferrals, audio/FAM-004 boundary, Jarvis/Nexus naming handling, and acceptance criteria. Stage 1-R4 revalidates whether this finalized product plan is complete enough for WS7. If revalidation is green, Workstream may resume with a bounded WS7 product-scope seam. If revalidation finds a remaining scope or proof gap, another Stage 2 planning/source-truth repair must adjust source truth before runtime implementation resumes. No WS7 implementation begins during this repair pass.
 
-Planning Blockers: `Branch Reach Unproven`; `Acceptance Criteria Missing`; `Current Branch vs Future Package Boundary Missing`; `Legacy Jarvis Product Name Drift`; `Hardware Telemetry Provider Selection Pending`; `Polling Floor Undecided`; `Warning Delivery Modality Pending`; `External Telemetry Privacy Model Missing`; `Audio Warning Cross-Family Approval Missing`; `Branch Readiness Planning Incomplete`.
+Planning Blockers: `Branch Readiness Planning Incomplete`.
 
-USER Decisions Needed: review the Stage 2-R5 digest, confirm or revise the current-branch versus future-package breakdown, select or approve a telemetry provider path, define safe polling floors/defaults, choose visual/non-invasive warning behavior, decide whether audio/spoken warnings remain future or require FAM-004 widening, approve privacy/permission expectations for external/plugin telemetry, and approve a controlled Jarvis legacy-name handling path for touched FAM-006 surfaces.
+USER Decisions Needed: review Stage 1-R4 planning revalidation. Further USER decisions are required only if Stage 1-R4 rejects the finalized Stage 2-R6 boundaries, if USER wants to widen scope into provider platform work, external/plugin telemetry, audio/FAM-004, Stream Deck, graphs/history/persistence, local AI, installer/capability packs, broad repo-wide Jarvis migration, or if USER wants to waive remaining planning or proof requirements.
 
-Planning Packet Status: Incomplete
+Planning Packet Status: Blocked
 
 Planning Revalidation Status: Pending
 
@@ -214,7 +214,7 @@ Artifact Purpose: `USER-facing input only; not repo source truth until digested.
 
 Artifact Answer Options: `1. Accept Codex recommendation; 2. Change recommendation with USER-written changes; 3. Defer / future package / waive with USER-written reason.`
 
-Next Digest Route: `Complete - next legal seam is Branch Readiness Stage 1-R3 planning sufficiency revalidation.`
+Next Digest Route: `Complete - next legal seam is Branch Readiness Stage 1-R4 planning boundary revalidation.`
 
 ## USER Vision Input Digest Summary
 
@@ -226,27 +226,53 @@ Product Direction Change: `From local readiness/status HUD to optional Nexus/NDA
 
 USER-Selected Current Product Direction: `optional HUD layer; movable and anchorable surface; click-through anchored mode; non-focus-stealing behavior; Nexus/NDAI futuristic visual identity; configurable sensor cards; default CPU thermals, GPU thermals, CPU load, and GPU load; custom warning thresholds; setup/reconnect/no-data/degraded states; privacy-aware telemetry boundaries; full-desktop screenshot proof followed by refined detail screenshots; User Test Summary as PR Readiness blocker; release-bearing posture later`
 
-Current-Branch Candidate Scope: `Nexus-branded standalone HUD shell/module; futuristic card/panel baseline; movable/anchorable overlay behavior; click-through and no-focus-steal anchored behavior; toggle on/off; basic sensor-card model; safe initial telemetry path only when provider and validation are defined; CPU/GPU thermal/load defaults if technically viable; visual/non-invasive threshold warning model; setup/reconnect/no-data/degraded states; screenshot and UTS proof`
+Current-Branch Finalized Scope: `Nexus/NDAI-branded standalone Monitoring HUD shell/module; futuristic visible card/panel baseline; movable and anchorable overlay behavior; click-through and no-focus-steal anchored mode; toggle on/off posture; basic sensor-card model; provider health/setup/unavailable states; setup/reconnect/no-data/degraded copy; visual/non-invasive warning states; full-desktop screenshot proof; User Test Summary preparation`
 
-Future Package Candidate Scope: `full HWInfo/HWMonitor-level sensor coverage; plugin/external telemetry ecosystem; audio/spoken alerts or FAM-004 integration; Stream Deck integration; advanced graphs, history, persistence, and dashboards; local AI/capability-pack monitoring; installer/capability-pack work; very low polling intervals pending performance proof`
+Future Package Finalized Scope: `full HWInfo/HWMonitor-level sensor coverage; broad plugin/external telemetry ecosystem; audio/spoken alerts or FAM-004 integration; Stream Deck integration; graphs, history, persistence, and dashboards; local AI/capability-pack monitoring; installer/capability-pack work; ultra-low polling intervals pending performance proof`
 
 Jarvis Naming Drift Finding: `USER flagged Marvel/Jarvis identity as invalid for current/future Nexus product surfaces. Current canon still permits preserved historical references and exact current runtime artifact names until a controlled migration seam changes them. FAM-006 touched surfaces must classify references as historical trace allowed, real runtime artifact requiring controlled migration, current user-facing drift, or touched FAM-006 surface requiring rename/boundary wording. No broad repo-wide search/replace is authorized.`
 
-Telemetry Provider Finding: `USER wants hardware-monitoring data, but provider selection is pending. No fake CPU/GPU/thermal values may ship. Any telemetry provider must have validation, privacy, performance, and failure-mode proof before product completion.`
+Telemetry Provider Finding: `WS7 is provider-contract-first. Current branch may show provider health/setup/unavailable states; live CPU/GPU/thermal/load values may appear only when a safe provider and validation path are defined. Fake CPU/GPU/thermal values are outside valid product proof. Historical FB-040 provider order may inform later provider work, but broad provider implementation waits for an admitted seam or future package unless a narrow provider proof is explicitly admitted.`
 
-Polling Floor Finding: `USER asked for per-card adjustable polling and mentioned 1ms as an example. 1ms per-card polling is unsafe until proven. Safe defaults and minimum polling floor remain undecided; USER suggested 10,000ms default as a possible posture, but repo truth still requires performance validation and final selection.`
+Polling Floor Finding: `No polling occurs until a provider is selected. If polling enters an admitted seam, the first practical default is 1s-2s, 500ms minimum requires performance proof, 1ms per-card polling remains unsafe until explicit proof or waiver, and UI repaint cadence must stay decoupled from sensor sample cadence.`
 
-Warning Modality Finding: `USER wants threshold warnings. Visual/non-invasive warning behavior is a likely current-branch candidate. Audio/spoken warning behavior is blocked on FAM-004/cross-family approval. Screen flash or other non-invasive visual warning details remain a design decision.`
+Warning Modality Finding: `Current branch warning posture is visual/non-invasive. Allowed forms are card badge, color state, text label, and restrained accent. Screen flash needs accessibility review before use. Audio/spoken warnings require later FAM-004/cross-family approval.`
 
-Privacy / External Telemetry Finding: `USER wants plugin/external telemetry eventually, with privacy-first warnings when data sources raise privacy concerns. Current privacy/permission model remains missing and blocks external telemetry implementation.`
+Privacy / External Telemetry Finding: `External/plugin telemetry remains future-package scope. Future external telemetry requires consent, provenance, source labeling, privacy warnings, and validation. Current branch may include wording/architecture that leaves room for external telemetry later but must not implement the ecosystem.`
 
 Validation / Proof Finding: `Marker/DOM proof remains supporting evidence only. Full-desktop screenshot proof must establish position and visible HUD presence; refined/cropped screenshots may support detail after full proof. Video is not required. Non-automatable behavior, including polling behavior if needed, belongs explicitly in User Test Summary.`
+
+## Stage 2-R6 Product Scope Boundary And Acceptance Criteria
+
+Current-Branch Scope Final: `Nexus/NDAI-branded standalone Monitoring HUD shell/module; futuristic visible card/panel baseline; movable and anchorable overlay behavior; click-through and no-focus-steal anchored mode; toggle on/off posture; basic sensor-card model; provider health/setup/unavailable states; setup/reconnect/no-data/degraded copy; visual/non-invasive warning states; full-desktop screenshot proof; User Test Summary preparation.`
+
+Future-Package Scope Final: `full HWInfo/HWMonitor-level sensor coverage; broad plugin/external telemetry ecosystem; audio/spoken alerts or FAM-004 integration; Stream Deck integration; graphs, history, persistence, dashboards; local AI/capability-pack monitoring; installer/capability-pack work; ultra-low polling intervals pending proof.`
+
+Provider Path: `WS7 is provider-contract-first. Current branch may show provider health/setup/unavailable states. Live CPU/GPU/thermal/load values are represented only when a safe provider and validation path are defined. Fake CPU/GPU/thermal values are blocked. Historical FB-040 provider order may inform later provider work, but broad provider implementation waits for an admitted seam/package unless a narrow provider proof is explicitly admitted.`
+
+Polling Posture: `No polling until a provider is selected. If polling enters an admitted seam, the first practical default is 1s-2s. 500ms minimum requires performance proof. 1ms per-card polling remains unsafe until explicit proof or waiver. UI repaint cadence stays decoupled from sensor sample cadence.`
+
+Warning Modality: `Current branch warning posture is visual/non-invasive. Allowed forms include card badge, color state, text label, and restrained accent. Screen flash needs accessibility review before use. Audio/spoken warnings require later FAM-004/cross-family approval. Warning thresholds are product direction; final implementation details depend on provider path and validation.`
+
+External Telemetry Privacy: `External/plugin telemetry remains future-package scope. Future external telemetry requires consent, provenance, source labeling, privacy warnings, and validation. Current branch may include wording/architecture that leaves room for external telemetry later, but it must not implement the ecosystem.`
+
+Audio/FAM-004 Boundary: `Audio/spoken alerts are not admitted in current PKG-006. Spoken output, audio notification behavior, voice-driven HUD interaction, persona voice, or FAM-004 integration requires later USER approval and cross-family admission.`
+
+Jarvis/Nexus Naming Handling: `Current/future user-facing product copy should use Nexus, NDAI, Nexus Desktop AI, Monitoring HUD, or persona names. Historical trace references may remain. Real runtime artifact paths such as jarvis_visual/ may remain until a controlled migration seam/package changes artifact contracts. FAM-006 touched user-facing surfaces must not expand Jarvis/Marvel identity. Broad repo-wide rename remains future controlled migration work unless USER admits it.`
+
+Acceptance Criteria Final: `HUD visibly present in normal/equivalent desktop path; Nexus/NDAI visual identity; readable and intentionally placed; move/anchor posture; click-through/no-focus-steal anchored-mode design proof or explicitly staged validation; toggle/on-off posture; visible and understandable sensor-card model; provider setup/unavailable/no-data/degraded states are truthful; no fake telemetry values presented as real; visual/non-invasive warning posture; full-desktop screenshot proof of placement; refined/cropped proof may supplement details; UTS confirms visibility, readability, usefulness, truthfulness, no misleading claims, and manual-only checks.`
+
+Proof Standard Final: `Marker/DOM proof is supporting evidence only. Product completion requires human-visible full-desktop screenshot proof, optional refined detail proof, and User Test Summary acceptance or explicit waiver before PR Readiness.`
+
+Validator Enforcement: `Product planning cannot be complete while current/future boundaries are candidate-only; user-facing completion requires visible proof standards; fake hardware values are blocked; provider provenance/setup state is required when hardware data is claimed; audio warning widening is blocked without FAM-004/cross-family approval; FAM-006 user-facing copy cannot expand Jarvis/Marvel identity.`
+
+Workstream Gate: `WS7 remains blocked until Branch Readiness Stage 1-R4 revalidates this finalized Stage 2-R6 section.`
 
 ## USER Vision Question Packet
 
 Packet Status: `Completed by USER / digested in Stage 2-R5 / planning revalidation pending`
 
-Question Packet Rule: each question must explain what the decision affects, Codex's recommendation, why, alternatives, tradeoffs, current-branch impact, future-package impact, safe default, whether the answer is required before implementation, waiver/defer posture, and the exact response format requested from USER. The table below preserves the original question packet as handoff evidence; the authoritative current planning summary is the Stage 2-R5 `USER Vision Input Digest Summary` above.
+Question Packet Rule: each question must explain what the decision affects, Codex's recommendation, why, alternatives, tradeoffs, current-branch impact, future-package impact, safe default, whether the answer is required before implementation, waiver/defer posture, and the exact response format requested from USER. The table below preserves the original question packet as handoff evidence; the authoritative current planning boundary is the Stage 2-R6 `Product Scope Boundary And Acceptance Criteria` section above.
 
 | Question ID | Category | Decision needed | Why this matters | Feature area affected | Codex recommendation | Why Codex recommends it | Alternatives/options | Tradeoffs/risks | Current-branch impact | Future-package impact | Safe default if USER is unsure | Required before implementation | May waive/defer | Exact response format requested |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -268,17 +294,17 @@ Question Packet Rule: each question must explain what the decision affects, Code
 
 ## Backlog Completion Strategy
 
-Branch Completion Goal: complete a visible, readable, accepted, optional Nexus/NDAI hardware-monitoring HUD product surface on the current branch after planning revalidation proves the widened scope, telemetry provider path, polling floor, warning model, privacy boundaries, and legacy-name handling path are safe and bounded.
+Branch Completion Goal: complete a visible, readable, accepted, optional Nexus/NDAI hardware-monitoring HUD product surface on the current branch after Stage 1 revalidation confirms the Stage 2-R6 finalized scope, provider-contract-first telemetry path, polling posture, warning posture, privacy deferrals, audio/FAM-004 boundary, and legacy-name handling path are safe and bounded.
 
-Known Future-Dependent Blockers: full HWInfo/HWMonitor-level sensor coverage, plugin/external telemetry ecosystem, audio/spoken alerts or FAM-004 integration, Stream Deck integration, advanced graphs/history/persistence/dashboards, local AI/capability-pack monitoring, installer/capability-pack work, and very low polling intervals remain deferred unless USER later widens scope and validation proves safety.
+Known Future-Dependent Blockers: full HWInfo/HWMonitor-level sensor coverage, broad plugin/external telemetry ecosystem, audio/spoken alerts or FAM-004 integration, Stream Deck integration, graphs/history/persistence/dashboards, local AI/capability-pack monitoring, installer/capability-pack work, and ultra-low polling intervals remain deferred unless USER later widens scope and validation proves safety.
 
-Branch Closure Rule: this branch may leave Workstream again only after Branch Readiness revalidates the digested product plan, product-visible HUD proof is implemented, revised slice truth is current, telemetry/warning/privacy/naming blockers are cleared or deferred, screenshot/entrypoint validation is green, and User Test Summary acceptance or waiver is digested; marker-only or scaffold-only proof cannot close PKG-006.
+Branch Closure Rule: this branch may leave Workstream again only after Branch Readiness revalidates the finalized Stage 2-R6 product plan, product-visible HUD proof is implemented, revised slice truth is current, screenshot/entrypoint validation is green, and User Test Summary acceptance or waiver is digested; marker-only or scaffold-only proof cannot close PKG-006.
 
 ## Backlog Completion Status
 
 Backlog Completion State: `In Progress`
-Remaining Implementable Work: `Nexus/NDAI hardware-monitoring HUD product plan revalidation, visible futuristic HUD shell, movable/anchorable overlay, click-through/no-focus anchored behavior, toggle posture, sensor-card model, safe telemetry provider path, CPU/GPU thermal/load defaults if viable, warning threshold model, setup/reconnect/no-data/degraded states, screenshot proof, and User Test Summary acceptance`
-Future-Dependent Blockers: `full HWInfo/HWMonitor-level coverage, plugin/external telemetry ecosystem, audio/spoken alerts or FAM-004 integration, Stream Deck, advanced graphs/history/persistence/dashboards, local AI/capability-pack monitoring, installer/capability-pack work, and very low polling intervals remain deferred pending later approval and proof`
+Remaining Implementable Work: `Stage 1-R4 planning revalidation, Nexus/NDAI-branded standalone Monitoring HUD shell/module, futuristic visible card/panel baseline, movable/anchorable overlay, click-through/no-focus anchored behavior, toggle posture, basic sensor-card model, provider health/setup/unavailable states, setup/reconnect/no-data/degraded states, visual/non-invasive warning states, screenshot proof, and User Test Summary acceptance`
+Future-Dependent Blockers: `full HWInfo/HWMonitor-level coverage, broad plugin/external telemetry ecosystem, audio/spoken alerts or FAM-004 integration, Stream Deck, graphs/history/persistence/dashboards, local AI/capability-pack monitoring, installer/capability-pack work, and ultra-low polling intervals remain deferred pending later approval and proof`
 Completion Status: `In Progress`
 
 ## Planning-Loop Guardrail
@@ -326,13 +352,13 @@ Optional voice/status integration is not admitted because spoken output, audio n
 ## Element Coverage Review
 
 - User-facing surface: `In Scope - optional Nexus/NDAI hardware-monitoring HUD surface`
-- Runtime/backend behavior: `In Scope candidate - telemetry source and adapter boundaries require provider selection and proof`
-- Settings/configuration: `In Scope candidate - toggle, anchoring, click-through, no-focus, and card configuration posture require planning revalidation`
-- Data/state/persistence: `Current branch candidate for card configuration and warning thresholds only if persistence model is admitted; advanced history/persistence remains future`
+- Runtime/backend behavior: `In Scope - provider-contract-first health/setup/unavailable states; live values require safe provider and validation path`
+- Settings/configuration: `In Scope - toggle posture, anchoring, click-through, no-focus, and basic card configuration posture; persistence beyond product proof remains bounded`
+- Data/state/persistence: `In Scope for provider health, setup, unavailable, reconnect, no-data, degraded, basic card model, and warning-threshold posture; advanced history/persistence remains future`
 - Fail-safe/recovery: `In Scope - setup, reconnect, no-data, stale, partial, unavailable, degraded, and unsupported states`
-- Security/privacy/permissions: `In Scope - privacy-aware telemetry boundaries; plugin/external telemetry model remains blocker`
+- Security/privacy/permissions: `In Scope - privacy-aware telemetry boundaries; broad plugin/external telemetry model remains future-package scope`
 - Voice/audio: `Deferred coverage only - audio/spoken warning behavior requires FAM-004/cross-family approval`
-- External integration: `Future package candidate - plugin/external telemetry requires privacy and permission model`
+- External integration: `Future package - plugin/external telemetry requires consent, provenance, source labeling, privacy warnings, and validation`
 - Local AI/capability packs: `Not Applicable - no local AI or heavy capability-pack work admitted`
 - Packaging/install: `Not Applicable - no installer or pack selection work admitted`
 - Monitoring/HUD: `In Scope - primary hardware-monitoring HUD product surface`
@@ -356,7 +382,7 @@ The User Test Summary is required because PKG-006 is user-facing desktop UI work
 
 ## Later-Phase Expectations
 
-- Workstream: after Stage 1-R3 revalidation, repair the reopened product slices and produce visible hardware-monitoring HUD product proof without adding future-package work.
+- Workstream: after Stage 1-R4 revalidation, repair the reopened product slices and produce visible hardware-monitoring HUD product proof without adding future-package work.
 - Hardening: pressure-test the product-level HUD surface, telemetry/warning boundaries, naming posture, and screenshot/UTS proof after Workstream re-completes; marker-only proof is not enough.
 - Live Validation: launch through the normal user-facing desktop entrypoint or explicit equivalent, capture full-desktop visible proof plus refined detail proof when useful, and digest User Test Summary results.
 - PR Readiness: only begins after product completion, hardening, live validation, UTS, and merge-target source truth are clean.
@@ -401,18 +427,18 @@ Non-Includes: new telemetry sources, placement ownership changes, settings/contr
 Status: `Reopened - live helper observed markers and captured screenshots, but screenshot proof does not clearly show the HUD panel/card`
 
 Seam 7: `WS7 - Monitoring HUD Product Visibility And Acceptance Baseline`
-Goal: begin the digested Nexus/NDAI hardware-monitoring HUD product repair only after Branch Readiness revalidates the widened plan.
-Scope: candidate scope includes a Nexus-branded standalone HUD shell/module, futuristic card/panel baseline, movable/anchorable overlay behavior, click-through and no-focus-steal anchored behavior, toggle on/off, basic sensor-card model, safe initial telemetry path only after provider and validation are defined, CPU/GPU thermal/load defaults if technically viable, visual/non-invasive threshold warning model, setup/reconnect/no-data/degraded states, screenshot proof, and User Test Summary prep.
-Non-Includes: voice/audio without FAM-004 approval, Stream Deck/plugin telemetry implementation, full HWInfo/HWMonitor-level sensor-platform coverage, advanced graphs/history/persistence/dashboards, local AI, installer/capability-pack work, release execution, PR creation, watcher provisioning, tags, GitHub Releases, artifacts, or direct-main mutation.
-Status: `Blocked - begins only after Branch Readiness Stage 1-R3 revalidates the Stage 2-R5 digest or a later Stage 2 planning repair clears remaining blockers`
+Goal: begin the finalized Nexus/NDAI hardware-monitoring HUD product repair only after Branch Readiness revalidates the Stage 2-R6 plan.
+Scope: finalized scope includes a Nexus/NDAI-branded standalone Monitoring HUD shell/module, futuristic visible card/panel baseline, movable and anchorable overlay behavior, click-through and no-focus-steal anchored mode, toggle on/off posture, basic sensor-card model, provider health/setup/unavailable states, setup/reconnect/no-data/degraded copy, visual/non-invasive warning states, full-desktop screenshot proof, and User Test Summary prep. Live CPU/GPU/thermal/load values may appear only if a safe provider and validation path are defined.
+Non-Includes: fake telemetry values, voice/audio without FAM-004 approval, Stream Deck/plugin telemetry implementation, full HWInfo/HWMonitor-level sensor-platform coverage, graphs/history/persistence/dashboards, local AI, installer/capability-pack work, release execution, PR creation, watcher provisioning, tags, GitHub Releases, artifacts, or direct-main mutation.
+Status: `Blocked - begins only after Branch Readiness Stage 1-R4 revalidates the finalized Stage 2-R6 plan`
 
 ## Active Seam
 
-Active seam: `Branch Readiness Stage 2-R5 - USER Vision Input Digest And Planning Source-Truth Sync`
+Active seam: `Branch Readiness Stage 2-R6 - FAM-006 Product Scope Boundary And Acceptance Criteria Repair`
 
 Seam Status: `Green`
-Slice Status: `USER Vision Input digest recorded`
-Completion Status: `Green for Branch Readiness digest only / planning remains incomplete`
+Slice Status: `Product scope boundaries and acceptance criteria finalized`
+Completion Status: `Green for Branch Readiness repair only / planning revalidation remains pending`
 Waiver Status: `None`
 Continue Decision: `Stop`
 Stop Basis: `Branch Readiness Planning Incomplete`
@@ -420,14 +446,14 @@ Stop Basis: `Branch Readiness Planning Incomplete`
 ## Seam Continuation Decision
 
 Seam Status: `Green`
-Slice Status: `USER Vision Input digest recorded`
-Completion Status: `Green for Branch Readiness digest only / planning remains incomplete`
+Slice Status: `Product scope boundaries and acceptance criteria finalized`
+Completion Status: `Green for Branch Readiness repair only / planning revalidation remains pending`
 Waiver Status: `None`
 Continue Decision: `Stop`
 Stop Basis: `Branch Readiness Planning Incomplete`
-Next Active Seam: `Branch Readiness Stage 1-R3 - FAM-006 Product Planning Sufficiency Revalidation`
+Next Active Seam: `Branch Readiness Stage 1-R4 - FAM-006 Product Planning Boundary Revalidation`
 Stop Condition: `Branch Readiness Planning Incomplete`
-Continuation Action: `Run Branch Readiness Stage 1-R3 to revalidate the Stage 2-R5 USER Vision Input digest, current-branch versus future-package boundaries, telemetry provider path, polling floor, warning modality, external telemetry privacy model, audio/FAM-004 boundary, and legacy Jarvis naming drift before Workstream WS7 resumes. Do not add PR, watcher, release, tag, artifact, direct-main, voice/audio, Stream Deck/plugin telemetry, local AI, installer, broad hardware sensor platform, or future-package scope.`
+Continuation Action: `Run Branch Readiness Stage 1-R4 to revalidate the finalized Stage 2-R6 current-branch scope, future-package deferrals, provider-contract-first path, polling posture, warning posture, privacy deferrals, audio/FAM-004 boundary, Jarvis/Nexus naming handling, acceptance criteria, and proof standards before Workstream WS7 resumes. Do not add PR, watcher, release, tag, artifact, direct-main, voice/audio, Stream Deck/plugin telemetry, local AI, installer, broad hardware sensor platform, or future-package implementation scope.`
 
 ## WS1 Implementation Record
 
@@ -497,7 +523,7 @@ Continuation Action: `Run Branch Readiness Stage 1-R3 to revalidate the Stage 2-
 - Hardening screenshot: `dev/logs/fam_006_monitoring_hud_live_validation/20260506_100956/monitoring_hud_desktop.png`
 - Static validation: `python dev/orin_branch_governance_validation.py` PASS; `python dev/orin_monitoring_hud_surface_validation.py` PASS; `python -m compileall -q dev desktop` PASS; `git diff --check` PASS
 - Live validation: `powershell -NoProfile -ExecutionPolicy Bypass -File dev\orin_monitoring_hud_live_validation.ps1` PASS with HUD baseline, telemetry, placement, controls, status, startup-ready, and desktop-settled markers observed
-- H1 Continuation Finding: `Hardening H1 scaffold/marker pressure test passed, but product completion is reopened`; Branch Readiness Stage 1-R3 planning sufficiency revalidation is the next legal seam before WS7 can resume
+- H1 Continuation Finding: `Hardening H1 scaffold/marker pressure test passed, but product completion is reopened`; Branch Readiness Stage 1-R4 planning boundary revalidation is the next legal seam before WS7 can resume
 - Boundary preservation: `No new telemetry sources, placement behavior, settings/control behavior, fail-safe behavior, voice/audio behavior, PR work, watcher work, release work, tags, GitHub Releases, artifacts, or direct-main mutation`
 
 ## User Test Summary

@@ -1712,6 +1712,8 @@ Planning blockers are planning blockers, not implementation blockers. They inclu
 
 Family-package planning may also record package-specific planning blockers when USER input exposes unresolved product architecture or naming scope. Examples include `Legacy Jarvis Product Name Drift`, `Hardware Telemetry Provider Selection Pending`, `Polling Floor Undecided`, `Warning Delivery Modality Pending`, `External Telemetry Privacy Model Missing`, and `Audio Warning Cross-Family Approval Missing`. These blockers prevent Workstream entry or continuation until Branch Readiness revalidates the current-branch/future-package boundary, records a safe implementation path, defers the item to a future package, or records an explicit USER waiver.
 
+A broad family-package plan is not complete while current-branch scope, future-package deferrals, provider path, polling posture, warning modality, privacy model, naming/product-copy handling, acceptance criteria, or proof standards remain candidate-only. Branch Readiness Stage 2 may finalize those boundaries after USER approval, but Workstream entry or continuation remains blocked until a later Branch Readiness Stage 1 pass revalidates the finalized plan or records an explicit USER waiver.
+
 Element Coverage is a non-identity checklist owned by FAM/package analysis only. Coverage categories are user-facing surface, runtime/backend behavior, fail-safe/recovery, security/privacy, voice/audio, external integration, local AI/capability packs, packaging/install, monitoring/HUD, validation, and release impact. Element Coverage rows never count as `Admission State: Admitted`, slices, seams, packages, FAMs, selected-next truth, or release drivers.
 
 Allowed:

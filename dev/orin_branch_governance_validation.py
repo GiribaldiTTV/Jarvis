@@ -219,6 +219,47 @@ EXTERNAL_TELEMETRY_PRIVACY_MODEL_MISSING_BLOCKER = "External Telemetry Privacy M
 AUDIO_WARNING_CROSS_FAMILY_APPROVAL_MISSING_BLOCKER = (
     "Audio Warning Cross-Family Approval Missing"
 )
+FAM006_BRANCH = "feature/fam-006-monitoring-hud-product-surface"
+FAM006_BRANCH_RECORD = Path(
+    "Docs/branch_records/feature_fam_006_monitoring_hud_product_surface.md"
+)
+FAM006_STAGE2_R6_HEADING = "Stage 2-R6 Product Scope Boundary And Acceptance Criteria"
+FAM006_STAGE2_R6_REQUIRED_MARKERS = (
+    "Current-Branch Scope Final:",
+    "Future-Package Scope Final:",
+    "Provider Path:",
+    "Polling Posture:",
+    "Warning Modality:",
+    "External Telemetry Privacy:",
+    "Audio/FAM-004 Boundary:",
+    "Jarvis/Nexus Naming Handling:",
+    "Acceptance Criteria Final:",
+    "Proof Standard Final:",
+    "Validator Enforcement:",
+    "Workstream Gate:",
+)
+FAM006_STAGE2_R6_REQUIRED_PHRASES = (
+    "Nexus/NDAI-branded standalone Monitoring HUD shell/module",
+    "full HWInfo/HWMonitor-level sensor coverage",
+    "WS7 is provider-contract-first",
+    "Fake CPU/GPU/thermal values are blocked",
+    "No polling until a provider is selected",
+    "first practical default is 1s-2s",
+    "500ms minimum requires performance proof",
+    "1ms per-card polling remains unsafe",
+    "UI repaint cadence stays decoupled",
+    "visual/non-invasive",
+    "Screen flash needs accessibility review",
+    "Audio/spoken warnings require later FAM-004/cross-family approval",
+    "External/plugin telemetry remains future-package scope",
+    "consent, provenance, source labeling, privacy warnings, and validation",
+    "Current/future user-facing product copy should use Nexus",
+    "Real runtime artifact paths such as jarvis_visual/ may remain",
+    "must not expand Jarvis/Marvel identity",
+    "no fake telemetry values presented as real",
+    "Marker/DOM proof is supporting evidence only",
+    "WS7 remains blocked until Branch Readiness Stage 1-R4",
+)
 USER_VISION_INPUT_HANDOFF_MARKERS = (
     "USER Vision Input Artifact Path:",
     "USER Vision Input Artifact State:",
@@ -4242,6 +4283,90 @@ def _validate_product_definition_plan(
             (
                 f"{source_path}: Workstream implementation requires complete or "
                 "USER-waived family-package planning"
+            ),
+        )
+
+
+def _validate_fam006_stage2_r6_plan(
+    require,
+    source_path: str,
+    text: str,
+    *,
+    blockers: list[str],
+    current_phase: str,
+) -> None:
+    if Path(source_path) != FAM006_BRANCH_RECORD:
+        return
+
+    section = _section(text, FAM006_STAGE2_R6_HEADING)
+    require(
+        bool(section),
+        f"{source_path}: FAM-006 plan is missing '## {FAM006_STAGE2_R6_HEADING}'",
+    )
+    if not section:
+        return
+
+    for marker in FAM006_STAGE2_R6_REQUIRED_MARKERS:
+        require(
+            marker in section,
+            f"{source_path}: {FAM006_STAGE2_R6_HEADING} is missing '{marker}'",
+        )
+    for phrase in FAM006_STAGE2_R6_REQUIRED_PHRASES:
+        require(
+            phrase in section,
+            f"{source_path}: {FAM006_STAGE2_R6_HEADING} is missing '{phrase}'",
+        )
+
+    cleared_by_stage2_r6 = {
+        "Branch Reach Unproven",
+        "Acceptance Criteria Missing",
+        "Current Branch vs Future Package Boundary Missing",
+        LEGACY_PRODUCT_NAME_DRIFT_BLOCKER,
+        HARDWARE_TELEMETRY_PROVIDER_PENDING_BLOCKER,
+        POLLING_FLOOR_UNDECIDED_BLOCKER,
+        WARNING_DELIVERY_MODALITY_PENDING_BLOCKER,
+        EXTERNAL_TELEMETRY_PRIVACY_MODEL_MISSING_BLOCKER,
+        AUDIO_WARNING_CROSS_FAMILY_APPROVAL_MISSING_BLOCKER,
+    }
+    for blocker in cleared_by_stage2_r6:
+        require(
+            blocker not in blockers,
+            (
+                f"{source_path}: '{blocker}' must not remain active after Stage 2-R6 "
+                "finalizes the corresponding boundary; keep it as cleared/deferred history instead"
+            ),
+        )
+
+    plan_section = _section(text, PRODUCT_DEFINITION_PLAN_HEADING)
+    require(
+        "Current Branch vs Future Package Boundaries: finalized by Stage 2-R6" in plan_section,
+        (
+            f"{source_path}: Product Definition Plan must mark current/future package "
+            "boundaries as finalized by Stage 2-R6"
+        ),
+    )
+    require(
+        "Acceptance Criteria: finalized by Stage 2-R6" in plan_section,
+        (
+            f"{source_path}: Product Definition Plan must mark acceptance criteria "
+            "as finalized by Stage 2-R6"
+        ),
+    )
+    require(
+        "Planning Blockers: `Branch Readiness Planning Incomplete`." in plan_section,
+        (
+            f"{source_path}: Stage 2-R6 repair must leave only "
+            "`Branch Readiness Planning Incomplete` as the active planning blocker "
+            "until Stage 1 revalidation"
+        ),
+    )
+
+    if current_phase == "Branch Readiness":
+        require(
+            PRODUCT_PLANNING_INCOMPLETE_BLOCKER in blockers,
+            (
+                f"{source_path}: Stage 2-R6 Branch Readiness must keep "
+                f"'{PRODUCT_PLANNING_INCOMPLETE_BLOCKER}' active until Stage 1 revalidates"
             ),
         )
 
@@ -12681,6 +12806,13 @@ def main() -> int:
                 current_phase=current_phase,
                 blockers=list(info["blockers"]),
                 next_legal_phase=str(info["next_legal_phase"]),
+            )
+            _validate_fam006_stage2_r6_plan(
+                require,
+                branch_record_path,
+                record_text,
+                blockers=list(info["blockers"]),
+                current_phase=current_phase,
             )
             _validate_backlog_completion_status(
                 require,
