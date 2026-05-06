@@ -24,7 +24,7 @@ This branch may execute the admitted PKG-006 implementation slices during Workst
 
 ## Status
 
-- `Workstream Active`
+- `Hardening Complete`
 
 ## Canonical Branch
 
@@ -32,11 +32,12 @@ This branch may execute the admitted PKG-006 implementation slices during Workst
 
 ## Current Phase
 
-- Phase: `Workstream`
+- Phase: `Hardening`
 
 ## Phase Status
 
-- Workstream Stage: `Complete - Hardening next`
+- Workstream Stage: `Complete`
+- Hardening Stage: `Complete - H1 Monitoring HUD Package Validation`
 - Active Branch: `feature/fam-006-monitoring-hud-product-surface`
 - Branch Authority Mode: `Active Branch`
 - Workstream Entry Source-Truth Transition: `Performed - Branch Readiness Stage 2 terminal evidence reconciled before runtime implementation`
@@ -50,8 +51,8 @@ This branch may execute the admitted PKG-006 implementation slices during Workst
 - Package Completion State: `Complete`
 - Single-Slice Package User Approval: `Not required - PKG-006 has six concrete admitted slices; no waiver granted`
 - Runtime Implementation State: `Complete - SLC-016 visual baseline, SLC-025 telemetry boundary, SLC-026 placement ownership, SLC-027 controls visibility, SLC-028 status behavior, and SLC-029 validation/live desktop proof are green`
-- PR Creation State: `Not approved in Workstream`
-- Watcher Provisioning State: `Not approved in Workstream`
+- PR Creation State: `Not approved in Hardening`
+- Watcher Provisioning State: `Not approved in Hardening`
 - Release Work State: `Not approved; v1.6.13-prebeta release execution is already complete and no new release work is in scope`
 - Optional Voice/Status Integration: `Deferred unless later proven to be narrow HUD-status copy inside FAM-006`
 - Element Coverage State: `Coverage-only; not counted as admitted slices`
@@ -62,9 +63,9 @@ This branch may execute the admitted PKG-006 implementation slices during Workst
 
 ## Blockers
 
-- `None active for Workstream completion`
+- `None active for Hardening completion`
 
-The package-completion blocker is cleared for Workstream because every admitted PKG-006 implementation slice is now green/complete. Later Hardening, Live Validation, PR Readiness, PR creation, watcher provisioning, release, tag, artifact, and direct-main work remain governed by their own phase gates.
+The package-completion blocker is cleared because every admitted PKG-006 implementation slice is green/complete, and Hardening H1 pressure-tested the completed seam chain. Live Validation, PR Readiness, PR creation, watcher provisioning, release, tag, artifact, and direct-main work remain governed by their own phase gates. User Test Summary results remain pending for the later Live Validation final-green gate.
 
 ## Cleared Governance Notes
 
@@ -106,11 +107,11 @@ Rollback Path: revert the current Workstream commit on `feature/fam-006-monitori
 
 ## Next Legal Phase
 
-- `Hardening`
+- `Live Validation`
 
-Next Legal Seam: `Hardening H1 - Monitoring HUD Package Validation`
+Next Legal Seam: `Live Validation LV1 - Monitoring HUD Live Validation And User Test Summary Handoff`
 
-Next Legal Phase Gate: Hardening may evaluate the completed PKG-006 seam chain. PR, watcher, release, tag, artifact, and direct-main actions remain outside Hardening unless later phase governance explicitly allows them.
+Next Legal Phase Gate: Live Validation must preserve the completed PKG-006 seam chain, keep `User Test Summary Results Pending` active until returned results are submitted or waived and digested, and avoid PR, watcher, release, tag, artifact, and direct-main actions.
 
 ## Branch Objective
 
@@ -231,14 +232,14 @@ Status: `Green - SLC-029 complete with live desktop proof`
 
 ## Active Seam
 
-Active seam: `Workstream complete - Hardening H1 next`
+Active seam: `Hardening H1 - Monitoring HUD Package Validation`
 
 Seam Status: `Green`
 Slice Status: `Green`
 Completion Status: `Green`
 Waiver Status: `None`
 Continue Decision: `Stop`
-Stop Basis: `Workstream Green`
+Stop Basis: `Hardening Green`
 
 ## Seam Continuation Decision
 
@@ -247,10 +248,10 @@ Slice Status: `Green`
 Completion Status: `Green`
 Waiver Status: `None`
 Continue Decision: `Stop`
-Stop Basis: `Workstream Green`
-Next Active Seam: `Hardening H1 - Monitoring HUD Package Validation`
+Stop Basis: `Hardening Green`
+Next Active Seam: `Live Validation LV1 - Monitoring HUD Live Validation And User Test Summary Handoff`
 Stop Condition: `None`
-Continuation Action: `Enter Hardening H1 to pressure-test the completed Monitoring/HUD package surface without adding new feature scope, PR, watcher, release, tag, artifact, or direct-main work.`
+Continuation Action: `Enter Live Validation LV1 for user-facing validation and User Test Summary digestion without adding new feature scope, PR, watcher, release, tag, artifact, or direct-main work.`
 
 ## WS1 Implementation Record
 
@@ -310,6 +311,18 @@ Continuation Action: `Enter Hardening H1 to pressure-test the completed Monitori
 - SLC-029 Completion State: `Green / Complete`
 - Package Completion State: `Complete`
 - Boundary preservation: `No new telemetry sources, placement behavior, settings/control behavior, fail-safe behavior, voice/audio behavior, release work, PR work, watcher work, tags, GitHub Releases, artifacts, or direct-main mutation`
+
+## Hardening H1 Result
+
+- Phase Admission: `PASS - branch authority advanced from Workstream to Hardening after PKG-006 Workstream completion was proven green`
+- Hardening seam: `Hardening H1 - Monitoring HUD Package Validation`
+- Hardening evidence root: `dev/logs/fam_006_monitoring_hud_live_validation/20260506_100956`
+- Hardening manifest: `dev/logs/fam_006_monitoring_hud_live_validation/20260506_100956/manifest.json`
+- Hardening screenshot: `dev/logs/fam_006_monitoring_hud_live_validation/20260506_100956/monitoring_hud_desktop.png`
+- Static validation: `python dev/orin_branch_governance_validation.py` PASS; `python dev/orin_monitoring_hud_surface_validation.py` PASS; `python -m compileall -q dev desktop` PASS; `git diff --check` PASS
+- Live validation: `powershell -NoProfile -ExecutionPolicy Bypass -File dev\orin_monitoring_hud_live_validation.ps1` PASS with HUD baseline, telemetry, placement, controls, status, startup-ready, and desktop-settled markers observed
+- H1 Continuation Finding: `Hardening H1 complete and green`; Live Validation is the next legal phase
+- Boundary preservation: `No new telemetry sources, placement behavior, settings/control behavior, fail-safe behavior, voice/audio behavior, PR work, watcher work, release work, tags, GitHub Releases, artifacts, or direct-main mutation`
 
 ## User Test Summary
 
