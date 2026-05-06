@@ -36,7 +36,7 @@ This branch may execute the admitted PKG-006 implementation slices during Workst
 
 ## Phase Status
 
-- Workstream Stage: `WS6 - Validation And Live Desktop Proof`
+- Workstream Stage: `Complete - Hardening next`
 - Active Branch: `feature/fam-006-monitoring-hud-product-surface`
 - Branch Authority Mode: `Active Branch`
 - Workstream Entry Source-Truth Transition: `Performed - Branch Readiness Stage 2 terminal evidence reconciled before runtime implementation`
@@ -47,9 +47,9 @@ This branch may execute the admitted PKG-006 implementation slices during Workst
 - Selected Next Source: `USER-approved selected-next truth matured into active FAM-006 Workstream`
 - Package Admission State: `Admitted`
 - Admitted Slice Count: `6`
-- Package Completion State: `In Progress`
+- Package Completion State: `Complete`
 - Single-Slice Package User Approval: `Not required - PKG-006 has six concrete admitted slices; no waiver granted`
-- Runtime Implementation State: `Started - SLC-016 visual baseline, SLC-025 telemetry boundary, SLC-026 placement ownership, SLC-027 controls visibility, and SLC-028 status behavior complete; SLC-029 active`
+- Runtime Implementation State: `Complete - SLC-016 visual baseline, SLC-025 telemetry boundary, SLC-026 placement ownership, SLC-027 controls visibility, SLC-028 status behavior, and SLC-029 validation/live desktop proof are green`
 - PR Creation State: `Not approved in Workstream`
 - Watcher Provisioning State: `Not approved in Workstream`
 - Release Work State: `Not approved; v1.6.13-prebeta release execution is already complete and no new release work is in scope`
@@ -62,15 +62,15 @@ This branch may execute the admitted PKG-006 implementation slices during Workst
 
 ## Blockers
 
-- `Backlog Completion Unproven`
+- `None active for Workstream completion`
 
-The blocker above is active because PKG-006 still has admitted implementable slices remaining. It does not stop Workstream continuation while the governed continuation state remains In Progress.
+The package-completion blocker is cleared for Workstream because every admitted PKG-006 implementation slice is now green/complete. Later Hardening, Live Validation, PR Readiness, PR creation, watcher provisioning, release, tag, artifact, and direct-main work remain governed by their own phase gates.
 
 ## Cleared Governance Notes
 
 - Branch Readiness Execution User Approval Missing is cleared for the completed Branch Readiness Stage 2 package-admission pass.
 - Single-Slice Package User Approval Missing is not active because PKG-006 has six admitted slices and no single-slice waiver is granted.
-- Package Completion Unproven prevents package closeout, Hardening admission, and PR readiness while admitted PKG-006 slices remain incomplete.
+- Package Completion Unproven is cleared for Workstream because admitted PKG-006 slices are complete; it remains a recurrence guard for any future package-completion claim while admitted slices remain incomplete.
 - Backlog Addition User Approval Missing remains active for any new FAM/package, backlog split, family promotion beyond this branch authority, runtime branch outside this carrier, or single-slice waiver.
 
 ## Entry Basis
@@ -100,17 +100,17 @@ The operator-supplied Stage 2 terminal evidence was not sufficient by itself bec
 
 ## Rollback Target
 
-- `Workstream`
+- `Hardening`
 
 Rollback Path: revert the current Workstream commit on `feature/fam-006-monitoring-hud-product-surface` before PR merge; no tags, releases, artifacts, PR, watcher, or `main` mutation are created by this WS1 pass.
 
 ## Next Legal Phase
 
-- `Workstream`
+- `Hardening`
 
-Next Legal Seam: `Workstream WS6 - Validation And Live Desktop Proof`
+Next Legal Seam: `Hardening H1 - Monitoring HUD Package Validation`
 
-Next Legal Phase Gate: Workstream remains active until every admitted PKG-006 implementation slice is complete, blocked by a named blocker, deferred by valid future dependency, or split by explicit USER approval. Hardening is blocked while admitted implementable slices remain incomplete.
+Next Legal Phase Gate: Hardening may evaluate the completed PKG-006 seam chain. PR, watcher, release, tag, artifact, and direct-main actions remain outside Hardening unless later phase governance explicitly allows them.
 
 ## Branch Objective
 
@@ -126,10 +126,10 @@ Turn the historical FAM-006 monitoring/thermal architecture baseline into a visi
 
 ## Backlog Completion Status
 
-Backlog Completion State: `In Progress`
-Remaining Implementable Work: `SLC-029 validation/live desktop proof remains implementable on this branch.`
-Future-Dependent Blockers: `SLC-030 optional voice/spoken status integration is deferred and requires later USER widening approval if spoken/audio behavior, voice integration, persona voice, FAM-004, or cross-family behavior is needed.`
-Completion Status: `In Progress`
+Backlog Completion State: `Implemented Complete`
+Remaining Implementable Work: `None`
+Future-Dependent Blockers: `None`
+Completion Status: `Green`
 
 ## Planning-Loop Guardrail
 
@@ -163,7 +163,7 @@ Primary Entry Slice: `SLC-016 HUD visual and user-facing monitoring surface`
 | `SLC-026` | `PKG-006` | `FAM-006` | Desktop placement and renderer ownership | Admitted | Green | Complete | `BR-S2-S3`; `WS3`; `desktop/monitoring_hud_placement.py`; `dev/orin_monitoring_hud_surface_validation.py` |
 | `SLC-027` | `PKG-006` | `FAM-006` | Settings and user controls visibility | Admitted | Green | Complete | `BR-S2-S4`; `WS4`; `desktop/monitoring_hud_controls.py`; `dev/orin_monitoring_hud_surface_validation.py` |
 | `SLC-028` | `PKG-006` | `FAM-006` | Fail-safe, no-data, and degraded-status behavior | Admitted | Green | Complete | `BR-S2-S5`; `WS5`; `desktop/monitoring_hud_status.py`; `dev/orin_monitoring_hud_surface_validation.py` |
-| `SLC-029` | `PKG-006` | `FAM-006` | Validation and live desktop proof | Admitted | Workstream active | In Progress | `BR-S2-S6`; `WS6` |
+| `SLC-029` | `PKG-006` | `FAM-006` | Validation and live desktop proof | Admitted | Green | Complete | `BR-S2-S6`; `WS6`; `dev/orin_monitoring_hud_live_validation.ps1`; `dev/logs/fam_006_monitoring_hud_live_validation/20260506_100320/manifest.json` |
 
 ## Deferred / Future Slice Ledger
 
@@ -227,30 +227,30 @@ Seam 6: `WS6 - Validation And Live Desktop Proof`
 Goal: validate the bounded Monitoring/HUD package surface and collect live desktop proof after fail-safe status behavior is explicit.
 Scope: validation and live desktop proof only.
 Non-Includes: new telemetry sources, placement ownership changes, settings/control behavior, fail-safe behavior changes, voice/audio behavior, release execution, PR creation, watcher provisioning, or package completion claims until validation proof is complete.
-Status: `Active - SLC-029 in progress`
+Status: `Green - SLC-029 complete with live desktop proof`
 
 ## Active Seam
 
-Active seam: `WS6 - Validation And Live Desktop Proof`
+Active seam: `Workstream complete - Hardening H1 next`
 
-Seam Status: `In Progress`
-Slice Status: `In Progress`
-Completion Status: `In Progress`
+Seam Status: `Green`
+Slice Status: `Green`
+Completion Status: `Green`
 Waiver Status: `None`
-Continue Decision: `Continue`
-Stop Basis: `None`
+Continue Decision: `Stop`
+Stop Basis: `Workstream Green`
 
 ## Seam Continuation Decision
 
-Seam Status: `In Progress`
-Slice Status: `In Progress`
-Completion Status: `In Progress`
+Seam Status: `Green`
+Slice Status: `Green`
+Completion Status: `Green`
 Waiver Status: `None`
-Continue Decision: `Continue`
-Stop Basis: `None`
-Next Active Seam: `WS6 - Validation And Live Desktop Proof`
+Continue Decision: `Stop`
+Stop Basis: `Workstream Green`
+Next Active Seam: `Hardening H1 - Monitoring HUD Package Validation`
 Stop Condition: `None`
-Continuation Action: `Continue SLC-029 by validating the Monitoring/HUD package surface and collecting live desktop proof without adding new telemetry, placement, controls, fail-safe behavior, voice/audio, PR, watcher, release, tag, artifact, or direct-main work.`
+Continuation Action: `Enter Hardening H1 to pressure-test the completed Monitoring/HUD package surface without adding new feature scope, PR, watcher, release, tag, artifact, or direct-main work.`
 
 ## WS1 Implementation Record
 
@@ -298,6 +298,32 @@ Continuation Action: `Continue SLC-029 by validating the Monitoring/HUD package 
 - SLC-028 Completion State: `Green / Complete`
 - Boundary preservation: `No live desktop proof, voice/audio behavior, release work, PR work, watcher work, tags, GitHub Releases, artifacts, or direct-main mutation`
 
+## WS6 Implementation Record
+
+- Validation helper added: `dev/orin_monitoring_hud_live_validation.ps1`
+- Live evidence root: `dev/logs/fam_006_monitoring_hud_live_validation/20260506_100320`
+- Live manifest: `dev/logs/fam_006_monitoring_hud_live_validation/20260506_100320/manifest.json`
+- Live screenshot: `dev/logs/fam_006_monitoring_hud_live_validation/20260506_100320/monitoring_hud_desktop.png`
+- Live proof behavior: `The helper launched the desktop runtime, observed the HUD baseline, telemetry, placement, controls, status, startup-ready, and desktop-settled markers, captured a desktop screenshot, and stopped the launched process during cleanup.`
+- Observed markers: `RENDERER_MAIN|START`, `RENDERER_MAIN|QAPPLICATION_CREATED`, `RENDERER_MAIN|WINDOW_CONSTRUCTED`, `RENDERER_MAIN|VISUAL_PAGE_READY`, `RENDERER_MAIN|CORE_VISUALIZATION_READY`, `MONITORING_HUD_BASELINE_READY`, `MONITORING_HUD_TELEMETRY_BOUNDARY_READY`, `MONITORING_HUD_PLACEMENT_OWNERSHIP_READY`, `MONITORING_HUD_CONTROLS_VISIBILITY_READY`, `MONITORING_HUD_STATUS_BEHAVIOR_READY`, `RENDERER_MAIN|STARTUP_READY`, `DESKTOP_OUTCOME|SETTLED|state=dormant`
+- Cleanup proof: `manifest cleanupNotes records Stopped desktop runtime pid=19484`
+- SLC-029 Completion State: `Green / Complete`
+- Package Completion State: `Complete`
+- Boundary preservation: `No new telemetry sources, placement behavior, settings/control behavior, fail-safe behavior, voice/audio behavior, release work, PR work, watcher work, tags, GitHub Releases, artifacts, or direct-main mutation`
+
+## User Test Summary
+
+Automated validators and live helper evidence: GREEN.
+User Test Summary Results: PENDING.
+Final phase advancement is BLOCKED until the filled User Test Summary is submitted and digested.
+
+Test Purpose: verify the user-visible Monitoring/HUD surface after the completed PKG-006 Workstream seam chain.
+Scenario / Entry Point: launch Nexus Desktop AI from the normal desktop entrypoint after this branch is built or run locally.
+Steps To Execute: open the desktop runtime, wait for the Monitoring HUD to appear in desktop mode, review the HUD card, and confirm it visibly communicates the baseline surface, local telemetry boundary, renderer-owned placement, read-only controls visibility, and fail-safe/no-data/degraded-status language.
+Expected Behavior: the Monitoring HUD is visible, readable, non-interactive unless later settings work changes it, truthful about local readiness, and does not claim hardware telemetry, recovery automation, spoken/audio behavior, release work, or plugin-fed telemetry.
+Failure Conditions / Edge Cases: HUD missing, unreadable, placed outside the desktop surface, implying unavailable telemetry, implying persisted settings, implying automatic recovery, emitting spoken/audio behavior, or hiding the no-data/degraded-status copy.
+Validation Evidence Expectations: return PASS/FAIL plus any notes, screenshots, confusion, new ideas, or requests raised during testing.
+
 ## Validation Plan
 
 - `git status --short --branch`
@@ -308,4 +334,4 @@ Continuation Action: `Continue SLC-029 by validating the Monitoring/HUD package 
 - focused static HUD baseline validation for the desktop visualization markers
 - `python dev/automation_observability_report.py`
 
-Later Workstream validation must add focused runtime/HUD validation and live desktop proof after more implementation slices are ready.
+Workstream validation now includes static HUD validation plus live desktop proof; Hardening owns the next pressure-test pass.

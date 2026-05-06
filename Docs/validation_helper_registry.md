@@ -101,6 +101,7 @@ Before PR Readiness, each workstream-scoped helper must be resolved in one of th
 | Path | Helper Status | Family | Reuse / Consolidation |
 | --- | --- | --- | --- |
 | `dev/orin_monitoring_hud_surface_validation.py` | Helper Status: Reusable | monitoring HUD surface validator | Extend for static Monitoring/HUD visual-surface markers, desktop-mode activation, runtime telemetry-boundary markers, renderer-owned placement markers, controls-visibility markers, fail-safe/no-data/degraded-status behavior markers, slice-boundary copy, and no-hardware-polling/no-settings-persistence/no-recovery-claims/no-voice boundary checks before creating another HUD surface validator. |
+| `dev/orin_monitoring_hud_live_validation.ps1` | Helper Status: Reusable | monitoring HUD live desktop validator | Workstream-scoped helper for FAM-006 WS6 live desktop proof. Reuse for Monitoring/HUD launched-desktop marker proof, screenshot capture, manifest output, no-progress watchdog, and cleanup verification before creating another HUD live-proof helper. |
 
 ### Shared Action, Interaction, And Saved Actions
 

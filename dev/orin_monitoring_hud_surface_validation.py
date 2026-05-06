@@ -49,6 +49,7 @@ def validate() -> list[str]:
     placement = _read("desktop/monitoring_hud_placement.py")
     controls = _read("desktop/monitoring_hud_controls.py")
     status = _read("desktop/monitoring_hud_status.py")
+    live_validation = _read("dev/orin_monitoring_hud_live_validation.ps1")
 
     hud_section = _html_section(html)
     _require(bool(hud_section), "orin_core.html is missing the monitoring-hud section", failures)
@@ -281,6 +282,22 @@ def validate() -> list[str]:
             f"monitoring HUD status behavior contract must not perform {forbidden} collection in SLC-028",
             failures,
         )
+
+    for needle in (
+        "SLC-029",
+        "WS6 - Validation And Live Desktop Proof",
+        "MONITORING_HUD_BASELINE_READY",
+        "MONITORING_HUD_TELEMETRY_BOUNDARY_READY",
+        "MONITORING_HUD_PLACEMENT_OWNERSHIP_READY",
+        "MONITORING_HUD_CONTROLS_VISIBILITY_READY",
+        "MONITORING_HUD_STATUS_BEHAVIOR_READY",
+        "DESKTOP_OUTCOME|SETTLED|state=dormant",
+        "monitoring_hud_desktop.png",
+        "manifest.json",
+        "Stop-Process -Id $script:RuntimeProcess.Id -Force",
+        "No-progress watchdog exceeded",
+    ):
+        _require_contains(live_validation, needle, "monitoring HUD live validation helper", failures)
 
     desktop_mode_method = re.search(
         r"def _apply_desktop_surface_mode\(self\):.*?def _on_load_finished",
