@@ -188,6 +188,8 @@ MULTI_SEAM_CONTRACT_PHRASES = (
     "entry seam, not a terminal boundary",
     "a slice is a bounded admitted backlog-completion unit",
     "a seam is the current execution checkpoint inside or between slices",
+    "Bounded means one active seam at a time, not one-seam Workstream authority.",
+    "A single-seam Workstream requires explicit USER waiver before Workstream may stop after one seam while the package or slice remains incomplete.",
     "seams inside the current slice may be predeclared in canon or discovered from repo truth while the slice remains in progress",
     "there is no repo-wide cap on how many slices a branch or workstream may carry",
     "same-branch backlog completion is the branch-level default: later slices for the same backlog item stay on the same branch when scope, phase, risk, and validation authority remain green",
@@ -210,6 +212,8 @@ MULTI_SEAM_PRIMARY_REPAIR_PHRASES = (
     "Legacy `Single-Seam Fallback` and `Single-Seam Mode Waiver` terms are retired and must not be used in active source-of-truth.",
     "A bounded stop condition blocks the workflow. It does not by itself authorize splitting the backlog item across branches.",
     "Stopping after the first slice or splitting the backlog item across branches requires an explicit `Backlog-Split User Approval` or a named bounded stop condition.",
+    "Bounded means one active seam at a time, not one-seam Workstream authority.",
+    "A single-seam Workstream requires explicit USER waiver before Workstream may stop after one seam while the package or slice remains incomplete.",
     "when a slice turns green during `Workstream`, advance immediately to the next admitted slice while `Completion Status` remains `In Progress`",
     "`Completion Status: Red` means a named blocker or waiver currently stops bounded Workstream continuation",
 )
@@ -228,6 +232,11 @@ MULTI_SEAM_PROHIBITED_THROTTLE_PHRASES = (
     "canon-valid `single-seam fallback`",
     "unless owning canon supplies `single-seam fallback`",
     "use `single-seam mode waiver` only when",
+    "single-seam workstream by default",
+    "stop after one seam by default",
+    "bounded seam is a terminal boundary",
+    "bounded means single seam",
+    "bounded means one seam",
     "one-seam workflow",
     "approved seam sequence",
     "approved sequence",
@@ -249,6 +258,8 @@ MULTI_SEAM_PROMPT_PHRASES = (
     "continue-or-stop",
     "Next-Seam Continuation Required",
     "entry seam, not a terminal boundary",
+    "Bounded means one active seam at a time, not one-seam Workstream authority.",
+    "A single-seam Workstream requires explicit USER waiver before Workstream may stop after one seam while the package or slice remains incomplete.",
     "seams inside the current slice may be predeclared in canon or discovered from repo truth while the slice remains in progress",
     "there is no repo-wide cap on how many slices a branch or workstream may carry",
     "same-branch backlog completion is the branch-level default: later slices for the same backlog item stay on the same branch when scope, phase, risk, and validation authority remain green",
@@ -288,12 +299,22 @@ CONTINUATION_SLICE_STATUS_LABEL = "Slice Status"
 CONTINUATION_COMPLETION_STATUS_LABEL = "Completion Status"
 CONTINUATION_WAIVER_STATUS_LABEL = "Waiver Status"
 CONTINUATION_STOP_BASIS_LABEL = "Stop Basis"
+SINGLE_SEAM_WORKSTREAM_WAIVER_LABEL = "Single-Seam Workstream Waiver"
+BOUNDED_SEAM_DEFAULT_LABEL = "Bounded Seam Default"
 CONTINUATION_ALLOWED_SEAM_STATUSES = {"green", "in progress", "blocked"}
 CONTINUATION_ALLOWED_SLICE_STATUSES = {"green", "in progress", "blocked", "waived"}
 CONTINUATION_ALLOWED_COMPLETION_STATUSES = {"green", "in progress", "red"}
 CONTINUATION_ALLOWED_WAIVER_STATUSES = {"none", "approved", "required"}
 CONTINUATION_ALLOWED_DECISIONS = {"continue", "stop"}
 CONTINUATION_ALLOWED_STOP_BASES = {"none", "workstream green", "named blocker", "waiver"}
+SINGLE_SEAM_WORKSTREAM_ALLOWED_NO_WAIVER_VALUES = {"none", "not required", "not granted"}
+SINGLE_SEAM_WORKSTREAM_PROHIBITED_ACTIVE_PHRASES = (
+    "single-seam workstream by default",
+    "stop after one seam by default",
+    "bounded seam is a terminal boundary",
+    "bounded means single seam",
+    "bounded means one seam",
+)
 
 GOVERNED_OUTPUT_CONTRACT_REQUIRED_PHRASES = {
     Path("Docs/phase_governance.md"): (
@@ -3804,6 +3825,92 @@ def _validate_governed_output_state(
             (
                 f"{source_path}: non-green slice with no named blocker or waiver must keep "
                 "Continue Decision at Continue"
+            ),
+        )
+
+
+def _validate_single_seam_workstream_contract(
+    require,
+    source_path: str,
+    text: str,
+    *,
+    branch_class: str,
+    current_phase: str,
+) -> None:
+    if branch_class != "implementation" or current_phase != "Workstream":
+        return
+
+    waiver_value = _extract_marker_value(text, SINGLE_SEAM_WORKSTREAM_WAIVER_LABEL)
+    bounded_value = _extract_marker_value(text, BOUNDED_SEAM_DEFAULT_LABEL)
+    continuation_section = _section(text, "Seam Continuation Decision")
+    completion_status = _extract_marker_value(
+        continuation_section, CONTINUATION_COMPLETION_STATUS_LABEL
+    )
+    normalized_waiver = waiver_value.strip().casefold()
+    normalized_completion = completion_status.strip().casefold()
+    lowered_text = text.casefold()
+
+    require(
+        bool(waiver_value),
+        (
+            f"{source_path}: active Workstream record must declare "
+            f"'{SINGLE_SEAM_WORKSTREAM_WAIVER_LABEL}:' so bounded seams cannot drift into "
+            "single-seam Workstream authority"
+        ),
+    )
+    require(
+        bool(bounded_value),
+        (
+            f"{source_path}: active Workstream record must declare "
+            f"'{BOUNDED_SEAM_DEFAULT_LABEL}:' with one-active-seam continuation semantics"
+        ),
+    )
+    if bounded_value:
+        bounded_lower = bounded_value.casefold()
+        require(
+            "one active seam at a time" in bounded_lower,
+            (
+                f"{source_path}: {BOUNDED_SEAM_DEFAULT_LABEL} must say bounded means one "
+                "active seam at a time"
+            ),
+        )
+        require(
+            "not one-seam workstream authority" in bounded_lower,
+            (
+                f"{source_path}: {BOUNDED_SEAM_DEFAULT_LABEL} must say bounded is not "
+                "one-seam Workstream authority"
+            ),
+        )
+
+    if normalized_completion == "in progress":
+        require(
+            normalized_waiver in SINGLE_SEAM_WORKSTREAM_ALLOWED_NO_WAIVER_VALUES,
+            (
+                f"{source_path}: {SINGLE_SEAM_WORKSTREAM_WAIVER_LABEL} must remain None "
+                "while Workstream completion is In Progress unless a USER waiver has stopped "
+                "continuation and Completion Status is Red"
+            ),
+        )
+    elif normalized_waiver not in SINGLE_SEAM_WORKSTREAM_ALLOWED_NO_WAIVER_VALUES:
+        require(
+            "user" in normalized_waiver
+            and (
+                "approved" in normalized_waiver
+                or "approval" in normalized_waiver
+                or "waiver" in normalized_waiver
+            ),
+            (
+                f"{source_path}: {SINGLE_SEAM_WORKSTREAM_WAIVER_LABEL} can be non-None "
+                "only when the marker itself records explicit USER waiver approval"
+            ),
+        )
+
+    for prohibited_phrase in SINGLE_SEAM_WORKSTREAM_PROHIBITED_ACTIVE_PHRASES:
+        require(
+            prohibited_phrase not in lowered_text,
+            (
+                f"{source_path}: active Workstream truth must not encode single-seam "
+                f"Workstream authority via '{prohibited_phrase}'"
             ),
         )
 
@@ -11419,6 +11526,13 @@ def main() -> int:
                 active_seam_section=active_seam_section,
                 blockers=blockers,
             )
+            _validate_single_seam_workstream_contract(
+                require,
+                canonical_path,
+                workstream_text,
+                branch_class=branch_class,
+                current_phase=current_phase,
+            )
 
         if current_phase in {"Live Validation", "PR Readiness"}:
             require(
@@ -12146,6 +12260,13 @@ def main() -> int:
                     continuation_section=continuation_section,
                     active_seam_section=active_seam_section,
                     blockers=list(info["blockers"]),
+                )
+                _validate_single_seam_workstream_contract(
+                    require,
+                    branch_record_path,
+                    record_text,
+                    branch_class=branch_class,
+                    current_phase=current_phase,
                 )
         if branch_record_path in active_branch_record_paths and str(info["current_phase"]) == "Release Readiness":
             status_output = _git_status_porcelain(tracked_only=True)

@@ -145,10 +145,12 @@ Planning-Loop Bypass Reason: `None`
 Slice Continuation Default: `Same-branch backlog completion`
 Backlog-Split User Approval: `None`
 Backlog-Split Reason: `None`
+Single-Seam Workstream Waiver: `None`
+Bounded Seam Default: `One active seam at a time; not one-seam Workstream authority`
 
 - The admitted package has six concrete slices and is not a one-slice branch.
 - Workstream must continue to the next admitted slice whenever scope, phase, risk, and validation authority remain green.
-- Stopping after one admitted slice requires a named blocker, future dependency, or explicit USER-approved backlog split/waiver.
+- Stopping after one seam or one admitted slice while PKG-006 remains incomplete requires a named blocker, future dependency, or explicit USER-approved backlog split/waiver.
 
 ## Admitted Implementation Slice
 

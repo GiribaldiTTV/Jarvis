@@ -159,6 +159,7 @@ Next Legal Phase: Workstream continuation on PKG-006.
 - Branch: `feature/fam-006-monitoring-hud-product-surface`
 - Branch Status: Created from updated main during USER-approved Branch Readiness Stage 2; Workstream WS3 is active for admitted SLC-026 after SLC-016 and SLC-025 completed, with no PR creation, watcher provisioning, or release work authorized in Workstream.
 - Selection Basis: USER explicitly approved FAM-006 Monitoring and HUD as the selected-next runtime direction after `v1.6.13-prebeta` post-release canon closure, then explicitly approved Branch Readiness Stage 2 branch creation and package admission; PR numbers remain evidence only.
+- Single-Seam Workstream Waiver: `None - bounded means one active seam at a time, not one-seam Workstream authority; PKG-006 must continue through admitted slices unless a named blocker, future dependency, or explicit USER waiver is recorded.`
 - Candidate Slices: HUD visual/user-facing surface; runtime telemetry source/adapters; desktop placement / renderer ownership; settings or user controls visibility; fail-safe / no-data / degraded-status behavior; validation / live desktop proof; optional voice/status integration only if later admitted.
 - Element Coverage Review: user-facing surface, runtime/backend behavior, settings/configuration, fail-safe/recovery, monitoring/HUD/observability, validation/live-test requirements, release/documentation impact, and optional voice/audio integration are planning coverage only and do not count as admitted slices.
 

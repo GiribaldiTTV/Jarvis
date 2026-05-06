@@ -229,6 +229,8 @@ If `Completion Status` is `In Progress` and no named blocker or waiver stops wor
 Use these governed state markers as execution control, not just reporting.
 If `Continue Decision` is `Continue`, the generated prompt must not let Codex end on a seam-complete final response, rollback path, or next-seam recommendation; it must require continued execution until a lawful `Stop` decision exists.
 `Phase: Workstream` must remain bounded at all times, and the only lawful `Workstream` stop conditions are `Completion Status: Green` with `Hardening` next, or `Completion Status: Red` justified by a named blocker or waiver.
+Bounded means one active seam at a time, not one-seam Workstream authority.
+A single-seam Workstream requires explicit USER waiver before Workstream may stop after one seam while the package or slice remains incomplete.
 If `Completion Status` is `Red`, `Continuation Action` must report the blocker-clearing action or waiver-clearing action needed before bounded `Workstream` continuation may resume.
 Treat `Completion Status` as the exact `Phase: Workstream Status` gate after load.
 
@@ -291,6 +293,8 @@ Workstream prompt notes for ChatGPT preflight live outside the prompt body and c
 - validate after each seam and report continue-or-stop
 - the prompt-named seam is the entry seam, not a terminal boundary
 - Next-Seam Continuation Required means continue seam-to-seam inside the current slice until all required seams are complete and the slice status is green
+- bounded means one active seam at a time, not one-seam Workstream authority
+- a single-seam Workstream requires explicit USER waiver before Workstream may stop after one seam while the package or slice remains incomplete
 - there is no repo-wide cap on how many slices a branch or workstream may carry
 - seams inside the current slice may be predeclared in canon or discovered from repo truth while the slice remains in progress
 - same-branch backlog completion is the branch-level default: later slices for the same backlog item stay on the same branch when scope, phase, risk, and validation authority remain green
