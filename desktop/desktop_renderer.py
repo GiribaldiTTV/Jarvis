@@ -5492,6 +5492,28 @@ class DesktopRuntimeWindow(QWidget):
             return
         QTimer.singleShot(50, self.enable_desktop_mode)
 
+    def _apply_desktop_surface_mode(self):
+        self._run_javascript(
+            """
+            if (window.setDesktopSurfaceMode) {
+                window.setDesktopSurfaceMode(true);
+            } else {
+                document.body.classList.add("desktop-mode");
+                const monitoringHud = document.getElementById("monitoring-hud");
+                if (monitoringHud) {
+                    monitoringHud.setAttribute("aria-hidden", "false");
+                    monitoringHud.dataset.renderState = "visual-baseline";
+                }
+            }
+            """
+        )
+        self._emit_runtime_signal(
+            "MONITORING_HUD_BASELINE_READY",
+            package="PKG-006",
+            slice="SLC-016",
+            baseline="visual_only",
+        )
+
     def _on_load_finished(self, ok):
         if not ok:
             self._log_event("RENDERER_MAIN|VISUAL_PAGE_LOAD_FAILED")
@@ -5500,6 +5522,7 @@ class DesktopRuntimeWindow(QWidget):
         self._page_ready = True
         self._log_event("RENDERER_MAIN|VISUAL_PAGE_READY")
         self._log_event("RENDERER_MAIN|CORE_VISUALIZATION_READY")
+        self._apply_desktop_surface_mode()
         self._apply_pending_visual_state()
         self._apply_pending_voice_level()
         self._apply_command_overlay_state()

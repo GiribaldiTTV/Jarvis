@@ -14,6 +14,7 @@ const commandConfirmRequest = document.getElementById("command-confirm-request")
 const commandConfirmTitle = document.getElementById("command-confirm-title");
 const commandConfirmKind = document.getElementById("command-confirm-kind");
 const commandConfirmTarget = document.getElementById("command-confirm-target");
+const monitoringHud = document.getElementById("monitoring-hud");
 
 let w = 0;
 let h = 0;
@@ -1190,7 +1191,17 @@ window.setCommandOverlayState = function(state) {
   renderCommandOverlay();
 };
 
+window.setDesktopSurfaceMode = function(enabled) {
+  const isEnabled = Boolean(enabled);
+  body.classList.toggle("desktop-mode", isEnabled);
+  if (monitoringHud) {
+    monitoringHud.setAttribute("aria-hidden", isEnabled ? "false" : "true");
+    monitoringHud.dataset.renderState = isEnabled ? "visual-baseline" : "hidden";
+  }
+};
+
 window.setCoreVisualState("boot");
 window.setCoreVoiceLevel(0);
 window.setCommandOverlayState({ visible: false });
+window.setDesktopSurfaceMode(false);
 requestAnimationFrame(frame);

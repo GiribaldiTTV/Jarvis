@@ -14,9 +14,9 @@
 
 This branch is the USER-approved runtime package carrier for FAM-006 Monitoring and HUD.
 
-It exists because `v1.6.13-prebeta` release execution and post-release canon closure are complete, release debt is clear, merged `main` validated as `No Active Branch`, and USER-approved selected-next truth identified FAM-006 Monitoring and HUD as the next runtime direction. Branch Readiness Stage 2 is approved to create this branch from updated `main`, admit the concrete multi-slice `PKG-006` runtime package, sync source truth, validate, commit, and push the Branch Readiness state.
+It exists because `v1.6.13-prebeta` release execution and post-release canon closure are complete, release debt is clear, merged `main` validated as `No Active Branch`, USER-approved selected-next truth identified FAM-006 Monitoring and HUD as the next runtime direction, and Branch Readiness Stage 2 admitted the concrete multi-slice `PKG-006` runtime package.
 
-This branch must not start runtime implementation during Branch Readiness Stage 2, create a PR, provision a watcher, create a tag, draft or publish a GitHub Release, create release artifacts, execute release work, mutate `main` directly, grant a single-slice waiver, create a new FAM/package beyond FAM-006, or admit optional voice/audio widening beyond narrow HUD-status presentation without later explicit USER approval.
+This branch may execute the admitted PKG-006 implementation slices during Workstream. It must not create a PR, provision a watcher, create a tag, draft or publish a GitHub Release, create release artifacts, execute release work, mutate `main` directly, grant a single-slice waiver, create a new FAM/package beyond FAM-006, or admit optional voice/audio widening beyond narrow HUD-status presentation without later explicit USER approval.
 
 ## Record State
 
@@ -24,7 +24,7 @@ This branch must not start runtime implementation during Branch Readiness Stage 
 
 ## Status
 
-- `Branch Readiness Active`
+- `Workstream Active`
 
 ## Canonical Branch
 
@@ -32,29 +32,28 @@ This branch must not start runtime implementation during Branch Readiness Stage 
 
 ## Current Phase
 
-- Phase: `Branch Readiness`
+- Phase: `Workstream`
 
 ## Phase Status
 
-- Branch Readiness Stage: `Stage 2 - Execution Gate`
+- Workstream Stage: `WS1 - HUD Visual And User-Facing Surface Baseline`
 - Active Branch: `codex/fam-006-monitoring-hud-product-surface`
 - Branch Authority Mode: `Active Branch`
-- Branch Readiness Stage 2 USER Approval: `Granted for FAM-006 branch creation, PKG-006 multi-slice package admission, source-truth sync, validation, commit, and push`
+- Workstream Entry Source-Truth Transition: `Performed - Branch Readiness Stage 2 terminal evidence reconciled before runtime implementation`
 - Branch Creation: `Created from updated main at 3c68cd881a9f6bf447f09ac0949d556e97bce4f4`
-- Branch Existence Check: `No local or remote branch existed before creation`
+- Branch Admission Commit: `8ae84cb784fc07dfe4f445359de4cf20a13552fa`
 - Branch Authority State: `Active branch authority`
-- Selected Next Source: `USER-approved selected-next truth matured into active FAM-006 Branch Readiness`
+- Selected Next Source: `USER-approved selected-next truth matured into active FAM-006 Workstream`
 - Package Admission State: `Admitted`
 - Admitted Slice Count: `6`
 - Package Completion State: `In Progress`
 - Single-Slice Package User Approval: `Not required - PKG-006 has six concrete admitted slices; no waiver granted`
-- Runtime Implementation State: `Not started`
-- PR Creation State: `Not approved in Branch Readiness`
-- Watcher Provisioning State: `Not approved in Branch Readiness`
+- Runtime Implementation State: `Started - SLC-016 visual baseline only`
+- PR Creation State: `Not approved in Workstream`
+- Watcher Provisioning State: `Not approved in Workstream`
 - Release Work State: `Not approved; v1.6.13-prebeta release execution is already complete and no new release work is in scope`
 - Optional Voice/Status Integration: `Deferred unless later proven to be narrow HUD-status copy inside FAM-006`
 - Element Coverage State: `Coverage-only; not counted as admitted slices`
-- ChatGPT Loader / Source-Truth Sync State: `Evaluated during Stage 2 only as ChatGPT-facing continuity; Codex authority remains Docs/Main.md and owning canon`
 
 ## Branch Class
 
@@ -62,40 +61,46 @@ This branch must not start runtime implementation during Branch Readiness Stage 
 
 ## Blockers
 
-None for Branch Readiness Stage 2 admission after this source-truth sync validates green.
+- `Backlog Completion Unproven`
 
-Cleared / inactive blockers:
+The blocker above is active because PKG-006 still has admitted implementable slices remaining. It does not stop Workstream continuation while the governed continuation state remains In Progress.
 
-- `Branch Readiness Execution User Approval Missing`: `Cleared for this Stage 2 pass only`
-- `Single-Slice Package User Approval Missing`: `Not active - six admitted slices`
-- `Package Completion Unproven`: `Not active - package completion is not claimed complete`
-- `Backlog Addition User Approval Missing`: `Cleared for FAM-006 branch creation and PKG-006 admission only; active for any new FAM/package, backlog split, family promotion beyond this branch authority, runtime branch outside this carrier, or single-slice waiver`
+## Cleared Governance Notes
+
+- Branch Readiness Execution User Approval Missing is cleared for the completed Branch Readiness Stage 2 package-admission pass.
+- Single-Slice Package User Approval Missing is not active because PKG-006 has six admitted slices and no single-slice waiver is granted.
+- Package Completion Unproven prevents package closeout, Hardening admission, and PR readiness while admitted PKG-006 slices remain incomplete.
+- Backlog Addition User Approval Missing remains active for any new FAM/package, backlog split, family promotion beyond this branch authority, runtime branch outside this carrier, or single-slice waiver.
 
 ## Entry Basis
 
-- Updated `main` was clean and matched `origin/main` at `3c68cd881a9f6bf447f09ac0949d556e97bce4f4`.
-- `codex/fam-006-monitoring-hud-product-surface` did not exist locally or remotely before creation.
+- Updated `main` was clean and matched `origin/main` at `3c68cd881a9f6bf447f09ac0949d556e97bce4f4` when the branch was created.
+- `codex/fam-006-monitoring-hud-product-surface` did not exist locally or remotely before Branch Readiness Stage 2 creation.
 - `v1.6.13-prebeta` is the latest public prerelease and release debt is clear.
-- `Docs/branch_records/index.md` reported `No Active Branch` before this Branch Readiness pass.
-- `Docs/feature_backlog.md` and `Docs/prebeta_roadmap.md` recorded USER-approved FAM-006 selected-next truth, branch not created, and runtime package not admitted before this Stage 2 approval.
+- `Docs/branch_records/index.md` reported `No Active Branch` before Branch Readiness Stage 2.
 - USER approval cleared Branch Readiness Stage 2 execution for this branch, package admission, source-truth sync, validation, commit, and push.
+- Branch Readiness Stage 2 committed and pushed `8ae84cb784fc07dfe4f445359de4cf20a13552fa`, admitting PKG-006 and stopping before runtime implementation.
 
 ## Exit Criteria
 
-- Branch `codex/fam-006-monitoring-hud-product-surface` exists on origin.
-- `PKG-006 Monitoring and HUD Product Surface Package` is admitted with multiple concrete slices and no single-slice waiver.
-- All admitted slices carry `Admission State: Admitted`, `Package ID`, `FAM ID`, `Slice Status`, `Completion State`, and `Seam Trace`.
+- Every admitted PKG-006 implementation slice is truthfully complete or legally deferred/split by explicit USER approval.
+- `Package Completion State` is not marked complete while admitted slices remain incomplete.
 - Optional voice/audio widening remains deferred unless later USER approval expands scope.
 - Element Coverage remains a non-identity checklist only.
-- Backlog, roadmap, branch authority index, and this branch authority record agree on active Branch Readiness, package admission, no runtime implementation, no PR creation, no watcher provisioning, no release work, and no direct-main mutation.
-- ChatGPT-facing loader/source-truth neutrality wording is either updated where appropriate or reported as a recommendation needing later USER decision.
-- Branch governance validation, Python compile validation, diff validation, and automation observability review run after source-truth sync.
+- The branch reaches Hardening only after Workstream completion is truthfully green.
+- PR, watcher, release, tag, GitHub Release, artifact, and direct-main actions remain outside Workstream.
+
+## Stage 2 Terminal Evidence Reconciliation
+
+Finding: `Workstream entry source-truth transition performed`.
+
+The operator-supplied Stage 2 terminal evidence was not sufficient by itself because this branch authority record still listed Branch Readiness Stage 2 as the active phase and seam. This Workstream-entry pass transitioned the active record to Workstream before implementing WS1 so repo source truth, branch authority truth, and runtime edits agree.
 
 ## Rollback Target
 
-- `Branch Readiness`
+- `Workstream`
 
-Rollback Path: delete or abandon `codex/fam-006-monitoring-hud-product-surface` before PR merge; no runtime files, tags, releases, artifacts, or `main` mutation are created by this Stage 2 pass.
+Rollback Path: revert the current Workstream commit on `codex/fam-006-monitoring-hud-product-surface` before PR merge; no tags, releases, artifacts, PR, watcher, or `main` mutation are created by this WS1 pass.
 
 ## Next Legal Phase
 
@@ -103,48 +108,26 @@ Rollback Path: delete or abandon `codex/fam-006-monitoring-hud-product-surface` 
 
 Next Legal Seam: `Workstream WS1 - HUD Visual And User-Facing Surface Baseline`
 
-Next Legal Phase Gate: Workstream may start only after Branch Readiness Stage 2 source-truth sync validates green, is committed, and is pushed; Workstream still must obey same-branch package completion and cannot advance to Hardening while admitted implementable slices remain incomplete.
+Next Legal Phase Gate: Workstream remains active until every admitted PKG-006 implementation slice is complete, blocked by a named blocker, deferred by valid future dependency, or split by explicit USER approval. Hardening is blocked while admitted implementable slices remain incomplete.
 
 ## Branch Objective
 
-Admit a concrete multi-slice runtime package that turns the historical FAM-006 monitoring/thermal architecture baseline into a visible, trustworthy user-facing Monitoring/HUD product surface, connecting telemetry/status truth to desktop presentation, user controls, fail-safe/no-data behavior, and later live validation proof.
+Turn the historical FAM-006 monitoring/thermal architecture baseline into a visible, trustworthy user-facing Monitoring/HUD product surface, connecting telemetry/status truth to desktop presentation, user controls, fail-safe/no-data behavior, and later live validation proof without collapsing the package into a single HUD toggle or one-seam proof.
 
 ## Target End-State
 
-- The branch is durably created and pushed as the active FAM-006 runtime package carrier.
-- `PKG-006` is admitted with six concrete implementation slices and one deferred optional voice/audio widening placeholder.
-- Workstream can begin on the first admitted slice without another docs-only package-admission PR.
-- Runtime implementation has not started during Branch Readiness.
-- PR, watcher, release, tag, GitHub Release, artifact, and direct-main actions remain outside Branch Readiness Stage 2.
+- PKG-006 completes all admitted implementation slices on this branch.
+- The user-facing HUD surface is visible and trustworthy.
+- Runtime telemetry adapters, desktop placement/renderer ownership, settings controls, fail-safe states, and live desktop proof are each completed as their own admitted slices.
+- Optional voice/audio widening remains deferred unless later USER approval expands scope.
+- PR, watcher, release, tag, GitHub Release, artifact, and direct-main actions remain outside Workstream.
 
-## Backlog Completion Strategy
+## Backlog Completion Status
 
-Branch Completion Goal: `Complete every admitted PKG-006 slice on this same branch unless a named blocker, future dependency, USER-approved backlog split, or USER-approved scope widening changes the legal route.`
-Known Future-Dependent Blockers: `Optional voice/audio behavior is deferred and requires later USER widening approval if spoken/audio behavior, voice integration, persona voice, FAM-004, or cross-family behavior is needed.`
-Branch Closure Rule: `Do not leave Workstream after only one admitted slice while remaining admitted PKG-006 slices are implementable; exit Workstream only when package completion is truthfully Green, Blocked, Deferred, or covered by explicit USER-approved split/waiver.`
-
-## Expected Seam Families And Risk Classes
-
-- HUD visual/user-facing surface; risk class: desktop/UI because a visible status surface affects readability, focus, trust, and operator comprehension.
-- Runtime telemetry source/adapters; risk class: backend/runtime because local CPU/GPU, thermal, performance, and Nexus self-observation signals must be bounded and non-invasive.
-- Desktop placement and renderer ownership; risk class: desktop/UI because HUD placement must avoid shell, tray, panel, focus, and renderer-lifecycle drift.
-- Settings and user controls visibility; risk class: settings/configuration because users need clear control over visibility and behavior without creating hidden always-on telemetry.
-- Fail-safe/no-data/degraded-status behavior; risk class: safety/privacy because unavailable, stale, partial, or unsupported data must be truthful and non-alarming.
-- Validation/live desktop proof; risk class: validation/live-test because the package is user-facing and must prove the desktop surface in a real or closest-valid desktop session before closeout.
-
-## User Test Summary Strategy
-
-This package is expected to create a user-facing desktop surface during Workstream, so the active workstream must add a concrete `## User Test Summary` section before Live Validation and must export the user-facing summary to the documented desktop path unless canon records a valid exception.
-
-Branch Readiness does not require a completed User Test Summary because no runtime implementation has started yet.
-
-## Later-Phase Expectations
-
-- Workstream executes one admitted slice at a time and continues on this branch while `Package Completion State` remains `In Progress`.
-- Hardening must pressure-test telemetry truthfulness, UI placement, settings/control visibility, fail-safe states, and regression risk across touched runtime surfaces.
-- Live Validation must include real desktop or closest-valid live desktop proof for the user-facing HUD surface and must preserve User Test Summary results.
-- PR Readiness must confirm merge-target authority projection, selected-next successor handling, package completion state, PR summary, watcher plan, bot-review state, mergeability, and merge-watch before PR green.
-- Release Readiness remains separate, file-frozen, and requires later release approval if the package becomes release-bearing.
+Backlog Completion State: `In Progress`
+Remaining Implementable Work: `SLC-016 visual baseline remains active; SLC-025 telemetry adapters, SLC-026 desktop placement and renderer ownership, SLC-027 settings/user controls, SLC-028 fail-safe/no-data/degraded states, and SLC-029 validation/live desktop proof remain implementable on this branch.`
+Future-Dependent Blockers: `SLC-030 optional voice/spoken status integration is deferred and requires later USER widening approval if spoken/audio behavior, voice integration, persona voice, FAM-004, or cross-family behavior is needed.`
+Completion Status: `In Progress`
 
 ## Planning-Loop Guardrail
 
@@ -153,7 +136,7 @@ Docs-Only Workstream: `No`
 Planning-Loop Bypass User Approval: `None`
 Planning-Loop Bypass Reason: `None`
 
-- PKG-006 is a runtime-focused implementation branch. This Branch Readiness Stage 2 pass admits package/slice source truth only; actual runtime implementation starts in Workstream.
+- PKG-006 is a runtime-focused implementation branch. Workstream must produce runtime/user-facing implementation and validation evidence, not a docs-only loop.
 
 ## Slice Continuation Policy
 
@@ -171,12 +154,12 @@ Primary Entry Slice: `SLC-016 HUD visual and user-facing monitoring surface`
 
 | Slice ID | Package ID | FAM ID | Slice Name | Admission State | Slice Status | Completion State | Seam Trace |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| `SLC-016` | `PKG-006` | `FAM-006` | HUD visual and user-facing monitoring surface | Admitted | Branch Readiness admitted | In Progress | `BR-S2-S1`; planned `WS1` |
-| `SLC-025` | `PKG-006` | `FAM-006` | Runtime telemetry source and adapter boundary | Admitted | Branch Readiness admitted | In Progress | `BR-S2-S2`; planned `WS2` |
-| `SLC-026` | `PKG-006` | `FAM-006` | Desktop placement and renderer ownership | Admitted | Branch Readiness admitted | In Progress | `BR-S2-S3`; planned `WS3` |
-| `SLC-027` | `PKG-006` | `FAM-006` | Settings and user controls visibility | Admitted | Branch Readiness admitted | In Progress | `BR-S2-S4`; planned `WS4` |
-| `SLC-028` | `PKG-006` | `FAM-006` | Fail-safe, no-data, and degraded-status behavior | Admitted | Branch Readiness admitted | In Progress | `BR-S2-S5`; planned `WS5` |
-| `SLC-029` | `PKG-006` | `FAM-006` | Validation and live desktop proof | Admitted | Branch Readiness admitted | In Progress | `BR-S2-S6`; planned `WS6` |
+| `SLC-016` | `PKG-006` | `FAM-006` | HUD visual and user-facing monitoring surface | Admitted | Workstream active | In Progress | `BR-S2-S1`; `WS1` |
+| `SLC-025` | `PKG-006` | `FAM-006` | Runtime telemetry source and adapter boundary | Admitted | Pending Workstream | In Progress | `BR-S2-S2`; planned `WS2` |
+| `SLC-026` | `PKG-006` | `FAM-006` | Desktop placement and renderer ownership | Admitted | Pending Workstream | In Progress | `BR-S2-S3`; planned `WS3` |
+| `SLC-027` | `PKG-006` | `FAM-006` | Settings and user controls visibility | Admitted | Pending Workstream | In Progress | `BR-S2-S4`; planned `WS4` |
+| `SLC-028` | `PKG-006` | `FAM-006` | Fail-safe, no-data, and degraded-status behavior | Admitted | Pending Workstream | In Progress | `BR-S2-S5`; planned `WS5` |
+| `SLC-029` | `PKG-006` | `FAM-006` | Validation and live desktop proof | Admitted | Pending Workstream | In Progress | `BR-S2-S6`; planned `WS6` |
 
 ## Deferred / Future Slice Ledger
 
@@ -200,32 +183,52 @@ Optional voice/status integration is not admitted because spoken output, audio n
 - Packaging/install: `Not Applicable - no installer or pack selection work admitted`
 - Monitoring/HUD: `In Scope - primary package surface`
 - Validation: `In Scope - static validation plus later live desktop proof and User Test Summary`
-- Release impact: `Pending Future Package - no release work approved in Branch Readiness`
+- Release impact: `Pending Future Package - no release work approved in Workstream`
 
 Element Coverage Admission Rule: `Element Coverage rows are non-identity checklist rows only and do not count as admitted slices, seams, packages, FAMs, selected-next truth, or release drivers.`
 
 ## Initial Workstream Seam Sequence
 
-Seam 1: `BR-S2-S1 - Branch Creation And Package Admission`
-Goal: create the approved branch, admit the multi-slice PKG-006 runtime package, and sync branch authority/backlog/roadmap truth without runtime implementation.
-Scope: branch creation, package/slice ledger admission, current-state source-truth sync, ChatGPT loader/source-truth evaluation, validation, commit, and push.
-Non-Includes: runtime/product code edits, PR creation, watcher provisioning, tag/GitHub Release/artifact work, release execution, direct-main mutation, single-slice waiver, new FAM/package creation, or voice/audio widening.
+Seam 1: `WS1 - HUD Visual And User-Facing Surface Baseline`
+Goal: create a visible, passive Monitoring/HUD surface baseline in the desktop visualization.
+Scope: user-facing HUD presentation bounded by FAM-006 package authority; static boundary copy may name later slices without implementing them.
+Non-Includes: telemetry collection/adapters, settings/control behavior, fail-safe/no-data logic, voice/audio behavior, plugin-fed telemetry, installer changes, release execution, PR creation, watcher provisioning, or package completion claims.
 
-Seam 2: `WS1 - HUD Visual And User-Facing Surface Baseline`
-Goal: begin Workstream with the visible HUD/status surface once Branch Readiness is complete.
-Scope: user-facing HUD presentation bounded by FAM-006 package authority.
-Non-Includes: voice/audio behavior, plugin-fed telemetry, installer changes, release execution, or package completion claims before admitted slices are complete.
+Seam 2: `WS2 - Runtime Telemetry Source And Adapter Boundary`
+Goal: define and implement the runtime telemetry adapter boundary after WS1 establishes the visible surface.
+Scope: local, non-invasive telemetry source boundaries only.
+Non-Includes: UI placement ownership, settings controls, fail-safe semantics, voice/audio behavior, release execution, PR creation, watcher provisioning, or package completion claims.
 
 ## Active Seam
 
-Active seam: Branch Readiness Stage 2 - FAM-006 Monitoring and HUD Product Surface Package Admission.
+Active seam: `WS1 - HUD Visual And User-Facing Surface Baseline`
 
 Seam Status: `In Progress`
 Slice Status: `In Progress`
 Completion Status: `In Progress`
 Waiver Status: `None`
-Continue Decision: `Continue through Branch Readiness Stage 2 source-truth sync, validation, commit, and push`
+Continue Decision: `Continue`
 Stop Basis: `None`
+
+## Seam Continuation Decision
+
+Seam Status: `In Progress`
+Slice Status: `In Progress`
+Completion Status: `In Progress`
+Waiver Status: `None`
+Continue Decision: `Continue`
+Stop Basis: `None`
+Next Active Seam: `WS1 - HUD Visual And User-Facing Surface Baseline`
+Stop Condition: `None`
+Continuation Action: `Continue SLC-016 by refining and validating the HUD visual baseline, then advance to the next admitted slice only after SLC-016 is truthfully green.`
+
+## WS1 Implementation Record
+
+- Workstream-entry transition: `Performed before runtime implementation`
+- Runtime files touched: `desktop/desktop_renderer.py`, `jarvis_visual/orin_core.html`, `jarvis_visual/orin_core.css`, `jarvis_visual/orin_core.js`
+- HUD baseline behavior: `DesktopRuntimeWindow enables desktop-mode visualization and emits MONITORING_HUD_BASELINE_READY with package PKG-006, slice SLC-016, baseline visual_only`
+- HUD baseline surface: `Static, visible Monitoring HUD card hidden outside desktop mode and surfaced only when DesktopRuntimeWindow enables desktop surface mode`
+- Boundary preservation: `No telemetry adapters, settings controls, fail-safe/no-data logic, voice/audio behavior, plugin-fed telemetry, release work, PR work, watcher work, tags, GitHub Releases, artifacts, or direct-main mutation`
 
 ## Validation Plan
 
@@ -233,6 +236,7 @@ Stop Basis: `None`
 - `python dev/orin_branch_governance_validation.py`
 - `python -m compileall -q dev`
 - `git diff --check`
+- focused static HUD baseline validation for the desktop visualization markers
 - `python dev/automation_observability_report.py`
 
-Later Workstream validation must add focused runtime/HUD validation and live desktop proof after implementation begins.
+Later Workstream validation must add focused runtime/HUD validation and live desktop proof after more implementation slices are ready.
