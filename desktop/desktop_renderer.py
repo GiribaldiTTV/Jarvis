@@ -31,6 +31,7 @@ from PySide6.QtGui import QColor, QFont, QPainterPath, QRegion
 from PySide6.QtWebEngineWidgets import QWebEngineView
 
 from .interaction_overlay_model import CommandOverlayModel
+from .monitoring_hud_placement import build_monitoring_hud_placement_contract
 from .monitoring_hud_telemetry import build_monitoring_hud_telemetry_snapshot
 from .saved_action_authoring import (
     CallableGroupDraft,
@@ -5541,6 +5542,34 @@ class DesktopRuntimeWindow(QWidget):
             hardware_polling="not_performed",
         )
 
+    def _monitoring_hud_placement_contract(self) -> dict[str, object]:
+        geometry = self.compute_compact_geometry()
+        return build_monitoring_hud_placement_contract(
+            desktop_mode=self.desktop_mode,
+            x=geometry.x(),
+            y=geometry.y(),
+            width=geometry.width(),
+            height=geometry.height(),
+        ).as_dict()
+
+    def _publish_monitoring_hud_placement_ownership(self):
+        placement_json = json.dumps(self._monitoring_hud_placement_contract(), sort_keys=True)
+        self._run_javascript(
+            f"""
+            if (window.setMonitoringHudPlacementOwnership) {{
+                window.setMonitoringHudPlacementOwnership({placement_json});
+            }}
+            """
+        )
+        self._emit_runtime_signal(
+            "MONITORING_HUD_PLACEMENT_OWNERSHIP_READY",
+            package="PKG-006",
+            slice="SLC-026",
+            owner="DesktopRuntimeWindow",
+            placement="desktop-renderer-top-right",
+            anchor="top_right",
+        )
+
     def _on_load_finished(self, ok):
         if not ok:
             self._log_event("RENDERER_MAIN|VISUAL_PAGE_LOAD_FAILED")
@@ -5551,6 +5580,7 @@ class DesktopRuntimeWindow(QWidget):
         self._log_event("RENDERER_MAIN|CORE_VISUALIZATION_READY")
         self._apply_desktop_surface_mode()
         self._publish_monitoring_hud_telemetry_boundary()
+        self._publish_monitoring_hud_placement_ownership()
         self._apply_pending_visual_state()
         self._apply_pending_voice_level()
         self._apply_command_overlay_state()
@@ -6840,6 +6870,7 @@ class DesktopRuntimeWindow(QWidget):
             f"RENDERER_MAIN|DESKTOP_ATTACH_RESULT|success={'true' if attached else 'false'}"
         )
         self._publish_monitoring_hud_telemetry_boundary()
+        self._publish_monitoring_hud_placement_ownership()
         for probe_event in get_last_workerw_probe_events():
             self._log_event(f"RENDERER_MAIN|{probe_event}")
 

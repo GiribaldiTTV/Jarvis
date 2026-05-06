@@ -36,7 +36,7 @@ This branch may execute the admitted PKG-006 implementation slices during Workst
 
 ## Phase Status
 
-- Workstream Stage: `WS3 - Desktop Placement And Renderer Ownership`
+- Workstream Stage: `WS4 - Settings And User Controls Visibility`
 - Active Branch: `feature/fam-006-monitoring-hud-product-surface`
 - Branch Authority Mode: `Active Branch`
 - Workstream Entry Source-Truth Transition: `Performed - Branch Readiness Stage 2 terminal evidence reconciled before runtime implementation`
@@ -49,7 +49,7 @@ This branch may execute the admitted PKG-006 implementation slices during Workst
 - Admitted Slice Count: `6`
 - Package Completion State: `In Progress`
 - Single-Slice Package User Approval: `Not required - PKG-006 has six concrete admitted slices; no waiver granted`
-- Runtime Implementation State: `Started - SLC-016 visual baseline and SLC-025 telemetry boundary complete; SLC-026 active`
+- Runtime Implementation State: `Started - SLC-016 visual baseline, SLC-025 telemetry boundary, and SLC-026 placement ownership complete; SLC-027 active`
 - PR Creation State: `Not approved in Workstream`
 - Watcher Provisioning State: `Not approved in Workstream`
 - Release Work State: `Not approved; v1.6.13-prebeta release execution is already complete and no new release work is in scope`
@@ -108,7 +108,7 @@ Rollback Path: revert the current Workstream commit on `feature/fam-006-monitori
 
 - `Workstream`
 
-Next Legal Seam: `Workstream WS3 - Desktop Placement And Renderer Ownership`
+Next Legal Seam: `Workstream WS4 - Settings And User Controls Visibility`
 
 Next Legal Phase Gate: Workstream remains active until every admitted PKG-006 implementation slice is complete, blocked by a named blocker, deferred by valid future dependency, or split by explicit USER approval. Hardening is blocked while admitted implementable slices remain incomplete.
 
@@ -127,7 +127,7 @@ Turn the historical FAM-006 monitoring/thermal architecture baseline into a visi
 ## Backlog Completion Status
 
 Backlog Completion State: `In Progress`
-Remaining Implementable Work: `SLC-026 desktop placement and renderer ownership, SLC-027 settings/user controls, SLC-028 fail-safe/no-data/degraded states, and SLC-029 validation/live desktop proof remain implementable on this branch.`
+Remaining Implementable Work: `SLC-027 settings/user controls, SLC-028 fail-safe/no-data/degraded states, and SLC-029 validation/live desktop proof remain implementable on this branch.`
 Future-Dependent Blockers: `SLC-030 optional voice/spoken status integration is deferred and requires later USER widening approval if spoken/audio behavior, voice integration, persona voice, FAM-004, or cross-family behavior is needed.`
 Completion Status: `In Progress`
 
@@ -160,8 +160,8 @@ Primary Entry Slice: `SLC-016 HUD visual and user-facing monitoring surface`
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | `SLC-016` | `PKG-006` | `FAM-006` | HUD visual and user-facing monitoring surface | Admitted | Green | Complete | `BR-S2-S1`; `WS1`; `dev/orin_monitoring_hud_surface_validation.py` |
 | `SLC-025` | `PKG-006` | `FAM-006` | Runtime telemetry source and adapter boundary | Admitted | Green | Complete | `BR-S2-S2`; `WS2`; `desktop/monitoring_hud_telemetry.py`; `dev/orin_monitoring_hud_surface_validation.py` |
-| `SLC-026` | `PKG-006` | `FAM-006` | Desktop placement and renderer ownership | Admitted | Workstream active | In Progress | `BR-S2-S3`; `WS3` |
-| `SLC-027` | `PKG-006` | `FAM-006` | Settings and user controls visibility | Admitted | Pending Workstream | In Progress | `BR-S2-S4`; planned `WS4` |
+| `SLC-026` | `PKG-006` | `FAM-006` | Desktop placement and renderer ownership | Admitted | Green | Complete | `BR-S2-S3`; `WS3`; `desktop/monitoring_hud_placement.py`; `dev/orin_monitoring_hud_surface_validation.py` |
+| `SLC-027` | `PKG-006` | `FAM-006` | Settings and user controls visibility | Admitted | Workstream active | In Progress | `BR-S2-S4`; `WS4` |
 | `SLC-028` | `PKG-006` | `FAM-006` | Fail-safe, no-data, and degraded-status behavior | Admitted | Pending Workstream | In Progress | `BR-S2-S5`; planned `WS5` |
 | `SLC-029` | `PKG-006` | `FAM-006` | Validation and live desktop proof | Admitted | Pending Workstream | In Progress | `BR-S2-S6`; planned `WS6` |
 
@@ -209,11 +209,17 @@ Seam 3: `WS3 - Desktop Placement And Renderer Ownership`
 Goal: clarify desktop placement and renderer ownership after the HUD has a visible surface and a local telemetry adapter boundary.
 Scope: desktop placement and renderer ownership only.
 Non-Includes: settings controls, fail-safe semantics, live validation proof, voice/audio behavior, release execution, PR creation, watcher provisioning, or package completion claims.
-Status: `Active - SLC-026 in progress`
+Status: `Green - SLC-026 complete with renderer-owned placement contract proof`
+
+Seam 4: `WS4 - Settings And User Controls Visibility`
+Goal: expose settings or user-control visibility for the Monitoring/HUD surface after renderer ownership is explicit.
+Scope: settings and user controls visibility only.
+Non-Includes: fail-safe semantics, live validation proof, voice/audio behavior, release execution, PR creation, watcher provisioning, or package completion claims.
+Status: `Active - SLC-027 in progress`
 
 ## Active Seam
 
-Active seam: `WS3 - Desktop Placement And Renderer Ownership`
+Active seam: `WS4 - Settings And User Controls Visibility`
 
 Seam Status: `In Progress`
 Slice Status: `In Progress`
@@ -230,9 +236,9 @@ Completion Status: `In Progress`
 Waiver Status: `None`
 Continue Decision: `Continue`
 Stop Basis: `None`
-Next Active Seam: `WS3 - Desktop Placement And Renderer Ownership`
+Next Active Seam: `WS4 - Settings And User Controls Visibility`
 Stop Condition: `None`
-Continuation Action: `Continue SLC-026 by clarifying desktop placement and renderer ownership without consuming settings, fail-safe, validation, voice/audio, PR, watcher, release, tag, artifact, or direct-main work.`
+Continuation Action: `Continue SLC-027 by adding settings and user controls visibility without consuming fail-safe, validation, voice/audio, PR, watcher, release, tag, artifact, or direct-main work.`
 
 ## WS1 Implementation Record
 
@@ -252,6 +258,15 @@ Continuation Action: `Continue SLC-026 by clarifying desktop placement and rende
 - Telemetry boundary validation: `dev/orin_monitoring_hud_surface_validation.py proves the SLC-025 adapter markers, HUD consumer, runtime marker, no hardware/vendor polling, and no settings/fail-safe/voice/audio widening`
 - SLC-025 Completion State: `Green / Complete`
 - Boundary preservation: `No hardware sensor polling, vendor telemetry APIs, settings controls, fail-safe/no-data semantics, desktop placement ownership, live validation proof, voice/audio behavior, release work, PR work, watcher work, tags, GitHub Releases, artifacts, or direct-main mutation`
+
+## WS3 Implementation Record
+
+- Runtime files touched: `desktop/monitoring_hud_placement.py`, `desktop/desktop_renderer.py`, `jarvis_visual/orin_core.html`, `jarvis_visual/orin_core.css`, `jarvis_visual/orin_core.js`
+- Placement ownership behavior: `DesktopRuntimeWindow publishes a HUD placement contract through desktop-renderer-top-right with package PKG-006 and slice SLC-026`
+- Placement ownership surface: `Monitoring HUD shows renderer owner, desktop anchor, and non-interactive pointer model while keeping the HUD inside the desktop visual surface`
+- Placement ownership validation: `dev/orin_monitoring_hud_surface_validation.py proves SLC-026 placement markers, renderer-owned placement publication, active SLC-026 surface copy, and no hardware polling, settings-control behavior, fail-safe semantics, or voice/audio widening`
+- SLC-026 Completion State: `Green / Complete`
+- Boundary preservation: `No settings controls, fail-safe/no-data semantics, live validation proof, voice/audio behavior, release work, PR work, watcher work, tags, GitHub Releases, artifacts, or direct-main mutation`
 
 ## Validation Plan
 

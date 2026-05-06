@@ -19,6 +19,9 @@ const monitoringHudRuntimeStatus = document.getElementById("monitoring-hud-runti
 const monitoringHudAdapterStatus = document.getElementById("monitoring-hud-adapter-status");
 const monitoringHudSourceScope = document.getElementById("monitoring-hud-source-scope");
 const monitoringHudHardwarePolling = document.getElementById("monitoring-hud-hardware-polling");
+const monitoringHudPlacementOwner = document.getElementById("monitoring-hud-placement-owner");
+const monitoringHudPlacementAnchor = document.getElementById("monitoring-hud-placement-anchor");
+const monitoringHudPlacementPointer = document.getElementById("monitoring-hud-placement-pointer");
 
 let w = 0;
 let h = 0;
@@ -51,6 +54,14 @@ let monitoringHudTelemetry = {
   sourceScope: "Local runtime readiness",
   hardwarePolling: "Not performed",
   sources: []
+};
+let monitoringHudPlacement = {
+  packageId: "PKG-006",
+  sliceId: "SLC-026",
+  placementId: "desktop-renderer-top-right",
+  rendererOwner: "DesktopRuntimeWindow",
+  anchor: "Top-right inside desktop visual surface",
+  pointerModel: "Non-interactive pass-through"
 };
 
 const backParticles = [];
@@ -1233,9 +1244,29 @@ window.setMonitoringHudTelemetry = function(snapshot) {
   }
 };
 
+window.setMonitoringHudPlacementOwnership = function(contract) {
+  monitoringHudPlacement = Object.assign({}, monitoringHudPlacement, contract || {});
+  if (monitoringHud) {
+    monitoringHud.dataset.placementPackage = monitoringHudPlacement.packageId || "PKG-006";
+    monitoringHud.dataset.placementSlice = monitoringHudPlacement.sliceId || "SLC-026";
+    monitoringHud.dataset.placementId = monitoringHudPlacement.placementId || "desktop-renderer-top-right";
+    monitoringHud.dataset.placementState = "desktop-renderer-owned";
+  }
+  if (monitoringHudPlacementOwner) {
+    monitoringHudPlacementOwner.textContent = monitoringHudPlacement.rendererOwner || "DesktopRuntimeWindow";
+  }
+  if (monitoringHudPlacementAnchor) {
+    monitoringHudPlacementAnchor.textContent = monitoringHudPlacement.anchor || "Top-right";
+  }
+  if (monitoringHudPlacementPointer) {
+    monitoringHudPlacementPointer.textContent = monitoringHudPlacement.pointerModel || "Non-interactive";
+  }
+};
+
 window.setCoreVisualState("boot");
 window.setCoreVoiceLevel(0);
 window.setCommandOverlayState({ visible: false });
 window.setDesktopSurfaceMode(false);
 window.setMonitoringHudTelemetry({});
+window.setMonitoringHudPlacementOwnership({});
 requestAnimationFrame(frame);
