@@ -15,8 +15,8 @@
 
 ## FAM-006 Forward Routing
 
-- Active runtime package authority: `Docs/branch_records/codex_fam_006_monitoring_hud_product_surface.md`
-- Active runtime branch: `codex/fam-006-monitoring-hud-product-surface`
+- Active runtime package authority: `Docs/branch_records/feature_fam_006_monitoring_hud_product_surface.md`
+- Active runtime branch: `feature/fam-006-monitoring-hud-product-surface`
 - Package: `PKG-006 Monitoring and HUD Product Surface Package`
 - Routing note: this FB-040 record remains released historical architecture proof only; it does not become the live execution authority for the FAM-006 runtime package.
 

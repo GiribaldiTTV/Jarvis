@@ -1,8 +1,8 @@
-# Branch Authority Record: codex/fam-006-monitoring-hud-product-surface
+# Branch Authority Record: feature/fam-006-monitoring-hud-product-surface
 
 ## Branch Identity
 
-- Branch: `codex/fam-006-monitoring-hud-product-surface`
+- Branch: `feature/fam-006-monitoring-hud-product-surface`
 - Workstream: `FAM-006 Monitoring and HUD Product Surface Package`
 - Branch Class: `implementation`
 - Branch Class Note: `runtime package`
@@ -28,7 +28,7 @@ This branch may execute the admitted PKG-006 implementation slices during Workst
 
 ## Canonical Branch
 
-- `codex/fam-006-monitoring-hud-product-surface`
+- `feature/fam-006-monitoring-hud-product-surface`
 
 ## Current Phase
 
@@ -37,7 +37,7 @@ This branch may execute the admitted PKG-006 implementation slices during Workst
 ## Phase Status
 
 - Workstream Stage: `WS1 - HUD Visual And User-Facing Surface Baseline`
-- Active Branch: `codex/fam-006-monitoring-hud-product-surface`
+- Active Branch: `feature/fam-006-monitoring-hud-product-surface`
 - Branch Authority Mode: `Active Branch`
 - Workstream Entry Source-Truth Transition: `Performed - Branch Readiness Stage 2 terminal evidence reconciled before runtime implementation`
 - Branch Creation: `Created from updated main at 3c68cd881a9f6bf447f09ac0949d556e97bce4f4`
@@ -75,7 +75,7 @@ The blocker above is active because PKG-006 still has admitted implementable sli
 ## Entry Basis
 
 - Updated `main` was clean and matched `origin/main` at `3c68cd881a9f6bf447f09ac0949d556e97bce4f4` when the branch was created.
-- `codex/fam-006-monitoring-hud-product-surface` did not exist locally or remotely before Branch Readiness Stage 2 creation.
+- `feature/fam-006-monitoring-hud-product-surface` did not exist locally or remotely before Branch Readiness Stage 2 creation.
 - `v1.6.13-prebeta` is the latest public prerelease and release debt is clear.
 - `Docs/branch_records/index.md` reported `No Active Branch` before Branch Readiness Stage 2.
 - USER approval cleared Branch Readiness Stage 2 execution for this branch, package admission, source-truth sync, validation, commit, and push.
@@ -100,7 +100,7 @@ The operator-supplied Stage 2 terminal evidence was not sufficient by itself bec
 
 - `Workstream`
 
-Rollback Path: revert the current Workstream commit on `codex/fam-006-monitoring-hud-product-surface` before PR merge; no tags, releases, artifacts, PR, watcher, or `main` mutation are created by this WS1 pass.
+Rollback Path: revert the current Workstream commit on `feature/fam-006-monitoring-hud-product-surface` before PR merge; no tags, releases, artifacts, PR, watcher, or `main` mutation are created by this WS1 pass.
 
 ## Next Legal Phase
 

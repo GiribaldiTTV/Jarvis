@@ -79,7 +79,7 @@ The live backlog routes through broad FAM IDs. Legacy `FB-###` workstream filena
 | `FAM-001` | `PKG-001` | Boot Interface | `FB-042` family dossier plus `FB-043` through `FB-049` historical pass/evidence records |
 | `FAM-003` | `PKG-003` | Interaction and Actions | `FB-027` family dossier plus `FB-036`, `FB-037`, `FB-038`, `FB-041`, and PR #109 historical evidence |
 | `FAM-004` | `PKG-004` | Voice and Audio | `FB-030` promoted workstream record and PR #108 merge evidence |
-| `FAM-006` | `PKG-006` | Monitoring and HUD | `FB-040` historical architecture proof plus active Workstream authority in `Docs/branch_records/codex_fam_006_monitoring_hud_product_surface.md` |
+| `FAM-006` | `PKG-006` | Monitoring and HUD | `FB-040` historical architecture proof plus active Workstream authority in `Docs/branch_records/feature_fam_006_monitoring_hud_product_surface.md` |
 
 ## Minimum Durable Traceability Content
 
