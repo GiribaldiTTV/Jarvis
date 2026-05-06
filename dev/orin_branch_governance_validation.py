@@ -224,6 +224,7 @@ FAM006_BRANCH_RECORD = Path(
     "Docs/branch_records/feature_fam_006_monitoring_hud_product_surface.md"
 )
 FAM006_STAGE2_R6_HEADING = "Stage 2-R6 Product Scope Boundary And Acceptance Criteria"
+FAM006_STAGE2_R7_HEADING = "Stage 2-R7 Planning Revalidation Closeout And WS7 Handoff"
 FAM006_STAGE2_R6_REQUIRED_MARKERS = (
     "Current-Branch Scope Final:",
     "Future-Package Scope Final:",
@@ -259,6 +260,17 @@ FAM006_STAGE2_R6_REQUIRED_PHRASES = (
     "no fake telemetry values presented as real",
     "Marker/DOM proof is supporting evidence only",
     "WS7 remains blocked until Branch Readiness Stage 1-R4",
+)
+FAM006_STAGE2_R7_REQUIRED_PHRASES = (
+    "Stage 1-R4 Result:",
+    "PASS - finalized Stage 2-R6 product scope boundaries",
+    "Planning Blocker Closeout:",
+    "Branch Readiness Planning Incomplete is cleared",
+    "WS7 Handoff:",
+    "WS7 - Monitoring HUD Product Visibility And Acceptance Baseline",
+    "PKG-006 remains In Progress",
+    "package completion remains unclaimed",
+    "Visible user-facing proof, full-desktop screenshot proof, and User Test Summary acceptance remain required",
 )
 USER_VISION_INPUT_HANDOFF_MARKERS = (
     "USER Vision Input Artifact Path:",
@@ -4352,21 +4364,45 @@ def _validate_fam006_stage2_r6_plan(
             "as finalized by Stage 2-R6"
         ),
     )
-    require(
-        "Planning Blockers: `Branch Readiness Planning Incomplete`." in plan_section,
-        (
-            f"{source_path}: Stage 2-R6 repair must leave only "
-            "`Branch Readiness Planning Incomplete` as the active planning blocker "
-            "until Stage 1 revalidation"
-        ),
-    )
-
     if current_phase == "Branch Readiness":
+        require(
+            "Planning Blockers: `Branch Readiness Planning Incomplete`." in plan_section,
+            (
+                f"{source_path}: Stage 2-R6 repair must leave only "
+                "`Branch Readiness Planning Incomplete` as the active planning blocker "
+                "until Stage 1 revalidation"
+            ),
+        )
         require(
             PRODUCT_PLANNING_INCOMPLETE_BLOCKER in blockers,
             (
                 f"{source_path}: Stage 2-R6 Branch Readiness must keep "
                 f"'{PRODUCT_PLANNING_INCOMPLETE_BLOCKER}' active until Stage 1 revalidates"
+            ),
+        )
+    elif current_phase == "Workstream":
+        closeout_section = _section(text, FAM006_STAGE2_R7_HEADING)
+        require(
+            bool(closeout_section),
+            f"{source_path}: FAM-006 Workstream handoff is missing '## {FAM006_STAGE2_R7_HEADING}'",
+        )
+        for phrase in FAM006_STAGE2_R7_REQUIRED_PHRASES:
+            require(
+                phrase in closeout_section,
+                f"{source_path}: {FAM006_STAGE2_R7_HEADING} is missing '{phrase}'",
+            )
+        require(
+            "Planning Blockers: None active after Stage 2-R7 planning revalidation closeout." in plan_section,
+            (
+                f"{source_path}: Workstream handoff must clear "
+                "`Branch Readiness Planning Incomplete` in the Product Definition Plan"
+            ),
+        )
+        require(
+            PRODUCT_PLANNING_INCOMPLETE_BLOCKER not in blockers,
+            (
+                f"{source_path}: Workstream handoff must not keep "
+                f"'{PRODUCT_PLANNING_INCOMPLETE_BLOCKER}' under active Blockers"
             ),
         )
 
