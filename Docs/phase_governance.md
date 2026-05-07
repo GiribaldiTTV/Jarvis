@@ -131,6 +131,10 @@ If `Continue Decision` is `Continue`, Codex must not end on a final seam-closeou
 If `Completion Status` is `In Progress`, `Next Active Seam` must remain a `Workstream` seam; phase-exit seams require `Completion Status: Green`, `Completion Status: Red` with a named blocker/waiver, or explicit USER single-seam/backlog-split waiver.
 If `Completion Status` is `Red`, `Continuation Action` must explicitly state the blocker-clearing action or waiver-clearing action needed before bounded `Workstream` continuation may resume.
 
+`User Test Summary Results Pending` is not a Workstream stop condition.
+Workstream may plan manual user acceptance and may prepare later UTS handoff content, but formal UTS handoff, returned-result digestion, and the `User Test Summary Results Pending` blocker belong to `Live Validation` and `PR Readiness` final-green gates.
+If user-facing implementation is not product-complete, Workstream must continue implementation, internal sandbox validation, and branch-local proof instead of asking the USER to complete a UTS as the Workstream completion gate.
+
 ## Canonical Governance Rules
 
 ### Source-Of-Truth Enforcement
@@ -695,7 +699,7 @@ Hard blockers:
 - `User-Facing Shortcut Validation Pending`:
   Live Validation and PR Readiness cannot be final-green for a relevant desktop user-facing workstream until the final Live Validation closeout has launched through the declared user-facing desktop shortcut or equivalent user entrypoint, recorded `User-Facing Shortcut Validation: PASS` or `User-Facing Shortcut Validation: WAIVED`, and preserved the evidence before User Test Summary handoff
 - `User Test Summary Results Pending`:
-  PR Readiness cannot be green while a user-facing workstream has a required User Test Summary handoff outstanding and returned results have not been submitted, waived, digested into the active authority record, and reevaluated
+  Live Validation and PR Readiness cannot be green while a user-facing workstream has a required User Test Summary handoff outstanding and returned results have not been submitted, waived, digested into the active authority record, and reevaluated. Workstream must not list this blocker as the reason to stop implementation; unresolved product work belongs to `Backlog Completion Unproven`, named implementation blockers, or the next bounded Workstream seam.
 - `PR Creation Pending`:
   PR Readiness package-ready is not PR Readiness green. PR Readiness cannot be green until the GitHub PR exists for the current head branch and base branch.
 - `PR Validation Pending`:
@@ -971,6 +975,8 @@ Routing:
 
 Live Validation and PR Readiness must not report final green while a relevant user-facing workstream has a required User Test Summary handoff outstanding and returned results have not been submitted and digested.
 Live Validation green requires an exact `## User Test Summary` state before final green.
+This is a `Live Validation` / `PR Readiness` final-green gate, not a Workstream completion substitute.
+Workstream may maintain UTS strategy or draft handoff content, but it must not create a Workstream-only UTS results seam or stop on `User Test Summary Results Pending`.
 
 Named blocker:
 

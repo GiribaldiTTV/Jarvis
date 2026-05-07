@@ -46,22 +46,33 @@
     class="monitoring-hud"
     data-package="PKG-006"
     data-slice="SLC-016"
+    data-hud-module="monitoring-hud-shell-module"
     data-product-surface="nexus-monitoring-hud"
     data-interaction-mode="anchored-click-through"
+    data-anchor-state="anchored"
+    data-visibility-state="visible"
+    data-snap-state="enabled"
+    data-card-model="category-sensor-cards"
     data-provider-state="setup-required"
     data-warning-mode="visual-non-invasive"
     data-live-values="provider-required"
+    data-polling-default-ms="1000"
+    data-polling-options-ms="1000,2000,5000,10000"
     data-keybind-policy="none"
-    aria-label="Nexus Desktop AI Monitoring HUD product visibility baseline"
+    data-sandbox-state-matrix="setup,no-data,degraded,ready,warning"
+    aria-label="Nexus Desktop AI Monitoring HUD product surface"
     aria-hidden="true"
   >
     <div class="monitoring-hud__chrome" aria-label="Visible Nexus Desktop AI Monitoring HUD panel">
-      <div class="monitoring-hud__header">
+      <div class="monitoring-hud__header" id="monitoring-hud-drag-handle">
         <div>
           <div class="monitoring-hud__kicker">Nexus Desktop AI</div>
           <div class="monitoring-hud__title">Monitoring HUD</div>
         </div>
-        <div class="monitoring-hud__mode-pill" id="monitoring-hud-runtime-status">HUD enabled</div>
+        <div class="monitoring-hud__mode-stack">
+          <div class="monitoring-hud__mode-pill" id="monitoring-hud-runtime-status">HUD enabled</div>
+          <div class="monitoring-hud__mode-pill monitoring-hud__mode-pill--quiet" id="monitoring-hud-anchor-status">Anchored</div>
+        </div>
       </div>
       <div class="monitoring-hud__summary" aria-label="Provider contract status">
         <span class="monitoring-hud__status-dot"></span>
@@ -70,37 +81,79 @@
           <span>Hardware values stay hidden until a safe provider and validation route exist.</span>
         </div>
       </div>
+      <div class="monitoring-hud__toolbar" aria-label="Monitoring HUD controls">
+        <button type="button" id="monitoring-hud-toggle" class="monitoring-hud__control-button" data-control="toggle-visibility">
+          Hide HUD
+        </button>
+        <button type="button" id="monitoring-hud-anchor-toggle" class="monitoring-hud__control-button" data-control="anchor-toggle">
+          Unanchor
+        </button>
+        <button type="button" id="monitoring-hud-snap-toggle" class="monitoring-hud__control-button" data-control="snap-toggle">
+          Snap on
+        </button>
+        <label class="monitoring-hud__polling-control">
+          <span>Polling</span>
+          <select id="monitoring-hud-polling-rate" aria-label="Monitoring HUD polling cadence">
+            <option value="1000" selected>1s default</option>
+            <option value="2000">2s</option>
+            <option value="5000">5s</option>
+            <option value="10000">10s</option>
+          </select>
+        </label>
+      </div>
       <div class="monitoring-hud__anchor-rail" aria-label="Move anchor and task tray posture">
         <span>Movable panel</span>
-        <span>Snap-ready</span>
+        <span id="monitoring-hud-snap-label">Snap-ready</span>
         <span id="monitoring-hud-placement-pointer">Anchored click-through</span>
         <span id="monitoring-hud-tray-path">Task tray unanchor path</span>
         <span>No default keybinds</span>
       </div>
-      <div class="monitoring-hud__card-grid" aria-label="Configurable sensor card model">
-        <article class="monitoring-hud-card monitoring-hud-card--setup" data-sensor-card="cpu-thermal" data-live-value="blocked-until-provider">
-          <div class="monitoring-hud-card__label">CPU Thermal</div>
-          <div class="monitoring-hud-card__value">Provider required</div>
-          <div class="monitoring-hud-card__meta">Native/provider contract first</div>
-          <div class="monitoring-hud-card__badge">No live value</div>
+      <div class="monitoring-hud__card-board" id="monitoring-hud-card-board" aria-label="Draggable resizable category card board">
+        <article class="monitoring-hud-card monitoring-hud-card--setup" data-category-card="cpu" data-card-state="setup" style="--card-x:0px;--card-y:0px;--card-w:244px;--card-h:174px;">
+          <div class="monitoring-hud-card__drag-handle" data-card-handle="cpu">
+            <div>
+              <div class="monitoring-hud-card__label">CPU</div>
+              <div class="monitoring-hud-card__value" data-card-summary="cpu">Provider warming</div>
+            </div>
+            <div class="monitoring-hud-card__badge" data-card-badge="cpu">Setup</div>
+          </div>
+          <div class="monitoring-hud-card__sensors" data-card-sensors="cpu">
+            <div class="monitoring-hud-sensor-row" data-sensor-row="cpu-load" data-live-value="native-provider-pending">
+              <span>CPU Load</span>
+              <strong data-sensor-value="cpu-load">Warming up</strong>
+              <em data-sensor-source="cpu-load">Native provider</em>
+            </div>
+            <div class="monitoring-hud-sensor-row" data-sensor-row="cpu-thermal" data-live-value="blocked-until-provider">
+              <span>CPU Thermal</span>
+              <strong data-sensor-value="cpu-thermal">Provider required</strong>
+              <em data-sensor-source="cpu-thermal">Thermal source pending</em>
+            </div>
+          </div>
+          <div class="monitoring-hud-card__meta" data-card-meta="cpu">1s default polling only after provider proof; no fake thermal values.</div>
+          <div class="monitoring-hud-card__resize-handle" data-card-resize="cpu" aria-hidden="true"></div>
         </article>
-        <article class="monitoring-hud-card monitoring-hud-card--setup" data-sensor-card="gpu-thermal" data-live-value="blocked-until-provider">
-          <div class="monitoring-hud-card__label">GPU Thermal</div>
-          <div class="monitoring-hud-card__value">Provider required</div>
-          <div class="monitoring-hud-card__meta">Source provenance pending</div>
-          <div class="monitoring-hud-card__badge">Setup</div>
-        </article>
-        <article class="monitoring-hud-card monitoring-hud-card--unavailable" data-sensor-card="cpu-load" data-live-value="blocked-until-provider">
-          <div class="monitoring-hud-card__label">CPU Load</div>
-          <div class="monitoring-hud-card__value">Unavailable</div>
-          <div class="monitoring-hud-card__meta">No polling until provider selection</div>
-          <div class="monitoring-hud-card__badge">No data</div>
-        </article>
-        <article class="monitoring-hud-card monitoring-hud-card--warning" data-sensor-card="gpu-load" data-live-value="blocked-until-provider">
-          <div class="monitoring-hud-card__label">GPU Load</div>
-          <div class="monitoring-hud-card__value">Unavailable</div>
-          <div class="monitoring-hud-card__meta">Visual warning posture only</div>
-          <div class="monitoring-hud-card__badge">Advisory</div>
+        <article class="monitoring-hud-card monitoring-hud-card--unavailable" data-category-card="gpu" data-card-state="no-data" style="--card-x:264px;--card-y:0px;--card-w:244px;--card-h:174px;">
+          <div class="monitoring-hud-card__drag-handle" data-card-handle="gpu">
+            <div>
+              <div class="monitoring-hud-card__label">GPU</div>
+              <div class="monitoring-hud-card__value" data-card-summary="gpu">Provider required</div>
+            </div>
+            <div class="monitoring-hud-card__badge" data-card-badge="gpu">No data</div>
+          </div>
+          <div class="monitoring-hud-card__sensors" data-card-sensors="gpu">
+            <div class="monitoring-hud-sensor-row" data-sensor-row="gpu-load" data-live-value="blocked-until-provider">
+              <span>GPU Load</span>
+              <strong data-sensor-value="gpu-load">Unavailable</strong>
+              <em data-sensor-source="gpu-load">GPU source pending</em>
+            </div>
+            <div class="monitoring-hud-sensor-row" data-sensor-row="gpu-thermal" data-live-value="blocked-until-provider">
+              <span>GPU Thermal</span>
+              <strong data-sensor-value="gpu-thermal">Unavailable</strong>
+              <em data-sensor-source="gpu-thermal">Thermal source pending</em>
+            </div>
+          </div>
+          <div class="monitoring-hud-card__meta" data-card-meta="gpu">Provider setup/unavailable state is truthful until a safe GPU route is admitted.</div>
+          <div class="monitoring-hud-card__resize-handle" data-card-resize="gpu" aria-hidden="true"></div>
         </article>
       </div>
     </div>
@@ -138,7 +191,7 @@
       <span>Toggle posture</span>
       <strong id="monitoring-hud-controls-surface">On/off represented</strong>
       <span>Persistence</span>
-      <strong id="monitoring-hud-controls-persistence">Not persisted</strong>
+      <strong id="monitoring-hud-controls-persistence">Local layout state</strong>
     </div>
     <div
       class="monitoring-hud__status-model"
@@ -157,8 +210,8 @@
       <strong id="monitoring-hud-warning-posture">Visual badge only</strong>
       <span>Screenshot proof</span>
       <strong>Full desktop required</strong>
-      <span>User Test Summary</span>
-      <strong>Pending acceptance</strong>
+      <span>Internal proof</span>
+      <strong>Sandbox state matrix required</strong>
       <span>Package status</span>
       <strong>PKG-006 in progress</strong>
     </div>

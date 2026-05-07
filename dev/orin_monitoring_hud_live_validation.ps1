@@ -113,7 +113,7 @@ function Save-Manifest([object]$Paths, [string]$PythonExe) {
         status = $script:ManifestStatus
         package = "PKG-006"
         slice = "SLC-029"
-        seam = "WS7 - Monitoring HUD Product Visibility And Acceptance Baseline"
+        seam = "WS17 - Workstream Product Proof Refresh And Completion Review"
         python = $PythonExe
         runtimeLog = $Paths.RuntimeLog
         screenshot = $script:ScreenshotPath
@@ -170,6 +170,8 @@ try {
         "MONITORING_HUD_PLACEMENT_OWNERSHIP_READY",
         "MONITORING_HUD_CONTROLS_VISIBILITY_READY",
         "MONITORING_HUD_STATUS_BEHAVIOR_READY",
+        "MONITORING_HUD_INTERACTION_MODE_READY",
+        "MONITORING_HUD_CONTROL_STATE_READY",
         "DESKTOP_VISIBLE_OVERLAY_RESULT|success=true",
         "RENDERER_MAIN|STARTUP_READY",
         "DESKTOP_OUTCOME|SETTLED|state=dormant"

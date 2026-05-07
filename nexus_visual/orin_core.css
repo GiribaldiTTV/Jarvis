@@ -573,6 +573,26 @@ body.desktop-mode #monitoring-hud {
   animation: monitoringHudSettle 740ms cubic-bezier(0.2, 0.82, 0.18, 1.0) both;
 }
 
+body.desktop-mode #monitoring-hud[data-anchor-state="unanchored"] {
+  pointer-events: auto;
+  cursor: default;
+}
+
+body.desktop-mode #monitoring-hud[data-anchor-state="unanchored"] .monitoring-hud__header,
+body.desktop-mode #monitoring-hud[data-anchor-state="unanchored"] .monitoring-hud-card__drag-handle {
+  cursor: grab;
+}
+
+body.desktop-mode #monitoring-hud[data-anchor-state="unanchored"] .monitoring-hud__header:active,
+body.desktop-mode #monitoring-hud[data-anchor-state="unanchored"] .monitoring-hud-card__drag-handle:active {
+  cursor: grabbing;
+}
+
+body.desktop-mode #monitoring-hud[data-visibility-state="hidden"] {
+  opacity: 0.16;
+  transform: translateY(-8px) scale(0.36);
+}
+
 body.desktop-mode #monitoring-hud::before {
   content: "";
   position: absolute;
@@ -605,6 +625,7 @@ body.desktop-mode #monitoring-hud > * {
   align-items: flex-start;
   justify-content: space-between;
   gap: 18px;
+  user-select: none;
 }
 
 .monitoring-hud__kicker {
@@ -634,6 +655,19 @@ body.desktop-mode #monitoring-hud > * {
   font-weight: 700;
   letter-spacing: 0.14em;
   text-transform: uppercase;
+}
+
+.monitoring-hud__mode-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 7px;
+}
+
+.monitoring-hud__mode-pill--quiet {
+  border-color: rgba(121, 226, 255, 0.18);
+  background: rgba(6, 24, 42, 0.48);
+  color: rgba(171, 229, 243, 0.86);
 }
 
 .monitoring-hud__summary {
@@ -671,6 +705,54 @@ body.desktop-mode #monitoring-hud > * {
   box-shadow: 0 0 16px rgba(255, 214, 113, 0.58);
 }
 
+.monitoring-hud__toolbar {
+  margin-top: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  pointer-events: auto;
+}
+
+.monitoring-hud__control-button,
+.monitoring-hud__polling-control select {
+  min-height: 30px;
+  border: 1px solid rgba(117, 228, 255, 0.22);
+  border-radius: 999px;
+  background: rgba(6, 28, 48, 0.76);
+  color: rgba(229, 249, 255, 0.94);
+  font-family: "Bahnschrift", "Rajdhani", "Segoe UI", sans-serif;
+  font-size: 11px;
+  font-weight: 720;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.monitoring-hud__control-button {
+  padding: 6px 10px;
+}
+
+.monitoring-hud__control-button:hover,
+.monitoring-hud__polling-control select:hover {
+  border-color: rgba(140, 244, 255, 0.42);
+  box-shadow: 0 0 18px rgba(83, 226, 255, 0.14);
+}
+
+.monitoring-hud__polling-control {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: rgba(173, 213, 226, 0.86);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.monitoring-hud__polling-control select {
+  padding: 5px 9px;
+}
+
 .monitoring-hud__anchor-rail {
   margin-top: 10px;
   display: flex;
@@ -697,7 +779,26 @@ body.desktop-mode #monitoring-hud > * {
   gap: 10px;
 }
 
+.monitoring-hud__card-board {
+  position: relative;
+  margin-top: 12px;
+  min-height: 370px;
+  border-radius: 20px;
+  border: 1px solid rgba(118, 226, 255, 0.12);
+  background:
+    linear-gradient(90deg, rgba(117, 228, 255, 0.04) 1px, transparent 1px),
+    linear-gradient(rgba(117, 228, 255, 0.035) 1px, transparent 1px),
+    rgba(2, 10, 20, 0.28);
+  background-size: 20px 20px;
+  overflow: hidden;
+}
+
 .monitoring-hud-card {
+  position: absolute;
+  left: var(--card-x, 0px);
+  top: var(--card-y, 0px);
+  width: var(--card-w, 244px);
+  height: var(--card-h, 174px);
   min-height: 104px;
   padding: 10px;
   border-radius: 18px;
@@ -706,8 +807,9 @@ body.desktop-mode #monitoring-hud > * {
     linear-gradient(155deg, rgba(7, 28, 46, 0.75), rgba(2, 9, 19, 0.62)),
     radial-gradient(circle at 90% 8%, rgba(95, 236, 255, 0.15), transparent 38%);
   box-shadow: 0 0 0 1px rgba(230, 251, 255, 0.04) inset;
-  resize: both;
   overflow: hidden;
+  box-sizing: border-box;
+  pointer-events: auto;
 }
 
 .monitoring-hud-card--setup {
@@ -730,6 +832,14 @@ body.desktop-mode #monitoring-hud > * {
   color: rgba(139, 233, 255, 0.82);
 }
 
+.monitoring-hud-card__drag-handle {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  user-select: none;
+}
+
 .monitoring-hud-card__value {
   margin-top: 8px;
   color: rgba(247, 252, 255, 0.96);
@@ -737,11 +847,59 @@ body.desktop-mode #monitoring-hud > * {
   font-weight: 760;
 }
 
+.monitoring-hud-card__sensors {
+  margin-top: 10px;
+  display: grid;
+  gap: 8px;
+}
+
+.monitoring-hud-sensor-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 3px 10px;
+  padding: 7px 8px;
+  border-radius: 12px;
+  background: rgba(2, 12, 23, 0.52);
+  color: rgba(173, 213, 226, 0.84);
+}
+
+.monitoring-hud-sensor-row span {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.monitoring-hud-sensor-row strong {
+  color: rgba(240, 252, 255, 0.96);
+  font-size: 12px;
+  letter-spacing: 0.04em;
+}
+
+.monitoring-hud-sensor-row em {
+  grid-column: 1 / -1;
+  color: rgba(148, 194, 209, 0.8);
+  font-size: 10px;
+  font-style: normal;
+}
+
 .monitoring-hud-card__meta {
   margin-top: 6px;
   color: rgba(173, 213, 226, 0.82);
   font-size: 11px;
   line-height: 1.35;
+}
+
+.monitoring-hud-card__resize-handle {
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+  width: 16px;
+  height: 16px;
+  border-right: 2px solid rgba(136, 237, 255, 0.38);
+  border-bottom: 2px solid rgba(136, 237, 255, 0.38);
+  border-radius: 0 0 5px 0;
+  cursor: nwse-resize;
 }
 
 .monitoring-hud-card__badge {
@@ -826,6 +984,14 @@ body.desktop-mode #monitoring-hud > * {
 
   .monitoring-hud__card-grid {
     grid-template-columns: 1fr;
+  }
+
+  .monitoring-hud__card-board {
+    min-height: 410px;
+  }
+
+  .monitoring-hud-card {
+    width: min(100%, var(--card-w, 244px));
   }
 }
 

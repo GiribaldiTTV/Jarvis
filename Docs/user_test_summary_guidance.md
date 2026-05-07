@@ -24,7 +24,8 @@ Use this ownership split:
 
 Docs-only passes that do not require user-run validation normally do not need a `UTS`.
 
-When a task changes user-visible behavior or another operator-facing path, the default handoff expectation is that Codex will include a `## User Test Summary` section in its implementation or validation output unless manual testing is not materially relevant.
+When a Workstream task changes user-visible behavior or another operator-facing path, the default expectation is that Codex will keep a `User Test Summary Strategy` or draft handoff plan current unless manual testing is not materially relevant.
+The formal `## User Test Summary` handoff and returned-results gate belong to `Live Validation` after the user-facing shortcut or equivalent entrypoint gate is ready.
 
 ## Canonical Repo Artifact Rule
 
@@ -34,13 +35,14 @@ For active desktop workstreams, the default canonical repo-level `UTS` artifact 
 
 Use a different repo-level artifact path only when that workstream doc explicitly declares one.
 
-When a slice changes user-visible behavior or another operator-facing desktop path, Codex must normally do both:
+When a Workstream slice changes user-visible behavior or another operator-facing desktop path, Codex must normally keep later UTS needs current without treating returned user results as a Workstream gate:
 
-- include a detailed `## User Test Summary` section in the response or output when manual validation is relevant
-- update the canonical repo-level `UTS` artifact for the active workstream in the same branch
-- export or refresh `C:\Users\anden\OneDrive\Desktop\User Test Summary.txt` as the user-facing convenience copy when the slice is a relevant desktop path
+- include a detailed `User Test Summary Strategy` or draft handoff plan in the response or output when manual validation will be relevant later
+- update the canonical repo-level UTS strategy for the active workstream in the same branch
+- defer the final `C:\Users\anden\OneDrive\Desktop\User Test Summary.txt` handoff export until `Live Validation`, unless the active authority record explicitly approves an earlier draft export as non-source-truth convenience copy
 
-Response-only `UTS` text is not sufficient when the canonical repo artifact exists and the supporting docs for that workstream are in scope.
+Response-only UTS strategy text is not sufficient when the canonical repo artifact exists and the supporting docs for that workstream are in scope.
+The formal returned-results blocker must not be listed while the current phase is `Workstream`.
 
 If the canonical repo artifact is not updated, Codex must say explicitly why. The normal allowed reasons are:
 
@@ -52,7 +54,7 @@ If the canonical repo artifact is not updated, Codex must say explicitly why. Th
 
 ## When A User Test Summary Is Needed
 
-Create a `UTS` when the active workstream needs user-run validation, especially for:
+Plan a `UTS` when the active workstream needs later user-run validation, especially for:
 
 - launch or relaunch flows
 - UI or visual confirmation
@@ -168,6 +170,7 @@ Definition:
 
 - Live Validation and PR Readiness must not report final green while a relevant user-facing workstream has a required `UTS` handoff outstanding and returned results have not been submitted and digested.
 - Live Validation green requires an exact `## User Test Summary` state before final green.
+- Workstream must not use `User Test Summary Results Pending` as its completion blocker; it must continue implementation, internal sandbox validation, or named implementation repair until Workstream completion is otherwise green or legally blocked.
 
 Required authority-record marker:
 
@@ -194,7 +197,7 @@ Routing after digestion:
 - if returned results expose mismatch, regression, unclear behavior, cleanup failure, or scope drift, route back to `Workstream` or `Hardening` as appropriate
 - if returned results raise new ideas or requests, keep them out of current scope until carry-forward is explicitly approved
 
-The desktop export is not considered returned evidence by itself. It is the handoff artifact; the blocker remains active until filled results come back or a waiver is documented.
+The desktop export is not considered returned evidence by itself. It is the Live Validation handoff artifact; the blocker remains active only in phases where formal UTS results are required until filled results come back or a waiver is documented.
 
 ## User-Facing Shortcut Live Validation Gate
 
@@ -270,11 +273,11 @@ Codex must preserve an evidence trail for that self-validation and distinguish c
 - interactive OS-level executed-path results
 - user-only manual handoff that still remains
 
-## Implementation-Time Hardening Rule
+## Workstream Internal Validation Rule
 
 For runtime, UI, startup, prompt, voice, or other operator-facing implementation slices, the required validator suite is only one layer of validation.
 
-Codex must also perform a deeper branch-local validation and hardening pass before continuing to the next implementation slice. That pass should:
+Codex must also perform deeper branch-local internal validation before claiming Workstream completion or continuing past a risky user-facing seam. That pass should:
 
 - inspect the implemented path for likely failure modes and integration regressions
 - add or create the smallest reliable validation infrastructure when meaningful blind spots remain

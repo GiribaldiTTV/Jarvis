@@ -32,6 +32,14 @@ const monitoringHudNoDataBehavior = document.getElementById("monitoring-hud-no-d
 const monitoringHudDegradedBehavior = document.getElementById("monitoring-hud-degraded-behavior");
 const monitoringHudWarningPosture = document.getElementById("monitoring-hud-warning-posture");
 const monitoringHudTrayPath = document.getElementById("monitoring-hud-tray-path");
+const monitoringHudAnchorStatus = document.getElementById("monitoring-hud-anchor-status");
+const monitoringHudDragHandle = document.getElementById("monitoring-hud-drag-handle");
+const monitoringHudToggle = document.getElementById("monitoring-hud-toggle");
+const monitoringHudAnchorToggle = document.getElementById("monitoring-hud-anchor-toggle");
+const monitoringHudSnapToggle = document.getElementById("monitoring-hud-snap-toggle");
+const monitoringHudSnapLabel = document.getElementById("monitoring-hud-snap-label");
+const monitoringHudPollingRate = document.getElementById("monitoring-hud-polling-rate");
+const monitoringHudCardBoard = document.getElementById("monitoring-hud-card-board");
 
 let w = 0;
 let h = 0;
@@ -92,6 +100,20 @@ let monitoringHudStatus = {
   noDataBehavior: "Show unavailable; no fake hardware values",
   degradedBehavior: "Name reconnect/setup gap; visual warning only"
 };
+let monitoringHudControlState = {
+  visible: true,
+  anchored: true,
+  snapEnabled: true,
+  pollingRateMs: 1000,
+  panelPosition: null,
+  cards: {
+    cpu: { x: 0, y: 0, w: 244, h: 174 },
+    gpu: { x: 264, y: 0, w: 244, h: 174 }
+  },
+  changedAt: Date.now()
+};
+const monitoringHudStorageKey = "nexusMonitoringHudLayoutV1";
+const monitoringHudSnapSize = 20;
 
 const backParticles = [];
 const frontParticles = [];
@@ -1243,6 +1265,271 @@ window.setCommandOverlayState = function(state) {
   renderCommandOverlay();
 };
 
+function monitoringHudSnap(value) {
+  if (!monitoringHudControlState.snapEnabled) return Math.round(value);
+  return Math.round(value / monitoringHudSnapSize) * monitoringHudSnapSize;
+}
+
+function monitoringHudBound(value, min, max) {
+  return Math.max(min, Math.min(max, value));
+}
+
+function monitoringHudLoadStoredState() {
+  try {
+    const raw = window.localStorage ? window.localStorage.getItem(monitoringHudStorageKey) : "";
+    if (!raw) return;
+    const stored = JSON.parse(raw);
+    monitoringHudControlState = Object.assign({}, monitoringHudControlState, stored || {});
+    monitoringHudControlState.cards = Object.assign(
+      {},
+      monitoringHudControlState.cards,
+      (stored && stored.cards) || {}
+    );
+  } catch (_err) {
+    monitoringHudControlState.changedAt = Date.now();
+  }
+}
+
+function monitoringHudSaveStoredState() {
+  try {
+    if (!window.localStorage) return;
+    window.localStorage.setItem(monitoringHudStorageKey, JSON.stringify(monitoringHudControlState));
+  } catch (_err) {
+    // Layout persistence is a convenience only; the HUD remains truthful without it.
+  }
+}
+
+function monitoringHudMarkChanged() {
+  monitoringHudControlState.changedAt = Date.now();
+  monitoringHudSaveStoredState();
+}
+
+function monitoringHudApplyCardLayout() {
+  if (!monitoringHudCardBoard) return;
+  Object.keys(monitoringHudControlState.cards).forEach((cardId) => {
+    const card = monitoringHudCardBoard.querySelector(`[data-category-card="${cardId}"]`);
+    const layout = monitoringHudControlState.cards[cardId];
+    if (!card || !layout) return;
+    card.style.setProperty("--card-x", `${Math.round(layout.x)}px`);
+    card.style.setProperty("--card-y", `${Math.round(layout.y)}px`);
+    card.style.setProperty("--card-w", `${Math.round(layout.w)}px`);
+    card.style.setProperty("--card-h", `${Math.round(layout.h)}px`);
+  });
+}
+
+function monitoringHudRenderControls() {
+  if (!monitoringHud) return;
+  monitoringHud.dataset.visibilityState = monitoringHudControlState.visible ? "visible" : "hidden";
+  monitoringHud.dataset.anchorState = monitoringHudControlState.anchored ? "anchored" : "unanchored";
+  monitoringHud.dataset.snapState = monitoringHudControlState.snapEnabled ? "enabled" : "disabled";
+  monitoringHud.dataset.pollingRateMs = String(monitoringHudControlState.pollingRateMs);
+  if (monitoringHudRuntimeStatus) {
+    monitoringHudRuntimeStatus.textContent = monitoringHudControlState.visible ? "HUD enabled" : "HUD hidden";
+  }
+  if (monitoringHudAnchorStatus) {
+    monitoringHudAnchorStatus.textContent = monitoringHudControlState.anchored ? "Anchored" : "Unanchored";
+  }
+  if (monitoringHudToggle) {
+    monitoringHudToggle.textContent = monitoringHudControlState.visible ? "Hide HUD" : "Show HUD";
+  }
+  if (monitoringHudAnchorToggle) {
+    monitoringHudAnchorToggle.textContent = monitoringHudControlState.anchored ? "Unanchor" : "Anchor";
+  }
+  if (monitoringHudSnapToggle) {
+    monitoringHudSnapToggle.textContent = monitoringHudControlState.snapEnabled ? "Snap on" : "Snap off";
+  }
+  if (monitoringHudSnapLabel) {
+    monitoringHudSnapLabel.textContent = monitoringHudControlState.snapEnabled ? "Snap-ready" : "Snap disabled";
+  }
+  if (monitoringHudPollingRate) {
+    monitoringHudPollingRate.value = String(monitoringHudControlState.pollingRateMs);
+  }
+  if (monitoringHudPlacementPointer) {
+    monitoringHudPlacementPointer.textContent = monitoringHudControlState.anchored
+      ? "Anchored click-through"
+      : "Unanchored edit mode";
+  }
+}
+
+function monitoringHudSetPanelPosition(left, top) {
+  if (!monitoringHud) return;
+  const maxLeft = Math.max(0, window.innerWidth - monitoringHud.offsetWidth * 0.6);
+  const maxTop = Math.max(0, window.innerHeight - monitoringHud.offsetHeight * 0.6);
+  const boundedLeft = monitoringHudBound(monitoringHudSnap(left), 0, maxLeft);
+  const boundedTop = monitoringHudBound(monitoringHudSnap(top), 0, maxTop);
+  monitoringHud.style.left = `${boundedLeft}px`;
+  monitoringHud.style.top = `${boundedTop}px`;
+  monitoringHud.style.right = "auto";
+  monitoringHud.style.transformOrigin = "top left";
+  monitoringHudControlState.panelPosition = { left: boundedLeft, top: boundedTop };
+  monitoringHudMarkChanged();
+}
+
+function monitoringHudRenderSensorCards(cards) {
+  if (!Array.isArray(cards)) return;
+  cards.forEach((card) => {
+    if (!card || !card.id) return;
+    const cardNode = monitoringHudCardBoard
+      ? monitoringHudCardBoard.querySelector(`[data-category-card="${card.id}"]`)
+      : null;
+    if (!cardNode) return;
+    if (card.state) cardNode.dataset.cardState = card.state;
+    cardNode.classList.toggle("monitoring-hud-card--warning", card.state === "warning");
+    cardNode.classList.toggle("monitoring-hud-card--setup", card.state === "setup");
+    cardNode.classList.toggle("monitoring-hud-card--unavailable", card.state === "no-data" || card.state === "degraded");
+    const summaryNode = cardNode.querySelector(`[data-card-summary="${card.id}"]`);
+    if (summaryNode && card.summary) summaryNode.textContent = card.summary;
+    const badgeNode = cardNode.querySelector(`[data-card-badge="${card.id}"]`);
+    if (badgeNode && card.badge) badgeNode.textContent = card.badge;
+    const metaNode = cardNode.querySelector(`[data-card-meta="${card.id}"]`);
+    if (metaNode && card.meta) metaNode.textContent = card.meta;
+    if (!Array.isArray(card.sensors)) return;
+    card.sensors.forEach((sensor) => {
+      if (!sensor || !sensor.id) return;
+      const row = cardNode.querySelector(`[data-sensor-row="${sensor.id}"]`);
+      const valueNode = cardNode.querySelector(`[data-sensor-value="${sensor.id}"]`);
+      const sourceNode = cardNode.querySelector(`[data-sensor-source="${sensor.id}"]`);
+      if (row && sensor.state) row.dataset.liveValue = sensor.state;
+      if (valueNode && sensor.value) valueNode.textContent = sensor.value;
+      if (sourceNode && sensor.source) sourceNode.textContent = sensor.source;
+    });
+  });
+}
+
+function monitoringHudStartPointerDrag(event, target, onMove) {
+  if (!monitoringHud || monitoringHudControlState.anchored) return;
+  if (event.button !== undefined && event.button !== 0) return;
+  event.preventDefault();
+  const startX = event.clientX;
+  const startY = event.clientY;
+  target.setPointerCapture(event.pointerId);
+  function move(moveEvent) {
+    onMove(moveEvent.clientX - startX, moveEvent.clientY - startY);
+  }
+  function end() {
+    target.removeEventListener("pointermove", move);
+    target.removeEventListener("pointerup", end);
+    target.removeEventListener("pointercancel", end);
+  }
+  target.addEventListener("pointermove", move);
+  target.addEventListener("pointerup", end);
+  target.addEventListener("pointercancel", end);
+}
+
+function monitoringHudWirePanelDrag() {
+  if (!monitoringHud || !monitoringHudDragHandle) return;
+  monitoringHudDragHandle.addEventListener("pointerdown", (event) => {
+    const rect = monitoringHud.getBoundingClientRect();
+    monitoringHudStartPointerDrag(event, monitoringHudDragHandle, (dx, dy) => {
+      monitoringHudSetPanelPosition(rect.left + dx, rect.top + dy);
+    });
+  });
+}
+
+function monitoringHudWireCardInteractions() {
+  if (!monitoringHudCardBoard) return;
+  monitoringHudCardBoard.querySelectorAll("[data-card-handle]").forEach((handle) => {
+    handle.addEventListener("pointerdown", (event) => {
+      const card = handle.closest("[data-category-card]");
+      if (!card) return;
+      const cardId = card.dataset.categoryCard;
+      const start = Object.assign({ x: 0, y: 0, w: 244, h: 174 }, monitoringHudControlState.cards[cardId]);
+      monitoringHudStartPointerDrag(event, handle, (dx, dy) => {
+        const boardWidth = monitoringHudCardBoard.clientWidth || 520;
+        const boardHeight = monitoringHudCardBoard.clientHeight || 370;
+        const next = Object.assign({}, start, {
+          x: monitoringHudBound(monitoringHudSnap(start.x + dx), 0, Math.max(0, boardWidth - start.w)),
+          y: monitoringHudBound(monitoringHudSnap(start.y + dy), 0, Math.max(0, boardHeight - start.h))
+        });
+        monitoringHudControlState.cards[cardId] = next;
+        monitoringHudApplyCardLayout();
+        monitoringHudMarkChanged();
+      });
+    });
+  });
+  monitoringHudCardBoard.querySelectorAll("[data-card-resize]").forEach((handle) => {
+    handle.addEventListener("pointerdown", (event) => {
+      const card = handle.closest("[data-category-card]");
+      if (!card) return;
+      const cardId = card.dataset.categoryCard;
+      const start = Object.assign({ x: 0, y: 0, w: 244, h: 174 }, monitoringHudControlState.cards[cardId]);
+      monitoringHudStartPointerDrag(event, handle, (dx, dy) => {
+        const next = Object.assign({}, start, {
+          w: monitoringHudBound(monitoringHudSnap(start.w + dx), 190, 360),
+          h: monitoringHudBound(monitoringHudSnap(start.h + dy), 150, 270)
+        });
+        monitoringHudControlState.cards[cardId] = next;
+        monitoringHudApplyCardLayout();
+        monitoringHudMarkChanged();
+      });
+    });
+  });
+}
+
+function monitoringHudWireControls() {
+  if (monitoringHudToggle) {
+    monitoringHudToggle.addEventListener("click", () => {
+      monitoringHudControlState.visible = !monitoringHudControlState.visible;
+      monitoringHudRenderControls();
+      monitoringHudMarkChanged();
+    });
+  }
+  if (monitoringHudAnchorToggle) {
+    monitoringHudAnchorToggle.addEventListener("click", () => {
+      monitoringHudControlState.anchored = !monitoringHudControlState.anchored;
+      monitoringHudRenderControls();
+      monitoringHudMarkChanged();
+    });
+  }
+  if (monitoringHudSnapToggle) {
+    monitoringHudSnapToggle.addEventListener("click", () => {
+      monitoringHudControlState.snapEnabled = !monitoringHudControlState.snapEnabled;
+      monitoringHudRenderControls();
+      monitoringHudMarkChanged();
+    });
+  }
+  if (monitoringHudPollingRate) {
+    monitoringHudPollingRate.addEventListener("change", () => {
+      const value = Number(monitoringHudPollingRate.value) || 1000;
+      monitoringHudControlState.pollingRateMs = Math.max(1000, value);
+      monitoringHudRenderControls();
+      monitoringHudMarkChanged();
+    });
+  }
+}
+
+function monitoringHudInitializeControls() {
+  monitoringHudLoadStoredState();
+  monitoringHudApplyCardLayout();
+  monitoringHudRenderControls();
+  monitoringHudWirePanelDrag();
+  monitoringHudWireCardInteractions();
+  monitoringHudWireControls();
+}
+
+window.getMonitoringHudControlState = function() {
+  return Object.assign({}, monitoringHudControlState, {
+    cards: Object.assign({}, monitoringHudControlState.cards)
+  });
+};
+
+window.setMonitoringHudControlState = function(state) {
+  monitoringHudControlState = Object.assign({}, monitoringHudControlState, state || {});
+  monitoringHudControlState.cards = Object.assign({}, {
+    cpu: { x: 0, y: 0, w: 244, h: 174 },
+    gpu: { x: 264, y: 0, w: 244, h: 174 }
+  }, monitoringHudControlState.cards || {});
+  if (monitoringHudControlState.panelPosition) {
+    monitoringHudSetPanelPosition(
+      monitoringHudControlState.panelPosition.left || 0,
+      monitoringHudControlState.panelPosition.top || 0
+    );
+  }
+  monitoringHudApplyCardLayout();
+  monitoringHudRenderControls();
+  monitoringHudMarkChanged();
+};
+
 window.setDesktopSurfaceMode = function(enabled) {
   const isEnabled = Boolean(enabled);
   body.classList.toggle("desktop-mode", isEnabled);
@@ -1251,6 +1538,7 @@ window.setDesktopSurfaceMode = function(enabled) {
     monitoringHud.dataset.renderState = isEnabled ? "product-visibility-baseline" : "hidden";
     monitoringHud.dataset.productSurfaceState = isEnabled ? "visible-user-facing" : "hidden";
   }
+  monitoringHudRenderControls();
 };
 
 window.setMonitoringHudTelemetry = function(snapshot) {
@@ -1259,14 +1547,15 @@ window.setMonitoringHudTelemetry = function(snapshot) {
     monitoringHud.dataset.telemetryPackage = monitoringHudTelemetry.packageId || "PKG-006";
     monitoringHud.dataset.telemetrySlice = monitoringHudTelemetry.sliceId || "SLC-025";
     monitoringHud.dataset.telemetryAdapter = monitoringHudTelemetry.adapterId || "desktop-runtime-boundary";
-    monitoringHud.dataset.providerState = "setup-required";
-    monitoringHud.dataset.liveValues = "provider-required";
+    monitoringHud.dataset.providerState = monitoringHudTelemetry.providerState || "setup-required";
+    monitoringHud.dataset.liveValues = monitoringHudTelemetry.liveValues || "provider-required";
+    monitoringHud.dataset.pollingRateMs = String(monitoringHudTelemetry.pollingRateMs || monitoringHudControlState.pollingRateMs || 1000);
   }
   if (monitoringHudRuntimeStatus) {
-    monitoringHudRuntimeStatus.textContent = "HUD enabled";
+    monitoringHudRuntimeStatus.textContent = monitoringHudControlState.visible ? "HUD enabled" : "HUD hidden";
   }
   if (monitoringHudProviderState) {
-    monitoringHudProviderState.textContent = "Provider setup required";
+    monitoringHudProviderState.textContent = monitoringHudTelemetry.providerLabel || "Provider setup required";
   }
   if (monitoringHudAdapterStatus) {
     monitoringHudAdapterStatus.textContent = monitoringHudTelemetry.adapterStatus || "Provider contract boundary ready";
@@ -1277,6 +1566,7 @@ window.setMonitoringHudTelemetry = function(snapshot) {
   if (monitoringHudHardwarePolling) {
     monitoringHudHardwarePolling.textContent = monitoringHudTelemetry.hardwarePolling || "No polling until provider selection";
   }
+  monitoringHudRenderSensorCards(monitoringHudTelemetry.sensorCards);
 };
 
 window.setMonitoringHudPlacementOwnership = function(contract) {
@@ -1286,7 +1576,7 @@ window.setMonitoringHudPlacementOwnership = function(contract) {
     monitoringHud.dataset.placementSlice = monitoringHudPlacement.sliceId || "SLC-026";
     monitoringHud.dataset.placementId = monitoringHudPlacement.placementId || "desktop-renderer-top-right";
     monitoringHud.dataset.placementState = "desktop-renderer-owned";
-    monitoringHud.dataset.interactionMode = "anchored-click-through";
+    monitoringHud.dataset.interactionMode = monitoringHudControlState.anchored ? "anchored-click-through" : "unanchored-edit-mode";
   }
   if (monitoringHudPlacementOwner) {
     monitoringHudPlacementOwner.textContent = monitoringHudPlacement.rendererOwner || "DesktopRuntimeWindow";
@@ -1295,7 +1585,9 @@ window.setMonitoringHudPlacementOwnership = function(contract) {
     monitoringHudPlacementAnchor.textContent = monitoringHudPlacement.anchor || "Movable top-right snap rail";
   }
   if (monitoringHudPlacementPointer) {
-    monitoringHudPlacementPointer.textContent = monitoringHudPlacement.pointerModel || "Anchored click-through";
+    monitoringHudPlacementPointer.textContent = monitoringHudControlState.anchored
+      ? (monitoringHudPlacement.pointerModel || "Anchored click-through")
+      : "Unanchored edit mode";
   }
   if (monitoringHudResizePosture) {
     monitoringHudResizePosture.textContent = monitoringHudPlacement.resizePosture || "Resizable card grid";
@@ -1308,21 +1600,22 @@ window.setMonitoringHudControlsVisibility = function(contract) {
     monitoringHud.dataset.controlsPackage = monitoringHudControls.packageId || "PKG-006";
     monitoringHud.dataset.controlsSlice = monitoringHudControls.sliceId || "SLC-027";
     monitoringHud.dataset.controlsId = monitoringHudControls.controlsId || "hud-controls-visibility";
-    monitoringHud.dataset.controlsState = "toggle-posture-visible";
+    monitoringHud.dataset.controlsState = monitoringHudControlState.visible ? "toggle-posture-visible" : "toggle-posture-hidden";
     monitoringHud.dataset.keybindPolicy = "none";
   }
   if (monitoringHudControlsVisibility) {
     monitoringHudControlsVisibility.textContent = monitoringHudControls.visibilityState || "Optional HUD layer";
   }
   if (monitoringHudControlsSurface) {
-    monitoringHudControlsSurface.textContent = monitoringHudControls.controlSurface || "On/off represented";
+    monitoringHudControlsSurface.textContent = monitoringHudControls.controlSurface || "On/off, tray unanchor, snap, and polling controls represented";
   }
   if (monitoringHudControlsPersistence) {
-    monitoringHudControlsPersistence.textContent = monitoringHudControls.persistence || "Not persisted";
+    monitoringHudControlsPersistence.textContent = monitoringHudControls.persistence || "Local layout state";
   }
   if (monitoringHudTrayPath) {
-    monitoringHudTrayPath.textContent = "Task tray unanchor path";
+    monitoringHudTrayPath.textContent = monitoringHudControls.trayPath || "Task tray unanchor path";
   }
+  monitoringHudRenderControls();
 };
 
 window.setMonitoringHudStatusBehavior = function(snapshot) {
@@ -1333,6 +1626,7 @@ window.setMonitoringHudStatusBehavior = function(snapshot) {
     monitoringHud.dataset.statusId = monitoringHudStatus.statusId || "hud-local-readiness-status";
     monitoringHud.dataset.statusKind = monitoringHudStatus.statusKind || "no-data";
     monitoringHud.dataset.warningMode = "visual-non-invasive";
+    monitoringHud.dataset.warningState = monitoringHudStatus.warningState || "advisory";
   }
   if (monitoringHudStatusLabel) {
     monitoringHudStatusLabel.textContent = monitoringHudStatus.statusLabel || "Provider setup required";
@@ -1344,10 +1638,11 @@ window.setMonitoringHudStatusBehavior = function(snapshot) {
     monitoringHudDegradedBehavior.textContent = monitoringHudStatus.degradedBehavior || "Name reconnect/setup gap";
   }
   if (monitoringHudWarningPosture) {
-    monitoringHudWarningPosture.textContent = "Visual badge only";
+    monitoringHudWarningPosture.textContent = monitoringHudStatus.warningPosture || "Visual badge only";
   }
 };
 
+monitoringHudInitializeControls();
 window.setCoreVisualState("boot");
 window.setCoreVoiceLevel(0);
 window.setCommandOverlayState({ visible: false });

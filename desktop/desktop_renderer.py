@@ -5007,6 +5007,15 @@ class DesktopRuntimeWindow(QWidget):
         self._last_launch_failure_action_id = ""
         self._last_launch_failure_count = 0
         self._reported_recoverable_launch_failures = set()
+        self._monitoring_hud_visible = True
+        self._monitoring_hud_anchored = True
+        self._monitoring_hud_snap_enabled = True
+        self._monitoring_hud_polling_rate_ms = 1000
+        self._monitoring_hud_control_signature = None
+        self._monitoring_hud_control_sync_timer = QTimer(self)
+        self._monitoring_hud_control_sync_timer.timeout.connect(self._sync_monitoring_hud_control_state_from_page)
+        self._monitoring_hud_poll_timer = QTimer(self)
+        self._monitoring_hud_poll_timer.timeout.connect(self._publish_monitoring_hud_telemetry_boundary)
 
         # Align the standalone desktop route with the proven Boot handoff window model.
         self.setWindowFlags(Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint)
@@ -5349,6 +5358,141 @@ class DesktopRuntimeWindow(QWidget):
         if page is not None:
             page.runJavaScript(script)
 
+    def _monitoring_hud_control_state(self) -> dict[str, object]:
+        return {
+            "visible": self._monitoring_hud_visible,
+            "anchored": self._monitoring_hud_anchored,
+            "snapEnabled": self._monitoring_hud_snap_enabled,
+            "pollingRateMs": self._monitoring_hud_polling_rate_ms,
+        }
+
+    def _publish_monitoring_hud_control_state_to_page(self):
+        if not self._page_ready or self._is_shutting_down:
+            return
+        state_json = json.dumps(self._monitoring_hud_control_state(), sort_keys=True)
+        self._run_javascript(
+            f"""
+            if (window.setMonitoringHudControlState) {{
+                window.setMonitoringHudControlState({state_json});
+            }}
+            """
+        )
+        self._emit_runtime_signal(
+            "MONITORING_HUD_CONTROL_STATE_READY",
+            package="PKG-006",
+            slice="SLC-027",
+            source="page_publish",
+            visible=self._monitoring_hud_visible,
+            anchored=self._monitoring_hud_anchored,
+            snap=self._monitoring_hud_snap_enabled,
+            polling_rate_ms=self._monitoring_hud_polling_rate_ms,
+        )
+
+    def _apply_monitoring_hud_window_interaction_state(self):
+        anchored = bool(self._monitoring_hud_anchored)
+        self.setAttribute(Qt.WA_TransparentForMouseEvents, anchored)
+        self.setAttribute(Qt.WA_ShowWithoutActivating, anchored)
+        self.setFocusPolicy(Qt.NoFocus if anchored else Qt.StrongFocus)
+        self.setWindowFlag(Qt.WindowStaysOnTopHint, not anchored)
+        if self.desktop_mode and self.isVisible():
+            self.show()
+        self._emit_runtime_signal(
+            "MONITORING_HUD_INTERACTION_MODE_READY",
+            package="PKG-006",
+            slice="SLC-026",
+            anchored=anchored,
+            pointer_model="click_through_no_focus" if anchored else "editable_panel",
+        )
+
+    def _set_monitoring_hud_control_state(
+        self,
+        *,
+        visible: bool | None = None,
+        anchored: bool | None = None,
+        snap_enabled: bool | None = None,
+        polling_rate_ms: int | None = None,
+        source: str = "runtime",
+    ):
+        if visible is not None:
+            self._monitoring_hud_visible = bool(visible)
+        if anchored is not None:
+            self._monitoring_hud_anchored = bool(anchored)
+        if snap_enabled is not None:
+            self._monitoring_hud_snap_enabled = bool(snap_enabled)
+        if polling_rate_ms is not None:
+            self._monitoring_hud_polling_rate_ms = max(1000, int(polling_rate_ms or 1000))
+            if self._monitoring_hud_poll_timer.isActive():
+                self._monitoring_hud_poll_timer.start(self._monitoring_hud_polling_rate_ms)
+        self._apply_monitoring_hud_window_interaction_state()
+        self._publish_monitoring_hud_control_state_to_page()
+        self._publish_monitoring_hud_controls_visibility()
+        self._emit_runtime_signal(
+            "MONITORING_HUD_CONTROL_STATE_READY",
+            package="PKG-006",
+            slice="SLC-027",
+            source=source,
+            visible=self._monitoring_hud_visible,
+            anchored=self._monitoring_hud_anchored,
+            snap=self._monitoring_hud_snap_enabled,
+            polling_rate_ms=self._monitoring_hud_polling_rate_ms,
+        )
+
+    def request_monitoring_hud_unanchor_from_tray(self, source: str = "tray"):
+        self._set_monitoring_hud_control_state(visible=True, anchored=False, source=source)
+        self._emit_runtime_signal(
+            "MONITORING_HUD_TRAY_UNANCHOR_READY",
+            package="PKG-006",
+            slice="SLC-027",
+            source=source,
+        )
+
+    def request_monitoring_hud_toggle_from_tray(self, source: str = "tray"):
+        next_visible = not self._monitoring_hud_visible
+        self._set_monitoring_hud_control_state(visible=next_visible, source=source)
+        self._emit_runtime_signal(
+            "MONITORING_HUD_TRAY_TOGGLE_READY",
+            package="PKG-006",
+            slice="SLC-027",
+            source=source,
+            visible=next_visible,
+        )
+
+    def _sync_monitoring_hud_control_state_from_page(self):
+        if not self.desktop_mode or not self._page_ready or self._is_shutting_down:
+            return
+        page = self.webview.page()
+        if page is None:
+            return
+        page.runJavaScript(
+            "window.getMonitoringHudControlState ? window.getMonitoringHudControlState() : null",
+            self._handle_monitoring_hud_control_state_from_page,
+        )
+
+    def _handle_monitoring_hud_control_state_from_page(self, state):
+        if not isinstance(state, dict) or self._is_shutting_down:
+            return
+        visible = bool(state.get("visible", self._monitoring_hud_visible))
+        anchored = bool(state.get("anchored", self._monitoring_hud_anchored))
+        snap_enabled = bool(state.get("snapEnabled", self._monitoring_hud_snap_enabled))
+        try:
+            polling_rate_ms = max(1000, int(state.get("pollingRateMs", self._monitoring_hud_polling_rate_ms)))
+        except (TypeError, ValueError):
+            polling_rate_ms = self._monitoring_hud_polling_rate_ms
+
+        signature = (visible, anchored, snap_enabled, polling_rate_ms)
+        if signature == self._monitoring_hud_control_signature:
+            return
+
+        self._monitoring_hud_control_signature = signature
+        self._monitoring_hud_visible = visible
+        self._monitoring_hud_anchored = anchored
+        self._monitoring_hud_snap_enabled = snap_enabled
+        self._monitoring_hud_polling_rate_ms = polling_rate_ms
+        if self._monitoring_hud_poll_timer.isActive():
+            self._monitoring_hud_poll_timer.start(self._monitoring_hud_polling_rate_ms)
+        self._apply_monitoring_hud_window_interaction_state()
+        self._publish_monitoring_hud_controls_visibility()
+
     def _capture_startup_snapshot(self, label: str):
         if not self._startup_snapshot_dir or self._is_shutting_down:
             return
@@ -5529,6 +5673,7 @@ class DesktopRuntimeWindow(QWidget):
             desktop_mode=self.desktop_mode,
             runtime_log_path=self.runtime_log_path,
             event_route_present=callable(self.event_logger),
+            polling_rate_ms=self._monitoring_hud_polling_rate_ms,
         ).as_dict()
 
     def _publish_monitoring_hud_telemetry_boundary(self):
@@ -5545,7 +5690,8 @@ class DesktopRuntimeWindow(QWidget):
             package="PKG-006",
             slice="SLC-025",
             adapter="desktop-runtime-boundary",
-            hardware_polling="not_performed",
+            hardware_polling="native_cpu_load_bounded",
+            polling_rate_ms=self._monitoring_hud_polling_rate_ms,
         )
 
     def _monitoring_hud_placement_contract(self) -> dict[str, object]:
@@ -5589,6 +5735,7 @@ class DesktopRuntimeWindow(QWidget):
         self._publish_monitoring_hud_placement_ownership()
         self._publish_monitoring_hud_controls_visibility()
         self._publish_monitoring_hud_status_behavior()
+        self._publish_monitoring_hud_control_state_to_page()
         self._apply_pending_visual_state()
         self._apply_pending_voice_level()
         self._apply_command_overlay_state()
@@ -6812,7 +6959,7 @@ class DesktopRuntimeWindow(QWidget):
         self._show_command_result("launch_requested", "Launch request sent.")
 
     def nativeEvent(self, eventType, message):
-        if self.desktop_mode:
+        if self.desktop_mode and self._monitoring_hud_anchored:
             msg = ctypes.wintypes.MSG.from_address(int(message))
 
             if msg.message == WM_NCHITTEST:
@@ -6829,10 +6976,7 @@ class DesktopRuntimeWindow(QWidget):
         self._desktop_mode_requested = False
         target_geometry = self.compute_compact_geometry()
 
-        self.setWindowFlag(Qt.WindowStaysOnTopHint, False)
-        self.setAttribute(Qt.WA_TransparentForMouseEvents, True)
-        self.setAttribute(Qt.WA_ShowWithoutActivating, True)
-        self.setFocusPolicy(Qt.NoFocus)
+        self._apply_monitoring_hud_window_interaction_state()
         self.setGeometry(target_geometry)
 
         hwnd = int(self.winId())
@@ -6855,6 +6999,11 @@ class DesktopRuntimeWindow(QWidget):
         self._publish_monitoring_hud_placement_ownership()
         self._publish_monitoring_hud_controls_visibility()
         self._publish_monitoring_hud_status_behavior()
+        self._publish_monitoring_hud_control_state_to_page()
+        if not self._monitoring_hud_poll_timer.isActive():
+            self._monitoring_hud_poll_timer.start(self._monitoring_hud_polling_rate_ms)
+        if not self._monitoring_hud_control_sync_timer.isActive():
+            self._monitoring_hud_control_sync_timer.start(500)
         self._emit_runtime_signal(
             "MONITORING_HUD_VISIBLE_OVERLAY_READY",
             package="PKG-006",
@@ -6872,6 +7021,10 @@ class DesktopRuntimeWindow(QWidget):
     def _monitoring_hud_controls_visibility_contract(self) -> dict[str, str]:
         return build_monitoring_hud_controls_visibility_contract(
             desktop_mode=self.desktop_mode,
+            visible=self._monitoring_hud_visible,
+            anchored=self._monitoring_hud_anchored,
+            snap_enabled=self._monitoring_hud_snap_enabled,
+            polling_rate_ms=self._monitoring_hud_polling_rate_ms,
         ).as_dict()
 
     def _publish_monitoring_hud_controls_visibility(self):
@@ -6891,7 +7044,9 @@ class DesktopRuntimeWindow(QWidget):
             package="PKG-006",
             slice="SLC-027",
             controls="hud-controls-visibility",
-            persistence="not_persisted",
+            persistence="local_layout_state",
+            anchored=self._monitoring_hud_anchored,
+            polling_rate_ms=self._monitoring_hud_polling_rate_ms,
         )
 
     def _monitoring_hud_status_snapshot(self) -> dict[str, str]:
@@ -6925,6 +7080,8 @@ class DesktopRuntimeWindow(QWidget):
         self._log_event("RENDERER_MAIN|RENDERER_SHUTDOWN_BEGIN")
         self._is_shutting_down = True
         self._result_close_timer.stop()
+        self._monitoring_hud_poll_timer.stop()
+        self._monitoring_hud_control_sync_timer.stop()
 
         self._command_panel.hide()
         self.webview.stop()

@@ -205,6 +205,8 @@ class DesktopTrayEntry:
         self.identity_action = None
         self.open_overlay_action = None
         self.create_custom_task_action = None
+        self.monitoring_hud_toggle_action = None
+        self.monitoring_hud_unanchor_action = None
         self._discovery_cue_shown = False
 
     def _emit(self, event):
@@ -242,6 +244,17 @@ class DesktopTrayEntry:
                 lambda _checked=False: self.request_create_custom_task_from_tray("menu")
             )
             self.tray_menu.addAction(self.create_custom_task_action)
+            self.tray_menu.addSeparator()
+            self.monitoring_hud_toggle_action = QAction("Show / Hide Monitoring HUD", self.tray_menu)
+            self.monitoring_hud_toggle_action.triggered.connect(
+                lambda _checked=False: self.request_monitoring_hud_toggle_from_tray("menu")
+            )
+            self.tray_menu.addAction(self.monitoring_hud_toggle_action)
+            self.monitoring_hud_unanchor_action = QAction("Unanchor Monitoring HUD", self.tray_menu)
+            self.monitoring_hud_unanchor_action.triggered.connect(
+                lambda _checked=False: self.request_monitoring_hud_unanchor_from_tray("menu")
+            )
+            self.tray_menu.addAction(self.monitoring_hud_unanchor_action)
 
             self.tray_icon = QSystemTrayIcon(icon, self.app)
             self.tray_icon.setToolTip(TRAY_IDENTITY_LABEL)
@@ -279,6 +292,14 @@ class DesktopTrayEntry:
     def request_create_custom_task_from_tray(self, source):
         self._emit(f"RENDERER_MAIN|TRAY_CREATE_CUSTOM_TASK_REQUESTED|source={source}")
         self.window.request_create_custom_task_from_tray(source=source)
+
+    def request_monitoring_hud_toggle_from_tray(self, source):
+        self._emit(f"RENDERER_MAIN|TRAY_MONITORING_HUD_TOGGLE_REQUESTED|source={source}")
+        self.window.request_monitoring_hud_toggle_from_tray(source=source)
+
+    def request_monitoring_hud_unanchor_from_tray(self, source):
+        self._emit(f"RENDERER_MAIN|TRAY_MONITORING_HUD_UNANCHOR_REQUESTED|source={source}")
+        self.window.request_monitoring_hud_unanchor_from_tray(source=source)
 
     def show_discovery_cue(self):
         if self.tray_icon is None:

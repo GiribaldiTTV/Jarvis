@@ -25,6 +25,8 @@ class MonitoringHudPlacementContract:
     surface_owner: str
     anchor: str
     pointer_model: str
+    snap_model: str
+    card_layout_model: str
     z_index: str
     desktop_mode: str
     window_geometry: dict[str, int]
@@ -38,6 +40,8 @@ class MonitoringHudPlacementContract:
             "surfaceOwner": self.surface_owner,
             "anchor": self.anchor,
             "pointerModel": self.pointer_model,
+            "snapModel": self.snap_model,
+            "cardLayoutModel": self.card_layout_model,
             "zIndex": self.z_index,
             "desktopMode": self.desktop_mode,
             "windowGeometry": dict(self.window_geometry),
@@ -62,6 +66,8 @@ def build_monitoring_hud_placement_contract(
         surface_owner="Qt WebEngine desktop child surface",
         anchor="Movable top-right snap rail",
         pointer_model="Anchored click-through/no-focus-steal",
+        snap_model="20px snap grid with snap-disable posture",
+        card_layout_model="draggable/resizable category cards",
         z_index="18",
         desktop_mode="enabled" if desktop_mode else "pending",
         window_geometry={

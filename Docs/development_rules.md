@@ -703,14 +703,14 @@ A recap-style summary is not sufficient when manual validation is relevant.
 If no meaningful manual test exists for the change, Codex must say so explicitly under `## User Test Summary` and explain why manual validation is not materially relevant for that slice.
 `## User Test Summary Strategy` is planning context only; it does not satisfy the canonical repo-level `## User Test Summary` artifact.
 
-For active desktop workstreams, the default canonical repo-level `UTS` artifact is the `## User Test Summary` section in the relevant canonical workstream doc unless that doc explicitly declares a different repo path.
+For active desktop workstreams, the default canonical repo-level UTS planning surface is the User Test Summary strategy in the relevant canonical workstream doc unless that doc explicitly declares a different repo path. The formal exact `## User Test Summary` returned-results artifact belongs to Live Validation / PR Readiness final-green handling.
 
-When that artifact exists and supporting docs are in scope on the active branch, Codex must update it as part of the same slice by default.
+When that strategy exists and supporting docs are in scope on the active branch, Codex must update it as part of the same slice by default.
 
 For bounded multi-seam Workstream execution, User Test Summary handling is incremental plus final:
 
-- update the canonical workstream `## User Test Summary` as user-visible or operator-facing seams land
-- when the Workstream seam chain is complete, refresh the desktop export if the branch is user-facing
+- update the canonical workstream User Test Summary strategy as user-visible or operator-facing seams land
+- when the Workstream seam chain is complete, preserve the handoff needs for later Live Validation; do not use returned UTS results as a Workstream stop condition
 - before User Test Summary handoff in Live Validation, run the `User-Facing Shortcut Live Validation Gate` for relevant desktop user-facing workstreams and record `User-Facing Shortcut Path:` plus `User-Facing Shortcut Validation: PENDING`, `PASS`, `FAIL`, or `WAIVED`
 - digest returned user evidence in `Live Validation` before recommending phase advancement
 - route returned evidence back to `Workstream` for in-scope user-facing branch work, to `Hardening` for defects or validation gaps, or to backlog/defer handling for new feature requests
@@ -720,8 +720,9 @@ If required user-facing desktop shortcut evidence is outstanding, the active aut
 The shortcut blocker lifts only after `User-Facing Shortcut Validation: PASS` is recorded with evidence from the declared shortcut path, or `User-Facing Shortcut Validation: WAIVED` is recorded with `User-Facing Shortcut Waiver Reason:` proving the branch is not desktop/user-facing or the shortcut path is explicitly unavailable.
 If `User-Facing Shortcut Validation: FAIL`, keep an explicit blocker and route back to `Workstream` or `Hardening` instead of exporting the branch as final-green.
 
-If a required User Test Summary handoff is outstanding, the active authority record must carry the hard blocker `User Test Summary Results Pending`.
+If a required User Test Summary handoff is outstanding in Live Validation or PR Readiness, the active authority record must carry the hard blocker `User Test Summary Results Pending`.
 Live Validation green requires an exact `## User Test Summary` state before final green.
+Workstream must not list `User Test Summary Results Pending` as the reason to stop implementation; it must continue implementation, internal sandbox validation, or named Workstream repair while current-branch product work remains.
 
 Expected reporting model:
 

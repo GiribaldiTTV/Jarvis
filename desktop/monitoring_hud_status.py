@@ -24,6 +24,8 @@ class MonitoringHudStatusSnapshot:
     status_label: str
     no_data_behavior: str
     degraded_behavior: str
+    warning_state: str
+    warning_posture: str
     source_truth: str
 
     def as_dict(self) -> dict[str, str]:
@@ -35,6 +37,8 @@ class MonitoringHudStatusSnapshot:
             "statusLabel": self.status_label,
             "noDataBehavior": self.no_data_behavior,
             "degradedBehavior": self.degraded_behavior,
+            "warningState": self.warning_state,
+            "warningPosture": self.warning_posture,
             "sourceTruth": self.source_truth,
         }
 
@@ -68,5 +72,7 @@ def build_monitoring_hud_status_snapshot(
         status_label=status_label,
         no_data_behavior="Show setup/unavailable state; do not invent hardware values",
         degraded_behavior="Name reconnect/setup gap with visual warning only",
+        warning_state="advisory",
+        warning_posture="Visual badge, color state, and text label only",
         source_truth="Provider-contract-first local readiness only",
     )

@@ -322,6 +322,27 @@ FAM006_STAGE2_R10_REQUIRED_PHRASES = (
     "PKG-006 remains In Progress",
     "package completion remains unclaimed",
 )
+FAM006_WORKSTREAM_CONTINUATION_REQUIRED_PHRASES = (
+    "multi-slice HUD implementation continuation",
+    "WS8 - Monitoring HUD Internal Sandbox Harness And State Matrix Baseline",
+    "WS9 - Monitoring HUD Shell Module And Product Surface Extraction",
+    "WS10 - Panel Movement Anchoring And Click-Through Runtime Behavior",
+    "WS11 - Task-Tray Toggle And Unanchor Control Path",
+    "WS12 - Category Card Layout Drag Resize And Snapping",
+    "WS13 - Sensor Membership And Category Card Configuration Model",
+    "WS14 - Safe Native Telemetry Provider Proof",
+    "WS15 - Polling Cadence And Performance Guardrail",
+    "WS16 - Visual Warning Baseline And Threshold Posture",
+    "WS17 - Workstream Product Proof Refresh And Completion Review",
+    "Formal User Test Summary handoff is reserved for Live Validation",
+)
+FAM006_FORBIDDEN_WORKSTREAM_UTS_PHRASES = (
+    "Workstream WS8 - Monitoring HUD User Test Summary And Product Acceptance Digest",
+    "WS8 User Test Summary blocker active",
+    "User Test Summary Results Pending` is a named Workstream blocker",
+    "Workstream is stopped on `User Test Summary Results Pending`",
+    "WS8 blocked on User Test Summary",
+)
 USER_VISION_INPUT_HANDOFF_MARKERS = (
     "USER Vision Input Artifact Path:",
     "USER Vision Input Artifact State:",
@@ -4649,6 +4670,22 @@ def _validate_fam006_stage2_r6_plan(
             ),
         )
     elif current_phase == "Workstream":
+        for forbidden_phrase in FAM006_FORBIDDEN_WORKSTREAM_UTS_PHRASES:
+            require(
+                forbidden_phrase not in text,
+                (
+                    f"{source_path}: FAM-006 Workstream must not preserve stale UTS-as-Workstream "
+                    f"completion wording '{forbidden_phrase}'"
+                ),
+            )
+        for required_phrase in FAM006_WORKSTREAM_CONTINUATION_REQUIRED_PHRASES:
+            require(
+                required_phrase in text,
+                (
+                    f"{source_path}: FAM-006 Workstream continuation truth is missing "
+                    f"'{required_phrase}'"
+                ),
+            )
         if stage2_r10_section:
             for phrase in FAM006_STAGE2_R10_REQUIRED_PHRASES:
                 require(
@@ -12464,6 +12501,20 @@ def main() -> int:
                 workstream_text,
                 branch_class=branch_class,
                 current_phase=current_phase,
+            )
+            require(
+                UTS_RESULTS_BLOCKER not in blockers,
+                (
+                    f"{canonical_path}: {UTS_RESULTS_BLOCKER} is a Live Validation / PR Readiness "
+                    "final-green blocker, not a Workstream stop condition"
+                ),
+            )
+            require(
+                _parse_uts_result_state(workstream_text) == "",
+                (
+                    f"{canonical_path}: Workstream may keep User Test Summary strategy current, "
+                    f"but must not declare '{UTS_RESULT_LABEL}' before Live Validation"
+                ),
             )
 
         if current_phase in {"Live Validation", "PR Readiness"}:
