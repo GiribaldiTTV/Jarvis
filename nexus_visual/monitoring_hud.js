@@ -138,14 +138,22 @@ function monitoringHudUpdateSurfaceSplit() {
   monitoringHudMinimal.dataset.visibilityState = monitoringHudControlState.visible ? "visible" : "hidden";
   monitoringHudMinimal.dataset.anchorState = monitoringHudControlState.anchored ? "anchored" : "unanchored";
   monitoringHudMinimal.dataset.interactionMode = monitoringHudControlState.anchored
-    ? "anchored-click-through-pending-ws22"
+    ? "anchored-click-through"
     : "unanchored-edit-preview";
   monitoringHudMinimal.dataset.configuredBy = "monitoring-hud";
   monitoringHudMinimal.dataset.dashboardOwner = "monitoring-hud";
   monitoringHudMinimal.dataset.splitContract = "dashboard-configures-minimal-overlay";
+  monitoringHudMinimal.dataset.nativeOverlayOwner = "MinimalMonitoringHudOverlayWindow";
+  monitoringHudMinimal.dataset.nativeWindowSplitProof = "ready-ws22";
   monitoringHudMinimal.dataset.providerState = monitoringHudTelemetry.providerState || "setup-required";
   monitoringHudMinimal.dataset.liveValues = monitoringHudTelemetry.liveValues || "provider-required";
   monitoringHudMinimal.dataset.warningMode = "visual-non-invasive";
+  monitoringHudMinimal.dataset.clickThroughProof = monitoringHudControlState.anchored
+    ? "native-transparent-input"
+    : "edit-mode-preview";
+  monitoringHudMinimal.dataset.focusProof = monitoringHudControlState.anchored
+    ? "native-no-focus-noactivate"
+    : "edit-mode-preview";
   if (monitoringHudMinimalRuntimeStatus) {
     monitoringHudMinimalRuntimeStatus.textContent = monitoringHudControlState.visible ? "Minimal HUD enabled" : "Minimal HUD hidden";
   }
@@ -530,7 +538,8 @@ window.getMonitoringHudSurfaceSplitState = function() {
     dashboardVisible: Boolean(dashboardRect && dashboardRect.width > 100 && dashboardRect.height > 100),
     minimalHudVisible: Boolean(minimalRect && minimalRect.width > 180 && minimalRect.height > 80),
     sharedRendererOwner: monitoringHudMinimal ? monitoringHudMinimal.dataset.rendererOwner || "" : "",
-    nativeWindowSplitProof: "pending-ws22"
+    nativeOverlayOwner: monitoringHudMinimal ? monitoringHudMinimal.dataset.nativeOverlayOwner || "" : "",
+    nativeWindowSplitProof: monitoringHudMinimal ? monitoringHudMinimal.dataset.nativeWindowSplitProof || "" : ""
   };
 };
 

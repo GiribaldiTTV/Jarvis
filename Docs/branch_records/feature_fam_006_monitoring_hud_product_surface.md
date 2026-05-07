@@ -24,7 +24,7 @@ This branch may execute the admitted PKG-006 implementation slices during Workst
 
 ## Status
 
-- `Workstream WS21 - Dashboard Movement And Product Scrollbar Polish`
+- `Workstream WS22 - Minimal HUD Anchoring Click-Through And Non-Focus Proof`
 
 ## Canonical Branch
 
@@ -37,7 +37,7 @@ This branch may execute the admitted PKG-006 implementation slices during Workst
 ## Phase Status
 
 - Branch Readiness Stage: `Complete - Stage 1-R8 revalidated the Stage 2-R11 dashboard/minimal-HUD and Core non-interference source-truth repair and handed the branch to bounded Workstream repair`
-- Workstream Stage: `WS21 Green - dashboard movement is smoothed through rAF/local persistence-on-release and native drag status throttling, and dashboard scrollbar styling now uses Nexus/NDAI thin-glow polish; remaining minimal-HUD anchoring/click-through proof and refreshed live/UTS proof continue in later bounded seams`
+- Workstream Stage: `WS22 Green - the minimal Monitoring HUD now has a separate native overlay window with transparent-input click-through, no-focus/no-activate posture, separate HWND proof, dashboard-configured ownership, and live-client self-QA proof; refreshed proof/UTS handoff and Workstream completion reconciliation continue in later bounded seams`
 - Hardening Stage: `Blocked - prior H1 pressure-test evidence is preserved but must rerun after bounded Workstream repair`
 - Live Validation Stage: `Red - LV1 returned User Test Summary evidence contains blocking findings; LV1 is not green and must route back before PR Readiness`
 - Active Branch: `feature/fam-006-monitoring-hud-product-surface`
@@ -52,7 +52,7 @@ This branch may execute the admitted PKG-006 implementation slices during Workst
 - Admitted Slice Count: `6`
 - Package Completion State: `In Progress - returned User Test Summary evidence blocks Live Validation green; product proof, User Test Summary acceptance, PR Readiness, and final package completion remain unclaimed`
 - Single-Slice Package User Approval: `Not required - PKG-006 has six concrete admitted slices; no waiver granted`
-- Runtime Implementation State: `WS21 runtime repair complete for dashboard movement and product scrollbar polish. ORIN Core transparency/non-interference from WS18, dashboard/minimal-HUD renderer-visible split from WS19, and dashboard configuration content from WS20 remain preserved. Dashboard drag now batches browser-side panel position through requestAnimationFrame, persists local layout on release instead of every move, throttles native drag status/log emission until release, and styles dashboard scrollbars with Nexus/NDAI thin-glow treatment. Remaining returned-UTS product blockers still require later bounded Workstream seams for minimal HUD anchoring/click-through OS-level proof and validation/live proof expansion. Future provider-platform parity, external/plugin telemetry, audio/spoken alerts, persona switching, Stream Deck, graphs/history/persistence dashboards, local AI/capability packs, installer work, and ultra-low polling remain deferred.`
+- Runtime Implementation State: `WS22 runtime repair complete for minimal HUD anchoring, click-through, and non-focus proof. ORIN Core transparency/non-interference from WS18, dashboard/minimal-HUD renderer-visible split from WS19, dashboard configuration content from WS20, and dashboard movement/scrollbar polish from WS21 remain preserved. A separate MinimalMonitoringHudOverlayWindow now carries the actual lightweight anchored HUD layer with transparent input, no-focus/no-activate native flags, separate HWND proof, dashboard-configured ownership, and live-client self-QA proof while the dashboard remains the configuration surface. Remaining returned-UTS product blockers still require later bounded seams for expanded validation/live proof, refreshed UTS handoff, Workstream completion reconciliation, and Hardening handoff. Future provider-platform parity, external/plugin telemetry, audio/spoken alerts, persona switching, Stream Deck, graphs/history/persistence dashboards, local AI/capability packs, installer work, and ultra-low polling remain deferred.`
 - PR Creation State: `Not approved in Branch Readiness`
 - Watcher Provisioning State: `Not approved in Branch Readiness`
 - Release Work State: `Not approved; v1.6.13-prebeta release execution is already complete and no new release work is in scope`
@@ -105,6 +105,7 @@ These findings are the bounded Workstream repair queue, not a Workstream stop la
 - HUD Dashboard / Minimal HUD Separation Missing is cleared by WS19 for renderer-visible product-surface identity because the dashboard/configuration surface and minimal anchored HUD overlay now have separate DOM surfaces, runtime markers, geometry proof, and validator coverage. Independent native-window ownership and OS-level minimal-HUD click-through/non-focus proof remain assigned to later bounded repair seams.
 - HUD Dashboard Content Relevance Gap is cleared by WS20 because bottom technical proof boxes are rerouted into dashboard-useful sensor setup, minimal HUD output, controls, readiness-state, and next-action content while technical proof remains in validators/log evidence.
 - HUD Dashboard Drag Smoothness Regression and Default Scrollbar Product Styling Gap are cleared by WS21 because browser-side panel drag is requestAnimationFrame-batched with local persistence on release, native drag status/log output is emitted on release instead of every mousemove, and dashboard scrolling uses Nexus/NDAI thin-glow scrollbar styling.
+- Minimal HUD Anchoring Click-Through And Non-Focus Proof Gap is cleared by WS22 because the actual lightweight Monitoring HUD overlay is now a separate native `MinimalMonitoringHudOverlayWindow` with transparent-input click-through, no-focus/no-activate native posture, separate HWND proof, dashboard-configured ownership, runtime markers, internal sandbox validation, live-client self-QA proof, and full virtual-desktop screenshot evidence.
 - Backlog Addition User Approval Missing remains active for any new FAM/package, backlog split, family promotion beyond this branch authority, runtime branch outside this carrier, or single-slice waiver.
 - Bounded Workstream Continuation Drift is repaired by the WS8 source-truth correction: WS7 completion no longer points to Hardening while PKG-006 remains In Progress and no USER single-seam/backlog-split waiver exists.
 
@@ -138,15 +139,15 @@ The operator-supplied Stage 2 terminal evidence was not sufficient by itself bec
 
 - `Workstream`
 
-Rollback Path: revert the WS21 dashboard movement and product scrollbar polish repair commit on `feature/fam-006-monitoring-hud-product-surface` before PR merge; no tags, releases, artifacts, PR, watcher, or `main` mutation are created by this Workstream repair pass.
+Rollback Path: revert the WS22 minimal native HUD overlay repair commit on `feature/fam-006-monitoring-hud-product-surface` before PR merge; no tags, releases, artifacts, PR, watcher, or `main` mutation are created by this Workstream repair pass.
 
 ## Next Legal Phase
 
 - `Workstream`
 
-Next Legal Seam: `Workstream WS22 - Minimal HUD Anchoring Click-Through And Non-Focus Proof`
+Next Legal Seam: `Workstream WS23 - Validation Live Proof Expansion And Refreshed UTS Handoff`
 
-Next Legal Phase Gate: WS18 proves the Core visualization no longer paints an opaque blocking foreground slab and keeps desktop/window content visible around the intended Core visual. WS19 proves the dashboard/configuration surface and minimal anchored HUD overlay are separate renderer-visible product surfaces with distinct DOM identity, runtime markers, geometry proof, dashboard-configured ownership, and validator coverage. WS20 proves dashboard-visible content is configuration-centered instead of technical proof-box clutter. WS21 proves dashboard movement/persistence and product scrollbar polish are repaired. Live Validation remains red and PR Readiness must not begin until later bounded Workstream repair proves minimal HUD anchoring/click-through behavior, expanded proof requirements, Hardening, active-client Live Validation, and returned User Test Summary acceptance. Repair must preserve provider-contract-first truth, no fake metrics, visual/non-invasive warnings, ORIN/ARIA planning boundaries, future-package deferrals, user-facing shortcut/equivalent entrypoint proof, full virtual-desktop screenshot handoff, and formal User Test Summary returned-results digestion. It must not create a PR, watcher, release, tag, artifact, direct-main mutation, voice/audio implementation, Stream Deck/plugin telemetry implementation, local AI, installer/capability-pack work, broad hardware provider implementation, persona switching implementation, ARIA activation, or a new FAM/package without later explicit USER approval.
+Next Legal Phase Gate: WS18 proves the Core visualization no longer paints an opaque blocking foreground slab and keeps desktop/window content visible around the intended Core visual. WS19 proves the dashboard/configuration surface and minimal anchored HUD overlay are separate renderer-visible product surfaces with distinct DOM identity, runtime markers, geometry proof, dashboard-configured ownership, and validator coverage. WS20 proves dashboard-visible content is configuration-centered instead of technical proof-box clutter. WS21 proves dashboard movement/persistence and product scrollbar polish are repaired. WS22 proves the actual minimal Monitoring HUD overlay is a separate native click-through/no-focus surface. Live Validation remains red and PR Readiness must not begin until later bounded Workstream repair expands validation/live proof, refreshes the UTS handoff, reruns Hardening, reruns active-client Live Validation, and returns User Test Summary acceptance. Repair must preserve provider-contract-first truth, no fake metrics, visual/non-invasive warnings, ORIN/ARIA planning boundaries, future-package deferrals, user-facing shortcut/equivalent entrypoint proof, full virtual-desktop screenshot handoff, and formal User Test Summary returned-results digestion. It must not create a PR, watcher, release, tag, artifact, direct-main mutation, voice/audio implementation, Stream Deck/plugin telemetry implementation, local AI, installer/capability-pack work, broad hardware provider implementation, persona switching implementation, ARIA activation, or a new FAM/package without later explicit USER approval.
 
 ## Branch Objective
 
@@ -397,7 +398,7 @@ Branch Closure Rule: this branch has left Branch Readiness for bounded Workstrea
 ## Backlog Completion Status
 
 Backlog Completion State: `In Progress`
-Remaining Implementable Work: `WS22 minimal HUD anchoring/click-through/non-focus proof; WS23 validation/live proof expansion and refreshed UTS handoff`
+Remaining Implementable Work: `WS23 validation/live proof expansion and refreshed UTS handoff; WS24 Workstream completion reconciliation and Hardening handoff`
 Future-Dependent Blockers: `full HWInfo/HWMonitor-level parity, broad plugin/external telemetry ecosystem, audio/spoken alerts or FAM-004 integration, persona switching implementation and ARIA activation, Stream Deck, graphs/history/persistence/dashboards, local AI/capability-pack monitoring, installer/capability-pack work, and ultra-low polling intervals remain deferred pending later approval, admission, and proof`
 Completion Status: `In Progress`
 
@@ -427,7 +428,7 @@ Bounded Seam Default: `One active seam at a time; not one-seam Workstream author
 - If only one seam or one slice is planned or visible, stop immediately on `Single-Seam Or Single-Slice Workstream Blocker` until Branch Readiness expands the plan or USER grants a waiver.
 - Only USER can grant a single-seam or single-slice Workstream waiver; Codex, ChatGPT, validators, prompt wording, clean validation, or a green seam cannot infer it.
 - A Workstream with `Completion Status: In Progress` and no waiver must show remaining same-branch implementable work beyond the current seam.
-- PKG-006 currently has multiple visible same-branch repair seams (`WS22` through `WS23`), so this blocker is not active; Workstream must continue through them before any Hardening handoff.
+- PKG-006 currently has multiple visible same-branch repair seams after WS22 (`WS23` validation/live proof expansion and refreshed UTS handoff; `WS24` Workstream completion reconciliation and Hardening handoff), so this blocker is not active; Workstream must continue through them before any Hardening phase entry.
 
 ## Admitted Implementation Slice
 
@@ -435,12 +436,12 @@ Primary Entry Slice: `SLC-016 HUD visual and user-facing monitoring surface`
 
 | Slice ID | Package ID | FAM ID | Slice Name | Admission State | Slice Status | Completion State | Seam Trace |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| `SLC-016` | `PKG-006` | `FAM-006` | HUD visual and user-facing monitoring surface | Admitted | Repair Required | WS19 separates the dashboard/configuration surface from the minimal anchored HUD overlay at DOM/runtime-marker/proof level; user-facing HUD remains repair-required until dashboard polish, minimal-HUD click-through/no-focus proof, refreshed live validation, and UTS acceptance pass | `BR-S2-S1`; `WS1`; `WS7`; `WS9`; `WS17`; `LV1-R1`; `WS19`; `dev/orin_monitoring_hud_surface_validation.py`; `dev/orin_monitoring_hud_live_validation.ps1` |
+| `SLC-016` | `PKG-006` | `FAM-006` | HUD visual and user-facing monitoring surface | Admitted | Repair Required | WS19 separates the dashboard/configuration surface from the minimal anchored HUD overlay at DOM/runtime-marker/proof level, and WS22 adds the actual separate native minimal HUD overlay. User-facing HUD remains repair-required until refreshed live validation and UTS acceptance pass | `BR-S2-S1`; `WS1`; `WS7`; `WS9`; `WS17`; `LV1-R1`; `WS19`; `WS22`; `dev/orin_monitoring_hud_surface_validation.py`; `dev/orin_monitoring_hud_live_validation.ps1` |
 | `SLC-025` | `PKG-006` | `FAM-006` | Runtime telemetry source and adapter boundary | Admitted | Green | Complete for Workstream - provider-contract boundary plus bounded native CPU-load proof; GPU/thermal provider parity deferred | `BR-S2-S2`; `WS2`; `WS14`; `WS15`; `desktop/monitoring_hud_telemetry.py`; `dev/orin_monitoring_hud_internal_sandbox_validation.py` |
-| `SLC-026` | `PKG-006` | `FAM-006` | Desktop placement and renderer ownership | Admitted | Repair Required | WS18 repaired Core foreground opacity/non-interference with transparent Core render/runtime proof; WS19 adds separate dashboard/minimal-HUD renderer-visible ownership markers and geometry proof; WS21 smooths dashboard/native movement. Independent minimal-HUD anchoring/click-through proof remains repair required. | `BR-S2-S3`; `WS3`; `WS10`; `WS12`; `LV1-R1`; `WS18`; `WS19`; `WS21`; `desktop/monitoring_hud_placement.py`; `desktop/desktop_renderer.py`; `dev/orin_monitoring_hud_internal_sandbox_validation.py` |
+| `SLC-026` | `PKG-006` | `FAM-006` | Desktop placement and renderer ownership | Admitted | Repair Required | WS18 repaired Core foreground opacity/non-interference with transparent Core render/runtime proof; WS19 adds separate dashboard/minimal-HUD renderer-visible ownership markers and geometry proof; WS21 smooths dashboard/native movement; WS22 adds separate native minimal overlay ownership with transparent-input click-through and no-focus/no-activate proof. Final repair remains pending refreshed proof/UTS acceptance. | `BR-S2-S3`; `WS3`; `WS10`; `WS12`; `LV1-R1`; `WS18`; `WS19`; `WS21`; `WS22`; `desktop/monitoring_hud_placement.py`; `desktop/desktop_renderer.py`; `dev/orin_monitoring_hud_internal_sandbox_validation.py` |
 | `SLC-027` | `PKG-006` | `FAM-006` | Settings and user controls visibility | Admitted | Repair Required | WS19 clarifies the dashboard as the configuration/settings surface that configures the minimal HUD; WS20 replaces technical proof boxes with useful configuration content; WS21 adds movement and scrollbar polish. Final acceptance still requires refreshed proof and UTS acceptance. | `BR-S2-S4`; `WS4`; `WS11`; `WS13`; `LV1-R1`; `WS19`; `WS20`; `WS21`; `desktop/monitoring_hud_controls.py`; `desktop/orin_desktop_main.py`; `nexus_visual/monitoring_hud.js` |
 | `SLC-028` | `PKG-006` | `FAM-006` | Fail-safe, no-data, and degraded-status behavior | Admitted | Repair Required | WS20 routes setup/no-data/degraded behavior into user-useful dashboard and minimal-HUD copy; final acceptance still requires refreshed proof and UTS acceptance | `BR-S2-S5`; `WS5`; `WS16`; `LV1-R1`; `WS20`; `desktop/monitoring_hud_status.py`; `dev/orin_monitoring_hud_surface_validation.py` |
-| `SLC-029` | `PKG-006` | `FAM-006` | Validation and live desktop proof | Admitted | Repair Required | WS18 adds Core transparency/non-interference proof, WS19 adds dashboard/minimal-HUD split proof, WS20 adds dashboard-content proof, and WS21 adds movement/scrollbar proof, but validators must still expand for minimal-HUD OS-level click-through/non-focus proof, refreshed full-desktop proof, Hardening rerun, Live Validation rerun, and UTS acceptance | `BR-S2-S6`; `WS6`; `WS8`; `WS17`; `H1`; `LV1-R1`; `WS18`; `WS19`; `WS20`; `WS21`; `dev/orin_monitoring_hud_internal_sandbox_validation.py`; `dev/orin_monitoring_hud_live_validation.ps1` |
+| `SLC-029` | `PKG-006` | `FAM-006` | Validation and live desktop proof | Admitted | Repair Required | WS18 adds Core transparency/non-interference proof, WS19 adds dashboard/minimal-HUD split proof, WS20 adds dashboard-content proof, WS21 adds movement/scrollbar proof, and WS22 adds native minimal-overlay click-through/non-focus proof, but validators must still expand for refreshed proof handoff, Hardening rerun, Live Validation rerun, and UTS acceptance | `BR-S2-S6`; `WS6`; `WS8`; `WS17`; `H1`; `LV1-R1`; `WS18`; `WS19`; `WS20`; `WS21`; `WS22`; `dev/orin_monitoring_hud_internal_sandbox_validation.py`; `dev/orin_monitoring_hud_live_validation.ps1` |
 
 ## Deferred / Future Slice Ledger
 
@@ -921,6 +922,27 @@ Validation Evidence Expectations: return PASS/FAIL plus any notes, screenshots, 
 - Affected Slice Update: `SLC-026 receives movement-smoothness proof; SLC-027 receives product scrollbar polish proof; SLC-029 receives movement/scrollbar marker coverage. Minimal-HUD OS-level click-through/non-focus proof and refreshed validation/UTS proof remain pending.`
 - Boundary Preservation: `Provider-contract-first truth, no fake telemetry values, Nexus/NDAI/Monitoring HUD naming, ORIN shipped/default persona and ARIA future/locked planning boundary, visual/non-invasive warning posture, future-package deferrals, current branch as the FAM-006 carrier, FAM -> Package -> Slice -> Seam, Element Coverage non-identity, single-slice package blocker, package completion blocker, PR evidence-only handling, legacy FB historical-only handling, Branch Readiness Stage 1 / Stage 2, PR Readiness Stage 1 / Stage 2, real-carrier/current-branch repair rule, and bounded seam default remain preserved.`
 - Next Legal Seam: `Workstream WS22 - Minimal HUD Anchoring Click-Through And Non-Focus Proof`
+
+## Workstream WS22 Minimal HUD Anchoring Click-Through And Non-Focus Proof
+
+- Repair Date: `2026-05-07`
+- Seam Result: `Green - bounded WS22 added and proved the actual minimal Monitoring HUD as a separate native overlay window`
+- LV1 State: `Still red - returned User Test Summary FAIL evidence remains active for refreshed proof, Hardening rerun, Live Validation rerun, and returned UTS acceptance`
+- PR Readiness State: `Blocked - no PR creation, watcher provisioning, release work, tag, GitHub Release, artifact, direct-main mutation, or package completion claim is authorized`
+- Package State: `PKG-006 remains In Progress; package completion remains unclaimed`
+- Native Minimal HUD Summary: `desktop/desktop_renderer.py now owns a separate MinimalMonitoringHudOverlayWindow for the lightweight anchored Monitoring HUD. The overlay is separate from the dashboard/configuration window, uses Nexus/NDAI product copy, shows provider setup/status and visual warning posture without fake telemetry, and remains visible as the actual minimal HUD layer.`
+- Click-Through / Non-Focus Summary: `The native minimal overlay uses transparent-input, no-focus, show-without-activating, WS_EX_TRANSPARENT, and WS_EX_NOACTIVATE posture. Live-client self-QA proves it has a separate HWND, that WindowFromPoint at the overlay center bypasses the overlay, and that the dashboard controls remain interactive as the configuration surface.`
+- Runtime Markers: `MONITORING_HUD_MINIMAL_NATIVE_OVERLAY_READY`; `MONITORING_HUD_MINIMAL_ANCHORED_CLICK_THROUGH_READY`; `MONITORING_HUD_MINIMAL_NON_FOCUS_READY`
+- Internal Sandbox Proof: `dev/logs/fam_006_monitoring_hud_internal_sandbox/20260507_152244_manifest.json`
+- Live Proof Root: `dev/logs/fam_006_monitoring_hud_live_validation/20260507_151608`
+- Live Proof Manifest: `dev/logs/fam_006_monitoring_hud_live_validation/20260507_151608/manifest.json`
+- Live Interaction Manifest: `dev/logs/fam_006_monitoring_hud_live_validation/20260507_151608/monitoring_hud_live_client_interaction_manifest.json`
+- Live Proof Screenshot: `dev/logs/fam_006_monitoring_hud_live_validation/20260507_151608/monitoring_hud_desktop.png`
+- USER-Inspectable Screenshot: `C:\Users\anden\OneDrive\Pictures\Screenshots\Nexus Desktop AI\fam_006_monitoring_hud_live_validation\20260507_151608\monitoring_hud_full_virtual_desktop.png`
+- Affected Slice Update: `SLC-016 receives native minimal-HUD product-surface evidence; SLC-026 receives separate native overlay ownership, click-through, and no-focus/no-activate proof; SLC-029 receives native minimal-HUD proof marker coverage. Refreshed validation/live proof expansion, Workstream completion reconciliation, Hardening rerun, Live Validation rerun, and UTS acceptance remain pending.`
+- Boundary Preservation: `Provider-contract-first truth, no fake telemetry values, Nexus/NDAI/Monitoring HUD naming, ORIN shipped/default persona and ARIA future/locked planning boundary, visual/non-invasive warning posture, future-package deferrals, current branch as the FAM-006 carrier, FAM -> Package -> Slice -> Seam, Element Coverage non-identity, single-slice package blocker, package completion blocker, PR evidence-only handling, legacy FB historical-only handling, Branch Readiness Stage 1 / Stage 2, PR Readiness Stage 1 / Stage 2, real-carrier/current-branch repair rule, and bounded seam default remain preserved.`
+- Next Legal Seam: `Workstream WS23 - Validation Live Proof Expansion And Refreshed UTS Handoff`
+- Remaining Bounded Workstream Seam After WS23: `Workstream WS24 - Workstream Completion Reconciliation And Hardening Handoff`
 
 ## Codex Live Client Self-QA
 
