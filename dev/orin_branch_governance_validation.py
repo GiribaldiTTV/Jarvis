@@ -1625,6 +1625,7 @@ CODEX_LIVE_CLIENT_SELF_QA_PHRASES = (
     "Codex Live Client Self-QA Gate",
     "Codex Live Client Self-QA:",
     "Visual Quality:",
+    "Live Interaction Evidence:",
     "Usability Check:",
     "Platform Uniformity Check:",
 )
@@ -1638,6 +1639,9 @@ CODEX_LIVE_CLIENT_SELF_QA_REQUIRED_MARKERS = (
     "Live Client Entry Path:",
     "Evidence Screenshot:",
     "Visual Quality:",
+    "Interaction Manifest:",
+    "Interaction Evidence Root:",
+    "Live Interaction Evidence:",
     "Usability Check:",
     "Interaction Check:",
     "Platform Uniformity Check:",

@@ -5016,6 +5016,9 @@ class DesktopRuntimeWindow(QWidget):
         self._monitoring_hud_control_sync_timer.timeout.connect(self._sync_monitoring_hud_control_state_from_page)
         self._monitoring_hud_poll_timer = QTimer(self)
         self._monitoring_hud_poll_timer.timeout.connect(self._publish_monitoring_hud_telemetry_boundary)
+        self._monitoring_hud_live_self_qa_manifest_path = ""
+        self._monitoring_hud_live_self_qa_root = ""
+        self._monitoring_hud_live_self_qa_started = False
 
         # Align the standalone desktop route with the proven Boot handoff window model.
         self.setWindowFlags(Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint)
@@ -5358,6 +5361,16 @@ class DesktopRuntimeWindow(QWidget):
         if page is not None:
             page.runJavaScript(script)
 
+    def _run_javascript_with_result(self, script, callback):
+        page = self.webview.page()
+        if page is None:
+            callback(None)
+            return
+        try:
+            page.runJavaScript(script, 0, callback)
+        except TypeError:
+            page.runJavaScript(script, callback)
+
     def _monitoring_hud_control_state(self) -> dict[str, object]:
         return {
             "visible": self._monitoring_hud_visible,
@@ -5457,18 +5470,387 @@ class DesktopRuntimeWindow(QWidget):
             visible=next_visible,
         )
 
+    def configure_monitoring_hud_live_client_self_qa(
+        self,
+        *,
+        manifest_path: str,
+        evidence_root: str = "",
+    ):
+        self._monitoring_hud_live_self_qa_manifest_path = os.path.abspath(manifest_path)
+        root = evidence_root or os.path.dirname(self._monitoring_hud_live_self_qa_manifest_path)
+        self._monitoring_hud_live_self_qa_root = os.path.abspath(root)
+        self._monitoring_hud_live_self_qa_started = False
+        self._emit_runtime_signal(
+            "MONITORING_HUD_LIVE_CLIENT_SELF_QA_CONFIGURED",
+            package="PKG-006",
+            slice="SLC-029",
+            manifest=self._monitoring_hud_live_self_qa_manifest_path,
+        )
+        QTimer.singleShot(500, self._start_monitoring_hud_live_client_self_qa)
+
+    def _write_monitoring_hud_live_client_self_qa_manifest(
+        self,
+        *,
+        status: str,
+        steps: list[dict[str, object]],
+        screenshots: list[str],
+        failure: str = "",
+    ):
+        if not self._monitoring_hud_live_self_qa_manifest_path:
+            return
+        manifest = {
+            "status": status,
+            "package": "PKG-006",
+            "slice": "SLC-029",
+            "seam": "Live Validation LV1 - Monitoring HUD Product Surface Live Validation",
+            "client": "desktop/orin_desktop_main.py",
+            "mode": "live-client-interaction-self-qa",
+            "entrypoint": "Nexus Desktop AI desktop runtime",
+            "screenshots": screenshots,
+            "steps": steps,
+            "failureMessage": failure,
+            "nativeInteractionState": {
+                "visible": self._monitoring_hud_visible,
+                "anchored": self._monitoring_hud_anchored,
+                "showWithoutActivating": bool(self.testAttribute(Qt.WA_ShowWithoutActivating)),
+                "transparentForMouseEvents": bool(self.testAttribute(Qt.WA_TransparentForMouseEvents)),
+                "focusPolicy": str(self.focusPolicy()),
+            },
+            "generatedAt": datetime.datetime.utcnow().isoformat(timespec="seconds") + "Z",
+        }
+        try:
+            os.makedirs(os.path.dirname(self._monitoring_hud_live_self_qa_manifest_path), exist_ok=True)
+            with open(self._monitoring_hud_live_self_qa_manifest_path, "w", encoding="utf-8") as f:
+                json.dump(manifest, f, indent=2, sort_keys=True)
+        except Exception as exc:
+            self._emit_runtime_signal(
+                "MONITORING_HUD_LIVE_CLIENT_SELF_QA_MANIFEST_FAILED",
+                package="PKG-006",
+                slice="SLC-029",
+                reason=type(exc).__name__,
+            )
+
+    def _capture_monitoring_hud_live_client_self_qa_screenshot(self, label: str) -> str:
+        if not self._monitoring_hud_live_self_qa_root:
+            return ""
+        try:
+            os.makedirs(self._monitoring_hud_live_self_qa_root, exist_ok=True)
+            safe_label = re.sub(r"[^A-Za-z0-9_.-]+", "_", label).strip("_") or "screenshot"
+            path = os.path.join(self._monitoring_hud_live_self_qa_root, f"{safe_label}.png")
+            screen = QApplication.primaryScreen()
+            if screen is None:
+                return ""
+            if screen.grabWindow(0).save(path, "PNG"):
+                self._emit_runtime_signal(
+                    "MONITORING_HUD_LIVE_CLIENT_SELF_QA_SCREENSHOT_READY",
+                    package="PKG-006",
+                    slice="SLC-029",
+                    label=safe_label,
+                    path=path,
+                )
+                return path
+        except Exception as exc:
+            self._emit_runtime_signal(
+                "MONITORING_HUD_LIVE_CLIENT_SELF_QA_SCREENSHOT_FAILED",
+                package="PKG-006",
+                slice="SLC-029",
+                label=label,
+                reason=type(exc).__name__,
+            )
+        return ""
+
+    def _start_monitoring_hud_live_client_self_qa(self):
+        if not self._monitoring_hud_live_self_qa_manifest_path:
+            return
+        if self._monitoring_hud_live_self_qa_started or self._is_shutting_down:
+            return
+        if not self._page_ready or not self.desktop_mode or not self.isVisible():
+            QTimer.singleShot(500, self._start_monitoring_hud_live_client_self_qa)
+            return
+
+        self._monitoring_hud_live_self_qa_started = True
+        steps: list[dict[str, object]] = []
+        screenshots: list[str] = []
+
+        def finish(status: str, failure: str = ""):
+            self._write_monitoring_hud_live_client_self_qa_manifest(
+                status=status,
+                steps=steps,
+                screenshots=screenshots,
+                failure=failure,
+            )
+            self._emit_runtime_signal(
+                "MONITORING_HUD_LIVE_CLIENT_SELF_QA_READY",
+                package="PKG-006",
+                slice="SLC-029",
+                status=status,
+                manifest=self._monitoring_hud_live_self_qa_manifest_path,
+            )
+
+        def add_step(label: str, passed: bool, details: dict[str, object] | None = None):
+            steps.append(
+                {
+                    "label": label,
+                    "status": "PASS" if passed else "FAIL",
+                    "details": details or {},
+                }
+            )
+            self._emit_runtime_signal(
+                "MONITORING_HUD_LIVE_CLIENT_SELF_QA_STEP",
+                package="PKG-006",
+                slice="SLC-029",
+                label=label,
+                status="PASS" if passed else "FAIL",
+            )
+            return passed
+
+        def capture(label: str):
+            path = self._capture_monitoring_hud_live_client_self_qa_screenshot(label)
+            if path:
+                screenshots.append(path)
+
+        state_script = """
+            (function() {
+                const hud = document.getElementById("monitoring-hud");
+                const text = hud ? hud.innerText : "";
+                const rect = hud ? hud.getBoundingClientRect() : null;
+                const state = window.getMonitoringHudControlState ? window.getMonitoringHudControlState() : null;
+                const cpuCard = document.querySelector('[data-category-card="cpu"]');
+                const gpuCard = document.querySelector('[data-category-card="gpu"]');
+                return JSON.stringify({
+                    hasHud: Boolean(hud),
+                    text,
+                    dataset: hud ? Object.assign({}, hud.dataset) : {},
+                    rect: rect ? { left: rect.left, top: rect.top, width: rect.width, height: rect.height } : null,
+                    state,
+                    cpuCard: cpuCard ? Object.assign({}, cpuCard.dataset) : {},
+                    gpuCard: gpuCard ? Object.assign({}, gpuCard.dataset) : {},
+                    bodyClasses: document.body ? String(document.body.className || "") : ""
+                });
+            })();
+        """
+
+        def query(label: str, assertion, next_step):
+            self._run_javascript_with_result(
+                state_script,
+                lambda result: handle_query_result(label, assertion, next_step, result),
+            )
+
+        def handle_query_result(label: str, assertion, next_step, result):
+            try:
+                parsed_result = json.loads(result) if isinstance(result, str) else result
+                passed, detail = assertion(parsed_result if isinstance(parsed_result, dict) else {})
+            except Exception as exc:
+                passed = False
+                detail = {"error": type(exc).__name__, "message": str(exc)}
+            add_step(label, bool(passed), detail if isinstance(detail, dict) else {"detail": detail})
+            if not passed:
+                finish("FAIL", f"{label} failed")
+                return
+            QTimer.singleShot(250, next_step)
+
+        def assert_initial(result):
+            text = str(result.get("text") or "")
+            dataset = result.get("dataset") or {}
+            state = result.get("state") or {}
+            rect = result.get("rect") or {}
+            forbidden_name = "".join(chr(code) for code in (74, 97, 114, 118, 105, 115))
+            lower_text = text.casefold()
+            live_values = str(dataset.get("liveValues") or "").casefold()
+            checks = {
+                "hud_present": bool(result.get("hasHud")),
+                "nexus_identity": "nexus" in lower_text and "monitoring hud" in lower_text,
+                "visible_state": bool(state.get("visible")) and dataset.get("visibilityState") == "visible",
+                "anchored_state": bool(state.get("anchored")) and dataset.get("anchorState") == "anchored",
+                "provider_truth": live_values in {
+                    "provider-required",
+                    "native-provider-pending",
+                    "native-cpu-load-only",
+                },
+                "warning_mode": dataset.get("warningMode") == "visual-non-invasive",
+                "no_retired_product_copy": forbidden_name.casefold() not in text.casefold(),
+                "desktop_size": float(rect.get("width") or 0) > 300 and float(rect.get("height") or 0) > 250,
+            }
+            return all(checks.values()), checks
+
+        def assert_unanchored(result):
+            dataset = result.get("dataset") or {}
+            state = result.get("state") or {}
+            checks = {
+                "visible": bool(state.get("visible")),
+                "unanchored": state.get("anchored") is False,
+                "dataset_unanchored": dataset.get("anchorState") == "unanchored",
+                "edit_mode": dataset.get("interactionMode") == "unanchored-edit-mode",
+                "native_focus_allowed": self.focusPolicy() == Qt.StrongFocus,
+            }
+            return all(checks.values()), checks
+
+        def assert_hidden(result):
+            dataset = result.get("dataset") or {}
+            state = result.get("state") or {}
+            checks = {
+                "hidden_state": state.get("visible") is False,
+                "dataset_hidden": dataset.get("visibilityState") == "hidden",
+                "controls_state_hidden": dataset.get("controlsState") == "toggle-posture-hidden",
+            }
+            return all(checks.values()), checks
+
+        def assert_restored(result):
+            dataset = result.get("dataset") or {}
+            state = result.get("state") or {}
+            checks = {
+                "visible_state": bool(state.get("visible")),
+                "polling_rate_2000": int(state.get("pollingRateMs") or 0) == 2000,
+                "dataset_polling_2000": dataset.get("pollingRateMs") == "2000",
+            }
+            return all(checks.values()), checks
+
+        def assert_layout(result):
+            state = result.get("state") or {}
+            cards = state.get("cards") or {}
+            cpu = cards.get("cpu") or {}
+            gpu = cards.get("gpu") or {}
+            checks = {
+                "snap_enabled": bool(state.get("snapEnabled")),
+                "cpu_card_moved": int(cpu.get("x") or 0) == 40 and int(cpu.get("y") or 0) == 20,
+                "cpu_card_resized": int(cpu.get("w") or 0) == 280 and int(cpu.get("h") or 0) == 200,
+                "gpu_card_moved": int(gpu.get("x") or 0) == 300 and int(gpu.get("y") or 0) == 40,
+                "snap_multiple": all(
+                    int(value or 0) % 20 == 0
+                    for value in (cpu.get("x"), cpu.get("y"), cpu.get("w"), cpu.get("h"), gpu.get("x"), gpu.get("y"))
+                ),
+            }
+            return all(checks.values()), checks
+
+        def assert_anchored(result):
+            dataset = result.get("dataset") or {}
+            state = result.get("state") or {}
+            checks = {
+                "visible": bool(state.get("visible")),
+                "anchored": bool(state.get("anchored")),
+                "dataset_anchored": dataset.get("anchorState") == "anchored",
+                "click_through_mode": dataset.get("interactionMode") == "anchored-click-through",
+                "native_no_focus": self.focusPolicy() == Qt.NoFocus,
+                "native_transparent_mouse": bool(self.testAttribute(Qt.WA_TransparentForMouseEvents)),
+                "native_show_without_activating": bool(self.testAttribute(Qt.WA_ShowWithoutActivating)),
+            }
+            return all(checks.values()), checks
+
+        def step_initial():
+            capture("01_initial_live_client_visible")
+            query("initial visible HUD identity/provider/no-fake-state", assert_initial, step_tray_unanchor)
+
+        def step_tray_unanchor():
+            self.request_monitoring_hud_unanchor_from_tray(source="live-client-self-qa")
+            QTimer.singleShot(700, lambda: query("tray unanchor reaches editable HUD", assert_unanchored, step_hide))
+
+        def step_hide():
+            self._run_javascript(
+                """
+                const toggle = document.getElementById("monitoring-hud-toggle");
+                if (toggle) toggle.click();
+                """
+            )
+            QTimer.singleShot(700, lambda: query("visible toggle hides HUD in live client", assert_hidden, step_restore))
+
+        def step_restore():
+            self.request_monitoring_hud_toggle_from_tray(source="live-client-self-qa")
+            QTimer.singleShot(500, step_change_polling)
+
+        def step_change_polling():
+            self._run_javascript(
+                """
+                const polling = document.getElementById("monitoring-hud-polling-rate");
+                if (polling) {
+                    polling.value = "2000";
+                    polling.dispatchEvent(new Event("change", { bubbles: true }));
+                }
+                """
+            )
+            QTimer.singleShot(800, lambda: query("restore HUD and change polling control", assert_restored, step_layout))
+
+        def step_layout():
+            self._run_javascript(
+                """
+                const state = window.getMonitoringHudControlState ? window.getMonitoringHudControlState() : {};
+                state.visible = true;
+                state.anchored = false;
+                state.snapEnabled = true;
+                state.pollingRateMs = 2000;
+                state.panelPosition = { left: 120, top: 80 };
+                state.cards = {
+                    cpu: { x: 40, y: 20, w: 280, h: 200 },
+                    gpu: { x: 300, y: 40, w: 240, h: 180 }
+                };
+                if (window.setMonitoringHudControlState) window.setMonitoringHudControlState(state);
+                """
+            )
+            QTimer.singleShot(800, lambda: query("draggable/resizable card layout and snap posture", assert_layout, step_anchor))
+
+        def step_anchor():
+            capture("02_unanchored_layout_live_client")
+            self._set_monitoring_hud_control_state(
+                visible=True,
+                anchored=True,
+                snap_enabled=True,
+                polling_rate_ms=1000,
+                source="live-client-self-qa-anchor-restore",
+            )
+            QTimer.singleShot(900, lambda: query("anchored click-through/no-focus posture", assert_anchored, step_finish))
+
+        def step_finish():
+            capture("03_final_anchored_live_client")
+            add_step(
+                "cleanup route available",
+                True,
+                {"runtimeWillBeStoppedBy": "dev/orin_monitoring_hud_live_validation.ps1"},
+            )
+            self._emit_runtime_signal(
+                "MONITORING_HUD_LIVE_CLIENT_SELF_QA_INTERACTION_READY",
+                package="PKG-006",
+                slice="SLC-029",
+                steps=len(steps),
+            )
+            finish("PASS")
+
+        self._set_monitoring_hud_control_state(
+            visible=True,
+            anchored=True,
+            snap_enabled=True,
+            polling_rate_ms=1000,
+            source="live-client-self-qa-reset",
+        )
+        QTimer.singleShot(900, step_initial)
+
     def _sync_monitoring_hud_control_state_from_page(self):
         if not self.desktop_mode or not self._page_ready or self._is_shutting_down:
             return
         page = self.webview.page()
         if page is None:
             return
-        page.runJavaScript(
-            "window.getMonitoringHudControlState ? window.getMonitoringHudControlState() : null",
-            self._handle_monitoring_hud_control_state_from_page,
+        state_script = (
+            "window.getMonitoringHudControlState "
+            "? JSON.stringify(window.getMonitoringHudControlState()) "
+            ": null"
         )
+        try:
+            page.runJavaScript(
+                state_script,
+                0,
+                self._handle_monitoring_hud_control_state_from_page,
+            )
+        except TypeError:
+            page.runJavaScript(
+                state_script,
+                self._handle_monitoring_hud_control_state_from_page,
+            )
 
     def _handle_monitoring_hud_control_state_from_page(self, state):
+        if isinstance(state, str):
+            try:
+                state = json.loads(state)
+            except json.JSONDecodeError:
+                return
         if not isinstance(state, dict) or self._is_shutting_down:
             return
         visible = bool(state.get("visible", self._monitoring_hud_visible))

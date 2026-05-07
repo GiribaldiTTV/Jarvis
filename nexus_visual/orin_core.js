@@ -1321,6 +1321,12 @@ function monitoringHudRenderControls() {
   if (!monitoringHud) return;
   monitoringHud.dataset.visibilityState = monitoringHudControlState.visible ? "visible" : "hidden";
   monitoringHud.dataset.anchorState = monitoringHudControlState.anchored ? "anchored" : "unanchored";
+  monitoringHud.dataset.interactionMode = monitoringHudControlState.anchored
+    ? "anchored-click-through"
+    : "unanchored-edit-mode";
+  monitoringHud.dataset.controlsState = monitoringHudControlState.visible
+    ? "toggle-posture-visible"
+    : "toggle-posture-hidden";
   monitoringHud.dataset.snapState = monitoringHudControlState.snapEnabled ? "enabled" : "disabled";
   monitoringHud.dataset.pollingRateMs = String(monitoringHudControlState.pollingRateMs);
   if (monitoringHudRuntimeStatus) {

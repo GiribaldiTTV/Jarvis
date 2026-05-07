@@ -2,7 +2,9 @@ param(
     [string]$PythonPath = $env:NEXUS_VALIDATION_PYTHON,
     [string]$ArtifactRoot = "",
     [int]$MarkerTimeoutSeconds = 25,
-    [int]$NoProgressTimeoutSeconds = 10
+    [int]$NoProgressTimeoutSeconds = 10,
+    [switch]$RunInteractionSelfQA,
+    [switch]$VisibleClient
 )
 
 Set-StrictMode -Version Latest
@@ -18,6 +20,7 @@ $script:FailureMessage = ""
 $script:ObservedMarkers = New-Object System.Collections.Generic.List[string]
 $script:CleanupNotes = New-Object System.Collections.Generic.List[string]
 $script:ScreenshotPath = ""
+$script:InteractionManifestStatus = "NOT_REQUESTED"
 
 function Step([object]$Paths, [string]$Message) {
     $script:LastProgressAt = Get-Date
@@ -63,6 +66,8 @@ function New-Paths {
         StepLog = Join-Path $ArtifactRoot "step_log.txt"
         Manifest = Join-Path $ArtifactRoot "manifest.json"
         Screenshot = Join-Path $ArtifactRoot "monitoring_hud_desktop.png"
+        InteractionManifest = Join-Path $ArtifactRoot "monitoring_hud_live_client_interaction_manifest.json"
+        InteractionEvidenceRoot = Join-Path $ArtifactRoot "live_client_interaction"
         AbortSignal = Join-Path $ArtifactRoot "startup_abort.signal"
     }
 }
@@ -113,10 +118,14 @@ function Save-Manifest([object]$Paths, [string]$PythonExe) {
         status = $script:ManifestStatus
         package = "PKG-006"
         slice = "SLC-029"
-        seam = "WS17 - Workstream Product Proof Refresh And Completion Review"
+        seam = "Live Validation LV1 - Monitoring HUD Product Surface Live Validation"
         python = $PythonExe
         runtimeLog = $Paths.RuntimeLog
         screenshot = $script:ScreenshotPath
+        interactionSelfQARequested = [bool]$RunInteractionSelfQA
+        interactionManifest = $Paths.InteractionManifest
+        interactionManifestStatus = $script:InteractionManifestStatus
+        interactionEvidenceRoot = $Paths.InteractionEvidenceRoot
         observedMarkers = @($script:ObservedMarkers)
         cleanupNotes = @($script:CleanupNotes)
         failureMessage = $script:FailureMessage
@@ -145,16 +154,31 @@ try {
         "--startup-abort-signal",
         $paths.AbortSignal
     )
+    if ($RunInteractionSelfQA) {
+        New-Item -ItemType Directory -Force -Path $paths.InteractionEvidenceRoot | Out-Null
+        $args += @(
+            "--monitoring-hud-live-self-qa-manifest",
+            $paths.InteractionManifest,
+            "--monitoring-hud-live-self-qa-root",
+            $paths.InteractionEvidenceRoot
+        )
+        $script:InteractionManifestStatus = "PENDING"
+    }
     $argumentLine = ($args | ForEach-Object { Quote-ProcessArgument $_ }) -join " "
 
-    $script:RuntimeProcess = Start-Process `
-        -FilePath $pythonExe `
-        -ArgumentList $argumentLine `
-        -WorkingDirectory $rootDir `
-        -WindowStyle Hidden `
-        -RedirectStandardOutput $paths.StdoutLog `
-        -RedirectStandardError $paths.StderrLog `
-        -PassThru
+    $startParams = @{
+        FilePath = $pythonExe
+        ArgumentList = $argumentLine
+        WorkingDirectory = $rootDir
+        RedirectStandardOutput = $paths.StdoutLog
+        RedirectStandardError = $paths.StderrLog
+        PassThru = $true
+    }
+    if (-not $VisibleClient) {
+        $startParams.WindowStyle = "Hidden"
+    }
+
+    $script:RuntimeProcess = Start-Process @startParams
     Step $paths "launched desktop runtime pid=$($script:RuntimeProcess.Id)"
 
     $requiredMarkers = @(
@@ -179,6 +203,21 @@ try {
 
     foreach ($marker in $requiredMarkers) {
         Wait-Marker $paths $marker
+    }
+
+    if ($RunInteractionSelfQA) {
+        Step $paths "waiting for live-client interaction self-QA markers"
+        Wait-Marker $paths "MONITORING_HUD_LIVE_CLIENT_SELF_QA_READY"
+        if (-not (Test-Path -LiteralPath $paths.InteractionManifest)) {
+            throw "Interaction self-QA manifest was not written: $($paths.InteractionManifest)"
+        }
+        $interactionManifest = Get-Content -LiteralPath $paths.InteractionManifest -Raw | ConvertFrom-Json
+        $script:InteractionManifestStatus = [string]$interactionManifest.status
+        if ($script:InteractionManifestStatus -ne "PASS") {
+            throw "Interaction self-QA did not pass. Status: $script:InteractionManifestStatus"
+        }
+        Wait-Marker $paths "MONITORING_HUD_LIVE_CLIENT_SELF_QA_INTERACTION_READY"
+        Step $paths "interaction self-QA manifest PASS: $($paths.InteractionManifest)"
     }
 
     Step $paths "settling visible overlay before full-desktop screenshot"

@@ -746,16 +746,18 @@ Validation Evidence Expectations: return PASS/FAIL plus any notes, screenshots, 
 
 - Phase Admission: `PASS - Live Validation LV1 entered after Hardening H1 Green and stayed on feature/fam-006-monitoring-hud-product-surface`
 - Live Validation seam: `Live Validation LV1 - Monitoring HUD Product Surface Live Validation`
-- Live evidence root: `dev/logs/fam_006_monitoring_hud_live_validation/20260507_071523`
-- Live manifest: `dev/logs/fam_006_monitoring_hud_live_validation/20260507_071523/manifest.json`
-- Live screenshot: `dev/logs/fam_006_monitoring_hud_live_validation/20260507_071523/monitoring_hud_desktop.png`
-- Internal sandbox manifest: `dev/logs/fam_006_monitoring_hud_internal_sandbox/20260507_071524_manifest.json`
+- Live evidence root: `dev/logs/fam_006_monitoring_hud_live_validation/20260507_073143`
+- Live manifest: `dev/logs/fam_006_monitoring_hud_live_validation/20260507_073143/manifest.json`
+- Live screenshot: `dev/logs/fam_006_monitoring_hud_live_validation/20260507_073143/monitoring_hud_desktop.png`
+- Live interaction manifest: `dev/logs/fam_006_monitoring_hud_live_validation/20260507_073143/monitoring_hud_live_client_interaction_manifest.json`
+- Live interaction evidence root: `dev/logs/fam_006_monitoring_hud_live_validation/20260507_073143/live_client_interaction`
+- Internal sandbox manifest: `dev/logs/fam_006_monitoring_hud_internal_sandbox/20260507_073359_manifest.json`
 - Static validation: `python dev/orin_branch_governance_validation.py` PASS; `python dev/orin_monitoring_hud_surface_validation.py` PASS; `python dev/orin_monitoring_hud_internal_sandbox_validation.py` PASS; `python -m compileall -q dev desktop Audio main.py` PASS; `git diff --check` PASS
-- Live validation: `powershell -NoProfile -ExecutionPolicy Bypass -File dev\orin_monitoring_hud_live_validation.ps1` PASS with HUD baseline, product visibility, visible overlay, telemetry, placement, controls, status, interaction-mode, control-state, startup-ready, and desktop-settled markers observed
+- Live validation: `powershell -NoProfile -ExecutionPolicy Bypass -File dev\orin_monitoring_hud_live_validation.ps1 -RunInteractionSelfQA -VisibleClient -MarkerTimeoutSeconds 45 -NoProgressTimeoutSeconds 25` PASS with HUD baseline, product visibility, visible overlay, telemetry, placement, controls, status, interaction-mode, control-state, startup-ready, desktop-settled markers, and live-client interaction self-QA markers observed
 - User-facing shortcut/equivalent entrypoint finding: `PASS - documented equivalent desktop runtime path passed through dev/orin_monitoring_hud_live_validation.ps1; formal desktop User Test Summary handoff refreshed for USER review`
 - Retired-name scan: `PASS - tracked repo files remain clean of retired product naming`
 - Provider-contract finding: `PASS - bounded native CPU-load proof remains real; unsupported CPU thermal, GPU load, and GPU thermal values remain provider-required/setup-unavailable instead of fake`
-- Interaction finding: `PASS - anchored click-through/no-focus posture, unanchored edit posture, tray show/hide, tray unanchor, snap posture, draggable/resizable cards, and no-default-keybind truth remain source-backed`
+- Interaction finding: `PASS - launched live NDAI desktop client exercised initial visible HUD identity/provider/no-fake-state, tray unanchor to editable HUD, visible toggle hide, task-tray restore, polling control update, draggable/resizable snapped card layout, anchored click-through/no-focus posture, and cleanup route`
 - Warning finding: `PASS - current branch remains visual/non-invasive only; audio/spoken warnings remain deferred to FAM-004/cross-family approval`
 - LV1 Continuation Finding: `Automated/live proof is green, but User Test Summary Results remain PENDING; final LV1 green, package completion, and PR Readiness remain blocked until returned results are digested`
 - Boundary preservation: `No broad provider-platform implementation, external/plugin telemetry implementation, audio/spoken warning behavior, persona switching, ARIA activation, Stream Deck, graphs/history/persistence dashboards, local AI/capability-pack monitoring, installer/capability-pack work, PR work, watcher work, release work, tags, GitHub Releases, artifacts, direct-main mutation, new branch, or new FAM/package admission`
@@ -763,12 +765,15 @@ Validation Evidence Expectations: return PASS/FAIL plus any notes, screenshots, 
 ## Codex Live Client Self-QA
 
 - Codex Live Client Self-QA: `PASS`
-- Live Client Entry Path: `powershell -NoProfile -ExecutionPolicy Bypass -File dev\orin_monitoring_hud_live_validation.ps1`
-- Evidence Screenshot: `dev/logs/fam_006_monitoring_hud_live_validation/20260507_071523/monitoring_hud_desktop.png`
-- Evidence Manifest: `dev/logs/fam_006_monitoring_hud_live_validation/20260507_071523/manifest.json`
+- Live Client Entry Path: `powershell -NoProfile -ExecutionPolicy Bypass -File dev\orin_monitoring_hud_live_validation.ps1 -RunInteractionSelfQA -VisibleClient -MarkerTimeoutSeconds 45 -NoProgressTimeoutSeconds 25`
+- Evidence Screenshot: `dev/logs/fam_006_monitoring_hud_live_validation/20260507_073143/monitoring_hud_desktop.png`
+- Evidence Manifest: `dev/logs/fam_006_monitoring_hud_live_validation/20260507_073143/manifest.json`
+- Interaction Manifest: `dev/logs/fam_006_monitoring_hud_live_validation/20260507_073143/monitoring_hud_live_client_interaction_manifest.json`
+- Interaction Evidence Root: `dev/logs/fam_006_monitoring_hud_live_validation/20260507_073143/live_client_interaction`
 - Visual Quality: `PASS - HUD is visible in the full desktop, uses a coherent Nexus/NDAI futuristic card-panel identity, and reads as a product surface rather than a marker-only scaffold`
+- Live Interaction Evidence: `PASS - launched visible NDAI desktop runtime and drove the HUD through initial visible state, tray unanchor, in-HUD hide, tray restore, polling control update, snapped card layout update, and final anchored click-through/no-focus posture; interaction manifest status PASS with three live-client screenshots`
 - Usability Check: `PASS - panel placement is intentional, text and card groupings are readable in the captured live-client proof, state labels explain setup/unavailable/no-data boundaries, and no fake hardware values are presented`
-- Interaction Check: `PASS - live/helper evidence covers tray show/hide, tray unanchor, anchored click-through/no-focus posture, no default keybinds, draggable/resizable cards, snapping posture, and visual/non-invasive warning state`
+- Interaction Check: `PASS - live-client interaction manifest proves tray show/hide, tray unanchor, anchored click-through/no-focus posture, no default keybinds, draggable/resizable cards, snapping posture, polling control update, and visual/non-invasive warning state`
 - Platform Uniformity Check: `PASS - HUD copy and styling use Nexus/NDAI/Monitoring HUD language and match the current dark futuristic NDAI desktop visual direction`
 - NDAI Naming Check: `PASS - tracked repo retired-name scan is clean and the HUD surface itself does not expand retired product identity; live desktop screenshot still shows a non-repo desktop shortcut with retired naming outside the HUD, which is an external environment observation rather than tracked repo source truth`
 - Cleanup Check: `PASS - live helper stopped the launched desktop runtime and recorded cleanup in the manifest`
@@ -779,7 +784,7 @@ Validation Evidence Expectations: return PASS/FAIL plus any notes, screenshots, 
 Automated validators and live helper evidence: GREEN.
 Codex Live Client Self-QA: PASS.
 User-Facing Shortcut Live Validation Gate: documented equivalent desktop runtime path passed before User Test Summary handoff.
-User-Facing Shortcut Path: `powershell -NoProfile -ExecutionPolicy Bypass -File dev\orin_monitoring_hud_live_validation.ps1`
+User-Facing Shortcut Path: `powershell -NoProfile -ExecutionPolicy Bypass -File dev\orin_monitoring_hud_live_validation.ps1 -RunInteractionSelfQA -VisibleClient -MarkerTimeoutSeconds 45 -NoProgressTimeoutSeconds 25`
 User-Facing Shortcut Validation: PASS.
 User Test Summary Results: PENDING.
 Final phase advancement is BLOCKED until the filled User Test Summary is submitted and digested.

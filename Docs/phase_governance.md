@@ -990,6 +990,9 @@ Machine-checkable authority-record markers:
 - `Live Client Entry Path:`
 - `Evidence Screenshot:`
 - `Visual Quality:`
+- `Interaction Manifest:`
+- `Interaction Evidence Root:`
+- `Live Interaction Evidence:`
 - `Usability Check:`
 - `Interaction Check:`
 - `Platform Uniformity Check:`
@@ -1000,7 +1003,8 @@ Required proof:
 
 - the launched UI is reviewed from the same live client path or declared equivalent used for the shortcut gate
 - the visible surface is readable, intentionally placed, and visually coherent with Nexus Desktop AI
-- interaction claims such as movement, anchoring, click-through/no-focus posture, tray paths, toggles, cards, snapping, and warnings are checked through live evidence, targeted probes, or explicitly identified staged validation
+- interaction claims such as movement, anchoring, click-through/no-focus posture, tray paths, toggles, cards, snapping, and warnings are exercised in the launched live client when feasible and recorded under `Live Interaction Evidence:`
+- screenshot-only, marker-only, or launched-but-not-driven proof cannot clear this gate for interactive user-facing UI
 - platform uniformity is reviewed across current NDAI naming, visual language, copy tone, and surrounding user-facing surfaces touched by the branch
 - validators, markers, screenshots, and manifests are treated as supporting evidence, not a replacement for Codex's visual/usability judgment
 
