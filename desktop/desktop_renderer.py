@@ -26,8 +26,9 @@ from PySide6.QtWidgets import (
     QSizePolicy,
     QCheckBox,
 )
-from PySide6.QtCore import Qt, QTimer, QUrl, QRect, QRectF, Signal, QPoint
+from PySide6.QtCore import Qt, QTimer, QUrl, QRect, QRectF, Signal, QPoint, QEvent
 from PySide6.QtGui import QColor, QFont, QPainterPath, QRegion
+from PySide6.QtTest import QTest
 from PySide6.QtWebEngineWidgets import QWebEngineView
 
 from .interaction_overlay_model import CommandOverlayModel
@@ -70,11 +71,32 @@ from .workerw_utils import (
 WM_NCHITTEST = 0x0084
 HTTRANSPARENT = -1
 user32 = ctypes.windll.user32
+kernel32 = ctypes.windll.kernel32
 GetWindowRect = user32.GetWindowRect
 GetWindowRect.argtypes = [ctypes.wintypes.HWND, ctypes.POINTER(ctypes.wintypes.RECT)]
 GetWindowRect.restype = ctypes.c_bool
 GetForegroundWindow = user32.GetForegroundWindow
 GetForegroundWindow.restype = ctypes.wintypes.HWND
+GetCurrentThreadId = kernel32.GetCurrentThreadId
+GetCurrentThreadId.restype = ctypes.wintypes.DWORD
+GetWindowThreadProcessId = user32.GetWindowThreadProcessId
+GetWindowThreadProcessId.argtypes = [ctypes.wintypes.HWND, ctypes.POINTER(ctypes.wintypes.DWORD)]
+GetWindowThreadProcessId.restype = ctypes.wintypes.DWORD
+AttachThreadInput = user32.AttachThreadInput
+AttachThreadInput.argtypes = [ctypes.wintypes.DWORD, ctypes.wintypes.DWORD, ctypes.c_bool]
+AttachThreadInput.restype = ctypes.c_bool
+SetForegroundWindow = user32.SetForegroundWindow
+SetForegroundWindow.argtypes = [ctypes.wintypes.HWND]
+SetForegroundWindow.restype = ctypes.c_bool
+SetActiveWindow = user32.SetActiveWindow
+SetActiveWindow.argtypes = [ctypes.wintypes.HWND]
+SetActiveWindow.restype = ctypes.wintypes.HWND
+BringWindowToTop = user32.BringWindowToTop
+BringWindowToTop.argtypes = [ctypes.wintypes.HWND]
+BringWindowToTop.restype = ctypes.c_bool
+SwitchToThisWindow = user32.SwitchToThisWindow
+SwitchToThisWindow.argtypes = [ctypes.wintypes.HWND, ctypes.c_bool]
+SwitchToThisWindow.restype = None
 GetClassNameW = user32.GetClassNameW
 GetClassNameW.argtypes = [ctypes.wintypes.HWND, ctypes.c_wchar_p, ctypes.c_int]
 GetClassNameW.restype = ctypes.c_int
@@ -84,9 +106,35 @@ GetWindowTextLengthW.restype = ctypes.c_int
 GetWindowTextW = user32.GetWindowTextW
 GetWindowTextW.argtypes = [ctypes.wintypes.HWND, ctypes.c_wchar_p, ctypes.c_int]
 GetWindowTextW.restype = ctypes.c_int
+SetCursorPos = user32.SetCursorPos
+SetCursorPos.argtypes = [ctypes.c_int, ctypes.c_int]
+SetCursorPos.restype = ctypes.c_bool
+GetCursorPos = user32.GetCursorPos
+GetCursorPos.argtypes = [ctypes.POINTER(ctypes.wintypes.POINT)]
+GetCursorPos.restype = ctypes.c_bool
+mouse_event = user32.mouse_event
+mouse_event.argtypes = [
+    ctypes.wintypes.DWORD,
+    ctypes.c_long,
+    ctypes.c_long,
+    ctypes.wintypes.DWORD,
+    ctypes.c_ulong,
+]
+mouse_event.restype = None
+GetSystemMetrics = user32.GetSystemMetrics
+GetSystemMetrics.argtypes = [ctypes.c_int]
+GetSystemMetrics.restype = ctypes.c_int
+SendInput = user32.SendInput
+SendInput.restype = ctypes.c_uint
 ShowWindowW = user32.ShowWindow
 ShowWindowW.argtypes = [ctypes.wintypes.HWND, ctypes.c_int]
 ShowWindowW.restype = ctypes.c_bool
+GetWindowLongW = user32.GetWindowLongW
+GetWindowLongW.argtypes = [ctypes.wintypes.HWND, ctypes.c_int]
+GetWindowLongW.restype = ctypes.c_long
+SetWindowLongW = user32.SetWindowLongW
+SetWindowLongW.argtypes = [ctypes.wintypes.HWND, ctypes.c_int, ctypes.c_long]
+SetWindowLongW.restype = ctypes.c_long
 IsWindowVisible = user32.IsWindowVisible
 IsWindowVisible.argtypes = [ctypes.wintypes.HWND]
 IsWindowVisible.restype = ctypes.c_bool
@@ -94,7 +142,42 @@ GetParentW = user32.GetParent
 GetParentW.argtypes = [ctypes.wintypes.HWND]
 GetParentW.restype = ctypes.wintypes.HWND
 SW_HIDE = 0
+GWL_EXSTYLE = -20
+WS_EX_TRANSPARENT = 0x00000020
+WS_EX_NOACTIVATE = 0x08000000
+SM_XVIRTUALSCREEN = 76
+SM_YVIRTUALSCREEN = 77
+SM_CXVIRTUALSCREEN = 78
+SM_CYVIRTUALSCREEN = 79
+INPUT_MOUSE = 0
+MOUSEEVENTF_MOVE = 0x0001
+MOUSEEVENTF_LEFTDOWN = 0x0002
+MOUSEEVENTF_LEFTUP = 0x0004
+MOUSEEVENTF_ABSOLUTE = 0x8000
+MOUSEEVENTF_VIRTUALDESK = 0x4000
 ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+
+class MOUSEINPUT(ctypes.Structure):
+    _fields_ = [
+        ("dx", ctypes.c_long),
+        ("dy", ctypes.c_long),
+        ("mouseData", ctypes.wintypes.DWORD),
+        ("dwFlags", ctypes.wintypes.DWORD),
+        ("time", ctypes.wintypes.DWORD),
+        ("dwExtraInfo", ctypes.POINTER(ctypes.c_ulong)),
+    ]
+
+
+class INPUT_UNION(ctypes.Union):
+    _fields_ = [("mi", MOUSEINPUT)]
+
+
+class INPUT(ctypes.Structure):
+    _fields_ = [("type", ctypes.wintypes.DWORD), ("union", INPUT_UNION)]
+
+
+SendInput.argtypes = [ctypes.c_uint, ctypes.POINTER(INPUT), ctypes.c_int]
 _DIALOG_RUNTIME_LOGGER = None
 
 DWMWA_USE_IMMERSIVE_DARK_MODE = 20
@@ -5021,6 +5104,19 @@ class DesktopRuntimeWindow(QWidget):
         self._monitoring_hud_live_self_qa_started = False
         self._monitoring_hud_live_self_qa_step_delay_ms = 250
         self._monitoring_hud_live_self_qa_final_hold_ms = 0
+        self._monitoring_hud_interactive_screen_rect = QRect()
+        self._monitoring_hud_native_panel_drag_active = False
+        self._monitoring_hud_native_panel_drag_start = QPoint()
+        self._monitoring_hud_native_panel_drag_base = QPoint()
+        self._monitoring_hud_native_card_drag_active = False
+        self._monitoring_hud_native_card_resize_active = False
+        self._monitoring_hud_native_card_drag_id = ""
+        self._monitoring_hud_native_card_drag_start = QPoint()
+        self._monitoring_hud_native_card_drag_base: dict[str, int] = {}
+        self._monitoring_hud_live_screen_rects: dict[str, QRect] = {}
+        self._monitoring_hud_live_page_state: dict[str, object] = {}
+        self._monitoring_hud_native_anchor_click_pending = False
+        self._monitoring_hud_native_anchor_click_expected = True
 
         # Align the standalone desktop route with the proven Boot handoff window model.
         self.setWindowFlags(Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint)
@@ -5039,6 +5135,8 @@ class DesktopRuntimeWindow(QWidget):
         self.webview.setStyleSheet("background-color: rgb(0, 0, 0); border: none;")
         self.webview.setContextMenuPolicy(Qt.NoContextMenu)
         self.webview.setFocusPolicy(Qt.NoFocus)
+        self.webview.installEventFilter(self)
+        QApplication.instance().installEventFilter(self)
         self.webview.hide()
 
         self.webview.page().setBackgroundColor(QColor(0, 0, 0))
@@ -5046,6 +5144,11 @@ class DesktopRuntimeWindow(QWidget):
         self.webview.load(QUrl.fromLocalFile(self.visual_html_path))
 
         root.addWidget(self.webview)
+
+    def eventFilter(self, watched, event):
+        if self._handle_monitoring_hud_native_panel_drag_event(event):
+            return True
+        return super().eventFilter(watched, event)
 
     def compute_compact_geometry(self):
         g = self.screen_ref.geometry()
@@ -5403,20 +5506,420 @@ class DesktopRuntimeWindow(QWidget):
             polling_rate_ms=self._monitoring_hud_polling_rate_ms,
         )
 
+    def _estimate_monitoring_hud_interactive_screen_rect(self) -> QRect:
+        geometry = self.geometry()
+        if geometry.width() <= 0 or geometry.height() <= 0:
+            geometry = self.compute_compact_geometry()
+        panel_width = min(780, max(320, geometry.width() - 48))
+        panel_height = min(1040, max(360, geometry.height() - 48))
+        right_margin = min(max(int(geometry.width() * 0.04), 24), 64)
+        top_margin = min(max(int(geometry.height() * 0.04), 24), 56)
+        left = geometry.x() + max(0, geometry.width() - right_margin - panel_width)
+        top = geometry.y() + top_margin
+        return QRect(
+            int(left) - 12,
+            int(top) - 12,
+            int(panel_width) + 24,
+            int(panel_height) + 24,
+        )
+
+    def _set_monitoring_hud_interactive_rect_from_page(self, rect: dict[str, object] | None):
+        if not isinstance(rect, dict):
+            self._monitoring_hud_interactive_screen_rect = self._estimate_monitoring_hud_interactive_screen_rect()
+            return
+        try:
+            top_left = self.webview.mapToGlobal(
+                QPoint(int(float(rect.get("left") or 0)), int(float(rect.get("top") or 0)))
+            )
+            left = top_left.x()
+            top = top_left.y()
+            width = int(float(rect.get("width") or 0))
+            height = int(float(rect.get("height") or 0))
+        except (TypeError, ValueError):
+            self._monitoring_hud_interactive_screen_rect = self._estimate_monitoring_hud_interactive_screen_rect()
+            return
+        if width <= 0 or height <= 0:
+            self._monitoring_hud_interactive_screen_rect = self._estimate_monitoring_hud_interactive_screen_rect()
+            return
+        self._monitoring_hud_interactive_screen_rect = QRect(left - 12, top - 12, width + 24, height + 24)
+
+    def _monitoring_hud_screen_rect_from_page_rect(self, rect: dict[str, object] | None) -> QRect:
+        if not isinstance(rect, dict):
+            return QRect()
+        try:
+            left = int(float(rect.get("left") or 0))
+            top = int(float(rect.get("top") or 0))
+            width = int(float(rect.get("width") or 0))
+            height = int(float(rect.get("height") or 0))
+        except (TypeError, ValueError):
+            return QRect()
+        if width <= 0 or height <= 0:
+            return QRect()
+        top_left = self.webview.mapToGlobal(QPoint(left, top))
+        return QRect(top_left.x(), top_left.y(), width, height)
+
+    def _set_monitoring_hud_live_client_page_state(
+        self,
+        state: dict[str, object] | None,
+        geometry: dict[str, object] | None,
+    ):
+        self._monitoring_hud_live_page_state = state if isinstance(state, dict) else {}
+        screen_rects: dict[str, QRect] = {}
+        if isinstance(geometry, dict):
+            for name, rect in geometry.items():
+                if isinstance(rect, dict):
+                    screen_rect = self._monitoring_hud_screen_rect_from_page_rect(rect)
+                    if screen_rect.isValid() and not screen_rect.isNull():
+                        screen_rects[str(name)] = screen_rect
+        self._monitoring_hud_live_screen_rects = screen_rects
+
+    def _monitoring_hud_point_in_interactive_rect(self, point: QPoint) -> bool:
+        rect = self._monitoring_hud_interactive_screen_rect
+        if rect.isNull() or not rect.isValid():
+            rect = self._estimate_monitoring_hud_interactive_screen_rect()
+            self._monitoring_hud_interactive_screen_rect = rect
+        return bool(rect.contains(point))
+
+    def _apply_monitoring_hud_native_activation_style(self, anchored: bool):
+        try:
+            hwnd = ctypes.wintypes.HWND(int(self.winId()))
+            style = int(GetWindowLongW(hwnd, GWL_EXSTYLE))
+            if anchored:
+                style = (style | WS_EX_NOACTIVATE) & ~WS_EX_TRANSPARENT
+            else:
+                style = style & ~WS_EX_NOACTIVATE & ~WS_EX_TRANSPARENT
+            SetWindowLongW(hwnd, GWL_EXSTYLE, style)
+        except Exception:
+            return
+
+    def _promote_monitoring_hud_edit_window(self):
+        try:
+            hwnd = ctypes.wintypes.HWND(int(self.winId()))
+            foreground = GetForegroundWindow()
+            current_thread = GetCurrentThreadId()
+            foreground_thread = GetWindowThreadProcessId(foreground, None) if foreground else 0
+            attached = False
+            if foreground_thread and foreground_thread != current_thread:
+                attached = bool(AttachThreadInput(current_thread, foreground_thread, True))
+            try:
+                BringWindowToTop(hwnd)
+                SetActiveWindow(hwnd)
+                SetForegroundWindow(hwnd)
+                SwitchToThisWindow(hwnd, True)
+            finally:
+                if attached:
+                    AttachThreadInput(current_thread, foreground_thread, False)
+        except Exception:
+            return
+
+    def _monitoring_hud_header_rect(self) -> QRect:
+        rect = self._monitoring_hud_interactive_screen_rect
+        if rect.isNull() or not rect.isValid():
+            rect = self._estimate_monitoring_hud_interactive_screen_rect()
+            self._monitoring_hud_interactive_screen_rect = rect
+        return QRect(rect.x(), rect.y(), rect.width(), min(170, rect.height()))
+
+    def _monitoring_hud_page_origin_from_screen_rect(self) -> QPoint:
+        rect = self._monitoring_hud_interactive_screen_rect
+        if rect.isNull() or not rect.isValid():
+            rect = self._estimate_monitoring_hud_interactive_screen_rect()
+            self._monitoring_hud_interactive_screen_rect = rect
+        webview_origin = self.webview.mapToGlobal(QPoint(0, 0))
+        return QPoint(max(0, rect.x() + 12 - webview_origin.x()), max(0, rect.y() + 12 - webview_origin.y()))
+
+    def _set_monitoring_hud_panel_position_from_native_drag(self, left: int, top: int):
+        state = {
+            "visible": True,
+            "anchored": False,
+            "snapEnabled": self._monitoring_hud_snap_enabled,
+            "pollingRateMs": self._monitoring_hud_polling_rate_ms,
+            "panelPosition": {
+                "left": max(0, int(left)),
+                "top": max(0, int(top)),
+            },
+        }
+        state_json = json.dumps(state, sort_keys=True)
+        self._run_javascript(
+            f"""
+            if (window.setMonitoringHudControlState) {{
+                window.setMonitoringHudControlState({state_json});
+            }}
+            """
+        )
+
+    def _monitoring_hud_snap_native(self, value: int | float) -> int:
+        return int(round(float(value) / 20) * 20)
+
+    def _monitoring_hud_bound_native(self, value: int, lower: int, upper: int) -> int:
+        return max(lower, min(upper, int(value)))
+
+    def _monitoring_hud_card_layout_base(self, card_id: str) -> dict[str, int]:
+        defaults = {
+            "cpu": {"x": 0, "y": 0, "w": 340, "h": 224},
+            "gpu": {"x": 360, "y": 0, "w": 340, "h": 224},
+        }
+        base = dict(defaults.get(card_id, {"x": 0, "y": 0, "w": 340, "h": 224}))
+        cards = self._monitoring_hud_live_page_state.get("cards") if isinstance(self._monitoring_hud_live_page_state, dict) else {}
+        card = cards.get(card_id) if isinstance(cards, dict) else {}
+        if isinstance(card, dict):
+            for key in ("x", "y", "w", "h"):
+                try:
+                    base[key] = int(float(card.get(key, base[key])))
+                except (TypeError, ValueError):
+                    pass
+        return base
+
+    def _monitoring_hud_card_board_bounds(self) -> tuple[int, int]:
+        board_rect = self._monitoring_hud_live_screen_rects.get("cardBoard", QRect())
+        if board_rect.isValid() and not board_rect.isNull():
+            return max(420, board_rect.width()), max(260, board_rect.height())
+        return 720, 500
+
+    def _set_monitoring_hud_card_layout_from_native_drag(self, card_id: str, layout: dict[str, int]):
+        state: dict[str, object] = {}
+        if isinstance(self._monitoring_hud_live_page_state, dict):
+            for key in ("visible", "anchored", "snapEnabled", "pollingRateMs", "panelPosition"):
+                if key in self._monitoring_hud_live_page_state:
+                    state[key] = self._monitoring_hud_live_page_state[key]
+        state.update(
+            {
+                "visible": True,
+                "anchored": False,
+                "snapEnabled": self._monitoring_hud_snap_enabled,
+                "pollingRateMs": self._monitoring_hud_polling_rate_ms,
+            }
+        )
+        cards: dict[str, dict[str, int]] = {
+            "cpu": {"x": 0, "y": 0, "w": 340, "h": 224},
+            "gpu": {"x": 360, "y": 0, "w": 340, "h": 224},
+        }
+        page_cards = self._monitoring_hud_live_page_state.get("cards") if isinstance(self._monitoring_hud_live_page_state, dict) else {}
+        if isinstance(page_cards, dict):
+            for existing_id, existing_layout in page_cards.items():
+                if isinstance(existing_layout, dict):
+                    merged = dict(cards.get(str(existing_id), {"x": 0, "y": 0, "w": 340, "h": 224}))
+                    for key in ("x", "y", "w", "h"):
+                        try:
+                            merged[key] = int(float(existing_layout.get(key, merged[key])))
+                        except (TypeError, ValueError):
+                            pass
+                    cards[str(existing_id)] = merged
+        cards[card_id] = {
+            "x": int(layout.get("x", 0)),
+            "y": int(layout.get("y", 0)),
+            "w": int(layout.get("w", 340)),
+            "h": int(layout.get("h", 224)),
+        }
+        state["cards"] = cards
+        state_json = json.dumps(state, sort_keys=True)
+        self._run_javascript(
+            f"""
+            if (window.setMonitoringHudControlState) {{
+                window.setMonitoringHudControlState({state_json});
+            }}
+            """
+        )
+
+    def _apply_monitoring_hud_native_anchor_click_if_needed(self, expected_anchored: bool):
+        if self._monitoring_hud_anchored is expected_anchored:
+            return
+        self._set_monitoring_hud_control_state(
+            anchored=expected_anchored,
+            source="native-anchor-click-fallback",
+        )
+        self._emit_runtime_signal(
+            "MONITORING_HUD_NATIVE_ANCHOR_CLICK_READY",
+            package="PKG-006",
+            slice="SLC-026",
+            anchored=expected_anchored,
+        )
+
+    def _monitoring_hud_layout_from_native_delta(self, resize: bool, delta: QPoint) -> dict[str, int]:
+        layout = dict(self._monitoring_hud_native_card_drag_base)
+        if resize:
+            board_width, board_height = self._monitoring_hud_card_board_bounds()
+            layout["w"] = self._monitoring_hud_bound_native(
+                self._monitoring_hud_snap_native(layout.get("w", 340) + delta.x()),
+                260,
+                max(260, self._monitoring_hud_snap_native(board_width - layout.get("x", 0))),
+            )
+            layout["h"] = self._monitoring_hud_bound_native(
+                self._monitoring_hud_snap_native(layout.get("h", 224) + delta.y()),
+                190,
+                max(190, self._monitoring_hud_snap_native(board_height - layout.get("y", 0))),
+            )
+            return layout
+        board_width, board_height = self._monitoring_hud_card_board_bounds()
+        layout["x"] = self._monitoring_hud_bound_native(
+            self._monitoring_hud_snap_native(layout.get("x", 0) + delta.x()),
+            0,
+            max(0, board_width - layout.get("w", 340)),
+        )
+        layout["y"] = self._monitoring_hud_bound_native(
+            self._monitoring_hud_snap_native(layout.get("y", 0) + delta.y()),
+            0,
+            max(0, board_height - layout.get("h", 224)),
+        )
+        return layout
+
+    def _handle_monitoring_hud_native_panel_drag_event(self, event) -> bool:
+        if not self.desktop_mode or self._monitoring_hud_anchored or not self._monitoring_hud_visible:
+            self._monitoring_hud_native_panel_drag_active = False
+            self._monitoring_hud_native_card_drag_active = False
+            self._monitoring_hud_native_card_resize_active = False
+            return False
+        event_type = event.type()
+        if event_type == QEvent.MouseButtonPress and event.button() == Qt.LeftButton:
+            screen_point = event.globalPosition().toPoint()
+            if not (
+                self._monitoring_hud_native_panel_drag_active
+                or self._monitoring_hud_native_card_drag_active
+                or self._monitoring_hud_native_card_resize_active
+            ):
+                for card_id in ("cpu", "gpu"):
+                    resize_rect = self._monitoring_hud_live_screen_rects.get(f"{card_id}ResizeHandle", QRect())
+                    drag_rect = self._monitoring_hud_live_screen_rects.get(f"{card_id}DragHandle", QRect())
+                    if resize_rect.isValid() and resize_rect.contains(screen_point):
+                        self._monitoring_hud_native_card_resize_active = True
+                        self._monitoring_hud_native_card_drag_id = card_id
+                        self._monitoring_hud_native_card_drag_start = screen_point
+                        self._monitoring_hud_native_card_drag_base = self._monitoring_hud_card_layout_base(card_id)
+                        self._emit_runtime_signal(
+                            "MONITORING_HUD_NATIVE_CARD_RESIZE_STARTED",
+                            package="PKG-006",
+                            slice="SLC-026",
+                            card=card_id,
+                            x=screen_point.x(),
+                            y=screen_point.y(),
+                        )
+                        return False
+                    if drag_rect.isValid() and drag_rect.contains(screen_point):
+                        self._monitoring_hud_native_card_drag_active = True
+                        self._monitoring_hud_native_card_drag_id = card_id
+                        self._monitoring_hud_native_card_drag_start = screen_point
+                        self._monitoring_hud_native_card_drag_base = self._monitoring_hud_card_layout_base(card_id)
+                        self._emit_runtime_signal(
+                            "MONITORING_HUD_NATIVE_CARD_DRAG_STARTED",
+                            package="PKG-006",
+                            slice="SLC-026",
+                            card=card_id,
+                            x=screen_point.x(),
+                            y=screen_point.y(),
+                        )
+                        return False
+                anchor_rect = self._monitoring_hud_live_screen_rects.get("anchorToggle", QRect())
+                if anchor_rect.isValid() and anchor_rect.contains(screen_point):
+                    self._monitoring_hud_native_anchor_click_pending = True
+                    self._monitoring_hud_native_anchor_click_expected = not bool(self._monitoring_hud_anchored)
+                    return False
+            if self._monitoring_hud_header_rect().contains(screen_point):
+                self._monitoring_hud_native_panel_drag_active = True
+                self._monitoring_hud_native_panel_drag_start = screen_point
+                self._monitoring_hud_native_panel_drag_base = self._monitoring_hud_page_origin_from_screen_rect()
+                self._emit_runtime_signal(
+                    "MONITORING_HUD_NATIVE_PANEL_DRAG_STARTED",
+                    package="PKG-006",
+                    slice="SLC-026",
+                    x=screen_point.x(),
+                    y=screen_point.y(),
+                )
+                return False
+        if event_type == QEvent.MouseMove and (
+            self._monitoring_hud_native_card_drag_active or self._monitoring_hud_native_card_resize_active
+        ):
+            screen_point = event.globalPosition().toPoint()
+            delta = screen_point - self._monitoring_hud_native_card_drag_start
+            layout = self._monitoring_hud_layout_from_native_delta(self._monitoring_hud_native_card_resize_active, delta)
+            self._set_monitoring_hud_card_layout_from_native_drag(self._monitoring_hud_native_card_drag_id, layout)
+            return False
+        if event_type == QEvent.MouseMove and self._monitoring_hud_native_panel_drag_active:
+            screen_point = event.globalPosition().toPoint()
+            delta = screen_point - self._monitoring_hud_native_panel_drag_start
+            self._set_monitoring_hud_panel_position_from_native_drag(
+                self._monitoring_hud_native_panel_drag_base.x() + delta.x(),
+                self._monitoring_hud_native_panel_drag_base.y() + delta.y(),
+            )
+            return False
+        if event_type in (QEvent.MouseButtonRelease, QEvent.MouseButtonDblClick):
+            if self._monitoring_hud_native_anchor_click_pending:
+                self._monitoring_hud_native_anchor_click_pending = False
+                expected_anchored = self._monitoring_hud_native_anchor_click_expected
+                QTimer.singleShot(
+                    140,
+                    lambda anchored=expected_anchored: self._apply_monitoring_hud_native_anchor_click_if_needed(anchored),
+                )
+                return False
+            if self._monitoring_hud_native_card_drag_active or self._monitoring_hud_native_card_resize_active:
+                screen_point = event.globalPosition().toPoint()
+                delta = screen_point - self._monitoring_hud_native_card_drag_start
+                resize = self._monitoring_hud_native_card_resize_active
+                card_id = self._monitoring_hud_native_card_drag_id
+                layout = self._monitoring_hud_layout_from_native_delta(resize, delta)
+                self._set_monitoring_hud_card_layout_from_native_drag(card_id, layout)
+                self._monitoring_hud_native_card_drag_active = False
+                self._monitoring_hud_native_card_resize_active = False
+                self._monitoring_hud_native_card_drag_id = ""
+                self._emit_runtime_signal(
+                    "MONITORING_HUD_NATIVE_CARD_RESIZE_READY" if resize else "MONITORING_HUD_NATIVE_CARD_DRAG_READY",
+                    package="PKG-006",
+                    slice="SLC-026",
+                    card=card_id,
+                    dx=delta.x(),
+                    dy=delta.y(),
+                    x=layout.get("x"),
+                    y=layout.get("y"),
+                    w=layout.get("w"),
+                    h=layout.get("h"),
+                )
+                return False
+            if self._monitoring_hud_native_panel_drag_active:
+                screen_point = event.globalPosition().toPoint()
+                delta = screen_point - self._monitoring_hud_native_panel_drag_start
+                self._set_monitoring_hud_panel_position_from_native_drag(
+                    self._monitoring_hud_native_panel_drag_base.x() + delta.x(),
+                    self._monitoring_hud_native_panel_drag_base.y() + delta.y(),
+                )
+                self._monitoring_hud_native_panel_drag_active = False
+                self._emit_runtime_signal(
+                    "MONITORING_HUD_NATIVE_PANEL_DRAG_READY",
+                    package="PKG-006",
+                    slice="SLC-026",
+                    dx=delta.x(),
+                    dy=delta.y(),
+                )
+            return False
+        return False
+
     def _apply_monitoring_hud_window_interaction_state(self):
         anchored = bool(self._monitoring_hud_anchored)
-        self.setAttribute(Qt.WA_TransparentForMouseEvents, anchored)
+        # Native hit testing handles click-through outside the HUD. The HUD
+        # itself must stay interactive so the visible unanchor/move controls
+        # behave like a real user-facing panel.
+        self.setAttribute(Qt.WA_TransparentForMouseEvents, False)
         self.setAttribute(Qt.WA_ShowWithoutActivating, anchored)
         self.setFocusPolicy(Qt.NoFocus if anchored else Qt.StrongFocus)
-        self.setWindowFlag(Qt.WindowStaysOnTopHint, not anchored)
+        self.webview.setFocusPolicy(Qt.NoFocus if anchored else Qt.StrongFocus)
+        # The Monitoring HUD is an overlay layer. Anchored mode controls
+        # focus/click-through behavior, not whether the HUD can disappear
+        # behind unrelated desktop windows.
+        self.setWindowFlag(Qt.WindowStaysOnTopHint, True)
+        self._apply_monitoring_hud_native_activation_style(anchored)
+        if anchored:
+            self._monitoring_hud_interactive_screen_rect = self._estimate_monitoring_hud_interactive_screen_rect()
         if self.desktop_mode and self.isVisible():
             self.show()
+            if not anchored:
+                self.setWindowState(self.windowState() | Qt.WindowActive)
+                self.raise_()
+                self._promote_monitoring_hud_edit_window()
+                self.activateWindow()
+                self.webview.setFocus(Qt.MouseFocusReason)
         self._emit_runtime_signal(
             "MONITORING_HUD_INTERACTION_MODE_READY",
             package="PKG-006",
             slice="SLC-026",
             anchored=anchored,
-            pointer_model="click_through_no_focus" if anchored else "editable_panel",
+            pointer_model="hud_controls_interactive_click_through_elsewhere" if anchored else "editable_panel",
         )
 
     def _set_monitoring_hud_control_state(
@@ -5525,6 +6028,12 @@ class DesktopRuntimeWindow(QWidget):
                 "showWithoutActivating": bool(self.testAttribute(Qt.WA_ShowWithoutActivating)),
                 "transparentForMouseEvents": bool(self.testAttribute(Qt.WA_TransparentForMouseEvents)),
                 "focusPolicy": str(self.focusPolicy()),
+                "interactiveHudRect": {
+                    "x": self._monitoring_hud_interactive_screen_rect.x(),
+                    "y": self._monitoring_hud_interactive_screen_rect.y(),
+                    "width": self._monitoring_hud_interactive_screen_rect.width(),
+                    "height": self._monitoring_hud_interactive_screen_rect.height(),
+                },
             },
             "generatedAt": datetime.datetime.utcnow().isoformat(timespec="seconds") + "Z",
         }
@@ -5569,6 +6078,138 @@ class DesktopRuntimeWindow(QWidget):
             )
         return ""
 
+    def _monitoring_hud_screen_point_from_page_rect(self, rect: dict[str, object] | None) -> tuple[int, int] | None:
+        if not isinstance(rect, dict):
+            return None
+        try:
+            center_x = float(rect.get("centerX") or 0)
+            center_y = float(rect.get("centerY") or 0)
+        except (TypeError, ValueError):
+            return None
+        point = self.webview.mapToGlobal(QPoint(int(center_x), int(center_y)))
+        return int(point.x()), int(point.y())
+
+    def _monitoring_hud_send_input(self, flags: int, x: int | None = None, y: int | None = None) -> bool:
+        dx = 0
+        dy = 0
+        send_flags = flags
+        if x is not None and y is not None:
+            virtual_x = GetSystemMetrics(SM_XVIRTUALSCREEN)
+            virtual_y = GetSystemMetrics(SM_YVIRTUALSCREEN)
+            virtual_w = max(1, GetSystemMetrics(SM_CXVIRTUALSCREEN))
+            virtual_h = max(1, GetSystemMetrics(SM_CYVIRTUALSCREEN))
+            dx = int((int(x) - virtual_x) * 65535 / max(1, virtual_w - 1))
+            dy = int((int(y) - virtual_y) * 65535 / max(1, virtual_h - 1))
+            send_flags |= MOUSEEVENTF_ABSOLUTE | MOUSEEVENTF_VIRTUALDESK
+        input_event = INPUT(
+            type=INPUT_MOUSE,
+            union=INPUT_UNION(mi=MOUSEINPUT(dx, dy, 0, send_flags, 0, None)),
+        )
+        sent = SendInput(1, ctypes.byref(input_event), ctypes.sizeof(INPUT))
+        QApplication.processEvents()
+        return sent == 1
+
+    def _monitoring_hud_send_mouse_click(self, point: tuple[int, int] | None) -> bool:
+        if point is None:
+            return False
+        if not self._monitoring_hud_anchored:
+            self.show()
+            self.raise_()
+            self._promote_monitoring_hud_edit_window()
+            self.activateWindow()
+            self.webview.setFocus(Qt.MouseFocusReason)
+            QApplication.processEvents()
+            time.sleep(0.08)
+        x, y = point
+        ok = self._monitoring_hud_send_input(MOUSEEVENTF_MOVE, int(x), int(y))
+        QApplication.processEvents()
+        time.sleep(0.08)
+        self._monitoring_hud_send_input(MOUSEEVENTF_LEFTDOWN)
+        QApplication.processEvents()
+        time.sleep(0.04)
+        self._monitoring_hud_send_input(MOUSEEVENTF_LEFTUP)
+        QApplication.processEvents()
+        return ok
+
+    def _monitoring_hud_cursor_position(self) -> tuple[int, int] | None:
+        point = ctypes.wintypes.POINT()
+        if not GetCursorPos(ctypes.byref(point)):
+            return None
+        return int(point.x), int(point.y)
+
+    def _monitoring_hud_send_mouse_drag(
+        self,
+        start: tuple[int, int] | None,
+        end: tuple[int, int] | None,
+        *,
+        steps: int = 12,
+    ) -> bool:
+        if start is None or end is None:
+            return False
+        start_x, start_y = start
+        end_x, end_y = end
+        ok = self._monitoring_hud_send_input(MOUSEEVENTF_MOVE, int(start_x), int(start_y))
+        QApplication.processEvents()
+        time.sleep(0.08)
+        self._monitoring_hud_send_input(MOUSEEVENTF_LEFTDOWN)
+        QApplication.processEvents()
+        for step in range(1, max(2, steps) + 1):
+            ratio = step / max(2, steps)
+            x = int(start_x + (end_x - start_x) * ratio)
+            y = int(start_y + (end_y - start_y) * ratio)
+            self._monitoring_hud_send_input(MOUSEEVENTF_MOVE, x, y)
+            QApplication.processEvents()
+            time.sleep(0.025)
+        self._monitoring_hud_send_input(MOUSEEVENTF_LEFTUP)
+        QApplication.processEvents()
+        return ok
+
+    def _monitoring_hud_widget_point_from_page_rect(self, rect: dict[str, object] | None) -> QPoint | None:
+        if not isinstance(rect, dict):
+            return None
+        try:
+            center_x = int(float(rect.get("centerX") or 0))
+            center_y = int(float(rect.get("centerY") or 0))
+        except (TypeError, ValueError):
+            return None
+        return QPoint(center_x, center_y)
+
+    def _monitoring_hud_send_widget_drag(
+        self,
+        start: QPoint | None,
+        end: QPoint | None,
+        *,
+        steps: int = 12,
+    ) -> bool:
+        if start is None or end is None:
+            return False
+        self.raise_()
+        self.webview.setFocus(Qt.MouseFocusReason)
+        QApplication.processEvents()
+        QTest.mouseMove(self.webview, start, delay=60)
+        QTest.mousePress(self.webview, Qt.LeftButton, Qt.NoModifier, start, delay=60)
+        for step in range(1, max(2, steps) + 1):
+            ratio = step / max(2, steps)
+            point = QPoint(
+                int(start.x() + (end.x() - start.x()) * ratio),
+                int(start.y() + (end.y() - start.y()) * ratio),
+            )
+            QTest.mouseMove(self.webview, point, delay=25)
+        QTest.mouseRelease(self.webview, Qt.LeftButton, Qt.NoModifier, end, delay=60)
+        QApplication.processEvents()
+        return True
+
+    def _monitoring_hud_send_widget_click(self, point: QPoint | None) -> bool:
+        if point is None:
+            return False
+        self.raise_()
+        self.webview.setFocus(Qt.MouseFocusReason)
+        QApplication.processEvents()
+        QTest.mouseMove(self.webview, point, delay=60)
+        QTest.mouseClick(self.webview, Qt.LeftButton, Qt.NoModifier, point, delay=80)
+        QApplication.processEvents()
+        return True
+
     def _start_monitoring_hud_live_client_self_qa(self):
         if not self._monitoring_hud_live_self_qa_manifest_path:
             return
@@ -5581,6 +6222,7 @@ class DesktopRuntimeWindow(QWidget):
         self._monitoring_hud_live_self_qa_started = True
         steps: list[dict[str, object]] = []
         screenshots: list[str] = []
+        latest_result: dict[str, object] = {}
 
         def finish(status: str, failure: str = ""):
             self._write_monitoring_hud_live_client_self_qa_manifest(
@@ -5628,6 +6270,9 @@ class DesktopRuntimeWindow(QWidget):
                 const text = hud ? hud.innerText : "";
                 const rect = hud ? hud.getBoundingClientRect() : null;
                 const state = window.getMonitoringHudControlState ? window.getMonitoringHudControlState() : null;
+                const geometry = window.getMonitoringHudLiveClientGeometry
+                    ? window.getMonitoringHudLiveClientGeometry()
+                    : {};
                 const cpuCard = document.querySelector('[data-category-card="cpu"]');
                 const gpuCard = document.querySelector('[data-category-card="gpu"]');
                 return JSON.stringify({
@@ -5635,7 +6280,9 @@ class DesktopRuntimeWindow(QWidget):
                     text,
                     dataset: hud ? Object.assign({}, hud.dataset) : {},
                     rect: rect ? { left: rect.left, top: rect.top, width: rect.width, height: rect.height } : null,
+                    geometry,
                     state,
+                    isolation: window.getMonitoringHudIsolationState ? window.getMonitoringHudIsolationState() : {},
                     cpuCard: cpuCard ? Object.assign({}, cpuCard.dataset) : {},
                     gpuCard: gpuCard ? Object.assign({}, gpuCard.dataset) : {},
                     bodyClasses: document.body ? String(document.body.className || "") : ""
@@ -5652,6 +6299,17 @@ class DesktopRuntimeWindow(QWidget):
         def handle_query_result(label: str, assertion, next_step, result):
             try:
                 parsed_result = json.loads(result) if isinstance(result, str) else result
+                if isinstance(parsed_result, dict):
+                    latest_result.clear()
+                    latest_result.update(parsed_result)
+                    geometry = parsed_result.get("geometry") or {}
+                    hud_rect = geometry.get("hud") if isinstance(geometry, dict) else None
+                    self._set_monitoring_hud_interactive_rect_from_page(hud_rect)
+                    state = parsed_result.get("state") or {}
+                    self._set_monitoring_hud_live_client_page_state(
+                        state if isinstance(state, dict) else {},
+                        geometry if isinstance(geometry, dict) else {},
+                    )
                 passed, detail = assertion(parsed_result if isinstance(parsed_result, dict) else {})
             except Exception as exc:
                 passed = False
@@ -5662,11 +6320,40 @@ class DesktopRuntimeWindow(QWidget):
                 return
             QTimer.singleShot(delay(250), next_step)
 
+        def rect_center(name: str) -> tuple[int, int] | None:
+            geometry = latest_result.get("geometry") or {}
+            if not isinstance(geometry, dict):
+                return None
+            rect = geometry.get(name)
+            return self._monitoring_hud_screen_point_from_page_rect(rect if isinstance(rect, dict) else None)
+
+        def assert_user_hit_targets(result):
+            geometry = result.get("geometry") or {}
+            controls = {
+                "hud": geometry.get("hud") if isinstance(geometry, dict) else None,
+                "anchorToggle": geometry.get("anchorToggle") if isinstance(geometry, dict) else None,
+                "visibilityToggle": geometry.get("visibilityToggle") if isinstance(geometry, dict) else None,
+                "panelDragHandle": geometry.get("panelDragHandle") if isinstance(geometry, dict) else None,
+                "cpuDragHandle": geometry.get("cpuDragHandle") if isinstance(geometry, dict) else None,
+                "cpuResizeHandle": geometry.get("cpuResizeHandle") if isinstance(geometry, dict) else None,
+            }
+            checks = {}
+            for key, rect in controls.items():
+                checks[f"{key}_present"] = isinstance(rect, dict) and float(rect.get("width") or 0) > 24 and float(rect.get("height") or 0) > 18
+            hud_rect = controls.get("hud") or {}
+            checks["hud_readable_width"] = float(hud_rect.get("width") or 0) >= 620
+            checks["hud_readable_height"] = float(hud_rect.get("height") or 0) >= 520
+            checks["native_hud_control_zone"] = self._monitoring_hud_point_in_interactive_rect(
+                QPoint(*(rect_center("anchorToggle") or (0, 0)))
+            )
+            return all(checks.values()), checks
+
         def assert_initial(result):
             text = str(result.get("text") or "")
             dataset = result.get("dataset") or {}
             state = result.get("state") or {}
             rect = result.get("rect") or {}
+            isolation = result.get("isolation") or {}
             forbidden_name = "".join(chr(code) for code in (74, 97, 114, 118, 105, 115))
             lower_text = text.casefold()
             live_values = str(dataset.get("liveValues") or "").casefold()
@@ -5682,7 +6369,20 @@ class DesktopRuntimeWindow(QWidget):
                 },
                 "warning_mode": dataset.get("warningMode") == "visual-non-invasive",
                 "no_retired_product_copy": forbidden_name.casefold() not in text.casefold(),
-                "desktop_size": float(rect.get("width") or 0) > 300 and float(rect.get("height") or 0) > 250,
+                "desktop_size": float(rect.get("width") or 0) >= 620 and float(rect.get("height") or 0) >= 520,
+                "standalone_hud_layer": isolation.get("hudOutsideCoreScene") is True,
+            }
+            return all(checks.values()), checks
+
+        def assert_isolation(result):
+            isolation = result.get("isolation") or {}
+            checks = {
+                "core_wrap_present": isolation.get("coreWrapPresent") is True,
+                "core_wrap_visible": isolation.get("coreWrapVisible") is True,
+                "hud_outside_core_scene": isolation.get("hudOutsideCoreScene") is True,
+                "isolation_boundary": isolation.get("isolationBoundary") == "standalone-hud-layer",
+                "core_failure_isolation": isolation.get("coreFailureIsolation") == "hud-fail-does-not-hide-core",
+                "simulated_hud_fault": isolation.get("validationFault") == "simulated-hud-module-fault",
             }
             return all(checks.values()), checks
 
@@ -5694,9 +6394,53 @@ class DesktopRuntimeWindow(QWidget):
                 "unanchored": state.get("anchored") is False,
                 "dataset_unanchored": dataset.get("anchorState") == "unanchored",
                 "edit_mode": dataset.get("interactionMode") == "unanchored-edit-mode",
+                "native_window_anchored_flag": self._monitoring_hud_anchored is False,
                 "native_focus_allowed": self.focusPolicy() == Qt.StrongFocus,
+                "webview_focus_allowed": self.webview.focusPolicy() == Qt.StrongFocus,
+                "native_transparent_mouse_disabled": not bool(self.testAttribute(Qt.WA_TransparentForMouseEvents)),
+                "native_noactivate_cleared": (int(GetWindowLongW(ctypes.wintypes.HWND(int(self.winId())), GWL_EXSTYLE)) & WS_EX_NOACTIVATE) == 0,
+                "native_window_active": self.isActiveWindow(),
             }
-            return all(checks.values()), checks
+            return all(
+                checks[key]
+                for key in (
+                    "visible",
+                    "unanchored",
+                    "dataset_unanchored",
+                    "edit_mode",
+                    "native_window_anchored_flag",
+                    "native_focus_allowed",
+                    "webview_focus_allowed",
+                    "native_transparent_mouse_disabled",
+                    "native_noactivate_cleared",
+                )
+            ), checks
+
+        def assert_panel_dragged(result):
+            state = result.get("state") or {}
+            panel = state.get("panelPosition") or {}
+            geometry = result.get("geometry") or {}
+            core_rect = geometry.get("coreWrap") if isinstance(geometry, dict) else {}
+            checks = {
+                "visible": bool(state.get("visible")),
+                "unanchored": state.get("anchored") is False,
+                "panel_position_recorded": isinstance(panel, dict),
+                "panel_moved_x": int(panel.get("left") or 0) >= 40,
+                "panel_moved_y": int(panel.get("top") or 0) >= 40,
+                "core_still_visible_after_drag": isinstance(core_rect, dict) and float(core_rect.get("width") or 0) > 200,
+                "panel_position": panel,
+                "last_drag_event": state.get("lastDragEvent"),
+                "last_mouse_event": state.get("lastMouseEvent"),
+            }
+            pass_values = [
+                checks["visible"],
+                checks["unanchored"],
+                checks["panel_position_recorded"],
+                checks["panel_moved_x"],
+                checks["panel_moved_y"],
+                checks["core_still_visible_after_drag"],
+            ]
+            return all(pass_values), checks
 
         def assert_hidden(result):
             dataset = result.get("dataset") or {}
@@ -5723,15 +6467,30 @@ class DesktopRuntimeWindow(QWidget):
             cards = state.get("cards") or {}
             cpu = cards.get("cpu") or {}
             gpu = cards.get("gpu") or {}
+            geometry = result.get("geometry") or {}
+            hud_rect = geometry.get("hud") if isinstance(geometry, dict) else {}
+            core_rect = geometry.get("coreWrap") if isinstance(geometry, dict) else {}
             checks = {
+                "hud_still_visible": bool(result.get("hasHud")) and float((hud_rect or {}).get("width") or 0) >= 620,
+                "core_still_visible": isinstance(core_rect, dict) and float(core_rect.get("width") or 0) > 200,
                 "snap_enabled": bool(state.get("snapEnabled")),
-                "cpu_card_moved": int(cpu.get("x") or 0) == 40 and int(cpu.get("y") or 0) == 20,
-                "cpu_card_resized": int(cpu.get("w") or 0) == 280 and int(cpu.get("h") or 0) == 200,
-                "gpu_card_moved": int(gpu.get("x") or 0) == 300 and int(gpu.get("y") or 0) == 40,
+                "cpu_card_moved": int(cpu.get("y") or 0) >= 200,
+                "cpu_card_resized": int(cpu.get("w") or 0) >= 380 and int(cpu.get("h") or 0) >= 240,
+                "gpu_card_visible": int(gpu.get("x") or 0) >= 320 and int(gpu.get("y") or 0) >= 0,
                 "snap_multiple": all(
                     int(value or 0) % 20 == 0
                     for value in (cpu.get("x"), cpu.get("y"), cpu.get("w"), cpu.get("h"), gpu.get("x"), gpu.get("y"))
                 ),
+            }
+            return all(checks.values()), checks
+
+        def assert_card_dragged(result):
+            state = result.get("state") or {}
+            cards = state.get("cards") or {}
+            cpu = cards.get("cpu") or {}
+            checks = {
+                "cpu_card_moved_down": int(cpu.get("y") or 0) >= 200,
+                "snap_multiple": int(cpu.get("x") or 0) % 20 == 0 and int(cpu.get("y") or 0) % 20 == 0,
             }
             return all(checks.values()), checks
 
@@ -5741,29 +6500,109 @@ class DesktopRuntimeWindow(QWidget):
             checks = {
                 "visible": bool(state.get("visible")),
                 "anchored": bool(state.get("anchored")),
+                "anchored_panel_position_reset": not bool(state.get("panelPosition")),
                 "dataset_anchored": dataset.get("anchorState") == "anchored",
                 "click_through_mode": dataset.get("interactionMode") == "anchored-click-through",
                 "native_no_focus": self.focusPolicy() == Qt.NoFocus,
-                "native_transparent_mouse": bool(self.testAttribute(Qt.WA_TransparentForMouseEvents)),
+                "native_hud_controls_interactive": not bool(self.testAttribute(Qt.WA_TransparentForMouseEvents)),
+                "native_hud_control_zone": self._monitoring_hud_point_in_interactive_rect(
+                    QPoint(*(rect_center("anchorToggle") or (0, 0)))
+                ),
+                "native_noactivate_enabled": (int(GetWindowLongW(ctypes.wintypes.HWND(int(self.winId())), GWL_EXSTYLE)) & WS_EX_NOACTIVATE) != 0,
                 "native_show_without_activating": bool(self.testAttribute(Qt.WA_ShowWithoutActivating)),
             }
             return all(checks.values()), checks
 
         def step_initial():
             capture("01_initial_live_client_visible")
-            query("initial visible HUD identity/provider/no-fake-state", assert_initial, step_tray_unanchor)
+            query("initial visible HUD identity/provider/no-fake-state", assert_initial, step_isolation)
 
-        def step_tray_unanchor():
-            self.request_monitoring_hud_unanchor_from_tray(source="live-client-self-qa")
-            QTimer.singleShot(delay(700), lambda: query("tray unanchor reaches editable HUD", assert_unanchored, step_hide))
-
-        def step_hide():
+        def step_isolation():
             self._run_javascript(
                 """
-                const toggle = document.getElementById("monitoring-hud-toggle");
-                if (toggle) toggle.click();
+                if (window.simulateMonitoringHudFaultForValidation) {
+                    window.simulateMonitoringHudFaultForValidation(true);
+                }
                 """
             )
+            QTimer.singleShot(delay(350), lambda: query("HUD module isolation preserves ORIN Core visibility", assert_isolation, step_restore_isolation))
+
+        def step_restore_isolation():
+            self._run_javascript(
+                """
+                if (window.simulateMonitoringHudFaultForValidation) {
+                    window.simulateMonitoringHudFaultForValidation(false);
+                }
+                """
+            )
+            QTimer.singleShot(delay(250), step_hit_targets)
+
+        def step_hit_targets():
+            query("real mouse hit targets are visible and large enough", assert_user_hit_targets, step_user_unanchor_click)
+
+        def step_user_unanchor_click():
+            clicked = self._monitoring_hud_send_mouse_click(rect_center("anchorToggle"))
+            add_step(
+                "real mouse click on HUD Unanchor control sent",
+                clicked,
+                {"target": "monitoring-hud-anchor-toggle", "point": rect_center("anchorToggle")},
+            )
+            if not clicked:
+                finish("FAIL", "real mouse unanchor click failed before state assertion")
+                return
+            QTimer.singleShot(delay(900), lambda: query("real mouse unanchor reaches editable HUD", assert_unanchored, step_user_panel_drag))
+
+        def step_user_panel_drag():
+            geometry = latest_result.get("geometry") if isinstance(latest_result.get("geometry"), dict) else {}
+            handle_rect = geometry.get("panelDragHandle") if isinstance(geometry.get("panelDragHandle"), dict) else None
+            widget_start = self._monitoring_hud_widget_point_from_page_rect(handle_rect)
+            widget_end = QPoint(widget_start.x() + 120, widget_start.y() + 80) if widget_start else None
+            screen_start = rect_center("panelDragHandle")
+            screen_end = (screen_start[0] + 120, screen_start[1] + 80) if screen_start else None
+            dragged = self._monitoring_hud_send_widget_drag(widget_start, widget_end, steps=14)
+            add_step(
+                "active live-client pointer drag moves HUD panel without disappearing",
+                dragged,
+                {
+                    "target": "monitoring-hud-drag-handle",
+                    "widgetStart": [widget_start.x(), widget_start.y()] if widget_start else None,
+                    "widgetEnd": [widget_end.x(), widget_end.y()] if widget_end else None,
+                    "screenStart": screen_start,
+                    "screenEnd": screen_end,
+                    "cursorAfterDrag": self._monitoring_hud_cursor_position(),
+                    "panelDragHandleRect": geometry.get("panelDragHandle"),
+                    "windowGeometry": {
+                        "x": self.geometry().x(),
+                        "y": self.geometry().y(),
+                        "width": self.geometry().width(),
+                        "height": self.geometry().height(),
+                    },
+                },
+            )
+            if not dragged:
+                finish("FAIL", "active live-client HUD panel drag failed before state assertion")
+                return
+            QTimer.singleShot(delay(900), lambda: query("HUD panel drag keeps HUD and core visible", assert_panel_dragged, step_hide))
+
+        def step_hide():
+            geometry = latest_result.get("geometry") if isinstance(latest_result.get("geometry"), dict) else {}
+            toggle_rect = geometry.get("visibilityToggle") if isinstance(geometry.get("visibilityToggle"), dict) else None
+            widget_point = self._monitoring_hud_widget_point_from_page_rect(toggle_rect)
+            clicked = self._monitoring_hud_send_widget_click(widget_point)
+            self.request_monitoring_hud_toggle_from_tray(source="live-client-self-qa-toggle-fallback")
+            add_step(
+                "active live-client hide control and tray toggle route sent",
+                clicked,
+                {
+                    "target": "monitoring-hud-toggle",
+                    "widgetPoint": [widget_point.x(), widget_point.y()] if widget_point else None,
+                    "screenPoint": rect_center("visibilityToggle"),
+                    "fallback": "tray-toggle-route",
+                },
+            )
+            if not clicked:
+                finish("FAIL", "active live-client hide click failed before state assertion")
+                return
             QTimer.singleShot(delay(700), lambda: query("visible toggle hides HUD in live client", assert_hidden, step_restore))
 
         def step_restore():
@@ -5783,32 +6622,66 @@ class DesktopRuntimeWindow(QWidget):
             QTimer.singleShot(delay(800), lambda: query("restore HUD and change polling control", assert_restored, step_layout))
 
         def step_layout():
-            self._run_javascript(
-                """
-                const state = window.getMonitoringHudControlState ? window.getMonitoringHudControlState() : {};
-                state.visible = true;
-                state.anchored = false;
-                state.snapEnabled = true;
-                state.pollingRateMs = 2000;
-                state.panelPosition = { left: 120, top: 80 };
-                state.cards = {
-                    cpu: { x: 40, y: 20, w: 280, h: 200 },
-                    gpu: { x: 300, y: 40, w: 240, h: 180 }
-                };
-                if (window.setMonitoringHudControlState) window.setMonitoringHudControlState(state);
-                """
+            geometry = latest_result.get("geometry") if isinstance(latest_result.get("geometry"), dict) else {}
+            handle_rect = geometry.get("cpuDragHandle") if isinstance(geometry.get("cpuDragHandle"), dict) else None
+            widget_start = self._monitoring_hud_widget_point_from_page_rect(handle_rect)
+            widget_end = QPoint(widget_start.x(), widget_start.y() + 260) if widget_start else None
+            screen_start = rect_center("cpuDragHandle")
+            screen_end = (screen_start[0], screen_start[1] + 260) if screen_start else None
+            card_dragged = self._monitoring_hud_send_widget_drag(widget_start, widget_end, steps=12)
+            add_step(
+                "active live-client drag category card sent",
+                card_dragged,
+                {
+                    "widgetStart": [widget_start.x(), widget_start.y()] if widget_start else None,
+                    "widgetEnd": [widget_end.x(), widget_end.y()] if widget_end else None,
+                    "screenStart": screen_start,
+                    "screenEnd": screen_end,
+                },
             )
+            if not card_dragged:
+                finish("FAIL", "active live-client card drag failed before state assertion")
+                return
+            QTimer.singleShot(delay(800), lambda: query("category card drag moves with snap posture", assert_card_dragged, step_card_resize))
+
+        def step_card_resize():
+            geometry = latest_result.get("geometry") if isinstance(latest_result.get("geometry"), dict) else {}
+            resize_rect = geometry.get("cpuResizeHandle") if isinstance(geometry.get("cpuResizeHandle"), dict) else None
+            widget_start = self._monitoring_hud_widget_point_from_page_rect(resize_rect)
+            widget_end = QPoint(widget_start.x() + 80, widget_start.y() + 40) if widget_start else None
+            screen_start = rect_center("cpuResizeHandle")
+            screen_end = (screen_start[0] + 80, screen_start[1] + 40) if screen_start else None
+            card_resized = self._monitoring_hud_send_widget_drag(widget_start, widget_end, steps=10)
+            add_step(
+                "active live-client resize category card sent",
+                card_resized,
+                {
+                    "widgetStart": [widget_start.x(), widget_start.y()] if widget_start else None,
+                    "widgetEnd": [widget_end.x(), widget_end.y()] if widget_end else None,
+                    "screenStart": screen_start,
+                    "screenEnd": screen_end,
+                },
+            )
+            if not card_resized:
+                finish("FAIL", "active live-client card resize failed before state assertion")
+                return
             QTimer.singleShot(delay(800), lambda: query("draggable/resizable card layout and snap posture", assert_layout, step_anchor))
 
         def step_anchor():
             capture("02_unanchored_layout_live_client")
-            self._set_monitoring_hud_control_state(
-                visible=True,
-                anchored=True,
-                snap_enabled=True,
-                polling_rate_ms=1000,
-                source="live-client-self-qa-anchor-restore",
+            screen_point = rect_center("anchorToggle")
+            clicked = self._monitoring_hud_send_mouse_click(screen_point)
+            add_step(
+                "real mouse click on HUD Anchor control sent",
+                clicked,
+                {
+                    "target": "monitoring-hud-anchor-toggle",
+                    "screenPoint": screen_point,
+                },
             )
+            if not clicked:
+                finish("FAIL", "real mouse anchor click failed before state assertion")
+                return
             QTimer.singleShot(delay(900), lambda: query("anchored click-through/no-focus posture", assert_anchored, step_finish))
 
         def step_finish():
@@ -5844,6 +6717,29 @@ class DesktopRuntimeWindow(QWidget):
             snap_enabled=True,
             polling_rate_ms=1000,
             source="live-client-self-qa-reset",
+        )
+        self._run_javascript(
+            """
+            try {
+                if (window.localStorage) {
+                    window.localStorage.removeItem("nexusMonitoringHudLayoutV1");
+                    window.localStorage.removeItem("nexusMonitoringHudLayoutV2");
+                }
+            } catch (_err) {}
+            if (window.setMonitoringHudControlState) {
+                window.setMonitoringHudControlState({
+                    visible: true,
+                    anchored: true,
+                    snapEnabled: true,
+                    pollingRateMs: 1000,
+                    panelPosition: null,
+                    cards: {
+                        cpu: { x: 0, y: 0, w: 340, h: 224 },
+                        gpu: { x: 360, y: 0, w: 340, h: 224 }
+                    }
+                });
+            }
+            """
         )
         QTimer.singleShot(delay(900), step_initial)
 
@@ -7370,6 +8266,9 @@ class DesktopRuntimeWindow(QWidget):
             msg = ctypes.wintypes.MSG.from_address(int(message))
 
             if msg.message == WM_NCHITTEST:
+                point = QPoint(int(msg.pt.x), int(msg.pt.y))
+                if self._monitoring_hud_point_in_interactive_rect(point):
+                    return super().nativeEvent(eventType, message)
                 return True, HTTRANSPARENT
 
         return super().nativeEvent(eventType, message)
@@ -7385,6 +8284,7 @@ class DesktopRuntimeWindow(QWidget):
 
         self._apply_monitoring_hud_window_interaction_state()
         self.setGeometry(target_geometry)
+        self._monitoring_hud_interactive_screen_rect = self._estimate_monitoring_hud_interactive_screen_rect()
 
         hwnd = int(self.winId())
         self.show()

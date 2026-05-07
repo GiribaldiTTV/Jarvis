@@ -71,7 +71,7 @@ Latest Public Prerelease Publication: https://github.com/GiribaldiTTV/Nexus-Desk
 Latest Public Prerelease Title: Pre-Beta v1.6.13.
 Release Debt: Clear after v1.6.13-prebeta publication, validation, and post-release canon closure.
 Merged-main Current Active Workstream: None.
-Current Active Workstream: FAM-006 Live Validation LV1 - User Test Summary Results Pending after automated/live HUD proof and Codex live-client interaction self-QA passed.
+Current Active Workstream: FAM-006 Live Validation LV1 - User Test Summary Results Pending after active live-client HUD proof, HUD/Core isolation proof, and Codex live-client interaction self-QA passed.
 Current Active Workstream Before Reform: None.
 Current Execution Branch: feature/fam-006-monitoring-hud-product-surface.
 Current Active Branch Authority Record: Docs/branch_records/feature_fam_006_monitoring_hud_product_surface.md.
@@ -86,14 +86,14 @@ Selected Next Runtime Package Candidate: Monitoring and HUD Product Surface Pack
 Selected Next Implementation Branch: feature/fam-006-monitoring-hud-product-surface.
 Selected Next Status: USER-approved selected-next candidate matured into active FAM-006 package execution; product completion reopened after completion-truth drift review.
 Runtime Package Admission: Admitted for PKG-006 during USER-approved Branch Readiness Stage 2; product completion is reopened.
-Next Legal Runtime Step: Live Validation LV1 - Monitoring HUD Product Surface Live Validation; automated/live proof and Codex live-client interaction self-QA are green, while package completion remains unclaimed until formal User Test Summary digestion, PR Readiness, and final package closeout pass.
+Next Legal Runtime Step: Live Validation LV1 - Monitoring HUD Product Surface Live Validation; active live-client proof, HUD/Core isolation proof, bounded card/layout interaction proof, and Codex live-client interaction self-QA are green, while package completion remains unclaimed until formal User Test Summary digestion, PR Readiness, and final package closeout pass.
 Backlog Addition User Approval Missing: Cleared for USER-approved FAM-006 selected-next successor selection, Branch Readiness Stage 2 branch creation, and PKG-006 runtime package admission only; active for any other attempted new backlog item, backlog split, promotion beyond FAM-006, branch creation outside this carrier, or single-slice package waiver without explicit USER approval.
 Historical Repair-Only Branch Handling: `feature/fb-046-post-merge-canon-sync` was a bounded repair-only post-merge canon-sync `feature/` branch and did not imply Branch Readiness admission or active branch truth for FB-046.
 Historical Branch Readiness State: Complete on `feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeout-truth`.
 Current Branch Readiness State: Complete after Stage 2-R10 scope rebaseline closeout; prior Branch Readiness admission commit `8ae84cb784fc07dfe4f445359de4cf20a13552fa` and Stage 2-R7 handoff remain historical evidence only.
 Current Workstream State: Workstream Green - the current-branch Monitoring HUD implementation chain is complete for the approved scope: Nexus/NDAI HUD shell, visible panel, draggable/resizable/snapping category cards, tray show/hide and unanchor path, anchored click-through/no-focus posture, no default keybinds, provider-contract telemetry with bounded native CPU-load proof, truthful provider-required CPU thermal/GPU states, 1s fastest/default polling with slower user-selectable rates, visual/non-invasive warning posture, internal sandbox proof, and refreshed full-desktop screenshot proof. Formal User Test Summary handoff is reserved for Live Validation.
 Current Hardening State: Green - H1 pressure-tested the visible Nexus/NDAI HUD product surface, controls, placement, provider-contract telemetry, warning posture, screenshot proof, internal sandbox proof, source truth, future-package boundaries, and naming sterilization.
-Current Live Validation State: In Progress - automated/live helper proof passed through the documented equivalent desktop runtime path and Codex live-client interaction self-QA passed; `User Test Summary Results Pending` blocks final LV1 green until returned results or waiver are digested.
+Current Live Validation State: In Progress - USER-reported live-client defects around HUD movement/disappearance and cramped sizing were repaired; active live-client helper proof now launches the desktop runtime, validates HUD/Core isolation, verifies unanchored movement only after window status permits it, proves bounded snapped card drag/resize plus anchored no-focus/click-through posture, and captures refreshed full-desktop proof. `User Test Summary Results Pending` blocks final LV1 green until returned results or waiver are digested.
 Current PR Surface Owner: None; PR #109 merge/bot-review/watcher proof remains historical in `Docs/workstreams/FB-027_interaction_system_baseline.md`.
 Current Branch Class: implementation.
 Current Implementation Delta Class: runtime/user-facing.
@@ -340,7 +340,7 @@ Record State: Registry-only
 Registry Class: Feature Family
 Family Anchor: Self
 Priority: Medium
-Next Workstream: Live Validation LV1 User Test Summary return/digest after automated/live proof plus Codex live-client self-QA; WS8 through WS17 and H1 are complete current-branch evidence
+Next Workstream: Live Validation LV1 User Test Summary return/digest after active live-client HUD proof, HUD/Core isolation proof, and Codex live-client self-QA; WS8 through WS17 and H1 are complete current-branch evidence
 Selected Next Workstream: FAM-006 Monitoring and HUD - active package execution / product completion reopened.
 Selected Next Runtime Package Candidate: Monitoring and HUD Product Surface Package
 Selected Next Status: USER-approved selected-next candidate matured into active package execution; product completion reopened after Branch Readiness Stage 2-R1 rebaseline
@@ -348,11 +348,11 @@ Selected Next Implementation Branch: feature/fam-006-monitoring-hud-product-surf
 Branch Creation Status: Created in Branch Readiness Stage 2 from updated main at `3c68cd881a9f6bf447f09ac0949d556e97bce4f4`
 Runtime Package Admission: Admitted for `PKG-006`
 Active Branch Authority Record: Docs/branch_records/feature_fam_006_monitoring_hud_product_surface.md
-Next Legal Runtime Step: Live Validation LV1 - Monitoring HUD Product Surface Live Validation; automated/live proof and Codex live-client self-QA are green, while final package completion remains unclaimed and User Test Summary results remain pending.
+Next Legal Runtime Step: Live Validation LV1 - Monitoring HUD Product Surface Live Validation; active live-client HUD proof, HUD/Core isolation proof, and Codex live-client self-QA are green, while final package completion remains unclaimed and User Test Summary results remain pending.
 Minimal Scope: admitted runtime package for optional Nexus/NDAI hardware-monitoring HUD visual/user-facing surface, provider-contract-first telemetry health/setup/unavailable states, desktop placement and renderer ownership, settings or user controls visibility, fail-safe/setup/reconnect/no-data/degraded-status behavior, visual/non-invasive warning posture, and validation/live desktop proof; audio/spoken warnings, Stream Deck/plugin telemetry implementation, full sensor-platform parity, broad hardware provider platform work, advanced graphs/history/persistence, local AI, installer/capability-pack work, and broad repo-wide legacy naming migration remain deferred unless later admitted.
 Family Scope: Monitoring surfaces, CPU/GPU thermals, performance telemetry, HUD/overlay presentation, trust-safety display rules, and plugin-fed runtime telemetry.
 Package Policy: Branchable monitoring/HUD work must package source, display, and validation slices by default.
-Known Pending Gaps: returned User Test Summary digestion, PR Readiness, release work, and final package closeout remain pending after LV1 automated/live proof and Codex live-client self-QA. Broad provider-platform parity, external/plugin telemetry, audio/spoken alerts, persona switching, Stream Deck, graphs/history/persistence dashboards, local AI/capability packs, installer work, and ultra-low polling remain future-package deferrals.
+Known Pending Gaps: returned User Test Summary digestion, PR Readiness, release work, and final package closeout remain pending after LV1 active live-client proof, HUD/Core isolation proof, and Codex live-client self-QA. Broad provider-platform parity, external/plugin telemetry, audio/spoken alerts, persona switching, Stream Deck, graphs/history/persistence dashboards, local AI/capability packs, installer work, and ultra-low polling remain future-package deferrals.
 Package Admission State: Admitted
 Admitted Slice Count: 6
 Package Completion State: In Progress - product completion reopened
@@ -363,7 +363,7 @@ Package Trace:
 
 | Package ID | FAM ID | Package Name | Package Status | Package Completion State | Branch / Release Trace | Legacy FB / PR Evidence |
 | --- | --- | --- | --- | --- | --- | --- |
-| `PKG-006` | `FAM-006` | Monitoring and HUD product-surface package | LV1 automated/live proof and Codex live-client self-QA green; UTS results pending; final package completion unclaimed | In Progress | `feature/fam-006-monitoring-hud-product-surface`; historical baseline `feature/fb-040-monitoring-thermals-performance-hud-surface`; `v1.6.0-prebeta` | `FB-040`, HUD user-facing surface gap |
+| `PKG-006` | `FAM-006` | Monitoring and HUD product-surface package | LV1 active live-client proof, HUD/Core isolation proof, and Codex live-client self-QA green; UTS results pending; final package completion unclaimed | In Progress | `feature/fam-006-monitoring-hud-product-surface`; historical baseline `feature/fb-040-monitoring-thermals-performance-hud-surface`; `v1.6.0-prebeta` | `FB-040`, HUD user-facing surface gap |
 
 Slice Trace:
 

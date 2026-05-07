@@ -48,6 +48,8 @@
     data-slice="SLC-016"
     data-hud-module="monitoring-hud-shell-module"
     data-product-surface="nexus-monitoring-hud"
+    data-isolation-boundary="standalone-hud-layer"
+    data-core-failure-isolation="hud-fail-does-not-hide-core"
     data-interaction-mode="anchored-click-through"
     data-anchor-state="anchored"
     data-visibility-state="visible"
@@ -109,7 +111,7 @@
         <span>No default keybinds</span>
       </div>
       <div class="monitoring-hud__card-board" id="monitoring-hud-card-board" aria-label="Draggable resizable category card board">
-        <article class="monitoring-hud-card monitoring-hud-card--setup" data-category-card="cpu" data-card-state="setup" style="--card-x:0px;--card-y:0px;--card-w:244px;--card-h:174px;">
+        <article class="monitoring-hud-card monitoring-hud-card--setup" data-category-card="cpu" data-card-state="setup" style="--card-x:0px;--card-y:0px;--card-w:340px;--card-h:224px;">
           <div class="monitoring-hud-card__drag-handle" data-card-handle="cpu">
             <div>
               <div class="monitoring-hud-card__label">CPU</div>
@@ -132,7 +134,7 @@
           <div class="monitoring-hud-card__meta" data-card-meta="cpu">1s default polling only after provider proof; no fake thermal values.</div>
           <div class="monitoring-hud-card__resize-handle" data-card-resize="cpu" aria-hidden="true"></div>
         </article>
-        <article class="monitoring-hud-card monitoring-hud-card--unavailable" data-category-card="gpu" data-card-state="no-data" style="--card-x:264px;--card-y:0px;--card-w:244px;--card-h:174px;">
+        <article class="monitoring-hud-card monitoring-hud-card--unavailable" data-category-card="gpu" data-card-state="no-data" style="--card-x:360px;--card-y:0px;--card-w:340px;--card-h:224px;">
           <div class="monitoring-hud-card__drag-handle" data-card-handle="gpu">
             <div>
               <div class="monitoring-hud-card__label">GPU</div>
