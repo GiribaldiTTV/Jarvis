@@ -15,6 +15,12 @@
     class="monitoring-hud"
     data-package="PKG-006"
     data-slice="SLC-016"
+    data-surface-id="monitoring-hud-dashboard"
+    data-product-surface-role="dashboard-configuration-surface"
+    data-dashboard-surface="monitoring-hud-dashboard"
+    data-configures-surface="monitoring-hud-minimal"
+    data-renderer-owner="MonitoringHudWindow"
+    data-split-contract="dashboard-configures-minimal-overlay"
     data-hud-module="monitoring-hud-shell-module"
     data-product-surface="nexus-monitoring-hud"
     data-isolation-boundary="standalone-hud-layer"
@@ -38,7 +44,8 @@
       <div class="monitoring-hud__header" id="monitoring-hud-drag-handle">
         <div>
           <div class="monitoring-hud__kicker">Nexus Desktop AI</div>
-          <div class="monitoring-hud__title">Monitoring HUD</div>
+          <div class="monitoring-hud__title">Monitoring Dashboard</div>
+          <div class="monitoring-hud__subtitle">Configures the minimal anchored Monitoring HUD overlay.</div>
         </div>
         <div class="monitoring-hud__mode-stack">
           <div class="monitoring-hud__mode-pill" id="monitoring-hud-runtime-status">HUD enabled</div>
@@ -51,6 +58,12 @@
           <strong id="monitoring-hud-provider-state">Provider setup required</strong>
           <span>Hardware values stay hidden until a safe provider and validation route exist.</span>
         </div>
+      </div>
+      <div class="monitoring-hud__surface-role" data-dashboard-role="configuration-settings-surface">
+        <span>Dashboard surface</span>
+        <strong>Configuration/settings window</strong>
+        <span>Minimal HUD surface</span>
+        <strong>Separate anchored overlay configured here</strong>
       </div>
       <div class="monitoring-hud__toolbar" aria-label="Monitoring HUD controls">
         <button type="button" id="monitoring-hud-toggle" class="monitoring-hud__control-button" data-control="toggle-visibility">
@@ -171,6 +184,60 @@
       <strong>PKG-006 in progress</strong>
     </div>
     <div class="monitoring-hud__resize-corner" aria-hidden="true"></div>
+  </section>
+
+  <section
+    id="monitoring-hud-minimal"
+    class="monitoring-hud-minimal"
+    data-package="PKG-006"
+    data-slice="SLC-016"
+    data-placement-slice="SLC-026"
+    data-status-slice="SLC-028"
+    data-proof-slice="SLC-029"
+    data-surface-id="monitoring-hud-minimal"
+    data-product-surface="nexus-monitoring-hud-minimal"
+    data-product-surface-role="minimal-anchored-hud-overlay"
+    data-renderer-owner="MonitoringHudWindow"
+    data-configured-by="monitoring-hud"
+    data-dashboard-owner="monitoring-hud"
+    data-split-contract="dashboard-configures-minimal-overlay"
+    data-anchor-state="anchored"
+    data-visibility-state="visible"
+    data-interaction-mode="anchored-click-through-pending-ws22"
+    data-click-through-proof="pending-ws22"
+    data-focus-proof="pending-ws22"
+    data-provider-state="setup-required"
+    data-warning-mode="visual-non-invasive"
+    data-live-values="provider-required"
+    data-keybind-policy="none"
+    aria-label="Nexus Desktop AI minimal anchored Monitoring HUD overlay"
+    aria-hidden="true"
+  >
+    <div class="monitoring-hud-minimal__frame" aria-label="Minimal Nexus Desktop AI Monitoring HUD overlay">
+      <div class="monitoring-hud-minimal__topline">
+        <span>Nexus</span>
+        <strong>Monitoring HUD</strong>
+        <em id="monitoring-hud-minimal-anchor">Anchored</em>
+      </div>
+      <div class="monitoring-hud-minimal__status">
+        <span class="monitoring-hud-minimal__status-dot"></span>
+        <div>
+          <strong id="monitoring-hud-minimal-provider-state">Provider setup required</strong>
+          <span id="monitoring-hud-minimal-runtime-status">Minimal HUD enabled</span>
+        </div>
+      </div>
+      <div class="monitoring-hud-minimal__cards" aria-label="Minimal sensor status cards">
+        <div class="monitoring-hud-minimal-card monitoring-hud-minimal-card--setup" data-minimal-card="cpu">
+          <span>CPU</span>
+          <strong data-minimal-card-summary="cpu">Provider warming</strong>
+        </div>
+        <div class="monitoring-hud-minimal-card monitoring-hud-minimal-card--unavailable" data-minimal-card="gpu">
+          <span>GPU</span>
+          <strong data-minimal-card-summary="gpu">Provider required</strong>
+        </div>
+      </div>
+      <div class="monitoring-hud-minimal__warning" id="monitoring-hud-minimal-warning">Visual warning baseline only</div>
+    </div>
   </section>
 
   <script src="monitoring_hud.js"></script>

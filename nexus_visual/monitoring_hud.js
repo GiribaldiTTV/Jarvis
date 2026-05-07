@@ -1,5 +1,10 @@
 const body = document.body;
 const monitoringHud = document.getElementById("monitoring-hud");
+const monitoringHudMinimal = document.getElementById("monitoring-hud-minimal");
+const monitoringHudMinimalRuntimeStatus = document.getElementById("monitoring-hud-minimal-runtime-status");
+const monitoringHudMinimalProviderState = document.getElementById("monitoring-hud-minimal-provider-state");
+const monitoringHudMinimalAnchor = document.getElementById("monitoring-hud-minimal-anchor");
+const monitoringHudMinimalWarning = document.getElementById("monitoring-hud-minimal-warning");
 const monitoringHudRuntimeStatus = document.getElementById("monitoring-hud-runtime-status");
 const monitoringHudProviderState = document.getElementById("monitoring-hud-provider-state");
 const monitoringHudAdapterStatus = document.getElementById("monitoring-hud-adapter-status");
@@ -118,6 +123,39 @@ function monitoringHudMarkChanged() {
   monitoringHudSaveStoredState();
 }
 
+function monitoringHudUpdateSurfaceSplit() {
+  if (monitoringHud) {
+    monitoringHud.dataset.productSurfaceRole = "dashboard-configuration-surface";
+    monitoringHud.dataset.dashboardSurface = "monitoring-hud-dashboard";
+    monitoringHud.dataset.configuresSurface = "monitoring-hud-minimal";
+    monitoringHud.dataset.splitContract = "dashboard-configures-minimal-overlay";
+  }
+  if (!monitoringHudMinimal) return;
+  monitoringHudMinimal.dataset.visibilityState = monitoringHudControlState.visible ? "visible" : "hidden";
+  monitoringHudMinimal.dataset.anchorState = monitoringHudControlState.anchored ? "anchored" : "unanchored";
+  monitoringHudMinimal.dataset.interactionMode = monitoringHudControlState.anchored
+    ? "anchored-click-through-pending-ws22"
+    : "unanchored-edit-preview";
+  monitoringHudMinimal.dataset.configuredBy = "monitoring-hud";
+  monitoringHudMinimal.dataset.dashboardOwner = "monitoring-hud";
+  monitoringHudMinimal.dataset.splitContract = "dashboard-configures-minimal-overlay";
+  monitoringHudMinimal.dataset.providerState = monitoringHudTelemetry.providerState || "setup-required";
+  monitoringHudMinimal.dataset.liveValues = monitoringHudTelemetry.liveValues || "provider-required";
+  monitoringHudMinimal.dataset.warningMode = "visual-non-invasive";
+  if (monitoringHudMinimalRuntimeStatus) {
+    monitoringHudMinimalRuntimeStatus.textContent = monitoringHudControlState.visible ? "Minimal HUD enabled" : "Minimal HUD hidden";
+  }
+  if (monitoringHudMinimalAnchor) {
+    monitoringHudMinimalAnchor.textContent = monitoringHudControlState.anchored ? "Anchored" : "Edit";
+  }
+  if (monitoringHudMinimalProviderState) {
+    monitoringHudMinimalProviderState.textContent = monitoringHudTelemetry.providerLabel || "Provider setup required";
+  }
+  if (monitoringHudMinimalWarning) {
+    monitoringHudMinimalWarning.textContent = monitoringHudStatus.warningPosture || "Visual warning baseline only";
+  }
+}
+
 function monitoringHudApplyCardLayout() {
   if (!monitoringHudCardBoard) return;
   Object.keys(monitoringHudControlState.cards).forEach((cardId) => {
@@ -169,6 +207,7 @@ function monitoringHudRenderControls() {
       ? "Anchored click-through"
       : "Unanchored edit mode";
   }
+  monitoringHudUpdateSurfaceSplit();
 }
 
 function monitoringHudSetPanelPosition(left, top) {
@@ -214,6 +253,19 @@ function monitoringHudRenderSensorCards(cards) {
     if (badgeNode && card.badge) badgeNode.textContent = card.badge;
     const metaNode = cardNode.querySelector(`[data-card-meta="${card.id}"]`);
     if (metaNode && card.meta) metaNode.textContent = card.meta;
+    const minimalCardNode = monitoringHudMinimal
+      ? monitoringHudMinimal.querySelector(`[data-minimal-card="${card.id}"]`)
+      : null;
+    if (minimalCardNode && card.state) {
+      minimalCardNode.classList.toggle("monitoring-hud-minimal-card--setup", card.state === "setup");
+      minimalCardNode.classList.toggle("monitoring-hud-minimal-card--unavailable", card.state === "no-data" || card.state === "degraded");
+      minimalCardNode.classList.toggle("monitoring-hud-minimal-card--warning", card.state === "warning");
+      minimalCardNode.dataset.cardState = card.state;
+    }
+    const minimalSummaryNode = monitoringHudMinimal
+      ? monitoringHudMinimal.querySelector(`[data-minimal-card-summary="${card.id}"]`)
+      : null;
+    if (minimalSummaryNode && card.summary) minimalSummaryNode.textContent = card.summary;
     if (!Array.isArray(card.sensors)) return;
     card.sensors.forEach((sensor) => {
       if (!sensor || !sensor.id) return;
@@ -424,6 +476,8 @@ window.getMonitoringHudLiveClientGeometry = function() {
   }
   return {
     hud: rectFor("#monitoring-hud"),
+    dashboard: rectFor("#monitoring-hud"),
+    minimalHud: rectFor("#monitoring-hud-minimal"),
     coreWrap: null,
     anchorToggle: rectFor("#monitoring-hud-anchor-toggle"),
     visibilityToggle: rectFor("#monitoring-hud-toggle"),
@@ -440,8 +494,28 @@ window.getMonitoringHudLiveClientGeometry = function() {
   };
 };
 
+window.getMonitoringHudSurfaceSplitState = function() {
+  const dashboardRect = monitoringHud ? monitoringHud.getBoundingClientRect() : null;
+  const minimalRect = monitoringHudMinimal ? monitoringHudMinimal.getBoundingClientRect() : null;
+  return {
+    dashboardPresent: Boolean(monitoringHud),
+    minimalHudPresent: Boolean(monitoringHudMinimal),
+    dashboardSurfaceRole: monitoringHud ? monitoringHud.dataset.productSurfaceRole || "" : "",
+    minimalHudSurfaceRole: monitoringHudMinimal ? monitoringHudMinimal.dataset.productSurfaceRole || "" : "",
+    dashboardConfigures: monitoringHud ? monitoringHud.dataset.configuresSurface || "" : "",
+    minimalConfiguredBy: monitoringHudMinimal ? monitoringHudMinimal.dataset.configuredBy || "" : "",
+    splitContract: monitoringHudMinimal ? monitoringHudMinimal.dataset.splitContract || "" : "",
+    dashboardVisible: Boolean(dashboardRect && dashboardRect.width > 100 && dashboardRect.height > 100),
+    minimalHudVisible: Boolean(minimalRect && minimalRect.width > 180 && minimalRect.height > 80),
+    sharedRendererOwner: monitoringHudMinimal ? monitoringHudMinimal.dataset.rendererOwner || "" : "",
+    nativeWindowSplitProof: "pending-ws22"
+  };
+};
+
 window.getMonitoringHudIsolationState = function() {
   const hudRect = monitoringHud ? monitoringHud.getBoundingClientRect() : null;
+  const minimalRect = monitoringHudMinimal ? monitoringHudMinimal.getBoundingClientRect() : null;
+  const split = window.getMonitoringHudSurfaceSplitState ? window.getMonitoringHudSurfaceSplitState() : {};
   const hudWindowMode = body.classList.contains("hud-window-mode");
   return {
     hudWindowMode,
@@ -453,6 +527,17 @@ window.getMonitoringHudIsolationState = function() {
     coreWrapVisuallyReadable: false,
     hudPresent: Boolean(monitoringHud),
     hudVisible: Boolean(hudRect && hudRect.width > 100 && hudRect.height > 100),
+    dashboardSurfacePresent: Boolean(monitoringHud),
+    minimalHudSurfacePresent: Boolean(monitoringHudMinimal),
+    minimalHudVisible: Boolean(minimalRect && minimalRect.width > 180 && minimalRect.height > 80),
+    dashboardMinimalSplitReady: Boolean(
+      split.dashboardSurfaceRole === "dashboard-configuration-surface"
+      && split.minimalHudSurfaceRole === "minimal-anchored-hud-overlay"
+      && split.dashboardConfigures === "monitoring-hud-minimal"
+      && split.minimalConfiguredBy === "monitoring-hud"
+    ),
+    dashboardSurfaceRole: split.dashboardSurfaceRole || "",
+    minimalHudSurfaceRole: split.minimalHudSurfaceRole || "",
     hudOutsideCoreScene: Boolean(monitoringHud && !document.getElementById("scene")),
     coreHudOverlap: false,
     coreHudGap: 999,
@@ -502,6 +587,11 @@ window.setDesktopSurfaceMode = function(enabled) {
     monitoringHud.dataset.renderState = isEnabled ? "product-visibility-baseline" : "hidden";
     monitoringHud.dataset.productSurfaceState = isEnabled ? "visible-user-facing" : "hidden";
   }
+  if (monitoringHudMinimal) {
+    monitoringHudMinimal.setAttribute("aria-hidden", isEnabled ? "false" : "true");
+    monitoringHudMinimal.dataset.renderState = isEnabled ? "minimal-overlay-ready" : "hidden";
+    monitoringHudMinimal.dataset.productSurfaceState = isEnabled ? "visible-minimal-anchored-hud" : "hidden";
+  }
   monitoringHudRenderControls();
 };
 
@@ -531,6 +621,7 @@ window.setMonitoringHudTelemetry = function(snapshot) {
     monitoringHudHardwarePolling.textContent = monitoringHudTelemetry.hardwarePolling || "No polling until provider selection";
   }
   monitoringHudRenderSensorCards(monitoringHudTelemetry.sensorCards);
+  monitoringHudUpdateSurfaceSplit();
 };
 
 window.setMonitoringHudPlacementOwnership = function(contract) {
@@ -556,6 +647,7 @@ window.setMonitoringHudPlacementOwnership = function(contract) {
   if (monitoringHudResizePosture) {
     monitoringHudResizePosture.textContent = monitoringHudPlacement.resizePosture || "Resizable card grid";
   }
+  monitoringHudUpdateSurfaceSplit();
 };
 
 window.setMonitoringHudControlsVisibility = function(contract) {
@@ -580,6 +672,7 @@ window.setMonitoringHudControlsVisibility = function(contract) {
     monitoringHudTrayPath.textContent = monitoringHudControls.trayPath || "Task tray unanchor path";
   }
   monitoringHudRenderControls();
+  monitoringHudUpdateSurfaceSplit();
 };
 
 window.setMonitoringHudStatusBehavior = function(snapshot) {
@@ -604,6 +697,7 @@ window.setMonitoringHudStatusBehavior = function(snapshot) {
   if (monitoringHudWarningPosture) {
     monitoringHudWarningPosture.textContent = monitoringHudStatus.warningPosture || "Visual badge only";
   }
+  monitoringHudUpdateSurfaceSplit();
 };
 
 monitoringHudInitializeControls();

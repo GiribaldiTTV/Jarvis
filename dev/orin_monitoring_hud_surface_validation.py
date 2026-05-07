@@ -38,6 +38,12 @@ def _html_section(text: str) -> str:
     return match.group(0) if match else ""
 
 
+def _html_section_by_id(text: str, section_id: str) -> str:
+    pattern = rf'<section\s+id="{re.escape(section_id)}".*?</section>'
+    match = re.search(pattern, text, flags=re.DOTALL)
+    return match.group(0) if match else ""
+
+
 def _require_no_collection_imports(text: str, label: str, failures: list[str]) -> None:
     for forbidden in ("psutil", "subprocess", "wmi", "pynvml", "win32", "powershell"):
         _require(
@@ -104,10 +110,15 @@ def validate() -> list[str]:
         )
 
     hud_section = _html_section(html)
+    minimal_hud_section = _html_section_by_id(html, "monitoring-hud-minimal")
     _require(bool(hud_section), "orin_core.html is missing the monitoring-hud section", failures)
+    _require(bool(minimal_hud_section), "monitoring_hud.html is missing the monitoring-hud-minimal section", failures)
     for needle in (
         'data-package="PKG-006"',
         'data-slice="SLC-016"',
+        'data-product-surface-role="dashboard-configuration-surface"',
+        'data-configures-surface="monitoring-hud-minimal"',
+        'data-split-contract="dashboard-configures-minimal-overlay"',
         'data-slice="SLC-025"',
         'data-slice="SLC-026"',
         'data-slice="SLC-027"',
@@ -133,6 +144,11 @@ def validate() -> list[str]:
         'aria-hidden="true"',
         "Nexus Desktop AI",
         "Monitoring HUD",
+        "Monitoring Dashboard",
+        "Configures the minimal anchored Monitoring HUD overlay.",
+        "Dashboard surface",
+        "Configuration/settings window",
+        "Separate anchored overlay configured here",
         "HUD enabled",
         "Anchored",
         "Provider setup required",
@@ -185,6 +201,35 @@ def validate() -> list[str]:
             failures,
         )
 
+    for needle in (
+        'data-package="PKG-006"',
+        'data-slice="SLC-016"',
+        'data-placement-slice="SLC-026"',
+        'data-status-slice="SLC-028"',
+        'data-proof-slice="SLC-029"',
+        'data-product-surface="nexus-monitoring-hud-minimal"',
+        'data-product-surface-role="minimal-anchored-hud-overlay"',
+        'data-renderer-owner="MonitoringHudWindow"',
+        'data-configured-by="monitoring-hud"',
+        'data-dashboard-owner="monitoring-hud"',
+        'data-split-contract="dashboard-configures-minimal-overlay"',
+        'data-click-through-proof="pending-ws22"',
+        'data-focus-proof="pending-ws22"',
+        'aria-label="Nexus Desktop AI minimal anchored Monitoring HUD overlay"',
+        "Minimal HUD enabled",
+        "Provider setup required",
+        "Provider warming",
+        "Provider required",
+        "Visual warning baseline only",
+    ):
+        _require_contains(minimal_hud_section, needle, "minimal monitoring HUD HTML", failures)
+    for forbidden in ("voice", "audio", "spoken", "microphone", retired_product_name):
+        _require(
+            forbidden not in minimal_hud_section.casefold(),
+            f"minimal monitoring HUD HTML must not introduce {forbidden} behavior in WS19",
+            failures,
+        )
+
     fake_metric_pattern = re.compile(
         r"\b\d+(?:\.\d+)?\s?(?:°|c\b|%|rpm\b|mhz\b|ghz\b|w\b)",
         flags=re.IGNORECASE,
@@ -197,17 +242,25 @@ def validate() -> list[str]:
 
     for needle in (
         "#monitoring-hud {",
+        "#monitoring-hud-minimal {",
         "display: none;",
         "body.desktop-mode #monitoring-hud",
+        "body.desktop-mode #monitoring-hud-minimal",
         "width: calc(100vw - 24px);",
         'font-family: "Bahnschrift", "Rajdhani", "Segoe UI", sans-serif;',
         "pointer-events: auto",
         'body.desktop-mode #monitoring-hud[data-anchor-state="unanchored"]',
         ".monitoring-hud__chrome",
         ".monitoring-hud__toolbar",
+        ".monitoring-hud__surface-role",
         ".monitoring-hud__anchor-rail",
         ".monitoring-hud__card-board",
         ".monitoring-hud-card",
+        ".monitoring-hud-minimal__frame",
+        ".monitoring-hud-minimal__topline",
+        ".monitoring-hud-minimal__cards",
+        ".monitoring-hud-minimal-card",
+        ".monitoring-hud-minimal__warning",
         ".monitoring-hud-card__drag-handle",
         ".monitoring-hud-sensor-row",
         ".monitoring-hud-card--setup",
@@ -224,7 +277,9 @@ def validate() -> list[str]:
 
     for needle in (
         'const monitoringHud = document.getElementById("monitoring-hud")',
+        'const monitoringHudMinimal = document.getElementById("monitoring-hud-minimal")',
         'const monitoringHudProviderState = document.getElementById("monitoring-hud-provider-state")',
+        'const monitoringHudMinimalProviderState = document.getElementById("monitoring-hud-minimal-provider-state")',
         'const monitoringHudWarningPosture = document.getElementById("monitoring-hud-warning-posture")',
         'const monitoringHudTrayPath = document.getElementById("monitoring-hud-tray-path")',
         'const monitoringHudAnchorToggle = document.getElementById("monitoring-hud-anchor-toggle")',
@@ -232,7 +287,13 @@ def validate() -> list[str]:
         'const monitoringHudPollingRate = document.getElementById("monitoring-hud-polling-rate")',
         "window.getMonitoringHudControlState = function()",
         "window.getMonitoringHudLiveClientGeometry = function()",
+        "minimalHud: rectFor(\"#monitoring-hud-minimal\")",
+        "window.getMonitoringHudSurfaceSplitState = function()",
         "window.getMonitoringHudIsolationState = function()",
+        "dashboardMinimalSplitReady",
+        "minimal-anchored-hud-overlay",
+        "dashboard-configuration-surface",
+        "dashboard-configures-minimal-overlay",
         "standaloneHudWindow",
         "coreSceneHiddenInHudWindow",
         "hudWindowMode",
@@ -246,6 +307,7 @@ def validate() -> list[str]:
         "window.setDesktopSurfaceMode = function(enabled)",
         'monitoringHud.dataset.renderState = isEnabled ? "product-visibility-baseline" : "hidden"',
         'monitoringHud.dataset.productSurfaceState = isEnabled ? "visible-user-facing" : "hidden"',
+        'monitoringHudMinimal.dataset.productSurfaceState = isEnabled ? "visible-minimal-anchored-hud" : "hidden"',
         "window.setMonitoringHudTelemetry = function(snapshot)",
         'monitoringHud.dataset.providerState = monitoringHudTelemetry.providerState || "setup-required"',
         'monitoringHud.dataset.liveValues = monitoringHudTelemetry.liveValues || "provider-required"',
@@ -299,6 +361,12 @@ def validate() -> list[str]:
         "MONITORING_HUD_PRODUCT_VISIBILITY_READY",
         'seam="WS7"',
         'proof="visible_hud_card_panel"',
+        "MONITORING_HUD_DASHBOARD_SURFACE_READY",
+        'surface="dashboard_configuration_surface"',
+        "MONITORING_HUD_MINIMAL_OVERLAY_READY",
+        'surface="minimal_anchored_hud_overlay"',
+        "MONITORING_HUD_DASHBOARD_MINIMAL_SPLIT_READY",
+        'native_window_split_proof="pending_ws22"',
         "MONITORING_HUD_VISIBLE_OVERLAY_READY",
         'pointer_model="click_through_no_focus"',
         "MONITORING_HUD_INTERACTION_MODE_READY",
@@ -316,6 +384,7 @@ def validate() -> list[str]:
         "MONITORING_HUD_NATIVE_CARD_DRAG_READY",
         "MONITORING_HUD_NATIVE_CARD_RESIZE_READY",
         "initial visible HUD identity/provider/no-fake-state",
+        "dashboard and minimal HUD surfaces are split",
         "HUD standalone window preserves Core isolation contract",
         "real mouse hit targets are visible and large enough",
         "real mouse click on HUD Unanchor control sent",
@@ -458,6 +527,9 @@ def validate() -> list[str]:
         "interaction self-QA manifest PASS",
         "MONITORING_HUD_BASELINE_READY",
         "MONITORING_HUD_PRODUCT_VISIBILITY_READY",
+        "MONITORING_HUD_DASHBOARD_SURFACE_READY",
+        "MONITORING_HUD_MINIMAL_OVERLAY_READY",
+        "MONITORING_HUD_DASHBOARD_MINIMAL_SPLIT_READY",
         "MONITORING_HUD_VISIBLE_OVERLAY_READY",
         "MONITORING_HUD_TELEMETRY_BOUNDARY_READY",
         "MONITORING_HUD_PLACEMENT_OWNERSHIP_READY",

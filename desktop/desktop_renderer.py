@@ -6514,8 +6514,11 @@ class DesktopRuntimeWindow(QWidget):
         state_script = """
             (function() {
                 const hud = document.getElementById("monitoring-hud");
+                const minimalHud = document.getElementById("monitoring-hud-minimal");
                 const text = hud ? hud.innerText : "";
+                const minimalText = minimalHud ? minimalHud.innerText : "";
                 const rect = hud ? hud.getBoundingClientRect() : null;
+                const minimalRect = minimalHud ? minimalHud.getBoundingClientRect() : null;
                 const state = window.getMonitoringHudControlState ? window.getMonitoringHudControlState() : null;
                 const geometry = window.getMonitoringHudLiveClientGeometry
                     ? window.getMonitoringHudLiveClientGeometry()
@@ -6525,11 +6528,15 @@ class DesktopRuntimeWindow(QWidget):
                 return JSON.stringify({
                     hasHud: Boolean(hud),
                     text,
+                    minimalText,
                     dataset: hud ? Object.assign({}, hud.dataset) : {},
+                    minimalDataset: minimalHud ? Object.assign({}, minimalHud.dataset) : {},
                     rect: rect ? { left: rect.left, top: rect.top, width: rect.width, height: rect.height } : null,
+                    minimalRect: minimalRect ? { left: minimalRect.left, top: minimalRect.top, width: minimalRect.width, height: minimalRect.height } : null,
                     geometry,
                     state,
                     isolation: window.getMonitoringHudIsolationState ? window.getMonitoringHudIsolationState() : {},
+                    split: window.getMonitoringHudSurfaceSplitState ? window.getMonitoringHudSurfaceSplitState() : {},
                     cpuCard: cpuCard ? Object.assign({}, cpuCard.dataset) : {},
                     gpuCard: gpuCard ? Object.assign({}, gpuCard.dataset) : {},
                     bodyClasses: document.body ? String(document.body.className || "") : ""
@@ -6578,6 +6585,7 @@ class DesktopRuntimeWindow(QWidget):
             geometry = result.get("geometry") or {}
             controls = {
                 "hud": geometry.get("hud") if isinstance(geometry, dict) else None,
+                "minimalHud": geometry.get("minimalHud") if isinstance(geometry, dict) else None,
                 "anchorToggle": geometry.get("anchorToggle") if isinstance(geometry, dict) else None,
                 "visibilityToggle": geometry.get("visibilityToggle") if isinstance(geometry, dict) else None,
                 "panelDragHandle": geometry.get("panelDragHandle") if isinstance(geometry, dict) else None,
@@ -6590,6 +6598,9 @@ class DesktopRuntimeWindow(QWidget):
             hud_rect = controls.get("hud") or {}
             checks["hud_readable_width"] = float(hud_rect.get("width") or 0) >= 620
             checks["hud_readable_height"] = float(hud_rect.get("height") or 0) >= 520
+            minimal_rect = controls.get("minimalHud") or {}
+            checks["minimal_hud_visible_width"] = float(minimal_rect.get("width") or 0) >= 220
+            checks["minimal_hud_visible_height"] = float(minimal_rect.get("height") or 0) >= 90
             checks["native_hud_control_zone"] = self._monitoring_hud_point_in_interactive_rect(
                 QPoint(*(rect_center("anchorToggle") or (0, 0)))
             )
@@ -6597,17 +6608,28 @@ class DesktopRuntimeWindow(QWidget):
 
         def assert_initial(result):
             text = str(result.get("text") or "")
+            minimal_text = str(result.get("minimalText") or "")
             dataset = result.get("dataset") or {}
+            minimal_dataset = result.get("minimalDataset") or {}
             state = result.get("state") or {}
             rect = result.get("rect") or {}
+            minimal_rect = result.get("minimalRect") or {}
             isolation = result.get("isolation") or {}
+            split = result.get("split") or {}
             forbidden_name = "".join(chr(code) for code in (74, 97, 114, 118, 105, 115))
             lower_text = text.casefold()
+            lower_minimal_text = minimal_text.casefold()
             live_values = str(dataset.get("liveValues") or "").casefold()
             checks = {
                 "hud_present": bool(result.get("hasHud")),
                 "nexus_identity": "nexus" in lower_text and "monitoring hud" in lower_text,
+                "minimal_hud_present": minimal_dataset.get("productSurfaceRole") == "minimal-anchored-hud-overlay",
+                "minimal_nexus_identity": "nexus" in lower_minimal_text and "monitoring hud" in lower_minimal_text,
+                "dashboard_role": dataset.get("productSurfaceRole") == "dashboard-configuration-surface",
+                "surface_split": split.get("dashboardConfigures") == "monitoring-hud-minimal"
+                    and split.get("minimalConfiguredBy") == "monitoring-hud",
                 "visible_state": bool(state.get("visible")) and dataset.get("visibilityState") == "visible",
+                "minimal_visible_state": minimal_dataset.get("visibilityState") == "visible",
                 "anchored_state": bool(state.get("anchored")) and dataset.get("anchorState") == "anchored",
                 "provider_truth": live_values in {
                     "provider-required",
@@ -6617,7 +6639,29 @@ class DesktopRuntimeWindow(QWidget):
                 "warning_mode": dataset.get("warningMode") == "visual-non-invasive",
                 "no_retired_product_copy": forbidden_name.casefold() not in text.casefold(),
                 "desktop_size": float(rect.get("width") or 0) >= 620 and float(rect.get("height") or 0) >= 520,
+                "minimal_size": float(minimal_rect.get("width") or 0) >= 220 and float(minimal_rect.get("height") or 0) >= 90,
                 "standalone_hud_layer": isolation.get("hudOutsideCoreScene") is True,
+            }
+            return all(checks.values()), checks
+
+        def assert_surface_split(result):
+            split = result.get("split") or {}
+            isolation = result.get("isolation") or {}
+            geometry = result.get("geometry") or {}
+            minimal_rect = geometry.get("minimalHud") if isinstance(geometry, dict) else {}
+            checks = {
+                "dashboard_present": split.get("dashboardPresent") is True,
+                "minimal_present": split.get("minimalHudPresent") is True,
+                "dashboard_role": split.get("dashboardSurfaceRole") == "dashboard-configuration-surface",
+                "minimal_role": split.get("minimalHudSurfaceRole") == "minimal-anchored-hud-overlay",
+                "dashboard_configures_minimal": split.get("dashboardConfigures") == "monitoring-hud-minimal",
+                "minimal_configured_by_dashboard": split.get("minimalConfiguredBy") == "monitoring-hud",
+                "split_contract": split.get("splitContract") == "dashboard-configures-minimal-overlay",
+                "isolation_reports_split": isolation.get("dashboardMinimalSplitReady") is True,
+                "minimal_geometry": isinstance(minimal_rect, dict)
+                    and float(minimal_rect.get("width") or 0) >= 220
+                    and float(minimal_rect.get("height") or 0) >= 90,
+                "native_window_split_deferred": split.get("nativeWindowSplitProof") == "pending-ws22",
             }
             return all(checks.values()), checks
 
@@ -6767,7 +6811,10 @@ class DesktopRuntimeWindow(QWidget):
 
         def step_initial():
             capture("01_initial_live_client_visible")
-            query("initial visible HUD identity/provider/no-fake-state", assert_initial, step_isolation)
+            query("initial visible HUD identity/provider/no-fake-state", assert_initial, step_surface_split)
+
+        def step_surface_split():
+            query("dashboard and minimal HUD surfaces are split", assert_surface_split, step_isolation)
 
         def step_isolation():
             self._run_javascript(
@@ -7204,10 +7251,18 @@ class DesktopRuntimeWindow(QWidget):
             }} else {{
                 document.body.classList.add("desktop-mode");
                 const monitoringHud = document.getElementById("monitoring-hud");
+                const minimalHud = document.getElementById("monitoring-hud-minimal");
                 if (monitoringHud) {{
                     monitoringHud.setAttribute("aria-hidden", "false");
                     monitoringHud.dataset.renderState = "product-visibility-baseline";
                     monitoringHud.dataset.productSurfaceState = "visible-user-facing";
+                    monitoringHud.dataset.productSurfaceRole = "dashboard-configuration-surface";
+                }}
+                if (minimalHud) {{
+                    minimalHud.setAttribute("aria-hidden", "false");
+                    minimalHud.dataset.renderState = "minimal-overlay-ready";
+                    minimalHud.dataset.productSurfaceState = "visible-minimal-anchored-hud";
+                    minimalHud.dataset.productSurfaceRole = "minimal-anchored-hud-overlay";
                 }}
             }}
             """
@@ -7224,6 +7279,31 @@ class DesktopRuntimeWindow(QWidget):
             slice="SLC-016",
             seam="WS7",
             proof="visible_hud_card_panel",
+        )
+        self._emit_runtime_signal(
+            "MONITORING_HUD_DASHBOARD_SURFACE_READY",
+            package="PKG-006",
+            slice="SLC-027",
+            seam="WS19",
+            surface="dashboard_configuration_surface",
+            configures="minimal_hud_overlay",
+        )
+        self._emit_runtime_signal(
+            "MONITORING_HUD_MINIMAL_OVERLAY_READY",
+            package="PKG-006",
+            slice="SLC-016",
+            seam="WS19",
+            surface="minimal_anchored_hud_overlay",
+            configured_by="dashboard_configuration_surface",
+        )
+        self._emit_runtime_signal(
+            "MONITORING_HUD_DASHBOARD_MINIMAL_SPLIT_READY",
+            package="PKG-006",
+            slice="SLC-026",
+            seam="WS19",
+            dashboard_owner="MonitoringHudWindow",
+            minimal_owner="MonitoringHudWindow",
+            native_window_split_proof="pending_ws22",
         )
 
     def _monitoring_hud_telemetry_snapshot(self) -> dict[str, object]:
