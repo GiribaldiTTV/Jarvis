@@ -224,6 +224,9 @@ EXTERNAL_TELEMETRY_PRIVACY_MODEL_MISSING_BLOCKER = "External Telemetry Privacy M
 AUDIO_WARNING_CROSS_FAMILY_APPROVAL_MISSING_BLOCKER = (
     "Audio Warning Cross-Family Approval Missing"
 )
+PERSONA_SWITCH_SCOPE_BOUNDARY_PENDING_BLOCKER = (
+    "Persona Switch Scope Boundary Pending"
+)
 FAM006_BRANCH = "feature/fam-006-monitoring-hud-product-surface"
 FAM006_BRANCH_RECORD = Path(
     "Docs/branch_records/feature_fam_006_monitoring_hud_product_surface.md"
@@ -231,6 +234,7 @@ FAM006_BRANCH_RECORD = Path(
 FAM006_STAGE2_R6_HEADING = "Stage 2-R6 Product Scope Boundary And Acceptance Criteria"
 FAM006_STAGE2_R7_HEADING = "Stage 2-R7 Planning Revalidation Closeout And WS7 Handoff"
 FAM006_STAGE2_R8_HEADING = "Stage 2-R8 Legacy Product Name Blocker And USER Vision Input Refresh"
+FAM006_STAGE2_R9_HEADING = "Stage 2-R9 USER Vision Input Digest And FAM-006 Scope Rebaseline"
 FAM006_STAGE2_R6_REQUIRED_MARKERS = (
     "Current-Branch Scope Final:",
     "Future-Package Scope Final:",
@@ -265,7 +269,7 @@ FAM006_STAGE2_R6_REQUIRED_PHRASES = (
     "Legacy Product Name Drift blocks Workstream",
     "no fake telemetry values presented as real",
     "Marker/DOM proof is supporting evidence only",
-    "Stage 2-R8 supersedes the handoff",
+    "Stage 2-R9 now supersedes",
 )
 FAM006_STAGE2_R7_REQUIRED_PHRASES = (
     "Stage 1-R4 Result:",
@@ -285,6 +289,21 @@ FAM006_STAGE2_R8_REQUIRED_PHRASES = (
     "User Vision Input.txt was refreshed",
     "The artifact is not repo source truth until a later digest pass",
     "WS7 remains blocked on Legacy Product Name Drift",
+)
+FAM006_STAGE2_R9_REQUIRED_PHRASES = (
+    "Refreshed USER Vision Input Digest:",
+    "Cleared Blockers:",
+    "Legacy Product Name Drift; USER Vision Input Pending",
+    "Remaining Blockers:",
+    "Persona Switch Scope Boundary Pending",
+    "ORIN is the shipped/default persona",
+    "ARIA is beta-facing locked/coming soon",
+    "full HUD",
+    "draggable/resizable category cards",
+    "fastest practical/default polling rate is 1s",
+    "visual/non-invasive warning posture",
+    "fake telemetry remains blocked",
+    "WS7 remains blocked until Stage 1-R6",
 )
 USER_VISION_INPUT_HANDOFF_MARKERS = (
     "USER Vision Input Artifact Path:",
@@ -308,6 +327,7 @@ PRODUCT_PLANNING_BLOCKERS = (
     WARNING_DELIVERY_MODALITY_PENDING_BLOCKER,
     EXTERNAL_TELEMETRY_PRIVACY_MODEL_MISSING_BLOCKER,
     AUDIO_WARNING_CROSS_FAMILY_APPROVAL_MISSING_BLOCKER,
+    PERSONA_SWITCH_SCOPE_BOUNDARY_PENDING_BLOCKER,
     "Branch Reach Unproven",
     "Feature Element Breakdown Missing",
     "Acceptance Criteria Missing",
@@ -4389,6 +4409,7 @@ def _validate_fam006_stage2_r6_plan(
             f"{source_path}: {FAM006_STAGE2_R6_HEADING} is missing '{phrase}'",
         )
 
+    stage2_r9_section = _section(text, FAM006_STAGE2_R9_HEADING)
     cleared_by_stage2_r6 = {
         "Branch Reach Unproven",
         "Acceptance Criteria Missing",
@@ -4399,6 +4420,13 @@ def _validate_fam006_stage2_r6_plan(
         EXTERNAL_TELEMETRY_PRIVACY_MODEL_MISSING_BLOCKER,
         AUDIO_WARNING_CROSS_FAMILY_APPROVAL_MISSING_BLOCKER,
     }
+    if stage2_r9_section:
+        cleared_by_stage2_r6 = {
+            "Acceptance Criteria Missing",
+            POLLING_FLOOR_UNDECIDED_BLOCKER,
+            WARNING_DELIVERY_MODALITY_PENDING_BLOCKER,
+            AUDIO_WARNING_CROSS_FAMILY_APPROVAL_MISSING_BLOCKER,
+        }
     for blocker in cleared_by_stage2_r6:
         require(
             blocker not in blockers,
@@ -4410,23 +4438,102 @@ def _validate_fam006_stage2_r6_plan(
 
     plan_section = _section(text, PRODUCT_DEFINITION_PLAN_HEADING)
     require(
-        "Current Branch vs Future Package Boundaries: finalized by Stage 2-R6" in plan_section,
+        (
+            "Current Branch vs Future Package Boundaries: finalized by Stage 2-R6"
+            in plan_section
+            or "Current Branch vs Future Package Boundaries: rebaselined by Stage 2-R9"
+            in plan_section
+        ),
         (
             f"{source_path}: Product Definition Plan must mark current/future package "
-            "boundaries as finalized by Stage 2-R6"
+            "boundaries as finalized by Stage 2-R6 or rebaselined by Stage 2-R9"
         ),
     )
     require(
-        "Acceptance Criteria: finalized by Stage 2-R6" in plan_section,
+        (
+            "Acceptance Criteria: finalized by Stage 2-R6" in plan_section
+            or "Acceptance Criteria: rebaselined by Stage 2-R9" in plan_section
+        ),
         (
             f"{source_path}: Product Definition Plan must mark acceptance criteria "
-            "as finalized by Stage 2-R6"
+            "as finalized by Stage 2-R6 or rebaselined by Stage 2-R9"
         ),
     )
     stage2_r8_section = _section(text, FAM006_STAGE2_R8_HEADING)
+    stage2_r9_section = _section(text, FAM006_STAGE2_R9_HEADING)
     has_stage2_r8_blocker = LEGACY_PRODUCT_NAME_DRIFT_BLOCKER in blockers
 
     if current_phase == "Branch Readiness":
+        if stage2_r9_section:
+            for phrase in FAM006_STAGE2_R9_REQUIRED_PHRASES:
+                require(
+                    phrase in stage2_r9_section,
+                    f"{source_path}: {FAM006_STAGE2_R9_HEADING} is missing '{phrase}'",
+                )
+            for cleared_blocker in (
+                LEGACY_PRODUCT_NAME_DRIFT_BLOCKER,
+                USER_VISION_INPUT_PENDING_BLOCKER,
+                USER_VISION_INPUT_ANSWERS_PENDING_BLOCKER,
+                USER_VISION_INPUT_DIGEST_PENDING_BLOCKER,
+            ):
+                require(
+                    cleared_blocker not in blockers,
+                    (
+                        f"{source_path}: Stage 2-R9 digest must clear "
+                        f"'{cleared_blocker}' from active blockers"
+                    ),
+                )
+            for active_blocker in (
+                PRODUCT_PLANNING_INCOMPLETE_BLOCKER,
+                "Branch Reach Unproven",
+                "Current Branch vs Future Package Boundary Missing",
+                HARDWARE_TELEMETRY_PROVIDER_PENDING_BLOCKER,
+                EXTERNAL_TELEMETRY_PRIVACY_MODEL_MISSING_BLOCKER,
+                PERSONA_SWITCH_SCOPE_BOUNDARY_PENDING_BLOCKER,
+            ):
+                require(
+                    active_blocker in blockers,
+                    (
+                        f"{source_path}: Stage 2-R9 digest must keep "
+                        f"'{active_blocker}' active until Stage 1 revalidates"
+                    ),
+                )
+            for deferred_blocker in (
+                POLLING_FLOOR_UNDECIDED_BLOCKER,
+                WARNING_DELIVERY_MODALITY_PENDING_BLOCKER,
+                AUDIO_WARNING_CROSS_FAMILY_APPROVAL_MISSING_BLOCKER,
+            ):
+                require(
+                    deferred_blocker not in blockers,
+                    (
+                        f"{source_path}: Stage 2-R9 must not leave "
+                        f"'{deferred_blocker}' active after current-branch posture "
+                        "is recorded or deferred"
+                    ),
+                )
+            require(
+                "Planning Blockers: `Branch Readiness Planning Incomplete`;" in plan_section,
+                (
+                    f"{source_path}: Stage 2-R9 Product Definition Plan must list "
+                    "Branch Readiness Planning Incomplete first in active planning blockers"
+                ),
+            )
+            require(
+                "`Persona Switch Scope Boundary Pending`" in plan_section,
+                (
+                    f"{source_path}: Stage 2-R9 Product Definition Plan must keep "
+                    "persona/model switching scope as an active boundary blocker"
+                ),
+            )
+            require(
+                "Planning Revalidation Status: Pending - Stage 1-R6 required after Stage 2-R9 digest and scope rebaseline"
+                in plan_section,
+                (
+                    f"{source_path}: Stage 2-R9 Product Definition Plan must route "
+                    "to Stage 1-R6 revalidation"
+                ),
+            )
+            return
         if has_stage2_r8_blocker:
             require(
                 bool(stage2_r8_section),
