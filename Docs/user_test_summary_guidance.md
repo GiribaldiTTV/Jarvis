@@ -247,6 +247,7 @@ Named blocker:
 
 The gate is green only when Codex records a live-client review of readability, placement, visual quality, NDAI uniformity, interaction posture, naming cleanliness, cleanup, and evidence quality from the launched user-facing path or an explicitly equivalent path.
 Screenshot-only or marker-only proof is not enough. Codex must exercise the same visible user-facing interactions it would ask the USER to test, record `Live Interaction Evidence:`, and include an interaction manifest or equivalent evidence when the work adds an interactive UI surface.
+For desktop UI, the Live Validation helper must offer an active foreground/user-observable mode; a fast hidden or blink-through run may support automation evidence but does not satisfy USER-visible active-client validation.
 If the gate is `PENDING`, keep `Codex Live Client Self-QA Pending` active.
 If the gate is `FAIL`, route back to `Workstream` or `Hardening` before exporting final-green `UTS` posture.
 If the gate is `WAIVED`, the waiver must state why the branch is not user-facing or why the live client path is explicitly unavailable.

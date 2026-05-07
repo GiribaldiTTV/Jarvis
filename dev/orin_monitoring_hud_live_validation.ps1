@@ -4,7 +4,10 @@ param(
     [int]$MarkerTimeoutSeconds = 25,
     [int]$NoProgressTimeoutSeconds = 10,
     [switch]$RunInteractionSelfQA,
-    [switch]$VisibleClient
+    [switch]$VisibleClient,
+    [switch]$ActiveUserFacingClient,
+    [int]$InteractionStepDelayMilliseconds = 250,
+    [int]$FinalClientHoldSeconds = 0
 )
 
 Set-StrictMode -Version Latest
@@ -122,7 +125,10 @@ function Save-Manifest([object]$Paths, [string]$PythonExe) {
         python = $PythonExe
         runtimeLog = $Paths.RuntimeLog
         screenshot = $script:ScreenshotPath
-        interactionSelfQARequested = [bool]$RunInteractionSelfQA
+        activeUserFacingClient = [bool]$ActiveUserFacingClient
+        interactionSelfQARequested = $effectiveRunInteractionSelfQA
+        interactionStepDelayMs = $effectiveStepDelayMilliseconds
+        finalClientHoldMs = $effectiveFinalHoldMilliseconds
         interactionManifest = $Paths.InteractionManifest
         interactionManifestStatus = $script:InteractionManifestStatus
         interactionEvidenceRoot = $Paths.InteractionEvidenceRoot
@@ -141,6 +147,14 @@ function Quote-ProcessArgument([string]$Value) {
 $paths = New-Paths
 $pythonExe = ""
 $exitCode = 1
+$effectiveRunInteractionSelfQA = [bool]($RunInteractionSelfQA -or $ActiveUserFacingClient)
+$effectiveVisibleClient = [bool]($VisibleClient -or $ActiveUserFacingClient)
+$effectiveStepDelayMilliseconds = $InteractionStepDelayMilliseconds
+$effectiveFinalHoldMilliseconds = $FinalClientHoldSeconds * 1000
+if ($ActiveUserFacingClient) {
+    $effectiveStepDelayMilliseconds = [Math]::Max($effectiveStepDelayMilliseconds, 2500)
+    $effectiveFinalHoldMilliseconds = [Math]::Max($effectiveFinalHoldMilliseconds, 20000)
+}
 
 try {
     Step $paths "starting FAM-006 Monitoring/HUD live desktop validation"
@@ -154,13 +168,17 @@ try {
         "--startup-abort-signal",
         $paths.AbortSignal
     )
-    if ($RunInteractionSelfQA) {
+    if ($effectiveRunInteractionSelfQA) {
         New-Item -ItemType Directory -Force -Path $paths.InteractionEvidenceRoot | Out-Null
         $args += @(
             "--monitoring-hud-live-self-qa-manifest",
             $paths.InteractionManifest,
             "--monitoring-hud-live-self-qa-root",
-            $paths.InteractionEvidenceRoot
+            $paths.InteractionEvidenceRoot,
+            "--monitoring-hud-live-self-qa-step-delay-ms",
+            ([string]$effectiveStepDelayMilliseconds),
+            "--monitoring-hud-live-self-qa-final-hold-ms",
+            ([string]$effectiveFinalHoldMilliseconds)
         )
         $script:InteractionManifestStatus = "PENDING"
     }
@@ -174,7 +192,7 @@ try {
         RedirectStandardError = $paths.StderrLog
         PassThru = $true
     }
-    if (-not $VisibleClient) {
+    if (-not $effectiveVisibleClient) {
         $startParams.WindowStyle = "Hidden"
     }
 
@@ -205,7 +223,7 @@ try {
         Wait-Marker $paths $marker
     }
 
-    if ($RunInteractionSelfQA) {
+    if ($effectiveRunInteractionSelfQA) {
         Step $paths "waiting for live-client interaction self-QA markers"
         Wait-Marker $paths "MONITORING_HUD_LIVE_CLIENT_SELF_QA_READY"
         if (-not (Test-Path -LiteralPath $paths.InteractionManifest)) {

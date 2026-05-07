@@ -5019,6 +5019,8 @@ class DesktopRuntimeWindow(QWidget):
         self._monitoring_hud_live_self_qa_manifest_path = ""
         self._monitoring_hud_live_self_qa_root = ""
         self._monitoring_hud_live_self_qa_started = False
+        self._monitoring_hud_live_self_qa_step_delay_ms = 250
+        self._monitoring_hud_live_self_qa_final_hold_ms = 0
 
         # Align the standalone desktop route with the proven Boot handoff window model.
         self.setWindowFlags(Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint)
@@ -5475,16 +5477,22 @@ class DesktopRuntimeWindow(QWidget):
         *,
         manifest_path: str,
         evidence_root: str = "",
+        step_delay_ms: int = 250,
+        final_hold_ms: int = 0,
     ):
         self._monitoring_hud_live_self_qa_manifest_path = os.path.abspath(manifest_path)
         root = evidence_root or os.path.dirname(self._monitoring_hud_live_self_qa_manifest_path)
         self._monitoring_hud_live_self_qa_root = os.path.abspath(root)
         self._monitoring_hud_live_self_qa_started = False
+        self._monitoring_hud_live_self_qa_step_delay_ms = max(250, int(step_delay_ms or 250))
+        self._monitoring_hud_live_self_qa_final_hold_ms = max(0, int(final_hold_ms or 0))
         self._emit_runtime_signal(
             "MONITORING_HUD_LIVE_CLIENT_SELF_QA_CONFIGURED",
             package="PKG-006",
             slice="SLC-029",
             manifest=self._monitoring_hud_live_self_qa_manifest_path,
+            step_delay_ms=self._monitoring_hud_live_self_qa_step_delay_ms,
+            final_hold_ms=self._monitoring_hud_live_self_qa_final_hold_ms,
         )
         QTimer.singleShot(500, self._start_monitoring_hud_live_client_self_qa)
 
@@ -5506,6 +5514,8 @@ class DesktopRuntimeWindow(QWidget):
             "client": "desktop/orin_desktop_main.py",
             "mode": "live-client-interaction-self-qa",
             "entrypoint": "Nexus Desktop AI desktop runtime",
+            "stepDelayMs": self._monitoring_hud_live_self_qa_step_delay_ms,
+            "finalHoldMs": self._monitoring_hud_live_self_qa_final_hold_ms,
             "screenshots": screenshots,
             "steps": steps,
             "failureMessage": failure,
@@ -5609,6 +5619,9 @@ class DesktopRuntimeWindow(QWidget):
             if path:
                 screenshots.append(path)
 
+        def delay(base_ms: int) -> int:
+            return max(base_ms, self._monitoring_hud_live_self_qa_step_delay_ms)
+
         state_script = """
             (function() {
                 const hud = document.getElementById("monitoring-hud");
@@ -5647,7 +5660,7 @@ class DesktopRuntimeWindow(QWidget):
             if not passed:
                 finish("FAIL", f"{label} failed")
                 return
-            QTimer.singleShot(250, next_step)
+            QTimer.singleShot(delay(250), next_step)
 
         def assert_initial(result):
             text = str(result.get("text") or "")
@@ -5742,7 +5755,7 @@ class DesktopRuntimeWindow(QWidget):
 
         def step_tray_unanchor():
             self.request_monitoring_hud_unanchor_from_tray(source="live-client-self-qa")
-            QTimer.singleShot(700, lambda: query("tray unanchor reaches editable HUD", assert_unanchored, step_hide))
+            QTimer.singleShot(delay(700), lambda: query("tray unanchor reaches editable HUD", assert_unanchored, step_hide))
 
         def step_hide():
             self._run_javascript(
@@ -5751,11 +5764,11 @@ class DesktopRuntimeWindow(QWidget):
                 if (toggle) toggle.click();
                 """
             )
-            QTimer.singleShot(700, lambda: query("visible toggle hides HUD in live client", assert_hidden, step_restore))
+            QTimer.singleShot(delay(700), lambda: query("visible toggle hides HUD in live client", assert_hidden, step_restore))
 
         def step_restore():
             self.request_monitoring_hud_toggle_from_tray(source="live-client-self-qa")
-            QTimer.singleShot(500, step_change_polling)
+            QTimer.singleShot(delay(500), step_change_polling)
 
         def step_change_polling():
             self._run_javascript(
@@ -5767,7 +5780,7 @@ class DesktopRuntimeWindow(QWidget):
                 }
                 """
             )
-            QTimer.singleShot(800, lambda: query("restore HUD and change polling control", assert_restored, step_layout))
+            QTimer.singleShot(delay(800), lambda: query("restore HUD and change polling control", assert_restored, step_layout))
 
         def step_layout():
             self._run_javascript(
@@ -5785,7 +5798,7 @@ class DesktopRuntimeWindow(QWidget):
                 if (window.setMonitoringHudControlState) window.setMonitoringHudControlState(state);
                 """
             )
-            QTimer.singleShot(800, lambda: query("draggable/resizable card layout and snap posture", assert_layout, step_anchor))
+            QTimer.singleShot(delay(800), lambda: query("draggable/resizable card layout and snap posture", assert_layout, step_anchor))
 
         def step_anchor():
             capture("02_unanchored_layout_live_client")
@@ -5796,7 +5809,7 @@ class DesktopRuntimeWindow(QWidget):
                 polling_rate_ms=1000,
                 source="live-client-self-qa-anchor-restore",
             )
-            QTimer.singleShot(900, lambda: query("anchored click-through/no-focus posture", assert_anchored, step_finish))
+            QTimer.singleShot(delay(900), lambda: query("anchored click-through/no-focus posture", assert_anchored, step_finish))
 
         def step_finish():
             capture("03_final_anchored_live_client")
@@ -5811,6 +5824,18 @@ class DesktopRuntimeWindow(QWidget):
                 slice="SLC-029",
                 steps=len(steps),
             )
+            if self._monitoring_hud_live_self_qa_final_hold_ms > 0:
+                self._emit_runtime_signal(
+                    "MONITORING_HUD_LIVE_CLIENT_SELF_QA_FOREGROUND_HOLD",
+                    package="PKG-006",
+                    slice="SLC-029",
+                    hold_ms=self._monitoring_hud_live_self_qa_final_hold_ms,
+                )
+                QTimer.singleShot(
+                    self._monitoring_hud_live_self_qa_final_hold_ms,
+                    lambda: finish("PASS"),
+                )
+                return
             finish("PASS")
 
         self._set_monitoring_hud_control_state(
@@ -5820,7 +5845,7 @@ class DesktopRuntimeWindow(QWidget):
             polling_rate_ms=1000,
             source="live-client-self-qa-reset",
         )
-        QTimer.singleShot(900, step_initial)
+        QTimer.singleShot(delay(900), step_initial)
 
     def _sync_monitoring_hud_control_state_from_page(self):
         if not self.desktop_mode or not self._page_ready or self._is_shutting_down:

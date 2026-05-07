@@ -368,6 +368,7 @@ That means:
   - for relevant desktop user-facing workstreams, `Codex Live Client Self-QA Gate` must pass or be explicitly waived before User Test Summary handoff and PR Readiness
   - the active authority record must declare `Codex Live Client Self-QA:`, `Visual Quality:`, `Live Interaction Evidence:`, `Usability Check:`, and `Platform Uniformity Check:` so quality, usability, interaction behavior, and NDAI uniformity are not collapsed into marker proof
   - interactive user-facing UI must be exercised in the launched live client; screenshot-only, marker-only, or launched-but-not-driven proof cannot clear this gate
+  - desktop UI proof must include an active foreground/user-observable client mode; hidden, too-fast, or blink-through helper evidence is supporting automation evidence only
   - while `Codex Live Client Self-QA Pending` remains active, do not hand off the feature as ready for USER acceptance
 - no PR-ready with `User Test Summary Results Pending`:
   - automated validators and live helper evidence may be green, but final phase advancement remains blocked while a required User Test Summary handoff is outstanding

@@ -209,6 +209,7 @@ Live Validation green requires an exact `## User Test Summary` state before fina
 For relevant desktop user-facing Live Validation, apply the `User-Facing Shortcut Live Validation Gate` / `desktop-shortcut` blocker path before User Test Summary handoff: declare `User-Facing Shortcut Path:`, record `User-Facing Shortcut Validation: PENDING`, `PASS`, `FAIL`, or `WAIVED`, and keep `User-Facing Shortcut Validation Pending` as a blocker until the declared desktop shortcut or equivalent user entrypoint is passable or explicitly waived.
 For relevant desktop user-facing Live Validation, apply the `Codex Live Client Self-QA Gate` before User Test Summary handoff: declare `Codex Live Client Self-QA:`, `Visual Quality:`, `Live Interaction Evidence:`, `Usability Check:`, and `Platform Uniformity Check:`, and keep `Codex Live Client Self-QA Pending` as a blocker until Codex has inspected and exercised the launched client like a user or an explicit waiver is recorded.
 If the user-facing work is interactive, screenshot-only, marker-only, or launched-but-not-driven proof cannot clear the self-QA gate; Codex must record the same visible interaction checks it would ask the USER to perform.
+For desktop UI, use an active foreground/user-observable client mode; hidden, too-fast, or blink-through helper evidence is supporting automation evidence only.
 
 For phase-sensitive execution, the response must explicitly report:
 

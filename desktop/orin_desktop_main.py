@@ -22,6 +22,8 @@ RUNTIME_LOG_FILE = ""
 STARTUP_ABORT_SIGNAL_FILE = ""
 MONITORING_HUD_LIVE_SELF_QA_MANIFEST = ""
 MONITORING_HUD_LIVE_SELF_QA_ROOT = ""
+MONITORING_HUD_LIVE_SELF_QA_STEP_DELAY_MS = 250
+MONITORING_HUD_LIVE_SELF_QA_FINAL_HOLD_MS = 0
 RUNTIME_RELAUNCH_EVENT = r"Local\NexusRuntimeRelaunchRequestV1"
 RUNTIME_DESKTOP_SETTLED_EVENT = r"Local\NexusRuntimeDesktopSettledV1"
 TRAY_IDENTITY_LABEL = "Nexus Desktop AI"
@@ -67,11 +69,22 @@ def parse_startup_abort_signal_arg(argv):
 
 def parse_monitoring_hud_live_self_qa_args(argv):
     global MONITORING_HUD_LIVE_SELF_QA_MANIFEST, MONITORING_HUD_LIVE_SELF_QA_ROOT
+    global MONITORING_HUD_LIVE_SELF_QA_STEP_DELAY_MS, MONITORING_HUD_LIVE_SELF_QA_FINAL_HOLD_MS
     for i, arg in enumerate(argv):
         if arg == "--monitoring-hud-live-self-qa-manifest" and i + 1 < len(argv):
             MONITORING_HUD_LIVE_SELF_QA_MANIFEST = argv[i + 1]
         elif arg == "--monitoring-hud-live-self-qa-root" and i + 1 < len(argv):
             MONITORING_HUD_LIVE_SELF_QA_ROOT = argv[i + 1]
+        elif arg == "--monitoring-hud-live-self-qa-step-delay-ms" and i + 1 < len(argv):
+            try:
+                MONITORING_HUD_LIVE_SELF_QA_STEP_DELAY_MS = max(250, int(argv[i + 1]))
+            except ValueError:
+                MONITORING_HUD_LIVE_SELF_QA_STEP_DELAY_MS = 250
+        elif arg == "--monitoring-hud-live-self-qa-final-hold-ms" and i + 1 < len(argv):
+            try:
+                MONITORING_HUD_LIVE_SELF_QA_FINAL_HOLD_MS = max(0, int(argv[i + 1]))
+            except ValueError:
+                MONITORING_HUD_LIVE_SELF_QA_FINAL_HOLD_MS = 0
 
 
 def runtime_milestone(event):
@@ -421,6 +434,8 @@ def main():
         window.configure_monitoring_hud_live_client_self_qa(
             manifest_path=MONITORING_HUD_LIVE_SELF_QA_MANIFEST,
             evidence_root=MONITORING_HUD_LIVE_SELF_QA_ROOT,
+            step_delay_ms=MONITORING_HUD_LIVE_SELF_QA_STEP_DELAY_MS,
+            final_hold_ms=MONITORING_HUD_LIVE_SELF_QA_FINAL_HOLD_MS,
         )
     runtime_milestone("RENDERER_MAIN|WINDOW_CONSTRUCTED")
     if exit_if_startup_abort_requested():

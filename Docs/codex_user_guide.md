@@ -173,6 +173,7 @@ For meaningful interactive desktop hardening or closeout work, that baseline als
 - applying the `User-Facing Shortcut Live Validation Gate` for relevant desktop user-facing Live Validation: declare `User-Facing Shortcut Path:`, record `User-Facing Shortcut Validation:`, and clear or waive `User-Facing Shortcut Validation Pending` before User Test Summary handoff
 - applying the `Codex Live Client Self-QA Gate` for relevant desktop user-facing Live Validation: declare `Codex Live Client Self-QA:`, `Visual Quality:`, `Live Interaction Evidence:`, `Usability Check:`, and `Platform Uniformity Check:`, then clear or waive `Codex Live Client Self-QA Pending` before User Test Summary handoff
 - for interactive user-facing UI, Codex must exercise the same live-client interactions it would ask the USER to test; screenshot-only, marker-only, or launched-but-not-driven proof cannot clear the self-QA gate
+- for desktop UI, Codex must use an active foreground/user-observable client mode; hidden, too-fast, or blink-through helper evidence is supporting proof only
 - planning the post-green live launched-process UI audit when meaningful user-facing desktop UI changed
 
 ## Codex Client Screenshot Delivery
