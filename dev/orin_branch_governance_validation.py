@@ -469,6 +469,10 @@ MULTI_SEAM_CONTRACT_PHRASES = (
     "a seam is the current execution checkpoint inside or between slices",
     "Bounded means one active seam at a time, not one-seam Workstream authority.",
     "A single-seam Workstream requires explicit USER waiver before Workstream may stop after one seam while the package or slice remains incomplete.",
+    "Single-seam or single-slice Workstream authority is forbidden unless explicit USER waiver text is recorded.",
+    "If only one seam or one slice is planned or visible, stop immediately on `Single-Seam Or Single-Slice Workstream Blocker` until Branch Readiness expands the plan or USER grants a waiver.",
+    "Only USER can grant a single-seam or single-slice Workstream waiver; Codex, ChatGPT, validators, prompt wording, clean validation, or a green seam cannot infer it.",
+    "A Workstream with `Completion Status: In Progress` and no waiver must show remaining same-branch implementable work beyond the current seam.",
     "seams inside the current slice may be predeclared in canon or discovered from repo truth while the slice remains in progress",
     "there is no repo-wide cap on how many slices a branch or workstream may carry",
     "same-branch backlog completion is the branch-level default: later slices for the same backlog item stay on the same branch when scope, phase, risk, and validation authority remain green",
@@ -493,6 +497,10 @@ MULTI_SEAM_PRIMARY_REPAIR_PHRASES = (
     "Stopping after the first slice or splitting the backlog item across branches requires an explicit `Backlog-Split User Approval` or a named bounded stop condition.",
     "Bounded means one active seam at a time, not one-seam Workstream authority.",
     "A single-seam Workstream requires explicit USER waiver before Workstream may stop after one seam while the package or slice remains incomplete.",
+    "Single-seam or single-slice Workstream authority is forbidden unless explicit USER waiver text is recorded.",
+    "If only one seam or one slice is planned or visible, stop immediately on `Single-Seam Or Single-Slice Workstream Blocker` until Branch Readiness expands the plan or USER grants a waiver.",
+    "Only USER can grant a single-seam or single-slice Workstream waiver; Codex, ChatGPT, validators, prompt wording, clean validation, or a green seam cannot infer it.",
+    "A Workstream with `Completion Status: In Progress` and no waiver must show remaining same-branch implementable work beyond the current seam.",
     "when a slice turns green during `Workstream`, advance immediately to the next admitted slice while `Completion Status` remains `In Progress`",
     "`Completion Status: Red` means a named blocker or waiver currently stops bounded Workstream continuation",
 )
@@ -539,6 +547,10 @@ MULTI_SEAM_PROMPT_PHRASES = (
     "entry seam, not a terminal boundary",
     "Bounded means one active seam at a time, not one-seam Workstream authority.",
     "A single-seam Workstream requires explicit USER waiver before Workstream may stop after one seam while the package or slice remains incomplete.",
+    "Single-seam or single-slice Workstream authority is forbidden unless explicit USER waiver text is recorded.",
+    "If only one seam or one slice is planned or visible, stop immediately on `Single-Seam Or Single-Slice Workstream Blocker` until Branch Readiness expands the plan or USER grants a waiver.",
+    "Only USER can grant a single-seam or single-slice Workstream waiver; Codex, ChatGPT, validators, prompt wording, clean validation, or a green seam cannot infer it.",
+    "A Workstream with `Completion Status: In Progress` and no waiver must show remaining same-branch implementable work beyond the current seam.",
     "seams inside the current slice may be predeclared in canon or discovered from repo truth while the slice remains in progress",
     "there is no repo-wide cap on how many slices a branch or workstream may carry",
     "same-branch backlog completion is the branch-level default: later slices for the same backlog item stay on the same branch when scope, phase, risk, and validation authority remain green",
@@ -579,6 +591,12 @@ CONTINUATION_COMPLETION_STATUS_LABEL = "Completion Status"
 CONTINUATION_WAIVER_STATUS_LABEL = "Waiver Status"
 CONTINUATION_STOP_BASIS_LABEL = "Stop Basis"
 SINGLE_SEAM_WORKSTREAM_WAIVER_LABEL = "Single-Seam Workstream Waiver"
+SINGLE_SEAM_OR_SINGLE_SLICE_WAIVER_AUTHORITY_LABEL = (
+    "Single-Seam Or Single-Slice Waiver Authority"
+)
+SINGLE_SEAM_OR_SINGLE_SLICE_WORKSTREAM_BLOCKER_LABEL = (
+    "Single-Seam Or Single-Slice Workstream Blocker"
+)
 BOUNDED_SEAM_DEFAULT_LABEL = "Bounded Seam Default"
 CONTINUATION_ALLOWED_SEAM_STATUSES = {"green", "in progress", "blocked"}
 CONTINUATION_ALLOWED_SLICE_STATUSES = {"green", "in progress", "blocked", "waived"}
@@ -612,6 +630,10 @@ GOVERNED_OUTPUT_CONTRACT_REQUIRED_PHRASES = {
         "If `Continue Decision` is `Continue`, Codex must not end on a final seam-closeout response, rollback path, or next-seam recommendation; it must keep executing until a lawful `Stop` decision exists.",
         "If `Completion Status` is `In Progress`, `Next Active Seam` must remain a `Workstream` seam; phase-exit seams require `Completion Status: Green`, `Completion Status: Red` with a named blocker/waiver, or explicit USER single-seam/backlog-split waiver.",
         "`Phase: Workstream` must remain bounded at all times.",
+        "Single-seam or single-slice Workstream authority is forbidden unless explicit USER waiver text is recorded.",
+        "If only one seam or one slice is planned or visible, stop immediately on `Single-Seam Or Single-Slice Workstream Blocker` until Branch Readiness expands the plan or USER grants a waiver.",
+        "Only USER can grant a single-seam or single-slice Workstream waiver; Codex, ChatGPT, validators, prompt wording, clean validation, or a green seam cannot infer it.",
+        "A Workstream with `Completion Status: In Progress` and no waiver must show remaining same-branch implementable work beyond the current seam.",
         "If `Completion Status` is `Red`, `Continuation Action` must explicitly state the blocker-clearing action or waiver-clearing action needed before bounded `Workstream` continuation may resume.",
     ),
     Path("Docs/development_rules.md"): (
@@ -626,6 +648,10 @@ GOVERNED_OUTPUT_CONTRACT_REQUIRED_PHRASES = {
         "If `Continue Decision` is `Continue`, do not end on a seam-complete final response, rollback path, or next-seam recommendation; keep executing until a lawful `Stop` decision exists.",
         "If `Completion Status` is `In Progress`, `Next Active Seam` must remain a `Workstream` seam; phase-exit seams require `Completion Status: Green`, `Completion Status: Red` with a named blocker/waiver, or explicit USER single-seam/backlog-split waiver.",
         "`Phase: Workstream` must remain bounded at all times, and the only lawful `Workstream` stop conditions are `Completion Status: Green` with `Hardening` next, or `Completion Status: Red` justified by a named blocker or waiver.",
+        "Single-seam or single-slice Workstream authority is forbidden unless explicit USER waiver text is recorded.",
+        "If only one seam or one slice is planned or visible, stop immediately on `Single-Seam Or Single-Slice Workstream Blocker` until Branch Readiness expands the plan or USER grants a waiver.",
+        "Only USER can grant a single-seam or single-slice Workstream waiver; Codex, ChatGPT, validators, prompt wording, clean validation, or a green seam cannot infer it.",
+        "A Workstream with `Completion Status: In Progress` and no waiver must show remaining same-branch implementable work beyond the current seam.",
         "If `Completion Status` is `Red`, `Continuation Action` must report the blocker-clearing action or waiver-clearing action needed before bounded `Workstream` continuation may resume.",
     ),
     Path("Docs/codex_modes.md"): (
@@ -640,6 +666,10 @@ GOVERNED_OUTPUT_CONTRACT_REQUIRED_PHRASES = {
         "If `Continue Decision` is `Continue`, Workflow mode must not end on a seam-complete final response, rollback path, or next-seam recommendation; it must keep executing until a lawful `Stop` decision exists.",
         "If `Completion Status` is `In Progress`, `Next Active Seam` must remain a `Workstream` seam; phase-exit seams require `Completion Status: Green`, `Completion Status: Red` with a named blocker/waiver, or explicit USER single-seam/backlog-split waiver.",
         "`Phase: Workstream` must remain bounded at all times, and the only lawful `Workstream` stop conditions are `Completion Status: Green` with `Hardening` next, or `Completion Status: Red` justified by a named blocker or waiver.",
+        "Single-seam or single-slice Workstream authority is forbidden unless explicit USER waiver text is recorded.",
+        "If only one seam or one slice is planned or visible, stop immediately on `Single-Seam Or Single-Slice Workstream Blocker` until Branch Readiness expands the plan or USER grants a waiver.",
+        "Only USER can grant a single-seam or single-slice Workstream waiver; Codex, ChatGPT, validators, prompt wording, clean validation, or a green seam cannot infer it.",
+        "A Workstream with `Completion Status: In Progress` and no waiver must show remaining same-branch implementable work beyond the current seam.",
         "If `Completion Status` is `Red`, `Continuation Action` must report the blocker-clearing action or waiver-clearing action needed before bounded `Workstream` continuation may resume.",
     ),
     Path("Docs/codex_user_guide.md"): (
@@ -655,6 +685,10 @@ GOVERNED_OUTPUT_CONTRACT_REQUIRED_PHRASES = {
         "Treat a prompt `Return:` block as the lawful-stop report, not as permission to stop while `Continue Decision` remains `Continue`.",
         "If `Completion Status` is `In Progress`, `Next Active Seam` must remain a `Workstream` seam; phase-exit seams require `Completion Status: Green`, `Completion Status: Red` with a named blocker/waiver, or explicit USER single-seam/backlog-split waiver.",
         "`Phase: Workstream` must remain bounded at all times, and the only lawful `Workstream` stop conditions are `Completion Status: Green` with `Hardening` next, or `Completion Status: Red` justified by a named blocker or waiver.",
+        "Single-seam or single-slice Workstream authority is forbidden unless explicit USER waiver text is recorded.",
+        "If only one seam or one slice is planned or visible, stop immediately on `Single-Seam Or Single-Slice Workstream Blocker` until Branch Readiness expands the plan or USER grants a waiver.",
+        "Only USER can grant a single-seam or single-slice Workstream waiver; Codex, ChatGPT, validators, prompt wording, clean validation, or a green seam cannot infer it.",
+        "A Workstream with `Completion Status: In Progress` and no waiver must show remaining same-branch implementable work beyond the current seam.",
         "If `Completion Status` is `Red`, `Continuation Action` must report the blocker-clearing action or waiver-clearing action needed before bounded `Workstream` continuation may resume.",
     ),
     Path("Docs/orin_task_template.md"): (
@@ -670,6 +704,10 @@ GOVERNED_OUTPUT_CONTRACT_REQUIRED_PHRASES = {
         "Once the current slice is green during `Workstream`, advance into the next admitted slice while `Completion Status` remains `In Progress`; await the next instruction only after a lawful `Stop` decision.",
         "If `Completion Status` is `In Progress`, `Next Active Seam` must remain a `Workstream` seam; phase-exit seams require `Completion Status: Green`, `Completion Status: Red` with a named blocker/waiver, or explicit USER single-seam/backlog-split waiver.",
         "`Phase: Workstream` must remain bounded at all times, and the only lawful `Workstream` stop conditions are `Completion Status: Green` with `Hardening` next, or `Completion Status: Red` justified by a named blocker or waiver.",
+        "Single-seam or single-slice Workstream authority is forbidden unless explicit USER waiver text is recorded.",
+        "If only one seam or one slice is planned or visible, stop immediately on `Single-Seam Or Single-Slice Workstream Blocker` until Branch Readiness expands the plan or USER grants a waiver.",
+        "Only USER can grant a single-seam or single-slice Workstream waiver; Codex, ChatGPT, validators, prompt wording, clean validation, or a green seam cannot infer it.",
+        "A Workstream with `Completion Status: In Progress` and no waiver must show remaining same-branch implementable work beyond the current seam.",
         "If `Completion Status` is `Red`, `Continuation Action` must report the blocker-clearing action or waiver-clearing action needed before bounded `Workstream` continuation may resume.",
     ),
     Path("Docs/nexus_startup_contract.md"): (
@@ -4256,18 +4294,31 @@ def _validate_single_seam_workstream_contract(
     *,
     branch_class: str,
     current_phase: str,
+    blockers: list[str],
 ) -> None:
     if branch_class != "implementation" or current_phase != "Workstream":
         return
 
     waiver_value = _extract_marker_value(text, SINGLE_SEAM_WORKSTREAM_WAIVER_LABEL)
+    waiver_authority_value = _extract_marker_value(
+        text,
+        SINGLE_SEAM_OR_SINGLE_SLICE_WAIVER_AUTHORITY_LABEL,
+    )
+    single_seam_blocker_value = _extract_marker_value(
+        text,
+        SINGLE_SEAM_OR_SINGLE_SLICE_WORKSTREAM_BLOCKER_LABEL,
+    )
     bounded_value = _extract_marker_value(text, BOUNDED_SEAM_DEFAULT_LABEL)
     continuation_section = _section(text, "Seam Continuation Decision")
     completion_status = _extract_marker_value(
         continuation_section, CONTINUATION_COMPLETION_STATUS_LABEL
     )
+    remaining_work = _extract_marker_value(text, "Remaining Implementable Work")
     normalized_waiver = waiver_value.strip().casefold()
+    normalized_waiver_authority = waiver_authority_value.strip().casefold()
+    normalized_single_seam_blocker = single_seam_blocker_value.strip().casefold()
     normalized_completion = completion_status.strip().casefold()
+    normalized_remaining_work = remaining_work.strip().casefold()
     lowered_text = text.casefold()
 
     require(
@@ -4279,12 +4330,51 @@ def _validate_single_seam_workstream_contract(
         ),
     )
     require(
+        bool(waiver_authority_value),
+        (
+            f"{source_path}: active Workstream record must declare "
+            f"'{SINGLE_SEAM_OR_SINGLE_SLICE_WAIVER_AUTHORITY_LABEL}:' so only USER waiver text can "
+            "authorize single-seam or single-slice Workstream behavior"
+        ),
+    )
+    require(
+        bool(single_seam_blocker_value),
+        (
+            f"{source_path}: active Workstream record must declare "
+            f"'{SINGLE_SEAM_OR_SINGLE_SLICE_WORKSTREAM_BLOCKER_LABEL}:' so a one-seam or "
+            "one-slice visible plan becomes a blocker instead of an implied stop"
+        ),
+    )
+    require(
         bool(bounded_value),
         (
             f"{source_path}: active Workstream record must declare "
             f"'{BOUNDED_SEAM_DEFAULT_LABEL}:' with one-active-seam continuation semantics"
         ),
     )
+    if waiver_authority_value:
+        require(
+            "user only" in normalized_waiver_authority
+            and "codex" in normalized_waiver_authority
+            and "cannot" in normalized_waiver_authority,
+            (
+                f"{source_path}: {SINGLE_SEAM_OR_SINGLE_SLICE_WAIVER_AUTHORITY_LABEL} must make USER "
+                "the only waiver authority and deny Codex-inferred single-seam/single-slice "
+                "authority"
+            ),
+        )
+    if single_seam_blocker_value:
+        require(
+            "one seam" in normalized_single_seam_blocker
+            and "one slice" in normalized_single_seam_blocker
+            and "blocker" in normalized_single_seam_blocker
+            and "user waiver" in normalized_single_seam_blocker,
+            (
+                f"{source_path}: {SINGLE_SEAM_OR_SINGLE_SLICE_WORKSTREAM_BLOCKER_LABEL} must "
+                "state that one visible seam or one visible slice is a blocker unless USER "
+                "waives it"
+            ),
+        )
     if bounded_value:
         bounded_lower = bounded_value.casefold()
         require(
@@ -4311,6 +4401,33 @@ def _validate_single_seam_workstream_contract(
                 "continuation and Completion Status is Red"
             ),
         )
+        require(
+            normalized_remaining_work not in {"", "none", "n/a", "na", "not applicable"},
+            (
+                f"{source_path}: {CONTINUATION_COMPLETION_STATUS_LABEL} In Progress with no "
+                "single-seam waiver must list remaining same-branch implementable work"
+            ),
+        )
+        remaining_work_seams = {
+            match.group(0)
+            for match in re.finditer(r"\bws\d+\b", normalized_remaining_work)
+        }
+        remaining_work_shows_multi_step = (
+            len(remaining_work_seams) >= 2
+            or "multiple" in normalized_remaining_work
+            or "admitted slices" in normalized_remaining_work
+            or "later bounded seams" in normalized_remaining_work
+            or "remaining bounded seams" in normalized_remaining_work
+        )
+        require(
+            remaining_work_shows_multi_step,
+            (
+                f"{source_path}: {CONTINUATION_COMPLETION_STATUS_LABEL} In Progress with no "
+                "USER single-seam/single-slice waiver must show more than one same-branch "
+                "seam/slice in Remaining Implementable Work; if only one seam or one slice is "
+                f"planned or visible, stop on {SINGLE_SEAM_OR_SINGLE_SLICE_WORKSTREAM_BLOCKER_LABEL}"
+            ),
+        )
     elif normalized_waiver not in SINGLE_SEAM_WORKSTREAM_ALLOWED_NO_WAIVER_VALUES:
         require(
             "user" in normalized_waiver
@@ -4331,6 +4448,16 @@ def _validate_single_seam_workstream_contract(
             (
                 f"{source_path}: active Workstream truth must not encode single-seam "
                 f"Workstream authority via '{prohibited_phrase}'"
+            ),
+        )
+
+    if SINGLE_SEAM_OR_SINGLE_SLICE_WORKSTREAM_BLOCKER_LABEL in blockers:
+        require(
+            normalized_completion == "red",
+            (
+                f"{source_path}: {SINGLE_SEAM_OR_SINGLE_SLICE_WORKSTREAM_BLOCKER_LABEL} must "
+                "stop Workstream continuation with Completion Status Red until Branch Readiness "
+                "expands the plan or USER grants a waiver"
             ),
         )
 
@@ -12642,6 +12769,7 @@ def main() -> int:
                 workstream_text,
                 branch_class=branch_class,
                 current_phase=current_phase,
+                blockers=blockers,
             )
             require(
                 UTS_RESULTS_BLOCKER not in blockers,
@@ -13500,6 +13628,7 @@ def main() -> int:
                     record_text,
                     branch_class=branch_class,
                     current_phase=current_phase,
+                    blockers=list(info["blockers"]),
                 )
                 continuation_completion_status = _extract_marker_value(
                     continuation_section,

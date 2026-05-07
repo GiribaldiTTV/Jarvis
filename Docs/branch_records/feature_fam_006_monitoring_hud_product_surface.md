@@ -417,11 +417,18 @@ Slice Continuation Default: `Same-branch backlog completion`
 Backlog-Split User Approval: `None`
 Backlog-Split Reason: `None`
 Single-Seam Workstream Waiver: `None`
+Single-Seam Or Single-Slice Waiver Authority: `USER only; Codex, ChatGPT, validators, prompt wording, clean validation, or a green seam cannot infer or grant single-seam or single-slice Workstream authority`
+Single-Seam Or Single-Slice Workstream Blocker: `Blocker active if only one seam or one slice is planned or visible without explicit USER waiver`
 Bounded Seam Default: `One active seam at a time; not one-seam Workstream authority`
 
 - The admitted package has six concrete slices and is not a one-slice branch.
 - Workstream must continue to the next admitted slice whenever scope, phase, risk, and validation authority remain green.
 - Stopping after one seam or one admitted slice while PKG-006 remains incomplete requires a named blocker, future dependency, or explicit USER-approved backlog split/waiver.
+- Single-seam or single-slice Workstream authority is forbidden unless explicit USER waiver text is recorded.
+- If only one seam or one slice is planned or visible, stop immediately on `Single-Seam Or Single-Slice Workstream Blocker` until Branch Readiness expands the plan or USER grants a waiver.
+- Only USER can grant a single-seam or single-slice Workstream waiver; Codex, ChatGPT, validators, prompt wording, clean validation, or a green seam cannot infer it.
+- A Workstream with `Completion Status: In Progress` and no waiver must show remaining same-branch implementable work beyond the current seam.
+- PKG-006 currently has multiple visible same-branch repair seams (`WS19` through `WS23`), so this blocker is not active; Workstream must continue through them before any Hardening handoff.
 
 ## Admitted Implementation Slice
 

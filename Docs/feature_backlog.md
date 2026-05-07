@@ -357,7 +357,7 @@ Package Admission State: Admitted
 Admitted Slice Count: 6
 Package Completion State: In Progress - product completion reopened
 Single-Slice Package User Approval: Not required - `PKG-006` has six concrete admitted slices and no single-slice waiver is granted.
-Single-Seam Workstream Waiver: None - bounded means one active seam at a time, not one-seam Workstream authority; PKG-006 must continue through admitted slices unless a named blocker, future dependency, or explicit USER waiver is recorded.
+Single-Seam Workstream Waiver: None - bounded means one active seam at a time, not one-seam Workstream authority; single-seam or single-slice Workstream authority is forbidden unless explicit USER waiver text is recorded; if only one seam or one slice is planned or visible, stop on `Single-Seam Or Single-Slice Workstream Blocker`; PKG-006 currently shows multiple remaining same-branch seams and must continue through admitted slices unless a named blocker, future dependency, or explicit USER waiver is recorded.
 
 Package Trace:
 

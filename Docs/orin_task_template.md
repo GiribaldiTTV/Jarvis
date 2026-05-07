@@ -168,6 +168,10 @@ If `Seam Sequence` is present, Codex must execute one active seam at a time, val
 If a prompt names an active seam, treat it as the entry seam, not a terminal boundary.
 Bounded means one active seam at a time, not one-seam Workstream authority.
 A single-seam Workstream requires explicit USER waiver before Workstream may stop after one seam while the package or slice remains incomplete.
+Single-seam or single-slice Workstream authority is forbidden unless explicit USER waiver text is recorded.
+If only one seam or one slice is planned or visible, stop immediately on `Single-Seam Or Single-Slice Workstream Blocker` until Branch Readiness expands the plan or USER grants a waiver.
+Only USER can grant a single-seam or single-slice Workstream waiver; Codex, ChatGPT, validators, prompt wording, clean validation, or a green seam cannot infer it.
+A Workstream with `Completion Status: In Progress` and no waiver must show remaining same-branch implementable work beyond the current seam.
 After a green seam, `Next-Seam Continuation Required` applies by continuing seam-to-seam inside the current slice until all required seams are complete and the slice status is green when continuation authority conditions pass.
 Seams inside the current slice may be predeclared in canon or discovered from repo truth while the slice remains in progress.
 There is no repo-wide cap on how many slices a branch or workstream may carry.
