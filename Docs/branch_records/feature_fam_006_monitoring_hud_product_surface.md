@@ -37,7 +37,7 @@ This branch may execute the admitted PKG-006 implementation slices during Workst
 ## Phase Status
 
 - Branch Readiness Stage: `Complete - Stage 2-R10 recorded Stage 1-R6 planning revalidation PASS`
-- Workstream Stage: `Active - WS7 Monitoring HUD Product Visibility And Acceptance Baseline`
+- Workstream Stage: `WS7 implementation complete / Hardening handoff pending`
 - Hardening Stage: `Reopened - prior H1 is scaffold/marker hardening evidence only, not product-complete proof`
 - Active Branch: `feature/fam-006-monitoring-hud-product-surface`
 - Branch Authority Mode: `Active Branch`
@@ -51,7 +51,7 @@ This branch may execute the admitted PKG-006 implementation slices during Workst
 - Admitted Slice Count: `6`
 - Package Completion State: `In Progress - product completion reopened`
 - Single-Slice Package User Approval: `Not required - PKG-006 has six concrete admitted slices; no waiver granted`
-- Runtime Implementation State: `Scaffold complete / product HUD incomplete - DOM/CSS/JS surface, renderer wiring, local telemetry/status contracts, marker/static validator proof, and live-helper marker capture are credited; clearly visible HUD proof, readable product placement, useful user-facing status, visual hierarchy, and USER acceptance remain unproven`
+- Runtime Implementation State: `WS7 product visibility baseline implemented - Nexus/NDAI Monitoring HUD panel, category-card model, provider setup/no-data/degraded states, visible overlay proof, and full-desktop screenshot proof are credited; real live hardware values, broad provider platform, User Test Summary acceptance, Hardening, Live Validation phase closeout, PR Readiness, and package completion remain unproven`
 - PR Creation State: `Not approved in Hardening`
 - Watcher Provisioning State: `Not approved in Hardening`
 - Release Work State: `Not approved; v1.6.13-prebeta release execution is already complete and no new release work is in scope`
@@ -66,7 +66,7 @@ This branch may execute the admitted PKG-006 implementation slices during Workst
 
 - `Backlog Completion Unproven`
 
-Package completion is not currently claimed. Backlog Completion Unproven remains the guardrail that blocks any future package-complete claim until visible product proof, screenshot proof, User Test Summary acceptance, real-telemetry truth, and naming truth are digested. Stage 2-R10 recorded Stage 1-R6 planning revalidation PASS, cleared/deferred the Stage 2-R9 planning blockers, and handed the branch back to Workstream WS7. Live Validation, PR Readiness, PR creation, watcher provisioning, release, tag, artifact, and direct-main work remain blocked by their own phase gates.
+Package completion is not currently claimed. Backlog Completion Unproven remains the guardrail that blocks any future package-complete claim until WS7 product-visible HUD proof is reviewed, User Test Summary acceptance is submitted/digested or waived, real telemetry claims remain provider-truthful, Hardening/Live Validation closeout completes, and naming truth remains clean. WS7 produced a visible product baseline and full-desktop screenshot proof, but PKG-006 remains In Progress and PR/release work remains blocked by later phase gates.
 
 ## Cleared Governance Notes
 
@@ -510,28 +510,28 @@ Status: `Active - Stage 2-R10 recorded Stage 1-R6 PASS and handed off WS7 under 
 
 Active seam: `Workstream WS7 - Monitoring HUD Product Visibility And Acceptance Baseline`
 
-Seam Status: `In Progress`
+Seam Status: `Green`
 Slice Status: `In Progress`
-Slice Detail: `SLC-016, SLC-026, SLC-027, SLC-028, and SLC-029 remain reopened/in progress and may resume under WS7 boundaries; SLC-025 remains complete as local boundary contract proof`
+Slice Detail: `SLC-016 visible HUD baseline, SLC-026 placement posture, SLC-027 toggle/task-tray posture, SLC-028 setup/no-data/degraded/warning copy, and SLC-029 full-desktop screenshot proof are credited by WS7; SLC-025 remains complete as local/provider-contract boundary proof; UTS and later phase proof remain pending`
 Completion Status: `In Progress`
-Completion Detail: `Package completion remains unclaimed; WS7 must produce product-visible HUD proof before any later completion claim`
+Completion Detail: `Package completion remains unclaimed; WS7 product-visible HUD proof exists, but Backlog Completion Unproven remains active until UTS, Hardening/Live Validation closeout, and later PR/release phase gates complete`
 Waiver Status: `None`
-Continue Decision: `Continue to WS7`
+Continue Decision: `Continue`
 Stop Basis: `None`
 
 ## Seam Continuation Decision
 
-Seam Status: `In Progress`
+Seam Status: `Green`
 Slice Status: `In Progress`
-Slice Detail: `WS7 product visibility and acceptance baseline may resume under Stage 2-R10 boundaries`
+Slice Detail: `WS7 implemented the visible Nexus/NDAI Monitoring HUD product baseline under Stage 2-R10 boundaries without claiming package completion`
 Completion Status: `In Progress`
-Completion Detail: `Package completion remains unclaimed; Workstream continuation is allowed but completion is blocked until product proof is real`
+Completion Detail: `Package completion remains unclaimed; product-visible proof is real, but UTS and later phase proof still block package/backlog completion`
 Waiver Status: `None`
 Continue Decision: `Continue`
 Stop Basis: `None`
-Next Active Seam: `Workstream WS7 - Monitoring HUD Product Visibility And Acceptance Baseline`
+Next Active Seam: `Hardening H1 - Monitoring HUD Product Validation`
 Stop Condition: `Stop only if WS7 attempts fake telemetry, broad provider-platform implementation without proof, external/plugin telemetry implementation, audio/spoken warning behavior, persona switching implementation, PR/release work, or package completion without product proof`
-Continuation Action: `Resume WS7 implementation under the finalized Stage 2-R10 current-branch scope and future-package deferrals.`
+Continuation Action: `Enter Hardening only after USER/governance handoff; do not claim PKG-006 complete until UTS and later completion proof are recorded.`
 
 ## WS1 Implementation Record
 
@@ -592,6 +592,25 @@ Continuation Action: `Resume WS7 implementation under the finalized Stage 2-R10 
 - Package Completion State: `In Progress - product completion reopened`
 - Boundary preservation: `No new telemetry sources, placement behavior, settings/control behavior, fail-safe behavior, voice/audio behavior, release work, PR work, watcher work, tags, GitHub Releases, artifacts, or direct-main mutation`
 
+## WS7 Implementation Record
+
+- Runtime files touched: `desktop/desktop_renderer.py`, `desktop/monitoring_hud_telemetry.py`, `desktop/monitoring_hud_placement.py`, `desktop/monitoring_hud_controls.py`, `desktop/monitoring_hud_status.py`, `desktop/workerw_utils.py`, `nexus_visual/orin_core.html`, `nexus_visual/orin_core.css`, `nexus_visual/orin_core.js`, `dev/orin_monitoring_hud_surface_validation.py`, `dev/orin_monitoring_hud_live_validation.ps1`
+- HUD product surface: `Visible Nexus Desktop AI Monitoring HUD panel with futuristic card/panel styling, CPU/GPU thermal/load category-card model, provider setup/unavailable states, visual/non-invasive warning badges, and no fake hardware values`
+- Placement/interaction posture: `DesktopRuntimeWindow now exposes a visible no-focus/click-through overlay proof path, movable top-right snap-rail copy, resizable card-grid posture, anchored click-through/no-focus-steal marker, task-tray unanchor posture, and no default keybinds`
+- Provider/telemetry posture: `Provider-contract-first; live CPU/GPU/thermal/load values remain hidden until a safe provider and validation path exist; hardware polling remains not performed`
+- Live proof root: `dev/logs/fam_006_monitoring_hud_live_validation/20260506_181508`
+- Live manifest: `dev/logs/fam_006_monitoring_hud_live_validation/20260506_181508/manifest.json`
+- Live screenshot: `dev/logs/fam_006_monitoring_hud_live_validation/20260506_181508/monitoring_hud_desktop.png`
+- Observed markers: `MONITORING_HUD_BASELINE_READY`, `MONITORING_HUD_PRODUCT_VISIBILITY_READY`, `MONITORING_HUD_VISIBLE_OVERLAY_READY`, `MONITORING_HUD_TELEMETRY_BOUNDARY_READY`, `MONITORING_HUD_PLACEMENT_OWNERSHIP_READY`, `MONITORING_HUD_CONTROLS_VISIBILITY_READY`, `MONITORING_HUD_STATUS_BEHAVIOR_READY`, `DESKTOP_VISIBLE_OVERLAY_RESULT|success=true`, `RENDERER_MAIN|STARTUP_READY`, `DESKTOP_OUTCOME|SETTLED|state=dormant`
+- Validation helper update: `dev/orin_monitoring_hud_surface_validation.py now blocks marker-only proof and requires visible product HUD markers, category-card model, provider-contract truth, no fake numeric hardware values, visible overlay proof, and live helper full-desktop screenshot settling`
+- SLC-016 Completion State: `WS7 product baseline implemented / UTS pending`
+- SLC-026 Completion State: `WS7 placement posture implemented / Hardening and UTS pending`
+- SLC-027 Completion State: `WS7 toggle/task-tray posture implemented / persistence remains not implemented`
+- SLC-028 Completion State: `WS7 setup/no-data/degraded/warning copy implemented / no recovery automation or audio behavior`
+- SLC-029 Completion State: `Full-desktop screenshot proof captured / UTS pending`
+- Package Completion State: `In Progress - product completion unclaimed`
+- Boundary preservation: `No fake telemetry, broad provider-platform implementation, external/plugin telemetry implementation, audio/spoken warning behavior, persona switching, Stream Deck, local AI, installer/capability-pack work, PR work, watcher work, release work, tags, GitHub Releases, artifacts, or direct-main mutation`
+
 ## Hardening H1 Result
 
 - Phase Admission: `REOPENED - prior transition to Hardening is preserved as scaffold-hardening evidence only; product-green completion was overstated`
@@ -606,9 +625,9 @@ Continuation Action: `Resume WS7 implementation under the finalized Stage 2-R10 
 
 ## User Test Summary
 
-Automated validators and live helper evidence: GREEN for scaffold/marker boundaries; NOT sufficient for product completion.
+Automated validators and live helper evidence: GREEN for WS7 visible product baseline and full-desktop screenshot proof; NOT sufficient for package completion until User Test Summary and later phase proof are recorded.
 User Test Summary Results: PENDING.
-Final product completion and phase advancement are BLOCKED until visible user-facing proof and the filled User Test Summary are submitted and digested or explicitly waived.
+Final product completion and PR Readiness are BLOCKED until the filled User Test Summary is submitted and digested or explicitly waived.
 
 Test Purpose: verify the user-visible Monitoring/HUD surface after the completed PKG-006 Workstream seam chain.
 Scenario / Entry Point: launch Nexus Desktop AI from the normal desktop entrypoint after this branch is built or run locally.

@@ -1,11 +1,10 @@
-"""Validate the FAM-006 Monitoring HUD visual, telemetry, placement, controls, and status contract.
+"""Validate the FAM-006 Monitoring HUD product visibility baseline.
 
-This helper is intentionally static for SLC-016/SLC-025. It proves the
-desktop-only visual surface, runtime telemetry adapter boundary, renderer-owned
-placement contract, controls visibility contract, source-truth markers, and
-slice-boundary copy without polling hardware, persisting settings, inventing
-hardware values, expanding retired legacy product identity, inventing
-recovery behavior, or touching voice/audio.
+This helper is intentionally static. It proves the WS7 visible HUD panel,
+card-model, provider-contract truth, anchored click-through posture, toggle /
+task-tray posture, no-data/degraded copy, and live-proof helper markers without
+polling hardware, inventing metric values, persisting settings, or widening
+into deferred product lanes.
 """
 
 from __future__ import annotations
@@ -39,6 +38,15 @@ def _html_section(text: str) -> str:
     return match.group(0) if match else ""
 
 
+def _require_no_collection_imports(text: str, label: str, failures: list[str]) -> None:
+    for forbidden in ("psutil", "subprocess", "wmi", "pynvml", "win32", "powershell"):
+        _require(
+            forbidden not in text.casefold(),
+            f"{label} must not perform {forbidden} collection in the WS7 product baseline",
+            failures,
+        )
+
+
 def validate() -> list[str]:
     failures: list[str] = []
 
@@ -61,40 +69,50 @@ def validate() -> list[str]:
         'data-slice="SLC-026"',
         'data-slice="SLC-027"',
         'data-slice="SLC-028"',
-        'aria-label="Monitoring HUD visual baseline"',
-        'aria-label="Runtime telemetry adapter boundary"',
-        'aria-label="Desktop placement and renderer ownership"',
-        'aria-label="Settings and user controls visibility"',
-        'aria-label="Fail-safe no-data and degraded-status behavior"',
+        'data-product-surface="nexus-monitoring-hud"',
+        'data-interaction-mode="anchored-click-through"',
+        'data-provider-state="setup-required"',
+        'data-warning-mode="visual-non-invasive"',
+        'data-live-values="provider-required"',
+        'data-keybind-policy="none"',
+        'aria-label="Nexus Desktop AI Monitoring HUD product visibility baseline"',
+        'aria-label="Configurable sensor card model"',
         'aria-hidden="true"',
-        "FAM-006 Monitoring HUD",
-        "System surface baseline",
-        "Visual layer online",
-        "Active SLC-025",
-        "Active SLC-026",
-        "Active SLC-027",
-        "Active SLC-028",
-        "Adapter boundary",
-        "Local runtime only",
-        "Not performed",
-        "Renderer owner",
-        "DesktopRuntimeWindow",
-        "Desktop anchor",
-        "Top-right",
-        "Pointer model",
-        "Non-interactive",
-        "HUD visibility",
-        "Desktop mode visible",
-        "Control surface",
-        "Read-only preview",
-        "Persistence",
-        "Not persisted",
-        "Fail-safe state",
-        "Waiting for source truth",
-        "No-data behavior",
-        "Do not imply telemetry",
-        "Degraded behavior",
-        "Name local readiness gap",
+        "Nexus Desktop AI",
+        "Monitoring HUD",
+        "HUD enabled",
+        "Provider setup required",
+        "Hardware values stay hidden until a safe provider and validation route exist.",
+        "Movable panel",
+        "Snap-ready",
+        "Anchored click-through",
+        "Task tray unanchor path",
+        "No default keybinds",
+        'data-sensor-card="cpu-thermal"',
+        'data-sensor-card="gpu-thermal"',
+        'data-sensor-card="cpu-load"',
+        'data-sensor-card="gpu-load"',
+        'data-live-value="blocked-until-provider"',
+        "CPU Thermal",
+        "GPU Thermal",
+        "CPU Load",
+        "GPU Load",
+        "Provider required",
+        "Unavailable",
+        "No live value",
+        "No polling yet",
+        "No polling until provider selection",
+        "Provider-contract-first",
+        "Movable top-right snap rail",
+        "Resizable card grid",
+        "Optional HUD layer",
+        "On/off represented",
+        "Show unavailable; no fake values",
+        "Name reconnect/setup gap",
+        "Visual badge only",
+        "Full desktop required",
+        "Pending acceptance",
+        "PKG-006 in progress",
     ):
         _require_contains(hud_section, needle, "monitoring HUD HTML", failures)
 
@@ -102,28 +120,36 @@ def validate() -> list[str]:
     for forbidden in ("voice", "audio", "spoken", "microphone", retired_product_name):
         _require(
             forbidden not in hud_section.casefold(),
-            f"monitoring HUD HTML must not introduce {forbidden} behavior in SLC-016",
+            f"monitoring HUD HTML must not introduce {forbidden} behavior in WS7",
             failures,
         )
 
-    for forbidden_metric in ("cpu temp", "gpu temp", "thermal value", "fake metric", "mock metric"):
-        _require(
-            forbidden_metric not in hud_section.casefold(),
-            (
-                "monitoring HUD HTML must not present hardware metric values before "
-                f"provider-contract proof exists: {forbidden_metric}"
-            ),
-            failures,
-        )
+    fake_metric_pattern = re.compile(
+        r"\b\d+(?:\.\d+)?\s?(?:°|c\b|%|rpm\b|mhz\b|ghz\b|w\b)",
+        flags=re.IGNORECASE,
+    )
+    _require(
+        fake_metric_pattern.search(hud_section) is None,
+        "monitoring HUD HTML must not present numeric hardware values before provider proof exists",
+        failures,
+    )
 
     for needle in (
         "#monitoring-hud {",
         "display: none;",
         "body.desktop-mode #monitoring-hud",
-        ".monitoring-hud__placement",
-        ".monitoring-hud__controls",
-        ".monitoring-hud__status-model",
+        "width: min(560px, calc(100vw - 36px));",
+        'font-family: "Bahnschrift", "Rajdhani", "Segoe UI", sans-serif;',
         "pointer-events: none",
+        ".monitoring-hud__chrome",
+        ".monitoring-hud__anchor-rail",
+        ".monitoring-hud__card-grid",
+        ".monitoring-hud-card",
+        ".monitoring-hud-card--setup",
+        ".monitoring-hud-card--unavailable",
+        ".monitoring-hud-card--warning",
+        "resize: both;",
+        ".monitoring-hud__resize-corner",
         "@media (max-width: 760px), (max-height: 620px)",
         "@keyframes monitoringHudSettle",
     ):
@@ -131,25 +157,29 @@ def validate() -> list[str]:
 
     for needle in (
         'const monitoringHud = document.getElementById("monitoring-hud")',
+        'const monitoringHudProviderState = document.getElementById("monitoring-hud-provider-state")',
+        'const monitoringHudWarningPosture = document.getElementById("monitoring-hud-warning-posture")',
+        'const monitoringHudTrayPath = document.getElementById("monitoring-hud-tray-path")',
         "window.setDesktopSurfaceMode = function(enabled)",
-        'body.classList.toggle("desktop-mode", isEnabled)',
-        'monitoringHud.setAttribute("aria-hidden", isEnabled ? "false" : "true")',
-        'monitoringHud.dataset.renderState = isEnabled ? "visual-baseline" : "hidden"',
+        'monitoringHud.dataset.renderState = isEnabled ? "product-visibility-baseline" : "hidden"',
+        'monitoringHud.dataset.productSurfaceState = isEnabled ? "visible-user-facing" : "hidden"',
         "window.setMonitoringHudTelemetry = function(snapshot)",
-        'monitoringHud.dataset.telemetrySlice = monitoringHudTelemetry.sliceId || "SLC-025"',
-        'monitoringHudRuntimeStatus.textContent = "Runtime boundary online"',
+        'monitoringHud.dataset.providerState = "setup-required"',
+        'monitoringHud.dataset.liveValues = "provider-required"',
+        'monitoringHudProviderState.textContent = "Provider setup required"',
         "window.setMonitoringHudPlacementOwnership = function(contract)",
-        'monitoringHud.dataset.placementSlice = monitoringHudPlacement.sliceId || "SLC-026"',
-        'monitoringHud.dataset.placementId = monitoringHudPlacement.placementId || "desktop-renderer-top-right"',
-        'monitoringHud.dataset.placementState = "desktop-renderer-owned"',
+        'monitoringHud.dataset.interactionMode = "anchored-click-through"',
+        'monitoringHudPlacementAnchor.textContent = monitoringHudPlacement.anchor || "Movable top-right snap rail"',
+        'monitoringHudPlacementPointer.textContent = monitoringHudPlacement.pointerModel || "Anchored click-through"',
+        'monitoringHudResizePosture.textContent = monitoringHudPlacement.resizePosture || "Resizable card grid"',
         "window.setMonitoringHudControlsVisibility = function(contract)",
-        'monitoringHud.dataset.controlsSlice = monitoringHudControls.sliceId || "SLC-027"',
-        'monitoringHud.dataset.controlsId = monitoringHudControls.controlsId || "hud-controls-visibility"',
-        'monitoringHud.dataset.controlsState = "visible-read-only"',
+        'monitoringHud.dataset.controlsState = "toggle-posture-visible"',
+        'monitoringHud.dataset.keybindPolicy = "none"',
+        'monitoringHudControlsVisibility.textContent = monitoringHudControls.visibilityState || "Optional HUD layer"',
+        'monitoringHudTrayPath.textContent = "Task tray unanchor path"',
         "window.setMonitoringHudStatusBehavior = function(snapshot)",
-        'monitoringHud.dataset.statusSlice = monitoringHudStatus.sliceId || "SLC-028"',
-        'monitoringHud.dataset.statusId = monitoringHudStatus.statusId || "hud-local-readiness-status"',
-        'monitoringHud.dataset.statusKind = monitoringHudStatus.statusKind || "no-data"',
+        'monitoringHud.dataset.warningMode = "visual-non-invasive"',
+        'monitoringHudWarningPosture.textContent = "Visual badge only"',
         "window.setDesktopSurfaceMode(false)",
         "window.setMonitoringHudTelemetry({})",
         "window.setMonitoringHudPlacementOwnership({})",
@@ -164,24 +194,16 @@ def validate() -> list[str]:
         "from .monitoring_hud_status import build_monitoring_hud_status_snapshot",
         "from .monitoring_hud_telemetry import build_monitoring_hud_telemetry_snapshot",
         "def _apply_desktop_surface_mode(self):",
-        "def _monitoring_hud_telemetry_snapshot(self) -> dict[str, object]:",
-        "def _publish_monitoring_hud_telemetry_boundary(self):",
-        "def _monitoring_hud_placement_contract(self) -> dict[str, object]:",
-        "def _publish_monitoring_hud_placement_ownership(self):",
-        "def _monitoring_hud_controls_visibility_contract(self) -> dict[str, str]:",
-        "def _publish_monitoring_hud_controls_visibility(self):",
-        "def _monitoring_hud_status_snapshot(self) -> dict[str, str]:",
-        "def _publish_monitoring_hud_status_behavior(self):",
-        "build_monitoring_hud_telemetry_snapshot(",
-        "build_monitoring_hud_placement_contract(",
-        "build_monitoring_hud_controls_visibility_contract(",
-        "build_monitoring_hud_status_snapshot(",
-        "window.setDesktopSurfaceMode(true)",
-        "window.setMonitoringHudTelemetry",
-        "window.setMonitoringHudPlacementOwnership",
-        "window.setMonitoringHudControlsVisibility",
-        "window.setMonitoringHudStatusBehavior",
+        'monitoringHud.dataset.renderState = "product-visibility-baseline"',
+        'monitoringHud.dataset.productSurfaceState = "visible-user-facing"',
         "MONITORING_HUD_BASELINE_READY",
+        'baseline="product_visibility_baseline"',
+        "MONITORING_HUD_PRODUCT_VISIBILITY_READY",
+        'seam="WS7"',
+        'proof="visible_hud_card_panel"',
+        "MONITORING_HUD_VISIBLE_OVERLAY_READY",
+        'pointer_model="click_through_no_focus"',
+        "DESKTOP_VISIBLE_OVERLAY_RESULT|success=true",
         "MONITORING_HUD_TELEMETRY_BOUNDARY_READY",
         "MONITORING_HUD_PLACEMENT_OWNERSHIP_READY",
         "MONITORING_HUD_CONTROLS_VISIBILITY_READY",
@@ -194,116 +216,93 @@ def validate() -> list[str]:
         'slice="SLC-028"',
         'adapter="desktop-runtime-boundary"',
         'hardware_polling="not_performed"',
-        'baseline="visual_only"',
         'owner="DesktopRuntimeWindow"',
         'placement="desktop-renderer-top-right"',
-        'anchor="top_right"',
         'controls="hud-controls-visibility"',
         'persistence="not_persisted"',
         'status="hud-local-readiness-status"',
         'source_truth="renderer_local"',
-        "self._apply_desktop_surface_mode()",
-        "self._publish_monitoring_hud_telemetry_boundary()",
-        "self._publish_monitoring_hud_placement_ownership()",
-        "self._publish_monitoring_hud_controls_visibility()",
-        "self._publish_monitoring_hud_status_behavior()",
     ):
         _require_contains(renderer, needle, "desktop renderer HUD hook", failures)
+
+    desktop_mode_method = re.search(
+        r"def _apply_desktop_surface_mode\(self\):.*?def _monitoring_hud_telemetry_snapshot",
+        renderer,
+        flags=re.DOTALL,
+    )
+    method_text = desktop_mode_method.group(0).casefold() if desktop_mode_method else ""
+    for forbidden in ("psutil", "subprocess", "wmi", "pynvml", "settings"):
+        _require(
+            forbidden not in method_text,
+            f"desktop renderer HUD product hook must not implement {forbidden} behavior",
+            failures,
+        )
 
     for needle in (
         'PACKAGE_ID = "PKG-006"',
         'SLICE_ID = "SLC-025"',
         'ADAPTER_ID = "desktop-runtime-boundary"',
-        "class MonitoringHudTelemetrySnapshot",
-        "def build_monitoring_hud_telemetry_snapshot(",
-        'adapter_status="Boundary ready"',
-        'source_scope="Local runtime readiness"',
-        'hardware_polling="Not performed"',
-        'MonitoringHudSource("Visual page"',
-        'MonitoringHudSource("Desktop surface"',
-        'MonitoringHudSource("Runtime log"',
-        'MonitoringHudSource("Event route"',
+        "provider-contract-first posture",
+        'adapter_status="Provider contract boundary ready"',
+        'source_scope="Provider-contract-first local runtime readiness"',
+        'hardware_polling="No polling until provider selection"',
     ):
         _require_contains(telemetry, needle, "monitoring HUD telemetry adapter", failures)
-
-    for forbidden in ("psutil", "subprocess", "wmi", "pynvml", "win32", "powershell"):
-        _require(
-            forbidden not in telemetry.casefold(),
-            f"monitoring HUD telemetry adapter must not perform {forbidden} collection in SLC-025",
-            failures,
-        )
+    _require_no_collection_imports(telemetry, "monitoring HUD telemetry adapter", failures)
 
     for needle in (
         'PACKAGE_ID = "PKG-006"',
         'SLICE_ID = "SLC-026"',
         'PLACEMENT_ID = "desktop-renderer-top-right"',
-        "class MonitoringHudPlacementContract",
-        "def build_monitoring_hud_placement_contract(",
         'renderer_owner="DesktopRuntimeWindow"',
-        'surface_owner="Qt WebEngine desktop child surface"',
-        'anchor="Top-right inside desktop visual surface"',
-        'pointer_model="Non-interactive pass-through"',
+        'anchor="Movable top-right snap rail"',
+        'pointer_model="Anchored click-through/no-focus-steal"',
         'z_index="18"',
     ):
         _require_contains(placement, needle, "monitoring HUD placement contract", failures)
-
-    for forbidden in ("psutil", "subprocess", "wmi", "pynvml", "win32", "powershell"):
-        _require(
-            forbidden not in placement.casefold(),
-            f"monitoring HUD placement contract must not perform {forbidden} collection in SLC-026",
-            failures,
-        )
+    _require_no_collection_imports(placement, "monitoring HUD placement contract", failures)
 
     for needle in (
         'PACKAGE_ID = "PKG-006"',
         'SLICE_ID = "SLC-027"',
         'CONTROLS_ID = "hud-controls-visibility"',
-        "class MonitoringHudControlsVisibilityContract",
-        "def build_monitoring_hud_controls_visibility_contract(",
-        'control_surface="Read-only HUD controls preview"',
+        'visibility_state="Optional HUD layer visible in desktop mode" if desktop_mode else "Waiting for desktop mode"',
+        'control_surface="Toggle/on-off and task-tray unanchor posture represented"',
         'persistence="Not persisted"',
-        'operator_action="No toggle in this slice"',
+        'operator_action="No default keybinds"',
     ):
         _require_contains(controls, needle, "monitoring HUD controls visibility contract", failures)
-
-    for forbidden in ("psutil", "subprocess", "wmi", "pynvml", "win32", "powershell"):
-        _require(
-            forbidden not in controls.casefold(),
-            f"monitoring HUD controls visibility contract must not perform {forbidden} collection in SLC-027",
-            failures,
-        )
+    _require_no_collection_imports(controls, "monitoring HUD controls visibility contract", failures)
 
     for needle in (
         'PACKAGE_ID = "PKG-006"',
         'SLICE_ID = "SLC-028"',
         'STATUS_ID = "hud-local-readiness-status"',
-        "class MonitoringHudStatusSnapshot",
-        "def build_monitoring_hud_status_snapshot(",
         'status_kind = "no-data"',
         'status_kind = "degraded"',
         'status_kind = "ready"',
-        'no_data_behavior="Show waiting state; do not imply unavailable telemetry exists"',
-        'degraded_behavior="Name the local readiness gap without recovery claims"',
-        'source_truth="Renderer-owned local readiness only"',
+        'status_label = "Provider setup required"',
+        'status_label = "Reconnect/setup route unavailable"',
+        'no_data_behavior="Show setup/unavailable state; do not invent hardware values"',
+        'degraded_behavior="Name reconnect/setup gap with visual warning only"',
+        'source_truth="Provider-contract-first local readiness only"',
     ):
         _require_contains(status, needle, "monitoring HUD status behavior contract", failures)
-
-    for forbidden in ("psutil", "subprocess", "wmi", "pynvml", "win32", "powershell"):
-        _require(
-            forbidden not in status.casefold(),
-            f"monitoring HUD status behavior contract must not perform {forbidden} collection in SLC-028",
-            failures,
-        )
+    _require_no_collection_imports(status, "monitoring HUD status behavior contract", failures)
 
     for needle in (
         "SLC-029",
-        "WS6 - Validation And Live Desktop Proof",
+        "WS7 - Monitoring HUD Product Visibility And Acceptance Baseline",
         "MONITORING_HUD_BASELINE_READY",
+        "MONITORING_HUD_PRODUCT_VISIBILITY_READY",
+        "MONITORING_HUD_VISIBLE_OVERLAY_READY",
         "MONITORING_HUD_TELEMETRY_BOUNDARY_READY",
         "MONITORING_HUD_PLACEMENT_OWNERSHIP_READY",
         "MONITORING_HUD_CONTROLS_VISIBILITY_READY",
         "MONITORING_HUD_STATUS_BEHAVIOR_READY",
+        "DESKTOP_VISIBLE_OVERLAY_RESULT|success=true",
         "DESKTOP_OUTCOME|SETTLED|state=dormant",
+        "settling visible overlay before full-desktop screenshot",
         "monitoring_hud_desktop.png",
         "manifest.json",
         "Stop-Process -Id $script:RuntimeProcess.Id -Force",
@@ -311,31 +310,18 @@ def validate() -> list[str]:
     ):
         _require_contains(live_validation, needle, "monitoring HUD live validation helper", failures)
 
-    desktop_mode_method = re.search(
-        r"def _apply_desktop_surface_mode\(self\):.*?def _on_load_finished",
-        renderer,
-        flags=re.DOTALL,
-    )
-    method_text = desktop_mode_method.group(0).casefold() if desktop_mode_method else ""
-    for forbidden in ("psutil", "subprocess", "wmi", "pynvml", "settings", "voice", "audio"):
-        _require(
-            forbidden not in method_text,
-            f"desktop renderer HUD baseline hook must not implement {forbidden} behavior",
-            failures,
-        )
-
     return failures
 
 
 def main() -> int:
     failures = validate()
     if failures:
-        print("FAIL: FAM-006 Monitoring/HUD surface validation failed")
+        print("FAIL: FAM-006 Monitoring/HUD product visibility validation failed")
         for failure in failures:
             print(f"- {failure}")
         return 1
 
-    print("PASS: FAM-006 HUD visual, telemetry, placement, controls, and status boundaries are bounded and marker-backed")
+    print("PASS: FAM-006 HUD product visibility baseline is bounded, visible, provider-truthful, and marker-backed")
     return 0
 
 

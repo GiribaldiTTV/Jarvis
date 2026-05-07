@@ -546,61 +546,219 @@ body {
 body.desktop-mode #monitoring-hud {
   position: absolute;
   z-index: 18;
-  top: clamp(24px, 5vh, 64px);
-  right: clamp(22px, 5vw, 72px);
+  top: clamp(18px, 4vh, 48px);
+  right: clamp(18px, 4vw, 56px);
   display: block;
-  width: min(340px, calc(100vw - 44px));
+  width: min(560px, calc(100vw - 36px));
+  max-height: calc(100vh - 36px);
   box-sizing: border-box;
-  padding: 18px 19px 16px;
-  border: 1px solid rgba(118, 226, 255, 0.23);
-  border-radius: 22px;
+  padding: 14px;
+  overflow: hidden;
+  border: 1px solid rgba(125, 235, 255, 0.34);
+  border-radius: 28px;
   background:
-    linear-gradient(145deg, rgba(7, 24, 36, 0.78), rgba(2, 9, 18, 0.68)),
-    radial-gradient(circle at 88% 16%, rgba(108, 238, 255, 0.16), transparent 42%);
+    radial-gradient(circle at 6% 0%, rgba(91, 221, 255, 0.22), transparent 35%),
+    radial-gradient(circle at 100% 20%, rgba(84, 255, 190, 0.16), transparent 33%),
+    linear-gradient(145deg, rgba(4, 17, 32, 0.9), rgba(1, 7, 16, 0.78));
   box-shadow:
-    0 0 0 1px rgba(214, 248, 255, 0.06) inset,
-    0 18px 48px rgba(0, 0, 0, 0.34),
-    0 0 34px rgba(72, 205, 228, 0.13);
+    0 0 0 1px rgba(214, 248, 255, 0.08) inset,
+    0 24px 70px rgba(0, 0, 0, 0.42),
+    0 0 48px rgba(72, 205, 228, 0.22);
   color: rgba(233, 249, 255, 0.96);
+  font-family: "Bahnschrift", "Rajdhani", "Segoe UI", sans-serif;
   letter-spacing: 0.01em;
   pointer-events: none;
-  transform: translateY(0);
+  transform: translateY(0) scale(0.6);
+  transform-origin: top right;
   animation: monitoringHudSettle 740ms cubic-bezier(0.2, 0.82, 0.18, 1.0) both;
+}
+
+body.desktop-mode #monitoring-hud::before {
+  content: "";
+  position: absolute;
+  inset: 10px;
+  border-radius: 22px;
+  border: 1px solid rgba(168, 244, 255, 0.13);
+  background:
+    linear-gradient(90deg, rgba(117, 228, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(rgba(117, 228, 255, 0.04) 1px, transparent 1px);
+  background-size: 28px 28px;
+  opacity: 0.62;
+}
+
+body.desktop-mode #monitoring-hud > * {
+  position: relative;
+  z-index: 1;
+}
+
+.monitoring-hud__chrome {
+  padding: 13px;
+  border-radius: 22px;
+  background:
+    linear-gradient(150deg, rgba(5, 23, 39, 0.72), rgba(2, 10, 20, 0.52)),
+    linear-gradient(90deg, rgba(116, 240, 255, 0.07), transparent 56%);
+  box-shadow: 0 0 0 1px rgba(130, 236, 255, 0.12) inset;
+}
+
+.monitoring-hud__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
 }
 
 .monitoring-hud__kicker {
   font-size: 11px;
-  letter-spacing: 0.22em;
+  letter-spacing: 0.26em;
   text-transform: uppercase;
-  color: rgba(128, 231, 255, 0.76);
+  color: rgba(128, 231, 255, 0.82);
 }
 
 .monitoring-hud__title {
-  margin-top: 8px;
-  font-size: 22px;
-  font-weight: 650;
+  margin-top: 6px;
+  font-size: clamp(26px, 3.6vw, 38px);
+  line-height: 0.94;
+  font-weight: 750;
   color: rgba(240, 252, 255, 0.98);
+  text-shadow: 0 0 24px rgba(96, 231, 255, 0.22);
 }
 
-.monitoring-hud__status {
+.monitoring-hud__mode-pill {
+  flex: 0 0 auto;
+  padding: 7px 11px;
+  border: 1px solid rgba(112, 243, 205, 0.24);
+  border-radius: 999px;
+  background: rgba(9, 42, 39, 0.54);
+  color: rgba(169, 255, 226, 0.92);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.monitoring-hud__summary {
   margin-top: 12px;
   display: flex;
-  align-items: center;
-  gap: 9px;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 18px;
+  border: 1px solid rgba(113, 220, 255, 0.16);
+  background: rgba(3, 14, 27, 0.52);
   font-size: 13px;
   color: rgba(183, 232, 246, 0.88);
 }
 
+.monitoring-hud__summary strong {
+  display: block;
+  margin-bottom: 4px;
+  color: rgba(243, 252, 255, 0.96);
+  font-size: 15px;
+  letter-spacing: 0.02em;
+}
+
+.monitoring-hud__summary span:last-child {
+  color: rgba(175, 214, 226, 0.84);
+}
+
 .monitoring-hud__status-dot {
-  width: 9px;
-  height: 9px;
+  flex: 0 0 auto;
+  width: 10px;
+  height: 10px;
+  margin-top: 4px;
   border-radius: 999px;
-  background: rgba(121, 244, 205, 0.94);
-  box-shadow: 0 0 14px rgba(121, 244, 205, 0.58);
+  background: rgba(255, 214, 113, 0.98);
+  box-shadow: 0 0 16px rgba(255, 214, 113, 0.58);
+}
+
+.monitoring-hud__anchor-rail {
+  margin-top: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.monitoring-hud__anchor-rail span {
+  padding: 6px 8px;
+  border-radius: 999px;
+  border: 1px solid rgba(121, 226, 255, 0.14);
+  background: rgba(8, 28, 45, 0.58);
+  color: rgba(188, 230, 242, 0.9);
+  font-size: 11px;
+  font-weight: 650;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.monitoring-hud__card-grid {
+  margin-top: 12px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.monitoring-hud-card {
+  min-height: 104px;
+  padding: 10px;
+  border-radius: 18px;
+  border: 1px solid rgba(118, 226, 255, 0.18);
+  background:
+    linear-gradient(155deg, rgba(7, 28, 46, 0.75), rgba(2, 9, 19, 0.62)),
+    radial-gradient(circle at 90% 8%, rgba(95, 236, 255, 0.15), transparent 38%);
+  box-shadow: 0 0 0 1px rgba(230, 251, 255, 0.04) inset;
+  resize: both;
+  overflow: hidden;
+}
+
+.monitoring-hud-card--setup {
+  border-color: rgba(255, 214, 113, 0.26);
+}
+
+.monitoring-hud-card--unavailable {
+  border-color: rgba(124, 178, 210, 0.26);
+}
+
+.monitoring-hud-card--warning {
+  border-color: rgba(255, 151, 113, 0.3);
+}
+
+.monitoring-hud-card__label {
+  font-size: 11px;
+  font-weight: 720;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(139, 233, 255, 0.82);
+}
+
+.monitoring-hud-card__value {
+  margin-top: 8px;
+  color: rgba(247, 252, 255, 0.96);
+  font-size: 16px;
+  font-weight: 760;
+}
+
+.monitoring-hud-card__meta {
+  margin-top: 6px;
+  color: rgba(173, 213, 226, 0.82);
+  font-size: 11px;
+  line-height: 1.35;
+}
+
+.monitoring-hud-card__badge {
+  margin-top: 8px;
+  display: inline-flex;
+  padding: 5px 8px;
+  border-radius: 999px;
+  background: rgba(255, 214, 113, 0.11);
+  color: rgba(255, 227, 159, 0.94);
+  font-size: 10px;
+  font-weight: 750;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
 }
 
 .monitoring-hud__grid {
-  margin-top: 15px;
+  margin-top: 10px;
   display: grid;
   grid-template-columns: 1fr auto;
   gap: 8px 14px;
@@ -612,16 +770,27 @@ body.desktop-mode #monitoring-hud {
 .monitoring-hud__placement,
 .monitoring-hud__controls,
 .monitoring-hud__status-model {
-  margin-top: 14px;
+  margin-top: 9px;
   display: grid;
   grid-template-columns: 1fr auto;
-  gap: 7px 12px;
-  padding: 12px;
+  gap: 6px 10px;
+  padding: 10px;
   border-radius: 16px;
   border: 1px solid rgba(118, 226, 255, 0.14);
   background: rgba(4, 16, 28, 0.44);
   color: rgba(170, 211, 224, 0.84);
   font-size: 12px;
+}
+
+.monitoring-hud__resize-corner {
+  position: absolute;
+  right: 14px;
+  bottom: 14px;
+  width: 18px;
+  height: 18px;
+  border-right: 2px solid rgba(136, 237, 255, 0.4);
+  border-bottom: 2px solid rgba(136, 237, 255, 0.4);
+  border-radius: 0 0 5px 0;
 }
 
 .monitoring-hud__grid strong {
@@ -645,14 +814,18 @@ body.desktop-mode #monitoring-hud {
 
 @media (max-width: 760px), (max-height: 620px) {
   body.desktop-mode #monitoring-hud {
-    top: 18px;
-    right: 18px;
-    width: min(300px, calc(100vw - 36px));
-    padding: 15px 16px 14px;
+    top: 14px;
+    right: 14px;
+    width: min(420px, calc(100vw - 28px));
+    padding: 12px;
   }
 
   .monitoring-hud__title {
-    font-size: 19px;
+    font-size: 26px;
+  }
+
+  .monitoring-hud__card-grid {
+    grid-template-columns: 1fr;
   }
 }
 
@@ -746,8 +919,8 @@ body.desktop-mode #monitoring-hud {
 }
 
 @keyframes monitoringHudSettle {
-  0%   { opacity: 0; transform: translateY(-12px) scale(0.98); }
-  100% { opacity: 1; transform: translateY(0) scale(1); }
+  0%   { opacity: 0; transform: translateY(-12px) scale(0.58); }
+  100% { opacity: 1; transform: translateY(0) scale(0.6); }
 }
 
 @keyframes ignitionBurst {

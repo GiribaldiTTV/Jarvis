@@ -113,7 +113,7 @@ function Save-Manifest([object]$Paths, [string]$PythonExe) {
         status = $script:ManifestStatus
         package = "PKG-006"
         slice = "SLC-029"
-        seam = "WS6 - Validation And Live Desktop Proof"
+        seam = "WS7 - Monitoring HUD Product Visibility And Acceptance Baseline"
         python = $PythonExe
         runtimeLog = $Paths.RuntimeLog
         screenshot = $script:ScreenshotPath
@@ -164,10 +164,13 @@ try {
         "RENDERER_MAIN|VISUAL_PAGE_READY",
         "RENDERER_MAIN|CORE_VISUALIZATION_READY",
         "MONITORING_HUD_BASELINE_READY",
+        "MONITORING_HUD_PRODUCT_VISIBILITY_READY",
+        "MONITORING_HUD_VISIBLE_OVERLAY_READY",
         "MONITORING_HUD_TELEMETRY_BOUNDARY_READY",
         "MONITORING_HUD_PLACEMENT_OWNERSHIP_READY",
         "MONITORING_HUD_CONTROLS_VISIBILITY_READY",
         "MONITORING_HUD_STATUS_BEHAVIOR_READY",
+        "DESKTOP_VISIBLE_OVERLAY_RESULT|success=true",
         "RENDERER_MAIN|STARTUP_READY",
         "DESKTOP_OUTCOME|SETTLED|state=dormant"
     )
@@ -176,6 +179,8 @@ try {
         Wait-Marker $paths $marker
     }
 
+    Step $paths "settling visible overlay before full-desktop screenshot"
+    Start-Sleep -Milliseconds 1500
     Capture-Screen $paths
     $script:ManifestStatus = "PASS"
     $exitCode = 0

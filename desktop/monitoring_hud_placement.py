@@ -1,8 +1,9 @@
 """Renderer-owned Monitoring/HUD placement contract for FAM-006.
 
 This module defines the SLC-026 desktop placement and renderer ownership
-boundary. It describes where the existing HUD is owned and anchored without
-adding user controls, degraded-state behavior, live proof, or voice/audio work.
+boundary. It describes where the visible HUD is owned, movable/anchorable, and
+click-through when anchored without adding provider-platform, live proof, or
+cross-family behavior.
 """
 
 from __future__ import annotations
@@ -59,8 +60,8 @@ def build_monitoring_hud_placement_contract(
         placement_id=PLACEMENT_ID,
         renderer_owner="DesktopRuntimeWindow",
         surface_owner="Qt WebEngine desktop child surface",
-        anchor="Top-right inside desktop visual surface",
-        pointer_model="Non-interactive pass-through",
+        anchor="Movable top-right snap rail",
+        pointer_model="Anchored click-through/no-focus-steal",
         z_index="18",
         desktop_mode="enabled" if desktop_mode else "pending",
         window_geometry={

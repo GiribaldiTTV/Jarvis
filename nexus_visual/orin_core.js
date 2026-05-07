@@ -16,18 +16,22 @@ const commandConfirmKind = document.getElementById("command-confirm-kind");
 const commandConfirmTarget = document.getElementById("command-confirm-target");
 const monitoringHud = document.getElementById("monitoring-hud");
 const monitoringHudRuntimeStatus = document.getElementById("monitoring-hud-runtime-status");
+const monitoringHudProviderState = document.getElementById("monitoring-hud-provider-state");
 const monitoringHudAdapterStatus = document.getElementById("monitoring-hud-adapter-status");
 const monitoringHudSourceScope = document.getElementById("monitoring-hud-source-scope");
 const monitoringHudHardwarePolling = document.getElementById("monitoring-hud-hardware-polling");
 const monitoringHudPlacementOwner = document.getElementById("monitoring-hud-placement-owner");
 const monitoringHudPlacementAnchor = document.getElementById("monitoring-hud-placement-anchor");
 const monitoringHudPlacementPointer = document.getElementById("monitoring-hud-placement-pointer");
+const monitoringHudResizePosture = document.getElementById("monitoring-hud-resize-posture");
 const monitoringHudControlsVisibility = document.getElementById("monitoring-hud-controls-visibility");
 const monitoringHudControlsSurface = document.getElementById("monitoring-hud-controls-surface");
 const monitoringHudControlsPersistence = document.getElementById("monitoring-hud-controls-persistence");
 const monitoringHudStatusLabel = document.getElementById("monitoring-hud-status-label");
 const monitoringHudNoDataBehavior = document.getElementById("monitoring-hud-no-data-behavior");
 const monitoringHudDegradedBehavior = document.getElementById("monitoring-hud-degraded-behavior");
+const monitoringHudWarningPosture = document.getElementById("monitoring-hud-warning-posture");
+const monitoringHudTrayPath = document.getElementById("monitoring-hud-tray-path");
 
 let w = 0;
 let h = 0;
@@ -56,9 +60,9 @@ let commandOverlayState = {
 let monitoringHudTelemetry = {
   packageId: "PKG-006",
   sliceId: "SLC-025",
-  adapterStatus: "Boundary pending",
-  sourceScope: "Local runtime readiness",
-  hardwarePolling: "Not performed",
+  adapterStatus: "Provider contract boundary pending",
+  sourceScope: "Provider-contract-first local readiness",
+  hardwarePolling: "No polling until provider selection",
   sources: []
 };
 let monitoringHudPlacement = {
@@ -66,25 +70,27 @@ let monitoringHudPlacement = {
   sliceId: "SLC-026",
   placementId: "desktop-renderer-top-right",
   rendererOwner: "DesktopRuntimeWindow",
-  anchor: "Top-right inside desktop visual surface",
-  pointerModel: "Non-interactive pass-through"
+  anchor: "Movable top-right snap rail",
+  pointerModel: "Anchored click-through/no-focus-steal",
+  resizePosture: "Resizable card grid"
 };
 let monitoringHudControls = {
   packageId: "PKG-006",
   sliceId: "SLC-027",
   controlsId: "hud-controls-visibility",
-  visibilityState: "Waiting for desktop mode",
-  controlSurface: "Read-only HUD controls preview",
-  persistence: "Not persisted"
+  visibilityState: "Optional HUD layer",
+  controlSurface: "On/off represented; task tray unanchor path staged",
+  persistence: "Not persisted",
+  operatorAction: "No default keybinds"
 };
 let monitoringHudStatus = {
   packageId: "PKG-006",
   sliceId: "SLC-028",
   statusId: "hud-local-readiness-status",
   statusKind: "no-data",
-  statusLabel: "Waiting for source truth",
-  noDataBehavior: "Do not imply telemetry",
-  degradedBehavior: "Name local readiness gap"
+  statusLabel: "Provider setup required",
+  noDataBehavior: "Show unavailable; no fake hardware values",
+  degradedBehavior: "Name reconnect/setup gap; visual warning only"
 };
 
 const backParticles = [];
@@ -1242,7 +1248,8 @@ window.setDesktopSurfaceMode = function(enabled) {
   body.classList.toggle("desktop-mode", isEnabled);
   if (monitoringHud) {
     monitoringHud.setAttribute("aria-hidden", isEnabled ? "false" : "true");
-    monitoringHud.dataset.renderState = isEnabled ? "visual-baseline" : "hidden";
+    monitoringHud.dataset.renderState = isEnabled ? "product-visibility-baseline" : "hidden";
+    monitoringHud.dataset.productSurfaceState = isEnabled ? "visible-user-facing" : "hidden";
   }
 };
 
@@ -1252,18 +1259,23 @@ window.setMonitoringHudTelemetry = function(snapshot) {
     monitoringHud.dataset.telemetryPackage = monitoringHudTelemetry.packageId || "PKG-006";
     monitoringHud.dataset.telemetrySlice = monitoringHudTelemetry.sliceId || "SLC-025";
     monitoringHud.dataset.telemetryAdapter = monitoringHudTelemetry.adapterId || "desktop-runtime-boundary";
+    monitoringHud.dataset.providerState = "setup-required";
+    monitoringHud.dataset.liveValues = "provider-required";
   }
   if (monitoringHudRuntimeStatus) {
-    monitoringHudRuntimeStatus.textContent = "Runtime boundary online";
+    monitoringHudRuntimeStatus.textContent = "HUD enabled";
+  }
+  if (monitoringHudProviderState) {
+    monitoringHudProviderState.textContent = "Provider setup required";
   }
   if (monitoringHudAdapterStatus) {
-    monitoringHudAdapterStatus.textContent = monitoringHudTelemetry.adapterStatus || "Boundary ready";
+    monitoringHudAdapterStatus.textContent = monitoringHudTelemetry.adapterStatus || "Provider contract boundary ready";
   }
   if (monitoringHudSourceScope) {
-    monitoringHudSourceScope.textContent = monitoringHudTelemetry.sourceScope || "Local runtime readiness";
+    monitoringHudSourceScope.textContent = monitoringHudTelemetry.sourceScope || "Provider-contract-first local readiness";
   }
   if (monitoringHudHardwarePolling) {
-    monitoringHudHardwarePolling.textContent = monitoringHudTelemetry.hardwarePolling || "Not performed";
+    monitoringHudHardwarePolling.textContent = monitoringHudTelemetry.hardwarePolling || "No polling until provider selection";
   }
 };
 
@@ -1274,15 +1286,19 @@ window.setMonitoringHudPlacementOwnership = function(contract) {
     monitoringHud.dataset.placementSlice = monitoringHudPlacement.sliceId || "SLC-026";
     monitoringHud.dataset.placementId = monitoringHudPlacement.placementId || "desktop-renderer-top-right";
     monitoringHud.dataset.placementState = "desktop-renderer-owned";
+    monitoringHud.dataset.interactionMode = "anchored-click-through";
   }
   if (monitoringHudPlacementOwner) {
     monitoringHudPlacementOwner.textContent = monitoringHudPlacement.rendererOwner || "DesktopRuntimeWindow";
   }
   if (monitoringHudPlacementAnchor) {
-    monitoringHudPlacementAnchor.textContent = monitoringHudPlacement.anchor || "Top-right";
+    monitoringHudPlacementAnchor.textContent = monitoringHudPlacement.anchor || "Movable top-right snap rail";
   }
   if (monitoringHudPlacementPointer) {
-    monitoringHudPlacementPointer.textContent = monitoringHudPlacement.pointerModel || "Non-interactive";
+    monitoringHudPlacementPointer.textContent = monitoringHudPlacement.pointerModel || "Anchored click-through";
+  }
+  if (monitoringHudResizePosture) {
+    monitoringHudResizePosture.textContent = monitoringHudPlacement.resizePosture || "Resizable card grid";
   }
 };
 
@@ -1292,16 +1308,20 @@ window.setMonitoringHudControlsVisibility = function(contract) {
     monitoringHud.dataset.controlsPackage = monitoringHudControls.packageId || "PKG-006";
     monitoringHud.dataset.controlsSlice = monitoringHudControls.sliceId || "SLC-027";
     monitoringHud.dataset.controlsId = monitoringHudControls.controlsId || "hud-controls-visibility";
-    monitoringHud.dataset.controlsState = "visible-read-only";
+    monitoringHud.dataset.controlsState = "toggle-posture-visible";
+    monitoringHud.dataset.keybindPolicy = "none";
   }
   if (monitoringHudControlsVisibility) {
-    monitoringHudControlsVisibility.textContent = monitoringHudControls.visibilityState || "Desktop mode visible";
+    monitoringHudControlsVisibility.textContent = monitoringHudControls.visibilityState || "Optional HUD layer";
   }
   if (monitoringHudControlsSurface) {
-    monitoringHudControlsSurface.textContent = monitoringHudControls.controlSurface || "Read-only preview";
+    monitoringHudControlsSurface.textContent = monitoringHudControls.controlSurface || "On/off represented";
   }
   if (monitoringHudControlsPersistence) {
     monitoringHudControlsPersistence.textContent = monitoringHudControls.persistence || "Not persisted";
+  }
+  if (monitoringHudTrayPath) {
+    monitoringHudTrayPath.textContent = "Task tray unanchor path";
   }
 };
 
@@ -1312,15 +1332,19 @@ window.setMonitoringHudStatusBehavior = function(snapshot) {
     monitoringHud.dataset.statusSlice = monitoringHudStatus.sliceId || "SLC-028";
     monitoringHud.dataset.statusId = monitoringHudStatus.statusId || "hud-local-readiness-status";
     monitoringHud.dataset.statusKind = monitoringHudStatus.statusKind || "no-data";
+    monitoringHud.dataset.warningMode = "visual-non-invasive";
   }
   if (monitoringHudStatusLabel) {
-    monitoringHudStatusLabel.textContent = monitoringHudStatus.statusLabel || "Waiting for source truth";
+    monitoringHudStatusLabel.textContent = monitoringHudStatus.statusLabel || "Provider setup required";
   }
   if (monitoringHudNoDataBehavior) {
-    monitoringHudNoDataBehavior.textContent = monitoringHudStatus.noDataBehavior || "Do not imply telemetry";
+    monitoringHudNoDataBehavior.textContent = monitoringHudStatus.noDataBehavior || "Show unavailable; no fake hardware values";
   }
   if (monitoringHudDegradedBehavior) {
-    monitoringHudDegradedBehavior.textContent = monitoringHudStatus.degradedBehavior || "Name local readiness gap";
+    monitoringHudDegradedBehavior.textContent = monitoringHudStatus.degradedBehavior || "Name reconnect/setup gap";
+  }
+  if (monitoringHudWarningPosture) {
+    monitoringHudWarningPosture.textContent = "Visual badge only";
   }
 };
 

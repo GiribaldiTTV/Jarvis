@@ -46,26 +46,75 @@
     class="monitoring-hud"
     data-package="PKG-006"
     data-slice="SLC-016"
-    aria-label="Monitoring HUD visual baseline"
+    data-product-surface="nexus-monitoring-hud"
+    data-interaction-mode="anchored-click-through"
+    data-provider-state="setup-required"
+    data-warning-mode="visual-non-invasive"
+    data-live-values="provider-required"
+    data-keybind-policy="none"
+    aria-label="Nexus Desktop AI Monitoring HUD product visibility baseline"
     aria-hidden="true"
   >
-    <div class="monitoring-hud__kicker">FAM-006 Monitoring HUD</div>
-    <div class="monitoring-hud__title">System surface baseline</div>
-    <div class="monitoring-hud__status">
-      <span class="monitoring-hud__status-dot"></span>
-      <span id="monitoring-hud-runtime-status">Visual layer online</span>
+    <div class="monitoring-hud__chrome" aria-label="Visible Nexus Desktop AI Monitoring HUD panel">
+      <div class="monitoring-hud__header">
+        <div>
+          <div class="monitoring-hud__kicker">Nexus Desktop AI</div>
+          <div class="monitoring-hud__title">Monitoring HUD</div>
+        </div>
+        <div class="monitoring-hud__mode-pill" id="monitoring-hud-runtime-status">HUD enabled</div>
+      </div>
+      <div class="monitoring-hud__summary" aria-label="Provider contract status">
+        <span class="monitoring-hud__status-dot"></span>
+        <div>
+          <strong id="monitoring-hud-provider-state">Provider setup required</strong>
+          <span>Hardware values stay hidden until a safe provider and validation route exist.</span>
+        </div>
+      </div>
+      <div class="monitoring-hud__anchor-rail" aria-label="Move anchor and task tray posture">
+        <span>Movable panel</span>
+        <span>Snap-ready</span>
+        <span id="monitoring-hud-placement-pointer">Anchored click-through</span>
+        <span id="monitoring-hud-tray-path">Task tray unanchor path</span>
+        <span>No default keybinds</span>
+      </div>
+      <div class="monitoring-hud__card-grid" aria-label="Configurable sensor card model">
+        <article class="monitoring-hud-card monitoring-hud-card--setup" data-sensor-card="cpu-thermal" data-live-value="blocked-until-provider">
+          <div class="monitoring-hud-card__label">CPU Thermal</div>
+          <div class="monitoring-hud-card__value">Provider required</div>
+          <div class="monitoring-hud-card__meta">Native/provider contract first</div>
+          <div class="monitoring-hud-card__badge">No live value</div>
+        </article>
+        <article class="monitoring-hud-card monitoring-hud-card--setup" data-sensor-card="gpu-thermal" data-live-value="blocked-until-provider">
+          <div class="monitoring-hud-card__label">GPU Thermal</div>
+          <div class="monitoring-hud-card__value">Provider required</div>
+          <div class="monitoring-hud-card__meta">Source provenance pending</div>
+          <div class="monitoring-hud-card__badge">Setup</div>
+        </article>
+        <article class="monitoring-hud-card monitoring-hud-card--unavailable" data-sensor-card="cpu-load" data-live-value="blocked-until-provider">
+          <div class="monitoring-hud-card__label">CPU Load</div>
+          <div class="monitoring-hud-card__value">Unavailable</div>
+          <div class="monitoring-hud-card__meta">No polling until provider selection</div>
+          <div class="monitoring-hud-card__badge">No data</div>
+        </article>
+        <article class="monitoring-hud-card monitoring-hud-card--warning" data-sensor-card="gpu-load" data-live-value="blocked-until-provider">
+          <div class="monitoring-hud-card__label">GPU Load</div>
+          <div class="monitoring-hud-card__value">Unavailable</div>
+          <div class="monitoring-hud-card__meta">Visual warning posture only</div>
+          <div class="monitoring-hud-card__badge">Advisory</div>
+        </article>
+      </div>
     </div>
     <div
       class="monitoring-hud__telemetry"
       data-slice="SLC-025"
       aria-label="Runtime telemetry adapter boundary"
     >
-      <span>Adapter boundary</span>
-      <strong id="monitoring-hud-adapter-status">Awaiting runtime snapshot</strong>
+      <span>Provider boundary</span>
+      <strong id="monitoring-hud-adapter-status">Awaiting safe provider</strong>
       <span>Source scope</span>
-      <strong id="monitoring-hud-source-scope">Local runtime only</strong>
+      <strong id="monitoring-hud-source-scope">Provider-contract-first</strong>
       <span>Hardware polling</span>
-      <strong id="monitoring-hud-hardware-polling">Not performed</strong>
+      <strong id="monitoring-hud-hardware-polling">No polling yet</strong>
     </div>
     <div
       class="monitoring-hud__placement"
@@ -74,10 +123,10 @@
     >
       <span>Renderer owner</span>
       <strong id="monitoring-hud-placement-owner">DesktopRuntimeWindow</strong>
-      <span>Desktop anchor</span>
-      <strong id="monitoring-hud-placement-anchor">Top-right</strong>
-      <span>Pointer model</span>
-      <strong id="monitoring-hud-placement-pointer">Non-interactive</strong>
+      <span>Panel posture</span>
+      <strong id="monitoring-hud-placement-anchor">Movable top-right snap rail</strong>
+      <span>Resize posture</span>
+      <strong id="monitoring-hud-resize-posture">Resizable card grid</strong>
     </div>
     <div
       class="monitoring-hud__controls"
@@ -85,9 +134,9 @@
       aria-label="Settings and user controls visibility"
     >
       <span>HUD visibility</span>
-      <strong id="monitoring-hud-controls-visibility">Desktop mode visible</strong>
-      <span>Control surface</span>
-      <strong id="monitoring-hud-controls-surface">Read-only preview</strong>
+      <strong id="monitoring-hud-controls-visibility">Optional HUD layer</strong>
+      <span>Toggle posture</span>
+      <strong id="monitoring-hud-controls-surface">On/off represented</strong>
       <span>Persistence</span>
       <strong id="monitoring-hud-controls-persistence">Not persisted</strong>
     </div>
@@ -96,23 +145,24 @@
       data-slice="SLC-028"
       aria-label="Fail-safe no-data and degraded-status behavior"
     >
-      <span>Fail-safe state</span>
-      <strong id="monitoring-hud-status-label">Waiting for source truth</strong>
+      <span>Setup state</span>
+      <strong id="monitoring-hud-status-label">Provider setup required</strong>
       <span>No-data behavior</span>
-      <strong id="monitoring-hud-no-data-behavior">Do not imply telemetry</strong>
+      <strong id="monitoring-hud-no-data-behavior">Show unavailable; no fake values</strong>
       <span>Degraded behavior</span>
-      <strong id="monitoring-hud-degraded-behavior">Name local readiness gap</strong>
+      <strong id="monitoring-hud-degraded-behavior">Name reconnect/setup gap</strong>
     </div>
-    <div class="monitoring-hud__grid" aria-label="Package boundary preview">
-      <span>Telemetry adapters</span>
-      <strong>Active SLC-025</strong>
-      <span>Desktop ownership</span>
-      <strong>Active SLC-026</strong>
-      <span>User controls</span>
-      <strong>Active SLC-027</strong>
-      <span>Degraded states</span>
-      <strong>Active SLC-028</strong>
+    <div class="monitoring-hud__grid" aria-label="Acceptance proof preview">
+      <span>Warning posture</span>
+      <strong id="monitoring-hud-warning-posture">Visual badge only</strong>
+      <span>Screenshot proof</span>
+      <strong>Full desktop required</strong>
+      <span>User Test Summary</span>
+      <strong>Pending acceptance</strong>
+      <span>Package status</span>
+      <strong>PKG-006 in progress</strong>
     </div>
+    <div class="monitoring-hud__resize-corner" aria-hidden="true"></div>
   </section>
 
   <script src="orin_core.js"></script>

@@ -3,6 +3,8 @@
 This module defines the SLC-025 adapter shape. It reports only local runtime
 readiness facts that the desktop renderer already owns; it does not poll
 hardware sensors, read vendor APIs, model degraded states, or change settings.
+WS7 uses this provider-contract-first posture so the visible HUD can show
+setup/unavailable states without inventing hardware values.
 """
 
 from __future__ import annotations
@@ -73,9 +75,9 @@ def build_monitoring_hud_telemetry_snapshot(
         package_id=PACKAGE_ID,
         slice_id=SLICE_ID,
         adapter_id=ADAPTER_ID,
-        adapter_status="Boundary ready",
-        source_scope="Local runtime readiness",
-        hardware_polling="Not performed",
+        adapter_status="Provider contract boundary ready",
+        source_scope="Provider-contract-first local runtime readiness",
+        hardware_polling="No polling until provider selection",
         sources=(
             MonitoringHudSource("Visual page", "ready" if page_ready else "loading", "renderer page state"),
             MonitoringHudSource("Desktop surface", "enabled" if desktop_mode else "pending", "desktop mode flag"),

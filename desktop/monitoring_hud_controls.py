@@ -1,8 +1,9 @@
 """Monitoring/HUD controls visibility contract for FAM-006.
 
 This module defines the SLC-027 settings and user-controls visibility boundary.
-It exposes what control surface exists for the HUD without persisting
-preferences, modeling fail-safe states, or adding voice/audio behavior.
+It exposes the optional HUD layer, toggle posture, and task-tray unanchor path
+without persisting preferences, implementing provider polling, or adding
+cross-family behavior.
 """
 
 from __future__ import annotations
@@ -47,8 +48,8 @@ def build_monitoring_hud_controls_visibility_contract(
         package_id=PACKAGE_ID,
         slice_id=SLICE_ID,
         controls_id=CONTROLS_ID,
-        visibility_state="Visible in desktop mode" if desktop_mode else "Waiting for desktop mode",
-        control_surface="Read-only HUD controls preview",
+        visibility_state="Optional HUD layer visible in desktop mode" if desktop_mode else "Waiting for desktop mode",
+        control_surface="Toggle/on-off and task-tray unanchor posture represented",
         persistence="Not persisted",
-        operator_action="No toggle in this slice",
+        operator_action="No default keybinds",
     )

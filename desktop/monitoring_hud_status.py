@@ -49,16 +49,16 @@ def build_monitoring_hud_status_snapshot(
 
     if not page_ready:
         status_kind = "no-data"
-        status_label = "Waiting for visual source"
+        status_label = "Provider setup required"
     elif not desktop_mode:
         status_kind = "degraded"
         status_label = "Desktop surface pending"
     elif not event_route_present:
         status_kind = "degraded"
-        status_label = "Event route unavailable"
+        status_label = "Reconnect/setup route unavailable"
     else:
         status_kind = "ready"
-        status_label = "Local readiness available"
+        status_label = "Provider setup required"
 
     return MonitoringHudStatusSnapshot(
         package_id=PACKAGE_ID,
@@ -66,7 +66,7 @@ def build_monitoring_hud_status_snapshot(
         status_id=STATUS_ID,
         status_kind=status_kind,
         status_label=status_label,
-        no_data_behavior="Show waiting state; do not imply unavailable telemetry exists",
-        degraded_behavior="Name the local readiness gap without recovery claims",
-        source_truth="Renderer-owned local readiness only",
+        no_data_behavior="Show setup/unavailable state; do not invent hardware values",
+        degraded_behavior="Name reconnect/setup gap with visual warning only",
+        source_truth="Provider-contract-first local readiness only",
     )

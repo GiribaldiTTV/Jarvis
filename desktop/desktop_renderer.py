@@ -5462,30 +5462,26 @@ class DesktopRuntimeWindow(QWidget):
                 f"|w={target_geometry.width()}|h={target_geometry.height()}"
                 "|reason=stable"
             )
-            self.lower()
+            if not self.webview.isVisible():
+                self.webview.show()
+            if not self.isVisible():
+                self.show()
             return
 
         self.setGeometry(target_geometry)
-        attached = attach_window_to_desktop(hwnd)
-        if attached:
-            make_window_noninteractive(hwnd)
-            position_desktop_child(
-                hwnd,
-                target_geometry.x(),
-                target_geometry.y(),
-                target_geometry.width(),
-                target_geometry.height(),
-            )
-            self._log_event(
-                "RENDERER_MAIN|DESKTOP_GEOMETRY_RESET"
-                f"|x={target_geometry.x()}|y={target_geometry.y()}"
-                f"|w={target_geometry.width()}|h={target_geometry.height()}"
-            )
+        if not self.webview.isVisible():
+            self.webview.show()
+        if not self.isVisible():
+            self.show()
+        self._log_event(
+            "RENDERER_MAIN|DESKTOP_VISIBLE_OVERLAY_GEOMETRY_RESET"
+            f"|x={target_geometry.x()}|y={target_geometry.y()}"
+            f"|w={target_geometry.width()}|h={target_geometry.height()}"
+        )
 
         self.webview.update()
         self.update()
         self._run_javascript("window.dispatchEvent(new Event('resize'));")
-        self.lower()
 
     def reinforce_desktop_mode(self):
         self._reinforce_desktop_mode()
@@ -5507,7 +5503,8 @@ class DesktopRuntimeWindow(QWidget):
                 const monitoringHud = document.getElementById("monitoring-hud");
                 if (monitoringHud) {
                     monitoringHud.setAttribute("aria-hidden", "false");
-                    monitoringHud.dataset.renderState = "visual-baseline";
+                    monitoringHud.dataset.renderState = "product-visibility-baseline";
+                    monitoringHud.dataset.productSurfaceState = "visible-user-facing";
                 }
             }
             """
@@ -5516,7 +5513,14 @@ class DesktopRuntimeWindow(QWidget):
             "MONITORING_HUD_BASELINE_READY",
             package="PKG-006",
             slice="SLC-016",
-            baseline="visual_only",
+            baseline="product_visibility_baseline",
+        )
+        self._emit_runtime_signal(
+            "MONITORING_HUD_PRODUCT_VISIBILITY_READY",
+            package="PKG-006",
+            slice="SLC-016",
+            seam="WS7",
+            proof="visible_hud_card_panel",
         )
 
     def _monitoring_hud_telemetry_snapshot(self) -> dict[str, object]:
@@ -6831,38 +6835,15 @@ class DesktopRuntimeWindow(QWidget):
         self.setFocusPolicy(Qt.NoFocus)
         self.setGeometry(target_geometry)
 
-        self.hide()
         hwnd = int(self.winId())
         self.show()
-        self._log_native_window_state("after_show_before_attach", hwnd)
-        ShowWindowW(hwnd, SW_HIDE)
-        self._log_native_window_state("after_native_hide_before_attach", hwnd)
+        self._log_native_window_state("after_visible_overlay_show", hwnd)
         self.setGeometry(target_geometry)
-
-        attached = attach_window_to_desktop(hwnd)
-        self._log_native_window_state("after_attach", hwnd)
-        if attached:
-            ShowWindowW(hwnd, SW_HIDE)
-            self._log_native_window_state("after_hide_post_attach", hwnd)
-            make_window_noninteractive(hwnd)
-            self._log_native_window_state("after_make_noninteractive", hwnd)
-            ShowWindowW(hwnd, SW_HIDE)
-            self._log_native_window_state("after_hide_post_noninteractive", hwnd)
-            position_desktop_child(
-                hwnd,
-                target_geometry.x(),
-                target_geometry.y(),
-                target_geometry.width(),
-                target_geometry.height(),
-            )
-            self._log_native_window_state("after_position_child", hwnd)
-        else:
-            self._log_event("RENDERER_MAIN|DESKTOP_ATTACH_FALLBACK_VISIBLE_MODE")
 
         if not self.webview.isVisible():
             self.webview.show()
-            self._log_event("RENDERER_MAIN|WEBVIEW_REVEALED_AFTER_ATTACH")
-            QTimer.singleShot(50, lambda: self._capture_startup_snapshot("after_attach_reveal"))
+            self._log_event("RENDERER_MAIN|WEBVIEW_REVEALED_FOR_VISIBLE_OVERLAY")
+            QTimer.singleShot(50, lambda: self._capture_startup_snapshot("after_visible_overlay_reveal"))
             QTimer.singleShot(300, lambda: self._capture_startup_snapshot("after_300ms"))
             QTimer.singleShot(600, lambda: self._capture_startup_snapshot("after_600ms"))
             QTimer.singleShot(1000, lambda: self._capture_startup_snapshot("after_1000ms"))
@@ -6870,23 +6851,23 @@ class DesktopRuntimeWindow(QWidget):
             QTimer.singleShot(2200, lambda: self._capture_startup_snapshot("after_2200ms"))
 
         self._release_initial_visibility_guard()
-        self._log_event(
-            f"RENDERER_MAIN|DESKTOP_ATTACH_RESULT|success={'true' if attached else 'false'}"
-        )
         self._publish_monitoring_hud_telemetry_boundary()
         self._publish_monitoring_hud_placement_ownership()
         self._publish_monitoring_hud_controls_visibility()
         self._publish_monitoring_hud_status_behavior()
-        for probe_event in get_last_workerw_probe_events():
-            self._log_event(f"RENDERER_MAIN|{probe_event}")
+        self._emit_runtime_signal(
+            "MONITORING_HUD_VISIBLE_OVERLAY_READY",
+            package="PKG-006",
+            slice="SLC-016",
+            pointer_model="click_through_no_focus",
+        )
+        self._log_event("RENDERER_MAIN|DESKTOP_VISIBLE_OVERLAY_RESULT|success=true")
 
         self.webview.update()
         self.update()
         self._run_javascript("window.dispatchEvent(new Event('resize'));")
-        self.lower()
-        if attached:
-            QTimer.singleShot(260, self._reinforce_desktop_mode)
-            QTimer.singleShot(900, self._reinforce_desktop_mode)
+        QTimer.singleShot(260, self._reinforce_desktop_mode)
+        QTimer.singleShot(900, self._reinforce_desktop_mode)
 
     def _monitoring_hud_controls_visibility_contract(self) -> dict[str, str]:
         return build_monitoring_hud_controls_visibility_contract(
