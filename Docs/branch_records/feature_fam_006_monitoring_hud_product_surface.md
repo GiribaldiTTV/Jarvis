@@ -24,7 +24,7 @@ This branch may execute the admitted PKG-006 implementation slices during Workst
 
 ## Status
 
-- `Live Validation LV1-R1 - USER Test Summary FAIL Digest / Branch Readiness Re-entry Required`
+- `Branch Readiness Stage 2-R11 - HUD Dashboard And Minimal HUD Source-Truth Repair`
 
 ## Canonical Branch
 
@@ -32,13 +32,13 @@ This branch may execute the admitted PKG-006 implementation slices during Workst
 
 ## Current Phase
 
-- Phase: `Live Validation`
+- Phase: `Branch Readiness`
 
 ## Phase Status
 
-- Branch Readiness Stage: `Complete - Stage 2-R10 recorded Stage 1-R6 planning revalidation PASS`
-- Workstream Stage: `Green - WS8 through WS17 completed the current-branch Monitoring HUD implementation chain`
-- Hardening Stage: `Green - H1 pressure-tested the visible HUD, controls, placement, provider-contract telemetry, internal sandbox, live screenshot proof, source truth, and naming sterilization`
+- Branch Readiness Stage: `Stage 2-R11 source-truth repair recorded - Stage 1-R7 findings rebaseline dashboard/minimal-HUD architecture, Core non-interference expectations, affected slices, acceptance criteria, and proof requirements; Stage 1-R8 revalidation pending`
+- Workstream Stage: `Blocked - WS8 through WS17 are preserved as prior implementation evidence, but returned LV1 FAIL evidence requires Branch Readiness rebaseline and bounded Workstream repair before implementation can resume`
+- Hardening Stage: `Blocked - prior H1 pressure-test evidence is preserved but must rerun after bounded Workstream repair`
 - Live Validation Stage: `Red - LV1 returned User Test Summary evidence contains blocking findings; LV1 is not green and must route back before PR Readiness`
 - Active Branch: `feature/fam-006-monitoring-hud-product-surface`
 - Branch Authority Mode: `Active Branch`
@@ -52,9 +52,9 @@ This branch may execute the admitted PKG-006 implementation slices during Workst
 - Admitted Slice Count: `6`
 - Package Completion State: `In Progress - returned User Test Summary evidence blocks Live Validation green; product proof, User Test Summary acceptance, PR Readiness, and final package completion remain unclaimed`
 - Single-Slice Package User Approval: `Not required - PKG-006 has six concrete admitted slices; no waiver granted`
-- Runtime Implementation State: `Live Validation LV1-R1 failure digestion - Workstream implementation and H1 pressure-test remain preserved as prior evidence, but returned User Test Summary and screenshot proof identify blocking product issues: the current Monitoring HUD surface behaves like a dashboard/settings window instead of the separate minimal anchored HUD layer USER expects, dashboard drag/polish/content need repair, and ORIN Core visual behavior is an opaque foreground regression. Future provider-platform parity, external/plugin telemetry, audio/spoken alerts, persona switching, Stream Deck, graphs/history/persistence dashboards, local AI/capability packs, installer work, and ultra-low polling remain deferred.`
-- PR Creation State: `Not approved in Live Validation`
-- Watcher Provisioning State: `Not approved in Live Validation`
+- Runtime Implementation State: `Branch Readiness Stage 2-R11 source-truth repair only - no runtime implementation repair has started. Workstream implementation and H1 pressure-test remain preserved as prior evidence, but returned User Test Summary and screenshot proof identify blocking product issues: the current Monitoring HUD surface behaves like a dashboard/settings window instead of the separate minimal anchored HUD layer USER expects, dashboard drag/polish/content need repair, and ORIN Core visual behavior is an opaque foreground regression. Future provider-platform parity, external/plugin telemetry, audio/spoken alerts, persona switching, Stream Deck, graphs/history/persistence dashboards, local AI/capability packs, installer work, and ultra-low polling remain deferred.`
+- PR Creation State: `Not approved in Branch Readiness`
+- Watcher Provisioning State: `Not approved in Branch Readiness`
 - Release Work State: `Not approved; v1.6.13-prebeta release execution is already complete and no new release work is in scope`
 - Optional Voice/Status Integration: `Deferred unless later proven to be narrow HUD-status copy inside FAM-006`
 - Element Coverage State: `Coverage-only; not counted as admitted slices`
@@ -76,7 +76,7 @@ This branch may execute the admitted PKG-006 implementation slices during Workst
 - `Live Validation Proof Gap`
 - `UTS Evidence Root Mismatch`
 
-Package completion is not currently claimed. The Workstream and Hardening evidence remain preserved as prior implementation and pressure-test proof, but returned User Test Summary results are FAIL and expose product-level mismatch/regression. Final phase advancement, PR Readiness, and package completion are blocked until Branch Readiness rebaselines the dashboard-versus-minimal-HUD architecture and a later Workstream repair proves the accepted product behavior.
+Package completion is not currently claimed. The Workstream and Hardening evidence remain preserved as prior implementation and pressure-test proof, but returned User Test Summary results are FAIL and expose product-level mismatch/regression. Final phase advancement, PR Readiness, and package completion are blocked until Branch Readiness Stage 1-R8 revalidates the Stage 2-R11 dashboard-versus-minimal-HUD source-truth repair and a later bounded Workstream repair proves the accepted product behavior.
 
 ## Cleared Governance Notes
 
@@ -133,15 +133,15 @@ The operator-supplied Stage 2 terminal evidence was not sufficient by itself bec
 
 - `Branch Readiness`
 
-Rollback Path: revert the current Workstream commit on `feature/fam-006-monitoring-hud-product-surface` before PR merge; no tags, releases, artifacts, PR, watcher, or `main` mutation are created by this WS1 pass.
+Rollback Path: revert the Stage 2-R11 source-truth repair commit on `feature/fam-006-monitoring-hud-product-surface` before PR merge; no runtime implementation, tags, releases, artifacts, PR, watcher, or `main` mutation are created by this Branch Readiness repair pass.
 
 ## Next Legal Phase
 
 - `Branch Readiness`
 
-Next Legal Seam: `Branch Readiness Stage 1-R7 - FAM-006 HUD Dashboard And Minimal HUD Repair Rebaseline`
+Next Legal Seam: `Branch Readiness Stage 1-R8 - FAM-006 HUD Dashboard And Minimal HUD Source-Truth Revalidation`
 
-Next Legal Phase Gate: Live Validation LV1-R1 digested returned User Test Summary FAIL evidence and screenshot proof. The next legal move is Branch Readiness re-entry on this same FAM-006 carrier to rebaseline the product architecture before implementation repair: the existing large Monitoring HUD panel must be classified as a dashboard/configuration surface, and the actual user-facing HUD must become a separate minimal anchored layer that can be configured by the dashboard. Live Validation must not report green and PR Readiness must not begin until that rebaseline, later bounded Workstream repair, Hardening, active-client Live Validation, and returned User Test Summary acceptance all pass. Repair must preserve provider-contract-first truth, no fake metrics, visual/non-invasive warnings, ORIN/ARIA planning boundaries, future-package deferrals, user-facing shortcut/equivalent entrypoint proof, full virtual-desktop screenshot handoff, and formal User Test Summary returned-results digestion. It must not create a PR, watcher, release, tag, artifact, direct-main mutation, voice/audio implementation, Stream Deck/plugin telemetry implementation, local AI, installer/capability-pack work, broad hardware provider implementation, persona switching implementation, ARIA activation, or a new FAM/package without later explicit USER approval.
+Next Legal Phase Gate: Branch Readiness Stage 2-R11 records the Stage 1-R7 architecture rebaseline into source truth. The next legal move is Branch Readiness Stage 1-R8 revalidation on this same FAM-006 carrier before implementation repair: source truth now classifies the existing large Monitoring HUD panel as a dashboard/configuration surface, and the actual user-facing HUD must become a separate minimal anchored layer configured by that dashboard. Live Validation must not report green and PR Readiness must not begin until Stage 1-R8 revalidates the repair plan, later bounded Workstream repair, Hardening, active-client Live Validation, and returned User Test Summary acceptance all pass. Repair must preserve provider-contract-first truth, no fake metrics, visual/non-invasive warnings, ORIN/ARIA planning boundaries, future-package deferrals, user-facing shortcut/equivalent entrypoint proof, full virtual-desktop screenshot handoff, and formal User Test Summary returned-results digestion. It must not create runtime implementation during Branch Readiness, or create a PR, watcher, release, tag, artifact, direct-main mutation, voice/audio implementation, Stream Deck/plugin telemetry implementation, local AI, installer/capability-pack work, broad hardware provider implementation, persona switching implementation, ARIA activation, or a new FAM/package without later explicit USER approval.
 
 ## Branch Objective
 
@@ -194,13 +194,17 @@ Screenshot / Live / User Test Summary Proof Requirements: screenshots must clear
 
 Implementation Sequence Proposal: Stage 2-R8 reopened Branch Readiness for retired-name sterilization and refreshed USER input. Stage 2-R9 digested the completed refreshed artifact, recorded the sterilization closeout, and rebaselined the FAM-006 scope. Stage 1-R6 validated that rebaseline. Stage 2-R10 records the PASS and hands the branch back to Workstream WS7.
 
-Planning Blockers: None active after Stage 2-R10 scope rebaseline closeout.
+Planning Blockers: `Branch Readiness Revalidation Pending` after Stage 2-R11 source-truth repair; LV1 product blockers remain active until bounded Workstream repair, Hardening, Live Validation, and returned UTS acceptance pass.
 
 USER Decisions Needed: none before WS7. Later USER decisions are needed only if Workstream recommends widening current scope, admitting a provider/platform implementation beyond the current branch, activating persona switching/ARIA implementation, adding audio/spoken warnings, allowing external/plugin telemetry implementation, or granting any explicit waiver.
 
 Planning Packet Status: Complete
 
 Planning Revalidation Status: PASS
+
+Planning Revalidation Detail: `Stage 1-R6 remains the historical product-planning pass; Stage 2-R11 opens a repair revalidation latch, not a new missing-planning state`
+
+Repair Revalidation Status: Pending - Stage 1-R8 required after Stage 2-R11 dashboard/minimal-HUD source-truth repair
 
 Planning Completion Waiver: None
 
@@ -259,7 +263,7 @@ Refreshed USER Vision Input Digest: `Complete - C:\Users\anden\OneDrive\Desktop\
 
 Cleared Blockers: `Legacy Product Name Drift; USER Vision Input Pending; USER Vision Input Answers Pending; USER Vision Input Digest Pending`
 
-Historical Remaining Blockers After Stage 2-R9: `Branch Readiness Planning Incomplete; Branch Reach Unproven; Current Branch vs Future Package Boundary Missing; Hardware Telemetry Provider Selection Pending; External Telemetry Privacy Model Missing; Persona Switch Scope Boundary Pending`
+Remaining Blockers: `Branch Readiness Planning Incomplete; Branch Reach Unproven; Current Branch vs Future Package Boundary Missing; Hardware Telemetry Provider Selection Pending; External Telemetry Privacy Model Missing; Persona Switch Scope Boundary Pending`
 
 Legacy Naming Closeout: `Retired product naming sterilization validates clean in tracked repo truth, runtime references, validators, docs, generated-user surfaces, and user-facing copy. The current visual surface path is nexus_visual.`
 
@@ -383,7 +387,7 @@ Branch Completion Goal: complete a visible, readable, accepted, optional Nexus/N
 
 Known Future-Dependent Blockers: full HWInfo/HWMonitor-level sensor coverage, broad plugin/external telemetry ecosystem, audio/spoken alerts or FAM-004 integration, Stream Deck integration, graphs/history/persistence/dashboards, local AI/capability-pack monitoring, installer/capability-pack work, and ultra-low polling intervals remain deferred unless USER later widens scope and validation proves safety.
 
-Branch Closure Rule: this branch may leave Branch Readiness for Workstream only after Stage 1-R6 revalidates the Stage 2-R9 digest and clears, defers, or waives remaining planning blockers. After Workstream resumes, the branch may leave Workstream again only after the full current-branch HUD implementation scope is complete or legally deferred, revised slice truth is current, internal sandbox proof is green, screenshot/entrypoint-supporting validation is green, and Workstream Completion Status is Green; marker-only, scaffold-only, or UTS-waiting proof cannot close PKG-006. After Hardening H1, the branch may enter Live Validation only with package completion still unclaimed and formal User Test Summary returned-results digestion reserved for the Live Validation gate.
+Branch Closure Rule: this branch may leave Branch Readiness for Workstream only after Stage 1-R8 revalidates the Stage 2-R11 dashboard/minimal-HUD source-truth repair and records the next bounded Workstream repair seam. After Workstream resumes, the branch may leave Workstream again only after the full current-branch HUD implementation repair scope is complete or legally deferred, revised slice truth is current, internal sandbox proof is green, screenshot/entrypoint-supporting validation is green, and Workstream Completion Status is Green; marker-only, scaffold-only, or UTS-waiting proof cannot close PKG-006. After repaired Hardening H1, the branch may enter Live Validation only with package completion still unclaimed and formal User Test Summary returned-results digestion reserved for the Live Validation gate.
 
 ## Backlog Completion Status
 
@@ -579,16 +583,16 @@ Status: `Green - refreshed validators, internal sandbox manifest, and full-deskt
 
 ## Active Seam
 
-Active seam: `Live Validation LV1-R1 - USER Test Summary FAIL Digest And FAM-006 HUD/Core Product Repair Triage`
+Active seam: `Branch Readiness Stage 2-R11 - FAM-006 HUD Dashboard And Minimal HUD Source-Truth Repair`
 
-Seam Status: `Red - returned User Test Summary has blocking FAIL findings`
+Seam Status: `Source-truth repair recorded - Stage 1-R7 findings have been converted into durable branch truth; Stage 1-R8 revalidation is required before Workstream repair`
 Slice Status: `Repair Required`
-Slice Detail: `SLC-016, SLC-026, SLC-027, SLC-028, and SLC-029 are affected by returned Live Validation evidence. SLC-016 must re-evaluate the visible user-facing HUD identity, SLC-026 must re-evaluate HUD/Core separation plus OS-level non-blocking placement, SLC-027 must re-evaluate dashboard/settings controls, SLC-028 must remove or reroute irrelevant technical status copy from the dashboard, and SLC-029 must add proof for the dashboard/minimal-HUD split plus Core non-interference. SLC-025 provider-contract telemetry remains preserved unless repair changes the dashboard sensor model.`
-Completion Status: `Red`
-Completion Detail: `Live Validation cannot final-green because returned User Test Summary results are FAIL and the attached screenshot shows a Core foreground/non-interference regression.`
+Slice Detail: `SLC-016, SLC-026, SLC-027, SLC-028, and SLC-029 are reopened for repair planning. SLC-016 must split dashboard/configuration surface from the minimal anchored HUD identity, SLC-026 must repair/prove independent HUD window ownership plus Core visual non-interference, SLC-027 must reframe controls/settings as dashboard configuration, SLC-028 must route setup/no-data/degraded copy into user-useful dashboard/minimal-HUD surfaces, and SLC-029 must add proof for dashboard/minimal-HUD separation, OS-level click-through/non-focus behavior, Core non-blocking transparency, dashboard movement smoothness, product scrollbar styling, and fresh UTS evidence. SLC-025 provider-contract telemetry remains preserved unless repair changes provider interaction.`
+Completion Status: `Branch Readiness repair complete / implementation repair pending`
+Completion Detail: `LV1 remains red and Workstream remains blocked until Stage 1-R8 revalidates this Stage 2-R11 source-truth repair, then bounded Workstream repair proves the dashboard/minimal-HUD split and Core non-interference.`
 Waiver Status: `None`
 Continue Decision: `Stop`
-Stop Basis: `User Test Summary Returned With Blocking Findings`
+Stop Basis: `Branch Readiness Revalidation Pending`
 
 ## Live Validation Continuation Decision
 
@@ -600,9 +604,9 @@ Completion Detail: `Package completion remains unclaimed; Live Validation final 
 Waiver Status: `None`
 Continue Decision: `Stop`
 Stop Basis: `User Test Summary Returned With Blocking Findings`
-Next Active Seam: `Branch Readiness Stage 1-R7 - FAM-006 HUD Dashboard And Minimal HUD Repair Rebaseline`
+Next Active Seam: `Branch Readiness Stage 2-R11 - FAM-006 HUD Dashboard And Minimal HUD Source-Truth Repair`
 Stop Condition: `Live Validation LV1-R1 FAIL - returned USER evidence requires Branch Readiness re-entry before Workstream repair resumes`
-Continuation Action: `Run Branch Readiness Stage 1-R7 analysis on this same branch to rebaseline dashboard/configuration surface versus minimal anchored HUD layer, Core non-interference, affected slices, acceptance criteria, and validator proof gaps before any runtime implementation repair. Do not create a PR, watcher, release, tag, artifact, direct-main mutation, voice/audio widening, Stream Deck work, local AI work, installer work, broad provider platform work, persona switching, or new FAM/package work without later approval.`
+Continuation Action: `Stage 2-R11 records the Stage 1-R7 rebaseline on this same branch. Next run Branch Readiness Stage 1-R8 revalidation before any runtime implementation repair. Do not create a PR, watcher, release, tag, artifact, direct-main mutation, voice/audio widening, Stream Deck work, local AI work, installer work, broad provider platform work, persona switching, or new FAM/package work without later approval.`
 
 ## WS8-WS17 Implementation Record
 
@@ -795,6 +799,24 @@ Validation Evidence Expectations: return PASS/FAIL plus any notes, screenshots, 
 - Source-Truth Drift Finding: `Prior green helper/Codex self-QA wording overstated Live Validation readiness because returned USER evidence proves product-quality and architecture blockers remained. This LV1-R1 digest records the failure before implementation repair resumes.`
 - Current-Branch Repair Candidates: `rebaseline dashboard/configuration surface versus minimal anchored HUD; restore/prove Core visual transparency/non-interference; build separate minimal HUD layer ownership; smooth dashboard movement; replace irrelevant dashboard technical boxes with useful setup/configuration content; style dashboard scrollbars; expand live-client proof to full-desktop, OS-level non-interference, and dashboard/HUD split evidence`
 - Future-Package Items: `broad provider-platform parity, external/plugin telemetry ecosystem, audio/spoken warnings, persona switching/ARIA activation, Stream Deck, graphs/history/persistence dashboards, local AI/capability packs, installer/capability-pack work, ultra-low polling, and repo-wide naming migration remain outside current repair unless later USER-approved`
+
+## Branch Readiness Stage 2-R11 HUD Dashboard And Minimal HUD Source-Truth Repair
+
+- Repair Date: `2026-05-07`
+- Stage 1-R7 Finding Recorded: `PASS - LV1 returned User Test Summary FAIL evidence requires Branch Readiness source-truth repair before implementation resumes`
+- LV1 State: `FAIL / red - Step 6 and Step 7 failed; returned User Test Summary contains blocking product findings`
+- PR Readiness State: `Blocked - no PR creation, watcher provisioning, release work, tag, GitHub Release, artifact, direct-main mutation, or package completion claim is authorized`
+- Package State: `PKG-006 remains In Progress; package completion remains unclaimed`
+- Dashboard / Configuration Surface: `Current large Monitoring HUD panel is reclassified as the dashboard/configuration surface. It should configure sensors, categories, cards, settings, warning options, and HUD behavior; it is user-facing, but it is not the final anchored HUD itself.`
+- Minimal Anchored HUD Overlay: `Required product surface - a separate lightweight desktop overlay that is anchorable, click-through when anchored, non-focus-stealing, Nexus/NDAI branded, configured by the dashboard, visible without acting like a large settings window, and independently owned so dashboard/Core faults do not silently hide it.`
+- ORIN/Core Non-Interference Expectation: `Core visualization should be visually non-blocking around the core and preserve desktop/window visibility and interaction behind it. Opaque foreground blocking behavior is a regression; Qt-level mouse transparency markers alone are insufficient proof of visual transparency or OS-level non-interference.`
+- Dashboard Repair Findings: `Dashboard movement must feel like normal Windows movement or record a bounded proof/limitation; dashboard content must prioritize user-relevant configuration/settings instead of bottom technical proof boxes; technical proof belongs in validators/logs; dashboard scrollbars must match Nexus/NDAI product styling rather than default Windows styling.`
+- Affected Slices: `SLC-016 reopened for dashboard/minimal-HUD product split; SLC-026 reopened for Core non-interference, independent HUD window ownership, anchoring, and click-through proof; SLC-027 reopened for dashboard configuration/control ownership; SLC-028 reopened for user-useful setup/no-data/degraded copy split; SLC-029 reopened for fresh validation/live proof. SLC-025 remains preserved unless the repaired dashboard sensor model changes provider behavior.`
+- Acceptance Criteria Updates: `Dashboard and minimal HUD must be separate product surfaces; dashboard is the configuration/settings surface; minimal HUD is the anchored desktop overlay; minimal HUD proves click-through/non-focus-stealing when anchored; dashboard movement is smooth enough for normal Windows expectations or has a bounded proof; dashboard content is user-relevant; dashboard scrollbar is product-styled; ORIN/Core is visually non-blocking around the core; live proof demonstrates both dashboard/configuration role and minimal anchored HUD role; UTS must test dashboard and minimal HUD separately.`
+- Validator / Proof Plan: `Existing marker/live-helper proof is supporting evidence only. Future proof must add OS-level click-through/non-blocking evidence, Core visual transparency/non-interference evidence, dashboard/minimal-HUD separation evidence, dashboard drag smoothness evidence where feasible, dashboard scrollbar/product styling evidence, fresh full-desktop proof root, and refreshed UTS handoff after repair.`
+- Legal Repair Sequence: `Stage 2-R11 source-truth repair; Stage 1-R8 source-truth revalidation; bounded Workstream repair seams for Core transparency/non-interference, dashboard/minimal-HUD renderer split, dashboard configuration content, dashboard movement smoothness, minimal HUD anchoring/click-through behavior, dashboard scrollbar/product polish, and validation/live proof expansion; Hardening rerun; Live Validation rerun with fresh proof and refreshed UTS.`
+- Boundary Preservation: `Provider-contract-first truth, no fake telemetry values, Nexus/NDAI/Monitoring HUD naming, ORIN shipped/default persona and ARIA future/locked planning boundary, visual/non-invasive warning posture, future-package deferrals, current branch as the FAM-006 carrier, FAM -> Package -> Slice -> Seam, Element Coverage non-identity, single-slice package blocker, package completion blocker, PR evidence-only handling, legacy FB historical-only handling, Branch Readiness Stage 1 / Stage 2, PR Readiness Stage 1 / Stage 2, real-carrier/current-branch repair rule, and bounded seam default remain preserved.`
+- Next Legal Seam: `Branch Readiness Stage 1-R8 - FAM-006 HUD Dashboard And Minimal HUD Source-Truth Revalidation`
 
 ## Codex Live Client Self-QA
 

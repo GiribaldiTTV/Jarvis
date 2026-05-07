@@ -236,6 +236,9 @@ FAM006_STAGE2_R7_HEADING = "Stage 2-R7 Planning Revalidation Closeout And WS7 Ha
 FAM006_STAGE2_R8_HEADING = "Stage 2-R8 Legacy Product Name Blocker And USER Vision Input Refresh"
 FAM006_STAGE2_R9_HEADING = "Stage 2-R9 USER Vision Input Digest And FAM-006 Scope Rebaseline"
 FAM006_STAGE2_R10_HEADING = "Stage 2-R10 Scope Rebaseline Closeout And WS7 Handoff"
+FAM006_STAGE2_R11_HEADING = (
+    "Branch Readiness Stage 2-R11 HUD Dashboard And Minimal HUD Source-Truth Repair"
+)
 FAM006_STAGE2_R6_REQUIRED_MARKERS = (
     "Current-Branch Scope Final:",
     "Future-Package Scope Final:",
@@ -321,6 +324,33 @@ FAM006_STAGE2_R10_REQUIRED_PHRASES = (
     "Workstream WS7 - Monitoring HUD Product Visibility And Acceptance Baseline",
     "PKG-006 remains In Progress",
     "package completion remains unclaimed",
+)
+FAM006_STAGE2_R11_REQUIRED_PHRASES = (
+    "Stage 1-R7 Finding Recorded:",
+    "LV1 State:",
+    "FAIL / red",
+    "Dashboard / Configuration Surface:",
+    "Minimal Anchored HUD Overlay:",
+    "ORIN/Core Non-Interference Expectation:",
+    "Dashboard Repair Findings:",
+    "Affected Slices:",
+    "SLC-016 reopened",
+    "SLC-026 reopened",
+    "SLC-027 reopened",
+    "SLC-028 reopened",
+    "SLC-029 reopened",
+    "Acceptance Criteria Updates:",
+    "Dashboard and minimal HUD must be separate product surfaces",
+    "minimal HUD is the anchored desktop overlay",
+    "Validator / Proof Plan:",
+    "OS-level click-through/non-blocking evidence",
+    "Core visual transparency/non-interference evidence",
+    "fresh full-desktop proof root",
+    "Legal Repair Sequence:",
+    "Stage 1-R8 source-truth revalidation",
+    "bounded Workstream repair seams",
+    "Hardening rerun",
+    "Live Validation rerun",
 )
 FAM006_WORKSTREAM_CONTINUATION_REQUIRED_PHRASES = (
     "multi-slice HUD implementation continuation",
@@ -4590,9 +4620,48 @@ def _validate_fam006_stage2_r6_plan(
     stage2_r8_section = _section(text, FAM006_STAGE2_R8_HEADING)
     stage2_r9_section = _section(text, FAM006_STAGE2_R9_HEADING)
     stage2_r10_section = _section(text, FAM006_STAGE2_R10_HEADING)
+    stage2_r11_section = _section(text, FAM006_STAGE2_R11_HEADING)
     has_stage2_r8_blocker = LEGACY_PRODUCT_NAME_DRIFT_BLOCKER in blockers
 
     if current_phase == "Branch Readiness":
+        if stage2_r11_section:
+            for phrase in FAM006_STAGE2_R11_REQUIRED_PHRASES:
+                require(
+                    phrase in stage2_r11_section,
+                    f"{source_path}: {FAM006_STAGE2_R11_HEADING} is missing '{phrase}'",
+                )
+            for active_blocker in (
+                "User Test Summary Returned With Blocking Findings",
+                "User Test Summary Results FAIL",
+                "Core Visualization Opaque Foreground Regression",
+                "Monitoring HUD Product Architecture Mismatch",
+                "HUD Dashboard / Minimal HUD Separation Missing",
+                "Live Validation Proof Gap",
+            ):
+                require(
+                    active_blocker in blockers,
+                    (
+                        f"{source_path}: Stage 2-R11 repair must keep "
+                        f"'{active_blocker}' active until repair and revalidation"
+                    ),
+                )
+            require(
+                "Repair Revalidation Status: Pending - Stage 1-R8 required after Stage 2-R11"
+                in plan_section,
+                (
+                    f"{source_path}: Stage 2-R11 Product Definition Plan must route "
+                    "repair truth to Stage 1-R8 revalidation"
+                ),
+            )
+            require(
+                "Branch Readiness Stage 1-R8 - FAM-006 HUD Dashboard And Minimal HUD Source-Truth Revalidation"
+                in text,
+                (
+                    f"{source_path}: Stage 2-R11 repair must set next legal seam "
+                    "to Stage 1-R8 revalidation"
+                ),
+            )
+            return
         if stage2_r9_section:
             for phrase in FAM006_STAGE2_R9_REQUIRED_PHRASES:
                 require(

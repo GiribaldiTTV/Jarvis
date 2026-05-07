@@ -80,7 +80,7 @@ Do not use this layer to replace:
 
 - `Docs/branch_records/feature_fam_006_monitoring_hud_product_surface.md`
 
-Active authority belongs to the USER-approved FAM-006 Monitoring and HUD Product Surface Package carrier, currently Live Validation LV1-R1 with returned User Test Summary FAIL evidence digested and Branch Readiness re-entry required before Workstream repair resumes. Merged `main` remains the validated source baseline before this branch merges; the active branch record must move to historical/no-active posture before PR green so merged-main truth does not retain stale active branch authority.
+Active authority belongs to the USER-approved FAM-006 Monitoring and HUD Product Surface Package carrier, currently Branch Readiness Stage 2-R11 with returned User Test Summary FAIL evidence rebaselined into dashboard/minimal-HUD, Core non-interference, affected-slice, acceptance-criteria, and proof-standard source truth. Stage 1-R8 revalidation is required before Workstream repair resumes. Merged `main` remains the validated source baseline before this branch merges; the active branch record must move to historical/no-active posture before PR green so merged-main truth does not retain stale active branch authority.
 
 ## Historical Branch Authority Records
 
