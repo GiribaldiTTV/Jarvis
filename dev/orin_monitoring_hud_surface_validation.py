@@ -111,8 +111,10 @@ def validate() -> list[str]:
 
     hud_section = _html_section(html)
     minimal_hud_section = _html_section_by_id(html, "monitoring-hud-minimal")
+    overlay_display_section = _html_section_by_id(html, "monitoring-hud-overlay-display")
     _require(bool(hud_section), "orin_core.html is missing the monitoring-hud section", failures)
     _require(bool(minimal_hud_section), "monitoring_hud.html is missing the monitoring-hud-minimal section", failures)
+    _require(bool(overlay_display_section), "monitoring_hud.html is missing the monitoring-hud-overlay-display section", failures)
     for needle in (
         'data-package="PKG-006"',
         'data-slice="SLC-016"',
@@ -270,6 +272,29 @@ def validate() -> list[str]:
             failures,
         )
 
+    for needle in (
+        'id="monitoring-hud-overlay-display"',
+        'data-product-surface="nexus-monitoring-hud-overlay-display"',
+        'data-product-surface-role="edgeless-overlay-display"',
+        'data-overlay-canvas="edge-to-edge-snipping-tool-style"',
+        'data-overlay-edit-mode="unanchored-focusable-resizable-scrollable"',
+        'data-overlay-anchor-mode="anchored-uninteractable-click-through"',
+        'data-monitor-layout="movable-resizable-monitor-cards"',
+        'data-watermark-identity="edge-safe-nexus-orin-watermark"',
+        'data-edge-to-edge-posture="landscape-portrait-monitor-fit"',
+        'id="monitoring-hud-overlay-canvas"',
+        'data-overlay-monitor-card="cpu"',
+        'data-overlay-monitor-card="gpu"',
+        "Nexus Desktop AI / ORIN",
+    ):
+        _require_contains(overlay_display_section, needle, "edgeless overlay display HTML", failures)
+    for forbidden in ("voice", "audio", "spoken", "microphone", retired_product_name):
+        _require(
+            forbidden not in overlay_display_section.casefold(),
+            f"edgeless overlay display HTML must not introduce {forbidden} behavior in WS25",
+            failures,
+        )
+
     fake_metric_pattern = re.compile(
         r"\b\d+(?:\.\d+)?\s?(?:°|c\b|%|rpm\b|mhz\b|ghz\b|w\b)",
         flags=re.IGNORECASE,
@@ -283,9 +308,12 @@ def validate() -> list[str]:
     for needle in (
         "#monitoring-hud {",
         "#monitoring-hud-minimal {",
+        "#monitoring-hud-overlay-display {",
         "display: none;",
         "body.desktop-mode #monitoring-hud",
         "body.desktop-mode #monitoring-hud-minimal",
+        "body.desktop-mode #monitoring-hud-overlay-display",
+        'body.desktop-mode #monitoring-hud-overlay-display[data-anchor-state="unanchored"]',
         "width: calc(100vw - 24px);",
         "scrollbar-width: thin;",
         "scrollbar-color: rgba(108, 232, 255, 0.52) rgba(5, 18, 31, 0.34);",
@@ -311,6 +339,11 @@ def validate() -> list[str]:
         ".monitoring-hud-minimal__cards",
         ".monitoring-hud-minimal-card",
         ".monitoring-hud-minimal__warning",
+        ".monitoring-hud-overlay-display__frame",
+        ".monitoring-hud-overlay-display__canvas",
+        ".monitoring-hud-overlay-display__watermark",
+        ".monitoring-hud-overlay-card",
+        ".monitoring-hud-overlay-card__quick-actions",
         ".monitoring-hud-card__drag-handle",
         ".monitoring-hud-sensor-row",
         ".monitoring-hud-card--setup",
@@ -328,6 +361,8 @@ def validate() -> list[str]:
     for needle in (
         'const monitoringHud = document.getElementById("monitoring-hud")',
         'const monitoringHudMinimal = document.getElementById("monitoring-hud-minimal")',
+        'const monitoringHudOverlayDisplay = document.getElementById("monitoring-hud-overlay-display")',
+        'const monitoringHudOverlayCanvas = document.getElementById("monitoring-hud-overlay-canvas")',
         'const monitoringHudProviderState = document.getElementById("monitoring-hud-provider-state")',
         'const monitoringHudMinimalProviderState = document.getElementById("monitoring-hud-minimal-provider-state")',
         'const monitoringHudWarningPosture = document.getElementById("monitoring-hud-warning-posture")',
@@ -368,6 +403,8 @@ def validate() -> list[str]:
         "monitoringHudWireControls",
         "monitoringHudRenderMonitorManagement",
         "monitoringHudCreateCardNode",
+        "monitoringHudRenderOverlayDisplay",
+        "monitoringHudCreateOverlayCardNode",
         "monitoringHudClearPanelPosition",
         "monitoringHudRenderSensorCards",
         "window.setDesktopSurfaceMode = function(enabled)",
@@ -440,6 +477,7 @@ def validate() -> list[str]:
         "MONITORING_HUD_DASHBOARD_CONTENT_READY",
         "MONITORING_HUD_DASHBOARD_MOTION_POLISH_READY",
         "MONITORING_HUD_DASHBOARD_SCROLLBAR_STYLE_READY",
+        "MONITORING_HUD_EDGELESS_OVERLAY_CANVAS_READY",
         "class MinimalMonitoringHudOverlayWindow(QWidget):",
         "MONITORING_HUD_MINIMAL_NATIVE_OVERLAY_READY",
         "MONITORING_HUD_MINIMAL_ANCHORED_CLICK_THROUGH_READY",

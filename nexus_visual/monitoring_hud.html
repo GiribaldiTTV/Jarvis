@@ -237,6 +237,66 @@
   </section>
 
   <section
+    id="monitoring-hud-overlay-display"
+    class="monitoring-hud-overlay-display"
+    data-package="PKG-006"
+    data-slice="SLC-016"
+    data-placement-slice="SLC-026"
+    data-controls-slice="SLC-027"
+    data-proof-slice="SLC-029"
+    data-surface-id="monitoring-hud-overlay-display"
+    data-product-surface="nexus-monitoring-hud-overlay-display"
+    data-product-surface-role="edgeless-overlay-display"
+    data-configured-by="monitoring-hud"
+    data-dashboard-owner="monitoring-hud"
+    data-overlay-canvas="edge-to-edge-snipping-tool-style"
+    data-overlay-edit-mode="unanchored-focusable-resizable-scrollable"
+    data-overlay-anchor-mode="anchored-uninteractable-click-through"
+    data-monitor-layout="movable-resizable-monitor-cards"
+    data-watermark-identity="edge-safe-nexus-orin-watermark"
+    data-anchor-state="anchored"
+    data-visibility-state="visible"
+    data-quick-actions="hidden-while-anchored"
+    data-edge-to-edge-posture="landscape-portrait-monitor-fit"
+    data-position-persistence="local-layout-state"
+    aria-label="Nexus Desktop AI edgeless Monitoring HUD overlay display"
+    aria-hidden="true"
+  >
+    <div class="monitoring-hud-overlay-display__frame" id="monitoring-hud-overlay-frame">
+      <div class="monitoring-hud-overlay-display__watermark" aria-hidden="true">
+        Nexus Desktop AI / ORIN
+      </div>
+      <div
+        class="monitoring-hud-overlay-display__canvas"
+        id="monitoring-hud-overlay-canvas"
+        aria-label="Edgeless overlay placement canvas for monitor group cards"
+      >
+        <article class="monitoring-hud-overlay-card monitoring-hud-overlay-card--setup" data-overlay-monitor-card="cpu" data-overlay-monitor-enabled="true" data-overlay-monitor-polling-ms="1000" style="--overlay-card-x:28px;--overlay-card-y:34px;--overlay-card-w:300px;--overlay-card-h:132px;">
+          <div class="monitoring-hud-overlay-card__topline">
+            <strong data-overlay-monitor-title="cpu">CPU Monitor</strong>
+            <span data-overlay-monitor-state="cpu">Setup</span>
+          </div>
+          <p data-overlay-monitor-summary="cpu">Provider warming</p>
+          <div class="monitoring-hud-overlay-card__quick-actions" data-overlay-monitor-quick-actions="cpu">
+            <button type="button" data-overlay-monitor-edit="cpu">Edit</button>
+          </div>
+        </article>
+        <article class="monitoring-hud-overlay-card monitoring-hud-overlay-card--unavailable" data-overlay-monitor-card="gpu" data-overlay-monitor-enabled="true" data-overlay-monitor-polling-ms="1000" style="--overlay-card-x:28px;--overlay-card-y:186px;--overlay-card-w:300px;--overlay-card-h:132px;">
+          <div class="monitoring-hud-overlay-card__topline">
+            <strong data-overlay-monitor-title="gpu">GPU Monitor</strong>
+            <span data-overlay-monitor-state="gpu">No data</span>
+          </div>
+          <p data-overlay-monitor-summary="gpu">Provider required</p>
+          <div class="monitoring-hud-overlay-card__quick-actions" data-overlay-monitor-quick-actions="gpu">
+            <button type="button" data-overlay-monitor-edit="gpu">Edit</button>
+          </div>
+        </article>
+      </div>
+      <div class="monitoring-hud-overlay-display__resize-outline" aria-hidden="true"></div>
+    </div>
+  </section>
+
+  <section
     id="monitoring-hud-minimal"
     class="monitoring-hud-minimal"
     data-package="PKG-006"

@@ -1,6 +1,8 @@
 const body = document.body;
 const monitoringHud = document.getElementById("monitoring-hud");
 const monitoringHudMinimal = document.getElementById("monitoring-hud-minimal");
+const monitoringHudOverlayDisplay = document.getElementById("monitoring-hud-overlay-display");
+const monitoringHudOverlayCanvas = document.getElementById("monitoring-hud-overlay-canvas");
 const monitoringHudMinimalRuntimeStatus = document.getElementById("monitoring-hud-minimal-runtime-status");
 const monitoringHudMinimalProviderState = document.getElementById("monitoring-hud-minimal-provider-state");
 const monitoringHudMinimalAnchor = document.getElementById("monitoring-hud-minimal-anchor");
@@ -246,6 +248,73 @@ function monitoringHudRenderMonitorManagement() {
   }
 }
 
+function monitoringHudCreateOverlayCardNode(cardId, layout) {
+  if (!monitoringHudOverlayCanvas || monitoringHudOverlayCanvas.querySelector(`[data-overlay-monitor-card="${cardId}"]`)) return;
+  const article = document.createElement("article");
+  article.className = "monitoring-hud-overlay-card monitoring-hud-overlay-card--unavailable";
+  article.dataset.overlayMonitorCard = cardId;
+  article.dataset.overlayMonitorEnabled = layout.enabled === false ? "false" : "true";
+  article.dataset.overlayMonitorPollingMs = String(layout.pollingRateMs || 1000);
+  article.style.setProperty("--overlay-card-x", `${Math.round(layout.x || 0)}px`);
+  article.style.setProperty("--overlay-card-y", `${Math.round(layout.y || 0)}px`);
+  article.style.setProperty("--overlay-card-w", `${Math.round(Math.max(220, Math.min(layout.w || 300, 420)))}px`);
+  article.style.setProperty("--overlay-card-h", `${Math.round(Math.max(108, Math.min(layout.h || 132, 180)))}px`);
+  article.innerHTML = `
+    <div class="monitoring-hud-overlay-card__topline">
+      <strong data-overlay-monitor-title="${cardId}"></strong>
+      <span data-overlay-monitor-state="${cardId}">No data</span>
+    </div>
+    <p data-overlay-monitor-summary="${cardId}">Provider required</p>
+    <div class="monitoring-hud-overlay-card__quick-actions" data-overlay-monitor-quick-actions="${cardId}">
+      <button type="button" data-overlay-monitor-edit="${cardId}">Edit</button>
+    </div>
+  `;
+  monitoringHudOverlayCanvas.appendChild(article);
+}
+
+function monitoringHudRenderOverlayDisplay() {
+  if (!monitoringHudOverlayDisplay || !monitoringHudOverlayCanvas) return;
+  const cards = monitoringHudControlState.cards || {};
+  monitoringHudOverlayDisplay.dataset.anchorState = monitoringHudControlState.anchored ? "anchored" : "unanchored";
+  monitoringHudOverlayDisplay.dataset.visibilityState = monitoringHudControlState.visible ? "visible" : "hidden";
+  monitoringHudOverlayDisplay.dataset.overlayEditMode = "unanchored-focusable-resizable-scrollable";
+  monitoringHudOverlayDisplay.dataset.overlayAnchorMode = "anchored-uninteractable-click-through";
+  monitoringHudOverlayDisplay.dataset.overlayCanvas = "edge-to-edge-snipping-tool-style";
+  monitoringHudOverlayDisplay.dataset.monitorLayout = "movable-resizable-monitor-cards";
+  monitoringHudOverlayDisplay.dataset.edgeToEdgePosture = "landscape-portrait-monitor-fit";
+  monitoringHudOverlayDisplay.dataset.monitorCount = String(Object.keys(cards).length);
+  Object.keys(cards).forEach((cardId) => {
+    const layout = Object.assign(monitoringHudCardDefaults(cardId), cards[cardId] || {});
+    const overlayLayout = Object.assign({}, layout, {
+      x: monitoringHudSnap(layout.x || 0) + 28,
+      y: monitoringHudSnap(layout.y || 0) + 34,
+      w: Math.max(220, Math.min(layout.w || 300, 420)),
+      h: Math.max(108, Math.min(layout.h || 132, 180))
+    });
+    monitoringHudCreateOverlayCardNode(cardId, overlayLayout);
+    const cardNode = monitoringHudOverlayCanvas.querySelector(`[data-overlay-monitor-card="${cardId}"]`);
+    if (!cardNode) return;
+    cardNode.dataset.overlayMonitorEnabled = layout.enabled === false ? "false" : "true";
+    cardNode.dataset.overlayMonitorPollingMs = String(Math.max(1000, Number(layout.pollingRateMs) || 1000));
+    cardNode.style.setProperty("--overlay-card-x", `${Math.round(overlayLayout.x)}px`);
+    cardNode.style.setProperty("--overlay-card-y", `${Math.round(overlayLayout.y)}px`);
+    cardNode.style.setProperty("--overlay-card-w", `${Math.round(overlayLayout.w)}px`);
+    cardNode.style.setProperty("--overlay-card-h", `${Math.round(overlayLayout.h)}px`);
+    cardNode.classList.toggle("monitoring-hud-overlay-card--setup", cardId === "cpu");
+    cardNode.classList.toggle("monitoring-hud-overlay-card--unavailable", cardId !== "cpu");
+    const titleNode = cardNode.querySelector(`[data-overlay-monitor-title="${cardId}"]`);
+    if (titleNode) titleNode.textContent = layout.title || "Monitor";
+    const stateNode = cardNode.querySelector(`[data-overlay-monitor-state="${cardId}"]`);
+    if (stateNode) stateNode.textContent = layout.enabled === false ? "Hidden" : (cardId === "cpu" ? "Setup" : "No data");
+    const summaryNode = cardNode.querySelector(`[data-overlay-monitor-summary="${cardId}"]`);
+    if (summaryNode) {
+      summaryNode.textContent = layout.enabled === false
+        ? "Disabled in overlay"
+        : (cardId === "cpu" ? "Provider warming" : cardId === "gpu" ? "Provider required" : "Provider route pending");
+    }
+  });
+}
+
 function monitoringHudUpdateSurfaceSplit() {
   if (monitoringHud) {
     monitoringHud.dataset.productSurfaceRole = "dashboard-configuration-surface";
@@ -287,6 +356,7 @@ function monitoringHudUpdateSurfaceSplit() {
   if (monitoringHudMinimalWarning) {
     monitoringHudMinimalWarning.textContent = monitoringHudStatus.warningPosture || "Visual warning baseline only";
   }
+  monitoringHudRenderOverlayDisplay();
 }
 
 function monitoringHudApplyCardLayout() {
@@ -303,6 +373,7 @@ function monitoringHudApplyCardLayout() {
     card.style.setProperty("--card-h", `${Math.round(layout.h)}px`);
   });
   monitoringHudRenderMonitorManagement();
+  monitoringHudRenderOverlayDisplay();
 }
 
 function monitoringHudRenderControls() {
@@ -345,6 +416,7 @@ function monitoringHudRenderControls() {
   }
   monitoringHudUpdateSurfaceSplit();
   monitoringHudRenderMonitorManagement();
+  monitoringHudRenderOverlayDisplay();
 }
 
 function monitoringHudApplyPanelPosition(position) {
@@ -690,6 +762,8 @@ window.getMonitoringHudLiveClientGeometry = function() {
     hud: rectFor("#monitoring-hud"),
     dashboard: rectFor("#monitoring-hud"),
     minimalHud: rectFor("#monitoring-hud-minimal"),
+    overlayDisplay: rectFor("#monitoring-hud-overlay-display"),
+    overlayCanvas: rectFor("#monitoring-hud-overlay-canvas"),
     coreWrap: null,
     anchorToggle: rectFor("#monitoring-hud-anchor-toggle"),
     createMonitor: rectFor("#monitoring-hud-create-monitor"),
@@ -712,16 +786,28 @@ window.getMonitoringHudLiveClientGeometry = function() {
 window.getMonitoringHudSurfaceSplitState = function() {
   const dashboardRect = monitoringHud ? monitoringHud.getBoundingClientRect() : null;
   const minimalRect = monitoringHudMinimal ? monitoringHudMinimal.getBoundingClientRect() : null;
+  const overlayRect = monitoringHudOverlayDisplay ? monitoringHudOverlayDisplay.getBoundingClientRect() : null;
   return {
     dashboardPresent: Boolean(monitoringHud),
     minimalHudPresent: Boolean(monitoringHudMinimal),
+    overlayDisplayPresent: Boolean(monitoringHudOverlayDisplay),
     dashboardSurfaceRole: monitoringHud ? monitoringHud.dataset.productSurfaceRole || "" : "",
     minimalHudSurfaceRole: monitoringHudMinimal ? monitoringHudMinimal.dataset.productSurfaceRole || "" : "",
+    overlayDisplaySurfaceRole: monitoringHudOverlayDisplay ? monitoringHudOverlayDisplay.dataset.productSurfaceRole || "" : "",
+    overlayCanvas: monitoringHudOverlayDisplay ? monitoringHudOverlayDisplay.dataset.overlayCanvas || "" : "",
+    overlayMonitorLayout: monitoringHudOverlayDisplay ? monitoringHudOverlayDisplay.dataset.monitorLayout || "" : "",
+    overlayEdgeToEdgePosture: monitoringHudOverlayDisplay ? monitoringHudOverlayDisplay.dataset.edgeToEdgePosture || "" : "",
     dashboardConfigures: monitoringHud ? monitoringHud.dataset.configuresSurface || "" : "",
     minimalConfiguredBy: monitoringHudMinimal ? monitoringHudMinimal.dataset.configuredBy || "" : "",
     splitContract: monitoringHudMinimal ? monitoringHudMinimal.dataset.splitContract || "" : "",
     dashboardVisible: Boolean(dashboardRect && dashboardRect.width > 100 && dashboardRect.height > 100),
     minimalHudVisible: Boolean(minimalRect && minimalRect.width > 180 && minimalRect.height > 80),
+    overlayDisplayVisible: Boolean(overlayRect && overlayRect.width > 640 && overlayRect.height > 420),
+    overlayDisplayEdgeToEdge: Boolean(
+      overlayRect
+      && overlayRect.width >= Math.max(640, window.innerWidth - 24)
+      && overlayRect.height >= Math.max(360, window.innerHeight - 24)
+    ),
     sharedRendererOwner: monitoringHudMinimal ? monitoringHudMinimal.dataset.rendererOwner || "" : "",
     nativeOverlayOwner: monitoringHudMinimal ? monitoringHudMinimal.dataset.nativeOverlayOwner || "" : "",
     nativeWindowSplitProof: monitoringHudMinimal ? monitoringHudMinimal.dataset.nativeWindowSplitProof || "" : ""
@@ -731,6 +817,7 @@ window.getMonitoringHudSurfaceSplitState = function() {
 window.getMonitoringHudIsolationState = function() {
   const hudRect = monitoringHud ? monitoringHud.getBoundingClientRect() : null;
   const minimalRect = monitoringHudMinimal ? monitoringHudMinimal.getBoundingClientRect() : null;
+  const overlayRect = monitoringHudOverlayDisplay ? monitoringHudOverlayDisplay.getBoundingClientRect() : null;
   const split = window.getMonitoringHudSurfaceSplitState ? window.getMonitoringHudSurfaceSplitState() : {};
   const hudWindowMode = body.classList.contains("hud-window-mode");
   return {
@@ -745,7 +832,10 @@ window.getMonitoringHudIsolationState = function() {
     hudVisible: Boolean(hudRect && hudRect.width > 100 && hudRect.height > 100),
     dashboardSurfacePresent: Boolean(monitoringHud),
     minimalHudSurfacePresent: Boolean(monitoringHudMinimal),
+    overlayDisplaySurfacePresent: Boolean(monitoringHudOverlayDisplay),
     minimalHudVisible: Boolean(minimalRect && minimalRect.width > 180 && minimalRect.height > 80),
+    overlayDisplayVisible: Boolean(overlayRect && overlayRect.width > 640 && overlayRect.height > 420),
+    overlayDisplayEdgeToEdge: split.overlayDisplayEdgeToEdge === true,
     dashboardMinimalSplitReady: Boolean(
       split.dashboardSurfaceRole === "dashboard-configuration-surface"
       && split.minimalHudSurfaceRole === "minimal-anchored-hud-overlay"
@@ -820,6 +910,11 @@ window.setDesktopSurfaceMode = function(enabled) {
     monitoringHudMinimal.setAttribute("aria-hidden", isEnabled ? "false" : "true");
     monitoringHudMinimal.dataset.renderState = isEnabled ? "minimal-overlay-ready" : "hidden";
     monitoringHudMinimal.dataset.productSurfaceState = isEnabled ? "visible-minimal-anchored-hud" : "hidden";
+  }
+  if (monitoringHudOverlayDisplay) {
+    monitoringHudOverlayDisplay.setAttribute("aria-hidden", isEnabled ? "false" : "true");
+    monitoringHudOverlayDisplay.dataset.renderState = isEnabled ? "edgeless-overlay-display-ready" : "hidden";
+    monitoringHudOverlayDisplay.dataset.productSurfaceState = isEnabled ? "visible-edgeless-overlay-display" : "hidden";
   }
   monitoringHudRenderControls();
 };

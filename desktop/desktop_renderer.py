@@ -6877,6 +6877,11 @@ class DesktopRuntimeWindow(QWidget):
                 "dashboard_role": dataset.get("productSurfaceRole") == "dashboard-configuration-surface",
                 "dashboard_monitor_management": dataset.get("monitorManagement") == "create-edit-enable-polling",
                 "dashboard_overlay_mode_controls": dataset.get("overlayModeControls") == "enable-disable-anchor-unanchor",
+                "edgeless_overlay_present": split.get("overlayDisplayPresent") is True,
+                "edgeless_overlay_role": split.get("overlayDisplaySurfaceRole") == "edgeless-overlay-display",
+                "edgeless_overlay_canvas": split.get("overlayCanvas") == "edge-to-edge-snipping-tool-style",
+                "edgeless_overlay_edge_to_edge": split.get("overlayDisplayEdgeToEdge") is True,
+                "edgeless_overlay_monitor_layout": split.get("overlayMonitorLayout") == "movable-resizable-monitor-cards",
                 "surface_split": split.get("dashboardConfigures") == "monitoring-hud-minimal"
                     and split.get("minimalConfiguredBy") == "monitoring-hud",
                 "visible_state": bool(state.get("visible")) and dataset.get("visibilityState") == "visible",
@@ -6903,8 +6908,13 @@ class DesktopRuntimeWindow(QWidget):
             checks = {
                 "dashboard_present": split.get("dashboardPresent") is True,
                 "minimal_present": split.get("minimalHudPresent") is True,
+                "overlay_display_present": split.get("overlayDisplayPresent") is True,
                 "dashboard_role": split.get("dashboardSurfaceRole") == "dashboard-configuration-surface",
                 "minimal_role": split.get("minimalHudSurfaceRole") == "minimal-anchored-hud-overlay",
+                "overlay_display_role": split.get("overlayDisplaySurfaceRole") == "edgeless-overlay-display",
+                "overlay_canvas": split.get("overlayCanvas") == "edge-to-edge-snipping-tool-style",
+                "overlay_edge_to_edge": split.get("overlayDisplayEdgeToEdge") is True,
+                "overlay_monitor_layout": split.get("overlayMonitorLayout") == "movable-resizable-monitor-cards",
                 "dashboard_configures_minimal": split.get("dashboardConfigures") == "monitoring-hud-minimal",
                 "minimal_configured_by_dashboard": split.get("minimalConfiguredBy") == "monitoring-hud",
                 "split_contract": split.get("splitContract") == "dashboard-configures-minimal-overlay",
@@ -6912,6 +6922,7 @@ class DesktopRuntimeWindow(QWidget):
                 "minimal_geometry": isinstance(minimal_rect, dict)
                     and float(minimal_rect.get("width") or 0) >= 220
                     and float(minimal_rect.get("height") or 0) >= 90,
+                "overlay_geometry": split.get("overlayDisplayVisible") is True,
                 "native_overlay_owner": split.get("nativeOverlayOwner") == "MinimalMonitoringHudOverlayWindow",
                 "native_window_split_ready": split.get("nativeWindowSplitProof") == "ready-ws22",
             }
@@ -7694,6 +7705,7 @@ class DesktopRuntimeWindow(QWidget):
                 document.body.classList.add("desktop-mode");
                 const monitoringHud = document.getElementById("monitoring-hud");
                 const minimalHud = document.getElementById("monitoring-hud-minimal");
+                const overlayDisplay = document.getElementById("monitoring-hud-overlay-display");
                 if (monitoringHud) {{
                     monitoringHud.setAttribute("aria-hidden", "false");
                     monitoringHud.dataset.renderState = "product-visibility-baseline";
@@ -7705,6 +7717,12 @@ class DesktopRuntimeWindow(QWidget):
                     minimalHud.dataset.renderState = "minimal-overlay-ready";
                     minimalHud.dataset.productSurfaceState = "visible-minimal-anchored-hud";
                     minimalHud.dataset.productSurfaceRole = "minimal-anchored-hud-overlay";
+                }}
+                if (overlayDisplay) {{
+                    overlayDisplay.setAttribute("aria-hidden", "false");
+                    overlayDisplay.dataset.renderState = "edgeless-overlay-display-ready";
+                    overlayDisplay.dataset.productSurfaceState = "visible-edgeless-overlay-display";
+                    overlayDisplay.dataset.productSurfaceRole = "edgeless-overlay-display";
                 }}
             }}
             """
@@ -7769,6 +7787,16 @@ class DesktopRuntimeWindow(QWidget):
             slice="SLC-027",
             seam="WS21",
             scrollbar_style="nexus_thin_glow",
+        )
+        self._emit_runtime_signal(
+            "MONITORING_HUD_EDGELESS_OVERLAY_CANVAS_READY",
+            package="PKG-006",
+            slice="SLC-016",
+            seam="WS25",
+            surface="edgeless_overlay_display",
+            canvas="edge_to_edge_snipping_tool_style",
+            monitor_layout="movable_resizable_monitor_cards",
+            watermark="edge_safe_nexus_orin",
         )
 
     def _monitoring_hud_telemetry_snapshot(self) -> dict[str, object]:
