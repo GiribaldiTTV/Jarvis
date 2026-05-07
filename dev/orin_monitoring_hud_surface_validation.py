@@ -74,6 +74,35 @@ def validate() -> list[str]:
             failures,
         )
 
+    for needle in (
+        'data-core-surface="transparent-non-blocking"',
+        'data-core-surface-mode="transparent-non-blocking"',
+        'data-core-non-interference="visual-background-transparent"',
+    ):
+        _require_contains(core_html, needle, "ORIN Core HTML non-interference surface", failures)
+
+    for needle in (
+        "background: transparent;",
+        "pointer-events: none;",
+        "#scene::before",
+        "visual-background-transparent",
+    ):
+        if needle == "visual-background-transparent":
+            _require_contains(core_html, needle, "ORIN Core HTML non-interference marker", failures)
+        else:
+            _require_contains(core_css, needle, "ORIN Core CSS transparent surface", failures)
+
+    for forbidden in (
+        "background: #000;",
+        "radial-gradient(circle at center, #03070d",
+        "rgba(0,0,0,0.58) 100%",
+    ):
+        _require(
+            forbidden not in core_css,
+            f"ORIN Core CSS must not paint a full opaque foreground slab: found {forbidden!r}",
+            failures,
+        )
+
     hud_section = _html_section(html)
     _require(bool(hud_section), "orin_core.html is missing the monitoring-hud section", failures)
     for needle in (
@@ -251,6 +280,14 @@ def validate() -> list[str]:
         "CORE_VISUALIZATION_WINDOW_READY|surface=separate_core",
         "CORE_VISUALIZATION_WINDOW_GEOMETRY_READY",
         "CORE_VISUALIZATION_WINDOW_VISIBLE|surface=separate_core",
+        "CORE_VISUALIZATION_WINDOW_TRANSPARENCY_READY|surface=separate_core",
+        "CORE_VISUALIZATION_WINDOW_NON_INTERFERENCE_READY|surface=separate_core",
+        "Qt.WA_TranslucentBackground",
+        "Qt.WA_NoSystemBackground",
+        "setAutoFillBackground(False)",
+        'document.body.dataset.coreSurface = "transparent-non-blocking"',
+        'scene.dataset.coreSurfaceMode = "transparent-non-blocking"',
+        'scene.dataset.coreNonInterference = "visual-background-transparent"',
         'surface_role: str = "hud"',
         "def _apply_desktop_surface_mode(self):",
         "hud-window-mode",
@@ -415,6 +452,8 @@ def validate() -> list[str]:
         "CORE_VISUALIZATION_WINDOW_READY|surface=separate_core",
         "CORE_VISUALIZATION_WINDOW_GEOMETRY_READY",
         "CORE_VISUALIZATION_WINDOW_VISIBLE|surface=separate_core",
+        "CORE_VISUALIZATION_WINDOW_TRANSPARENCY_READY|surface=separate_core",
+        "CORE_VISUALIZATION_WINDOW_NON_INTERFERENCE_READY|surface=separate_core",
         "MONITORING_HUD_WINDOW_STATUS_READY",
         "interaction self-QA manifest PASS",
         "MONITORING_HUD_BASELINE_READY",

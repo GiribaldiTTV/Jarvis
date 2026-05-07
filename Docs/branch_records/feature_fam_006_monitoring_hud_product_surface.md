@@ -24,7 +24,7 @@ This branch may execute the admitted PKG-006 implementation slices during Workst
 
 ## Status
 
-- `Branch Readiness Stage 2-R11 - HUD Dashboard And Minimal HUD Source-Truth Repair`
+- `Workstream WS18 - Core Visualization Transparency And Desktop Non-Interference Repair`
 
 ## Canonical Branch
 
@@ -32,12 +32,12 @@ This branch may execute the admitted PKG-006 implementation slices during Workst
 
 ## Current Phase
 
-- Phase: `Branch Readiness`
+- Phase: `Workstream`
 
 ## Phase Status
 
-- Branch Readiness Stage: `Stage 2-R11 source-truth repair recorded - Stage 1-R7 findings rebaseline dashboard/minimal-HUD architecture, Core non-interference expectations, affected slices, acceptance criteria, and proof requirements; Stage 1-R8 revalidation pending`
-- Workstream Stage: `Blocked - WS8 through WS17 are preserved as prior implementation evidence, but returned LV1 FAIL evidence requires Branch Readiness rebaseline and bounded Workstream repair before implementation can resume`
+- Branch Readiness Stage: `Complete - Stage 1-R8 revalidated the Stage 2-R11 dashboard/minimal-HUD and Core non-interference source-truth repair and handed the branch to bounded Workstream repair`
+- Workstream Stage: `WS18 Green - Core visualization transparency and desktop non-interference repaired with transparent Core web background, translucent Qt/WebEngine ownership, runtime non-interference markers, full-desktop proof, and strengthened validators; remaining dashboard/minimal-HUD repairs continue in later bounded seams`
 - Hardening Stage: `Blocked - prior H1 pressure-test evidence is preserved but must rerun after bounded Workstream repair`
 - Live Validation Stage: `Red - LV1 returned User Test Summary evidence contains blocking findings; LV1 is not green and must route back before PR Readiness`
 - Active Branch: `feature/fam-006-monitoring-hud-product-surface`
@@ -52,7 +52,7 @@ This branch may execute the admitted PKG-006 implementation slices during Workst
 - Admitted Slice Count: `6`
 - Package Completion State: `In Progress - returned User Test Summary evidence blocks Live Validation green; product proof, User Test Summary acceptance, PR Readiness, and final package completion remain unclaimed`
 - Single-Slice Package User Approval: `Not required - PKG-006 has six concrete admitted slices; no waiver granted`
-- Runtime Implementation State: `Branch Readiness Stage 2-R11 source-truth repair only - no runtime implementation repair has started. Workstream implementation and H1 pressure-test remain preserved as prior evidence, but returned User Test Summary and screenshot proof identify blocking product issues: the current Monitoring HUD surface behaves like a dashboard/settings window instead of the separate minimal anchored HUD layer USER expects, dashboard drag/polish/content need repair, and ORIN Core visual behavior is an opaque foreground regression. Future provider-platform parity, external/plugin telemetry, audio/spoken alerts, persona switching, Stream Deck, graphs/history/persistence dashboards, local AI/capability packs, installer work, and ultra-low polling remain deferred.`
+- Runtime Implementation State: `WS18 runtime repair complete for Core visualization transparency/non-interference only. ORIN Core render files now use transparent non-blocking page/background markers, the Core Qt/WebEngine surface uses translucent/no-system-background ownership, live runtime markers prove transparent/non-interfering posture, and full-desktop proof shows window/desktop content visible around the Core visual. Remaining returned-UTS product blockers still require later bounded Workstream seams for dashboard/minimal-HUD renderer split, dashboard configuration content, dashboard movement smoothness, minimal HUD anchoring/click-through proof, dashboard scrollbar/product polish, and validation/live proof expansion. Future provider-platform parity, external/plugin telemetry, audio/spoken alerts, persona switching, Stream Deck, graphs/history/persistence dashboards, local AI/capability packs, installer work, and ultra-low polling remain deferred.`
 - PR Creation State: `Not approved in Branch Readiness`
 - Watcher Provisioning State: `Not approved in Branch Readiness`
 - Release Work State: `Not approved; v1.6.13-prebeta release execution is already complete and no new release work is in scope`
@@ -65,9 +65,14 @@ This branch may execute the admitted PKG-006 implementation slices during Workst
 
 ## Blockers
 
+- `Backlog Completion Unproven`
+
+Package completion is not currently claimed. The Workstream and Hardening evidence remain preserved as prior implementation and pressure-test proof, but returned User Test Summary evidence exposes product-level mismatch/regression. WS18 clears the Core opaque foreground regression only. Final phase advancement, PR Readiness, and package completion remain blocked by the completion guardrail until later bounded Workstream repair proves the dashboard/minimal-HUD split and accepted product behavior, then Hardening, active-client Live Validation, and returned User Test Summary acceptance all pass.
+
+## Returned LV1 Repair Findings
+
 - `User Test Summary Returned With Blocking Findings`
 - `User Test Summary Results FAIL`
-- `Core Visualization Opaque Foreground Regression`
 - `Monitoring HUD Product Architecture Mismatch`
 - `HUD Dashboard / Minimal HUD Separation Missing`
 - `HUD Dashboard Drag Smoothness Regression`
@@ -76,7 +81,7 @@ This branch may execute the admitted PKG-006 implementation slices during Workst
 - `Live Validation Proof Gap`
 - `UTS Evidence Root Mismatch`
 
-Package completion is not currently claimed. The Workstream and Hardening evidence remain preserved as prior implementation and pressure-test proof, but returned User Test Summary results are FAIL and expose product-level mismatch/regression. Final phase advancement, PR Readiness, and package completion are blocked until Branch Readiness Stage 1-R8 revalidates the Stage 2-R11 dashboard-versus-minimal-HUD source-truth repair and a later bounded Workstream repair proves the accepted product behavior.
+These findings are the bounded Workstream repair queue, not a Workstream stop latch. Workstream continues one seam at a time until the current-branch repair scope is complete, then Hardening and Live Validation must rerun before PR Readiness.
 
 ## Cleared Governance Notes
 
@@ -100,6 +105,7 @@ Package completion is not currently claimed. The Workstream and Hardening eviden
 - Audio Warning Cross-Family Approval Missing is cleared as an active planning blocker by Stage 2-R6 because audio/spoken alerts are explicitly deferred outside current PKG-006 and require later FAM-004/cross-family approval.
 - Persona Switch Scope Boundary Pending is deferred by Stage 2-R10 to future persona/FAM-004/cross-family implementation; ORIN remains the shipped/default persona, and ARIA may appear only as locked/coming-soon planning copy unless later admitted.
 - Branch Readiness Planning Incomplete was cleared by Stage 2-R7, reopened by Stage 2-R8, remained active after Stage 2-R9, and is cleared by Stage 2-R10 after Stage 1-R6 planning revalidation PASS.
+- Core Visualization Opaque Foreground Regression is cleared by WS18 for the Core visual only because transparent Core page/CSS ownership, translucent Qt/WebEngine background ownership, non-interference runtime markers, and full-desktop screenshot proof are recorded. Dashboard/minimal-HUD architecture, dashboard polish/content, minimal-HUD click-through, and Live Validation blockers remain active.
 - Backlog Addition User Approval Missing remains active for any new FAM/package, backlog split, family promotion beyond this branch authority, runtime branch outside this carrier, or single-slice waiver.
 - Bounded Workstream Continuation Drift is repaired by the WS8 source-truth correction: WS7 completion no longer points to Hardening while PKG-006 remains In Progress and no USER single-seam/backlog-split waiver exists.
 
@@ -131,17 +137,17 @@ The operator-supplied Stage 2 terminal evidence was not sufficient by itself bec
 
 ## Rollback Target
 
-- `Branch Readiness`
+- `Workstream`
 
-Rollback Path: revert the Stage 2-R11 source-truth repair commit on `feature/fam-006-monitoring-hud-product-surface` before PR merge; no runtime implementation, tags, releases, artifacts, PR, watcher, or `main` mutation are created by this Branch Readiness repair pass.
+Rollback Path: revert the WS18 Core transparency/non-interference repair commit on `feature/fam-006-monitoring-hud-product-surface` before PR merge; no tags, releases, artifacts, PR, watcher, or `main` mutation are created by this Workstream repair pass.
 
 ## Next Legal Phase
 
-- `Branch Readiness`
+- `Workstream`
 
-Next Legal Seam: `Branch Readiness Stage 1-R8 - FAM-006 HUD Dashboard And Minimal HUD Source-Truth Revalidation`
+Next Legal Seam: `Workstream WS19 - Dashboard And Minimal HUD Renderer Split Repair`
 
-Next Legal Phase Gate: Branch Readiness Stage 2-R11 records the Stage 1-R7 architecture rebaseline into source truth. The next legal move is Branch Readiness Stage 1-R8 revalidation on this same FAM-006 carrier before implementation repair: source truth now classifies the existing large Monitoring HUD panel as a dashboard/configuration surface, and the actual user-facing HUD must become a separate minimal anchored layer configured by that dashboard. Live Validation must not report green and PR Readiness must not begin until Stage 1-R8 revalidates the repair plan, later bounded Workstream repair, Hardening, active-client Live Validation, and returned User Test Summary acceptance all pass. Repair must preserve provider-contract-first truth, no fake metrics, visual/non-invasive warnings, ORIN/ARIA planning boundaries, future-package deferrals, user-facing shortcut/equivalent entrypoint proof, full virtual-desktop screenshot handoff, and formal User Test Summary returned-results digestion. It must not create runtime implementation during Branch Readiness, or create a PR, watcher, release, tag, artifact, direct-main mutation, voice/audio implementation, Stream Deck/plugin telemetry implementation, local AI, installer/capability-pack work, broad hardware provider implementation, persona switching implementation, ARIA activation, or a new FAM/package without later explicit USER approval.
+Next Legal Phase Gate: WS18 proves the Core visualization no longer paints an opaque blocking foreground slab and keeps desktop/window content visible around the intended Core visual. Live Validation remains red and PR Readiness must not begin until later bounded Workstream repair proves the dashboard/minimal-HUD split, dashboard product quality, minimal HUD anchoring/click-through behavior, and expanded proof requirements; then Hardening, active-client Live Validation, and returned User Test Summary acceptance must pass. Repair must preserve provider-contract-first truth, no fake metrics, visual/non-invasive warnings, ORIN/ARIA planning boundaries, future-package deferrals, user-facing shortcut/equivalent entrypoint proof, full virtual-desktop screenshot handoff, and formal User Test Summary returned-results digestion. It must not create a PR, watcher, release, tag, artifact, direct-main mutation, voice/audio implementation, Stream Deck/plugin telemetry implementation, local AI, installer/capability-pack work, broad hardware provider implementation, persona switching implementation, ARIA activation, or a new FAM/package without later explicit USER approval.
 
 ## Branch Objective
 
@@ -194,7 +200,7 @@ Screenshot / Live / User Test Summary Proof Requirements: screenshots must clear
 
 Implementation Sequence Proposal: Stage 2-R8 reopened Branch Readiness for retired-name sterilization and refreshed USER input. Stage 2-R9 digested the completed refreshed artifact, recorded the sterilization closeout, and rebaselined the FAM-006 scope. Stage 1-R6 validated that rebaseline. Stage 2-R10 records the PASS and hands the branch back to Workstream WS7.
 
-Planning Blockers: `Branch Readiness Revalidation Pending` after Stage 2-R11 source-truth repair; LV1 product blockers remain active until bounded Workstream repair, Hardening, Live Validation, and returned UTS acceptance pass.
+Planning Blockers: None active after Stage 2-R10 scope rebaseline closeout. Stage 1-R8 later revalidated the Stage 2-R11 repair plan, and WS18 keeps planning complete while the bounded Workstream repair queue continues.
 
 USER Decisions Needed: none before WS7. Later USER decisions are needed only if Workstream recommends widening current scope, admitting a provider/platform implementation beyond the current branch, activating persona switching/ARIA implementation, adding audio/spoken warnings, allowing external/plugin telemetry implementation, or granting any explicit waiver.
 
@@ -204,7 +210,7 @@ Planning Revalidation Status: PASS
 
 Planning Revalidation Detail: `Stage 1-R6 remains the historical product-planning pass; Stage 2-R11 opens a repair revalidation latch, not a new missing-planning state`
 
-Repair Revalidation Status: Pending - Stage 1-R8 required after Stage 2-R11 dashboard/minimal-HUD source-truth repair
+Repair Revalidation Status: PASS - Stage 1-R8 revalidated the Stage 2-R11 dashboard/minimal-HUD source-truth repair and authorized bounded Workstream repair
 
 Planning Completion Waiver: None
 
@@ -387,14 +393,14 @@ Branch Completion Goal: complete a visible, readable, accepted, optional Nexus/N
 
 Known Future-Dependent Blockers: full HWInfo/HWMonitor-level sensor coverage, broad plugin/external telemetry ecosystem, audio/spoken alerts or FAM-004 integration, Stream Deck integration, graphs/history/persistence/dashboards, local AI/capability-pack monitoring, installer/capability-pack work, and ultra-low polling intervals remain deferred unless USER later widens scope and validation proves safety.
 
-Branch Closure Rule: this branch may leave Branch Readiness for Workstream only after Stage 1-R8 revalidates the Stage 2-R11 dashboard/minimal-HUD source-truth repair and records the next bounded Workstream repair seam. After Workstream resumes, the branch may leave Workstream again only after the full current-branch HUD implementation repair scope is complete or legally deferred, revised slice truth is current, internal sandbox proof is green, screenshot/entrypoint-supporting validation is green, and Workstream Completion Status is Green; marker-only, scaffold-only, or UTS-waiting proof cannot close PKG-006. After repaired Hardening H1, the branch may enter Live Validation only with package completion still unclaimed and formal User Test Summary returned-results digestion reserved for the Live Validation gate.
+Branch Closure Rule: this branch has left Branch Readiness for bounded Workstream repair after Stage 1-R8 revalidated the Stage 2-R11 dashboard/minimal-HUD source-truth repair. It may leave Workstream again only after the full current-branch HUD implementation repair scope is complete or legally deferred, revised slice truth is current, internal sandbox proof is green, screenshot/entrypoint-supporting validation is green, and Workstream Completion Status is Green; marker-only, scaffold-only, or UTS-waiting proof cannot close PKG-006. After repaired Hardening H1, the branch may enter Live Validation only with package completion still unclaimed and formal User Test Summary returned-results digestion reserved for the Live Validation gate.
 
 ## Backlog Completion Status
 
-Backlog Completion State: `Implemented Complete Except Future Dependency`
-Remaining Implementable Work: `None`
+Backlog Completion State: `In Progress`
+Remaining Implementable Work: `WS19 dashboard/minimal-HUD renderer split; WS20 dashboard configuration content and technical-box reroute; WS21 dashboard movement and product scrollbar polish; WS22 minimal HUD anchoring/click-through/non-focus proof; WS23 validation/live proof expansion and refreshed UTS handoff`
 Future-Dependent Blockers: `full HWInfo/HWMonitor-level parity, broad plugin/external telemetry ecosystem, audio/spoken alerts or FAM-004 integration, persona switching implementation and ARIA activation, Stream Deck, graphs/history/persistence/dashboards, local AI/capability-pack monitoring, installer/capability-pack work, and ultra-low polling intervals remain deferred pending later approval, admission, and proof`
-Completion Status: `Green`
+Completion Status: `In Progress`
 
 ## Planning-Loop Guardrail
 
@@ -423,12 +429,12 @@ Primary Entry Slice: `SLC-016 HUD visual and user-facing monitoring surface`
 
 | Slice ID | Package ID | FAM ID | Slice Name | Admission State | Slice Status | Completion State | Seam Trace |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| `SLC-016` | `PKG-006` | `FAM-006` | HUD visual and user-facing monitoring surface | Admitted | Green | Complete for Workstream - visible Nexus/NDAI standalone HUD shell and panel proof recorded; Hardening green; LV1 automated proof green with UTS pending | `BR-S2-S1`; `WS1`; `WS7`; `WS9`; `WS17`; `dev/orin_monitoring_hud_surface_validation.py`; `dev/orin_monitoring_hud_live_validation.ps1` |
+| `SLC-016` | `PKG-006` | `FAM-006` | HUD visual and user-facing monitoring surface | Admitted | Repair Required | Returned UTS says the visible surface is a dashboard/settings window, not the actual minimal anchored HUD; user-facing HUD identity must be repaired through dashboard/minimal-HUD split | `BR-S2-S1`; `WS1`; `WS7`; `WS9`; `WS17`; `LV1-R1`; `dev/orin_monitoring_hud_surface_validation.py`; `dev/orin_monitoring_hud_live_validation.ps1` |
 | `SLC-025` | `PKG-006` | `FAM-006` | Runtime telemetry source and adapter boundary | Admitted | Green | Complete for Workstream - provider-contract boundary plus bounded native CPU-load proof; GPU/thermal provider parity deferred | `BR-S2-S2`; `WS2`; `WS14`; `WS15`; `desktop/monitoring_hud_telemetry.py`; `dev/orin_monitoring_hud_internal_sandbox_validation.py` |
-| `SLC-026` | `PKG-006` | `FAM-006` | Desktop placement and renderer ownership | Admitted | Green | Complete for Workstream - movable/anchorable standalone HUD panel, click-through/no-focus anchored posture, snap layout, centered separate Core geometry, and renderer/tray proof recorded | `BR-S2-S3`; `WS3`; `WS10`; `WS12`; `desktop/monitoring_hud_placement.py`; `desktop/desktop_renderer.py`; `dev/orin_monitoring_hud_internal_sandbox_validation.py` |
-| `SLC-027` | `PKG-006` | `FAM-006` | Settings and user controls visibility | Admitted | Green | Complete for Workstream - HUD show/hide, tray unanchor, snap toggle, polling selection, no-default-keybind posture, and local layout state recorded | `BR-S2-S4`; `WS4`; `WS11`; `WS13`; `desktop/monitoring_hud_controls.py`; `desktop/orin_desktop_main.py`; `nexus_visual/monitoring_hud.js` |
-| `SLC-028` | `PKG-006` | `FAM-006` | Fail-safe, no-data, and degraded-status behavior | Admitted | Green | Complete for Workstream - setup/unavailable/no-data/degraded/provider states and visual/non-invasive warning posture are truthful and proof-backed | `BR-S2-S5`; `WS5`; `WS16`; `desktop/monitoring_hud_status.py`; `dev/orin_monitoring_hud_surface_validation.py` |
-| `SLC-029` | `PKG-006` | `FAM-006` | Validation and live desktop proof | Admitted | Green | Complete for Workstream - static, internal sandbox, compile, diff, retired-name, standalone HUD/Core isolation, centered Core geometry, hidden validation-console, and full virtual-desktop screenshot proof recorded; formal UTS remains Live Validation | `BR-S2-S6`; `WS6`; `WS8`; `WS17`; `dev/orin_monitoring_hud_internal_sandbox_validation.py`; `dev/orin_monitoring_hud_live_validation.ps1` |
+| `SLC-026` | `PKG-006` | `FAM-006` | Desktop placement and renderer ownership | Admitted | Repair Required | WS18 repaired Core foreground opacity/non-interference with transparent Core render/runtime proof; dashboard/minimal-HUD separation, independent HUD ownership, and minimal-HUD anchoring/click-through proof remain repair required | `BR-S2-S3`; `WS3`; `WS10`; `WS12`; `LV1-R1`; `WS18`; `desktop/monitoring_hud_placement.py`; `desktop/desktop_renderer.py`; `dev/orin_monitoring_hud_internal_sandbox_validation.py` |
+| `SLC-027` | `PKG-006` | `FAM-006` | Settings and user controls visibility | Admitted | Repair Required | Dashboard/settings surface needs useful configuration content, smooth movement, scrollbar styling, and clearer control ownership | `BR-S2-S4`; `WS4`; `WS11`; `WS13`; `LV1-R1`; `desktop/monitoring_hud_controls.py`; `desktop/orin_desktop_main.py`; `nexus_visual/monitoring_hud.js` |
+| `SLC-028` | `PKG-006` | `FAM-006` | Fail-safe, no-data, and degraded-status behavior | Admitted | Repair Required | Technical status boxes are not useful dashboard content; setup/no-data/degraded behavior must be routed into user-useful dashboard/minimal-HUD copy | `BR-S2-S5`; `WS5`; `WS16`; `LV1-R1`; `desktop/monitoring_hud_status.py`; `dev/orin_monitoring_hud_surface_validation.py` |
+| `SLC-029` | `PKG-006` | `FAM-006` | Validation and live desktop proof | Admitted | Repair Required | WS18 adds Core transparency/non-interference proof, but validators must still expand for dashboard/minimal-HUD split, OS-level click-through/non-focus proof, dashboard polish, refreshed full-desktop proof, Hardening rerun, Live Validation rerun, and UTS acceptance | `BR-S2-S6`; `WS6`; `WS8`; `WS17`; `H1`; `LV1-R1`; `WS18`; `dev/orin_monitoring_hud_internal_sandbox_validation.py`; `dev/orin_monitoring_hud_live_validation.ps1` |
 
 ## Deferred / Future Slice Ledger
 
@@ -583,16 +589,28 @@ Status: `Green - refreshed validators, internal sandbox manifest, and full-deskt
 
 ## Active Seam
 
-Active seam: `Branch Readiness Stage 2-R11 - FAM-006 HUD Dashboard And Minimal HUD Source-Truth Repair`
+Active seam: `Workstream WS18 - Core Visualization Transparency And Desktop Non-Interference Repair`
 
-Seam Status: `Source-truth repair recorded - Stage 1-R7 findings have been converted into durable branch truth; Stage 1-R8 revalidation is required before Workstream repair`
+Seam Status: `Green - Core transparency/non-interference repaired and proof-backed; later bounded repair seams remain`
 Slice Status: `Repair Required`
-Slice Detail: `SLC-016, SLC-026, SLC-027, SLC-028, and SLC-029 are reopened for repair planning. SLC-016 must split dashboard/configuration surface from the minimal anchored HUD identity, SLC-026 must repair/prove independent HUD window ownership plus Core visual non-interference, SLC-027 must reframe controls/settings as dashboard configuration, SLC-028 must route setup/no-data/degraded copy into user-useful dashboard/minimal-HUD surfaces, and SLC-029 must add proof for dashboard/minimal-HUD separation, OS-level click-through/non-focus behavior, Core non-blocking transparency, dashboard movement smoothness, product scrollbar styling, and fresh UTS evidence. SLC-025 provider-contract telemetry remains preserved unless repair changes provider interaction.`
-Completion Status: `Branch Readiness repair complete / implementation repair pending`
-Completion Detail: `LV1 remains red and Workstream remains blocked until Stage 1-R8 revalidates this Stage 2-R11 source-truth repair, then bounded Workstream repair proves the dashboard/minimal-HUD split and Core non-interference.`
+Slice Detail: `SLC-026 now has WS18 evidence for Core visual transparency/non-interference, and SLC-029 now has strengthened Core proof gates. SLC-016, SLC-026, SLC-027, SLC-028, and SLC-029 remain reopened because dashboard/minimal-HUD split, dashboard configuration content, dashboard movement smoothness, minimal-HUD anchoring/click-through proof, dashboard scrollbar polish, and refreshed validation/UTS proof are still pending. SLC-025 provider-contract telemetry remains preserved unless repair changes provider interaction.`
+Completion Status: `WS18 complete / Workstream repair continues`
+Completion Detail: `LV1 remains red. WS18 repaired only the Core opaque foreground regression; package completion, Hardening rerun, Live Validation rerun, and returned UTS acceptance remain unclaimed.`
 Waiver Status: `None`
-Continue Decision: `Stop`
-Stop Basis: `Branch Readiness Revalidation Pending`
+Continue Decision: `Continue`
+Stop Basis: `None for WS18; returned LV1 blockers still govern later repair and phase advancement`
+
+## Seam Continuation Decision
+
+Seam Status: Green
+Slice Status: In Progress
+Completion Status: In Progress
+Waiver Status: None
+Continue Decision: Continue
+Stop Basis: None
+Next Active Seam: Workstream WS19 - Dashboard And Minimal HUD Renderer Split Repair
+Stop Condition: None for WS18
+Continuation Action: Continue the multi-slice HUD implementation continuation with bounded Workstream WS19 for dashboard/minimal-HUD renderer split while preserving LV1 red, PR blocked, PKG-006 In Progress, package completion unclaimed, no single-seam waiver, and no phase-exit work.
 
 ## Live Validation Continuation Decision
 
@@ -604,9 +622,9 @@ Completion Detail: `Package completion remains unclaimed; Live Validation final 
 Waiver Status: `None`
 Continue Decision: `Stop`
 Stop Basis: `User Test Summary Returned With Blocking Findings`
-Next Active Seam: `Branch Readiness Stage 2-R11 - FAM-006 HUD Dashboard And Minimal HUD Source-Truth Repair`
-Stop Condition: `Live Validation LV1-R1 FAIL - returned USER evidence requires Branch Readiness re-entry before Workstream repair resumes`
-Continuation Action: `Stage 2-R11 records the Stage 1-R7 rebaseline on this same branch. Next run Branch Readiness Stage 1-R8 revalidation before any runtime implementation repair. Do not create a PR, watcher, release, tag, artifact, direct-main mutation, voice/audio widening, Stream Deck work, local AI work, installer work, broad provider platform work, persona switching, or new FAM/package work without later approval.`
+Next Active Seam: `Workstream WS19 - Dashboard And Minimal HUD Renderer Split Repair`
+Stop Condition: `Live Validation LV1-R1 FAIL - returned USER evidence keeps Live Validation and PR Readiness blocked until bounded Workstream repair, Hardening rerun, Live Validation rerun, and returned UTS acceptance pass`
+Continuation Action: `Stage 1-R8 revalidated the Stage 2-R11 rebaseline and WS18 repaired Core transparency/non-interference. Continue with bounded Workstream WS19 for dashboard/minimal-HUD renderer split. Do not create a PR, watcher, release, tag, artifact, direct-main mutation, voice/audio widening, Stream Deck work, local AI work, installer work, broad provider platform work, persona switching, or new FAM/package work without later approval.`
 
 ## WS8-WS17 Implementation Record
 
@@ -818,6 +836,25 @@ Validation Evidence Expectations: return PASS/FAIL plus any notes, screenshots, 
 - Boundary Preservation: `Provider-contract-first truth, no fake telemetry values, Nexus/NDAI/Monitoring HUD naming, ORIN shipped/default persona and ARIA future/locked planning boundary, visual/non-invasive warning posture, future-package deferrals, current branch as the FAM-006 carrier, FAM -> Package -> Slice -> Seam, Element Coverage non-identity, single-slice package blocker, package completion blocker, PR evidence-only handling, legacy FB historical-only handling, Branch Readiness Stage 1 / Stage 2, PR Readiness Stage 1 / Stage 2, real-carrier/current-branch repair rule, and bounded seam default remain preserved.`
 - Next Legal Seam: `Branch Readiness Stage 1-R8 - FAM-006 HUD Dashboard And Minimal HUD Source-Truth Revalidation`
 
+## Workstream WS18 Core Visualization Transparency And Desktop Non-Interference Repair
+
+- Repair Date: `2026-05-07`
+- Seam Result: `Green - bounded WS18 repaired Core visualization transparency/non-interference only`
+- LV1 State: `Still red - returned User Test Summary FAIL evidence remains active for dashboard/minimal-HUD product repair`
+- PR Readiness State: `Blocked - no PR creation, watcher provisioning, release work, tag, GitHub Release, artifact, direct-main mutation, or package completion claim is authorized`
+- Package State: `PKG-006 remains In Progress; package completion remains unclaimed`
+- Runtime Repair Summary: `nexus_visual/orin_core.html now marks the Core surface as transparent/non-blocking; nexus_visual/orin_core.css no longer paints html/body or #scene as a full black foreground slab and confines dark bloom/vignette to the intended Core visual; desktop/desktop_renderer.py applies translucent/no-system-background ownership to the Core QWidget and QWebEngineView, keeps mouse transparency and no-focus posture, and emits Core transparency/non-interference runtime markers.`
+- Core Transparency Proof: `PASS - live runtime observed RENDERER_MAIN|CORE_VISUALIZATION_WINDOW_TRANSPARENCY_READY|surface=separate_core and RENDERER_MAIN|CORE_VISUALIZATION_WINDOW_NON_INTERFERENCE_READY|surface=separate_core before screenshot capture.`
+- Full-Desktop Proof Root: `dev/logs/fam_006_monitoring_hud_live_validation/20260507_133218`
+- Full-Desktop Manifest: `dev/logs/fam_006_monitoring_hud_live_validation/20260507_133218/manifest.json`
+- Full-Desktop Screenshot: `dev/logs/fam_006_monitoring_hud_live_validation/20260507_133218/monitoring_hud_desktop.png`
+- USER-Inspectable Screenshot: `C:\Users\anden\OneDrive\Pictures\Screenshots\Nexus Desktop AI\fam_006_monitoring_hud_live_validation\20260507_133218\monitoring_hud_full_virtual_desktop.png`
+- Screenshot Finding: `PASS for WS18 - full virtual-desktop proof shows desktop/window content visible around the Core visual instead of a full opaque foreground Core slab.`
+- Validator Updates: `dev/orin_monitoring_hud_surface_validation.py and dev/orin_monitoring_hud_internal_sandbox_validation.py now require transparent Core markup/CSS, block the former opaque slab CSS patterns, and require the renderer transparency/non-interference markers. dev/orin_monitoring_hud_live_validation.ps1 now waits for both Core transparency and Core non-interference runtime markers before screenshot proof.`
+- Affected Slice Update: `SLC-026 receives WS18 Core non-interference repair evidence, but remains Repair Required because dashboard/minimal-HUD renderer separation, minimal-HUD anchoring/click-through proof, and dashboard polish/control ownership are not complete. SLC-029 receives WS18 proof-helper expansion evidence, but remains Repair Required until later dashboard/minimal-HUD proof, Hardening rerun, Live Validation rerun, and returned UTS acceptance.`
+- Boundary Preservation: `Provider-contract-first truth, no fake telemetry values, Nexus/NDAI/Monitoring HUD naming, ORIN shipped/default persona and ARIA future/locked planning boundary, visual/non-invasive warning posture, future-package deferrals, current branch as the FAM-006 carrier, FAM -> Package -> Slice -> Seam, Element Coverage non-identity, single-slice package blocker, package completion blocker, PR evidence-only handling, legacy FB historical-only handling, Branch Readiness Stage 1 / Stage 2, PR Readiness Stage 1 / Stage 2, real-carrier/current-branch repair rule, and bounded seam default remain preserved.`
+- Next Legal Seam: `Workstream WS19 - Dashboard And Minimal HUD Renderer Split Repair`
+
 ## Codex Live Client Self-QA
 
 - Codex Live Client Self-QA: `FAIL`
@@ -843,7 +880,7 @@ Codex Live Client Self-QA: FAIL.
 User-Facing Shortcut Live Validation Gate: documented equivalent desktop runtime path passed before User Test Summary handoff.
 User-Facing Shortcut Path: `powershell -NoProfile -ExecutionPolicy Bypass -File dev\orin_monitoring_hud_live_validation.ps1 -ActiveUserFacingClient -MarkerTimeoutSeconds 180 -NoProgressTimeoutSeconds 120 -FinalClientHoldSeconds 5`
 User-Facing Shortcut Validation: PASS.
-User Test Summary Results: FAIL.
+Returned User Test Summary Historical Result: FAIL.
 Final phase advancement is BLOCKED until Branch Readiness rebaseline, bounded Workstream repair, Hardening, active-client Live Validation, and returned User Test Summary acceptance or explicit waiver are recorded.
 
 Current Handoff Path: `C:\Users\anden\OneDrive\Desktop\User Test Summary.txt`

@@ -5044,6 +5044,9 @@ class CoreVisualizationWindow(QWidget):
         self.setWindowFlags(Qt.Tool | Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint)
         self.setAttribute(Qt.WA_TransparentForMouseEvents, True)
         self.setAttribute(Qt.WA_ShowWithoutActivating, True)
+        self.setAttribute(Qt.WA_TranslucentBackground, True)
+        self.setAttribute(Qt.WA_NoSystemBackground, True)
+        self.setAutoFillBackground(False)
         self.setFocusPolicy(Qt.NoFocus)
         self.setStyleSheet("background-color: transparent;")
         self.setGeometry(self.compute_core_geometry())
@@ -5054,6 +5057,9 @@ class CoreVisualizationWindow(QWidget):
 
         self.webview = QWebEngineView(self)
         self.webview.setStyleSheet("background-color: transparent; border: none;")
+        self.webview.setAttribute(Qt.WA_TranslucentBackground, True)
+        self.webview.setAttribute(Qt.WA_NoSystemBackground, True)
+        self.webview.setAutoFillBackground(False)
         self.webview.setContextMenuPolicy(Qt.NoContextMenu)
         self.webview.setFocusPolicy(Qt.NoFocus)
         self.webview.page().setBackgroundColor(QColor(0, 0, 0, 0))
@@ -5084,6 +5090,12 @@ class CoreVisualizationWindow(QWidget):
             """
             document.body.classList.add("desktop-mode", "core-window-mode");
             document.body.classList.remove("hud-window-mode");
+            document.body.dataset.coreSurface = "transparent-non-blocking";
+            const scene = document.getElementById("scene");
+            if (scene) {
+                scene.dataset.coreSurfaceMode = "transparent-non-blocking";
+                scene.dataset.coreNonInterference = "visual-background-transparent";
+            }
             const hud = document.getElementById("monitoring-hud");
             if (hud) {
                 hud.setAttribute("aria-hidden", "true");
@@ -5103,6 +5115,15 @@ class CoreVisualizationWindow(QWidget):
         self._apply_pending_visual_state()
         self._log_event("RENDERER_MAIN|CORE_VISUALIZATION_READY")
         self._log_event("RENDERER_MAIN|CORE_VISUALIZATION_WINDOW_READY|surface=separate_core")
+        self._log_event(
+            "RENDERER_MAIN|CORE_VISUALIZATION_WINDOW_TRANSPARENCY_READY|surface=separate_core"
+            "|window_background=translucent|page_background=transparent|css_background=transparent"
+        )
+        self._log_event(
+            "RENDERER_MAIN|CORE_VISUALIZATION_WINDOW_NON_INTERFERENCE_READY|surface=separate_core"
+            "|mouse_transparent=true|show_without_activating=true|focus_policy=no_focus"
+            "|visual_background=transparent"
+        )
         geometry = self.geometry()
         screen_geometry = self.screen_ref.availableGeometry()
         center_dx = abs(geometry.center().x() - screen_geometry.center().x())

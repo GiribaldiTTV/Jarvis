@@ -102,6 +102,31 @@ def _validate_static_surface(failures: list[str]) -> None:
             )
 
     for needle in (
+        'data-core-surface="transparent-non-blocking"',
+        'data-core-surface-mode="transparent-non-blocking"',
+        'data-core-non-interference="visual-background-transparent"',
+    ):
+        _require_contains(core_html, needle, "ORIN Core transparent non-interference markup", failures)
+
+    for needle in (
+        "background: transparent;",
+        "pointer-events: none;",
+        "#scene::before",
+    ):
+        _require_contains(core_css, needle, "ORIN Core transparent non-interference CSS", failures)
+
+    for forbidden in (
+        "background: #000;",
+        "radial-gradient(circle at center, #03070d",
+        "rgba(0,0,0,0.58) 100%",
+    ):
+        _require(
+            forbidden not in core_css,
+            f"ORIN Core CSS must not paint a full opaque foreground slab: found {forbidden!r}",
+            failures,
+        )
+
+    for needle in (
         'data-hud-module="monitoring-hud-shell-module"',
         'data-anchor-state="anchored"',
         'data-visibility-state="visible"',
@@ -152,6 +177,11 @@ def _validate_static_surface(failures: list[str]) -> None:
         "CoreVisualizationWindow",
         "CORE_VISUALIZATION_WINDOW_READY|surface=separate_core",
         "CORE_VISUALIZATION_WINDOW_GEOMETRY_READY",
+        "CORE_VISUALIZATION_WINDOW_TRANSPARENCY_READY|surface=separate_core",
+        "CORE_VISUALIZATION_WINDOW_NON_INTERFERENCE_READY|surface=separate_core",
+        "Qt.WA_TranslucentBackground",
+        "Qt.WA_NoSystemBackground",
+        "setAutoFillBackground(False)",
         "MONITORING_HUD_WINDOW_STATUS_READY",
         "MONITORING_HUD_NATIVE_WINDOW_MOVE_READY",
         "request_monitoring_hud_unanchor_from_tray",
@@ -247,7 +277,7 @@ def _write_manifest(status: str, failures: list[str], contracts: dict[str, objec
         "status": status,
         "package": "PKG-006",
         "phase": "Workstream",
-        "seam": "WS8-WS17 internal sandbox consolidation",
+        "seam": "WS18 core transparency/non-interference sandbox consolidation",
         "contracts": contracts,
         "failures": failures,
         "generatedAt": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
