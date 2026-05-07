@@ -373,6 +373,13 @@ body.desktop-mode #monitoring-hud > * {
   user-select: none;
 }
 
+.monitoring-hud-card__actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+}
+
 .monitoring-hud-card__label {
   font-size: 13px;
   font-weight: 720;
@@ -399,6 +406,34 @@ body.desktop-mode #monitoring-hud > * {
   letter-spacing: 0.12em;
   text-transform: uppercase;
   white-space: nowrap;
+}
+
+.monitoring-hud-card__quick-actions {
+  display: none;
+  align-items: center;
+  gap: 7px;
+}
+
+body.desktop-mode #monitoring-hud[data-anchor-state="unanchored"] .monitoring-hud-card__quick-actions {
+  display: flex;
+}
+
+.monitoring-hud-card__quick-actions button {
+  min-height: 28px;
+  border: 1px solid rgba(117, 228, 255, 0.20);
+  border-radius: 999px;
+  background: rgba(8, 30, 48, 0.82);
+  color: rgba(227, 249, 255, 0.92);
+  font-family: "Bahnschrift", "Rajdhani", "Segoe UI", sans-serif;
+  font-size: 10px;
+  font-weight: 760;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.monitoring-hud-card[data-monitor-enabled="false"] {
+  opacity: 0.46;
+  filter: saturate(0.72);
 }
 
 .monitoring-hud-card__sensors {
@@ -465,7 +500,8 @@ body.desktop-mode #monitoring-hud > * {
 .monitoring-hud__telemetry,
 .monitoring-hud__placement,
 .monitoring-hud__controls,
-.monitoring-hud__status-model {
+.monitoring-hud__status-model,
+.monitoring-hud__monitor-editor {
   margin-top: 12px;
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(180px, auto);
@@ -482,7 +518,8 @@ body.desktop-mode #monitoring-hud > * {
 .monitoring-hud__telemetry strong,
 .monitoring-hud__placement strong,
 .monitoring-hud__controls strong,
-.monitoring-hud__status-model strong {
+.monitoring-hud__status-model strong,
+.monitoring-hud__monitor-editor strong {
   min-width: 0;
   color: rgba(148, 242, 214, 0.82);
   font-size: 12px;
@@ -497,7 +534,8 @@ body.desktop-mode #monitoring-hud > * {
 .monitoring-hud__telemetry .monitoring-hud__config-heading,
 .monitoring-hud__placement .monitoring-hud__config-heading,
 .monitoring-hud__controls .monitoring-hud__config-heading,
-.monitoring-hud__status-model .monitoring-hud__config-heading {
+.monitoring-hud__status-model .monitoring-hud__config-heading,
+.monitoring-hud__monitor-editor .monitoring-hud__config-heading {
   padding-bottom: 6px;
   color: rgba(222, 251, 255, 0.9);
   font-size: 12px;
@@ -509,9 +547,63 @@ body.desktop-mode #monitoring-hud > * {
 .monitoring-hud__telemetry span.monitoring-hud__config-heading,
 .monitoring-hud__placement span.monitoring-hud__config-heading,
 .monitoring-hud__controls span.monitoring-hud__config-heading,
-.monitoring-hud__status-model span.monitoring-hud__config-heading {
+.monitoring-hud__status-model span.monitoring-hud__config-heading,
+.monitoring-hud__monitor-editor span.monitoring-hud__config-heading {
   color: rgba(113, 232, 255, 0.78);
   font-weight: 760;
+}
+
+.monitoring-hud__inline-control {
+  justify-self: end;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: rgba(223, 249, 255, 0.9);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.monitoring-hud__inline-control input[type="checkbox"] {
+  flex: 0 0 auto;
+  width: 30px;
+  height: 30px;
+  margin: 0;
+  appearance: none;
+  border: 1px solid rgba(117, 228, 255, 0.34);
+  border-radius: 11px;
+  background:
+    radial-gradient(circle at 50% 42%, rgba(127, 238, 255, 0.22), transparent 54%),
+    rgba(6, 28, 48, 0.82);
+  box-shadow:
+    0 0 0 1px rgba(230, 251, 255, 0.05) inset,
+    0 0 14px rgba(74, 215, 238, 0.12);
+  cursor: pointer;
+}
+
+.monitoring-hud__inline-control input[type="checkbox"]:checked {
+  border-color: rgba(118, 255, 212, 0.56);
+  background:
+    radial-gradient(circle at 50% 45%, rgba(119, 255, 213, 0.92) 0 26%, transparent 29%),
+    linear-gradient(145deg, rgba(22, 96, 83, 0.88), rgba(4, 31, 44, 0.84));
+  box-shadow:
+    0 0 0 1px rgba(230, 251, 255, 0.08) inset,
+    0 0 18px rgba(90, 255, 214, 0.22);
+}
+
+.monitoring-hud__monitor-editor select {
+  justify-self: end;
+  min-height: 34px;
+  border: 1px solid rgba(117, 228, 255, 0.22);
+  border-radius: 999px;
+  background: rgba(6, 28, 48, 0.76);
+  color: rgba(229, 249, 255, 0.94);
+  font-family: "Bahnschrift", "Rajdhani", "Segoe UI", sans-serif;
+  font-size: 12px;
+  font-weight: 720;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
 }
 
 .monitoring-hud-minimal__frame {

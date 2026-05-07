@@ -148,12 +148,22 @@ def _validate_static_surface(failures: list[str]) -> None:
         'data-drag-smoothing="raf-local-persist-on-release"',
         'data-scrollbar-style="nexus-thin-glow"',
         'data-sandbox-state-matrix="setup,no-data,degraded,ready,warning"',
+        'data-dashboard-control-panel="hud-display-monitor-management"',
+        'data-monitor-management="create-edit-enable-polling"',
+        'data-overlay-mode-controls="enable-disable-anchor-unanchor"',
         'id="monitoring-hud-toggle"',
         'id="monitoring-hud-anchor-toggle"',
+        'id="monitoring-hud-create-monitor"',
         'id="monitoring-hud-snap-toggle"',
         'id="monitoring-hud-polling-rate"',
         'data-category-card="cpu"',
         'data-category-card="gpu"',
+        'data-monitor-card="cpu"',
+        'data-monitor-card="gpu"',
+        'data-monitor-edit="cpu"',
+        'data-monitor-toggle="gpu"',
+        "CPU Monitor",
+        "GPU Monitor",
         'data-sensor-row="cpu-load"',
         'data-sensor-row="cpu-thermal"',
         'data-sensor-row="gpu-load"',
@@ -173,6 +183,11 @@ def _validate_static_surface(failures: list[str]) -> None:
         "Readiness states",
         "Next actions",
         "Full desktop and UTS later",
+        'data-dashboard-content="monitor-management"',
+        "Monitor editor",
+        "Dashboard-owned control panel",
+        "Enabled in overlay",
+        "Monitors group sensors; they do not fake hardware values.",
     ):
         _require_contains(html, needle, "HUD HTML product surface", failures)
 
@@ -183,6 +198,10 @@ def _validate_static_surface(failures: list[str]) -> None:
         ".monitoring-hud__surface-role",
         ".monitoring-hud__config-heading",
         ".monitoring-hud__card-board",
+        ".monitoring-hud-card__quick-actions",
+        ".monitoring-hud__monitor-editor",
+        ".monitoring-hud__inline-control",
+        '.monitoring-hud__inline-control input[type="checkbox"]',
         ".monitoring-hud-minimal__frame",
         ".monitoring-hud-minimal-card",
         ".monitoring-hud-card__drag-handle",
@@ -214,6 +233,8 @@ def _validate_static_surface(failures: list[str]) -> None:
         "monitoringHudWirePanelDrag",
         "monitoringHudWireCardInteractions",
         "monitoringHudWireControls",
+        "monitoringHudRenderMonitorManagement",
+        "monitoringHudCreateCardNode",
         "monitoringHudRenderSensorCards",
         "monitoringHudStorageKey",
         "monitoringHudPollingRate.addEventListener",
@@ -248,6 +269,7 @@ def _validate_static_surface(failures: list[str]) -> None:
         "request_monitoring_hud_toggle_from_tray",
         "MONITORING_HUD_INTERACTION_MODE_READY",
         "MONITORING_HUD_CONTROL_STATE_READY",
+        "MONITORING_HUD_MONITOR_MANAGEMENT_READY",
         "MONITORING_HUD_TRAY_UNANCHOR_READY",
         "MONITORING_HUD_TRAY_TOGGLE_READY",
         "native_cpu_load_bounded",
@@ -318,6 +340,16 @@ def _validate_contracts(failures: list[str]) -> dict[str, object]:
     _require(placement.get("cardLayoutModel") == "cards resize and snap from dashboard", "placement contract must describe card layout", failures)
     _require(controls.get("anchorState") == "unanchored-edit-mode", "controls contract must support unanchored edit mode", failures)
     _require(controls.get("pollingRateMs") == "1000", "controls contract must preserve 1s default polling", failures)
+    _require(
+        controls.get("monitorManagement") == "Dashboard creates, edits, enables, disables, and sets polling for monitors",
+        "controls contract must describe dashboard monitor management",
+        failures,
+    )
+    _require(
+        controls.get("overlayModeControls") == "Dashboard controls HUD display enablement plus anchor/unanchor mode",
+        "controls contract must describe overlay mode controls",
+        failures,
+    )
     _require(status.get("warningPosture") == "Visual badge, color state, and text label only", "status contract must preserve visual warning posture", failures)
 
     return {

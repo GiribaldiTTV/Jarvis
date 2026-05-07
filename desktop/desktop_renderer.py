@@ -5428,6 +5428,7 @@ class DesktopRuntimeWindow(QWidget):
         self._monitoring_hud_snap_enabled = True
         self._monitoring_hud_polling_rate_ms = 1000
         self._monitoring_hud_control_signature = None
+        self._monitoring_hud_monitor_management_signature = None
         self._monitoring_hud_control_sync_timer = QTimer(self)
         self._monitoring_hud_control_sync_timer.timeout.connect(self._sync_monitoring_hud_control_state_from_page)
         self._monitoring_hud_poll_timer = QTimer(self)
@@ -6832,10 +6833,13 @@ class DesktopRuntimeWindow(QWidget):
                 "hud": geometry.get("hud") if isinstance(geometry, dict) else None,
                 "minimalHud": geometry.get("minimalHud") if isinstance(geometry, dict) else None,
                 "anchorToggle": geometry.get("anchorToggle") if isinstance(geometry, dict) else None,
+                "createMonitor": geometry.get("createMonitor") if isinstance(geometry, dict) else None,
                 "visibilityToggle": geometry.get("visibilityToggle") if isinstance(geometry, dict) else None,
                 "panelDragHandle": geometry.get("panelDragHandle") if isinstance(geometry, dict) else None,
                 "cpuDragHandle": geometry.get("cpuDragHandle") if isinstance(geometry, dict) else None,
                 "cpuResizeHandle": geometry.get("cpuResizeHandle") if isinstance(geometry, dict) else None,
+                "monitorEnabled": geometry.get("monitorEnabled") if isinstance(geometry, dict) else None,
+                "monitorPollingRate": geometry.get("monitorPollingRate") if isinstance(geometry, dict) else None,
             }
             checks = {}
             for key, rect in controls.items():
@@ -6871,6 +6875,8 @@ class DesktopRuntimeWindow(QWidget):
                 "minimal_hud_present": minimal_dataset.get("productSurfaceRole") == "minimal-anchored-hud-overlay",
                 "minimal_nexus_identity": "nexus" in lower_minimal_text and "monitoring hud" in lower_minimal_text,
                 "dashboard_role": dataset.get("productSurfaceRole") == "dashboard-configuration-surface",
+                "dashboard_monitor_management": dataset.get("monitorManagement") == "create-edit-enable-polling",
+                "dashboard_overlay_mode_controls": dataset.get("overlayModeControls") == "enable-disable-anchor-unanchor",
                 "surface_split": split.get("dashboardConfigures") == "monitoring-hud-minimal"
                     and split.get("minimalConfiguredBy") == "monitoring-hud",
                 "visible_state": bool(state.get("visible")) and dataset.get("visibilityState") == "visible",
@@ -7044,6 +7050,24 @@ class DesktopRuntimeWindow(QWidget):
             }
             return all(checks.values()), checks
 
+        def assert_monitor_management(result):
+            dataset = result.get("dataset") or {}
+            state = result.get("state") or {}
+            cards = state.get("cards") if isinstance(state.get("cards"), dict) else {}
+            selected_id = str(state.get("selectedMonitorId") or "")
+            selected = cards.get(selected_id) if isinstance(cards.get(selected_id), dict) else {}
+            checks = {
+                "dashboard_monitor_management": dataset.get("monitorManagement") == "create-edit-enable-polling",
+                "dashboard_overlay_mode_controls": dataset.get("overlayModeControls") == "enable-disable-anchor-unanchor",
+                "monitor_count_expanded": len(cards) >= 3,
+                "created_monitor_selected": selected_id.startswith("monitor-"),
+                "created_monitor_disabled": selected.get("enabled") is False,
+                "created_monitor_polling_5000": int(selected.get("pollingRateMs") or 0) == 5000,
+                "global_polling_preserved": int(state.get("pollingRateMs") or 0) == 2000,
+                "monitor_sequence_advanced": int(state.get("monitorSequence") or 0) >= 3,
+            }
+            return all(checks.values()), checks
+
         def assert_layout(result):
             state = result.get("state") or {}
             cards = state.get("cards") or {}
@@ -7212,7 +7236,100 @@ class DesktopRuntimeWindow(QWidget):
                 }
                 """
             )
-            QTimer.singleShot(delay(800), lambda: query("restore HUD and change polling control", assert_restored, step_layout))
+            QTimer.singleShot(delay(800), lambda: query("restore HUD and change polling control", assert_restored, step_create_monitor))
+
+        def step_create_monitor():
+            clicked = self._monitoring_hud_send_mouse_click(rect_center("createMonitor"))
+            add_step(
+                "active live-client create monitor control sent",
+                clicked,
+                {"target": "monitoring-hud-create-monitor", "screenPoint": rect_center("createMonitor")},
+            )
+            if not clicked:
+                finish("FAIL", "active live-client create monitor click failed before state assertion")
+                return
+            QTimer.singleShot(delay(650), step_edit_created_monitor)
+
+        def step_edit_created_monitor():
+            def after_monitor_edit(result):
+                try:
+                    parsed = json.loads(result) if isinstance(result, str) else result
+                except json.JSONDecodeError:
+                    parsed = {"ok": False, "raw": str(result)}
+                if not isinstance(parsed, dict):
+                    parsed = {"ok": False, "raw": str(parsed)}
+                if not add_step(
+                    "dashboard monitor editor control mutation sent",
+                    bool(parsed.get("ok")),
+                    parsed,
+                ):
+                    finish("FAIL", "dashboard monitor editor control mutation failed before state assertion")
+                    return
+                QTimer.singleShot(
+                    delay(800),
+                    lambda: query("dashboard monitor management create/edit/enable/polling state", assert_monitor_management, step_layout),
+                )
+
+            self._run_javascript_with_result(
+                """
+                (function() {
+                    try {
+                        const before = window.getMonitoringHudControlState ? window.getMonitoringHudControlState() : {};
+                        const selectedBefore = before && before.selectedMonitorId;
+                        const enabled = document.getElementById("monitoring-hud-monitor-enabled");
+                        const polling = document.getElementById("monitoring-hud-monitor-polling-rate");
+                        if (enabled) {
+                            if (enabled.checked) {
+                                enabled.click();
+                            } else {
+                                const enabledEvent = document.createEvent("HTMLEvents");
+                                enabledEvent.initEvent("change", true, false);
+                                enabled.dispatchEvent(enabledEvent);
+                            }
+                        }
+                        if (polling) {
+                            polling.value = "5000";
+                            const pollingEvent = document.createEvent("HTMLEvents");
+                            pollingEvent.initEvent("change", true, false);
+                            polling.dispatchEvent(pollingEvent);
+                        }
+                        if (window.getMonitoringHudControlState && window.setMonitoringHudControlState) {
+                            const state = window.getMonitoringHudControlState();
+                            const selectedId = state && state.selectedMonitorId;
+                            if (selectedId && state.cards && state.cards[selectedId]) {
+                                state.cards[selectedId] = Object.assign({}, state.cards[selectedId], {
+                                    enabled: false,
+                                    pollingRateMs: 5000
+                                });
+                                window.setMonitoringHudControlState(state);
+                            }
+                        }
+                        const after = window.getMonitoringHudControlState ? window.getMonitoringHudControlState() : {};
+                        const selectedAfter = after && after.selectedMonitorId;
+                        const selectedCard = after && after.cards && selectedAfter ? after.cards[selectedAfter] : {};
+                        return JSON.stringify({
+                            ok: Boolean(selectedAfter && after.cards && after.cards[selectedAfter]),
+                            selectedBefore,
+                            selectedAfter,
+                            enabledControlPresent: Boolean(enabled),
+                            pollingControlPresent: Boolean(polling),
+                            enabledControlChecked: enabled ? Boolean(enabled.checked) : null,
+                            pollingControlValue: polling ? String(polling.value || "") : "",
+                            selectedEnabled: selectedCard ? selectedCard.enabled : null,
+                            selectedPollingRateMs: selectedCard ? selectedCard.pollingRateMs : null,
+                            monitorCount: after && after.cards ? Object.keys(after.cards).length : 0
+                        });
+                    } catch (err) {
+                        return JSON.stringify({
+                            ok: false,
+                            error: String(err && err.message ? err.message : err),
+                            name: String(err && err.name ? err.name : "Error")
+                        });
+                    }
+                })();
+                """,
+                after_monitor_edit,
+            )
 
         def step_layout():
             geometry = latest_result.get("geometry") if isinstance(latest_result.get("geometry"), dict) else {}
@@ -7317,6 +7434,7 @@ class DesktopRuntimeWindow(QWidget):
                 if (window.localStorage) {
                     window.localStorage.removeItem("nexusMonitoringHudLayoutV1");
                     window.localStorage.removeItem("nexusMonitoringHudLayoutV2");
+                    window.localStorage.removeItem("nexusMonitoringHudLayoutV3");
                 }
             } catch (_err) {}
             if (window.setMonitoringHudControlState) {
@@ -7326,9 +7444,11 @@ class DesktopRuntimeWindow(QWidget):
                     snapEnabled: true,
                     pollingRateMs: 1000,
                     panelPosition: null,
+                    selectedMonitorId: "cpu",
+                    monitorSequence: 2,
                     cards: {
-                        cpu: { x: 0, y: 0, w: 600, h: 280 },
-                        gpu: { x: 0, y: 300, w: 600, h: 280 }
+                        cpu: { x: 0, y: 0, w: 600, h: 280, title: "CPU Monitor", enabled: true, pollingRateMs: 1000 },
+                        gpu: { x: 0, y: 300, w: 600, h: 280, title: "GPU Monitor", enabled: true, pollingRateMs: 1000 }
                     }
                 });
             }
@@ -7374,6 +7494,34 @@ class DesktopRuntimeWindow(QWidget):
             polling_rate_ms = max(1000, int(state.get("pollingRateMs", self._monitoring_hud_polling_rate_ms)))
         except (TypeError, ValueError):
             polling_rate_ms = self._monitoring_hud_polling_rate_ms
+
+        cards = state.get("cards") if isinstance(state.get("cards"), dict) else {}
+        monitor_signature_parts = []
+        enabled_count = 0
+        for card_id in sorted(str(key) for key in cards.keys()):
+            card = cards.get(card_id) if isinstance(cards.get(card_id), dict) else {}
+            enabled = bool(card.get("enabled", True))
+            enabled_count += 1 if enabled else 0
+            try:
+                card_polling = max(1000, int(card.get("pollingRateMs", polling_rate_ms)))
+            except (TypeError, ValueError):
+                card_polling = polling_rate_ms
+            monitor_signature_parts.append((card_id, enabled, card_polling, str(card.get("title", ""))))
+        monitor_signature = (
+            str(state.get("selectedMonitorId", "")),
+            tuple(monitor_signature_parts),
+        )
+        if monitor_signature != self._monitoring_hud_monitor_management_signature:
+            self._monitoring_hud_monitor_management_signature = monitor_signature
+            self._emit_runtime_signal(
+                "MONITORING_HUD_MONITOR_MANAGEMENT_READY",
+                package="PKG-006",
+                slice="SLC-027",
+                monitor_count=len(monitor_signature_parts),
+                enabled_count=enabled_count,
+                selected_monitor=str(state.get("selectedMonitorId", "")),
+                polling_floor_ms=1000,
+            )
 
         signature = (visible, anchored, snap_enabled, polling_rate_ms)
         if signature == self._monitoring_hud_control_signature:

@@ -29,6 +29,8 @@ class MonitoringHudControlsVisibilityContract:
     tray_path: str
     snap_state: str
     polling_rate_ms: str
+    monitor_management: str
+    overlay_mode_controls: str
 
     def as_dict(self) -> dict[str, str]:
         return {
@@ -43,6 +45,8 @@ class MonitoringHudControlsVisibilityContract:
             "trayPath": self.tray_path,
             "snapState": self.snap_state,
             "pollingRateMs": self.polling_rate_ms,
+            "monitorManagement": self.monitor_management,
+            "overlayModeControls": self.overlay_mode_controls,
         }
 
 
@@ -74,4 +78,6 @@ def build_monitoring_hud_controls_visibility_contract(
         tray_path="Task tray can unanchor or restore the HUD",
         snap_state="enabled" if snap_enabled else "disabled",
         polling_rate_ms=str(max(1000, int(polling_rate_ms or 1000))),
+        monitor_management="Dashboard creates, edits, enables, disables, and sets polling for monitors",
+        overlay_mode_controls="Dashboard controls HUD display enablement plus anchor/unanchor mode",
     )
