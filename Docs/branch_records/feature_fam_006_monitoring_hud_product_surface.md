@@ -637,6 +637,18 @@ Automated validators and live helper evidence: GREEN for WS7 visible product bas
 User Test Summary Results: PENDING.
 Final product completion and PR Readiness are BLOCKED until the filled User Test Summary is submitted and digested or explicitly waived.
 
+WS8 Digest Attempt: `2026-05-06 - desktop handoff inspected; no returned PASS/FAIL/WAIVED answers were present`
+
+WS8 Digest Finding: `The desktop artifact at C:\Users\anden\OneDrive\Desktop\User Test Summary.txt was still a handoff-only file with blank Observed Results fields and no final USER result. It also carried stale pre-WS8 language and an older proof root, so it was refreshed as a user-facing convenience copy without treating it as source-truth acceptance.`
+
+Current UTS Handoff Path: `C:\Users\anden\OneDrive\Desktop\User Test Summary.txt`
+
+Current Evidence Root For UTS: `C:\Nexus Desktop AI\dev\logs\fam_006_monitoring_hud_live_validation\20260506_185415`
+
+Acceptance Classification: `PENDING - no product acceptance result returned`
+
+WS8 Blocker Classification: `Product acceptance blocker requiring returned USER Test Summary result or explicit waiver before Workstream can become Green`
+
 Test Purpose: verify the user-visible Monitoring/HUD surface after the completed PKG-006 Workstream seam chain.
 Scenario / Entry Point: launch Nexus Desktop AI from the normal desktop entrypoint after this branch is built or run locally.
 Steps To Execute: open the desktop runtime, wait for the Monitoring HUD to appear in desktop mode, review the HUD card, and confirm it visibly communicates the baseline surface, local telemetry boundary, renderer-owned placement, read-only controls visibility, and fail-safe/no-data/degraded-status language.
