@@ -24,7 +24,7 @@ This branch may execute the admitted PKG-006 implementation slices during Workst
 
 ## Status
 
-- `Live Validation LV1 In Progress - User Test Summary Results Pending`
+- `Live Validation LV1-R1 - USER Test Summary FAIL Digest / Branch Readiness Re-entry Required`
 
 ## Canonical Branch
 
@@ -39,7 +39,7 @@ This branch may execute the admitted PKG-006 implementation slices during Workst
 - Branch Readiness Stage: `Complete - Stage 2-R10 recorded Stage 1-R6 planning revalidation PASS`
 - Workstream Stage: `Green - WS8 through WS17 completed the current-branch Monitoring HUD implementation chain`
 - Hardening Stage: `Green - H1 pressure-tested the visible HUD, controls, placement, provider-contract telemetry, internal sandbox, live screenshot proof, source truth, and naming sterilization`
-- Live Validation Stage: `In Progress - LV1 active live-client proof and Codex live-client self-QA are green after the standalone HUD renderer split and full virtual-desktop screenshot handoff repair; User Test Summary returned-results digestion is pending`
+- Live Validation Stage: `Red - LV1 returned User Test Summary evidence contains blocking findings; LV1 is not green and must route back before PR Readiness`
 - Active Branch: `feature/fam-006-monitoring-hud-product-surface`
 - Branch Authority Mode: `Active Branch`
 - Workstream Entry Source-Truth Transition: `Performed - Branch Readiness Stage 2 terminal evidence reconciled before runtime implementation`
@@ -50,9 +50,9 @@ This branch may execute the admitted PKG-006 implementation slices during Workst
 - Selected Next Source: `USER-approved selected-next truth matured into active FAM-006 Workstream`
 - Package Admission State: `Admitted`
 - Admitted Slice Count: `6`
-- Package Completion State: `In Progress - Live Validation LV1 active live-client proof, standalone HUD/Core isolation proof, full virtual-desktop screenshot proof, and Codex live-client self-QA green; User Test Summary, PR Readiness, and final package completion remain unclaimed`
+- Package Completion State: `In Progress - returned User Test Summary evidence blocks Live Validation green; product proof, User Test Summary acceptance, PR Readiness, and final package completion remain unclaimed`
 - Single-Slice Package User Approval: `Not required - PKG-006 has six concrete admitted slices; no waiver granted`
-- Runtime Implementation State: `Live Validation LV1 In Progress - Workstream implementation and H1 pressure-test remain green after repair; LV1 active live-client proof plus Codex live-client self-QA for the Nexus/NDAI Monitoring HUD shell in a standalone HUD render window, restored HUD-free ORIN Core visualization window, visible futuristic panel, HUD/Core isolation, draggable/resizable/snapping CPU/GPU category cards, tray show/hide and unanchor route, anchored click-through/no-focus posture, no default keybinds, provider-contract telemetry, native CPU-load proof, truthful CPU thermal/GPU setup-unavailable states, 1s fastest/default polling with slower user-selectable rates, local layout state, visual/non-invasive warning posture, internal sandbox proof, full virtual-desktop screenshot proof, OneDrive Pictures Screenshots handoff proof, and naming sterilization. Future provider-platform parity, external/plugin telemetry, audio/spoken alerts, persona switching, Stream Deck, graphs/history/persistence dashboards, local AI/capability packs, installer work, and ultra-low polling remain deferred.`
+- Runtime Implementation State: `Live Validation LV1-R1 failure digestion - Workstream implementation and H1 pressure-test remain preserved as prior evidence, but returned User Test Summary and screenshot proof identify blocking product issues: the current Monitoring HUD surface behaves like a dashboard/settings window instead of the separate minimal anchored HUD layer USER expects, dashboard drag/polish/content need repair, and ORIN Core visual behavior is an opaque foreground regression. Future provider-platform parity, external/plugin telemetry, audio/spoken alerts, persona switching, Stream Deck, graphs/history/persistence dashboards, local AI/capability packs, installer work, and ultra-low polling remain deferred.`
 - PR Creation State: `Not approved in Live Validation`
 - Watcher Provisioning State: `Not approved in Live Validation`
 - Release Work State: `Not approved; v1.6.13-prebeta release execution is already complete and no new release work is in scope`
@@ -65,9 +65,18 @@ This branch may execute the admitted PKG-006 implementation slices during Workst
 
 ## Blockers
 
-- `User Test Summary Results Pending`
+- `User Test Summary Returned With Blocking Findings`
+- `User Test Summary Results FAIL`
+- `Core Visualization Opaque Foreground Regression`
+- `Monitoring HUD Product Architecture Mismatch`
+- `HUD Dashboard / Minimal HUD Separation Missing`
+- `HUD Dashboard Drag Smoothness Regression`
+- `HUD Dashboard Content Relevance Gap`
+- `Default Scrollbar Product Styling Gap`
+- `Live Validation Proof Gap`
+- `UTS Evidence Root Mismatch`
 
-Package completion is not currently claimed. The Workstream completion guardrail is cleared and Hardening H1 is green because the repo-side pressure test passed for the current-branch HUD implementation scope. Live Validation LV1 automated/live helper proof and Codex live-client self-QA are green, but formal User Test Summary returned-results digestion is still pending. Final phase advancement remains blocked until the filled User Test Summary is submitted or waived, digested into this authority record, and reevaluated.
+Package completion is not currently claimed. The Workstream and Hardening evidence remain preserved as prior implementation and pressure-test proof, but returned User Test Summary results are FAIL and expose product-level mismatch/regression. Final phase advancement, PR Readiness, and package completion are blocked until Branch Readiness rebaselines the dashboard-versus-minimal-HUD architecture and a later Workstream repair proves the accepted product behavior.
 
 ## Cleared Governance Notes
 
@@ -128,11 +137,11 @@ Rollback Path: revert the current Workstream commit on `feature/fam-006-monitori
 
 ## Next Legal Phase
 
-- `Live Validation`
+- `Branch Readiness`
 
-Next Legal Seam: `Live Validation LV1 - Monitoring HUD Product Surface Live Validation`
+Next Legal Seam: `Branch Readiness Stage 1-R7 - FAM-006 HUD Dashboard And Minimal HUD Repair Rebaseline`
 
-Next Legal Phase Gate: Live Validation LV1 is active on the current FAM-006 carrier. Automated validators, live helper proof, and Codex live-client self-QA are green after the standalone HUD window repair, centered Core geometry repair, and hidden validation-console repair, and the documented equivalent desktop runtime path captured full virtual-desktop visible HUD proof with a USER-inspectable raw screenshot copy at `C:\Users\anden\OneDrive\Pictures\Screenshots\Nexus Desktop AI\fam_006_monitoring_hud_live_validation\20260507_111328\monitoring_hud_full_virtual_desktop.png`, but `User Test Summary Results Pending` blocks final Live Validation green until returned USER results are submitted or waived, digested into this authority record, and reevaluated. Live Validation must preserve provider-contract-first truth, no fake metrics, visual/non-invasive warnings, ORIN/ARIA planning boundaries, future-package deferrals, user-facing shortcut/equivalent entrypoint proof, Codex live-client self-QA, full virtual-desktop screenshot handoff, and formal User Test Summary returned-results digestion. It must not create a PR, watcher, release, tag, artifact, direct-main mutation, voice/audio implementation, Stream Deck/plugin telemetry implementation, local AI, installer/capability-pack work, broad hardware provider implementation, persona switching implementation, ARIA activation, or a new FAM/package without later explicit USER approval.
+Next Legal Phase Gate: Live Validation LV1-R1 digested returned User Test Summary FAIL evidence and screenshot proof. The next legal move is Branch Readiness re-entry on this same FAM-006 carrier to rebaseline the product architecture before implementation repair: the existing large Monitoring HUD panel must be classified as a dashboard/configuration surface, and the actual user-facing HUD must become a separate minimal anchored layer that can be configured by the dashboard. Live Validation must not report green and PR Readiness must not begin until that rebaseline, later bounded Workstream repair, Hardening, active-client Live Validation, and returned User Test Summary acceptance all pass. Repair must preserve provider-contract-first truth, no fake metrics, visual/non-invasive warnings, ORIN/ARIA planning boundaries, future-package deferrals, user-facing shortcut/equivalent entrypoint proof, full virtual-desktop screenshot handoff, and formal User Test Summary returned-results digestion. It must not create a PR, watcher, release, tag, artifact, direct-main mutation, voice/audio implementation, Stream Deck/plugin telemetry implementation, local AI, installer/capability-pack work, broad hardware provider implementation, persona switching implementation, ARIA activation, or a new FAM/package without later explicit USER approval.
 
 ## Branch Objective
 
@@ -570,30 +579,30 @@ Status: `Green - refreshed validators, internal sandbox manifest, and full-deskt
 
 ## Active Seam
 
-Active seam: `Live Validation LV1 - Monitoring HUD Product Surface Live Validation`
+Active seam: `Live Validation LV1-R1 - USER Test Summary FAIL Digest And FAM-006 HUD/Core Product Repair Triage`
 
-Seam Status: `Blocked - User Test Summary Results Pending`
-Slice Status: `Green`
-Slice Detail: `SLC-016, SLC-025, SLC-026, SLC-027, SLC-028, and SLC-029 remain Workstream Green for the approved current-branch scope, passed Hardening H1 pressure testing, and have LV1 automated/live helper proof. Future dependency lanes remain deferred and do not block LV1 returned-result digestion.`
+Seam Status: `Red - returned User Test Summary has blocking FAIL findings`
+Slice Status: `Repair Required`
+Slice Detail: `SLC-016, SLC-026, SLC-027, SLC-028, and SLC-029 are affected by returned Live Validation evidence. SLC-016 must re-evaluate the visible user-facing HUD identity, SLC-026 must re-evaluate HUD/Core separation plus OS-level non-blocking placement, SLC-027 must re-evaluate dashboard/settings controls, SLC-028 must remove or reroute irrelevant technical status copy from the dashboard, and SLC-029 must add proof for the dashboard/minimal-HUD split plus Core non-interference. SLC-025 provider-contract telemetry remains preserved unless repair changes the dashboard sensor model.`
 Completion Status: `Red`
-Completion Detail: `Automated validators and live helper evidence are green, but Live Validation cannot final-green while User Test Summary Results remain PENDING.`
+Completion Detail: `Live Validation cannot final-green because returned User Test Summary results are FAIL and the attached screenshot shows a Core foreground/non-interference regression.`
 Waiver Status: `None`
 Continue Decision: `Stop`
-Stop Basis: `User Test Summary Results Pending`
+Stop Basis: `User Test Summary Returned With Blocking Findings`
 
 ## Live Validation Continuation Decision
 
-Seam Status: `Blocked - User Test Summary Results Pending`
-Slice Status: `Green`
-Slice Detail: `LV1 refreshed the full-desktop Monitoring HUD proof through the documented equivalent desktop runtime path and preserves all current-branch/future-package boundaries.`
+Seam Status: `Red - USER Test Summary FAIL digested`
+Slice Status: `Repair Required`
+Slice Detail: `Returned USER evidence identifies a product architecture mismatch and a Core visualization regression that supersede the prior automated/live helper green posture for phase advancement.`
 Completion Status: `Red`
-Completion Detail: `Package completion remains unclaimed; Live Validation final green waits on User Test Summary returned results or waiver digestion.`
+Completion Detail: `Package completion remains unclaimed; Live Validation final green is blocked until the product architecture mismatch and Core foreground regression are rebaselined, repaired, hardened, revalidated live, and accepted through returned User Test Summary proof.`
 Waiver Status: `None`
 Continue Decision: `Stop`
-Stop Basis: `User Test Summary Results Pending`
-Next Active Seam: `Live Validation LV1 - Monitoring HUD Product Surface Live Validation - User Test Summary Return And Digest`
-Stop Condition: `User Test Summary Results Pending - final LV1 green requires returned PASS, FAIL, or WAIVED results to be digested and reevaluated`
-Continuation Action: `Wait for completed User Test Summary results or explicit waiver, then digest them into source truth before any PR Readiness. Do not create a PR, watcher, release, tag, artifact, direct-main mutation, voice/audio widening, Stream Deck work, local AI work, installer work, broad provider platform work, persona switching, or new FAM/package work without later approval.`
+Stop Basis: `User Test Summary Returned With Blocking Findings`
+Next Active Seam: `Branch Readiness Stage 1-R7 - FAM-006 HUD Dashboard And Minimal HUD Repair Rebaseline`
+Stop Condition: `Live Validation LV1-R1 FAIL - returned USER evidence requires Branch Readiness re-entry before Workstream repair resumes`
+Continuation Action: `Run Branch Readiness Stage 1-R7 analysis on this same branch to rebaseline dashboard/configuration surface versus minimal anchored HUD layer, Core non-interference, affected slices, acceptance criteria, and validator proof gaps before any runtime implementation repair. Do not create a PR, watcher, release, tag, artifact, direct-main mutation, voice/audio widening, Stream Deck work, local AI work, installer work, broad provider platform work, persona switching, or new FAM/package work without later approval.`
 
 ## WS8-WS17 Implementation Record
 
@@ -764,36 +773,56 @@ Validation Evidence Expectations: return PASS/FAIL plus any notes, screenshots, 
 - Provider-contract finding: `PASS - bounded native CPU-load proof remains real; unsupported CPU thermal, GPU load, and GPU thermal values remain provider-required/setup-unavailable instead of fake`
 - Interaction finding: `PASS - launched live NDAI desktop client exercised initial visible HUD identity/provider/no-fake-state, standalone HUD/Core isolation, real mouse unanchor into editable HUD, active-client panel movement without disappearing, visible toggle hide, task-tray restore, polling control update, draggable/resizable bounded snapped card layout, real mouse re-anchor, anchored click-through/no-focus posture, centered Core geometry marker, hidden validation console posture, and cleanup route`
 - Warning finding: `PASS - current branch remains visual/non-invasive only; audio/spoken warnings remain deferred to FAM-004/cross-family approval`
-- LV1 Continuation Finding: `Automated/live proof is green after the standalone HUD/Core split, centered Core geometry repair, full virtual-desktop screenshot handoff, and hidden validation-console repair, but User Test Summary Results remain PENDING; final LV1 green, package completion, and PR Readiness remain blocked until returned results are digested`
+- LV1 Continuation Finding: `FAIL - returned User Test Summary results and screenshot evidence supersede the prior automated/live helper green posture for phase advancement. Final LV1 green, package completion, and PR Readiness are blocked until Branch Readiness rebaseline plus bounded Workstream repair, Hardening, active-client Live Validation, and returned User Test Summary acceptance all pass.`
 - Boundary preservation: `No broad provider-platform implementation, external/plugin telemetry implementation, audio/spoken warning behavior, persona switching, ARIA activation, Stream Deck, graphs/history/persistence dashboards, local AI/capability-pack monitoring, installer/capability-pack work, PR work, watcher work, release work, tags, GitHub Releases, artifacts, direct-main mutation, new branch, or new FAM/package admission`
+
+## Live Validation LV1-R1 USER Test Summary FAIL Digest And Product Repair Triage
+
+- Digest Date: `2026-05-07`
+- Returned User Test Summary Path: `C:\Users\anden\OneDrive\Desktop\User Test Summary.txt`
+- Screenshot Evidence Path: `C:\Users\anden\OneDrive\Pictures\Screenshots\explorer_EfvGUxZpHx.png`
+- Returned Result: `FAIL - Step 6 and Step 7 are marked FAIL; the final PASS/FAIL/WAIVED field is blank, but USER notes explicitly classify the result as a blocker to return to Workstream`
+- UTS Evidence Root Finding: `Mismatch - the returned UTS points at dev/logs/fam_006_monitoring_hud_live_validation/20260507_074738 while current repo LV1 source truth points at dev/logs/fam_006_monitoring_hud_live_validation/20260507_111328; this does not clear Live Validation and requires a refreshed proof chain after repair`
+- Product Architecture Finding: `Monitoring HUD Product Architecture Mismatch - USER expects the large current surface to become a dashboard/settings/configuration window, while the actual Monitoring HUD should be a separate minimal anchored layer configured by that dashboard`
+- Dashboard / Minimal HUD Split: `Missing - current implementation does not yet prove separate dashboard and minimal HUD ownership, separate failure boundaries, or a minimal anchored HUD that can be seen anywhere without being tied to the dashboard surface`
+- Core Visualization Regression: `Active - screenshot evidence shows the ORIN Core visualization as a large opaque foreground surface covering the focused Notepad++ window; Qt-level mouse transparency markers do not prove OS-level non-blocking desktop behavior or visual transparency`
+- Dashboard Drag Finding: `Repair required - USER reports dashboard movement feels rough/stuttery/skippy and should feel like normal Windows movement at the user's display refresh rate`
+- Dashboard Content Finding: `Repair required - bottom technical boxes such as provider boundary, render owner, HUD visibility, fail-safe state, and warning posture are not useful dashboard content and should be replaced/rerouted into configuration-centered content`
+- Scrollbar Styling Finding: `Repair required - default Windows scrollbar styling does not match the Nexus/NDAI product surface`
+- Validator Gap Finding: `Existing validators proved markers, manifests, screenshots, and interaction scripts, but did not block dashboard-versus-minimal-HUD architecture mismatch, Core foreground opacity/non-interference failure, dashboard drag smoothness, dashboard content relevance, or product scrollbar styling`
+- Legal Repair Route: `Branch Readiness re-entry first, then bounded Workstream repair. Hardening-only repair is insufficient because the dashboard/minimal-HUD split changes product architecture, affected slices, and acceptance criteria.`
+- Affected Slices: `SLC-016 visual/user-facing HUD surface; SLC-026 desktop placement/renderer ownership; SLC-027 controls/settings visibility; SLC-028 fail-safe/status copy relevance; SLC-029 validation/live desktop proof. SLC-025 telemetry boundary remains preserved unless the repaired dashboard sensor model changes provider interaction.`
+- Source-Truth Drift Finding: `Prior green helper/Codex self-QA wording overstated Live Validation readiness because returned USER evidence proves product-quality and architecture blockers remained. This LV1-R1 digest records the failure before implementation repair resumes.`
+- Current-Branch Repair Candidates: `rebaseline dashboard/configuration surface versus minimal anchored HUD; restore/prove Core visual transparency/non-interference; build separate minimal HUD layer ownership; smooth dashboard movement; replace irrelevant dashboard technical boxes with useful setup/configuration content; style dashboard scrollbars; expand live-client proof to full-desktop, OS-level non-interference, and dashboard/HUD split evidence`
+- Future-Package Items: `broad provider-platform parity, external/plugin telemetry ecosystem, audio/spoken warnings, persona switching/ARIA activation, Stream Deck, graphs/history/persistence dashboards, local AI/capability packs, installer/capability-pack work, ultra-low polling, and repo-wide naming migration remain outside current repair unless later USER-approved`
 
 ## Codex Live Client Self-QA
 
-- Codex Live Client Self-QA: `PASS`
+- Codex Live Client Self-QA: `FAIL`
 - Live Client Entry Path: `powershell -NoProfile -ExecutionPolicy Bypass -File dev\orin_monitoring_hud_live_validation.ps1 -ActiveUserFacingClient -MarkerTimeoutSeconds 180 -NoProgressTimeoutSeconds 120 -FinalClientHoldSeconds 5`
 - Evidence Screenshot: `dev/logs/fam_006_monitoring_hud_live_validation/20260507_111328/monitoring_hud_desktop.png`
 - USER-Inspectable Screenshot: `C:\Users\anden\OneDrive\Pictures\Screenshots\Nexus Desktop AI\fam_006_monitoring_hud_live_validation\20260507_111328\monitoring_hud_full_virtual_desktop.png`
 - Evidence Manifest: `dev/logs/fam_006_monitoring_hud_live_validation/20260507_111328/manifest.json`
 - Interaction Manifest: `dev/logs/fam_006_monitoring_hud_live_validation/20260507_111328/monitoring_hud_live_client_interaction_manifest.json`
 - Interaction Evidence Root: `dev/logs/fam_006_monitoring_hud_live_validation/20260507_111328/live_client_interaction`
-- Visual Quality: `PASS - HUD is visible in full virtual-desktop proof, uses a coherent Nexus/NDAI futuristic card-panel identity, and reads as a product surface rather than a marker-only scaffold; ORIN Core is separately visible and centered by geometry marker instead of sharing the HUD render surface`
+- Visual Quality: `FAIL - returned screenshot evidence shows the Core visualization as an opaque foreground layer over the focused desktop surface, and returned USER notes say the current HUD/dashboard product shape is not the expected minimal anchored HUD`
 - Live Interaction Evidence: `PASS - launched visible NDAI desktop runtime without a visible command prompt and drove the HUD through initial visible state, standalone HUD/Core isolation, real mouse unanchor, active-client panel movement, in-HUD hide, tray restore, polling control update, bounded snapped card drag/resize, and final anchored click-through/no-focus posture; active foreground mode slows the steps, holds the final client open long enough for USER-observable validation, and produces a full virtual-desktop raw screenshot in the USER screenshots folder`
-- Usability Check: `PASS - panel sizing/readability was repaired after USER live-client feedback; panel placement is intentional, text and card groupings are readable in captured proof, state labels explain setup/unavailable/no-data boundaries, card layout remains bounded/snapped, and no fake hardware values are presented`
+- Usability Check: `FAIL - USER reports dashboard drag smoothness, dashboard content relevance, default scrollbar styling, and the missing separate minimal HUD layer are blocking usability/product issues`
 - Interaction Check: `PASS - live-client interaction manifest proves tray show/hide, real mouse unanchor/re-anchor, anchored click-through/no-focus posture, explicit window-status checks before movement, no default keybinds, draggable/resizable cards, snapping posture, polling control update, standalone HUD/Core isolation, centered Core geometry marker, hidden validation-console posture, and visual/non-invasive warning state`
-- Platform Uniformity Check: `PASS - HUD copy and styling use Nexus/NDAI/Monitoring HUD language and match the current dark futuristic NDAI desktop visual direction`
+- Platform Uniformity Check: `FAIL - dashboard scrollbar and dashboard role/content do not yet match the expected Nexus/NDAI product surface, and Core foreground behavior is not uniform with non-blocking desktop expectations`
 - NDAI Naming Check: `PASS - tracked repo retired-name scan is clean and the HUD surface itself does not expand retired product identity; live desktop screenshot still shows a non-repo desktop shortcut with retired naming outside the HUD, which is an external environment observation rather than tracked repo source truth`
 - Cleanup Check: `PASS - live helper stopped the launched desktop runtime and recorded cleanup in the manifest`
-- Handoff Readiness: `READY FOR USER TEST SUMMARY HANDOFF ONLY - not final Live Validation green`
+- Handoff Readiness: `FAILED - returned User Test Summary blocks Live Validation; Branch Readiness re-entry and Workstream repair are required before another USER handoff`
 
 ## User Test Summary
 
-Automated validators and live helper evidence: GREEN.
-Codex Live Client Self-QA: PASS.
+Automated validators and live helper evidence: SUPPORTING ONLY - prior green proof is superseded for phase advancement by returned USER FAIL evidence.
+Codex Live Client Self-QA: FAIL.
 User-Facing Shortcut Live Validation Gate: documented equivalent desktop runtime path passed before User Test Summary handoff.
 User-Facing Shortcut Path: `powershell -NoProfile -ExecutionPolicy Bypass -File dev\orin_monitoring_hud_live_validation.ps1 -ActiveUserFacingClient -MarkerTimeoutSeconds 180 -NoProgressTimeoutSeconds 120 -FinalClientHoldSeconds 5`
 User-Facing Shortcut Validation: PASS.
-User Test Summary Results: PENDING.
-Final phase advancement is BLOCKED until the filled User Test Summary is submitted and digested.
+User Test Summary Results: FAIL.
+Final phase advancement is BLOCKED until Branch Readiness rebaseline, bounded Workstream repair, Hardening, active-client Live Validation, and returned User Test Summary acceptance or explicit waiver are recorded.
 
 Current Handoff Path: `C:\Users\anden\OneDrive\Desktop\User Test Summary.txt`
 User Test Summary Waiver Reason: `Not applicable - no waiver granted`
