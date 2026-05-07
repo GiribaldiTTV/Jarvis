@@ -284,6 +284,7 @@ These are reference layers, not active workstream or roadmap owners.
 - a single-seam Workstream requires explicit USER waiver before Workstream may stop after one seam while the package or slice remains incomplete.
 - a task-level `Return:` block, rollback request, commit request, or next-seam recommendation is not stop authority while `Continue Decision` remains `Continue`
 - when `Continue Decision` is `Continue`, do not end on a seam-complete final response; keep executing until a lawful `Stop` decision exists
+- If `Completion Status` is `In Progress`, `Next Active Seam` must remain a `Workstream` seam; phase-exit seams require `Completion Status: Green`, `Completion Status: Red` with a named blocker/waiver, or explicit USER single-seam/backlog-split waiver.
 - `Phase: Workstream` must remain bounded at all times; the only lawful `Workstream` stop conditions are `Completion Status: Green` with `Hardening` next, or `Completion Status: Red` justified by a named blocker or waiver
 - if `Completion Status` is `Red`, `Continuation Action` must report the blocker-clearing action or waiver-clearing action needed before bounded `Workstream` continuation may resume
 - treat `Completion Status` as the exact `Phase: Workstream Status` gate for stop authority

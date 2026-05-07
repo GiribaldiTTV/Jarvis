@@ -559,6 +559,7 @@ GOVERNED_OUTPUT_CONTRACT_REQUIRED_PHRASES = {
         "It is the exact `Phase: Workstream Status` field for stop authority.",
         "Use these governed state markers as execution control, not as documentation-only summary fields.",
         "If `Continue Decision` is `Continue`, Codex must not end on a final seam-closeout response, rollback path, or next-seam recommendation; it must keep executing until a lawful `Stop` decision exists.",
+        "If `Completion Status` is `In Progress`, `Next Active Seam` must remain a `Workstream` seam; phase-exit seams require `Completion Status: Green`, `Completion Status: Red` with a named blocker/waiver, or explicit USER single-seam/backlog-split waiver.",
         "`Phase: Workstream` must remain bounded at all times.",
         "If `Completion Status` is `Red`, `Continuation Action` must explicitly state the blocker-clearing action or waiver-clearing action needed before bounded `Workstream` continuation may resume.",
     ),
@@ -572,6 +573,7 @@ GOVERNED_OUTPUT_CONTRACT_REQUIRED_PHRASES = {
         "If `Completion Status` is `In Progress` and no named blocker or waiver stops work, Codex must continue rather than returning `Await Next Instruction`.",
         "Use these governed state markers as execution control, not just reporting.",
         "If `Continue Decision` is `Continue`, do not end on a seam-complete final response, rollback path, or next-seam recommendation; keep executing until a lawful `Stop` decision exists.",
+        "If `Completion Status` is `In Progress`, `Next Active Seam` must remain a `Workstream` seam; phase-exit seams require `Completion Status: Green`, `Completion Status: Red` with a named blocker/waiver, or explicit USER single-seam/backlog-split waiver.",
         "`Phase: Workstream` must remain bounded at all times, and the only lawful `Workstream` stop conditions are `Completion Status: Green` with `Hardening` next, or `Completion Status: Red` justified by a named blocker or waiver.",
         "If `Completion Status` is `Red`, `Continuation Action` must report the blocker-clearing action or waiver-clearing action needed before bounded `Workstream` continuation may resume.",
     ),
@@ -585,6 +587,7 @@ GOVERNED_OUTPUT_CONTRACT_REQUIRED_PHRASES = {
         "If `Completion Status` is `In Progress` and no named blocker or waiver stops work, Workflow mode must continue rather than returning `Await Next Instruction`.",
         "Use these governed state markers as execution control, not just reporting.",
         "If `Continue Decision` is `Continue`, Workflow mode must not end on a seam-complete final response, rollback path, or next-seam recommendation; it must keep executing until a lawful `Stop` decision exists.",
+        "If `Completion Status` is `In Progress`, `Next Active Seam` must remain a `Workstream` seam; phase-exit seams require `Completion Status: Green`, `Completion Status: Red` with a named blocker/waiver, or explicit USER single-seam/backlog-split waiver.",
         "`Phase: Workstream` must remain bounded at all times, and the only lawful `Workstream` stop conditions are `Completion Status: Green` with `Hardening` next, or `Completion Status: Red` justified by a named blocker or waiver.",
         "If `Completion Status` is `Red`, `Continuation Action` must report the blocker-clearing action or waiver-clearing action needed before bounded `Workstream` continuation may resume.",
     ),
@@ -599,6 +602,7 @@ GOVERNED_OUTPUT_CONTRACT_REQUIRED_PHRASES = {
         "Use these governed state markers as execution control, not just reporting.",
         "If `Continue Decision` is `Continue`, Codex must not end on a seam-complete final response, rollback path, or next-seam recommendation; it must keep executing until a lawful `Stop` decision exists.",
         "Treat a prompt `Return:` block as the lawful-stop report, not as permission to stop while `Continue Decision` remains `Continue`.",
+        "If `Completion Status` is `In Progress`, `Next Active Seam` must remain a `Workstream` seam; phase-exit seams require `Completion Status: Green`, `Completion Status: Red` with a named blocker/waiver, or explicit USER single-seam/backlog-split waiver.",
         "`Phase: Workstream` must remain bounded at all times, and the only lawful `Workstream` stop conditions are `Completion Status: Green` with `Hardening` next, or `Completion Status: Red` justified by a named blocker or waiver.",
         "If `Completion Status` is `Red`, `Continuation Action` must report the blocker-clearing action or waiver-clearing action needed before bounded `Workstream` continuation may resume.",
     ),
@@ -613,6 +617,7 @@ GOVERNED_OUTPUT_CONTRACT_REQUIRED_PHRASES = {
         "Use these governed state markers as execution control, not just reporting.",
         "If `Continue Decision` is `Continue`, Codex must not end on a seam-complete final response, rollback path, or next-seam recommendation; it must keep executing until a lawful `Stop` decision exists.",
         "Once the current slice is green during `Workstream`, advance into the next admitted slice while `Completion Status` remains `In Progress`; await the next instruction only after a lawful `Stop` decision.",
+        "If `Completion Status` is `In Progress`, `Next Active Seam` must remain a `Workstream` seam; phase-exit seams require `Completion Status: Green`, `Completion Status: Red` with a named blocker/waiver, or explicit USER single-seam/backlog-split waiver.",
         "`Phase: Workstream` must remain bounded at all times, and the only lawful `Workstream` stop conditions are `Completion Status: Green` with `Hardening` next, or `Completion Status: Red` justified by a named blocker or waiver.",
         "If `Completion Status` is `Red`, `Continuation Action` must report the blocker-clearing action or waiver-clearing action needed before bounded `Workstream` continuation may resume.",
     ),
@@ -627,6 +632,7 @@ GOVERNED_OUTPUT_CONTRACT_REQUIRED_PHRASES = {
         "Use these governed state markers as execution control, not just reporting.",
         "If `Continue Decision` is `Continue`, the generated prompt must not let Codex end on a seam-complete final response, rollback path, or next-seam recommendation; it must require continued execution until a lawful `Stop` decision exists.",
         "the prompt `Return:` block describes the lawful-stop report; it is not permission to stop while `Continue Decision` remains `Continue`",
+        "If `Completion Status` is `In Progress`, `Next Active Seam` must remain a `Workstream` seam; phase-exit seams require `Completion Status: Green`, `Completion Status: Red` with a named blocker/waiver, or explicit USER single-seam/backlog-split waiver.",
         "`Phase: Workstream` must remain bounded at all times, and the only lawful `Workstream` stop conditions are `Completion Status: Green` with `Hardening` next, or `Completion Status: Red` justified by a named blocker or waiver.",
         "If `Completion Status` is `Red`, `Continuation Action` must report the blocker-clearing action or waiver-clearing action needed before bounded `Workstream` continuation may resume.",
         "Treat `Completion Status` as the exact `Phase: Workstream Status` gate after load.",
@@ -3883,6 +3889,7 @@ def _validate_governed_output_state(
     continue_decision = _extract_marker_value(continuation_section, "Continue Decision")
     stop_basis = _extract_marker_value(continuation_section, CONTINUATION_STOP_BASIS_LABEL)
     continuation_action = _extract_marker_value(continuation_section, "Continuation Action")
+    next_active_seam = _extract_marker_value(continuation_section, "Next Active Seam")
     active_seam = _extract_marker_value(active_seam_section, "Active seam")
 
     normalized_seam_status = seam_status.strip().casefold()
@@ -3891,9 +3898,18 @@ def _validate_governed_output_state(
     normalized_waiver_status = waiver_status.strip().casefold()
     normalized_decision = continue_decision.strip().casefold()
     normalized_stop_basis = stop_basis.strip().casefold()
+    normalized_next_active_seam = next_active_seam.strip().casefold()
     stop_authorizing_blockers = [
         blocker for blocker in blockers if blocker != BACKLOG_COMPLETION_UNPROVEN_BLOCKER
     ]
+    phase_exit_next_seam_terms = (
+        "hardening",
+        "live validation",
+        "pr readiness",
+        "release readiness",
+        "release execution",
+        "github release",
+    )
 
     require(
         normalized_seam_status in CONTINUATION_ALLOWED_SEAM_STATUSES,
@@ -3984,6 +4000,13 @@ def _validate_governed_output_state(
                 "waiver status"
             ),
         )
+        require(
+            "hardening" in normalized_next_active_seam,
+            (
+                f"{source_path}: {CONTINUATION_COMPLETION_STATUS_LABEL} Green must point "
+                "`Next Active Seam` to Hardening"
+            ),
+        )
     elif normalized_completion_status == "in progress":
         require(
             normalized_decision == "continue",
@@ -4039,6 +4062,14 @@ def _validate_governed_output_state(
             (
                 f"{source_path}: Continue Decision Continue must not gate the next seam behind "
                 "'when instructed' wording"
+            ),
+        )
+        require(
+            not any(term in normalized_next_active_seam for term in phase_exit_next_seam_terms),
+            (
+                f"{source_path}: {CONTINUATION_COMPLETION_STATUS_LABEL} In Progress must keep "
+                "`Next Active Seam` inside Workstream; phase-exit seams require Workstream Green, "
+                "Red with a named blocker/waiver, or explicit USER single-seam/backlog-split waiver"
             ),
         )
     else:
@@ -4104,6 +4135,14 @@ def _validate_governed_output_state(
                 f"{source_path}: {CONTINUATION_COMPLETION_STATUS_LABEL} Red must not use "
                 "'Await Next Instruction' as the continuation action; it must report the "
                 "blocker-clearing action or waiver-clearing action instead"
+            ),
+        )
+        require(
+            not any(term in normalized_next_active_seam for term in phase_exit_next_seam_terms),
+            (
+                f"{source_path}: {CONTINUATION_COMPLETION_STATUS_LABEL} Red must keep "
+                "`Next Active Seam` on the blocker-clearing Workstream seam/action; phase-exit seams "
+                "remain illegal until Workstream Green or explicit USER waiver/split approval"
             ),
         )
 
@@ -13177,6 +13216,34 @@ def main() -> int:
                     branch_class=branch_class,
                     current_phase=current_phase,
                 )
+                continuation_completion_status = _extract_marker_value(
+                    continuation_section,
+                    CONTINUATION_COMPLETION_STATUS_LABEL,
+                ).strip().casefold()
+                if continuation_completion_status != "green":
+                    active_branch_lower = branch_name.casefold()
+                    phase_exit_summary_phrases = (
+                        "next legal phase: hardening",
+                        "next legal runtime step: hardening",
+                        "hardening handoff pending",
+                        "hardening pending",
+                    )
+                    for summary_path, summary_text in (
+                        ("Docs/feature_backlog.md", backlog_text),
+                        ("Docs/prebeta_roadmap.md", roadmap_text),
+                    ):
+                        summary_lower = summary_text.casefold()
+                        if active_branch_lower and active_branch_lower in summary_lower:
+                            for summary_phrase in phase_exit_summary_phrases:
+                                require(
+                                    summary_phrase not in summary_lower,
+                                    (
+                                        f"{summary_path}: active Workstream branch '{branch_name}' "
+                                        f"has Completion Status '{continuation_completion_status}' "
+                                        f"but summary truth still encodes phase-exit seam via "
+                                        f"'{summary_phrase}'"
+                                    ),
+                                )
         if branch_record_path in active_branch_record_paths and str(info["current_phase"]) == "Release Readiness":
             status_output = _git_status_porcelain(tracked_only=True)
             require(
