@@ -24,7 +24,7 @@ This branch may execute the admitted PKG-006 implementation slices during Workst
 
 ## Status
 
-- `Branch Readiness Active - USER Vision Input digest / FAM-006 scope rebaseline`
+- `Workstream Active - WS7 Monitoring HUD product visibility and acceptance baseline`
 
 ## Canonical Branch
 
@@ -32,12 +32,12 @@ This branch may execute the admitted PKG-006 implementation slices during Workst
 
 ## Current Phase
 
-- Phase: `Branch Readiness`
+- Phase: `Workstream`
 
 ## Phase Status
 
-- Branch Readiness Stage: `Active - Stage 2-R9 USER Vision Input digest and FAM-006 scope rebaseline`
-- Workstream Stage: `Blocked - WS7 cannot resume until refreshed USER Vision Input scope changes are revalidated`
+- Branch Readiness Stage: `Complete - Stage 2-R10 recorded Stage 1-R6 planning revalidation PASS`
+- Workstream Stage: `Active - WS7 Monitoring HUD Product Visibility And Acceptance Baseline`
 - Hardening Stage: `Reopened - prior H1 is scaffold/marker hardening evidence only, not product-complete proof`
 - Active Branch: `feature/fam-006-monitoring-hud-product-surface`
 - Branch Authority Mode: `Active Branch`
@@ -65,14 +65,8 @@ This branch may execute the admitted PKG-006 implementation slices during Workst
 ## Blockers
 
 - `Backlog Completion Unproven`
-- `Branch Reach Unproven`
-- `Current Branch vs Future Package Boundary Missing`
-- `Hardware Telemetry Provider Selection Pending`
-- `External Telemetry Privacy Model Missing`
-- `Persona Switch Scope Boundary Pending`
-- `Branch Readiness Planning Incomplete`
 
-Package completion is not currently claimed. Backlog Completion Unproven remains the guardrail that blocks any future package-complete claim until visible product proof, screenshot proof, User Test Summary acceptance, real-telemetry truth, and naming truth are digested. Stage 2-R9 digested the refreshed `User Vision Input.txt` artifact and cleared the completed-input and legacy-name blockers, but USER answers widened the package into a full HUD, category-card, real-telemetry, and future persona-switching direction. Branch Readiness Planning Incomplete remains active until Stage 1 revalidates the new current-branch and future-package boundary. Planning and blocker repair may continue; Workstream, Live Validation, PR Readiness, PR creation, watcher provisioning, release, tag, artifact, and direct-main work remain blocked by their own phase gates.
+Package completion is not currently claimed. Backlog Completion Unproven remains the guardrail that blocks any future package-complete claim until visible product proof, screenshot proof, User Test Summary acceptance, real-telemetry truth, and naming truth are digested. Stage 2-R10 recorded Stage 1-R6 planning revalidation PASS, cleared/deferred the Stage 2-R9 planning blockers, and handed the branch back to Workstream WS7. Live Validation, PR Readiness, PR creation, watcher provisioning, release, tag, artifact, and direct-main work remain blocked by their own phase gates.
 
 ## Cleared Governance Notes
 
@@ -85,17 +79,17 @@ Package completion is not currently claimed. Backlog Completion Unproven remains
 - USER Vision Input File Missing is cleared by Stage 2-R4 because `C:\Users\anden\OneDrive\Desktop\User Vision Input.txt` exists as the governed USER-facing input artifact.
 - USER Vision Input Pending, USER Vision Input Answers Pending, and USER Vision Input Digest Pending were reopened by Stage 2-R8, then cleared by Stage 2-R9 after the refreshed `User Vision Input.txt` artifact was completed and digested into this record.
 - Product Vision Input Missing and USER Vision Questions Unanswered were previously cleared by Stage 2-R5; Stage 2-R8 preserves the prior digest as history but reopens USER Vision Input blockers for the refreshed artifact only.
-- Branch Reach Unproven was cleared by Stage 2-R6, then reactivated by Stage 2-R9 because USER widened the plan to a full HUD, draggable/resizable category cards, real telemetry, provider pull-in, and persona-switching posture that require Stage 1 revalidation before Workstream.
+- Branch Reach Unproven was cleared by Stage 2-R6, reactivated by Stage 2-R9, then cleared by Stage 2-R10 after Stage 1-R6 found the widened full-HUD/category-card/provider/persona-boundary plan coherent, large enough, and bounded.
 - Acceptance Criteria Missing is cleared by Stage 2-R6 because the current-branch acceptance criteria are finalized under `Acceptance Criteria`.
-- Current Branch vs Future Package Boundary Missing was cleared by Stage 2-R6, then reactivated by Stage 2-R9 because the refreshed input asks for real baseline telemetry, potential provider/software pull-in, and beta-facing persona-switching presentation that need a new boundary review.
+- Current Branch vs Future Package Boundary Missing was cleared by Stage 2-R6, reactivated by Stage 2-R9, then cleared by Stage 2-R10 after Stage 1-R6 validated current-branch scope versus future-package deferrals.
 - Legacy Product Name Drift is cleared by Stage 2-R9 because repo-supported validation and direct scans show no retired legacy product-name or IP-adjacent naming in tracked paths, runtime references, validators, docs, generated-user surfaces, or user-facing copy.
-- Hardware Telemetry Provider Selection Pending is reactivated by Stage 2-R9 because USER wants real telemetry and baseline native capability where viable; fake metrics remain blocked, and provider choice must be proven before live CPU/GPU/thermal/load values are claimed.
+- Hardware Telemetry Provider Selection Pending is converted by Stage 2-R10 into a WS7 implementation boundary: live CPU/GPU/thermal/load values require a safe provider and validation route; provider health/setup/unavailable states are valid until then, and fake metrics remain blocked.
 - Polling Floor Undecided is cleared by Stage 2-R9 because USER selected `1s` as the fastest practical/default polling rate and slower user-selectable rates; per-card polling still requires provider/performance validation before product-complete claims.
 - Warning Delivery Modality Pending is cleared by Stage 2-R9 for current planning because USER accepted visual/non-invasive warnings, while broader customizable warning behavior remains incomplete future/current-branch work to be scoped in Stage 1.
-- External Telemetry Privacy Model Missing is reactivated by Stage 2-R9 because USER wants provider/software pull-in only when needed and visually owned by NDAI, which requires consent, provenance, source labeling, privacy, and validation boundaries before implementation.
+- External Telemetry Privacy Model Missing is deferred by Stage 2-R10 to future provider/plugin scope; any future external/plugin telemetry requires consent, provenance, source labeling, privacy warnings, and validation before implementation.
 - Audio Warning Cross-Family Approval Missing is cleared as an active planning blocker by Stage 2-R6 because audio/spoken alerts are explicitly deferred outside current PKG-006 and require later FAM-004/cross-family approval.
-- Persona Switch Scope Boundary Pending is activated by Stage 2-R9 because USER wants persona/voice switching, ORIN not hard-locked, and ARIA beta-visible as locked/coming soon; implementation remains future persona/FAM-004/cross-family work unless a later Stage 1 revalidation admits narrow planning-only HUD copy.
-- Branch Readiness Planning Incomplete was cleared by Stage 2-R7, reopened by Stage 2-R8, and remains active after Stage 2-R9 until Stage 1 revalidates the refreshed digest and rebaseline.
+- Persona Switch Scope Boundary Pending is deferred by Stage 2-R10 to future persona/FAM-004/cross-family implementation; ORIN remains the shipped/default persona, and ARIA may appear only as locked/coming-soon planning copy unless later admitted.
+- Branch Readiness Planning Incomplete was cleared by Stage 2-R7, reopened by Stage 2-R8, remained active after Stage 2-R9, and is cleared by Stage 2-R10 after Stage 1-R6 planning revalidation PASS.
 - Backlog Addition User Approval Missing remains active for any new FAM/package, backlog split, family promotion beyond this branch authority, runtime branch outside this carrier, or single-slice waiver.
 
 ## Entry Basis
@@ -132,11 +126,11 @@ Rollback Path: revert the current Workstream commit on `feature/fam-006-monitori
 
 ## Next Legal Phase
 
-- `Branch Readiness`
+- `Workstream`
 
-Next Legal Seam: `Branch Readiness Stage 1-R6 - FAM-006 Scope Rebaseline Validation`
+Next Legal Seam: `Workstream WS7 - Monitoring HUD Product Visibility And Acceptance Baseline`
 
-Next Legal Phase Gate: Branch Readiness planning may continue on the current FAM-006 carrier. Workstream WS7 is explicitly blocked until Branch Readiness Stage 1 revalidates the Stage 2-R9 digest, current-branch scope, future-package boundaries, hardware-provider path, external telemetry privacy posture, and persona-switching boundary. WS7 must not create a PR, watcher, release, tag, artifact, direct-main mutation, voice/audio implementation, Stream Deck/plugin telemetry implementation, local AI, installer/capability-pack work, broad hardware provider implementation, or a new FAM/package without later explicit USER approval.
+Next Legal Phase Gate: Workstream may resume on the current FAM-006 carrier at WS7 under the Stage 2-R10 boundaries. WS7 may implement only the Monitoring HUD Product Visibility And Acceptance Baseline and must preserve provider-contract-first truth, no fake metrics, visual/non-invasive warnings, ORIN/ARIA planning boundaries, future-package deferrals, and product-proof requirements. WS7 must not create a PR, watcher, release, tag, artifact, direct-main mutation, voice/audio implementation, Stream Deck/plugin telemetry implementation, local AI, installer/capability-pack work, broad hardware provider implementation, persona switching implementation, ARIA activation, or a new FAM/package without later explicit USER approval.
 
 ## Branch Objective
 
@@ -165,37 +159,37 @@ Codex Product Interpretation: the package should feel like a standalone Nexus De
 
 Codex Implementation Recommendation: Stage 2-R9 clears the completed-input and retired-name blockers, but it must not hand off WS7 directly because refreshed USER answers materially widen the plan. Keep WS7 blocked until Stage 1-R6 revalidates current-branch scope, future-package boundaries, provider path, privacy posture, persona-switch boundary, acceptance criteria, and proof standards. Candidate current-branch scope is the Nexus/NDAI-branded full Monitoring HUD shell/module, movable and anchorable panel, click-through/no-focus-steal anchored posture, task-tray unanchor path, no default keybinds, draggable/resizable category cards with snapping posture, basic sensor-card model, safe native telemetry path if proven, provider health/setup/unavailable states, setup/reconnect/no-data/degraded copy, visual/non-invasive warning baseline, full-desktop screenshot proof, and User Test Summary preparation. Full provider-platform parity, broad plugin/external telemetry ecosystem, audio/spoken alerts, persona switching implementation, Stream Deck, advanced graphs/history/persistence, local AI, installer, capability-pack work, and ultra-low polling remain future packages unless later admitted.
 
-USER/ChatGPT Review Checkpoint: refreshed USER input is digested and ready for Branch Readiness Stage 1-R6 revalidation. Prior Stage 1-R4 and Stage 2-R7 handoff remains historical evidence only; WS7 may not resume until Stage 1-R6 validates the Stage 2-R9 scope rebaseline and confirms no unresolved planning blocker prevents implementation.
+USER/ChatGPT Review Checkpoint: refreshed USER input is digested, Stage 1-R6 revalidated the Stage 2-R9 scope rebaseline, and Stage 2-R10 records the PASS. Prior Stage 1-R4 and Stage 2-R7 handoff remains historical evidence only; WS7 may resume under the Stage 2-R10 boundaries.
 
 Full Feature Element Breakdown: Nexus/NDAI futuristic visual HUD identity; standalone HUD shell/module; movable and anchorable overlay layout; click-through and non-focus-stealing anchored behavior; toggle on/off controls; configurable sensor-card model; telemetry provider and adapter boundary; CPU/GPU thermal and load defaults when technically viable; per-card polling and performance constraints; warning thresholds and non-invasive visual warning behavior; setup/reconnect/no-data/degraded behavior; privacy/security boundaries for local, plugin, and external telemetry; accessibility/readability; screenshot and User Test Summary validation; release-bearing posture later; and future boundaries for full sensor-platform coverage, audio/spoken alerts, Stream Deck, plugin ecosystem, advanced graphs/history/persistence, local AI, installer, and capability packs.
 
-Current Branch vs Future Package Boundaries: rebaselined by Stage 2-R9 and pending Stage 1-R6 revalidation. Current branch candidates include the Nexus/NDAI-branded full Monitoring HUD shell/module, movable/anchorable panel, click-through/no-focus-steal anchored posture, task-tray unanchor path, no default keybinds, draggable/resizable category cards, snapping behavior, basic sensor-card model, provider health/setup/unavailable states, safe native telemetry path if proven, default CPU/GPU thermal/load cards only when real provider truth is selected and validated, visual/non-invasive warning baseline, setup/reconnect/no-data/degraded states, full-desktop screenshot proof, refined/cropped detail proof when useful, and User Test Summary preparation. Future-package candidates are full HWInfo/HWMonitor-level parity if too broad for the current branch, broad plugin/external telemetry ecosystem, audio/spoken alerts or FAM-004 integration, persona switching implementation and ARIA activation, Stream Deck, graphs/history/persistence/dashboards, local AI/capability-pack monitoring, installer/capability-pack work, and ultra-low polling intervals until performance proof exists.
+Current Branch vs Future Package Boundaries: rebaselined by Stage 2-R9 and validated by Stage 1-R6 / Stage 2-R10. Current branch owns the Nexus/NDAI-branded full Monitoring HUD shell/module, movable/anchorable panel, click-through/no-focus-steal anchored posture, task-tray unanchor path, no default keybinds, draggable/resizable category cards, snapping behavior, basic sensor-card model, provider health/setup/unavailable states, safe native telemetry path only if proven within WS7, default CPU/GPU thermal/load cards only when real provider truth is selected and validated, visual/non-invasive warning baseline, setup/reconnect/no-data/degraded states, full-desktop screenshot proof, refined/cropped detail proof when useful, and User Test Summary preparation. Future-package candidates are full HWInfo/HWMonitor-level parity, broad plugin/external telemetry ecosystem, audio/spoken alerts or FAM-004 integration, persona switching implementation and ARIA activation, Stream Deck, graphs/history/persistence/dashboards, local AI/capability-pack monitoring, installer/capability-pack work, and ultra-low polling intervals until performance proof exists.
 
 Affected Surfaces: renamed visual surfaces `nexus_visual/orin_core.html`, `nexus_visual/orin_core.css`, and `nexus_visual/orin_core.js`; tracked runtime constants and environment names; validation helpers; desktop launch/runtime surfaces; `desktop/desktop_renderer.py`; local monitoring HUD helper modules under `desktop/`; HUD validators; live-validation helpers; ORIN/ARIA persona boundaries; branch authority truth; backlog/roadmap summaries; future User Test Summary evidence; and any controlled Nexus/NDAI naming migration surfaces admitted by branch revalidation.
 
-Data/Control Model: USER wants real hardware-monitoring data rather than placeholder monitoring. Stage 2-R9 keeps provider-contract-first behavior: current branch may show provider health, setup, unavailable, no-data, degraded, and reconnect states, but live CPU/GPU/thermal/load values require a safe provider and validation path before they can appear as real values. Fake metrics are blocked. No polling occurs until a provider is selected; if polling enters an admitted seam, the fastest practical/default polling rate is `1s`, users may set slower rates, `1ms` per-card polling remains unsafe until explicit proof/waiver, and UI repaint cadence stays decoupled from sensor sample cadence. Plugin/external telemetry requires consent, provenance, source labeling, privacy warnings, and validation before implementation. Toggle, anchoring, click-through, no-focus-steal, task-tray unanchor, category-card movement/resize, snapping posture, and visual/non-invasive warning states are current-branch candidates pending Stage 1-R6 boundary validation. Audio/spoken warnings and persona switching implementation remain outside current PKG-006 unless later admitted.
+Data/Control Model: USER wants real hardware-monitoring data rather than placeholder monitoring. Stage 2-R10 preserves provider-contract-first behavior: current branch may show provider health, setup, unavailable, no-data, degraded, and reconnect states, but live CPU/GPU/thermal/load values require a safe provider and validation path before they can appear as real values. Fake metrics are blocked. No polling occurs until a provider is selected; if polling enters an admitted seam, the fastest practical/default polling rate is `1s`, users may set slower rates, `1ms` per-card polling remains unsafe until explicit proof/waiver, and UI repaint cadence stays decoupled from sensor sample cadence. Plugin/external telemetry requires consent, provenance, source labeling, privacy warnings, and validation before implementation and is deferred to future provider/plugin scope. Toggle, anchoring, click-through, no-focus-steal, task-tray unanchor, category-card movement/resize, snapping posture, and visual/non-invasive warning states are current-branch scope. Audio/spoken warnings and persona switching implementation remain outside current PKG-006 unless later admitted.
 
-Branch Reach / Package-Size Review: Stage 2-R9 records a broad and coherent candidate shape, but Branch Reach Unproven remains active until Stage 1-R6 revalidates the widened HUD, category-card, provider, and persona-boundary plan. The candidate branch spans HUD shell, visual identity, overlay placement, click-through/no-focus behavior, controls/toggle posture, task-tray unanchor posture, sensor/category-card model, provider health/setup/unavailable states, visual warning posture, no-data/degraded/setup states, validation, and UTS acceptance. Broad provider-platform parity, external/plugin telemetry, audio, persona switching, Stream Deck, graphs/history/persistence, local AI, installer, and ultra-low polling are deferred so the branch stays large enough without becoming uncontrolled.
+Branch Reach / Package-Size Review: Stage 1-R6 revalidated the Stage 2-R9 widened HUD, category-card, provider, and persona-boundary plan as broad, coherent, large enough, and bounded. The branch spans HUD shell, visual identity, overlay placement, click-through/no-focus behavior, controls/toggle posture, task-tray unanchor posture, sensor/category-card model, provider health/setup/unavailable states, visual warning posture, no-data/degraded/setup states, validation, and UTS acceptance. Broad provider-platform parity, external/plugin telemetry, audio, persona switching, Stream Deck, graphs/history/persistence, local AI, installer, and ultra-low polling are deferred so the branch stays large enough without becoming uncontrolled.
 
 Why Branch Is Large Enough: the current branch already contains six admitted slices and touches visual UI, renderer ownership, local telemetry contracts, controls visibility, status behavior, validation helpers, source truth, and UTS expectations. The finalized Stage 2-R6 scope adds enough coherent product surface to remain a large package while retaining bounded seams and avoiding a full monitoring-platform rewrite.
 
 Why Not Split Into Tiny Branches: splitting WS7 or the reopened product repair into one-off visual/proof branches would recreate the drift this package is meant to prevent; same-branch continuation keeps FAM -> Package -> Slice -> Seam traceability and avoids cleanup-branch churn.
 
-Acceptance Criteria: rebaselined by Stage 2-R9 and pending Stage 1-R6 revalidation. The HUD must be visibly present in the normal or documented equivalent desktop path; use Nexus/NDAI visual identity; be readable and intentionally placed; support movable and anchorable posture; provide click-through/no-focus-steal anchored-mode design proof or explicitly staged validation; expose task-tray unanchor posture; use no default keybinds; show draggable/resizable category cards with snapping posture; show a visible and understandable sensor-card model; represent provider setup/unavailable, reconnect, no-data, and degraded states truthfully; avoid fake telemetry values; show visual/non-invasive warning posture through card badge, color state, text label, or restrained accent while marking broader warning customization incomplete; avoid screen flash unless accessibility review admits it; preserve audio/spoken warnings as future FAM-004/cross-family scope; provide full-desktop screenshot proof of placement; allow refined/cropped proof to supplement detail after full proof exists; and require User Test Summary confirmation of visibility, readability, usefulness, truthfulness, no misleading claims, and manual-only checks before product completion or PR Readiness.
+Acceptance Criteria: rebaselined by Stage 2-R9 and validated by Stage 1-R6 / Stage 2-R10. The HUD must be visibly present in the normal or documented equivalent desktop path; use Nexus/NDAI visual identity; be readable and intentionally placed; support movable and anchorable posture; provide click-through/no-focus-steal anchored-mode design proof or explicitly staged validation; expose task-tray unanchor posture; use no default keybinds; show draggable/resizable category cards with snapping posture; show a visible and understandable sensor-card model; represent provider setup/unavailable, reconnect, no-data, and degraded states truthfully; avoid fake telemetry values; show visual/non-invasive warning posture through card badge, color state, text label, or restrained accent while marking broader warning customization incomplete; avoid screen flash unless accessibility review admits it; preserve audio/spoken warnings as future FAM-004/cross-family scope; provide full-desktop screenshot proof of placement; allow refined/cropped proof to supplement detail after full proof exists; and require User Test Summary confirmation of visibility, readability, usefulness, truthfulness, no misleading claims, and manual-only checks before product completion or PR Readiness.
 
 Validation Proof Requirements: static validators and runtime markers are supporting proof only; product completion requires a full-desktop screenshot that proves placement and visible HUD presence, followed by refined/cropped screenshot proof for detail if useful. Video is not required by USER. Polling behavior, warning behavior, and other items that cannot be fully automated must be explicitly represented in User Test Summary.
 
 Screenshot / Live / User Test Summary Proof Requirements: screenshots must clearly show the HUD panel/card without relying on DOM markers; full-desktop proof comes first to validate positioning, then refined/cropped screenshots may support visual detail. Live proof must use the normal desktop path or a documented equivalent. User Test Summary remains a blocker before PR Readiness and must confirm visibility, readability, usefulness, no focus steal/click-through expectations, warning behavior where applicable, no misleading telemetry, and any manual-only polling or settings proof.
 
-Implementation Sequence Proposal: Stage 2-R8 reopened Branch Readiness for retired-name sterilization and refreshed USER input. Stage 2-R9 digests the completed refreshed artifact, records the sterilization closeout, and rebaselines the FAM-006 scope. The legal sequence is now: keep WS7 blocked, run Branch Readiness Stage 1-R6 to validate the Stage 2-R9 current-branch/future-package boundary, then resume WS7 only if Stage 1-R6 clears or defers the remaining planning blockers.
+Implementation Sequence Proposal: Stage 2-R8 reopened Branch Readiness for retired-name sterilization and refreshed USER input. Stage 2-R9 digested the completed refreshed artifact, recorded the sterilization closeout, and rebaselined the FAM-006 scope. Stage 1-R6 validated that rebaseline. Stage 2-R10 records the PASS and hands the branch back to Workstream WS7.
 
-Planning Blockers: `Branch Readiness Planning Incomplete`; `Branch Reach Unproven`; `Current Branch vs Future Package Boundary Missing`; `Hardware Telemetry Provider Selection Pending`; `External Telemetry Privacy Model Missing`; `Persona Switch Scope Boundary Pending`.
+Planning Blockers: None active after Stage 2-R10 scope rebaseline closeout.
 
-USER Decisions Needed: none for the refreshed desktop input artifact; it is complete and digested. Later USER decisions are needed only if Stage 1-R6 recommends widening current scope, admitting a provider/platform implementation beyond the current branch, activating persona switching/ARIA implementation, adding audio/spoken warnings, allowing external/plugin telemetry implementation, or granting any explicit waiver.
+USER Decisions Needed: none before WS7. Later USER decisions are needed only if Workstream recommends widening current scope, admitting a provider/platform implementation beyond the current branch, activating persona switching/ARIA implementation, adding audio/spoken warnings, allowing external/plugin telemetry implementation, or granting any explicit waiver.
 
-Planning Packet Status: Blocked
+Planning Packet Status: Complete
 
-Planning Revalidation Status: Pending - Stage 1-R6 required after Stage 2-R9 digest and scope rebaseline
+Planning Revalidation Status: PASS
 
 Planning Completion Waiver: None
 
@@ -275,6 +269,24 @@ Future Package Candidate Scope: `full HWInfo/HWMonitor-level parity if too broad
 Acceptance Criteria Rebaseline: `Visible full HUD in normal/equivalent desktop path; Nexus/NDAI identity; readable and intentional placement; move/anchor posture; click-through/no-focus anchored proof; task-tray unanchor posture; no default keybinds; draggable/resizable category cards; snapping posture; truthful provider/setup/unavailable/no-data/degraded states; no fake telemetry; visual/non-invasive warning baseline marked incomplete for future customization; full-desktop screenshot proof; refined proof only after full proof; User Test Summary before PR Readiness.`
 
 Workstream Gate: `WS7 remains blocked until Stage 1-R6 revalidates this Stage 2-R9 digest, current-branch scope, future-package boundaries, hardware-provider path, privacy posture, persona-switching boundary, and acceptance/proof standards.`
+
+## Stage 2-R10 Scope Rebaseline Closeout And WS7 Handoff
+
+Stage 1-R6 Result: `PASS - refreshed USER Vision Input digest, current-branch scope, future-package deferrals, provider-contract-first path, polling posture, visual/non-invasive warning posture, external telemetry privacy boundary, ORIN/ARIA persona boundary, retired-name sterilization, acceptance criteria, and proof standards are sufficient for WS7.`
+
+Planning Blocker Closeout: `Branch Readiness Planning Incomplete is cleared; Branch Reach Unproven is cleared; Current Branch vs Future Package Boundary Missing is cleared; Hardware Telemetry Provider Selection Pending is converted into a WS7 implementation boundary; External Telemetry Privacy Model Missing is deferred to future provider/plugin scope; Persona Switch Scope Boundary Pending is deferred to future persona/FAM-004/cross-family implementation.`
+
+Backlog Completion Guardrail: `Backlog Completion Unproven remains active. Product proof, full-desktop screenshot proof, User Test Summary acceptance, truthful telemetry proof, and package completion remain future requirements before PKG-006 can be complete.`
+
+WS7 Handoff: `Workstream WS7 - Monitoring HUD Product Visibility And Acceptance Baseline may resume under the finalized Stage 2-R10 boundaries.`
+
+Package Status: `PKG-006 remains In Progress; package completion remains unclaimed.`
+
+Current-Branch Scope Preservation: `Nexus/NDAI full Monitoring HUD shell/module; movable/anchorable panel; click-through/no-focus-steal anchored posture; task-tray unanchor path; no default keybinds; draggable/resizable category cards; snapping posture; basic sensor-card model; provider health/setup/unavailable states; setup/reconnect/no-data/degraded states; visual/non-invasive warning baseline; full-desktop screenshot proof; User Test Summary preparation.`
+
+Future-Package Deferral Preservation: `full HWInfo/HWMonitor-level parity; broad external/plugin telemetry; audio/spoken alerts or FAM-004 integration; persona switching implementation and ARIA activation; Stream Deck integration; graphs/history/persistence/dashboards; local AI/capability-pack monitoring; installer/capability-pack work; ultra-low polling intervals.`
+
+Boundary Preservation: `provider-contract-first; live values only with safe provider and validation route; fake metrics blocked; 1s fastest/default when polling is admitted; slower user-selected rates allowed; 1ms requires proof/waiver; visual/non-invasive warning baseline; screen flash requires accessibility review; audio/spoken warnings are FAM-004/cross-family; ORIN shipped/default persona; ARIA locked/coming-soon planning copy only; Nexus/NDAI/Nexus Desktop AI/Monitoring HUD/persona names only in user-facing current/future surfaces; retired-name scan remains clean.`
 
 ## Stage 2-R6 Product Scope Boundary And Acceptance Criteria
 
@@ -492,34 +504,34 @@ Seam 7: `WS7 - Monitoring HUD Product Visibility And Acceptance Baseline`
 Goal: begin the finalized Nexus/NDAI hardware-monitoring HUD product repair only after Branch Readiness revalidates the Stage 2-R9 refreshed-input scope rebaseline.
 Scope: candidate scope includes a Nexus/NDAI-branded full Monitoring HUD shell/module, futuristic visible card/panel baseline, movable and anchorable panel, click-through and no-focus-steal anchored mode, task-tray unanchor posture, no default keybinds, draggable/resizable category cards, snapping posture, basic sensor-card model, provider health/setup/unavailable states, setup/reconnect/no-data/degraded copy, visual/non-invasive warning states, full-desktop screenshot proof, and User Test Summary prep. Live CPU/GPU/thermal/load values may appear only if a safe provider and validation path are defined.
 Non-Includes: fake telemetry values, retired legacy product naming, voice/audio without FAM-004 approval, Stream Deck/plugin telemetry implementation, full HWInfo/HWMonitor-level sensor-platform coverage, graphs/history/persistence/dashboards, local AI, installer/capability-pack work, release execution, PR creation, watcher provisioning, tags, GitHub Releases, artifacts, or direct-main mutation.
-Status: `Blocked - Stage 2-R9 digested refreshed USER Vision Input and cleared retired-name/input blockers; Stage 1-R6 must revalidate widened scope before Workstream resumes`
+Status: `Active - Stage 2-R10 recorded Stage 1-R6 PASS and handed off WS7 under finalized boundaries`
 
 ## Active Seam
 
-Active seam: `Branch Readiness Stage 2-R9 - USER Vision Input Digest And FAM-006 Scope Rebaseline`
+Active seam: `Workstream WS7 - Monitoring HUD Product Visibility And Acceptance Baseline`
 
-Seam Status: `Green - refreshed USER input digested and scope rebaseline recorded`
-Slice Status: `Blocked from Workstream`
-Slice Detail: `SLC-016, SLC-026, SLC-027, SLC-028, and SLC-029 remain reopened/in progress but cannot resume until Stage 1-R6 validates the Stage 2-R9 scope rebaseline; SLC-025 remains complete as local boundary contract proof`
-Completion Status: `Red`
-Completion Detail: `Workstream blocked by Stage 2-R9 planning revalidation requirements`
+Seam Status: `In Progress`
+Slice Status: `In Progress`
+Slice Detail: `SLC-016, SLC-026, SLC-027, SLC-028, and SLC-029 remain reopened/in progress and may resume under WS7 boundaries; SLC-025 remains complete as local boundary contract proof`
+Completion Status: `In Progress`
+Completion Detail: `Package completion remains unclaimed; WS7 must produce product-visible HUD proof before any later completion claim`
 Waiver Status: `None`
-Continue Decision: `Stop`
-Stop Basis: `Branch Readiness Planning Incomplete; Branch Reach Unproven; Current Branch vs Future Package Boundary Missing; Hardware Telemetry Provider Selection Pending; External Telemetry Privacy Model Missing; Persona Switch Scope Boundary Pending`
+Continue Decision: `Continue to WS7`
+Stop Basis: `None`
 
 ## Seam Continuation Decision
 
-Seam Status: `Blocked before Workstream`
-Slice Status: `Blocked from Workstream`
-Slice Detail: `WS7 product visibility and acceptance baseline is not ready to implement until Stage 1-R6 revalidates the Stage 2-R9 refreshed-input scope rebaseline`
-Completion Status: `Red`
-Completion Detail: `Package completion remains unclaimed; Workstream continuation is blocked`
+Seam Status: `In Progress`
+Slice Status: `In Progress`
+Slice Detail: `WS7 product visibility and acceptance baseline may resume under Stage 2-R10 boundaries`
+Completion Status: `In Progress`
+Completion Detail: `Package completion remains unclaimed; Workstream continuation is allowed but completion is blocked until product proof is real`
 Waiver Status: `None`
-Continue Decision: `Stop`
-Stop Basis: `Branch Readiness Planning Incomplete; Branch Reach Unproven; Current Branch vs Future Package Boundary Missing; Hardware Telemetry Provider Selection Pending; External Telemetry Privacy Model Missing; Persona Switch Scope Boundary Pending`
-Next Active Seam: `Branch Readiness Stage 1-R6 - FAM-006 Scope Rebaseline Validation`
-Stop Condition: `Workstream blocked until Stage 1-R6 revalidates the refreshed USER Vision Input digest, current-branch scope, future-package scope, provider path, privacy posture, persona boundary, and acceptance/proof standards`
-Continuation Action: `Do not resume WS7. Run Branch Readiness Stage 1-R6 to analyze whether the Stage 2-R9 scope rebaseline is sufficient for Workstream or needs another planning repair.`
+Continue Decision: `Continue`
+Stop Basis: `None`
+Next Active Seam: `Workstream WS7 - Monitoring HUD Product Visibility And Acceptance Baseline`
+Stop Condition: `Stop only if WS7 attempts fake telemetry, broad provider-platform implementation without proof, external/plugin telemetry implementation, audio/spoken warning behavior, persona switching implementation, PR/release work, or package completion without product proof`
+Continuation Action: `Resume WS7 implementation under the finalized Stage 2-R10 current-branch scope and future-package deferrals.`
 
 ## WS1 Implementation Record
 

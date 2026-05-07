@@ -235,6 +235,7 @@ FAM006_STAGE2_R6_HEADING = "Stage 2-R6 Product Scope Boundary And Acceptance Cri
 FAM006_STAGE2_R7_HEADING = "Stage 2-R7 Planning Revalidation Closeout And WS7 Handoff"
 FAM006_STAGE2_R8_HEADING = "Stage 2-R8 Legacy Product Name Blocker And USER Vision Input Refresh"
 FAM006_STAGE2_R9_HEADING = "Stage 2-R9 USER Vision Input Digest And FAM-006 Scope Rebaseline"
+FAM006_STAGE2_R10_HEADING = "Stage 2-R10 Scope Rebaseline Closeout And WS7 Handoff"
 FAM006_STAGE2_R6_REQUIRED_MARKERS = (
     "Current-Branch Scope Final:",
     "Future-Package Scope Final:",
@@ -304,6 +305,22 @@ FAM006_STAGE2_R9_REQUIRED_PHRASES = (
     "visual/non-invasive warning posture",
     "fake telemetry remains blocked",
     "WS7 remains blocked until Stage 1-R6",
+)
+FAM006_STAGE2_R10_REQUIRED_PHRASES = (
+    "Stage 1-R6 Result:",
+    "PASS - refreshed USER Vision Input digest",
+    "Planning Blocker Closeout:",
+    "Branch Readiness Planning Incomplete is cleared",
+    "Branch Reach Unproven is cleared",
+    "Current Branch vs Future Package Boundary Missing is cleared",
+    "Hardware Telemetry Provider Selection Pending is converted",
+    "External Telemetry Privacy Model Missing is deferred",
+    "Persona Switch Scope Boundary Pending is deferred",
+    "Backlog Completion Unproven remains active",
+    "WS7 Handoff:",
+    "Workstream WS7 - Monitoring HUD Product Visibility And Acceptance Baseline",
+    "PKG-006 remains In Progress",
+    "package completion remains unclaimed",
 )
 USER_VISION_INPUT_HANDOFF_MARKERS = (
     "USER Vision Input Artifact Path:",
@@ -4410,6 +4427,7 @@ def _validate_fam006_stage2_r6_plan(
         )
 
     stage2_r9_section = _section(text, FAM006_STAGE2_R9_HEADING)
+    stage2_r10_section = _section(text, FAM006_STAGE2_R10_HEADING)
     cleared_by_stage2_r6 = {
         "Branch Reach Unproven",
         "Acceptance Criteria Missing",
@@ -4426,6 +4444,18 @@ def _validate_fam006_stage2_r6_plan(
             POLLING_FLOOR_UNDECIDED_BLOCKER,
             WARNING_DELIVERY_MODALITY_PENDING_BLOCKER,
             AUDIO_WARNING_CROSS_FAMILY_APPROVAL_MISSING_BLOCKER,
+        }
+    if stage2_r10_section:
+        cleared_by_stage2_r6 = {
+            "Branch Reach Unproven",
+            "Acceptance Criteria Missing",
+            "Current Branch vs Future Package Boundary Missing",
+            HARDWARE_TELEMETRY_PROVIDER_PENDING_BLOCKER,
+            POLLING_FLOOR_UNDECIDED_BLOCKER,
+            WARNING_DELIVERY_MODALITY_PENDING_BLOCKER,
+            EXTERNAL_TELEMETRY_PRIVACY_MODEL_MISSING_BLOCKER,
+            AUDIO_WARNING_CROSS_FAMILY_APPROVAL_MISSING_BLOCKER,
+            PERSONA_SWITCH_SCOPE_BOUNDARY_PENDING_BLOCKER,
         }
     for blocker in cleared_by_stage2_r6:
         require(
@@ -4461,6 +4491,7 @@ def _validate_fam006_stage2_r6_plan(
     )
     stage2_r8_section = _section(text, FAM006_STAGE2_R8_HEADING)
     stage2_r9_section = _section(text, FAM006_STAGE2_R9_HEADING)
+    stage2_r10_section = _section(text, FAM006_STAGE2_R10_HEADING)
     has_stage2_r8_blocker = LEGACY_PRODUCT_NAME_DRIFT_BLOCKER in blockers
 
     if current_phase == "Branch Readiness":
@@ -4579,6 +4610,43 @@ def _validate_fam006_stage2_r6_plan(
             ),
         )
     elif current_phase == "Workstream":
+        if stage2_r10_section:
+            for phrase in FAM006_STAGE2_R10_REQUIRED_PHRASES:
+                require(
+                    phrase in stage2_r10_section,
+                    f"{source_path}: {FAM006_STAGE2_R10_HEADING} is missing '{phrase}'",
+                )
+            for cleared_blocker in (
+                PRODUCT_PLANNING_INCOMPLETE_BLOCKER,
+                "Branch Reach Unproven",
+                "Current Branch vs Future Package Boundary Missing",
+                HARDWARE_TELEMETRY_PROVIDER_PENDING_BLOCKER,
+                EXTERNAL_TELEMETRY_PRIVACY_MODEL_MISSING_BLOCKER,
+                PERSONA_SWITCH_SCOPE_BOUNDARY_PENDING_BLOCKER,
+            ):
+                require(
+                    cleared_blocker not in blockers,
+                    (
+                        f"{source_path}: Stage 2-R10 handoff must clear or defer "
+                        f"'{cleared_blocker}' from active blockers"
+                    ),
+                )
+            require(
+                "Planning Blockers: None active after Stage 2-R10 scope rebaseline closeout."
+                in plan_section,
+                (
+                    f"{source_path}: Stage 2-R10 Workstream handoff must clear "
+                    "active planning blockers in the Product Definition Plan"
+                ),
+            )
+            require(
+                PRODUCT_PLANNING_INCOMPLETE_BLOCKER not in blockers,
+                (
+                    f"{source_path}: Workstream handoff must not keep "
+                    f"'{PRODUCT_PLANNING_INCOMPLETE_BLOCKER}' under active Blockers"
+                ),
+            )
+            return
         closeout_section = _section(text, FAM006_STAGE2_R7_HEADING)
         require(
             bool(closeout_section),
