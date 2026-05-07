@@ -206,7 +206,9 @@ Workflow mode should usually return:
 - the updated canonical repo-level `UTS` artifact when the active workstream owns one and the slice makes that artifact relevant
 - the exported or refreshed desktop `User Test Summary.txt` copy when the slice is a relevant desktop user-facing path, or an explicit explanation of why that export was skipped
 - for relevant desktop user-facing Live Validation, the `User-Facing Shortcut Live Validation Gate` / `desktop-shortcut` result with `User-Facing Shortcut Path:` and `User-Facing Shortcut Validation:` recorded before User Test Summary handoff
+- for relevant desktop user-facing Live Validation, the `Codex Live Client Self-QA Gate` result with `Codex Live Client Self-QA:`, `Visual Quality:`, `Usability Check:`, and `Platform Uniformity Check:` recorded before User Test Summary handoff
 - when the user-facing shortcut result is outstanding, the explicit blocker `User-Facing Shortcut Validation Pending`; helper-only, synthetic, harness, or direct-runtime evidence must not be reported as final green while this blocker remains
+- when Codex live-client self-QA is outstanding, the explicit blocker `Codex Live Client Self-QA Pending`; marker-only or screenshot-only evidence must not be reported as ready for USER handoff while this blocker remains
 - when returned User Test Summary results are still outstanding, the explicit blocker output: `Automated validators and live helper evidence: GREEN.`, `User Test Summary Results: PENDING.`, and `Final phase advancement is BLOCKED until the filled User Test Summary is submitted and digested.`
 - when meaningful desktop UI changed and closeout posture matters, a distinct summary of the live launched-process UI audit results and evidence
 - an explicit statement under `## User Test Summary` when no meaningful manual test exists and why

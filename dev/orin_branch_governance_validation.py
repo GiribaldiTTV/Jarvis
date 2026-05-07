@@ -1611,6 +1611,40 @@ USER_FACING_SHORTCUT_WAIVER_REASON_LABEL = "User-Facing Shortcut Waiver Reason:"
 USER_FACING_SHORTCUT_RESULT_VALUES = ("PENDING", "PASS", "FAIL", "WAIVED")
 USER_FACING_SHORTCUT_CLEAR_VALUES = ("PASS", "WAIVED")
 
+CODEX_LIVE_CLIENT_SELF_QA_DOCS = (
+    Path("Docs/phase_governance.md"),
+    Path("Docs/development_rules.md"),
+    Path("Docs/Main.md"),
+    Path("Docs/codex_modes.md"),
+    Path("Docs/orin_task_template.md"),
+    Path("Docs/codex_user_guide.md"),
+    Path("Docs/user_test_summary_guidance.md"),
+)
+
+CODEX_LIVE_CLIENT_SELF_QA_PHRASES = (
+    "Codex Live Client Self-QA Gate",
+    "Codex Live Client Self-QA:",
+    "Visual Quality:",
+    "Usability Check:",
+    "Platform Uniformity Check:",
+)
+
+CODEX_LIVE_CLIENT_SELF_QA_BLOCKER = "Codex Live Client Self-QA Pending"
+CODEX_LIVE_CLIENT_SELF_QA_RESULT_LABEL = "Codex Live Client Self-QA:"
+CODEX_LIVE_CLIENT_SELF_QA_WAIVER_REASON_LABEL = "Codex Live Client Self-QA Waiver Reason:"
+CODEX_LIVE_CLIENT_SELF_QA_RESULT_VALUES = ("PENDING", "PASS", "FAIL", "WAIVED")
+CODEX_LIVE_CLIENT_SELF_QA_CLEAR_VALUES = ("PASS", "WAIVED")
+CODEX_LIVE_CLIENT_SELF_QA_REQUIRED_MARKERS = (
+    "Live Client Entry Path:",
+    "Evidence Screenshot:",
+    "Visual Quality:",
+    "Usability Check:",
+    "Interaction Check:",
+    "Platform Uniformity Check:",
+    "NDAI Naming Check:",
+    "Cleanup Check:",
+)
+
 RELEASE_READINESS_TARGET_DOCS = (
     Path("Docs/phase_governance.md"),
     Path("Docs/development_rules.md"),
@@ -5234,6 +5268,32 @@ def _parse_user_facing_shortcut_waiver_reason(text: str) -> str:
     return _extract_marker_value(
         _user_test_summary_section(text),
         USER_FACING_SHORTCUT_WAIVER_REASON_LABEL,
+    )
+
+
+def _codex_live_client_self_qa_section(text: str) -> str:
+    return _section(text, "Codex Live Client Self-QA")
+
+
+def _has_codex_live_client_self_qa(text: str) -> bool:
+    return bool(_codex_live_client_self_qa_section(text))
+
+
+def _parse_codex_live_client_self_qa_state(text: str) -> str:
+    section = _codex_live_client_self_qa_section(text)
+    matches = re.findall(
+        rf"{re.escape(CODEX_LIVE_CLIENT_SELF_QA_RESULT_LABEL)}\s*`?([A-Za-z]+)`?",
+        section,
+    )
+    if not matches:
+        return ""
+    return matches[-1].strip().upper()
+
+
+def _parse_codex_live_client_self_qa_waiver_reason(text: str) -> str:
+    return _extract_marker_value(
+        _codex_live_client_self_qa_section(text),
+        CODEX_LIVE_CLIENT_SELF_QA_WAIVER_REASON_LABEL,
     )
 
 
@@ -11738,6 +11798,14 @@ def main() -> int:
                 f"{relative_path}: user-facing shortcut Live Validation gate guidance is missing '{required_phrase}'",
             )
 
+    for relative_path in CODEX_LIVE_CLIENT_SELF_QA_DOCS:
+        text = _read_text(relative_path)
+        for required_phrase in CODEX_LIVE_CLIENT_SELF_QA_PHRASES:
+            require(
+                required_phrase in text,
+                f"{relative_path}: Codex live-client self-QA gate guidance is missing '{required_phrase}'",
+            )
+
     for relative_path in RELEASE_READINESS_TARGET_DOCS:
         text = _read_text(relative_path)
         for required_phrase in RELEASE_READINESS_TARGET_PHRASES:
@@ -12673,6 +12741,99 @@ def main() -> int:
                         (
                             f"{canonical_path}: PR Readiness requires "
                             f"{USER_FACING_SHORTCUT_RESULT_LABEL} PASS or WAIVED; current value is {shortcut_result}"
+                        ),
+                    )
+
+        if current_phase in {"Live Validation", "PR Readiness"} and _requires_user_facing_shortcut_gate(
+            workstream_text
+        ):
+            require(
+                _has_codex_live_client_self_qa(workstream_text),
+                (
+                    f"{canonical_path}: active desktop user-facing '{current_phase}' workstream must include "
+                    "an exact '## Codex Live Client Self-QA' section before User Test Summary handoff"
+                ),
+            )
+            self_qa_section = _codex_live_client_self_qa_section(workstream_text)
+            self_qa_result = _parse_codex_live_client_self_qa_state(workstream_text)
+            require(
+                bool(self_qa_result),
+                (
+                    f"{canonical_path}: active desktop user-facing '{current_phase}' workstream must declare "
+                    f"'{CODEX_LIVE_CLIENT_SELF_QA_RESULT_LABEL}'"
+                ),
+            )
+            if self_qa_result:
+                require(
+                    self_qa_result in CODEX_LIVE_CLIENT_SELF_QA_RESULT_VALUES,
+                    (
+                        f"{canonical_path}: {CODEX_LIVE_CLIENT_SELF_QA_RESULT_LABEL} '{self_qa_result}' "
+                        f"must be one of {', '.join(CODEX_LIVE_CLIENT_SELF_QA_RESULT_VALUES)}"
+                    ),
+                )
+                for marker in CODEX_LIVE_CLIENT_SELF_QA_REQUIRED_MARKERS:
+                    require(
+                        marker in self_qa_section,
+                        (
+                            f"{canonical_path}: Codex Live Client Self-QA section is missing "
+                            f"'{marker}'"
+                        ),
+                    )
+                if self_qa_result == "PENDING":
+                    require(
+                        CODEX_LIVE_CLIENT_SELF_QA_BLOCKER in blockers,
+                        (
+                            f"{canonical_path}: {CODEX_LIVE_CLIENT_SELF_QA_RESULT_LABEL} PENDING requires "
+                            f"'{CODEX_LIVE_CLIENT_SELF_QA_BLOCKER}' under Blockers"
+                        ),
+                    )
+                    require(
+                        next_legal_phase == current_phase,
+                        (
+                            f"{canonical_path}: {CODEX_LIVE_CLIENT_SELF_QA_RESULT_LABEL} PENDING must keep "
+                            f"Next Legal Phase at '{current_phase}' until self-QA is digested"
+                        ),
+                    )
+                if self_qa_result == "FAIL":
+                    require(
+                        blockers,
+                        (
+                            f"{canonical_path}: {CODEX_LIVE_CLIENT_SELF_QA_RESULT_LABEL} FAIL must keep "
+                            "an explicit blocker and route back before USER handoff or advancement"
+                        ),
+                    )
+                if self_qa_result in CODEX_LIVE_CLIENT_SELF_QA_CLEAR_VALUES:
+                    require(
+                        CODEX_LIVE_CLIENT_SELF_QA_BLOCKER not in blockers,
+                        (
+                            f"{canonical_path}: {CODEX_LIVE_CLIENT_SELF_QA_BLOCKER} must clear after "
+                            f"{CODEX_LIVE_CLIENT_SELF_QA_RESULT_LABEL} {self_qa_result}"
+                        ),
+                    )
+                if self_qa_result == "WAIVED":
+                    require(
+                        bool(_parse_codex_live_client_self_qa_waiver_reason(workstream_text)),
+                        (
+                            f"{canonical_path}: {CODEX_LIVE_CLIENT_SELF_QA_RESULT_LABEL} WAIVED requires "
+                            f"'{CODEX_LIVE_CLIENT_SELF_QA_WAIVER_REASON_LABEL}'"
+                        ),
+                    )
+                uts_result_for_self_qa = _parse_uts_result_state(workstream_text)
+                if uts_result_for_self_qa in UTS_CLEAR_RESULT_VALUES:
+                    require(
+                        self_qa_result in CODEX_LIVE_CLIENT_SELF_QA_CLEAR_VALUES,
+                        (
+                            f"{canonical_path}: {UTS_RESULT_LABEL} {uts_result_for_self_qa} requires "
+                            f"{CODEX_LIVE_CLIENT_SELF_QA_RESULT_LABEL} PASS or WAIVED first"
+                        ),
+                    )
+                if current_phase == "PR Readiness":
+                    require(
+                        self_qa_result in CODEX_LIVE_CLIENT_SELF_QA_CLEAR_VALUES,
+                        (
+                            f"{canonical_path}: PR Readiness requires "
+                            f"{CODEX_LIVE_CLIENT_SELF_QA_RESULT_LABEL} PASS or WAIVED; "
+                            f"current value is {self_qa_result}"
                         ),
                     )
 

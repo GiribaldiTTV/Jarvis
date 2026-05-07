@@ -59,6 +59,7 @@ Do not use this layer to replace:
 - `PR Watcher Routing Unverified` is the standard blocker when a branch expects watcher-based PR monitoring but the configured watcher target and delivery proof have not yet been cross-checked against the recorded reporting surface and proven to land there
 - PR watcher delivery proof requires assistant-message transcript presence plus Codex thread-state refresh plus automation run/inbox visibility for the approved reporting surface; a watcher must not retire after merge until that final delivery proof is present
 - Automation Observability Review Pending is checked with `dev/automation_observability_report.py`; Codex automation run/inbox rows and `$CODEX_HOME/automations/*/memory.md` are review inputs, while `BLOCKER_CANDIDATE` and `REVIEW_REQUIRED` findings require a bounded repair seam before repo canon changes
+- relevant desktop user-facing Live Validation must include the `Codex Live Client Self-QA Gate` before User Test Summary handoff: the active authority record must declare `Codex Live Client Self-QA:`, `Visual Quality:`, `Usability Check:`, and `Platform Uniformity Check:`, and `Codex Live Client Self-QA Pending` blocks USER handoff readiness until Codex inspects the launched client like a user or an explicit waiver is recorded
 - historical branch authority records are preserved traceability records, not live execution authority
 - historical-only closeout traceability records must report `Phase: Historical Traceability` and must not retain live PR state, active seam ownership, or open-PR narration
 - each active branch authority record must carry the modern phase-state block:
@@ -79,7 +80,7 @@ Do not use this layer to replace:
 
 - `Docs/branch_records/feature_fam_006_monitoring_hud_product_surface.md`
 
-Active authority belongs to the USER-approved FAM-006 Monitoring and HUD Product Surface Package carrier, currently Live Validation LV1 with automated/live HUD proof green and `User Test Summary Results Pending`. Merged `main` remains the validated source baseline before this branch merges; the active branch record must move to historical/no-active posture before PR green so merged-main truth does not retain stale active branch authority.
+Active authority belongs to the USER-approved FAM-006 Monitoring and HUD Product Surface Package carrier, currently Live Validation LV1 with automated/live HUD proof plus Codex live-client self-QA green and `User Test Summary Results Pending`. Merged `main` remains the validated source baseline before this branch merges; the active branch record must move to historical/no-active posture before PR green so merged-main truth does not retain stale active branch authority.
 
 ## Historical Branch Authority Records
 

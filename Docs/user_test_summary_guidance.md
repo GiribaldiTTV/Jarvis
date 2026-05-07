@@ -225,6 +225,30 @@ If the gate is `PENDING`, keep `User-Facing Shortcut Validation Pending` active.
 If the gate is `FAIL`, route back to `Workstream` or `Hardening` before exporting final-green `UTS` posture.
 If the gate is `WAIVED`, the waiver must state why the branch is not desktop/user-facing or why the shortcut path is explicitly unavailable.
 
+## Codex Live Client Self-QA Gate
+
+For relevant desktop user-facing workstreams, User Test Summary handoff is also downstream of Codex's own live-client self-QA.
+Validators, markers, screenshots, synthetic harnesses, and helper launches may support the evidence trail, but Codex must still inspect the launched UI like a user before asking the USER to run formal acceptance.
+
+Before User Test Summary handoff, the active authority record must declare:
+
+- `Codex Live Client Self-QA: PENDING`
+- `Codex Live Client Self-QA: PASS`
+- `Codex Live Client Self-QA: FAIL`
+- `Codex Live Client Self-QA: WAIVED`
+- `Visual Quality:`
+- `Usability Check:`
+- `Platform Uniformity Check:`
+
+Named blocker:
+
+- `Codex Live Client Self-QA Pending`
+
+The gate is green only when Codex records a live-client review of readability, placement, visual quality, NDAI uniformity, interaction posture, naming cleanliness, cleanup, and evidence quality from the launched user-facing path or an explicitly equivalent path.
+If the gate is `PENDING`, keep `Codex Live Client Self-QA Pending` active.
+If the gate is `FAIL`, route back to `Workstream` or `Hardening` before exporting final-green `UTS` posture.
+If the gate is `WAIVED`, the waiver must state why the branch is not user-facing or why the live client path is explicitly unavailable.
+
 ## Carry-Forward Approval Rule
 
 Ideas surfaced through a returned `UTS` must not be silently added to:

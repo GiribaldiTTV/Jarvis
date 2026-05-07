@@ -39,7 +39,7 @@ This branch may execute the admitted PKG-006 implementation slices during Workst
 - Branch Readiness Stage: `Complete - Stage 2-R10 recorded Stage 1-R6 planning revalidation PASS`
 - Workstream Stage: `Green - WS8 through WS17 completed the current-branch Monitoring HUD implementation chain`
 - Hardening Stage: `Green - H1 pressure-tested the visible HUD, controls, placement, provider-contract telemetry, internal sandbox, live screenshot proof, source truth, and naming sterilization`
-- Live Validation Stage: `In Progress - LV1 automated/live helper proof is green; User Test Summary returned-results digestion is pending`
+- Live Validation Stage: `In Progress - LV1 live helper proof and Codex live-client self-QA are green; User Test Summary returned-results digestion is pending`
 - Active Branch: `feature/fam-006-monitoring-hud-product-surface`
 - Branch Authority Mode: `Active Branch`
 - Workstream Entry Source-Truth Transition: `Performed - Branch Readiness Stage 2 terminal evidence reconciled before runtime implementation`
@@ -50,9 +50,9 @@ This branch may execute the admitted PKG-006 implementation slices during Workst
 - Selected Next Source: `USER-approved selected-next truth matured into active FAM-006 Workstream`
 - Package Admission State: `Admitted`
 - Admitted Slice Count: `6`
-- Package Completion State: `In Progress - Live Validation LV1 automated/live proof green; User Test Summary, PR Readiness, and final package completion remain unclaimed`
+- Package Completion State: `In Progress - Live Validation LV1 automated/live proof and Codex live-client self-QA green; User Test Summary, PR Readiness, and final package completion remain unclaimed`
 - Single-Slice Package User Approval: `Not required - PKG-006 has six concrete admitted slices; no waiver granted`
-- Runtime Implementation State: `Live Validation LV1 In Progress - Workstream implementation and H1 pressure-test remain green; LV1 refreshed automated/live proof for the Nexus/NDAI Monitoring HUD shell, visible futuristic panel, draggable/resizable/snapping CPU/GPU category cards, tray show/hide and unanchor route, anchored click-through/no-focus posture, no default keybinds, provider-contract telemetry, native CPU-load proof, truthful CPU thermal/GPU setup-unavailable states, 1s fastest/default polling with slower user-selectable rates, local layout state, visual/non-invasive warning posture, internal sandbox proof, live desktop proof, and naming sterilization. Future provider-platform parity, external/plugin telemetry, audio/spoken alerts, persona switching, Stream Deck, graphs/history/persistence dashboards, local AI/capability packs, installer work, and ultra-low polling remain deferred.`
+- Runtime Implementation State: `Live Validation LV1 In Progress - Workstream implementation and H1 pressure-test remain green; LV1 refreshed automated/live proof plus Codex live-client self-QA for the Nexus/NDAI Monitoring HUD shell, visible futuristic panel, draggable/resizable/snapping CPU/GPU category cards, tray show/hide and unanchor route, anchored click-through/no-focus posture, no default keybinds, provider-contract telemetry, native CPU-load proof, truthful CPU thermal/GPU setup-unavailable states, 1s fastest/default polling with slower user-selectable rates, local layout state, visual/non-invasive warning posture, internal sandbox proof, live desktop proof, and naming sterilization. Future provider-platform parity, external/plugin telemetry, audio/spoken alerts, persona switching, Stream Deck, graphs/history/persistence dashboards, local AI/capability packs, installer work, and ultra-low polling remain deferred.`
 - PR Creation State: `Not approved in Live Validation`
 - Watcher Provisioning State: `Not approved in Live Validation`
 - Release Work State: `Not approved; v1.6.13-prebeta release execution is already complete and no new release work is in scope`
@@ -67,7 +67,7 @@ This branch may execute the admitted PKG-006 implementation slices during Workst
 
 - `User Test Summary Results Pending`
 
-Package completion is not currently claimed. The Workstream completion guardrail is cleared and Hardening H1 is green because the repo-side pressure test passed for the current-branch HUD implementation scope. Live Validation LV1 automated/live helper proof is green, but formal User Test Summary returned-results digestion is still pending. Final phase advancement remains blocked until the filled User Test Summary is submitted or waived, digested into this authority record, and reevaluated.
+Package completion is not currently claimed. The Workstream completion guardrail is cleared and Hardening H1 is green because the repo-side pressure test passed for the current-branch HUD implementation scope. Live Validation LV1 automated/live helper proof and Codex live-client self-QA are green, but formal User Test Summary returned-results digestion is still pending. Final phase advancement remains blocked until the filled User Test Summary is submitted or waived, digested into this authority record, and reevaluated.
 
 ## Cleared Governance Notes
 
@@ -132,7 +132,7 @@ Rollback Path: revert the current Workstream commit on `feature/fam-006-monitori
 
 Next Legal Seam: `Live Validation LV1 - Monitoring HUD Product Surface Live Validation`
 
-Next Legal Phase Gate: Live Validation LV1 is active on the current FAM-006 carrier. Automated validators and live helper proof are green, and the documented equivalent desktop runtime path captured full-desktop visible HUD proof, but `User Test Summary Results Pending` blocks final Live Validation green until returned USER results are submitted or waived, digested into this authority record, and reevaluated. Live Validation must preserve provider-contract-first truth, no fake metrics, visual/non-invasive warnings, ORIN/ARIA planning boundaries, future-package deferrals, user-facing shortcut/equivalent entrypoint proof, and formal User Test Summary returned-results digestion. It must not create a PR, watcher, release, tag, artifact, direct-main mutation, voice/audio implementation, Stream Deck/plugin telemetry implementation, local AI, installer/capability-pack work, broad hardware provider implementation, persona switching implementation, ARIA activation, or a new FAM/package without later explicit USER approval.
+Next Legal Phase Gate: Live Validation LV1 is active on the current FAM-006 carrier. Automated validators, live helper proof, and Codex live-client self-QA are green, and the documented equivalent desktop runtime path captured full-desktop visible HUD proof, but `User Test Summary Results Pending` blocks final Live Validation green until returned USER results are submitted or waived, digested into this authority record, and reevaluated. Live Validation must preserve provider-contract-first truth, no fake metrics, visual/non-invasive warnings, ORIN/ARIA planning boundaries, future-package deferrals, user-facing shortcut/equivalent entrypoint proof, Codex live-client self-QA, and formal User Test Summary returned-results digestion. It must not create a PR, watcher, release, tag, artifact, direct-main mutation, voice/audio implementation, Stream Deck/plugin telemetry implementation, local AI, installer/capability-pack work, broad hardware provider implementation, persona switching implementation, ARIA activation, or a new FAM/package without later explicit USER approval.
 
 ## Branch Objective
 
@@ -746,10 +746,10 @@ Validation Evidence Expectations: return PASS/FAIL plus any notes, screenshots, 
 
 - Phase Admission: `PASS - Live Validation LV1 entered after Hardening H1 Green and stayed on feature/fam-006-monitoring-hud-product-surface`
 - Live Validation seam: `Live Validation LV1 - Monitoring HUD Product Surface Live Validation`
-- Live evidence root: `dev/logs/fam_006_monitoring_hud_live_validation/20260507_070219`
-- Live manifest: `dev/logs/fam_006_monitoring_hud_live_validation/20260507_070219/manifest.json`
-- Live screenshot: `dev/logs/fam_006_monitoring_hud_live_validation/20260507_070219/monitoring_hud_desktop.png`
-- Internal sandbox manifest: `dev/logs/fam_006_monitoring_hud_internal_sandbox/20260507_070221_manifest.json`
+- Live evidence root: `dev/logs/fam_006_monitoring_hud_live_validation/20260507_071523`
+- Live manifest: `dev/logs/fam_006_monitoring_hud_live_validation/20260507_071523/manifest.json`
+- Live screenshot: `dev/logs/fam_006_monitoring_hud_live_validation/20260507_071523/monitoring_hud_desktop.png`
+- Internal sandbox manifest: `dev/logs/fam_006_monitoring_hud_internal_sandbox/20260507_071524_manifest.json`
 - Static validation: `python dev/orin_branch_governance_validation.py` PASS; `python dev/orin_monitoring_hud_surface_validation.py` PASS; `python dev/orin_monitoring_hud_internal_sandbox_validation.py` PASS; `python -m compileall -q dev desktop Audio main.py` PASS; `git diff --check` PASS
 - Live validation: `powershell -NoProfile -ExecutionPolicy Bypass -File dev\orin_monitoring_hud_live_validation.ps1` PASS with HUD baseline, product visibility, visible overlay, telemetry, placement, controls, status, interaction-mode, control-state, startup-ready, and desktop-settled markers observed
 - User-facing shortcut/equivalent entrypoint finding: `PASS - documented equivalent desktop runtime path passed through dev/orin_monitoring_hud_live_validation.ps1; formal desktop User Test Summary handoff refreshed for USER review`
@@ -760,9 +760,24 @@ Validation Evidence Expectations: return PASS/FAIL plus any notes, screenshots, 
 - LV1 Continuation Finding: `Automated/live proof is green, but User Test Summary Results remain PENDING; final LV1 green, package completion, and PR Readiness remain blocked until returned results are digested`
 - Boundary preservation: `No broad provider-platform implementation, external/plugin telemetry implementation, audio/spoken warning behavior, persona switching, ARIA activation, Stream Deck, graphs/history/persistence dashboards, local AI/capability-pack monitoring, installer/capability-pack work, PR work, watcher work, release work, tags, GitHub Releases, artifacts, direct-main mutation, new branch, or new FAM/package admission`
 
+## Codex Live Client Self-QA
+
+- Codex Live Client Self-QA: `PASS`
+- Live Client Entry Path: `powershell -NoProfile -ExecutionPolicy Bypass -File dev\orin_monitoring_hud_live_validation.ps1`
+- Evidence Screenshot: `dev/logs/fam_006_monitoring_hud_live_validation/20260507_071523/monitoring_hud_desktop.png`
+- Evidence Manifest: `dev/logs/fam_006_monitoring_hud_live_validation/20260507_071523/manifest.json`
+- Visual Quality: `PASS - HUD is visible in the full desktop, uses a coherent Nexus/NDAI futuristic card-panel identity, and reads as a product surface rather than a marker-only scaffold`
+- Usability Check: `PASS - panel placement is intentional, text and card groupings are readable in the captured live-client proof, state labels explain setup/unavailable/no-data boundaries, and no fake hardware values are presented`
+- Interaction Check: `PASS - live/helper evidence covers tray show/hide, tray unanchor, anchored click-through/no-focus posture, no default keybinds, draggable/resizable cards, snapping posture, and visual/non-invasive warning state`
+- Platform Uniformity Check: `PASS - HUD copy and styling use Nexus/NDAI/Monitoring HUD language and match the current dark futuristic NDAI desktop visual direction`
+- NDAI Naming Check: `PASS - tracked repo retired-name scan is clean and the HUD surface itself does not expand retired product identity; live desktop screenshot still shows a non-repo desktop shortcut with retired naming outside the HUD, which is an external environment observation rather than tracked repo source truth`
+- Cleanup Check: `PASS - live helper stopped the launched desktop runtime and recorded cleanup in the manifest`
+- Handoff Readiness: `READY FOR USER TEST SUMMARY HANDOFF ONLY - not final Live Validation green`
+
 ## User Test Summary
 
 Automated validators and live helper evidence: GREEN.
+Codex Live Client Self-QA: PASS.
 User-Facing Shortcut Live Validation Gate: documented equivalent desktop runtime path passed before User Test Summary handoff.
 User-Facing Shortcut Path: `powershell -NoProfile -ExecutionPolicy Bypass -File dev\orin_monitoring_hud_live_validation.ps1`
 User-Facing Shortcut Validation: PASS.

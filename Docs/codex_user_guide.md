@@ -171,6 +171,7 @@ For meaningful interactive desktop hardening or closeout work, that baseline als
 - treating one-off live-validation probes as temporary ignored artifacts that must be deleted or promoted into documented reusable tooling before closeout-grade proof
 - requiring visible helper progress and a no-progress supervisor; if no tighter helper-specific watchdog is active, `10s` without meaningful progress must abort the run, clean up, and report the last confirmed progress point
 - applying the `User-Facing Shortcut Live Validation Gate` for relevant desktop user-facing Live Validation: declare `User-Facing Shortcut Path:`, record `User-Facing Shortcut Validation:`, and clear or waive `User-Facing Shortcut Validation Pending` before User Test Summary handoff
+- applying the `Codex Live Client Self-QA Gate` for relevant desktop user-facing Live Validation: declare `Codex Live Client Self-QA:`, `Visual Quality:`, `Usability Check:`, and `Platform Uniformity Check:`, then clear or waive `Codex Live Client Self-QA Pending` before User Test Summary handoff
 - planning the post-green live launched-process UI audit when meaningful user-facing desktop UI changed
 
 ## Codex Client Screenshot Delivery

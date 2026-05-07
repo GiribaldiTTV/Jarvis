@@ -364,6 +364,10 @@ That means:
   - for relevant desktop user-facing workstreams, `User-Facing Shortcut Live Validation Gate` must pass or be explicitly waived before PR Readiness can report green
   - the active authority record must declare `User-Facing Shortcut Path:` and `User-Facing Shortcut Validation:` before User Test Summary handoff
   - helper-only, direct-runtime, synthetic, or harness evidence may support Live Validation, but it does not replace the final user-facing shortcut gate when that shortcut path is feasible
+- no PR-ready without Codex live-client self-QA:
+  - for relevant desktop user-facing workstreams, `Codex Live Client Self-QA Gate` must pass or be explicitly waived before User Test Summary handoff and PR Readiness
+  - the active authority record must declare `Codex Live Client Self-QA:`, `Visual Quality:`, `Usability Check:`, and `Platform Uniformity Check:` so quality, usability, and NDAI uniformity are not collapsed into marker proof
+  - while `Codex Live Client Self-QA Pending` remains active, do not hand off the feature as ready for USER acceptance
 - no PR-ready with `User Test Summary Results Pending`:
   - automated validators and live helper evidence may be green, but final phase advancement remains blocked while a required User Test Summary handoff is outstanding
   - returned User Test Summary results must be submitted or explicitly waived, digested into the active authority record, and reevaluated before PR Readiness can report green
@@ -712,6 +716,7 @@ For bounded multi-seam Workstream execution, User Test Summary handling is incre
 - update the canonical workstream User Test Summary strategy as user-visible or operator-facing seams land
 - when the Workstream seam chain is complete, preserve the handoff needs for later Live Validation; do not use returned UTS results as a Workstream stop condition
 - before User Test Summary handoff in Live Validation, run the `User-Facing Shortcut Live Validation Gate` for relevant desktop user-facing workstreams and record `User-Facing Shortcut Path:` plus `User-Facing Shortcut Validation: PENDING`, `PASS`, `FAIL`, or `WAIVED`
+- before User Test Summary handoff in Live Validation, run the `Codex Live Client Self-QA Gate` for relevant desktop user-facing workstreams and record `Codex Live Client Self-QA:`, `Visual Quality:`, `Usability Check:`, and `Platform Uniformity Check:`
 - digest returned user evidence in `Live Validation` before recommending phase advancement
 - route returned evidence back to `Workstream` for in-scope user-facing branch work, to `Hardening` for defects or validation gaps, or to backlog/defer handling for new feature requests
 
@@ -719,6 +724,10 @@ If required user-facing desktop shortcut evidence is outstanding, the active aut
 
 The shortcut blocker lifts only after `User-Facing Shortcut Validation: PASS` is recorded with evidence from the declared shortcut path, or `User-Facing Shortcut Validation: WAIVED` is recorded with `User-Facing Shortcut Waiver Reason:` proving the branch is not desktop/user-facing or the shortcut path is explicitly unavailable.
 If `User-Facing Shortcut Validation: FAIL`, keep an explicit blocker and route back to `Workstream` or `Hardening` instead of exporting the branch as final-green.
+
+If required Codex live-client self-QA is outstanding, the active authority record must carry the hard blocker `Codex Live Client Self-QA Pending`.
+The self-QA blocker lifts only after `Codex Live Client Self-QA: PASS` is recorded with evidence from the launched client path, or `Codex Live Client Self-QA: WAIVED` is recorded with `Codex Live Client Self-QA Waiver Reason:` proving the branch is not user-facing or the live client path is unavailable.
+If `Codex Live Client Self-QA: FAIL`, keep an explicit blocker and route back to `Workstream` or `Hardening` before USER handoff.
 
 If a required User Test Summary handoff is outstanding in Live Validation or PR Readiness, the active authority record must carry the hard blocker `User Test Summary Results Pending`.
 Live Validation green requires an exact `## User Test Summary` state before final green.

@@ -971,6 +971,46 @@ Routing:
 - if `User-Facing Shortcut Validation: FAIL`, keep an explicit blocker and route back to `Workstream` or `Hardening` before PR Readiness
 - if the shortcut gate passes or is waived, User Test Summary handoff may proceed only if all other Live Validation gates are green
 
+### Codex Live Client Self-QA Gate
+
+For relevant desktop user-facing workstreams, Codex must perform a live-client self-QA pass before handing the feature to the USER for a formal User Test Summary.
+The pass is not a substitute for USER acceptance, but it is Codex-owned product validation: Codex must inspect the launched UI as if it were a user and judge quality, usability, platform uniformity, naming cleanliness, interaction posture, cleanup, and evidence quality before asking the USER to spend time testing.
+
+Named blocker:
+
+- `Codex Live Client Self-QA Pending`
+
+Machine-checkable authority-record markers:
+
+- `Codex Live Client Self-QA: PENDING`
+- `Codex Live Client Self-QA: PASS`
+- `Codex Live Client Self-QA: FAIL`
+- `Codex Live Client Self-QA: WAIVED`
+- `Codex Live Client Self-QA Waiver Reason:`
+- `Live Client Entry Path:`
+- `Evidence Screenshot:`
+- `Visual Quality:`
+- `Usability Check:`
+- `Interaction Check:`
+- `Platform Uniformity Check:`
+- `NDAI Naming Check:`
+- `Cleanup Check:`
+
+Required proof:
+
+- the launched UI is reviewed from the same live client path or declared equivalent used for the shortcut gate
+- the visible surface is readable, intentionally placed, and visually coherent with Nexus Desktop AI
+- interaction claims such as movement, anchoring, click-through/no-focus posture, tray paths, toggles, cards, snapping, and warnings are checked through live evidence, targeted probes, or explicitly identified staged validation
+- platform uniformity is reviewed across current NDAI naming, visual language, copy tone, and surrounding user-facing surfaces touched by the branch
+- validators, markers, screenshots, and manifests are treated as supporting evidence, not a replacement for Codex's visual/usability judgment
+
+Routing:
+
+- while `Codex Live Client Self-QA: PENDING` remains, list `Codex Live Client Self-QA Pending` under blockers and do not hand off the User Test Summary as ready
+- if `Codex Live Client Self-QA: FAIL`, keep an explicit blocker and route back to `Workstream` or `Hardening` before USER handoff or PR Readiness
+- if `Codex Live Client Self-QA: PASS` is recorded, the USER Test Summary handoff may proceed only if the shortcut/equivalent entrypoint gate and all other Live Validation gates are green
+- `Codex Live Client Self-QA: WAIVED` requires explicit waiver reason and is valid only when the branch is not user-facing or the live client path is unavailable
+
 ### User Test Summary Results Gate
 
 Live Validation and PR Readiness must not report final green while a relevant user-facing workstream has a required User Test Summary handoff outstanding and returned results have not been submitted and digested.
