@@ -5829,7 +5829,7 @@ class DesktopRuntimeWindow(QWidget):
         webview_origin = self.webview.mapToGlobal(QPoint(0, 0))
         return QPoint(max(0, rect.x() + 12 - webview_origin.x()), max(0, rect.y() + 12 - webview_origin.y()))
 
-    def _set_monitoring_hud_panel_position_from_native_drag(self, left: int, top: int):
+    def _set_monitoring_hud_panel_position_from_native_drag(self, left: int, top: int, *, emit_status: bool = True):
         if self.surface_role == "hud":
             virtual = self._virtual_desktop_geometry()
             max_left = virtual.x() + max(0, virtual.width() - self.width())
@@ -5846,15 +5846,16 @@ class DesktopRuntimeWindow(QWidget):
             )
             self.move(bounded_left, bounded_top)
             self._monitoring_hud_interactive_screen_rect = self.geometry()
-            self._emit_runtime_signal(
-                "MONITORING_HUD_NATIVE_WINDOW_MOVE_READY",
-                package="PKG-006",
-                slice="SLC-026",
-                x=bounded_left,
-                y=bounded_top,
-                virtual_desktop="all_monitors",
-            )
-            self._emit_monitoring_hud_window_status(source="native_window_drag")
+            if emit_status:
+                self._emit_runtime_signal(
+                    "MONITORING_HUD_NATIVE_WINDOW_MOVE_READY",
+                    package="PKG-006",
+                    slice="SLC-026",
+                    x=bounded_left,
+                    y=bounded_top,
+                    virtual_desktop="all_monitors",
+                )
+                self._emit_monitoring_hud_window_status(source="native_window_drag")
             return
         state = {
             "visible": True,
@@ -6068,6 +6069,7 @@ class DesktopRuntimeWindow(QWidget):
             self._set_monitoring_hud_panel_position_from_native_drag(
                 self._monitoring_hud_native_panel_drag_base.x() + delta.x(),
                 self._monitoring_hud_native_panel_drag_base.y() + delta.y(),
+                emit_status=False,
             )
             return False
         if event_type in (QEvent.MouseButtonRelease, QEvent.MouseButtonDblClick):
@@ -7312,6 +7314,21 @@ class DesktopRuntimeWindow(QWidget):
             seam="WS20",
             content="configuration_centered",
             proof_boxes="rerouted_to_validators",
+        )
+        self._emit_runtime_signal(
+            "MONITORING_HUD_DASHBOARD_MOTION_POLISH_READY",
+            package="PKG-006",
+            slice="SLC-026",
+            seam="WS21",
+            drag_smoothing="raf_local_persist_on_release",
+            native_move_status="emit_on_release",
+        )
+        self._emit_runtime_signal(
+            "MONITORING_HUD_DASHBOARD_SCROLLBAR_STYLE_READY",
+            package="PKG-006",
+            slice="SLC-027",
+            seam="WS21",
+            scrollbar_style="nexus_thin_glow",
         )
 
     def _monitoring_hud_telemetry_snapshot(self) -> dict[str, object]:

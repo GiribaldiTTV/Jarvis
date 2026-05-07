@@ -82,6 +82,8 @@ const monitoringHudStorageKey = "nexusMonitoringHudLayoutV3";
 const monitoringHudLegacyStorageKeys = ["nexusMonitoringHudLayoutV1", "nexusMonitoringHudLayoutV2"];
 const monitoringHudSnapSize = 20;
 let monitoringHudDragInProgress = false;
+let monitoringHudPanelPositionFrame = 0;
+let monitoringHudQueuedPanelPosition = null;
 
 function monitoringHudSnap(value) {
   if (!monitoringHudControlState.snapEnabled) return Math.round(value);
@@ -129,6 +131,8 @@ function monitoringHudUpdateSurfaceSplit() {
     monitoringHud.dataset.dashboardSurface = "monitoring-hud-dashboard";
     monitoringHud.dataset.configuresSurface = "monitoring-hud-minimal";
     monitoringHud.dataset.splitContract = "dashboard-configures-minimal-overlay";
+    monitoringHud.dataset.dragSmoothing = "raf-local-persist-on-release";
+    monitoringHud.dataset.scrollbarStyle = "nexus-thin-glow";
   }
   if (!monitoringHudMinimal) return;
   monitoringHudMinimal.dataset.visibilityState = monitoringHudControlState.visible ? "visible" : "hidden";
@@ -210,7 +214,15 @@ function monitoringHudRenderControls() {
   monitoringHudUpdateSurfaceSplit();
 }
 
-function monitoringHudSetPanelPosition(left, top) {
+function monitoringHudApplyPanelPosition(position) {
+  if (!monitoringHud || !position) return;
+  monitoringHud.style.left = `${position.left}px`;
+  monitoringHud.style.top = `${position.top}px`;
+  monitoringHud.style.right = "auto";
+  monitoringHud.style.transformOrigin = "top left";
+}
+
+function monitoringHudSetPanelPosition(left, top, persist = true) {
   if (!monitoringHud) return;
   const minVisibleWidth = Math.min(monitoringHud.offsetWidth, 520);
   const minVisibleHeight = Math.min(monitoringHud.offsetHeight, 420);
@@ -218,12 +230,23 @@ function monitoringHudSetPanelPosition(left, top) {
   const maxTop = Math.max(0, window.innerHeight - minVisibleHeight);
   const boundedLeft = monitoringHudBound(monitoringHudSnap(left), 0, maxLeft);
   const boundedTop = monitoringHudBound(monitoringHudSnap(top), 0, maxTop);
-  monitoringHud.style.left = `${boundedLeft}px`;
-  monitoringHud.style.top = `${boundedTop}px`;
-  monitoringHud.style.right = "auto";
-  monitoringHud.style.transformOrigin = "top left";
   monitoringHudControlState.panelPosition = { left: boundedLeft, top: boundedTop };
-  monitoringHudMarkChanged();
+  monitoringHudQueuedPanelPosition = { left: boundedLeft, top: boundedTop };
+  if (typeof window.requestAnimationFrame === "function") {
+    if (!monitoringHudPanelPositionFrame) {
+      monitoringHudPanelPositionFrame = window.requestAnimationFrame(() => {
+        monitoringHudPanelPositionFrame = 0;
+        monitoringHudApplyPanelPosition(monitoringHudQueuedPanelPosition);
+      });
+    }
+  } else {
+    monitoringHudApplyPanelPosition(monitoringHudQueuedPanelPosition);
+  }
+  if (persist && !monitoringHudDragInProgress) {
+    monitoringHudMarkChanged();
+  } else {
+    monitoringHudControlState.changedAt = Date.now();
+  }
 }
 
 function monitoringHudClearPanelPosition() {
@@ -314,6 +337,7 @@ function monitoringHudStartPointerDrag(event, target, onMove) {
       phase: "ended"
     });
     monitoringHudDragInProgress = false;
+    monitoringHudMarkChanged();
     document.removeEventListener(moveEventName, move);
     document.removeEventListener(upEventName, end);
     if (cancelEventName) document.removeEventListener(cancelEventName, end);
@@ -328,7 +352,7 @@ function monitoringHudWirePanelDrag() {
   const startPanelDrag = (event) => {
     const rect = monitoringHud.getBoundingClientRect();
     monitoringHudStartPointerDrag(event, monitoringHudDragHandle, (dx, dy) => {
-      monitoringHudSetPanelPosition(rect.left + dx, rect.top + dy);
+      monitoringHudSetPanelPosition(rect.left + dx, rect.top + dy, false);
     });
   };
   monitoringHudDragHandle.addEventListener("pointerdown", startPanelDrag);
@@ -352,7 +376,6 @@ function monitoringHudWireCardInteractions() {
         });
         monitoringHudControlState.cards[cardId] = next;
         monitoringHudApplyCardLayout();
-        monitoringHudMarkChanged();
       });
     };
     handle.addEventListener("pointerdown", startCardDrag);
@@ -379,7 +402,6 @@ function monitoringHudWireCardInteractions() {
         });
         monitoringHudControlState.cards[cardId] = next;
         monitoringHudApplyCardLayout();
-        monitoringHudMarkChanged();
       });
     };
     handle.addEventListener("pointerdown", startCardResize);

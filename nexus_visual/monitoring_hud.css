@@ -31,6 +31,10 @@ body.desktop-mode #monitoring-hud {
   box-sizing: border-box;
   padding: 18px;
   overflow: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(108, 232, 255, 0.52) rgba(5, 18, 31, 0.34);
   border: 1px solid rgba(125, 235, 255, 0.34);
   border-radius: 32px;
   background:
@@ -46,6 +50,31 @@ body.desktop-mode #monitoring-hud {
   transform: translateY(0) scale(1);
   transform-origin: top right;
   animation: monitoringHudSettle 740ms cubic-bezier(0.2, 0.82, 0.18, 1.0) both;
+}
+
+body.desktop-mode #monitoring-hud::-webkit-scrollbar {
+  width: 10px;
+}
+
+body.desktop-mode #monitoring-hud::-webkit-scrollbar-track {
+  margin: 18px 0;
+  border-radius: 999px;
+  background: rgba(5, 18, 31, 0.32);
+}
+
+body.desktop-mode #monitoring-hud::-webkit-scrollbar-thumb {
+  border: 2px solid rgba(5, 18, 31, 0.32);
+  border-radius: 999px;
+  background: linear-gradient(180deg, rgba(121, 239, 255, 0.72), rgba(99, 255, 202, 0.48));
+  box-shadow: 0 0 16px rgba(88, 225, 255, 0.24);
+}
+
+body.desktop-mode #monitoring-hud::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, rgba(184, 250, 255, 0.88), rgba(112, 255, 210, 0.64));
+}
+
+body.desktop-mode #monitoring-hud[data-drag-smoothing="raf-local-persist-on-release"] {
+  will-change: left, top;
 }
 
 body.desktop-mode #monitoring-hud-minimal {
