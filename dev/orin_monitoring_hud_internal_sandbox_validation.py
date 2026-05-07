@@ -153,7 +153,21 @@ def _validate_static_surface(failures: list[str]) -> None:
         'data-sensor-row="cpu-thermal"',
         'data-sensor-row="gpu-load"',
         'data-sensor-row="gpu-thermal"',
-        "Sandbox state matrix required",
+        'data-dashboard-content="sensor-setup"',
+        'data-dashboard-content="minimal-hud-output"',
+        'data-dashboard-content="user-controls"',
+        'data-dashboard-content="readiness-states"',
+        'data-dashboard-content="next-actions"',
+        "Sensor setup",
+        "Waiting for safe provider",
+        "Provider-first; no fake values",
+        "Minimal HUD output",
+        "Separate minimal HUD overlay",
+        "Controls",
+        "Show or hide from dashboard/tray",
+        "Readiness states",
+        "Next actions",
+        "Full desktop and UTS later",
     ):
         _require_contains(html, needle, "HUD HTML product surface", failures)
 
@@ -162,6 +176,7 @@ def _validate_static_surface(failures: list[str]) -> None:
         "body.desktop-mode #monitoring-hud-minimal",
         ".monitoring-hud__toolbar",
         ".monitoring-hud__surface-role",
+        ".monitoring-hud__config-heading",
         ".monitoring-hud__card-board",
         ".monitoring-hud-minimal__frame",
         ".monitoring-hud-minimal-card",
@@ -203,6 +218,7 @@ def _validate_static_surface(failures: list[str]) -> None:
         "MONITORING_HUD_DASHBOARD_SURFACE_READY",
         "MONITORING_HUD_MINIMAL_OVERLAY_READY",
         "MONITORING_HUD_DASHBOARD_MINIMAL_SPLIT_READY",
+        "MONITORING_HUD_DASHBOARD_CONTENT_READY",
         "MONITORING_HUD_NATIVE_WINDOW_MOVE_READY",
         "request_monitoring_hud_unanchor_from_tray",
         "request_monitoring_hud_toggle_from_tray",
@@ -275,7 +291,7 @@ def _validate_contracts(failures: list[str]) -> dict[str, object]:
     _require(sensors.get("gpu-thermal", {}).get("value") == "Unavailable", "GPU thermal must remain provider-unavailable", failures)
     _require(sensors.get("cpu-thermal", {}).get("value") == "Provider required", "CPU thermal must remain provider-required", failures)
     _require(placement.get("snapModel") == "20px snap grid with snap-disable posture", "placement contract must describe snap posture", failures)
-    _require(placement.get("cardLayoutModel") == "draggable/resizable category cards", "placement contract must describe card layout", failures)
+    _require(placement.get("cardLayoutModel") == "cards resize and snap from dashboard", "placement contract must describe card layout", failures)
     _require(controls.get("anchorState") == "unanchored-edit-mode", "controls contract must support unanchored edit mode", failures)
     _require(controls.get("pollingRateMs") == "1000", "controls contract must preserve 1s default polling", failures)
     _require(status.get("warningPosture") == "Visual badge, color state, and text label only", "status contract must preserve visual warning posture", failures)

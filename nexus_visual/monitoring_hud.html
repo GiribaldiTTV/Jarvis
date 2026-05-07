@@ -141,45 +141,55 @@
         </article>
       </div>
     </div>
-    <div class="monitoring-hud__telemetry" data-slice="SLC-025" aria-label="Runtime telemetry adapter boundary">
-      <span>Provider boundary</span>
-      <strong id="monitoring-hud-adapter-status">Awaiting safe provider</strong>
-      <span>Source scope</span>
-      <strong id="monitoring-hud-source-scope">Provider-contract-first</strong>
-      <span>Hardware polling</span>
-      <strong id="monitoring-hud-hardware-polling">No polling yet</strong>
+    <div class="monitoring-hud__telemetry" data-slice="SLC-025" data-dashboard-content="sensor-setup" aria-label="Sensor setup guidance">
+      <span class="monitoring-hud__config-heading">Sensor setup</span>
+      <strong class="monitoring-hud__config-heading">Tell me what can be trusted</strong>
+      <span>Live readings</span>
+      <strong id="monitoring-hud-adapter-status">Waiting for safe provider</strong>
+      <span>Truth rule</span>
+      <strong id="monitoring-hud-source-scope">Provider-first; no fake values</strong>
+      <span>Default cadence</span>
+      <strong id="monitoring-hud-hardware-polling">1s after provider proof</strong>
     </div>
-    <div class="monitoring-hud__placement" data-slice="SLC-026" aria-label="Desktop placement and renderer ownership">
-      <span>Renderer owner</span>
-      <strong id="monitoring-hud-placement-owner">DesktopRuntimeWindow</strong>
-      <span>Desktop anchor</span>
-      <strong id="monitoring-hud-placement-anchor">Movable/anchorable overlay across the virtual desktop</strong>
-      <span>Resize posture</span>
-      <strong id="monitoring-hud-resize-posture">Resizable card grid</strong>
+    <div class="monitoring-hud__placement" data-slice="SLC-026" data-dashboard-content="minimal-hud-output" aria-label="Minimal HUD output configuration">
+      <span class="monitoring-hud__config-heading">Minimal HUD output</span>
+      <strong class="monitoring-hud__config-heading">Configure the small overlay</strong>
+      <span>Current output</span>
+      <strong id="monitoring-hud-placement-owner">Separate minimal HUD overlay</strong>
+      <span>Placement plan</span>
+      <strong id="monitoring-hud-placement-anchor">Anchor anywhere after OS proof</strong>
+      <span>Card layout</span>
+      <strong id="monitoring-hud-resize-posture">Cards resize and snap from dashboard</strong>
     </div>
-    <div class="monitoring-hud__controls" data-slice="SLC-027" aria-label="Settings and user controls visibility">
-      <span>HUD visibility</span>
-      <strong id="monitoring-hud-controls-visibility">Optional HUD layer</strong>
-      <span>Control surface</span>
-      <strong id="monitoring-hud-controls-surface">On/off represented</strong>
-      <span>Persistence</span>
-      <strong id="monitoring-hud-controls-persistence">Local layout state</strong>
+    <div class="monitoring-hud__controls" data-slice="SLC-027" data-dashboard-content="user-controls" aria-label="Dashboard controls and settings">
+      <span class="monitoring-hud__config-heading">Controls</span>
+      <strong class="monitoring-hud__config-heading">Adjust without cluttering the HUD</strong>
+      <span>Visibility</span>
+      <strong id="monitoring-hud-controls-visibility">Show or hide from dashboard/tray</strong>
+      <span>Anchor mode</span>
+      <strong id="monitoring-hud-controls-surface">Unanchor to edit; anchor to observe</strong>
+      <span>Layout</span>
+      <strong id="monitoring-hud-controls-persistence">Snap cards; save local layout</strong>
     </div>
-    <div class="monitoring-hud__status-model" data-slice="SLC-028" aria-label="Fail-safe no-data and degraded-status behavior">
-      <span>Fail-safe state</span>
+    <div class="monitoring-hud__status-model" data-slice="SLC-028" data-dashboard-content="readiness-states" aria-label="Setup no-data and degraded states">
+      <span class="monitoring-hud__config-heading">Readiness states</span>
+      <strong class="monitoring-hud__config-heading">Be clear when data is not ready</strong>
+      <span>Setup</span>
       <strong id="monitoring-hud-status-label">Provider setup required</strong>
-      <span>No-data behavior</span>
+      <span>No data</span>
       <strong id="monitoring-hud-no-data-behavior">Show unavailable; no fake values</strong>
-      <span>Degraded behavior</span>
+      <span>Degraded</span>
       <strong id="monitoring-hud-degraded-behavior">Name reconnect/setup gap</strong>
     </div>
-    <div class="monitoring-hud__grid" aria-label="Acceptance proof preview">
-      <span>Warning posture</span>
+    <div class="monitoring-hud__grid" data-dashboard-content="next-actions" aria-label="Dashboard next actions">
+      <span class="monitoring-hud__config-heading">Next actions</span>
+      <strong class="monitoring-hud__config-heading">What the user can trust now</strong>
+      <span>Warnings</span>
       <strong id="monitoring-hud-warning-posture">Visual badge only</strong>
-      <span>Screenshot proof</span>
-      <strong>Full desktop required</strong>
-      <span>Sandbox proof</span>
-      <strong>Sandbox state matrix required</strong>
+      <span>Proof</span>
+      <strong>Full desktop and UTS later</strong>
+      <span>Setup path</span>
+      <strong>Provider setup before live values</strong>
       <span>Package status</span>
       <strong>PKG-006 in progress</strong>
     </div>

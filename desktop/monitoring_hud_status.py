@@ -70,7 +70,7 @@ def build_monitoring_hud_status_snapshot(
         status_id=STATUS_ID,
         status_kind=status_kind,
         status_label=status_label,
-        no_data_behavior="Show setup/unavailable state; do not invent hardware values",
+        no_data_behavior="Show unavailable; no fake values",
         degraded_behavior="Name reconnect/setup gap with visual warning only",
         warning_state="advisory",
         warning_posture="Visual badge, color state, and text label only",

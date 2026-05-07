@@ -34,27 +34,27 @@ const monitoringHudCardBoard = document.getElementById("monitoring-hud-card-boar
 let monitoringHudTelemetry = {
   packageId: "PKG-006",
   sliceId: "SLC-025",
-  adapterStatus: "Provider contract boundary pending",
-  sourceScope: "Provider-contract-first local readiness",
-  hardwarePolling: "No polling until provider selection",
+  adapterStatus: "Waiting for safe provider",
+  sourceScope: "Provider-first; no fake values",
+  hardwarePolling: "1s after provider proof",
   sources: []
 };
 let monitoringHudPlacement = {
   packageId: "PKG-006",
   sliceId: "SLC-026",
   placementId: "standalone-native-hud-window",
-  rendererOwner: "DesktopRuntimeWindow",
-  anchor: "Movable/anchorable overlay across the virtual desktop",
+  rendererOwner: "Separate minimal HUD overlay",
+  anchor: "Anchor anywhere after OS proof",
   pointerModel: "Anchored click-through/no-focus-steal",
-  resizePosture: "Resizable card grid"
+  resizePosture: "Cards resize and snap from dashboard"
 };
 let monitoringHudControls = {
   packageId: "PKG-006",
   sliceId: "SLC-027",
   controlsId: "hud-controls-visibility",
-  visibilityState: "Optional HUD layer",
-  controlSurface: "On/off represented; task tray unanchor path staged",
-  persistence: "Not persisted",
+  visibilityState: "Show or hide from dashboard/tray",
+  controlSurface: "Unanchor to edit; anchor to observe",
+  persistence: "Snap cards; save local layout",
   operatorAction: "No default keybinds"
 };
 let monitoringHudStatus = {
@@ -63,7 +63,7 @@ let monitoringHudStatus = {
   statusId: "hud-local-readiness-status",
   statusKind: "no-data",
   statusLabel: "Provider setup required",
-  noDataBehavior: "Show unavailable; no fake hardware values",
+  noDataBehavior: "Show unavailable; no fake values",
   degradedBehavior: "Name reconnect/setup gap; visual warning only"
 };
 let monitoringHudControlState = {
@@ -612,13 +612,13 @@ window.setMonitoringHudTelemetry = function(snapshot) {
     monitoringHudProviderState.textContent = monitoringHudTelemetry.providerLabel || "Provider setup required";
   }
   if (monitoringHudAdapterStatus) {
-    monitoringHudAdapterStatus.textContent = monitoringHudTelemetry.adapterStatus || "Provider contract boundary ready";
+    monitoringHudAdapterStatus.textContent = monitoringHudTelemetry.adapterStatus || "Waiting for safe provider";
   }
   if (monitoringHudSourceScope) {
-    monitoringHudSourceScope.textContent = monitoringHudTelemetry.sourceScope || "Provider-contract-first local readiness";
+    monitoringHudSourceScope.textContent = monitoringHudTelemetry.sourceScope || "Provider-first; no fake values";
   }
   if (monitoringHudHardwarePolling) {
-    monitoringHudHardwarePolling.textContent = monitoringHudTelemetry.hardwarePolling || "No polling until provider selection";
+    monitoringHudHardwarePolling.textContent = monitoringHudTelemetry.hardwarePolling || "1s after provider proof";
   }
   monitoringHudRenderSensorCards(monitoringHudTelemetry.sensorCards);
   monitoringHudUpdateSurfaceSplit();
@@ -634,10 +634,10 @@ window.setMonitoringHudPlacementOwnership = function(contract) {
     monitoringHud.dataset.interactionMode = monitoringHudControlState.anchored ? "anchored-click-through" : "unanchored-edit-mode";
   }
   if (monitoringHudPlacementOwner) {
-    monitoringHudPlacementOwner.textContent = monitoringHudPlacement.rendererOwner || "DesktopRuntimeWindow";
+    monitoringHudPlacementOwner.textContent = monitoringHudPlacement.rendererOwner || "Separate minimal HUD overlay";
   }
   if (monitoringHudPlacementAnchor) {
-    monitoringHudPlacementAnchor.textContent = monitoringHudPlacement.anchor || "Movable/anchorable overlay across the virtual desktop";
+    monitoringHudPlacementAnchor.textContent = monitoringHudPlacement.anchor || "Anchor anywhere after OS proof";
   }
   if (monitoringHudPlacementPointer) {
     monitoringHudPlacementPointer.textContent = monitoringHudControlState.anchored
@@ -645,7 +645,7 @@ window.setMonitoringHudPlacementOwnership = function(contract) {
       : "Unanchored edit mode";
   }
   if (monitoringHudResizePosture) {
-    monitoringHudResizePosture.textContent = monitoringHudPlacement.resizePosture || "Resizable card grid";
+    monitoringHudResizePosture.textContent = monitoringHudPlacement.resizePosture || "Cards resize and snap from dashboard";
   }
   monitoringHudUpdateSurfaceSplit();
 };
@@ -660,13 +660,13 @@ window.setMonitoringHudControlsVisibility = function(contract) {
     monitoringHud.dataset.keybindPolicy = "none";
   }
   if (monitoringHudControlsVisibility) {
-    monitoringHudControlsVisibility.textContent = monitoringHudControls.visibilityState || "Optional HUD layer";
+    monitoringHudControlsVisibility.textContent = monitoringHudControls.visibilityState || "Show or hide from dashboard/tray";
   }
   if (monitoringHudControlsSurface) {
-    monitoringHudControlsSurface.textContent = monitoringHudControls.controlSurface || "On/off, tray unanchor, snap, and polling controls represented";
+    monitoringHudControlsSurface.textContent = monitoringHudControls.controlSurface || "Unanchor to edit; anchor to observe";
   }
   if (monitoringHudControlsPersistence) {
-    monitoringHudControlsPersistence.textContent = monitoringHudControls.persistence || "Local layout state";
+    monitoringHudControlsPersistence.textContent = monitoringHudControls.persistence || "Snap cards; save local layout";
   }
   if (monitoringHudTrayPath) {
     monitoringHudTrayPath.textContent = monitoringHudControls.trayPath || "Task tray unanchor path";
@@ -689,7 +689,7 @@ window.setMonitoringHudStatusBehavior = function(snapshot) {
     monitoringHudStatusLabel.textContent = monitoringHudStatus.statusLabel || "Provider setup required";
   }
   if (monitoringHudNoDataBehavior) {
-    monitoringHudNoDataBehavior.textContent = monitoringHudStatus.noDataBehavior || "Show unavailable; no fake hardware values";
+    monitoringHudNoDataBehavior.textContent = monitoringHudStatus.noDataBehavior || "Show unavailable; no fake values";
   }
   if (monitoringHudDegradedBehavior) {
     monitoringHudDegradedBehavior.textContent = monitoringHudStatus.degradedBehavior || "Name reconnect/setup gap";

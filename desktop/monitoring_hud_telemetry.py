@@ -200,9 +200,9 @@ def build_monitoring_hud_telemetry_snapshot(
     provider_state = "native-partial" if cpu_load_ready else "setup-required"
     provider_label = "Native CPU load active; thermal/GPU provider pending" if cpu_load_ready else "Provider setup required"
     hardware_polling = (
-        f"Native CPU load sampled at {safe_polling_rate // 1000}s; thermal/GPU provider unavailable"
+        f"CPU load samples every {safe_polling_rate // 1000}s; thermals/GPU wait for provider"
         if cpu_load_ready
-        else f"Native CPU load warming at {safe_polling_rate // 1000}s; thermal/GPU provider unavailable"
+        else f"1s after provider proof; CPU load warming"
     )
     live_values = "native-cpu-load-only" if cpu_load_ready else "provider-required"
 
@@ -210,8 +210,12 @@ def build_monitoring_hud_telemetry_snapshot(
         package_id=PACKAGE_ID,
         slice_id=SLICE_ID,
         adapter_id=ADAPTER_ID,
-        adapter_status="Provider contract boundary ready; native CPU load proof bounded",
-        source_scope="Provider-contract-first local runtime readiness plus native CPU load",
+        adapter_status=(
+            "Native CPU load can appear now; thermals/GPU wait for provider"
+            if cpu_load_ready
+            else "Waiting for safe provider"
+        ),
+        source_scope="Provider-first; no fake values",
         hardware_polling=hardware_polling,
         provider_state=provider_state,
         provider_label=provider_label,

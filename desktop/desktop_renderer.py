@@ -7305,6 +7305,14 @@ class DesktopRuntimeWindow(QWidget):
             minimal_owner="MonitoringHudWindow",
             native_window_split_proof="pending_ws22",
         )
+        self._emit_runtime_signal(
+            "MONITORING_HUD_DASHBOARD_CONTENT_READY",
+            package="PKG-006",
+            slice="SLC-027",
+            seam="WS20",
+            content="configuration_centered",
+            proof_boxes="rerouted_to_validators",
+        )
 
     def _monitoring_hud_telemetry_snapshot(self) -> dict[str, object]:
         return build_monitoring_hud_telemetry_snapshot(

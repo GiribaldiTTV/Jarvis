@@ -61,14 +61,14 @@ def build_monitoring_hud_controls_visibility_contract(
         slice_id=SLICE_ID,
         controls_id=CONTROLS_ID,
         visibility_state=(
-            "Optional HUD layer visible in desktop mode"
+            "Show or hide from dashboard/tray"
             if desktop_mode and visible
-            else "Optional HUD layer hidden"
+            else "Hidden from dashboard/tray"
             if desktop_mode
             else "Waiting for desktop mode"
         ),
-        control_surface="Toggle/on-off, task-tray unanchor, snap, and polling controls represented",
-        persistence="Local browser layout state",
+        control_surface="Unanchor to edit; anchor to observe",
+        persistence="Snap cards; save local layout",
         operator_action="No default keybinds",
         anchor_state="anchored-click-through" if anchored else "unanchored-edit-mode",
         tray_path="Task tray can unanchor or restore the HUD",

@@ -464,6 +464,27 @@ body.desktop-mode #monitoring-hud > * {
   text-transform: uppercase;
 }
 
+.monitoring-hud__grid .monitoring-hud__config-heading,
+.monitoring-hud__telemetry .monitoring-hud__config-heading,
+.monitoring-hud__placement .monitoring-hud__config-heading,
+.monitoring-hud__controls .monitoring-hud__config-heading,
+.monitoring-hud__status-model .monitoring-hud__config-heading {
+  padding-bottom: 6px;
+  color: rgba(222, 251, 255, 0.9);
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.monitoring-hud__grid span.monitoring-hud__config-heading,
+.monitoring-hud__telemetry span.monitoring-hud__config-heading,
+.monitoring-hud__placement span.monitoring-hud__config-heading,
+.monitoring-hud__controls span.monitoring-hud__config-heading,
+.monitoring-hud__status-model span.monitoring-hud__config-heading {
+  color: rgba(113, 232, 255, 0.78);
+  font-weight: 760;
+}
+
 .monitoring-hud-minimal__frame {
   position: relative;
   padding: 14px;
