@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nexus Desktop AI Monitoring HUD</title>
+  <link rel="stylesheet" href="monitoring_hud.css" />
+</head>
+<body>
+  <section
+    id="monitoring-hud"
+    class="monitoring-hud"
+    data-package="PKG-006"
+    data-slice="SLC-016"
+    data-hud-module="monitoring-hud-shell-module"
+    data-product-surface="nexus-monitoring-hud"
+    data-isolation-boundary="standalone-hud-layer"
+    data-core-failure-isolation="hud-fail-does-not-hide-core"
+    data-interaction-mode="anchored-click-through"
+    data-anchor-state="anchored"
+    data-visibility-state="visible"
+    data-snap-state="enabled"
+    data-card-model="category-sensor-cards"
+    data-provider-state="setup-required"
+    data-warning-mode="visual-non-invasive"
+    data-live-values="provider-required"
+    data-polling-default-ms="1000"
+    data-polling-options-ms="1000,2000,5000,10000"
+    data-keybind-policy="none"
+    data-sandbox-state-matrix="setup,no-data,degraded,ready,warning"
+    aria-label="Nexus Desktop AI Monitoring HUD product surface"
+    aria-hidden="true"
+  >
+    <div class="monitoring-hud__chrome" aria-label="Visible Nexus Desktop AI Monitoring HUD panel">
+      <div class="monitoring-hud__header" id="monitoring-hud-drag-handle">
+        <div>
+          <div class="monitoring-hud__kicker">Nexus Desktop AI</div>
+          <div class="monitoring-hud__title">Monitoring HUD</div>
+        </div>
+        <div class="monitoring-hud__mode-stack">
+          <div class="monitoring-hud__mode-pill" id="monitoring-hud-runtime-status">HUD enabled</div>
+          <div class="monitoring-hud__mode-pill monitoring-hud__mode-pill--quiet" id="monitoring-hud-anchor-status">Anchored</div>
+        </div>
+      </div>
+      <div class="monitoring-hud__summary" aria-label="Provider contract status">
+        <span class="monitoring-hud__status-dot"></span>
+        <div>
+          <strong id="monitoring-hud-provider-state">Provider setup required</strong>
+          <span>Hardware values stay hidden until a safe provider and validation route exist.</span>
+        </div>
+      </div>
+      <div class="monitoring-hud__toolbar" aria-label="Monitoring HUD controls">
+        <button type="button" id="monitoring-hud-toggle" class="monitoring-hud__control-button" data-control="toggle-visibility">
+          Hide HUD
+        </button>
+        <button type="button" id="monitoring-hud-anchor-toggle" class="monitoring-hud__control-button" data-control="anchor-toggle">
+          Unanchor
+        </button>
+        <button type="button" id="monitoring-hud-snap-toggle" class="monitoring-hud__control-button" data-control="snap-toggle">
+          Snap on
+        </button>
+        <label class="monitoring-hud__polling-control">
+          Polling
+          <select id="monitoring-hud-polling-rate" aria-label="Monitoring HUD polling cadence">
+            <option value="1000">1s</option>
+            <option value="2000">2s</option>
+            <option value="5000">5s</option>
+            <option value="10000">10s</option>
+          </select>
+        </label>
+      </div>
+      <div class="monitoring-hud__anchor-rail" aria-label="Move anchor and task tray posture">
+        <span>Movable panel</span>
+        <span id="monitoring-hud-snap-label">Snap-ready</span>
+        <span id="monitoring-hud-placement-pointer">Anchored click-through</span>
+        <span id="monitoring-hud-tray-path">Task tray unanchor path</span>
+        <span>No default keybinds</span>
+      </div>
+      <div class="monitoring-hud__card-board" id="monitoring-hud-card-board" aria-label="Draggable resizable category card board">
+        <article class="monitoring-hud-card monitoring-hud-card--setup" data-category-card="cpu" data-card-state="setup" style="--card-x:0px;--card-y:0px;--card-w:600px;--card-h:280px;">
+          <div class="monitoring-hud-card__drag-handle" data-card-handle="cpu">
+            <div>
+              <div class="monitoring-hud-card__label">CPU</div>
+              <div class="monitoring-hud-card__value" data-card-summary="cpu">Provider warming</div>
+            </div>
+            <div class="monitoring-hud-card__badge" data-card-badge="cpu">Setup</div>
+          </div>
+          <div class="monitoring-hud-card__sensors" data-card-sensors="cpu">
+            <div class="monitoring-hud-sensor-row" data-sensor-row="cpu-load" data-live-value="native-provider-pending">
+              <span>CPU Load</span>
+              <strong data-sensor-value="cpu-load">Warming up</strong>
+              <em data-sensor-source="cpu-load">Native provider</em>
+            </div>
+            <div class="monitoring-hud-sensor-row" data-sensor-row="cpu-thermal" data-live-value="blocked-until-provider">
+              <span>CPU Thermal</span>
+              <strong data-sensor-value="cpu-thermal">Provider required</strong>
+              <em data-sensor-source="cpu-thermal">Thermal source pending</em>
+            </div>
+          </div>
+          <div class="monitoring-hud-card__meta" data-card-meta="cpu">1s default polling only after provider proof; no fake thermal values.</div>
+          <div class="monitoring-hud-card__resize-handle" data-card-resize="cpu" aria-hidden="true"></div>
+        </article>
+        <article class="monitoring-hud-card monitoring-hud-card--unavailable" data-category-card="gpu" data-card-state="no-data" style="--card-x:0px;--card-y:300px;--card-w:600px;--card-h:280px;">
+          <div class="monitoring-hud-card__drag-handle" data-card-handle="gpu">
+            <div>
+              <div class="monitoring-hud-card__label">GPU</div>
+              <div class="monitoring-hud-card__value" data-card-summary="gpu">Provider required</div>
+            </div>
+            <div class="monitoring-hud-card__badge" data-card-badge="gpu">No data</div>
+          </div>
+          <div class="monitoring-hud-card__sensors" data-card-sensors="gpu">
+            <div class="monitoring-hud-sensor-row" data-sensor-row="gpu-load" data-live-value="blocked-until-provider">
+              <span>GPU Load</span>
+              <strong data-sensor-value="gpu-load">Unavailable</strong>
+              <em data-sensor-source="gpu-load">GPU source pending</em>
+            </div>
+            <div class="monitoring-hud-sensor-row" data-sensor-row="gpu-thermal" data-live-value="blocked-until-provider">
+              <span>GPU Thermal</span>
+              <strong data-sensor-value="gpu-thermal">Unavailable</strong>
+              <em data-sensor-source="gpu-thermal">Thermal source pending</em>
+            </div>
+          </div>
+          <div class="monitoring-hud-card__meta" data-card-meta="gpu">Provider setup/unavailable state is truthful until a safe GPU route is admitted.</div>
+          <div class="monitoring-hud-card__resize-handle" data-card-resize="gpu" aria-hidden="true"></div>
+        </article>
+      </div>
+    </div>
+    <div class="monitoring-hud__telemetry" data-slice="SLC-025" aria-label="Runtime telemetry adapter boundary">
+      <span>Provider boundary</span>
+      <strong id="monitoring-hud-adapter-status">Awaiting safe provider</strong>
+      <span>Source scope</span>
+      <strong id="monitoring-hud-source-scope">Provider-contract-first</strong>
+      <span>Hardware polling</span>
+      <strong id="monitoring-hud-hardware-polling">No polling yet</strong>
+    </div>
+    <div class="monitoring-hud__placement" data-slice="SLC-026" aria-label="Desktop placement and renderer ownership">
+      <span>Renderer owner</span>
+      <strong id="monitoring-hud-placement-owner">DesktopRuntimeWindow</strong>
+      <span>Desktop anchor</span>
+      <strong id="monitoring-hud-placement-anchor">Movable/anchorable overlay across the virtual desktop</strong>
+      <span>Resize posture</span>
+      <strong id="monitoring-hud-resize-posture">Resizable card grid</strong>
+    </div>
+    <div class="monitoring-hud__controls" data-slice="SLC-027" aria-label="Settings and user controls visibility">
+      <span>HUD visibility</span>
+      <strong id="monitoring-hud-controls-visibility">Optional HUD layer</strong>
+      <span>Control surface</span>
+      <strong id="monitoring-hud-controls-surface">On/off represented</strong>
+      <span>Persistence</span>
+      <strong id="monitoring-hud-controls-persistence">Local layout state</strong>
+    </div>
+    <div class="monitoring-hud__status-model" data-slice="SLC-028" aria-label="Fail-safe no-data and degraded-status behavior">
+      <span>Fail-safe state</span>
+      <strong id="monitoring-hud-status-label">Provider setup required</strong>
+      <span>No-data behavior</span>
+      <strong id="monitoring-hud-no-data-behavior">Show unavailable; no fake values</strong>
+      <span>Degraded behavior</span>
+      <strong id="monitoring-hud-degraded-behavior">Name reconnect/setup gap</strong>
+    </div>
+    <div class="monitoring-hud__grid" aria-label="Acceptance proof preview">
+      <span>Warning posture</span>
+      <strong id="monitoring-hud-warning-posture">Visual badge only</strong>
+      <span>Screenshot proof</span>
+      <strong>Full desktop required</strong>
+      <span>Sandbox proof</span>
+      <strong>Sandbox state matrix required</strong>
+      <span>Package status</span>
+      <strong>PKG-006 in progress</strong>
+    </div>
+    <div class="monitoring-hud__resize-corner" aria-hidden="true"></div>
+  </section>
+
+  <script src="monitoring_hud.js"></script>
+</body>
+</html>

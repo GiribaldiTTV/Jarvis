@@ -260,8 +260,8 @@ class GlobalHotkeyManager:
 
         if ctrl_down and alt_down and shutdown_down and not self._shutdown_fired:
             self._shutdown_fired = True
-            self._log_debug("event=shutdown_confirmation_hotkey")
-            self.bus.shutdown_confirmation_requested.emit("hotkey")
+            self._log_debug("event=shutdown_hotkey")
+            self.bus.shutdown_requested.emit()
             return
 
         if ctrl_down and alt_down and overlay_down and not self._overlay_toggle_fired:

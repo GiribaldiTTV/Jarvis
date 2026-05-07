@@ -883,7 +883,7 @@ def _test_catalog_reload_seam_surfaces_new_saved_actions_without_phase_change():
         )
 
 
-def _test_shutdown_hotkeys_route_to_confirmation_not_direct_shutdown():
+def _test_shutdown_hotkeys_route_direct_shutdown_without_confirmation():
     try:
         from pynput import keyboard as pynput_keyboard
     except Exception as exc:
@@ -897,24 +897,24 @@ def _test_shutdown_hotkeys_route_to_confirmation_not_direct_shutdown():
         hotkeys._on_press(trigger)
 
         _assert(
-            bus.shutdown_confirmation_requested.emissions == [("hotkey",)],
-            "shutdown hotkey should request confirmation exactly once",
+            bus.shutdown_requested.emissions == [()],
+            "shutdown hotkey should emit direct shutdown exactly once",
         )
         _assert(
-            bus.shutdown_requested.emissions == [],
-            "shutdown hotkey must not emit direct shutdown before confirmation",
+            bus.shutdown_confirmation_requested.emissions == [],
+            "shutdown hotkey must not request confirmation; tray exit owns confirmation",
         )
 
 
 def _test_shutdown_confirmation_runtime_markers_are_truthful():
-    requested = desktop_main_mod.shutdown_confirmation_requested_marker("hotkey")
-    accepted = desktop_main_mod.shutdown_confirmation_runtime_markers("accepted", "hotkey")
-    cancelled = desktop_main_mod.shutdown_confirmation_runtime_markers("cancelled", "hotkey")
-    timed_out = desktop_main_mod.shutdown_confirmation_runtime_markers("timeout", "hotkey")
+    requested = desktop_main_mod.shutdown_confirmation_requested_marker("tray_menu")
+    accepted = desktop_main_mod.shutdown_confirmation_runtime_markers("accepted", "tray_menu")
+    cancelled = desktop_main_mod.shutdown_confirmation_runtime_markers("cancelled", "tray_menu")
+    timed_out = desktop_main_mod.shutdown_confirmation_runtime_markers("timeout", "tray_menu")
 
     _assert(
-        requested == "RENDERER_MAIN|SHUTDOWN_CONFIRMATION_REQUESTED|source=hotkey",
-        "shutdown confirmation should emit a deterministic requested marker",
+        requested == "RENDERER_MAIN|SHUTDOWN_CONFIRMATION_REQUESTED|source=tray_menu",
+        "tray shutdown confirmation should emit a deterministic requested marker",
     )
     _assert(
         desktop_main_mod.shutdown_confirmation_allows_shutdown("accepted"),
@@ -930,22 +930,22 @@ def _test_shutdown_confirmation_runtime_markers_are_truthful():
     )
     _assert(
         accepted == (
-            "RENDERER_MAIN|SHUTDOWN_CONFIRMATION_ACCEPTED|source=hotkey",
-            "RENDERER_MAIN|SHUTDOWN_CONFIRMATION_CLEAN_SHUTDOWN_REQUESTED|source=hotkey",
+            "RENDERER_MAIN|SHUTDOWN_CONFIRMATION_ACCEPTED|source=tray_menu",
+            "RENDERER_MAIN|SHUTDOWN_CONFIRMATION_CLEAN_SHUTDOWN_REQUESTED|source=tray_menu",
         ),
         "accepted confirmation markers should truthfully precede clean shutdown",
     )
     _assert(
         cancelled == (
-            "RENDERER_MAIN|SHUTDOWN_CONFIRMATION_CANCELLED|source=hotkey",
-            "RENDERER_MAIN|SHUTDOWN_CONFIRMATION_SESSION_PRESERVED|source=hotkey|reason=cancelled",
+            "RENDERER_MAIN|SHUTDOWN_CONFIRMATION_CANCELLED|source=tray_menu",
+            "RENDERER_MAIN|SHUTDOWN_CONFIRMATION_SESSION_PRESERVED|source=tray_menu|reason=cancelled",
         ),
         "cancelled confirmation markers should truthfully preserve the session",
     )
     _assert(
         timed_out == (
-            "RENDERER_MAIN|SHUTDOWN_CONFIRMATION_TIMEOUT|source=hotkey",
-            "RENDERER_MAIN|SHUTDOWN_CONFIRMATION_SESSION_PRESERVED|source=hotkey|reason=timeout",
+            "RENDERER_MAIN|SHUTDOWN_CONFIRMATION_TIMEOUT|source=tray_menu",
+            "RENDERER_MAIN|SHUTDOWN_CONFIRMATION_SESSION_PRESERVED|source=tray_menu|reason=timeout",
         ),
         "timed-out confirmation markers should truthfully preserve the session",
     )
@@ -969,8 +969,8 @@ def main():
         ("trigger-generated saved action phrases stay exact and bounded", _test_trigger_generated_saved_action_phrases_stay_exact_and_bounded),
         ("entry payload surfaces saved-action inventory guidance", _test_entry_payload_surfaces_saved_action_inventory_guidance),
         ("catalog reload seam surfaces new saved actions", _test_catalog_reload_seam_surfaces_new_saved_actions_without_phase_change),
-        ("shutdown hotkeys route to confirmation not direct shutdown", _test_shutdown_hotkeys_route_to_confirmation_not_direct_shutdown),
-        ("shutdown confirmation runtime markers are truthful", _test_shutdown_confirmation_runtime_markers_are_truthful),
+        ("shutdown hotkeys route direct shutdown without confirmation", _test_shutdown_hotkeys_route_direct_shutdown_without_confirmation),
+        ("tray shutdown confirmation runtime markers are truthful", _test_shutdown_confirmation_runtime_markers_are_truthful),
     ]
 
     for name, fn in tests:

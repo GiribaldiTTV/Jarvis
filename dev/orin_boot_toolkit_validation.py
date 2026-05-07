@@ -18,7 +18,7 @@ DEV_LOGS_DIR = os.path.join(ROOT_DIR, "dev", "logs")
 BASE_LOG_ROOT = os.path.join(DEV_LOGS_DIR, "boot_toolkit_validation")
 REPORTS_DIR = os.path.join(BASE_LOG_ROOT, "reports")
 
-DEV_LAUNCHER_SCRIPT = os.path.join(ROOT_DIR, "dev", "launchers", "nexus_dev_launcher.pyw")
+DEV_LAUNCHER_SCRIPT = os.path.join(ROOT_DIR, "dev", "launchers", "orin_dev_launcher.pyw")
 DEV_LAUNCHERS_DIR = os.path.join(ROOT_DIR, "dev", "launchers")
 
 REPORT_PREFIX = "BootToolkitValidationReport_"
@@ -28,7 +28,7 @@ BOOT_CASES = (
         "name": "Toolkit Boot Helper: Monitor Preflight",
         "lane_key": "bootMonitorPreflight",
         "lane_label": "Boot Monitor Preflight",
-        "expected_launcher": "launch_nexus_boot_monitor_preflight.vbs",
+        "expected_launcher": "launch_orin_boot_monitor_preflight.vbs",
         "report_root": os.path.join(DEV_LOGS_DIR, "boot_monitor_preflight", "reports"),
         "report_prefix": "BootMonitorPreflightReport_",
         "timeout_seconds": 45,
@@ -37,7 +37,7 @@ BOOT_CASES = (
         "name": "Toolkit Boot Helper: Transition Verification",
         "lane_key": "bootTransitionVerification",
         "lane_label": "Boot To Desktop Handoff Verification",
-        "expected_launcher": "launch_nexus_boot_transition_verification.vbs",
+        "expected_launcher": "launch_orin_boot_transition_verification.vbs",
         "report_root": os.path.join(DEV_LOGS_DIR, "boot_transition_verification", "reports"),
         "report_prefix": "BootTransitionVerificationReport_",
         "timeout_seconds": 150,
@@ -379,7 +379,7 @@ def main(argv):
     os.environ["QT_QPA_PLATFORM"] = "offscreen"
 
     dev_launcher_module = load_module_from_path(
-        "nexus_dev_launcher_boot_toolkit_validation_module",
+        "orin_dev_launcher_boot_toolkit_validation_module",
         DEV_LAUNCHER_SCRIPT,
     )
 

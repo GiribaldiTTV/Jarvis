@@ -155,6 +155,7 @@ class _FakeBus:
     def __init__(self):
         self.events = []
         self.shutdown_requested = _RecorderSignal(self.events, "shutdown")
+        self.shutdown_confirmation_requested = _RecorderSignal(self.events, "shutdown_confirmation")
         self.command_overlay_toggle_requested = _RecorderSignal(self.events, "toggle")
         self.command_overlay_text_requested = _RecorderSignal(self.events, "text")
         self.command_overlay_backspace_requested = _RecorderSignal(self.events, "backspace")

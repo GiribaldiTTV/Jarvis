@@ -12,7 +12,7 @@ DEV_LOGS_DIR = os.path.join(ROOT_DIR, "dev", "logs")
 DEFAULT_BASE_LOG_ROOT = os.path.join(DEV_LOGS_DIR, "support_bundle_triage")
 MANIFEST_FILENAME = "manifest.json"
 
-DESKTOP_LAUNCHER_REGRESSION_HARNESS = os.path.join(ROOT_DIR, "dev", "nexus_desktop_launcher_regression_harness.py")
+DESKTOP_LAUNCHER_REGRESSION_HARNESS = os.path.join(ROOT_DIR, "dev", "orin_desktop_launcher_regression_harness.py")
 
 SUPPORTED_CLASSES = {
     "launcher_repeated_identical_crash_threshold": {

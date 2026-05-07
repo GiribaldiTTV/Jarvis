@@ -27,7 +27,7 @@ from PySide6.QtWidgets import (
     QCheckBox,
 )
 from PySide6.QtCore import Qt, QTimer, QUrl, QRect, QRectF, Signal, QPoint, QEvent
-from PySide6.QtGui import QColor, QFont, QPainterPath, QRegion
+from PySide6.QtGui import QColor, QFont, QPainter, QPainterPath, QPixmap, QRegion
 from PySide6.QtTest import QTest
 from PySide6.QtWebEngineWidgets import QWebEngineView
 
@@ -5027,11 +5027,140 @@ class CommandOverlayPanel(QWidget):
             self.confirm_help_label.setText(confirm_surface_copy["help_text"])
 
 
+class CoreVisualizationWindow(QWidget):
+    core_visualization_ready = Signal()
+    core_visualization_visible = Signal()
+
+    def __init__(self, screen, visual_html_path: str, event_logger=None):
+        super().__init__()
+        self.screen_ref = screen
+        self.visual_html_path = os.path.abspath(visual_html_path)
+        self.event_logger = event_logger
+        self._page_ready = False
+        self._is_shutting_down = False
+        self._pending_visual_state = "dormant"
+
+        self.setWindowTitle("Nexus Desktop AI - ORIN Core")
+        self.setWindowFlags(Qt.Tool | Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint)
+        self.setAttribute(Qt.WA_TransparentForMouseEvents, True)
+        self.setAttribute(Qt.WA_ShowWithoutActivating, True)
+        self.setFocusPolicy(Qt.NoFocus)
+        self.setStyleSheet("background-color: transparent;")
+        self.setGeometry(self.compute_core_geometry())
+
+        root = QVBoxLayout(self)
+        root.setContentsMargins(0, 0, 0, 0)
+        root.setSpacing(0)
+
+        self.webview = QWebEngineView(self)
+        self.webview.setStyleSheet("background-color: transparent; border: none;")
+        self.webview.setContextMenuPolicy(Qt.NoContextMenu)
+        self.webview.setFocusPolicy(Qt.NoFocus)
+        self.webview.page().setBackgroundColor(QColor(0, 0, 0, 0))
+        self.webview.loadFinished.connect(self._on_load_finished)
+        self.webview.load(QUrl.fromLocalFile(self.visual_html_path))
+        root.addWidget(self.webview)
+
+    def _log_event(self, event):
+        if callable(self.event_logger):
+            try:
+                self.event_logger(event)
+            except Exception:
+                pass
+
+    def compute_core_geometry(self):
+        g = self.screen_ref.availableGeometry()
+        width = min(max(680, int(g.width() * 0.38)), 980)
+        height = min(max(620, int(g.height() * 0.72)), 1040)
+        x = g.x() + max(0, (g.width() - width) // 2)
+        y = g.y() + max(0, (g.height() - height) // 2)
+        return QRect(x, y, width, height)
+
+    def is_core_visualization_ready(self):
+        return self._page_ready
+
+    def _apply_core_surface_mode(self):
+        self.webview.page().runJavaScript(
+            """
+            document.body.classList.add("desktop-mode", "core-window-mode");
+            document.body.classList.remove("hud-window-mode");
+            const hud = document.getElementById("monitoring-hud");
+            if (hud) {
+                hud.setAttribute("aria-hidden", "true");
+                hud.dataset.renderState = "separate-hud-window";
+                hud.dataset.productSurfaceState = "owned-by-standalone-hud-window";
+            }
+            window.dispatchEvent(new Event("resize"));
+            """
+        )
+
+    def _on_load_finished(self, ok):
+        if not ok:
+            self._log_event("RENDERER_MAIN|CORE_VISUALIZATION_WINDOW_LOAD_FAILED")
+            return
+        self._page_ready = True
+        self._apply_core_surface_mode()
+        self._apply_pending_visual_state()
+        self._log_event("RENDERER_MAIN|CORE_VISUALIZATION_READY")
+        self._log_event("RENDERER_MAIN|CORE_VISUALIZATION_WINDOW_READY|surface=separate_core")
+        geometry = self.geometry()
+        screen_geometry = self.screen_ref.availableGeometry()
+        center_dx = abs(geometry.center().x() - screen_geometry.center().x())
+        center_dy = abs(geometry.center().y() - screen_geometry.center().y())
+        self._log_event(
+            "RENDERER_MAIN|CORE_VISUALIZATION_WINDOW_GEOMETRY_READY"
+            f"|x={geometry.x()}|y={geometry.y()}"
+            f"|w={geometry.width()}|h={geometry.height()}"
+            f"|screen_x={screen_geometry.x()}|screen_y={screen_geometry.y()}"
+            f"|screen_w={screen_geometry.width()}|screen_h={screen_geometry.height()}"
+            f"|center_dx={center_dx}|center_dy={center_dy}"
+        )
+        self.core_visualization_ready.emit()
+
+    def showEvent(self, event):
+        super().showEvent(event)
+        if self._page_ready:
+            self._log_event("RENDERER_MAIN|CORE_VISUALIZATION_WINDOW_VISIBLE|surface=separate_core")
+            self.core_visualization_visible.emit()
+
+    def _apply_pending_visual_state(self):
+        if not self._page_ready:
+            return
+        state = json.dumps(self._pending_visual_state or "dormant")
+        self.webview.page().runJavaScript(
+            f"""
+            if (window.setVisualState) {{
+                window.setVisualState({state});
+            }} else {{
+                document.body.className = document.body.className
+                    .replace(/\\bstate-\\S+/g, "")
+                    .trim();
+                document.body.classList.add("desktop-mode", "core-window-mode", "state-" + {state});
+            }}
+            """
+        )
+
+    def set_visual_state(self, state_name):
+        self._pending_visual_state = state_name
+        self._apply_pending_visual_state()
+
+    def request_shutdown(self):
+        self._is_shutting_down = True
+        self.close()
+
+
 class DesktopRuntimeWindow(QWidget):
     core_visualization_ready = Signal()
     core_visualization_visible = Signal()
 
-    def __init__(self, screen, visual_html_path: str, event_logger=None, runtime_log_path: str = ""):
+    def __init__(
+        self,
+        screen,
+        visual_html_path: str,
+        event_logger=None,
+        runtime_log_path: str = "",
+        surface_role: str = "hud",
+    ):
         super().__init__()
         global _DIALOG_RUNTIME_LOGGER
 
@@ -5039,6 +5168,7 @@ class DesktopRuntimeWindow(QWidget):
         self.visual_html_path = os.path.abspath(visual_html_path)
         self.event_logger = event_logger
         self.runtime_log_path = os.path.abspath(runtime_log_path) if runtime_log_path else ""
+        self.surface_role = surface_role if surface_role in {"hud", "combined"} else "hud"
         self._overlay_trace_enabled = (os.environ.get("NEXUS_OVERLAY_TRACE") or "").strip().casefold() in {
             "1",
             "true",
@@ -5119,10 +5249,13 @@ class DesktopRuntimeWindow(QWidget):
         self._monitoring_hud_native_anchor_click_expected = True
 
         # Align the standalone desktop route with the proven Boot handoff window model.
-        self.setWindowFlags(Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint)
-        self.setAutoFillBackground(True)
-        self.setFocusPolicy(Qt.StrongFocus)
-        self.setStyleSheet("background-color: rgb(0, 0, 0);")
+        self.setWindowFlags(Qt.Tool | Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint)
+        self.setAutoFillBackground(self.surface_role != "hud")
+        if self.surface_role == "hud":
+            self.setAttribute(Qt.WA_TranslucentBackground, True)
+            self.setStyleSheet("background-color: transparent;")
+        else:
+            self.setStyleSheet("background-color: rgb(0, 0, 0);")
         self.setWindowOpacity(0.0)
 
         self.setGeometry(self.compute_compact_geometry())
@@ -5132,14 +5265,20 @@ class DesktopRuntimeWindow(QWidget):
         root.setSpacing(0)
 
         self.webview = QWebEngineView(self)
-        self.webview.setStyleSheet("background-color: rgb(0, 0, 0); border: none;")
+        self.webview.setStyleSheet(
+            "background-color: transparent; border: none;"
+            if self.surface_role == "hud"
+            else "background-color: rgb(0, 0, 0); border: none;"
+        )
         self.webview.setContextMenuPolicy(Qt.NoContextMenu)
         self.webview.setFocusPolicy(Qt.NoFocus)
         self.webview.installEventFilter(self)
         QApplication.instance().installEventFilter(self)
         self.webview.hide()
 
-        self.webview.page().setBackgroundColor(QColor(0, 0, 0))
+        self.webview.page().setBackgroundColor(
+            QColor(0, 0, 0, 0) if self.surface_role == "hud" else QColor(0, 0, 0)
+        )
         self.webview.loadFinished.connect(self._on_load_finished)
         self.webview.load(QUrl.fromLocalFile(self.visual_html_path))
 
@@ -5152,6 +5291,15 @@ class DesktopRuntimeWindow(QWidget):
 
     def compute_compact_geometry(self):
         g = self.screen_ref.geometry()
+        if self.surface_role == "hud":
+            available = self.screen_ref.availableGeometry()
+            width = min(780, max(640, int(available.width() * 0.30)))
+            height = min(1060, max(760, available.height() - 150))
+            margin_x = min(56, max(24, int(available.width() * 0.02)))
+            margin_y = min(90, max(36, int(available.height() * 0.06)))
+            x = available.x() + available.width() - width - margin_x
+            y = available.y() + margin_y
+            return QRect(x, y, width, height)
 
         width = int(g.width() * 0.46)
         height = int(g.height() * 0.68)
@@ -5160,6 +5308,15 @@ class DesktopRuntimeWindow(QWidget):
         y = g.y() + int(g.height() * 0.08)
 
         return QRect(x, y, width, height)
+
+    def _virtual_desktop_geometry(self) -> QRect:
+        screens = QApplication.screens()
+        if not screens:
+            return self.screen_ref.availableGeometry()
+        rect = screens[0].availableGeometry()
+        for screen in screens[1:]:
+            rect = rect.united(screen.availableGeometry())
+        return rect
 
     def prepare_desktop_geometry(self):
         self.setGeometry(self.compute_compact_geometry())
@@ -5510,6 +5667,8 @@ class DesktopRuntimeWindow(QWidget):
         geometry = self.geometry()
         if geometry.width() <= 0 or geometry.height() <= 0:
             geometry = self.compute_compact_geometry()
+        if self.surface_role == "hud":
+            return QRect(geometry.x(), geometry.y(), geometry.width(), geometry.height())
         panel_width = min(780, max(320, geometry.width() - 48))
         panel_height = min(1040, max(360, geometry.height() - 48))
         right_margin = min(max(int(geometry.width() * 0.04), 24), 64)
@@ -5592,6 +5751,28 @@ class DesktopRuntimeWindow(QWidget):
         except Exception:
             return
 
+    def _emit_monitoring_hud_window_status(self, source: str = "runtime"):
+        geometry = self.geometry()
+        virtual = self._virtual_desktop_geometry()
+        self._emit_runtime_signal(
+            "MONITORING_HUD_WINDOW_STATUS_READY",
+            package="PKG-006",
+            slice="SLC-026",
+            source=source,
+            surface="standalone_native_hud_window" if self.surface_role == "hud" else "combined_core_surface",
+            visible=self._monitoring_hud_visible,
+            anchored=self._monitoring_hud_anchored,
+            x=geometry.x(),
+            y=geometry.y(),
+            w=geometry.width(),
+            h=geometry.height(),
+            virtual_x=virtual.x(),
+            virtual_y=virtual.y(),
+            virtual_w=virtual.width(),
+            virtual_h=virtual.height(),
+            focus_policy="no_focus" if self.focusPolicy() == Qt.NoFocus else "interactive",
+        )
+
     def _promote_monitoring_hud_edit_window(self):
         try:
             hwnd = ctypes.wintypes.HWND(int(self.winId()))
@@ -5628,6 +5809,32 @@ class DesktopRuntimeWindow(QWidget):
         return QPoint(max(0, rect.x() + 12 - webview_origin.x()), max(0, rect.y() + 12 - webview_origin.y()))
 
     def _set_monitoring_hud_panel_position_from_native_drag(self, left: int, top: int):
+        if self.surface_role == "hud":
+            virtual = self._virtual_desktop_geometry()
+            max_left = virtual.x() + max(0, virtual.width() - self.width())
+            max_top = virtual.y() + max(0, virtual.height() - self.height())
+            bounded_left = self._monitoring_hud_bound_native(
+                self._monitoring_hud_snap_native(left),
+                virtual.x(),
+                max_left,
+            )
+            bounded_top = self._monitoring_hud_bound_native(
+                self._monitoring_hud_snap_native(top),
+                virtual.y(),
+                max_top,
+            )
+            self.move(bounded_left, bounded_top)
+            self._monitoring_hud_interactive_screen_rect = self.geometry()
+            self._emit_runtime_signal(
+                "MONITORING_HUD_NATIVE_WINDOW_MOVE_READY",
+                package="PKG-006",
+                slice="SLC-026",
+                x=bounded_left,
+                y=bounded_top,
+                virtual_desktop="all_monitors",
+            )
+            self._emit_monitoring_hud_window_status(source="native_window_drag")
+            return
         state = {
             "visible": True,
             "anchored": False,
@@ -5655,10 +5862,10 @@ class DesktopRuntimeWindow(QWidget):
 
     def _monitoring_hud_card_layout_base(self, card_id: str) -> dict[str, int]:
         defaults = {
-            "cpu": {"x": 0, "y": 0, "w": 340, "h": 224},
-            "gpu": {"x": 360, "y": 0, "w": 340, "h": 224},
+            "cpu": {"x": 0, "y": 0, "w": 600, "h": 280},
+            "gpu": {"x": 0, "y": 300, "w": 600, "h": 280},
         }
-        base = dict(defaults.get(card_id, {"x": 0, "y": 0, "w": 340, "h": 224}))
+        base = dict(defaults.get(card_id, {"x": 0, "y": 0, "w": 600, "h": 280}))
         cards = self._monitoring_hud_live_page_state.get("cards") if isinstance(self._monitoring_hud_live_page_state, dict) else {}
         card = cards.get(card_id) if isinstance(cards, dict) else {}
         if isinstance(card, dict):
@@ -5672,8 +5879,8 @@ class DesktopRuntimeWindow(QWidget):
     def _monitoring_hud_card_board_bounds(self) -> tuple[int, int]:
         board_rect = self._monitoring_hud_live_screen_rects.get("cardBoard", QRect())
         if board_rect.isValid() and not board_rect.isNull():
-            return max(420, board_rect.width()), max(260, board_rect.height())
-        return 720, 500
+            return max(420, board_rect.width()), max(620, board_rect.height())
+        return 720, 620
 
     def _set_monitoring_hud_card_layout_from_native_drag(self, card_id: str, layout: dict[str, int]):
         state: dict[str, object] = {}
@@ -5690,14 +5897,14 @@ class DesktopRuntimeWindow(QWidget):
             }
         )
         cards: dict[str, dict[str, int]] = {
-            "cpu": {"x": 0, "y": 0, "w": 340, "h": 224},
-            "gpu": {"x": 360, "y": 0, "w": 340, "h": 224},
+            "cpu": {"x": 0, "y": 0, "w": 600, "h": 280},
+            "gpu": {"x": 0, "y": 300, "w": 600, "h": 280},
         }
         page_cards = self._monitoring_hud_live_page_state.get("cards") if isinstance(self._monitoring_hud_live_page_state, dict) else {}
         if isinstance(page_cards, dict):
             for existing_id, existing_layout in page_cards.items():
                 if isinstance(existing_layout, dict):
-                    merged = dict(cards.get(str(existing_id), {"x": 0, "y": 0, "w": 340, "h": 224}))
+                    merged = dict(cards.get(str(existing_id), {"x": 0, "y": 0, "w": 600, "h": 280}))
                     for key in ("x", "y", "w", "h"):
                         try:
                             merged[key] = int(float(existing_layout.get(key, merged[key])))
@@ -5707,8 +5914,8 @@ class DesktopRuntimeWindow(QWidget):
         cards[card_id] = {
             "x": int(layout.get("x", 0)),
             "y": int(layout.get("y", 0)),
-            "w": int(layout.get("w", 340)),
-            "h": int(layout.get("h", 224)),
+            "w": int(layout.get("w", 600)),
+            "h": int(layout.get("h", 280)),
         }
         state["cards"] = cards
         state_json = json.dumps(state, sort_keys=True)
@@ -5739,26 +5946,26 @@ class DesktopRuntimeWindow(QWidget):
         if resize:
             board_width, board_height = self._monitoring_hud_card_board_bounds()
             layout["w"] = self._monitoring_hud_bound_native(
-                self._monitoring_hud_snap_native(layout.get("w", 340) + delta.x()),
-                260,
-                max(260, self._monitoring_hud_snap_native(board_width - layout.get("x", 0))),
+                self._monitoring_hud_snap_native(layout.get("w", 600) + delta.x()),
+                340,
+                max(340, self._monitoring_hud_snap_native(board_width - layout.get("x", 0))),
             )
             layout["h"] = self._monitoring_hud_bound_native(
-                self._monitoring_hud_snap_native(layout.get("h", 224) + delta.y()),
-                190,
-                max(190, self._monitoring_hud_snap_native(board_height - layout.get("y", 0))),
+                self._monitoring_hud_snap_native(layout.get("h", 280) + delta.y()),
+                260,
+                max(260, self._monitoring_hud_snap_native(board_height - layout.get("y", 0))),
             )
             return layout
         board_width, board_height = self._monitoring_hud_card_board_bounds()
         layout["x"] = self._monitoring_hud_bound_native(
             self._monitoring_hud_snap_native(layout.get("x", 0) + delta.x()),
             0,
-            max(0, board_width - layout.get("w", 340)),
+            max(0, board_width - layout.get("w", 600)),
         )
         layout["y"] = self._monitoring_hud_bound_native(
             self._monitoring_hud_snap_native(layout.get("y", 0) + delta.y()),
             0,
-            max(0, board_height - layout.get("h", 224)),
+            max(0, board_height - layout.get("h", 280)),
         )
         return layout
 
@@ -5815,7 +6022,9 @@ class DesktopRuntimeWindow(QWidget):
             if self._monitoring_hud_header_rect().contains(screen_point):
                 self._monitoring_hud_native_panel_drag_active = True
                 self._monitoring_hud_native_panel_drag_start = screen_point
-                self._monitoring_hud_native_panel_drag_base = self._monitoring_hud_page_origin_from_screen_rect()
+                self._monitoring_hud_native_panel_drag_base = (
+                    self.pos() if self.surface_role == "hud" else self._monitoring_hud_page_origin_from_screen_rect()
+                )
                 self._emit_runtime_signal(
                     "MONITORING_HUD_NATIVE_PANEL_DRAG_STARTED",
                     package="PKG-006",
@@ -5897,6 +6106,8 @@ class DesktopRuntimeWindow(QWidget):
         # behave like a real user-facing panel.
         self.setAttribute(Qt.WA_TransparentForMouseEvents, False)
         self.setAttribute(Qt.WA_ShowWithoutActivating, anchored)
+        self.setWindowFlag(Qt.Tool, True)
+        self.setWindowFlag(Qt.FramelessWindowHint, True)
         self.setFocusPolicy(Qt.NoFocus if anchored else Qt.StrongFocus)
         self.webview.setFocusPolicy(Qt.NoFocus if anchored else Qt.StrongFocus)
         # The Monitoring HUD is an overlay layer. Anchored mode controls
@@ -5921,6 +6132,7 @@ class DesktopRuntimeWindow(QWidget):
             anchored=anchored,
             pointer_model="hud_controls_interactive_click_through_elsewhere" if anchored else "editable_panel",
         )
+        self._emit_monitoring_hud_window_status(source="interaction_state")
 
     def _set_monitoring_hud_control_state(
         self,
@@ -6056,16 +6268,30 @@ class DesktopRuntimeWindow(QWidget):
             os.makedirs(self._monitoring_hud_live_self_qa_root, exist_ok=True)
             safe_label = re.sub(r"[^A-Za-z0-9_.-]+", "_", label).strip("_") or "screenshot"
             path = os.path.join(self._monitoring_hud_live_self_qa_root, f"{safe_label}.png")
-            screen = QApplication.primaryScreen()
-            if screen is None:
+            screens = QApplication.screens()
+            if not screens:
                 return ""
-            if screen.grabWindow(0).save(path, "PNG"):
+            virtual = screens[0].geometry()
+            for screen in screens[1:]:
+                virtual = virtual.united(screen.geometry())
+            screenshot = QPixmap(virtual.size())
+            screenshot.fill(QColor(0, 0, 0))
+            painter = QPainter(screenshot)
+            try:
+                for screen in screens:
+                    screen_geometry = screen.geometry()
+                    capture = screen.grabWindow(0)
+                    painter.drawPixmap(screen_geometry.topLeft() - virtual.topLeft(), capture)
+            finally:
+                painter.end()
+            if screenshot.save(path, "PNG"):
                 self._emit_runtime_signal(
                     "MONITORING_HUD_LIVE_CLIENT_SELF_QA_SCREENSHOT_READY",
                     package="PKG-006",
                     slice="SLC-029",
                     label=safe_label,
                     path=path,
+                    capture="full_virtual_desktop",
                 )
                 return path
         except Exception as exc:
@@ -6377,8 +6603,9 @@ class DesktopRuntimeWindow(QWidget):
         def assert_isolation(result):
             isolation = result.get("isolation") or {}
             checks = {
-                "core_wrap_present": isolation.get("coreWrapPresent") is True,
-                "core_wrap_visible": isolation.get("coreWrapVisible") is True,
+                "hud_window_mode": isolation.get("hudWindowMode") is True,
+                "standalone_native_hud_window": isolation.get("standaloneHudWindow") is True,
+                "core_scene_hidden_in_hud_window": isolation.get("coreSceneHiddenInHudWindow") is True,
                 "hud_outside_core_scene": isolation.get("hudOutsideCoreScene") is True,
                 "isolation_boundary": isolation.get("isolationBoundary") == "standalone-hud-layer",
                 "core_failure_isolation": isolation.get("coreFailureIsolation") == "hud-fail-does-not-hide-core",
@@ -6420,14 +6647,20 @@ class DesktopRuntimeWindow(QWidget):
             state = result.get("state") or {}
             panel = state.get("panelPosition") or {}
             geometry = result.get("geometry") or {}
-            core_rect = geometry.get("coreWrap") if isinstance(geometry, dict) else {}
+            target_geometry = self.compute_compact_geometry()
+            current_geometry = self.geometry()
+            native_window_moved = (
+                current_geometry.x() <= target_geometry.x() - 40
+                or current_geometry.y() >= target_geometry.y() + 40
+            )
+            isolation = result.get("isolation") or {}
             checks = {
                 "visible": bool(state.get("visible")),
                 "unanchored": state.get("anchored") is False,
-                "panel_position_recorded": isinstance(panel, dict),
-                "panel_moved_x": int(panel.get("left") or 0) >= 40,
-                "panel_moved_y": int(panel.get("top") or 0) >= 40,
-                "core_still_visible_after_drag": isinstance(core_rect, dict) and float(core_rect.get("width") or 0) > 200,
+                "native_window_moved": native_window_moved,
+                "standalone_native_hud_window": isolation.get("standaloneHudWindow") is True,
+                "hud_window_x": current_geometry.x(),
+                "hud_window_y": current_geometry.y(),
                 "panel_position": panel,
                 "last_drag_event": state.get("lastDragEvent"),
                 "last_mouse_event": state.get("lastMouseEvent"),
@@ -6435,10 +6668,8 @@ class DesktopRuntimeWindow(QWidget):
             pass_values = [
                 checks["visible"],
                 checks["unanchored"],
-                checks["panel_position_recorded"],
-                checks["panel_moved_x"],
-                checks["panel_moved_y"],
-                checks["core_still_visible_after_drag"],
+                checks["native_window_moved"],
+                checks["standalone_native_hud_window"],
             ]
             return all(pass_values), checks
 
@@ -6469,14 +6700,14 @@ class DesktopRuntimeWindow(QWidget):
             gpu = cards.get("gpu") or {}
             geometry = result.get("geometry") or {}
             hud_rect = geometry.get("hud") if isinstance(geometry, dict) else {}
-            core_rect = geometry.get("coreWrap") if isinstance(geometry, dict) else {}
+            isolation = result.get("isolation") or {}
             checks = {
                 "hud_still_visible": bool(result.get("hasHud")) and float((hud_rect or {}).get("width") or 0) >= 620,
-                "core_still_visible": isinstance(core_rect, dict) and float(core_rect.get("width") or 0) > 200,
+                "standalone_native_hud_window": isolation.get("standaloneHudWindow") is True,
                 "snap_enabled": bool(state.get("snapEnabled")),
                 "cpu_card_moved": int(cpu.get("y") or 0) >= 200,
-                "cpu_card_resized": int(cpu.get("w") or 0) >= 380 and int(cpu.get("h") or 0) >= 240,
-                "gpu_card_visible": int(gpu.get("x") or 0) >= 320 and int(gpu.get("y") or 0) >= 0,
+                "cpu_card_resized": int(cpu.get("w") or 0) >= 380 and int(cpu.get("h") or 0) >= 300,
+                "gpu_card_visible": int(gpu.get("x") or 0) >= 0 and int(gpu.get("y") or 0) >= 280,
                 "snap_multiple": all(
                     int(value or 0) % 20 == 0
                     for value in (cpu.get("x"), cpu.get("y"), cpu.get("w"), cpu.get("h"), gpu.get("x"), gpu.get("y"))
@@ -6525,7 +6756,7 @@ class DesktopRuntimeWindow(QWidget):
                 }
                 """
             )
-            QTimer.singleShot(delay(350), lambda: query("HUD module isolation preserves ORIN Core visibility", assert_isolation, step_restore_isolation))
+            QTimer.singleShot(delay(350), lambda: query("HUD standalone window preserves Core isolation contract", assert_isolation, step_restore_isolation))
 
         def step_restore_isolation():
             self._run_javascript(
@@ -6556,10 +6787,10 @@ class DesktopRuntimeWindow(QWidget):
             geometry = latest_result.get("geometry") if isinstance(latest_result.get("geometry"), dict) else {}
             handle_rect = geometry.get("panelDragHandle") if isinstance(geometry.get("panelDragHandle"), dict) else None
             widget_start = self._monitoring_hud_widget_point_from_page_rect(handle_rect)
-            widget_end = QPoint(widget_start.x() + 120, widget_start.y() + 80) if widget_start else None
+            widget_end = QPoint(widget_start.x() - 160, widget_start.y() + 90) if widget_start else None
             screen_start = rect_center("panelDragHandle")
-            screen_end = (screen_start[0] + 120, screen_start[1] + 80) if screen_start else None
-            dragged = self._monitoring_hud_send_widget_drag(widget_start, widget_end, steps=14)
+            screen_end = (screen_start[0] - 160, screen_start[1] + 90) if screen_start else None
+            dragged = self._monitoring_hud_send_mouse_drag(screen_start, screen_end, steps=14)
             add_step(
                 "active live-client pointer drag moves HUD panel without disappearing",
                 dragged,
@@ -6734,8 +6965,8 @@ class DesktopRuntimeWindow(QWidget):
                     pollingRateMs: 1000,
                     panelPosition: null,
                     cards: {
-                        cpu: { x: 0, y: 0, w: 340, h: 224 },
-                        gpu: { x: 360, y: 0, w: 340, h: 224 }
+                        cpu: { x: 0, y: 0, w: 600, h: 280 },
+                        gpu: { x: 0, y: 300, w: 600, h: 280 }
                     }
                 });
             }
@@ -6941,19 +7172,23 @@ class DesktopRuntimeWindow(QWidget):
         QTimer.singleShot(50, self.enable_desktop_mode)
 
     def _apply_desktop_surface_mode(self):
+        role = json.dumps(f"{self.surface_role}-window-mode")
+        opposite_role = json.dumps("core-window-mode" if self.surface_role == "hud" else "hud-window-mode")
         self._run_javascript(
-            """
-            if (window.setDesktopSurfaceMode) {
+            f"""
+            document.body.classList.add({role});
+            document.body.classList.remove({opposite_role});
+            if (window.setDesktopSurfaceMode) {{
                 window.setDesktopSurfaceMode(true);
-            } else {
+            }} else {{
                 document.body.classList.add("desktop-mode");
                 const monitoringHud = document.getElementById("monitoring-hud");
-                if (monitoringHud) {
+                if (monitoringHud) {{
                     monitoringHud.setAttribute("aria-hidden", "false");
                     monitoringHud.dataset.renderState = "product-visibility-baseline";
                     monitoringHud.dataset.productSurfaceState = "visible-user-facing";
-                }
-            }
+                }}
+            }}
             """
         )
         self._emit_runtime_signal(
@@ -7021,8 +7256,8 @@ class DesktopRuntimeWindow(QWidget):
             package="PKG-006",
             slice="SLC-026",
             owner="DesktopRuntimeWindow",
-            placement="desktop-renderer-top-right",
-            anchor="top_right",
+            placement="standalone-native-hud-window",
+            anchor="virtual_desktop",
         )
 
     def _on_load_finished(self, ok):
@@ -7032,7 +7267,10 @@ class DesktopRuntimeWindow(QWidget):
 
         self._page_ready = True
         self._log_event("RENDERER_MAIN|VISUAL_PAGE_READY")
-        self._log_event("RENDERER_MAIN|CORE_VISUALIZATION_READY")
+        if self.surface_role == "hud":
+            self._log_event("RENDERER_MAIN|MONITORING_HUD_PAGE_READY")
+        else:
+            self._log_event("RENDERER_MAIN|CORE_VISUALIZATION_READY")
         self._apply_desktop_surface_mode()
         self._publish_monitoring_hud_telemetry_boundary()
         self._publish_monitoring_hud_placement_ownership()

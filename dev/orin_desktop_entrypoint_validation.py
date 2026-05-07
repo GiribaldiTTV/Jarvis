@@ -1044,9 +1044,16 @@ def validate_tray_identity_initialization():
         original_tray_icon = runtime_mod.QSystemTrayIcon
         runtime_mod.QSystemTrayIcon = FakeTrayIcon
         try:
-            tray_entry = runtime_mod.DesktopTrayEntry(app, FakeWindow(), events.append)
+            confirmation_requests = []
+            tray_entry = runtime_mod.DesktopTrayEntry(
+                app,
+                FakeWindow(),
+                events.append,
+                shutdown_confirmation_requester=confirmation_requests.append,
+            )
             initialized = tray_entry.initialize()
             discovery_cue_requested = tray_entry.show_discovery_cue()
+            tray_entry.request_shutdown_from_tray("validation")
             actions = [
                 action
                 for action in tray_entry.tray_menu.actions()
@@ -1074,6 +1081,7 @@ def validate_tray_identity_initialization():
             "tooltip": tooltip,
             "discovery_cue_requested": discovery_cue_requested,
             "messages": messages,
+            "confirmation_requests": confirmation_requests,
             "error": "",
         }
     except Exception as exc:
@@ -1086,6 +1094,7 @@ def validate_tray_identity_initialization():
             "tooltip": "",
             "discovery_cue_requested": False,
             "messages": [],
+            "confirmation_requests": [],
             "error": f"{type(exc).__name__}: {exc}",
         }
     finally:
@@ -1152,9 +1161,6 @@ def run_launch_chain_scenario(
     runtime_lines = []
     settled_seen = False
     shutdown_requested_seen = False
-    shutdown_confirmation_requested_seen = False
-    shutdown_confirmation_accepted_seen = False
-    shutdown_confirmation_clean_request_seen = False
     renderer_exit_seen = False
     launcher_settled_observed_seen = False
     hotkey_sent = False
@@ -1182,18 +1188,6 @@ def run_launch_chain_scenario(
         while time.time() < post_ready_deadline:
             runtime_log = latest_file_matching(scenario_root, "Runtime_")
             runtime_lines = read_lines(runtime_log)
-            shutdown_confirmation_requested_seen = any(
-                "RENDERER_MAIN|SHUTDOWN_CONFIRMATION_REQUESTED|source=hotkey" in line
-                for line in runtime_lines
-            )
-            shutdown_confirmation_accepted_seen = any(
-                "RENDERER_MAIN|SHUTDOWN_CONFIRMATION_ACCEPTED|source=hotkey" in line
-                for line in runtime_lines
-            )
-            shutdown_confirmation_clean_request_seen = any(
-                "RENDERER_MAIN|SHUTDOWN_CONFIRMATION_CLEAN_SHUTDOWN_REQUESTED|source=hotkey" in line
-                for line in runtime_lines
-            )
             shutdown_requested_seen = any("RENDERER_MAIN|SHUTDOWN_REQUESTED" in line for line in runtime_lines)
             renderer_exit_seen = any("RENDERER_MAIN|EVENT_LOOP_EXIT|code=0" in line for line in runtime_lines)
             launcher_settled_observed_seen = any(
@@ -1257,17 +1251,13 @@ def run_launch_chain_scenario(
             hotkey_sent,
             hotkey_detail,
         ),
-        "shutdown_confirmation_requested_marker": line_status(
-            shutdown_confirmation_requested_seen,
-            "RENDERER_MAIN|SHUTDOWN_CONFIRMATION_REQUESTED|source=hotkey",
+        "shutdown_hotkey_direct_shutdown_marker": line_status(
+            shutdown_requested_seen,
+            "RENDERER_MAIN|SHUTDOWN_REQUESTED",
         ),
-        "shutdown_confirmation_accepted_marker": line_status(
-            shutdown_confirmation_accepted_seen,
-            "RENDERER_MAIN|SHUTDOWN_CONFIRMATION_ACCEPTED|source=hotkey",
-        ),
-        "shutdown_confirmation_clean_request_marker": line_status(
-            shutdown_confirmation_clean_request_seen,
-            "RENDERER_MAIN|SHUTDOWN_CONFIRMATION_CLEAN_SHUTDOWN_REQUESTED|source=hotkey",
+        "shutdown_hotkey_confirmation_absent": line_status(
+            not any("RENDERER_MAIN|SHUTDOWN_CONFIRMATION_REQUESTED|source=hotkey" in line for line in runtime_lines),
+            "Ctrl+Alt+End must not open confirmation; tray exit owns confirmation",
         ),
         "completion_path_classified": line_status(
             (shutdown_requested_seen and renderer_exit_seen) or post_settled_recoverable_seen,
@@ -6542,6 +6532,18 @@ def run_validation():
         tray_identity_result["action_texts"][:3]
         == ["Nexus Desktop AI", "Open Command Overlay", "Create Custom Task"],
         f"action_texts={tray_identity_result['action_texts']}",
+    )
+    checks["tray_exit_action_present"] = line_status(
+        "Exit Nexus Desktop AI" in tray_identity_result["action_texts"],
+        f"action_texts={tray_identity_result['action_texts']}",
+    )
+    checks["tray_exit_requests_confirmation"] = line_status(
+        tray_identity_result["confirmation_requests"] == ["tray_validation"]
+        and any(
+            "RENDERER_MAIN|TRAY_SHUTDOWN_CONFIRMATION_REQUESTED|source=validation" in event
+            for event in tray_identity_events
+        ),
+        f"confirmation_requests={tray_identity_result['confirmation_requests']}; events={tray_identity_events}",
     )
     checks["tray_identity_header_disabled"] = line_status(
         tray_identity_result["identity_action_enabled"] is False,

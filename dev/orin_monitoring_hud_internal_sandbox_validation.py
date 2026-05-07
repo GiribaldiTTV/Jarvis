@@ -75,11 +75,31 @@ def _validate_naming_sterilization(failures: list[str]) -> None:
 
 
 def _validate_static_surface(failures: list[str]) -> None:
-    html = _read("nexus_visual/orin_core.html")
-    css = _read("nexus_visual/orin_core.css")
-    js = _read("nexus_visual/orin_core.js")
+    core_html = _read("nexus_visual/orin_core.html")
+    core_css = _read("nexus_visual/orin_core.css")
+    core_js = _read("nexus_visual/orin_core.js")
+    html = _read("nexus_visual/monitoring_hud.html")
+    css = _read("nexus_visual/monitoring_hud.css")
+    js = _read("nexus_visual/monitoring_hud.js")
     renderer = _read("desktop/desktop_renderer.py")
     tray = _read("desktop/orin_desktop_main.py")
+
+    for label, text in (
+        ("ORIN Core HTML", core_html),
+        ("ORIN Core CSS", core_css),
+        ("ORIN Core JavaScript", core_js),
+    ):
+        for forbidden in (
+            "monitoring-hud",
+            "Monitoring HUD",
+            "monitoringHud",
+            "MONITORING_HUD_",
+        ):
+            _require(
+                forbidden not in text,
+                f"{label} must remain HUD-free after standalone HUD split; found {forbidden!r}",
+                failures,
+            )
 
     for needle in (
         'data-hud-module="monitoring-hud-shell-module"',
@@ -129,6 +149,11 @@ def _validate_static_surface(failures: list[str]) -> None:
         _require_contains(js, needle, "HUD JavaScript controls", failures)
 
     for needle in (
+        "CoreVisualizationWindow",
+        "CORE_VISUALIZATION_WINDOW_READY|surface=separate_core",
+        "CORE_VISUALIZATION_WINDOW_GEOMETRY_READY",
+        "MONITORING_HUD_WINDOW_STATUS_READY",
+        "MONITORING_HUD_NATIVE_WINDOW_MOVE_READY",
         "request_monitoring_hud_unanchor_from_tray",
         "request_monitoring_hud_toggle_from_tray",
         "MONITORING_HUD_INTERACTION_MODE_READY",
@@ -140,6 +165,8 @@ def _validate_static_surface(failures: list[str]) -> None:
         _require_contains(renderer, needle, "desktop renderer HUD runtime", failures)
 
     for needle in (
+        "monitoring_hud_html_path",
+        'surface_role="hud"',
         "Show / Hide Monitoring HUD",
         "Unanchor Monitoring HUD",
         "TRAY_MONITORING_HUD_TOGGLE_REQUESTED",

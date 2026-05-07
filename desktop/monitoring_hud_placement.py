@@ -13,7 +13,7 @@ from dataclasses import dataclass
 
 PACKAGE_ID = "PKG-006"
 SLICE_ID = "SLC-026"
-PLACEMENT_ID = "desktop-renderer-top-right"
+PLACEMENT_ID = "standalone-native-hud-window"
 
 
 @dataclass(frozen=True)
@@ -63,12 +63,12 @@ def build_monitoring_hud_placement_contract(
         slice_id=SLICE_ID,
         placement_id=PLACEMENT_ID,
         renderer_owner="DesktopRuntimeWindow",
-        surface_owner="Qt WebEngine desktop child surface",
-        anchor="Movable top-right snap rail",
+        surface_owner="Standalone Qt WebEngine HUD overlay window",
+        anchor="Movable/anchorable overlay across the virtual desktop",
         pointer_model="Anchored click-through/no-focus-steal",
         snap_model="20px snap grid with snap-disable posture",
         card_layout_model="draggable/resizable category cards",
-        z_index="18",
+        z_index="native-topmost",
         desktop_mode="enabled" if desktop_mode else "pending",
         window_geometry={
             "x": int(x),

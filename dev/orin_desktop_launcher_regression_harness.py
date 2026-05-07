@@ -256,13 +256,13 @@ def run_mixed_failure_lane(name, sequence_value, mixed_type, log_root):
             contains_line_fragment(runtime_lines, mixed_marker),
             mixed_marker,
         ),
-        "normal_exit_complete": line_status(
-            contains_line_fragment(runtime_lines, "STATUS|SUCCESS|LAUNCHER_RUNTIME|NORMAL_EXIT_COMPLETE"),
-            "STATUS|SUCCESS|LAUNCHER_RUNTIME|NORMAL_EXIT_COMPLETE",
+        "normal_exit_absent": line_status(
+            not contains_line_fragment(runtime_lines, "STATUS|SUCCESS|LAUNCHER_RUNTIME|NORMAL_EXIT_COMPLETE"),
+            "STATUS|SUCCESS|LAUNCHER_RUNTIME|NORMAL_EXIT_COMPLETE absent",
         ),
-        "failure_flow_absent": line_status(
-            not contains_line_fragment(runtime_lines, "STATUS|SUCCESS|LAUNCHER_RUNTIME|FAILURE_FLOW_COMPLETE"),
-            "STATUS|SUCCESS|LAUNCHER_RUNTIME|FAILURE_FLOW_COMPLETE absent",
+        "failure_flow_complete": line_status(
+            contains_line_fragment(runtime_lines, "STATUS|SUCCESS|LAUNCHER_RUNTIME|FAILURE_FLOW_COMPLETE"),
+            "STATUS|SUCCESS|LAUNCHER_RUNTIME|FAILURE_FLOW_COMPLETE",
         ),
         "no_false_identical_crash_threshold": line_status(
             not contains_line_fragment(runtime_lines, "CONSECUTIVE_IDENTICAL_CRASH_THRESHOLD_REACHED"),
@@ -272,9 +272,9 @@ def run_mixed_failure_lane(name, sequence_value, mixed_type, log_root):
             not contains_line_fragment(runtime_lines, "CONSECUTIVE_STARTUP_ABORT_THRESHOLD_REACHED"),
             "CONSECUTIVE_STARTUP_ABORT_THRESHOLD_REACHED absent",
         ),
-        "crash_log_absent": line_status(
-            not crash_log,
-            crash_log or "no crash log generated",
+        "crash_log_created": line_status(
+            bool(crash_log),
+            crash_log or "missing crash log",
         ),
         "diagnostics_status_cleaned": line_status(
             not os.path.exists(os.path.join(log_root, "diagnostics_status.txt")),

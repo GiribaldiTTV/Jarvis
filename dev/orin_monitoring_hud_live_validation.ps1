@@ -23,6 +23,7 @@ $script:FailureMessage = ""
 $script:ObservedMarkers = New-Object System.Collections.Generic.List[string]
 $script:CleanupNotes = New-Object System.Collections.Generic.List[string]
 $script:ScreenshotPath = ""
+$script:ScreenshotEvidencePath = ""
 $script:InteractionManifestStatus = "NOT_REQUESTED"
 
 function Step([object]$Paths, [string]$Message) {
@@ -61,14 +62,24 @@ function New-Paths {
         $ArtifactRoot = Join-Path $rootDir "dev\logs\fam_006_monitoring_hud_live_validation\$stamp"
     }
     New-Item -ItemType Directory -Force -Path $ArtifactRoot | Out-Null
+    $artifactLeaf = Split-Path -Leaf $ArtifactRoot
+    $userScreenshotsRoot = Join-Path $env:USERPROFILE "OneDrive\Pictures\Screenshots"
+    if (-not (Test-Path -LiteralPath $userScreenshotsRoot)) {
+        $picturesRoot = [Environment]::GetFolderPath("MyPictures")
+        $userScreenshotsRoot = Join-Path $picturesRoot "Screenshots"
+    }
+    $screenshotEvidenceRoot = Join-Path $userScreenshotsRoot "Nexus Desktop AI\fam_006_monitoring_hud_live_validation\$artifactLeaf"
+    New-Item -ItemType Directory -Force -Path $screenshotEvidenceRoot | Out-Null
     [pscustomobject]@{
         Root = $ArtifactRoot
+        ScreenshotEvidenceRoot = $screenshotEvidenceRoot
         RuntimeLog = Join-Path $ArtifactRoot "runtime_log.txt"
         StdoutLog = Join-Path $ArtifactRoot "stdout.txt"
         StderrLog = Join-Path $ArtifactRoot "stderr.txt"
         StepLog = Join-Path $ArtifactRoot "step_log.txt"
         Manifest = Join-Path $ArtifactRoot "manifest.json"
         Screenshot = Join-Path $ArtifactRoot "monitoring_hud_desktop.png"
+        ScreenshotEvidence = Join-Path $screenshotEvidenceRoot "monitoring_hud_full_virtual_desktop.png"
         InteractionManifest = Join-Path $ArtifactRoot "monitoring_hud_live_client_interaction_manifest.json"
         InteractionEvidenceRoot = Join-Path $ArtifactRoot "live_client_interaction"
         AbortSignal = Join-Path $ArtifactRoot "startup_abort.signal"
@@ -101,14 +112,26 @@ function Wait-Marker([object]$Paths, [string]$Pattern) {
 function Capture-Screen([object]$Paths) {
     Add-Type -AssemblyName System.Windows.Forms
     Add-Type -AssemblyName System.Drawing
-    $bounds = [System.Windows.Forms.Screen]::PrimaryScreen.Bounds
+    $screens = [System.Windows.Forms.Screen]::AllScreens
+    $bounds = [System.Drawing.Rectangle]::Empty
+    foreach ($screen in $screens) {
+        if ($bounds.IsEmpty) {
+            $bounds = $screen.Bounds
+        }
+        else {
+            $bounds = [System.Drawing.Rectangle]::Union($bounds, $screen.Bounds)
+        }
+    }
     $bitmap = New-Object System.Drawing.Bitmap $bounds.Width, $bounds.Height
     $graphics = [System.Drawing.Graphics]::FromImage($bitmap)
     try {
         $graphics.CopyFromScreen($bounds.Location, [System.Drawing.Point]::Empty, $bounds.Size)
         $bitmap.Save($Paths.Screenshot, [System.Drawing.Imaging.ImageFormat]::Png)
+        Copy-Item -LiteralPath $Paths.Screenshot -Destination $Paths.ScreenshotEvidence -Force
         $script:ScreenshotPath = $Paths.Screenshot
-        Step $Paths "captured desktop screenshot: $($Paths.Screenshot)"
+        $script:ScreenshotEvidencePath = $Paths.ScreenshotEvidence
+        Step $Paths "captured full virtual desktop screenshot: $($Paths.Screenshot)"
+        Step $Paths "copied user-inspectable screenshot evidence: $($Paths.ScreenshotEvidence)"
     }
     finally {
         $graphics.Dispose()
@@ -125,6 +148,8 @@ function Save-Manifest([object]$Paths, [string]$PythonExe) {
         python = $PythonExe
         runtimeLog = $Paths.RuntimeLog
         screenshot = $script:ScreenshotPath
+        screenshotEvidenceRoot = $Paths.ScreenshotEvidenceRoot
+        userInspectableScreenshot = $script:ScreenshotEvidencePath
         activeUserFacingClient = [bool]$ActiveUserFacingClient
         interactionSelfQARequested = $effectiveRunInteractionSelfQA
         interactionStepDelayMs = $effectiveStepDelayMilliseconds
@@ -191,9 +216,7 @@ try {
         RedirectStandardOutput = $paths.StdoutLog
         RedirectStandardError = $paths.StderrLog
         PassThru = $true
-    }
-    if (-not $effectiveVisibleClient) {
-        $startParams.WindowStyle = "Hidden"
+        WindowStyle = "Hidden"
     }
 
     $script:RuntimeProcess = Start-Process @startParams
@@ -203,11 +226,15 @@ try {
         "RENDERER_MAIN|START",
         "RENDERER_MAIN|QAPPLICATION_CREATED",
         "RENDERER_MAIN|WINDOW_CONSTRUCTED",
+        "RENDERER_MAIN|CORE_VISUALIZATION_WINDOW_READY|surface=separate_core",
+        "RENDERER_MAIN|CORE_VISUALIZATION_WINDOW_GEOMETRY_READY",
+        "RENDERER_MAIN|CORE_VISUALIZATION_WINDOW_VISIBLE|surface=separate_core",
         "RENDERER_MAIN|VISUAL_PAGE_READY",
         "RENDERER_MAIN|CORE_VISUALIZATION_READY",
         "MONITORING_HUD_BASELINE_READY",
         "MONITORING_HUD_PRODUCT_VISIBILITY_READY",
         "MONITORING_HUD_VISIBLE_OVERLAY_READY",
+        "MONITORING_HUD_WINDOW_STATUS_READY",
         "MONITORING_HUD_TELEMETRY_BOUNDARY_READY",
         "MONITORING_HUD_PLACEMENT_OWNERSHIP_READY",
         "MONITORING_HUD_CONTROLS_VISIBILITY_READY",

@@ -181,15 +181,16 @@ For meaningful interactive desktop hardening or closeout work, that baseline als
 When the user wants live screenshot proof to render inside the Codex client, use this as the default delivery path:
 
 1. capture the screenshot from the real launched process and preserve the original file on disk as the durable audit artifact
-2. keep the audit manifest and the original capture paths in the evidence trail
-3. if in-chat visual confirmation is needed, default to a small inline PNG `data:` image generated from that real file rather than a local-file Markdown image
-4. send one image at a time until the user confirms the client is rendering it reliably
-5. if the first inline image fails or flashes, reduce the payload further before trying again
+2. for Live Validation visual proof, copy the raw screenshot into `C:\Users\anden\OneDrive\Pictures\Screenshots\<project-or-validation-lane>\<timestamp>\` or the active USER-declared screenshots folder so the USER-facing evidence is not buried only under `dev/logs`
+3. keep the audit manifest, `dev/logs` capture path, and `screenshots` raw-image path in the evidence trail
+4. surface the raw screenshot path in chat and attach/render that raw file when the client supports it, one image at a time
+5. if raw local-file rendering fails or flashes, generate a smaller inline PNG preview from that same raw file and send the preview only as a convenience layer
 
 Default assumptions:
 
-- local-file Markdown image embeds are not the reliable default for this client
-- smaller inline PNG payloads are the proven default for this client state
+- full virtual-desktop screenshots are the default for desktop Live Validation when window placement, multi-monitor behavior, window separation, clipping, or frame-of-reference matters
+- the USER-declared screenshots folder raw file is the USER-inspectable evidence copy for Live Validation visual proof
+- local-file Markdown image embeds may work in this client, but if they do not, use the smaller inline PNG fallback
 - WebP should be treated as a fallback path rather than the default unless PNG has stopped working in the current client state
 - the in-chat image is a preview convenience layer, not the durable evidence source
 - the durable evidence remains the manifest plus the original captured files on disk
@@ -197,8 +198,8 @@ Default assumptions:
 When writing a prompt that depends on in-chat screenshot review, say so explicitly:
 
 - `Use live launched-process screenshots.`
-- `Preserve original captures on disk and in the audit manifest.`
-- `For in-chat image proof, use a small inline PNG data image one at a time until rendering is confirmed.`
+- `Preserve original captures on disk, copy Live Validation proof into C:\Users\anden\OneDrive\Pictures\Screenshots or the active USER-declared screenshots folder, and record both paths in the audit manifest.`
+- `Surface the raw screenshot path in chat; if rendering fails, use a small inline PNG preview generated from that raw file.`
 
 If the task remains materially ambiguous after that baseline, Codex should ask one focused clarifying question rather than lowering the quality of analysis.
 

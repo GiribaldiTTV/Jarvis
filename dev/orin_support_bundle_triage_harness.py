@@ -15,11 +15,11 @@ REPORTS_DIR = os.path.join(BASE_LOG_ROOT, "reports")
 TRIAGE_LOG_ROOT = os.path.join(BASE_LOG_ROOT, "triage")
 VERIFICATION_DIR = os.path.join(BASE_LOG_ROOT, "verification")
 
-TRIAGE_SCRIPT = os.path.join(ROOT_DIR, "dev", "nexus_support_bundle_triage.py")
-SUPPORT_REPORTING_SCRIPT = os.path.join(ROOT_DIR, "desktop", "nexus_support_reporting.py")
-LAUNCHER_REGRESSION_HARNESS_SCRIPT = os.path.join(ROOT_DIR, "dev", "nexus_desktop_launcher_regression_harness.py")
+TRIAGE_SCRIPT = os.path.join(ROOT_DIR, "dev", "orin_support_bundle_triage.py")
+SUPPORT_REPORTING_SCRIPT = os.path.join(ROOT_DIR, "desktop", "orin_support_reporting.py")
+LAUNCHER_REGRESSION_HARNESS_SCRIPT = os.path.join(ROOT_DIR, "dev", "orin_desktop_launcher_regression_harness.py")
 
-DESKTOP_LAUNCHER_REGRESSION_HARNESS = os.path.join(ROOT_DIR, "dev", "nexus_desktop_launcher_regression_harness.py")
+DESKTOP_LAUNCHER_REGRESSION_HARNESS = os.path.join(ROOT_DIR, "dev", "orin_desktop_launcher_regression_harness.py")
 LAUNCHER_REGRESSION_REPORTS_DIR = os.path.join(DEV_LOGS_DIR, "desktop_launcher_regression_harness", "reports")
 
 LANE_ROOTS = {
@@ -372,8 +372,8 @@ def main(argv):
 
     prerequisite_section = run_launcher_regression_prerequisite()
 
-    support_module = load_module_from_path("nexus_support_reporting_module", SUPPORT_REPORTING_SCRIPT)
-    triage_module = load_module_from_path("nexus_support_bundle_triage_module", TRIAGE_SCRIPT)
+    support_module = load_module_from_path("orin_support_reporting_module", SUPPORT_REPORTING_SCRIPT)
+    triage_module = load_module_from_path("orin_support_bundle_triage_module", TRIAGE_SCRIPT)
 
     _, _, repeated_crash_bundle = create_support_bundle(support_module, LANE_ROOTS["repeated_crash"])
     _, _, startup_abort_bundle = create_support_bundle(support_module, LANE_ROOTS["startup_abort"])

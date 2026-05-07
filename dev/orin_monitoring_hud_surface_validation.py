@@ -50,15 +50,29 @@ def _require_no_collection_imports(text: str, label: str, failures: list[str]) -
 def validate() -> list[str]:
     failures: list[str] = []
 
-    html = _read("nexus_visual/orin_core.html")
-    css = _read("nexus_visual/orin_core.css")
-    js = _read("nexus_visual/orin_core.js")
+    core_html = _read("nexus_visual/orin_core.html")
+    core_css = _read("nexus_visual/orin_core.css")
+    core_js = _read("nexus_visual/orin_core.js")
+    html = _read("nexus_visual/monitoring_hud.html")
+    css = _read("nexus_visual/monitoring_hud.css")
+    js = _read("nexus_visual/monitoring_hud.js")
     renderer = _read("desktop/desktop_renderer.py")
     telemetry = _read("desktop/monitoring_hud_telemetry.py")
     placement = _read("desktop/monitoring_hud_placement.py")
     controls = _read("desktop/monitoring_hud_controls.py")
     status = _read("desktop/monitoring_hud_status.py")
     live_validation = _read("dev/orin_monitoring_hud_live_validation.ps1")
+
+    for label, text in (
+        ("ORIN Core HTML", core_html),
+        ("ORIN Core CSS", core_css),
+        ("ORIN Core JavaScript", core_js),
+    ):
+        _require(
+            "monitoring-hud" not in text and "Monitoring HUD" not in text,
+            f"{label} must not contain Monitoring HUD surface markup, styles, or behavior",
+            failures,
+        )
 
     hud_section = _html_section(html)
     _require(bool(hud_section), "orin_core.html is missing the monitoring-hud section", failures)
@@ -120,7 +134,7 @@ def validate() -> list[str]:
         "Warming up",
         "1s default",
         "Provider-contract-first",
-        "Movable top-right snap rail",
+        "Movable/anchorable overlay across the virtual desktop",
         "Resizable card grid",
         "Optional HUD layer",
         "On/off represented",
@@ -156,7 +170,7 @@ def validate() -> list[str]:
         "#monitoring-hud {",
         "display: none;",
         "body.desktop-mode #monitoring-hud",
-        "width: min(780px, calc(100vw - 48px));",
+        "width: calc(100vw - 24px);",
         'font-family: "Bahnschrift", "Rajdhani", "Segoe UI", sans-serif;',
         "pointer-events: auto",
         'body.desktop-mode #monitoring-hud[data-anchor-state="unanchored"]',
@@ -190,6 +204,9 @@ def validate() -> list[str]:
         "window.getMonitoringHudControlState = function()",
         "window.getMonitoringHudLiveClientGeometry = function()",
         "window.getMonitoringHudIsolationState = function()",
+        "standaloneHudWindow",
+        "coreSceneHiddenInHudWindow",
+        "hudWindowMode",
         "window.simulateMonitoringHudFaultForValidation = function(enabled)",
         "window.setMonitoringHudControlState = function(state)",
         "monitoringHudWirePanelDrag",
@@ -206,7 +223,7 @@ def validate() -> list[str]:
         'monitoringHudProviderState.textContent = monitoringHudTelemetry.providerLabel || "Provider setup required"',
         "window.setMonitoringHudPlacementOwnership = function(contract)",
         'monitoringHud.dataset.interactionMode = monitoringHudControlState.anchored ? "anchored-click-through" : "unanchored-edit-mode"',
-        'monitoringHudPlacementAnchor.textContent = monitoringHudPlacement.anchor || "Movable top-right snap rail"',
+        'monitoringHudPlacementAnchor.textContent = monitoringHudPlacement.anchor || "Movable/anchorable overlay across the virtual desktop"',
         'monitoringHudResizePosture.textContent = monitoringHudPlacement.resizePosture || "Resizable card grid"',
         "window.setMonitoringHudControlsVisibility = function(contract)",
         'monitoringHud.dataset.controlsState = monitoringHudControlState.visible ? "toggle-posture-visible" : "toggle-posture-hidden"',
@@ -230,7 +247,14 @@ def validate() -> list[str]:
         "from .monitoring_hud_placement import build_monitoring_hud_placement_contract",
         "from .monitoring_hud_status import build_monitoring_hud_status_snapshot",
         "from .monitoring_hud_telemetry import build_monitoring_hud_telemetry_snapshot",
+        "class CoreVisualizationWindow(QWidget):",
+        "CORE_VISUALIZATION_WINDOW_READY|surface=separate_core",
+        "CORE_VISUALIZATION_WINDOW_GEOMETRY_READY",
+        "CORE_VISUALIZATION_WINDOW_VISIBLE|surface=separate_core",
+        'surface_role: str = "hud"',
         "def _apply_desktop_surface_mode(self):",
+        "hud-window-mode",
+        "core-window-mode",
         'monitoringHud.dataset.renderState = "product-visibility-baseline"',
         'monitoringHud.dataset.productSurfaceState = "visible-user-facing"',
         "MONITORING_HUD_BASELINE_READY",
@@ -242,6 +266,7 @@ def validate() -> list[str]:
         'pointer_model="click_through_no_focus"',
         "MONITORING_HUD_INTERACTION_MODE_READY",
         "MONITORING_HUD_CONTROL_STATE_READY",
+        "MONITORING_HUD_WINDOW_STATUS_READY",
         "MONITORING_HUD_TRAY_UNANCHOR_READY",
         "MONITORING_HUD_TRAY_TOGGLE_READY",
         "configure_monitoring_hud_live_client_self_qa",
@@ -250,10 +275,11 @@ def validate() -> list[str]:
         "MONITORING_HUD_LIVE_CLIENT_SELF_QA_INTERACTION_READY",
         "MONITORING_HUD_LIVE_CLIENT_SELF_QA_READY",
         "MONITORING_HUD_NATIVE_PANEL_DRAG_READY",
+        "MONITORING_HUD_NATIVE_WINDOW_MOVE_READY",
         "MONITORING_HUD_NATIVE_CARD_DRAG_READY",
         "MONITORING_HUD_NATIVE_CARD_RESIZE_READY",
         "initial visible HUD identity/provider/no-fake-state",
-        "HUD module isolation preserves ORIN Core visibility",
+        "HUD standalone window preserves Core isolation contract",
         "real mouse hit targets are visible and large enough",
         "real mouse click on HUD Unanchor control sent",
         "real mouse unanchor reaches editable HUD",
@@ -279,7 +305,7 @@ def validate() -> list[str]:
         'adapter="desktop-runtime-boundary"',
         'hardware_polling="native_cpu_load_bounded"',
         'owner="DesktopRuntimeWindow"',
-        'placement="desktop-renderer-top-right"',
+        'placement="standalone-native-hud-window"',
         'controls="hud-controls-visibility"',
         'persistence="local_layout_state"',
         'status="hud-local-readiness-status"',
@@ -322,13 +348,14 @@ def validate() -> list[str]:
     for needle in (
         'PACKAGE_ID = "PKG-006"',
         'SLICE_ID = "SLC-026"',
-        'PLACEMENT_ID = "desktop-renderer-top-right"',
+        'PLACEMENT_ID = "standalone-native-hud-window"',
         'renderer_owner="DesktopRuntimeWindow"',
-        'anchor="Movable top-right snap rail"',
+        'surface_owner="Standalone Qt WebEngine HUD overlay window"',
+        'anchor="Movable/anchorable overlay across the virtual desktop"',
         'pointer_model="Anchored click-through/no-focus-steal"',
         'snap_model="20px snap grid with snap-disable posture"',
         'card_layout_model="draggable/resizable category cards"',
-        'z_index="18"',
+        'z_index="native-topmost"',
     ):
         _require_contains(placement, needle, "monitoring HUD placement contract", failures)
     _require_no_collection_imports(placement, "monitoring HUD placement contract", failures)
@@ -385,6 +412,10 @@ def validate() -> list[str]:
         "interactionManifestStatus",
         "MONITORING_HUD_LIVE_CLIENT_SELF_QA_INTERACTION_READY",
         "MONITORING_HUD_LIVE_CLIENT_SELF_QA_READY",
+        "CORE_VISUALIZATION_WINDOW_READY|surface=separate_core",
+        "CORE_VISUALIZATION_WINDOW_GEOMETRY_READY",
+        "CORE_VISUALIZATION_WINDOW_VISIBLE|surface=separate_core",
+        "MONITORING_HUD_WINDOW_STATUS_READY",
         "interaction self-QA manifest PASS",
         "MONITORING_HUD_BASELINE_READY",
         "MONITORING_HUD_PRODUCT_VISIBILITY_READY",

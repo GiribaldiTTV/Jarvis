@@ -14,7 +14,7 @@ from PySide6.QtGui import QAction
 from PySide6.QtCore import QObject, QTimer, Qt, Slot
 from PySide6.QtWidgets import QApplication, QMenu, QMessageBox, QStyle, QSystemTrayIcon
 
-from desktop.desktop_renderer import DesktopRuntimeWindow
+from desktop.desktop_renderer import CoreVisualizationWindow, DesktopRuntimeWindow
 from desktop.hotkeys import ShutdownBus, GlobalHotkeyManager
 from desktop.single_instance import NamedSignal
 
@@ -220,10 +220,13 @@ def harness_ignore_relaunch_request():
 
 
 class DesktopTrayEntry:
-    def __init__(self, app, window, event_logger=None):
+    def __init__(self, app, window, event_logger=None, shutdown_confirmation_requester=None):
         self.app = app
         self.window = window
         self.event_logger = event_logger or (lambda _event: None)
+        self.shutdown_confirmation_requester = (
+            shutdown_confirmation_requester if callable(shutdown_confirmation_requester) else None
+        )
         self.tray_icon = None
         self.tray_menu = None
         self.identity_action = None
@@ -231,6 +234,7 @@ class DesktopTrayEntry:
         self.create_custom_task_action = None
         self.monitoring_hud_toggle_action = None
         self.monitoring_hud_unanchor_action = None
+        self.exit_action = None
         self._discovery_cue_shown = False
 
     def _emit(self, event):
@@ -279,6 +283,12 @@ class DesktopTrayEntry:
                 lambda _checked=False: self.request_monitoring_hud_unanchor_from_tray("menu")
             )
             self.tray_menu.addAction(self.monitoring_hud_unanchor_action)
+            self.tray_menu.addSeparator()
+            self.exit_action = QAction("Exit Nexus Desktop AI", self.tray_menu)
+            self.exit_action.triggered.connect(
+                lambda _checked=False: self.request_shutdown_from_tray("menu")
+            )
+            self.tray_menu.addAction(self.exit_action)
 
             self.tray_icon = QSystemTrayIcon(icon, self.app)
             self.tray_icon.setToolTip(TRAY_IDENTITY_LABEL)
@@ -324,6 +334,15 @@ class DesktopTrayEntry:
     def request_monitoring_hud_unanchor_from_tray(self, source):
         self._emit(f"RENDERER_MAIN|TRAY_MONITORING_HUD_UNANCHOR_REQUESTED|source={source}")
         self.window.request_monitoring_hud_unanchor_from_tray(source=source)
+
+    def request_shutdown_from_tray(self, source):
+        self._emit(f"RENDERER_MAIN|TRAY_SHUTDOWN_CONFIRMATION_REQUESTED|source={source}")
+        if self.shutdown_confirmation_requester is None:
+            self._emit(
+                f"RENDERER_MAIN|TRAY_SHUTDOWN_CONFIRMATION_UNAVAILABLE|source={source}"
+            )
+            return
+        self.shutdown_confirmation_requester(f"tray_{source}")
 
     def show_discovery_cue(self):
         if self.tray_icon is None:
@@ -419,16 +438,23 @@ def main():
         return 0
 
     visual_html_path = os.path.join(ROOT_DIR, "nexus_visual", "orin_core.html")
+    monitoring_hud_html_path = os.path.join(ROOT_DIR, "nexus_visual", "monitoring_hud.html")
     runtime_milestone("RENDERER_MAIN|VISUAL_HTML_RESOLVED")
     if exit_if_startup_abort_requested():
         return 0
 
     screen = app.primaryScreen()
-    window = DesktopRuntimeWindow(
+    core_window = CoreVisualizationWindow(
         screen,
         visual_html_path,
         event_logger=runtime_milestone,
+    )
+    window = DesktopRuntimeWindow(
+        screen,
+        monitoring_hud_html_path,
+        event_logger=runtime_milestone,
         runtime_log_path=RUNTIME_LOG_FILE,
+        surface_role="hud",
     )
     if MONITORING_HUD_LIVE_SELF_QA_MANIFEST:
         window.configure_monitoring_hud_live_client_self_qa(
@@ -460,6 +486,7 @@ def main():
         runtime_milestone("RENDERER_MAIN|SHUTDOWN_REQUESTED")
         tray_entry.close()
         hotkeys.stop()
+        core_window.request_shutdown()
         window.request_shutdown()
         shutdown_force_kill_timer = threading.Timer(1.2, hotkeys.force_kill)
         shutdown_force_kill_timer.daemon = True
@@ -532,7 +559,12 @@ def main():
     bus.command_overlay_submit_requested.connect(window.handle_overlay_submit_requested)
     bus.command_overlay_escape_requested.connect(window.handle_overlay_escape_requested)
     bus.command_overlay_global_click_requested.connect(window.handle_overlay_global_click_requested)
-    tray_entry = DesktopTrayEntry(app, window, runtime_milestone)
+    tray_entry = DesktopTrayEntry(
+        app,
+        window,
+        runtime_milestone,
+        shutdown_confirmation_requester=request_shutdown_confirmation,
+    )
     tray_entry.initialize()
     hotkeys.set_overlay_input_enabled_provider(window.overlay_needs_global_input_capture)
     hotkeys.set_overlay_launch_grace_allowed_provider(window.overlay_allows_launch_grace)
@@ -546,13 +578,14 @@ def main():
 
     print("Nexus Desktop AI Desktop Runtime - Version 1.02")
     print("Command Overlay: Ctrl + Alt + Home or Ctrl + Alt + 1")
-    print("Hotkey: Ctrl + Alt + End or Ctrl + Alt + 2 (confirmation required)")
+    print("Hotkey: Ctrl + Alt + End or Ctrl + Alt + 2 (direct shutdown; tray exit asks for confirmation)")
 
     def settle_passive_default_handoff():
         if exit_if_startup_abort_requested(hotkeys, tray_entry):
             app.quit()
             return
         window.set_visual_state("dormant")
+        core_window.set_visual_state("dormant")
         runtime_milestone("RENDERER_MAIN|PASSIVE_DEFAULT_HANDOFF_REQUESTED|state=dormant")
         if desktop_settled_signal.signal():
             runtime_milestone("RENDERER_MAIN|DESKTOP_SETTLED_SIGNAL_SET")
@@ -584,13 +617,14 @@ def main():
             app.quit()
             return
         window_show_requested = True
+        core_window.show()
         window.show()
-        runtime_milestone("RENDERER_MAIN|WINDOW_SHOW_REQUESTED|reason=core_visualization_ready")
+        runtime_milestone("RENDERER_MAIN|WINDOW_SHOW_REQUESTED|reason=core_and_hud_visualization_ready")
 
-    window.core_visualization_ready.connect(show_window_after_core_visualization_ready)
+    core_window.core_visualization_ready.connect(show_window_after_core_visualization_ready)
     window.core_visualization_visible.connect(mark_startup_ready)
     runtime_milestone("RENDERER_MAIN|WINDOW_SHOW_DEFERRED_UNTIL_CORE_READY")
-    if window.is_core_visualization_ready():
+    if core_window.is_core_visualization_ready():
         QTimer.singleShot(0, show_window_after_core_visualization_ready)
 
     relaunch_timer = QTimer()
@@ -603,6 +637,7 @@ def main():
     desktop_settled_signal.close()
     tray_entry.close()
     hotkeys.stop()
+    core_window.request_shutdown()
     runtime_milestone(f"RENDERER_MAIN|EVENT_LOOP_EXIT|code={exit_code}")
     return exit_code
 

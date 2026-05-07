@@ -39,7 +39,7 @@ This branch may execute the admitted PKG-006 implementation slices during Workst
 - Branch Readiness Stage: `Complete - Stage 2-R10 recorded Stage 1-R6 planning revalidation PASS`
 - Workstream Stage: `Green - WS8 through WS17 completed the current-branch Monitoring HUD implementation chain`
 - Hardening Stage: `Green - H1 pressure-tested the visible HUD, controls, placement, provider-contract telemetry, internal sandbox, live screenshot proof, source truth, and naming sterilization`
-- Live Validation Stage: `In Progress - LV1 live helper proof and Codex live-client self-QA are green; User Test Summary returned-results digestion is pending`
+- Live Validation Stage: `In Progress - LV1 active live-client proof and Codex live-client self-QA are green after the standalone HUD renderer split and full virtual-desktop screenshot handoff repair; User Test Summary returned-results digestion is pending`
 - Active Branch: `feature/fam-006-monitoring-hud-product-surface`
 - Branch Authority Mode: `Active Branch`
 - Workstream Entry Source-Truth Transition: `Performed - Branch Readiness Stage 2 terminal evidence reconciled before runtime implementation`
@@ -50,9 +50,9 @@ This branch may execute the admitted PKG-006 implementation slices during Workst
 - Selected Next Source: `USER-approved selected-next truth matured into active FAM-006 Workstream`
 - Package Admission State: `Admitted`
 - Admitted Slice Count: `6`
-- Package Completion State: `In Progress - Live Validation LV1 active live-client proof, HUD/Core isolation proof, and Codex live-client self-QA green; User Test Summary, PR Readiness, and final package completion remain unclaimed`
+- Package Completion State: `In Progress - Live Validation LV1 active live-client proof, standalone HUD/Core isolation proof, full virtual-desktop screenshot proof, and Codex live-client self-QA green; User Test Summary, PR Readiness, and final package completion remain unclaimed`
 - Single-Slice Package User Approval: `Not required - PKG-006 has six concrete admitted slices; no waiver granted`
-- Runtime Implementation State: `Live Validation LV1 In Progress - Workstream implementation and H1 pressure-test remain green; LV1 active live-client proof plus Codex live-client self-QA for the Nexus/NDAI Monitoring HUD shell, visible futuristic panel, HUD/Core isolation, draggable/resizable/snapping CPU/GPU category cards, tray show/hide and unanchor route, anchored click-through/no-focus posture, no default keybinds, provider-contract telemetry, native CPU-load proof, truthful CPU thermal/GPU setup-unavailable states, 1s fastest/default polling with slower user-selectable rates, local layout state, visual/non-invasive warning posture, internal sandbox proof, live desktop proof, and naming sterilization. Future provider-platform parity, external/plugin telemetry, audio/spoken alerts, persona switching, Stream Deck, graphs/history/persistence dashboards, local AI/capability packs, installer work, and ultra-low polling remain deferred.`
+- Runtime Implementation State: `Live Validation LV1 In Progress - Workstream implementation and H1 pressure-test remain green after repair; LV1 active live-client proof plus Codex live-client self-QA for the Nexus/NDAI Monitoring HUD shell in a standalone HUD render window, restored HUD-free ORIN Core visualization window, visible futuristic panel, HUD/Core isolation, draggable/resizable/snapping CPU/GPU category cards, tray show/hide and unanchor route, anchored click-through/no-focus posture, no default keybinds, provider-contract telemetry, native CPU-load proof, truthful CPU thermal/GPU setup-unavailable states, 1s fastest/default polling with slower user-selectable rates, local layout state, visual/non-invasive warning posture, internal sandbox proof, full virtual-desktop screenshot proof, OneDrive Pictures Screenshots handoff proof, and naming sterilization. Future provider-platform parity, external/plugin telemetry, audio/spoken alerts, persona switching, Stream Deck, graphs/history/persistence dashboards, local AI/capability packs, installer work, and ultra-low polling remain deferred.`
 - PR Creation State: `Not approved in Live Validation`
 - Watcher Provisioning State: `Not approved in Live Validation`
 - Release Work State: `Not approved; v1.6.13-prebeta release execution is already complete and no new release work is in scope`
@@ -132,7 +132,7 @@ Rollback Path: revert the current Workstream commit on `feature/fam-006-monitori
 
 Next Legal Seam: `Live Validation LV1 - Monitoring HUD Product Surface Live Validation`
 
-Next Legal Phase Gate: Live Validation LV1 is active on the current FAM-006 carrier. Automated validators, live helper proof, and Codex live-client self-QA are green, and the documented equivalent desktop runtime path captured full-desktop visible HUD proof, but `User Test Summary Results Pending` blocks final Live Validation green until returned USER results are submitted or waived, digested into this authority record, and reevaluated. Live Validation must preserve provider-contract-first truth, no fake metrics, visual/non-invasive warnings, ORIN/ARIA planning boundaries, future-package deferrals, user-facing shortcut/equivalent entrypoint proof, Codex live-client self-QA, and formal User Test Summary returned-results digestion. It must not create a PR, watcher, release, tag, artifact, direct-main mutation, voice/audio implementation, Stream Deck/plugin telemetry implementation, local AI, installer/capability-pack work, broad hardware provider implementation, persona switching implementation, ARIA activation, or a new FAM/package without later explicit USER approval.
+Next Legal Phase Gate: Live Validation LV1 is active on the current FAM-006 carrier. Automated validators, live helper proof, and Codex live-client self-QA are green after the standalone HUD window repair, centered Core geometry repair, and hidden validation-console repair, and the documented equivalent desktop runtime path captured full virtual-desktop visible HUD proof with a USER-inspectable raw screenshot copy at `C:\Users\anden\OneDrive\Pictures\Screenshots\Nexus Desktop AI\fam_006_monitoring_hud_live_validation\20260507_111328\monitoring_hud_full_virtual_desktop.png`, but `User Test Summary Results Pending` blocks final Live Validation green until returned USER results are submitted or waived, digested into this authority record, and reevaluated. Live Validation must preserve provider-contract-first truth, no fake metrics, visual/non-invasive warnings, ORIN/ARIA planning boundaries, future-package deferrals, user-facing shortcut/equivalent entrypoint proof, Codex live-client self-QA, full virtual-desktop screenshot handoff, and formal User Test Summary returned-results digestion. It must not create a PR, watcher, release, tag, artifact, direct-main mutation, voice/audio implementation, Stream Deck/plugin telemetry implementation, local AI, installer/capability-pack work, broad hardware provider implementation, persona switching implementation, ARIA activation, or a new FAM/package without later explicit USER approval.
 
 ## Branch Objective
 
@@ -167,7 +167,7 @@ Full Feature Element Breakdown: Nexus/NDAI futuristic visual HUD identity; stand
 
 Current Branch vs Future Package Boundaries: rebaselined by Stage 2-R9 and validated by Stage 1-R6 / Stage 2-R10. Current branch owns the Nexus/NDAI-branded full Monitoring HUD shell/module, movable/anchorable panel, click-through/no-focus-steal anchored posture, task-tray unanchor path, no default keybinds, draggable/resizable category cards, snapping behavior, basic sensor-card model, provider health/setup/unavailable states, safe native telemetry path only if proven within WS7, default CPU/GPU thermal/load cards only when real provider truth is selected and validated, visual/non-invasive warning baseline, setup/reconnect/no-data/degraded states, full-desktop screenshot proof, refined/cropped detail proof when useful, and User Test Summary preparation. Future-package candidates are full HWInfo/HWMonitor-level parity, broad plugin/external telemetry ecosystem, audio/spoken alerts or FAM-004 integration, persona switching implementation and ARIA activation, Stream Deck, graphs/history/persistence/dashboards, local AI/capability-pack monitoring, installer/capability-pack work, and ultra-low polling intervals until performance proof exists.
 
-Affected Surfaces: renamed visual surfaces `nexus_visual/orin_core.html`, `nexus_visual/orin_core.css`, and `nexus_visual/orin_core.js`; tracked runtime constants and environment names; validation helpers; desktop launch/runtime surfaces; `desktop/desktop_renderer.py`; local monitoring HUD helper modules under `desktop/`; HUD validators; live-validation helpers; ORIN/ARIA persona boundaries; branch authority truth; backlog/roadmap summaries; future User Test Summary evidence; and any controlled Nexus/NDAI naming migration surfaces admitted by branch revalidation.
+Affected Surfaces: restored HUD-free ORIN Core visual surfaces `nexus_visual/orin_core.html`, `nexus_visual/orin_core.css`, and `nexus_visual/orin_core.js`; dedicated Monitoring HUD surfaces `nexus_visual/monitoring_hud.html`, `nexus_visual/monitoring_hud.css`, and `nexus_visual/monitoring_hud.js`; tracked runtime constants and environment names; validation helpers; desktop launch/runtime surfaces; `desktop/desktop_renderer.py`; local monitoring HUD helper modules under `desktop/`; HUD validators; live-validation helpers; ORIN/ARIA persona boundaries; branch authority truth; backlog/roadmap summaries; future User Test Summary evidence; and any controlled Nexus/NDAI naming migration surfaces admitted by branch revalidation.
 
 Data/Control Model: USER wants real hardware-monitoring data rather than placeholder monitoring. Stage 2-R10 preserves provider-contract-first behavior: current branch may show provider health, setup, unavailable, no-data, degraded, and reconnect states, but live CPU/GPU/thermal/load values require a safe provider and validation path before they can appear as real values. Fake metrics are blocked. No polling occurs until a provider is selected; if polling enters an admitted seam, the fastest practical/default polling rate is `1s`, users may set slower rates, `1ms` per-card polling remains unsafe until explicit proof/waiver, and UI repaint cadence stays decoupled from sensor sample cadence. Plugin/external telemetry requires consent, provenance, source labeling, privacy warnings, and validation before implementation and is deferred to future provider/plugin scope. Toggle, anchoring, click-through, no-focus-steal, task-tray unanchor, category-card movement/resize, snapping posture, and visual/non-invasive warning states are current-branch scope. Audio/spoken warnings and persona switching implementation remain outside current PKG-006 unless later admitted.
 
@@ -198,7 +198,7 @@ Planning Completion Waiver: None
 User Test Summary Strategy: USER-facing acceptance remains required during later Live Validation before PR readiness; Workstream may prepare the handoff strategy, but returned User Test Summary results must not be used as the Workstream completion gate.
 
 Visible User-Facing Proof Required: Yes
-Visible User-Facing Proof: PENDING
+Visible User-Facing Proof: `Automated/live helper proof green for the documented equivalent desktop path; USER Test Summary returned-result proof remains pending`
 
 ## USER Vision Input Handoff
 
@@ -216,7 +216,7 @@ Artifact Purpose: `USER-facing input only; not repo source truth until digested.
 
 Artifact Answer Options: `1. Accept Codex recommendation; 2. Change recommendation with USER-written changes; 3. Defer / future package / waive with USER-written reason.`
 
-Next Digest Route: `Complete for refreshed artifact - Branch Readiness Stage 1-R6 must revalidate the Stage 2-R9 digest and scope rebaseline before WS7.`
+Next Digest Route: `Complete for refreshed artifact - Branch Readiness Stage 1-R6 and Stage 2-R10 revalidated the digest/scope rebaseline before Workstream resumed.`
 
 ## USER Vision Input Digest Summary
 
@@ -228,7 +228,7 @@ Product Direction Change: `From local readiness/status HUD to optional Nexus/NDA
 
 USER-Selected Current Product Direction: `full optional HUD layer; movable and anchorable panel; click-through anchored mode; task-tray unanchor path; no default keybinds; non-focus-stealing behavior; Nexus/NDAI futuristic visual identity; draggable/resizable category cards with snapping posture; real hardware telemetry rather than placeholders; default CPU/GPU thermal and load intent when a safe provider is proven; custom warning thresholds; setup/reconnect/no-data/degraded states; privacy-aware telemetry boundaries; full-desktop screenshot proof followed by refined detail screenshots; User Test Summary as PR Readiness blocker; release-bearing posture later`
 
-Current-Branch Finalized Scope: `Superseded by Stage 2-R9 candidate scope pending Stage 1-R6 revalidation: Nexus/NDAI-branded full Monitoring HUD shell/module; movable and anchorable panel; click-through/no-focus-steal anchored posture; task-tray unanchor path; no default keybinds; draggable/resizable category cards; snapping posture; basic sensor-card model; safe native telemetry path if proven; provider health/setup/unavailable states; setup/reconnect/no-data/degraded copy; visual/non-invasive warning baseline; full-desktop screenshot proof; User Test Summary preparation`
+Current-Branch Finalized Scope: `Stage 1-R6 / Stage 2-R10 revalidated: Nexus/NDAI-branded full Monitoring HUD shell/module; movable and anchorable standalone panel; click-through/no-focus-steal anchored posture; task-tray unanchor path; no default keybinds; draggable/resizable category cards; snapping posture; basic sensor-card model; safe native telemetry path if proven; provider health/setup/unavailable states; setup/reconnect/no-data/degraded copy; visual/non-invasive warning baseline; full virtual-desktop screenshot proof copied to the USER screenshots folder; User Test Summary preparation`
 
 Future Package Finalized Scope: `full HWInfo/HWMonitor-level parity if too broad for current branch; broad plugin/external telemetry ecosystem; audio/spoken alerts or FAM-004 integration; persona switching implementation and ARIA activation; Stream Deck integration; graphs, history, persistence, and dashboards; local AI/capability-pack monitoring; installer/capability-pack work; ultra-low polling intervals pending performance proof`
 
@@ -410,12 +410,12 @@ Primary Entry Slice: `SLC-016 HUD visual and user-facing monitoring surface`
 
 | Slice ID | Package ID | FAM ID | Slice Name | Admission State | Slice Status | Completion State | Seam Trace |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| `SLC-016` | `PKG-006` | `FAM-006` | HUD visual and user-facing monitoring surface | Admitted | Green | Complete for Workstream - visible Nexus/NDAI HUD shell and panel proof recorded; Hardening/Live Validation pending | `BR-S2-S1`; `WS1`; `WS7`; `WS9`; `WS17`; `dev/orin_monitoring_hud_surface_validation.py`; `dev/orin_monitoring_hud_live_validation.ps1` |
+| `SLC-016` | `PKG-006` | `FAM-006` | HUD visual and user-facing monitoring surface | Admitted | Green | Complete for Workstream - visible Nexus/NDAI standalone HUD shell and panel proof recorded; Hardening green; LV1 automated proof green with UTS pending | `BR-S2-S1`; `WS1`; `WS7`; `WS9`; `WS17`; `dev/orin_monitoring_hud_surface_validation.py`; `dev/orin_monitoring_hud_live_validation.ps1` |
 | `SLC-025` | `PKG-006` | `FAM-006` | Runtime telemetry source and adapter boundary | Admitted | Green | Complete for Workstream - provider-contract boundary plus bounded native CPU-load proof; GPU/thermal provider parity deferred | `BR-S2-S2`; `WS2`; `WS14`; `WS15`; `desktop/monitoring_hud_telemetry.py`; `dev/orin_monitoring_hud_internal_sandbox_validation.py` |
-| `SLC-026` | `PKG-006` | `FAM-006` | Desktop placement and renderer ownership | Admitted | Green | Complete for Workstream - movable/anchorable panel, click-through/no-focus anchored posture, snap layout, and renderer/tray proof recorded | `BR-S2-S3`; `WS3`; `WS10`; `WS12`; `desktop/monitoring_hud_placement.py`; `desktop/desktop_renderer.py`; `dev/orin_monitoring_hud_internal_sandbox_validation.py` |
-| `SLC-027` | `PKG-006` | `FAM-006` | Settings and user controls visibility | Admitted | Green | Complete for Workstream - HUD show/hide, tray unanchor, snap toggle, polling selection, no-default-keybind posture, and local layout state recorded | `BR-S2-S4`; `WS4`; `WS11`; `WS13`; `desktop/monitoring_hud_controls.py`; `desktop/orin_desktop_main.py`; `nexus_visual/orin_core.js` |
+| `SLC-026` | `PKG-006` | `FAM-006` | Desktop placement and renderer ownership | Admitted | Green | Complete for Workstream - movable/anchorable standalone HUD panel, click-through/no-focus anchored posture, snap layout, centered separate Core geometry, and renderer/tray proof recorded | `BR-S2-S3`; `WS3`; `WS10`; `WS12`; `desktop/monitoring_hud_placement.py`; `desktop/desktop_renderer.py`; `dev/orin_monitoring_hud_internal_sandbox_validation.py` |
+| `SLC-027` | `PKG-006` | `FAM-006` | Settings and user controls visibility | Admitted | Green | Complete for Workstream - HUD show/hide, tray unanchor, snap toggle, polling selection, no-default-keybind posture, and local layout state recorded | `BR-S2-S4`; `WS4`; `WS11`; `WS13`; `desktop/monitoring_hud_controls.py`; `desktop/orin_desktop_main.py`; `nexus_visual/monitoring_hud.js` |
 | `SLC-028` | `PKG-006` | `FAM-006` | Fail-safe, no-data, and degraded-status behavior | Admitted | Green | Complete for Workstream - setup/unavailable/no-data/degraded/provider states and visual/non-invasive warning posture are truthful and proof-backed | `BR-S2-S5`; `WS5`; `WS16`; `desktop/monitoring_hud_status.py`; `dev/orin_monitoring_hud_surface_validation.py` |
-| `SLC-029` | `PKG-006` | `FAM-006` | Validation and live desktop proof | Admitted | Green | Complete for Workstream - static, internal sandbox, compile, diff, retired-name, and full-desktop screenshot proof recorded; formal UTS remains Live Validation | `BR-S2-S6`; `WS6`; `WS8`; `WS17`; `dev/orin_monitoring_hud_internal_sandbox_validation.py`; `dev/orin_monitoring_hud_live_validation.ps1` |
+| `SLC-029` | `PKG-006` | `FAM-006` | Validation and live desktop proof | Admitted | Green | Complete for Workstream - static, internal sandbox, compile, diff, retired-name, standalone HUD/Core isolation, centered Core geometry, hidden validation-console, and full virtual-desktop screenshot proof recorded; formal UTS remains Live Validation | `BR-S2-S6`; `WS6`; `WS8`; `WS17`; `dev/orin_monitoring_hud_internal_sandbox_validation.py`; `dev/orin_monitoring_hud_live_validation.ps1` |
 
 ## Deferred / Future Slice Ledger
 
@@ -518,7 +518,7 @@ Seam 9: `WS9 - Monitoring HUD Shell Module And Product Surface Extraction`
 Goal: make the HUD feel like a maintained Nexus/NDAI product module rather than copy embedded opportunistically in the core visual surface.
 Scope: standalone HUD shell/module structure, product copy, naming hygiene, desktop-mode ownership boundaries, and validation markers.
 Non-Includes: broad provider platform, external plugins, audio/persona switching, Stream Deck, release work, PR work, or Live Validation UTS.
-Status: `Green - HUD product shell/module markers, Nexus/NDAI copy, and desktop-mode ownership are implemented in nexus_visual/orin_core.*`
+Status: `Green - HUD product shell/module markers, Nexus/NDAI copy, and desktop-mode ownership are implemented in dedicated nexus_visual/monitoring_hud.* files; nexus_visual/orin_core.* is restored to HUD-free ORIN Core visualization ownership`
 
 Seam 10: `WS10 - Panel Movement Anchoring And Click-Through Runtime Behavior`
 Goal: implement and prove movable/anchorable panel behavior plus anchored click-through/no-focus-steal posture.
@@ -597,17 +597,17 @@ Continuation Action: `Wait for completed User Test Summary results or explicit w
 
 ## WS8-WS17 Implementation Record
 
-- Runtime files touched: `desktop/desktop_renderer.py`, `desktop/orin_desktop_main.py`, `desktop/monitoring_hud_telemetry.py`, `desktop/monitoring_hud_placement.py`, `desktop/monitoring_hud_controls.py`, `desktop/monitoring_hud_status.py`, `nexus_visual/orin_core.html`, `nexus_visual/orin_core.css`, `nexus_visual/orin_core.js`.
+- Runtime files touched: `desktop/desktop_renderer.py`, `desktop/orin_desktop_main.py`, `desktop/monitoring_hud_telemetry.py`, `desktop/monitoring_hud_placement.py`, `desktop/monitoring_hud_controls.py`, `desktop/monitoring_hud_status.py`, `nexus_visual/orin_core.html`, `nexus_visual/orin_core.css`, `nexus_visual/orin_core.js`, `nexus_visual/monitoring_hud.html`, `nexus_visual/monitoring_hud.css`, `nexus_visual/monitoring_hud.js`.
 - Validation files touched: `dev/orin_monitoring_hud_surface_validation.py`, `dev/orin_monitoring_hud_internal_sandbox_validation.py`, `dev/orin_monitoring_hud_live_validation.ps1`.
-- HUD shell/module: `Implemented - Nexus/NDAI Monitoring HUD product surface now has explicit shell/module markers, a visible futuristic panel, category-card board, control toolbar, provider/status sections, and no retired product naming.`
-- Movement/anchoring: `Implemented - renderer and DOM state support anchored click-through/no-focus posture plus unanchored edit mode for panel movement and card editing.`
+- HUD shell/module: `Implemented and repaired - Nexus/NDAI Monitoring HUD product surface now lives in dedicated monitoring_hud.* render files with explicit shell/module markers, a visible futuristic panel, category-card board, control toolbar, provider/status sections, and no retired product naming; ORIN Core render files are restored to HUD-free visualization ownership.`
+- Movement/anchoring: `Implemented and repaired - standalone native HUD window supports anchored click-through/no-focus posture plus unanchored edit mode for panel movement and card editing, with explicit window-status proof before movement and full virtual-desktop frame-of-reference proof.`
 - Task tray path: `Implemented - tray menu exposes Show / Hide Monitoring HUD and Unanchor Monitoring HUD routes into renderer HUD control state.`
 - Category cards: `Implemented - CPU/GPU category cards expose individual CPU load, CPU thermal, GPU load, and GPU thermal rows; cards support drag, resize, snapping, snap-disable posture, and local browser layout state.`
 - Telemetry provider truth: `Implemented - provider-contract-first boundary now includes bounded native CPU-load proof; CPU thermal, GPU load, and GPU thermal remain setup/unavailable until a safe provider route is admitted. Fake hardware values remain blocked.`
 - Polling posture: `Implemented - 1s is the fastest/default polling cadence; slower user-selectable rates are represented, and UI repaint/source sample cadence remains separated from unsupported ultra-low polling.`
 - Warning baseline: `Implemented - current-branch warning posture is visual/non-invasive through badge, card state, color, and text labels. Audio/spoken warnings remain deferred to FAM-004/cross-family approval.`
-- Internal sandbox proof: `Green - python dev/orin_monitoring_hud_internal_sandbox_validation.py validates shell markers, state matrix, tray controls, category cards, telemetry contracts, warning posture, and retired-name sterilization.`
-- Live desktop proof: `Green - dev/orin_monitoring_hud_live_validation.ps1 captured full-desktop visible HUD proof at dev/logs/fam_006_monitoring_hud_live_validation/20260506_235755/monitoring_hud_desktop.png with refreshed markers.`
+- Internal sandbox proof: `Green - python dev/orin_monitoring_hud_internal_sandbox_validation.py validates standalone HUD shell markers, HUD-free ORIN Core render files, state matrix, tray controls, category cards, telemetry contracts, warning posture, and retired-name sterilization.`
+- Live desktop proof: `Superseded - earlier Workstream proof was refreshed again in LV1 after USER-reported Core/HUD coupling, movement, disappearance, clipping, off-center Core, and visible command-prompt defects; current LV1 proof is the standalone HUD window run under dev/logs/fam_006_monitoring_hud_live_validation/20260507_111328/ with USER-inspectable full virtual-desktop raw screenshot copied to C:\Users\anden\OneDrive\Pictures\Screenshots\Nexus Desktop AI\fam_006_monitoring_hud_live_validation\20260507_111328\monitoring_hud_full_virtual_desktop.png.`
 - Workstream completion state: `Green for Hardening; package completion remains unclaimed until Hardening, Live Validation, formal User Test Summary digest, PR Readiness, and final package closeout pass.`
 
 ## WS1 Implementation Record
@@ -632,9 +632,9 @@ Continuation Action: `Wait for completed User Test Summary results or explicit w
 ## WS3 Implementation Record
 
 - Runtime files touched: `desktop/monitoring_hud_placement.py`, `desktop/desktop_renderer.py`, `nexus_visual/orin_core.html`, `nexus_visual/orin_core.css`, `nexus_visual/orin_core.js`
-- Placement ownership behavior: `DesktopRuntimeWindow publishes a HUD placement contract through desktop-renderer-top-right with package PKG-006 and slice SLC-026`
-- Placement ownership surface: `Monitoring HUD shows renderer owner, desktop anchor, and non-interactive pointer model while keeping the HUD inside the desktop visual surface`
-- Placement ownership validation: `dev/orin_monitoring_hud_surface_validation.py proves SLC-026 placement markers, renderer-owned placement publication, active SLC-026 surface copy, and no hardware polling, settings-control behavior, fail-safe semantics, or voice/audio widening; it does not prove readable user-visible placement`
+- Placement ownership behavior: `DesktopRuntimeWindow publishes a HUD placement contract through standalone-native-hud-window with package PKG-006 and slice SLC-026`
+- Placement ownership surface: `Monitoring HUD shows renderer owner, virtual-desktop anchor, and click-through/no-focus pointer model while the HUD lives in a standalone native overlay window separate from the ORIN Core visualization window`
+- Placement ownership validation: `dev/orin_monitoring_hud_surface_validation.py proves SLC-026 placement markers, standalone native HUD window ownership, active SLC-026 surface copy, HUD-free ORIN Core render files, and no hardware polling, settings-control behavior, fail-safe semantics, or voice/audio widening; LV1 proof now provides full virtual-desktop readable placement evidence`
 - SLC-026 Completion State: `Reopened / In Progress - placement contract exists, but readable visible placement proof is unproven`
 - Boundary preservation: `No settings controls, fail-safe/no-data semantics, live validation proof, voice/audio behavior, release work, PR work, watcher work, tags, GitHub Releases, artifacts, or direct-main mutation`
 
@@ -729,7 +729,7 @@ WS8 Digest Finding: `The desktop artifact at C:\Users\anden\OneDrive\Desktop\Use
 
 Current UTS Handoff Path: `C:\Users\anden\OneDrive\Desktop\User Test Summary.txt`
 
-Current Evidence Root For UTS: `C:\Nexus Desktop AI\dev\logs\fam_006_monitoring_hud_live_validation\20260507_065258`
+Current Evidence Root For UTS: `C:\Nexus Desktop AI\dev\logs\fam_006_monitoring_hud_live_validation\20260507_111328`
 
 Acceptance Classification: `PENDING - no product acceptance result returned`
 
@@ -746,37 +746,40 @@ Validation Evidence Expectations: return PASS/FAIL plus any notes, screenshots, 
 
 - Phase Admission: `PASS - Live Validation LV1 entered after Hardening H1 Green and stayed on feature/fam-006-monitoring-hud-product-surface`
 - Live Validation seam: `Live Validation LV1 - Monitoring HUD Product Surface Live Validation`
-- Live evidence root: `dev/logs/fam_006_monitoring_hud_live_validation/20260507_091732`
-- Live manifest: `dev/logs/fam_006_monitoring_hud_live_validation/20260507_091732/manifest.json`
-- Live screenshot: `dev/logs/fam_006_monitoring_hud_live_validation/20260507_091732/monitoring_hud_desktop.png`
-- Live interaction manifest: `dev/logs/fam_006_monitoring_hud_live_validation/20260507_091732/monitoring_hud_live_client_interaction_manifest.json`
-- Live interaction evidence root: `dev/logs/fam_006_monitoring_hud_live_validation/20260507_091732/live_client_interaction`
-- Internal sandbox manifest: `dev/logs/fam_006_monitoring_hud_internal_sandbox/20260507_092001_manifest.json`
+- Live evidence root: `dev/logs/fam_006_monitoring_hud_live_validation/20260507_111328`
+- Live manifest: `dev/logs/fam_006_monitoring_hud_live_validation/20260507_111328/manifest.json`
+- Live screenshot: `dev/logs/fam_006_monitoring_hud_live_validation/20260507_111328/monitoring_hud_desktop.png`
+- USER-inspectable screenshot: `C:\Users\anden\OneDrive\Pictures\Screenshots\Nexus Desktop AI\fam_006_monitoring_hud_live_validation\20260507_111328\monitoring_hud_full_virtual_desktop.png`
+- Live interaction manifest: `dev/logs/fam_006_monitoring_hud_live_validation/20260507_111328/monitoring_hud_live_client_interaction_manifest.json`
+- Live interaction evidence root: `dev/logs/fam_006_monitoring_hud_live_validation/20260507_111328/live_client_interaction`
+- Internal sandbox manifest: `dev/logs/fam_006_monitoring_hud_internal_sandbox/20260507_111659_manifest.json`
 - Static validation: `python dev/orin_branch_governance_validation.py` PASS; `python dev/orin_monitoring_hud_surface_validation.py` PASS; `python dev/orin_monitoring_hud_internal_sandbox_validation.py` PASS; `python -m compileall -q dev desktop Audio main.py` PASS; `git diff --check` PASS
-- Live validation: `powershell -NoProfile -ExecutionPolicy Bypass -File dev\orin_monitoring_hud_live_validation.ps1 -ActiveUserFacingClient -MarkerTimeoutSeconds 120 -NoProgressTimeoutSeconds 90` is the required current command shape for foreground/operator-visible LV1 proof; prior `-RunInteractionSelfQA -VisibleClient` proof is superseded because it was too fast to satisfy USER-visible active-client validation expectations.
-- USER-reported live-client defect: `REPAIRED - manual USER launch found unanchor/move could make ORIN Core plus HUD disappear, the HUD was too small/squished, and anchored state was not being respected as a non-movable window status.`
-- Live-client repair finding: `PASS - HUD sizing/readability was enlarged, anchored/unanchored window status is explicit, unanchored edit mode receives focus/foreground routing, anchored mode remains no-focus/no-activate/click-through outside HUD controls, and anchored mode resets the panel back to the safe anchored rail instead of preserving freeform coordinates.`
-- HUD/Core isolation finding: `PASS - Monitoring HUD carries a standalone HUD-layer isolation boundary; live self-QA simulates a HUD-module fault and proves ORIN Core remains present and visible. HUD movement/card operations also assert core visibility so one layer failing cannot silently hide the other.`
+- Live validation: `powershell -NoProfile -ExecutionPolicy Bypass -File dev\orin_monitoring_hud_live_validation.ps1 -ActiveUserFacingClient -MarkerTimeoutSeconds 180 -NoProgressTimeoutSeconds 120 -FinalClientHoldSeconds 5` is the required current command shape for foreground/operator-visible LV1 proof; it hides the validation command prompt while leaving the launched Qt user-facing windows visible.
+- USER-reported live-client defect: `REPAIRED - manual USER launch found unanchor/move could make ORIN Core plus HUD disappear, the HUD was too small/squished, anchored state was not being respected as a non-movable window status, the HUD remained coupled to the Core render area, the Core visualization was off-center, and a command prompt appeared during live proof.`
+- Live-client repair finding: `PASS - HUD sizing/readability was enlarged, anchored/unanchored window status is explicit, unanchored edit mode receives focus/foreground routing, anchored mode remains no-focus/no-activate/click-through outside HUD controls, anchored mode resets the panel back to the safe anchored rail instead of preserving freeform coordinates, and the validation console is hidden during active-client proof.`
+- HUD/Core isolation finding: `PASS - Monitoring HUD now lives in dedicated monitoring_hud.* render files and a standalone native HUD window while ORIN Core uses restored HUD-free orin_core.* render files; live self-QA simulates a HUD-module fault and proves ORIN Core remains present and visible. HUD movement/card operations also assert core visibility so one layer failing cannot silently hide the other.`
+- Core centering finding: `PASS - RENDERER_MAIN|CORE_VISUALIZATION_WINDOW_GEOMETRY_READY is required and recorded before live proof; CoreVisualizationWindow computes true centered screen geometry instead of the prior fixed 8%/10% offset.`
 - User-facing shortcut/equivalent entrypoint finding: `PASS - documented equivalent desktop runtime path passed through dev/orin_monitoring_hud_live_validation.ps1; formal desktop User Test Summary handoff refreshed for USER review`
 - Retired-name scan: `PASS - tracked repo files remain clean of retired product naming`
 - Provider-contract finding: `PASS - bounded native CPU-load proof remains real; unsupported CPU thermal, GPU load, and GPU thermal values remain provider-required/setup-unavailable instead of fake`
-- Interaction finding: `PASS - launched live NDAI desktop client exercised initial visible HUD identity/provider/no-fake-state, HUD/Core isolation, real mouse unanchor into editable HUD, active-client panel movement without disappearing, visible toggle hide, task-tray restore, polling control update, draggable/resizable bounded snapped card layout, real mouse re-anchor, anchored click-through/no-focus posture, and cleanup route`
+- Interaction finding: `PASS - launched live NDAI desktop client exercised initial visible HUD identity/provider/no-fake-state, standalone HUD/Core isolation, real mouse unanchor into editable HUD, active-client panel movement without disappearing, visible toggle hide, task-tray restore, polling control update, draggable/resizable bounded snapped card layout, real mouse re-anchor, anchored click-through/no-focus posture, centered Core geometry marker, hidden validation console posture, and cleanup route`
 - Warning finding: `PASS - current branch remains visual/non-invasive only; audio/spoken warnings remain deferred to FAM-004/cross-family approval`
-- LV1 Continuation Finding: `Automated/live proof is green, but User Test Summary Results remain PENDING; final LV1 green, package completion, and PR Readiness remain blocked until returned results are digested`
+- LV1 Continuation Finding: `Automated/live proof is green after the standalone HUD/Core split, centered Core geometry repair, full virtual-desktop screenshot handoff, and hidden validation-console repair, but User Test Summary Results remain PENDING; final LV1 green, package completion, and PR Readiness remain blocked until returned results are digested`
 - Boundary preservation: `No broad provider-platform implementation, external/plugin telemetry implementation, audio/spoken warning behavior, persona switching, ARIA activation, Stream Deck, graphs/history/persistence dashboards, local AI/capability-pack monitoring, installer/capability-pack work, PR work, watcher work, release work, tags, GitHub Releases, artifacts, direct-main mutation, new branch, or new FAM/package admission`
 
 ## Codex Live Client Self-QA
 
 - Codex Live Client Self-QA: `PASS`
-- Live Client Entry Path: `powershell -NoProfile -ExecutionPolicy Bypass -File dev\orin_monitoring_hud_live_validation.ps1 -ActiveUserFacingClient -MarkerTimeoutSeconds 120 -NoProgressTimeoutSeconds 90`
-- Evidence Screenshot: `dev/logs/fam_006_monitoring_hud_live_validation/20260507_091732/monitoring_hud_desktop.png`
-- Evidence Manifest: `dev/logs/fam_006_monitoring_hud_live_validation/20260507_091732/manifest.json`
-- Interaction Manifest: `dev/logs/fam_006_monitoring_hud_live_validation/20260507_091732/monitoring_hud_live_client_interaction_manifest.json`
-- Interaction Evidence Root: `dev/logs/fam_006_monitoring_hud_live_validation/20260507_091732/live_client_interaction`
-- Visual Quality: `PASS - HUD is visible in the full desktop, uses a coherent Nexus/NDAI futuristic card-panel identity, and reads as a product surface rather than a marker-only scaffold`
-- Live Interaction Evidence: `PASS - launched visible NDAI desktop runtime and drove the HUD through initial visible state, HUD/Core isolation, real mouse unanchor, active-client panel movement, in-HUD hide, tray restore, polling control update, bounded snapped card drag/resize, and final anchored click-through/no-focus posture; active foreground mode must slow the steps and hold the final client open long enough for USER-observable validation`
+- Live Client Entry Path: `powershell -NoProfile -ExecutionPolicy Bypass -File dev\orin_monitoring_hud_live_validation.ps1 -ActiveUserFacingClient -MarkerTimeoutSeconds 180 -NoProgressTimeoutSeconds 120 -FinalClientHoldSeconds 5`
+- Evidence Screenshot: `dev/logs/fam_006_monitoring_hud_live_validation/20260507_111328/monitoring_hud_desktop.png`
+- USER-Inspectable Screenshot: `C:\Users\anden\OneDrive\Pictures\Screenshots\Nexus Desktop AI\fam_006_monitoring_hud_live_validation\20260507_111328\monitoring_hud_full_virtual_desktop.png`
+- Evidence Manifest: `dev/logs/fam_006_monitoring_hud_live_validation/20260507_111328/manifest.json`
+- Interaction Manifest: `dev/logs/fam_006_monitoring_hud_live_validation/20260507_111328/monitoring_hud_live_client_interaction_manifest.json`
+- Interaction Evidence Root: `dev/logs/fam_006_monitoring_hud_live_validation/20260507_111328/live_client_interaction`
+- Visual Quality: `PASS - HUD is visible in full virtual-desktop proof, uses a coherent Nexus/NDAI futuristic card-panel identity, and reads as a product surface rather than a marker-only scaffold; ORIN Core is separately visible and centered by geometry marker instead of sharing the HUD render surface`
+- Live Interaction Evidence: `PASS - launched visible NDAI desktop runtime without a visible command prompt and drove the HUD through initial visible state, standalone HUD/Core isolation, real mouse unanchor, active-client panel movement, in-HUD hide, tray restore, polling control update, bounded snapped card drag/resize, and final anchored click-through/no-focus posture; active foreground mode slows the steps, holds the final client open long enough for USER-observable validation, and produces a full virtual-desktop raw screenshot in the USER screenshots folder`
 - Usability Check: `PASS - panel sizing/readability was repaired after USER live-client feedback; panel placement is intentional, text and card groupings are readable in captured proof, state labels explain setup/unavailable/no-data boundaries, card layout remains bounded/snapped, and no fake hardware values are presented`
-- Interaction Check: `PASS - live-client interaction manifest proves tray show/hide, real mouse unanchor/re-anchor, anchored click-through/no-focus posture, explicit window-status checks before movement, no default keybinds, draggable/resizable cards, snapping posture, polling control update, HUD/Core isolation, and visual/non-invasive warning state`
+- Interaction Check: `PASS - live-client interaction manifest proves tray show/hide, real mouse unanchor/re-anchor, anchored click-through/no-focus posture, explicit window-status checks before movement, no default keybinds, draggable/resizable cards, snapping posture, polling control update, standalone HUD/Core isolation, centered Core geometry marker, hidden validation-console posture, and visual/non-invasive warning state`
 - Platform Uniformity Check: `PASS - HUD copy and styling use Nexus/NDAI/Monitoring HUD language and match the current dark futuristic NDAI desktop visual direction`
 - NDAI Naming Check: `PASS - tracked repo retired-name scan is clean and the HUD surface itself does not expand retired product identity; live desktop screenshot still shows a non-repo desktop shortcut with retired naming outside the HUD, which is an external environment observation rather than tracked repo source truth`
 - Cleanup Check: `PASS - live helper stopped the launched desktop runtime and recorded cleanup in the manifest`
@@ -787,7 +790,7 @@ Validation Evidence Expectations: return PASS/FAIL plus any notes, screenshots, 
 Automated validators and live helper evidence: GREEN.
 Codex Live Client Self-QA: PASS.
 User-Facing Shortcut Live Validation Gate: documented equivalent desktop runtime path passed before User Test Summary handoff.
-User-Facing Shortcut Path: `powershell -NoProfile -ExecutionPolicy Bypass -File dev\orin_monitoring_hud_live_validation.ps1 -ActiveUserFacingClient -MarkerTimeoutSeconds 120 -NoProgressTimeoutSeconds 90`
+User-Facing Shortcut Path: `powershell -NoProfile -ExecutionPolicy Bypass -File dev\orin_monitoring_hud_live_validation.ps1 -ActiveUserFacingClient -MarkerTimeoutSeconds 180 -NoProgressTimeoutSeconds 120 -FinalClientHoldSeconds 5`
 User-Facing Shortcut Validation: PASS.
 User Test Summary Results: PENDING.
 Final phase advancement is BLOCKED until the filled User Test Summary is submitted and digested.
@@ -800,9 +803,11 @@ User Test Summary Waiver Reason: `Not applicable - no waiver granted`
 - `git status --short --branch`
 - `python dev/orin_branch_governance_validation.py`
 - `python dev/orin_monitoring_hud_surface_validation.py`
-- `python -m compileall -q dev`
+- `python dev/orin_monitoring_hud_internal_sandbox_validation.py`
+- `powershell -NoProfile -ExecutionPolicy Bypass -File dev\orin_monitoring_hud_live_validation.ps1 -ActiveUserFacingClient -MarkerTimeoutSeconds 180 -NoProgressTimeoutSeconds 120 -FinalClientHoldSeconds 5`
+- `python -m compileall -q dev desktop Audio main.py`
 - `git diff --check`
 - focused static HUD baseline validation for the desktop visualization markers
 - `python dev/automation_observability_report.py`
 
-Workstream validation now includes static HUD validation plus live desktop proof; Hardening owns the next pressure-test pass.
+Live Validation now includes static HUD validation, internal sandbox proof, a hidden-console active user-facing desktop client run, full virtual-desktop screenshot proof copied to the USER screenshots folder, and Codex live-client self-QA; final LV1 green remains blocked on returned User Test Summary results.

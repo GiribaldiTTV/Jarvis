@@ -1006,6 +1006,8 @@ Required proof:
 - interaction claims such as movement, anchoring, click-through/no-focus posture, tray paths, toggles, cards, snapping, and warnings are exercised in the launched live client when feasible and recorded under `Live Interaction Evidence:`
 - screenshot-only, marker-only, or launched-but-not-driven proof cannot clear this gate for interactive user-facing UI
 - desktop UI proof must provide an active foreground/user-observable validation path; a fast hidden or blink-through helper run may support automation but cannot be the only Codex live-client self-QA evidence
+- desktop UI Live Validation must capture the full virtual desktop by default when placement, multi-monitor behavior, window separation, clipping, or frame-of-reference matters; primary-monitor-only screenshots are supporting detail only and cannot clear those proof needs
+- screenshots used for Live Validation closeout must be copied into `C:\Users\anden\OneDrive\Pictures\Screenshots\<project-or-validation-lane>\<timestamp>\` or the active USER-declared screenshots folder, and the raw image path must be surfaced in the Codex chat/handoff for USER inspection; `dev/logs` copies alone are not enough when visual proof is part of the gate
 - platform uniformity is reviewed across current NDAI naming, visual language, copy tone, and surrounding user-facing surfaces touched by the branch
 - validators, markers, screenshots, and manifests are treated as supporting evidence, not a replacement for Codex's visual/usability judgment
 
