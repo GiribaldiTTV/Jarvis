@@ -25,6 +25,7 @@ from PySide6.QtWidgets import (
     QToolTip,
     QSizePolicy,
     QCheckBox,
+    QSizeGrip,
 )
 from PySide6.QtCore import Qt, QTimer, QUrl, QRect, QRectF, Signal, QPoint, QEvent
 from PySide6.QtGui import QColor, QFont, QPainter, QPainterPath, QPixmap, QRegion
@@ -5173,15 +5174,17 @@ class CoreVisualizationWindow(QWidget):
         self.close()
 
 
-class MinimalMonitoringHudOverlayWindow(QWidget):
+class MonitoringHudOverlayDisplayWindow(QWidget):
     def __init__(self, screen, event_logger=None):
         super().__init__(None)
         self.screen_ref = screen
         self.event_logger = event_logger
-        self.setObjectName("minimalMonitoringHudOverlayWindow")
+        self._anchored = True
+        self._drag_origin: QPoint | None = None
+        self._drag_window_origin = QPoint()
+        self._last_unanchored_geometry = QRect()
+        self.setObjectName("monitoringHudOverlayDisplayWindow")
         flags = Qt.Tool | Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint
-        if hasattr(Qt, "WindowTransparentForInput"):
-            flags |= Qt.WindowTransparentForInput
         self.setWindowFlags(flags)
         self.setAttribute(Qt.WA_TranslucentBackground, True)
         self.setAttribute(Qt.WA_NoSystemBackground, True)
@@ -5191,17 +5194,17 @@ class MinimalMonitoringHudOverlayWindow(QWidget):
         self.setFocusPolicy(Qt.NoFocus)
         self.setStyleSheet(
             """
-            QWidget#minimalMonitoringHudOverlayWindow {
+            QWidget#monitoringHudOverlayDisplayWindow {
                 background: transparent;
             }
-            QFrame#minimalMonitoringHudOverlayFrame {
-                border: 1px solid rgba(116, 239, 255, 0.58);
-                border-radius: 18px;
+            QFrame#monitoringHudOverlayDisplayFrame {
+                border: 1px solid rgba(116, 239, 255, 0.22);
+                border-radius: 14px;
                 background:
                     qlineargradient(x1:0, y1:0, x2:1, y2:1,
-                        stop:0 rgba(7, 20, 33, 0.82),
-                        stop:0.52 rgba(5, 31, 44, 0.66),
-                        stop:1 rgba(6, 12, 22, 0.76));
+                        stop:0 rgba(7, 20, 33, 0.34),
+                        stop:0.52 rgba(5, 31, 44, 0.20),
+                        stop:1 rgba(6, 12, 22, 0.30));
             }
             QLabel {
                 color: #dffbff;
@@ -5209,14 +5212,14 @@ class MinimalMonitoringHudOverlayWindow(QWidget):
                 background: transparent;
             }
             QLabel[role="eyebrow"] {
-                color: #78efff;
+                color: rgba(120, 239, 255, 0.42);
                 font-size: 10px;
                 letter-spacing: 2px;
                 text-transform: uppercase;
             }
             QLabel[role="title"] {
                 color: #f5ffff;
-                font-size: 17px;
+                font-size: 15px;
                 font-weight: 700;
             }
             QLabel[role="state"] {
@@ -5225,14 +5228,25 @@ class MinimalMonitoringHudOverlayWindow(QWidget):
             }
             QLabel[role="card"] {
                 color: #d7faff;
-                border: 1px solid rgba(112, 242, 255, 0.28);
-                border-radius: 10px;
-                padding: 7px 9px;
-                background: rgba(3, 14, 24, 0.46);
+                border: 1px solid rgba(112, 242, 255, 0.24);
+                border-radius: 14px;
+                padding: 10px 12px;
+                background: rgba(3, 14, 24, 0.38);
             }
             QLabel[role="warning"] {
                 color: #ffe3a6;
                 font-size: 11px;
+            }
+            QPushButton {
+                min-height: 28px;
+                padding: 4px 10px;
+                border: 1px solid rgba(116, 239, 255, 0.26);
+                border-radius: 999px;
+                background: rgba(5, 22, 38, 0.72);
+                color: #dffbff;
+                font-family: Bahnschrift, Segoe UI, sans-serif;
+                font-size: 10px;
+                font-weight: 700;
             }
             """
         )
@@ -5242,33 +5256,45 @@ class MinimalMonitoringHudOverlayWindow(QWidget):
         root.setSpacing(0)
 
         frame = QFrame(self)
-        frame.setObjectName("minimalMonitoringHudOverlayFrame")
+        frame.setObjectName("monitoringHudOverlayDisplayFrame")
         layout = QVBoxLayout(frame)
-        layout.setContentsMargins(16, 14, 16, 14)
-        layout.setSpacing(8)
+        layout.setContentsMargins(18, 14, 18, 14)
+        layout.setSpacing(10)
 
         eyebrow = QLabel("Nexus Desktop AI", frame)
         eyebrow.setProperty("role", "eyebrow")
-        self._title = QLabel("Monitoring HUD", frame)
+        self._title = QLabel("Monitoring HUD Overlay", frame)
         self._title.setProperty("role", "title")
         self._state = QLabel("Provider setup required", frame)
         self._state.setProperty("role", "state")
-        self._cpu = QLabel("CPU  Provider warming", frame)
+        self._cpu = QLabel("CPU Monitor  Provider warming", frame)
         self._cpu.setProperty("role", "card")
-        self._gpu = QLabel("GPU  Provider required", frame)
+        self._gpu = QLabel("GPU Monitor  Provider required", frame)
         self._gpu.setProperty("role", "card")
         self._warning = QLabel("Visual warning baseline only", frame)
         self._warning.setProperty("role", "warning")
+        self._edit_cpu = QPushButton("Edit CPU", frame)
+        self._edit_gpu = QPushButton("Edit GPU", frame)
+        self._resize_grip = QSizeGrip(frame)
 
         layout.addWidget(eyebrow)
         layout.addWidget(self._title)
         layout.addWidget(self._state)
         layout.addWidget(self._cpu)
         layout.addWidget(self._gpu)
+        button_row = QHBoxLayout()
+        button_row.setContentsMargins(0, 0, 0, 0)
+        button_row.addWidget(self._edit_cpu)
+        button_row.addWidget(self._edit_gpu)
+        button_row.addStretch(1)
+        button_row.addWidget(self._resize_grip)
+        layout.addLayout(button_row)
         layout.addWidget(self._warning)
         root.addWidget(frame)
+        self._frame = frame
+        self._quick_controls = (self._edit_cpu, self._edit_gpu, self._resize_grip)
 
-        self.setGeometry(self._compute_overlay_geometry())
+        self.setGeometry(self._compute_overlay_geometry(initial=True))
         self.hide()
         QTimer.singleShot(0, self._apply_native_click_through_flags)
 
@@ -5281,21 +5307,52 @@ class MinimalMonitoringHudOverlayWindow(QWidget):
             rect = rect.united(screen.availableGeometry())
         return rect
 
-    def _compute_overlay_geometry(self) -> QRect:
+    def _compute_overlay_geometry(self, *, initial: bool = False) -> QRect:
         virtual = self._virtual_desktop_geometry()
-        width = 344
-        height = 168
-        margin = 30
-        return QRect(virtual.x() + margin, virtual.y() + virtual.height() - height - margin, width, height)
+        if not initial and self.geometry().isValid() and self.geometry().width() > 0 and self.geometry().height() > 0:
+            return self.geometry()
+        margin = 48
+        width = min(max(720, int(virtual.width() * 0.46)), max(420, virtual.width() - margin * 2))
+        height = min(max(420, int(virtual.height() * 0.42)), max(280, virtual.height() - margin * 2))
+        return QRect(virtual.x() + margin, virtual.y() + margin, width, height)
 
     def _apply_native_click_through_flags(self):
         try:
             hwnd = ctypes.wintypes.HWND(int(self.winId()))
             style = int(GetWindowLongW(hwnd, GWL_EXSTYLE))
-            style |= WS_EX_NOACTIVATE | WS_EX_TRANSPARENT
+            if self._anchored:
+                style |= WS_EX_NOACTIVATE | WS_EX_TRANSPARENT
+            else:
+                style = style & ~WS_EX_NOACTIVATE & ~WS_EX_TRANSPARENT
             SetWindowLongW(hwnd, GWL_EXSTYLE, style)
         except Exception:
             return
+
+    def _set_overlay_interaction_mode(self, anchored: bool):
+        self._anchored = bool(anchored)
+        if anchored and self.geometry().isValid():
+            self._last_unanchored_geometry = QRect(self.geometry())
+        self.setAttribute(Qt.WA_ShowWithoutActivating, bool(anchored))
+        self.setAttribute(Qt.WA_TransparentForMouseEvents, bool(anchored))
+        self.setFocusPolicy(Qt.NoFocus if anchored else Qt.StrongFocus)
+        self._frame.setProperty("anchored", anchored)
+        self._frame.style().unpolish(self._frame)
+        self._frame.style().polish(self._frame)
+        for control in self._quick_controls:
+            control.setVisible(not anchored)
+        self._apply_native_click_through_flags()
+        if not anchored:
+            self.show()
+            self.raise_()
+            self.activateWindow()
+
+    def _bound_geometry_to_virtual_desktop(self, rect: QRect) -> QRect:
+        virtual = self._virtual_desktop_geometry()
+        width = max(360, min(rect.width(), virtual.width()))
+        height = max(220, min(rect.height(), virtual.height()))
+        left = max(virtual.x(), min(rect.x(), virtual.x() + virtual.width() - width))
+        top = max(virtual.y(), min(rect.y(), virtual.y() + virtual.height() - height))
+        return QRect(left, top, width, height)
 
     def update_product_state(
         self,
@@ -5304,17 +5361,32 @@ class MinimalMonitoringHudOverlayWindow(QWidget):
         anchored: bool,
         provider_label: str = "Provider setup required",
         warning_label: str = "Visual warning baseline only",
+        cards: dict[str, object] | None = None,
     ):
+        self._set_overlay_interaction_mode(bool(anchored))
         self._state.setText(provider_label or "Provider setup required")
         self._warning.setText(warning_label or "Visual warning baseline only")
-        self.setGeometry(self._compute_overlay_geometry())
-        self._apply_native_click_through_flags()
-        if visible and anchored:
+        card_map = cards if isinstance(cards, dict) else {}
+        cpu = card_map.get("cpu") if isinstance(card_map.get("cpu"), dict) else {}
+        gpu = card_map.get("gpu") if isinstance(card_map.get("gpu"), dict) else {}
+        self._cpu.setText(
+            f"{str(cpu.get('title') or 'CPU Monitor')}  "
+            f"{'Hidden' if cpu.get('enabled') is False else 'Provider warming'}"
+        )
+        self._gpu.setText(
+            f"{str(gpu.get('title') or 'GPU Monitor')}  "
+            f"{'Hidden' if gpu.get('enabled') is False else 'Provider required'}"
+        )
+        if visible:
+            if not self.geometry().isValid() or self.geometry().width() <= 0 or self.geometry().height() <= 0:
+                self.setGeometry(self._compute_overlay_geometry(initial=True))
+            self.setGeometry(self._bound_geometry_to_virtual_desktop(self.geometry()))
             self.show()
-            self.raise_()
+            if anchored:
+                self.raise_()
             self._apply_native_click_through_flags()
             if callable(self.event_logger):
-                self.event_logger("MONITORING_HUD_MINIMAL_NATIVE_OVERLAY_VISIBLE|surface=minimal_native_overlay")
+                self.event_logger("MONITORING_HUD_OVERLAY_DISPLAY_WINDOW_VISIBLE|surface=standalone_edgeless_overlay_display")
             return
         self.hide()
 
@@ -5326,11 +5398,13 @@ class MinimalMonitoringHudOverlayWindow(QWidget):
         except Exception:
             style = 0
         geometry = self.geometry()
+        virtual = self._virtual_desktop_geometry()
         center = ctypes.wintypes.POINT(geometry.x() + geometry.width() // 2, geometry.y() + geometry.height() // 2)
         try:
             window_from_center = int(WindowFromPoint(center))
         except Exception:
             window_from_center = 0
+        last = self._last_unanchored_geometry if self._last_unanchored_geometry.isValid() else QRect(geometry)
         return {
             "hwnd": hwnd,
             "visible": bool(self.isVisible()),
@@ -5338,6 +5412,13 @@ class MinimalMonitoringHudOverlayWindow(QWidget):
             "y": geometry.y(),
             "w": geometry.width(),
             "h": geometry.height(),
+            "virtualX": virtual.x(),
+            "virtualY": virtual.y(),
+            "virtualW": virtual.width(),
+            "virtualH": virtual.height(),
+            "surface": "standalone_edgeless_overlay_display",
+            "owner": "MonitoringHudOverlayDisplayWindow",
+            "anchored": bool(self._anchored),
             "focusPolicy": "no_focus" if self.focusPolicy() == Qt.NoFocus else "interactive",
             "transparentForMouseEvents": bool(self.testAttribute(Qt.WA_TransparentForMouseEvents)),
             "showWithoutActivating": bool(self.testAttribute(Qt.WA_ShowWithoutActivating)),
@@ -5345,7 +5426,46 @@ class MinimalMonitoringHudOverlayWindow(QWidget):
             "exTransparent": bool(style & WS_EX_TRANSPARENT),
             "windowFromCenter": window_from_center,
             "windowFromCenterBypassesOverlay": bool(window_from_center and window_from_center != hwnd),
+            "standaloneTopLevel": self.parent() is None,
+            "quickControlsVisible": any(control.isVisible() for control in self._quick_controls),
+            "lastUnanchoredX": last.x(),
+            "lastUnanchoredY": last.y(),
+            "lastUnanchoredW": last.width(),
+            "lastUnanchoredH": last.height(),
+            "positionPreserved": (
+                not self._last_unanchored_geometry.isNull()
+                and geometry.x() == last.x()
+                and geometry.y() == last.y()
+                and geometry.width() == last.width()
+                and geometry.height() == last.height()
+            ),
         }
+
+    def mousePressEvent(self, event):
+        if self._anchored or event.button() != Qt.LeftButton:
+            return super().mousePressEvent(event)
+        self._drag_origin = event.globalPosition().toPoint()
+        self._drag_window_origin = self.pos()
+        event.accept()
+
+    def mouseMoveEvent(self, event):
+        if self._anchored or self._drag_origin is None:
+            return super().mouseMoveEvent(event)
+        delta = event.globalPosition().toPoint() - self._drag_origin
+        next_rect = QRect(self._drag_window_origin + delta, self.size())
+        self.setGeometry(self._bound_geometry_to_virtual_desktop(next_rect))
+        event.accept()
+
+    def mouseReleaseEvent(self, event):
+        if self._drag_origin is not None:
+            self._last_unanchored_geometry = QRect(self.geometry())
+            if callable(self.event_logger):
+                self.event_logger(
+                    "MONITORING_HUD_OVERLAY_DISPLAY_POSITION_EDITED|"
+                    f"x={self.geometry().x()}|y={self.geometry().y()}|w={self.geometry().width()}|h={self.geometry().height()}"
+                )
+        self._drag_origin = None
+        return super().mouseReleaseEvent(event)
 
     def request_shutdown(self):
         self.hide()
@@ -5452,7 +5572,7 @@ class DesktopRuntimeWindow(QWidget):
         self._monitoring_hud_native_anchor_click_pending = False
         self._monitoring_hud_native_anchor_click_expected = True
         self._monitoring_hud_minimal_native_overlay = (
-            MinimalMonitoringHudOverlayWindow(screen, event_logger)
+            MonitoringHudOverlayDisplayWindow(screen, event_logger)
             if self.surface_role == "hud"
             else None
         )
@@ -5988,11 +6108,16 @@ class DesktopRuntimeWindow(QWidget):
             return
         telemetry = self._monitoring_hud_telemetry_snapshot()
         status = self._monitoring_hud_status_snapshot()
+        cards = {}
+        page_state = self._monitoring_hud_live_page_state if isinstance(self._monitoring_hud_live_page_state, dict) else {}
+        if isinstance(page_state.get("cards"), dict):
+            cards = page_state.get("cards") or {}
         overlay.update_product_state(
             visible=bool(self._monitoring_hud_visible and self.desktop_mode),
             anchored=bool(self._monitoring_hud_anchored),
             provider_label=str(telemetry.get("providerLabel") or "Provider setup required"),
             warning_label=str(status.get("warningPosture") or "Visual warning baseline only"),
+            cards=cards,
         )
         proof = overlay.proof_state()
         self._emit_runtime_signal(
@@ -6008,6 +6133,26 @@ class DesktopRuntimeWindow(QWidget):
             w=proof.get("w"),
             h=proof.get("h"),
             separate_hwnd=bool(proof.get("hwnd") and proof.get("hwnd") != int(self.winId())),
+        )
+        self._emit_runtime_signal(
+            "MONITORING_HUD_STANDALONE_OVERLAY_DISPLAY_WINDOW_READY",
+            package="PKG-006",
+            slice="SLC-026",
+            seam="WS26",
+            source=source,
+            surface=proof.get("surface"),
+            owner=proof.get("owner"),
+            standalone=proof.get("standaloneTopLevel"),
+            visible=proof.get("visible"),
+            anchored=proof.get("anchored"),
+            x=proof.get("x"),
+            y=proof.get("y"),
+            w=proof.get("w"),
+            h=proof.get("h"),
+            virtual_x=proof.get("virtualX"),
+            virtual_y=proof.get("virtualY"),
+            virtual_w=proof.get("virtualW"),
+            virtual_h=proof.get("virtualH"),
         )
         if self._monitoring_hud_visible and self._monitoring_hud_anchored:
             self._emit_runtime_signal(
@@ -6029,6 +6174,44 @@ class DesktopRuntimeWindow(QWidget):
                 focus_policy=proof.get("focusPolicy"),
                 ex_noactivate=proof.get("exNoActivate"),
                 show_without_activating=proof.get("showWithoutActivating"),
+            )
+            self._emit_runtime_signal(
+                "MONITORING_HUD_ANCHORED_OVERLAY_UNINTERACTABLE_READY",
+                package="PKG-006",
+                slice="SLC-026",
+                seam="WS26",
+                surface="standalone_edgeless_overlay_display",
+                transparent_for_mouse=proof.get("transparentForMouseEvents"),
+                ex_transparent=proof.get("exTransparent"),
+                focus_policy=proof.get("focusPolicy"),
+                ex_noactivate=proof.get("exNoActivate"),
+                quick_controls_visible=proof.get("quickControlsVisible"),
+                window_from_center_bypasses_overlay=proof.get("windowFromCenterBypassesOverlay"),
+            )
+            if proof.get("positionPreserved"):
+                self._emit_runtime_signal(
+                    "MONITORING_HUD_OVERLAY_POSITION_PRESERVED_READY",
+                    package="PKG-006",
+                    slice="SLC-026",
+                    seam="WS26",
+                    surface="standalone_edgeless_overlay_display",
+                    x=proof.get("x"),
+                    y=proof.get("y"),
+                    w=proof.get("w"),
+                    h=proof.get("h"),
+                )
+        elif self._monitoring_hud_visible:
+            self._emit_runtime_signal(
+                "MONITORING_HUD_UNANCHORED_OVERLAY_EDIT_WINDOW_READY",
+                package="PKG-006",
+                slice="SLC-026",
+                seam="WS26",
+                surface="standalone_edgeless_overlay_display",
+                transparent_for_mouse=proof.get("transparentForMouseEvents"),
+                focus_policy=proof.get("focusPolicy"),
+                quick_controls_visible=proof.get("quickControlsVisible"),
+                movable="native_window_drag",
+                resizable="native_size_grip",
             )
 
     def _monitoring_hud_minimal_native_proof_state(self) -> dict[str, object]:
@@ -6513,6 +6696,7 @@ class DesktopRuntimeWindow(QWidget):
                     "width": self._monitoring_hud_interactive_screen_rect.width(),
                     "height": self._monitoring_hud_interactive_screen_rect.height(),
                 },
+                "standaloneOverlayDisplay": self._monitoring_hud_minimal_native_proof_state(),
             },
             "generatedAt": datetime.datetime.utcnow().isoformat(timespec="seconds") + "Z",
         }
@@ -6716,6 +6900,7 @@ class DesktopRuntimeWindow(QWidget):
         steps: list[dict[str, object]] = []
         screenshots: list[str] = []
         latest_result: dict[str, object] = {}
+        overlay_geometry_before_dashboard_drag: dict[str, object] = {}
 
         def finish(status: str, failure: str = ""):
             self._write_monitoring_hud_live_client_self_qa_manifest(
@@ -6831,7 +7016,6 @@ class DesktopRuntimeWindow(QWidget):
             geometry = result.get("geometry") or {}
             controls = {
                 "hud": geometry.get("hud") if isinstance(geometry, dict) else None,
-                "minimalHud": geometry.get("minimalHud") if isinstance(geometry, dict) else None,
                 "anchorToggle": geometry.get("anchorToggle") if isinstance(geometry, dict) else None,
                 "createMonitor": geometry.get("createMonitor") if isinstance(geometry, dict) else None,
                 "visibilityToggle": geometry.get("visibilityToggle") if isinstance(geometry, dict) else None,
@@ -6848,8 +7032,9 @@ class DesktopRuntimeWindow(QWidget):
             checks["hud_readable_width"] = float(hud_rect.get("width") or 0) >= 620
             checks["hud_readable_height"] = float(hud_rect.get("height") or 0) >= 520
             minimal_rect = controls.get("minimalHud") or {}
-            checks["minimal_hud_visible_width"] = float(minimal_rect.get("width") or 0) >= 220
-            checks["minimal_hud_visible_height"] = float(minimal_rect.get("height") or 0) >= 90
+            overlay_proof = self._monitoring_hud_minimal_native_proof_state()
+            checks["native_overlay_visible_width"] = int(overlay_proof.get("w") or 0) >= 360
+            checks["native_overlay_visible_height"] = int(overlay_proof.get("h") or 0) >= 220
             checks["native_hud_control_zone"] = self._monitoring_hud_point_in_interactive_rect(
                 QPoint(*(rect_center("anchorToggle") or (0, 0)))
             )
@@ -6865,6 +7050,7 @@ class DesktopRuntimeWindow(QWidget):
             minimal_rect = result.get("minimalRect") or {}
             isolation = result.get("isolation") or {}
             split = result.get("split") or {}
+            overlay_proof = self._monitoring_hud_minimal_native_proof_state()
             forbidden_name = "".join(chr(code) for code in (74, 97, 114, 118, 105, 115))
             lower_text = text.casefold()
             lower_minimal_text = minimal_text.casefold()
@@ -6880,7 +7066,9 @@ class DesktopRuntimeWindow(QWidget):
                 "edgeless_overlay_present": split.get("overlayDisplayPresent") is True,
                 "edgeless_overlay_role": split.get("overlayDisplaySurfaceRole") == "edgeless-overlay-display",
                 "edgeless_overlay_canvas": split.get("overlayCanvas") == "edge-to-edge-snipping-tool-style",
-                "edgeless_overlay_edge_to_edge": split.get("overlayDisplayEdgeToEdge") is True,
+                "edgeless_overlay_standalone_native": overlay_proof.get("owner") == "MonitoringHudOverlayDisplayWindow",
+                "edgeless_overlay_visible": overlay_proof.get("visible") is True,
+                "edgeless_overlay_anchor_mode": overlay_proof.get("anchored") is True,
                 "edgeless_overlay_monitor_layout": split.get("overlayMonitorLayout") == "movable-resizable-monitor-cards",
                 "surface_split": split.get("dashboardConfigures") == "monitoring-hud-minimal"
                     and split.get("minimalConfiguredBy") == "monitoring-hud",
@@ -6895,7 +7083,7 @@ class DesktopRuntimeWindow(QWidget):
                 "warning_mode": dataset.get("warningMode") == "visual-non-invasive",
                 "no_retired_product_copy": forbidden_name.casefold() not in text.casefold(),
                 "desktop_size": float(rect.get("width") or 0) >= 620 and float(rect.get("height") or 0) >= 520,
-                "minimal_size": float(minimal_rect.get("width") or 0) >= 220 and float(minimal_rect.get("height") or 0) >= 90,
+                "native_overlay_size": int(overlay_proof.get("w") or 0) >= 360 and int(overlay_proof.get("h") or 0) >= 220,
                 "standalone_hud_layer": isolation.get("hudOutsideCoreScene") is True,
             }
             return all(checks.values()), checks
@@ -6905,6 +7093,7 @@ class DesktopRuntimeWindow(QWidget):
             isolation = result.get("isolation") or {}
             geometry = result.get("geometry") or {}
             minimal_rect = geometry.get("minimalHud") if isinstance(geometry, dict) else {}
+            overlay_proof = self._monitoring_hud_minimal_native_proof_state()
             checks = {
                 "dashboard_present": split.get("dashboardPresent") is True,
                 "minimal_present": split.get("minimalHudPresent") is True,
@@ -6913,18 +7102,18 @@ class DesktopRuntimeWindow(QWidget):
                 "minimal_role": split.get("minimalHudSurfaceRole") == "minimal-anchored-hud-overlay",
                 "overlay_display_role": split.get("overlayDisplaySurfaceRole") == "edgeless-overlay-display",
                 "overlay_canvas": split.get("overlayCanvas") == "edge-to-edge-snipping-tool-style",
-                "overlay_edge_to_edge": split.get("overlayDisplayEdgeToEdge") is True,
+                "overlay_display_dom_template": split.get("overlayDisplayPresent") is True,
+                "overlay_standalone_native": overlay_proof.get("owner") == "MonitoringHudOverlayDisplayWindow",
                 "overlay_monitor_layout": split.get("overlayMonitorLayout") == "movable-resizable-monitor-cards",
                 "dashboard_configures_minimal": split.get("dashboardConfigures") == "monitoring-hud-minimal",
                 "minimal_configured_by_dashboard": split.get("minimalConfiguredBy") == "monitoring-hud",
                 "split_contract": split.get("splitContract") == "dashboard-configures-minimal-overlay",
                 "isolation_reports_split": isolation.get("dashboardMinimalSplitReady") is True,
-                "minimal_geometry": isinstance(minimal_rect, dict)
-                    and float(minimal_rect.get("width") or 0) >= 220
-                    and float(minimal_rect.get("height") or 0) >= 90,
-                "overlay_geometry": split.get("overlayDisplayVisible") is True,
-                "native_overlay_owner": split.get("nativeOverlayOwner") == "MinimalMonitoringHudOverlayWindow",
-                "native_window_split_ready": split.get("nativeWindowSplitProof") == "ready-ws22",
+                "minimal_dom_template": split.get("minimalHudPresent") is True,
+                "overlay_geometry": int(overlay_proof.get("w") or 0) >= 360
+                    and int(overlay_proof.get("h") or 0) >= 220,
+                "native_overlay_owner": split.get("nativeOverlayOwner") == "MonitoringHudOverlayDisplayWindow",
+                "native_window_split_ready": split.get("nativeWindowSplitProof") == "ready-ws26",
             }
             return all(checks.values()), checks
 
@@ -6937,9 +7126,8 @@ class DesktopRuntimeWindow(QWidget):
             anchor_point = QPoint(*(anchor_center or (0, 0)))
             proof = self._monitoring_hud_minimal_native_proof_state()
             checks = {
-                "minimal_dom_visible": isinstance(minimal_rect, dict)
-                    and float(minimal_rect.get("width") or 0) >= 220
-                    and float(minimal_rect.get("height") or 0) >= 90,
+                "minimal_dom_template_present": isinstance(minimal_rect, dict),
+                "native_overlay_owner": proof.get("owner") == "MonitoringHudOverlayDisplayWindow",
                 "native_overlay_visible": proof.get("visible") is True,
                 "native_overlay_separate_hwnd": bool(proof.get("hwnd") and proof.get("hwnd") != int(self.winId())),
                 "native_overlay_ex_transparent": proof.get("exTransparent") is True,
@@ -6955,7 +7143,8 @@ class DesktopRuntimeWindow(QWidget):
             return all(
                 checks[key]
                 for key in (
-                    "minimal_dom_visible",
+                    "minimal_dom_template_present",
+                    "native_overlay_owner",
                     "native_overlay_visible",
                     "native_overlay_separate_hwnd",
                     "native_overlay_ex_transparent",
@@ -6984,11 +7173,16 @@ class DesktopRuntimeWindow(QWidget):
         def assert_unanchored(result):
             dataset = result.get("dataset") or {}
             state = result.get("state") or {}
+            overlay_proof = self._monitoring_hud_minimal_native_proof_state()
             checks = {
                 "visible": bool(state.get("visible")),
                 "unanchored": state.get("anchored") is False,
                 "dataset_unanchored": dataset.get("anchorState") == "unanchored",
                 "edit_mode": dataset.get("interactionMode") == "unanchored-edit-mode",
+                "overlay_unanchored": overlay_proof.get("anchored") is False,
+                "overlay_interactive": overlay_proof.get("transparentForMouseEvents") is False
+                    and overlay_proof.get("focusPolicy") == "interactive",
+                "overlay_quick_controls_visible": overlay_proof.get("quickControlsVisible") is True,
                 "native_window_anchored_flag": self._monitoring_hud_anchored is False,
                 "native_focus_allowed": self.focusPolicy() == Qt.StrongFocus,
                 "webview_focus_allowed": self.webview.focusPolicy() == Qt.StrongFocus,
@@ -7003,6 +7197,9 @@ class DesktopRuntimeWindow(QWidget):
                     "unanchored",
                     "dataset_unanchored",
                     "edit_mode",
+                    "overlay_unanchored",
+                    "overlay_interactive",
+                    "overlay_quick_controls_visible",
                     "native_window_anchored_flag",
                     "native_focus_allowed",
                     "webview_focus_allowed",
@@ -7017,15 +7214,22 @@ class DesktopRuntimeWindow(QWidget):
             geometry = result.get("geometry") or {}
             target_geometry = self.compute_compact_geometry()
             current_geometry = self.geometry()
+            overlay_proof = self._monitoring_hud_minimal_native_proof_state()
             native_window_moved = (
                 current_geometry.x() <= target_geometry.x() - 40
                 or current_geometry.y() >= target_geometry.y() + 40
+            )
+            overlay_stayed_independent = bool(overlay_geometry_before_dashboard_drag) and all(
+                int(overlay_proof.get(key) or 0) == int(overlay_geometry_before_dashboard_drag.get(key) or 0)
+                for key in ("x", "y", "w", "h")
             )
             isolation = result.get("isolation") or {}
             checks = {
                 "visible": bool(state.get("visible")),
                 "unanchored": state.get("anchored") is False,
                 "native_window_moved": native_window_moved,
+                "standalone_overlay_not_moved_by_dashboard_drag": overlay_stayed_independent,
+                "overlay_owner": overlay_proof.get("owner"),
                 "standalone_native_hud_window": isolation.get("standaloneHudWindow") is True,
                 "hud_window_x": current_geometry.x(),
                 "hud_window_y": current_geometry.y(),
@@ -7037,6 +7241,7 @@ class DesktopRuntimeWindow(QWidget):
                 checks["visible"],
                 checks["unanchored"],
                 checks["native_window_moved"],
+                checks["standalone_overlay_not_moved_by_dashboard_drag"],
                 checks["standalone_native_hud_window"],
             ]
             return all(pass_values), checks
@@ -7132,6 +7337,9 @@ class DesktopRuntimeWindow(QWidget):
                     and minimal_proof.get("windowFromCenterBypassesOverlay") is True,
                 "minimal_native_overlay_non_focus": minimal_proof.get("focusPolicy") == "no_focus"
                     and minimal_proof.get("exNoActivate") is True,
+                "overlay_quick_controls_hidden": minimal_proof.get("quickControlsVisible") is False,
+                "overlay_position_preserved": minimal_proof.get("positionPreserved") is True,
+                "overlay_owner": minimal_proof.get("owner") == "MonitoringHudOverlayDisplayWindow",
             }
             return all(checks.values()), checks
 
@@ -7143,7 +7351,7 @@ class DesktopRuntimeWindow(QWidget):
             query("dashboard and minimal HUD surfaces are split", assert_surface_split, step_minimal_native_overlay)
 
         def step_minimal_native_overlay():
-            query("minimal HUD native overlay proves anchored click-through/no-focus", assert_minimal_native_overlay, step_isolation)
+            query("standalone overlay display proves anchored uninteractable/no-focus", assert_minimal_native_overlay, step_isolation)
 
         def step_isolation():
             self._run_javascript(
@@ -7181,6 +7389,8 @@ class DesktopRuntimeWindow(QWidget):
             QTimer.singleShot(delay(900), lambda: query("real mouse unanchor reaches editable HUD", assert_unanchored, step_user_panel_drag))
 
         def step_user_panel_drag():
+            overlay_geometry_before_dashboard_drag.clear()
+            overlay_geometry_before_dashboard_drag.update(self._monitoring_hud_minimal_native_proof_state())
             geometry = latest_result.get("geometry") if isinstance(latest_result.get("geometry"), dict) else {}
             handle_rect = geometry.get("panelDragHandle") if isinstance(geometry.get("panelDragHandle"), dict) else None
             widget_start = self._monitoring_hud_widget_point_from_page_rect(handle_rect)
@@ -7507,6 +7717,7 @@ class DesktopRuntimeWindow(QWidget):
             polling_rate_ms = self._monitoring_hud_polling_rate_ms
 
         cards = state.get("cards") if isinstance(state.get("cards"), dict) else {}
+        self._monitoring_hud_live_page_state = state
         monitor_signature_parts = []
         enabled_count = 0
         for card_id in sorted(str(key) for key in cards.keys()):
@@ -7517,7 +7728,16 @@ class DesktopRuntimeWindow(QWidget):
                 card_polling = max(1000, int(card.get("pollingRateMs", polling_rate_ms)))
             except (TypeError, ValueError):
                 card_polling = polling_rate_ms
-            monitor_signature_parts.append((card_id, enabled, card_polling, str(card.get("title", ""))))
+            monitor_signature_parts.append((
+                card_id,
+                enabled,
+                card_polling,
+                str(card.get("title", "")),
+                int(card.get("x") or 0),
+                int(card.get("y") or 0),
+                int(card.get("w") or 0),
+                int(card.get("h") or 0),
+            ))
         monitor_signature = (
             str(state.get("selectedMonitorId", "")),
             tuple(monitor_signature_parts),
@@ -7536,6 +7756,7 @@ class DesktopRuntimeWindow(QWidget):
 
         signature = (visible, anchored, snap_enabled, polling_rate_ms)
         if signature == self._monitoring_hud_control_signature:
+            self._sync_monitoring_hud_minimal_native_overlay(source="page_sync")
             return
 
         self._monitoring_hud_control_signature = signature
@@ -7762,8 +7983,8 @@ class DesktopRuntimeWindow(QWidget):
             slice="SLC-026",
             seam="WS19",
             dashboard_owner="MonitoringHudWindow",
-            minimal_owner="MinimalMonitoringHudOverlayWindow",
-            native_window_split_proof="ready_ws22",
+            minimal_owner="MonitoringHudOverlayDisplayWindow",
+            native_window_split_proof="ready_ws26",
         )
         self._emit_runtime_signal(
             "MONITORING_HUD_DASHBOARD_CONTENT_READY",

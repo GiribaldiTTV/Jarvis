@@ -86,7 +86,7 @@ body.desktop-mode #monitoring-hud-minimal {
   z-index: 28;
   left: 18px;
   bottom: 18px;
-  display: block;
+  display: none;
   width: min(360px, calc(100vw - 36px));
   box-sizing: border-box;
   pointer-events: none;
@@ -99,7 +99,7 @@ body.desktop-mode #monitoring-hud-overlay-display {
   position: absolute;
   z-index: 8;
   inset: 6px;
-  display: block;
+  display: none;
   box-sizing: border-box;
   pointer-events: none;
   transform: translateZ(0);

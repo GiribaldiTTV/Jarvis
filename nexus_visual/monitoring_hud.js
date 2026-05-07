@@ -333,8 +333,8 @@ function monitoringHudUpdateSurfaceSplit() {
   monitoringHudMinimal.dataset.configuredBy = "monitoring-hud";
   monitoringHudMinimal.dataset.dashboardOwner = "monitoring-hud";
   monitoringHudMinimal.dataset.splitContract = "dashboard-configures-minimal-overlay";
-  monitoringHudMinimal.dataset.nativeOverlayOwner = "MinimalMonitoringHudOverlayWindow";
-  monitoringHudMinimal.dataset.nativeWindowSplitProof = "ready-ws22";
+  monitoringHudMinimal.dataset.nativeOverlayOwner = "MonitoringHudOverlayDisplayWindow";
+  monitoringHudMinimal.dataset.nativeWindowSplitProof = "ready-ws26";
   monitoringHudMinimal.dataset.providerState = monitoringHudTelemetry.providerState || "setup-required";
   monitoringHudMinimal.dataset.liveValues = monitoringHudTelemetry.liveValues || "provider-required";
   monitoringHudMinimal.dataset.warningMode = "visual-non-invasive";
