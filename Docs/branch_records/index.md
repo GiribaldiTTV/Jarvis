@@ -79,7 +79,7 @@ Do not use this layer to replace:
 
 - `Docs/branch_records/feature_fam_006_monitoring_hud_product_surface.md`
 
-Active authority belongs to the USER-approved FAM-006 Monitoring and HUD Product Surface Package carrier, currently Hardening H1 Green and ready for Live Validation. Merged `main` remains the validated source baseline before this branch merges; the active branch record must move to historical/no-active posture before PR green so merged-main truth does not retain stale active branch authority.
+Active authority belongs to the USER-approved FAM-006 Monitoring and HUD Product Surface Package carrier, currently Live Validation LV1 with automated/live HUD proof green and `User Test Summary Results Pending`. Merged `main` remains the validated source baseline before this branch merges; the active branch record must move to historical/no-active posture before PR green so merged-main truth does not retain stale active branch authority.
 
 ## Historical Branch Authority Records
 
