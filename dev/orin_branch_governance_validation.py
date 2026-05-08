@@ -745,6 +745,31 @@ FAM006_ELEMENT_VALIDATION_LEDGER_REQUIRED_PHRASES = (
     "returned UTS results pending",
 )
 
+SOURCE_OWNER_MARKER_ADOPTION_NEXT_BRANCH_REQUIRED_PHRASES = {
+    FAM006_BRANCH_RECORD: (
+        "Post-FAM-006 Required Marker Adoption Candidate:",
+        "Repo-Wide High-Risk Source Owner Marker Adoption",
+        "feature/repo-wide-source-owner-marker-adoption",
+        "required post-FAM-006 governance/package candidate",
+        "Branch creation and package admission remain blocked until the appropriate later readiness path",
+        "Ledger remains canonical and markers are backlinks only",
+    ),
+    Path("Docs/prebeta_roadmap.md"): (
+        "required post-FAM-006 governance/package candidate:",
+        "Repo-Wide High-Risk Source Owner Marker Adoption",
+        "feature/repo-wide-source-owner-marker-adoption",
+        "does not create/admit the branch",
+        "validate marker-to-ledger consistency while preserving the ledger as canonical and markers as backlinks only",
+    ),
+    Path("Docs/feature_backlog.md"): (
+        "Post-FAM-006 Required Governance/Package Candidate:",
+        "Repo-Wide High-Risk Source Owner Marker Adoption",
+        "feature/repo-wide-source-owner-marker-adoption",
+        "not as an active selected-next implementation branch or newly admitted package",
+        "Later readiness must decide the legal carrier",
+    ),
+}
+
 SUCCESSOR_LOCK_WAIVER_DOCS = (
     Path("Docs/phase_governance.md"),
     Path("Docs/development_rules.md"),
@@ -12700,6 +12725,16 @@ def main() -> int:
             required_phrase in fam006_branch_text,
             f"{FAM006_BRANCH_RECORD}: FAM-006 Element Validation Ledger is missing '{required_phrase}'",
         )
+
+    for relative_path, required_phrases in (
+        SOURCE_OWNER_MARKER_ADOPTION_NEXT_BRANCH_REQUIRED_PHRASES.items()
+    ):
+        text = _read_text(relative_path)
+        for required_phrase in required_phrases:
+            require(
+                required_phrase in text,
+                f"{relative_path}: post-FAM-006 source-owner marker adoption requirement is missing '{required_phrase}'",
+            )
 
     for relative_path in RELEASE_OPERATOR_OUTPUT_CONTRACT_DOCS:
         text = _read_text(relative_path)

@@ -71,7 +71,7 @@ Latest Public Prerelease Publication: https://github.com/GiribaldiTTV/Nexus-Desk
 Latest Public Prerelease Title: Pre-Beta v1.6.13.
 Release Debt: Clear after v1.6.13-prebeta publication, validation, and post-release canon closure.
 Merged-main Current Active Workstream: None.
-Current Active Workstream: FAM-006 Workstream Green after WS36 Workstream completion review and Hardening handoff reconciliation; next legal seam is Hardening H1 rerun.
+Current Active Workstream: None - FAM-006 Workstream is green after WS36, Hardening H1 is green, and LV1 Stage 1 handoff is green; next legal seam is Live Validation LV2 returned UTS digestion after USER returns results or explicitly waives the handoff.
 Current Active Workstream Before Reform: None.
 Current Execution Branch: feature/fam-006-monitoring-hud-product-surface.
 Current Active Branch Authority Record: Docs/branch_records/feature_fam_006_monitoring_hud_product_surface.md.
@@ -87,6 +87,7 @@ Selected Next Implementation Branch: feature/fam-006-monitoring-hud-product-surf
 Selected Next Status: USER-approved selected-next candidate matured into active FAM-006 package execution; product completion reopened after completion-truth drift review.
 Runtime Package Admission: Admitted for PKG-006 during USER-approved Branch Readiness Stage 2; product completion is reopened.
 Next Legal Runtime Step: Live Validation LV2 - Monitoring HUD User Test Summary Results Digest And Acceptance Classification; LV1 Stage 1 proof passed and generated the formal `C:\Users\anden\OneDrive\Desktop\User Test Summary.txt` handoff, while returned UTS results remain pending. WS36 records Dashboard-focused Workstream green, H1 records Dashboard-first hardening green, Overlay/display acceptance remains deferred/dormant/non-gating supporting evidence, Core repair is dependency-only, and package completion remains unclaimed.
+Post-FAM-006 Required Governance/Package Candidate: Repo-Wide High-Risk Source Owner Marker Adoption; candidate branch `feature/repo-wide-source-owner-marker-adoption`; recorded as a required next-branch candidate after the current FAM-006 branch closes, not as an active selected-next implementation branch or newly admitted package. Later readiness must decide the legal carrier and package/admission shape before branch creation. Future scope is to scan existing source files, identify high-risk product/proof-bearing code regions, map them to Element Validation Ledger rows, add high-risk-only source-owner markers where useful, validate marker-to-ledger consistency, and keep runtime behavior unchanged unless a separately admitted repair is required.
 Backlog Addition User Approval Missing: Cleared for USER-approved FAM-006 selected-next successor selection, Branch Readiness Stage 2 branch creation, and PKG-006 runtime package admission only; active for any other attempted new backlog item, backlog split, promotion beyond FAM-006, branch creation outside this carrier, or single-slice package waiver without explicit USER approval.
 Historical Repair-Only Branch Handling: `feature/fb-046-post-merge-canon-sync` was a bounded repair-only post-merge canon-sync `feature/` branch and did not imply Branch Readiness admission or active branch truth for FB-046.
 Historical Branch Readiness State: Complete on `feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeout-truth`.
