@@ -51,6 +51,10 @@
     data-dashboard-standalone-proof="ws32-dashboard-window-travel"
     data-dashboard-clipping-proof="within-virtual-desktop"
     data-dashboard-decoupling-proof="core-overlay-independent"
+    data-dashboard-content-polish="ws33-settings-control-clarity"
+    data-dashboard-settings-model="hud-capability-monitor-groups-provider-warning"
+    data-monitor-group-model="organizational-groups-settings-only"
+    data-dashboard-monitor-card-policy="overlay-display-owns-monitor-cards"
     data-overlay-acceptance-policy="deferred-non-gating"
     data-interface-bundle-approval="not-granted"
     data-core-repair-classification="dependency-repair-only"
@@ -61,8 +65,8 @@
       <div class="monitoring-hud__header" id="monitoring-hud-drag-handle">
         <div>
           <div class="monitoring-hud__kicker">Nexus Desktop AI</div>
-          <div class="monitoring-hud__title">Monitoring Dashboard</div>
-          <div class="monitoring-hud__subtitle">Configures the minimal anchored Monitoring HUD overlay.</div>
+          <div class="monitoring-hud__title">Monitoring Control Panel</div>
+          <div class="monitoring-hud__subtitle">Configures HUD capability, monitor groups, provider truth, warning posture, and future overlay behavior.</div>
         </div>
         <div class="monitoring-hud__mode-stack">
           <div class="monitoring-hud__mode-pill" id="monitoring-hud-runtime-status">HUD enabled</div>
@@ -84,21 +88,21 @@
         <span>Release gate</span>
         <strong>Dashboard acceptance only</strong>
       </div>
-      <div class="monitoring-hud__toolbar" aria-label="Monitoring HUD controls">
+      <div class="monitoring-hud__toolbar" aria-label="Monitoring dashboard control panel controls">
         <button type="button" id="monitoring-hud-toggle" class="monitoring-hud__control-button" data-control="toggle-visibility">
-          Hide HUD
+          Disable HUD capability
         </button>
         <button type="button" id="monitoring-hud-anchor-toggle" class="monitoring-hud__control-button" data-control="anchor-toggle">
-          Unanchor
+          Unanchor future overlay
         </button>
         <button type="button" id="monitoring-hud-create-monitor" class="monitoring-hud__control-button" data-control="create-monitor">
-          Create monitor
+          Create group
         </button>
         <button type="button" id="monitoring-hud-snap-toggle" class="monitoring-hud__control-button" data-control="snap-toggle">
-          Snap on
+          Future snap on
         </button>
         <label class="monitoring-hud__polling-control">
-          Polling
+          Default polling
           <select id="monitoring-hud-polling-rate" aria-label="Monitoring HUD polling cadence">
             <option value="1000">1s</option>
             <option value="2000">2s</option>
@@ -108,52 +112,53 @@
         </label>
       </div>
       <div class="monitoring-hud__anchor-rail" aria-label="Move anchor and task tray posture">
-        <span>Movable panel</span>
-        <span id="monitoring-hud-snap-label">Snap-ready</span>
-        <span id="monitoring-hud-placement-pointer">Anchored click-through</span>
-        <span id="monitoring-hud-tray-path">Task tray unanchor path</span>
+        <span>Standalone dashboard window</span>
+        <span id="monitoring-hud-snap-label">Future overlay snap</span>
+        <span id="monitoring-hud-placement-pointer">Overlay anchor posture</span>
+        <span id="monitoring-hud-tray-path">Tray unanchor route</span>
         <span>No default keybinds</span>
       </div>
       <div
         class="monitoring-hud__monitor-selector"
         id="monitoring-hud-monitor-list"
-        data-dashboard-content="monitor-settings-list"
+        data-dashboard-content="monitor-group-settings-list"
         data-dashboard-monitor-display-policy="settings-only-no-monitor-cards"
-        aria-label="Dashboard monitor selector and configuration entry point"
+        data-dashboard-monitor-model="organizational-groups-settings-only"
+        aria-label="Dashboard monitor group selector and configuration entry point"
       >
         <label class="monitoring-hud__selector-control">
-          Monitor to edit
-          <select id="monitoring-hud-monitor-selector" aria-label="Select monitor to edit">
-            <option value="cpu" data-monitor-config-option="cpu">CPU Monitor</option>
-            <option value="gpu" data-monitor-config-option="gpu">GPU Monitor</option>
+          Monitor group to edit
+          <select id="monitoring-hud-monitor-selector" aria-label="Select monitor group to edit">
+            <option value="cpu" data-monitor-config-option="cpu">CPU Group</option>
+            <option value="gpu" data-monitor-config-option="gpu">GPU Group</option>
           </select>
         </label>
-        <span id="monitoring-hud-monitor-list-summary">Overlay owns monitor cards; dashboard edits their settings.</span>
+        <span id="monitoring-hud-monitor-list-summary">2 monitor groups configured; Dashboard edits settings while Overlay owns display cards.</span>
       </div>
-      <div class="monitoring-hud__monitor-editor" data-dashboard-content="monitor-management" aria-label="Monitor create edit and enablement controls">
-        <span class="monitoring-hud__config-heading">Monitor editor</span>
-        <strong class="monitoring-hud__config-heading">Dashboard-owned control panel</strong>
-        <span>Selected monitor</span>
-        <strong id="monitoring-hud-monitor-editor-title">CPU Monitor</strong>
-        <span>Overlay visibility</span>
+      <div class="monitoring-hud__monitor-editor" data-dashboard-content="monitor-group-management" aria-label="Monitor group create edit and enablement controls">
+        <span class="monitoring-hud__config-heading">Monitor group editor</span>
+        <strong class="monitoring-hud__config-heading">Settings/control surface</strong>
+        <span>Selected group</span>
+        <strong id="monitoring-hud-monitor-editor-title">CPU Group</strong>
+        <span>Future overlay visibility</span>
         <label class="monitoring-hud__inline-control">
           <input type="checkbox" id="monitoring-hud-monitor-enabled" checked />
-          Enabled in overlay
+          Enabled in future overlay
         </label>
-        <span>Monitor polling</span>
-        <select id="monitoring-hud-monitor-polling-rate" aria-label="Selected monitor polling cadence">
+        <span>Group polling</span>
+        <select id="monitoring-hud-monitor-polling-rate" aria-label="Selected monitor group polling cadence">
           <option value="1000">1s</option>
           <option value="2000">2s</option>
           <option value="5000">5s</option>
           <option value="10000">10s</option>
         </select>
         <span>Scope rule</span>
-        <strong id="monitoring-hud-monitor-editor-scope">Monitors group sensors; they do not fake hardware values.</strong>
+        <strong id="monitoring-hud-monitor-editor-scope">Monitor groups organize sensors; dashboard does not render display cards or fake values.</strong>
       </div>
     </div>
-    <div class="monitoring-hud__telemetry" data-slice="SLC-025" data-dashboard-content="sensor-setup" aria-label="Sensor setup guidance">
-      <span class="monitoring-hud__config-heading">Sensor setup</span>
-      <strong class="monitoring-hud__config-heading">Tell me what can be trusted</strong>
+    <div class="monitoring-hud__telemetry" data-slice="SLC-025" data-dashboard-content="provider-setup" aria-label="Provider setup guidance">
+      <span class="monitoring-hud__config-heading">Provider setup</span>
+      <strong class="monitoring-hud__config-heading">Declare what data can be trusted</strong>
       <span>Live readings</span>
       <strong id="monitoring-hud-adapter-status">Waiting for safe provider</strong>
       <span>Truth rule</span>
@@ -161,9 +166,9 @@
       <span>Default cadence</span>
       <strong id="monitoring-hud-hardware-polling">1s after provider proof</strong>
     </div>
-    <div class="monitoring-hud__placement" data-slice="SLC-026" data-dashboard-content="minimal-hud-output" aria-label="Minimal HUD output configuration">
-      <span class="monitoring-hud__config-heading">Minimal HUD output</span>
-      <strong class="monitoring-hud__config-heading">Configure the small overlay</strong>
+    <div class="monitoring-hud__placement" data-slice="SLC-026" data-dashboard-content="future-overlay-behavior" aria-label="Future overlay behavior configuration">
+      <span class="monitoring-hud__config-heading">Future overlay behavior</span>
+      <strong class="monitoring-hud__config-heading">Prepare, do not accept, Overlay display</strong>
       <span>Current output</span>
       <strong id="monitoring-hud-placement-owner">Separate minimal HUD overlay</strong>
       <span>Placement plan</span>
@@ -171,15 +176,15 @@
       <span>Card layout</span>
       <strong id="monitoring-hud-resize-posture">Cards resize and snap in overlay edit mode</strong>
     </div>
-    <div class="monitoring-hud__controls" data-slice="SLC-027" data-dashboard-content="user-controls" aria-label="Dashboard controls and settings">
-      <span class="monitoring-hud__config-heading">Controls</span>
+    <div class="monitoring-hud__controls" data-slice="SLC-027" data-dashboard-content="dashboard-controls" aria-label="Dashboard controls and settings">
+      <span class="monitoring-hud__config-heading">Dashboard controls</span>
       <strong class="monitoring-hud__config-heading">Adjust without cluttering the HUD</strong>
       <span>Visibility</span>
       <strong id="monitoring-hud-controls-visibility">Show or hide from dashboard/tray</strong>
       <span>Anchor mode</span>
-      <strong id="monitoring-hud-controls-surface">Unanchor to edit; anchor to observe</strong>
+      <strong id="monitoring-hud-controls-surface">Control Overlay posture without accepting it</strong>
       <span>Layout</span>
-      <strong id="monitoring-hud-controls-persistence">Snap cards; save local layout</strong>
+      <strong id="monitoring-hud-controls-persistence">Store group/layout posture locally</strong>
     </div>
     <div class="monitoring-hud__status-model" data-slice="SLC-028" data-dashboard-content="readiness-states" aria-label="Setup no-data and degraded states">
       <span class="monitoring-hud__config-heading">Readiness states</span>
@@ -191,8 +196,8 @@
       <span>Degraded</span>
       <strong id="monitoring-hud-degraded-behavior">Name reconnect/setup gap</strong>
     </div>
-    <div class="monitoring-hud__grid" data-dashboard-content="next-actions" aria-label="Dashboard next actions">
-      <span class="monitoring-hud__config-heading">Next actions</span>
+    <div class="monitoring-hud__grid" data-dashboard-content="dashboard-proof-next-actions" aria-label="Dashboard next actions">
+      <span class="monitoring-hud__config-heading">Dashboard proof</span>
       <strong class="monitoring-hud__config-heading">What the user can trust now</strong>
       <span>Warnings</span>
       <strong id="monitoring-hud-warning-posture">Visual badge only</strong>
@@ -246,7 +251,7 @@
       >
         <article class="monitoring-hud-overlay-card monitoring-hud-overlay-card--setup" data-overlay-monitor-card="cpu" data-overlay-monitor-enabled="true" data-overlay-monitor-polling-ms="1000" style="--overlay-card-x:28px;--overlay-card-y:34px;--overlay-card-w:300px;--overlay-card-h:132px;">
           <div class="monitoring-hud-overlay-card__topline">
-            <strong data-overlay-monitor-title="cpu">CPU Monitor</strong>
+            <strong data-overlay-monitor-title="cpu">CPU Group</strong>
             <span data-overlay-monitor-state="cpu">Setup</span>
           </div>
           <p data-overlay-monitor-summary="cpu">Provider warming</p>
@@ -256,7 +261,7 @@
         </article>
         <article class="monitoring-hud-overlay-card monitoring-hud-overlay-card--unavailable" data-overlay-monitor-card="gpu" data-overlay-monitor-enabled="true" data-overlay-monitor-polling-ms="1000" style="--overlay-card-x:28px;--overlay-card-y:186px;--overlay-card-w:300px;--overlay-card-h:132px;">
           <div class="monitoring-hud-overlay-card__topline">
-            <strong data-overlay-monitor-title="gpu">GPU Monitor</strong>
+            <strong data-overlay-monitor-title="gpu">GPU Group</strong>
             <span data-overlay-monitor-state="gpu">No data</span>
           </div>
           <p data-overlay-monitor-summary="gpu">Provider required</p>

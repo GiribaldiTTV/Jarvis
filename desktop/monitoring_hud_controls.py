@@ -71,13 +71,13 @@ def build_monitoring_hud_controls_visibility_contract(
             if desktop_mode
             else "Waiting for desktop mode"
         ),
-        control_surface="Unanchor to edit; anchor to observe",
-        persistence="Snap cards; save local layout",
+        control_surface="Control Overlay posture without accepting it",
+        persistence="Store group/layout posture locally",
         operator_action="No default keybinds",
         anchor_state="anchored-click-through" if anchored else "unanchored-edit-mode",
         tray_path="Task tray can unanchor or restore the HUD",
         snap_state="enabled" if snap_enabled else "disabled",
         polling_rate_ms=str(max(1000, int(polling_rate_ms or 1000))),
-        monitor_management="Dashboard creates, edits, enables, disables, and sets polling for monitors",
-        overlay_mode_controls="Dashboard controls HUD display enablement plus anchor/unanchor mode",
+        monitor_management="Dashboard creates, edits, enables, disables, and sets polling for monitor groups",
+        overlay_mode_controls="Dashboard controls future Overlay display enablement plus anchor/unanchor posture",
     )

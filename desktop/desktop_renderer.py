@@ -5176,13 +5176,13 @@ class MonitoringHudOverlayDisplayWindow(QWidget):
         self._quick_controls = (self._resize_grip,)
         self._sync_overlay_card(
             "cpu",
-            {"x": 28, "y": 84, "w": 360, "h": 150, "title": "CPU Monitor", "enabled": True},
+            {"x": 28, "y": 84, "w": 360, "h": 150, "title": "CPU Group", "enabled": True},
             "Provider warming",
             "setup",
         )
         self._sync_overlay_card(
             "gpu",
-            {"x": 28, "y": 254, "w": 360, "h": 150, "title": "GPU Monitor", "enabled": True},
+            {"x": 28, "y": 254, "w": 360, "h": 150, "title": "GPU Group", "enabled": True},
             "Provider required",
             "no-data",
         )
@@ -5194,14 +5194,14 @@ class MonitoringHudOverlayDisplayWindow(QWidget):
 
     def _default_card_layout(self, card_id: str) -> dict[str, int | str | bool]:
         y = 84 + (170 * len(self._card_layouts))
-        return {"x": 28, "y": y, "w": 360, "h": 150, "title": f"{card_id.upper()} Monitor", "enabled": True}
+        return {"x": 28, "y": y, "w": 360, "h": 150, "title": f"{card_id.upper()} Group", "enabled": True}
 
     def _create_overlay_card(self, card_id: str) -> dict[str, object]:
         card = QFrame(self._frame)
         card.setProperty("role", "overlayCard")
         card.setProperty("cardId", card_id)
         card.installEventFilter(self)
-        title = QLabel("Monitor", card)
+        title = QLabel("Monitor Group", card)
         title.setProperty("role", "cardTitle")
         summary = QLabel("Provider required", card)
         summary.setProperty("role", "cardSummary")
@@ -5269,7 +5269,7 @@ class MonitoringHudOverlayDisplayWindow(QWidget):
         frame.setProperty("state", state)
         frame.style().unpolish(frame)
         frame.style().polish(frame)
-        title.setText(str(existing.get("title") or f"{card_id.upper()} Monitor"))
+        title.setText(str(existing.get("title") or f"{card_id.upper()} Group"))
         summary_label.setText("Hidden in overlay" if existing.get("enabled") is False else summary)
         meta.setText("1s default after provider proof; no fake values.")
         widgets["edit"].setVisible(not self._anchored)  # type: ignore[index]
@@ -7636,12 +7636,23 @@ class DesktopRuntimeWindow(QWidget):
             live_values = str(dataset.get("liveValues") or "").casefold()
             checks = {
                 "hud_present": bool(result.get("hasHud")),
-                "nexus_identity": "nexus" in lower_text and "monitoring hud" in lower_text,
+                "nexus_identity": "nexus" in lower_text
+                    and (
+                        "monitoring hud" in lower_text
+                        or "monitoring control panel" in lower_text
+                    ),
                 "minimal_hud_present": minimal_dataset.get("productSurfaceRole") == "minimal-anchored-hud-overlay",
                 "minimal_nexus_identity": "nexus" in lower_minimal_text and "monitoring hud" in lower_minimal_text,
                 "dashboard_role": dataset.get("productSurfaceRole") == "dashboard-configuration-surface",
                 "dashboard_monitor_management": dataset.get("monitorManagement") == "create-edit-enable-polling",
                 "dashboard_overlay_mode_controls": dataset.get("overlayModeControls") == "enable-disable-anchor-unanchor",
+                "dashboard_settings_content_polished": dataset.get("dashboardContentPolish") == "ws33-settings-control-clarity",
+                "dashboard_settings_model": dataset.get("dashboardSettingsModel") == "hud-capability-monitor-groups-provider-warning",
+                "monitor_group_model": dataset.get("monitorGroupModel") == "organizational-groups-settings-only",
+                "dashboard_card_policy": dataset.get("dashboardMonitorCardPolicy") == "overlay-display-owns-monitor-cards",
+                "control_panel_copy": "monitoring control panel" in lower_text
+                    and "monitor groups" in lower_text
+                    and "dashboard edits settings" in lower_text,
                 "edgeless_overlay_present": split.get("overlayDisplayPresent") is True,
                 "edgeless_overlay_role": split.get("overlayDisplaySurfaceRole") == "edgeless-overlay-display",
                 "edgeless_overlay_canvas": split.get("overlayCanvas") == "edge-to-edge-snipping-tool-style",
@@ -7877,6 +7888,9 @@ class DesktopRuntimeWindow(QWidget):
             checks = {
                 "dashboard_monitor_management": dataset.get("monitorManagement") == "create-edit-enable-polling",
                 "dashboard_overlay_mode_controls": dataset.get("overlayModeControls") == "enable-disable-anchor-unanchor",
+                "dashboard_settings_content_polish": dataset.get("dashboardContentPolish") == "ws33-settings-control-clarity",
+                "dashboard_monitor_group_model": dataset.get("monitorGroupModel") == "organizational-groups-settings-only",
+                "dashboard_monitor_card_policy": dataset.get("dashboardMonitorCardPolicy") == "overlay-display-owns-monitor-cards",
                 "monitor_count_expanded": len(cards) >= 3,
                 "created_monitor_selected": selected_id.startswith("monitor-"),
                 "created_monitor_disabled": selected.get("enabled") is False,
@@ -7981,7 +7995,7 @@ class DesktopRuntimeWindow(QWidget):
             QTimer.singleShot(delay(250), step_hit_targets)
 
         def step_hit_targets():
-            query("real mouse hit targets are visible and large enough", assert_user_hit_targets, step_user_unanchor_click)
+            query("real mouse hit targets are visible and large enough", assert_user_hit_targets, step_surface_travel)
 
         def step_user_unanchor_click():
             clicked = self._monitoring_hud_send_mouse_click(rect_center("anchorToggle"))
@@ -8085,7 +8099,7 @@ class DesktopRuntimeWindow(QWidget):
                         y: 600,
                         w: 600,
                         h: 280,
-                        title: "Monitor " + String(next.monitorSequence),
+                        title: "Monitor Group " + String(next.monitorSequence),
                         enabled: true,
                         pollingRateMs: 1000
                     };
@@ -8120,7 +8134,7 @@ class DesktopRuntimeWindow(QWidget):
                     return
                 QTimer.singleShot(
                     delay(800),
-                    lambda: query("dashboard monitor management create/edit/enable/polling state", assert_monitor_management, step_layout),
+                    lambda: query("dashboard monitor management create/edit/enable/polling state", assert_monitor_management, step_finish),
                 )
 
             self._run_javascript_with_result(
@@ -8310,8 +8324,8 @@ class DesktopRuntimeWindow(QWidget):
                     selectedMonitorId: "cpu",
                     monitorSequence: 2,
                     cards: {
-                        cpu: { x: 0, y: 0, w: 600, h: 280, title: "CPU Monitor", enabled: true, pollingRateMs: 1000 },
-                        gpu: { x: 0, y: 300, w: 600, h: 280, title: "GPU Monitor", enabled: true, pollingRateMs: 1000 }
+                        cpu: { x: 0, y: 0, w: 600, h: 280, title: "CPU Group", enabled: true, pollingRateMs: 1000 },
+                        gpu: { x: 0, y: 300, w: 600, h: 280, title: "GPU Group", enabled: true, pollingRateMs: 1000 }
                     }
                 });
             }
@@ -8581,6 +8595,10 @@ class DesktopRuntimeWindow(QWidget):
                     monitoringHud.dataset.dashboardStandaloneProof = "ws32-dashboard-window-travel";
                     monitoringHud.dataset.dashboardClippingProof = "within-virtual-desktop";
                     monitoringHud.dataset.dashboardDecouplingProof = "core-overlay-independent";
+                    monitoringHud.dataset.dashboardContentPolish = "ws33-settings-control-clarity";
+                    monitoringHud.dataset.dashboardSettingsModel = "hud-capability-monitor-groups-provider-warning";
+                    monitoringHud.dataset.monitorGroupModel = "organizational-groups-settings-only";
+                    monitoringHud.dataset.dashboardMonitorCardPolicy = "overlay-display-owns-monitor-cards";
                     monitoringHud.dataset.overlayAcceptancePolicy = "deferred-non-gating";
                     monitoringHud.dataset.interfaceBundleApproval = "not-granted";
                     monitoringHud.dataset.coreRepairClassification = "dependency-repair-only";
@@ -8684,6 +8702,29 @@ class DesktopRuntimeWindow(QWidget):
             slice="SLC-027",
             seam="WS21",
             scrollbar_style="nexus_thin_glow",
+        )
+        self._emit_runtime_signal(
+            "MONITORING_HUD_DASHBOARD_SETTINGS_CONTENT_READY",
+            package="PKG-006",
+            slice="SLC-027",
+            seam="WS33",
+            content="settings_control_surface",
+            overlay_acceptance="deferred_non_gating",
+        )
+        self._emit_runtime_signal(
+            "MONITORING_HUD_DASHBOARD_MONITOR_GROUP_CLARITY_READY",
+            package="PKG-006",
+            slice="SLC-027",
+            seam="WS33",
+            monitor_model="organizational_groups_settings_only",
+            dashboard_monitor_cards="not_rendered",
+        )
+        self._emit_runtime_signal(
+            "MONITORING_HUD_DASHBOARD_OVERLAY_NON_GATING_COPY_READY",
+            package="PKG-006",
+            slice="SLC-029",
+            seam="WS33",
+            proof="dashboard_content_separates_future_overlay_acceptance",
         )
         self._emit_runtime_signal(
             "MONITORING_HUD_EDGELESS_OVERLAY_CANVAS_READY",

@@ -54,16 +54,16 @@ let monitoringHudPlacement = {
   placementId: "standalone-native-hud-window",
   rendererOwner: "Separate minimal HUD overlay",
   anchor: "Anchor anywhere after OS proof",
-  pointerModel: "Anchored click-through/no-focus-steal",
-  resizePosture: "Cards resize and snap in overlay edit mode"
+  pointerModel: "Overlay anchor posture pending future acceptance",
+  resizePosture: "Dashboard stores group/layout posture for future overlay"
 };
 let monitoringHudControls = {
   packageId: "PKG-006",
   sliceId: "SLC-027",
   controlsId: "hud-controls-visibility",
   visibilityState: "Show or hide from dashboard/tray",
-  controlSurface: "Unanchor to edit; anchor to observe",
-  persistence: "Snap cards; save local layout",
+  controlSurface: "Control Overlay posture without accepting it",
+  persistence: "Store group/layout posture locally",
   operatorAction: "No default keybinds"
 };
 let monitoringHudStatus = {
@@ -84,8 +84,8 @@ let monitoringHudControlState = {
   selectedMonitorId: "cpu",
   monitorSequence: 2,
   cards: {
-    cpu: { x: 0, y: 0, w: 600, h: 280, title: "CPU Monitor", enabled: true, pollingRateMs: 1000 },
-    gpu: { x: 0, y: 300, w: 600, h: 280, title: "GPU Monitor", enabled: true, pollingRateMs: 1000 }
+    cpu: { x: 0, y: 0, w: 600, h: 280, title: "CPU Group", enabled: true, pollingRateMs: 1000 },
+    gpu: { x: 0, y: 300, w: 600, h: 280, title: "GPU Group", enabled: true, pollingRateMs: 1000 }
   },
   changedAt: Date.now()
 };
@@ -142,7 +142,7 @@ function monitoringHudCardDefaults(cardId) {
     y: Object.keys(monitoringHudControlState.cards || {}).length * 300,
     w: 600,
     h: 280,
-    title: cardId === "cpu" ? "CPU Monitor" : cardId === "gpu" ? "GPU Monitor" : "Monitor",
+    title: cardId === "cpu" ? "CPU Group" : cardId === "gpu" ? "GPU Group" : "Monitor Group",
     enabled: true,
     pollingRateMs: 1000
   };
@@ -157,9 +157,24 @@ function monitoringHudSelectedMonitor() {
   return { id: firstId, layout: cards[firstId] || monitoringHudCardDefaults(firstId) };
 }
 
+function monitoringHudNormalizeMonitorGroupTitle(cardId, layout) {
+  if (!layout) return;
+  const oldCpuTitle = ["CPU", "Monitor"].join(" ");
+  const oldGpuTitle = ["GPU", "Monitor"].join(" ");
+  if (cardId === "cpu" && (!layout.title || layout.title === oldCpuTitle)) {
+    layout.title = "CPU Group";
+  } else if (cardId === "gpu" && (!layout.title || layout.title === oldGpuTitle)) {
+    layout.title = "GPU Group";
+  } else if (/^Monitor\s+\d+$/i.test(String(layout.title || ""))) {
+    layout.title = String(layout.title).replace(/^Monitor/i, "Monitor Group");
+  } else if (!layout.title) {
+    layout.title = "Monitor Group";
+  }
+}
+
 function monitoringHudCreateCardNode(cardId, layout) {
   if (!monitoringHudMonitorSelector || monitoringHudMonitorSelector.querySelector(`[data-monitor-config-option="${cardId}"]`)) return;
-  const title = layout.title || "Monitor";
+  const title = layout.title || "Monitor Group";
   const option = document.createElement("option");
   option.value = cardId;
   option.dataset.monitorConfigOption = cardId;
@@ -171,6 +186,7 @@ function monitoringHudEnsureCardNodes() {
   if (!monitoringHudMonitorList) return;
   Object.keys(monitoringHudControlState.cards || {}).forEach((cardId) => {
     const layout = Object.assign(monitoringHudCardDefaults(cardId), monitoringHudControlState.cards[cardId] || {});
+    monitoringHudNormalizeMonitorGroupTitle(cardId, layout);
     monitoringHudControlState.cards[cardId] = layout;
     monitoringHudCreateCardNode(cardId, layout);
   });
@@ -189,6 +205,10 @@ function monitoringHudRenderMonitorManagement() {
     monitoringHud.dataset.dashboardStandaloneProof = "ws32-dashboard-window-travel";
     monitoringHud.dataset.dashboardClippingProof = "within-virtual-desktop";
     monitoringHud.dataset.dashboardDecouplingProof = "core-overlay-independent";
+    monitoringHud.dataset.dashboardContentPolish = "ws33-settings-control-clarity";
+    monitoringHud.dataset.dashboardSettingsModel = "hud-capability-monitor-groups-provider-warning";
+    monitoringHud.dataset.monitorGroupModel = "organizational-groups-settings-only";
+    monitoringHud.dataset.dashboardMonitorCardPolicy = "overlay-display-owns-monitor-cards";
     monitoringHud.dataset.overlayAcceptancePolicy = "deferred-non-gating";
     monitoringHud.dataset.interfaceBundleApproval = "not-granted";
     monitoringHud.dataset.coreRepairClassification = "dependency-repair-only";
@@ -197,6 +217,7 @@ function monitoringHudRenderMonitorManagement() {
   }
   Object.keys(monitoringHudControlState.cards || {}).forEach((cardId) => {
     const layout = Object.assign(monitoringHudCardDefaults(cardId), monitoringHudControlState.cards[cardId] || {});
+    monitoringHudNormalizeMonitorGroupTitle(cardId, layout);
     const cardNode = monitoringHudMonitorSelector
       ? monitoringHudMonitorSelector.querySelector(`[data-monitor-config-option="${cardId}"]`)
       : null;
@@ -209,10 +230,10 @@ function monitoringHudRenderMonitorManagement() {
     monitoringHudMonitorSelector.value = selected.id || "cpu";
   }
   if (monitoringHudMonitorListSummary) {
-    monitoringHudMonitorListSummary.textContent = `${Object.keys(monitoringHudControlState.cards || {}).length} monitors configured; overlay owns monitor cards.`;
+    monitoringHudMonitorListSummary.textContent = `${Object.keys(monitoringHudControlState.cards || {}).length} monitor groups configured; Dashboard edits settings while Overlay owns display cards.`;
   }
   if (monitoringHudMonitorEditorTitle) {
-    monitoringHudMonitorEditorTitle.textContent = selected.layout.title || "Monitor";
+    monitoringHudMonitorEditorTitle.textContent = selected.layout.title || "Monitor Group";
   }
   if (monitoringHudMonitorEnabled) {
     monitoringHudMonitorEnabled.checked = selected.layout.enabled !== false;
@@ -221,7 +242,7 @@ function monitoringHudRenderMonitorManagement() {
     monitoringHudMonitorPollingRate.value = String(Math.max(1000, Number(selected.layout.pollingRateMs) || 1000));
   }
   if (monitoringHudMonitorEditorScope) {
-    monitoringHudMonitorEditorScope.textContent = "Monitors group sensors; they do not fake hardware values.";
+    monitoringHudMonitorEditorScope.textContent = "Monitor groups organize sensors; dashboard does not render display cards or fake values.";
   }
 }
 
@@ -312,6 +333,10 @@ function monitoringHudUpdateSurfaceSplit() {
     monitoringHud.dataset.overlayAcceptancePolicy = "deferred-non-gating";
     monitoringHud.dataset.interfaceBundleApproval = "not-granted";
     monitoringHud.dataset.coreRepairClassification = "dependency-repair-only";
+    monitoringHud.dataset.dashboardContentPolish = "ws33-settings-control-clarity";
+    monitoringHud.dataset.dashboardSettingsModel = "hud-capability-monitor-groups-provider-warning";
+    monitoringHud.dataset.monitorGroupModel = "organizational-groups-settings-only";
+    monitoringHud.dataset.dashboardMonitorCardPolicy = "overlay-display-owns-monitor-cards";
   }
   if (!monitoringHudMinimal) return;
   monitoringHudMinimal.dataset.visibilityState = monitoringHudControlState.visible ? "visible" : "hidden";
@@ -355,6 +380,7 @@ function monitoringHudApplyCardLayout() {
   monitoringHudEnsureCardNodes();
   Object.keys(monitoringHudControlState.cards).forEach((cardId) => {
     const layout = Object.assign(monitoringHudCardDefaults(cardId), monitoringHudControlState.cards[cardId] || {});
+    monitoringHudNormalizeMonitorGroupTitle(cardId, layout);
     monitoringHudControlState.cards[cardId] = layout;
   });
   monitoringHudRenderMonitorManagement();
@@ -374,30 +400,30 @@ function monitoringHudRenderControls() {
   monitoringHud.dataset.snapState = monitoringHudControlState.snapEnabled ? "enabled" : "disabled";
   monitoringHud.dataset.pollingRateMs = String(monitoringHudControlState.pollingRateMs);
   if (monitoringHudRuntimeStatus) {
-    monitoringHudRuntimeStatus.textContent = monitoringHudControlState.visible ? "HUD enabled" : "HUD hidden";
+    monitoringHudRuntimeStatus.textContent = monitoringHudControlState.visible ? "HUD capability enabled" : "HUD capability disabled";
   }
   if (monitoringHudAnchorStatus) {
     monitoringHudAnchorStatus.textContent = monitoringHudControlState.anchored ? "Anchored" : "Unanchored";
   }
   if (monitoringHudToggle) {
-    monitoringHudToggle.textContent = monitoringHudControlState.visible ? "Hide HUD" : "Show HUD";
+    monitoringHudToggle.textContent = monitoringHudControlState.visible ? "Disable HUD capability" : "Enable HUD capability";
   }
   if (monitoringHudAnchorToggle) {
-    monitoringHudAnchorToggle.textContent = monitoringHudControlState.anchored ? "Unanchor" : "Anchor";
+    monitoringHudAnchorToggle.textContent = monitoringHudControlState.anchored ? "Unanchor future overlay" : "Anchor future overlay";
   }
   if (monitoringHudSnapToggle) {
-    monitoringHudSnapToggle.textContent = monitoringHudControlState.snapEnabled ? "Snap on" : "Snap off";
+    monitoringHudSnapToggle.textContent = monitoringHudControlState.snapEnabled ? "Future snap on" : "Future snap off";
   }
   if (monitoringHudSnapLabel) {
-    monitoringHudSnapLabel.textContent = monitoringHudControlState.snapEnabled ? "Snap-ready" : "Snap disabled";
+    monitoringHudSnapLabel.textContent = monitoringHudControlState.snapEnabled ? "Future overlay snap" : "Future snap disabled";
   }
   if (monitoringHudPollingRate) {
     monitoringHudPollingRate.value = String(monitoringHudControlState.pollingRateMs);
   }
   if (monitoringHudPlacementPointer) {
     monitoringHudPlacementPointer.textContent = monitoringHudControlState.anchored
-      ? "Anchored click-through"
-      : "Unanchored edit mode";
+      ? "Overlay anchor posture"
+      : "Future overlay edit posture";
   }
   monitoringHudUpdateSurfaceSplit();
   monitoringHudRenderMonitorManagement();
@@ -458,7 +484,7 @@ function monitoringHudRenderSensorCards(cards) {
     if (cardNode) {
       if (card.state) cardNode.dataset.monitorProviderState = card.state;
       const statusNode = cardNode.querySelector(`[data-monitor-config-status="${card.id}"]`);
-      if (statusNode) statusNode.textContent = card.summary || (card.state === "warning" ? "Warning in overlay" : "Enabled in overlay");
+      if (statusNode) statusNode.textContent = card.summary || (card.state === "warning" ? "Warning in future overlay" : "Enabled for future overlay");
     }
     const minimalCardNode = monitoringHudMinimal
       ? monitoringHudMinimal.querySelector(`[data-minimal-card="${card.id}"]`)
@@ -577,7 +603,7 @@ function monitoringHudWireControls() {
         y: (nextNumber - 1) * 300,
         w: 600,
         h: 280,
-        title: `Monitor ${nextNumber}`,
+        title: `Monitor Group ${nextNumber}`,
         enabled: true,
         pollingRateMs: monitoringHudControlState.pollingRateMs || 1000
       };
@@ -734,6 +760,10 @@ window.getMonitoringHudSurfaceSplitState = function() {
     dashboardStandaloneProof: monitoringHud ? monitoringHud.dataset.dashboardStandaloneProof || "" : "",
     dashboardClippingProof: monitoringHud ? monitoringHud.dataset.dashboardClippingProof || "" : "",
     dashboardDecouplingProof: monitoringHud ? monitoringHud.dataset.dashboardDecouplingProof || "" : "",
+    dashboardContentPolish: monitoringHud ? monitoringHud.dataset.dashboardContentPolish || "" : "",
+    dashboardSettingsModel: monitoringHud ? monitoringHud.dataset.dashboardSettingsModel || "" : "",
+    monitorGroupModel: monitoringHud ? monitoringHud.dataset.monitorGroupModel || "" : "",
+    dashboardMonitorCardPolicy: monitoringHud ? monitoringHud.dataset.dashboardMonitorCardPolicy || "" : "",
     interfaceAcceptancePolicy: monitoringHud ? monitoringHud.dataset.interfaceAcceptancePolicy || "" : "",
     overlayAcceptancePolicy: monitoringHud ? monitoringHud.dataset.overlayAcceptancePolicy || "" : "",
     interfaceBundleApproval: monitoringHud ? monitoringHud.dataset.interfaceBundleApproval || "" : "",
@@ -774,6 +804,12 @@ window.getMonitoringHudDashboardAcceptanceState = function() {
       split.dashboardStandaloneProof === "ws32-dashboard-window-travel"
       && split.dashboardClippingProof === "within-virtual-desktop"
       && split.dashboardDecouplingProof === "core-overlay-independent"
+    ),
+    dashboardSettingsContentReady: Boolean(
+      split.dashboardContentPolish === "ws33-settings-control-clarity"
+      && split.dashboardSettingsModel === "hud-capability-monitor-groups-provider-warning"
+      && split.monitorGroupModel === "organizational-groups-settings-only"
+      && split.dashboardMonitorCardPolicy === "overlay-display-owns-monitor-cards"
     )
   };
 };
@@ -846,8 +882,8 @@ window.simulateMonitoringHudFaultForValidation = function(enabled) {
 window.setMonitoringHudControlState = function(state) {
   monitoringHudControlState = Object.assign({}, monitoringHudControlState, state || {});
   monitoringHudControlState.cards = Object.assign({}, {
-    cpu: { x: 0, y: 0, w: 600, h: 280, title: "CPU Monitor", enabled: true, pollingRateMs: 1000 },
-    gpu: { x: 0, y: 300, w: 600, h: 280, title: "GPU Monitor", enabled: true, pollingRateMs: 1000 }
+    cpu: { x: 0, y: 0, w: 600, h: 280, title: "CPU Group", enabled: true, pollingRateMs: 1000 },
+    gpu: { x: 0, y: 300, w: 600, h: 280, title: "GPU Group", enabled: true, pollingRateMs: 1000 }
   }, monitoringHudControlState.cards || {});
   Object.keys(monitoringHudControlState.cards).forEach((cardId) => {
     monitoringHudControlState.cards[cardId] = Object.assign(
@@ -910,7 +946,7 @@ window.setMonitoringHudTelemetry = function(snapshot) {
     monitoringHud.dataset.pollingRateMs = String(monitoringHudTelemetry.pollingRateMs || monitoringHudControlState.pollingRateMs || 1000);
   }
   if (monitoringHudRuntimeStatus) {
-    monitoringHudRuntimeStatus.textContent = monitoringHudControlState.visible ? "HUD enabled" : "HUD hidden";
+    monitoringHudRuntimeStatus.textContent = monitoringHudControlState.visible ? "HUD capability enabled" : "HUD capability disabled";
   }
   if (monitoringHudProviderState) {
     monitoringHudProviderState.textContent = monitoringHudTelemetry.providerLabel || "Provider setup required";
@@ -945,11 +981,11 @@ window.setMonitoringHudPlacementOwnership = function(contract) {
   }
   if (monitoringHudPlacementPointer) {
     monitoringHudPlacementPointer.textContent = monitoringHudControlState.anchored
-      ? (monitoringHudPlacement.pointerModel || "Anchored click-through")
-      : "Unanchored edit mode";
+      ? (monitoringHudPlacement.pointerModel || "Overlay anchor posture")
+      : "Future overlay edit posture";
   }
   if (monitoringHudResizePosture) {
-    monitoringHudResizePosture.textContent = monitoringHudPlacement.resizePosture || "Cards resize and snap in overlay edit mode";
+    monitoringHudResizePosture.textContent = monitoringHudPlacement.resizePosture || "Dashboard stores group/layout posture for future overlay";
   }
   monitoringHudUpdateSurfaceSplit();
 };
@@ -969,13 +1005,13 @@ window.setMonitoringHudControlsVisibility = function(contract) {
     monitoringHudControlsVisibility.textContent = monitoringHudControls.visibilityState || "Show or hide from dashboard/tray";
   }
   if (monitoringHudControlsSurface) {
-    monitoringHudControlsSurface.textContent = monitoringHudControls.controlSurface || "Unanchor to edit; anchor to observe";
+    monitoringHudControlsSurface.textContent = monitoringHudControls.controlSurface || "Control Overlay posture without accepting it";
   }
   if (monitoringHudControlsPersistence) {
-    monitoringHudControlsPersistence.textContent = monitoringHudControls.persistence || "Snap cards; save local layout";
+    monitoringHudControlsPersistence.textContent = monitoringHudControls.persistence || "Store group/layout posture locally";
   }
   if (monitoringHudTrayPath) {
-    monitoringHudTrayPath.textContent = monitoringHudControls.trayPath || "Task tray unanchor path";
+    monitoringHudTrayPath.textContent = monitoringHudControls.trayPath || "Task tray can unanchor or restore the HUD";
   }
   monitoringHudRenderControls();
   monitoringHudUpdateSurfaceSplit();

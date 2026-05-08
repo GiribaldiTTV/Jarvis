@@ -257,6 +257,12 @@ FAM006_WS32_HEADING = (
 FAM006_WS32_NEXT_SEAM = (
     "Workstream WS33 - Dashboard Settings Control Content Polish And Monitor Management Clarity"
 )
+FAM006_WS33_HEADING = (
+    "Workstream WS33 Dashboard Settings Control Content Polish And Monitor Management Clarity"
+)
+FAM006_WS33_NEXT_SEAM = (
+    "Workstream WS34 - Dashboard Provider Setup No-Data Degraded Truth And Warning Posture Controls"
+)
 FAM006_STAGE2_R6_REQUIRED_MARKERS = (
     "Current-Branch Scope Final:",
     "Future-Package Scope Final:",
@@ -448,6 +454,29 @@ FAM006_WS32_REQUIRED_PHRASES = (
     "Unclaimed",
     "Next Active Seam:",
     FAM006_WS32_NEXT_SEAM,
+)
+FAM006_WS33_REQUIRED_PHRASES = (
+    "WS33 Result:",
+    "Green - Dashboard settings/control content polish and monitor-management clarity recorded",
+    "Dashboard Settings Content Polish:",
+    "Dashboard/control panel copy now presents a settings/control surface",
+    "Monitor Management Clarity:",
+    "Monitor groups are organizational settings objects",
+    "Overlay Non-Gating Copy:",
+    "Overlay/display remains deferred/non-gating",
+    "Runtime Markers:",
+    "MONITORING_HUD_DASHBOARD_SETTINGS_CONTENT_READY",
+    "MONITORING_HUD_DASHBOARD_MONITOR_GROUP_CLARITY_READY",
+    "MONITORING_HUD_DASHBOARD_OVERLAY_NON_GATING_COPY_READY",
+    "Dashboard Runtime Contract:",
+    'data-dashboard-content-polish="ws33-settings-control-clarity"',
+    'data-monitor-group-model="organizational-groups-settings-only"',
+    'data-dashboard-monitor-card-policy="overlay-display-owns-monitor-cards"',
+    "Dashboard Acceptance Pending remains active",
+    "Package Completion:",
+    "Unclaimed",
+    "Next Active Seam:",
+    FAM006_WS33_NEXT_SEAM,
 )
 FAM006_WORKSTREAM_CONTINUATION_REQUIRED_PHRASES = (
     "multi-slice HUD implementation continuation",
@@ -4913,6 +4942,7 @@ def _validate_fam006_stage2_r6_plan(
     stage2_r13_section = _section(text, FAM006_STAGE2_R13_HEADING)
     ws31_section = _section(text, FAM006_WS31_HEADING)
     ws32_section = _section(text, FAM006_WS32_HEADING)
+    ws33_section = _section(text, FAM006_WS33_HEADING)
     has_stage2_r8_blocker = LEGACY_PRODUCT_NAME_DRIFT_BLOCKER in blockers
 
     if current_phase == "Branch Readiness":
@@ -5126,6 +5156,36 @@ def _validate_fam006_stage2_r6_plan(
                     f"'{required_phrase}'"
                 ),
             )
+        if ws33_section:
+            for phrase in FAM006_WS33_REQUIRED_PHRASES:
+                require(
+                    phrase in ws33_section,
+                    f"{source_path}: {FAM006_WS33_HEADING} is missing '{phrase}'",
+                )
+            require(
+                f"Active seam: `{FAM006_WS33_NEXT_SEAM}`" in text,
+                f"{source_path}: WS33 completion must advance active seam to WS34",
+            )
+            require(
+                f"Next Active Seam: {FAM006_WS33_NEXT_SEAM}" in text,
+                f"{source_path}: WS33 completion must set Seam Continuation Decision next active seam to WS34",
+            )
+            require(
+                "Remaining Implementable Work: `Dashboard-focused Workstream repair continues with WS34"
+                in text,
+                (
+                    f"{source_path}: WS33 completion must preserve visible same-branch "
+                    "Dashboard repair work beyond the current seam"
+                ),
+            )
+            require(
+                "Dashboard Acceptance Pending remains active"
+                in ws33_section,
+                (
+                    f"{source_path}: WS33 must not claim Dashboard acceptance or package completion"
+                ),
+            )
+            return
         if ws32_section:
             for phrase in FAM006_WS32_REQUIRED_PHRASES:
                 require(

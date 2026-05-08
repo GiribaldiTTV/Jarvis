@@ -60,7 +60,7 @@ function Resolve-ValidationPython {
 
 function New-Paths {
     if (-not $ArtifactRoot) {
-        $stamp = Get-Date -Format "yyyyMMdd_HHmmss"
+        $stamp = Get-Date -Format "yyyyMMdd_HHmmss_fff"
         $ArtifactRoot = Join-Path $rootDir "dev\logs\fam_006_monitoring_hud_live_validation\$stamp"
     }
     New-Item -ItemType Directory -Force -Path $ArtifactRoot | Out-Null
@@ -214,6 +214,9 @@ function Save-Manifest([object]$Paths, [string]$PythonExe) {
             ($interactionRaw -match '"coreGeometryUnchanged"\s*:\s*true')
         )
     )
+    $dashboardSettingsContentReady = [bool]($observedMarkers -contains "MONITORING_HUD_DASHBOARD_SETTINGS_CONTENT_READY")
+    $dashboardMonitorGroupClarityReady = [bool]($observedMarkers -contains "MONITORING_HUD_DASHBOARD_MONITOR_GROUP_CLARITY_READY")
+    $dashboardOverlayNonGatingCopyReady = [bool]($observedMarkers -contains "MONITORING_HUD_DASHBOARD_OVERLAY_NON_GATING_COPY_READY")
     $coreIndependentPresetMonitorReady = (
         ($observedMarkers -contains "CORE_VISUALIZATION_INDEPENDENT_PRESET_MONITOR_READY") -or
         (
@@ -238,7 +241,7 @@ function Save-Manifest([object]$Paths, [string]$PythonExe) {
         package = "PKG-006"
         slice = "SLC-029"
         seam = "Live Validation LV1 - Monitoring HUD Product Surface Live Validation"
-        proofStandard = "WS32 Dashboard-first active-client standalone movement, clipping, and Core/Overlay decoupling proof"
+        proofStandard = "WS33 Dashboard-first active-client settings/control content and monitor-management clarity proof"
         primaryInterfaceReleaseSurface = "monitoring-hud-dashboard-control-panel"
         dashboardFirstWorkstreamHandoff = "ws31-dashboard-control-panel-acceptance-baseline"
         dashboardOnlyAcceptanceBaseline = "ws31-dashboard-control-panel"
@@ -279,6 +282,9 @@ function Save-Manifest([object]$Paths, [string]$PythonExe) {
             dashboardStandaloneWindowTravelReady = [bool]$dashboardStandaloneWindowTravelReady
             dashboardClippingBoundaryReady = [bool]$dashboardClippingBoundaryReady
             dashboardCoreOverlayDecouplingReady = [bool]$dashboardCoreOverlayDecouplingReady
+            dashboardSettingsContentReady = [bool]$dashboardSettingsContentReady
+            dashboardMonitorGroupClarityReady = [bool]$dashboardMonitorGroupClarityReady
+            dashboardOverlayNonGatingCopyReady = [bool]$dashboardOverlayNonGatingCopyReady
             overlayCardsMovableReady = [bool]$overlayCardsMovableReady
             surfaceVirtualDesktopTravelReady = [bool]$surfaceVirtualDesktopTravelReady
             coreIndependentPresetMonitorReady = [bool]$coreIndependentPresetMonitorReady
@@ -378,6 +384,9 @@ try {
         "MONITORING_HUD_DASHBOARD_CONTENT_READY",
         "MONITORING_HUD_DASHBOARD_MOTION_POLISH_READY",
         "MONITORING_HUD_DASHBOARD_SCROLLBAR_STYLE_READY",
+        "MONITORING_HUD_DASHBOARD_SETTINGS_CONTENT_READY",
+        "MONITORING_HUD_DASHBOARD_MONITOR_GROUP_CLARITY_READY",
+        "MONITORING_HUD_DASHBOARD_OVERLAY_NON_GATING_COPY_READY",
         "MONITORING_HUD_EDGELESS_OVERLAY_CANVAS_READY",
         "MONITORING_HUD_MINIMAL_NATIVE_OVERLAY_READY",
         "MONITORING_HUD_STANDALONE_OVERLAY_DISPLAY_WINDOW_READY",
@@ -397,14 +406,6 @@ try {
         "RENDERER_MAIN|STARTUP_READY",
         "DESKTOP_OUTCOME|SETTLED|state=dormant"
     )
-    if ($effectiveRunInteractionSelfQA) {
-        $requiredMarkers += @(
-            "MONITORING_HUD_DASHBOARD_STANDALONE_WINDOW_TRAVEL_READY",
-            "MONITORING_HUD_DASHBOARD_CLIPPING_BOUNDARY_READY",
-            "MONITORING_HUD_DASHBOARD_CORE_OVERLAY_DECOUPLING_READY"
-        )
-    }
-
     foreach ($marker in $requiredMarkers) {
         Wait-Marker $paths $marker
     }
@@ -420,6 +421,9 @@ try {
         if ($script:InteractionManifestStatus -ne "PASS") {
             throw "Interaction self-QA did not pass. Status: $script:InteractionManifestStatus"
         }
+        Wait-Marker $paths "MONITORING_HUD_DASHBOARD_STANDALONE_WINDOW_TRAVEL_READY"
+        Wait-Marker $paths "MONITORING_HUD_DASHBOARD_CLIPPING_BOUNDARY_READY"
+        Wait-Marker $paths "MONITORING_HUD_DASHBOARD_CORE_OVERLAY_DECOUPLING_READY"
         Wait-Marker $paths "MONITORING_HUD_LIVE_CLIENT_SELF_QA_INTERACTION_READY"
         Step $paths "interaction self-QA manifest PASS: $($paths.InteractionManifest)"
     }

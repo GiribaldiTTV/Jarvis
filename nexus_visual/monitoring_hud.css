@@ -30,7 +30,7 @@ body.desktop-mode #monitoring-hud {
   top: 12px;
   right: 12px;
   display: block;
-  width: min(780px, calc(100vw - 24px));
+  width: min(860px, calc(100vw - 24px));
   max-height: calc(100vh - 24px);
   box-sizing: border-box;
   padding: 18px;
@@ -430,7 +430,7 @@ body.desktop-mode #monitoring-hud > * {
   border: 1px solid rgba(118, 226, 255, 0.14);
   background: rgba(4, 16, 28, 0.44);
   color: rgba(170, 211, 224, 0.84);
-  font-size: 13px;
+  font-size: 14px;
 }
 
 .monitoring-hud__grid strong,
@@ -441,7 +441,7 @@ body.desktop-mode #monitoring-hud > * {
 .monitoring-hud__monitor-editor strong {
   min-width: 0;
   color: rgba(148, 242, 214, 0.82);
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 650;
   letter-spacing: 0.07em;
   overflow-wrap: anywhere;
