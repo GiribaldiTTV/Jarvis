@@ -279,6 +279,10 @@ FAM006_WS36_HEADING = (
     "Workstream WS36 Workstream Completion Review And Hardening Handoff Reconciliation"
 )
 FAM006_WS36_NEXT_SEAM = "Hardening H1 - Monitoring HUD Product Surface Hardening Rerun"
+FAM006_H1_HEADING = "Hardening H1 Dashboard-First Product Surface Rerun"
+FAM006_H1_NEXT_SEAM = (
+    "Live Validation LV1 - Monitoring HUD Product Surface Live Validation Rerun"
+)
 FAM006_STAGE2_R6_REQUIRED_MARKERS = (
     "Current-Branch Scope Final:",
     "Future-Package Scope Final:",
@@ -558,6 +562,33 @@ FAM006_WS36_REQUIRED_PHRASES = (
     "Unclaimed",
     "Next Active Seam:",
     FAM006_WS36_NEXT_SEAM,
+)
+FAM006_H1_REQUIRED_PHRASES = (
+    "H1 Admission:",
+    "PASS - USER explicitly admitted Hardening H1",
+    "H1 Result:",
+    "Green - Dashboard-first Monitoring HUD product surface hardening rerun passed",
+    "Dashboard-First Hardening Scope:",
+    "Overlay Classification:",
+    "deferred/non-gating",
+    "Core Classification:",
+    "dependency-only",
+    "UTS Phase Boundary:",
+    "formal User Test Summary export, handoff refresh, and returned-result digestion are Live Validation Stage 1 only",
+    "Static Validation:",
+    "PASS - dev/orin_monitoring_hud_surface_validation.py",
+    "Internal Sandbox Proof:",
+    "Live Helper Proof:",
+    "Screenshot Proof Root:",
+    "USER-Inspectable Screenshot Folder:",
+    "Package Status:",
+    "PKG-006 remains In Progress",
+    "Package Completion:",
+    "Unclaimed",
+    "LV1 / PR Status:",
+    "LV1 remains historical red",
+    "Next Active Seam:",
+    FAM006_H1_NEXT_SEAM,
 )
 FAM006_WORKSTREAM_CONTINUATION_REQUIRED_PHRASES = (
     "multi-slice HUD implementation continuation",
@@ -5554,6 +5585,61 @@ def _validate_fam006_stage2_r6_plan(
                 f"'{PRODUCT_PLANNING_INCOMPLETE_BLOCKER}' under active Blockers"
             ),
         )
+    elif current_phase == "Hardening":
+        h1_section = _section(text, FAM006_H1_HEADING)
+        require(
+            bool(h1_section),
+            f"{source_path}: FAM-006 Hardening state is missing '## {FAM006_H1_HEADING}'",
+        )
+        for phrase in FAM006_H1_REQUIRED_PHRASES:
+            require(
+                phrase in h1_section,
+                f"{source_path}: {FAM006_H1_HEADING} is missing '{phrase}'",
+            )
+        require(
+            "Active seam: `Phase Boundary Stop - Await USER Live Validation Admission`"
+            in text,
+            (
+                f"{source_path}: H1 completion must stop at the phase boundary and await "
+                "explicit USER Live Validation admission"
+            ),
+        )
+        require(
+            f"Next Active Seam: {FAM006_H1_NEXT_SEAM}" in text,
+            f"{source_path}: H1 completion must set Seam Continuation Decision next active seam to Live Validation LV1",
+        )
+        require(
+            "Remaining Implementable Work: `None - Dashboard-focused Workstream repair and Hardening H1 are green"
+            in text,
+            (
+                f"{source_path}: H1 completion must close current Workstream and Hardening "
+                "implementation/proof work before Live Validation handoff"
+            ),
+        )
+        require(
+            "Continuation Execution Latch: Inactive - Hardening H1 is Green; phase-boundary stop is required before USER may admit Live Validation LV1."
+            in text,
+            f"{source_path}: H1 completion must keep the Live Validation phase-boundary latch inactive",
+        )
+        require(
+            "Formal User Test Summary export is exclusive to Live Validation Stage 1"
+            in text,
+            f"{source_path}: H1 completion must preserve the Live Validation Stage 1 UTS boundary",
+        )
+        require(
+            _parse_uts_result_state(text) == "",
+            (
+                f"{source_path}: Hardening may keep User Test Summary strategy current, "
+                f"but must not declare '{UTS_RESULT_LABEL}' before Live Validation"
+            ),
+        )
+        require(
+            UTS_RESULTS_BLOCKER not in blockers,
+            (
+                f"{source_path}: {UTS_RESULTS_BLOCKER} is a Live Validation / PR Readiness "
+                "final-green blocker, not a Hardening stop condition"
+            ),
+        )
 
 
 def _validate_user_vision_input_handoff(
@@ -5781,18 +5867,26 @@ def _validate_backlog_completion_status(
     )
 
     if normalized_state == BACKLOG_COMPLETION_IN_PROGRESS:
+        in_progress_phase_allows_latch = current_phase in {
+            "Branch Readiness",
+            "Workstream",
+            "Hardening",
+            "Live Validation",
+            "PR Readiness",
+        }
         require(
-            current_phase == "Workstream",
+            in_progress_phase_allows_latch,
             (
-                f"{source_path}: {BACKLOG_COMPLETION_STATE_LABEL} In Progress must keep the branch in "
-                "`Workstream`"
+                f"{source_path}: {BACKLOG_COMPLETION_STATE_LABEL} In Progress must keep the branch "
+                "inside an admitted pre-completion phase"
             ),
         )
         require(
-            next_legal_phase == "Workstream",
+            next_legal_phase == current_phase,
             (
                 f"{source_path}: {BACKLOG_COMPLETION_STATE_LABEL} In Progress must keep "
-                "Next Legal Phase at `Workstream`"
+                "Next Legal Phase at the current phase until explicit phase admission "
+                "or package completion proof clears the latch"
             ),
         )
         require(
