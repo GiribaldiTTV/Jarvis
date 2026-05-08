@@ -24,7 +24,7 @@ This branch may execute the admitted PKG-006 implementation slices during Workst
 
 ## Status
 
-- `Branch Readiness Stage 2-R12 - Interface Release Boundary Governance And Dashboard-First Source-Truth Repair`
+- `Workstream WS31 - Dashboard Control Panel Acceptance Baseline And Overlay Deferral Enforcement`
 
 ## Canonical Branch
 
@@ -32,13 +32,13 @@ This branch may execute the admitted PKG-006 implementation slices during Workst
 
 ## Current Phase
 
-- Phase: `Branch Readiness`
+- Phase: `Workstream`
 
 ## Phase Status
 
-- Branch Readiness Stage: `Stage 2-R12 Active - Interface Release Boundary governance and Dashboard-first source-truth repair records one primary current-branch user-facing interface release surface before any Workstream or Hardening continuation`
-- Workstream Stage: `Paused / Rebaselined - WS18-WS30 evidence remains preserved as historical/supporting implementation proof, but it no longer authorizes Hardening while Dashboard-first interface acceptance is being rebaselined`
-- Hardening Stage: `Blocked - USER paused the Hardening rerun and returned the branch to Branch Readiness because the branch bundled Dashboard, Overlay/display, and Core repair into one release path without a clean fallback point`
+- Branch Readiness Stage: `Complete - Stage 1-R10 revalidated the Dashboard-first interface boundary and Stage 2-R13 recorded the PASS plus Workstream handoff`
+- Workstream Stage: `Active - WS31 Dashboard Control Panel Acceptance Baseline And Overlay Deferral Enforcement is the next bounded Dashboard-focused repair seam`
+- Hardening Stage: `Blocked - Dashboard-focused Workstream repair, Hardening rerun, Live Validation rerun, and returned UTS acceptance must pass before Hardening can be green`
 - Live Validation Stage: `Red - LV1 returned User Test Summary evidence contains blocking findings; LV1 is not green and must route back before PR Readiness`
 - Active Branch: `feature/fam-006-monitoring-hud-product-surface`
 - Branch Authority Mode: `Active Branch`
@@ -52,7 +52,7 @@ This branch may execute the admitted PKG-006 implementation slices during Workst
 - Admitted Slice Count: `6`
 - Package Completion State: `In Progress - returned User Test Summary evidence blocks Live Validation green; product proof, User Test Summary acceptance, PR Readiness, and final package completion remain unclaimed`
 - Single-Slice Package User Approval: `Not required - PKG-006 has six concrete admitted slices; no waiver granted`
-- Runtime Implementation State: `Dashboard-first rebaseline active. WS18-WS30 implementation evidence remains preserved as branch history and supporting repair proof, but current release acceptance is narrowed to the Monitoring HUD Dashboard/control panel as the primary user-facing interface. The existing Overlay/display implementation is classified as deferred/dormant/non-gating for Dashboard acceptance until a future USER-approved interface release branch/package or later re-admission. ORIN/Core repair is classified as dependency repair only; it is not a released FAM-006 interface. The desktop User Test Summary handoff copy remains draft handoff only, not returned USER acceptance. Future provider-platform parity, external/plugin telemetry, audio/spoken alerts, persona switching, Stream Deck, graphs/history/persistence dashboards, local AI/capability packs, installer work, ultra-low polling, and Overlay/display release acceptance remain deferred.`
+- Runtime Implementation State: `Dashboard-first Workstream handoff active. Stage 1-R10 revalidated the Dashboard/control panel as the primary current-branch interface release surface and Stage 2-R13 recorded the PASS. WS18-WS30 implementation evidence remains preserved as branch history and supporting repair proof, but current release acceptance is narrowed to the Monitoring HUD Dashboard/control panel. The existing Overlay/display implementation is classified as deferred/dormant/non-gating for Dashboard acceptance until a future USER-approved interface release branch/package or later re-admission. ORIN/Core repair is classified as dependency repair only; it is not a released FAM-006 interface. The desktop User Test Summary handoff copy remains draft handoff only, not returned USER acceptance. Future provider-platform parity, external/plugin telemetry, audio/spoken alerts, persona switching, Stream Deck, graphs/history/persistence dashboards, local AI/capability packs, installer work, ultra-low polling, and Overlay/display release acceptance remain deferred.`
 - PR Creation State: `Not approved in Branch Readiness`
 - Watcher Provisioning State: `Not approved in Branch Readiness`
 - Release Work State: `Not approved; v1.6.13-prebeta release execution is already complete and no new release work is in scope`
@@ -66,12 +66,8 @@ This branch may execute the admitted PKG-006 implementation slices during Workst
 ## Blockers
 
 - `Backlog Completion Unproven`
-- `Dashboard Acceptance Pending`
-- `Overlay Scope Deferred`
-- `Core Repair Dependency Only`
-- `Branch Readiness Interface Planning Incomplete`
 
-Package completion is not currently claimed. The Workstream and Hardening evidence remain preserved as prior implementation and pressure-test proof, but returned User Test Summary evidence and later USER review exposed multi-interface branch sprawl and weak fallback points. Hardening is paused while this Branch Readiness pass rebaselines the branch around Dashboard-first acceptance. Final phase advancement beyond Branch Readiness, Workstream repair, Hardening, PR Readiness, and package completion remains blocked until Dashboard acceptance is planned, validated, hardened, live-tested, and accepted under the current primary-interface boundary.
+Package completion is not currently claimed. Stage 2-R13 clears the Branch Readiness planning latches and hands the branch back to bounded Dashboard-focused Workstream repair. Dashboard Acceptance Pending remains the active product acceptance gap for WS31 and later Dashboard seams, not a Branch Readiness stop blocker. The Workstream and Hardening evidence remain preserved as prior implementation and pressure-test proof, but returned User Test Summary evidence and later USER review exposed multi-interface branch sprawl and weak fallback points. Final phase advancement beyond Workstream repair, Hardening, PR Readiness, and package completion remains blocked until Dashboard acceptance is implemented, validated, hardened, live-tested, and accepted under the current primary-interface boundary.
 
 ## Returned LV1 Repair Findings
 
@@ -154,23 +150,23 @@ The operator-supplied Stage 2 terminal evidence was not sufficient by itself bec
 
 ## Rollback Target
 
-- `Branch Readiness`
+- `Workstream`
 
-Rollback Path: revert the Stage 2-R12 source-truth/governance repair commit on `feature/fam-006-monitoring-hud-product-surface` before PR merge, then restore the prior WS30-to-Hardening handoff truth only if USER re-approves the multi-interface release path. No tags, releases, artifacts, PR, watcher, runtime implementation, or `main` mutation are created by this Branch Readiness repair pass.
+Rollback Path: revert the Stage 2-R13 source-truth closeout commit on `feature/fam-006-monitoring-hud-product-surface` before PR merge to return to the Stage 2-R12 / Stage 1-R10 revalidation latch. Revert the Stage 2-R12 repair only if USER rejects the Dashboard-first rebaseline and explicitly re-approves the multi-interface release path. No tags, releases, artifacts, PR, watcher, runtime implementation, or `main` mutation are created by this Branch Readiness closeout pass.
 
 ## Next Legal Phase
 
-- `Branch Readiness`
+- `Workstream`
 
-Next Legal Seam: `Branch Readiness Stage 1-R10 - Dashboard-First Interface Boundary Revalidation`
+Next Legal Seam: `Workstream WS31 - Dashboard Control Panel Acceptance Baseline And Overlay Deferral Enforcement`
 
-Next Legal Phase Gate: Stage 1-R10 must revalidate that the current branch has one primary user-facing interface release surface, that the Dashboard/control panel can be accepted without Overlay/display acceptance in the same branch, that existing Overlay/display implementation is deferred/dormant/non-gating or otherwise legally classified, that ORIN/Core repair remains dependency-only, and that Dashboard acceptance criteria/proof paths are sufficient before Workstream resumes. Live Validation remains red and PR Readiness must not begin until Dashboard-focused Workstream repair, Hardening rerun, active-client Live Validation rerun, and returned User Test Summary acceptance pass. Repair must preserve provider-contract-first truth, no fake metrics, visual/non-invasive warnings, ORIN/ARIA planning boundaries, future-package deferrals, user-facing shortcut/equivalent entrypoint proof, full virtual-desktop screenshot handoff, and formal User Test Summary returned-results digestion. It must not create a PR, watcher, release, tag, artifact, direct-main mutation, voice/audio implementation, Stream Deck/plugin telemetry implementation, local AI, installer/capability-pack work, broad hardware provider implementation, persona switching implementation, ARIA activation, Overlay/display release acceptance, or a new FAM/package without later explicit USER approval.
+Next Legal Phase Gate: Stage 2-R13 records that Stage 1-R10 revalidated one primary user-facing interface release surface, Dashboard/control panel acceptance without Overlay/display acceptance in the same branch, Overlay/display deferred/dormant/non-gating classification, ORIN/Core dependency-only classification, and sufficient Dashboard acceptance criteria/proof paths. Live Validation remains red and PR Readiness must not begin until Dashboard-focused Workstream repair, Hardening rerun, active-client Live Validation rerun, and returned User Test Summary acceptance pass. Repair must preserve provider-contract-first truth, no fake metrics, visual/non-invasive warnings, ORIN/ARIA planning boundaries, future-package deferrals, user-facing shortcut/equivalent entrypoint proof, full virtual-desktop screenshot handoff, and formal User Test Summary returned-results digestion. It must not create a PR, watcher, release, tag, artifact, direct-main mutation, voice/audio implementation, Stream Deck/plugin telemetry implementation, local AI, installer/capability-pack work, broad hardware provider implementation, persona switching implementation, ARIA activation, Overlay/display release acceptance, or a new FAM/package without later explicit USER approval.
 
 ## Active Seam
 
-Active seam: `Branch Readiness Stage 2-R12 - Interface Release Boundary Governance And Dashboard-First Source-Truth Repair`
+Active seam: `Workstream WS31 - Dashboard Control Panel Acceptance Baseline And Overlay Deferral Enforcement`
 
-Active Seam Status: `Recording Dashboard-first interface release boundary governance and source-truth repair; next legal seam is Stage 1-R10 revalidation`
+Active Seam Status: `Ready to execute bounded Dashboard-focused Workstream repair after Stage 2-R13 records the Stage 1-R10 PASS`
 
 ## Branch Objective
 
@@ -198,15 +194,15 @@ Interface Bundle User Approval: `Not granted - USER explicitly paused the multi-
 
 Fallback Point: `A polished, accepted Dashboard/control panel release must become the fallback point before Overlay/display release acceptance resumes`
 
-Dashboard Acceptance Pending: `Active - Dashboard visual polish, standalone window behavior, settings/control content, provider/setup truth, no clipping, no fake telemetry, dashboard-specific full-desktop proof, and dashboard-specific USER acceptance must be proven before Hardening/Live Validation can become green`
+Dashboard Acceptance Pending: `Active Workstream acceptance gap - Dashboard visual polish, standalone window behavior, settings/control content, provider/setup truth, no clipping, no fake telemetry, dashboard-specific full-desktop proof, and dashboard-specific USER acceptance must be proven before Hardening/Live Validation can become green`
 
-Overlay Scope Deferred: `Active - existing Overlay/display implementation is preserved as deferred/dormant/non-gating evidence and must not block or satisfy Dashboard acceptance`
+Overlay Scope Deferred: `Reclassified as non-gating scope boundary - existing Overlay/display implementation is preserved as deferred/dormant/non-gating evidence and must not block or satisfy Dashboard acceptance`
 
-Core Repair Dependency Only: `Active - ORIN/Core repairs protect the desktop experience but are dependency proof, not a released FAM-006 interface`
+Core Repair Dependency Only: `Reclassified as dependency boundary - ORIN/Core repairs protect the desktop experience but are dependency proof, not a released FAM-006 interface`
 
-Interface Acceptance Missing: `Active until Stage 1-R10 revalidates Dashboard-first acceptance criteria and proof path`
+Interface Acceptance Missing: `Cleared by Stage 2-R13 after Stage 1-R10 revalidated Dashboard-first acceptance criteria and proof path`
 
-Branch Readiness Interface Planning Incomplete: `Active until Stage 1-R10 revalidates this Stage 2-R12 source-truth repair`
+Branch Readiness Interface Planning Incomplete: `Cleared by Stage 2-R13 after Stage 1-R10 revalidated this Stage 2-R12 source-truth repair`
 
 ## Product Definition Plan
 
@@ -220,9 +216,9 @@ USER Vision Questions: refreshed `C:\Users\anden\OneDrive\Desktop\User Vision In
 
 Codex Product Interpretation: the package should feel like a standalone Nexus Desktop AI monitoring product surface rather than a debug marker: a polished futuristic hardware-monitoring dashboard plus HUD display system. The dashboard is a control panel. The HUD display is an edgeless placement canvas. Monitors are organizational group/title cards that contain underlying sensors. Unanchored mode is the edit mode; anchored mode is a desktop-integrated, uninteractable, click-through display mode. Product identity is Nexus/NDAI/Monitoring HUD; persona identity remains separate, with ORIN as the shipped/default persona and ARIA as beta-facing locked/coming soon planning copy only until a later persona/FAM-004 or cross-family package admits implementation.
 
-Codex Implementation Recommendation: Stage 2-R12 pauses the prior WS30-to-Hardening handoff and records Dashboard-first as the active current-branch release boundary. WS18 through WS30 remain preserved as supporting evidence and repair history, but Workstream/Hardening must not resume until Stage 1-R10 revalidates that Dashboard acceptance can proceed without Overlay/display acceptance. Full provider-platform parity, broad plugin/external telemetry ecosystem, audio/spoken alerts, persona switching implementation, Stream Deck, advanced graphs/history/persistence, local AI, installer, capability-pack work, ultra-low polling, and Overlay/display release acceptance remain future packages or future USER-approved interface releases unless later admitted.
+Codex Implementation Recommendation: Stage 2-R12 pauses the prior WS30-to-Hardening handoff and records Dashboard-first as the active current-branch release boundary. Stage 1-R10 revalidated that Dashboard acceptance can proceed without Overlay/display acceptance, and Stage 2-R13 hands the branch to WS31. WS18 through WS30 remain preserved as supporting evidence and repair history. Full provider-platform parity, broad plugin/external telemetry ecosystem, audio/spoken alerts, persona switching implementation, Stream Deck, advanced graphs/history/persistence, local AI, installer, capability-pack work, ultra-low polling, and Overlay/display release acceptance remain future packages or future USER-approved interface releases unless later admitted.
 
-USER/ChatGPT Review Checkpoint: refreshed USER input is digested, but USER later rejected the multi-interface Hardening path and requested a Dashboard-first interface release boundary. Stage 2-R12 records that decision as source truth. Stage 1-R10 must revalidate this rebaseline before Workstream implementation or Hardening rerun resumes.
+USER/ChatGPT Review Checkpoint: refreshed USER input is digested, but USER later rejected the multi-interface Hardening path and requested a Dashboard-first interface release boundary. Stage 2-R12 records that decision as source truth. Stage 1-R10 revalidated this rebaseline, and Stage 2-R13 records the PASS before Workstream implementation resumes.
 
 Full Feature Element Breakdown: Nexus/NDAI futuristic visual HUD identity; standalone HUD shell/module; movable and anchorable overlay layout; click-through and non-focus-stealing anchored behavior; toggle on/off controls; configurable sensor-card model; telemetry provider and adapter boundary; CPU/GPU thermal and load defaults when technically viable; per-card polling and performance constraints; warning thresholds and non-invasive visual warning behavior; setup/reconnect/no-data/degraded behavior; privacy/security boundaries for local, plugin, and external telemetry; accessibility/readability; screenshot and User Test Summary validation; release-bearing posture later; and future boundaries for full sensor-platform coverage, audio/spoken alerts, Stream Deck, plugin ecosystem, advanced graphs/history/persistence, local AI, installer, and capability packs.
 
@@ -244,17 +240,19 @@ Validation Proof Requirements: static validators and runtime markers are support
 
 Screenshot / Live / User Test Summary Proof Requirements: screenshots must clearly show the HUD panel/card without relying on DOM markers; full-desktop proof comes first to validate positioning, then refined/cropped screenshots may support visual detail. Live proof must use the normal desktop path or a documented equivalent. User Test Summary remains a blocker before PR Readiness and must confirm visibility, readability, usefulness, no focus steal/click-through expectations, warning behavior where applicable, no misleading telemetry, and any manual-only polling or settings proof.
 
-Implementation Sequence Proposal: Stage 2-R8 reopened Branch Readiness for retired-name sterilization and refreshed USER input. Stage 2-R9 digested the completed refreshed artifact, recorded the sterilization closeout, and rebaselined the FAM-006 scope. Stage 1-R6 validated that rebaseline. Stage 2-R10 records the PASS and hands the branch back to Workstream WS7.
+Implementation Sequence Proposal: Stage 2-R8 reopened Branch Readiness for retired-name sterilization and refreshed USER input. Stage 2-R9 digested the completed refreshed artifact, recorded the sterilization closeout, and rebaselined the FAM-006 scope. Stage 1-R6 validated that rebaseline. Stage 2-R10 recorded the PASS and handed the branch back to Workstream WS7. Stage 2-R12 later rebaselined the current release boundary to Dashboard-first after USER paused the multi-interface Hardening path. Stage 1-R10 revalidated the Dashboard-first boundary, and Stage 2-R13 hands the branch back to bounded Workstream repair at WS31.
 
-Planning Blockers: Stage 2-R12 reopens Branch Readiness Interface Planning Incomplete until Stage 1-R10 revalidates the Dashboard-first interface release boundary, Dashboard acceptance criteria, Overlay/display deferral, and Core dependency-only classification.
+Planning Blockers: None active after Stage 2-R13 Dashboard-first revalidation closeout. Dashboard Acceptance Pending remains a Workstream acceptance gap, not a Branch Readiness planning blocker.
 
-USER Decisions Needed: none before WS7. Later USER decisions are needed only if Workstream recommends widening current scope, admitting a provider/platform implementation beyond the current branch, activating persona switching/ARIA implementation, adding audio/spoken warnings, allowing external/plugin telemetry implementation, or granting any explicit waiver.
+USER Decisions Needed: none before WS31. Later USER decisions are needed only if Workstream recommends widening current scope, admitting Overlay/display acceptance, admitting a provider/platform implementation beyond the current branch, activating persona switching/ARIA implementation, adding audio/spoken warnings, allowing external/plugin telemetry implementation, or granting any explicit waiver.
 
 Planning Packet Status: Complete
 
 Planning Revalidation Status: PASS
 
-Planning Revalidation Detail: `Stage 1-R6 remains the historical product-planning pass; Stage 2-R11 opens a repair revalidation latch, not a new missing-planning state`
+Dashboard-First Revalidation Status: PASS - Stage 1-R10 found the Stage 2-R12 interface release boundary sufficient for bounded Dashboard-focused Workstream repair
+
+Planning Revalidation Detail: `Stage 1-R6 remains the historical product-planning pass; Stage 1-R10 is the current Dashboard-first interface boundary PASS recorded by Stage 2-R13`
 
 Repair Revalidation Status: PASS - Stage 1-R8 revalidated the Stage 2-R11 dashboard/minimal-HUD source-truth repair and authorized bounded Workstream repair
 
@@ -435,16 +433,16 @@ Question Packet Rule: each question must explain what the decision affects, Code
 
 ## Backlog Completion Strategy
 
-Branch Completion Goal: complete a visible, readable, accepted Dashboard-first Monitoring HUD control panel on the current branch after Branch Readiness Stage 1-R10 revalidates the Stage 2-R12 Interface Release Boundary, Dashboard acceptance criteria, Overlay/display deferral, Core dependency-only classification, provider path, privacy posture, persona boundary, and proof standards.
+Branch Completion Goal: complete a visible, readable, accepted Dashboard-first Monitoring HUD control panel on the current branch after Stage 1-R10 revalidated the Stage 2-R12 Interface Release Boundary, Dashboard acceptance criteria, Overlay/display deferral, Core dependency-only classification, provider path, privacy posture, persona boundary, and proof standards.
 
 Known Future-Dependent Blockers: full HWInfo/HWMonitor-level sensor coverage, broad plugin/external telemetry ecosystem, audio/spoken alerts or FAM-004 integration, Stream Deck integration, graphs/history/persistence/dashboards, local AI/capability-pack monitoring, installer/capability-pack work, and ultra-low polling intervals remain deferred unless USER later widens scope and validation proves safety.
 
-Branch Closure Rule: this branch is back in Branch Readiness for Dashboard-first interface boundary revalidation. It may leave Branch Readiness only after Stage 1-R10 confirms the Dashboard/control panel is the primary current-branch interface release surface, Overlay/display acceptance is deferred/non-gating, Core repair is dependency-only, and Dashboard-specific proof/acceptance criteria are sufficient. It may later leave Workstream only after the Dashboard-focused current-branch repair scope is complete or legally deferred, revised slice truth is current, internal sandbox proof is green, screenshot/entrypoint-supporting validation is green, and Workstream Completion Status is Green; marker-only, scaffold-only, or UTS-waiting proof cannot close PKG-006. After repaired Hardening H1, the branch may enter Live Validation only with package completion still unclaimed and formal User Test Summary returned-results digestion reserved for the Live Validation gate.
+Branch Closure Rule: Stage 2-R13 hands this branch back to bounded Dashboard-focused Workstream repair after Stage 1-R10 confirmed the Dashboard/control panel is the primary current-branch interface release surface, Overlay/display acceptance is deferred/non-gating, Core repair is dependency-only, and Dashboard-specific proof/acceptance criteria are sufficient. It may leave Workstream only after the Dashboard-focused current-branch repair scope is complete or legally deferred, revised slice truth is current, internal sandbox proof is green, screenshot/entrypoint-supporting validation is green, and Workstream Completion Status is Green; marker-only, scaffold-only, or UTS-waiting proof cannot close PKG-006. After repaired Hardening H1, the branch may enter Live Validation only with package completion still unclaimed and formal User Test Summary returned-results digestion reserved for the Live Validation gate.
 
 ## Backlog Completion Status
 
 Backlog Completion State: `In Progress`
-Remaining Implementable Work: `Dashboard-first Branch Readiness revalidation, Dashboard-focused Workstream repair if Stage 1-R10 admits it, Dashboard hardening rerun, active-client Live Validation rerun, and returned UTS acceptance remain before package completion can be claimed`
+Remaining Implementable Work: `Dashboard-focused Workstream repair includes WS31 Dashboard-only acceptance baseline and Overlay non-gating enforcement, WS32 Dashboard standalone window movement/clipping/Core-Overlay decoupling proof, WS33 Dashboard settings/control content polish and monitor-management clarity, WS34 Dashboard provider/setup/no-data/degraded truth plus warning posture controls, and WS35 Dashboard-specific static/live proof, screenshots, and UTS handoff refresh before Dashboard hardening rerun, active-client Live Validation rerun, and returned UTS acceptance can support package completion`
 Future-Dependent Blockers: `full HWInfo/HWMonitor-level parity, broad plugin/external telemetry ecosystem, audio/spoken alerts or FAM-004 integration, persona switching implementation and ARIA activation, Stream Deck, graphs/history/persistence/dashboards, local AI/capability-pack monitoring, installer/capability-pack work, and ultra-low polling intervals remain deferred pending later approval, admission, and proof`
 Completion Status: `In Progress`
 
@@ -474,7 +472,7 @@ Bounded Seam Default: `One active seam at a time; not one-seam Workstream author
 - If only one seam or one slice is planned or visible, stop immediately on `Single-Seam Or Single-Slice Workstream Blocker` until Branch Readiness expands the plan or USER grants a waiver.
 - Only USER can grant a single-seam or single-slice Workstream waiver; Codex, ChatGPT, validators, prompt wording, clean validation, or a green seam cannot infer it.
 - A Workstream with `Completion Status: In Progress` and no waiver must show remaining same-branch implementable work beyond the current seam.
-- PKG-006 has a recorded bounded multi-seam Workstream chain from WS18 through WS30, so the single-seam blocker is not active. Stage 2-R12 pauses the prior WS30-to-Hardening handoff and keeps the branch in Branch Readiness until Dashboard-first interface boundary revalidation clears Dashboard Acceptance Pending, Overlay Scope Deferred, Core Repair Dependency Only, and Branch Readiness Interface Planning Incomplete.
+- PKG-006 has a recorded bounded multi-seam Workstream chain from WS18 through WS30, so the single-seam blocker is not active. Stage 2-R13 records the Stage 1-R10 PASS and resumes bounded Dashboard-focused Workstream at WS31; Workstream cannot stop after WS31 unless completion is green, a named blocker is active, or USER grants an explicit waiver.
 
 ## Admitted Implementation Slice
 
@@ -482,12 +480,12 @@ Primary Entry Slice: `SLC-016 HUD visual and user-facing monitoring surface`
 
 | Slice ID | Package ID | FAM ID | Slice Name | Admission State | Slice Status | Completion State | Seam Trace |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| `SLC-016` | `PKG-006` | `FAM-006` | HUD visual and user-facing monitoring surface | Admitted | Reopened / Dashboard Acceptance Pending | Dashboard/control panel is the active visual release surface; Overlay/display visual acceptance is deferred/non-gating; final package completion still requires Dashboard-focused Workstream repair, Hardening, Live Validation rerun, and UTS acceptance | `BR-S2-S1`; `WS1`; `WS7`; `WS9`; `WS17`; `LV1-R1`; `WS19`; `WS22`; `WS23`; `WS24`; `WS25`; `WS26`; `WS27`; `WS28`; `WS29`; `WS30`; `BR-S2-R12`; `dev/orin_monitoring_hud_surface_validation.py`; `dev/orin_monitoring_hud_live_validation.ps1` |
+| `SLC-016` | `PKG-006` | `FAM-006` | HUD visual and user-facing monitoring surface | Admitted | Workstream Active / Dashboard Acceptance Pending | Dashboard/control panel is the active visual release surface; Overlay/display visual acceptance is deferred/non-gating; final package completion still requires Dashboard-focused Workstream repair, Hardening, Live Validation rerun, and UTS acceptance | `BR-S2-S1`; `WS1`; `WS7`; `WS9`; `WS17`; `LV1-R1`; `WS19`; `WS22`; `WS23`; `WS24`; `WS25`; `WS26`; `WS27`; `WS28`; `WS29`; `WS30`; `BR-S2-R12`; `BR-S2-R13`; `WS31`; `dev/orin_monitoring_hud_surface_validation.py`; `dev/orin_monitoring_hud_live_validation.ps1` |
 | `SLC-025` | `PKG-006` | `FAM-006` | Runtime telemetry source and adapter boundary | Admitted | Green | Complete for Workstream - provider-contract boundary plus bounded native CPU-load proof; GPU/thermal provider parity deferred | `BR-S2-S2`; `WS2`; `WS14`; `WS15`; `desktop/monitoring_hud_telemetry.py`; `dev/orin_monitoring_hud_internal_sandbox_validation.py` |
-| `SLC-026` | `PKG-006` | `FAM-006` | Desktop placement and renderer ownership | Admitted | Reopened / Dashboard Window Acceptance Pending | Core placement repair remains dependency-only, Overlay/display placement acceptance is deferred/non-gating, and Dashboard standalone window behavior must revalidate under the Dashboard-first boundary. | `BR-S2-S3`; `WS3`; `WS10`; `WS12`; `LV1-R1`; `WS18`; `WS19`; `WS21`; `WS22`; `WS23`; `WS25`; `WS26`; `WS28`; `WS29`; `WS30`; `BR-S2-R12`; `desktop/monitoring_hud_placement.py`; `desktop/desktop_renderer.py`; `desktop/core_visualization_renderer.py`; `dev/orin_monitoring_hud_internal_sandbox_validation.py` |
-| `SLC-027` | `PKG-006` | `FAM-006` | Settings and user controls visibility | Admitted | Reopened / Dashboard Controls Acceptance Pending | Dashboard settings/control content is the primary acceptance lane; Overlay/display controls remain future/non-gating unless re-admitted. | `BR-S2-S4`; `WS4`; `WS11`; `WS13`; `LV1-R1`; `WS19`; `WS20`; `WS21`; `WS23`; `WS24`; `WS28`; `WS29`; `BR-S2-R12`; `desktop/monitoring_hud_controls.py`; `desktop/orin_desktop_main.py`; `nexus_visual/monitoring_hud.js` |
-| `SLC-028` | `PKG-006` | `FAM-006` | Fail-safe, no-data, and degraded-status behavior | Admitted | Reopened / Dashboard Truthfulness Acceptance Pending | Dashboard provider/setup/no-data/degraded truth must revalidate under the Dashboard-first boundary; fake telemetry remains blocked. | `BR-S2-S5`; `WS5`; `WS16`; `LV1-R1`; `WS20`; `WS28`; `WS29`; `BR-S2-R12`; `desktop/monitoring_hud_status.py`; `dev/orin_monitoring_hud_surface_validation.py` |
-| `SLC-029` | `PKG-006` | `FAM-006` | Validation and live desktop proof | Admitted | Reopened / Dashboard Proof Pending | Dashboard-specific proof must separate current-interface acceptance from deferred Overlay/display evidence; Hardening, Live Validation rerun, and UTS acceptance remain pending. | `BR-S2-S6`; `WS6`; `WS8`; `WS17`; `H1`; `LV1-R1`; `WS18`; `WS19`; `WS20`; `WS21`; `WS22`; `WS23`; `WS24`; `WS25`; `WS26`; `WS27`; `WS28`; `WS29`; `WS30`; `BR-S2-R12`; `dev/orin_monitoring_hud_internal_sandbox_validation.py`; `dev/orin_monitoring_hud_live_validation.ps1` |
+| `SLC-026` | `PKG-006` | `FAM-006` | Desktop placement and renderer ownership | Admitted | Workstream Active / Dashboard Window Acceptance Pending | Core placement repair remains dependency-only, Overlay/display placement acceptance is deferred/non-gating, and Dashboard standalone window behavior must be proven under the Dashboard-first boundary. | `BR-S2-S3`; `WS3`; `WS10`; `WS12`; `LV1-R1`; `WS18`; `WS19`; `WS21`; `WS22`; `WS23`; `WS25`; `WS26`; `WS28`; `WS29`; `WS30`; `BR-S2-R12`; `BR-S2-R13`; `WS31`; `desktop/monitoring_hud_placement.py`; `desktop/desktop_renderer.py`; `desktop/core_visualization_renderer.py`; `dev/orin_monitoring_hud_internal_sandbox_validation.py` |
+| `SLC-027` | `PKG-006` | `FAM-006` | Settings and user controls visibility | Admitted | Workstream Active / Dashboard Controls Acceptance Pending | Dashboard settings/control content is the primary acceptance lane; Overlay/display controls remain future/non-gating unless re-admitted. | `BR-S2-S4`; `WS4`; `WS11`; `WS13`; `LV1-R1`; `WS19`; `WS20`; `WS21`; `WS23`; `WS24`; `WS28`; `WS29`; `BR-S2-R12`; `BR-S2-R13`; `WS31`; `desktop/monitoring_hud_controls.py`; `desktop/orin_desktop_main.py`; `nexus_visual/monitoring_hud.js` |
+| `SLC-028` | `PKG-006` | `FAM-006` | Fail-safe, no-data, and degraded-status behavior | Admitted | Workstream Active / Dashboard Truthfulness Acceptance Pending | Dashboard provider/setup/no-data/degraded truth must be proven under the Dashboard-first boundary; fake telemetry remains blocked. | `BR-S2-S5`; `WS5`; `WS16`; `LV1-R1`; `WS20`; `WS28`; `WS29`; `BR-S2-R12`; `BR-S2-R13`; `WS31`; `desktop/monitoring_hud_status.py`; `dev/orin_monitoring_hud_surface_validation.py` |
+| `SLC-029` | `PKG-006` | `FAM-006` | Validation and live desktop proof | Admitted | Workstream Active / Dashboard Proof Pending | Dashboard-specific proof must separate current-interface acceptance from deferred Overlay/display evidence; Hardening, Live Validation rerun, and UTS acceptance remain pending. | `BR-S2-S6`; `WS6`; `WS8`; `WS17`; `H1`; `LV1-R1`; `WS18`; `WS19`; `WS20`; `WS21`; `WS22`; `WS23`; `WS24`; `WS25`; `WS26`; `WS27`; `WS28`; `WS29`; `WS30`; `BR-S2-R12`; `BR-S2-R13`; `WS31`; `dev/orin_monitoring_hud_internal_sandbox_validation.py`; `dev/orin_monitoring_hud_live_validation.ps1` |
 
 ## Deferred / Future Slice Ledger
 
@@ -644,26 +642,26 @@ Status: `Green - refreshed validators, internal sandbox manifest, and full-deskt
 
 Historical seam: `Workstream WS30 - ORIN Core Preset Monitor And HUD Surface Isolation Repair`
 
-Seam Status: `Historical / supporting - Workstream repair chain reconciled Core preset-monitor/HUD surface isolation repair evidence before USER paused the Hardening path`
-Slice Status: `Historical supporting evidence only; current slice acceptance is reopened under Dashboard-first Stage 2-R12`
+Historical Seam Status: `Supporting - Workstream repair chain reconciled Core preset-monitor/HUD surface isolation repair evidence before USER paused the Hardening path`
+Historical Slice Status: `Supporting evidence only; current slice acceptance is active under Dashboard-first Stage 2-R13`
 Slice Detail: `SLC-016, SLC-026, SLC-027, SLC-028, and SLC-029 now have WS30 Workstream evidence across dashboard/minimal-HUD split, dashboard controls, independent overlay/display ownership, Core desktop-layer/non-interference repair, fixed/non-movable preset-monitor Core behavior, Core/HUD surface isolation, truthful setup/no-data/degraded behavior, before/after full-desktop screenshot proof, static validation, internal sandbox validation, active-client live proof, and retired-name scan cleanliness. SLC-025 provider-contract telemetry remains green and preserved unless later repair changes provider interaction.`
-Completion Status: `Superseded by Stage 2-R12 Dashboard-first rebaseline`
-Completion Detail: `LV1 remains red as historical returned-UTS evidence. WS30 does not claim package completion, PR readiness, release work, final backlog completion, or current Hardening readiness after Stage 2-R12; Dashboard-first Stage 1-R10 revalidation is now required.`
-Waiver Status: `None`
-Continue Decision: `Stop`
-Stop Basis: `Stage 2-R12 Dashboard-first Branch Readiness rebaseline supersedes the prior Workstream-to-Hardening handoff`
+Historical Completion Status: `Superseded by Stage 2-R13 Dashboard-first Workstream handoff`
+Completion Detail: `LV1 remains red as historical returned-UTS evidence. WS30 does not claim package completion, PR readiness, release work, final backlog completion, or current Hardening readiness after Stage 2-R13; Dashboard-focused WS31 repair is now required.`
+Historical Waiver Status: `None`
+Historical Continue Decision: `Stop`
+Historical Stop Basis: `Stage 2-R13 Dashboard-first Workstream handoff supersedes the prior Workstream-to-Hardening handoff`
 
 ## Seam Continuation Decision
 
-Seam Status: Historical supporting evidence only
-Slice Status: Reopened under Dashboard-first acceptance
-Completion Status: Superseded by Stage 2-R12
+Seam Status: In Progress
+Slice Status: In Progress
+Completion Status: In Progress
 Waiver Status: None
-Continue Decision: Stop
-Stop Basis: Stage 2-R12 Dashboard-first Branch Readiness rebaseline
-Next Active Seam: Branch Readiness Stage 1-R10 - Dashboard-First Interface Boundary Revalidation
-Stop Condition: Hardening is blocked until Dashboard-first Stage 1-R10 revalidation passes
-Continuation Action: Preserve the WS18-WS30 proof chain as historical/supporting evidence, keep LV1 red, PR blocked, PKG-006 In Progress, package completion unclaimed, no single-seam waiver, no PR/release work, and no final package completion before Dashboard-focused Workstream repair if admitted, Hardening rerun, Live Validation rerun, and returned UTS acceptance.
+Continue Decision: Continue
+Stop Basis: None
+Next Active Seam: Workstream WS31 - Dashboard Control Panel Acceptance Baseline And Overlay Deferral Enforcement
+Stop Condition: None for current Workstream continuation
+Continuation Action: Continue the multi-slice HUD implementation continuation as bounded Dashboard-focused Workstream at WS31 while preserving the WS18-WS30 proof chain as historical/supporting evidence, LV1 red, PR blocked, PKG-006 In Progress, package completion unclaimed, no single-seam waiver, no PR/release work, and no final package completion before Dashboard-focused Workstream repair, Hardening rerun, Live Validation rerun, and returned UTS acceptance.
 
 ## Live Validation Continuation Decision
 
@@ -675,7 +673,7 @@ Completion Detail: `Package completion remains unclaimed; Live Validation final 
 Waiver Status: `None`
 Continue Decision: `Stop`
 Stop Basis: `User Test Summary Returned With Blocking Findings`
-Next Active Seam: `Branch Readiness Stage 1-R10 - Dashboard-First Interface Boundary Revalidation`
+Next Active Seam: `Workstream WS31 - Dashboard Control Panel Acceptance Baseline And Overlay Deferral Enforcement`
 Stop Condition: `Live Validation LV1-R1 FAIL - returned USER evidence keeps Live Validation and PR Readiness blocked until bounded Workstream repair, Hardening rerun, Live Validation rerun, and returned UTS acceptance pass`
 Continuation Action: `Stage 2-R12 supersedes the prior Hardening handoff and requires Stage 1-R10 Dashboard-first interface boundary revalidation before Workstream or Hardening resumes. Do not create a PR, watcher, release, tag, artifact, direct-main mutation, voice/audio widening, Stream Deck work, local AI work, installer work, broad provider platform work, persona switching, Overlay/display release acceptance, or new FAM/package work without later approval.`
 
@@ -1198,6 +1196,23 @@ Validation Evidence Expectations: return PASS/FAIL plus any notes, screenshots, 
 - Current Branch Scope: `Dashboard/control panel release acceptance remains inside this current FAM-006 carrier. No new branch, package, PR, watcher, release, tag, artifact, direct-main mutation, or runtime implementation is authorized by Stage 2-R12.`
 - Future Branch / Package Recommendation: `Overlay/display release acceptance should become a later USER-approved interface release after Dashboard acceptance is clean, or be explicitly re-admitted only with Interface Bundle User Approval. Provider-platform parity, external/plugin telemetry, audio/FAM-004, persona switching, Stream Deck, graphs/history/persistence, local AI, installer/capability packs, and ultra-low polling remain future lanes.`
 - Next Legal Seam: `Branch Readiness Stage 1-R10 - Dashboard-First Interface Boundary Revalidation`
+
+## Branch Readiness Stage 2-R13 Dashboard-First Revalidation Closeout And Workstream Handoff
+
+- Repair Date: `2026-05-08`
+- Stage 1-R10 PASS Recording: `PASS - Dashboard-first interface boundary is sufficient for bounded Dashboard-focused Workstream repair`
+- Phase Handoff: `Current phase returns to Workstream`
+- Next Legal Seam: `Workstream WS31 - Dashboard Control Panel Acceptance Baseline And Overlay Deferral Enforcement`
+- Branch Readiness Interface Planning Incomplete Closeout: `Cleared - Stage 1-R10 revalidated the Stage 2-R12 Dashboard-first boundary`
+- Interface Acceptance Missing Closeout: `Cleared as a planning latch - Dashboard Acceptance Pending remains the Workstream product acceptance gap`
+- Dashboard-First Handoff: `Dashboard/control panel remains the primary current-branch interface release surface and stable fallback point`
+- Dashboard Acceptance Path: `WS31 starts Dashboard-only acceptance baseline and Overlay non-gating enforcement; later bounded seams should prove standalone window behavior, clipping/Core/Overlay decoupling, settings/control content, provider/setup/no-data/degraded truth, visual warning posture controls, dashboard-specific full-desktop proof, and refreshed UTS handoff`
+- Overlay/Display Classification: `Deferred / dormant / non-gating for Dashboard acceptance; existing Overlay/display evidence remains historical/supporting and future-interface proof only unless USER grants interface-bundle approval`
+- Core Dependency Classification: `Dependency repair only; ORIN/Core proof protects desktop safety but is not the current FAM-006 released interface`
+- Validator / Proof Path Update: `Dashboard-specific proof may validate Dashboard acceptance independently from Overlay/display acceptance; Overlay/display markers remain supporting/future evidence`
+- Bounded Workstream Sequence: `WS31 Dashboard-only acceptance baseline and Overlay non-gating enforcement; WS32 Dashboard standalone window movement, clipping, and Core/Overlay decoupling proof; WS33 Dashboard settings/control content polish and monitor-management clarity; WS34 Dashboard provider/setup/no-data/degraded truth and warning posture controls; WS35 Dashboard-specific static/live proof, screenshots, and UTS handoff refresh`
+- Package Status: `PKG-006 remains In Progress; package completion remains unclaimed`
+- LV1 / PR Status: `LV1 remains historical red; PR Readiness remains blocked until Dashboard-focused repair, Hardening rerun, Live Validation rerun, and returned USER acceptance pass`
 
 ## Historical WS30 Codex Live Client Self-QA
 

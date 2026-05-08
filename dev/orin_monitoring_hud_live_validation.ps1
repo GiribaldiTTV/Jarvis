@@ -216,6 +216,7 @@ function Save-Manifest([object]$Paths, [string]$PythonExe) {
         seam = "Live Validation LV1 - Monitoring HUD Product Surface Live Validation"
         proofStandard = "WS30 active-client before-after desktop proof plus fixed Core/HUD surface separation"
         primaryInterfaceReleaseSurface = "monitoring-hud-dashboard-control-panel"
+        dashboardFirstWorkstreamHandoff = "ws31-dashboard-control-panel-acceptance-baseline"
         interfaceBundleUserApproval = "not-granted"
         overlayDisplayAcceptance = "deferred-non-gating"
         coreRepairClassification = "dependency-repair-only"

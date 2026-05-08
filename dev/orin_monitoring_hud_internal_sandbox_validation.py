@@ -1,6 +1,6 @@
 """Internal sandbox validation for the FAM-006 Monitoring HUD Workstream.
 
-This helper proves the current-branch Dashboard-first HUD posture without
+This helper proves the current-branch Dashboard-first Workstream handoff without
 asking the USER for a User Test Summary during Workstream or Branch Readiness.
 It validates the bounded runtime seams for the HUD shell, controls,
 provider-truthful telemetry, no-data/degraded states, visual warnings, source
@@ -98,7 +98,8 @@ def _validate_static_surface(failures: list[str]) -> None:
         "Dashboard Acceptance Pending",
         "Overlay Scope Deferred",
         "Core Repair Dependency Only",
-        "Branch Readiness Interface Planning Incomplete",
+        "Branch Readiness Interface Planning Incomplete: `Cleared by Stage 2-R13",
+        "Workstream WS31 - Dashboard Control Panel Acceptance Baseline And Overlay Deferral Enforcement",
     ):
         _require_contains(branch_record, needle, "FAM-006 Dashboard-first branch source truth", failures)
     for needle in (
@@ -109,7 +110,7 @@ def _validate_static_surface(failures: list[str]) -> None:
     ):
         _require_contains(phase_governance, needle, "interface release boundary governance", failures)
     for needle in (
-        "Dashboard-first source-truth posture",
+        "Dashboard-first Workstream handoff posture",
         "Overlay/display deferred/non-gating classification",
         "Historical WS18-WS30 markers remain supporting repair evidence",
     ):

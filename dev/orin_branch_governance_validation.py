@@ -242,6 +242,9 @@ FAM006_STAGE2_R11_HEADING = (
 FAM006_STAGE2_R12_HEADING = (
     "Branch Readiness Stage 2-R12 Interface Release Boundary Governance And Dashboard-First Source-Truth Repair"
 )
+FAM006_STAGE2_R13_HEADING = (
+    "Branch Readiness Stage 2-R13 Dashboard-First Revalidation Closeout And Workstream Handoff"
+)
 FAM006_STAGE2_R6_REQUIRED_MARKERS = (
     "Current-Branch Scope Final:",
     "Future-Package Scope Final:",
@@ -373,6 +376,26 @@ FAM006_STAGE2_R12_REQUIRED_PHRASES = (
     "Branch Readiness Interface Planning Incomplete",
     "Next Legal Seam:",
     "Branch Readiness Stage 1-R10 - Dashboard-First Interface Boundary Revalidation",
+)
+FAM006_STAGE2_R13_REQUIRED_PHRASES = (
+    "Stage 1-R10 PASS Recording:",
+    "PASS - Dashboard-first interface boundary is sufficient",
+    "Phase Handoff:",
+    "Current phase returns to Workstream",
+    "Next Legal Seam:",
+    "Workstream WS31 - Dashboard Control Panel Acceptance Baseline And Overlay Deferral Enforcement",
+    "Branch Readiness Interface Planning Incomplete Closeout:",
+    "Cleared",
+    "Interface Acceptance Missing Closeout:",
+    "Dashboard Acceptance Pending remains the Workstream product acceptance gap",
+    "Dashboard-First Handoff:",
+    "Dashboard/control panel remains the primary current-branch interface release surface",
+    "Overlay/Display Classification:",
+    "Deferred / dormant / non-gating",
+    "Core Dependency Classification:",
+    "Dependency repair only",
+    "Bounded Workstream Sequence:",
+    "WS31 Dashboard-only acceptance baseline",
 )
 FAM006_WORKSTREAM_CONTINUATION_REQUIRED_PHRASES = (
     "multi-slice HUD implementation continuation",
@@ -4792,6 +4815,7 @@ def _validate_fam006_stage2_r6_plan(
     stage2_r10_section = _section(text, FAM006_STAGE2_R10_HEADING)
     stage2_r11_section = _section(text, FAM006_STAGE2_R11_HEADING)
     stage2_r12_section = _section(text, FAM006_STAGE2_R12_HEADING)
+    stage2_r13_section = _section(text, FAM006_STAGE2_R13_HEADING)
     has_stage2_r8_blocker = LEGACY_PRODUCT_NAME_DRIFT_BLOCKER in blockers
 
     if current_phase == "Branch Readiness":
@@ -5005,6 +5029,45 @@ def _validate_fam006_stage2_r6_plan(
                     f"'{required_phrase}'"
                 ),
             )
+        if stage2_r13_section:
+            for phrase in FAM006_STAGE2_R13_REQUIRED_PHRASES:
+                require(
+                    phrase in stage2_r13_section,
+                    f"{source_path}: {FAM006_STAGE2_R13_HEADING} is missing '{phrase}'",
+                )
+            for cleared_blocker in (
+                "Branch Readiness Interface Planning Incomplete",
+                "Interface Acceptance Missing",
+            ):
+                require(
+                    cleared_blocker not in blockers,
+                    (
+                        f"{source_path}: Stage 2-R13 handoff must clear "
+                        f"'{cleared_blocker}' from active blockers"
+                    ),
+                )
+            require(
+                "Active seam: `Workstream WS31 - Dashboard Control Panel Acceptance Baseline And Overlay Deferral Enforcement`"
+                in text,
+                f"{source_path}: Stage 2-R13 handoff must set active seam to WS31",
+            )
+            require(
+                "Planning Blockers: None active after Stage 2-R13 Dashboard-first revalidation closeout."
+                in plan_section,
+                (
+                    f"{source_path}: Stage 2-R13 Workstream handoff must clear "
+                    "active Branch Readiness planning blockers in the Product Definition Plan"
+                ),
+            )
+            require(
+                "Dashboard Acceptance Pending remains a Workstream acceptance gap"
+                in plan_section,
+                (
+                    f"{source_path}: Stage 2-R13 must preserve Dashboard Acceptance Pending "
+                    "as Workstream product proof, not a planning blocker"
+                ),
+            )
+            return
         if stage2_r10_section:
             for phrase in FAM006_STAGE2_R10_REQUIRED_PHRASES:
                 require(

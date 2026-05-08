@@ -1,9 +1,10 @@
 """Validate the FAM-006 Monitoring HUD product surface baseline.
 
 This helper is intentionally static. It proves the Dashboard-first HUD
-source-truth posture, current dashboard/control-panel markers, provider-contract
-truth, no-data/degraded copy, warning posture, and live/internal proof helper
-markers without inventing metric values or widening into deferred product lanes.
+Workstream handoff posture, current dashboard/control-panel markers,
+provider-contract truth, no-data/degraded copy, warning posture, and
+live/internal proof helper markers without inventing metric values or widening
+into deferred product lanes.
 Overlay/display markers remain supporting evidence unless source truth later
 admits that interface as the active release surface.
 """
@@ -83,8 +84,9 @@ def validate() -> list[str]:
         "Dashboard Acceptance Pending",
         "Overlay Scope Deferred",
         "Core Repair Dependency Only",
-        "Branch Readiness Interface Planning Incomplete",
-        "Next Legal Seam: `Branch Readiness Stage 1-R10 - Dashboard-First Interface Boundary Revalidation`",
+        "Branch Readiness Interface Planning Incomplete: `Cleared by Stage 2-R13",
+        "Stage 1-R10 PASS Recording:",
+        "Workstream WS31 - Dashboard Control Panel Acceptance Baseline And Overlay Deferral Enforcement",
     ):
         _require_contains(branch_record, needle, "FAM-006 Dashboard-first branch source truth", failures)
     for needle in (
@@ -95,6 +97,7 @@ def validate() -> list[str]:
     ):
         _require_contains(phase_governance, needle, "interface release boundary governance", failures)
     for needle in (
+        "Stage 2-R13 Dashboard-first Workstream handoff source-truth markers",
         "Dashboard-first Interface Release Boundary source-truth markers",
         "Overlay/display deferred/non-gating proof classification",
         "future Overlay/display proof only when that interface is re-admitted",
@@ -699,6 +702,8 @@ def validate() -> list[str]:
         "WS30 active-client before-after desktop proof plus fixed Core/HUD surface separation",
         "primaryInterfaceReleaseSurface",
         "monitoring-hud-dashboard-control-panel",
+        "dashboardFirstWorkstreamHandoff",
+        "ws31-dashboard-control-panel-acceptance-baseline",
         "interfaceBundleUserApproval",
         "overlayDisplayAcceptance",
         "deferred-non-gating",
