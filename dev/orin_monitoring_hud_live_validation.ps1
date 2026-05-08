@@ -197,12 +197,24 @@ function Save-Manifest([object]$Paths, [string]$PythonExe) {
             ($interactionRaw -match '"attachedToHudDashboardOrNcp"\s*:\s*false')
         )
     )
+    $coreHudSurfaceSeparationReady = (
+        ($observedMarkers -contains "CORE_VISUALIZATION_HUD_SURFACE_SEPARATION_READY") -or
+        (
+            ($interactionRaw -match '"surfaceSeparationOk"\s*:\s*true') -and
+            ($interactionRaw -match '"dashboardOverlap"\s*:\s*false') -and
+            ($interactionRaw -match '"overlayOverlap"\s*:\s*false') -and
+            ($interactionRaw -match '"movable"\s*:\s*false')
+        )
+    )
+    $coreWorkerwCoordinateRebaseReady = [bool](
+        $observedMarkers | Where-Object { $_ -match "CORE_VISUALIZATION_WORKERW_COORDINATE_REBASE_READY" }
+    )
     $manifest = [pscustomobject]@{
         status = $script:ManifestStatus
         package = "PKG-006"
         slice = "SLC-029"
         seam = "Live Validation LV1 - Monitoring HUD Product Surface Live Validation"
-        proofStandard = "WS28/WS29 active-client before-after desktop proof plus standalone surface independence"
+        proofStandard = "WS30 active-client before-after desktop proof plus fixed Core/HUD surface separation"
         python = $PythonExe
         runtimeLog = $Paths.RuntimeLog
         beforeLaunchScreenshot = $script:BeforeScreenshotPath
@@ -234,6 +246,8 @@ function Save-Manifest([object]$Paths, [string]$PythonExe) {
             overlayCardsMovableReady = [bool]$overlayCardsMovableReady
             surfaceVirtualDesktopTravelReady = [bool]$surfaceVirtualDesktopTravelReady
             coreIndependentPresetMonitorReady = [bool]$coreIndependentPresetMonitorReady
+            coreHudSurfaceSeparationReady = [bool]$coreHudSurfaceSeparationReady
+            coreWorkerwCoordinateRebaseReady = [bool]$coreWorkerwCoordinateRebaseReady
             standaloneOverlayDisplayWindowReady = $observedMarkers -contains "MONITORING_HUD_STANDALONE_OVERLAY_DISPLAY_WINDOW_READY"
             anchoredOverlayUninteractableReady = $observedMarkers -contains "MONITORING_HUD_ANCHORED_OVERLAY_UNINTERACTABLE_READY"
             overlayPositionPreservedReady = $observedMarkers -contains "MONITORING_HUD_OVERLAY_POSITION_PRESERVED_READY"
@@ -309,10 +323,13 @@ try {
     $requiredMarkers = @(
         "RENDERER_MAIN|START",
         "RENDERER_MAIN|QAPPLICATION_CREATED",
+        "RENDERER_MAIN|CORE_VISUALIZATION_PRESET_MONITOR_SELECTION_READY",
         "RENDERER_MAIN|WINDOW_CONSTRUCTED",
         "RENDERER_MAIN|CORE_VISUALIZATION_WINDOW_READY|surface=separate_persona_core",
         "RENDERER_MAIN|CORE_VISUALIZATION_DESKTOP_LAYER_READY|surface=separate_persona_core",
         "RENDERER_MAIN|CORE_VISUALIZATION_WINDOW_GEOMETRY_READY",
+        "RENDERER_MAIN|CORE_VISUALIZATION_WORKERW_COORDINATE_REBASE_READY",
+        "RENDERER_MAIN|CORE_VISUALIZATION_FIXED_PRESET_MONITOR_READY",
         "RENDERER_MAIN|CORE_VISUALIZATION_INDEPENDENT_PRESET_MONITOR_READY",
         "RENDERER_MAIN|CORE_VISUALIZATION_WINDOW_VISIBLE|surface=separate_persona_core",
         "RENDERER_MAIN|VISUAL_PAGE_READY",

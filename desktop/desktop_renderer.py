@@ -5322,14 +5322,45 @@ class MonitoringHudOverlayDisplayWindow(QWidget):
             rect = rect.united(screen.availableGeometry())
         return rect
 
+    def _initial_overlay_target_geometry(self) -> QRect:
+        screens = QApplication.screens()
+        if not screens:
+            return self.screen_ref.availableGeometry()
+        core_screen = self.screen_ref.availableGeometry()
+        candidates = []
+        for screen in screens:
+            geometry = screen.availableGeometry()
+            same_screen = (
+                geometry.x() == core_screen.x()
+                and geometry.y() == core_screen.y()
+                and geometry.width() == core_screen.width()
+                and geometry.height() == core_screen.height()
+            )
+            if not same_screen:
+                candidates.append(geometry)
+        if not candidates:
+            return core_screen
+        core_center_x = core_screen.center().x()
+        return sorted(
+            candidates,
+            key=lambda rect: (abs(rect.center().x() - core_center_x), rect.center().x()),
+            reverse=True,
+        )[0]
+
     def _compute_overlay_geometry(self, *, initial: bool = False) -> QRect:
         virtual = self._virtual_desktop_geometry()
         if not initial and self.geometry().isValid() and self.geometry().width() > 0 and self.geometry().height() > 0:
             return self.geometry()
+        target = self._initial_overlay_target_geometry()
         margin = 48
-        width = min(max(720, int(virtual.width() * 0.46)), max(420, virtual.width() - margin * 2))
-        height = min(max(420, int(virtual.height() * 0.42)), max(280, virtual.height() - margin * 2))
-        return QRect(virtual.x() + margin, virtual.y() + margin, width, height)
+        width = min(max(720, int(target.width() * 0.72)), max(420, target.width() - margin * 2))
+        height = min(max(420, int(target.height() * 0.68)), max(280, target.height() - margin * 2))
+        return QRect(
+            target.x() + max(margin, (target.width() - width) // 2),
+            target.y() + max(margin, (target.height() - height) // 2),
+            width,
+            height,
+        )
 
     def _apply_native_click_through_flags(self):
         try:
@@ -6513,6 +6544,11 @@ class DesktopRuntimeWindow(QWidget):
             if core is not None and callable(getattr(core, "desktop_screen_geometry", None))
             else core.geometry() if core is not None else QRect()
         )
+        dashboard_core_overlap = bool(core_geometry_after.isValid() and self.geometry().intersects(core_geometry_after))
+        overlay_geometry_after = overlay.geometry() if overlay is not None else QRect()
+        overlay_core_overlap = bool(core_geometry_after.isValid() and overlay_geometry_after.isValid() and overlay_geometry_after.intersects(core_geometry_after))
+        separation_required = len(targets) > 1
+        surface_separation_ok = not separation_required or not (dashboard_core_overlap or overlay_core_overlap)
         core_detail = {
             "surface": "orin_persona_core_visualization",
             "visible": core.isVisible() if core is not None else False,
@@ -6523,6 +6559,11 @@ class DesktopRuntimeWindow(QWidget):
             == self._monitoring_hud_rect_payload(core_geometry_before),
             "travelPolicy": "independent_user_selected_monitor_scoped",
             "attachedToHudDashboardOrNcp": False,
+            "movable": False,
+            "dashboardOverlap": dashboard_core_overlap,
+            "overlayOverlap": overlay_core_overlap,
+            "surfaceSeparationRequired": separation_required,
+            "surfaceSeparationOk": surface_separation_ok,
         }
         dashboard_ok = bool(
             dashboard_detail.get("visible")
@@ -6539,6 +6580,8 @@ class DesktopRuntimeWindow(QWidget):
             and core_detail.get("withinPresetMonitor")
             and core_detail.get("remainedOnUserSelectedMonitor")
             and core_detail.get("attachedToHudDashboardOrNcp") is False
+            and core_detail.get("movable") is False
+            and core_detail.get("surfaceSeparationOk") is True
         )
         ok = dashboard_ok and overlay_ok and core_ok
         if ok:
@@ -6553,6 +6596,16 @@ class DesktopRuntimeWindow(QWidget):
                 core_attachment="none",
                 screen_count=len(targets),
                 virtual_desktop="all_monitors",
+            )
+            self._emit_runtime_signal(
+                "CORE_VISUALIZATION_HUD_SURFACE_SEPARATION_READY",
+                package="PKG-006",
+                slice="SLC-026",
+                seam="WS30",
+                core="fixed_preset_monitor",
+                dashboard_overlap=str(dashboard_core_overlap).lower(),
+                overlay_overlap=str(overlay_core_overlap).lower(),
+                movable="false",
             )
         return {
             "ok": ok,

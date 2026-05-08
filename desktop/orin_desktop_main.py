@@ -222,6 +222,50 @@ def shutdown_confirmation_requested_marker(source="hotkey"):
     return f"RENDERER_MAIN|SHUTDOWN_CONFIRMATION_REQUESTED|source={safe_source}"
 
 
+def _screen_label(screen):
+    if screen is None:
+        return "none"
+    try:
+        name = screen.name()
+    except Exception:
+        name = ""
+    geometry = screen.geometry()
+    return (
+        f"name={str(name or 'unknown').replace('|', '_')}"
+        f"|x={geometry.x()}|y={geometry.y()}|w={geometry.width()}|h={geometry.height()}"
+    )
+
+
+def resolve_core_visualization_screen(app):
+    """Keep the persona Core on the preset install monitor, not on HUD surfaces.
+
+    Until installer-owned monitor preference exists in repo truth, the safest
+    approximation is the center physical monitor when three or more screens are
+    present, otherwise the OS primary screen.
+    """
+    screens = list(app.screens())
+    primary = app.primaryScreen()
+    if not screens:
+        return primary, "primary-fallback"
+
+    indexed = list(enumerate(screens))
+    configured = (os.environ.get("NEXUS_CORE_MONITOR_INDEX") or "").strip()
+    if configured:
+        try:
+            requested_index = int(configured)
+        except ValueError:
+            requested_index = -1
+        if 0 <= requested_index < len(screens):
+            return screens[requested_index], f"configured-index-{requested_index}"
+
+    if len(screens) >= 3:
+        by_x_center = sorted(indexed, key=lambda item: (item[1].geometry().center().x(), item[1].geometry().center().y()))
+        original_index, screen = by_x_center[len(by_x_center) // 2]
+        return screen, f"middle-monitor-default-{original_index}"
+
+    return primary or screens[0], "primary-fallback"
+
+
 def _show_shutdown_confirmation_dialog(timeout_ms):
     message_box = QMessageBox()
     message_box.setWindowTitle("Confirm shutdown")
@@ -512,15 +556,20 @@ def main():
     if exit_if_startup_abort_requested():
         return 0
 
-    visual_html_path = os.path.join(ROOT_DIR, "nexus_visual", "orin_core.html")
+    visual_html_path = os.path.join(ROOT_DIR, "nexus_visual", "orin_core_desktop.html")
     monitoring_hud_html_path = os.path.join(ROOT_DIR, "nexus_visual", "monitoring_hud.html")
     runtime_milestone("RENDERER_MAIN|VISUAL_HTML_RESOLVED")
     if exit_if_startup_abort_requested():
         return 0
 
     screen = app.primaryScreen()
+    core_screen, core_screen_source = resolve_core_visualization_screen(app)
+    runtime_milestone(
+        "RENDERER_MAIN|CORE_VISUALIZATION_PRESET_MONITOR_SELECTION_READY"
+        f"|source={core_screen_source}|{_screen_label(core_screen)}"
+    )
     core_window = CoreVisualizationWindow(
-        screen,
+        core_screen or screen,
         visual_html_path,
         event_logger=runtime_milestone,
     )

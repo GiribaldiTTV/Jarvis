@@ -77,6 +77,8 @@ def _validate_naming_sterilization(failures: list[str]) -> None:
 def _validate_static_surface(failures: list[str]) -> None:
     core_html = _read("nexus_visual/orin_core.html")
     core_css = _read("nexus_visual/orin_core.css")
+    core_desktop_html = _read("nexus_visual/orin_core_desktop.html")
+    core_desktop_css = _read("nexus_visual/orin_core_desktop.css")
     core_js = _read("nexus_visual/orin_core.js")
     html = _read("nexus_visual/monitoring_hud.html")
     css = _read("nexus_visual/monitoring_hud.css")
@@ -88,6 +90,8 @@ def _validate_static_surface(failures: list[str]) -> None:
     for label, text in (
         ("ORIN Core HTML", core_html),
         ("ORIN Core CSS", core_css),
+        ("ORIN Core desktop HTML", core_desktop_html),
+        ("ORIN Core desktop CSS", core_desktop_css),
         ("ORIN Core JavaScript", core_js),
     ):
         for forbidden in (
@@ -110,11 +114,25 @@ def _validate_static_surface(failures: list[str]) -> None:
         _require_contains(core_html, needle, "ORIN Core restored visual markup", failures)
 
     for needle in (
+        '<body class="desktop-mode">',
+        '<link rel="stylesheet" href="orin_core_desktop.css" />',
+        '<script src="orin_core.js"></script>',
+    ):
+        _require_contains(core_desktop_html, needle, "ORIN Core desktop visual markup", failures)
+
+    for needle in (
         "background: #000;",
         "radial-gradient(circle at center, #03070d",
         "rgba(0,0,0,0.58) 100%",
     ):
         _require_contains(core_css, needle, "ORIN Core restored visual CSS", failures)
+
+    for needle in (
+        "background: transparent !important;",
+        "body.desktop-mode #scene",
+        "pointer-events: none;",
+    ):
+        _require_contains(core_desktop_css, needle, "ORIN Core desktop transparent CSS", failures)
 
     for needle in (
         'data-hud-module="monitoring-hud-shell-module"',
@@ -280,6 +298,8 @@ def _validate_static_surface(failures: list[str]) -> None:
         "MONITORING_HUD_MONITOR_MANAGEMENT_READY",
         "MONITORING_HUD_TRAY_UNANCHOR_READY",
         "MONITORING_HUD_TRAY_TOGGLE_READY",
+        "CORE_VISUALIZATION_HUD_SURFACE_SEPARATION_READY",
+        "surfaceSeparationOk",
         "native_cpu_load_bounded",
     ):
         _require_contains(renderer, needle, "desktop renderer HUD runtime", failures)
@@ -288,6 +308,9 @@ def _validate_static_surface(failures: list[str]) -> None:
         "from desktop.core_visualization_renderer import CoreVisualizationWindow",
         "DesktopRuntimeUnavailable",
         "DESKTOP_RUNTIME_UNAVAILABLE",
+        'visual_html_path = os.path.join(ROOT_DIR, "nexus_visual", "orin_core_desktop.html")',
+        "resolve_core_visualization_screen",
+        "CORE_VISUALIZATION_PRESET_MONITOR_SELECTION_READY",
     ):
         _require_contains(tray, needle, "desktop launcher Core/HUD failure isolation", failures)
 
@@ -296,7 +319,13 @@ def _validate_static_surface(failures: list[str]) -> None:
         "CORE_VISUALIZATION_WINDOW_READY|surface=separate_persona_core",
         "CORE_VISUALIZATION_DESKTOP_LAYER_READY",
         "CORE_VISUALIZATION_WINDOW_GEOMETRY_READY",
+        "CORE_VISUALIZATION_WORKERW_COORDINATE_REBASE_READY",
+        "CORE_VISUALIZATION_FIXED_PRESET_MONITOR_READY",
         "CORE_VISUALIZATION_INDEPENDENT_PRESET_MONITOR_READY",
+        "background-color: transparent",
+        "setFixedSize",
+        "compute_core_parent_geometry",
+        "coordinate_space=\"parent\"",
         "desktop_screen_geometry",
         "desktop_layer=workerw",
         "hud_attachment=none",

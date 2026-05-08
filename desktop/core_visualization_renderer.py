@@ -3,7 +3,7 @@ import os
 from PySide6.QtCore import Qt, QTimer, QUrl, QRect, Signal
 from PySide6.QtGui import QColor
 from PySide6.QtWebEngineWidgets import QWebEngineView
-from PySide6.QtWidgets import QVBoxLayout, QWidget
+from PySide6.QtWidgets import QApplication, QVBoxLayout, QWidget
 
 from .workerw_utils import (
     attach_window_to_desktop,
@@ -34,24 +34,33 @@ class CoreVisualizationWindow(QWidget):
         self._desktop_layer_attached = False
         self._desktop_layer_logged = False
         self._visible_logged = False
+        self._last_parent_geometry = QRect()
 
         self.setWindowTitle("Nexus Desktop AI - ORIN Core")
         self.setWindowFlags(Qt.Tool | Qt.FramelessWindowHint)
+        self.setAttribute(Qt.WA_TranslucentBackground, True)
+        self.setAttribute(Qt.WA_NoSystemBackground, True)
         self.setAttribute(Qt.WA_TransparentForMouseEvents, True)
         self.setAttribute(Qt.WA_ShowWithoutActivating, True)
+        self.setAutoFillBackground(False)
         self.setFocusPolicy(Qt.NoFocus)
-        self.setStyleSheet("background-color: rgb(0, 0, 0);")
-        self.setGeometry(self.compute_core_geometry())
+        self.setStyleSheet("background-color: transparent;")
+        initial_geometry = self.compute_core_geometry()
+        self.setGeometry(initial_geometry)
+        self.setFixedSize(initial_geometry.size())
 
         root = QVBoxLayout(self)
         root.setContentsMargins(0, 0, 0, 0)
         root.setSpacing(0)
 
         self.webview = QWebEngineView(self)
-        self.webview.setStyleSheet("background-color: rgb(0, 0, 0); border: none;")
+        self.webview.setAttribute(Qt.WA_TranslucentBackground, True)
+        self.webview.setAttribute(Qt.WA_NoSystemBackground, True)
+        self.webview.setAutoFillBackground(False)
+        self.webview.setStyleSheet("background-color: transparent; border: none;")
         self.webview.setContextMenuPolicy(Qt.NoContextMenu)
         self.webview.setFocusPolicy(Qt.NoFocus)
-        self.webview.page().setBackgroundColor(QColor(0, 0, 0))
+        self.webview.page().setBackgroundColor(QColor(0, 0, 0, 0))
         self.webview.loadFinished.connect(self._on_load_finished)
         self.webview.load(QUrl.fromLocalFile(self.visual_html_path))
         root.addWidget(self.webview)
@@ -71,6 +80,26 @@ class CoreVisualizationWindow(QWidget):
         y = g.y() + max(0, (g.height() - height) // 2)
         return QRect(x, y, width, height)
 
+    def _virtual_desktop_geometry(self):
+        rect = QRect()
+        for screen in QApplication.screens():
+            geometry = screen.geometry()
+            if geometry.isValid() and not geometry.isNull():
+                rect = geometry if rect.isNull() else rect.united(geometry)
+        return rect
+
+    def compute_core_parent_geometry(self):
+        geometry = self.compute_core_geometry()
+        virtual = self._virtual_desktop_geometry()
+        if virtual.isValid() and not virtual.isNull():
+            return QRect(
+                geometry.x() - virtual.x(),
+                geometry.y() - virtual.y(),
+                geometry.width(),
+                geometry.height(),
+            )
+        return geometry
+
     def desktop_screen_geometry(self):
         return self.compute_core_geometry()
 
@@ -82,19 +111,26 @@ class CoreVisualizationWindow(QWidget):
             return
         geometry = self.compute_core_geometry()
         self.setGeometry(geometry)
+        self.setFixedSize(geometry.size())
         try:
             hwnd = int(self.winId())
             self._desktop_layer_attached = bool(attach_window_to_desktop(hwnd))
             if self._desktop_layer_attached:
                 make_window_noninteractive(hwnd)
+                parent_geometry = self.compute_core_parent_geometry()
+                self.setGeometry(parent_geometry)
+                self.setFixedSize(parent_geometry.size())
+                self._last_parent_geometry = QRect(parent_geometry)
                 position_desktop_child(
                     hwnd,
-                    geometry.x(),
-                    geometry.y(),
-                    geometry.width(),
-                    geometry.height(),
+                    parent_geometry.x(),
+                    parent_geometry.y(),
+                    parent_geometry.width(),
+                    parent_geometry.height(),
+                    coordinate_space="parent",
                 )
             else:
+                self._last_parent_geometry = QRect(geometry)
                 self.setAttribute(Qt.WA_ShowWithoutActivating, True)
                 self.setAttribute(Qt.WA_TransparentForMouseEvents, True)
                 self.setFocusPolicy(Qt.NoFocus)
@@ -140,7 +176,9 @@ class CoreVisualizationWindow(QWidget):
         self._apply_pending_voice_level()
         self._log_event("RENDERER_MAIN|CORE_VISUALIZATION_READY")
         self._log_event("RENDERER_MAIN|CORE_VISUALIZATION_WINDOW_READY|surface=separate_persona_core")
-        geometry = self.geometry()
+        geometry = self.compute_core_geometry()
+        parent_geometry = self.compute_core_parent_geometry()
+        virtual_geometry = self._virtual_desktop_geometry()
         screen_geometry = self.screen_ref.availableGeometry()
         center_dx = abs(geometry.center().x() - screen_geometry.center().x())
         center_dy = abs(geometry.center().y() - screen_geometry.center().y())
@@ -151,6 +189,28 @@ class CoreVisualizationWindow(QWidget):
             f"|screen_x={screen_geometry.x()}|screen_y={screen_geometry.y()}"
             f"|screen_w={screen_geometry.width()}|screen_h={screen_geometry.height()}"
             f"|center_dx={center_dx}|center_dy={center_dy}"
+        )
+        self._log_event(
+            "RENDERER_MAIN|CORE_VISUALIZATION_WORKERW_COORDINATE_REBASE_READY"
+            "|surface=separate_persona_core"
+            f"|desktop_layer={'workerw' if self._desktop_layer_attached else 'fallback'}"
+            f"|screen_x={geometry.x()}|screen_y={geometry.y()}"
+            f"|parent_x={parent_geometry.x()}|parent_y={parent_geometry.y()}"
+            f"|virtual_x={virtual_geometry.x()}|virtual_y={virtual_geometry.y()}"
+            f"|w={parent_geometry.width()}|h={parent_geometry.height()}"
+        )
+        self._log_event(
+            "RENDERER_MAIN|CORE_VISUALIZATION_FIXED_PRESET_MONITOR_READY"
+            "|surface=separate_persona_core"
+            "|movable=false"
+            "|hud_attachment=none"
+            "|dashboard_attachment=none"
+            "|overlay_attachment=none"
+            f"|desktop_layer={'workerw' if self._desktop_layer_attached else 'fallback'}"
+            f"|x={geometry.x()}|y={geometry.y()}"
+            f"|parent_x={parent_geometry.x()}|parent_y={parent_geometry.y()}"
+            "|coordinate_space=workerw_parent_when_attached"
+            f"|w={geometry.width()}|h={geometry.height()}"
         )
         self._log_event(
             "RENDERER_MAIN|CORE_VISUALIZATION_INDEPENDENT_PRESET_MONITOR_READY"

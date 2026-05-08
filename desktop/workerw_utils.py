@@ -343,14 +343,22 @@ def make_window_noninteractive(hwnd: int) -> None:
     )
 
 
-def position_desktop_child(hwnd: int, x: int, y: int, width: int, height: int) -> None:
+def position_desktop_child(
+    hwnd: int,
+    x: int,
+    y: int,
+    width: int,
+    height: int,
+    *,
+    coordinate_space: str = "screen",
+) -> None:
     parent = GetParent(hwnd)
     left = int(x)
     top = int(y)
     right = int(x + width)
     bottom = int(y + height)
 
-    if parent:
+    if parent and coordinate_space != "parent":
         points = (POINT * 2)()
         points[0].x = left
         points[0].y = top

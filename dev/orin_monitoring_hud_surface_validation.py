@@ -58,6 +58,8 @@ def validate() -> list[str]:
 
     core_html = _read("nexus_visual/orin_core.html")
     core_css = _read("nexus_visual/orin_core.css")
+    core_desktop_html = _read("nexus_visual/orin_core_desktop.html")
+    core_desktop_css = _read("nexus_visual/orin_core_desktop.css")
     core_js = _read("nexus_visual/orin_core.js")
     html = _read("nexus_visual/monitoring_hud.html")
     css = _read("nexus_visual/monitoring_hud.css")
@@ -74,6 +76,8 @@ def validate() -> list[str]:
     for label, text in (
         ("ORIN Core HTML", core_html),
         ("ORIN Core CSS", core_css),
+        ("ORIN Core desktop HTML", core_desktop_html),
+        ("ORIN Core desktop CSS", core_desktop_css),
         ("ORIN Core JavaScript", core_js),
     ):
         _require(
@@ -90,11 +94,25 @@ def validate() -> list[str]:
         _require_contains(core_html, needle, "ORIN Core restored visual surface", failures)
 
     for needle in (
+        '<body class="desktop-mode">',
+        '<link rel="stylesheet" href="orin_core_desktop.css" />',
+        '<script src="orin_core.js"></script>',
+    ):
+        _require_contains(core_desktop_html, needle, "ORIN Core desktop visual surface", failures)
+
+    for needle in (
         "background: #000;",
         "radial-gradient(circle at center, #03070d",
         "rgba(0,0,0,0.58) 100%",
     ):
         _require_contains(core_css, needle, "ORIN Core restored visual CSS", failures)
+
+    for needle in (
+        "background: transparent !important;",
+        "body.desktop-mode #scene",
+        "pointer-events: none;",
+    ):
+        _require_contains(core_desktop_css, needle, "ORIN Core desktop transparent visual CSS", failures)
 
     hud_section = _html_section(html)
     minimal_hud_section = _html_section_by_id(html, "monitoring-hud-minimal")
@@ -458,6 +476,8 @@ def validate() -> list[str]:
         "MONITORING_HUD_STANDALONE_DASHBOARD_WINDOW_READY",
         "MONITORING_HUD_SURFACE_NATIVE_INDEPENDENCE_READY",
         "MONITORING_HUD_SURFACE_VIRTUAL_DESKTOP_TRAVEL_READY",
+        "CORE_VISUALIZATION_HUD_SURFACE_SEPARATION_READY",
+        "surfaceSeparationOk",
         "MONITORING_HUD_MINIMAL_NATIVE_OVERLAY_READY",
         "MONITORING_HUD_MINIMAL_ANCHORED_CLICK_THROUGH_READY",
         "MONITORING_HUD_MINIMAL_NON_FOCUS_READY",
@@ -526,6 +546,9 @@ def validate() -> list[str]:
         "from desktop.core_visualization_renderer import CoreVisualizationWindow",
         "DesktopRuntimeUnavailable",
         "DESKTOP_RUNTIME_UNAVAILABLE",
+        'visual_html_path = os.path.join(ROOT_DIR, "nexus_visual", "orin_core_desktop.html")',
+        "resolve_core_visualization_screen",
+        "CORE_VISUALIZATION_PRESET_MONITOR_SELECTION_READY",
     ):
         _require_contains(tray, needle, "desktop launcher Core/HUD failure isolation", failures)
 
@@ -534,9 +557,15 @@ def validate() -> list[str]:
         "CORE_VISUALIZATION_WINDOW_READY|surface=separate_persona_core",
         "CORE_VISUALIZATION_DESKTOP_LAYER_READY",
         "CORE_VISUALIZATION_WINDOW_GEOMETRY_READY",
+        "CORE_VISUALIZATION_WORKERW_COORDINATE_REBASE_READY",
+        "CORE_VISUALIZATION_FIXED_PRESET_MONITOR_READY",
         "CORE_VISUALIZATION_WINDOW_VISIBLE|surface=separate_persona_core",
         "CORE_VISUALIZATION_INDEPENDENT_PRESET_MONITOR_READY",
         "surface=separate_persona_core",
+        "background-color: transparent",
+        "setFixedSize",
+        "compute_core_parent_geometry",
+        "coordinate_space=\"parent\"",
         "desktop_screen_geometry",
         "desktop_layer=workerw",
         "hud_attachment=none",
@@ -639,7 +668,7 @@ def validate() -> list[str]:
         "SLC-029",
         "Live Validation LV1 - Monitoring HUD Product Surface Live Validation",
         "proofStandard",
-        "WS28/WS29 active-client before-after desktop proof plus standalone surface independence",
+        "WS30 active-client before-after desktop proof plus fixed Core/HUD surface separation",
         "revisedOverlayProof",
         "fullVirtualDesktopScreenshot",
         "userInspectableScreenshot",
@@ -648,6 +677,8 @@ def validate() -> list[str]:
         "overlayCardsMovableReady",
         "surfaceVirtualDesktopTravelReady",
         "coreIndependentPresetMonitorReady",
+        "coreHudSurfaceSeparationReady",
+        "coreWorkerwCoordinateRebaseReady",
         "standaloneOverlayDisplayWindowReady",
         "anchoredOverlayUninteractableReady",
         "overlayPositionPreservedReady",
@@ -667,11 +698,15 @@ def validate() -> list[str]:
         "interactionManifestStatus",
         "MONITORING_HUD_LIVE_CLIENT_SELF_QA_INTERACTION_READY",
         "MONITORING_HUD_LIVE_CLIENT_SELF_QA_READY",
+        "CORE_VISUALIZATION_PRESET_MONITOR_SELECTION_READY",
         "CORE_VISUALIZATION_WINDOW_READY|surface=separate_persona_core",
         "CORE_VISUALIZATION_DESKTOP_LAYER_READY|surface=separate_persona_core",
         "CORE_VISUALIZATION_WINDOW_GEOMETRY_READY",
+        "CORE_VISUALIZATION_WORKERW_COORDINATE_REBASE_READY",
+        "CORE_VISUALIZATION_FIXED_PRESET_MONITOR_READY",
         "CORE_VISUALIZATION_WINDOW_VISIBLE|surface=separate_persona_core",
         "CORE_VISUALIZATION_INDEPENDENT_PRESET_MONITOR_READY",
+        "CORE_VISUALIZATION_HUD_SURFACE_SEPARATION_READY",
         "MONITORING_HUD_WINDOW_STATUS_READY",
         "interaction self-QA manifest PASS",
         "MONITORING_HUD_BASELINE_READY",
