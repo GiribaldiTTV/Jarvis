@@ -7602,6 +7602,7 @@ class DesktopRuntimeWindow(QWidget):
                 "panelDragHandle": geometry.get("panelDragHandle") if isinstance(geometry, dict) else None,
                 "monitorEnabled": geometry.get("monitorEnabled") if isinstance(geometry, dict) else None,
                 "monitorPollingRate": geometry.get("monitorPollingRate") if isinstance(geometry, dict) else None,
+                "warningModeControl": geometry.get("warningModeControl") if isinstance(geometry, dict) else None,
             }
             checks = {}
             for key, rect in controls.items():
@@ -7650,6 +7651,10 @@ class DesktopRuntimeWindow(QWidget):
                 "dashboard_settings_model": dataset.get("dashboardSettingsModel") == "hud-capability-monitor-groups-provider-warning",
                 "monitor_group_model": dataset.get("monitorGroupModel") == "organizational-groups-settings-only",
                 "dashboard_card_policy": dataset.get("dashboardMonitorCardPolicy") == "overlay-display-owns-monitor-cards",
+                "dashboard_provider_truth": dataset.get("dashboardProviderTruth") == "provider-contract-first",
+                "dashboard_state_model": dataset.get("dashboardStateModel") == "setup-no-data-degraded-warning",
+                "dashboard_warning_controls": dataset.get("dashboardWarningControls") == "visual-non-invasive-only",
+                "fake_telemetry_blocked": dataset.get("dashboardFakeTelemetryPolicy") == "blocked",
                 "control_panel_copy": "monitoring control panel" in lower_text
                     and "monitor groups" in lower_text
                     and "dashboard edits settings" in lower_text,
@@ -7876,6 +7881,9 @@ class DesktopRuntimeWindow(QWidget):
                 "visible_state": bool(state.get("visible")),
                 "polling_rate_2000": int(state.get("pollingRateMs") or 0) == 2000,
                 "dataset_polling_2000": dataset.get("pollingRateMs") == "2000",
+                "warning_posture_control_changed": dataset.get("warningControlPosture") == "badge-only",
+                "warning_mode_visual_only": dataset.get("warningMode") == "visual-non-invasive",
+                "fake_telemetry_policy_blocked": dataset.get("dashboardFakeTelemetryPolicy") == "blocked",
             }
             return all(checks.values()), checks
 
@@ -8075,6 +8083,11 @@ class DesktopRuntimeWindow(QWidget):
                 if (polling) {
                     polling.value = "2000";
                     polling.dispatchEvent(new Event("change", { bubbles: true }));
+                }
+                const warning = document.getElementById("monitoring-hud-warning-mode-control");
+                if (warning) {
+                    warning.value = "badge-only";
+                    warning.dispatchEvent(new Event("change", { bubbles: true }));
                 }
                 """
             )
@@ -8320,6 +8333,7 @@ class DesktopRuntimeWindow(QWidget):
                     anchored: true,
                     snapEnabled: true,
                     pollingRateMs: 1000,
+                    warningMode: "badge-text-color",
                     panelPosition: null,
                     selectedMonitorId: "cpu",
                     monitorSequence: 2,
@@ -8599,6 +8613,10 @@ class DesktopRuntimeWindow(QWidget):
                     monitoringHud.dataset.dashboardSettingsModel = "hud-capability-monitor-groups-provider-warning";
                     monitoringHud.dataset.monitorGroupModel = "organizational-groups-settings-only";
                     monitoringHud.dataset.dashboardMonitorCardPolicy = "overlay-display-owns-monitor-cards";
+                    monitoringHud.dataset.dashboardProviderTruth = "provider-contract-first";
+                    monitoringHud.dataset.dashboardStateModel = "setup-no-data-degraded-warning";
+                    monitoringHud.dataset.dashboardWarningControls = "visual-non-invasive-only";
+                    monitoringHud.dataset.dashboardFakeTelemetryPolicy = "blocked";
                     monitoringHud.dataset.overlayAcceptancePolicy = "deferred-non-gating";
                     monitoringHud.dataset.interfaceBundleApproval = "not-granted";
                     monitoringHud.dataset.coreRepairClassification = "dependency-repair-only";
@@ -8725,6 +8743,28 @@ class DesktopRuntimeWindow(QWidget):
             slice="SLC-029",
             seam="WS33",
             proof="dashboard_content_separates_future_overlay_acceptance",
+        )
+        self._emit_runtime_signal(
+            "MONITORING_HUD_DASHBOARD_PROVIDER_TRUTH_READY",
+            package="PKG-006",
+            slice="SLC-025",
+            seam="WS34",
+            provider_truth="provider_contract_first",
+            fake_telemetry="blocked",
+        )
+        self._emit_runtime_signal(
+            "MONITORING_HUD_DASHBOARD_STATE_MODEL_READY",
+            package="PKG-006",
+            slice="SLC-028",
+            seam="WS34",
+            states="setup,no_data,degraded,ready",
+        )
+        self._emit_runtime_signal(
+            "MONITORING_HUD_DASHBOARD_WARNING_CONTROLS_READY",
+            package="PKG-006",
+            slice="SLC-027",
+            seam="WS34",
+            warning_controls="visual_non_invasive_only",
         )
         self._emit_runtime_signal(
             "MONITORING_HUD_EDGELESS_OVERLAY_CANVAS_READY",

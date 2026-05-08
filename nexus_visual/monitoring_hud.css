@@ -296,7 +296,8 @@ body.desktop-mode #monitoring-hud > * {
 }
 
 .monitoring-hud__control-button,
-.monitoring-hud__polling-control select {
+.monitoring-hud__polling-control select,
+.monitoring-hud__warning-control select {
   min-height: 38px;
   border: 1px solid rgba(117, 228, 255, 0.22);
   border-radius: 999px;
@@ -313,7 +314,8 @@ body.desktop-mode #monitoring-hud > * {
   padding: 9px 14px;
 }
 
-.monitoring-hud__polling-control {
+.monitoring-hud__polling-control,
+.monitoring-hud__warning-control {
   display: inline-flex;
   align-items: center;
   gap: 7px;
@@ -324,7 +326,8 @@ body.desktop-mode #monitoring-hud > * {
   text-transform: uppercase;
 }
 
-.monitoring-hud__polling-control select {
+.monitoring-hud__polling-control select,
+.monitoring-hud__warning-control select {
   padding: 8px 11px;
 }
 

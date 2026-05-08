@@ -31,6 +31,7 @@ class MonitoringHudControlsVisibilityContract:
     polling_rate_ms: str
     monitor_management: str
     overlay_mode_controls: str
+    warning_controls: str
 
     def as_dict(self) -> dict[str, str]:
         return {
@@ -47,6 +48,7 @@ class MonitoringHudControlsVisibilityContract:
             "pollingRateMs": self.polling_rate_ms,
             "monitorManagement": self.monitor_management,
             "overlayModeControls": self.overlay_mode_controls,
+            "warningControls": self.warning_controls,
         }
 
 
@@ -80,4 +82,5 @@ def build_monitoring_hud_controls_visibility_contract(
         polling_rate_ms=str(max(1000, int(polling_rate_ms or 1000))),
         monitor_management="Dashboard creates, edits, enables, disables, and sets polling for monitor groups",
         overlay_mode_controls="Dashboard controls future Overlay display enablement plus anchor/unanchor posture",
+        warning_controls="Visual badge, text label, and color state only; no audio or screen flash",
     )

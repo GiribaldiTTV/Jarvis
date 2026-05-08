@@ -12,6 +12,7 @@ const monitoringHudProviderState = document.getElementById("monitoring-hud-provi
 const monitoringHudAdapterStatus = document.getElementById("monitoring-hud-adapter-status");
 const monitoringHudSourceScope = document.getElementById("monitoring-hud-source-scope");
 const monitoringHudHardwarePolling = document.getElementById("monitoring-hud-hardware-polling");
+const monitoringHudProviderStateMatrix = document.getElementById("monitoring-hud-provider-state-matrix");
 const monitoringHudPlacementOwner = document.getElementById("monitoring-hud-placement-owner");
 const monitoringHudPlacementAnchor = document.getElementById("monitoring-hud-placement-anchor");
 const monitoringHudPlacementPointer = document.getElementById("monitoring-hud-placement-pointer");
@@ -32,6 +33,7 @@ const monitoringHudCreateMonitor = document.getElementById("monitoring-hud-creat
 const monitoringHudSnapToggle = document.getElementById("monitoring-hud-snap-toggle");
 const monitoringHudSnapLabel = document.getElementById("monitoring-hud-snap-label");
 const monitoringHudPollingRate = document.getElementById("monitoring-hud-polling-rate");
+const monitoringHudWarningModeControl = document.getElementById("monitoring-hud-warning-mode-control");
 const monitoringHudMonitorList = document.getElementById("monitoring-hud-monitor-list");
 const monitoringHudMonitorSelector = document.getElementById("monitoring-hud-monitor-selector");
 const monitoringHudMonitorListSummary = document.getElementById("monitoring-hud-monitor-list-summary");
@@ -80,6 +82,7 @@ let monitoringHudControlState = {
   anchored: true,
   snapEnabled: true,
   pollingRateMs: 1000,
+  warningMode: "badge-text-color",
   panelPosition: null,
   selectedMonitorId: "cpu",
   monitorSequence: 2,
@@ -399,6 +402,11 @@ function monitoringHudRenderControls() {
     : "toggle-posture-hidden";
   monitoringHud.dataset.snapState = monitoringHudControlState.snapEnabled ? "enabled" : "disabled";
   monitoringHud.dataset.pollingRateMs = String(monitoringHudControlState.pollingRateMs);
+  monitoringHud.dataset.warningControlPosture = monitoringHudControlState.warningMode || "badge-text-color";
+  monitoringHud.dataset.dashboardProviderTruth = "provider-contract-first";
+  monitoringHud.dataset.dashboardStateModel = "setup-no-data-degraded-warning";
+  monitoringHud.dataset.dashboardWarningControls = "visual-non-invasive-only";
+  monitoringHud.dataset.dashboardFakeTelemetryPolicy = "blocked";
   if (monitoringHudRuntimeStatus) {
     monitoringHudRuntimeStatus.textContent = monitoringHudControlState.visible ? "HUD capability enabled" : "HUD capability disabled";
   }
@@ -419,6 +427,17 @@ function monitoringHudRenderControls() {
   }
   if (monitoringHudPollingRate) {
     monitoringHudPollingRate.value = String(monitoringHudControlState.pollingRateMs);
+  }
+  if (monitoringHudWarningModeControl) {
+    monitoringHudWarningModeControl.value = monitoringHudControlState.warningMode || "badge-text-color";
+  }
+  if (monitoringHudWarningPosture) {
+    const warningLabels = {
+      "badge-text-color": "Visual badge, text label, and color state only",
+      "badge-only": "Visual badge only",
+      "text-color": "Text label and color state only"
+    };
+    monitoringHudWarningPosture.textContent = warningLabels[monitoringHudControlState.warningMode] || warningLabels["badge-text-color"];
   }
   if (monitoringHudPlacementPointer) {
     monitoringHudPlacementPointer.textContent = monitoringHudControlState.anchored
@@ -629,6 +648,15 @@ function monitoringHudWireControls() {
       monitoringHudMarkChanged();
     });
   }
+  if (monitoringHudWarningModeControl) {
+    monitoringHudWarningModeControl.addEventListener("change", () => {
+      const allowedModes = new Set(["badge-text-color", "badge-only", "text-color"]);
+      const value = String(monitoringHudWarningModeControl.value || "badge-text-color");
+      monitoringHudControlState.warningMode = allowedModes.has(value) ? value : "badge-text-color";
+      monitoringHudRenderControls();
+      monitoringHudMarkChanged();
+    });
+  }
   if (monitoringHudMonitorEnabled) {
     monitoringHudMonitorEnabled.addEventListener("change", () => {
       const selected = monitoringHudSelectedMonitor();
@@ -720,6 +748,7 @@ window.getMonitoringHudLiveClientGeometry = function() {
     visibilityToggle: rectFor("#monitoring-hud-toggle"),
     snapToggle: rectFor("#monitoring-hud-snap-toggle"),
     pollingRate: rectFor("#monitoring-hud-polling-rate"),
+    warningModeControl: rectFor("#monitoring-hud-warning-mode-control"),
     panelDragHandle: rectFor("#monitoring-hud-drag-handle"),
     monitorList: rectFor("#monitoring-hud-monitor-list"),
     monitorSelector: rectFor("#monitoring-hud-monitor-selector"),
@@ -764,6 +793,11 @@ window.getMonitoringHudSurfaceSplitState = function() {
     dashboardSettingsModel: monitoringHud ? monitoringHud.dataset.dashboardSettingsModel || "" : "",
     monitorGroupModel: monitoringHud ? monitoringHud.dataset.monitorGroupModel || "" : "",
     dashboardMonitorCardPolicy: monitoringHud ? monitoringHud.dataset.dashboardMonitorCardPolicy || "" : "",
+    dashboardProviderTruth: monitoringHud ? monitoringHud.dataset.dashboardProviderTruth || "" : "",
+    dashboardStateModel: monitoringHud ? monitoringHud.dataset.dashboardStateModel || "" : "",
+    dashboardWarningControls: monitoringHud ? monitoringHud.dataset.dashboardWarningControls || "" : "",
+    dashboardFakeTelemetryPolicy: monitoringHud ? monitoringHud.dataset.dashboardFakeTelemetryPolicy || "" : "",
+    warningControlPosture: monitoringHud ? monitoringHud.dataset.warningControlPosture || "" : "",
     interfaceAcceptancePolicy: monitoringHud ? monitoringHud.dataset.interfaceAcceptancePolicy || "" : "",
     overlayAcceptancePolicy: monitoringHud ? monitoringHud.dataset.overlayAcceptancePolicy || "" : "",
     interfaceBundleApproval: monitoringHud ? monitoringHud.dataset.interfaceBundleApproval || "" : "",
@@ -810,6 +844,12 @@ window.getMonitoringHudDashboardAcceptanceState = function() {
       && split.dashboardSettingsModel === "hud-capability-monitor-groups-provider-warning"
       && split.monitorGroupModel === "organizational-groups-settings-only"
       && split.dashboardMonitorCardPolicy === "overlay-display-owns-monitor-cards"
+    ),
+    dashboardProviderTruthReady: Boolean(
+      split.dashboardProviderTruth === "provider-contract-first"
+      && split.dashboardStateModel === "setup-no-data-degraded-warning"
+      && split.dashboardWarningControls === "visual-non-invasive-only"
+      && split.dashboardFakeTelemetryPolicy === "blocked"
     )
   };
 };
@@ -881,6 +921,7 @@ window.simulateMonitoringHudFaultForValidation = function(enabled) {
 
 window.setMonitoringHudControlState = function(state) {
   monitoringHudControlState = Object.assign({}, monitoringHudControlState, state || {});
+  monitoringHudControlState.warningMode = monitoringHudControlState.warningMode || "badge-text-color";
   monitoringHudControlState.cards = Object.assign({}, {
     cpu: { x: 0, y: 0, w: 600, h: 280, title: "CPU Group", enabled: true, pollingRateMs: 1000 },
     gpu: { x: 0, y: 300, w: 600, h: 280, title: "GPU Group", enabled: true, pollingRateMs: 1000 }
@@ -960,6 +1001,9 @@ window.setMonitoringHudTelemetry = function(snapshot) {
   if (monitoringHudHardwarePolling) {
     monitoringHudHardwarePolling.textContent = monitoringHudTelemetry.hardwarePolling || "1s after provider proof";
   }
+  if (monitoringHudProviderStateMatrix) {
+    monitoringHudProviderStateMatrix.textContent = "Setup / no data / degraded / ready";
+  }
   monitoringHudRenderSensorCards(monitoringHudTelemetry.sensorCards);
   monitoringHudUpdateSurfaceSplit();
 };
@@ -1010,6 +1054,9 @@ window.setMonitoringHudControlsVisibility = function(contract) {
   if (monitoringHudControlsPersistence) {
     monitoringHudControlsPersistence.textContent = monitoringHudControls.persistence || "Store group/layout posture locally";
   }
+  if (monitoringHudWarningPosture && monitoringHudControls.warningControls) {
+    monitoringHudWarningPosture.textContent = monitoringHudControls.warningControls;
+  }
   if (monitoringHudTrayPath) {
     monitoringHudTrayPath.textContent = monitoringHudControls.trayPath || "Task tray can unanchor or restore the HUD";
   }
@@ -1026,6 +1073,10 @@ window.setMonitoringHudStatusBehavior = function(snapshot) {
     monitoringHud.dataset.statusKind = monitoringHudStatus.statusKind || "no-data";
     monitoringHud.dataset.warningMode = "visual-non-invasive";
     monitoringHud.dataset.warningState = monitoringHudStatus.warningState || "advisory";
+    monitoringHud.dataset.dashboardProviderTruth = "provider-contract-first";
+    monitoringHud.dataset.dashboardStateModel = "setup-no-data-degraded-warning";
+    monitoringHud.dataset.dashboardWarningControls = "visual-non-invasive-only";
+    monitoringHud.dataset.dashboardFakeTelemetryPolicy = "blocked";
   }
   if (monitoringHudStatusLabel) {
     monitoringHudStatusLabel.textContent = monitoringHudStatus.statusLabel || "Provider setup required";
@@ -1037,7 +1088,7 @@ window.setMonitoringHudStatusBehavior = function(snapshot) {
     monitoringHudDegradedBehavior.textContent = monitoringHudStatus.degradedBehavior || "Name reconnect/setup gap";
   }
   if (monitoringHudWarningPosture) {
-    monitoringHudWarningPosture.textContent = monitoringHudStatus.warningPosture || "Visual badge only";
+    monitoringHudWarningPosture.textContent = monitoringHudStatus.warningPosture || "Visual badge, text label, and color state only";
   }
   monitoringHudUpdateSurfaceSplit();
 };

@@ -217,6 +217,9 @@ function Save-Manifest([object]$Paths, [string]$PythonExe) {
     $dashboardSettingsContentReady = [bool]($observedMarkers -contains "MONITORING_HUD_DASHBOARD_SETTINGS_CONTENT_READY")
     $dashboardMonitorGroupClarityReady = [bool]($observedMarkers -contains "MONITORING_HUD_DASHBOARD_MONITOR_GROUP_CLARITY_READY")
     $dashboardOverlayNonGatingCopyReady = [bool]($observedMarkers -contains "MONITORING_HUD_DASHBOARD_OVERLAY_NON_GATING_COPY_READY")
+    $dashboardProviderTruthReady = [bool]($observedMarkers -contains "MONITORING_HUD_DASHBOARD_PROVIDER_TRUTH_READY")
+    $dashboardStateModelReady = [bool]($observedMarkers -contains "MONITORING_HUD_DASHBOARD_STATE_MODEL_READY")
+    $dashboardWarningControlsReady = [bool]($observedMarkers -contains "MONITORING_HUD_DASHBOARD_WARNING_CONTROLS_READY")
     $coreIndependentPresetMonitorReady = (
         ($observedMarkers -contains "CORE_VISUALIZATION_INDEPENDENT_PRESET_MONITOR_READY") -or
         (
@@ -241,7 +244,7 @@ function Save-Manifest([object]$Paths, [string]$PythonExe) {
         package = "PKG-006"
         slice = "SLC-029"
         seam = "Live Validation LV1 - Monitoring HUD Product Surface Live Validation"
-        proofStandard = "WS33 Dashboard-first active-client settings/control content and monitor-management clarity proof"
+        proofStandard = "WS34 Dashboard-first provider/setup/no-data/degraded truth and warning posture controls proof"
         primaryInterfaceReleaseSurface = "monitoring-hud-dashboard-control-panel"
         dashboardFirstWorkstreamHandoff = "ws31-dashboard-control-panel-acceptance-baseline"
         dashboardOnlyAcceptanceBaseline = "ws31-dashboard-control-panel"
@@ -285,6 +288,9 @@ function Save-Manifest([object]$Paths, [string]$PythonExe) {
             dashboardSettingsContentReady = [bool]$dashboardSettingsContentReady
             dashboardMonitorGroupClarityReady = [bool]$dashboardMonitorGroupClarityReady
             dashboardOverlayNonGatingCopyReady = [bool]$dashboardOverlayNonGatingCopyReady
+            dashboardProviderTruthReady = [bool]$dashboardProviderTruthReady
+            dashboardStateModelReady = [bool]$dashboardStateModelReady
+            dashboardWarningControlsReady = [bool]$dashboardWarningControlsReady
             overlayCardsMovableReady = [bool]$overlayCardsMovableReady
             surfaceVirtualDesktopTravelReady = [bool]$surfaceVirtualDesktopTravelReady
             coreIndependentPresetMonitorReady = [bool]$coreIndependentPresetMonitorReady
@@ -387,6 +393,9 @@ try {
         "MONITORING_HUD_DASHBOARD_SETTINGS_CONTENT_READY",
         "MONITORING_HUD_DASHBOARD_MONITOR_GROUP_CLARITY_READY",
         "MONITORING_HUD_DASHBOARD_OVERLAY_NON_GATING_COPY_READY",
+        "MONITORING_HUD_DASHBOARD_PROVIDER_TRUTH_READY",
+        "MONITORING_HUD_DASHBOARD_STATE_MODEL_READY",
+        "MONITORING_HUD_DASHBOARD_WARNING_CONTROLS_READY",
         "MONITORING_HUD_EDGELESS_OVERLAY_CANVAS_READY",
         "MONITORING_HUD_MINIMAL_NATIVE_OVERLAY_READY",
         "MONITORING_HUD_STANDALONE_OVERLAY_DISPLAY_WINDOW_READY",

@@ -55,6 +55,10 @@
     data-dashboard-settings-model="hud-capability-monitor-groups-provider-warning"
     data-monitor-group-model="organizational-groups-settings-only"
     data-dashboard-monitor-card-policy="overlay-display-owns-monitor-cards"
+    data-dashboard-provider-truth="provider-contract-first"
+    data-dashboard-state-model="setup-no-data-degraded-warning"
+    data-dashboard-warning-controls="visual-non-invasive-only"
+    data-dashboard-fake-telemetry-policy="blocked"
     data-overlay-acceptance-policy="deferred-non-gating"
     data-interface-bundle-approval="not-granted"
     data-core-repair-classification="dependency-repair-only"
@@ -108,6 +112,14 @@
             <option value="2000">2s</option>
             <option value="5000">5s</option>
             <option value="10000">10s</option>
+          </select>
+        </label>
+        <label class="monitoring-hud__warning-control">
+          Warning posture
+          <select id="monitoring-hud-warning-mode-control" aria-label="Visual warning posture">
+            <option value="badge-text-color">Badge + text + color</option>
+            <option value="badge-only">Visual badge only</option>
+            <option value="text-color">Text + color state</option>
           </select>
         </label>
       </div>
@@ -165,6 +177,8 @@
       <strong id="monitoring-hud-source-scope">Provider-first; no fake values</strong>
       <span>Default cadence</span>
       <strong id="monitoring-hud-hardware-polling">1s after provider proof</strong>
+      <span>Provider states</span>
+      <strong id="monitoring-hud-provider-state-matrix">Setup / no data / degraded / ready</strong>
     </div>
     <div class="monitoring-hud__placement" data-slice="SLC-026" data-dashboard-content="future-overlay-behavior" aria-label="Future overlay behavior configuration">
       <span class="monitoring-hud__config-heading">Future overlay behavior</span>
@@ -200,7 +214,7 @@
       <span class="monitoring-hud__config-heading">Dashboard proof</span>
       <strong class="monitoring-hud__config-heading">What the user can trust now</strong>
       <span>Warnings</span>
-      <strong id="monitoring-hud-warning-posture">Visual badge only</strong>
+      <strong id="monitoring-hud-warning-posture">Visual badge, text label, and color state only</strong>
       <span>Proof</span>
       <strong>Full desktop and UTS later</strong>
       <span>Setup path</span>

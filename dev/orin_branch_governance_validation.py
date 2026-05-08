@@ -263,6 +263,12 @@ FAM006_WS33_HEADING = (
 FAM006_WS33_NEXT_SEAM = (
     "Workstream WS34 - Dashboard Provider Setup No-Data Degraded Truth And Warning Posture Controls"
 )
+FAM006_WS34_HEADING = (
+    "Workstream WS34 Dashboard Provider Setup No-Data Degraded Truth And Warning Posture Controls"
+)
+FAM006_WS34_NEXT_SEAM = (
+    "Workstream WS35 - Dashboard Specific Static Live Proof Screenshots And UTS Handoff Refresh"
+)
 FAM006_STAGE2_R6_REQUIRED_MARKERS = (
     "Current-Branch Scope Final:",
     "Future-Package Scope Final:",
@@ -477,6 +483,30 @@ FAM006_WS33_REQUIRED_PHRASES = (
     "Unclaimed",
     "Next Active Seam:",
     FAM006_WS33_NEXT_SEAM,
+)
+FAM006_WS34_REQUIRED_PHRASES = (
+    "WS34 Result:",
+    "Green - Dashboard provider/setup/no-data/degraded truth and visual warning posture controls recorded",
+    "Provider Truth:",
+    "provider-contract-first telemetry",
+    "No-Data / Degraded State Model:",
+    "setup, no-data, degraded, and ready",
+    "Warning Posture Controls:",
+    "visual/non-invasive warning posture controls only",
+    "Runtime Markers:",
+    "MONITORING_HUD_DASHBOARD_PROVIDER_TRUTH_READY",
+    "MONITORING_HUD_DASHBOARD_STATE_MODEL_READY",
+    "MONITORING_HUD_DASHBOARD_WARNING_CONTROLS_READY",
+    "Dashboard Runtime Contract:",
+    'data-dashboard-provider-truth="provider-contract-first"',
+    'data-dashboard-state-model="setup-no-data-degraded-warning"',
+    'data-dashboard-warning-controls="visual-non-invasive-only"',
+    'data-dashboard-fake-telemetry-policy="blocked"',
+    "Dashboard Acceptance Pending remains active",
+    "Package Completion:",
+    "Unclaimed",
+    "Next Active Seam:",
+    FAM006_WS34_NEXT_SEAM,
 )
 FAM006_WORKSTREAM_CONTINUATION_REQUIRED_PHRASES = (
     "multi-slice HUD implementation continuation",
@@ -5156,6 +5186,37 @@ def _validate_fam006_stage2_r6_plan(
                     f"'{required_phrase}'"
                 ),
             )
+        ws34_section = _section(text, FAM006_WS34_HEADING)
+        if ws34_section:
+            for phrase in FAM006_WS34_REQUIRED_PHRASES:
+                require(
+                    phrase in ws34_section,
+                    f"{source_path}: {FAM006_WS34_HEADING} is missing '{phrase}'",
+                )
+            require(
+                f"Active seam: `{FAM006_WS34_NEXT_SEAM}`" in text,
+                f"{source_path}: WS34 completion must advance active seam to WS35",
+            )
+            require(
+                f"Next Active Seam: {FAM006_WS34_NEXT_SEAM}" in text,
+                f"{source_path}: WS34 completion must set Seam Continuation Decision next active seam to WS35",
+            )
+            require(
+                "Remaining Implementable Work: `Dashboard-focused Workstream repair continues with WS35"
+                in text,
+                (
+                    f"{source_path}: WS34 completion must preserve visible same-branch "
+                    "Dashboard proof work beyond the current seam"
+                ),
+            )
+            require(
+                "Dashboard Acceptance Pending remains active"
+                in ws34_section,
+                (
+                    f"{source_path}: WS34 must not claim Dashboard acceptance or package completion"
+                ),
+            )
+            return
         if ws33_section:
             for phrase in FAM006_WS33_REQUIRED_PHRASES:
                 require(

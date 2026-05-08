@@ -106,7 +106,9 @@ def _validate_static_surface(failures: list[str]) -> None:
         "WS32 Result: `Green - Dashboard standalone window movement, clipping boundary, and Core/Overlay decoupling proof recorded",
         "Workstream WS33 Dashboard Settings Control Content Polish And Monitor Management Clarity",
         "WS33 Result: `Green - Dashboard settings/control content polish and monitor-management clarity recorded",
-        "Next Active Seam: Workstream WS34 - Dashboard Provider Setup No-Data Degraded Truth And Warning Posture Controls",
+        "Workstream WS34 Dashboard Provider Setup No-Data Degraded Truth And Warning Posture Controls",
+        "WS34 Result: `Green - Dashboard provider/setup/no-data/degraded truth and visual warning posture controls recorded",
+        "Next Active Seam: Workstream WS35 - Dashboard Specific Static Live Proof Screenshots And UTS Handoff Refresh",
     ):
         _require_contains(branch_record, needle, "FAM-006 Dashboard-first branch source truth", failures)
     for needle in (
@@ -220,6 +222,10 @@ def _validate_static_surface(failures: list[str]) -> None:
         'data-dashboard-settings-model="hud-capability-monitor-groups-provider-warning"',
         'data-monitor-group-model="organizational-groups-settings-only"',
         'data-dashboard-monitor-card-policy="overlay-display-owns-monitor-cards"',
+        'data-dashboard-provider-truth="provider-contract-first"',
+        'data-dashboard-state-model="setup-no-data-degraded-warning"',
+        'data-dashboard-warning-controls="visual-non-invasive-only"',
+        'data-dashboard-fake-telemetry-policy="blocked"',
         'data-overlay-acceptance-policy="deferred-non-gating"',
         'data-interface-bundle-approval="not-granted"',
         'data-core-repair-classification="dependency-repair-only"',
@@ -228,6 +234,7 @@ def _validate_static_surface(failures: list[str]) -> None:
         'id="monitoring-hud-create-monitor"',
         'id="monitoring-hud-snap-toggle"',
         'id="monitoring-hud-polling-rate"',
+        'id="monitoring-hud-warning-mode-control"',
         'id="monitoring-hud-monitor-list"',
         'id="monitoring-hud-monitor-selector"',
         'data-dashboard-monitor-display-policy="settings-only-no-monitor-cards"',
@@ -244,6 +251,8 @@ def _validate_static_surface(failures: list[str]) -> None:
         "Provider setup",
         "Waiting for safe provider",
         "Provider-first; no fake values",
+        "Provider states",
+        "Setup / no data / degraded / ready",
         "Future overlay behavior",
         "Separate minimal HUD overlay",
         "Dashboard controls",
@@ -331,6 +340,11 @@ def _validate_static_surface(failures: list[str]) -> None:
         'monitoringHud.dataset.dashboardSettingsModel = "hud-capability-monitor-groups-provider-warning"',
         'monitoringHud.dataset.monitorGroupModel = "organizational-groups-settings-only"',
         'monitoringHud.dataset.dashboardMonitorCardPolicy = "overlay-display-owns-monitor-cards"',
+        'monitoringHud.dataset.dashboardProviderTruth = "provider-contract-first"',
+        'monitoringHud.dataset.dashboardStateModel = "setup-no-data-degraded-warning"',
+        'monitoringHud.dataset.dashboardWarningControls = "visual-non-invasive-only"',
+        'monitoringHud.dataset.dashboardFakeTelemetryPolicy = "blocked"',
+        'monitoringHud.dataset.warningControlPosture = monitoringHudControlState.warningMode || "badge-text-color"',
         'monitoringHud.dataset.overlayAcceptancePolicy = "deferred-non-gating"',
         "MonitoringHudOverlayDisplayWindow",
         'monitoringHudMinimal.dataset.nativeWindowSplitProof = "ready-ws26"',
@@ -499,6 +513,11 @@ def _validate_contracts(failures: list[str]) -> dict[str, object]:
     _require(
         controls.get("overlayModeControls") == "Dashboard controls future Overlay display enablement plus anchor/unanchor posture",
         "controls contract must describe overlay mode controls",
+        failures,
+    )
+    _require(
+        controls.get("warningControls") == "Visual badge, text label, and color state only; no audio or screen flash",
+        "controls contract must preserve visual/non-invasive warning controls",
         failures,
     )
     _require(status.get("warningPosture") == "Visual badge, color state, and text label only", "status contract must preserve visual warning posture", failures)
