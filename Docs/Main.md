@@ -143,6 +143,10 @@ Rules:
 - If only one seam or one slice is planned or visible, stop immediately on `Single-Seam Or Single-Slice Workstream Blocker` until Branch Readiness expands the plan or USER grants a waiver.
 - Only USER can grant a single-seam or single-slice Workstream waiver; Codex, ChatGPT, validators, prompt wording, clean validation, or a green seam cannot infer it.
 - A Workstream with `Completion Status: In Progress` and no waiver must show remaining same-branch implementable work beyond the current seam.
+- user-facing family/package branches must declare an `Interface Release Boundary` in Branch Readiness before Workstream begins or resumes
+- the default is one primary user-facing interface release surface per branch, recorded as `Primary Interface Release Surface:` with fallback point, acceptance criteria, and proof path
+- multiple released user-facing interfaces in one branch require explicit `Interface Bundle User Approval: Granted`; otherwise block on `Interface Release Boundary Missing`, `Primary Interface Undefined`, `Multiple Interface Release Drift`, `Fallback Point Missing`, `Interface Acceptance Missing`, or `Branch Readiness Interface Planning Incomplete`
+- this interface-release rule limits release sprawl; it does not authorize single-seam or single-slice Workstream behavior, and multiple seams/slices remain expected inside the approved primary interface boundary
 - Element Coverage is a non-identity checklist owned by FAM/package analysis only; coverage categories are user-facing surface, runtime/backend behavior, fail-safe/recovery, security/privacy, voice/audio, external integration, local AI/capability packs, packaging/install, monitoring/HUD, validation, and release impact
 - Element Coverage rows never count as `Admission State: Admitted`, slices, seams, packages, FAMs, selected-next truth, or release drivers
 - admitted-slice counting is explicit: only `Admission State: Admitted` slice rows count toward the multi-slice package rule; historical evidence rows, future placeholders, deferred ideas, and future-package-required rows preserve trace but do not satisfy package admission

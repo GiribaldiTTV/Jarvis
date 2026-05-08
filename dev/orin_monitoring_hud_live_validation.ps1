@@ -215,6 +215,11 @@ function Save-Manifest([object]$Paths, [string]$PythonExe) {
         slice = "SLC-029"
         seam = "Live Validation LV1 - Monitoring HUD Product Surface Live Validation"
         proofStandard = "WS30 active-client before-after desktop proof plus fixed Core/HUD surface separation"
+        primaryInterfaceReleaseSurface = "monitoring-hud-dashboard-control-panel"
+        interfaceBundleUserApproval = "not-granted"
+        overlayDisplayAcceptance = "deferred-non-gating"
+        coreRepairClassification = "dependency-repair-only"
+        dashboardFirstProofPath = $true
         python = $PythonExe
         runtimeLog = $Paths.RuntimeLog
         beforeLaunchScreenshot = $script:BeforeScreenshotPath

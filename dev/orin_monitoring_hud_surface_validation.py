@@ -1,10 +1,11 @@
 """Validate the FAM-006 Monitoring HUD product surface baseline.
 
-This helper is intentionally static. It proves the Workstream-visible HUD
-panel, category-card model, provider-contract truth, anchored click-through
-posture, task-tray controls, bounded native CPU-load proof, no-data/degraded
-copy, warning posture, and live/internal proof helper markers without inventing
-metric values or widening into deferred product lanes.
+This helper is intentionally static. It proves the Dashboard-first HUD
+source-truth posture, current dashboard/control-panel markers, provider-contract
+truth, no-data/degraded copy, warning posture, and live/internal proof helper
+markers without inventing metric values or widening into deferred product lanes.
+Overlay/display markers remain supporting evidence unless source truth later
+admits that interface as the active release surface.
 """
 
 from __future__ import annotations
@@ -72,6 +73,33 @@ def validate() -> list[str]:
     controls = _read("desktop/monitoring_hud_controls.py")
     status = _read("desktop/monitoring_hud_status.py")
     live_validation = _read("dev/orin_monitoring_hud_live_validation.ps1")
+    branch_record = _read("Docs/branch_records/feature_fam_006_monitoring_hud_product_surface.md")
+    helper_registry = _read("Docs/validation_helper_registry.md")
+    phase_governance = _read("Docs/phase_governance.md")
+
+    for needle in (
+        "Primary Interface Release Surface: `Monitoring HUD Dashboard / control panel`",
+        "Interface Bundle User Approval: `Not granted",
+        "Dashboard Acceptance Pending",
+        "Overlay Scope Deferred",
+        "Core Repair Dependency Only",
+        "Branch Readiness Interface Planning Incomplete",
+        "Next Legal Seam: `Branch Readiness Stage 1-R10 - Dashboard-First Interface Boundary Revalidation`",
+    ):
+        _require_contains(branch_record, needle, "FAM-006 Dashboard-first branch source truth", failures)
+    for needle in (
+        "Interface Release Boundary",
+        "Primary Interface Release Surface:",
+        "Interface Bundle User Approval:",
+        "Multiple Interface Release Drift",
+    ):
+        _require_contains(phase_governance, needle, "interface release boundary governance", failures)
+    for needle in (
+        "Dashboard-first Interface Release Boundary source-truth markers",
+        "Overlay/display deferred/non-gating proof classification",
+        "future Overlay/display proof only when that interface is re-admitted",
+    ):
+        _require_contains(helper_registry, needle, "monitoring HUD helper registry", failures)
 
     for label, text in (
         ("ORIN Core HTML", core_html),
@@ -669,6 +697,14 @@ def validate() -> list[str]:
         "Live Validation LV1 - Monitoring HUD Product Surface Live Validation",
         "proofStandard",
         "WS30 active-client before-after desktop proof plus fixed Core/HUD surface separation",
+        "primaryInterfaceReleaseSurface",
+        "monitoring-hud-dashboard-control-panel",
+        "interfaceBundleUserApproval",
+        "overlayDisplayAcceptance",
+        "deferred-non-gating",
+        "coreRepairClassification",
+        "dependency-repair-only",
+        "dashboardFirstProofPath",
         "revisedOverlayProof",
         "fullVirtualDesktopScreenshot",
         "userInspectableScreenshot",
@@ -753,7 +789,7 @@ def main() -> int:
             print(f"- {failure}")
         return 1
 
-    print("PASS: FAM-006 HUD product visibility baseline is bounded, visible, provider-truthful, and marker-backed")
+    print("PASS: FAM-006 HUD Dashboard-first source truth is bounded, provider-truthful, and marker-backed")
     return 0
 
 

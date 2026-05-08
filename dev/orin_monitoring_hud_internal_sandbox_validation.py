@@ -1,9 +1,11 @@
 """Internal sandbox validation for the FAM-006 Monitoring HUD Workstream.
 
-This helper proves the current-branch HUD product baseline without asking the
-USER for a User Test Summary during Workstream. It validates the bounded
-runtime seams for the HUD shell, controls, card model, provider-truthful
-telemetry, no-data/degraded states, visual warnings, and naming sterilization.
+This helper proves the current-branch Dashboard-first HUD posture without
+asking the USER for a User Test Summary during Workstream or Branch Readiness.
+It validates the bounded runtime seams for the HUD shell, controls,
+provider-truthful telemetry, no-data/degraded states, visual warnings, source
+truth, and naming sterilization. Overlay/display proof remains supporting
+evidence unless that interface is later re-admitted.
 """
 
 from __future__ import annotations
@@ -75,6 +77,9 @@ def _validate_naming_sterilization(failures: list[str]) -> None:
 
 
 def _validate_static_surface(failures: list[str]) -> None:
+    branch_record = _read("Docs/branch_records/feature_fam_006_monitoring_hud_product_surface.md")
+    helper_registry = _read("Docs/validation_helper_registry.md")
+    phase_governance = _read("Docs/phase_governance.md")
     core_html = _read("nexus_visual/orin_core.html")
     core_css = _read("nexus_visual/orin_core.css")
     core_desktop_html = _read("nexus_visual/orin_core_desktop.html")
@@ -86,6 +91,29 @@ def _validate_static_surface(failures: list[str]) -> None:
     renderer = _read("desktop/desktop_renderer.py")
     core_renderer = _read("desktop/core_visualization_renderer.py")
     tray = _read("desktop/orin_desktop_main.py")
+
+    for needle in (
+        "Primary Interface Release Surface: `Monitoring HUD Dashboard / control panel`",
+        "Interface Bundle User Approval: `Not granted",
+        "Dashboard Acceptance Pending",
+        "Overlay Scope Deferred",
+        "Core Repair Dependency Only",
+        "Branch Readiness Interface Planning Incomplete",
+    ):
+        _require_contains(branch_record, needle, "FAM-006 Dashboard-first branch source truth", failures)
+    for needle in (
+        "Interface Release Boundary",
+        "Primary Interface Release Surface:",
+        "Interface Bundle User Approval:",
+        "Branch Readiness Interface Planning Incomplete",
+    ):
+        _require_contains(phase_governance, needle, "interface release boundary governance", failures)
+    for needle in (
+        "Dashboard-first source-truth posture",
+        "Overlay/display deferred/non-gating classification",
+        "Historical WS18-WS30 markers remain supporting repair evidence",
+    ):
+        _require_contains(helper_registry, needle, "monitoring HUD helper registry", failures)
 
     for label, text in (
         ("ORIN Core HTML", core_html),

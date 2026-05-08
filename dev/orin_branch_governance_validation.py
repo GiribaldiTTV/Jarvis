@@ -239,6 +239,9 @@ FAM006_STAGE2_R10_HEADING = "Stage 2-R10 Scope Rebaseline Closeout And WS7 Hando
 FAM006_STAGE2_R11_HEADING = (
     "Branch Readiness Stage 2-R11 HUD Dashboard And Minimal HUD Source-Truth Repair"
 )
+FAM006_STAGE2_R12_HEADING = (
+    "Branch Readiness Stage 2-R12 Interface Release Boundary Governance And Dashboard-First Source-Truth Repair"
+)
 FAM006_STAGE2_R6_REQUIRED_MARKERS = (
     "Current-Branch Scope Final:",
     "Future-Package Scope Final:",
@@ -351,6 +354,25 @@ FAM006_STAGE2_R11_REQUIRED_PHRASES = (
     "bounded Workstream repair seams",
     "Hardening rerun",
     "Live Validation rerun",
+)
+FAM006_STAGE2_R12_REQUIRED_PHRASES = (
+    "Interface Release Boundary:",
+    "Primary Interface Release Surface:",
+    "Monitoring HUD Dashboard / control panel",
+    "Interface Bundle User Approval:",
+    "Not granted",
+    "Dashboard-First Scope:",
+    "Overlay/Display Classification:",
+    "Deferred / dormant / non-gating",
+    "Core Repair Classification:",
+    "Dependency repair only",
+    "Source-Truth Downgrade:",
+    "Dashboard Acceptance Pending",
+    "Overlay Scope Deferred",
+    "Core Repair Dependency Only",
+    "Branch Readiness Interface Planning Incomplete",
+    "Next Legal Seam:",
+    "Branch Readiness Stage 1-R10 - Dashboard-First Interface Boundary Revalidation",
 )
 FAM006_WORKSTREAM_CONTINUATION_REQUIRED_PHRASES = (
     "multi-slice HUD implementation continuation",
@@ -503,6 +525,23 @@ MULTI_SEAM_PRIMARY_REPAIR_PHRASES = (
     "A Workstream with `Completion Status: In Progress` and no waiver must show remaining same-branch implementable work beyond the current seam.",
     "when a slice turns green during `Workstream`, advance immediately to the next admitted slice while `Completion Status` remains `In Progress`",
     "`Completion Status: Red` means a named blocker or waiver currently stops bounded Workstream continuation",
+)
+
+INTERFACE_RELEASE_BOUNDARY_DOCS = (
+    Path("Docs/phase_governance.md"),
+    Path("Docs/development_rules.md"),
+    Path("Docs/codex_modes.md"),
+    Path("Docs/Main.md"),
+    Path("Docs/orin_task_template.md"),
+    Path("Docs/codex_user_guide.md"),
+)
+
+INTERFACE_RELEASE_BOUNDARY_PHRASES = (
+    "Interface Release Boundary",
+    "Primary Interface Release Surface:",
+    "Interface Bundle User Approval",
+    "Multiple Interface Release Drift",
+    "Branch Readiness Interface Planning Incomplete",
 )
 
 MULTI_SEAM_PROHIBITED_CATEGORY_STOP_PHRASES = (
@@ -4728,6 +4767,8 @@ def _validate_fam006_stage2_r6_plan(
             in plan_section
             or "Current Branch vs Future Package Boundaries: rebaselined by Stage 2-R9"
             in plan_section
+            or "Current Branch vs Future Package Boundaries: Stage 2-R12 supersedes"
+            in plan_section
         ),
         (
             f"{source_path}: Product Definition Plan must mark current/future package "
@@ -4738,6 +4779,8 @@ def _validate_fam006_stage2_r6_plan(
         (
             "Acceptance Criteria: finalized by Stage 2-R6" in plan_section
             or "Acceptance Criteria: rebaselined by Stage 2-R9" in plan_section
+            or "Acceptance Criteria: Stage 2-R12 rebaselines"
+            in plan_section
         ),
         (
             f"{source_path}: Product Definition Plan must mark acceptance criteria "
@@ -4748,9 +4791,51 @@ def _validate_fam006_stage2_r6_plan(
     stage2_r9_section = _section(text, FAM006_STAGE2_R9_HEADING)
     stage2_r10_section = _section(text, FAM006_STAGE2_R10_HEADING)
     stage2_r11_section = _section(text, FAM006_STAGE2_R11_HEADING)
+    stage2_r12_section = _section(text, FAM006_STAGE2_R12_HEADING)
     has_stage2_r8_blocker = LEGACY_PRODUCT_NAME_DRIFT_BLOCKER in blockers
 
     if current_phase == "Branch Readiness":
+        if stage2_r12_section:
+            for phrase in FAM006_STAGE2_R12_REQUIRED_PHRASES:
+                require(
+                    phrase in stage2_r12_section,
+                    f"{source_path}: {FAM006_STAGE2_R12_HEADING} is missing '{phrase}'",
+                )
+            for active_blocker in (
+                "Dashboard Acceptance Pending",
+                "Overlay Scope Deferred",
+                "Core Repair Dependency Only",
+                "Branch Readiness Interface Planning Incomplete",
+            ):
+                require(
+                    active_blocker in blockers,
+                    (
+                        f"{source_path}: Stage 2-R12 repair must keep "
+                        f"'{active_blocker}' active until Stage 1-R10 revalidation"
+                    ),
+                )
+            require(
+                "Primary Interface Release Surface: `Monitoring HUD Dashboard / control panel`"
+                in text,
+                f"{source_path}: Stage 2-R12 repair must declare the Dashboard/control panel primary interface",
+            )
+            require(
+                "Branch Readiness Stage 1-R10 - Dashboard-First Interface Boundary Revalidation"
+                in text,
+                (
+                    f"{source_path}: Stage 2-R12 repair must set next legal seam "
+                    "to Stage 1-R10 revalidation"
+                ),
+            )
+            require(
+                "Handoff Readiness: `SUPERSEDED - not ready for Hardening under current Stage 2-R12 authority."
+                in text,
+                (
+                    f"{source_path}: Stage 2-R12 repair must explicitly supersede "
+                    "the prior Hardening handoff"
+                ),
+            )
+            return
         if stage2_r11_section:
             for phrase in FAM006_STAGE2_R11_REQUIRED_PHRASES:
                 require(
@@ -11666,6 +11751,15 @@ def main() -> int:
             require(
                 prohibited_phrase not in lower_text,
                 f"{relative_path}: bounded seam workflow must not recreate single-seam throttling authority via '{prohibited_phrase}'",
+            )
+
+    for relative_path in INTERFACE_RELEASE_BOUNDARY_DOCS:
+        text = _read_text(relative_path)
+        lower_text = text.casefold()
+        for required_phrase in INTERFACE_RELEASE_BOUNDARY_PHRASES:
+            require(
+                required_phrase.casefold() in lower_text,
+                f"{relative_path}: interface release boundary governance is missing '{required_phrase}'",
             )
 
     phase_governance_text = _read_text(Path("Docs/phase_governance.md"))
