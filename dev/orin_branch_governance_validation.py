@@ -754,9 +754,11 @@ FAM006_ELEMENT_VALIDATION_LEDGER_REQUIRED_PHRASES = (
 FAM006_ELEMENT_LEDGER_REQUIRED_PHRASES = (
     "# FAM-006 Element Validation Ledger",
     "Owner Record: `Docs/branch_records/feature_fam_006_monitoring_hud_product_surface.md`",
-    "Ledger Status: `Backfilled - Branch Readiness Stage 2 source-truth repair`",
-    "Branch Readiness revalidation required before LV2 returned User Test Summary digestion",
+    "Ledger Status: `Backfilled and revalidated - Branch Readiness Stage 2 closeout`",
+    "Live Validation LV1 ledger-aligned User Test Summary refresh required before LV2 returned User Test Summary digestion",
     "LV2 returned User Test Summary digestion should not proceed directly",
+    "Branch Readiness Stage 1 revalidation has now passed",
+    "No Hardening rerun is required by the ledger closeout alone",
     "## Dashboard-First Elements",
     "FAM006-DASH-SURFACE-001",
     "FAM006-DASH-WINDOW-002",

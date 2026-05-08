@@ -8,9 +8,9 @@ Branch: `feature/fam-006-monitoring-hud-product-surface`
 
 Package: `PKG-006 Monitoring and HUD Product Surface Package`
 
-Ledger Status: `Backfilled - Branch Readiness Stage 2 source-truth repair`
+Ledger Status: `Backfilled and revalidated - Branch Readiness Stage 2 closeout`
 
-Current Gate: `Branch Readiness revalidation required before LV2 returned User Test Summary digestion`
+Current Gate: `Live Validation LV1 ledger-aligned User Test Summary refresh required before LV2 returned User Test Summary digestion`
 
 Placement Decision: `Companion ledger selected because FAM-006 has many Dashboard, Overlay, Core, validator, proof, and governance elements. The branch authority record remains the canonical owner and pointer.`
 
@@ -20,11 +20,11 @@ Proof Disposition Vocabulary: `Covered by existing proof`, `Covered but proof mu
 
 ## Rebaseline Decision
 
-This backfill does not claim package completion, PR Readiness, or final Live Validation green.
+This backfill and revalidation closeout does not claim package completion, PR Readiness, or final Live Validation green.
 
-LV2 returned User Test Summary digestion should not proceed directly from the pre-backfill LV1 handoff. The completed ledger changes the acceptance map, so the next legal step is Branch Readiness revalidation. If revalidation passes without runtime repair findings, Live Validation LV1 should refresh the UTS handoff from this completed ledger before LV2 digests returned results.
+LV2 returned User Test Summary digestion should not proceed directly from the pre-backfill LV1 handoff. The completed ledger changes the acceptance map, and Branch Readiness Stage 1 revalidation has now passed. The next legal step is a Live Validation LV1 refresh that regenerates the UTS handoff from this completed ledger before LV2 digests returned results.
 
-No Workstream repair is identified by this source-truth backfill alone. Existing Workstream, Hardening, and LV1 proof remains preserved as supporting evidence, but user-facing ledger rows need refreshed LV1 UTS coverage before final acceptance.
+No Workstream repair is identified by this source-truth backfill or Stage 1 revalidation. No Hardening rerun is required by the ledger closeout alone. Existing Workstream, Hardening, and LV1 proof remains preserved as supporting implementation confidence, but user-facing ledger rows need refreshed LV1 UTS coverage before final acceptance.
 
 ## Dashboard-First Elements
 
@@ -106,14 +106,14 @@ No Workstream repair is identified by this source-truth backfill alone. Existing
 
 ## Proof Rebaseline Summary
 
-Workstream Proof: `Existing WS31-WS36 evidence maps to Dashboard-first rows, with WS18-WS30 preserved as supporting repair history for Overlay/Core rows.`
+Workstream Proof: `Existing WS31-WS36 evidence maps to Dashboard-first rows, with WS18-WS30 preserved as supporting repair history for Overlay/Core rows. Stage 1 revalidation found no Workstream repair needed by the ledger backfill alone.`
 
-Hardening Proof: `Existing H1 proof remains supporting and maps to Dashboard-first rows; no Workstream repair is found by this ledger backfill alone.`
+Hardening Proof: `Existing H1 proof remains supporting and maps to Dashboard-first rows; no Hardening rerun is required by this ledger closeout alone.`
 
-LV1 Proof: `Existing LV1 active-client proof and manifest remain supporting evidence, but the formal UTS handoff predates the completed ledger.`
+LV1 Proof: `Existing LV1 active-client proof and manifest remain supporting evidence, but the formal UTS handoff predates the completed ledger and must be refreshed in LV1 before LV2 digestion unless USER explicitly waives the refreshed handoff.`
 
-LV2 Status: `Blocked. Returned UTS results should not be digested until Branch Readiness revalidates this ledger and LV1 refreshes or waives the ledger-aligned UTS handoff.`
+LV2 Status: `Blocked. Returned UTS results should not be digested until LV1 refreshes the ledger-aligned UTS handoff and USER returns PASS/FAIL/WAIVED results, or USER explicitly waives the refreshed handoff.`
 
-Stale Proof Finding: `No validator failure found, but proof-to-ledger mapping is stale because the complete ledger did not exist during H1/LV1.`
+Stale Proof Finding: `No validator failure found, and proof reuse is acceptable for implementation confidence. The formal UTS handoff is stale because the complete ledger did not exist during the prior LV1 handoff.`
 
 Marker-Only Finding: `Marker-only proof remains supporting only; every user-facing row requires screenshot/live proof plus returned UTS acceptance or waiver.`

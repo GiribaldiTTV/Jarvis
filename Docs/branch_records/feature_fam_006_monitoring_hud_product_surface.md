@@ -24,7 +24,7 @@ This branch may execute the admitted PKG-006 implementation slices during Workst
 
 ## Status
 
-- `Branch Readiness Stage 2 Element Ledger Backfill Recorded - Revalidation Pending`
+- `Branch Readiness Stage 2 Element Ledger Revalidation Closeout Recorded - LV1 Refresh Handoff Ready`
 
 ## Canonical Branch
 
@@ -36,10 +36,10 @@ This branch may execute the admitted PKG-006 implementation slices during Workst
 
 ## Phase Status
 
-- Branch Readiness Stage: `Active - Stage 2 backfilled the FAM-006 Element Validation Ledger into a canonical companion file and requires Stage 1 revalidation before LV2 returned UTS digestion`
+- Branch Readiness Stage: `Stage 2 closeout complete - Stage 1 revalidated the completed FAM-006 Element Validation Ledger, confirmed companion placement and row coverage, cleared Element Validation Ledger Revalidation Pending, and handed off to Live Validation LV1 for a ledger-aligned UTS refresh before LV2 digestion`
 - Workstream Stage: `Green - WS36 reviewed the Dashboard-focused Workstream chain and recorded Hardening H1 handoff readiness`
 - Hardening Stage: `Green - H1 rerun pressure-tested the Dashboard-first release boundary, static proof, internal sandbox proof, live-helper proof, screenshot manifest, provider-contract truth, no-fake-metrics posture, Overlay/display non-gating status, Core dependency-only status, and Live Validation Stage 1 UTS boundary`
-- Live Validation Stage: `Paused at Stage 1 Green / Returned UTS Pending - USER admitted LV1 rerun, active-client proof passed, formal User Test Summary handoff was refreshed, and LV2 digestion is blocked until the completed Element Validation Ledger revalidates and USER returns PASS/FAIL/WAIVED results or explicitly waives the handoff`
+- Live Validation Stage: `Paused at Stage 1 Green / Ledger-Aligned UTS Refresh Pending - prior active-client proof passed and remains supporting evidence, but the formal User Test Summary handoff predates the completed Element Validation Ledger. LV2 digestion is blocked until LV1 refreshes the UTS from the completed ledger and USER returns PASS/FAIL/WAIVED results, or USER explicitly waives the refreshed handoff.`
 - Active Branch: `feature/fam-006-monitoring-hud-product-surface`
 - Branch Authority Mode: `Active Branch`
 - Workstream Entry Source-Truth Transition: `Performed - Branch Readiness Stage 2 terminal evidence reconciled before runtime implementation`
@@ -52,7 +52,7 @@ This branch may execute the admitted PKG-006 implementation slices during Workst
 - Admitted Slice Count: `6`
 - Package Completion State: `In Progress - User Test Summary Results Pending blocks Live Validation final green; returned User Test Summary acceptance or waiver, PR Readiness, and final package completion remain unclaimed`
 - Single-Slice Package User Approval: `Not required - PKG-006 has six concrete admitted slices; no waiver granted`
-- Runtime Implementation State: `Dashboard-first Workstream is green, Hardening H1 is green, and Live Validation LV1 Stage 1 proof is preserved as supporting evidence with returned UTS results pending. Branch Readiness Stage 2 backfilled the completed Element Validation Ledger after the original H1/LV1 handoff, so LV2 must not digest returned UTS results until Stage 1 revalidates the completed ledger and decides whether LV1 must refresh the UTS handoff. WS31 recorded the Dashboard/control panel as the only current-branch interface release gate and enforced Overlay/display as deferred/dormant/non-gating supporting evidence. WS36 recorded Workstream green, H1 pressure-tested the Dashboard-first release boundary, and LV1 generated the formal User Test Summary handoff without claiming package completion. WS18-WS30 implementation evidence remains preserved as branch history and supporting repair proof, but current release acceptance is narrowed to the Monitoring HUD Dashboard/control panel. ORIN/Core repair is classified as dependency repair only; it is not a released FAM-006 interface. Formal User Test Summary export is exclusive to Live Validation Stage 1 and returned-result digestion is reserved for LV2 after ledger revalidation and returned-result submission or waiver. Future provider-platform parity, external/plugin telemetry, audio/spoken alerts, persona switching, Stream Deck, graphs/history/persistence dashboards, local AI/capability packs, installer work, ultra-low polling, and Overlay/display release acceptance remain deferred.`
+- Runtime Implementation State: `Dashboard-first Workstream is green, Hardening H1 is green, and Live Validation LV1 Stage 1 proof is preserved as supporting evidence. Branch Readiness Stage 2 backfilled the completed Element Validation Ledger after the original H1/LV1 handoff, and this Stage 2 closeout records the Stage 1 revalidation PASS: ledger placement is valid, rows are sufficient, and existing Workstream, Hardening, LV1 manifest, screenshot, and interaction proof can be reused as supporting implementation confidence. No Workstream repair or Hardening rerun is required by the ledger revalidation alone. The active issue is stale UTS coverage: the formal User Test Summary handoff predates the completed row-level ledger, so LV2 must not digest returned results until Live Validation LV1 refreshes the UTS from the completed ledger and USER returns PASS/FAIL/WAIVED results or explicitly waives the refreshed handoff. WS31 recorded the Dashboard/control panel as the only current-branch interface release gate and enforced Overlay/display as deferred/dormant/non-gating supporting evidence. WS36 recorded Workstream green, H1 pressure-tested the Dashboard-first release boundary, and LV1 generated the prior formal User Test Summary handoff without claiming package completion. WS18-WS30 implementation evidence remains preserved as branch history and supporting repair proof, but current release acceptance is narrowed to the Monitoring HUD Dashboard/control panel. ORIN/Core repair is classified as dependency repair only; it is not a released FAM-006 interface. Formal User Test Summary export is exclusive to Live Validation Stage 1 and returned-result digestion is reserved for LV2 after the refreshed handoff is returned or waived. Future provider-platform parity, external/plugin telemetry, audio/spoken alerts, persona switching, Stream Deck, graphs/history/persistence dashboards, local AI/capability packs, installer work, ultra-low polling, and Overlay/display release acceptance remain deferred.`
 - PR Creation State: `Not approved in Branch Readiness`
 - Watcher Provisioning State: `Not approved in Branch Readiness`
 - Release Work State: `Not approved; v1.6.13-prebeta release execution is already complete and no new release work is in scope`
@@ -67,9 +67,9 @@ This branch may execute the admitted PKG-006 implementation slices during Workst
 
 - `Backlog Completion Unproven`
 - `User Test Summary Results Pending`
-- `Element Validation Ledger Revalidation Pending`
+- `Ledger-Aligned User Test Summary Refresh Pending`
 
-Package completion is not currently claimed. Stage 2-R13 cleared the Branch Readiness planning latches and handed the branch back to bounded Dashboard-focused Workstream repair. WS36 recorded Dashboard-focused Workstream green, Hardening H1 rerun pressure-tested green, and Live Validation LV1 Stage 1 has active-client proof plus a formal User Test Summary handoff. Branch Readiness Stage 2 later backfilled the completed Element Validation Ledger because the starter rows were not complete enough for LV2 digestion. Final advancement beyond Live Validation Stage 1 remains blocked until the completed ledger revalidates, USER returns PASS/FAIL/WAIVED results or explicitly waives the handoff, Codex digests the result into source truth, PR Readiness passes, and package completion is truthfully proven under the current primary-interface boundary.
+Package completion is not currently claimed. Stage 2-R13 cleared the Branch Readiness planning latches and handed the branch back to bounded Dashboard-focused Workstream repair. WS36 recorded Dashboard-focused Workstream green, Hardening H1 rerun pressure-tested green, and Live Validation LV1 Stage 1 has active-client proof plus a formal User Test Summary handoff. Branch Readiness Stage 2 later backfilled the completed Element Validation Ledger because the starter rows were not complete enough for LV2 digestion. This Stage 2 closeout records the Stage 1 ledger revalidation PASS and clears `Element Validation Ledger Revalidation Pending`; final advancement beyond Live Validation Stage 1 remains blocked until LV1 refreshes the formal UTS handoff from the completed ledger, USER returns PASS/FAIL/WAIVED results or explicitly waives the refreshed handoff, Codex digests the result into source truth, PR Readiness passes, and package completion is truthfully proven under the current primary-interface boundary.
 
 ## Returned LV1 Repair Findings
 
@@ -156,23 +156,23 @@ The operator-supplied Stage 2 terminal evidence was not sufficient by itself bec
 
 - `Hardening`
 
-Rollback Path: revert the Live Validation LV1 source-truth closeout commit on `feature/fam-006-monitoring-hud-product-surface` before PR merge to return to the Hardening H1 Green / USER Live Validation Admission handoff latch. Revert runtime Workstream commits only if a later USER-approved repair or reset plan explicitly selects that route. No tags, releases, artifacts, PR, watcher, runtime implementation, or `main` mutation are created by this Live Validation Stage 1 handoff pass.
+Rollback Path: revert this Branch Readiness Stage 2 ledger revalidation closeout commit on `feature/fam-006-monitoring-hud-product-surface` before PR merge to return to the Element Ledger Backfill Revalidation Pending state. Revert runtime Workstream commits only if a later USER-approved repair or reset plan explicitly selects that route. No tags, releases, artifacts, PR, watcher, runtime implementation, or `main` mutation are created by this source-truth closeout pass.
 
 ## Next Legal Phase
 
-- `Branch Readiness`
+- `Live Validation`
 
-Next Legal Seam: `Branch Readiness Stage 1 - FAM-006 Element Ledger Backfill Revalidation And LV1 Rerun Decision`.
+Next Legal Seam: `Live Validation LV1 - FAM-006 Element-Ledger-Aligned User Test Summary Refresh`.
 
-Next Legal Phase Gate: Branch Readiness Stage 2 backfilled the completed Element Validation Ledger into the canonical companion file, while the branch authority record remains the source-truth owner and pointer. Stage 1 must revalidate whether the backfilled ledger is complete enough, whether existing Workstream/H1/LV1 proof can be reused, and whether LV1 must refresh the formal UTS handoff before LV2 returned-result digestion. Codex must not enter LV2, PR Readiness, create a PR, watcher, release, tag, artifact, direct-main mutation, voice/audio implementation, Stream Deck/plugin telemetry implementation, local AI, installer/capability-pack work, broad hardware provider implementation, persona switching implementation, ARIA activation, Overlay/display release acceptance, or a new FAM/package without later explicit USER approval.
+Next Legal Phase Gate: Branch Readiness Stage 2 now records the Stage 1 Element Ledger Backfill Revalidation PASS. The completed Element Validation Ledger is valid in the canonical companion file, the branch authority record remains the source-truth owner and pointer, existing Workstream/H1/LV1 proof is reusable as supporting implementation confidence, no Workstream repair is needed, no Hardening rerun is needed by the ledger closeout alone, and the prior UTS handoff is stale because it predates the completed ledger. The next legal phase is Live Validation, but Codex must stop at this phase boundary until USER admits the LV1 refresh seam. Codex must not enter LV2, PR Readiness, create a PR, watcher, release, tag, artifact, direct-main mutation, voice/audio implementation, Stream Deck/plugin telemetry implementation, local AI, installer/capability-pack work, broad hardware provider implementation, persona switching implementation, ARIA activation, Overlay/display release acceptance, or a new FAM/package without later explicit USER approval.
 
 Post-FAM-006 Required Marker Adoption Candidate: `Repo-Wide High-Risk Source Owner Marker Adoption`; candidate branch `feature/repo-wide-source-owner-marker-adoption`; requirement is recorded for after the current FAM-006 branch closes and does not authorize branch creation, package admission, PR Readiness, runtime behavior changes, or bypass of the active LV2 UTS pending gate.
 
 ## Active Seam
 
-Active seam: `Branch Readiness Stage 1 Pending - FAM-006 Element Ledger Backfill Revalidation And LV1 Rerun Decision`
+Active seam: `Phase Boundary Stop - Live Validation LV1 FAM-006 Element-Ledger-Aligned User Test Summary Refresh Pending USER Admission`
 
-Active Seam Status: `Blocked inside Branch Readiness revalidation - completed ledger backfill is recorded; LV2 digestion cannot proceed until Stage 1 revalidates the completed ledger and USER returns PASS/FAIL/WAIVED results or explicitly waives the handoff`
+Active Seam Status: `Branch Readiness Stage 2 closeout complete - Stage 1 PASS recorded; LV2 digestion cannot proceed until LV1 refreshes the ledger-aligned UTS handoff and USER returns PASS/FAIL/WAIVED results or explicitly waives the refreshed handoff`
 
 ## Branch Objective
 
@@ -236,11 +236,11 @@ Future Repo-Wide Marker Adoption Recommendation: `Promoted to required post-FAM-
 
 Canonical Completed Ledger: `Docs/branch_records/feature_fam_006_monitoring_hud_product_surface_element_ledger.md`
 
-Ledger Backfill Status: `Backfilled - companion ledger covers Dashboard-first elements, hidden user-facing behavior, Overlay/display deferred/non-gating elements, Core dependency-only elements, proof/validator elements, source-truth governance effects, UTS coverage mapping, and future package boundaries.`
+Ledger Backfill Status: `Backfilled and revalidated - companion ledger covers Dashboard-first elements, hidden user-facing behavior, Overlay/display deferred/non-gating elements, Core dependency-only elements, proof/validator elements, source-truth governance effects, UTS coverage mapping, and future package boundaries. Stage 1 PASS is recorded by this Stage 2 closeout.`
 
-Proof Rebaseline: `Existing Workstream, Hardening, and LV1 proof remains supporting evidence, but the completed ledger was created after H1/LV1. Stage 1 must revalidate whether proof reuse is enough and whether LV1 must refresh the UTS handoff before LV2 returned-result digestion.`
+Proof Rebaseline: `Existing Workstream, Hardening, and LV1 proof remains supporting evidence. Stage 1 revalidated that proof reuse is enough for implementation confidence, no Workstream repair is needed, and no Hardening rerun is needed by the ledger closeout alone. LV1 must refresh the UTS handoff before LV2 returned-result digestion because the current formal UTS predates the completed ledger.`
 
-LV2 Gate: `Blocked - User Test Summary Results Pending remains active and LV2 must not digest returned results until completed-ledger revalidation is green and LV1 UTS coverage is aligned or explicitly waived.`
+LV2 Gate: `Blocked - User Test Summary Results Pending remains active and LV2 must not digest returned results until LV1 refreshes the UTS from the completed Element Validation Ledger and USER returns PASS/FAIL/WAIVED results, or USER explicitly waives the refreshed handoff.`
 
 | Element ID | Element Name | Category | Parent Surface | Classification | User-Facing Status | Visibility | Expected Behavior / Functional Requirement | Regression Risk | Affected Source Surfaces | Source Owner Marker | Validation Required | Workstream Proof | Hardening Proof | Live Validation / UTS Proof | Phase Owner | Current Status | Open Issues / Notes |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -724,7 +724,7 @@ Completion Detail: Live Validation final green is blocked until USER returns `C:
 Waiver Status: None
 Continue Decision: Stop
 Stop Basis: User Test Summary Results Pending
-Next Active Seam: Live Validation LV2 - Monitoring HUD User Test Summary Results Digest And Acceptance Classification
+Next Active Seam: Superseded by Branch Readiness Stage 2 ledger closeout; current next seam is Live Validation LV1 - FAM-006 Element-Ledger-Aligned User Test Summary Refresh
 Stop Condition: Live Validation Stage 1 User Test Summary handoff complete; returned results not yet digested
 Continuation Action: Stop inside Live Validation. Do not enter PR Readiness, create PR/watcher/release artifacts, claim package completion, or treat Codex self-QA as USER acceptance until returned UTS results are digested as PASS/FAIL/WAIVED.
 
@@ -1435,8 +1435,8 @@ Validation Evidence Expectations: return PASS/FAIL plus any notes, screenshots, 
 - Live Helper Manifest Fields: `status=PASS; dashboardUserTestSummaryExportRefreshed=true; dashboardUserTestSummaryExportPath=C:\Users\anden\OneDrive\Desktop\User Test Summary.txt; dashboardUserTestSummaryReturnedResults=live-validation-stage-1-only; dashboardSpecificProof.interactionSelfQA=PASS; dashboardSpecificProof.userTestSummaryExportRefreshed=true; dashboardSpecificProof.returnedUserTestSummaryDigestReserved=true`
 - Package Status: `PKG-006 remains In Progress`
 - Package Completion: `Unclaimed`
-- LV1 / PR Status: `LV1 Stage 1 handoff is green; final Live Validation acceptance, PR Readiness, and package completion remain blocked on returned UTS digestion`
-- Next Active Seam: Live Validation LV2 - Monitoring HUD User Test Summary Results Digest And Acceptance Classification
+- LV1 / PR Status: `LV1 Stage 1 handoff proof remains supporting evidence; final Live Validation acceptance, PR Readiness, and package completion remain blocked on ledger-aligned UTS refresh plus returned UTS digestion`
+- Next Active Seam: Superseded by Branch Readiness Stage 2 ledger closeout; current next seam is Live Validation LV1 - FAM-006 Element-Ledger-Aligned User Test Summary Refresh
 
 ## Historical WS30 Codex Live Client Self-QA
 
