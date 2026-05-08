@@ -246,7 +246,7 @@ function Save-Manifest([object]$Paths, [string]$PythonExe) {
         package = "PKG-006"
         slice = "SLC-029"
         seam = "Live Validation LV1 - Monitoring HUD Product Surface Live Validation"
-        proofStandard = "Dashboard-specific static/live proof screenshots; User Test Summary export is Live Validation Stage 1 only"
+        proofStandard = "Dashboard-specific static/live proof screenshots; ledger-aligned User Test Summary export is Live Validation Stage 1 only"
         primaryInterfaceReleaseSurface = "monitoring-hud-dashboard-control-panel"
         dashboardFirstWorkstreamHandoff = "ws31-dashboard-control-panel-acceptance-baseline"
         dashboardOnlyAcceptanceBaseline = "ws31-dashboard-control-panel"
@@ -258,6 +258,8 @@ function Save-Manifest([object]$Paths, [string]$PythonExe) {
         dashboardFirstProofPath = $true
         dashboardSpecificProofRefreshReady = $true
         dashboardSpecificStaticLiveProofReady = $true
+        elementValidationLedger = "Docs/branch_records/feature_fam_006_monitoring_hud_product_surface_element_ledger.md"
+        elementLedgerAlignedUserTestSummary = [bool]$PrepareLiveValidationUserTestSummary
         dashboardUserTestSummaryExportRefreshed = [bool]$PrepareLiveValidationUserTestSummary
         dashboardUserTestSummaryExportPath = if ($PrepareLiveValidationUserTestSummary) { $Paths.UserTestSummary } else { "" }
         dashboardUserTestSummaryReturnedResults = "live-validation-stage-1-only"
@@ -373,6 +375,13 @@ Key Evidence Files
 - Interaction manifest: $($Paths.InteractionManifest)
 - Interaction screenshots: $($Paths.InteractionEvidenceRoot)
 
+Element Validation Ledger Alignment
+- Canonical ledger owner: Docs/branch_records/feature_fam_006_monitoring_hud_product_surface.md
+- Canonical companion ledger: Docs/branch_records/feature_fam_006_monitoring_hud_product_surface_element_ledger.md
+- This refreshed UTS maps USER checks to completed ledger rows. USER results from an older, pre-ledger UTS should not be used for LV2 unless USER explicitly waives this refreshed handoff.
+- Overlay/display elements are checked only for non-gating boundary clarity. USER is not being asked to accept Overlay/display as the current branch release surface.
+- ORIN/Core elements are dependency checks for desktop safety and independence. USER is not being asked to accept ORIN/Core as a released FAM-006 interface.
+
 Codex Self-QA Before Live Validation Stage 1 Handoff
 - Automated validators and live helper evidence: $($script:ManifestStatus).
 - Active foreground user-facing client self-QA: $($script:InteractionManifestStatus).
@@ -386,6 +395,7 @@ What This Test Is Checking
 - Overlay/display release acceptance is deferred and non-gating for this branch's Dashboard acceptance path. Do not fail this Dashboard handoff because Overlay/display release acceptance is not being requested.
 - ORIN/Core is dependency-only proof for desktop safety. It should remain independent from the Dashboard and should not be judged as a released FAM-006 interface in this handoff.
 - Dashboard proof should show a visible, readable, polished, independently movable control panel with no clipping, no Core/Overlay coupling, no fake telemetry, provider-contract-first setup/no-data/degraded truth, and visual/non-invasive warning controls.
+- Each test step below lists the ledger rows it covers so LV2 can digest returned USER results at the element level instead of relying on broad "Dashboard green" claims.
 
 Expected Outcome
 - Dashboard reads as "Monitoring Control Panel" or equivalent settings/control copy, not as the final anchored HUD Overlay/display.
@@ -402,30 +412,39 @@ Test Steps
 Observed Results:
 
 2. Confirm the ORIN Core visualization remains independent and does not visibly attach to or move with the Dashboard.
+Ledger rows: FAM006-CORE-DEP-025; FAM006-CORE-PRESET-026; FAM006-CORE-NONMOVABLE-027; FAM006-CORE-WORKERW-028; FAM006-CORE-TRANSPARENCY-029; FAM006-CORE-ISOLATION-030.
 Observed Results:
 
 3. Confirm the Monitoring Dashboard is visible as a Dashboard/control panel, not the final Overlay/display.
+Ledger rows: FAM006-DASH-SURFACE-001; FAM006-DASH-CONTENT-008; FAM006-DASH-VISUAL-006.
 Observed Results:
 
 4. Move the Dashboard and confirm it behaves like a standalone window without clipping, disappearing, dragging the Core, or dragging the deferred Overlay/display.
+Ledger rows: FAM006-DASH-WINDOW-002; FAM006-DASH-MOVE-003; FAM006-DASH-CLIP-004.
 Observed Results:
 
 5. Confirm Dashboard controls are understandable for HUD capability, monitor groups, monitor enablement, polling posture, provider setup state, and warning posture.
+Ledger rows: FAM006-DASH-CONTENT-008; FAM006-DASH-MONITOR-GROUP-009; FAM006-DASH-MONITOR-ENABLE-010; FAM006-DASH-MONITOR-POLLING-011; FAM006-DASH-AFFORDANCE-COPY-012; FAM006-DASH-WARNING-017.
 Observed Results:
 
 6. Confirm monitor groups are organizational settings objects in the Dashboard, not display cards that imply Overlay/display acceptance.
+Ledger rows: FAM006-DASH-MONITOR-GROUP-009; FAM006-OVERLAY-MONITOR-CARDS-023; FAM006-OVERLAY-DEFER-018.
 Observed Results:
 
 7. Confirm provider/setup/no-data/degraded copy is truthful and no fake CPU/GPU/thermal values are presented as real.
+Ledger rows: FAM006-DASH-PROVIDER-015; FAM006-DASH-NOFAKE-016; FAM006-FUTURE-PROVIDER-041; FAM006-FUTURE-EXTERNAL-042.
 Observed Results:
 
 8. Confirm warning controls remain visual/non-invasive and do not introduce audio/spoken alerts or screen flash behavior.
+Ledger rows: FAM006-DASH-WARNING-017; FAM006-FUTURE-AUDIO-043.
 Observed Results:
 
 9. Confirm the Dashboard UI is readable, polished, not cramped, and uses Nexus/NDAI styling without default-looking product chrome where the branch owns the surface.
+Ledger rows: FAM006-DASH-LAYOUT-005; FAM006-DASH-VISUAL-006; FAM006-DASH-SCROLL-007.
 Observed Results:
 
 10. Note any readability, placement, clipping, scaling, motion, confusion, or polish concerns that should block Dashboard acceptance.
+Ledger rows: all user-facing and hidden-user-facing Dashboard/Core rows listed above.
 Observed Results:
 
 Failure Signs To Watch For
@@ -433,6 +452,7 @@ Failure Signs To Watch For
 - Dashboard movement stutters badly, disappears, clips, or drags another surface with it.
 - Dashboard content looks like technical proof boxes instead of settings/control content.
 - Dashboard implies Overlay/display release acceptance is required in this branch.
+- UTS feedback cannot be mapped to the ledger rows listed in this handoff.
 - ORIN/Core moves with the Dashboard or appears rendered inside the Dashboard.
 - Provider copy claims live hardware values without a safe provider/proof path.
 - Fake hardware values or unsupported telemetry claims appear.

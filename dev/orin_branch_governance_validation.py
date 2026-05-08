@@ -754,10 +754,10 @@ FAM006_ELEMENT_VALIDATION_LEDGER_REQUIRED_PHRASES = (
 FAM006_ELEMENT_LEDGER_REQUIRED_PHRASES = (
     "# FAM-006 Element Validation Ledger",
     "Owner Record: `Docs/branch_records/feature_fam_006_monitoring_hud_product_surface.md`",
-    "Ledger Status: `Backfilled and revalidated - Branch Readiness Stage 2 closeout`",
-    "Live Validation LV1 ledger-aligned User Test Summary refresh required before LV2 returned User Test Summary digestion",
+    "Ledger Status: `Backfilled, revalidated, and LV1 handoff refreshed - Live Validation Stage 1`",
+    "Returned refreshed User Test Summary results required before LV2 returned User Test Summary digestion",
     "LV2 returned User Test Summary digestion should not proceed directly",
-    "Branch Readiness Stage 1 revalidation has now passed",
+    "Branch Readiness Stage 1 revalidation passed",
     "No Hardening rerun is required by the ledger closeout alone",
     "## Dashboard-First Elements",
     "FAM006-DASH-SURFACE-001",
@@ -808,7 +808,7 @@ FAM006_ELEMENT_LEDGER_REQUIRED_PHRASES = (
     "FAM006-FUTURE-AUDIO-043",
     "FAM006-FUTURE-PERSONA-044",
     "## UTS Coverage Map",
-    "Needs LV1 refreshed UTS coverage after ledger backfill",
+    "LV1 refreshed UTS handoff generated / USER result pending",
     "## Proof Rebaseline Summary",
     "Marker-only proof remains supporting only",
 )
