@@ -191,6 +191,8 @@ The ledger is canonical only inside the existing authority owner:
 
 Every active ledger row should identify the element ID, element name, category, parent surface, primary interface, classification, user-facing status, visibility, expected behavior, functional requirement, regression risk, affected source surfaces, source-owner marker or source-owner-not-applicable reason, validation required, Workstream proof, Hardening proof, Live Validation proof, UTS question or waiver, phase owner, current status, open issues, and notes.
 
+Element Validation Ledger status values should use this vocabulary unless an owning record explicitly defines a narrower branch-local set: `Planned`, `Implemented Pending Proof`, `Workstream-Proven`, `Hardening-Proven`, `LV1 Handoff`, `USER Accepted`, `Blocked`, `Deferred`, `Future`, `Dependency-Only Supporting`, and `Non-Gating Supporting`.
+
 Each seam must run an `Element Delta Capture` for product/runtime/UI/source-truth changes. New or changed UI, window behavior, focus/click-through, clipping/z-order, movement/drag/resize, copy/content, telemetry truth, provider states, persistence, validation artifacts, screenshots, UTS questions, lifecycle behavior, and source-truth boundaries must either update an existing ledger row or add a new one.
 
 Marker-only proof cannot satisfy user-facing element acceptance. User-facing and hidden-user-facing ledger rows require screenshot/live proof and Live Validation / UTS coverage unless an explicit waiver is recorded. Deferred, future, dependency-only, and non-gating supporting rows must name their boundary so they neither block nor falsely satisfy the current release.
