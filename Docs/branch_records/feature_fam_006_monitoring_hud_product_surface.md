@@ -121,6 +121,7 @@ These findings were the historical bounded Workstream repair queue, not the curr
 - Core Render HUD Surface Coupling / Preset Monitor Regression is cleared by WS30 because the Core renderer uses `nexus_visual/orin_core_desktop.html`, selects the preset monitor through `resolve_core_visualization_screen`, emits `CORE_VISUALIZATION_PRESET_MONITOR_SELECTION_READY` and `CORE_VISUALIZATION_FIXED_PRESET_MONITOR_READY`, remains fixed/non-movable, and active-client proof records `CORE_VISUALIZATION_HUD_SURFACE_SEPARATION_READY` with dashboard/overlay Core overlap false.
 - Backlog Addition User Approval Missing remains active for any new FAM/package, backlog split, family promotion beyond this branch authority, runtime branch outside this carrier, or single-slice waiver.
 - Bounded Workstream Continuation Drift is repaired by the WS8 source-truth correction: WS7 completion no longer points to Hardening while PKG-006 remains In Progress and no USER single-seam/backlog-split waiver exists.
+- Post-Seam Final-Stop Drift is repaired by the WS31-R1 governance correction: Codex treated the WS31 return block, validation, commit, and push as a terminal seam-closeout even though `Continue Decision: Continue`, `Stop Basis: None`, and `Next Active Seam: Workstream WS32 - Dashboard Standalone Window Movement Clipping And Core Overlay Decoupling Proof` were already recorded. Source truth now requires an active `Continuation Execution Latch`; a final response after a green seam while `Continue Decision` remains `Continue` is `Post-Seam Final-Stop Drift`, and durability commit/push is not a lawful stop while bounded Workstream continuation remains active.
 
 ## Entry Basis
 
@@ -658,6 +659,7 @@ Slice Status: In Progress
 Completion Status: In Progress
 Waiver Status: None
 Continue Decision: Continue
+Continuation Execution Latch: Active - final seam-closeout response is prohibited while `Continue Decision` remains `Continue`; execute WS32 in the same bounded Workstream run unless a named blocker or explicit USER waiver is recorded.
 Stop Basis: None
 Next Active Seam: Workstream WS32 - Dashboard Standalone Window Movement Clipping And Core Overlay Decoupling Proof
 Stop Condition: None for current Workstream continuation

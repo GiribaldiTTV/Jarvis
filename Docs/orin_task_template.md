@@ -223,6 +223,7 @@ For phase-sensitive execution, the response must explicitly report:
 - `Blockers:`
 - `Waiver Status:`
 - `Continue Decision:`
+- `Continuation Execution Latch:`
 - `Stop Basis:`
 
 Do not rely on generic `Results` or `Validation` headings by themselves.
@@ -231,6 +232,9 @@ A green slice does not authorize stop while `Completion Status` remains non-gree
 If `Completion Status` is `In Progress` and no named blocker or waiver stops work, Codex must continue instead of returning `Await Next Instruction`.
 Use these governed state markers as execution control, not just reporting.
 If `Continue Decision` is `Continue`, Codex must not end on a seam-complete final response, rollback path, or next-seam recommendation; it must keep executing until a lawful `Stop` decision exists.
+A final response after a green seam while `Continue Decision` remains `Continue` is `Post-Seam Final-Stop Drift`.
+Post-Seam Final-Stop Drift is a governance blocker until source truth and validation are repaired.
+Durability commit/push is not a lawful stop while `Continue Decision` remains `Continue`.
 If `Completion Status` is `In Progress`, `Next Active Seam` must remain a `Workstream` seam; phase-exit seams require `Completion Status: Green`, `Completion Status: Red` with a named blocker/waiver, or explicit USER single-seam/backlog-split waiver.
 `Phase: Workstream` must remain bounded at all times, and the only lawful `Workstream` stop conditions are `Completion Status: Green` with `Hardening` next, or `Completion Status: Red` justified by a named blocker or waiver.
 `Phase: Workstream` must remain bounded at all times; the only lawful `Workstream` stop conditions are `Completion Status: Green` with `Hardening` next, or `Completion Status: Red` justified by a named blocker or waiver.

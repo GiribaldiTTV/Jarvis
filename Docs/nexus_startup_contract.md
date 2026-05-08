@@ -220,6 +220,7 @@ Generated prompts for startup-sensitive passes should request:
 - `Blockers`
 - `Waiver Status`
 - `Continue Decision`
+- `Continuation Execution Latch`
 - `Stop Basis`
 - `Validation Results`
 - `Ready-To-Commit Decision` when files changed
@@ -232,6 +233,9 @@ A green slice does not authorize stop while `Completion Status` remains non-gree
 If `Completion Status` is `In Progress` and no named blocker or waiver stops work, the generated prompt must require continuation rather than `Await Next Instruction`.
 Use these governed state markers as execution control, not just reporting.
 If `Continue Decision` is `Continue`, the generated prompt must not let Codex end on a seam-complete final response, rollback path, or next-seam recommendation; it must require continued execution until a lawful `Stop` decision exists.
+A final response after a green seam while `Continue Decision` remains `Continue` is `Post-Seam Final-Stop Drift`.
+Post-Seam Final-Stop Drift is a governance blocker until source truth and validation are repaired.
+Durability commit/push is not a lawful stop while `Continue Decision` remains `Continue`.
 If `Completion Status` is `In Progress`, `Next Active Seam` must remain a `Workstream` seam; phase-exit seams require `Completion Status: Green`, `Completion Status: Red` with a named blocker/waiver, or explicit USER single-seam/backlog-split waiver.
 `Phase: Workstream` must remain bounded at all times, and the only lawful `Workstream` stop conditions are `Completion Status: Green` with `Hardening` next, or `Completion Status: Red` justified by a named blocker or waiver.
 Bounded means one active seam at a time, not one-seam Workstream authority.
@@ -289,6 +293,7 @@ Return:
 - Blockers
 - Waiver Status
 - Continue Decision
+- Continuation Execution Latch
 - Stop Basis
 - Files Changed
 - What Was Written or Found
@@ -318,6 +323,10 @@ Workstream prompt notes for ChatGPT preflight live outside the prompt body and c
 - reporting Next Safe Move is not a substitute for execution
 - continue decision must be acted on immediately
 - the prompt `Return:` block describes the lawful-stop report; it is not permission to stop while `Continue Decision` remains `Continue`
+- Continuation Execution Latch
+- A final response after a green seam while `Continue Decision` remains `Continue` is `Post-Seam Final-Stop Drift`.
+- Post-Seam Final-Stop Drift is a governance blocker until source truth and validation are repaired.
+- Durability commit/push is not a lawful stop while `Continue Decision` remains `Continue`.
 - If `Completion Status` is `In Progress`, `Next Active Seam` must remain a `Workstream` seam; phase-exit seams require `Completion Status: Green`, `Completion Status: Red` with a named blocker/waiver, or explicit USER single-seam/backlog-split waiver.
 - when continuation remains active, Codex must use commentary/intermediate updates and keep executing instead of ending on a seam-closeout package
 

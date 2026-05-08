@@ -143,6 +143,10 @@ Rules:
 - If only one seam or one slice is planned or visible, stop immediately on `Single-Seam Or Single-Slice Workstream Blocker` until Branch Readiness expands the plan or USER grants a waiver.
 - Only USER can grant a single-seam or single-slice Workstream waiver; Codex, ChatGPT, validators, prompt wording, clean validation, or a green seam cannot infer it.
 - A Workstream with `Completion Status: In Progress` and no waiver must show remaining same-branch implementable work beyond the current seam.
+- A final response after a green seam while `Continue Decision` remains `Continue` is `Post-Seam Final-Stop Drift`.
+- Post-Seam Final-Stop Drift is a governance blocker until source truth and validation are repaired.
+- Durability commit/push is not a lawful stop while `Continue Decision` remains `Continue`.
+- `Continuation Execution Latch` remains active whenever `Continue Decision: Continue`, `Stop Basis: None`, and a same-phase `Next Active Seam` are recorded; Codex must execute the next seam in the same bounded Workstream run instead of returning a terminal report.
 - user-facing family/package branches must declare an `Interface Release Boundary` in Branch Readiness before Workstream begins or resumes
 - the default is one primary user-facing interface release surface per branch, recorded as `Primary Interface Release Surface:` with fallback point, acceptance criteria, and proof path
 - multiple released user-facing interfaces in one branch require explicit `Interface Bundle User Approval: Granted`; otherwise block on `Interface Release Boundary Missing`, `Primary Interface Undefined`, `Multiple Interface Release Drift`, `Fallback Point Missing`, `Interface Acceptance Missing`, or `Branch Readiness Interface Planning Incomplete`

@@ -160,6 +160,10 @@ In Workflow mode, Codex should:
 - use `Backlog Completion State: In Progress`, `Implemented Complete`, or `Implemented Complete Except Future Dependency` to record whether more same-branch slices are still required
 - reporting `Next Safe Move` is not a substitute for execution when continuation authority passes
 - A `continue` decision must be acted on immediately by starting the next seam needed inside the current slice
+- `Continuation Execution Latch` remains active whenever `Continue Decision: Continue`, `Stop Basis: None`, and a same-phase `Next Active Seam` are recorded; Codex must execute the next seam in the same bounded Workstream run instead of returning a terminal report.
+- A final response after a green seam while `Continue Decision` remains `Continue` is `Post-Seam Final-Stop Drift`.
+- Post-Seam Final-Stop Drift is a governance blocker until source truth and validation are repaired.
+- Durability commit/push is not a lawful stop while `Continue Decision` remains `Continue`.
 - stopping after the first slice or splitting the backlog item across branches requires an explicit `Backlog-Split User Approval` or a named bounded stop condition
 - when the approved boundary is continuous validation inside the current workstream, keep iterating only while the governing phase rules, validation, and stop-loss contract remain green
 - Branch Readiness owns planning, framing, affected-surface mapping, implementation delta classification, admitted-slice definition, and whole-backlog closure strategy before Workstream begins.
@@ -195,7 +199,7 @@ In Workflow mode, Codex must not:
 Workflow mode should usually return:
 
 - changes applied
-- exact governed state markers: `Seam Status`, `Slice Status`, `Completion Status`, `Blockers`, `Waiver Status`, `Continue Decision`, and `Stop Basis`
+- exact governed state markers: `Seam Status`, `Slice Status`, `Completion Status`, `Blockers`, `Waiver Status`, `Continue Decision`, `Continuation Execution Latch`, and `Stop Basis`
 - validation performed
 - a distinct summary of validator results
 - a distinct summary of synthetic or headless validation results and the supporting validation artifacts created or used
@@ -229,6 +233,9 @@ A green slice does not authorize stop while `Completion Status` is still non-gre
 If `Completion Status` is `In Progress` and no named blocker or waiver stops work, Workflow mode must continue rather than returning `Await Next Instruction`.
 Use these governed state markers as execution control, not just reporting.
 If `Continue Decision` is `Continue`, Workflow mode must not end on a seam-complete final response, rollback path, or next-seam recommendation; it must keep executing until a lawful `Stop` decision exists.
+A final response after a green seam while `Continue Decision` remains `Continue` is `Post-Seam Final-Stop Drift`.
+Post-Seam Final-Stop Drift is a governance blocker until source truth and validation are repaired.
+Durability commit/push is not a lawful stop while `Continue Decision` remains `Continue`.
 If `Completion Status` is `In Progress`, `Next Active Seam` must remain a `Workstream` seam; phase-exit seams require `Completion Status: Green`, `Completion Status: Red` with a named blocker/waiver, or explicit USER single-seam/backlog-split waiver.
 `Phase: Workstream` must remain bounded at all times, and the only lawful `Workstream` stop conditions are `Completion Status: Green` with `Hardening` next, or `Completion Status: Red` justified by a named blocker or waiver.
 `Phase: Workstream` must remain bounded at all times; the only lawful `Workstream` stop conditions are `Completion Status: Green` with `Hardening` next, or `Completion Status: Red` justified by a named blocker or waiver.

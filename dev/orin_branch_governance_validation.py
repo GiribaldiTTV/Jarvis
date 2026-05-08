@@ -557,6 +557,9 @@ MULTI_SEAM_CONTRACT_PHRASES = (
     "bounded stop condition",
     "reporting `Next Safe Move` is not a substitute for execution",
     "A `continue` decision must be acted on immediately by starting the next seam needed inside the current slice",
+    "A final response after a green seam while `Continue Decision` remains `Continue` is `Post-Seam Final-Stop Drift`.",
+    "Post-Seam Final-Stop Drift is a governance blocker until source truth and validation are repaired.",
+    "Durability commit/push is not a lawful stop while `Continue Decision` remains `Continue`.",
 )
 
 MULTI_SEAM_PRIMARY_REPAIR_PHRASES = (
@@ -650,6 +653,10 @@ MULTI_SEAM_PROMPT_PHRASES = (
     "Backlog-Split Reason",
     "reporting Next Safe Move is not a substitute for execution",
     "continue decision must be acted on immediately by starting the next seam needed inside the current slice",
+    "Continuation Execution Latch",
+    "A final response after a green seam while `Continue Decision` remains `Continue` is `Post-Seam Final-Stop Drift`.",
+    "Post-Seam Final-Stop Drift is a governance blocker until source truth and validation are repaired.",
+    "Durability commit/push is not a lawful stop while `Continue Decision` remains `Continue`.",
 )
 
 REUSABLE_GUIDANCE_RETIRED_SEAM_TERMS = {
@@ -665,6 +672,7 @@ REQUIRED_WORKSTREAM_CONTINUATION_MARKERS = (
     "Completion Status:",
     "Waiver Status:",
     "Continue Decision:",
+    "Continuation Execution Latch:",
     "Stop Basis:",
     "Next Active Seam:",
     "Stop Condition:",
@@ -675,6 +683,7 @@ CONTINUATION_SEAM_STATUS_LABEL = "Seam Status"
 CONTINUATION_SLICE_STATUS_LABEL = "Slice Status"
 CONTINUATION_COMPLETION_STATUS_LABEL = "Completion Status"
 CONTINUATION_WAIVER_STATUS_LABEL = "Waiver Status"
+CONTINUATION_EXECUTION_LATCH_LABEL = "Continuation Execution Latch"
 CONTINUATION_STOP_BASIS_LABEL = "Stop Basis"
 SINGLE_SEAM_WORKSTREAM_WAIVER_LABEL = "Single-Seam Workstream Waiver"
 SINGLE_SEAM_OR_SINGLE_SLICE_WAIVER_AUTHORITY_LABEL = (
@@ -706,6 +715,7 @@ GOVERNED_OUTPUT_CONTRACT_REQUIRED_PHRASES = {
         "Completion Status:",
         "Waiver Status:",
         "Continue Decision:",
+        "Continuation Execution Latch:",
         "Stop Basis:",
         "A green seam does not authorize stop while `Slice Status` is not green.",
         "A green slice does not authorize stop while `Completion Status` is not green.",
@@ -714,6 +724,8 @@ GOVERNED_OUTPUT_CONTRACT_REQUIRED_PHRASES = {
         "It is the exact `Phase: Workstream Status` field for stop authority.",
         "Use these governed state markers as execution control, not as documentation-only summary fields.",
         "If `Continue Decision` is `Continue`, Codex must not end on a final seam-closeout response, rollback path, or next-seam recommendation; it must keep executing until a lawful `Stop` decision exists.",
+        "A final response after a green seam while `Continue Decision` remains `Continue` is `Post-Seam Final-Stop Drift`.",
+        "Durability commit/push is not a lawful stop while `Continue Decision` remains `Continue`.",
         "If `Completion Status` is `In Progress`, `Next Active Seam` must remain a `Workstream` seam; phase-exit seams require `Completion Status: Green`, `Completion Status: Red` with a named blocker/waiver, or explicit USER single-seam/backlog-split waiver.",
         "`Phase: Workstream` must remain bounded at all times.",
         "Single-seam or single-slice Workstream authority is forbidden unless explicit USER waiver text is recorded.",
@@ -728,10 +740,13 @@ GOVERNED_OUTPUT_CONTRACT_REQUIRED_PHRASES = {
         "Completion Status",
         "Waiver Status",
         "Continue Decision",
+        "Continuation Execution Latch",
         "Stop Basis",
         "If `Completion Status` is `In Progress` and no named blocker or waiver stops work, Codex must continue rather than returning `Await Next Instruction`.",
         "Use these governed state markers as execution control, not just reporting.",
         "If `Continue Decision` is `Continue`, do not end on a seam-complete final response, rollback path, or next-seam recommendation; keep executing until a lawful `Stop` decision exists.",
+        "A final response after a green seam while `Continue Decision` remains `Continue` is `Post-Seam Final-Stop Drift`.",
+        "Durability commit/push is not a lawful stop while `Continue Decision` remains `Continue`.",
         "If `Completion Status` is `In Progress`, `Next Active Seam` must remain a `Workstream` seam; phase-exit seams require `Completion Status: Green`, `Completion Status: Red` with a named blocker/waiver, or explicit USER single-seam/backlog-split waiver.",
         "`Phase: Workstream` must remain bounded at all times, and the only lawful `Workstream` stop conditions are `Completion Status: Green` with `Hardening` next, or `Completion Status: Red` justified by a named blocker or waiver.",
         "Single-seam or single-slice Workstream authority is forbidden unless explicit USER waiver text is recorded.",
@@ -746,10 +761,13 @@ GOVERNED_OUTPUT_CONTRACT_REQUIRED_PHRASES = {
         "Completion Status",
         "Waiver Status",
         "Continue Decision",
+        "Continuation Execution Latch",
         "Stop Basis",
         "If `Completion Status` is `In Progress` and no named blocker or waiver stops work, Workflow mode must continue rather than returning `Await Next Instruction`.",
         "Use these governed state markers as execution control, not just reporting.",
         "If `Continue Decision` is `Continue`, Workflow mode must not end on a seam-complete final response, rollback path, or next-seam recommendation; it must keep executing until a lawful `Stop` decision exists.",
+        "A final response after a green seam while `Continue Decision` remains `Continue` is `Post-Seam Final-Stop Drift`.",
+        "Durability commit/push is not a lawful stop while `Continue Decision` remains `Continue`.",
         "If `Completion Status` is `In Progress`, `Next Active Seam` must remain a `Workstream` seam; phase-exit seams require `Completion Status: Green`, `Completion Status: Red` with a named blocker/waiver, or explicit USER single-seam/backlog-split waiver.",
         "`Phase: Workstream` must remain bounded at all times, and the only lawful `Workstream` stop conditions are `Completion Status: Green` with `Hardening` next, or `Completion Status: Red` justified by a named blocker or waiver.",
         "Single-seam or single-slice Workstream authority is forbidden unless explicit USER waiver text is recorded.",
@@ -764,11 +782,14 @@ GOVERNED_OUTPUT_CONTRACT_REQUIRED_PHRASES = {
         "Completion Status:",
         "Waiver Status:",
         "Continue Decision:",
+        "Continuation Execution Latch:",
         "Stop Basis:",
         "If `Completion Status` is `In Progress` and no named blocker or waiver stops work, Codex must continue instead of returning `Await Next Instruction`.",
         "Use these governed state markers as execution control, not just reporting.",
         "If `Continue Decision` is `Continue`, Codex must not end on a seam-complete final response, rollback path, or next-seam recommendation; it must keep executing until a lawful `Stop` decision exists.",
         "Treat a prompt `Return:` block as the lawful-stop report, not as permission to stop while `Continue Decision` remains `Continue`.",
+        "A final response after a green seam while `Continue Decision` remains `Continue` is `Post-Seam Final-Stop Drift`.",
+        "Durability commit/push is not a lawful stop while `Continue Decision` remains `Continue`.",
         "If `Completion Status` is `In Progress`, `Next Active Seam` must remain a `Workstream` seam; phase-exit seams require `Completion Status: Green`, `Completion Status: Red` with a named blocker/waiver, or explicit USER single-seam/backlog-split waiver.",
         "`Phase: Workstream` must remain bounded at all times, and the only lawful `Workstream` stop conditions are `Completion Status: Green` with `Hardening` next, or `Completion Status: Red` justified by a named blocker or waiver.",
         "Single-seam or single-slice Workstream authority is forbidden unless explicit USER waiver text is recorded.",
@@ -783,11 +804,14 @@ GOVERNED_OUTPUT_CONTRACT_REQUIRED_PHRASES = {
         "Completion Status:",
         "Waiver Status:",
         "Continue Decision:",
+        "Continuation Execution Latch:",
         "Stop Basis:",
         "If `Completion Status` is `In Progress` and no named blocker or waiver stops work, Codex must continue instead of returning `Await Next Instruction`.",
         "Use these governed state markers as execution control, not just reporting.",
         "If `Continue Decision` is `Continue`, Codex must not end on a seam-complete final response, rollback path, or next-seam recommendation; it must keep executing until a lawful `Stop` decision exists.",
         "Once the current slice is green during `Workstream`, advance into the next admitted slice while `Completion Status` remains `In Progress`; await the next instruction only after a lawful `Stop` decision.",
+        "A final response after a green seam while `Continue Decision` remains `Continue` is `Post-Seam Final-Stop Drift`.",
+        "Durability commit/push is not a lawful stop while `Continue Decision` remains `Continue`.",
         "If `Completion Status` is `In Progress`, `Next Active Seam` must remain a `Workstream` seam; phase-exit seams require `Completion Status: Green`, `Completion Status: Red` with a named blocker/waiver, or explicit USER single-seam/backlog-split waiver.",
         "`Phase: Workstream` must remain bounded at all times, and the only lawful `Workstream` stop conditions are `Completion Status: Green` with `Hardening` next, or `Completion Status: Red` justified by a named blocker or waiver.",
         "Single-seam or single-slice Workstream authority is forbidden unless explicit USER waiver text is recorded.",
@@ -802,11 +826,14 @@ GOVERNED_OUTPUT_CONTRACT_REQUIRED_PHRASES = {
         "Completion Status",
         "Waiver Status",
         "Continue Decision",
+        "Continuation Execution Latch",
         "Stop Basis",
         "If `Completion Status` is `In Progress` and no named blocker or waiver stops work, the generated prompt must require continuation rather than `Await Next Instruction`.",
         "Use these governed state markers as execution control, not just reporting.",
         "If `Continue Decision` is `Continue`, the generated prompt must not let Codex end on a seam-complete final response, rollback path, or next-seam recommendation; it must require continued execution until a lawful `Stop` decision exists.",
         "the prompt `Return:` block describes the lawful-stop report; it is not permission to stop while `Continue Decision` remains `Continue`",
+        "A final response after a green seam while `Continue Decision` remains `Continue` is `Post-Seam Final-Stop Drift`.",
+        "Durability commit/push is not a lawful stop while `Continue Decision` remains `Continue`.",
         "If `Completion Status` is `In Progress`, `Next Active Seam` must remain a `Workstream` seam; phase-exit seams require `Completion Status: Green`, `Completion Status: Red` with a named blocker/waiver, or explicit USER single-seam/backlog-split waiver.",
         "`Phase: Workstream` must remain bounded at all times, and the only lawful `Workstream` stop conditions are `Completion Status: Green` with `Hardening` next, or `Completion Status: Red` justified by a named blocker or waiver.",
         "If `Completion Status` is `Red`, `Continuation Action` must report the blocker-clearing action or waiver-clearing action needed before bounded `Workstream` continuation may resume.",
@@ -4100,6 +4127,9 @@ def _validate_governed_output_state(
     )
     waiver_status = _extract_marker_value(continuation_section, CONTINUATION_WAIVER_STATUS_LABEL)
     continue_decision = _extract_marker_value(continuation_section, "Continue Decision")
+    continuation_latch = _extract_marker_value(
+        continuation_section, CONTINUATION_EXECUTION_LATCH_LABEL
+    )
     stop_basis = _extract_marker_value(continuation_section, CONTINUATION_STOP_BASIS_LABEL)
     continuation_action = _extract_marker_value(continuation_section, "Continuation Action")
     next_active_seam = _extract_marker_value(continuation_section, "Next Active Seam")
@@ -4110,6 +4140,7 @@ def _validate_governed_output_state(
     normalized_completion_status = completion_status.strip().casefold()
     normalized_waiver_status = waiver_status.strip().casefold()
     normalized_decision = continue_decision.strip().casefold()
+    normalized_latch = continuation_latch.strip().casefold()
     normalized_stop_basis = stop_basis.strip().casefold()
     normalized_next_active_seam = next_active_seam.strip().casefold()
     stop_authorizing_blockers = [
@@ -4275,6 +4306,18 @@ def _validate_governed_output_state(
             (
                 f"{source_path}: Continue Decision Continue must not gate the next seam behind "
                 "'when instructed' wording"
+            ),
+        )
+        require(
+            "active" in normalized_latch
+            and "final" in normalized_latch
+            and "prohibited" in normalized_latch
+            and "same bounded workstream run" in normalized_latch,
+            (
+                f"{source_path}: Continue Decision Continue requires "
+                f"'{CONTINUATION_EXECUTION_LATCH_LABEL}' to state that continuation is active, "
+                "a final response is prohibited, and the next seam must execute in the same "
+                "bounded Workstream run"
             ),
         )
         require(

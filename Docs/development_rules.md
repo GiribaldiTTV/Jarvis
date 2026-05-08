@@ -163,6 +163,7 @@ For governed execution output, also return:
 - `Completion Status`
 - `Waiver Status`
 - `Continue Decision`
+- `Continuation Execution Latch`
 - `Stop Basis`
 
 Generic `Results` or `Validation` headings are not enough by themselves.
@@ -171,6 +172,9 @@ A green slice does not authorize stop while `Completion Status` remains non-gree
 If `Completion Status` is `In Progress` and no named blocker or waiver stops work, Codex must continue rather than returning `Await Next Instruction`.
 Use these governed state markers as execution control, not just reporting.
 If `Continue Decision` is `Continue`, do not end on a seam-complete final response, rollback path, or next-seam recommendation; keep executing until a lawful `Stop` decision exists.
+A final response after a green seam while `Continue Decision` remains `Continue` is `Post-Seam Final-Stop Drift`.
+Post-Seam Final-Stop Drift is a governance blocker until source truth and validation are repaired.
+Durability commit/push is not a lawful stop while `Continue Decision` remains `Continue`.
 If `Completion Status` is `In Progress`, `Next Active Seam` must remain a `Workstream` seam; phase-exit seams require `Completion Status: Green`, `Completion Status: Red` with a named blocker/waiver, or explicit USER single-seam/backlog-split waiver.
 `Phase: Workstream` must remain bounded at all times, and the only lawful `Workstream` stop conditions are `Completion Status: Green` with `Hardening` next, or `Completion Status: Red` justified by a named blocker or waiver.
 `Phase: Workstream` must remain bounded at all times; the only lawful `Workstream` stop conditions are `Completion Status: Green` with `Hardening` next, or `Completion Status: Red` justified by a named blocker or waiver.
@@ -532,6 +536,10 @@ Bounded multi-seam workflow means:
 - reporting `Next Safe Move` is not a substitute for execution when continuation authority passes.
 - A `continue` decision must be acted on immediately by starting the next seam needed inside the current slice.
 - durability commit/push after a green seam is a checkpoint, not a stop
+- A final response after a green seam while `Continue Decision` remains `Continue` is `Post-Seam Final-Stop Drift`.
+- Post-Seam Final-Stop Drift is a governance blocker until source truth and validation are repaired.
+- Durability commit/push is not a lawful stop while `Continue Decision` remains `Continue`.
+- `Continuation Execution Latch` remains active whenever `Continue Decision: Continue`, `Stop Basis: None`, and a same-phase `Next Active Seam` are recorded; Codex must execute the next seam in the same bounded Workstream run instead of returning a terminal report.
 - when a slice turns green during `Workstream`, advance immediately to the next admitted slice while `Completion Status` remains `In Progress`
 - a bounded stop condition, phase boundary, or stop-loss trigger blocks continuation but does not by itself authorize stopping the backlog item after only one slice
 - every seam must remain in the same workstream or active authority record, same phase, same branch class, same approved scope, and same subsystem family or tightly coupled implementation, validation, or governance chain
