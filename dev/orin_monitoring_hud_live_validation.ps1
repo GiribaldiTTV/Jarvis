@@ -140,11 +140,13 @@ function Capture-Screen([object]$Paths) {
 }
 
 function Save-Manifest([object]$Paths, [string]$PythonExe) {
+    $observedMarkers = @($script:ObservedMarkers)
     $manifest = [pscustomobject]@{
         status = $script:ManifestStatus
         package = "PKG-006"
         slice = "SLC-029"
         seam = "Live Validation LV1 - Monitoring HUD Product Surface Live Validation"
+        proofStandard = "WS27 revised overlay model active-client proof"
         python = $PythonExe
         runtimeLog = $Paths.RuntimeLog
         screenshot = $script:ScreenshotPath
@@ -157,7 +159,20 @@ function Save-Manifest([object]$Paths, [string]$PythonExe) {
         interactionManifest = $Paths.InteractionManifest
         interactionManifestStatus = $script:InteractionManifestStatus
         interactionEvidenceRoot = $Paths.InteractionEvidenceRoot
-        observedMarkers = @($script:ObservedMarkers)
+        revisedOverlayProof = [pscustomobject]@{
+            fullVirtualDesktopScreenshot = [bool]$script:ScreenshotPath
+            userInspectableScreenshot = [bool]$script:ScreenshotEvidencePath
+            activeUserFacingClient = [bool]$ActiveUserFacingClient
+            interactionSelfQA = $script:InteractionManifestStatus
+            dashboardMinimalSplitReady = $observedMarkers -contains "MONITORING_HUD_DASHBOARD_MINIMAL_SPLIT_READY"
+            edgelessOverlayCanvasReady = $observedMarkers -contains "MONITORING_HUD_EDGELESS_OVERLAY_CANVAS_READY"
+            standaloneOverlayDisplayWindowReady = $observedMarkers -contains "MONITORING_HUD_STANDALONE_OVERLAY_DISPLAY_WINDOW_READY"
+            anchoredOverlayUninteractableReady = $observedMarkers -contains "MONITORING_HUD_ANCHORED_OVERLAY_UNINTERACTABLE_READY"
+            overlayPositionPreservedReady = $observedMarkers -contains "MONITORING_HUD_OVERLAY_POSITION_PRESERVED_READY"
+            providerContractReady = $observedMarkers -contains "MONITORING_HUD_TELEMETRY_BOUNDARY_READY"
+            noFakeTelemetryPosture = $observedMarkers -contains "MONITORING_HUD_STATUS_BEHAVIOR_READY"
+        }
+        observedMarkers = $observedMarkers
         cleanupNotes = @($script:CleanupNotes)
         failureMessage = $script:FailureMessage
         generatedAt = (Get-Date).ToUniversalTime().ToString("o")
