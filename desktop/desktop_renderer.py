@@ -6616,6 +6616,157 @@ class DesktopRuntimeWindow(QWidget):
             "core": core_detail,
         }
 
+    def _monitoring_hud_run_dashboard_standalone_probe(self) -> dict[str, object]:
+        overlay = self._monitoring_hud_minimal_native_overlay
+        core = self._monitoring_hud_core_visualization_window()
+        virtual = self._virtual_desktop_geometry()
+        targets = self._monitoring_hud_screen_targets()
+        current_geometry = self.geometry()
+        current_center = current_geometry.center() if current_geometry.isValid() else QPoint(0, 0)
+
+        core_geometry_before = (
+            core.desktop_screen_geometry()
+            if core is not None and callable(getattr(core, "desktop_screen_geometry", None))
+            else core.geometry() if core is not None else QRect()
+        )
+        core_screen_geometry = core.screen_ref.availableGeometry() if core is not None else QRect()
+        overlay_geometry_before = overlay.geometry() if overlay is not None else QRect()
+
+        non_core_targets = [
+            target
+            for target in targets
+            if not (
+                core_screen_geometry.isValid()
+                and target.intersected(core_screen_geometry).width() > 120
+                and target.intersected(core_screen_geometry).height() > 120
+            )
+        ]
+        candidate_targets = non_core_targets or targets
+        target = max(
+            candidate_targets,
+            key=lambda rect: abs(rect.center().x() - current_center.x()) + abs(rect.center().y() - current_center.y()),
+        )
+        dashboard_rect = self._monitoring_hud_travel_rect(
+            target,
+            max(self.width(), 700),
+            max(self.height(), 560),
+            align="center",
+        )
+
+        self.setGeometry(dashboard_rect)
+        self._monitoring_hud_interactive_screen_rect = self.geometry()
+        self._emit_monitoring_hud_window_status(source="dashboard_standalone_travel")
+        QApplication.processEvents()
+
+        dashboard_detail = self._monitoring_hud_window_travel_detail(
+            "dashboard_control_panel",
+            self,
+            target,
+            virtual,
+        )
+        overlay_geometry_after = overlay.geometry() if overlay is not None else QRect()
+        core_geometry_after = (
+            core.desktop_screen_geometry()
+            if core is not None and callable(getattr(core, "desktop_screen_geometry", None))
+            else core.geometry() if core is not None else QRect()
+        )
+        overlay_payload_before = self._monitoring_hud_rect_payload(overlay_geometry_before)
+        overlay_payload_after = self._monitoring_hud_rect_payload(overlay_geometry_after)
+        core_payload_before = self._monitoring_hud_rect_payload(core_geometry_before)
+        core_payload_after = self._monitoring_hud_rect_payload(core_geometry_after)
+        overlay_geometry_unchanged = overlay is None or overlay_payload_before == overlay_payload_after
+        core_geometry_unchanged = core is not None and core_payload_before == core_payload_after
+        dashboard_core_overlap = bool(
+            core_geometry_after.isValid()
+            and self.geometry().isValid()
+            and self.geometry().intersects(core_geometry_after)
+        )
+        dashboard_overlay_overlap = bool(
+            overlay is not None
+            and overlay_geometry_after.isValid()
+            and self.geometry().isValid()
+            and self.geometry().intersects(overlay_geometry_after)
+        )
+        clipping_ok = bool(
+            dashboard_detail.get("visible")
+            and dashboard_detail.get("withinTargetMonitor")
+            and dashboard_detail.get("withinVirtualDesktop")
+            and dashboard_detail.get("intersectsTargetMonitor")
+        )
+        core_ok = bool(
+            core is not None
+            and core.isVisible()
+            and self._monitoring_hud_rect_within(core_geometry_after, core_screen_geometry)
+            and core_geometry_unchanged
+        )
+        decoupling_ok = bool(overlay_geometry_unchanged and core_ok)
+        ok = bool(clipping_ok and decoupling_ok)
+
+        if ok:
+            self._emit_runtime_signal(
+                "MONITORING_HUD_DASHBOARD_STANDALONE_WINDOW_TRAVEL_READY",
+                package="PKG-006",
+                slice="SLC-026",
+                seam="WS32",
+                surface="dashboard_control_panel",
+                movement="dashboard_native_window_only",
+                virtual_desktop="all_monitors",
+                screen_count=len(targets),
+            )
+            self._emit_runtime_signal(
+                "MONITORING_HUD_DASHBOARD_CLIPPING_BOUNDARY_READY",
+                package="PKG-006",
+                slice="SLC-026",
+                seam="WS32",
+                surface="dashboard_control_panel",
+                within_target_monitor=str(bool(dashboard_detail.get("withinTargetMonitor"))).lower(),
+                within_virtual_desktop=str(bool(dashboard_detail.get("withinVirtualDesktop"))).lower(),
+                clipping="none",
+            )
+            self._emit_runtime_signal(
+                "MONITORING_HUD_DASHBOARD_CORE_OVERLAY_DECOUPLING_READY",
+                package="PKG-006",
+                slice="SLC-026",
+                seam="WS32",
+                overlay_geometry_unchanged=str(overlay_geometry_unchanged).lower(),
+                core_geometry_unchanged=str(core_geometry_unchanged).lower(),
+                overlay_acceptance="deferred_non_gating",
+                core_classification="dependency_only",
+            )
+
+        return {
+            "ok": ok,
+            "movement": "dashboard_native_window_only",
+            "screenCount": len(targets),
+            "virtualDesktop": self._monitoring_hud_rect_payload(virtual),
+            "dashboard": dashboard_detail,
+            "targetPolicy": "non_core_monitor_when_available",
+            "clippingOk": clipping_ok,
+            "decouplingOk": decoupling_ok,
+            "overlayGeometryUnchanged": overlay_geometry_unchanged,
+            "coreGeometryUnchanged": core_geometry_unchanged,
+            "overlay": {
+                "surface": "hud_overlay_display",
+                "releaseGate": "deferred_non_gating",
+                "geometryBefore": overlay_payload_before,
+                "geometryAfter": overlay_payload_after,
+                "geometryUnchanged": overlay_geometry_unchanged,
+                "dashboardOverlap": dashboard_overlay_overlap,
+            },
+            "core": {
+                "surface": "orin_persona_core_visualization",
+                "classification": "dependency_only",
+                "visible": core.isVisible() if core is not None else False,
+                "geometryBefore": core_payload_before,
+                "geometryAfter": core_payload_after,
+                "presetMonitor": self._monitoring_hud_rect_payload(core_screen_geometry),
+                "geometryUnchanged": core_geometry_unchanged,
+                "withinPresetMonitor": self._monitoring_hud_rect_within(core_geometry_after, core_screen_geometry),
+                "dashboardOverlap": dashboard_core_overlap,
+                "movable": False,
+            },
+        }
+
     def _promote_monitoring_hud_edit_window(self):
         try:
             hwnd = ctypes.wintypes.HWND(int(self.winId()))
@@ -7684,16 +7835,16 @@ class DesktopRuntimeWindow(QWidget):
             return all(pass_values), checks
 
         def step_surface_travel():
-            detail = self._monitoring_hud_run_surface_travel_probe()
-            capture("02_dashboard_overlay_virtual_desktop_travel")
+            detail = self._monitoring_hud_run_dashboard_standalone_probe()
+            capture("02_dashboard_standalone_virtual_desktop_travel")
             passed = bool(detail.get("ok"))
             add_step(
-                "dashboard and overlay move independently across virtual desktop without clipping while Core remains independent on the user-selected monitor",
+                "dashboard standalone window moves across virtual desktop without clipping while Core and Overlay remain decoupled",
                 passed,
                 detail,
             )
             if not passed:
-                finish("FAIL", "independent dashboard/overlay virtual-desktop travel proof failed")
+                finish("FAIL", "dashboard standalone window virtual-desktop travel proof failed")
                 return
             QTimer.singleShot(delay(900), step_hide)
 
@@ -8427,6 +8578,9 @@ class DesktopRuntimeWindow(QWidget):
                     monitoringHud.dataset.interfaceAcceptancePolicy = "dashboard-only-current-branch";
                     monitoringHud.dataset.dashboardAcceptanceBaseline = "ws31-dashboard-control-panel";
                     monitoringHud.dataset.dashboardProofPath = "dashboard-specific-static-live-uts";
+                    monitoringHud.dataset.dashboardStandaloneProof = "ws32-dashboard-window-travel";
+                    monitoringHud.dataset.dashboardClippingProof = "within-virtual-desktop";
+                    monitoringHud.dataset.dashboardDecouplingProof = "core-overlay-independent";
                     monitoringHud.dataset.overlayAcceptancePolicy = "deferred-non-gating";
                     monitoringHud.dataset.interfaceBundleApproval = "not-granted";
                     monitoringHud.dataset.coreRepairClassification = "dependency-repair-only";

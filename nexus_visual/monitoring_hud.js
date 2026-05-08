@@ -186,6 +186,9 @@ function monitoringHudRenderMonitorManagement() {
     monitoringHud.dataset.interfaceAcceptancePolicy = "dashboard-only-current-branch";
     monitoringHud.dataset.dashboardAcceptanceBaseline = "ws31-dashboard-control-panel";
     monitoringHud.dataset.dashboardProofPath = "dashboard-specific-static-live-uts";
+    monitoringHud.dataset.dashboardStandaloneProof = "ws32-dashboard-window-travel";
+    monitoringHud.dataset.dashboardClippingProof = "within-virtual-desktop";
+    monitoringHud.dataset.dashboardDecouplingProof = "core-overlay-independent";
     monitoringHud.dataset.overlayAcceptancePolicy = "deferred-non-gating";
     monitoringHud.dataset.interfaceBundleApproval = "not-granted";
     monitoringHud.dataset.coreRepairClassification = "dependency-repair-only";
@@ -728,6 +731,9 @@ window.getMonitoringHudSurfaceSplitState = function() {
     primaryInterfaceReleaseSurface: monitoringHud ? monitoringHud.dataset.primaryInterfaceReleaseSurface || "" : "",
     dashboardAcceptanceBaseline: monitoringHud ? monitoringHud.dataset.dashboardAcceptanceBaseline || "" : "",
     dashboardProofPath: monitoringHud ? monitoringHud.dataset.dashboardProofPath || "" : "",
+    dashboardStandaloneProof: monitoringHud ? monitoringHud.dataset.dashboardStandaloneProof || "" : "",
+    dashboardClippingProof: monitoringHud ? monitoringHud.dataset.dashboardClippingProof || "" : "",
+    dashboardDecouplingProof: monitoringHud ? monitoringHud.dataset.dashboardDecouplingProof || "" : "",
     interfaceAcceptancePolicy: monitoringHud ? monitoringHud.dataset.interfaceAcceptancePolicy || "" : "",
     overlayAcceptancePolicy: monitoringHud ? monitoringHud.dataset.overlayAcceptancePolicy || "" : "",
     interfaceBundleApproval: monitoringHud ? monitoringHud.dataset.interfaceBundleApproval || "" : "",
@@ -746,6 +752,9 @@ window.getMonitoringHudDashboardAcceptanceState = function() {
     primaryInterfaceReleaseSurface: split.primaryInterfaceReleaseSurface || "",
     dashboardAcceptanceBaseline: split.dashboardAcceptanceBaseline || "",
     dashboardProofPath: split.dashboardProofPath || "",
+    dashboardStandaloneProof: split.dashboardStandaloneProof || "",
+    dashboardClippingProof: split.dashboardClippingProof || "",
+    dashboardDecouplingProof: split.dashboardDecouplingProof || "",
     interfaceAcceptancePolicy: split.interfaceAcceptancePolicy || "",
     overlayAcceptancePolicy: split.overlayAcceptancePolicy || "",
     interfaceBundleApproval: split.interfaceBundleApproval || "",
@@ -760,6 +769,11 @@ window.getMonitoringHudDashboardAcceptanceState = function() {
       && split.dashboardAcceptanceBaseline === "ws31-dashboard-control-panel"
       && split.interfaceAcceptancePolicy === "dashboard-only-current-branch"
       && split.interfaceBundleApproval === "not-granted"
+    ),
+    dashboardStandaloneMovementReady: Boolean(
+      split.dashboardStandaloneProof === "ws32-dashboard-window-travel"
+      && split.dashboardClippingProof === "within-virtual-desktop"
+      && split.dashboardDecouplingProof === "core-overlay-independent"
     )
   };
 };

@@ -24,7 +24,7 @@ This branch may execute the admitted PKG-006 implementation slices during Workst
 
 ## Status
 
-- `Workstream WS32 - Dashboard Standalone Window Movement Clipping And Core Overlay Decoupling Proof`
+- `Workstream WS33 - Dashboard Settings Control Content Polish And Monitor Management Clarity`
 
 ## Canonical Branch
 
@@ -37,7 +37,7 @@ This branch may execute the admitted PKG-006 implementation slices during Workst
 ## Phase Status
 
 - Branch Readiness Stage: `Complete - Stage 1-R10 revalidated the Dashboard-first interface boundary and Stage 2-R13 recorded the PASS plus Workstream handoff`
-- Workstream Stage: `Active - WS32 Dashboard Standalone Window Movement Clipping And Core Overlay Decoupling Proof is the next bounded Dashboard-focused repair seam after WS31 established the Dashboard-only acceptance baseline and Overlay/display non-gating proof separation`
+- Workstream Stage: `Active - WS33 Dashboard Settings Control Content Polish And Monitor Management Clarity is the next bounded Dashboard-focused repair seam after WS32 proved Dashboard standalone window movement, clipping safety, and Core/Overlay decoupling`
 - Hardening Stage: `Blocked - Dashboard-focused Workstream repair, Hardening rerun, Live Validation rerun, and returned UTS acceptance must pass before Hardening can be green`
 - Live Validation Stage: `Red - LV1 returned User Test Summary evidence contains blocking findings; LV1 is not green and must route back before PR Readiness`
 - Active Branch: `feature/fam-006-monitoring-hud-product-surface`
@@ -159,15 +159,15 @@ Rollback Path: revert the Stage 2-R13 source-truth closeout commit on `feature/f
 
 - `Workstream`
 
-Next Legal Seam: `Workstream WS32 - Dashboard Standalone Window Movement Clipping And Core Overlay Decoupling Proof`
+Next Legal Seam: `Workstream WS33 - Dashboard Settings Control Content Polish And Monitor Management Clarity`
 
-Next Legal Phase Gate: WS31 records that Dashboard/control panel acceptance is the current-branch release gate and Overlay/display acceptance is deferred/dormant/non-gating supporting evidence. Live Validation remains red and PR Readiness must not begin until Dashboard-focused Workstream repair, Hardening rerun, active-client Live Validation rerun, and returned User Test Summary acceptance pass. WS32 must prove Dashboard standalone window movement, clipping safety, and Core/Overlay decoupling without admitting Overlay/display release acceptance. Repair must preserve provider-contract-first truth, no fake metrics, visual/non-invasive warnings, ORIN/ARIA planning boundaries, future-package deferrals, user-facing shortcut/equivalent entrypoint proof, full virtual-desktop screenshot handoff, and formal User Test Summary returned-results digestion. It must not create a PR, watcher, release, tag, artifact, direct-main mutation, voice/audio implementation, Stream Deck/plugin telemetry implementation, local AI, installer/capability-pack work, broad hardware provider implementation, persona switching implementation, ARIA activation, Overlay/display release acceptance, or a new FAM/package without later explicit USER approval.
+Next Legal Phase Gate: WS32 records that Dashboard/control panel movement is native-window-only, clipping is bounded to the full virtual desktop, Core geometry remains fixed as dependency-only proof, and Overlay/display geometry remains unchanged as deferred/non-gating evidence. Live Validation remains red and PR Readiness must not begin until Dashboard-focused Workstream repair, Hardening rerun, active-client Live Validation rerun, and returned User Test Summary acceptance pass. WS33 must polish Dashboard settings/control content and monitor-management clarity without admitting Overlay/display release acceptance. Repair must preserve provider-contract-first truth, no fake metrics, visual/non-invasive warnings, ORIN/ARIA planning boundaries, future-package deferrals, user-facing shortcut/equivalent entrypoint proof, full virtual-desktop screenshot handoff, and formal User Test Summary returned-results digestion. It must not create a PR, watcher, release, tag, artifact, direct-main mutation, voice/audio implementation, Stream Deck/plugin telemetry implementation, local AI, installer/capability-pack work, broad hardware provider implementation, persona switching implementation, ARIA activation, Overlay/display release acceptance, or a new FAM/package without later explicit USER approval.
 
 ## Active Seam
 
-Active seam: `Workstream WS32 - Dashboard Standalone Window Movement Clipping And Core Overlay Decoupling Proof`
+Active seam: `Workstream WS33 - Dashboard Settings Control Content Polish And Monitor Management Clarity`
 
-Active Seam Status: `Ready to execute bounded Dashboard-focused Workstream repair after WS31 established the Dashboard-only acceptance baseline and Overlay/display non-gating proof separation`
+Active Seam Status: `Ready to execute bounded Dashboard-focused Workstream repair after WS32 proved Dashboard standalone movement, clipping, and Core/Overlay decoupling`
 
 ## Branch Objective
 
@@ -443,7 +443,7 @@ Branch Closure Rule: Stage 2-R13 hands this branch back to bounded Dashboard-foc
 ## Backlog Completion Status
 
 Backlog Completion State: `In Progress`
-Remaining Implementable Work: `Dashboard-focused Workstream repair continues with WS32 Dashboard standalone window movement/clipping/Core-Overlay decoupling proof, WS33 Dashboard settings/control content polish and monitor-management clarity, WS34 Dashboard provider/setup/no-data/degraded truth plus warning posture controls, and WS35 Dashboard-specific static/live proof, screenshots, and UTS handoff refresh before Dashboard hardening rerun, active-client Live Validation rerun, and returned UTS acceptance can support package completion`
+Remaining Implementable Work: `Dashboard-focused Workstream repair continues with WS33 Dashboard settings/control content polish and monitor-management clarity, WS34 Dashboard provider/setup/no-data/degraded truth plus warning posture controls, and WS35 Dashboard-specific static/live proof, screenshots, and UTS handoff refresh before Dashboard hardening rerun, active-client Live Validation rerun, and returned UTS acceptance can support package completion`
 Future-Dependent Blockers: `full HWInfo/HWMonitor-level parity, broad plugin/external telemetry ecosystem, audio/spoken alerts or FAM-004 integration, persona switching implementation and ARIA activation, Stream Deck, graphs/history/persistence/dashboards, local AI/capability-pack monitoring, installer/capability-pack work, and ultra-low polling intervals remain deferred pending later approval, admission, and proof`
 Completion Status: `In Progress`
 
@@ -473,7 +473,7 @@ Bounded Seam Default: `One active seam at a time; not one-seam Workstream author
 - If only one seam or one slice is planned or visible, stop immediately on `Single-Seam Or Single-Slice Workstream Blocker` until Branch Readiness expands the plan or USER grants a waiver.
 - Only USER can grant a single-seam or single-slice Workstream waiver; Codex, ChatGPT, validators, prompt wording, clean validation, or a green seam cannot infer it.
 - A Workstream with `Completion Status: In Progress` and no waiver must show remaining same-branch implementable work beyond the current seam.
-- PKG-006 has a recorded bounded multi-seam Workstream chain from WS18 through WS30 plus the Dashboard-focused WS31 through WS35 continuation plan, so the single-seam blocker is not active. WS31 establishes the Dashboard-only acceptance baseline and advances to WS32; Workstream cannot stop after WS31 unless completion is green, a named blocker is active, or USER grants an explicit waiver.
+- PKG-006 has a recorded bounded multi-seam Workstream chain from WS18 through WS30 plus the Dashboard-focused WS31 through WS35 continuation plan, so the single-seam blocker is not active. WS31 established the Dashboard-only acceptance baseline, WS32 proved Dashboard standalone movement/clipping/Core-Overlay decoupling, and Workstream must continue to WS33 unless completion is green, a named blocker is active, or USER grants an explicit waiver.
 
 ## Admitted Implementation Slice
 
@@ -659,11 +659,11 @@ Slice Status: In Progress
 Completion Status: In Progress
 Waiver Status: None
 Continue Decision: Continue
-Continuation Execution Latch: Active - final seam-closeout response is prohibited while `Continue Decision` remains `Continue`; execute WS32 in the same bounded Workstream run unless a named blocker or explicit USER waiver is recorded.
+Continuation Execution Latch: Active - final seam-closeout response is prohibited while `Continue Decision` remains `Continue`; execute WS33 in the same bounded Workstream run unless a named blocker or explicit USER waiver is recorded.
 Stop Basis: None
-Next Active Seam: Workstream WS32 - Dashboard Standalone Window Movement Clipping And Core Overlay Decoupling Proof
+Next Active Seam: Workstream WS33 - Dashboard Settings Control Content Polish And Monitor Management Clarity
 Stop Condition: None for current Workstream continuation
-Continuation Action: Continue the multi-slice HUD implementation continuation as bounded Dashboard-focused Workstream at WS32 while preserving the WS18-WS30 proof chain as historical/supporting evidence, WS31 Dashboard-only acceptance baseline evidence, LV1 red, PR blocked, PKG-006 In Progress, package completion unclaimed, no single-seam waiver, no PR/release work, and no final package completion before Dashboard-focused Workstream repair, Hardening rerun, Live Validation rerun, and returned UTS acceptance.
+Continuation Action: Continue the multi-slice HUD implementation continuation as bounded Dashboard-focused Workstream at WS33 while preserving the WS18-WS30 proof chain as historical/supporting evidence, WS31 Dashboard-only acceptance baseline evidence, WS32 Dashboard standalone movement/clipping/decoupling evidence, LV1 red, PR blocked, PKG-006 In Progress, package completion unclaimed, no single-seam waiver, no PR/release work, and no final package completion before Dashboard-focused Workstream repair, Hardening rerun, Live Validation rerun, and returned UTS acceptance.
 
 ## Live Validation Continuation Decision
 
@@ -675,7 +675,7 @@ Completion Detail: `Package completion remains unclaimed; Live Validation final 
 Waiver Status: `None`
 Continue Decision: `Stop`
 Stop Basis: `User Test Summary Returned With Blocking Findings`
-Next Active Seam: `Workstream WS32 - Dashboard Standalone Window Movement Clipping And Core Overlay Decoupling Proof`
+Next Active Seam: `Workstream WS33 - Dashboard Settings Control Content Polish And Monitor Management Clarity`
 Stop Condition: `Live Validation LV1-R1 FAIL - returned USER evidence keeps Live Validation and PR Readiness blocked until bounded Workstream repair, Hardening rerun, Live Validation rerun, and returned UTS acceptance pass`
 Continuation Action: `Stage 2-R12 supersedes the prior Hardening handoff and requires Stage 1-R10 Dashboard-first interface boundary revalidation before Workstream or Hardening resumes. Do not create a PR, watcher, release, tag, artifact, direct-main mutation, voice/audio widening, Stream Deck work, local AI work, installer work, broad provider platform work, persona switching, Overlay/display release acceptance, or new FAM/package work without later approval.`
 
@@ -1230,6 +1230,23 @@ Validation Evidence Expectations: return PASS/FAIL plus any notes, screenshots, 
 - Package Completion: `Unclaimed`
 - LV1 / PR Status: `LV1 remains historical red; PR Readiness remains blocked until Dashboard-focused repair, Hardening rerun, Live Validation rerun, and returned USER acceptance pass`
 - Next Active Seam: Workstream WS32 - Dashboard Standalone Window Movement Clipping And Core Overlay Decoupling Proof
+
+## Workstream WS32 Dashboard Standalone Window Movement Clipping And Core Overlay Decoupling Proof
+
+- WS32 Result: `Green - Dashboard standalone window movement, clipping boundary, and Core/Overlay decoupling proof recorded`
+- Dashboard Standalone Movement: `dashboard native window moves across the virtual desktop as the Dashboard/control panel release surface; movement proof is dashboard-only and does not move the deferred Overlay/display surface.`
+- Clipping Boundary: `Dashboard proof requires the moved window to remain within the target monitor and full virtual desktop so it does not disappear, clip to the Core, or clip to the Overlay/display surface.`
+- Core / Overlay Decoupling: `Core geometry and Overlay/display geometry remain unchanged during Dashboard-only movement proof; Core remains dependency-only and Overlay/display remains deferred/non-gating.`
+- Runtime Markers: `MONITORING_HUD_DASHBOARD_STANDALONE_WINDOW_TRAVEL_READY; MONITORING_HUD_DASHBOARD_CLIPPING_BOUNDARY_READY; MONITORING_HUD_DASHBOARD_CORE_OVERLAY_DECOUPLING_READY`
+- Dashboard Runtime Contract: `data-dashboard-standalone-proof="ws32-dashboard-window-travel"; data-dashboard-clipping-proof="within-virtual-desktop"; data-dashboard-decoupling-proof="core-overlay-independent"`
+- Overlay Classification: `deferred/non-gating - existing Overlay/display evidence remains supporting/future-interface proof and must not block or satisfy Dashboard acceptance without later USER-approved interface-bundle or future Overlay/display release admission`
+- Core Classification: `dependency-only - ORIN/Core proof protects desktop safety but is not the current FAM-006 release-interface acceptance surface`
+- Validator / Proof Path: `Static validator, internal sandbox validator, live helper manifest, and active-client self-QA now distinguish Dashboard standalone movement/clipping/decoupling proof from historical whole-HUD/Overlay proof.`
+- Dashboard Acceptance Pending: `Dashboard Acceptance Pending remains active; WS32 does not prove final Dashboard content polish, provider/setup/no-data/degraded truth, warning posture controls, final dashboard screenshots, returned UTS acceptance, Hardening green, Live Validation green, PR Readiness, or package completion.`
+- Package Status: `PKG-006 remains In Progress`
+- Package Completion: `Unclaimed`
+- LV1 / PR Status: `LV1 remains historical red; PR Readiness remains blocked until Dashboard-focused repair, Hardening rerun, Live Validation rerun, and returned USER acceptance pass`
+- Next Active Seam: Workstream WS33 - Dashboard Settings Control Content Polish And Monitor Management Clarity
 
 ## Historical WS30 Codex Live Client Self-QA
 

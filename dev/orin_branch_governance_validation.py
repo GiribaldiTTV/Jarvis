@@ -251,6 +251,12 @@ FAM006_WS31_HEADING = (
 FAM006_WS31_NEXT_SEAM = (
     "Workstream WS32 - Dashboard Standalone Window Movement Clipping And Core Overlay Decoupling Proof"
 )
+FAM006_WS32_HEADING = (
+    "Workstream WS32 Dashboard Standalone Window Movement Clipping And Core Overlay Decoupling Proof"
+)
+FAM006_WS32_NEXT_SEAM = (
+    "Workstream WS33 - Dashboard Settings Control Content Polish And Monitor Management Clarity"
+)
 FAM006_STAGE2_R6_REQUIRED_MARKERS = (
     "Current-Branch Scope Final:",
     "Future-Package Scope Final:",
@@ -420,6 +426,28 @@ FAM006_WS31_REQUIRED_PHRASES = (
     "LV1 remains historical red",
     "Next Active Seam:",
     FAM006_WS31_NEXT_SEAM,
+)
+FAM006_WS32_REQUIRED_PHRASES = (
+    "WS32 Result:",
+    "Green - Dashboard standalone window movement, clipping boundary, and Core/Overlay decoupling proof recorded",
+    "Dashboard Standalone Movement:",
+    "dashboard native window moves across the virtual desktop",
+    "Clipping Boundary:",
+    "within the target monitor and full virtual desktop",
+    "Core / Overlay Decoupling:",
+    "Core geometry and Overlay/display geometry remain unchanged",
+    "Runtime Markers:",
+    "MONITORING_HUD_DASHBOARD_STANDALONE_WINDOW_TRAVEL_READY",
+    "MONITORING_HUD_DASHBOARD_CLIPPING_BOUNDARY_READY",
+    "MONITORING_HUD_DASHBOARD_CORE_OVERLAY_DECOUPLING_READY",
+    "Overlay Classification:",
+    "deferred/non-gating",
+    "Core Classification:",
+    "dependency-only",
+    "Package Completion:",
+    "Unclaimed",
+    "Next Active Seam:",
+    FAM006_WS32_NEXT_SEAM,
 )
 FAM006_WORKSTREAM_CONTINUATION_REQUIRED_PHRASES = (
     "multi-slice HUD implementation continuation",
@@ -4884,6 +4912,7 @@ def _validate_fam006_stage2_r6_plan(
     stage2_r12_section = _section(text, FAM006_STAGE2_R12_HEADING)
     stage2_r13_section = _section(text, FAM006_STAGE2_R13_HEADING)
     ws31_section = _section(text, FAM006_WS31_HEADING)
+    ws32_section = _section(text, FAM006_WS32_HEADING)
     has_stage2_r8_blocker = LEGACY_PRODUCT_NAME_DRIFT_BLOCKER in blockers
 
     if current_phase == "Branch Readiness":
@@ -5097,6 +5126,36 @@ def _validate_fam006_stage2_r6_plan(
                     f"'{required_phrase}'"
                 ),
             )
+        if ws32_section:
+            for phrase in FAM006_WS32_REQUIRED_PHRASES:
+                require(
+                    phrase in ws32_section,
+                    f"{source_path}: {FAM006_WS32_HEADING} is missing '{phrase}'",
+                )
+            require(
+                f"Active seam: `{FAM006_WS32_NEXT_SEAM}`" in text,
+                f"{source_path}: WS32 completion must advance active seam to WS33",
+            )
+            require(
+                f"Next Active Seam: {FAM006_WS32_NEXT_SEAM}" in text,
+                f"{source_path}: WS32 completion must set Seam Continuation Decision next active seam to WS33",
+            )
+            require(
+                "Remaining Implementable Work: `Dashboard-focused Workstream repair continues with WS33"
+                in text,
+                (
+                    f"{source_path}: WS32 completion must preserve visible same-branch "
+                    "Dashboard repair work beyond the current seam"
+                ),
+            )
+            require(
+                "Dashboard Acceptance Pending remains active"
+                in ws32_section,
+                (
+                    f"{source_path}: WS32 must not claim Dashboard acceptance or package completion"
+                ),
+            )
+            return
         if ws31_section:
             for phrase in FAM006_WS31_REQUIRED_PHRASES:
                 require(

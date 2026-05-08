@@ -190,6 +190,30 @@ function Save-Manifest([object]$Paths, [string]$PythonExe) {
             ($interactionRaw -match '"withinVirtualDesktop"\s*:\s*true')
         )
     )
+    $dashboardStandaloneWindowTravelReady = (
+        ($observedMarkers -contains "MONITORING_HUD_DASHBOARD_STANDALONE_WINDOW_TRAVEL_READY") -or
+        (
+            ($interactionRaw -match 'dashboard standalone window moves across virtual desktop without clipping') -and
+            ($interactionRaw -match '"ok"\s*:\s*true') -and
+            ($interactionRaw -match '"movement"\s*:\s*"dashboard_native_window_only"')
+        )
+    )
+    $dashboardClippingBoundaryReady = (
+        ($observedMarkers -contains "MONITORING_HUD_DASHBOARD_CLIPPING_BOUNDARY_READY") -or
+        (
+            ($interactionRaw -match '"clippingOk"\s*:\s*true') -and
+            ($interactionRaw -match '"withinTargetMonitor"\s*:\s*true') -and
+            ($interactionRaw -match '"withinVirtualDesktop"\s*:\s*true')
+        )
+    )
+    $dashboardCoreOverlayDecouplingReady = (
+        ($observedMarkers -contains "MONITORING_HUD_DASHBOARD_CORE_OVERLAY_DECOUPLING_READY") -or
+        (
+            ($interactionRaw -match '"decouplingOk"\s*:\s*true') -and
+            ($interactionRaw -match '"overlayGeometryUnchanged"\s*:\s*true') -and
+            ($interactionRaw -match '"coreGeometryUnchanged"\s*:\s*true')
+        )
+    )
     $coreIndependentPresetMonitorReady = (
         ($observedMarkers -contains "CORE_VISUALIZATION_INDEPENDENT_PRESET_MONITOR_READY") -or
         (
@@ -214,7 +238,7 @@ function Save-Manifest([object]$Paths, [string]$PythonExe) {
         package = "PKG-006"
         slice = "SLC-029"
         seam = "Live Validation LV1 - Monitoring HUD Product Surface Live Validation"
-        proofStandard = "WS30 active-client before-after desktop proof plus fixed Core/HUD surface separation"
+        proofStandard = "WS32 Dashboard-first active-client standalone movement, clipping, and Core/Overlay decoupling proof"
         primaryInterfaceReleaseSurface = "monitoring-hud-dashboard-control-panel"
         dashboardFirstWorkstreamHandoff = "ws31-dashboard-control-panel-acceptance-baseline"
         dashboardOnlyAcceptanceBaseline = "ws31-dashboard-control-panel"
@@ -252,6 +276,9 @@ function Save-Manifest([object]$Paths, [string]$PythonExe) {
             edgelessOverlayCanvasReady = $observedMarkers -contains "MONITORING_HUD_EDGELESS_OVERLAY_CANVAS_READY"
             standaloneDashboardWindowReady = [bool]$standaloneDashboardWindowReady
             surfaceNativeIndependenceReady = [bool]$surfaceNativeIndependenceReady
+            dashboardStandaloneWindowTravelReady = [bool]$dashboardStandaloneWindowTravelReady
+            dashboardClippingBoundaryReady = [bool]$dashboardClippingBoundaryReady
+            dashboardCoreOverlayDecouplingReady = [bool]$dashboardCoreOverlayDecouplingReady
             overlayCardsMovableReady = [bool]$overlayCardsMovableReady
             surfaceVirtualDesktopTravelReady = [bool]$surfaceVirtualDesktopTravelReady
             coreIndependentPresetMonitorReady = [bool]$coreIndependentPresetMonitorReady
@@ -370,6 +397,13 @@ try {
         "RENDERER_MAIN|STARTUP_READY",
         "DESKTOP_OUTCOME|SETTLED|state=dormant"
     )
+    if ($effectiveRunInteractionSelfQA) {
+        $requiredMarkers += @(
+            "MONITORING_HUD_DASHBOARD_STANDALONE_WINDOW_TRAVEL_READY",
+            "MONITORING_HUD_DASHBOARD_CLIPPING_BOUNDARY_READY",
+            "MONITORING_HUD_DASHBOARD_CORE_OVERLAY_DECOUPLING_READY"
+        )
+    }
 
     foreach ($marker in $requiredMarkers) {
         Wait-Marker $paths $marker
