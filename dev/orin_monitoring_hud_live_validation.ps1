@@ -6,6 +6,7 @@ param(
     [switch]$RunInteractionSelfQA,
     [switch]$VisibleClient,
     [switch]$ActiveUserFacingClient,
+    [switch]$PrepareLiveValidationUserTestSummary,
     [int]$InteractionStepDelayMilliseconds = 250,
     [int]$FinalClientHoldSeconds = 0
 )
@@ -245,7 +246,7 @@ function Save-Manifest([object]$Paths, [string]$PythonExe) {
         package = "PKG-006"
         slice = "SLC-029"
         seam = "Live Validation LV1 - Monitoring HUD Product Surface Live Validation"
-        proofStandard = "WS35 Dashboard-specific static/live proof screenshots and UTS handoff refresh proof"
+        proofStandard = "Dashboard-specific static/live proof screenshots; User Test Summary export is Live Validation Stage 1 only"
         primaryInterfaceReleaseSurface = "monitoring-hud-dashboard-control-panel"
         dashboardFirstWorkstreamHandoff = "ws31-dashboard-control-panel-acceptance-baseline"
         dashboardOnlyAcceptanceBaseline = "ws31-dashboard-control-panel"
@@ -257,9 +258,9 @@ function Save-Manifest([object]$Paths, [string]$PythonExe) {
         dashboardFirstProofPath = $true
         dashboardSpecificProofRefreshReady = $true
         dashboardSpecificStaticLiveProofReady = $true
-        dashboardUserTestSummaryHandoffRefreshed = $true
-        dashboardUserTestSummaryHandoffPath = $Paths.UserTestSummary
-        dashboardUserTestSummaryReturnedResults = "reserved-for-live-validation"
+        dashboardUserTestSummaryExportRefreshed = [bool]$PrepareLiveValidationUserTestSummary
+        dashboardUserTestSummaryExportPath = if ($PrepareLiveValidationUserTestSummary) { $Paths.UserTestSummary } else { "" }
+        dashboardUserTestSummaryReturnedResults = "live-validation-stage-1-only"
         dashboardSpecificProof = [pscustomobject]@{
             beforeLaunchFullVirtualDesktopScreenshot = [bool]$script:BeforeScreenshotPath
             afterLaunchFullVirtualDesktopScreenshot = [bool]$script:ScreenshotPath
@@ -278,7 +279,8 @@ function Save-Manifest([object]$Paths, [string]$PythonExe) {
             dashboardStateModelReady = [bool]$dashboardStateModelReady
             dashboardWarningControlsReady = [bool]$dashboardWarningControlsReady
             noFakeTelemetryPosture = $observedMarkers -contains "MONITORING_HUD_STATUS_BEHAVIOR_READY"
-            userTestSummaryHandoffRefreshed = $true
+            userTestSummaryExportRefreshed = [bool]$PrepareLiveValidationUserTestSummary
+            userTestSummaryPhaseBoundary = "live-validation-stage-1-only"
             returnedUserTestSummaryDigestReserved = $true
         }
         python = $PythonExe
@@ -346,16 +348,16 @@ function Save-UserTestSummaryHandoff([object]$Paths) {
     $content = @"
 Nexus Desktop AI - User Test Summary
 Workstream: FAM-006 Monitoring and HUD Product Surface Package
-Current Phase: Workstream WS35 Dashboard-specific proof handoff copy
+Current Phase: Live Validation Stage 1 User Test Summary handoff
 Branch: feature/fam-006-monitoring-hud-product-surface
 Date: $(Get-Date -Format "yyyy-MM-dd HH:mm:ss zzz")
 Status: DRAFT HANDOFF COPY - NOT RETURNED RESULTS
 
 Important Phase Note
-- This file is refreshed during Workstream so the later Live Validation handoff is current.
-- Do not treat this file as a USER PASS, FAIL, or WAIVER until USER fills it out and Codex digests it during Live Validation.
-- Workstream remains responsible for implementation, internal validation, active live-client self-QA, screenshots, and source-truth proof before any Hardening or Live Validation green claim.
-- This handoff is Dashboard-first. Overlay/display release acceptance is deferred and non-gating unless USER later approves an interface bundle.
+- User Test Summary is exclusive to Live Validation.
+- This file is generated only during Live Validation Stage 1 so USER can return PASS, FAIL, or WAIVED results.
+- Live Validation Stage 1 cannot enter Live Validation Stage 2 until USER returns this file or explicitly waives it, Codex digests the result into source truth, and blockers are reevaluated.
+- Workstream and Hardening may produce screenshots, manifests, active-client self-QA, and proof notes, but they must not refresh or digest this desktop User Test Summary artifact.
 
 Fresh Evidence Root
 - $($Paths.Root)
@@ -371,17 +373,17 @@ Key Evidence Files
 - Interaction manifest: $($Paths.InteractionManifest)
 - Interaction screenshots: $($Paths.InteractionEvidenceRoot)
 
-Codex Self-QA Before Handoff
+Codex Self-QA Before Live Validation Stage 1 Handoff
 - Automated validators and live helper evidence: $($script:ManifestStatus).
 - Active foreground user-facing client self-QA: $($script:InteractionManifestStatus).
 - Dashboard-specific proof refresh: PASS when this file points to fresh before/after full-desktop screenshots and a PASS manifest.
-- User Test Summary Results: NOT REQUESTED IN WORKSTREAM.
-- Final phase advancement is blocked until Dashboard-focused Hardening rerun, Live Validation rerun, and returned User Test Summary digestion are complete.
+- User Test Summary Results: PENDING.
+- Live Validation Stage 2 advancement is BLOCKED until USER returns this file or explicitly waives it and Codex digests the result.
 
 What This Test Is Checking
 - The Monitoring Dashboard is the current branch's primary user-facing interface release surface.
 - The Dashboard is a Nexus/NDAI settings and control panel for HUD capability, monitor groups, monitor settings, polling posture, warning posture, provider/setup states, and future Overlay/display behavior.
-- Overlay/display release acceptance is deferred/non-gating for this branch's Dashboard acceptance path. Do not fail this Dashboard handoff because Overlay/display release acceptance is not being requested.
+- Overlay/display release acceptance is deferred and non-gating for this branch's Dashboard acceptance path. Do not fail this Dashboard handoff because Overlay/display release acceptance is not being requested.
 - ORIN/Core is dependency-only proof for desktop safety. It should remain independent from the Dashboard and should not be judged as a released FAM-006 interface in this handoff.
 - Dashboard proof should show a visible, readable, polished, independently movable control panel with no clipping, no Core/Overlay coupling, no fake telemetry, provider-contract-first setup/no-data/degraded truth, and visual/non-invasive warning controls.
 
@@ -451,7 +453,7 @@ Final USER Result
 "@
 
     Set-Content -LiteralPath $Paths.UserTestSummary -Value $content -Encoding utf8
-    Step $Paths "refreshed Dashboard-first User Test Summary handoff: $($Paths.UserTestSummary)"
+    Step $Paths "refreshed Live Validation Stage 1 User Test Summary handoff: $($Paths.UserTestSummary)"
 }
 
 function Quote-ProcessArgument([string]$Value) {
@@ -608,7 +610,12 @@ finally {
         }
     }
     Save-Manifest $paths $pythonExe
-    Save-UserTestSummaryHandoff $paths
+    if ($PrepareLiveValidationUserTestSummary) {
+        Save-UserTestSummaryHandoff $paths
+    }
+    else {
+        Step $paths "skipped User Test Summary export: UTS is Live Validation Stage 1 only"
+    }
     if ($script:ManifestStatus -eq "PASS") {
         Write-Output "PASS: FAM-006 Monitoring/HUD live desktop proof captured at $($paths.Root)"
     }

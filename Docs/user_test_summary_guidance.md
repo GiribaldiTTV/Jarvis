@@ -4,8 +4,11 @@
 
 This document defines how Nexus Desktop AI uses User Test Summary (`UTS`) handoff.
 
-`UTS` is a validation-contract layer.
-It is owned by the relevant workstream and this guidance document.
+`UTS` is a Live Validation validation-contract layer.
+Formal User Test Summary export and returned-results digestion are exclusive to Live Validation Stage 1.
+User Test Summary is exclusive to Live Validation Stage 1.
+Live Validation Stage 1 cannot enter Live Validation Stage 2 until User Test Summary results are `PASS` or `WAIVED`, Codex has digested the result into source truth, and blockers have been reevaluated.
+Live Validation Stage 1 cannot enter Stage 2 until User Test Summary results are `PASS` or `WAIVED`, Codex has digested the result into source truth, and blockers have been reevaluated.
 
 `UTS` is not:
 
@@ -17,29 +20,30 @@ It is owned by the relevant workstream and this guidance document.
 
 Use this ownership split:
 
-- workstream doc = why the validation matters, how it fits the lane, and the canonical repo-level `UTS` artifact for that workstream unless a different repo path is explicitly declared there
+- workstream doc = why later user validation matters, how it fits the lane, and the `User Test Summary Strategy` / Live Validation readiness expectations for that workstream
 - `Docs/user_test_summary_guidance.md` = the structure and handling rules for the handoff
-- response-level `## User Test Summary` = the current user-facing handoff copy, not a replacement for the canonical repo artifact
+- response-level `## User Test Summary` = Live Validation Stage 1 user-facing handoff copy, not Workstream or Hardening completion evidence
 - returned `UTS` evidence = user validation input that must be digested before recommending the next move
 
 Docs-only passes that do not require user-run validation normally do not need a `UTS`.
 
-When a Workstream task changes user-visible behavior or another operator-facing path, the default expectation is that Codex will keep a `User Test Summary Strategy` or draft handoff plan current unless manual testing is not materially relevant.
-The formal `## User Test Summary` handoff and returned-results gate belong to `Live Validation` after the user-facing shortcut or equivalent entrypoint gate is ready.
+When a Workstream task changes user-visible behavior or another operator-facing path, Codex must keep a `User Test Summary Strategy` or later Live Validation readiness note current unless manual testing is not materially relevant.
+Workstream and Hardening must not create, refresh, digest, or treat the formal desktop `User Test Summary.txt` export as phase evidence.
+The formal `## User Test Summary` handoff and returned-results gate belong to `Live Validation Stage 1` after the user-facing shortcut or equivalent entrypoint gate is ready.
 
 ## Canonical Repo Artifact Rule
 
-For active desktop workstreams, the default canonical repo-level `UTS` artifact is:
+For active desktop workstreams, the default canonical repo-level UTS planning surface before Live Validation is:
 
-- the `## User Test Summary` section inside the relevant canonical workstream doc under `Docs/workstreams/`
+- the `## User Test Summary Strategy` section inside the relevant canonical workstream doc under `Docs/workstreams/`
 
-Use a different repo-level artifact path only when that workstream doc explicitly declares one.
+The exact formal `## User Test Summary` artifact is created or refreshed only during Live Validation Stage 1 unless USER explicitly grants a waiver or a different Live Validation handoff path.
 
 When a Workstream slice changes user-visible behavior or another operator-facing desktop path, Codex must normally keep later UTS needs current without treating returned user results as a Workstream gate:
 
-- include a detailed `User Test Summary Strategy` or draft handoff plan in the response or output when manual validation will be relevant later
+- include a detailed `User Test Summary Strategy` or Live Validation readiness plan in the response or output when manual validation will be relevant later
 - update the canonical repo-level UTS strategy for the active workstream in the same branch
-- defer the final `C:\Users\anden\OneDrive\Desktop\User Test Summary.txt` handoff export until `Live Validation`, unless the active authority record explicitly approves an earlier draft export as non-source-truth convenience copy
+- defer the final `C:\Users\anden\OneDrive\Desktop\User Test Summary.txt` handoff export until `Live Validation Stage 1`
 
 Response-only UTS strategy text is not sufficient when the canonical repo artifact exists and the supporting docs for that workstream are in scope.
 The formal returned-results blocker must not be listed while the current phase is `Workstream`.
@@ -105,16 +109,16 @@ A recap-style behavior summary is not sufficient when the user needs to run or v
 
 ## Desktop File Rule
 
-When a durable desktop copy is needed, use the rolling file:
+When a durable desktop copy is needed during Live Validation Stage 1, use the rolling file:
 
 - `C:\Users\anden\OneDrive\Desktop\User Test Summary.txt`
 
-That desktop file is the required user-facing exported copy for relevant desktop slices.
-It is not the canonical repo-level `UTS` artifact unless a workstream doc explicitly says otherwise.
+That desktop file is the required user-facing exported copy for relevant desktop Live Validation Stage 1 runs.
+It is not Workstream or Hardening evidence.
 
 Create or refresh that file by default when:
 
-- the slice changes desktop user-visible behavior or another desktop operator-facing path
+- Live Validation Stage 1 is admitted for a desktop user-visible behavior or another desktop operator-facing path
 - the user is likely to test outside the chat window
 - the validation flow is long enough that a durable copy helps
 - Dev Toolkit launch metadata must be preserved exactly
@@ -168,9 +172,10 @@ Named blocker:
 
 Definition:
 
-- Live Validation and PR Readiness must not report final green while a relevant user-facing workstream has a required `UTS` handoff outstanding and returned results have not been submitted and digested.
+- Live Validation Stage 1 must not enter Live Validation Stage 2 while a relevant user-facing workstream has a required `UTS` handoff outstanding and returned results have not been submitted and digested.
 - Live Validation green requires an exact `## User Test Summary` state before final green.
 - Workstream must not use `User Test Summary Results Pending` as its completion blocker; it must continue implementation, internal sandbox validation, or named implementation repair until Workstream completion is otherwise green or legally blocked.
+- PR Readiness may verify the previously digested Live Validation UTS state, but it must not create, refresh, or digest UTS as its own phase artifact.
 
 Required authority-record marker:
 

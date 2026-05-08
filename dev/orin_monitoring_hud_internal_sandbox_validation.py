@@ -108,8 +108,8 @@ def _validate_static_surface(failures: list[str]) -> None:
         "WS33 Result: `Green - Dashboard settings/control content polish and monitor-management clarity recorded",
         "Workstream WS34 Dashboard Provider Setup No-Data Degraded Truth And Warning Posture Controls",
         "WS34 Result: `Green - Dashboard provider/setup/no-data/degraded truth and visual warning posture controls recorded",
-        "Workstream WS35 Dashboard Specific Static Live Proof Screenshots And UTS Handoff Refresh",
-        "WS35 Result: `Green - Dashboard-specific static/live proof, screenshots, and draft UTS handoff refresh recorded",
+        "Workstream WS35 Dashboard Specific Static Live Proof Screenshots And Live Validation UTS Boundary",
+        "WS35 Result: `Green - Dashboard-specific static/live proof, screenshots, and Live Validation UTS boundary recorded",
         "Workstream WS36 Workstream Completion Review And Hardening Handoff Reconciliation",
         "WS36 Result: `Green - Dashboard-focused Workstream completion review passed and Hardening handoff recorded",
         "Next Active Seam: Hardening H1 - Monitoring HUD Product Surface Hardening Rerun",
@@ -125,7 +125,7 @@ def _validate_static_surface(failures: list[str]) -> None:
     for needle in (
         "Dashboard-first Workstream handoff posture",
         "Overlay/display deferred/non-gating classification",
-        "WS35 dashboard-specific proof refresh and draft UTS handoff",
+        "WS35 dashboard-specific proof refresh and Live Validation UTS boundary",
         "Historical WS18-WS30 markers remain supporting repair evidence",
     ):
         _require_contains(helper_registry, needle, "monitoring HUD helper registry", failures)
@@ -219,7 +219,7 @@ def _validate_static_surface(failures: list[str]) -> None:
         'data-primary-interface-release-surface="monitoring-hud-dashboard-control-panel"',
         'data-interface-acceptance-policy="dashboard-only-current-branch"',
         'data-dashboard-acceptance-baseline="ws31-dashboard-control-panel"',
-        'data-dashboard-proof-path="dashboard-specific-static-live-uts"',
+        'data-dashboard-proof-path="dashboard-specific-static-live"',
         'data-dashboard-standalone-proof="ws32-dashboard-window-travel"',
         'data-dashboard-clipping-proof="within-virtual-desktop"',
         'data-dashboard-decoupling-proof="core-overlay-independent"',
@@ -264,7 +264,7 @@ def _validate_static_surface(failures: list[str]) -> None:
         "Show or hide from dashboard/tray",
         "Readiness states",
         "Dashboard proof",
-        "Full desktop and UTS later",
+        "Full desktop now; UTS only in Live Validation Stage 1",
         "Dashboard acceptance only",
         'data-dashboard-content="monitor-group-management"',
         "Monitor group editor",

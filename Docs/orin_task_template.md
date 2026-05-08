@@ -238,6 +238,9 @@ Durability commit/push is not a lawful stop while `Continue Decision` remains `C
 If `Completion Status` is `In Progress`, `Next Active Seam` must remain a `Workstream` seam; phase-exit seams require `Completion Status: Green`, `Completion Status: Red` with a named blocker/waiver, or explicit USER single-seam/backlog-split waiver.
 `Phase: Workstream` must remain bounded at all times, and the only lawful `Workstream` stop conditions are `Completion Status: Green` with `Hardening` next, or `Completion Status: Red` justified by a named blocker or waiver.
 `Phase: Workstream` must remain bounded at all times; the only lawful `Workstream` stop conditions are `Completion Status: Green` with `Hardening` next, or `Completion Status: Red` justified by a named blocker or waiver.
+Phase Boundary Stop Required: A phase-exit seam named in `Next Active Seam` is a handoff target, not current-phase execution authority.
+Bounded Workstream continuation ends at phase boundaries; it never crosses from Workstream into Hardening by inertia.
+Codex must not execute Hardening, Live Validation, PR Readiness, Release Readiness, release work, or any other next phase in the same run unless USER explicitly admits that phase after reviewing the handoff.
 Bounded means one active seam at a time, not one-seam Workstream authority.
 A single-seam Workstream requires explicit USER waiver before Workstream may stop after one seam while the package or slice remains incomplete.
 If `Completion Status` is `Red`, `Continuation Action` must report the blocker-clearing action or waiver-clearing action needed before bounded `Workstream` continuation may resume.
@@ -509,7 +512,11 @@ If an interactive run times out or freezes, the output must also state:
 - what cleanup was performed before handoff
 - whether the issue is classified as product defect, harness defect, environment issue, or canon / contract drift
 
-If the slice changes user-visible behavior, runtime interaction, UX flow, prompts, startup behavior, voice behavior, or another manual operator-facing path, the final output must include a `## User Test Summary` section as a concrete manual checklist.
+If the slice changes user-visible behavior, runtime interaction, UX flow, prompts, startup behavior, voice behavior, or another manual operator-facing path before Live Validation, the final output must include `## User Test Summary Strategy` or Live Validation readiness notes, not a formal `## User Test Summary` artifact.
+User Test Summary is exclusive to Live Validation Stage 1.
+Live Validation Stage 1 cannot enter Stage 2 until User Test Summary results are `PASS` or `WAIVED`, Codex has digested the result into source truth, and blockers have been reevaluated.
+PR Readiness may verify the previously digested Live Validation UTS state, but it must not create, refresh, or digest UTS as its own phase artifact.
+During Live Validation Stage 1, the output must include a formal `## User Test Summary` section as a concrete manual checklist unless the UTS gate is explicitly waived.
 
 That checklist must include:
 
@@ -523,22 +530,22 @@ A recap-style summary is not sufficient when manual validation is relevant.
 
 If no meaningful manual test exists, the output must still include `## User Test Summary` and explain why manual validation is not materially relevant for that slice.
 
-If a canonical repo-level `UTS` artifact exists for the active desktop workstream, the execution pass must update that artifact as well rather than stopping at response text.
+If a canonical repo-level `UTS` strategy exists for the active desktop workstream, the execution pass must update that strategy as well rather than stopping at response text.
 
 By default, that artifact is the `## User Test Summary` section in the relevant canonical workstream doc unless that doc explicitly declares a different repo path.
 
-For bounded multi-seam Workstream execution, update the canonical workstream `UTS` incrementally as user-visible seams land.
-When the Workstream seam chain is complete, refresh the desktop export if the branch is user-facing.
+For bounded multi-seam Workstream execution, update the canonical workstream `UTS` strategy incrementally as user-visible seams land.
+When the Workstream seam chain is complete, do not refresh the formal desktop export; preserve the need for Live Validation Stage 1 instead.
 
 If the artifact is not updated, the final output must explain why the update was skipped.
 
-For relevant desktop slices, the execution pass must also export or refresh:
+For relevant desktop Live Validation Stage 1 runs, the execution pass must also export or refresh:
 
 - `C:\Users\anden\OneDrive\Desktop\User Test Summary.txt`
 
 unless the final output explicitly explains why the desktop export was not relevant or was intentionally skipped.
 
-Response-level `## User Test Summary` text alone is not sufficient when either the canonical repo artifact or the desktop export should exist.
+Response-level `## User Test Summary` text alone is not sufficient during Live Validation Stage 1 when either the canonical repo artifact or the desktop export should exist.
 
 Returned User Test Summary results are a hard phase gate. While results are pending, output the state as:
 

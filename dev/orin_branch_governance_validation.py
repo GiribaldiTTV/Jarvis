@@ -267,10 +267,10 @@ FAM006_WS34_HEADING = (
     "Workstream WS34 Dashboard Provider Setup No-Data Degraded Truth And Warning Posture Controls"
 )
 FAM006_WS34_NEXT_SEAM = (
-    "Workstream WS35 - Dashboard Specific Static Live Proof Screenshots And UTS Handoff Refresh"
+    "Workstream WS35 - Dashboard Specific Static Live Proof Screenshots And Live Validation UTS Boundary"
 )
 FAM006_WS35_HEADING = (
-    "Workstream WS35 Dashboard Specific Static Live Proof Screenshots And UTS Handoff Refresh"
+    "Workstream WS35 Dashboard Specific Static Live Proof Screenshots And Live Validation UTS Boundary"
 )
 FAM006_WS35_NEXT_SEAM = (
     "Workstream WS36 - Workstream Completion Review And Hardening Handoff Reconciliation"
@@ -520,17 +520,18 @@ FAM006_WS34_REQUIRED_PHRASES = (
 )
 FAM006_WS35_REQUIRED_PHRASES = (
     "WS35 Result:",
-    "Green - Dashboard-specific static/live proof, screenshots, and draft UTS handoff refresh recorded",
+    "Green - Dashboard-specific static/live proof, screenshots, and Live Validation UTS boundary recorded",
     "Dashboard-Specific Proof Refresh:",
     "Dashboard/control panel remains the only current-branch interface release gate",
     "Screenshot Proof:",
     "fresh before/after full virtual-desktop screenshots",
     "USER-Inspectable Screenshot Folder:",
-    "User Test Summary Handoff:",
-    "C:\\Users\\anden\\OneDrive\\Desktop\\User Test Summary.txt",
-    "DRAFT HANDOFF COPY - NOT RETURNED RESULTS",
+    "Live Validation UTS Boundary:",
+    "formal User Test Summary export is Live Validation Stage 1 only",
+    "Desktop UTS Export State:",
+    "Not generated in Workstream",
     "Returned UTS Results:",
-    "Reserved for Live Validation",
+    "Reserved for Live Validation Stage 1/Stage 2 gate",
     "Overlay Classification:",
     "deferred/non-gating",
     "Core Classification:",
@@ -548,7 +549,7 @@ FAM006_WS36_REQUIRED_PHRASES = (
     "Hardening Handoff:",
     "Hardening H1 - Monitoring HUD Product Surface Hardening Rerun",
     "Dashboard Acceptance Pending:",
-    "returned UTS acceptance remains reserved for Live Validation",
+    "returned UTS acceptance remains reserved for Live Validation Stage 1/Stage 2 gate",
     "Overlay Classification:",
     "deferred/non-gating",
     "Core Classification:",
@@ -570,7 +571,7 @@ FAM006_WORKSTREAM_CONTINUATION_REQUIRED_PHRASES = (
     "WS15 - Polling Cadence And Performance Guardrail",
     "WS16 - Visual Warning Baseline And Threshold Posture",
     "WS17 - Workstream Product Proof Refresh And Completion Review",
-    "Formal User Test Summary handoff is reserved for Live Validation",
+    "Formal User Test Summary export is exclusive to Live Validation Stage 1",
 )
 FAM006_FORBIDDEN_WORKSTREAM_UTS_PHRASES = (
     "Workstream WS8 - Monitoring HUD User Test Summary And Product Acceptance Digest",
@@ -687,6 +688,10 @@ MULTI_SEAM_CONTRACT_PHRASES = (
     "`Workstream` reaches `Hardening` only when `Completion Status: Green`",
     "`Completion Status: Red` means a named blocker or waiver currently stops bounded Workstream continuation",
     "`Phase: Workstream` must remain bounded at all times; the only lawful `Workstream` stop conditions are `Completion Status: Green` with `Hardening` next, or `Completion Status: Red` justified by a named blocker or waiver",
+    "Phase Boundary Stop Required",
+    "A phase-exit seam named in `Next Active Seam` is a handoff target, not current-phase execution authority.",
+    "Bounded Workstream continuation ends at phase boundaries; it never crosses from Workstream into Hardening by inertia.",
+    "Codex must not execute Hardening, Live Validation, PR Readiness, Release Readiness, release work, or any other next phase in the same run unless USER explicitly admits that phase after reviewing the handoff.",
     "Branch Readiness must evaluate the whole backlog item, define the first admitted slice, record the same-branch continuation posture until `Completion Status` becomes green, and record any known future-dependent blockers before Workstream begins.",
     "Workstream must execute admitted implementation slices one slice at a time",
     "`Workstream` may not advance to `Hardening` while remaining implementable work is still available on the current backlog item",
@@ -785,6 +790,10 @@ MULTI_SEAM_PROMPT_PHRASES = (
     "`Workstream` reaches `Hardening` only when `Completion Status: Green`",
     "`Completion Status: Red` means a named blocker or waiver currently stops bounded Workstream continuation",
     "`Phase: Workstream` must remain bounded at all times, and the only lawful `Workstream` stop conditions are `Completion Status: Green` with `Hardening` next, or `Completion Status: Red` justified by a named blocker or waiver.",
+    "Phase Boundary Stop Required",
+    "A phase-exit seam named in `Next Active Seam` is a handoff target, not current-phase execution authority.",
+    "Bounded Workstream continuation ends at phase boundaries; it never crosses from Workstream into Hardening by inertia.",
+    "Codex must not execute Hardening, Live Validation, PR Readiness, Release Readiness, release work, or any other next phase in the same run unless USER explicitly admits that phase after reviewing the handoff.",
     "Backlog Completion State",
     "Backlog-Split User Approval",
     "Backlog-Split Reason",
@@ -1895,6 +1904,8 @@ UTS_RESULTS_BLOCKER_DOCS = (
 UTS_RESULTS_BLOCKER_PHRASES = (
     "User Test Summary Results Pending",
     "User Test Summary Results:",
+    "User Test Summary is exclusive to Live Validation Stage 1.",
+    "Live Validation Stage 1 cannot enter Stage 2 until User Test Summary results are `PASS` or `WAIVED`",
     "Live Validation green requires an exact `## User Test Summary` state before final green.",
     "Final phase advancement is BLOCKED",
 )
@@ -4388,6 +4399,30 @@ def _validate_governed_output_state(
                 "`Next Active Seam` to Hardening"
             ),
         )
+        require(
+            "stop at phase boundary" in continuation_action.casefold()
+            and "user" in continuation_action.casefold()
+            and "admit" in continuation_action.casefold(),
+            (
+                f"{source_path}: {CONTINUATION_COMPLETION_STATUS_LABEL} Green may hand off to "
+                "Hardening, but Continuation Action must explicitly stop at the phase boundary "
+                "until USER admits the next phase"
+            ),
+        )
+        for forbidden_phase_action in (
+            "enter hardening",
+            "execute hardening",
+            "run hardening",
+            "start hardening",
+            "continue into hardening",
+        ):
+            require(
+                forbidden_phase_action not in continuation_action.casefold(),
+                (
+                    f"{source_path}: {CONTINUATION_COMPLETION_STATUS_LABEL} Green must not "
+                    f"authorize same-run phase execution via '{forbidden_phase_action}'"
+                ),
+            )
     elif normalized_completion_status == "in progress":
         require(
             normalized_decision == "continue",
@@ -5244,8 +5279,11 @@ def _validate_fam006_stage2_r6_plan(
                     f"{source_path}: {FAM006_WS36_HEADING} is missing '{phrase}'",
                 )
             require(
-                f"Active seam: `{FAM006_WS36_NEXT_SEAM}`" in text,
-                f"{source_path}: WS36 completion must hand off active seam to Hardening H1",
+                "Active seam: `Phase Boundary Stop - Await USER Hardening Admission`" in text,
+                (
+                    f"{source_path}: WS36 completion must stop at the phase boundary and await "
+                    "explicit USER Hardening admission"
+                ),
             )
             require(
                 f"Next Active Seam: {FAM006_WS36_NEXT_SEAM}" in text,

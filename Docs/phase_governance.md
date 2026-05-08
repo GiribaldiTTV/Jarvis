@@ -120,6 +120,10 @@ The only lawful `Workstream` stop conditions are:
 
 `Phase: Workstream` must remain bounded at all times; the only lawful `Workstream` stop conditions are `Completion Status: Green` with `Hardening` next, or `Completion Status: Red` justified by a named blocker or waiver.
 
+Phase Boundary Stop Required: A phase-exit seam named in `Next Active Seam` is a handoff target, not current-phase execution authority.
+Bounded Workstream continuation ends at phase boundaries; it never crosses from Workstream into Hardening by inertia.
+Codex must not execute Hardening, Live Validation, PR Readiness, Release Readiness, release work, or any other next phase in the same run unless USER explicitly admits that phase after reviewing the handoff.
+
 Crossing into a new seam, slice, seam family, slice family, or work family is not stop authority by itself.
 
 If `Completion Status` is `In Progress` and no named stop-authorizing blocker or waiver is recorded, `Continue Decision` must be `Continue` and Codex must start the next seam or next admitted slice instead of returning `Await Next Instruction`.
@@ -140,7 +144,10 @@ Only USER can grant a single-seam or single-slice Workstream waiver; Codex, Chat
 A Workstream with `Completion Status: In Progress` and no waiver must show remaining same-branch implementable work beyond the current seam.
 
 `User Test Summary Results Pending` is not a Workstream stop condition.
-Workstream may plan manual user acceptance and may prepare later UTS handoff content, but formal UTS handoff, returned-result digestion, and the `User Test Summary Results Pending` blocker belong to `Live Validation` and `PR Readiness` final-green gates.
+Workstream may plan manual user acceptance and may prepare later UTS strategy content, but formal UTS export, returned-result digestion, and the `User Test Summary Results Pending` blocker belong to `Live Validation Stage 1`.
+User Test Summary is exclusive to Live Validation Stage 1.
+Live Validation Stage 1 cannot enter Stage 2 until User Test Summary results are `PASS` or `WAIVED`, Codex has digested the result into source truth, and blockers have been reevaluated.
+PR Readiness may verify the previously digested Live Validation UTS state, but it must not create, refresh, or digest UTS as its own phase artifact.
 If user-facing implementation is not product-complete, Workstream must continue implementation, internal sandbox validation, and branch-local proof instead of asking the USER to complete a UTS as the Workstream completion gate.
 
 ## Canonical Governance Rules
@@ -1028,10 +1035,13 @@ Routing:
 
 ### User Test Summary Results Gate
 
-Live Validation and PR Readiness must not report final green while a relevant user-facing workstream has a required User Test Summary handoff outstanding and returned results have not been submitted and digested.
+Live Validation Stage 1 must not enter Live Validation Stage 2 while a relevant user-facing workstream has a required User Test Summary handoff outstanding and returned results have not been submitted and digested.
+User Test Summary is exclusive to Live Validation Stage 1.
+Live Validation Stage 1 cannot enter Stage 2 until User Test Summary results are `PASS` or `WAIVED`, Codex has digested the result into source truth, and blockers have been reevaluated.
+PR Readiness may verify the previously digested Live Validation UTS state, but it must not create, refresh, or digest UTS as its own phase artifact.
 Live Validation green requires an exact `## User Test Summary` state before final green.
-This is a `Live Validation` / `PR Readiness` final-green gate, not a Workstream completion substitute.
-Workstream may maintain UTS strategy or draft handoff content, but it must not create a Workstream-only UTS results seam or stop on `User Test Summary Results Pending`.
+This is a `Live Validation Stage 1` gate, not a Workstream, Hardening, or PR Readiness completion substitute.
+Workstream and Hardening may maintain UTS strategy or readiness notes, but they must not create/refresh the formal desktop UTS export, create a UTS results seam, digest UTS results, or stop on `User Test Summary Results Pending`.
 
 Named blocker:
 

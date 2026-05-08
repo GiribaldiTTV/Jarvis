@@ -123,6 +123,9 @@ Durability commit/push is not a lawful stop while `Continue Decision` remains `C
 If `Completion Status` is `In Progress`, `Next Active Seam` must remain a `Workstream` seam; phase-exit seams require `Completion Status: Green`, `Completion Status: Red` with a named blocker/waiver, or explicit USER single-seam/backlog-split waiver.
 `Phase: Workstream` must remain bounded at all times, and the only lawful `Workstream` stop conditions are `Completion Status: Green` with `Hardening` next, or `Completion Status: Red` justified by a named blocker or waiver.
 `Phase: Workstream` must remain bounded at all times; the only lawful `Workstream` stop conditions are `Completion Status: Green` with `Hardening` next, or `Completion Status: Red` justified by a named blocker or waiver.
+Phase Boundary Stop Required: A phase-exit seam named in `Next Active Seam` is a handoff target, not current-phase execution authority.
+Bounded Workstream continuation ends at phase boundaries; it never crosses from Workstream into Hardening by inertia.
+Codex must not execute Hardening, Live Validation, PR Readiness, Release Readiness, release work, or any other next phase in the same run unless USER explicitly admits that phase after reviewing the handoff.
 Bounded means one active seam at a time, not one-seam Workstream authority.
 A single-seam Workstream requires explicit USER waiver before Workstream may stop after one seam while the package or slice remains incomplete.
 If `Completion Status` is `Red`, `Continuation Action` must report the blocker-clearing action or waiver-clearing action needed before bounded `Workstream` continuation may resume.
@@ -545,7 +548,10 @@ If results have not been returned yet, the correct prompt/output posture is:
 - automated validators and live helper evidence may be green
 - if shortcut validation has not passed or been waived, `User-Facing Shortcut Validation Pending` remains the hard blocker before User Test Summary handoff
 - relevant desktop workstreams must record `User-Facing Shortcut Path:` and `User-Facing Shortcut Validation:` before treating Live Validation as final green
+- User Test Summary is exclusive to Live Validation Stage 1.
 - `User Test Summary Results Pending` remains the hard blocker
+- Live Validation Stage 1 cannot enter Stage 2 until User Test Summary results are `PASS` or `WAIVED`, Codex has digested the result into source truth, and blockers have been reevaluated
+- PR Readiness may verify the previously digested Live Validation UTS state, but it must not create, refresh, or digest UTS as its own phase artifact
 - Live Validation green requires an exact `## User Test Summary` state before final green.
 - `User Test Summary Results: PENDING.`
 - `Final phase advancement is BLOCKED until the filled User Test Summary is submitted and digested.`

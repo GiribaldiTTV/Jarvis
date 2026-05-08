@@ -178,6 +178,9 @@ Durability commit/push is not a lawful stop while `Continue Decision` remains `C
 If `Completion Status` is `In Progress`, `Next Active Seam` must remain a `Workstream` seam; phase-exit seams require `Completion Status: Green`, `Completion Status: Red` with a named blocker/waiver, or explicit USER single-seam/backlog-split waiver.
 `Phase: Workstream` must remain bounded at all times, and the only lawful `Workstream` stop conditions are `Completion Status: Green` with `Hardening` next, or `Completion Status: Red` justified by a named blocker or waiver.
 `Phase: Workstream` must remain bounded at all times; the only lawful `Workstream` stop conditions are `Completion Status: Green` with `Hardening` next, or `Completion Status: Red` justified by a named blocker or waiver.
+Phase Boundary Stop Required: A phase-exit seam named in `Next Active Seam` is a handoff target, not current-phase execution authority.
+Bounded Workstream continuation ends at phase boundaries; it never crosses from Workstream into Hardening by inertia.
+Codex must not execute Hardening, Live Validation, PR Readiness, Release Readiness, release work, or any other next phase in the same run unless USER explicitly admits that phase after reviewing the handoff.
 Bounded means one active seam at a time, not one-seam Workstream authority.
 A single-seam Workstream requires explicit USER waiver before Workstream may stop after one seam while the package or slice remains incomplete.
 Single-seam or single-slice Workstream authority is forbidden unless explicit USER waiver text is recorded.
@@ -722,18 +725,21 @@ A recap-style summary is not sufficient when manual validation is relevant.
 If no meaningful manual test exists for the change, Codex must say so explicitly under `## User Test Summary` and explain why manual validation is not materially relevant for that slice.
 `## User Test Summary Strategy` is planning context only; it does not satisfy the canonical repo-level `## User Test Summary` artifact.
 
-For active desktop workstreams, the default canonical repo-level UTS planning surface is the User Test Summary strategy in the relevant canonical workstream doc unless that doc explicitly declares a different repo path. The formal exact `## User Test Summary` returned-results artifact belongs to Live Validation / PR Readiness final-green handling.
+For active desktop workstreams, the default canonical repo-level UTS planning surface is the User Test Summary strategy in the relevant canonical workstream doc unless that doc explicitly declares a different repo path. The formal exact `## User Test Summary` returned-results artifact belongs to Live Validation Stage 1 only.
+User Test Summary is exclusive to Live Validation Stage 1.
+Live Validation Stage 1 cannot enter Stage 2 until User Test Summary results are `PASS` or `WAIVED`, Codex has digested the result into source truth, and blockers have been reevaluated.
+PR Readiness may verify the previously digested Live Validation UTS state, but it must not create, refresh, or digest UTS as its own phase artifact.
 
 When that strategy exists and supporting docs are in scope on the active branch, Codex must update it as part of the same slice by default.
 
-For bounded multi-seam Workstream execution, User Test Summary handling is incremental plus final:
+For bounded multi-seam Workstream execution, User Test Summary strategy handling is incremental plus final Live Validation preparation:
 
 - update the canonical workstream User Test Summary strategy as user-visible or operator-facing seams land
-- when the Workstream seam chain is complete, preserve the handoff needs for later Live Validation; do not use returned UTS results as a Workstream stop condition
+- when the Workstream seam chain is complete, preserve the handoff needs for later Live Validation Stage 1; do not create/refresh the formal desktop UTS export and do not use returned UTS results as a Workstream stop condition
 - before User Test Summary handoff in Live Validation, run the `User-Facing Shortcut Live Validation Gate` for relevant desktop user-facing workstreams and record `User-Facing Shortcut Path:` plus `User-Facing Shortcut Validation: PENDING`, `PASS`, `FAIL`, or `WAIVED`
 - before User Test Summary handoff in Live Validation, run the `Codex Live Client Self-QA Gate` for relevant desktop user-facing workstreams and record `Codex Live Client Self-QA:`, `Visual Quality:`, `Live Interaction Evidence:`, `Usability Check:`, and `Platform Uniformity Check:`
 - if the relevant desktop UI is interactive, exercise the same live-client interactions Codex would ask the USER to test and record the evidence before handoff
-- digest returned user evidence in `Live Validation` before recommending phase advancement
+- digest returned user evidence in `Live Validation Stage 1` before recommending Stage 2 advancement
 - route returned evidence back to `Workstream` for in-scope user-facing branch work, to `Hardening` for defects or validation gaps, or to backlog/defer handling for new feature requests
 
 If required user-facing desktop shortcut evidence is outstanding, the active authority record must carry the hard blocker `User-Facing Shortcut Validation Pending`.
