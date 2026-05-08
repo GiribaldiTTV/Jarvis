@@ -86,6 +86,7 @@ function New-Paths {
         ScreenshotEvidence = Join-Path $screenshotEvidenceRoot "monitoring_hud_full_virtual_desktop_after_launch.png"
         InteractionManifest = Join-Path $ArtifactRoot "monitoring_hud_live_client_interaction_manifest.json"
         InteractionEvidenceRoot = Join-Path $ArtifactRoot "live_client_interaction"
+        UserTestSummary = Join-Path $env:USERPROFILE "OneDrive\Desktop\User Test Summary.txt"
         AbortSignal = Join-Path $ArtifactRoot "startup_abort.signal"
     }
 }
@@ -244,7 +245,7 @@ function Save-Manifest([object]$Paths, [string]$PythonExe) {
         package = "PKG-006"
         slice = "SLC-029"
         seam = "Live Validation LV1 - Monitoring HUD Product Surface Live Validation"
-        proofStandard = "WS34 Dashboard-first provider/setup/no-data/degraded truth and warning posture controls proof"
+        proofStandard = "WS35 Dashboard-specific static/live proof screenshots and UTS handoff refresh proof"
         primaryInterfaceReleaseSurface = "monitoring-hud-dashboard-control-panel"
         dashboardFirstWorkstreamHandoff = "ws31-dashboard-control-panel-acceptance-baseline"
         dashboardOnlyAcceptanceBaseline = "ws31-dashboard-control-panel"
@@ -254,6 +255,32 @@ function Save-Manifest([object]$Paths, [string]$PythonExe) {
         overlayDisplayAcceptance = "deferred-non-gating"
         coreRepairClassification = "dependency-repair-only"
         dashboardFirstProofPath = $true
+        dashboardSpecificProofRefreshReady = $true
+        dashboardSpecificStaticLiveProofReady = $true
+        dashboardUserTestSummaryHandoffRefreshed = $true
+        dashboardUserTestSummaryHandoffPath = $Paths.UserTestSummary
+        dashboardUserTestSummaryReturnedResults = "reserved-for-live-validation"
+        dashboardSpecificProof = [pscustomobject]@{
+            beforeLaunchFullVirtualDesktopScreenshot = [bool]$script:BeforeScreenshotPath
+            afterLaunchFullVirtualDesktopScreenshot = [bool]$script:ScreenshotPath
+            userInspectableScreenshotFolder = [bool]$Paths.ScreenshotEvidenceRoot
+            activeUserFacingClient = [bool]$ActiveUserFacingClient
+            interactionSelfQA = $script:InteractionManifestStatus
+            dashboardOnlyCurrentInterfaceGate = $true
+            overlayAcceptanceDeferredNonGating = $true
+            coreRepairDependencyOnly = $true
+            dashboardStandaloneWindowTravelReady = [bool]$dashboardStandaloneWindowTravelReady
+            dashboardClippingBoundaryReady = [bool]$dashboardClippingBoundaryReady
+            dashboardCoreOverlayDecouplingReady = [bool]$dashboardCoreOverlayDecouplingReady
+            dashboardSettingsContentReady = [bool]$dashboardSettingsContentReady
+            dashboardMonitorGroupClarityReady = [bool]$dashboardMonitorGroupClarityReady
+            dashboardProviderTruthReady = [bool]$dashboardProviderTruthReady
+            dashboardStateModelReady = [bool]$dashboardStateModelReady
+            dashboardWarningControlsReady = [bool]$dashboardWarningControlsReady
+            noFakeTelemetryPosture = $observedMarkers -contains "MONITORING_HUD_STATUS_BEHAVIOR_READY"
+            userTestSummaryHandoffRefreshed = $true
+            returnedUserTestSummaryDigestReserved = $true
+        }
         python = $PythonExe
         runtimeLog = $Paths.RuntimeLog
         beforeLaunchScreenshot = $script:BeforeScreenshotPath
@@ -308,6 +335,123 @@ function Save-Manifest([object]$Paths, [string]$PythonExe) {
         generatedAt = (Get-Date).ToUniversalTime().ToString("o")
     }
     $manifest | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath $Paths.Manifest -Encoding utf8
+}
+
+function Save-UserTestSummaryHandoff([object]$Paths) {
+    $desktopRoot = Split-Path -Parent $Paths.UserTestSummary
+    if (-not (Test-Path -LiteralPath $desktopRoot)) {
+        New-Item -ItemType Directory -Force -Path $desktopRoot | Out-Null
+    }
+
+    $content = @"
+Nexus Desktop AI - User Test Summary
+Workstream: FAM-006 Monitoring and HUD Product Surface Package
+Current Phase: Workstream WS35 Dashboard-specific proof handoff copy
+Branch: feature/fam-006-monitoring-hud-product-surface
+Date: $(Get-Date -Format "yyyy-MM-dd HH:mm:ss zzz")
+Status: DRAFT HANDOFF COPY - NOT RETURNED RESULTS
+
+Important Phase Note
+- This file is refreshed during Workstream so the later Live Validation handoff is current.
+- Do not treat this file as a USER PASS, FAIL, or WAIVER until USER fills it out and Codex digests it during Live Validation.
+- Workstream remains responsible for implementation, internal validation, active live-client self-QA, screenshots, and source-truth proof before any Hardening or Live Validation green claim.
+- This handoff is Dashboard-first. Overlay/display release acceptance is deferred and non-gating unless USER later approves an interface bundle.
+
+Fresh Evidence Root
+- $($Paths.Root)
+
+Key Evidence Files
+- Manifest: $($Paths.Manifest)
+- Runtime log: $($Paths.RuntimeLog)
+- Before-launch full-desktop screenshot: $($Paths.BeforeScreenshot)
+- After-launch full-desktop screenshot: $($Paths.Screenshot)
+- USER-inspectable screenshot folder: $($Paths.ScreenshotEvidenceRoot)
+- USER-inspectable before screenshot: $($Paths.BeforeScreenshotEvidence)
+- USER-inspectable after screenshot: $($Paths.ScreenshotEvidence)
+- Interaction manifest: $($Paths.InteractionManifest)
+- Interaction screenshots: $($Paths.InteractionEvidenceRoot)
+
+Codex Self-QA Before Handoff
+- Automated validators and live helper evidence: $($script:ManifestStatus).
+- Active foreground user-facing client self-QA: $($script:InteractionManifestStatus).
+- Dashboard-specific proof refresh: PASS when this file points to fresh before/after full-desktop screenshots and a PASS manifest.
+- User Test Summary Results: NOT REQUESTED IN WORKSTREAM.
+- Final phase advancement is blocked until Dashboard-focused Hardening rerun, Live Validation rerun, and returned User Test Summary digestion are complete.
+
+What This Test Is Checking
+- The Monitoring Dashboard is the current branch's primary user-facing interface release surface.
+- The Dashboard is a Nexus/NDAI settings and control panel for HUD capability, monitor groups, monitor settings, polling posture, warning posture, provider/setup states, and future Overlay/display behavior.
+- Overlay/display release acceptance is deferred/non-gating for this branch's Dashboard acceptance path. Do not fail this Dashboard handoff because Overlay/display release acceptance is not being requested.
+- ORIN/Core is dependency-only proof for desktop safety. It should remain independent from the Dashboard and should not be judged as a released FAM-006 interface in this handoff.
+- Dashboard proof should show a visible, readable, polished, independently movable control panel with no clipping, no Core/Overlay coupling, no fake telemetry, provider-contract-first setup/no-data/degraded truth, and visual/non-invasive warning controls.
+
+Expected Outcome
+- Dashboard reads as "Monitoring Control Panel" or equivalent settings/control copy, not as the final anchored HUD Overlay/display.
+- Dashboard controls are understandable for HUD capability, monitor group creation/editing, monitor enablement, polling posture, provider setup state, and warning posture.
+- Dashboard moves as a standalone window without dragging Core or Overlay/display surfaces.
+- Dashboard is not clipped to the Core, Overlay/display, or a fixed render area.
+- Provider/setup/no-data/degraded states are truthful and do not pretend unsupported hardware values are real.
+- Warning posture is visual/non-invasive only.
+- No fake CPU/GPU/thermal values, unsupported provider claims, spoken/audio behavior, plugin-fed telemetry, PR work, release work, tags, or artifacts appear.
+- No retired product naming appears in repo-owned Dashboard/Core user-facing surfaces.
+
+Test Steps
+1. Launch Nexus Desktop AI from the normal desktop shortcut or documented equivalent Live Validation path.
+Observed Results:
+
+2. Confirm the ORIN Core visualization remains independent and does not visibly attach to or move with the Dashboard.
+Observed Results:
+
+3. Confirm the Monitoring Dashboard is visible as a Dashboard/control panel, not the final Overlay/display.
+Observed Results:
+
+4. Move the Dashboard and confirm it behaves like a standalone window without clipping, disappearing, dragging the Core, or dragging the deferred Overlay/display.
+Observed Results:
+
+5. Confirm Dashboard controls are understandable for HUD capability, monitor groups, monitor enablement, polling posture, provider setup state, and warning posture.
+Observed Results:
+
+6. Confirm monitor groups are organizational settings objects in the Dashboard, not display cards that imply Overlay/display acceptance.
+Observed Results:
+
+7. Confirm provider/setup/no-data/degraded copy is truthful and no fake CPU/GPU/thermal values are presented as real.
+Observed Results:
+
+8. Confirm warning controls remain visual/non-invasive and do not introduce audio/spoken alerts or screen flash behavior.
+Observed Results:
+
+9. Confirm the Dashboard UI is readable, polished, not cramped, and uses Nexus/NDAI styling without default-looking product chrome where the branch owns the surface.
+Observed Results:
+
+10. Note any readability, placement, clipping, scaling, motion, confusion, or polish concerns that should block Dashboard acceptance.
+Observed Results:
+
+Failure Signs To Watch For
+- Dashboard is too small, text is clipped, cramped, or unclear.
+- Dashboard movement stutters badly, disappears, clips, or drags another surface with it.
+- Dashboard content looks like technical proof boxes instead of settings/control content.
+- Dashboard implies Overlay/display release acceptance is required in this branch.
+- ORIN/Core moves with the Dashboard or appears rendered inside the Dashboard.
+- Provider copy claims live hardware values without a safe provider/proof path.
+- Fake hardware values or unsupported telemetry claims appear.
+- Warning behavior widens into audio/spoken or strong flash behavior without approval.
+- Retired product naming appears in repo-owned user-facing surfaces.
+
+New Ideas / Requests Raised During Testing:
+
+Questions / Confusions Raised During Testing:
+
+Regression Notes:
+
+Final USER Result
+- PASS / FAIL / WAIVED:
+- If FAIL, what must be repaired before Live Validation can continue:
+- If PASS, any non-blocking follow-up ideas:
+- If WAIVED, waiver reason:
+"@
+
+    Set-Content -LiteralPath $Paths.UserTestSummary -Value $content -Encoding utf8
+    Step $Paths "refreshed Dashboard-first User Test Summary handoff: $($Paths.UserTestSummary)"
 }
 
 function Quote-ProcessArgument([string]$Value) {
@@ -464,6 +608,7 @@ finally {
         }
     }
     Save-Manifest $paths $pythonExe
+    Save-UserTestSummaryHandoff $paths
     if ($script:ManifestStatus -eq "PASS") {
         Write-Output "PASS: FAM-006 Monitoring/HUD live desktop proof captured at $($paths.Root)"
     }

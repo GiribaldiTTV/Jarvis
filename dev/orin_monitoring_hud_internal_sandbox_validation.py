@@ -108,7 +108,11 @@ def _validate_static_surface(failures: list[str]) -> None:
         "WS33 Result: `Green - Dashboard settings/control content polish and monitor-management clarity recorded",
         "Workstream WS34 Dashboard Provider Setup No-Data Degraded Truth And Warning Posture Controls",
         "WS34 Result: `Green - Dashboard provider/setup/no-data/degraded truth and visual warning posture controls recorded",
-        "Next Active Seam: Workstream WS35 - Dashboard Specific Static Live Proof Screenshots And UTS Handoff Refresh",
+        "Workstream WS35 Dashboard Specific Static Live Proof Screenshots And UTS Handoff Refresh",
+        "WS35 Result: `Green - Dashboard-specific static/live proof, screenshots, and draft UTS handoff refresh recorded",
+        "Workstream WS36 Workstream Completion Review And Hardening Handoff Reconciliation",
+        "WS36 Result: `Green - Dashboard-focused Workstream completion review passed and Hardening handoff recorded",
+        "Next Active Seam: Hardening H1 - Monitoring HUD Product Surface Hardening Rerun",
     ):
         _require_contains(branch_record, needle, "FAM-006 Dashboard-first branch source truth", failures)
     for needle in (
@@ -121,6 +125,7 @@ def _validate_static_surface(failures: list[str]) -> None:
     for needle in (
         "Dashboard-first Workstream handoff posture",
         "Overlay/display deferred/non-gating classification",
+        "WS35 dashboard-specific proof refresh and draft UTS handoff",
         "Historical WS18-WS30 markers remain supporting repair evidence",
     ):
         _require_contains(helper_registry, needle, "monitoring HUD helper registry", failures)

@@ -269,6 +269,16 @@ FAM006_WS34_HEADING = (
 FAM006_WS34_NEXT_SEAM = (
     "Workstream WS35 - Dashboard Specific Static Live Proof Screenshots And UTS Handoff Refresh"
 )
+FAM006_WS35_HEADING = (
+    "Workstream WS35 Dashboard Specific Static Live Proof Screenshots And UTS Handoff Refresh"
+)
+FAM006_WS35_NEXT_SEAM = (
+    "Workstream WS36 - Workstream Completion Review And Hardening Handoff Reconciliation"
+)
+FAM006_WS36_HEADING = (
+    "Workstream WS36 Workstream Completion Review And Hardening Handoff Reconciliation"
+)
+FAM006_WS36_NEXT_SEAM = "Hardening H1 - Monitoring HUD Product Surface Hardening Rerun"
 FAM006_STAGE2_R6_REQUIRED_MARKERS = (
     "Current-Branch Scope Final:",
     "Future-Package Scope Final:",
@@ -507,6 +517,46 @@ FAM006_WS34_REQUIRED_PHRASES = (
     "Unclaimed",
     "Next Active Seam:",
     FAM006_WS34_NEXT_SEAM,
+)
+FAM006_WS35_REQUIRED_PHRASES = (
+    "WS35 Result:",
+    "Green - Dashboard-specific static/live proof, screenshots, and draft UTS handoff refresh recorded",
+    "Dashboard-Specific Proof Refresh:",
+    "Dashboard/control panel remains the only current-branch interface release gate",
+    "Screenshot Proof:",
+    "fresh before/after full virtual-desktop screenshots",
+    "USER-Inspectable Screenshot Folder:",
+    "User Test Summary Handoff:",
+    "C:\\Users\\anden\\OneDrive\\Desktop\\User Test Summary.txt",
+    "DRAFT HANDOFF COPY - NOT RETURNED RESULTS",
+    "Returned UTS Results:",
+    "Reserved for Live Validation",
+    "Overlay Classification:",
+    "deferred/non-gating",
+    "Core Classification:",
+    "dependency-only",
+    "Package Completion:",
+    "Unclaimed",
+    "Next Active Seam:",
+    FAM006_WS35_NEXT_SEAM,
+)
+FAM006_WS36_REQUIRED_PHRASES = (
+    "WS36 Result:",
+    "Green - Dashboard-focused Workstream completion review passed and Hardening handoff recorded",
+    "Workstream Completion Review:",
+    "Dashboard-first current-branch scope is green for Hardening rerun",
+    "Hardening Handoff:",
+    "Hardening H1 - Monitoring HUD Product Surface Hardening Rerun",
+    "Dashboard Acceptance Pending:",
+    "returned UTS acceptance remains reserved for Live Validation",
+    "Overlay Classification:",
+    "deferred/non-gating",
+    "Core Classification:",
+    "dependency-only",
+    "Package Completion:",
+    "Unclaimed",
+    "Next Active Seam:",
+    FAM006_WS36_NEXT_SEAM,
 )
 FAM006_WORKSTREAM_CONTINUATION_REQUIRED_PHRASES = (
     "multi-slice HUD implementation continuation",
@@ -5186,6 +5236,65 @@ def _validate_fam006_stage2_r6_plan(
                     f"'{required_phrase}'"
                 ),
             )
+        ws36_section = _section(text, FAM006_WS36_HEADING)
+        if ws36_section:
+            for phrase in FAM006_WS36_REQUIRED_PHRASES:
+                require(
+                    phrase in ws36_section,
+                    f"{source_path}: {FAM006_WS36_HEADING} is missing '{phrase}'",
+                )
+            require(
+                f"Active seam: `{FAM006_WS36_NEXT_SEAM}`" in text,
+                f"{source_path}: WS36 completion must hand off active seam to Hardening H1",
+            )
+            require(
+                f"Next Active Seam: {FAM006_WS36_NEXT_SEAM}" in text,
+                f"{source_path}: WS36 completion must set Seam Continuation Decision next active seam to Hardening H1",
+            )
+            require(
+                "Remaining Implementable Work: `None - Dashboard-focused Workstream repair is green"
+                in text,
+                (
+                    f"{source_path}: WS36 completion must close current Dashboard-focused "
+                    "Workstream implementable work before Hardening handoff"
+                ),
+            )
+            require(
+                "Completion Status: Green" in text,
+                f"{source_path}: WS36 completion must record Workstream Completion Status Green",
+            )
+            return
+        ws35_section = _section(text, FAM006_WS35_HEADING)
+        if ws35_section:
+            for phrase in FAM006_WS35_REQUIRED_PHRASES:
+                require(
+                    phrase in ws35_section,
+                    f"{source_path}: {FAM006_WS35_HEADING} is missing '{phrase}'",
+                )
+            require(
+                f"Active seam: `{FAM006_WS35_NEXT_SEAM}`" in text,
+                f"{source_path}: WS35 completion must advance active seam to WS36",
+            )
+            require(
+                f"Next Active Seam: {FAM006_WS35_NEXT_SEAM}" in text,
+                f"{source_path}: WS35 completion must set Seam Continuation Decision next active seam to WS36",
+            )
+            require(
+                "Remaining Implementable Work: `Dashboard-focused Workstream repair continues with WS36"
+                in text,
+                (
+                    f"{source_path}: WS35 completion must preserve visible same-branch "
+                    "Workstream completion review work beyond the current seam"
+                ),
+            )
+            require(
+                "Dashboard Acceptance Pending remains active"
+                in ws35_section,
+                (
+                    f"{source_path}: WS35 must not claim returned UTS acceptance or package completion"
+                ),
+            )
+            return
         ws34_section = _section(text, FAM006_WS34_HEADING)
         if ws34_section:
             for phrase in FAM006_WS34_REQUIRED_PHRASES:
