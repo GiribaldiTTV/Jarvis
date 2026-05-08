@@ -59,6 +59,7 @@ Use this ownership split unless a validated source conflict requires a temporary
 - phase governance = repo-wide execution, proof, timeout, seam, stop-loss, validation-helper, and desktop UI audit contract
 - validation helper registry = repo-wide helper naming, ownership, reuse, workstream-scoped exception, and consolidation contract
 - branch authority records = repo-owned phase owners for selected `Registry-only` backlog branches in `Branch Readiness`, approved `release packaging` branches, active runtime-focused branches that must carry bounded governance/source-of-truth repairs before PR green, and preserved historical repair records; standalone docs/governance, emergency canon repair, and repair-only feature branches are blocked for future Nexus work
+- Element Validation Ledger = row-level created/touched/affected/deferred/future element proof tracking owned by the existing workstream doc or branch authority record; it is not a new standalone active source-truth layer by default
 - `Docs/Main.md` = routing authority aligned to merged truth
 
 ## Analysis-First Prompt Baseline

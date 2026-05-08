@@ -84,7 +84,7 @@ Before PR Readiness, each workstream-scoped helper must be resolved in one of th
 
 | Path | Helper Status | Family | Reuse / Consolidation |
 | --- | --- | --- | --- |
-| `dev/orin_branch_governance_validation.py` | Helper Status: Reusable | governance validator | Extend when repo-wide source-of-truth, phase, branch, release, helper registry, or prompt-contract rules become machine-checkable. |
+| `dev/orin_branch_governance_validation.py` | Helper Status: Reusable | governance validator | Extend when repo-wide source-of-truth, phase, branch, release, helper registry, prompt-contract, Source-Truth Placement Preflight, Element Validation Ledger placement, or element-ledger drift rules become machine-checkable. |
 
 ### Desktop Runtime And Launcher
 

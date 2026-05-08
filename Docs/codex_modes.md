@@ -50,6 +50,8 @@ That startup assessment should explicitly answer:
 - `Canonical Workstream`
 - `Reuse Baseline`
 - `Next Safe Move`
+- `Source-Truth Placement Preflight` when the task may create a new governance/source-truth file, active artifact, ledger, registry, or durable authority surface
+- `Element Validation Ledger Owner` when the task creates, touches, affects, defers, or preserves proof-bearing product elements
 
 This can stay brief, but it should happen before scope is narrowed for execution.
 
@@ -180,6 +182,8 @@ In Workflow mode, Codex should:
 - Small single-seam runtime proofs, validation follow-through, governance repairs, and blocker-clearing traces stay inside existing family/workstream/branch-record traceability by default and are not standalone release-version drivers without explicit USER approval.
 - if a stale-canon or governance-drift class is discovered, the same branch or next legal repair surface must patch the canon or validator rule that allowed it before the repair is considered complete
 - merge-stable current-state owners such as backlog and roadmap must not mirror transient repair-branch ownership while merged-main truth remains `No Active Branch`
+- before creating a new governance/source-truth file, active artifact, ledger, registry, or durable authority surface, run `Source-Truth Placement Preflight`, extend the existing owner first, and create a new active artifact only when `No Existing Owner Fits` is recorded or the owning record points to a companion file
+- maintain the owning `Element Validation Ledger` in the canonical workstream doc for promoted work or in the active branch authority record for `Registry-only` active branches; run `Element Delta Capture` for created, touched, affected, deferred, future, dependency-only, and non-gating supporting product elements
 
 ### What Codex Must Not Do
 
@@ -193,6 +197,7 @@ In Workflow mode, Codex must not:
 - treat branch existence, branch rename, backlog promotion, repair-only traceability, or release-bearing posture as Workstream progress by themselves
 - treat planning or canon-only output on an implementation branch as valid Workstream progress without explicit USER-approved bypass markers
 - open a `docs/governance`, `emergency canon repair`, or repair-only feature branch for future Nexus work
+- create a parallel active source-truth artifact for element tracking when the existing workstream doc or branch authority record already owns the ledger
 
 ### Expected Outputs
 

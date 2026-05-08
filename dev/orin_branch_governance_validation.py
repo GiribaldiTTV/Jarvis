@@ -636,6 +636,20 @@ PRODUCT_PLANNING_BLOCKERS = (
     PERSONA_SWITCH_SCOPE_BOUNDARY_PENDING_BLOCKER,
     "Branch Reach Unproven",
     "Feature Element Breakdown Missing",
+    "Element Validation Ledger Missing",
+    "Created Element Untracked",
+    "Touched Element Proof Missing",
+    "Affected Element Validation Missing",
+    "User-Facing Element Acceptance Missing",
+    "Deferred Element Boundary Missing",
+    "Element Proof Stale",
+    "Marker-Only Element Proof",
+    "Element Ledger Placement Drift",
+    "Feature Element Source Marker Orphaned",
+    "High-Risk Element Source Owner Missing",
+    "Feature Element Marker Proof Insufficient",
+    "Feature Element Source Marker Stale",
+    "Feature Element Source Marker Mismatch",
     "Acceptance Criteria Missing",
     "User-Facing Proof Standard Missing",
     "Current Branch vs Future Package Boundary Missing",
@@ -644,6 +658,89 @@ PRODUCT_PLANNING_BLOCKERS = (
 VISIBLE_USER_FACING_PROOF_REQUIRED_LABEL = "Visible User-Facing Proof Required:"
 VISIBLE_USER_FACING_PROOF_LABEL = "Visible User-Facing Proof:"
 VISIBLE_USER_FACING_PROOF_PASS_VALUES = {"pass", "waived"}
+
+ELEMENT_VALIDATION_LEDGER_REQUIRED_PHRASES = {
+    Path("Docs/Main.md"): (
+        "Element Validation Ledger = row-level created/touched/affected/deferred/future element proof tracking owned by the existing workstream doc or branch authority record",
+    ),
+    Path("Docs/workstreams/index.md"): (
+        "Element Validation Ledger rows live in the owning traceability surface by default",
+        "promoted workstreams keep the active ledger inside the canonical workstream doc",
+        "`Registry-only` active branches keep the active ledger inside the active branch authority record",
+        "a large active Element Validation Ledger may use a companion file only when the owning workstream doc or branch authority record contains the canonical pointer",
+        "created, touched, affected, deferred, future, dependency-only, and non-gating supporting product elements",
+        "`## Element Validation Ledger` or a canonical pointer",
+    ),
+    Path("Docs/phase_governance.md"): (
+        "Source-Truth Placement Preflight",
+        "extend the existing owner first",
+        "`No Existing Owner Fits`",
+        "`Element Ledger Placement Drift`",
+        "Promoted workstream: canonical workstream doc.",
+        "Registry-only active branch: active branch authority record.",
+        "Large active ledger: optional companion file with canonical pointer",
+        "Every active ledger row should identify the element ID",
+        "Each seam must run an `Element Delta Capture`",
+        "Marker-only proof cannot satisfy user-facing element acceptance.",
+        "Source-code ownership markers are optional backlinks",
+        "Element ledger blockers include `Element Validation Ledger Missing`",
+        "`High-Risk Element Source Owner Missing`",
+    ),
+    Path("Docs/development_rules.md"): (
+        "Element Validation Ledger = row-level created/touched/affected/deferred/future element proof tracking",
+        "`Source-Truth Placement Preflight`",
+        "`No Existing Owner Fits`",
+        "Full Feature Element Breakdown` must feed the owning `Element Validation Ledger`",
+        "created, touched, affected, deferred, future, dependency-only, and non-gating supporting elements",
+        "`Element Ledger Placement Drift`",
+        "`Created Element Untracked`",
+        "`Touched Element Proof Missing`",
+        "`Affected Element Validation Missing`",
+    ),
+    Path("Docs/codex_modes.md"): (
+        "`Source-Truth Placement Preflight`",
+        "`Element Validation Ledger Owner`",
+        "run `Element Delta Capture`",
+        "create a parallel active source-truth artifact for element tracking",
+    ),
+    Path("Docs/orin_task_template.md"): (
+        "Source-Truth Placement Preflight:",
+        "Element Validation Ledger Owner:",
+        "Element Delta Capture:",
+        "`Element Validation Ledger` is row-level created/touched/affected/deferred/future element proof tracking",
+    ),
+    Path("Docs/codex_user_guide.md"): (
+        "run `Source-Truth Placement Preflight`",
+        "owning `Element Validation Ledger`",
+        "Element Validation Ledger rows belong in the existing authority owner by default",
+        "Do not prompt Codex to create a parallel active ledger unless the owning record records `No Existing Owner Fits`",
+    ),
+}
+
+FAM006_ELEMENT_VALIDATION_LEDGER_REQUIRED_PHRASES = (
+    "## Element Validation Ledger Governance",
+    "Source-Truth Placement Preflight: `PASS - existing authority owner fits",
+    "Existing Authority Owner: `Docs/branch_records/feature_fam_006_monitoring_hud_product_surface.md`",
+    "Placement Decision: `Extend existing branch authority record first`",
+    "No Existing Owner Fits: `Not claimed`",
+    "Companion File Rule:",
+    "Element Delta Capture Rule:",
+    "High-Risk Source Owner Marker Posture:",
+    "Future Repo-Wide Marker Adoption Recommendation:",
+    "## Element Validation Ledger",
+    "FAM006-DASH-SURFACE-001",
+    "FAM006-DASH-WINDOW-002",
+    "FAM006-DASH-SCROLL-003",
+    "FAM006-DASH-CONTENT-004",
+    "FAM006-DASH-PROVIDER-005",
+    "FAM006-DASH-WARNING-006",
+    "FAM006-PROOF-LV-007",
+    "FAM006-OVERLAY-DEFER-008",
+    "FAM006-CORE-DEP-009",
+    "FAM006-SRCMARK-FUTURE-010",
+    "Source-owner-not-applicable until future marker adoption",
+    "returned UTS results pending",
+)
 
 SUCCESSOR_LOCK_WAIVER_DOCS = (
     Path("Docs/phase_governance.md"),
@@ -12585,6 +12682,21 @@ def main() -> int:
                 required_phrase in text,
                 f"{relative_path}: Element Coverage governance is missing '{required_phrase}'",
             )
+
+    for relative_path, required_phrases in ELEMENT_VALIDATION_LEDGER_REQUIRED_PHRASES.items():
+        text = _read_text(relative_path)
+        for required_phrase in required_phrases:
+            require(
+                required_phrase in text,
+                f"{relative_path}: Element Validation Ledger governance is missing '{required_phrase}'",
+            )
+
+    fam006_branch_text = _read_text(FAM006_BRANCH_RECORD)
+    for required_phrase in FAM006_ELEMENT_VALIDATION_LEDGER_REQUIRED_PHRASES:
+        require(
+            required_phrase in fam006_branch_text,
+            f"{FAM006_BRANCH_RECORD}: FAM-006 Element Validation Ledger is missing '{required_phrase}'",
+        )
 
     for relative_path in RELEASE_OPERATOR_OUTPUT_CONTRACT_DOCS:
         text = _read_text(relative_path)

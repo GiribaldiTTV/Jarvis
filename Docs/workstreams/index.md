@@ -36,6 +36,10 @@ Use `Docs/validation_helper_registry.md` for durable root `dev/` helper naming, 
 - when a new broad FAM package moves from `Registry-only` to `Promoted`, its canonical workstream doc should use a stable FAM/package-aware path; existing `Docs/workstreams/FB-XXX_slug.md` paths remain historical trace and must not be treated as live backlog IDs
 - once promoted, the canonical workstream doc becomes the durable execution and traceability record for that lane and must be updated throughout the active branch, not just at closeout
 - workstream docs and branch authority records are the default traceability surface for multi-slice continuation, blocker-clearing, and repair history inside one backlog identity
+- Element Validation Ledger rows live in the owning traceability surface by default: promoted workstreams keep the active ledger inside the canonical workstream doc, and `Registry-only` active branches keep the active ledger inside the active branch authority record
+- a large active Element Validation Ledger may use a companion file only when the owning workstream doc or branch authority record contains the canonical pointer and remains the authority owner
+- Feature backlog, roadmap, family dossiers, validation helper registry, and Element Coverage must not become the active Element Validation Ledger owner by inertia
+- the Element Validation Ledger tracks created, touched, affected, deferred, future, dependency-only, and non-gating supporting product elements with proof expectations by phase
 - if later work continues the same user-facing feature family, preserve that continuation traceability here or in branch records instead of creating a near-duplicate backlog ID by default
 - backlog remains the identity registry and points here through `Canonical Workstream Doc`
 - roadmap consumes this layer for sequencing but does not duplicate its full execution story
@@ -93,6 +97,7 @@ For an active or recently closed canonical workstream, keep these durable tracea
 - current phase, phase status, branch class, blockers, phase-specific validation, seam, timeout, or stop-loss state when phase-sensitive work is active
 - backlog completion status, remaining implementable work, and any future-dependent blockers when implementation work is active
 - durable validation or proof references that materially justify continuation or closeout
+- `## Element Validation Ledger` or a canonical pointer to a companion ledger file when the active lane creates, touches, affects, defers, or preserves proof-bearing product elements
 - artifact history or artifact references for lane-specific validators, harnesses, helpers, reports, or manual-test exports that future work should reuse
 - branch-local reuse notes or "what worked" guidance when a future branch would otherwise need to rediscover the same lesson
 - closeout traceability, or an explicit note that the lane is not at closeout yet

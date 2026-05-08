@@ -158,6 +158,47 @@ If user-facing implementation is not product-complete, Workstream must continue 
 - workstream docs must consume this model rather than redefining repo-wide process rules locally
 - workstream docs may record branch-local validation contracts, tighter time budgets, active seams, artifact references, and explicit waivers, but those narrower contracts must be explicit
 
+### Source-Truth Placement Preflight
+
+Before Codex creates a new governance/source-truth file, active artifact, ledger, registry, or durable authority surface, it must perform a `Source-Truth Placement Preflight`.
+
+The preflight must report:
+
+- existing authority owner for the concept
+- whether the change extends an existing owner or needs a new artifact
+- why workstream docs, branch records, backlog, roadmap, validation helper registry, family dossiers, Element Coverage, or phase governance are insufficient if a new artifact is recommended
+- whether a new artifact would duplicate, conflict with, or bypass an existing owner
+- validator updates needed to prevent placement drift
+
+Default rule: extend the existing owner first. A new active source-truth file requires a clear `No Existing Owner Fits` finding or an explicit companion-file pointer from the owning workstream doc or branch authority record.
+
+`Element Ledger Placement Drift` blocks Stage 2 completion when Codex adds or recommends a new active source-truth artifact without this preflight, when a new artifact duplicates an existing owner, or when the owning record does not point to a large companion ledger file.
+
+### Element Validation Ledger
+
+The `Element Validation Ledger` is the row-level proof ledger for product-significant elements created, touched, affected, deferred, preserved as future, classified as dependency-only, or kept as non-gating supporting evidence.
+
+The ledger is canonical only inside the existing authority owner:
+
+- Promoted workstream: canonical workstream doc.
+- Registry-only active branch: active branch authority record.
+- Large active ledger: optional companion file with canonical pointer from the owning workstream doc or branch authority record.
+- Family dossier: aggregate or historical trace only.
+- Feature backlog: identity and registry only.
+- Roadmap: sequencing only.
+- Validation helper registry: helper inventory only.
+- Element Coverage: non-identity checklist only.
+
+Every active ledger row should identify the element ID, element name, category, parent surface, primary interface, classification, user-facing status, visibility, expected behavior, functional requirement, regression risk, affected source surfaces, source-owner marker or source-owner-not-applicable reason, validation required, Workstream proof, Hardening proof, Live Validation proof, UTS question or waiver, phase owner, current status, open issues, and notes.
+
+Each seam must run an `Element Delta Capture` for product/runtime/UI/source-truth changes. New or changed UI, window behavior, focus/click-through, clipping/z-order, movement/drag/resize, copy/content, telemetry truth, provider states, persistence, validation artifacts, screenshots, UTS questions, lifecycle behavior, and source-truth boundaries must either update an existing ledger row or add a new one.
+
+Marker-only proof cannot satisfy user-facing element acceptance. User-facing and hidden-user-facing ledger rows require screenshot/live proof and Live Validation / UTS coverage unless an explicit waiver is recorded. Deferred, future, dependency-only, and non-gating supporting rows must name their boundary so they neither block nor falsely satisfy the current release.
+
+Source-code ownership markers are optional backlinks from code to the canonical ledger, not the ledger itself. High-risk elements such as window ownership, drag/move behavior, focus/click-through, clipping/z-order, provider truth, warning behavior, scrollbar/product styling, persistence, proof generation, UTS generation, major UI sections, renderer boundaries, state transitions, and lifecycle/cleanup behavior should carry a source-owner marker or a source-owner-not-applicable reason. Existing source files may adopt this marker format gradually through a later repo-wide marker adoption branch/package.
+
+Element ledger blockers include `Element Validation Ledger Missing`, `Created Element Untracked`, `Touched Element Proof Missing`, `Affected Element Validation Missing`, `User-Facing Element Acceptance Missing`, `Deferred Element Boundary Missing`, `Element Proof Stale`, `Marker-Only Element Proof`, `Element Ledger Placement Drift`, `Feature Element Source Marker Orphaned`, `High-Risk Element Source Owner Missing`, `Feature Element Marker Proof Insufficient`, `Feature Element Source Marker Stale`, and `Feature Element Source Marker Mismatch`.
+
 ### ChatGPT Interface And Codex Execution Authority Rule
 
 ChatGPT, prompt generators, and loader templates are interface layers.

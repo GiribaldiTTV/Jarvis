@@ -232,12 +232,15 @@ For tracked work, that means:
 7. if the task is a selected `Registry-only` backlog branch in `Branch Readiness`, or an approved non-backlog branch, load the branch authority record under `Docs/branch_records/`
 8. validate current branch truth before trusting prompt framing
 9. use the canonical workstream doc first for branch-local reuse, artifact history, and "what worked" notes, or use the branch authority record when no promoted workstream owns the branch
-10. use `Docs/incident_patterns.md` only for generalized cross-branch patterns
-11. state the next safe move before narrowing scope
+10. run `Source-Truth Placement Preflight` before creating a new governance/source-truth file, active artifact, ledger, registry, or durable authority surface
+11. use the owning `Element Validation Ledger` in the canonical workstream doc or active branch authority record for created, touched, affected, deferred, future, dependency-only, and non-gating supporting product elements
+12. use `Docs/incident_patterns.md` only for generalized cross-branch patterns
+13. state the next safe move before narrowing scope
 
 Promoted workstream docs remain the place to read branch-local feature state, evidence, active seams, artifact history, and branch-local reuse notes.
 Repo-wide lifecycle rules such as phases, stop-loss, timeout governance, and proof authority come from `Docs/phase_governance.md`.
 Repo-wide validation-helper rules and the desktop UI audit rule also come from `Docs/phase_governance.md`.
+Element Validation Ledger rows belong in the existing authority owner by default: the canonical workstream doc for promoted work or the active branch authority record for `Registry-only` active branches. Do not prompt Codex to create a parallel active ledger unless the owning record records `No Existing Owner Fits` or points to a companion file.
 
 ## Analysis-Phase Prompting
 

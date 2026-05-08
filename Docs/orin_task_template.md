@@ -142,6 +142,15 @@ User-Facing Shortcut Validation:
 Seam Sequence:
 [fill in when a Workstream pass may execute more than one seam]
 
+Source-Truth Placement Preflight:
+[existing authority owner / extends existing owner / No Existing Owner Fits / companion file pointer / not applicable]
+
+Element Validation Ledger Owner:
+[canonical workstream doc / active branch authority record / companion file with owning-record pointer / not applicable]
+
+Element Delta Capture:
+[Created / Touched / Affected / Deferred / Future / Dependency-only / Non-gating supporting / not applicable]
+
 Repo state:
 [Active Branch / No Active Branch]
 
@@ -184,6 +193,8 @@ Completed USER input digests may add package-specific planning blockers such as 
 Candidate-only family-package planning is incomplete. If scope, future-package deferrals, provider path, polling posture, warning modality, privacy model, naming/product-copy handling, acceptance criteria, or proof standards are still only candidate statements, route through Branch Readiness Stage 2 source-truth repair and then Stage 1 revalidation before Workstream implementation resumes unless USER explicitly waives the requirement.
 Element Coverage is a non-identity checklist only; coverage categories are user-facing surface, runtime/backend behavior, fail-safe/recovery, security/privacy, voice/audio, external integration, local AI/capability packs, packaging/install, monitoring/HUD, validation, and release impact.
 Element Coverage rows never count as `Admission State: Admitted`, slices, seams, packages, FAMs, selected-next truth, or release drivers.
+Before creating a new governance/source-truth file, active artifact, ledger, registry, or durable authority surface, perform `Source-Truth Placement Preflight`: identify the existing authority owner, extend the existing owner first, and create a new active artifact only when `No Existing Owner Fits` is recorded or the owning workstream/branch record points to a companion file.
+The `Element Validation Ledger` is row-level created/touched/affected/deferred/future element proof tracking. For promoted work, it lives in the canonical workstream doc; for `Registry-only` active branches, it lives in the active branch authority record. Each seam must run `Element Delta Capture` and update ledger rows for product-significant UI, runtime behavior, hidden user-facing behavior, validation artifacts, screenshots, UTS questions, and source-truth boundaries.
 Branch Readiness must evaluate the whole backlog item, define the first admitted slice, record the same-branch continuation posture until `Completion Status` becomes green, and record any known future-dependent blockers before Workstream begins.
 Workstream must execute admitted implementation slices one slice at a time, keep re-evaluating the backlog item after each seam and slice, and keep later slices on the same branch by default when scope, phase, risk, and validation authority remain green unless the USER explicitly approves a docs-only bypass or backlog split.
 Docs-only Workstreams require explicit USER approval.
