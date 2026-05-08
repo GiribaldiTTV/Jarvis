@@ -24,7 +24,7 @@ This branch may execute the admitted PKG-006 implementation slices during Workst
 
 ## Status
 
-- `Hardening H1 Green - Live Validation Stage 1 handoff ready`
+- `Live Validation LV1 Stage 1 Green - User Test Summary Results Pending`
 
 ## Canonical Branch
 
@@ -32,14 +32,14 @@ This branch may execute the admitted PKG-006 implementation slices during Workst
 
 ## Current Phase
 
-- Phase: `Hardening`
+- Phase: `Live Validation`
 
 ## Phase Status
 
 - Branch Readiness Stage: `Complete - Stage 1-R10 revalidated the Dashboard-first interface boundary and Stage 2-R13 recorded the PASS plus Workstream handoff`
 - Workstream Stage: `Green - WS36 reviewed the Dashboard-focused Workstream chain and recorded Hardening H1 handoff readiness`
 - Hardening Stage: `Green - H1 rerun pressure-tested the Dashboard-first release boundary, static proof, internal sandbox proof, live-helper proof, screenshot manifest, provider-contract truth, no-fake-metrics posture, Overlay/display non-gating status, Core dependency-only status, and Live Validation Stage 1 UTS boundary`
-- Live Validation Stage: `Red / Pending Rerun - prior LV1 returned User Test Summary evidence remains historical FAIL evidence until the repaired Dashboard-first branch is admitted to Live Validation, rerun, and accepted`
+- Live Validation Stage: `Stage 1 Green / Returned UTS Pending - USER admitted LV1 rerun, active-client proof passed, formal User Test Summary handoff was refreshed, and LV2 digestion is blocked until USER returns PASS/FAIL/WAIVED results or explicitly waives the handoff`
 - Active Branch: `feature/fam-006-monitoring-hud-product-surface`
 - Branch Authority Mode: `Active Branch`
 - Workstream Entry Source-Truth Transition: `Performed - Branch Readiness Stage 2 terminal evidence reconciled before runtime implementation`
@@ -50,9 +50,9 @@ This branch may execute the admitted PKG-006 implementation slices during Workst
 - Selected Next Source: `USER-approved selected-next truth matured into active FAM-006 Workstream`
 - Package Admission State: `Admitted`
 - Admitted Slice Count: `6`
-- Package Completion State: `In Progress - returned User Test Summary evidence blocks Live Validation green; product proof, User Test Summary acceptance, PR Readiness, and final package completion remain unclaimed`
+- Package Completion State: `In Progress - User Test Summary Results Pending blocks Live Validation final green; returned User Test Summary acceptance or waiver, PR Readiness, and final package completion remain unclaimed`
 - Single-Slice Package User Approval: `Not required - PKG-006 has six concrete admitted slices; no waiver granted`
-- Runtime Implementation State: `Dashboard-first Workstream is green and Hardening H1 is green. WS31 recorded the Dashboard/control panel as the only current-branch interface release gate and enforced Overlay/display as deferred/dormant/non-gating supporting evidence. WS36 recorded Workstream green, and H1 pressure-tested the Dashboard-first release boundary without claiming package completion. WS18-WS30 implementation evidence remains preserved as branch history and supporting repair proof, but current release acceptance is narrowed to the Monitoring HUD Dashboard/control panel. ORIN/Core repair is classified as dependency repair only; it is not a released FAM-006 interface. Formal User Test Summary export is exclusive to Live Validation Stage 1 and is not Workstream or Hardening evidence. Future provider-platform parity, external/plugin telemetry, audio/spoken alerts, persona switching, Stream Deck, graphs/history/persistence dashboards, local AI/capability packs, installer work, ultra-low polling, and Overlay/display release acceptance remain deferred.`
+- Runtime Implementation State: `Dashboard-first Workstream is green, Hardening H1 is green, and Live Validation LV1 Stage 1 proof is green with returned UTS results pending. WS31 recorded the Dashboard/control panel as the only current-branch interface release gate and enforced Overlay/display as deferred/dormant/non-gating supporting evidence. WS36 recorded Workstream green, H1 pressure-tested the Dashboard-first release boundary, and LV1 generated the formal User Test Summary handoff without claiming package completion. WS18-WS30 implementation evidence remains preserved as branch history and supporting repair proof, but current release acceptance is narrowed to the Monitoring HUD Dashboard/control panel. ORIN/Core repair is classified as dependency repair only; it is not a released FAM-006 interface. Formal User Test Summary export is exclusive to Live Validation Stage 1 and returned-result digestion is reserved for LV2 or the repo-defined follow-up seam. Future provider-platform parity, external/plugin telemetry, audio/spoken alerts, persona switching, Stream Deck, graphs/history/persistence dashboards, local AI/capability packs, installer work, ultra-low polling, and Overlay/display release acceptance remain deferred.`
 - PR Creation State: `Not approved in Branch Readiness`
 - Watcher Provisioning State: `Not approved in Branch Readiness`
 - Release Work State: `Not approved; v1.6.13-prebeta release execution is already complete and no new release work is in scope`
@@ -66,8 +66,9 @@ This branch may execute the admitted PKG-006 implementation slices during Workst
 ## Blockers
 
 - `Backlog Completion Unproven`
+- `User Test Summary Results Pending`
 
-Package completion is not currently claimed. Stage 2-R13 cleared the Branch Readiness planning latches and handed the branch back to bounded Dashboard-focused Workstream repair. WS36 recorded Dashboard-focused Workstream green, and Hardening H1 rerun now pressure-tests green. Returned User Test Summary evidence and later USER review remain the historical reason this branch was narrowed to a Dashboard-first fallback point. Final advancement beyond Hardening remains blocked until USER explicitly admits Live Validation, the active-client Live Validation rerun is complete, returned User Test Summary acceptance or waiver is digested, PR Readiness passes, and package completion is truthfully proven under the current primary-interface boundary.
+Package completion is not currently claimed. Stage 2-R13 cleared the Branch Readiness planning latches and handed the branch back to bounded Dashboard-focused Workstream repair. WS36 recorded Dashboard-focused Workstream green, Hardening H1 rerun pressure-tested green, and Live Validation LV1 Stage 1 now has fresh active-client proof plus a formal User Test Summary handoff. Returned User Test Summary evidence and later USER review remain the historical reason this branch was narrowed to a Dashboard-first fallback point. Final advancement beyond Live Validation Stage 1 remains blocked until USER returns PASS/FAIL/WAIVED results or explicitly waives the handoff, Codex digests the result into source truth, PR Readiness passes, and package completion is truthfully proven under the current primary-interface boundary.
 
 ## Returned LV1 Repair Findings
 
@@ -154,21 +155,21 @@ The operator-supplied Stage 2 terminal evidence was not sufficient by itself bec
 
 - `Hardening`
 
-Rollback Path: revert the Hardening H1 source-truth closeout commit on `feature/fam-006-monitoring-hud-product-surface` before PR merge to return to the WS36 Workstream Green / USER Hardening Admission handoff latch. Revert runtime Workstream commits only if a later USER-approved repair or reset plan explicitly selects that route. No tags, releases, artifacts, PR, watcher, runtime implementation, User Test Summary export, or `main` mutation are created by this Hardening closeout pass.
+Rollback Path: revert the Live Validation LV1 source-truth closeout commit on `feature/fam-006-monitoring-hud-product-surface` before PR merge to return to the Hardening H1 Green / USER Live Validation Admission handoff latch. Revert runtime Workstream commits only if a later USER-approved repair or reset plan explicitly selects that route. No tags, releases, artifacts, PR, watcher, runtime implementation, or `main` mutation are created by this Live Validation Stage 1 handoff pass.
 
 ## Next Legal Phase
 
-- `Hardening`
+- `Live Validation`
 
-Next Legal Seam: `Live Validation LV1 - Monitoring HUD Product Surface Live Validation Rerun` pending explicit USER Live Validation phase admission.
+Next Legal Seam: `Live Validation LV2 - Monitoring HUD User Test Summary Results Digest And Acceptance Classification` pending USER returned User Test Summary results or explicit waiver.
 
-Next Legal Phase Gate: Hardening H1 records Dashboard-first pressure-test green and hands off to Live Validation LV1 as a phase-boundary target only. Phase Boundary Stop Required: a phase-exit seam named after Hardening Green is not current-phase execution authority. Hardening continuation ends at this phase boundary; Codex must not execute Live Validation LV1, prepare or refresh the formal User Test Summary, digest returned UTS results, enter PR Readiness, or perform release work until USER explicitly admits the Live Validation phase after reviewing the Hardening handoff. Live Validation remains red from prior returned UTS FAIL evidence until the rerun is admitted, active-client proof is captured, and returned User Test Summary acceptance or waiver is digested. It must not create a PR, watcher, release, tag, artifact, direct-main mutation, voice/audio implementation, Stream Deck/plugin telemetry implementation, local AI, installer/capability-pack work, broad hardware provider implementation, persona switching implementation, ARIA activation, Overlay/display release acceptance, or a new FAM/package without later explicit USER approval.
+Next Legal Phase Gate: Live Validation LV1 records active-client proof and formal User Test Summary handoff green, then stops inside Live Validation until USER returns the completed `C:\Users\anden\OneDrive\Desktop\User Test Summary.txt` artifact or explicitly waives it. Live Validation Stage 2 owns returned-result digestion and acceptance classification. Codex must not enter PR Readiness, create a PR, watcher, release, tag, artifact, direct-main mutation, voice/audio implementation, Stream Deck/plugin telemetry implementation, local AI, installer/capability-pack work, broad hardware provider implementation, persona switching implementation, ARIA activation, Overlay/display release acceptance, or a new FAM/package without later explicit USER approval.
 
 ## Active Seam
 
-Active seam: `Phase Boundary Stop - Await USER Live Validation Admission`
+Active seam: `Live Validation LV2 Blocked - Await Returned User Test Summary Results`
 
-Active Seam Status: `Stopped at phase boundary - Hardening H1 rerun is green; Live Validation LV1 is the next phase handoff target only and must not execute until USER explicitly admits Live Validation`
+Active Seam Status: `Blocked inside Live Validation - LV1 Stage 1 proof and User Test Summary handoff are green; LV2 digestion cannot proceed until USER returns PASS/FAIL/WAIVED results or explicitly waives the handoff`
 
 ## Branch Objective
 
@@ -439,12 +440,12 @@ Branch Completion Goal: complete a visible, readable, accepted Dashboard-first M
 
 Known Future-Dependent Blockers: full HWInfo/HWMonitor-level sensor coverage, broad plugin/external telemetry ecosystem, audio/spoken alerts or FAM-004 integration, Stream Deck integration, graphs/history/persistence/dashboards, local AI/capability-pack monitoring, installer/capability-pack work, and ultra-low polling intervals remain deferred unless USER later widens scope and validation proves safety.
 
-Branch Closure Rule: Stage 2-R13 handed this branch back to bounded Dashboard-focused Workstream repair after Stage 1-R10 confirmed the Dashboard/control panel is the primary current-branch interface release surface, Overlay/display acceptance is deferred/non-gating, Core repair is dependency-only, and Dashboard-specific proof/acceptance criteria are sufficient. WS36 proved the Dashboard-focused current-branch repair scope green for Hardening, and Hardening H1 now pressure-tests green. The branch may enter Live Validation only after explicit USER Live Validation admission, with package completion still unclaimed and formal User Test Summary returned-results digestion reserved for the Live Validation gate.
+Branch Closure Rule: Stage 2-R13 handed this branch back to bounded Dashboard-focused Workstream repair after Stage 1-R10 confirmed the Dashboard/control panel is the primary current-branch interface release surface, Overlay/display acceptance is deferred/non-gating, Core repair is dependency-only, and Dashboard-specific proof/acceptance criteria are sufficient. WS36 proved the Dashboard-focused current-branch repair scope green for Hardening, Hardening H1 pressure-tested green, and Live Validation LV1 Stage 1 now generated formal UTS handoff proof. The branch may enter PR Readiness only after returned User Test Summary acceptance or waiver is digested in Live Validation and package completion remains truthfully unclaimed or proven according to the later gate.
 
 ## Backlog Completion Status
 
 Backlog Completion State: `In Progress`
-Remaining Implementable Work: `None - Dashboard-focused Workstream repair and Hardening H1 are green; active-client Live Validation rerun, returned UTS acceptance, PR Readiness, and package completion closeout remain later phase gates`
+Remaining Implementable Work: `None - Dashboard-focused Workstream repair, Hardening H1, and Live Validation LV1 Stage 1 handoff proof are green; returned UTS results digest, PR Readiness, and package completion closeout remain later phase gates`
 Future-Dependent Blockers: `full HWInfo/HWMonitor-level parity, broad plugin/external telemetry ecosystem, audio/spoken alerts or FAM-004 integration, persona switching implementation and ARIA activation, Stream Deck, graphs/history/persistence/dashboards, local AI/capability-pack monitoring, installer/capability-pack work, and ultra-low polling intervals remain deferred pending later approval, admission, and proof`
 Completion Status: `In Progress`
 
@@ -665,6 +666,19 @@ Stop Basis: Hardening H1 Green
 Next Active Seam: Live Validation LV1 - Monitoring HUD Product Surface Live Validation Rerun pending explicit USER Live Validation phase admission
 Stop Condition: Hardening Green for Dashboard-first current-branch scope
 Continuation Action: Stop at phase boundary after Hardening H1 Green; Dashboard-first Workstream and Hardening proof are complete, but USER must explicitly admit the Live Validation phase before Codex may run LV1, prepare or refresh the formal User Test Summary, digest returned UTS results, enter PR Readiness, or perform release work. Preserve Dashboard-first proof, static/internal/live validation evidence, screenshot evidence, Live Validation Stage 1 UTS boundary, provider truth, no-fake-telemetry posture, Core dependency-only status, Overlay/display non-gating status, LV1 historical red, PR blocked, PKG-006 In Progress, package completion unclaimed, no single-seam waiver, and no PR/release work.
+
+## Live Validation Stage 1 Continuation Decision
+
+Seam Status: Green for Stage 1 handoff
+Slice Status: Live Validation pending returned USER results
+Completion Status: Red
+Completion Detail: Live Validation final green is blocked until USER returns `C:\Users\anden\OneDrive\Desktop\User Test Summary.txt` with PASS/FAIL/WAIVED results or explicitly waives the handoff and Codex digests the result into source truth.
+Waiver Status: None
+Continue Decision: Stop
+Stop Basis: User Test Summary Results Pending
+Next Active Seam: Live Validation LV2 - Monitoring HUD User Test Summary Results Digest And Acceptance Classification
+Stop Condition: Live Validation Stage 1 User Test Summary handoff complete; returned results not yet digested
+Continuation Action: Stop inside Live Validation. Do not enter PR Readiness, create PR/watcher/release artifacts, claim package completion, or treat Codex self-QA as USER acceptance until returned UTS results are digested as PASS/FAIL/WAIVED.
 
 ## Live Validation Continuation Decision
 
@@ -1349,6 +1363,33 @@ Validation Evidence Expectations: return PASS/FAIL plus any notes, screenshots, 
 - LV1 / PR Status: `LV1 remains historical red until rerun; PR Readiness remains blocked`
 - Next Active Seam: Live Validation LV1 - Monitoring HUD Product Surface Live Validation Rerun pending explicit USER Live Validation phase admission
 
+## Live Validation LV1 Monitoring HUD Product Surface Live Validation Rerun
+
+- LV1 Admission: `PASS - USER explicitly admitted Live Validation LV1 after Hardening H1 Green phase-boundary stop`
+- LV1 Stage 1 Result: `Green for formal User Test Summary handoff - active-client proof passed and returned USER results are pending`
+- Prior LV1 Failure Handling: `Historical red remains preserved as earlier returned UTS FAIL evidence; this LV1 rerun supersedes the old proof path for Stage 1 handoff but does not clear final Live Validation acceptance until returned results are digested.`
+- Live Validation Approach: `Active user-facing desktop client with interaction self-QA, before/after full virtual-desktop screenshots, USER-inspectable screenshot copies, manifest proof, and formal Live Validation Stage 1 User Test Summary export.`
+- Dashboard-First Live Proof: `PASS - Dashboard/control panel remains the primary current-branch interface release surface; proof covers standalone dashboard travel, clipping boundary, Core/Overlay decoupling, settings/control content, monitor-group clarity, provider/setup/no-data/degraded truth, visual/non-invasive warning controls, no fake telemetry, and Nexus/NDAI naming.`
+- Overlay Classification: `deferred/non-gating - Overlay/display evidence remains supporting/future-interface proof only and is not required for Dashboard acceptance.`
+- Core Classification: `dependency-only - ORIN/Core remains independent desktop-safety proof and is not a released FAM-006 interface.`
+- Formal User Test Summary Handoff: `Generated - C:\Users\anden\OneDrive\Desktop\User Test Summary.txt`
+- User Test Summary Result State: `PENDING - USER must return PASS/FAIL/WAIVED results or explicitly waive the handoff before LV2 can continue`
+- Manifest: `dev/logs/fam_006_monitoring_hud_live_validation/20260508_105558_321/manifest.json`
+- Runtime Log: `dev/logs/fam_006_monitoring_hud_live_validation/20260508_105558_321/runtime_log.txt`
+- Interaction Manifest: `dev/logs/fam_006_monitoring_hud_live_validation/20260508_105558_321/monitoring_hud_live_client_interaction_manifest.json`
+- Interaction Evidence Root: `dev/logs/fam_006_monitoring_hud_live_validation/20260508_105558_321/live_client_interaction`
+- Screenshot Proof Root: `dev/logs/fam_006_monitoring_hud_live_validation/20260508_105558_321`
+- Before Screenshot: `dev/logs/fam_006_monitoring_hud_live_validation/20260508_105558_321/monitoring_hud_desktop_before_launch.png`
+- After Screenshot: `dev/logs/fam_006_monitoring_hud_live_validation/20260508_105558_321/monitoring_hud_desktop_after_launch.png`
+- USER-Inspectable Screenshot Folder: `C:\Users\anden\OneDrive\Pictures\Screenshots\Nexus Desktop AI\fam_006_monitoring_hud_live_validation\20260508_105558_321`
+- USER-Inspectable Before Screenshot: `C:\Users\anden\OneDrive\Pictures\Screenshots\Nexus Desktop AI\fam_006_monitoring_hud_live_validation\20260508_105558_321\monitoring_hud_full_virtual_desktop_before_launch.png`
+- USER-Inspectable After Screenshot: `C:\Users\anden\OneDrive\Pictures\Screenshots\Nexus Desktop AI\fam_006_monitoring_hud_live_validation\20260508_105558_321\monitoring_hud_full_virtual_desktop_after_launch.png`
+- Live Helper Manifest Fields: `status=PASS; dashboardUserTestSummaryExportRefreshed=true; dashboardUserTestSummaryExportPath=C:\Users\anden\OneDrive\Desktop\User Test Summary.txt; dashboardUserTestSummaryReturnedResults=live-validation-stage-1-only; dashboardSpecificProof.interactionSelfQA=PASS; dashboardSpecificProof.userTestSummaryExportRefreshed=true; dashboardSpecificProof.returnedUserTestSummaryDigestReserved=true`
+- Package Status: `PKG-006 remains In Progress`
+- Package Completion: `Unclaimed`
+- LV1 / PR Status: `LV1 Stage 1 handoff is green; final Live Validation acceptance, PR Readiness, and package completion remain blocked on returned UTS digestion`
+- Next Active Seam: Live Validation LV2 - Monitoring HUD User Test Summary Results Digest And Acceptance Classification
+
 ## Historical WS30 Codex Live Client Self-QA
 
 - Codex Live Client Self-QA: `Historical/supporting PASS for WS30 Workstream proof only; Stage 2-R12 supersedes the Hardening handoff until Dashboard-first Stage 1-R10 revalidation passes`
@@ -1371,16 +1412,32 @@ Validation Evidence Expectations: return PASS/FAIL plus any notes, screenshots, 
 
 ## User Test Summary
 
-Automated validators and live helper evidence: SUPPORTING ONLY - latest Hardening H1 proof is green for Dashboard-first pressure testing, but prior returned USER FAIL evidence still blocks Live Validation green, PR Readiness, and package completion until Live Validation reruns and returned UTS acceptance or waiver is digested.
-Codex Live Client Self-QA: SUPPORTING PASS for Hardening H1 proof; not a substitute for returned User Test Summary acceptance.
-User-Facing Shortcut Live Validation Gate: documented equivalent desktop runtime path passed during H1 proof; formal User Test Summary export and returned-results digestion remain later Live Validation Stage 1 gates.
+Automated validators and live helper evidence: PASS for Live Validation LV1 Stage 1 handoff only; not a substitute for returned User Test Summary acceptance.
+Codex Live Client Self-QA: PASS.
+User-Facing Shortcut Live Validation Gate: documented equivalent desktop runtime path passed during LV1 active-client proof; formal User Test Summary export was refreshed and returned-results digestion remains pending.
 User-Facing Shortcut Path: `powershell -NoProfile -ExecutionPolicy Bypass -File dev\orin_monitoring_hud_live_validation.ps1 -ActiveUserFacingClient -MarkerTimeoutSeconds 240 -NoProgressTimeoutSeconds 180 -FinalClientHoldSeconds 3`
 User-Facing Shortcut Validation: PASS.
-Returned User Test Summary Historical Result: FAIL.
-Final package completion and PR Readiness are BLOCKED until explicit USER Live Validation admission, active-client Live Validation rerun, and returned User Test Summary acceptance or explicit waiver are recorded.
+User Test Summary Results: PENDING.
+Returned User Test Summary Historical Result: FAIL - superseded for Stage 1 proof by the LV1 rerun, but preserved as prior failure evidence until USER returns current results.
+Final package completion and PR Readiness are BLOCKED until returned User Test Summary acceptance or explicit waiver is recorded and digested.
 
 Current Handoff Path: `C:\Users\anden\OneDrive\Desktop\User Test Summary.txt`
 User Test Summary Waiver Reason: `Not applicable - no waiver granted`
+
+## Codex Live Client Self-QA
+
+Codex Live Client Self-QA: PASS.
+Live Client Entry Path: `powershell -NoProfile -ExecutionPolicy Bypass -File dev\orin_monitoring_hud_live_validation.ps1 -ActiveUserFacingClient -RunInteractionSelfQA -PrepareLiveValidationUserTestSummary -MarkerTimeoutSeconds 240 -NoProgressTimeoutSeconds 180 -FinalClientHoldSeconds 3`
+Evidence Screenshot: `C:\Users\anden\OneDrive\Pictures\Screenshots\Nexus Desktop AI\fam_006_monitoring_hud_live_validation\20260508_105558_321\monitoring_hud_full_virtual_desktop_after_launch.png`
+Visual Quality: `PASS - LV1 proof captured before/after full virtual-desktop screenshots, Dashboard-first surface evidence, Nexus/NDAI naming, provider-truthful copy, no fake telemetry posture, and USER-inspectable raw screenshot evidence.`
+Interaction Manifest: `dev/logs/fam_006_monitoring_hud_live_validation/20260508_105558_321/monitoring_hud_live_client_interaction_manifest.json`
+Interaction Evidence Root: `dev/logs/fam_006_monitoring_hud_live_validation/20260508_105558_321/live_client_interaction`
+Live Interaction Evidence: `PASS - active-client self-QA observed dashboard standalone travel, clipping boundary, Core/Overlay decoupling, dashboard settings/control content, monitor group clarity, provider/state/warning proof, and formal UTS handoff generation.`
+Usability Check: `PASS for Codex pre-handoff review - Dashboard/control panel is the current release surface; Overlay/display acceptance remains deferred/non-gating; ORIN/Core remains dependency-only.`
+Interaction Check: `PASS - interaction manifest status PASS and runtime markers include MONITORING_HUD_LIVE_CLIENT_SELF_QA_READY, MONITORING_HUD_DASHBOARD_STANDALONE_WINDOW_TRAVEL_READY, MONITORING_HUD_DASHBOARD_CLIPPING_BOUNDARY_READY, MONITORING_HUD_DASHBOARD_CORE_OVERLAY_DECOUPLING_READY, and MONITORING_HUD_LIVE_CLIENT_SELF_QA_INTERACTION_READY.`
+Platform Uniformity Check: `PASS - LV1 proof preserves Nexus/NDAI naming and retired-name scan cleanliness; non-repo desktop surfaces in screenshots are environment context only.`
+NDAI Naming Check: `PASS - tracked repo retired-name scan remains clean and current user-facing repo-owned surfaces preserve Nexus/NDAI/ORIN/ARIA boundary truth.`
+Cleanup Check: `PASS - live helper stopped desktop runtime pid=118188 and recorded cleanup in the manifest.`
 
 ## Validation Plan
 
