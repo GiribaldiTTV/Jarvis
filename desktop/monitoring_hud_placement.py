@@ -67,7 +67,7 @@ def build_monitoring_hud_placement_contract(
         anchor="Anchor anywhere after OS proof",
         pointer_model="Anchored click-through/no-focus-steal",
         snap_model="20px snap grid with snap-disable posture",
-        card_layout_model="cards resize and snap from dashboard",
+        card_layout_model="cards resize and snap in overlay edit mode",
         z_index="native-topmost",
         desktop_mode="enabled" if desktop_mode else "pending",
         window_geometry={

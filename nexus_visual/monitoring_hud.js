@@ -32,7 +32,9 @@ const monitoringHudCreateMonitor = document.getElementById("monitoring-hud-creat
 const monitoringHudSnapToggle = document.getElementById("monitoring-hud-snap-toggle");
 const monitoringHudSnapLabel = document.getElementById("monitoring-hud-snap-label");
 const monitoringHudPollingRate = document.getElementById("monitoring-hud-polling-rate");
-const monitoringHudCardBoard = document.getElementById("monitoring-hud-card-board");
+const monitoringHudMonitorList = document.getElementById("monitoring-hud-monitor-list");
+const monitoringHudMonitorSelector = document.getElementById("monitoring-hud-monitor-selector");
+const monitoringHudMonitorListSummary = document.getElementById("monitoring-hud-monitor-list-summary");
 const monitoringHudMonitorEditorTitle = document.getElementById("monitoring-hud-monitor-editor-title");
 const monitoringHudMonitorEnabled = document.getElementById("monitoring-hud-monitor-enabled");
 const monitoringHudMonitorPollingRate = document.getElementById("monitoring-hud-monitor-polling-rate");
@@ -53,7 +55,7 @@ let monitoringHudPlacement = {
   rendererOwner: "Separate minimal HUD overlay",
   anchor: "Anchor anywhere after OS proof",
   pointerModel: "Anchored click-through/no-focus-steal",
-  resizePosture: "Cards resize and snap from dashboard"
+  resizePosture: "Cards resize and snap in overlay edit mode"
 };
 let monitoringHudControls = {
   packageId: "PKG-006",
@@ -156,50 +158,17 @@ function monitoringHudSelectedMonitor() {
 }
 
 function monitoringHudCreateCardNode(cardId, layout) {
-  if (!monitoringHudCardBoard || monitoringHudCardBoard.querySelector(`[data-category-card="${cardId}"]`)) return;
+  if (!monitoringHudMonitorSelector || monitoringHudMonitorSelector.querySelector(`[data-monitor-config-option="${cardId}"]`)) return;
   const title = layout.title || "Monitor";
-  const article = document.createElement("article");
-  article.className = "monitoring-hud-card monitoring-hud-card--unavailable";
-  article.dataset.categoryCard = cardId;
-  article.dataset.monitorCard = cardId;
-  article.dataset.monitorEnabled = layout.enabled === false ? "false" : "true";
-  article.dataset.monitorPollingMs = String(layout.pollingRateMs || 1000);
-  article.dataset.cardState = "no-data";
-  article.style.setProperty("--card-x", `${Math.round(layout.x || 0)}px`);
-  article.style.setProperty("--card-y", `${Math.round(layout.y || 0)}px`);
-  article.style.setProperty("--card-w", `${Math.round(layout.w || 600)}px`);
-  article.style.setProperty("--card-h", `${Math.round(layout.h || 280)}px`);
-  article.innerHTML = `
-    <div class="monitoring-hud-card__drag-handle" data-card-handle="${cardId}">
-      <div>
-        <div class="monitoring-hud-card__label" data-monitor-title="${cardId}"></div>
-        <div class="monitoring-hud-card__value" data-card-summary="${cardId}">Provider required</div>
-      </div>
-      <div class="monitoring-hud-card__actions">
-        <div class="monitoring-hud-card__badge" data-card-badge="${cardId}">No data</div>
-        <div class="monitoring-hud-card__quick-actions" data-monitor-quick-actions="${cardId}">
-          <button type="button" data-monitor-edit="${cardId}">Edit</button>
-          <button type="button" data-monitor-toggle="${cardId}">Disable</button>
-        </div>
-      </div>
-    </div>
-    <div class="monitoring-hud-card__sensors" data-card-sensors="${cardId}">
-      <div class="monitoring-hud-sensor-row" data-sensor-row="${cardId}-provider" data-live-value="blocked-until-provider">
-        <span>Sensor group</span>
-        <strong data-sensor-value="${cardId}-provider">Unavailable</strong>
-        <em data-sensor-source="${cardId}-provider">Provider route pending</em>
-      </div>
-    </div>
-    <div class="monitoring-hud-card__meta" data-card-meta="${cardId}">Monitor group is ready for real sensors after provider proof; no fake values.</div>
-    <div class="monitoring-hud-card__resize-handle" data-card-resize="${cardId}" aria-hidden="true"></div>
-  `;
-  const label = article.querySelector(`[data-monitor-title="${cardId}"]`);
-  if (label) label.textContent = title;
-  monitoringHudCardBoard.appendChild(article);
+  const option = document.createElement("option");
+  option.value = cardId;
+  option.dataset.monitorConfigOption = cardId;
+  option.textContent = title;
+  monitoringHudMonitorSelector.appendChild(option);
 }
 
 function monitoringHudEnsureCardNodes() {
-  if (!monitoringHudCardBoard) return;
+  if (!monitoringHudMonitorList) return;
   Object.keys(monitoringHudControlState.cards || {}).forEach((cardId) => {
     const layout = Object.assign(monitoringHudCardDefaults(cardId), monitoringHudControlState.cards[cardId] || {});
     monitoringHudControlState.cards[cardId] = layout;
@@ -218,22 +187,20 @@ function monitoringHudRenderMonitorManagement() {
   }
   Object.keys(monitoringHudControlState.cards || {}).forEach((cardId) => {
     const layout = Object.assign(monitoringHudCardDefaults(cardId), monitoringHudControlState.cards[cardId] || {});
-    const cardNode = monitoringHudCardBoard
-      ? monitoringHudCardBoard.querySelector(`[data-category-card="${cardId}"]`)
+    const cardNode = monitoringHudMonitorSelector
+      ? monitoringHudMonitorSelector.querySelector(`[data-monitor-config-option="${cardId}"]`)
       : null;
     if (!cardNode) return;
     cardNode.dataset.monitorEnabled = layout.enabled === false ? "false" : "true";
     cardNode.dataset.monitorPollingMs = String(Math.max(1000, Number(layout.pollingRateMs) || 1000));
-    cardNode.classList.toggle("monitoring-hud-card--selected", cardId === selected.id);
-    const titleNode = cardNode.querySelector(`[data-monitor-title="${cardId}"]`);
-    if (titleNode) titleNode.textContent = layout.title || "Monitor";
-    const toggleNode = cardNode.querySelector(`[data-monitor-toggle="${cardId}"]`);
-    if (toggleNode) toggleNode.textContent = layout.enabled === false ? "Enable" : "Disable";
-    const metaNode = cardNode.querySelector(`[data-card-meta="${cardId}"]`);
-    if (metaNode && cardId !== "cpu" && cardId !== "gpu") {
-      metaNode.textContent = "Monitor group is ready for real sensors after provider proof; no fake values.";
-    }
+    cardNode.textContent = layout.title || "Monitor";
   });
+  if (monitoringHudMonitorSelector) {
+    monitoringHudMonitorSelector.value = selected.id || "cpu";
+  }
+  if (monitoringHudMonitorListSummary) {
+    monitoringHudMonitorListSummary.textContent = `${Object.keys(monitoringHudControlState.cards || {}).length} monitors configured; overlay owns monitor cards.`;
+  }
   if (monitoringHudMonitorEditorTitle) {
     monitoringHudMonitorEditorTitle.textContent = selected.layout.title || "Monitor";
   }
@@ -321,6 +288,8 @@ function monitoringHudUpdateSurfaceSplit() {
     monitoringHud.dataset.dashboardSurface = "monitoring-hud-dashboard";
     monitoringHud.dataset.configuresSurface = "monitoring-hud-minimal";
     monitoringHud.dataset.splitContract = "dashboard-configures-minimal-overlay";
+    monitoringHud.dataset.nativeDashboardOwner = "DesktopRuntimeWindow";
+    monitoringHud.dataset.standaloneWindowContract = "dashboard-overlay-core-independent-native-surfaces";
     monitoringHud.dataset.dragSmoothing = "raf-local-persist-on-release";
     monitoringHud.dataset.scrollbarStyle = "nexus-thin-glow";
   }
@@ -360,17 +329,10 @@ function monitoringHudUpdateSurfaceSplit() {
 }
 
 function monitoringHudApplyCardLayout() {
-  if (!monitoringHudCardBoard) return;
   monitoringHudEnsureCardNodes();
   Object.keys(monitoringHudControlState.cards).forEach((cardId) => {
-    const card = monitoringHudCardBoard.querySelector(`[data-category-card="${cardId}"]`);
     const layout = Object.assign(monitoringHudCardDefaults(cardId), monitoringHudControlState.cards[cardId] || {});
     monitoringHudControlState.cards[cardId] = layout;
-    if (!card || !layout) return;
-    card.style.setProperty("--card-x", `${Math.round(layout.x)}px`);
-    card.style.setProperty("--card-y", `${Math.round(layout.y)}px`);
-    card.style.setProperty("--card-w", `${Math.round(layout.w)}px`);
-    card.style.setProperty("--card-h", `${Math.round(layout.h)}px`);
   });
   monitoringHudRenderMonitorManagement();
   monitoringHudRenderOverlayDisplay();
@@ -467,20 +429,14 @@ function monitoringHudRenderSensorCards(cards) {
   if (!Array.isArray(cards)) return;
   cards.forEach((card) => {
     if (!card || !card.id) return;
-    const cardNode = monitoringHudCardBoard
-      ? monitoringHudCardBoard.querySelector(`[data-category-card="${card.id}"]`)
+    const cardNode = monitoringHudMonitorList
+      ? monitoringHudMonitorList.querySelector(`[data-monitor-config-option="${card.id}"]`)
       : null;
-    if (!cardNode) return;
-    if (card.state) cardNode.dataset.cardState = card.state;
-    cardNode.classList.toggle("monitoring-hud-card--warning", card.state === "warning");
-    cardNode.classList.toggle("monitoring-hud-card--setup", card.state === "setup");
-    cardNode.classList.toggle("monitoring-hud-card--unavailable", card.state === "no-data" || card.state === "degraded");
-    const summaryNode = cardNode.querySelector(`[data-card-summary="${card.id}"]`);
-    if (summaryNode && card.summary) summaryNode.textContent = card.summary;
-    const badgeNode = cardNode.querySelector(`[data-card-badge="${card.id}"]`);
-    if (badgeNode && card.badge) badgeNode.textContent = card.badge;
-    const metaNode = cardNode.querySelector(`[data-card-meta="${card.id}"]`);
-    if (metaNode && card.meta) metaNode.textContent = card.meta;
+    if (cardNode) {
+      if (card.state) cardNode.dataset.monitorProviderState = card.state;
+      const statusNode = cardNode.querySelector(`[data-monitor-config-status="${card.id}"]`);
+      if (statusNode) statusNode.textContent = card.summary || (card.state === "warning" ? "Warning in overlay" : "Enabled in overlay");
+    }
     const minimalCardNode = monitoringHudMinimal
       ? monitoringHudMinimal.querySelector(`[data-minimal-card="${card.id}"]`)
       : null;
@@ -497,9 +453,9 @@ function monitoringHudRenderSensorCards(cards) {
     if (!Array.isArray(card.sensors)) return;
     card.sensors.forEach((sensor) => {
       if (!sensor || !sensor.id) return;
-      const row = cardNode.querySelector(`[data-sensor-row="${sensor.id}"]`);
-      const valueNode = cardNode.querySelector(`[data-sensor-value="${sensor.id}"]`);
-      const sourceNode = cardNode.querySelector(`[data-sensor-source="${sensor.id}"]`);
+      const row = cardNode ? cardNode.querySelector(`[data-sensor-row="${sensor.id}"]`) : null;
+      const valueNode = cardNode ? cardNode.querySelector(`[data-sensor-value="${sensor.id}"]`) : null;
+      const sourceNode = cardNode ? cardNode.querySelector(`[data-sensor-source="${sensor.id}"]`) : null;
       if (row && sensor.state) row.dataset.liveValue = sensor.state;
       if (valueNode && sensor.value) valueNode.textContent = sensor.value;
       if (sourceNode && sensor.source) sourceNode.textContent = sensor.source;
@@ -566,57 +522,8 @@ function monitoringHudWirePanelDrag() {
 }
 
 function monitoringHudWireCardInteractions() {
-  if (!monitoringHudCardBoard) return;
-  monitoringHudCardBoard.querySelectorAll("[data-card-handle]").forEach((handle) => {
-    if (handle.dataset.monitoringHudDragWired === "true") return;
-    handle.dataset.monitoringHudDragWired = "true";
-    const startCardDrag = (event) => {
-      const card = handle.closest("[data-category-card]");
-      if (!card) return;
-      const cardId = card.dataset.categoryCard;
-      const start = Object.assign({ x: 0, y: 0, w: 600, h: 280 }, monitoringHudControlState.cards[cardId]);
-      monitoringHudStartPointerDrag(event, handle, (dx, dy) => {
-        const boardWidth = monitoringHudCardBoard.clientWidth || 720;
-        const boardHeight = monitoringHudCardBoard.clientHeight || 600;
-        const next = Object.assign({}, start, {
-          x: monitoringHudBound(monitoringHudSnap(start.x + dx), 0, Math.max(0, boardWidth - start.w)),
-          y: monitoringHudBound(monitoringHudSnap(start.y + dy), 0, Math.max(0, boardHeight - start.h))
-        });
-        monitoringHudControlState.cards[cardId] = next;
-        monitoringHudApplyCardLayout();
-      });
-    };
-    handle.addEventListener("pointerdown", startCardDrag);
-    handle.addEventListener("mousedown", startCardDrag);
-  });
-  monitoringHudCardBoard.querySelectorAll("[data-card-resize]").forEach((handle) => {
-    if (handle.dataset.monitoringHudResizeWired === "true") return;
-    handle.dataset.monitoringHudResizeWired = "true";
-    const startCardResize = (event) => {
-      const card = handle.closest("[data-category-card]");
-      if (!card) return;
-      const cardId = card.dataset.categoryCard;
-      const start = Object.assign({ x: 0, y: 0, w: 600, h: 280 }, monitoringHudControlState.cards[cardId]);
-      monitoringHudStartPointerDrag(event, handle, (dx, dy) => {
-        const next = Object.assign({}, start, {
-          w: monitoringHudBound(
-            monitoringHudSnap(start.w + dx),
-            340,
-            Math.max(340, monitoringHudSnap((monitoringHudCardBoard.clientWidth || 720) - start.x))
-          ),
-          h: monitoringHudBound(
-            monitoringHudSnap(start.h + dy),
-            260,
-            Math.max(260, monitoringHudSnap((monitoringHudCardBoard.clientHeight || 600) - start.y))
-          )
-        });
-        monitoringHudControlState.cards[cardId] = next;
-        monitoringHudApplyCardLayout();
-      });
-    };
-    handle.addEventListener("pointerdown", startCardResize);
-    handle.addEventListener("mousedown", startCardResize);
-  });
+  // Monitor card movement/resizing belongs to the standalone overlay window.
+  // The dashboard only edits monitor settings and never renders monitor cards.
 }
 
 function monitoringHudWireControls() {
@@ -689,17 +596,11 @@ function monitoringHudWireControls() {
       monitoringHudMarkChanged();
     });
   }
-  if (monitoringHudCardBoard) {
-    monitoringHudCardBoard.addEventListener("click", (event) => {
-      const editButton = event.target && event.target.closest ? event.target.closest("[data-monitor-edit]") : null;
-      const toggleButton = event.target && event.target.closest ? event.target.closest("[data-monitor-toggle]") : null;
-      if (!editButton && !toggleButton) return;
-      const cardId = (editButton || toggleButton).dataset.monitorEdit || (editButton || toggleButton).dataset.monitorToggle;
+  if (monitoringHudMonitorSelector) {
+    monitoringHudMonitorSelector.addEventListener("change", () => {
+      const cardId = monitoringHudMonitorSelector.value;
       if (!cardId || !monitoringHudControlState.cards[cardId]) return;
       monitoringHudControlState.selectedMonitorId = cardId;
-      if (toggleButton) {
-        monitoringHudControlState.cards[cardId].enabled = monitoringHudControlState.cards[cardId].enabled === false;
-      }
       monitoringHudRenderMonitorManagement();
       monitoringHudMarkChanged();
     });
@@ -771,15 +672,11 @@ window.getMonitoringHudLiveClientGeometry = function() {
     snapToggle: rectFor("#monitoring-hud-snap-toggle"),
     pollingRate: rectFor("#monitoring-hud-polling-rate"),
     panelDragHandle: rectFor("#monitoring-hud-drag-handle"),
-    cardBoard: rectFor("#monitoring-hud-card-board"),
-    cpuCard: rectFor('[data-category-card="cpu"]'),
-    cpuDragHandle: rectFor('[data-card-handle="cpu"]'),
-    cpuResizeHandle: rectFor('[data-card-resize="cpu"]'),
+    monitorList: rectFor("#monitoring-hud-monitor-list"),
+    monitorSelector: rectFor("#monitoring-hud-monitor-selector"),
     monitorEnabled: rectFor("#monitoring-hud-monitor-enabled"),
     monitorPollingRate: rectFor("#monitoring-hud-monitor-polling-rate"),
-    gpuCard: rectFor('[data-category-card="gpu"]'),
-    gpuDragHandle: rectFor('[data-card-handle="gpu"]'),
-    gpuResizeHandle: rectFor('[data-card-resize="gpu"]')
+    monitorListSummary: rectFor("#monitoring-hud-monitor-list-summary")
   };
 };
 
@@ -969,7 +866,7 @@ window.setMonitoringHudPlacementOwnership = function(contract) {
       : "Unanchored edit mode";
   }
   if (monitoringHudResizePosture) {
-    monitoringHudResizePosture.textContent = monitoringHudPlacement.resizePosture || "Cards resize and snap from dashboard";
+    monitoringHudResizePosture.textContent = monitoringHudPlacement.resizePosture || "Cards resize and snap in overlay edit mode";
   }
   monitoringHudUpdateSurfaceSplit();
 };

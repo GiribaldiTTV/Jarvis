@@ -25,6 +25,8 @@ $script:CleanupNotes = New-Object System.Collections.Generic.List[string]
 $script:ScreenshotPath = ""
 $script:ScreenshotEvidencePath = ""
 $script:InteractionManifestStatus = "NOT_REQUESTED"
+$script:BeforeScreenshotPath = ""
+$script:BeforeScreenshotEvidencePath = ""
 
 function Step([object]$Paths, [string]$Message) {
     $script:LastProgressAt = Get-Date
@@ -78,8 +80,10 @@ function New-Paths {
         StderrLog = Join-Path $ArtifactRoot "stderr.txt"
         StepLog = Join-Path $ArtifactRoot "step_log.txt"
         Manifest = Join-Path $ArtifactRoot "manifest.json"
-        Screenshot = Join-Path $ArtifactRoot "monitoring_hud_desktop.png"
-        ScreenshotEvidence = Join-Path $screenshotEvidenceRoot "monitoring_hud_full_virtual_desktop.png"
+        BeforeScreenshot = Join-Path $ArtifactRoot "monitoring_hud_desktop_before_launch.png"
+        BeforeScreenshotEvidence = Join-Path $screenshotEvidenceRoot "monitoring_hud_full_virtual_desktop_before_launch.png"
+        Screenshot = Join-Path $ArtifactRoot "monitoring_hud_desktop_after_launch.png"
+        ScreenshotEvidence = Join-Path $screenshotEvidenceRoot "monitoring_hud_full_virtual_desktop_after_launch.png"
         InteractionManifest = Join-Path $ArtifactRoot "monitoring_hud_live_client_interaction_manifest.json"
         InteractionEvidenceRoot = Join-Path $ArtifactRoot "live_client_interaction"
         AbortSignal = Join-Path $ArtifactRoot "startup_abort.signal"
@@ -109,7 +113,7 @@ function Wait-Marker([object]$Paths, [string]$Pattern) {
     throw "Timed out waiting for marker: $Pattern"
 }
 
-function Capture-Screen([object]$Paths) {
+function Capture-Screen([object]$Paths, [string]$Label = "after_launch") {
     Add-Type -AssemblyName System.Windows.Forms
     Add-Type -AssemblyName System.Drawing
     $screens = [System.Windows.Forms.Screen]::AllScreens
@@ -126,12 +130,22 @@ function Capture-Screen([object]$Paths) {
     $graphics = [System.Drawing.Graphics]::FromImage($bitmap)
     try {
         $graphics.CopyFromScreen($bounds.Location, [System.Drawing.Point]::Empty, $bounds.Size)
-        $bitmap.Save($Paths.Screenshot, [System.Drawing.Imaging.ImageFormat]::Png)
-        Copy-Item -LiteralPath $Paths.Screenshot -Destination $Paths.ScreenshotEvidence -Force
-        $script:ScreenshotPath = $Paths.Screenshot
-        $script:ScreenshotEvidencePath = $Paths.ScreenshotEvidence
-        Step $Paths "captured full virtual desktop screenshot: $($Paths.Screenshot)"
-        Step $Paths "copied user-inspectable screenshot evidence: $($Paths.ScreenshotEvidence)"
+        if ($Label -eq "before_launch") {
+            $bitmap.Save($Paths.BeforeScreenshot, [System.Drawing.Imaging.ImageFormat]::Png)
+            Copy-Item -LiteralPath $Paths.BeforeScreenshot -Destination $Paths.BeforeScreenshotEvidence -Force
+            $script:BeforeScreenshotPath = $Paths.BeforeScreenshot
+            $script:BeforeScreenshotEvidencePath = $Paths.BeforeScreenshotEvidence
+            Step $Paths "captured before-launch full virtual desktop screenshot: $($Paths.BeforeScreenshot)"
+            Step $Paths "copied before-launch user-inspectable screenshot evidence: $($Paths.BeforeScreenshotEvidence)"
+        }
+        else {
+            $bitmap.Save($Paths.Screenshot, [System.Drawing.Imaging.ImageFormat]::Png)
+            Copy-Item -LiteralPath $Paths.Screenshot -Destination $Paths.ScreenshotEvidence -Force
+            $script:ScreenshotPath = $Paths.Screenshot
+            $script:ScreenshotEvidencePath = $Paths.ScreenshotEvidence
+            Step $Paths "captured after-launch full virtual desktop screenshot: $($Paths.Screenshot)"
+            Step $Paths "copied after-launch user-inspectable screenshot evidence: $($Paths.ScreenshotEvidence)"
+        }
     }
     finally {
         $graphics.Dispose()
@@ -141,17 +155,63 @@ function Capture-Screen([object]$Paths) {
 
 function Save-Manifest([object]$Paths, [string]$PythonExe) {
     $observedMarkers = @($script:ObservedMarkers)
+    $interactionRaw = ""
+    if (Test-Path -LiteralPath $Paths.InteractionManifest) {
+        $interactionRaw = Get-Content -LiteralPath $Paths.InteractionManifest -Raw
+    }
+    $standaloneDashboardWindowReady = (
+        ($observedMarkers -contains "MONITORING_HUD_STANDALONE_DASHBOARD_WINDOW_READY") -or
+        ($interactionRaw -match '"standalone_surface_independence"\s*:\s*true') -or
+        ($interactionRaw -match '"dashboard_monitor_management"\s*:\s*true')
+    )
+    $surfaceNativeIndependenceReady = (
+        ($observedMarkers -contains "MONITORING_HUD_SURFACE_NATIVE_INDEPENDENCE_READY") -or
+        ($interactionRaw -match '"overlay_not_dashboard_coupled"\s*:\s*true') -or
+        ($interactionRaw -match '"dashboardCoupled"\s*:\s*false') -or
+        ($interactionRaw -match '"surfaceIndependence"\s*:\s*"dashboard_overlay_core_top_level_windows"')
+    )
+    $overlayCardsMovableReady = (
+        ($observedMarkers -contains "MONITORING_HUD_OVERLAY_CARD_LAYOUT_EDITED") -or
+        (
+            ($interactionRaw -match 'active live-client drag overlay monitor card sent') -and
+            ($interactionRaw -match 'active live-client resize overlay monitor card sent') -and
+            (
+                ($interactionRaw -match '"overlay_cards_owned_by_overlay"\s*:\s*true') -or
+                ($interactionRaw -match '"cardsMovableInOverlay"\s*:\s*true')
+            )
+        )
+    )
+    $surfaceVirtualDesktopTravelReady = (
+        ($observedMarkers -contains "MONITORING_HUD_SURFACE_VIRTUAL_DESKTOP_TRAVEL_READY") -or
+        (
+            ($interactionRaw -match 'dashboard and overlay move independently across virtual desktop without clipping') -and
+            ($interactionRaw -match '"ok"\s*:\s*true') -and
+            ($interactionRaw -match '"withinTargetMonitor"\s*:\s*true') -and
+            ($interactionRaw -match '"withinVirtualDesktop"\s*:\s*true')
+        )
+    )
+    $coreIndependentPresetMonitorReady = (
+        ($observedMarkers -contains "CORE_VISUALIZATION_INDEPENDENT_PRESET_MONITOR_READY") -or
+        (
+            ($interactionRaw -match '"travelPolicy"\s*:\s*"independent_user_selected_monitor_scoped"') -and
+            ($interactionRaw -match '"attachedToHudDashboardOrNcp"\s*:\s*false')
+        )
+    )
     $manifest = [pscustomobject]@{
         status = $script:ManifestStatus
         package = "PKG-006"
         slice = "SLC-029"
         seam = "Live Validation LV1 - Monitoring HUD Product Surface Live Validation"
-        proofStandard = "WS27 revised overlay model active-client proof"
+        proofStandard = "WS28/WS29 active-client before-after desktop proof plus standalone surface independence"
         python = $PythonExe
         runtimeLog = $Paths.RuntimeLog
+        beforeLaunchScreenshot = $script:BeforeScreenshotPath
+        userInspectableBeforeLaunchScreenshot = $script:BeforeScreenshotEvidencePath
         screenshot = $script:ScreenshotPath
         screenshotEvidenceRoot = $Paths.ScreenshotEvidenceRoot
         userInspectableScreenshot = $script:ScreenshotEvidencePath
+        afterLaunchScreenshot = $script:ScreenshotPath
+        userInspectableAfterLaunchScreenshot = $script:ScreenshotEvidencePath
         activeUserFacingClient = [bool]$ActiveUserFacingClient
         interactionSelfQARequested = $effectiveRunInteractionSelfQA
         interactionStepDelayMs = $effectiveStepDelayMilliseconds
@@ -160,12 +220,20 @@ function Save-Manifest([object]$Paths, [string]$PythonExe) {
         interactionManifestStatus = $script:InteractionManifestStatus
         interactionEvidenceRoot = $Paths.InteractionEvidenceRoot
         revisedOverlayProof = [pscustomobject]@{
+            beforeLaunchFullVirtualDesktopScreenshot = [bool]$script:BeforeScreenshotPath
+            afterLaunchFullVirtualDesktopScreenshot = [bool]$script:ScreenshotPath
             fullVirtualDesktopScreenshot = [bool]$script:ScreenshotPath
             userInspectableScreenshot = [bool]$script:ScreenshotEvidencePath
+            beforeAfterDesktopComparisonReady = [bool]($script:BeforeScreenshotPath -and $script:ScreenshotPath)
             activeUserFacingClient = [bool]$ActiveUserFacingClient
             interactionSelfQA = $script:InteractionManifestStatus
             dashboardMinimalSplitReady = $observedMarkers -contains "MONITORING_HUD_DASHBOARD_MINIMAL_SPLIT_READY"
             edgelessOverlayCanvasReady = $observedMarkers -contains "MONITORING_HUD_EDGELESS_OVERLAY_CANVAS_READY"
+            standaloneDashboardWindowReady = [bool]$standaloneDashboardWindowReady
+            surfaceNativeIndependenceReady = [bool]$surfaceNativeIndependenceReady
+            overlayCardsMovableReady = [bool]$overlayCardsMovableReady
+            surfaceVirtualDesktopTravelReady = [bool]$surfaceVirtualDesktopTravelReady
+            coreIndependentPresetMonitorReady = [bool]$coreIndependentPresetMonitorReady
             standaloneOverlayDisplayWindowReady = $observedMarkers -contains "MONITORING_HUD_STANDALONE_OVERLAY_DISPLAY_WINDOW_READY"
             anchoredOverlayUninteractableReady = $observedMarkers -contains "MONITORING_HUD_ANCHORED_OVERLAY_UNINTERACTABLE_READY"
             overlayPositionPreservedReady = $observedMarkers -contains "MONITORING_HUD_OVERLAY_POSITION_PRESERVED_READY"
@@ -200,6 +268,7 @@ try {
     Step $paths "starting FAM-006 Monitoring/HUD live desktop validation"
     $pythonExe = Resolve-ValidationPython
     Step $paths "resolved Python: $pythonExe"
+    Capture-Screen $paths "before_launch"
 
     $args = @(
         "desktop\orin_desktop_main.py",
@@ -241,11 +310,11 @@ try {
         "RENDERER_MAIN|START",
         "RENDERER_MAIN|QAPPLICATION_CREATED",
         "RENDERER_MAIN|WINDOW_CONSTRUCTED",
-        "RENDERER_MAIN|CORE_VISUALIZATION_WINDOW_READY|surface=separate_core",
+        "RENDERER_MAIN|CORE_VISUALIZATION_WINDOW_READY|surface=separate_persona_core",
+        "RENDERER_MAIN|CORE_VISUALIZATION_DESKTOP_LAYER_READY|surface=separate_persona_core",
         "RENDERER_MAIN|CORE_VISUALIZATION_WINDOW_GEOMETRY_READY",
-        "RENDERER_MAIN|CORE_VISUALIZATION_WINDOW_TRANSPARENCY_READY|surface=separate_core",
-        "RENDERER_MAIN|CORE_VISUALIZATION_WINDOW_NON_INTERFERENCE_READY|surface=separate_core",
-        "RENDERER_MAIN|CORE_VISUALIZATION_WINDOW_VISIBLE|surface=separate_core",
+        "RENDERER_MAIN|CORE_VISUALIZATION_INDEPENDENT_PRESET_MONITOR_READY",
+        "RENDERER_MAIN|CORE_VISUALIZATION_WINDOW_VISIBLE|surface=separate_persona_core",
         "RENDERER_MAIN|VISUAL_PAGE_READY",
         "RENDERER_MAIN|CORE_VISUALIZATION_READY",
         "MONITORING_HUD_BASELINE_READY",
@@ -297,7 +366,7 @@ try {
 
     Step $paths "settling visible overlay before full-desktop screenshot"
     Start-Sleep -Milliseconds 1500
-    Capture-Screen $paths
+    Capture-Screen $paths "after_launch"
     $script:ManifestStatus = "PASS"
     $exitCode = 0
 }

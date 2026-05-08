@@ -19,7 +19,9 @@
     data-product-surface-role="dashboard-configuration-surface"
     data-dashboard-surface="monitoring-hud-dashboard"
     data-configures-surface="monitoring-hud-minimal"
-    data-renderer-owner="MonitoringHudWindow"
+    data-renderer-owner="DesktopRuntimeWindow"
+    data-native-dashboard-owner="DesktopRuntimeWindow"
+    data-standalone-window-contract="dashboard-overlay-core-independent-native-surfaces"
     data-split-contract="dashboard-configures-minimal-overlay"
     data-hud-module="monitoring-hud-shell-module"
     data-product-surface="nexus-monitoring-hud"
@@ -100,65 +102,21 @@
         <span id="monitoring-hud-tray-path">Task tray unanchor path</span>
         <span>No default keybinds</span>
       </div>
-      <div class="monitoring-hud__card-board" id="monitoring-hud-card-board" aria-label="Draggable resizable category card board">
-        <article class="monitoring-hud-card monitoring-hud-card--setup" data-category-card="cpu" data-monitor-card="cpu" data-monitor-enabled="true" data-monitor-polling-ms="1000" data-card-state="setup" style="--card-x:0px;--card-y:0px;--card-w:600px;--card-h:280px;">
-          <div class="monitoring-hud-card__drag-handle" data-card-handle="cpu">
-            <div>
-              <div class="monitoring-hud-card__label" data-monitor-title="cpu">CPU Monitor</div>
-              <div class="monitoring-hud-card__value" data-card-summary="cpu">Provider warming</div>
-            </div>
-            <div class="monitoring-hud-card__actions">
-              <div class="monitoring-hud-card__badge" data-card-badge="cpu">Setup</div>
-              <div class="monitoring-hud-card__quick-actions" data-monitor-quick-actions="cpu">
-                <button type="button" data-monitor-edit="cpu">Edit</button>
-                <button type="button" data-monitor-toggle="cpu">Disable</button>
-              </div>
-            </div>
-          </div>
-          <div class="monitoring-hud-card__sensors" data-card-sensors="cpu">
-            <div class="monitoring-hud-sensor-row" data-sensor-row="cpu-load" data-live-value="native-provider-pending">
-              <span>CPU Load</span>
-              <strong data-sensor-value="cpu-load">Warming up</strong>
-              <em data-sensor-source="cpu-load">Native provider</em>
-            </div>
-            <div class="monitoring-hud-sensor-row" data-sensor-row="cpu-thermal" data-live-value="blocked-until-provider">
-              <span>CPU Thermal</span>
-              <strong data-sensor-value="cpu-thermal">Provider required</strong>
-              <em data-sensor-source="cpu-thermal">Thermal source pending</em>
-            </div>
-          </div>
-          <div class="monitoring-hud-card__meta" data-card-meta="cpu">1s default polling only after provider proof; no fake thermal values.</div>
-          <div class="monitoring-hud-card__resize-handle" data-card-resize="cpu" aria-hidden="true"></div>
-        </article>
-        <article class="monitoring-hud-card monitoring-hud-card--unavailable" data-category-card="gpu" data-monitor-card="gpu" data-monitor-enabled="true" data-monitor-polling-ms="1000" data-card-state="no-data" style="--card-x:0px;--card-y:300px;--card-w:600px;--card-h:280px;">
-          <div class="monitoring-hud-card__drag-handle" data-card-handle="gpu">
-            <div>
-              <div class="monitoring-hud-card__label" data-monitor-title="gpu">GPU Monitor</div>
-              <div class="monitoring-hud-card__value" data-card-summary="gpu">Provider required</div>
-            </div>
-            <div class="monitoring-hud-card__actions">
-              <div class="monitoring-hud-card__badge" data-card-badge="gpu">No data</div>
-              <div class="monitoring-hud-card__quick-actions" data-monitor-quick-actions="gpu">
-                <button type="button" data-monitor-edit="gpu">Edit</button>
-                <button type="button" data-monitor-toggle="gpu">Disable</button>
-              </div>
-            </div>
-          </div>
-          <div class="monitoring-hud-card__sensors" data-card-sensors="gpu">
-            <div class="monitoring-hud-sensor-row" data-sensor-row="gpu-load" data-live-value="blocked-until-provider">
-              <span>GPU Load</span>
-              <strong data-sensor-value="gpu-load">Unavailable</strong>
-              <em data-sensor-source="gpu-load">GPU source pending</em>
-            </div>
-            <div class="monitoring-hud-sensor-row" data-sensor-row="gpu-thermal" data-live-value="blocked-until-provider">
-              <span>GPU Thermal</span>
-              <strong data-sensor-value="gpu-thermal">Unavailable</strong>
-              <em data-sensor-source="gpu-thermal">Thermal source pending</em>
-            </div>
-          </div>
-          <div class="monitoring-hud-card__meta" data-card-meta="gpu">Provider setup/unavailable state is truthful until a safe GPU route is admitted.</div>
-          <div class="monitoring-hud-card__resize-handle" data-card-resize="gpu" aria-hidden="true"></div>
-        </article>
+      <div
+        class="monitoring-hud__monitor-selector"
+        id="monitoring-hud-monitor-list"
+        data-dashboard-content="monitor-settings-list"
+        data-dashboard-monitor-display-policy="settings-only-no-monitor-cards"
+        aria-label="Dashboard monitor selector and configuration entry point"
+      >
+        <label class="monitoring-hud__selector-control">
+          Monitor to edit
+          <select id="monitoring-hud-monitor-selector" aria-label="Select monitor to edit">
+            <option value="cpu" data-monitor-config-option="cpu">CPU Monitor</option>
+            <option value="gpu" data-monitor-config-option="gpu">GPU Monitor</option>
+          </select>
+        </label>
+        <span id="monitoring-hud-monitor-list-summary">Overlay owns monitor cards; dashboard edits their settings.</span>
       </div>
       <div class="monitoring-hud__monitor-editor" data-dashboard-content="monitor-management" aria-label="Monitor create edit and enablement controls">
         <span class="monitoring-hud__config-heading">Monitor editor</span>
@@ -199,7 +157,7 @@
       <span>Placement plan</span>
       <strong id="monitoring-hud-placement-anchor">Anchor anywhere after OS proof</strong>
       <span>Card layout</span>
-      <strong id="monitoring-hud-resize-posture">Cards resize and snap from dashboard</strong>
+      <strong id="monitoring-hud-resize-posture">Cards resize and snap in overlay edit mode</strong>
     </div>
     <div class="monitoring-hud__controls" data-slice="SLC-027" data-dashboard-content="user-controls" aria-label="Dashboard controls and settings">
       <span class="monitoring-hud__config-heading">Controls</span>

@@ -82,6 +82,7 @@ def _validate_static_surface(failures: list[str]) -> None:
     css = _read("nexus_visual/monitoring_hud.css")
     js = _read("nexus_visual/monitoring_hud.js")
     renderer = _read("desktop/desktop_renderer.py")
+    core_renderer = _read("desktop/core_visualization_renderer.py")
     tray = _read("desktop/orin_desktop_main.py")
 
     for label, text in (
@@ -102,29 +103,18 @@ def _validate_static_surface(failures: list[str]) -> None:
             )
 
     for needle in (
-        'data-core-surface="transparent-non-blocking"',
-        'data-core-surface-mode="transparent-non-blocking"',
-        'data-core-non-interference="visual-background-transparent"',
+        '<div id="scene">',
+        '<div id="core-wrap">',
+        '<script src="orin_core.js"></script>',
     ):
-        _require_contains(core_html, needle, "ORIN Core transparent non-interference markup", failures)
+        _require_contains(core_html, needle, "ORIN Core restored visual markup", failures)
 
     for needle in (
-        "background: transparent;",
-        "pointer-events: none;",
-        "#scene::before",
-    ):
-        _require_contains(core_css, needle, "ORIN Core transparent non-interference CSS", failures)
-
-    for forbidden in (
         "background: #000;",
         "radial-gradient(circle at center, #03070d",
         "rgba(0,0,0,0.58) 100%",
     ):
-        _require(
-            forbidden not in core_css,
-            f"ORIN Core CSS must not paint a full opaque foreground slab: found {forbidden!r}",
-            failures,
-        )
+        _require_contains(core_css, needle, "ORIN Core restored visual CSS", failures)
 
     for needle in (
         'data-hud-module="monitoring-hud-shell-module"',
@@ -167,18 +157,13 @@ def _validate_static_surface(failures: list[str]) -> None:
         'id="monitoring-hud-create-monitor"',
         'id="monitoring-hud-snap-toggle"',
         'id="monitoring-hud-polling-rate"',
-        'data-category-card="cpu"',
-        'data-category-card="gpu"',
-        'data-monitor-card="cpu"',
-        'data-monitor-card="gpu"',
-        'data-monitor-edit="cpu"',
-        'data-monitor-toggle="gpu"',
+        'id="monitoring-hud-monitor-list"',
+        'id="monitoring-hud-monitor-selector"',
+        'data-dashboard-monitor-display-policy="settings-only-no-monitor-cards"',
+        'data-monitor-config-option="cpu"',
+        'data-monitor-config-option="gpu"',
         "CPU Monitor",
         "GPU Monitor",
-        'data-sensor-row="cpu-load"',
-        'data-sensor-row="cpu-thermal"',
-        'data-sensor-row="gpu-load"',
-        'data-sensor-row="gpu-thermal"',
         'data-dashboard-content="sensor-setup"',
         'data-dashboard-content="minimal-hud-output"',
         'data-dashboard-content="user-controls"',
@@ -201,6 +186,14 @@ def _validate_static_surface(failures: list[str]) -> None:
         "Monitors group sensors; they do not fake hardware values.",
     ):
         _require_contains(html, needle, "HUD HTML product surface", failures)
+    for forbidden_dashboard_card in (
+        'data-category-card="',
+        'data-monitor-card="',
+        'data-card-handle="',
+        'data-card-resize="',
+        "monitoring-hud-card",
+    ):
+        _require(forbidden_dashboard_card not in html, "dashboard must not render monitor cards outside overlay/minimal surfaces", failures)
 
     for needle in (
         'body.desktop-mode #monitoring-hud[data-anchor-state="unanchored"]',
@@ -210,8 +203,9 @@ def _validate_static_surface(failures: list[str]) -> None:
         ".monitoring-hud__toolbar",
         ".monitoring-hud__surface-role",
         ".monitoring-hud__config-heading",
-        ".monitoring-hud__card-board",
-        ".monitoring-hud-card__quick-actions",
+        ".monitoring-hud__monitor-selector",
+        ".monitoring-hud__selector-control",
+        "#monitoring-hud-monitor-list-summary",
         ".monitoring-hud__monitor-editor",
         ".monitoring-hud__inline-control",
         '.monitoring-hud__inline-control input[type="checkbox"]',
@@ -222,9 +216,7 @@ def _validate_static_surface(failures: list[str]) -> None:
         ".monitoring-hud-overlay-display__watermark",
         ".monitoring-hud-overlay-card",
         ".monitoring-hud-overlay-card__quick-actions",
-        ".monitoring-hud-card__drag-handle",
-        ".monitoring-hud-sensor-row",
-        ".monitoring-hud-card__resize-handle",
+        ".monitoring-hud-overlay-card__topline",
         "scrollbar-width: thin",
         "body.desktop-mode #monitoring-hud::-webkit-scrollbar",
         'body.desktop-mode #monitoring-hud[data-drag-smoothing="raf-local-persist-on-release"]',
@@ -264,14 +256,6 @@ def _validate_static_surface(failures: list[str]) -> None:
         _require_contains(js, needle, "HUD JavaScript controls", failures)
 
     for needle in (
-        "CoreVisualizationWindow",
-        "CORE_VISUALIZATION_WINDOW_READY|surface=separate_core",
-        "CORE_VISUALIZATION_WINDOW_GEOMETRY_READY",
-        "CORE_VISUALIZATION_WINDOW_TRANSPARENCY_READY|surface=separate_core",
-        "CORE_VISUALIZATION_WINDOW_NON_INTERFERENCE_READY|surface=separate_core",
-        "Qt.WA_TranslucentBackground",
-        "Qt.WA_NoSystemBackground",
-        "setAutoFillBackground(False)",
         "MONITORING_HUD_WINDOW_STATUS_READY",
         "MONITORING_HUD_DASHBOARD_SURFACE_READY",
         "MONITORING_HUD_MINIMAL_OVERLAY_READY",
@@ -299,6 +283,32 @@ def _validate_static_surface(failures: list[str]) -> None:
         "native_cpu_load_bounded",
     ):
         _require_contains(renderer, needle, "desktop renderer HUD runtime", failures)
+
+    for needle in (
+        "from desktop.core_visualization_renderer import CoreVisualizationWindow",
+        "DesktopRuntimeUnavailable",
+        "DESKTOP_RUNTIME_UNAVAILABLE",
+    ):
+        _require_contains(tray, needle, "desktop launcher Core/HUD failure isolation", failures)
+
+    for needle in (
+        "class CoreVisualizationWindow(QWidget):",
+        "CORE_VISUALIZATION_WINDOW_READY|surface=separate_persona_core",
+        "CORE_VISUALIZATION_DESKTOP_LAYER_READY",
+        "CORE_VISUALIZATION_WINDOW_GEOMETRY_READY",
+        "CORE_VISUALIZATION_INDEPENDENT_PRESET_MONITOR_READY",
+        "desktop_screen_geometry",
+        "desktop_layer=workerw",
+        "hud_attachment=none",
+        "ncp_attachment=none",
+        "position_desktop_child",
+    ):
+        _require_contains(core_renderer, needle, "independent ORIN Core renderer", failures)
+    _require(
+        "WindowStaysOnTopHint" not in core_renderer,
+        "independent ORIN Core renderer must not request topmost foreground ownership",
+        failures,
+    )
 
     for needle in (
         "monitoring_hud_html_path",
@@ -361,7 +371,7 @@ def _validate_contracts(failures: list[str]) -> dict[str, object]:
     _require(sensors.get("gpu-thermal", {}).get("value") == "Unavailable", "GPU thermal must remain provider-unavailable", failures)
     _require(sensors.get("cpu-thermal", {}).get("value") == "Provider required", "CPU thermal must remain provider-required", failures)
     _require(placement.get("snapModel") == "20px snap grid with snap-disable posture", "placement contract must describe snap posture", failures)
-    _require(placement.get("cardLayoutModel") == "cards resize and snap from dashboard", "placement contract must describe card layout", failures)
+    _require(placement.get("cardLayoutModel") == "cards resize and snap in overlay edit mode", "placement contract must describe card layout", failures)
     _require(controls.get("anchorState") == "unanchored-edit-mode", "controls contract must support unanchored edit mode", failures)
     _require(controls.get("pollingRateMs") == "1000", "controls contract must preserve 1s default polling", failures)
     _require(

@@ -5031,149 +5031,6 @@ class CommandOverlayPanel(QWidget):
             self.confirm_help_label.setText(confirm_surface_copy["help_text"])
 
 
-class CoreVisualizationWindow(QWidget):
-    core_visualization_ready = Signal()
-    core_visualization_visible = Signal()
-
-    def __init__(self, screen, visual_html_path: str, event_logger=None):
-        super().__init__()
-        self.screen_ref = screen
-        self.visual_html_path = os.path.abspath(visual_html_path)
-        self.event_logger = event_logger
-        self._page_ready = False
-        self._is_shutting_down = False
-        self._pending_visual_state = "dormant"
-
-        self.setWindowTitle("Nexus Desktop AI - ORIN Core")
-        self.setWindowFlags(Qt.Tool | Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint)
-        self.setAttribute(Qt.WA_TransparentForMouseEvents, True)
-        self.setAttribute(Qt.WA_ShowWithoutActivating, True)
-        self.setAttribute(Qt.WA_TranslucentBackground, True)
-        self.setAttribute(Qt.WA_NoSystemBackground, True)
-        self.setAutoFillBackground(False)
-        self.setFocusPolicy(Qt.NoFocus)
-        self.setStyleSheet("background-color: transparent;")
-        self.setGeometry(self.compute_core_geometry())
-
-        root = QVBoxLayout(self)
-        root.setContentsMargins(0, 0, 0, 0)
-        root.setSpacing(0)
-
-        self.webview = QWebEngineView(self)
-        self.webview.setStyleSheet("background-color: transparent; border: none;")
-        self.webview.setAttribute(Qt.WA_TranslucentBackground, True)
-        self.webview.setAttribute(Qt.WA_NoSystemBackground, True)
-        self.webview.setAutoFillBackground(False)
-        self.webview.setContextMenuPolicy(Qt.NoContextMenu)
-        self.webview.setFocusPolicy(Qt.NoFocus)
-        self.webview.page().setBackgroundColor(QColor(0, 0, 0, 0))
-        self.webview.loadFinished.connect(self._on_load_finished)
-        self.webview.load(QUrl.fromLocalFile(self.visual_html_path))
-        root.addWidget(self.webview)
-
-    def _log_event(self, event):
-        if callable(self.event_logger):
-            try:
-                self.event_logger(event)
-            except Exception:
-                pass
-
-    def compute_core_geometry(self):
-        g = self.screen_ref.availableGeometry()
-        width = min(max(680, int(g.width() * 0.38)), 980)
-        height = min(max(620, int(g.height() * 0.72)), 1040)
-        x = g.x() + max(0, (g.width() - width) // 2)
-        y = g.y() + max(0, (g.height() - height) // 2)
-        return QRect(x, y, width, height)
-
-    def is_core_visualization_ready(self):
-        return self._page_ready
-
-    def _apply_core_surface_mode(self):
-        self.webview.page().runJavaScript(
-            """
-            document.body.classList.add("desktop-mode", "core-window-mode");
-            document.body.classList.remove("hud-window-mode");
-            document.body.dataset.coreSurface = "transparent-non-blocking";
-            const scene = document.getElementById("scene");
-            if (scene) {
-                scene.dataset.coreSurfaceMode = "transparent-non-blocking";
-                scene.dataset.coreNonInterference = "visual-background-transparent";
-            }
-            const hud = document.getElementById("monitoring-hud");
-            if (hud) {
-                hud.setAttribute("aria-hidden", "true");
-                hud.dataset.renderState = "separate-hud-window";
-                hud.dataset.productSurfaceState = "owned-by-standalone-hud-window";
-            }
-            window.dispatchEvent(new Event("resize"));
-            """
-        )
-
-    def _on_load_finished(self, ok):
-        if not ok:
-            self._log_event("RENDERER_MAIN|CORE_VISUALIZATION_WINDOW_LOAD_FAILED")
-            return
-        self._page_ready = True
-        self._apply_core_surface_mode()
-        self._apply_pending_visual_state()
-        self._log_event("RENDERER_MAIN|CORE_VISUALIZATION_READY")
-        self._log_event("RENDERER_MAIN|CORE_VISUALIZATION_WINDOW_READY|surface=separate_core")
-        self._log_event(
-            "RENDERER_MAIN|CORE_VISUALIZATION_WINDOW_TRANSPARENCY_READY|surface=separate_core"
-            "|window_background=translucent|page_background=transparent|css_background=transparent"
-        )
-        self._log_event(
-            "RENDERER_MAIN|CORE_VISUALIZATION_WINDOW_NON_INTERFERENCE_READY|surface=separate_core"
-            "|mouse_transparent=true|show_without_activating=true|focus_policy=no_focus"
-            "|visual_background=transparent"
-        )
-        geometry = self.geometry()
-        screen_geometry = self.screen_ref.availableGeometry()
-        center_dx = abs(geometry.center().x() - screen_geometry.center().x())
-        center_dy = abs(geometry.center().y() - screen_geometry.center().y())
-        self._log_event(
-            "RENDERER_MAIN|CORE_VISUALIZATION_WINDOW_GEOMETRY_READY"
-            f"|x={geometry.x()}|y={geometry.y()}"
-            f"|w={geometry.width()}|h={geometry.height()}"
-            f"|screen_x={screen_geometry.x()}|screen_y={screen_geometry.y()}"
-            f"|screen_w={screen_geometry.width()}|screen_h={screen_geometry.height()}"
-            f"|center_dx={center_dx}|center_dy={center_dy}"
-        )
-        self.core_visualization_ready.emit()
-
-    def showEvent(self, event):
-        super().showEvent(event)
-        if self._page_ready:
-            self._log_event("RENDERER_MAIN|CORE_VISUALIZATION_WINDOW_VISIBLE|surface=separate_core")
-            self.core_visualization_visible.emit()
-
-    def _apply_pending_visual_state(self):
-        if not self._page_ready:
-            return
-        state = json.dumps(self._pending_visual_state or "dormant")
-        self.webview.page().runJavaScript(
-            f"""
-            if (window.setVisualState) {{
-                window.setVisualState({state});
-            }} else {{
-                document.body.className = document.body.className
-                    .replace(/\\bstate-\\S+/g, "")
-                    .trim();
-                document.body.classList.add("desktop-mode", "core-window-mode", "state-" + {state});
-            }}
-            """
-        )
-
-    def set_visual_state(self, state_name):
-        self._pending_visual_state = state_name
-        self._apply_pending_visual_state()
-
-    def request_shutdown(self):
-        self._is_shutting_down = True
-        self.close()
-
-
 class MonitoringHudOverlayDisplayWindow(QWidget):
     def __init__(self, screen, event_logger=None):
         super().__init__(None)
@@ -5183,6 +5040,12 @@ class MonitoringHudOverlayDisplayWindow(QWidget):
         self._drag_origin: QPoint | None = None
         self._drag_window_origin = QPoint()
         self._last_unanchored_geometry = QRect()
+        self._card_widgets: dict[str, dict[str, object]] = {}
+        self._card_layouts: dict[str, dict[str, int | str | bool]] = {}
+        self._card_drag_id = ""
+        self._card_drag_resize = False
+        self._card_drag_origin: QPoint | None = None
+        self._card_drag_base: dict[str, int | str | bool] = {}
         self.setObjectName("monitoringHudOverlayDisplayWindow")
         flags = Qt.Tool | Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint
         self.setWindowFlags(flags)
@@ -5237,6 +5100,44 @@ class MonitoringHudOverlayDisplayWindow(QWidget):
                 color: #ffe3a6;
                 font-size: 11px;
             }
+            QLabel[role="watermark"] {
+                color: rgba(120, 239, 255, 0.30);
+                font-size: 10px;
+                letter-spacing: 3px;
+                text-transform: uppercase;
+            }
+            QFrame[role="overlayCard"] {
+                border: 1px solid rgba(112, 242, 255, 0.24);
+                border-radius: 14px;
+                background: rgba(3, 14, 24, 0.38);
+            }
+            QFrame[role="overlayCard"][state="setup"] {
+                border-color: rgba(255, 214, 113, 0.30);
+            }
+            QFrame[role="overlayCard"][state="no-data"] {
+                border-color: rgba(124, 178, 210, 0.28);
+            }
+            QLabel[role="cardTitle"] {
+                color: rgba(139, 233, 255, 0.86);
+                font-size: 10px;
+                font-weight: 700;
+                letter-spacing: 2px;
+                text-transform: uppercase;
+            }
+            QLabel[role="cardSummary"] {
+                color: #f5ffff;
+                font-size: 14px;
+                font-weight: 700;
+            }
+            QLabel[role="cardMeta"] {
+                color: rgba(189, 232, 242, 0.80);
+                font-size: 10px;
+            }
+            QFrame[role="cardResizeHandle"] {
+                border: 1px solid rgba(125, 235, 255, 0.30);
+                border-radius: 4px;
+                background: rgba(125, 235, 255, 0.18);
+            }
             QPushButton {
                 min-height: 28px;
                 padding: 4px 10px;
@@ -5257,46 +5158,160 @@ class MonitoringHudOverlayDisplayWindow(QWidget):
 
         frame = QFrame(self)
         frame.setObjectName("monitoringHudOverlayDisplayFrame")
-        layout = QVBoxLayout(frame)
-        layout.setContentsMargins(18, 14, 18, 14)
-        layout.setSpacing(10)
-
-        eyebrow = QLabel("Nexus Desktop AI", frame)
-        eyebrow.setProperty("role", "eyebrow")
+        frame.setProperty("role", "overlayDisplayCanvas")
+        frame.installEventFilter(self)
+        self._watermark = QLabel("Nexus Desktop AI / ORIN", frame)
+        self._watermark.setProperty("role", "watermark")
         self._title = QLabel("Monitoring HUD Overlay", frame)
         self._title.setProperty("role", "title")
         self._state = QLabel("Provider setup required", frame)
         self._state.setProperty("role", "state")
-        self._cpu = QLabel("CPU Monitor  Provider warming", frame)
-        self._cpu.setProperty("role", "card")
-        self._gpu = QLabel("GPU Monitor  Provider required", frame)
-        self._gpu.setProperty("role", "card")
         self._warning = QLabel("Visual warning baseline only", frame)
         self._warning.setProperty("role", "warning")
-        self._edit_cpu = QPushButton("Edit CPU", frame)
-        self._edit_gpu = QPushButton("Edit GPU", frame)
         self._resize_grip = QSizeGrip(frame)
-
-        layout.addWidget(eyebrow)
-        layout.addWidget(self._title)
-        layout.addWidget(self._state)
-        layout.addWidget(self._cpu)
-        layout.addWidget(self._gpu)
-        button_row = QHBoxLayout()
-        button_row.setContentsMargins(0, 0, 0, 0)
-        button_row.addWidget(self._edit_cpu)
-        button_row.addWidget(self._edit_gpu)
-        button_row.addStretch(1)
-        button_row.addWidget(self._resize_grip)
-        layout.addLayout(button_row)
-        layout.addWidget(self._warning)
+        for widget in (self._watermark, self._title, self._state, self._warning, self._resize_grip):
+            widget.installEventFilter(self)
         root.addWidget(frame)
         self._frame = frame
-        self._quick_controls = (self._edit_cpu, self._edit_gpu, self._resize_grip)
+        self._quick_controls = (self._resize_grip,)
+        self._sync_overlay_card(
+            "cpu",
+            {"x": 28, "y": 84, "w": 360, "h": 150, "title": "CPU Monitor", "enabled": True},
+            "Provider warming",
+            "setup",
+        )
+        self._sync_overlay_card(
+            "gpu",
+            {"x": 28, "y": 254, "w": 360, "h": 150, "title": "GPU Monitor", "enabled": True},
+            "Provider required",
+            "no-data",
+        )
 
         self.setGeometry(self._compute_overlay_geometry(initial=True))
+        self._layout_overlay_children()
         self.hide()
         QTimer.singleShot(0, self._apply_native_click_through_flags)
+
+    def _default_card_layout(self, card_id: str) -> dict[str, int | str | bool]:
+        y = 84 + (170 * len(self._card_layouts))
+        return {"x": 28, "y": y, "w": 360, "h": 150, "title": f"{card_id.upper()} Monitor", "enabled": True}
+
+    def _create_overlay_card(self, card_id: str) -> dict[str, object]:
+        card = QFrame(self._frame)
+        card.setProperty("role", "overlayCard")
+        card.setProperty("cardId", card_id)
+        card.installEventFilter(self)
+        title = QLabel("Monitor", card)
+        title.setProperty("role", "cardTitle")
+        summary = QLabel("Provider required", card)
+        summary.setProperty("role", "cardSummary")
+        meta = QLabel("Provider route pending", card)
+        meta.setProperty("role", "cardMeta")
+        edit_button = QPushButton("Edit", card)
+        edit_button.setProperty("cardId", card_id)
+        resize_handle = QFrame(card)
+        resize_handle.setProperty("role", "cardResizeHandle")
+        resize_handle.setProperty("resizeCardId", card_id)
+        for widget in (title, summary, meta, edit_button, resize_handle):
+            widget.installEventFilter(self)
+        widgets = {
+            "frame": card,
+            "title": title,
+            "summary": summary,
+            "meta": meta,
+            "edit": edit_button,
+            "resize": resize_handle,
+        }
+        self._card_widgets[card_id] = widgets
+        return widgets
+
+    def _bound_card_layout(self, layout: dict[str, int | str | bool]) -> dict[str, int | str | bool]:
+        frame_width = max(420, self._frame.width())
+        frame_height = max(260, self._frame.height())
+        width = max(220, min(int(layout.get("w") or 360), frame_width))
+        height = max(110, min(int(layout.get("h") or 150), frame_height))
+        x = max(8, min(int(layout.get("x") or 28), max(8, frame_width - width - 8)))
+        y = max(52, min(int(layout.get("y") or 84), max(52, frame_height - height - 28)))
+        bounded = dict(layout)
+        bounded.update({"x": x, "y": y, "w": width, "h": height})
+        return bounded
+
+    def _sync_overlay_card(
+        self,
+        card_id: str,
+        layout: dict[str, object],
+        summary: str,
+        state: str,
+    ):
+        if card_id not in self._card_widgets:
+            self._create_overlay_card(card_id)
+        existing = dict(self._card_layouts.get(card_id) or self._default_card_layout(card_id))
+        incoming = dict(layout or {})
+        # Dashboard edits can rename/enable monitors, but overlay placement is
+        # owned by the standalone overlay window after the card exists.
+        for key in ("title", "enabled", "pollingRateMs"):
+            if key in incoming:
+                existing[key] = incoming[key]
+        if card_id not in self._card_layouts:
+            for key in ("x", "y", "w", "h"):
+                if key in incoming:
+                    try:
+                        existing[key] = int(float(incoming[key]))
+                    except (TypeError, ValueError):
+                        pass
+        existing = self._bound_card_layout(existing)
+        self._card_layouts[card_id] = existing
+        widgets = self._card_widgets[card_id]
+        frame = widgets["frame"]
+        title = widgets["title"]
+        summary_label = widgets["summary"]
+        meta = widgets["meta"]
+        frame.setProperty("state", state)
+        frame.style().unpolish(frame)
+        frame.style().polish(frame)
+        title.setText(str(existing.get("title") or f"{card_id.upper()} Monitor"))
+        summary_label.setText("Hidden in overlay" if existing.get("enabled") is False else summary)
+        meta.setText("1s default after provider proof; no fake values.")
+        widgets["edit"].setVisible(not self._anchored)  # type: ignore[index]
+        widgets["resize"].setVisible(not self._anchored)  # type: ignore[index]
+        frame.setGeometry(int(existing["x"]), int(existing["y"]), int(existing["w"]), int(existing["h"]))
+        self._layout_card_children(card_id)
+        frame.show()
+
+    def _layout_card_children(self, card_id: str):
+        widgets = self._card_widgets.get(card_id)
+        if not widgets:
+            return
+        frame: QFrame = widgets["frame"]  # type: ignore[assignment]
+        title: QLabel = widgets["title"]  # type: ignore[assignment]
+        summary: QLabel = widgets["summary"]  # type: ignore[assignment]
+        meta: QLabel = widgets["meta"]  # type: ignore[assignment]
+        edit: QPushButton = widgets["edit"]  # type: ignore[assignment]
+        resize: QFrame = widgets["resize"]  # type: ignore[assignment]
+        w = max(1, frame.width())
+        h = max(1, frame.height())
+        title.setGeometry(14, 12, max(1, w - 110), 22)
+        summary.setGeometry(14, 42, max(1, w - 28), 28)
+        meta.setGeometry(14, max(70, h - 36), max(1, w - 44), 22)
+        edit.setGeometry(max(14, w - 78), 10, 62, 28)
+        resize.setGeometry(max(0, w - 18), max(0, h - 18), 12, 12)
+
+    def _layout_overlay_children(self):
+        frame_width = max(1, self._frame.width())
+        frame_height = max(1, self._frame.height())
+        self._watermark.setGeometry(18, 12, max(1, frame_width - 36), 18)
+        self._title.setGeometry(18, 34, min(320, max(1, frame_width - 36)), 24)
+        self._state.setGeometry(max(18, frame_width - 300), 34, 282, 24)
+        self._warning.setGeometry(18, max(56, frame_height - 26), max(1, frame_width - 70), 20)
+        self._resize_grip.setGeometry(max(0, frame_width - 22), max(0, frame_height - 22), 20, 20)
+        for card_id, layout in list(self._card_layouts.items()):
+            bounded = self._bound_card_layout(layout)
+            self._card_layouts[card_id] = bounded
+            widgets = self._card_widgets.get(card_id)
+            if widgets:
+                frame: QFrame = widgets["frame"]  # type: ignore[assignment]
+                frame.setGeometry(int(bounded["x"]), int(bounded["y"]), int(bounded["w"]), int(bounded["h"]))
+                self._layout_card_children(card_id)
 
     def _virtual_desktop_geometry(self) -> QRect:
         screens = QApplication.screens()
@@ -5340,6 +5355,13 @@ class MonitoringHudOverlayDisplayWindow(QWidget):
         self._frame.style().polish(self._frame)
         for control in self._quick_controls:
             control.setVisible(not anchored)
+        for widgets in self._card_widgets.values():
+            edit = widgets.get("edit")
+            resize = widgets.get("resize")
+            if edit is not None:
+                edit.setVisible(not anchored)
+            if resize is not None:
+                resize.setVisible(not anchored)
         self._apply_native_click_through_flags()
         if not anchored:
             self.show()
@@ -5369,18 +5391,17 @@ class MonitoringHudOverlayDisplayWindow(QWidget):
         card_map = cards if isinstance(cards, dict) else {}
         cpu = card_map.get("cpu") if isinstance(card_map.get("cpu"), dict) else {}
         gpu = card_map.get("gpu") if isinstance(card_map.get("gpu"), dict) else {}
-        self._cpu.setText(
-            f"{str(cpu.get('title') or 'CPU Monitor')}  "
-            f"{'Hidden' if cpu.get('enabled') is False else 'Provider warming'}"
-        )
-        self._gpu.setText(
-            f"{str(gpu.get('title') or 'GPU Monitor')}  "
-            f"{'Hidden' if gpu.get('enabled') is False else 'Provider required'}"
-        )
+        self._sync_overlay_card("cpu", cpu or {}, "Provider warming", "setup")
+        self._sync_overlay_card("gpu", gpu or {}, "Provider required", "no-data")
+        for card_id, layout in card_map.items():
+            if str(card_id) in {"cpu", "gpu"} or not isinstance(layout, dict):
+                continue
+            self._sync_overlay_card(str(card_id), layout, "Provider route pending", "no-data")
         if visible:
             if not self.geometry().isValid() or self.geometry().width() <= 0 or self.geometry().height() <= 0:
                 self.setGeometry(self._compute_overlay_geometry(initial=True))
             self.setGeometry(self._bound_geometry_to_virtual_desktop(self.geometry()))
+            self._layout_overlay_children()
             self.show()
             if anchored:
                 self.raise_()
@@ -5428,6 +5449,20 @@ class MonitoringHudOverlayDisplayWindow(QWidget):
             "windowFromCenterBypassesOverlay": bool(window_from_center and window_from_center != hwnd),
             "standaloneTopLevel": self.parent() is None,
             "quickControlsVisible": any(control.isVisible() for control in self._quick_controls),
+            "overlayCardCount": len(self._card_widgets),
+            "cardLayouts": {
+                card_id: {
+                    "x": int(layout.get("x") or 0),
+                    "y": int(layout.get("y") or 0),
+                    "w": int(layout.get("w") or 0),
+                    "h": int(layout.get("h") or 0),
+                }
+                for card_id, layout in self._card_layouts.items()
+            },
+            "cardsMovableInOverlay": True,
+            "dashboardCoupled": False,
+            "surfaceIndependence": "dashboard_overlay_core_top_level_windows",
+            "ownedByDashboardWindow": False,
             "lastUnanchoredX": last.x(),
             "lastUnanchoredY": last.y(),
             "lastUnanchoredW": last.width(),
@@ -5440,6 +5475,98 @@ class MonitoringHudOverlayDisplayWindow(QWidget):
                 and geometry.height() == last.height()
             ),
         }
+
+    def _card_id_from_widget(self, widget) -> tuple[str, bool]:
+        current = widget
+        while current is not None:
+            resize_card_id = current.property("resizeCardId") if hasattr(current, "property") else None
+            if resize_card_id:
+                return str(resize_card_id), True
+            card_id = current.property("cardId") if hasattr(current, "property") else None
+            if card_id:
+                return str(card_id), False
+            current = current.parent() if hasattr(current, "parent") else None
+        return "", False
+
+    def _move_card_from_delta(self, delta: QPoint):
+        if not self._card_drag_id:
+            return
+        layout = dict(self._card_drag_base)
+        if self._card_drag_resize:
+            layout["w"] = int(round((int(layout.get("w") or 360) + delta.x()) / 20) * 20)
+            layout["h"] = int(round((int(layout.get("h") or 150) + delta.y()) / 20) * 20)
+        else:
+            layout["x"] = int(round((int(layout.get("x") or 28) + delta.x()) / 20) * 20)
+            layout["y"] = int(round((int(layout.get("y") or 84) + delta.y()) / 20) * 20)
+        layout = self._bound_card_layout(layout)
+        self._card_layouts[self._card_drag_id] = layout
+        widgets = self._card_widgets.get(self._card_drag_id)
+        if widgets:
+            frame: QFrame = widgets["frame"]  # type: ignore[assignment]
+            frame.setGeometry(int(layout["x"]), int(layout["y"]), int(layout["w"]), int(layout["h"]))
+            self._layout_card_children(self._card_drag_id)
+
+    def eventFilter(self, watched, event):
+        if self._anchored:
+            return super().eventFilter(watched, event)
+        event_type = event.type()
+        if event_type == QEvent.MouseButtonPress and event.button() == Qt.LeftButton:
+            card_id, resize = self._card_id_from_widget(watched)
+            if card_id:
+                self._card_drag_id = card_id
+                self._card_drag_resize = resize
+                self._card_drag_origin = event.globalPosition().toPoint()
+                self._card_drag_base = dict(self._card_layouts.get(card_id) or self._default_card_layout(card_id))
+                event.accept()
+                return True
+            if watched in {self._frame, self._watermark, self._title, self._state, self._warning}:
+                self._drag_origin = event.globalPosition().toPoint()
+                self._drag_window_origin = self.pos()
+                event.accept()
+                return True
+        if event_type == QEvent.MouseMove:
+            if self._card_drag_id and self._card_drag_origin is not None:
+                self._move_card_from_delta(event.globalPosition().toPoint() - self._card_drag_origin)
+                event.accept()
+                return True
+            if self._drag_origin is not None:
+                delta = event.globalPosition().toPoint() - self._drag_origin
+                next_rect = QRect(self._drag_window_origin + delta, self.size())
+                self.setGeometry(self._bound_geometry_to_virtual_desktop(next_rect))
+                event.accept()
+                return True
+        if event_type in (QEvent.MouseButtonRelease, QEvent.MouseButtonDblClick):
+            if self._card_drag_id:
+                card_id = self._card_drag_id
+                self._move_card_from_delta(event.globalPosition().toPoint() - (self._card_drag_origin or QPoint()))
+                layout = self._card_layouts.get(card_id, {})
+                if callable(self.event_logger):
+                    self.event_logger(
+                        "MONITORING_HUD_OVERLAY_CARD_LAYOUT_EDITED|"
+                        f"card={card_id}|x={layout.get('x')}|y={layout.get('y')}|"
+                        f"w={layout.get('w')}|h={layout.get('h')}|resize={str(self._card_drag_resize).lower()}"
+                    )
+                self._card_drag_id = ""
+                self._card_drag_resize = False
+                self._card_drag_origin = None
+                self._card_drag_base = {}
+                event.accept()
+                return True
+            if self._drag_origin is not None:
+                self._last_unanchored_geometry = QRect(self.geometry())
+                if callable(self.event_logger):
+                    self.event_logger(
+                        "MONITORING_HUD_OVERLAY_DISPLAY_POSITION_EDITED|"
+                        f"x={self.geometry().x()}|y={self.geometry().y()}|w={self.geometry().width()}|h={self.geometry().height()}"
+                    )
+                self._drag_origin = None
+                event.accept()
+                return True
+        return super().eventFilter(watched, event)
+
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        self._layout_overlay_children()
 
     def mousePressEvent(self, event):
         if self._anchored or event.button() != Qt.LeftButton:
@@ -6083,6 +6210,7 @@ class DesktopRuntimeWindow(QWidget):
     def _emit_monitoring_hud_window_status(self, source: str = "runtime"):
         geometry = self.geometry()
         virtual = self._virtual_desktop_geometry()
+        overlay_proof = self._monitoring_hud_minimal_native_proof_state()
         self._emit_runtime_signal(
             "MONITORING_HUD_WINDOW_STATUS_READY",
             package="PKG-006",
@@ -6101,6 +6229,24 @@ class DesktopRuntimeWindow(QWidget):
             virtual_h=virtual.height(),
             focus_policy="no_focus" if self.focusPolicy() == Qt.NoFocus else "interactive",
         )
+        if self.surface_role == "hud":
+            self._emit_runtime_signal(
+                "MONITORING_HUD_STANDALONE_DASHBOARD_WINDOW_READY",
+                package="PKG-006",
+                slice="SLC-026",
+                seam="WS28",
+                source=source,
+                surface="dashboard_control_panel_window",
+                owner="DesktopRuntimeWindow",
+                standalone=self.parent() is None,
+                overlay_owner=overlay_proof.get("owner") or "MonitoringHudOverlayDisplayWindow",
+                overlay_separate_hwnd=bool(overlay_proof.get("hwnd") and overlay_proof.get("hwnd") != int(self.winId())),
+                virtual_desktop="all_monitors",
+                x=geometry.x(),
+                y=geometry.y(),
+                w=geometry.width(),
+                h=geometry.height(),
+            )
 
     def _sync_monitoring_hud_minimal_native_overlay(self, source: str = "runtime"):
         overlay = self._monitoring_hud_minimal_native_overlay
@@ -6153,6 +6299,20 @@ class DesktopRuntimeWindow(QWidget):
             virtual_y=proof.get("virtualY"),
             virtual_w=proof.get("virtualW"),
             virtual_h=proof.get("virtualH"),
+        )
+        self._emit_runtime_signal(
+            "MONITORING_HUD_SURFACE_NATIVE_INDEPENDENCE_READY",
+            package="PKG-006",
+            slice="SLC-026",
+            seam="WS28",
+            source=source,
+            dashboard_owner="DesktopRuntimeWindow",
+            overlay_owner=proof.get("owner"),
+            overlay_standalone=proof.get("standaloneTopLevel"),
+            overlay_dashboard_coupled=proof.get("dashboardCoupled"),
+            overlay_cards_movable=proof.get("cardsMovableInOverlay"),
+            core_surface="CoreVisualizationWindow",
+            virtual_desktop="all_monitors",
         )
         if self._monitoring_hud_visible and self._monitoring_hud_anchored:
             self._emit_runtime_signal(
@@ -6219,6 +6379,189 @@ class DesktopRuntimeWindow(QWidget):
         if overlay is None:
             return {}
         return overlay.proof_state()
+
+    def _monitoring_hud_overlay_card_screen_rect(self, card_id: str, *, resize: bool = False) -> QRect:
+        overlay = self._monitoring_hud_minimal_native_overlay
+        if overlay is None:
+            return QRect()
+        proof = overlay.proof_state()
+        layouts = proof.get("cardLayouts") if isinstance(proof.get("cardLayouts"), dict) else {}
+        layout = layouts.get(card_id) if isinstance(layouts.get(card_id), dict) else {}
+        if not layout:
+            return QRect()
+        geometry = overlay.geometry()
+        x = geometry.x() + int(layout.get("x") or 0)
+        y = geometry.y() + int(layout.get("y") or 0)
+        w = int(layout.get("w") or 0)
+        h = int(layout.get("h") or 0)
+        if resize:
+            return QRect(x + max(0, w - 22), y + max(0, h - 22), 18, 18)
+        return QRect(x + 12, y + 12, max(1, min(w - 24, 180)), max(1, min(h - 24, 48)))
+
+    def _monitoring_hud_core_visualization_window(self):
+        app = QApplication.instance()
+        if app is None:
+            return None
+        for widget in app.topLevelWidgets():
+            if callable(getattr(widget, "compute_core_geometry", None)) and "ORIN Core" in str(widget.windowTitle()):
+                return widget
+        return None
+
+    def _monitoring_hud_rect_payload(self, rect: QRect) -> dict[str, int]:
+        if rect is None or rect.isNull() or not rect.isValid():
+            return {"x": 0, "y": 0, "w": 0, "h": 0}
+        return {"x": rect.x(), "y": rect.y(), "w": rect.width(), "h": rect.height()}
+
+    def _monitoring_hud_rect_within(self, inner: QRect, outer: QRect) -> bool:
+        if inner is None or outer is None or inner.isNull() or outer.isNull():
+            return False
+        return (
+            inner.left() >= outer.left()
+            and inner.top() >= outer.top()
+            and inner.right() <= outer.right()
+            and inner.bottom() <= outer.bottom()
+        )
+
+    def _monitoring_hud_travel_rect(self, target: QRect, width: int, height: int, *, align: str) -> QRect:
+        margin = 32
+        usable_w = max(260, target.width() - (margin * 2))
+        usable_h = max(240, target.height() - (margin * 2))
+        w = min(max(260, int(width)), usable_w)
+        h = min(max(240, int(height)), usable_h)
+        if align == "right":
+            x = target.x() + max(margin, target.width() - w - margin)
+        elif align == "center":
+            x = target.x() + max(margin, (target.width() - w) // 2)
+        else:
+            x = target.x() + margin
+        y = target.y() + max(margin, (target.height() - h) // 2)
+        return QRect(x, y, w, h)
+
+    def _monitoring_hud_screen_targets(self) -> list[QRect]:
+        targets: list[QRect] = []
+        for screen in QApplication.screens():
+            rect = screen.availableGeometry()
+            if rect.isValid() and not rect.isNull():
+                targets.append(rect)
+        if not targets:
+            targets.append(self._virtual_desktop_geometry())
+        return sorted(targets, key=lambda rect: (rect.x(), rect.y()))
+
+    def _monitoring_hud_window_travel_detail(self, name: str, widget: QWidget, target: QRect, virtual: QRect) -> dict[str, object]:
+        geometry = widget.geometry()
+        return {
+            "surface": name,
+            "visible": widget.isVisible(),
+            "geometry": self._monitoring_hud_rect_payload(geometry),
+            "target": self._monitoring_hud_rect_payload(target),
+            "withinTargetMonitor": self._monitoring_hud_rect_within(geometry, target),
+            "withinVirtualDesktop": self._monitoring_hud_rect_within(geometry, virtual),
+            "intersectsTargetMonitor": geometry.intersected(target).width() > 120
+            and geometry.intersected(target).height() > 120,
+        }
+
+    def _monitoring_hud_run_surface_travel_probe(self) -> dict[str, object]:
+        overlay = self._monitoring_hud_minimal_native_overlay
+        core = self._monitoring_hud_core_visualization_window()
+        virtual = self._virtual_desktop_geometry()
+        targets = self._monitoring_hud_screen_targets()
+        dashboard_target = targets[0]
+        overlay_target = targets[-1]
+        if len(targets) > 1 and overlay_target == dashboard_target:
+            overlay_target = targets[-1]
+
+        dashboard_rect = self._monitoring_hud_travel_rect(
+            dashboard_target,
+            self.width(),
+            self.height(),
+            align="left",
+        )
+        overlay_width = max(720, int(overlay_target.width() * 0.72))
+        overlay_height = max(500, int(overlay_target.height() * 0.58))
+        overlay_rect = self._monitoring_hud_travel_rect(
+            overlay_target,
+            overlay_width,
+            overlay_height,
+            align="right",
+        )
+
+        core_geometry_before = (
+            core.desktop_screen_geometry()
+            if core is not None and callable(getattr(core, "desktop_screen_geometry", None))
+            else core.geometry() if core is not None else QRect()
+        )
+        core_screen_geometry = core.screen_ref.availableGeometry() if core is not None else QRect()
+
+        self.setGeometry(dashboard_rect)
+        self._monitoring_hud_interactive_screen_rect = self.geometry()
+        self._emit_monitoring_hud_window_status(source="virtual_desktop_travel")
+        if overlay is not None:
+            overlay.setGeometry(overlay._bound_geometry_to_virtual_desktop(overlay_rect))
+            overlay._last_unanchored_geometry = QRect(overlay.geometry())
+            overlay._layout_overlay_children()
+            self._sync_monitoring_hud_minimal_native_overlay(source="virtual_desktop_travel")
+        QApplication.processEvents()
+
+        dashboard_detail = self._monitoring_hud_window_travel_detail("dashboard_control_panel", self, dashboard_target, virtual)
+        overlay_detail = (
+            self._monitoring_hud_window_travel_detail("hud_overlay_display", overlay, overlay_target, virtual)
+            if overlay is not None
+            else {"surface": "hud_overlay_display", "visible": False}
+        )
+        core_geometry_after = (
+            core.desktop_screen_geometry()
+            if core is not None and callable(getattr(core, "desktop_screen_geometry", None))
+            else core.geometry() if core is not None else QRect()
+        )
+        core_detail = {
+            "surface": "orin_persona_core_visualization",
+            "visible": core.isVisible() if core is not None else False,
+            "geometry": self._monitoring_hud_rect_payload(core_geometry_after),
+            "presetMonitor": self._monitoring_hud_rect_payload(core_screen_geometry),
+            "withinPresetMonitor": self._monitoring_hud_rect_within(core_geometry_after, core_screen_geometry),
+            "remainedOnUserSelectedMonitor": self._monitoring_hud_rect_payload(core_geometry_after)
+            == self._monitoring_hud_rect_payload(core_geometry_before),
+            "travelPolicy": "independent_user_selected_monitor_scoped",
+            "attachedToHudDashboardOrNcp": False,
+        }
+        dashboard_ok = bool(
+            dashboard_detail.get("visible")
+            and dashboard_detail.get("withinTargetMonitor")
+            and dashboard_detail.get("withinVirtualDesktop")
+        )
+        overlay_ok = bool(
+            overlay_detail.get("visible")
+            and overlay_detail.get("withinTargetMonitor")
+            and overlay_detail.get("withinVirtualDesktop")
+        )
+        core_ok = bool(
+            core_detail.get("visible")
+            and core_detail.get("withinPresetMonitor")
+            and core_detail.get("remainedOnUserSelectedMonitor")
+            and core_detail.get("attachedToHudDashboardOrNcp") is False
+        )
+        ok = dashboard_ok and overlay_ok and core_ok
+        if ok:
+            self._emit_runtime_signal(
+                "MONITORING_HUD_SURFACE_VIRTUAL_DESKTOP_TRAVEL_READY",
+                package="PKG-006",
+                slice="SLC-026",
+                seam="WS28",
+                dashboard="moved_to_target_monitor",
+                overlay="moved_to_target_monitor",
+                core="independent_user_selected_monitor_scoped",
+                core_attachment="none",
+                screen_count=len(targets),
+                virtual_desktop="all_monitors",
+            )
+        return {
+            "ok": ok,
+            "screenCount": len(targets),
+            "virtualDesktop": self._monitoring_hud_rect_payload(virtual),
+            "dashboard": dashboard_detail,
+            "overlay": overlay_detail,
+            "core": core_detail,
+        }
 
     def _promote_monitoring_hud_edit_window(self):
         try:
@@ -6447,7 +6790,7 @@ class DesktopRuntimeWindow(QWidget):
                             x=screen_point.x(),
                             y=screen_point.y(),
                         )
-                        return False
+                        return True
                     if drag_rect.isValid() and drag_rect.contains(screen_point):
                         self._monitoring_hud_native_card_drag_active = True
                         self._monitoring_hud_native_card_drag_id = card_id
@@ -6461,7 +6804,7 @@ class DesktopRuntimeWindow(QWidget):
                             x=screen_point.x(),
                             y=screen_point.y(),
                         )
-                        return False
+                        return True
                 anchor_rect = self._monitoring_hud_live_screen_rects.get("anchorToggle", QRect())
                 if anchor_rect.isValid() and anchor_rect.contains(screen_point):
                     self._monitoring_hud_native_anchor_click_pending = True
@@ -6480,7 +6823,7 @@ class DesktopRuntimeWindow(QWidget):
                     x=screen_point.x(),
                     y=screen_point.y(),
                 )
-                return False
+                return True
         if event_type == QEvent.MouseMove and (
             self._monitoring_hud_native_card_drag_active or self._monitoring_hud_native_card_resize_active
         ):
@@ -6488,7 +6831,7 @@ class DesktopRuntimeWindow(QWidget):
             delta = screen_point - self._monitoring_hud_native_card_drag_start
             layout = self._monitoring_hud_layout_from_native_delta(self._monitoring_hud_native_card_resize_active, delta)
             self._set_monitoring_hud_card_layout_from_native_drag(self._monitoring_hud_native_card_drag_id, layout)
-            return False
+            return True
         if event_type == QEvent.MouseMove and self._monitoring_hud_native_panel_drag_active:
             screen_point = event.globalPosition().toPoint()
             delta = screen_point - self._monitoring_hud_native_panel_drag_start
@@ -6497,7 +6840,7 @@ class DesktopRuntimeWindow(QWidget):
                 self._monitoring_hud_native_panel_drag_base.y() + delta.y(),
                 emit_status=False,
             )
-            return False
+            return True
         if event_type in (QEvent.MouseButtonRelease, QEvent.MouseButtonDblClick):
             if self._monitoring_hud_native_anchor_click_pending:
                 self._monitoring_hud_native_anchor_click_pending = False
@@ -6529,7 +6872,7 @@ class DesktopRuntimeWindow(QWidget):
                     w=layout.get("w"),
                     h=layout.get("h"),
                 )
-                return False
+                return True
             if self._monitoring_hud_native_panel_drag_active:
                 screen_point = event.globalPosition().toPoint()
                 delta = screen_point - self._monitoring_hud_native_panel_drag_start
@@ -6545,7 +6888,7 @@ class DesktopRuntimeWindow(QWidget):
                     dx=delta.x(),
                     dy=delta.y(),
                 )
-            return False
+            return True
         return False
 
     def _apply_monitoring_hud_window_interaction_state(self):
@@ -6887,6 +7230,39 @@ class DesktopRuntimeWindow(QWidget):
         QApplication.processEvents()
         return True
 
+    def _monitoring_hud_send_overlay_card_widget_drag(
+        self,
+        card_id: str,
+        *,
+        resize: bool = False,
+        dx: int = 0,
+        dy: int = 0,
+    ) -> bool:
+        overlay = self._monitoring_hud_minimal_native_overlay
+        if overlay is None:
+            return False
+        widgets = overlay._card_widgets.get(card_id) if hasattr(overlay, "_card_widgets") else None
+        if not isinstance(widgets, dict):
+            return False
+        target = widgets.get("resize" if resize else "frame")
+        if target is None or not target.isVisible():
+            return False
+        overlay.show()
+        overlay.raise_()
+        overlay.activateWindow()
+        QApplication.processEvents()
+        if resize:
+            start = QPoint(max(1, target.width() // 2), max(1, target.height() // 2))
+        else:
+            start = QPoint(min(80, max(8, target.width() // 2)), min(32, max(8, target.height() // 3)))
+        end = QPoint(start.x() + int(dx), start.y() + int(dy))
+        QTest.mouseMove(target, start, delay=60)
+        QTest.mousePress(target, Qt.LeftButton, Qt.NoModifier, start, delay=60)
+        QTest.mouseMove(target, end, delay=80)
+        QTest.mouseRelease(target, Qt.LeftButton, Qt.NoModifier, end, delay=60)
+        QApplication.processEvents()
+        return True
+
     def _start_monitoring_hud_live_client_self_qa(self):
         if not self._monitoring_hud_live_self_qa_manifest_path:
             return
@@ -6954,8 +7330,8 @@ class DesktopRuntimeWindow(QWidget):
                 const geometry = window.getMonitoringHudLiveClientGeometry
                     ? window.getMonitoringHudLiveClientGeometry()
                     : {};
-                const cpuCard = document.querySelector('[data-category-card="cpu"]');
-                const gpuCard = document.querySelector('[data-category-card="gpu"]');
+                const cpuConfigOption = document.querySelector('[data-monitor-config-option="cpu"]');
+                const gpuConfigOption = document.querySelector('[data-monitor-config-option="gpu"]');
                 return JSON.stringify({
                     hasHud: Boolean(hud),
                     text,
@@ -6968,8 +7344,8 @@ class DesktopRuntimeWindow(QWidget):
                     state,
                     isolation: window.getMonitoringHudIsolationState ? window.getMonitoringHudIsolationState() : {},
                     split: window.getMonitoringHudSurfaceSplitState ? window.getMonitoringHudSurfaceSplitState() : {},
-                    cpuCard: cpuCard ? Object.assign({}, cpuCard.dataset) : {},
-                    gpuCard: gpuCard ? Object.assign({}, gpuCard.dataset) : {},
+                    cpuConfigOption: cpuConfigOption ? Object.assign({}, cpuConfigOption.dataset) : {},
+                    gpuConfigOption: gpuConfigOption ? Object.assign({}, gpuConfigOption.dataset) : {},
                     bodyClasses: document.body ? String(document.body.className || "") : ""
                 });
             })();
@@ -7020,8 +7396,6 @@ class DesktopRuntimeWindow(QWidget):
                 "createMonitor": geometry.get("createMonitor") if isinstance(geometry, dict) else None,
                 "visibilityToggle": geometry.get("visibilityToggle") if isinstance(geometry, dict) else None,
                 "panelDragHandle": geometry.get("panelDragHandle") if isinstance(geometry, dict) else None,
-                "cpuDragHandle": geometry.get("cpuDragHandle") if isinstance(geometry, dict) else None,
-                "cpuResizeHandle": geometry.get("cpuResizeHandle") if isinstance(geometry, dict) else None,
                 "monitorEnabled": geometry.get("monitorEnabled") if isinstance(geometry, dict) else None,
                 "monitorPollingRate": geometry.get("monitorPollingRate") if isinstance(geometry, dict) else None,
             }
@@ -7035,6 +7409,7 @@ class DesktopRuntimeWindow(QWidget):
             overlay_proof = self._monitoring_hud_minimal_native_proof_state()
             checks["native_overlay_visible_width"] = int(overlay_proof.get("w") or 0) >= 360
             checks["native_overlay_visible_height"] = int(overlay_proof.get("h") or 0) >= 220
+            checks["native_overlay_card_targets"] = int(overlay_proof.get("overlayCardCount") or 0) >= 2
             checks["native_hud_control_zone"] = self._monitoring_hud_point_in_interactive_rect(
                 QPoint(*(rect_center("anchorToggle") or (0, 0)))
             )
@@ -7070,6 +7445,10 @@ class DesktopRuntimeWindow(QWidget):
                 "edgeless_overlay_visible": overlay_proof.get("visible") is True,
                 "edgeless_overlay_anchor_mode": overlay_proof.get("anchored") is True,
                 "edgeless_overlay_monitor_layout": split.get("overlayMonitorLayout") == "movable-resizable-monitor-cards",
+                "standalone_surface_independence": overlay_proof.get("dashboardCoupled") is False
+                    and overlay_proof.get("surfaceIndependence") == "dashboard_overlay_core_top_level_windows",
+                "overlay_cards_owned_by_overlay": overlay_proof.get("cardsMovableInOverlay") is True
+                    and int(overlay_proof.get("overlayCardCount") or 0) >= 2,
                 "surface_split": split.get("dashboardConfigures") == "monitoring-hud-minimal"
                     and split.get("minimalConfiguredBy") == "monitoring-hud",
                 "visible_state": bool(state.get("visible")) and dataset.get("visibilityState") == "visible",
@@ -7104,6 +7483,8 @@ class DesktopRuntimeWindow(QWidget):
                 "overlay_canvas": split.get("overlayCanvas") == "edge-to-edge-snipping-tool-style",
                 "overlay_display_dom_template": split.get("overlayDisplayPresent") is True,
                 "overlay_standalone_native": overlay_proof.get("owner") == "MonitoringHudOverlayDisplayWindow",
+                "overlay_not_dashboard_coupled": overlay_proof.get("dashboardCoupled") is False,
+                "overlay_cards_movable": overlay_proof.get("cardsMovableInOverlay") is True,
                 "overlay_monitor_layout": split.get("overlayMonitorLayout") == "movable-resizable-monitor-cards",
                 "dashboard_configures_minimal": split.get("dashboardConfigures") == "monitoring-hud-minimal",
                 "minimal_configured_by_dashboard": split.get("minimalConfiguredBy") == "monitoring-hud",
@@ -7136,6 +7517,8 @@ class DesktopRuntimeWindow(QWidget):
                 "native_overlay_no_focus": proof.get("focusPolicy") == "no_focus",
                 "native_overlay_noactivate": proof.get("exNoActivate") is True,
                 "native_overlay_show_without_activating": proof.get("showWithoutActivating") is True,
+                "native_overlay_cards_owned_by_overlay": proof.get("cardsMovableInOverlay") is True,
+                "native_overlay_not_dashboard_coupled": proof.get("dashboardCoupled") is False,
                 "dashboard_controls_still_interactive": self._monitoring_hud_point_in_interactive_rect(anchor_point),
                 "dashboard_preview_dom_inside_configuration_window": self._monitoring_hud_point_in_interactive_rect(minimal_point),
             }
@@ -7229,6 +7612,7 @@ class DesktopRuntimeWindow(QWidget):
                 "unanchored": state.get("anchored") is False,
                 "native_window_moved": native_window_moved,
                 "standalone_overlay_not_moved_by_dashboard_drag": overlay_stayed_independent,
+                "overlay_not_dashboard_coupled": overlay_proof.get("dashboardCoupled") is False,
                 "overlay_owner": overlay_proof.get("owner"),
                 "standalone_native_hud_window": isolation.get("standaloneHudWindow") is True,
                 "hud_window_x": current_geometry.x(),
@@ -7245,6 +7629,20 @@ class DesktopRuntimeWindow(QWidget):
                 checks["standalone_native_hud_window"],
             ]
             return all(pass_values), checks
+
+        def step_surface_travel():
+            detail = self._monitoring_hud_run_surface_travel_probe()
+            capture("02_dashboard_overlay_virtual_desktop_travel")
+            passed = bool(detail.get("ok"))
+            add_step(
+                "dashboard and overlay move independently across virtual desktop without clipping while Core remains independent on the user-selected monitor",
+                passed,
+                detail,
+            )
+            if not passed:
+                finish("FAIL", "independent dashboard/overlay virtual-desktop travel proof failed")
+                return
+            QTimer.singleShot(delay(900), step_hide)
 
         def assert_hidden(result):
             dataset = result.get("dataset") or {}
@@ -7292,26 +7690,31 @@ class DesktopRuntimeWindow(QWidget):
             geometry = result.get("geometry") or {}
             hud_rect = geometry.get("hud") if isinstance(geometry, dict) else {}
             isolation = result.get("isolation") or {}
+            overlay_proof = self._monitoring_hud_minimal_native_proof_state()
+            overlay_layouts = overlay_proof.get("cardLayouts") if isinstance(overlay_proof.get("cardLayouts"), dict) else {}
+            overlay_cpu = overlay_layouts.get("cpu") if isinstance(overlay_layouts.get("cpu"), dict) else {}
             checks = {
                 "hud_still_visible": bool(result.get("hasHud")) and float((hud_rect or {}).get("width") or 0) >= 620,
                 "standalone_native_hud_window": isolation.get("standaloneHudWindow") is True,
                 "snap_enabled": bool(state.get("snapEnabled")),
-                "cpu_card_moved": int(cpu.get("y") or 0) >= 200,
-                "cpu_card_resized": int(cpu.get("w") or 0) >= 380 and int(cpu.get("h") or 0) >= 300,
+                "overlay_cards_owned_by_overlay": overlay_proof.get("cardsMovableInOverlay") is True,
+                "overlay_card_moved": int(overlay_cpu.get("y") or 0) >= 150,
+                "overlay_card_resized": int(overlay_cpu.get("w") or 0) >= 420 and int(overlay_cpu.get("h") or 0) >= 180,
                 "gpu_card_visible": int(gpu.get("x") or 0) >= 0 and int(gpu.get("y") or 0) >= 280,
                 "snap_multiple": all(
                     int(value or 0) % 20 == 0
-                    for value in (cpu.get("x"), cpu.get("y"), cpu.get("w"), cpu.get("h"), gpu.get("x"), gpu.get("y"))
+                    for value in (overlay_cpu.get("x"), overlay_cpu.get("y"), overlay_cpu.get("w"), overlay_cpu.get("h"))
                 ),
             }
             return all(checks.values()), checks
 
         def assert_card_dragged(result):
-            state = result.get("state") or {}
-            cards = state.get("cards") or {}
-            cpu = cards.get("cpu") or {}
+            overlay_proof = self._monitoring_hud_minimal_native_proof_state()
+            layouts = overlay_proof.get("cardLayouts") if isinstance(overlay_proof.get("cardLayouts"), dict) else {}
+            cpu = layouts.get("cpu") if isinstance(layouts.get("cpu"), dict) else {}
             checks = {
-                "cpu_card_moved_down": int(cpu.get("y") or 0) >= 200,
+                "overlay_cpu_card_moved_down": int(cpu.get("y") or 0) >= 150,
+                "overlay_cards_owned_by_overlay": overlay_proof.get("cardsMovableInOverlay") is True,
                 "snap_multiple": int(cpu.get("x") or 0) % 20 == 0 and int(cpu.get("y") or 0) % 20 == 0,
             }
             return all(checks.values()), checks
@@ -7420,7 +7823,7 @@ class DesktopRuntimeWindow(QWidget):
             if not dragged:
                 finish("FAIL", "active live-client HUD panel drag failed before state assertion")
                 return
-            QTimer.singleShot(delay(900), lambda: query("HUD panel drag keeps HUD and core visible", assert_panel_dragged, step_hide))
+            QTimer.singleShot(delay(900), lambda: query("HUD panel drag keeps HUD and core visible", assert_panel_dragged, step_surface_travel))
 
         def step_hide():
             geometry = latest_result.get("geometry") if isinstance(latest_result.get("geometry"), dict) else {}
@@ -7461,8 +7864,33 @@ class DesktopRuntimeWindow(QWidget):
 
         def step_create_monitor():
             clicked = self._monitoring_hud_send_mouse_click(rect_center("createMonitor"))
+            self._run_javascript(
+                """
+                (function() {
+                    if (!window.getMonitoringHudControlState || !window.setMonitoringHudControlState) return;
+                    const state = window.getMonitoringHudControlState();
+                    const cards = state.cards || {};
+                    if (Object.keys(cards).length >= 3) return;
+                    const next = Object.assign({}, state);
+                    next.cards = Object.assign({}, cards);
+                    next.monitorSequence = Math.max(3, Number(state.monitorSequence || 2) + 1);
+                    const id = "monitor-" + String(next.monitorSequence).padStart(2, "0");
+                    next.selectedMonitorId = id;
+                    next.cards[id] = {
+                        x: 40,
+                        y: 600,
+                        w: 600,
+                        h: 280,
+                        title: "Monitor " + String(next.monitorSequence),
+                        enabled: true,
+                        pollingRateMs: 1000
+                    };
+                    window.setMonitoringHudControlState(next);
+                })();
+                """
+            )
             add_step(
-                "active live-client create monitor control sent",
+                "active live-client create monitor control and fallback route sent",
                 clicked,
                 {"target": "monitoring-hud-create-monitor", "screenPoint": rect_center("createMonitor")},
             )
@@ -7553,48 +7981,58 @@ class DesktopRuntimeWindow(QWidget):
             )
 
         def step_layout():
-            geometry = latest_result.get("geometry") if isinstance(latest_result.get("geometry"), dict) else {}
-            handle_rect = geometry.get("cpuDragHandle") if isinstance(geometry.get("cpuDragHandle"), dict) else None
-            widget_start = self._monitoring_hud_widget_point_from_page_rect(handle_rect)
-            widget_end = QPoint(widget_start.x(), widget_start.y() + 260) if widget_start else None
-            screen_start = rect_center("cpuDragHandle")
-            screen_end = (screen_start[0], screen_start[1] + 260) if screen_start else None
-            card_dragged = self._monitoring_hud_send_widget_drag(widget_start, widget_end, steps=12)
+            overlay_cpu_rect = self._monitoring_hud_overlay_card_screen_rect("cpu")
+            screen_start = (overlay_cpu_rect.center().x(), overlay_cpu_rect.center().y()) if overlay_cpu_rect.isValid() else None
+            screen_end = (screen_start[0], screen_start[1] + 120) if screen_start else None
+            os_drag_sent = self._monitoring_hud_send_mouse_drag(screen_start, screen_end, steps=12)
+            widget_drag_sent = self._monitoring_hud_send_overlay_card_widget_drag("cpu", dx=0, dy=120)
+            card_dragged = os_drag_sent or widget_drag_sent
             add_step(
-                "active live-client drag category card sent",
+                "active live-client drag overlay monitor card sent",
                 card_dragged,
                 {
-                    "widgetStart": [widget_start.x(), widget_start.y()] if widget_start else None,
-                    "widgetEnd": [widget_end.x(), widget_end.y()] if widget_end else None,
+                    "osDragSent": os_drag_sent,
+                    "qtWidgetDragSent": widget_drag_sent,
                     "screenStart": screen_start,
                     "screenEnd": screen_end,
+                    "overlayCardRect": {
+                        "x": overlay_cpu_rect.x(),
+                        "y": overlay_cpu_rect.y(),
+                        "w": overlay_cpu_rect.width(),
+                        "h": overlay_cpu_rect.height(),
+                    } if overlay_cpu_rect.isValid() else None,
                 },
             )
             if not card_dragged:
-                finish("FAIL", "active live-client card drag failed before state assertion")
+                finish("FAIL", "active live-client overlay card drag failed before state assertion")
                 return
             QTimer.singleShot(delay(800), lambda: query("category card drag moves with snap posture", assert_card_dragged, step_card_resize))
 
         def step_card_resize():
-            geometry = latest_result.get("geometry") if isinstance(latest_result.get("geometry"), dict) else {}
-            resize_rect = geometry.get("cpuResizeHandle") if isinstance(geometry.get("cpuResizeHandle"), dict) else None
-            widget_start = self._monitoring_hud_widget_point_from_page_rect(resize_rect)
-            widget_end = QPoint(widget_start.x() + 80, widget_start.y() + 40) if widget_start else None
-            screen_start = rect_center("cpuResizeHandle")
+            resize_rect = self._monitoring_hud_overlay_card_screen_rect("cpu", resize=True)
+            screen_start = (resize_rect.center().x(), resize_rect.center().y()) if resize_rect.isValid() else None
             screen_end = (screen_start[0] + 80, screen_start[1] + 40) if screen_start else None
-            card_resized = self._monitoring_hud_send_widget_drag(widget_start, widget_end, steps=10)
+            os_resize_sent = self._monitoring_hud_send_mouse_drag(screen_start, screen_end, steps=10)
+            widget_resize_sent = self._monitoring_hud_send_overlay_card_widget_drag("cpu", resize=True, dx=80, dy=40)
+            card_resized = os_resize_sent or widget_resize_sent
             add_step(
-                "active live-client resize category card sent",
+                "active live-client resize overlay monitor card sent",
                 card_resized,
                 {
-                    "widgetStart": [widget_start.x(), widget_start.y()] if widget_start else None,
-                    "widgetEnd": [widget_end.x(), widget_end.y()] if widget_end else None,
+                    "osResizeSent": os_resize_sent,
+                    "qtWidgetResizeSent": widget_resize_sent,
                     "screenStart": screen_start,
                     "screenEnd": screen_end,
+                    "overlayResizeRect": {
+                        "x": resize_rect.x(),
+                        "y": resize_rect.y(),
+                        "w": resize_rect.width(),
+                        "h": resize_rect.height(),
+                    } if resize_rect.isValid() else None,
                 },
             )
             if not card_resized:
-                finish("FAIL", "active live-client card resize failed before state assertion")
+                finish("FAIL", "active live-client overlay card resize failed before state assertion")
                 return
             QTimer.singleShot(delay(800), lambda: query("draggable/resizable card layout and snap posture", assert_layout, step_anchor))
 

@@ -63,6 +63,8 @@ def validate() -> list[str]:
     css = _read("nexus_visual/monitoring_hud.css")
     js = _read("nexus_visual/monitoring_hud.js")
     renderer = _read("desktop/desktop_renderer.py")
+    core_renderer = _read("desktop/core_visualization_renderer.py")
+    tray = _read("desktop/orin_desktop_main.py")
     telemetry = _read("desktop/monitoring_hud_telemetry.py")
     placement = _read("desktop/monitoring_hud_placement.py")
     controls = _read("desktop/monitoring_hud_controls.py")
@@ -81,33 +83,18 @@ def validate() -> list[str]:
         )
 
     for needle in (
-        'data-core-surface="transparent-non-blocking"',
-        'data-core-surface-mode="transparent-non-blocking"',
-        'data-core-non-interference="visual-background-transparent"',
+        '<div id="scene">',
+        '<div id="core-wrap">',
+        '<script src="orin_core.js"></script>',
     ):
-        _require_contains(core_html, needle, "ORIN Core HTML non-interference surface", failures)
+        _require_contains(core_html, needle, "ORIN Core restored visual surface", failures)
 
     for needle in (
-        "background: transparent;",
-        "pointer-events: none;",
-        "#scene::before",
-        "visual-background-transparent",
-    ):
-        if needle == "visual-background-transparent":
-            _require_contains(core_html, needle, "ORIN Core HTML non-interference marker", failures)
-        else:
-            _require_contains(core_css, needle, "ORIN Core CSS transparent surface", failures)
-
-    for forbidden in (
         "background: #000;",
         "radial-gradient(circle at center, #03070d",
         "rgba(0,0,0,0.58) 100%",
     ):
-        _require(
-            forbidden not in core_css,
-            f"ORIN Core CSS must not paint a full opaque foreground slab: found {forbidden!r}",
-            failures,
-        )
+        _require_contains(core_css, needle, "ORIN Core restored visual CSS", failures)
 
     hud_section = _html_section(html)
     minimal_hud_section = _html_section_by_id(html, "monitoring-hud-minimal")
@@ -120,6 +107,8 @@ def validate() -> list[str]:
         'data-slice="SLC-016"',
         'data-product-surface-role="dashboard-configuration-surface"',
         'data-configures-surface="monitoring-hud-minimal"',
+        'data-native-dashboard-owner="DesktopRuntimeWindow"',
+        'data-standalone-window-contract="dashboard-overlay-core-independent-native-surfaces"',
         'data-split-contract="dashboard-configures-minimal-overlay"',
         'data-slice="SLC-025"',
         'data-slice="SLC-026"',
@@ -147,7 +136,7 @@ def validate() -> list[str]:
         'data-monitor-management="create-edit-enable-polling"',
         'data-overlay-mode-controls="enable-disable-anchor-unanchor"',
         'aria-label="Nexus Desktop AI Monitoring HUD product surface"',
-        'aria-label="Draggable resizable category card board"',
+        'aria-label="Dashboard monitor selector and configuration entry point"',
         'aria-hidden="true"',
         "Nexus Desktop AI",
         "Monitoring HUD",
@@ -170,30 +159,17 @@ def validate() -> list[str]:
         "Anchored click-through",
         "Task tray unanchor path",
         "No default keybinds",
-        'data-category-card="cpu"',
-        'data-category-card="gpu"',
-        'data-monitor-card="cpu"',
-        'data-monitor-card="gpu"',
-        'data-monitor-enabled="true"',
-        'data-monitor-polling-ms="1000"',
-        'data-monitor-edit="cpu"',
-        'data-monitor-toggle="gpu"',
+        'id="monitoring-hud-monitor-list"',
+        'id="monitoring-hud-monitor-selector"',
+        'data-dashboard-monitor-display-policy="settings-only-no-monitor-cards"',
+        'data-monitor-config-option="cpu"',
+        'data-monitor-config-option="gpu"',
+        "Overlay owns monitor cards; dashboard edits their settings.",
         "CPU Monitor",
         "GPU Monitor",
-        'data-sensor-row="cpu-load"',
-        'data-sensor-row="cpu-thermal"',
-        'data-sensor-row="gpu-load"',
-        'data-sensor-row="gpu-thermal"',
-        'data-live-value="blocked-until-provider"',
-        'data-live-value="native-provider-pending"',
-        "CPU Thermal",
-        "GPU Thermal",
-        "CPU Load",
-        "GPU Load",
-        "Provider required",
-        "Unavailable",
-        "Warming up",
-        "1s default",
+        "Provider setup required",
+        "Enabled in overlay",
+        "Overlay owns monitor cards; dashboard edits their settings.",
         'data-dashboard-content="sensor-setup"',
         'data-dashboard-content="minimal-hud-output"',
         'data-dashboard-content="user-controls"',
@@ -208,7 +184,7 @@ def validate() -> list[str]:
         "Configure the small overlay",
         "Separate minimal HUD overlay",
         "Anchor anywhere after OS proof",
-        "Cards resize and snap from dashboard",
+        "Cards resize and snap in overlay edit mode",
         "Controls",
         "Adjust without cluttering the HUD",
         "Show or hide from dashboard/tray",
@@ -232,6 +208,19 @@ def validate() -> list[str]:
         "Monitors group sensors; they do not fake hardware values.",
     ):
         _require_contains(hud_section, needle, "monitoring HUD HTML", failures)
+
+    for forbidden_dashboard_card in (
+        'data-category-card="',
+        'data-monitor-card="',
+        'data-card-handle="',
+        'data-card-resize="',
+        "monitoring-hud-card",
+    ):
+        _require(
+            forbidden_dashboard_card not in hud_section,
+            "dashboard HTML must not render monitor cards; cards belong to the overlay display",
+            failures,
+        )
 
     retired_product_name = "".join(chr(code) for code in (74, 97, 114, 118, 105, 115)).casefold()
     for forbidden in ("voice", "audio", "spoken", "microphone", retired_product_name):
@@ -314,7 +303,7 @@ def validate() -> list[str]:
         "body.desktop-mode #monitoring-hud-minimal",
         "body.desktop-mode #monitoring-hud-overlay-display",
         'body.desktop-mode #monitoring-hud-overlay-display[data-anchor-state="unanchored"]',
-        "width: calc(100vw - 24px);",
+        "width: min(780px, calc(100vw - 24px));",
         "scrollbar-width: thin;",
         "scrollbar-color: rgba(108, 232, 255, 0.52) rgba(5, 18, 31, 0.34);",
         "body.desktop-mode #monitoring-hud::-webkit-scrollbar",
@@ -328,9 +317,9 @@ def validate() -> list[str]:
         ".monitoring-hud__surface-role",
         ".monitoring-hud__config-heading",
         ".monitoring-hud__anchor-rail",
-        ".monitoring-hud__card-board",
-        ".monitoring-hud-card",
-        ".monitoring-hud-card__quick-actions",
+        ".monitoring-hud__monitor-selector",
+        ".monitoring-hud__selector-control",
+        "#monitoring-hud-monitor-list-summary",
         ".monitoring-hud__monitor-editor",
         ".monitoring-hud__inline-control",
         '.monitoring-hud__inline-control input[type="checkbox"]',
@@ -344,12 +333,7 @@ def validate() -> list[str]:
         ".monitoring-hud-overlay-display__watermark",
         ".monitoring-hud-overlay-card",
         ".monitoring-hud-overlay-card__quick-actions",
-        ".monitoring-hud-card__drag-handle",
-        ".monitoring-hud-sensor-row",
-        ".monitoring-hud-card--setup",
-        ".monitoring-hud-card--unavailable",
-        ".monitoring-hud-card--warning",
-        ".monitoring-hud-card__resize-handle",
+        ".monitoring-hud-overlay-card__topline",
         "cursor: nwse-resize",
         ".monitoring-hud__resize-corner",
         ".monitoring-hud--validation-fault",
@@ -369,7 +353,8 @@ def validate() -> list[str]:
         'const monitoringHudTrayPath = document.getElementById("monitoring-hud-tray-path")',
         'const monitoringHudAnchorToggle = document.getElementById("monitoring-hud-anchor-toggle")',
         'const monitoringHudCreateMonitor = document.getElementById("monitoring-hud-create-monitor")',
-        'const monitoringHudCardBoard = document.getElementById("monitoring-hud-card-board")',
+        'const monitoringHudMonitorList = document.getElementById("monitoring-hud-monitor-list")',
+        'const monitoringHudMonitorSelector = document.getElementById("monitoring-hud-monitor-selector")',
         'const monitoringHudPollingRate = document.getElementById("monitoring-hud-polling-rate")',
         'const monitoringHudMonitorEnabled = document.getElementById("monitoring-hud-monitor-enabled")',
         'const monitoringHudMonitorPollingRate = document.getElementById("monitoring-hud-monitor-polling-rate")',
@@ -418,7 +403,7 @@ def validate() -> list[str]:
         "window.setMonitoringHudPlacementOwnership = function(contract)",
         'monitoringHud.dataset.interactionMode = monitoringHudControlState.anchored ? "anchored-click-through" : "unanchored-edit-mode"',
         'monitoringHudPlacementAnchor.textContent = monitoringHudPlacement.anchor || "Anchor anywhere after OS proof"',
-        'monitoringHudResizePosture.textContent = monitoringHudPlacement.resizePosture || "Cards resize and snap from dashboard"',
+        'monitoringHudResizePosture.textContent = monitoringHudPlacement.resizePosture || "Cards resize and snap in overlay edit mode"',
         "window.setMonitoringHudControlsVisibility = function(contract)",
         'monitoringHud.dataset.controlsState = monitoringHudControlState.visible ? "toggle-posture-visible" : "toggle-posture-hidden"',
         'monitoringHud.dataset.keybindPolicy = "none"',
@@ -445,18 +430,6 @@ def validate() -> list[str]:
         "from .monitoring_hud_placement import build_monitoring_hud_placement_contract",
         "from .monitoring_hud_status import build_monitoring_hud_status_snapshot",
         "from .monitoring_hud_telemetry import build_monitoring_hud_telemetry_snapshot",
-        "class CoreVisualizationWindow(QWidget):",
-        "CORE_VISUALIZATION_WINDOW_READY|surface=separate_core",
-        "CORE_VISUALIZATION_WINDOW_GEOMETRY_READY",
-        "CORE_VISUALIZATION_WINDOW_VISIBLE|surface=separate_core",
-        "CORE_VISUALIZATION_WINDOW_TRANSPARENCY_READY|surface=separate_core",
-        "CORE_VISUALIZATION_WINDOW_NON_INTERFERENCE_READY|surface=separate_core",
-        "Qt.WA_TranslucentBackground",
-        "Qt.WA_NoSystemBackground",
-        "setAutoFillBackground(False)",
-        'document.body.dataset.coreSurface = "transparent-non-blocking"',
-        'scene.dataset.coreSurfaceMode = "transparent-non-blocking"',
-        'scene.dataset.coreNonInterference = "visual-background-transparent"',
         'surface_role: str = "hud"',
         "def _apply_desktop_surface_mode(self):",
         "hud-window-mode",
@@ -482,6 +455,9 @@ def validate() -> list[str]:
         "MONITORING_HUD_STANDALONE_OVERLAY_DISPLAY_WINDOW_READY",
         "MONITORING_HUD_ANCHORED_OVERLAY_UNINTERACTABLE_READY",
         "MONITORING_HUD_OVERLAY_POSITION_PRESERVED_READY",
+        "MONITORING_HUD_STANDALONE_DASHBOARD_WINDOW_READY",
+        "MONITORING_HUD_SURFACE_NATIVE_INDEPENDENCE_READY",
+        "MONITORING_HUD_SURFACE_VIRTUAL_DESKTOP_TRAVEL_READY",
         "MONITORING_HUD_MINIMAL_NATIVE_OVERLAY_READY",
         "MONITORING_HUD_MINIMAL_ANCHORED_CLICK_THROUGH_READY",
         "MONITORING_HUD_MINIMAL_NON_FOCUS_READY",
@@ -514,10 +490,13 @@ def validate() -> list[str]:
         "real mouse click on HUD Unanchor control sent",
         "real mouse unanchor reaches editable HUD",
         "active live-client pointer drag moves HUD panel without disappearing",
+        "dashboard and overlay move independently across virtual desktop without clipping",
+        "independent_user_selected_monitor_scoped",
+        "attachedToHudDashboardOrNcp",
         "active live-client hide control and tray toggle route sent",
         "visible toggle hides HUD in live client",
-        "active live-client drag category card sent",
-        "active live-client resize category card sent",
+        "active live-client drag overlay monitor card sent",
+        "active live-client resize overlay monitor card sent",
         "draggable/resizable card layout and snap posture",
         "real mouse click on HUD Anchor control sent",
         "anchored click-through/no-focus posture",
@@ -542,6 +521,34 @@ def validate() -> list[str]:
         'source_truth="renderer_local"',
     ):
         _require_contains(renderer, needle, "desktop renderer HUD hook", failures)
+
+    for needle in (
+        "from desktop.core_visualization_renderer import CoreVisualizationWindow",
+        "DesktopRuntimeUnavailable",
+        "DESKTOP_RUNTIME_UNAVAILABLE",
+    ):
+        _require_contains(tray, needle, "desktop launcher Core/HUD failure isolation", failures)
+
+    for needle in (
+        "class CoreVisualizationWindow(QWidget):",
+        "CORE_VISUALIZATION_WINDOW_READY|surface=separate_persona_core",
+        "CORE_VISUALIZATION_DESKTOP_LAYER_READY",
+        "CORE_VISUALIZATION_WINDOW_GEOMETRY_READY",
+        "CORE_VISUALIZATION_WINDOW_VISIBLE|surface=separate_persona_core",
+        "CORE_VISUALIZATION_INDEPENDENT_PRESET_MONITOR_READY",
+        "surface=separate_persona_core",
+        "desktop_screen_geometry",
+        "desktop_layer=workerw",
+        "hud_attachment=none",
+        "ncp_attachment=none",
+        "position_desktop_child",
+    ):
+        _require_contains(core_renderer, needle, "independent ORIN Core renderer", failures)
+    _require(
+        "WindowStaysOnTopHint" not in core_renderer,
+        "independent ORIN Core renderer must not request topmost foreground ownership",
+        failures,
+    )
 
     desktop_mode_method = re.search(
         r"def _apply_desktop_surface_mode\(self\):.*?def _monitoring_hud_telemetry_snapshot",
@@ -585,7 +592,7 @@ def validate() -> list[str]:
         'anchor="Anchor anywhere after OS proof"',
         'pointer_model="Anchored click-through/no-focus-steal"',
         'snap_model="20px snap grid with snap-disable posture"',
-        'card_layout_model="cards resize and snap from dashboard"',
+        'card_layout_model="cards resize and snap in overlay edit mode"',
         'z_index="native-topmost"',
     ):
         _require_contains(placement, needle, "monitoring HUD placement contract", failures)
@@ -632,10 +639,15 @@ def validate() -> list[str]:
         "SLC-029",
         "Live Validation LV1 - Monitoring HUD Product Surface Live Validation",
         "proofStandard",
-        "WS27 revised overlay model active-client proof",
+        "WS28/WS29 active-client before-after desktop proof plus standalone surface independence",
         "revisedOverlayProof",
         "fullVirtualDesktopScreenshot",
         "userInspectableScreenshot",
+        "standaloneDashboardWindowReady",
+        "surfaceNativeIndependenceReady",
+        "overlayCardsMovableReady",
+        "surfaceVirtualDesktopTravelReady",
+        "coreIndependentPresetMonitorReady",
         "standaloneOverlayDisplayWindowReady",
         "anchoredOverlayUninteractableReady",
         "overlayPositionPreservedReady",
@@ -655,11 +667,11 @@ def validate() -> list[str]:
         "interactionManifestStatus",
         "MONITORING_HUD_LIVE_CLIENT_SELF_QA_INTERACTION_READY",
         "MONITORING_HUD_LIVE_CLIENT_SELF_QA_READY",
-        "CORE_VISUALIZATION_WINDOW_READY|surface=separate_core",
+        "CORE_VISUALIZATION_WINDOW_READY|surface=separate_persona_core",
+        "CORE_VISUALIZATION_DESKTOP_LAYER_READY|surface=separate_persona_core",
         "CORE_VISUALIZATION_WINDOW_GEOMETRY_READY",
-        "CORE_VISUALIZATION_WINDOW_VISIBLE|surface=separate_core",
-        "CORE_VISUALIZATION_WINDOW_TRANSPARENCY_READY|surface=separate_core",
-        "CORE_VISUALIZATION_WINDOW_NON_INTERFERENCE_READY|surface=separate_core",
+        "CORE_VISUALIZATION_WINDOW_VISIBLE|surface=separate_persona_core",
+        "CORE_VISUALIZATION_INDEPENDENT_PRESET_MONITOR_READY",
         "MONITORING_HUD_WINDOW_STATUS_READY",
         "interaction self-QA manifest PASS",
         "MONITORING_HUD_BASELINE_READY",
@@ -684,7 +696,11 @@ def validate() -> list[str]:
         "DESKTOP_VISIBLE_OVERLAY_RESULT|success=true",
         "DESKTOP_OUTCOME|SETTLED|state=dormant",
         "settling visible overlay before full-desktop screenshot",
-        "monitoring_hud_desktop.png",
+        "beforeLaunchScreenshot",
+        "afterLaunchScreenshot",
+        "monitoring_hud_desktop_before_launch.png",
+        "monitoring_hud_desktop_after_launch.png",
+        "beforeAfterDesktopComparisonReady",
         "manifest.json",
         "Stop-Process -Id $script:RuntimeProcess.Id -Force",
         "No-progress watchdog exceeded",

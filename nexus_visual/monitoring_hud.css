@@ -123,13 +123,11 @@ body.desktop-mode #monitoring-hud[data-anchor-state="unanchored"] {
   cursor: default;
 }
 
-body.desktop-mode #monitoring-hud[data-anchor-state="unanchored"] .monitoring-hud__header,
-body.desktop-mode #monitoring-hud[data-anchor-state="unanchored"] .monitoring-hud-card__drag-handle {
+body.desktop-mode #monitoring-hud[data-anchor-state="unanchored"] .monitoring-hud__header {
   cursor: grab;
 }
 
-body.desktop-mode #monitoring-hud[data-anchor-state="unanchored"] .monitoring-hud__header:active,
-body.desktop-mode #monitoring-hud[data-anchor-state="unanchored"] .monitoring-hud-card__drag-handle:active {
+body.desktop-mode #monitoring-hud[data-anchor-state="unanchored"] .monitoring-hud__header:active {
   cursor: grabbing;
 }
 
@@ -345,7 +343,9 @@ body.desktop-mode #monitoring-hud > * {
 .monitoring-hud__card-board {
   position: relative;
   margin-top: 16px;
-  min-height: 600px;
+  min-height: 0;
+  display: grid;
+  gap: 12px;
   border-radius: 24px;
   border: 1px solid rgba(118, 226, 255, 0.12);
   background:
@@ -356,156 +356,53 @@ body.desktop-mode #monitoring-hud > * {
   overflow: hidden;
 }
 
-.monitoring-hud-card {
-  position: absolute;
-  left: var(--card-x, 0px);
-  top: var(--card-y, 0px);
-  width: var(--card-w, 600px);
-  height: var(--card-h, 280px);
-  min-height: 260px;
-  padding: 16px;
-  border-radius: 22px;
-  border: 1px solid rgba(118, 226, 255, 0.18);
-  background:
-    linear-gradient(155deg, rgba(7, 28, 46, 0.75), rgba(2, 9, 19, 0.62)),
-    radial-gradient(circle at 90% 8%, rgba(95, 236, 255, 0.15), transparent 38%);
-  box-shadow: 0 0 0 1px rgba(230, 251, 255, 0.04) inset;
-  overflow: hidden;
-  box-sizing: border-box;
-  pointer-events: auto;
-}
-
-.monitoring-hud-card--setup {
-  border-color: rgba(255, 214, 113, 0.26);
-}
-
-.monitoring-hud-card--unavailable {
-  border-color: rgba(124, 178, 210, 0.26);
-}
-
-.monitoring-hud-card--warning {
-  border-color: rgba(255, 151, 113, 0.3);
-}
-
-.monitoring-hud-card__drag-handle {
+.monitoring-hud__monitor-selector {
+  margin-top: 16px;
   display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 12px;
-  user-select: none;
-}
-
-.monitoring-hud-card__actions {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 8px;
-}
-
-.monitoring-hud-card__label {
-  font-size: 13px;
-  font-weight: 720;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: rgba(139, 233, 255, 0.82);
-}
-
-.monitoring-hud-card__value {
-  margin-top: 10px;
-  color: rgba(247, 252, 255, 0.96);
-  font-size: 20px;
-  font-weight: 760;
-}
-
-.monitoring-hud-card__badge {
-  display: inline-flex;
-  padding: 7px 10px;
-  border-radius: 999px;
-  background: rgba(255, 214, 113, 0.11);
-  color: rgba(255, 227, 159, 0.94);
-  font-size: 11px;
-  font-weight: 750;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  white-space: nowrap;
-}
-
-.monitoring-hud-card__quick-actions {
-  display: none;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 7px;
+  gap: 12px;
+  padding: 12px;
+  border-radius: 22px;
+  border: 1px solid rgba(118, 226, 255, 0.12);
+  background:
+    linear-gradient(90deg, rgba(117, 228, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(rgba(117, 228, 255, 0.035) 1px, transparent 1px),
+    rgba(2, 10, 20, 0.28);
+  background-size: 20px 20px;
 }
 
-body.desktop-mode #monitoring-hud[data-anchor-state="unanchored"] .monitoring-hud-card__quick-actions {
-  display: flex;
-}
-
-.monitoring-hud-card__quick-actions button {
-  min-height: 28px;
-  border: 1px solid rgba(117, 228, 255, 0.20);
-  border-radius: 999px;
-  background: rgba(8, 30, 48, 0.82);
-  color: rgba(227, 249, 255, 0.92);
-  font-family: "Bahnschrift", "Rajdhani", "Segoe UI", sans-serif;
-  font-size: 10px;
-  font-weight: 760;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-}
-
-.monitoring-hud-card[data-monitor-enabled="false"] {
-  opacity: 0.46;
-  filter: saturate(0.72);
-}
-
-.monitoring-hud-card__sensors {
-  margin-top: 14px;
-  display: grid;
+.monitoring-hud__selector-control {
+  display: inline-flex;
+  align-items: center;
   gap: 10px;
-}
-
-.monitoring-hud-sensor-row {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(120px, auto);
-  gap: 5px 12px;
-  padding: 10px 12px;
-  border-radius: 14px;
-  background: rgba(2, 12, 23, 0.52);
-  color: rgba(173, 213, 226, 0.84);
-}
-
-.monitoring-hud-sensor-row span {
-  min-width: 0;
   font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.09em;
+  font-weight: 740;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: rgba(139, 233, 255, 0.86);
+}
+
+.monitoring-hud__selector-control select {
+  min-height: 36px;
+  min-width: 180px;
+  border: 1px solid rgba(117, 228, 255, 0.22);
+  border-radius: 999px;
+  background: rgba(6, 28, 48, 0.76);
+  color: rgba(232, 250, 255, 0.94);
+  font-family: "Bahnschrift", "Rajdhani", "Segoe UI", sans-serif;
+  font-size: 12px;
+  font-weight: 720;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
 }
 
-.monitoring-hud-sensor-row strong {
-  min-width: 0;
-  color: rgba(240, 252, 255, 0.96);
-  font-size: 15px;
-  letter-spacing: 0.04em;
-  overflow-wrap: anywhere;
-  text-align: right;
-}
-
-.monitoring-hud-sensor-row em {
-  grid-column: 1 / -1;
-  color: rgba(148, 194, 209, 0.8);
-  font-size: 11px;
-  font-style: normal;
-}
-
-.monitoring-hud-card__meta {
-  margin-top: 10px;
+#monitoring-hud-monitor-list-summary {
   color: rgba(173, 213, 226, 0.82);
-  font-size: 13px;
-  line-height: 1.45;
+  font-size: 12px;
+  font-weight: 650;
 }
 
-.monitoring-hud-card__resize-handle,
 .monitoring-hud__resize-corner {
   position: absolute;
   right: 10px;

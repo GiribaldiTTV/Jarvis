@@ -11,12 +11,19 @@ if ROOT_DIR not in sys.path:
     sys.path.insert(0, ROOT_DIR)
 
 from PySide6.QtGui import QAction
-from PySide6.QtCore import QObject, QTimer, Qt, Slot
+from PySide6.QtCore import QObject, QTimer, Qt, Signal, Slot
 from PySide6.QtWidgets import QApplication, QMenu, QMessageBox, QStyle, QSystemTrayIcon
 
-from desktop.desktop_renderer import CoreVisualizationWindow, DesktopRuntimeWindow
+from desktop.core_visualization_renderer import CoreVisualizationWindow
 from desktop.hotkeys import ShutdownBus, GlobalHotkeyManager
 from desktop.single_instance import NamedSignal
+
+try:
+    from desktop.desktop_renderer import DesktopRuntimeWindow
+    DESKTOP_RUNTIME_IMPORT_ERROR = None
+except Exception as exc:
+    DesktopRuntimeWindow = None
+    DESKTOP_RUNTIME_IMPORT_ERROR = exc
 
 RUNTIME_LOG_FILE = ""
 STARTUP_ABORT_SIGNAL_FILE = ""
@@ -49,6 +56,74 @@ class ShutdownConfirmationDispatcher(QObject):
     @Slot(str)
     def request(self, source="hotkey"):
         self._handler(source)
+
+
+class DesktopRuntimeUnavailable(QObject):
+    core_visualization_visible = Signal()
+
+    def __init__(self, event_logger=None, reason="desktop runtime unavailable"):
+        super().__init__()
+        self.event_logger = event_logger or (lambda _event: None)
+        self.reason = str(reason or "desktop runtime unavailable")
+        self._emit("RENDERER_MAIN|DESKTOP_RUNTIME_UNAVAILABLE|reason=" + self.reason.replace("|", "/"))
+
+    def _emit(self, event):
+        try:
+            self.event_logger(event)
+        except Exception:
+            pass
+
+    def show(self):
+        self._emit("RENDERER_MAIN|DESKTOP_RUNTIME_FALLBACK_VISIBLE|core_survived=true")
+        self.core_visualization_visible.emit()
+
+    def request_shutdown(self):
+        self._emit("RENDERER_MAIN|DESKTOP_RUNTIME_FALLBACK_SHUTDOWN")
+
+    def set_visual_state(self, _state_name):
+        return
+
+    def configure_monitoring_hud_live_client_self_qa(self, **_kwargs):
+        self._emit("RENDERER_MAIN|MONITORING_HUD_LIVE_CLIENT_SELF_QA_UNAVAILABLE|reason=desktop_runtime_unavailable")
+
+    def toggle_command_overlay(self):
+        self._emit("RENDERER_MAIN|COMMAND_OVERLAY_UNAVAILABLE|reason=desktop_runtime_unavailable")
+
+    def open_command_overlay(self):
+        self.toggle_command_overlay()
+
+    def request_create_custom_task_from_tray(self, source="tray"):
+        self._emit(f"RENDERER_MAIN|TRAY_CREATE_CUSTOM_TASK_ABORTED|source={source}|reason=desktop_runtime_unavailable")
+
+    def request_monitoring_hud_toggle_from_tray(self, source="tray"):
+        self._emit(f"RENDERER_MAIN|TRAY_MONITORING_HUD_TOGGLE_ABORTED|source={source}|reason=desktop_runtime_unavailable")
+
+    def request_monitoring_hud_unanchor_from_tray(self, source="tray"):
+        self._emit(f"RENDERER_MAIN|TRAY_MONITORING_HUD_UNANCHOR_ABORTED|source={source}|reason=desktop_runtime_unavailable")
+
+    def handle_overlay_text_requested(self, _text):
+        return
+
+    def handle_overlay_backspace_requested(self):
+        return
+
+    def handle_overlay_submit_requested(self):
+        return
+
+    def handle_overlay_escape_requested(self):
+        return
+
+    def handle_overlay_global_click_requested(self, _x, _y):
+        return
+
+    def overlay_needs_global_input_capture(self):
+        return False
+
+    def overlay_allows_launch_grace(self):
+        return False
+
+    def overlay_monitors_global_clicks(self):
+        return False
 
 
 def parse_runtime_log_arg(argv):
@@ -449,13 +524,25 @@ def main():
         visual_html_path,
         event_logger=runtime_milestone,
     )
-    window = DesktopRuntimeWindow(
-        screen,
-        monitoring_hud_html_path,
-        event_logger=runtime_milestone,
-        runtime_log_path=RUNTIME_LOG_FILE,
-        surface_role="hud",
-    )
+    if DesktopRuntimeWindow is None:
+        window = DesktopRuntimeUnavailable(
+            event_logger=runtime_milestone,
+            reason=repr(DESKTOP_RUNTIME_IMPORT_ERROR),
+        )
+    else:
+        try:
+            window = DesktopRuntimeWindow(
+                screen,
+                monitoring_hud_html_path,
+                event_logger=runtime_milestone,
+                runtime_log_path=RUNTIME_LOG_FILE,
+                surface_role="hud",
+            )
+        except Exception as exc:
+            window = DesktopRuntimeUnavailable(
+                event_logger=runtime_milestone,
+                reason=repr(exc),
+            )
     if MONITORING_HUD_LIVE_SELF_QA_MANIFEST:
         window.configure_monitoring_hud_live_client_self_qa(
             manifest_path=MONITORING_HUD_LIVE_SELF_QA_MANIFEST,
