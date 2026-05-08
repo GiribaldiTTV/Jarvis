@@ -231,6 +231,9 @@ FAM006_BRANCH = "feature/fam-006-monitoring-hud-product-surface"
 FAM006_BRANCH_RECORD = Path(
     "Docs/branch_records/feature_fam_006_monitoring_hud_product_surface.md"
 )
+FAM006_ELEMENT_LEDGER = Path(
+    "Docs/branch_records/feature_fam_006_monitoring_hud_product_surface_element_ledger.md"
+)
 FAM006_STAGE2_R6_HEADING = "Stage 2-R6 Product Scope Boundary And Acceptance Criteria"
 FAM006_STAGE2_R7_HEADING = "Stage 2-R7 Planning Revalidation Closeout And WS7 Handoff"
 FAM006_STAGE2_R8_HEADING = "Stage 2-R8 Legacy Product Name Blocker And USER Vision Input Refresh"
@@ -726,11 +729,14 @@ FAM006_ELEMENT_VALIDATION_LEDGER_REQUIRED_PHRASES = (
     "Existing Authority Owner: `Docs/branch_records/feature_fam_006_monitoring_hud_product_surface.md`",
     "Placement Decision: `Extend existing branch authority record first`",
     "No Existing Owner Fits: `Not claimed`",
-    "Companion File Rule:",
+    "Companion File Rule: `Active - completed FAM-006 ledger rows live in Docs/branch_records/feature_fam_006_monitoring_hud_product_surface_element_ledger.md",
+    "Canonical Companion Ledger: `Docs/branch_records/feature_fam_006_monitoring_hud_product_surface_element_ledger.md`",
     "Element Delta Capture Rule:",
     "High-Risk Source Owner Marker Posture:",
     "Future Repo-Wide Marker Adoption Recommendation:",
     "## Element Validation Ledger",
+    "Ledger Backfill Status: `Backfilled",
+    "LV2 Gate: `Blocked",
     "FAM006-DASH-SURFACE-001",
     "FAM006-DASH-WINDOW-002",
     "FAM006-DASH-SCROLL-003",
@@ -743,6 +749,66 @@ FAM006_ELEMENT_VALIDATION_LEDGER_REQUIRED_PHRASES = (
     "FAM006-SRCMARK-FUTURE-010",
     "Source-owner-not-applicable until future marker adoption",
     "returned UTS results pending",
+)
+
+FAM006_ELEMENT_LEDGER_REQUIRED_PHRASES = (
+    "# FAM-006 Element Validation Ledger",
+    "Owner Record: `Docs/branch_records/feature_fam_006_monitoring_hud_product_surface.md`",
+    "Ledger Status: `Backfilled - Branch Readiness Stage 2 source-truth repair`",
+    "Branch Readiness revalidation required before LV2 returned User Test Summary digestion",
+    "LV2 returned User Test Summary digestion should not proceed directly",
+    "## Dashboard-First Elements",
+    "FAM006-DASH-SURFACE-001",
+    "FAM006-DASH-WINDOW-002",
+    "FAM006-DASH-MOVE-003",
+    "FAM006-DASH-CLIP-004",
+    "FAM006-DASH-LAYOUT-005",
+    "FAM006-DASH-VISUAL-006",
+    "FAM006-DASH-SCROLL-007",
+    "FAM006-DASH-CONTENT-008",
+    "FAM006-DASH-MONITOR-GROUP-009",
+    "FAM006-DASH-MONITOR-ENABLE-010",
+    "FAM006-DASH-MONITOR-POLLING-011",
+    "FAM006-DASH-AFFORDANCE-COPY-012",
+    "FAM006-DASH-STATE-PERSIST-013",
+    "FAM006-DASH-NO-KEYBIND-014",
+    "FAM006-DASH-PROVIDER-015",
+    "FAM006-DASH-NOFAKE-016",
+    "FAM006-DASH-WARNING-017",
+    "## Deferred Overlay / Minimal HUD Elements",
+    "FAM006-OVERLAY-DEFER-018",
+    "FAM006-OVERLAY-MINIMAL-019",
+    "FAM006-OVERLAY-DISPLAY-020",
+    "FAM006-OVERLAY-CANVAS-021",
+    "FAM006-OVERLAY-ANCHOR-022",
+    "FAM006-OVERLAY-MONITOR-CARDS-023",
+    "FAM006-OVERLAY-POSITION-024",
+    "## Core Dependency Elements",
+    "FAM006-CORE-DEP-025",
+    "FAM006-CORE-PRESET-026",
+    "FAM006-CORE-NONMOVABLE-027",
+    "FAM006-CORE-WORKERW-028",
+    "FAM006-CORE-TRANSPARENCY-029",
+    "FAM006-CORE-ISOLATION-030",
+    "## Proof, Validation, And Governance Elements",
+    "FAM006-PROOF-STATIC-031",
+    "FAM006-PROOF-SANDBOX-032",
+    "FAM006-PROOF-LIVEHELPER-033",
+    "FAM006-PROOF-SCREENSHOT-034",
+    "FAM006-PROOF-INTERACTION-035",
+    "FAM006-PROOF-UTS-EXPORT-036",
+    "FAM006-PROOF-UTS-DIGEST-037",
+    "FAM006-PROOF-NAMING-038",
+    "FAM006-GOV-SOURCE-TRUTH-039",
+    "FAM006-GOV-SRCMARK-040",
+    "FAM006-FUTURE-PROVIDER-041",
+    "FAM006-FUTURE-EXTERNAL-042",
+    "FAM006-FUTURE-AUDIO-043",
+    "FAM006-FUTURE-PERSONA-044",
+    "## UTS Coverage Map",
+    "Needs LV1 refreshed UTS coverage after ledger backfill",
+    "## Proof Rebaseline Summary",
+    "Marker-only proof remains supporting only",
 )
 
 SOURCE_OWNER_MARKER_ADOPTION_NEXT_BRANCH_REQUIRED_PHRASES = {
@@ -5223,19 +5289,20 @@ def _validate_fam006_stage2_r6_plan(
                     phrase in stage2_r12_section,
                     f"{source_path}: {FAM006_STAGE2_R12_HEADING} is missing '{phrase}'",
                 )
-            for active_blocker in (
-                "Dashboard Acceptance Pending",
-                "Overlay Scope Deferred",
-                "Core Repair Dependency Only",
-                "Branch Readiness Interface Planning Incomplete",
-            ):
-                require(
-                    active_blocker in blockers,
-                    (
-                        f"{source_path}: Stage 2-R12 repair must keep "
-                        f"'{active_blocker}' active until Stage 1-R10 revalidation"
-                    ),
-                )
+            if not stage2_r13_section:
+                for active_blocker in (
+                    "Dashboard Acceptance Pending",
+                    "Overlay Scope Deferred",
+                    "Core Repair Dependency Only",
+                    "Branch Readiness Interface Planning Incomplete",
+                ):
+                    require(
+                        active_blocker in blockers,
+                        (
+                            f"{source_path}: Stage 2-R12 repair must keep "
+                            f"'{active_blocker}' active until Stage 1-R10 revalidation"
+                        ),
+                    )
             require(
                 "Primary Interface Release Surface: `Monitoring HUD Dashboard / control panel`"
                 in text,
@@ -12724,6 +12791,13 @@ def main() -> int:
         require(
             required_phrase in fam006_branch_text,
             f"{FAM006_BRANCH_RECORD}: FAM-006 Element Validation Ledger is missing '{required_phrase}'",
+        )
+
+    fam006_element_ledger_text = _read_text(FAM006_ELEMENT_LEDGER)
+    for required_phrase in FAM006_ELEMENT_LEDGER_REQUIRED_PHRASES:
+        require(
+            required_phrase in fam006_element_ledger_text,
+            f"{FAM006_ELEMENT_LEDGER}: FAM-006 companion Element Validation Ledger is missing '{required_phrase}'",
         )
 
     for relative_path, required_phrases in (
