@@ -44,6 +44,13 @@
     data-dashboard-control-panel="hud-display-monitor-management"
     data-monitor-management="create-edit-enable-polling"
     data-overlay-mode-controls="enable-disable-anchor-unanchor"
+    data-primary-interface-release-surface="monitoring-hud-dashboard-control-panel"
+    data-interface-acceptance-policy="dashboard-only-current-branch"
+    data-dashboard-acceptance-baseline="ws31-dashboard-control-panel"
+    data-dashboard-proof-path="dashboard-specific-static-live-uts"
+    data-overlay-acceptance-policy="deferred-non-gating"
+    data-interface-bundle-approval="not-granted"
+    data-core-repair-classification="dependency-repair-only"
     aria-label="Nexus Desktop AI Monitoring HUD product surface"
     aria-hidden="true"
   >
@@ -71,6 +78,8 @@
         <strong>Configuration/settings window</strong>
         <span>Minimal HUD surface</span>
         <strong>Separate anchored overlay configured here</strong>
+        <span>Release gate</span>
+        <strong>Dashboard acceptance only</strong>
       </div>
       <div class="monitoring-hud__toolbar" aria-label="Monitoring HUD controls">
         <button type="button" id="monitoring-hud-toggle" class="monitoring-hud__control-button" data-control="toggle-visibility">
@@ -217,6 +226,9 @@
     data-quick-actions="hidden-while-anchored"
     data-edge-to-edge-posture="landscape-portrait-monitor-fit"
     data-position-persistence="local-layout-state"
+    data-interface-acceptance-policy="deferred-non-gating"
+    data-dashboard-acceptance-role="supporting-future-interface-evidence"
+    data-current-branch-release-gate="false"
     aria-label="Nexus Desktop AI edgeless Monitoring HUD overlay display"
     aria-hidden="true"
   >
@@ -280,6 +292,9 @@
     data-warning-mode="visual-non-invasive"
     data-live-values="provider-required"
     data-keybind-policy="none"
+    data-interface-acceptance-policy="deferred-non-gating"
+    data-dashboard-acceptance-role="supporting-future-interface-evidence"
+    data-current-branch-release-gate="false"
     aria-label="Nexus Desktop AI minimal anchored Monitoring HUD overlay"
     aria-hidden="true"
   >

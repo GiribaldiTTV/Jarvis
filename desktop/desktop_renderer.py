@@ -8423,18 +8423,31 @@ class DesktopRuntimeWindow(QWidget):
                     monitoringHud.dataset.renderState = "product-visibility-baseline";
                     monitoringHud.dataset.productSurfaceState = "visible-user-facing";
                     monitoringHud.dataset.productSurfaceRole = "dashboard-configuration-surface";
+                    monitoringHud.dataset.primaryInterfaceReleaseSurface = "monitoring-hud-dashboard-control-panel";
+                    monitoringHud.dataset.interfaceAcceptancePolicy = "dashboard-only-current-branch";
+                    monitoringHud.dataset.dashboardAcceptanceBaseline = "ws31-dashboard-control-panel";
+                    monitoringHud.dataset.dashboardProofPath = "dashboard-specific-static-live-uts";
+                    monitoringHud.dataset.overlayAcceptancePolicy = "deferred-non-gating";
+                    monitoringHud.dataset.interfaceBundleApproval = "not-granted";
+                    monitoringHud.dataset.coreRepairClassification = "dependency-repair-only";
                 }}
                 if (minimalHud) {{
                     minimalHud.setAttribute("aria-hidden", "false");
                     minimalHud.dataset.renderState = "minimal-overlay-ready";
                     minimalHud.dataset.productSurfaceState = "visible-minimal-anchored-hud";
                     minimalHud.dataset.productSurfaceRole = "minimal-anchored-hud-overlay";
+                    minimalHud.dataset.interfaceAcceptancePolicy = "deferred-non-gating";
+                    minimalHud.dataset.dashboardAcceptanceRole = "supporting-future-interface-evidence";
+                    minimalHud.dataset.currentBranchReleaseGate = "false";
                 }}
                 if (overlayDisplay) {{
                     overlayDisplay.setAttribute("aria-hidden", "false");
                     overlayDisplay.dataset.renderState = "edgeless-overlay-display-ready";
                     overlayDisplay.dataset.productSurfaceState = "visible-edgeless-overlay-display";
                     overlayDisplay.dataset.productSurfaceRole = "edgeless-overlay-display";
+                    overlayDisplay.dataset.interfaceAcceptancePolicy = "deferred-non-gating";
+                    overlayDisplay.dataset.dashboardAcceptanceRole = "supporting-future-interface-evidence";
+                    overlayDisplay.dataset.currentBranchReleaseGate = "false";
                 }}
             }}
             """
@@ -8459,6 +8472,24 @@ class DesktopRuntimeWindow(QWidget):
             seam="WS19",
             surface="dashboard_configuration_surface",
             configures="minimal_hud_overlay",
+        )
+        self._emit_runtime_signal(
+            "MONITORING_HUD_DASHBOARD_ACCEPTANCE_BASELINE_READY",
+            package="PKG-006",
+            slice="SLC-016",
+            seam="WS31",
+            primary_interface="monitoring_hud_dashboard_control_panel",
+            acceptance_policy="dashboard_only_current_branch",
+            proof_path="dashboard_specific_static_live_uts",
+        )
+        self._emit_runtime_signal(
+            "MONITORING_HUD_OVERLAY_DEFERRAL_ENFORCED_READY",
+            package="PKG-006",
+            slice="SLC-029",
+            seam="WS31",
+            overlay_acceptance="deferred_non_gating",
+            interface_bundle_user_approval="not_granted",
+            current_branch_release_gate="dashboard_only",
         )
         self._emit_runtime_signal(
             "MONITORING_HUD_MINIMAL_OVERLAY_READY",

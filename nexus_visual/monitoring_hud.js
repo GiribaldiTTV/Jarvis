@@ -182,6 +182,13 @@ function monitoringHudRenderMonitorManagement() {
     monitoringHud.dataset.dashboardControlPanel = "hud-display-monitor-management";
     monitoringHud.dataset.monitorManagement = "create-edit-enable-polling";
     monitoringHud.dataset.overlayModeControls = "enable-disable-anchor-unanchor";
+    monitoringHud.dataset.primaryInterfaceReleaseSurface = "monitoring-hud-dashboard-control-panel";
+    monitoringHud.dataset.interfaceAcceptancePolicy = "dashboard-only-current-branch";
+    monitoringHud.dataset.dashboardAcceptanceBaseline = "ws31-dashboard-control-panel";
+    monitoringHud.dataset.dashboardProofPath = "dashboard-specific-static-live-uts";
+    monitoringHud.dataset.overlayAcceptancePolicy = "deferred-non-gating";
+    monitoringHud.dataset.interfaceBundleApproval = "not-granted";
+    monitoringHud.dataset.coreRepairClassification = "dependency-repair-only";
     monitoringHud.dataset.monitorCount = String(Object.keys(monitoringHudControlState.cards || {}).length);
     monitoringHud.dataset.selectedMonitor = selected.id || "";
   }
@@ -249,6 +256,9 @@ function monitoringHudRenderOverlayDisplay() {
   monitoringHudOverlayDisplay.dataset.overlayCanvas = "edge-to-edge-snipping-tool-style";
   monitoringHudOverlayDisplay.dataset.monitorLayout = "movable-resizable-monitor-cards";
   monitoringHudOverlayDisplay.dataset.edgeToEdgePosture = "landscape-portrait-monitor-fit";
+  monitoringHudOverlayDisplay.dataset.interfaceAcceptancePolicy = "deferred-non-gating";
+  monitoringHudOverlayDisplay.dataset.dashboardAcceptanceRole = "supporting-future-interface-evidence";
+  monitoringHudOverlayDisplay.dataset.currentBranchReleaseGate = "false";
   monitoringHudOverlayDisplay.dataset.monitorCount = String(Object.keys(cards).length);
   Object.keys(cards).forEach((cardId) => {
     const layout = Object.assign(monitoringHudCardDefaults(cardId), cards[cardId] || {});
@@ -292,6 +302,13 @@ function monitoringHudUpdateSurfaceSplit() {
     monitoringHud.dataset.standaloneWindowContract = "dashboard-overlay-core-independent-native-surfaces";
     monitoringHud.dataset.dragSmoothing = "raf-local-persist-on-release";
     monitoringHud.dataset.scrollbarStyle = "nexus-thin-glow";
+    monitoringHud.dataset.primaryInterfaceReleaseSurface = "monitoring-hud-dashboard-control-panel";
+    monitoringHud.dataset.interfaceAcceptancePolicy = "dashboard-only-current-branch";
+    monitoringHud.dataset.dashboardAcceptanceBaseline = "ws31-dashboard-control-panel";
+    monitoringHud.dataset.dashboardProofPath = "dashboard-specific-static-live-uts";
+    monitoringHud.dataset.overlayAcceptancePolicy = "deferred-non-gating";
+    monitoringHud.dataset.interfaceBundleApproval = "not-granted";
+    monitoringHud.dataset.coreRepairClassification = "dependency-repair-only";
   }
   if (!monitoringHudMinimal) return;
   monitoringHudMinimal.dataset.visibilityState = monitoringHudControlState.visible ? "visible" : "hidden";
@@ -313,6 +330,9 @@ function monitoringHudUpdateSurfaceSplit() {
   monitoringHudMinimal.dataset.focusProof = monitoringHudControlState.anchored
     ? "native-no-focus-noactivate"
     : "edit-mode-preview";
+  monitoringHudMinimal.dataset.interfaceAcceptancePolicy = "deferred-non-gating";
+  monitoringHudMinimal.dataset.dashboardAcceptanceRole = "supporting-future-interface-evidence";
+  monitoringHudMinimal.dataset.currentBranchReleaseGate = "false";
   if (monitoringHudMinimalRuntimeStatus) {
     monitoringHudMinimalRuntimeStatus.textContent = monitoringHudControlState.visible ? "Minimal HUD enabled" : "Minimal HUD hidden";
   }
@@ -705,9 +725,42 @@ window.getMonitoringHudSurfaceSplitState = function() {
       && overlayRect.width >= Math.max(640, window.innerWidth - 24)
       && overlayRect.height >= Math.max(360, window.innerHeight - 24)
     ),
+    primaryInterfaceReleaseSurface: monitoringHud ? monitoringHud.dataset.primaryInterfaceReleaseSurface || "" : "",
+    dashboardAcceptanceBaseline: monitoringHud ? monitoringHud.dataset.dashboardAcceptanceBaseline || "" : "",
+    dashboardProofPath: monitoringHud ? monitoringHud.dataset.dashboardProofPath || "" : "",
+    interfaceAcceptancePolicy: monitoringHud ? monitoringHud.dataset.interfaceAcceptancePolicy || "" : "",
+    overlayAcceptancePolicy: monitoringHud ? monitoringHud.dataset.overlayAcceptancePolicy || "" : "",
+    interfaceBundleApproval: monitoringHud ? monitoringHud.dataset.interfaceBundleApproval || "" : "",
+    coreRepairClassification: monitoringHud ? monitoringHud.dataset.coreRepairClassification || "" : "",
+    minimalHudAcceptancePolicy: monitoringHudMinimal ? monitoringHudMinimal.dataset.interfaceAcceptancePolicy || "" : "",
+    overlayDisplayAcceptancePolicy: monitoringHudOverlayDisplay ? monitoringHudOverlayDisplay.dataset.interfaceAcceptancePolicy || "" : "",
     sharedRendererOwner: monitoringHudMinimal ? monitoringHudMinimal.dataset.rendererOwner || "" : "",
     nativeOverlayOwner: monitoringHudMinimal ? monitoringHudMinimal.dataset.nativeOverlayOwner || "" : "",
     nativeWindowSplitProof: monitoringHudMinimal ? monitoringHudMinimal.dataset.nativeWindowSplitProof || "" : ""
+  };
+};
+
+window.getMonitoringHudDashboardAcceptanceState = function() {
+  const split = window.getMonitoringHudSurfaceSplitState ? window.getMonitoringHudSurfaceSplitState() : {};
+  return {
+    primaryInterfaceReleaseSurface: split.primaryInterfaceReleaseSurface || "",
+    dashboardAcceptanceBaseline: split.dashboardAcceptanceBaseline || "",
+    dashboardProofPath: split.dashboardProofPath || "",
+    interfaceAcceptancePolicy: split.interfaceAcceptancePolicy || "",
+    overlayAcceptancePolicy: split.overlayAcceptancePolicy || "",
+    interfaceBundleApproval: split.interfaceBundleApproval || "",
+    coreRepairClassification: split.coreRepairClassification || "",
+    overlayAcceptanceNonGating: Boolean(
+      split.overlayAcceptancePolicy === "deferred-non-gating"
+      && split.minimalHudAcceptancePolicy === "deferred-non-gating"
+      && split.overlayDisplayAcceptancePolicy === "deferred-non-gating"
+    ),
+    dashboardAcceptanceBaselineReady: Boolean(
+      split.primaryInterfaceReleaseSurface === "monitoring-hud-dashboard-control-panel"
+      && split.dashboardAcceptanceBaseline === "ws31-dashboard-control-panel"
+      && split.interfaceAcceptancePolicy === "dashboard-only-current-branch"
+      && split.interfaceBundleApproval === "not-granted"
+    )
   };
 };
 
@@ -739,6 +792,22 @@ window.getMonitoringHudIsolationState = function() {
       && split.dashboardConfigures === "monitoring-hud-minimal"
       && split.minimalConfiguredBy === "monitoring-hud"
     ),
+    dashboardAcceptanceBaselineReady: Boolean(
+      split.primaryInterfaceReleaseSurface === "monitoring-hud-dashboard-control-panel"
+      && split.dashboardAcceptanceBaseline === "ws31-dashboard-control-panel"
+      && split.interfaceAcceptancePolicy === "dashboard-only-current-branch"
+      && split.overlayAcceptancePolicy === "deferred-non-gating"
+      && split.interfaceBundleApproval === "not-granted"
+    ),
+    overlayAcceptanceNonGating: Boolean(
+      split.overlayAcceptancePolicy === "deferred-non-gating"
+      && split.minimalHudAcceptancePolicy === "deferred-non-gating"
+      && split.overlayDisplayAcceptancePolicy === "deferred-non-gating"
+    ),
+    primaryInterfaceReleaseSurface: split.primaryInterfaceReleaseSurface || "",
+    interfaceAcceptancePolicy: split.interfaceAcceptancePolicy || "",
+    overlayAcceptancePolicy: split.overlayAcceptancePolicy || "",
+    interfaceBundleApproval: split.interfaceBundleApproval || "",
     dashboardSurfaceRole: split.dashboardSurfaceRole || "",
     minimalHudSurfaceRole: split.minimalHudSurfaceRole || "",
     hudOutsideCoreScene: Boolean(monitoringHud && !document.getElementById("scene")),

@@ -245,6 +245,12 @@ FAM006_STAGE2_R12_HEADING = (
 FAM006_STAGE2_R13_HEADING = (
     "Branch Readiness Stage 2-R13 Dashboard-First Revalidation Closeout And Workstream Handoff"
 )
+FAM006_WS31_HEADING = (
+    "Workstream WS31 Dashboard Control Panel Acceptance Baseline And Overlay Deferral Enforcement"
+)
+FAM006_WS31_NEXT_SEAM = (
+    "Workstream WS32 - Dashboard Standalone Window Movement Clipping And Core Overlay Decoupling Proof"
+)
 FAM006_STAGE2_R6_REQUIRED_MARKERS = (
     "Current-Branch Scope Final:",
     "Future-Package Scope Final:",
@@ -396,6 +402,24 @@ FAM006_STAGE2_R13_REQUIRED_PHRASES = (
     "Dependency repair only",
     "Bounded Workstream Sequence:",
     "WS31 Dashboard-only acceptance baseline",
+)
+FAM006_WS31_REQUIRED_PHRASES = (
+    "WS31 Result:",
+    "Green - Dashboard-first acceptance baseline recorded",
+    "Dashboard-First Acceptance Baseline:",
+    "Dashboard/control panel is the only current-branch interface release gate",
+    "Overlay Deferral Enforcement:",
+    "deferred / dormant / non-gating",
+    "Validator / Proof Path:",
+    "Dashboard-specific proof may pass without Overlay/display acceptance",
+    "Package Status:",
+    "PKG-006 remains In Progress",
+    "Package Completion:",
+    "Unclaimed",
+    "LV1 / PR Status:",
+    "LV1 remains historical red",
+    "Next Active Seam:",
+    FAM006_WS31_NEXT_SEAM,
 )
 FAM006_WORKSTREAM_CONTINUATION_REQUIRED_PHRASES = (
     "multi-slice HUD implementation continuation",
@@ -4816,6 +4840,7 @@ def _validate_fam006_stage2_r6_plan(
     stage2_r11_section = _section(text, FAM006_STAGE2_R11_HEADING)
     stage2_r12_section = _section(text, FAM006_STAGE2_R12_HEADING)
     stage2_r13_section = _section(text, FAM006_STAGE2_R13_HEADING)
+    ws31_section = _section(text, FAM006_WS31_HEADING)
     has_stage2_r8_blocker = LEGACY_PRODUCT_NAME_DRIFT_BLOCKER in blockers
 
     if current_phase == "Branch Readiness":
@@ -5029,6 +5054,36 @@ def _validate_fam006_stage2_r6_plan(
                     f"'{required_phrase}'"
                 ),
             )
+        if ws31_section:
+            for phrase in FAM006_WS31_REQUIRED_PHRASES:
+                require(
+                    phrase in ws31_section,
+                    f"{source_path}: {FAM006_WS31_HEADING} is missing '{phrase}'",
+                )
+            require(
+                f"Active seam: `{FAM006_WS31_NEXT_SEAM}`" in text,
+                f"{source_path}: WS31 completion must advance active seam to WS32",
+            )
+            require(
+                f"Next Active Seam: {FAM006_WS31_NEXT_SEAM}" in text,
+                f"{source_path}: WS31 completion must set Seam Continuation Decision next active seam to WS32",
+            )
+            require(
+                "Remaining Implementable Work: `Dashboard-focused Workstream repair continues with WS32"
+                in text,
+                (
+                    f"{source_path}: WS31 completion must preserve visible same-branch "
+                    "Dashboard repair work beyond the current seam"
+                ),
+            )
+            require(
+                "Dashboard Acceptance Pending remains active"
+                in ws31_section,
+                (
+                    f"{source_path}: WS31 must not claim Dashboard acceptance or package completion"
+                ),
+            )
+            return
         if stage2_r13_section:
             for phrase in FAM006_STAGE2_R13_REQUIRED_PHRASES:
                 require(
