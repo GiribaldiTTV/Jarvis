@@ -29,8 +29,8 @@ const monitoringHudAnchorStatus = document.getElementById("monitoring-hud-anchor
 const monitoringHudDragHandle = document.getElementById("monitoring-hud-drag-handle");
 const monitoringHudToggle = document.getElementById("monitoring-hud-toggle");
 const monitoringHudAnchorToggle = document.getElementById("monitoring-hud-anchor-toggle");
-const monitoringHudCreateMonitor = document.getElementById("monitoring-hud-create-monitor");
-const monitoringHudEditMonitor = document.getElementById("monitoring-hud-edit-monitor");
+const monitoringHudCreateMonitor = document.getElementById("monitoring-hud-create-monitor-action");
+const monitoringHudEditMonitor = document.getElementById("monitoring-hud-edit-monitor-action");
 const monitoringHudSnapToggle = document.getElementById("monitoring-hud-snap-toggle");
 const monitoringHudWarningToggle = document.getElementById("monitoring-hud-warning-toggle");
 const monitoringHudSnapLabel = document.getElementById("monitoring-hud-snap-label");
@@ -56,20 +56,20 @@ let monitoringHudPlacement = {
   packageId: "PKG-006",
   sliceId: "SLC-026",
   placementId: "standalone-native-hud-window",
-  rendererOwner: "Future HUD display is deferred. The Dashboard can store settings now without asking for Overlay acceptance.",
+  rendererOwner: "HUD Overlay release acceptance is deferred. The Dashboard can describe the future overlay boundary without enabling it.",
   anchor: "Deferred / non-gating",
-  pointerModel: "Dashboard controls future HUD display",
-  resizePosture: "Prepared for future HUD display branch"
+  pointerModel: "Dashboard configures future HUD Overlay behavior",
+  resizePosture: "Overlay settings are future branch scope"
 };
 let monitoringHudControls = {
   packageId: "PKG-006",
   sliceId: "SLC-027",
   controlsId: "hud-controls-visibility",
   visibilityState: "HUD feature disabled from dashboard/tray",
-  controlSurface: "Tray controls HUD feature state; Dashboard open/close is separate; HUD display remains deferred",
+  controlSurface: "Tray controls HUD feature state; Dashboard open/close is separate; HUD Overlay remains deferred",
   persistence: "Store group/layout posture locally",
   operatorAction: "No default keybinds",
-  trayPath: "Task tray enables/disables HUD feature and opens/closes Dashboard; Overlay controls deferred"
+  trayPath: "Task tray enables/disables HUD feature and opens/closes Dashboard; HUD Overlay controls deferred"
 };
 let monitoringHudStatus = {
   packageId: "PKG-006",
@@ -204,9 +204,9 @@ function monitoringHudEnsureCardNodes() {
 function monitoringHudRenderMonitorManagement() {
   const selected = monitoringHudSelectedMonitor();
   if (monitoringHud) {
-    monitoringHud.dataset.dashboardControlPanel = "hud-display-monitor-management";
+    monitoringHud.dataset.dashboardControlPanel = "hud-overlay-monitor-management";
     monitoringHud.dataset.monitorManagement = "create-edit-enable-polling";
-    monitoringHud.dataset.overlayModeControls = "enable-disable-anchor-unanchor";
+    monitoringHud.dataset.overlayModeControls = "overlay-deferred-tray-owned";
     monitoringHud.dataset.primaryInterfaceReleaseSurface = "monitoring-hud-dashboard-control-panel";
     monitoringHud.dataset.interfaceAcceptancePolicy = "dashboard-only-current-branch";
     monitoringHud.dataset.dashboardAcceptanceBaseline = "ws31-dashboard-control-panel";
@@ -214,12 +214,17 @@ function monitoringHudRenderMonitorManagement() {
     monitoringHud.dataset.dashboardStandaloneProof = "ws32-dashboard-window-travel";
     monitoringHud.dataset.dashboardClippingProof = "within-virtual-desktop";
     monitoringHud.dataset.dashboardDecouplingProof = "core-overlay-independent";
-    monitoringHud.dataset.dashboardContentPolish = "ws40-control-hub-ia";
+    monitoringHud.dataset.dashboardContentPolish = "ws45-clean-control-hub-ia";
     monitoringHud.dataset.dashboardHomeModel = "control-hub-cards-no-inline-editor";
     monitoringHud.dataset.dashboardPollingPlacement = "monitor-group-editor-only";
     monitoringHud.dataset.dashboardProofContentPolicy = "validator-artifacts-not-home-surface";
     monitoringHud.dataset.dashboardChildWindowScope = "ws41-if-admitted";
-    monitoringHud.dataset.dashboardSettingsModel = "hud-capability-monitor-groups-provider-warning";
+    monitoringHud.dataset.dashboardSettingsModel = "hud-overlay-monitor-groups-provider-warning";
+    monitoringHud.dataset.dashboardIaModel = "ws45-hub-actions-current-scope";
+    monitoringHud.dataset.dashboardQuickAccess = "warning-notifications-only";
+    monitoringHud.dataset.dashboardGlobalFeatureControl = "tray-owned";
+    monitoringHud.dataset.dashboardDeferredActionPolicy = "disabled-labeled-not-clickable";
+    monitoringHud.dataset.dashboardCardOrder = "hud-overlay-monitor-groups-data-sources-readiness";
     monitoringHud.dataset.monitorGroupModel = "organizational-groups-settings-only";
     monitoringHud.dataset.dashboardMonitorCardPolicy = "overlay-display-owns-monitor-cards";
     monitoringHud.dataset.overlayAcceptancePolicy = "deferred-non-gating";
@@ -255,7 +260,7 @@ function monitoringHudRenderMonitorManagement() {
     monitoringHudMonitorPollingRate.value = String(Math.max(1000, Number(selected.layout.pollingRateMs) || 1000));
   }
   if (monitoringHudMonitorEditorScope) {
-    monitoringHudMonitorEditorScope.textContent = "Monitor Groups organize what the future HUD displays; the Dashboard does not render display cards or fake values.";
+    monitoringHudMonitorEditorScope.textContent = "Monitor Groups organize what the future HUD Overlay shows; the Dashboard does not render display cards or fake values.";
   }
 }
 
@@ -354,8 +359,13 @@ function monitoringHudUpdateSurfaceSplit() {
     monitoringHud.dataset.overlayAcceptancePolicy = "deferred-non-gating";
     monitoringHud.dataset.interfaceBundleApproval = "not-granted";
     monitoringHud.dataset.coreRepairClassification = "dependency-repair-only";
-    monitoringHud.dataset.dashboardContentPolish = "ws33-settings-control-clarity";
-    monitoringHud.dataset.dashboardSettingsModel = "hud-capability-monitor-groups-provider-warning";
+    monitoringHud.dataset.dashboardContentPolish = "ws45-clean-control-hub-ia";
+    monitoringHud.dataset.dashboardSettingsModel = "hud-overlay-monitor-groups-provider-warning";
+    monitoringHud.dataset.dashboardIaModel = "ws45-hub-actions-current-scope";
+    monitoringHud.dataset.dashboardQuickAccess = "warning-notifications-only";
+    monitoringHud.dataset.dashboardGlobalFeatureControl = "tray-owned";
+    monitoringHud.dataset.dashboardDeferredActionPolicy = "disabled-labeled-not-clickable";
+    monitoringHud.dataset.dashboardCardOrder = "hud-overlay-monitor-groups-data-sources-readiness";
     monitoringHud.dataset.monitorGroupModel = "organizational-groups-settings-only";
     monitoringHud.dataset.dashboardMonitorCardPolicy = "overlay-display-owns-monitor-cards";
   }
@@ -432,23 +442,23 @@ function monitoringHudRenderControls() {
   monitoringHud.dataset.dashboardWarningControls = "visual-non-invasive-only";
   monitoringHud.dataset.dashboardFakeTelemetryPolicy = "blocked";
   if (monitoringHudRuntimeStatus) {
-    monitoringHudRuntimeStatus.textContent = featureEnabled ? "HUD feature enabled" : "HUD feature disabled";
+    monitoringHudRuntimeStatus.textContent = dashboardVisible ? "HUD Dashboard open" : "HUD Dashboard closed";
   }
   if (monitoringHudAnchorStatus) {
-    monitoringHudAnchorStatus.textContent = overlayDeferred ? "HUD display deferred" : (monitoringHudControlState.anchored ? "HUD display anchored" : "HUD display unanchored");
+    monitoringHudAnchorStatus.textContent = overlayDeferred ? "HUD Overlay deferred" : (monitoringHudControlState.anchored ? "HUD Overlay anchored" : "HUD Overlay unanchored");
   }
   if (monitoringHudToggle) {
-    monitoringHudToggle.textContent = featureEnabled ? "Disable HUD feature" : "Enable HUD feature";
+    monitoringHudToggle.textContent = featureEnabled ? "Disable HUD Overlay" : "Enable HUD Overlay";
   }
   if (monitoringHudAnchorToggle) {
-    monitoringHudAnchorToggle.textContent = overlayDeferred ? "HUD display deferred" : (monitoringHudControlState.anchored ? "Unanchor HUD display" : "Anchor HUD display");
+    monitoringHudAnchorToggle.textContent = overlayDeferred ? "HUD Overlay deferred" : (monitoringHudControlState.anchored ? "Unanchor HUD Overlay" : "Anchor HUD Overlay");
     monitoringHudAnchorToggle.disabled = overlayDeferred;
   }
   if (monitoringHudEditMonitor) {
     monitoringHudEditMonitor.textContent = "Edit Monitor Group";
   }
   if (monitoringHudSnapToggle) {
-    monitoringHudSnapToggle.textContent = "HUD display settings";
+    monitoringHudSnapToggle.textContent = "HUD Overlay settings";
     monitoringHudSnapToggle.disabled = overlayDeferred;
   }
   if (monitoringHudWarningToggle) {
@@ -457,7 +467,7 @@ function monitoringHudRenderControls() {
       : "Warning Notifications On";
   }
   if (monitoringHudSnapLabel) {
-    monitoringHudSnapLabel.textContent = "HUD display deferred";
+    monitoringHudSnapLabel.textContent = "HUD Overlay deferred";
   }
   if (monitoringHudPollingRate) {
     monitoringHudPollingRate.value = String(monitoringHudControlState.pollingRateMs);
@@ -471,7 +481,7 @@ function monitoringHudRenderControls() {
       : "Visual notifications enabled";
   }
   if (monitoringHudPlacementPointer) {
-    monitoringHudPlacementPointer.textContent = "Dashboard controls future HUD display";
+    monitoringHudPlacementPointer.textContent = "Dashboard configures future HUD Overlay behavior";
   }
   monitoringHudUpdateSurfaceSplit();
   monitoringHudRenderMonitorManagement();
@@ -793,10 +803,10 @@ window.getMonitoringHudLiveClientGeometry = function() {
     overlayDisplay: rectFor("#monitoring-hud-overlay-display"),
     overlayCanvas: rectFor("#monitoring-hud-overlay-canvas"),
     coreWrap: null,
-    anchorToggle: rectFor("#monitoring-hud-anchor-toggle"),
-    createMonitor: rectFor("#monitoring-hud-create-monitor"),
-    editMonitor: rectFor("#monitoring-hud-edit-monitor"),
-    visibilityToggle: rectFor("#monitoring-hud-toggle"),
+    anchorToggle: null,
+    createMonitor: rectFor("#monitoring-hud-create-monitor-action"),
+    editMonitor: rectFor("#monitoring-hud-edit-monitor-action"),
+    visibilityToggle: null,
     snapToggle: rectFor("#monitoring-hud-snap-toggle"),
     warningToggle: rectFor("#monitoring-hud-warning-toggle"),
     pollingRate: rectFor("#monitoring-hud-polling-rate"),
@@ -805,7 +815,7 @@ window.getMonitoringHudLiveClientGeometry = function() {
     monitorList: rectFor("#monitoring-hud-monitor-list"),
     monitorSelector: rectFor("#monitoring-hud-monitor-selector"),
     dataSourcesAction: rectFor('[data-control="open-data-sources"]'),
-    hudDisplaySettingsAction: rectFor('[data-control="hud-display-settings"]'),
+    hudOverlayDeferredAction: rectFor('[data-dashboard-hub-card="hud-overlay"]'),
     monitorEnabled: rectFor("#monitoring-hud-monitor-enabled"),
     monitorPollingRate: rectFor("#monitoring-hud-monitor-polling-rate"),
     monitorListSummary: rectFor("#monitoring-hud-monitor-list-summary")
@@ -894,8 +904,8 @@ window.getMonitoringHudDashboardAcceptanceState = function() {
       && split.dashboardDecouplingProof === "core-overlay-independent"
     ),
     dashboardSettingsContentReady: Boolean(
-      split.dashboardContentPolish === "ws33-settings-control-clarity"
-      && split.dashboardSettingsModel === "hud-capability-monitor-groups-provider-warning"
+      split.dashboardContentPolish === "ws45-clean-control-hub-ia"
+      && split.dashboardSettingsModel === "hud-overlay-monitor-groups-provider-warning"
       && split.monitorGroupModel === "organizational-groups-settings-only"
       && split.dashboardMonitorCardPolicy === "overlay-display-owns-monitor-cards"
     ),
@@ -1042,7 +1052,7 @@ window.setMonitoringHudTelemetry = function(snapshot) {
     monitoringHud.dataset.pollingRateMs = String(monitoringHudTelemetry.pollingRateMs || monitoringHudControlState.pollingRateMs || 1000);
   }
   if (monitoringHudRuntimeStatus) {
-    monitoringHudRuntimeStatus.textContent = monitoringHudControlState.visible ? "HUD capability enabled" : "HUD capability disabled";
+    monitoringHudRuntimeStatus.textContent = monitoringHudControlState.visible ? "HUD Dashboard open" : "HUD Dashboard closed";
   }
   if (monitoringHudProviderState) {
     monitoringHudProviderState.textContent = monitoringHudTelemetry.providerLabel || "Provider setup required";
@@ -1073,16 +1083,16 @@ window.setMonitoringHudPlacementOwnership = function(contract) {
     monitoringHud.dataset.interactionMode = "standalone-dashboard-window";
   }
   if (monitoringHudPlacementOwner) {
-    monitoringHudPlacementOwner.textContent = monitoringHudPlacement.rendererOwner || "Future HUD display is deferred. The Dashboard can store settings now without asking for Overlay acceptance.";
+    monitoringHudPlacementOwner.textContent = monitoringHudPlacement.rendererOwner || "HUD Overlay release acceptance is deferred. The Dashboard can describe the future overlay boundary without enabling it.";
   }
   if (monitoringHudPlacementAnchor) {
     monitoringHudPlacementAnchor.textContent = monitoringHudPlacement.anchor || "Deferred / non-gating";
   }
   if (monitoringHudPlacementPointer) {
-    monitoringHudPlacementPointer.textContent = monitoringHudPlacement.pointerModel || "Dashboard controls future HUD display";
+    monitoringHudPlacementPointer.textContent = monitoringHudPlacement.pointerModel || "Dashboard configures future HUD Overlay behavior";
   }
   if (monitoringHudResizePosture) {
-    monitoringHudResizePosture.textContent = monitoringHudPlacement.resizePosture || "Prepared for future HUD display branch";
+    monitoringHudResizePosture.textContent = monitoringHudPlacement.resizePosture || "Overlay settings are future branch scope";
   }
   monitoringHudUpdateSurfaceSplit();
 };
@@ -1098,13 +1108,13 @@ window.setMonitoringHudControlsVisibility = function(contract) {
       : "feature-disabled-dashboard-closed";
     monitoringHud.dataset.keybindPolicy = "none";
     monitoringHud.dataset.monitorManagement = "create-edit-enable-polling";
-    monitoringHud.dataset.overlayModeControls = "enable-disable-anchor-unanchor";
+    monitoringHud.dataset.overlayModeControls = "overlay-deferred-tray-owned";
   }
   if (monitoringHudControlsVisibility) {
     monitoringHudControlsVisibility.textContent = monitoringHudControls.visibilityState || "HUD feature disabled from dashboard/tray";
   }
   if (monitoringHudControlsSurface) {
-    monitoringHudControlsSurface.textContent = monitoringHudControls.controlSurface || "Tray controls HUD feature state; Dashboard open/close is separate; HUD display remains deferred";
+    monitoringHudControlsSurface.textContent = monitoringHudControls.controlSurface || "Tray controls HUD feature state; Dashboard open/close is separate; HUD Overlay remains deferred";
   }
   if (monitoringHudControlsPersistence) {
     monitoringHudControlsPersistence.textContent = monitoringHudControls.persistence || "Store group/layout posture locally";
@@ -1113,7 +1123,7 @@ window.setMonitoringHudControlsVisibility = function(contract) {
     monitoringHudWarningPosture.textContent = monitoringHudControls.warningControls;
   }
   if (monitoringHudTrayPath) {
-    monitoringHudTrayPath.textContent = monitoringHudControls.trayPath || "Task tray enables/disables HUD feature and opens/closes Dashboard; Overlay controls deferred";
+    monitoringHudTrayPath.textContent = monitoringHudControls.trayPath || "Task tray enables/disables HUD feature and opens/closes Dashboard; HUD Overlay controls deferred";
   }
   monitoringHudRenderControls();
   monitoringHudUpdateSurfaceSplit();

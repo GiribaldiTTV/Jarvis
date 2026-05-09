@@ -8081,7 +8081,7 @@ class DesktopRuntimeWindow(QWidget):
                 "panelDragHandle": geometry.get("panelDragHandle") if isinstance(geometry, dict) else None,
                 "warningToggle": geometry.get("warningToggle") if isinstance(geometry, dict) else None,
                 "dataSourcesAction": geometry.get("dataSourcesAction") if isinstance(geometry, dict) else None,
-                "hudDisplaySettingsAction": geometry.get("hudDisplaySettingsAction") if isinstance(geometry, dict) else None,
+                "hudOverlayDeferredAction": geometry.get("hudOverlayDeferredAction") if isinstance(geometry, dict) else None,
             }
             checks = {}
             for key, rect in controls.items():
@@ -8128,9 +8128,9 @@ class DesktopRuntimeWindow(QWidget):
                 "minimal_nexus_identity": "nexus" in lower_minimal_text and "monitoring hud" in lower_minimal_text,
                 "dashboard_role": dataset.get("productSurfaceRole") == "dashboard-configuration-surface",
                 "dashboard_monitor_management": dataset.get("monitorManagement") == "create-edit-enable-polling",
-                "dashboard_overlay_mode_controls": dataset.get("overlayModeControls") == "enable-disable-anchor-unanchor",
-                "dashboard_settings_content_polished": dataset.get("dashboardContentPolish") == "ws33-settings-control-clarity",
-                "dashboard_settings_model": dataset.get("dashboardSettingsModel") == "hud-capability-monitor-groups-provider-warning",
+                "dashboard_overlay_mode_controls": dataset.get("overlayModeControls") == "overlay-deferred-tray-owned",
+                "dashboard_settings_content_polished": dataset.get("dashboardContentPolish") == "ws45-clean-control-hub-ia",
+                "dashboard_settings_model": dataset.get("dashboardSettingsModel") == "hud-overlay-monitor-groups-provider-warning",
                 "monitor_group_model": dataset.get("monitorGroupModel") == "organizational-groups-settings-only",
                 "dashboard_card_policy": dataset.get("dashboardMonitorCardPolicy") == "overlay-display-owns-monitor-cards",
                 "dashboard_provider_truth": dataset.get("dashboardProviderTruth") == "provider-contract-first",
@@ -8386,10 +8386,10 @@ class DesktopRuntimeWindow(QWidget):
                 "hud_dashboard_title": "hud dashboard" in text,
                 "monitor_groups_home_card": "monitor groups" in text,
                 "data_sources_home_card": "data sources" in text,
-                "hud_display_home_card": "hud display" in text,
+                "hud_display_home_card": "hud overlay" in text,
                 "warning_notifications_home_card": "warning notifications" in text,
-                "child_window_scope_deferred": "open data sources" in text
-                    and "open hud display settings" in text
+                "child_window_scope_deferred": "data sources window deferred" in text
+                    and "hud overlay" in text
                     and split.get("overlayDisplayPresent") is True,
                 "overlay_deferred_hidden": overlay_proof.get("visible") is False
                     and overlay_proof.get("dashboardCoupled") is False,
@@ -8405,8 +8405,8 @@ class DesktopRuntimeWindow(QWidget):
             selected = cards.get(selected_id) if isinstance(cards.get(selected_id), dict) else {}
             checks = {
                 "dashboard_monitor_management": dataset.get("monitorManagement") == "create-edit-enable-polling",
-                "dashboard_overlay_mode_controls": dataset.get("overlayModeControls") == "enable-disable-anchor-unanchor",
-                "dashboard_settings_content_polish": dataset.get("dashboardContentPolish") == "ws33-settings-control-clarity",
+                "dashboard_overlay_mode_controls": dataset.get("overlayModeControls") == "overlay-deferred-tray-owned",
+                "dashboard_settings_content_polish": dataset.get("dashboardContentPolish") == "ws45-clean-control-hub-ia",
                 "dashboard_monitor_group_model": dataset.get("monitorGroupModel") == "organizational-groups-settings-only",
                 "dashboard_monitor_card_policy": dataset.get("dashboardMonitorCardPolicy") == "overlay-display-owns-monitor-cards",
                 "monitor_count_expanded": len(cards) >= 3,
@@ -9126,8 +9126,8 @@ class DesktopRuntimeWindow(QWidget):
                     monitoringHud.dataset.dashboardStandaloneProof = "ws32-dashboard-window-travel";
                     monitoringHud.dataset.dashboardClippingProof = "within-virtual-desktop";
                     monitoringHud.dataset.dashboardDecouplingProof = "core-overlay-independent";
-                    monitoringHud.dataset.dashboardContentPolish = "ws33-settings-control-clarity";
-                    monitoringHud.dataset.dashboardSettingsModel = "hud-capability-monitor-groups-provider-warning";
+                    monitoringHud.dataset.dashboardContentPolish = "ws45-clean-control-hub-ia";
+                    monitoringHud.dataset.dashboardSettingsModel = "hud-overlay-monitor-groups-provider-warning";
                     monitoringHud.dataset.monitorGroupModel = "organizational-groups-settings-only";
                     monitoringHud.dataset.dashboardMonitorCardPolicy = "overlay-display-owns-monitor-cards";
                     monitoringHud.dataset.dashboardProviderTruth = "provider-contract-first";

@@ -328,6 +328,12 @@ FAM006_WS44_HEADING = (
 FAM006_WS44_NEXT_SEAM = (
     "Workstream WS45 - Dashboard IA Naming Action Cleanup"
 )
+FAM006_WS45_HEADING = (
+    "Workstream WS45 Dashboard IA Naming Action Cleanup"
+)
+FAM006_WS45_NEXT_SEAM = (
+    "Workstream WS46 - Dashboard Returned-Feedback Static Live Proof Readiness"
+)
 FAM006_H1_HEADING = "Hardening H1 Dashboard-First Product Surface Rerun"
 FAM006_H1_NEXT_SEAM = (
     "Live Validation LV1 - Monitoring HUD Product Surface Live Validation Rerun"
@@ -854,6 +860,44 @@ FAM006_WS44_REQUIRED_PHRASES = (
     "Next Legal Seam:",
     FAM006_WS44_NEXT_SEAM,
 )
+FAM006_WS45_REQUIRED_PHRASES = (
+    "WS45 Admission:",
+    "bounded Workstream continuation latch",
+    "WS45 Result:",
+    "Green for Dashboard IA/naming/action cleanup",
+    "Provider Hero Slab Removal:",
+    "provider/native CPU hero slab is removed",
+    "Quick Access Cleanup:",
+    "warning-notifications-only",
+    "Monitor Groups Action Cleanup:",
+    "card-local action IDs",
+    "Data Sources Deferred Action:",
+    "Data Sources Window Deferred",
+    "HUD Overlay Terminology:",
+    "removes HUD Display terminology",
+    "Card Order / Redundancy Cleanup:",
+    "01 HUD Overlay",
+    "Validator / Helper Updates:",
+    "WS45 IA model markers",
+    "Element Rows Updated:",
+    "FAM006-DASH-QUICK-ACCESS-060",
+    "FAM006-DASH-DEFERRED-BUTTON-061",
+    "FAM006-DASH-HUD-OVERLAY-COPY-062",
+    "Overlay Status:",
+    "Deferred/dormant/non-gating",
+    "Core Status:",
+    "Dependency-only",
+    "Formal UTS Boundary:",
+    "WS45 does not generate, refresh, or digest",
+    "Dashboard Acceptance State:",
+    "Still blocked",
+    "Package Completion:",
+    "Unclaimed",
+    "Continuation Execution Latch:",
+    "Active - next bounded Workstream seam is WS46",
+    "Next Legal Seam:",
+    FAM006_WS45_NEXT_SEAM,
+)
 FAM006_H1_REQUIRED_PHRASES = (
     "H1 Admission:",
     "PASS - USER explicitly admitted Hardening H1",
@@ -1042,8 +1086,9 @@ FAM006_ELEMENT_VALIDATION_LEDGER_REQUIRED_PHRASES = (
 FAM006_ELEMENT_LEDGER_REQUIRED_PHRASES = (
     "# FAM-006 Element Validation Ledger",
     "Owner Record: `Docs/branch_records/feature_fam_006_monitoring_hud_product_surface.md`",
-    "Ledger Status: `WS44 visual-shell repair complete - WS45 IA/action cleanup required before LV2`",
-    "Returned LV1 Dashboard Feedback Blocking / Workstream WS45 Handoff Ready",
+    "Ledger Status: `WS45 IA/action cleanup complete - WS46 proof readiness required before Hardening/LV2`",
+    "Returned LV1 Dashboard Feedback Blocking / Workstream WS46 Handoff Ready",
+    "Latest Completed Workstream Seam: `Workstream WS45 - Dashboard IA Naming Action Cleanup`",
     "Prior Gate Superseded: `Returned refreshed User Test Summary results required before LV2 returned User Test Summary digestion`",
     "LV2 returned User Test Summary digestion must not proceed from Codex proof alone",
     "Branch Readiness Stage 1 revalidation passed",
@@ -1117,8 +1162,8 @@ FAM006_ELEMENT_LEDGER_REQUIRED_PHRASES = (
     "FAM006-FUTURE-AUDIO-043",
     "FAM006-FUTURE-PERSONA-044",
     "## UTS Coverage Map",
-    "Current Coverage Status: `Returned LV1 feedback #20-#38 blocks Dashboard acceptance / Workstream repair required before LV2`",
-    "Workstream WS44 - Dashboard Frame Scroll Resize Visual Shell Repair",
+    "Current Coverage Status: `Returned LV1 feedback #20-#38 blocks Dashboard acceptance / WS46 proof readiness required before Hardening and LV2`",
+    "Latest Completed Workstream Seam: `Workstream WS45 - Dashboard IA Naming Action Cleanup`",
     "## Proof Rebaseline Summary",
     "Marker-only proof remains supporting only",
 )
@@ -5819,6 +5864,42 @@ def _validate_fam006_stage2_r6_plan(
                     f"'{required_phrase}'"
                 ),
             )
+        ws45_section = _section(text, FAM006_WS45_HEADING)
+        if ws45_section:
+            for phrase in FAM006_WS45_REQUIRED_PHRASES:
+                require(
+                    phrase in ws45_section,
+                    f"{source_path}: {FAM006_WS45_HEADING} is missing '{phrase}'",
+                )
+            require(
+                f"Active seam: `{FAM006_WS45_NEXT_SEAM}`" in text,
+                f"{source_path}: WS45 completion must advance active seam to WS46",
+            )
+            require(
+                f"Next Legal Seam: `{FAM006_WS45_NEXT_SEAM}`" in text,
+                f"{source_path}: WS45 completion must set next legal seam to WS46",
+            )
+            require(
+                f"Next Active Seam: {FAM006_WS45_NEXT_SEAM}" in text,
+                f"{source_path}: WS45 completion must set Seam Continuation Decision next active seam to WS46",
+            )
+            require(
+                "Continue Decision: Continue" in _section(text, "Seam Continuation Decision"),
+                f"{source_path}: WS45 completion must continue within bounded Workstream",
+            )
+            require(
+                "Stop Basis: None" in _section(text, "Seam Continuation Decision"),
+                f"{source_path}: WS45 completion must not create a stop basis before WS46",
+            )
+            require(
+                "Remaining Implementable Work: `Dashboard-focused Workstream repair continues with WS46"
+                in text,
+                (
+                    f"{source_path}: WS45 completion must preserve visible same-branch "
+                    "Dashboard proof-readiness work beyond the current seam"
+                ),
+            )
+            return
         ws44_section = _section(text, FAM006_WS44_HEADING)
         if ws44_section:
             for phrase in FAM006_WS44_REQUIRED_PHRASES:
