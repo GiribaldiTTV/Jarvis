@@ -960,7 +960,7 @@ FAM006_H1_REQUIRED_PHRASES = (
     "Package Completion:",
     "Unclaimed",
     "LV1 / PR Status:",
-    "LV1 remains historical red",
+    "LV1 rerun is required after explicit USER Live Validation admission",
     "Next Active Seam:",
     FAM006_H1_NEXT_SEAM,
 )
@@ -1125,8 +1125,8 @@ FAM006_ELEMENT_VALIDATION_LEDGER_REQUIRED_PHRASES = (
 FAM006_ELEMENT_LEDGER_REQUIRED_PHRASES = (
     "# FAM-006 Element Validation Ledger",
     "Owner Record: `Docs/branch_records/feature_fam_006_monitoring_hud_product_surface.md`",
-    "Ledger Status: `WS46 proof readiness complete - Hardening H1 admission required before LV1/LV2`",
-    "Current Gate: `Workstream Green / Hardening H1 Handoff Ready",
+    "Ledger Status: `Hardening H1 proof complete - Live Validation LV1 admission required before refreshed UTS handoff and LV2`",
+    "Current Gate: `Hardening H1 Green / Live Validation LV1 Handoff Ready",
     "Latest Completed Workstream Seam: `Workstream WS46 - Dashboard Returned-Feedback Static Live Proof Readiness`",
     "Prior Gate Superseded: `Returned refreshed User Test Summary results required before LV2 returned User Test Summary digestion`",
     "LV2 returned User Test Summary digestion must not proceed from Codex proof alone",
@@ -1201,7 +1201,7 @@ FAM006_ELEMENT_LEDGER_REQUIRED_PHRASES = (
     "FAM006-FUTURE-AUDIO-043",
     "FAM006-FUTURE-PERSONA-044",
     "## UTS Coverage Map",
-    "Current Coverage Status: `WS46 proof readiness complete / Hardening H1 and refreshed LV1 required before LV2`",
+    "Current Coverage Status: `Hardening H1 proof complete / refreshed LV1 required before LV2`",
     "Latest Completed Workstream Seam: `Workstream WS46 - Dashboard Returned-Feedback Static Live Proof Readiness`",
     "## Proof Rebaseline Summary",
     "Marker-only proof remains supporting only",

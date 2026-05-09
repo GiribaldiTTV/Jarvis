@@ -24,7 +24,7 @@ This branch may execute the admitted PKG-006 implementation slices during Workst
 
 ## Status
 
-- `Workstream WS46 Green - Dashboard Returned-Feedback Static Live Proof Readiness Complete / Hardening H1 Handoff Ready`
+- `Hardening H1 Green - Live Validation LV1 Handoff Ready`
 
 ## Canonical Branch
 
@@ -32,14 +32,14 @@ This branch may execute the admitted PKG-006 implementation slices during Workst
 
 ## Current Phase
 
-- Phase: `Workstream`
+- Phase: `Hardening`
 
 ## Phase Status
 
 - Branch Readiness Stage: `Stage 2 complete - returned LV1 Dashboard feedback items #20-#38 are recorded as blocking current Dashboard acceptance; source-truth and Element Validation Ledger dispositions were repaired before bounded Workstream repair resumed at WS43`
-- Workstream Stage: `WS43 runtime/tray/shutdown safety, WS44 visual shell, WS45 IA/action cleanup, and WS46 returned-feedback static/live proof readiness are green; Workstream repair stops at the Hardening H1 phase-boundary handoff`
-- Hardening Stage: `Hardening H1 is the next legal phase seam and requires explicit USER admission before execution`
-- Live Validation Stage: `Prior LV1 handoff generation is supporting proof only; returned USER feedback blocks Dashboard acceptance and LV2 cannot proceed as a PASS path until Workstream repair, Hardening rerun, refreshed LV1 handoff, and returned USER PASS/WAIVED results or explicit waiver are complete`
+- Workstream Stage: `WS43 runtime/tray/shutdown safety, WS44 visual shell, WS45 IA/action cleanup, and WS46 returned-feedback static/live proof readiness are green; returned-feedback Workstream repair is complete for the current Dashboard-first boundary`
+- Hardening Stage: `Hardening H1 is green after explicit USER admission; source-truth, Element Validation Ledger, static, internal sandbox, desktop entrypoint/tray, NCP/saved-action, active-client screenshot, and interaction-manifest proof passed for the repaired Dashboard-first surface`
+- Live Validation Stage: `Live Validation LV1 is the next legal phase seam and requires explicit USER admission before the formal UTS handoff can be refreshed; LV2 cannot proceed as a PASS path until LV1 refreshes the UTS and returned USER PASS/WAIVED results or explicit waiver are complete`
 - Active Branch: `feature/fam-006-monitoring-hud-product-surface`
 - Branch Authority Mode: `Active Branch`
 - Workstream Entry Source-Truth Transition: `Performed - Branch Readiness Stage 2 terminal evidence reconciled before runtime implementation`
@@ -50,9 +50,9 @@ This branch may execute the admitted PKG-006 implementation slices during Workst
 - Selected Next Source: `USER-approved selected-next truth matured into active FAM-006 Workstream`
 - Package Admission State: `Admitted`
 - Admitted Slice Count: `6`
-- Package Completion State: `In Progress - package completion remains unclaimed until returned USER acceptance or waiver is legally digested, PR Readiness passes, and final closeout passes`
+- Package Completion State: `In Progress - package completion remains unclaimed until refreshed LV1 handoff, returned USER acceptance or waiver, PR Readiness, and final closeout pass`
 - Single-Slice Package User Approval: `Not required - PKG-006 has six concrete admitted slices; no waiver granted`
-- Runtime Implementation State: `Dashboard-first WS37-WS42, prior H1, and LV1 proof remain preserved as supporting history, but USER returned LV1 feedback items #20-#38 block Dashboard acceptance. WS43 repaired the current-scope runtime/tray/shutdown safety packet (#21-#25): tray HUD enable/disable state is decoupled from Dashboard visibility, the tray exposes stateful Open/Close HUD Dashboard actions, disabling HUD no longer hides the owning runtime window or locks NCP/tray usability, and tray Exit NDAI confirmation is validated for the FAM-006 tray path. WS44 repairs the Dashboard frame/scroll/resize/visual-shell packet (#26-#28 and #30-#32): the visible rounded Dashboard chrome owns the scrollbar, the outer ghost/haze layer is removed, native edge/corner resize has system and fallback paths, cards use auto-height layout to reduce deadzones, grid texture is scoped to control cards, and the sticky title group masks scrolled content. WS45 repairs Dashboard IA/naming/action cleanup (#29 and #33-#38): the provider/native CPU hero slab is removed from the Dashboard home, Quick Access is warning-notifications-only, Create/Edit actions live in the Monitor Groups card, Data Sources is clearly disabled/deferred rather than broken, HUD Display copy is reframed as HUD Overlay, Dashboard global feature enablement is removed from the home surface and left to tray/global settings, the redundant Warning Notifications card is removed, and current cards order as HUD Overlay, Monitor Groups, Data Sources, and Readiness. WS46 completed Dashboard-specific static/live proof readiness: static validation, internal sandbox validation, active-client proof, screenshot proof, and interaction-manifest proof are green with the current Dashboard home model, tray-owned Dashboard open/close behavior, and Live Validation-only UTS boundary. Source truth keeps LV2 blocked as a PASS path and stops at the Hardening H1 phase boundary pending explicit USER admission. #20 NCP placement/persistence is deferred to a priority future branch unless later proof shows FAM-006 caused it. Overlay/display remains deferred/dormant/non-gating, ORIN/Core remains dependency-only, and formal User Test Summary export/returned-result digestion remains Live Validation-only.`
+- Runtime Implementation State: `Dashboard-first WS37-WS42, prior H1, and prior LV1 proof remain preserved as supporting history, while USER returned LV1 feedback items #20-#38 block final Dashboard acceptance until refreshed LV1/USER acceptance. WS43 repaired the current-scope runtime/tray/shutdown safety packet (#21-#25): tray HUD enable/disable state is decoupled from Dashboard visibility, the tray exposes stateful Open/Close HUD Dashboard actions, disabling HUD no longer hides the owning runtime window or locks NCP/tray usability, and tray Exit NDAI confirmation is validated for the FAM-006 tray path. WS44 repairs the Dashboard frame/scroll/resize/visual-shell packet (#26-#28 and #30-#32): the visible rounded Dashboard chrome owns the scrollbar, the outer ghost/haze layer is removed, native edge/corner resize has system and fallback paths, cards use auto-height layout to reduce deadzones, grid texture is scoped to control cards, and the sticky title group masks scrolled content. WS45 repairs Dashboard IA/naming/action cleanup (#29 and #33-#38): the provider/native CPU hero slab is removed from the Dashboard home, Quick Access is warning-notifications-only, Create/Edit actions live in the Monitor Groups card, Data Sources is clearly disabled/deferred rather than broken, HUD Display copy is reframed as HUD Overlay, Dashboard global feature enablement is removed from the home surface and left to tray/global settings, the redundant Warning Notifications card is removed, and current cards order as HUD Overlay, Monitor Groups, Data Sources, and Readiness. WS46 completed Dashboard-specific static/live proof readiness. Hardening H1 then pressure-tested the repaired Dashboard-first surface with source-truth validation, Element Validation Ledger validation, static validation, internal sandbox validation, desktop entrypoint/tray validation, NCP/saved-action validation, active-client live helper proof, screenshot proof, interaction-manifest proof, compile proof, retired-name scan, and formal UTS boundary proof. Source truth keeps LV2 blocked as a PASS path and stops at the Live Validation LV1 phase boundary pending explicit USER admission. #20 NCP placement/persistence is deferred to a priority future branch unless later proof shows FAM-006 caused it. Overlay/display remains deferred/dormant/non-gating, ORIN/Core remains dependency-only, and formal User Test Summary export/returned-result digestion remains Live Validation-only.`
 - PR Creation State: `Not approved in Branch Readiness`
 - Watcher Provisioning State: `Not approved in Branch Readiness`
 - Release Work State: `Not approved; v1.6.13-prebeta release execution is already complete and no new release work is in scope`
@@ -67,7 +67,7 @@ This branch may execute the admitted PKG-006 implementation slices during Workst
 
 - `Backlog Completion Unproven`
 
-Package completion is not currently claimed. Stage 2-R13 cleared the earlier Branch Readiness planning latches and handed the branch to Dashboard-focused Workstream repair, but the refreshed LV1 handoff later received USER blocking feedback before LV2 acceptance. Stage 2 recorded that affected Workstream/H1/LV1 evidence was supporting but stale and LV2 could not continue. WS37 through WS42 remain supporting history for the first Dashboard repair pass; Hardening H1 and LV1 handoff generation also remain supporting history only for affected rows. The returned LV1 #20-#38 sequence reopened bounded Workstream repair. WS43 is green for runtime/tray/shutdown safety (#21-#25), WS44 is green for Dashboard frame/scroll/resize/visual-shell repair (#26-#28 and #30-#32), WS45 is green for Dashboard IA/naming/action cleanup (#29 and #33-#38), and WS46 is green for Dashboard returned-feedback static/live proof readiness. Dashboard acceptance, package completion, LV2, PR Readiness, release, and Overlay/display acceptance remain unclaimed.
+Package completion is not currently claimed. Stage 2-R13 cleared the earlier Branch Readiness planning latches and handed the branch to Dashboard-focused Workstream repair, but the refreshed LV1 handoff later received USER blocking feedback before LV2 acceptance. Stage 2 recorded that affected Workstream/H1/LV1 evidence was supporting but stale and LV2 could not continue. WS37 through WS42 remain supporting history for the first Dashboard repair pass; prior H1 and LV1 handoff generation also remain supporting history where superseded. The returned LV1 #20-#38 sequence reopened bounded Workstream repair. WS43 is green for runtime/tray/shutdown safety (#21-#25), WS44 is green for Dashboard frame/scroll/resize/visual-shell repair (#26-#28 and #30-#32), WS45 is green for Dashboard IA/naming/action cleanup (#29 and #33-#38), WS46 is green for Dashboard returned-feedback static/live proof readiness, and the current Hardening H1 rerun is green. Dashboard acceptance, package completion, LV2, PR Readiness, release, and Overlay/display acceptance remain unclaimed.
 
 ## Acceptance Guards
 
@@ -75,8 +75,8 @@ Package completion is not currently claimed. Stage 2-R13 cleared the earlier Bra
 - `User Test Summary Results Pending`
 - `Dashboard Acceptance Pending Returned USER Results`
 - `Returned LV1 Dashboard Feedback Blocks Acceptance`
-- `Hardening H1 Admission Required`
-- `Hardening Rerun Required Before LV2`
+- `Live Validation LV1 Admission Required`
+- `Refreshed LV1 Handoff Required Before LV2`
 
 ## Returned LV1 Repair Findings
 
@@ -168,27 +168,27 @@ The operator-supplied Stage 2 terminal evidence was not sufficient by itself bec
 
 ## Rollback Target
 
-- `Workstream`
+- `Hardening`
 
-Rollback Path: revert the WS46 proof-readiness source-truth/proof-harness commit on `feature/fam-006-monitoring-hud-product-surface` before PR merge to return to the WS45 Green / WS46 handoff-ready state. Revert earlier runtime Workstream or Hardening commits only if a later USER-approved repair or reset plan explicitly selects that route. No tags, releases, artifacts, PR, watcher, release work, runtime branch, new package, new FAM, or `main` mutation are created by this Workstream handoff.
+Rollback Path: revert the Hardening H1 source-truth/proof recording commit on `feature/fam-006-monitoring-hud-product-surface` before PR merge to return to the WS46 Green / Hardening H1 handoff-ready state. Revert earlier runtime Workstream or Hardening commits only if a later USER-approved repair or reset plan explicitly selects that route. No tags, releases, artifacts, PR, watcher, release work, runtime branch, new package, new FAM, or `main` mutation are created by this Hardening handoff.
 
 ## Next Legal Phase
 
-- `Workstream`
+- `Hardening`
 
-Next Legal Seam: `Hardening H1 - Monitoring HUD Product Surface Hardening Rerun`
+Next Legal Seam: `Live Validation LV1 - Monitoring HUD Product Surface Live Validation Rerun`
 
-Next Legal Phase Gate: Returned LV1 Dashboard feedback items #20-#38 block Dashboard acceptance and supersede the current LV1 handoff as an acceptance path. Codex must not execute LV2 as a PASS digest until the Workstream-green repair chain is pressure-tested by Hardening H1, LV1 refreshes the formal UTS handoff, and returned USER PASS/WAIVED results or explicit waiver are complete. Codex must not enter Hardening without explicit USER admission, and must not enter PR Readiness, create a PR, watcher, release, tag, artifact, direct-main mutation, voice/audio implementation, Stream Deck/plugin telemetry implementation, local AI, installer/capability-pack work, broad hardware provider implementation, persona switching implementation, ARIA activation, Overlay/display release acceptance, or a new FAM/package without later explicit USER approval.
+Next Legal Phase Gate: Returned LV1 Dashboard feedback items #20-#38 block Dashboard acceptance and supersede the current LV1 handoff as an acceptance path. Codex must not execute LV2 as a PASS digest until the Workstream-green repair chain is pressure-tested by Hardening H1, LV1 refreshes the formal UTS handoff, and returned USER PASS/WAIVED results or explicit waiver are complete. Hardening H1 is now green; Codex must not enter Live Validation without explicit USER admission, and must not enter PR Readiness, create a PR, watcher, release, tag, artifact, direct-main mutation, voice/audio implementation, Stream Deck/plugin telemetry implementation, local AI, installer/capability-pack work, broad hardware provider implementation, persona switching implementation, ARIA activation, Overlay/display release acceptance, or a new FAM/package without later explicit USER approval.
 
 Post-FAM-006 Required Marker Adoption Candidate: `Repo-Wide High-Risk Source Owner Marker Adoption`; candidate branch `feature/repo-wide-source-owner-marker-adoption`; requirement is recorded for after the current FAM-006 branch closes and does not authorize branch creation, package admission, PR Readiness, runtime behavior changes, or bypass of the active LV2 UTS pending gate. USER-facing element review-mode adoption is part of that future candidate's scope and remains tabled for planning-heavy Dev Toolkit design: existing and future interface elements, including NCP, Core visualization, Dashboard, Overlay/display when admitted, and other windows/components, should receive Dev Toolkit Interface Review Mode dispositions and dev-only badges/hover/ledger tooltip inspection where applicable; future design should decide per-interface launchers, a generalized all-surfaces review-mode launch, or both.
 
 ## Active Seam
 
-Active seam: `Hardening H1 - Monitoring HUD Product Surface Hardening Rerun`
+Active seam: `Phase Boundary Stop - Await USER Live Validation Admission`
 
-Active Seam Status: `Phase-boundary stop - WS46 is green and Hardening H1 awaits explicit USER admission`
+Active Seam Status: `Phase-boundary stop - Hardening H1 is green and Live Validation LV1 awaits explicit USER admission`
 
-Next active seam: `Hardening H1 - Monitoring HUD Product Surface Hardening Rerun`
+Next active seam: `Live Validation LV1 - Monitoring HUD Product Surface Live Validation Rerun`
 
 ## Branch Objective
 
@@ -216,7 +216,7 @@ Interface Bundle User Approval: `Not granted - USER explicitly paused the multi-
 
 Fallback Point: `A polished, accepted Dashboard/control panel release must become the fallback point before Overlay/display release acceptance resumes`
 
-Dashboard Acceptance Pending: `Reopened - returned LV1 Dashboard feedback items #20-#38 block current Dashboard acceptance; Workstream repair is required again before Hardening rerun, refreshed LV1 handoff, returned USER acceptance/waiver, PR Readiness, or package completion`
+Dashboard Acceptance Pending: `Reopened - returned LV1 Dashboard feedback items #20-#38 block current Dashboard acceptance; Workstream repair and Hardening H1 are green, but refreshed LV1 handoff, returned USER acceptance/waiver, PR Readiness, and package completion remain pending`
 
 Overlay Scope Deferred: `Reclassified as non-gating scope boundary - existing Overlay/display implementation is preserved as deferred/dormant/non-gating evidence and must not block or satisfy Dashboard acceptance`
 
@@ -252,13 +252,13 @@ Future Repo-Wide Marker Adoption Recommendation: `Promoted to required post-FAM-
 
 Canonical Completed Ledger: `Docs/branch_records/feature_fam_006_monitoring_hud_product_surface_element_ledger.md`
 
-Ledger Backfill Status: `Backfilled, revalidated, USER feedback disposition repaired, LV1 handoff refreshed, and returned LV1 feedback #20-#38 recorded - companion ledger remains canonical. WS43 updates the tray/runtime rows as Workstream-proven, WS44 updates the Dashboard frame/scroll/resize/visual-shell rows as Workstream-proven, WS45 updates the Dashboard IA/action rows as Workstream-proven, and WS46 updates proof-readiness rows as Workstream-proven; Hardening H1 admission remains required before LV1/LV2.`
+Ledger Backfill Status: `Backfilled, revalidated, USER feedback disposition repaired, LV1 handoff refreshed, and returned LV1 feedback #20-#38 recorded - companion ledger remains canonical. WS43 updates the tray/runtime rows as Workstream-proven, WS44 updates the Dashboard frame/scroll/resize/visual-shell rows as Workstream-proven, WS45 updates the Dashboard IA/action rows as Workstream-proven, WS46 updates proof-readiness rows as Workstream-proven, and Hardening H1 is green; Live Validation LV1 admission remains required before any refreshed UTS handoff or LV2 digestion.`
 
-Proof Rebaseline: `Existing WS37-WS42, Hardening H1, and current LV1 proof remains supporting history only for affected Dashboard rows. WS43 is current Workstream proof for returned feedback #21-#25, WS44 is current Workstream proof for visual-shell feedback #26-#28 and #30-#32, WS45 is current Workstream proof for Dashboard IA/action feedback #29 and #33-#38, and WS46 is current Workstream proof-readiness evidence for static, sandbox, active-client, screenshot, and interaction-manifest proof after the returned-feedback repairs. The still-deferred #20 future-branch concern and the required Hardening/LV1/USER gates keep the current LV1 acceptance proof stale for affected rows; Hardening rerun, refreshed LV1 handoff, and returned USER PASS/WAIVED results or explicit waiver are required before LV2 can digest acceptance.`
+Proof Rebaseline: `Existing WS37-WS42 and prior LV1 proof remain supporting history only for affected Dashboard rows. WS43 is current Workstream proof for returned feedback #21-#25, WS44 is current Workstream proof for visual-shell feedback #26-#28 and #30-#32, WS45 is current Workstream proof for Dashboard IA/action feedback #29 and #33-#38, WS46 is current Workstream proof-readiness evidence for static, sandbox, active-client, screenshot, and interaction-manifest proof after the returned-feedback repairs, and the current Hardening H1 rerun is green. The still-deferred #20 future-branch concern and the required LV1/USER gates keep the current LV1 acceptance proof stale for affected rows; refreshed LV1 handoff and returned USER PASS/WAIVED results or explicit waiver are required before LV2 can digest acceptance.`
 
-LV2 Gate: `Blocked - LV2 returned-result digestion must not proceed as a PASS path from the current handoff because USER returned blocking Dashboard feedback #20-#38. LV2 can resume only after bounded Workstream repair, Hardening rerun, refreshed LV1 handoff, and returned USER PASS/WAIVED results or explicit waiver.`
+LV2 Gate: `Blocked - LV2 returned-result digestion must not proceed as a PASS path from the current handoff because USER returned blocking Dashboard feedback #20-#38. LV2 can resume only after refreshed LV1 handoff and returned USER PASS/WAIVED results or explicit waiver.`
 
-USER Feedback Ledger Disposition: `Current - returned USER visual/UX/runtime feedback items #20-#38 block Dashboard acceptance. WS43 repairs runtime/tray/shutdown items #21-#25 as Workstream proof, WS44 repairs visual-shell items #26-#28 and #30-#32 as Workstream proof, WS45 repairs Dashboard IA/action items #29 and #33-#38 as Workstream proof, and WS46 records returned-feedback static/live proof readiness as Workstream proof. The companion ledger remains the authoritative row-level disposition surface; Hardening, refreshed LV1, and returned USER PASS/WAIVED results or explicit waiver remain required.`
+USER Feedback Ledger Disposition: `Current - returned USER visual/UX/runtime feedback items #20-#38 block Dashboard acceptance. WS43 repairs runtime/tray/shutdown items #21-#25 as Workstream proof, WS44 repairs visual-shell items #26-#28 and #30-#32 as Workstream proof, WS45 repairs Dashboard IA/action items #29 and #33-#38 as Workstream proof, WS46 records returned-feedback static/live proof readiness as Workstream proof, and Hardening H1 is green. The companion ledger remains the authoritative row-level disposition surface; refreshed LV1 and returned USER PASS/WAIVED results or explicit waiver remain required.`
 
 Summary Row Note: `The rows below preserve the branch-record summary IDs required by governance validation. Current row-level proof dispositions, including blocked/stale findings and new repair rows FAM006-DASH-STARTUP-045 through FAM006-DEV-INTERFACE-REVIEW-050, are authoritative in the canonical companion ledger.`
 
@@ -508,12 +508,12 @@ Branch Completion Goal: complete a visible, readable, accepted Dashboard-first M
 
 Known Future-Dependent Blockers: full HWInfo/HWMonitor-level sensor coverage, broad plugin/external telemetry ecosystem, audio/spoken alerts or FAM-004 integration, Stream Deck integration, graphs/history/persistence/dashboards, local AI/capability-pack monitoring, installer/capability-pack work, and ultra-low polling intervals remain deferred unless USER later widens scope and validation proves safety.
 
-Branch Closure Rule: Stage 2-R13 handed this branch back to bounded Dashboard-focused Workstream repair after Stage 1-R10 confirmed the Dashboard/control panel is the primary current-branch interface release surface, Overlay/display acceptance is deferred/non-gating, Core repair is dependency-only, and Dashboard-specific proof/acceptance criteria are sufficient. USER Dashboard feedback later reopened Dashboard acceptance and routed the branch back to multi-slice HUD implementation continuation. WS37 repaired runtime/window/tray safety and NCP regression isolation, WS38 repaired Dashboard window ownership/focus/movement safety, WS39 repaired Dashboard shell/layout/frame/resize/readability, WS40 repaired Dashboard IA/content/naming/control-hub, WS41 deferred child-window implementation to future branch/package scope, and WS42 refreshed Dashboard-specific static/live proof readiness. Workstream is green, Hardening H1 is green, and Live Validation LV1 is green for formal ledger-aligned UTS handoff generation only. The branch may enter PR Readiness only after returned User Test Summary acceptance or waiver is legally digested in LV2, and package completion remains truthfully unclaimed or proven according to the later gate.
+Branch Closure Rule: Stage 2-R13 handed this branch back to bounded Dashboard-focused Workstream repair after Stage 1-R10 confirmed the Dashboard/control panel is the primary current-branch interface release surface, Overlay/display acceptance is deferred/non-gating, Core repair is dependency-only, and Dashboard-specific proof/acceptance criteria are sufficient. USER Dashboard feedback later reopened Dashboard acceptance and routed the branch back to multi-slice HUD implementation continuation. WS37 through WS42 remain supporting history for the first repair pass; WS43 repaired returned-feedback runtime/tray/shutdown safety, WS44 repaired Dashboard frame/scroll/resize/visual shell, WS45 repaired Dashboard IA/naming/action cleanup, and WS46 refreshed returned-feedback proof readiness. Workstream is green and Hardening H1 is green. The branch may enter Live Validation LV1 only after explicit USER admission, may enter LV2 only after refreshed USER PASS/WAIVED results or explicit waiver, and may enter PR Readiness only after returned User Test Summary acceptance or waiver is legally digested in LV2. Package completion remains truthfully unclaimed or proven according to the later gate.
 
 ## Backlog Completion Status
 
 Backlog Completion State: `In Progress`
-Remaining Implementable Work: `None - Dashboard-focused Workstream repair, Hardening H1, and Live Validation LV1 handoff generation are green; next required work is returned USER PASS/FAIL/WAIVED results or explicit waiver before LV2 digestion, then PR Readiness and final closeout if gates pass`
+Remaining Implementable Work: `None - Dashboard-focused Workstream repair and Hardening H1 are green; next required work is explicit USER admission for Live Validation LV1, refreshed formal UTS handoff generation, returned USER PASS/FAIL/WAIVED results or explicit waiver before LV2 digestion, then PR Readiness and final closeout if gates pass`
 Future-Dependent Blockers: `full HWInfo/HWMonitor-level parity, broad plugin/external telemetry ecosystem, audio/spoken alerts or FAM-004 integration, persona switching implementation and ARIA activation, Stream Deck, graphs/history/persistence/dashboards, local AI/capability-pack monitoring, installer/capability-pack work, and ultra-low polling intervals remain deferred pending later approval, admission, and proof`
 Completion Status: `In Progress`
 
@@ -726,28 +726,28 @@ Historical Stop Basis: `Stage 2-R13 Dashboard-first Workstream handoff supersede
 
 Seam Status: Green
 Slice Status: Green
-Slice Detail: WS43, WS44, WS45, and WS46 are green for the returned-feedback Workstream repair/proof-readiness sequence.
+Slice Detail: WS43, WS44, WS45, WS46, and Hardening H1 are green for the returned-feedback Workstream repair/proof-readiness plus repo-side hardening sequence.
 Completion Status: Green
 Waiver Status: None
 Continue Decision: Stop
-Continuation Execution Latch: Inactive - Workstream is green; Hardening phase-boundary stop requires explicit USER admission before H1.
-Stop Basis: Workstream Green
-Next Active Seam: Hardening H1 - Monitoring HUD Product Surface Hardening Rerun
-Stop Condition: WS46 proof readiness is green; do not enter Hardening, Live Validation, LV2, PR Readiness, release, or package completion without later governed admission.
-Continuation Action: Stop at phase boundary until USER admits Hardening H1. Preserve Dashboard-first boundary, Overlay/display non-gating status, Core dependency-only status, LV2 blocked, PR blocked, PKG-006 In Progress, package completion unclaimed, no single-seam waiver, and no PR/release work.
+Continuation Execution Latch: Inactive - Hardening H1 is Green; phase-boundary stop is required before USER may admit Live Validation LV1.
+Stop Basis: Hardening Green
+Next Active Seam: Live Validation LV1 - Monitoring HUD Product Surface Live Validation Rerun
+Stop Condition: Hardening H1 pressure test is green; do not enter Live Validation, LV2, PR Readiness, release, or package completion without later governed admission.
+Continuation Action: Stop at phase boundary until USER admits Live Validation LV1. Preserve Dashboard-first boundary, Overlay/display non-gating status, Core dependency-only status, LV2 blocked, PR blocked, PKG-006 In Progress, package completion unclaimed, no single-seam waiver, and no PR/release work.
 
-## Live Validation Stage 1 Continuation Decision
+## Historical Live Validation Stage 1 Continuation Decision Superseded By Returned Feedback
 
-Seam Status: Green for handoff generation / blocked before LV2 returned-result digestion
-Slice Status: LV1 handoff green; returned USER results pending
+Seam Status: Historical green for handoff generation / superseded by returned USER feedback before LV2 returned-result digestion
+Slice Status: Historical LV1 handoff green; returned USER feedback routed the branch back through Branch Readiness, Workstream, and Hardening
 Completion Status: In Progress
-Completion Detail: Live Validation final green is blocked until USER returns PASS/FAIL/WAIVED results for the refreshed LV1 handoff or explicitly waives it. LV1 does not claim Dashboard acceptance, package completion, PR Readiness, or LV2 digestion.
+Completion Detail: This prior LV1 handoff does not claim Dashboard acceptance, package completion, PR Readiness, or LV2 digestion. Current source truth requires a refreshed LV1 handoff after the current H1 green phase-boundary stop.
 Waiver Status: None
 Continue Decision: Stop
-Stop Basis: User Test Summary Results Pending
-Next Active Seam: Live Validation LV2 - FAM-006 Element-Ledger-Aligned User Test Summary Results Digest And Acceptance Classification
-Stop Condition: LV1 handoff generated; returned USER results or explicit waiver are required before LV2.
-Continuation Action: Await returned USER PASS/FAIL/WAIVED results or waiver. Do not enter PR Readiness, create PR/watcher/release artifacts, claim package completion, or treat Codex self-QA as USER acceptance.
+Stop Basis: Superseded USER Feedback
+Historical Next Active Seam: Live Validation LV2 - FAM-006 Element-Ledger-Aligned User Test Summary Results Digest And Acceptance Classification
+Stop Condition: Historical LV1 handoff generated; returned feedback blocked acceptance and reopened repair before LV2 could proceed.
+Continuation Action: Preserve as history only. Current next legal seam is Live Validation LV1 after explicit USER admission; do not enter PR Readiness, create PR/watcher/release artifacts, claim package completion, or treat Codex self-QA as USER acceptance.
 
 ## Live Validation Continuation Decision
 
@@ -1410,30 +1410,30 @@ Validation Evidence Expectations: return PASS/FAIL plus any notes, screenshots, 
 
 ## Hardening H1 Dashboard-First Product Surface Rerun
 
-- H1 Admission: `PASS - USER explicitly admitted Hardening H1 after the WS42 Workstream Green phase-boundary stop`
+- H1 Admission: `PASS - USER explicitly admitted Hardening H1 after the WS46 Workstream Green phase-boundary stop`
 - H1 Result: `Green - Dashboard-first Monitoring HUD product surface hardening rerun passed`
-- Dashboard-First Hardening Scope: `Dashboard/control panel remains the primary current-branch interface release surface; H1 pressure-tested WS37 through WS42 runtime/window/tray/NCP safety, Dashboard movement/focus/resize/layout/content proof, source truth, Element Validation Ledger consistency, static validation, internal sandbox validation, desktop entrypoint/tray validation, NCP/saved-action validation, active-client live helper proof, screenshot manifest evidence, provider-contract truth, no-fake-metrics posture, visual/non-invasive warning posture, Core dependency-only status, and Overlay/display deferred/non-gating status.`
+- Dashboard-First Hardening Scope: `Dashboard/control panel remains the primary current-branch interface release surface; H1 pressure-tested WS43 through WS46 runtime/tray/shutdown safety, Dashboard frame/scroll/resize/visual-shell repair, Dashboard IA/naming/action cleanup, returned-feedback static/live proof readiness, source truth, Element Validation Ledger consistency, static validation, internal sandbox validation, desktop entrypoint/tray validation, NCP/saved-action validation, active-client live helper proof, screenshot manifest evidence, provider-contract truth, no-fake-metrics posture, visual/non-invasive warning posture, Core dependency-only status, and Overlay/display deferred/non-gating status.`
 - Overlay Classification: `deferred/non-gating - Overlay/display implementation and evidence remain supporting or future-interface proof only; H1 does not require or claim Overlay/display release acceptance.`
 - Core Classification: `dependency-only - ORIN/Core proof protects desktop safety and independence but is not a released FAM-006 interface.`
 - UTS Phase Boundary: `formal User Test Summary export, handoff refresh, and returned-result digestion are Live Validation Stage 1 only; H1 did not generate, refresh, or digest the desktop UTS artifact.`
 - Static Validation: `PASS - dev/orin_monitoring_hud_surface_validation.py`
-- Internal Sandbox Proof: `PASS - dev/logs/fam_006_monitoring_hud_internal_sandbox/20260509_090809_manifest.json`
-- Desktop Entrypoint / Startup / Tray Proof: `PASS - dev/logs/desktop_entrypoint_validation/reports/DesktopEntrypointValidationReport_20260509_085132.txt`
+- Internal Sandbox Proof: `PASS - dev/logs/fam_006_monitoring_hud_internal_sandbox/20260509_140350_manifest.json`
+- Desktop Entrypoint / Startup / Tray Proof: `PASS - dev/logs/desktop_entrypoint_validation/reports/DesktopEntrypointValidationReport_20260509_140652.txt`
 - NCP / Saved-Action Regression Proof: `PASS - dev/orin_saved_action_authoring_ui_validation.py`
-- Live Helper Proof: `PASS - dev/logs/fam_006_monitoring_hud_live_validation/20260509_085143_602/manifest.json`
-- Live Runtime Log: `dev/logs/fam_006_monitoring_hud_live_validation/20260509_085143_602/runtime_log.txt`
-- Interaction Manifest: `dev/logs/fam_006_monitoring_hud_live_validation/20260509_085143_602/monitoring_hud_live_client_interaction_manifest.json`
-- Screenshot Proof Root: `dev/logs/fam_006_monitoring_hud_live_validation/20260509_085143_602`
-- Before Screenshot: `dev/logs/fam_006_monitoring_hud_live_validation/20260509_085143_602/monitoring_hud_desktop_before_launch.png`
-- After Screenshot: `dev/logs/fam_006_monitoring_hud_live_validation/20260509_085143_602/monitoring_hud_desktop_after_launch.png`
-- USER-Inspectable Screenshot Folder: `C:\Users\anden\OneDrive\Pictures\Screenshots\Nexus Desktop AI\fam_006_monitoring_hud_live_validation\20260509_085143_602`
-- USER-Inspectable Before Screenshot: `C:\Users\anden\OneDrive\Pictures\Screenshots\Nexus Desktop AI\fam_006_monitoring_hud_live_validation\20260509_085143_602\monitoring_hud_full_virtual_desktop_before_launch.png`
-- USER-Inspectable After Screenshot: `C:\Users\anden\OneDrive\Pictures\Screenshots\Nexus Desktop AI\fam_006_monitoring_hud_live_validation\20260509_085143_602\monitoring_hud_full_virtual_desktop_after_launch.png`
-- Live Helper Marker Summary: `observed Dashboard-first surface markers, Core preset-monitor/fixed/non-interference markers, dashboard settings/provider/warning markers, startup/tray/focus/movement/readability/content proof markers, minimal overlay markers as deferred/non-gating evidence, no-fake-telemetry markers, and Live Validation Stage 1 UTS boundary markers.`
+- Live Helper Proof: `PASS - dev/logs/fam_006_monitoring_hud_live_validation/20260509_140706_674/manifest.json`
+- Live Runtime Log: `dev/logs/fam_006_monitoring_hud_live_validation/20260509_140706_674/runtime_log.txt`
+- Interaction Manifest: `PASS - dev/logs/fam_006_monitoring_hud_live_validation/20260509_140706_674/monitoring_hud_live_client_interaction_manifest.json`
+- Screenshot Proof Root: `dev/logs/fam_006_monitoring_hud_live_validation/20260509_140706_674`
+- Before Screenshot: `dev/logs/fam_006_monitoring_hud_live_validation/20260509_140706_674/monitoring_hud_desktop_before_launch.png`
+- After Screenshot: `dev/logs/fam_006_monitoring_hud_live_validation/20260509_140706_674/monitoring_hud_desktop_after_launch.png`
+- USER-Inspectable Screenshot Folder: `C:\Users\anden\OneDrive\Pictures\Screenshots\Nexus Desktop AI\fam_006_monitoring_hud_live_validation\20260509_140706_674`
+- USER-Inspectable Before Screenshot: `C:\Users\anden\OneDrive\Pictures\Screenshots\Nexus Desktop AI\fam_006_monitoring_hud_live_validation\20260509_140706_674\monitoring_hud_full_virtual_desktop_before_launch.png`
+- USER-Inspectable After Screenshot: `C:\Users\anden\OneDrive\Pictures\Screenshots\Nexus Desktop AI\fam_006_monitoring_hud_live_validation\20260509_140706_674\monitoring_hud_full_virtual_desktop_after_launch.png`
+- Live Helper Marker Summary: `observed Dashboard-first surface markers, Core preset-monitor/fixed/non-interference markers, dashboard settings/provider/warning markers, startup/tray/HUD feature state, Dashboard tray open/close, focus/topmost/movement/resize/readability/content proof markers, deferred Overlay markers as non-gating evidence, no-fake-telemetry markers, and Live Validation Stage 1 UTS boundary markers.`
 - Package Status: `PKG-006 remains In Progress`
 - Package Completion: `Unclaimed - product completion, Live Validation green, returned UTS acceptance, PR Readiness, and final package closeout remain future gates`
-- LV1 / PR Status: `LV1 rerun completed after explicit USER admission; PR Readiness remains blocked until returned USER PASS/WAIVED results or explicit waiver are digested in LV2`
-- Next Active Seam: Live Validation LV2 - FAM-006 Element-Ledger-Aligned User Test Summary Results Digest And Acceptance Classification after USER returns LV1 results or waiver
+- LV1 / PR Status: `LV1 rerun is required after explicit USER Live Validation admission; PR Readiness remains blocked until refreshed LV1 handoff and returned USER PASS/WAIVED results or explicit waiver are digested in LV2`
+- Next Active Seam: Live Validation LV1 - Monitoring HUD Product Surface Live Validation Rerun
 
 ## Live Validation LV1 Monitoring HUD Product Surface Live Validation Rerun
 
