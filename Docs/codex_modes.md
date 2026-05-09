@@ -52,6 +52,7 @@ That startup assessment should explicitly answer:
 - `Next Safe Move`
 - `Source-Truth Placement Preflight` when the task may create a new governance/source-truth file, active artifact, ledger, registry, or durable authority surface
 - `Element Validation Ledger Owner` when the task creates, touches, affects, defers, or preserves proof-bearing product elements
+- `Dev Toolkit Interface Review Mode disposition` for USER-facing interface elements, including previous and future implementations: callable in dev-only review mode, deferred to a named repo-wide adoption branch/package, or not-applicable with reason
 
 This can stay brief, but it should happen before scope is narrowed for execution.
 

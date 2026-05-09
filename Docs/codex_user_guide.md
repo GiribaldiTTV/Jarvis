@@ -235,13 +235,16 @@ For tracked work, that means:
 9. use the canonical workstream doc first for branch-local reuse, artifact history, and "what worked" notes, or use the branch authority record when no promoted workstream owns the branch
 10. run `Source-Truth Placement Preflight` before creating a new governance/source-truth file, active artifact, ledger, registry, or durable authority surface
 11. use the owning `Element Validation Ledger` in the canonical workstream doc or active branch authority record for created, touched, affected, deferred, future, dependency-only, and non-gating supporting product elements
-12. use `Docs/incident_patterns.md` only for generalized cross-branch patterns
-13. state the next safe move before narrowing scope
+12. record a Dev Toolkit Interface Review Mode disposition for USER-facing interface elements, including previous and future implementations: callable in dev-only review mode, deferred to a named repo-wide adoption branch/package, or not-applicable with reason
+13. use `Docs/incident_patterns.md` only for generalized cross-branch patterns
+14. state the next safe move before narrowing scope
 
 Promoted workstream docs remain the place to read branch-local feature state, evidence, active seams, artifact history, and branch-local reuse notes.
 Repo-wide lifecycle rules such as phases, stop-loss, timeout governance, and proof authority come from `Docs/phase_governance.md`.
 Repo-wide validation-helper rules and the desktop UI audit rule also come from `Docs/phase_governance.md`.
 Element Validation Ledger rows belong in the existing authority owner by default: the canonical workstream doc for promoted work or the active branch authority record for `Registry-only` active branches. Do not prompt Codex to create a parallel active ledger unless the owning record records `No Existing Owner Fits` or points to a companion file.
+
+Dev Toolkit Interface Review Mode is the repo-wide dev-only inspection standard for USER-facing elements after the review tooling is admitted. It should cover existing and future surfaces such as NCP, Core visualization, Dashboard, Overlay/display when admitted, and other user-facing windows/components. The mode uses element badges, hover highlighting, ledger ID/name tooltips, and screenshot-friendly annotations in Dev Toolkit/dev mode only; production UI must remain unbadged.
 
 ## Analysis-Phase Prompting
 

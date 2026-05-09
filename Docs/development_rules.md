@@ -102,6 +102,7 @@ Rules:
 - workstream docs must not silently redefine repo-wide phase or proof-governance rules that belong to `Docs/phase_governance.md`
 - before adding a new governance/source-truth file, active artifact, ledger, registry, or durable authority surface, run the `Source-Truth Placement Preflight` from `Docs/phase_governance.md` and extend the existing owner first unless `No Existing Owner Fits` is recorded
 - the active Element Validation Ledger belongs inside the canonical workstream doc for `Promoted` work or inside the branch authority record for `Registry-only` active branches; backlog, roadmap, family dossiers, validation helper registry, and Element Coverage must not become active ledger owners by inertia
+- USER-facing interface elements, including previous implementations and future implementations, must record a Dev Toolkit Interface Review Mode disposition in the owning Element Validation Ledger: callable in dev-only review mode, deferred to a named repo-wide adoption branch/package, or not-applicable with reason. The review mode should expose element badges, hover highlighting, ledger ID/name tooltips, and screenshot-friendly annotations only in Dev Toolkit/dev mode; production UI must not expose element numbers.
 
 Record-state meaning:
 

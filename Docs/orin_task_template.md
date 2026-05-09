@@ -148,6 +148,9 @@ Source-Truth Placement Preflight:
 Element Validation Ledger Owner:
 [canonical workstream doc / active branch authority record / companion file with owning-record pointer / not applicable]
 
+Dev Toolkit Interface Review Mode Disposition:
+[callable in dev-only review mode / deferred to named repo-wide adoption branch-package / not-applicable with reason]
+
 Element Delta Capture:
 [Created / Touched / Affected / Deferred / Future / Dependency-only / Non-gating supporting / not applicable]
 

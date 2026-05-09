@@ -24,7 +24,7 @@ This branch may execute the admitted PKG-006 implementation slices during Workst
 
 ## Status
 
-- `Workstream WS39 Dashboard Shell Layout Frame Resize And Readability Repaired - WS40 Pending`
+- `Workstream WS40 Dashboard IA Content Naming And Control Hub Repaired - WS41 Scope Pending`
 
 ## Canonical Branch
 
@@ -37,7 +37,7 @@ This branch may execute the admitted PKG-006 implementation slices during Workst
 ## Phase Status
 
 - Branch Readiness Stage: `Stage 2 complete - returned USER Dashboard feedback is recorded as blocking LV2 acceptance; source-truth and Element Validation Ledger dispositions were repaired before bounded Workstream repair resumed`
-- Workstream Stage: `WS39 complete - Dashboard shell/layout/frame/resize/readability is repaired and proven; WS40 Dashboard IA/content/naming/control-hub repair is next`
+- Workstream Stage: `WS40 complete - Dashboard IA/content/naming/control-hub is repaired and proven; WS41 Dashboard child-window scope implementation is next only if admitted`
 - Hardening Stage: `Blocked pending Workstream - H1 remains preserved as prior Dashboard-first pressure-test evidence, but affected rows require rerun after the Dashboard repair sequence`
 - Live Validation Stage: `Blocked/regressed - refreshed LV1 handoff received USER blocking feedback before LV2 acceptance could proceed; LV2 returned-result digestion must not continue until repair, Hardening rerun, refreshed LV1 handoff, and returned USER acceptance or waiver`
 - Active Branch: `feature/fam-006-monitoring-hud-product-surface`
@@ -66,17 +66,17 @@ This branch may execute the admitted PKG-006 implementation slices during Workst
 ## Blockers
 
 - `Backlog Completion Unproven`
+- `WS41 Child-Window Scope User Admission Missing`
 
-Package completion is not currently claimed. Stage 2-R13 cleared the earlier Branch Readiness planning latches and handed the branch to Dashboard-focused Workstream repair, but the refreshed LV1 handoff later received USER blocking feedback before LV2 acceptance. Stage 2 recorded that affected Workstream/H1/LV1 evidence is supporting but stale and LV2 must not continue. WS37 now repairs the first runtime safety packet under the Dashboard-first primary-interface boundary; additional Workstream repairs remain required before Hardening and Live Validation rerun.
+Package completion is not currently claimed. Stage 2-R13 cleared the earlier Branch Readiness planning latches and handed the branch to Dashboard-focused Workstream repair, but the refreshed LV1 handoff later received USER blocking feedback before LV2 acceptance. Stage 2 recorded that affected Workstream/H1/LV1 evidence is supporting but stale and LV2 must not continue. WS37 through WS40 repaired runtime/window/tray safety, NCP regression isolation, Dashboard window ownership/focus/movement, Dashboard shell/layout/frame/resize/readability, and Dashboard IA/content/naming/control-hub. WS41 child-window implementation now requires explicit USER admission before runtime implementation; Dashboard-specific proof, Hardening rerun, refreshed LV1, and returned USER acceptance remain pending.
 
 ## Acceptance Guards
 
 - `Dashboard Acceptance Blocked By USER Feedback`
 - `Element Proof Stale`
 - `User-Facing Element Acceptance Missing`
-- `Dashboard Window Focus And Movement Safety Pending`
-- `Dashboard Shell Layout And Resize Repair Pending`
-- `Dashboard Information Architecture And Content Repair Pending`
+- `WS41 Child-Window Scope User Admission Missing`
+- `Dashboard-Specific Proof Refresh Pending`
 - `User Test Summary Results Pending`
 
 ## Returned LV1 Repair Findings
@@ -170,17 +170,17 @@ Rollback Path: revert this Branch Readiness Stage 2 source-truth repair commit o
 
 - `Workstream`
 
-Next Legal Seam: `Workstream WS40 - Dashboard IA Content Naming And Control Hub Repair`
+Next Legal Seam: `Workstream WS41 - Dashboard Child-Window Scope Implementation If Admitted`
 
-Next Legal Phase Gate: WS39 records the Dashboard shell/layout/frame/resize/readability packet green and keeps the branch in Workstream for the remaining Dashboard repair sequence. Codex must not continue LV2, enter Hardening, enter PR Readiness, create a PR, watcher, release, tag, artifact, direct-main mutation, voice/audio implementation, Stream Deck/plugin telemetry implementation, local AI, installer/capability-pack work, broad hardware provider implementation, persona switching implementation, ARIA activation, Overlay/display release acceptance, or a new FAM/package without later explicit USER approval.
+Next Legal Phase Gate: WS40 records the Dashboard IA/content/naming/control-hub packet green and keeps the branch in Workstream for the remaining Dashboard repair/proof sequence. Codex must not continue LV2, enter Hardening, enter PR Readiness, create a PR, watcher, release, tag, artifact, direct-main mutation, voice/audio implementation, Stream Deck/plugin telemetry implementation, local AI, installer/capability-pack work, broad hardware provider implementation, persona switching implementation, ARIA activation, Overlay/display release acceptance, or a new FAM/package without later explicit USER approval.
 
-Post-FAM-006 Required Marker Adoption Candidate: `Repo-Wide High-Risk Source Owner Marker Adoption`; candidate branch `feature/repo-wide-source-owner-marker-adoption`; requirement is recorded for after the current FAM-006 branch closes and does not authorize branch creation, package admission, PR Readiness, runtime behavior changes, or bypass of the active LV2 UTS pending gate.
+Post-FAM-006 Required Marker Adoption Candidate: `Repo-Wide High-Risk Source Owner Marker Adoption`; candidate branch `feature/repo-wide-source-owner-marker-adoption`; requirement is recorded for after the current FAM-006 branch closes and does not authorize branch creation, package admission, PR Readiness, runtime behavior changes, or bypass of the active LV2 UTS pending gate. USER-facing element review-mode adoption is part of that future candidate's scope and remains tabled for planning-heavy Dev Toolkit design: existing and future interface elements, including NCP, Core visualization, Dashboard, Overlay/display when admitted, and other windows/components, should receive Dev Toolkit Interface Review Mode dispositions and dev-only badges/hover/ledger tooltip inspection where applicable; future design should decide per-interface launchers, a generalized all-surfaces review-mode launch, or both.
 
 ## Active Seam
 
-Active seam: `Workstream WS40 - Dashboard IA Content Naming And Control Hub Repair`
+Active seam: `Workstream WS41 - Dashboard Child-Window Scope Implementation If Admitted`
 
-Active Seam Status: `Ready for bounded Workstream continuation after WS39 repaired Dashboard title/header, sticky title/status group, frame/scrollbar ownership, readability wrapping, button hierarchy, and native edge/corner resize posture; LV2 remains blocked`
+Active Seam Status: `Ready for USER scope decision or bounded Workstream continuation after WS40 repaired Dashboard control-hub IA, content naming, home-surface proof/debug reroute, polling placement, and Warning Notifications terminology; LV2 remains blocked`
 
 ## Branch Objective
 
@@ -238,7 +238,7 @@ Element Delta Capture Rule: `Every later seam or repair that creates, touches, o
 
 High-Risk Source Owner Marker Posture: `Ledger rows are canonical. Source-code ownership markers are backlinks only and are high-risk-elements-only until a future repo-wide marker adoption branch/package is admitted. Existing FAM-006 code is not retroactively marked by this governance repair alone. Marker-only proof cannot satisfy user-facing acceptance.`
 
-Future Repo-Wide Marker Adoption Recommendation: `Promoted to required post-FAM-006 governance/package candidate. After the current FAM-006 branch closes, USER direction requires Repo-Wide High-Risk Source Owner Marker Adoption as the next governance/package branch candidate, with candidate branch feature/repo-wide-source-owner-marker-adoption. The future pass must scan existing source code, identify high-risk product/proof-bearing code regions, map regions to existing or new Element Validation Ledger rows, add source-owner markers where useful, validate marker-to-ledger consistency, and keep runtime behavior unchanged unless a separately admitted repair is required. Branch creation and package admission remain blocked until the appropriate later readiness path admits the carrier.`
+Future Repo-Wide Marker Adoption Recommendation: `Promoted to required post-FAM-006 governance/package candidate. After the current FAM-006 branch closes, USER direction requires Repo-Wide High-Risk Source Owner Marker Adoption as the next governance/package branch candidate, with candidate branch feature/repo-wide-source-owner-marker-adoption. The future pass must scan existing source code, identify high-risk product/proof-bearing code regions, map regions to existing or new Element Validation Ledger rows, add source-owner markers where useful, validate marker-to-ledger consistency, and keep runtime behavior unchanged unless a separately admitted repair is required. USER-facing element Dev Toolkit Interface Review Mode adoption is included and tabled for planning-heavy design across existing and future interface surfaces, including NCP, Core visualization, Dashboard, Overlay/display when admitted, and other windows/components, using dev-only element badges, hover highlighting, ledger ID/name tooltips, and screenshot-friendly annotations; future design should decide per-interface launchers, a generalized all-surfaces review-mode launch, or both. Branch creation and package admission remain blocked until the appropriate later readiness path admits the carrier.`
 
 ## Element Validation Ledger
 
@@ -265,7 +265,7 @@ Summary Row Note: `The rows below preserve the branch-record summary IDs require
 | `FAM006-PROOF-LV-007` | Dashboard-specific proof, screenshots, and UTS handoff | Proof / validation artifact | Monitoring HUD Dashboard | Created / touched | User-facing artifact and internal support | Visible artifact / invisible support | Proof path separates Dashboard acceptance from Overlay/display acceptance, captures full-desktop evidence, and keeps formal UTS export and returned-result digestion inside Live Validation. | High | `dev/orin_monitoring_hud_surface_validation.py`; `dev/orin_monitoring_hud_internal_sandbox_validation.py`; `dev/orin_monitoring_hud_live_validation.ps1`; `C:\Users\anden\OneDrive\Desktop\User Test Summary.txt` | Source-owner-not-applicable until future marker adoption. | Static validation, internal sandbox, live-client screenshot manifest, UTS handoff and returned-result digestion. | WS35 proof recorded. | H1 pressure-test PASS. | LV1 Stage 1 handoff PASS; LV2 returned-result digest pending. | Live Validation LV2 | UTS results pending | `User Test Summary Results Pending` remains an active blocker. |
 | `FAM006-OVERLAY-DEFER-008` | Overlay/display release acceptance boundary | Interface surface | Monitoring HUD Overlay/display | Deferred / non-gating supporting | Future user-facing | Visible if launched, non-gating | Existing Overlay/display implementation is preserved as deferred/dormant/non-gating evidence and must not block or satisfy Dashboard acceptance unless USER later grants interface-bundle approval or admits a future Overlay branch/package. | High | `nexus_visual/monitoring_hud.html`; `nexus_visual/monitoring_hud.css`; `nexus_visual/monitoring_hud.js`; `desktop/orin_desktop_main.py`; `desktop/monitoring_hud_placement.py` | Source-owner-not-applicable until future marker adoption. | Boundary validation only for current branch; no current acceptance claim. | WS31 non-gating enforcement; WS18-WS30 historical/supporting only. | H1 confirms non-gating classification. | LV1 Dashboard-first proof does not require Overlay acceptance. | Future branch/package | Deferred / non-gating supporting | Future Overlay/display release needs separate acceptance path. |
 | `FAM006-CORE-DEP-009` | ORIN/Core desktop independence dependency | Dependency / coupling | ORIN/Core visualization | Dependency-only | User-facing dependency, not released FAM-006 interface | Visible Core / invisible ownership behavior | ORIN/Core remains independent, fixed to preset monitor behavior, not attached to Dashboard or Overlay release acceptance, and not a movable HUD/dashboard surface. | High | `desktop/core_visualization_renderer.py`; `desktop/desktop_renderer.py`; `nexus_visual/orin_core_desktop.html`; `nexus_visual/orin_core.css`; `dev/orin_monitoring_hud_live_validation.ps1` | Source-owner-not-applicable until future marker adoption. | Dependency proof, before/after screenshots, live-client non-coupling proof. | WS18/WS30 dependency repair proof preserved. | H1 pressure-test confirms dependency-only posture. | LV1 Dashboard-first proof treats Core as dependency only. | Live Validation LV2 / future Core repair if regressed | Dependency-only supporting | Does not become a released FAM-006 interface. |
-| `FAM006-SRCMARK-FUTURE-010` | Repo-wide high-risk source-owner marker adoption | Source-truth / validator support | Repo-wide source code | Future / post-FAM-006 required governance-package candidate | Internal support | Invisible | After FAM-006 closes, the required marker-adoption candidate should add lightweight source-owner markers for high-risk product/proof-bearing code regions, map them to Element Validation Ledger rows, and validate marker-to-ledger consistency without changing runtime behavior by default. | Medium | Future scan across product/runtime/UI/validator source files | Future marker adoption; no marker required in this branch by this row. Ledger remains canonical and markers are backlinks only. | Future governance/package validation; current branch records the post-FAM-006 requirement only. | Not current Workstream scope. | Not current Hardening scope. | Not current Live Validation scope. | Post-FAM-006 Branch Readiness / future governance package | Required post-FAM-006 candidate | Candidate branch: `feature/repo-wide-source-owner-marker-adoption`. Branch creation, package admission, and runtime mutation remain blocked until the appropriate later readiness path admits them. |
+| `FAM006-SRCMARK-FUTURE-010` | Repo-wide high-risk source-owner marker and Dev Toolkit review adoption | Source-truth / validator support | Repo-wide source code and Dev Toolkit | Future / post-FAM-006 required governance-package candidate | Internal support / USER review support | Invisible plus dev-only visible review surfaces | After FAM-006 closes, the required marker-adoption candidate should add lightweight source-owner markers for high-risk product/proof-bearing code regions, map them to Element Validation Ledger rows, validate marker-to-ledger consistency, and add Dev Toolkit Interface Review Mode dispositions/dev-only review affordances for existing and future USER-facing elements including NCP, Core visualization, Dashboard, Overlay/display when admitted, and other windows/components, without changing production runtime behavior by default. | Medium | Future scan across product/runtime/UI/validator source files and Dev Toolkit surfaces | Future marker/review-mode adoption; no marker or Dev Toolkit badge required in this branch by this row. Ledger remains canonical; markers and review badges are backlinks/inspection aids only. | Future governance/package validation; current branch records the post-FAM-006 requirement only. | Not current Workstream scope. | Not current Hardening scope. | Not current Live Validation scope. | Post-FAM-006 Branch Readiness / future governance package | Required post-FAM-006 candidate | Candidate branch: `feature/repo-wide-source-owner-marker-adoption`. The Dev Toolkit review-mode design is tabled for that planning-heavy pass, including whether to use per-interface launchers, a generalized all-surfaces review-mode launch, or both. Branch creation, package admission, production UI badges, and runtime mutation remain blocked until the appropriate later readiness path admits them. |
 
 ## Product Definition Plan
 
@@ -505,9 +505,9 @@ Branch Closure Rule: Stage 2-R13 handed this branch back to bounded Dashboard-fo
 ## Backlog Completion Status
 
 Backlog Completion State: `In Progress`
-Remaining Implementable Work: `Dashboard-focused Workstream repair continues with WS40 Dashboard IA/content/naming/control-hub repair, WS41 Dashboard child-window scope implementation if admitted, and WS42 Dashboard-specific static/live proof and LV1 handoff readiness`
+Remaining Implementable Work: `Dashboard-focused Workstream repair continues with WS41 Dashboard child-window scope implementation if admitted and WS42 Dashboard-specific static/live proof and LV1 handoff readiness`
 Future-Dependent Blockers: `full HWInfo/HWMonitor-level parity, broad plugin/external telemetry ecosystem, audio/spoken alerts or FAM-004 integration, persona switching implementation and ARIA activation, Stream Deck, graphs/history/persistence/dashboards, local AI/capability-pack monitoring, installer/capability-pack work, and ultra-low polling intervals remain deferred pending later approval, admission, and proof`
-Completion Status: `In Progress`
+Completion Status: `Red`
 
 ## Planning-Loop Guardrail
 
@@ -716,16 +716,16 @@ Historical Stop Basis: `Stage 2-R13 Dashboard-first Workstream handoff supersede
 
 ## Seam Continuation Decision
 
-Seam Status: In Progress
+Seam Status: Blocked
 Slice Status: In Progress
-Completion Status: In Progress
+Completion Status: Red
 Waiver Status: None
-Continue Decision: Continue
-Continuation Execution Latch: Active - final response is prohibited while continuation remains active; the next seam must execute in the same bounded Workstream run after WS39 durability unless a lawful Stop decision is recorded.
-Stop Basis: None
-Next Active Seam: Workstream WS40 - Dashboard IA Content Naming And Control Hub Repair
-Stop Condition: None at WS39 seam level; Dashboard acceptance remains blocked until the remaining repair sequence, Hardening rerun, refreshed LV1, and returned USER PASS/WAIVED results or waiver complete.
-Continuation Action: Continue within bounded Workstream to WS40. Preserve Dashboard-first boundary, Overlay/display non-gating status, Core dependency-only status, LV2 blocked, PR blocked, PKG-006 In Progress, package completion unclaimed, no single-seam waiver, and no PR/release work.
+Continue Decision: Stop
+Continuation Execution Latch: Inactive - WS41 has a named USER admission blocker; final response is permitted after WS40 validation and durability.
+Stop Basis: Named Blocker
+Next Active Seam: Workstream WS41 - Dashboard Child-Window Scope Implementation If Admitted
+Stop Condition: WS41 Child-Window Scope User Admission Missing - WS41 requires USER admission before implementation; Dashboard acceptance remains blocked until the remaining repair/proof sequence, Hardening rerun, refreshed LV1, and returned USER PASS/WAIVED results or waiver complete.
+Continuation Action: Stop for USER admission if WS41 is not admitted; otherwise continue within bounded Workstream to WS41. Preserve Dashboard-first boundary, Overlay/display non-gating status, Core dependency-only status, LV2 blocked, PR blocked, PKG-006 In Progress, package completion unclaimed, no single-seam waiver, and no PR/release work.
 
 ## Live Validation Stage 1 Continuation Decision
 
@@ -736,7 +736,7 @@ Completion Detail: Live Validation final green is blocked because USER returned 
 Waiver Status: None
 Continue Decision: Stop
 Stop Basis: Dashboard Acceptance Blocked By USER Feedback
-Next Active Seam: Workstream WS40 - Dashboard IA Content Naming And Control Hub Repair
+Next Active Seam: Workstream WS41 - Dashboard Child-Window Scope Implementation If Admitted
 Stop Condition: LV1 handoff proof superseded for affected Dashboard rows by returned USER feedback
 Continuation Action: Route through Branch Readiness Stage 2 source-truth repair, then bounded Workstream repair. Do not enter PR Readiness, create PR/watcher/release artifacts, claim package completion, or treat Codex self-QA as USER acceptance.
 
@@ -1565,6 +1565,32 @@ Validation Evidence Expectations: return PASS/FAIL plus any notes, screenshots, 
 - Continuation Execution Latch: `Active - next bounded Workstream seam is WS40`
 - Stop Basis: `No phase boundary crossing; no Hardening/Live Validation/PR transition authorized by WS39`
 - Next Legal Seam: `Workstream WS40 - Dashboard IA Content Naming And Control Hub Repair`
+
+## Workstream WS40 Dashboard IA Content Naming And Control Hub Repair
+
+- WS40 Admission: `PASS - bounded Workstream continuation required after WS39 because PKG-006 remains In Progress, no USER single-seam waiver exists, and the same-phase next repair/proof sequence was recorded`
+- WS40 Result: `Green for Dashboard IA/content/naming/control-hub repair - Dashboard acceptance, package completion, Hardening, Live Validation, PR Readiness, release, and Overlay/display acceptance remain unclaimed`
+- Control Hub Repair: `Dashboard home now presents product-facing control hub cards for Monitor Groups, Data Sources, HUD Display, Warning Notifications, and Readiness instead of an inline proof/settings dump`
+- Naming Repair: `Dashboard uses HUD Dashboard, Monitor Groups, Data Sources, HUD Display, and Warning Notifications terminology; old Warning posture, Monitor group to edit, Default polling, and Dashboard proof home-surface copy are removed from the product home`
+- Proof / Debug Reroute: `Technical proof and package status content remain validator artifacts, not Dashboard home content; Dashboard home no longer exposes Full desktop now, UTS, or package-status proof rows as product UI`
+- Dev Toolkit Review Boundary: `USER clarified that element-number review belongs to a repo-wide dev-only Dev Toolkit Interface Review Mode standard for existing and future USER-facing elements, including NCP, Core visualization, Dashboard, Overlay/display when admitted, and other windows/components; the design is tabled for planning-heavy Dev Toolkit scope, including whether to use per-interface launchers, generalized all-surfaces review-mode launch, or both; WS40 preserves this as Element Ledger row FAM006-DEV-INTERFACE-REVIEW-050 and governance truth, but does not implement production element numbers or widen Dashboard acceptance`
+- Polling Placement Repair: `Default polling is removed from the Dashboard home; Monitor Group Create/Edit defaults remain 1s inside Monitor Group configuration scope`
+- Provider / Data Sources Repair: `Provider setup is reframed as a compact Data Sources card with provider-first/no-fake-values state instead of a large proof table`
+- Warning Notifications Repair: `Warning posture is renamed to Warning Notifications, with a global visual mute posture that preserves individual Monitor Group settings`
+- Child-Window Boundary: `Create/Edit Monitor Group, Data Sources, and HUD Display Settings are represented as hub actions; full standalone child-window implementation remains WS41 if admitted and is not claimed by WS40`
+- Source Surfaces Touched: `nexus_visual/monitoring_hud.html`; `nexus_visual/monitoring_hud.css`; `nexus_visual/monitoring_hud.js`
+- Validator Surfaces Touched: `dev/orin_monitoring_hud_surface_validation.py`; `dev/orin_monitoring_hud_internal_sandbox_validation.py`; `dev/orin_branch_governance_validation.py`
+- Element Rows Updated: `FAM006-DASH-CONTENT-008`; `FAM006-DASH-MONITOR-GROUP-009`; `FAM006-DASH-MONITOR-ENABLE-010`; `FAM006-DASH-MONITOR-POLLING-011`; `FAM006-DASH-AFFORDANCE-COPY-012`; `FAM006-DASH-PROVIDER-015`; `FAM006-DASH-WARNING-017`; `FAM006-DASH-CHILD-WINDOW-049`; `FAM006-PROOF-STATIC-031`; `FAM006-PROOF-SANDBOX-032`; `FAM006-GOV-SOURCE-TRUTH-039`
+- Dashboard Acceptance State: `Still blocked - WS40 clears IA/content/naming/control-hub only; WS41 child-window implementation requires USER admission if pursued, and WS42 Dashboard-specific proof plus Hardening rerun, refreshed LV1, and returned USER acceptance remain pending`
+- Overlay Status: `Deferred/dormant/non-gating - Overlay/display acceptance is not claimed and deferred Overlay behavior remains outside current Dashboard acceptance`
+- Core Status: `Dependency-only - WS40 does not release ORIN/Core as a FAM-006 interface and does not require Core acceptance`
+- PKG-006 Status: `In Progress`
+- Package Completion: `Unclaimed`
+- PR Readiness: `Blocked`
+- Continue Decision: `Stop if WS41 child-window implementation is not USER-admitted; continue only if USER admits WS41 because PKG-006 remains In Progress and no single-seam waiver is recorded`
+- Continuation Execution Latch: `Conditional - next bounded Workstream seam is WS41 only if admitted by USER; otherwise WS40 records a lawful USER-admission blocker`
+- Stop Basis: `WS41 child-window implementation requires USER admission before runtime implementation; no Hardening/Live Validation/PR transition authorized by WS40`
+- Next Legal Seam: `Workstream WS41 - Dashboard Child-Window Scope Implementation If Admitted`
 
 ## Historical WS30 Codex Live Client Self-QA
 

@@ -314,8 +314,8 @@ body.desktop-mode #monitoring-hud > * {
 }
 
 .monitoring-hud__control-button,
-.monitoring-hud__polling-control select,
-.monitoring-hud__warning-control select {
+.monitoring-hud__hub-action,
+.monitoring-hud__selector-control select {
   min-height: 38px;
   border: 1px solid rgba(117, 228, 255, 0.22);
   border-radius: 999px;
@@ -339,32 +339,32 @@ body.desktop-mode #monitoring-hud > * {
   box-shadow: 0 0 18px rgba(91, 255, 214, 0.12);
 }
 
-.monitoring-hud__control-button[data-control="create-monitor"] {
+.monitoring-hud__control-button[data-control="create-monitor"],
+.monitoring-hud__hub-action[data-control="create-monitor"] {
   border-color: rgba(112, 216, 255, 0.42);
   background: linear-gradient(145deg, rgba(9, 55, 88, 0.88), rgba(5, 31, 54, 0.82));
 }
 
-.monitoring-hud__control-button[data-control="anchor-toggle"] {
+.monitoring-hud__control-button[data-control="edit-monitor"],
+.monitoring-hud__hub-action[data-control="edit-monitor"],
+.monitoring-hud__hub-action[data-control="open-data-sources"] {
+  border-color: rgba(126, 248, 218, 0.34);
+  background: linear-gradient(145deg, rgba(7, 57, 63, 0.82), rgba(5, 30, 48, 0.78));
+}
+
+.monitoring-hud__control-button[data-control="warning-notifications"],
+.monitoring-hud__hub-action[data-control="warning-notifications"] {
+  border-color: rgba(255, 214, 108, 0.42);
+  background: linear-gradient(145deg, rgba(82, 59, 13, 0.84), rgba(43, 31, 14, 0.76));
+  color: rgba(255, 246, 218, 0.96);
+}
+
+.monitoring-hud__control-button[data-control="anchor-toggle"],
+.monitoring-hud__control-button[data-control="snap-toggle"],
+.monitoring-hud__hub-action[data-control="hud-display-settings"] {
   border-color: rgba(149, 176, 194, 0.22);
   background: rgba(12, 29, 42, 0.58);
   color: rgba(181, 213, 224, 0.78);
-}
-
-.monitoring-hud__polling-control,
-.monitoring-hud__warning-control {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  color: rgba(173, 213, 226, 0.86);
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.monitoring-hud__polling-control select,
-.monitoring-hud__warning-control select {
-  padding: 8px 11px;
 }
 
 .monitoring-hud__anchor-rail span {
@@ -395,11 +395,11 @@ body.desktop-mode #monitoring-hud > * {
   overflow: hidden;
 }
 
+.monitoring-hud__control-hub,
 .monitoring-hud__monitor-selector {
   margin-top: 16px;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(245px, 1fr));
   gap: 12px;
   padding: 12px;
   border-radius: 22px;
@@ -411,8 +411,97 @@ body.desktop-mode #monitoring-hud > * {
   background-size: 20px 20px;
 }
 
+.monitoring-hud__hub-card {
+  display: flex;
+  min-width: 0;
+  min-height: 190px;
+  flex-direction: column;
+  gap: 11px;
+  padding: 14px;
+  border: 1px solid rgba(116, 240, 255, 0.13);
+  border-radius: 20px;
+  background:
+    radial-gradient(circle at 18% 12%, rgba(116, 240, 255, 0.08), transparent 34%),
+    rgba(4, 16, 29, 0.68);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.025);
+}
+
+.monitoring-hud__hub-card-topline {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.monitoring-hud__hub-card-topline span {
+  display: inline-grid;
+  width: 32px;
+  height: 32px;
+  place-items: center;
+  border-radius: 12px;
+  border: 1px solid rgba(105, 232, 255, 0.18);
+  background: rgba(12, 44, 61, 0.62);
+  color: rgba(120, 235, 255, 0.9);
+  font-size: 12px;
+  font-weight: 760;
+}
+
+.monitoring-hud__hub-card-topline strong {
+  flex: 1 1 auto;
+  min-width: 0;
+  color: rgba(234, 253, 255, 0.95);
+  font-size: 15px;
+  font-weight: 780;
+  letter-spacing: 0.075em;
+  text-transform: uppercase;
+}
+
+.monitoring-hud__hub-card p,
+.monitoring-hud__hub-card small {
+  margin: 0;
+  color: rgba(181, 218, 229, 0.86);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.36;
+}
+
+.monitoring-hud__hub-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.monitoring-hud__hub-action {
+  padding: 8px 12px;
+}
+
+.monitoring-hud__state-row {
+  display: grid;
+  grid-template-columns: minmax(82px, 0.36fr) minmax(0, 1fr);
+  gap: 8px;
+  align-items: start;
+  padding: 8px 0;
+  border-top: 1px solid rgba(119, 221, 255, 0.08);
+}
+
+.monitoring-hud__state-row span {
+  color: rgba(145, 202, 218, 0.82);
+  font-size: 11px;
+  font-weight: 720;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.monitoring-hud__state-row strong {
+  color: rgba(157, 246, 218, 0.9);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.28;
+}
+
 .monitoring-hud__selector-control {
   display: inline-flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 10px;
   font-size: 12px;

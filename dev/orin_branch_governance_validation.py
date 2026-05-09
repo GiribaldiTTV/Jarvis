@@ -300,6 +300,12 @@ FAM006_WS39_HEADING = (
 FAM006_WS39_NEXT_SEAM = (
     "Workstream WS40 - Dashboard IA Content Naming And Control Hub Repair"
 )
+FAM006_WS40_HEADING = (
+    "Workstream WS40 Dashboard IA Content Naming And Control Hub Repair"
+)
+FAM006_WS40_NEXT_SEAM = (
+    "Workstream WS41 - Dashboard Child-Window Scope Implementation If Admitted"
+)
 FAM006_H1_HEADING = "Hardening H1 Dashboard-First Product Surface Rerun"
 FAM006_H1_NEXT_SEAM = (
     "Live Validation LV1 - Monitoring HUD Product Surface Live Validation Rerun"
@@ -648,6 +654,32 @@ FAM006_WS39_REQUIRED_PHRASES = (
     "Next Legal Seam:",
     FAM006_WS39_NEXT_SEAM,
 )
+FAM006_WS40_REQUIRED_PHRASES = (
+    "WS40 Result:",
+    "Green for Dashboard IA/content/naming/control-hub repair",
+    "Control Hub Repair:",
+    "Monitor Groups",
+    "Data Sources",
+    "HUD Display",
+    "Warning Notifications",
+    "Proof / Debug Reroute:",
+    "validator artifacts, not Dashboard home content",
+    "Polling Placement Repair:",
+    "Monitor Group Create/Edit",
+    "Child-Window Boundary:",
+    "WS41 if admitted",
+    "Dashboard Acceptance State:",
+    "Still blocked",
+    "Overlay Status:",
+    "Deferred/dormant/non-gating",
+    "Core Status:",
+    "Dependency-only",
+    "Package Completion:",
+    "Unclaimed",
+    "Continuation Execution Latch:",
+    "Next Legal Seam:",
+    FAM006_WS40_NEXT_SEAM,
+)
 FAM006_H1_REQUIRED_PHRASES = (
     "H1 Admission:",
     "PASS - USER explicitly admitted Hardening H1",
@@ -911,14 +943,19 @@ SOURCE_OWNER_MARKER_ADOPTION_NEXT_BRANCH_REQUIRED_PHRASES = {
         "feature/repo-wide-source-owner-marker-adoption",
         "required post-FAM-006 governance/package candidate",
         "Branch creation and package admission remain blocked until the appropriate later readiness path",
-        "Ledger remains canonical and markers are backlinks only",
+        "Dev Toolkit Interface Review Mode adoption is included and tabled",
+        "NCP, Core visualization, Dashboard, Overlay/display when admitted",
+        "Ledger remains canonical; markers and review badges are backlinks/inspection aids only",
     ),
     Path("Docs/prebeta_roadmap.md"): (
         "required post-FAM-006 governance/package candidate:",
         "Repo-Wide High-Risk Source Owner Marker Adoption",
         "feature/repo-wide-source-owner-marker-adoption",
         "does not create/admit the branch",
-        "validate marker-to-ledger consistency while preserving the ledger as canonical and markers as backlinks only",
+        "plan Dev Toolkit Interface Review Mode dispositions for existing and future USER-facing elements",
+        "NCP, Core visualization, Dashboard, Overlay/display when admitted",
+        "while preserving the ledger as canonical and markers/review badges as dev-only backlinks or inspection aids only",
+        "The Dev Toolkit design is tabled for that future pass",
     ),
     Path("Docs/feature_backlog.md"): (
         "Post-FAM-006 Required Governance/Package Candidate:",
@@ -926,6 +963,8 @@ SOURCE_OWNER_MARKER_ADOPTION_NEXT_BRANCH_REQUIRED_PHRASES = {
         "feature/repo-wide-source-owner-marker-adoption",
         "not as an active selected-next implementation branch or newly admitted package",
         "Later readiness must decide the legal carrier",
+        "plan repo-wide Dev Toolkit Interface Review Mode dispositions for existing and future USER-facing elements",
+        "The Dev Toolkit design is tabled for that future pass",
     ),
 }
 
@@ -5593,6 +5632,30 @@ def _validate_fam006_stage2_r6_plan(
                     f"'{required_phrase}'"
                 ),
             )
+        ws40_section = _section(text, FAM006_WS40_HEADING)
+        if ws40_section:
+            for phrase in FAM006_WS40_REQUIRED_PHRASES:
+                require(
+                    phrase in ws40_section,
+                    f"{source_path}: {FAM006_WS40_HEADING} is missing '{phrase}'",
+                )
+            require(
+                f"Active seam: `{FAM006_WS40_NEXT_SEAM}`" in text,
+                f"{source_path}: WS40 completion must advance active seam to WS41 scope seam",
+            )
+            require(
+                f"Next Active Seam: {FAM006_WS40_NEXT_SEAM}" in text,
+                f"{source_path}: WS40 completion must set Seam Continuation Decision next active seam to WS41",
+            )
+            require(
+                "Remaining Implementable Work: `Dashboard-focused Workstream repair continues with WS41"
+                in text,
+                (
+                    f"{source_path}: WS40 completion must preserve visible same-branch "
+                    "Dashboard repair/proof work beyond the current seam"
+                ),
+            )
+            return
         ws39_section = _section(text, FAM006_WS39_HEADING)
         if ws39_section:
             for phrase in FAM006_WS39_REQUIRED_PHRASES:

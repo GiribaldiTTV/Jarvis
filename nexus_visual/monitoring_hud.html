@@ -78,7 +78,7 @@
           </div>
           <div class="monitoring-hud__mode-stack">
             <div class="monitoring-hud__mode-pill" id="monitoring-hud-runtime-status">HUD feature disabled</div>
-            <div class="monitoring-hud__mode-pill monitoring-hud__mode-pill--quiet" id="monitoring-hud-anchor-status">Overlay deferred</div>
+            <div class="monitoring-hud__mode-pill monitoring-hud__mode-pill--quiet" id="monitoring-hud-anchor-status">HUD display deferred</div>
           </div>
         </div>
         <div class="monitoring-hud__surface-role" data-dashboard-role="configuration-settings-surface">
@@ -97,135 +97,125 @@
           <span>Hardware values stay hidden until a safe provider and validation route exist.</span>
         </div>
       </div>
-      <div class="monitoring-hud__toolbar" aria-label="Monitoring dashboard control panel controls">
+      <div class="monitoring-hud__toolbar" aria-label="HUD Dashboard primary controls">
         <button type="button" id="monitoring-hud-toggle" class="monitoring-hud__control-button" data-control="toggle-visibility">
           Enable HUD feature
         </button>
         <button type="button" id="monitoring-hud-anchor-toggle" class="monitoring-hud__control-button" data-control="anchor-toggle">
-          Overlay deferred
+          HUD display deferred
         </button>
         <button type="button" id="monitoring-hud-create-monitor" class="monitoring-hud__control-button" data-control="create-monitor">
-          Create group
+          Create Monitor Group
+        </button>
+        <button type="button" id="monitoring-hud-edit-monitor" class="monitoring-hud__control-button" data-control="edit-monitor" data-child-window-target="monitor-group-editor" aria-disabled="true">
+          Edit Monitor Group
         </button>
         <button type="button" id="monitoring-hud-snap-toggle" class="monitoring-hud__control-button" data-control="snap-toggle">
-          Future snap on
+          HUD display settings
         </button>
-        <label class="monitoring-hud__polling-control">
-          Default polling
-          <select id="monitoring-hud-polling-rate" aria-label="Monitoring HUD polling cadence">
-            <option value="1000">1s</option>
-            <option value="2000">2s</option>
-            <option value="5000">5s</option>
-            <option value="10000">10s</option>
-          </select>
-        </label>
-        <label class="monitoring-hud__warning-control">
-          Warning posture
-          <select id="monitoring-hud-warning-mode-control" aria-label="Visual warning posture">
-            <option value="badge-text-color">Badge + text + color</option>
-            <option value="badge-only">Visual badge only</option>
-            <option value="text-color">Text + color state</option>
-          </select>
-        </label>
+        <button type="button" id="monitoring-hud-warning-toggle" class="monitoring-hud__control-button" data-control="warning-notifications">
+          Warning Notifications On
+        </button>
       </div>
       <div class="monitoring-hud__anchor-rail" aria-label="Move anchor and task tray posture">
         <span>Standalone dashboard window</span>
-        <span id="monitoring-hud-snap-label">Future overlay snap</span>
-        <span id="monitoring-hud-placement-pointer">Overlay anchor posture</span>
+        <span id="monitoring-hud-snap-label">HUD display deferred</span>
+        <span id="monitoring-hud-placement-pointer">Dashboard controls future HUD display</span>
         <span id="monitoring-hud-tray-path">Tray feature toggle</span>
         <span>No default keybinds</span>
       </div>
       <div
-        class="monitoring-hud__monitor-selector"
+        class="monitoring-hud__control-hub"
         id="monitoring-hud-monitor-list"
-        data-dashboard-content="monitor-group-settings-list"
+        data-dashboard-content="control-hub-cards"
         data-dashboard-monitor-display-policy="settings-only-no-monitor-cards"
         data-dashboard-monitor-model="organizational-groups-settings-only"
-        aria-label="Dashboard monitor group selector and configuration entry point"
+        data-child-window-model="hub-actions-standalone-child-windows-next"
+        aria-label="HUD Dashboard control hub cards"
       >
-        <label class="monitoring-hud__selector-control">
-          Monitor group to edit
-          <select id="monitoring-hud-monitor-selector" aria-label="Select monitor group to edit">
-            <option value="cpu" data-monitor-config-option="cpu">CPU Group</option>
-            <option value="gpu" data-monitor-config-option="gpu">GPU Group</option>
-          </select>
-        </label>
-        <span id="monitoring-hud-monitor-list-summary">2 monitor groups configured; Dashboard edits settings while Overlay owns display cards.</span>
+        <article class="monitoring-hud__hub-card" data-dashboard-hub-card="monitor-groups" data-slice="SLC-027">
+          <div class="monitoring-hud__hub-card-topline">
+            <span>01</span>
+            <strong>Monitor Groups</strong>
+          </div>
+          <p id="monitoring-hud-monitor-list-summary">2 Monitor Groups configured. Polling defaults to 1s inside Create/Edit, not on the Dashboard home.</p>
+          <label class="monitoring-hud__selector-control">
+            Selected Monitor Group
+            <select id="monitoring-hud-monitor-selector" aria-label="Select Monitor Group for the Edit action">
+              <option value="cpu" data-monitor-config-option="cpu">CPU Group</option>
+              <option value="gpu" data-monitor-config-option="gpu">GPU Group</option>
+            </select>
+          </label>
+          <div class="monitoring-hud__hub-actions">
+            <button type="button" class="monitoring-hud__hub-action" data-control="create-monitor">Create</button>
+            <button type="button" class="monitoring-hud__hub-action" data-control="edit-monitor" data-child-window-target="monitor-group-editor" aria-disabled="true">Edit</button>
+          </div>
+          <small id="monitoring-hud-monitor-editor-scope">Monitor Groups organize what the future HUD displays; the Dashboard does not render display cards or fake values.</small>
+        </article>
+        <article class="monitoring-hud__hub-card" data-dashboard-hub-card="data-sources" data-slice="SLC-025">
+          <div class="monitoring-hud__hub-card-topline">
+            <span>02</span>
+            <strong>Data Sources</strong>
+          </div>
+          <p>Provider truth and setup live here. Hardware values stay hidden until a safe provider and validation route exist.</p>
+          <div class="monitoring-hud__state-row">
+            <span>Status</span>
+            <strong id="monitoring-hud-adapter-status">Waiting for safe provider</strong>
+          </div>
+          <div class="monitoring-hud__state-row">
+            <span>Truth rule</span>
+            <strong id="monitoring-hud-source-scope">Provider-first; no fake values</strong>
+          </div>
+          <button type="button" class="monitoring-hud__hub-action" data-control="open-data-sources" data-child-window-target="data-sources" aria-disabled="true">Open Data Sources</button>
+        </article>
+        <article class="monitoring-hud__hub-card" data-dashboard-hub-card="hud-display" data-slice="SLC-026">
+          <div class="monitoring-hud__hub-card-topline">
+            <span>03</span>
+            <strong>HUD Display</strong>
+          </div>
+          <p id="monitoring-hud-placement-owner">Future HUD display is deferred. The Dashboard can store settings now without asking for Overlay acceptance.</p>
+          <div class="monitoring-hud__state-row">
+            <span>Display status</span>
+            <strong id="monitoring-hud-placement-anchor">Deferred / non-gating</strong>
+          </div>
+          <div class="monitoring-hud__state-row">
+            <span>Layout posture</span>
+            <strong id="monitoring-hud-resize-posture">Prepared for future HUD display branch</strong>
+          </div>
+          <button type="button" class="monitoring-hud__hub-action" data-control="hud-display-settings" data-child-window-target="hud-display-settings" aria-disabled="true">Open HUD Display Settings</button>
+        </article>
+        <article class="monitoring-hud__hub-card" data-dashboard-hub-card="warning-notifications" data-slice="SLC-027">
+          <div class="monitoring-hud__hub-card-topline">
+            <span>04</span>
+            <strong>Warning Notifications</strong>
+          </div>
+          <p>Global visual warnings can be muted here without overwriting individual Monitor Group settings.</p>
+          <div class="monitoring-hud__state-row">
+            <span>Global state</span>
+            <strong id="monitoring-hud-warning-posture">Visual notifications enabled</strong>
+          </div>
+          <button type="button" class="monitoring-hud__hub-action" data-control="warning-notifications">Mute globally</button>
+        </article>
+        <article class="monitoring-hud__hub-card" data-dashboard-hub-card="readiness" data-slice="SLC-028">
+          <div class="monitoring-hud__hub-card-topline">
+            <span>05</span>
+            <strong>Readiness</strong>
+          </div>
+          <p>The Dashboard should explain setup, unavailable, and degraded states without showing fake telemetry.</p>
+          <div class="monitoring-hud__state-row">
+            <span>Setup</span>
+            <strong id="monitoring-hud-status-label">Provider setup required</strong>
+          </div>
+          <div class="monitoring-hud__state-row">
+            <span>No data</span>
+            <strong id="monitoring-hud-no-data-behavior">Show unavailable; no fake values</strong>
+          </div>
+          <div class="monitoring-hud__state-row">
+            <span>Degraded</span>
+            <strong id="monitoring-hud-degraded-behavior">Name reconnect/setup gap</strong>
+          </div>
+        </article>
       </div>
-      <div class="monitoring-hud__monitor-editor" data-dashboard-content="monitor-group-management" aria-label="Monitor group create edit and enablement controls">
-        <span class="monitoring-hud__config-heading">Monitor group editor</span>
-        <strong class="monitoring-hud__config-heading">Settings/control surface</strong>
-        <span>Selected group</span>
-        <strong id="monitoring-hud-monitor-editor-title">CPU Group</strong>
-        <span>Future overlay visibility</span>
-        <label class="monitoring-hud__inline-control">
-          <input type="checkbox" id="monitoring-hud-monitor-enabled" checked />
-          Enabled in future overlay
-        </label>
-        <span>Group polling</span>
-        <select id="monitoring-hud-monitor-polling-rate" aria-label="Selected monitor group polling cadence">
-          <option value="1000">1s</option>
-          <option value="2000">2s</option>
-          <option value="5000">5s</option>
-          <option value="10000">10s</option>
-        </select>
-        <span>Scope rule</span>
-        <strong id="monitoring-hud-monitor-editor-scope">Monitor groups organize sensors; dashboard does not render display cards or fake values.</strong>
-      </div>
-    </div>
-    <div class="monitoring-hud__telemetry" data-slice="SLC-025" data-dashboard-content="provider-setup" aria-label="Provider setup guidance">
-      <span class="monitoring-hud__config-heading">Provider setup</span>
-      <strong class="monitoring-hud__config-heading">Declare what data can be trusted</strong>
-      <span>Live readings</span>
-      <strong id="monitoring-hud-adapter-status">Waiting for safe provider</strong>
-      <span>Truth rule</span>
-      <strong id="monitoring-hud-source-scope">Provider-first; no fake values</strong>
-      <span>Default cadence</span>
-      <strong id="monitoring-hud-hardware-polling">1s after provider proof</strong>
-      <span>Provider states</span>
-      <strong id="monitoring-hud-provider-state-matrix">Setup / no data / degraded / ready</strong>
-    </div>
-    <div class="monitoring-hud__placement" data-slice="SLC-026" data-dashboard-content="future-overlay-behavior" aria-label="Future overlay behavior configuration">
-      <span class="monitoring-hud__config-heading">Future overlay behavior</span>
-      <strong class="monitoring-hud__config-heading">Prepare, do not accept, Overlay display</strong>
-      <span>Current output</span>
-      <strong id="monitoring-hud-placement-owner">Separate minimal HUD overlay</strong>
-      <span>Placement plan</span>
-      <strong id="monitoring-hud-placement-anchor">Anchor anywhere after OS proof</strong>
-      <span>Card layout</span>
-      <strong id="monitoring-hud-resize-posture">Cards resize and snap in overlay edit mode</strong>
-    </div>
-    <div class="monitoring-hud__controls" data-slice="SLC-027" data-dashboard-content="dashboard-controls" aria-label="Dashboard controls and settings">
-      <span class="monitoring-hud__config-heading">Dashboard controls</span>
-      <strong class="monitoring-hud__config-heading">Adjust without cluttering the HUD</strong>
-      <span>Visibility</span>
-      <strong id="monitoring-hud-controls-visibility">Enable or disable HUD feature from dashboard/tray</strong>
-      <span>Anchor mode</span>
-      <strong id="monitoring-hud-controls-surface">Dashboard controls HUD feature state; Overlay controls remain deferred</strong>
-      <span>Layout</span>
-      <strong id="monitoring-hud-controls-persistence">Store group/layout posture locally</strong>
-    </div>
-    <div class="monitoring-hud__status-model" data-slice="SLC-028" data-dashboard-content="readiness-states" aria-label="Setup no-data and degraded states">
-      <span class="monitoring-hud__config-heading">Readiness states</span>
-      <strong class="monitoring-hud__config-heading">Be clear when data is not ready</strong>
-      <span>Setup</span>
-      <strong id="monitoring-hud-status-label">Provider setup required</strong>
-      <span>No data</span>
-      <strong id="monitoring-hud-no-data-behavior">Show unavailable; no fake values</strong>
-      <span>Degraded</span>
-      <strong id="monitoring-hud-degraded-behavior">Name reconnect/setup gap</strong>
-    </div>
-    <div class="monitoring-hud__grid" data-dashboard-content="dashboard-proof-next-actions" aria-label="Dashboard next actions">
-      <span class="monitoring-hud__config-heading">Dashboard proof</span>
-      <strong class="monitoring-hud__config-heading">What the user can trust now</strong>
-      <span>Warnings</span>
-      <strong id="monitoring-hud-warning-posture">Visual badge, text label, and color state only</strong>
-      <span>Proof</span>
-      <strong>Full desktop now; UTS only in Live Validation Stage 1</strong>
-      <span>Setup path</span>
-      <strong>Provider setup before live values</strong>
-      <span>Package status</span>
-      <strong>PKG-006 in progress</strong>
     </div>
   </section>
 
