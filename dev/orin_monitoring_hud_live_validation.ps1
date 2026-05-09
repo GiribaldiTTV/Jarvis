@@ -400,20 +400,25 @@ Codex Self-QA Before Live Validation Stage 1 Handoff
 - Live Validation Stage 2 advancement is BLOCKED until USER returns this file or explicitly waives it and Codex digests the result.
 
 What This Test Is Checking
-- The Monitoring Dashboard is the current branch's primary user-facing interface release surface.
-- The Dashboard is a Nexus/NDAI settings and control panel for HUD capability, monitor groups, monitor settings, polling posture, warning posture, provider/setup states, and future Overlay/display behavior.
+- The HUD Dashboard is the current branch's primary user-facing interface release surface.
+- The Dashboard is a Nexus/NDAI settings and control hub for HUD Overlay posture, monitor groups, warning notifications, data-source/readiness truth, and future Overlay/display behavior.
+- This rerun specifically checks the returned-feedback repair set: tray enable/disable, Dashboard tray open/close, disable-HUD recovery, Dashboard frame/scrollbar ownership, resize, deadzone removal, sticky-header masking, action cleanup, HUD Overlay terminology, and deferred/broken button handling.
 - Overlay/display release acceptance is deferred and non-gating for this branch's Dashboard acceptance path. Do not fail this Dashboard handoff because Overlay/display release acceptance is not being requested.
 - ORIN/Core is dependency-only proof for desktop safety. It should remain independent from the Dashboard and should not be judged as a released FAM-006 interface in this handoff.
-- Dashboard proof should show a visible, readable, polished, independently movable control panel with no clipping, no Core/Overlay coupling, no fake telemetry, provider-contract-first setup/no-data/degraded truth, and visual/non-invasive warning controls.
+- Dev Toolkit Interface Review Mode and full standalone child-window implementation are deferred/future. Do not fail this Dashboard handoff because those future branches are not implemented here.
+- NCP placement/persistence item #20 is deferred unless the current FAM-006 Dashboard/HUD path visibly causes or worsens it during this test.
+- Dashboard proof should show a visible, readable, polished, independently movable control hub with no clipping, no Core/Overlay coupling, no fake telemetry, provider-contract-first setup/no-data/degraded truth, and visual/non-invasive warning controls.
 - Each test step below lists the ledger rows it covers so LV2 can digest returned USER results at the element level instead of relying on broad "Dashboard green" claims.
 
 Expected Outcome
-- Dashboard reads as "HUD Dashboard" or equivalent settings/control copy, not as the final anchored HUD Overlay/display.
-- Dashboard controls are understandable for HUD capability, monitor group creation/editing, monitor enablement, polling posture, provider setup state, and warning posture.
+- Dashboard reads as "HUD Dashboard" or equivalent settings/control hub copy, not as the final anchored HUD Overlay/display.
+- Dashboard controls are understandable for HUD Overlay posture, Monitor Groups, Warning Notifications, Data Sources/Readiness, and current deferred boundaries.
+- Tray controls can enable/disable the HUD feature and open/close the HUD Dashboard without locking the app.
 - Dashboard moves as a standalone window without dragging Core or Overlay/display surfaces.
-- Dashboard is not clipped to the Core, Overlay/display, or a fixed render area.
+- Dashboard can be resized, owns its visible scrollbar/frame, has no obvious outer haze/square ghost frame, and does not leave large dead zones or floating content above the sticky header.
 - Provider/setup/no-data/degraded states are truthful and do not pretend unsupported hardware values are real.
 - Warning posture is visual/non-invasive only.
+- Data Sources and HUD Overlay controls do not appear as broken clickable current-scope actions when they are deferred.
 - No fake CPU/GPU/thermal values, unsupported provider claims, spoken/audio behavior, plugin-fed telemetry, PR work, release work, tags, or artifacts appear.
 - No retired product naming appears in repo-owned Dashboard/Core user-facing surfaces.
 
@@ -421,40 +426,52 @@ Test Steps
 1. Launch Nexus Desktop AI from the normal desktop shortcut or documented equivalent Live Validation path.
 Observed Results:
 
-2. Confirm the ORIN Core visualization remains independent and does not visibly attach to or move with the Dashboard.
+2. Use the tray controls to enable/disable the HUD feature and open/close the HUD Dashboard. Confirm the app remains usable, the Dashboard can be reopened, and disabling HUD does not lock the Dashboard, tray, NCP, or the program.
+Ledger rows: FAM006-HUD-FEATURE-TRAY-046; FAM006-HUD-TRAY-FLASH-051; FAM006-HUD-TRAY-STATE-LOCK-052; FAM006-DASH-TRAY-OPEN-CLOSE-053; FAM006-HUD-DISABLE-UNUSABLE-054.
+Observed Results:
+
+3. If you use tray Exit NDAI, confirm the governed confirmation/shutdown path is acceptable. Do not treat a separately desired shutdown redesign as Dashboard acceptance unless it blocks this FAM-006 path.
+Ledger rows: FAM006-TRAY-SHUTDOWN-CONFIRM-055.
+Observed Results:
+
+4. Confirm the ORIN Core visualization remains independent and does not visibly attach to or move with the Dashboard.
 Ledger rows: FAM006-CORE-DEP-025; FAM006-CORE-PRESET-026; FAM006-CORE-NONMOVABLE-027; FAM006-CORE-WORKERW-028; FAM006-CORE-TRANSPARENCY-029; FAM006-CORE-ISOLATION-030.
 Observed Results:
 
-3. Confirm the Monitoring Dashboard is visible as a Dashboard/control panel, not the final Overlay/display.
-Ledger rows: FAM006-DASH-SURFACE-001; FAM006-DASH-CONTENT-008; FAM006-DASH-VISUAL-006.
+5. Confirm the HUD Dashboard is visible as a Dashboard/control hub, not the final Overlay/display. It should not show the old proof-heavy/native CPU hero slab as the main home content.
+Ledger rows: FAM006-DASH-SURFACE-001; FAM006-DASH-CONTENT-008; FAM006-DASH-VISUAL-006; FAM006-DASH-PROVIDER-015.
 Observed Results:
 
-4. Move the Dashboard and confirm it behaves like a standalone window without clipping, disappearing, dragging the Core, or dragging the deferred Overlay/display.
-Ledger rows: FAM006-DASH-WINDOW-002; FAM006-DASH-MOVE-003; FAM006-DASH-CLIP-004.
+6. Move and resize the Dashboard. Confirm it behaves like a standalone normal window without clipping, disappearing, blocking NCP/other windows, stealing topmost focus, dragging the Core, or dragging the deferred Overlay/display.
+Ledger rows: FAM006-DASH-WINDOW-002; FAM006-DASH-MOVE-003; FAM006-DASH-CLIP-004; FAM006-DASH-FOCUS-047; FAM006-DASH-RESIZE-057; FAM006-NCP-REGRESSION-048.
 Observed Results:
 
-5. Confirm Dashboard controls are understandable for HUD capability, monitor groups, monitor enablement, polling posture, provider setup state, and warning posture.
-Ledger rows: FAM006-DASH-CONTENT-008; FAM006-DASH-MONITOR-GROUP-009; FAM006-DASH-MONITOR-ENABLE-010; FAM006-DASH-MONITOR-POLLING-011; FAM006-DASH-AFFORDANCE-COPY-012; FAM006-DASH-WARNING-017.
+7. Confirm the Dashboard frame, scrollbar, background texture, card spacing, and sticky title/header are visually coherent. The scrollbar should belong to the Dashboard chrome, the outer haze/square frame should not be visible, content should not float over the sticky title, and big empty dead zones should not dominate cards.
+Ledger rows: FAM006-DASH-LAYOUT-005; FAM006-DASH-VISUAL-006; FAM006-DASH-SCROLL-007; FAM006-DASH-FRAME-HAZE-056; FAM006-DASH-DEADZONE-058; FAM006-DASH-STICKY-OCCLUSION-059.
 Observed Results:
 
-6. Confirm monitor groups are organizational settings objects in the Dashboard, not display cards that imply Overlay/display acceptance.
+8. Confirm Dashboard controls are understandable and not redundant: Quick Access should prioritize Warning Notifications, Monitor Groups should own Create/Edit, Data Sources should be clearly deferred/disabled if not implemented, and HUD Overlay terminology should be used for Overlay-related items.
+Ledger rows: FAM006-DASH-CONTENT-008; FAM006-DASH-MONITOR-GROUP-009; FAM006-DASH-MONITOR-ENABLE-010; FAM006-DASH-MONITOR-POLLING-011; FAM006-DASH-AFFORDANCE-COPY-012; FAM006-DASH-WARNING-017; FAM006-DASH-QUICK-ACCESS-060; FAM006-DASH-DEFERRED-BUTTON-061; FAM006-DASH-HUD-OVERLAY-COPY-062.
+Observed Results:
+
+9. Confirm monitor groups are organizational settings objects in the Dashboard, not display cards that imply Overlay/display acceptance.
 Ledger rows: FAM006-DASH-MONITOR-GROUP-009; FAM006-OVERLAY-MONITOR-CARDS-023; FAM006-OVERLAY-DEFER-018.
 Observed Results:
 
-7. Confirm provider/setup/no-data/degraded copy is truthful and no fake CPU/GPU/thermal values are presented as real.
+10. Confirm provider/setup/no-data/degraded copy is truthful and no fake CPU/GPU/thermal values are presented as real.
 Ledger rows: FAM006-DASH-PROVIDER-015; FAM006-DASH-NOFAKE-016; FAM006-FUTURE-PROVIDER-041; FAM006-FUTURE-EXTERNAL-042.
 Observed Results:
 
-8. Confirm warning controls remain visual/non-invasive and do not introduce audio/spoken alerts or screen flash behavior.
+11. Confirm warning controls remain visual/non-invasive and do not introduce audio/spoken alerts or screen flash behavior.
 Ledger rows: FAM006-DASH-WARNING-017; FAM006-FUTURE-AUDIO-043.
 Observed Results:
 
-9. Confirm the Dashboard UI is readable, polished, not cramped, and uses Nexus/NDAI styling without default-looking product chrome where the branch owns the surface.
-Ledger rows: FAM006-DASH-LAYOUT-005; FAM006-DASH-VISUAL-006; FAM006-DASH-SCROLL-007.
+12. Confirm deferred/future boundaries are clear: Overlay/display acceptance, full child-window editors, Dev Toolkit Interface Review Mode, provider-platform parity, audio alerts, and NCP placement/persistence #20 are not being accepted in this branch unless they visibly break current Dashboard safety.
+Ledger rows: FAM006-OVERLAY-DEFER-018; FAM006-DASH-CHILD-WINDOW-049; FAM006-DEV-INTERFACE-REVIEW-050; FAM006-FUTURE-PROVIDER-041; FAM006-FUTURE-AUDIO-043; FAM006-NCP-REGRESSION-048.
 Observed Results:
 
-10. Note any readability, placement, clipping, scaling, motion, confusion, or polish concerns that should block Dashboard acceptance.
-Ledger rows: all user-facing and hidden-user-facing Dashboard/Core rows listed above.
+13. Note any readability, placement, clipping, scaling, motion, confusion, tray-state, deferred-button, NCP-blocking, or polish concern that should block Dashboard acceptance.
+Ledger rows: all user-facing and hidden-user-facing Dashboard/Core/tray rows listed above.
 Observed Results:
 
 Failure Signs To Watch For
