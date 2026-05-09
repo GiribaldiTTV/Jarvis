@@ -1,9 +1,8 @@
 """Renderer-owned Monitoring/HUD placement contract for FAM-006.
 
 This module defines the SLC-026 desktop placement and renderer ownership
-boundary. It describes where the visible HUD is owned, movable/anchorable, and
-click-through when anchored without adding provider-platform, live proof, or
-cross-family behavior.
+boundary. It describes the Dashboard-first window owner while the Overlay
+placement and anchor/click-through acceptance remain deferred.
 """
 
 from __future__ import annotations
@@ -62,13 +61,13 @@ def build_monitoring_hud_placement_contract(
         package_id=PACKAGE_ID,
         slice_id=SLICE_ID,
         placement_id=PLACEMENT_ID,
-        renderer_owner="Separate minimal HUD overlay",
-        surface_owner="Standalone Qt WebEngine HUD overlay window",
-        anchor="Anchor anywhere after OS proof",
-        pointer_model="Anchored click-through/no-focus-steal",
+        renderer_owner="Dashboard-first runtime window",
+        surface_owner="Standalone Qt WebEngine Dashboard window",
+        anchor="Overlay anchor deferred until future interface release",
+        pointer_model="Normal dashboard window; no topmost/no focus steal",
         snap_model="20px snap grid with snap-disable posture",
         card_layout_model="cards resize and snap in overlay edit mode",
-        z_index="native-topmost",
+        z_index="normal-window-no-topmost",
         desktop_mode="enabled" if desktop_mode else "pending",
         window_geometry={
             "x": int(x),

@@ -63,8 +63,8 @@ let monitoringHudControls = {
   packageId: "PKG-006",
   sliceId: "SLC-027",
   controlsId: "hud-controls-visibility",
-  visibilityState: "Show or hide from dashboard/tray",
-  controlSurface: "Control Overlay posture without accepting it",
+  visibilityState: "Enable or disable HUD feature from dashboard/tray",
+  controlSurface: "Dashboard controls HUD feature state; Overlay controls remain deferred",
   persistence: "Store group/layout posture locally",
   operatorAction: "No default keybinds"
 };
@@ -78,7 +78,9 @@ let monitoringHudStatus = {
   degradedBehavior: "Name reconnect/setup gap; visual warning only"
 };
 let monitoringHudControlState = {
-  visible: true,
+  featureEnabled: false,
+  overlayDeferred: true,
+  visible: false,
   anchored: true,
   snapEnabled: true,
   pollingRateMs: 1000,
@@ -276,8 +278,9 @@ function monitoringHudCreateOverlayCardNode(cardId, layout) {
 function monitoringHudRenderOverlayDisplay() {
   if (!monitoringHudOverlayDisplay || !monitoringHudOverlayCanvas) return;
   const cards = monitoringHudControlState.cards || {};
+  const overlayDeferred = monitoringHudControlState.overlayDeferred !== false;
   monitoringHudOverlayDisplay.dataset.anchorState = monitoringHudControlState.anchored ? "anchored" : "unanchored";
-  monitoringHudOverlayDisplay.dataset.visibilityState = monitoringHudControlState.visible ? "visible" : "hidden";
+  monitoringHudOverlayDisplay.dataset.visibilityState = overlayDeferred ? "hidden-deferred" : (monitoringHudControlState.visible ? "visible" : "hidden");
   monitoringHudOverlayDisplay.dataset.overlayEditMode = "unanchored-focusable-resizable-scrollable";
   monitoringHudOverlayDisplay.dataset.overlayAnchorMode = "anchored-uninteractable-click-through";
   monitoringHudOverlayDisplay.dataset.overlayCanvas = "edge-to-edge-snipping-tool-style";
@@ -342,7 +345,7 @@ function monitoringHudUpdateSurfaceSplit() {
     monitoringHud.dataset.dashboardMonitorCardPolicy = "overlay-display-owns-monitor-cards";
   }
   if (!monitoringHudMinimal) return;
-  monitoringHudMinimal.dataset.visibilityState = monitoringHudControlState.visible ? "visible" : "hidden";
+  monitoringHudMinimal.dataset.visibilityState = monitoringHudControlState.overlayDeferred !== false ? "hidden-deferred" : (monitoringHudControlState.visible ? "visible" : "hidden");
   monitoringHudMinimal.dataset.anchorState = monitoringHudControlState.anchored ? "anchored" : "unanchored";
   monitoringHudMinimal.dataset.interactionMode = monitoringHudControlState.anchored
     ? "anchored-click-through"
@@ -392,11 +395,14 @@ function monitoringHudApplyCardLayout() {
 
 function monitoringHudRenderControls() {
   if (!monitoringHud) return;
+  const featureEnabled = Boolean(monitoringHudControlState.featureEnabled && monitoringHudControlState.visible);
+  const overlayDeferred = monitoringHudControlState.overlayDeferred !== false;
+  monitoringHudControlState.visible = featureEnabled;
   monitoringHud.dataset.visibilityState = monitoringHudControlState.visible ? "visible" : "hidden";
-  monitoringHud.dataset.anchorState = monitoringHudControlState.anchored ? "anchored" : "unanchored";
-  monitoringHud.dataset.interactionMode = monitoringHudControlState.anchored
-    ? "anchored-click-through"
-    : "unanchored-edit-mode";
+  monitoringHud.dataset.featureEnabled = featureEnabled ? "true" : "false";
+  monitoringHud.dataset.overlayDeferred = overlayDeferred ? "true" : "false";
+  monitoringHud.dataset.anchorState = monitoringHudControlState.anchored ? "overlay-anchored" : "overlay-unanchored";
+  monitoringHud.dataset.interactionMode = "standalone-dashboard-window";
   monitoringHud.dataset.controlsState = monitoringHudControlState.visible
     ? "toggle-posture-visible"
     : "toggle-posture-hidden";
@@ -408,16 +414,17 @@ function monitoringHudRenderControls() {
   monitoringHud.dataset.dashboardWarningControls = "visual-non-invasive-only";
   monitoringHud.dataset.dashboardFakeTelemetryPolicy = "blocked";
   if (monitoringHudRuntimeStatus) {
-    monitoringHudRuntimeStatus.textContent = monitoringHudControlState.visible ? "HUD capability enabled" : "HUD capability disabled";
+    monitoringHudRuntimeStatus.textContent = featureEnabled ? "HUD feature enabled" : "HUD feature disabled";
   }
   if (monitoringHudAnchorStatus) {
-    monitoringHudAnchorStatus.textContent = monitoringHudControlState.anchored ? "Anchored" : "Unanchored";
+    monitoringHudAnchorStatus.textContent = overlayDeferred ? "Overlay deferred" : (monitoringHudControlState.anchored ? "Anchored" : "Unanchored");
   }
   if (monitoringHudToggle) {
-    monitoringHudToggle.textContent = monitoringHudControlState.visible ? "Disable HUD capability" : "Enable HUD capability";
+    monitoringHudToggle.textContent = featureEnabled ? "Disable HUD feature" : "Enable HUD feature";
   }
   if (monitoringHudAnchorToggle) {
-    monitoringHudAnchorToggle.textContent = monitoringHudControlState.anchored ? "Unanchor future overlay" : "Anchor future overlay";
+    monitoringHudAnchorToggle.textContent = overlayDeferred ? "Overlay deferred" : (monitoringHudControlState.anchored ? "Unanchor HUD overlay" : "Anchor HUD overlay");
+    monitoringHudAnchorToggle.disabled = overlayDeferred;
   }
   if (monitoringHudSnapToggle) {
     monitoringHudSnapToggle.textContent = monitoringHudControlState.snapEnabled ? "Future snap on" : "Future snap off";
@@ -532,7 +539,7 @@ function monitoringHudRenderSensorCards(cards) {
 }
 
 function monitoringHudStartPointerDrag(event, target, onMove) {
-  if (!monitoringHud || monitoringHudControlState.anchored) return;
+  if (!monitoringHud || !monitoringHudControlState.visible) return;
   if (monitoringHudDragInProgress) return;
   if (event.button !== undefined && event.button !== 0) return;
   if (event.target && event.target.closest && event.target.closest("button,input,select,label")) return;
@@ -597,17 +604,21 @@ function monitoringHudWireCardInteractions() {
 function monitoringHudWireControls() {
   if (monitoringHudToggle) {
     monitoringHudToggle.addEventListener("click", () => {
-      monitoringHudControlState.visible = !monitoringHudControlState.visible;
+      monitoringHudControlState.featureEnabled = !monitoringHudControlState.featureEnabled;
+      monitoringHudControlState.visible = monitoringHudControlState.featureEnabled;
       monitoringHudRenderControls();
       monitoringHudMarkChanged();
     });
   }
   if (monitoringHudAnchorToggle) {
     monitoringHudAnchorToggle.addEventListener("click", () => {
-      monitoringHudControlState.anchored = !monitoringHudControlState.anchored;
-      if (monitoringHudControlState.anchored) {
-        monitoringHudClearPanelPosition();
+      if (monitoringHudControlState.overlayDeferred !== false) {
+        monitoringHudControlState.lastDeferredAnchorRequest = Date.now();
+        monitoringHudRenderControls();
+        monitoringHudMarkChanged();
+        return;
       }
+      monitoringHudControlState.anchored = !monitoringHudControlState.anchored;
       monitoringHudRenderControls();
       monitoringHudMarkChanged();
     });
@@ -921,6 +932,9 @@ window.simulateMonitoringHudFaultForValidation = function(enabled) {
 
 window.setMonitoringHudControlState = function(state) {
   monitoringHudControlState = Object.assign({}, monitoringHudControlState, state || {});
+  monitoringHudControlState.featureEnabled = Boolean(monitoringHudControlState.featureEnabled || monitoringHudControlState.visible);
+  monitoringHudControlState.overlayDeferred = monitoringHudControlState.overlayDeferred !== false;
+  monitoringHudControlState.visible = Boolean(monitoringHudControlState.featureEnabled && monitoringHudControlState.visible);
   monitoringHudControlState.warningMode = monitoringHudControlState.warningMode || "badge-text-color";
   monitoringHudControlState.cards = Object.assign({}, {
     cpu: { x: 0, y: 0, w: 600, h: 280, title: "CPU Group", enabled: true, pollingRateMs: 1000 },
@@ -939,9 +953,7 @@ window.setMonitoringHudControlState = function(state) {
     Number(monitoringHudControlState.monitorSequence || 2),
     Object.keys(monitoringHudControlState.cards).length
   );
-  if (monitoringHudControlState.anchored) {
-    monitoringHudClearPanelPosition();
-  } else if (monitoringHudControlState.panelPosition) {
+  if (monitoringHudControlState.panelPosition) {
     monitoringHudSetPanelPosition(
       monitoringHudControlState.panelPosition.left || 0,
       monitoringHudControlState.panelPosition.top || 0
@@ -961,17 +973,17 @@ window.setDesktopSurfaceMode = function(enabled) {
   if (monitoringHud) {
     monitoringHud.setAttribute("aria-hidden", isEnabled ? "false" : "true");
     monitoringHud.dataset.renderState = isEnabled ? "product-visibility-baseline" : "hidden";
-    monitoringHud.dataset.productSurfaceState = isEnabled ? "visible-user-facing" : "hidden";
+    monitoringHud.dataset.productSurfaceState = (isEnabled && monitoringHudControlState.visible) ? "visible-user-facing" : "hidden";
   }
   if (monitoringHudMinimal) {
     monitoringHudMinimal.setAttribute("aria-hidden", isEnabled ? "false" : "true");
     monitoringHudMinimal.dataset.renderState = isEnabled ? "minimal-overlay-ready" : "hidden";
-    monitoringHudMinimal.dataset.productSurfaceState = isEnabled ? "visible-minimal-anchored-hud" : "hidden";
+    monitoringHudMinimal.dataset.productSurfaceState = "hidden-deferred";
   }
   if (monitoringHudOverlayDisplay) {
     monitoringHudOverlayDisplay.setAttribute("aria-hidden", isEnabled ? "false" : "true");
     monitoringHudOverlayDisplay.dataset.renderState = isEnabled ? "edgeless-overlay-display-ready" : "hidden";
-    monitoringHudOverlayDisplay.dataset.productSurfaceState = isEnabled ? "visible-edgeless-overlay-display" : "hidden";
+    monitoringHudOverlayDisplay.dataset.productSurfaceState = "hidden-deferred";
   }
   monitoringHudRenderControls();
 };
@@ -1015,7 +1027,7 @@ window.setMonitoringHudPlacementOwnership = function(contract) {
     monitoringHud.dataset.placementSlice = monitoringHudPlacement.sliceId || "SLC-026";
     monitoringHud.dataset.placementId = monitoringHudPlacement.placementId || "standalone-native-hud-window";
     monitoringHud.dataset.placementState = "desktop-renderer-owned";
-    monitoringHud.dataset.interactionMode = monitoringHudControlState.anchored ? "anchored-click-through" : "unanchored-edit-mode";
+    monitoringHud.dataset.interactionMode = "standalone-dashboard-window";
   }
   if (monitoringHudPlacementOwner) {
     monitoringHudPlacementOwner.textContent = monitoringHudPlacement.rendererOwner || "Separate minimal HUD overlay";
@@ -1046,10 +1058,10 @@ window.setMonitoringHudControlsVisibility = function(contract) {
     monitoringHud.dataset.overlayModeControls = "enable-disable-anchor-unanchor";
   }
   if (monitoringHudControlsVisibility) {
-    monitoringHudControlsVisibility.textContent = monitoringHudControls.visibilityState || "Show or hide from dashboard/tray";
+    monitoringHudControlsVisibility.textContent = monitoringHudControls.visibilityState || "Enable or disable HUD feature from dashboard/tray";
   }
   if (monitoringHudControlsSurface) {
-    monitoringHudControlsSurface.textContent = monitoringHudControls.controlSurface || "Control Overlay posture without accepting it";
+    monitoringHudControlsSurface.textContent = monitoringHudControls.controlSurface || "Dashboard controls HUD feature state; Overlay controls remain deferred";
   }
   if (monitoringHudControlsPersistence) {
     monitoringHudControlsPersistence.textContent = monitoringHudControls.persistence || "Store group/layout posture locally";
@@ -1058,7 +1070,7 @@ window.setMonitoringHudControlsVisibility = function(contract) {
     monitoringHudWarningPosture.textContent = monitoringHudControls.warningControls;
   }
   if (monitoringHudTrayPath) {
-    monitoringHudTrayPath.textContent = monitoringHudControls.trayPath || "Task tray can unanchor or restore the HUD";
+    monitoringHudTrayPath.textContent = monitoringHudControls.trayPath || "Task tray enables/disables HUD feature; Overlay controls deferred";
   }
   monitoringHudRenderControls();
   monitoringHudUpdateSurfaceSplit();

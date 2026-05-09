@@ -24,7 +24,7 @@ This branch may execute the admitted PKG-006 implementation slices during Workst
 
 ## Status
 
-- `Branch Readiness Stage 2 Dashboard USER Feedback Source-Truth Repaired - Workstream Repair Pending`
+- `Workstream WS37 Dashboard Runtime Window Tray Safety Repaired - WS38 Pending`
 
 ## Canonical Branch
 
@@ -32,13 +32,13 @@ This branch may execute the admitted PKG-006 implementation slices during Workst
 
 ## Current Phase
 
-- Phase: `Branch Readiness`
+- Phase: `Workstream`
 
 ## Phase Status
 
-- Branch Readiness Stage: `Stage 2 complete - returned USER Dashboard feedback is recorded as blocking LV2 acceptance; source-truth and Element Validation Ledger dispositions are repaired before bounded Workstream repair resumes`
-- Workstream Stage: `Reopened pending - WS31 through WS36 evidence remains supporting history, but affected Dashboard rows are stale until Workstream repair, Hardening rerun, and refreshed LV1 proof pass`
-- Hardening Stage: `Historical/supporting - H1 remains preserved as prior Dashboard-first pressure-test evidence, but affected rows require rerun after Workstream repair`
+- Branch Readiness Stage: `Stage 2 complete - returned USER Dashboard feedback is recorded as blocking LV2 acceptance; source-truth and Element Validation Ledger dispositions were repaired before bounded Workstream repair resumed`
+- Workstream Stage: `WS37 complete - Dashboard runtime/window/tray safety and NCP regression isolation are repaired and proven; WS38 Dashboard window ownership/focus/movement safety is next`
+- Hardening Stage: `Blocked pending Workstream - H1 remains preserved as prior Dashboard-first pressure-test evidence, but affected rows require rerun after the Dashboard repair sequence`
 - Live Validation Stage: `Blocked/regressed - refreshed LV1 handoff received USER blocking feedback before LV2 acceptance could proceed; LV2 returned-result digestion must not continue until repair, Hardening rerun, refreshed LV1 handoff, and returned USER acceptance or waiver`
 - Active Branch: `feature/fam-006-monitoring-hud-product-surface`
 - Branch Authority Mode: `Active Branch`
@@ -52,7 +52,7 @@ This branch may execute the admitted PKG-006 implementation slices during Workst
 - Admitted Slice Count: `6`
 - Package Completion State: `In Progress - Dashboard USER feedback blocks current acceptance; package completion remains unclaimed until Workstream repair, Hardening rerun, refreshed LV1 proof, returned USER acceptance or waiver, PR Readiness, and final closeout pass`
 - Single-Slice Package User Approval: `Not required - PKG-006 has six concrete admitted slices; no waiver granted`
-- Runtime Implementation State: `Dashboard-first Workstream, H1, and LV1 proof remain preserved as supporting history, but USER review of the refreshed LV1 handoff returned blocking Dashboard feedback. Source truth now records Dashboard acceptance blocked, affected Element Validation Ledger rows stale, LV2 blocked, and bounded Workstream repair required before any Hardening or Live Validation rerun. WS31 through WS36 are not reverted; they are downgraded to supporting/stale proof for affected rows. Overlay/display remains deferred/dormant/non-gating, ORIN/Core remains dependency-only, and formal User Test Summary export/digestion remains Live Validation-only. Runtime repair is not implemented by this Stage 2 pass.`
+- Runtime Implementation State: `Dashboard-first Workstream, H1, and LV1 proof remain preserved as supporting history, but USER review of the refreshed LV1 handoff returned blocking Dashboard feedback. Source truth records Dashboard acceptance blocked, affected Element Validation Ledger rows stale, and LV2 blocked. WS37 repairs the first runtime safety packet: Dashboard and deferred Overlay no longer auto-open in normal startup, the tray exposes a truthful HUD feature toggle with Overlay deferred, Dashboard no longer uses topmost/no-activate/click-through ownership, Dashboard drag is isolated from Overlay anchor state, and NCP/saved-action regression proof passes with HUD disabled. WS31 through WS36 are not reverted; they remain supporting/stale proof for affected rows. Overlay/display remains deferred/dormant/non-gating, ORIN/Core remains dependency-only, and formal User Test Summary export/digestion remains Live Validation-only.`
 - PR Creation State: `Not approved in Branch Readiness`
 - Watcher Provisioning State: `Not approved in Branch Readiness`
 - Release Work State: `Not approved; v1.6.13-prebeta release execution is already complete and no new release work is in scope`
@@ -66,14 +66,18 @@ This branch may execute the admitted PKG-006 implementation slices during Workst
 ## Blockers
 
 - `Backlog Completion Unproven`
+
+Package completion is not currently claimed. Stage 2-R13 cleared the earlier Branch Readiness planning latches and handed the branch to Dashboard-focused Workstream repair, but the refreshed LV1 handoff later received USER blocking feedback before LV2 acceptance. Stage 2 recorded that affected Workstream/H1/LV1 evidence is supporting but stale and LV2 must not continue. WS37 now repairs the first runtime safety packet under the Dashboard-first primary-interface boundary; additional Workstream repairs remain required before Hardening and Live Validation rerun.
+
+## Acceptance Guards
+
 - `Dashboard Acceptance Blocked By USER Feedback`
 - `Element Proof Stale`
 - `User-Facing Element Acceptance Missing`
-- `Dashboard Runtime Safety Regression Candidate`
-- `NCP Regression Protection Missing`
+- `Dashboard Window Focus And Movement Safety Pending`
+- `Dashboard Shell Layout And Resize Repair Pending`
+- `Dashboard Information Architecture And Content Repair Pending`
 - `User Test Summary Results Pending`
-
-Package completion is not currently claimed. Stage 2-R13 cleared the earlier Branch Readiness planning latches and handed the branch to Dashboard-focused Workstream repair, but the refreshed LV1 handoff has now received USER blocking feedback before LV2 acceptance. This Stage 2 repair records that affected Workstream/H1/LV1 evidence is supporting but stale, LV2 must not continue, and bounded Workstream repair must resume under the Dashboard-first primary-interface boundary before Hardening and Live Validation rerun.
 
 ## Returned LV1 Repair Findings
 
@@ -166,17 +170,17 @@ Rollback Path: revert this Branch Readiness Stage 2 source-truth repair commit o
 
 - `Workstream`
 
-Next Legal Seam: `Workstream WS37 - Dashboard Runtime Window Tray Safety And NCP Regression Isolation`
+Next Legal Seam: `Workstream WS38 - Dashboard Window Ownership Focus Movement Safety`
 
-Next Legal Phase Gate: Branch Readiness Stage 2 records the returned USER Dashboard feedback as blocking current Dashboard acceptance, downgrades affected proof dispositions to stale/supporting, preserves PKG-006 as In Progress, preserves Overlay/display as deferred/non-gating, preserves ORIN/Core as dependency-only, and routes the branch back to bounded Workstream repair. Codex must not continue LV2, enter PR Readiness, create a PR, watcher, release, tag, artifact, direct-main mutation, voice/audio implementation, Stream Deck/plugin telemetry implementation, local AI, installer/capability-pack work, broad hardware provider implementation, persona switching implementation, ARIA activation, Overlay/display release acceptance, or a new FAM/package without later explicit USER approval.
+Next Legal Phase Gate: WS37 records the first bounded Dashboard repair packet green and keeps the branch in Workstream for the remaining Dashboard repair sequence. Codex must not continue LV2, enter Hardening, enter PR Readiness, create a PR, watcher, release, tag, artifact, direct-main mutation, voice/audio implementation, Stream Deck/plugin telemetry implementation, local AI, installer/capability-pack work, broad hardware provider implementation, persona switching implementation, ARIA activation, Overlay/display release acceptance, or a new FAM/package without later explicit USER approval.
 
 Post-FAM-006 Required Marker Adoption Candidate: `Repo-Wide High-Risk Source Owner Marker Adoption`; candidate branch `feature/repo-wide-source-owner-marker-adoption`; requirement is recorded for after the current FAM-006 branch closes and does not authorize branch creation, package admission, PR Readiness, runtime behavior changes, or bypass of the active LV2 UTS pending gate.
 
 ## Active Seam
 
-Active seam: `Workstream WS37 - Dashboard Runtime Window Tray Safety And NCP Regression Isolation`
+Active seam: `Workstream WS38 - Dashboard Window Ownership Focus Movement Safety`
 
-Active Seam Status: `Ready for bounded Workstream repair after Branch Readiness Stage 2 recorded returned USER Dashboard feedback; LV2 remains blocked`
+Active Seam Status: `Ready for bounded Workstream continuation after WS37 repaired Dashboard startup, tray, feature-off, focus/topmost safety posture, and NCP regression isolation; LV2 remains blocked`
 
 ## Branch Objective
 
@@ -496,12 +500,12 @@ Branch Completion Goal: complete a visible, readable, accepted Dashboard-first M
 
 Known Future-Dependent Blockers: full HWInfo/HWMonitor-level sensor coverage, broad plugin/external telemetry ecosystem, audio/spoken alerts or FAM-004 integration, Stream Deck integration, graphs/history/persistence/dashboards, local AI/capability-pack monitoring, installer/capability-pack work, and ultra-low polling intervals remain deferred unless USER later widens scope and validation proves safety.
 
-Branch Closure Rule: Stage 2-R13 handed this branch back to bounded Dashboard-focused Workstream repair after Stage 1-R10 confirmed the Dashboard/control panel is the primary current-branch interface release surface, Overlay/display acceptance is deferred/non-gating, Core repair is dependency-only, and Dashboard-specific proof/acceptance criteria are sufficient. WS36 proved the Dashboard-focused current-branch repair scope green for Hardening, Hardening H1 pressure-tested green, and Live Validation LV1 Stage 1 now generated formal UTS handoff proof. The branch may enter PR Readiness only after returned User Test Summary acceptance or waiver is digested in Live Validation and package completion remains truthfully unclaimed or proven according to the later gate.
+Branch Closure Rule: Stage 2-R13 handed this branch back to bounded Dashboard-focused Workstream repair after Stage 1-R10 confirmed the Dashboard/control panel is the primary current-branch interface release surface, Overlay/display acceptance is deferred/non-gating, Core repair is dependency-only, and Dashboard-specific proof/acceptance criteria are sufficient. USER Dashboard feedback later reopened Dashboard acceptance and routed the branch back to multi-slice HUD implementation continuation. WS37 repaired runtime/window/tray safety and NCP regression isolation; remaining same-branch Dashboard repair seams must complete before Hardening rerun, refreshed LV1 handoff, returned USER acceptance or waiver, PR Readiness, and package completion closeout. The branch may enter PR Readiness only after returned User Test Summary acceptance or waiver is digested in Live Validation and package completion remains truthfully unclaimed or proven according to the later gate.
 
 ## Backlog Completion Status
 
 Backlog Completion State: `In Progress`
-Remaining Implementable Work: `None - Dashboard-focused Workstream repair, Hardening H1, and Live Validation LV1 Stage 1 handoff proof are green; returned UTS results digest, PR Readiness, and package completion closeout remain later phase gates`
+Remaining Implementable Work: `Dashboard-focused Workstream repair continues with WS38 Dashboard window ownership/focus/movement safety, WS39 Dashboard shell/layout/frame/resize/readability repair, WS40 Dashboard IA/content/naming/control-hub repair, WS41 Dashboard child-window scope implementation if admitted, and WS42 Dashboard-specific static/live proof and LV1 handoff readiness`
 Future-Dependent Blockers: `full HWInfo/HWMonitor-level parity, broad plugin/external telemetry ecosystem, audio/spoken alerts or FAM-004 integration, persona switching implementation and ARIA activation, Stream Deck, graphs/history/persistence/dashboards, local AI/capability-pack monitoring, installer/capability-pack work, and ultra-low polling intervals remain deferred pending later approval, admission, and proof`
 Completion Status: `In Progress`
 
@@ -712,16 +716,16 @@ Historical Stop Basis: `Stage 2-R13 Dashboard-first Workstream handoff supersede
 
 ## Seam Continuation Decision
 
-Seam Status: Branch Readiness Stage 2 source-truth repair recorded
-Slice Status: Repair Required
-Completion Status: Red
+Seam Status: In Progress
+Slice Status: In Progress
+Completion Status: In Progress
 Waiver Status: None
-Continue Decision: Stop
-Continuation Execution Latch: Inactive - Stage 2 source-truth repair is complete and runtime repair belongs to the next admitted Workstream seam.
-Stop Basis: Dashboard Acceptance Blocked By USER Feedback
-Next Active Seam: Workstream WS37 - Dashboard Runtime Window Tray Safety And NCP Regression Isolation
-Stop Condition: Branch Readiness Stage 2 source-truth and ledger disposition repair complete; no runtime repair implemented in Stage 2
-Continuation Action: Stop after Stage 2 source-truth repair. Preserve Dashboard-first boundary, Overlay/display non-gating status, Core dependency-only status, LV2 blocked, PR blocked, PKG-006 In Progress, package completion unclaimed, no single-seam waiver, and no PR/release work.
+Continue Decision: Continue
+Continuation Execution Latch: Active - final response is prohibited while continuation remains active; the next seam must execute in the same bounded Workstream run after WS37 durability unless a lawful Stop decision is recorded.
+Stop Basis: None
+Next Active Seam: Workstream WS38 - Dashboard Window Ownership Focus Movement Safety
+Stop Condition: None at WS37 seam level; Dashboard acceptance remains blocked until the remaining repair sequence, Hardening rerun, refreshed LV1, and returned USER PASS/WAIVED results or waiver complete.
+Continuation Action: Continue within bounded Workstream to WS38. Preserve Dashboard-first boundary, Overlay/display non-gating status, Core dependency-only status, LV2 blocked, PR blocked, PKG-006 In Progress, package completion unclaimed, no single-seam waiver, and no PR/release work.
 
 ## Live Validation Stage 1 Continuation Decision
 
@@ -732,7 +736,7 @@ Completion Detail: Live Validation final green is blocked because USER returned 
 Waiver Status: None
 Continue Decision: Stop
 Stop Basis: Dashboard Acceptance Blocked By USER Feedback
-Next Active Seam: Workstream WS37 - Dashboard Runtime Window Tray Safety And NCP Regression Isolation
+Next Active Seam: Workstream WS38 - Dashboard Window Ownership Focus Movement Safety
 Stop Condition: LV1 handoff proof superseded for affected Dashboard rows by returned USER feedback
 Continuation Action: Route through Branch Readiness Stage 2 source-truth repair, then bounded Workstream repair. Do not enter PR Readiness, create PR/watcher/release artifacts, claim package completion, or treat Codex self-QA as USER acceptance.
 
@@ -1489,6 +1493,32 @@ Validation Evidence Expectations: return PASS/FAIL plus any notes, screenshots, 
 - PR Readiness: `Blocked`
 - Workstream Repair Packet Sequence: `WS37 runtime/window/tray regression safety and NCP isolation`; `WS38 Dashboard window ownership/focus/movement safety`; `WS39 Dashboard shell/layout/frame/resize/readability repair`; `WS40 Dashboard IA/content/naming/control-hub repair`; `WS41 Dashboard child-window scope implementation if admitted`; `WS42 Dashboard-specific static/live proof and LV1 handoff readiness`
 - Next Legal Seam: `Workstream WS37 - Dashboard Runtime Window Tray Safety And NCP Regression Isolation`
+
+## Workstream WS37 Dashboard Runtime Window Tray Safety And NCP Regression Isolation
+
+- WS37 Admission: `PASS - USER admitted bounded Workstream repair for Dashboard runtime/window/tray safety and NCP regression isolation only`
+- WS37 Result: `Green for runtime safety repair - Dashboard acceptance, package completion, Hardening, Live Validation, PR Readiness, release, and Overlay/display acceptance remain unclaimed`
+- Startup Repair: `Normal NDAI startup now suppresses the Monitoring HUD Dashboard by default, keeps deferred Overlay/display hidden, and records MONITORING_HUD_STARTUP_SUPPRESSED while preserving an explicit dev/self-QA startup override path`
+- HUD Feature Off / Tray Repair: `Task tray now exposes a truthful HUD feature toggle using Enable HUD Feature / Disable HUD Feature labels, keeps HUD Overlay Deferred disabled while Overlay acceptance is deferred, refreshes tray action labels from runtime state, and avoids treating Overlay anchor/unanchor as current Dashboard behavior`
+- Focus / Topmost / Z-Order Repair: `Dashboard runtime ownership no longer applies topmost, no-activate, transparent/click-through, forced raise, or forced activation behavior to the Dashboard window; Dashboard remains a normal standalone user-facing window when enabled`
+- Dashboard / Overlay Isolation: `Dashboard drag/move handling no longer depends on HUD/Overlay anchor state; Overlay native display remains hidden/deferred/non-gating for this Dashboard-first branch path`
+- NCP Regression Proof: `Existing saved-action/NCP authoring validation passed with HUD disabled, including create custom task, created tasks visibility, create custom group, manage custom groups, tray Create Custom Task route, and shutdown-path coverage`
+- Source Surfaces Touched: `desktop/orin_desktop_main.py`; `desktop/desktop_renderer.py`; `desktop/monitoring_hud_controls.py`; `desktop/monitoring_hud_placement.py`; `nexus_visual/monitoring_hud.html`; `nexus_visual/monitoring_hud.js`
+- Validator Surfaces Touched: `dev/orin_monitoring_hud_surface_validation.py`; `dev/orin_monitoring_hud_internal_sandbox_validation.py`; `dev/orin_desktop_entrypoint_validation.py`
+- Focused Proof Paths: `dev/logs/desktop_entrypoint_validation/reports/DesktopEntrypointValidationReport_20260508_221103.txt`; `dev/logs/fam_006_monitoring_hud_internal_sandbox/20260508_221232_manifest.json`
+- Focused Validation: `python dev/orin_monitoring_hud_surface_validation.py` PASS; `python dev/orin_monitoring_hud_internal_sandbox_validation.py` PASS; `python dev/orin_desktop_entrypoint_validation.py` PASS; `python dev/orin_saved_action_authoring_ui_validation.py` PASS; `python dev/orin_saved_action_source_validation.py` PASS; `python dev/orin_saved_action_authoring_validation.py` PASS; `python dev/orin_shared_action_baseline_validation.py` PASS; `python dev/orin_callable_group_execution_validation.py` PASS
+- Environment Note: `desktop_entrypoint_validation records post-settled cleanup classification for the shutdown hotkey path because the current environment's pynput SendInput path raises a local TypeError; this is validator-environment limitation handling, not a Dashboard acceptance claim`
+- Element Rows Updated: `FAM006-DASH-STARTUP-045`; `FAM006-HUD-FEATURE-TRAY-046`; `FAM006-DASH-FOCUS-047`; `FAM006-NCP-REGRESSION-048`; `FAM006-OVERLAY-DEFER-018`; `FAM006-OVERLAY-ANCHOR-022`; `FAM006-PROOF-STATIC-031`; `FAM006-PROOF-SANDBOX-032`; `FAM006-GOV-SOURCE-TRUTH-039`
+- Dashboard Acceptance State: `Still blocked - WS37 clears the first runtime safety packet only; Dashboard visual polish, layout, resize, content, naming, and child-window hub repairs remain pending`
+- Overlay Status: `Deferred/dormant/non-gating - Overlay/display startup remains suppressed and Overlay acceptance is not claimed`
+- Core Status: `Dependency-only - WS37 does not release ORIN/Core as a FAM-006 interface and does not require Core acceptance`
+- PKG-006 Status: `In Progress`
+- Package Completion: `Unclaimed`
+- PR Readiness: `Blocked`
+- Continue Decision: `Continue within Workstream after WS37 validation/durability because PKG-006 remains In Progress and no USER single-seam waiver or stop-authorizing blocker is recorded`
+- Continuation Execution Latch: `Active - next bounded Workstream seam is WS38`
+- Stop Basis: `No phase boundary crossing; no Hardening/Live Validation/PR transition authorized by WS37`
+- Next Legal Seam: `Workstream WS38 - Dashboard Window Ownership Focus Movement Safety`
 
 ## Historical WS30 Codex Live Client Self-QA
 

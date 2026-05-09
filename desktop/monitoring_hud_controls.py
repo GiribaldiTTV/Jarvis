@@ -1,9 +1,9 @@
 """Monitoring/HUD controls visibility contract for FAM-006.
 
 This module defines the SLC-027 settings and user-controls visibility boundary.
-It exposes the optional HUD layer, toggle posture, task-tray unanchor path,
-snap posture, and bounded polling choices without adding broad provider
-platform work or cross-family behavior.
+It exposes the current Dashboard-first HUD feature toggle posture while keeping
+the deferred Overlay anchor/unanchor path non-gating until a later interface
+release admits it.
 """
 
 from __future__ import annotations
@@ -67,20 +67,20 @@ def build_monitoring_hud_controls_visibility_contract(
         slice_id=SLICE_ID,
         controls_id=CONTROLS_ID,
         visibility_state=(
-            "Show or hide from dashboard/tray"
+            "Enable or disable HUD feature from dashboard/tray"
             if desktop_mode and visible
-            else "Hidden from dashboard/tray"
+            else "HUD feature disabled from dashboard/tray"
             if desktop_mode
             else "Waiting for desktop mode"
         ),
-        control_surface="Control Overlay posture without accepting it",
+        control_surface="Dashboard controls HUD feature state; Overlay controls remain deferred",
         persistence="Store group/layout posture locally",
         operator_action="No default keybinds",
-        anchor_state="anchored-click-through" if anchored else "unanchored-edit-mode",
-        tray_path="Task tray can unanchor or restore the HUD",
+        anchor_state="overlay-deferred",
+        tray_path="Task tray enables/disables HUD feature; Overlay anchor controls deferred",
         snap_state="enabled" if snap_enabled else "disabled",
         polling_rate_ms=str(max(1000, int(polling_rate_ms or 1000))),
         monitor_management="Dashboard creates, edits, enables, disables, and sets polling for monitor groups",
-        overlay_mode_controls="Dashboard controls future Overlay display enablement plus anchor/unanchor posture",
+        overlay_mode_controls="Overlay display and anchor/unanchor controls are deferred/non-gating",
         warning_controls="Visual badge, text label, and color state only; no audio or screen flash",
     )

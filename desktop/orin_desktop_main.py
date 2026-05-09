@@ -40,6 +40,7 @@ TRAY_DISCOVERY_MESSAGE = (
 )
 TRAY_DISCOVERY_DURATION_MS = 4500
 AUTHORITATIVE_DESKTOP_SETTLED_MARKER = "DESKTOP_OUTCOME|SETTLED|state=dormant"
+MONITORING_HUD_STARTUP_ENV = "NEXUS_MONITORING_HUD_STARTUP_ENABLED"
 SHUTDOWN_CONFIRMATION_DECISION_ENV = "NEXUS_SHUTDOWN_CONFIRMATION_DECISION"
 SHUTDOWN_CONFIRMATION_TIMEOUT_ENV = "NEXUS_SHUTDOWN_CONFIRMATION_TIMEOUT_MS"
 SHUTDOWN_CONFIRMATION_ACCEPTED = "accepted"
@@ -94,6 +95,14 @@ class DesktopRuntimeUnavailable(QObject):
 
     def request_create_custom_task_from_tray(self, source="tray"):
         self._emit(f"RENDERER_MAIN|TRAY_CREATE_CUSTOM_TASK_ABORTED|source={source}|reason=desktop_runtime_unavailable")
+
+    def monitoring_hud_feature_state(self):
+        return {
+            "feature_enabled": False,
+            "dashboard_visible": False,
+            "overlay_deferred": True,
+            "overlay_anchor_enabled": False,
+        }
 
     def request_monitoring_hud_toggle_from_tray(self, source="tray"):
         self._emit(f"RENDERER_MAIN|TRAY_MONITORING_HUD_TOGGLE_ABORTED|source={source}|reason=desktop_runtime_unavailable")
@@ -338,6 +347,13 @@ def harness_ignore_relaunch_request():
     return value in {"1", "true", "yes", "on"}
 
 
+def monitoring_hud_startup_enabled():
+    if MONITORING_HUD_LIVE_SELF_QA_MANIFEST:
+        return True
+    value = (os.environ.get(MONITORING_HUD_STARTUP_ENV) or "").strip().casefold()
+    return value in {"1", "true", "yes", "on"}
+
+
 class DesktopTrayEntry:
     def __init__(self, app, window, event_logger=None, shutdown_confirmation_requester=None):
         self.app = app
@@ -392,7 +408,7 @@ class DesktopTrayEntry:
             )
             self.tray_menu.addAction(self.create_custom_task_action)
             self.tray_menu.addSeparator()
-            self.monitoring_hud_toggle_action = QAction("Show / Hide Monitoring HUD", self.tray_menu)
+            self.monitoring_hud_toggle_action = QAction("Enable HUD Feature", self.tray_menu)
             self.monitoring_hud_toggle_action.triggered.connect(
                 lambda _checked=False: self.request_monitoring_hud_toggle_from_tray("menu")
             )
@@ -408,6 +424,7 @@ class DesktopTrayEntry:
                 lambda _checked=False: self.request_shutdown_from_tray("menu")
             )
             self.tray_menu.addAction(self.exit_action)
+            self.refresh_monitoring_hud_actions("initialize")
 
             self.tray_icon = QSystemTrayIcon(icon, self.app)
             self.tray_icon.setToolTip(TRAY_IDENTITY_LABEL)
@@ -446,13 +463,57 @@ class DesktopTrayEntry:
         self._emit(f"RENDERER_MAIN|TRAY_CREATE_CUSTOM_TASK_REQUESTED|source={source}")
         self.window.request_create_custom_task_from_tray(source=source)
 
+    def _monitoring_hud_state(self):
+        provider = getattr(self.window, "monitoring_hud_feature_state", None)
+        if callable(provider):
+            try:
+                state = provider()
+                if isinstance(state, dict):
+                    return state
+            except Exception:
+                pass
+        return {
+            "feature_enabled": False,
+            "dashboard_visible": False,
+            "overlay_deferred": True,
+            "overlay_anchor_enabled": False,
+        }
+
+    def refresh_monitoring_hud_actions(self, source="runtime"):
+        if self.monitoring_hud_toggle_action is None or self.monitoring_hud_unanchor_action is None:
+            return
+        state = self._monitoring_hud_state()
+        feature_enabled = bool(state.get("feature_enabled"))
+        overlay_deferred = state.get("overlay_deferred", True) is not False
+        overlay_anchor_enabled = bool(state.get("overlay_anchor_enabled")) and not overlay_deferred
+        self.monitoring_hud_toggle_action.setText(
+            "Disable HUD Feature" if feature_enabled else "Enable HUD Feature"
+        )
+        self.monitoring_hud_unanchor_action.setText(
+            "HUD Overlay Deferred" if overlay_deferred else "Unanchor HUD Overlay"
+        )
+        self.monitoring_hud_unanchor_action.setEnabled(feature_enabled and overlay_anchor_enabled)
+        self._emit(
+            "RENDERER_MAIN|TRAY_MONITORING_HUD_ACTIONS_REFRESHED"
+            f"|source={source}"
+            f"|feature_enabled={str(feature_enabled).lower()}"
+            f"|overlay_deferred={str(overlay_deferred).lower()}"
+            f"|overlay_anchor_enabled={str(overlay_anchor_enabled).lower()}"
+        )
+
     def request_monitoring_hud_toggle_from_tray(self, source):
         self._emit(f"RENDERER_MAIN|TRAY_MONITORING_HUD_TOGGLE_REQUESTED|source={source}")
         self.window.request_monitoring_hud_toggle_from_tray(source=source)
+        self.refresh_monitoring_hud_actions(source)
 
     def request_monitoring_hud_unanchor_from_tray(self, source):
+        state = self._monitoring_hud_state()
+        if state.get("overlay_deferred", True) is not False:
+            self._emit(f"RENDERER_MAIN|TRAY_MONITORING_HUD_UNANCHOR_DEFERRED|source={source}|reason=overlay_deferred")
+            return
         self._emit(f"RENDERER_MAIN|TRAY_MONITORING_HUD_UNANCHOR_REQUESTED|source={source}")
         self.window.request_monitoring_hud_unanchor_from_tray(source=source)
+        self.refresh_monitoring_hud_actions(source)
 
     def request_shutdown_from_tray(self, source):
         self._emit(f"RENDERER_MAIN|TRAY_SHUTDOWN_CONFIRMATION_REQUESTED|source={source}")
@@ -558,6 +619,7 @@ def main():
 
     visual_html_path = os.path.join(ROOT_DIR, "nexus_visual", "orin_core_desktop.html")
     monitoring_hud_html_path = os.path.join(ROOT_DIR, "nexus_visual", "monitoring_hud.html")
+    monitoring_hud_startup_allowed = monitoring_hud_startup_enabled()
     runtime_milestone("RENDERER_MAIN|VISUAL_HTML_RESOLVED")
     if exit_if_startup_abort_requested():
         return 0
@@ -586,6 +648,7 @@ def main():
                 event_logger=runtime_milestone,
                 runtime_log_path=RUNTIME_LOG_FILE,
                 surface_role="hud",
+                monitoring_hud_feature_enabled=monitoring_hud_startup_allowed,
             )
         except Exception as exc:
             window = DesktopRuntimeUnavailable(
@@ -754,11 +817,18 @@ def main():
             return
         window_show_requested = True
         core_window.show()
-        window.show()
-        runtime_milestone("RENDERER_MAIN|WINDOW_SHOW_REQUESTED|reason=core_and_hud_visualization_ready")
+        if monitoring_hud_startup_allowed:
+            window.show()
+            runtime_milestone("RENDERER_MAIN|WINDOW_SHOW_REQUESTED|reason=core_and_hud_visualization_ready|surfaces=core_and_dashboard|monitoring_hud_startup=enabled")
+        else:
+            runtime_milestone("RENDERER_MAIN|WINDOW_SHOW_REQUESTED|reason=core_visualization_ready|surfaces=core_only|monitoring_hud_startup=suppressed")
+            runtime_milestone("RENDERER_MAIN|MONITORING_HUD_STARTUP_SUPPRESSED|surface=dashboard|overlay=deferred|feature_enabled=false")
 
     core_window.core_visualization_ready.connect(show_window_after_core_visualization_ready)
-    window.core_visualization_visible.connect(mark_startup_ready)
+    if monitoring_hud_startup_allowed:
+        window.core_visualization_visible.connect(mark_startup_ready)
+    else:
+        core_window.core_visualization_visible.connect(mark_startup_ready)
     runtime_milestone("RENDERER_MAIN|WINDOW_SHOW_DEFERRED_UNTIL_CORE_READY")
     if core_window.is_core_visualization_ready():
         QTimer.singleShot(0, show_window_after_core_visualization_ready)

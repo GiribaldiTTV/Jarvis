@@ -27,9 +27,11 @@
     data-product-surface="nexus-monitoring-hud"
     data-isolation-boundary="standalone-hud-layer"
     data-core-failure-isolation="hud-fail-does-not-hide-core"
-    data-interaction-mode="anchored-click-through"
-    data-anchor-state="anchored"
-    data-visibility-state="visible"
+    data-interaction-mode="standalone-dashboard-window"
+    data-anchor-state="overlay-anchored"
+    data-feature-enabled="false"
+    data-overlay-deferred="true"
+    data-visibility-state="hidden"
     data-snap-state="enabled"
     data-card-model="category-sensor-cards"
     data-provider-state="setup-required"
@@ -73,8 +75,8 @@
           <div class="monitoring-hud__subtitle">Configures HUD capability, monitor groups, provider truth, warning posture, and future overlay behavior.</div>
         </div>
         <div class="monitoring-hud__mode-stack">
-          <div class="monitoring-hud__mode-pill" id="monitoring-hud-runtime-status">HUD enabled</div>
-          <div class="monitoring-hud__mode-pill monitoring-hud__mode-pill--quiet" id="monitoring-hud-anchor-status">Anchored</div>
+          <div class="monitoring-hud__mode-pill" id="monitoring-hud-runtime-status">HUD feature disabled</div>
+          <div class="monitoring-hud__mode-pill monitoring-hud__mode-pill--quiet" id="monitoring-hud-anchor-status">Overlay deferred</div>
         </div>
       </div>
       <div class="monitoring-hud__summary" aria-label="Provider contract status">
@@ -94,10 +96,10 @@
       </div>
       <div class="monitoring-hud__toolbar" aria-label="Monitoring dashboard control panel controls">
         <button type="button" id="monitoring-hud-toggle" class="monitoring-hud__control-button" data-control="toggle-visibility">
-          Disable HUD capability
+          Enable HUD feature
         </button>
         <button type="button" id="monitoring-hud-anchor-toggle" class="monitoring-hud__control-button" data-control="anchor-toggle">
-          Unanchor future overlay
+          Overlay deferred
         </button>
         <button type="button" id="monitoring-hud-create-monitor" class="monitoring-hud__control-button" data-control="create-monitor">
           Create group
@@ -127,7 +129,7 @@
         <span>Standalone dashboard window</span>
         <span id="monitoring-hud-snap-label">Future overlay snap</span>
         <span id="monitoring-hud-placement-pointer">Overlay anchor posture</span>
-        <span id="monitoring-hud-tray-path">Tray unanchor route</span>
+        <span id="monitoring-hud-tray-path">Tray feature toggle</span>
         <span>No default keybinds</span>
       </div>
       <div
@@ -194,9 +196,9 @@
       <span class="monitoring-hud__config-heading">Dashboard controls</span>
       <strong class="monitoring-hud__config-heading">Adjust without cluttering the HUD</strong>
       <span>Visibility</span>
-      <strong id="monitoring-hud-controls-visibility">Show or hide from dashboard/tray</strong>
+      <strong id="monitoring-hud-controls-visibility">Enable or disable HUD feature from dashboard/tray</strong>
       <span>Anchor mode</span>
-      <strong id="monitoring-hud-controls-surface">Control Overlay posture without accepting it</strong>
+      <strong id="monitoring-hud-controls-surface">Dashboard controls HUD feature state; Overlay controls remain deferred</strong>
       <span>Layout</span>
       <strong id="monitoring-hud-controls-persistence">Store group/layout posture locally</strong>
     </div>
@@ -244,7 +246,7 @@
     data-monitor-layout="movable-resizable-monitor-cards"
     data-watermark-identity="edge-safe-nexus-orin-watermark"
     data-anchor-state="anchored"
-    data-visibility-state="visible"
+    data-visibility-state="hidden-deferred"
     data-quick-actions="hidden-while-anchored"
     data-edge-to-edge-posture="landscape-portrait-monitor-fit"
     data-position-persistence="local-layout-state"
@@ -306,7 +308,7 @@
     data-native-overlay-owner="MonitoringHudOverlayDisplayWindow"
     data-native-window-split-proof="ready-ws26"
     data-anchor-state="anchored"
-    data-visibility-state="visible"
+    data-visibility-state="hidden-deferred"
     data-interaction-mode="anchored-click-through"
     data-click-through-proof="native-transparent-input"
     data-focus-proof="native-no-focus-noactivate"

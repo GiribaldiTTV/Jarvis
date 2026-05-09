@@ -5641,6 +5641,7 @@ class DesktopRuntimeWindow(QWidget):
         event_logger=None,
         runtime_log_path: str = "",
         surface_role: str = "hud",
+        monitoring_hud_feature_enabled: bool = False,
     ):
         super().__init__()
         global _DIALOG_RUNTIME_LOGGER
@@ -5701,7 +5702,8 @@ class DesktopRuntimeWindow(QWidget):
         self._last_launch_failure_action_id = ""
         self._last_launch_failure_count = 0
         self._reported_recoverable_launch_failures = set()
-        self._monitoring_hud_visible = True
+        self._monitoring_hud_feature_enabled = bool(monitoring_hud_feature_enabled)
+        self._monitoring_hud_visible = bool(monitoring_hud_feature_enabled)
         self._monitoring_hud_anchored = True
         self._monitoring_hud_snap_enabled = True
         self._monitoring_hud_polling_rate_ms = 1000
@@ -5736,7 +5738,7 @@ class DesktopRuntimeWindow(QWidget):
         )
 
         # Align the standalone desktop route with the proven Boot handoff window model.
-        self.setWindowFlags(Qt.Tool | Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint)
+        self.setWindowFlags(Qt.Tool | Qt.FramelessWindowHint)
         self.setAutoFillBackground(self.surface_role != "hud")
         if self.surface_role == "hud":
             self.setAttribute(Qt.WA_TranslucentBackground, True)
@@ -6122,6 +6124,8 @@ class DesktopRuntimeWindow(QWidget):
 
     def _monitoring_hud_control_state(self) -> dict[str, object]:
         return {
+            "featureEnabled": self._monitoring_hud_feature_enabled,
+            "overlayDeferred": True,
             "visible": self._monitoring_hud_visible,
             "anchored": self._monitoring_hud_anchored,
             "snapEnabled": self._monitoring_hud_snap_enabled,
@@ -6144,6 +6148,7 @@ class DesktopRuntimeWindow(QWidget):
             package="PKG-006",
             slice="SLC-027",
             source="page_publish",
+            feature_enabled=self._monitoring_hud_feature_enabled,
             visible=self._monitoring_hud_visible,
             anchored=self._monitoring_hud_anchored,
             snap=self._monitoring_hud_snap_enabled,
@@ -6230,10 +6235,7 @@ class DesktopRuntimeWindow(QWidget):
         try:
             hwnd = ctypes.wintypes.HWND(int(self.winId()))
             style = int(GetWindowLongW(hwnd, GWL_EXSTYLE))
-            if anchored:
-                style = (style | WS_EX_NOACTIVATE) & ~WS_EX_TRANSPARENT
-            else:
-                style = style & ~WS_EX_NOACTIVATE & ~WS_EX_TRANSPARENT
+            style = style & ~WS_EX_NOACTIVATE & ~WS_EX_TRANSPARENT
             SetWindowLongW(hwnd, GWL_EXSTYLE, style)
         except Exception:
             return
@@ -6248,6 +6250,7 @@ class DesktopRuntimeWindow(QWidget):
             slice="SLC-026",
             source=source,
             surface="standalone_native_hud_window" if self.surface_role == "hud" else "combined_core_surface",
+            feature_enabled=self._monitoring_hud_feature_enabled,
             visible=self._monitoring_hud_visible,
             anchored=self._monitoring_hud_anchored,
             x=geometry.x(),
@@ -6290,7 +6293,7 @@ class DesktopRuntimeWindow(QWidget):
         if isinstance(page_state.get("cards"), dict):
             cards = page_state.get("cards") or {}
         overlay.update_product_state(
-            visible=bool(self._monitoring_hud_visible and self.desktop_mode),
+            visible=False,
             anchored=bool(self._monitoring_hud_anchored),
             provider_label=str(telemetry.get("providerLabel") or "Provider setup required"),
             warning_label=str(status.get("warningPosture") or "Visual warning baseline only"),
@@ -6965,7 +6968,11 @@ class DesktopRuntimeWindow(QWidget):
         return layout
 
     def _handle_monitoring_hud_native_panel_drag_event(self, event) -> bool:
-        if not self.desktop_mode or self._monitoring_hud_anchored or not self._monitoring_hud_visible:
+        if (
+            not self.desktop_mode
+            or not self._monitoring_hud_feature_enabled
+            or not self._monitoring_hud_visible
+        ):
             self._monitoring_hud_native_panel_drag_active = False
             self._monitoring_hud_native_card_drag_active = False
             self._monitoring_hud_native_card_resize_active = False
@@ -7097,36 +7104,31 @@ class DesktopRuntimeWindow(QWidget):
 
     def _apply_monitoring_hud_window_interaction_state(self):
         anchored = bool(self._monitoring_hud_anchored)
-        # Native hit testing handles click-through outside the HUD. The HUD
-        # itself must stay interactive so the visible unanchor/move controls
-        # behave like a real user-facing panel.
+        feature_enabled = bool(self._monitoring_hud_feature_enabled and self._monitoring_hud_visible)
         self.setAttribute(Qt.WA_TransparentForMouseEvents, False)
-        self.setAttribute(Qt.WA_ShowWithoutActivating, anchored)
+        self.setAttribute(Qt.WA_ShowWithoutActivating, False)
         self.setWindowFlag(Qt.Tool, True)
         self.setWindowFlag(Qt.FramelessWindowHint, True)
-        self.setFocusPolicy(Qt.NoFocus if anchored else Qt.StrongFocus)
-        self.webview.setFocusPolicy(Qt.NoFocus if anchored else Qt.StrongFocus)
-        # The Monitoring HUD is an overlay layer. Anchored mode controls
-        # focus/click-through behavior, not whether the HUD can disappear
-        # behind unrelated desktop windows.
-        self.setWindowFlag(Qt.WindowStaysOnTopHint, True)
-        self._apply_monitoring_hud_native_activation_style(anchored)
-        if anchored:
-            self._monitoring_hud_interactive_screen_rect = self._estimate_monitoring_hud_interactive_screen_rect()
-        if self.desktop_mode and self.isVisible():
+        self.setFocusPolicy(Qt.StrongFocus if feature_enabled else Qt.NoFocus)
+        self.webview.setFocusPolicy(Qt.StrongFocus if feature_enabled else Qt.NoFocus)
+        self.setWindowFlag(Qt.WindowStaysOnTopHint, False)
+        self._apply_monitoring_hud_native_activation_style(False)
+        self._monitoring_hud_interactive_screen_rect = self._estimate_monitoring_hud_interactive_screen_rect()
+        if not feature_enabled and self.isVisible():
+            self.hide()
+        if feature_enabled and self.desktop_mode:
+            if not self.isVisible():
+                self.show()
+            if not self.webview.isVisible():
+                self.webview.show()
             self.show()
-            if not anchored:
-                self.setWindowState(self.windowState() | Qt.WindowActive)
-                self.raise_()
-                self._promote_monitoring_hud_edit_window()
-                self.activateWindow()
-                self.webview.setFocus(Qt.MouseFocusReason)
         self._emit_runtime_signal(
             "MONITORING_HUD_INTERACTION_MODE_READY",
             package="PKG-006",
             slice="SLC-026",
+            feature_enabled=feature_enabled,
             anchored=anchored,
-            pointer_model="hud_controls_interactive_click_through_elsewhere" if anchored else "editable_panel",
+            pointer_model="normal_dashboard_window_no_topmost",
         )
         self._emit_monitoring_hud_window_status(source="interaction_state")
         self._sync_monitoring_hud_minimal_native_overlay(source="interaction_state")
@@ -7142,6 +7144,7 @@ class DesktopRuntimeWindow(QWidget):
     ):
         if visible is not None:
             self._monitoring_hud_visible = bool(visible)
+            self._monitoring_hud_feature_enabled = bool(visible)
         if anchored is not None:
             self._monitoring_hud_anchored = bool(anchored)
         if snap_enabled is not None:
@@ -7158,28 +7161,67 @@ class DesktopRuntimeWindow(QWidget):
             package="PKG-006",
             slice="SLC-027",
             source=source,
+            feature_enabled=self._monitoring_hud_feature_enabled,
             visible=self._monitoring_hud_visible,
             anchored=self._monitoring_hud_anchored,
             snap=self._monitoring_hud_snap_enabled,
             polling_rate_ms=self._monitoring_hud_polling_rate_ms,
         )
 
-    def request_monitoring_hud_unanchor_from_tray(self, source: str = "tray"):
-        self._set_monitoring_hud_control_state(visible=True, anchored=False, source=source)
+    def monitoring_hud_feature_state(self) -> dict[str, object]:
+        return {
+            "feature_enabled": bool(self._monitoring_hud_feature_enabled and self._monitoring_hud_visible),
+            "dashboard_visible": bool(self.isVisible() and self._monitoring_hud_visible),
+            "overlay_deferred": True,
+            "overlay_anchor_enabled": False,
+            "anchored": self._monitoring_hud_anchored,
+        }
+
+    def _set_monitoring_hud_feature_enabled(self, enabled: bool, *, source: str = "runtime"):
+        self._monitoring_hud_feature_enabled = bool(enabled)
+        self._set_monitoring_hud_control_state(visible=bool(enabled), source=source)
+        if enabled:
+            if not self.isVisible():
+                self.show()
+            if self.desktop_mode and not self.webview.isVisible():
+                self.webview.show()
+        else:
+            if self._monitoring_hud_minimal_native_overlay is not None:
+                self._monitoring_hud_minimal_native_overlay.update_product_state(
+                    visible=False,
+                    anchored=True,
+                    cards={},
+                )
+            self.hide()
         self._emit_runtime_signal(
-            "MONITORING_HUD_TRAY_UNANCHOR_READY",
+            "MONITORING_HUD_FEATURE_STATE_READY",
             package="PKG-006",
             slice="SLC-027",
+            seam="WS37",
             source=source,
+            feature_enabled=self._monitoring_hud_feature_enabled,
+            dashboard_visible=self.isVisible(),
+            overlay_deferred=True,
+        )
+
+    def request_monitoring_hud_unanchor_from_tray(self, source: str = "tray"):
+        self._emit_runtime_signal(
+            "MONITORING_HUD_TRAY_UNANCHOR_DEFERRED",
+            package="PKG-006",
+            slice="SLC-027",
+            seam="WS37",
+            source=source,
+            reason="overlay_deferred_non_gating",
         )
 
     def request_monitoring_hud_toggle_from_tray(self, source: str = "tray"):
-        next_visible = not self._monitoring_hud_visible
-        self._set_monitoring_hud_control_state(visible=next_visible, source=source)
+        next_visible = not bool(self._monitoring_hud_feature_enabled and self._monitoring_hud_visible)
+        self._set_monitoring_hud_feature_enabled(next_visible, source=source)
         self._emit_runtime_signal(
             "MONITORING_HUD_TRAY_TOGGLE_READY",
             package="PKG-006",
             slice="SLC-027",
+            seam="WS37",
             source=source,
             visible=next_visible,
         )
@@ -8379,6 +8421,7 @@ class DesktopRuntimeWindow(QWidget):
         if not isinstance(state, dict) or self._is_shutting_down:
             return
         visible = bool(state.get("visible", self._monitoring_hud_visible))
+        feature_enabled = bool(state.get("featureEnabled", visible))
         anchored = bool(state.get("anchored", self._monitoring_hud_anchored))
         snap_enabled = bool(state.get("snapEnabled", self._monitoring_hud_snap_enabled))
         try:
@@ -8424,12 +8467,13 @@ class DesktopRuntimeWindow(QWidget):
                 polling_floor_ms=1000,
             )
 
-        signature = (visible, anchored, snap_enabled, polling_rate_ms)
+        signature = (feature_enabled, visible, anchored, snap_enabled, polling_rate_ms)
         if signature == self._monitoring_hud_control_signature:
             self._sync_monitoring_hud_minimal_native_overlay(source="page_sync")
             return
 
         self._monitoring_hud_control_signature = signature
+        self._monitoring_hud_feature_enabled = feature_enabled
         self._monitoring_hud_visible = visible
         self._monitoring_hud_anchored = anchored
         self._monitoring_hud_snap_enabled = snap_enabled
@@ -10072,15 +10116,6 @@ class DesktopRuntimeWindow(QWidget):
         self._show_command_result("launch_requested", "Launch request sent.")
 
     def nativeEvent(self, eventType, message):
-        if self.desktop_mode and self._monitoring_hud_anchored:
-            msg = ctypes.wintypes.MSG.from_address(int(message))
-
-            if msg.message == WM_NCHITTEST:
-                point = QPoint(int(msg.pt.x), int(msg.pt.y))
-                if self._monitoring_hud_point_in_interactive_rect(point):
-                    return super().nativeEvent(eventType, message)
-                return True, HTTRANSPARENT
-
         return super().nativeEvent(eventType, message)
 
     def enable_desktop_mode(self):

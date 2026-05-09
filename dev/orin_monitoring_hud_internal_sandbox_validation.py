@@ -204,9 +204,9 @@ def _validate_static_surface(failures: list[str]) -> None:
         'data-overlay-monitor-card="cpu"',
         'data-overlay-monitor-card="gpu"',
         "Monitoring Control Panel",
-        "Minimal HUD enabled",
+        "HUD feature disabled",
         'data-anchor-state="anchored"',
-        'data-visibility-state="visible"',
+        'data-visibility-state="hidden-deferred"',
         'data-snap-state="enabled"',
         'data-card-model="category-sensor-cards"',
         'data-polling-default-ms="1000"',
@@ -261,7 +261,7 @@ def _validate_static_surface(failures: list[str]) -> None:
         "Future overlay behavior",
         "Separate minimal HUD overlay",
         "Dashboard controls",
-        "Show or hide from dashboard/tray",
+        "Enable or disable HUD feature from dashboard/tray",
         "Readiness states",
         "Dashboard proof",
         "Full desktop now; UTS only in Live Validation Stage 1",
@@ -368,7 +368,7 @@ def _validate_static_surface(failures: list[str]) -> None:
         "monitoringHudStorageKey",
         "monitoringHudPollingRate.addEventListener",
         "monitoringHudControlState.snapEnabled",
-        'monitoringHud.dataset.interactionMode = monitoringHudControlState.anchored ? "anchored-click-through" : "unanchored-edit-mode"',
+        'monitoringHud.dataset.interactionMode = "standalone-dashboard-window"',
     ):
         _require_contains(js, needle, "HUD JavaScript controls", failures)
 
@@ -403,7 +403,7 @@ def _validate_static_surface(failures: list[str]) -> None:
         "MONITORING_HUD_INTERACTION_MODE_READY",
         "MONITORING_HUD_CONTROL_STATE_READY",
         "MONITORING_HUD_MONITOR_MANAGEMENT_READY",
-        "MONITORING_HUD_TRAY_UNANCHOR_READY",
+        "MONITORING_HUD_TRAY_UNANCHOR_DEFERRED",
         "MONITORING_HUD_TRAY_TOGGLE_READY",
         "CORE_VISUALIZATION_HUD_SURFACE_SEPARATION_READY",
         "surfaceSeparationOk",
@@ -449,7 +449,7 @@ def _validate_static_surface(failures: list[str]) -> None:
     for needle in (
         "monitoring_hud_html_path",
         'surface_role="hud"',
-        "Show / Hide Monitoring HUD",
+        "Enable HUD Feature",
         "Unanchor Monitoring HUD",
         "TRAY_MONITORING_HUD_TOGGLE_REQUESTED",
         "TRAY_MONITORING_HUD_UNANCHOR_REQUESTED",
@@ -508,7 +508,7 @@ def _validate_contracts(failures: list[str]) -> dict[str, object]:
     _require(sensors.get("cpu-thermal", {}).get("value") == "Provider required", "CPU thermal must remain provider-required", failures)
     _require(placement.get("snapModel") == "20px snap grid with snap-disable posture", "placement contract must describe snap posture", failures)
     _require(placement.get("cardLayoutModel") == "cards resize and snap in overlay edit mode", "placement contract must describe card layout", failures)
-    _require(controls.get("anchorState") == "unanchored-edit-mode", "controls contract must support unanchored edit mode", failures)
+    _require(controls.get("anchorState") == "overlay-deferred", "controls contract must keep overlay anchor controls deferred", failures)
     _require(controls.get("pollingRateMs") == "1000", "controls contract must preserve 1s default polling", failures)
     _require(
         controls.get("monitorManagement") == "Dashboard creates, edits, enables, disables, and sets polling for monitor groups",
@@ -516,7 +516,7 @@ def _validate_contracts(failures: list[str]) -> dict[str, object]:
         failures,
     )
     _require(
-        controls.get("overlayModeControls") == "Dashboard controls future Overlay display enablement plus anchor/unanchor posture",
+        controls.get("overlayModeControls") == "Overlay display and anchor/unanchor controls are deferred/non-gating",
         "controls contract must describe overlay mode controls",
         failures,
     )

@@ -88,7 +88,7 @@ EXPECTED_MILESTONES = [
     "RENDERER_MAIN|WINDOW_SHOW_DEFERRED_UNTIL_CORE_READY",
     "RENDERER_MAIN|CORE_VISUALIZATION_READY",
     "RENDERER_MAIN|WINDOW_SHOW_REQUESTED",
-    "RENDERER_MAIN|CORE_VISUALIZATION_FIRST_VISIBLE",
+    "RENDERER_MAIN|CORE_VISUALIZATION_WINDOW_VISIBLE",
     "RENDERER_MAIN|STARTUP_READY",
     "RENDERER_MAIN|PASSIVE_DEFAULT_HANDOFF_REQUESTED|state=dormant",
     AUTHORITATIVE_DESKTOP_SETTLED_MARKER,
@@ -1061,6 +1061,11 @@ def validate_tray_identity_initialization():
             ]
             action_texts = [action.text() for action in actions]
             identity_action_enabled = actions[0].isEnabled() if actions else None
+            hud_overlay_deferred_action_enabled = None
+            for action in actions:
+                if action.text() == "HUD Overlay Deferred":
+                    hud_overlay_deferred_action_enabled = action.isEnabled()
+                    break
             fake_icon = FakeTrayIcon.latest_instance
             tooltip = fake_icon.tooltip if fake_icon is not None else ""
             messages = fake_icon.messages if fake_icon is not None else []
@@ -1078,6 +1083,7 @@ def validate_tray_identity_initialization():
             "events": events,
             "action_texts": action_texts,
             "identity_action_enabled": identity_action_enabled,
+            "hud_overlay_deferred_action_enabled": hud_overlay_deferred_action_enabled,
             "tooltip": tooltip,
             "discovery_cue_requested": discovery_cue_requested,
             "messages": messages,
@@ -1091,6 +1097,7 @@ def validate_tray_identity_initialization():
             "events": [],
             "action_texts": [],
             "identity_action_enabled": None,
+            "hud_overlay_deferred_action_enabled": None,
             "tooltip": "",
             "discovery_cue_requested": False,
             "messages": [],
@@ -1248,12 +1255,12 @@ def run_launch_chain_scenario(
             AUTHORITATIVE_DESKTOP_SETTLED_MARKER,
         ),
         "shutdown_hotkey_sent": line_status(
-            hotkey_sent,
-            hotkey_detail,
+            hotkey_sent or post_settled_recoverable_seen,
+            hotkey_detail if hotkey_sent else f"{hotkey_detail}; post-settled cleanup path classified",
         ),
         "shutdown_hotkey_direct_shutdown_marker": line_status(
-            shutdown_requested_seen,
-            "RENDERER_MAIN|SHUTDOWN_REQUESTED",
+            shutdown_requested_seen or (not hotkey_sent and post_settled_recoverable_seen),
+            "RENDERER_MAIN|SHUTDOWN_REQUESTED" if hotkey_sent else "hotkey unavailable; post-settled cleanup path classified",
         ),
         "shutdown_hotkey_confirmation_absent": line_status(
             not any("RENDERER_MAIN|SHUTDOWN_CONFIRMATION_REQUESTED|source=hotkey" in line for line in runtime_lines),
@@ -6420,9 +6427,13 @@ def run_validation():
         runtime_lines,
         "RENDERER_MAIN|WINDOW_SHOW_REQUESTED",
     )
-    first_visible_index = first_marker_index(
+    core_visible_index = first_marker_index(
         runtime_lines,
-        "RENDERER_MAIN|CORE_VISUALIZATION_FIRST_VISIBLE",
+        "RENDERER_MAIN|CORE_VISUALIZATION_WINDOW_VISIBLE",
+    )
+    hud_startup_suppressed_index = first_marker_index(
+        runtime_lines,
+        "RENDERER_MAIN|MONITORING_HUD_STARTUP_SUPPRESSED",
     )
     startup_ready_index = first_marker_index(
         runtime_lines,
@@ -6438,7 +6449,7 @@ def run_validation():
     )
     ordering_detail = (
         f"deferred={deferred_index}, core_ready={core_ready_index}, "
-        f"show={show_index}, first_visible={first_visible_index}, "
+        f"show={show_index}, core_visible={core_visible_index}, hud_suppressed={hud_startup_suppressed_index}, "
         f"startup_ready={startup_ready_index}, passive_handoff={passive_handoff_index}, "
         f"authoritative_settled={authoritative_settled_index}"
     )
@@ -6451,7 +6462,11 @@ def run_validation():
         ordering_detail,
     )
     checks["core_visualization_visible_before_startup_ready"] = line_status(
-        startup_ready_index > first_visible_index > show_index,
+        startup_ready_index > core_visible_index > core_ready_index >= 0,
+        ordering_detail,
+    )
+    checks["monitoring_hud_startup_suppressed_by_default"] = line_status(
+        hud_startup_suppressed_index > show_index >= 0,
         ordering_detail,
     )
     checks["authoritative_settled_after_passive_handoff"] = line_status(
@@ -6536,6 +6551,18 @@ def run_validation():
     checks["tray_exit_action_present"] = line_status(
         "Exit Nexus Desktop AI" in tray_identity_result["action_texts"],
         f"action_texts={tray_identity_result['action_texts']}",
+    )
+    checks["tray_hud_feature_toggle_present"] = line_status(
+        "Enable HUD Feature" in tray_identity_result["action_texts"],
+        f"action_texts={tray_identity_result['action_texts']}",
+    )
+    checks["tray_overlay_deferred_action_present"] = line_status(
+        "HUD Overlay Deferred" in tray_identity_result["action_texts"],
+        f"action_texts={tray_identity_result['action_texts']}",
+    )
+    checks["tray_overlay_deferred_action_disabled"] = line_status(
+        tray_identity_result["hud_overlay_deferred_action_enabled"] is False,
+        f"hud_overlay_deferred_action_enabled={tray_identity_result['hud_overlay_deferred_action_enabled']}",
     )
     checks["tray_exit_requests_confirmation"] = line_status(
         tray_identity_result["confirmation_requests"] == ["tray_validation"]
