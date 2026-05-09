@@ -306,6 +306,12 @@ FAM006_WS40_HEADING = (
 FAM006_WS40_NEXT_SEAM = (
     "Workstream WS41 - Dashboard Child-Window Scope Implementation If Admitted"
 )
+FAM006_WS41_HEADING = (
+    "Workstream WS41 Dashboard Child-Window Scope Deferred To Future Branch"
+)
+FAM006_WS41_NEXT_SEAM = (
+    "Workstream WS42 - Dashboard Specific Static Live Proof And LV1 Handoff Readiness"
+)
 FAM006_H1_HEADING = "Hardening H1 Dashboard-First Product Surface Rerun"
 FAM006_H1_NEXT_SEAM = (
     "Live Validation LV1 - Monitoring HUD Product Surface Live Validation Rerun"
@@ -679,6 +685,33 @@ FAM006_WS40_REQUIRED_PHRASES = (
     "Continuation Execution Latch:",
     "Next Legal Seam:",
     FAM006_WS40_NEXT_SEAM,
+)
+FAM006_WS41_REQUIRED_PHRASES = (
+    "WS41 Admission Decision:",
+    "Deferred - USER agreed with Codex's scope determination",
+    "WS41 Result:",
+    "Green for source-truth deferral only",
+    "Deferral Scope:",
+    "Create/Edit Monitor Group",
+    "Data Sources/Provider Setup",
+    "HUD Display Settings",
+    "Current-Branch Boundary:",
+    "not part of current FAM-006 Dashboard acceptance",
+    "Element Ledger Update:",
+    "FAM006-DASH-CHILD-WINDOW-049 is deferred/future",
+    "USER Admission Handling:",
+    "cleared by deferral, not by implementation or waiver",
+    "Dashboard Acceptance State:",
+    "Still blocked",
+    "Overlay Status:",
+    "Deferred/dormant/non-gating",
+    "Core Status:",
+    "Dependency-only",
+    "Package Completion:",
+    "Unclaimed",
+    "Continuation Execution Latch:",
+    "Next Legal Seam:",
+    FAM006_WS41_NEXT_SEAM,
 )
 FAM006_H1_REQUIRED_PHRASES = (
     "H1 Admission:",
@@ -5632,6 +5665,37 @@ def _validate_fam006_stage2_r6_plan(
                     f"'{required_phrase}'"
                 ),
             )
+        ws41_section = _section(text, FAM006_WS41_HEADING)
+        if ws41_section:
+            for phrase in FAM006_WS41_REQUIRED_PHRASES:
+                require(
+                    phrase in ws41_section,
+                    f"{source_path}: {FAM006_WS41_HEADING} is missing '{phrase}'",
+                )
+            require(
+                f"Active seam: `{FAM006_WS41_NEXT_SEAM}`" in text,
+                f"{source_path}: WS41 deferral must advance active seam to WS42 proof readiness",
+            )
+            require(
+                f"Next Active Seam: {FAM006_WS41_NEXT_SEAM}" in text,
+                f"{source_path}: WS41 deferral must set Seam Continuation Decision next active seam to WS42",
+            )
+            require(
+                "Remaining Implementable Work: `Dashboard-focused Workstream repair continues with WS42"
+                in text,
+                (
+                    f"{source_path}: WS41 deferral must preserve visible same-branch "
+                    "Dashboard proof work beyond the current seam"
+                ),
+            )
+            require(
+                "WS41 Child-Window Scope User Admission Missing" not in _section(text, "Blockers"),
+                (
+                    f"{source_path}: WS41 deferral must clear the former admission blocker "
+                    "from active Blockers"
+                ),
+            )
+            return
         ws40_section = _section(text, FAM006_WS40_HEADING)
         if ws40_section:
             for phrase in FAM006_WS40_REQUIRED_PHRASES:

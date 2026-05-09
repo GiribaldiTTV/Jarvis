@@ -24,7 +24,7 @@ This branch may execute the admitted PKG-006 implementation slices during Workst
 
 ## Status
 
-- `Workstream WS40 Dashboard IA Content Naming And Control Hub Repaired - WS41 Scope Pending`
+- `Workstream WS41 Dashboard Child-Window Scope Deferred - WS42 Proof Readiness Active`
 
 ## Canonical Branch
 
@@ -37,7 +37,7 @@ This branch may execute the admitted PKG-006 implementation slices during Workst
 ## Phase Status
 
 - Branch Readiness Stage: `Stage 2 complete - returned USER Dashboard feedback is recorded as blocking LV2 acceptance; source-truth and Element Validation Ledger dispositions were repaired before bounded Workstream repair resumed`
-- Workstream Stage: `WS40 complete - Dashboard IA/content/naming/control-hub is repaired and proven; WS41 Dashboard child-window scope implementation is next only if admitted`
+- Workstream Stage: `WS41 scope deferred by USER direction - Dashboard child-window implementation is future branch/package scope; WS42 Dashboard-specific static/live proof and LV1 handoff readiness is the next executable Workstream seam`
 - Hardening Stage: `Blocked pending Workstream - H1 remains preserved as prior Dashboard-first pressure-test evidence, but affected rows require rerun after the Dashboard repair sequence`
 - Live Validation Stage: `Blocked/regressed - refreshed LV1 handoff received USER blocking feedback before LV2 acceptance could proceed; LV2 returned-result digestion must not continue until repair, Hardening rerun, refreshed LV1 handoff, and returned USER acceptance or waiver`
 - Active Branch: `feature/fam-006-monitoring-hud-product-surface`
@@ -52,7 +52,7 @@ This branch may execute the admitted PKG-006 implementation slices during Workst
 - Admitted Slice Count: `6`
 - Package Completion State: `In Progress - Dashboard USER feedback blocks current acceptance; package completion remains unclaimed until Workstream repair, Hardening rerun, refreshed LV1 proof, returned USER acceptance or waiver, PR Readiness, and final closeout pass`
 - Single-Slice Package User Approval: `Not required - PKG-006 has six concrete admitted slices; no waiver granted`
-- Runtime Implementation State: `Dashboard-first Workstream, H1, and LV1 proof remain preserved as supporting history, but USER review of the refreshed LV1 handoff returned blocking Dashboard feedback. Source truth records Dashboard acceptance blocked, affected Element Validation Ledger rows stale, and LV2 blocked. WS37 repairs the first runtime safety packet: Dashboard and deferred Overlay no longer auto-open in normal startup, the tray exposes a truthful HUD feature toggle with Overlay deferred, Dashboard no longer uses topmost/no-activate/click-through ownership, Dashboard drag is isolated from Overlay anchor state, and NCP/saved-action regression proof passes with HUD disabled. WS31 through WS36 are not reverted; they remain supporting/stale proof for affected rows. Overlay/display remains deferred/dormant/non-gating, ORIN/Core remains dependency-only, and formal User Test Summary export/digestion remains Live Validation-only.`
+- Runtime Implementation State: `Dashboard-first Workstream, H1, and LV1 proof remain preserved as supporting history, but USER review of the refreshed LV1 handoff returned blocking Dashboard feedback. Source truth records Dashboard acceptance blocked, affected Element Validation Ledger rows stale, and LV2 blocked. WS37 repaired runtime/window/tray safety and NCP regression isolation; WS38 repaired Dashboard window ownership/focus/movement safety; WS39 repaired Dashboard shell/layout/frame/resize/readability; WS40 repaired Dashboard IA/content/naming/control-hub; WS41 deferred standalone child-window implementation to future branch/package scope. WS31 through WS36 are not reverted; they remain supporting/stale proof for affected rows. Overlay/display remains deferred/dormant/non-gating, ORIN/Core remains dependency-only, and formal User Test Summary export/digestion remains Live Validation-only.`
 - PR Creation State: `Not approved in Branch Readiness`
 - Watcher Provisioning State: `Not approved in Branch Readiness`
 - Release Work State: `Not approved; v1.6.13-prebeta release execution is already complete and no new release work is in scope`
@@ -66,16 +66,14 @@ This branch may execute the admitted PKG-006 implementation slices during Workst
 ## Blockers
 
 - `Backlog Completion Unproven`
-- `WS41 Child-Window Scope User Admission Missing`
 
-Package completion is not currently claimed. Stage 2-R13 cleared the earlier Branch Readiness planning latches and handed the branch to Dashboard-focused Workstream repair, but the refreshed LV1 handoff later received USER blocking feedback before LV2 acceptance. Stage 2 recorded that affected Workstream/H1/LV1 evidence is supporting but stale and LV2 must not continue. WS37 through WS40 repaired runtime/window/tray safety, NCP regression isolation, Dashboard window ownership/focus/movement, Dashboard shell/layout/frame/resize/readability, and Dashboard IA/content/naming/control-hub. WS41 child-window implementation now requires explicit USER admission before runtime implementation; Dashboard-specific proof, Hardening rerun, refreshed LV1, and returned USER acceptance remain pending.
+Package completion is not currently claimed. Stage 2-R13 cleared the earlier Branch Readiness planning latches and handed the branch to Dashboard-focused Workstream repair, but the refreshed LV1 handoff later received USER blocking feedback before LV2 acceptance. Stage 2 recorded that affected Workstream/H1/LV1 evidence is supporting but stale and LV2 must not continue. WS37 through WS40 repaired runtime/window/tray safety, NCP regression isolation, Dashboard window ownership/focus/movement, Dashboard shell/layout/frame/resize/readability, and Dashboard IA/content/naming/control-hub. USER agreed with Codex's scope determination and tabled WS41 child-window implementation for a future branch/package instead of admitting it on the current branch. Dashboard-specific proof, Hardening rerun, refreshed LV1, and returned USER acceptance remain pending.
 
 ## Acceptance Guards
 
 - `Dashboard Acceptance Blocked By USER Feedback`
 - `Element Proof Stale`
 - `User-Facing Element Acceptance Missing`
-- `WS41 Child-Window Scope User Admission Missing`
 - `Dashboard-Specific Proof Refresh Pending`
 - `User Test Summary Results Pending`
 
@@ -170,17 +168,17 @@ Rollback Path: revert this Branch Readiness Stage 2 source-truth repair commit o
 
 - `Workstream`
 
-Next Legal Seam: `Workstream WS41 - Dashboard Child-Window Scope Implementation If Admitted`
+Next Legal Seam: `Workstream WS42 - Dashboard Specific Static Live Proof And LV1 Handoff Readiness`
 
-Next Legal Phase Gate: WS40 records the Dashboard IA/content/naming/control-hub packet green and keeps the branch in Workstream for the remaining Dashboard repair/proof sequence. Codex must not continue LV2, enter Hardening, enter PR Readiness, create a PR, watcher, release, tag, artifact, direct-main mutation, voice/audio implementation, Stream Deck/plugin telemetry implementation, local AI, installer/capability-pack work, broad hardware provider implementation, persona switching implementation, ARIA activation, Overlay/display release acceptance, or a new FAM/package without later explicit USER approval.
+Next Legal Phase Gate: WS41 source-truth deferral records Dashboard child-window implementation as future branch/package scope and keeps the branch in Workstream for WS42 Dashboard-specific static/live proof and LV1 handoff readiness. Codex must not continue LV2, enter Hardening, enter PR Readiness, create a PR, watcher, release, tag, artifact, direct-main mutation, voice/audio implementation, Stream Deck/plugin telemetry implementation, local AI, installer/capability-pack work, broad hardware provider implementation, persona switching implementation, ARIA activation, Overlay/display release acceptance, or a new FAM/package without later explicit USER approval.
 
 Post-FAM-006 Required Marker Adoption Candidate: `Repo-Wide High-Risk Source Owner Marker Adoption`; candidate branch `feature/repo-wide-source-owner-marker-adoption`; requirement is recorded for after the current FAM-006 branch closes and does not authorize branch creation, package admission, PR Readiness, runtime behavior changes, or bypass of the active LV2 UTS pending gate. USER-facing element review-mode adoption is part of that future candidate's scope and remains tabled for planning-heavy Dev Toolkit design: existing and future interface elements, including NCP, Core visualization, Dashboard, Overlay/display when admitted, and other windows/components, should receive Dev Toolkit Interface Review Mode dispositions and dev-only badges/hover/ledger tooltip inspection where applicable; future design should decide per-interface launchers, a generalized all-surfaces review-mode launch, or both.
 
 ## Active Seam
 
-Active seam: `Workstream WS41 - Dashboard Child-Window Scope Implementation If Admitted`
+Active seam: `Workstream WS42 - Dashboard Specific Static Live Proof And LV1 Handoff Readiness`
 
-Active Seam Status: `Ready for USER scope decision or bounded Workstream continuation after WS40 repaired Dashboard control-hub IA, content naming, home-surface proof/debug reroute, polling placement, and Warning Notifications terminology; LV2 remains blocked`
+Active Seam Status: `Ready for bounded Workstream continuation after USER deferred WS41 child-window implementation to future scope; WS42 must refresh Dashboard-specific static/live proof readiness without generating or digesting formal UTS outside Live Validation`
 
 ## Branch Objective
 
@@ -505,9 +503,9 @@ Branch Closure Rule: Stage 2-R13 handed this branch back to bounded Dashboard-fo
 ## Backlog Completion Status
 
 Backlog Completion State: `In Progress`
-Remaining Implementable Work: `Dashboard-focused Workstream repair continues with WS41 Dashboard child-window scope implementation if admitted and WS42 Dashboard-specific static/live proof and LV1 handoff readiness`
+Remaining Implementable Work: `Dashboard-focused Workstream repair continues with WS42 Dashboard-specific static/live proof and LV1 handoff readiness; WS41 child-window implementation is deferred to a future branch/package`
 Future-Dependent Blockers: `full HWInfo/HWMonitor-level parity, broad plugin/external telemetry ecosystem, audio/spoken alerts or FAM-004 integration, persona switching implementation and ARIA activation, Stream Deck, graphs/history/persistence/dashboards, local AI/capability-pack monitoring, installer/capability-pack work, and ultra-low polling intervals remain deferred pending later approval, admission, and proof`
-Completion Status: `Red`
+Completion Status: `In Progress`
 
 ## Planning-Loop Guardrail
 
@@ -716,16 +714,16 @@ Historical Stop Basis: `Stage 2-R13 Dashboard-first Workstream handoff supersede
 
 ## Seam Continuation Decision
 
-Seam Status: Blocked
+Seam Status: In Progress
 Slice Status: In Progress
-Completion Status: Red
+Completion Status: In Progress
 Waiver Status: None
-Continue Decision: Stop
-Continuation Execution Latch: Inactive - WS41 has a named USER admission blocker; final response is permitted after WS40 validation and durability.
-Stop Basis: Named Blocker
-Next Active Seam: Workstream WS41 - Dashboard Child-Window Scope Implementation If Admitted
-Stop Condition: WS41 Child-Window Scope User Admission Missing - WS41 requires USER admission before implementation; Dashboard acceptance remains blocked until the remaining repair/proof sequence, Hardening rerun, refreshed LV1, and returned USER PASS/WAIVED results or waiver complete.
-Continuation Action: Stop for USER admission if WS41 is not admitted; otherwise continue within bounded Workstream to WS41. Preserve Dashboard-first boundary, Overlay/display non-gating status, Core dependency-only status, LV2 blocked, PR blocked, PKG-006 In Progress, package completion unclaimed, no single-seam waiver, and no PR/release work.
+Continue Decision: Continue
+Continuation Execution Latch: Active - WS41 child-window implementation is deferred to future branch/package scope, final response is prohibited, and WS42 must execute in the same bounded Workstream run unless a lawful blocker/phase boundary is recorded.
+Stop Basis: None
+Next Active Seam: Workstream WS42 - Dashboard Specific Static Live Proof And LV1 Handoff Readiness
+Stop Condition: None at WS41 deferral seam level; Dashboard acceptance remains blocked until WS42 proof readiness, Hardening rerun, refreshed LV1, and returned USER PASS/WAIVED results or waiver complete.
+Continuation Action: Continue within bounded Workstream to WS42. Preserve Dashboard-first boundary, Overlay/display non-gating status, Core dependency-only status, LV2 blocked, PR blocked, PKG-006 In Progress, package completion unclaimed, no single-seam waiver, and no PR/release work.
 
 ## Live Validation Stage 1 Continuation Decision
 
@@ -736,7 +734,7 @@ Completion Detail: Live Validation final green is blocked because USER returned 
 Waiver Status: None
 Continue Decision: Stop
 Stop Basis: Dashboard Acceptance Blocked By USER Feedback
-Next Active Seam: Workstream WS41 - Dashboard Child-Window Scope Implementation If Admitted
+Next Active Seam: Workstream WS42 - Dashboard Specific Static Live Proof And LV1 Handoff Readiness
 Stop Condition: LV1 handoff proof superseded for affected Dashboard rows by returned USER feedback
 Continuation Action: Route through Branch Readiness Stage 2 source-truth repair, then bounded Workstream repair. Do not enter PR Readiness, create PR/watcher/release artifacts, claim package completion, or treat Codex self-QA as USER acceptance.
 
@@ -1491,7 +1489,7 @@ Validation Evidence Expectations: return PASS/FAIL plus any notes, screenshots, 
 - PKG-006 Status: `In Progress`
 - Package Completion: `Unclaimed`
 - PR Readiness: `Blocked`
-- Workstream Repair Packet Sequence: `WS37 runtime/window/tray regression safety and NCP isolation`; `WS38 Dashboard window ownership/focus/movement safety`; `WS39 Dashboard shell/layout/frame/resize/readability repair`; `WS40 Dashboard IA/content/naming/control-hub repair`; `WS41 Dashboard child-window scope implementation if admitted`; `WS42 Dashboard-specific static/live proof and LV1 handoff readiness`
+- Workstream Repair Packet Sequence: `WS37 runtime/window/tray regression safety and NCP isolation`; `WS38 Dashboard window ownership/focus/movement safety`; `WS39 Dashboard shell/layout/frame/resize/readability repair`; `WS40 Dashboard IA/content/naming/control-hub repair`; `WS41 Dashboard child-window scope deferred to future branch/package`; `WS42 Dashboard-specific static/live proof and LV1 handoff readiness`
 - Next Legal Seam: `Workstream WS37 - Dashboard Runtime Window Tray Safety And NCP Regression Isolation`
 
 ## Workstream WS37 Dashboard Runtime Window Tray Safety And NCP Regression Isolation
@@ -1591,6 +1589,25 @@ Validation Evidence Expectations: return PASS/FAIL plus any notes, screenshots, 
 - Continuation Execution Latch: `Conditional - next bounded Workstream seam is WS41 only if admitted by USER; otherwise WS40 records a lawful USER-admission blocker`
 - Stop Basis: `WS41 child-window implementation requires USER admission before runtime implementation; no Hardening/Live Validation/PR transition authorized by WS40`
 - Next Legal Seam: `Workstream WS41 - Dashboard Child-Window Scope Implementation If Admitted`
+
+## Workstream WS41 Dashboard Child-Window Scope Deferred To Future Branch
+
+- WS41 Admission Decision: `Deferred - USER agreed with Codex's scope determination that standalone child-window implementation requires explicit admission and tabled it for a future branch/package`
+- WS41 Result: `Green for source-truth deferral only - no Dashboard child-window runtime implementation was performed and no new user-facing child windows are claimed`
+- Deferral Scope: `Create/Edit Monitor Group, Data Sources/Provider Setup, and HUD Display Settings standalone child windows are future branch/package scope`
+- Current-Branch Boundary: `Dashboard home hub actions and labels remain current-branch control-hub UI, but opening full standalone child windows is not part of current FAM-006 Dashboard acceptance`
+- Element Ledger Update: `FAM006-DASH-CHILD-WINDOW-049 is deferred/future; WS40 hub placeholders remain non-gating supporting evidence`
+- USER Admission Handling: `The former WS41 Child-Window Scope User Admission Missing blocker is cleared by deferral, not by implementation or waiver`
+- Dashboard Acceptance State: `Still blocked - WS42 Dashboard-specific proof readiness plus Hardening rerun, refreshed LV1, and returned USER acceptance remain pending`
+- Overlay Status: `Deferred/dormant/non-gating - Overlay/display acceptance is not claimed`
+- Core Status: `Dependency-only - WS41 deferral does not release ORIN/Core as a FAM-006 interface`
+- PKG-006 Status: `In Progress`
+- Package Completion: `Unclaimed`
+- PR Readiness: `Blocked`
+- Continue Decision: `Continue within Workstream after WS41 deferral validation/durability because PKG-006 remains In Progress and no USER single-seam waiver or stop-authorizing blocker is recorded`
+- Continuation Execution Latch: `Active - next bounded Workstream seam is WS42`
+- Stop Basis: `No phase boundary crossing; no Hardening/Live Validation/PR transition authorized by WS41 deferral`
+- Next Legal Seam: `Workstream WS42 - Dashboard Specific Static Live Proof And LV1 Handoff Readiness`
 
 ## Historical WS30 Codex Live Client Self-QA
 
