@@ -31,25 +31,15 @@ body.desktop-mode #monitoring-hud {
   right: 12px;
   display: block;
   width: min(860px, calc(100vw - 24px));
-  max-height: calc(100vh - 24px);
+  height: min(1060px, calc(100vh - 24px));
+  min-height: min(520px, calc(100vh - 24px));
   box-sizing: border-box;
-  padding: 14px 16px 16px;
-  overflow-x: hidden;
-  overflow-y: auto;
-  overscroll-behavior: contain;
-  scrollbar-gutter: auto;
-  scrollbar-width: thin;
-  scrollbar-color: rgba(108, 232, 255, 0.58) transparent;
-  border: 1px solid rgba(125, 235, 255, 0.26);
-  border-radius: 28px;
-  background:
-    radial-gradient(circle at 6% 0%, rgba(91, 221, 255, 0.22), transparent 35%),
-    radial-gradient(circle at 100% 20%, rgba(84, 255, 190, 0.16), transparent 33%),
-    linear-gradient(145deg, rgba(4, 17, 32, 0.92), rgba(1, 7, 16, 0.84));
-  box-shadow:
-    0 0 0 1px rgba(214, 248, 255, 0.08) inset,
-    0 24px 70px rgba(0, 0, 0, 0.42),
-    0 0 48px rgba(72, 205, 228, 0.22);
+  padding: 0;
+  overflow: visible;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
   letter-spacing: 0.01em;
   pointer-events: auto;
   transform: translateY(0) scale(1);
@@ -57,24 +47,24 @@ body.desktop-mode #monitoring-hud {
   animation: monitoringHudSettle 740ms cubic-bezier(0.2, 0.82, 0.18, 1.0) both;
 }
 
-body.desktop-mode #monitoring-hud::-webkit-scrollbar {
+body.desktop-mode .monitoring-hud__chrome::-webkit-scrollbar {
   width: 10px;
 }
 
-body.desktop-mode #monitoring-hud::-webkit-scrollbar-track {
+body.desktop-mode .monitoring-hud__chrome::-webkit-scrollbar-track {
   margin: 16px 0;
   border-radius: 999px;
   background: transparent;
 }
 
-body.desktop-mode #monitoring-hud::-webkit-scrollbar-thumb {
+body.desktop-mode .monitoring-hud__chrome::-webkit-scrollbar-thumb {
   border: 2px solid rgba(5, 18, 31, 0.18);
   border-radius: 999px;
   background: linear-gradient(180deg, rgba(121, 239, 255, 0.72), rgba(99, 255, 202, 0.48));
   box-shadow: 0 0 16px rgba(88, 225, 255, 0.24);
 }
 
-body.desktop-mode #monitoring-hud::-webkit-scrollbar-thumb:hover {
+body.desktop-mode .monitoring-hud__chrome::-webkit-scrollbar-thumb:hover {
   background: linear-gradient(180deg, rgba(184, 250, 255, 0.88), rgba(112, 255, 210, 0.64));
 }
 
@@ -144,46 +134,61 @@ body.desktop-mode #monitoring-hud.monitoring-hud--validation-fault {
   outline: 2px solid rgba(255, 210, 116, 0.48);
 }
 
-body.desktop-mode #monitoring-hud::before {
-  content: "";
-  position: absolute;
-  inset: 14px;
-  border-radius: 22px;
-  border: 1px solid rgba(168, 244, 255, 0.07);
-  background:
-    linear-gradient(90deg, rgba(117, 228, 255, 0.05) 1px, transparent 1px),
-    linear-gradient(rgba(117, 228, 255, 0.04) 1px, transparent 1px);
-  background-size: 28px 28px;
-  opacity: 0.34;
-  pointer-events: none;
-}
-
 body.desktop-mode #monitoring-hud > * {
   position: relative;
   z-index: 1;
 }
 
 .monitoring-hud__chrome {
-  padding: 0;
-  border-radius: 22px;
-  background: transparent;
-  box-shadow: none;
+  height: 100%;
+  max-height: 100%;
+  box-sizing: border-box;
+  padding: 14px 16px 16px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(108, 232, 255, 0.58) transparent;
+  border: 1px solid rgba(125, 235, 255, 0.30);
+  border-radius: 28px;
+  background:
+    radial-gradient(circle at 6% 0%, rgba(91, 221, 255, 0.22), transparent 35%),
+    radial-gradient(circle at 100% 20%, rgba(84, 255, 190, 0.16), transparent 33%),
+    linear-gradient(145deg, rgba(4, 17, 32, 0.96), rgba(1, 7, 16, 0.94));
+  box-shadow:
+    0 0 0 1px rgba(214, 248, 255, 0.08) inset,
+    0 24px 70px rgba(0, 0, 0, 0.42),
+    0 0 48px rgba(72, 205, 228, 0.20);
+  isolation: isolate;
 }
 
 .monitoring-hud__title-group {
   position: sticky;
-  top: -2px;
-  z-index: 6;
+  top: 0;
+  z-index: 20;
+  isolation: isolate;
   padding: 14px 16px 12px;
   border: 1px solid rgba(130, 236, 255, 0.12);
   border-radius: 22px;
   background:
-    linear-gradient(150deg, rgba(5, 23, 39, 0.94), rgba(2, 10, 20, 0.88)),
+    linear-gradient(150deg, rgba(5, 23, 39, 0.985), rgba(2, 10, 20, 0.965)),
     linear-gradient(90deg, rgba(116, 240, 255, 0.08), transparent 58%);
   box-shadow:
     0 0 0 1px rgba(230, 251, 255, 0.04) inset,
-    0 14px 34px rgba(0, 0, 0, 0.28);
-  backdrop-filter: blur(14px);
+    0 18px 36px rgba(0, 0, 0, 0.42),
+    0 24px 32px rgba(2, 10, 20, 0.70);
+  backdrop-filter: blur(18px);
+}
+
+.monitoring-hud__title-group::before {
+  content: "";
+  position: absolute;
+  inset: -16px -18px -14px;
+  z-index: -1;
+  border-radius: 28px 28px 24px 24px;
+  background: linear-gradient(180deg, rgba(2, 10, 20, 0.99) 0%, rgba(2, 10, 20, 0.96) 72%, rgba(2, 10, 20, 0.80) 100%);
+  pointer-events: none;
 }
 
 .monitoring-hud__header {
@@ -400,6 +405,7 @@ body.desktop-mode #monitoring-hud > * {
   margin-top: 16px;
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(245px, 1fr));
+  align-items: start;
   gap: 12px;
   padding: 12px;
   border-radius: 22px;
@@ -414,15 +420,18 @@ body.desktop-mode #monitoring-hud > * {
 .monitoring-hud__hub-card {
   display: flex;
   min-width: 0;
-  min-height: 190px;
+  min-height: 0;
   flex-direction: column;
   gap: 11px;
   padding: 14px;
   border: 1px solid rgba(116, 240, 255, 0.13);
   border-radius: 20px;
   background:
+    linear-gradient(90deg, rgba(117, 228, 255, 0.035) 1px, transparent 1px),
+    linear-gradient(rgba(117, 228, 255, 0.03) 1px, transparent 1px),
     radial-gradient(circle at 18% 12%, rgba(116, 240, 255, 0.08), transparent 34%),
     rgba(4, 16, 29, 0.68);
+  background-size: 20px 20px, 20px 20px, auto, auto;
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.025);
 }
 
@@ -983,7 +992,7 @@ body.desktop-mode #monitoring-hud > * {
     top: 12px;
     right: 12px;
     width: calc(100vw - 24px);
-    padding: 12px;
+    height: calc(100vh - 24px);
   }
 
   .monitoring-hud__title {

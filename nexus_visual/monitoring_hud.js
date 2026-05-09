@@ -341,6 +341,12 @@ function monitoringHudUpdateSurfaceSplit() {
     monitoringHud.dataset.dragSmoothing = "native-os-window-move";
     monitoringHud.dataset.nativeResizeModel = "os-edge-corner-resize";
     monitoringHud.dataset.scrollbarStyle = "nexus-thin-glow";
+    monitoringHud.dataset.frameOwnership = "single-rounded-dashboard-chrome";
+    monitoringHud.dataset.scrollOwner = "monitoring-hud-chrome";
+    monitoringHud.dataset.gridScope = "control-hub-cards-only";
+    monitoringHud.dataset.deadzonePolicy = "auto-height-content-no-empty-hit-zones";
+    monitoringHud.dataset.stickyHeaderMask = "opaque-scroll-mask";
+    monitoringHud.dataset.nativeResizeHitZone = "all-edges-and-corners";
     monitoringHud.dataset.primaryInterfaceReleaseSurface = "monitoring-hud-dashboard-control-panel";
     monitoringHud.dataset.interfaceAcceptancePolicy = "dashboard-only-current-branch";
     monitoringHud.dataset.dashboardAcceptanceBaseline = "ws31-dashboard-control-panel";

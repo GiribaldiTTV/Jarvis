@@ -322,6 +322,12 @@ FAM006_WS43_HEADING = (
 FAM006_WS43_NEXT_SEAM = (
     "Workstream WS44 - Dashboard Frame Scroll Resize Visual Shell Repair"
 )
+FAM006_WS44_HEADING = (
+    "Workstream WS44 Dashboard Frame Scroll Resize Visual Shell Repair"
+)
+FAM006_WS44_NEXT_SEAM = (
+    "Workstream WS45 - Dashboard IA Naming Action Cleanup"
+)
 FAM006_H1_HEADING = "Hardening H1 Dashboard-First Product Surface Rerun"
 FAM006_H1_NEXT_SEAM = (
     "Live Validation LV1 - Monitoring HUD Product Surface Live Validation Rerun"
@@ -809,6 +815,45 @@ FAM006_WS43_REQUIRED_PHRASES = (
     "Next Legal Seam:",
     FAM006_WS43_NEXT_SEAM,
 )
+FAM006_WS44_REQUIRED_PHRASES = (
+    "WS44 Admission:",
+    "bounded Workstream continuation latch",
+    "WS44 Result:",
+    "Green for Dashboard frame/scroll/resize/visual shell repair",
+    "Frame / Scroll Repair:",
+    "monitoring-hud__chrome",
+    "Haze / Square Frame Repair:",
+    "single-rounded-dashboard-chrome",
+    "Native Resize Repair:",
+    "MONITORING_HUD_NATIVE_WINDOW_RESIZE_FALLBACK_STARTED",
+    "Deadzone Repair:",
+    "auto-height",
+    "Checkered Pattern Scope:",
+    "control-hub cards",
+    "Sticky Header Occlusion Repair:",
+    "opaque scroll mask",
+    "Validator / Helper Updates:",
+    "MONITORING_HUD_DASHBOARD_VISUAL_SHELL_READY",
+    "Element Rows Updated:",
+    "FAM006-DASH-FRAME-HAZE-056",
+    "FAM006-DASH-RESIZE-057",
+    "FAM006-DASH-DEADZONE-058",
+    "FAM006-DASH-STICKY-OCCLUSION-059",
+    "Overlay Status:",
+    "Deferred/dormant/non-gating",
+    "Core Status:",
+    "Dependency-only",
+    "Formal UTS Boundary:",
+    "WS44 does not generate, refresh, or digest",
+    "Dashboard Acceptance State:",
+    "Still blocked",
+    "Package Completion:",
+    "Unclaimed",
+    "Continuation Execution Latch:",
+    "Active - next bounded Workstream seam is WS45",
+    "Next Legal Seam:",
+    FAM006_WS44_NEXT_SEAM,
+)
 FAM006_H1_REQUIRED_PHRASES = (
     "H1 Admission:",
     "PASS - USER explicitly admitted Hardening H1",
@@ -997,9 +1042,8 @@ FAM006_ELEMENT_VALIDATION_LEDGER_REQUIRED_PHRASES = (
 FAM006_ELEMENT_LEDGER_REQUIRED_PHRASES = (
     "# FAM-006 Element Validation Ledger",
     "Owner Record: `Docs/branch_records/feature_fam_006_monitoring_hud_product_surface.md`",
-    "Ledger Status: `WS43 runtime/tray/shutdown safety repaired - WS44 visual-shell repair required before LV2`",
-    "Live Validation LV1 Handoff Green / Returned USER Results Pending",
-    "Returned LV1 Dashboard Feedback Blocking / Workstream WS44 Handoff Ready",
+    "Ledger Status: `WS44 visual-shell repair complete - WS45 IA/action cleanup required before LV2`",
+    "Returned LV1 Dashboard Feedback Blocking / Workstream WS45 Handoff Ready",
     "Prior Gate Superseded: `Returned refreshed User Test Summary results required before LV2 returned User Test Summary digestion`",
     "LV2 returned User Test Summary digestion must not proceed from Codex proof alone",
     "Branch Readiness Stage 1 revalidation passed",
@@ -5775,6 +5819,42 @@ def _validate_fam006_stage2_r6_plan(
                     f"'{required_phrase}'"
                 ),
             )
+        ws44_section = _section(text, FAM006_WS44_HEADING)
+        if ws44_section:
+            for phrase in FAM006_WS44_REQUIRED_PHRASES:
+                require(
+                    phrase in ws44_section,
+                    f"{source_path}: {FAM006_WS44_HEADING} is missing '{phrase}'",
+                )
+            require(
+                f"Active seam: `{FAM006_WS44_NEXT_SEAM}`" in text,
+                f"{source_path}: WS44 completion must advance active seam to WS45",
+            )
+            require(
+                f"Next Legal Seam: `{FAM006_WS44_NEXT_SEAM}`" in text,
+                f"{source_path}: WS44 completion must set next legal seam to WS45",
+            )
+            require(
+                f"Next Active Seam: {FAM006_WS44_NEXT_SEAM}" in text,
+                f"{source_path}: WS44 completion must set Seam Continuation Decision next active seam to WS45",
+            )
+            require(
+                "Continue Decision: Continue" in _section(text, "Seam Continuation Decision"),
+                f"{source_path}: WS44 completion must continue within bounded Workstream",
+            )
+            require(
+                "Stop Basis: None" in _section(text, "Seam Continuation Decision"),
+                f"{source_path}: WS44 completion must not create a stop basis before WS45",
+            )
+            require(
+                "Remaining Implementable Work: `Dashboard-focused Workstream repair continues with WS45"
+                in text,
+                (
+                    f"{source_path}: WS44 completion must preserve visible same-branch "
+                    "Dashboard IA/naming/action cleanup work beyond the current seam"
+                ),
+            )
+            return
         ws43_section = _section(text, FAM006_WS43_HEADING)
         if ws43_section:
             for phrase in FAM006_WS43_REQUIRED_PHRASES:
