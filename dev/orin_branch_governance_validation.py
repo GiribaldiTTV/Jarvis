@@ -294,6 +294,12 @@ FAM006_WS38_HEADING = (
 FAM006_WS38_NEXT_SEAM = (
     "Workstream WS39 - Dashboard Shell Layout Frame Resize And Readability Repair"
 )
+FAM006_WS39_HEADING = (
+    "Workstream WS39 Dashboard Shell Layout Frame Resize And Readability Repair"
+)
+FAM006_WS39_NEXT_SEAM = (
+    "Workstream WS40 - Dashboard IA Content Naming And Control Hub Repair"
+)
 FAM006_H1_HEADING = "Hardening H1 Dashboard-First Product Surface Rerun"
 FAM006_H1_NEXT_SEAM = (
     "Live Validation LV1 - Monitoring HUD Product Surface Live Validation Rerun"
@@ -618,6 +624,29 @@ FAM006_WS38_REQUIRED_PHRASES = (
     "Continuation Execution Latch:",
     "Next Legal Seam:",
     FAM006_WS38_NEXT_SEAM,
+)
+FAM006_WS39_REQUIRED_PHRASES = (
+    "WS39 Result:",
+    "Green for Dashboard shell/layout/frame/resize/readability repair",
+    "Title / Header Repair:",
+    "HUD Dashboard",
+    "Sticky Header Repair:",
+    "Frame / Scrollbar Repair:",
+    "Resize Repair:",
+    "os-edge-corner-resize",
+    "Readability Repair:",
+    "Button Hierarchy Repair:",
+    "Dashboard Acceptance State:",
+    "Still blocked",
+    "Overlay Status:",
+    "Deferred/dormant/non-gating",
+    "Core Status:",
+    "Dependency-only",
+    "Package Completion:",
+    "Unclaimed",
+    "Continuation Execution Latch:",
+    "Next Legal Seam:",
+    FAM006_WS39_NEXT_SEAM,
 )
 FAM006_H1_REQUIRED_PHRASES = (
     "H1 Admission:",
@@ -5564,6 +5593,30 @@ def _validate_fam006_stage2_r6_plan(
                     f"'{required_phrase}'"
                 ),
             )
+        ws39_section = _section(text, FAM006_WS39_HEADING)
+        if ws39_section:
+            for phrase in FAM006_WS39_REQUIRED_PHRASES:
+                require(
+                    phrase in ws39_section,
+                    f"{source_path}: {FAM006_WS39_HEADING} is missing '{phrase}'",
+                )
+            require(
+                f"Active seam: `{FAM006_WS39_NEXT_SEAM}`" in text,
+                f"{source_path}: WS39 completion must advance active seam to WS40",
+            )
+            require(
+                f"Next Active Seam: {FAM006_WS39_NEXT_SEAM}" in text,
+                f"{source_path}: WS39 completion must set Seam Continuation Decision next active seam to WS40",
+            )
+            require(
+                "Remaining Implementable Work: `Dashboard-focused Workstream repair continues with WS40"
+                in text,
+                (
+                    f"{source_path}: WS39 completion must preserve visible same-branch "
+                    "Dashboard repair work beyond the current seam"
+                ),
+            )
+            return
         ws38_section = _section(text, FAM006_WS38_HEADING)
         if ws38_section:
             for phrase in FAM006_WS38_REQUIRED_PHRASES:

@@ -398,7 +398,7 @@ What This Test Is Checking
 - Each test step below lists the ledger rows it covers so LV2 can digest returned USER results at the element level instead of relying on broad "Dashboard green" claims.
 
 Expected Outcome
-- Dashboard reads as "Monitoring Control Panel" or equivalent settings/control copy, not as the final anchored HUD Overlay/display.
+- Dashboard reads as "HUD Dashboard" or equivalent settings/control copy, not as the final anchored HUD Overlay/display.
 - Dashboard controls are understandable for HUD capability, monitor group creation/editing, monitor enablement, polling posture, provider setup state, and warning posture.
 - Dashboard moves as a standalone window without dragging Core or Overlay/display surfaces.
 - Dashboard is not clipped to the Core, Overlay/display, or a fixed render area.

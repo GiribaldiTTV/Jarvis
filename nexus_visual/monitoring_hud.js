@@ -331,6 +331,7 @@ function monitoringHudUpdateSurfaceSplit() {
     monitoringHud.dataset.nativeDashboardOwner = "DesktopRuntimeWindow";
     monitoringHud.dataset.standaloneWindowContract = "dashboard-overlay-core-independent-native-surfaces";
     monitoringHud.dataset.dragSmoothing = "native-os-window-move";
+    monitoringHud.dataset.nativeResizeModel = "os-edge-corner-resize";
     monitoringHud.dataset.scrollbarStyle = "nexus-thin-glow";
     monitoringHud.dataset.primaryInterfaceReleaseSurface = "monitoring-hud-dashboard-control-panel";
     monitoringHud.dataset.interfaceAcceptancePolicy = "dashboard-only-current-branch";

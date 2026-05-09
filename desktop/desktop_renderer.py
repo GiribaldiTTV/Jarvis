@@ -5753,6 +5753,8 @@ class DesktopRuntimeWindow(QWidget):
         self.setWindowOpacity(0.0)
 
         self.setGeometry(self.compute_compact_geometry())
+        if self.surface_role == "hud":
+            self.setMinimumSize(640, 520)
 
         root = QVBoxLayout(self)
         root.setContentsMargins(0, 0, 0, 0)
@@ -6263,6 +6265,7 @@ class DesktopRuntimeWindow(QWidget):
             "exToolWindow": bool(style & WS_EX_TOOLWINDOW),
             "exAppWindow": bool(style & WS_EX_APPWINDOW),
             "movementModel": "os-system-move-no-snap",
+            "resizeModel": "os-edge-corner-resize",
             "focusPolicy": "no_focus" if self.focusPolicy() == Qt.NoFocus else "interactive",
         }
 
@@ -6286,6 +6289,7 @@ class DesktopRuntimeWindow(QWidget):
             ex_tool_window=state["exToolWindow"],
             ex_app_window=state["exAppWindow"],
             movement_model=state["movementModel"],
+            resize_model=state["resizeModel"],
             focus_policy=state["focusPolicy"],
         )
 
@@ -6313,6 +6317,7 @@ class DesktopRuntimeWindow(QWidget):
             virtual_h=virtual.height(),
             window_flag=ownership.get("windowFlag"),
             movement_model=ownership.get("movementModel"),
+            resize_model=ownership.get("resizeModel"),
             ex_tool_window=ownership.get("exToolWindow"),
             ex_app_window=ownership.get("exAppWindow"),
             focus_policy="no_focus" if self.focusPolicy() == Qt.NoFocus else "interactive",
@@ -6874,6 +6879,37 @@ class DesktopRuntimeWindow(QWidget):
         self._emit_monitoring_hud_window_ownership_focus_ready(source=source)
         self._emit_monitoring_hud_window_status(source=source)
 
+    def _finish_monitoring_hud_native_system_resize(self, source: str = "system_resize"):
+        self._monitoring_hud_interactive_screen_rect = self.geometry()
+        geometry = self.geometry()
+        self._emit_runtime_signal(
+            "MONITORING_HUD_NATIVE_WINDOW_RESIZE_READY",
+            package="PKG-006",
+            slice="SLC-026",
+            seam="WS39",
+            source=source,
+            resize_model="os-edge-corner-resize",
+            x=geometry.x(),
+            y=geometry.y(),
+            w=geometry.width(),
+            h=geometry.height(),
+            min_w=self.minimumWidth(),
+            min_h=self.minimumHeight(),
+        )
+        self._emit_runtime_signal(
+            "MONITORING_HUD_DASHBOARD_SHELL_LAYOUT_READY",
+            package="PKG-006",
+            slice="SLC-016",
+            seam="WS39",
+            surface="hud_dashboard",
+            sticky_header=True,
+            single_surface_scrollbar=True,
+            title="HUD Dashboard",
+            resize_model="os-edge-corner-resize",
+        )
+        self._emit_monitoring_hud_window_ownership_focus_ready(source=source)
+        self._emit_monitoring_hud_window_status(source=source)
+
     def _start_monitoring_hud_native_system_move(self, screen_point: QPoint) -> bool:
         if self.surface_role != "hud":
             return False
@@ -6897,6 +6933,49 @@ class DesktopRuntimeWindow(QWidget):
             started = False
         if started:
             QTimer.singleShot(360, lambda: self._finish_monitoring_hud_native_system_move("system_move"))
+        return started
+
+    def _monitoring_hud_native_resize_edges_for_point(self, point: QPoint):
+        if self.surface_role != "hud":
+            return Qt.Edges()
+        rect = self.geometry()
+        if rect.isNull() or not rect.isValid():
+            return Qt.Edges()
+        margin = 12
+        edges = Qt.Edges()
+        if abs(point.x() - rect.left()) <= margin:
+            edges |= Qt.LeftEdge
+        if abs(point.x() - rect.right()) <= margin:
+            edges |= Qt.RightEdge
+        if abs(point.y() - rect.top()) <= margin:
+            edges |= Qt.TopEdge
+        if abs(point.y() - rect.bottom()) <= margin:
+            edges |= Qt.BottomEdge
+        return edges
+
+    def _start_monitoring_hud_native_system_resize(self, edges, screen_point: QPoint) -> bool:
+        if self.surface_role != "hud" or not edges:
+            return False
+        window_handle = self.windowHandle()
+        start_system_resize = getattr(window_handle, "startSystemResize", None) if window_handle else None
+        if not callable(start_system_resize):
+            return False
+        self._emit_runtime_signal(
+            "MONITORING_HUD_NATIVE_SYSTEM_RESIZE_STARTED",
+            package="PKG-006",
+            slice="SLC-026",
+            seam="WS39",
+            x=screen_point.x(),
+            y=screen_point.y(),
+            resize_model="os-edge-corner-resize",
+            edges=str(edges),
+        )
+        try:
+            started = bool(start_system_resize(edges))
+        except Exception:
+            started = False
+        if started:
+            QTimer.singleShot(360, lambda: self._finish_monitoring_hud_native_system_resize("system_resize"))
         return started
 
     def _monitoring_hud_header_rect(self) -> QRect:
@@ -7092,6 +7171,10 @@ class DesktopRuntimeWindow(QWidget):
         event_type = event.type()
         if event_type == QEvent.MouseButtonPress and event.button() == Qt.LeftButton:
             screen_point = event.globalPosition().toPoint()
+            resize_edges = self._monitoring_hud_native_resize_edges_for_point(screen_point)
+            if resize_edges and not self._monitoring_hud_dashboard_control_rect_contains(screen_point):
+                if self._start_monitoring_hud_native_system_resize(resize_edges, screen_point):
+                    return True
             if not (
                 self._monitoring_hud_native_panel_drag_active
                 or self._monitoring_hud_native_card_drag_active
@@ -7251,6 +7334,19 @@ class DesktopRuntimeWindow(QWidget):
             anchored=anchored,
             pointer_model="normal_dashboard_window_no_topmost",
         )
+        if self.surface_role == "hud":
+            self._emit_runtime_signal(
+                "MONITORING_HUD_DASHBOARD_SHELL_LAYOUT_READY",
+                package="PKG-006",
+                slice="SLC-016",
+                seam="WS39",
+                source="interaction_state",
+                surface="hud_dashboard",
+                sticky_header=True,
+                single_surface_scrollbar=True,
+                title="HUD Dashboard",
+                resize_model="os-edge-corner-resize",
+            )
         self._emit_monitoring_hud_window_ownership_focus_ready(source="interaction_state")
         self._emit_monitoring_hud_window_status(source="interaction_state")
         self._sync_monitoring_hud_minimal_native_overlay(source="interaction_state")

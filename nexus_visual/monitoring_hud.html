@@ -41,6 +41,7 @@
     data-polling-options-ms="1000,2000,5000,10000"
     data-keybind-policy="none"
     data-drag-smoothing="native-os-window-move"
+    data-native-resize-model="os-edge-corner-resize"
     data-scrollbar-style="nexus-thin-glow"
     data-sandbox-state-matrix="setup,no-data,degraded,ready,warning"
     data-dashboard-control-panel="hud-display-monitor-management"
@@ -68,15 +69,25 @@
     aria-hidden="true"
   >
     <div class="monitoring-hud__chrome" aria-label="Visible Nexus Desktop AI Monitoring HUD panel">
-      <div class="monitoring-hud__header" id="monitoring-hud-drag-handle">
-        <div>
-          <div class="monitoring-hud__kicker">Nexus Desktop AI</div>
-          <div class="monitoring-hud__title">Monitoring Control Panel</div>
-          <div class="monitoring-hud__subtitle">Configures HUD capability, monitor groups, provider truth, warning posture, and future overlay behavior.</div>
+      <div class="monitoring-hud__title-group">
+        <div class="monitoring-hud__header" id="monitoring-hud-drag-handle">
+          <div>
+            <div class="monitoring-hud__kicker">Nexus Desktop AI</div>
+            <div class="monitoring-hud__title">HUD Dashboard</div>
+            <div class="monitoring-hud__subtitle">Configure HUD access, monitor groups, data sources, warning notifications, and future display behavior.</div>
+          </div>
+          <div class="monitoring-hud__mode-stack">
+            <div class="monitoring-hud__mode-pill" id="monitoring-hud-runtime-status">HUD feature disabled</div>
+            <div class="monitoring-hud__mode-pill monitoring-hud__mode-pill--quiet" id="monitoring-hud-anchor-status">Overlay deferred</div>
+          </div>
         </div>
-        <div class="monitoring-hud__mode-stack">
-          <div class="monitoring-hud__mode-pill" id="monitoring-hud-runtime-status">HUD feature disabled</div>
-          <div class="monitoring-hud__mode-pill monitoring-hud__mode-pill--quiet" id="monitoring-hud-anchor-status">Overlay deferred</div>
+        <div class="monitoring-hud__surface-role" data-dashboard-role="configuration-settings-surface">
+          <span>Dashboard</span>
+          <strong>Settings and control hub</strong>
+          <span>HUD display</span>
+          <strong>Deferred future overlay</strong>
+          <span>Relationship</span>
+          <strong>Dashboard configures HUD behavior</strong>
         </div>
       </div>
       <div class="monitoring-hud__summary" aria-label="Provider contract status">
@@ -85,14 +96,6 @@
           <strong id="monitoring-hud-provider-state">Provider setup required</strong>
           <span>Hardware values stay hidden until a safe provider and validation route exist.</span>
         </div>
-      </div>
-      <div class="monitoring-hud__surface-role" data-dashboard-role="configuration-settings-surface">
-        <span>Dashboard surface</span>
-        <strong>Configuration/settings window</strong>
-        <span>Minimal HUD surface</span>
-        <strong>Separate anchored overlay configured here</strong>
-        <span>Release gate</span>
-        <strong>Dashboard acceptance only</strong>
       </div>
       <div class="monitoring-hud__toolbar" aria-label="Monitoring dashboard control panel controls">
         <button type="button" id="monitoring-hud-toggle" class="monitoring-hud__control-button" data-control="toggle-visibility">
@@ -224,7 +227,6 @@
       <span>Package status</span>
       <strong>PKG-006 in progress</strong>
     </div>
-    <div class="monitoring-hud__resize-corner" aria-hidden="true"></div>
   </section>
 
   <section
