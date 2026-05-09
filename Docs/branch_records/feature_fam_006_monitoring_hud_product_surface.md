@@ -24,7 +24,7 @@ This branch may execute the admitted PKG-006 implementation slices during Workst
 
 ## Status
 
-- `Live Validation LV1 Green - Awaiting Returned USER Results`
+- `Branch Readiness Stage 2 Green - Returned LV1 Feedback Recorded / Workstream WS43 Handoff Ready`
 
 ## Canonical Branch
 
@@ -32,14 +32,14 @@ This branch may execute the admitted PKG-006 implementation slices during Workst
 
 ## Current Phase
 
-- Phase: `Live Validation`
+- Phase: `Branch Readiness`
 
 ## Phase Status
 
-- Branch Readiness Stage: `Stage 2 complete - returned USER Dashboard feedback is recorded as blocking LV2 acceptance; source-truth and Element Validation Ledger dispositions were repaired before bounded Workstream repair resumed`
-- Workstream Stage: `WS42 green - Dashboard-specific static/live proof and LV1 handoff readiness passed without formal UTS export; Workstream stopped at the Hardening phase boundary`
-- Hardening Stage: `H1 green - USER explicitly admitted Hardening H1 after WS42; Dashboard-first source truth, static validator, internal sandbox, desktop entrypoint/tray/NCP proof, and active-client live helper proof passed`
-- Live Validation Stage: `LV1 green for formal ledger-aligned UTS handoff - USER explicitly admitted LV1 after H1; active-client live proof, screenshot proof, interaction manifest proof, and desktop User Test Summary refresh passed. LV2 returned-result digestion remains blocked until USER returns PASS/FAIL/WAIVED results or explicitly waives the handoff.`
+- Branch Readiness Stage: `Stage 2 complete - returned LV1 Dashboard feedback items #20-#38 are recorded as blocking current Dashboard acceptance; source-truth and Element Validation Ledger dispositions are repaired before bounded Workstream repair resumes at WS43`
+- Workstream Stage: `WS37 through WS42 remain prior supporting proof, but returned LV1 feedback #20-#38 supersedes their acceptance disposition for affected rows and requires a new bounded Workstream repair sequence`
+- Hardening Stage: `Prior H1 remains supporting proof only for unaffected boundaries; a new Hardening rerun is required after WS43+ repair packets before any refreshed LV1 handoff can be accepted`
+- Live Validation Stage: `Prior LV1 handoff generation is supporting proof only; returned USER feedback blocks Dashboard acceptance and LV2 cannot proceed as a PASS path until Workstream repair, Hardening rerun, refreshed LV1 handoff, and returned USER PASS/WAIVED results or explicit waiver are complete`
 - Active Branch: `feature/fam-006-monitoring-hud-product-surface`
 - Branch Authority Mode: `Active Branch`
 - Workstream Entry Source-Truth Transition: `Performed - Branch Readiness Stage 2 terminal evidence reconciled before runtime implementation`
@@ -52,7 +52,7 @@ This branch may execute the admitted PKG-006 implementation slices during Workst
 - Admitted Slice Count: `6`
 - Package Completion State: `In Progress - package completion remains unclaimed until returned USER acceptance or waiver is legally digested, PR Readiness passes, and final closeout passes`
 - Single-Slice Package User Approval: `Not required - PKG-006 has six concrete admitted slices; no waiver granted`
-- Runtime Implementation State: `Dashboard-first Workstream, prior H1, and LV1 proof remain preserved as supporting history, but USER review of the earlier refreshed LV1 handoff returned blocking Dashboard feedback. Source truth records Dashboard acceptance blocked until returned USER results or waiver, affected Element Validation Ledger rows repaired through WS37-WS42/H1 and refreshed LV1 handoff proof, and LV2 blocked pending returned results. WS37 repaired runtime/window/tray safety and NCP regression isolation; WS38 repaired Dashboard window ownership/focus/movement safety; WS39 repaired Dashboard shell/layout/frame/resize/readability; WS40 repaired Dashboard IA/content/naming/control-hub; WS41 deferred standalone child-window implementation to future branch/package scope; WS42 refreshed Dashboard-specific static/live proof readiness without generating or digesting formal UTS outside Live Validation; H1 reran and passed Dashboard-first hardening after explicit USER admission; LV1 reran after explicit USER admission and generated fresh active-client proof plus a formal ledger-aligned desktop User Test Summary handoff. Overlay/display remains deferred/dormant/non-gating, ORIN/Core remains dependency-only, and returned User Test Summary digestion remains Live Validation LV2-only.`
+- Runtime Implementation State: `Dashboard-first WS37-WS42, prior H1, and LV1 proof remain preserved as supporting history, but USER returned LV1 feedback items #20-#38 now block Dashboard acceptance. Source truth records LV2 blocked as a PASS path, affected Element Validation Ledger rows downgraded to USER-blocked/stale for acceptance, and a new bounded Workstream repair sequence beginning at WS43. WS43 must address runtime/tray/shutdown safety (#21-#25 as current-scope classification proves); WS44 must address Dashboard frame/scroll/resize/visual-shell issues (#26-#28 and #30-#32); WS45 must address Dashboard IA/naming/action cleanup (#29 and #33-#38); WS46 must refresh Dashboard-specific static/live proof readiness before any Hardening rerun. #20 NCP placement/persistence is deferred to a priority future branch unless later Workstream proof shows FAM-006 caused it. Overlay/display remains deferred/dormant/non-gating, ORIN/Core remains dependency-only, and formal User Test Summary export/returned-result digestion remains Live Validation-only.`
 - PR Creation State: `Not approved in Branch Readiness`
 - Watcher Provisioning State: `Not approved in Branch Readiness`
 - Release Work State: `Not approved; v1.6.13-prebeta release execution is already complete and no new release work is in scope`
@@ -74,10 +74,19 @@ Package completion is not currently claimed. Stage 2-R13 cleared the earlier Bra
 - `User-Facing Element Acceptance Missing`
 - `User Test Summary Results Pending`
 - `Dashboard Acceptance Pending Returned USER Results`
+- `Returned LV1 Dashboard Feedback Blocks Acceptance`
+- `Workstream Repair Required Before LV2`
 
 ## Returned LV1 Repair Findings
 
 - `User Test Summary Returned With Blocking Findings`
+- `Returned LV1 Dashboard Feedback Items 20-38`
+- `HUD Feature Tray Enable Disable Lock`
+- `Dashboard Open Close Tray Action Missing`
+- `Dashboard Frame Haze And Scrollbar Ownership Failure`
+- `Dashboard Resize Failure`
+- `Dashboard Deadzone Layout Failure`
+- `Dashboard IA Redundancy And HUD Overlay Terminology Drift`
 - `User Test Summary Results FAIL`
 - `Monitoring HUD Product Architecture Mismatch`
 - `Live Validation Proof Gap`
@@ -164,21 +173,21 @@ Rollback Path: revert the LV1 handoff refresh source-truth closeout commit on `f
 
 ## Next Legal Phase
 
-- `Live Validation`
+- `Workstream`
 
-Next Legal Seam: `Live Validation LV2 - FAM-006 Element-Ledger-Aligned User Test Summary Results Digest And Acceptance Classification`
+Next Legal Seam: `Workstream WS43 - Dashboard Runtime Tray Shutdown Safety Repair`
 
-Next Legal Phase Gate: LV1 records Dashboard-first active-client proof and formal ledger-aligned UTS handoff as green, then stops before returned-result digestion. Codex must not execute LV2 until USER returns PASS/FAIL/WAIVED results or explicitly waives the handoff. Codex must not enter PR Readiness, create a PR, watcher, release, tag, artifact, direct-main mutation, voice/audio implementation, Stream Deck/plugin telemetry implementation, local AI, installer/capability-pack work, broad hardware provider implementation, persona switching implementation, ARIA activation, Overlay/display release acceptance, or a new FAM/package without later explicit USER approval.
+Next Legal Phase Gate: Returned LV1 Dashboard feedback items #20-#38 block Dashboard acceptance and supersede the current LV1 handoff as an acceptance path. Codex must not execute LV2 as a PASS digest until bounded Workstream repair, Hardening rerun, refreshed LV1 handoff, and returned USER PASS/WAIVED results or explicit waiver are complete. Codex must not enter PR Readiness, create a PR, watcher, release, tag, artifact, direct-main mutation, voice/audio implementation, Stream Deck/plugin telemetry implementation, local AI, installer/capability-pack work, broad hardware provider implementation, persona switching implementation, ARIA activation, Overlay/display release acceptance, or a new FAM/package without later explicit USER approval.
 
 Post-FAM-006 Required Marker Adoption Candidate: `Repo-Wide High-Risk Source Owner Marker Adoption`; candidate branch `feature/repo-wide-source-owner-marker-adoption`; requirement is recorded for after the current FAM-006 branch closes and does not authorize branch creation, package admission, PR Readiness, runtime behavior changes, or bypass of the active LV2 UTS pending gate. USER-facing element review-mode adoption is part of that future candidate's scope and remains tabled for planning-heavy Dev Toolkit design: existing and future interface elements, including NCP, Core visualization, Dashboard, Overlay/display when admitted, and other windows/components, should receive Dev Toolkit Interface Review Mode dispositions and dev-only badges/hover/ledger tooltip inspection where applicable; future design should decide per-interface launchers, a generalized all-surfaces review-mode launch, or both.
 
 ## Active Seam
 
-Active seam: `Phase Boundary Stop - Await USER Returned LV1 Results`
+Active seam: `Branch Readiness Stage 2 - FAM-006 Returned LV1 Dashboard Feedback Source-Truth And Ledger Disposition Repair`
 
-Active Seam Status: `LV1 handoff stop only - Live Validation LV1 is green for formal UTS handoff generation, but LV2 returned-result digestion requires USER returned PASS/FAIL/WAIVED results or explicit waiver`
+Active Seam Status: `Stage 2 source-truth repair complete - returned LV1 Dashboard feedback #20-#38 blocks Dashboard acceptance; LV2 is blocked as a PASS path and Workstream repair must resume`
 
-Next active seam: `Live Validation LV2 - FAM-006 Element-Ledger-Aligned User Test Summary Results Digest And Acceptance Classification`
+Next active seam: `Workstream WS43 - Dashboard Runtime Tray Shutdown Safety Repair`
 
 ## Branch Objective
 
@@ -206,7 +215,7 @@ Interface Bundle User Approval: `Not granted - USER explicitly paused the multi-
 
 Fallback Point: `A polished, accepted Dashboard/control panel release must become the fallback point before Overlay/display release acceptance resumes`
 
-Dashboard Acceptance Pending: `Reopened - USER feedback blocks current Dashboard acceptance; Workstream repair and Hardening rerun are green, but refreshed LV1 handoff and returned USER acceptance or waiver are required before PR Readiness or package completion`
+Dashboard Acceptance Pending: `Reopened - returned LV1 Dashboard feedback items #20-#38 block current Dashboard acceptance; Workstream repair is required again before Hardening rerun, refreshed LV1 handoff, returned USER acceptance/waiver, PR Readiness, or package completion`
 
 Overlay Scope Deferred: `Reclassified as non-gating scope boundary - existing Overlay/display implementation is preserved as deferred/dormant/non-gating evidence and must not block or satisfy Dashboard acceptance`
 
@@ -242,13 +251,13 @@ Future Repo-Wide Marker Adoption Recommendation: `Promoted to required post-FAM-
 
 Canonical Completed Ledger: `Docs/branch_records/feature_fam_006_monitoring_hud_product_surface_element_ledger.md`
 
-Ledger Backfill Status: `Backfilled, revalidated, USER feedback disposition repaired, and LV1 handoff refreshed - companion ledger remains canonical, affected Dashboard rows have WS37-WS42/H1/LV1 proof dispositions, returned USER results remain pending, and rows exist for Dashboard startup disablement, HUD feature global off/tray state, Dashboard focus/topmost regression, NCP regression protection, Dashboard child-window hub model, and Dev Toolkit Interface Review Mode.`
+Ledger Backfill Status: `Backfilled, revalidated, USER feedback disposition repaired, LV1 handoff refreshed, and returned LV1 feedback #20-#38 recorded - companion ledger remains canonical, affected Dashboard/tray/frame/IA rows are USER-blocked or stale for acceptance, and new rows exist for tray enable flash, tray state lock, Dashboard tray open/close, disable-HUD unusable state, shutdown confirmation/delay classification, Dashboard frame haze, resize failure, deadzones, sticky-header occlusion, quick access priority, HUD Overlay terminology boundary, and broken/deferred button behavior.`
 
-Proof Rebaseline: `Existing Workstream, Hardening, and earlier LV1 proof remains supporting history for affected Dashboard rows until returned USER acceptance or waiver. USER feedback made the prior Dashboard acceptance proof stale; bounded Workstream repair, Hardening rerun, and current LV1 handoff proof are green, and returned USER results are the next required input.`
+Proof Rebaseline: `Existing WS37-WS42, Hardening H1, and current LV1 proof remains supporting history only for affected Dashboard rows. Returned LV1 Dashboard feedback #20-#38 makes the current LV1 acceptance proof stale for affected rows; bounded Workstream repair, Hardening rerun, refreshed LV1 handoff, and returned USER PASS/WAIVED results or explicit waiver are required before LV2 can digest acceptance.`
 
-LV2 Gate: `Blocked - LV2 returned-result digestion must not proceed from the current handoff because USER returned blocking Dashboard feedback before acceptance. LV2 can resume only after refreshed LV1 handoff and returned USER PASS/WAIVED results or explicit waiver.`
+LV2 Gate: `Blocked - LV2 returned-result digestion must not proceed as a PASS path from the current handoff because USER returned blocking Dashboard feedback #20-#38. LV2 can resume only after bounded Workstream repair, Hardening rerun, refreshed LV1 handoff, and returned USER PASS/WAIVED results or explicit waiver.`
 
-USER Feedback Ledger Disposition: `Current - returned USER visual/UX feedback blocked Dashboard acceptance and kept affected prior proof supporting/stale until repair. WS37 through WS42, H1, and current LV1 handoff proof are green, but returned USER acceptance or waiver remains pending and the companion ledger remains the authoritative row-level disposition surface.`
+USER Feedback Ledger Disposition: `Current - returned USER visual/UX/runtime feedback items #20-#38 block Dashboard acceptance. WS37 through WS42, H1, and current LV1 handoff proof are supporting/stale for affected rows until WS43+ repair packets run and are revalidated. The companion ledger remains the authoritative row-level disposition surface.`
 
 Summary Row Note: `The rows below preserve the branch-record summary IDs required by governance validation. Current row-level proof dispositions, including blocked/stale findings and new repair rows FAM006-DASH-STARTUP-045 through FAM006-DEV-INTERFACE-REVIEW-050, are authoritative in the canonical companion ledger.`
 
@@ -1695,6 +1704,32 @@ Interaction Check: `PASS - interaction manifest status PASS and runtime markers 
 Platform Uniformity Check: `PASS - LV1 proof preserves Nexus/NDAI naming and retired-name scan cleanliness; non-repo desktop surfaces in screenshots are environment context only.`
 NDAI Naming Check: `PASS - tracked repo retired-name scan remains clean and current user-facing repo-owned surfaces preserve Nexus/NDAI/ORIN/ARIA boundary truth.`
 Cleanup Check: `PASS - live helper stopped desktop runtime pid=20596 and recorded cleanup in the manifest.`
+
+## Branch Readiness Stage 2 FAM-006 Returned LV1 Dashboard Feedback Source-Truth And Ledger Disposition Repair
+
+- Stage 2 Admission: `PASS - USER approved source-truth and Element Validation Ledger disposition repair only after returned LV1 Dashboard feedback #20-#38 blocked acceptance`
+- Stage 2 Result: `Green for source-truth repair only - no runtime Dashboard, tray, HUD, shutdown, NCP, CSS, JS, UI, screenshot, proof-helper, or UTS artifact repair was implemented in this Stage 2 pass`
+- Returned Feedback State: `Blocking - USER feedback items #20-#38 reject current Dashboard acceptance, make affected LV1 proof stale for acceptance, and prevent LV2 from proceeding as a PASS digest`
+- LV2 Status: `Blocked - LV2 must not proceed as a PASS path until bounded Workstream repair, Hardening rerun, refreshed LV1 handoff, and returned USER PASS/WAIVED results or explicit waiver are complete`
+- Dashboard Acceptance State: `Blocked - affected Dashboard, tray, frame, visual-shell, IA, and deferred-button rows are downgraded to USER-blocked/stale for acceptance in the companion Element Validation Ledger`
+- Proof Disposition: `WS37 through WS42, H1, and current LV1 proof remain supporting history only for affected rows until WS43+ repair packets are implemented and revalidated`
+- Returned Feedback Items Recorded: `#20 NCP placement/persistence`; `#21 HUD enable rendering flash`; `#22 tray enable/disable state lock`; `#23 Dashboard tray open/close missing`; `#24 disable-HUD unusable state`; `#25 shutdown/exit delay and confirmation classification`; `#26 scrollbar/outer-frame ownership failure`; `#27 haze/square opacity frame`; `#28 Dashboard resize failure`; `#29 provider hero slab removal`; `#30 deadzones`; `#31 checkered-pattern placement`; `#32 sticky-header occlusion`; `#33 quick access priority ordering`; `#34 Create/Edit redundancy`; `#35 broken/deferred Data Sources action`; `#36 card ordering`; `#37 Warning Notifications card simplification`; `#38 HUD Overlay terminology and feature-control boundary`
+- Existing Rows Reclassified: `FAM006-HUD-FEATURE-TRAY-046`; `FAM006-DASH-SCROLL-007`; `FAM006-DASH-VISUAL-006`; `FAM006-DASH-LAYOUT-005`; `FAM006-DASH-WINDOW-002`; `FAM006-DASH-CONTENT-008`; `FAM006-DASH-AFFORDANCE-COPY-012`; `FAM006-DASH-WARNING-017`; `FAM006-DASH-PROVIDER-015`; `FAM006-DASH-CHILD-WINDOW-049`; `FAM006-NCP-REGRESSION-048`; `FAM006-PROOF-LIVEHELPER-033`; `FAM006-PROOF-SCREENSHOT-034`; `FAM006-PROOF-UTS-EXPORT-036`; `FAM006-PROOF-UTS-DIGEST-037`; `FAM006-GOV-SOURCE-TRUTH-039`
+- New Ledger Rows Added: `FAM006-HUD-TRAY-FLASH-051`; `FAM006-HUD-TRAY-STATE-LOCK-052`; `FAM006-DASH-TRAY-OPEN-CLOSE-053`; `FAM006-HUD-DISABLE-UNUSABLE-054`; `FAM006-TRAY-SHUTDOWN-CONFIRM-055`; `FAM006-DASH-FRAME-HAZE-056`; `FAM006-DASH-RESIZE-057`; `FAM006-DASH-DEADZONE-058`; `FAM006-DASH-STICKY-OCCLUSION-059`; `FAM006-DASH-QUICK-ACCESS-060`; `FAM006-DASH-DEFERRED-BUTTON-061`; `FAM006-DASH-HUD-OVERLAY-COPY-062`
+- #20 Classification: `Deferred priority branch unless a later repair proves FAM-006 directly caused the NCP placement/persistence regression; pair with Dev Toolkit Interface Review Mode future planning rather than current Dashboard acceptance`
+- #25 Classification: `Conditional current-scope blocker - include in WS43 if FAM-006 tray/HUD path caused or exposed the delay/no-confirmation behavior; otherwise record as adjacent future tray/shutdown runtime debt`
+- #35 Classification: `Current Dashboard acceptance issue if the visible Open Data Sources action appears clickable but broken; Workstream must remove it, clearly disable/defer it, relabel it, or implement only if separately admitted`
+- Repair Packet Sequence: `WS43 runtime/tray/shutdown safety (#21-#25)`; `WS44 Dashboard frame/scroll/resize/visual shell (#26-#28 and #30-#32)`; `WS45 Dashboard IA/naming/action cleanup (#29 and #33-#38)`; `WS46 Dashboard returned-feedback static/live proof readiness before Hardening`
+- Deferred/Future Scope: `#20 NCP placement/persistence and 6f Dev Toolkit Interface Review Mode remain future priority branch/package candidates unless later USER admission or source-truth proof changes scope`
+- Overlay Status: `Deferred/dormant/non-gating - no Overlay/display release acceptance is granted by this repair`
+- Core Status: `Dependency-only - ORIN/Core remains supporting desktop-safety proof and is not a released FAM-006 interface`
+- PKG-006 Status: `In Progress`
+- Package Completion: `Unclaimed`
+- PR Readiness: `Blocked`
+- Continue Decision: `Continue to bounded Workstream repair after Stage 2 validation/durability because Dashboard acceptance is blocked and no USER waiver authorizes LV2 as a PASS path`
+- Continuation Execution Latch: `Active - next bounded Workstream seam is WS43`
+- Stop Basis: `No phase-boundary crossing; no Hardening/Live Validation/PR transition authorized by Stage 2`
+- Next Legal Seam: `Workstream WS43 - Dashboard Runtime Tray Shutdown Safety Repair`
 
 ## Validation Plan
 
