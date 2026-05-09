@@ -24,7 +24,7 @@ This branch may execute the admitted PKG-006 implementation slices during Workst
 
 ## Status
 
-- `Workstream WS37 Dashboard Runtime Window Tray Safety Repaired - WS38 Pending`
+- `Workstream WS38 Dashboard Window Ownership Focus Movement Safety Repaired - WS39 Pending`
 
 ## Canonical Branch
 
@@ -37,7 +37,7 @@ This branch may execute the admitted PKG-006 implementation slices during Workst
 ## Phase Status
 
 - Branch Readiness Stage: `Stage 2 complete - returned USER Dashboard feedback is recorded as blocking LV2 acceptance; source-truth and Element Validation Ledger dispositions were repaired before bounded Workstream repair resumed`
-- Workstream Stage: `WS37 complete - Dashboard runtime/window/tray safety and NCP regression isolation are repaired and proven; WS38 Dashboard window ownership/focus/movement safety is next`
+- Workstream Stage: `WS38 complete - Dashboard window ownership/focus/movement safety is repaired and proven; WS39 Dashboard shell/layout/frame/resize/readability repair is next`
 - Hardening Stage: `Blocked pending Workstream - H1 remains preserved as prior Dashboard-first pressure-test evidence, but affected rows require rerun after the Dashboard repair sequence`
 - Live Validation Stage: `Blocked/regressed - refreshed LV1 handoff received USER blocking feedback before LV2 acceptance could proceed; LV2 returned-result digestion must not continue until repair, Hardening rerun, refreshed LV1 handoff, and returned USER acceptance or waiver`
 - Active Branch: `feature/fam-006-monitoring-hud-product-surface`
@@ -170,17 +170,17 @@ Rollback Path: revert this Branch Readiness Stage 2 source-truth repair commit o
 
 - `Workstream`
 
-Next Legal Seam: `Workstream WS38 - Dashboard Window Ownership Focus Movement Safety`
+Next Legal Seam: `Workstream WS39 - Dashboard Shell Layout Frame Resize And Readability Repair`
 
-Next Legal Phase Gate: WS37 records the first bounded Dashboard repair packet green and keeps the branch in Workstream for the remaining Dashboard repair sequence. Codex must not continue LV2, enter Hardening, enter PR Readiness, create a PR, watcher, release, tag, artifact, direct-main mutation, voice/audio implementation, Stream Deck/plugin telemetry implementation, local AI, installer/capability-pack work, broad hardware provider implementation, persona switching implementation, ARIA activation, Overlay/display release acceptance, or a new FAM/package without later explicit USER approval.
+Next Legal Phase Gate: WS38 records the Dashboard window ownership/focus/movement safety packet green and keeps the branch in Workstream for the remaining Dashboard repair sequence. Codex must not continue LV2, enter Hardening, enter PR Readiness, create a PR, watcher, release, tag, artifact, direct-main mutation, voice/audio implementation, Stream Deck/plugin telemetry implementation, local AI, installer/capability-pack work, broad hardware provider implementation, persona switching implementation, ARIA activation, Overlay/display release acceptance, or a new FAM/package without later explicit USER approval.
 
 Post-FAM-006 Required Marker Adoption Candidate: `Repo-Wide High-Risk Source Owner Marker Adoption`; candidate branch `feature/repo-wide-source-owner-marker-adoption`; requirement is recorded for after the current FAM-006 branch closes and does not authorize branch creation, package admission, PR Readiness, runtime behavior changes, or bypass of the active LV2 UTS pending gate.
 
 ## Active Seam
 
-Active seam: `Workstream WS38 - Dashboard Window Ownership Focus Movement Safety`
+Active seam: `Workstream WS39 - Dashboard Shell Layout Frame Resize And Readability Repair`
 
-Active Seam Status: `Ready for bounded Workstream continuation after WS37 repaired Dashboard startup, tray, feature-off, focus/topmost safety posture, and NCP regression isolation; LV2 remains blocked`
+Active Seam Status: `Ready for bounded Workstream continuation after WS38 repaired Dashboard native window ownership, focus/topmost posture, OS-native movement, and control hit-target guards; LV2 remains blocked`
 
 ## Branch Objective
 
@@ -505,7 +505,7 @@ Branch Closure Rule: Stage 2-R13 handed this branch back to bounded Dashboard-fo
 ## Backlog Completion Status
 
 Backlog Completion State: `In Progress`
-Remaining Implementable Work: `Dashboard-focused Workstream repair continues with WS38 Dashboard window ownership/focus/movement safety, WS39 Dashboard shell/layout/frame/resize/readability repair, WS40 Dashboard IA/content/naming/control-hub repair, WS41 Dashboard child-window scope implementation if admitted, and WS42 Dashboard-specific static/live proof and LV1 handoff readiness`
+Remaining Implementable Work: `Dashboard-focused Workstream repair continues with WS39 Dashboard shell/layout/frame/resize/readability repair, WS40 Dashboard IA/content/naming/control-hub repair, WS41 Dashboard child-window scope implementation if admitted, and WS42 Dashboard-specific static/live proof and LV1 handoff readiness`
 Future-Dependent Blockers: `full HWInfo/HWMonitor-level parity, broad plugin/external telemetry ecosystem, audio/spoken alerts or FAM-004 integration, persona switching implementation and ARIA activation, Stream Deck, graphs/history/persistence/dashboards, local AI/capability-pack monitoring, installer/capability-pack work, and ultra-low polling intervals remain deferred pending later approval, admission, and proof`
 Completion Status: `In Progress`
 
@@ -721,11 +721,11 @@ Slice Status: In Progress
 Completion Status: In Progress
 Waiver Status: None
 Continue Decision: Continue
-Continuation Execution Latch: Active - final response is prohibited while continuation remains active; the next seam must execute in the same bounded Workstream run after WS37 durability unless a lawful Stop decision is recorded.
+Continuation Execution Latch: Active - final response is prohibited while continuation remains active; the next seam must execute in the same bounded Workstream run after WS38 durability unless a lawful Stop decision is recorded.
 Stop Basis: None
-Next Active Seam: Workstream WS38 - Dashboard Window Ownership Focus Movement Safety
-Stop Condition: None at WS37 seam level; Dashboard acceptance remains blocked until the remaining repair sequence, Hardening rerun, refreshed LV1, and returned USER PASS/WAIVED results or waiver complete.
-Continuation Action: Continue within bounded Workstream to WS38. Preserve Dashboard-first boundary, Overlay/display non-gating status, Core dependency-only status, LV2 blocked, PR blocked, PKG-006 In Progress, package completion unclaimed, no single-seam waiver, and no PR/release work.
+Next Active Seam: Workstream WS39 - Dashboard Shell Layout Frame Resize And Readability Repair
+Stop Condition: None at WS38 seam level; Dashboard acceptance remains blocked until the remaining repair sequence, Hardening rerun, refreshed LV1, and returned USER PASS/WAIVED results or waiver complete.
+Continuation Action: Continue within bounded Workstream to WS39. Preserve Dashboard-first boundary, Overlay/display non-gating status, Core dependency-only status, LV2 blocked, PR blocked, PKG-006 In Progress, package completion unclaimed, no single-seam waiver, and no PR/release work.
 
 ## Live Validation Stage 1 Continuation Decision
 
@@ -736,7 +736,7 @@ Completion Detail: Live Validation final green is blocked because USER returned 
 Waiver Status: None
 Continue Decision: Stop
 Stop Basis: Dashboard Acceptance Blocked By USER Feedback
-Next Active Seam: Workstream WS38 - Dashboard Window Ownership Focus Movement Safety
+Next Active Seam: Workstream WS39 - Dashboard Shell Layout Frame Resize And Readability Repair
 Stop Condition: LV1 handoff proof superseded for affected Dashboard rows by returned USER feedback
 Continuation Action: Route through Branch Readiness Stage 2 source-truth repair, then bounded Workstream repair. Do not enter PR Readiness, create PR/watcher/release artifacts, claim package completion, or treat Codex self-QA as USER acceptance.
 
@@ -1519,6 +1519,28 @@ Validation Evidence Expectations: return PASS/FAIL plus any notes, screenshots, 
 - Continuation Execution Latch: `Active - next bounded Workstream seam is WS38`
 - Stop Basis: `No phase boundary crossing; no Hardening/Live Validation/PR transition authorized by WS37`
 - Next Legal Seam: `Workstream WS38 - Dashboard Window Ownership Focus Movement Safety`
+
+## Workstream WS38 Dashboard Window Ownership Focus Movement Safety
+
+- WS38 Admission: `PASS - bounded Workstream continuation required after WS37 because PKG-006 remains In Progress, no USER single-seam waiver exists, and the same-phase next repair seam was recorded`
+- WS38 Result: `Green for Dashboard window ownership/focus/movement safety - Dashboard acceptance, package completion, Hardening, Live Validation, PR Readiness, release, and Overlay/display acceptance remain unclaimed`
+- Window Ownership Repair: `Dashboard runtime now uses normal top-level Qt window ownership instead of Qt.Tool ownership, clears no-activate/click-through styles, removes Dashboard tool-window ownership, and records app-window posture through MONITORING_HUD_WINDOW_OWNERSHIP_FOCUS_READY`
+- Movement Model Proof: `Dashboard header movement now prefers OS-native system move through startSystemMove with movement_model=os-system-move-no-snap; fallback direct movement no longer applies the 20px snap grid to the Dashboard window`
+- Focus / Topmost Proof: `Dashboard remains non-topmost, interactive only when the HUD feature is enabled/visible, does not request forced foreground activation, and emits window ownership/focus state for validator proof`
+- Control Hit-Target Guard: `Dashboard native movement ignores known control rectangles so pressing HUD feature, Overlay deferred, create monitor, select, polling, warning, and monitor-edit controls does not accidentally start a Dashboard drag`
+- Source Surfaces Touched: `desktop/desktop_renderer.py`; `desktop/monitoring_hud_placement.py`; `nexus_visual/monitoring_hud.html`; `nexus_visual/monitoring_hud.css`; `nexus_visual/monitoring_hud.js`
+- Validator Surfaces Touched: `dev/orin_monitoring_hud_surface_validation.py`; `dev/orin_monitoring_hud_internal_sandbox_validation.py`; `dev/orin_branch_governance_validation.py`
+- Element Rows Updated: `FAM006-DASH-WINDOW-002`; `FAM006-DASH-MOVE-003`; `FAM006-DASH-CLIP-004`; `FAM006-DASH-FOCUS-047`; `FAM006-PROOF-STATIC-031`; `FAM006-PROOF-SANDBOX-032`; `FAM006-GOV-SOURCE-TRUTH-039`
+- Dashboard Acceptance State: `Still blocked - WS38 clears the runtime ownership/focus/movement safety packet only; Dashboard shell/layout/frame/resize/readability, IA/content/naming/control-hub, optional child-window scope, and final Dashboard proof remain pending`
+- Overlay Status: `Deferred/dormant/non-gating - Overlay/display acceptance is not claimed and deferred Overlay startup/anchor behavior remains outside current Dashboard acceptance`
+- Core Status: `Dependency-only - WS38 does not release ORIN/Core as a FAM-006 interface and does not require Core acceptance`
+- PKG-006 Status: `In Progress`
+- Package Completion: `Unclaimed`
+- PR Readiness: `Blocked`
+- Continue Decision: `Continue within Workstream after WS38 validation/durability because PKG-006 remains In Progress and no USER single-seam waiver or stop-authorizing blocker is recorded`
+- Continuation Execution Latch: `Active - next bounded Workstream seam is WS39`
+- Stop Basis: `No phase boundary crossing; no Hardening/Live Validation/PR transition authorized by WS38`
+- Next Legal Seam: `Workstream WS39 - Dashboard Shell Layout Frame Resize And Readability Repair`
 
 ## Historical WS30 Codex Live Client Self-QA
 

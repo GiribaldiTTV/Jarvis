@@ -148,6 +148,8 @@ GetParentW.restype = ctypes.wintypes.HWND
 SW_HIDE = 0
 GWL_EXSTYLE = -20
 WS_EX_TRANSPARENT = 0x00000020
+WS_EX_TOOLWINDOW = 0x00000080
+WS_EX_APPWINDOW = 0x00040000
 WS_EX_NOACTIVATE = 0x08000000
 SM_XVIRTUALSCREEN = 76
 SM_YVIRTUALSCREEN = 77
@@ -5737,8 +5739,11 @@ class DesktopRuntimeWindow(QWidget):
             else None
         )
 
-        # Align the standalone desktop route with the proven Boot handoff window model.
-        self.setWindowFlags(Qt.Tool | Qt.FramelessWindowHint)
+        # The Dashboard is a standalone user-facing window; Core/Overlay ownership stays separate.
+        self.setWindowFlags(
+            (Qt.Window if self.surface_role == "hud" else Qt.Tool)
+            | Qt.FramelessWindowHint
+        )
         self.setAutoFillBackground(self.surface_role != "hud")
         if self.surface_role == "hud":
             self.setAttribute(Qt.WA_TranslucentBackground, True)
@@ -6236,14 +6241,59 @@ class DesktopRuntimeWindow(QWidget):
             hwnd = ctypes.wintypes.HWND(int(self.winId()))
             style = int(GetWindowLongW(hwnd, GWL_EXSTYLE))
             style = style & ~WS_EX_NOACTIVATE & ~WS_EX_TRANSPARENT
+            if self.surface_role == "hud":
+                style = (style & ~WS_EX_TOOLWINDOW) | WS_EX_APPWINDOW
             SetWindowLongW(hwnd, GWL_EXSTYLE, style)
         except Exception:
             return
+
+    def _monitoring_hud_native_ownership_state(self) -> dict[str, object]:
+        style = 0
+        try:
+            style = int(GetWindowLongW(ctypes.wintypes.HWND(int(self.winId())), GWL_EXSTYLE))
+        except Exception:
+            style = 0
+        return {
+            "windowFlag": "normal_window" if self.surface_role == "hud" else "tool_window",
+            "topmost": False,
+            "showWithoutActivating": bool(self.testAttribute(Qt.WA_ShowWithoutActivating)),
+            "transparentForMouseEvents": bool(self.testAttribute(Qt.WA_TransparentForMouseEvents)),
+            "exNoActivate": bool(style & WS_EX_NOACTIVATE),
+            "exTransparent": bool(style & WS_EX_TRANSPARENT),
+            "exToolWindow": bool(style & WS_EX_TOOLWINDOW),
+            "exAppWindow": bool(style & WS_EX_APPWINDOW),
+            "movementModel": "os-system-move-no-snap",
+            "focusPolicy": "no_focus" if self.focusPolicy() == Qt.NoFocus else "interactive",
+        }
+
+    def _emit_monitoring_hud_window_ownership_focus_ready(self, source: str = "runtime"):
+        if self.surface_role != "hud":
+            return
+        state = self._monitoring_hud_native_ownership_state()
+        self._emit_runtime_signal(
+            "MONITORING_HUD_WINDOW_OWNERSHIP_FOCUS_READY",
+            package="PKG-006",
+            slice="SLC-026",
+            seam="WS38",
+            source=source,
+            surface="dashboard_control_panel",
+            window_flag=state["windowFlag"],
+            topmost=state["topmost"],
+            show_without_activating=state["showWithoutActivating"],
+            transparent_for_mouse=state["transparentForMouseEvents"],
+            ex_noactivate=state["exNoActivate"],
+            ex_transparent=state["exTransparent"],
+            ex_tool_window=state["exToolWindow"],
+            ex_app_window=state["exAppWindow"],
+            movement_model=state["movementModel"],
+            focus_policy=state["focusPolicy"],
+        )
 
     def _emit_monitoring_hud_window_status(self, source: str = "runtime"):
         geometry = self.geometry()
         virtual = self._virtual_desktop_geometry()
         overlay_proof = self._monitoring_hud_minimal_native_proof_state()
+        ownership = self._monitoring_hud_native_ownership_state()
         self._emit_runtime_signal(
             "MONITORING_HUD_WINDOW_STATUS_READY",
             package="PKG-006",
@@ -6261,6 +6311,10 @@ class DesktopRuntimeWindow(QWidget):
             virtual_y=virtual.y(),
             virtual_w=virtual.width(),
             virtual_h=virtual.height(),
+            window_flag=ownership.get("windowFlag"),
+            movement_model=ownership.get("movementModel"),
+            ex_tool_window=ownership.get("exToolWindow"),
+            ex_app_window=ownership.get("exAppWindow"),
             focus_policy="no_focus" if self.focusPolicy() == Qt.NoFocus else "interactive",
         )
         if self.surface_role == "hud":
@@ -6771,24 +6825,79 @@ class DesktopRuntimeWindow(QWidget):
         }
 
     def _promote_monitoring_hud_edit_window(self):
-        try:
-            hwnd = ctypes.wintypes.HWND(int(self.winId()))
-            foreground = GetForegroundWindow()
-            current_thread = GetCurrentThreadId()
-            foreground_thread = GetWindowThreadProcessId(foreground, None) if foreground else 0
-            attached = False
-            if foreground_thread and foreground_thread != current_thread:
-                attached = bool(AttachThreadInput(current_thread, foreground_thread, True))
-            try:
-                BringWindowToTop(hwnd)
-                SetActiveWindow(hwnd)
-                SetForegroundWindow(hwnd)
-                SwitchToThisWindow(hwnd, True)
-            finally:
-                if attached:
-                    AttachThreadInput(current_thread, foreground_thread, False)
-        except Exception:
+        if self.surface_role != "hud":
             return
+        self.raise_()
+        self._emit_runtime_signal(
+            "MONITORING_HUD_SELF_QA_WINDOW_RAISE_HINT_READY",
+            package="PKG-006",
+            slice="SLC-026",
+            seam="WS38",
+            forced_foreground=False,
+            topmost=False,
+        )
+
+    def _monitoring_hud_dashboard_control_rect_contains(self, point: QPoint) -> bool:
+        control_rect_names = (
+            "anchorToggle",
+            "visibilityToggle",
+            "createMonitor",
+            "snapToggle",
+            "pollingRate",
+            "warningModeControl",
+            "monitorSelector",
+            "monitorEnabled",
+            "monitorPollingRate",
+        )
+        for name in control_rect_names:
+            rect = self._monitoring_hud_live_screen_rects.get(name, QRect())
+            if rect.isValid() and not rect.isNull() and rect.contains(point):
+                return True
+        return False
+
+    def _finish_monitoring_hud_native_system_move(self, source: str = "system_move"):
+        self._monitoring_hud_interactive_screen_rect = self.geometry()
+        geometry = self.geometry()
+        self._emit_runtime_signal(
+            "MONITORING_HUD_NATIVE_WINDOW_MOVE_READY",
+            package="PKG-006",
+            slice="SLC-026",
+            seam="WS38",
+            source=source,
+            movement_model="os-system-move-no-snap",
+            x=geometry.x(),
+            y=geometry.y(),
+            w=geometry.width(),
+            h=geometry.height(),
+            virtual_desktop="all_monitors",
+        )
+        self._emit_monitoring_hud_window_ownership_focus_ready(source=source)
+        self._emit_monitoring_hud_window_status(source=source)
+
+    def _start_monitoring_hud_native_system_move(self, screen_point: QPoint) -> bool:
+        if self.surface_role != "hud":
+            return False
+        window_handle = self.windowHandle()
+        start_system_move = getattr(window_handle, "startSystemMove", None) if window_handle else None
+        if not callable(start_system_move):
+            return False
+        self._monitoring_hud_native_panel_drag_active = False
+        self._emit_runtime_signal(
+            "MONITORING_HUD_NATIVE_SYSTEM_MOVE_STARTED",
+            package="PKG-006",
+            slice="SLC-026",
+            seam="WS38",
+            x=screen_point.x(),
+            y=screen_point.y(),
+            movement_model="os-system-move-no-snap",
+        )
+        try:
+            started = bool(start_system_move())
+        except Exception:
+            started = False
+        if started:
+            QTimer.singleShot(360, lambda: self._finish_monitoring_hud_native_system_move("system_move"))
+        return started
 
     def _monitoring_hud_header_rect(self) -> QRect:
         rect = self._monitoring_hud_interactive_screen_rect
@@ -6811,12 +6920,12 @@ class DesktopRuntimeWindow(QWidget):
             max_left = virtual.x() + max(0, virtual.width() - self.width())
             max_top = virtual.y() + max(0, virtual.height() - self.height())
             bounded_left = self._monitoring_hud_bound_native(
-                self._monitoring_hud_snap_native(left),
+                int(left),
                 virtual.x(),
                 max_left,
             )
             bounded_top = self._monitoring_hud_bound_native(
-                self._monitoring_hud_snap_native(top),
+                int(top),
                 virtual.y(),
                 max_top,
             )
@@ -6827,10 +6936,13 @@ class DesktopRuntimeWindow(QWidget):
                     "MONITORING_HUD_NATIVE_WINDOW_MOVE_READY",
                     package="PKG-006",
                     slice="SLC-026",
+                    seam="WS38",
+                    movement_model="fallback-direct-move-no-snap",
                     x=bounded_left,
                     y=bounded_top,
                     virtual_desktop="all_monitors",
                 )
+                self._emit_monitoring_hud_window_ownership_focus_ready(source="fallback_direct_move")
                 self._emit_monitoring_hud_window_status(source="native_window_drag")
             return
         state = {
@@ -7021,7 +7133,12 @@ class DesktopRuntimeWindow(QWidget):
                     self._monitoring_hud_native_anchor_click_pending = True
                     self._monitoring_hud_native_anchor_click_expected = not bool(self._monitoring_hud_anchored)
                     return False
-            if self._monitoring_hud_header_rect().contains(screen_point):
+            if (
+                self._monitoring_hud_header_rect().contains(screen_point)
+                and not self._monitoring_hud_dashboard_control_rect_contains(screen_point)
+            ):
+                if self._start_monitoring_hud_native_system_move(screen_point):
+                    return True
                 self._monitoring_hud_native_panel_drag_active = True
                 self._monitoring_hud_native_panel_drag_start = screen_point
                 self._monitoring_hud_native_panel_drag_base = (
@@ -7107,7 +7224,11 @@ class DesktopRuntimeWindow(QWidget):
         feature_enabled = bool(self._monitoring_hud_feature_enabled and self._monitoring_hud_visible)
         self.setAttribute(Qt.WA_TransparentForMouseEvents, False)
         self.setAttribute(Qt.WA_ShowWithoutActivating, False)
-        self.setWindowFlag(Qt.Tool, True)
+        if self.surface_role == "hud":
+            self.setWindowFlag(Qt.Tool, False)
+            self.setWindowFlag(Qt.Window, True)
+        else:
+            self.setWindowFlag(Qt.Tool, True)
         self.setWindowFlag(Qt.FramelessWindowHint, True)
         self.setFocusPolicy(Qt.StrongFocus if feature_enabled else Qt.NoFocus)
         self.webview.setFocusPolicy(Qt.StrongFocus if feature_enabled else Qt.NoFocus)
@@ -7130,6 +7251,7 @@ class DesktopRuntimeWindow(QWidget):
             anchored=anchored,
             pointer_model="normal_dashboard_window_no_topmost",
         )
+        self._emit_monitoring_hud_window_ownership_focus_ready(source="interaction_state")
         self._emit_monitoring_hud_window_status(source="interaction_state")
         self._sync_monitoring_hud_minimal_native_overlay(source="interaction_state")
 

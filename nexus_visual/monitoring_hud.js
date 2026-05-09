@@ -330,7 +330,7 @@ function monitoringHudUpdateSurfaceSplit() {
     monitoringHud.dataset.splitContract = "dashboard-configures-minimal-overlay";
     monitoringHud.dataset.nativeDashboardOwner = "DesktopRuntimeWindow";
     monitoringHud.dataset.standaloneWindowContract = "dashboard-overlay-core-independent-native-surfaces";
-    monitoringHud.dataset.dragSmoothing = "raf-local-persist-on-release";
+    monitoringHud.dataset.dragSmoothing = "native-os-window-move";
     monitoringHud.dataset.scrollbarStyle = "nexus-thin-glow";
     monitoringHud.dataset.primaryInterfaceReleaseSurface = "monitoring-hud-dashboard-control-panel";
     monitoringHud.dataset.interfaceAcceptancePolicy = "dashboard-only-current-branch";
@@ -587,6 +587,9 @@ function monitoringHudStartPointerDrag(event, target, onMove) {
 function monitoringHudWirePanelDrag() {
   if (!monitoringHud || !monitoringHudDragHandle) return;
   const startPanelDrag = (event) => {
+    if (document.body && document.body.classList.contains("desktop-mode")) {
+      return;
+    }
     const rect = monitoringHud.getBoundingClientRect();
     monitoringHudStartPointerDrag(event, monitoringHudDragHandle, (dx, dy) => {
       monitoringHudSetPanelPosition(rect.left + dx, rect.top + dy, false);

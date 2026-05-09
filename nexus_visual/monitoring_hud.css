@@ -77,8 +77,8 @@ body.desktop-mode #monitoring-hud::-webkit-scrollbar-thumb:hover {
   background: linear-gradient(180deg, rgba(184, 250, 255, 0.88), rgba(112, 255, 210, 0.64));
 }
 
-body.desktop-mode #monitoring-hud[data-drag-smoothing="raf-local-persist-on-release"] {
-  will-change: left, top;
+body.desktop-mode #monitoring-hud[data-drag-smoothing="native-os-window-move"] {
+  will-change: auto;
 }
 
 body.desktop-mode #monitoring-hud-minimal {
@@ -123,10 +123,12 @@ body.desktop-mode #monitoring-hud[data-anchor-state="unanchored"] {
   cursor: default;
 }
 
+body.desktop-mode #monitoring-hud[data-drag-smoothing="native-os-window-move"] .monitoring-hud__header,
 body.desktop-mode #monitoring-hud[data-anchor-state="unanchored"] .monitoring-hud__header {
   cursor: grab;
 }
 
+body.desktop-mode #monitoring-hud[data-drag-smoothing="native-os-window-move"] .monitoring-hud__header:active,
 body.desktop-mode #monitoring-hud[data-anchor-state="unanchored"] .monitoring-hud__header:active {
   cursor: grabbing;
 }

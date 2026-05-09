@@ -210,7 +210,7 @@ def _validate_static_surface(failures: list[str]) -> None:
         'data-snap-state="enabled"',
         'data-card-model="category-sensor-cards"',
         'data-polling-default-ms="1000"',
-        'data-drag-smoothing="raf-local-persist-on-release"',
+        'data-drag-smoothing="native-os-window-move"',
         'data-scrollbar-style="nexus-thin-glow"',
         'data-sandbox-state-matrix="setup,no-data,degraded,ready,warning"',
         'data-dashboard-control-panel="hud-display-monitor-management"',
@@ -306,7 +306,7 @@ def _validate_static_surface(failures: list[str]) -> None:
         ".monitoring-hud-overlay-card__topline",
         "scrollbar-width: thin",
         "body.desktop-mode #monitoring-hud::-webkit-scrollbar",
-        'body.desktop-mode #monitoring-hud[data-drag-smoothing="raf-local-persist-on-release"]',
+        'body.desktop-mode #monitoring-hud[data-drag-smoothing="native-os-window-move"]',
         "cursor: nwse-resize",
     ):
         _require_contains(css, needle, "HUD CSS interaction surface", failures)
@@ -360,6 +360,7 @@ def _validate_static_surface(failures: list[str]) -> None:
         "minimal-anchored-hud-overlay",
         "dashboard-configuration-surface",
         "monitoringHudWirePanelDrag",
+        'document.body.classList.contains("desktop-mode")',
         "monitoringHudWireCardInteractions",
         "monitoringHudWireControls",
         "monitoringHudRenderMonitorManagement",
@@ -394,7 +395,15 @@ def _validate_static_surface(failures: list[str]) -> None:
         "MONITORING_HUD_MINIMAL_NON_FOCUS_READY",
         "standalone overlay display proves anchored uninteractable/no-focus",
         "emit_status=False",
+        "MONITORING_HUD_WINDOW_OWNERSHIP_FOCUS_READY",
+        "MONITORING_HUD_NATIVE_SYSTEM_MOVE_STARTED",
         "MONITORING_HUD_NATIVE_WINDOW_MOVE_READY",
+        "os-system-move-no-snap",
+        "fallback-direct-move-no-snap",
+        "startSystemMove",
+        "WS_EX_APPWINDOW",
+        "WS_EX_TOOLWINDOW",
+        "self.setWindowFlag(Qt.Window, True)",
         "MONITORING_HUD_DASHBOARD_STANDALONE_WINDOW_TRAVEL_READY",
         "MONITORING_HUD_DASHBOARD_CLIPPING_BOUNDARY_READY",
         "MONITORING_HUD_DASHBOARD_CORE_OVERLAY_DECOUPLING_READY",
@@ -506,7 +515,11 @@ def _validate_contracts(failures: list[str]) -> dict[str, object]:
     _require(sensors.get("gpu-load", {}).get("value") == "Unavailable", "GPU load must remain provider-unavailable", failures)
     _require(sensors.get("gpu-thermal", {}).get("value") == "Unavailable", "GPU thermal must remain provider-unavailable", failures)
     _require(sensors.get("cpu-thermal", {}).get("value") == "Provider required", "CPU thermal must remain provider-required", failures)
-    _require(placement.get("snapModel") == "20px snap grid with snap-disable posture", "placement contract must describe snap posture", failures)
+    _require(
+        placement.get("snapModel") == "Dashboard window movement is unsnapped; Overlay layout snap remains deferred",
+        "placement contract must describe Dashboard unsnapped movement posture",
+        failures,
+    )
     _require(placement.get("cardLayoutModel") == "cards resize and snap in overlay edit mode", "placement contract must describe card layout", failures)
     _require(controls.get("anchorState") == "overlay-deferred", "controls contract must keep overlay anchor controls deferred", failures)
     _require(controls.get("pollingRateMs") == "1000", "controls contract must preserve 1s default polling", failures)
