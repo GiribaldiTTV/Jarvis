@@ -979,6 +979,14 @@ def validate_tray_identity_initialization():
         events = []
 
         class FakeWindow:
+            def monitoring_hud_feature_state(self):
+                return {
+                    "feature_enabled": False,
+                    "dashboard_visible": False,
+                    "overlay_deferred": True,
+                    "overlay_anchor_enabled": False,
+                }
+
             def toggle_command_overlay(self):
                 raise AssertionError("initialize should not route overlay")
 
@@ -1062,10 +1070,12 @@ def validate_tray_identity_initialization():
             action_texts = [action.text() for action in actions]
             identity_action_enabled = actions[0].isEnabled() if actions else None
             hud_overlay_deferred_action_enabled = None
+            hud_dashboard_action_enabled = None
             for action in actions:
                 if action.text() == "HUD Overlay Deferred":
                     hud_overlay_deferred_action_enabled = action.isEnabled()
-                    break
+                if action.text() == "Open HUD Dashboard":
+                    hud_dashboard_action_enabled = action.isEnabled()
             fake_icon = FakeTrayIcon.latest_instance
             tooltip = fake_icon.tooltip if fake_icon is not None else ""
             messages = fake_icon.messages if fake_icon is not None else []
@@ -1084,6 +1094,7 @@ def validate_tray_identity_initialization():
             "action_texts": action_texts,
             "identity_action_enabled": identity_action_enabled,
             "hud_overlay_deferred_action_enabled": hud_overlay_deferred_action_enabled,
+            "hud_dashboard_action_enabled": hud_dashboard_action_enabled,
             "tooltip": tooltip,
             "discovery_cue_requested": discovery_cue_requested,
             "messages": messages,
@@ -1098,10 +1109,158 @@ def validate_tray_identity_initialization():
             "action_texts": [],
             "identity_action_enabled": None,
             "hud_overlay_deferred_action_enabled": None,
+            "hud_dashboard_action_enabled": None,
             "tooltip": "",
             "discovery_cue_requested": False,
             "messages": [],
             "confirmation_requests": [],
+            "error": f"{type(exc).__name__}: {exc}",
+        }
+    finally:
+        if previous_qt_platform is None:
+            os.environ.pop("QT_QPA_PLATFORM", None)
+        else:
+            os.environ["QT_QPA_PLATFORM"] = previous_qt_platform
+
+
+def validate_tray_monitoring_hud_lifecycle_actions():
+    previous_qt_platform = os.environ.get("QT_QPA_PLATFORM")
+    os.environ["QT_QPA_PLATFORM"] = "offscreen"
+
+    try:
+        if ROOT_DIR not in sys.path:
+            sys.path.insert(0, ROOT_DIR)
+
+        from PySide6.QtWidgets import QApplication
+
+        import desktop.orin_desktop_main as runtime_mod
+
+        app = QApplication.instance()
+        created_app = False
+        if app is None:
+            app = QApplication(["orin_desktop_entrypoint_validation"])
+            created_app = True
+
+        events = []
+
+        class FakeWindow:
+            def __init__(self):
+                self.state = {
+                    "feature_enabled": False,
+                    "dashboard_visible": False,
+                    "overlay_deferred": True,
+                    "overlay_anchor_enabled": False,
+                }
+                self.toggle_sources = []
+                self.dashboard_requests = []
+
+            def monitoring_hud_feature_state(self):
+                return dict(self.state)
+
+            def toggle_command_overlay(self):
+                raise AssertionError("HUD lifecycle test should not route overlay")
+
+            def request_create_custom_task_from_tray(self, source=""):
+                raise AssertionError("HUD lifecycle test should not route authoring")
+
+            def request_monitoring_hud_toggle_from_tray(self, source=""):
+                self.toggle_sources.append(source)
+                next_enabled = not self.state["feature_enabled"]
+                self.state["feature_enabled"] = next_enabled
+                self.state["dashboard_visible"] = next_enabled
+
+            def request_monitoring_hud_dashboard_from_tray(self, source="", visible=True):
+                self.dashboard_requests.append((source, bool(visible)))
+                if self.state["feature_enabled"]:
+                    self.state["dashboard_visible"] = bool(visible)
+
+        class FakeSignal:
+            def connect(self, _callback):
+                return
+
+        class FakeTrayIcon:
+            class ActivationReason:
+                Trigger = object()
+                DoubleClick = object()
+
+            @staticmethod
+            def isSystemTrayAvailable():
+                return True
+
+            def __init__(self, *_args, **_kwargs):
+                self.activated = FakeSignal()
+
+            def setToolTip(self, _tooltip):
+                return
+
+            def setContextMenu(self, _menu):
+                return
+
+            def show(self):
+                return
+
+            def hide(self):
+                return
+
+        def action_snapshot(tray_entry):
+            actions = [action for action in tray_entry.tray_menu.actions() if not action.isSeparator()]
+            return {
+                "texts": [action.text() for action in actions],
+                "dashboard_enabled": next(
+                    (action.isEnabled() for action in actions if "HUD Dashboard" in action.text()),
+                    None,
+                ),
+            }
+
+        original_tray_icon = runtime_mod.QSystemTrayIcon
+        runtime_mod.QSystemTrayIcon = FakeTrayIcon
+        fake_window = FakeWindow()
+        try:
+            tray_entry = runtime_mod.DesktopTrayEntry(app, fake_window, events.append)
+            initialized = tray_entry.initialize()
+            initial = action_snapshot(tray_entry)
+            tray_entry.request_monitoring_hud_toggle_from_tray("validation")
+            enabled = action_snapshot(tray_entry)
+            tray_entry.request_monitoring_hud_dashboard_from_tray("validation")
+            dashboard_closed = action_snapshot(tray_entry)
+            tray_entry.request_monitoring_hud_dashboard_from_tray("validation")
+            dashboard_opened = action_snapshot(tray_entry)
+            tray_entry.request_monitoring_hud_toggle_from_tray("validation")
+            disabled = action_snapshot(tray_entry)
+            tray_entry.close()
+        finally:
+            runtime_mod.QSystemTrayIcon = original_tray_icon
+
+        if created_app:
+            app.quit()
+
+        return {
+            "ok": True,
+            "initialized": initialized,
+            "events": events,
+            "initial": initial,
+            "enabled": enabled,
+            "dashboard_closed": dashboard_closed,
+            "dashboard_opened": dashboard_opened,
+            "disabled": disabled,
+            "toggle_sources": fake_window.toggle_sources,
+            "dashboard_requests": fake_window.dashboard_requests,
+            "final_state": fake_window.monitoring_hud_feature_state(),
+            "error": "",
+        }
+    except Exception as exc:
+        return {
+            "ok": False,
+            "initialized": False,
+            "events": [],
+            "initial": {},
+            "enabled": {},
+            "dashboard_closed": {},
+            "dashboard_opened": {},
+            "disabled": {},
+            "toggle_sources": [],
+            "dashboard_requests": [],
+            "final_state": {},
             "error": f"{type(exc).__name__}: {exc}",
         }
     finally:
@@ -6564,6 +6723,14 @@ def run_validation():
         tray_identity_result["hud_overlay_deferred_action_enabled"] is False,
         f"hud_overlay_deferred_action_enabled={tray_identity_result['hud_overlay_deferred_action_enabled']}",
     )
+    checks["tray_dashboard_action_present"] = line_status(
+        "Open HUD Dashboard" in tray_identity_result["action_texts"],
+        f"action_texts={tray_identity_result['action_texts']}",
+    )
+    checks["tray_dashboard_action_disabled_when_feature_off"] = line_status(
+        tray_identity_result["hud_dashboard_action_enabled"] is False,
+        f"hud_dashboard_action_enabled={tray_identity_result['hud_dashboard_action_enabled']}",
+    )
     checks["tray_exit_requests_confirmation"] = line_status(
         tray_identity_result["confirmation_requests"] == ["tray_validation"]
         and any(
@@ -6597,6 +6764,51 @@ def run_validation():
         bool(tray_identity_messages)
         and "hidden icons" in tray_identity_messages[0]["message"],
         tray_identity_messages[0]["message"] if tray_identity_messages else "no message",
+    )
+
+    tray_hud_result = validate_tray_monitoring_hud_lifecycle_actions()
+    tray_hud_events = tray_hud_result["events"]
+    checks["tray_hud_lifecycle_validation_imported"] = line_status(
+        tray_hud_result["ok"],
+        tray_hud_result["error"] or "DesktopTrayEntry HUD lifecycle path exercised",
+    )
+    checks["tray_hud_enable_updates_menu_state"] = line_status(
+        "Disable HUD Feature" in tray_hud_result["enabled"].get("texts", ())
+        and "Close HUD Dashboard" in tray_hud_result["enabled"].get("texts", ())
+        and tray_hud_result["enabled"].get("dashboard_enabled") is True,
+        f"enabled={tray_hud_result['enabled']}",
+    )
+    checks["tray_hud_dashboard_close_open_roundtrip"] = line_status(
+        "Open HUD Dashboard" in tray_hud_result["dashboard_closed"].get("texts", ())
+        and "Close HUD Dashboard" in tray_hud_result["dashboard_opened"].get("texts", ())
+        and tray_hud_result["dashboard_requests"] == [("validation", False), ("validation", True)],
+        (
+            f"dashboard_closed={tray_hud_result['dashboard_closed']}; "
+            f"dashboard_opened={tray_hud_result['dashboard_opened']}; "
+            f"dashboard_requests={tray_hud_result['dashboard_requests']}"
+        ),
+    )
+    checks["tray_hud_disable_recovers_menu_state"] = line_status(
+        "Enable HUD Feature" in tray_hud_result["disabled"].get("texts", ())
+        and "Open HUD Dashboard" in tray_hud_result["disabled"].get("texts", ())
+        and tray_hud_result["disabled"].get("dashboard_enabled") is False
+        and tray_hud_result["final_state"] == {
+            "feature_enabled": False,
+            "dashboard_visible": False,
+            "overlay_deferred": True,
+            "overlay_anchor_enabled": False,
+        },
+        f"disabled={tray_hud_result['disabled']}; final_state={tray_hud_result['final_state']}",
+    )
+    checks["tray_hud_lifecycle_markers"] = line_status(
+        any("TRAY_MONITORING_HUD_DASHBOARD_REQUESTED|source=validation|visible=false" in event for event in tray_hud_events)
+        and any("TRAY_MONITORING_HUD_DASHBOARD_REQUESTED|source=validation|visible=true" in event for event in tray_hud_events)
+        and any(
+            "TRAY_MONITORING_HUD_ACTIONS_REFRESHED|source=validation|feature_enabled=false|dashboard_visible=false|dashboard_action_enabled=false"
+            in event
+            for event in tray_hud_events
+        ),
+        f"events={tray_hud_events}",
     )
 
     tray_failure_result = validate_tray_initialization_failure_is_bounded()

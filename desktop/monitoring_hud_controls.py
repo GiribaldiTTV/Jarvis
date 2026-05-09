@@ -55,6 +55,7 @@ class MonitoringHudControlsVisibilityContract:
 def build_monitoring_hud_controls_visibility_contract(
     *,
     desktop_mode: bool,
+    feature_enabled: bool | None = None,
     visible: bool = True,
     anchored: bool = True,
     snap_enabled: bool = True,
@@ -62,22 +63,27 @@ def build_monitoring_hud_controls_visibility_contract(
 ) -> MonitoringHudControlsVisibilityContract:
     """Build the HUD controls visibility contract from renderer state."""
 
+    feature_is_enabled = bool(visible) if feature_enabled is None else bool(feature_enabled)
+    dashboard_is_visible = bool(feature_is_enabled and visible)
+
     return MonitoringHudControlsVisibilityContract(
         package_id=PACKAGE_ID,
         slice_id=SLICE_ID,
         controls_id=CONTROLS_ID,
         visibility_state=(
-            "Enable or disable HUD feature from dashboard/tray"
-            if desktop_mode and visible
+            "HUD feature enabled; Dashboard window open"
+            if desktop_mode and dashboard_is_visible
+            else "HUD feature enabled; Dashboard window closed from tray"
+            if desktop_mode and feature_is_enabled
             else "HUD feature disabled from dashboard/tray"
             if desktop_mode
             else "Waiting for desktop mode"
         ),
-        control_surface="Dashboard controls HUD feature state; Overlay controls remain deferred",
+        control_surface="Tray controls HUD feature state; Dashboard open/close is separate; Overlay controls remain deferred",
         persistence="Store group/layout posture locally",
         operator_action="No default keybinds",
         anchor_state="overlay-deferred",
-        tray_path="Task tray enables/disables HUD feature; Overlay anchor controls deferred",
+        tray_path="Task tray enables/disables HUD feature and opens/closes Dashboard; Overlay anchor controls deferred",
         snap_state="enabled" if snap_enabled else "disabled",
         polling_rate_ms=str(max(1000, int(polling_rate_ms or 1000))),
         monitor_management="Dashboard creates, edits, enables, disables, and sets polling for monitor groups",

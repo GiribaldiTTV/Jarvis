@@ -107,6 +107,12 @@ class DesktopRuntimeUnavailable(QObject):
     def request_monitoring_hud_toggle_from_tray(self, source="tray"):
         self._emit(f"RENDERER_MAIN|TRAY_MONITORING_HUD_TOGGLE_ABORTED|source={source}|reason=desktop_runtime_unavailable")
 
+    def request_monitoring_hud_dashboard_from_tray(self, source="tray", visible=True):
+        self._emit(
+            "RENDERER_MAIN|TRAY_MONITORING_HUD_DASHBOARD_ABORTED"
+            f"|source={source}|visible={str(bool(visible)).lower()}|reason=desktop_runtime_unavailable"
+        )
+
     def request_monitoring_hud_unanchor_from_tray(self, source="tray"):
         self._emit(f"RENDERER_MAIN|TRAY_MONITORING_HUD_UNANCHOR_ABORTED|source={source}|reason=desktop_runtime_unavailable")
 
@@ -368,6 +374,7 @@ class DesktopTrayEntry:
         self.open_overlay_action = None
         self.create_custom_task_action = None
         self.monitoring_hud_toggle_action = None
+        self.monitoring_hud_dashboard_action = None
         self.monitoring_hud_unanchor_action = None
         self.exit_action = None
         self._discovery_cue_shown = False
@@ -413,6 +420,11 @@ class DesktopTrayEntry:
                 lambda _checked=False: self.request_monitoring_hud_toggle_from_tray("menu")
             )
             self.tray_menu.addAction(self.monitoring_hud_toggle_action)
+            self.monitoring_hud_dashboard_action = QAction("Open HUD Dashboard", self.tray_menu)
+            self.monitoring_hud_dashboard_action.triggered.connect(
+                lambda _checked=False: self.request_monitoring_hud_dashboard_from_tray("menu")
+            )
+            self.tray_menu.addAction(self.monitoring_hud_dashboard_action)
             self.monitoring_hud_unanchor_action = QAction("Unanchor Monitoring HUD", self.tray_menu)
             self.monitoring_hud_unanchor_action.triggered.connect(
                 lambda _checked=False: self.request_monitoring_hud_unanchor_from_tray("menu")
@@ -480,15 +492,24 @@ class DesktopTrayEntry:
         }
 
     def refresh_monitoring_hud_actions(self, source="runtime"):
-        if self.monitoring_hud_toggle_action is None or self.monitoring_hud_unanchor_action is None:
+        if (
+            self.monitoring_hud_toggle_action is None
+            or self.monitoring_hud_dashboard_action is None
+            or self.monitoring_hud_unanchor_action is None
+        ):
             return
         state = self._monitoring_hud_state()
         feature_enabled = bool(state.get("feature_enabled"))
+        dashboard_visible = bool(state.get("dashboard_visible"))
         overlay_deferred = state.get("overlay_deferred", True) is not False
         overlay_anchor_enabled = bool(state.get("overlay_anchor_enabled")) and not overlay_deferred
         self.monitoring_hud_toggle_action.setText(
             "Disable HUD Feature" if feature_enabled else "Enable HUD Feature"
         )
+        self.monitoring_hud_dashboard_action.setText(
+            "Close HUD Dashboard" if dashboard_visible else "Open HUD Dashboard"
+        )
+        self.monitoring_hud_dashboard_action.setEnabled(feature_enabled)
         self.monitoring_hud_unanchor_action.setText(
             "HUD Overlay Deferred" if overlay_deferred else "Unanchor HUD Overlay"
         )
@@ -497,6 +518,8 @@ class DesktopTrayEntry:
             "RENDERER_MAIN|TRAY_MONITORING_HUD_ACTIONS_REFRESHED"
             f"|source={source}"
             f"|feature_enabled={str(feature_enabled).lower()}"
+            f"|dashboard_visible={str(dashboard_visible).lower()}"
+            f"|dashboard_action_enabled={str(self.monitoring_hud_dashboard_action.isEnabled()).lower()}"
             f"|overlay_deferred={str(overlay_deferred).lower()}"
             f"|overlay_anchor_enabled={str(overlay_anchor_enabled).lower()}"
         )
@@ -504,6 +527,30 @@ class DesktopTrayEntry:
     def request_monitoring_hud_toggle_from_tray(self, source):
         self._emit(f"RENDERER_MAIN|TRAY_MONITORING_HUD_TOGGLE_REQUESTED|source={source}")
         self.window.request_monitoring_hud_toggle_from_tray(source=source)
+        self.refresh_monitoring_hud_actions(source)
+
+    def request_monitoring_hud_dashboard_from_tray(self, source):
+        state = self._monitoring_hud_state()
+        feature_enabled = bool(state.get("feature_enabled"))
+        dashboard_visible = bool(state.get("dashboard_visible"))
+        if not feature_enabled:
+            self._emit(
+                f"RENDERER_MAIN|TRAY_MONITORING_HUD_DASHBOARD_ABORTED|source={source}|reason=feature_disabled"
+            )
+            self.refresh_monitoring_hud_actions(source)
+            return
+        next_visible = not dashboard_visible
+        self._emit(
+            "RENDERER_MAIN|TRAY_MONITORING_HUD_DASHBOARD_REQUESTED"
+            f"|source={source}|visible={str(next_visible).lower()}"
+        )
+        handler = getattr(self.window, "request_monitoring_hud_dashboard_from_tray", None)
+        if not callable(handler):
+            self._emit(
+                f"RENDERER_MAIN|TRAY_MONITORING_HUD_DASHBOARD_ABORTED|source={source}|reason=handler_unavailable"
+            )
+            return
+        handler(source=source, visible=next_visible)
         self.refresh_monitoring_hud_actions(source)
 
     def request_monitoring_hud_unanchor_from_tray(self, source):

@@ -316,6 +316,12 @@ FAM006_WS42_HEADING = (
     "Workstream WS42 Dashboard Specific Static Live Proof And LV1 Handoff Readiness"
 )
 FAM006_WS42_NEXT_SEAM = "Hardening H1 - Monitoring HUD Product Surface Hardening Rerun"
+FAM006_WS43_HEADING = (
+    "Workstream WS43 Dashboard Runtime Tray Shutdown Safety Repair"
+)
+FAM006_WS43_NEXT_SEAM = (
+    "Workstream WS44 - Dashboard Frame Scroll Resize Visual Shell Repair"
+)
 FAM006_H1_HEADING = "Hardening H1 Dashboard-First Product Surface Rerun"
 FAM006_H1_NEXT_SEAM = (
     "Live Validation LV1 - Monitoring HUD Product Surface Live Validation Rerun"
@@ -761,6 +767,48 @@ FAM006_WS42_REQUIRED_PHRASES = (
     "Next Legal Seam:",
     FAM006_WS42_NEXT_SEAM,
 )
+FAM006_WS43_REQUIRED_PHRASES = (
+    "WS43 Admission:",
+    "USER approved bounded Workstream WS43",
+    "WS43 Result:",
+    "Green for Dashboard runtime tray shutdown safety repair",
+    "Runtime / Tray Repair:",
+    "separate from Dashboard window visibility",
+    "Tray HUD Enable Flash Repair:",
+    "MONITORING_HUD_TRAY_ENABLE_RENDER_STABLE_READY",
+    "Tray HUD Enable / Disable State Repair:",
+    "Enable HUD Feature -> Disable HUD Feature roundtrip",
+    "Dashboard Tray Open / Close Repair:",
+    "MONITORING_HUD_TRAY_DASHBOARD_OPEN_CLOSE_READY",
+    "Disable-HUD Recovery Repair:",
+    "MONITORING_HUD_DISABLE_RECOVERY_READY",
+    "#25 Current-vs-Future Classification:",
+    "tray Exit NDAI confirmation",
+    "NCP / Saved-Action Regression Proof:",
+    "dev/orin_saved_action_authoring_ui_validation.py",
+    "Validator / Helper Updates:",
+    "desktop entrypoint validation now exercises tray HUD lifecycle actions",
+    "Element Rows Updated:",
+    "FAM006-HUD-TRAY-FLASH-051",
+    "FAM006-HUD-TRAY-STATE-LOCK-052",
+    "FAM006-DASH-TRAY-OPEN-CLOSE-053",
+    "FAM006-HUD-DISABLE-UNUSABLE-054",
+    "FAM006-TRAY-SHUTDOWN-CONFIRM-055",
+    "Overlay Status:",
+    "Deferred/dormant/non-gating",
+    "Core Status:",
+    "Dependency-only",
+    "Formal UTS Boundary:",
+    "WS43 does not generate, refresh, or digest",
+    "Dashboard Acceptance State:",
+    "Still blocked",
+    "Package Completion:",
+    "Unclaimed",
+    "Continuation Execution Latch:",
+    "Active - next bounded Workstream seam is WS44",
+    "Next Legal Seam:",
+    FAM006_WS43_NEXT_SEAM,
+)
 FAM006_H1_REQUIRED_PHRASES = (
     "H1 Admission:",
     "PASS - USER explicitly admitted Hardening H1",
@@ -949,9 +997,9 @@ FAM006_ELEMENT_VALIDATION_LEDGER_REQUIRED_PHRASES = (
 FAM006_ELEMENT_LEDGER_REQUIRED_PHRASES = (
     "# FAM-006 Element Validation Ledger",
     "Owner Record: `Docs/branch_records/feature_fam_006_monitoring_hud_product_surface.md`",
-    "Ledger Status: `Returned LV1 feedback #20-#38 disposition repaired - Workstream repair required before LV2`",
+    "Ledger Status: `WS43 runtime/tray/shutdown safety repaired - WS44 visual-shell repair required before LV2`",
     "Live Validation LV1 Handoff Green / Returned USER Results Pending",
-    "Returned LV1 Dashboard Feedback Blocking / Workstream WS43 Handoff Ready",
+    "Returned LV1 Dashboard Feedback Blocking / Workstream WS44 Handoff Ready",
     "Prior Gate Superseded: `Returned refreshed User Test Summary results required before LV2 returned User Test Summary digestion`",
     "LV2 returned User Test Summary digestion must not proceed from Codex proof alone",
     "Branch Readiness Stage 1 revalidation passed",
@@ -1026,7 +1074,7 @@ FAM006_ELEMENT_LEDGER_REQUIRED_PHRASES = (
     "FAM006-FUTURE-PERSONA-044",
     "## UTS Coverage Map",
     "Current Coverage Status: `Returned LV1 feedback #20-#38 blocks Dashboard acceptance / Workstream repair required before LV2`",
-    "Workstream WS43 - Dashboard Runtime Tray Shutdown Safety Repair",
+    "Workstream WS44 - Dashboard Frame Scroll Resize Visual Shell Repair",
     "## Proof Rebaseline Summary",
     "Marker-only proof remains supporting only",
 )
@@ -5727,6 +5775,42 @@ def _validate_fam006_stage2_r6_plan(
                     f"'{required_phrase}'"
                 ),
             )
+        ws43_section = _section(text, FAM006_WS43_HEADING)
+        if ws43_section:
+            for phrase in FAM006_WS43_REQUIRED_PHRASES:
+                require(
+                    phrase in ws43_section,
+                    f"{source_path}: {FAM006_WS43_HEADING} is missing '{phrase}'",
+                )
+            require(
+                f"Active seam: `{FAM006_WS43_NEXT_SEAM}`" in text,
+                f"{source_path}: WS43 completion must advance active seam to WS44",
+            )
+            require(
+                f"Next Legal Seam: `{FAM006_WS43_NEXT_SEAM}`" in text,
+                f"{source_path}: WS43 completion must set next legal seam to WS44",
+            )
+            require(
+                f"Next Active Seam: {FAM006_WS43_NEXT_SEAM}" in text,
+                f"{source_path}: WS43 completion must set Seam Continuation Decision next active seam to WS44",
+            )
+            require(
+                "Continue Decision: Continue" in _section(text, "Seam Continuation Decision"),
+                f"{source_path}: WS43 completion must continue within bounded Workstream",
+            )
+            require(
+                "Stop Basis: None" in _section(text, "Seam Continuation Decision"),
+                f"{source_path}: WS43 completion must not create a stop basis before WS44",
+            )
+            require(
+                "Remaining Implementable Work: `Dashboard-focused Workstream repair continues with WS44"
+                in text,
+                (
+                    f"{source_path}: WS43 completion must preserve visible same-branch "
+                    "Dashboard visual-shell repair work beyond the current seam"
+                ),
+            )
+            return
         ws42_section = _section(text, FAM006_WS42_HEADING)
         if ws42_section:
             for phrase in FAM006_WS42_REQUIRED_PHRASES:

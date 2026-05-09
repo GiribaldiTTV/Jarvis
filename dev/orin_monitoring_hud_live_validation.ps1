@@ -591,6 +591,12 @@ try {
         "RENDERER_MAIN|STARTUP_READY",
         "DESKTOP_OUTCOME|SETTLED|state=dormant"
     )
+    $trayLifecycleMarkers = @(
+        "MONITORING_HUD_TRAY_ENABLE_RENDER_STABLE_READY",
+        "MONITORING_HUD_TRAY_ENABLE_DISABLE_ROUNDTRIP_READY",
+        "MONITORING_HUD_TRAY_DASHBOARD_OPEN_CLOSE_READY",
+        "MONITORING_HUD_DISABLE_RECOVERY_READY"
+    )
     foreach ($marker in $requiredMarkers) {
         Wait-Marker $paths $marker
     }

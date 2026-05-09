@@ -65,10 +65,11 @@ let monitoringHudControls = {
   packageId: "PKG-006",
   sliceId: "SLC-027",
   controlsId: "hud-controls-visibility",
-  visibilityState: "Enable or disable HUD feature from dashboard/tray",
-  controlSurface: "Dashboard controls HUD feature state; HUD display remains deferred",
+  visibilityState: "HUD feature disabled from dashboard/tray",
+  controlSurface: "Tray controls HUD feature state; Dashboard open/close is separate; HUD display remains deferred",
   persistence: "Store group/layout posture locally",
-  operatorAction: "No default keybinds"
+  operatorAction: "No default keybinds",
+  trayPath: "Task tray enables/disables HUD feature and opens/closes Dashboard; Overlay controls deferred"
 };
 let monitoringHudStatus = {
   packageId: "PKG-006",
@@ -403,17 +404,18 @@ function monitoringHudApplyCardLayout() {
 
 function monitoringHudRenderControls() {
   if (!monitoringHud) return;
-  const featureEnabled = Boolean(monitoringHudControlState.featureEnabled && monitoringHudControlState.visible);
+  const featureEnabled = Boolean(monitoringHudControlState.featureEnabled);
+  const dashboardVisible = Boolean(featureEnabled && monitoringHudControlState.visible);
   const overlayDeferred = monitoringHudControlState.overlayDeferred !== false;
-  monitoringHudControlState.visible = featureEnabled;
-  monitoringHud.dataset.visibilityState = monitoringHudControlState.visible ? "visible" : "hidden";
+  monitoringHudControlState.visible = dashboardVisible;
+  monitoringHud.dataset.visibilityState = dashboardVisible ? "visible" : "hidden";
   monitoringHud.dataset.featureEnabled = featureEnabled ? "true" : "false";
   monitoringHud.dataset.overlayDeferred = overlayDeferred ? "true" : "false";
   monitoringHud.dataset.anchorState = monitoringHudControlState.anchored ? "overlay-anchored" : "overlay-unanchored";
   monitoringHud.dataset.interactionMode = "standalone-dashboard-window";
-  monitoringHud.dataset.controlsState = monitoringHudControlState.visible
-    ? "toggle-posture-visible"
-    : "toggle-posture-hidden";
+  monitoringHud.dataset.controlsState = featureEnabled
+    ? (dashboardVisible ? "feature-enabled-dashboard-open" : "feature-enabled-dashboard-closed")
+    : "feature-disabled-dashboard-closed";
   monitoringHud.dataset.snapState = monitoringHudControlState.snapEnabled ? "enabled" : "disabled";
   monitoringHud.dataset.pollingRateMs = String(monitoringHudControlState.pollingRateMs);
   monitoringHud.dataset.warningControlPosture = monitoringHudControlState.warningNotificationsMuted
@@ -967,7 +969,7 @@ window.simulateMonitoringHudFaultForValidation = function(enabled) {
 
 window.setMonitoringHudControlState = function(state) {
   monitoringHudControlState = Object.assign({}, monitoringHudControlState, state || {});
-  monitoringHudControlState.featureEnabled = Boolean(monitoringHudControlState.featureEnabled || monitoringHudControlState.visible);
+  monitoringHudControlState.featureEnabled = Boolean(monitoringHudControlState.featureEnabled);
   monitoringHudControlState.overlayDeferred = monitoringHudControlState.overlayDeferred !== false;
   monitoringHudControlState.visible = Boolean(monitoringHudControlState.featureEnabled && monitoringHudControlState.visible);
   monitoringHudControlState.warningMode = monitoringHudControlState.warningMode || "badge-text-color";
@@ -1085,16 +1087,18 @@ window.setMonitoringHudControlsVisibility = function(contract) {
     monitoringHud.dataset.controlsPackage = monitoringHudControls.packageId || "PKG-006";
     monitoringHud.dataset.controlsSlice = monitoringHudControls.sliceId || "SLC-027";
     monitoringHud.dataset.controlsId = monitoringHudControls.controlsId || "hud-controls-visibility";
-    monitoringHud.dataset.controlsState = monitoringHudControlState.visible ? "toggle-posture-visible" : "toggle-posture-hidden";
+    monitoringHud.dataset.controlsState = monitoringHudControlState.featureEnabled
+      ? (monitoringHudControlState.visible ? "feature-enabled-dashboard-open" : "feature-enabled-dashboard-closed")
+      : "feature-disabled-dashboard-closed";
     monitoringHud.dataset.keybindPolicy = "none";
     monitoringHud.dataset.monitorManagement = "create-edit-enable-polling";
     monitoringHud.dataset.overlayModeControls = "enable-disable-anchor-unanchor";
   }
   if (monitoringHudControlsVisibility) {
-    monitoringHudControlsVisibility.textContent = monitoringHudControls.visibilityState || "Enable or disable HUD feature from dashboard/tray";
+    monitoringHudControlsVisibility.textContent = monitoringHudControls.visibilityState || "HUD feature disabled from dashboard/tray";
   }
   if (monitoringHudControlsSurface) {
-    monitoringHudControlsSurface.textContent = monitoringHudControls.controlSurface || "Dashboard controls HUD feature state; HUD display remains deferred";
+    monitoringHudControlsSurface.textContent = monitoringHudControls.controlSurface || "Tray controls HUD feature state; Dashboard open/close is separate; HUD display remains deferred";
   }
   if (monitoringHudControlsPersistence) {
     monitoringHudControlsPersistence.textContent = monitoringHudControls.persistence || "Store group/layout posture locally";
@@ -1103,7 +1107,7 @@ window.setMonitoringHudControlsVisibility = function(contract) {
     monitoringHudWarningPosture.textContent = monitoringHudControls.warningControls;
   }
   if (monitoringHudTrayPath) {
-    monitoringHudTrayPath.textContent = monitoringHudControls.trayPath || "Task tray enables/disables HUD feature; Overlay controls deferred";
+    monitoringHudTrayPath.textContent = monitoringHudControls.trayPath || "Task tray enables/disables HUD feature and opens/closes Dashboard; Overlay controls deferred";
   }
   monitoringHudRenderControls();
   monitoringHudUpdateSurfaceSplit();
