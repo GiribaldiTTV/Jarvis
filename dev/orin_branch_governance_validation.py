@@ -338,6 +338,13 @@ FAM006_WS46_HEADING = (
     "Workstream WS46 Dashboard Returned-Feedback Static Live Proof Readiness"
 )
 FAM006_WS46_NEXT_SEAM = "Hardening H1 - Monitoring HUD Product Surface Hardening Rerun"
+FAM006_STAGE2_REAL_CLIENT_HEADING = (
+    "Branch Readiness Stage 2 FAM-006 Returned LV1 Real-Client Failure Source-Truth "
+    "Issue Register And Ledger Disposition Repair"
+)
+FAM006_WS47_NEXT_SEAM = (
+    "Workstream WS47 - Dashboard Real-Client Tray Shortcut And Proof-Governance Repair"
+)
 FAM006_H1_HEADING = "Hardening H1 Dashboard-First Product Surface Rerun"
 FAM006_H1_NEXT_SEAM = (
     "Live Validation LV1 - Monitoring HUD Product Surface Live Validation Rerun"
@@ -964,6 +971,31 @@ FAM006_H1_REQUIRED_PHRASES = (
     "Next Active Seam:",
     FAM006_H1_NEXT_SEAM,
 )
+FAM006_STAGE2_REAL_CLIENT_REQUIRED_PHRASES = (
+    "Stage 2 Admission:",
+    "Returned Real-Client Failure State:",
+    "Real-Client Finding RUI-039:",
+    "Real-Client Finding RUI-040:",
+    "Governance Finding RUI-041:",
+    "Proof Class Correction:",
+    "User-Facing Shortcut Rule:",
+    "Codex Precheck Rule:",
+    "Fake/Offscreen Proof Rule:",
+    "LV2 Status:",
+    "Dashboard Acceptance State:",
+    "Package Status:",
+    "PKG-006 remains In Progress",
+    "Package Completion:",
+    "Unclaimed",
+    "PR Readiness:",
+    "Blocked",
+    "Overlay Status:",
+    "Deferred/dormant/non-gating",
+    "Core Status:",
+    "Dependency-only",
+    "Next Legal Seam:",
+    FAM006_WS47_NEXT_SEAM,
+)
 FAM006_WORKSTREAM_CONTINUATION_REQUIRED_PHRASES = (
     "multi-slice HUD implementation continuation",
     "WS8 - Monitoring HUD Internal Sandbox Harness And State Matrix Baseline",
@@ -1119,14 +1151,19 @@ FAM006_ELEMENT_VALIDATION_LEDGER_REQUIRED_PHRASES = (
     "FAM006-CORE-DEP-009",
     "FAM006-SRCMARK-FUTURE-010",
     "Source-owner-not-applicable until future marker adoption",
-    "returned UTS results pending",
+    "Returned USER Issue Register",
+    "FAM006-RUI-039",
+    "FAM006-RUI-040",
+    "FAM006-RUI-041",
+    "actual desktop shortcut",
+    "Codex Precheck",
 )
 
 FAM006_ELEMENT_LEDGER_REQUIRED_PHRASES = (
     "# FAM-006 Element Validation Ledger",
     "Owner Record: `Docs/branch_records/feature_fam_006_monitoring_hud_product_surface.md`",
-    "Ledger Status: `Live Validation LV1 handoff refreshed - returned USER results pending before LV2`",
-    "Current Gate: `Live Validation LV1 Handoff Green / Returned USER Results Pending",
+    "Ledger Status: `Returned LV1 real-client failures recorded - WS47 Workstream repair required before Hardening/LV1 rerun`",
+    "Current Gate: `Returned LV1 Real-Client Failure / WS47 Workstream Repair Required",
     "Latest Completed Workstream Seam: `Workstream WS46 - Dashboard Returned-Feedback Static Live Proof Readiness`",
     "Prior Gate Superseded: `Returned refreshed User Test Summary results required before LV2 returned User Test Summary digestion`",
     "LV2 returned User Test Summary digestion must not proceed from Codex proof alone",
@@ -1196,14 +1233,19 @@ FAM006_ELEMENT_LEDGER_REQUIRED_PHRASES = (
     "FAM006-PROOF-NAMING-038",
     "FAM006-GOV-SOURCE-TRUTH-039",
     "FAM006-GOV-SRCMARK-040",
+    "FAM006-GOV-REAL-CLIENT-PROOF-063",
+    "FAM006-GOV-RUI-REGISTER-064",
     "FAM006-FUTURE-PROVIDER-041",
     "FAM006-FUTURE-EXTERNAL-042",
     "FAM006-FUTURE-AUDIO-043",
     "FAM006-FUTURE-PERSONA-044",
     "## UTS Coverage Map",
-    "Current Coverage Status: `Live Validation LV1 handoff refreshed / returned USER results pending before LV2`",
+    "Current Coverage Status: `Returned LV1 real-client FAIL / WS47 Workstream repair required before Hardening and refreshed LV1`",
     "Latest Completed Workstream Seam: `Workstream WS46 - Dashboard Returned-Feedback Static Live Proof Readiness`",
     "## Proof Rebaseline Summary",
+    "Returned Step 2 Tray enable/disable/open Dashboard",
+    "Returned Step 3 Tray Exit NDAI",
+    "Codex Precheck",
     "Marker-only proof remains supporting only",
 )
 
@@ -1236,6 +1278,23 @@ SOURCE_OWNER_MARKER_ADOPTION_NEXT_BRANCH_REQUIRED_PHRASES = {
         "Later readiness must decide the legal carrier",
         "plan repo-wide Dev Toolkit Interface Review Mode dispositions for existing and future USER-facing elements",
         "The Dev Toolkit design is tabled for that future pass",
+    ),
+}
+FAM006_REAL_CLIENT_PROOF_GOVERNANCE_REQUIRED_PHRASES = {
+    Path("Docs/user_test_summary_guidance.md"): (
+        "actual desktop shortcut path is mandatory when feasible",
+        "Static proof, sandbox proof, fake/offscreen model proof, callback-only proof, active-client screenshot proof, and real user-operated tray proof are separate proof classes",
+        "per-step precheck manifest",
+        "Codex Precheck: NOT TESTED",
+        "Fake windows, hidden clients, direct callbacks, and offscreen model assertions can support implementation confidence but cannot be recorded as the sole PASS",
+    ),
+    Path("Docs/validation_helper_registry.md"): (
+        "actual desktop shortcut equivalence proof",
+        "real user-operated tray action proof",
+        "per-step Codex precheck manifest support",
+        "Fake/callback/offscreen proof must be labeled separately from real-client proof",
+        "real-client proof-class separation",
+        "per-step Codex Precheck PASS/FAIL/NOT TESTED/WAIVED output",
     ),
 }
 
@@ -13515,10 +13574,34 @@ def main() -> int:
             )
 
     fam006_branch_text = _read_text(FAM006_BRANCH_RECORD)
+    fam006_real_client_section = _section(
+        fam006_branch_text, FAM006_STAGE2_REAL_CLIENT_HEADING
+    )
+    require(
+        bool(fam006_real_client_section),
+        (
+            f"{FAM006_BRANCH_RECORD}: FAM-006 real-client returned-failure repair "
+            f"is missing '## {FAM006_STAGE2_REAL_CLIENT_HEADING}'"
+        ),
+    )
+    for required_phrase in FAM006_STAGE2_REAL_CLIENT_REQUIRED_PHRASES:
+        require(
+            required_phrase in fam006_real_client_section,
+            (
+                f"{FAM006_BRANCH_RECORD}: {FAM006_STAGE2_REAL_CLIENT_HEADING} "
+                f"is missing '{required_phrase}'"
+            ),
+        )
     for required_phrase in FAM006_ELEMENT_VALIDATION_LEDGER_REQUIRED_PHRASES:
         require(
             required_phrase in fam006_branch_text,
             f"{FAM006_BRANCH_RECORD}: FAM-006 Element Validation Ledger is missing '{required_phrase}'",
+        )
+
+    for issue_id in (f"FAM006-RUI-{index:03d}" for index in range(1, 42)):
+        require(
+            issue_id in fam006_branch_text,
+            f"{FAM006_BRANCH_RECORD}: Returned USER Issue Register is missing '{issue_id}'",
         )
 
     fam006_element_ledger_text = _read_text(FAM006_ELEMENT_LEDGER)
@@ -13536,6 +13619,16 @@ def main() -> int:
             require(
                 required_phrase in text,
                 f"{relative_path}: post-FAM-006 source-owner marker adoption requirement is missing '{required_phrase}'",
+            )
+
+    for relative_path, required_phrases in (
+        FAM006_REAL_CLIENT_PROOF_GOVERNANCE_REQUIRED_PHRASES.items()
+    ):
+        text = _read_text(relative_path)
+        for required_phrase in required_phrases:
+            require(
+                required_phrase in text,
+                f"{relative_path}: real-client proof governance is missing '{required_phrase}'",
             )
 
     for relative_path in RELEASE_OPERATOR_OUTPUT_CONTRACT_DOCS:

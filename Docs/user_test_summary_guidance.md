@@ -226,6 +226,9 @@ The expected default path for Nexus Desktop AI desktop work is:
 - `C:\Users\anden\OneDrive\Desktop\Nexus Desktop Launcher.lnk`
 
 The gate is green only when the declared shortcut or explicitly equivalent user-facing entrypoint launches the active branch, reaches ready state, exposes the relevant user-visible surface, and leaves cleanup/persisted-state evidence consistent with the workstream validation contract before User Test Summary handoff.
+For desktop user-facing branches, the actual desktop shortcut path is mandatory when feasible. A documented equivalent entrypoint may satisfy this gate only when the authority record and proof manifest explain why it is equivalent to the USER-operated path, including tray/menu/window behavior, or when USER explicitly waives the actual shortcut requirement.
+Shortcut equivalence must not be inferred from helper success alone. Static proof, sandbox proof, fake/offscreen model proof, callback-only proof, active-client screenshot proof, and real user-operated tray proof are separate proof classes and must be labeled separately when the UTS asks the USER to test real tray or desktop operations.
+Before a Live Validation Stage 1 UTS handoff can be marked green for a desktop UI step, Codex must record a per-step precheck manifest using `Codex Precheck: PASS`, `Codex Precheck: FAIL`, `Codex Precheck: NOT TESTED`, or `Codex Precheck: WAIVED`. If Codex did not test the step through the same USER-facing path or a proven/waived equivalent, the UTS step must say `Codex Precheck: NOT TESTED` and LV1 cannot claim a green handoff without explicit USER waiver.
 If the gate is `PENDING`, keep `User-Facing Shortcut Validation Pending` active.
 If the gate is `FAIL`, route back to `Workstream` or `Hardening` before exporting final-green `UTS` posture.
 If the gate is `WAIVED`, the waiver must state why the branch is not desktop/user-facing or why the shortcut path is explicitly unavailable.
@@ -252,6 +255,7 @@ Named blocker:
 
 The gate is green only when Codex records a live-client review of readability, placement, visual quality, NDAI uniformity, interaction posture, naming cleanliness, cleanup, and evidence quality from the launched user-facing path or an explicitly equivalent path.
 Screenshot-only or marker-only proof is not enough. Codex must exercise the same visible user-facing interactions it would ask the USER to test, record `Live Interaction Evidence:`, and include an interaction manifest or equivalent evidence when the work adds an interactive UI surface.
+If the UTS asks the USER to right-click a tray icon, open or close a window through a tray menu, confirm shutdown, move/resize a visible window, or verify a visible state transition, Codex must precheck that same user-facing operation through the actual shortcut/runtime path when feasible. Fake windows, hidden clients, direct callbacks, and offscreen model assertions can support implementation confidence but cannot be recorded as the sole PASS for the same USER-facing step.
 For desktop UI, the Live Validation helper must offer an active foreground/user-observable mode; a fast hidden or blink-through run may support automation evidence but does not satisfy USER-visible active-client validation.
 If the gate is `PENDING`, keep `Codex Live Client Self-QA Pending` active.
 If the gate is `FAIL`, route back to `Workstream` or `Hardening` before exporting final-green `UTS` posture.
