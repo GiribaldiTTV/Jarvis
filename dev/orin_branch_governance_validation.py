@@ -334,6 +334,10 @@ FAM006_WS45_HEADING = (
 FAM006_WS45_NEXT_SEAM = (
     "Workstream WS46 - Dashboard Returned-Feedback Static Live Proof Readiness"
 )
+FAM006_WS46_HEADING = (
+    "Workstream WS46 Dashboard Returned-Feedback Static Live Proof Readiness"
+)
+FAM006_WS46_NEXT_SEAM = "Hardening H1 - Monitoring HUD Product Surface Hardening Rerun"
 FAM006_H1_HEADING = "Hardening H1 Dashboard-First Product Surface Rerun"
 FAM006_H1_NEXT_SEAM = (
     "Live Validation LV1 - Monitoring HUD Product Surface Live Validation Rerun"
@@ -898,6 +902,41 @@ FAM006_WS45_REQUIRED_PHRASES = (
     "Next Legal Seam:",
     FAM006_WS45_NEXT_SEAM,
 )
+FAM006_WS46_REQUIRED_PHRASES = (
+    "WS46 Admission:",
+    "bounded Workstream continuation from WS45",
+    "WS46 Result:",
+    "Green for Dashboard returned-feedback static/live proof readiness",
+    "Static Proof:",
+    "PASS - dev/orin_monitoring_hud_surface_validation.py",
+    "Internal Sandbox Proof:",
+    "PASS - dev/orin_monitoring_hud_internal_sandbox_validation.py",
+    "Active-Client Live Proof:",
+    "dev/logs/fam_006_monitoring_hud_live_validation/20260509_130205_061",
+    "Interaction Manifest:",
+    "monitoring_hud_live_client_interaction_manifest.json",
+    "Proof Harness Repair:",
+    "tray-owned Dashboard close/open path",
+    "Live Helper Manifest Fields:",
+    "dashboardUserTestSummaryExportRefreshed=false",
+    "elementLedgerAlignedUserTestSummary=false",
+    "Formal UTS Boundary:",
+    "WS46 does not generate, refresh, or digest",
+    "Overlay Status:",
+    "Deferred/dormant/non-gating",
+    "Core Status:",
+    "Dependency-only",
+    "Package Completion:",
+    "Unclaimed",
+    "Continue Decision:",
+    "Stop at phase boundary",
+    "Continuation Execution Latch:",
+    "Inactive - Workstream is green; Hardening phase-boundary stop",
+    "Stop Basis:",
+    "Workstream Green",
+    "Next Legal Seam:",
+    FAM006_WS46_NEXT_SEAM,
+)
 FAM006_H1_REQUIRED_PHRASES = (
     "H1 Admission:",
     "PASS - USER explicitly admitted Hardening H1",
@@ -1086,9 +1125,9 @@ FAM006_ELEMENT_VALIDATION_LEDGER_REQUIRED_PHRASES = (
 FAM006_ELEMENT_LEDGER_REQUIRED_PHRASES = (
     "# FAM-006 Element Validation Ledger",
     "Owner Record: `Docs/branch_records/feature_fam_006_monitoring_hud_product_surface.md`",
-    "Ledger Status: `WS45 IA/action cleanup complete - WS46 proof readiness required before Hardening/LV2`",
-    "Returned LV1 Dashboard Feedback Blocking / Workstream WS46 Handoff Ready",
-    "Latest Completed Workstream Seam: `Workstream WS45 - Dashboard IA Naming Action Cleanup`",
+    "Ledger Status: `WS46 proof readiness complete - Hardening H1 admission required before LV1/LV2`",
+    "Current Gate: `Workstream Green / Hardening H1 Handoff Ready",
+    "Latest Completed Workstream Seam: `Workstream WS46 - Dashboard Returned-Feedback Static Live Proof Readiness`",
     "Prior Gate Superseded: `Returned refreshed User Test Summary results required before LV2 returned User Test Summary digestion`",
     "LV2 returned User Test Summary digestion must not proceed from Codex proof alone",
     "Branch Readiness Stage 1 revalidation passed",
@@ -1162,8 +1201,8 @@ FAM006_ELEMENT_LEDGER_REQUIRED_PHRASES = (
     "FAM006-FUTURE-AUDIO-043",
     "FAM006-FUTURE-PERSONA-044",
     "## UTS Coverage Map",
-    "Current Coverage Status: `Returned LV1 feedback #20-#38 blocks Dashboard acceptance / WS46 proof readiness required before Hardening and LV2`",
-    "Latest Completed Workstream Seam: `Workstream WS45 - Dashboard IA Naming Action Cleanup`",
+    "Current Coverage Status: `WS46 proof readiness complete / Hardening H1 and refreshed LV1 required before LV2`",
+    "Latest Completed Workstream Seam: `Workstream WS46 - Dashboard Returned-Feedback Static Live Proof Readiness`",
     "## Proof Rebaseline Summary",
     "Marker-only proof remains supporting only",
 )
@@ -5864,6 +5903,42 @@ def _validate_fam006_stage2_r6_plan(
                     f"'{required_phrase}'"
                 ),
             )
+        ws46_section = _section(text, FAM006_WS46_HEADING)
+        if ws46_section:
+            for phrase in FAM006_WS46_REQUIRED_PHRASES:
+                require(
+                    phrase in ws46_section,
+                    f"{source_path}: {FAM006_WS46_HEADING} is missing '{phrase}'",
+                )
+            require(
+                f"Active seam: `{FAM006_WS46_NEXT_SEAM}`" in text,
+                f"{source_path}: WS46 completion must advance active seam to Hardening H1",
+            )
+            require(
+                f"Next Legal Seam: `{FAM006_WS46_NEXT_SEAM}`" in text,
+                f"{source_path}: WS46 completion must set next legal seam to Hardening H1",
+            )
+            require(
+                f"Next Active Seam: {FAM006_WS46_NEXT_SEAM}" in text,
+                f"{source_path}: WS46 completion must set Seam Continuation Decision next active seam to Hardening H1",
+            )
+            require(
+                "Completion Status: Green" in _section(text, "Seam Continuation Decision"),
+                f"{source_path}: WS46 completion must mark Workstream completion green",
+            )
+            require(
+                "Continue Decision: Stop" in _section(text, "Seam Continuation Decision"),
+                f"{source_path}: WS46 completion must stop at the Workstream-to-Hardening phase boundary",
+            )
+            require(
+                "Hardening phase-boundary stop requires explicit USER admission" in text,
+                f"{source_path}: WS46 completion must preserve explicit USER Hardening admission requirement",
+            )
+            require(
+                "dashboardUserTestSummaryExportRefreshed=false" in text,
+                f"{source_path}: WS46 completion must prove no formal UTS export occurred in Workstream",
+            )
+            return
         ws45_section = _section(text, FAM006_WS45_HEADING)
         if ws45_section:
             for phrase in FAM006_WS45_REQUIRED_PHRASES:

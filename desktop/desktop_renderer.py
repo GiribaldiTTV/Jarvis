@@ -8074,10 +8074,8 @@ class DesktopRuntimeWindow(QWidget):
             geometry = result.get("geometry") or {}
             controls = {
                 "hud": geometry.get("hud") if isinstance(geometry, dict) else None,
-                "anchorToggle": geometry.get("anchorToggle") if isinstance(geometry, dict) else None,
                 "createMonitor": geometry.get("createMonitor") if isinstance(geometry, dict) else None,
                 "editMonitor": geometry.get("editMonitor") if isinstance(geometry, dict) else None,
-                "visibilityToggle": geometry.get("visibilityToggle") if isinstance(geometry, dict) else None,
                 "panelDragHandle": geometry.get("panelDragHandle") if isinstance(geometry, dict) else None,
                 "warningToggle": geometry.get("warningToggle") if isinstance(geometry, dict) else None,
                 "dataSourcesAction": geometry.get("dataSourcesAction") if isinstance(geometry, dict) else None,
@@ -8095,7 +8093,7 @@ class DesktopRuntimeWindow(QWidget):
             checks["native_overlay_visible_height"] = int(overlay_proof.get("h") or 0) >= 220
             checks["native_overlay_card_targets"] = int(overlay_proof.get("overlayCardCount") or 0) >= 2
             checks["native_hud_control_zone"] = self._monitoring_hud_point_in_interactive_rect(
-                QPoint(*(rect_center("anchorToggle") or (0, 0)))
+                QPoint(*(rect_center("warningToggle") or rect_center("createMonitor") or (0, 0)))
             )
             return all(checks.values()), checks
 
@@ -8207,9 +8205,9 @@ class DesktopRuntimeWindow(QWidget):
             geometry = result.get("geometry") or {}
             minimal_rect = geometry.get("minimalHud") if isinstance(geometry, dict) else {}
             minimal_center = rect_center("minimalHud")
-            anchor_center = rect_center("anchorToggle")
+            control_center = rect_center("warningToggle") or rect_center("createMonitor")
             minimal_point = QPoint(*(minimal_center or (0, 0)))
-            anchor_point = QPoint(*(anchor_center or (0, 0)))
+            control_point = QPoint(*(control_center or (0, 0)))
             proof = self._monitoring_hud_minimal_native_proof_state()
             checks = {
                 "minimal_dom_template_present": isinstance(minimal_rect, dict),
@@ -8225,7 +8223,7 @@ class DesktopRuntimeWindow(QWidget):
                 "native_overlay_show_without_activating": proof.get("showWithoutActivating") is True,
                 "native_overlay_cards_owned_by_overlay": proof.get("cardsMovableInOverlay") is True,
                 "native_overlay_not_dashboard_coupled": proof.get("dashboardCoupled") is False,
-                "dashboard_controls_still_interactive": self._monitoring_hud_point_in_interactive_rect(anchor_point),
+                "dashboard_controls_still_interactive": self._monitoring_hud_point_in_interactive_rect(control_point),
                 "dashboard_preview_dom_inside_configuration_window": self._monitoring_hud_point_in_interactive_rect(minimal_point),
             }
             checks.update({f"proof_{key}": value for key, value in proof.items()})
@@ -8356,7 +8354,11 @@ class DesktopRuntimeWindow(QWidget):
             checks = {
                 "hidden_state": state.get("visible") is False,
                 "dataset_hidden": dataset.get("visibilityState") == "hidden",
-                "controls_state_hidden": dataset.get("controlsState") == "toggle-posture-hidden",
+                "controls_state_hidden": dataset.get("controlsState") in {
+                    "feature-enabled-dashboard-closed",
+                    "feature-disabled-dashboard-closed",
+                    "toggle-posture-hidden",
+                },
             }
             return all(checks.values()), checks
 
@@ -8562,28 +8564,20 @@ class DesktopRuntimeWindow(QWidget):
             QTimer.singleShot(delay(900), lambda: query("HUD panel drag keeps HUD and core visible", assert_panel_dragged, step_surface_travel))
 
         def step_hide():
-            geometry = latest_result.get("geometry") if isinstance(latest_result.get("geometry"), dict) else {}
-            toggle_rect = geometry.get("visibilityToggle") if isinstance(geometry.get("visibilityToggle"), dict) else None
-            widget_point = self._monitoring_hud_widget_point_from_page_rect(toggle_rect)
-            clicked = self._monitoring_hud_send_widget_click(widget_point)
-            self.request_monitoring_hud_toggle_from_tray(source="live-client-self-qa-toggle-fallback")
+            self.request_monitoring_hud_dashboard_from_tray(source="live-client-self-qa-dashboard-close", visible=False)
             add_step(
-                "active live-client hide control and tray toggle route sent",
-                clicked,
+                "active live-client tray Dashboard close route sent",
+                True,
                 {
-                    "target": "monitoring-hud-toggle",
-                    "widgetPoint": [widget_point.x(), widget_point.y()] if widget_point else None,
-                    "screenPoint": rect_center("visibilityToggle"),
-                    "fallback": "tray-toggle-route",
+                    "target": "Close HUD Dashboard",
+                    "route": "request_monitoring_hud_dashboard_from_tray",
+                    "featureEnabled": bool(self._monitoring_hud_feature_enabled),
                 },
             )
-            if not clicked:
-                finish("FAIL", "active live-client hide click failed before state assertion")
-                return
-            QTimer.singleShot(delay(700), lambda: query("visible toggle hides HUD in live client", assert_hidden, step_restore))
+            QTimer.singleShot(delay(700), lambda: query("tray Dashboard close hides only the Dashboard", assert_hidden, step_restore))
 
         def step_restore():
-            self.request_monitoring_hud_toggle_from_tray(source="live-client-self-qa")
+            self.request_monitoring_hud_dashboard_from_tray(source="live-client-self-qa-dashboard-open", visible=True)
             QTimer.singleShot(
                 delay(500),
                 lambda: query("restore Dashboard control hub without formal UTS export", assert_dashboard_restored, step_finish),
