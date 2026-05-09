@@ -233,6 +233,7 @@ A green slice does not authorize stop while `Completion Status` remains non-gree
 If `Completion Status` is `In Progress` and no named blocker or waiver stops work, the generated prompt must require continuation rather than `Await Next Instruction`.
 Use these governed state markers as execution control, not just reporting.
 If `Continue Decision` is `Continue`, the generated prompt must not let Codex end on a seam-complete final response, rollback path, or next-seam recommendation; it must require continued execution until a lawful `Stop` decision exists.
+A prompt `Return:` block is an output shape only; it cannot override governed continuation markers or authorize a terminal response while `Continue Decision` remains `Continue`.
 A final response after a green seam while `Continue Decision` remains `Continue` is `Post-Seam Final-Stop Drift`.
 Post-Seam Final-Stop Drift is a governance blocker until source truth and validation are repaired.
 Durability commit/push is not a lawful stop while `Continue Decision` remains `Continue`.

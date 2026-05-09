@@ -133,6 +133,7 @@ If `Completion Status` is `In Progress` and no named stop-authorizing blocker or
 `Backlog Completion Unproven` keeps the branch in `Workstream`; by itself it is not authority to return `Await Next Instruction` while `Completion Status` remains `In Progress`.
 Use these governed state markers as execution control, not as documentation-only summary fields.
 If `Continue Decision` is `Continue`, Codex must not end on a final seam-closeout response, rollback path, or next-seam recommendation; it must keep executing until a lawful `Stop` decision exists.
+A prompt `Return:` block is an output shape only; it cannot override governed continuation markers or authorize a terminal response while `Continue Decision` remains `Continue`.
 A final response after a green seam while `Continue Decision` remains `Continue` is `Post-Seam Final-Stop Drift`.
 Post-Seam Final-Stop Drift is a governance blocker until source truth and validation are repaired.
 Durability commit/push is not a lawful stop while `Continue Decision` remains `Continue`.
