@@ -312,6 +312,10 @@ FAM006_WS41_HEADING = (
 FAM006_WS41_NEXT_SEAM = (
     "Workstream WS42 - Dashboard Specific Static Live Proof And LV1 Handoff Readiness"
 )
+FAM006_WS42_HEADING = (
+    "Workstream WS42 Dashboard Specific Static Live Proof And LV1 Handoff Readiness"
+)
+FAM006_WS42_NEXT_SEAM = "Hardening H1 - Monitoring HUD Product Surface Hardening Rerun"
 FAM006_H1_HEADING = "Hardening H1 Dashboard-First Product Surface Rerun"
 FAM006_H1_NEXT_SEAM = (
     "Live Validation LV1 - Monitoring HUD Product Surface Live Validation Rerun"
@@ -712,6 +716,50 @@ FAM006_WS41_REQUIRED_PHRASES = (
     "Continuation Execution Latch:",
     "Next Legal Seam:",
     FAM006_WS41_NEXT_SEAM,
+)
+FAM006_WS42_REQUIRED_PHRASES = (
+    "WS42 Admission:",
+    "bounded Workstream continuation from WS41 deferral",
+    "WS42 Result:",
+    "Green - Dashboard-specific static/live proof readiness passed",
+    "Proof Standard:",
+    "formal User Test Summary export remains Live Validation Stage 1 only",
+    "Runtime / Proof Helper Update:",
+    "Dashboard-first proof readiness",
+    "Static Validation:",
+    "PASS - dev/orin_monitoring_hud_surface_validation.py",
+    "Internal Sandbox Proof:",
+    "dev/logs/fam_006_monitoring_hud_internal_sandbox/20260509_001414_manifest.json",
+    "Live Helper Proof:",
+    "dev/logs/fam_006_monitoring_hud_live_validation/20260509_001424_797",
+    "Live Helper Manifest:",
+    "manifest.json",
+    "Interaction Manifest:",
+    "monitoring_hud_live_client_interaction_manifest.json",
+    "Screenshot Proof Root:",
+    "USER-Inspectable Screenshot Folder:",
+    "Dashboard Proof Findings:",
+    "PASS - Dashboard control hub identity",
+    "Overlay Status:",
+    "Deferred/dormant/non-gating",
+    "Core Status:",
+    "Dependency-only",
+    "Formal UTS Boundary:",
+    "Not generated in Workstream",
+    "Dashboard Acceptance State:",
+    "Still blocked",
+    "Package Completion:",
+    "Unclaimed",
+    "Workstream Completion Status:",
+    "Green",
+    "Continue Decision:",
+    "Stop at phase boundary",
+    "Continuation Execution Latch:",
+    "Inactive - WS42 is Green",
+    "Stop Basis:",
+    "Phase Boundary",
+    "Next Legal Seam:",
+    FAM006_WS42_NEXT_SEAM,
 )
 FAM006_H1_REQUIRED_PHRASES = (
     "H1 Admission:",
@@ -5665,6 +5713,47 @@ def _validate_fam006_stage2_r6_plan(
                     f"'{required_phrase}'"
                 ),
             )
+        ws42_section = _section(text, FAM006_WS42_HEADING)
+        if ws42_section:
+            for phrase in FAM006_WS42_REQUIRED_PHRASES:
+                require(
+                    phrase in ws42_section,
+                    f"{source_path}: {FAM006_WS42_HEADING} is missing '{phrase}'",
+                )
+            require(
+                f"Active seam: `{FAM006_WS42_NEXT_SEAM}`" in text,
+                f"{source_path}: WS42 completion must advance active seam to Hardening H1",
+            )
+            require(
+                f"Next Legal Seam: `{FAM006_WS42_NEXT_SEAM}`" in text,
+                f"{source_path}: WS42 completion must set next legal seam to Hardening H1",
+            )
+            require(
+                f"Next Active Seam: {FAM006_WS42_NEXT_SEAM}" in text,
+                f"{source_path}: WS42 completion must set Seam Continuation Decision next active seam to Hardening H1",
+            )
+            require(
+                "Remaining Implementable Work: `None inside current Workstream - WS37 through WS42 are green or legally deferred"
+                in text,
+                (
+                    f"{source_path}: WS42 completion must close current same-phase "
+                    "Workstream implementation/proof work before Hardening handoff"
+                ),
+            )
+            require(
+                "Continue Decision: Stop" in _section(text, "Seam Continuation Decision"),
+                f"{source_path}: WS42 completion must stop at the Hardening phase boundary",
+            )
+            require(
+                "Continuation Execution Latch: Inactive - WS42 is Green; phase-boundary stop is required before USER may admit Hardening H1."
+                in text,
+                f"{source_path}: WS42 completion must keep the Hardening phase-boundary latch inactive",
+            )
+            require(
+                "dashboardUserTestSummaryExportRefreshed=false" in text,
+                f"{source_path}: WS42 completion must prove no formal UTS export was generated in Workstream",
+            )
+            return
         ws41_section = _section(text, FAM006_WS41_HEADING)
         if ws41_section:
             for phrase in FAM006_WS41_REQUIRED_PHRASES:

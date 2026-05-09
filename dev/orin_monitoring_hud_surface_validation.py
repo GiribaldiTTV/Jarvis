@@ -803,6 +803,8 @@ def validate() -> list[str]:
     for needle in (
         "SLC-029",
         "Live Validation LV1 - Monitoring HUD Product Surface Live Validation",
+        "Dashboard-specific active-client proof - no UTS export",
+        "ProofSeam",
         "proofStandard",
         "Dashboard-specific static/live proof screenshots; ledger-aligned User Test Summary export is Live Validation Stage 1 only",
         "elementValidationLedger",

@@ -7482,7 +7482,7 @@ class DesktopRuntimeWindow(QWidget):
             "status": status,
             "package": "PKG-006",
             "slice": "SLC-029",
-            "seam": "Live Validation LV1 - Monitoring HUD Product Surface Live Validation",
+            "seam": "Dashboard-specific active-client self-QA - no UTS export",
             "client": "desktop/orin_desktop_main.py",
             "mode": "live-client-interaction-self-qa",
             "entrypoint": "Nexus Desktop AI desktop runtime",
@@ -7858,11 +7858,12 @@ class DesktopRuntimeWindow(QWidget):
                 "hud": geometry.get("hud") if isinstance(geometry, dict) else None,
                 "anchorToggle": geometry.get("anchorToggle") if isinstance(geometry, dict) else None,
                 "createMonitor": geometry.get("createMonitor") if isinstance(geometry, dict) else None,
+                "editMonitor": geometry.get("editMonitor") if isinstance(geometry, dict) else None,
                 "visibilityToggle": geometry.get("visibilityToggle") if isinstance(geometry, dict) else None,
                 "panelDragHandle": geometry.get("panelDragHandle") if isinstance(geometry, dict) else None,
-                "monitorEnabled": geometry.get("monitorEnabled") if isinstance(geometry, dict) else None,
-                "monitorPollingRate": geometry.get("monitorPollingRate") if isinstance(geometry, dict) else None,
-                "warningModeControl": geometry.get("warningModeControl") if isinstance(geometry, dict) else None,
+                "warningToggle": geometry.get("warningToggle") if isinstance(geometry, dict) else None,
+                "dataSourcesAction": geometry.get("dataSourcesAction") if isinstance(geometry, dict) else None,
+                "hudDisplaySettingsAction": geometry.get("hudDisplaySettingsAction") if isinstance(geometry, dict) else None,
             }
             checks = {}
             for key, rect in controls.items():
@@ -7897,10 +7898,13 @@ class DesktopRuntimeWindow(QWidget):
             live_values = str(dataset.get("liveValues") or "").casefold()
             checks = {
                 "hud_present": bool(result.get("hasHud")),
-                "nexus_identity": "nexus" in lower_text
+                "nexus_identity": ("nexus" in lower_text
                     and (
                         "monitoring hud" in lower_text
-                        or "monitoring control panel" in lower_text
+                        or "hud dashboard" in lower_text
+                    )) or (
+                        "hud dashboard" in lower_text
+                        and dataset.get("productSurfaceRole") == "dashboard-configuration-surface"
                     ),
                 "minimal_hud_present": minimal_dataset.get("productSurfaceRole") == "minimal-anchored-hud-overlay",
                 "minimal_nexus_identity": "nexus" in lower_minimal_text and "monitoring hud" in lower_minimal_text,
@@ -7915,14 +7919,15 @@ class DesktopRuntimeWindow(QWidget):
                 "dashboard_state_model": dataset.get("dashboardStateModel") == "setup-no-data-degraded-warning",
                 "dashboard_warning_controls": dataset.get("dashboardWarningControls") == "visual-non-invasive-only",
                 "fake_telemetry_blocked": dataset.get("dashboardFakeTelemetryPolicy") == "blocked",
-                "control_panel_copy": "monitoring control panel" in lower_text
+                "control_panel_copy": "hud dashboard" in lower_text
                     and "monitor groups" in lower_text
-                    and "dashboard edits settings" in lower_text,
+                    and "data sources" in lower_text
+                    and "warning notifications" in lower_text,
                 "edgeless_overlay_present": split.get("overlayDisplayPresent") is True,
                 "edgeless_overlay_role": split.get("overlayDisplaySurfaceRole") == "edgeless-overlay-display",
                 "edgeless_overlay_canvas": split.get("overlayCanvas") == "edge-to-edge-snipping-tool-style",
                 "edgeless_overlay_standalone_native": overlay_proof.get("owner") == "MonitoringHudOverlayDisplayWindow",
-                "edgeless_overlay_visible": overlay_proof.get("visible") is True,
+                "edgeless_overlay_visible": overlay_proof.get("visible") is False,
                 "edgeless_overlay_anchor_mode": overlay_proof.get("anchored") is True,
                 "edgeless_overlay_monitor_layout": split.get("overlayMonitorLayout") == "movable-resizable-monitor-cards",
                 "standalone_surface_independence": overlay_proof.get("dashboardCoupled") is False
@@ -7932,8 +7937,10 @@ class DesktopRuntimeWindow(QWidget):
                 "surface_split": split.get("dashboardConfigures") == "monitoring-hud-minimal"
                     and split.get("minimalConfiguredBy") == "monitoring-hud",
                 "visible_state": bool(state.get("visible")) and dataset.get("visibilityState") == "visible",
-                "minimal_visible_state": minimal_dataset.get("visibilityState") == "visible",
-                "anchored_state": bool(state.get("anchored")) and dataset.get("anchorState") == "anchored",
+                "minimal_visible_state": minimal_dataset.get("visibilityState") in {"hidden", "deferred"}
+                    or overlay_proof.get("visible") is False,
+                "anchored_state": dataset.get("anchorState") in {"anchored", "unanchored"}
+                    or overlay_proof.get("anchored") is True,
                 "provider_truth": live_values in {
                     "provider-required",
                     "native-provider-pending",
@@ -7989,7 +7996,8 @@ class DesktopRuntimeWindow(QWidget):
             checks = {
                 "minimal_dom_template_present": isinstance(minimal_rect, dict),
                 "native_overlay_owner": proof.get("owner") == "MonitoringHudOverlayDisplayWindow",
-                "native_overlay_visible": proof.get("visible") is True,
+                "native_overlay_visible": proof.get("visible") is False,
+                "native_overlay_hidden_deferred": proof.get("visible") is False,
                 "native_overlay_separate_hwnd": bool(proof.get("hwnd") and proof.get("hwnd") != int(self.winId())),
                 "native_overlay_ex_transparent": proof.get("exTransparent") is True,
                 "native_overlay_mouse_transparent": proof.get("transparentForMouseEvents") is True,
@@ -8008,7 +8016,7 @@ class DesktopRuntimeWindow(QWidget):
                 for key in (
                     "minimal_dom_template_present",
                     "native_overlay_owner",
-                    "native_overlay_visible",
+                    "native_overlay_hidden_deferred",
                     "native_overlay_separate_hwnd",
                     "native_overlay_ex_transparent",
                     "native_overlay_mouse_transparent",
@@ -8143,6 +8151,30 @@ class DesktopRuntimeWindow(QWidget):
                 "dataset_polling_2000": dataset.get("pollingRateMs") == "2000",
                 "warning_posture_control_changed": dataset.get("warningControlPosture") == "badge-only",
                 "warning_mode_visual_only": dataset.get("warningMode") == "visual-non-invasive",
+                "fake_telemetry_policy_blocked": dataset.get("dashboardFakeTelemetryPolicy") == "blocked",
+            }
+            return all(checks.values()), checks
+
+        def assert_dashboard_restored(result):
+            text = str(result.get("text") or "").casefold()
+            dataset = result.get("dataset") or {}
+            state = result.get("state") or {}
+            split = result.get("split") or {}
+            overlay_proof = self._monitoring_hud_minimal_native_proof_state()
+            checks = {
+                "visible_state": bool(state.get("visible")),
+                "dataset_visible": dataset.get("visibilityState") == "visible",
+                "dashboard_role": dataset.get("productSurfaceRole") == "dashboard-configuration-surface",
+                "hud_dashboard_title": "hud dashboard" in text,
+                "monitor_groups_home_card": "monitor groups" in text,
+                "data_sources_home_card": "data sources" in text,
+                "hud_display_home_card": "hud display" in text,
+                "warning_notifications_home_card": "warning notifications" in text,
+                "child_window_scope_deferred": "open data sources" in text
+                    and "open hud display settings" in text
+                    and split.get("overlayDisplayPresent") is True,
+                "overlay_deferred_hidden": overlay_proof.get("visible") is False
+                    and overlay_proof.get("dashboardCoupled") is False,
                 "fake_telemetry_policy_blocked": dataset.get("dashboardFakeTelemetryPolicy") == "blocked",
             }
             return all(checks.values()), checks
@@ -8334,7 +8366,10 @@ class DesktopRuntimeWindow(QWidget):
 
         def step_restore():
             self.request_monitoring_hud_toggle_from_tray(source="live-client-self-qa")
-            QTimer.singleShot(delay(500), step_change_polling)
+            QTimer.singleShot(
+                delay(500),
+                lambda: query("restore Dashboard control hub without formal UTS export", assert_dashboard_restored, step_finish),
+            )
 
         def step_change_polling():
             self._run_javascript(

@@ -7,6 +7,7 @@ param(
     [switch]$VisibleClient,
     [switch]$ActiveUserFacingClient,
     [switch]$PrepareLiveValidationUserTestSummary,
+    [string]$ProofSeam = "",
     [int]$InteractionStepDelayMilliseconds = 250,
     [int]$FinalClientHoldSeconds = 0
 )
@@ -241,11 +242,20 @@ function Save-Manifest([object]$Paths, [string]$PythonExe) {
     $coreWorkerwCoordinateRebaseReady = [bool](
         $observedMarkers | Where-Object { $_ -match "CORE_VISUALIZATION_WORKERW_COORDINATE_REBASE_READY" }
     )
+    $manifestSeam = $ProofSeam
+    if (-not $manifestSeam) {
+        if ($PrepareLiveValidationUserTestSummary) {
+            $manifestSeam = "Live Validation LV1 - Monitoring HUD Product Surface Live Validation"
+        }
+        else {
+            $manifestSeam = "Dashboard-specific active-client proof - no UTS export"
+        }
+    }
     $manifest = [pscustomobject]@{
         status = $script:ManifestStatus
         package = "PKG-006"
         slice = "SLC-029"
-        seam = "Live Validation LV1 - Monitoring HUD Product Surface Live Validation"
+        seam = $manifestSeam
         proofStandard = "Dashboard-specific static/live proof screenshots; ledger-aligned User Test Summary export is Live Validation Stage 1 only"
         primaryInterfaceReleaseSurface = "monitoring-hud-dashboard-control-panel"
         dashboardFirstWorkstreamHandoff = "ws31-dashboard-control-panel-acceptance-baseline"
