@@ -1203,8 +1203,8 @@ FAM006_ELEMENT_VALIDATION_LEDGER_REQUIRED_PHRASES = (
 FAM006_ELEMENT_LEDGER_REQUIRED_PHRASES = (
     "# FAM-006 Element Validation Ledger",
     "Owner Record: `Docs/branch_records/feature_fam_006_monitoring_hud_product_surface.md`",
-    "Ledger Status: `WS47 real-client tray shortcut and proof-governance repair recorded - Hardening/LV1 rerun required before acceptance`",
-    "Current Gate: `WS47 Workstream Repair Complete / Hardening Rerun Required",
+    "Ledger Status: `H1 pressure-tested WS47 real-client tray shortcut and proof-governance repair - refreshed LV1 required before acceptance`",
+    "Current Gate: `Hardening H1 Green After WS47 / Live Validation LV1 Required",
     "Latest Completed Workstream Seam: `Workstream WS47 - Dashboard Real-Client Tray Shortcut And Proof-Governance Repair`",
     "Prior Gate Superseded: `Returned refreshed User Test Summary results required before LV2 returned User Test Summary digestion`",
     "LV2 returned User Test Summary digestion must not proceed from Codex proof alone",

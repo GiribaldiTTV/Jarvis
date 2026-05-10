@@ -9078,6 +9078,17 @@ class DesktopRuntimeWindow(QWidget):
         if not self.desktop_mode or self._is_shutting_down:
             return
 
+        if not self._monitoring_hud_feature_enabled or not self._monitoring_hud_visible:
+            if self.webview.isVisible():
+                self.webview.hide()
+            if self.isVisible():
+                self.hide()
+            self._log_event(
+                "RENDERER_MAIN|DESKTOP_GEOMETRY_RESET_SKIPPED"
+                "|reason=monitoring_hud_dashboard_hidden"
+            )
+            return
+
         target_geometry = self.compute_compact_geometry()
         hwnd = int(self.winId())
 
