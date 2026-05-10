@@ -5738,6 +5738,7 @@ class DesktopRuntimeWindow(QWidget):
         self._monitoring_hud_live_page_state: dict[str, object] = {}
         self._monitoring_hud_native_anchor_click_pending = False
         self._monitoring_hud_native_anchor_click_expected = True
+        self._monitoring_hud_tray_menu_guard_active = False
         self._monitoring_hud_minimal_native_overlay = (
             MonitoringHudOverlayDisplayWindow(screen, event_logger)
             if self.surface_role == "hud"
@@ -6256,6 +6257,33 @@ class DesktopRuntimeWindow(QWidget):
             SetWindowLongW(hwnd, GWL_EXSTYLE, style)
         except Exception:
             return
+
+    def set_monitoring_hud_tray_menu_interaction_guard(self, active: bool, source: str = "tray_menu"):
+        if self.surface_role != "hud":
+            return
+        self._monitoring_hud_tray_menu_guard_active = bool(active)
+        self.setAttribute(Qt.WA_TransparentForMouseEvents, bool(active))
+        style = 0
+        try:
+            hwnd = ctypes.wintypes.HWND(int(self.winId()))
+            style = int(GetWindowLongW(hwnd, GWL_EXSTYLE))
+            if active:
+                style |= WS_EX_TRANSPARENT
+            else:
+                style &= ~WS_EX_TRANSPARENT
+            SetWindowLongW(hwnd, GWL_EXSTYLE, style)
+        except Exception:
+            style = 0
+        self._emit_runtime_signal(
+            "MONITORING_HUD_TRAY_MENU_INTERACTION_GUARD_READY",
+            package="PKG-006",
+            slice="SLC-027",
+            seam="WS48",
+            source=source,
+            active=bool(active),
+            transparent_for_mouse=bool(self.testAttribute(Qt.WA_TransparentForMouseEvents)),
+            ex_transparent=bool(style & WS_EX_TRANSPARENT),
+        )
 
     def _monitoring_hud_native_ownership_state(self) -> dict[str, object]:
         style = 0

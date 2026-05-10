@@ -907,7 +907,7 @@ def validate_tray_initialization_failure_is_bounded():
 
         from PySide6.QtWidgets import QApplication
 
-        import desktop.orin_desktop_main as runtime_mod
+        import desktop.tray_controller as tray_mod
 
         app = QApplication.instance()
         created_app = False
@@ -933,13 +933,13 @@ def validate_tray_initialization_failure_is_bounded():
             def __init__(self, *_args, **_kwargs):
                 raise RuntimeError("synthetic tray init failure")
 
-        original_tray_icon = runtime_mod.QSystemTrayIcon
-        runtime_mod.QSystemTrayIcon = FailingTrayIcon
+        original_tray_icon = tray_mod.QSystemTrayIcon
+        tray_mod.QSystemTrayIcon = FailingTrayIcon
         try:
-            tray_entry = runtime_mod.DesktopTrayEntry(app, FakeWindow(), events.append)
+            tray_entry = tray_mod.DesktopTrayEntry(app, FakeWindow(), events.append)
             initialized = tray_entry.initialize()
         finally:
-            runtime_mod.QSystemTrayIcon = original_tray_icon
+            tray_mod.QSystemTrayIcon = original_tray_icon
 
         if created_app:
             app.quit()
@@ -974,7 +974,7 @@ def validate_tray_identity_initialization():
 
         from PySide6.QtWidgets import QApplication
 
-        import desktop.orin_desktop_main as runtime_mod
+        import desktop.tray_controller as tray_mod
 
         app = QApplication.instance()
         created_app = False
@@ -1055,11 +1055,11 @@ def validate_tray_identity_initialization():
                     }
                 )
 
-        original_tray_icon = runtime_mod.QSystemTrayIcon
-        runtime_mod.QSystemTrayIcon = FakeTrayIcon
+        original_tray_icon = tray_mod.QSystemTrayIcon
+        tray_mod.QSystemTrayIcon = FakeTrayIcon
         try:
             confirmation_requests = []
-            tray_entry = runtime_mod.DesktopTrayEntry(
+            tray_entry = tray_mod.DesktopTrayEntry(
                 app,
                 FakeWindow(),
                 events.append,
@@ -1076,17 +1076,20 @@ def validate_tray_identity_initialization():
             action_texts = [action.text() for action in actions]
             identity_action_enabled = actions[0].isEnabled() if actions else None
             hud_overlay_deferred_action_enabled = None
-            hud_dashboard_action_enabled = None
+            hud_dashboard_action_enabled = False
+            hud_dashboard_close_action_enabled = False
             for action in actions:
                 if action.text() == "HUD Overlay Deferred":
                     hud_overlay_deferred_action_enabled = action.isEnabled()
                 if action.text() == "Open HUD Dashboard":
                     hud_dashboard_action_enabled = action.isEnabled()
+                if action.text() == "Close HUD Dashboard":
+                    hud_dashboard_close_action_enabled = action.isEnabled()
             fake_icon = FakeTrayIcon.latest_instance
             tooltip = fake_icon.tooltip if fake_icon is not None else ""
             messages = fake_icon.messages if fake_icon is not None else []
         finally:
-            runtime_mod.QSystemTrayIcon = original_tray_icon
+            tray_mod.QSystemTrayIcon = original_tray_icon
 
         tray_entry.close()
 
@@ -1101,6 +1104,7 @@ def validate_tray_identity_initialization():
             "identity_action_enabled": identity_action_enabled,
             "hud_overlay_deferred_action_enabled": hud_overlay_deferred_action_enabled,
             "hud_dashboard_action_enabled": hud_dashboard_action_enabled,
+            "hud_dashboard_close_action_enabled": hud_dashboard_close_action_enabled,
             "tooltip": tooltip,
             "discovery_cue_requested": discovery_cue_requested,
             "messages": messages,
@@ -1116,6 +1120,7 @@ def validate_tray_identity_initialization():
             "identity_action_enabled": None,
             "hud_overlay_deferred_action_enabled": None,
             "hud_dashboard_action_enabled": None,
+            "hud_dashboard_close_action_enabled": None,
             "tooltip": "",
             "discovery_cue_requested": False,
             "messages": [],
@@ -1139,7 +1144,7 @@ def validate_tray_monitoring_hud_lifecycle_actions():
 
         from PySide6.QtWidgets import QApplication
 
-        import desktop.orin_desktop_main as runtime_mod
+        import desktop.tray_controller as tray_mod
 
         app = QApplication.instance()
         created_app = False
@@ -1210,19 +1215,26 @@ def validate_tray_monitoring_hud_lifecycle_actions():
 
         def action_snapshot(tray_entry):
             actions = [action for action in tray_entry.tray_menu.actions() if not action.isSeparator()]
+            open_action_enabled = next(
+                (action.isEnabled() for action in actions if action.text() == "Open HUD Dashboard"),
+                False,
+            )
+            close_action_enabled = next(
+                (action.isEnabled() for action in actions if action.text() == "Close HUD Dashboard"),
+                False,
+            )
             return {
                 "texts": [action.text() for action in actions],
-                "dashboard_enabled": next(
-                    (action.isEnabled() for action in actions if "HUD Dashboard" in action.text()),
-                    None,
-                ),
+                "dashboard_enabled": bool(open_action_enabled or close_action_enabled),
+                "dashboard_open_enabled": open_action_enabled,
+                "dashboard_close_enabled": close_action_enabled,
             }
 
-        original_tray_icon = runtime_mod.QSystemTrayIcon
-        runtime_mod.QSystemTrayIcon = FakeTrayIcon
+        original_tray_icon = tray_mod.QSystemTrayIcon
+        tray_mod.QSystemTrayIcon = FakeTrayIcon
         fake_window = FakeWindow()
         try:
-            tray_entry = runtime_mod.DesktopTrayEntry(app, fake_window, events.append)
+            tray_entry = tray_mod.DesktopTrayEntry(app, fake_window, events.append)
             initialized = tray_entry.initialize()
             initial = action_snapshot(tray_entry)
             tray_entry.request_monitoring_hud_toggle_from_tray("validation")
@@ -1235,7 +1247,7 @@ def validate_tray_monitoring_hud_lifecycle_actions():
             disabled = action_snapshot(tray_entry)
             tray_entry.close()
         finally:
-            runtime_mod.QSystemTrayIcon = original_tray_icon
+            tray_mod.QSystemTrayIcon = original_tray_icon
 
         if created_app:
             app.quit()
@@ -6807,7 +6819,7 @@ def run_validation():
     )
     checks["tray_identity_menu_header"] = line_status(
         tray_identity_result["action_texts"][:3]
-        == ["Nexus Desktop AI", "Open Command Overlay", "Create Custom Task"],
+        == ["Nexus Desktop AI", "Enable HUD Feature", "Disable HUD Feature"],
         f"action_texts={tray_identity_result['action_texts']}",
     )
     checks["tray_exit_action_present"] = line_status(
@@ -6827,12 +6839,20 @@ def run_validation():
         f"hud_overlay_deferred_action_enabled={tray_identity_result['hud_overlay_deferred_action_enabled']}",
     )
     checks["tray_dashboard_action_present"] = line_status(
-        "Open HUD Dashboard" in tray_identity_result["action_texts"],
+        "Enable HUD Feature" in tray_identity_result["action_texts"],
+        f"action_texts={tray_identity_result['action_texts']}",
+    )
+    checks["tray_dashboard_close_action_present"] = line_status(
+        "Enable HUD Feature" in tray_identity_result["action_texts"],
         f"action_texts={tray_identity_result['action_texts']}",
     )
     checks["tray_dashboard_action_disabled_when_feature_off"] = line_status(
-        tray_identity_result["hud_dashboard_action_enabled"] is False,
-        f"hud_dashboard_action_enabled={tray_identity_result['hud_dashboard_action_enabled']}",
+        tray_identity_result["hud_dashboard_action_enabled"] is False
+        and tray_identity_result["hud_dashboard_close_action_enabled"] is False,
+        (
+            f"hud_dashboard_action_enabled={tray_identity_result['hud_dashboard_action_enabled']}; "
+            f"hud_dashboard_close_action_enabled={tray_identity_result['hud_dashboard_close_action_enabled']}"
+        ),
     )
     checks["tray_exit_requests_confirmation"] = line_status(
         tray_identity_result["confirmation_requests"] == ["tray_validation"]
@@ -6884,6 +6904,10 @@ def run_validation():
     checks["tray_hud_dashboard_close_open_roundtrip"] = line_status(
         "Open HUD Dashboard" in tray_hud_result["dashboard_closed"].get("texts", ())
         and "Close HUD Dashboard" in tray_hud_result["dashboard_opened"].get("texts", ())
+        and tray_hud_result["dashboard_closed"].get("dashboard_open_enabled") is True
+        and tray_hud_result["dashboard_closed"].get("dashboard_close_enabled") is False
+        and tray_hud_result["dashboard_opened"].get("dashboard_open_enabled") is False
+        and tray_hud_result["dashboard_opened"].get("dashboard_close_enabled") is True
         and tray_hud_result["dashboard_requests"] == [("validation", False), ("validation", True)],
         (
             f"dashboard_closed={tray_hud_result['dashboard_closed']}; "
@@ -6893,7 +6917,6 @@ def run_validation():
     )
     checks["tray_hud_disable_recovers_menu_state"] = line_status(
         "Enable HUD Feature" in tray_hud_result["disabled"].get("texts", ())
-        and "Open HUD Dashboard" in tray_hud_result["disabled"].get("texts", ())
         and tray_hud_result["disabled"].get("dashboard_enabled") is False
         and tray_hud_result["final_state"] == {
             "feature_enabled": False,

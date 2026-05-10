@@ -349,6 +349,10 @@ FAM006_WS47_HEADING = (
     "Workstream WS47 Dashboard Real-Client Tray Shortcut And Proof-Governance Repair"
 )
 FAM006_WS47_NEXT_SEAM = "Hardening H1 - Monitoring HUD Product Surface Hardening Rerun"
+FAM006_WS48_HEADING = (
+    "Returned LV1 Denial And WS48 Human-Client Validation Closeout"
+)
+FAM006_WS48_NEXT_SEAM = "Hardening H1 - Monitoring HUD Product Surface Hardening Rerun"
 FAM006_H1_HEADING = "Hardening H1 Dashboard-First Product Surface Rerun"
 FAM006_H1_NEXT_SEAM = (
     "Live Validation LV1 - Monitoring HUD Product Surface Live Validation Rerun"
@@ -1037,6 +1041,34 @@ FAM006_WS47_REQUIRED_PHRASES = (
     "Next Legal Seam:",
     FAM006_WS47_NEXT_SEAM,
 )
+FAM006_WS48_REQUIRED_PHRASES = (
+    "Returned USER Result:",
+    "USER denied the LV1 handoff",
+    "LV1 Disposition:",
+    "Stale / denied for acceptance",
+    "FAM006-RUI-042",
+    "FAM006-RUI-043",
+    "Human-client validation manifest",
+    "dev/logs/fam_006_human_client_validation/20260510_034725_127/human_client_manifest.json",
+    "Tray Controller Refactor:",
+    "desktop/tray_controller.py",
+    "Real-Client Proof Summary:",
+    "actual desktop shortcut launch",
+    "visible native tray menu",
+    "visible shortcut launch",
+    "visible tray/menu actions",
+    "mouse movement/click/drag/resize",
+    "Formal UTS Boundary:",
+    "must not be refreshed again until USER admits Hardening",
+    "Dashboard Acceptance State:",
+    "Blocked",
+    "LV2 Status:",
+    "Blocked - do not proceed as PASS digestion",
+    "Stop Basis:",
+    "Workstream Green",
+    "Next Legal Seam:",
+    FAM006_WS48_NEXT_SEAM,
+)
 FAM006_WORKSTREAM_CONTINUATION_REQUIRED_PHRASES = (
     "multi-slice HUD implementation continuation",
     "WS8 - Monitoring HUD Internal Sandbox Harness And State Matrix Baseline",
@@ -1196,6 +1228,8 @@ FAM006_ELEMENT_VALIDATION_LEDGER_REQUIRED_PHRASES = (
     "FAM006-RUI-039",
     "FAM006-RUI-040",
     "FAM006-RUI-041",
+    "FAM006-RUI-042",
+    "FAM006-RUI-043",
     "actual desktop shortcut",
     "Codex Precheck",
 )
@@ -1203,9 +1237,11 @@ FAM006_ELEMENT_VALIDATION_LEDGER_REQUIRED_PHRASES = (
 FAM006_ELEMENT_LEDGER_REQUIRED_PHRASES = (
     "# FAM-006 Element Validation Ledger",
     "Owner Record: `Docs/branch_records/feature_fam_006_monitoring_hud_product_surface.md`",
-    "Ledger Status: `LV1 issue-grounded UTS handoff generated after WS47 real-client tray shortcut repair and H1 pressure test - returned USER results required before acceptance`",
-    "Current Gate: `Live Validation LV1 Handoff Green / Returned USER Results Required",
-    "Latest Completed Workstream Seam: `Workstream WS47 - Dashboard Real-Client Tray Shortcut And Proof-Governance Repair`",
+    "Ledger Status:",
+    "Workstream WS48 Green",
+    "Current Gate:",
+    "human-client validation PASS",
+    "human-client validation gate satisfied",
     "Prior Gate Superseded: `Returned refreshed User Test Summary results required before LV2 returned User Test Summary digestion`",
     "LV2 returned User Test Summary digestion must not proceed from Codex proof alone",
     "Branch Readiness Stage 1 revalidation passed",
@@ -1276,13 +1312,14 @@ FAM006_ELEMENT_LEDGER_REQUIRED_PHRASES = (
     "FAM006-GOV-SRCMARK-040",
     "FAM006-GOV-REAL-CLIENT-PROOF-063",
     "FAM006-GOV-RUI-REGISTER-064",
+    "FAM006-GOV-HUMAN-CLIENT-065",
+    "FAM006-GOV-UI-ISSUE-DISCOVERY-066",
     "FAM006-FUTURE-PROVIDER-041",
     "FAM006-FUTURE-EXTERNAL-042",
     "FAM006-FUTURE-AUDIO-043",
     "FAM006-FUTURE-PERSONA-044",
     "## UTS Coverage Map",
-    "Current Coverage Status: `LV1 issue-grounded UTS handoff generated with real-client tray/shortcut precheck / returned USER results required before acceptance`",
-    "Latest Completed Workstream Seam: `Workstream WS47 - Dashboard Real-Client Tray Shortcut And Proof-Governance Repair`",
+    "Current Coverage Status: `Workstream WS48 Green - human-client validation gate satisfied for Workstream proof; H1 rerun and future LV1 still required`",
     "## Proof Rebaseline Summary",
     "Returned Step 2 Tray enable/disable/open Dashboard",
     "Returned Step 3 Tray Exit NDAI",
@@ -1328,6 +1365,8 @@ FAM006_REAL_CLIENT_PROOF_GOVERNANCE_REQUIRED_PHRASES = {
         "per-step precheck manifest",
         "Codex Precheck: NOT TESTED",
         "Fake windows, hidden clients, direct callbacks, and offscreen model assertions can support implementation confidence but cannot be recorded as the sole PASS",
+        "app-side precheck code that calls tray handlers directly is not a human-client pass",
+        "human-client manifest",
     ),
     Path("Docs/validation_helper_registry.md"): (
         "actual desktop shortcut equivalence proof",
@@ -1336,6 +1375,8 @@ FAM006_REAL_CLIENT_PROOF_GOVERNANCE_REQUIRED_PHRASES = {
         "Fake/callback/offscreen proof must be labeled separately from real-client proof",
         "real-client proof-class separation",
         "per-step Codex Precheck PASS/FAIL/NOT TESTED/WAIVED output",
+        "dev/orin_monitoring_hud_human_client_validation.ps1",
+        "human-client manifest is PASS",
     ),
 }
 
@@ -6003,6 +6044,27 @@ def _validate_fam006_stage2_r6_plan(
                     f"'{required_phrase}'"
                 ),
             )
+        ws48_section = _section(text, FAM006_WS48_HEADING)
+        if ws48_section:
+            for phrase in FAM006_WS48_REQUIRED_PHRASES:
+                require(
+                    phrase in ws48_section,
+                    f"{source_path}: {FAM006_WS48_HEADING} is missing '{phrase}'",
+                )
+            require(
+                f"Next Legal Seam: `{FAM006_WS48_NEXT_SEAM}`" in text,
+                f"{source_path}: LV1 denial must set next legal seam to WS48",
+            )
+            require(
+                "Returned LV1 Handoff Denied" in text,
+                f"{source_path}: LV1 denial must keep Returned LV1 Handoff Denied guard active",
+            )
+            require(
+                "Human-Client Validation Manifest Required Before LV1 Handoff" in text,
+                f"{source_path}: LV1 denial must require human-client validation before next UTS handoff",
+            )
+            return
+
         ws47_section = _section(text, FAM006_WS47_HEADING)
         if ws47_section:
             for phrase in FAM006_WS47_REQUIRED_PHRASES:
@@ -13679,7 +13741,7 @@ def main() -> int:
             f"{FAM006_BRANCH_RECORD}: FAM-006 Element Validation Ledger is missing '{required_phrase}'",
         )
 
-    for issue_id in (f"FAM006-RUI-{index:03d}" for index in range(1, 42)):
+    for issue_id in (f"FAM006-RUI-{index:03d}" for index in range(1, 44)):
         require(
             issue_id in fam006_branch_text,
             f"{FAM006_BRANCH_RECORD}: Returned USER Issue Register is missing '{issue_id}'",

@@ -1036,6 +1036,7 @@ Routing:
 
 For relevant desktop user-facing workstreams, Codex must perform a live-client self-QA pass before handing the feature to the USER for a formal User Test Summary.
 The pass is not a substitute for USER acceptance, but it is Codex-owned product validation: Codex must inspect the launched UI as if it were a user and judge quality, usability, platform uniformity, naming cleanliness, interaction posture, cleanup, and evidence quality before asking the USER to spend time testing.
+For desktop UI branches, this inspection must be human-client faithful when the USER will operate visible tray/menu/window behavior. Codex cannot mark Live Validation Stage 1 green from app-side callbacks, fake/offscreen models, marker-only proof, screenshot-only proof, or direct handler calls. The final LV1 handoff requires a manifest that records visible desktop shortcut launch, visible tray/menu selection, mouse/cursor or UIAutomation-backed interaction evidence, window move/resize/open/close evidence where applicable, screenshot or frame-sequence artifacts, and Codex's own visual review of every issue-grounded UTS item. Missing human-client evidence is a Live Validation failure unless USER explicitly waives it.
 
 Named blocker:
 

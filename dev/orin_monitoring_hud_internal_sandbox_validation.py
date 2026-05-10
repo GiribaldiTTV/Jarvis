@@ -90,7 +90,7 @@ def _validate_static_surface(failures: list[str]) -> None:
     js = _read("nexus_visual/monitoring_hud.js")
     renderer = _read("desktop/desktop_renderer.py")
     core_renderer = _read("desktop/core_visualization_renderer.py")
-    tray = _read("desktop/orin_desktop_main.py")
+    tray = _read("desktop/orin_desktop_main.py") + "\n" + _read("desktop/tray_controller.py")
 
     for needle in (
         "Primary Interface Release Surface: `Monitoring HUD Dashboard / control panel`",
@@ -483,6 +483,7 @@ def _validate_static_surface(failures: list[str]) -> None:
         "SHUTDOWN_CONFIRMATION_DIALOG_VISIBLE",
         "REAL_CLIENT_TRAY_PRECHECK_MANIFEST_ENV",
         "REAL_CLIENT_TRAY_PRECHECK_STARTED",
+        "from desktop.tray_controller import DesktopTrayEntry, TRAY_IDENTITY_LABEL",
     ):
         _require_contains(tray, needle, "desktop launcher Core/HUD failure isolation", failures)
 
@@ -516,10 +517,14 @@ def _validate_static_surface(failures: list[str]) -> None:
         'surface_role="hud"',
         "Enable HUD Feature",
         "Open HUD Dashboard",
-        "Unanchor Monitoring HUD",
+        "Close HUD Dashboard",
+        "HUD Overlay Deferred",
+        "Unanchor HUD Overlay",
         "TRAY_MONITORING_HUD_TOGGLE_REQUESTED",
         "TRAY_MONITORING_HUD_DASHBOARD_REQUESTED",
         "TRAY_MONITORING_HUD_UNANCHOR_REQUESTED",
+        "dashboard_open_action_enabled",
+        "dashboard_close_action_enabled",
     ):
         _require_contains(tray, needle, "desktop tray HUD controls", failures)
 

@@ -357,7 +357,7 @@ function Save-UserTestSummaryHandoff([object]$Paths) {
         New-Item -ItemType Directory -Force -Path $desktopRoot | Out-Null
     }
 
-    $precheckManifestPath = Join-Path $rootDir "dev\logs\desktop_entrypoint_validation\real_client_tray_shortcut\real_client_tray_precheck_manifest.json"
+    $precheckManifestPath = Join-Path $rootDir "dev\logs\fam_006_human_client_validation\latest_manifest.json"
     $precheckById = @{}
     $precheckManifestStatus = "NOT TESTED"
     $precheckManifestSummary = "Codex Precheck Manifest: NOT TESTED - desktop shortcut/tray precheck manifest was not found at $precheckManifestPath."
@@ -377,14 +377,17 @@ function Save-UserTestSummaryHandoff([object]$Paths) {
                     $proofClassPairs += "$($property.Name)=$($property.Value)"
                 }
             }
-            $precheckManifestSummary = "Codex Precheck Manifest: $precheckManifestStatus - $precheckManifestPath"
+            $precheckManifestSummary = "Codex Human-Client Precheck Manifest: $precheckManifestStatus - $precheckManifestPath"
             $precheckProofClassesSummary = "Proof Classes: $($proofClassPairs -join '; ')"
         }
         catch {
             $precheckManifestStatus = "FAIL"
-            $precheckManifestSummary = "Codex Precheck Manifest: FAIL - unable to parse $precheckManifestPath ($($_.Exception.Message))."
+            $precheckManifestSummary = "Codex Human-Client Precheck Manifest: FAIL - unable to parse $precheckManifestPath ($($_.Exception.Message))."
             $precheckProofClassesSummary = "Proof Classes: FAIL - manifest parse error."
         }
+    }
+    if ($precheckManifestStatus -ne "PASS") {
+        throw "Live Validation LV1 UTS export blocked: missing or failed Codex human-client precheck manifest at $precheckManifestPath. Run dev\orin_monitoring_hud_human_client_validation.ps1 and repair any FAIL steps before generating the formal UTS."
     }
 
     function Format-ShortcutPrecheckLine([string[]]$StepIds, [string]$FallbackReason) {
@@ -398,6 +401,9 @@ function Save-UserTestSummaryHandoff([object]$Paths) {
             }
             $step = $precheckById[$stepId]
             $status = [string]$step.codexPrecheck
+            if ([string]::IsNullOrWhiteSpace($status)) {
+                $status = [string]$step.status
+            }
             $proofClass = [string]$step.proofClass
             $details += "$stepId=$status ($proofClass)"
             if ($status -ne "PASS") {
@@ -405,12 +411,12 @@ function Save-UserTestSummaryHandoff([object]$Paths) {
             }
         }
         if ($missing.Count -gt 0) {
-            return "Codex Precheck: NOT TESTED - missing actual desktop shortcut / real tray precheck step(s): $($missing -join ', '). $FallbackReason"
+            return "Codex Precheck: NOT TESTED - missing human-client shortcut/tray/window precheck step(s): $($missing -join ', '). $FallbackReason"
         }
         if ($failed.Count -gt 0) {
-            return "Codex Precheck: FAIL through actual desktop shortcut / real tray path - $($failed -join '; ')."
+            return "Codex Precheck: FAIL through human-client mouse/shortcut/tray path - $($failed -join '; ')."
         }
-        return "Codex Precheck: PASS through actual desktop shortcut / real tray path - $($details -join '; ')."
+        return "Codex Precheck: PASS through human-client mouse/shortcut/tray path - $($details -join '; ')."
     }
 
     $precheckStep1 = Format-ShortcutPrecheckLine @("launch_settled_tray_available") "LV1 cannot claim unrestricted green handoff for shortcut launch without USER waiver."

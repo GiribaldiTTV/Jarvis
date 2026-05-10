@@ -1,5 +1,6 @@
 import os
 import sys
+import ctypes
 import datetime
 import json
 import threading
@@ -11,13 +12,14 @@ ROOT_DIR = os.path.dirname(CURRENT_DIR)
 if ROOT_DIR not in sys.path:
     sys.path.insert(0, ROOT_DIR)
 
-from PySide6.QtGui import QAction, QCursor
+from PySide6.QtGui import QCursor
 from PySide6.QtCore import QObject, QTimer, Qt, Signal, Slot
-from PySide6.QtWidgets import QApplication, QMenu, QMessageBox, QStyle, QSystemTrayIcon
+from PySide6.QtWidgets import QApplication, QMessageBox
 
 from desktop.core_visualization_renderer import CoreVisualizationWindow
 from desktop.hotkeys import ShutdownBus, GlobalHotkeyManager
 from desktop.single_instance import NamedSignal
+from desktop.tray_controller import DesktopTrayEntry, TRAY_IDENTITY_LABEL
 
 try:
     from desktop.desktop_renderer import DesktopRuntimeWindow
@@ -34,12 +36,6 @@ MONITORING_HUD_LIVE_SELF_QA_STEP_DELAY_MS = 250
 MONITORING_HUD_LIVE_SELF_QA_FINAL_HOLD_MS = 0
 RUNTIME_RELAUNCH_EVENT = r"Local\NexusRuntimeRelaunchRequestV1"
 RUNTIME_DESKTOP_SETTLED_EVENT = r"Local\NexusRuntimeDesktopSettledV1"
-TRAY_IDENTITY_LABEL = "Nexus Desktop AI"
-TRAY_DISCOVERY_MESSAGE = (
-    "Nexus Desktop AI is running in the Windows notification area. "
-    "If you do not see the icon, open hidden icons (^)."
-)
-TRAY_DISCOVERY_DURATION_MS = 4500
 AUTHORITATIVE_DESKTOP_SETTLED_MARKER = "DESKTOP_OUTCOME|SETTLED|state=dormant"
 MONITORING_HUD_STARTUP_ENV = "NEXUS_MONITORING_HUD_STARTUP_ENABLED"
 SHUTDOWN_CONFIRMATION_DECISION_ENV = "NEXUS_SHUTDOWN_CONFIRMATION_DECISION"
@@ -286,6 +282,37 @@ def resolve_core_visualization_screen(app):
 
 def _show_shutdown_confirmation_dialog(timeout_ms, event_logger=None, source="hotkey"):
     safe_source = str(source or "hotkey").replace("|", "_")
+    timeout_ms = max(1000, int(timeout_ms))
+    if os.name == "nt":
+        try:
+            user32 = ctypes.windll.user32
+            message_box_timeout = getattr(user32, "MessageBoxTimeoutW")
+            flags = 0x00000004 | 0x00000030 | 0x00000100 | 0x00010000 | 0x00040000
+            if callable(event_logger):
+                event_logger(
+                    "RENDERER_MAIN|SHUTDOWN_CONFIRMATION_DIALOG_VISIBLE"
+                    f"|source={safe_source}|timeout_ms={timeout_ms}|implementation=win32_message_box_timeout"
+                )
+            result = message_box_timeout(
+                None,
+                "Choose Yes to close the desktop runtime, or No to keep the current session running.",
+                "Confirm shutdown",
+                flags,
+                0,
+                timeout_ms,
+            )
+            if result == 6:
+                return SHUTDOWN_CONFIRMATION_ACCEPTED
+            if result == 32000:
+                return SHUTDOWN_CONFIRMATION_TIMEOUT
+            return SHUTDOWN_CONFIRMATION_CANCELLED
+        except Exception as exc:
+            if callable(event_logger):
+                event_logger(
+                    "RENDERER_MAIN|SHUTDOWN_CONFIRMATION_NATIVE_FALLBACK"
+                    f"|source={safe_source}|reason={type(exc).__name__}"
+                )
+
     message_box = QMessageBox()
     message_box.setWindowTitle("Confirm shutdown")
     message_box.setText("Shut down Nexus Desktop AI?")
@@ -312,7 +339,7 @@ def _show_shutdown_confirmation_dialog(timeout_ms, event_logger=None, source="ho
     timer = QTimer(message_box)
     timer.setSingleShot(True)
     timer.timeout.connect(expire_confirmation)
-    timer.start(max(1000, int(timeout_ms)))
+    timer.start(timeout_ms)
 
     try:
         message_box.show()
@@ -327,7 +354,7 @@ def _show_shutdown_confirmation_dialog(timeout_ms, event_logger=None, source="ho
         if callable(event_logger):
             event_logger(
                 "RENDERER_MAIN|SHUTDOWN_CONFIRMATION_DIALOG_VISIBLE"
-                f"|source={safe_source}|timeout_ms={max(1000, int(timeout_ms))}"
+                f"|source={safe_source}|timeout_ms={timeout_ms}|implementation=qt_message_box"
             )
         result = message_box.exec()
     finally:
@@ -386,267 +413,6 @@ def real_client_tray_precheck_manifest_path():
 def real_client_tray_precheck_exits_after_run():
     value = (os.environ.get(REAL_CLIENT_TRAY_PRECHECK_EXIT_ENV) or "").strip().casefold()
     return value in {"1", "true", "yes", "on"}
-
-
-class DesktopTrayEntry:
-    def __init__(self, app, window, event_logger=None, shutdown_confirmation_requester=None):
-        self.app = app
-        self.window = window
-        self.event_logger = event_logger or (lambda _event: None)
-        self.shutdown_confirmation_requester = (
-            shutdown_confirmation_requester if callable(shutdown_confirmation_requester) else None
-        )
-        self.tray_icon = None
-        self.tray_menu = None
-        self.identity_action = None
-        self.open_overlay_action = None
-        self.create_custom_task_action = None
-        self.monitoring_hud_toggle_action = None
-        self.monitoring_hud_dashboard_action = None
-        self.monitoring_hud_unanchor_action = None
-        self.exit_action = None
-        self._discovery_cue_shown = False
-
-    def _emit(self, event):
-        try:
-            self.event_logger(event)
-        except Exception:
-            pass
-
-    def initialize(self):
-        self._emit("RENDERER_MAIN|TRAY_ENTRY_INITIALIZE_REQUESTED")
-        try:
-            tray_available = QSystemTrayIcon.isSystemTrayAvailable()
-
-            if not tray_available:
-                self._emit("RENDERER_MAIN|TRAY_ENTRY_READY|available=false")
-                return False
-
-            icon = self.app.windowIcon()
-            if icon.isNull():
-                icon = self.app.style().standardIcon(QStyle.SP_ComputerIcon)
-
-            self.tray_menu = QMenu(TRAY_IDENTITY_LABEL)
-            self.tray_menu.setTitle(TRAY_IDENTITY_LABEL)
-            self.identity_action = QAction(TRAY_IDENTITY_LABEL, self.tray_menu)
-            self.identity_action.setEnabled(False)
-            self.tray_menu.addAction(self.identity_action)
-            self.tray_menu.addSeparator()
-            self.open_overlay_action = QAction("Open Command Overlay", self.tray_menu)
-            self.open_overlay_action.triggered.connect(
-                lambda _checked=False: self.request_overlay_from_tray("menu")
-            )
-            self.tray_menu.addAction(self.open_overlay_action)
-            self.create_custom_task_action = QAction("Create Custom Task", self.tray_menu)
-            self.create_custom_task_action.triggered.connect(
-                lambda _checked=False: self.request_create_custom_task_from_tray("menu")
-            )
-            self.tray_menu.addAction(self.create_custom_task_action)
-            self.tray_menu.addSeparator()
-            self.monitoring_hud_toggle_action = QAction("Enable HUD Feature", self.tray_menu)
-            self.monitoring_hud_toggle_action.triggered.connect(
-                lambda _checked=False: self.request_monitoring_hud_toggle_from_tray("menu")
-            )
-            self.tray_menu.addAction(self.monitoring_hud_toggle_action)
-            self.monitoring_hud_dashboard_action = QAction("Open HUD Dashboard", self.tray_menu)
-            self.monitoring_hud_dashboard_action.triggered.connect(
-                lambda _checked=False: self.request_monitoring_hud_dashboard_from_tray("menu")
-            )
-            self.tray_menu.addAction(self.monitoring_hud_dashboard_action)
-            self.monitoring_hud_unanchor_action = QAction("Unanchor Monitoring HUD", self.tray_menu)
-            self.monitoring_hud_unanchor_action.triggered.connect(
-                lambda _checked=False: self.request_monitoring_hud_unanchor_from_tray("menu")
-            )
-            self.tray_menu.addAction(self.monitoring_hud_unanchor_action)
-            self.tray_menu.addSeparator()
-            self.exit_action = QAction("Exit Nexus Desktop AI", self.tray_menu)
-            self.exit_action.triggered.connect(
-                lambda _checked=False: self.request_shutdown_from_tray("menu")
-            )
-            self.tray_menu.addAction(self.exit_action)
-            self.refresh_monitoring_hud_actions("initialize")
-
-            self.tray_icon = QSystemTrayIcon(icon, self.app)
-            self.tray_icon.setToolTip(TRAY_IDENTITY_LABEL)
-            self.tray_icon.setContextMenu(self.tray_menu)
-            self.tray_icon.activated.connect(self._handle_activation)
-            self.tray_icon.show()
-            self._emit("RENDERER_MAIN|TRAY_ENTRY_READY|available=true")
-            self._emit(
-                f"RENDERER_MAIN|TRAY_IDENTITY_READY|label={TRAY_IDENTITY_LABEL}|hidden_overflow_hint=true"
-            )
-            self._emit("RENDERER_MAIN|TRAY_ICON_SHOWN")
-            return True
-        except Exception as exc:
-            self.close()
-            self._emit(
-                f"RENDERER_MAIN|TRAY_ENTRY_READY|available=false|reason={type(exc).__name__}"
-            )
-            return False
-
-    def _handle_activation(self, reason):
-        reason_name = getattr(reason, "name", str(reason))
-        trigger_reason = QSystemTrayIcon.ActivationReason.Trigger
-        double_click_reason = QSystemTrayIcon.ActivationReason.DoubleClick
-        if reason in (trigger_reason, double_click_reason):
-            self.request_overlay_from_tray(f"activation_{reason_name}")
-            return
-
-        self._emit(f"RENDERER_MAIN|TRAY_ACTIVATION_IGNORED|reason={reason_name}")
-
-    def request_overlay_from_tray(self, source):
-        self._emit(f"RENDERER_MAIN|TRAY_ACTIVATION_REQUESTED|source={source}")
-        self.window.toggle_command_overlay()
-        self._emit(f"RENDERER_MAIN|TRAY_ACTIVATION_ROUTED_TO_OVERLAY|source={source}")
-
-    def request_create_custom_task_from_tray(self, source):
-        self._emit(f"RENDERER_MAIN|TRAY_CREATE_CUSTOM_TASK_REQUESTED|source={source}")
-        self.window.request_create_custom_task_from_tray(source=source)
-
-    def _monitoring_hud_state(self):
-        provider = getattr(self.window, "monitoring_hud_feature_state", None)
-        if callable(provider):
-            try:
-                state = provider()
-                if isinstance(state, dict):
-                    return state
-            except Exception:
-                pass
-        return {
-            "feature_enabled": False,
-            "dashboard_visible": False,
-            "overlay_deferred": True,
-            "overlay_anchor_enabled": False,
-        }
-
-    def refresh_monitoring_hud_actions(self, source="runtime"):
-        if (
-            self.monitoring_hud_toggle_action is None
-            or self.monitoring_hud_dashboard_action is None
-            or self.monitoring_hud_unanchor_action is None
-        ):
-            return
-        state = self._monitoring_hud_state()
-        feature_enabled = bool(state.get("feature_enabled"))
-        dashboard_visible = bool(state.get("dashboard_visible"))
-        overlay_deferred = state.get("overlay_deferred", True) is not False
-        overlay_anchor_enabled = bool(state.get("overlay_anchor_enabled")) and not overlay_deferred
-        self.monitoring_hud_toggle_action.setText(
-            "Disable HUD Feature" if feature_enabled else "Enable HUD Feature"
-        )
-        self.monitoring_hud_dashboard_action.setText(
-            "Close HUD Dashboard" if dashboard_visible else "Open HUD Dashboard"
-        )
-        self.monitoring_hud_dashboard_action.setEnabled(feature_enabled)
-        self.monitoring_hud_unanchor_action.setText(
-            "HUD Overlay Deferred" if overlay_deferred else "Unanchor HUD Overlay"
-        )
-        self.monitoring_hud_unanchor_action.setEnabled(feature_enabled and overlay_anchor_enabled)
-        self._emit(
-            "RENDERER_MAIN|TRAY_MONITORING_HUD_ACTIONS_REFRESHED"
-            f"|source={source}"
-            f"|feature_enabled={str(feature_enabled).lower()}"
-            f"|dashboard_visible={str(dashboard_visible).lower()}"
-            f"|dashboard_action_enabled={str(self.monitoring_hud_dashboard_action.isEnabled()).lower()}"
-            f"|overlay_deferred={str(overlay_deferred).lower()}"
-            f"|overlay_anchor_enabled={str(overlay_anchor_enabled).lower()}"
-        )
-
-    def request_monitoring_hud_toggle_from_tray(self, source):
-        self._emit(f"RENDERER_MAIN|TRAY_MONITORING_HUD_TOGGLE_REQUESTED|source={source}")
-        self.window.request_monitoring_hud_toggle_from_tray(source=source)
-        self.refresh_monitoring_hud_actions(source)
-
-    def request_monitoring_hud_dashboard_from_tray(self, source):
-        state = self._monitoring_hud_state()
-        feature_enabled = bool(state.get("feature_enabled"))
-        dashboard_visible = bool(state.get("dashboard_visible"))
-        if not feature_enabled:
-            self._emit(
-                f"RENDERER_MAIN|TRAY_MONITORING_HUD_DASHBOARD_ABORTED|source={source}|reason=feature_disabled"
-            )
-            self.refresh_monitoring_hud_actions(source)
-            return
-        next_visible = not dashboard_visible
-        self._emit(
-            "RENDERER_MAIN|TRAY_MONITORING_HUD_DASHBOARD_REQUESTED"
-            f"|source={source}|visible={str(next_visible).lower()}"
-        )
-        handler = getattr(self.window, "request_monitoring_hud_dashboard_from_tray", None)
-        if not callable(handler):
-            self._emit(
-                f"RENDERER_MAIN|TRAY_MONITORING_HUD_DASHBOARD_ABORTED|source={source}|reason=handler_unavailable"
-            )
-            return
-        handler(source=source, visible=next_visible)
-        self.refresh_monitoring_hud_actions(source)
-
-    def request_monitoring_hud_unanchor_from_tray(self, source):
-        state = self._monitoring_hud_state()
-        if state.get("overlay_deferred", True) is not False:
-            self._emit(f"RENDERER_MAIN|TRAY_MONITORING_HUD_UNANCHOR_DEFERRED|source={source}|reason=overlay_deferred")
-            return
-        self._emit(f"RENDERER_MAIN|TRAY_MONITORING_HUD_UNANCHOR_REQUESTED|source={source}")
-        self.window.request_monitoring_hud_unanchor_from_tray(source=source)
-        self.refresh_monitoring_hud_actions(source)
-
-    def request_shutdown_from_tray(self, source):
-        self._emit(f"RENDERER_MAIN|TRAY_SHUTDOWN_CONFIRMATION_REQUESTED|source={source}")
-        if self.shutdown_confirmation_requester is None:
-            self._emit(
-                f"RENDERER_MAIN|TRAY_SHUTDOWN_CONFIRMATION_UNAVAILABLE|source={source}"
-            )
-            return
-        self.shutdown_confirmation_requester(f"tray_{source}")
-
-    def show_discovery_cue(self):
-        if self.tray_icon is None:
-            self._emit("RENDERER_MAIN|TRAY_DISCOVERY_CUE_SKIPPED|reason=tray_unavailable")
-            return False
-
-        if self._discovery_cue_shown:
-            self._emit("RENDERER_MAIN|TRAY_DISCOVERY_CUE_SKIPPED|reason=already_shown")
-            return False
-
-        self._discovery_cue_shown = True
-        try:
-            supports_messages = QSystemTrayIcon.supportsMessages()
-        except Exception:
-            supports_messages = True
-
-        if not supports_messages:
-            self._emit("RENDERER_MAIN|TRAY_DISCOVERY_CUE_SKIPPED|reason=messages_unavailable")
-            return False
-
-        try:
-            message_icon = getattr(getattr(QSystemTrayIcon, "MessageIcon", object), "Information", None)
-            if message_icon is None:
-                message_icon = getattr(QSystemTrayIcon, "Information", 1)
-            self.tray_icon.showMessage(
-                TRAY_IDENTITY_LABEL,
-                TRAY_DISCOVERY_MESSAGE,
-                message_icon,
-                TRAY_DISCOVERY_DURATION_MS,
-            )
-            self._emit("RENDERER_MAIN|TRAY_DISCOVERY_CUE_REQUESTED|hidden_overflow_hint=true")
-            return True
-        except Exception as exc:
-            self._emit(
-                f"RENDERER_MAIN|TRAY_DISCOVERY_CUE_FAILED|reason={type(exc).__name__}"
-            )
-            return False
-
-    def close(self):
-        if self.tray_icon is None:
-            return
-
-        try:
-            self.tray_icon.hide()
-            self._emit("RENDERER_MAIN|TRAY_ICON_HIDDEN")
-        except Exception as exc:
-            self._emit(f"RENDERER_MAIN|TRAY_ICON_HIDE_FAILED|reason={type(exc).__name__}")
-        finally:
-            self.tray_icon = None
 
 
 def startup_abort_requested():
