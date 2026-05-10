@@ -1974,7 +1974,7 @@ Workstream WS46 includes static HUD validation, internal sandbox proof, a hidden
 ## Live Validation LV1 Monitoring HUD Product Surface Live Validation Rerun
 
 - LV1 Admission: `PASS - USER approved Live Validation LV1 execution for the Monitoring HUD Product Surface rerun only`
-- LV1 Result: `Green for formal User Test Summary handoff generation only - Dashboard acceptance, package completion, LV2, PR Readiness, release, and Overlay/display acceptance remain unclaimed`
+- LV1 Result: `Green for Codex pre-handoff Dashboard verification and formal User Test Summary handoff generation only - current-scope Codex tests are green or explicitly deferred/future; USER Dashboard acceptance, package completion, LV2, PR Readiness, release, and Overlay/display acceptance remain unclaimed`
 - Fresh Proof Root: `dev/logs/fam_006_monitoring_hud_live_validation/20260510_130711_432`
 - USER Screenshot Folder: `C:\Users\anden\OneDrive\Pictures\Screenshots\Nexus Desktop AI\fam_006_monitoring_hud_live_validation\20260510_130711_432`
 - Formal UTS Handoff Path: `C:\Users\anden\OneDrive\Desktop\User Test Summary.txt`
@@ -1991,7 +1991,8 @@ Workstream WS46 includes static HUD validation, internal sandbox proof, a hidden
 - Overlay Status: `Deferred/dormant/non-gating - LV1 does not admit Overlay/display release acceptance`
 - Core Status: `Dependency-only - ORIN/Core remains supporting desktop-safety proof and is not a released FAM-006 interface`
 - Formal LV2 Boundary: `Preserved - LV1 generates the handoff only; returned-result digestion remains Live Validation LV2-only after USER returns PASS/FAIL/WAIVED results or explicit waiver`
-- Dashboard Acceptance State: `Still unclaimed - USER must return PASS/WAIVED results or explicit waiver before LV2 may digest acceptance`
+- Codex Dashboard Pre-Handoff Verification: `Green - all current-scope Codex tests and issue-grounded prechecks are green; only explicitly deferred/future items remain outside current acceptance scope`
+- USER Dashboard Acceptance State: `Pending - no USER waiver has been granted; USER must return PASS/FAIL/WAIVED results before LV2 may digest the handoff`
 - PKG-006 Status: `In Progress`
 - Package Completion: `Unclaimed`
 - PR Readiness: `Blocked`
@@ -2007,21 +2008,22 @@ Workstream WS46 includes static HUD validation, internal sandbox proof, a hidden
 - User Test Summary Handoff: `C:\Users\anden\OneDrive\Desktop\User Test Summary.txt`
 - User Test Summary Scope: `Dashboard-first Monitoring HUD product surface only; Overlay/display remains deferred/non-gating, ORIN/Core remains dependency-only, Dev Toolkit Interface Review Mode remains future/supporting, NCP placement/persistence remains deferred unless current FAM-006 behavior visibly causes the issue.`
 - User Test Summary Codex Precheck: `PASS - issue-grounded handoff includes RUI-001 through RUI-047 with per-step Codex Precheck lines; human-client manifest dev/logs/fam_006_human_client_validation/20260510_130259_909/human_client_manifest.json and desktop entrypoint report dev/logs/desktop_entrypoint_validation/reports/DesktopEntrypointValidationReport_20260510_133418.txt prove the actual desktop shortcut, visible tray, Dashboard open/close, Dashboard movement/resize, NCP button interaction, tray duplicate-dialog guard, Disable HUD recovery, Exit confirmation cancel/accept paths, and stable launcher ownership proof before USER testing.`
-- User Test Summary Result Gate: `LV2, Dashboard acceptance, package completion, PR Readiness, and release readiness remain blocked until USER returns PASS/FAIL/WAIVED results or explicit waiver and Codex digests them in LV2.`
+- User Test Summary Result Gate: `LV2, USER Dashboard acceptance, package completion, PR Readiness, and release readiness remain blocked until USER returns PASS/FAIL/WAIVED results and Codex digests them in LV2. No USER waiver is currently granted.`
 
 ## Live Validation LV1 Additional Issue-by-Issue Verification Sweep
 
 - LV1 Sweep Admission: `PASS - USER requested an LV1 verification sweep of every issue raised in USER messages, grouped by problem while preserving the numbered Returned USER Issue Register trace.`
-- LV1 Sweep Result: `PASS for Codex precheck / not Dashboard acceptance - RUI-001 through RUI-047 remain issue-grounded; visual/user-judgment items still require returned USER PASS/FAIL/WAIVED results before LV2 may digest acceptance.`
+- LV1 Sweep Result: `PASS for Codex pre-handoff Dashboard verification - RUI-001 through RUI-047 remain issue-grounded, current-scope Codex tests are green, and deferred/future items are explicitly non-blocking for this branch; USER Dashboard acceptance still requires returned PASS/FAIL/WAIVED results before LV2 may digest the handoff.`
 - Human-Client Validation Manifest: `PASS - dev/logs/fam_006_human_client_validation/20260510_135113_259/human_client_manifest.json`
 - Desktop Entrypoint / Real Tray Report: `PASS - dev/logs/desktop_entrypoint_validation/reports/DesktopEntrypointValidationReport_20260510_141013.txt; real-client tray shortcut precheck proves launch settled, Enable HUD opens the real Dashboard, Close/Open Dashboard toggles the visible Dashboard, Disable HUD recovers, and tray Exit confirmation timeout/cancel preserves the session.`
 - Live Helper Startup Proof: `PASS - dev/logs/fam_006_monitoring_hud_live_validation/20260510_140412_006; default LV1 live helper now requires Dashboard-first markers plus Overlay deferral and records deferred Overlay runtime markers as optional/non-gating support.`
 - Active User-Facing Client Proof: `PASS - dev/logs/fam_006_monitoring_hud_live_validation/20260510_140434_731; active-client self-QA passed with Dashboard standalone travel, clipping boundary, Core/Overlay decoupling, interaction markers, before/after full-desktop screenshots, and copied USER-inspectable screenshot evidence.`
 - LV1 Helper Governance Repair: `PASS - dev/orin_monitoring_hud_live_validation.ps1 no longer blocks Dashboard-first LV1 on deferred Overlay native-window markers; dev/orin_monitoring_hud_surface_validation.py now validates the Dashboard-first screenshot wording. Marker-only proof and optional Overlay support remain insufficient for Dashboard acceptance.`
 - Numbered Issue Coverage: `PASS - current UTS and issue register include FAM006-RUI-001 through FAM006-RUI-047; no Codex Precheck FAIL or NOT TESTED lines are present in the active UTS, while deferred/future items remain explicitly scoped out of current Dashboard acceptance.`
-- Formal UTS Boundary: `Preserved - this sweep did not digest returned results or claim acceptance; C:\Users\anden\OneDrive\Desktop\User Test Summary.txt remains the formal handoff awaiting USER returned PASS/FAIL/WAIVED results or explicit waiver.`
-- Dashboard Acceptance State: `Still unclaimed - Codex LV1 precheck is green, but final Dashboard acceptance requires returned USER PASS/WAIVED results or explicit waiver and LV2 digestion.`
-- Next Legal Seam: `Live Validation LV2 - FAM-006 Returned User Test Summary Results Digest And Acceptance Classification only after USER returns PASS/FAIL/WAIVED results or explicit waiver.`
+- Formal UTS Boundary: `Preserved - this sweep did not digest returned results or claim USER acceptance; C:\Users\anden\OneDrive\Desktop\User Test Summary.txt remains the formal handoff awaiting USER returned PASS/FAIL/WAIVED results. No USER waiver is currently granted.`
+- Codex Dashboard Pre-Handoff Verification: `Green - current-scope Dashboard tests and issue-grounded Codex prechecks are green; deferred/future items remain explicitly outside this branch handoff.`
+- USER Dashboard Acceptance State: `Pending - final Dashboard acceptance requires returned USER PASS/WAIVED results and LV2 digestion.`
+- Next Legal Seam: `Live Validation LV2 - FAM-006 Returned User Test Summary Results Digest And Acceptance Classification only after USER returns PASS/FAIL/WAIVED results.`
 
 ## Returned LV1 Denial And WS48 Human-Client Validation Closeout
 

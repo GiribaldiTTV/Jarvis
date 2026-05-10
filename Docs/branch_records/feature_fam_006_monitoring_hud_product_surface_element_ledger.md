@@ -8,7 +8,7 @@ Branch: `feature/fam-006-monitoring-hud-product-surface`
 
 Package: `PKG-006 Monitoring and HUD Product Surface Package`
 
-Ledger Status: `Live Validation LV1 Handoff Green - issue-grounded formal UTS generated with real-human prechecks / returned USER results pending before acceptance`
+Ledger Status: `Live Validation LV1 Handoff Green - Codex pre-handoff Dashboard verification is green, issue-grounded formal UTS generated with real-human prechecks, and returned USER results are pending before USER acceptance`
 
 Latest Hardening Rerun: `Green - H1 reran after WS49 and pressure-tested Dashboard/NCP interaction isolation, tray action ordering, authoring-dialog guard, real-human validation proof, proof-class separation, and deferred Overlay/Core boundaries as repo-side confidence only`.
 
@@ -20,7 +20,7 @@ Prior Workstream Repair Preserved For Trace: `Workstream WS37 - Dashboard Runtim
 
 Prior Ledger Status Preserved For Trace: `Backfilled, revalidated, and LV1 handoff refreshed - Live Validation Stage 1`
 
-Current Gate: `Live Validation LV1 handoff PASS / Dashboard acceptance remains unclaimed until USER returns PASS/WAIVED results or explicit waiver and LV2 digests them`
+Current Gate: `Live Validation LV1 handoff PASS / Codex Dashboard pre-handoff verification is green; USER Dashboard acceptance remains pending until USER returns PASS/FAIL/WAIVED results and LV2 digests them. No USER waiver is currently granted.`
 
 Next Legal Seam: `Live Validation LV2 - FAM-006 Returned User Test Summary Results Digest And Acceptance Classification`
 
@@ -176,9 +176,9 @@ Workstream Proof: `Existing WS31-WS46 evidence maps to Dashboard-first rows as s
 
 Hardening Proof: `Current H1 is green after WS49. H1 pressure-tested source truth, static HUD validation, internal sandbox validation, desktop entrypoint/tray proof, saved-action/NCP proof, human-client shortcut/tray/NCP/dialog proof at dev/logs/fam_006_human_client_validation/20260510_123109_860/human_client_manifest.json, and live helper screenshot/manifest proof at dev/logs/fam_006_monitoring_hud_live_validation/20260510_123327_599 without refreshing the formal UTS.`
 
-LV1 Proof: `Green for formal handoff generation only. Current LV1 refreshed C:\Users\anden\OneDrive\Desktop\User Test Summary.txt from real-human precheck proof dev/logs/fam_006_human_client_validation/20260510_130259_909/human_client_manifest.json and active-client proof dev/logs/fam_006_monitoring_hud_live_validation/20260510_130711_432; RUI-001 through RUI-047 are included with per-step Codex prechecks. Acceptance remains unclaimed until USER returns PASS/WAIVED results or explicit waiver and LV2 digests them.`
+LV1 Proof: `Green for Codex pre-handoff Dashboard verification and formal handoff generation only. Current LV1 refreshed C:\Users\anden\OneDrive\Desktop\User Test Summary.txt from real-human precheck proof dev/logs/fam_006_human_client_validation/20260510_130259_909/human_client_manifest.json and active-client proof dev/logs/fam_006_monitoring_hud_live_validation/20260510_130711_432; RUI-001 through RUI-047 are included with per-step Codex prechecks. USER acceptance remains pending until USER returns PASS/FAIL/WAIVED results and LV2 digests them. No USER waiver is currently granted.`
 
-Additional LV1 Issue Sweep: `PASS for Codex precheck / acceptance still pending. USER requested a full by-the-numbers LV1 verification sweep across the Returned USER Issue Register. Fresh proof: human-client manifest dev/logs/fam_006_human_client_validation/20260510_135113_259/human_client_manifest.json, desktop entrypoint/tray report dev/logs/desktop_entrypoint_validation/reports/DesktopEntrypointValidationReport_20260510_141013.txt, default live helper proof dev/logs/fam_006_monitoring_hud_live_validation/20260510_140412_006, and active user-facing client proof dev/logs/fam_006_monitoring_hud_live_validation/20260510_140434_731. Live helper governance was corrected so deferred Overlay native-window markers are recorded as optional/non-gating support while Dashboard-first LV1 requires Overlay deferral and current Dashboard proof markers. RUI-001 through RUI-047 remain mapped; final acceptance still requires USER returned PASS/WAIVED results or explicit waiver and LV2 digestion.`
+Additional LV1 Issue Sweep: `PASS for Codex pre-handoff Dashboard verification / USER acceptance still pending. USER requested a full by-the-numbers LV1 verification sweep across the Returned USER Issue Register. Fresh proof: human-client manifest dev/logs/fam_006_human_client_validation/20260510_135113_259/human_client_manifest.json, desktop entrypoint/tray report dev/logs/desktop_entrypoint_validation/reports/DesktopEntrypointValidationReport_20260510_141013.txt, default live helper proof dev/logs/fam_006_monitoring_hud_live_validation/20260510_140412_006, and active user-facing client proof dev/logs/fam_006_monitoring_hud_live_validation/20260510_140434_731. Live helper governance was corrected so deferred Overlay native-window markers are recorded as optional/non-gating support while Dashboard-first LV1 requires Overlay deferral and current Dashboard proof markers. RUI-001 through RUI-047 remain mapped; final USER acceptance still requires returned PASS/WAIVED results and LV2 digestion. No USER waiver is currently granted.`
 
 LV2 Status: `Blocked. LV2 returned-results digestion must not proceed from Codex proof, screenshots, helper manifests, the current UTS handoff alone, or the denied prior LV1 handoff. LV2 can resume only after returned USER PASS/FAIL/WAIVED results or explicit waiver.`
 
