@@ -342,9 +342,13 @@ FAM006_STAGE2_REAL_CLIENT_HEADING = (
     "Branch Readiness Stage 2 FAM-006 Returned LV1 Real-Client Failure Source-Truth "
     "Issue Register And Ledger Disposition Repair"
 )
-FAM006_WS47_NEXT_SEAM = (
+FAM006_STAGE2_REAL_CLIENT_NEXT_SEAM = (
     "Workstream WS47 - Dashboard Real-Client Tray Shortcut And Proof-Governance Repair"
 )
+FAM006_WS47_HEADING = (
+    "Workstream WS47 Dashboard Real-Client Tray Shortcut And Proof-Governance Repair"
+)
+FAM006_WS47_NEXT_SEAM = "Hardening H1 - Monitoring HUD Product Surface Hardening Rerun"
 FAM006_H1_HEADING = "Hardening H1 Dashboard-First Product Surface Rerun"
 FAM006_H1_NEXT_SEAM = (
     "Live Validation LV1 - Monitoring HUD Product Surface Live Validation Rerun"
@@ -994,6 +998,43 @@ FAM006_STAGE2_REAL_CLIENT_REQUIRED_PHRASES = (
     "Core Status:",
     "Dependency-only",
     "Next Legal Seam:",
+    FAM006_STAGE2_REAL_CLIENT_NEXT_SEAM,
+)
+FAM006_WS47_REQUIRED_PHRASES = (
+    "WS47 Admission:",
+    "USER approved bounded Workstream WS47",
+    "WS47 Result:",
+    "Green for real-client tray shortcut and proof-governance repair",
+    "Runtime / Tray Repair:",
+    "Tray Exit Confirmation Repair:",
+    "Real Shortcut Precheck Proof:",
+    "real_client_tray_precheck_manifest.json",
+    "Precheck Step Results:",
+    "Enable HUD Feature opened the real HUD Dashboard",
+    "Proof Class Separation:",
+    "fake/offscreen",
+    "realUserOperatedTrayProof remains USER_LV1_REQUIRED",
+    "Validator / Helper Updates:",
+    "dev/orin_desktop_entrypoint_validation.py",
+    "Element Rows Updated:",
+    "FAM006-TRAY-SHUTDOWN-CONFIRM-055",
+    "FAM006-DASH-TRAY-OPEN-CLOSE-053",
+    "Returned USER Issue Register Updates:",
+    "Formal UTS Boundary:",
+    "WS47 does not generate, refresh, or digest",
+    "Overlay Status:",
+    "Deferred/dormant/non-gating",
+    "Core Status:",
+    "Dependency-only",
+    "Dashboard Acceptance State:",
+    "Still blocked",
+    "Package Completion:",
+    "Unclaimed",
+    "Continue Decision:",
+    "Stop at phase boundary",
+    "Continuation Execution Latch:",
+    "Inactive - WS47 is Green / Hardening phase-boundary stop",
+    "Next Legal Seam:",
     FAM006_WS47_NEXT_SEAM,
 )
 FAM006_WORKSTREAM_CONTINUATION_REQUIRED_PHRASES = (
@@ -1162,9 +1203,9 @@ FAM006_ELEMENT_VALIDATION_LEDGER_REQUIRED_PHRASES = (
 FAM006_ELEMENT_LEDGER_REQUIRED_PHRASES = (
     "# FAM-006 Element Validation Ledger",
     "Owner Record: `Docs/branch_records/feature_fam_006_monitoring_hud_product_surface.md`",
-    "Ledger Status: `Returned LV1 real-client failures recorded - WS47 Workstream repair required before Hardening/LV1 rerun`",
-    "Current Gate: `Returned LV1 Real-Client Failure / WS47 Workstream Repair Required",
-    "Latest Completed Workstream Seam: `Workstream WS46 - Dashboard Returned-Feedback Static Live Proof Readiness`",
+    "Ledger Status: `WS47 real-client tray shortcut and proof-governance repair recorded - Hardening/LV1 rerun required before acceptance`",
+    "Current Gate: `WS47 Workstream Repair Complete / Hardening Rerun Required",
+    "Latest Completed Workstream Seam: `Workstream WS47 - Dashboard Real-Client Tray Shortcut And Proof-Governance Repair`",
     "Prior Gate Superseded: `Returned refreshed User Test Summary results required before LV2 returned User Test Summary digestion`",
     "LV2 returned User Test Summary digestion must not proceed from Codex proof alone",
     "Branch Readiness Stage 1 revalidation passed",
@@ -1240,8 +1281,8 @@ FAM006_ELEMENT_LEDGER_REQUIRED_PHRASES = (
     "FAM006-FUTURE-AUDIO-043",
     "FAM006-FUTURE-PERSONA-044",
     "## UTS Coverage Map",
-    "Current Coverage Status: `Returned LV1 real-client FAIL / WS47 Workstream repair required before Hardening and refreshed LV1`",
-    "Latest Completed Workstream Seam: `Workstream WS46 - Dashboard Returned-Feedback Static Live Proof Readiness`",
+    "Current Coverage Status: `WS47 Workstream repair complete for real-client tray/shortcut precheck / Hardening and refreshed LV1 required before USER acceptance`",
+    "Latest Completed Workstream Seam: `Workstream WS47 - Dashboard Real-Client Tray Shortcut And Proof-Governance Repair`",
     "## Proof Rebaseline Summary",
     "Returned Step 2 Tray enable/disable/open Dashboard",
     "Returned Step 3 Tray Exit NDAI",
@@ -5962,6 +6003,46 @@ def _validate_fam006_stage2_r6_plan(
                     f"'{required_phrase}'"
                 ),
             )
+        ws47_section = _section(text, FAM006_WS47_HEADING)
+        if ws47_section:
+            for phrase in FAM006_WS47_REQUIRED_PHRASES:
+                require(
+                    phrase in ws47_section,
+                    f"{source_path}: {FAM006_WS47_HEADING} is missing '{phrase}'",
+                )
+            require(
+                (
+                    f"Active seam: `{FAM006_WS47_NEXT_SEAM}`" in text
+                    or "Active seam: `Phase Boundary Stop - Hardening H1 Handoff Ready`" in text
+                ),
+                f"{source_path}: WS47 completion must advance active seam or phase-boundary stop to Hardening H1",
+            )
+            require(
+                f"Next Legal Seam: `{FAM006_WS47_NEXT_SEAM}`" in text,
+                f"{source_path}: WS47 completion must set next legal seam to Hardening H1",
+            )
+            require(
+                f"Next Active Seam: {FAM006_WS47_NEXT_SEAM}" in text,
+                f"{source_path}: WS47 completion must set Seam Continuation Decision next active seam to Hardening H1",
+            )
+            require(
+                "Completion Status: Green" in _section(text, "Seam Continuation Decision"),
+                f"{source_path}: WS47 completion must mark Workstream completion green",
+            )
+            require(
+                "Continue Decision: Stop" in _section(text, "Seam Continuation Decision"),
+                f"{source_path}: WS47 completion must stop at the Workstream-to-Hardening phase boundary",
+            )
+            require(
+                "Hardening H1 requires explicit USER admission" in text,
+                f"{source_path}: WS47 completion must preserve explicit USER Hardening admission requirement",
+            )
+            require(
+                "WS47 does not generate, refresh, or digest" in text,
+                f"{source_path}: WS47 completion must prove no formal UTS export occurred in Workstream",
+            )
+            return
+
         ws46_section = _section(text, FAM006_WS46_HEADING)
         if ws46_section:
             for phrase in FAM006_WS46_REQUIRED_PHRASES:

@@ -1,6 +1,7 @@
 import os
 import sys
 import datetime
+import json
 import threading
 import time
 
@@ -10,7 +11,7 @@ ROOT_DIR = os.path.dirname(CURRENT_DIR)
 if ROOT_DIR not in sys.path:
     sys.path.insert(0, ROOT_DIR)
 
-from PySide6.QtGui import QAction
+from PySide6.QtGui import QAction, QCursor
 from PySide6.QtCore import QObject, QTimer, Qt, Signal, Slot
 from PySide6.QtWidgets import QApplication, QMenu, QMessageBox, QStyle, QSystemTrayIcon
 
@@ -43,6 +44,8 @@ AUTHORITATIVE_DESKTOP_SETTLED_MARKER = "DESKTOP_OUTCOME|SETTLED|state=dormant"
 MONITORING_HUD_STARTUP_ENV = "NEXUS_MONITORING_HUD_STARTUP_ENABLED"
 SHUTDOWN_CONFIRMATION_DECISION_ENV = "NEXUS_SHUTDOWN_CONFIRMATION_DECISION"
 SHUTDOWN_CONFIRMATION_TIMEOUT_ENV = "NEXUS_SHUTDOWN_CONFIRMATION_TIMEOUT_MS"
+REAL_CLIENT_TRAY_PRECHECK_MANIFEST_ENV = "NEXUS_MONITORING_HUD_REAL_CLIENT_TRAY_PRECHECK_MANIFEST"
+REAL_CLIENT_TRAY_PRECHECK_EXIT_ENV = "NEXUS_MONITORING_HUD_REAL_CLIENT_TRAY_PRECHECK_EXIT"
 SHUTDOWN_CONFIRMATION_ACCEPTED = "accepted"
 SHUTDOWN_CONFIRMATION_CANCELLED = "cancelled"
 SHUTDOWN_CONFIRMATION_TIMEOUT = "timeout"
@@ -281,7 +284,8 @@ def resolve_core_visualization_screen(app):
     return primary or screens[0], "primary-fallback"
 
 
-def _show_shutdown_confirmation_dialog(timeout_ms):
+def _show_shutdown_confirmation_dialog(timeout_ms, event_logger=None, source="hotkey"):
+    safe_source = str(source or "hotkey").replace("|", "_")
     message_box = QMessageBox()
     message_box.setWindowTitle("Confirm shutdown")
     message_box.setText("Shut down Nexus Desktop AI?")
@@ -293,7 +297,11 @@ def _show_shutdown_confirmation_dialog(timeout_ms):
     message_box.setDefaultButton(QMessageBox.StandardButton.No)
     message_box.setEscapeButton(QMessageBox.StandardButton.No)
     message_box.setWindowModality(Qt.WindowModality.ApplicationModal)
-    message_box.setWindowFlag(Qt.WindowType.WindowStaysOnTopHint, True)
+    message_box.setWindowFlags(
+        message_box.windowFlags()
+        | Qt.WindowType.Window
+        | Qt.WindowType.WindowStaysOnTopHint
+    )
 
     timed_out = {"value": False}
 
@@ -308,8 +316,19 @@ def _show_shutdown_confirmation_dialog(timeout_ms):
 
     try:
         message_box.show()
+        screen = QApplication.screenAt(QCursor.pos()) or QApplication.primaryScreen()
+        if screen is not None:
+            geometry = message_box.frameGeometry()
+            geometry.moveCenter(screen.availableGeometry().center())
+            message_box.move(geometry.topLeft())
         message_box.raise_()
         message_box.activateWindow()
+        QApplication.processEvents()
+        if callable(event_logger):
+            event_logger(
+                "RENDERER_MAIN|SHUTDOWN_CONFIRMATION_DIALOG_VISIBLE"
+                f"|source={safe_source}|timeout_ms={max(1000, int(timeout_ms))}"
+            )
         result = message_box.exec()
     finally:
         timer.stop()
@@ -357,6 +376,15 @@ def monitoring_hud_startup_enabled():
     if MONITORING_HUD_LIVE_SELF_QA_MANIFEST:
         return True
     value = (os.environ.get(MONITORING_HUD_STARTUP_ENV) or "").strip().casefold()
+    return value in {"1", "true", "yes", "on"}
+
+
+def real_client_tray_precheck_manifest_path():
+    return (os.environ.get(REAL_CLIENT_TRAY_PRECHECK_MANIFEST_ENV) or "").strip()
+
+
+def real_client_tray_precheck_exits_after_run():
+    value = (os.environ.get(REAL_CLIENT_TRAY_PRECHECK_EXIT_ENV) or "").strip().casefold()
     return value in {"1", "true", "yes", "on"}
 
 
@@ -656,6 +684,7 @@ def main():
 
     app = QApplication(sys.argv)
     app.setApplicationName(TRAY_IDENTITY_LABEL)
+    app.setQuitOnLastWindowClosed(False)
     try:
         app.setApplicationDisplayName(TRAY_IDENTITY_LABEL)
     except Exception:
@@ -765,7 +794,11 @@ def main():
                 )
                 decision = env_decision
             else:
-                decision = _show_shutdown_confirmation_dialog(shutdown_confirmation_timeout_ms())
+                decision = _show_shutdown_confirmation_dialog(
+                    shutdown_confirmation_timeout_ms(),
+                    event_logger=runtime_milestone,
+                    source=safe_source,
+                )
 
             for marker in shutdown_confirmation_runtime_markers(decision, safe_source):
                 runtime_milestone(marker)
@@ -826,6 +859,164 @@ def main():
     print("Command Overlay: Ctrl + Alt + Home or Ctrl + Alt + 1")
     print("Hotkey: Ctrl + Alt + End or Ctrl + Alt + 2 (direct shutdown; tray exit asks for confirmation)")
 
+    real_client_tray_precheck_started = False
+
+    def run_real_client_tray_precheck():
+        nonlocal real_client_tray_precheck_started
+        manifest_path = real_client_tray_precheck_manifest_path()
+        if not manifest_path or real_client_tray_precheck_started or shutdown_started:
+            return
+        real_client_tray_precheck_started = True
+        runtime_milestone("RENDERER_MAIN|REAL_CLIENT_TRAY_PRECHECK_STARTED|seam=WS47")
+
+        started_at = datetime.datetime.now(datetime.timezone.utc).isoformat()
+        steps = []
+
+        def pump(duration_ms=250):
+            deadline = time.time() + (max(0, duration_ms) / 1000.0)
+            while time.time() < deadline:
+                QApplication.processEvents()
+                time.sleep(0.025)
+
+        def current_state():
+            provider = getattr(window, "monitoring_hud_feature_state", None)
+            if callable(provider):
+                try:
+                    state = provider()
+                    if isinstance(state, dict):
+                        return dict(state)
+                except Exception as exc:
+                    return {"error": f"{type(exc).__name__}: {exc}"}
+            return {"error": "monitoring_hud_feature_state unavailable"}
+
+        def record_step(step_id, title, ok, detail, proof_class="active-client-tray-precheck"):
+            steps.append(
+                {
+                    "id": step_id,
+                    "title": title,
+                    "codexPrecheck": "PASS" if ok else "FAIL",
+                    "proofClass": proof_class,
+                    "detail": detail,
+                    "state": current_state(),
+                }
+            )
+
+        def write_manifest(status, failure=""):
+            payload = {
+                "schema": "fam006-ws47-real-client-tray-precheck-v1",
+                "status": status,
+                "failure": failure,
+                "startedAt": started_at,
+                "finishedAt": datetime.datetime.now(datetime.timezone.utc).isoformat(),
+                "seam": "Workstream WS47 - Dashboard Real-Client Tray Shortcut And Proof-Governance Repair",
+                "shortcutPath": r"C:\Users\anden\OneDrive\Desktop\Nexus Desktop Launcher.lnk",
+                "proofClasses": {
+                    "staticProof": "supporting",
+                    "sandboxProof": "supporting",
+                    "fakeOffscreenModelProof": "supporting-only-not-acceptance",
+                    "activeClientTrayPrecheck": status,
+                    "realUserOperatedTrayProof": "USER_LV1_REQUIRED",
+                },
+                "steps": steps,
+                "formalUtsTouched": False,
+            }
+            try:
+                os.makedirs(os.path.dirname(os.path.abspath(manifest_path)), exist_ok=True)
+                with open(manifest_path, "w", encoding="utf-8") as handle:
+                    json.dump(payload, handle, indent=2, sort_keys=True)
+                runtime_milestone(
+                    "RENDERER_MAIN|REAL_CLIENT_TRAY_PRECHECK_MANIFEST_WRITTEN"
+                    f"|status={status}|path={manifest_path}"
+                )
+            except Exception as exc:
+                runtime_milestone(
+                    "RENDERER_MAIN|REAL_CLIENT_TRAY_PRECHECK_MANIFEST_FAILED"
+                    f"|reason={type(exc).__name__}"
+                )
+
+        try:
+            tray_entry.refresh_monitoring_hud_actions("real_client_precheck_initial")
+            initial_state = current_state()
+            record_step(
+                "launch_settled_tray_available",
+                "Desktop shortcut runtime settled with tray available",
+                tray_entry.tray_icon is not None and not bool(initial_state.get("feature_enabled")),
+                "tray icon exists and HUD feature starts disabled",
+            )
+
+            tray_entry.request_monitoring_hud_toggle_from_tray("real_client_precheck_enable")
+            pump(700)
+            enabled_state = current_state()
+            record_step(
+                "enable_hud_opens_dashboard",
+                "Tray Enable HUD Feature opens the real HUD Dashboard",
+                bool(enabled_state.get("feature_enabled"))
+                and bool(enabled_state.get("dashboard_visible"))
+                and bool(window.isVisible()),
+                f"feature_enabled={enabled_state.get('feature_enabled')} dashboard_visible={enabled_state.get('dashboard_visible')} window_visible={window.isVisible()}",
+            )
+
+            tray_entry.request_monitoring_hud_dashboard_from_tray("real_client_precheck_close")
+            pump(350)
+            closed_state = current_state()
+            record_step(
+                "close_dashboard_from_tray",
+                "Tray Close HUD Dashboard hides the real Dashboard without disabling the feature",
+                bool(closed_state.get("feature_enabled"))
+                and not bool(closed_state.get("dashboard_visible"))
+                and not bool(window.isVisible()),
+                f"feature_enabled={closed_state.get('feature_enabled')} dashboard_visible={closed_state.get('dashboard_visible')} window_visible={window.isVisible()}",
+            )
+
+            tray_entry.request_monitoring_hud_dashboard_from_tray("real_client_precheck_open")
+            pump(500)
+            reopened_state = current_state()
+            record_step(
+                "open_dashboard_from_tray",
+                "Tray Open HUD Dashboard makes the real Dashboard visible",
+                bool(reopened_state.get("feature_enabled"))
+                and bool(reopened_state.get("dashboard_visible"))
+                and bool(window.isVisible()),
+                f"feature_enabled={reopened_state.get('feature_enabled')} dashboard_visible={reopened_state.get('dashboard_visible')} window_visible={window.isVisible()}",
+            )
+
+            tray_entry.request_monitoring_hud_toggle_from_tray("real_client_precheck_disable")
+            pump(500)
+            disabled_state = current_state()
+            record_step(
+                "disable_hud_recovers",
+                "Tray Disable HUD Feature hides Dashboard and leaves runtime recoverable",
+                not bool(disabled_state.get("feature_enabled"))
+                and not bool(disabled_state.get("dashboard_visible"))
+                and not bool(window.isVisible())
+                and not shutdown_started,
+                f"feature_enabled={disabled_state.get('feature_enabled')} dashboard_visible={disabled_state.get('dashboard_visible')} window_visible={window.isVisible()} shutdown_started={shutdown_started}",
+            )
+
+            tray_entry.request_shutdown_from_tray("real_client_precheck_exit")
+            pump(150)
+            record_step(
+                "tray_exit_confirmation_preserves_session_on_timeout",
+                "Tray Exit requests visible confirmation and timeout/cancel preserves the session",
+                not shutdown_started,
+                f"shutdown_started={shutdown_started}",
+                proof_class="active-client-confirmation-dialog-precheck",
+            )
+
+            status = "PASS" if all(step["codexPrecheck"] == "PASS" for step in steps) else "FAIL"
+            write_manifest(status)
+        except Exception as exc:
+            record_step(
+                "real_client_tray_precheck_exception",
+                "Real-client tray precheck exception",
+                False,
+                f"{type(exc).__name__}: {exc}",
+            )
+            write_manifest("FAIL", f"{type(exc).__name__}: {exc}")
+        finally:
+            if real_client_tray_precheck_exits_after_run():
+                QTimer.singleShot(500, do_shutdown)
+
     def settle_passive_default_handoff():
         if exit_if_startup_abort_requested(hotkeys, tray_entry):
             app.quit()
@@ -852,6 +1043,8 @@ def main():
         runtime_milestone("RENDERER_MAIN|STARTUP_READY")
         tray_entry.show_discovery_cue()
         settle_passive_default_handoff()
+        if real_client_tray_precheck_manifest_path():
+            QTimer.singleShot(800, run_real_client_tray_precheck)
 
     window_show_requested = False
 

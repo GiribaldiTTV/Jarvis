@@ -634,6 +634,8 @@ def validate() -> list[str]:
         "MONITORING_HUD_TRAY_ENABLE_DISABLE_ROUNDTRIP_READY",
         "MONITORING_HUD_TRAY_DASHBOARD_OPEN_CLOSE_READY",
         "MONITORING_HUD_DISABLE_RECOVERY_READY",
+        "MONITORING_HUD_REAL_CLIENT_DASHBOARD_VISIBILITY_REQUESTED",
+        "_ensure_monitoring_hud_desktop_mode_for_visible_dashboard",
         "MONITORING_HUD_MONITOR_MANAGEMENT_READY",
         "MONITORING_HUD_WINDOW_STATUS_READY",
         "MONITORING_HUD_WINDOW_OWNERSHIP_FOCUS_READY",
@@ -707,6 +709,10 @@ def validate() -> list[str]:
         'visual_html_path = os.path.join(ROOT_DIR, "nexus_visual", "orin_core_desktop.html")',
         "resolve_core_visualization_screen",
         "CORE_VISUALIZATION_PRESET_MONITOR_SELECTION_READY",
+        "app.setQuitOnLastWindowClosed(False)",
+        "SHUTDOWN_CONFIRMATION_DIALOG_VISIBLE",
+        "REAL_CLIENT_TRAY_PRECHECK_MANIFEST_ENV",
+        "REAL_CLIENT_TRAY_PRECHECK_STARTED",
     ):
         _require_contains(tray, needle, "desktop launcher Core/HUD failure isolation", failures)
 

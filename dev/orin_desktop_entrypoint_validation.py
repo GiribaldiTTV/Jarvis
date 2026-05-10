@@ -17,6 +17,12 @@ ENTRYPOINT_SCRIPT = os.path.join(ROOT_DIR, "launch_orin_desktop.vbs")
 LAUNCHER_SCRIPT = os.path.join(ROOT_DIR, "desktop", "orin_desktop_launcher.pyw")
 DEFAULT_TARGET_SCRIPT = os.path.join(ROOT_DIR, "desktop", "orin_desktop_main.py")
 MAIN_SCRIPT = os.path.join(ROOT_DIR, "main.py")
+DESKTOP_SHORTCUT_PATH = os.path.join(
+    os.path.expanduser("~"),
+    "OneDrive",
+    "Desktop",
+    "Nexus Desktop Launcher.lnk",
+)
 EXPECTED_DEFAULT_TARGET_LINE = re.compile(
     r'DEFAULT_TARGET_SCRIPT\s*=\s*os\.path\.join\(ROOT_DIR,\s*"desktop",\s*"orin_desktop_main\.py"\)'
 )
@@ -1268,6 +1274,103 @@ def validate_tray_monitoring_hud_lifecycle_actions():
             os.environ.pop("QT_QPA_PLATFORM", None)
         else:
             os.environ["QT_QPA_PLATFORM"] = previous_qt_platform
+
+
+def validate_desktop_shortcut_real_client_tray_precheck():
+    scenario_root = os.path.join(BASE_LOG_ROOT, "real_client_tray_shortcut")
+    manifest_path = os.path.join(scenario_root, "real_client_tray_precheck_manifest.json")
+    cleanup_launch_chain_processes_for_log_root(scenario_root)
+    reset_dir(scenario_root)
+
+    if os.name != "nt":
+        return {
+            "ok": False,
+            "status": "NOT_RUN",
+            "manifest_path": manifest_path,
+            "error": "Windows desktop shortcut validation requires Windows",
+            "manifest": {},
+            "runtime_files": [],
+            "processes_after": [],
+        }
+
+    if not os.path.exists(DESKTOP_SHORTCUT_PATH):
+        return {
+            "ok": False,
+            "status": "NOT_RUN",
+            "manifest_path": manifest_path,
+            "error": f"desktop shortcut missing: {DESKTOP_SHORTCUT_PATH}",
+            "manifest": {},
+            "runtime_files": [],
+            "processes_after": [],
+        }
+
+    env = os.environ.copy()
+    env["NEXUS_HARNESS_LOG_ROOT"] = scenario_root
+    env["NEXUS_HARNESS_DISABLE_DIAGNOSTICS"] = "1"
+    env["NEXUS_HARNESS_DISABLE_VOICE"] = "1"
+    env["NEXUS_HARNESS_SUPPRESS_ALREADY_RUNNING_DIALOGS"] = "1"
+    env["NEXUS_MONITORING_HUD_REAL_CLIENT_TRAY_PRECHECK_MANIFEST"] = manifest_path
+    env["NEXUS_MONITORING_HUD_REAL_CLIENT_TRAY_PRECHECK_EXIT"] = "1"
+    env["NEXUS_SHUTDOWN_CONFIRMATION_TIMEOUT_MS"] = "1200"
+
+    launch_result = None
+    try:
+        escaped_shortcut = DESKTOP_SHORTCUT_PATH.replace("'", "''")
+        launch_result = run_hidden_command(
+            [
+                "powershell",
+                "-NoProfile",
+                "-Command",
+                f"Start-Process -FilePath '{escaped_shortcut}'",
+            ],
+            env=env,
+            timeout_seconds=20,
+        )
+    except Exception as exc:
+        return {
+            "ok": False,
+            "status": "LAUNCH_FAILED",
+            "manifest_path": manifest_path,
+            "error": f"{type(exc).__name__}: {exc}",
+            "manifest": {},
+            "runtime_files": [],
+            "processes_after": list_launch_chain_processes_for_log_root(scenario_root),
+        }
+
+    deadline = time.time() + 45.0
+    manifest = {}
+    while time.time() < deadline:
+        if os.path.exists(manifest_path):
+            try:
+                with open(manifest_path, "r", encoding="utf-8") as handle:
+                    manifest = json.load(handle)
+                break
+            except Exception:
+                manifest = {}
+        time.sleep(0.25)
+
+    no_processes, processes_after_wait = wait_for_no_launch_chain_processes_for_log_root(
+        scenario_root,
+        timeout_seconds=8.0,
+    )
+    if not no_processes:
+        _before, _killed, processes_after_wait = cleanup_launch_chain_processes_for_log_root(
+            scenario_root
+        )
+
+    runtime_files = files_matching_sorted(scenario_root, "Runtime_")
+    status = str(manifest.get("status") or "MISSING")
+    return {
+        "ok": bool(status == "PASS" and no_processes),
+        "status": status,
+        "manifest_path": manifest_path,
+        "error": "" if status == "PASS" else f"manifest status={status}",
+        "manifest": manifest,
+        "runtime_files": runtime_files,
+        "processes_after": processes_after_wait,
+        "launch_stdout": (launch_result.stdout or "").strip() if launch_result else "",
+        "launch_stderr": (launch_result.stderr or "").strip() if launch_result else "",
+    }
 
 
 def run_launch_chain_scenario(
@@ -6811,6 +6914,31 @@ def run_validation():
         f"events={tray_hud_events}",
     )
 
+    real_client_tray_result = validate_desktop_shortcut_real_client_tray_precheck()
+    real_client_manifest = real_client_tray_result.get("manifest") or {}
+    real_client_steps = real_client_manifest.get("steps") if isinstance(real_client_manifest, dict) else []
+    checks["desktop_shortcut_real_client_tray_precheck"] = line_status(
+        real_client_tray_result["ok"],
+        (
+            f"status={real_client_tray_result['status']}; "
+            f"manifest={real_client_tray_result['manifest_path']}; "
+            f"error={real_client_tray_result['error'] or 'none'}"
+        ),
+    )
+    checks["desktop_shortcut_real_client_tray_steps_all_pass"] = line_status(
+        bool(real_client_steps)
+        and all(step.get("codexPrecheck") == "PASS" for step in real_client_steps),
+        f"steps={real_client_steps}",
+    )
+    checks["desktop_shortcut_real_client_tray_proof_classes_separated"] = line_status(
+        isinstance(real_client_manifest.get("proofClasses"), dict)
+        and real_client_manifest["proofClasses"].get("fakeOffscreenModelProof")
+        == "supporting-only-not-acceptance"
+        and real_client_manifest["proofClasses"].get("realUserOperatedTrayProof")
+        == "USER_LV1_REQUIRED",
+        f"proofClasses={real_client_manifest.get('proofClasses')}",
+    )
+
     tray_failure_result = validate_tray_initialization_failure_is_bounded()
     tray_failure_events = tray_failure_result["events"]
     checks["tray_init_failure_validation_imported"] = line_status(
@@ -6982,6 +7110,7 @@ def run_validation():
         "tray_identity_events": tray_identity_events,
         "tray_identity_actions": tray_identity_result["action_texts"],
         "tray_identity_messages": tray_identity_messages,
+        "real_client_tray_precheck": real_client_tray_result,
         "tray_failure_events": tray_failure_events,
         "stdout": stdout_text.strip(),
         "stderr": stderr_text.strip(),
@@ -7027,6 +7156,26 @@ def build_report_text(report_path, result, overall_ok):
             f"  {message['title']} :: {message['message']}"
             for message in result["tray_identity_messages"]
         )
+    if result.get("real_client_tray_precheck"):
+        precheck = result["real_client_tray_precheck"]
+        lines.extend(
+            [
+                "",
+                "Desktop shortcut real-client tray precheck:",
+                f"  Status: {precheck.get('status')}",
+                f"  Manifest: {precheck.get('manifest_path')}",
+                f"  Error: {precheck.get('error') or 'none'}",
+            ]
+        )
+        manifest = precheck.get("manifest") or {}
+        for step in manifest.get("steps", []):
+            lines.append(
+                "  {0} :: {1} :: {2}".format(
+                    step.get("codexPrecheck"),
+                    step.get("id"),
+                    step.get("detail"),
+                )
+            )
     if result.get("tray_failure_events"):
         lines.extend(["", "Tray init failure events:"])
         lines.extend(f"  {event}" for event in result["tray_failure_events"])

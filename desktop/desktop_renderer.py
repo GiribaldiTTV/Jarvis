@@ -7533,6 +7533,7 @@ class DesktopRuntimeWindow(QWidget):
             self._monitoring_hud_polling_rate_ms = max(1000, int(polling_rate_ms or 1000))
             if self._monitoring_hud_poll_timer.isActive():
                 self._monitoring_hud_poll_timer.start(self._monitoring_hud_polling_rate_ms)
+        self._ensure_monitoring_hud_desktop_mode_for_visible_dashboard(source=source)
         self._apply_monitoring_hud_window_interaction_state()
         self._publish_monitoring_hud_control_state_to_page()
         self._publish_monitoring_hud_controls_visibility()
@@ -7556,6 +7557,30 @@ class DesktopRuntimeWindow(QWidget):
             "overlay_anchor_enabled": False,
             "anchored": self._monitoring_hud_anchored,
         }
+
+    def _ensure_monitoring_hud_desktop_mode_for_visible_dashboard(self, source: str = "runtime"):
+        if (
+            self.surface_role != "hud"
+            or not self._monitoring_hud_feature_enabled
+            or not self._monitoring_hud_visible
+            or self.desktop_mode
+            or self._is_shutting_down
+        ):
+            return
+        self._desktop_mode_requested = True
+        self._emit_runtime_signal(
+            "MONITORING_HUD_REAL_CLIENT_DASHBOARD_VISIBILITY_REQUESTED",
+            package="PKG-006",
+            slice="SLC-027",
+            seam="WS47",
+            source=source,
+            page_ready=self._page_ready,
+            desktop_mode=self.desktop_mode,
+        )
+        if self._page_ready:
+            self.enable_desktop_mode()
+        else:
+            self._schedule_desktop_mode_enable()
 
     def _set_monitoring_hud_feature_enabled(self, enabled: bool, *, source: str = "runtime"):
         self._monitoring_hud_feature_enabled = bool(enabled)
