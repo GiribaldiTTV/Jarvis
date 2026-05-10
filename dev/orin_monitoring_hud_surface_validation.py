@@ -950,7 +950,7 @@ def validate() -> list[str]:
         "MONITORING_HUD_DISABLE_RECOVERY_READY",
         "DESKTOP_VISIBLE_OVERLAY_RESULT|success=true",
         "DESKTOP_OUTCOME|SETTLED|state=dormant",
-        "settling visible overlay before full-desktop screenshot",
+        "settling Dashboard-first client before full-desktop screenshot",
         "beforeLaunchScreenshot",
         "afterLaunchScreenshot",
         "monitoring_hud_desktop_before_launch.png",

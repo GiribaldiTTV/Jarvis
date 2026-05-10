@@ -2009,6 +2009,20 @@ Workstream WS46 includes static HUD validation, internal sandbox proof, a hidden
 - User Test Summary Codex Precheck: `PASS - issue-grounded handoff includes RUI-001 through RUI-047 with per-step Codex Precheck lines; human-client manifest dev/logs/fam_006_human_client_validation/20260510_130259_909/human_client_manifest.json and desktop entrypoint report dev/logs/desktop_entrypoint_validation/reports/DesktopEntrypointValidationReport_20260510_133418.txt prove the actual desktop shortcut, visible tray, Dashboard open/close, Dashboard movement/resize, NCP button interaction, tray duplicate-dialog guard, Disable HUD recovery, Exit confirmation cancel/accept paths, and stable launcher ownership proof before USER testing.`
 - User Test Summary Result Gate: `LV2, Dashboard acceptance, package completion, PR Readiness, and release readiness remain blocked until USER returns PASS/FAIL/WAIVED results or explicit waiver and Codex digests them in LV2.`
 
+## Live Validation LV1 Additional Issue-by-Issue Verification Sweep
+
+- LV1 Sweep Admission: `PASS - USER requested an LV1 verification sweep of every issue raised in USER messages, grouped by problem while preserving the numbered Returned USER Issue Register trace.`
+- LV1 Sweep Result: `PASS for Codex precheck / not Dashboard acceptance - RUI-001 through RUI-047 remain issue-grounded; visual/user-judgment items still require returned USER PASS/FAIL/WAIVED results before LV2 may digest acceptance.`
+- Human-Client Validation Manifest: `PASS - dev/logs/fam_006_human_client_validation/20260510_135113_259/human_client_manifest.json`
+- Desktop Entrypoint / Real Tray Report: `PASS - dev/logs/desktop_entrypoint_validation/reports/DesktopEntrypointValidationReport_20260510_141013.txt; real-client tray shortcut precheck proves launch settled, Enable HUD opens the real Dashboard, Close/Open Dashboard toggles the visible Dashboard, Disable HUD recovers, and tray Exit confirmation timeout/cancel preserves the session.`
+- Live Helper Startup Proof: `PASS - dev/logs/fam_006_monitoring_hud_live_validation/20260510_140412_006; default LV1 live helper now requires Dashboard-first markers plus Overlay deferral and records deferred Overlay runtime markers as optional/non-gating support.`
+- Active User-Facing Client Proof: `PASS - dev/logs/fam_006_monitoring_hud_live_validation/20260510_140434_731; active-client self-QA passed with Dashboard standalone travel, clipping boundary, Core/Overlay decoupling, interaction markers, before/after full-desktop screenshots, and copied USER-inspectable screenshot evidence.`
+- LV1 Helper Governance Repair: `PASS - dev/orin_monitoring_hud_live_validation.ps1 no longer blocks Dashboard-first LV1 on deferred Overlay native-window markers; dev/orin_monitoring_hud_surface_validation.py now validates the Dashboard-first screenshot wording. Marker-only proof and optional Overlay support remain insufficient for Dashboard acceptance.`
+- Numbered Issue Coverage: `PASS - current UTS and issue register include FAM006-RUI-001 through FAM006-RUI-047; no Codex Precheck FAIL or NOT TESTED lines are present in the active UTS, while deferred/future items remain explicitly scoped out of current Dashboard acceptance.`
+- Formal UTS Boundary: `Preserved - this sweep did not digest returned results or claim acceptance; C:\Users\anden\OneDrive\Desktop\User Test Summary.txt remains the formal handoff awaiting USER returned PASS/FAIL/WAIVED results or explicit waiver.`
+- Dashboard Acceptance State: `Still unclaimed - Codex LV1 precheck is green, but final Dashboard acceptance requires returned USER PASS/WAIVED results or explicit waiver and LV2 digestion.`
+- Next Legal Seam: `Live Validation LV2 - FAM-006 Returned User Test Summary Results Digest And Acceptance Classification only after USER returns PASS/FAIL/WAIVED results or explicit waiver.`
+
 ## Returned LV1 Denial And WS48 Human-Client Validation Closeout
 
 - Returned USER Result: `FAIL - USER denied the LV1 handoff because Codex did not complete real-human live-client validation before asking USER to test`

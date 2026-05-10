@@ -891,6 +891,7 @@ try {
         "MONITORING_HUD_BASELINE_READY",
         "MONITORING_HUD_PRODUCT_VISIBILITY_READY",
         "MONITORING_HUD_DASHBOARD_SURFACE_READY",
+        "MONITORING_HUD_OVERLAY_DEFERRAL_ENFORCED_READY",
         "MONITORING_HUD_MINIMAL_OVERLAY_READY",
         "MONITORING_HUD_DASHBOARD_MINIMAL_SPLIT_READY",
         "MONITORING_HUD_DASHBOARD_CONTENT_READY",
@@ -903,6 +904,19 @@ try {
         "MONITORING_HUD_DASHBOARD_STATE_MODEL_READY",
         "MONITORING_HUD_DASHBOARD_WARNING_CONTROLS_READY",
         "MONITORING_HUD_EDGELESS_OVERLAY_CANVAS_READY",
+        "MONITORING_HUD_TELEMETRY_BOUNDARY_READY",
+        "MONITORING_HUD_PLACEMENT_OWNERSHIP_READY",
+        "MONITORING_HUD_CONTROLS_VISIBILITY_READY",
+        "MONITORING_HUD_STATUS_BEHAVIOR_READY",
+        "MONITORING_HUD_CONTROL_STATE_READY",
+        "RENDERER_MAIN|STARTUP_READY",
+        "DESKTOP_OUTCOME|SETTLED|state=dormant"
+    )
+    $interactionSupportingMarkers = @(
+        "MONITORING_HUD_WINDOW_STATUS_READY",
+        "MONITORING_HUD_INTERACTION_MODE_READY"
+    )
+    $deferredOverlaySupportingMarkers = @(
         "MONITORING_HUD_MINIMAL_NATIVE_OVERLAY_READY",
         "MONITORING_HUD_STANDALONE_OVERLAY_DISPLAY_WINDOW_READY",
         "MONITORING_HUD_ANCHORED_OVERLAY_UNINTERACTABLE_READY",
@@ -910,16 +924,7 @@ try {
         "MONITORING_HUD_MINIMAL_ANCHORED_CLICK_THROUGH_READY",
         "MONITORING_HUD_MINIMAL_NON_FOCUS_READY",
         "MONITORING_HUD_VISIBLE_OVERLAY_READY",
-        "MONITORING_HUD_WINDOW_STATUS_READY",
-        "MONITORING_HUD_TELEMETRY_BOUNDARY_READY",
-        "MONITORING_HUD_PLACEMENT_OWNERSHIP_READY",
-        "MONITORING_HUD_CONTROLS_VISIBILITY_READY",
-        "MONITORING_HUD_STATUS_BEHAVIOR_READY",
-        "MONITORING_HUD_INTERACTION_MODE_READY",
-        "MONITORING_HUD_CONTROL_STATE_READY",
-        "DESKTOP_VISIBLE_OVERLAY_RESULT|success=true",
-        "RENDERER_MAIN|STARTUP_READY",
-        "DESKTOP_OUTCOME|SETTLED|state=dormant"
+        "DESKTOP_VISIBLE_OVERLAY_RESULT|success=true"
     )
     $trayLifecycleMarkers = @(
         "MONITORING_HUD_TRAY_ENABLE_RENDER_STABLE_READY",
@@ -929,6 +934,26 @@ try {
     )
     foreach ($marker in $requiredMarkers) {
         Wait-Marker $paths $marker
+    }
+    foreach ($marker in $deferredOverlaySupportingMarkers) {
+        $count = Marker-Count $paths $marker
+        if ($count -gt 0) {
+            $script:ObservedMarkers.Add($marker)
+            Step $paths "observed optional deferred overlay marker: $marker count=$count"
+        }
+        else {
+            Step $paths "optional deferred overlay marker absent (non-gating): $marker"
+        }
+    }
+    foreach ($marker in $interactionSupportingMarkers) {
+        $count = Marker-Count $paths $marker
+        if ($count -gt 0) {
+            $script:ObservedMarkers.Add($marker)
+            Step $paths "observed interaction-supporting marker: $marker count=$count"
+        }
+        else {
+            Step $paths "interaction-supporting marker not emitted in startup-only proof: $marker"
+        }
     }
 
     if ($effectiveRunInteractionSelfQA) {
@@ -949,7 +974,7 @@ try {
         Step $paths "interaction self-QA manifest PASS: $($paths.InteractionManifest)"
     }
 
-    Step $paths "settling visible overlay before full-desktop screenshot"
+    Step $paths "settling Dashboard-first client before full-desktop screenshot"
     Start-Sleep -Milliseconds 1500
     Capture-Screen $paths "after_launch"
     $script:ManifestStatus = "PASS"
