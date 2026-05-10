@@ -136,11 +136,11 @@ class DesktopTrayEntry:
         self.open_overlay_action = None
         self.create_custom_task_action = None
         self.monitoring_hud_primary_action = None
-        self.monitoring_hud_disable_action = None
+        self.monitoring_hud_dashboard_action = None
         self.monitoring_hud_unanchor_action = None
         self.exit_action = None
         self.monitoring_hud_primary_button = None
-        self.monitoring_hud_disable_button = None
+        self.monitoring_hud_dashboard_button = None
         self.monitoring_hud_unanchor_button = None
         self.monitoring_hud_status_label = None
         self.open_overlay_button = None
@@ -179,11 +179,11 @@ class DesktopTrayEntry:
 
             self.monitoring_hud_primary_action = self._add_button_action(
                 "Enable HUD Feature",
-                self.request_monitoring_hud_primary_from_tray,
-            )
-            self.monitoring_hud_disable_action = self._add_button_action(
-                "Disable HUD Feature",
                 self.request_monitoring_hud_toggle_from_tray,
+            )
+            self.monitoring_hud_dashboard_action = self._add_button_action(
+                "Open HUD Dashboard",
+                self.request_monitoring_hud_dashboard_from_tray,
             )
             self.monitoring_hud_unanchor_action = self._add_button_action(
                 "HUD Overlay Deferred",
@@ -232,11 +232,11 @@ class DesktopTrayEntry:
         self.tray_popup.layout.addWidget(self.monitoring_hud_status_label)
         self.monitoring_hud_primary_button = self.tray_popup.add_button(
             "Enable HUD Feature",
-            self.request_monitoring_hud_primary_from_tray,
-        )
-        self.monitoring_hud_disable_button = self.tray_popup.add_button(
-            "Disable HUD Feature",
             self.request_monitoring_hud_toggle_from_tray,
+        )
+        self.monitoring_hud_dashboard_button = self.tray_popup.add_button(
+            "Open HUD Dashboard",
+            self.request_monitoring_hud_dashboard_from_tray,
         )
         self.monitoring_hud_unanchor_button = self.tray_popup.add_button(
             "HUD Overlay Deferred",
@@ -367,19 +367,16 @@ class DesktopTrayEntry:
             dashboard_visible = bool(state.get("dashboard_visible"))
             overlay_deferred = state.get("overlay_deferred", True) is not False
             overlay_anchor_enabled = bool(state.get("overlay_anchor_enabled")) and not overlay_deferred
-            primary_text = (
-                "Enable HUD Feature"
-                if not feature_enabled
-                else "Close HUD Dashboard" if dashboard_visible else "Open HUD Dashboard"
-            )
+            feature_text = "Disable HUD Feature" if feature_enabled else "Enable HUD Feature"
+            dashboard_text = "Close HUD Dashboard" if dashboard_visible else "Open HUD Dashboard"
 
             def append(command_id, text, enabled=True):
                 flags = MF_STRING if enabled else (MF_STRING | MF_GRAYED)
                 user32.AppendMenuW(menu, flags, int(command_id), ctypes.c_wchar_p(text))
 
-            append(100, primary_text, True)
+            append(100, feature_text, True)
             if feature_enabled:
-                append(101, "Disable HUD Feature", True)
+                append(101, dashboard_text, True)
             append(102, "HUD Overlay Deferred" if overlay_deferred else "Unanchor HUD Overlay", feature_enabled and overlay_anchor_enabled)
             user32.AppendMenuW(menu, MF_SEPARATOR, 0, None)
             append(200, "Open Command Overlay", True)
@@ -415,8 +412,8 @@ class DesktopTrayEntry:
 
     def _dispatch_native_menu_command(self, command_id):
         commands = {
-            100: self.request_monitoring_hud_primary_from_tray,
-            101: self.request_monitoring_hud_toggle_from_tray,
+            100: self.request_monitoring_hud_toggle_from_tray,
+            101: self.request_monitoring_hud_dashboard_from_tray,
             102: self.request_monitoring_hud_unanchor_from_tray,
             200: self.request_overlay_from_tray,
             201: self.request_create_custom_task_from_tray,
@@ -474,7 +471,7 @@ class DesktopTrayEntry:
     def refresh_monitoring_hud_actions(self, source="runtime"):
         if (
             self.monitoring_hud_primary_action is None
-            or self.monitoring_hud_disable_action is None
+            or self.monitoring_hud_dashboard_action is None
             or self.monitoring_hud_unanchor_action is None
         ):
             return
@@ -489,22 +486,28 @@ class DesktopTrayEntry:
         if not feature_enabled:
             self._set_action_text(self.monitoring_hud_primary_action, "Enable HUD Feature")
             self._set_button_text(self.monitoring_hud_primary_button, "Enable HUD Feature")
+            self._set_action_text(self.monitoring_hud_dashboard_action, "Open HUD Dashboard")
+            self._set_button_text(self.monitoring_hud_dashboard_button, "Open HUD Dashboard")
             self._set_label_text_visible(
                 self.monitoring_hud_status_label,
                 "HUD Dashboard Closed",
                 False,
             )
         elif dashboard_visible:
-            self._set_action_text(self.monitoring_hud_primary_action, "Close HUD Dashboard")
-            self._set_button_text(self.monitoring_hud_primary_button, "Close HUD Dashboard")
+            self._set_action_text(self.monitoring_hud_primary_action, "Disable HUD Feature")
+            self._set_button_text(self.monitoring_hud_primary_button, "Disable HUD Feature")
+            self._set_action_text(self.monitoring_hud_dashboard_action, "Close HUD Dashboard")
+            self._set_button_text(self.monitoring_hud_dashboard_button, "Close HUD Dashboard")
             self._set_label_text_visible(
                 self.monitoring_hud_status_label,
                 "HUD Dashboard Open",
                 True,
             )
         else:
-            self._set_action_text(self.monitoring_hud_primary_action, "Open HUD Dashboard")
-            self._set_button_text(self.monitoring_hud_primary_button, "Open HUD Dashboard")
+            self._set_action_text(self.monitoring_hud_primary_action, "Disable HUD Feature")
+            self._set_button_text(self.monitoring_hud_primary_button, "Disable HUD Feature")
+            self._set_action_text(self.monitoring_hud_dashboard_action, "Open HUD Dashboard")
+            self._set_button_text(self.monitoring_hud_dashboard_button, "Open HUD Dashboard")
             self._set_label_text_visible(
                 self.monitoring_hud_status_label,
                 "HUD Dashboard Closed",
@@ -512,10 +515,10 @@ class DesktopTrayEntry:
             )
         self._set_action_enabled(self.monitoring_hud_primary_action, True)
         self._set_button_enabled(self.monitoring_hud_primary_button, True)
-        self._set_action_visible(self.monitoring_hud_disable_action, feature_enabled)
-        self._set_action_enabled(self.monitoring_hud_disable_action, feature_enabled)
-        self._set_button_visible(self.monitoring_hud_disable_button, feature_enabled)
-        self._set_button_enabled(self.monitoring_hud_disable_button, feature_enabled)
+        self._set_action_visible(self.monitoring_hud_dashboard_action, feature_enabled)
+        self._set_action_enabled(self.monitoring_hud_dashboard_action, feature_enabled)
+        self._set_button_visible(self.monitoring_hud_dashboard_button, feature_enabled)
+        self._set_button_enabled(self.monitoring_hud_dashboard_button, feature_enabled)
         self._set_action_text(
             self.monitoring_hud_unanchor_action,
             "HUD Overlay Deferred" if overlay_deferred else "Unanchor HUD Overlay",

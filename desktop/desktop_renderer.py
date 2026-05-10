@@ -5701,6 +5701,7 @@ class DesktopRuntimeWindow(QWidget):
         self._overlay_ready_wait_attempt = 0
         self._overlay_ready_last_block_reason = ""
         self._overlay_ready_timeout_emitted = False
+        self._authoring_dialog_active = False
         self._last_launch_failure_action_id = ""
         self._last_launch_failure_count = 0
         self._reported_recoverable_launch_failures = set()
@@ -6077,6 +6078,32 @@ class DesktopRuntimeWindow(QWidget):
             if filtered_kwargs == kwargs:
                 raise exc
             return factory(*args, **filtered_kwargs)
+
+    def _authoring_dialog_blocks_new_dialog(self) -> bool:
+        return bool(getattr(self, "_authoring_dialog_active", False))
+
+    def _exec_authoring_dialog(self, dialog: QDialog, *, action: str):
+        self._authoring_dialog_active = True
+        try:
+            self._emit_runtime_signal(
+                "OVERLAY_ENTRY_DIALOG_EXEC_START",
+                action=action,
+                dialog_name=dialog.windowTitle(),
+                dialog_object_name=dialog.objectName() or type(dialog).__name__,
+                win_id=int(dialog.winId()),
+            )
+            result = dialog.exec()
+            self._emit_runtime_signal(
+                "OVERLAY_ENTRY_DIALOG_EXEC_RETURNED",
+                action=action,
+                dialog_name=dialog.windowTitle(),
+                dialog_object_name=dialog.objectName() or type(dialog).__name__,
+                win_id=int(dialog.winId()),
+                result="accepted" if result == QDialog.Accepted else "rejected",
+            )
+            return result
+        finally:
+            self._authoring_dialog_active = False
 
     def _trace_overlay(self, event: str, **fields):
         if not self._overlay_trace_enabled:
@@ -7486,7 +7513,8 @@ class DesktopRuntimeWindow(QWidget):
                     dx=delta.x(),
                     dy=delta.y(),
                 )
-            return True
+                return True
+            return False
         return False
 
     def _apply_monitoring_hud_window_interaction_state(self):
@@ -9532,6 +9560,13 @@ class DesktopRuntimeWindow(QWidget):
                 reason="shutdown",
             )
             return
+        if self._authoring_dialog_blocks_new_dialog():
+            self._emit_runtime_signal(
+                "TRAY_CREATE_CUSTOM_TASK_ABORTED",
+                source=source,
+                reason="authoring_dialog_active",
+            )
+            return
 
         self.open_command_overlay()
         if not self._command_model.visible or self._command_model.phase != "entry":
@@ -9624,6 +9659,16 @@ class DesktopRuntimeWindow(QWidget):
         self._command_panel.input_line.set_local_typing_enabled(False)
         self._refresh_overlay_input_capture(seconds=5.0)
         self._apply_command_overlay_state()
+        if hasattr(self._command_panel, "raise_"):
+            self._command_panel.raise_()
+        if hasattr(self._command_panel, "activateWindow"):
+            self._command_panel.activateWindow()
+        if hasattr(self._command_panel, "windowHandle"):
+            window_handle = self._command_panel.windowHandle()
+            if window_handle is not None:
+                window_handle.requestActivate()
+        if hasattr(self._command_panel, "setFocus"):
+            self._command_panel.setFocus(Qt.ActiveWindowFocusReason)
         QTimer.singleShot(0, self._emit_overlay_ready_signal)
 
     def _handle_saved_action_create_draft_submit(self, draft: SavedActionDraft):
@@ -9778,6 +9823,13 @@ class DesktopRuntimeWindow(QWidget):
     def handle_create_custom_task_requested(self):
         if not self._command_model.visible or self._command_model.phase != "entry":
             return
+        if self._authoring_dialog_blocks_new_dialog():
+            self._emit_runtime_signal(
+                "OVERLAY_ENTRY_ACTION_BLOCKED",
+                action="create_custom_task",
+                reason="authoring_dialog_active",
+            )
+            return
 
         self._emit_runtime_signal("OVERLAY_ENTRY_ACTION_TRIGGERED", action="create_custom_task")
 
@@ -9803,6 +9855,13 @@ class DesktopRuntimeWindow(QWidget):
     def _open_create_custom_task_dialog(self):
         if not self._command_model.visible or self._command_model.phase != "entry":
             return
+        if self._authoring_dialog_blocks_new_dialog():
+            self._emit_runtime_signal(
+                "OVERLAY_ENTRY_DIALOG_CREATE_BLOCKED",
+                action="create_custom_task",
+                reason="authoring_dialog_active",
+            )
+            return
 
         self._emit_runtime_signal("OVERLAY_ENTRY_DIALOG_CREATE_START", action="create_custom_task")
         dialog = self._create_dialog_with_optional_lifecycle(
@@ -9821,27 +9880,19 @@ class DesktopRuntimeWindow(QWidget):
             win_id=int(dialog.winId()),
         )
         try:
-            self._emit_runtime_signal(
-                "OVERLAY_ENTRY_DIALOG_EXEC_START",
-                action="create_custom_task",
-                dialog_name=dialog.windowTitle(),
-                dialog_object_name=dialog.objectName() or type(dialog).__name__,
-                win_id=int(dialog.winId()),
-            )
-            result = dialog.exec()
-            self._emit_runtime_signal(
-                "OVERLAY_ENTRY_DIALOG_EXEC_RETURNED",
-                action="create_custom_task",
-                dialog_name=dialog.windowTitle(),
-                dialog_object_name=dialog.objectName() or type(dialog).__name__,
-                win_id=int(dialog.winId()),
-                result="accepted" if result == QDialog.Accepted else "rejected",
-            )
+            self._exec_authoring_dialog(dialog, action="create_custom_task")
         finally:
             self._resume_overlay_capture_after_authoring_dialog()
 
     def handle_created_tasks_requested(self):
         if not self._command_model.visible or self._command_model.phase != "entry":
+            return
+        if self._authoring_dialog_blocks_new_dialog():
+            self._emit_runtime_signal(
+                "OVERLAY_ENTRY_ACTION_BLOCKED",
+                action="manage_custom_tasks",
+                reason="authoring_dialog_active",
+            )
             return
 
         inventory_payload = self._command_model.view_payload().get("saved_action_inventory") or {}
@@ -9861,7 +9912,7 @@ class DesktopRuntimeWindow(QWidget):
         selected_action_id = ""
         selected_delete_action_id = ""
         try:
-            dialog.exec()
+            self._exec_authoring_dialog(dialog, action="manage_custom_tasks")
             if hasattr(dialog, "selected_action_id"):
                 selected_action_id = str(dialog.selected_action_id() or "").strip()
             if hasattr(dialog, "selected_delete_action_id"):
@@ -9876,6 +9927,13 @@ class DesktopRuntimeWindow(QWidget):
 
     def handle_create_custom_group_requested(self):
         if not self._command_model.visible or self._command_model.phase != "entry":
+            return
+        if self._authoring_dialog_blocks_new_dialog():
+            self._emit_runtime_signal(
+                "OVERLAY_ENTRY_ACTION_BLOCKED",
+                action="create_custom_group",
+                reason="authoring_dialog_active",
+            )
             return
 
         group_inventory = self._command_model.action_catalog.saved_group_inventory
@@ -9903,12 +9961,19 @@ class DesktopRuntimeWindow(QWidget):
             lifecycle_callback=self._handle_dialog_lifecycle_signal,
         )
         try:
-            dialog.exec()
+            self._exec_authoring_dialog(dialog, action="create_custom_group")
         finally:
             self._resume_overlay_capture_after_authoring_dialog()
 
     def handle_created_groups_requested(self):
         if not self._command_model.visible or self._command_model.phase != "entry":
+            return
+        if self._authoring_dialog_blocks_new_dialog():
+            self._emit_runtime_signal(
+                "OVERLAY_ENTRY_ACTION_BLOCKED",
+                action="manage_custom_groups",
+                reason="authoring_dialog_active",
+            )
             return
 
         inventory_payload = self._command_model.view_payload().get("saved_group_inventory") or {}
@@ -9928,7 +9993,7 @@ class DesktopRuntimeWindow(QWidget):
         selected_group_id = ""
         selected_delete_group_id = ""
         try:
-            dialog.exec()
+            self._exec_authoring_dialog(dialog, action="manage_custom_groups")
             if hasattr(dialog, "selected_group_id"):
                 selected_group_id = str(dialog.selected_group_id() or "").strip()
             if hasattr(dialog, "selected_delete_group_id"):
@@ -9943,6 +10008,13 @@ class DesktopRuntimeWindow(QWidget):
 
     def handle_edit_saved_action_requested(self, saved_action_id: str):
         if not self._command_model.visible or self._command_model.phase != "entry":
+            return
+        if self._authoring_dialog_blocks_new_dialog():
+            self._emit_runtime_signal(
+                "OVERLAY_ENTRY_ACTION_BLOCKED",
+                action="edit_custom_task",
+                reason="authoring_dialog_active",
+            )
             return
 
         inventory = self._command_model.action_catalog.saved_action_inventory
@@ -9995,12 +10067,19 @@ class DesktopRuntimeWindow(QWidget):
             lifecycle_callback=self._handle_dialog_lifecycle_signal,
         )
         try:
-            dialog.exec()
+            self._exec_authoring_dialog(dialog, action="edit_custom_task")
         finally:
             self._resume_overlay_capture_after_authoring_dialog()
 
     def handle_edit_saved_group_requested(self, group_id: str):
         if not self._command_model.visible or self._command_model.phase != "entry":
+            return
+        if self._authoring_dialog_blocks_new_dialog():
+            self._emit_runtime_signal(
+                "OVERLAY_ENTRY_ACTION_BLOCKED",
+                action="edit_custom_group",
+                reason="authoring_dialog_active",
+            )
             return
 
         group_inventory = self._command_model.action_catalog.saved_group_inventory
@@ -10045,7 +10124,7 @@ class DesktopRuntimeWindow(QWidget):
             lifecycle_callback=self._handle_dialog_lifecycle_signal,
         )
         try:
-            dialog.exec()
+            self._exec_authoring_dialog(dialog, action="edit_custom_group")
         finally:
             self._resume_overlay_capture_after_authoring_dialog()
 

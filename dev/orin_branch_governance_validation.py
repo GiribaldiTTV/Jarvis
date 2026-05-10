@@ -353,6 +353,10 @@ FAM006_WS48_HEADING = (
     "Returned LV1 Denial And WS48 Human-Client Validation Closeout"
 )
 FAM006_WS48_NEXT_SEAM = "Hardening H1 - Monitoring HUD Product Surface Hardening Rerun"
+FAM006_WS49_HEADING = (
+    "Workstream WS49 Dashboard NCP Interaction Isolation And Tray Action Safety Repair"
+)
+FAM006_WS49_NEXT_SEAM = "Hardening H1 - Monitoring HUD Product Surface Hardening Rerun"
 FAM006_H1_HEADING = "Hardening H1 Dashboard-First Product Surface Rerun"
 FAM006_H1_NEXT_SEAM = (
     "Live Validation LV1 - Monitoring HUD Product Surface Live Validation Rerun"
@@ -1069,6 +1073,50 @@ FAM006_WS48_REQUIRED_PHRASES = (
     "Next Legal Seam:",
     FAM006_WS48_NEXT_SEAM,
 )
+FAM006_WS49_REQUIRED_PHRASES = (
+    "WS49 Admission:",
+    "bounded Workstream continuation",
+    "WS49 Result:",
+    "Green for Dashboard NCP interaction isolation and tray action safety",
+    "FAM006-RUI-044",
+    "FAM006-RUI-045",
+    "FAM006-RUI-046",
+    "FAM006-RUI-047",
+    "Runtime / Tray Repair:",
+    "desktop/tray_controller.py",
+    "Dashboard / NCP Interaction Repair:",
+    "Dashboard native-panel mouse handling",
+    "Authoring Dialog Safety Repair:",
+    "TRAY_CREATE_CUSTOM_TASK_ABORTED",
+    "Helper / Proof Repair:",
+    "native tray popup",
+    "Human-Client Validation Manifest:",
+    "dev/logs/fam_006_human_client_validation/20260510_121038_854/human_client_manifest.json",
+    "Real-Client Proof Summary:",
+    "NCP Create Custom Task/Create Custom Group/Manage Custom Tasks/Manage Custom Groups",
+    "tray Create Custom Task duplicate guard",
+    "Element Rows Updated:",
+    "FAM006-TRAY-ACTION-ORDER-067",
+    "FAM006-DASH-NCP-MOUSE-068",
+    "FAM006-TRAY-AUTHORING-DIALOG-GUARD-069",
+    "FAM006-TRAY-EXIT-PROMPT-VISUAL-070",
+    "Formal UTS Boundary:",
+    "WS49 does not generate, refresh, or digest",
+    "Overlay Status:",
+    "Deferred/dormant/non-gating",
+    "Core Status:",
+    "Dependency-only",
+    "Dashboard Acceptance State:",
+    "Still blocked",
+    "Package Completion:",
+    "Unclaimed",
+    "Continue Decision:",
+    "Stop at phase boundary",
+    "Continuation Execution Latch:",
+    "Inactive - WS49 is Green / Hardening phase-boundary stop",
+    "Next Legal Seam:",
+    FAM006_WS49_NEXT_SEAM,
+)
 FAM006_WORKSTREAM_CONTINUATION_REQUIRED_PHRASES = (
     "multi-slice HUD implementation continuation",
     "WS8 - Monitoring HUD Internal Sandbox Harness And State Matrix Baseline",
@@ -1230,6 +1278,10 @@ FAM006_ELEMENT_VALIDATION_LEDGER_REQUIRED_PHRASES = (
     "FAM006-RUI-041",
     "FAM006-RUI-042",
     "FAM006-RUI-043",
+    "FAM006-RUI-044",
+    "FAM006-RUI-045",
+    "FAM006-RUI-046",
+    "FAM006-RUI-047",
     "actual desktop shortcut",
     "Codex Precheck",
 )
@@ -1238,7 +1290,7 @@ FAM006_ELEMENT_LEDGER_REQUIRED_PHRASES = (
     "# FAM-006 Element Validation Ledger",
     "Owner Record: `Docs/branch_records/feature_fam_006_monitoring_hud_product_surface.md`",
     "Ledger Status:",
-    "Workstream WS48 Green",
+    "Workstream WS49 Green",
     "Current Gate:",
     "human-client validation PASS",
     "human-client validation gate satisfied",
@@ -1314,12 +1366,16 @@ FAM006_ELEMENT_LEDGER_REQUIRED_PHRASES = (
     "FAM006-GOV-RUI-REGISTER-064",
     "FAM006-GOV-HUMAN-CLIENT-065",
     "FAM006-GOV-UI-ISSUE-DISCOVERY-066",
+    "FAM006-TRAY-ACTION-ORDER-067",
+    "FAM006-DASH-NCP-MOUSE-068",
+    "FAM006-TRAY-AUTHORING-DIALOG-GUARD-069",
+    "FAM006-TRAY-EXIT-PROMPT-VISUAL-070",
     "FAM006-FUTURE-PROVIDER-041",
     "FAM006-FUTURE-EXTERNAL-042",
     "FAM006-FUTURE-AUDIO-043",
     "FAM006-FUTURE-PERSONA-044",
     "## UTS Coverage Map",
-    "Current Coverage Status: `Workstream WS48 Green - human-client validation gate satisfied for Workstream proof; H1 rerun and future LV1 still required`",
+    "Current Coverage Status: `Workstream WS49 Green - Dashboard/NCP interaction isolation and tray action safety human-client validation gate satisfied for Workstream proof; H1 rerun and future LV1 still required`",
     "## Proof Rebaseline Summary",
     "Returned Step 2 Tray enable/disable/open Dashboard",
     "Returned Step 3 Tray Exit NDAI",
@@ -6044,6 +6100,39 @@ def _validate_fam006_stage2_r6_plan(
                     f"'{required_phrase}'"
                 ),
             )
+        ws49_section = _section(text, FAM006_WS49_HEADING)
+        if ws49_section:
+            for phrase in FAM006_WS49_REQUIRED_PHRASES:
+                require(
+                    phrase in ws49_section,
+                    f"{source_path}: {FAM006_WS49_HEADING} is missing '{phrase}'",
+                )
+            require(
+                (
+                    f"Active seam: `{FAM006_WS49_NEXT_SEAM}`" in text
+                    or "Active seam: `Phase Boundary Stop - Workstream WS49 Green / Await USER Hardening Admission`"
+                    in text
+                ),
+                f"{source_path}: WS49 completion must advance active seam or phase-boundary stop to Hardening H1",
+            )
+            require(
+                f"Next Legal Seam: `{FAM006_WS49_NEXT_SEAM}`" in text,
+                f"{source_path}: WS49 completion must set next legal seam to Hardening H1",
+            )
+            require(
+                "FAM006-RUI-047" in text,
+                f"{source_path}: WS49 completion must register returned USER issue rows through FAM006-RUI-047",
+            )
+            require(
+                "FAM006-TRAY-AUTHORING-DIALOG-GUARD-069" in text,
+                f"{source_path}: WS49 completion must record the tray authoring dialog guard ledger row",
+            )
+            require(
+                "Hardening H1 requires explicit USER admission" in text,
+                f"{source_path}: WS49 completion must preserve explicit USER Hardening admission requirement",
+            )
+            return
+
         ws48_section = _section(text, FAM006_WS48_HEADING)
         if ws48_section:
             for phrase in FAM006_WS48_REQUIRED_PHRASES:

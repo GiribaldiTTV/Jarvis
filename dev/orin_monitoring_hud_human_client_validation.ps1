@@ -487,6 +487,152 @@ function Click-ElementCenter {
     Start-Sleep -Milliseconds 400
 }
 
+function Find-VisibleRuntimeElementByName {
+    param(
+        [string]$Name,
+        [string]$ControlTypeName = "",
+        [int]$TimeoutSeconds = 8
+    )
+
+    $deadline = (Get-Date).AddSeconds($TimeoutSeconds)
+    while ((Get-Date) -lt $deadline) {
+        $runtimeIds = @((Find-ProcessesForLogRoot) | ForEach-Object { [int]$_.ProcessId })
+        if ($runtimeIds.Count -eq 0) {
+            Start-Sleep -Milliseconds 180
+            continue
+        }
+        $matches = [System.Windows.Automation.AutomationElement]::RootElement.FindAll(
+            [System.Windows.Automation.TreeScope]::Descendants,
+            (New-Object System.Windows.Automation.PropertyCondition([System.Windows.Automation.AutomationElement]::NameProperty, $Name))
+        )
+        for ($i = 0; $i -lt $matches.Count; $i++) {
+            $element = $matches.Item($i)
+            try {
+                $rect = $element.Current.BoundingRectangle
+                $type = $element.Current.ControlType.ProgrammaticName
+                if (
+                    $runtimeIds -contains [int]$element.Current.ProcessId -and
+                    -not $rect.IsEmpty -and
+                    -not $element.Current.IsOffscreen -and
+                    ($ControlTypeName -eq "" -or $type -eq $ControlTypeName)
+                ) {
+                    return $element
+                }
+            } catch {}
+        }
+        Start-Sleep -Milliseconds 250
+    }
+    return $null
+}
+
+function Click-RuntimeButtonAndWaitForDialog {
+    param(
+        [string]$ButtonName,
+        [string]$DialogTitle,
+        [string]$StepId,
+        [string]$StepTitle,
+        [string]$ExpectedOpenMarker = "",
+        [string]$DismissMarker = ""
+    )
+
+    $beforeLines = (Read-RuntimeLines).Count
+    $button = Find-VisibleRuntimeElementByName -Name $ButtonName -ControlTypeName "ControlType.Button" -TimeoutSeconds 8
+    if (-not $button) {
+        $shot = Capture-VirtualScreenshot ("ncp_button_missing_{0}" -f ($ButtonName -replace "[^A-Za-z0-9_-]", "_"))
+        Add-Step -Id $StepId -Title $StepTitle -Status "FAIL" -Detail "Visible runtime button '$ButtonName' was not found." -Evidence @{ screenshot = $shot }
+        throw "Visible runtime button '$ButtonName' was not found"
+    }
+    $rect = $button.Current.BoundingRectangle
+    Click-ElementCenter -Element $button -Label $ButtonName
+    Start-Sleep -Milliseconds 650
+    if ($ExpectedOpenMarker -and -not (Wait-ForRuntimeMarkerAfterLine -Marker $ExpectedOpenMarker -AfterLine $beforeLines -TimeoutSeconds 8)) {
+        $shot = Capture-VirtualScreenshot ("ncp_button_missing_open_marker_{0}" -f ($ButtonName -replace "[^A-Za-z0-9_-]", "_"))
+        Add-Step -Id $StepId -Title $StepTitle -Status "FAIL" -Detail "Clicked '$ButtonName' but expected runtime marker '$ExpectedOpenMarker' was not emitted." -Evidence @{
+            screenshot = $shot
+            buttonRect = @([int]$rect.X, [int]$rect.Y, [int]($rect.X + $rect.Width), [int]($rect.Y + $rect.Height))
+            expectedOpenMarker = $ExpectedOpenMarker
+            runtimeLinesBeforeClick = $beforeLines
+        }
+        throw "Clicked '$ButtonName' but expected runtime marker '$ExpectedOpenMarker' was not emitted"
+    }
+    $dialogRect = Wait-ForVisibleRuntimeWindowByTitle -Title $DialogTitle -TimeoutSeconds 8
+    $shotAfterClick = Capture-VirtualScreenshot ("ncp_button_dialog_{0}" -f ($ButtonName -replace "[^A-Za-z0-9_-]", "_"))
+    if (-not $dialogRect -or $dialogRect.Count -ne 4) {
+        Add-Step -Id $StepId -Title $StepTitle -Status "FAIL" -Detail "Clicked '$ButtonName' but dialog '$DialogTitle' did not become visible." -Evidence @{
+            screenshot = $shotAfterClick
+            buttonRect = @([int]$rect.X, [int]$rect.Y, [int]($rect.X + $rect.Width), [int]($rect.Y + $rect.Height))
+            runtimeLinesBeforeClick = $beforeLines
+        }
+        throw "Clicked '$ButtonName' but dialog '$DialogTitle' did not become visible"
+    }
+
+    Add-Step -Id $StepId -Title $StepTitle -Status "PASS" -Detail "Clicked '$ButtonName' and visible dialog '$DialogTitle' opened." -Evidence @{
+        screenshot = $shotAfterClick
+        buttonRect = @([int]$rect.X, [int]$rect.Y, [int]($rect.X + $rect.Width), [int]($rect.Y + $rect.Height))
+        dialogRect = $dialogRect
+    }
+    $dismiss = Dismiss-VisibleRuntimeDialog -Title $DialogTitle -TimeoutSeconds 5 -ExpectedDismissMarker $DismissMarker
+    if (-not $dismiss.dismissed) {
+        throw "Visible runtime dialog '$DialogTitle' was opened by '$ButtonName' but was not dismissible through the human-client cleanup path"
+    }
+    Start-Sleep -Milliseconds 500
+}
+
+function Click-RuntimeButtonAndWaitForCloseableWindow {
+    param(
+        [string]$ButtonName,
+        [string]$DialogTitle,
+        [string]$StepId,
+        [string]$StepTitle,
+        [string]$ExpectedOpenMarker = "",
+        [string]$DismissMarker = ""
+    )
+
+    $beforeLines = (Read-RuntimeLines).Count
+    $button = Find-VisibleRuntimeElementByName -Name $ButtonName -ControlTypeName "ControlType.Button" -TimeoutSeconds 8
+    if (-not $button) {
+        $shot = Capture-VirtualScreenshot ("ncp_button_missing_{0}" -f ($ButtonName -replace "[^A-Za-z0-9_-]", "_"))
+        Add-Step -Id $StepId -Title $StepTitle -Status "FAIL" -Detail "Visible runtime button '$ButtonName' was not found." -Evidence @{ screenshot = $shot }
+        throw "Visible runtime button '$ButtonName' was not found"
+    }
+    $rect = $button.Current.BoundingRectangle
+    Click-ElementCenter -Element $button -Label $ButtonName
+    Start-Sleep -Milliseconds 650
+    if ($ExpectedOpenMarker -and -not (Wait-ForRuntimeMarkerAfterLine -Marker $ExpectedOpenMarker -AfterLine $beforeLines -TimeoutSeconds 8)) {
+        $shot = Capture-VirtualScreenshot ("ncp_button_missing_open_marker_{0}" -f ($ButtonName -replace "[^A-Za-z0-9_-]", "_"))
+        Add-Step -Id $StepId -Title $StepTitle -Status "FAIL" -Detail "Clicked '$ButtonName' but expected runtime marker '$ExpectedOpenMarker' was not emitted." -Evidence @{
+            screenshot = $shot
+            buttonRect = @([int]$rect.X, [int]$rect.Y, [int]($rect.X + $rect.Width), [int]($rect.Y + $rect.Height))
+            expectedOpenMarker = $ExpectedOpenMarker
+            runtimeLinesBeforeClick = $beforeLines
+        }
+        throw "Clicked '$ButtonName' but expected runtime marker '$ExpectedOpenMarker' was not emitted"
+    }
+    $dialogRect = Wait-ForVisibleRuntimeWindowByTitle -Title $DialogTitle -TimeoutSeconds 8
+    $shotAfterClick = Capture-VirtualScreenshot ("ncp_button_window_{0}" -f ($ButtonName -replace "[^A-Za-z0-9_-]", "_"))
+    if (-not $dialogRect -or $dialogRect.Count -ne 4) {
+        Add-Step -Id $StepId -Title $StepTitle -Status "FAIL" -Detail "Clicked '$ButtonName' but window '$DialogTitle' did not become visible." -Evidence @{
+            screenshot = $shotAfterClick
+            buttonRect = @([int]$rect.X, [int]$rect.Y, [int]($rect.X + $rect.Width), [int]($rect.Y + $rect.Height))
+        }
+        throw "Clicked '$ButtonName' but window '$DialogTitle' did not become visible"
+    }
+    Add-Step -Id $StepId -Title $StepTitle -Status "PASS" -Detail "Clicked '$ButtonName' and visible window '$DialogTitle' opened." -Evidence @{
+        screenshot = $shotAfterClick
+        buttonRect = @([int]$rect.X, [int]$rect.Y, [int]($rect.X + $rect.Width), [int]($rect.Y + $rect.Height))
+        dialogRect = $dialogRect
+    }
+    try {
+        $null = Click-VisibleRuntimeDialogButton -Title $DialogTitle -ButtonName "Close" -TimeoutSeconds 3
+    } catch {
+        $dismiss = Dismiss-VisibleRuntimeDialog -Title $DialogTitle -TimeoutSeconds 4 -ExpectedDismissMarker $DismissMarker
+        if (-not $dismiss.dismissed) {
+            throw
+        }
+    }
+    Start-Sleep -Milliseconds 500
+}
+
 function Drag-FromTo {
     param([int]$StartX, [int]$StartY, [int]$EndX, [int]$EndY, [string]$Label)
     [CodexHumanClientWin32]::SetCursorPos($StartX, $StartY) | Out-Null
@@ -513,6 +659,20 @@ function Wait-ForRuntimeMarker {
     $deadline = (Get-Date).AddSeconds($TimeoutSeconds)
     while ((Get-Date) -lt $deadline) {
         if ((Read-RuntimeLines) -match [regex]::Escape($Marker)) { return $true }
+        Start-Sleep -Milliseconds 250
+    }
+    return $false
+}
+
+function Wait-ForRuntimeMarkerAfterLine {
+    param([string]$Marker, [int]$AfterLine = 0, [int]$TimeoutSeconds = 10)
+    $deadline = (Get-Date).AddSeconds($TimeoutSeconds)
+    while ((Get-Date) -lt $deadline) {
+        $lines = @(Read-RuntimeLines)
+        if ($lines.Count -gt $AfterLine) {
+            $tail = $lines[$AfterLine..($lines.Count - 1)]
+            if ($tail -match [regex]::Escape($Marker)) { return $true }
+        }
         Start-Sleep -Milliseconds 250
     }
     return $false
@@ -590,6 +750,31 @@ function Get-VisibleTrayMenuRect {
                 return $rect
             }
         }
+        $fallbackButton = Find-VisibleRuntimeElementByName -Name $ButtonName -ControlTypeName "ControlType.Button" -TimeoutSeconds 1
+        if ($fallbackButton) {
+            try {
+                $rect = $fallbackButton.Current.BoundingRectangle
+                if ($rect.Width -gt 0 -and $rect.Height -gt 0 -and $fallbackButton.Current.IsEnabled) {
+                    $x = [int]($rect.X + ($rect.Width / 2))
+                    $y = [int]($rect.Y + ($rect.Height / 2))
+                    [CodexHumanClientWin32]::SetCursorPos($x, $y) | Out-Null
+                    Start-Sleep -Milliseconds 150
+                    [CodexHumanClientWin32]::SendLeftClick()
+                    return @{
+                        button = $ButtonName
+                        clicked = @($x, $y)
+                        buttonRect = @(
+                            [int]$rect.X,
+                            [int]$rect.Y,
+                            [int]($rect.X + $rect.Width),
+                            [int]($rect.Y + $rect.Height)
+                        )
+                        fallback = "runtime-process-button-search"
+                        dialogRect = $lastDialogRect
+                    }
+                }
+            } catch {}
+        }
         Start-Sleep -Milliseconds 120
     }
 
@@ -614,6 +799,26 @@ function Get-VisibleTrayMenuHandle {
     return [IntPtr]::Zero
 }
 
+function Test-RectCenterInside {
+    param(
+        [Parameter(Mandatory = $true)]$InnerRect,
+        [Parameter(Mandatory = $true)]$OuterRect
+    )
+
+    if ($InnerRect.IsEmpty -or $OuterRect.IsEmpty -or $InnerRect.Width -le 0 -or $InnerRect.Height -le 0) {
+        return $false
+    }
+
+    $centerX = [double]($InnerRect.X + ($InnerRect.Width / 2))
+    $centerY = [double]($InnerRect.Y + ($InnerRect.Height / 2))
+    return (
+        $centerX -ge [double]$OuterRect.X -and
+        $centerX -le [double]($OuterRect.X + $OuterRect.Width) -and
+        $centerY -ge [double]$OuterRect.Y -and
+        $centerY -le [double]($OuterRect.Y + $OuterRect.Height)
+    )
+}
+
 function Click-VisibleTrayMenuAction {
     param([string]$ActionName)
 
@@ -628,6 +833,7 @@ function Click-VisibleTrayMenuAction {
         throw "Visible Nexus tray context menu was found but UIAutomation could not bind to it for action '$ActionName'"
     }
 
+    $menuRect = $menuElement.Current.BoundingRectangle
     $items = $menuElement.FindAll(
         [System.Windows.Automation.TreeScope]::Subtree,
         [System.Windows.Automation.Condition]::TrueCondition
@@ -645,31 +851,29 @@ function Click-VisibleTrayMenuAction {
                 $item.Current.Name -eq $ActionName -and
                 $item.Current.IsEnabled
             ) {
-                $target = $item
-                $targetControlType = $item.Current.ControlType.ProgrammaticName
-                break
+                $candidateRect = $item.Current.BoundingRectangle
+                if (Test-RectCenterInside -InnerRect $candidateRect -OuterRect $menuRect) {
+                    $target = $item
+                    $targetControlType = $item.Current.ControlType.ProgrammaticName
+                    break
+                }
             }
         }
         if ($target) { break }
     }
-    if (-not $target) {
-        $fallbackTarget = Find-VisibleElementByName -Name $ActionName -ControlTypeName "ControlType.MenuItem" -TimeoutSeconds 2
-        if (-not $fallbackTarget) {
-            $fallbackTarget = Find-VisibleElementByName -Name $ActionName -ControlTypeName "ControlType.Button" -TimeoutSeconds 2
-        }
-        if ($fallbackTarget -and $fallbackTarget.Current.IsEnabled) {
-            $target = $fallbackTarget
-            $targetControlType = $fallbackTarget.Current.ControlType.ProgrammaticName
-        }
-    }
     $coordinateFallback = $false
-    $menuRect = $menuElement.Current.BoundingRectangle
     if (-not $target) {
         $nativeY = $null
-        if ($ActionName -in @("Enable HUD Feature", "Close HUD Dashboard", "Open HUD Dashboard")) {
+        if ($ActionName -in @("Enable HUD Feature", "Disable HUD Feature")) {
             $nativeY = [int]($menuRect.Y + 17)
-        } elseif ($ActionName -eq "Disable HUD Feature") {
+        } elseif ($ActionName -in @("Close HUD Dashboard", "Open HUD Dashboard")) {
             $nativeY = [int]($menuRect.Y + 39)
+        } elseif ($ActionName -eq "HUD Overlay Deferred") {
+            $nativeY = [int]($menuRect.Y + 61)
+        } elseif ($ActionName -eq "Open Command Overlay") {
+            $nativeY = [int]($menuRect.Y + 89)
+        } elseif ($ActionName -eq "Create Custom Task") {
+            $nativeY = [int]($menuRect.Y + 111)
         } elseif ($ActionName -eq "Exit Nexus Desktop AI") {
             $nativeY = [int]($menuRect.Y + $menuRect.Height - 12)
         }
@@ -786,6 +990,7 @@ function Wait-ForVisibleRuntimeWindowByTitle {
     $deadline = (Get-Date).AddSeconds($TimeoutSeconds)
     while ((Get-Date) -lt $deadline) {
         $runtimeProcesses = Find-ProcessesForLogRoot
+        $runtimeIds = @($runtimeProcesses | ForEach-Object { [int]$_.ProcessId })
         foreach ($process in $runtimeProcesses) {
             $rect = [CodexHumanClientWin32]::GetVisibleWindowRectForProcessByTitle([int]$process.ProcessId, $Title)
             if ($rect -and $rect.Length -eq 4) {
@@ -796,6 +1001,28 @@ function Wait-ForVisibleRuntimeWindowByTitle {
                     [int]$rect[3]
                 )
             }
+        }
+        $matches = [System.Windows.Automation.AutomationElement]::RootElement.FindAll(
+            [System.Windows.Automation.TreeScope]::Descendants,
+            (New-Object System.Windows.Automation.PropertyCondition([System.Windows.Automation.AutomationElement]::NameProperty, $Title))
+        )
+        for ($i = 0; $i -lt $matches.Count; $i++) {
+            $element = $matches.Item($i)
+            try {
+                $rect = $element.Current.BoundingRectangle
+                if (
+                    $runtimeIds -contains [int]$element.Current.ProcessId -and
+                    -not $rect.IsEmpty -and
+                    -not $element.Current.IsOffscreen
+                ) {
+                    return @(
+                        [int]$rect.X,
+                        [int]$rect.Y,
+                        [int]($rect.X + $rect.Width),
+                        [int]($rect.Y + $rect.Height)
+                    )
+                }
+            } catch {}
         }
         Start-Sleep -Milliseconds 120
     }
@@ -818,7 +1045,7 @@ function Click-VisibleRuntimeDialogButton {
             }
         }
         $windows = [System.Windows.Automation.AutomationElement]::RootElement.FindAll(
-            [System.Windows.Automation.TreeScope]::Children,
+            [System.Windows.Automation.TreeScope]::Descendants,
             (New-Object System.Windows.Automation.PropertyCondition([System.Windows.Automation.AutomationElement]::NameProperty, $Title))
         )
         for ($i = 0; $i -lt $windows.Count; $i++) {
@@ -877,6 +1104,99 @@ function Click-VisibleRuntimeDialogButton {
     throw "Visible runtime dialog '$Title' did not expose enabled button '$ButtonName'"
 }
 
+function Dismiss-VisibleRuntimeDialog {
+    param([string]$Title, [int]$TimeoutSeconds = 5, [string]$ExpectedDismissMarker = "")
+
+    $before = Wait-ForVisibleRuntimeWindowByTitle -Title $Title -TimeoutSeconds 1
+    $beforeLineCount = (Read-RuntimeLines).Count
+    if ($before -and $before.Count -eq 4 -and $Title -in @("Create Custom Task", "Create Custom Group")) {
+        $x = [int]($before[2] - 205)
+        $y = [int]($before[1] + 342)
+        [CodexHumanClientWin32]::SetCursorPos($x, $y) | Out-Null
+        Start-Sleep -Milliseconds 150
+        [CodexHumanClientWin32]::SendLeftClick()
+        $coordinateDeadline = (Get-Date).AddSeconds($TimeoutSeconds)
+        while ((Get-Date) -lt $coordinateDeadline) {
+            if ($ExpectedDismissMarker -and (Wait-ForRuntimeMarkerAfterLine -Marker $ExpectedDismissMarker -AfterLine $beforeLineCount -TimeoutSeconds 1)) {
+                return @{
+                    method = "dialog-title-relative-coordinate-click-runtime-marker"
+                    beforeRect = $before
+                    clicked = @($x, $y)
+                    dismissed = $true
+                    marker = $ExpectedDismissMarker
+                }
+            }
+            $afterCoordinate = Wait-ForVisibleRuntimeWindowByTitle -Title $Title -TimeoutSeconds 1
+            if (-not $afterCoordinate -or $afterCoordinate.Count -ne 4) {
+                return @{
+                    method = "dialog-title-relative-coordinate-click"
+                    beforeRect = $before
+                    clicked = @($x, $y)
+                    dismissed = $true
+                }
+            }
+            Start-Sleep -Milliseconds 120
+        }
+    }
+    [CodexHumanClientWin32]::keybd_event(0x1B, 0, 0, [UIntPtr]::Zero)
+    Start-Sleep -Milliseconds 100
+    [CodexHumanClientWin32]::keybd_event(0x1B, 0, 2, [UIntPtr]::Zero)
+    $deadline = (Get-Date).AddSeconds($TimeoutSeconds)
+    while ((Get-Date) -lt $deadline) {
+        if ($ExpectedDismissMarker -and (Wait-ForRuntimeMarkerAfterLine -Marker $ExpectedDismissMarker -AfterLine $beforeLineCount -TimeoutSeconds 1)) {
+            return @{
+                method = "escape-key-runtime-marker"
+                beforeRect = $before
+                dismissed = $true
+                marker = $ExpectedDismissMarker
+            }
+        }
+        $after = Wait-ForVisibleRuntimeWindowByTitle -Title $Title -TimeoutSeconds 1
+        if (-not $after -or $after.Count -ne 4) {
+            return @{
+                method = "escape-key"
+                beforeRect = $before
+                dismissed = $true
+            }
+        }
+        Start-Sleep -Milliseconds 120
+    }
+    if ($before -and $before.Count -eq 4 -and $Title -in @("Create Custom Task", "Create Custom Group")) {
+        $x = [int]($before[2] - 205)
+        $y = [int]($before[1] + 342)
+        [CodexHumanClientWin32]::SetCursorPos($x, $y) | Out-Null
+        Start-Sleep -Milliseconds 150
+        [CodexHumanClientWin32]::SendLeftClick()
+        $coordinateDeadline = (Get-Date).AddSeconds($TimeoutSeconds)
+        while ((Get-Date) -lt $coordinateDeadline) {
+            if ($ExpectedDismissMarker -and (Wait-ForRuntimeMarkerAfterLine -Marker $ExpectedDismissMarker -AfterLine $beforeLineCount -TimeoutSeconds 1)) {
+                return @{
+                    method = "dialog-title-relative-coordinate-click-runtime-marker"
+                    beforeRect = $before
+                    clicked = @($x, $y)
+                    dismissed = $true
+                    marker = $ExpectedDismissMarker
+                }
+            }
+            $afterCoordinate = Wait-ForVisibleRuntimeWindowByTitle -Title $Title -TimeoutSeconds 1
+            if (-not $afterCoordinate -or $afterCoordinate.Count -ne 4) {
+                return @{
+                    method = "dialog-title-relative-coordinate-click"
+                    beforeRect = $before
+                    clicked = @($x, $y)
+                    dismissed = $true
+                }
+            }
+            Start-Sleep -Milliseconds 120
+        }
+    }
+    return @{
+        method = "escape-key"
+        beforeRect = $before
+        dismissed = $false
+    }
+}
+
 function Wait-ForRuntimeExit {
     param([int]$TimeoutSeconds = 8)
 
@@ -897,7 +1217,7 @@ function Save-Manifest {
         schema = "fam006-human-client-validation-v1"
         status = $Status
         failure = $Failure
-        seam = "Workstream WS48 - Live-Human Client Validation Harness And LV1 Denial Repair"
+        seam = "Workstream WS49 - Dashboard NCP Interaction Isolation And Tray Action Safety"
         startedAt = $script:StartedAt
         finishedAt = (Get-Date).ToUniversalTime().ToString("o")
         desktopShortcutPath = $DesktopShortcutPath
@@ -996,6 +1316,37 @@ try {
     Add-Step -Id "dashboard_mouse_move" -Title "Dashboard moves through mouse drag" -Status ($(if ($moved) { "PASS" } else { "FAIL" })) -Detail "before=($($rectBeforeMove.Left),$($rectBeforeMove.Top)); after=($($rectAfterMove.Left),$($rectAfterMove.Top))" -Evidence @{ screenshot = $moveShot }
     if (-not $moved) { throw "Dashboard did not move through human-like mouse drag" }
 
+    $ncpOpenEvidence = Invoke-TrayAction -ActionName "Open Command Overlay" -ExpectedMarker "RENDERER_MAIN|TRAY_ACTIVATION_ROUTED_TO_OVERLAY|source=menu" -TimeoutSeconds $ActionTimeoutSeconds
+    Start-Sleep -Milliseconds 900
+    $ncpOpenShot = Capture-VirtualScreenshot "04b_after_open_ncp_with_dashboard_visible"
+    Add-Step -Id "ncp_opens_with_dashboard_visible" -Title "Tray opens NCP while HUD Dashboard remains visible" -Status "PASS" -Detail "Open Command Overlay route completed while the Dashboard was visible and moved." -Evidence @{ screenshot = $ncpOpenShot; trayClick = $ncpOpenEvidence }
+
+    Click-RuntimeButtonAndWaitForDialog -ButtonName "Create Custom Task" -DialogTitle "Create Custom Task" -StepId "ncp_create_custom_task_clickable_with_dashboard_open" -StepTitle "NCP Create Custom Task remains clickable with Dashboard open" -ExpectedOpenMarker "RENDERER_MAIN|OVERLAY_ENTRY_DIALOG_EXEC_START|action=create_custom_task" -DismissMarker "RENDERER_MAIN|OVERLAY_ENTRY_DIALOG_EXEC_RETURNED|action=create_custom_task"
+    Click-RuntimeButtonAndWaitForDialog -ButtonName "Create Custom Group" -DialogTitle "Create Custom Group" -StepId "ncp_create_custom_group_clickable_with_dashboard_open" -StepTitle "NCP Create Custom Group remains clickable with Dashboard open" -ExpectedOpenMarker "RENDERER_MAIN|OVERLAY_ENTRY_DIALOG_EXEC_START|action=create_custom_group" -DismissMarker "RENDERER_MAIN|OVERLAY_ENTRY_DIALOG_EXEC_RETURNED|action=create_custom_group"
+    Click-RuntimeButtonAndWaitForCloseableWindow -ButtonName "Manage Custom Tasks" -DialogTitle "Manage Custom Tasks" -StepId "ncp_manage_custom_tasks_clickable_with_dashboard_open" -StepTitle "NCP Manage Custom Tasks remains clickable with Dashboard open" -ExpectedOpenMarker "RENDERER_MAIN|OVERLAY_ENTRY_DIALOG_EXEC_START|action=manage_custom_tasks" -DismissMarker "RENDERER_MAIN|OVERLAY_ENTRY_DIALOG_EXEC_RETURNED|action=manage_custom_tasks"
+    Click-RuntimeButtonAndWaitForCloseableWindow -ButtonName "Manage Custom Groups" -DialogTitle "Manage Custom Groups" -StepId "ncp_manage_custom_groups_clickable_with_dashboard_open" -StepTitle "NCP Manage Custom Groups remains clickable with Dashboard open" -ExpectedOpenMarker "RENDERER_MAIN|OVERLAY_ENTRY_DIALOG_EXEC_START|action=manage_custom_groups" -DismissMarker "RENDERER_MAIN|OVERLAY_ENTRY_DIALOG_EXEC_RETURNED|action=manage_custom_groups"
+
+    $duplicateGuardEvidence = Invoke-TrayAction -ActionName "Create Custom Task" -ExpectedMarker "RENDERER_MAIN|TRAY_CREATE_CUSTOM_TASK_REQUESTED|source=menu" -TimeoutSeconds $ActionTimeoutSeconds
+    Start-Sleep -Milliseconds 900
+    $duplicateGuardShot = Capture-VirtualScreenshot "04c_after_tray_create_custom_task_dialog"
+    $dialogOne = Wait-ForVisibleRuntimeWindowByTitle -Title "Create Custom Task" -TimeoutSeconds 5
+    $secondCreateEvidence = Invoke-TrayAction -ActionName "Create Custom Task" -ExpectedMarker "RENDERER_MAIN|TRAY_CREATE_CUSTOM_TASK_ABORTED|source=menu|reason=authoring_dialog_active" -TimeoutSeconds $ActionTimeoutSeconds
+    Start-Sleep -Milliseconds 650
+    $duplicateGuardAfterShot = Capture-VirtualScreenshot "04d_after_duplicate_tray_create_custom_task_blocked"
+    Add-Step -Id "tray_create_custom_task_duplicate_guard" -Title "Tray Create Custom Task cannot spawn infinite dialogs" -Status ($(if ($dialogOne -and $dialogOne.Count -eq 4) { "PASS" } else { "FAIL" })) -Detail "First tray Create Custom Task opened one dialog; second tray request was blocked while the dialog was active." -Evidence @{ screenshot = $duplicateGuardAfterShot; firstClick = $duplicateGuardEvidence; secondClick = $secondCreateEvidence; firstDialogRect = $dialogOne; firstDialogScreenshot = $duplicateGuardShot }
+    if (-not $dialogOne -or $dialogOne.Count -ne 4) { throw "Tray Create Custom Task did not open a single visible dialog for duplicate guard proof" }
+    try {
+        $null = Click-VisibleRuntimeDialogButton -Title "Create Custom Task" -ButtonName "Cancel" -TimeoutSeconds 5
+    } catch {
+        $dismissDuplicate = Dismiss-VisibleRuntimeDialog -Title "Create Custom Task" -TimeoutSeconds 5 -ExpectedDismissMarker "RENDERER_MAIN|OVERLAY_ENTRY_DIALOG_EXEC_RETURNED|action=create_custom_task"
+        if (-not $dismissDuplicate.dismissed) {
+            throw
+        }
+    }
+    Start-Sleep -Milliseconds 600
+
+    $dashboard = Get-DashboardWindow
+    if (-not $dashboard) { throw "Dashboard disappeared before resize proof after NCP interaction checks" }
     $rectBeforeResize = $dashboard.Current.BoundingRectangle
     Drag-FromTo -StartX ([int]($rectBeforeResize.Right - 8)) -StartY ([int]($rectBeforeResize.Bottom - 8)) -EndX ([int]($rectBeforeResize.Right + 70)) -EndY ([int]($rectBeforeResize.Bottom + 60)) -Label "Dashboard bottom-right resize"
     $dashboard = Get-DashboardWindow

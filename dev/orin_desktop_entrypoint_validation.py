@@ -6819,7 +6819,7 @@ def run_validation():
     )
     checks["tray_identity_menu_header"] = line_status(
         tray_identity_result["action_texts"][:3]
-        == ["Nexus Desktop AI", "Enable HUD Feature", "Disable HUD Feature"],
+        == ["Nexus Desktop AI", "Enable HUD Feature", "Open HUD Dashboard"],
         f"action_texts={tray_identity_result['action_texts']}",
     )
     checks["tray_exit_action_present"] = line_status(
@@ -6839,11 +6839,11 @@ def run_validation():
         f"hud_overlay_deferred_action_enabled={tray_identity_result['hud_overlay_deferred_action_enabled']}",
     )
     checks["tray_dashboard_action_present"] = line_status(
-        "Enable HUD Feature" in tray_identity_result["action_texts"],
+        "Open HUD Dashboard" in tray_identity_result["action_texts"],
         f"action_texts={tray_identity_result['action_texts']}",
     )
     checks["tray_dashboard_close_action_present"] = line_status(
-        "Enable HUD Feature" in tray_identity_result["action_texts"],
+        "Open HUD Dashboard" in tray_identity_result["action_texts"],
         f"action_texts={tray_identity_result['action_texts']}",
     )
     checks["tray_dashboard_action_disabled_when_feature_off"] = line_status(
