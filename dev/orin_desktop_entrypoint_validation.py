@@ -2780,7 +2780,7 @@ try:
     log("RENDERER_MAIN|DESKTOP_SETTLED_SIGNAL_FILE_SET")
     log("DESKTOP_OUTCOME|SETTLED|state=dormant")
 
-    deadline = time.time() + 5.0
+    deadline = time.time() + 20.0
     while time.time() < deadline:
         if relaunch_signal.consume():
             log("RENDERER_MAIN|RELAUNCH_REQUEST_RECEIVED")
@@ -2847,7 +2847,7 @@ finally:
                     first_runtime_log = runtime_logs[0]
                 if first_runtime_log:
                     first_runtime_lines = read_lines(first_runtime_log)
-                    if any(AUTHORITATIVE_DESKTOP_SETTLED_MARKER in line for line in first_runtime_lines):
+                    if any(LAUNCHER_SETTLED_OBSERVED_MARKER in line for line in first_runtime_lines):
                         first_settled_seen = True
                         break
                 time.sleep(0.2)

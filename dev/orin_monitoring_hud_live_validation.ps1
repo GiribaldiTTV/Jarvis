@@ -400,11 +400,20 @@ function Save-UserTestSummaryHandoff([object]$Paths) {
                 continue
             }
             $step = $precheckById[$stepId]
-            $status = [string]$step.codexPrecheck
+            $status = ""
+            if ($step.PSObject.Properties.Name -contains "codexPrecheck") {
+                $status = [string]$step.codexPrecheck
+            }
             if ([string]::IsNullOrWhiteSpace($status)) {
                 $status = [string]$step.status
             }
-            $proofClass = [string]$step.proofClass
+            $proofClass = ""
+            if ($step.PSObject.Properties.Name -contains "proofClass") {
+                $proofClass = [string]$step.proofClass
+            }
+            if ([string]::IsNullOrWhiteSpace($proofClass)) {
+                $proofClass = "unspecified"
+            }
             $details += "$stepId=$status ($proofClass)"
             if ($status -ne "PASS") {
                 $failed += "$stepId=$status"
@@ -420,8 +429,11 @@ function Save-UserTestSummaryHandoff([object]$Paths) {
     }
 
     $precheckStep1 = Format-ShortcutPrecheckLine @("launch_settled_tray_available") "LV1 cannot claim unrestricted green handoff for shortcut launch without USER waiver."
-    $precheckStep2 = Format-ShortcutPrecheckLine @("enable_hud_opens_dashboard", "close_dashboard_from_tray", "open_dashboard_from_tray", "disable_hud_recovers") "LV1 cannot claim unrestricted green handoff for tray Dashboard lifecycle without USER waiver."
-    $precheckStep3 = Format-ShortcutPrecheckLine @("tray_exit_confirmation_preserves_session_on_timeout") "LV1 cannot claim unrestricted green handoff for tray Exit confirmation without USER waiver."
+    $precheckStep2 = Format-ShortcutPrecheckLine @("enable_hud_opens_dashboard", "close_dashboard_from_tray_before_move", "open_dashboard_from_tray_before_move", "close_dashboard_from_tray", "open_dashboard_from_tray", "disable_hud_recovers") "LV1 cannot claim unrestricted green handoff for tray Dashboard lifecycle without USER waiver."
+    $precheckStep3 = Format-ShortcutPrecheckLine @("tray_exit_confirmation_visible", "tray_exit_cancel_preserves_session", "tray_exit_accept_prompt_visible", "tray_exit_accept_shuts_down_promptly") "LV1 cannot claim unrestricted green handoff for tray Exit confirmation without USER waiver."
+    $precheckNcpInteraction = Format-ShortcutPrecheckLine @("dashboard_mouse_move", "ncp_opens_with_dashboard_visible", "ncp_create_custom_task_clickable_with_dashboard_open", "ncp_create_custom_group_clickable_with_dashboard_open", "ncp_manage_custom_tasks_clickable_with_dashboard_open", "ncp_manage_custom_groups_clickable_with_dashboard_open") "LV1 cannot claim unrestricted green handoff for Dashboard-visible NCP interaction without USER waiver."
+    $precheckTrayAuthoring = Format-ShortcutPrecheckLine @("tray_create_custom_task_duplicate_guard") "LV1 cannot claim unrestricted green handoff for tray authoring duplicate-dialog safety without USER waiver."
+    $precheckHumanClientRun = Format-ShortcutPrecheckLine @("launch_settled_visible_desktop", "launch_settled_tray_available", "enable_hud_opens_dashboard", "ncp_create_custom_task_clickable_with_dashboard_open", "tray_exit_confirmation_visible") "LV1 cannot claim unrestricted green handoff without real-human client precheck coverage or USER waiver."
     $activeClientPrecheck = "Codex Precheck: PASS through proven equivalent active-client live helper path - equivalence evidence: same active branch runtime, active foreground desktop client, PASS manifest, PASS interaction self-QA, and before/after full-desktop screenshots at $($Paths.Root)."
     $visualScreenshotPrecheck = "Codex Precheck: PASS through proven equivalent active-client screenshot/manifest path - equivalence evidence: PASS live helper manifest, USER-inspectable screenshot folder, and interaction manifest at $($Paths.Root). USER visual confirmation is still required."
     $deferredBoundaryPrecheck = "Codex Precheck: PASS through source-truth, static validation, sandbox validation, and active-client manifest boundary proof - USER is not being asked to accept deferred/future scope."
@@ -479,6 +491,12 @@ Returned USER Issue Register Retest Focus
 - FAM006-RUI-039 Tray Exit NDAI real-client confirmation failure: covered by Step 3. $precheckStep3
 - FAM006-RUI-040 Tray Enable/Disable works partially but Dashboard does not open: covered by Step 2. $precheckStep2
 - FAM006-RUI-041 issue-register/proof-governance gap: covered by this handoff's per-step Codex Precheck lines and proof-class separation summary.
+- FAM006-RUI-042 denied LV1 handoff for missing real-human validation: covered by this LV1 precheck. $precheckHumanClientRun
+- FAM006-RUI-043 still-broken UI after LV1 handoff: covered by issue-grounded visual questions below and fresh screenshot proof. $visualScreenshotPrecheck
+- FAM006-RUI-044 tray action order: covered by Step 2 and real tray menu proof. $precheckStep2
+- FAM006-RUI-045 Dashboard blocks NCP buttons: covered by Step 4. $precheckNcpInteraction
+- FAM006-RUI-046 tray Create Custom Task duplicate/lock behavior: covered by Step 5. $precheckTrayAuthoring
+- FAM006-RUI-047 Exit prompt visual/session-preservation split: covered by Step 3 for function; visual restyling remains future polish unless USER marks it blocking. $precheckStep3
 
 Issue-Grounded USER Questions
 Answer each issue as PASS, FAIL, or WAIVED. Add notes/screenshots for any FAIL or WAIVED answer.
@@ -647,6 +665,30 @@ FAM006-RUI-041 / New #3 - Does this UTS itself provide enough issue-register tra
 Codex Precheck: PASS through issue-grounded UTS template, branch Returned USER Issue Register, companion ledger mappings, and proof-class manifest separation. USER review of this handoff is still required.
 USER Result / Notes:
 
+FAM006-RUI-042 / LV1 denial - Did Codex complete the real-human client validation precheck before handing this UTS back to you?
+$precheckHumanClientRun
+USER Result / Notes:
+
+FAM006-RUI-043 / LV1 denial - Do the fresh screenshots and issue-grounded UI questions below give enough real visual coverage for you to judge the Dashboard without hidden broad claims?
+$visualScreenshotPrecheck
+USER Result / Notes:
+
+FAM006-RUI-044 / WS49 comment - In the real tray menu, is Open/Close HUD Dashboard positioned directly below Enable/Disable HUD Feature?
+$precheckStep2
+USER Result / Notes:
+
+FAM006-RUI-045 / Bug 1 - With Dashboard open and moved left, can NCP Create Custom Task, Create Custom Group, Manage Custom Tasks, and Manage Custom Groups all receive clicks and open/dismiss normally?
+$precheckNcpInteraction
+USER Result / Notes:
+
+FAM006-RUI-046 / Bug 2 - From the tray, does Create Custom Task avoid spawning infinite duplicate/locked dialogs while an authoring dialog is already active?
+$precheckTrayAuthoring
+USER Result / Notes:
+
+FAM006-RUI-047 / Exit prompt polish - Functionally, does tray Exit NDAI show confirmation, preserve the session on cancel/timeout, and shut down promptly only when accepted? Note separately if you want the prompt visual style changed from Windows-standard to NDAI-styled.
+$precheckStep3
+USER Result / Notes:
+
 What This Test Is Checking
 - The HUD Dashboard is the current branch's primary user-facing interface release surface.
 - The Dashboard is a Nexus/NDAI settings and control hub for HUD Overlay posture, monitor groups, warning notifications, data-source/readiness truth, and future Overlay/display behavior.
@@ -685,52 +727,62 @@ $precheckStep3
 Ledger rows: FAM006-TRAY-SHUTDOWN-CONFIRM-055.
 Observed Results:
 
-4. Confirm the ORIN Core visualization remains independent and does not visibly attach to or move with the Dashboard.
+4. With Dashboard open and moved to the left side of the middle monitor, open NCP from the tray and confirm Create Custom Task, Create Custom Group, Manage Custom Tasks, and Manage Custom Groups all receive clicks and open/dismiss normally.
+$precheckNcpInteraction
+Ledger rows: FAM006-DASH-NCP-MOUSE-068; FAM006-DASH-FOCUS-047; FAM006-NCP-REGRESSION-048; FAM006-DASH-CLIP-004.
+Observed Results:
+
+5. From the tray, click Create Custom Task while an authoring dialog is already active and confirm it does not spawn infinite duplicate or locked windows.
+$precheckTrayAuthoring
+Ledger rows: FAM006-TRAY-AUTHORING-DIALOG-GUARD-069; FAM006-NCP-REGRESSION-048; FAM006-GOV-HUMAN-CLIENT-065.
+Observed Results:
+
+6. Confirm the ORIN Core visualization remains independent and does not visibly attach to or move with the Dashboard.
 $activeClientPrecheck
 Ledger rows: FAM006-CORE-DEP-025; FAM006-CORE-PRESET-026; FAM006-CORE-NONMOVABLE-027; FAM006-CORE-WORKERW-028; FAM006-CORE-TRANSPARENCY-029; FAM006-CORE-ISOLATION-030.
 Observed Results:
 
-5. Confirm the HUD Dashboard is visible as a Dashboard/control hub, not the final Overlay/display. It should not show the old proof-heavy/native CPU hero slab as the main home content.
+7. Confirm the HUD Dashboard is visible as a Dashboard/control hub, not the final Overlay/display. It should not show the old proof-heavy/native CPU hero slab as the main home content.
 $visualScreenshotPrecheck
 Ledger rows: FAM006-DASH-SURFACE-001; FAM006-DASH-CONTENT-008; FAM006-DASH-VISUAL-006; FAM006-DASH-PROVIDER-015.
 Observed Results:
 
-6. Move and resize the Dashboard. Confirm it behaves like a standalone normal window without clipping, disappearing, blocking NCP/other windows, stealing topmost focus, dragging the Core, or dragging the deferred Overlay/display.
+8. Move and resize the Dashboard. Confirm it behaves like a standalone normal window without clipping, disappearing, blocking NCP/other windows, stealing topmost focus, dragging the Core, or dragging the deferred Overlay/display.
 $activeClientPrecheck
 Ledger rows: FAM006-DASH-WINDOW-002; FAM006-DASH-MOVE-003; FAM006-DASH-CLIP-004; FAM006-DASH-FOCUS-047; FAM006-DASH-RESIZE-057; FAM006-NCP-REGRESSION-048.
 Observed Results:
 
-7. Confirm the Dashboard frame, scrollbar, background texture, card spacing, and sticky title/header are visually coherent. The scrollbar should belong to the Dashboard chrome, the outer haze/square frame should not be visible, content should not float over the sticky title, and big empty dead zones should not dominate cards.
+9. Confirm the Dashboard frame, scrollbar, background texture, card spacing, and sticky title/header are visually coherent. The scrollbar should belong to the Dashboard chrome, the outer haze/square frame should not be visible, content should not float over the sticky title, and big empty dead zones should not dominate cards.
 $visualScreenshotPrecheck
 Ledger rows: FAM006-DASH-LAYOUT-005; FAM006-DASH-VISUAL-006; FAM006-DASH-SCROLL-007; FAM006-DASH-FRAME-HAZE-056; FAM006-DASH-DEADZONE-058; FAM006-DASH-STICKY-OCCLUSION-059.
 Observed Results:
 
-8. Confirm Dashboard controls are understandable and not redundant: Quick Access should prioritize Warning Notifications, Monitor Groups should own Create/Edit, Data Sources should be clearly deferred/disabled if not implemented, and HUD Overlay terminology should be used for Overlay-related items.
+10. Confirm Dashboard controls are understandable and not redundant: Quick Access should prioritize Warning Notifications, Monitor Groups should own Create/Edit, Data Sources should be clearly deferred/disabled if not implemented, and HUD Overlay terminology should be used for Overlay-related items.
 $visualScreenshotPrecheck
 Ledger rows: FAM006-DASH-CONTENT-008; FAM006-DASH-MONITOR-GROUP-009; FAM006-DASH-MONITOR-ENABLE-010; FAM006-DASH-MONITOR-POLLING-011; FAM006-DASH-AFFORDANCE-COPY-012; FAM006-DASH-WARNING-017; FAM006-DASH-QUICK-ACCESS-060; FAM006-DASH-DEFERRED-BUTTON-061; FAM006-DASH-HUD-OVERLAY-COPY-062.
 Observed Results:
 
-9. Confirm monitor groups are organizational settings objects in the Dashboard, not display cards that imply Overlay/display acceptance.
+11. Confirm monitor groups are organizational settings objects in the Dashboard, not display cards that imply Overlay/display acceptance.
 $deferredBoundaryPrecheck
 Ledger rows: FAM006-DASH-MONITOR-GROUP-009; FAM006-OVERLAY-MONITOR-CARDS-023; FAM006-OVERLAY-DEFER-018.
 Observed Results:
 
-10. Confirm provider/setup/no-data/degraded copy is truthful and no fake CPU/GPU/thermal values are presented as real.
+12. Confirm provider/setup/no-data/degraded copy is truthful and no fake CPU/GPU/thermal values are presented as real.
 $visualScreenshotPrecheck
 Ledger rows: FAM006-DASH-PROVIDER-015; FAM006-DASH-NOFAKE-016; FAM006-FUTURE-PROVIDER-041; FAM006-FUTURE-EXTERNAL-042.
 Observed Results:
 
-11. Confirm warning controls remain visual/non-invasive and do not introduce audio/spoken alerts or screen flash behavior.
+13. Confirm warning controls remain visual/non-invasive and do not introduce audio/spoken alerts or screen flash behavior.
 $visualScreenshotPrecheck
 Ledger rows: FAM006-DASH-WARNING-017; FAM006-FUTURE-AUDIO-043.
 Observed Results:
 
-12. Confirm deferred/future boundaries are clear: Overlay/display acceptance, full child-window editors, Dev Toolkit Interface Review Mode, provider-platform parity, audio alerts, and NCP placement/persistence #20 are not being accepted in this branch unless they visibly break current Dashboard safety.
+14. Confirm deferred/future boundaries are clear: Overlay/display acceptance, full child-window editors, Dev Toolkit Interface Review Mode, provider-platform parity, audio alerts, and NCP placement/persistence #20 are not being accepted in this branch unless they visibly break current Dashboard safety.
 $deferredBoundaryPrecheck
 Ledger rows: FAM006-OVERLAY-DEFER-018; FAM006-DASH-CHILD-WINDOW-049; FAM006-DEV-INTERFACE-REVIEW-050; FAM006-FUTURE-PROVIDER-041; FAM006-FUTURE-AUDIO-043; FAM006-NCP-REGRESSION-048.
 Observed Results:
 
-13. Note any readability, placement, clipping, scaling, motion, confusion, tray-state, deferred-button, NCP-blocking, or polish concern that should block Dashboard acceptance.
+15. Note any readability, placement, clipping, scaling, motion, confusion, tray-state, deferred-button, NCP-blocking, or polish concern that should block Dashboard acceptance.
 $visualScreenshotPrecheck
 Ledger rows: all user-facing and hidden-user-facing Dashboard/Core/tray rows listed above.
 Observed Results:
