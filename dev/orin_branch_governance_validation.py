@@ -365,6 +365,8 @@ FAM006_WS51_HEADING = (
     "Workstream WS51 Dashboard Resize Hit Zone Scrollbar Inset And HUD State Persistence Repair"
 )
 FAM006_WS51_NEXT_SEAM = "Hardening H1 - Monitoring HUD Product Surface Hardening Rerun"
+FAM006_WS52_HEADING = "Workstream WS52 Dashboard Real Resize Recovery Repair"
+FAM006_WS52_NEXT_SEAM = "Hardening H1 - Monitoring HUD Product Surface Hardening Rerun"
 FAM006_H1_HEADING = "Hardening H1 Dashboard-First Product Surface Rerun"
 FAM006_H1_NEXT_SEAM = (
     "Live Validation LV1 - Monitoring HUD Product Surface Live Validation Rerun"
@@ -1221,6 +1223,46 @@ FAM006_WS51_REQUIRED_PHRASES = (
     "Next Legal Seam:",
     FAM006_WS51_NEXT_SEAM,
 )
+FAM006_WS52_REQUIRED_PHRASES = (
+    "WS52 Admission:",
+    "post-WS51 Bug 1",
+    "WS52 Result:",
+    "Green for focused Dashboard real resize recovery repair",
+    "Returned USER Evidence:",
+    "you can no longer resize the window",
+    "Runtime Resize Repair:",
+    "fallback geometry resizing",
+    "MONITORING_HUD_NATIVE_WINDOW_RESIZE_FALLBACK_STARTED",
+    "MONITORING_HUD_NATIVE_WINDOW_RESIZE_READY",
+    "Proof Correction:",
+    "WS51 native WM_NCHITTEST/startSystemResize proof is superseded",
+    "Validator / Helper Updates:",
+    "actual Dashboard size delta",
+    "Validation Proof:",
+    "20260511_060551_693",
+    "780x1060 to 858x1128",
+    "Element Rows Updated:",
+    "FAM006-DASH-RESIZE-057",
+    "FAM006-GOV-HUMAN-CLIENT-065",
+    "Returned USER Issue Rows Updated:",
+    "FAM006-RUI-051",
+    "Prior Proof Staleness:",
+    "WS51 native resize proof",
+    "Formal UTS Boundary:",
+    "WS52 does not generate, refresh, or digest",
+    "Overlay Status:",
+    "Deferred/dormant/non-gating",
+    "Core Status:",
+    "Dependency-only",
+    "Dashboard Acceptance State:",
+    "Still blocked",
+    "Package Completion:",
+    "Unclaimed",
+    "Continuation Execution Latch:",
+    "Inactive - WS52 is Green / Hardening phase-boundary stop",
+    "Next Legal Seam:",
+    FAM006_WS52_NEXT_SEAM,
+)
 FAM006_WORKSTREAM_CONTINUATION_REQUIRED_PHRASES = (
     "multi-slice HUD implementation continuation",
     "WS8 - Monitoring HUD Internal Sandbox Harness And State Matrix Baseline",
@@ -1479,7 +1521,7 @@ FAM006_ELEMENT_LEDGER_REQUIRED_PHRASES = (
     "FAM006-FUTURE-AUDIO-043",
     "FAM006-FUTURE-PERSONA-044",
     "## UTS Coverage Map",
-    "Current Coverage Status: `Workstream WS51 Green / H1 Rerun Required - RUI-001 through RUI-050 remain issue-grounded; latest returned feedback reopened resize hit-zone reliability, scrollbar inset precision, and HUD Feature state persistence after the post-WS50 LV1 handoff; LV2 remains blocked`",
+    "Current Coverage Status: `Workstream WS52 Green / H1 Rerun Required - RUI-001 through RUI-051 remain issue-grounded; latest returned feedback reopened Dashboard resize availability after WS51; LV2 remains blocked`",
     "## Proof Rebaseline Summary",
     "Returned Step 2 Tray enable/disable/open Dashboard",
     "Returned Step 3 Tray Exit NDAI",
@@ -6216,6 +6258,8 @@ def _validate_fam006_stage2_r6_plan(
                     f"Active seam: `{FAM006_WS51_NEXT_SEAM}`" in text
                     or "Active seam: `Phase Boundary Stop - Workstream WS51 Green / Await USER Hardening Admission`"
                     in text
+                    or "Active seam: `Phase Boundary Stop - Workstream WS52 Green / Await USER Hardening Admission`"
+                    in text
                 ),
                 f"{source_path}: WS51 completion must advance active seam or phase-boundary stop to Hardening H1",
             )
@@ -6227,6 +6271,29 @@ def _validate_fam006_stage2_r6_plan(
                 "H1 rerun and refreshed LV1 remain required" in text
                 or "H1 rerun required" in text,
                 f"{source_path}: WS51 completion must mark prior H1/LV1 stale for affected resize/scrollbar/state rows",
+            )
+        ws52_section = _section(text, FAM006_WS52_HEADING)
+        if ws52_section:
+            for phrase in FAM006_WS52_REQUIRED_PHRASES:
+                require(
+                    phrase in ws52_section,
+                    f"{source_path}: {FAM006_WS52_HEADING} is missing '{phrase}'",
+                )
+            require(
+                (
+                    f"Active seam: `{FAM006_WS52_NEXT_SEAM}`" in text
+                    or "Active seam: `Phase Boundary Stop - Workstream WS52 Green / Await USER Hardening Admission`"
+                    in text
+                ),
+                f"{source_path}: WS52 completion must advance active seam or phase-boundary stop to Hardening H1",
+            )
+            require(
+                f"Next Legal Seam: `{FAM006_WS52_NEXT_SEAM}`" in text,
+                f"{source_path}: WS52 completion must set next legal seam to Hardening H1",
+            )
+            require(
+                "H1 rerun required" in text,
+                f"{source_path}: WS52 completion must mark prior H1/LV1 stale for affected resize rows",
             )
             require(
                 "Hardening H1 requires explicit USER admission" in text,

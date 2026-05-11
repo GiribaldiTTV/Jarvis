@@ -7055,6 +7055,14 @@ class DesktopRuntimeWindow(QWidget):
             edges |= Qt.BottomEdge
         return edges
 
+    def _monitoring_hud_window_resize_interaction_available(self) -> bool:
+        return (
+            self.surface_role == "hud"
+            and self.desktop_mode
+            and self.isVisible()
+            and self.webview.isVisible()
+        )
+
     def _monitoring_hud_native_resize_hit_test_for_edges(self, edges) -> int:
         left, right, top, bottom = self._monitoring_hud_resize_edge_key(edges)
         if left and top:
@@ -7151,6 +7159,21 @@ class DesktopRuntimeWindow(QWidget):
             resize_model="fallback-edge-corner-resize",
             edges=str(edges),
         )
+
+    def _update_monitoring_hud_fallback_window_resize(self, screen_point: QPoint):
+        if not self._monitoring_hud_native_window_resize_active:
+            return
+        self.setGeometry(self._monitoring_hud_resize_rect_from_native_delta(screen_point))
+        self._monitoring_hud_interactive_screen_rect = self.geometry()
+
+    def _finish_monitoring_hud_fallback_window_resize(self, screen_point: QPoint):
+        if not self._monitoring_hud_native_window_resize_active:
+            return
+        self.setGeometry(self._monitoring_hud_resize_rect_from_native_delta(screen_point))
+        self._monitoring_hud_native_window_resize_active = False
+        self._monitoring_hud_native_window_resize_edges = Qt.Edges()
+        self._reset_monitoring_hud_resize_cursor()
+        self._finish_monitoring_hud_native_system_resize("fallback_window_resize")
 
     def _bound_monitoring_hud_window_resize_rect(self, rect: QRect) -> QRect:
         virtual = self._virtual_desktop_geometry()
@@ -7380,8 +7403,8 @@ class DesktopRuntimeWindow(QWidget):
     def _handle_monitoring_hud_native_panel_drag_event(self, event) -> bool:
         if (
             not self.desktop_mode
-            or not self._monitoring_hud_feature_enabled
-            or not self._monitoring_hud_visible
+            or (self.surface_role == "hud" and not self.isVisible())
+            or (self.surface_role != "hud" and (not self._monitoring_hud_feature_enabled or not self._monitoring_hud_visible))
         ):
             self._monitoring_hud_native_panel_drag_active = False
             self._monitoring_hud_native_window_resize_active = False
@@ -7396,6 +7419,8 @@ class DesktopRuntimeWindow(QWidget):
             or self._monitoring_hud_native_card_drag_active
             or self._monitoring_hud_native_card_resize_active
         ):
+            if not self._monitoring_hud_window_resize_interaction_available():
+                return False
             screen_point = event.globalPosition().toPoint()
             resize_edges = self._monitoring_hud_native_resize_edges_for_point(screen_point)
             if resize_edges and not self._monitoring_hud_dashboard_control_rect_contains(screen_point):
@@ -7407,8 +7432,9 @@ class DesktopRuntimeWindow(QWidget):
             screen_point = event.globalPosition().toPoint()
             resize_edges = self._monitoring_hud_native_resize_edges_for_point(screen_point)
             if resize_edges and not self._monitoring_hud_dashboard_control_rect_contains(screen_point):
-                if self._start_monitoring_hud_native_system_resize(resize_edges, screen_point):
-                    return True
+                # Use direct geometry resizing for the user-facing Dashboard. Qt/Windows can
+                # report startSystemResize as "started" without delivering a real resize for
+                # this frameless WebEngine window, which made prior proof over-credit the path.
                 self._start_monitoring_hud_fallback_window_resize(resize_edges, screen_point)
                 return True
             if not (
@@ -7482,8 +7508,7 @@ class DesktopRuntimeWindow(QWidget):
             return True
         if event_type == QEvent.MouseMove and self._monitoring_hud_native_window_resize_active:
             screen_point = event.globalPosition().toPoint()
-            self.setGeometry(self._monitoring_hud_resize_rect_from_native_delta(screen_point))
-            self._monitoring_hud_interactive_screen_rect = self.geometry()
+            self._update_monitoring_hud_fallback_window_resize(screen_point)
             return True
         if event_type == QEvent.MouseMove and self._monitoring_hud_native_panel_drag_active:
             screen_point = event.globalPosition().toPoint()
@@ -7528,11 +7553,7 @@ class DesktopRuntimeWindow(QWidget):
                 return True
             if self._monitoring_hud_native_window_resize_active:
                 screen_point = event.globalPosition().toPoint()
-                self.setGeometry(self._monitoring_hud_resize_rect_from_native_delta(screen_point))
-                self._monitoring_hud_native_window_resize_active = False
-                self._monitoring_hud_native_window_resize_edges = Qt.Edges()
-                self._reset_monitoring_hud_resize_cursor()
-                self._finish_monitoring_hud_native_system_resize("fallback_window_resize")
+                self._finish_monitoring_hud_fallback_window_resize(screen_point)
                 return True
             if self._monitoring_hud_native_panel_drag_active:
                 screen_point = event.globalPosition().toPoint()
@@ -10793,8 +10814,11 @@ class DesktopRuntimeWindow(QWidget):
                 y = ctypes.c_short((int(msg.lParam) >> 16) & 0xFFFF).value
                 edges = self._monitoring_hud_native_resize_edges_for_point(QPoint(x, y))
                 hit_test = self._monitoring_hud_native_resize_hit_test_for_edges(edges)
-                if hit_test:
-                    return True, hit_test
+                # Do not convert the client drag into a Windows non-client resize here.
+                # On the frameless WebEngine Dashboard that path can swallow the drag
+                # without changing geometry; the QApplication mouse path now owns the
+                # reliable resize contract.
+                _ = hit_test
         return super().nativeEvent(eventType, message)
 
     def enable_desktop_mode(self):

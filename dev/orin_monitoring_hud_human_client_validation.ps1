@@ -1217,7 +1217,7 @@ function Save-Manifest {
         schema = "fam006-human-client-validation-v1"
         status = $Status
         failure = $Failure
-        seam = "Workstream WS49 - Dashboard NCP Interaction Isolation And Tray Action Safety"
+        seam = "Workstream WS52 - Dashboard Real Resize Recovery Repair"
         startedAt = $script:StartedAt
         finishedAt = (Get-Date).ToUniversalTime().ToString("o")
         desktopShortcutPath = $DesktopShortcutPath
