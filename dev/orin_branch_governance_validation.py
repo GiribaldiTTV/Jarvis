@@ -1432,7 +1432,7 @@ FAM006_ELEMENT_LEDGER_REQUIRED_PHRASES = (
     "FAM006-FUTURE-AUDIO-043",
     "FAM006-FUTURE-PERSONA-044",
     "## UTS Coverage Map",
-    "Current Coverage Status: `Hardening H1 Green / LV1 Handoff Ready - RUI-001 through RUI-047 remain issue-grounded; the prior UTS is stale for affected WS50 visual-shell rows and must be refreshed before USER acceptance can be requested again`",
+    "Current Coverage Status: `Live Validation LV1 Handoff Green / Returned USER Results Pending - RUI-001 through RUI-047 remain issue-grounded; the refreshed UTS maps the post-WS50 visual-shell rows, real tray path, NCP interaction path, proof-class separation, Overlay deferral, and Core dependency-only boundary to per-step Codex prechecks`",
     "## Proof Rebaseline Summary",
     "Returned Step 2 Tray enable/disable/open Dashboard",
     "Returned Step 3 Tray Exit NDAI",
