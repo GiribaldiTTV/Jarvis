@@ -29,7 +29,7 @@ from PySide6.QtWidgets import (
     QSizeGrip,
 )
 from PySide6.QtCore import Qt, QTimer, QUrl, QRect, QRectF, Signal, QPoint, QEvent
-from PySide6.QtGui import QColor, QFont, QPainter, QPainterPath, QPixmap, QRegion
+from PySide6.QtGui import QColor, QCursor, QFont, QPainter, QPainterPath, QPixmap, QRegion
 from PySide6.QtTest import QTest
 from PySide6.QtWebEngineWidgets import QWebEngineView
 
@@ -81,8 +81,18 @@ HTTOPRIGHT = 14
 HTBOTTOM = 15
 HTBOTTOMLEFT = 16
 HTBOTTOMRIGHT = 17
+IDC_ARROW = 32512
+IDC_SIZENWSE = 32642
+IDC_SIZENESW = 32643
+IDC_SIZEWE = 32644
+IDC_SIZENS = 32645
 user32 = ctypes.windll.user32
 kernel32 = ctypes.windll.kernel32
+LoadCursorW = user32.LoadCursorW
+LoadCursorW.restype = ctypes.wintypes.HCURSOR
+SetCursor = user32.SetCursor
+SetCursor.argtypes = [ctypes.wintypes.HCURSOR]
+SetCursor.restype = ctypes.wintypes.HCURSOR
 GetWindowRect = user32.GetWindowRect
 GetWindowRect.argtypes = [ctypes.wintypes.HWND, ctypes.POINTER(ctypes.wintypes.RECT)]
 GetWindowRect.restype = ctypes.c_bool
@@ -5745,6 +5755,7 @@ class DesktopRuntimeWindow(QWidget):
         self._monitoring_hud_native_window_resize_start = QPoint()
         self._monitoring_hud_native_window_resize_base = QRect()
         self._monitoring_hud_resize_cursor_key = None
+        self._monitoring_hud_resize_override_cursor_active = False
         self._monitoring_hud_native_card_drag_active = False
         self._monitoring_hud_native_card_resize_active = False
         self._monitoring_hud_native_card_drag_id = ""
@@ -7004,7 +7015,7 @@ class DesktopRuntimeWindow(QWidget):
             scrollbar_owner="monitoring-hud-chrome",
             scrollbar_boundary="rounded-window-clipped",
             outer_frame_haze="removed-no-square-layer",
-            native_resize_hit_zone="forgiving-58px-all-edges-and-corners",
+            native_resize_hit_zone="cursor-aligned-12px-all-edges-and-corners",
             resize_hit_zone_px=self._monitoring_hud_resize_hit_zone_px(),
             deadzone_policy="auto-height-content-no-empty-hit-zones",
             grid_scope="control-hub-cards-only",
@@ -7046,9 +7057,8 @@ class DesktopRuntimeWindow(QWidget):
         rect = self.geometry()
         if rect.isNull() or not rect.isValid():
             return Qt.Edges()
-        # This is intentionally a forgiving inner rail rather than a tiny border pixel.
-        # USER testing showed exact-edge discovery still felt inconsistent on the
-        # frameless WebEngine Dashboard, so resize starts from a visible, reliable band.
+        # Keep the fallback resize rail close to the visible chrome so cursor feedback
+        # and actual drag behavior agree with standard Windows resize expectations.
         margin = self._monitoring_hud_resize_hit_zone_px()
         if not rect.adjusted(-2, -2, 2, 2).contains(point):
             return Qt.Edges()
@@ -7064,7 +7074,7 @@ class DesktopRuntimeWindow(QWidget):
         return edges
 
     def _monitoring_hud_resize_hit_zone_px(self) -> int:
-        return 58
+        return 12
 
     def _monitoring_hud_window_resize_interaction_available(self) -> bool:
         return (
@@ -7139,18 +7149,73 @@ class DesktopRuntimeWindow(QWidget):
             return Qt.SizeVerCursor
         return None
 
+    def _monitoring_hud_windows_resize_cursor_id_for_edges(self, edges):
+        if not edges:
+            return IDC_ARROW
+        left, right, top, bottom = self._monitoring_hud_resize_edge_key(edges)
+        if (left and top) or (right and bottom):
+            return IDC_SIZENWSE
+        if (right and top) or (left and bottom):
+            return IDC_SIZENESW
+        if left or right:
+            return IDC_SIZEWE
+        if top or bottom:
+            return IDC_SIZENS
+        return IDC_ARROW
+
+    def _apply_monitoring_hud_windows_resize_cursor(self, edges):
+        if os.name != "nt":
+            return
+        try:
+            cursor_id = self._monitoring_hud_windows_resize_cursor_id_for_edges(edges)
+            cursor_handle = LoadCursorW(None, cursor_id)
+            if cursor_handle:
+                SetCursor(cursor_handle)
+        except Exception:
+            pass
+
+    def _set_monitoring_hud_override_resize_cursor(self, cursor):
+        try:
+            if cursor is None:
+                if self._monitoring_hud_resize_override_cursor_active:
+                    QApplication.restoreOverrideCursor()
+                    self._monitoring_hud_resize_override_cursor_active = False
+                return
+            qt_cursor = QCursor(cursor)
+            if self._monitoring_hud_resize_override_cursor_active:
+                QApplication.changeOverrideCursor(qt_cursor)
+            else:
+                QApplication.setOverrideCursor(qt_cursor)
+                self._monitoring_hud_resize_override_cursor_active = True
+        except Exception:
+            self._monitoring_hud_resize_override_cursor_active = False
+
     def _set_monitoring_hud_resize_cursor(self, edges):
         key = self._monitoring_hud_resize_edge_key(edges) if edges else None
         if key == self._monitoring_hud_resize_cursor_key:
+            if key is not None:
+                self._apply_monitoring_hud_windows_resize_cursor(edges)
             return
         self._monitoring_hud_resize_cursor_key = key
         cursor = self._monitoring_hud_resize_cursor_for_edges(edges) if edges else None
-        targets = (self, self.webview)
+        targets = [self, self.webview]
+        try:
+            targets.extend(self.webview.findChildren(QWidget))
+        except Exception:
+            pass
+        if os.name == "nt":
+            for target in targets:
+                target.unsetCursor()
+            self._set_monitoring_hud_override_resize_cursor(None)
+            self._apply_monitoring_hud_windows_resize_cursor(edges)
+            return
         for target in targets:
             if cursor is None:
                 target.unsetCursor()
             else:
-                target.setCursor(cursor)
+                target.setCursor(QCursor(cursor))
+        self._set_monitoring_hud_override_resize_cursor(cursor)
+        self._apply_monitoring_hud_windows_resize_cursor(edges)
 
     def _reset_monitoring_hud_resize_cursor(self):
         self._set_monitoring_hud_resize_cursor(Qt.Edges())
@@ -7425,6 +7490,14 @@ class DesktopRuntimeWindow(QWidget):
             self._reset_monitoring_hud_resize_cursor()
             return False
         event_type = event.type()
+        if event_type == QEvent.Leave and not (
+            self._monitoring_hud_native_panel_drag_active
+            or self._monitoring_hud_native_window_resize_active
+            or self._monitoring_hud_native_card_drag_active
+            or self._monitoring_hud_native_card_resize_active
+        ):
+            self._reset_monitoring_hud_resize_cursor()
+            return False
         if event_type == QEvent.MouseMove and not (
             self._monitoring_hud_native_panel_drag_active
             or self._monitoring_hud_native_window_resize_active
@@ -10826,11 +10899,11 @@ class DesktopRuntimeWindow(QWidget):
                 y = ctypes.c_short((int(msg.lParam) >> 16) & 0xFFFF).value
                 edges = self._monitoring_hud_native_resize_edges_for_point(QPoint(x, y))
                 hit_test = self._monitoring_hud_native_resize_hit_test_for_edges(edges)
-                # Do not convert the client drag into a Windows non-client resize here.
-                # On the frameless WebEngine Dashboard that path can swallow the drag
-                # without changing geometry; the QApplication mouse path now owns the
-                # reliable resize contract.
-                _ = hit_test
+                if hit_test and not self._monitoring_hud_dashboard_control_rect_contains(QPoint(x, y)):
+                    # Returning a real non-client edge lets Windows own the visible
+                    # resize cursor. The mouse fallback remains as backup when Qt
+                    # still delivers client drag events on the frameless WebEngine shell.
+                    return True, hit_test
         return super().nativeEvent(eventType, message)
 
     def enable_desktop_mode(self):

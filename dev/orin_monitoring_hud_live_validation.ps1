@@ -435,7 +435,7 @@ function Save-UserTestSummaryHandoff([object]$Paths) {
     $precheckStep3 = Format-ShortcutPrecheckLine @("tray_exit_confirmation_visible", "tray_exit_cancel_preserves_session", "tray_exit_accept_prompt_visible", "tray_exit_accept_shuts_down_promptly") "LV1 cannot claim unrestricted green handoff for tray Exit confirmation without USER waiver."
     $precheckNcpInteraction = Format-ShortcutPrecheckLine @("dashboard_mouse_move", "ncp_opens_with_dashboard_visible", "ncp_create_custom_task_clickable_with_dashboard_open", "ncp_create_custom_group_clickable_with_dashboard_open", "ncp_manage_custom_tasks_clickable_with_dashboard_open", "ncp_manage_custom_groups_clickable_with_dashboard_open") "LV1 cannot claim unrestricted green handoff for Dashboard-visible NCP interaction without USER waiver."
     $precheckTrayAuthoring = Format-ShortcutPrecheckLine @("tray_create_custom_task_duplicate_guard") "LV1 cannot claim unrestricted green handoff for tray authoring duplicate-dialog safety without USER waiver."
-    $precheckResizeDiscoverability = Format-ShortcutPrecheckLine @("dashboard_mouse_resize_corner", "dashboard_mouse_resize_right_edge", "dashboard_mouse_resize_bottom_edge", "dashboard_mouse_resize") "LV1 cannot claim unrestricted green handoff for Dashboard resize discoverability without USER waiver."
+    $precheckResizeDiscoverability = Format-ShortcutPrecheckLine @("dashboard_resize_cursor_alignment", "dashboard_mouse_resize_corner", "dashboard_mouse_resize_right_edge", "dashboard_mouse_resize_bottom_edge", "dashboard_mouse_resize") "LV1 cannot claim unrestricted green handoff for Dashboard resize discoverability without USER waiver."
     $precheckHudPersistence = Format-ShortcutPrecheckLine @("hud_feature_enabled_state_persisted") "LV1 cannot claim unrestricted green handoff for HUD Feature state persistence without USER waiver."
     $precheckHumanClientRun = Format-ShortcutPrecheckLine @("launch_settled_visible_desktop", "launch_settled_tray_available", "enable_hud_opens_dashboard", "ncp_create_custom_task_clickable_with_dashboard_open", "tray_exit_confirmation_visible") "LV1 cannot claim unrestricted green handoff without real-human client precheck coverage or USER waiver."
     $activeClientPrecheck = "Codex Precheck: PASS through proven equivalent active-client live helper path - equivalence evidence: same active branch runtime, active foreground desktop client, PASS manifest, PASS interaction self-QA, and before/after full-desktop screenshots at $($Paths.Root)."
@@ -506,6 +506,7 @@ Returned USER Issue Register Retest Focus
 - FAM006-RUI-050 HUD Feature enabled state persistence: covered by Step 2 and Step 8. $precheckHudPersistence
 - FAM006-RUI-051 Dashboard no longer resizes: covered by Step 8. $precheckResizeDiscoverability
 - FAM006-RUI-052 Dashboard edge resize rail still difficult to find: covered by Step 8. $precheckResizeDiscoverability
+- FAM006-RUI-053 Dashboard resize cursor appears too far from the visible edge: covered by Step 8. $precheckResizeDiscoverability
 
 Issue-Grounded USER Questions
 Answer each issue as PASS, FAIL, or WAIVED. Add notes/screenshots for any FAIL or WAIVED answer.
@@ -718,10 +719,14 @@ FAM006-RUI-052 / Edge resize discoverability - Are the right-edge, bottom-edge, 
 $precheckResizeDiscoverability
 USER Result / Notes:
 
+FAM006-RUI-053 / Resize cursor alignment - Does the standard Windows resize cursor appear only near the actual Dashboard edge/corner instead of far inside the window?
+$precheckResizeDiscoverability
+USER Result / Notes:
+
 What This Test Is Checking
 - The HUD Dashboard is the current branch's primary user-facing interface release surface.
 - The Dashboard is a Nexus/NDAI settings and control hub for HUD Overlay posture, monitor groups, warning notifications, data-source/readiness truth, and future Overlay/display behavior.
-- This rerun specifically checks the returned-feedback repair set: tray enable/disable, Dashboard tray open/close, disable-HUD recovery, Dashboard frame/scrollbar ownership, resize, deadzone removal, sticky-header masking, action cleanup, HUD Overlay terminology, and deferred/broken button handling.
+- This rerun specifically checks the returned-feedback repair set: tray enable/disable, Dashboard tray open/close, disable-HUD recovery, Dashboard frame/scrollbar ownership, resize cursor alignment, deadzone removal, sticky-header masking, action cleanup, HUD Overlay terminology, and deferred/broken button handling.
 - Overlay/display release acceptance is deferred and non-gating for this branch's Dashboard acceptance path. Do not fail this Dashboard handoff because Overlay/display release acceptance is not being requested.
 - ORIN/Core is dependency-only proof for desktop safety. It should remain independent from the Dashboard and should not be judged as a released FAM-006 interface in this handoff.
 - Dev Toolkit Interface Review Mode and full standalone child-window implementation are deferred/future. Do not fail this Dashboard handoff because those future branches are not implemented here.

@@ -24,7 +24,7 @@ This branch may execute the admitted PKG-006 implementation slices during Workst
 
 ## Status
 
-- `Live Validation LV1 Handoff Green - WS53 resize edge discoverability retested / Awaiting returned USER results`
+- `Workstream WS54 Green - Dashboard standard resize cursor alignment repair complete / Hardening H1 handoff ready`
 
 ## Canonical Branch
 
@@ -32,14 +32,14 @@ This branch may execute the admitted PKG-006 implementation slices during Workst
 
 ## Current Phase
 
-- Phase: `Live Validation`
+- Phase: `Workstream`
 
 ## Phase Status
 
 - Branch Readiness Stage: `Stage 2 source-truth repair completed - returned LV1 denial remains recorded as blocking evidence and cannot advance to LV2 as a PASS path`
-- Workstream Stage: `WS53 green - USER returned a follow-up resize discoverability issue after WS52; runtime resize now uses a forgiving 58px visible edge/corner rail with mouse tracking, and human-client proof shows corner, right-edge, and bottom-edge real mouse drags all change Dashboard geometry`
-- Hardening Stage: `H1 green after WS53 - post-WS53 hardening pressure-tested resize discoverability, corner/right-edge/bottom-edge geometry changes, tray open/close, Disable HUD recovery, HUD Feature persistence, Exit confirmation, NCP/saved-action regression safety, active-client screenshot proof, proof-class separation, Overlay deferral, and Core dependency-only boundaries`
-- Live Validation Stage: `LV1 handoff generated after post-WS53 H1 - formal UTS refreshed with RUI-001 through RUI-052 issue-grounded questions, fresh human-client shortcut/tray proof, active-client proof, screenshot proof, and per-step Codex Precheck lines; USER results remain pending before LV2 digestion`
+- Workstream Stage: `WS54 green - USER video evidence showed the WS53 58px resize rail over-credited discoverability by showing the Windows resize cursor far inside the Dashboard; runtime resize now uses a cursor-aligned 12px edge/corner rail and human-client proof checks real cursor state plus corner/right-edge/bottom-edge geometry changes`
+- Hardening Stage: `H1 required after WS54 - prior post-WS53 H1 is stale for the affected resize cursor-alignment row until the repair is pressure-tested`
+- Live Validation Stage: `Prior LV1 handoff stale for RUI-053 - formal UTS must be refreshed after H1 and must include issue-grounded resize cursor-alignment validation before LV2 can proceed`
 - Active Branch: `feature/fam-006-monitoring-hud-product-surface`
 - Branch Authority Mode: `Active Branch`
 - Workstream Entry Source-Truth Transition: `Performed - Branch Readiness Stage 2 terminal evidence reconciled before runtime implementation`
@@ -52,7 +52,7 @@ This branch may execute the admitted PKG-006 implementation slices during Workst
 - Admitted Slice Count: `6`
 - Package Completion State: `In Progress - package completion remains unclaimed until real-client returned USER acceptance or waiver is digested after repair, PR Readiness passes, and final closeout passes`
 - Single-Slice Package User Approval: `Not required - PKG-006 has six concrete admitted slices; no waiver granted`
-- Runtime Implementation State: `Dashboard-first WS37-WS53, prior denied LV1 proof, WS48 human-client proof-governance repair, WS49 Dashboard/NCP/tray interaction repair, WS50 scrollbar/native-window boundary repair, WS51 resize hit-zone / scrollbar inset / HUD feature persistence repair, WS52 real resize recovery repair, WS53 resize edge discoverability repair, post-WS53 H1 pressure testing, and the refreshed LV1 handoff are preserved as supporting history only where not superseded. USER returned focused feedback after WS52 that the Dashboard could resize but the edge rail was still too difficult to find. WS53 widens the Dashboard resize rail to a forgiving 58px visible edge/corner band, enables mouse tracking on the Dashboard host and webview, and upgrades human-client proof so corner, right-edge, and bottom-edge drags must each change real Dashboard geometry. H1 pressure-tested that repair through human-client proof, static validators, internal sandbox proof, desktop entrypoint/tray proof, NCP/saved-action proof, active-client/live-helper screenshot proof, and proof-class separation. LV1 now refreshes the formal UTS with RUI-001 through RUI-052, same-path Codex prechecks, fresh human-client manifest, fresh desktop entrypoint report, fresh active-client proof root, and USER-inspectable screenshots. Dashboard acceptance, package completion, LV2, and PR Readiness remain blocked until USER returns PASS/FAIL/WAIVED results or explicit waiver and LV2 digests them. App-side callback/precheck manifests, fake/offscreen proof, direct function calls, screenshots, and marker proof still cannot clear user-facing tray, Dashboard, NCP interaction, movement, resize, shutdown-confirmation, persistence, or visual-quality acceptance unless the human-client manifest passes or USER explicitly waives it. #20 NCP placement/persistence and 6f Dev Toolkit Interface Review Mode remain deferred priority future scope unless later proof shows FAM-006 caused a current regression. Exit prompt visual restyling is future polish unless separately admitted; functional Exit confirmation/timing remains supporting proof. Overlay/display remains deferred/dormant/non-gating, ORIN/Core remains dependency-only, and formal returned-result digestion remains Live Validation LV2-only.`
+- Runtime Implementation State: `Dashboard-first WS37-WS54, prior denied LV1 proof, WS48 human-client proof-governance repair, WS49 Dashboard/NCP/tray interaction repair, WS50 scrollbar/native-window boundary repair, WS51 resize hit-zone / scrollbar inset / HUD feature persistence repair, WS52 real resize recovery repair, WS53 resize edge discoverability repair, post-WS53 H1/LV1, and WS54 resize cursor-alignment repair are preserved as supporting history only where not superseded. USER video evidence after the WS53 LV1 handoff showed the Windows resize cursor appearing far inside the Dashboard because the 58px rail made resize draggable away from the visible edge. WS54 replaces that with a cursor-aligned 12px edge/corner rail, clears widget-level custom cursor ownership on Windows, returns real Windows non-client resize hit-tests at the Dashboard edge/corner, and upgrades human-client proof so the 10px visible rail returns htright, htbottom, and htbottomright, the 28px interior/outside samples return non-edge hit-tests, and corner/right-edge/bottom-edge drags each change real Dashboard geometry. Prior H1/LV1 are stale for the affected resize cursor-alignment row. Dashboard acceptance, package completion, LV2, and PR Readiness remain blocked until H1 pressure-tests WS54, LV1 refreshes the issue-grounded UTS, USER returns PASS/FAIL/WAIVED results or explicit waiver, and LV2 digests them. App-side callback/precheck manifests, fake/offscreen proof, direct function calls, screenshots, and marker proof still cannot clear user-facing tray, Dashboard, NCP interaction, movement, resize, shutdown-confirmation, persistence, or visual-quality acceptance unless the human-client manifest passes or USER explicitly waives it. #20 NCP placement/persistence and 6f Dev Toolkit Interface Review Mode remain deferred priority future scope unless later proof shows FAM-006 caused a current regression. Exit prompt visual restyling is future polish unless separately admitted; functional Exit confirmation/timing remains supporting proof. Overlay/display remains deferred/dormant/non-gating, ORIN/Core remains dependency-only, and formal returned-result digestion remains Live Validation LV2-only.`
 - PR Creation State: `Not approved in Branch Readiness`
 - Watcher Provisioning State: `Not approved in Branch Readiness`
 - Release Work State: `Not approved; v1.6.13-prebeta release execution is already complete and no new release work is in scope`
@@ -69,7 +69,7 @@ This branch may execute the admitted PKG-006 implementation slices during Workst
 - `Dashboard Acceptance Pending Returned USER Results`
 - `LV2 Returned-Result Digestion Reserved`
 
-Package completion is not currently claimed. Stage 2-R13 cleared the earlier Branch Readiness planning latches and handed the branch to Dashboard-focused Workstream repair, but returned USER feedback repeatedly reopened acceptance rows before LV2 could proceed. WS37 through WS52 and prior H1/LV1 remain supporting history where not superseded. WS53 repaired the latest returned resize edge discoverability regression as Workstream proof only, post-WS53 H1 pressure-tested that repair, and current LV1 refreshed the issue-grounded UTS handoff. Dashboard acceptance, package completion, LV2, PR Readiness, release, and Overlay/display acceptance remain unclaimed until USER returns PASS/FAIL/WAIVED results or explicit waiver and LV2 digests them.
+Package completion is not currently claimed. Stage 2-R13 cleared the earlier Branch Readiness planning latches and handed the branch to Dashboard-focused Workstream repair, but returned USER feedback repeatedly reopened acceptance rows before LV2 could proceed. WS37 through WS53 and prior H1/LV1 remain supporting history where not superseded. WS54 repaired the latest returned resize cursor-alignment regression as Workstream proof only. Dashboard acceptance, package completion, LV2, PR Readiness, release, and Overlay/display acceptance remain unclaimed until H1 pressure-tests WS54, LV1 refreshes the issue-grounded UTS handoff, USER returns PASS/FAIL/WAIVED results or explicit waiver, and LV2 digests them.
 
 ## Acceptance Guards
 
@@ -92,6 +92,7 @@ Package completion is not currently claimed. Stage 2-R13 cleared the earlier Bra
 - `Returned LV1 Resize Hit-Zone Reliability Failure`
 - `Returned LV1 Post-WS51 Resize Regression`
 - `Returned LV1 Resize Edge Discoverability Follow-Up`
+- `Returned LV1 Resize Cursor Alignment Failure`
 - `Returned LV1 Scrollbar Inset Still Out Of Range`
 - `Returned LV1 HUD Feature State Persistence Failure`
 
@@ -123,7 +124,7 @@ Package completion is not currently claimed. Stage 2-R13 cleared the earlier Bra
 - `Dashboard Scrollbar Rounded Boundary Failure`
 - `Dashboard Native Window Square Haze Reproduced`
 
-These findings are returned USER evidence, not Dashboard acceptance. The earlier #1-#38 findings were partially repaired through WS37-WS46 and H1, but later real-client evidence superseded prior tray/open/shutdown acceptance credit for affected rows. WS47 repaired the real-client tray/shortcut proof path, WS48 added live-human validation, WS49 repaired Dashboard/NCP and tray-authoring interaction defects, WS50 repaired the focused scrollbar/native-window boundary visual-shell defect, WS51 repaired the resize hit-zone, scrollbar inset, and HUD Feature state persistence feedback as Workstream proof, WS52 repaired the post-WS51 resize-unavailable regression as Workstream proof, WS53 repaired the post-WS52 resize edge-discoverability regression as Workstream proof, and post-WS53 H1 pressure-tested the affected rows. Prior LV1 proof is stale for WS53-affected rows. Live Validation remains blocked for acceptance until LV1 refreshes, USER returns PASS/FAIL/WAIVED results or an explicit waiver, and LV2 legally digests the returned result.
+These findings are returned USER evidence, not Dashboard acceptance. The earlier #1-#38 findings were partially repaired through WS37-WS46 and H1, but later real-client evidence superseded prior tray/open/shutdown acceptance credit for affected rows. WS47 repaired the real-client tray/shortcut proof path, WS48 added live-human validation, WS49 repaired Dashboard/NCP and tray-authoring interaction defects, WS50 repaired the focused scrollbar/native-window boundary visual-shell defect, WS51 repaired the resize hit-zone, scrollbar inset, and HUD Feature state persistence feedback as Workstream proof, WS52 repaired the post-WS51 resize-unavailable regression as Workstream proof, WS53 repaired the post-WS52 resize edge-discoverability regression as Workstream proof, post-WS53 H1/LV1 are now stale for the new cursor-alignment failure, and WS54 repaired the resize cursor-alignment regression as Workstream proof. Live Validation remains blocked for acceptance until H1 pressure-tests WS54, LV1 refreshes, USER returns PASS/FAIL/WAIVED results or an explicit waiver, and LV2 legally digests the returned result.
 
 ## Returned USER Issue Register
 
@@ -185,6 +186,7 @@ Issue Register Schema: `Stable Issue ID`; `Original USER Number`; `Title`; `Sour
 | `FAM006-RUI-050` | `Latest #3` | HUD Feature enabled state does not persist between sessions | Returned USER chat after post-WS50 LV1 handoff | `FAM006-DASH-STATE-PERSIST-013`; `FAM006-HUD-FEATURE-TRAY-046`; `FAM006-DASH-STARTUP-045` | High | State persistence reset | WS51 repaired with persisted local HUD feature state loaded at startup; enabled state is remembered while Dashboard startup remains suppressed unless explicitly forced by harness/current proof mode | WS51 / H1 required | Enable from tray writes state, next launch loads feature enabled without surprise-opening Dashboard | Workstream green / H1 required |
 | `FAM006-RUI-051` | `Post-WS51 Bug 1` | Dashboard no longer resizes | Returned USER chat on 2026-05-11 after WS51 | `FAM006-DASH-RESIZE-057`; `FAM006-DASH-WINDOW-002`; `FAM006-GOV-HUMAN-CLIENT-065` | High | Real mouse resize regression / over-credited native hit-test proof | WS52 repaired by making the visible Dashboard mouse drag path own direct geometry resizing instead of trusting `startSystemResize`/non-client hit-test startup for the frameless WebEngine window | WS52 / H1 required | Human-client proof must show the actual Dashboard window size changes after a real edge/corner drag | Workstream green / H1 required |
 | `FAM006-RUI-052` | `Post-WS52 follow-up` | Dashboard edge resize rail still difficult to find | Returned USER chat on 2026-05-11 after WS52 | `FAM006-DASH-RESIZE-057`; `FAM006-DASH-WINDOW-002`; `FAM006-GOV-HUMAN-CLIENT-065` | High | Resize affordance discoverability / edge hit-zone reliability | WS53 repaired by widening the visible Dashboard resize rail to a forgiving 58px band, enabling host/webview mouse tracking, and requiring human-client proof for corner, right-edge, and bottom-edge drags | WS53 / H1 required | Human-client proof must show corner, right-edge, and bottom-edge resize rails each change real Dashboard geometry from the desktop shortcut/tray/mouse path | Workstream green / H1 required |
+| `FAM006-RUI-053` | `Video resize evidence` | Dashboard resize cursor appears too far from the visible edge | Returned USER video `C:\Users\anden\OneDrive\Pictures\Screenshots\explorer_Kwqy4JkDv7.mp4` on 2026-05-11 after WS53/LV1 | `FAM006-DASH-RESIZE-057`; `FAM006-DASH-WINDOW-002`; `FAM006-GOV-HUMAN-CLIENT-065` | High | Cursor affordance / resize hit-zone mismatch | WS54 repaired by narrowing the resize rail from the over-broad 58px band to a cursor-aligned 12px edge/corner rail, clearing widget-level custom cursor ownership on Windows, returning real Windows non-client resize hit-tests at the Dashboard edge/corner, and requiring human-client cursor/hit-test proof before geometry resize proof | WS54 / H1 required | Human-client proof must show the 10px visible rail returns Windows edge hit-tests, 28px interior/outside samples return non-edge hit-tests, cursor state differs at the edge, and corner/right-edge/bottom-edge drags change real geometry | Workstream green / H1 required |
 
 ## Cleared Governance Notes
 
@@ -260,21 +262,21 @@ Rollback Path: revert the latest LV1 source-truth/UTS-handoff update commit on `
 
 ## Next Legal Phase
 
-- `Live Validation`
+- `Hardening`
 
-Next Legal Seam: `Live Validation LV2 - FAM-006 Returned User Test Summary Results Digest And Acceptance Classification after USER returns PASS/FAIL/WAIVED results or explicit waiver`
+Next Legal Seam: `Hardening H1 - Monitoring HUD Product Surface Hardening Rerun`
 
-Next Legal Phase Gate: LV1 refreshed the formal handoff after WS53 and post-WS53 H1 with human-client, active-client/live-helper, static, sandbox, desktop entrypoint, saved-action/NCP, screenshot, proof-class, and per-step Codex Precheck evidence. Because User Test Summary results are still pending, the branch remains in Live Validation and LV2 must not proceed until USER returns PASS/FAIL/WAIVED results or explicitly waives the refreshed handoff and LV2 legally digests the returned evidence. Codex must not enter PR Readiness, create a PR, watcher, release, tag, artifact, direct-main mutation, voice/audio implementation, Stream Deck/plugin telemetry implementation, local AI, installer/capability-pack work, broad hardware provider implementation, persona switching implementation, ARIA activation, Overlay/display release acceptance, or a new FAM/package without later explicit USER approval.
+Next Legal Phase Gate: WS54 repaired the returned resize cursor-alignment failure as Workstream proof only. The branch is stopped at the Workstream-to-Hardening boundary; H1 must pressure-test the cursor-aligned 12px Dashboard edge/corner rail, Windows non-client hit-test proof, corner/right-edge/bottom-edge geometry resize proof, tray/NCP safety, Overlay/display deferral, and Core dependency-only boundary before Live Validation can be admitted again. Codex must not enter Live Validation, LV2, PR Readiness, create a PR, watcher, release, tag, artifact, direct-main mutation, voice/audio implementation, Stream Deck/plugin telemetry implementation, local AI, installer/capability-pack work, broad hardware provider implementation, persona switching implementation, ARIA activation, Overlay/display release acceptance, or a new FAM/package without later explicit USER approval.
 
 Post-FAM-006 Required Marker Adoption Candidate: `Repo-Wide High-Risk Source Owner Marker Adoption`; candidate branch `feature/repo-wide-source-owner-marker-adoption`; requirement is recorded for after the current FAM-006 branch closes and does not authorize branch creation, package admission, PR Readiness, runtime behavior changes, or bypass of the active LV2 UTS pending gate. USER-facing element review-mode adoption is part of that future candidate's scope and remains tabled for planning-heavy Dev Toolkit design: existing and future interface elements, including NCP, Core visualization, Dashboard, Overlay/display when admitted, and other windows/components, should receive Dev Toolkit Interface Review Mode dispositions and dev-only badges/hover/ledger tooltip inspection where applicable; future design should decide per-interface launchers, a generalized all-surfaces review-mode launch, or both.
 
 ## Active Seam
 
-Active seam: `Phase Boundary Stop - Await Returned USER Test Summary Results`
+Active seam: `Phase Boundary Stop - Await USER Hardening Admission`
 
-Active Seam Status: `Stopped after Live Validation LV1 - formal UTS handoff is refreshed, Codex prechecks are green, and LV2 requires returned USER PASS/FAIL/WAIVED results or explicit waiver before digestion`
+Active Seam Status: `Stopped after Workstream WS54 - Dashboard resize cursor-alignment repair is green as Workstream proof, prior H1/LV1 are stale for RUI-053, and Hardening H1 requires explicit USER admission before execution`
 
-Next active seam: `Live Validation LV2 - FAM-006 Returned User Test Summary Results Digest And Acceptance Classification`
+Next active seam: `Hardening H1 - Monitoring HUD Product Surface Hardening Rerun`
 
 ## Branch Objective
 
@@ -344,7 +346,7 @@ Proof Rebaseline: `Existing WS37-WS53, prior H1, post-WS50 H1, post-WS53 H1, pri
 
 LV2 Gate: `Blocked - LV2 returned-result digestion must not proceed as a PASS path from Codex proof, screenshots, helper manifests, or any denied prior LV1 handoff. LV2 can resume only after USER returns PASS/FAIL/WAIVED results or explicit waiver for the current refreshed UTS.`
 
-USER Feedback Ledger Disposition: `Current - returned USER issue IDs FAM006-RUI-001 through FAM006-RUI-052 are recorded in this branch authority record and the refreshed UTS explicitly asks USER to retest them. RUI-039 and RUI-040 remain historical real-client failures; RUI-041 remains the issue-register/proof-governance gap; RUI-042 and RUI-043 record the denied LV1 handoff and insufficient human-client UI validation; RUI-044 through RUI-047 record the WS49 tray ordering, Dashboard/NCP interaction blocking, tray authoring-dialog guard, and Exit prompt polish/session-preservation follow-up; RUI-008/RUI-026/RUI-027 record the WS50 scrollbar/native-window boundary repair; RUI-048 through RUI-050 record the WS51 resize hit-zone, scrollbar inset, and HUD Feature state persistence repairs; RUI-051 records the post-WS51 resize-unavailable regression and WS52 recovery repair; RUI-052 records the post-WS52 edge resize discoverability follow-up, WS53 repair, post-WS53 H1 pressure test, and current LV1 retest handoff. The companion ledger remains the authoritative row-level disposition surface; affected proof remains supporting only until USER returns PASS/WAIVED results or explicit waiver and LV2 digests it.`
+USER Feedback Ledger Disposition: `Current - returned USER issue IDs FAM006-RUI-001 through FAM006-RUI-053 are recorded in this branch authority record. RUI-039 and RUI-040 remain historical real-client failures; RUI-041 remains the issue-register/proof-governance gap; RUI-042 and RUI-043 record the denied LV1 handoff and insufficient human-client UI validation; RUI-044 through RUI-047 record the WS49 tray ordering, Dashboard/NCP interaction blocking, tray authoring-dialog guard, and Exit prompt polish/session-preservation follow-up; RUI-008/RUI-026/RUI-027 record the WS50 scrollbar/native-window boundary repair; RUI-048 through RUI-050 record the WS51 resize hit-zone, scrollbar inset, and HUD Feature state persistence repairs; RUI-051 records the post-WS51 resize-unavailable regression and WS52 recovery repair; RUI-052 records the post-WS52 edge resize discoverability follow-up and WS53 repair; RUI-053 records USER video evidence that the 58px rail made the resize cursor appear too far inside the Dashboard and WS54 repaired it with a cursor-aligned 12px rail. The companion ledger remains the authoritative row-level disposition surface; affected proof remains supporting only until H1 pressure-tests WS54, LV1 refreshes the issue-grounded handoff, USER returns PASS/WAIVED results or explicit waiver, and LV2 digests it.`
 
 Summary Row Note: `The rows below preserve the branch-record summary IDs required by governance validation. Current row-level proof dispositions, including blocked/stale findings and new repair rows FAM006-DASH-STARTUP-045 through FAM006-DEV-INTERFACE-REVIEW-050, are authoritative in the canonical companion ledger.`
 
@@ -812,15 +814,15 @@ Historical Stop Basis: `Stage 2-R13 Dashboard-first Workstream handoff supersede
 
 Seam Status: Green
 Slice Status: Green
-Slice Detail: Hardening H1 pressure-tested the WS53 resize edge-discoverability repair. PASS proof includes a forgiving 58px visible Dashboard edge/corner resize rail, host/webview mouse tracking, human-client proof that corner, right-edge, and bottom-edge drags each changed real Dashboard geometry, active-client/live-helper proof, static/sandbox validator coverage, desktop entrypoint/tray proof, saved-action/NCP regression proof, and source-truth/ledger updates that mark H1 green after WS53. Final Dashboard acceptance still requires refreshed LV1 and returned USER PASS/WAIVED results or explicit waiver digested in LV2.
+Slice Detail: Workstream WS54 repaired the returned resize cursor-alignment failure. PASS proof includes a cursor-aligned 12px Dashboard edge/corner rail, Windows non-client hit-test proof showing htright/htbottom/htbottomright only at the visible rail, non-edge hit-tests outside and 28px inside, human-client proof that corner, right-edge, and bottom-edge drags each changed real Dashboard geometry, static/sandbox validator coverage, desktop shortcut/tray/NCP regression proof, and source-truth/ledger updates that mark prior H1/LV1 stale for RUI-053. Final Dashboard acceptance still requires H1 pressure-testing, refreshed LV1, and returned USER PASS/WAIVED results or explicit waiver digested in LV2.
 Completion Status: Green
 Waiver Status: None
 Continue Decision: Stop
-Continuation Execution Latch: Inactive - Hardening H1 is Green; phase-boundary stop is required before USER may admit Live Validation LV1.
-Stop Basis: Hardening Green
-Next Active Seam: Live Validation LV1 - Monitoring HUD Product Surface Live Validation Rerun
-Stop Condition: H1 completed the post-WS53 pressure test only; do not refresh formal UTS, enter LV2, PR Readiness, release, or package completion without USER Live Validation admission and later returned USER results or explicit waiver.
-Continuation Action: Stop at phase boundary until USER admits Live Validation LV1. Preserve Dashboard-first boundary, Overlay/display non-gating status, Core dependency-only status, PR blocked, PKG-006 In Progress, package completion unclaimed, no single-seam waiver, and no PR/release work.
+Continuation Execution Latch: Inactive - WS54 is Green; phase-boundary stop is required before USER may admit Hardening H1.
+Stop Basis: Workstream Green
+Next Active Seam: Hardening H1 - Monitoring HUD Product Surface Hardening Rerun
+Stop Condition: WS54 completed the cursor-alignment repair only; do not run Hardening, refresh formal UTS, enter LV2, PR Readiness, release, or package completion without USER Hardening admission and later returned USER results or explicit waiver.
+Continuation Action: Stop at phase boundary until USER admits Hardening H1. Preserve Dashboard-first boundary, Overlay/display non-gating status, Core dependency-only status, PR blocked, PKG-006 In Progress, package completion unclaimed, no single-seam waiver, and no PR/release work.
 
 ## Historical Live Validation Stage 1 Continuation Decision Superseded By Returned Feedback
 
@@ -1774,18 +1776,18 @@ Validation Evidence Expectations: return PASS/FAIL plus any notes, screenshots, 
 ## Historical User Test Summary State Superseded By Current LV1 Handoff
 
 Automated validators and live helper evidence: HISTORICAL WS48 WORKSTREAM PASS / SUPERSEDED - USER rejected the earlier handoff because Codex did not complete human-client validation before asking USER to test. WS48 added real visible shortcut/tray/mouse/window proof, WS49 repaired follow-up NCP/tray-authoring defects, H1 pressure-tested them, and current LV1 generated a new issue-grounded formal UTS.
-Codex Live Client Self-QA: CURRENT LV1 HANDOFF GREEN FOR HANDOFF ONLY - human-client proof satisfies the precheck gate but does not claim Dashboard acceptance.
-User-Facing Shortcut Live Validation Gate: CURRENT LV1 HANDOFF GREEN FOR HANDOFF ONLY - the PASS human-client manifest is recorded at dev/logs/fam_006_human_client_validation/20260510_130259_909/human_client_manifest.json before formal UTS export.
+Codex Live Client Self-QA: PRIOR LV1 HANDOFF STALE FOR RUI-053 - human-client proof satisfied the prior precheck gate but did not catch the resize cursor alignment issue shown in returned USER video evidence.
+User-Facing Shortcut Live Validation Gate: PRIOR LV1 HANDOFF STALE FOR RUI-053 - the next LV1 must include the WS54 cursor-alignment proof after H1 pressure-testing.
 User-Facing Shortcut Path: `C:\Users\anden\OneDrive\Desktop\Nexus Desktop Launcher.lnk`
 Documented Equivalent Path Status: `Supporting only - any equivalent path must prove equivalence or be explicitly waived; app-side/callback/offscreen proof is not a human-client pass.`
 User-Facing Shortcut Validation: WS48 WORKSTREAM PASS / H1 pressure-tested after WS49.
-Returned User Test Summary Historical State: HISTORICAL FAIL / NEW ISSUE-GROUNDED HANDOFF GENERATED
-User Test Summary Acceptance State: NOT ACCEPTED - returned real-client findings remain historical failure evidence, and current LV1 handoff is generated for USER testing. Formal returned-result digestion remains exclusive to Live Validation LV2 after USER returns PASS/FAIL/WAIVED results or explicit waiver.
-Returned User Test Summary Historical Result: FAIL - preserved as prior failure evidence; current LV1 handoff retests affected real-client tray/shortcut acceptance and all Returned USER Issue Register rows, but LV2 cannot digest acceptance until USER returns results.
+Returned User Test Summary Historical State: HISTORICAL FAIL / PRIOR ISSUE-GROUNDED HANDOFF STALE FOR RUI-053
+User Test Summary Acceptance State: NOT ACCEPTED - returned resize cursor-alignment video evidence reopens the active Dashboard resize row. Formal returned-result digestion remains exclusive to Live Validation LV2 after H1, refreshed LV1, and USER returns PASS/FAIL/WAIVED results or explicit waiver.
+Returned User Test Summary Historical Result: FAIL - preserved as prior failure evidence; prior LV1 handoff retested affected real-client tray/shortcut acceptance and RUI-001 through RUI-052, but RUI-053 supersedes it for resize acceptance.
 Final package completion and PR Readiness are BLOCKED until returned USER acceptance or explicit waiver is recorded and digested.
 
 Current Handoff Path: `C:\Users\anden\OneDrive\Desktop\User Test Summary.txt`
-Current Handoff Ledger Alignment: `CURRENT - issue-grounded UTS maps Dashboard-first acceptance to the companion Element Validation Ledger and Returned USER Issue Register rows FAM006-RUI-001 through FAM006-RUI-052 with per-step Codex prechecks.`
+Current Handoff Ledger Alignment: `STALE FOR RUI-053 - prior issue-grounded UTS maps RUI-001 through RUI-052 but does not include the returned video resize cursor-alignment failure. H1 and refreshed LV1 are required after WS54.`
 Current Handoff Proof Root: `dev/logs/fam_006_monitoring_hud_live_validation/20260511_074209_893`
 User Test Summary Waiver Reason: `Not applicable - no waiver granted`
 
@@ -2024,31 +2026,31 @@ Workstream WS46 includes static HUD validation, internal sandbox proof, a hidden
 - Waiver Status: `None - no USER waiver for returned-result digestion or skipped issue-grounded UTS review`
 - Continue Decision: `Stop before LV2 because USER returned results are required`
 - Continuation Execution Latch: `Inactive - LV1 handoff is generated; LV2 requires returned USER PASS/FAIL/WAIVED results or explicit waiver`
-- Stop Basis: `Live Validation LV1 handoff complete / Await returned USER Test Summary results`
-- Next Legal Seam: `Live Validation LV2 - FAM-006 Returned User Test Summary Results Digest And Acceptance Classification`
+- Stop Basis: `Workstream WS54 complete / Await USER Hardening admission`
+- Next Legal Seam: `Hardening H1 - Monitoring HUD Product Surface Hardening Rerun`
 
 ## User Test Summary
 
-- User Test Summary Results: `PENDING`
+- User Test Summary Results: `STALE FOR RUI-053 / REFRESH REQUIRED AFTER H1`
 - User Test Summary Handoff: `C:\Users\anden\OneDrive\Desktop\User Test Summary.txt`
 - User Test Summary Scope: `Dashboard-first Monitoring HUD product surface only; Overlay/display remains deferred/non-gating, ORIN/Core remains dependency-only, Dev Toolkit Interface Review Mode remains future/supporting, NCP placement/persistence remains deferred unless current FAM-006 behavior visibly causes the issue.`
-- User Test Summary Codex Precheck: `PASS - issue-grounded handoff includes FAM006-RUI-001 through FAM006-RUI-052 with per-step Codex Precheck lines; human-client manifest dev/logs/fam_006_human_client_validation/20260511_073449_323/human_client_manifest.json, desktop entrypoint report dev/logs/desktop_entrypoint_validation/reports/DesktopEntrypointValidationReport_20260511_074015.txt, live-helper proof dev/logs/fam_006_monitoring_hud_live_validation/20260511_074209_893, interaction manifest dev/logs/fam_006_monitoring_hud_live_validation/20260511_074209_893/monitoring_hud_live_client_interaction_manifest.json, and USER-inspectable screenshots prove the actual desktop shortcut, visible tray, Dashboard open/close, Dashboard movement, corner/right-edge/bottom-edge resize, NCP button interaction, tray duplicate-dialog guard, Disable HUD recovery, Exit confirmation cancel/accept paths, HUD Feature persistence, proof-class separation, and Dashboard visual-boundary proof before USER testing.`
+- User Test Summary Codex Precheck: `STALE FOR RUI-053 - prior handoff included RUI-001 through RUI-052, but returned video evidence showed the resize cursor still appeared far inside the Dashboard. The next LV1 must include RUI-053 and WS54 cursor-alignment proof.`
 - User-Facing Shortcut Path: `C:\Users\anden\OneDrive\Desktop\Nexus Desktop Launcher.lnk`
 - User-Facing Shortcut Validation: `PASS`
 - User-Facing Shortcut Evidence: `dev/logs/desktop_entrypoint_validation/reports/DesktopEntrypointValidationReport_20260511_074015.txt; dev/logs/fam_006_human_client_validation/20260511_073449_323/human_client_manifest.json`
-- User Test Summary Result Gate: `LV2, USER Dashboard acceptance, package completion, PR Readiness, and release readiness remain blocked until USER returns PASS/FAIL/WAIVED results and Codex digests them in LV2. No USER waiver is currently granted.`
+- User Test Summary Result Gate: `LV2, USER Dashboard acceptance, package completion, PR Readiness, and release readiness remain blocked until H1 pressure-tests WS54, LV1 refreshes the UTS, USER returns PASS/FAIL/WAIVED results, and Codex digests them in LV2. No USER waiver is currently granted.`
 
 ## Codex Live Client Self-QA
 
-- Codex Live Client Self-QA: `PASS`
+- Codex Live Client Self-QA: `STALE FOR RUI-053`
 - Live Client Entry Path: `C:\Users\anden\OneDrive\Desktop\Nexus Desktop Launcher.lnk plus active foreground live-helper proof path`
 - Evidence Screenshot: `C:\Users\anden\OneDrive\Pictures\Screenshots\Nexus Desktop AI\fam_006_monitoring_hud_live_validation\20260511_074209_893\monitoring_hud_full_virtual_desktop_after_launch.png`
-- Visual Quality: `PASS - active-client screenshots and human-client frame evidence show the Dashboard-first surface, one rounded native boundary, scrollbar/chrome ownership, no square outer haze, visible resize rail posture, and current issue-grounded visual state ready for USER confirmation.`
+- Visual Quality: `STALE FOR RUI-053 - prior active-client screenshots remain supporting for visual shell, but USER video evidence reopened resize cursor alignment.`
 - Interaction Manifest: `dev/logs/fam_006_monitoring_hud_live_validation/20260511_074209_893/monitoring_hud_live_client_interaction_manifest.json`
 - Interaction Evidence Root: `dev/logs/fam_006_monitoring_hud_live_validation/20260511_074209_893/live_client_interaction`
-- Live Interaction Evidence: `PASS - human-client manifest dev/logs/fam_006_human_client_validation/20260511_073449_323/human_client_manifest.json records visible desktop shortcut launch, visible tray/menu actions, Dashboard open/close, Dashboard movement, corner/right-edge/bottom-edge resize, Disable HUD recovery, NCP interaction, tray duplicate-dialog guard, and Exit confirmation cancel/accept paths.`
-- Usability Check: `PASS - current-scope Codex prechecks are green for tray, Dashboard, resize, NCP interaction, persistence, and visual boundary proof; USER visual confirmation remains required for final acceptance.`
-- Interaction Check: `PASS - active-client self-QA manifest and human-client manifest are PASS; no acceptance-facing UTS step is marked NOT TESTED or FAIL.`
+- Live Interaction Evidence: `STALE FOR RUI-053 - prior human-client manifest records geometry resize but did not verify that the standard Windows resize cursor appears only near the actual edge. WS54 adds that proof requirement.`
+- Usability Check: `REOPENED - resize cursor alignment is repaired by WS54 but requires H1 and refreshed LV1 before USER acceptance.`
+- Interaction Check: `REOPENED - no LV2 acceptance path is available from the prior LV1 handoff.`
 - Platform Uniformity Check: `PASS - Dashboard copy remains Nexus Desktop AI / HUD Dashboard scoped, Overlay/display remains deferred/non-gating, and Core remains dependency-only.`
 - NDAI Naming Check: `PASS - current handoff uses Nexus Desktop AI / HUD Dashboard / HUD Overlay terminology and preserves retired-name scan as a validation guard.`
 - Cleanup Check: `PASS - live helper and desktop entrypoint validation report cleanup-safe PASS; LV1 did not enter LV2 or digest returned results.`
@@ -2217,5 +2219,28 @@ Workstream WS46 includes static HUD validation, internal sandbox proof, a hidden
 - PR Readiness: `Blocked`
 - Continue Decision: `Stop at phase boundary because WS53 is complete and Hardening H1 requires explicit USER admission`
 - Continuation Execution Latch: `Inactive - WS53 is Green / Hardening phase-boundary stop`
+- Stop Basis: `Workstream Green`
+- Next Legal Seam: `Hardening H1 - Monitoring HUD Product Surface Hardening Rerun`
+
+## Workstream WS54 Dashboard Standard Resize Cursor Alignment Repair
+
+- WS54 Admission: `PASS - USER returned video evidence that the WS53 58px resize rail made the standard resize cursor appear too far inside the Dashboard; bounded Workstream repair is admitted for resize cursor alignment only`
+- WS54 Result: `Green for focused Dashboard standard resize cursor-alignment repair - Dashboard acceptance, package completion, Hardening, refreshed LV1, LV2, PR Readiness, release, and Overlay/display acceptance remain unclaimed`
+- Returned USER Evidence: `C:\Users\anden\OneDrive\Pictures\Screenshots\explorer_Kwqy4JkDv7.mp4`
+- Runtime Resize Cursor Repair: `desktop/desktop_renderer.py now uses a cursor-aligned 12px Dashboard edge/corner rail, clears widget-level custom cursor ownership on Windows, returns real Windows non-client edge hit-tests at the visible rail, and keeps direct geometry resize proof for the frameless WebEngine Dashboard`
+- Validator / Helper Updates: `human-client validation now fails unless the 10px visible rail returns Windows edge hit-tests, 28px interior/outside samples return non-edge hit-tests, cursor state differs at the edge, and corner/right-edge/bottom-edge drags each change real Dashboard geometry; static and sandbox validators require the cursor-aligned 12px contract`
+- Validation Proof: `PASS - human-client manifest dev/logs/fam_006_human_client_validation/20260511_094825_007/human_client_manifest.json proves rightEdge10px=htright, bottomEdge10px=htbottom, corner10px=htbottomright, 28px interior/outside non-edge hit-tests, real corner/right-edge/bottom-edge geometry resize, tray open/close/disable recovery, NCP/saved-action regression safety, and Exit confirmation/cancel/accept behavior; HUD surface validation PASS; internal sandbox manifest dev/logs/fam_006_monitoring_hud_internal_sandbox/20260511_100011_manifest.json PASS; compileall PASS`
+- Element Rows Updated: `FAM006-DASH-RESIZE-057`; `FAM006-DASH-WINDOW-002`; `FAM006-GOV-HUMAN-CLIENT-065`; `FAM006-GOV-SOURCE-TRUTH-039`
+- Returned USER Issue Rows Updated: `FAM006-RUI-053`
+- Prior Proof Staleness: `Post-WS53 H1 and LV1 are stale for RUI-053; prior WS53 proof remains supporting history only because it over-credited a 58px rail that caused cursor state to appear too far from the visible edge`
+- Overlay Status: `Deferred/dormant/non-gating - WS54 does not admit Overlay/display release acceptance`
+- Core Status: `Dependency-only - WS54 does not make ORIN/Core a released FAM-006 interface`
+- Formal UTS Boundary: `Preserved - WS54 does not generate, refresh, or digest C:\Users\anden\OneDrive\Desktop\User Test Summary.txt`
+- Dashboard Acceptance State: `Still blocked - WS54 is Workstream proof only; Dashboard acceptance requires Hardening rerun, refreshed LV1, returned USER PASS/WAIVED results or explicit waiver`
+- PKG-006 Status: `In Progress`
+- Package Completion: `Unclaimed`
+- PR Readiness: `Blocked`
+- Continue Decision: `Stop at phase boundary because WS54 is complete and Hardening H1 requires explicit USER admission`
+- Continuation Execution Latch: `Inactive - WS54 is Green / Hardening phase-boundary stop`
 - Stop Basis: `Workstream Green`
 - Next Legal Seam: `Hardening H1 - Monitoring HUD Product Surface Hardening Rerun`
