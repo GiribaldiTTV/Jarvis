@@ -1701,7 +1701,7 @@ FAM006_ELEMENT_LEDGER_REQUIRED_PHRASES = (
     "FAM006-FUTURE-AUDIO-043",
     "FAM006-FUTURE-PERSONA-044",
     "## UTS Coverage Map",
-    "Current Coverage Status: `Hardening H1 Green After WS56 / LV1 Required - RUI-001 through RUI-056 remain issue-grounded; latest returned feedback reopened Dashboard pre-click resize cursor timing and resize fluidity after WS55, WS56 repaired it with pre-click hover cursor and 8ms fluid geometry resize proof, H1 pressure-tested it green, prior LV1 is stale for RUI-055/RUI-056, and LV2 remains blocked until refreshed LV1 plus returned USER PASS/FAIL/WAIVED results or explicit waiver`",
+    "Current Coverage Status: `Live Validation LV1 Handoff Green After WS56/H1 - RUI-001 through RUI-056 remain issue-grounded; current UTS was refreshed from fresh human-client proof and active-client screenshots, all current-scope Codex prechecks are PASS or explicitly deferred/future, and LV2 remains blocked until returned USER PASS/FAIL/WAIVED results or explicit waiver`",
     "## Proof Rebaseline Summary",
     "Returned Step 2 Tray enable/disable/open Dashboard",
     "Returned Step 3 Tray Exit NDAI",
