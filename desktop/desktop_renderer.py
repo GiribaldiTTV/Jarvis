@@ -5777,6 +5777,7 @@ class DesktopRuntimeWindow(QWidget):
         self.setGeometry(self.compute_compact_geometry())
         if self.surface_role == "hud":
             self.setMinimumSize(640, 520)
+        self.setMouseTracking(True)
 
         root = QVBoxLayout(self)
         root.setContentsMargins(0, 0, 0, 0)
@@ -5790,6 +5791,7 @@ class DesktopRuntimeWindow(QWidget):
         )
         self.webview.setContextMenuPolicy(Qt.NoContextMenu)
         self.webview.setFocusPolicy(Qt.NoFocus)
+        self.webview.setMouseTracking(True)
         self.webview.installEventFilter(self)
         QApplication.instance().installEventFilter(self)
         self.webview.hide()
@@ -7002,7 +7004,8 @@ class DesktopRuntimeWindow(QWidget):
             scrollbar_owner="monitoring-hud-chrome",
             scrollbar_boundary="rounded-window-clipped",
             outer_frame_haze="removed-no-square-layer",
-            native_resize_hit_zone="all-edges-and-corners",
+            native_resize_hit_zone="forgiving-58px-all-edges-and-corners",
+            resize_hit_zone_px=self._monitoring_hud_resize_hit_zone_px(),
             deadzone_policy="auto-height-content-no-empty-hit-zones",
             grid_scope="control-hub-cards-only",
             sticky_header_mask="opaque-scroll-mask",
@@ -7043,7 +7046,12 @@ class DesktopRuntimeWindow(QWidget):
         rect = self.geometry()
         if rect.isNull() or not rect.isValid():
             return Qt.Edges()
-        margin = 30
+        # This is intentionally a forgiving inner rail rather than a tiny border pixel.
+        # USER testing showed exact-edge discovery still felt inconsistent on the
+        # frameless WebEngine Dashboard, so resize starts from a visible, reliable band.
+        margin = self._monitoring_hud_resize_hit_zone_px()
+        if not rect.adjusted(-2, -2, 2, 2).contains(point):
+            return Qt.Edges()
         edges = Qt.Edges()
         if abs(point.x() - rect.left()) <= margin:
             edges |= Qt.LeftEdge
@@ -7054,6 +7062,9 @@ class DesktopRuntimeWindow(QWidget):
         if abs(point.y() - rect.bottom()) <= margin:
             edges |= Qt.BottomEdge
         return edges
+
+    def _monitoring_hud_resize_hit_zone_px(self) -> int:
+        return 58
 
     def _monitoring_hud_window_resize_interaction_available(self) -> bool:
         return (
@@ -7157,6 +7168,7 @@ class DesktopRuntimeWindow(QWidget):
             x=screen_point.x(),
             y=screen_point.y(),
             resize_model="fallback-edge-corner-resize",
+            resize_hit_zone_px=self._monitoring_hud_resize_hit_zone_px(),
             edges=str(edges),
         )
 

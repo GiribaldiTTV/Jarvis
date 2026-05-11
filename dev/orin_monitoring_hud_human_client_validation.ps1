@@ -1217,7 +1217,7 @@ function Save-Manifest {
         schema = "fam006-human-client-validation-v1"
         status = $Status
         failure = $Failure
-        seam = "Workstream WS52 - Dashboard Real Resize Recovery Repair"
+        seam = "Workstream WS53 - Dashboard Resize Edge Discoverability Repair"
         startedAt = $script:StartedAt
         finishedAt = (Get-Date).ToUniversalTime().ToString("o")
         desktopShortcutPath = $DesktopShortcutPath
@@ -1358,17 +1358,51 @@ try {
     $dashboard = Get-DashboardWindow
     if (-not $dashboard) { throw "Dashboard disappeared before resize proof after NCP interaction checks" }
     $rectBeforeResize = $dashboard.Current.BoundingRectangle
-    Drag-FromTo -StartX ([int]($rectBeforeResize.Right - 8)) -StartY ([int]($rectBeforeResize.Bottom - 8)) -EndX ([int]($rectBeforeResize.Right + 70)) -EndY ([int]($rectBeforeResize.Bottom + 60)) -Label "Dashboard bottom-right resize"
+    Drag-FromTo -StartX ([int]($rectBeforeResize.Right - 36)) -StartY ([int]($rectBeforeResize.Bottom - 36)) -EndX ([int]($rectBeforeResize.Right + 70)) -EndY ([int]($rectBeforeResize.Bottom + 60)) -Label "Dashboard forgiving bottom-right resize rail"
+    Start-Sleep -Milliseconds 450
     $dashboard = Get-DashboardWindow
-    $resizeShot = Capture-VirtualScreenshot "05_after_dashboard_mouse_resize"
+    $resizeShot = Capture-VirtualScreenshot "05a_after_dashboard_corner_resize"
     if (-not $dashboard) {
-        Add-Step -Id "dashboard_mouse_resize" -Title "Dashboard resizes through mouse drag" -Status "FAIL" -Detail "Dashboard disappeared after resize attempt." -Evidence @{ screenshot = $resizeShot }
+        Add-Step -Id "dashboard_mouse_resize_corner" -Title "Dashboard corner resize rail is easy to trigger" -Status "FAIL" -Detail "Dashboard disappeared after corner resize attempt." -Evidence @{ screenshot = $resizeShot }
         throw "Dashboard disappeared after resize attempt"
     }
     $rectAfterResize = $dashboard.Current.BoundingRectangle
-    $resized = ([Math]::Abs($rectAfterResize.Width - $rectBeforeResize.Width) -ge 20) -or ([Math]::Abs($rectAfterResize.Height - $rectBeforeResize.Height) -ge 20)
-    Add-Step -Id "dashboard_mouse_resize" -Title "Dashboard resizes through mouse drag" -Status ($(if ($resized) { "PASS" } else { "FAIL" })) -Detail "before=($($rectBeforeResize.Width)x$($rectBeforeResize.Height)); after=($($rectAfterResize.Width)x$($rectAfterResize.Height))" -Evidence @{ screenshot = $resizeShot }
-    if (-not $resized) { throw "Dashboard did not resize through human-like mouse drag" }
+    $cornerResized = ([Math]::Abs($rectAfterResize.Width - $rectBeforeResize.Width) -ge 20) -or ([Math]::Abs($rectAfterResize.Height - $rectBeforeResize.Height) -ge 20)
+    Add-Step -Id "dashboard_mouse_resize_corner" -Title "Dashboard corner resize rail is easy to trigger" -Status ($(if ($cornerResized) { "PASS" } else { "FAIL" })) -Detail "before=($($rectBeforeResize.Width)x$($rectBeforeResize.Height)); after=($($rectAfterResize.Width)x$($rectAfterResize.Height)); start was 36px inside the visible corner rail" -Evidence @{ screenshot = $resizeShot }
+    if (-not $cornerResized) { throw "Dashboard did not resize through the forgiving corner rail" }
+
+    $rectBeforeRightResize = $dashboard.Current.BoundingRectangle
+    $rightStartY = [int]($rectBeforeRightResize.Top + ($rectBeforeRightResize.Height * 0.54))
+    Drag-FromTo -StartX ([int]($rectBeforeRightResize.Right - 44)) -StartY $rightStartY -EndX ([int]($rectBeforeRightResize.Right + 66)) -EndY $rightStartY -Label "Dashboard forgiving right-edge resize rail"
+    Start-Sleep -Milliseconds 450
+    $dashboard = Get-DashboardWindow
+    $rightResizeShot = Capture-VirtualScreenshot "05b_after_dashboard_right_edge_resize"
+    if (-not $dashboard) {
+        Add-Step -Id "dashboard_mouse_resize_right_edge" -Title "Dashboard right-edge resize rail is easy to trigger" -Status "FAIL" -Detail "Dashboard disappeared after right-edge resize attempt." -Evidence @{ screenshot = $rightResizeShot }
+        throw "Dashboard disappeared after right-edge resize attempt"
+    }
+    $rectAfterRightResize = $dashboard.Current.BoundingRectangle
+    $rightResized = [Math]::Abs($rectAfterRightResize.Width - $rectBeforeRightResize.Width) -ge 20
+    Add-Step -Id "dashboard_mouse_resize_right_edge" -Title "Dashboard right-edge resize rail is easy to trigger" -Status ($(if ($rightResized) { "PASS" } else { "FAIL" })) -Detail "beforeWidth=$($rectBeforeRightResize.Width); afterWidth=$($rectAfterRightResize.Width); start was 44px inside the visible right-edge rail" -Evidence @{ screenshot = $rightResizeShot }
+    if (-not $rightResized) { throw "Dashboard did not resize through the forgiving right-edge rail" }
+
+    $rectBeforeBottomResize = $dashboard.Current.BoundingRectangle
+    $bottomStartX = [int]($rectBeforeBottomResize.Left + ($rectBeforeBottomResize.Width * 0.46))
+    Drag-FromTo -StartX $bottomStartX -StartY ([int]($rectBeforeBottomResize.Bottom - 44)) -EndX $bottomStartX -EndY ([int]($rectBeforeBottomResize.Bottom + 66)) -Label "Dashboard forgiving bottom-edge resize rail"
+    Start-Sleep -Milliseconds 450
+    $dashboard = Get-DashboardWindow
+    $bottomResizeShot = Capture-VirtualScreenshot "05c_after_dashboard_bottom_edge_resize"
+    if (-not $dashboard) {
+        Add-Step -Id "dashboard_mouse_resize_bottom_edge" -Title "Dashboard bottom-edge resize rail is easy to trigger" -Status "FAIL" -Detail "Dashboard disappeared after bottom-edge resize attempt." -Evidence @{ screenshot = $bottomResizeShot }
+        throw "Dashboard disappeared after bottom-edge resize attempt"
+    }
+    $rectAfterBottomResize = $dashboard.Current.BoundingRectangle
+    $bottomResized = [Math]::Abs($rectAfterBottomResize.Height - $rectBeforeBottomResize.Height) -ge 20
+    Add-Step -Id "dashboard_mouse_resize_bottom_edge" -Title "Dashboard bottom-edge resize rail is easy to trigger" -Status ($(if ($bottomResized) { "PASS" } else { "FAIL" })) -Detail "beforeHeight=$($rectBeforeBottomResize.Height); afterHeight=$($rectAfterBottomResize.Height); start was 44px inside the visible bottom-edge rail" -Evidence @{ screenshot = $bottomResizeShot }
+    if (-not $bottomResized) { throw "Dashboard did not resize through the forgiving bottom-edge rail" }
+
+    $resizeShot = Capture-VirtualScreenshot "05_after_dashboard_mouse_resize"
+    Add-Step -Id "dashboard_mouse_resize" -Title "Dashboard resizes through discoverable edge and corner rails" -Status "PASS" -Detail "Corner, right-edge, and bottom-edge resize rails all changed real Dashboard geometry from a real mouse path." -Evidence @{ screenshot = $resizeShot; cornerBefore = "$($rectBeforeResize.Width)x$($rectBeforeResize.Height)"; cornerAfter = "$($rectAfterResize.Width)x$($rectAfterResize.Height)"; rightBeforeWidth = $rectBeforeRightResize.Width; rightAfterWidth = $rectAfterRightResize.Width; bottomBeforeHeight = $rectBeforeBottomResize.Height; bottomAfterHeight = $rectAfterBottomResize.Height }
 
     $closeEvidence = Invoke-TrayAction -ActionName "Close HUD Dashboard" -ExpectedMarker "RENDERER_MAIN|TRAY_MONITORING_HUD_DASHBOARD_REQUESTED|source=menu|visible=false" -TimeoutSeconds $ActionTimeoutSeconds
     Start-Sleep -Milliseconds 1000
