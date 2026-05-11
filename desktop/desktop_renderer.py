@@ -73,6 +73,7 @@ from .workerw_utils import (
 
 WM_NCHITTEST = 0x0084
 WM_CANCELMODE = 0x001F
+WM_SETCURSOR = 0x0020
 WM_NCMOUSEMOVE = 0x00A0
 WM_NCLBUTTONDOWN = 0x00A1
 WM_NCLBUTTONUP = 0x00A2
@@ -5771,8 +5772,12 @@ class DesktopRuntimeWindow(QWidget):
         self._monitoring_hud_native_window_resize_start = QPoint()
         self._monitoring_hud_native_window_resize_base = QRect()
         self._monitoring_hud_native_window_resize_poll_active = False
+        self._monitoring_hud_native_window_resize_last_rect = QRect()
         self._monitoring_hud_resize_cursor_key = None
         self._monitoring_hud_resize_override_cursor_active = False
+        self._monitoring_hud_resize_hover_timer = QTimer(self)
+        self._monitoring_hud_resize_hover_timer.setInterval(20)
+        self._monitoring_hud_resize_hover_timer.timeout.connect(self._poll_monitoring_hud_resize_hover_cursor)
         self._monitoring_hud_native_card_drag_active = False
         self._monitoring_hud_native_card_resize_active = False
         self._monitoring_hud_native_card_drag_id = ""
@@ -5822,6 +5827,8 @@ class DesktopRuntimeWindow(QWidget):
         self.webview.setMouseTracking(True)
         self.webview.installEventFilter(self)
         QApplication.instance().installEventFilter(self)
+        if self.surface_role == "hud":
+            self._monitoring_hud_resize_hover_timer.start()
         self.webview.hide()
 
         self.webview.page().setBackgroundColor(
@@ -7032,9 +7039,11 @@ class DesktopRuntimeWindow(QWidget):
             scrollbar_owner="monitoring-hud-chrome",
             scrollbar_boundary="rounded-window-clipped",
             outer_frame_haze="removed-no-square-layer",
-            native_resize_hit_zone="cursor-aligned-12px-app-owned-resize-action",
+            native_resize_hit_zone="preclick-hover-cursor-aligned-12px-app-owned-resize-action",
             resize_edge_scope="all-edges-and-corners",
             resize_hit_zone_px=self._monitoring_hud_resize_hit_zone_px(),
+            resize_hover_cursor_model="polls-real-cursor-before-click",
+            resize_poll_interval_ms=8,
             deadzone_policy="auto-height-content-no-empty-hit-zones",
             grid_scope="control-hub-cards-only",
             sticky_header_mask="opaque-scroll-mask",
@@ -7101,6 +7110,50 @@ class DesktopRuntimeWindow(QWidget):
             and self.isVisible()
             and self.webview.isVisible()
         )
+
+    def _monitoring_hud_point_belongs_to_dashboard_window(self, point: QPoint) -> bool:
+        if os.name != "nt" or point.isNull():
+            return self.geometry().contains(point)
+        try:
+            probe = ctypes.wintypes.POINT(int(point.x()), int(point.y()))
+            hwnd = int(WindowFromPoint(probe))
+            dashboard_hwnd = int(self.winId())
+            while hwnd:
+                if hwnd == dashboard_hwnd:
+                    return True
+                hwnd = int(GetParentW(ctypes.wintypes.HWND(hwnd)))
+        except Exception:
+            return self.geometry().contains(point)
+        return False
+
+    def _monitoring_hud_resize_edges_under_cursor(self) -> tuple[QPoint, Qt.Edges]:
+        if not self._monitoring_hud_window_resize_interaction_available():
+            return QPoint(), Qt.Edges()
+        screen_point = self._monitoring_hud_cursor_screen_point()
+        if screen_point.isNull():
+            return QPoint(), Qt.Edges()
+        if not self.geometry().adjusted(-2, -2, 2, 2).contains(screen_point):
+            return screen_point, Qt.Edges()
+        if not self._monitoring_hud_point_belongs_to_dashboard_window(screen_point):
+            return screen_point, Qt.Edges()
+        edges = self._monitoring_hud_native_resize_edges_for_point(screen_point)
+        if edges and self._monitoring_hud_dashboard_control_rect_contains(screen_point):
+            return screen_point, Qt.Edges()
+        return screen_point, edges
+
+    def _poll_monitoring_hud_resize_hover_cursor(self):
+        if (
+            self._monitoring_hud_native_panel_drag_active
+            or self._monitoring_hud_native_window_resize_active
+            or self._monitoring_hud_native_card_drag_active
+            or self._monitoring_hud_native_card_resize_active
+        ):
+            return
+        _, edges = self._monitoring_hud_resize_edges_under_cursor()
+        if edges:
+            self._set_monitoring_hud_resize_cursor(edges)
+            return
+        self._reset_monitoring_hud_resize_cursor()
 
     def _monitoring_hud_native_resize_hit_test_for_edges(self, edges) -> int:
         left, right, top, bottom = self._monitoring_hud_resize_edge_key(edges)
@@ -7248,8 +7301,11 @@ class DesktopRuntimeWindow(QWidget):
             pass
         if os.name == "nt":
             for target in targets:
-                target.unsetCursor()
-            self._set_monitoring_hud_override_resize_cursor(None)
+                if cursor is None:
+                    target.unsetCursor()
+                else:
+                    target.setCursor(QCursor(cursor))
+            self._set_monitoring_hud_override_resize_cursor(cursor)
             self._apply_monitoring_hud_windows_resize_cursor(edges)
             return
         for target in targets:
@@ -7268,6 +7324,7 @@ class DesktopRuntimeWindow(QWidget):
         self._monitoring_hud_native_window_resize_edges = edges
         self._monitoring_hud_native_window_resize_start = screen_point
         self._monitoring_hud_native_window_resize_base = QRect(self.geometry())
+        self._monitoring_hud_native_window_resize_last_rect = QRect(self.geometry())
         self._monitoring_hud_native_window_resize_poll_active = True
         try:
             SetCapture(ctypes.wintypes.HWND(int(self.winId())))
@@ -7277,15 +7334,16 @@ class DesktopRuntimeWindow(QWidget):
             "MONITORING_HUD_NATIVE_WINDOW_RESIZE_FALLBACK_STARTED",
             package="PKG-006",
             slice="SLC-026",
-            seam="WS55",
+            seam="WS56",
             x=screen_point.x(),
             y=screen_point.y(),
-            resize_model="cursor-hit-test-owned-geometry-resize",
+            resize_model="preclick-hover-cursor-owned-fluid-geometry-resize",
             resize_edge_scope="all-edges-and-corners",
             resize_hit_zone_px=self._monitoring_hud_resize_hit_zone_px(),
+            resize_poll_interval_ms=8,
             edges=str(edges),
         )
-        QTimer.singleShot(16, self._poll_monitoring_hud_fallback_window_resize)
+        QTimer.singleShot(8, self._poll_monitoring_hud_fallback_window_resize)
 
     def _poll_monitoring_hud_fallback_window_resize(self):
         if not self._monitoring_hud_native_window_resize_active:
@@ -7295,14 +7353,18 @@ class DesktopRuntimeWindow(QWidget):
         if not screen_point.isNull():
             self._update_monitoring_hud_fallback_window_resize(screen_point)
         if self._monitoring_hud_left_mouse_button_down():
-            QTimer.singleShot(16, self._poll_monitoring_hud_fallback_window_resize)
+            QTimer.singleShot(8, self._poll_monitoring_hud_fallback_window_resize)
             return
         self._finish_monitoring_hud_fallback_window_resize(screen_point)
 
     def _update_monitoring_hud_fallback_window_resize(self, screen_point: QPoint):
         if not self._monitoring_hud_native_window_resize_active:
             return
-        self.setGeometry(self._monitoring_hud_resize_rect_from_native_delta(screen_point))
+        next_rect = self._monitoring_hud_resize_rect_from_native_delta(screen_point)
+        if next_rect == self._monitoring_hud_native_window_resize_last_rect:
+            return
+        self.setGeometry(next_rect)
+        self._monitoring_hud_native_window_resize_last_rect = QRect(next_rect)
         self._monitoring_hud_interactive_screen_rect = self.geometry()
 
     def _finish_monitoring_hud_fallback_window_resize(self, screen_point: QPoint):
@@ -7310,10 +7372,13 @@ class DesktopRuntimeWindow(QWidget):
             return
         if screen_point.isNull():
             screen_point = self._monitoring_hud_native_window_resize_start
-        self.setGeometry(self._monitoring_hud_resize_rect_from_native_delta(screen_point))
+        next_rect = self._monitoring_hud_resize_rect_from_native_delta(screen_point)
+        if next_rect != self._monitoring_hud_native_window_resize_last_rect:
+            self.setGeometry(next_rect)
         self._monitoring_hud_native_window_resize_active = False
         self._monitoring_hud_native_window_resize_poll_active = False
         self._monitoring_hud_native_window_resize_edges = Qt.Edges()
+        self._monitoring_hud_native_window_resize_last_rect = QRect()
         try:
             ReleaseCapture()
         except Exception:
@@ -10974,6 +11039,14 @@ class DesktopRuntimeWindow(QWidget):
                         # Windows owns the cursor state at the visible resize rail;
                         # the frameless Dashboard still owns geometry resize below.
                         return True, hit_test
+                if message_id in (WM_SETCURSOR, WM_MOUSEMOVE, WM_NCMOUSEMOVE) and not self._monitoring_hud_native_window_resize_active:
+                    _, edges = self._monitoring_hud_resize_edges_under_cursor()
+                    if edges:
+                        self._set_monitoring_hud_resize_cursor(edges)
+                        if message_id == WM_SETCURSOR:
+                            return True, 1
+                    elif message_id == WM_SETCURSOR:
+                        self._reset_monitoring_hud_resize_cursor()
                 if message_id == WM_NCLBUTTONDOWN:
                     edges = self._monitoring_hud_native_resize_edges_for_hit_test(int(msg.wParam))
                     screen_point = self._monitoring_hud_cursor_screen_point()

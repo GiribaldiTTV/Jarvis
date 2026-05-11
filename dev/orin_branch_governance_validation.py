@@ -373,6 +373,8 @@ FAM006_WS54_HEADING = "Workstream WS54 Dashboard Standard Resize Cursor Alignmen
 FAM006_WS54_NEXT_SEAM = "Hardening H1 - Monitoring HUD Product Surface Hardening Rerun"
 FAM006_WS55_HEADING = "Workstream WS55 Dashboard Resize Action Recovery After Cursor Alignment Repair"
 FAM006_WS55_NEXT_SEAM = "Hardening H1 - Monitoring HUD Product Surface Hardening Rerun"
+FAM006_WS56_HEADING = "Workstream WS56 Dashboard Pre-Click Resize Cursor And Fluidity Repair"
+FAM006_WS56_NEXT_SEAM = "Hardening H1 - Monitoring HUD Product Surface Hardening Rerun"
 FAM006_H1_HEADING = "Hardening H1 Dashboard-First Product Surface Rerun"
 FAM006_H1_NEXT_SEAM = (
     "Live Validation LV1 - Monitoring HUD Product Surface Live Validation Rerun"
@@ -1391,6 +1393,48 @@ FAM006_WS55_REQUIRED_PHRASES = (
     "Next Legal Seam:",
     FAM006_WS55_NEXT_SEAM,
 )
+FAM006_WS56_REQUIRED_PHRASES = (
+    "WS56 Admission:",
+    "left-click hold",
+    "choppy",
+    "WS56 Result:",
+    "Green for focused Dashboard pre-click resize cursor and fluidity repair",
+    "Returned USER Evidence:",
+    "Runtime Resize Hover Repair:",
+    "WM_SETCURSOR",
+    "Runtime Resize Fluidity Repair:",
+    "preclick-hover-cursor-owned-fluid-geometry-resize",
+    "8ms",
+    "Validator / Helper Updates:",
+    "dashboard_resize_cursor_transition_discovery",
+    "dashboard_resize_fluidity",
+    "pre-click",
+    "Validation Proof:",
+    "20260511_124952_135",
+    "28 unique geometry samples",
+    "Element Rows Updated:",
+    "FAM006-DASH-RESIZE-057",
+    "FAM006-GOV-HUMAN-CLIENT-065",
+    "Returned USER Issue Rows Updated:",
+    "FAM006-RUI-055",
+    "FAM006-RUI-056",
+    "Prior Proof Staleness:",
+    "Post-WS55 H1 and LV1 are stale for RUI-055 and RUI-056",
+    "Formal UTS Boundary:",
+    "WS56 does not generate, refresh, or digest",
+    "Overlay Status:",
+    "Deferred/dormant/non-gating",
+    "Core Status:",
+    "Dependency-only",
+    "Dashboard Acceptance State:",
+    "Still blocked",
+    "Package Completion:",
+    "Unclaimed",
+    "Continuation Execution Latch:",
+    "Inactive - WS56 is Green / Hardening phase-boundary stop",
+    "Next Legal Seam:",
+    FAM006_WS56_NEXT_SEAM,
+)
 FAM006_WORKSTREAM_CONTINUATION_REQUIRED_PHRASES = (
     "multi-slice HUD implementation continuation",
     "WS8 - Monitoring HUD Internal Sandbox Harness And State Matrix Baseline",
@@ -1649,7 +1693,7 @@ FAM006_ELEMENT_LEDGER_REQUIRED_PHRASES = (
     "FAM006-FUTURE-AUDIO-043",
     "FAM006-FUTURE-PERSONA-044",
     "## UTS Coverage Map",
-    "Current Coverage Status: `Workstream WS55 Green / H1 Required - RUI-001 through RUI-054 remain issue-grounded; latest returned feedback reopened Dashboard resize action after WS54 cursor alignment, WS55 repaired it with cursor-hit-test-owned geometry resize proof, prior H1/LV1 are stale for RUI-054, and LV2 remains blocked until H1, refreshed LV1, and returned USER PASS/FAIL/WAIVED results or explicit waiver`",
+    "Current Coverage Status: `Workstream WS56 Green / H1 Required - RUI-001 through RUI-056 remain issue-grounded; latest returned feedback reopened Dashboard pre-click resize cursor timing and resize fluidity after WS55, WS56 repaired it with pre-click hover cursor and 8ms fluid geometry resize proof, prior H1/LV1 are stale for RUI-055/RUI-056, and LV2 remains blocked until H1, refreshed LV1, and returned USER PASS/FAIL/WAIVED results or explicit waiver`",
     "## Proof Rebaseline Summary",
     "Returned Step 2 Tray enable/disable/open Dashboard",
     "Returned Step 3 Tray Exit NDAI",
@@ -6408,6 +6452,38 @@ def _validate_fam006_stage2_r6_plan(
                 or "H1 rerun required" in text,
                 f"{source_path}: WS51 completion must mark prior H1/LV1 stale for affected resize/scrollbar/state rows",
             )
+        ws56_section = _section(text, FAM006_WS56_HEADING)
+        if ws56_section:
+            for phrase in FAM006_WS56_REQUIRED_PHRASES:
+                require(
+                    phrase in ws56_section,
+                    f"{source_path}: {FAM006_WS56_HEADING} is missing '{phrase}'",
+                )
+            require(
+                (
+                    f"Active seam: `{FAM006_WS56_NEXT_SEAM}`" in text
+                    or "Active seam: `Phase Boundary Stop - Await USER Hardening Admission`"
+                    in text
+                    or "Active seam: `Phase Boundary Stop - Workstream WS56 Green / Await USER Hardening Admission`"
+                    in text
+                ),
+                f"{source_path}: WS56 completion must advance active seam or phase-boundary stop to Hardening H1",
+            )
+            require(
+                f"Next Legal Seam: `{FAM006_WS56_NEXT_SEAM}`" in text,
+                f"{source_path}: WS56 completion must set next legal seam to Hardening H1",
+            )
+            require(
+                "H1 rerun required" in text
+                and "RUI-055" in text
+                and "RUI-056" in text,
+                f"{source_path}: WS56 completion must mark prior H1/LV1 stale for RUI-055/RUI-056 resize rows",
+            )
+            require(
+                "Hardening H1 requires explicit USER admission" in text,
+                f"{source_path}: WS56 completion must preserve explicit USER Hardening admission requirement",
+            )
+            return
         ws55_section = _section(text, FAM006_WS55_HEADING)
         if ws55_section:
             for phrase in FAM006_WS55_REQUIRED_PHRASES:
