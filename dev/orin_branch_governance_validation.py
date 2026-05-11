@@ -357,6 +357,10 @@ FAM006_WS49_HEADING = (
     "Workstream WS49 Dashboard NCP Interaction Isolation And Tray Action Safety Repair"
 )
 FAM006_WS49_NEXT_SEAM = "Hardening H1 - Monitoring HUD Product Surface Hardening Rerun"
+FAM006_WS50_HEADING = (
+    "Workstream WS50 Dashboard Scrollbar Boundary And Native Window Chrome Repair"
+)
+FAM006_WS50_NEXT_SEAM = "Hardening H1 - Monitoring HUD Product Surface Hardening Rerun"
 FAM006_H1_HEADING = "Hardening H1 Dashboard-First Product Surface Rerun"
 FAM006_H1_NEXT_SEAM = (
     "Live Validation LV1 - Monitoring HUD Product Surface Live Validation Rerun"
@@ -1116,6 +1120,45 @@ FAM006_WS49_REQUIRED_PHRASES = (
     "Inactive - WS49 is Green / Hardening phase-boundary stop",
     "Next Legal Seam:",
     FAM006_WS49_NEXT_SEAM,
+)
+FAM006_WS50_REQUIRED_PHRASES = (
+    "WS50 Admission:",
+    "bounded Workstream repair",
+    "WS50 Result:",
+    "Green for focused Dashboard scrollbar/native-window boundary repair",
+    "Returned USER Evidence:",
+    "Scrollbar.png",
+    "Window border.png",
+    "Runtime / CSS Repair:",
+    "fills the native HUD window",
+    "clips the root and .monitoring-hud__chrome to one 28px rounded boundary",
+    "Scrollbar Boundary Repair:",
+    "rounded-window-clipped",
+    "Validator / Helper Updates:",
+    'data-scrollbar-boundary="rounded-window-clipped"',
+    'data-outer-frame-haze="removed-no-square-layer"',
+    "Active-Client Proof:",
+    "dev/logs/fam_006_monitoring_hud_live_validation/20260510_165507_981",
+    "Element Rows Updated:",
+    "FAM006-DASH-SCROLL-007",
+    "FAM006-DASH-FRAME-HAZE-056",
+    "Returned USER Issue Rows Updated:",
+    "FAM006-RUI-026",
+    "FAM006-RUI-027",
+    "Formal UTS Boundary:",
+    "WS50 does not generate, refresh, or digest",
+    "Overlay Status:",
+    "Deferred/dormant/non-gating",
+    "Core Status:",
+    "Dependency-only",
+    "Dashboard Acceptance State:",
+    "Still blocked",
+    "Package Completion:",
+    "Unclaimed",
+    "Continuation Execution Latch:",
+    "Inactive - WS50 is Green / Hardening phase-boundary stop",
+    "Next Legal Seam:",
+    FAM006_WS50_NEXT_SEAM,
 )
 FAM006_WORKSTREAM_CONTINUATION_REQUIRED_PHRASES = (
     "multi-slice HUD implementation continuation",
@@ -6100,6 +6143,35 @@ def _validate_fam006_stage2_r6_plan(
                     f"'{required_phrase}'"
                 ),
             )
+        ws50_section = _section(text, FAM006_WS50_HEADING)
+        if ws50_section:
+            for phrase in FAM006_WS50_REQUIRED_PHRASES:
+                require(
+                    phrase in ws50_section,
+                    f"{source_path}: {FAM006_WS50_HEADING} is missing '{phrase}'",
+                )
+            require(
+                (
+                    f"Active seam: `{FAM006_WS50_NEXT_SEAM}`" in text
+                    or "Active seam: `Phase Boundary Stop - Workstream WS50 Green / Await USER Hardening Admission`"
+                    in text
+                ),
+                f"{source_path}: WS50 completion must advance active seam or phase-boundary stop to Hardening H1",
+            )
+            require(
+                f"Next Legal Seam: `{FAM006_WS50_NEXT_SEAM}`" in text,
+                f"{source_path}: WS50 completion must set next legal seam to Hardening H1",
+            )
+            require(
+                "H1/LV1 are stale for affected visual-shell rows" in text
+                or "H1 rerun and refreshed LV1 are required" in text,
+                f"{source_path}: WS50 completion must mark prior H1/LV1 stale for affected visual-shell rows",
+            )
+            require(
+                "Hardening H1 requires explicit USER admission" in text,
+                f"{source_path}: WS50 completion must preserve explicit USER Hardening admission requirement",
+            )
+            return
         ws49_section = _section(text, FAM006_WS49_HEADING)
         if ws49_section:
             for phrase in FAM006_WS49_REQUIRED_PHRASES:

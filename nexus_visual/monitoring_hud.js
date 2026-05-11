@@ -348,6 +348,8 @@ function monitoringHudUpdateSurfaceSplit() {
     monitoringHud.dataset.scrollbarStyle = "nexus-thin-glow";
     monitoringHud.dataset.frameOwnership = "single-rounded-dashboard-chrome";
     monitoringHud.dataset.scrollOwner = "monitoring-hud-chrome";
+    monitoringHud.dataset.scrollbarBoundary = "rounded-window-clipped";
+    monitoringHud.dataset.outerFrameHaze = "removed-no-square-layer";
     monitoringHud.dataset.gridScope = "control-hub-cards-only";
     monitoringHud.dataset.deadzonePolicy = "auto-height-content-no-empty-hit-zones";
     monitoringHud.dataset.stickyHeaderMask = "opaque-scroll-mask";

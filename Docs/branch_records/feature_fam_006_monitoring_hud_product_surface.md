@@ -24,7 +24,7 @@ This branch may execute the admitted PKG-006 implementation slices during Workst
 
 ## Status
 
-- `Live Validation LV1 Green - Issue-Grounded Formal UTS Handoff Generated / Awaiting Returned USER Results`
+- `Workstream WS50 Green - Dashboard Scrollbar Boundary And Native Window Chrome Repair Complete / Hardening H1 Handoff Ready`
 
 ## Canonical Branch
 
@@ -32,14 +32,14 @@ This branch may execute the admitted PKG-006 implementation slices during Workst
 
 ## Current Phase
 
-- Phase: `Live Validation`
+- Phase: `Workstream`
 
 ## Phase Status
 
 - Branch Readiness Stage: `Stage 2 source-truth repair completed - returned LV1 denial remains recorded as blocking evidence and cannot advance to LV2 as a PASS path`
-- Workstream Stage: `WS49 green - Dashboard/NCP interaction isolation and tray authoring-dialog safety are repaired and human-client validated through actual desktop shortcut, visible tray/menu/window mouse actions, NCP button clicks, duplicate tray-dialog guard proof, screenshot-frame evidence, and PASS/FAIL/NOT TESTED per issue-grounded step without refreshing or digesting the formal UTS`
-- Hardening Stage: `H1 green - WS49 tray/NCP interaction repair, native tray menu path, real-human validation manifest, proof-class separation, and unchanged Dashboard-first/deferred Overlay/Core boundaries are pressure-tested as repo-side confidence only`
-- Live Validation Stage: `LV1 green for formal handoff generation only - fresh real-human precheck manifest, active-client proof, screenshot evidence, and issue-grounded UTS export are complete; LV2 remains blocked until USER returns PASS/FAIL/WAIVED results or explicit waiver`
+- Workstream Stage: `WS50 green - returned USER screenshots reopened the scrollbar/native-window boundary visual-shell issue; Dashboard chrome now fills and clips to the rounded native HUD window, scrollbar track/thumb are bounded inside the rounded chrome, and the square outer haze layer is removed as Workstream proof only`
+- Hardening Stage: `H1 stale for affected visual-shell rows - prior H1 remains supporting history where not superseded, but WS50 requires a fresh Hardening rerun before refreshed LV1 handoff`
+- Live Validation Stage: `LV1 stale for affected visual-shell rows - returned USER screenshot evidence after the handoff blocks LV2 and requires H1 plus refreshed LV1 before USER acceptance can be requested again`
 - Active Branch: `feature/fam-006-monitoring-hud-product-surface`
 - Branch Authority Mode: `Active Branch`
 - Workstream Entry Source-Truth Transition: `Performed - Branch Readiness Stage 2 terminal evidence reconciled before runtime implementation`
@@ -52,7 +52,7 @@ This branch may execute the admitted PKG-006 implementation slices during Workst
 - Admitted Slice Count: `6`
 - Package Completion State: `In Progress - package completion remains unclaimed until real-client returned USER acceptance or waiver is digested after repair, PR Readiness passes, and final closeout passes`
 - Single-Slice Package User Approval: `Not required - PKG-006 has six concrete admitted slices; no waiver granted`
-- Runtime Implementation State: `Dashboard-first WS37-WS47, prior H1, denied LV1 proof, WS48 proof-governance work, WS49 interaction repair, H1 pressure test, and current LV1 handoff are preserved as supporting history only where not superseded. USER denial superseded the earlier LV1 green-handoff wording for acceptance because Codex had not completed real-human live-client validation before asking USER to test. WS48 repaired the proof gap by extracting tray ownership into desktop/tray_controller.py and adding human-client validation; WS49 repaired the follow-on real-client defects where Dashboard mouse handling blocked NCP buttons and tray Create Custom Task could spawn/lock authoring dialogs. H1 rerun after WS49 is green. Current LV1 generated an issue-grounded formal UTS from fresh proof: human-client proof at dev/logs/fam_006_human_client_validation/20260510_130259_909/human_client_manifest.json launches the actual desktop shortcut, drives visible native tray/menu/window mouse actions, opens NCP with the Dashboard visible/moved, clicks Create Custom Task/Create Custom Group/Manage Custom Tasks/Manage Custom Groups, blocks duplicate tray Create Custom Task while an authoring dialog is active, and preserves tray Dashboard open/close, resize, disable recovery, and Exit confirmation proof. LV1 live helper proof at dev/logs/fam_006_monitoring_hud_live_validation/20260510_130711_432 captures active-client screenshot/manifest evidence and refreshed C:\Users\anden\OneDrive\Desktop\User Test Summary.txt. App-side callback/precheck manifests, fake/offscreen proof, direct function calls, screenshots, and marker proof still cannot clear user-facing tray, Dashboard, NCP interaction, movement, resize, shutdown-confirmation, or visual-quality acceptance unless the human-client manifest passes or USER explicitly waives it. #20 NCP placement/persistence and 6f Dev Toolkit Interface Review Mode remain deferred priority future scope unless later proof shows FAM-006 caused a current regression. Exit prompt visual restyling is future polish unless separately admitted; functional Exit confirmation/timing is LV1-prechecked. Overlay/display remains deferred/dormant/non-gating, ORIN/Core remains dependency-only, and formal returned-result digestion remains Live Validation LV2-only after USER returns PASS/FAIL/WAIVED results or explicit waiver.`
+- Runtime Implementation State: `Dashboard-first WS37-WS47, prior H1, denied LV1 proof, WS48 proof-governance work, WS49 interaction repair, H1 pressure test, current LV1 handoff, and WS50 visual-shell repair are preserved as supporting history only where not superseded. USER denial superseded the earlier LV1 green-handoff wording for acceptance because Codex had not completed real-human live-client validation before asking USER to test. WS48 repaired the proof gap by extracting tray ownership into desktop/tray_controller.py and adding human-client validation; WS49 repaired the follow-on real-client defects where Dashboard mouse handling blocked NCP buttons and tray Create Custom Task could spawn/lock authoring dialogs. The later LV1 handoff generated an issue-grounded formal UTS from fresh proof, but USER screenshots then reproduced the scrollbar/native-window boundary defect. WS50 repairs that focused visual-shell issue by removing the inset transparent outer layer, clipping the Dashboard to one rounded native-window boundary, removing the external square haze/shadow, and bounding the scrollbar inside the rounded chrome. Prior H1 and LV1 are stale for the affected visual-shell rows, so Dashboard acceptance, package completion, LV2, and PR Readiness remain blocked until H1 reruns, LV1 refreshes, and USER returns PASS/FAIL/WAIVED results or explicit waiver. App-side callback/precheck manifests, fake/offscreen proof, direct function calls, screenshots, and marker proof still cannot clear user-facing tray, Dashboard, NCP interaction, movement, resize, shutdown-confirmation, or visual-quality acceptance unless the human-client manifest passes or USER explicitly waives it. #20 NCP placement/persistence and 6f Dev Toolkit Interface Review Mode remain deferred priority future scope unless later proof shows FAM-006 caused a current regression. Exit prompt visual restyling is future polish unless separately admitted; functional Exit confirmation/timing is prior LV1-prechecked. Overlay/display remains deferred/dormant/non-gating, ORIN/Core remains dependency-only, and formal returned-result digestion remains Live Validation LV2-only after a future refreshed LV1 handoff receives USER PASS/FAIL/WAIVED results or explicit waiver.`
 - PR Creation State: `Not approved in Branch Readiness`
 - Watcher Provisioning State: `Not approved in Branch Readiness`
 - Release Work State: `Not approved; v1.6.13-prebeta release execution is already complete and no new release work is in scope`
@@ -67,7 +67,7 @@ This branch may execute the admitted PKG-006 implementation slices during Workst
 
 - `Backlog Completion Unproven`
 
-Package completion is not currently claimed. Stage 2-R13 cleared the earlier Branch Readiness planning latches and handed the branch to Dashboard-focused Workstream repair, but the refreshed LV1 handoff received USER blocking feedback before LV2 acceptance. Stage 2 recorded that affected Workstream/H1/LV1 evidence was supporting but stale and LV2 could not continue. WS37 through WS49, H1, and the current denied LV1 handoff remain supporting history where not superseded. The returned real-client LV1 evidence proved that prior helper/offscreen/callback proof over-credited the actual USER path for tray Exit confirmation and tray Dashboard open visibility; later returned feedback proved Dashboard/NCP interaction and tray authoring-dialog gaps. WS47 through WS49 repaired those paths as supporting Workstream proof, and H1 pressure-tested them as repo-side confidence only. Dashboard acceptance, package completion, LV2, PR Readiness, release, and Overlay/display acceptance remain unclaimed.
+Package completion is not currently claimed. Stage 2-R13 cleared the earlier Branch Readiness planning latches and handed the branch to Dashboard-focused Workstream repair, but the refreshed LV1 handoff received USER blocking feedback before LV2 acceptance. Stage 2 recorded that affected Workstream/H1/LV1 evidence was supporting but stale and LV2 could not continue. WS37 through WS49, H1, and the current denied LV1 handoff remain supporting history where not superseded. The returned real-client LV1 evidence proved that prior helper/offscreen/callback proof over-credited the actual USER path for tray Exit confirmation and tray Dashboard open visibility; later returned feedback proved Dashboard/NCP interaction and tray authoring-dialog gaps. WS47 through WS49 repaired those paths as supporting Workstream proof, and H1 pressure-tested them as repo-side confidence only. Returned USER screenshots on 2026-05-10 reopened the Dashboard scrollbar/native-window boundary visual-shell defect after the issue-grounded LV1 handoff; WS50 repairs that focused visual-shell path as Workstream proof only. Dashboard acceptance, package completion, LV2, PR Readiness, release, and Overlay/display acceptance remain unclaimed.
 
 ## Acceptance Guards
 
@@ -85,6 +85,8 @@ Package completion is not currently claimed. Stage 2-R13 cleared the earlier Bra
 - `Returned LV1 Handoff Denied`
 - `Codex Human-Client Self-QA Required`
 - `Human-Client Validation Manifest Required Before LV1 Handoff`
+- `Returned LV1 Scrollbar Boundary Failure`
+- `Returned LV1 Native Window Square Haze Failure`
 
 ## Returned LV1 Repair Findings
 
@@ -111,8 +113,10 @@ Package completion is not currently claimed. Stage 2-R13 cleared the earlier Bra
 - `Anchored Overlay Uninteractable Desktop Integration Gap`
 - `HUD Dashboard Overlay Native Surface Coupling Gap`
 - `Core Render HUD Surface Coupling / Preset Monitor Regression`
+- `Dashboard Scrollbar Rounded Boundary Failure`
+- `Dashboard Native Window Square Haze Reproduced`
 
-These findings are returned USER evidence, not Dashboard acceptance. The earlier #1-#38 findings were partially repaired through WS37-WS46 and H1, but the latest real-client returned evidence supersedes prior tray/open/shutdown acceptance credit for affected rows. WS47 repaired the first real-client tray/shortcut proof path, the following H1 pressure-tested it, and LV1 generated an issue-grounded formal UTS with per-step Codex prechecks. USER then denied that LV1 handoff because Codex had not completed a real-human live-client run before asking USER to test. WS48 repaired that validation-governance gap with a dedicated tray controller and PASS human-client manifest. WS49 repaired the next returned real-client blockers: tray action ordering, Dashboard/NCP mouse-interaction blocking, tray authoring-dialog duplicate/lock behavior, and the distinction between functional Exit confirmation and future NDAI-styled prompt polish. H1 has pressure-tested WS49 as repo-side confidence. Live Validation remains blocked for acceptance until LV1 refreshes from the H1-green proof set and USER returns PASS/FAIL/WAIVED results or an explicit waiver before LV2.
+These findings are returned USER evidence, not Dashboard acceptance. The earlier #1-#38 findings were partially repaired through WS37-WS46 and H1, but the latest real-client returned evidence supersedes prior tray/open/shutdown acceptance credit for affected rows. WS47 repaired the first real-client tray/shortcut proof path, the following H1 pressure-tested it, and LV1 generated an issue-grounded formal UTS with per-step Codex prechecks. USER then denied that LV1 handoff because Codex had not completed a real-human live-client run before asking USER to test. WS48 repaired that validation-governance gap with a dedicated tray controller and PASS human-client manifest. WS49 repaired the next returned real-client blockers: tray action ordering, Dashboard/NCP mouse-interaction blocking, tray authoring-dialog duplicate/lock behavior, and the distinction between functional Exit confirmation and future NDAI-styled prompt polish. USER then returned focused screenshots showing the scrollbar still visually belonged to a square outer layer and the native Dashboard boundary still had a visible square haze; WS50 repairs that focused visual-shell issue as Workstream proof. Live Validation remains blocked for acceptance until H1 reruns, LV1 refreshes from the post-WS50 proof set, and USER returns PASS/FAIL/WAIVED results or an explicit waiver before LV2.
 
 ## Returned USER Issue Register
 
@@ -129,7 +133,7 @@ Issue Register Schema: `Stable Issue ID`; `Original USER Number`; `Title`; `Sour
 | `FAM006-RUI-005` | `#5` | Sticky title/status group needed | Prior returned Dashboard review | `FAM006-DASH-STICKY-OCCLUSION-059`; `FAM006-DASH-LAYOUT-005` | Medium | Visual shell behavior | Repaired by WS39/WS44; acceptance pending | Historical WS39/WS44 | Scroll screenshot/live proof | Supporting / pending acceptance |
 | `FAM006-RUI-006` | `#6a` | Text clipping/wrapping blocker | Prior returned Dashboard review | `FAM006-DASH-LAYOUT-005`; `FAM006-DASH-CONTENT-008` | High | Visual clipping | Repaired by WS39/WS44; acceptance pending | Historical WS39/WS44 | Screenshot proof plus UTS | Supporting / pending acceptance |
 | `FAM006-RUI-007` | `#6b` | Proof/debug groupings on Dashboard home | Prior returned Dashboard review | `FAM006-DASH-CONTENT-008`; `FAM006-PROOF-LIVEHELPER-033` | High | IA/product mismatch | Repaired by WS40/WS45; acceptance pending | Historical WS40/WS45 | Dashboard home screenshot plus UTS | Supporting / pending acceptance |
-| `FAM006-RUI-008` | `#6c/#26` | Scrollbar attached to outer/invisible frame | Prior and returned LV1 screenshots | `FAM006-DASH-SCROLL-007`; `FAM006-DASH-FRAME-HAZE-056` | High | Visual shell failure | Repaired by WS44; acceptance pending | Historical WS44 | Live screenshot of chrome-owned scrollbar | Supporting / pending acceptance |
+| `FAM006-RUI-008` | `#6c/#26` | Scrollbar attached to outer/invisible frame | Prior returned LV1 screenshots; 2026-05-10 USER screenshots `Scrollbar.png` and `Window border.png` | `FAM006-DASH-SCROLL-007`; `FAM006-DASH-FRAME-HAZE-056` | High | Visual shell failure | Reopened after LV1; repaired by WS50 as Workstream proof only | WS50 / H1 rerun required | Live screenshot of rounded-boundary-clipped chrome-owned scrollbar | Workstream-proven / H1 pending |
 | `FAM006-RUI-009` | `#6d` | Dashboard IA chaotic/unorganized | Prior returned Dashboard review | `FAM006-DASH-LAYOUT-005`; `FAM006-DASH-CONTENT-008` | High | IA/product mismatch | Repaired by WS40/WS45; acceptance pending | Historical WS40/WS45 | Screenshot plus UTS clarity check | Supporting / pending acceptance |
 | `FAM006-RUI-010` | `#6e` | Polling on Dashboard home | Prior returned Dashboard review | `FAM006-DASH-MONITOR-POLLING-011` | Medium | Scope placement | Repaired by WS40; acceptance pending | Historical WS40 | Static/UI proof | Supporting / pending acceptance |
 | `FAM006-RUI-011` | `#6f` | Dev Toolkit Interface Review Mode | Prior returned Dashboard review | `FAM006-DEV-INTERFACE-REVIEW-050`; `FAM006-SRCMARK-FUTURE-010` | Medium | Future support tooling | Deferred priority future branch | Future marker/review package | Future Dev Toolkit plan and proof | Deferred |
@@ -147,8 +151,8 @@ Issue Register Schema: `Stable Issue ID`; `Original USER Number`; `Title`; `Sour
 | `FAM006-RUI-023` | `#23` | Cannot close/open Dashboard from tray | Returned LV1 feedback | `FAM006-DASH-TRAY-OPEN-CLOSE-053`; `FAM006-HUD-FEATURE-TRAY-046` | Critical | Real-client visible window failure | WS47 supporting proof: Open/Close HUD Dashboard acts on the real visible Dashboard after startup suppression; H1 pressure-tested it | WS47 / H1 | Actual tray Open/Close HUD Dashboard visible window proof | LV1 handoff generated / pending USER |
 | `FAM006-RUI-024` | `#24` | Disable HUD causes unusable state | Returned LV1 feedback | `FAM006-HUD-DISABLE-UNUSABLE-054`; `FAM006-DASH-FOCUS-047` | Critical | Runtime recovery | WS47 supporting proof: Disable HUD hides Dashboard, preserves runtime, and does not start shutdown; H1 pressure-tested it | WS47 / H1 | Actual enable/disable/open/close recovery proof | LV1 handoff generated / pending USER |
 | `FAM006-RUI-025` | `#25` | Exit NDAI delay/no confirmation | Returned LV1 feedback | `FAM006-TRAY-SHUTDOWN-CONFIRM-055`; `FAM006-HUD-FEATURE-TRAY-046` | Critical | Real-client tray shutdown | WS47 supporting proof: confirmation dialog visibility marker appears and timeout/cancel preserves session because quit-on-last-window-close is disabled; H1 pressure-tested it | WS47 / H1 | Desktop shortcut active-client tray Exit precheck; USER right-click tray confirmation pending in current LV1 handoff | LV1 handoff generated / pending USER |
-| `FAM006-RUI-026` | `#26` | Scrollbar/frame ownership still suspect | Returned LV1 screenshots | `FAM006-DASH-SCROLL-007`; `FAM006-DASH-FRAME-HAZE-056` | High | Visual shell | Historical repair supporting; USER acceptance pending after WS47/H1/LV1 | Later visual repair if still reproduced | Screenshot proof | Pending |
-| `FAM006-RUI-027` | `#27` | Haze/square opacity frame | Returned LV1 screenshots | `FAM006-DASH-FRAME-HAZE-056`; `FAM006-DASH-VISUAL-006` | High | Visual shell | Historical repair supporting; USER acceptance pending after WS47/H1/LV1 | Later visual repair if still reproduced | Screenshot proof | Pending |
+| `FAM006-RUI-026` | `#26` | Scrollbar/frame ownership still suspect | Returned LV1 screenshots; 2026-05-10 USER `Scrollbar.png` | `FAM006-DASH-SCROLL-007`; `FAM006-DASH-FRAME-HAZE-056` | High | Visual shell | Reopened after LV1; WS50 repairs scrollbar boundary by clipping the scroll owner inside the rounded native Dashboard chrome | WS50 / H1 rerun required | Active-client screenshot proof showing scrollbar bounded inside rounded chrome | Workstream-proven / H1 pending |
+| `FAM006-RUI-027` | `#27` | Haze/square opacity frame | Returned LV1 screenshots; 2026-05-10 USER `Window border.png` | `FAM006-DASH-FRAME-HAZE-056`; `FAM006-DASH-VISUAL-006` | High | Visual shell | Reopened after LV1; WS50 removes the inset transparent outer layer and external square haze/shadow | WS50 / H1 rerun required | Active-client screenshot proof on one rounded native Dashboard boundary | Workstream-proven / H1 pending |
 | `FAM006-RUI-028` | `#28` | Unable to resize Dashboard | Returned LV1 feedback | `FAM006-DASH-RESIZE-057`; `FAM006-DASH-WINDOW-002` | High | Window behavior | Historical repair supporting; USER acceptance pending after WS47/H1/LV1 | Later visual/window repair if still reproduced | Real resize proof | Pending |
 | `FAM006-RUI-029` | `#29` | Native CPU/provider banner removal | Returned LV1 feedback | `FAM006-DASH-CONTENT-008`; `FAM006-DASH-PROVIDER-015` | Medium | IA/content | Historical repair supporting; acceptance pending | Later IA repair if still reproduced | Screenshot proof | Pending |
 | `FAM006-RUI-030` | `#30` | Deadzones/empty hit areas | Returned LV1 screenshots | `FAM006-DASH-DEADZONE-058`; `FAM006-DASH-LAYOUT-005` | High | Layout/hit-target | Historical repair supporting; acceptance pending | Later visual repair if still reproduced | Screenshot/click target proof | Pending |
@@ -244,21 +248,21 @@ Rollback Path: revert the Branch Readiness Stage 2 source-truth/issue-register/l
 
 ## Next Legal Phase
 
-- `Live Validation`
+- `Workstream`
 
-Next Legal Seam: `Live Validation LV2 - FAM-006 Returned User Test Summary Results Digest And Acceptance Classification`
+Next Legal Seam: `Hardening H1 - Monitoring HUD Product Surface Hardening Rerun`
 
-Next Legal Phase Gate: LV1 has generated the issue-grounded formal UTS handoff and `User Test Summary Results: PENDING` remains active. Codex must not execute LV2 as a PASS digest from Codex proof, the current UTS, app-side precheck manifests, screenshots, or helper evidence. The next legal move is LV2 only after USER returns PASS/FAIL/WAIVED results or explicitly waives the handoff; LV2 must digest those returned results into source truth before any Dashboard acceptance, package completion, PR Readiness, or release-readiness claim. Codex must not enter PR Readiness, create a PR, watcher, release, tag, artifact, direct-main mutation, voice/audio implementation, Stream Deck/plugin telemetry implementation, local AI, installer/capability-pack work, broad hardware provider implementation, persona switching implementation, ARIA activation, Overlay/display release acceptance, or a new FAM/package without later explicit USER approval.
+Next Legal Phase Gate: WS50 has repaired the returned scrollbar/native-window boundary defect as Workstream proof only. The prior H1/LV1 are stale for affected visual-shell rows, and LV2 must not proceed from the stale handoff. The next legal seam is a USER-admitted Hardening H1 rerun over the post-WS50 proof set, but the `Next Legal Phase` marker remains Workstream at this phase-boundary stop until USER admits Hardening. Refreshed LV1 is required after H1 before any returned USER PASS/FAIL/WAIVED results can be digested in LV2. Codex must not enter PR Readiness, create a PR, watcher, release, tag, artifact, direct-main mutation, voice/audio implementation, Stream Deck/plugin telemetry implementation, local AI, installer/capability-pack work, broad hardware provider implementation, persona switching implementation, ARIA activation, Overlay/display release acceptance, or a new FAM/package without later explicit USER approval.
 
 Post-FAM-006 Required Marker Adoption Candidate: `Repo-Wide High-Risk Source Owner Marker Adoption`; candidate branch `feature/repo-wide-source-owner-marker-adoption`; requirement is recorded for after the current FAM-006 branch closes and does not authorize branch creation, package admission, PR Readiness, runtime behavior changes, or bypass of the active LV2 UTS pending gate. USER-facing element review-mode adoption is part of that future candidate's scope and remains tabled for planning-heavy Dev Toolkit design: existing and future interface elements, including NCP, Core visualization, Dashboard, Overlay/display when admitted, and other windows/components, should receive Dev Toolkit Interface Review Mode dispositions and dev-only badges/hover/ledger tooltip inspection where applicable; future design should decide per-interface launchers, a generalized all-surfaces review-mode launch, or both.
 
 ## Active Seam
 
-Active seam: `Phase Boundary Stop - Live Validation LV1 Handoff Generated / Await Returned USER Results`
+Active seam: `Phase Boundary Stop - Workstream WS50 Green / Await USER Hardening Admission`
 
-Active Seam Status: `Stopped at Live Validation LV1 handoff green - formal UTS has been refreshed from real-human precheck proof and active-client screenshots; LV2 remains blocked until USER returns PASS/FAIL/WAIVED results or explicit waiver`
+Active Seam Status: `Stopped at Workstream WS50 green - focused Dashboard scrollbar/native-window boundary repair is complete as Workstream proof; H1 and LV1 must rerun before USER acceptance can be requested again`
 
-Next active seam: `Live Validation LV2 - FAM-006 Returned User Test Summary Results Digest And Acceptance Classification`
+Next active seam: `Hardening H1 - Monitoring HUD Product Surface Hardening Rerun`
 
 ## Branch Objective
 
@@ -795,16 +799,16 @@ Historical Stop Basis: `Stage 2-R13 Dashboard-first Workstream handoff supersede
 ## Seam Continuation Decision
 
 Seam Status: Green
-Slice Status: Green for LV1 handoff generation only
-Slice Detail: LV1 refreshed the formal issue-grounded UTS after H1 pressure-tested WS49. PASS proof includes human-client shortcut/tray/NCP proof at `dev/logs/fam_006_human_client_validation/20260510_130259_909/human_client_manifest.json`, active-client live helper proof at `dev/logs/fam_006_monitoring_hud_live_validation/20260510_130711_432`, USER-inspectable screenshots, and `C:\Users\anden\OneDrive\Desktop\User Test Summary.txt` with RUI-001 through RUI-047 and per-step Codex prechecks. Final Dashboard acceptance still requires returned USER PASS/WAIVED results or explicit waiver digested in LV2.
+Slice Status: Green
+Slice Detail: USER screenshots `Scrollbar.png` and `Window border.png` reopened the scrollbar/native-window boundary defect after LV1. WS50 removes the inset transparent outer layer, clips the Dashboard chrome to one rounded native-window boundary, removes the external square haze/shadow, and bounds the scrollbar inside the rounded chrome. Active-client proof is captured at `dev/logs/fam_006_monitoring_hud_live_validation/20260510_165507_981`. Final Dashboard acceptance still requires H1 rerun, refreshed LV1, and returned USER PASS/WAIVED results or explicit waiver digested in LV2.
 Completion Status: Green
 Waiver Status: None
 Continue Decision: Stop
-Continuation Execution Latch: Inactive - Live Validation LV1 handoff is generated; LV2 requires returned USER PASS/FAIL/WAIVED results or explicit waiver before any returned-result digestion.
-Stop Basis: Live Validation LV1 handoff complete / Await returned USER Test Summary results
-Next Active Seam: Live Validation LV2 - FAM-006 Returned User Test Summary Results Digest And Acceptance Classification
-Stop Condition: LV1 completed formal UTS handoff generation only; do not enter LV2, PR Readiness, release, or package completion without returned USER results or explicit waiver.
-Continuation Action: Stop before LV2. Preserve Dashboard-first boundary, Overlay/display non-gating status, Core dependency-only status, PR blocked, PKG-006 In Progress, package completion unclaimed, no single-seam waiver, and no PR/release work.
+Continuation Execution Latch: Inactive - WS50 is Green / Hardening phase-boundary stop; Hardening H1 requires explicit USER admission before the next phase.
+Stop Basis: Workstream Green
+Next Active Seam: Hardening H1 - Monitoring HUD Product Surface Hardening Rerun
+Stop Condition: WS50 completed focused visual-shell Workstream repair only; do not enter H1 without USER admission, and do not enter LV2, PR Readiness, release, or package completion from stale LV1 results.
+Continuation Action: Stop at phase boundary until USER admits the next phase, Hardening H1. Preserve Dashboard-first boundary, Overlay/display non-gating status, Core dependency-only status, PR blocked, PKG-006 In Progress, package completion unclaimed, no single-seam waiver, and no PR/release work.
 
 ## Historical Live Validation Stage 1 Continuation Decision Superseded By Returned Feedback
 
@@ -2071,5 +2075,28 @@ Workstream WS46 includes static HUD validation, internal sandbox proof, a hidden
 - PR Readiness: `Blocked`
 - Continue Decision: `Stop at phase boundary because WS49 is complete and Hardening H1 requires explicit USER admission`
 - Continuation Execution Latch: `Inactive - WS49 is Green / Hardening phase-boundary stop`
+- Stop Basis: `Workstream Green`
+- Next Legal Seam: `Hardening H1 - Monitoring HUD Product Surface Hardening Rerun`
+
+## Workstream WS50 Dashboard Scrollbar Boundary And Native Window Chrome Repair
+
+- WS50 Admission: `PASS - USER returned focused visual-shell screenshots after LV1 showing the Dashboard scrollbar and native-window boundary still exposed a square outer layer; bounded Workstream repair is admitted for this issue only`
+- WS50 Result: `Green for focused Dashboard scrollbar/native-window boundary repair - Dashboard acceptance, package completion, Hardening, refreshed LV1, LV2, PR Readiness, release, and Overlay/display acceptance remain unclaimed`
+- Returned USER Evidence: `C:\Users\anden\OneDrive\Pictures\Screenshots\Scrollbar.png`; `C:\Users\anden\OneDrive\Pictures\Screenshots\Window border.png`
+- Runtime / CSS Repair: `nexus_visual/monitoring_hud.css now fills the native HUD window with #monitoring-hud, clips the root and .monitoring-hud__chrome to one 28px rounded boundary, removes the external square haze/shadow, and keeps only internal chrome glow`
+- Scrollbar Boundary Repair: `The Dashboard scrollbar remains owned by .monitoring-hud__chrome but now has rounded-window-clipped boundary markers, stronger top/bottom safe margins, transparent corner handling, and thumb background clipping so it does not visually extend through the rounded caps`
+- Validator / Helper Updates: `HUD static and internal sandbox validators now require data-scrollbar-boundary="rounded-window-clipped", data-outer-frame-haze="removed-no-square-layer", root inset/full-window clipping, scrollbar safe margins, scrollbar-corner transparency, and paint containment markers`
+- Active-Client Proof: `PASS - dev/logs/fam_006_monitoring_hud_live_validation/20260510_165507_981 captured active-client proof and screenshot evidence for the repaired Dashboard visual shell`
+- Element Rows Updated: `FAM006-DASH-SCROLL-007`; `FAM006-DASH-VISUAL-006`; `FAM006-DASH-LAYOUT-005`; `FAM006-DASH-FRAME-HAZE-056`; `FAM006-PROOF-STATIC-031`; `FAM006-PROOF-SANDBOX-032`; `FAM006-PROOF-LIVEHELPER-033`; `FAM006-GOV-SOURCE-TRUTH-039`
+- Returned USER Issue Rows Updated: `FAM006-RUI-008`; `FAM006-RUI-026`; `FAM006-RUI-027`
+- Overlay Status: `Deferred/dormant/non-gating - WS50 does not admit Overlay/display release acceptance`
+- Core Status: `Dependency-only - WS50 does not make ORIN/Core a released FAM-006 interface`
+- Formal UTS Boundary: `Preserved - WS50 does not generate, refresh, or digest C:\Users\anden\OneDrive\Desktop\User Test Summary.txt`
+- Dashboard Acceptance State: `Still blocked - WS50 is Workstream proof only; Dashboard acceptance requires Hardening rerun, refreshed LV1, returned USER PASS/WAIVED results or explicit waiver`
+- PKG-006 Status: `In Progress`
+- Package Completion: `Unclaimed`
+- PR Readiness: `Blocked`
+- Continue Decision: `Stop at phase boundary because WS50 is complete and Hardening H1 requires explicit USER admission`
+- Continuation Execution Latch: `Inactive - WS50 is Green / Hardening phase-boundary stop`
 - Stop Basis: `Workstream Green`
 - Next Legal Seam: `Hardening H1 - Monitoring HUD Product Surface Hardening Rerun`

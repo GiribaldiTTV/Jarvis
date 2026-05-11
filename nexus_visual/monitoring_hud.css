@@ -27,19 +27,19 @@ body {
 body.desktop-mode #monitoring-hud {
   position: absolute;
   z-index: 18;
-  top: 12px;
-  right: 12px;
+  inset: 0;
   display: block;
-  width: min(860px, calc(100vw - 24px));
-  height: min(1060px, calc(100vh - 24px));
-  min-height: min(520px, calc(100vh - 24px));
+  width: 100vw;
+  height: 100vh;
+  min-height: 520px;
   box-sizing: border-box;
   padding: 0;
-  overflow: visible;
+  overflow: hidden;
   border: 0;
-  border-radius: 0;
+  border-radius: 28px;
   background: transparent;
   box-shadow: none;
+  clip-path: inset(0 round 28px);
   letter-spacing: 0.01em;
   pointer-events: auto;
   transform: translateY(0) scale(1);
@@ -49,23 +49,29 @@ body.desktop-mode #monitoring-hud {
 
 body.desktop-mode .monitoring-hud__chrome::-webkit-scrollbar {
   width: 10px;
+  height: 10px;
 }
 
 body.desktop-mode .monitoring-hud__chrome::-webkit-scrollbar-track {
-  margin: 16px 0;
+  margin: 36px 0;
   border-radius: 999px;
   background: transparent;
 }
 
 body.desktop-mode .monitoring-hud__chrome::-webkit-scrollbar-thumb {
-  border: 2px solid rgba(5, 18, 31, 0.18);
+  border: 2px solid rgba(4, 17, 32, 0.82);
   border-radius: 999px;
+  background-clip: padding-box;
   background: linear-gradient(180deg, rgba(121, 239, 255, 0.72), rgba(99, 255, 202, 0.48));
-  box-shadow: 0 0 16px rgba(88, 225, 255, 0.24);
+  box-shadow: 0 0 10px rgba(88, 225, 255, 0.18);
 }
 
 body.desktop-mode .monitoring-hud__chrome::-webkit-scrollbar-thumb:hover {
   background: linear-gradient(180deg, rgba(184, 250, 255, 0.88), rgba(112, 255, 210, 0.64));
+}
+
+body.desktop-mode .monitoring-hud__chrome::-webkit-scrollbar-corner {
+  background: transparent;
 }
 
 body.desktop-mode #monitoring-hud[data-drag-smoothing="native-os-window-move"] {
@@ -140,6 +146,7 @@ body.desktop-mode #monitoring-hud > * {
 }
 
 .monitoring-hud__chrome {
+  width: 100%;
   height: 100%;
   max-height: 100%;
   box-sizing: border-box;
@@ -151,15 +158,17 @@ body.desktop-mode #monitoring-hud > * {
   scrollbar-width: thin;
   scrollbar-color: rgba(108, 232, 255, 0.58) transparent;
   border: 1px solid rgba(125, 235, 255, 0.30);
-  border-radius: 28px;
+  border-radius: inherit;
   background:
     radial-gradient(circle at 6% 0%, rgba(91, 221, 255, 0.22), transparent 35%),
     radial-gradient(circle at 100% 20%, rgba(84, 255, 190, 0.16), transparent 33%),
     linear-gradient(145deg, rgba(4, 17, 32, 0.96), rgba(1, 7, 16, 0.94));
+  background-clip: padding-box;
   box-shadow:
     0 0 0 1px rgba(214, 248, 255, 0.08) inset,
-    0 24px 70px rgba(0, 0, 0, 0.42),
-    0 0 48px rgba(72, 205, 228, 0.20);
+    0 0 34px rgba(72, 205, 228, 0.14) inset;
+  clip-path: inset(0 round 28px);
+  contain: paint;
   isolation: isolate;
 }
 
