@@ -308,6 +308,8 @@ function Save-Manifest([object]$Paths, [string]$PythonExe) {
         interactionSelfQARequested = $effectiveRunInteractionSelfQA
         interactionStepDelayMs = $effectiveStepDelayMilliseconds
         finalClientHoldMs = $effectiveFinalHoldMilliseconds
+        markerTimeoutSeconds = $MarkerTimeoutSeconds
+        noProgressTimeoutSeconds = $NoProgressTimeoutSeconds
         interactionManifest = $Paths.InteractionManifest
         interactionManifestStatus = $script:InteractionManifestStatus
         interactionEvidenceRoot = $Paths.InteractionEvidenceRoot
@@ -830,6 +832,10 @@ $effectiveFinalHoldMilliseconds = $FinalClientHoldSeconds * 1000
 if ($ActiveUserFacingClient) {
     $effectiveStepDelayMilliseconds = [Math]::Max($effectiveStepDelayMilliseconds, 2500)
     $effectiveFinalHoldMilliseconds = [Math]::Max($effectiveFinalHoldMilliseconds, 20000)
+}
+if ($effectiveRunInteractionSelfQA) {
+    $MarkerTimeoutSeconds = [Math]::Max($MarkerTimeoutSeconds, 180)
+    $NoProgressTimeoutSeconds = [Math]::Max($NoProgressTimeoutSeconds, 180)
 }
 
 $previousHudStatePath = $env:NEXUS_MONITORING_HUD_STATE_PATH
