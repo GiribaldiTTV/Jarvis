@@ -761,6 +761,45 @@ function Get-NativeHitTestKindAtPoint {
     return [CodexHumanClientWin32]::GetNativeHitTestKind($WindowHandle, $X, $Y)
 }
 
+function Find-ResizeCursorTransition {
+    param(
+        [long]$WindowHandle,
+        [int]$StartX,
+        [int]$StartY,
+        [int]$EndX,
+        [int]$EndY,
+        [string]$ExpectedHit,
+        [string]$Label,
+        [int]$Steps = 24
+    )
+    for ($i = 0; $i -le $Steps; $i++) {
+        $x = [int]($StartX + (($EndX - $StartX) * $i / [Math]::Max(1, $Steps)))
+        $y = [int]($StartY + (($EndY - $StartY) * $i / [Math]::Max(1, $Steps)))
+        $cursor = Get-CursorKindAtPoint -X $x -Y $y
+        $hit = Get-NativeHitTestKindAtPoint -WindowHandle $WindowHandle -X $x -Y $y
+        if ((Test-ResizeCursorKind $cursor) -and $hit -eq $ExpectedHit) {
+            return [pscustomobject]@{
+                Found = $true
+                X = $x
+                Y = $y
+                Cursor = $cursor
+                HitTest = $hit
+                Step = $i
+                Label = $Label
+            }
+        }
+    }
+    return [pscustomobject]@{
+        Found = $false
+        X = $EndX
+        Y = $EndY
+        Cursor = "not-found"
+        HitTest = "not-found"
+        Step = -1
+        Label = $Label
+    }
+}
+
 function Get-RootWindowHandleAtPoint {
     param([int]$X, [int]$Y)
     return [CodexHumanClientWin32]::GetRootWindowHandleAtPoint($X, $Y)
@@ -1547,7 +1586,27 @@ try {
     Add-Step -Id "dashboard_resize_cursor_alignment" -Title "Dashboard exposes Windows resize hit-tests only near the visible edge" -Status ($(if ($cursorAlignmentPass) { "PASS" } else { "FAIL" })) -Detail "cursor: rightOutside24px=$cursorRightOutside; rightEdge10px=$cursorRight; bottomOutside24px=$cursorBottomOutside; bottomEdge10px=$cursorBottom; cornerOutside24px=$cursorCornerOutside; corner10px=$cursorCorner; right28pxInside=$cursorRightInterior; bottom28pxInside=$cursorBottomInterior; rightOutsideAfter=$cursorRightOutsideAfter | hitTest: rightOutside24px=$hitRightOutside; rightEdge10px=$hitRight; bottomOutside24px=$hitBottomOutside; bottomEdge10px=$hitBottom; cornerOutside24px=$hitCornerOutside; corner10px=$hitCorner; right28pxInside=$hitRightInterior; bottom28pxInside=$hitBottomInterior; rightOutsideAfter=$hitRightOutsideAfter" -Evidence @{ rightEdgeOffsetPx = 10; bottomEdgeOffsetPx = 10; cornerOffsetPx = 10; interiorOffsetPx = 28; outsideOffsetPx = 24; expectedEdgeHitTests = "htright,htbottom,htbottomright"; expectedOutsideAndInteriorHitTests = "not edge"; cursorHandlePolicy = "edge cursor state must differ from outside/interior; WebEngine may report opaque cursor handles" }
     if (-not $cursorAlignmentPass) { throw "Dashboard resize cursor was not aligned to the visible edge/corner rail" }
 
-    Drag-FromTo -StartX ([int]($rectBeforeResize.Right - 10)) -StartY ([int]($rectBeforeResize.Bottom - 10)) -EndX ([int]($rectBeforeResize.Right + 70)) -EndY ([int]($rectBeforeResize.Bottom + 60)) -Label "Dashboard cursor-aligned bottom-right resize rail"
+    $cornerTransition = Find-ResizeCursorTransition -WindowHandle $dashboardHandle -StartX ([int]($rectBeforeResize.Right + 24)) -StartY ([int]($rectBeforeResize.Bottom + 24)) -EndX ([int]($rectBeforeResize.Right - 16)) -EndY ([int]($rectBeforeResize.Bottom - 16)) -ExpectedHit "htbottomright" -Label "corner outside-to-edge transition"
+    $rightTransitionFromOutside = Find-ResizeCursorTransition -WindowHandle $dashboardHandle -StartX $rightOutsideX -StartY $rightSampleY -EndX ([int]($rectBeforeResize.Right - 16)) -EndY $rightSampleY -ExpectedHit "htright" -Label "right outside-to-edge transition"
+    $rightTransitionFromInside = Find-ResizeCursorTransition -WindowHandle $dashboardHandle -StartX $rightInteriorX -StartY $rightSampleY -EndX ([int]($rectBeforeResize.Right + 4)) -EndY $rightSampleY -ExpectedHit "htright" -Label "right inside-to-edge transition"
+    $bottomTransitionFromOutside = Find-ResizeCursorTransition -WindowHandle $dashboardHandle -StartX $bottomSampleX -StartY $bottomOutsideY -EndX $bottomSampleX -EndY ([int]($rectBeforeResize.Bottom - 16)) -ExpectedHit "htbottom" -Label "bottom outside-to-edge transition"
+    $bottomTransitionFromInside = Find-ResizeCursorTransition -WindowHandle $dashboardHandle -StartX $bottomSampleX -StartY $bottomInteriorY -EndX $bottomSampleX -EndY ([int]($rectBeforeResize.Bottom + 4)) -ExpectedHit "htbottom" -Label "bottom inside-to-edge transition"
+    $cornerOffset = [Math]::Max([Math]::Abs($rectBeforeResize.Right - $cornerTransition.X), [Math]::Abs($rectBeforeResize.Bottom - $cornerTransition.Y))
+    $rightOutsideOffset = [Math]::Abs($rectBeforeResize.Right - $rightTransitionFromOutside.X)
+    $rightInsideOffset = [Math]::Abs($rectBeforeResize.Right - $rightTransitionFromInside.X)
+    $bottomOutsideOffset = [Math]::Abs($rectBeforeResize.Bottom - $bottomTransitionFromOutside.Y)
+    $bottomInsideOffset = [Math]::Abs($rectBeforeResize.Bottom - $bottomTransitionFromInside.Y)
+    $transitionPass = (
+        $cornerTransition.Found -and $cornerOffset -le 14 -and
+        $rightTransitionFromOutside.Found -and $rightOutsideOffset -le 14 -and
+        $rightTransitionFromInside.Found -and $rightInsideOffset -le 14 -and
+        $bottomTransitionFromOutside.Found -and $bottomOutsideOffset -le 14 -and
+        $bottomTransitionFromInside.Found -and $bottomInsideOffset -le 14
+    )
+    Add-Step -Id "dashboard_resize_cursor_transition_discovery" -Title "Dashboard resize cursor is discoverable from outside and inside approaches" -Status ($(if ($transitionPass) { "PASS" } else { "FAIL" })) -Detail "corner=$($cornerTransition.Found)/$($cornerTransition.HitTest)/$($cornerTransition.Cursor)/offset=$cornerOffset; rightOutside=$($rightTransitionFromOutside.Found)/$($rightTransitionFromOutside.HitTest)/$($rightTransitionFromOutside.Cursor)/offset=$rightOutsideOffset; rightInside=$($rightTransitionFromInside.Found)/$($rightTransitionFromInside.HitTest)/$($rightTransitionFromInside.Cursor)/offset=$rightInsideOffset; bottomOutside=$($bottomTransitionFromOutside.Found)/$($bottomTransitionFromOutside.HitTest)/$($bottomTransitionFromOutside.Cursor)/offset=$bottomOutsideOffset; bottomInside=$($bottomTransitionFromInside.Found)/$($bottomTransitionFromInside.HitTest)/$($bottomTransitionFromInside.Cursor)/offset=$bottomInsideOffset" -Evidence @{ corner = $cornerTransition; rightOutside = $rightTransitionFromOutside; rightInside = $rightTransitionFromInside; bottomOutside = $bottomTransitionFromOutside; bottomInside = $bottomTransitionFromInside; maxExpectedVisibleEdgeOffsetPx = 14 }
+    if (-not $transitionPass) { throw "Dashboard resize cursor transition was not discoverable near the visible edge from outside/inside approaches" }
+
+    Drag-FromTo -StartX ([int]$cornerTransition.X) -StartY ([int]$cornerTransition.Y) -EndX ([int]($cornerTransition.X + 80)) -EndY ([int]($cornerTransition.Y + 70)) -Label "Dashboard discovered bottom-right resize cursor transition"
     Start-Sleep -Milliseconds 450
     $dashboard = Get-DashboardWindow
     $resizeShot = Capture-VirtualScreenshot "05a_after_dashboard_corner_resize"
@@ -1557,12 +1616,17 @@ try {
     }
     $rectAfterResize = $dashboard.Current.BoundingRectangle
     $cornerResized = ([Math]::Abs($rectAfterResize.Width - $rectBeforeResize.Width) -ge 20) -or ([Math]::Abs($rectAfterResize.Height - $rectBeforeResize.Height) -ge 20)
-    Add-Step -Id "dashboard_mouse_resize_corner" -Title "Dashboard corner resize rail is cursor-aligned and triggers geometry resize" -Status ($(if ($cornerResized) { "PASS" } else { "FAIL" })) -Detail "before=($($rectBeforeResize.Width)x$($rectBeforeResize.Height)); after=($($rectAfterResize.Width)x$($rectAfterResize.Height)); start was 10px inside the visible corner rail" -Evidence @{ screenshot = $resizeShot }
+    Add-Step -Id "dashboard_mouse_resize_corner" -Title "Dashboard corner resize cursor transition triggers geometry resize" -Status ($(if ($cornerResized) { "PASS" } else { "FAIL" })) -Detail "before=($($rectBeforeResize.Width)x$($rectBeforeResize.Height)); after=($($rectAfterResize.Width)x$($rectAfterResize.Height)); start=($($cornerTransition.X),$($cornerTransition.Y)) discovered from outside-to-edge cursor transition" -Evidence @{ screenshot = $resizeShot; transition = $cornerTransition }
     if (-not $cornerResized) { throw "Dashboard did not resize through the cursor-aligned corner rail" }
 
     $rectBeforeRightResize = $dashboard.Current.BoundingRectangle
     $rightStartY = [int]($rectBeforeRightResize.Top + ($rectBeforeRightResize.Height * 0.54))
-    Drag-FromTo -StartX ([int]($rectBeforeRightResize.Right - 10)) -StartY $rightStartY -EndX ([int]($rectBeforeRightResize.Right + 66)) -EndY $rightStartY -Label "Dashboard cursor-aligned right-edge resize rail"
+    $rightResizeTransition = Find-ResizeCursorTransition -WindowHandle $dashboardHandle -StartX ([int]($rectBeforeRightResize.Right + 24)) -StartY $rightStartY -EndX ([int]($rectBeforeRightResize.Right - 16)) -EndY $rightStartY -ExpectedHit "htright" -Label "right edge transition before resize action"
+    $rightResizeTransitionOffset = [Math]::Abs($rectBeforeRightResize.Right - $rightResizeTransition.X)
+    if (-not $rightResizeTransition.Found -or $rightResizeTransitionOffset -gt 14) {
+        throw "Dashboard right-edge resize cursor was not discoverable near the visible edge before resize action"
+    }
+    Drag-FromTo -StartX ([int]$rightResizeTransition.X) -StartY ([int]$rightResizeTransition.Y) -EndX ([int]($rightResizeTransition.X + 76)) -EndY ([int]$rightResizeTransition.Y) -Label "Dashboard discovered right-edge resize cursor transition"
     Start-Sleep -Milliseconds 450
     $dashboard = Get-DashboardWindow
     $rightResizeShot = Capture-VirtualScreenshot "05b_after_dashboard_right_edge_resize"
@@ -1572,12 +1636,17 @@ try {
     }
     $rectAfterRightResize = $dashboard.Current.BoundingRectangle
     $rightResized = [Math]::Abs($rectAfterRightResize.Width - $rectBeforeRightResize.Width) -ge 20
-    Add-Step -Id "dashboard_mouse_resize_right_edge" -Title "Dashboard right-edge resize rail is cursor-aligned and triggers geometry resize" -Status ($(if ($rightResized) { "PASS" } else { "FAIL" })) -Detail "beforeWidth=$($rectBeforeRightResize.Width); afterWidth=$($rectAfterRightResize.Width); start was 10px inside the visible right-edge rail" -Evidence @{ screenshot = $rightResizeShot }
+    Add-Step -Id "dashboard_mouse_resize_right_edge" -Title "Dashboard right-edge resize cursor transition triggers geometry resize" -Status ($(if ($rightResized) { "PASS" } else { "FAIL" })) -Detail "beforeWidth=$($rectBeforeRightResize.Width); afterWidth=$($rectAfterRightResize.Width); start=($($rightResizeTransition.X),$($rightResizeTransition.Y)) discovered from outside-to-edge cursor transition; offset=$rightResizeTransitionOffset" -Evidence @{ screenshot = $rightResizeShot; transition = $rightResizeTransition }
     if (-not $rightResized) { throw "Dashboard did not resize through the cursor-aligned right-edge rail" }
 
     $rectBeforeBottomResize = $dashboard.Current.BoundingRectangle
     $bottomStartX = [int]($rectBeforeBottomResize.Left + ($rectBeforeBottomResize.Width * 0.46))
-    Drag-FromTo -StartX $bottomStartX -StartY ([int]($rectBeforeBottomResize.Bottom - 10)) -EndX $bottomStartX -EndY ([int]($rectBeforeBottomResize.Bottom + 66)) -Label "Dashboard cursor-aligned bottom-edge resize rail"
+    $bottomResizeTransition = Find-ResizeCursorTransition -WindowHandle $dashboardHandle -StartX $bottomStartX -StartY ([int]($rectBeforeBottomResize.Bottom + 24)) -EndX $bottomStartX -EndY ([int]($rectBeforeBottomResize.Bottom - 16)) -ExpectedHit "htbottom" -Label "bottom edge transition before resize action"
+    $bottomResizeTransitionOffset = [Math]::Abs($rectBeforeBottomResize.Bottom - $bottomResizeTransition.Y)
+    if (-not $bottomResizeTransition.Found -or $bottomResizeTransitionOffset -gt 14) {
+        throw "Dashboard bottom-edge resize cursor was not discoverable near the visible edge before resize action"
+    }
+    Drag-FromTo -StartX ([int]$bottomResizeTransition.X) -StartY ([int]$bottomResizeTransition.Y) -EndX ([int]$bottomResizeTransition.X) -EndY ([int]($bottomResizeTransition.Y + 76)) -Label "Dashboard discovered bottom-edge resize cursor transition"
     Start-Sleep -Milliseconds 450
     $dashboard = Get-DashboardWindow
     $bottomResizeShot = Capture-VirtualScreenshot "05c_after_dashboard_bottom_edge_resize"
@@ -1587,11 +1656,11 @@ try {
     }
     $rectAfterBottomResize = $dashboard.Current.BoundingRectangle
     $bottomResized = [Math]::Abs($rectAfterBottomResize.Height - $rectBeforeBottomResize.Height) -ge 20
-    Add-Step -Id "dashboard_mouse_resize_bottom_edge" -Title "Dashboard bottom-edge resize rail is cursor-aligned and triggers geometry resize" -Status ($(if ($bottomResized) { "PASS" } else { "FAIL" })) -Detail "beforeHeight=$($rectBeforeBottomResize.Height); afterHeight=$($rectAfterBottomResize.Height); start was 10px inside the visible bottom-edge rail" -Evidence @{ screenshot = $bottomResizeShot }
+    Add-Step -Id "dashboard_mouse_resize_bottom_edge" -Title "Dashboard bottom-edge resize cursor transition triggers geometry resize" -Status ($(if ($bottomResized) { "PASS" } else { "FAIL" })) -Detail "beforeHeight=$($rectBeforeBottomResize.Height); afterHeight=$($rectAfterBottomResize.Height); start=($($bottomResizeTransition.X),$($bottomResizeTransition.Y)) discovered from outside-to-edge cursor transition; offset=$bottomResizeTransitionOffset" -Evidence @{ screenshot = $bottomResizeShot; transition = $bottomResizeTransition }
     if (-not $bottomResized) { throw "Dashboard did not resize through the cursor-aligned bottom-edge rail" }
 
     $resizeShot = Capture-VirtualScreenshot "05_after_dashboard_mouse_resize"
-    Add-Step -Id "dashboard_mouse_resize" -Title "Dashboard resizes through cursor-aligned edge and corner rails" -Status "PASS" -Detail "Corner, right-edge, and bottom-edge resize rails changed real Dashboard geometry from the same user-visible cursor rail." -Evidence @{ screenshot = $resizeShot; cornerBefore = "$($rectBeforeResize.Width)x$($rectBeforeResize.Height)"; cornerAfter = "$($rectAfterResize.Width)x$($rectAfterResize.Height)"; rightBeforeWidth = $rectBeforeRightResize.Width; rightAfterWidth = $rectAfterRightResize.Width; bottomBeforeHeight = $rectBeforeBottomResize.Height; bottomAfterHeight = $rectAfterBottomResize.Height; cursorRight = $cursorRight; cursorBottom = $cursorBottom; cursorCorner = $cursorCorner; cursorRightInterior = $cursorRightInterior; cursorBottomInterior = $cursorBottomInterior }
+    Add-Step -Id "dashboard_mouse_resize" -Title "Dashboard resizes through discovered Windows resize cursor transitions" -Status "PASS" -Detail "Corner, right-edge, and bottom-edge resize actions changed real Dashboard geometry after the helper discovered the same standard Windows resize cursor transition a USER would look for." -Evidence @{ screenshot = $resizeShot; cornerBefore = "$($rectBeforeResize.Width)x$($rectBeforeResize.Height)"; cornerAfter = "$($rectAfterResize.Width)x$($rectAfterResize.Height)"; rightBeforeWidth = $rectBeforeRightResize.Width; rightAfterWidth = $rectAfterRightResize.Width; bottomBeforeHeight = $rectBeforeBottomResize.Height; bottomAfterHeight = $rectAfterBottomResize.Height; cursorRight = $cursorRight; cursorBottom = $cursorBottom; cursorCorner = $cursorCorner; cursorRightInterior = $cursorRightInterior; cursorBottomInterior = $cursorBottomInterior; cornerTransition = $cornerTransition; rightTransition = $rightResizeTransition; bottomTransition = $bottomResizeTransition }
 
     $closeEvidence = Invoke-TrayAction -ActionName "Close HUD Dashboard" -ExpectedMarker "RENDERER_MAIN|TRAY_MONITORING_HUD_DASHBOARD_REQUESTED|source=menu|visible=false" -TimeoutSeconds $ActionTimeoutSeconds
     Start-Sleep -Milliseconds 1000
