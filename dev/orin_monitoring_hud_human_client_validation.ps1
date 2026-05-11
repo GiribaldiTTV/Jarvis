@@ -1256,6 +1256,7 @@ try {
     $env:NEXUS_HARNESS_DISABLE_VOICE = "1"
     $env:NEXUS_HARNESS_SUPPRESS_ALREADY_RUNNING_DIALOGS = "1"
     $env:NEXUS_MONITORING_HUD_STARTUP_ENABLED = "0"
+    $env:NEXUS_MONITORING_HUD_STATE_PATH = (Join-Path $LogRoot "monitoring_hud_state.json")
     $env:NEXUS_SHUTDOWN_CONFIRMATION_TIMEOUT_MS = "15000"
 
     Start-Process -FilePath $DesktopShortcutPath -WindowStyle Hidden
@@ -1288,6 +1289,15 @@ try {
         throw "Enable HUD Feature did not make the HUD Dashboard visible through the real tray path"
     }
     Add-Step -Id "enable_hud_opens_dashboard" -Title "Enable HUD Feature opens visible HUD Dashboard" -Status "PASS" -Detail "Dashboard window was visible after the real tray action." -Evidence @{ screenshot = $enabledShot; trayClick = $enableEvidence }
+    if (Test-Path -LiteralPath $env:NEXUS_MONITORING_HUD_STATE_PATH) {
+        $statePayload = Get-Content -LiteralPath $env:NEXUS_MONITORING_HUD_STATE_PATH -Raw | ConvertFrom-Json
+        $statePersisted = [bool]$statePayload.featureEnabled
+        Add-Step -Id "hud_feature_enabled_state_persisted" -Title "Enable HUD Feature writes durable feature state" -Status ($(if ($statePersisted) { "PASS" } else { "FAIL" })) -Detail "featureEnabled=$($statePayload.featureEnabled); dashboardVisible=$($statePayload.dashboardVisible)" -Evidence @{ statePath = $env:NEXUS_MONITORING_HUD_STATE_PATH }
+        if (-not $statePersisted) { throw "Enable HUD Feature did not persist featureEnabled=true" }
+    } else {
+        Add-Step -Id "hud_feature_enabled_state_persisted" -Title "Enable HUD Feature writes durable feature state" -Status "FAIL" -Detail "State file missing: $env:NEXUS_MONITORING_HUD_STATE_PATH" -Evidence @{ statePath = $env:NEXUS_MONITORING_HUD_STATE_PATH }
+        throw "Enable HUD Feature did not create a durable state file"
+    }
 
     $earlyCloseEvidence = Invoke-TrayAction -ActionName "Close HUD Dashboard" -ExpectedMarker "RENDERER_MAIN|TRAY_MONITORING_HUD_DASHBOARD_REQUESTED|source=menu|visible=false" -TimeoutSeconds $ActionTimeoutSeconds
     Start-Sleep -Milliseconds 1000

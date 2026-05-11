@@ -1323,6 +1323,7 @@ def validate_desktop_shortcut_real_client_tray_precheck():
     env["NEXUS_HARNESS_SUPPRESS_ALREADY_RUNNING_DIALOGS"] = "1"
     env["NEXUS_MONITORING_HUD_REAL_CLIENT_TRAY_PRECHECK_MANIFEST"] = manifest_path
     env["NEXUS_MONITORING_HUD_REAL_CLIENT_TRAY_PRECHECK_EXIT"] = "1"
+    env["NEXUS_MONITORING_HUD_STATE_PATH"] = os.path.join(scenario_root, "monitoring_hud_state.json")
     env["NEXUS_SHUTDOWN_CONFIRMATION_TIMEOUT_MS"] = "1200"
 
     launch_result = None
@@ -1409,6 +1410,7 @@ def run_launch_chain_scenario(
     env["NEXUS_HARNESS_DISABLE_DIAGNOSTICS"] = "1"
     env["NEXUS_HARNESS_DISABLE_VOICE"] = "1"
     env["QT_QPA_PLATFORM"] = "offscreen"
+    env["NEXUS_MONITORING_HUD_STATE_PATH"] = os.path.join(scenario_root, "monitoring_hud_state.json")
     env[SHUTDOWN_CONFIRMATION_DECISION_ENV] = "accepted"
 
     if force_path_fallback:

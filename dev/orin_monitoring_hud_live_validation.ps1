@@ -832,11 +832,13 @@ if ($ActiveUserFacingClient) {
     $effectiveFinalHoldMilliseconds = [Math]::Max($effectiveFinalHoldMilliseconds, 20000)
 }
 
+$previousHudStatePath = $env:NEXUS_MONITORING_HUD_STATE_PATH
 try {
     Step $paths "starting FAM-006 Monitoring/HUD live desktop validation"
     $pythonExe = Resolve-ValidationPython
     Step $paths "resolved Python: $pythonExe"
     Capture-Screen $paths "before_launch"
+    $env:NEXUS_MONITORING_HUD_STATE_PATH = (Join-Path $paths.Root "monitoring_hud_state.json")
 
     $args = @(
         "desktop\orin_desktop_main.py",
@@ -986,6 +988,12 @@ catch {
     Step $paths "failure: $script:FailureMessage"
 }
 finally {
+    if ($null -eq $previousHudStatePath) {
+        Remove-Item Env:\NEXUS_MONITORING_HUD_STATE_PATH -ErrorAction SilentlyContinue
+    }
+    else {
+        $env:NEXUS_MONITORING_HUD_STATE_PATH = $previousHudStatePath
+    }
     if ($script:RuntimeProcess) {
         try {
             if (-not $script:RuntimeProcess.HasExited) {

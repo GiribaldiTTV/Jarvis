@@ -69,6 +69,7 @@ def validate() -> list[str]:
     renderer = _read("desktop/desktop_renderer.py")
     core_renderer = _read("desktop/core_visualization_renderer.py")
     tray = _read("desktop/orin_desktop_main.py")
+    hud_state = _read("desktop/monitoring_hud_state.py")
     telemetry = _read("desktop/monitoring_hud_telemetry.py")
     placement = _read("desktop/monitoring_hud_placement.py")
     controls = _read("desktop/monitoring_hud_controls.py")
@@ -404,7 +405,9 @@ def validate() -> list[str]:
         "clip-path: inset(0 round 28px);",
         "scrollbar-width: thin;",
         "scrollbar-color: rgba(108, 232, 255, 0.58) transparent;",
-        "margin: 36px 0;",
+        "width: 6px;",
+        "margin: 52px 0;",
+        "border: 1px solid rgba(4, 17, 32, 0.72);",
         "background-clip: padding-box;",
         "contain: paint;",
         "body.desktop-mode .monitoring-hud__chrome::-webkit-scrollbar",
@@ -666,6 +669,12 @@ def validate() -> list[str]:
         "MONITORING_HUD_NATIVE_WINDOW_RESIZE_FALLBACK_STARTED",
         "MONITORING_HUD_DASHBOARD_SHELL_LAYOUT_READY",
         "MONITORING_HUD_DASHBOARD_VISUAL_SHELL_READY",
+        "WM_NCHITTEST",
+        "HTBOTTOMRIGHT",
+        "ctypes.wintypes.MSG.from_address",
+        "margin = 30",
+        "save_monitoring_hud_state",
+        "_persist_monitoring_hud_feature_state",
         "os-system-move-no-snap",
         "os-edge-corner-resize",
         "fallback-edge-corner-resize",
@@ -724,8 +733,25 @@ def validate() -> list[str]:
         "SHUTDOWN_CONFIRMATION_DIALOG_VISIBLE",
         "REAL_CLIENT_TRAY_PRECHECK_MANIFEST_ENV",
         "REAL_CLIENT_TRAY_PRECHECK_STARTED",
+        "from desktop.monitoring_hud_state import load_monitoring_hud_state",
+        "MONITORING_HUD_STARTUP_STATE_READY",
+        "monitoring_hud_feature_enabled_at_startup",
+        "monitoring_hud_dashboard_visible_at_startup",
     ):
         _require_contains(tray, needle, "desktop launcher Core/HUD failure isolation", failures)
+
+    for needle in (
+        'MONITORING_HUD_STATE_ENV = "NEXUS_MONITORING_HUD_STATE_PATH"',
+        "monitoring_hud_state_path",
+        "load_monitoring_hud_state",
+        "save_monitoring_hud_state",
+        "MONITORING_HUD_STATE_LOAD_READY",
+        "MONITORING_HUD_STATE_SAVE_READY",
+        '"featureEnabled"',
+        '"dashboardVisible"',
+        "os.replace",
+    ):
+        _require_contains(hud_state, needle, "Monitoring HUD persisted state helper", failures)
 
     for needle in (
         "class CoreVisualizationWindow(QWidget):",

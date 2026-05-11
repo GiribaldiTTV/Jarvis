@@ -48,22 +48,22 @@ body.desktop-mode #monitoring-hud {
 }
 
 body.desktop-mode .monitoring-hud__chrome::-webkit-scrollbar {
-  width: 10px;
-  height: 10px;
+  width: 6px;
+  height: 6px;
 }
 
 body.desktop-mode .monitoring-hud__chrome::-webkit-scrollbar-track {
-  margin: 36px 0;
+  margin: 52px 0;
   border-radius: 999px;
   background: transparent;
 }
 
 body.desktop-mode .monitoring-hud__chrome::-webkit-scrollbar-thumb {
-  border: 2px solid rgba(4, 17, 32, 0.82);
+  border: 1px solid rgba(4, 17, 32, 0.72);
   border-radius: 999px;
   background-clip: padding-box;
-  background: linear-gradient(180deg, rgba(121, 239, 255, 0.72), rgba(99, 255, 202, 0.48));
-  box-shadow: 0 0 10px rgba(88, 225, 255, 0.18);
+  background: linear-gradient(180deg, rgba(121, 239, 255, 0.62), rgba(99, 255, 202, 0.42));
+  box-shadow: 0 0 6px rgba(88, 225, 255, 0.12);
 }
 
 body.desktop-mode .monitoring-hud__chrome::-webkit-scrollbar-thumb:hover {

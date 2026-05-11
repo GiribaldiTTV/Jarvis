@@ -11,7 +11,9 @@ evidence unless that interface is later re-admitted.
 from __future__ import annotations
 
 import json
+import os
 import sys
+import tempfile
 import time
 from pathlib import Path
 
@@ -22,6 +24,11 @@ if str(ROOT) not in sys.path:
 from desktop.monitoring_hud_controls import build_monitoring_hud_controls_visibility_contract
 from desktop.monitoring_hud_placement import build_monitoring_hud_placement_contract
 from desktop.monitoring_hud_status import build_monitoring_hud_status_snapshot
+from desktop.monitoring_hud_state import (
+    MONITORING_HUD_STATE_ENV,
+    load_monitoring_hud_state,
+    save_monitoring_hud_state,
+)
 from desktop.monitoring_hud_telemetry import build_monitoring_hud_telemetry_snapshot
 
 
@@ -91,6 +98,7 @@ def _validate_static_surface(failures: list[str]) -> None:
     renderer = _read("desktop/desktop_renderer.py")
     core_renderer = _read("desktop/core_visualization_renderer.py")
     tray = _read("desktop/orin_desktop_main.py") + "\n" + _read("desktop/tray_controller.py")
+    hud_state = _read("desktop/monitoring_hud_state.py")
 
     for needle in (
         "Primary Interface Release Surface: `Monitoring HUD Dashboard / control panel`",
@@ -328,6 +336,8 @@ def _validate_static_surface(failures: list[str]) -> None:
         ".monitoring-hud-overlay-card__topline",
         "scrollbar-width: thin",
         "body.desktop-mode .monitoring-hud__chrome::-webkit-scrollbar",
+        "width: 6px;",
+        "margin: 52px 0;",
         'body.desktop-mode #monitoring-hud[data-drag-smoothing="native-os-window-move"]',
         "scrollbar-gutter: stable;",
     ):
@@ -443,6 +453,12 @@ def _validate_static_surface(failures: list[str]) -> None:
         "MONITORING_HUD_NATIVE_WINDOW_RESIZE_FALLBACK_STARTED",
         "MONITORING_HUD_DASHBOARD_SHELL_LAYOUT_READY",
         "MONITORING_HUD_DASHBOARD_VISUAL_SHELL_READY",
+        "WM_NCHITTEST",
+        "HTBOTTOMRIGHT",
+        "ctypes.wintypes.MSG.from_address",
+        "margin = 30",
+        "save_monitoring_hud_state",
+        "_persist_monitoring_hud_feature_state",
         "os-system-move-no-snap",
         "os-edge-corner-resize",
         "fallback-edge-corner-resize",
@@ -487,9 +503,26 @@ def _validate_static_surface(failures: list[str]) -> None:
         "SHUTDOWN_CONFIRMATION_DIALOG_VISIBLE",
         "REAL_CLIENT_TRAY_PRECHECK_MANIFEST_ENV",
         "REAL_CLIENT_TRAY_PRECHECK_STARTED",
+        "from desktop.monitoring_hud_state import load_monitoring_hud_state",
+        "MONITORING_HUD_STARTUP_STATE_READY",
+        "monitoring_hud_feature_enabled_at_startup",
+        "monitoring_hud_dashboard_visible_at_startup",
         "from desktop.tray_controller import DesktopTrayEntry, TRAY_IDENTITY_LABEL",
     ):
         _require_contains(tray, needle, "desktop launcher Core/HUD failure isolation", failures)
+
+    for needle in (
+        'MONITORING_HUD_STATE_ENV = "NEXUS_MONITORING_HUD_STATE_PATH"',
+        "monitoring_hud_state_path",
+        "load_monitoring_hud_state",
+        "save_monitoring_hud_state",
+        "MONITORING_HUD_STATE_LOAD_READY",
+        "MONITORING_HUD_STATE_SAVE_READY",
+        '"featureEnabled"',
+        '"dashboardVisible"',
+        "os.replace",
+    ):
+        _require_contains(hud_state, needle, "Monitoring HUD persisted state helper", failures)
 
     for needle in (
         "class CoreVisualizationWindow(QWidget):",
@@ -607,12 +640,41 @@ def _validate_contracts(failures: list[str]) -> dict[str, object]:
     )
     _require(status.get("warningPosture") == "Visual badge, color state, and text label only", "status contract must preserve visual warning posture", failures)
 
+    persisted_state = {}
+    previous_state_path = os.environ.get(MONITORING_HUD_STATE_ENV)
+    with tempfile.TemporaryDirectory(prefix="fam006_hud_state_") as temp_dir:
+        os.environ[MONITORING_HUD_STATE_ENV] = str(Path(temp_dir) / "monitoring_hud_state.json")
+        try:
+            saved = save_monitoring_hud_state(
+                feature_enabled=True,
+                dashboard_visible=False,
+                source="internal_sandbox_validation",
+            )
+            persisted_state = load_monitoring_hud_state()
+            _require(saved, "HUD feature state persistence save must succeed", failures)
+            _require(
+                persisted_state.get("featureEnabled") is True,
+                "HUD feature state persistence must remember enabled state",
+                failures,
+            )
+            _require(
+                persisted_state.get("dashboardVisible") is False,
+                "HUD feature state persistence must allow Dashboard to stay closed on startup",
+                failures,
+            )
+        finally:
+            if previous_state_path is None:
+                os.environ.pop(MONITORING_HUD_STATE_ENV, None)
+            else:
+                os.environ[MONITORING_HUD_STATE_ENV] = previous_state_path
+
     return {
         "firstTelemetry": first,
         "secondTelemetry": second,
         "placement": placement,
         "controls": controls,
         "status": status,
+        "persistedState": persisted_state,
     }
 
 

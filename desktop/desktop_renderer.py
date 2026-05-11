@@ -3,6 +3,7 @@ import json
 import os
 import re
 import ctypes
+import ctypes.wintypes
 import datetime
 import time
 import webbrowser
@@ -36,6 +37,7 @@ from .interaction_overlay_model import CommandOverlayModel
 from .monitoring_hud_controls import build_monitoring_hud_controls_visibility_contract
 from .monitoring_hud_placement import build_monitoring_hud_placement_contract
 from .monitoring_hud_status import build_monitoring_hud_status_snapshot
+from .monitoring_hud_state import save_monitoring_hud_state
 from .monitoring_hud_telemetry import build_monitoring_hud_telemetry_snapshot
 from .saved_action_authoring import (
     CallableGroupDraft,
@@ -71,6 +73,14 @@ from .workerw_utils import (
 
 WM_NCHITTEST = 0x0084
 HTTRANSPARENT = -1
+HTLEFT = 10
+HTRIGHT = 11
+HTTOP = 12
+HTTOPLEFT = 13
+HTTOPRIGHT = 14
+HTBOTTOM = 15
+HTBOTTOMLEFT = 16
+HTBOTTOMRIGHT = 17
 user32 = ctypes.windll.user32
 kernel32 = ctypes.windll.kernel32
 GetWindowRect = user32.GetWindowRect
@@ -5644,6 +5654,7 @@ class DesktopRuntimeWindow(QWidget):
         runtime_log_path: str = "",
         surface_role: str = "hud",
         monitoring_hud_feature_enabled: bool = False,
+        monitoring_hud_dashboard_visible: bool | None = None,
     ):
         super().__init__()
         global _DIALOG_RUNTIME_LOGGER
@@ -5706,7 +5717,11 @@ class DesktopRuntimeWindow(QWidget):
         self._last_launch_failure_count = 0
         self._reported_recoverable_launch_failures = set()
         self._monitoring_hud_feature_enabled = bool(monitoring_hud_feature_enabled)
-        self._monitoring_hud_visible = bool(monitoring_hud_feature_enabled)
+        if monitoring_hud_dashboard_visible is None:
+            monitoring_hud_dashboard_visible = monitoring_hud_feature_enabled
+        self._monitoring_hud_visible = bool(
+            self._monitoring_hud_feature_enabled and monitoring_hud_dashboard_visible
+        )
         self._monitoring_hud_anchored = True
         self._monitoring_hud_snap_enabled = True
         self._monitoring_hud_polling_rate_ms = 1000
@@ -7028,7 +7043,7 @@ class DesktopRuntimeWindow(QWidget):
         rect = self.geometry()
         if rect.isNull() or not rect.isValid():
             return Qt.Edges()
-        margin = 18
+        margin = 30
         edges = Qt.Edges()
         if abs(point.x() - rect.left()) <= margin:
             edges |= Qt.LeftEdge
@@ -7039,6 +7054,26 @@ class DesktopRuntimeWindow(QWidget):
         if abs(point.y() - rect.bottom()) <= margin:
             edges |= Qt.BottomEdge
         return edges
+
+    def _monitoring_hud_native_resize_hit_test_for_edges(self, edges) -> int:
+        left, right, top, bottom = self._monitoring_hud_resize_edge_key(edges)
+        if left and top:
+            return HTTOPLEFT
+        if right and top:
+            return HTTOPRIGHT
+        if left and bottom:
+            return HTBOTTOMLEFT
+        if right and bottom:
+            return HTBOTTOMRIGHT
+        if left:
+            return HTLEFT
+        if right:
+            return HTRIGHT
+        if top:
+            return HTTOP
+        if bottom:
+            return HTBOTTOM
+        return 0
 
     def _start_monitoring_hud_native_system_resize(self, edges, screen_point: QPoint) -> bool:
         if self.surface_role != "hud" or not edges:
@@ -7606,6 +7641,16 @@ class DesktopRuntimeWindow(QWidget):
             polling_rate_ms=self._monitoring_hud_polling_rate_ms,
         )
 
+    def _persist_monitoring_hud_feature_state(self, source: str = "runtime"):
+        if self.surface_role != "hud":
+            return
+        save_monitoring_hud_state(
+            feature_enabled=bool(self._monitoring_hud_feature_enabled),
+            dashboard_visible=bool(self._monitoring_hud_visible and self.isVisible()),
+            event_logger=self._log_event,
+            source=source,
+        )
+
     def monitoring_hud_feature_state(self) -> dict[str, object]:
         return {
             "feature_enabled": bool(self._monitoring_hud_feature_enabled),
@@ -7657,6 +7702,7 @@ class DesktopRuntimeWindow(QWidget):
                     cards={},
                 )
         self._set_monitoring_hud_control_state(source=source)
+        self._persist_monitoring_hud_feature_state(source=source)
         self._emit_runtime_signal(
             "MONITORING_HUD_FEATURE_STATE_READY",
             package="PKG-006",
@@ -7734,6 +7780,7 @@ class DesktopRuntimeWindow(QWidget):
             )
             return
         self._set_monitoring_hud_control_state(visible=bool(visible), source=source)
+        self._persist_monitoring_hud_feature_state(source=source)
         self._emit_runtime_signal(
             "MONITORING_HUD_TRAY_DASHBOARD_OPEN_CLOSE_READY",
             package="PKG-006",
@@ -8970,7 +9017,9 @@ class DesktopRuntimeWindow(QWidget):
         if not isinstance(state, dict) or self._is_shutting_down:
             return
         visible = bool(state.get("visible", self._monitoring_hud_visible))
-        feature_enabled = bool(state.get("featureEnabled", visible))
+        feature_enabled = bool(
+            state.get("featureEnabled", self._monitoring_hud_feature_enabled)
+        )
         anchored = bool(state.get("anchored", self._monitoring_hud_anchored))
         snap_enabled = bool(state.get("snapEnabled", self._monitoring_hud_snap_enabled))
         try:
@@ -9029,6 +9078,7 @@ class DesktopRuntimeWindow(QWidget):
         self._monitoring_hud_polling_rate_ms = polling_rate_ms
         if self._monitoring_hud_poll_timer.isActive():
             self._monitoring_hud_poll_timer.start(self._monitoring_hud_polling_rate_ms)
+        self._persist_monitoring_hud_feature_state(source="page_sync")
         self._apply_monitoring_hud_window_interaction_state()
         self._publish_monitoring_hud_controls_visibility()
 
@@ -10727,6 +10777,24 @@ class DesktopRuntimeWindow(QWidget):
         self._show_command_result("launch_requested", "Launch request sent.")
 
     def nativeEvent(self, eventType, message):
+        if (
+            self.surface_role == "hud"
+            and self.desktop_mode
+            and self._monitoring_hud_feature_enabled
+            and self._monitoring_hud_visible
+            and eventType in ("windows_generic_MSG", "windows_dispatcher_MSG")
+        ):
+            try:
+                msg = ctypes.wintypes.MSG.from_address(int(message))
+            except Exception:
+                msg = None
+            if msg is not None and int(msg.message) == WM_NCHITTEST:
+                x = ctypes.c_short(int(msg.lParam) & 0xFFFF).value
+                y = ctypes.c_short((int(msg.lParam) >> 16) & 0xFFFF).value
+                edges = self._monitoring_hud_native_resize_edges_for_point(QPoint(x, y))
+                hit_test = self._monitoring_hud_native_resize_hit_test_for_edges(edges)
+                if hit_test:
+                    return True, hit_test
         return super().nativeEvent(eventType, message)
 
     def enable_desktop_mode(self):

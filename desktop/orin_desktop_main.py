@@ -18,6 +18,7 @@ from PySide6.QtWidgets import QApplication, QMessageBox
 
 from desktop.core_visualization_renderer import CoreVisualizationWindow
 from desktop.hotkeys import ShutdownBus, GlobalHotkeyManager
+from desktop.monitoring_hud_state import load_monitoring_hud_state
 from desktop.single_instance import NamedSignal
 from desktop.tray_controller import DesktopTrayEntry, TRAY_IDENTITY_LABEL
 
@@ -461,7 +462,20 @@ def main():
 
     visual_html_path = os.path.join(ROOT_DIR, "nexus_visual", "orin_core_desktop.html")
     monitoring_hud_html_path = os.path.join(ROOT_DIR, "nexus_visual", "monitoring_hud.html")
-    monitoring_hud_startup_allowed = monitoring_hud_startup_enabled()
+    monitoring_hud_forced_startup_visible = monitoring_hud_startup_enabled()
+    monitoring_hud_saved_state = load_monitoring_hud_state(runtime_milestone)
+    monitoring_hud_saved_feature_enabled = bool(monitoring_hud_saved_state.get("featureEnabled"))
+    monitoring_hud_feature_enabled_at_startup = (
+        bool(monitoring_hud_forced_startup_visible) or monitoring_hud_saved_feature_enabled
+    )
+    monitoring_hud_dashboard_visible_at_startup = bool(monitoring_hud_forced_startup_visible)
+    runtime_milestone(
+        "RENDERER_MAIN|MONITORING_HUD_STARTUP_STATE_READY"
+        f"|source={monitoring_hud_saved_state.get('source', 'unknown')}"
+        f"|feature_enabled={str(monitoring_hud_feature_enabled_at_startup).lower()}"
+        f"|dashboard_visible={str(monitoring_hud_dashboard_visible_at_startup).lower()}"
+        f"|forced_visible={str(bool(monitoring_hud_forced_startup_visible)).lower()}"
+    )
     runtime_milestone("RENDERER_MAIN|VISUAL_HTML_RESOLVED")
     if exit_if_startup_abort_requested():
         return 0
@@ -490,7 +504,8 @@ def main():
                 event_logger=runtime_milestone,
                 runtime_log_path=RUNTIME_LOG_FILE,
                 surface_role="hud",
-                monitoring_hud_feature_enabled=monitoring_hud_startup_allowed,
+                monitoring_hud_feature_enabled=monitoring_hud_feature_enabled_at_startup,
+                monitoring_hud_dashboard_visible=monitoring_hud_dashboard_visible_at_startup,
             )
         except Exception as exc:
             window = DesktopRuntimeUnavailable(
@@ -823,15 +838,18 @@ def main():
             return
         window_show_requested = True
         core_window.show()
-        if monitoring_hud_startup_allowed:
+        if monitoring_hud_dashboard_visible_at_startup:
             window.show()
             runtime_milestone("RENDERER_MAIN|WINDOW_SHOW_REQUESTED|reason=core_and_hud_visualization_ready|surfaces=core_and_dashboard|monitoring_hud_startup=enabled")
         else:
             runtime_milestone("RENDERER_MAIN|WINDOW_SHOW_REQUESTED|reason=core_visualization_ready|surfaces=core_only|monitoring_hud_startup=suppressed")
-            runtime_milestone("RENDERER_MAIN|MONITORING_HUD_STARTUP_SUPPRESSED|surface=dashboard|overlay=deferred|feature_enabled=false")
+            runtime_milestone(
+                "RENDERER_MAIN|MONITORING_HUD_STARTUP_SUPPRESSED"
+                f"|surface=dashboard|overlay=deferred|feature_enabled={str(monitoring_hud_feature_enabled_at_startup).lower()}"
+            )
 
     core_window.core_visualization_ready.connect(show_window_after_core_visualization_ready)
-    if monitoring_hud_startup_allowed:
+    if monitoring_hud_dashboard_visible_at_startup:
         window.core_visualization_visible.connect(mark_startup_ready)
     else:
         core_window.core_visualization_visible.connect(mark_startup_ready)
