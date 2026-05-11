@@ -435,6 +435,8 @@ function Save-UserTestSummaryHandoff([object]$Paths) {
     $precheckStep3 = Format-ShortcutPrecheckLine @("tray_exit_confirmation_visible", "tray_exit_cancel_preserves_session", "tray_exit_accept_prompt_visible", "tray_exit_accept_shuts_down_promptly") "LV1 cannot claim unrestricted green handoff for tray Exit confirmation without USER waiver."
     $precheckNcpInteraction = Format-ShortcutPrecheckLine @("dashboard_mouse_move", "ncp_opens_with_dashboard_visible", "ncp_create_custom_task_clickable_with_dashboard_open", "ncp_create_custom_group_clickable_with_dashboard_open", "ncp_manage_custom_tasks_clickable_with_dashboard_open", "ncp_manage_custom_groups_clickable_with_dashboard_open") "LV1 cannot claim unrestricted green handoff for Dashboard-visible NCP interaction without USER waiver."
     $precheckTrayAuthoring = Format-ShortcutPrecheckLine @("tray_create_custom_task_duplicate_guard") "LV1 cannot claim unrestricted green handoff for tray authoring duplicate-dialog safety without USER waiver."
+    $precheckResizeDiscoverability = Format-ShortcutPrecheckLine @("dashboard_mouse_resize_corner", "dashboard_mouse_resize_right_edge", "dashboard_mouse_resize_bottom_edge", "dashboard_mouse_resize") "LV1 cannot claim unrestricted green handoff for Dashboard resize discoverability without USER waiver."
+    $precheckHudPersistence = Format-ShortcutPrecheckLine @("hud_feature_enabled_state_persisted") "LV1 cannot claim unrestricted green handoff for HUD Feature state persistence without USER waiver."
     $precheckHumanClientRun = Format-ShortcutPrecheckLine @("launch_settled_visible_desktop", "launch_settled_tray_available", "enable_hud_opens_dashboard", "ncp_create_custom_task_clickable_with_dashboard_open", "tray_exit_confirmation_visible") "LV1 cannot claim unrestricted green handoff without real-human client precheck coverage or USER waiver."
     $activeClientPrecheck = "Codex Precheck: PASS through proven equivalent active-client live helper path - equivalence evidence: same active branch runtime, active foreground desktop client, PASS manifest, PASS interaction self-QA, and before/after full-desktop screenshots at $($Paths.Root)."
     $visualScreenshotPrecheck = "Codex Precheck: PASS through proven equivalent active-client screenshot/manifest path - equivalence evidence: PASS live helper manifest, USER-inspectable screenshot folder, and interaction manifest at $($Paths.Root). USER visual confirmation is still required."
@@ -499,6 +501,11 @@ Returned USER Issue Register Retest Focus
 - FAM006-RUI-045 Dashboard blocks NCP buttons: covered by Step 4. $precheckNcpInteraction
 - FAM006-RUI-046 tray Create Custom Task duplicate/lock behavior: covered by Step 5. $precheckTrayAuthoring
 - FAM006-RUI-047 Exit prompt visual/session-preservation split: covered by Step 3 for function; visual restyling remains future polish unless USER marks it blocking. $precheckStep3
+- FAM006-RUI-048 resize hit-zone reliability: covered by Step 8. $precheckResizeDiscoverability
+- FAM006-RUI-049 scrollbar inset / out-of-range visual issue: covered by Step 9. $visualScreenshotPrecheck
+- FAM006-RUI-050 HUD Feature enabled state persistence: covered by Step 2 and Step 8. $precheckHudPersistence
+- FAM006-RUI-051 Dashboard no longer resizes: covered by Step 8. $precheckResizeDiscoverability
+- FAM006-RUI-052 Dashboard edge resize rail still difficult to find: covered by Step 8. $precheckResizeDiscoverability
 
 Issue-Grounded USER Questions
 Answer each issue as PASS, FAIL, or WAIVED. Add notes/screenshots for any FAIL or WAIVED answer.
@@ -691,6 +698,26 @@ FAM006-RUI-047 / Exit prompt polish - Functionally, does tray Exit NDAI show con
 $precheckStep3
 USER Result / Notes:
 
+FAM006-RUI-048 / Resize hit-zone reliability - Can you reliably discover the resize rail without hunting for a tiny one-pixel edge?
+$precheckResizeDiscoverability
+USER Result / Notes:
+
+FAM006-RUI-049 / Scrollbar inset precision - Does the scrollbar look properly inset inside the rounded Dashboard chrome, without the vertical bar feeling out of range or too large for the window?
+$visualScreenshotPrecheck
+USER Result / Notes:
+
+FAM006-RUI-050 / HUD Feature state persistence - If HUD Feature is enabled and the app is relaunched, does the enabled state persist without surprise-opening the Dashboard?
+$precheckHudPersistence
+USER Result / Notes:
+
+FAM006-RUI-051 / Resize regression - Can the Dashboard still resize after the post-WS51/WS52 repair path?
+$precheckResizeDiscoverability
+USER Result / Notes:
+
+FAM006-RUI-052 / Edge resize discoverability - Are the right-edge, bottom-edge, and corner resize rails easy enough to find and use consistently?
+$precheckResizeDiscoverability
+USER Result / Notes:
+
 What This Test Is Checking
 - The HUD Dashboard is the current branch's primary user-facing interface release surface.
 - The Dashboard is a Nexus/NDAI settings and control hub for HUD Overlay posture, monitor groups, warning notifications, data-source/readiness truth, and future Overlay/display behavior.
@@ -749,8 +776,8 @@ $visualScreenshotPrecheck
 Ledger rows: FAM006-DASH-SURFACE-001; FAM006-DASH-CONTENT-008; FAM006-DASH-VISUAL-006; FAM006-DASH-PROVIDER-015.
 Observed Results:
 
-8. Move and resize the Dashboard. Confirm it behaves like a standalone normal window without clipping, disappearing, blocking NCP/other windows, stealing topmost focus, dragging the Core, or dragging the deferred Overlay/display.
-$activeClientPrecheck
+8. Move and resize the Dashboard. Confirm the corner, right-edge, and bottom-edge resize rails are discoverable and change real Dashboard geometry; also confirm the Dashboard behaves like a standalone normal window without clipping, disappearing, blocking NCP/other windows, stealing topmost focus, dragging the Core, or dragging the deferred Overlay/display.
+$precheckResizeDiscoverability
 Ledger rows: FAM006-DASH-WINDOW-002; FAM006-DASH-MOVE-003; FAM006-DASH-CLIP-004; FAM006-DASH-FOCUS-047; FAM006-DASH-RESIZE-057; FAM006-NCP-REGRESSION-048.
 Observed Results:
 
