@@ -43,7 +43,7 @@ This branch may execute the admitted PKG-006 implementation slices during Workst
 - PR Readiness Stage: `Stage 2 admitted by USER on 2026-05-12 after Stage 1 recommended ACCEPT FOR STAGE 2; PR #118 is created, non-draft, mergeable, and CLEAN; current remaining work is bot-review handling if needed, watcher runtime proof, USER merge decision, and merge-watch preparation`
 - Live PR: `https://github.com/GiribaldiTTV/Nexus-Desktop-AI/pull/118`
 - PR State: `OPEN / non-draft / MERGEABLE / CLEAN`
-- PR Head SHA: `28db187bb42e099f926036439a90604a7c0ee1c2`
+- PR Head SHA: `Live GitHub PR state owns the current head SHA; Stage 2 operator output records the final inspected SHA to avoid merge-stable doc drift`
 - PR Watcher: `fam-006-pr-118-watcher`
 - Active Branch: `feature/fam-006-monitoring-hud-product-surface`
 - Branch Authority Mode: `Active Branch`
@@ -2447,7 +2447,7 @@ Workstream WS46 includes static HUD validation, internal sandbox proof, a hidden
 - PR Title: `FAM-006 Monitoring HUD Dashboard Product Surface`
 - PR Base: `main`
 - PR Head: `feature/fam-006-monitoring-hud-product-surface`
-- PR Head SHA: `28db187bb42e099f926036439a90604a7c0ee1c2`
+- PR Head SHA: `Live GitHub PR state owns the current head SHA; Stage 2 operator output records the final inspected SHA to avoid merge-stable doc drift`
 - PR Draft State: `false`
 - PR Mergeability: `MERGEABLE / CLEAN`
 - PR Check Status: `No status checks reported at creation-time live PR read`
