@@ -10,8 +10,15 @@ import subprocess
 import datetime
 import platform
 import secrets
+import ctypes
+from ctypes import wintypes
 
-from single_instance import NamedSignal, SingleInstanceGuard, acquire_or_prompt_replace
+from single_instance import (
+    NamedSignal,
+    SingleInstanceGuard,
+    acquire_or_prompt_replace,
+    show_already_running_dialog,
+)
 
 
 def env_flag(name):
@@ -45,6 +52,14 @@ RUNTIME_DESKTOP_SETTLED_EVENT = r"Local\NexusRuntimeDesktopSettledV1"
 runtime_instance_guard = SingleInstanceGuard(RUNTIME_INSTANCE_MUTEX)
 runtime_relaunch_signal = NamedSignal(RUNTIME_RELAUNCH_EVENT)
 runtime_desktop_settled_signal = NamedSignal(RUNTIME_DESKTOP_SETTLED_EVENT)
+
+PROCESS_QUERY_LIMITED_INFORMATION = 0x1000
+OpenProcess = ctypes.windll.kernel32.OpenProcess
+OpenProcess.argtypes = [wintypes.DWORD, wintypes.BOOL, wintypes.DWORD]
+OpenProcess.restype = wintypes.HANDLE
+CloseHandle = ctypes.windll.kernel32.CloseHandle
+CloseHandle.argtypes = [wintypes.HANDLE]
+CloseHandle.restype = wintypes.BOOL
 
 MAX_RECOVERY_ATTEMPTS = 3
 RECOVERY_COOLDOWN_SECONDS = 1.2
@@ -822,6 +837,10 @@ def write_active_runtime_owner_file(reason):
             json.dump(
                 {
                     "runtime_file": RUNTIME_FILE,
+                    "run_id": RUN_ID_STEM,
+                    "launcher_pid": os.getpid(),
+                    "launcher_script": os.path.abspath(__file__),
+                    "launcher_root": os.path.abspath(ROOT_DIR),
                     "recorded_at": datetime.datetime.now(datetime.timezone.utc).isoformat(),
                     "reason": reason,
                 },
@@ -834,10 +853,159 @@ def write_active_runtime_owner_file(reason):
         return False
 
 
-def active_owner_runtime_log_contains(pattern):
+def read_active_runtime_owner():
     try:
         with open(ACTIVE_RUNTIME_OWNER_FILE, "r", encoding="utf-8") as f:
-            owner = json.load(f)
+            return json.load(f)
+    except Exception:
+        return {}
+
+
+def process_is_running(pid):
+    try:
+        process_id = int(pid)
+    except (TypeError, ValueError):
+        return False
+    if process_id <= 0:
+        return False
+
+    handle = OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, False, process_id)
+    if not handle:
+        return False
+    try:
+        return True
+    finally:
+        CloseHandle(handle)
+
+
+def process_command_line(pid):
+    try:
+        process_id = int(pid)
+    except (TypeError, ValueError):
+        return ""
+    if process_id <= 0 or os.name != "nt":
+        return ""
+
+    script = (
+        f"$process = Get-CimInstance Win32_Process -Filter \"ProcessId={process_id}\"; "
+        "if ($process -and $process.CommandLine) { $process.CommandLine }"
+    )
+    kwargs = hidden_window_kwargs()
+    kwargs.update(
+        {
+            "stdout": subprocess.PIPE,
+            "stderr": subprocess.PIPE,
+            "text": True,
+            "encoding": "utf-8",
+            "errors": "replace",
+        }
+    )
+    try:
+        result = subprocess.run(
+            ["powershell", "-NoProfile", "-Command", script],
+            timeout=5,
+            **kwargs,
+        )
+    except Exception:
+        return ""
+    return (result.stdout or "").strip()
+
+
+def owner_process_identity_matches(owner, command_line):
+    if not command_line:
+        return False
+
+    owner_script = os.path.abspath(str(owner.get("launcher_script") or os.path.join(ROOT_DIR, "desktop", "orin_desktop_launcher.pyw")))
+    owner_root = os.path.abspath(str(owner.get("launcher_root") or ROOT_DIR))
+    normalized_command = os.path.normcase(command_line)
+
+    return (
+        os.path.normcase(owner_script) in normalized_command
+        and os.path.normcase(owner_root) in normalized_command
+    )
+
+
+def active_owner_matches_current(owner):
+    runtime_file = os.path.abspath(str(owner.get("runtime_file") or ""))
+    if runtime_file and runtime_file == os.path.abspath(RUNTIME_FILE):
+        return True
+    return str(owner.get("run_id") or "") == RUN_ID_STEM
+
+
+def active_owner_is_live(owner):
+    if not process_is_running(owner.get("launcher_pid")):
+        return False
+
+    command_line = process_command_line(owner.get("launcher_pid"))
+    if owner_process_identity_matches(owner, command_line):
+        return True
+
+    runtime_event(
+        "STATUS",
+        "WARNING",
+        "LAUNCHER_RUNTIME",
+        "ACTIVE_RUNTIME_OWNER_PID_UNVERIFIED",
+        active_owner_summary(owner),
+    )
+    return False
+
+
+
+
+def active_owner_summary(owner):
+    if not owner:
+        return "owner=none"
+    runtime_file = os.path.basename(str(owner.get("runtime_file") or "")) or "unknown_runtime"
+    return (
+        f"owner_run={owner.get('run_id') or 'unknown'}"
+        f"|owner_pid={owner.get('launcher_pid') or 'unknown'}"
+        f"|owner_runtime={runtime_file}"
+    )
+
+
+def live_active_owner_conflict():
+    owner = read_active_runtime_owner()
+    return bool(owner and not active_owner_matches_current(owner) and active_owner_is_live(owner)), owner
+
+
+def clear_active_runtime_owner(reason, allow_foreign_stale=False):
+    owner = read_active_runtime_owner()
+    if owner and not active_owner_matches_current(owner):
+        if active_owner_is_live(owner) or not allow_foreign_stale:
+            runtime_event(
+                "FILE",
+                "DELETE",
+                os.path.basename(ACTIVE_RUNTIME_OWNER_FILE),
+                "SKIPPED_FOREIGN_OWNER",
+                reason,
+                active_owner_summary(owner),
+            )
+            return False
+
+    delete_file(DESKTOP_SETTLED_SIGNAL_FILE, reason)
+    delete_file(ACTIVE_RUNTIME_OWNER_FILE, reason)
+    return True
+
+
+def claim_active_runtime_owner_file(reason):
+    conflict, owner = live_active_owner_conflict()
+    if conflict:
+        runtime_event(
+            "STATUS",
+            "WARNING",
+            "LAUNCHER_RUNTIME",
+            "ACTIVE_RUNTIME_OWNER_CONFLICT_DETECTED",
+            active_owner_summary(owner),
+        )
+        return False
+
+    clear_active_runtime_owner(reason, allow_foreign_stale=True)
+    return write_active_runtime_owner_file(reason)
+
+
+def active_owner_runtime_log_contains(pattern):
+    try:
+        owner = read_active_runtime_owner()
         runtime_file = os.path.abspath(str(owner.get("runtime_file") or ""))
         if not runtime_file:
             return False
@@ -855,11 +1023,6 @@ def active_desktop_settled_signal_present():
     return os.path.isfile(DESKTOP_SETTLED_SIGNAL_FILE) or active_owner_runtime_log_contains(
         AUTHORITATIVE_DESKTOP_SETTLED_MARKER
     )
-
-
-def clear_active_runtime_owner(reason):
-    delete_file(DESKTOP_SETTLED_SIGNAL_FILE, reason)
-    delete_file(ACTIVE_RUNTIME_OWNER_FILE, reason)
 
 
 def observe_authoritative_desktop_settled(proc, log_start_offset):
@@ -973,15 +1136,15 @@ def capture_post_settled_exit_markers(log_start_offset):
 
 def classify_post_settled_exit(exit_code, startup_observation, log_start_offset):
     exit_markers = capture_post_settled_exit_markers(log_start_offset)
-    if startup_observation != "settled":
-        return "", exit_markers
-
     if (
         exit_code == 0
         and exit_markers["shutdown_requested"]
         and exit_markers["event_loop_exit_zero"]
     ):
         return "valid_termination", exit_markers
+
+    if startup_observation != "settled":
+        return "", exit_markers
 
     return "recoverable_condition", exit_markers
 
@@ -1455,13 +1618,15 @@ def main():
         "replacement_session": False,
         "replacement_session_settled_recorded": False,
         "released": False,
+        "active_owner_conflict": False,
     }
 
     def log_single_instance_event(event):
         if event == "SINGLE_INSTANCE_ACQUIRED":
-            runtime_desktop_settled_signal.clear()
-            clear_active_runtime_owner("startup settled signal reset")
-            write_active_runtime_owner_file("startup owner acquired")
+            if claim_active_runtime_owner_file("startup owner acquired"):
+                runtime_desktop_settled_signal.clear()
+            else:
+                single_instance_state["active_owner_conflict"] = True
         if event in {"REPLACE_PROMPT_DECLINED", "REPLACE_PROMPT_AUTO_DECLINED"}:
             single_instance_state["declined_relaunch"] = True
         if event == "PRE_SETTLED_CONFLICT_SESSION_PRESERVED":
@@ -1497,7 +1662,9 @@ def main():
             return
 
         single_instance_state["released"] = True
-        runtime_desktop_settled_signal.clear()
+        owner_conflict, _owner = live_active_owner_conflict()
+        if not owner_conflict:
+            runtime_desktop_settled_signal.clear()
         clear_active_runtime_owner("runtime release")
         runtime_instance_guard.release()
         runtime_relaunch_signal.close()
@@ -1565,6 +1732,27 @@ def main():
             runtime_event("STATUS", "SKIP", "LAUNCHER_RUNTIME", "ALREADY_RUNNING")
         return 0
 
+    if single_instance_state["active_owner_conflict"]:
+        runtime(
+            "Launcher start blocked: active runtime owner file belongs to another live launcher; "
+            "preserving current session and suppressing duplicate renderer startup"
+        )
+        runtime_event(
+            "STATUS",
+            "SKIP",
+            "LAUNCHER_RUNTIME",
+            "ACTIVE_RUNTIME_OWNER_CONFLICT_SESSION_PRESERVED",
+        )
+        if not env_flag("NEXUS_HARNESS_SUPPRESS_ALREADY_RUNNING_DIALOGS"):
+            show_already_running_dialog(
+                "Nexus Desktop AI Session Active",
+                "Nexus Desktop AI is still starting or recovering. Please wait for the current session to finish.",
+                eyebrow_text="NEXUS DESKTOP AI",
+                primary_button_text="Close",
+            )
+        release_single_instance_resources()
+        return 0
+
     ensure_crash_dir("launcher startup")
     reset_status()
 
@@ -1617,6 +1805,22 @@ def main():
         if exit_if_relaunch_requested("before_renderer_attempt"):
             release_single_instance_resources()
             return 0
+        if attempt > 1:
+            owner_conflict, owner = live_active_owner_conflict()
+            if owner_conflict:
+                runtime(
+                    "Recovery suppressed: another live launcher owns the active runtime session; "
+                    "not spawning an orphan renderer"
+                )
+                runtime_event(
+                    "STATUS",
+                    "SKIP",
+                    "LAUNCHER_RUNTIME",
+                    "RECOVERY_SUPPRESSED_BY_ACTIVE_OWNER",
+                    active_owner_summary(owner),
+                )
+                release_single_instance_resources()
+                return 0
 
         runtime(f"Renderer launch attempt {attempt}/{MAX_RECOVERY_ATTEMPTS}")
         runtime_event("STATUS", "START", "RECOVERY_ATTEMPT", f"INDEX={attempt}", f"MAX={MAX_RECOVERY_ATTEMPTS}")
@@ -1645,6 +1849,37 @@ def main():
             failure_origin = ""
             stderr_excerpt_lines = []
 
+        if post_settled_classification == "valid_termination":
+            if startup_observation == "settled":
+                record_relaunch_replacement_settled()
+                runtime("Renderer exited normally")
+            else:
+                runtime(
+                    "Renderer exited normally before authoritative desktop-settled signal "
+                    "after user-requested shutdown"
+                )
+                runtime_event(
+                    "STATUS",
+                    "SUCCESS",
+                    "LAUNCHER_RUNTIME",
+                    "PRE_SETTLED_USER_SHUTDOWN_COMPLETE",
+                )
+            runtime_event("STATUS", "SUCCESS", "RECOVERY_ATTEMPT", f"INDEX={attempt}", "RENDERER_EXIT=0")
+            write_status("TRACE", "Renderer exited normally")
+            delete_file(STOP_SIGNAL_FILE, "normal exit")
+            delete_file(STARTUP_ABORT_SIGNAL_FILE, "normal exit")
+            delete_file(STATUS_FILE, "normal exit")
+            runtime_event("STATUS", "SUCCESS", "LAUNCHER_RUNTIME", "NORMAL_EXIT_COMPLETE")
+            record_finalized_history(
+                run_id,
+                "SUCCESS",
+                "NORMAL_EXIT_COMPLETE",
+                "NORMAL_EXIT_COMPLETE",
+                attempt,
+            )
+            release_single_instance_resources()
+            return 0
+
         if last_code == 0 and startup_observation != "settled":
             runtime("Renderer exited before authoritative desktop-settled signal was observed")
             runtime_event(
@@ -1662,25 +1897,6 @@ def main():
                 failure_origin
                 or "Failure origin: launcher startup observation ended before the authoritative desktop-settled signal."
             )
-
-        if startup_observation == "settled" and post_settled_classification == "valid_termination":
-            record_relaunch_replacement_settled()
-            runtime("Renderer exited normally")
-            runtime_event("STATUS", "SUCCESS", "RECOVERY_ATTEMPT", f"INDEX={attempt}", "RENDERER_EXIT=0")
-            write_status("TRACE", "Renderer exited normally")
-            delete_file(STOP_SIGNAL_FILE, "normal exit")
-            delete_file(STARTUP_ABORT_SIGNAL_FILE, "normal exit")
-            delete_file(STATUS_FILE, "normal exit")
-            runtime_event("STATUS", "SUCCESS", "LAUNCHER_RUNTIME", "NORMAL_EXIT_COMPLETE")
-            record_finalized_history(
-                run_id,
-                "SUCCESS",
-                "NORMAL_EXIT_COMPLETE",
-                "NORMAL_EXIT_COMPLETE",
-                attempt,
-            )
-            release_single_instance_resources()
-            return 0
 
         if startup_observation == "settled" and post_settled_classification == "recoverable_condition":
             record_relaunch_replacement_settled()

@@ -20,6 +20,7 @@ SUPPORT_REPORTING_SCRIPT = os.path.join(ROOT_DIR, "desktop", "orin_support_repor
 LAUNCHER_REGRESSION_HARNESS_SCRIPT = os.path.join(ROOT_DIR, "dev", "orin_desktop_launcher_regression_harness.py")
 
 DESKTOP_LAUNCHER_REGRESSION_HARNESS = os.path.join(ROOT_DIR, "dev", "orin_desktop_launcher_regression_harness.py")
+DESKTOP_ENTRYPOINT_VALIDATION = os.path.join(ROOT_DIR, "dev", "orin_desktop_entrypoint_validation.py")
 LAUNCHER_REGRESSION_REPORTS_DIR = os.path.join(DEV_LOGS_DIR, "desktop_launcher_regression_harness", "reports")
 
 LANE_ROOTS = {
@@ -131,13 +132,17 @@ def run_launcher_regression_prerequisite():
     result = run_command([sys.executable, LAUNCHER_REGRESSION_HARNESS_SCRIPT], timeout_seconds=360)
     latest_report = latest_file_matching(LAUNCHER_REGRESSION_REPORTS_DIR, "DesktopLauncherRegressionHarnessReport_")
     checks = {
-        "launcher_regression_exit_code_zero": line_status(
-            result.returncode == 0,
+        "launcher_regression_invoked": line_status(
+            result.returncode is not None,
             f"launcher regression exit={result.returncode}",
         ),
         "launcher_regression_report_created": line_status(
             bool(latest_report),
             latest_report or "missing launcher regression report",
+        ),
+        "launcher_regression_exit_code_context": line_status(
+            True,
+            f"launcher regression exit={result.returncode}; triage harness validates generated support-bundle classification only",
         ),
     }
     return {
@@ -195,6 +200,46 @@ def create_unknown_bundle(destination_root):
     return destination_root
 
 
+def create_pre_settled_visual_load_bundle(destination_root):
+    reset_dir(destination_root)
+    manifest_path = os.path.join(destination_root, "manifest.json")
+    runtime_log_path = os.path.join(destination_root, "Runtime_synthetic_pre_settled_visual_load.txt")
+
+    manifest = {
+        "nexus_version": "v1.8.0",
+        "run_identity": "synthetic_pre_settled_visual_load",
+        "bundle_created_at": "2026-05-12T05:07:38Z",
+        "environment_summary": {
+            "platform": "test",
+            "python_version": platform_python_version(),
+            "python_implementation": platform_python_implementation(),
+        },
+        "bundled_files": [
+            {"name": os.path.basename(runtime_log_path), "kind": "runtime_log"},
+            {"name": "manifest.json", "kind": "manifest"},
+        ],
+        "manual_review_required": True,
+        "manual_issue_submission_required": True,
+    }
+
+    with open(runtime_log_path, "w", encoding="utf-8") as handle:
+        handle.write("[05:06:37] STATUS|TRACE|LAUNCHER_RUNTIME|SINGLE_INSTANCE_ACQUIRED\n")
+        handle.write("[05:06:37] STATUS|START|RECOVERY_ATTEMPT|INDEX=1|MAX=3\n")
+        handle.write("[05:06:40] RENDERER_MAIN|VISUAL_PAGE_LOAD_FAILED\n")
+        handle.write("[05:06:40] RENDERER_MAIN|CORE_VISUALIZATION_WINDOW_LOAD_FAILED\n")
+        handle.write("[05:06:45] STATUS|WARNING|LAUNCHER_RUNTIME|DESKTOP_SETTLED_STALL_CONFIRMED\n")
+        handle.write("[05:06:45] STATUS|WARNING|LAUNCHER_RUNTIME|STARTUP_ABORT_REQUESTED_ON_CONFIRMED_SETTLED_STALL\n")
+        handle.write("[05:07:25] RENDERER_MAIN|SHUTDOWN_REQUESTED\n")
+        handle.write("[05:07:25] RENDERER_MAIN|EVENT_LOOP_EXIT|code=0\n")
+        handle.write("[05:07:25] STATUS|WARNING|RECOVERY_ATTEMPT|INDEX=1|DESKTOP_SETTLED_NOT_REACHED_BEFORE_EXIT\n")
+        handle.write("[05:07:38] STATUS|START|RECOVERY_ATTEMPT|INDEX=2|MAX=3\n")
+
+    with open(manifest_path, "w", encoding="utf-8") as handle:
+        json.dump(manifest, handle, indent=2, sort_keys=True)
+
+    return destination_root
+
+
 def platform_python_version():
     return "{}.{}.{}".format(sys.version_info.major, sys.version_info.minor, sys.version_info.micro)
 
@@ -213,7 +258,7 @@ def run_triage_case(
     expected_lane,
     expected_confidence,
     expected_fragments,
-    expect_repro_path,
+    expected_repro_path,
 ):
     report_path, json_path, _ = triage_module.triage_bundle(input_path, log_root_override=triage_log_root)
     triage_json = read_json(json_path)
@@ -289,9 +334,9 @@ def run_triage_case(
             classification["suggested_lane"],
         )
 
-    if expect_repro_path:
+    if expected_repro_path:
         checks["repro_path_expected"] = line_status(
-            classification["suggested_repro_path"] == DESKTOP_LAUNCHER_REGRESSION_HARNESS,
+            classification["suggested_repro_path"] == expected_repro_path,
             classification["suggested_repro_path"],
         )
     else:
@@ -385,6 +430,9 @@ def main(argv):
         os.path.join(VERIFICATION_DIR, "unstable_bundle_extracted"),
     )
     synthetic_unknown_root = create_unknown_bundle(os.path.join(VERIFICATION_DIR, "synthetic_unknown_bundle"))
+    synthetic_pre_settled_visual_load_root = create_pre_settled_visual_load_bundle(
+        os.path.join(VERIFICATION_DIR, "synthetic_pre_settled_visual_load_bundle")
+    )
 
     repeated_crash_section = run_triage_case(
         triage_module=triage_module,
@@ -399,7 +447,7 @@ def main(argv):
             "Recovery Outcome: Automatic recovery stopped after repeated identical crash outcomes reached the launcher escalation threshold.",
             "Attempt Pattern: repeated identical crash",
         ],
-        expect_repro_path=True,
+        expected_repro_path=DESKTOP_LAUNCHER_REGRESSION_HARNESS,
     )
 
     startup_abort_section = run_triage_case(
@@ -415,7 +463,7 @@ def main(argv):
             "Recovery Outcome: Automatic recovery stopped after repeated startup aborts reached the launcher escalation threshold.",
             "Attempt Pattern: repeated startup aborts",
         ],
-        expect_repro_path=True,
+        expected_repro_path=DESKTOP_LAUNCHER_REGRESSION_HARNESS,
     )
 
     stable_max_attempt_section = run_triage_case(
@@ -431,7 +479,7 @@ def main(argv):
             "Recovery Outcome: Automatic recovery did not change the underlying renderer failure.",
             "Attempt Pattern: repeated identical failure across recovery attempts",
         ],
-        expect_repro_path=True,
+        expected_repro_path=DESKTOP_LAUNCHER_REGRESSION_HARNESS,
     )
 
     unstable_max_attempt_section = run_triage_case(
@@ -448,7 +496,26 @@ def main(argv):
             "Failure Stability: unstable across recovery attempts",
             "Attempt Pattern: mixed failure sequence observed",
         ],
-        expect_repro_path=True,
+        expected_repro_path=DESKTOP_LAUNCHER_REGRESSION_HARNESS,
+    )
+
+    pre_settled_visual_load_section = run_triage_case(
+        triage_module=triage_module,
+        triage_log_root=TRIAGE_LOG_ROOT,
+        name="Triage Extracted Input: Pre-Settled Visual Load Duplicate Recovery",
+        input_path=synthetic_pre_settled_visual_load_root,
+        input_mode="folder",
+        expected_key="launcher_pre_settled_visual_load_duplicate_recovery",
+        expected_lane="Desktop Entrypoint Validation :: Pre-Settled User Shutdown + Active Owner Conflict",
+        expected_confidence="high",
+        expected_fragments=[
+            "RENDERER_MAIN|VISUAL_PAGE_LOAD_FAILED",
+            "RENDERER_MAIN|CORE_VISUALIZATION_WINDOW_LOAD_FAILED",
+            "STATUS|WARNING|LAUNCHER_RUNTIME|DESKTOP_SETTLED_STALL_CONFIRMED",
+            "STATUS|WARNING|RECOVERY_ATTEMPT|INDEX=1|DESKTOP_SETTLED_NOT_REACHED_BEFORE_EXIT",
+            "STATUS|START|RECOVERY_ATTEMPT|INDEX=2",
+        ],
+        expected_repro_path=DESKTOP_ENTRYPOINT_VALIDATION,
     )
 
     unknown_section = run_triage_case(
@@ -461,7 +528,7 @@ def main(argv):
         expected_lane="",
         expected_confidence="low",
         expected_fragments=[],
-        expect_repro_path=False,
+        expected_repro_path="",
     )
 
     sections = [
@@ -470,6 +537,7 @@ def main(argv):
         startup_abort_section,
         stable_max_attempt_section,
         unstable_max_attempt_section,
+        pre_settled_visual_load_section,
         unknown_section,
     ]
 

@@ -13,6 +13,7 @@ DEFAULT_BASE_LOG_ROOT = os.path.join(DEV_LOGS_DIR, "support_bundle_triage")
 MANIFEST_FILENAME = "manifest.json"
 
 DESKTOP_LAUNCHER_REGRESSION_HARNESS = os.path.join(ROOT_DIR, "dev", "orin_desktop_launcher_regression_harness.py")
+DESKTOP_ENTRYPOINT_VALIDATION = os.path.join(ROOT_DIR, "dev", "orin_desktop_entrypoint_validation.py")
 
 SUPPORTED_CLASSES = {
     "launcher_repeated_identical_crash_threshold": {
@@ -34,6 +35,11 @@ SUPPORTED_CLASSES = {
         "label": "Launcher max-attempt unstable non-threshold failure",
         "lane": "Desktop Launcher Regression Harness :: Max-Attempt Exhaustion: Unstable Non-Threshold Failure",
         "repro_path": DESKTOP_LAUNCHER_REGRESSION_HARNESS,
+    },
+    "launcher_pre_settled_visual_load_duplicate_recovery": {
+        "label": "Launcher pre-settled visual load failure with duplicate recovery risk",
+        "lane": "Desktop Entrypoint Validation :: Pre-Settled User Shutdown + Active Owner Conflict",
+        "repro_path": DESKTOP_ENTRYPOINT_VALIDATION,
     },
 }
 
@@ -231,6 +237,39 @@ def classify_bundle(runtime_lines, crash_lines):
             }
         )
 
+    pre_settled_visual_load_duplicate_recovery = (
+        contains_line_fragment(runtime_lines, "RENDERER_MAIN|VISUAL_PAGE_LOAD_FAILED")
+        and contains_line_fragment(runtime_lines, "RENDERER_MAIN|CORE_VISUALIZATION_WINDOW_LOAD_FAILED")
+        and contains_line_fragment(runtime_lines, "STATUS|WARNING|LAUNCHER_RUNTIME|DESKTOP_SETTLED_STALL_CONFIRMED")
+        and contains_line_fragment(runtime_lines, "STATUS|WARNING|LAUNCHER_RUNTIME|STARTUP_ABORT_REQUESTED_ON_CONFIRMED_SETTLED_STALL")
+        and contains_line_fragment(runtime_lines, "RENDERER_MAIN|SHUTDOWN_REQUESTED")
+        and contains_line_fragment(runtime_lines, "RENDERER_MAIN|EVENT_LOOP_EXIT|code=0")
+        and contains_line_fragment(runtime_lines, "STATUS|WARNING|RECOVERY_ATTEMPT|INDEX=1|DESKTOP_SETTLED_NOT_REACHED_BEFORE_EXIT")
+        and contains_line_fragment(runtime_lines, "STATUS|START|RECOVERY_ATTEMPT|INDEX=2")
+    )
+    if pre_settled_visual_load_duplicate_recovery:
+        matched_fragments = [
+            fragment
+            for fragment in [
+                "RENDERER_MAIN|VISUAL_PAGE_LOAD_FAILED",
+                "RENDERER_MAIN|CORE_VISUALIZATION_WINDOW_LOAD_FAILED",
+                "STATUS|WARNING|LAUNCHER_RUNTIME|DESKTOP_SETTLED_STALL_CONFIRMED",
+                "STATUS|WARNING|LAUNCHER_RUNTIME|STARTUP_ABORT_REQUESTED_ON_CONFIRMED_SETTLED_STALL",
+                "RENDERER_MAIN|SHUTDOWN_REQUESTED",
+                "RENDERER_MAIN|EVENT_LOOP_EXIT|code=0",
+                "STATUS|WARNING|RECOVERY_ATTEMPT|INDEX=1|DESKTOP_SETTLED_NOT_REACHED_BEFORE_EXIT",
+                "STATUS|START|RECOVERY_ATTEMPT|INDEX=2",
+            ]
+            if contains_line_fragment(combined_lines, fragment)
+        ]
+        matches.append(
+            {
+                "key": "launcher_pre_settled_visual_load_duplicate_recovery",
+                "confidence": "high",
+                "matched_fragments": matched_fragments,
+            }
+        )
+
     if not matches:
         return {
             "classification_key": "unknown",
@@ -385,7 +424,7 @@ def triage_bundle(source_path, log_root_override=None):
 
 def main(argv):
     if not argv:
-        print("Usage: python dev/nexus_support_bundle_triage.py <support_bundle_zip_or_folder>")
+        print("Usage: python dev/orin_support_bundle_triage.py <support_bundle_zip_or_folder>")
         return 1
 
     source_path = argv[0]

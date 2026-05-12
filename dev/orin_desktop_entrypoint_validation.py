@@ -80,6 +80,18 @@ RELAUNCH_WAIT_TIMEOUT_REPLACEMENT_UNCONFIRMED_MARKER = (
 PRE_SETTLED_INCOMING_CONFLICT_SESSION_PRESERVED_MARKER = (
     "STATUS|SKIP|LAUNCHER_RUNTIME|PRE_SETTLED_INCOMING_CONFLICT_SESSION_PRESERVED"
 )
+PRE_SETTLED_USER_SHUTDOWN_COMPLETE_MARKER = (
+    "STATUS|SUCCESS|LAUNCHER_RUNTIME|PRE_SETTLED_USER_SHUTDOWN_COMPLETE"
+)
+ACTIVE_RUNTIME_OWNER_CONFLICT_DETECTED_MARKER = (
+    "STATUS|WARNING|LAUNCHER_RUNTIME|ACTIVE_RUNTIME_OWNER_CONFLICT_DETECTED"
+)
+ACTIVE_RUNTIME_OWNER_CONFLICT_SESSION_PRESERVED_MARKER = (
+    "STATUS|SKIP|LAUNCHER_RUNTIME|ACTIVE_RUNTIME_OWNER_CONFLICT_SESSION_PRESERVED"
+)
+ACTIVE_RUNTIME_OWNER_PID_UNVERIFIED_MARKER = (
+    "STATUS|WARNING|LAUNCHER_RUNTIME|ACTIVE_RUNTIME_OWNER_PID_UNVERIFIED"
+)
 SINGLE_INSTANCE_RELEASED_MARKER = "STATUS|TRACE|LAUNCHER_RUNTIME|SINGLE_INSTANCE_RELEASED"
 
 EXPECTED_MILESTONES = [
@@ -6364,6 +6376,409 @@ def run_rapid_pre_settled_exit_scenario():
     }
 
 
+def run_pre_settled_user_shutdown_scenario():
+    scenario_name = "launcher_pre_settled_user_shutdown"
+    scenario_root = os.path.join(BASE_LOG_ROOT, scenario_name)
+    preexisting_processes_before, preexisting_processes_killed, preexisting_processes_after = (
+        cleanup_launch_chain_processes_for_log_root(BASE_LOG_ROOT)
+    )
+    reset_dir(scenario_root)
+    fake_renderer_script = os.path.join(scenario_root, "fake_renderer_pre_settled_user_shutdown.py")
+
+    with open(fake_renderer_script, "w", encoding="utf-8") as handle:
+        handle.write(
+            "import sys\n"
+            "\n"
+            "def arg_value(flag):\n"
+            "    for index, arg in enumerate(sys.argv):\n"
+            "        if arg == flag and index + 1 < len(sys.argv):\n"
+            "            return sys.argv[index + 1]\n"
+            "    return ''\n"
+            "\n"
+            "runtime_log = arg_value('--runtime-log')\n"
+            "\n"
+            "def log(line):\n"
+            "    with open(runtime_log, 'a', encoding='utf-8') as stream:\n"
+            "        stream.write(line + '\\n')\n"
+            "\n"
+            "log('RENDERER_MAIN|START')\n"
+            "log('RENDERER_MAIN|TRAY_ENTRY_READY|available=true')\n"
+            "log('RENDERER_MAIN|SHUTDOWN_REQUESTED')\n"
+            "log('RENDERER_MAIN|EVENT_LOOP_EXIT|code=0')\n"
+            "raise SystemExit(0)\n"
+        )
+
+    env = os.environ.copy()
+    env["NEXUS_HARNESS_LOG_ROOT"] = scenario_root
+    env["NEXUS_HARNESS_TARGET_SCRIPT"] = fake_renderer_script
+    env["NEXUS_HARNESS_DISABLE_DIAGNOSTICS"] = "1"
+    env["NEXUS_HARNESS_DISABLE_VOICE"] = "1"
+    env["QT_QPA_PLATFORM"] = "offscreen"
+
+    result = run_hidden_command(
+        [sys.executable, LAUNCHER_SCRIPT],
+        env=env,
+        timeout_seconds=45,
+    )
+    time.sleep(0.35)
+
+    runtime_log = latest_file_matching(scenario_root, "Runtime_")
+    runtime_lines = read_lines(runtime_log)
+    residual_launch_chain_processes_before, residual_launch_chain_killed, residual_launch_chain_processes_after = (
+        cleanup_launch_chain_processes_for_log_root(BASE_LOG_ROOT)
+    )
+
+    checks = {
+        "runtime_log_created": line_status(
+            bool(runtime_log),
+            runtime_log or "missing runtime log",
+        ),
+        "authoritative_settled_absent": line_status(
+            not any(AUTHORITATIVE_DESKTOP_SETTLED_MARKER in line for line in runtime_lines),
+            AUTHORITATIVE_DESKTOP_SETTLED_MARKER,
+        ),
+        "pre_settled_user_shutdown_complete_present": line_status(
+            any(PRE_SETTLED_USER_SHUTDOWN_COMPLETE_MARKER in line for line in runtime_lines),
+            PRE_SETTLED_USER_SHUTDOWN_COMPLETE_MARKER,
+        ),
+        "normal_exit_complete_present": line_status(
+            any("STATUS|SUCCESS|LAUNCHER_RUNTIME|NORMAL_EXIT_COMPLETE" in line for line in runtime_lines),
+            "STATUS|SUCCESS|LAUNCHER_RUNTIME|NORMAL_EXIT_COMPLETE",
+        ),
+        "settled_not_reached_failure_absent": line_status(
+            not any("DESKTOP_SETTLED_NOT_REACHED_BEFORE_EXIT" in line for line in runtime_lines),
+            "DESKTOP_SETTLED_NOT_REACHED_BEFORE_EXIT absent for user-requested shutdown",
+        ),
+        "recovery_attempt_two_absent": line_status(
+            not any("STATUS|START|RECOVERY_ATTEMPT|INDEX=2" in line for line in runtime_lines),
+            "no recovery attempt after clean pre-settled user shutdown",
+        ),
+        "failure_flow_complete_absent": line_status(
+            not any("STATUS|SUCCESS|LAUNCHER_RUNTIME|FAILURE_FLOW_COMPLETE" in line for line in runtime_lines),
+            "STATUS|SUCCESS|LAUNCHER_RUNTIME|FAILURE_FLOW_COMPLETE absent",
+        ),
+        "traceback_absent": line_status(
+            "Traceback" not in (result.stdout or "") and "Traceback" not in (result.stderr or ""),
+            (result.stderr or result.stdout).strip() or "no traceback in stdout/stderr",
+        ),
+        "scenario_preflight_cleanup_optional": line_status(
+            not preexisting_processes_after,
+            "no prior validation-owned launcher/runtime processes detected"
+            if not preexisting_processes_before
+            else (
+                f"detected {len(preexisting_processes_before)} prior process(es); "
+                f"killed={','.join(str(pid) for pid in preexisting_processes_killed) or 'none'}"
+            ),
+        ),
+        "launch_chain_cleanup_optional": line_status(
+            not residual_launch_chain_processes_after,
+            "no residual validation-owned launcher/runtime processes detected"
+            if not residual_launch_chain_processes_before
+            else (
+                f"detected {len(residual_launch_chain_processes_before)} residual process(es); "
+                f"killed={','.join(str(pid) for pid in residual_launch_chain_killed) or 'none'}"
+            ),
+        ),
+    }
+
+    return {
+        "scenario_name": scenario_name,
+        "log_root": scenario_root,
+        "runtime_log": runtime_log,
+        "stdout": (result.stdout or "").strip(),
+        "stderr": (result.stderr or "").strip(),
+        "checks": checks,
+    }
+
+
+def run_active_owner_file_conflict_scenario():
+    scenario_name = "launcher_active_owner_file_conflict"
+    scenario_root = os.path.join(BASE_LOG_ROOT, scenario_name)
+    preexisting_processes_before, preexisting_processes_killed, preexisting_processes_after = (
+        cleanup_launch_chain_processes_for_log_root(BASE_LOG_ROOT)
+    )
+    reset_dir(scenario_root)
+    fake_renderer_script = os.path.join(scenario_root, "fake_renderer_should_not_run.py")
+    owner_runtime_log = os.path.join(scenario_root, "Runtime_existing_owner.txt")
+    owner_file = os.path.join(scenario_root, "active_runtime_owner.json")
+    owner_process = None
+
+    with open(fake_renderer_script, "w", encoding="utf-8") as handle:
+        handle.write(
+            "import sys\n"
+            "\n"
+            "def arg_value(flag):\n"
+            "    for index, arg in enumerate(sys.argv):\n"
+            "        if arg == flag and index + 1 < len(sys.argv):\n"
+            "            return sys.argv[index + 1]\n"
+            "    return ''\n"
+            "\n"
+            "runtime_log = arg_value('--runtime-log')\n"
+            "with open(runtime_log, 'a', encoding='utf-8') as stream:\n"
+            "    stream.write('FAKE_RENDERER|SHOULD_NOT_RUN\\n')\n"
+            "raise SystemExit(9)\n"
+        )
+
+    try:
+        owner_process = subprocess.Popen(
+            [sys.executable, "-c", "import time; time.sleep(30)", LAUNCHER_SCRIPT],
+            **hidden_subprocess_kwargs(),
+        )
+        with open(owner_runtime_log, "w", encoding="utf-8") as handle:
+            handle.write("FAKE_EXISTING_OWNER|START\n")
+        with open(owner_file, "w", encoding="utf-8") as handle:
+            json.dump(
+                {
+                    "runtime_file": owner_runtime_log,
+                    "run_id": "existing-owner-validation",
+                    "launcher_pid": owner_process.pid,
+                    "launcher_script": LAUNCHER_SCRIPT,
+                    "launcher_root": ROOT_DIR,
+                    "reason": "validation preexisting live owner",
+                },
+                handle,
+            )
+
+        env = os.environ.copy()
+        env["NEXUS_HARNESS_LOG_ROOT"] = scenario_root
+        env["NEXUS_HARNESS_TARGET_SCRIPT"] = fake_renderer_script
+        env["NEXUS_HARNESS_DISABLE_DIAGNOSTICS"] = "1"
+        env["NEXUS_HARNESS_DISABLE_VOICE"] = "1"
+        env["NEXUS_HARNESS_SUPPRESS_ALREADY_RUNNING_DIALOGS"] = "1"
+        env["QT_QPA_PLATFORM"] = "offscreen"
+
+        result = run_hidden_command(
+            [sys.executable, LAUNCHER_SCRIPT],
+            env=env,
+            timeout_seconds=20,
+        )
+        time.sleep(0.35)
+    finally:
+        if owner_process is not None and owner_process.poll() is None:
+            owner_process.terminate()
+            try:
+                owner_process.wait(timeout=3)
+            except subprocess.TimeoutExpired:
+                owner_process.kill()
+                owner_process.wait(timeout=3)
+
+    runtime_log = latest_file_matching(scenario_root, "Runtime_")
+    runtime_lines = read_lines(runtime_log)
+    owner = {}
+    if os.path.exists(owner_file):
+        with open(owner_file, "r", encoding="utf-8") as handle:
+            owner = json.load(handle)
+    residual_launch_chain_processes_before, residual_launch_chain_killed, residual_launch_chain_processes_after = (
+        cleanup_launch_chain_processes_for_log_root(BASE_LOG_ROOT)
+    )
+
+    checks = {
+        "runtime_log_created": line_status(
+            bool(runtime_log),
+            runtime_log or "missing runtime log",
+        ),
+        "active_owner_conflict_detected": line_status(
+            any(ACTIVE_RUNTIME_OWNER_CONFLICT_DETECTED_MARKER in line for line in runtime_lines),
+            ACTIVE_RUNTIME_OWNER_CONFLICT_DETECTED_MARKER,
+        ),
+        "active_owner_session_preserved": line_status(
+            any(ACTIVE_RUNTIME_OWNER_CONFLICT_SESSION_PRESERVED_MARKER in line for line in runtime_lines),
+            ACTIVE_RUNTIME_OWNER_CONFLICT_SESSION_PRESERVED_MARKER,
+        ),
+        "renderer_not_spawned": line_status(
+            not any("STATUS|SUCCESS|RENDERER_PROCESS_SPAWN" in line for line in runtime_lines)
+            and not any("FAKE_RENDERER|SHOULD_NOT_RUN" in line for line in runtime_lines),
+            "renderer spawn suppressed while live active owner file exists",
+        ),
+        "owner_file_preserved": line_status(
+            owner.get("run_id") == "existing-owner-validation",
+            owner_file,
+        ),
+        "normal_exit": line_status(
+            result.returncode == 0,
+            f"returncode={result.returncode}",
+        ),
+        "traceback_absent": line_status(
+            "Traceback" not in (result.stdout or "") and "Traceback" not in (result.stderr or ""),
+            (result.stderr or result.stdout).strip() or "no traceback in stdout/stderr",
+        ),
+        "scenario_preflight_cleanup_optional": line_status(
+            not preexisting_processes_after,
+            "no prior validation-owned launcher/runtime processes detected"
+            if not preexisting_processes_before
+            else (
+                f"detected {len(preexisting_processes_before)} prior process(es); "
+                f"killed={','.join(str(pid) for pid in preexisting_processes_killed) or 'none'}"
+            ),
+        ),
+        "launch_chain_cleanup_optional": line_status(
+            not residual_launch_chain_processes_after,
+            "no residual validation-owned launcher/runtime processes detected"
+            if not residual_launch_chain_processes_before
+            else (
+                f"detected {len(residual_launch_chain_processes_before)} residual process(es); "
+                f"killed={','.join(str(pid) for pid in residual_launch_chain_killed) or 'none'}"
+            ),
+        ),
+    }
+
+    return {
+        "scenario_name": scenario_name,
+        "log_root": scenario_root,
+        "runtime_log": runtime_log,
+        "stdout": (result.stdout or "").strip(),
+        "stderr": (result.stderr or "").strip(),
+        "checks": checks,
+    }
+
+
+def run_stale_active_owner_pid_reuse_scenario():
+    scenario_name = "launcher_stale_active_owner_pid_reuse"
+    scenario_root = os.path.join(BASE_LOG_ROOT, scenario_name)
+    preexisting_processes_before, preexisting_processes_killed, preexisting_processes_after = (
+        cleanup_launch_chain_processes_for_log_root(BASE_LOG_ROOT)
+    )
+    reset_dir(scenario_root)
+    fake_renderer_script = os.path.join(scenario_root, "fake_renderer_after_stale_owner.py")
+    stale_runtime_log = os.path.join(scenario_root, "Runtime_stale_owner.txt")
+    owner_file = os.path.join(scenario_root, "active_runtime_owner.json")
+    unrelated_process = None
+
+    with open(fake_renderer_script, "w", encoding="utf-8") as handle:
+        handle.write(
+            "import sys\n"
+            "\n"
+            "def arg_value(flag):\n"
+            "    for index, arg in enumerate(sys.argv):\n"
+            "        if arg == flag and index + 1 < len(sys.argv):\n"
+            "            return sys.argv[index + 1]\n"
+            "    return ''\n"
+            "\n"
+            "runtime_log = arg_value('--runtime-log')\n"
+            "\n"
+            "def log(line):\n"
+            "    with open(runtime_log, 'a', encoding='utf-8') as stream:\n"
+            "        stream.write(line + '\\n')\n"
+            "\n"
+            "log('RENDERER_MAIN|START')\n"
+            "log('DESKTOP_OUTCOME|SETTLED|state=dormant')\n"
+            "log('RENDERER_MAIN|SHUTDOWN_REQUESTED')\n"
+            "log('RENDERER_MAIN|EVENT_LOOP_EXIT|code=0')\n"
+            "raise SystemExit(0)\n"
+        )
+
+    try:
+        unrelated_process = subprocess.Popen(
+            [sys.executable, "-c", "import time; time.sleep(30)"],
+            **hidden_subprocess_kwargs(),
+        )
+        with open(stale_runtime_log, "w", encoding="utf-8") as handle:
+            handle.write("STALE_OWNER|START\n")
+        with open(owner_file, "w", encoding="utf-8") as handle:
+            json.dump(
+                {
+                    "runtime_file": stale_runtime_log,
+                    "run_id": "stale-owner-validation",
+                    "launcher_pid": unrelated_process.pid,
+                    "launcher_script": LAUNCHER_SCRIPT,
+                    "launcher_root": ROOT_DIR,
+                    "reason": "validation stale owner pid reused by unrelated process",
+                },
+                handle,
+            )
+
+        env = os.environ.copy()
+        env["NEXUS_HARNESS_LOG_ROOT"] = scenario_root
+        env["NEXUS_HARNESS_TARGET_SCRIPT"] = fake_renderer_script
+        env["NEXUS_HARNESS_DISABLE_DIAGNOSTICS"] = "1"
+        env["NEXUS_HARNESS_DISABLE_VOICE"] = "1"
+        env["NEXUS_HARNESS_SUPPRESS_ALREADY_RUNNING_DIALOGS"] = "1"
+        env["QT_QPA_PLATFORM"] = "offscreen"
+
+        result = run_hidden_command(
+            [sys.executable, LAUNCHER_SCRIPT],
+            env=env,
+            timeout_seconds=30,
+        )
+        time.sleep(0.35)
+    finally:
+        if unrelated_process is not None and unrelated_process.poll() is None:
+            unrelated_process.terminate()
+            try:
+                unrelated_process.wait(timeout=3)
+            except subprocess.TimeoutExpired:
+                unrelated_process.kill()
+                unrelated_process.wait(timeout=3)
+
+    runtime_log = latest_file_matching(scenario_root, "Runtime_")
+    runtime_lines = read_lines(runtime_log)
+    residual_launch_chain_processes_before, residual_launch_chain_killed, residual_launch_chain_processes_after = (
+        cleanup_launch_chain_processes_for_log_root(BASE_LOG_ROOT)
+    )
+
+    checks = {
+        "runtime_log_created": line_status(
+            bool(runtime_log),
+            runtime_log or "missing runtime log",
+        ),
+        "stale_owner_pid_unverified": line_status(
+            any(ACTIVE_RUNTIME_OWNER_PID_UNVERIFIED_MARKER in line for line in runtime_lines),
+            ACTIVE_RUNTIME_OWNER_PID_UNVERIFIED_MARKER,
+        ),
+        "active_owner_conflict_absent": line_status(
+            not any(ACTIVE_RUNTIME_OWNER_CONFLICT_DETECTED_MARKER in line for line in runtime_lines),
+            "no live-owner conflict for reused unrelated PID",
+        ),
+        "renderer_spawned": line_status(
+            any("STATUS|SUCCESS|RENDERER_PROCESS_SPAWN" in line for line in runtime_lines),
+            "renderer spawned after stale owner was rejected",
+        ),
+        "normal_exit_complete_present": line_status(
+            any("STATUS|SUCCESS|LAUNCHER_RUNTIME|NORMAL_EXIT_COMPLETE" in line for line in runtime_lines),
+            "STATUS|SUCCESS|LAUNCHER_RUNTIME|NORMAL_EXIT_COMPLETE",
+        ),
+        "owner_file_cleared": line_status(
+            not os.path.exists(owner_file),
+            owner_file,
+        ),
+        "normal_exit": line_status(
+            result.returncode == 0,
+            f"returncode={result.returncode}",
+        ),
+        "traceback_absent": line_status(
+            "Traceback" not in (result.stdout or "") and "Traceback" not in (result.stderr or ""),
+            (result.stderr or result.stdout).strip() or "no traceback in stdout/stderr",
+        ),
+        "scenario_preflight_cleanup_optional": line_status(
+            not preexisting_processes_after,
+            "no prior validation-owned launcher/runtime processes detected"
+            if not preexisting_processes_before
+            else (
+                f"detected {len(preexisting_processes_before)} prior process(es); "
+                f"killed={','.join(str(pid) for pid in preexisting_processes_killed) or 'none'}"
+            ),
+        ),
+        "launch_chain_cleanup_optional": line_status(
+            not residual_launch_chain_processes_after,
+            "no residual validation-owned launcher/runtime processes detected"
+            if not residual_launch_chain_processes_before
+            else (
+                f"detected {len(residual_launch_chain_processes_before)} residual process(es); "
+                f"killed={','.join(str(pid) for pid in residual_launch_chain_killed) or 'none'}"
+            ),
+        ),
+    }
+
+    return {
+        "scenario_name": scenario_name,
+        "log_root": scenario_root,
+        "runtime_log": runtime_log,
+        "stdout": (result.stdout or "").strip(),
+        "stderr": (result.stderr or "").strip(),
+        "checks": checks,
+    }
+
+
 def run_post_settled_clean_exit_precedence_scenario():
     scenario_name = "launcher_post_settled_clean_exit_precedence"
     scenario_root = os.path.join(BASE_LOG_ROOT, scenario_name)
@@ -7034,6 +7449,9 @@ def run_validation():
     main_invalid_argument_result = run_main_invalid_argument_scenario()
     rapid_pre_settled_result = run_rapid_pre_settled_exit_scenario()
     missing_settled_result = run_missing_settled_signal_scenario()
+    pre_settled_user_shutdown_result = run_pre_settled_user_shutdown_scenario()
+    active_owner_file_conflict_result = run_active_owner_file_conflict_scenario()
+    stale_active_owner_pid_reuse_result = run_stale_active_owner_pid_reuse_scenario()
     post_settled_clean_exit_result = run_post_settled_clean_exit_precedence_scenario()
     post_settled_recoverable_result = run_post_settled_recoverable_exit_scenario()
     post_settled_recoverable_immediate_result = run_post_settled_recoverable_exit_scenario(
@@ -7089,6 +7507,12 @@ def run_validation():
         checks[f"{rapid_pre_settled_result['scenario_name']}::{check_name}"] = check_result
     for check_name, check_result in missing_settled_result["checks"].items():
         checks[f"{missing_settled_result['scenario_name']}::{check_name}"] = check_result
+    for check_name, check_result in pre_settled_user_shutdown_result["checks"].items():
+        checks[f"{pre_settled_user_shutdown_result['scenario_name']}::{check_name}"] = check_result
+    for check_name, check_result in active_owner_file_conflict_result["checks"].items():
+        checks[f"{active_owner_file_conflict_result['scenario_name']}::{check_name}"] = check_result
+    for check_name, check_result in stale_active_owner_pid_reuse_result["checks"].items():
+        checks[f"{stale_active_owner_pid_reuse_result['scenario_name']}::{check_name}"] = check_result
     for check_name, check_result in post_settled_clean_exit_result["checks"].items():
         checks[f"{post_settled_clean_exit_result['scenario_name']}::{check_name}"] = check_result
     for check_name, check_result in post_settled_recoverable_result["checks"].items():
@@ -7127,6 +7551,9 @@ def run_validation():
             main_invalid_argument_result,
             rapid_pre_settled_result,
             missing_settled_result,
+            pre_settled_user_shutdown_result,
+            active_owner_file_conflict_result,
+            stale_active_owner_pid_reuse_result,
             post_settled_clean_exit_result,
             post_settled_recoverable_result,
             post_settled_recoverable_immediate_result,
