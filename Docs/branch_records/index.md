@@ -79,12 +79,11 @@ Do not use this layer to replace:
 
 ## Active Branch Authority Records
 
-- `Docs/branch_records/feature_fam_006_monitoring_hud_product_surface.md`
-
-Active authority belongs to the USER-approved FAM-006 Monitoring and HUD Product Surface Package carrier, currently stopped after Live Validation LV1 refreshed the issue-grounded User Test Summary handoff for RUI-001 through RUI-056 and awaiting returned USER PASS/FAIL/WAIVED results or explicit waiver before LV2. WS18 through WS56, prior denied LV1 handoffs, post-WS50 H1, post-WS53 H1, post-WS56 H1, current LV1 proof, and prior LV1 proof remain preserved as historical/supporting repair evidence where not superseded. Dashboard/control panel is the primary current-branch interface release surface, Overlay/display acceptance is deferred/non-gating, and Core repair is dependency-only. LV2 remains blocked until USER returns PASS/FAIL/WAIVED results or explicitly waives the refreshed handoff, and LV2 legally digests the returned evidence. Merged `main` remains the validated source baseline before this branch merges; the active branch record must move to historical/no-active posture before PR green so merged-main truth does not retain stale active branch authority.
+None.
 
 ## Historical Branch Authority Records
 
+- `Docs/branch_records/feature_fam_006_monitoring_hud_product_surface.md`
 - `Docs/branch_records/codex_v1_6_13_prebeta_post_release_canon_closure.md`
 - `Docs/branch_records/codex_v1_6_13_prebeta_pr112_source_truth_closeout.md`
 - `Docs/branch_records/codex_v1_6_13_prebeta_post_merge_closeout_hardening.md`

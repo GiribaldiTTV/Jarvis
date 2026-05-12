@@ -8,7 +8,7 @@ Branch: `feature/fam-006-monitoring-hud-product-surface`
 
 Package: `PKG-006 Monitoring and HUD Product Surface Package`
 
-Ledger Status: `PR Readiness Stage 2 In Progress - Live Validation LV2 Green preserved by explicit USER waiver after WS57/H1/LV1; Dashboard accepted as USER WAIVED/PASSABLE for the current branch surface; PR #118 created; watcher runtime proof, bot-review signal, USER merge decision, and merge-watch remain pending`
+Ledger Status: `Merged historical proof - Live Validation LV2 Green preserved by explicit USER waiver after WS57/H1/LV1; Dashboard accepted as USER WAIVED/PASSABLE for the current branch surface; PR #118 merged into main on 2026-05-12; FAM-006 is release-bearing debt for v1.7.0-prebeta until release execution completes`
 
 Latest Hardening Rerun: `Green after WS57 - H1 pressure-tested actual desktop shortcut/worktree alignment, RUI-055 and RUI-056 resize proof, human-client tray/NCP/Exit proof, active-client screenshots, desktop entrypoint/tray proof, NCP/saved-action regression proof, static proof, and internal sandbox proof`.
 
@@ -20,9 +20,9 @@ Prior Workstream Repair Preserved For Trace: `Workstream WS37 - Dashboard Runtim
 
 Prior Ledger Status Preserved For Trace: `Backfilled, revalidated, and LV1 handoff refreshed - Live Validation Stage 1`
 
-Current Gate: `PR Readiness Stage 2 live PR validation shows PR #118 open/non-draft/MERGEABLE/CLEAN; watcher runtime proof, bot-review signal, USER merge decision, merge-watch, and final package closeout remain pending. LV2 returned-result waiver digestion is complete; Dashboard acceptance is USER WAIVED/PASSABLE for the current branch surface.`
+Current Gate: `PR #118 is merged. LV2 returned-result waiver digestion is complete; Dashboard acceptance is USER WAIVED/PASSABLE for the current branch surface. Current release gate is v1.7.0-prebeta Release Readiness after the release-support canon repair merges and main validates green.`
 
-Next Legal Seam: `PR Readiness Stage 2 - FAM-006 final PR package sync, package closeout readiness sync, PR creation, watcher provisioning, live PR validation, bot-review handling if needed, and merge-watch preparation`
+Next Legal Seam: `Release-support canon repair for v1.7.0-prebeta, followed by Release Readiness re-entry only after separate USER approval`
 
 Latest Completed Workstream Seam: `Workstream WS57 - Actual Shortcut Alignment And Proof-Gate Repair`
 
@@ -36,7 +36,7 @@ Proof Disposition Vocabulary: `Covered by existing proof`, `Covered by refreshed
 
 ## Rebaseline Decision
 
-This backfill, USER feedback disposition repair, H1 rerun, refreshed LV1 handoff, returned LV1 feedback #20-#38 disposition repair, returned real-client failure registration, WS50 visual-shell repair, post-WS50 H1 pressure test, WS51 resize/scrollbar/state-persistence repair, WS52 real resize recovery repair, WS53 resize edge discoverability repair, WS54 resize cursor-alignment repair, WS55 resize-action recovery repair, WS56 pre-click resize cursor / resize fluidity repair, post-WS56 H1 pressure test, prior LV1 handoff refresh, post-main H1 launcher/tray/WS56 proof rerun, WS57 shortcut alignment, and LV2 explicit USER waiver digest do not claim package completion, PR Readiness, release readiness, or Overlay/display acceptance. Dashboard acceptance for the current Dashboard-first branch surface is now classified as USER WAIVED/PASSABLE by explicit LV2 waiver digest.
+This backfill, USER feedback disposition repair, H1 rerun, refreshed LV1 handoff, returned LV1 feedback #20-#38 disposition repair, returned real-client failure registration, WS50 visual-shell repair, post-WS50 H1 pressure test, WS51 resize/scrollbar/state-persistence repair, WS52 real resize recovery repair, WS53 resize edge discoverability repair, WS54 resize cursor-alignment repair, WS55 resize-action recovery repair, WS56 pre-click resize cursor / resize fluidity repair, post-WS56 H1 pressure test, prior LV1 handoff refresh, post-main H1 launcher/tray/WS56 proof rerun, WS57 shortcut alignment, LV2 explicit USER waiver digest, and PR #118 merge do not claim release readiness or Overlay/display acceptance. Dashboard acceptance for the current Dashboard-first branch surface is classified as USER WAIVED/PASSABLE by explicit LV2 waiver digest, and the package is merged release-bearing debt until v1.7.0-prebeta release execution completes.
 
 Row-Level LV2 Supersession: `Any older row-level "USER result pending", "acceptance still blocked", or "returned USER result pending" wording in historical proof columns is superseded by the LV2 waiver digest unless the row is explicitly marked deferred/future, dependency-only, or non-gating. RUI-001 through RUI-057 remain traceable for PR Readiness Stage 1 / next-branch issue-thread planning.`
 

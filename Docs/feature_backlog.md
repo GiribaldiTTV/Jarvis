@@ -62,32 +62,32 @@ FB-038 remains released and closed in `v1.4.1-prebeta`.
 
 ## Current Branch Execution Posture
 
-Released Historical Scope: FAM-001 legacy FB-049 Active-session pre-settled incoming-launch conflict truth plus FAM-004 legacy FB-030 voice/audio runtime diagnostics proof plus merged governance/automation proof package plus PR #112 source-truth closeout / merge-target authority hardening proof plus PR #113 source-truth closeout / merge-target authority hardening proof released in v1.6.13-prebeta
-Repo State: Active Branch.
+Released Historical Scope: FAM-001 legacy FB-049 Active-session pre-settled incoming-launch conflict truth plus FAM-004 legacy FB-030 voice/audio runtime diagnostics proof plus merged governance/automation proof package plus PR #112 source-truth closeout / merge-target authority hardening proof plus PR #113 source-truth closeout / merge-target authority hardening proof released in v1.6.13-prebeta; FAM-006 Monitoring HUD Dashboard Product Surface is merged release-bearing debt for v1.7.0-prebeta through PR #118.
+Repo State: No Active Branch.
 Merged-Main Repo State: No Active Branch.
 Latest Public Prerelease: v1.6.13-prebeta.
 Latest Public Release Commit: faaf991d2579dd6478f78245d56956858cc2f59b.
 Latest Public Prerelease Publication: https://github.com/GiribaldiTTV/Nexus-Desktop-AI/releases/tag/v1.6.13-prebeta.
 Latest Public Prerelease Title: Pre-Beta v1.6.13.
-Release Debt: Clear after v1.6.13-prebeta publication, validation, and post-release canon closure.
+Release Debt: Active - PR #118 merged FAM-006 user-facing implementation after v1.6.13-prebeta and awaits v1.7.0-prebeta release execution after this release-support canon repair lands.
 Merged-main Current Active Workstream: None.
-Current Active Workstream: None - FAM-006 is registry-only active branch execution inside USER-approved PR Readiness Stage 2. Returned USER feedback after WS55 reopened Dashboard pre-click resize cursor timing and resize fluidity; WS56 repaired the hover cursor and fluid sampled resize path as Workstream proof; failure-seeking LV1 found the actual desktop shortcut still targeted the AI lab/planning worktree; WS57 aligned the actual desktop shortcut to `C:\Nexus Desktop AI FAM-006` and hardened the human-client shortcut gate; H1 and LV1 reran green for handoff generation. USER explicitly waived the refreshed UTS returned-result test in LV2 and classified Dashboard functionality as passable; PR Readiness Stage 1 recommended Stage 2 and USER admitted Stage 2 for final PR package sync, PR creation, watcher provisioning, live PR validation, bot-review handling if needed, and merge-watch preparation.
+Current Active Workstream: None - PR #118 merged the FAM-006 Monitoring HUD Dashboard Product Surface package into main on 2026-05-12. USER explicitly waived the refreshed UTS returned-result test in LV2 and classified Dashboard functionality as passable; Dashboard acceptance is USER WAIVED/PASSABLE for the current Dashboard-first surface. The branch authority is now historical, Overlay/display acceptance remains deferred/non-gating, Core remains dependency-only, and release execution waits for v1.7.0-prebeta Release Readiness after this canon repair PR merges.
 Current Active Workstream Before Reform: None.
-Current Execution Branch: feature/fam-006-monitoring-hud-product-surface.
-Current Active Branch Authority Record: Docs/branch_records/feature_fam_006_monitoring_hud_product_surface.md.
+Current Execution Branch: None.
+Current Active Branch Authority Record: None.
 Current Active Canonical Workstream Doc: None.
 Historical Active Workstream Before Release: Automation Implementation.
 Earlier Historical Active Workstream Before Release: FB-048 Active-session relaunch signal-failure and wait-timeout truth.
 Historical Active Branch Before Release: feature/automation-planning.
 Earlier Historical Active Branch Before Release: feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeout-truth.
-Selected Next Workstream: FAM-006 Monitoring and HUD.
-Selected Next Record State: Registry-only.
-Selected Next Runtime Package Candidate: Monitoring and HUD Product Surface Package.
-Selected Next Implementation Branch: feature/fam-006-monitoring-hud-product-surface.
-Selected Next Status: USER-approved selected-next candidate matured into active FAM-006 package execution; product completion reopened after completion-truth drift review.
-Runtime Package Admission: Admitted for PKG-006 during USER-approved Branch Readiness Stage 2; product completion is reopened.
-Next Legal Runtime Step: PR Readiness Stage 2 after explicit USER approval. Overlay/display acceptance remains deferred/dormant/non-gating supporting evidence, Core repair is dependency-only, and package completion remains unclaimed until PR Readiness Stage 2 live PR validation, watcher proof, bot-review handling if needed, merge-watch, and final closeout pass.
-Next Legal Analysis Candidate: FAM-007 Branch Readiness Stage 1 analysis only after FAM-006 merge/main validation. That analysis must decide whether the legal next carrier is FAM-007 AI foundation, governance/workspace-resilience, a combined FAM-007 foundation plus workspace-governance package, or another path required by updated main. No implementation branch, package admission, GitHub issue creation, or parallel-work governance change is automatic before that Stage 1 result and later USER Stage 2 approval.
+Selected Next Workstream: None.
+Selected Next Record State: None.
+Selected Next Runtime Package Candidate: None.
+Selected Next Implementation Branch: None.
+Selected Next Status: FAM-006 matured through PR #118 and is now merged release-bearing debt for v1.7.0-prebeta; FAM-007 remains an analysis-only candidate after release-blocker repair, updated-main validation, and later USER admission.
+Runtime Package Admission: Historical - PKG-006 was admitted on the FAM-006 branch and merged through PR #118.
+Next Legal Runtime Step: None until v1.7.0-prebeta release-support canon repair merges and Release Readiness is re-entered with USER approval.
+Next Legal Analysis Candidate: FAM-007 Branch Readiness Stage 1 analysis only after the v1.7.0-prebeta release-blocking canon repair is merged and main validates green. That analysis must decide whether the legal next carrier is FAM-007 AI foundation, governance/workspace-resilience, a combined FAM-007 foundation plus workspace-governance package, or another path required by updated main. No implementation branch, package admission, GitHub issue creation, or parallel-work governance change is automatic before that Stage 1 result and later USER Stage 2 approval.
 Post-FAM-006 Required Governance/Package Candidate: Repo-Wide High-Risk Source Owner Marker Adoption; candidate branch `feature/repo-wide-source-owner-marker-adoption`; recorded as a future governance/package candidate after FAM-006 issue-planning priority is resolved or USER reorders it, not as an active selected-next implementation branch or newly admitted package. Later readiness must decide the legal carrier and package/admission shape before branch creation. Future scope is to scan existing source files, identify high-risk product/proof-bearing code regions, map them to Element Validation Ledger rows, add high-risk-only source-owner markers where useful, validate marker-to-ledger consistency, and plan repo-wide Dev Toolkit Interface Review Mode dispositions for existing and future USER-facing elements including NCP, Core visualization, Dashboard, Overlay/display when admitted, and other windows/components. The Dev Toolkit design is tabled for that future pass, including whether to use per-interface launchers, a generalized all-surfaces review-mode launch, or both. The future pass must keep production runtime behavior unchanged unless a separately admitted repair is required, and production UI must not expose element numbers.
 Backlog Addition User Approval Missing: Cleared for USER-approved FAM-006 selected-next successor selection, Branch Readiness Stage 2 branch creation, and PKG-006 runtime package admission only; active for any other attempted new backlog item, backlog split, promotion beyond FAM-006, branch creation outside this carrier, or single-slice package waiver without explicit USER approval.
 Historical Repair-Only Branch Handling: `feature/fb-046-post-merge-canon-sync` was a bounded repair-only post-merge canon-sync `feature/` branch and did not imply Branch Readiness admission or active branch truth for FB-046.
@@ -104,15 +104,15 @@ Historical Workstream State: Automation catalog implementation is merged histori
 Historical Hardening State: Complete on `feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeout-truth`.
 Historical Live Validation State: Complete on `feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeout-truth`.
 Canonical Current-State Rule: merge-target current-state owners stay merge-stable during merged-unreleased release-debt windows; live PR state, conflict/readiness details, review-resolution details, and blocker-clearing repair-lane narration live only in explicit historical PR sections of the canonical workstream and in operator output.
-Release Execution State: `v1.6.13-prebeta` is live at https://github.com/GiribaldiTTV/Nexus-Desktop-AI/releases/tag/v1.6.13-prebeta on commit `faaf991d2579dd6478f78245d56956858cc2f59b`.
-Release Target: None - no pending release target after `v1.6.13-prebeta` publication.
-Release Floor: none - release execution is complete for the current approved prerelease.
-Version Rationale: `v1.6.13-prebeta` published the approved patch-prerelease governance, automation, release-support, and bounded runtime-proof tranche; after publication and post-release closure, USER approved FAM-006 Branch Readiness Stage 2 to create the runtime branch and admit the Monitoring and HUD Product Surface Package.
-Release Scope: released historical traceability for PR #110 governance repair, PR #111 release-packaging source-truth closeout, PR #112 post-merge release-support closeout/hardening, PR #113 PR #112 source-truth closeout / merge-target authority hardening, merged automation-catalog truth, `FAM-001` legacy `FB-049` runtime proof, and `FAM-004` legacy `FB-030` voice/audio runtime diagnostics proof.
-Release Artifacts: Published tag `v1.6.13-prebeta`; published GitHub prerelease title `Pre-Beta v1.6.13`; Markdown release notes include a generated `## What's Changed` section plus `**Full Changelog**:`.
-Post-Release Truth: the backlog-family governance reform, automation-catalog branch, `FAM-001` legacy `FB-049` runtime branch, `FAM-004` legacy `FB-030` runtime diagnostics branch, PR #112 closeout/hardening proof, and PR #113 source-truth closeout / merge-target authority hardening proof are released historical traceability; latest public prerelease is `v1.6.13-prebeta`; release debt is clear; USER-approved FAM-006 remains active on `feature/fam-006-monitoring-hud-product-surface`, product completion remains reopened, WS18 through WS56 remain supporting history where not superseded, WS57 repaired the actual desktop shortcut/worktree mismatch found during failure-seeking LV1, H1/LV1 are green after the aligned shortcut proof, and LV2 has digested the explicit USER waiver/passable Dashboard acceptance. Required remaining gates are PR Readiness and final package/release closeout.
-Next-Branch Creation Gate: Cleared for `feature/fam-006-monitoring-hud-product-surface` only by USER-approved Branch Readiness Stage 2; any additional branch creation remains blocked.
-Next Legal Phase: PR Readiness Stage 2 in progress after explicit USER approval; release execution remains blocked.
+Release Execution State: `v1.7.0-prebeta` Release Readiness remains blocked until this release-support source-truth repair merges and main validates green; no tag, GitHub Release, or artifacts have been created.
+Release Target: `v1.7.0-prebeta`.
+Release Floor: minor prerelease.
+Version Rationale: `v1.7.0-prebeta` is the next minor prerelease because PR #118 merged the user-facing FAM-006 Monitoring HUD Dashboard Product Surface after `v1.6.13-prebeta`; the release window also includes post-`v1.6.13-prebeta` source-truth closeout and launcher/orphan-tray recovery history already merged to main.
+Release Scope: PR #114 `docs: close v1.6.13 post-release canon`, PR #116 `Fix launcher orphan tray recovery`, and PR #118 `FAM-006 Monitoring HUD Dashboard Product Surface`, including the USER WAIVED/PASSABLE Dashboard-first acceptance state, deferred Overlay/display boundary, Core dependency-only boundary, actual shortcut proof, and saved/deferred issue traceability.
+Release Artifacts: Pending - tag `v1.7.0-prebeta`, GitHub Release `Pre-Beta v1.7.0`, generated release notes, and any release artifacts are not created in this repair carrier.
+Post-Release Truth: Pending v1.7.0-prebeta release execution and later post-release closure. Until release executes, PR #118 is merged-unreleased release debt on main; there is no active branch authority, and the FAM-006 branch record is historical traceability only.
+Next-Branch Creation Gate: Blocked until the v1.7.0-prebeta release-blocking canon repair lands, Release Readiness is re-entered, and later USER approval admits the next Branch Readiness lane.
+Next Legal Phase: Release-support repair PR creation/validation on `codex/v1.7.0-prebeta-release-support-canon-repair`; after that PR merges and main validates green, re-enter Release Readiness for v1.7.0-prebeta by separate USER approval.
 
 ## Backlog Governance Sync
 
@@ -284,7 +284,7 @@ Version Rationale: The voice/audio runtime diagnostics proof added bounded truth
 Release Scope: released governance reform, automation catalog proof, FAM-001 legacy FB-049 runtime proof, FAM-004 legacy FB-030 voice/audio runtime diagnostics proof, PR #112 source-truth closeout / merge-target authority hardening proof, and PR #113 source-truth closeout / merge-target authority hardening proof.
 Release Artifacts: Published tag `v1.6.13-prebeta`; published GitHub prerelease title `Pre-Beta v1.6.13`; release notes include generated `What's Changed` and `Full Changelog` sections.
 Post-Release Truth: merged governance reform, automation catalog, FAM-001 legacy FB-049 runtime proof, FAM-004 legacy FB-030 runtime diagnostics proof, PR #112 source-truth closeout / merge-target authority hardening, and PR #113 source-truth closeout / merge-target authority hardening are released historical traceability; release debt is clear; and the later runtime package has USER-approved FAM-006 prior Workstream/Hardening evidence on `feature/fam-006-monitoring-hud-product-surface`; product completion is reopened, returned LV1 UTS FAIL evidence has routed the branch back through Branch Readiness rebaseline, and bounded Workstream repair continues after WS18 Core non-interference proof plus WS19 dashboard/minimal-HUD split proof.
-Selected Next Workstream: FAM-006 Monitoring and HUD.
+Selected Next Workstream: None - FAM-006 merged through PR #118 and is release-bearing debt for v1.7.0-prebeta.
 Next-Branch Creation Gate: Cleared for `feature/fam-006-monitoring-hud-product-surface` only by USER-approved Branch Readiness Stage 2.
 Package Completion State: Released Baseline / Open
 Single-Slice Package User Approval: Not required - no active single-slice package is admitted; future package admission must have multiple concrete admitted slices or USER waiver.
@@ -337,27 +337,27 @@ Summary: External Integrations keeps the trigger architecture release as proof w
 
 ### [ID: FAM-006] Monitoring and HUD
 
-Status: Active
+Status: Merged release-bearing / pending v1.7.0-prebeta release
 Record State: Registry-only
 Registry Class: Feature Family
 Family Anchor: Self
 Priority: Medium
-Next Workstream: None - Workstream is green after WS57, post-WS57 H1 is green after pressure-testing actual desktop shortcut alignment, launcher/orphan-tray, #117 active-owner PID, and WS56 Dashboard proof, LV1 is green for handoff generation after the failure-seeking shortcut-aligned rerun, and LV2 digested explicit USER waiver/passable Dashboard acceptance. PR Readiness Stage 2 is in progress after USER approval. Returned LV1 denial remains historical evidence for prior handoffs. WS43 Dashboard Runtime Tray Shutdown Safety Repair, WS44 Dashboard Frame Scroll Resize Visual Shell Repair, WS45 Dashboard IA Naming Action Cleanup, WS46 Dashboard returned-feedback static/live proof readiness, WS47 real-client tray shortcut proof-governance repair, WS48 human-client validation harness repair, WS49 Dashboard/NCP interaction isolation and tray action safety repair, WS50 Dashboard scrollbar boundary/native-window chrome repair, WS51 Dashboard resize hit-zone / scrollbar inset / HUD Feature state persistence repair, WS52 Dashboard real resize recovery repair, WS53 Dashboard resize edge discoverability repair, WS54 Dashboard standard resize cursor alignment repair, WS55 Dashboard resize action recovery after cursor alignment repair, WS56 Dashboard pre-click resize cursor and fluidity repair, and WS57 actual desktop shortcut alignment/proof-gate repair are supporting history only where not superseded. The Dashboard/control panel remains the primary current-branch interface release surface accepted as USER WAIVED/PASSABLE, Overlay/display acceptance remains deferred/non-gating, ORIN/Core repair remains dependency-only, issue-thread compilation is deferred to the next FAM-006 issue-planning branch after this PR, and no release/package completion claim is allowed before PR Readiness Stage 2 and later legal gates pass.
-Selected Next Workstream: FAM-006 Monitoring and HUD - active package execution / product completion reopened.
-Selected Next Runtime Package Candidate: Monitoring and HUD Product Surface Package
-Selected Next Status: USER-approved selected-next candidate matured into active package execution; product completion reopened after Branch Readiness Stage 2-R1 rebaseline
-Selected Next Implementation Branch: feature/fam-006-monitoring-hud-product-surface
+Next Workstream: None - FAM-006 merged through PR #118 and is release-bearing debt for v1.7.0-prebeta. Workstream WS43 through WS57, post-WS57 H1, current LV1 handoff proof, and LV2 USER WAIVED/PASSABLE Dashboard acceptance remain historical proof where not superseded. Overlay/display acceptance remains deferred/non-gating, ORIN/Core repair remains dependency-only, and issue-thread compilation is deferred to a later USER-approved Branch Readiness analysis.
+Selected Next Workstream: None - FAM-006 matured into merged release-bearing debt.
+Selected Next Runtime Package Candidate: None
+Selected Next Status: FAM-006 is no longer selected-next or active; PR #118 merged the package and release execution is pending v1.7.0-prebeta.
+Selected Next Implementation Branch: None
 Branch Creation Status: Created in Branch Readiness Stage 2 from updated main at `3c68cd881a9f6bf447f09ac0949d556e97bce4f4`
-Runtime Package Admission: Admitted for `PKG-006`
-Active Branch Authority Record: Docs/branch_records/feature_fam_006_monitoring_hud_product_surface.md
-Next Legal Runtime Step: PR Readiness Stage 2 after explicit USER approval; LV2 waiver digest is complete, Codex proof alone still cannot satisfy future acceptance without USER result or waiver, and Stage 2 owns PR creation, watcher provisioning, live PR validation, bot-review handling if needed, and merge-watch.
+Runtime Package Admission: Historical - `PKG-006` was admitted on the FAM-006 branch and merged through PR #118.
+Active Branch Authority Record: None - historical record is `Docs/branch_records/feature_fam_006_monitoring_hud_product_surface.md`
+Next Legal Runtime Step: None until v1.7.0-prebeta release-support canon repair merges and Release Readiness is re-entered with USER approval.
 Minimal Scope: admitted runtime package rebaselined to Dashboard-first current-branch acceptance: optional Nexus/NDAI Monitoring HUD Dashboard/control panel, monitor definition/editing and enablement posture, provider-contract-first telemetry health/setup/unavailable states, settings/control visibility, fail-safe/setup/reconnect/no-data/degraded-status behavior, visual/non-invasive warning posture controls, dashboard-specific validation/live desktop proof, and no fake telemetry; Overlay/display release acceptance, edgeless placement canvas acceptance, anchored uninteractable/click-through overlay acceptance, audio/spoken warnings, Stream Deck/plugin telemetry implementation, full sensor-platform parity, broad hardware provider platform work, advanced graphs/history/persistence, local AI, installer/capability-pack work, and broad repo-wide legacy naming migration remain deferred unless later admitted.
 Family Scope: Monitoring surfaces, CPU/GPU thermals, performance telemetry, HUD/overlay presentation, trust-safety display rules, and plugin-fed runtime telemetry.
 Package Policy: Branchable monitoring/HUD work must package source, display, and validation slices by default.
 Known Pending Gaps: Returned LV1 denial remains proof-governance history for prior handoffs. WS43 through WS57, prior Hardening H1, post-WS50 H1, post-WS53 H1, post-WS56 H1, prior LV1 handoff generation, post-main H1 proof, post-WS57 H1 proof, current LV1 handoff proof, and LV2 USER waiver digest are supporting/acceptance history where not superseded. Overlay Scope Deferred and Core Repair Dependency Only remain non-gating boundary classifications, not release interfaces. Broad provider-platform parity, Overlay/display release acceptance, external/plugin telemetry, audio/spoken alerts, persona switching, Stream Deck, graphs/history/persistence dashboards, local AI/capability packs, installer work, child-window implementation, NCP placement/persistence, Dev Toolkit Interface Review Mode, and ultra-low polling remain future-package deferrals unless later admitted.
-Package Admission State: Admitted
+Package Admission State: Historical / merged
 Admitted Slice Count: 6
-Package Completion State: Closeout Ready / PR Validation Pending - product completion remains unclaimed until PR Readiness Stage 2 and final closeout pass
+Package Completion State: Merged release-bearing / pending v1.7.0-prebeta release execution
 Single-Slice Package User Approval: Not required - `PKG-006` has six concrete admitted slices and no single-slice waiver is granted.
 Single-Seam Workstream Waiver: None - bounded means one active seam at a time, not one-seam Workstream authority; single-seam or single-slice Workstream authority is forbidden unless explicit USER waiver text is recorded; if only one seam or one slice is planned or visible for the whole Workstream, stop on `Single-Seam Or Single-Slice Workstream Blocker`; PKG-006 has a recorded multi-seam/multi-slice Workstream chain and must continue through the remaining same-branch repair work unless a named blocker, future dependency, or explicit USER waiver is recorded.
 Interface Release Boundary: Dashboard-first - `Monitoring HUD Dashboard / control panel` is the primary current-branch interface release surface.
@@ -368,7 +368,7 @@ Package Trace:
 
 | Package ID | FAM ID | Package Name | Package Status | Package Completion State | Branch / Release Trace | Legacy FB / PR Evidence |
 | --- | --- | --- | --- | --- | --- | --- |
-| `PKG-006` | `FAM-006` | Monitoring and HUD product-surface package | Returned LV1 denial remains historical evidence; WS48 human-client validation/proof-governance repair, WS49 Dashboard/NCP interaction repair, WS50 Dashboard chrome repair, WS51 resize/scrollbar/persistence repair, WS52 real resize recovery repair, WS53 resize edge discoverability repair, WS54 resize cursor-alignment repair, WS55 resize-action recovery repair, WS56 pre-click resize cursor / resize-fluidity repair, WS57 actual desktop shortcut alignment/proof-gate repair, post-WS57 H1, and current LV1 handoff proof are green supporting proof where not superseded; LV2 digested explicit USER waiver/passable Dashboard acceptance; Overlay/display acceptance deferred/non-gating; Core repair dependency-only; PR Readiness Stage 2 is in progress for PR creation, watcher proof, live PR validation, and merge-watch | Closeout Ready / PR Validation Pending | `feature/fam-006-monitoring-hud-product-surface`; historical baseline `feature/fb-040-monitoring-thermals-performance-hud-surface`; `v1.6.0-prebeta` | `FB-040`, HUD user-facing surface gap |
+| `PKG-006` | `FAM-006` | Monitoring and HUD product-surface package | Returned LV1 denial remains historical evidence; WS48 through WS57, post-WS57 H1, and LV1 handoff proof are green supporting proof where not superseded; LV2 digested explicit USER waiver/passable Dashboard acceptance; Overlay/display acceptance deferred/non-gating; Core repair dependency-only; PR #118 merged | Merged release-bearing / pending v1.7.0-prebeta release execution | `feature/fam-006-monitoring-hud-product-surface`; PR #118; historical baseline `feature/fb-040-monitoring-thermals-performance-hud-surface`; `v1.6.0-prebeta` | `FB-040`, HUD user-facing surface gap |
 
 Slice Trace:
 
@@ -665,7 +665,7 @@ PR Readiness: Historical complete. PR #108 merged, watcher verification proof ex
 Release Readiness: Released historical traceability in `v1.6.13-prebeta`.
 Release Execution: Historical `v1.6.5-prebeta` planning release remains live at https://github.com/GiribaldiTTV/Nexus-Desktop-AI/releases/tag/v1.6.5-prebeta on commit `7c2933d6427feb08a1139ba7f5ba2393eb61f1e1`; the runtime diagnostics follow-through is publicly released in `v1.6.13-prebeta` at https://github.com/GiribaldiTTV/Nexus-Desktop-AI/releases/tag/v1.6.13-prebeta on commit `faaf991d2579dd6478f78245d56956858cc2f59b`.
 Released Historical Scope: FAM-001 legacy FB-049 Active-session pre-settled incoming-launch conflict truth plus FAM-004 legacy FB-030 voice/audio runtime diagnostics proof plus merged governance/automation proof package plus PR #112 source-truth closeout / merge-target authority hardening proof plus PR #113 source-truth closeout / merge-target authority hardening proof released in v1.6.13-prebeta
-Repo State: Active Branch
+Repo State: No Active Branch
 Latest Public Prerelease: v1.6.13-prebeta
 Release Title: Pre-Beta v1.6.13
 Release Target: None - released in v1.6.13-prebeta.
@@ -674,7 +674,7 @@ Version Rationale: FAM-004 legacy FB-030 added bounded runtime diagnostics truth
 Release Scope: released governance reform, automation catalog proof, FAM-001 legacy FB-049 runtime proof, FAM-004 legacy FB-030 voice/audio runtime diagnostics proof, PR #112 source-truth closeout / merge-target authority hardening proof, and PR #113 source-truth closeout / merge-target authority hardening proof.
 Release Artifacts: Published tag `v1.6.13-prebeta`; published GitHub prerelease title `Pre-Beta v1.6.13`; release notes include generated `What's Changed` and `Full Changelog` sections.
 Post-Release Truth: merged governance reform, automation catalog, FAM-001 legacy FB-049 runtime proof, FAM-004 legacy FB-030 runtime diagnostics proof, PR #112 source-truth closeout / merge-target authority hardening, and PR #113 source-truth closeout / merge-target authority hardening are released historical traceability; release debt is clear; USER-approved selected-next truth points to FAM-006; and product completion is reopened on `feature/fam-006-monitoring-hud-product-surface` with `PKG-006` admitted, prior Workstream/H1 evidence preserved, returned LV1 UTS FAIL evidence rebaselined by Branch Readiness Stage 2-R11, and WS18 Core non-interference plus WS19 dashboard/minimal-HUD split repair recorded before bounded Workstream repair continues.
-Selected Next Workstream: FAM-006 Monitoring and HUD.
+Selected Next Workstream: None - FAM-006 merged through PR #118 and is release-bearing debt for v1.7.0-prebeta.
 Next-Branch Creation Gate: Cleared for `feature/fam-006-monitoring-hud-product-surface` only by USER-approved Branch Readiness Stage 2.
 Historical Planning Release: `v1.6.5-prebeta` remains the released planning/admission proof for the original voice/audio direction milestone.
 Minimal Scope: Completed WS1 voice/audio runtime availability and truthful diagnostics proof across `Audio/orin_voice.py`, `Audio/orin_error_voice.py`, `main.py`, `desktop/orin_desktop_launcher.pyw`, and `dev/orin_voice_regression_harness.py`, while preserving ORIN as the only shipped persona, keeping ARIA dormant, avoiding prompt or asset redesign, and avoiding public-copy or release-note changes before release phases.
