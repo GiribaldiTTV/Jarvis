@@ -12,9 +12,9 @@ DEV_LOGS_DIR = os.path.join(ROOT_DIR, "dev", "logs")
 BASE_LOG_ROOT = os.path.join(DEV_LOGS_DIR, "support_bundle_triage_toolkit_validation")
 REPORTS_DIR = os.path.join(BASE_LOG_ROOT, "reports")
 
-DEV_LAUNCHER_SCRIPT = os.path.join(ROOT_DIR, "dev", "launchers", "jarvis_dev_launcher.pyw")
-TRIAGE_HELPER_SCRIPT = os.path.join(ROOT_DIR, "dev", "jarvis_support_bundle_triage.py")
-TRIAGE_HARNESS_SCRIPT = os.path.join(ROOT_DIR, "dev", "jarvis_support_bundle_triage_harness.py")
+DEV_LAUNCHER_SCRIPT = os.path.join(ROOT_DIR, "dev", "launchers", "orin_dev_launcher.pyw")
+TRIAGE_HELPER_SCRIPT = os.path.join(ROOT_DIR, "dev", "orin_support_bundle_triage.py")
+TRIAGE_HARNESS_SCRIPT = os.path.join(ROOT_DIR, "dev", "orin_support_bundle_triage_harness.py")
 
 RAW_TRIAGE_REPORTS_DIR = os.path.join(DEV_LOGS_DIR, "support_bundle_triage", "reports")
 TRIAGE_HARNESS_REPORTS_DIR = os.path.join(DEV_LOGS_DIR, "support_bundle_triage_harness", "reports")
@@ -166,7 +166,7 @@ def run_triage_harness_prerequisite():
     )
     repeated_crash_bundle = latest_file_matching(
         REPEATED_CRASH_SUPPORT_BUNDLES_DIR,
-        "JarvisSupport_",
+        "NexusDesktopAI_Support_",
         ".zip",
     )
 
@@ -475,7 +475,7 @@ def main(argv):
     folder_bundle_path = prerequisite_section["folder_bundle_path"]
 
     dev_launcher_module = load_module_from_path(
-        "jarvis_dev_launcher_toolkit_validation_module",
+        "orin_dev_launcher_toolkit_validation_module",
         DEV_LAUNCHER_SCRIPT,
     )
 
