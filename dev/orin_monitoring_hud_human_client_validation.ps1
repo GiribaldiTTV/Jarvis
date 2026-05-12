@@ -490,6 +490,15 @@ $script:Artifacts = New-Object System.Collections.Generic.List[object]
 $script:RuntimeProcessIds = New-Object System.Collections.Generic.List[int]
 $script:RuntimeLogPath = ""
 $script:CleanupNotes = New-Object System.Collections.Generic.List[string]
+$script:ShortcutResolution = [ordered]@{
+    path = $DesktopShortcutPath
+    targetPath = ""
+    workingDirectory = ""
+    arguments = ""
+    activeRoot = $RootDir
+    status = "NOT_TESTED"
+    detail = ""
+}
 
 function Add-Step {
     param(
@@ -510,6 +519,55 @@ function Add-Step {
         evidence = $Evidence
         timestamp = (Get-Date).ToUniversalTime().ToString("o")
     }) | Out-Null
+}
+
+function Resolve-ShortcutForActiveRoot {
+    param([string]$ShortcutPath)
+
+    $result = [ordered]@{
+        path = $ShortcutPath
+        targetPath = ""
+        workingDirectory = ""
+        arguments = ""
+        activeRoot = $RootDir
+        status = "FAIL"
+        detail = ""
+    }
+
+    try {
+        $shell = New-Object -ComObject WScript.Shell
+        $shortcut = $shell.CreateShortcut($ShortcutPath)
+        $targetPath = [string]$shortcut.TargetPath
+        $workingDirectory = [string]$shortcut.WorkingDirectory
+        $arguments = [string]$shortcut.Arguments
+        $result.targetPath = $targetPath
+        $result.workingDirectory = $workingDirectory
+        $result.arguments = $arguments
+
+        $resolvedRoot = (Resolve-Path -LiteralPath $RootDir).Path.TrimEnd('\')
+        $targetMatches = $false
+        $workingDirectoryMatches = $false
+        if (-not [string]::IsNullOrWhiteSpace($targetPath) -and (Test-Path -LiteralPath $targetPath)) {
+            $resolvedTarget = (Resolve-Path -LiteralPath $targetPath).Path
+            $targetMatches = $resolvedTarget.StartsWith($resolvedRoot, [System.StringComparison]::OrdinalIgnoreCase)
+        }
+        if (-not [string]::IsNullOrWhiteSpace($workingDirectory) -and (Test-Path -LiteralPath $workingDirectory)) {
+            $resolvedWorkingDirectory = (Resolve-Path -LiteralPath $workingDirectory).Path.TrimEnd('\')
+            $workingDirectoryMatches = $resolvedWorkingDirectory.StartsWith($resolvedRoot, [System.StringComparison]::OrdinalIgnoreCase)
+        }
+
+        if ($targetMatches -and $workingDirectoryMatches) {
+            $result.status = "PASS"
+            $result.detail = "Desktop shortcut target and working directory are rooted in the active FAM-006 worktree."
+            return $result
+        }
+
+        $result.detail = "Desktop shortcut is not rooted in the active FAM-006 worktree; targetMatches=$targetMatches; workingDirectoryMatches=$workingDirectoryMatches."
+        return $result
+    } catch {
+        $result.detail = "Unable to inspect desktop shortcut target: $($_.Exception.Message)"
+        return $result
+    }
 }
 
 function Add-Artifact {
@@ -1616,6 +1674,7 @@ function Save-Manifest {
         logRoot = $LogRoot
         runtimeLog = $script:RuntimeLogPath
         formalUtsTouched = $false
+        shortcutResolution = $script:ShortcutResolution
         proofClasses = [ordered]@{
             staticProof = "supporting-only"
             sandboxProof = "supporting-only"
@@ -1641,6 +1700,18 @@ $failureMessage = ""
 try {
     if (-not (Test-Path -LiteralPath $DesktopShortcutPath)) {
         throw "Desktop shortcut missing: $DesktopShortcutPath"
+    }
+
+    $script:ShortcutResolution = Resolve-ShortcutForActiveRoot -ShortcutPath $DesktopShortcutPath
+    Add-Step -Id "shortcut_targets_active_worktree" -Title "Desktop shortcut targets the active FAM-006 worktree" -Status $script:ShortcutResolution.status -Detail $script:ShortcutResolution.detail -Evidence @{
+        shortcutPath = $script:ShortcutResolution.path
+        targetPath = $script:ShortcutResolution.targetPath
+        workingDirectory = $script:ShortcutResolution.workingDirectory
+        activeRoot = $script:ShortcutResolution.activeRoot
+        arguments = $script:ShortcutResolution.arguments
+    }
+    if ($script:ShortcutResolution.status -ne "PASS") {
+        throw $script:ShortcutResolution.detail
     }
 
     $env:NEXUS_HARNESS_LOG_ROOT = $LogRoot

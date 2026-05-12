@@ -430,7 +430,8 @@ function Save-UserTestSummaryHandoff([object]$Paths) {
         return "Codex Precheck: PASS through human-client mouse/shortcut/tray path - $($details -join '; ')."
     }
 
-    $precheckStep1 = Format-ShortcutPrecheckLine @("launch_settled_tray_available") "LV1 cannot claim unrestricted green handoff for shortcut launch without USER waiver."
+    $precheckShortcutAlignment = Format-ShortcutPrecheckLine @("shortcut_targets_active_worktree", "launch_settled_visible_desktop", "launch_settled_tray_available") "LV1 cannot claim unrestricted green handoff for shortcut/worktree alignment without USER waiver."
+    $precheckStep1 = Format-ShortcutPrecheckLine @("shortcut_targets_active_worktree", "launch_settled_tray_available") "LV1 cannot claim unrestricted green handoff for shortcut launch without USER waiver."
     $precheckStep2 = Format-ShortcutPrecheckLine @("enable_hud_opens_dashboard", "close_dashboard_from_tray_before_move", "open_dashboard_from_tray_before_move", "close_dashboard_from_tray", "open_dashboard_from_tray", "disable_hud_recovers") "LV1 cannot claim unrestricted green handoff for tray Dashboard lifecycle without USER waiver."
     $precheckStep3 = Format-ShortcutPrecheckLine @("tray_exit_confirmation_visible", "tray_exit_cancel_preserves_session", "tray_exit_accept_prompt_visible", "tray_exit_accept_shuts_down_promptly") "LV1 cannot claim unrestricted green handoff for tray Exit confirmation without USER waiver."
     $precheckNcpInteraction = Format-ShortcutPrecheckLine @("dashboard_mouse_move", "ncp_opens_with_dashboard_visible", "ncp_create_custom_task_clickable_with_dashboard_open", "ncp_create_custom_group_clickable_with_dashboard_open", "ncp_manage_custom_tasks_clickable_with_dashboard_open", "ncp_manage_custom_groups_clickable_with_dashboard_open") "LV1 cannot claim unrestricted green handoff for Dashboard-visible NCP interaction without USER waiver."
@@ -474,6 +475,7 @@ Element Validation Ledger Alignment
 - Canonical ledger owner: Docs/branch_records/feature_fam_006_monitoring_hud_product_surface.md
 - Canonical companion ledger: Docs/branch_records/feature_fam_006_monitoring_hud_product_surface_element_ledger.md
 - This refreshed UTS maps USER checks to completed ledger rows. USER results from an older, pre-ledger UTS should not be used for LV2 unless USER explicitly waives this refreshed handoff.
+- Shortcut/worktree proof path: actual desktop shortcut must target the active FAM-006 worktree, not the AI lab/planning worktree. $precheckShortcutAlignment
 - Overlay/display elements are checked only for non-gating boundary clarity. USER is not being asked to accept Overlay/display as the current branch release surface.
 - ORIN/Core elements are dependency checks for desktop safety and independence. USER is not being asked to accept ORIN/Core as a released FAM-006 interface.
 
@@ -510,6 +512,7 @@ Returned USER Issue Register Retest Focus
 - FAM006-RUI-054 Dashboard resize action regressed after cursor alignment: covered by Step 8. $precheckResizeDiscoverability
 - FAM006-RUI-055 Windows resize cursor appears only after left-click hold: covered by Step 8. $precheckResizeDiscoverability
 - FAM006-RUI-056 Dashboard resize growth is choppy/laggy: covered by Step 8. $precheckResizeDiscoverability
+- FAM006-RUI-057 actual desktop shortcut targeted the wrong worktree before this LV1 run: covered by Step 1. $precheckShortcutAlignment
 
 Issue-Grounded USER Questions
 Answer each issue as PASS, FAIL, or WAIVED. Add notes/screenshots for any FAIL or WAIVED answer.
@@ -727,6 +730,10 @@ FAM006-RUI-054 / Resize action recovery - When the standard Windows resize curso
 FAM006-RUI-055 / Pre-click resize cursor - Does the standard Windows resize cursor appear when the cursor reaches a valid Dashboard edge/corner before you click or hold?
 FAM006-RUI-056 / Resize fluidity - When increasing the Dashboard size from the right edge, bottom edge, or corner, does the window grow smoothly instead of choppy/laggy?
 $precheckResizeDiscoverability
+USER Result / Notes:
+
+FAM006-RUI-057 / Shortcut-worktree alignment - When you launch from the desktop shortcut, are you testing the FAM-006 worktree/branch rather than the AI lab/planning worktree?
+$precheckShortcutAlignment
 USER Result / Notes:
 
 What This Test Is Checking
