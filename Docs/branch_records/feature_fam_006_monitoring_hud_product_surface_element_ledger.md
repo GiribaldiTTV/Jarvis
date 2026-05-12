@@ -8,7 +8,7 @@ Branch: `feature/fam-006-monitoring-hud-product-surface`
 
 Package: `PKG-006 Monitoring and HUD Product Surface Package`
 
-Ledger Status: `PR Readiness Stage 2 In Progress - Live Validation LV2 Green preserved by explicit USER waiver after WS57/H1/LV1; Dashboard accepted as USER WAIVED/PASSABLE for the current branch surface; PR package closeout readiness sync underway`
+Ledger Status: `PR Readiness Stage 2 In Progress - Live Validation LV2 Green preserved by explicit USER waiver after WS57/H1/LV1; Dashboard accepted as USER WAIVED/PASSABLE for the current branch surface; PR #118 created; watcher runtime proof, bot-review signal, USER merge decision, and merge-watch remain pending`
 
 Latest Hardening Rerun: `Green after WS57 - H1 pressure-tested actual desktop shortcut/worktree alignment, RUI-055 and RUI-056 resize proof, human-client tray/NCP/Exit proof, active-client screenshots, desktop entrypoint/tray proof, NCP/saved-action regression proof, static proof, and internal sandbox proof`.
 
@@ -20,7 +20,7 @@ Prior Workstream Repair Preserved For Trace: `Workstream WS37 - Dashboard Runtim
 
 Prior Ledger Status Preserved For Trace: `Backfilled, revalidated, and LV1 handoff refreshed - Live Validation Stage 1`
 
-Current Gate: `PR Readiness Stage 2 live PR validation, watcher proof, bot-review handling if needed, merge-watch, and final package closeout remain pending. LV2 returned-result waiver digestion is complete; Dashboard acceptance is USER WAIVED/PASSABLE for the current branch surface.`
+Current Gate: `PR Readiness Stage 2 live PR validation shows PR #118 open/non-draft/MERGEABLE/CLEAN; watcher runtime proof, bot-review signal, USER merge decision, merge-watch, and final package closeout remain pending. LV2 returned-result waiver digestion is complete; Dashboard acceptance is USER WAIVED/PASSABLE for the current branch surface.`
 
 Next Legal Seam: `PR Readiness Stage 2 - FAM-006 final PR package sync, package closeout readiness sync, PR creation, watcher provisioning, live PR validation, bot-review handling if needed, and merge-watch preparation`
 

@@ -24,7 +24,7 @@ This branch may execute the admitted PKG-006 implementation slices during Workst
 
 ## Status
 
-- `PR Readiness Stage 2 In Progress - final PR package sync, package closeout readiness sync, PR creation, watcher provisioning, and live PR validation authorized by USER`
+- `PR Readiness Stage 2 In Progress - PR #118 created and clean; watcher provisioned; bot-review signal, watcher runtime proof, USER merge decision, and merge-watch remain pending`
 
 ## Canonical Branch
 
@@ -40,7 +40,11 @@ This branch may execute the admitted PKG-006 implementation slices during Workst
 - Workstream Stage: `WS57 green - failure-seeking LV1 found that the actual desktop shortcut still targeted the AI lab/planning worktree, then USER's bounded waiver admitted a focused Workstream repair to align the shortcut with C:\Nexus Desktop AI FAM-006 and harden the human-client shortcut target gate before H1/LV1 rerun`
 - Hardening Stage: `H1 green after WS57 - pressure-tested actual desktop shortcut alignment, launcher/orphan-tray integration, active-owner PID identity, stale/reused PID relaunch, pre-click resize cursor timing, corner/right-edge/bottom-edge resize, fluid geometry samples, tray/NCP regression safety, active-client proof, and source-truth consistency`
 - Live Validation Stage: `LV2 green after WS57/H1/LV1 - USER explicitly waived the refreshed UTS returned-result test on 2026-05-12 and stated the Dashboard functionality is passable; Dashboard acceptance is classified as USER WAIVED/PASSABLE for the current Dashboard-first branch surface, with deferred/future issue-thread compilation reserved for PR Readiness Stage 1 discussion`
-- PR Readiness Stage: `Stage 2 admitted by USER on 2026-05-12 after Stage 1 recommended ACCEPT FOR STAGE 2; current authorized work is final PR package sync, package closeout readiness sync, PR creation, watcher provisioning, live PR validation, bot-review handling if needed, and merge-watch preparation`
+- PR Readiness Stage: `Stage 2 admitted by USER on 2026-05-12 after Stage 1 recommended ACCEPT FOR STAGE 2; PR #118 is created, non-draft, mergeable, and CLEAN; current remaining work is bot-review handling if needed, watcher runtime proof, USER merge decision, and merge-watch preparation`
+- Live PR: `https://github.com/GiribaldiTTV/Nexus-Desktop-AI/pull/118`
+- PR State: `OPEN / non-draft / MERGEABLE / CLEAN`
+- PR Head SHA: `28db187bb42e099f926036439a90604a7c0ee1c2`
+- PR Watcher: `fam-006-pr-118-watcher`
 - Active Branch: `feature/fam-006-monitoring-hud-product-surface`
 - Branch Authority Mode: `Active Branch`
 - Workstream Entry Source-Truth Transition: `Performed - Branch Readiness Stage 2 terminal evidence reconciled before runtime implementation`
@@ -55,8 +59,8 @@ This branch may execute the admitted PKG-006 implementation slices during Workst
 - Single-Slice Package User Approval: `Not required - PKG-006 has six concrete admitted slices; no waiver granted`
 - Runtime Implementation State: `Dashboard-first WS37-WS56, prior denied LV1 proof, WS48 human-client proof-governance repair, WS49 Dashboard/NCP/tray interaction repair, WS50 scrollbar/native-window boundary repair, WS51 resize hit-zone / scrollbar inset / HUD feature persistence repair, WS52 real resize recovery repair, WS53 resize edge discoverability repair, WS54 resize cursor-alignment repair, WS55 resize-action recovery repair, and WS56 pre-click resize cursor / resize-fluidity repair are preserved as supporting history only where not superseded. USER video evidence after the WS53 LV1 handoff showed the Windows resize cursor appearing far inside the Dashboard because the 58px rail made resize draggable away from the visible edge; WS54 replaced that with a cursor-aligned 12px rail and real Windows non-client hit-tests. USER then returned post-WS54 feedback that the Dashboard could no longer be resized, proving WS54 over-credited cursor/hit-test proof without proving the actual user drag action from the cursor transition point. WS55 repaired actual resize action from the discovered cursor transition point. USER then returned post-WS55 feedback that the resize cursor still appeared only after left-click hold and resize growth was choppy/laggy; WS56 repaired pre-click hover cursor ownership through WM_SETCURSOR/hover polling and fluid app-owned geometry resize at 8ms with duplicate geometry writes skipped. H1 after WS56 pressure-tested the repair with fresh human-client proof, active-client proof, desktop entrypoint/tray proof, NCP/saved-action validation, static validation, and internal sandbox proof. LV1 after H1 refreshed the issue-grounded formal UTS from fresh human-client proof at dev/logs/fam_006_human_client_validation/20260511_142028_158/human_client_manifest.json and active-client proof at dev/logs/fam_006_monitoring_hud_live_validation/20260511_142315_949. WS57 later aligned the actual desktop shortcut to C:\Nexus Desktop AI FAM-006 and refreshed the issue-grounded LV1 handoff from actual shortcut proof. USER explicitly waived the refreshed UTS returned-result testing on 2026-05-12 and classified the Dashboard functionality as passable, so LV2 digests Dashboard acceptance as USER WAIVED/PASSABLE for the current Dashboard-first branch surface. App-side callback/precheck manifests, fake/offscreen proof, direct function calls, screenshots, and marker proof still cannot independently clear future user-facing tray, Dashboard, NCP interaction, movement, resize, shutdown-confirmation, persistence, or visual-quality acceptance unless the human-client manifest passes or USER explicitly waives it. #20 NCP placement/persistence and 6f Dev Toolkit Interface Review Mode remain deferred priority future scope unless later proof shows FAM-006 caused a current regression. Exit prompt visual restyling is future polish unless separately admitted; functional Exit confirmation/timing remains supporting proof. Overlay/display remains deferred/dormant/non-gating, ORIN/Core remains dependency-only, and PR Readiness Stage 1 is the next legal seam after USER admission.`
 - Post-Main H1 Current State: `After main was merged into FAM-006 at e74e3190, the main launcher/orphan-tray fix and #117 stale active-owner PID follow-up were integrated into this branch, making prior H1/LV1 launcher/tray/entrypoint proof stale for affected rows. H1 after the merge pressure-tested launcher/orphan-tray integration, active-owner PID identity validation, stale/reused PID relaunch, true live-owner preservation, FAM-rooted shortcut-equivalence proof, tray Enable/Open/Close/Disable, Exit confirmation, NCP/saved-action behavior, active-client screenshots, internal sandbox proof, and WS56 resize/cursor/fluidity proof. The later failure-seeking LV1 preflight found that the real desktop shortcut still targeted C:\Nexus Desktop AI, which is reserved for the AI lab/planning worktree. WS57 aligned the actual desktop shortcut to C:\Nexus Desktop AI FAM-006, added a human-client shortcut target precheck, and H1/LV1 reran from the actual aligned shortcut path.`
-- PR Creation State: `Approved for PR Readiness Stage 2 by USER on 2026-05-12; PR creation pending this Stage 2 execution`
-- Watcher Provisioning State: `Approved for PR Readiness Stage 2 by USER on 2026-05-12; watcher provisioning and runtime proof pending this Stage 2 execution`
+- PR Creation State: `Created in PR Readiness Stage 2 - PR #118 https://github.com/GiribaldiTTV/Nexus-Desktop-AI/pull/118`
+- Watcher Provisioning State: `Provisioned in PR Readiness Stage 2 - heartbeat automation fam-006-pr-118-watcher is ACTIVE; first watcher runtime emission/proof remains pending`
 - Release Work State: `Not approved; v1.6.13-prebeta release execution is already complete and no new release work is in scope`
 - Optional Voice/Status Integration: `Deferred unless later proven to be narrow HUD-status copy inside FAM-006`
 - Element Coverage State: `Coverage-only; not counted as admitted slices`
@@ -67,9 +71,9 @@ This branch may execute the admitted PKG-006 implementation slices during Workst
 
 ## Blockers
 
-- `PR Creation Pending`
-- `PR Watcher Provisioning And Runtime Proof Pending`
-- `Live PR Mergeability And Bot Review Validation Pending`
+- `PR Watcher Runtime Proof Pending`
+- `Bot Review Signal Pending`
+- `USER Merge Decision Pending`
 - `PR Merge Verification Pending`
 - `Deferred Issue Thread Compilation Reserved For Next FAM-006 Issue-Planning Branch`
 
@@ -2430,10 +2434,27 @@ Workstream WS46 includes static HUD validation, internal sandbox proof, a hidden
 - Planned Base Branch: `main`
 - Planned Head Branch: `feature/fam-006-monitoring-hud-product-surface`
 - Package Closeout Readiness: `Ready for PR validation - admitted slices have Workstream, Hardening, Live Validation, and LV2 USER waiver/passable acceptance evidence; final package completion remains unclaimed until PR Readiness Stage 2 and merge-watch pass`
-- Watcher Status: `Pending provisioning after PR creation`
-- Bot Review Status: `Pending live PR creation and review signal`
-- Mergeability Status: `Pre-PR merge forecast clean against origin/main before PR creation`
-- Next Legal Step: `Create and validate the PR inside PR Readiness Stage 2; do not enter Release Readiness until PR merge-watch verifies merged and USER admits Release Readiness`
+- Watcher Status: `Provisioned - fam-006-pr-118-watcher ACTIVE; first watcher runtime emission/proof pending`
+- Bot Review Status: `Pending - no reviews or comments present on PR #118 at live validation read`
+- Mergeability Status: `PASS - PR #118 is OPEN, non-draft, MERGEABLE, CLEAN, base main, head feature/fam-006-monitoring-hud-product-surface`
+- Next Legal Step: `Monitor PR #118 for bot-review/check changes, resolve actionable feedback if it appears, wait for USER merge decision, then perform merge-watch verification after merge; do not enter Release Readiness until PR merge-watch verifies merged and USER admits Release Readiness`
+
+## PR Creation Details
+
+- PR URL: `https://github.com/GiribaldiTTV/Nexus-Desktop-AI/pull/118`
+- Live PR: `https://github.com/GiribaldiTTV/Nexus-Desktop-AI/pull/118`
+- PR Number: `118`
+- PR Title: `FAM-006 Monitoring HUD Dashboard Product Surface`
+- PR Base: `main`
+- PR Head: `feature/fam-006-monitoring-hud-product-surface`
+- PR Head SHA: `28db187bb42e099f926036439a90604a7c0ee1c2`
+- PR Draft State: `false`
+- PR Mergeability: `MERGEABLE / CLEAN`
+- PR Check Status: `No status checks reported at creation-time live PR read`
+- Bot Review Status: `Pending - no reviews or comments reported at creation-time live PR read`
+- Watcher Automation: `fam-006-pr-118-watcher`
+- Watcher Runtime Proof: `Pending first scheduler/heartbeat emission`
+- Merge-Watch Preparation: `Ready after USER merge decision; no release execution authorized`
 
 ## Governance Drift Audit
 
