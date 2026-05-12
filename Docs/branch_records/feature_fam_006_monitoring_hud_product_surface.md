@@ -16,15 +16,15 @@ This branch is the USER-approved runtime package carrier for FAM-006 Monitoring 
 
 It exists because `v1.6.13-prebeta` release execution and post-release canon closure are complete, release debt is clear, merged `main` validated as `No Active Branch`, USER-approved selected-next truth identified FAM-006 Monitoring and HUD as the next runtime direction, and Branch Readiness Stage 2 admitted the concrete multi-slice `PKG-006` runtime package.
 
-This branch may execute the admitted PKG-006 implementation slices during Workstream, the repo-side Hardening pressure test, Live Validation, and USER-approved PR Readiness. It must not create a tag, draft or publish a GitHub Release, create release artifacts, execute release work, mutate `main` directly, grant a single-slice waiver, create a new FAM/package beyond FAM-006, or admit optional voice/audio widening beyond narrow HUD-status presentation without later explicit USER approval. PR creation and watcher provisioning are authorized only inside USER-approved PR Readiness Stage 2.
+This branch executed the admitted PKG-006 implementation slices through Workstream, repo-side Hardening, Live Validation, USER-waived/passable LV2 acceptance, and USER-approved PR Readiness. PR #118 merged the branch into `main` on 2026-05-12. This record is now historical traceability for the merged release-bearing package and does not authorize release execution, tag creation, GitHub Release creation, artifact publication, direct-main mutation, new FAM/package admission, or optional voice/audio widening.
 
 ## Record State
 
-- `Registry-only`
+- `Historical / merged`
 
 ## Status
 
-- `PR Readiness Stage 2 In Progress - PR #118 created and clean; watcher provisioned; bot-review signal, watcher runtime proof, USER merge decision, and merge-watch remain pending`
+- `Merged into main by PR #118 - FAM-006 is release-bearing source truth for v1.7.0-prebeta; Dashboard acceptance is USER WAIVED/PASSABLE and Overlay/display remains deferred/non-gating`
 
 ## Canonical Branch
 
@@ -32,7 +32,7 @@ This branch may execute the admitted PKG-006 implementation slices during Workst
 
 ## Current Phase
 
-- Phase: `PR Readiness`
+- Phase: `Historical Traceability`
 
 ## Phase Status
 
@@ -40,28 +40,29 @@ This branch may execute the admitted PKG-006 implementation slices during Workst
 - Workstream Stage: `WS57 green - failure-seeking LV1 found that the actual desktop shortcut still targeted the AI lab/planning worktree, then USER's bounded waiver admitted a focused Workstream repair to align the shortcut with C:\Nexus Desktop AI FAM-006 and harden the human-client shortcut target gate before H1/LV1 rerun`
 - Hardening Stage: `H1 green after WS57 - pressure-tested actual desktop shortcut alignment, launcher/orphan-tray integration, active-owner PID identity, stale/reused PID relaunch, pre-click resize cursor timing, corner/right-edge/bottom-edge resize, fluid geometry samples, tray/NCP regression safety, active-client proof, and source-truth consistency`
 - Live Validation Stage: `LV2 green after WS57/H1/LV1 - USER explicitly waived the refreshed UTS returned-result test on 2026-05-12 and stated the Dashboard functionality is passable; Dashboard acceptance is classified as USER WAIVED/PASSABLE for the current Dashboard-first branch surface, with deferred/future issue-thread compilation reserved for PR Readiness Stage 1 discussion`
-- PR Readiness Stage: `Stage 2 admitted by USER on 2026-05-12 after Stage 1 recommended ACCEPT FOR STAGE 2; PR #118 is created, non-draft, mergeable, and CLEAN; Codex review threads PRRT_kwDORwnWIs6BkNZu and PRRT_kwDORwnWIs6BkNZz were answered/resolved as non-actionable under current USER/product contract; current remaining work is mergeability refresh, watcher runtime proof, USER merge decision, and merge-watch preparation`
+- PR Readiness Stage: `Complete / merged - PR #118 was created, validated, review-dispositioned, and merged into main on 2026-05-12. Codex review threads PRRT_kwDORwnWIs6BkNZu and PRRT_kwDORwnWIs6BkNZz were answered/resolved as non-actionable under current USER/product contract. Post-merge source truth now routes through v1.7.0-prebeta release-support canon repair before Release Readiness can resume.`
 - Live PR: `https://github.com/GiribaldiTTV/Nexus-Desktop-AI/pull/118`
-- PR State: `OPEN / non-draft / MERGEABLE / CLEAN`
-- PR Head SHA: `Live GitHub PR state owns the current head SHA; Stage 2 operator output records the final inspected SHA to avoid merge-stable doc drift`
-- PR Watcher: `fam-006-pr-118-watcher`
-- Active Branch: `feature/fam-006-monitoring-hud-product-surface`
-- Branch Authority Mode: `Active Branch`
+- PR State: `MERGED`
+- PR Head SHA: `a9c97a01e82b7802d6c8341e5a695527a54c1991`
+- PR Merge Commit: `d08eeb8cc170df849226d528066be01d1640b679`
+- PR Watcher: `fam-006-pr-118-watcher retired after merge observation`
+- Active Branch: `None`
+- Branch Authority Mode: `Historical Branch`
 - Workstream Entry Source-Truth Transition: `Performed - Branch Readiness Stage 2 terminal evidence reconciled before runtime implementation`
 - Branch Creation: `Created from updated main at 3c68cd881a9f6bf447f09ac0949d556e97bce4f4`
 - Branch Admission Commit: `8ae84cb784fc07dfe4f445359de4cf20a13552fa`
 - Branch Rename State: `Renamed to feature/fam-006-monitoring-hud-product-surface after USER direction to avoid codex-prefixed active branch names; old origin codex-prefixed branch deleted after feature branch push`
-- Branch Authority State: `Active branch authority`
+- Branch Authority State: `Historical branch authority`
 - Selected Next Source: `USER-approved selected-next truth matured into active FAM-006 Workstream`
 - Package Admission State: `Admitted`
 - Admitted Slice Count: `6`
-- Package Completion State: `Closeout Ready / PR Validation Pending - Dashboard acceptance gate is cleared by explicit USER waiver/passable classification, admitted slices are ready for PR closeout, but final package completion remains unclaimed until PR Readiness Stage 2 live PR validation, watcher proof, bot-review handling, and merge-watch pass`
+- Package Completion State: `Merged / release-bearing closeout complete for PR #118 - Dashboard acceptance gate is cleared by explicit USER waiver/passable classification, admitted slices were carried through PR closeout, and release publication remains pending v1.7.0-prebeta Release Readiness`
 - Single-Slice Package User Approval: `Not required - PKG-006 has six concrete admitted slices; no waiver granted`
-- Runtime Implementation State: `Dashboard-first WS37-WS56, prior denied LV1 proof, WS48 human-client proof-governance repair, WS49 Dashboard/NCP/tray interaction repair, WS50 scrollbar/native-window boundary repair, WS51 resize hit-zone / scrollbar inset / HUD feature persistence repair, WS52 real resize recovery repair, WS53 resize edge discoverability repair, WS54 resize cursor-alignment repair, WS55 resize-action recovery repair, and WS56 pre-click resize cursor / resize-fluidity repair are preserved as supporting history only where not superseded. USER video evidence after the WS53 LV1 handoff showed the Windows resize cursor appearing far inside the Dashboard because the 58px rail made resize draggable away from the visible edge; WS54 replaced that with a cursor-aligned 12px rail and real Windows non-client hit-tests. USER then returned post-WS54 feedback that the Dashboard could no longer be resized, proving WS54 over-credited cursor/hit-test proof without proving the actual user drag action from the cursor transition point. WS55 repaired actual resize action from the discovered cursor transition point. USER then returned post-WS55 feedback that the resize cursor still appeared only after left-click hold and resize growth was choppy/laggy; WS56 repaired pre-click hover cursor ownership through WM_SETCURSOR/hover polling and fluid app-owned geometry resize at 8ms with duplicate geometry writes skipped. H1 after WS56 pressure-tested the repair with fresh human-client proof, active-client proof, desktop entrypoint/tray proof, NCP/saved-action validation, static validation, and internal sandbox proof. LV1 after H1 refreshed the issue-grounded formal UTS from fresh human-client proof at dev/logs/fam_006_human_client_validation/20260511_142028_158/human_client_manifest.json and active-client proof at dev/logs/fam_006_monitoring_hud_live_validation/20260511_142315_949. WS57 later aligned the actual desktop shortcut to C:\Nexus Desktop AI FAM-006 and refreshed the issue-grounded LV1 handoff from actual shortcut proof. USER explicitly waived the refreshed UTS returned-result testing on 2026-05-12 and classified the Dashboard functionality as passable, so LV2 digests Dashboard acceptance as USER WAIVED/PASSABLE for the current Dashboard-first branch surface. App-side callback/precheck manifests, fake/offscreen proof, direct function calls, screenshots, and marker proof still cannot independently clear future user-facing tray, Dashboard, NCP interaction, movement, resize, shutdown-confirmation, persistence, or visual-quality acceptance unless the human-client manifest passes or USER explicitly waives it. #20 NCP placement/persistence and 6f Dev Toolkit Interface Review Mode remain deferred priority future scope unless later proof shows FAM-006 caused a current regression. Exit prompt visual restyling is future polish unless separately admitted; functional tray Exit confirmation/timing remains supporting proof and shutdown hotkeys remain direct. Overlay/display remains deferred/dormant/non-gating, ORIN/Core remains dependency-only, and PR Readiness Stage 2 is active after USER admission.`
+- Runtime Implementation State: `Dashboard-first WS37-WS57, prior denied LV1 proof, human-client proof-governance repair, Dashboard/NCP/tray interaction repair, scrollbar/native-window boundary repair, resize/cursor/fluidity repair, HUD feature persistence, actual shortcut alignment, H1/LV1 reruns, and LV2 explicit USER waiver digest are preserved as historical proof. USER explicitly waived the refreshed UTS returned-result testing on 2026-05-12 and classified Dashboard functionality as passable, so LV2 digests Dashboard acceptance as USER WAIVED/PASSABLE for the current Dashboard-first branch surface. App-side callback/precheck manifests, fake/offscreen proof, direct function calls, screenshots, and marker proof still cannot independently clear future user-facing tray, Dashboard, NCP interaction, movement, resize, shutdown-confirmation, persistence, or visual-quality acceptance unless the human-client manifest passes or USER explicitly waives it. #20 NCP placement/persistence and 6f Dev Toolkit Interface Review Mode remain deferred priority future scope unless later proof shows FAM-006 caused a current regression. Exit prompt visual restyling is future polish unless separately admitted; functional tray Exit confirmation/timing remains supporting proof and shutdown hotkeys remain direct. Overlay/display remains deferred/dormant/non-gating, ORIN/Core remains dependency-only, and the branch is now merged historical release-bearing proof.`
 - Post-Main H1 Current State: `After main was merged into FAM-006 at e74e3190, the main launcher/orphan-tray fix and #117 stale active-owner PID follow-up were integrated into this branch, making prior H1/LV1 launcher/tray/entrypoint proof stale for affected rows. H1 after the merge pressure-tested launcher/orphan-tray integration, active-owner PID identity validation, stale/reused PID relaunch, true live-owner preservation, FAM-rooted shortcut-equivalence proof, tray Enable/Open/Close/Disable, Exit confirmation, NCP/saved-action behavior, active-client screenshots, internal sandbox proof, and WS56 resize/cursor/fluidity proof. The later failure-seeking LV1 preflight found that the real desktop shortcut still targeted C:\Nexus Desktop AI, which is reserved for the AI lab/planning worktree. WS57 aligned the actual desktop shortcut to C:\Nexus Desktop AI FAM-006, added a human-client shortcut target precheck, and H1/LV1 reran from the actual aligned shortcut path.`
-- PR Creation State: `Created in PR Readiness Stage 2 - PR #118 https://github.com/GiribaldiTTV/Nexus-Desktop-AI/pull/118`
-- Watcher Provisioning State: `Provisioned in PR Readiness Stage 2 - heartbeat automation fam-006-pr-118-watcher is ACTIVE; first watcher runtime emission/proof remains pending`
-- Release Work State: `Not approved; v1.6.13-prebeta release execution is already complete and no new release work is in scope`
+- PR Creation State: `Created and merged in PR Readiness Stage 2 - PR #118 https://github.com/GiribaldiTTV/Nexus-Desktop-AI/pull/118`
+- Watcher Provisioning State: `Provisioned in PR Readiness Stage 2; merge observation completed and watcher is no longer a live blocker`
+- Release Work State: `Not executed in this branch; v1.7.0-prebeta Release Readiness remains blocked until release-support canon repair merges and main validates green`
 - Optional Voice/Status Integration: `Deferred unless later proven to be narrow HUD-status copy inside FAM-006`
 - Element Coverage State: `Coverage-only; not counted as admitted slices`
 
@@ -71,22 +72,20 @@ This branch may execute the admitted PKG-006 implementation slices during Workst
 
 ## Blockers
 
-- `PR Watcher Runtime Proof Pending`
-- `Bot Review Disposition Recorded / Mergeability Refresh Pending`
-- `USER Merge Decision Pending`
-- `PR Merge Verification Pending`
-- `Deferred Issue Thread Compilation Reserved For Post-Merge FAM-007 Branch Readiness Stage 1 Analysis`
+- `v1.7.0-prebeta Release-Support Canon Repair Pending`
+- `Release Readiness Re-entry Requires Separate USER Approval After Repair Merge`
+- `Deferred Issue Thread Compilation Reserved For Later USER-Approved Branch Readiness Analysis`
 
-Package completion is not currently claimed. Stage 2-R13 cleared the earlier Branch Readiness planning latches and handed the branch to Dashboard-focused Workstream repair, but returned USER feedback repeatedly reopened acceptance rows before LV2 could proceed. WS37 through WS57 and prior H1/LV1 remain supporting history where not superseded. The post-WS57 H1 and LV1 reruns are green for repo-side hardening and handoff proof, and USER has now explicitly waived the refreshed UTS returned-result testing. Dashboard acceptance is cleared as USER WAIVED/PASSABLE for the current Dashboard-first branch surface. PR Readiness Stage 2 is now admitted; package completion, release, and Overlay/display acceptance remain unclaimed until live PR validation, watcher proof, bot-review handling if needed, merge-watch, and later legal gates pass.
+Package completion is now historical/merged for PR #118. Stage 2-R13 cleared earlier Branch Readiness planning latches and handed the branch to Dashboard-focused Workstream repair; returned USER feedback repeatedly reopened acceptance rows before LV2 could proceed; WS37 through WS57 and H1/LV1 proof remain supporting history where not superseded; USER explicitly waived refreshed UTS returned-result testing; and PR #118 merged the package into main. Dashboard acceptance is USER WAIVED/PASSABLE for the current Dashboard-first branch surface. Release publication, Overlay/display acceptance, and future issue-thread planning remain outside this historical branch record.
 
 ## Acceptance Guards
 
-- `Live PR Validation And Merge-Watch Required`
-- `Package Completion Closeout Required`
+- `v1.7.0-prebeta Release Readiness Requires Separate USER Approval`
+- `Release-Support Canon Repair Must Merge Before Release Execution`
 - `Issue Thread Compilation Deferred To Post-Merge FAM-007 Branch Readiness Stage 1 Analysis`
 - `Overlay Display Acceptance Still Deferred`
 - `Core Remains Dependency Only`
-- `No Release Tag Artifact Or Direct Main Mutation During PR Readiness`
+- `No Release Tag Artifact Or Direct Main Mutation In This Historical Branch Record`
 
 ## Returned LV1 Repair Findings
 
@@ -262,11 +261,11 @@ Rollback Path: revert the latest post-main H1 source-truth/helper update commit 
 
 ## Next Legal Phase
 
-- `PR Readiness`
+- `Release Readiness`
 
-Next Legal Seam: `PR Readiness Stage 2 - FAM-006 final PR package sync, package closeout readiness sync, PR creation, watcher provisioning, live PR validation, bot-review handling if needed, and merge-watch preparation`
+Next Legal Seam: `Release-support canon repair for v1.7.0-prebeta, then Release Readiness re-entry only after separate USER approval`
 
-Next Legal Phase Gate: LV2 returned-result waiver digestion is complete, PR Readiness Stage 1 analysis recommended ACCEPT FOR STAGE 2, and USER admitted PR Readiness Stage 2 on 2026-05-12. Stage 2 may create and validate the PR and watcher, but must not execute release work, create a tag, publish artifacts, mutate `main`, import the AI Product Contract, use `codex/ai-llm-lab` as a carrier, admit Overlay/display release acceptance, create issue threads, create a next branch, or create/admit a new FAM/package without later explicit USER approval.
+Next Legal Phase Gate: PR #118 is merged and this branch authority record is historical traceability. Release execution remains blocked until the narrow v1.7.0-prebeta release-support canon repair lands, main validates green, and USER separately admits Release Readiness / release execution.
 
 Next Legal Analysis Candidate: `FAM-007 Branch Readiness Stage 1 analysis only` after FAM-006 merge/main validation. That Stage 1 analysis must decide whether the legal next carrier is FAM-007 AI foundation, governance/workspace-resilience, a combined FAM-007 foundation plus workspace-governance package, or another path required by updated main. No implementation branch, package admission, GitHub issue creation, or parallel-work governance change is automatic before that Stage 1 result and later USER Stage 2 approval. Saved/deferred FAM-006 Returned USER issues remain preserved for that analysis or a later admitted issue-planning carrier.
 
@@ -2436,8 +2435,8 @@ Workstream WS46 includes static HUD validation, internal sandbox proof, a hidden
 - Package Closeout Readiness: `Ready for PR validation - admitted slices have Workstream, Hardening, Live Validation, and LV2 USER waiver/passable acceptance evidence; final package completion remains unclaimed until PR Readiness Stage 2 and merge-watch pass`
 - Watcher Status: `Provisioned - fam-006-pr-118-watcher ACTIVE; first watcher runtime emission/proof pending`
 - Bot Review Status: `HANDLED - Codex review threads PRRT_kwDORwnWIs6BkNZu and PRRT_kwDORwnWIs6BkNZz were answered and resolved; hotkey-confirmation suggestion is non-actionable because current USER/product contract says only tray Exit owns confirmation while shutdown hotkeys remain direct; persisted Dashboard visibility suggestion is non-actionable because startup must not surprise-open the Dashboard and only HUD Feature enabled state is restored`
-- Mergeability Status: `PASS - PR #118 is OPEN, non-draft, MERGEABLE, CLEAN, base main, head feature/fam-006-monitoring-hud-product-surface`
-- Next Legal Step: `Monitor PR #118 for bot-review/check changes, resolve actionable feedback if it appears, wait for USER merge decision, then perform merge-watch verification after merge; do not enter Release Readiness until PR merge-watch verifies merged and USER admits Release Readiness`
+- Mergeability Status: `Historical PASS - PR #118 was open, non-draft, MERGEABLE, CLEAN before merge; PR #118 is now MERGED`
+- Next Legal Step: `Repair the narrow v1.7.0-prebeta post-merge source-truth drift through release-support PR, then re-enter Release Readiness only after separate USER approval`
 
 ## PR Creation Details
 
@@ -2455,7 +2454,7 @@ Workstream WS46 includes static HUD validation, internal sandbox proof, a hidden
 - Watcher Automation: `fam-006-pr-118-watcher`
 - Watcher Runtime Proof: `Pending first scheduler/heartbeat emission`
 - Bot Review Thread Proof: `Resolved - PRRT_kwDORwnWIs6BkNZu and PRRT_kwDORwnWIs6BkNZz are closed after source-truth/validator-aligned replies`
-- Merge-Watch Preparation: `Ready after USER merge decision; no release execution authorized`
+- Merge-Watch Preparation: `Historical - USER merge decision completed and PR #118 merged; no release execution authorized by this record`
 
 ## Governance Drift Audit
 
