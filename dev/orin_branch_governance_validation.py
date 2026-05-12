@@ -1701,7 +1701,7 @@ FAM006_ELEMENT_LEDGER_REQUIRED_PHRASES = (
     "FAM006-FUTURE-AUDIO-043",
     "FAM006-FUTURE-PERSONA-044",
     "## UTS Coverage Map",
-    "Current Coverage Status: `Live Validation LV2 Green After USER Waiver - RUI-001 through RUI-057 remain issue-grounded; the actual desktop shortcut now targets C:\\Nexus Desktop AI FAM-006, WS56 resize/cursor/fluidity rows are revalidated against the current executable state, current LV1 handoff is refreshed, LV2 digested explicit USER waiver/passable acceptance, and PR Readiness Stage 1 requires explicit USER admission`",
+    "Current Coverage Status: `PR Readiness Stage 2 In Progress After USER Admission - RUI-001 through RUI-057 remain issue-grounded; the actual desktop shortcut now targets C:\\Nexus Desktop AI FAM-006, WS56 resize/cursor/fluidity rows are revalidated against the current executable state, current LV1 handoff is refreshed, LV2 digested explicit USER waiver/passable acceptance, and PR Readiness Stage 2 must validate the live PR, watcher proof, bot-review handling if needed, and merge-watch before final package closeout`",
     "## Proof Rebaseline Summary",
     "Returned Step 2 Tray enable/disable/open Dashboard",
     "Returned Step 3 Tray Exit NDAI",
