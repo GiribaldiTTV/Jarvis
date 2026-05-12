@@ -55,23 +55,23 @@ Historical note:
 
 None.
 
-FB-044 Boot-to-desktop handoff outcome refinement and FB-045 Active-session relaunch outcome refinement are Released / Closed historical proof through `v1.6.9-prebeta`; FB-046 Active-session relaunch reacquisition and settled re-entry proof is Released / Closed historical proof through `v1.6.10-prebeta`; FB-047 Active-session relaunch decline session-preservation proof is Released / Closed historical proof through `v1.6.11-prebeta`; FB-048 Active-session relaunch signal-failure and wait-timeout truth is Released / Closed historical proof through `v1.6.12-prebeta`; latest public prerelease truth is `v1.6.13-prebeta`; the backlog-family governance reform package, automation-catalog package, FAM-001 legacy FB-049 runtime proof, FAM-004 legacy FB-030 runtime diagnostics proof, PR #112 source-truth closeout / merge-target authority hardening proof, and PR #113 source-truth closeout / merge-target authority hardening proof are released historical traceability in `v1.6.13-prebeta`; PR #108 is merged and released as FAM-004 historical proof after watcher-verified merge proof; PR #109 is merged historical FAM-003 legacy FB-027 family evidence for shutdown-hotkey availability/direct-shutdown validation, with visible confirmation owned by tray Exit only, and is not a standalone release-version driver.
+FB-044 Boot-to-desktop handoff outcome refinement and FB-045 Active-session relaunch outcome refinement are Released / Closed historical proof through `v1.6.9-prebeta`; FB-046 Active-session relaunch reacquisition and settled re-entry proof is Released / Closed historical proof through `v1.6.10-prebeta`; FB-047 Active-session relaunch decline session-preservation proof is Released / Closed historical proof through `v1.6.11-prebeta`; FB-048 Active-session relaunch signal-failure and wait-timeout truth is Released / Closed historical proof through `v1.6.12-prebeta`; latest public prerelease truth is `v1.7.0-prebeta`; FAM-006 Monitoring HUD Dashboard Product Surface is released historical traceability in `v1.7.0-prebeta`; the backlog-family governance reform package, automation-catalog package, FAM-001 legacy FB-049 runtime proof, FAM-004 legacy FB-030 runtime diagnostics proof, PR #112 source-truth closeout / merge-target authority hardening proof, and PR #113 source-truth closeout / merge-target authority hardening proof remain released historical traceability; PR #108 is merged and released as FAM-004 historical proof after watcher-verified merge proof; PR #109 is merged historical FAM-003 legacy FB-027 family evidence for shutdown-hotkey availability/direct-shutdown validation, with visible confirmation owned by tray Exit only, and is not a standalone release-version driver.
 Released baseline truth is aligned: FB-040 is released and closed in `v1.6.0-prebeta`, FB-031 is released and closed in `v1.6.1-prebeta`, FB-032 is released and closed in `v1.6.2-prebeta`, FB-004 is released and closed in `v1.6.3-prebeta`, FB-015 plus FB-029 are released and closed in `v1.6.4-prebeta`, FB-030 is released and closed in `v1.6.5-prebeta`, FB-005 is released and closed in `v1.6.6-prebeta`, FB-042 is released and closed in `v1.6.7-prebeta`, FB-043 is released and closed in `v1.6.8-prebeta`, FB-044 plus FB-045 are released and closed in `v1.6.9-prebeta`, FB-046 is released and closed in `v1.6.10-prebeta`, FB-047 is released and closed in `v1.6.11-prebeta`, FB-048 is released and closed in `v1.6.12-prebeta`, and the FAM-001 legacy FB-049 runtime proof plus FAM-004 legacy FB-030 runtime diagnostics proof are released historical traceability in `v1.6.13-prebeta`.
 FB-039 is released and closed in `v1.5.0-prebeta`.
 FB-038 remains released and closed in `v1.4.1-prebeta`.
 
 ## Current Branch Execution Posture
 
-Released Historical Scope: FAM-001 legacy FB-049 Active-session pre-settled incoming-launch conflict truth plus FAM-004 legacy FB-030 voice/audio runtime diagnostics proof plus merged governance/automation proof package plus PR #112 source-truth closeout / merge-target authority hardening proof plus PR #113 source-truth closeout / merge-target authority hardening proof released in v1.6.13-prebeta; FAM-006 Monitoring HUD Dashboard Product Surface is merged release-bearing debt for v1.7.0-prebeta through PR #118.
+Released Historical Scope: FAM-006 Monitoring HUD Dashboard Product Surface released in v1.7.0-prebeta through PR #118 plus FAM-001 legacy FB-049 Active-session pre-settled incoming-launch conflict truth, FAM-004 legacy FB-030 voice/audio runtime diagnostics proof, merged governance/automation proof package, PR #112 source-truth closeout / merge-target authority hardening proof, and PR #113 source-truth closeout / merge-target authority hardening proof released in v1.6.13-prebeta.
 Repo State: No Active Branch.
 Merged-Main Repo State: No Active Branch.
-Latest Public Prerelease: v1.6.13-prebeta.
-Latest Public Release Commit: faaf991d2579dd6478f78245d56956858cc2f59b.
-Latest Public Prerelease Publication: https://github.com/GiribaldiTTV/Nexus-Desktop-AI/releases/tag/v1.6.13-prebeta.
-Latest Public Prerelease Title: Pre-Beta v1.6.13.
-Release Debt: Active - PR #118 merged FAM-006 user-facing implementation after v1.6.13-prebeta and awaits v1.7.0-prebeta release execution after this release-support canon repair lands.
+Latest Public Prerelease: v1.7.0-prebeta.
+Latest Public Release Commit: 06edf8143dd862c94d26ff7d812105179a621206.
+Latest Public Prerelease Publication: https://github.com/GiribaldiTTV/Nexus-Desktop-AI/releases/tag/v1.7.0-prebeta.
+Latest Public Prerelease Title: Pre-Beta v1.7.0.
+Release Debt: Clear - PR #118 FAM-006 user-facing implementation and PR #119 pre-release canon repair are published in v1.7.0-prebeta.
 Merged-main Current Active Workstream: None.
-Current Active Workstream: None - PR #118 merged the FAM-006 Monitoring HUD Dashboard Product Surface package into main on 2026-05-12. USER explicitly waived the refreshed UTS returned-result test in LV2 and classified Dashboard functionality as passable; Dashboard acceptance is USER WAIVED/PASSABLE for the current Dashboard-first surface. The branch authority is now historical, Overlay/display acceptance remains deferred/non-gating, Core remains dependency-only, and release execution waits for v1.7.0-prebeta Release Readiness after this canon repair PR merges.
+Current Active Workstream: None - PR #118 merged the FAM-006 Monitoring HUD Dashboard Product Surface package into main on 2026-05-12, PR #119 repaired the pre-release canon drift, and v1.7.0-prebeta published that release window. USER explicitly waived the refreshed UTS returned-result test in LV2 and classified Dashboard functionality as passable; Dashboard acceptance is USER WAIVED/PASSABLE for the current Dashboard-first surface. The branch authority is historical, Overlay/display acceptance remains deferred/non-gating, Core remains dependency-only, and the approved FAM-007/governance carrier is repairing post-release canon, release-body SOP, loader, and workspace-safety drift before implementation begins.
 Current Active Workstream Before Reform: None.
 Current Execution Branch: None.
 Current Active Branch Authority Record: None.
@@ -84,10 +84,10 @@ Selected Next Workstream: None.
 Selected Next Record State: None.
 Selected Next Runtime Package Candidate: None.
 Selected Next Implementation Branch: None.
-Selected Next Status: FAM-006 matured through PR #118 and is now merged release-bearing debt for v1.7.0-prebeta; FAM-007 remains an analysis-only candidate after release-blocker repair, updated-main validation, and later USER admission.
+Selected Next Status: FAM-006 matured through PR #118 and is now released historical traceability in v1.7.0-prebeta; FAM-007/governance is admitted only for Branch Readiness Stage 2 canon/governance repair, with implementation and package admission still blocked.
 Runtime Package Admission: Historical - PKG-006 was admitted on the FAM-006 branch and merged through PR #118.
-Next Legal Runtime Step: None until v1.7.0-prebeta release-support canon repair merges and Release Readiness is re-entered with USER approval.
-Next Legal Analysis Candidate: FAM-007 Branch Readiness Stage 1 analysis only after the v1.7.0-prebeta release-blocking canon repair is merged and main validates green. That analysis must decide whether the legal next carrier is FAM-007 AI foundation, governance/workspace-resilience, a combined FAM-007 foundation plus workspace-governance package, or another path required by updated main. No implementation branch, package admission, GitHub issue creation, or parallel-work governance change is automatic before that Stage 1 result and later USER Stage 2 approval.
+Next Legal Runtime Step: None until the approved Branch Readiness Stage 2 canon/governance repair validates green and a later USER-approved Branch Readiness packet admits implementation.
+Next Legal Analysis Candidate: Branch Readiness Stage 1 revalidation after the Stage 2 canon/governance repair. That analysis must decide whether the legal next implementation carrier is FAM-007 AI foundation, governance/workspace-resilience, a combined FAM-007 foundation plus workspace-governance package, or another path required by updated main. No implementation package admission, GitHub issue creation, or parallel-work governance change is automatic before that revalidation result and later USER approval.
 Post-FAM-006 Required Governance/Package Candidate: Repo-Wide High-Risk Source Owner Marker Adoption; candidate branch `feature/repo-wide-source-owner-marker-adoption`; recorded as a future governance/package candidate after FAM-006 issue-planning priority is resolved or USER reorders it, not as an active selected-next implementation branch or newly admitted package. Later readiness must decide the legal carrier and package/admission shape before branch creation. Future scope is to scan existing source files, identify high-risk product/proof-bearing code regions, map them to Element Validation Ledger rows, add high-risk-only source-owner markers where useful, validate marker-to-ledger consistency, and plan repo-wide Dev Toolkit Interface Review Mode dispositions for existing and future USER-facing elements including NCP, Core visualization, Dashboard, Overlay/display when admitted, and other windows/components. The Dev Toolkit design is tabled for that future pass, including whether to use per-interface launchers, a generalized all-surfaces review-mode launch, or both. The future pass must keep production runtime behavior unchanged unless a separately admitted repair is required, and production UI must not expose element numbers.
 Backlog Addition User Approval Missing: Cleared for USER-approved FAM-006 selected-next successor selection, Branch Readiness Stage 2 branch creation, and PKG-006 runtime package admission only; active for any other attempted new backlog item, backlog split, promotion beyond FAM-006, branch creation outside this carrier, or single-slice package waiver without explicit USER approval.
 Historical Repair-Only Branch Handling: `feature/fb-046-post-merge-canon-sync` was a bounded repair-only post-merge canon-sync `feature/` branch and did not imply Branch Readiness admission or active branch truth for FB-046.
@@ -104,15 +104,15 @@ Historical Workstream State: Automation catalog implementation is merged histori
 Historical Hardening State: Complete on `feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeout-truth`.
 Historical Live Validation State: Complete on `feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeout-truth`.
 Canonical Current-State Rule: merge-target current-state owners stay merge-stable during merged-unreleased release-debt windows; live PR state, conflict/readiness details, review-resolution details, and blocker-clearing repair-lane narration live only in explicit historical PR sections of the canonical workstream and in operator output.
-Release Execution State: `v1.7.0-prebeta` Release Readiness remains blocked until this release-support source-truth repair merges and main validates green; no tag, GitHub Release, or artifacts have been created.
+Release Execution State: `v1.7.0-prebeta` is published; this Stage 2 carrier repairs post-release source-truth drift and corrected the approved live release-body artifact, but it does not create a new tag, GitHub Release, or new release artifact.
 Release Target: `v1.7.0-prebeta`.
 Release Floor: minor prerelease.
 Version Rationale: `v1.7.0-prebeta` is the next minor prerelease because PR #118 merged the user-facing FAM-006 Monitoring HUD Dashboard Product Surface after `v1.6.13-prebeta`; the release window also includes post-`v1.6.13-prebeta` source-truth closeout and launcher/orphan-tray recovery history already merged to main.
 Release Scope: PR #114 `docs: close v1.6.13 post-release canon`, PR #116 `Fix launcher orphan tray recovery`, and PR #118 `FAM-006 Monitoring HUD Dashboard Product Surface`, including the USER WAIVED/PASSABLE Dashboard-first acceptance state, deferred Overlay/display boundary, Core dependency-only boundary, actual shortcut proof, and saved/deferred issue traceability.
-Release Artifacts: Pending - tag `v1.7.0-prebeta`, GitHub Release `Pre-Beta v1.7.0`, generated release notes, and any release artifacts are not created in this repair carrier.
-Post-Release Truth: Pending v1.7.0-prebeta release execution and later post-release closure. Until release executes, PR #118 is merged-unreleased release debt on main; there is no active branch authority, and the FAM-006 branch record is historical traceability only.
-Next-Branch Creation Gate: Blocked until the v1.7.0-prebeta release-blocking canon repair lands, Release Readiness is re-entered, and later USER approval admits the next Branch Readiness lane.
-Next Legal Phase: Release-support repair PR creation/validation on `codex/v1.7.0-prebeta-release-support-canon-repair`; after that PR merges and main validates green, re-enter Release Readiness for v1.7.0-prebeta by separate USER approval.
+Release Artifacts: Published - tag `v1.7.0-prebeta` and GitHub Release `Pre-Beta v1.7.0` exist at `06edf8143dd862c94d26ff7d812105179a621206`; the live release body has been corrected with detailed summary, highlights, validation/governance, generated `What's Changed`, and `Full Changelog` sections as the approved release-artifact correction in this Stage 2 carrier.
+Post-Release Truth: `v1.7.0-prebeta` is published and FAM-006 is released historical traceability. Post-release canon drift and release-body SOP drift are being repaired in this approved Branch Readiness Stage 2 carrier before implementation begins.
+Next-Branch Creation Gate: Cleared only for the approved `codex/fam-007-branch-readiness` governance/canon repair carrier. FAM-007 implementation branch/package admission remains blocked until a later Branch Readiness revalidation and USER approval.
+Next Legal Phase: Branch Readiness Stage 2 governance/canon repair on `codex/fam-007-branch-readiness`; after validation and PR merge, run Branch Readiness Stage 1 revalidation before any FAM-007 implementation or package admission.
 
 ## Backlog Governance Sync
 
@@ -135,7 +135,7 @@ Open-candidate priority review:
 - FB-048 is Released / Closed in `v1.6.12-prebeta`; release debt is clear after publication, validation, and post-release canon closure.
 - FAM-001 legacy FB-049 is historical complete after PR #107 merge; GitHub merge truth is valid, the same-thread watcher handoff failed, cleanup is proven, and the stale active-branch authority plus recurrence analysis is carried and repaired inside FAM-004 legacy FB-030 Branch Readiness.
 
-Current-branch clarity: latest public prerelease is `v1.6.13-prebeta`; FB-044 and FB-045 are released and closed in `v1.6.9-prebeta`; FB-046 is released and closed in `v1.6.10-prebeta`; FB-047 is released and closed in `v1.6.11-prebeta`; FB-048 is released and closed in `v1.6.12-prebeta`; merged `main` repo state remains `No Active Branch`; the backlog-family governance reform branch, automation-catalog branch, FAM-001 legacy FB-049 runtime branch, FAM-004 legacy FB-030 runtime branch, PR #112 source-truth closeout / merge-target authority hardening proof, and PR #113 source-truth closeout / merge-target authority hardening proof are released historical traceability in `v1.6.13-prebeta`; FAM-003 legacy FB-027 is a released baseline family anchor with PR #109 preserved as aggregation evidence; and USER-approved FAM-006 selected-next truth has matured into active PKG-006 package execution on `feature/fam-006-monitoring-hud-product-surface`, with product completion reopened after scaffold/marker proof failed to prove a clearly visible HUD.
+Current-branch clarity: latest public prerelease is `v1.7.0-prebeta`; FB-044 and FB-045 are released and closed in `v1.6.9-prebeta`; FB-046 is released and closed in `v1.6.10-prebeta`; FB-047 is released and closed in `v1.6.11-prebeta`; FB-048 is released and closed in `v1.6.12-prebeta`; merged `main` repo state remains `No Active Branch`; the backlog-family governance reform branch, automation-catalog branch, FAM-001 legacy FB-049 runtime branch, FAM-004 legacy FB-030 runtime branch, PR #112 source-truth closeout / merge-target authority hardening proof, and PR #113 source-truth closeout / merge-target authority hardening proof are released historical traceability in `v1.6.13-prebeta`; FAM-003 legacy FB-027 is a released baseline family anchor with PR #109 preserved as aggregation evidence; and FAM-006 Monitoring HUD Dashboard Product Surface is released historical traceability in `v1.7.0-prebeta`. The approved `codex/fam-007-branch-readiness` carrier repairs post-release canon, release-body SOP, loader, and workspace-safety drift before any FAM-007 implementation package may be admitted.
 
 ## Registry Items
 
@@ -276,7 +276,7 @@ Known Pending Gaps: Runtime diagnostics proof is released historical traceabilit
 Package Admission State: Historical baseline / no active package admission
 Admitted Slice Count: 0
 Released Historical Scope: FAM-001 legacy FB-049 Active-session pre-settled incoming-launch conflict truth plus FAM-004 legacy FB-030 voice/audio runtime diagnostics proof plus merged governance/automation proof package plus PR #112 source-truth closeout / merge-target authority hardening proof plus PR #113 source-truth closeout / merge-target authority hardening proof released in v1.6.13-prebeta
-Latest Public Prerelease: v1.6.13-prebeta
+Latest Public Prerelease: v1.7.0-prebeta
 Release Title: Pre-Beta v1.6.13
 Release Target: None - released in v1.6.13-prebeta.
 Release Floor: none - release execution is complete.
@@ -284,8 +284,8 @@ Version Rationale: The voice/audio runtime diagnostics proof added bounded truth
 Release Scope: released governance reform, automation catalog proof, FAM-001 legacy FB-049 runtime proof, FAM-004 legacy FB-030 voice/audio runtime diagnostics proof, PR #112 source-truth closeout / merge-target authority hardening proof, and PR #113 source-truth closeout / merge-target authority hardening proof.
 Release Artifacts: Published tag `v1.6.13-prebeta`; published GitHub prerelease title `Pre-Beta v1.6.13`; release notes include generated `What's Changed` and `Full Changelog` sections.
 Post-Release Truth: merged governance reform, automation catalog, FAM-001 legacy FB-049 runtime proof, FAM-004 legacy FB-030 runtime diagnostics proof, PR #112 source-truth closeout / merge-target authority hardening, and PR #113 source-truth closeout / merge-target authority hardening are released historical traceability; release debt is clear; and the later runtime package has USER-approved FAM-006 prior Workstream/Hardening evidence on `feature/fam-006-monitoring-hud-product-surface`; product completion is reopened, returned LV1 UTS FAIL evidence has routed the branch back through Branch Readiness rebaseline, and bounded Workstream repair continues after WS18 Core non-interference proof plus WS19 dashboard/minimal-HUD split proof.
-Selected Next Workstream: None - FAM-006 merged through PR #118 and is release-bearing debt for v1.7.0-prebeta.
-Next-Branch Creation Gate: Cleared for `feature/fam-006-monitoring-hud-product-surface` only by USER-approved Branch Readiness Stage 2.
+Selected Next Workstream: None - FAM-006 merged through PR #118 and is released historical traceability in v1.7.0-prebeta.
+Next-Branch Creation Gate: Blocked until the approved `codex/fam-007-branch-readiness` canon/governance repair validates and a later Branch Readiness packet admits implementation.
 Package Completion State: Released Baseline / Open
 Single-Slice Package User Approval: Not required - no active single-slice package is admitted; future package admission must have multiple concrete admitted slices or USER waiver.
 
@@ -337,27 +337,27 @@ Summary: External Integrations keeps the trigger architecture release as proof w
 
 ### [ID: FAM-006] Monitoring and HUD
 
-Status: Merged release-bearing / pending v1.7.0-prebeta release
+Status: Released historical traceability in v1.7.0-prebeta
 Record State: Registry-only
 Registry Class: Feature Family
 Family Anchor: Self
 Priority: Medium
-Next Workstream: None - FAM-006 merged through PR #118 and is release-bearing debt for v1.7.0-prebeta. Workstream WS43 through WS57, post-WS57 H1, current LV1 handoff proof, and LV2 USER WAIVED/PASSABLE Dashboard acceptance remain historical proof where not superseded. Overlay/display acceptance remains deferred/non-gating, ORIN/Core repair remains dependency-only, and issue-thread compilation is deferred to a later USER-approved Branch Readiness analysis.
+Next Workstream: None - FAM-006 merged through PR #118 and is released in v1.7.0-prebeta. Workstream WS43 through WS57, post-WS57 H1, current LV1 handoff proof, and LV2 USER WAIVED/PASSABLE Dashboard acceptance remain historical proof where not superseded. Overlay/display acceptance remains deferred/non-gating, ORIN/Core repair remains dependency-only, and issue-thread compilation is deferred to a later USER-approved Branch Readiness analysis.
 Selected Next Workstream: None - FAM-006 matured into merged release-bearing debt.
 Selected Next Runtime Package Candidate: None
-Selected Next Status: FAM-006 is no longer selected-next or active; PR #118 merged the package and release execution is pending v1.7.0-prebeta.
+Selected Next Status: FAM-006 is no longer selected-next or active; PR #118 merged the package and v1.7.0-prebeta released it as historical traceability.
 Selected Next Implementation Branch: None
 Branch Creation Status: Created in Branch Readiness Stage 2 from updated main at `3c68cd881a9f6bf447f09ac0949d556e97bce4f4`
 Runtime Package Admission: Historical - `PKG-006` was admitted on the FAM-006 branch and merged through PR #118.
 Active Branch Authority Record: None - historical record is `Docs/branch_records/feature_fam_006_monitoring_hud_product_surface.md`
-Next Legal Runtime Step: None until v1.7.0-prebeta release-support canon repair merges and Release Readiness is re-entered with USER approval.
+Next Legal Runtime Step: None until the approved Branch Readiness Stage 2 canon/governance repair validates green and a later USER-approved Branch Readiness packet admits implementation.
 Minimal Scope: admitted runtime package rebaselined to Dashboard-first current-branch acceptance: optional Nexus/NDAI Monitoring HUD Dashboard/control panel, monitor definition/editing and enablement posture, provider-contract-first telemetry health/setup/unavailable states, settings/control visibility, fail-safe/setup/reconnect/no-data/degraded-status behavior, visual/non-invasive warning posture controls, dashboard-specific validation/live desktop proof, and no fake telemetry; Overlay/display release acceptance, edgeless placement canvas acceptance, anchored uninteractable/click-through overlay acceptance, audio/spoken warnings, Stream Deck/plugin telemetry implementation, full sensor-platform parity, broad hardware provider platform work, advanced graphs/history/persistence, local AI, installer/capability-pack work, and broad repo-wide legacy naming migration remain deferred unless later admitted.
 Family Scope: Monitoring surfaces, CPU/GPU thermals, performance telemetry, HUD/overlay presentation, trust-safety display rules, and plugin-fed runtime telemetry.
 Package Policy: Branchable monitoring/HUD work must package source, display, and validation slices by default.
 Known Pending Gaps: Returned LV1 denial remains proof-governance history for prior handoffs. WS43 through WS57, prior Hardening H1, post-WS50 H1, post-WS53 H1, post-WS56 H1, prior LV1 handoff generation, post-main H1 proof, post-WS57 H1 proof, current LV1 handoff proof, and LV2 USER waiver digest are supporting/acceptance history where not superseded. Overlay Scope Deferred and Core Repair Dependency Only remain non-gating boundary classifications, not release interfaces. Broad provider-platform parity, Overlay/display release acceptance, external/plugin telemetry, audio/spoken alerts, persona switching, Stream Deck, graphs/history/persistence dashboards, local AI/capability packs, installer work, child-window implementation, NCP placement/persistence, Dev Toolkit Interface Review Mode, and ultra-low polling remain future-package deferrals unless later admitted.
 Package Admission State: Historical / merged
 Admitted Slice Count: 6
-Package Completion State: Merged release-bearing / pending v1.7.0-prebeta release execution
+Package Completion State: Released historical traceability in v1.7.0-prebeta
 Single-Slice Package User Approval: Not required - `PKG-006` has six concrete admitted slices and no single-slice waiver is granted.
 Single-Seam Workstream Waiver: None - bounded means one active seam at a time, not one-seam Workstream authority; single-seam or single-slice Workstream authority is forbidden unless explicit USER waiver text is recorded; if only one seam or one slice is planned or visible for the whole Workstream, stop on `Single-Seam Or Single-Slice Workstream Blocker`; PKG-006 has a recorded multi-seam/multi-slice Workstream chain and must continue through the remaining same-branch repair work unless a named blocker, future dependency, or explicit USER waiver is recorded.
 Interface Release Boundary: Dashboard-first - `Monitoring HUD Dashboard / control panel` is the primary current-branch interface release surface.
@@ -368,7 +368,7 @@ Package Trace:
 
 | Package ID | FAM ID | Package Name | Package Status | Package Completion State | Branch / Release Trace | Legacy FB / PR Evidence |
 | --- | --- | --- | --- | --- | --- | --- |
-| `PKG-006` | `FAM-006` | Monitoring and HUD product-surface package | Returned LV1 denial remains historical evidence; WS48 through WS57, post-WS57 H1, and LV1 handoff proof are green supporting proof where not superseded; LV2 digested explicit USER waiver/passable Dashboard acceptance; Overlay/display acceptance deferred/non-gating; Core repair dependency-only; PR #118 merged | Merged release-bearing / pending v1.7.0-prebeta release execution | `feature/fam-006-monitoring-hud-product-surface`; PR #118; historical baseline `feature/fb-040-monitoring-thermals-performance-hud-surface`; `v1.6.0-prebeta` | `FB-040`, HUD user-facing surface gap |
+| `PKG-006` | `FAM-006` | Monitoring and HUD product-surface package | Returned LV1 denial remains historical evidence; WS48 through WS57, post-WS57 H1, and LV1 handoff proof are green supporting proof where not superseded; LV2 digested explicit USER waiver/passable Dashboard acceptance; Overlay/display acceptance deferred/non-gating; Core repair dependency-only; PR #118 merged and v1.7.0-prebeta released | Released historical traceability in v1.7.0-prebeta | `feature/fam-006-monitoring-hud-product-surface`; PR #118; historical baseline `feature/fb-040-monitoring-thermals-performance-hud-surface`; `v1.7.0-prebeta`; `v1.6.0-prebeta` | `FB-040`, HUD user-facing surface gap |
 
 Slice Trace:
 
@@ -538,7 +538,7 @@ Watcher Failure Truth: same-thread watcher handoff missing; watcher cleanup prov
 Release Stage: Released
 Latest Released Runtime Proof Version: v1.6.13-prebeta
 Release Title: Pre-Beta v1.6.13
-Latest Public Prerelease: v1.6.13-prebeta
+Latest Public Prerelease: v1.7.0-prebeta
 Release Readiness: Released historical traceability in `v1.6.13-prebeta`.
 Release Execution: `v1.6.13-prebeta` is live at https://github.com/GiribaldiTTV/Nexus-Desktop-AI/releases/tag/v1.6.13-prebeta on commit `faaf991d2579dd6478f78245d56956858cc2f59b`.
 Summary: Make startup-phase incoming-launch conflicts as truthful as settled-session relaunch conflicts.
@@ -666,7 +666,7 @@ Release Readiness: Released historical traceability in `v1.6.13-prebeta`.
 Release Execution: Historical `v1.6.5-prebeta` planning release remains live at https://github.com/GiribaldiTTV/Nexus-Desktop-AI/releases/tag/v1.6.5-prebeta on commit `7c2933d6427feb08a1139ba7f5ba2393eb61f1e1`; the runtime diagnostics follow-through is publicly released in `v1.6.13-prebeta` at https://github.com/GiribaldiTTV/Nexus-Desktop-AI/releases/tag/v1.6.13-prebeta on commit `faaf991d2579dd6478f78245d56956858cc2f59b`.
 Released Historical Scope: FAM-001 legacy FB-049 Active-session pre-settled incoming-launch conflict truth plus FAM-004 legacy FB-030 voice/audio runtime diagnostics proof plus merged governance/automation proof package plus PR #112 source-truth closeout / merge-target authority hardening proof plus PR #113 source-truth closeout / merge-target authority hardening proof released in v1.6.13-prebeta
 Repo State: No Active Branch
-Latest Public Prerelease: v1.6.13-prebeta
+Latest Public Prerelease: v1.7.0-prebeta
 Release Title: Pre-Beta v1.6.13
 Release Target: None - released in v1.6.13-prebeta.
 Release Floor: none - release execution is complete.
@@ -674,8 +674,8 @@ Version Rationale: FAM-004 legacy FB-030 added bounded runtime diagnostics truth
 Release Scope: released governance reform, automation catalog proof, FAM-001 legacy FB-049 runtime proof, FAM-004 legacy FB-030 voice/audio runtime diagnostics proof, PR #112 source-truth closeout / merge-target authority hardening proof, and PR #113 source-truth closeout / merge-target authority hardening proof.
 Release Artifacts: Published tag `v1.6.13-prebeta`; published GitHub prerelease title `Pre-Beta v1.6.13`; release notes include generated `What's Changed` and `Full Changelog` sections.
 Post-Release Truth: merged governance reform, automation catalog, FAM-001 legacy FB-049 runtime proof, FAM-004 legacy FB-030 runtime diagnostics proof, PR #112 source-truth closeout / merge-target authority hardening, and PR #113 source-truth closeout / merge-target authority hardening are released historical traceability; release debt is clear; USER-approved selected-next truth points to FAM-006; and product completion is reopened on `feature/fam-006-monitoring-hud-product-surface` with `PKG-006` admitted, prior Workstream/H1 evidence preserved, returned LV1 UTS FAIL evidence rebaselined by Branch Readiness Stage 2-R11, and WS18 Core non-interference plus WS19 dashboard/minimal-HUD split repair recorded before bounded Workstream repair continues.
-Selected Next Workstream: None - FAM-006 merged through PR #118 and is release-bearing debt for v1.7.0-prebeta.
-Next-Branch Creation Gate: Cleared for `feature/fam-006-monitoring-hud-product-surface` only by USER-approved Branch Readiness Stage 2.
+Selected Next Workstream: None - FAM-006 merged through PR #118 and is released historical traceability in v1.7.0-prebeta.
+Next-Branch Creation Gate: Blocked until the approved `codex/fam-007-branch-readiness` canon/governance repair validates and a later Branch Readiness packet admits implementation.
 Historical Planning Release: `v1.6.5-prebeta` remains the released planning/admission proof for the original voice/audio direction milestone.
 Minimal Scope: Completed WS1 voice/audio runtime availability and truthful diagnostics proof across `Audio/orin_voice.py`, `Audio/orin_error_voice.py`, `main.py`, `desktop/orin_desktop_launcher.pyw`, and `dev/orin_voice_regression_harness.py`, while preserving ORIN as the only shipped persona, keeping ARIA dormant, avoiding prompt or asset redesign, and avoiding public-copy or release-note changes before release phases.
 Summary: Turn the released FAM-004 legacy FB-030 voice/audio planning contract into its first bounded runtime truth proof.

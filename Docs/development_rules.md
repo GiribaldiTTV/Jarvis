@@ -395,7 +395,7 @@ That means:
   - if returned results expose mismatch, regression, cleanup failure, ambiguity, or scope drift, route back to `Workstream` or `Hardening` instead of advancing
 - no Release Readiness with missing merged closeout proof:
   - post-merge closeout proof must be in merged source truth, not only in a deleted branch, reflog, automation memory, or conversation transcript
-  - if missing proof blocks a release, carry it on a real release-support carrier; if product work is next, carry it on the next real runtime package carrier
+  - if missing proof blocks a release and the branch has not merged, carry it back through PR Readiness; if the branch has already merged, carry it on the next real runtime package carrier's Branch Readiness before implementation begins
   - direct-main repair remains blocked
 - no PR-ready before PR creation and PR validation:
   - `PR package ready` is not `PR Readiness GREEN`
@@ -442,13 +442,14 @@ That means:
   - Release Execution must use GitHub-generated release notes, through the GitHub release notes button or generated-release-notes API, so the `## What's Changed` section and previous-release compare link are populated from GitHub instead of hand-written or omitted
   - do not include `Not Included` sections, exclusion lists, negative scope framing, or defensive wording in operator summaries or release notes
   - keep normal source-of-truth scope, non-goals, stop conditions, and blockers in canon records; the inclusion-only rule applies to operator-facing PR and release packages
-- post-release canon repair is emergency-only:
-  - use it only when canon drift already exists on updated `main` and could not be prevented before merge or release
-  - release execution is not fully closed until post-release canon closure lands in remote source truth
+- post-release canon closure is standard lifecycle follow-through:
+  - prepare closure during PR Readiness when possible, or record bounded release-dependent drift and repair it during the next approved Branch Readiness Stage 2 carrier when publication truth cannot exist before release
+  - release execution and post-release canon closure are separate; post-release canon drift must land in remote source truth through the approved Branch Readiness carrier before implementation begins
   - a local-only post-release closure commit is a blocker, not completed source truth
-  - protected-main branch rejection must route to a real release-support closure branch/PR, not direct-main mutation
-  - post-release validation must compare published GitHub release/tag truth against remote repo source truth
-  - runtime Branch Readiness remains blocked until release publication and canon closure are both complete
+  - protected-main branch rejection must route to the next approved Branch Readiness Stage 2 canon/governance repair carrier, not direct-main mutation, standalone cleanup, or a default release-support branch
+  - post-release validation must compare published GitHub release/tag truth and release-body format against remote repo source truth
+  - runtime implementation remains blocked until release publication exists, post-release canon drift is explicitly recorded or repaired through the approved Branch Readiness carrier, and owning validation reports green
+  - acceptable transitional drift requires explicit backlog/roadmap markers: `Post-Release Canon Closure Drift: Recorded`, `Published Release Pending Canon Closure: <tag>`, `Closure Repair Surface: Next Branch Readiness Stage 2`, `Closure Drift Scope: release-dependent fields only`, and `Implementation Entry: Blocked until closure repair validates green`
 - governance-only branches are not used for new Nexus work:
   - governance and canon repair ride on the active runtime-focused branch when tied to that branch's truth
   - between-branch canon repair is blocked

@@ -74,7 +74,7 @@ Examples:
 
 When those facts change, the owning branch must carry the release-state canon before it reports PR-ready or release-ready.
 Release Readiness is not a broad docs-sync phase.
-If a required canon update escapes PR Readiness and the owning branch has already merged, the miss becomes a blocker in the next legitimate runtime-focused backlog branch's `Branch Readiness`; repair it there before implementation begins.
+If a required canon update escapes PR Readiness and the owning branch has already merged, the miss becomes a blocker in the next legitimate runtime-focused backlog branch's `Branch Readiness Stage 1`; repair it in `Branch Readiness Stage 2` before implementation begins.
 Do not open a governance-only branch or between-branch canon repair lane for routine closeout cleanup.
 Standalone docs/governance, emergency canon repair, and repair-only feature branches are blocked for future Nexus work.
 Governance, docs, source-of-truth, and validator repairs must ride inside the next legitimate runtime-focused backlog branch during `Branch Readiness` or `PR Readiness`.
@@ -90,7 +90,7 @@ The public GitHub prerelease title format for Nexus `pre-Beta` releases is:
 
 Milestone names, user-facing scope, capabilities, system behavior, evidence roots, and implementation details belong in inclusion-only release notes, not in the GitHub release title.
 Post-release confirmation must treat that concise `Pre-Beta v<major>.<minor>.<patch>` title as the expected published title when it matches the tag and release notes carry the scoped summary.
-The live GitHub release body must not repeat that title as a leading `# <release title>` heading; release notes should start with `## Release Summary` or `## Release Overview` and then carry the release-specific details.
+The live GitHub release body must not repeat that title as a leading `# <release title>` heading; release notes should start with `## Release Summary` or `## Release Overview`, carry one or more detailed user-facing sections before generated notes, include GitHub-generated `## What's Changed`, and end with the generated `**Full Changelog**:` compare link.
 
 ## Current Policy
 
@@ -100,5 +100,6 @@ The live GitHub release body must not repeat that title as a leading `# <release
 - use `Docs/validation_helper_registry.md` for helper naming, helper status, and consolidation truth when closeout or release notes mention validation helpers
 - do not let this guidance doc become a live current-state owner
 - create new closeouts or rebaselines only when they materially improve future planning clarity
-- keep escaped post-release canon drift as a protected-main blocker that must be repaired on the next legitimate runtime-focused backlog branch, not as a planned governance-only branch, repair-only feature branch, or direct-main write
-- prevent recurrence during PR Readiness by carrying the exact release-state closure plan for latest public prerelease, released/closed workstream state, release-debt clearing, and release title format before a release-bearing branch reports PR-ready
+- keep escaped post-release canon drift as a protected-main blocker that must be repaired on the next legitimate runtime-focused backlog branch's Branch Readiness Stage 2, not as a planned governance-only branch, repair-only feature branch, default release-support branch, or direct-main write
+- when release-dependent truth cannot exist until after publication, record bounded transitional drift with `Post-Release Canon Closure Drift: Recorded`, `Published Release Pending Canon Closure: <tag>`, `Closure Repair Surface: Next Branch Readiness Stage 2`, `Closure Drift Scope: release-dependent fields only`, and `Implementation Entry: Blocked until closure repair validates green`
+- prevent recurrence during PR Readiness by carrying the exact release-state closure plan for latest public prerelease, released/closed workstream state, release-debt clearing, release title format, and release-body format before a release-bearing branch reports PR-ready

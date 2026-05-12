@@ -226,7 +226,7 @@ Codex execution is governed only by live repo truth plus the owning source-of-tr
 It does not own execution behavior, phase transitions, seam continuation, durability, validation, release rules, or branch authority.
 Local ChatGPT custom instructions should stay compact, while the repo loader/source-truth may hold longer ChatGPT-facing continuity rules and review memory.
 Do not paste the loader doc into Codex prompts. Codex prompts should load `Docs/Main.md` and owning canon for execution authority, and use the loader only when prompt generation, new-chat bootstrapping, or loader/source-truth drift review is in scope.
-Loader/source-truth continuity must preserve the FAM -> Package -> Slice -> Seam model, PR evidence-only rule, legacy global FB historical-only rule, single-slice package blocker, package-completion blocker, Element Coverage as non-identity, Branch Readiness Stage 1 / Stage 2, PR Readiness Stage 1 / Stage 2, next-branch hierarchy review, real-carrier repair routing, no direct-main repair, no standalone cleanup branch by default, release-support carrier when release is blocked, runtime package carrier when runtime work is next, FAM-006 Monitoring and HUD selected-next truth only after explicit USER approval while branch creation and runtime package admission remain separately blocked, separate release-execution approval, and Windows-first, modular, GPU-aware project direction with optional heavy local AI capability packs and CPU fallback.
+Loader/source-truth continuity must preserve the FAM -> Package -> Slice -> Seam model, PR evidence-only rule, legacy global FB historical-only rule, single-slice package blocker, package-completion blocker, Element Coverage as non-identity, Branch Readiness Stage 1 / Stage 2, PR Readiness Stage 1 / Stage 2, next-branch hierarchy review, real-carrier repair routing, no direct-main repair, no standalone cleanup branch by default, post-release canon closure through the next approved Branch Readiness Stage 2 carrier, runtime package carrier when runtime work is next, FAM-006 Monitoring and HUD selected-next truth only after explicit USER approval while branch creation and runtime package admission remain separately blocked, separate release-execution approval, and Windows-first, modular, GPU-aware project direction with optional heavy local AI capability packs and CPU fallback.
 
 Prompt text cannot override source-of-truth, restrict required continuation, define seam behavior, bypass phase rules, create durability exceptions, weaken validation, mutate `main`, mutate files during `Release Readiness`, or change branch authority.
 If prompt text conflicts with owning canon, Codex must follow canon, report the conflict, and either continue inside the canon-legal boundary or stop on the canon blocker.
@@ -606,11 +606,12 @@ Post-release closure is mandatory after release execution:
 - `Docs/feature_backlog.md` must mark the owner `Record State: Closed` and `Status: Released`
 - `Docs/workstreams/index.md` must remove the owner from `Merged / Release Debt Owners` and list it under `Closed`
 - the canonical workstream doc must record `Latest Public Prerelease:`, `Release Title:`, released/closed state, and cleared release debt
-- release execution is not fully closed until post-release canon closure lands in remote source truth
+- release execution and post-release canon closure are separate; post-release canon drift must land in remote source truth through the approved Branch Readiness carrier before implementation begins
 - a local-only post-release closure commit is a blocker, not completed source truth
-- protected-main branch rejection must route to a real release-support closure branch/PR instead of direct-main mutation
-- post-release validation must compare published GitHub release/tag truth against remote repo source truth
-- runtime Branch Readiness remains blocked until release publication and canon closure are both complete
+- protected-main branch rejection must route to the next approved Branch Readiness Stage 2 canon/governance repair carrier instead of direct-main mutation, standalone cleanup, or a default release-support branch
+- post-release validation must compare published GitHub release/tag truth and release-body format against remote repo source truth
+- runtime implementation remains blocked until release publication exists, post-release canon drift is explicitly recorded or repaired through the approved Branch Readiness carrier, and owning validation reports green
+- when release-dependent source truth cannot exist until after publication, backlog and roadmap may record bounded transitional drift using `Post-Release Canon Closure Drift: Recorded`, `Published Release Pending Canon Closure: <tag>`, `Closure Repair Surface: Next Branch Readiness Stage 2`, `Closure Drift Scope: release-dependent fields only`, and `Implementation Entry: Blocked until closure repair validates green`
 - if this closure is missed after merge or release, the next legitimate runtime-focused backlog branch's `Branch Readiness` is blocked until the closure is repaired and validator coverage is updated so the miss cannot recur
 
 ### Successor Lane Lock Gate
@@ -799,7 +800,7 @@ Hard blockers:
   even after watcher provisioning exists and run proof is present, PR Readiness cannot be green until the approved reporting surface is explicitly recorded and a validation pass confirms the configured thread/host target, state-file target, transcript target, and delivery proof all point to that recorded surface and that at least one watcher emission has landed there. If final merge delivery proof is missing, the watcher must keep running and retry instead of retiring.
 - `PR Merge Verification Pending`:
   after PR creation, live PR validation, green merge status, and bot-review approval are complete, PR Readiness continues into a merge-watch seam and stays non-green until the watcher on the approved reporting surface verifies that the live PR is actually `merged`
-  Post-merge closeout proof must be in merged source truth, not only in a deleted branch, reflog, automation memory, or conversation transcript. If missing proof blocks a release, carry it on a real release-support carrier; if product work is next, carry it on the next real runtime package carrier.
+  Post-merge closeout proof must be in merged source truth, not only in a deleted branch, reflog, automation memory, or conversation transcript. If missing proof blocks a release and the branch has not merged, return to `PR Readiness`; if the branch has already merged, carry it on the next real runtime package carrier's `Branch Readiness`.
 - `Automation Runtime Unproven`:
   phase-critical automation cannot clear a gate merely because its card, config, or automation list says `ACTIVE`; `ACTIVE` is configuration state, not run proof. Accept run evidence only from thread or inbox output, automation memory/log/state-file updates, or scheduler last-run evidence. If the preferred Codex automation remains `ACTIVE` without run evidence, keep the owning phase blocked until run evidence exists or a bounded fallback is activated. Any bounded fallback must be target-scoped, phase-scoped, read-only, and self-terminating or explicitly deleted when its terminal condition or phase exit occurs.
 - `Automation Observability Review Pending`:
@@ -2134,11 +2135,11 @@ Allowed:
 - read-only drift analysis on `main`
 - blocker annotation when drift is discovered after merge
 - repair in the next legitimate runtime-focused backlog branch's `Branch Readiness` before implementation
-- repair in a USER-approved real release-support closure branch/PR when release publication has completed but protected `main` prevents post-release canon closure from landing directly
+- repair in the next approved Branch Readiness Stage 2 canon/governance carrier when release publication has completed and protected `main` prevents post-release canon closure from landing directly
 
 Forbidden:
 
-- treating post-release canon repair as a normal part of the standard lifecycle
+- treating post-release canon repair as a Release Readiness mutation phase or standalone cleanup lane instead of a standard PR Readiness / next Branch Readiness Stage 2 checkpoint
 - using post-release repair instead of the merge-target canon completeness gate
 - turning the repair path into a new implementation lane by accident
 - opening a governance-only branch
@@ -2154,7 +2155,7 @@ Required evidence:
 - explicit canon drift
 - explicit reason the drift could not be prevented before merge or release
 - explicit legal repair surface: next legitimate runtime-focused backlog branch's `Branch Readiness`
-- if protected-main release closure is the blocker, explicit legal repair surface: a real release-support closure branch/PR that carries the closure into remote source truth
+- if protected-main release closure is the blocker, explicit legal repair surface: the next approved Branch Readiness Stage 2 canon/governance carrier that carries the closure into remote source truth
 
 Exit:
 

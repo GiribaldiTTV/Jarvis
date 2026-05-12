@@ -85,6 +85,7 @@ Before PR Readiness, each workstream-scoped helper must be resolved in one of th
 | Path | Helper Status | Family | Reuse / Consolidation |
 | --- | --- | --- | --- |
 | `dev/orin_branch_governance_validation.py` | Helper Status: Reusable | governance validator | Extend when repo-wide source-of-truth, phase, branch, release, helper registry, prompt-contract, Source-Truth Placement Preflight, Element Validation Ledger placement, or element-ledger drift rules become machine-checkable. |
+| `dev/orin_release_body_validation.py` | Helper Status: Reusable | release body validator | Reuse for GitHub Release body format checks before creating another release-note validator. It validates the latest public pre-Beta release body has rich user-facing `Release Summary` / highlight-style sections before generated `What's Changed` and `Full Changelog` content, and reports older release-body mismatches as historical drift unless repo governance later admits historical release cleanup. |
 
 ### Desktop Runtime And Launcher
 

@@ -220,7 +220,7 @@ If the task remains materially ambiguous after that baseline, Codex should ask o
 Before planning or execution, Codex should follow the startup loading contract in `Docs/Main.md`, using `Docs/nexus_startup_contract.md` only as the ChatGPT/new-chat loader map when prompt generation is in scope.
 Local ChatGPT custom instructions should stay compact; the repo loader/source-truth can hold longer ChatGPT-facing continuity rules, prompt-generation guardrails, and review memory.
 Do not paste the loader doc into Codex prompts. Codex prompts should load `Docs/Main.md` and the owning canon for execution authority, using the loader only when prompt generation, new-chat bootstrapping, or loader/source-truth drift review is in scope.
-ChatGPT loader/source-truth continuity must preserve FAM -> Package -> Slice -> Seam, PR evidence-only handling, legacy global FB historical-only handling, single-slice and package-completion blockers, Element Coverage as non-identity, Branch/PR Readiness Stage 1 / Stage 2, next-branch hierarchy review, real-carrier repair routing, no direct-main repair, no standalone cleanup branch by default, release-support carrier when release is blocked, runtime package carrier when runtime work is next, FAM-006 Monitoring and HUD selected-next truth only after explicit USER approval while branch creation and runtime package admission remain separately blocked, separate release-execution approval, and the Windows-first, modular, GPU-aware product direction with optional heavy local AI capability packs and CPU fallback.
+ChatGPT loader/source-truth continuity must preserve FAM -> Package -> Slice -> Seam, PR evidence-only handling, legacy global FB historical-only handling, single-slice and package-completion blockers, Element Coverage as non-identity, Branch/PR Readiness Stage 1 / Stage 2, next-branch hierarchy review, real-carrier repair routing, no direct-main repair, no standalone cleanup branch by default, post-release canon closure through the next approved Branch Readiness Stage 2 carrier, runtime package carrier when runtime work is next, FAM-006 Monitoring and HUD selected-next truth only after explicit USER approval while branch creation and runtime package admission remain separately blocked, separate release-execution approval, and the Windows-first, modular, GPU-aware product direction with optional heavy local AI capability packs and CPU fallback.
 
 For tracked work, that means:
 
@@ -357,16 +357,15 @@ Best for:
 
 Use:
 
-- `docs-only pass: emergency repair for post-release canon drift on updated main`
+- `Branch Readiness Stage 1: classify post-release canon drift on updated main`
 
-This is an emergency-only analysis workflow.
-Use it only when merged canon is already stale and that drift could not be prevented before merge or release.
-If a plausible next implementation workstream can be selected safely from current truth, do not treat this as the default path.
-If that docs pass changes validation or harness behavior assumptions, canon must be updated before further execution is recommended.
+This is an analysis workflow.
+Use it when merged canon is stale after publication and that drift could not be fully represented before release.
+Classify the drift, record the legal carrier, and route the repair into the next approved Branch Readiness Stage 2 carrier before implementation begins.
 
 This is not a planned `docs/governance` branch from `No Active Branch`.
 Do not repair directly on `main`.
-Use this recipe to classify escaped canon drift, then record it as a blocker for the next legitimate runtime-focused backlog branch's `Branch Readiness` before implementation.
+Use this recipe to classify escaped canon drift, then record it as a blocker for the next legitimate runtime-focused backlog branch's `Branch Readiness Stage 1` and repair it in Stage 2 before implementation.
 
 ### Governance Repair On The Active Branch
 
@@ -641,7 +640,7 @@ If final merge delivery proof is missing, the watcher must keep running and retr
 After live PR creation, live PR validation, merge-status green, and bot-review approval are complete, PR Readiness continues into a merge-watch seam and `PR Merge Verification Pending` stays active until that watcher on the approved reporting surface verifies that the PR is `merged`.
 `Backlog Addition User Approval Missing` also keeps PR Readiness non-green when Codex would need to add, split, promote, package-admit, branch-create, waive a single-slice package, or select a backlog identity without explicit USER approval; its output is the still-not-closed FAM list plus every not-complete package and slice.
 
-Post-merge closeout proof must be in merged source truth, not only in a deleted branch, reflog, automation memory, or conversation transcript. If missing proof blocks a release, carry it on a real release-support carrier; if product work is next, carry it on the next real runtime package carrier.
+Post-merge closeout proof must be in merged source truth, not only in a deleted branch, reflog, automation memory, or conversation transcript. If missing proof blocks a release and the branch has not merged, return to PR Readiness; if the branch has already merged, carry it on the next real runtime package carrier's Branch Readiness before implementation begins.
 
 For single-slice drift hardening, only slice rows with `Admission State: Admitted` count toward package admission. Historical evidence rows, merged evidence rows, future placeholders, deferred ideas, and future-package-required rows keep traceability but do not satisfy the multi-slice rule.
 `Backlog Exhaustion User Decision Pending` keeps PR Readiness non-green when that still-not-closed list is empty and USER direction is required.
@@ -725,7 +724,7 @@ Required `Release Package Details` operator blocks:
 
 Release notes should clearly explain what was built, what capabilities exist, and how the system behaves.
 Release notes must report included release work only and must not include exclusion lists, `Not Included` sections, negative scope framing, or defensive wording.
-Release notes must use the standard Markdown release body shape: `## Release Summary` or `## Release Overview`, `## Release Highlights` or release-specific rich sections, GitHub-generated `## What's Changed`, and the generated `**Full Changelog**:` compare link to the previous release.
+Release notes must use the standard Markdown release body shape: `## Release Summary` or `## Release Overview`, one or more detailed user-facing sections such as `## Release Highlights`, `## Validation`, or release-specific rich sections before generated notes, GitHub-generated `## What's Changed`, and the generated `**Full Changelog**:` compare link to the previous release.
 The live GitHub release body must not start with or repeat the release title as `# <release title>`; the release title belongs in GitHub release metadata and the separate `Release Title` operator block only.
 During Release Execution, use GitHub-generated release notes through the GitHub release notes button or generated-release-notes API so the `## What's Changed` section and previous-release compare link are populated by GitHub.
 

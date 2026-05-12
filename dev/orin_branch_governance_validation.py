@@ -2998,7 +2998,6 @@ POST_MERGE_CLOSEOUT_PROOF_DOCS = (
 POST_MERGE_CLOSEOUT_PROOF_PHRASES = (
     "post-merge closeout proof must be in merged source truth",
     "not only in a deleted branch, reflog, automation memory, or conversation transcript",
-    "real release-support carrier",
     "next real runtime package carrier",
 )
 
@@ -3206,11 +3205,18 @@ PROTECTED_MAIN_RELEASE_CLOSURE_DOCS = (
 )
 
 PROTECTED_MAIN_RELEASE_CLOSURE_PHRASES = (
-    "release execution is not fully closed until post-release canon closure lands in remote source truth",
+    "release execution and post-release canon closure are separate",
     "a local-only post-release closure commit is a blocker",
-    "protected-main branch rejection must route to a real release-support closure branch/PR",
-    "post-release validation must compare published GitHub release/tag truth against remote repo source truth",
-    "runtime Branch Readiness remains blocked until release publication and canon closure are both complete",
+    "protected-main branch rejection must route to the next approved Branch Readiness Stage 2 canon/governance repair carrier",
+    "post-release validation must compare published GitHub release/tag truth and release-body format against remote repo source truth",
+    "runtime implementation remains blocked until release publication exists, post-release canon drift is explicitly recorded or repaired through the approved Branch Readiness carrier, and owning validation reports green",
+)
+
+POST_RELEASE_CLOSURE_DRIFT_MARKERS = (
+    "Post-Release Canon Closure Drift: Recorded",
+    "Closure Repair Surface: Next Branch Readiness Stage 2",
+    "Closure Drift Scope: release-dependent fields only",
+    "Implementation Entry: Blocked until closure repair validates green",
 )
 
 MERGED_UNRELEASED_CONTRACT_DOCS = (
@@ -4933,6 +4939,20 @@ def _validate_consolidated_backlog_source_truth(
 
 def _latest_public_prerelease(roadmap_text: str) -> str:
     return _clean_release_value(_extract_colon_value(roadmap_text, "- latest public prerelease"))
+
+
+def _post_release_closure_drift_is_recorded(
+    backlog_text: str,
+    roadmap_text: str,
+    *,
+    expected_release_tag: str,
+) -> bool:
+    combined_text = "\n".join((backlog_text, roadmap_text))
+    required_markers = (
+        *POST_RELEASE_CLOSURE_DRIFT_MARKERS,
+        f"Published Release Pending Canon Closure: {expected_release_tag}",
+    )
+    return all(marker in combined_text for marker in required_markers)
 
 
 def _parse_prebeta_version(value: str) -> tuple[int, int, int] | None:
@@ -14595,8 +14615,9 @@ def main() -> int:
                 (
                     "Protected-main release closure blocker is active; local `main` contains commits "
                     "that are not in `origin/main`. A local-only post-release closure commit is not "
-                    "completed source truth and must route through a real release-support closure "
-                    "branch/PR before release execution can be considered fully closed."
+                    "completed source truth and must route through the next approved Branch "
+                    "Readiness Stage 2 canon/governance repair carrier before runtime "
+                    "implementation can resume."
                 ),
             )
 
@@ -14758,11 +14779,24 @@ def main() -> int:
     latest_public_prerelease = _latest_public_prerelease(roadmap_text)
     highest_known_prebeta_tag = _highest_known_prebeta_tag()
     if highest_known_prebeta_tag:
+        has_recorded_post_release_closure_drift = _post_release_closure_drift_is_recorded(
+            backlog_text,
+            roadmap_text,
+            expected_release_tag=highest_known_prebeta_tag,
+        )
         require(
-            latest_public_prerelease == highest_known_prebeta_tag,
+            latest_public_prerelease == highest_known_prebeta_tag
+            or has_recorded_post_release_closure_drift,
             (
                 "Docs/prebeta_roadmap.md: latest public prerelease must match the latest "
-                f"local or remote prebeta tag '{highest_known_prebeta_tag}', found '{latest_public_prerelease}'"
+                f"local or remote prebeta tag '{highest_known_prebeta_tag}', found "
+                f"'{latest_public_prerelease}'. If this is release-dependent post-release "
+                "closure drift, backlog and roadmap must record "
+                "`Post-Release Canon Closure Drift: Recorded`, "
+                f"`Published Release Pending Canon Closure: {highest_known_prebeta_tag}`, "
+                "`Closure Repair Surface: Next Branch Readiness Stage 2`, "
+                "`Closure Drift Scope: release-dependent fields only`, and "
+                "`Implementation Entry: Blocked until closure repair validates green`."
             ),
         )
 
