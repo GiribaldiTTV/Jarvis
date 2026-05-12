@@ -12,7 +12,7 @@ from pathlib import Path
 ROOT_DIR = Path(__file__).resolve().parents[1]
 LAUNCHER_SCRIPT = Path(__file__).with_name("orin_desktop_launcher.pyw")
 LIVE_LOG_DIR = ROOT_DIR / "logs"
-HISTORY_FILENAME = "jarvis_history_v1.jsonl"
+HISTORY_FILENAME = "nexus_history_v1.jsonl"
 HISTORY_STABILITY_WINDOW_SIZE = 5
 
 def historical_context_match_line(count):
@@ -205,7 +205,7 @@ def resolve_workspace_root(raw_value):
         workspace_root = Path(raw_value).resolve()
         workspace_root.mkdir(parents=True, exist_ok=True)
     else:
-        workspace_root = Path(tempfile.mkdtemp(prefix="jarvis_fb014_rev1b_")).resolve()
+        workspace_root = Path(tempfile.mkdtemp(prefix="nexus_fb014_rev1b_")).resolve()
 
     assert_true(
         not is_relative_to(workspace_root, LIVE_LOG_DIR),
@@ -220,27 +220,27 @@ def load_launcher_probe_namespace(workspace_root, harness_log_root=None, local_a
     probe_root.mkdir(parents=True, exist_ok=True)
 
     env_names = (
-        "JARVIS_HARNESS_LOG_ROOT",
-        "JARVIS_HARNESS_TARGET_SCRIPT",
-        "JARVIS_HARNESS_DISABLE_DIAGNOSTICS",
-        "JARVIS_HARNESS_DISABLE_VOICE",
+        "NEXUS_HARNESS_LOG_ROOT",
+        "NEXUS_HARNESS_TARGET_SCRIPT",
+        "NEXUS_HARNESS_DISABLE_DIAGNOSTICS",
+        "NEXUS_HARNESS_DISABLE_VOICE",
         "LOCALAPPDATA",
     )
     original_env = {name: os.environ.get(name) for name in env_names}
     if harness_log_root is None:
-        os.environ.pop("JARVIS_HARNESS_LOG_ROOT", None)
+        os.environ.pop("NEXUS_HARNESS_LOG_ROOT", None)
     else:
-        os.environ["JARVIS_HARNESS_LOG_ROOT"] = str(harness_log_root)
-    os.environ["JARVIS_HARNESS_TARGET_SCRIPT"] = str(probe_root / "probe_renderer.py")
-    os.environ["JARVIS_HARNESS_DISABLE_DIAGNOSTICS"] = "1"
-    os.environ["JARVIS_HARNESS_DISABLE_VOICE"] = "1"
+        os.environ["NEXUS_HARNESS_LOG_ROOT"] = str(harness_log_root)
+    os.environ["NEXUS_HARNESS_TARGET_SCRIPT"] = str(probe_root / "probe_renderer.py")
+    os.environ["NEXUS_HARNESS_DISABLE_DIAGNOSTICS"] = "1"
+    os.environ["NEXUS_HARNESS_DISABLE_VOICE"] = "1"
     if local_app_data is None:
         os.environ.pop("LOCALAPPDATA", None)
     else:
         os.environ["LOCALAPPDATA"] = str(local_app_data)
 
     try:
-        return runpy.run_path(str(LAUNCHER_SCRIPT), run_name="jarvis_launcher_probe")
+        return runpy.run_path(str(LAUNCHER_SCRIPT), run_name="nexus_launcher_probe")
     finally:
         for name, value in original_env.items():
             if value is None:
@@ -402,10 +402,10 @@ def run_launcher_scenario(scenario_root, renderer_script, seed_history_lines=Non
     live_log_snapshot_before = snapshot_live_log_tree()
 
     env = os.environ.copy()
-    env["JARVIS_HARNESS_LOG_ROOT"] = str(log_root)
-    env["JARVIS_HARNESS_TARGET_SCRIPT"] = str(renderer_script)
-    env["JARVIS_HARNESS_DISABLE_DIAGNOSTICS"] = "1"
-    env["JARVIS_HARNESS_DISABLE_VOICE"] = "1"
+    env["NEXUS_HARNESS_LOG_ROOT"] = str(log_root)
+    env["NEXUS_HARNESS_TARGET_SCRIPT"] = str(renderer_script)
+    env["NEXUS_HARNESS_DISABLE_DIAGNOSTICS"] = "1"
+    env["NEXUS_HARNESS_DISABLE_VOICE"] = "1"
 
     result = subprocess.run(
         [sys.executable, str(LAUNCHER_SCRIPT)],

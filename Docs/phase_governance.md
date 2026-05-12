@@ -96,6 +96,7 @@ The response or status handoff must explicitly report:
 - `Blockers:`
 - `Waiver Status:`
 - `Continue Decision:`
+- `Continuation Execution Latch:`
 - `Stop Basis:`
 
 `Green` means complete for the level it names.
@@ -119,6 +120,10 @@ The only lawful `Workstream` stop conditions are:
 
 `Phase: Workstream` must remain bounded at all times; the only lawful `Workstream` stop conditions are `Completion Status: Green` with `Hardening` next, or `Completion Status: Red` justified by a named blocker or waiver.
 
+Phase Boundary Stop Required: A phase-exit seam named in `Next Active Seam` is a handoff target, not current-phase execution authority.
+Bounded Workstream continuation ends at phase boundaries; it never crosses from Workstream into Hardening by inertia.
+Codex must not execute Hardening, Live Validation, PR Readiness, Release Readiness, release work, or any other next phase in the same run unless USER explicitly admits that phase after reviewing the handoff.
+
 Crossing into a new seam, slice, seam family, slice family, or work family is not stop authority by itself.
 
 If `Completion Status` is `In Progress` and no named stop-authorizing blocker or waiver is recorded, `Continue Decision` must be `Continue` and Codex must start the next seam or next admitted slice instead of returning `Await Next Instruction`.
@@ -128,7 +133,23 @@ If `Completion Status` is `In Progress` and no named stop-authorizing blocker or
 `Backlog Completion Unproven` keeps the branch in `Workstream`; by itself it is not authority to return `Await Next Instruction` while `Completion Status` remains `In Progress`.
 Use these governed state markers as execution control, not as documentation-only summary fields.
 If `Continue Decision` is `Continue`, Codex must not end on a final seam-closeout response, rollback path, or next-seam recommendation; it must keep executing until a lawful `Stop` decision exists.
+A prompt `Return:` block is an output shape only; it cannot override governed continuation markers or authorize a terminal response while `Continue Decision` remains `Continue`.
+A final response after a green seam while `Continue Decision` remains `Continue` is `Post-Seam Final-Stop Drift`.
+Post-Seam Final-Stop Drift is a governance blocker until source truth and validation are repaired.
+Durability commit/push is not a lawful stop while `Continue Decision` remains `Continue`.
+If `Completion Status` is `In Progress`, `Next Active Seam` must remain a `Workstream` seam; phase-exit seams require `Completion Status: Green`, `Completion Status: Red` with a named blocker/waiver, or explicit USER single-seam/backlog-split waiver.
 If `Completion Status` is `Red`, `Continuation Action` must explicitly state the blocker-clearing action or waiver-clearing action needed before bounded `Workstream` continuation may resume.
+Single-seam or single-slice Workstream authority is forbidden unless explicit USER waiver text is recorded.
+If only one seam or one slice is planned or visible, stop immediately on `Single-Seam Or Single-Slice Workstream Blocker` until Branch Readiness expands the plan or USER grants a waiver.
+Only USER can grant a single-seam or single-slice Workstream waiver; Codex, ChatGPT, validators, prompt wording, clean validation, or a green seam cannot infer it.
+A Workstream with `Completion Status: In Progress` and no waiver must show remaining same-branch implementable work beyond the current seam.
+
+`User Test Summary Results Pending` is not a Workstream stop condition.
+Workstream may plan manual user acceptance and may prepare later UTS strategy content, but formal UTS export, returned-result digestion, and the `User Test Summary Results Pending` blocker belong to `Live Validation Stage 1`.
+User Test Summary is exclusive to Live Validation Stage 1.
+Live Validation Stage 1 cannot enter Stage 2 until User Test Summary results are `PASS` or `WAIVED`, Codex has digested the result into source truth, and blockers have been reevaluated.
+PR Readiness may verify the previously digested Live Validation UTS state, but it must not create, refresh, or digest UTS as its own phase artifact.
+If user-facing implementation is not product-complete, Workstream must continue implementation, internal sandbox validation, and branch-local proof instead of asking the USER to complete a UTS as the Workstream completion gate.
 
 ## Canonical Governance Rules
 
@@ -138,11 +159,58 @@ If `Completion Status` is `Red`, `Continuation Action` must explicitly state the
 - workstream docs must consume this model rather than redefining repo-wide process rules locally
 - workstream docs may record branch-local validation contracts, tighter time budgets, active seams, artifact references, and explicit waivers, but those narrower contracts must be explicit
 
+### Source-Truth Placement Preflight
+
+Before Codex creates a new governance/source-truth file, active artifact, ledger, registry, or durable authority surface, it must perform a `Source-Truth Placement Preflight`.
+
+The preflight must report:
+
+- existing authority owner for the concept
+- whether the change extends an existing owner or needs a new artifact
+- why workstream docs, branch records, backlog, roadmap, validation helper registry, family dossiers, Element Coverage, or phase governance are insufficient if a new artifact is recommended
+- whether a new artifact would duplicate, conflict with, or bypass an existing owner
+- validator updates needed to prevent placement drift
+
+Default rule: extend the existing owner first. A new active source-truth file requires a clear `No Existing Owner Fits` finding or an explicit companion-file pointer from the owning workstream doc or branch authority record.
+
+`Element Ledger Placement Drift` blocks Stage 2 completion when Codex adds or recommends a new active source-truth artifact without this preflight, when a new artifact duplicates an existing owner, or when the owning record does not point to a large companion ledger file.
+
+### Element Validation Ledger
+
+The `Element Validation Ledger` is the row-level proof ledger for product-significant elements created, touched, affected, deferred, preserved as future, classified as dependency-only, or kept as non-gating supporting evidence.
+
+The ledger is canonical only inside the existing authority owner:
+
+- Promoted workstream: canonical workstream doc.
+- Registry-only active branch: active branch authority record.
+- Large active ledger: optional companion file with canonical pointer from the owning workstream doc or branch authority record.
+- Family dossier: aggregate or historical trace only.
+- Feature backlog: identity and registry only.
+- Roadmap: sequencing only.
+- Validation helper registry: helper inventory only.
+- Element Coverage: non-identity checklist only.
+
+Every active ledger row should identify the element ID, element name, category, parent surface, primary interface, classification, user-facing status, visibility, expected behavior, functional requirement, regression risk, affected source surfaces, source-owner marker or source-owner-not-applicable reason, validation required, Workstream proof, Hardening proof, Live Validation proof, UTS question or waiver, phase owner, current status, open issues, and notes.
+
+Element Validation Ledger status values should use this vocabulary unless an owning record explicitly defines a narrower branch-local set: `Planned`, `Implemented Pending Proof`, `Workstream-Proven`, `Hardening-Proven`, `LV1 Handoff`, `USER Accepted`, `Blocked`, `Deferred`, `Future`, `Dependency-Only Supporting`, and `Non-Gating Supporting`.
+
+Each seam must run an `Element Delta Capture` for product/runtime/UI/source-truth changes. New or changed UI, window behavior, focus/click-through, clipping/z-order, movement/drag/resize, copy/content, telemetry truth, provider states, persistence, validation artifacts, screenshots, UTS questions, lifecycle behavior, and source-truth boundaries must either update an existing ledger row or add a new one.
+
+Marker-only proof cannot satisfy user-facing element acceptance. User-facing and hidden-user-facing ledger rows require screenshot/live proof and Live Validation / UTS coverage unless an explicit waiver is recorded. Deferred, future, dependency-only, and non-gating supporting rows must name their boundary so they neither block nor falsely satisfy the current release.
+
+Source-code ownership markers are optional backlinks from code to the canonical ledger, not the ledger itself. High-risk elements such as window ownership, drag/move behavior, focus/click-through, clipping/z-order, provider truth, warning behavior, scrollbar/product styling, persistence, proof generation, UTS generation, major UI sections, renderer boundaries, state transitions, and lifecycle/cleanup behavior should carry a source-owner marker or a source-owner-not-applicable reason. Existing source files may adopt this marker format gradually through a later repo-wide marker adoption branch/package.
+
+Dev Toolkit Interface Review Mode is the repo-wide standard dev-only inspection path for USER-facing interface elements once that tooling is admitted. Existing and future USER-facing interface elements, including NCP, Core visualization, Dashboard, Overlay/display when admitted, and other windows/components, should record a Dev Toolkit review disposition in the owning Element Validation Ledger: callable in Dev Toolkit Interface Review Mode, deferred to a named repo-wide adoption branch/package, or not-applicable with reason. The mode is tabled for a planning-heavy Dev Toolkit branch/package and may choose per-interface launchers, a generalized dev-version launch where all eligible surfaces run in review mode, or both. The mode must use dev-only launch surfaces with element badges, hover highlighting, ledger ID/name tooltips, and screenshot-friendly annotations. Production UI must not expose element numbers, and Dev Toolkit review evidence cannot replace Live Validation, screenshot proof, or returned User Test Summary acceptance.
+
+Element ledger blockers include `Element Validation Ledger Missing`, `Created Element Untracked`, `Touched Element Proof Missing`, `Affected Element Validation Missing`, `User-Facing Element Acceptance Missing`, `Deferred Element Boundary Missing`, `Element Proof Stale`, `Marker-Only Element Proof`, `Element Ledger Placement Drift`, `Feature Element Source Marker Orphaned`, `High-Risk Element Source Owner Missing`, `Feature Element Marker Proof Insufficient`, `Feature Element Source Marker Stale`, and `Feature Element Source Marker Mismatch`.
+
 ### ChatGPT Interface And Codex Execution Authority Rule
 
 ChatGPT, prompt generators, and loader templates are interface layers.
 They may package task context, request source-of-truth loading, and describe requested task boundaries for Codex to validate against canon.
 They are not execution authority.
+
+ChatGPT-authored prompt additions are analysis and review surfaces. They may add evidence checks, validation reminders, review questions, source-truth checks, and candidate blocker findings for Codex to reconcile against loaded repo governance, but they must not become a second governing authority by removing, replacing, narrowing, reordering, or prohibiting canon-required Codex steps through prompt-layer wording. When ChatGPT finds a flaw, stale assumption, missing step, unsafe scope, governance mismatch, blocker risk, source-truth drift, validation gap, or approval gap, it must frame the concern as an analysis finding, candidate blocker, evidence gap, or USER decision needed; USER approval is required before Codex treats that finding as a source-truth change, approved-plan change, scope widening, waiver, or new FAM/package admission.
 
 Codex execution is governed only by live repo truth plus the owning source-of-truth documents:
 
@@ -692,7 +760,7 @@ Hard blockers:
 - `User-Facing Shortcut Validation Pending`:
   Live Validation and PR Readiness cannot be final-green for a relevant desktop user-facing workstream until the final Live Validation closeout has launched through the declared user-facing desktop shortcut or equivalent user entrypoint, recorded `User-Facing Shortcut Validation: PASS` or `User-Facing Shortcut Validation: WAIVED`, and preserved the evidence before User Test Summary handoff
 - `User Test Summary Results Pending`:
-  PR Readiness cannot be green while a user-facing workstream has a required User Test Summary handoff outstanding and returned results have not been submitted, waived, digested into the active authority record, and reevaluated
+  Live Validation and PR Readiness cannot be green while a user-facing workstream has a required User Test Summary handoff outstanding and returned results have not been submitted, waived, digested into the active authority record, and reevaluated. Workstream must not list this blocker as the reason to stop implementation; unresolved product work belongs to `Backlog Completion Unproven`, named implementation blockers, or the next bounded Workstream seam.
 - `PR Creation Pending`:
   PR Readiness package-ready is not PR Readiness green. PR Readiness cannot be green until the GitHub PR exists for the current head branch and base branch.
 - `PR Validation Pending`:
@@ -964,10 +1032,63 @@ Routing:
 - if `User-Facing Shortcut Validation: FAIL`, keep an explicit blocker and route back to `Workstream` or `Hardening` before PR Readiness
 - if the shortcut gate passes or is waived, User Test Summary handoff may proceed only if all other Live Validation gates are green
 
+### Codex Live Client Self-QA Gate
+
+For relevant desktop user-facing workstreams, Codex must perform a live-client self-QA pass before handing the feature to the USER for a formal User Test Summary.
+The pass is not a substitute for USER acceptance, but it is Codex-owned product validation: Codex must inspect the launched UI as if it were a user and judge quality, usability, platform uniformity, naming cleanliness, interaction posture, cleanup, and evidence quality before asking the USER to spend time testing.
+For desktop UI branches, this inspection must be human-client faithful when the USER will operate visible tray/menu/window behavior. Codex cannot mark Live Validation Stage 1 green from app-side callbacks, fake/offscreen models, marker-only proof, screenshot-only proof, or direct handler calls. The final LV1 handoff requires a manifest that records visible desktop shortcut launch, visible tray/menu selection, mouse/cursor or UIAutomation-backed interaction evidence, window move/resize/open/close evidence where applicable, screenshot or frame-sequence artifacts, and Codex's own visual review of every issue-grounded UTS item. Missing human-client evidence is a Live Validation failure unless USER explicitly waives it.
+
+Named blocker:
+
+- `Codex Live Client Self-QA Pending`
+
+Machine-checkable authority-record markers:
+
+- `Codex Live Client Self-QA: PENDING`
+- `Codex Live Client Self-QA: PASS`
+- `Codex Live Client Self-QA: FAIL`
+- `Codex Live Client Self-QA: WAIVED`
+- `Codex Live Client Self-QA Waiver Reason:`
+- `Live Client Entry Path:`
+- `Evidence Screenshot:`
+- `Visual Quality:`
+- `Interaction Manifest:`
+- `Interaction Evidence Root:`
+- `Live Interaction Evidence:`
+- `Usability Check:`
+- `Interaction Check:`
+- `Platform Uniformity Check:`
+- `NDAI Naming Check:`
+- `Cleanup Check:`
+
+Required proof:
+
+- the launched UI is reviewed from the same live client path or declared equivalent used for the shortcut gate
+- the visible surface is readable, intentionally placed, and visually coherent with Nexus Desktop AI
+- interaction claims such as movement, anchoring, click-through/no-focus posture, tray paths, toggles, cards, snapping, and warnings are exercised in the launched live client when feasible and recorded under `Live Interaction Evidence:`
+- screenshot-only, marker-only, or launched-but-not-driven proof cannot clear this gate for interactive user-facing UI
+- desktop UI proof must provide an active foreground/user-observable validation path; a fast hidden or blink-through helper run may support automation but cannot be the only Codex live-client self-QA evidence
+- desktop UI Live Validation must capture the full virtual desktop by default when placement, multi-monitor behavior, window separation, clipping, or frame-of-reference matters; primary-monitor-only screenshots are supporting detail only and cannot clear those proof needs
+- screenshots used for Live Validation closeout must be copied into `C:\Users\anden\OneDrive\Pictures\Screenshots\<project-or-validation-lane>\<timestamp>\` or the active USER-declared screenshots folder, and the raw image path must be surfaced in the Codex chat/handoff for USER inspection; `dev/logs` copies alone are not enough when visual proof is part of the gate
+- platform uniformity is reviewed across current NDAI naming, visual language, copy tone, and surrounding user-facing surfaces touched by the branch
+- validators, markers, screenshots, and manifests are treated as supporting evidence, not a replacement for Codex's visual/usability judgment
+
+Routing:
+
+- while `Codex Live Client Self-QA: PENDING` remains, list `Codex Live Client Self-QA Pending` under blockers and do not hand off the User Test Summary as ready
+- if `Codex Live Client Self-QA: FAIL`, keep an explicit blocker and route back to `Workstream` or `Hardening` before USER handoff or PR Readiness
+- if `Codex Live Client Self-QA: PASS` is recorded, the USER Test Summary handoff may proceed only if the shortcut/equivalent entrypoint gate and all other Live Validation gates are green
+- `Codex Live Client Self-QA: WAIVED` requires explicit waiver reason and is valid only when the branch is not user-facing or the live client path is unavailable
+
 ### User Test Summary Results Gate
 
-Live Validation and PR Readiness must not report final green while a relevant user-facing workstream has a required User Test Summary handoff outstanding and returned results have not been submitted and digested.
+Live Validation Stage 1 must not enter Live Validation Stage 2 while a relevant user-facing workstream has a required User Test Summary handoff outstanding and returned results have not been submitted and digested.
+User Test Summary is exclusive to Live Validation Stage 1.
+Live Validation Stage 1 cannot enter Stage 2 until User Test Summary results are `PASS` or `WAIVED`, Codex has digested the result into source truth, and blockers have been reevaluated.
+PR Readiness may verify the previously digested Live Validation UTS state, but it must not create, refresh, or digest UTS as its own phase artifact.
 Live Validation green requires an exact `## User Test Summary` state before final green.
+This is a `Live Validation Stage 1` gate, not a Workstream, Hardening, or PR Readiness completion substitute.
+Workstream and Hardening may maintain UTS strategy or readiness notes, but they must not create/refresh the formal desktop UTS export, create a UTS results seam, digest UTS results, or stop on `User Test Summary Results Pending`.
 
 Named blocker:
 
@@ -1430,6 +1551,8 @@ Risky categories such as UI, launcher, settings, protocol, cross-subsystem, or p
 
 A slice is a bounded admitted backlog-completion unit; a seam is the current execution checkpoint inside or between slices.
 `bounded` describes scope and blast radius, not partiality by default. A bounded slice may still be the full currently implementable backlog-completion pass for that backlog item or branch lane.
+Bounded means one active seam at a time, not one-seam Workstream authority.
+A single-seam Workstream requires explicit USER waiver before Workstream may stop after one seam while the package or slice remains incomplete.
 There is no repo-wide cap on how many slices a branch or workstream may carry.
 Same-branch backlog completion is the branch-level default: later slices for the same backlog item stay on the same branch when scope, phase, risk, and validation authority remain green.
 Future-dependent blockers are remaining backlog work that cannot yet be implemented until another backlog item, dependency, or capability is completed.
@@ -1454,6 +1577,10 @@ reporting `Next Safe Move` is not a substitute for execution while the current s
 A `continue` decision must be acted on immediately by starting the next seam needed inside the current slice.
 Durability commit/push after a green seam is a checkpoint, not a stop.
 Do not send a final closeout response after a green entry seam while the next seam remains admitted and no bounded stop condition exists.
+A final response after a green seam while `Continue Decision` remains `Continue` is `Post-Seam Final-Stop Drift`.
+Post-Seam Final-Stop Drift is a governance blocker until source truth and validation are repaired.
+Durability commit/push is not a lawful stop while `Continue Decision` remains `Continue`.
+The `Continuation Execution Latch` is active whenever `Continue Decision: Continue`, `Stop Basis: None`, and a same-phase `Next Active Seam` are recorded; Codex must execute the next seam in the same bounded Workstream run instead of returning a terminal report.
 when a slice turns green during `Workstream`, advance immediately to the next admitted slice while `Completion Status` remains `In Progress`
 `Workstream` reaches `Hardening` only when `Completion Status: Green`
 `Completion Status: Red` means a named blocker or waiver currently stops bounded Workstream continuation
@@ -1463,6 +1590,7 @@ A bounded stop condition blocks continuation; it does not by itself authorize st
 
 A prompt-level `execute only <seam>` request does not override this continuation duty unless the request is paired with an explicit `Backlog-Split User Approval` or another named blocker from this contract.
 Restrictive wording, cautious wording, and small-slice wording do not create backlog-split authority by themselves.
+Prompt language such as `bounded`, `bounded seam`, `single seam`, `one pass`, `small pass`, `narrow pass`, or `only this seam` must be interpreted as active-seam scope control only; it cannot narrow an admitted multi-slice Workstream into a single-seam Workstream unless explicit USER waiver is recorded.
 If Codex stops after a green seam or stops the branch after a first slice without one of the recorded reasons above, classify that stop as `Governance Drift` and repair the source-of-truth or validator gap before treating the workflow as healthy.
 
 ### Seam Stages
@@ -1546,6 +1674,8 @@ Bug fix, hotfix, UI-model, launcher, settings, protocol, policy, cross-subsystem
 Legacy `Single-Seam Fallback` and `Single-Seam Mode Waiver` terms are retired and must not be used in active source-of-truth.
 Same-branch backlog completion is the default.
 There is no repo-wide cap that forces an admitted multi-slice package to stop after one slice; however package admission defaults to multiple admitted slices, and a package containing exactly one admitted slice requires explicit `Single-Slice Package User Approval: Granted`.
+Bounded means one active seam at a time, not one-seam Workstream authority.
+A single-seam Workstream requires explicit USER waiver before Workstream may stop after one seam while the package or slice remains incomplete.
 A bounded stop condition blocks the workflow. It does not by itself authorize splitting the backlog item across branches.
 Stopping after the first slice or splitting the backlog item across branches requires an explicit `Backlog-Split User Approval` or a named bounded stop condition.
 A bounded stop condition blocks the workflow. It does not by itself authorize splitting the backlog item across branches, closing the backlog item, or leaving `Workstream` while remaining implementable work still exists.
@@ -1660,7 +1790,7 @@ The canonical rule is narrower:
 
 ## Phase Transition Rule
 
-- `Branch Readiness` -> `Workstream` only after branch base, branch class, authority record, branch objective, target end-state, expected seam families and risk classes, validation contract, User Test Summary strategy, later-phase expectations, and first Workstream seam or initial seam sequence are explicit
+- `Branch Readiness` -> `Workstream` only after branch base, branch class, authority record, branch objective, target end-state, complete family-package product planning packet when applicable, expected seam families and risk classes, validation contract, User Test Summary strategy, later-phase expectations, and first Workstream seam or initial seam sequence are explicit, and no `Branch Readiness Planning Incomplete` blocker remains active unless explicitly USER-waived
 - `Workstream` -> `Hardening` only after the current Workstream work reports `Completion Status: Green`, no remaining implementable work is still available on that backlog item, `Backlog Completion State` is `Implemented Complete` or `Implemented Complete Except Future Dependency`, direct validation is green, User Test Summary obligations are current for user-facing changes, and no same-slice correctness gap remains
 - `Hardening` -> `Live Validation` only after repo-side hardening proof is sufficient for interactive or manual closeout work
 - `Live Validation` -> `PR Readiness` only after branch-local proof is sufficient for closeout, returned evidence has been digested into the authority record, and `User Test Summary Results Pending` is absent or cleared by a documented waiver
@@ -1691,7 +1821,25 @@ Branch Readiness uses two internal stage gates without changing the canonical ph
 - `Branch Readiness Stage 1 - Analysis Gate`: analysis-only; no repository file mutation, branch creation, package admission, docs sync, PR work, release work, selected-next truth, or canon edits are allowed. Stage 1 must output `## Branch Readiness Stage 1 Analysis Packet` for USER review and stop on `Branch Readiness Execution User Approval Missing`.
 - `Branch Readiness Stage 2 - Execution Gate`: begins only after explicit USER approval to enter Stage 2. Stage 2 performs approved branch/package admission work, docs sync, branch creation, and authority-record setup only inside the USER-approved FAM/package scope.
 
-The `## Branch Readiness Stage 1 Analysis Packet` must include governed state markers, FAM/package candidate, package-size review, multiple admitted-slice plan, single-slice drift check, Element Coverage review, validation plan, expected docs sync, blockers and waivers, rollback path, and the exact Stage 2 green-light decision needed from the USER.
+The `## Branch Readiness Stage 1 Analysis Packet` must include governed state markers, FAM/package candidate, package-size review, multiple admitted-slice plan, single-slice drift check, Element Coverage review, product vision, USER vision questions, `USER Vision Question Packet`, Codex product interpretation, Codex implementation recommendation, USER/ChatGPT review checkpoint, full feature element breakdown, current branch vs future package boundaries, affected surfaces, branch reach, why the branch is large enough, why it should not split into tiny branches, acceptance criteria, screenshot and User Test Summary proof expectations, implementation sequence proposal, validation plan, expected docs sync, blockers and waivers, rollback path, `Branch Readiness Planning Incomplete` blocker review, and the exact Stage 2 green-light decision needed from the USER.
+
+For broad implementation family packages, Branch Readiness planning is not complete until the planning packet records USER vision inputs or explicit unanswered-question blockers, Codex product interpretation, Codex implementation recommendation, USER/ChatGPT review checkpoint, full feature element breakdown, current-branch versus future-package boundaries, affected files/surfaces, branch reach/package-size proof, acceptance criteria, screenshot/live/User Test Summary proof requirements for user-facing work, implementation sequence proposal, and USER decisions needed. Marker-only planning is insufficient.
+
+For user-facing family/package branches, Branch Readiness must also declare an `Interface Release Boundary` before Workstream begins or resumes. The packet must record `Primary Interface Release Surface:`, `Interface Bundle User Approval:`, `Fallback Point:`, and interface-specific acceptance/proof requirements. The default is one primary user-facing interface release surface per branch; multiple released user-facing interfaces in the same branch require explicit USER approval recorded as `Interface Bundle User Approval: Granted`, including the bundled surfaces, reason, fallback point, and acceptance plan. This rule does not create single-seam or single-slice Workstream authority: the branch may and usually should still contain multiple seams and slices inside the declared interface boundary. If the primary interface is missing, the branch mixes multiple release interfaces without approval, or no fallback point exists, Workstream entry or continuation is blocked by `Interface Release Boundary Missing`, `Primary Interface Undefined`, `Multiple Interface Release Drift`, `Fallback Point Missing`, `Interface Acceptance Missing`, or `Branch Readiness Interface Planning Incomplete` until Branch Readiness repairs the plan or the USER explicitly waives the interface-bundle rule.
+
+Supporting dependency repairs may ride the current branch only when source truth classifies them as dependency work rather than as released user-facing interfaces. Dormant, experimental, or future interface implementations may remain in the repo only when source truth marks them as non-gating for the current primary interface, records their future branch/package path, and validators/proof helpers separate current-interface acceptance from future-interface evidence.
+
+When USER input is needed, Codex must output a structured `USER Vision Question Packet`. Each question must include question ID, category, decision needed, why this matters, feature area affected, Codex recommendation, why Codex recommends it, alternatives/options, tradeoffs/risks, current-branch impact, future-package impact, safe default if USER is unsure, whether the answer is required before implementation, whether USER may waive/defer it, and exact response format requested. Required categories for user-facing family packages are product goal/user outcome, visual identity/style, layout/placement, information hierarchy, data/source model, controls/settings model, fail-safe/no-data/degraded behavior, interaction model, accessibility/readability, privacy/security boundaries, performance constraints, validation proof standard, User Test Summary acceptance criteria, current-branch versus future-package boundaries, and release impact.
+
+When USER input needs a durable user-editable handoff, Codex must generate or refresh a USER-facing `User Vision Input.txt` desktop artifact. The artifact must present each decision with Codex's recommendation, rationale, options, tradeoffs, current-branch impact, future-package impact, proof impact, and three answer paths: accept Codex recommendation; change recommendation with USER-written changes; or defer/future-package/waive with USER-written reason. This artifact is USER input only and not repo source truth. Codex recommendations, default options, and unanswered prompts must not be treated as USER-approved answers. Repo source truth may record artifact generation and blockers, but USER answers enter repo source truth only after a later USER-approved digest pass reads and summarizes the completed artifact.
+
+Allowed planning loop: Branch Readiness Stage 1 analyzes planning sufficiency; USER/ChatGPT reviews the packet; Branch Readiness Stage 2 may repair/source-sync the planning packet after USER approval; Branch Readiness Stage 1 revalidates planning sufficiency; the loop repeats until planning is complete or explicitly USER-waived. Workstream entry or continuation is blocked while `Branch Readiness Planning Incomplete` or any of its planning blockers remain active.
+
+Planning blockers are planning blockers, not implementation blockers. They include `Product Vision Input Missing`, `USER Vision Question Packet Missing`, `USER Vision Recommendation Missing`, `USER Vision Questions Unanswered`, `USER Vision Input Pending`, `USER Vision Input File Missing`, `USER Vision Input Answers Pending`, `USER Vision Input Digest Pending`, `Branch Reach Unproven`, `Feature Element Breakdown Missing`, `Acceptance Criteria Missing`, `User-Facing Proof Standard Missing`, `Current Branch vs Future Package Boundary Missing`, and `Branch Readiness Planning Incomplete`. They clear only when the packet is complete and revalidated, when completed USER Vision Input answers are digested into repo source truth, or when explicit USER waiver text is recorded.
+
+Family-package planning may also record package-specific planning blockers when USER input exposes unresolved product architecture or naming scope. Examples include `Legacy Product Name Drift`, `Hardware Telemetry Provider Selection Pending`, `Polling Floor Undecided`, `Warning Delivery Modality Pending`, `External Telemetry Privacy Model Missing`, `Audio Warning Cross-Family Approval Missing`, and `Persona Switch Scope Boundary Pending`. These blockers prevent Workstream entry or continuation until Branch Readiness revalidates the current-branch/future-package boundary, records a safe implementation path, defers the item to a future package, or records an explicit USER waiver. When USER declares legacy product naming invalid for the current product, `Legacy Product Name Drift` blocks Workstream entry or continuation while that naming remains anywhere in tracked repo source, runtime artifact paths, validators, docs, generated-user surfaces, user-facing copy, or persona-facing copy. The only default preservation location is external GitHub release/tag history; tracked repo preservation requires explicit USER waiver or a USER-approved migration carrier. Product identity and persona identity must remain separate: ORIN may be the shipped/default persona, ARIA may be shown only as locked/coming soon planning copy when source truth allows it, and actual persona switching implementation requires later admission.
+
+A broad family-package plan is not complete while current-branch scope, future-package deferrals, provider path, polling posture, warning modality, privacy model, naming/product-copy handling, acceptance criteria, or proof standards remain candidate-only. Branch Readiness Stage 2 may finalize those boundaries after USER approval, but Workstream entry or continuation remains blocked until a later Branch Readiness Stage 1 pass revalidates the finalized plan or records an explicit USER waiver.
 
 Element Coverage is a non-identity checklist owned by FAM/package analysis only. Coverage categories are user-facing surface, runtime/backend behavior, fail-safe/recovery, security/privacy, voice/audio, external integration, local AI/capability packs, packaging/install, monitoring/HUD, validation, and release impact. Element Coverage rows never count as `Admission State: Admitted`, slices, seams, packages, FAMs, selected-next truth, or release drivers.
 
@@ -1717,6 +1865,7 @@ Required evidence:
 - explicit branch class
 - explicit phase block in the authority record
 - branch objective and target end-state
+- product vision, USER vision questions, `USER Vision Question Packet`, Codex product interpretation, Codex implementation recommendation, USER/ChatGPT review checkpoint, full feature element breakdown, current branch vs future package boundaries, affected surfaces, branch reach, why the branch is large enough, why it should not split into tiny branches, acceptance criteria, screenshot and User Test Summary proof expectations, implementation sequence proposal, planning blockers, and USER decisions needed for family/package product work before implementation
 - affected-surface mapping and implementation delta classification
 - expected seam families and risk classes
 - backlog-completion strategy for the whole backlog item, including any known future-dependent blockers

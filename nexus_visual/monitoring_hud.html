@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nexus Desktop AI Monitoring HUD</title>
+  <link rel="stylesheet" href="monitoring_hud.css" />
+</head>
+<body>
+  <section
+    id="monitoring-hud"
+    class="monitoring-hud"
+    data-package="PKG-006"
+    data-slice="SLC-016"
+    data-surface-id="monitoring-hud-dashboard"
+    data-product-surface-role="dashboard-configuration-surface"
+    data-dashboard-surface="monitoring-hud-dashboard"
+    data-configures-surface="monitoring-hud-minimal"
+    data-renderer-owner="DesktopRuntimeWindow"
+    data-native-dashboard-owner="DesktopRuntimeWindow"
+    data-standalone-window-contract="dashboard-overlay-core-independent-native-surfaces"
+    data-split-contract="dashboard-configures-minimal-overlay"
+    data-hud-module="monitoring-hud-shell-module"
+    data-product-surface="nexus-monitoring-hud"
+    data-isolation-boundary="standalone-hud-layer"
+    data-core-failure-isolation="hud-fail-does-not-hide-core"
+    data-interaction-mode="standalone-dashboard-window"
+    data-anchor-state="overlay-anchored"
+    data-feature-enabled="false"
+    data-overlay-deferred="true"
+    data-visibility-state="hidden"
+    data-snap-state="enabled"
+    data-card-model="category-sensor-cards"
+    data-provider-state="setup-required"
+    data-warning-mode="visual-non-invasive"
+    data-live-values="provider-required"
+    data-polling-default-ms="1000"
+    data-polling-options-ms="1000,2000,5000,10000"
+    data-keybind-policy="none"
+    data-drag-smoothing="native-os-window-move"
+    data-native-resize-model="os-edge-corner-resize"
+    data-scrollbar-style="nexus-thin-glow"
+    data-frame-ownership="single-rounded-dashboard-chrome"
+    data-scroll-owner="monitoring-hud-chrome"
+    data-scrollbar-boundary="rounded-window-clipped"
+    data-outer-frame-haze="removed-no-square-layer"
+    data-grid-scope="control-hub-cards-only"
+    data-deadzone-policy="auto-height-content-no-empty-hit-zones"
+    data-sticky-header-mask="opaque-scroll-mask"
+    data-native-resize-hit-zone="preclick-hover-cursor-aligned-12px-app-owned-resize-action"
+    data-sandbox-state-matrix="setup,no-data,degraded,ready,warning"
+    data-dashboard-control-panel="hud-overlay-monitor-management"
+    data-monitor-management="create-edit-enable-polling"
+    data-overlay-mode-controls="overlay-deferred-tray-owned"
+    data-primary-interface-release-surface="monitoring-hud-dashboard-control-panel"
+    data-interface-acceptance-policy="dashboard-only-current-branch"
+    data-dashboard-acceptance-baseline="ws31-dashboard-control-panel"
+    data-dashboard-proof-path="dashboard-specific-static-live"
+    data-dashboard-standalone-proof="ws32-dashboard-window-travel"
+    data-dashboard-clipping-proof="within-virtual-desktop"
+    data-dashboard-decoupling-proof="core-overlay-independent"
+    data-dashboard-content-polish="ws45-clean-control-hub-ia"
+    data-dashboard-settings-model="hud-overlay-monitor-groups-provider-warning"
+    data-monitor-group-model="organizational-groups-settings-only"
+    data-dashboard-monitor-card-policy="overlay-display-owns-monitor-cards"
+    data-dashboard-provider-truth="provider-contract-first"
+    data-dashboard-state-model="setup-no-data-degraded-warning"
+    data-dashboard-warning-controls="visual-non-invasive-only"
+    data-dashboard-fake-telemetry-policy="blocked"
+    data-dashboard-ia-model="ws45-hub-actions-current-scope"
+    data-dashboard-quick-access="warning-notifications-only"
+    data-dashboard-global-feature-control="tray-owned"
+    data-dashboard-deferred-action-policy="disabled-labeled-not-clickable"
+    data-dashboard-card-order="hud-overlay-monitor-groups-data-sources-readiness"
+    data-overlay-acceptance-policy="deferred-non-gating"
+    data-interface-bundle-approval="not-granted"
+    data-core-repair-classification="dependency-repair-only"
+    aria-label="Nexus Desktop AI Monitoring HUD product surface"
+    aria-hidden="true"
+  >
+    <div class="monitoring-hud__chrome" aria-label="Visible Nexus Desktop AI Monitoring HUD panel">
+      <div class="monitoring-hud__title-group">
+        <div class="monitoring-hud__header" id="monitoring-hud-drag-handle">
+          <div>
+            <div class="monitoring-hud__kicker">Nexus Desktop AI</div>
+            <div class="monitoring-hud__title">HUD Dashboard</div>
+            <div class="monitoring-hud__subtitle">Configure HUD access, monitor groups, data sources, warning notifications, and future display behavior.</div>
+          </div>
+          <div class="monitoring-hud__mode-stack">
+            <div class="monitoring-hud__mode-pill" id="monitoring-hud-runtime-status">HUD Dashboard ready</div>
+            <div class="monitoring-hud__mode-pill monitoring-hud__mode-pill--quiet" id="monitoring-hud-anchor-status">HUD Overlay deferred</div>
+          </div>
+        </div>
+        <div class="monitoring-hud__surface-role" data-dashboard-role="configuration-settings-surface">
+          <span>Dashboard</span>
+          <strong>Settings and control hub</strong>
+          <span>HUD Overlay</span>
+          <strong>Deferred future overlay</strong>
+          <span>Relationship</span>
+          <strong>Dashboard configures overlay behavior</strong>
+        </div>
+      </div>
+      <div class="monitoring-hud__toolbar" aria-label="HUD Dashboard quick access" data-dashboard-quick-access="warning-notifications-only">
+        <span class="monitoring-hud__toolbar-label">Quick Access</span>
+        <button type="button" id="monitoring-hud-warning-toggle" class="monitoring-hud__control-button" data-control="warning-notifications">
+          Warning Notifications On
+        </button>
+        <span class="monitoring-hud__toolbar-note">Tray owns HUD feature enablement; Dashboard stays focused on settings.</span>
+      </div>
+      <div
+        class="monitoring-hud__control-hub"
+        id="monitoring-hud-monitor-list"
+        data-dashboard-content="control-hub-cards"
+        data-dashboard-monitor-display-policy="settings-only-no-monitor-cards"
+        data-dashboard-monitor-model="organizational-groups-settings-only"
+        data-child-window-model="hub-actions-standalone-child-windows-next"
+        aria-label="HUD Dashboard control hub cards"
+      >
+        <article class="monitoring-hud__hub-card" data-dashboard-hub-card="hud-overlay" data-slice="SLC-026">
+          <div class="monitoring-hud__hub-card-topline">
+            <span>01</span>
+            <strong>HUD Overlay</strong>
+          </div>
+          <p id="monitoring-hud-placement-owner">HUD Overlay release acceptance is deferred. The Dashboard can describe the future overlay boundary without enabling it.</p>
+          <div class="monitoring-hud__state-row">
+            <span>Overlay status</span>
+            <strong id="monitoring-hud-placement-anchor">Deferred / non-gating</strong>
+          </div>
+          <div class="monitoring-hud__state-row">
+            <span>Control boundary</span>
+            <strong id="monitoring-hud-resize-posture">Overlay settings are future branch scope</strong>
+          </div>
+        </article>
+        <article class="monitoring-hud__hub-card" data-dashboard-hub-card="monitor-groups" data-slice="SLC-027">
+          <div class="monitoring-hud__hub-card-topline">
+            <span>02</span>
+            <strong>Monitor Groups</strong>
+          </div>
+          <p id="monitoring-hud-monitor-list-summary">2 Monitor Groups configured. Polling defaults to 1s inside Create/Edit, not on the Dashboard home.</p>
+          <label class="monitoring-hud__selector-control">
+            Selected Monitor Group
+            <select id="monitoring-hud-monitor-selector" aria-label="Select Monitor Group for the Edit action">
+              <option value="cpu" data-monitor-config-option="cpu">CPU Group</option>
+              <option value="gpu" data-monitor-config-option="gpu">GPU Group</option>
+            </select>
+          </label>
+          <div class="monitoring-hud__hub-actions">
+            <button type="button" id="monitoring-hud-create-monitor-action" class="monitoring-hud__hub-action" data-control="create-monitor">Create</button>
+            <button type="button" id="monitoring-hud-edit-monitor-action" class="monitoring-hud__hub-action" data-control="edit-monitor" data-child-window-target="monitor-group-editor" aria-disabled="true">Edit</button>
+          </div>
+          <small id="monitoring-hud-monitor-editor-scope">Monitor Groups organize what the future HUD Overlay shows; the Dashboard does not render display cards or fake values.</small>
+        </article>
+        <article class="monitoring-hud__hub-card" data-dashboard-hub-card="data-sources" data-slice="SLC-025">
+          <div class="monitoring-hud__hub-card-topline">
+            <span>03</span>
+            <strong>Data Sources</strong>
+          </div>
+          <p>Provider truth and setup live here. Hardware values stay hidden until a safe provider and validation route exist.</p>
+          <div class="monitoring-hud__state-row">
+            <span>Status</span>
+            <strong id="monitoring-hud-adapter-status">Waiting for safe provider</strong>
+          </div>
+          <div class="monitoring-hud__state-row">
+            <span>Truth rule</span>
+            <strong id="monitoring-hud-source-scope">Provider-first; no fake values</strong>
+          </div>
+          <button type="button" class="monitoring-hud__hub-action monitoring-hud__hub-action--deferred" data-control="open-data-sources" data-child-window-target="data-sources" aria-disabled="true" disabled>Data Sources Window Deferred</button>
+        </article>
+        <article class="monitoring-hud__hub-card" data-dashboard-hub-card="readiness" data-slice="SLC-028">
+          <div class="monitoring-hud__hub-card-topline">
+            <span>04</span>
+            <strong>Readiness</strong>
+          </div>
+          <p>The Dashboard should explain setup, unavailable, and degraded states without showing fake telemetry.</p>
+          <div class="monitoring-hud__state-row">
+            <span>Setup</span>
+            <strong id="monitoring-hud-status-label">Provider setup required</strong>
+          </div>
+          <div class="monitoring-hud__state-row">
+            <span>No data</span>
+            <strong id="monitoring-hud-no-data-behavior">Show unavailable; no fake values</strong>
+          </div>
+          <div class="monitoring-hud__state-row">
+            <span>Degraded</span>
+            <strong id="monitoring-hud-degraded-behavior">Name reconnect/setup gap</strong>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section
+    id="monitoring-hud-overlay-display"
+    class="monitoring-hud-overlay-display"
+    data-package="PKG-006"
+    data-slice="SLC-016"
+    data-placement-slice="SLC-026"
+    data-controls-slice="SLC-027"
+    data-proof-slice="SLC-029"
+    data-surface-id="monitoring-hud-overlay-display"
+    data-product-surface="nexus-monitoring-hud-overlay-display"
+    data-product-surface-role="edgeless-overlay-display"
+    data-configured-by="monitoring-hud"
+    data-dashboard-owner="monitoring-hud"
+    data-overlay-canvas="edge-to-edge-snipping-tool-style"
+    data-overlay-edit-mode="unanchored-focusable-resizable-scrollable"
+    data-overlay-anchor-mode="anchored-uninteractable-click-through"
+    data-monitor-layout="movable-resizable-monitor-cards"
+    data-watermark-identity="edge-safe-nexus-orin-watermark"
+    data-anchor-state="anchored"
+    data-visibility-state="hidden-deferred"
+    data-quick-actions="hidden-while-anchored"
+    data-edge-to-edge-posture="landscape-portrait-monitor-fit"
+    data-position-persistence="local-layout-state"
+    data-interface-acceptance-policy="deferred-non-gating"
+    data-dashboard-acceptance-role="supporting-future-interface-evidence"
+    data-current-branch-release-gate="false"
+    aria-label="Nexus Desktop AI edgeless Monitoring HUD overlay display"
+    aria-hidden="true"
+  >
+    <div class="monitoring-hud-overlay-display__frame" id="monitoring-hud-overlay-frame">
+      <div class="monitoring-hud-overlay-display__watermark" aria-hidden="true">
+        Nexus Desktop AI / ORIN
+      </div>
+      <div
+        class="monitoring-hud-overlay-display__canvas"
+        id="monitoring-hud-overlay-canvas"
+        aria-label="Edgeless overlay placement canvas for monitor group cards"
+      >
+        <article class="monitoring-hud-overlay-card monitoring-hud-overlay-card--setup" data-overlay-monitor-card="cpu" data-overlay-monitor-enabled="true" data-overlay-monitor-polling-ms="1000" style="--overlay-card-x:28px;--overlay-card-y:34px;--overlay-card-w:300px;--overlay-card-h:132px;">
+          <div class="monitoring-hud-overlay-card__topline">
+            <strong data-overlay-monitor-title="cpu">CPU Group</strong>
+            <span data-overlay-monitor-state="cpu">Setup</span>
+          </div>
+          <p data-overlay-monitor-summary="cpu">Provider warming</p>
+          <div class="monitoring-hud-overlay-card__quick-actions" data-overlay-monitor-quick-actions="cpu">
+            <button type="button" data-overlay-monitor-edit="cpu">Edit</button>
+          </div>
+        </article>
+        <article class="monitoring-hud-overlay-card monitoring-hud-overlay-card--unavailable" data-overlay-monitor-card="gpu" data-overlay-monitor-enabled="true" data-overlay-monitor-polling-ms="1000" style="--overlay-card-x:28px;--overlay-card-y:186px;--overlay-card-w:300px;--overlay-card-h:132px;">
+          <div class="monitoring-hud-overlay-card__topline">
+            <strong data-overlay-monitor-title="gpu">GPU Group</strong>
+            <span data-overlay-monitor-state="gpu">No data</span>
+          </div>
+          <p data-overlay-monitor-summary="gpu">Provider required</p>
+          <div class="monitoring-hud-overlay-card__quick-actions" data-overlay-monitor-quick-actions="gpu">
+            <button type="button" data-overlay-monitor-edit="gpu">Edit</button>
+          </div>
+        </article>
+      </div>
+      <div class="monitoring-hud-overlay-display__resize-outline" aria-hidden="true"></div>
+    </div>
+  </section>
+
+  <section
+    id="monitoring-hud-minimal"
+    class="monitoring-hud-minimal"
+    data-package="PKG-006"
+    data-slice="SLC-016"
+    data-placement-slice="SLC-026"
+    data-status-slice="SLC-028"
+    data-proof-slice="SLC-029"
+    data-surface-id="monitoring-hud-minimal"
+    data-product-surface="nexus-monitoring-hud-minimal"
+    data-product-surface-role="minimal-anchored-hud-overlay"
+    data-renderer-owner="MonitoringHudWindow"
+    data-configured-by="monitoring-hud"
+    data-dashboard-owner="monitoring-hud"
+    data-split-contract="dashboard-configures-minimal-overlay"
+    data-native-overlay-owner="MonitoringHudOverlayDisplayWindow"
+    data-native-window-split-proof="ready-ws26"
+    data-anchor-state="anchored"
+    data-visibility-state="hidden-deferred"
+    data-interaction-mode="anchored-click-through"
+    data-click-through-proof="native-transparent-input"
+    data-focus-proof="native-no-focus-noactivate"
+    data-provider-state="setup-required"
+    data-warning-mode="visual-non-invasive"
+    data-live-values="provider-required"
+    data-keybind-policy="none"
+    data-interface-acceptance-policy="deferred-non-gating"
+    data-dashboard-acceptance-role="supporting-future-interface-evidence"
+    data-current-branch-release-gate="false"
+    aria-label="Nexus Desktop AI minimal anchored Monitoring HUD overlay"
+    aria-hidden="true"
+  >
+    <div class="monitoring-hud-minimal__frame" aria-label="Minimal Nexus Desktop AI Monitoring HUD overlay">
+      <div class="monitoring-hud-minimal__topline">
+        <span>Nexus</span>
+        <strong>Monitoring HUD</strong>
+        <em id="monitoring-hud-minimal-anchor">Anchored</em>
+      </div>
+      <div class="monitoring-hud-minimal__status">
+        <span class="monitoring-hud-minimal__status-dot"></span>
+        <div>
+          <strong id="monitoring-hud-minimal-provider-state">Provider setup required</strong>
+          <span id="monitoring-hud-minimal-runtime-status">Minimal HUD enabled</span>
+        </div>
+      </div>
+      <div class="monitoring-hud-minimal__cards" aria-label="Minimal sensor status cards">
+        <div class="monitoring-hud-minimal-card monitoring-hud-minimal-card--setup" data-minimal-card="cpu">
+          <span>CPU</span>
+          <strong data-minimal-card-summary="cpu">Provider warming</strong>
+        </div>
+        <div class="monitoring-hud-minimal-card monitoring-hud-minimal-card--unavailable" data-minimal-card="gpu">
+          <span>GPU</span>
+          <strong data-minimal-card-summary="gpu">Provider required</strong>
+        </div>
+      </div>
+      <div class="monitoring-hud-minimal__warning" id="monitoring-hud-minimal-warning">Visual warning baseline only</div>
+    </div>
+  </section>
+
+  <script src="monitoring_hud.js"></script>
+</body>
+</html>

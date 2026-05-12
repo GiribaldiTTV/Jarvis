@@ -468,7 +468,7 @@ def parse_args(argv):
         i += 1
 
     if text is None:
-        text = os.environ.get("JARVIS_VOICE_TEXT")
+        text = os.environ.get("ORIN_VOICE_TEXT")
 
     if not text and positional:
         text = " ".join(positional)

@@ -165,7 +165,7 @@ Backlog-Split Reason: `None`
 - Out-Of-Scope Paths:
   - `Audio/`
   - `logs/`
-  - `jarvis_visual/`
+  - `nexus_visual/`
   - installer, packaging, or shortcut-registration redesign
   - broader workspace or root ownership reshaping beyond the top-level handoff seam
   - tray/task/action expansion unrelated to launch ownership
@@ -177,7 +177,7 @@ Backlog-Split Reason: `None`
 - Prohibited Changes:
   - no audio-path rewiring
   - no `logs/` ownership changes
-  - no `jarvis_visual/` relocation or reorganization
+  - no `nexus_visual/` relocation or reorganization
   - no installer or desktop-shortcut registration redesign
   - no broader `main.py` rewrite outside the bounded handoff rule
   - no expansion into unrelated runtime UX or broader workspace movement
@@ -197,7 +197,7 @@ Backlog-Split Reason: `None`
 
 - rollback if default production desktop shortcut / VBS / launcher behavior regresses
 - rollback if explicit dev boot profiles on `main.py` no longer produce the expected boot-transition evidence path
-- rollback if the slice requires changes to `Audio/`, `logs/`, `jarvis_visual/`, installer behavior, or broader workspace ownership
+- rollback if the slice requires changes to `Audio/`, `logs/`, `nexus_visual/`, installer behavior, or broader workspace ownership
 - rollback if direct-launch ownership cannot be made explicit without widening into broader renderer or application-lifecycle restructuring
 - rollback if the slice introduces ambiguous dual ownership between `main.py` and the shipped launcher chain instead of reducing it
 

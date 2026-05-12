@@ -15,7 +15,7 @@ BASE_LOG_ROOT = os.path.join(DEV_LOGS_DIR, "diagnostics_report_issue_validation"
 VERIFICATION_DIR = os.path.join(BASE_LOG_ROOT, "verification")
 REPORTS_DIR = os.path.join(BASE_LOG_ROOT, "reports")
 DESKTOP_DIR = os.path.join(ROOT_DIR, "desktop")
-DIAGNOSTICS_SCRIPT = os.path.join(DESKTOP_DIR, "jarvis_diagnostics.pyw")
+DIAGNOSTICS_SCRIPT = os.path.join(DESKTOP_DIR, "nexus_diagnostics.pyw")
 
 REPORT_PREFIX = "DiagnosticsReportIssueValidationReport_"
 MANIFEST_FILENAME = "manifest.json"
@@ -150,11 +150,11 @@ def run_validation():
 
     inputs = create_validation_inputs()
     support_dir = os.path.join(VERIFICATION_DIR, "support_bundles")
-    before_bundle = latest_file_matching(support_dir, "JarvisSupport_", ".zip")
+    before_bundle = latest_file_matching(support_dir, "NexusSupport_", ".zip")
 
     sys.path.insert(0, DESKTOP_DIR)
     diagnostics_module = load_module_from_path(
-        "jarvis_diagnostics_report_issue_validation_module",
+        "nexus_diagnostics_report_issue_validation_module",
         DIAGNOSTICS_SCRIPT,
     )
 
@@ -216,7 +216,7 @@ def run_validation():
         except ValueError:
             pass
 
-    bundle_path = latest_file_matching(support_dir, "JarvisSupport_", ".zip")
+    bundle_path = latest_file_matching(support_dir, "NexusSupport_", ".zip")
     bundle_info = inspect_bundle(bundle_path) if bundle_path else {"zip_entries": [], "manifest": {}, "manifest_archive_path": ""}
     manifest = bundle_info["manifest"]
 
@@ -232,7 +232,7 @@ def run_validation():
                 "runtime_log_name": runtime_log_name,
                 "crash_log_name": crash_log_name if any(entry.get("name") == crash_log_name for entry in manifest.get("bundled_files", [])) else None,
                 "run_identity": manifest.get("run_identity", ""),
-                "jarvis_version": manifest.get("jarvis_version", ""),
+                "nexus_version": manifest.get("nexus_version", ""),
             },
         )
 
@@ -243,7 +243,7 @@ def run_validation():
         leftover_staging_dirs = [
             os.path.join(support_dir, name)
             for name in os.listdir(support_dir)
-            if name.startswith("JarvisSupport_") and os.path.isdir(os.path.join(support_dir, name))
+            if name.startswith("NexusSupport_") and os.path.isdir(os.path.join(support_dir, name))
         ]
 
     expected_bundle_dir = os.path.dirname(bundle_path) if bundle_path else ""
@@ -383,7 +383,7 @@ def collect_failures(section):
 
 def build_report_text(branch_state, report_path, sections, overall_ok):
     lines = [
-        "JARVIS DIAGNOSTICS REPORT ISSUE VALIDATION",
+        "NEXUS DIAGNOSTICS REPORT ISSUE VALIDATION",
         f"Report: {report_path}",
         f"Branch: {branch_state}",
         f"Overall Result: {'PASS' if overall_ok else 'FAIL'}",

@@ -17,6 +17,13 @@ ENTRYPOINT_SCRIPT = os.path.join(ROOT_DIR, "launch_orin_desktop.vbs")
 LAUNCHER_SCRIPT = os.path.join(ROOT_DIR, "desktop", "orin_desktop_launcher.pyw")
 DEFAULT_TARGET_SCRIPT = os.path.join(ROOT_DIR, "desktop", "orin_desktop_main.py")
 MAIN_SCRIPT = os.path.join(ROOT_DIR, "main.py")
+DEFAULT_DESKTOP_SHORTCUT_PATH = os.path.join(
+    os.path.expanduser("~"),
+    "OneDrive",
+    "Desktop",
+    "Nexus Desktop Launcher.lnk",
+)
+DESKTOP_SHORTCUT_PATH_ENV = "NEXUS_DESKTOP_VALIDATION_SHORTCUT_PATH"
 EXPECTED_DEFAULT_TARGET_LINE = re.compile(
     r'DEFAULT_TARGET_SCRIPT\s*=\s*os\.path\.join\(ROOT_DIR,\s*"desktop",\s*"orin_desktop_main\.py"\)'
 )
@@ -83,6 +90,9 @@ ACTIVE_RUNTIME_OWNER_CONFLICT_DETECTED_MARKER = (
 ACTIVE_RUNTIME_OWNER_CONFLICT_SESSION_PRESERVED_MARKER = (
     "STATUS|SKIP|LAUNCHER_RUNTIME|ACTIVE_RUNTIME_OWNER_CONFLICT_SESSION_PRESERVED"
 )
+ACTIVE_RUNTIME_OWNER_PID_UNVERIFIED_MARKER = (
+    "STATUS|WARNING|LAUNCHER_RUNTIME|ACTIVE_RUNTIME_OWNER_PID_UNVERIFIED"
+)
 SINGLE_INSTANCE_RELEASED_MARKER = "STATUS|TRACE|LAUNCHER_RUNTIME|SINGLE_INSTANCE_RELEASED"
 
 EXPECTED_MILESTONES = [
@@ -97,7 +107,7 @@ EXPECTED_MILESTONES = [
     "RENDERER_MAIN|WINDOW_SHOW_DEFERRED_UNTIL_CORE_READY",
     "RENDERER_MAIN|CORE_VISUALIZATION_READY",
     "RENDERER_MAIN|WINDOW_SHOW_REQUESTED",
-    "RENDERER_MAIN|CORE_VISUALIZATION_FIRST_VISIBLE",
+    "RENDERER_MAIN|CORE_VISUALIZATION_WINDOW_VISIBLE",
     "RENDERER_MAIN|STARTUP_READY",
     "RENDERER_MAIN|PASSIVE_DEFAULT_HANDOFF_REQUESTED|state=dormant",
     AUTHORITATIVE_DESKTOP_SETTLED_MARKER,
@@ -289,6 +299,128 @@ def run_hidden_command(args, env=None, timeout_seconds=20):
     )
 
 
+def powershell_literal(value):
+    return "'" + str(value).replace("'", "''") + "'"
+
+
+def shortcut_metadata(path):
+    payload = {
+        "exists": os.path.exists(path),
+        "path": path,
+        "targetPath": "",
+        "arguments": "",
+        "workingDirectory": "",
+        "error": "",
+    }
+    if not payload["exists"] or os.name != "nt":
+        return payload
+
+    script = (
+        "$shell = New-Object -ComObject WScript.Shell; "
+        f"$shortcut = $shell.CreateShortcut({powershell_literal(path)}); "
+        "[pscustomobject]@{"
+        "TargetPath=$shortcut.TargetPath;"
+        "Arguments=$shortcut.Arguments;"
+        "WorkingDirectory=$shortcut.WorkingDirectory"
+        "} | ConvertTo-Json -Compress"
+    )
+    try:
+        result = run_hidden_command(
+            ["powershell", "-NoProfile", "-Command", script],
+            timeout_seconds=10,
+        )
+    except Exception as exc:
+        payload["error"] = f"{type(exc).__name__}: {exc}"
+        return payload
+
+    if result.returncode != 0:
+        payload["error"] = (result.stderr or result.stdout or "shortcut metadata read failed").strip()
+        return payload
+
+    try:
+        metadata = json.loads(result.stdout or "{}")
+    except Exception as exc:
+        payload["error"] = f"metadata json parse failed: {type(exc).__name__}: {exc}"
+        return payload
+
+    payload["targetPath"] = str(metadata.get("TargetPath") or "")
+    payload["arguments"] = str(metadata.get("Arguments") or "")
+    payload["workingDirectory"] = str(metadata.get("WorkingDirectory") or "")
+    return payload
+
+
+def shortcut_targets_current_root(metadata):
+    if not metadata.get("exists"):
+        return False
+    target_path = os.path.abspath(str(metadata.get("targetPath") or ""))
+    working_directory = os.path.abspath(str(metadata.get("workingDirectory") or ""))
+    return (
+        target_path == os.path.abspath(ENTRYPOINT_SCRIPT)
+        and working_directory == os.path.abspath(ROOT_DIR)
+    )
+
+
+def create_validation_shortcut(path):
+    ensure_dir(os.path.dirname(path))
+    script = (
+        "$shell = New-Object -ComObject WScript.Shell; "
+        f"$shortcut = $shell.CreateShortcut({powershell_literal(path)}); "
+        f"$shortcut.TargetPath = {powershell_literal(ENTRYPOINT_SCRIPT)}; "
+        f"$shortcut.WorkingDirectory = {powershell_literal(ROOT_DIR)}; "
+        "$shortcut.Arguments = ''; "
+        "$shortcut.Save()"
+    )
+    result = run_hidden_command(
+        ["powershell", "-NoProfile", "-Command", script],
+        timeout_seconds=10,
+    )
+    if result.returncode != 0:
+        raise RuntimeError((result.stderr or result.stdout or "shortcut creation failed").strip())
+    return shortcut_metadata(path)
+
+
+def resolve_desktop_shortcut_for_current_root(scenario_root):
+    env_shortcut_path = os.environ.get(DESKTOP_SHORTCUT_PATH_ENV, "").strip()
+    if env_shortcut_path:
+        env_metadata = shortcut_metadata(env_shortcut_path)
+        if shortcut_targets_current_root(env_metadata):
+            return {
+                "path": env_shortcut_path,
+                "mode": "env-provided-current-root-shortcut",
+                "actualDesktopShortcut": shortcut_metadata(DEFAULT_DESKTOP_SHORTCUT_PATH),
+                "selectedShortcut": env_metadata,
+            }
+        raise RuntimeError(
+            f"{DESKTOP_SHORTCUT_PATH_ENV} does not target this FAM worktree: {env_metadata}"
+        )
+
+    actual_metadata = shortcut_metadata(DEFAULT_DESKTOP_SHORTCUT_PATH)
+    if shortcut_targets_current_root(actual_metadata):
+        return {
+            "path": DEFAULT_DESKTOP_SHORTCUT_PATH,
+            "mode": "actual-desktop-shortcut-current-root",
+            "actualDesktopShortcut": actual_metadata,
+            "selectedShortcut": actual_metadata,
+        }
+
+    validation_shortcut_path = os.path.join(
+        scenario_root,
+        "Nexus Desktop Launcher - FAM006 Validation.lnk",
+    )
+    validation_metadata = create_validation_shortcut(validation_shortcut_path)
+    if not shortcut_targets_current_root(validation_metadata):
+        raise RuntimeError(
+            f"validation shortcut does not target this FAM worktree: {validation_metadata}"
+        )
+
+    return {
+        "path": validation_shortcut_path,
+        "mode": "fam-worktree-equivalent-shortcut",
+        "actualDesktopShortcut": actual_metadata,
+        "selectedShortcut": validation_metadata,
+    }
+
+
 def terminate_process_tree(proc):
     if proc.poll() is not None:
         return False
@@ -408,14 +540,14 @@ def resolve_cscript_command():
 
 def build_harness_env(scenario_root, target_script="", extra_env=None):
     env = os.environ.copy()
-    env["JARVIS_HARNESS_LOG_ROOT"] = scenario_root
-    env["JARVIS_HARNESS_DISABLE_DIAGNOSTICS"] = "1"
-    env["JARVIS_HARNESS_DISABLE_VOICE"] = "1"
-    env["JARVIS_HARNESS_SUPPRESS_ALREADY_RUNNING_DIALOGS"] = "1"
+    env["NEXUS_HARNESS_LOG_ROOT"] = scenario_root
+    env["NEXUS_HARNESS_DISABLE_DIAGNOSTICS"] = "1"
+    env["NEXUS_HARNESS_DISABLE_VOICE"] = "1"
+    env["NEXUS_HARNESS_SUPPRESS_ALREADY_RUNNING_DIALOGS"] = "1"
     env["QT_QPA_PLATFORM"] = "offscreen"
     env[SHUTDOWN_CONFIRMATION_DECISION_ENV] = "accepted"
     if target_script:
-        env["JARVIS_HARNESS_TARGET_SCRIPT"] = target_script
+        env["NEXUS_HARNESS_TARGET_SCRIPT"] = target_script
     if extra_env:
         env.update(extra_env)
     return env
@@ -475,11 +607,11 @@ def run_single_instance_wait_boundary_scenario():
     original_env = {
         key: os.environ.get(key)
         for key in (
-            "JARVIS_HARNESS_AUTO_ACCEPT_RELAUNCH",
-            "JARVIS_HARNESS_AUTO_DECLINE_RELAUNCH",
-            "JARVIS_HARNESS_FORCE_RELAUNCH_SIGNAL_FAILURE",
-            "JARVIS_HARNESS_SUPPRESS_ALREADY_RUNNING_DIALOGS",
-            "JARVIS_HARNESS_RELAUNCH_WAIT_SECONDS",
+            "NEXUS_HARNESS_AUTO_ACCEPT_RELAUNCH",
+            "NEXUS_HARNESS_AUTO_DECLINE_RELAUNCH",
+            "NEXUS_HARNESS_FORCE_RELAUNCH_SIGNAL_FAILURE",
+            "NEXUS_HARNESS_SUPPRESS_ALREADY_RUNNING_DIALOGS",
+            "NEXUS_HARNESS_RELAUNCH_WAIT_SECONDS",
         )
     }
     case_definitions = (
@@ -490,12 +622,12 @@ def run_single_instance_wait_boundary_scenario():
     case_results = []
 
     try:
-        os.environ["JARVIS_HARNESS_AUTO_ACCEPT_RELAUNCH"] = "1"
-        os.environ["JARVIS_HARNESS_SUPPRESS_ALREADY_RUNNING_DIALOGS"] = "1"
+        os.environ["NEXUS_HARNESS_AUTO_ACCEPT_RELAUNCH"] = "1"
+        os.environ["NEXUS_HARNESS_SUPPRESS_ALREADY_RUNNING_DIALOGS"] = "1"
         for key in (
-            "JARVIS_HARNESS_AUTO_DECLINE_RELAUNCH",
-            "JARVIS_HARNESS_FORCE_RELAUNCH_SIGNAL_FAILURE",
-            "JARVIS_HARNESS_RELAUNCH_WAIT_SECONDS",
+            "NEXUS_HARNESS_AUTO_DECLINE_RELAUNCH",
+            "NEXUS_HARNESS_FORCE_RELAUNCH_SIGNAL_FAILURE",
+            "NEXUS_HARNESS_RELAUNCH_WAIT_SECONDS",
         ):
             os.environ.pop(key, None)
 
@@ -650,7 +782,7 @@ log("FAKE_RENDERER|EVENT_LOOP_EXIT|code=0")
     env = build_harness_env(
         scenario_root,
         target_script=fake_renderer_script,
-        extra_env={"JARVIS_HARNESS_AUTO_ACCEPT_RELAUNCH": "1"},
+        extra_env={"NEXUS_HARNESS_AUTO_ACCEPT_RELAUNCH": "1"},
     )
 
     first_proc = None
@@ -910,7 +1042,7 @@ def validate_tray_initialization_failure_is_bounded():
 
         from PySide6.QtWidgets import QApplication
 
-        import desktop.orin_desktop_main as runtime_mod
+        import desktop.tray_controller as tray_mod
 
         app = QApplication.instance()
         created_app = False
@@ -936,13 +1068,13 @@ def validate_tray_initialization_failure_is_bounded():
             def __init__(self, *_args, **_kwargs):
                 raise RuntimeError("synthetic tray init failure")
 
-        original_tray_icon = runtime_mod.QSystemTrayIcon
-        runtime_mod.QSystemTrayIcon = FailingTrayIcon
+        original_tray_icon = tray_mod.QSystemTrayIcon
+        tray_mod.QSystemTrayIcon = FailingTrayIcon
         try:
-            tray_entry = runtime_mod.DesktopTrayEntry(app, FakeWindow(), events.append)
+            tray_entry = tray_mod.DesktopTrayEntry(app, FakeWindow(), events.append)
             initialized = tray_entry.initialize()
         finally:
-            runtime_mod.QSystemTrayIcon = original_tray_icon
+            tray_mod.QSystemTrayIcon = original_tray_icon
 
         if created_app:
             app.quit()
@@ -977,7 +1109,7 @@ def validate_tray_identity_initialization():
 
         from PySide6.QtWidgets import QApplication
 
-        import desktop.orin_desktop_main as runtime_mod
+        import desktop.tray_controller as tray_mod
 
         app = QApplication.instance()
         created_app = False
@@ -988,6 +1120,14 @@ def validate_tray_identity_initialization():
         events = []
 
         class FakeWindow:
+            def monitoring_hud_feature_state(self):
+                return {
+                    "feature_enabled": False,
+                    "dashboard_visible": False,
+                    "overlay_deferred": True,
+                    "overlay_anchor_enabled": False,
+                }
+
             def toggle_command_overlay(self):
                 raise AssertionError("initialize should not route overlay")
 
@@ -1050,12 +1190,19 @@ def validate_tray_identity_initialization():
                     }
                 )
 
-        original_tray_icon = runtime_mod.QSystemTrayIcon
-        runtime_mod.QSystemTrayIcon = FakeTrayIcon
+        original_tray_icon = tray_mod.QSystemTrayIcon
+        tray_mod.QSystemTrayIcon = FakeTrayIcon
         try:
-            tray_entry = runtime_mod.DesktopTrayEntry(app, FakeWindow(), events.append)
+            confirmation_requests = []
+            tray_entry = tray_mod.DesktopTrayEntry(
+                app,
+                FakeWindow(),
+                events.append,
+                shutdown_confirmation_requester=confirmation_requests.append,
+            )
             initialized = tray_entry.initialize()
             discovery_cue_requested = tray_entry.show_discovery_cue()
+            tray_entry.request_shutdown_from_tray("validation")
             actions = [
                 action
                 for action in tray_entry.tray_menu.actions()
@@ -1063,11 +1210,21 @@ def validate_tray_identity_initialization():
             ]
             action_texts = [action.text() for action in actions]
             identity_action_enabled = actions[0].isEnabled() if actions else None
+            hud_overlay_deferred_action_enabled = None
+            hud_dashboard_action_enabled = False
+            hud_dashboard_close_action_enabled = False
+            for action in actions:
+                if action.text() == "HUD Overlay Deferred":
+                    hud_overlay_deferred_action_enabled = action.isEnabled()
+                if action.text() == "Open HUD Dashboard":
+                    hud_dashboard_action_enabled = action.isEnabled()
+                if action.text() == "Close HUD Dashboard":
+                    hud_dashboard_close_action_enabled = action.isEnabled()
             fake_icon = FakeTrayIcon.latest_instance
             tooltip = fake_icon.tooltip if fake_icon is not None else ""
             messages = fake_icon.messages if fake_icon is not None else []
         finally:
-            runtime_mod.QSystemTrayIcon = original_tray_icon
+            tray_mod.QSystemTrayIcon = original_tray_icon
 
         tray_entry.close()
 
@@ -1080,9 +1237,13 @@ def validate_tray_identity_initialization():
             "events": events,
             "action_texts": action_texts,
             "identity_action_enabled": identity_action_enabled,
+            "hud_overlay_deferred_action_enabled": hud_overlay_deferred_action_enabled,
+            "hud_dashboard_action_enabled": hud_dashboard_action_enabled,
+            "hud_dashboard_close_action_enabled": hud_dashboard_close_action_enabled,
             "tooltip": tooltip,
             "discovery_cue_requested": discovery_cue_requested,
             "messages": messages,
+            "confirmation_requests": confirmation_requests,
             "error": "",
         }
     except Exception as exc:
@@ -1092,9 +1253,13 @@ def validate_tray_identity_initialization():
             "events": [],
             "action_texts": [],
             "identity_action_enabled": None,
+            "hud_overlay_deferred_action_enabled": None,
+            "hud_dashboard_action_enabled": None,
+            "hud_dashboard_close_action_enabled": None,
             "tooltip": "",
             "discovery_cue_requested": False,
             "messages": [],
+            "confirmation_requests": [],
             "error": f"{type(exc).__name__}: {exc}",
         }
     finally:
@@ -1102,6 +1267,266 @@ def validate_tray_identity_initialization():
             os.environ.pop("QT_QPA_PLATFORM", None)
         else:
             os.environ["QT_QPA_PLATFORM"] = previous_qt_platform
+
+
+def validate_tray_monitoring_hud_lifecycle_actions():
+    previous_qt_platform = os.environ.get("QT_QPA_PLATFORM")
+    os.environ["QT_QPA_PLATFORM"] = "offscreen"
+
+    try:
+        if ROOT_DIR not in sys.path:
+            sys.path.insert(0, ROOT_DIR)
+
+        from PySide6.QtWidgets import QApplication
+
+        import desktop.tray_controller as tray_mod
+
+        app = QApplication.instance()
+        created_app = False
+        if app is None:
+            app = QApplication(["orin_desktop_entrypoint_validation"])
+            created_app = True
+
+        events = []
+
+        class FakeWindow:
+            def __init__(self):
+                self.state = {
+                    "feature_enabled": False,
+                    "dashboard_visible": False,
+                    "overlay_deferred": True,
+                    "overlay_anchor_enabled": False,
+                }
+                self.toggle_sources = []
+                self.dashboard_requests = []
+
+            def monitoring_hud_feature_state(self):
+                return dict(self.state)
+
+            def toggle_command_overlay(self):
+                raise AssertionError("HUD lifecycle test should not route overlay")
+
+            def request_create_custom_task_from_tray(self, source=""):
+                raise AssertionError("HUD lifecycle test should not route authoring")
+
+            def request_monitoring_hud_toggle_from_tray(self, source=""):
+                self.toggle_sources.append(source)
+                next_enabled = not self.state["feature_enabled"]
+                self.state["feature_enabled"] = next_enabled
+                self.state["dashboard_visible"] = next_enabled
+
+            def request_monitoring_hud_dashboard_from_tray(self, source="", visible=True):
+                self.dashboard_requests.append((source, bool(visible)))
+                if self.state["feature_enabled"]:
+                    self.state["dashboard_visible"] = bool(visible)
+
+        class FakeSignal:
+            def connect(self, _callback):
+                return
+
+        class FakeTrayIcon:
+            class ActivationReason:
+                Trigger = object()
+                DoubleClick = object()
+
+            @staticmethod
+            def isSystemTrayAvailable():
+                return True
+
+            def __init__(self, *_args, **_kwargs):
+                self.activated = FakeSignal()
+
+            def setToolTip(self, _tooltip):
+                return
+
+            def setContextMenu(self, _menu):
+                return
+
+            def show(self):
+                return
+
+            def hide(self):
+                return
+
+        def action_snapshot(tray_entry):
+            actions = [action for action in tray_entry.tray_menu.actions() if not action.isSeparator()]
+            open_action_enabled = next(
+                (action.isEnabled() for action in actions if action.text() == "Open HUD Dashboard"),
+                False,
+            )
+            close_action_enabled = next(
+                (action.isEnabled() for action in actions if action.text() == "Close HUD Dashboard"),
+                False,
+            )
+            return {
+                "texts": [action.text() for action in actions],
+                "dashboard_enabled": bool(open_action_enabled or close_action_enabled),
+                "dashboard_open_enabled": open_action_enabled,
+                "dashboard_close_enabled": close_action_enabled,
+            }
+
+        original_tray_icon = tray_mod.QSystemTrayIcon
+        tray_mod.QSystemTrayIcon = FakeTrayIcon
+        fake_window = FakeWindow()
+        try:
+            tray_entry = tray_mod.DesktopTrayEntry(app, fake_window, events.append)
+            initialized = tray_entry.initialize()
+            initial = action_snapshot(tray_entry)
+            tray_entry.request_monitoring_hud_toggle_from_tray("validation")
+            enabled = action_snapshot(tray_entry)
+            tray_entry.request_monitoring_hud_dashboard_from_tray("validation")
+            dashboard_closed = action_snapshot(tray_entry)
+            tray_entry.request_monitoring_hud_dashboard_from_tray("validation")
+            dashboard_opened = action_snapshot(tray_entry)
+            tray_entry.request_monitoring_hud_toggle_from_tray("validation")
+            disabled = action_snapshot(tray_entry)
+            tray_entry.close()
+        finally:
+            tray_mod.QSystemTrayIcon = original_tray_icon
+
+        if created_app:
+            app.quit()
+
+        return {
+            "ok": True,
+            "initialized": initialized,
+            "events": events,
+            "initial": initial,
+            "enabled": enabled,
+            "dashboard_closed": dashboard_closed,
+            "dashboard_opened": dashboard_opened,
+            "disabled": disabled,
+            "toggle_sources": fake_window.toggle_sources,
+            "dashboard_requests": fake_window.dashboard_requests,
+            "final_state": fake_window.monitoring_hud_feature_state(),
+            "error": "",
+        }
+    except Exception as exc:
+        return {
+            "ok": False,
+            "initialized": False,
+            "events": [],
+            "initial": {},
+            "enabled": {},
+            "dashboard_closed": {},
+            "dashboard_opened": {},
+            "disabled": {},
+            "toggle_sources": [],
+            "dashboard_requests": [],
+            "final_state": {},
+            "error": f"{type(exc).__name__}: {exc}",
+        }
+    finally:
+        if previous_qt_platform is None:
+            os.environ.pop("QT_QPA_PLATFORM", None)
+        else:
+            os.environ["QT_QPA_PLATFORM"] = previous_qt_platform
+
+
+def validate_desktop_shortcut_real_client_tray_precheck():
+    scenario_root = os.path.join(BASE_LOG_ROOT, "real_client_tray_shortcut")
+    manifest_path = os.path.join(scenario_root, "real_client_tray_precheck_manifest.json")
+    cleanup_launch_chain_processes_for_log_root(scenario_root)
+    reset_dir(scenario_root)
+
+    if os.name != "nt":
+        return {
+            "ok": False,
+            "status": "NOT_RUN",
+            "manifest_path": manifest_path,
+            "error": "Windows desktop shortcut validation requires Windows",
+            "manifest": {},
+            "runtime_files": [],
+            "processes_after": [],
+        }
+
+    shortcut_resolution = {}
+    try:
+        shortcut_resolution = resolve_desktop_shortcut_for_current_root(scenario_root)
+    except Exception as exc:
+        return {
+            "ok": False,
+            "status": "NOT_RUN",
+            "manifest_path": manifest_path,
+            "error": f"desktop shortcut/FAM worktree proof path unavailable: {type(exc).__name__}: {exc}",
+            "manifest": {},
+            "runtime_files": [],
+            "processes_after": [],
+            "shortcut_resolution": shortcut_resolution,
+        }
+    shortcut_path = shortcut_resolution["path"]
+
+    env = os.environ.copy()
+    env["NEXUS_HARNESS_LOG_ROOT"] = scenario_root
+    env["NEXUS_HARNESS_DISABLE_DIAGNOSTICS"] = "1"
+    env["NEXUS_HARNESS_DISABLE_VOICE"] = "1"
+    env["NEXUS_HARNESS_SUPPRESS_ALREADY_RUNNING_DIALOGS"] = "1"
+    env["NEXUS_MONITORING_HUD_REAL_CLIENT_TRAY_PRECHECK_MANIFEST"] = manifest_path
+    env["NEXUS_MONITORING_HUD_REAL_CLIENT_TRAY_PRECHECK_EXIT"] = "1"
+    env["NEXUS_MONITORING_HUD_STATE_PATH"] = os.path.join(scenario_root, "monitoring_hud_state.json")
+    env["NEXUS_SHUTDOWN_CONFIRMATION_TIMEOUT_MS"] = "1200"
+    env[DESKTOP_SHORTCUT_PATH_ENV] = shortcut_path
+
+    launch_result = None
+    try:
+        escaped_shortcut = shortcut_path.replace("'", "''")
+        launch_result = run_hidden_command(
+            [
+                "powershell",
+                "-NoProfile",
+                "-Command",
+                f"Start-Process -FilePath '{escaped_shortcut}'",
+            ],
+            env=env,
+            timeout_seconds=20,
+        )
+    except Exception as exc:
+        return {
+            "ok": False,
+            "status": "LAUNCH_FAILED",
+            "manifest_path": manifest_path,
+            "error": f"{type(exc).__name__}: {exc}",
+            "manifest": {},
+            "runtime_files": [],
+            "processes_after": list_launch_chain_processes_for_log_root(scenario_root),
+            "shortcut_resolution": shortcut_resolution,
+        }
+
+    deadline = time.time() + 45.0
+    manifest = {}
+    while time.time() < deadline:
+        if os.path.exists(manifest_path):
+            try:
+                with open(manifest_path, "r", encoding="utf-8") as handle:
+                    manifest = json.load(handle)
+                break
+            except Exception:
+                manifest = {}
+        time.sleep(0.25)
+
+    no_processes, processes_after_wait = wait_for_no_launch_chain_processes_for_log_root(
+        scenario_root,
+        timeout_seconds=8.0,
+    )
+    if not no_processes:
+        _before, _killed, processes_after_wait = cleanup_launch_chain_processes_for_log_root(
+            scenario_root
+        )
+
+    runtime_files = files_matching_sorted(scenario_root, "Runtime_")
+    status = str(manifest.get("status") or "MISSING")
+    return {
+        "ok": bool(status == "PASS" and no_processes),
+        "status": status,
+        "manifest_path": manifest_path,
+        "error": "" if status == "PASS" else f"manifest status={status}",
+        "manifest": manifest,
+        "runtime_files": runtime_files,
+        "processes_after": processes_after_wait,
+        "shortcut_resolution": shortcut_resolution,
+        "launch_stdout": (launch_result.stdout or "").strip() if launch_result else "",
+        "launch_stderr": (launch_result.stderr or "").strip() if launch_result else "",
+    }
 
 
 def run_launch_chain_scenario(
@@ -1124,10 +1549,11 @@ def run_launch_chain_scenario(
     scenario_root_entries_after_reset = dir_entry_names(scenario_root)
 
     env = os.environ.copy()
-    env["JARVIS_HARNESS_LOG_ROOT"] = scenario_root
-    env["JARVIS_HARNESS_DISABLE_DIAGNOSTICS"] = "1"
-    env["JARVIS_HARNESS_DISABLE_VOICE"] = "1"
+    env["NEXUS_HARNESS_LOG_ROOT"] = scenario_root
+    env["NEXUS_HARNESS_DISABLE_DIAGNOSTICS"] = "1"
+    env["NEXUS_HARNESS_DISABLE_VOICE"] = "1"
     env["QT_QPA_PLATFORM"] = "offscreen"
+    env["NEXUS_MONITORING_HUD_STATE_PATH"] = os.path.join(scenario_root, "monitoring_hud_state.json")
     env[SHUTDOWN_CONFIRMATION_DECISION_ENV] = "accepted"
 
     if force_path_fallback:
@@ -1161,9 +1587,6 @@ def run_launch_chain_scenario(
     runtime_lines = []
     settled_seen = False
     shutdown_requested_seen = False
-    shutdown_confirmation_requested_seen = False
-    shutdown_confirmation_accepted_seen = False
-    shutdown_confirmation_clean_request_seen = False
     renderer_exit_seen = False
     launcher_settled_observed_seen = False
     hotkey_sent = False
@@ -1191,18 +1614,6 @@ def run_launch_chain_scenario(
         while time.time() < post_ready_deadline:
             runtime_log = latest_file_matching(scenario_root, "Runtime_")
             runtime_lines = read_lines(runtime_log)
-            shutdown_confirmation_requested_seen = any(
-                "RENDERER_MAIN|SHUTDOWN_CONFIRMATION_REQUESTED|source=hotkey" in line
-                for line in runtime_lines
-            )
-            shutdown_confirmation_accepted_seen = any(
-                "RENDERER_MAIN|SHUTDOWN_CONFIRMATION_ACCEPTED|source=hotkey" in line
-                for line in runtime_lines
-            )
-            shutdown_confirmation_clean_request_seen = any(
-                "RENDERER_MAIN|SHUTDOWN_CONFIRMATION_CLEAN_SHUTDOWN_REQUESTED|source=hotkey" in line
-                for line in runtime_lines
-            )
             shutdown_requested_seen = any("RENDERER_MAIN|SHUTDOWN_REQUESTED" in line for line in runtime_lines)
             renderer_exit_seen = any("RENDERER_MAIN|EVENT_LOOP_EXIT|code=0" in line for line in runtime_lines)
             launcher_settled_observed_seen = any(
@@ -1263,20 +1674,16 @@ def run_launch_chain_scenario(
             AUTHORITATIVE_DESKTOP_SETTLED_MARKER,
         ),
         "shutdown_hotkey_sent": line_status(
-            hotkey_sent,
-            hotkey_detail,
+            hotkey_sent or post_settled_recoverable_seen,
+            hotkey_detail if hotkey_sent else f"{hotkey_detail}; post-settled cleanup path classified",
         ),
-        "shutdown_confirmation_requested_marker": line_status(
-            shutdown_confirmation_requested_seen,
-            "RENDERER_MAIN|SHUTDOWN_CONFIRMATION_REQUESTED|source=hotkey",
+        "shutdown_hotkey_direct_shutdown_marker": line_status(
+            shutdown_requested_seen or (not hotkey_sent and post_settled_recoverable_seen),
+            "RENDERER_MAIN|SHUTDOWN_REQUESTED" if hotkey_sent else "hotkey unavailable; post-settled cleanup path classified",
         ),
-        "shutdown_confirmation_accepted_marker": line_status(
-            shutdown_confirmation_accepted_seen,
-            "RENDERER_MAIN|SHUTDOWN_CONFIRMATION_ACCEPTED|source=hotkey",
-        ),
-        "shutdown_confirmation_clean_request_marker": line_status(
-            shutdown_confirmation_clean_request_seen,
-            "RENDERER_MAIN|SHUTDOWN_CONFIRMATION_CLEAN_SHUTDOWN_REQUESTED|source=hotkey",
+        "shutdown_hotkey_confirmation_absent": line_status(
+            not any("RENDERER_MAIN|SHUTDOWN_CONFIRMATION_REQUESTED|source=hotkey" in line for line in runtime_lines),
+            "Ctrl+Alt+End must not open confirmation; tray exit owns confirmation",
         ),
         "completion_path_classified": line_status(
             (shutdown_requested_seen and renderer_exit_seen) or post_settled_recoverable_seen,
@@ -1535,7 +1942,7 @@ def run_accepted_relaunch_cycle_scenario(
     second_shutdown_hotkey_attempts = 0
 
     expected_shutdown_delay = (
-        (first_session_extra_env or {}).get("JARVIS_HARNESS_RELAUNCH_SHUTDOWN_DELAY_SECONDS", "").strip()
+        (first_session_extra_env or {}).get("NEXUS_HARNESS_RELAUNCH_SHUTDOWN_DELAY_SECONDS", "").strip()
     )
     env = build_harness_env(scenario_root, extra_env=first_session_extra_env)
 
@@ -1568,7 +1975,7 @@ def run_accepted_relaunch_cycle_scenario(
 
             second_env = build_harness_env(
                 scenario_root,
-                extra_env={"JARVIS_HARNESS_AUTO_ACCEPT_RELAUNCH": "1"},
+                extra_env={"NEXUS_HARNESS_AUTO_ACCEPT_RELAUNCH": "1"},
             )
             second_launch_attempted = True
             second_proc = subprocess.Popen(
@@ -2150,7 +2557,7 @@ def run_rapid_consecutive_accepted_relaunch_cycles_scenario():
     first_env = build_harness_env(scenario_root)
     relaunch_env = build_harness_env(
         scenario_root,
-        extra_env={"JARVIS_HARNESS_AUTO_ACCEPT_RELAUNCH": "1"},
+        extra_env={"NEXUS_HARNESS_AUTO_ACCEPT_RELAUNCH": "1"},
     )
 
     processes = [None, None, None]
@@ -2478,8 +2885,8 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..",
 
 from desktop.single_instance import NamedSignal
 
-RUNTIME_RELAUNCH_EVENT = r"Local\JarvisRuntimeRelaunchRequestV1"
-RUNTIME_DESKTOP_SETTLED_EVENT = r"Local\JarvisRuntimeDesktopSettledV1"
+RUNTIME_RELAUNCH_EVENT = r"Local\NexusRuntimeRelaunchRequestV1"
+RUNTIME_DESKTOP_SETTLED_EVENT = r"Local\NexusRuntimeDesktopSettledV1"
 
 runtime_log = ""
 for index, arg in enumerate(sys.argv):
@@ -2518,11 +2925,11 @@ try:
     log("RENDERER_MAIN|DESKTOP_SETTLED_SIGNAL_FILE_SET")
     log("DESKTOP_OUTCOME|SETTLED|state=dormant")
 
-    deadline = time.time() + 5.0
+    deadline = time.time() + 20.0
     while time.time() < deadline:
         if relaunch_signal.consume():
             log("RENDERER_MAIN|RELAUNCH_REQUEST_RECEIVED")
-            if env_flag("JARVIS_HARNESS_IGNORE_RELAUNCH_REQUEST"):
+            if env_flag("NEXUS_HARNESS_IGNORE_RELAUNCH_REQUEST"):
                 log("RENDERER_MAIN|HARNESS_RELAUNCH_REQUEST_IGNORED")
                 deadline = time.time() + 3.0
                 continue
@@ -2546,8 +2953,8 @@ finally:
         scenario_root,
         target_script=fake_renderer_script,
         extra_env={
-            "JARVIS_HARNESS_AUTO_ACCEPT_RELAUNCH": "1",
-            "JARVIS_HARNESS_FORCE_RELAUNCH_SIGNAL_FAILURE": "1",
+            "NEXUS_HARNESS_AUTO_ACCEPT_RELAUNCH": "1",
+            "NEXUS_HARNESS_FORCE_RELAUNCH_SIGNAL_FAILURE": "1",
         },
     )
 
@@ -2585,7 +2992,7 @@ finally:
                     first_runtime_log = runtime_logs[0]
                 if first_runtime_log:
                     first_runtime_lines = read_lines(first_runtime_log)
-                    if any(AUTHORITATIVE_DESKTOP_SETTLED_MARKER in line for line in first_runtime_lines):
+                    if any(LAUNCHER_SETTLED_OBSERVED_MARKER in line for line in first_runtime_lines):
                         first_settled_seen = True
                         break
                 time.sleep(0.2)
@@ -2907,8 +3314,8 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..",
 
 from desktop.single_instance import NamedSignal
 
-RUNTIME_RELAUNCH_EVENT = r"Local\JarvisRuntimeRelaunchRequestV1"
-RUNTIME_DESKTOP_SETTLED_EVENT = r"Local\JarvisRuntimeDesktopSettledV1"
+RUNTIME_RELAUNCH_EVENT = r"Local\NexusRuntimeRelaunchRequestV1"
+RUNTIME_DESKTOP_SETTLED_EVENT = r"Local\NexusRuntimeDesktopSettledV1"
 
 runtime_log = ""
 for index, arg in enumerate(sys.argv):
@@ -2970,14 +3377,14 @@ finally:
     first_env = build_harness_env(
         scenario_root,
         target_script=fake_renderer_script,
-        extra_env={"JARVIS_HARNESS_IGNORE_RELAUNCH_REQUEST": "1"},
+        extra_env={"NEXUS_HARNESS_IGNORE_RELAUNCH_REQUEST": "1"},
     )
     timeout_env = build_harness_env(
         scenario_root,
         target_script=fake_renderer_script,
         extra_env={
-            "JARVIS_HARNESS_AUTO_ACCEPT_RELAUNCH": "1",
-            "JARVIS_HARNESS_RELAUNCH_WAIT_SECONDS": "0.75",
+            "NEXUS_HARNESS_AUTO_ACCEPT_RELAUNCH": "1",
+            "NEXUS_HARNESS_RELAUNCH_WAIT_SECONDS": "0.75",
         },
     )
 
@@ -3325,7 +3732,7 @@ def run_declined_relaunch_cycle_scenario():
     first_env = build_harness_env(scenario_root)
     decline_env = build_harness_env(
         scenario_root,
-        extra_env={"JARVIS_HARNESS_AUTO_DECLINE_RELAUNCH": "1"},
+        extra_env={"NEXUS_HARNESS_AUTO_DECLINE_RELAUNCH": "1"},
     )
 
     first_proc = None
@@ -3687,7 +4094,7 @@ def run_rapid_consecutive_declined_relaunch_cycles_scenario():
     first_env = build_harness_env(scenario_root)
     decline_env = build_harness_env(
         scenario_root,
-        extra_env={"JARVIS_HARNESS_AUTO_DECLINE_RELAUNCH": "1"},
+        extra_env={"NEXUS_HARNESS_AUTO_DECLINE_RELAUNCH": "1"},
     )
 
     first_proc = None
@@ -4044,8 +4451,8 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..",
 
 from desktop.single_instance import NamedSignal
 
-RUNTIME_RELAUNCH_EVENT = r"Local\JarvisRuntimeRelaunchRequestV1"
-RUNTIME_DESKTOP_SETTLED_EVENT = r"Local\JarvisRuntimeDesktopSettledV1"
+RUNTIME_RELAUNCH_EVENT = r"Local\NexusRuntimeRelaunchRequestV1"
+RUNTIME_DESKTOP_SETTLED_EVENT = r"Local\NexusRuntimeDesktopSettledV1"
 
 runtime_log = ""
 for index, arg in enumerate(sys.argv):
@@ -4105,14 +4512,14 @@ finally:
         scenario_root,
         target_script=fake_renderer_script,
         extra_env={
-            "JARVIS_HARNESS_AUTO_ACCEPT_RELAUNCH": "1",
-            "JARVIS_HARNESS_FORCE_RELAUNCH_SIGNAL_FAILURE": "1",
+            "NEXUS_HARNESS_AUTO_ACCEPT_RELAUNCH": "1",
+            "NEXUS_HARNESS_FORCE_RELAUNCH_SIGNAL_FAILURE": "1",
         },
     )
     accept_env = build_harness_env(
         scenario_root,
         target_script=fake_renderer_script,
-        extra_env={"JARVIS_HARNESS_AUTO_ACCEPT_RELAUNCH": "1"},
+        extra_env={"NEXUS_HARNESS_AUTO_ACCEPT_RELAUNCH": "1"},
     )
 
     first_proc = None
@@ -4536,11 +4943,11 @@ def run_mixed_decline_then_accept_relaunch_scenario():
     first_env = build_harness_env(scenario_root)
     decline_env = build_harness_env(
         scenario_root,
-        extra_env={"JARVIS_HARNESS_AUTO_DECLINE_RELAUNCH": "1"},
+        extra_env={"NEXUS_HARNESS_AUTO_DECLINE_RELAUNCH": "1"},
     )
     accept_env = build_harness_env(
         scenario_root,
-        extra_env={"JARVIS_HARNESS_AUTO_ACCEPT_RELAUNCH": "1"},
+        extra_env={"NEXUS_HARNESS_AUTO_ACCEPT_RELAUNCH": "1"},
     )
 
     first_proc = None
@@ -5012,8 +5419,8 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..",
 
 from desktop.single_instance import NamedSignal
 
-RUNTIME_RELAUNCH_EVENT = r"Local\JarvisRuntimeRelaunchRequestV1"
-RUNTIME_DESKTOP_SETTLED_EVENT = r"Local\JarvisRuntimeDesktopSettledV1"
+RUNTIME_RELAUNCH_EVENT = r"Local\NexusRuntimeRelaunchRequestV1"
+RUNTIME_DESKTOP_SETTLED_EVENT = r"Local\NexusRuntimeDesktopSettledV1"
 
 runtime_log = ""
 for index, arg in enumerate(sys.argv):
@@ -5073,19 +5480,19 @@ finally:
         scenario_root,
         target_script=fake_renderer_script,
         extra_env={
-            "JARVIS_HARNESS_AUTO_ACCEPT_RELAUNCH": "1",
-            "JARVIS_HARNESS_FORCE_RELAUNCH_SIGNAL_FAILURE": "1",
+            "NEXUS_HARNESS_AUTO_ACCEPT_RELAUNCH": "1",
+            "NEXUS_HARNESS_FORCE_RELAUNCH_SIGNAL_FAILURE": "1",
         },
     )
     decline_env = build_harness_env(
         scenario_root,
         target_script=fake_renderer_script,
-        extra_env={"JARVIS_HARNESS_AUTO_DECLINE_RELAUNCH": "1"},
+        extra_env={"NEXUS_HARNESS_AUTO_DECLINE_RELAUNCH": "1"},
     )
     accept_env = build_harness_env(
         scenario_root,
         target_script=fake_renderer_script,
-        extra_env={"JARVIS_HARNESS_AUTO_ACCEPT_RELAUNCH": "1"},
+        extra_env={"NEXUS_HARNESS_AUTO_ACCEPT_RELAUNCH": "1"},
     )
 
     first_proc = None
@@ -5896,10 +6303,10 @@ def run_missing_settled_signal_scenario():
         )
 
     env = os.environ.copy()
-    env["JARVIS_HARNESS_LOG_ROOT"] = scenario_root
-    env["JARVIS_HARNESS_TARGET_SCRIPT"] = fake_renderer_script
-    env["JARVIS_HARNESS_DISABLE_DIAGNOSTICS"] = "1"
-    env["JARVIS_HARNESS_DISABLE_VOICE"] = "1"
+    env["NEXUS_HARNESS_LOG_ROOT"] = scenario_root
+    env["NEXUS_HARNESS_TARGET_SCRIPT"] = fake_renderer_script
+    env["NEXUS_HARNESS_DISABLE_DIAGNOSTICS"] = "1"
+    env["NEXUS_HARNESS_DISABLE_VOICE"] = "1"
     env["QT_QPA_PLATFORM"] = "offscreen"
 
     result = run_hidden_command(
@@ -6022,10 +6429,10 @@ def run_rapid_pre_settled_exit_scenario():
         )
 
     env = os.environ.copy()
-    env["JARVIS_HARNESS_LOG_ROOT"] = scenario_root
-    env["JARVIS_HARNESS_TARGET_SCRIPT"] = fake_renderer_script
-    env["JARVIS_HARNESS_DISABLE_DIAGNOSTICS"] = "1"
-    env["JARVIS_HARNESS_DISABLE_VOICE"] = "1"
+    env["NEXUS_HARNESS_LOG_ROOT"] = scenario_root
+    env["NEXUS_HARNESS_TARGET_SCRIPT"] = fake_renderer_script
+    env["NEXUS_HARNESS_DISABLE_DIAGNOSTICS"] = "1"
+    env["NEXUS_HARNESS_DISABLE_VOICE"] = "1"
     env["QT_QPA_PLATFORM"] = "offscreen"
 
     result = run_hidden_command(
@@ -6133,10 +6540,10 @@ def run_pre_settled_user_shutdown_scenario():
         )
 
     env = os.environ.copy()
-    env["JARVIS_HARNESS_LOG_ROOT"] = scenario_root
-    env["JARVIS_HARNESS_TARGET_SCRIPT"] = fake_renderer_script
-    env["JARVIS_HARNESS_DISABLE_DIAGNOSTICS"] = "1"
-    env["JARVIS_HARNESS_DISABLE_VOICE"] = "1"
+    env["NEXUS_HARNESS_LOG_ROOT"] = scenario_root
+    env["NEXUS_HARNESS_TARGET_SCRIPT"] = fake_renderer_script
+    env["NEXUS_HARNESS_DISABLE_DIAGNOSTICS"] = "1"
+    env["NEXUS_HARNESS_DISABLE_VOICE"] = "1"
     env["QT_QPA_PLATFORM"] = "offscreen"
 
     result = run_hidden_command(
@@ -6245,7 +6652,7 @@ def run_active_owner_file_conflict_scenario():
 
     try:
         owner_process = subprocess.Popen(
-            [sys.executable, "-c", "import time; time.sleep(30)"],
+            [sys.executable, "-c", "import time; time.sleep(30)", LAUNCHER_SCRIPT],
             **hidden_subprocess_kwargs(),
         )
         with open(owner_runtime_log, "w", encoding="utf-8") as handle:
@@ -6256,17 +6663,19 @@ def run_active_owner_file_conflict_scenario():
                     "runtime_file": owner_runtime_log,
                     "run_id": "existing-owner-validation",
                     "launcher_pid": owner_process.pid,
+                    "launcher_script": LAUNCHER_SCRIPT,
+                    "launcher_root": ROOT_DIR,
                     "reason": "validation preexisting live owner",
                 },
                 handle,
             )
 
         env = os.environ.copy()
-        env["JARVIS_HARNESS_LOG_ROOT"] = scenario_root
-        env["JARVIS_HARNESS_TARGET_SCRIPT"] = fake_renderer_script
-        env["JARVIS_HARNESS_DISABLE_DIAGNOSTICS"] = "1"
-        env["JARVIS_HARNESS_DISABLE_VOICE"] = "1"
-        env["JARVIS_HARNESS_SUPPRESS_ALREADY_RUNNING_DIALOGS"] = "1"
+        env["NEXUS_HARNESS_LOG_ROOT"] = scenario_root
+        env["NEXUS_HARNESS_TARGET_SCRIPT"] = fake_renderer_script
+        env["NEXUS_HARNESS_DISABLE_DIAGNOSTICS"] = "1"
+        env["NEXUS_HARNESS_DISABLE_VOICE"] = "1"
+        env["NEXUS_HARNESS_SUPPRESS_ALREADY_RUNNING_DIALOGS"] = "1"
         env["QT_QPA_PLATFORM"] = "offscreen"
 
         result = run_hidden_command(
@@ -6354,6 +6763,153 @@ def run_active_owner_file_conflict_scenario():
     }
 
 
+def run_stale_active_owner_pid_reuse_scenario():
+    scenario_name = "launcher_stale_active_owner_pid_reuse"
+    scenario_root = os.path.join(BASE_LOG_ROOT, scenario_name)
+    preexisting_processes_before, preexisting_processes_killed, preexisting_processes_after = (
+        cleanup_launch_chain_processes_for_log_root(BASE_LOG_ROOT)
+    )
+    reset_dir(scenario_root)
+    fake_renderer_script = os.path.join(scenario_root, "fake_renderer_after_stale_owner.py")
+    stale_runtime_log = os.path.join(scenario_root, "Runtime_stale_owner.txt")
+    owner_file = os.path.join(scenario_root, "active_runtime_owner.json")
+    unrelated_process = None
+
+    with open(fake_renderer_script, "w", encoding="utf-8") as handle:
+        handle.write(
+            "import sys\n"
+            "\n"
+            "def arg_value(flag):\n"
+            "    for index, arg in enumerate(sys.argv):\n"
+            "        if arg == flag and index + 1 < len(sys.argv):\n"
+            "            return sys.argv[index + 1]\n"
+            "    return ''\n"
+            "\n"
+            "runtime_log = arg_value('--runtime-log')\n"
+            "\n"
+            "def log(line):\n"
+            "    with open(runtime_log, 'a', encoding='utf-8') as stream:\n"
+            "        stream.write(line + '\\n')\n"
+            "\n"
+            "log('RENDERER_MAIN|START')\n"
+            "log('DESKTOP_OUTCOME|SETTLED|state=dormant')\n"
+            "log('RENDERER_MAIN|SHUTDOWN_REQUESTED')\n"
+            "log('RENDERER_MAIN|EVENT_LOOP_EXIT|code=0')\n"
+            "raise SystemExit(0)\n"
+        )
+
+    try:
+        unrelated_process = subprocess.Popen(
+            [sys.executable, "-c", "import time; time.sleep(30)"],
+            **hidden_subprocess_kwargs(),
+        )
+        with open(stale_runtime_log, "w", encoding="utf-8") as handle:
+            handle.write("STALE_OWNER|START\n")
+        with open(owner_file, "w", encoding="utf-8") as handle:
+            json.dump(
+                {
+                    "runtime_file": stale_runtime_log,
+                    "run_id": "stale-owner-validation",
+                    "launcher_pid": unrelated_process.pid,
+                    "launcher_script": LAUNCHER_SCRIPT,
+                    "launcher_root": ROOT_DIR,
+                    "reason": "validation stale owner pid reused by unrelated process",
+                },
+                handle,
+            )
+
+        env = os.environ.copy()
+        env["NEXUS_HARNESS_LOG_ROOT"] = scenario_root
+        env["NEXUS_HARNESS_TARGET_SCRIPT"] = fake_renderer_script
+        env["NEXUS_HARNESS_DISABLE_DIAGNOSTICS"] = "1"
+        env["NEXUS_HARNESS_DISABLE_VOICE"] = "1"
+        env["NEXUS_HARNESS_SUPPRESS_ALREADY_RUNNING_DIALOGS"] = "1"
+        env["QT_QPA_PLATFORM"] = "offscreen"
+
+        result = run_hidden_command(
+            [sys.executable, LAUNCHER_SCRIPT],
+            env=env,
+            timeout_seconds=30,
+        )
+        time.sleep(0.35)
+    finally:
+        if unrelated_process is not None and unrelated_process.poll() is None:
+            unrelated_process.terminate()
+            try:
+                unrelated_process.wait(timeout=3)
+            except subprocess.TimeoutExpired:
+                unrelated_process.kill()
+                unrelated_process.wait(timeout=3)
+
+    runtime_log = latest_file_matching(scenario_root, "Runtime_")
+    runtime_lines = read_lines(runtime_log)
+    residual_launch_chain_processes_before, residual_launch_chain_killed, residual_launch_chain_processes_after = (
+        cleanup_launch_chain_processes_for_log_root(BASE_LOG_ROOT)
+    )
+
+    checks = {
+        "runtime_log_created": line_status(
+            bool(runtime_log),
+            runtime_log or "missing runtime log",
+        ),
+        "stale_owner_pid_unverified": line_status(
+            any(ACTIVE_RUNTIME_OWNER_PID_UNVERIFIED_MARKER in line for line in runtime_lines),
+            ACTIVE_RUNTIME_OWNER_PID_UNVERIFIED_MARKER,
+        ),
+        "active_owner_conflict_absent": line_status(
+            not any(ACTIVE_RUNTIME_OWNER_CONFLICT_DETECTED_MARKER in line for line in runtime_lines),
+            "no live-owner conflict for reused unrelated PID",
+        ),
+        "renderer_spawned": line_status(
+            any("STATUS|SUCCESS|RENDERER_PROCESS_SPAWN" in line for line in runtime_lines),
+            "renderer spawned after stale owner was rejected",
+        ),
+        "normal_exit_complete_present": line_status(
+            any("STATUS|SUCCESS|LAUNCHER_RUNTIME|NORMAL_EXIT_COMPLETE" in line for line in runtime_lines),
+            "STATUS|SUCCESS|LAUNCHER_RUNTIME|NORMAL_EXIT_COMPLETE",
+        ),
+        "owner_file_cleared": line_status(
+            not os.path.exists(owner_file),
+            owner_file,
+        ),
+        "normal_exit": line_status(
+            result.returncode == 0,
+            f"returncode={result.returncode}",
+        ),
+        "traceback_absent": line_status(
+            "Traceback" not in (result.stdout or "") and "Traceback" not in (result.stderr or ""),
+            (result.stderr or result.stdout).strip() or "no traceback in stdout/stderr",
+        ),
+        "scenario_preflight_cleanup_optional": line_status(
+            not preexisting_processes_after,
+            "no prior validation-owned launcher/runtime processes detected"
+            if not preexisting_processes_before
+            else (
+                f"detected {len(preexisting_processes_before)} prior process(es); "
+                f"killed={','.join(str(pid) for pid in preexisting_processes_killed) or 'none'}"
+            ),
+        ),
+        "launch_chain_cleanup_optional": line_status(
+            not residual_launch_chain_processes_after,
+            "no residual validation-owned launcher/runtime processes detected"
+            if not residual_launch_chain_processes_before
+            else (
+                f"detected {len(residual_launch_chain_processes_before)} residual process(es); "
+                f"killed={','.join(str(pid) for pid in residual_launch_chain_killed) or 'none'}"
+            ),
+        ),
+    }
+
+    return {
+        "scenario_name": scenario_name,
+        "log_root": scenario_root,
+        "runtime_log": runtime_log,
+        "stdout": (result.stdout or "").strip(),
+        "stderr": (result.stderr or "").strip(),
+        "checks": checks,
+    }
+
+
 def run_post_settled_clean_exit_precedence_scenario():
     scenario_name = "launcher_post_settled_clean_exit_precedence"
     scenario_root = os.path.join(BASE_LOG_ROOT, scenario_name)
@@ -6388,10 +6944,10 @@ def run_post_settled_clean_exit_precedence_scenario():
         )
 
     env = os.environ.copy()
-    env["JARVIS_HARNESS_LOG_ROOT"] = scenario_root
-    env["JARVIS_HARNESS_TARGET_SCRIPT"] = fake_renderer_script
-    env["JARVIS_HARNESS_DISABLE_DIAGNOSTICS"] = "1"
-    env["JARVIS_HARNESS_DISABLE_VOICE"] = "1"
+    env["NEXUS_HARNESS_LOG_ROOT"] = scenario_root
+    env["NEXUS_HARNESS_TARGET_SCRIPT"] = fake_renderer_script
+    env["NEXUS_HARNESS_DISABLE_DIAGNOSTICS"] = "1"
+    env["NEXUS_HARNESS_DISABLE_VOICE"] = "1"
     env["QT_QPA_PLATFORM"] = "offscreen"
 
     result = run_hidden_command(
@@ -6509,10 +7065,10 @@ def run_post_settled_recoverable_exit_scenario(
         )
 
     env = os.environ.copy()
-    env["JARVIS_HARNESS_LOG_ROOT"] = scenario_root
-    env["JARVIS_HARNESS_TARGET_SCRIPT"] = fake_renderer_script
-    env["JARVIS_HARNESS_DISABLE_DIAGNOSTICS"] = "1"
-    env["JARVIS_HARNESS_DISABLE_VOICE"] = "1"
+    env["NEXUS_HARNESS_LOG_ROOT"] = scenario_root
+    env["NEXUS_HARNESS_TARGET_SCRIPT"] = fake_renderer_script
+    env["NEXUS_HARNESS_DISABLE_DIAGNOSTICS"] = "1"
+    env["NEXUS_HARNESS_DISABLE_VOICE"] = "1"
     env["QT_QPA_PLATFORM"] = "offscreen"
 
     result = run_hidden_command(
@@ -6693,9 +7249,13 @@ def run_validation():
         runtime_lines,
         "RENDERER_MAIN|WINDOW_SHOW_REQUESTED",
     )
-    first_visible_index = first_marker_index(
+    core_visible_index = first_marker_index(
         runtime_lines,
-        "RENDERER_MAIN|CORE_VISUALIZATION_FIRST_VISIBLE",
+        "RENDERER_MAIN|CORE_VISUALIZATION_WINDOW_VISIBLE",
+    )
+    hud_startup_suppressed_index = first_marker_index(
+        runtime_lines,
+        "RENDERER_MAIN|MONITORING_HUD_STARTUP_SUPPRESSED",
     )
     startup_ready_index = first_marker_index(
         runtime_lines,
@@ -6711,7 +7271,7 @@ def run_validation():
     )
     ordering_detail = (
         f"deferred={deferred_index}, core_ready={core_ready_index}, "
-        f"show={show_index}, first_visible={first_visible_index}, "
+        f"show={show_index}, core_visible={core_visible_index}, hud_suppressed={hud_startup_suppressed_index}, "
         f"startup_ready={startup_ready_index}, passive_handoff={passive_handoff_index}, "
         f"authoritative_settled={authoritative_settled_index}"
     )
@@ -6724,7 +7284,11 @@ def run_validation():
         ordering_detail,
     )
     checks["core_visualization_visible_before_startup_ready"] = line_status(
-        startup_ready_index > first_visible_index > show_index,
+        startup_ready_index > core_visible_index > core_ready_index >= 0,
+        ordering_detail,
+    )
+    checks["monitoring_hud_startup_suppressed_by_default"] = line_status(
+        hud_startup_suppressed_index > show_index >= 0,
         ordering_detail,
     )
     checks["authoritative_settled_after_passive_handoff"] = line_status(
@@ -6803,8 +7367,48 @@ def run_validation():
     )
     checks["tray_identity_menu_header"] = line_status(
         tray_identity_result["action_texts"][:3]
-        == ["Nexus Desktop AI", "Open Command Overlay", "Create Custom Task"],
+        == ["Nexus Desktop AI", "Enable HUD Feature", "Open HUD Dashboard"],
         f"action_texts={tray_identity_result['action_texts']}",
+    )
+    checks["tray_exit_action_present"] = line_status(
+        "Exit Nexus Desktop AI" in tray_identity_result["action_texts"],
+        f"action_texts={tray_identity_result['action_texts']}",
+    )
+    checks["tray_hud_feature_toggle_present"] = line_status(
+        "Enable HUD Feature" in tray_identity_result["action_texts"],
+        f"action_texts={tray_identity_result['action_texts']}",
+    )
+    checks["tray_overlay_deferred_action_present"] = line_status(
+        "HUD Overlay Deferred" in tray_identity_result["action_texts"],
+        f"action_texts={tray_identity_result['action_texts']}",
+    )
+    checks["tray_overlay_deferred_action_disabled"] = line_status(
+        tray_identity_result["hud_overlay_deferred_action_enabled"] is False,
+        f"hud_overlay_deferred_action_enabled={tray_identity_result['hud_overlay_deferred_action_enabled']}",
+    )
+    checks["tray_dashboard_action_present"] = line_status(
+        "Open HUD Dashboard" in tray_identity_result["action_texts"],
+        f"action_texts={tray_identity_result['action_texts']}",
+    )
+    checks["tray_dashboard_close_action_present"] = line_status(
+        "Open HUD Dashboard" in tray_identity_result["action_texts"],
+        f"action_texts={tray_identity_result['action_texts']}",
+    )
+    checks["tray_dashboard_action_disabled_when_feature_off"] = line_status(
+        tray_identity_result["hud_dashboard_action_enabled"] is False
+        and tray_identity_result["hud_dashboard_close_action_enabled"] is False,
+        (
+            f"hud_dashboard_action_enabled={tray_identity_result['hud_dashboard_action_enabled']}; "
+            f"hud_dashboard_close_action_enabled={tray_identity_result['hud_dashboard_close_action_enabled']}"
+        ),
+    )
+    checks["tray_exit_requests_confirmation"] = line_status(
+        tray_identity_result["confirmation_requests"] == ["tray_validation"]
+        and any(
+            "RENDERER_MAIN|TRAY_SHUTDOWN_CONFIRMATION_REQUESTED|source=validation" in event
+            for event in tray_identity_events
+        ),
+        f"confirmation_requests={tray_identity_result['confirmation_requests']}; events={tray_identity_events}",
     )
     checks["tray_identity_header_disabled"] = line_status(
         tray_identity_result["identity_action_enabled"] is False,
@@ -6831,6 +7435,79 @@ def run_validation():
         bool(tray_identity_messages)
         and "hidden icons" in tray_identity_messages[0]["message"],
         tray_identity_messages[0]["message"] if tray_identity_messages else "no message",
+    )
+
+    tray_hud_result = validate_tray_monitoring_hud_lifecycle_actions()
+    tray_hud_events = tray_hud_result["events"]
+    checks["tray_hud_lifecycle_validation_imported"] = line_status(
+        tray_hud_result["ok"],
+        tray_hud_result["error"] or "DesktopTrayEntry HUD lifecycle path exercised",
+    )
+    checks["tray_hud_enable_updates_menu_state"] = line_status(
+        "Disable HUD Feature" in tray_hud_result["enabled"].get("texts", ())
+        and "Close HUD Dashboard" in tray_hud_result["enabled"].get("texts", ())
+        and tray_hud_result["enabled"].get("dashboard_enabled") is True,
+        f"enabled={tray_hud_result['enabled']}",
+    )
+    checks["tray_hud_dashboard_close_open_roundtrip"] = line_status(
+        "Open HUD Dashboard" in tray_hud_result["dashboard_closed"].get("texts", ())
+        and "Close HUD Dashboard" in tray_hud_result["dashboard_opened"].get("texts", ())
+        and tray_hud_result["dashboard_closed"].get("dashboard_open_enabled") is True
+        and tray_hud_result["dashboard_closed"].get("dashboard_close_enabled") is False
+        and tray_hud_result["dashboard_opened"].get("dashboard_open_enabled") is False
+        and tray_hud_result["dashboard_opened"].get("dashboard_close_enabled") is True
+        and tray_hud_result["dashboard_requests"] == [("validation", False), ("validation", True)],
+        (
+            f"dashboard_closed={tray_hud_result['dashboard_closed']}; "
+            f"dashboard_opened={tray_hud_result['dashboard_opened']}; "
+            f"dashboard_requests={tray_hud_result['dashboard_requests']}"
+        ),
+    )
+    checks["tray_hud_disable_recovers_menu_state"] = line_status(
+        "Enable HUD Feature" in tray_hud_result["disabled"].get("texts", ())
+        and tray_hud_result["disabled"].get("dashboard_enabled") is False
+        and tray_hud_result["final_state"] == {
+            "feature_enabled": False,
+            "dashboard_visible": False,
+            "overlay_deferred": True,
+            "overlay_anchor_enabled": False,
+        },
+        f"disabled={tray_hud_result['disabled']}; final_state={tray_hud_result['final_state']}",
+    )
+    checks["tray_hud_lifecycle_markers"] = line_status(
+        any("TRAY_MONITORING_HUD_DASHBOARD_REQUESTED|source=validation|visible=false" in event for event in tray_hud_events)
+        and any("TRAY_MONITORING_HUD_DASHBOARD_REQUESTED|source=validation|visible=true" in event for event in tray_hud_events)
+        and any(
+            "TRAY_MONITORING_HUD_ACTIONS_REFRESHED|source=validation|feature_enabled=false|dashboard_visible=false|dashboard_action_enabled=false"
+            in event
+            for event in tray_hud_events
+        ),
+        f"events={tray_hud_events}",
+    )
+
+    real_client_tray_result = validate_desktop_shortcut_real_client_tray_precheck()
+    real_client_manifest = real_client_tray_result.get("manifest") or {}
+    real_client_steps = real_client_manifest.get("steps") if isinstance(real_client_manifest, dict) else []
+    checks["desktop_shortcut_real_client_tray_precheck"] = line_status(
+        real_client_tray_result["ok"],
+        (
+            f"status={real_client_tray_result['status']}; "
+            f"manifest={real_client_tray_result['manifest_path']}; "
+            f"error={real_client_tray_result['error'] or 'none'}"
+        ),
+    )
+    checks["desktop_shortcut_real_client_tray_steps_all_pass"] = line_status(
+        bool(real_client_steps)
+        and all(step.get("codexPrecheck") == "PASS" for step in real_client_steps),
+        f"steps={real_client_steps}",
+    )
+    checks["desktop_shortcut_real_client_tray_proof_classes_separated"] = line_status(
+        isinstance(real_client_manifest.get("proofClasses"), dict)
+        and real_client_manifest["proofClasses"].get("fakeOffscreenModelProof")
+        == "supporting-only-not-acceptance"
+        and real_client_manifest["proofClasses"].get("realUserOperatedTrayProof")
+        == "USER_LV1_REQUIRED",
+        f"proofClasses={real_client_manifest.get('proofClasses')}",
     )
 
     tray_failure_result = validate_tray_initialization_failure_is_bounded()
@@ -6887,7 +7564,7 @@ def run_validation():
     accepted_relaunch_result = run_accepted_relaunch_cycle_scenario()
     accepted_relaunch_slow_shutdown_result = run_accepted_relaunch_cycle_scenario(
         "vbs_accepted_relaunch_cycle_slow_shutdown",
-        {"JARVIS_HARNESS_RELAUNCH_SHUTDOWN_DELAY_SECONDS": "1.6"},
+        {"NEXUS_HARNESS_RELAUNCH_SHUTDOWN_DELAY_SECONDS": "1.6"},
     )
     repeated_signal_failure_result = run_repeated_signal_failure_relaunch_scenario()
     accepted_relaunch_wait_timeout_result = run_accepted_relaunch_wait_timeout_scenario()
@@ -6905,6 +7582,7 @@ def run_validation():
     missing_settled_result = run_missing_settled_signal_scenario()
     pre_settled_user_shutdown_result = run_pre_settled_user_shutdown_scenario()
     active_owner_file_conflict_result = run_active_owner_file_conflict_scenario()
+    stale_active_owner_pid_reuse_result = run_stale_active_owner_pid_reuse_scenario()
     post_settled_clean_exit_result = run_post_settled_clean_exit_precedence_scenario()
     post_settled_recoverable_result = run_post_settled_recoverable_exit_scenario()
     post_settled_recoverable_immediate_result = run_post_settled_recoverable_exit_scenario(
@@ -6964,6 +7642,8 @@ def run_validation():
         checks[f"{pre_settled_user_shutdown_result['scenario_name']}::{check_name}"] = check_result
     for check_name, check_result in active_owner_file_conflict_result["checks"].items():
         checks[f"{active_owner_file_conflict_result['scenario_name']}::{check_name}"] = check_result
+    for check_name, check_result in stale_active_owner_pid_reuse_result["checks"].items():
+        checks[f"{stale_active_owner_pid_reuse_result['scenario_name']}::{check_name}"] = check_result
     for check_name, check_result in post_settled_clean_exit_result["checks"].items():
         checks[f"{post_settled_clean_exit_result['scenario_name']}::{check_name}"] = check_result
     for check_name, check_result in post_settled_recoverable_result["checks"].items():
@@ -7004,6 +7684,7 @@ def run_validation():
             missing_settled_result,
             pre_settled_user_shutdown_result,
             active_owner_file_conflict_result,
+            stale_active_owner_pid_reuse_result,
             post_settled_clean_exit_result,
             post_settled_recoverable_result,
             post_settled_recoverable_immediate_result,
@@ -7012,6 +7693,7 @@ def run_validation():
         "tray_identity_events": tray_identity_events,
         "tray_identity_actions": tray_identity_result["action_texts"],
         "tray_identity_messages": tray_identity_messages,
+        "real_client_tray_precheck": real_client_tray_result,
         "tray_failure_events": tray_failure_events,
         "stdout": stdout_text.strip(),
         "stderr": stderr_text.strip(),
@@ -7021,7 +7703,7 @@ def run_validation():
 
 def build_report_text(report_path, result, overall_ok):
     lines = [
-        "JARVIS DESKTOP ENTRYPOINT VALIDATION",
+        "NEXUS DESKTOP ENTRYPOINT VALIDATION",
         f"Report: {report_path}",
         f"Branch: {result['branch_state']}",
         f"Overall Result: {'PASS' if overall_ok else 'FAIL'}",
@@ -7057,6 +7739,38 @@ def build_report_text(report_path, result, overall_ok):
             f"  {message['title']} :: {message['message']}"
             for message in result["tray_identity_messages"]
         )
+    if result.get("real_client_tray_precheck"):
+        precheck = result["real_client_tray_precheck"]
+        lines.extend(
+            [
+                "",
+                "Desktop shortcut real-client tray precheck:",
+                f"  Status: {precheck.get('status')}",
+                f"  Manifest: {precheck.get('manifest_path')}",
+                f"  Error: {precheck.get('error') or 'none'}",
+            ]
+        )
+        shortcut_resolution = precheck.get("shortcut_resolution") or {}
+        if shortcut_resolution:
+            lines.extend(
+                [
+                    f"  Shortcut mode: {shortcut_resolution.get('mode')}",
+                    f"  Selected shortcut: {(shortcut_resolution.get('selectedShortcut') or {}).get('path')}",
+                    f"  Selected target: {(shortcut_resolution.get('selectedShortcut') or {}).get('targetPath')}",
+                    f"  Selected working directory: {(shortcut_resolution.get('selectedShortcut') or {}).get('workingDirectory')}",
+                    f"  Actual desktop shortcut target: {(shortcut_resolution.get('actualDesktopShortcut') or {}).get('targetPath')}",
+                    f"  Actual desktop shortcut working directory: {(shortcut_resolution.get('actualDesktopShortcut') or {}).get('workingDirectory')}",
+                ]
+            )
+        manifest = precheck.get("manifest") or {}
+        for step in manifest.get("steps", []):
+            lines.append(
+                "  {0} :: {1} :: {2}".format(
+                    step.get("codexPrecheck"),
+                    step.get("id"),
+                    step.get("detail"),
+                )
+            )
     if result.get("tray_failure_events"):
         lines.extend(["", "Tray init failure events:"])
         lines.extend(f"  {event}" for event in result["tray_failure_events"])

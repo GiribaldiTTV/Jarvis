@@ -163,7 +163,7 @@ def resolve_base_log_root(log_root_override=None):
     if log_root_override:
         return log_root_override
 
-    env_override = os.environ.get("JARVIS_HEALTHY_VALIDATION_LOG_ROOT", "").strip()
+    env_override = os.environ.get("NEXUS_HEALTHY_VALIDATION_LOG_ROOT", "").strip()
     if env_override:
         return env_override
 
@@ -263,9 +263,9 @@ def run_validation(log_root_override=None):
     launcher_line = launcher_default_target_line()
 
     env = os.environ.copy()
-    env["JARVIS_HARNESS_LOG_ROOT"] = base_log_root
-    env["JARVIS_HARNESS_DISABLE_DIAGNOSTICS"] = "1"
-    env["JARVIS_HARNESS_DISABLE_VOICE"] = "1"
+    env["NEXUS_HARNESS_LOG_ROOT"] = base_log_root
+    env["NEXUS_HARNESS_DISABLE_DIAGNOSTICS"] = "1"
+    env["NEXUS_HARNESS_DISABLE_VOICE"] = "1"
     env["QT_QPA_PLATFORM"] = "offscreen"
 
     proc = subprocess.Popen(
@@ -462,7 +462,7 @@ def run_validation(log_root_override=None):
 
 def build_report_text(report_path, result, overall_ok):
     lines = [
-        "JARVIS DESKTOP LAUNCHER HEALTHY VALIDATION",
+        "NEXUS DESKTOP LAUNCHER HEALTHY VALIDATION",
         f"Report: {report_path}",
         f"Branch: {result['branch_state']}",
         f"Overall Result: {'PASS' if overall_ok else 'FAIL'}",

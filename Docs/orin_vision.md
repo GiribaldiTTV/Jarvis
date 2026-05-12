@@ -172,11 +172,11 @@ It does not change current pre-Beta runtime truth, roadmap sequencing, or the ac
 
 ## Historical Relationship
 
-The public Nexus release line begins after the preserved Jarvis historical release line.
+The public Nexus release line begins after the preserved Nexus historical release line.
 
 That means:
 
-- older Jarvis releases remain preserved as historical records
+- older Nexus releases remain preserved as historical records
 - they do not define the active public Nexus release line
 - current vision and current release posture should be expressed in Nexus / ORIN terms unless a section is explicitly historical
 

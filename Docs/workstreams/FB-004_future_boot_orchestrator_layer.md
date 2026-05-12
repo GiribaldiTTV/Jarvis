@@ -230,17 +230,17 @@ Current validation and support entrypoints:
 - `dev/orin_desktop_entrypoint_validation.py` validates non-live desktop renderer startup, tray identity, overlay routing, and expected `RENDERER_MAIN|...` milestones.
 - `dev/orin_desktop_launcher_healthy_validation.py` validates launcher-to-renderer healthy startup, launcher observation of renderer readiness, clean shutdown markers, and contained cleanup under a dev log root.
 - `dev/launchers/launch_orin_desktop_safe.ps1` starts `desktop/orin_desktop_launcher.pyw` through `pythonw.exe` as a dev-safe launcher wrapper with optional overlay trace.
-- Manual validation launchers under `dev/launchers/` may set `JARVIS_HARNESS_TARGET_SCRIPT`, `JARVIS_HARNESS_LOG_ROOT`, or related harness flags before invoking the launcher. Those are validation entrypoints, not production boot ownership.
+- Manual validation launchers under `dev/launchers/` may set `NEXUS_HARNESS_TARGET_SCRIPT`, `NEXUS_HARNESS_LOG_ROOT`, or related harness flags before invoking the launcher. Those are validation entrypoints, not production boot ownership.
 
 Validation-helper boundary note:
 
-- `dev/orin_desktop_launcher_regression_harness.py` is still registered as reusable launcher regression coverage, but its current constants point at legacy `jarvis_*` paths that are absent in this workspace. WS-1 does not repair helper code. A later validation/admission seam must either repair or explicitly bypass that harness before treating it as current FB-004 proof.
+- `dev/orin_desktop_launcher_regression_harness.py` is still registered as reusable launcher regression coverage, but its current constants point at legacy `nexus_*` paths that are absent in this workspace. WS-1 does not repair helper code. A later validation/admission seam must either repair or explicitly bypass that harness before treating it as current FB-004 proof.
 
 ### Launcher Startup Ownership Boundaries
 
 `desktop/orin_desktop_launcher.pyw` owns the current desktop startup control layer:
 
-- single-instance acquisition and relaunch signaling through `Local\JarvisRuntimeSingletonV1` and `Local\JarvisRuntimeRelaunchRequestV1`
+- single-instance acquisition and relaunch signaling through `Local\NexusRuntimeSingletonV1` and `Local\NexusRuntimeRelaunchRequestV1`
 - renderer process spawning through `pythonw()` and the current target script
 - startup observation, including `RENDERER_MAIN|STARTUP_READY`, startup-abort detection, and confirmed-startup-stall handling
 - recovery attempt sequencing and terminal failure classification
@@ -271,7 +271,7 @@ Current live launcher/runtime evidence:
 - launcher runtime logs: `Runtime_<timestamp>_<token>.txt`
 - launcher crash reports: `<log root>/crash/Crash_<timestamp>_<token>.txt`
 - launcher status/control files: `<log root>/diagnostics_status.txt`, `<log root>/diagnostics_stop.signal`, and `<log root>/renderer_startup_abort.signal`
-- historical runtime state: `%LOCALAPPDATA%/Nexus Desktop AI/state/jarvis_history_v1.jsonl` during normal runtime, with harness log-root override behavior confined to validation contexts
+- historical runtime state: `%LOCALAPPDATA%/Nexus Desktop AI/state/nexus_history_v1.jsonl` during normal runtime, with harness log-root override behavior confined to validation contexts
 
 Current dev and harness evidence:
 
@@ -379,7 +379,7 @@ Renderer states:
 - Renderer readiness is not launcher success. `RENDERER_MAIN|STARTUP_READY` only proves the renderer reached the ready marker; the launcher still owns final runtime outcome.
 - Dev-only `BOOT_MAIN|DESKTOP_SETTLED|state=dormant` is not the same state as production `RENDERER_MAIN|STARTUP_READY` or launcher `STARTUP_READY_OBSERVED`.
 - `state=dormant` is a visual presentation state, not a trust state, authentication state, recovery state, or release-readiness state.
-- `Local\JarvisRuntimeRelaunchRequestV1` is shared by the dev boot prototype, launcher, and renderer. Any future orchestrator implementation must explicitly define whether it observes, emits, or owns that signal before changing it.
+- `Local\NexusRuntimeRelaunchRequestV1` is shared by the dev boot prototype, launcher, and renderer. Any future orchestrator implementation must explicitly define whether it observes, emits, or owns that signal before changing it.
 - Startup-abort files, diagnostics status files, runtime logs, crash reports, and finalized historical records are launcher-owned unless a later implementation seam explicitly changes ownership.
 
 ### Transition Ambiguities Captured For Later Seams
@@ -455,7 +455,7 @@ Desktop shortcut or visible startup seams:
 - New durable root `dev/` helpers must follow the `dev/orin_<domain>_<capability>_...` naming pattern and be registered immediately.
 - Workstream-scoped helpers require owner, non-reuse reason, consolidation target, and promotion decision point before PR Readiness.
 - Temporary probes must stay under ignored evidence roots and must be deleted or promoted before closeout-grade proof.
-- `dev/orin_desktop_launcher_regression_harness.py` currently points at absent legacy `jarvis_*` paths. It must be repaired, replaced by a current registered helper, or explicitly bypassed with a documented rationale before launcher regression coverage can be claimed for FB-004.
+- `dev/orin_desktop_launcher_regression_harness.py` currently points at absent legacy `nexus_*` paths. It must be repaired, replaced by a current registered helper, or explicitly bypassed with a documented rationale before launcher regression coverage can be claimed for FB-004.
 
 ### User Test Summary Admission Rules
 
@@ -507,14 +507,14 @@ H-1 is docs/canon only. It pressure-tests whether the WS-1 through WS-3 boot-orc
 - Source Map Pressure Test: the production path remains `launch_orin_desktop.vbs` to `desktop/orin_desktop_launcher.pyw` to `desktop/orin_desktop_main.py`. The dev-only `main.py` boot/handoff prototype remains evidence and planning context only. No source-map contradiction blocks Live Validation.
 - Lifecycle And State Pressure Test: `BOOT_MAIN|...`, `RENDERER_MAIN|...`, `state=dormant`, launcher terminal classifications, renderer readiness, startup abort, and desktop-settled outcomes are separated by owner and evidence surface. No lifecycle state is allowed to imply trust, auth, release, or installer state.
 - Ownership Boundary Pressure Test: the future boot orchestrator remains above the shipped launcher. The launcher remains the current desktop startup authority, the renderer remains the presentation/readiness owner, shared relaunch primitives remain shared contracts, and dev boot prototypes remain dev-only unless a future seam admits product-path implementation.
-- Diagnostics Evidence Root Pressure Test: a canon contradiction was found. Older current architecture and governance wording named fixed `C:/Jarvis/...` evidence roots, while current launcher code resolves live logs through `ROOT_DIR\logs` and dev validation evidence through `dev\logs`. H-1 corrected current architecture/governance wording to the runtime-root model while preserving historical legacy-name traceability where appropriate.
+- Diagnostics Evidence Root Pressure Test: a canon contradiction was found. Older current architecture and governance wording named fixed `C:/Nexus/...` evidence roots, while current launcher code resolves live logs through `ROOT_DIR\logs` and dev validation evidence through `dev\logs`. H-1 corrected current architecture/governance wording to the runtime-root model while preserving historical legacy-name traceability where appropriate.
 - Rollback Boundary Pressure Test: rollback remains scoped to the changed surface. A future boot seam must prove restoration of launch shim behavior, launcher control files and classification, renderer readiness markers, diagnostics roots, helper registration state, and any dev-only prototype changes it admits.
-- Stale Helper Pressure Test: `dev/orin_desktop_launcher_regression_harness.py` remains repair-gated because it still references absent legacy `jarvis_*` paths. H-1 records that the helper cannot be used as current FB-004 launcher regression proof until repaired, replaced by a current registered helper, or explicitly bypassed with rationale.
+- Stale Helper Pressure Test: `dev/orin_desktop_launcher_regression_harness.py` remains repair-gated because it still references absent legacy `nexus_*` paths. H-1 records that the helper cannot be used as current FB-004 launcher regression proof until repaired, replaced by a current registered helper, or explicitly bypassed with rationale.
 - Implementation Admission Contract Pressure Test: WS-3 blocks implementation unless the seam names affected surfaces, ownership, helper reuse/repair, rollback, validation proof, user-facing shortcut applicability, and User Test Summary applicability. No implementation is admitted by H-1.
 - Governance Gap: no new phase-order governance gap remains. The current legal sequence is Workstream complete, Hardening complete, then Live Validation.
 - Validation Gap: no runtime helper proof is required for this docs/canon-only milestone. The current validation gate remains `python dev\orin_branch_governance_validation.py`, `git diff --check`, targeted phase-state searches, source-owner review, and scope review.
 - Ambiguity Check: future boot ownership, launcher ownership, renderer ownership, dev-only prototype ownership, evidence-root ownership, and helper reuse expectations are distinct enough to continue.
-- Contradiction Check: the only active contradiction found was the fixed `C:/Jarvis/...` evidence-root wording in current architecture/governance docs; H-1 corrected it.
+- Contradiction Check: the only active contradiction found was the fixed `C:/Nexus/...` evidence-root wording in current architecture/governance docs; H-1 corrected it.
 - Scope Check: WS-1 through WS-3 and H-1 did not change runtime behavior, launcher behavior, renderer behavior, desktop shortcut behavior, UI, installer behavior, source layout, helper code, release artifacts, tags, public releases, or desktop exports.
 - Orchestrator-Readiness Risk: the branch is ready to validate the architecture/admission frame, but not ready for boot-orchestrator implementation by inertia. Later implementation still requires a separately admitted seam with exact rollback and live proof.
 
@@ -617,7 +617,7 @@ GOV-PR0 validated backlog and roadmap drift before FB-004 PR Readiness. The pass
 
 Governance Drift Found: Yes, resolved before PR green.
 
-- Diagnostics-root drift was found during H-1 and corrected so current architecture/governance wording aligns with launcher-owned runtime-root evidence instead of stale `C:/Jarvis/...` evidence-root phrasing.
+- Diagnostics-root drift was found during H-1 and corrected so current architecture/governance wording aligns with launcher-owned runtime-root evidence instead of stale `C:/Nexus/...` evidence-root phrasing.
 - Backlog priority drift was found before PR Readiness and corrected during GOV-PR0 by raising FB-015 to `High`, preserving FB-029 as explicitly product/legal-gated, preserving FB-030 as voice/audio-gated, and preserving FB-005 as path-sensitive workspace-gated.
 - Release-note governance drift was already corrected before FB-004 PR Readiness; FB-004 release package truth points to rich Markdown release notes without repeating the release title in the note body.
 - No unresolved source-of-truth contradiction remains across backlog, roadmap, workstream index, and this canonical workstream record after PR-1 and PR-2.

@@ -207,7 +207,7 @@ def parse_github_repo_url(remote_url):
 
 def repo_url_contains_legacy_branding(repo_url):
     lowered = (repo_url or "").casefold()
-    return any(token in lowered for token in ("/jarvis", "/marvel", "stark"))
+    return "/nexus" in lowered
 
 
 def detect_github_issues_new_url(root_dir):
@@ -315,7 +315,7 @@ def create_support_bundle(root_dir, runtime_log_path, crash_dir):
     public_release_tag = get_product_release_label(root_dir)
     release_context = get_product_release_context(root_dir)
     manifest = {
-        "jarvis_version": public_release_tag,
+        "nexus_version": public_release_tag,
         "release_context": release_context,
         "run_identity": run_identity,
         "bundle_created_at": datetime.datetime.now(datetime.timezone.utc).isoformat(),
@@ -349,7 +349,7 @@ def create_support_bundle(root_dir, runtime_log_path, crash_dir):
         "runtime_log_name": runtime_log_name,
         "crash_log_name": crash_log_name,
         "run_identity": run_identity,
-        "jarvis_version": manifest["jarvis_version"],
+        "nexus_version": manifest["nexus_version"],
         "release_context": manifest["release_context"],
         "manifest": manifest,
     }

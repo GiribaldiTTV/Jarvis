@@ -4,8 +4,11 @@
 
 This document defines how Nexus Desktop AI uses User Test Summary (`UTS`) handoff.
 
-`UTS` is a validation-contract layer.
-It is owned by the relevant workstream and this guidance document.
+`UTS` is a Live Validation validation-contract layer.
+Formal User Test Summary export and returned-results digestion are exclusive to Live Validation Stage 1.
+User Test Summary is exclusive to Live Validation Stage 1.
+Live Validation Stage 1 cannot enter Live Validation Stage 2 until User Test Summary results are `PASS` or `WAIVED`, Codex has digested the result into source truth, and blockers have been reevaluated.
+Live Validation Stage 1 cannot enter Stage 2 until User Test Summary results are `PASS` or `WAIVED`, Codex has digested the result into source truth, and blockers have been reevaluated.
 
 `UTS` is not:
 
@@ -17,30 +20,33 @@ It is owned by the relevant workstream and this guidance document.
 
 Use this ownership split:
 
-- workstream doc = why the validation matters, how it fits the lane, and the canonical repo-level `UTS` artifact for that workstream unless a different repo path is explicitly declared there
+- workstream doc = why later user validation matters, how it fits the lane, and the `User Test Summary Strategy` / Live Validation readiness expectations for that workstream
 - `Docs/user_test_summary_guidance.md` = the structure and handling rules for the handoff
-- response-level `## User Test Summary` = the current user-facing handoff copy, not a replacement for the canonical repo artifact
+- response-level `## User Test Summary` = Live Validation Stage 1 user-facing handoff copy, not Workstream or Hardening completion evidence
 - returned `UTS` evidence = user validation input that must be digested before recommending the next move
 
 Docs-only passes that do not require user-run validation normally do not need a `UTS`.
 
-When a task changes user-visible behavior or another operator-facing path, the default handoff expectation is that Codex will include a `## User Test Summary` section in its implementation or validation output unless manual testing is not materially relevant.
+When a Workstream task changes user-visible behavior or another operator-facing path, Codex must keep a `User Test Summary Strategy` or later Live Validation readiness note current unless manual testing is not materially relevant.
+Workstream and Hardening must not create, refresh, digest, or treat the formal desktop `User Test Summary.txt` export as phase evidence.
+The formal `## User Test Summary` handoff and returned-results gate belong to `Live Validation Stage 1` after the user-facing shortcut or equivalent entrypoint gate is ready.
 
 ## Canonical Repo Artifact Rule
 
-For active desktop workstreams, the default canonical repo-level `UTS` artifact is:
+For active desktop workstreams, the default canonical repo-level UTS planning surface before Live Validation is:
 
-- the `## User Test Summary` section inside the relevant canonical workstream doc under `Docs/workstreams/`
+- the `## User Test Summary Strategy` section inside the relevant canonical workstream doc under `Docs/workstreams/`
 
-Use a different repo-level artifact path only when that workstream doc explicitly declares one.
+The exact formal `## User Test Summary` artifact is created or refreshed only during Live Validation Stage 1 unless USER explicitly grants a waiver or a different Live Validation handoff path.
 
-When a slice changes user-visible behavior or another operator-facing desktop path, Codex must normally do both:
+When a Workstream slice changes user-visible behavior or another operator-facing desktop path, Codex must normally keep later UTS needs current without treating returned user results as a Workstream gate:
 
-- include a detailed `## User Test Summary` section in the response or output when manual validation is relevant
-- update the canonical repo-level `UTS` artifact for the active workstream in the same branch
-- export or refresh `C:\Users\anden\OneDrive\Desktop\User Test Summary.txt` as the user-facing convenience copy when the slice is a relevant desktop path
+- include a detailed `User Test Summary Strategy` or Live Validation readiness plan in the response or output when manual validation will be relevant later
+- update the canonical repo-level UTS strategy for the active workstream in the same branch
+- defer the final `C:\Users\anden\OneDrive\Desktop\User Test Summary.txt` handoff export until `Live Validation Stage 1`
 
-Response-only `UTS` text is not sufficient when the canonical repo artifact exists and the supporting docs for that workstream are in scope.
+Response-only UTS strategy text is not sufficient when the canonical repo artifact exists and the supporting docs for that workstream are in scope.
+The formal returned-results blocker must not be listed while the current phase is `Workstream`.
 
 If the canonical repo artifact is not updated, Codex must say explicitly why. The normal allowed reasons are:
 
@@ -52,7 +58,7 @@ If the canonical repo artifact is not updated, Codex must say explicitly why. Th
 
 ## When A User Test Summary Is Needed
 
-Create a `UTS` when the active workstream needs user-run validation, especially for:
+Plan a `UTS` when the active workstream needs later user-run validation, especially for:
 
 - launch or relaunch flows
 - UI or visual confirmation
@@ -103,16 +109,16 @@ A recap-style behavior summary is not sufficient when the user needs to run or v
 
 ## Desktop File Rule
 
-When a durable desktop copy is needed, use the rolling file:
+When a durable desktop copy is needed during Live Validation Stage 1, use the rolling file:
 
 - `C:\Users\anden\OneDrive\Desktop\User Test Summary.txt`
 
-That desktop file is the required user-facing exported copy for relevant desktop slices.
-It is not the canonical repo-level `UTS` artifact unless a workstream doc explicitly says otherwise.
+That desktop file is the required user-facing exported copy for relevant desktop Live Validation Stage 1 runs.
+It is not Workstream or Hardening evidence.
 
 Create or refresh that file by default when:
 
-- the slice changes desktop user-visible behavior or another desktop operator-facing path
+- Live Validation Stage 1 is admitted for a desktop user-visible behavior or another desktop operator-facing path
 - the user is likely to test outside the chat window
 - the validation flow is long enough that a durable copy helps
 - Dev Toolkit launch metadata must be preserved exactly
@@ -166,8 +172,10 @@ Named blocker:
 
 Definition:
 
-- Live Validation and PR Readiness must not report final green while a relevant user-facing workstream has a required `UTS` handoff outstanding and returned results have not been submitted and digested.
+- Live Validation Stage 1 must not enter Live Validation Stage 2 while a relevant user-facing workstream has a required `UTS` handoff outstanding and returned results have not been submitted and digested.
 - Live Validation green requires an exact `## User Test Summary` state before final green.
+- Workstream must not use `User Test Summary Results Pending` as its completion blocker; it must continue implementation, internal sandbox validation, or named implementation repair until Workstream completion is otherwise green or legally blocked.
+- PR Readiness may verify the previously digested Live Validation UTS state, but it must not create, refresh, or digest UTS as its own phase artifact.
 
 Required authority-record marker:
 
@@ -194,7 +202,7 @@ Routing after digestion:
 - if returned results expose mismatch, regression, unclear behavior, cleanup failure, or scope drift, route back to `Workstream` or `Hardening` as appropriate
 - if returned results raise new ideas or requests, keep them out of current scope until carry-forward is explicitly approved
 
-The desktop export is not considered returned evidence by itself. It is the handoff artifact; the blocker remains active until filled results come back or a waiver is documented.
+The desktop export is not considered returned evidence by itself. It is the Live Validation handoff artifact; the blocker remains active only in phases where formal UTS results are required until filled results come back or a waiver is documented.
 
 ## User-Facing Shortcut Live Validation Gate
 
@@ -218,9 +226,41 @@ The expected default path for Nexus Desktop AI desktop work is:
 - `C:\Users\anden\OneDrive\Desktop\Nexus Desktop Launcher.lnk`
 
 The gate is green only when the declared shortcut or explicitly equivalent user-facing entrypoint launches the active branch, reaches ready state, exposes the relevant user-visible surface, and leaves cleanup/persisted-state evidence consistent with the workstream validation contract before User Test Summary handoff.
+For desktop user-facing branches, the actual desktop shortcut path is mandatory when feasible. A documented equivalent entrypoint may satisfy this gate only when the authority record and proof manifest explain why it is equivalent to the USER-operated path, including tray/menu/window behavior, or when USER explicitly waives the actual shortcut requirement.
+Shortcut equivalence must not be inferred from helper success alone. Static proof, sandbox proof, fake/offscreen model proof, callback-only proof, active-client screenshot proof, and real user-operated tray proof are separate proof classes and must be labeled separately when the UTS asks the USER to test real tray or desktop operations.
+Before a Live Validation Stage 1 UTS handoff can be marked green for a desktop UI step, Codex must record a per-step precheck manifest using `Codex Precheck: PASS`, `Codex Precheck: FAIL`, `Codex Precheck: NOT TESTED`, or `Codex Precheck: WAIVED`. If Codex did not test the step through the same USER-facing path or a proven/waived equivalent, the UTS step must say `Codex Precheck: NOT TESTED` and LV1 cannot claim a green handoff without explicit USER waiver.
 If the gate is `PENDING`, keep `User-Facing Shortcut Validation Pending` active.
 If the gate is `FAIL`, route back to `Workstream` or `Hardening` before exporting final-green `UTS` posture.
 If the gate is `WAIVED`, the waiver must state why the branch is not desktop/user-facing or why the shortcut path is explicitly unavailable.
+
+## Codex Live Client Self-QA Gate
+
+For relevant desktop user-facing workstreams, User Test Summary handoff is also downstream of Codex's own live-client self-QA.
+Validators, markers, screenshots, synthetic harnesses, and helper launches may support the evidence trail, but Codex must still inspect the launched UI like a user before asking the USER to run formal acceptance.
+
+Before User Test Summary handoff, the active authority record must declare:
+
+- `Codex Live Client Self-QA: PENDING`
+- `Codex Live Client Self-QA: PASS`
+- `Codex Live Client Self-QA: FAIL`
+- `Codex Live Client Self-QA: WAIVED`
+- `Visual Quality:`
+- `Live Interaction Evidence:`
+- `Usability Check:`
+- `Platform Uniformity Check:`
+
+Named blocker:
+
+- `Codex Live Client Self-QA Pending`
+
+The gate is green only when Codex records a live-client review of readability, placement, visual quality, NDAI uniformity, interaction posture, naming cleanliness, cleanup, and evidence quality from the launched user-facing path or an explicitly equivalent path.
+Screenshot-only or marker-only proof is not enough. Codex must exercise the same visible user-facing interactions it would ask the USER to test, record `Live Interaction Evidence:`, and include an interaction manifest or equivalent evidence when the work adds an interactive UI surface.
+If the UTS asks the USER to right-click a tray icon, open or close a window through a tray menu, confirm shutdown, move/resize a visible window, or verify a visible state transition, Codex must precheck that same user-facing operation through the actual shortcut/runtime path when feasible. Fake windows, hidden clients, direct callbacks, and offscreen model assertions can support implementation confidence but cannot be recorded as the sole PASS for the same USER-facing step.
+For desktop UI, the Live Validation helper must offer an active foreground/user-observable mode; a fast hidden or blink-through run may support automation evidence but does not satisfy USER-visible active-client validation.
+For desktop UI with tray/menu/window operations, app-side precheck code that calls tray handlers directly is not a human-client pass. A green LV1 handoff requires a human-client manifest or explicit USER waiver. The manifest must show visible desktop shortcut launch, visible tray/menu selection, mouse/cursor or UIAutomation-backed click evidence, visible window state evidence, screenshot or frame-sequence artifacts, and Codex inspection of visual/UI quality for every issue-grounded UTS item. If this evidence is missing, the UTS must not be exported as green and the branch routes back to Workstream or Hardening.
+If the gate is `PENDING`, keep `Codex Live Client Self-QA Pending` active.
+If the gate is `FAIL`, route back to `Workstream` or `Hardening` before exporting final-green `UTS` posture.
+If the gate is `WAIVED`, the waiver must state why the branch is not user-facing or why the live client path is explicitly unavailable.
 
 ## Carry-Forward Approval Rule
 
@@ -270,11 +310,11 @@ Codex must preserve an evidence trail for that self-validation and distinguish c
 - interactive OS-level executed-path results
 - user-only manual handoff that still remains
 
-## Implementation-Time Hardening Rule
+## Workstream Internal Validation Rule
 
 For runtime, UI, startup, prompt, voice, or other operator-facing implementation slices, the required validator suite is only one layer of validation.
 
-Codex must also perform a deeper branch-local validation and hardening pass before continuing to the next implementation slice. That pass should:
+Codex must also perform deeper branch-local internal validation before claiming Workstream completion or continuing past a risky user-facing seam. That pass should:
 
 - inspect the implemented path for likely failure modes and integration regressions
 - add or create the smallest reliable validation infrastructure when meaningful blind spots remain

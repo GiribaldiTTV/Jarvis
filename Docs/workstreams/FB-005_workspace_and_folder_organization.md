@@ -46,7 +46,7 @@
 - Runtime-reachability proof remains unchanged: shipped entrypoints still route through `launch_orin_desktop.vbs` -> `desktop/orin_desktop_launcher.pyw` -> `desktop/orin_desktop_main.py`.
 - The completed release scope ends after WS-1 because that historical branch closed with only the released WS-1 slice under the earlier path-sensitive posture; this is preserved historical truth, not the current repo-wide backlog-completion rule.
 - No reverse runtime dependency on `dev/desktop/` or the moved harness was found.
-- LV-1 confirms the residual visual-path mismatch is dev-only and non-user-facing: the harness still names historical visual file `jarvis_core_desktop.html` while the current desktop visual asset on disk is `orin_core_desktop.html`.
+- LV-1 historically recorded a dev-only, non-user-facing residual visual-path mismatch in the moved harness; the current repo path now resolves through `nexus_visual/orin_core_desktop.html`.
 - FB-044 and FB-045 are Released / Closed in `v1.6.9-prebeta`; release debt is clear; and FB-046 now holds the selected-only active Branch Readiness lane on `feature/fb-046-active-session-relaunch-reacquisition`.
 - Canonical current branch authority now lives in `Docs/branch_records/feature_fb_046_active_session_relaunch_reacquisition.md`, and the first bounded relaunch-reacquisition slice is admitted with `Workstream` next.
 - Release Execution published `v1.6.6-prebeta` on commit `deeaa691a79dd01897f6aed82f087970db7019b3`.
@@ -130,7 +130,7 @@ None.
 - `Audio/orin_voice.py`
 - `Audio/orin_error_voice.py`
 - `assistant_personas.py`
-- `jarvis_visual/`
+- `nexus_visual/`
 - `logs/`
 - user-facing desktop shortcuts or equivalent entry surfaces
 
@@ -148,7 +148,7 @@ None.
 - no launcher target change
 - no production runtime import rewiring
 - no `Audio/` movement or audio-path normalization
-- no `jarvis_visual/` move or asset reorganization
+- no `nexus_visual/` move or asset reorganization
 - no `logs/` reorganization or log-root change
 - no user-facing desktop shortcut or launcher-route change
 - no broader Step 5 or top-level entrypoint restructuring
@@ -168,7 +168,7 @@ None.
 ## WS-1 Execution Results
 
 - Moved `desktop/orin_desktop_test.py` to `dev/desktop/orin_desktop_test.py`.
-- Updated local path resolution in the moved harness so repo-root imports and `jarvis_visual/jarvis_core_desktop.html` resolution still work from `dev/desktop/`.
+- Updated local path resolution in the moved harness so repo-root imports and `nexus_visual/orin_core_desktop.html` resolution work from `dev/desktop/`.
 - Updated direct current-path references in `Docs/workspace_layout_plan.md`.
 - Preserved runtime entrypoints, launcher paths, audio paths, logs, visual assets, and user-facing desktop paths exactly as-is.
 - Bounded-stop decision: this historical branch stopped after WS-1 because the branch carried only that released path-sensitive slice at the time; preserve that as historical truth rather than as the current repo-wide default.
@@ -178,7 +178,7 @@ None.
 - `python dev\orin_branch_governance_validation.py`: PASS, 1145 checks.
 - `git diff --check`: PASS with line-ending normalization warnings only and no whitespace errors.
 - `python -m py_compile dev\desktop\orin_desktop_test.py`: PASS.
-- `python dev\desktop\orin_desktop_test.py`: PASS for bounded validation; the harness initializes from `dev/desktop/`, prints its expected banner, and exits only at the intentional `RuntimeError(\"Jarvis test crash triggered intentionally\")`.
+- `python dev\desktop\orin_desktop_test.py`: PASS for bounded validation; the harness initializes from `dev/desktop/`, prints its expected banner, and exits only at the intentional `RuntimeError(\"Nexus test crash triggered intentionally\")`.
 - Runtime reachability review: current shipped runtime path remains `launch_orin_desktop.vbs` -> `desktop/orin_desktop_launcher.pyw` -> `desktop/orin_desktop_main.py`, and the admitted slice does not own any part of that route.
 - Path ownership review: admitted scope is limited to `desktop/orin_desktop_test.py` -> `dev/desktop/orin_desktop_test.py`, with launcher paths, runtime entrypoints, audio paths, logs, visual assets, and user-facing desktop paths explicitly outside the slice.
 - Canon routing review: `Docs/Main.md`, `Docs/feature_backlog.md`, `Docs/prebeta_roadmap.md`, `Docs/workstreams/index.md`, and `Docs/branch_records/index.md` route FB-005 as the promoted active lane and do not leave it as selected-next / `Registry-only` current-state truth.
@@ -239,7 +239,7 @@ H-1 pressure-tests whether the completed WS-1 slice is coherent enough to move i
 
 - Governance Gap: current-state canon still reflected Workstream-complete / Hardening-next truth after the admitted WS-1 slice had already finished. H-1 corrects current-state canon to Hardening-complete / Live-Validation-next truth.
 - Path Ownership Pressure Test: PASS. No reverse dependency from runtime entrypoints, launcher paths, audio paths, logs, visual assets, or user-facing desktop paths into `dev/desktop/` or `dev/desktop/orin_desktop_test.py` was found.
-- Reference Integrity And Path-Math Pressure Test: PASS with one non-blocking dev-only residual risk. The moved harness now resolves repo-root imports correctly from `dev/desktop/`, but it still names historical file `jarvis_core_desktop.html` while the current desktop asset on disk is `jarvis_visual/orin_core_desktop.html`. Because the harness intentionally crashes and production paths do not consume that reference, H-1 records this as a dev-only residual risk rather than a production coupling issue.
+- Reference Integrity And Path-Math Pressure Test: PASS. The moved harness resolves repo-root imports correctly from `dev/desktop/`; the current tracked harness path is `nexus_visual/orin_core_desktop.html`.
 - Runtime Non-Reachability Pressure Test: PASS. Production entrypoint truth remains `launch_orin_desktop.vbs` -> `desktop/orin_desktop_launcher.pyw` -> `desktop/orin_desktop_main.py`, and no production path now references the moved harness.
 - Rollback Viability Pressure Test: PASS. The implementation delta remains a single-file rename plus local path-math update and direct path-truth docs updates. Rolling back the slice stays bounded and does not require launcher, runtime, audio, logs, or visual-asset rewiring.
 - Hidden Coupling Pressure Test: PASS. The remaining coupling is intentional one-way dev-harness consumption of runtime modules; no reverse runtime or launcher ownership leaked into `dev/desktop/`.
@@ -249,7 +249,7 @@ H-1 pressure-tests whether the completed WS-1 slice is coherent enough to move i
 ### Hardening Corrections
 
 - Current-state canon is updated from Workstream-complete / Hardening-next wording to Hardening-complete / Live-Validation-next wording.
-- The slice now explicitly records the non-blocking dev-only residual risk around historical visual filename `jarvis_core_desktop.html` so later validation does not overclaim visual-asset correctness.
+- The slice historically recorded the non-blocking dev-only residual risk around the desktop visual filename; current repo truth resolves the harness to `nexus_visual/orin_core_desktop.html`.
 - No helper, validator, runtime, launcher, audio, logs, visual-asset, release, or User Test Summary artifact was added during H-1.
 
 ### H-1 Completion Decision
@@ -264,9 +264,9 @@ H-1 pressure-tests whether the completed WS-1 slice is coherent enough to move i
 - `python dev\orin_branch_governance_validation.py`: PASS, 1138 checks.
 - `git diff --check`: PASS with line-ending normalization warnings only and no whitespace errors.
 - `python -m py_compile dev\desktop\orin_desktop_test.py`: PASS.
-- `python dev\desktop\orin_desktop_test.py`: PASS for bounded validation; the harness initializes from `dev/desktop/`, prints its expected banner, and exits only at the intentional `RuntimeError(\"Jarvis test crash triggered intentionally\")`.
+- `python dev\desktop\orin_desktop_test.py`: PASS for bounded validation; the harness initializes from `dev/desktop/`, prints its expected banner, and exits only at the intentional `RuntimeError(\"Nexus test crash triggered intentionally\")`.
 - Reverse-coupling scan: PASS; no `dev/desktop`, `from dev`, or `import dev` reference appears in `main.py`, `launch_orin_desktop.vbs`, `desktop/`, `Audio/`, or `assistant_personas.py`.
-- Asset-path integrity scan: recorded residual dev-only risk; `jarvis_visual/jarvis_core_desktop.html` does not exist while `jarvis_visual/orin_core_desktop.html` does.
+- Asset-path integrity scan: current tracked repo truth resolves the moved harness to existing asset `nexus_visual/orin_core_desktop.html`.
 
 ## Live Validation Record
 
@@ -279,7 +279,7 @@ LV-1 validates the completed FB-005 WS-1 slice against live repo truth, branch t
 - User-Facing Shortcut Applicability: waived for this milestone because the completed delta is a dev-only harness relocation and does not change any user-facing desktop shortcut, equivalent production entrypoint behavior, launcher behavior, runtime behavior, visible UI behavior, installer behavior, audio behavior, log behavior, or other operator-facing path.
 - Manual Validation Applicability: waived for this milestone because the delivered delta is a bounded workspace/path relocation with repo-truth validation, runtime non-reachability proof, and dev-only harness evidence already recorded; a filled manual User Test Summary would not materially validate changed user-facing behavior because none changed.
 - Runtime Evidence Applicability: no additional runtime helper evidence is required for LV-1 because the shipped runtime path was unchanged and H-1 already proved the moved harness remains outside runtime reachability.
-- Residual Visual-Path Mismatch Classification: non-user-facing / dev-only. `dev/desktop/orin_desktop_test.py` still names historical file `jarvis_core_desktop.html`, while the current on-disk asset is `jarvis_visual/orin_core_desktop.html`; production entrypoints do not reference the moved harness or `dev/desktop/`, so this mismatch does not reach user-facing runtime behavior.
+- Residual Visual-Path Mismatch Classification: historical non-user-facing / dev-only finding. `dev/desktop/orin_desktop_test.py` now names the current on-disk asset `nexus_visual/orin_core_desktop.html`; production entrypoints still do not depend on the moved harness under `dev/desktop/`.
 - Desktop Export Applicability: no desktop `User Test Summary.txt` export is required for this Live Validation pass because there is no user-facing desktop path or manual checklist to hand off.
 - Cleanup: no programs, helper processes, windows, temporary files, new helpers, release artifacts, screenshots, or desktop-export artifacts were created by LV-1.
 

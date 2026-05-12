@@ -440,7 +440,7 @@ try {
     $cleanup = Cleanup-Notepad $paths $baselineNotepadIds
     $restored = Restore-Saved $paths $savedActionsPath $hadOriginal
     if ($before.Exists -ne $restored.Exists -or $before.Hash -ne $restored.Hash -or $before.Length -ne $restored.Length) { throw "saved_actions restore did not match original snapshot" }
-    $leftoverRuntime = @(Get-Process | Where-Object { $_.ProcessName -match "^(Nexus|orin|jarvis)$" })
+    $leftoverRuntime = @(Get-Process | Where-Object { $_.ProcessName -match "^(Nexus|orin|nexus)$" })
     if ($leftoverRuntime.Count -gt 0) { throw "leftover runtime process count=$($leftoverRuntime.Count)" }
 
     @(

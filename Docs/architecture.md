@@ -25,7 +25,7 @@ It is not yet the final boot-first product experience.
 
 Historical note:
 
-- older Jarvis-named releases and docs remain preserved as historical context
+- older Nexus-named releases and docs remain preserved as historical context
 - they do not override the current runtime path above
 
 ## Architectural Layer Model
@@ -87,7 +87,7 @@ Current merged truth keeps:
 
 Normal runtime history resolves under:
 
-- `%LOCALAPPDATA%/Nexus Desktop AI/state/jarvis_history_v1.jsonl`
+- `%LOCALAPPDATA%/Nexus Desktop AI/state/nexus_history_v1.jsonl`
 
 That historical filename is still part of current runtime truth even though the product framing is Nexus Desktop AI and ORIN.
 
@@ -104,7 +104,7 @@ Those roots remain the current runtime truth for:
 - matching crash logs
 - launcher control or status files when relevant
 
-In source, the desktop launcher resolves this from the repository/runtime root through `DEFAULT_LOG_DIR = os.path.join(ROOT_DIR, "logs")`. Historical `C:/Jarvis/...` wording may appear in older records from the Jarvis-named runtime era, but it does not override current root-relative launcher code truth.
+In source, the desktop launcher resolves this from the repository/runtime root through `DEFAULT_LOG_DIR = os.path.join(ROOT_DIR, "logs")`. Historical `C:/Nexus/...` wording may appear in older records from the Nexus-named runtime era, but it does not override current root-relative launcher code truth.
 
 Launcher-owned historical state is no longer a root-logs surface during normal runtime.
 

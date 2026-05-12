@@ -128,6 +128,1640 @@ REQUIRED_BRANCH_READINESS_COMPLETION_MARKERS = (
     "Branch Closure Rule:",
 )
 
+PRODUCT_DEFINITION_PLAN_HEADING = "Product Definition Plan"
+USER_VISION_QUESTION_PACKET_HEADING = "USER Vision Question Packet"
+USER_VISION_INPUT_HANDOFF_HEADING = "USER Vision Input Handoff"
+USER_VISION_INPUT_ARTIFACT_PATH = Path(r"C:\Users\anden\OneDrive\Desktop\User Vision Input.txt")
+REQUIRED_PRODUCT_DEFINITION_MARKERS = (
+    "Product Vision:",
+    "User-Facing Goal:",
+    "USER Vision Questions:",
+    "Codex Product Interpretation:",
+    "Codex Implementation Recommendation:",
+    "USER/ChatGPT Review Checkpoint:",
+    "Full Feature Element Breakdown:",
+    "Current Branch vs Future Package Boundaries:",
+    "Affected Surfaces:",
+    "Data/Control Model:",
+    "Branch Reach / Package-Size Review:",
+    "Why Branch Is Large Enough:",
+    "Why Not Split Into Tiny Branches:",
+    "Acceptance Criteria:",
+    "Validation Proof Requirements:",
+    "Screenshot / Live / User Test Summary Proof Requirements:",
+    "Implementation Sequence Proposal:",
+    "Planning Blockers:",
+    "USER Decisions Needed:",
+    "Planning Packet Status:",
+    "Planning Revalidation Status:",
+    "User Test Summary Strategy:",
+)
+REQUIRED_USER_VISION_QUESTION_PACKET_MARKERS = (
+    "Question ID",
+    "Category",
+    "Decision needed",
+    "Why this matters",
+    "Feature area affected",
+    "Codex recommendation",
+    "Why Codex recommends it",
+    "Alternatives/options",
+    "Tradeoffs/risks",
+    "Current-branch impact",
+    "Future-package impact",
+    "Safe default if USER is unsure",
+    "Required before implementation",
+    "May waive/defer",
+    "Exact response format requested",
+)
+REQUIRED_USER_VISION_QUESTION_PACKET_CATEGORIES = (
+    "Product goal / user outcome",
+    "Visual identity / style",
+    "Layout / placement",
+    "Information hierarchy",
+    "Data/source model",
+    "Controls/settings model",
+    "Fail-safe/no-data/degraded behavior",
+    "Interaction model",
+    "Accessibility/readability",
+    "Privacy/security boundaries",
+    "Performance constraints",
+    "Validation proof standard",
+    "User Test Summary acceptance criteria",
+    "Current-branch vs future-package boundaries",
+    "Release impact",
+)
+FAM_006_USER_VISION_PACKET_MARKERS = (
+    "HUD form factor",
+    "HUD placement",
+    "always-visible vs reveal/toggle behavior",
+    "visual style",
+    "first useful status content",
+    "telemetry depth",
+    "controls/settings behavior",
+    "fail-safe/no-data/degraded copy",
+    "screenshot proof standard",
+    "UTS acceptance standard",
+    "current branch work vs future package work",
+)
+PRODUCT_PLANNING_INCOMPLETE_BLOCKER = "Branch Readiness Planning Incomplete"
+PRODUCT_PLANNING_WAIVER_MARKER = "Planning Completion Waiver:"
+PRODUCT_PLANNING_COMPLETE_VALUES = {"complete", "waived"}
+PRODUCT_PLANNING_INCOMPLETE_VALUES = {"incomplete", "pending", "blocked"}
+USER_VISION_INPUT_PENDING_BLOCKER = "USER Vision Input Pending"
+USER_VISION_INPUT_FILE_MISSING_BLOCKER = "USER Vision Input File Missing"
+USER_VISION_INPUT_ANSWERS_PENDING_BLOCKER = "USER Vision Input Answers Pending"
+USER_VISION_INPUT_DIGEST_PENDING_BLOCKER = "USER Vision Input Digest Pending"
+LEGACY_PRODUCT_NAME_DRIFT_BLOCKER = "Legacy Product Name Drift"
+LEGACY_RETIRED_PRODUCT_NAME = "".join(chr(code) for code in (74, 97, 114, 118, 105, 115))
+LEGACY_PRODUCT_NAME_EXTRA_TOKENS = (
+    "".join(chr(code) for code in (77, 97, 114, 118, 101, 108)),
+    "".join(chr(code) for code in (83, 116, 97, 114, 107)),
+)
+HARDWARE_TELEMETRY_PROVIDER_PENDING_BLOCKER = "Hardware Telemetry Provider Selection Pending"
+POLLING_FLOOR_UNDECIDED_BLOCKER = "Polling Floor Undecided"
+WARNING_DELIVERY_MODALITY_PENDING_BLOCKER = "Warning Delivery Modality Pending"
+EXTERNAL_TELEMETRY_PRIVACY_MODEL_MISSING_BLOCKER = "External Telemetry Privacy Model Missing"
+AUDIO_WARNING_CROSS_FAMILY_APPROVAL_MISSING_BLOCKER = (
+    "Audio Warning Cross-Family Approval Missing"
+)
+PERSONA_SWITCH_SCOPE_BOUNDARY_PENDING_BLOCKER = (
+    "Persona Switch Scope Boundary Pending"
+)
+FAM006_BRANCH = "feature/fam-006-monitoring-hud-product-surface"
+FAM006_BRANCH_RECORD = Path(
+    "Docs/branch_records/feature_fam_006_monitoring_hud_product_surface.md"
+)
+FAM006_ELEMENT_LEDGER = Path(
+    "Docs/branch_records/feature_fam_006_monitoring_hud_product_surface_element_ledger.md"
+)
+FAM006_STAGE2_R6_HEADING = "Stage 2-R6 Product Scope Boundary And Acceptance Criteria"
+FAM006_STAGE2_R7_HEADING = "Stage 2-R7 Planning Revalidation Closeout And WS7 Handoff"
+FAM006_STAGE2_R8_HEADING = "Stage 2-R8 Legacy Product Name Blocker And USER Vision Input Refresh"
+FAM006_STAGE2_R9_HEADING = "Stage 2-R9 USER Vision Input Digest And FAM-006 Scope Rebaseline"
+FAM006_STAGE2_R10_HEADING = "Stage 2-R10 Scope Rebaseline Closeout And WS7 Handoff"
+FAM006_STAGE2_R11_HEADING = (
+    "Branch Readiness Stage 2-R11 HUD Dashboard And Minimal HUD Source-Truth Repair"
+)
+FAM006_STAGE2_R12_HEADING = (
+    "Branch Readiness Stage 2-R12 Interface Release Boundary Governance And Dashboard-First Source-Truth Repair"
+)
+FAM006_STAGE2_R13_HEADING = (
+    "Branch Readiness Stage 2-R13 Dashboard-First Revalidation Closeout And Workstream Handoff"
+)
+FAM006_WS31_HEADING = (
+    "Workstream WS31 Dashboard Control Panel Acceptance Baseline And Overlay Deferral Enforcement"
+)
+FAM006_WS31_NEXT_SEAM = (
+    "Workstream WS32 - Dashboard Standalone Window Movement Clipping And Core Overlay Decoupling Proof"
+)
+FAM006_WS32_HEADING = (
+    "Workstream WS32 Dashboard Standalone Window Movement Clipping And Core Overlay Decoupling Proof"
+)
+FAM006_WS32_NEXT_SEAM = (
+    "Workstream WS33 - Dashboard Settings Control Content Polish And Monitor Management Clarity"
+)
+FAM006_WS33_HEADING = (
+    "Workstream WS33 Dashboard Settings Control Content Polish And Monitor Management Clarity"
+)
+FAM006_WS33_NEXT_SEAM = (
+    "Workstream WS34 - Dashboard Provider Setup No-Data Degraded Truth And Warning Posture Controls"
+)
+FAM006_WS34_HEADING = (
+    "Workstream WS34 Dashboard Provider Setup No-Data Degraded Truth And Warning Posture Controls"
+)
+FAM006_WS34_NEXT_SEAM = (
+    "Workstream WS35 - Dashboard Specific Static Live Proof Screenshots And Live Validation UTS Boundary"
+)
+FAM006_WS35_HEADING = (
+    "Workstream WS35 Dashboard Specific Static Live Proof Screenshots And Live Validation UTS Boundary"
+)
+FAM006_WS35_NEXT_SEAM = (
+    "Workstream WS36 - Workstream Completion Review And Hardening Handoff Reconciliation"
+)
+FAM006_WS36_HEADING = (
+    "Workstream WS36 Workstream Completion Review And Hardening Handoff Reconciliation"
+)
+FAM006_WS36_NEXT_SEAM = "Hardening H1 - Monitoring HUD Product Surface Hardening Rerun"
+FAM006_WS37_HEADING = (
+    "Workstream WS37 Dashboard Runtime Window Tray Safety And NCP Regression Isolation"
+)
+FAM006_WS37_NEXT_SEAM = (
+    "Workstream WS38 - Dashboard Window Ownership Focus Movement Safety"
+)
+FAM006_WS38_HEADING = (
+    "Workstream WS38 Dashboard Window Ownership Focus Movement Safety"
+)
+FAM006_WS38_NEXT_SEAM = (
+    "Workstream WS39 - Dashboard Shell Layout Frame Resize And Readability Repair"
+)
+FAM006_WS39_HEADING = (
+    "Workstream WS39 Dashboard Shell Layout Frame Resize And Readability Repair"
+)
+FAM006_WS39_NEXT_SEAM = (
+    "Workstream WS40 - Dashboard IA Content Naming And Control Hub Repair"
+)
+FAM006_WS40_HEADING = (
+    "Workstream WS40 Dashboard IA Content Naming And Control Hub Repair"
+)
+FAM006_WS40_NEXT_SEAM = (
+    "Workstream WS41 - Dashboard Child-Window Scope Implementation If Admitted"
+)
+FAM006_WS41_HEADING = (
+    "Workstream WS41 Dashboard Child-Window Scope Deferred To Future Branch"
+)
+FAM006_WS41_NEXT_SEAM = (
+    "Workstream WS42 - Dashboard Specific Static Live Proof And LV1 Handoff Readiness"
+)
+FAM006_WS42_HEADING = (
+    "Workstream WS42 Dashboard Specific Static Live Proof And LV1 Handoff Readiness"
+)
+FAM006_WS42_NEXT_SEAM = "Hardening H1 - Monitoring HUD Product Surface Hardening Rerun"
+FAM006_WS43_HEADING = (
+    "Workstream WS43 Dashboard Runtime Tray Shutdown Safety Repair"
+)
+FAM006_WS43_NEXT_SEAM = (
+    "Workstream WS44 - Dashboard Frame Scroll Resize Visual Shell Repair"
+)
+FAM006_WS44_HEADING = (
+    "Workstream WS44 Dashboard Frame Scroll Resize Visual Shell Repair"
+)
+FAM006_WS44_NEXT_SEAM = (
+    "Workstream WS45 - Dashboard IA Naming Action Cleanup"
+)
+FAM006_WS45_HEADING = (
+    "Workstream WS45 Dashboard IA Naming Action Cleanup"
+)
+FAM006_WS45_NEXT_SEAM = (
+    "Workstream WS46 - Dashboard Returned-Feedback Static Live Proof Readiness"
+)
+FAM006_WS46_HEADING = (
+    "Workstream WS46 Dashboard Returned-Feedback Static Live Proof Readiness"
+)
+FAM006_WS46_NEXT_SEAM = "Hardening H1 - Monitoring HUD Product Surface Hardening Rerun"
+FAM006_STAGE2_REAL_CLIENT_HEADING = (
+    "Branch Readiness Stage 2 FAM-006 Returned LV1 Real-Client Failure Source-Truth "
+    "Issue Register And Ledger Disposition Repair"
+)
+FAM006_STAGE2_REAL_CLIENT_NEXT_SEAM = (
+    "Workstream WS47 - Dashboard Real-Client Tray Shortcut And Proof-Governance Repair"
+)
+FAM006_WS47_HEADING = (
+    "Workstream WS47 Dashboard Real-Client Tray Shortcut And Proof-Governance Repair"
+)
+FAM006_WS47_NEXT_SEAM = "Hardening H1 - Monitoring HUD Product Surface Hardening Rerun"
+FAM006_WS48_HEADING = (
+    "Returned LV1 Denial And WS48 Human-Client Validation Closeout"
+)
+FAM006_WS48_NEXT_SEAM = "Hardening H1 - Monitoring HUD Product Surface Hardening Rerun"
+FAM006_WS49_HEADING = (
+    "Workstream WS49 Dashboard NCP Interaction Isolation And Tray Action Safety Repair"
+)
+FAM006_WS49_NEXT_SEAM = "Hardening H1 - Monitoring HUD Product Surface Hardening Rerun"
+FAM006_WS50_HEADING = (
+    "Workstream WS50 Dashboard Scrollbar Boundary And Native Window Chrome Repair"
+)
+FAM006_WS50_NEXT_SEAM = "Hardening H1 - Monitoring HUD Product Surface Hardening Rerun"
+FAM006_WS51_HEADING = (
+    "Workstream WS51 Dashboard Resize Hit Zone Scrollbar Inset And HUD State Persistence Repair"
+)
+FAM006_WS51_NEXT_SEAM = "Hardening H1 - Monitoring HUD Product Surface Hardening Rerun"
+FAM006_WS52_HEADING = "Workstream WS52 Dashboard Real Resize Recovery Repair"
+FAM006_WS52_NEXT_SEAM = "Hardening H1 - Monitoring HUD Product Surface Hardening Rerun"
+FAM006_WS53_HEADING = "Workstream WS53 Dashboard Resize Edge Discoverability Repair"
+FAM006_WS53_NEXT_SEAM = "Hardening H1 - Monitoring HUD Product Surface Hardening Rerun"
+FAM006_WS54_HEADING = "Workstream WS54 Dashboard Standard Resize Cursor Alignment Repair"
+FAM006_WS54_NEXT_SEAM = "Hardening H1 - Monitoring HUD Product Surface Hardening Rerun"
+FAM006_WS55_HEADING = "Workstream WS55 Dashboard Resize Action Recovery After Cursor Alignment Repair"
+FAM006_WS55_NEXT_SEAM = "Hardening H1 - Monitoring HUD Product Surface Hardening Rerun"
+FAM006_WS56_HEADING = "Workstream WS56 Dashboard Pre-Click Resize Cursor And Fluidity Repair"
+FAM006_WS56_NEXT_SEAM = "Hardening H1 - Monitoring HUD Product Surface Hardening Rerun"
+FAM006_H1_HEADING = "Hardening H1 Dashboard-First Product Surface Rerun"
+FAM006_H1_NEXT_SEAM = (
+    "Live Validation LV1 - Monitoring HUD Product Surface Live Validation Rerun"
+)
+FAM006_STAGE2_R6_REQUIRED_MARKERS = (
+    "Current-Branch Scope Final:",
+    "Future-Package Scope Final:",
+    "Provider Path:",
+    "Polling Posture:",
+    "Warning Modality:",
+    "External Telemetry Privacy:",
+    "Audio/FAM-004 Boundary:",
+    "Legacy/Nexus Naming Handling:",
+    "Acceptance Criteria Final:",
+    "Proof Standard Final:",
+    "Validator Enforcement:",
+    "Workstream Gate:",
+)
+FAM006_STAGE2_R6_REQUIRED_PHRASES = (
+    "Nexus/NDAI-branded standalone Monitoring HUD shell/module",
+    "full HWInfo/HWMonitor-level sensor coverage",
+    "WS7 is provider-contract-first",
+    "Fake CPU/GPU/thermal values are blocked",
+    "No polling until a provider is selected",
+    "first practical default is 1s-2s",
+    "500ms minimum requires performance proof",
+    "1ms per-card polling remains unsafe",
+    "UI repaint cadence stays decoupled",
+    "visual/non-invasive",
+    "Screen flash needs accessibility review",
+    "Audio/spoken warnings require later FAM-004/cross-family approval",
+    "External/plugin telemetry remains future-package scope",
+    "consent, provenance, source labeling, privacy warnings, and validation",
+    "Current/future user-facing product copy should use Nexus",
+    "active tracked source, runtime paths, validators, docs, generated-user surfaces, and user-facing copy must not carry retired legacy product identity",
+    "Legacy Product Name Drift blocks Workstream",
+    "no fake telemetry values presented as real",
+    "Marker/DOM proof is supporting evidence only",
+    "Stage 2-R9 now supersedes",
+)
+FAM006_STAGE2_R7_REQUIRED_PHRASES = (
+    "Stage 1-R4 Result:",
+    "PASS - finalized Stage 2-R6 product scope boundaries",
+    "Planning Blocker Closeout:",
+    "Branch Readiness Planning Incomplete is cleared",
+    "WS7 Handoff:",
+    "WS7 - Monitoring HUD Product Visibility And Acceptance Baseline",
+    "PKG-006 remains In Progress",
+    "package completion remains unclaimed",
+    "Visible user-facing proof, full-desktop screenshot proof, and User Test Summary acceptance remain required",
+)
+FAM006_STAGE2_R8_REQUIRED_PHRASES = (
+    "All retired legacy product naming is invalid for the current Nexus Desktop AI direction",
+    "Workstream WS7 is blocked until legacy naming is removed or migrated",
+    "Legacy Product Name Drift blocks Workstream implementation",
+    "User Vision Input.txt was refreshed",
+    "The artifact is not repo source truth until a later digest pass",
+    "WS7 remains blocked on Legacy Product Name Drift",
+)
+FAM006_STAGE2_R9_REQUIRED_PHRASES = (
+    "Refreshed USER Vision Input Digest:",
+    "Cleared Blockers:",
+    "Legacy Product Name Drift; USER Vision Input Pending",
+    "Remaining Blockers:",
+    "Persona Switch Scope Boundary Pending",
+    "ORIN is the shipped/default persona",
+    "ARIA is beta-facing locked/coming soon",
+    "full HUD",
+    "draggable/resizable category cards",
+    "fastest practical/default polling rate is 1s",
+    "visual/non-invasive warning posture",
+    "fake telemetry remains blocked",
+    "WS7 remains blocked until Stage 1-R6",
+)
+FAM006_STAGE2_R10_REQUIRED_PHRASES = (
+    "Stage 1-R6 Result:",
+    "PASS - refreshed USER Vision Input digest",
+    "Planning Blocker Closeout:",
+    "Branch Readiness Planning Incomplete is cleared",
+    "Branch Reach Unproven is cleared",
+    "Current Branch vs Future Package Boundary Missing is cleared",
+    "Hardware Telemetry Provider Selection Pending is converted",
+    "External Telemetry Privacy Model Missing is deferred",
+    "Persona Switch Scope Boundary Pending is deferred",
+    "Backlog Completion Unproven remains active",
+    "WS7 Handoff:",
+    "Workstream WS7 - Monitoring HUD Product Visibility And Acceptance Baseline",
+    "PKG-006 remains In Progress",
+    "package completion remains unclaimed",
+)
+FAM006_STAGE2_R11_REQUIRED_PHRASES = (
+    "Stage 1-R7 Finding Recorded:",
+    "LV1 State:",
+    "FAIL / red",
+    "Dashboard / Configuration Surface:",
+    "Minimal Anchored HUD Overlay:",
+    "ORIN/Core Non-Interference Expectation:",
+    "Dashboard Repair Findings:",
+    "Affected Slices:",
+    "SLC-016 reopened",
+    "SLC-026 reopened",
+    "SLC-027 reopened",
+    "SLC-028 reopened",
+    "SLC-029 reopened",
+    "Acceptance Criteria Updates:",
+    "Dashboard and minimal HUD must be separate product surfaces",
+    "minimal HUD is the anchored desktop overlay",
+    "Validator / Proof Plan:",
+    "OS-level click-through/non-blocking evidence",
+    "Core visual transparency/non-interference evidence",
+    "fresh full-desktop proof root",
+    "Legal Repair Sequence:",
+    "Stage 1-R8 source-truth revalidation",
+    "bounded Workstream repair seams",
+    "Hardening rerun",
+    "Live Validation rerun",
+)
+FAM006_STAGE2_R12_REQUIRED_PHRASES = (
+    "Interface Release Boundary:",
+    "Primary Interface Release Surface:",
+    "Monitoring HUD Dashboard / control panel",
+    "Interface Bundle User Approval:",
+    "Not granted",
+    "Dashboard-First Scope:",
+    "Overlay/Display Classification:",
+    "Deferred / dormant / non-gating",
+    "Core Repair Classification:",
+    "Dependency repair only",
+    "Source-Truth Downgrade:",
+    "Dashboard Acceptance Pending",
+    "Overlay Scope Deferred",
+    "Core Repair Dependency Only",
+    "Branch Readiness Interface Planning Incomplete",
+    "Next Legal Seam:",
+    "Branch Readiness Stage 1-R10 - Dashboard-First Interface Boundary Revalidation",
+)
+FAM006_STAGE2_R13_REQUIRED_PHRASES = (
+    "Stage 1-R10 PASS Recording:",
+    "PASS - Dashboard-first interface boundary is sufficient",
+    "Phase Handoff:",
+    "Current phase returns to Workstream",
+    "Next Legal Seam:",
+    "Workstream WS31 - Dashboard Control Panel Acceptance Baseline And Overlay Deferral Enforcement",
+    "Branch Readiness Interface Planning Incomplete Closeout:",
+    "Cleared",
+    "Interface Acceptance Missing Closeout:",
+    "Dashboard Acceptance Pending remains the Workstream product acceptance gap",
+    "Dashboard-First Handoff:",
+    "Dashboard/control panel remains the primary current-branch interface release surface",
+    "Overlay/Display Classification:",
+    "Deferred / dormant / non-gating",
+    "Core Dependency Classification:",
+    "Dependency repair only",
+    "Bounded Workstream Sequence:",
+    "WS31 Dashboard-only acceptance baseline",
+)
+FAM006_WS31_REQUIRED_PHRASES = (
+    "WS31 Result:",
+    "Green - Dashboard-first acceptance baseline recorded",
+    "Dashboard-First Acceptance Baseline:",
+    "Dashboard/control panel is the only current-branch interface release gate",
+    "Overlay Deferral Enforcement:",
+    "deferred / dormant / non-gating",
+    "Validator / Proof Path:",
+    "Dashboard-specific proof may pass without Overlay/display acceptance",
+    "Package Status:",
+    "PKG-006 remains In Progress",
+    "Package Completion:",
+    "Unclaimed",
+    "LV1 / PR Status:",
+    "LV1 remains historical red",
+    "Next Active Seam:",
+    FAM006_WS31_NEXT_SEAM,
+)
+FAM006_WS32_REQUIRED_PHRASES = (
+    "WS32 Result:",
+    "Green - Dashboard standalone window movement, clipping boundary, and Core/Overlay decoupling proof recorded",
+    "Dashboard Standalone Movement:",
+    "dashboard native window moves across the virtual desktop",
+    "Clipping Boundary:",
+    "within the target monitor and full virtual desktop",
+    "Core / Overlay Decoupling:",
+    "Core geometry and Overlay/display geometry remain unchanged",
+    "Runtime Markers:",
+    "MONITORING_HUD_DASHBOARD_STANDALONE_WINDOW_TRAVEL_READY",
+    "MONITORING_HUD_DASHBOARD_CLIPPING_BOUNDARY_READY",
+    "MONITORING_HUD_DASHBOARD_CORE_OVERLAY_DECOUPLING_READY",
+    "Overlay Classification:",
+    "deferred/non-gating",
+    "Core Classification:",
+    "dependency-only",
+    "Package Completion:",
+    "Unclaimed",
+    "Next Active Seam:",
+    FAM006_WS32_NEXT_SEAM,
+)
+FAM006_WS33_REQUIRED_PHRASES = (
+    "WS33 Result:",
+    "Green - Dashboard settings/control content polish and monitor-management clarity recorded",
+    "Dashboard Settings Content Polish:",
+    "Dashboard/control panel copy now presents a settings/control surface",
+    "Monitor Management Clarity:",
+    "Monitor groups are organizational settings objects",
+    "Overlay Non-Gating Copy:",
+    "Overlay/display remains deferred/non-gating",
+    "Runtime Markers:",
+    "MONITORING_HUD_DASHBOARD_SETTINGS_CONTENT_READY",
+    "MONITORING_HUD_DASHBOARD_MONITOR_GROUP_CLARITY_READY",
+    "MONITORING_HUD_DASHBOARD_OVERLAY_NON_GATING_COPY_READY",
+    "Dashboard Runtime Contract:",
+    'data-dashboard-content-polish="ws33-settings-control-clarity"',
+    'data-monitor-group-model="organizational-groups-settings-only"',
+    'data-dashboard-monitor-card-policy="overlay-display-owns-monitor-cards"',
+    "Dashboard Acceptance Pending remains active",
+    "Package Completion:",
+    "Unclaimed",
+    "Next Active Seam:",
+    FAM006_WS33_NEXT_SEAM,
+)
+FAM006_WS34_REQUIRED_PHRASES = (
+    "WS34 Result:",
+    "Green - Dashboard provider/setup/no-data/degraded truth and visual warning posture controls recorded",
+    "Provider Truth:",
+    "provider-contract-first telemetry",
+    "No-Data / Degraded State Model:",
+    "setup, no-data, degraded, and ready",
+    "Warning Posture Controls:",
+    "visual/non-invasive warning posture controls only",
+    "Runtime Markers:",
+    "MONITORING_HUD_DASHBOARD_PROVIDER_TRUTH_READY",
+    "MONITORING_HUD_DASHBOARD_STATE_MODEL_READY",
+    "MONITORING_HUD_DASHBOARD_WARNING_CONTROLS_READY",
+    "Dashboard Runtime Contract:",
+    'data-dashboard-provider-truth="provider-contract-first"',
+    'data-dashboard-state-model="setup-no-data-degraded-warning"',
+    'data-dashboard-warning-controls="visual-non-invasive-only"',
+    'data-dashboard-fake-telemetry-policy="blocked"',
+    "Dashboard Acceptance Pending remains active",
+    "Package Completion:",
+    "Unclaimed",
+    "Next Active Seam:",
+    FAM006_WS34_NEXT_SEAM,
+)
+FAM006_WS35_REQUIRED_PHRASES = (
+    "WS35 Result:",
+    "Green - Dashboard-specific static/live proof, screenshots, and Live Validation UTS boundary recorded",
+    "Dashboard-Specific Proof Refresh:",
+    "Dashboard/control panel remains the only current-branch interface release gate",
+    "Screenshot Proof:",
+    "fresh before/after full virtual-desktop screenshots",
+    "USER-Inspectable Screenshot Folder:",
+    "Live Validation UTS Boundary:",
+    "formal User Test Summary export is Live Validation Stage 1 only",
+    "Desktop UTS Export State:",
+    "Not generated in Workstream",
+    "Returned UTS Results:",
+    "Reserved for Live Validation Stage 1/Stage 2 gate",
+    "Overlay Classification:",
+    "deferred/non-gating",
+    "Core Classification:",
+    "dependency-only",
+    "Package Completion:",
+    "Unclaimed",
+    "Next Active Seam:",
+    FAM006_WS35_NEXT_SEAM,
+)
+FAM006_WS36_REQUIRED_PHRASES = (
+    "WS36 Result:",
+    "Green - Dashboard-focused Workstream completion review passed and Hardening handoff recorded",
+    "Workstream Completion Review:",
+    "Dashboard-first current-branch scope is green for Hardening rerun",
+    "Hardening Handoff:",
+    "Hardening H1 - Monitoring HUD Product Surface Hardening Rerun",
+    "Dashboard Acceptance Pending:",
+    "returned UTS acceptance remains reserved for Live Validation Stage 1/Stage 2 gate",
+    "Overlay Classification:",
+    "deferred/non-gating",
+    "Core Classification:",
+    "dependency-only",
+    "Package Completion:",
+    "Unclaimed",
+    "Next Active Seam:",
+    FAM006_WS36_NEXT_SEAM,
+)
+FAM006_WS37_REQUIRED_PHRASES = (
+    "WS37 Result:",
+    "Green for runtime safety repair",
+    "Startup Repair:",
+    "MONITORING_HUD_STARTUP_SUPPRESSED",
+    "HUD Feature Off / Tray Repair:",
+    "Enable HUD Feature",
+    "HUD Overlay Deferred",
+    "Focus / Topmost / Z-Order Repair:",
+    "Dashboard / Overlay Isolation:",
+    "NCP Regression Proof:",
+    "Overlay Status:",
+    "Deferred/dormant/non-gating",
+    "Core Status:",
+    "Dependency-only",
+    "Package Completion:",
+    "Unclaimed",
+    "Continuation Execution Latch:",
+    "Next Legal Seam:",
+    FAM006_WS37_NEXT_SEAM,
+)
+FAM006_WS38_REQUIRED_PHRASES = (
+    "WS38 Result:",
+    "Green for Dashboard window ownership/focus/movement safety",
+    "Window Ownership Repair:",
+    "OS-native system move",
+    "Focus / Topmost Proof:",
+    "Movement Model Proof:",
+    "Control Hit-Target Guard:",
+    "Overlay Status:",
+    "Deferred/dormant/non-gating",
+    "Core Status:",
+    "Dependency-only",
+    "Dashboard Acceptance State:",
+    "Still blocked",
+    "Package Completion:",
+    "Unclaimed",
+    "Continuation Execution Latch:",
+    "Next Legal Seam:",
+    FAM006_WS38_NEXT_SEAM,
+)
+FAM006_WS39_REQUIRED_PHRASES = (
+    "WS39 Result:",
+    "Green for Dashboard shell/layout/frame/resize/readability repair",
+    "Title / Header Repair:",
+    "HUD Dashboard",
+    "Sticky Header Repair:",
+    "Frame / Scrollbar Repair:",
+    "Resize Repair:",
+    "os-edge-corner-resize",
+    "Readability Repair:",
+    "Button Hierarchy Repair:",
+    "Dashboard Acceptance State:",
+    "Still blocked",
+    "Overlay Status:",
+    "Deferred/dormant/non-gating",
+    "Core Status:",
+    "Dependency-only",
+    "Package Completion:",
+    "Unclaimed",
+    "Continuation Execution Latch:",
+    "Next Legal Seam:",
+    FAM006_WS39_NEXT_SEAM,
+)
+FAM006_WS40_REQUIRED_PHRASES = (
+    "WS40 Result:",
+    "Green for Dashboard IA/content/naming/control-hub repair",
+    "Control Hub Repair:",
+    "Monitor Groups",
+    "Data Sources",
+    "HUD Display",
+    "Warning Notifications",
+    "Proof / Debug Reroute:",
+    "validator artifacts, not Dashboard home content",
+    "Polling Placement Repair:",
+    "Monitor Group Create/Edit",
+    "Child-Window Boundary:",
+    "WS41 if admitted",
+    "Dashboard Acceptance State:",
+    "Still blocked",
+    "Overlay Status:",
+    "Deferred/dormant/non-gating",
+    "Core Status:",
+    "Dependency-only",
+    "Package Completion:",
+    "Unclaimed",
+    "Continuation Execution Latch:",
+    "Next Legal Seam:",
+    FAM006_WS40_NEXT_SEAM,
+)
+FAM006_WS41_REQUIRED_PHRASES = (
+    "WS41 Admission Decision:",
+    "Deferred - USER agreed with Codex's scope determination",
+    "WS41 Result:",
+    "Green for source-truth deferral only",
+    "Deferral Scope:",
+    "Create/Edit Monitor Group",
+    "Data Sources/Provider Setup",
+    "HUD Display Settings",
+    "Current-Branch Boundary:",
+    "not part of current FAM-006 Dashboard acceptance",
+    "Element Ledger Update:",
+    "FAM006-DASH-CHILD-WINDOW-049 is deferred/future",
+    "USER Admission Handling:",
+    "cleared by deferral, not by implementation or waiver",
+    "Dashboard Acceptance State:",
+    "Still blocked",
+    "Overlay Status:",
+    "Deferred/dormant/non-gating",
+    "Core Status:",
+    "Dependency-only",
+    "Package Completion:",
+    "Unclaimed",
+    "Continuation Execution Latch:",
+    "Next Legal Seam:",
+    FAM006_WS41_NEXT_SEAM,
+)
+FAM006_WS42_REQUIRED_PHRASES = (
+    "WS42 Admission:",
+    "bounded Workstream continuation from WS41 deferral",
+    "WS42 Result:",
+    "Green - Dashboard-specific static/live proof readiness passed",
+    "Proof Standard:",
+    "formal User Test Summary export remains Live Validation Stage 1 only",
+    "Runtime / Proof Helper Update:",
+    "Dashboard-first proof readiness",
+    "Static Validation:",
+    "PASS - dev/orin_monitoring_hud_surface_validation.py",
+    "Internal Sandbox Proof:",
+    "dev/logs/fam_006_monitoring_hud_internal_sandbox/20260509_001414_manifest.json",
+    "Live Helper Proof:",
+    "dev/logs/fam_006_monitoring_hud_live_validation/20260509_001424_797",
+    "Live Helper Manifest:",
+    "manifest.json",
+    "Interaction Manifest:",
+    "monitoring_hud_live_client_interaction_manifest.json",
+    "Screenshot Proof Root:",
+    "USER-Inspectable Screenshot Folder:",
+    "Dashboard Proof Findings:",
+    "PASS - Dashboard control hub identity",
+    "Overlay Status:",
+    "Deferred/dormant/non-gating",
+    "Core Status:",
+    "Dependency-only",
+    "Formal UTS Boundary:",
+    "Not generated in Workstream",
+    "Dashboard Acceptance State:",
+    "Still blocked",
+    "Package Completion:",
+    "Unclaimed",
+    "Workstream Completion Status:",
+    "Green",
+    "Continue Decision:",
+    "Stop at phase boundary",
+    "Continuation Execution Latch:",
+    "Inactive - WS42 is Green",
+    "Stop Basis:",
+    "Phase Boundary",
+    "Next Legal Seam:",
+    FAM006_WS42_NEXT_SEAM,
+)
+FAM006_WS43_REQUIRED_PHRASES = (
+    "WS43 Admission:",
+    "USER approved bounded Workstream WS43",
+    "WS43 Result:",
+    "Green for Dashboard runtime tray shutdown safety repair",
+    "Runtime / Tray Repair:",
+    "separate from Dashboard window visibility",
+    "Tray HUD Enable Flash Repair:",
+    "MONITORING_HUD_TRAY_ENABLE_RENDER_STABLE_READY",
+    "Tray HUD Enable / Disable State Repair:",
+    "Enable HUD Feature -> Disable HUD Feature roundtrip",
+    "Dashboard Tray Open / Close Repair:",
+    "MONITORING_HUD_TRAY_DASHBOARD_OPEN_CLOSE_READY",
+    "Disable-HUD Recovery Repair:",
+    "MONITORING_HUD_DISABLE_RECOVERY_READY",
+    "#25 Current-vs-Future Classification:",
+    "tray Exit NDAI confirmation",
+    "NCP / Saved-Action Regression Proof:",
+    "dev/orin_saved_action_authoring_ui_validation.py",
+    "Validator / Helper Updates:",
+    "desktop entrypoint validation now exercises tray HUD lifecycle actions",
+    "Element Rows Updated:",
+    "FAM006-HUD-TRAY-FLASH-051",
+    "FAM006-HUD-TRAY-STATE-LOCK-052",
+    "FAM006-DASH-TRAY-OPEN-CLOSE-053",
+    "FAM006-HUD-DISABLE-UNUSABLE-054",
+    "FAM006-TRAY-SHUTDOWN-CONFIRM-055",
+    "Overlay Status:",
+    "Deferred/dormant/non-gating",
+    "Core Status:",
+    "Dependency-only",
+    "Formal UTS Boundary:",
+    "WS43 does not generate, refresh, or digest",
+    "Dashboard Acceptance State:",
+    "Still blocked",
+    "Package Completion:",
+    "Unclaimed",
+    "Continuation Execution Latch:",
+    "Active - next bounded Workstream seam is WS44",
+    "Next Legal Seam:",
+    FAM006_WS43_NEXT_SEAM,
+)
+FAM006_WS44_REQUIRED_PHRASES = (
+    "WS44 Admission:",
+    "bounded Workstream continuation latch",
+    "WS44 Result:",
+    "Green for Dashboard frame/scroll/resize/visual shell repair",
+    "Frame / Scroll Repair:",
+    "monitoring-hud__chrome",
+    "Haze / Square Frame Repair:",
+    "single-rounded-dashboard-chrome",
+    "Native Resize Repair:",
+    "MONITORING_HUD_NATIVE_WINDOW_RESIZE_FALLBACK_STARTED",
+    "Deadzone Repair:",
+    "auto-height",
+    "Checkered Pattern Scope:",
+    "control-hub cards",
+    "Sticky Header Occlusion Repair:",
+    "opaque scroll mask",
+    "Validator / Helper Updates:",
+    "MONITORING_HUD_DASHBOARD_VISUAL_SHELL_READY",
+    "Element Rows Updated:",
+    "FAM006-DASH-FRAME-HAZE-056",
+    "FAM006-DASH-RESIZE-057",
+    "FAM006-DASH-DEADZONE-058",
+    "FAM006-DASH-STICKY-OCCLUSION-059",
+    "Overlay Status:",
+    "Deferred/dormant/non-gating",
+    "Core Status:",
+    "Dependency-only",
+    "Formal UTS Boundary:",
+    "WS44 does not generate, refresh, or digest",
+    "Dashboard Acceptance State:",
+    "Still blocked",
+    "Package Completion:",
+    "Unclaimed",
+    "Continuation Execution Latch:",
+    "Active - next bounded Workstream seam is WS45",
+    "Next Legal Seam:",
+    FAM006_WS44_NEXT_SEAM,
+)
+FAM006_WS45_REQUIRED_PHRASES = (
+    "WS45 Admission:",
+    "bounded Workstream continuation latch",
+    "WS45 Result:",
+    "Green for Dashboard IA/naming/action cleanup",
+    "Provider Hero Slab Removal:",
+    "provider/native CPU hero slab is removed",
+    "Quick Access Cleanup:",
+    "warning-notifications-only",
+    "Monitor Groups Action Cleanup:",
+    "card-local action IDs",
+    "Data Sources Deferred Action:",
+    "Data Sources Window Deferred",
+    "HUD Overlay Terminology:",
+    "removes HUD Display terminology",
+    "Card Order / Redundancy Cleanup:",
+    "01 HUD Overlay",
+    "Validator / Helper Updates:",
+    "WS45 IA model markers",
+    "Element Rows Updated:",
+    "FAM006-DASH-QUICK-ACCESS-060",
+    "FAM006-DASH-DEFERRED-BUTTON-061",
+    "FAM006-DASH-HUD-OVERLAY-COPY-062",
+    "Overlay Status:",
+    "Deferred/dormant/non-gating",
+    "Core Status:",
+    "Dependency-only",
+    "Formal UTS Boundary:",
+    "WS45 does not generate, refresh, or digest",
+    "Dashboard Acceptance State:",
+    "Still blocked",
+    "Package Completion:",
+    "Unclaimed",
+    "Continuation Execution Latch:",
+    "Active - next bounded Workstream seam is WS46",
+    "Next Legal Seam:",
+    FAM006_WS45_NEXT_SEAM,
+)
+FAM006_WS46_REQUIRED_PHRASES = (
+    "WS46 Admission:",
+    "bounded Workstream continuation from WS45",
+    "WS46 Result:",
+    "Green for Dashboard returned-feedback static/live proof readiness",
+    "Static Proof:",
+    "PASS - dev/orin_monitoring_hud_surface_validation.py",
+    "Internal Sandbox Proof:",
+    "PASS - dev/orin_monitoring_hud_internal_sandbox_validation.py",
+    "Active-Client Live Proof:",
+    "dev/logs/fam_006_monitoring_hud_live_validation/20260509_130205_061",
+    "Interaction Manifest:",
+    "monitoring_hud_live_client_interaction_manifest.json",
+    "Proof Harness Repair:",
+    "tray-owned Dashboard close/open path",
+    "Live Helper Manifest Fields:",
+    "dashboardUserTestSummaryExportRefreshed=false",
+    "elementLedgerAlignedUserTestSummary=false",
+    "Formal UTS Boundary:",
+    "WS46 does not generate, refresh, or digest",
+    "Overlay Status:",
+    "Deferred/dormant/non-gating",
+    "Core Status:",
+    "Dependency-only",
+    "Package Completion:",
+    "Unclaimed",
+    "Continue Decision:",
+    "Stop at phase boundary",
+    "Continuation Execution Latch:",
+    "Inactive - Workstream is green; Hardening phase-boundary stop",
+    "Stop Basis:",
+    "Workstream Green",
+    "Next Legal Seam:",
+    FAM006_WS46_NEXT_SEAM,
+)
+FAM006_H1_REQUIRED_PHRASES = (
+    "H1 Admission:",
+    "PASS - USER explicitly admitted Hardening H1",
+    "WS56 Workstream Green phase-boundary stop",
+    "H1 Result:",
+    "Green - Dashboard-first Monitoring HUD product surface hardening rerun passed after WS56",
+    "Dashboard-First Hardening Scope:",
+    "WS56 Pre-Click Resize Cursor Pressure-Test:",
+    "90ms hover delay",
+    "right inside offset 13px",
+    "WS56 Resize Fluidity Pressure-Test:",
+    "cornerUniqueSizes=28",
+    "rightUniqueWidths=28",
+    "bottomUniqueHeights=28",
+    "Resize Geometry Evidence:",
+    "20260511_134958_847/human_client_manifest.json",
+    "corner resize 780x1060 to 860x1130",
+    "right-edge width 860 to 936",
+    "bottom-edge height 1130 to 1206",
+    "Event Loop / Responsiveness Check:",
+    "desktop entrypoint/tray validation and saved-action/NCP validation passed after the 8ms resize polling repair",
+    "Dashboard Chrome / Scrollbar Boundary Pressure-Test:",
+    "one rounded native window boundary",
+    "square translucent outer haze removal",
+    "rounded-window-clipped scrollbar posture",
+    "Live Helper Timeout Repair:",
+    "fresh active-client proof after WS56",
+    "Overlay Classification:",
+    "deferred/non-gating",
+    "Core Classification:",
+    "dependency-only",
+    "UTS Phase Boundary:",
+    "formal User Test Summary export, handoff refresh, and returned-result digestion are Live Validation Stage 1 only",
+    "Static Validation:",
+    "PASS - dev/orin_monitoring_hud_surface_validation.py",
+    "Internal Sandbox Proof:",
+    "20260511_141234_manifest.json",
+    "Desktop Entrypoint / Startup / Tray Proof:",
+    "DesktopEntrypointValidationReport_20260511_135702.txt",
+    "Human-Client Proof:",
+    "20260511_134958_847/human_client_manifest.json",
+    "Live Helper Proof:",
+    "20260511_135242_250/manifest.json",
+    "Interaction Manifest:",
+    "20260511_135242_250/monitoring_hud_live_client_interaction_manifest.json",
+    "Screenshot Proof Root:",
+    "20260511_135242_250",
+    "USER-Inspectable Screenshot Folder:",
+    "Package Status:",
+    "PKG-006 remains In Progress",
+    "Package Completion:",
+    "Unclaimed",
+    "LV1 / PR Status:",
+    "LV1 rerun is required after explicit USER Live Validation admission",
+    "Next Active Seam:",
+    FAM006_H1_NEXT_SEAM,
+)
+FAM006_STAGE2_REAL_CLIENT_REQUIRED_PHRASES = (
+    "Stage 2 Admission:",
+    "Returned Real-Client Failure State:",
+    "Real-Client Finding RUI-039:",
+    "Real-Client Finding RUI-040:",
+    "Governance Finding RUI-041:",
+    "Proof Class Correction:",
+    "User-Facing Shortcut Rule:",
+    "Codex Precheck Rule:",
+    "Fake/Offscreen Proof Rule:",
+    "LV2 Status:",
+    "Dashboard Acceptance State:",
+    "Package Status:",
+    "PKG-006 remains In Progress",
+    "Package Completion:",
+    "Unclaimed",
+    "PR Readiness:",
+    "Blocked",
+    "Overlay Status:",
+    "Deferred/dormant/non-gating",
+    "Core Status:",
+    "Dependency-only",
+    "Next Legal Seam:",
+    FAM006_STAGE2_REAL_CLIENT_NEXT_SEAM,
+)
+FAM006_WS47_REQUIRED_PHRASES = (
+    "WS47 Admission:",
+    "USER approved bounded Workstream WS47",
+    "WS47 Result:",
+    "Green for real-client tray shortcut and proof-governance repair",
+    "Runtime / Tray Repair:",
+    "Tray Exit Confirmation Repair:",
+    "Real Shortcut Precheck Proof:",
+    "real_client_tray_precheck_manifest.json",
+    "Precheck Step Results:",
+    "Enable HUD Feature opened the real HUD Dashboard",
+    "Proof Class Separation:",
+    "fake/offscreen",
+    "realUserOperatedTrayProof remains USER_LV1_REQUIRED",
+    "Validator / Helper Updates:",
+    "dev/orin_desktop_entrypoint_validation.py",
+    "Element Rows Updated:",
+    "FAM006-TRAY-SHUTDOWN-CONFIRM-055",
+    "FAM006-DASH-TRAY-OPEN-CLOSE-053",
+    "Returned USER Issue Register Updates:",
+    "Formal UTS Boundary:",
+    "WS47 does not generate, refresh, or digest",
+    "Overlay Status:",
+    "Deferred/dormant/non-gating",
+    "Core Status:",
+    "Dependency-only",
+    "Dashboard Acceptance State:",
+    "Still blocked",
+    "Package Completion:",
+    "Unclaimed",
+    "Continue Decision:",
+    "Stop at phase boundary",
+    "Continuation Execution Latch:",
+    "Inactive - WS47 is Green / Hardening phase-boundary stop",
+    "Next Legal Seam:",
+    FAM006_WS47_NEXT_SEAM,
+)
+FAM006_WS48_REQUIRED_PHRASES = (
+    "Returned USER Result:",
+    "USER denied the LV1 handoff",
+    "LV1 Disposition:",
+    "Stale / denied for acceptance",
+    "FAM006-RUI-042",
+    "FAM006-RUI-043",
+    "Human-client validation manifest",
+    "dev/logs/fam_006_human_client_validation/20260510_034725_127/human_client_manifest.json",
+    "Tray Controller Refactor:",
+    "desktop/tray_controller.py",
+    "Real-Client Proof Summary:",
+    "actual desktop shortcut launch",
+    "visible native tray menu",
+    "visible shortcut launch",
+    "visible tray/menu actions",
+    "mouse movement/click/drag/resize",
+    "Formal UTS Boundary:",
+    "must not be refreshed again until USER admits Hardening",
+    "Dashboard Acceptance State:",
+    "Blocked",
+    "LV2 Status:",
+    "Blocked - do not proceed as PASS digestion",
+    "Stop Basis:",
+    "Workstream Green",
+    "Next Legal Seam:",
+    FAM006_WS48_NEXT_SEAM,
+)
+FAM006_WS49_REQUIRED_PHRASES = (
+    "WS49 Admission:",
+    "bounded Workstream continuation",
+    "WS49 Result:",
+    "Green for Dashboard NCP interaction isolation and tray action safety",
+    "FAM006-RUI-044",
+    "FAM006-RUI-045",
+    "FAM006-RUI-046",
+    "FAM006-RUI-047",
+    "Runtime / Tray Repair:",
+    "desktop/tray_controller.py",
+    "Dashboard / NCP Interaction Repair:",
+    "Dashboard native-panel mouse handling",
+    "Authoring Dialog Safety Repair:",
+    "TRAY_CREATE_CUSTOM_TASK_ABORTED",
+    "Helper / Proof Repair:",
+    "native tray popup",
+    "Human-Client Validation Manifest:",
+    "dev/logs/fam_006_human_client_validation/20260510_121038_854/human_client_manifest.json",
+    "Real-Client Proof Summary:",
+    "NCP Create Custom Task/Create Custom Group/Manage Custom Tasks/Manage Custom Groups",
+    "tray Create Custom Task duplicate guard",
+    "Element Rows Updated:",
+    "FAM006-TRAY-ACTION-ORDER-067",
+    "FAM006-DASH-NCP-MOUSE-068",
+    "FAM006-TRAY-AUTHORING-DIALOG-GUARD-069",
+    "FAM006-TRAY-EXIT-PROMPT-VISUAL-070",
+    "Formal UTS Boundary:",
+    "WS49 does not generate, refresh, or digest",
+    "Overlay Status:",
+    "Deferred/dormant/non-gating",
+    "Core Status:",
+    "Dependency-only",
+    "Dashboard Acceptance State:",
+    "Still blocked",
+    "Package Completion:",
+    "Unclaimed",
+    "Continue Decision:",
+    "Stop at phase boundary",
+    "Continuation Execution Latch:",
+    "Inactive - WS49 is Green / Hardening phase-boundary stop",
+    "Next Legal Seam:",
+    FAM006_WS49_NEXT_SEAM,
+)
+FAM006_WS50_REQUIRED_PHRASES = (
+    "WS50 Admission:",
+    "bounded Workstream repair",
+    "WS50 Result:",
+    "Green for focused Dashboard scrollbar/native-window boundary repair",
+    "Returned USER Evidence:",
+    "Scrollbar.png",
+    "Window border.png",
+    "Runtime / CSS Repair:",
+    "fills the native HUD window",
+    "clips the root and .monitoring-hud__chrome to one 28px rounded boundary",
+    "Scrollbar Boundary Repair:",
+    "rounded-window-clipped",
+    "Validator / Helper Updates:",
+    'data-scrollbar-boundary="rounded-window-clipped"',
+    'data-outer-frame-haze="removed-no-square-layer"',
+    "Active-Client Proof:",
+    "dev/logs/fam_006_monitoring_hud_live_validation/20260510_165507_981",
+    "Element Rows Updated:",
+    "FAM006-DASH-SCROLL-007",
+    "FAM006-DASH-FRAME-HAZE-056",
+    "Returned USER Issue Rows Updated:",
+    "FAM006-RUI-026",
+    "FAM006-RUI-027",
+    "Formal UTS Boundary:",
+    "WS50 does not generate, refresh, or digest",
+    "Overlay Status:",
+    "Deferred/dormant/non-gating",
+    "Core Status:",
+    "Dependency-only",
+    "Dashboard Acceptance State:",
+    "Still blocked",
+    "Package Completion:",
+    "Unclaimed",
+    "Continuation Execution Latch:",
+    "Inactive - WS50 is Green / Hardening phase-boundary stop",
+    "Next Legal Seam:",
+    FAM006_WS50_NEXT_SEAM,
+)
+FAM006_WS51_REQUIRED_PHRASES = (
+    "WS51 Admission:",
+    "bounded Workstream repair",
+    "WS51 Result:",
+    "Green for focused Dashboard resize hit-zone, scrollbar inset, and HUD feature persistence repair",
+    "Returned USER Evidence:",
+    "resize hit zone inconsistent/unreliable",
+    "scrollbar vertical part slightly out of range",
+    "HUD Feature enabled state resets after app relaunch",
+    "Runtime Resize Repair:",
+    "WM_NCHITTEST",
+    "30px",
+    "Scrollbar Inset Repair:",
+    "6px",
+    "52px",
+    "HUD Feature Persistence Repair:",
+    "desktop/monitoring_hud_state.py",
+    "Validator / Helper Updates:",
+    "NEXUS_MONITORING_HUD_STATE_PATH",
+    "Element Rows Updated:",
+    "FAM006-DASH-RESIZE-057",
+    "FAM006-DASH-STATE-PERSIST-013",
+    "Returned USER Issue Rows Updated:",
+    "FAM006-RUI-048",
+    "FAM006-RUI-049",
+    "FAM006-RUI-050",
+    "Prior Proof Staleness:",
+    "Post-WS50 H1 and LV1 are stale",
+    "Formal UTS Boundary:",
+    "WS51 does not generate, refresh, or digest",
+    "Overlay Status:",
+    "Deferred/dormant/non-gating",
+    "Core Status:",
+    "Dependency-only",
+    "Dashboard Acceptance State:",
+    "Still blocked",
+    "Package Completion:",
+    "Unclaimed",
+    "Continuation Execution Latch:",
+    "Inactive - WS51 is Green / Hardening phase-boundary stop",
+    "Next Legal Seam:",
+    FAM006_WS51_NEXT_SEAM,
+)
+FAM006_WS52_REQUIRED_PHRASES = (
+    "WS52 Admission:",
+    "post-WS51 Bug 1",
+    "WS52 Result:",
+    "Green for focused Dashboard real resize recovery repair",
+    "Returned USER Evidence:",
+    "you can no longer resize the window",
+    "Runtime Resize Repair:",
+    "fallback geometry resizing",
+    "MONITORING_HUD_NATIVE_WINDOW_RESIZE_FALLBACK_STARTED",
+    "MONITORING_HUD_NATIVE_WINDOW_RESIZE_READY",
+    "Proof Correction:",
+    "WS51 native WM_NCHITTEST/startSystemResize proof is superseded",
+    "Validator / Helper Updates:",
+    "actual Dashboard size delta",
+    "Validation Proof:",
+    "20260511_060551_693",
+    "780x1060 to 858x1128",
+    "Element Rows Updated:",
+    "FAM006-DASH-RESIZE-057",
+    "FAM006-GOV-HUMAN-CLIENT-065",
+    "Returned USER Issue Rows Updated:",
+    "FAM006-RUI-051",
+    "Prior Proof Staleness:",
+    "WS51 native resize proof",
+    "Formal UTS Boundary:",
+    "WS52 does not generate, refresh, or digest",
+    "Overlay Status:",
+    "Deferred/dormant/non-gating",
+    "Core Status:",
+    "Dependency-only",
+    "Dashboard Acceptance State:",
+    "Still blocked",
+    "Package Completion:",
+    "Unclaimed",
+    "Continuation Execution Latch:",
+    "Inactive - WS52 is Green / Hardening phase-boundary stop",
+    "Next Legal Seam:",
+    FAM006_WS52_NEXT_SEAM,
+)
+FAM006_WS53_REQUIRED_PHRASES = (
+    "WS53 Admission:",
+    "edge/corner rail remains too difficult",
+    "WS53 Result:",
+    "Green for focused Dashboard resize edge discoverability repair",
+    "Returned USER Evidence:",
+    "resize edge is inconsistent and hard to find",
+    "Runtime Resize Repair:",
+    "58px",
+    "mouse tracking",
+    "Validator / Helper Updates:",
+    "corner, right-edge, and bottom-edge resize rails",
+    "Validation Proof:",
+    "20260511_062804_831",
+    "corner resize from 780x1020 to 886x1116",
+    "right-edge resize width from 886 to 996",
+    "bottom-edge resize height from 1116 to 1226",
+    "Element Rows Updated:",
+    "FAM006-DASH-RESIZE-057",
+    "FAM006-GOV-HUMAN-CLIENT-065",
+    "Returned USER Issue Rows Updated:",
+    "FAM006-RUI-052",
+    "Prior Proof Staleness:",
+    "WS52 proves resize recovery but is insufficient",
+    "Formal UTS Boundary:",
+    "WS53 does not generate, refresh, or digest",
+    "Overlay Status:",
+    "Deferred/dormant/non-gating",
+    "Core Status:",
+    "Dependency-only",
+    "Dashboard Acceptance State:",
+    "Still blocked",
+    "Package Completion:",
+    "Unclaimed",
+    "Continuation Execution Latch:",
+    "Inactive - WS53 is Green / Hardening phase-boundary stop",
+    "Next Legal Seam:",
+    FAM006_WS53_NEXT_SEAM,
+)
+FAM006_WS54_REQUIRED_PHRASES = (
+    "WS54 Admission:",
+    "standard resize cursor appear too far inside",
+    "WS54 Result:",
+    "Green for focused Dashboard standard resize cursor-alignment repair",
+    "Returned USER Evidence:",
+    "explorer_Kwqy4JkDv7.mp4",
+    "Runtime Resize Cursor Repair:",
+    "cursor-aligned 12px",
+    "real Windows non-client edge hit-tests",
+    "Validator / Helper Updates:",
+    "10px visible rail",
+    "28px interior/outside",
+    "Validation Proof:",
+    "20260511_094825_007",
+    "rightEdge10px=htright",
+    "bottomEdge10px=htbottom",
+    "corner10px=htbottomright",
+    "Element Rows Updated:",
+    "FAM006-DASH-RESIZE-057",
+    "FAM006-GOV-HUMAN-CLIENT-065",
+    "Returned USER Issue Rows Updated:",
+    "FAM006-RUI-053",
+    "Prior Proof Staleness:",
+    "Post-WS53 H1 and LV1 are stale for RUI-053",
+    "Formal UTS Boundary:",
+    "WS54 does not generate, refresh, or digest",
+    "Overlay Status:",
+    "Deferred/dormant/non-gating",
+    "Core Status:",
+    "Dependency-only",
+    "Dashboard Acceptance State:",
+    "Still blocked",
+    "Package Completion:",
+    "Unclaimed",
+    "Continuation Execution Latch:",
+    "Inactive - WS54 is Green / Hardening phase-boundary stop",
+    "Next Legal Seam:",
+    FAM006_WS54_NEXT_SEAM,
+)
+FAM006_WS55_REQUIRED_PHRASES = (
+    "WS55 Admission:",
+    "can no longer resize the window",
+    "WS55 Result:",
+    "Green for focused Dashboard resize action recovery",
+    "Returned USER Evidence:",
+    "Runtime Resize Action Repair:",
+    "Windows owns the cursor state",
+    "cursor-hit-test-owned-geometry-resize",
+    "Validator / Helper Updates:",
+    "dashboard_resize_cursor_transition_discovery",
+    "discovered Windows resize cursor transition",
+    "Validation Proof:",
+    "Element Rows Updated:",
+    "FAM006-DASH-RESIZE-057",
+    "FAM006-GOV-HUMAN-CLIENT-065",
+    "Returned USER Issue Rows Updated:",
+    "FAM006-RUI-054",
+    "Prior Proof Staleness:",
+    "Post-WS54 H1 and LV1 are stale for RUI-054",
+    "Formal UTS Boundary:",
+    "WS55 does not generate, refresh, or digest",
+    "Overlay Status:",
+    "Deferred/dormant/non-gating",
+    "Core Status:",
+    "Dependency-only",
+    "Dashboard Acceptance State:",
+    "Still blocked",
+    "Package Completion:",
+    "Unclaimed",
+    "Continuation Execution Latch:",
+    "Inactive - WS55 is Green / Hardening phase-boundary stop",
+    "Next Legal Seam:",
+    FAM006_WS55_NEXT_SEAM,
+)
+FAM006_WS56_REQUIRED_PHRASES = (
+    "WS56 Admission:",
+    "left-click hold",
+    "choppy",
+    "WS56 Result:",
+    "Green for focused Dashboard pre-click resize cursor and fluidity repair",
+    "Returned USER Evidence:",
+    "Runtime Resize Hover Repair:",
+    "WM_SETCURSOR",
+    "Runtime Resize Fluidity Repair:",
+    "preclick-hover-cursor-owned-fluid-geometry-resize",
+    "8ms",
+    "Validator / Helper Updates:",
+    "dashboard_resize_cursor_transition_discovery",
+    "dashboard_resize_fluidity",
+    "pre-click",
+    "Validation Proof:",
+    "20260511_124952_135",
+    "28 unique geometry samples",
+    "Element Rows Updated:",
+    "FAM006-DASH-RESIZE-057",
+    "FAM006-GOV-HUMAN-CLIENT-065",
+    "Returned USER Issue Rows Updated:",
+    "FAM006-RUI-055",
+    "FAM006-RUI-056",
+    "Prior Proof Staleness:",
+    "Post-WS55 H1 and LV1 are stale for RUI-055 and RUI-056",
+    "Formal UTS Boundary:",
+    "WS56 does not generate, refresh, or digest",
+    "Overlay Status:",
+    "Deferred/dormant/non-gating",
+    "Core Status:",
+    "Dependency-only",
+    "Dashboard Acceptance State:",
+    "Still blocked",
+    "Package Completion:",
+    "Unclaimed",
+    "Continuation Execution Latch:",
+    "Inactive - WS56 is Green / Hardening phase-boundary stop",
+    "Next Legal Seam:",
+    FAM006_WS56_NEXT_SEAM,
+)
+FAM006_WORKSTREAM_CONTINUATION_REQUIRED_PHRASES = (
+    "multi-slice HUD implementation continuation",
+    "WS8 - Monitoring HUD Internal Sandbox Harness And State Matrix Baseline",
+    "WS9 - Monitoring HUD Shell Module And Product Surface Extraction",
+    "WS10 - Panel Movement Anchoring And Click-Through Runtime Behavior",
+    "WS11 - Task-Tray Toggle And Unanchor Control Path",
+    "WS12 - Category Card Layout Drag Resize And Snapping",
+    "WS13 - Sensor Membership And Category Card Configuration Model",
+    "WS14 - Safe Native Telemetry Provider Proof",
+    "WS15 - Polling Cadence And Performance Guardrail",
+    "WS16 - Visual Warning Baseline And Threshold Posture",
+    "WS17 - Workstream Product Proof Refresh And Completion Review",
+    "Formal User Test Summary export is exclusive to Live Validation Stage 1",
+)
+FAM006_FORBIDDEN_WORKSTREAM_UTS_PHRASES = (
+    "Workstream WS8 - Monitoring HUD User Test Summary And Product Acceptance Digest",
+    "WS8 User Test Summary blocker active",
+    "User Test Summary Results Pending` is a named Workstream blocker",
+    "Workstream is stopped on `User Test Summary Results Pending`",
+    "WS8 blocked on User Test Summary",
+)
+USER_VISION_INPUT_HANDOFF_MARKERS = (
+    "USER Vision Input Artifact Path:",
+    "USER Vision Input Artifact State:",
+    "USER Vision Input Answer State:",
+    "USER Vision Input Digest State:",
+    "Repo Source Truth Update Rule:",
+)
+PRODUCT_PLANNING_BLOCKERS = (
+    "Product Vision Input Missing",
+    "USER Vision Question Packet Missing",
+    "USER Vision Recommendation Missing",
+    "USER Vision Questions Unanswered",
+    USER_VISION_INPUT_PENDING_BLOCKER,
+    USER_VISION_INPUT_FILE_MISSING_BLOCKER,
+    USER_VISION_INPUT_ANSWERS_PENDING_BLOCKER,
+    USER_VISION_INPUT_DIGEST_PENDING_BLOCKER,
+    LEGACY_PRODUCT_NAME_DRIFT_BLOCKER,
+    HARDWARE_TELEMETRY_PROVIDER_PENDING_BLOCKER,
+    POLLING_FLOOR_UNDECIDED_BLOCKER,
+    WARNING_DELIVERY_MODALITY_PENDING_BLOCKER,
+    EXTERNAL_TELEMETRY_PRIVACY_MODEL_MISSING_BLOCKER,
+    AUDIO_WARNING_CROSS_FAMILY_APPROVAL_MISSING_BLOCKER,
+    PERSONA_SWITCH_SCOPE_BOUNDARY_PENDING_BLOCKER,
+    "Branch Reach Unproven",
+    "Feature Element Breakdown Missing",
+    "Element Validation Ledger Missing",
+    "Created Element Untracked",
+    "Touched Element Proof Missing",
+    "Affected Element Validation Missing",
+    "User-Facing Element Acceptance Missing",
+    "Deferred Element Boundary Missing",
+    "Element Proof Stale",
+    "Marker-Only Element Proof",
+    "Element Ledger Placement Drift",
+    "Feature Element Source Marker Orphaned",
+    "High-Risk Element Source Owner Missing",
+    "Feature Element Marker Proof Insufficient",
+    "Feature Element Source Marker Stale",
+    "Feature Element Source Marker Mismatch",
+    "Acceptance Criteria Missing",
+    "User-Facing Proof Standard Missing",
+    "Current Branch vs Future Package Boundary Missing",
+    PRODUCT_PLANNING_INCOMPLETE_BLOCKER,
+)
+VISIBLE_USER_FACING_PROOF_REQUIRED_LABEL = "Visible User-Facing Proof Required:"
+VISIBLE_USER_FACING_PROOF_LABEL = "Visible User-Facing Proof:"
+VISIBLE_USER_FACING_PROOF_PASS_VALUES = {"pass", "waived"}
+
+ELEMENT_VALIDATION_LEDGER_REQUIRED_PHRASES = {
+    Path("Docs/Main.md"): (
+        "Element Validation Ledger = row-level created/touched/affected/deferred/future element proof tracking owned by the existing workstream doc or branch authority record",
+    ),
+    Path("Docs/workstreams/index.md"): (
+        "Element Validation Ledger rows live in the owning traceability surface by default",
+        "promoted workstreams keep the active ledger inside the canonical workstream doc",
+        "`Registry-only` active branches keep the active ledger inside the active branch authority record",
+        "a large active Element Validation Ledger may use a companion file only when the owning workstream doc or branch authority record contains the canonical pointer",
+        "created, touched, affected, deferred, future, dependency-only, and non-gating supporting product elements",
+        "`## Element Validation Ledger` or a canonical pointer",
+    ),
+    Path("Docs/phase_governance.md"): (
+        "Source-Truth Placement Preflight",
+        "extend the existing owner first",
+        "`No Existing Owner Fits`",
+        "`Element Ledger Placement Drift`",
+        "Promoted workstream: canonical workstream doc.",
+        "Registry-only active branch: active branch authority record.",
+        "Large active ledger: optional companion file with canonical pointer",
+        "Every active ledger row should identify the element ID",
+        "Element Validation Ledger status values should use this vocabulary",
+        "`Implemented Pending Proof`",
+        "`Non-Gating Supporting`",
+        "Each seam must run an `Element Delta Capture`",
+        "Marker-only proof cannot satisfy user-facing element acceptance.",
+        "Source-code ownership markers are optional backlinks",
+        "Element ledger blockers include `Element Validation Ledger Missing`",
+        "`High-Risk Element Source Owner Missing`",
+    ),
+    Path("Docs/development_rules.md"): (
+        "Element Validation Ledger = row-level created/touched/affected/deferred/future element proof tracking",
+        "`Source-Truth Placement Preflight`",
+        "`No Existing Owner Fits`",
+        "Full Feature Element Breakdown` must feed the owning `Element Validation Ledger`",
+        "created, touched, affected, deferred, future, dependency-only, and non-gating supporting elements",
+        "`Element Ledger Placement Drift`",
+        "`Created Element Untracked`",
+        "`Touched Element Proof Missing`",
+        "`Affected Element Validation Missing`",
+    ),
+    Path("Docs/codex_modes.md"): (
+        "`Source-Truth Placement Preflight`",
+        "`Element Validation Ledger Owner`",
+        "run `Element Delta Capture`",
+        "create a parallel active source-truth artifact for element tracking",
+    ),
+    Path("Docs/orin_task_template.md"): (
+        "Source-Truth Placement Preflight:",
+        "Element Validation Ledger Owner:",
+        "Element Delta Capture:",
+        "`Element Validation Ledger` is row-level created/touched/affected/deferred/future element proof tracking",
+    ),
+    Path("Docs/codex_user_guide.md"): (
+        "run `Source-Truth Placement Preflight`",
+        "owning `Element Validation Ledger`",
+        "Element Validation Ledger rows belong in the existing authority owner by default",
+        "Do not prompt Codex to create a parallel active ledger unless the owning record records `No Existing Owner Fits`",
+    ),
+}
+
+FAM006_ELEMENT_VALIDATION_LEDGER_REQUIRED_PHRASES = (
+    "## Element Validation Ledger Governance",
+    "Source-Truth Placement Preflight: `PASS - existing authority owner fits",
+    "Existing Authority Owner: `Docs/branch_records/feature_fam_006_monitoring_hud_product_surface.md`",
+    "Placement Decision: `Extend existing branch authority record first`",
+    "No Existing Owner Fits: `Not claimed`",
+    "Companion File Rule: `Active - completed FAM-006 ledger rows live in Docs/branch_records/feature_fam_006_monitoring_hud_product_surface_element_ledger.md",
+    "Canonical Companion Ledger: `Docs/branch_records/feature_fam_006_monitoring_hud_product_surface_element_ledger.md`",
+    "Element Delta Capture Rule:",
+    "High-Risk Source Owner Marker Posture:",
+    "Future Repo-Wide Marker Adoption Recommendation:",
+    "## Element Validation Ledger",
+    "Ledger Backfill Status: `Backfilled",
+    "LV2 Gate: `Complete by explicit USER waiver",
+    "FAM006-DASH-SURFACE-001",
+    "FAM006-DASH-WINDOW-002",
+    "FAM006-DASH-SCROLL-003",
+    "FAM006-DASH-CONTENT-004",
+    "FAM006-DASH-PROVIDER-005",
+    "FAM006-DASH-WARNING-006",
+    "FAM006-PROOF-LV-007",
+    "FAM006-OVERLAY-DEFER-008",
+    "FAM006-CORE-DEP-009",
+    "FAM006-SRCMARK-FUTURE-010",
+    "Source-owner-not-applicable until future marker adoption",
+    "Returned USER Issue Register",
+    "FAM006-RUI-039",
+    "FAM006-RUI-040",
+    "FAM006-RUI-041",
+    "FAM006-RUI-042",
+    "FAM006-RUI-043",
+    "FAM006-RUI-044",
+    "FAM006-RUI-045",
+    "FAM006-RUI-046",
+    "FAM006-RUI-047",
+    "actual desktop shortcut",
+    "Codex Precheck",
+)
+
+FAM006_ELEMENT_LEDGER_REQUIRED_PHRASES = (
+    "# FAM-006 Element Validation Ledger",
+    "Owner Record: `Docs/branch_records/feature_fam_006_monitoring_hud_product_surface.md`",
+    "Ledger Status:",
+    "Live Validation LV2 Green",
+    "Current Gate:",
+    "H1 pressure-tested",
+    "USER WAIVED/PASSABLE",
+    "Prior Gate Superseded: `Returned refreshed User Test Summary results required before LV2 returned User Test Summary digestion`",
+    "LV2 returned User Test Summary digestion did not proceed from Codex proof alone",
+    "Branch Readiness Stage 1 revalidation passed",
+    "Historical superseded finding: `No Hardening rerun is required by the ledger closeout alone`",
+    "## Dashboard-First Elements",
+    "FAM006-DASH-SURFACE-001",
+    "FAM006-DASH-WINDOW-002",
+    "FAM006-DASH-MOVE-003",
+    "FAM006-DASH-CLIP-004",
+    "FAM006-DASH-LAYOUT-005",
+    "FAM006-DASH-VISUAL-006",
+    "FAM006-DASH-SCROLL-007",
+    "FAM006-DASH-CONTENT-008",
+    "FAM006-DASH-MONITOR-GROUP-009",
+    "FAM006-DASH-MONITOR-ENABLE-010",
+    "FAM006-DASH-MONITOR-POLLING-011",
+    "FAM006-DASH-AFFORDANCE-COPY-012",
+    "FAM006-DASH-STATE-PERSIST-013",
+    "FAM006-DASH-NO-KEYBIND-014",
+    "FAM006-DASH-PROVIDER-015",
+    "FAM006-DASH-NOFAKE-016",
+    "FAM006-DASH-WARNING-017",
+    "## Dashboard USER Feedback Repair Rows",
+    "FAM006-DASH-STARTUP-045",
+    "FAM006-HUD-FEATURE-TRAY-046",
+    "FAM006-DASH-FOCUS-047",
+    "FAM006-NCP-REGRESSION-048",
+    "FAM006-DASH-CHILD-WINDOW-049",
+    "FAM006-DEV-INTERFACE-REVIEW-050",
+    "## Returned LV1 Feedback #20-#38 Disposition Overlay",
+    "FAM006-HUD-TRAY-FLASH-051",
+    "FAM006-HUD-TRAY-STATE-LOCK-052",
+    "FAM006-DASH-TRAY-OPEN-CLOSE-053",
+    "FAM006-HUD-DISABLE-UNUSABLE-054",
+    "FAM006-TRAY-SHUTDOWN-CONFIRM-055",
+    "FAM006-DASH-FRAME-HAZE-056",
+    "FAM006-DASH-RESIZE-057",
+    "FAM006-DASH-DEADZONE-058",
+    "FAM006-DASH-STICKY-OCCLUSION-059",
+    "FAM006-DASH-QUICK-ACCESS-060",
+    "FAM006-DASH-DEFERRED-BUTTON-061",
+    "FAM006-DASH-HUD-OVERLAY-COPY-062",
+    "## Deferred Overlay / Minimal HUD Elements",
+    "FAM006-OVERLAY-DEFER-018",
+    "FAM006-OVERLAY-MINIMAL-019",
+    "FAM006-OVERLAY-DISPLAY-020",
+    "FAM006-OVERLAY-CANVAS-021",
+    "FAM006-OVERLAY-ANCHOR-022",
+    "FAM006-OVERLAY-MONITOR-CARDS-023",
+    "FAM006-OVERLAY-POSITION-024",
+    "## Core Dependency Elements",
+    "FAM006-CORE-DEP-025",
+    "FAM006-CORE-PRESET-026",
+    "FAM006-CORE-NONMOVABLE-027",
+    "FAM006-CORE-WORKERW-028",
+    "FAM006-CORE-TRANSPARENCY-029",
+    "FAM006-CORE-ISOLATION-030",
+    "## Proof, Validation, And Governance Elements",
+    "FAM006-PROOF-STATIC-031",
+    "FAM006-PROOF-SANDBOX-032",
+    "FAM006-PROOF-LIVEHELPER-033",
+    "FAM006-PROOF-SCREENSHOT-034",
+    "FAM006-PROOF-INTERACTION-035",
+    "FAM006-PROOF-UTS-EXPORT-036",
+    "FAM006-PROOF-UTS-DIGEST-037",
+    "FAM006-PROOF-NAMING-038",
+    "FAM006-GOV-SOURCE-TRUTH-039",
+    "FAM006-GOV-SRCMARK-040",
+    "FAM006-GOV-REAL-CLIENT-PROOF-063",
+    "FAM006-GOV-RUI-REGISTER-064",
+    "FAM006-GOV-HUMAN-CLIENT-065",
+    "FAM006-GOV-UI-ISSUE-DISCOVERY-066",
+    "FAM006-TRAY-ACTION-ORDER-067",
+    "FAM006-DASH-NCP-MOUSE-068",
+    "FAM006-TRAY-AUTHORING-DIALOG-GUARD-069",
+    "FAM006-TRAY-EXIT-PROMPT-VISUAL-070",
+    "FAM006-FUTURE-PROVIDER-041",
+    "FAM006-FUTURE-EXTERNAL-042",
+    "FAM006-FUTURE-AUDIO-043",
+    "FAM006-FUTURE-PERSONA-044",
+    "## UTS Coverage Map",
+    "Current Coverage Status: `PR Readiness Stage 2 In Progress After USER Admission - RUI-001 through RUI-057 remain issue-grounded; the actual desktop shortcut now targets C:\\Nexus Desktop AI FAM-006, WS56 resize/cursor/fluidity rows are revalidated against the current executable state, current LV1 handoff is refreshed, LV2 digested explicit USER waiver/passable acceptance, and PR Readiness Stage 2 must validate the live PR, watcher proof, bot-review handling if needed, and merge-watch before final package closeout`",
+    "## Proof Rebaseline Summary",
+    "Returned Step 2 Tray enable/disable/open Dashboard",
+    "Returned Step 3 Tray Exit NDAI",
+    "Codex Precheck",
+    "Marker-only proof remains supporting only",
+)
+
+SOURCE_OWNER_MARKER_ADOPTION_NEXT_BRANCH_REQUIRED_PHRASES = {
+    FAM006_BRANCH_RECORD: (
+        "Post-FAM-006 Required Marker Adoption Candidate:",
+        "Repo-Wide High-Risk Source Owner Marker Adoption",
+        "feature/repo-wide-source-owner-marker-adoption",
+        "required post-FAM-006 governance/package candidate",
+        "Branch creation and package admission remain blocked until the appropriate later readiness path",
+        "Dev Toolkit Interface Review Mode adoption is included and tabled",
+        "NCP, Core visualization, Dashboard, Overlay/display when admitted",
+        "Ledger remains canonical; markers and review badges are backlinks/inspection aids only",
+    ),
+    Path("Docs/prebeta_roadmap.md"): (
+        "required post-FAM-006 governance/package candidate:",
+        "Repo-Wide High-Risk Source Owner Marker Adoption",
+        "feature/repo-wide-source-owner-marker-adoption",
+        "does not create/admit the branch",
+        "plan Dev Toolkit Interface Review Mode dispositions for existing and future USER-facing elements",
+        "NCP, Core visualization, Dashboard, Overlay/display when admitted",
+        "while preserving the ledger as canonical and markers/review badges as dev-only backlinks or inspection aids only",
+        "The Dev Toolkit design is tabled for that future pass",
+    ),
+    Path("Docs/feature_backlog.md"): (
+        "Post-FAM-006 Required Governance/Package Candidate:",
+        "Repo-Wide High-Risk Source Owner Marker Adoption",
+        "feature/repo-wide-source-owner-marker-adoption",
+        "not as an active selected-next implementation branch or newly admitted package",
+        "Later readiness must decide the legal carrier",
+        "plan repo-wide Dev Toolkit Interface Review Mode dispositions for existing and future USER-facing elements",
+        "The Dev Toolkit design is tabled for that future pass",
+    ),
+}
+FAM006_REAL_CLIENT_PROOF_GOVERNANCE_REQUIRED_PHRASES = {
+    Path("Docs/user_test_summary_guidance.md"): (
+        "actual desktop shortcut path is mandatory when feasible",
+        "Static proof, sandbox proof, fake/offscreen model proof, callback-only proof, active-client screenshot proof, and real user-operated tray proof are separate proof classes",
+        "per-step precheck manifest",
+        "Codex Precheck: NOT TESTED",
+        "Fake windows, hidden clients, direct callbacks, and offscreen model assertions can support implementation confidence but cannot be recorded as the sole PASS",
+        "app-side precheck code that calls tray handlers directly is not a human-client pass",
+        "human-client manifest",
+    ),
+    Path("Docs/validation_helper_registry.md"): (
+        "actual desktop shortcut equivalence proof",
+        "real user-operated tray action proof",
+        "per-step Codex precheck manifest support",
+        "Fake/callback/offscreen proof must be labeled separately from real-client proof",
+        "real-client proof-class separation",
+        "per-step Codex Precheck PASS/FAIL/NOT TESTED/WAIVED output",
+        "dev/orin_monitoring_hud_human_client_validation.ps1",
+        "human-client manifest is PASS",
+    ),
+}
+
 SUCCESSOR_LOCK_WAIVER_DOCS = (
     Path("Docs/phase_governance.md"),
     Path("Docs/development_rules.md"),
@@ -188,6 +1822,12 @@ MULTI_SEAM_CONTRACT_PHRASES = (
     "entry seam, not a terminal boundary",
     "a slice is a bounded admitted backlog-completion unit",
     "a seam is the current execution checkpoint inside or between slices",
+    "Bounded means one active seam at a time, not one-seam Workstream authority.",
+    "A single-seam Workstream requires explicit USER waiver before Workstream may stop after one seam while the package or slice remains incomplete.",
+    "Single-seam or single-slice Workstream authority is forbidden unless explicit USER waiver text is recorded.",
+    "If only one seam or one slice is planned or visible, stop immediately on `Single-Seam Or Single-Slice Workstream Blocker` until Branch Readiness expands the plan or USER grants a waiver.",
+    "Only USER can grant a single-seam or single-slice Workstream waiver; Codex, ChatGPT, validators, prompt wording, clean validation, or a green seam cannot infer it.",
+    "A Workstream with `Completion Status: In Progress` and no waiver must show remaining same-branch implementable work beyond the current seam.",
     "seams inside the current slice may be predeclared in canon or discovered from repo truth while the slice remains in progress",
     "there is no repo-wide cap on how many slices a branch or workstream may carry",
     "same-branch backlog completion is the branch-level default: later slices for the same backlog item stay on the same branch when scope, phase, risk, and validation authority remain green",
@@ -196,6 +1836,10 @@ MULTI_SEAM_CONTRACT_PHRASES = (
     "`Workstream` reaches `Hardening` only when `Completion Status: Green`",
     "`Completion Status: Red` means a named blocker or waiver currently stops bounded Workstream continuation",
     "`Phase: Workstream` must remain bounded at all times; the only lawful `Workstream` stop conditions are `Completion Status: Green` with `Hardening` next, or `Completion Status: Red` justified by a named blocker or waiver",
+    "Phase Boundary Stop Required",
+    "A phase-exit seam named in `Next Active Seam` is a handoff target, not current-phase execution authority.",
+    "Bounded Workstream continuation ends at phase boundaries; it never crosses from Workstream into Hardening by inertia.",
+    "Codex must not execute Hardening, Live Validation, PR Readiness, Release Readiness, release work, or any other next phase in the same run unless USER explicitly admits that phase after reviewing the handoff.",
     "Branch Readiness must evaluate the whole backlog item, define the first admitted slice, record the same-branch continuation posture until `Completion Status` becomes green, and record any known future-dependent blockers before Workstream begins.",
     "Workstream must execute admitted implementation slices one slice at a time",
     "`Workstream` may not advance to `Hardening` while remaining implementable work is still available on the current backlog item",
@@ -203,6 +1847,9 @@ MULTI_SEAM_CONTRACT_PHRASES = (
     "bounded stop condition",
     "reporting `Next Safe Move` is not a substitute for execution",
     "A `continue` decision must be acted on immediately by starting the next seam needed inside the current slice",
+    "A final response after a green seam while `Continue Decision` remains `Continue` is `Post-Seam Final-Stop Drift`.",
+    "Post-Seam Final-Stop Drift is a governance blocker until source truth and validation are repaired.",
+    "Durability commit/push is not a lawful stop while `Continue Decision` remains `Continue`.",
 )
 
 MULTI_SEAM_PRIMARY_REPAIR_PHRASES = (
@@ -210,8 +1857,31 @@ MULTI_SEAM_PRIMARY_REPAIR_PHRASES = (
     "Legacy `Single-Seam Fallback` and `Single-Seam Mode Waiver` terms are retired and must not be used in active source-of-truth.",
     "A bounded stop condition blocks the workflow. It does not by itself authorize splitting the backlog item across branches.",
     "Stopping after the first slice or splitting the backlog item across branches requires an explicit `Backlog-Split User Approval` or a named bounded stop condition.",
+    "Bounded means one active seam at a time, not one-seam Workstream authority.",
+    "A single-seam Workstream requires explicit USER waiver before Workstream may stop after one seam while the package or slice remains incomplete.",
+    "Single-seam or single-slice Workstream authority is forbidden unless explicit USER waiver text is recorded.",
+    "If only one seam or one slice is planned or visible, stop immediately on `Single-Seam Or Single-Slice Workstream Blocker` until Branch Readiness expands the plan or USER grants a waiver.",
+    "Only USER can grant a single-seam or single-slice Workstream waiver; Codex, ChatGPT, validators, prompt wording, clean validation, or a green seam cannot infer it.",
+    "A Workstream with `Completion Status: In Progress` and no waiver must show remaining same-branch implementable work beyond the current seam.",
     "when a slice turns green during `Workstream`, advance immediately to the next admitted slice while `Completion Status` remains `In Progress`",
     "`Completion Status: Red` means a named blocker or waiver currently stops bounded Workstream continuation",
+)
+
+INTERFACE_RELEASE_BOUNDARY_DOCS = (
+    Path("Docs/phase_governance.md"),
+    Path("Docs/development_rules.md"),
+    Path("Docs/codex_modes.md"),
+    Path("Docs/Main.md"),
+    Path("Docs/orin_task_template.md"),
+    Path("Docs/codex_user_guide.md"),
+)
+
+INTERFACE_RELEASE_BOUNDARY_PHRASES = (
+    "Interface Release Boundary",
+    "Primary Interface Release Surface:",
+    "Interface Bundle User Approval",
+    "Multiple Interface Release Drift",
+    "Branch Readiness Interface Planning Incomplete",
 )
 
 MULTI_SEAM_PROHIBITED_CATEGORY_STOP_PHRASES = (
@@ -228,6 +1898,11 @@ MULTI_SEAM_PROHIBITED_THROTTLE_PHRASES = (
     "canon-valid `single-seam fallback`",
     "unless owning canon supplies `single-seam fallback`",
     "use `single-seam mode waiver` only when",
+    "single-seam workstream by default",
+    "stop after one seam by default",
+    "bounded seam is a terminal boundary",
+    "bounded means single seam",
+    "bounded means one seam",
     "one-seam workflow",
     "approved seam sequence",
     "approved sequence",
@@ -249,6 +1924,12 @@ MULTI_SEAM_PROMPT_PHRASES = (
     "continue-or-stop",
     "Next-Seam Continuation Required",
     "entry seam, not a terminal boundary",
+    "Bounded means one active seam at a time, not one-seam Workstream authority.",
+    "A single-seam Workstream requires explicit USER waiver before Workstream may stop after one seam while the package or slice remains incomplete.",
+    "Single-seam or single-slice Workstream authority is forbidden unless explicit USER waiver text is recorded.",
+    "If only one seam or one slice is planned or visible, stop immediately on `Single-Seam Or Single-Slice Workstream Blocker` until Branch Readiness expands the plan or USER grants a waiver.",
+    "Only USER can grant a single-seam or single-slice Workstream waiver; Codex, ChatGPT, validators, prompt wording, clean validation, or a green seam cannot infer it.",
+    "A Workstream with `Completion Status: In Progress` and no waiver must show remaining same-branch implementable work beyond the current seam.",
     "seams inside the current slice may be predeclared in canon or discovered from repo truth while the slice remains in progress",
     "there is no repo-wide cap on how many slices a branch or workstream may carry",
     "same-branch backlog completion is the branch-level default: later slices for the same backlog item stay on the same branch when scope, phase, risk, and validation authority remain green",
@@ -257,11 +1938,19 @@ MULTI_SEAM_PROMPT_PHRASES = (
     "`Workstream` reaches `Hardening` only when `Completion Status: Green`",
     "`Completion Status: Red` means a named blocker or waiver currently stops bounded Workstream continuation",
     "`Phase: Workstream` must remain bounded at all times, and the only lawful `Workstream` stop conditions are `Completion Status: Green` with `Hardening` next, or `Completion Status: Red` justified by a named blocker or waiver.",
+    "Phase Boundary Stop Required",
+    "A phase-exit seam named in `Next Active Seam` is a handoff target, not current-phase execution authority.",
+    "Bounded Workstream continuation ends at phase boundaries; it never crosses from Workstream into Hardening by inertia.",
+    "Codex must not execute Hardening, Live Validation, PR Readiness, Release Readiness, release work, or any other next phase in the same run unless USER explicitly admits that phase after reviewing the handoff.",
     "Backlog Completion State",
     "Backlog-Split User Approval",
     "Backlog-Split Reason",
     "reporting Next Safe Move is not a substitute for execution",
     "continue decision must be acted on immediately by starting the next seam needed inside the current slice",
+    "Continuation Execution Latch",
+    "A final response after a green seam while `Continue Decision` remains `Continue` is `Post-Seam Final-Stop Drift`.",
+    "Post-Seam Final-Stop Drift is a governance blocker until source truth and validation are repaired.",
+    "Durability commit/push is not a lawful stop while `Continue Decision` remains `Continue`.",
 )
 
 REUSABLE_GUIDANCE_RETIRED_SEAM_TERMS = {
@@ -277,6 +1966,7 @@ REQUIRED_WORKSTREAM_CONTINUATION_MARKERS = (
     "Completion Status:",
     "Waiver Status:",
     "Continue Decision:",
+    "Continuation Execution Latch:",
     "Stop Basis:",
     "Next Active Seam:",
     "Stop Condition:",
@@ -287,13 +1977,30 @@ CONTINUATION_SEAM_STATUS_LABEL = "Seam Status"
 CONTINUATION_SLICE_STATUS_LABEL = "Slice Status"
 CONTINUATION_COMPLETION_STATUS_LABEL = "Completion Status"
 CONTINUATION_WAIVER_STATUS_LABEL = "Waiver Status"
+CONTINUATION_EXECUTION_LATCH_LABEL = "Continuation Execution Latch"
 CONTINUATION_STOP_BASIS_LABEL = "Stop Basis"
+SINGLE_SEAM_WORKSTREAM_WAIVER_LABEL = "Single-Seam Workstream Waiver"
+SINGLE_SEAM_OR_SINGLE_SLICE_WAIVER_AUTHORITY_LABEL = (
+    "Single-Seam Or Single-Slice Waiver Authority"
+)
+SINGLE_SEAM_OR_SINGLE_SLICE_WORKSTREAM_BLOCKER_LABEL = (
+    "Single-Seam Or Single-Slice Workstream Blocker"
+)
+BOUNDED_SEAM_DEFAULT_LABEL = "Bounded Seam Default"
 CONTINUATION_ALLOWED_SEAM_STATUSES = {"green", "in progress", "blocked"}
 CONTINUATION_ALLOWED_SLICE_STATUSES = {"green", "in progress", "blocked", "waived"}
 CONTINUATION_ALLOWED_COMPLETION_STATUSES = {"green", "in progress", "red"}
 CONTINUATION_ALLOWED_WAIVER_STATUSES = {"none", "approved", "required"}
 CONTINUATION_ALLOWED_DECISIONS = {"continue", "stop"}
 CONTINUATION_ALLOWED_STOP_BASES = {"none", "workstream green", "named blocker", "waiver"}
+SINGLE_SEAM_WORKSTREAM_ALLOWED_NO_WAIVER_VALUES = {"none", "not required", "not granted"}
+SINGLE_SEAM_WORKSTREAM_PROHIBITED_ACTIVE_PHRASES = (
+    "single-seam workstream by default",
+    "stop after one seam by default",
+    "bounded seam is a terminal boundary",
+    "bounded means single seam",
+    "bounded means one seam",
+)
 
 GOVERNED_OUTPUT_CONTRACT_REQUIRED_PHRASES = {
     Path("Docs/phase_governance.md"): (
@@ -302,6 +2009,7 @@ GOVERNED_OUTPUT_CONTRACT_REQUIRED_PHRASES = {
         "Completion Status:",
         "Waiver Status:",
         "Continue Decision:",
+        "Continuation Execution Latch:",
         "Stop Basis:",
         "A green seam does not authorize stop while `Slice Status` is not green.",
         "A green slice does not authorize stop while `Completion Status` is not green.",
@@ -310,7 +2018,15 @@ GOVERNED_OUTPUT_CONTRACT_REQUIRED_PHRASES = {
         "It is the exact `Phase: Workstream Status` field for stop authority.",
         "Use these governed state markers as execution control, not as documentation-only summary fields.",
         "If `Continue Decision` is `Continue`, Codex must not end on a final seam-closeout response, rollback path, or next-seam recommendation; it must keep executing until a lawful `Stop` decision exists.",
+        "A prompt `Return:` block is an output shape only; it cannot override governed continuation markers or authorize a terminal response while `Continue Decision` remains `Continue`.",
+        "A final response after a green seam while `Continue Decision` remains `Continue` is `Post-Seam Final-Stop Drift`.",
+        "Durability commit/push is not a lawful stop while `Continue Decision` remains `Continue`.",
+        "If `Completion Status` is `In Progress`, `Next Active Seam` must remain a `Workstream` seam; phase-exit seams require `Completion Status: Green`, `Completion Status: Red` with a named blocker/waiver, or explicit USER single-seam/backlog-split waiver.",
         "`Phase: Workstream` must remain bounded at all times.",
+        "Single-seam or single-slice Workstream authority is forbidden unless explicit USER waiver text is recorded.",
+        "If only one seam or one slice is planned or visible, stop immediately on `Single-Seam Or Single-Slice Workstream Blocker` until Branch Readiness expands the plan or USER grants a waiver.",
+        "Only USER can grant a single-seam or single-slice Workstream waiver; Codex, ChatGPT, validators, prompt wording, clean validation, or a green seam cannot infer it.",
+        "A Workstream with `Completion Status: In Progress` and no waiver must show remaining same-branch implementable work beyond the current seam.",
         "If `Completion Status` is `Red`, `Continuation Action` must explicitly state the blocker-clearing action or waiver-clearing action needed before bounded `Workstream` continuation may resume.",
     ),
     Path("Docs/development_rules.md"): (
@@ -319,11 +2035,20 @@ GOVERNED_OUTPUT_CONTRACT_REQUIRED_PHRASES = {
         "Completion Status",
         "Waiver Status",
         "Continue Decision",
+        "Continuation Execution Latch",
         "Stop Basis",
         "If `Completion Status` is `In Progress` and no named blocker or waiver stops work, Codex must continue rather than returning `Await Next Instruction`.",
         "Use these governed state markers as execution control, not just reporting.",
         "If `Continue Decision` is `Continue`, do not end on a seam-complete final response, rollback path, or next-seam recommendation; keep executing until a lawful `Stop` decision exists.",
+        "A prompt `Return:` block is an output shape only; it cannot override governed continuation markers or authorize a terminal response while `Continue Decision` remains `Continue`.",
+        "A final response after a green seam while `Continue Decision` remains `Continue` is `Post-Seam Final-Stop Drift`.",
+        "Durability commit/push is not a lawful stop while `Continue Decision` remains `Continue`.",
+        "If `Completion Status` is `In Progress`, `Next Active Seam` must remain a `Workstream` seam; phase-exit seams require `Completion Status: Green`, `Completion Status: Red` with a named blocker/waiver, or explicit USER single-seam/backlog-split waiver.",
         "`Phase: Workstream` must remain bounded at all times, and the only lawful `Workstream` stop conditions are `Completion Status: Green` with `Hardening` next, or `Completion Status: Red` justified by a named blocker or waiver.",
+        "Single-seam or single-slice Workstream authority is forbidden unless explicit USER waiver text is recorded.",
+        "If only one seam or one slice is planned or visible, stop immediately on `Single-Seam Or Single-Slice Workstream Blocker` until Branch Readiness expands the plan or USER grants a waiver.",
+        "Only USER can grant a single-seam or single-slice Workstream waiver; Codex, ChatGPT, validators, prompt wording, clean validation, or a green seam cannot infer it.",
+        "A Workstream with `Completion Status: In Progress` and no waiver must show remaining same-branch implementable work beyond the current seam.",
         "If `Completion Status` is `Red`, `Continuation Action` must report the blocker-clearing action or waiver-clearing action needed before bounded `Workstream` continuation may resume.",
     ),
     Path("Docs/codex_modes.md"): (
@@ -332,11 +2057,20 @@ GOVERNED_OUTPUT_CONTRACT_REQUIRED_PHRASES = {
         "Completion Status",
         "Waiver Status",
         "Continue Decision",
+        "Continuation Execution Latch",
         "Stop Basis",
         "If `Completion Status` is `In Progress` and no named blocker or waiver stops work, Workflow mode must continue rather than returning `Await Next Instruction`.",
         "Use these governed state markers as execution control, not just reporting.",
         "If `Continue Decision` is `Continue`, Workflow mode must not end on a seam-complete final response, rollback path, or next-seam recommendation; it must keep executing until a lawful `Stop` decision exists.",
+        "A prompt `Return:` block is an output shape only; it cannot override governed continuation markers or authorize a terminal response while `Continue Decision` remains `Continue`.",
+        "A final response after a green seam while `Continue Decision` remains `Continue` is `Post-Seam Final-Stop Drift`.",
+        "Durability commit/push is not a lawful stop while `Continue Decision` remains `Continue`.",
+        "If `Completion Status` is `In Progress`, `Next Active Seam` must remain a `Workstream` seam; phase-exit seams require `Completion Status: Green`, `Completion Status: Red` with a named blocker/waiver, or explicit USER single-seam/backlog-split waiver.",
         "`Phase: Workstream` must remain bounded at all times, and the only lawful `Workstream` stop conditions are `Completion Status: Green` with `Hardening` next, or `Completion Status: Red` justified by a named blocker or waiver.",
+        "Single-seam or single-slice Workstream authority is forbidden unless explicit USER waiver text is recorded.",
+        "If only one seam or one slice is planned or visible, stop immediately on `Single-Seam Or Single-Slice Workstream Blocker` until Branch Readiness expands the plan or USER grants a waiver.",
+        "Only USER can grant a single-seam or single-slice Workstream waiver; Codex, ChatGPT, validators, prompt wording, clean validation, or a green seam cannot infer it.",
+        "A Workstream with `Completion Status: In Progress` and no waiver must show remaining same-branch implementable work beyond the current seam.",
         "If `Completion Status` is `Red`, `Continuation Action` must report the blocker-clearing action or waiver-clearing action needed before bounded `Workstream` continuation may resume.",
     ),
     Path("Docs/codex_user_guide.md"): (
@@ -345,12 +2079,21 @@ GOVERNED_OUTPUT_CONTRACT_REQUIRED_PHRASES = {
         "Completion Status:",
         "Waiver Status:",
         "Continue Decision:",
+        "Continuation Execution Latch:",
         "Stop Basis:",
         "If `Completion Status` is `In Progress` and no named blocker or waiver stops work, Codex must continue instead of returning `Await Next Instruction`.",
         "Use these governed state markers as execution control, not just reporting.",
         "If `Continue Decision` is `Continue`, Codex must not end on a seam-complete final response, rollback path, or next-seam recommendation; it must keep executing until a lawful `Stop` decision exists.",
         "Treat a prompt `Return:` block as the lawful-stop report, not as permission to stop while `Continue Decision` remains `Continue`.",
+        "A prompt `Return:` block is an output shape only; it cannot override governed continuation markers or authorize a terminal response while `Continue Decision` remains `Continue`.",
+        "A final response after a green seam while `Continue Decision` remains `Continue` is `Post-Seam Final-Stop Drift`.",
+        "Durability commit/push is not a lawful stop while `Continue Decision` remains `Continue`.",
+        "If `Completion Status` is `In Progress`, `Next Active Seam` must remain a `Workstream` seam; phase-exit seams require `Completion Status: Green`, `Completion Status: Red` with a named blocker/waiver, or explicit USER single-seam/backlog-split waiver.",
         "`Phase: Workstream` must remain bounded at all times, and the only lawful `Workstream` stop conditions are `Completion Status: Green` with `Hardening` next, or `Completion Status: Red` justified by a named blocker or waiver.",
+        "Single-seam or single-slice Workstream authority is forbidden unless explicit USER waiver text is recorded.",
+        "If only one seam or one slice is planned or visible, stop immediately on `Single-Seam Or Single-Slice Workstream Blocker` until Branch Readiness expands the plan or USER grants a waiver.",
+        "Only USER can grant a single-seam or single-slice Workstream waiver; Codex, ChatGPT, validators, prompt wording, clean validation, or a green seam cannot infer it.",
+        "A Workstream with `Completion Status: In Progress` and no waiver must show remaining same-branch implementable work beyond the current seam.",
         "If `Completion Status` is `Red`, `Continuation Action` must report the blocker-clearing action or waiver-clearing action needed before bounded `Workstream` continuation may resume.",
     ),
     Path("Docs/orin_task_template.md"): (
@@ -359,12 +2102,21 @@ GOVERNED_OUTPUT_CONTRACT_REQUIRED_PHRASES = {
         "Completion Status:",
         "Waiver Status:",
         "Continue Decision:",
+        "Continuation Execution Latch:",
         "Stop Basis:",
         "If `Completion Status` is `In Progress` and no named blocker or waiver stops work, Codex must continue instead of returning `Await Next Instruction`.",
         "Use these governed state markers as execution control, not just reporting.",
         "If `Continue Decision` is `Continue`, Codex must not end on a seam-complete final response, rollback path, or next-seam recommendation; it must keep executing until a lawful `Stop` decision exists.",
+        "A prompt `Return:` block is an output shape only; it cannot override governed continuation markers or authorize a terminal response while `Continue Decision` remains `Continue`.",
         "Once the current slice is green during `Workstream`, advance into the next admitted slice while `Completion Status` remains `In Progress`; await the next instruction only after a lawful `Stop` decision.",
+        "A final response after a green seam while `Continue Decision` remains `Continue` is `Post-Seam Final-Stop Drift`.",
+        "Durability commit/push is not a lawful stop while `Continue Decision` remains `Continue`.",
+        "If `Completion Status` is `In Progress`, `Next Active Seam` must remain a `Workstream` seam; phase-exit seams require `Completion Status: Green`, `Completion Status: Red` with a named blocker/waiver, or explicit USER single-seam/backlog-split waiver.",
         "`Phase: Workstream` must remain bounded at all times, and the only lawful `Workstream` stop conditions are `Completion Status: Green` with `Hardening` next, or `Completion Status: Red` justified by a named blocker or waiver.",
+        "Single-seam or single-slice Workstream authority is forbidden unless explicit USER waiver text is recorded.",
+        "If only one seam or one slice is planned or visible, stop immediately on `Single-Seam Or Single-Slice Workstream Blocker` until Branch Readiness expands the plan or USER grants a waiver.",
+        "Only USER can grant a single-seam or single-slice Workstream waiver; Codex, ChatGPT, validators, prompt wording, clean validation, or a green seam cannot infer it.",
+        "A Workstream with `Completion Status: In Progress` and no waiver must show remaining same-branch implementable work beyond the current seam.",
         "If `Completion Status` is `Red`, `Continuation Action` must report the blocker-clearing action or waiver-clearing action needed before bounded `Workstream` continuation may resume.",
     ),
     Path("Docs/nexus_startup_contract.md"): (
@@ -373,11 +2125,16 @@ GOVERNED_OUTPUT_CONTRACT_REQUIRED_PHRASES = {
         "Completion Status",
         "Waiver Status",
         "Continue Decision",
+        "Continuation Execution Latch",
         "Stop Basis",
         "If `Completion Status` is `In Progress` and no named blocker or waiver stops work, the generated prompt must require continuation rather than `Await Next Instruction`.",
         "Use these governed state markers as execution control, not just reporting.",
         "If `Continue Decision` is `Continue`, the generated prompt must not let Codex end on a seam-complete final response, rollback path, or next-seam recommendation; it must require continued execution until a lawful `Stop` decision exists.",
         "the prompt `Return:` block describes the lawful-stop report; it is not permission to stop while `Continue Decision` remains `Continue`",
+        "A prompt `Return:` block is an output shape only; it cannot override governed continuation markers or authorize a terminal response while `Continue Decision` remains `Continue`.",
+        "A final response after a green seam while `Continue Decision` remains `Continue` is `Post-Seam Final-Stop Drift`.",
+        "Durability commit/push is not a lawful stop while `Continue Decision` remains `Continue`.",
+        "If `Completion Status` is `In Progress`, `Next Active Seam` must remain a `Workstream` seam; phase-exit seams require `Completion Status: Green`, `Completion Status: Red` with a named blocker/waiver, or explicit USER single-seam/backlog-split waiver.",
         "`Phase: Workstream` must remain bounded at all times, and the only lawful `Workstream` stop conditions are `Completion Status: Green` with `Hardening` next, or `Completion Status: Red` justified by a named blocker or waiver.",
         "If `Completion Status` is `Red`, `Continuation Action` must report the blocker-clearing action or waiver-clearing action needed before bounded `Workstream` continuation may resume.",
         "Treat `Completion Status` as the exact `Phase: Workstream Status` gate after load.",
@@ -989,8 +2746,26 @@ BRANCH_READINESS_STAGE_PACKET_PHRASES = (
     "multiple admitted-slice plan",
     "single-slice drift check",
     "Element Coverage review",
+    "product vision",
+    "USER vision questions",
+    "Codex product interpretation",
+    "Codex implementation recommendation",
+    "USER/ChatGPT review checkpoint",
+    "USER Vision Question Packet",
+    "full feature element breakdown",
+    "current branch vs future package boundaries",
+    "affected surfaces",
+    "branch reach",
+    "why the branch is large enough",
+    "why it should not split into tiny branches",
+    "acceptance criteria",
+    "screenshot",
+    "User Test Summary",
+    "implementation sequence proposal",
     "validation plan",
     "expected docs sync",
+    "Branch Readiness Planning Incomplete",
+    "USER Vision Recommendation Missing",
     "Stage 2 green-light decision",
 )
 
@@ -1283,6 +3058,8 @@ UTS_RESULTS_BLOCKER_DOCS = (
 UTS_RESULTS_BLOCKER_PHRASES = (
     "User Test Summary Results Pending",
     "User Test Summary Results:",
+    "User Test Summary is exclusive to Live Validation Stage 1.",
+    "Live Validation Stage 1 cannot enter Stage 2 until User Test Summary results are `PASS` or `WAIVED`",
     "Live Validation green requires an exact `## User Test Summary` state before final green.",
     "Final phase advancement is BLOCKED",
 )
@@ -1316,6 +3093,44 @@ USER_FACING_SHORTCUT_PATH_LABEL = "User-Facing Shortcut Path:"
 USER_FACING_SHORTCUT_WAIVER_REASON_LABEL = "User-Facing Shortcut Waiver Reason:"
 USER_FACING_SHORTCUT_RESULT_VALUES = ("PENDING", "PASS", "FAIL", "WAIVED")
 USER_FACING_SHORTCUT_CLEAR_VALUES = ("PASS", "WAIVED")
+
+CODEX_LIVE_CLIENT_SELF_QA_DOCS = (
+    Path("Docs/phase_governance.md"),
+    Path("Docs/development_rules.md"),
+    Path("Docs/Main.md"),
+    Path("Docs/codex_modes.md"),
+    Path("Docs/orin_task_template.md"),
+    Path("Docs/codex_user_guide.md"),
+    Path("Docs/user_test_summary_guidance.md"),
+)
+
+CODEX_LIVE_CLIENT_SELF_QA_PHRASES = (
+    "Codex Live Client Self-QA Gate",
+    "Codex Live Client Self-QA:",
+    "Visual Quality:",
+    "Live Interaction Evidence:",
+    "Usability Check:",
+    "Platform Uniformity Check:",
+)
+
+CODEX_LIVE_CLIENT_SELF_QA_BLOCKER = "Codex Live Client Self-QA Pending"
+CODEX_LIVE_CLIENT_SELF_QA_RESULT_LABEL = "Codex Live Client Self-QA:"
+CODEX_LIVE_CLIENT_SELF_QA_WAIVER_REASON_LABEL = "Codex Live Client Self-QA Waiver Reason:"
+CODEX_LIVE_CLIENT_SELF_QA_RESULT_VALUES = ("PENDING", "PASS", "FAIL", "WAIVED")
+CODEX_LIVE_CLIENT_SELF_QA_CLEAR_VALUES = ("PASS", "WAIVED")
+CODEX_LIVE_CLIENT_SELF_QA_REQUIRED_MARKERS = (
+    "Live Client Entry Path:",
+    "Evidence Screenshot:",
+    "Visual Quality:",
+    "Interaction Manifest:",
+    "Interaction Evidence Root:",
+    "Live Interaction Evidence:",
+    "Usability Check:",
+    "Interaction Check:",
+    "Platform Uniformity Check:",
+    "NDAI Naming Check:",
+    "Cleanup Check:",
+)
 
 RELEASE_READINESS_TARGET_DOCS = (
     Path("Docs/phase_governance.md"),
@@ -3174,6 +4989,52 @@ def _git_prebeta_tags() -> list[str]:
     ]
 
 
+def _git_tracked_files() -> list[Path]:
+    completed = subprocess.run(
+        ("git", "ls-files"),
+        cwd=ROOT_DIR,
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        check=False,
+    )
+    if completed.returncode != 0:
+        return []
+    return [Path(line.strip()) for line in completed.stdout.splitlines() if line.strip()]
+
+
+def _tracked_repo_legacy_product_name_occurrences() -> list[str]:
+    banned_tokens = [
+        LEGACY_RETIRED_PRODUCT_NAME.casefold(),
+        *(token.casefold() for token in LEGACY_PRODUCT_NAME_EXTRA_TOKENS),
+    ]
+    occurrences: list[str] = []
+    for relative_path in _git_tracked_files():
+        normalized_path = relative_path.as_posix()
+        normalized_path_casefold = normalized_path.casefold()
+        if any(banned in normalized_path_casefold for banned in banned_tokens):
+            occurrences.append(f"{normalized_path}: tracked path contains legacy product name")
+            continue
+        path = ROOT_DIR / relative_path
+        try:
+            text = path.read_text(encoding="utf-8", errors="ignore")
+        except OSError:
+            continue
+        text_casefold = text.casefold()
+        matched_token = next((banned for banned in banned_tokens if banned in text_casefold), "")
+        if matched_token:
+            line_number = next(
+                (
+                    index
+                    for index, line in enumerate(text.splitlines(), start=1)
+                    if matched_token in line.casefold()
+                ),
+                "?",
+            )
+            occurrences.append(f"{normalized_path}:{line_number}: tracked content contains legacy product name")
+    return occurrences
+
+
 def _git_remote_prebeta_tags() -> list[str]:
     completed = subprocess.run(
         ("git", "ls-remote", "--tags", "origin", "refs/tags/v*-prebeta"),
@@ -3568,8 +5429,12 @@ def _validate_governed_output_state(
     )
     waiver_status = _extract_marker_value(continuation_section, CONTINUATION_WAIVER_STATUS_LABEL)
     continue_decision = _extract_marker_value(continuation_section, "Continue Decision")
+    continuation_latch = _extract_marker_value(
+        continuation_section, CONTINUATION_EXECUTION_LATCH_LABEL
+    )
     stop_basis = _extract_marker_value(continuation_section, CONTINUATION_STOP_BASIS_LABEL)
     continuation_action = _extract_marker_value(continuation_section, "Continuation Action")
+    next_active_seam = _extract_marker_value(continuation_section, "Next Active Seam")
     active_seam = _extract_marker_value(active_seam_section, "Active seam")
 
     normalized_seam_status = seam_status.strip().casefold()
@@ -3577,10 +5442,20 @@ def _validate_governed_output_state(
     normalized_completion_status = completion_status.strip().casefold()
     normalized_waiver_status = waiver_status.strip().casefold()
     normalized_decision = continue_decision.strip().casefold()
+    normalized_latch = continuation_latch.strip().casefold()
     normalized_stop_basis = stop_basis.strip().casefold()
+    normalized_next_active_seam = next_active_seam.strip().casefold()
     stop_authorizing_blockers = [
         blocker for blocker in blockers if blocker != BACKLOG_COMPLETION_UNPROVEN_BLOCKER
     ]
+    phase_exit_next_seam_terms = (
+        "hardening",
+        "live validation",
+        "pr readiness",
+        "release readiness",
+        "release execution",
+        "github release",
+    )
 
     require(
         normalized_seam_status in CONTINUATION_ALLOWED_SEAM_STATUSES,
@@ -3671,6 +5546,37 @@ def _validate_governed_output_state(
                 "waiver status"
             ),
         )
+        require(
+            "hardening" in normalized_next_active_seam,
+            (
+                f"{source_path}: {CONTINUATION_COMPLETION_STATUS_LABEL} Green must point "
+                "`Next Active Seam` to Hardening"
+            ),
+        )
+        require(
+            "stop at phase boundary" in continuation_action.casefold()
+            and "user" in continuation_action.casefold()
+            and "admit" in continuation_action.casefold(),
+            (
+                f"{source_path}: {CONTINUATION_COMPLETION_STATUS_LABEL} Green may hand off to "
+                "Hardening, but Continuation Action must explicitly stop at the phase boundary "
+                "until USER admits the next phase"
+            ),
+        )
+        for forbidden_phase_action in (
+            "enter hardening",
+            "execute hardening",
+            "run hardening",
+            "start hardening",
+            "continue into hardening",
+        ):
+            require(
+                forbidden_phase_action not in continuation_action.casefold(),
+                (
+                    f"{source_path}: {CONTINUATION_COMPLETION_STATUS_LABEL} Green must not "
+                    f"authorize same-run phase execution via '{forbidden_phase_action}'"
+                ),
+            )
     elif normalized_completion_status == "in progress":
         require(
             normalized_decision == "continue",
@@ -3726,6 +5632,26 @@ def _validate_governed_output_state(
             (
                 f"{source_path}: Continue Decision Continue must not gate the next seam behind "
                 "'when instructed' wording"
+            ),
+        )
+        require(
+            "active" in normalized_latch
+            and "final" in normalized_latch
+            and "prohibited" in normalized_latch
+            and "same bounded workstream run" in normalized_latch,
+            (
+                f"{source_path}: Continue Decision Continue requires "
+                f"'{CONTINUATION_EXECUTION_LATCH_LABEL}' to state that continuation is active, "
+                "a final response is prohibited, and the next seam must execute in the same "
+                "bounded Workstream run"
+            ),
+        )
+        require(
+            not any(term in normalized_next_active_seam for term in phase_exit_next_seam_terms),
+            (
+                f"{source_path}: {CONTINUATION_COMPLETION_STATUS_LABEL} In Progress must keep "
+                "`Next Active Seam` inside Workstream; phase-exit seams require Workstream Green, "
+                "Red with a named blocker/waiver, or explicit USER single-seam/backlog-split waiver"
             ),
         )
     else:
@@ -3793,6 +5719,14 @@ def _validate_governed_output_state(
                 "blocker-clearing action or waiver-clearing action instead"
             ),
         )
+        require(
+            not any(term in normalized_next_active_seam for term in phase_exit_next_seam_terms),
+            (
+                f"{source_path}: {CONTINUATION_COMPLETION_STATUS_LABEL} Red must keep "
+                "`Next Active Seam` on the blocker-clearing Workstream seam/action; phase-exit seams "
+                "remain illegal until Workstream Green or explicit USER waiver/split approval"
+            ),
+        )
 
     if (
         normalized_slice_status != "green"
@@ -3804,6 +5738,181 @@ def _validate_governed_output_state(
             (
                 f"{source_path}: non-green slice with no named blocker or waiver must keep "
                 "Continue Decision at Continue"
+            ),
+        )
+
+
+def _validate_single_seam_workstream_contract(
+    require,
+    source_path: str,
+    text: str,
+    *,
+    branch_class: str,
+    current_phase: str,
+    blockers: list[str],
+) -> None:
+    if branch_class != "implementation" or current_phase != "Workstream":
+        return
+
+    waiver_value = _extract_marker_value(text, SINGLE_SEAM_WORKSTREAM_WAIVER_LABEL)
+    waiver_authority_value = _extract_marker_value(
+        text,
+        SINGLE_SEAM_OR_SINGLE_SLICE_WAIVER_AUTHORITY_LABEL,
+    )
+    single_seam_blocker_value = _extract_marker_value(
+        text,
+        SINGLE_SEAM_OR_SINGLE_SLICE_WORKSTREAM_BLOCKER_LABEL,
+    )
+    bounded_value = _extract_marker_value(text, BOUNDED_SEAM_DEFAULT_LABEL)
+    continuation_section = _section(text, "Seam Continuation Decision")
+    completion_status = _extract_marker_value(
+        continuation_section, CONTINUATION_COMPLETION_STATUS_LABEL
+    )
+    remaining_work = _extract_marker_value(text, "Remaining Implementable Work")
+    normalized_waiver = waiver_value.strip().casefold()
+    normalized_waiver_authority = waiver_authority_value.strip().casefold()
+    normalized_single_seam_blocker = single_seam_blocker_value.strip().casefold()
+    normalized_completion = completion_status.strip().casefold()
+    normalized_remaining_work = remaining_work.strip().casefold()
+    lowered_text = text.casefold()
+
+    require(
+        bool(waiver_value),
+        (
+            f"{source_path}: active Workstream record must declare "
+            f"'{SINGLE_SEAM_WORKSTREAM_WAIVER_LABEL}:' so bounded seams cannot drift into "
+            "single-seam Workstream authority"
+        ),
+    )
+    require(
+        bool(waiver_authority_value),
+        (
+            f"{source_path}: active Workstream record must declare "
+            f"'{SINGLE_SEAM_OR_SINGLE_SLICE_WAIVER_AUTHORITY_LABEL}:' so only USER waiver text can "
+            "authorize single-seam or single-slice Workstream behavior"
+        ),
+    )
+    require(
+        bool(single_seam_blocker_value),
+        (
+            f"{source_path}: active Workstream record must declare "
+            f"'{SINGLE_SEAM_OR_SINGLE_SLICE_WORKSTREAM_BLOCKER_LABEL}:' so a one-seam or "
+            "one-slice visible plan becomes a blocker instead of an implied stop"
+        ),
+    )
+    require(
+        bool(bounded_value),
+        (
+            f"{source_path}: active Workstream record must declare "
+            f"'{BOUNDED_SEAM_DEFAULT_LABEL}:' with one-active-seam continuation semantics"
+        ),
+    )
+    if waiver_authority_value:
+        require(
+            "user only" in normalized_waiver_authority
+            and "codex" in normalized_waiver_authority
+            and "cannot" in normalized_waiver_authority,
+            (
+                f"{source_path}: {SINGLE_SEAM_OR_SINGLE_SLICE_WAIVER_AUTHORITY_LABEL} must make USER "
+                "the only waiver authority and deny Codex-inferred single-seam/single-slice "
+                "authority"
+            ),
+        )
+    if single_seam_blocker_value:
+        require(
+            "one seam" in normalized_single_seam_blocker
+            and "one slice" in normalized_single_seam_blocker
+            and "blocker" in normalized_single_seam_blocker
+            and "user waiver" in normalized_single_seam_blocker,
+            (
+                f"{source_path}: {SINGLE_SEAM_OR_SINGLE_SLICE_WORKSTREAM_BLOCKER_LABEL} must "
+                "state that one visible seam or one visible slice is a blocker unless USER "
+                "waives it"
+            ),
+        )
+    if bounded_value:
+        bounded_lower = bounded_value.casefold()
+        require(
+            "one active seam at a time" in bounded_lower,
+            (
+                f"{source_path}: {BOUNDED_SEAM_DEFAULT_LABEL} must say bounded means one "
+                "active seam at a time"
+            ),
+        )
+        require(
+            "not one-seam workstream authority" in bounded_lower,
+            (
+                f"{source_path}: {BOUNDED_SEAM_DEFAULT_LABEL} must say bounded is not "
+                "one-seam Workstream authority"
+            ),
+        )
+
+    if normalized_completion == "in progress":
+        require(
+            normalized_waiver in SINGLE_SEAM_WORKSTREAM_ALLOWED_NO_WAIVER_VALUES,
+            (
+                f"{source_path}: {SINGLE_SEAM_WORKSTREAM_WAIVER_LABEL} must remain None "
+                "while Workstream completion is In Progress unless a USER waiver has stopped "
+                "continuation and Completion Status is Red"
+            ),
+        )
+        require(
+            normalized_remaining_work not in {"", "none", "n/a", "na", "not applicable"},
+            (
+                f"{source_path}: {CONTINUATION_COMPLETION_STATUS_LABEL} In Progress with no "
+                "single-seam waiver must list remaining same-branch implementable work"
+            ),
+        )
+        remaining_work_seams = {
+            match.group(0)
+            for match in re.finditer(r"\bws\d+\b", normalized_remaining_work)
+        }
+        remaining_work_shows_multi_step = (
+            len(remaining_work_seams) >= 2
+            or "multiple" in normalized_remaining_work
+            or "admitted slices" in normalized_remaining_work
+            or "later bounded seams" in normalized_remaining_work
+            or "remaining bounded seams" in normalized_remaining_work
+        )
+        require(
+            remaining_work_shows_multi_step,
+            (
+                f"{source_path}: {CONTINUATION_COMPLETION_STATUS_LABEL} In Progress with no "
+                "USER single-seam/single-slice waiver must show more than one same-branch "
+                "seam/slice in Remaining Implementable Work; if only one seam or one slice is "
+                f"planned or visible, stop on {SINGLE_SEAM_OR_SINGLE_SLICE_WORKSTREAM_BLOCKER_LABEL}"
+            ),
+        )
+    elif normalized_waiver not in SINGLE_SEAM_WORKSTREAM_ALLOWED_NO_WAIVER_VALUES:
+        require(
+            "user" in normalized_waiver
+            and (
+                "approved" in normalized_waiver
+                or "approval" in normalized_waiver
+                or "waiver" in normalized_waiver
+            ),
+            (
+                f"{source_path}: {SINGLE_SEAM_WORKSTREAM_WAIVER_LABEL} can be non-None "
+                "only when the marker itself records explicit USER waiver approval"
+            ),
+        )
+
+    for prohibited_phrase in SINGLE_SEAM_WORKSTREAM_PROHIBITED_ACTIVE_PHRASES:
+        require(
+            prohibited_phrase not in lowered_text,
+            (
+                f"{source_path}: active Workstream truth must not encode single-seam "
+                f"Workstream authority via '{prohibited_phrase}'"
+            ),
+        )
+
+    if SINGLE_SEAM_OR_SINGLE_SLICE_WORKSTREAM_BLOCKER_LABEL in blockers:
+        require(
+            normalized_completion == "red",
+            (
+                f"{source_path}: {SINGLE_SEAM_OR_SINGLE_SLICE_WORKSTREAM_BLOCKER_LABEL} must "
+                "stop Workstream continuation with Completion Status Red until Branch Readiness "
+                "expands the plan or USER grants a waiver"
             ),
         )
 
@@ -3850,6 +5959,1591 @@ def _validate_backlog_completion_strategy(
         bool(closure_rule),
         f"{source_path}: {BRANCH_CLOSURE_RULE_LABEL} must not be empty",
     )
+
+
+def _validate_product_definition_plan(
+    require,
+    source_path: str,
+    text: str,
+    *,
+    branch_class: str,
+    current_phase: str,
+    blockers: list[str],
+    next_legal_phase: str,
+) -> None:
+    if branch_class != "implementation":
+        return
+    if current_phase not in {"Branch Readiness", "Workstream"}:
+        return
+
+    require(
+        f"## {PRODUCT_DEFINITION_PLAN_HEADING}" in text,
+        (
+            f"{source_path}: implementation Branch Readiness is missing "
+            f"'## {PRODUCT_DEFINITION_PLAN_HEADING}'"
+        ),
+    )
+    plan_section = _section(text, PRODUCT_DEFINITION_PLAN_HEADING)
+    for marker in REQUIRED_PRODUCT_DEFINITION_MARKERS:
+        require(
+            marker in plan_section,
+            f"{source_path}: {PRODUCT_DEFINITION_PLAN_HEADING} is missing '{marker}'",
+        )
+
+    planning_status = _extract_marker_value(plan_section, "Planning Packet Status:")
+    revalidation_status = _extract_marker_value(plan_section, "Planning Revalidation Status:")
+    planning_waiver = _extract_marker_value(plan_section, PRODUCT_PLANNING_WAIVER_MARKER)
+    normalized_status = planning_status.strip().casefold()
+    normalized_revalidation = revalidation_status.strip().casefold()
+    normalized_waiver = planning_waiver.strip().casefold()
+    has_planning_blocker = PRODUCT_PLANNING_INCOMPLETE_BLOCKER in blockers
+
+    require(
+        bool(planning_status),
+        f"{source_path}: {PRODUCT_DEFINITION_PLAN_HEADING} is missing 'Planning Packet Status:' value",
+    )
+    require(
+        bool(revalidation_status),
+        f"{source_path}: {PRODUCT_DEFINITION_PLAN_HEADING} is missing 'Planning Revalidation Status:' value",
+    )
+    require(
+        PRODUCT_PLANNING_WAIVER_MARKER in plan_section,
+        f"{source_path}: {PRODUCT_DEFINITION_PLAN_HEADING} is missing '{PRODUCT_PLANNING_WAIVER_MARKER}'",
+    )
+
+    if normalized_status in PRODUCT_PLANNING_INCOMPLETE_VALUES:
+        require(
+            has_planning_blocker,
+            (
+                f"{source_path}: incomplete family-package planning must record "
+                f"'{PRODUCT_PLANNING_INCOMPLETE_BLOCKER}' under Blockers"
+            ),
+        )
+        question_packet = _section(text, USER_VISION_QUESTION_PACKET_HEADING)
+        require(
+            bool(question_packet),
+            (
+                f"{source_path}: incomplete family-package planning with USER input "
+                f"needed must include '## {USER_VISION_QUESTION_PACKET_HEADING}'"
+            ),
+        )
+        if question_packet:
+            for marker in REQUIRED_USER_VISION_QUESTION_PACKET_MARKERS:
+                require(
+                    marker in question_packet,
+                    (
+                        f"{source_path}: {USER_VISION_QUESTION_PACKET_HEADING} is "
+                        f"missing '{marker}'"
+                    ),
+                )
+            for category in REQUIRED_USER_VISION_QUESTION_PACKET_CATEGORIES:
+                require(
+                    category in question_packet,
+                    (
+                        f"{source_path}: {USER_VISION_QUESTION_PACKET_HEADING} is "
+                        f"missing required category '{category}'"
+                    ),
+                )
+            if "FAM-006" in text:
+                for marker in FAM_006_USER_VISION_PACKET_MARKERS:
+                    require(
+                        marker in question_packet,
+                        (
+                            f"{source_path}: FAM-006 {USER_VISION_QUESTION_PACKET_HEADING} "
+                            f"is missing '{marker}'"
+                        ),
+                    )
+        _validate_user_vision_input_handoff(require, source_path, text, blockers)
+        require(
+            current_phase == "Branch Readiness",
+            (
+                f"{source_path}: incomplete family-package planning must stay in "
+                "`Branch Readiness` and cannot enter implementation"
+            ),
+        )
+        require(
+            next_legal_phase == "Branch Readiness",
+            (
+                f"{source_path}: incomplete family-package planning must keep "
+                "Next Legal Phase at `Branch Readiness`"
+            ),
+        )
+    elif normalized_status == "waived":
+        require(
+            "user" in normalized_waiver and (
+                "approved" in normalized_waiver
+                or "approval" in normalized_waiver
+                or "waiver" in normalized_waiver
+            ),
+            (
+                f"{source_path}: waived family-package planning requires "
+                f"'{PRODUCT_PLANNING_WAIVER_MARKER}' to record explicit USER waiver"
+            ),
+        )
+    else:
+        require(
+            normalized_status in PRODUCT_PLANNING_COMPLETE_VALUES,
+            (
+                f"{source_path}: Planning Packet Status '{planning_status}' must be "
+                "Complete, Incomplete, Pending, Blocked, or Waived"
+            ),
+        )
+        require(
+            normalized_revalidation in {"pass", "green", "complete", "waived"},
+            (
+                f"{source_path}: complete family-package planning requires "
+                "'Planning Revalidation Status:' to be PASS, Green, Complete, or Waived"
+            ),
+        )
+
+    if current_phase == "Workstream":
+        require(
+            normalized_status in PRODUCT_PLANNING_COMPLETE_VALUES,
+            (
+                f"{source_path}: Workstream implementation requires complete or "
+                "USER-waived family-package planning"
+            ),
+        )
+
+
+def _validate_fam006_stage2_r6_plan(
+    require,
+    source_path: str,
+    text: str,
+    *,
+    blockers: list[str],
+    current_phase: str,
+) -> None:
+    if Path(source_path) != FAM006_BRANCH_RECORD:
+        return
+
+    section = _section(text, FAM006_STAGE2_R6_HEADING)
+    require(
+        bool(section),
+        f"{source_path}: FAM-006 plan is missing '## {FAM006_STAGE2_R6_HEADING}'",
+    )
+    if not section:
+        return
+
+    for marker in FAM006_STAGE2_R6_REQUIRED_MARKERS:
+        require(
+            marker in section,
+            f"{source_path}: {FAM006_STAGE2_R6_HEADING} is missing '{marker}'",
+        )
+    for phrase in FAM006_STAGE2_R6_REQUIRED_PHRASES:
+        require(
+            phrase in section,
+            f"{source_path}: {FAM006_STAGE2_R6_HEADING} is missing '{phrase}'",
+        )
+
+    stage2_r9_section = _section(text, FAM006_STAGE2_R9_HEADING)
+    stage2_r10_section = _section(text, FAM006_STAGE2_R10_HEADING)
+    cleared_by_stage2_r6 = {
+        "Branch Reach Unproven",
+        "Acceptance Criteria Missing",
+        "Current Branch vs Future Package Boundary Missing",
+        HARDWARE_TELEMETRY_PROVIDER_PENDING_BLOCKER,
+        POLLING_FLOOR_UNDECIDED_BLOCKER,
+        WARNING_DELIVERY_MODALITY_PENDING_BLOCKER,
+        EXTERNAL_TELEMETRY_PRIVACY_MODEL_MISSING_BLOCKER,
+        AUDIO_WARNING_CROSS_FAMILY_APPROVAL_MISSING_BLOCKER,
+    }
+    if stage2_r9_section:
+        cleared_by_stage2_r6 = {
+            "Acceptance Criteria Missing",
+            POLLING_FLOOR_UNDECIDED_BLOCKER,
+            WARNING_DELIVERY_MODALITY_PENDING_BLOCKER,
+            AUDIO_WARNING_CROSS_FAMILY_APPROVAL_MISSING_BLOCKER,
+        }
+    if stage2_r10_section:
+        cleared_by_stage2_r6 = {
+            "Branch Reach Unproven",
+            "Acceptance Criteria Missing",
+            "Current Branch vs Future Package Boundary Missing",
+            HARDWARE_TELEMETRY_PROVIDER_PENDING_BLOCKER,
+            POLLING_FLOOR_UNDECIDED_BLOCKER,
+            WARNING_DELIVERY_MODALITY_PENDING_BLOCKER,
+            EXTERNAL_TELEMETRY_PRIVACY_MODEL_MISSING_BLOCKER,
+            AUDIO_WARNING_CROSS_FAMILY_APPROVAL_MISSING_BLOCKER,
+            PERSONA_SWITCH_SCOPE_BOUNDARY_PENDING_BLOCKER,
+        }
+    for blocker in cleared_by_stage2_r6:
+        require(
+            blocker not in blockers,
+            (
+                f"{source_path}: '{blocker}' must not remain active after Stage 2-R6 "
+                "finalizes the corresponding boundary; keep it as cleared/deferred history instead"
+            ),
+        )
+
+    plan_section = _section(text, PRODUCT_DEFINITION_PLAN_HEADING)
+    require(
+        (
+            "Current Branch vs Future Package Boundaries: finalized by Stage 2-R6"
+            in plan_section
+            or "Current Branch vs Future Package Boundaries: rebaselined by Stage 2-R9"
+            in plan_section
+            or "Current Branch vs Future Package Boundaries: Stage 2-R12 supersedes"
+            in plan_section
+        ),
+        (
+            f"{source_path}: Product Definition Plan must mark current/future package "
+            "boundaries as finalized by Stage 2-R6 or rebaselined by Stage 2-R9"
+        ),
+    )
+    require(
+        (
+            "Acceptance Criteria: finalized by Stage 2-R6" in plan_section
+            or "Acceptance Criteria: rebaselined by Stage 2-R9" in plan_section
+            or "Acceptance Criteria: Stage 2-R12 rebaselines"
+            in plan_section
+        ),
+        (
+            f"{source_path}: Product Definition Plan must mark acceptance criteria "
+            "as finalized by Stage 2-R6 or rebaselined by Stage 2-R9"
+        ),
+    )
+    stage2_r8_section = _section(text, FAM006_STAGE2_R8_HEADING)
+    stage2_r9_section = _section(text, FAM006_STAGE2_R9_HEADING)
+    stage2_r10_section = _section(text, FAM006_STAGE2_R10_HEADING)
+    stage2_r11_section = _section(text, FAM006_STAGE2_R11_HEADING)
+    stage2_r12_section = _section(text, FAM006_STAGE2_R12_HEADING)
+    stage2_r13_section = _section(text, FAM006_STAGE2_R13_HEADING)
+    ws31_section = _section(text, FAM006_WS31_HEADING)
+    ws32_section = _section(text, FAM006_WS32_HEADING)
+    ws33_section = _section(text, FAM006_WS33_HEADING)
+    has_stage2_r8_blocker = LEGACY_PRODUCT_NAME_DRIFT_BLOCKER in blockers
+
+    if current_phase == "Branch Readiness":
+        if stage2_r12_section:
+            for phrase in FAM006_STAGE2_R12_REQUIRED_PHRASES:
+                require(
+                    phrase in stage2_r12_section,
+                    f"{source_path}: {FAM006_STAGE2_R12_HEADING} is missing '{phrase}'",
+                )
+            if not stage2_r13_section:
+                for active_blocker in (
+                    "Dashboard Acceptance Pending",
+                    "Overlay Scope Deferred",
+                    "Core Repair Dependency Only",
+                    "Branch Readiness Interface Planning Incomplete",
+                ):
+                    require(
+                        active_blocker in blockers,
+                        (
+                            f"{source_path}: Stage 2-R12 repair must keep "
+                            f"'{active_blocker}' active until Stage 1-R10 revalidation"
+                        ),
+                    )
+            require(
+                "Primary Interface Release Surface: `Monitoring HUD Dashboard / control panel`"
+                in text,
+                f"{source_path}: Stage 2-R12 repair must declare the Dashboard/control panel primary interface",
+            )
+            require(
+                "Branch Readiness Stage 1-R10 - Dashboard-First Interface Boundary Revalidation"
+                in text,
+                (
+                    f"{source_path}: Stage 2-R12 repair must set next legal seam "
+                    "to Stage 1-R10 revalidation"
+                ),
+            )
+            require(
+                "Handoff Readiness: `SUPERSEDED - not ready for Hardening under current Stage 2-R12 authority."
+                in text,
+                (
+                    f"{source_path}: Stage 2-R12 repair must explicitly supersede "
+                    "the prior Hardening handoff"
+                ),
+            )
+            return
+        if stage2_r11_section:
+            for phrase in FAM006_STAGE2_R11_REQUIRED_PHRASES:
+                require(
+                    phrase in stage2_r11_section,
+                    f"{source_path}: {FAM006_STAGE2_R11_HEADING} is missing '{phrase}'",
+                )
+            for active_blocker in (
+                "User Test Summary Returned With Blocking Findings",
+                "User Test Summary Results FAIL",
+                "Core Visualization Opaque Foreground Regression",
+                "Monitoring HUD Product Architecture Mismatch",
+                "HUD Dashboard / Minimal HUD Separation Missing",
+                "Live Validation Proof Gap",
+            ):
+                require(
+                    active_blocker in blockers,
+                    (
+                        f"{source_path}: Stage 2-R11 repair must keep "
+                        f"'{active_blocker}' active until repair and revalidation"
+                    ),
+                )
+            require(
+                "Repair Revalidation Status: Pending - Stage 1-R8 required after Stage 2-R11"
+                in plan_section,
+                (
+                    f"{source_path}: Stage 2-R11 Product Definition Plan must route "
+                    "repair truth to Stage 1-R8 revalidation"
+                ),
+            )
+            require(
+                "Branch Readiness Stage 1-R8 - FAM-006 HUD Dashboard And Minimal HUD Source-Truth Revalidation"
+                in text,
+                (
+                    f"{source_path}: Stage 2-R11 repair must set next legal seam "
+                    "to Stage 1-R8 revalidation"
+                ),
+            )
+            return
+        if stage2_r9_section:
+            for phrase in FAM006_STAGE2_R9_REQUIRED_PHRASES:
+                require(
+                    phrase in stage2_r9_section,
+                    f"{source_path}: {FAM006_STAGE2_R9_HEADING} is missing '{phrase}'",
+                )
+            for cleared_blocker in (
+                LEGACY_PRODUCT_NAME_DRIFT_BLOCKER,
+                USER_VISION_INPUT_PENDING_BLOCKER,
+                USER_VISION_INPUT_ANSWERS_PENDING_BLOCKER,
+                USER_VISION_INPUT_DIGEST_PENDING_BLOCKER,
+            ):
+                require(
+                    cleared_blocker not in blockers,
+                    (
+                        f"{source_path}: Stage 2-R9 digest must clear "
+                        f"'{cleared_blocker}' from active blockers"
+                    ),
+                )
+            for active_blocker in (
+                PRODUCT_PLANNING_INCOMPLETE_BLOCKER,
+                "Branch Reach Unproven",
+                "Current Branch vs Future Package Boundary Missing",
+                HARDWARE_TELEMETRY_PROVIDER_PENDING_BLOCKER,
+                EXTERNAL_TELEMETRY_PRIVACY_MODEL_MISSING_BLOCKER,
+                PERSONA_SWITCH_SCOPE_BOUNDARY_PENDING_BLOCKER,
+            ):
+                require(
+                    active_blocker in blockers,
+                    (
+                        f"{source_path}: Stage 2-R9 digest must keep "
+                        f"'{active_blocker}' active until Stage 1 revalidates"
+                    ),
+                )
+            for deferred_blocker in (
+                POLLING_FLOOR_UNDECIDED_BLOCKER,
+                WARNING_DELIVERY_MODALITY_PENDING_BLOCKER,
+                AUDIO_WARNING_CROSS_FAMILY_APPROVAL_MISSING_BLOCKER,
+            ):
+                require(
+                    deferred_blocker not in blockers,
+                    (
+                        f"{source_path}: Stage 2-R9 must not leave "
+                        f"'{deferred_blocker}' active after current-branch posture "
+                        "is recorded or deferred"
+                    ),
+                )
+            require(
+                "Planning Blockers: `Branch Readiness Planning Incomplete`;" in plan_section,
+                (
+                    f"{source_path}: Stage 2-R9 Product Definition Plan must list "
+                    "Branch Readiness Planning Incomplete first in active planning blockers"
+                ),
+            )
+            require(
+                "`Persona Switch Scope Boundary Pending`" in plan_section,
+                (
+                    f"{source_path}: Stage 2-R9 Product Definition Plan must keep "
+                    "persona/model switching scope as an active boundary blocker"
+                ),
+            )
+            require(
+                "Planning Revalidation Status: Pending - Stage 1-R6 required after Stage 2-R9 digest and scope rebaseline"
+                in plan_section,
+                (
+                    f"{source_path}: Stage 2-R9 Product Definition Plan must route "
+                    "to Stage 1-R6 revalidation"
+                ),
+            )
+            return
+        if has_stage2_r8_blocker:
+            require(
+                bool(stage2_r8_section),
+                f"{source_path}: FAM-006 Branch Readiness re-entry is missing '## {FAM006_STAGE2_R8_HEADING}'",
+            )
+            for phrase in FAM006_STAGE2_R8_REQUIRED_PHRASES:
+                require(
+                    phrase in stage2_r8_section,
+                    f"{source_path}: {FAM006_STAGE2_R8_HEADING} is missing '{phrase}'",
+                )
+            for blocker in (
+                LEGACY_PRODUCT_NAME_DRIFT_BLOCKER,
+                USER_VISION_INPUT_PENDING_BLOCKER,
+                USER_VISION_INPUT_ANSWERS_PENDING_BLOCKER,
+                USER_VISION_INPUT_DIGEST_PENDING_BLOCKER,
+                PRODUCT_PLANNING_INCOMPLETE_BLOCKER,
+            ):
+                require(
+                    blocker in blockers,
+                    f"{source_path}: Stage 2-R8 Branch Readiness re-entry must keep '{blocker}' active",
+                )
+            require(
+                "Planning Blockers: `Legacy Product Name Drift`;" in plan_section,
+                (
+                    f"{source_path}: Stage 2-R8 Product Definition Plan must list "
+                    "Legacy Product Name Drift as an active planning blocker"
+                ),
+            )
+            return
+        require(
+            "Planning Blockers: `Branch Readiness Planning Incomplete`." in plan_section,
+            (
+                f"{source_path}: Stage 2-R6 repair must leave only "
+                "`Branch Readiness Planning Incomplete` as the active planning blocker "
+                "until Stage 1 revalidation"
+            ),
+        )
+        require(
+            PRODUCT_PLANNING_INCOMPLETE_BLOCKER in blockers,
+            (
+                f"{source_path}: Stage 2-R6 Branch Readiness must keep "
+                f"'{PRODUCT_PLANNING_INCOMPLETE_BLOCKER}' active until Stage 1 revalidates"
+            ),
+        )
+    elif current_phase == "Workstream":
+        for forbidden_phrase in FAM006_FORBIDDEN_WORKSTREAM_UTS_PHRASES:
+            require(
+                forbidden_phrase not in text,
+                (
+                    f"{source_path}: FAM-006 Workstream must not preserve stale UTS-as-Workstream "
+                    f"completion wording '{forbidden_phrase}'"
+                ),
+            )
+        for required_phrase in FAM006_WORKSTREAM_CONTINUATION_REQUIRED_PHRASES:
+            require(
+                required_phrase in text,
+                (
+                    f"{source_path}: FAM-006 Workstream continuation truth is missing "
+                    f"'{required_phrase}'"
+                ),
+            )
+        ws51_section = _section(text, FAM006_WS51_HEADING)
+        if ws51_section:
+            for phrase in FAM006_WS51_REQUIRED_PHRASES:
+                require(
+                    phrase in ws51_section,
+                    f"{source_path}: {FAM006_WS51_HEADING} is missing '{phrase}'",
+                )
+            require(
+                (
+                    f"Active seam: `{FAM006_WS51_NEXT_SEAM}`" in text
+                    or "Active seam: `Phase Boundary Stop - Workstream WS51 Green / Await USER Hardening Admission`"
+                    in text
+                    or "Active seam: `Phase Boundary Stop - Workstream WS52 Green / Await USER Hardening Admission`"
+                    in text
+                    or "Active seam: `Phase Boundary Stop - Workstream WS53 Green / Await USER Hardening Admission`"
+                    in text
+                    or "Active seam: `Phase Boundary Stop - Await USER Hardening Admission`"
+                    in text
+                    or "Active seam: `Phase Boundary Stop - Workstream WS54 Green / Await USER Hardening Admission`"
+                    in text
+                    or "Active seam: `Phase Boundary Stop - Workstream WS55 Green / Await USER Hardening Admission`"
+                    in text
+                ),
+                f"{source_path}: WS51 completion must advance active seam or phase-boundary stop to Hardening H1",
+            )
+            require(
+                f"Next Legal Seam: `{FAM006_WS51_NEXT_SEAM}`" in text,
+                f"{source_path}: WS51 completion must set next legal seam to Hardening H1",
+            )
+            require(
+                "H1 rerun and refreshed LV1 remain required" in text
+                or "H1 rerun required" in text,
+                f"{source_path}: WS51 completion must mark prior H1/LV1 stale for affected resize/scrollbar/state rows",
+            )
+        ws56_section = _section(text, FAM006_WS56_HEADING)
+        if ws56_section:
+            for phrase in FAM006_WS56_REQUIRED_PHRASES:
+                require(
+                    phrase in ws56_section,
+                    f"{source_path}: {FAM006_WS56_HEADING} is missing '{phrase}'",
+                )
+            require(
+                (
+                    f"Active seam: `{FAM006_WS56_NEXT_SEAM}`" in text
+                    or "Active seam: `Phase Boundary Stop - Await USER Hardening Admission`"
+                    in text
+                    or "Active seam: `Phase Boundary Stop - Workstream WS56 Green / Await USER Hardening Admission`"
+                    in text
+                ),
+                f"{source_path}: WS56 completion must advance active seam or phase-boundary stop to Hardening H1",
+            )
+            require(
+                f"Next Legal Seam: `{FAM006_WS56_NEXT_SEAM}`" in text,
+                f"{source_path}: WS56 completion must set next legal seam to Hardening H1",
+            )
+            require(
+                "H1 rerun required" in text
+                and "RUI-055" in text
+                and "RUI-056" in text,
+                f"{source_path}: WS56 completion must mark prior H1/LV1 stale for RUI-055/RUI-056 resize rows",
+            )
+            require(
+                "Hardening H1 requires explicit USER admission" in text,
+                f"{source_path}: WS56 completion must preserve explicit USER Hardening admission requirement",
+            )
+            return
+        ws55_section = _section(text, FAM006_WS55_HEADING)
+        if ws55_section:
+            for phrase in FAM006_WS55_REQUIRED_PHRASES:
+                require(
+                    phrase in ws55_section,
+                    f"{source_path}: {FAM006_WS55_HEADING} is missing '{phrase}'",
+                )
+            require(
+                (
+                    f"Active seam: `{FAM006_WS55_NEXT_SEAM}`" in text
+                    or "Active seam: `Phase Boundary Stop - Await USER Hardening Admission`"
+                    in text
+                    or "Active seam: `Phase Boundary Stop - Workstream WS55 Green / Await USER Hardening Admission`"
+                    in text
+                ),
+                f"{source_path}: WS55 completion must advance active seam or phase-boundary stop to Hardening H1",
+            )
+            require(
+                f"Next Legal Seam: `{FAM006_WS55_NEXT_SEAM}`" in text,
+                f"{source_path}: WS55 completion must set next legal seam to Hardening H1",
+            )
+            require(
+                "H1 rerun required" in text
+                and "RUI-054" in text,
+                f"{source_path}: WS55 completion must mark prior H1/LV1 stale for RUI-054 resize action rows",
+            )
+            require(
+                "Hardening H1 requires explicit USER admission" in text,
+                f"{source_path}: WS55 completion must preserve explicit USER Hardening admission requirement",
+            )
+            return
+        ws54_section = _section(text, FAM006_WS54_HEADING)
+        if ws54_section:
+            for phrase in FAM006_WS54_REQUIRED_PHRASES:
+                require(
+                    phrase in ws54_section,
+                    f"{source_path}: {FAM006_WS54_HEADING} is missing '{phrase}'",
+                )
+            require(
+                (
+                    f"Active seam: `{FAM006_WS54_NEXT_SEAM}`" in text
+                    or "Active seam: `Phase Boundary Stop - Await USER Hardening Admission`"
+                    in text
+                    or "Active seam: `Phase Boundary Stop - Workstream WS54 Green / Await USER Hardening Admission`"
+                    in text
+                ),
+                f"{source_path}: WS54 completion must advance active seam or phase-boundary stop to Hardening H1",
+            )
+            require(
+                f"Next Legal Seam: `{FAM006_WS54_NEXT_SEAM}`" in text,
+                f"{source_path}: WS54 completion must set next legal seam to Hardening H1",
+            )
+            require(
+                "H1 rerun required" in text
+                and "RUI-053" in text,
+                f"{source_path}: WS54 completion must mark prior H1/LV1 stale for RUI-053 cursor alignment rows",
+            )
+            require(
+                "Hardening H1 requires explicit USER admission" in text,
+                f"{source_path}: WS54 completion must preserve explicit USER Hardening admission requirement",
+            )
+            return
+        ws53_section = _section(text, FAM006_WS53_HEADING)
+        if ws53_section:
+            for phrase in FAM006_WS53_REQUIRED_PHRASES:
+                require(
+                    phrase in ws53_section,
+                    f"{source_path}: {FAM006_WS53_HEADING} is missing '{phrase}'",
+                )
+            require(
+                (
+                    f"Active seam: `{FAM006_WS53_NEXT_SEAM}`" in text
+                    or "Active seam: `Phase Boundary Stop - Workstream WS53 Green / Await USER Hardening Admission`"
+                    in text
+                    or "Active seam: `Phase Boundary Stop - Await USER Hardening Admission`"
+                    in text
+                    or "Active seam: `Phase Boundary Stop - Workstream WS54 Green / Await USER Hardening Admission`"
+                    in text
+                ),
+                f"{source_path}: WS53 completion must advance active seam or phase-boundary stop to Hardening H1",
+            )
+            require(
+                f"Next Legal Seam: `{FAM006_WS53_NEXT_SEAM}`" in text,
+                f"{source_path}: WS53 completion must set next legal seam to Hardening H1",
+            )
+            require(
+                "H1 rerun required" in text,
+                f"{source_path}: WS53 completion must mark prior H1/LV1 stale for affected resize discoverability rows",
+            )
+            require(
+                "Hardening H1 requires explicit USER admission" in text,
+                f"{source_path}: WS53 completion must preserve explicit USER Hardening admission requirement",
+            )
+            return
+        ws52_section = _section(text, FAM006_WS52_HEADING)
+        if ws52_section:
+            for phrase in FAM006_WS52_REQUIRED_PHRASES:
+                require(
+                    phrase in ws52_section,
+                    f"{source_path}: {FAM006_WS52_HEADING} is missing '{phrase}'",
+                )
+            require(
+                (
+                    f"Active seam: `{FAM006_WS52_NEXT_SEAM}`" in text
+                    or "Active seam: `Phase Boundary Stop - Workstream WS52 Green / Await USER Hardening Admission`"
+                    in text
+                    or "Active seam: `Phase Boundary Stop - Workstream WS53 Green / Await USER Hardening Admission`"
+                    in text
+                    or "Active seam: `Phase Boundary Stop - Await USER Hardening Admission`"
+                    in text
+                    or "Active seam: `Phase Boundary Stop - Workstream WS54 Green / Await USER Hardening Admission`"
+                    in text
+                ),
+                f"{source_path}: WS52 completion must advance active seam or phase-boundary stop to Hardening H1",
+            )
+            require(
+                f"Next Legal Seam: `{FAM006_WS52_NEXT_SEAM}`" in text,
+                f"{source_path}: WS52 completion must set next legal seam to Hardening H1",
+            )
+            require(
+                "H1 rerun required" in text,
+                f"{source_path}: WS52 completion must mark prior H1/LV1 stale for affected resize rows",
+            )
+            require(
+                "Hardening H1 requires explicit USER admission" in text,
+                f"{source_path}: WS51 completion must preserve explicit USER Hardening admission requirement",
+            )
+            return
+        ws50_section = _section(text, FAM006_WS50_HEADING)
+        if ws50_section:
+            for phrase in FAM006_WS50_REQUIRED_PHRASES:
+                require(
+                    phrase in ws50_section,
+                    f"{source_path}: {FAM006_WS50_HEADING} is missing '{phrase}'",
+                )
+            require(
+                (
+                    f"Active seam: `{FAM006_WS50_NEXT_SEAM}`" in text
+                    or "Active seam: `Phase Boundary Stop - Workstream WS50 Green / Await USER Hardening Admission`"
+                    in text
+                ),
+                f"{source_path}: WS50 completion must advance active seam or phase-boundary stop to Hardening H1",
+            )
+            require(
+                f"Next Legal Seam: `{FAM006_WS50_NEXT_SEAM}`" in text,
+                f"{source_path}: WS50 completion must set next legal seam to Hardening H1",
+            )
+            require(
+                "H1/LV1 are stale for affected visual-shell rows" in text
+                or "H1 rerun and refreshed LV1 are required" in text,
+                f"{source_path}: WS50 completion must mark prior H1/LV1 stale for affected visual-shell rows",
+            )
+            require(
+                "Hardening H1 requires explicit USER admission" in text,
+                f"{source_path}: WS50 completion must preserve explicit USER Hardening admission requirement",
+            )
+            return
+        ws49_section = _section(text, FAM006_WS49_HEADING)
+        if ws49_section:
+            for phrase in FAM006_WS49_REQUIRED_PHRASES:
+                require(
+                    phrase in ws49_section,
+                    f"{source_path}: {FAM006_WS49_HEADING} is missing '{phrase}'",
+                )
+            require(
+                (
+                    f"Active seam: `{FAM006_WS49_NEXT_SEAM}`" in text
+                    or "Active seam: `Phase Boundary Stop - Workstream WS49 Green / Await USER Hardening Admission`"
+                    in text
+                ),
+                f"{source_path}: WS49 completion must advance active seam or phase-boundary stop to Hardening H1",
+            )
+            require(
+                f"Next Legal Seam: `{FAM006_WS49_NEXT_SEAM}`" in text,
+                f"{source_path}: WS49 completion must set next legal seam to Hardening H1",
+            )
+            require(
+                "FAM006-RUI-047" in text,
+                f"{source_path}: WS49 completion must register returned USER issue rows through FAM006-RUI-047",
+            )
+            require(
+                "FAM006-TRAY-AUTHORING-DIALOG-GUARD-069" in text,
+                f"{source_path}: WS49 completion must record the tray authoring dialog guard ledger row",
+            )
+            require(
+                "Hardening H1 requires explicit USER admission" in text,
+                f"{source_path}: WS49 completion must preserve explicit USER Hardening admission requirement",
+            )
+            return
+
+        ws48_section = _section(text, FAM006_WS48_HEADING)
+        if ws48_section:
+            for phrase in FAM006_WS48_REQUIRED_PHRASES:
+                require(
+                    phrase in ws48_section,
+                    f"{source_path}: {FAM006_WS48_HEADING} is missing '{phrase}'",
+                )
+            require(
+                f"Next Legal Seam: `{FAM006_WS48_NEXT_SEAM}`" in text,
+                f"{source_path}: LV1 denial must set next legal seam to WS48",
+            )
+            require(
+                "Returned LV1 Handoff Denied" in text,
+                f"{source_path}: LV1 denial must keep Returned LV1 Handoff Denied guard active",
+            )
+            require(
+                "Human-Client Validation Manifest Required Before LV1 Handoff" in text,
+                f"{source_path}: LV1 denial must require human-client validation before next UTS handoff",
+            )
+            return
+
+        ws47_section = _section(text, FAM006_WS47_HEADING)
+        if ws47_section:
+            for phrase in FAM006_WS47_REQUIRED_PHRASES:
+                require(
+                    phrase in ws47_section,
+                    f"{source_path}: {FAM006_WS47_HEADING} is missing '{phrase}'",
+                )
+            require(
+                (
+                    f"Active seam: `{FAM006_WS47_NEXT_SEAM}`" in text
+                    or "Active seam: `Phase Boundary Stop - Hardening H1 Handoff Ready`" in text
+                ),
+                f"{source_path}: WS47 completion must advance active seam or phase-boundary stop to Hardening H1",
+            )
+            require(
+                f"Next Legal Seam: `{FAM006_WS47_NEXT_SEAM}`" in text,
+                f"{source_path}: WS47 completion must set next legal seam to Hardening H1",
+            )
+            require(
+                f"Next Active Seam: {FAM006_WS47_NEXT_SEAM}" in text,
+                f"{source_path}: WS47 completion must set Seam Continuation Decision next active seam to Hardening H1",
+            )
+            require(
+                "Completion Status: Green" in _section(text, "Seam Continuation Decision"),
+                f"{source_path}: WS47 completion must mark Workstream completion green",
+            )
+            require(
+                "Continue Decision: Stop" in _section(text, "Seam Continuation Decision"),
+                f"{source_path}: WS47 completion must stop at the Workstream-to-Hardening phase boundary",
+            )
+            require(
+                "Hardening H1 requires explicit USER admission" in text,
+                f"{source_path}: WS47 completion must preserve explicit USER Hardening admission requirement",
+            )
+            require(
+                "WS47 does not generate, refresh, or digest" in text,
+                f"{source_path}: WS47 completion must prove no formal UTS export occurred in Workstream",
+            )
+            return
+
+        ws46_section = _section(text, FAM006_WS46_HEADING)
+        if ws46_section:
+            for phrase in FAM006_WS46_REQUIRED_PHRASES:
+                require(
+                    phrase in ws46_section,
+                    f"{source_path}: {FAM006_WS46_HEADING} is missing '{phrase}'",
+                )
+            require(
+                f"Active seam: `{FAM006_WS46_NEXT_SEAM}`" in text,
+                f"{source_path}: WS46 completion must advance active seam to Hardening H1",
+            )
+            require(
+                f"Next Legal Seam: `{FAM006_WS46_NEXT_SEAM}`" in text,
+                f"{source_path}: WS46 completion must set next legal seam to Hardening H1",
+            )
+            require(
+                f"Next Active Seam: {FAM006_WS46_NEXT_SEAM}" in text,
+                f"{source_path}: WS46 completion must set Seam Continuation Decision next active seam to Hardening H1",
+            )
+            require(
+                "Completion Status: Green" in _section(text, "Seam Continuation Decision"),
+                f"{source_path}: WS46 completion must mark Workstream completion green",
+            )
+            require(
+                "Continue Decision: Stop" in _section(text, "Seam Continuation Decision"),
+                f"{source_path}: WS46 completion must stop at the Workstream-to-Hardening phase boundary",
+            )
+            require(
+                "Hardening phase-boundary stop requires explicit USER admission" in text,
+                f"{source_path}: WS46 completion must preserve explicit USER Hardening admission requirement",
+            )
+            require(
+                "dashboardUserTestSummaryExportRefreshed=false" in text,
+                f"{source_path}: WS46 completion must prove no formal UTS export occurred in Workstream",
+            )
+            return
+        ws45_section = _section(text, FAM006_WS45_HEADING)
+        if ws45_section:
+            for phrase in FAM006_WS45_REQUIRED_PHRASES:
+                require(
+                    phrase in ws45_section,
+                    f"{source_path}: {FAM006_WS45_HEADING} is missing '{phrase}'",
+                )
+            require(
+                f"Active seam: `{FAM006_WS45_NEXT_SEAM}`" in text,
+                f"{source_path}: WS45 completion must advance active seam to WS46",
+            )
+            require(
+                f"Next Legal Seam: `{FAM006_WS45_NEXT_SEAM}`" in text,
+                f"{source_path}: WS45 completion must set next legal seam to WS46",
+            )
+            require(
+                f"Next Active Seam: {FAM006_WS45_NEXT_SEAM}" in text,
+                f"{source_path}: WS45 completion must set Seam Continuation Decision next active seam to WS46",
+            )
+            require(
+                "Continue Decision: Continue" in _section(text, "Seam Continuation Decision"),
+                f"{source_path}: WS45 completion must continue within bounded Workstream",
+            )
+            require(
+                "Stop Basis: None" in _section(text, "Seam Continuation Decision"),
+                f"{source_path}: WS45 completion must not create a stop basis before WS46",
+            )
+            require(
+                "Remaining Implementable Work: `Dashboard-focused Workstream repair continues with WS46"
+                in text,
+                (
+                    f"{source_path}: WS45 completion must preserve visible same-branch "
+                    "Dashboard proof-readiness work beyond the current seam"
+                ),
+            )
+            return
+        ws44_section = _section(text, FAM006_WS44_HEADING)
+        if ws44_section:
+            for phrase in FAM006_WS44_REQUIRED_PHRASES:
+                require(
+                    phrase in ws44_section,
+                    f"{source_path}: {FAM006_WS44_HEADING} is missing '{phrase}'",
+                )
+            require(
+                f"Active seam: `{FAM006_WS44_NEXT_SEAM}`" in text,
+                f"{source_path}: WS44 completion must advance active seam to WS45",
+            )
+            require(
+                f"Next Legal Seam: `{FAM006_WS44_NEXT_SEAM}`" in text,
+                f"{source_path}: WS44 completion must set next legal seam to WS45",
+            )
+            require(
+                f"Next Active Seam: {FAM006_WS44_NEXT_SEAM}" in text,
+                f"{source_path}: WS44 completion must set Seam Continuation Decision next active seam to WS45",
+            )
+            require(
+                "Continue Decision: Continue" in _section(text, "Seam Continuation Decision"),
+                f"{source_path}: WS44 completion must continue within bounded Workstream",
+            )
+            require(
+                "Stop Basis: None" in _section(text, "Seam Continuation Decision"),
+                f"{source_path}: WS44 completion must not create a stop basis before WS45",
+            )
+            require(
+                "Remaining Implementable Work: `Dashboard-focused Workstream repair continues with WS45"
+                in text,
+                (
+                    f"{source_path}: WS44 completion must preserve visible same-branch "
+                    "Dashboard IA/naming/action cleanup work beyond the current seam"
+                ),
+            )
+            return
+        ws43_section = _section(text, FAM006_WS43_HEADING)
+        if ws43_section:
+            for phrase in FAM006_WS43_REQUIRED_PHRASES:
+                require(
+                    phrase in ws43_section,
+                    f"{source_path}: {FAM006_WS43_HEADING} is missing '{phrase}'",
+                )
+            require(
+                f"Active seam: `{FAM006_WS43_NEXT_SEAM}`" in text,
+                f"{source_path}: WS43 completion must advance active seam to WS44",
+            )
+            require(
+                f"Next Legal Seam: `{FAM006_WS43_NEXT_SEAM}`" in text,
+                f"{source_path}: WS43 completion must set next legal seam to WS44",
+            )
+            require(
+                f"Next Active Seam: {FAM006_WS43_NEXT_SEAM}" in text,
+                f"{source_path}: WS43 completion must set Seam Continuation Decision next active seam to WS44",
+            )
+            require(
+                "Continue Decision: Continue" in _section(text, "Seam Continuation Decision"),
+                f"{source_path}: WS43 completion must continue within bounded Workstream",
+            )
+            require(
+                "Stop Basis: None" in _section(text, "Seam Continuation Decision"),
+                f"{source_path}: WS43 completion must not create a stop basis before WS44",
+            )
+            require(
+                "Remaining Implementable Work: `Dashboard-focused Workstream repair continues with WS44"
+                in text,
+                (
+                    f"{source_path}: WS43 completion must preserve visible same-branch "
+                    "Dashboard visual-shell repair work beyond the current seam"
+                ),
+            )
+            return
+        ws42_section = _section(text, FAM006_WS42_HEADING)
+        if ws42_section:
+            for phrase in FAM006_WS42_REQUIRED_PHRASES:
+                require(
+                    phrase in ws42_section,
+                    f"{source_path}: {FAM006_WS42_HEADING} is missing '{phrase}'",
+                )
+            require(
+                f"Active seam: `{FAM006_WS42_NEXT_SEAM}`" in text,
+                f"{source_path}: WS42 completion must advance active seam to Hardening H1",
+            )
+            require(
+                f"Next Legal Seam: `{FAM006_WS42_NEXT_SEAM}`" in text,
+                f"{source_path}: WS42 completion must set next legal seam to Hardening H1",
+            )
+            require(
+                f"Next Active Seam: {FAM006_WS42_NEXT_SEAM}" in text,
+                f"{source_path}: WS42 completion must set Seam Continuation Decision next active seam to Hardening H1",
+            )
+            require(
+                "Remaining Implementable Work: `None inside current Workstream - WS37 through WS42 are green or legally deferred"
+                in text,
+                (
+                    f"{source_path}: WS42 completion must close current same-phase "
+                    "Workstream implementation/proof work before Hardening handoff"
+                ),
+            )
+            require(
+                "Continue Decision: Stop" in _section(text, "Seam Continuation Decision"),
+                f"{source_path}: WS42 completion must stop at the Hardening phase boundary",
+            )
+            require(
+                "Continuation Execution Latch: Inactive - WS42 is Green; phase-boundary stop is required before USER may admit Hardening H1."
+                in text,
+                f"{source_path}: WS42 completion must keep the Hardening phase-boundary latch inactive",
+            )
+            require(
+                "dashboardUserTestSummaryExportRefreshed=false" in text,
+                f"{source_path}: WS42 completion must prove no formal UTS export was generated in Workstream",
+            )
+            return
+        ws41_section = _section(text, FAM006_WS41_HEADING)
+        if ws41_section:
+            for phrase in FAM006_WS41_REQUIRED_PHRASES:
+                require(
+                    phrase in ws41_section,
+                    f"{source_path}: {FAM006_WS41_HEADING} is missing '{phrase}'",
+                )
+            require(
+                f"Active seam: `{FAM006_WS41_NEXT_SEAM}`" in text,
+                f"{source_path}: WS41 deferral must advance active seam to WS42 proof readiness",
+            )
+            require(
+                f"Next Active Seam: {FAM006_WS41_NEXT_SEAM}" in text,
+                f"{source_path}: WS41 deferral must set Seam Continuation Decision next active seam to WS42",
+            )
+            require(
+                "Remaining Implementable Work: `Dashboard-focused Workstream repair continues with WS42"
+                in text,
+                (
+                    f"{source_path}: WS41 deferral must preserve visible same-branch "
+                    "Dashboard proof work beyond the current seam"
+                ),
+            )
+            require(
+                "WS41 Child-Window Scope User Admission Missing" not in _section(text, "Blockers"),
+                (
+                    f"{source_path}: WS41 deferral must clear the former admission blocker "
+                    "from active Blockers"
+                ),
+            )
+            return
+        ws40_section = _section(text, FAM006_WS40_HEADING)
+        if ws40_section:
+            for phrase in FAM006_WS40_REQUIRED_PHRASES:
+                require(
+                    phrase in ws40_section,
+                    f"{source_path}: {FAM006_WS40_HEADING} is missing '{phrase}'",
+                )
+            require(
+                f"Active seam: `{FAM006_WS40_NEXT_SEAM}`" in text,
+                f"{source_path}: WS40 completion must advance active seam to WS41 scope seam",
+            )
+            require(
+                f"Next Active Seam: {FAM006_WS40_NEXT_SEAM}" in text,
+                f"{source_path}: WS40 completion must set Seam Continuation Decision next active seam to WS41",
+            )
+            require(
+                "Remaining Implementable Work: `Dashboard-focused Workstream repair continues with WS41"
+                in text,
+                (
+                    f"{source_path}: WS40 completion must preserve visible same-branch "
+                    "Dashboard repair/proof work beyond the current seam"
+                ),
+            )
+            return
+        ws39_section = _section(text, FAM006_WS39_HEADING)
+        if ws39_section:
+            for phrase in FAM006_WS39_REQUIRED_PHRASES:
+                require(
+                    phrase in ws39_section,
+                    f"{source_path}: {FAM006_WS39_HEADING} is missing '{phrase}'",
+                )
+            require(
+                f"Active seam: `{FAM006_WS39_NEXT_SEAM}`" in text,
+                f"{source_path}: WS39 completion must advance active seam to WS40",
+            )
+            require(
+                f"Next Active Seam: {FAM006_WS39_NEXT_SEAM}" in text,
+                f"{source_path}: WS39 completion must set Seam Continuation Decision next active seam to WS40",
+            )
+            require(
+                "Remaining Implementable Work: `Dashboard-focused Workstream repair continues with WS40"
+                in text,
+                (
+                    f"{source_path}: WS39 completion must preserve visible same-branch "
+                    "Dashboard repair work beyond the current seam"
+                ),
+            )
+            return
+        ws38_section = _section(text, FAM006_WS38_HEADING)
+        if ws38_section:
+            for phrase in FAM006_WS38_REQUIRED_PHRASES:
+                require(
+                    phrase in ws38_section,
+                    f"{source_path}: {FAM006_WS38_HEADING} is missing '{phrase}'",
+                )
+            require(
+                f"Active seam: `{FAM006_WS38_NEXT_SEAM}`" in text,
+                f"{source_path}: WS38 completion must advance active seam to WS39",
+            )
+            require(
+                f"Next Active Seam: {FAM006_WS38_NEXT_SEAM}" in text,
+                f"{source_path}: WS38 completion must set Seam Continuation Decision next active seam to WS39",
+            )
+            require(
+                "Remaining Implementable Work: `Dashboard-focused Workstream repair continues with WS39"
+                in text,
+                (
+                    f"{source_path}: WS38 completion must preserve visible same-branch "
+                    "Dashboard repair work beyond the current seam"
+                ),
+            )
+            return
+        ws37_section = _section(text, FAM006_WS37_HEADING)
+        if ws37_section:
+            for phrase in FAM006_WS37_REQUIRED_PHRASES:
+                require(
+                    phrase in ws37_section,
+                    f"{source_path}: {FAM006_WS37_HEADING} is missing '{phrase}'",
+                )
+            require(
+                f"Active seam: `{FAM006_WS37_NEXT_SEAM}`" in text,
+                f"{source_path}: WS37 completion must advance active seam to WS38",
+            )
+            require(
+                f"Next Active Seam: {FAM006_WS37_NEXT_SEAM}" in text,
+                f"{source_path}: WS37 completion must set Seam Continuation Decision next active seam to WS38",
+            )
+            require(
+                "Remaining Implementable Work: `Dashboard-focused Workstream repair continues with WS38"
+                in text,
+                (
+                    f"{source_path}: WS37 completion must preserve visible same-branch "
+                    "Dashboard repair work beyond the current seam"
+                ),
+            )
+            require(
+                "Dashboard Acceptance State: `Still blocked"
+                in ws37_section,
+                (
+                    f"{source_path}: WS37 must not claim Dashboard acceptance or package completion"
+                ),
+            )
+            return
+        ws36_section = _section(text, FAM006_WS36_HEADING)
+        if ws36_section:
+            for phrase in FAM006_WS36_REQUIRED_PHRASES:
+                require(
+                    phrase in ws36_section,
+                    f"{source_path}: {FAM006_WS36_HEADING} is missing '{phrase}'",
+                )
+            require(
+                "Active seam: `Phase Boundary Stop - Await USER Hardening Admission`" in text,
+                (
+                    f"{source_path}: WS36 completion must stop at the phase boundary and await "
+                    "explicit USER Hardening admission"
+                ),
+            )
+            require(
+                f"Next Active Seam: {FAM006_WS36_NEXT_SEAM}" in text,
+                f"{source_path}: WS36 completion must set Seam Continuation Decision next active seam to Hardening H1",
+            )
+            require(
+                "Remaining Implementable Work: `None - Dashboard-focused Workstream repair is green"
+                in text,
+                (
+                    f"{source_path}: WS36 completion must close current Dashboard-focused "
+                    "Workstream implementable work before Hardening handoff"
+                ),
+            )
+            require(
+                "Completion Status: Green" in text,
+                f"{source_path}: WS36 completion must record Workstream Completion Status Green",
+            )
+            return
+        ws35_section = _section(text, FAM006_WS35_HEADING)
+        if ws35_section:
+            for phrase in FAM006_WS35_REQUIRED_PHRASES:
+                require(
+                    phrase in ws35_section,
+                    f"{source_path}: {FAM006_WS35_HEADING} is missing '{phrase}'",
+                )
+            require(
+                f"Active seam: `{FAM006_WS35_NEXT_SEAM}`" in text,
+                f"{source_path}: WS35 completion must advance active seam to WS36",
+            )
+            require(
+                f"Next Active Seam: {FAM006_WS35_NEXT_SEAM}" in text,
+                f"{source_path}: WS35 completion must set Seam Continuation Decision next active seam to WS36",
+            )
+            require(
+                "Remaining Implementable Work: `Dashboard-focused Workstream repair continues with WS36"
+                in text,
+                (
+                    f"{source_path}: WS35 completion must preserve visible same-branch "
+                    "Workstream completion review work beyond the current seam"
+                ),
+            )
+            require(
+                "Dashboard Acceptance Pending remains active"
+                in ws35_section,
+                (
+                    f"{source_path}: WS35 must not claim returned UTS acceptance or package completion"
+                ),
+            )
+            return
+        ws34_section = _section(text, FAM006_WS34_HEADING)
+        if ws34_section:
+            for phrase in FAM006_WS34_REQUIRED_PHRASES:
+                require(
+                    phrase in ws34_section,
+                    f"{source_path}: {FAM006_WS34_HEADING} is missing '{phrase}'",
+                )
+            require(
+                f"Active seam: `{FAM006_WS34_NEXT_SEAM}`" in text,
+                f"{source_path}: WS34 completion must advance active seam to WS35",
+            )
+            require(
+                f"Next Active Seam: {FAM006_WS34_NEXT_SEAM}" in text,
+                f"{source_path}: WS34 completion must set Seam Continuation Decision next active seam to WS35",
+            )
+            require(
+                "Remaining Implementable Work: `Dashboard-focused Workstream repair continues with WS35"
+                in text,
+                (
+                    f"{source_path}: WS34 completion must preserve visible same-branch "
+                    "Dashboard proof work beyond the current seam"
+                ),
+            )
+            require(
+                "Dashboard Acceptance Pending remains active"
+                in ws34_section,
+                (
+                    f"{source_path}: WS34 must not claim Dashboard acceptance or package completion"
+                ),
+            )
+            return
+        if ws33_section:
+            for phrase in FAM006_WS33_REQUIRED_PHRASES:
+                require(
+                    phrase in ws33_section,
+                    f"{source_path}: {FAM006_WS33_HEADING} is missing '{phrase}'",
+                )
+            require(
+                f"Active seam: `{FAM006_WS33_NEXT_SEAM}`" in text,
+                f"{source_path}: WS33 completion must advance active seam to WS34",
+            )
+            require(
+                f"Next Active Seam: {FAM006_WS33_NEXT_SEAM}" in text,
+                f"{source_path}: WS33 completion must set Seam Continuation Decision next active seam to WS34",
+            )
+            require(
+                "Remaining Implementable Work: `Dashboard-focused Workstream repair continues with WS34"
+                in text,
+                (
+                    f"{source_path}: WS33 completion must preserve visible same-branch "
+                    "Dashboard repair work beyond the current seam"
+                ),
+            )
+            require(
+                "Dashboard Acceptance Pending remains active"
+                in ws33_section,
+                (
+                    f"{source_path}: WS33 must not claim Dashboard acceptance or package completion"
+                ),
+            )
+            return
+        if ws32_section:
+            for phrase in FAM006_WS32_REQUIRED_PHRASES:
+                require(
+                    phrase in ws32_section,
+                    f"{source_path}: {FAM006_WS32_HEADING} is missing '{phrase}'",
+                )
+            require(
+                f"Active seam: `{FAM006_WS32_NEXT_SEAM}`" in text,
+                f"{source_path}: WS32 completion must advance active seam to WS33",
+            )
+            require(
+                f"Next Active Seam: {FAM006_WS32_NEXT_SEAM}" in text,
+                f"{source_path}: WS32 completion must set Seam Continuation Decision next active seam to WS33",
+            )
+            require(
+                "Remaining Implementable Work: `Dashboard-focused Workstream repair continues with WS33"
+                in text,
+                (
+                    f"{source_path}: WS32 completion must preserve visible same-branch "
+                    "Dashboard repair work beyond the current seam"
+                ),
+            )
+            require(
+                "Dashboard Acceptance Pending remains active"
+                in ws32_section,
+                (
+                    f"{source_path}: WS32 must not claim Dashboard acceptance or package completion"
+                ),
+            )
+            return
+        if ws31_section:
+            for phrase in FAM006_WS31_REQUIRED_PHRASES:
+                require(
+                    phrase in ws31_section,
+                    f"{source_path}: {FAM006_WS31_HEADING} is missing '{phrase}'",
+                )
+            require(
+                f"Active seam: `{FAM006_WS31_NEXT_SEAM}`" in text,
+                f"{source_path}: WS31 completion must advance active seam to WS32",
+            )
+            require(
+                f"Next Active Seam: {FAM006_WS31_NEXT_SEAM}" in text,
+                f"{source_path}: WS31 completion must set Seam Continuation Decision next active seam to WS32",
+            )
+            require(
+                "Remaining Implementable Work: `Dashboard-focused Workstream repair continues with WS32"
+                in text,
+                (
+                    f"{source_path}: WS31 completion must preserve visible same-branch "
+                    "Dashboard repair work beyond the current seam"
+                ),
+            )
+            require(
+                "Dashboard Acceptance Pending remains active"
+                in ws31_section,
+                (
+                    f"{source_path}: WS31 must not claim Dashboard acceptance or package completion"
+                ),
+            )
+            return
+        if stage2_r13_section:
+            for phrase in FAM006_STAGE2_R13_REQUIRED_PHRASES:
+                require(
+                    phrase in stage2_r13_section,
+                    f"{source_path}: {FAM006_STAGE2_R13_HEADING} is missing '{phrase}'",
+                )
+            for cleared_blocker in (
+                "Branch Readiness Interface Planning Incomplete",
+                "Interface Acceptance Missing",
+            ):
+                require(
+                    cleared_blocker not in blockers,
+                    (
+                        f"{source_path}: Stage 2-R13 handoff must clear "
+                        f"'{cleared_blocker}' from active blockers"
+                    ),
+                )
+            require(
+                "Active seam: `Workstream WS31 - Dashboard Control Panel Acceptance Baseline And Overlay Deferral Enforcement`"
+                in text,
+                f"{source_path}: Stage 2-R13 handoff must set active seam to WS31",
+            )
+            require(
+                "Planning Blockers: None active after Stage 2-R13 Dashboard-first revalidation closeout."
+                in plan_section,
+                (
+                    f"{source_path}: Stage 2-R13 Workstream handoff must clear "
+                    "active Branch Readiness planning blockers in the Product Definition Plan"
+                ),
+            )
+            require(
+                "Dashboard Acceptance Pending remains a Workstream acceptance gap"
+                in plan_section,
+                (
+                    f"{source_path}: Stage 2-R13 must preserve Dashboard Acceptance Pending "
+                    "as Workstream product proof, not a planning blocker"
+                ),
+            )
+            return
+        if stage2_r10_section:
+            for phrase in FAM006_STAGE2_R10_REQUIRED_PHRASES:
+                require(
+                    phrase in stage2_r10_section,
+                    f"{source_path}: {FAM006_STAGE2_R10_HEADING} is missing '{phrase}'",
+                )
+            for cleared_blocker in (
+                PRODUCT_PLANNING_INCOMPLETE_BLOCKER,
+                "Branch Reach Unproven",
+                "Current Branch vs Future Package Boundary Missing",
+                HARDWARE_TELEMETRY_PROVIDER_PENDING_BLOCKER,
+                EXTERNAL_TELEMETRY_PRIVACY_MODEL_MISSING_BLOCKER,
+                PERSONA_SWITCH_SCOPE_BOUNDARY_PENDING_BLOCKER,
+            ):
+                require(
+                    cleared_blocker not in blockers,
+                    (
+                        f"{source_path}: Stage 2-R10 handoff must clear or defer "
+                        f"'{cleared_blocker}' from active blockers"
+                    ),
+                )
+            require(
+                "Planning Blockers: None active after Stage 2-R10 scope rebaseline closeout."
+                in plan_section,
+                (
+                    f"{source_path}: Stage 2-R10 Workstream handoff must clear "
+                    "active planning blockers in the Product Definition Plan"
+                ),
+            )
+            require(
+                PRODUCT_PLANNING_INCOMPLETE_BLOCKER not in blockers,
+                (
+                    f"{source_path}: Workstream handoff must not keep "
+                    f"'{PRODUCT_PLANNING_INCOMPLETE_BLOCKER}' under active Blockers"
+                ),
+            )
+            return
+        closeout_section = _section(text, FAM006_STAGE2_R7_HEADING)
+        require(
+            bool(closeout_section),
+            f"{source_path}: FAM-006 Workstream handoff is missing '## {FAM006_STAGE2_R7_HEADING}'",
+        )
+        for phrase in FAM006_STAGE2_R7_REQUIRED_PHRASES:
+            require(
+                phrase in closeout_section,
+                f"{source_path}: {FAM006_STAGE2_R7_HEADING} is missing '{phrase}'",
+            )
+        require(
+            "Planning Blockers: None active after Stage 2-R7 planning revalidation closeout." in plan_section,
+            (
+                f"{source_path}: Workstream handoff must clear "
+                "`Branch Readiness Planning Incomplete` in the Product Definition Plan"
+            ),
+        )
+        require(
+            PRODUCT_PLANNING_INCOMPLETE_BLOCKER not in blockers,
+            (
+                f"{source_path}: Workstream handoff must not keep "
+                f"'{PRODUCT_PLANNING_INCOMPLETE_BLOCKER}' under active Blockers"
+            ),
+        )
+    elif current_phase == "Hardening":
+        h1_section = _section(text, FAM006_H1_HEADING)
+        require(
+            bool(h1_section),
+            f"{source_path}: FAM-006 Hardening state is missing '## {FAM006_H1_HEADING}'",
+        )
+        for phrase in FAM006_H1_REQUIRED_PHRASES:
+            require(
+                phrase in h1_section,
+                f"{source_path}: {FAM006_H1_HEADING} is missing '{phrase}'",
+            )
+        require(
+            "Active seam: `Phase Boundary Stop - Await USER Live Validation Admission`"
+            in text,
+            (
+                f"{source_path}: H1 completion must stop at the phase boundary and await "
+                "explicit USER Live Validation admission"
+            ),
+        )
+        require(
+            f"Next Active Seam: {FAM006_H1_NEXT_SEAM}" in text,
+            f"{source_path}: H1 completion must set Seam Continuation Decision next active seam to Live Validation LV1",
+        )
+        require(
+            "Remaining Implementable Work: `None - Dashboard-focused Workstream repair and Hardening H1 are green"
+            in text,
+            (
+                f"{source_path}: H1 completion must close current Workstream and Hardening "
+                "implementation/proof work before Live Validation handoff"
+            ),
+        )
+        require(
+            "Continuation Execution Latch: Inactive - Hardening H1 is Green; phase-boundary stop is required before USER may admit Live Validation LV1."
+            in text,
+            f"{source_path}: H1 completion must keep the Live Validation phase-boundary latch inactive",
+        )
+        require(
+            "Formal User Test Summary export is exclusive to Live Validation Stage 1"
+            in text,
+            f"{source_path}: H1 completion must preserve the Live Validation Stage 1 UTS boundary",
+        )
+        require(
+            _parse_uts_result_state(text) == "",
+            (
+                f"{source_path}: Hardening may keep User Test Summary strategy current, "
+                f"but must not declare '{UTS_RESULT_LABEL}' before Live Validation"
+            ),
+        )
+        require(
+            UTS_RESULTS_BLOCKER not in blockers,
+            (
+                f"{source_path}: {UTS_RESULTS_BLOCKER} is a Live Validation / PR Readiness "
+                "final-green blocker, not a Hardening stop condition"
+            ),
+        )
+
+
+def _validate_user_vision_input_handoff(
+    require,
+    source_path: str,
+    text: str,
+    blockers: list[str],
+) -> None:
+    has_user_vision_input_blocker = any(
+        blocker in blockers
+        for blocker in (
+            USER_VISION_INPUT_PENDING_BLOCKER,
+            USER_VISION_INPUT_FILE_MISSING_BLOCKER,
+            USER_VISION_INPUT_ANSWERS_PENDING_BLOCKER,
+            USER_VISION_INPUT_DIGEST_PENDING_BLOCKER,
+        )
+    )
+    if not has_user_vision_input_blocker and f"## {USER_VISION_INPUT_HANDOFF_HEADING}" not in text:
+        return
+
+    handoff_section = _section(text, USER_VISION_INPUT_HANDOFF_HEADING)
+    require(
+        bool(handoff_section),
+        (
+            f"{source_path}: USER vision input blockers require "
+            f"'## {USER_VISION_INPUT_HANDOFF_HEADING}'"
+        ),
+    )
+    if not handoff_section:
+        return
+
+    for marker in USER_VISION_INPUT_HANDOFF_MARKERS:
+        require(
+            marker in handoff_section,
+            f"{source_path}: {USER_VISION_INPUT_HANDOFF_HEADING} is missing '{marker}'",
+        )
+
+    artifact_path = _extract_marker_value(handoff_section, "USER Vision Input Artifact Path:")
+    artifact_state = _extract_marker_value(handoff_section, "USER Vision Input Artifact State:")
+    answer_state = _extract_marker_value(handoff_section, "USER Vision Input Answer State:")
+    digest_state = _extract_marker_value(handoff_section, "USER Vision Input Digest State:")
+    source_truth_rule = _extract_marker_value(handoff_section, "Repo Source Truth Update Rule:")
+    normalized_answer_state = answer_state.casefold()
+    normalized_digest_state = digest_state.casefold()
+    artifact_exists = USER_VISION_INPUT_ARTIFACT_PATH.exists()
+
+    require(
+        str(USER_VISION_INPUT_ARTIFACT_PATH) in artifact_path,
+        (
+            f"{source_path}: USER vision input handoff must point to "
+            f"{USER_VISION_INPUT_ARTIFACT_PATH}"
+        ),
+    )
+    require(
+        bool(artifact_state),
+        f"{source_path}: USER vision input handoff is missing artifact state",
+    )
+    require(
+        bool(answer_state),
+        f"{source_path}: USER vision input handoff is missing answer state",
+    )
+    require(
+        bool(digest_state),
+        f"{source_path}: USER vision input handoff is missing digest state",
+    )
+    require(
+        "recommendations" in source_truth_rule.casefold()
+        and "not" in source_truth_rule.casefold()
+        and "digest" in source_truth_rule.casefold(),
+        (
+            f"{source_path}: USER vision input handoff must state that Codex "
+            "recommendations/unanswered prompts are not USER-approved repo truth "
+            "until a later digest pass"
+        ),
+    )
+
+    if (
+        USER_VISION_INPUT_FILE_MISSING_BLOCKER in blockers
+        or USER_VISION_INPUT_ANSWERS_PENDING_BLOCKER in blockers
+        or USER_VISION_INPUT_DIGEST_PENDING_BLOCKER in blockers
+    ) and artifact_exists:
+        require(
+            USER_VISION_INPUT_FILE_MISSING_BLOCKER not in blockers,
+            (
+                f"{source_path}: {USER_VISION_INPUT_FILE_MISSING_BLOCKER} must not remain "
+                f"active while {USER_VISION_INPUT_ARTIFACT_PATH} exists"
+            ),
+        )
+    elif USER_VISION_INPUT_FILE_MISSING_BLOCKER in blockers:
+        require(
+            not artifact_exists,
+            (
+                f"{source_path}: {USER_VISION_INPUT_FILE_MISSING_BLOCKER} is active, "
+                f"but {USER_VISION_INPUT_ARTIFACT_PATH} exists"
+            ),
+        )
+
+    if "pending" in normalized_answer_state or "incomplete" in normalized_answer_state:
+        require(
+            USER_VISION_INPUT_ANSWERS_PENDING_BLOCKER in blockers,
+            (
+                f"{source_path}: pending USER vision input answers must block on "
+                f"'{USER_VISION_INPUT_ANSWERS_PENDING_BLOCKER}'"
+            ),
+        )
+    elif "complete" in normalized_answer_state or "completed" in normalized_answer_state:
+        require(
+            USER_VISION_INPUT_ANSWERS_PENDING_BLOCKER not in blockers,
+            (
+                f"{source_path}: {USER_VISION_INPUT_ANSWERS_PENDING_BLOCKER} must clear "
+                "after USER vision input answers are recorded complete"
+            ),
+        )
+
+    if "pending" in normalized_digest_state or "not digested" in normalized_digest_state:
+        require(
+            USER_VISION_INPUT_DIGEST_PENDING_BLOCKER in blockers,
+            (
+                f"{source_path}: undigested USER vision input answers must block on "
+                f"'{USER_VISION_INPUT_DIGEST_PENDING_BLOCKER}'"
+            ),
+        )
+        require(
+            USER_VISION_INPUT_PENDING_BLOCKER in blockers,
+            (
+                f"{source_path}: USER vision input cannot be considered complete until "
+                f"'{USER_VISION_INPUT_PENDING_BLOCKER}' is cleared by a later digest pass"
+            ),
+        )
+    elif "digest" in normalized_digest_state or "digested" in normalized_digest_state:
+        require(
+            USER_VISION_INPUT_DIGEST_PENDING_BLOCKER not in blockers,
+            (
+                f"{source_path}: {USER_VISION_INPUT_DIGEST_PENDING_BLOCKER} must clear "
+                "after USER vision input is digested into repo source truth"
+            ),
+        )
+        require(
+            USER_VISION_INPUT_PENDING_BLOCKER not in blockers,
+            (
+                f"{source_path}: {USER_VISION_INPUT_PENDING_BLOCKER} must clear after "
+                "USER vision input is digested into repo source truth"
+            ),
+        )
 
 
 def _validate_backlog_completion_status(
@@ -3933,18 +7627,26 @@ def _validate_backlog_completion_status(
     )
 
     if normalized_state == BACKLOG_COMPLETION_IN_PROGRESS:
+        in_progress_phase_allows_latch = current_phase in {
+            "Branch Readiness",
+            "Workstream",
+            "Hardening",
+            "Live Validation",
+            "PR Readiness",
+        }
         require(
-            current_phase == "Workstream",
+            in_progress_phase_allows_latch,
             (
-                f"{source_path}: {BACKLOG_COMPLETION_STATE_LABEL} In Progress must keep the branch in "
-                "`Workstream`"
+                f"{source_path}: {BACKLOG_COMPLETION_STATE_LABEL} In Progress must keep the branch "
+                "inside an admitted pre-completion phase"
             ),
         )
         require(
-            next_legal_phase == "Workstream",
+            next_legal_phase == current_phase,
             (
                 f"{source_path}: {BACKLOG_COMPLETION_STATE_LABEL} In Progress must keep "
-                "Next Legal Phase at `Workstream`"
+                "Next Legal Phase at the current phase until explicit phase admission "
+                "or package completion proof clears the latch"
             ),
         )
         require(
@@ -3981,6 +7683,29 @@ def _validate_backlog_completion_status(
                     ),
                 )
     elif normalized_state == BACKLOG_COMPLETION_IMPLEMENTED_COMPLETE:
+        visible_proof_required = _extract_marker_value(
+            text, VISIBLE_USER_FACING_PROOF_REQUIRED_LABEL
+        ).strip().casefold()
+        visible_proof = _extract_marker_value(
+            text, VISIBLE_USER_FACING_PROOF_LABEL
+        ).strip().casefold()
+        if visible_proof_required in {"yes", "required", "true"}:
+            require(
+                visible_proof in VISIBLE_USER_FACING_PROOF_PASS_VALUES,
+                (
+                    f"{source_path}: {BACKLOG_COMPLETION_STATE_LABEL} Implemented Complete "
+                    f"requires '{VISIBLE_USER_FACING_PROOF_LABEL} PASS' or WAIVED when "
+                    f"'{VISIBLE_USER_FACING_PROOF_REQUIRED_LABEL} Yes' is recorded"
+                ),
+            )
+            require(
+                _parse_uts_result_state(text) not in {"", "PENDING", "FAIL"},
+                (
+                    f"{source_path}: {BACKLOG_COMPLETION_STATE_LABEL} Implemented Complete "
+                    "requires returned User Test Summary results or a documented waiver when "
+                    "visible user-facing proof is required"
+                ),
+            )
         require(
             normalized_remaining in {"", "none", "n/a", "na"},
             (
@@ -4170,6 +7895,32 @@ def _parse_user_facing_shortcut_waiver_reason(text: str) -> str:
     return _extract_marker_value(
         _user_test_summary_section(text),
         USER_FACING_SHORTCUT_WAIVER_REASON_LABEL,
+    )
+
+
+def _codex_live_client_self_qa_section(text: str) -> str:
+    return _section(text, "Codex Live Client Self-QA")
+
+
+def _has_codex_live_client_self_qa(text: str) -> bool:
+    return bool(_codex_live_client_self_qa_section(text))
+
+
+def _parse_codex_live_client_self_qa_state(text: str) -> str:
+    section = _codex_live_client_self_qa_section(text)
+    matches = re.findall(
+        rf"{re.escape(CODEX_LIVE_CLIENT_SELF_QA_RESULT_LABEL)}\s*`?([A-Za-z]+)`?",
+        section,
+    )
+    if not matches:
+        return ""
+    return matches[-1].strip().upper()
+
+
+def _parse_codex_live_client_self_qa_waiver_reason(text: str) -> str:
+    return _extract_marker_value(
+        _codex_live_client_self_qa_section(text),
+        CODEX_LIVE_CLIENT_SELF_QA_WAIVER_REASON_LABEL,
     )
 
 
@@ -10239,6 +13990,9 @@ def main() -> int:
         if not condition:
             errors.append(message)
 
+    for occurrence in _tracked_repo_legacy_product_name_occurrences():
+        require(False, f"Tracked repo sterilization: {occurrence}")
+
     for relative_path in PROMPT_CONTRACT_DOCS:
         text = _read_text(relative_path)
         for old_term in OLD_PHASE_TERMS:
@@ -10339,6 +14093,15 @@ def main() -> int:
             require(
                 prohibited_phrase not in lower_text,
                 f"{relative_path}: bounded seam workflow must not recreate single-seam throttling authority via '{prohibited_phrase}'",
+            )
+
+    for relative_path in INTERFACE_RELEASE_BOUNDARY_DOCS:
+        text = _read_text(relative_path)
+        lower_text = text.casefold()
+        for required_phrase in INTERFACE_RELEASE_BOUNDARY_PHRASES:
+            require(
+                required_phrase.casefold() in lower_text,
+                f"{relative_path}: interface release boundary governance is missing '{required_phrase}'",
             )
 
     phase_governance_text = _read_text(Path("Docs/phase_governance.md"))
@@ -10583,6 +14346,72 @@ def main() -> int:
                 f"{relative_path}: Element Coverage governance is missing '{required_phrase}'",
             )
 
+    for relative_path, required_phrases in ELEMENT_VALIDATION_LEDGER_REQUIRED_PHRASES.items():
+        text = _read_text(relative_path)
+        for required_phrase in required_phrases:
+            require(
+                required_phrase in text,
+                f"{relative_path}: Element Validation Ledger governance is missing '{required_phrase}'",
+            )
+
+    fam006_branch_text = _read_text(FAM006_BRANCH_RECORD)
+    fam006_real_client_section = _section(
+        fam006_branch_text, FAM006_STAGE2_REAL_CLIENT_HEADING
+    )
+    require(
+        bool(fam006_real_client_section),
+        (
+            f"{FAM006_BRANCH_RECORD}: FAM-006 real-client returned-failure repair "
+            f"is missing '## {FAM006_STAGE2_REAL_CLIENT_HEADING}'"
+        ),
+    )
+    for required_phrase in FAM006_STAGE2_REAL_CLIENT_REQUIRED_PHRASES:
+        require(
+            required_phrase in fam006_real_client_section,
+            (
+                f"{FAM006_BRANCH_RECORD}: {FAM006_STAGE2_REAL_CLIENT_HEADING} "
+                f"is missing '{required_phrase}'"
+            ),
+        )
+    for required_phrase in FAM006_ELEMENT_VALIDATION_LEDGER_REQUIRED_PHRASES:
+        require(
+            required_phrase in fam006_branch_text,
+            f"{FAM006_BRANCH_RECORD}: FAM-006 Element Validation Ledger is missing '{required_phrase}'",
+        )
+
+    for issue_id in (f"FAM006-RUI-{index:03d}" for index in range(1, 44)):
+        require(
+            issue_id in fam006_branch_text,
+            f"{FAM006_BRANCH_RECORD}: Returned USER Issue Register is missing '{issue_id}'",
+        )
+
+    fam006_element_ledger_text = _read_text(FAM006_ELEMENT_LEDGER)
+    for required_phrase in FAM006_ELEMENT_LEDGER_REQUIRED_PHRASES:
+        require(
+            required_phrase in fam006_element_ledger_text,
+            f"{FAM006_ELEMENT_LEDGER}: FAM-006 companion Element Validation Ledger is missing '{required_phrase}'",
+        )
+
+    for relative_path, required_phrases in (
+        SOURCE_OWNER_MARKER_ADOPTION_NEXT_BRANCH_REQUIRED_PHRASES.items()
+    ):
+        text = _read_text(relative_path)
+        for required_phrase in required_phrases:
+            require(
+                required_phrase in text,
+                f"{relative_path}: post-FAM-006 source-owner marker adoption requirement is missing '{required_phrase}'",
+            )
+
+    for relative_path, required_phrases in (
+        FAM006_REAL_CLIENT_PROOF_GOVERNANCE_REQUIRED_PHRASES.items()
+    ):
+        text = _read_text(relative_path)
+        for required_phrase in required_phrases:
+            require(
+                required_phrase in text,
+                f"{relative_path}: real-client proof governance is missing '{required_phrase}'",
+            )
+
     for relative_path in RELEASE_OPERATOR_OUTPUT_CONTRACT_DOCS:
         text = _read_text(relative_path)
         for required_phrase in RELEASE_OPERATOR_OUTPUT_CONTRACT_PHRASES:
@@ -10669,6 +14498,14 @@ def main() -> int:
             require(
                 required_phrase in text,
                 f"{relative_path}: user-facing shortcut Live Validation gate guidance is missing '{required_phrase}'",
+            )
+
+    for relative_path in CODEX_LIVE_CLIENT_SELF_QA_DOCS:
+        text = _read_text(relative_path)
+        for required_phrase in CODEX_LIVE_CLIENT_SELF_QA_PHRASES:
+            require(
+                required_phrase in text,
+                f"{relative_path}: Codex live-client self-QA gate guidance is missing '{required_phrase}'",
             )
 
     for relative_path in RELEASE_READINESS_TARGET_DOCS:
@@ -11386,6 +15223,15 @@ def main() -> int:
                 branch_class=branch_class,
                 current_phase=current_phase,
             )
+            _validate_product_definition_plan(
+                require,
+                canonical_path,
+                workstream_text,
+                branch_class=branch_class,
+                current_phase=current_phase,
+                blockers=blockers,
+                next_legal_phase=str(workstream_info["next_legal_phase"]),
+            )
 
             initial_seam_sequence = _section(workstream_text, "Initial Workstream Seam Sequence")
             for marker in REQUIRED_BRANCH_READINESS_FIRST_SEAM_MARKERS:
@@ -11418,6 +15264,28 @@ def main() -> int:
                 continuation_section=continuation_section,
                 active_seam_section=active_seam_section,
                 blockers=blockers,
+            )
+            _validate_single_seam_workstream_contract(
+                require,
+                canonical_path,
+                workstream_text,
+                branch_class=branch_class,
+                current_phase=current_phase,
+                blockers=blockers,
+            )
+            require(
+                UTS_RESULTS_BLOCKER not in blockers,
+                (
+                    f"{canonical_path}: {UTS_RESULTS_BLOCKER} is a Live Validation / PR Readiness "
+                    "final-green blocker, not a Workstream stop condition"
+                ),
+            )
+            require(
+                _parse_uts_result_state(workstream_text) == "",
+                (
+                    f"{canonical_path}: Workstream may keep User Test Summary strategy current, "
+                    f"but must not declare '{UTS_RESULT_LABEL}' before Live Validation"
+                ),
             )
 
         if current_phase in {"Live Validation", "PR Readiness"}:
@@ -11576,6 +15444,99 @@ def main() -> int:
                         (
                             f"{canonical_path}: PR Readiness requires "
                             f"{USER_FACING_SHORTCUT_RESULT_LABEL} PASS or WAIVED; current value is {shortcut_result}"
+                        ),
+                    )
+
+        if current_phase in {"Live Validation", "PR Readiness"} and _requires_user_facing_shortcut_gate(
+            workstream_text
+        ):
+            require(
+                _has_codex_live_client_self_qa(workstream_text),
+                (
+                    f"{canonical_path}: active desktop user-facing '{current_phase}' workstream must include "
+                    "an exact '## Codex Live Client Self-QA' section before User Test Summary handoff"
+                ),
+            )
+            self_qa_section = _codex_live_client_self_qa_section(workstream_text)
+            self_qa_result = _parse_codex_live_client_self_qa_state(workstream_text)
+            require(
+                bool(self_qa_result),
+                (
+                    f"{canonical_path}: active desktop user-facing '{current_phase}' workstream must declare "
+                    f"'{CODEX_LIVE_CLIENT_SELF_QA_RESULT_LABEL}'"
+                ),
+            )
+            if self_qa_result:
+                require(
+                    self_qa_result in CODEX_LIVE_CLIENT_SELF_QA_RESULT_VALUES,
+                    (
+                        f"{canonical_path}: {CODEX_LIVE_CLIENT_SELF_QA_RESULT_LABEL} '{self_qa_result}' "
+                        f"must be one of {', '.join(CODEX_LIVE_CLIENT_SELF_QA_RESULT_VALUES)}"
+                    ),
+                )
+                for marker in CODEX_LIVE_CLIENT_SELF_QA_REQUIRED_MARKERS:
+                    require(
+                        marker in self_qa_section,
+                        (
+                            f"{canonical_path}: Codex Live Client Self-QA section is missing "
+                            f"'{marker}'"
+                        ),
+                    )
+                if self_qa_result == "PENDING":
+                    require(
+                        CODEX_LIVE_CLIENT_SELF_QA_BLOCKER in blockers,
+                        (
+                            f"{canonical_path}: {CODEX_LIVE_CLIENT_SELF_QA_RESULT_LABEL} PENDING requires "
+                            f"'{CODEX_LIVE_CLIENT_SELF_QA_BLOCKER}' under Blockers"
+                        ),
+                    )
+                    require(
+                        next_legal_phase == current_phase,
+                        (
+                            f"{canonical_path}: {CODEX_LIVE_CLIENT_SELF_QA_RESULT_LABEL} PENDING must keep "
+                            f"Next Legal Phase at '{current_phase}' until self-QA is digested"
+                        ),
+                    )
+                if self_qa_result == "FAIL":
+                    require(
+                        blockers,
+                        (
+                            f"{canonical_path}: {CODEX_LIVE_CLIENT_SELF_QA_RESULT_LABEL} FAIL must keep "
+                            "an explicit blocker and route back before USER handoff or advancement"
+                        ),
+                    )
+                if self_qa_result in CODEX_LIVE_CLIENT_SELF_QA_CLEAR_VALUES:
+                    require(
+                        CODEX_LIVE_CLIENT_SELF_QA_BLOCKER not in blockers,
+                        (
+                            f"{canonical_path}: {CODEX_LIVE_CLIENT_SELF_QA_BLOCKER} must clear after "
+                            f"{CODEX_LIVE_CLIENT_SELF_QA_RESULT_LABEL} {self_qa_result}"
+                        ),
+                    )
+                if self_qa_result == "WAIVED":
+                    require(
+                        bool(_parse_codex_live_client_self_qa_waiver_reason(workstream_text)),
+                        (
+                            f"{canonical_path}: {CODEX_LIVE_CLIENT_SELF_QA_RESULT_LABEL} WAIVED requires "
+                            f"'{CODEX_LIVE_CLIENT_SELF_QA_WAIVER_REASON_LABEL}'"
+                        ),
+                    )
+                uts_result_for_self_qa = _parse_uts_result_state(workstream_text)
+                if uts_result_for_self_qa in UTS_CLEAR_RESULT_VALUES:
+                    require(
+                        self_qa_result in CODEX_LIVE_CLIENT_SELF_QA_CLEAR_VALUES,
+                        (
+                            f"{canonical_path}: {UTS_RESULT_LABEL} {uts_result_for_self_qa} requires "
+                            f"{CODEX_LIVE_CLIENT_SELF_QA_RESULT_LABEL} PASS or WAIVED first"
+                        ),
+                    )
+                if current_phase == "PR Readiness":
+                    require(
+                        self_qa_result in CODEX_LIVE_CLIENT_SELF_QA_CLEAR_VALUES,
+                        (
+                            f"{canonical_path}: PR Readiness requires "
+                            f"{CODEX_LIVE_CLIENT_SELF_QA_RESULT_LABEL} PASS or WAIVED; "
+                            f"current value is {self_qa_result}"
                         ),
                     )
 
@@ -12096,6 +16057,22 @@ def main() -> int:
                 branch_class=branch_class,
                 current_phase=current_phase,
             )
+            _validate_product_definition_plan(
+                require,
+                branch_record_path,
+                record_text,
+                branch_class=branch_class,
+                current_phase=current_phase,
+                blockers=list(info["blockers"]),
+                next_legal_phase=str(info["next_legal_phase"]),
+            )
+            _validate_fam006_stage2_r6_plan(
+                require,
+                branch_record_path,
+                record_text,
+                blockers=list(info["blockers"]),
+                current_phase=current_phase,
+            )
             _validate_backlog_completion_status(
                 require,
                 branch_record_path,
@@ -12147,6 +16124,42 @@ def main() -> int:
                     active_seam_section=active_seam_section,
                     blockers=list(info["blockers"]),
                 )
+                _validate_single_seam_workstream_contract(
+                    require,
+                    branch_record_path,
+                    record_text,
+                    branch_class=branch_class,
+                    current_phase=current_phase,
+                    blockers=list(info["blockers"]),
+                )
+                continuation_completion_status = _extract_marker_value(
+                    continuation_section,
+                    CONTINUATION_COMPLETION_STATUS_LABEL,
+                ).strip().casefold()
+                if continuation_completion_status != "green":
+                    active_branch_lower = branch_name.casefold()
+                    phase_exit_summary_phrases = (
+                        "next legal phase: hardening",
+                        "next legal runtime step: hardening",
+                        "hardening handoff pending",
+                        "hardening pending",
+                    )
+                    for summary_path, summary_text in (
+                        ("Docs/feature_backlog.md", backlog_text),
+                        ("Docs/prebeta_roadmap.md", roadmap_text),
+                    ):
+                        summary_lower = summary_text.casefold()
+                        if active_branch_lower and active_branch_lower in summary_lower:
+                            for summary_phrase in phase_exit_summary_phrases:
+                                require(
+                                    summary_phrase not in summary_lower,
+                                    (
+                                        f"{summary_path}: active Workstream branch '{branch_name}' "
+                                        f"has Completion Status '{continuation_completion_status}' "
+                                        f"but summary truth still encodes phase-exit seam via "
+                                        f"'{summary_phrase}'"
+                                    ),
+                                )
         if branch_record_path in active_branch_record_paths and str(info["current_phase"]) == "Release Readiness":
             status_output = _git_status_porcelain(tracked_only=True)
             require(

@@ -34,8 +34,8 @@ def env_path_override(name, default_path):
 ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DEFAULT_TARGET_SCRIPT = os.path.join(ROOT_DIR, "desktop", "orin_desktop_main.py")
 DEFAULT_LOG_DIR = os.path.join(ROOT_DIR, "logs")
-TARGET_SCRIPT = env_path_override("JARVIS_HARNESS_TARGET_SCRIPT", DEFAULT_TARGET_SCRIPT)
-LOG_DIR = env_path_override("JARVIS_HARNESS_LOG_ROOT", DEFAULT_LOG_DIR)
+TARGET_SCRIPT = env_path_override("NEXUS_HARNESS_TARGET_SCRIPT", DEFAULT_TARGET_SCRIPT)
+LOG_DIR = env_path_override("NEXUS_HARNESS_LOG_ROOT", DEFAULT_LOG_DIR)
 CRASH_DIR = os.path.join(LOG_DIR, "crash")
 STATUS_FILE = os.path.join(LOG_DIR, "diagnostics_status.txt")
 STOP_SIGNAL_FILE = os.path.join(LOG_DIR, "diagnostics_stop.signal")
@@ -44,11 +44,11 @@ DESKTOP_SETTLED_SIGNAL_FILE = os.path.join(LOG_DIR, "desktop_settled.signal")
 ACTIVE_RUNTIME_OWNER_FILE = os.path.join(LOG_DIR, "active_runtime_owner.json")
 DIAGNOSTICS_SCRIPT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "orin_diagnostics.pyw")
 VOICE_SCRIPT = os.path.join(ROOT_DIR, "Audio", "orin_error_voice.py")
-HARNESS_DISABLE_DIAGNOSTICS = env_flag("JARVIS_HARNESS_DISABLE_DIAGNOSTICS")
-HARNESS_DISABLE_VOICE = env_flag("JARVIS_HARNESS_DISABLE_VOICE")
-RUNTIME_INSTANCE_MUTEX = r"Local\JarvisRuntimeSingletonV1"
-RUNTIME_RELAUNCH_EVENT = r"Local\JarvisRuntimeRelaunchRequestV1"
-RUNTIME_DESKTOP_SETTLED_EVENT = r"Local\JarvisRuntimeDesktopSettledV1"
+HARNESS_DISABLE_DIAGNOSTICS = env_flag("NEXUS_HARNESS_DISABLE_DIAGNOSTICS")
+HARNESS_DISABLE_VOICE = env_flag("NEXUS_HARNESS_DISABLE_VOICE")
+RUNTIME_INSTANCE_MUTEX = r"Local\NexusRuntimeSingletonV1"
+RUNTIME_RELAUNCH_EVENT = r"Local\NexusRuntimeRelaunchRequestV1"
+RUNTIME_DESKTOP_SETTLED_EVENT = r"Local\NexusRuntimeDesktopSettledV1"
 runtime_instance_guard = SingleInstanceGuard(RUNTIME_INSTANCE_MUTEX)
 runtime_relaunch_signal = NamedSignal(RUNTIME_RELAUNCH_EVENT)
 runtime_desktop_settled_signal = NamedSignal(RUNTIME_DESKTOP_SETTLED_EVENT)
@@ -73,7 +73,7 @@ CONSECUTIVE_IDENTICAL_CRASH_THRESHOLD = 2
 AUTHORITATIVE_DESKTOP_SETTLED_MARKER = "DESKTOP_OUTCOME|SETTLED|state=dormant"
 HISTORY_SCHEMA_VERSION = 1
 HISTORY_STABILITY_WINDOW_SIZE = 5
-HISTORY_FILENAME = "jarvis_history_v1.jsonl"
+HISTORY_FILENAME = "nexus_history_v1.jsonl"
 HISTORY_STATE_DIRNAME = "Nexus Desktop AI"
 HISTORY_STATE_SUBDIR = "state"
 ADVISORY_CONFIDENCE_DIRECT_EVIDENCE = "direct_evidence"
@@ -406,7 +406,7 @@ def normalize_history_run_id(run_id):
 
 
 def prepare_history_storage_path(path=None, legacy_path=None):
-    harness_log_root = os.environ.get("JARVIS_HARNESS_LOG_ROOT", "")
+    harness_log_root = os.environ.get("NEXUS_HARNESS_LOG_ROOT", "")
     path = os.path.abspath(path or history_file(harness_log_root=harness_log_root))
     parent_dir = os.path.dirname(path)
     if not parent_dir:
@@ -839,6 +839,8 @@ def write_active_runtime_owner_file(reason):
                     "runtime_file": RUNTIME_FILE,
                     "run_id": RUN_ID_STEM,
                     "launcher_pid": os.getpid(),
+                    "launcher_script": os.path.abspath(__file__),
+                    "launcher_root": os.path.abspath(ROOT_DIR),
                     "recorded_at": datetime.datetime.now(datetime.timezone.utc).isoformat(),
                     "reason": reason,
                 },
@@ -876,6 +878,53 @@ def process_is_running(pid):
         CloseHandle(handle)
 
 
+def process_command_line(pid):
+    try:
+        process_id = int(pid)
+    except (TypeError, ValueError):
+        return ""
+    if process_id <= 0 or os.name != "nt":
+        return ""
+
+    script = (
+        f"$process = Get-CimInstance Win32_Process -Filter \"ProcessId={process_id}\"; "
+        "if ($process -and $process.CommandLine) { $process.CommandLine }"
+    )
+    kwargs = hidden_window_kwargs()
+    kwargs.update(
+        {
+            "stdout": subprocess.PIPE,
+            "stderr": subprocess.PIPE,
+            "text": True,
+            "encoding": "utf-8",
+            "errors": "replace",
+        }
+    )
+    try:
+        result = subprocess.run(
+            ["powershell", "-NoProfile", "-Command", script],
+            timeout=5,
+            **kwargs,
+        )
+    except Exception:
+        return ""
+    return (result.stdout or "").strip()
+
+
+def owner_process_identity_matches(owner, command_line):
+    if not command_line:
+        return False
+
+    owner_script = os.path.abspath(str(owner.get("launcher_script") or os.path.join(ROOT_DIR, "desktop", "orin_desktop_launcher.pyw")))
+    owner_root = os.path.abspath(str(owner.get("launcher_root") or ROOT_DIR))
+    normalized_command = os.path.normcase(command_line)
+
+    return (
+        os.path.normcase(owner_script) in normalized_command
+        and os.path.normcase(owner_root) in normalized_command
+    )
+
+
 def active_owner_matches_current(owner):
     runtime_file = os.path.abspath(str(owner.get("runtime_file") or ""))
     if runtime_file and runtime_file == os.path.abspath(RUNTIME_FILE):
@@ -884,7 +933,23 @@ def active_owner_matches_current(owner):
 
 
 def active_owner_is_live(owner):
-    return process_is_running(owner.get("launcher_pid"))
+    if not process_is_running(owner.get("launcher_pid")):
+        return False
+
+    command_line = process_command_line(owner.get("launcher_pid"))
+    if owner_process_identity_matches(owner, command_line):
+        return True
+
+    runtime_event(
+        "STATUS",
+        "WARNING",
+        "LAUNCHER_RUNTIME",
+        "ACTIVE_RUNTIME_OWNER_PID_UNVERIFIED",
+        active_owner_summary(owner),
+    )
+    return False
+
+
 
 
 def active_owner_summary(owner):
@@ -1678,7 +1743,7 @@ def main():
             "LAUNCHER_RUNTIME",
             "ACTIVE_RUNTIME_OWNER_CONFLICT_SESSION_PRESERVED",
         )
-        if not env_flag("JARVIS_HARNESS_SUPPRESS_ALREADY_RUNNING_DIALOGS"):
+        if not env_flag("NEXUS_HARNESS_SUPPRESS_ALREADY_RUNNING_DIALOGS"):
             show_already_running_dialog(
                 "Nexus Desktop AI Session Active",
                 "Nexus Desktop AI is still starting or recovering. Please wait for the current session to finish.",

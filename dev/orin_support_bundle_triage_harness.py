@@ -174,7 +174,7 @@ def create_unknown_bundle(destination_root):
     runtime_log_path = os.path.join(destination_root, "Runtime_synthetic_unknown.txt")
 
     manifest = {
-        "jarvis_version": "v1.8.0",
+        "nexus_version": "v1.8.0",
         "run_identity": "synthetic_unknown",
         "bundle_created_at": "2026-03-28T21:01:00Z",
         "environment_summary": {
@@ -206,7 +206,7 @@ def create_pre_settled_visual_load_bundle(destination_root):
     runtime_log_path = os.path.join(destination_root, "Runtime_synthetic_pre_settled_visual_load.txt")
 
     manifest = {
-        "jarvis_version": "v1.8.0",
+        "nexus_version": "v1.8.0",
         "run_identity": "synthetic_pre_settled_visual_load",
         "bundle_created_at": "2026-05-12T05:07:38Z",
         "environment_summary": {
@@ -377,7 +377,7 @@ def collect_failures(section):
 
 def build_report_text(branch_state, report_path, sections, overall_ok):
     lines = [
-        "JARVIS SUPPORT BUNDLE TRIAGE HARNESS",
+        "NEXUS SUPPORT BUNDLE TRIAGE HARNESS",
         f"Report: {report_path}",
         f"Branch: {branch_state}",
         f"Overall Result: {'PASS' if overall_ok else 'FAIL'}",

@@ -192,7 +192,7 @@ class OrinSpeaker:
             )
             print(f"ERROR: voice playback failed: {exc}")
             print(voice_diagnostic_marker(diagnostic))
-            if os.environ.get("NEXUS_VOICE_DEBUG_TRACEBACK"):
+            if os.environ.get("ORIN_VOICE_DEBUG_TRACEBACK"):
                 traceback.print_exc()
             return diagnostic
         finally:

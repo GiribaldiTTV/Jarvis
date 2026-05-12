@@ -10,8 +10,8 @@ DEV_LOGS_DIR = os.path.join(ROOT_DIR, "dev", "logs")
 BASE_LOG_ROOT = os.path.join(DEV_LOGS_DIR, "dev_toolkit_smoke_validation")
 REPORTS_DIR = os.path.join(BASE_LOG_ROOT, "reports")
 
-BOOT_TOOLKIT_VALIDATION_SCRIPT = os.path.join(ROOT_DIR, "dev", "jarvis_boot_toolkit_validation.py")
-DESKTOP_TOOLKIT_VALIDATION_SCRIPT = os.path.join(ROOT_DIR, "dev", "jarvis_desktop_toolkit_validation.py")
+BOOT_TOOLKIT_VALIDATION_SCRIPT = os.path.join(ROOT_DIR, "dev", "nexus_boot_toolkit_validation.py")
+DESKTOP_TOOLKIT_VALIDATION_SCRIPT = os.path.join(ROOT_DIR, "dev", "nexus_desktop_toolkit_validation.py")
 
 BOOT_TOOLKIT_REPORTS_DIR = os.path.join(DEV_LOGS_DIR, "boot_toolkit_validation", "reports")
 DESKTOP_TOOLKIT_REPORTS_DIR = os.path.join(DEV_LOGS_DIR, "desktop_toolkit_validation", "reports")

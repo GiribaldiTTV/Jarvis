@@ -27,7 +27,7 @@ Preserve the closed lane that relocated launcher-owned historical state out of t
 
 ## Current Truth And Boundaries
 
-- normal runtime history resolves under `%LOCALAPPDATA%/Nexus Desktop AI/state/jarvis_history_v1.jsonl`
+- normal runtime history resolves under `%LOCALAPPDATA%/Nexus Desktop AI/state/nexus_history_v1.jsonl`
 - successful migration no longer leaves the legacy root-log history file exposed
 - fail-safe degradation remains in place if migration or new-state writes fail
 - runtime logs, crash logs, and support-bundle locations remain unchanged

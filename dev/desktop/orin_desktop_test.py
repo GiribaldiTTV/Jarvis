@@ -17,7 +17,7 @@ from desktop.hotkeys import ShutdownBus, GlobalHotkeyManager
 def main():
     app = QApplication(sys.argv)
 
-    visual_html_path = os.path.join(ROOT_DIR, "jarvis_visual", "jarvis_core_desktop.html")
+    visual_html_path = os.path.join(ROOT_DIR, "nexus_visual", "orin_core_desktop.html")
 
     screen = app.primaryScreen()
     window = DesktopRuntimeWindow(screen, visual_html_path)
@@ -33,12 +33,12 @@ def main():
     bus.shutdown_requested.connect(do_shutdown)
     hotkeys.start()
 
-    print("Jarvis Desktop Concept 1 - Version 1.02")
+    print("Nexus Desktop Concept 1 - Version 1.02")
     print("Hotkey: Ctrl + Alt + End")
 
     window.show()
 
-    raise RuntimeError("Jarvis test crash triggered intentionally")
+    raise RuntimeError("Nexus test crash triggered intentionally")
 
     exit_code = app.exec()
     hotkeys.stop()

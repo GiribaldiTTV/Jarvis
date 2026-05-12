@@ -425,7 +425,7 @@ def collect_failures(section):
 
 def build_report_text(branch_state, report_path, sections, overall_ok):
     lines = [
-        "JARVIS SUPPORT BUNDLE TRIAGE TOOLKIT VALIDATION",
+        "NEXUS SUPPORT BUNDLE TRIAGE TOOLKIT VALIDATION",
         f"Report: {report_path}",
         f"Branch: {branch_state}",
         f"Overall Result: {'PASS' if overall_ok else 'FAIL'}",

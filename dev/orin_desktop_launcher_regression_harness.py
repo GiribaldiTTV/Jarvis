@@ -164,10 +164,10 @@ def run_failure_lane(name, target_script, log_root, expected_markers):
     reset_dir(log_root)
 
     env = os.environ.copy()
-    env["JARVIS_HARNESS_TARGET_SCRIPT"] = target_script
-    env["JARVIS_HARNESS_LOG_ROOT"] = log_root
-    env["JARVIS_HARNESS_DISABLE_DIAGNOSTICS"] = "1"
-    env["JARVIS_HARNESS_DISABLE_VOICE"] = "1"
+    env["NEXUS_HARNESS_TARGET_SCRIPT"] = target_script
+    env["NEXUS_HARNESS_LOG_ROOT"] = log_root
+    env["NEXUS_HARNESS_DISABLE_DIAGNOSTICS"] = "1"
+    env["NEXUS_HARNESS_DISABLE_VOICE"] = "1"
 
     result = run_command([sys.executable, LAUNCHER_SCRIPT], env=env, timeout_seconds=180)
 
@@ -230,11 +230,11 @@ def run_mixed_failure_lane(name, sequence_value, mixed_type, log_root):
     reset_dir(log_root)
 
     env = os.environ.copy()
-    env["JARVIS_HARNESS_TARGET_SCRIPT"] = MIXED_SEQUENCE_TARGET
-    env["JARVIS_HARNESS_LOG_ROOT"] = log_root
-    env["JARVIS_HARNESS_DISABLE_DIAGNOSTICS"] = "1"
-    env["JARVIS_HARNESS_DISABLE_VOICE"] = "1"
-    env["JARVIS_MANUAL_MIXED_SEQUENCE"] = sequence_value
+    env["NEXUS_HARNESS_TARGET_SCRIPT"] = MIXED_SEQUENCE_TARGET
+    env["NEXUS_HARNESS_LOG_ROOT"] = log_root
+    env["NEXUS_HARNESS_DISABLE_DIAGNOSTICS"] = "1"
+    env["NEXUS_HARNESS_DISABLE_VOICE"] = "1"
+    env["NEXUS_MANUAL_MIXED_SEQUENCE"] = sequence_value
 
     result = run_command([sys.executable, LAUNCHER_SCRIPT], env=env, timeout_seconds=180)
 
@@ -256,13 +256,13 @@ def run_mixed_failure_lane(name, sequence_value, mixed_type, log_root):
             contains_line_fragment(runtime_lines, mixed_marker),
             mixed_marker,
         ),
-        "normal_exit_complete": line_status(
-            contains_line_fragment(runtime_lines, "STATUS|SUCCESS|LAUNCHER_RUNTIME|NORMAL_EXIT_COMPLETE"),
-            "STATUS|SUCCESS|LAUNCHER_RUNTIME|NORMAL_EXIT_COMPLETE",
+        "normal_exit_absent": line_status(
+            not contains_line_fragment(runtime_lines, "STATUS|SUCCESS|LAUNCHER_RUNTIME|NORMAL_EXIT_COMPLETE"),
+            "STATUS|SUCCESS|LAUNCHER_RUNTIME|NORMAL_EXIT_COMPLETE absent",
         ),
-        "failure_flow_absent": line_status(
-            not contains_line_fragment(runtime_lines, "STATUS|SUCCESS|LAUNCHER_RUNTIME|FAILURE_FLOW_COMPLETE"),
-            "STATUS|SUCCESS|LAUNCHER_RUNTIME|FAILURE_FLOW_COMPLETE absent",
+        "failure_flow_complete": line_status(
+            contains_line_fragment(runtime_lines, "STATUS|SUCCESS|LAUNCHER_RUNTIME|FAILURE_FLOW_COMPLETE"),
+            "STATUS|SUCCESS|LAUNCHER_RUNTIME|FAILURE_FLOW_COMPLETE",
         ),
         "no_false_identical_crash_threshold": line_status(
             not contains_line_fragment(runtime_lines, "CONSECUTIVE_IDENTICAL_CRASH_THRESHOLD_REACHED"),
@@ -272,9 +272,9 @@ def run_mixed_failure_lane(name, sequence_value, mixed_type, log_root):
             not contains_line_fragment(runtime_lines, "CONSECUTIVE_STARTUP_ABORT_THRESHOLD_REACHED"),
             "CONSECUTIVE_STARTUP_ABORT_THRESHOLD_REACHED absent",
         ),
-        "crash_log_absent": line_status(
-            not crash_log,
-            crash_log or "no crash log generated",
+        "crash_log_created": line_status(
+            bool(crash_log),
+            crash_log or "missing crash log",
         ),
         "diagnostics_status_cleaned": line_status(
             not os.path.exists(os.path.join(log_root, "diagnostics_status.txt")),
@@ -311,11 +311,11 @@ def run_max_attempt_lane(name, sequence_value, expected_fragments, absent_fragme
     reset_dir(log_root)
 
     env = os.environ.copy()
-    env["JARVIS_HARNESS_TARGET_SCRIPT"] = MIXED_SEQUENCE_TARGET
-    env["JARVIS_HARNESS_LOG_ROOT"] = log_root
-    env["JARVIS_HARNESS_DISABLE_DIAGNOSTICS"] = "1"
-    env["JARVIS_HARNESS_DISABLE_VOICE"] = "1"
-    env["JARVIS_MANUAL_MIXED_SEQUENCE"] = sequence_value
+    env["NEXUS_HARNESS_TARGET_SCRIPT"] = MIXED_SEQUENCE_TARGET
+    env["NEXUS_HARNESS_LOG_ROOT"] = log_root
+    env["NEXUS_HARNESS_DISABLE_DIAGNOSTICS"] = "1"
+    env["NEXUS_HARNESS_DISABLE_VOICE"] = "1"
+    env["NEXUS_MANUAL_MIXED_SEQUENCE"] = sequence_value
 
     result = run_command([sys.executable, LAUNCHER_SCRIPT], env=env, timeout_seconds=180)
 
@@ -394,7 +394,7 @@ def collect_failures(section):
 
 def build_report_text(branch_state, report_path, sections, overall_ok):
     lines = [
-        "JARVIS DESKTOP LAUNCHER REGRESSION HARNESS",
+        "NEXUS DESKTOP LAUNCHER REGRESSION HARNESS",
         f"Report: {report_path}",
         f"Branch: {branch_state}",
         f"Overall Result: {'PASS' if overall_ok else 'FAIL'}",

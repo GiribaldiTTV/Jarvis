@@ -187,7 +187,7 @@ Backlog-Split Reason: `None`
   - `main.py`
   - `Audio/`
   - `logs/`
-  - `jarvis_visual/`
+  - `nexus_visual/`
   - installer, packaging, or shortcut-registration redesign
   - broad boot-orchestrator implementation
   - unrelated tray, task, automation, or runtime UX expansion
@@ -230,8 +230,8 @@ Non-Includes: no PR creation or Release Readiness work.
 ## WS1 Runtime Proof
 
 - `desktop/single_instance.py` now exposes non-consuming named-signal state through `NamedSignal.is_set()` and uses an optional active-session settled signal to distinguish pre-settled ownership conflicts from settled relaunch prompts.
-- `desktop/orin_desktop_launcher.pyw` now clears `Local\JarvisRuntimeDesktopSettledV1`, `desktop_settled.signal`, and `active_runtime_owner.json` when it acquires runtime ownership, writes the active-owner breadcrumb, passes the settled signal/checker into the single-instance conflict path, emits `PRE_SETTLED_INCOMING_CONFLICT_SESSION_PRESERVED` for incoming pre-settled conflicts, and avoids relaunch prompts, relaunch signals, renderer spawn, replacement-session markers, and settled claims for that lane.
-- `desktop/orin_desktop_main.py` now sets `Local\JarvisRuntimeDesktopSettledV1` and writes `desktop_settled.signal` only when it emits the authoritative `DESKTOP_OUTCOME|SETTLED|state=dormant` marker.
+- `desktop/orin_desktop_launcher.pyw` now clears `Local\NexusRuntimeDesktopSettledV1`, `desktop_settled.signal`, and `active_runtime_owner.json` when it acquires runtime ownership, writes the active-owner breadcrumb, passes the settled signal/checker into the single-instance conflict path, emits `PRE_SETTLED_INCOMING_CONFLICT_SESSION_PRESERVED` for incoming pre-settled conflicts, and avoids relaunch prompts, relaunch signals, renderer spawn, replacement-session markers, and settled claims for that lane.
+- `desktop/orin_desktop_main.py` now sets `Local\NexusRuntimeDesktopSettledV1` and writes `desktop_settled.signal` only when it emits the authoritative `DESKTOP_OUTCOME|SETTLED|state=dormant` marker.
 - `dev/orin_desktop_entrypoint_validation.py` now includes `launcher_pre_settled_incoming_conflict`, a focused production-launcher proof that starts an owner in a pre-settled hold, launches a second process, and proves the second process exits `0` with `STATUS|SKIP|LAUNCHER_RUNTIME|PRE_SETTLED_INCOMING_CONFLICT_SESSION_PRESERVED` without borrowing settled relaunch semantics or mutating the owner; the legacy settled relaunch validators now wait for actual owner settled truth and use controlled fake renderers where headless desktop exits would otherwise mask the launcher contract.
 
 ## LV1 Live Validation Proof

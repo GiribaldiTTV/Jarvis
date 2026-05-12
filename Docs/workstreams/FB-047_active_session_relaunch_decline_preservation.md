@@ -103,7 +103,7 @@ FB-047 exists to make relaunch decline just as truthful as accepted relaunch. Th
 - no `main.py` ownership rewrite
 - no `Audio/` changes
 - no `logs/` ownership changes
-- no `jarvis_visual/` relocation or reorganization
+- no `nexus_visual/` relocation or reorganization
 - no installer or shortcut-registration redesign
 - no broader boot-orchestrator implementation
 - no accepted-relaunch semantics rewrite beyond preserving already-green proof
@@ -263,7 +263,7 @@ H-1 pressure-tested the completed FB-047 decline-preservation lane across rapid 
 
 ## Live Validation Record
 
-LV-1 validates the completed FB-047 relaunch-decline preservation slice chain against live repo truth, the declared real desktop shortcut path, explicit dev boot-proof evidence, exact User Test Summary state, and branch cleanliness. This pass stays bounded to the admitted relaunch/runtime ownership surfaces and does not reopen `main.py`, `Audio/`, `logs/`, `jarvis_visual/`, installer work, or broader boot-orchestrator scope.
+LV-1 validates the completed FB-047 relaunch-decline preservation slice chain against live repo truth, the declared real desktop shortcut path, explicit dev boot-proof evidence, exact User Test Summary state, and branch cleanliness. This pass stays bounded to the admitted relaunch/runtime ownership surfaces and does not reopen `main.py`, `Audio/`, `logs/`, `nexus_visual/`, installer work, or broader boot-orchestrator scope.
 
 ### Live Validation Findings
 

@@ -7,9 +7,9 @@ ScriptDir = Fso.GetParentFolderName(WScript.ScriptFullName)
 DevDir = Fso.GetParentFolderName(ScriptDir)
 RootDir = Fso.GetParentFolderName(DevDir)
 
-Env("JARVIS_HARNESS_TARGET_SCRIPT") = Fso.BuildPath(Fso.BuildPath(DevDir, "targets"), "orin_manual_failure_target.pyw")
-Env("JARVIS_HARNESS_LOG_ROOT") = Fso.BuildPath(Fso.BuildPath(DevDir, "logs"), "manual_launcher_failure_test")
-Env("JARVIS_HARNESS_DISABLE_VOICE") = "1"
+Env("NEXUS_HARNESS_TARGET_SCRIPT") = Fso.BuildPath(Fso.BuildPath(DevDir, "targets"), "orin_manual_failure_target.pyw")
+Env("NEXUS_HARNESS_LOG_ROOT") = Fso.BuildPath(Fso.BuildPath(DevDir, "logs"), "manual_launcher_failure_test")
+Env("NEXUS_HARNESS_DISABLE_VOICE") = "1"
 
 LauncherPath = Fso.BuildPath(Fso.BuildPath(RootDir, "desktop"), "orin_desktop_launcher.pyw")
 WshShell.Run """" & PythonwPath & """ """ & LauncherPath & """", 0

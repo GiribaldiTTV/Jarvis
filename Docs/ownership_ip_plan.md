@@ -16,7 +16,7 @@ Current canon uses these identity boundaries:
 - current shipped assistant persona: `ORIN`
 - future optional persona: `ARIA`
 
-Historical `Jarvis` references may remain in preserved historical material or still-real runtime artifact names, but they do not define current product identity.
+Historical `Nexus` references may remain in preserved historical material or still-real runtime artifact names, but they do not define current product identity.
 
 ## Current Approved Ownership And Licensing Posture
 

@@ -159,7 +159,7 @@ Backlog-Split Reason: `None`
 - Out-Of-Scope Paths:
   - `Audio/`
   - `logs/`
-  - `jarvis_visual/`
+  - `nexus_visual/`
   - installer, packaging, or shortcut-registration redesign
   - broader future boot-orchestrator implementation
   - unrelated tray, task, or runtime UX expansion
@@ -172,7 +172,7 @@ Backlog-Split Reason: `None`
   - no top-level entrypoint ownership rewrite beyond the admitted outcome boundary
   - no audio-path rewiring
   - no `logs/` ownership changes
-  - no `jarvis_visual/` relocation or reorganization
+  - no `nexus_visual/` relocation or reorganization
   - no installer or shortcut-registration redesign
   - no broader boot-orchestrator buildout
 
@@ -191,7 +191,7 @@ Backlog-Split Reason: `None`
 
 - rollback if default production desktop shortcut / VBS / launcher behavior regresses
 - rollback if explicit dev boot profiles no longer reach their expected desktop-settled proof
-- rollback if the slice requires changes to `Audio/`, `logs/`, `jarvis_visual/`, installer behavior, or broader future boot-orchestrator implementation
+- rollback if the slice requires changes to `Audio/`, `logs/`, `nexus_visual/`, installer behavior, or broader future boot-orchestrator implementation
 - rollback if the slice blurs dev boot proof with production startup-ready ownership instead of reducing the ambiguity
 
 ## User Test Summary Strategy

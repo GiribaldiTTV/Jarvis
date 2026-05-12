@@ -30,7 +30,11 @@ This loader routes to these authorities:
 - only `Admission State: Admitted` slice rows count toward package admission; historical evidence, future placeholders, deferred ideas, and future-package-required rows are trace only.
 - named blockers for package drift are `Single-Slice Package User Approval Missing` and `Package Completion Unproven`.
 - Element Coverage is a non-identity checklist for user-facing surface, runtime/backend behavior, fail-safe/recovery, security/privacy, voice/audio, external integration, local AI/capability packs, packaging/install, monitoring/HUD, validation, and release impact; Element Coverage rows never count as `Admission State: Admitted`, slices, seams, packages, FAMs, selected-next truth, or release drivers.
-- `Branch Readiness` is organized as `Branch Readiness Stage 1 - Analysis Gate` followed by `Branch Readiness Stage 2 - Execution Gate`; Stage 1 requires `## Branch Readiness Stage 1 Analysis Packet`, allows no repository file mutation, branch creation, package admission, docs sync, PR work, release work, selected-next truth, or canon edits, and stops on `Branch Readiness Execution User Approval Missing` until USER approval to enter Stage 2 is recorded.
+- Dev Toolkit Interface Review Mode is the repo-wide dev-only inspection standard for USER-facing elements after the tooling is admitted. Existing and future interface elements should be callable or deferred through the owning Element Validation Ledger, with element badges, hover highlighting, ledger ID/name tooltips, and screenshot-friendly annotations available only in Dev Toolkit/dev mode; production UI must not expose element numbers.
+- `Branch Readiness` is organized as `Branch Readiness Stage 1 - Analysis Gate` followed by `Branch Readiness Stage 2 - Execution Gate`; Stage 1 requires `## Branch Readiness Stage 1 Analysis Packet`, including product vision, USER vision questions, `USER Vision Question Packet`, Codex product interpretation, Codex implementation recommendation, USER/ChatGPT review checkpoint, full feature element breakdown, current branch vs future package boundaries, affected surfaces, branch reach, why the branch is large enough, why it should not split into tiny branches, acceptance criteria, screenshot and User Test Summary proof expectations, implementation sequence proposal, and `Branch Readiness Planning Incomplete` blocker review for family/package product work, allows no repository file mutation, branch creation, package admission, docs sync, PR work, release work, selected-next truth, or canon edits, and stops on `Branch Readiness Execution User Approval Missing` until USER approval to enter Stage 2 is recorded.
+- Family-package Workstream entry or continuation is blocked while `Product Vision Input Missing`, `USER Vision Question Packet Missing`, `USER Vision Recommendation Missing`, `USER Vision Questions Unanswered`, `USER Vision Input Pending`, `USER Vision Input File Missing`, `USER Vision Input Answers Pending`, `USER Vision Input Digest Pending`, `Branch Reach Unproven`, `Feature Element Breakdown Missing`, `Acceptance Criteria Missing`, `User-Facing Proof Standard Missing`, `Current Branch vs Future Package Boundary Missing`, or `Branch Readiness Planning Incomplete` remains active unless explicit USER waiver text is recorded; these are planning blockers, not implementation blockers. When USER input is needed, the question packet must explain each decision with Codex recommendation, rationale, alternatives, tradeoffs, current-branch impact, future-package impact, safe default, waiver/defer posture, and exact response format. When USER needs a durable editable handoff, Codex may generate or refresh a USER-facing `User Vision Input.txt` desktop artifact with accept/change/defer answer paths; the artifact is not repo source truth until a later USER-approved digest pass records completed answers.
+- Completed USER input digests may add package-specific planning blockers such as legacy product-name drift, telemetry provider selection, polling floor, warning modality, external telemetry privacy model, cross-family audio approval, and persona/model switching scope; Workstream must not resume until Branch Readiness revalidates, defers, or waives those blockers. When USER declares legacy product naming invalid for the current product, `Legacy Product Name Drift` blocks Workstream entry or continuation while that naming remains anywhere in tracked repo source, runtime artifact paths, validators, docs, generated-user surfaces, user-facing copy, or persona-facing copy. The only default preservation location is external GitHub release/tag history; tracked repo preservation requires explicit USER waiver or a USER-approved migration carrier. Product identity and persona identity must remain separate: ORIN may be the shipped/default persona, ARIA may be shown only as locked/coming soon planning copy when source truth allows it, and actual persona switching implementation requires later admission.
+- Candidate-only family-package planning is incomplete. ChatGPT should surface candidate-only scope, future deferrals, provider path, polling posture, warning modality, privacy model, naming/product-copy handling, acceptance criteria, or proof standards as a Branch Readiness planning blocker until Codex finalizes them in source truth and Stage 1 revalidates.
 - `PR Readiness` is organized as `PR Readiness Stage 1 - Analysis Gate` followed by `PR Readiness Stage 2 - Execution Gate`; Stage 1 is an analysis-first readiness-lock gate that requires `## PR Readiness Stage 1 Analysis Packet` plus a user-facing `## Next Workstream` block with `Recommended Next Workstream:`, `Candidate Work To Be Done:`, `User-Facing Output:`, candidate slices, dependencies/blockers, validation needs, release impact, selection-truth status, branch-creation status, and `Next Workstream User Waiver:`. `PR Readiness Stage 1 Repair Pending` blocks Stage 2 whenever Stage 1 finds repairable PR-readiness drift/blockers that are not repaired, validated, committed, and pushed on the current branch under a USER-approved legal current-branch repair seam. Stage 1 must also analyze release-debt impact, ranked runtime FAM candidates, recommended next package or explicit USER waiver, package-size risk, single-slice drift risk, Element Coverage risk, required current-branch source-truth sync, Stage 2 sync plan, PR title/base/head/summary, watcher plan, blockers, and USER decisions. Stage 1 remains active until one outcome is recorded: `Stage 1 Ready For Stage 2`, `PR Readiness Stage 1 Repair Required`, `Current-Branch Branch Readiness Re-entry Required`, `New Carrier Branch Required`, or `Stage 1 USER Waiver Required`. Stage 2 begins only after `Stage 1 Ready For Stage 2` plus explicit USER approval and owns final PR execution only: final PR package sync, commit/push if needed, PR creation, watcher provisioning, bot-review handling, mergeability validation, and merge-watch. Stage 1 still cannot create a PR, provision a watcher, create a branch, admit a package, waive single-slice rules, create a tag, create release artifacts, draft or publish a GitHub Release, or execute a release. Stage 1 may encode selected-next truth only when USER explicitly approves selected-next sync, and branch creation plus runtime package admission must stay blocked for Branch Readiness. It stops on `PR Readiness Execution User Approval Missing` until USER approval to enter Stage 2 is recorded. Stage 1 cannot continue to Stage 2 unless the Next Workstream block analyzes a concrete candidate and the work planned for that candidate, records approved selected-next truth, or records `Next Workstream User Waiver: Granted`; otherwise `Next Workstream User Waiver Missing` blocks continuation. If no legal next workstream candidate is found, Stage 1 must also stop on `Next Workstream Candidate Not Found`, report the still-not-closed FAM list plus every not-complete package and slice, and record `Stage 1 USER Waiver Required` unless the USER grants a waiver/approval that clears the route.
 - `PR Readiness Stage 2` must retain the same-PR Codex bot-review repair loop and watcher runtime-proof boundary before final handoff: Stage 2 final handoff cannot be green until bot-review closeout is verified, and Stage 2 final handoff cannot be green until watcher runtime proof is present or the runtime-proof blocker remains active. Watcher configuration is not runtime proof.
   This preserves the existing analysis-first blocker repair gate inside the readiness lock.
@@ -54,6 +58,29 @@ This loader routes to these authorities:
 This file owns loader prompt shape only.
 If this loader and an owning canon document conflict, live repo truth plus the owning canon document wins.
 Repair this loader later if it drifted.
+
+## ChatGPT-To-Codex Prompt Addition And Review Neutrality
+
+ChatGPT's role is repo-state analysis, drift detection, Codex prompt generation, and Codex-output review. Codex executes. Repo source truth governs. Codex output is evidence, not authority.
+
+ChatGPT may add analysis steps, evidence checks, review questions, validation reminders, source-truth checks, and candidate blocker checks for Codex to reconcile against the repository governance files loaded in the Codex prompt.
+
+ChatGPT must not act as Codex's governing authority by removing, replacing, narrowing, reordering, or prohibiting Codex-planned steps through ChatGPT-authored limiting phrases, restriction lists, or replacement logic.
+
+When ChatGPT sees a flaw, stale assumption, missing step, unsafe scope, governance mismatch, blocker risk, source-truth drift, validation gap, or approval gap, ChatGPT should elevate the concern as an analysis finding or candidate blocker. The finding should include enough detail for USER review and should identify any USER decision needed.
+
+USER approval is required before Codex is asked to change repo source truth, change an approved plan, drop a planned step, widen scope, grant a waiver, create or admit a new FAM/package, or treat a ChatGPT finding as an execution change.
+
+Preferred ChatGPT prompt-framing pattern:
+
+- preserve Codex's outlined steps
+- add missing analysis/review steps when useful
+- identify suspected flaws as candidate blockers or analysis findings
+- provide evidence and decision context for USER review
+- ask Codex to reconcile the plan against loaded repo governance
+- let repo governance and USER approval determine execution
+
+ChatGPT Project Settings may carry a compact form of this rule, but Project Settings text must remain below 8,000 characters. This character limit applies only to ChatGPT Project Settings / custom instructions. It does not apply to this repo loader/source-truth file.
 
 ## Loader Contract
 
@@ -101,6 +128,7 @@ If any required file cannot be read, any authority owner is ambiguous, or live r
 - `main` is protected for Codex work and may be read but not mutated.
 - Branch Readiness owns planning, framing, affected-surface mapping, implementation delta classification, admitted-slice definition, and whole-backlog closure strategy before Workstream begins.
 - Branch Readiness must evaluate the whole backlog item, define the first admitted slice, record the same-branch continuation posture until `Completion Status` becomes green, and record any known future-dependent blockers before Workstream begins.
+- For user-facing family/package branches, Branch Readiness must declare an `Interface Release Boundary` and `Primary Interface Release Surface:` before Workstream begins or resumes. One primary user-facing interface release surface per branch is the default; multiple released interfaces require explicit `Interface Bundle User Approval: Granted`. This limits interface-release sprawl while preserving bounded multi-seam/multi-slice Workstream execution inside the approved interface boundary.
 - Workstream must execute admitted implementation slices one slice at a time, keep re-evaluating the backlog item after each seam and slice, and keep later slices on the same branch by default when scope, phase, risk, and validation authority remain green unless the USER explicitly approves a docs-only bypass or backlog split.
 - Docs-only Workstreams require explicit USER approval.
 - Planning-loop bypass requires `Planning-Loop Bypass User Approval: APPROVED` and `Planning-Loop Bypass Reason:`.
@@ -193,6 +221,7 @@ Generated prompts for startup-sensitive passes should request:
 - `Blockers`
 - `Waiver Status`
 - `Continue Decision`
+- `Continuation Execution Latch`
 - `Stop Basis`
 - `Validation Results`
 - `Ready-To-Commit Decision` when files changed
@@ -205,7 +234,21 @@ A green slice does not authorize stop while `Completion Status` remains non-gree
 If `Completion Status` is `In Progress` and no named blocker or waiver stops work, the generated prompt must require continuation rather than `Await Next Instruction`.
 Use these governed state markers as execution control, not just reporting.
 If `Continue Decision` is `Continue`, the generated prompt must not let Codex end on a seam-complete final response, rollback path, or next-seam recommendation; it must require continued execution until a lawful `Stop` decision exists.
+A prompt `Return:` block is an output shape only; it cannot override governed continuation markers or authorize a terminal response while `Continue Decision` remains `Continue`.
+A final response after a green seam while `Continue Decision` remains `Continue` is `Post-Seam Final-Stop Drift`.
+Post-Seam Final-Stop Drift is a governance blocker until source truth and validation are repaired.
+Durability commit/push is not a lawful stop while `Continue Decision` remains `Continue`.
+If `Completion Status` is `In Progress`, `Next Active Seam` must remain a `Workstream` seam; phase-exit seams require `Completion Status: Green`, `Completion Status: Red` with a named blocker/waiver, or explicit USER single-seam/backlog-split waiver.
 `Phase: Workstream` must remain bounded at all times, and the only lawful `Workstream` stop conditions are `Completion Status: Green` with `Hardening` next, or `Completion Status: Red` justified by a named blocker or waiver.
+Phase Boundary Stop Required: A phase-exit seam named in `Next Active Seam` is a handoff target, not current-phase execution authority.
+Bounded Workstream continuation ends at phase boundaries; it never crosses from Workstream into Hardening by inertia.
+Codex must not execute Hardening, Live Validation, PR Readiness, Release Readiness, release work, or any other next phase in the same run unless USER explicitly admits that phase after reviewing the handoff.
+Bounded means one active seam at a time, not one-seam Workstream authority.
+A single-seam Workstream requires explicit USER waiver before Workstream may stop after one seam while the package or slice remains incomplete.
+Single-seam or single-slice Workstream authority is forbidden unless explicit USER waiver text is recorded.
+If only one seam or one slice is planned or visible, stop immediately on `Single-Seam Or Single-Slice Workstream Blocker` until Branch Readiness expands the plan or USER grants a waiver.
+Only USER can grant a single-seam or single-slice Workstream waiver; Codex, ChatGPT, validators, prompt wording, clean validation, or a green seam cannot infer it.
+A Workstream with `Completion Status: In Progress` and no waiver must show remaining same-branch implementable work beyond the current seam.
 If `Completion Status` is `Red`, `Continuation Action` must report the blocker-clearing action or waiver-clearing action needed before bounded `Workstream` continuation may resume.
 Treat `Completion Status` as the exact `Phase: Workstream Status` gate after load.
 
@@ -255,6 +298,7 @@ Return:
 - Blockers
 - Waiver Status
 - Continue Decision
+- Continuation Execution Latch
 - Stop Basis
 - Files Changed
 - What Was Written or Found
@@ -268,6 +312,8 @@ Workstream prompt notes for ChatGPT preflight live outside the prompt body and c
 - validate after each seam and report continue-or-stop
 - the prompt-named seam is the entry seam, not a terminal boundary
 - Next-Seam Continuation Required means continue seam-to-seam inside the current slice until all required seams are complete and the slice status is green
+- bounded means one active seam at a time, not one-seam Workstream authority
+- a single-seam Workstream requires explicit USER waiver before Workstream may stop after one seam while the package or slice remains incomplete
 - there is no repo-wide cap on how many slices a branch or workstream may carry
 - seams inside the current slice may be predeclared in canon or discovered from repo truth while the slice remains in progress
 - same-branch backlog completion is the branch-level default: later slices for the same backlog item stay on the same branch when scope, phase, risk, and validation authority remain green
@@ -282,6 +328,11 @@ Workstream prompt notes for ChatGPT preflight live outside the prompt body and c
 - reporting Next Safe Move is not a substitute for execution
 - continue decision must be acted on immediately
 - the prompt `Return:` block describes the lawful-stop report; it is not permission to stop while `Continue Decision` remains `Continue`
+- Continuation Execution Latch
+- A final response after a green seam while `Continue Decision` remains `Continue` is `Post-Seam Final-Stop Drift`.
+- Post-Seam Final-Stop Drift is a governance blocker until source truth and validation are repaired.
+- Durability commit/push is not a lawful stop while `Continue Decision` remains `Continue`.
+- If `Completion Status` is `In Progress`, `Next Active Seam` must remain a `Workstream` seam; phase-exit seams require `Completion Status: Green`, `Completion Status: Red` with a named blocker/waiver, or explicit USER single-seam/backlog-split waiver.
 - when continuation remains active, Codex must use commentary/intermediate updates and keep executing instead of ending on a seam-closeout package
 
 ## Thin Prompt Discipline

@@ -59,27 +59,27 @@ _qt_dialog_app = None
 
 
 def harness_auto_accept_relaunch():
-    value = (os.environ.get("JARVIS_HARNESS_AUTO_ACCEPT_RELAUNCH") or "").strip().casefold()
+    value = (os.environ.get("NEXUS_HARNESS_AUTO_ACCEPT_RELAUNCH") or "").strip().casefold()
     return value in {"1", "true", "yes", "on"}
 
 
 def harness_auto_decline_relaunch():
-    value = (os.environ.get("JARVIS_HARNESS_AUTO_DECLINE_RELAUNCH") or "").strip().casefold()
+    value = (os.environ.get("NEXUS_HARNESS_AUTO_DECLINE_RELAUNCH") or "").strip().casefold()
     return value in {"1", "true", "yes", "on"}
 
 
 def harness_force_relaunch_signal_failure():
-    value = (os.environ.get("JARVIS_HARNESS_FORCE_RELAUNCH_SIGNAL_FAILURE") or "").strip().casefold()
+    value = (os.environ.get("NEXUS_HARNESS_FORCE_RELAUNCH_SIGNAL_FAILURE") or "").strip().casefold()
     return value in {"1", "true", "yes", "on"}
 
 
 def harness_suppress_already_running_dialogs():
-    value = (os.environ.get("JARVIS_HARNESS_SUPPRESS_ALREADY_RUNNING_DIALOGS") or "").strip().casefold()
+    value = (os.environ.get("NEXUS_HARNESS_SUPPRESS_ALREADY_RUNNING_DIALOGS") or "").strip().casefold()
     return value in {"1", "true", "yes", "on"}
 
 
 def harness_relaunch_wait_seconds(default_wait_seconds: float) -> float:
-    value = (os.environ.get("JARVIS_HARNESS_RELAUNCH_WAIT_SECONDS") or "").strip()
+    value = (os.environ.get("NEXUS_HARNESS_RELAUNCH_WAIT_SECONDS") or "").strip()
     if not value:
         return default_wait_seconds
     try:
@@ -118,7 +118,7 @@ class SingleInstanceGuard:
 def show_already_running_dialog(
     title: str,
     message: str,
-    eyebrow_text: str = "JARVIS",
+    eyebrow_text: str = "NEXUS",
     primary_button_text: str = "Close",
 ) -> None:
     if _show_qt_dialog(
@@ -138,7 +138,7 @@ def show_already_running_dialog(
 def show_replace_running_dialog(
     title: str,
     message: str,
-    eyebrow_text: str = "JARVIS",
+    eyebrow_text: str = "NEXUS",
     primary_button_text: str = "Close Current And Relaunch",
     secondary_button_text: str = "Keep Current",
 ) -> bool:
@@ -163,7 +163,7 @@ def _show_qt_dialog(
     title: str,
     message: str,
     confirm: bool,
-    eyebrow_text: str = "JARVIS",
+    eyebrow_text: str = "NEXUS",
     primary_button_text: str = "Close Current And Relaunch",
     secondary_button_text: str = "Keep Current",
 ):
@@ -184,7 +184,7 @@ def _show_qt_dialog(
 
     global _qt_dialog_app
 
-    class JarvisPromptDialog(QDialog):
+    class NexusPromptDialog(QDialog):
         def __init__(self):
             super().__init__()
             self.choice = False
@@ -339,7 +339,7 @@ def _show_qt_dialog(
             _qt_dialog_app.setFont(QFont("Segoe UI", 10))
         app = _qt_dialog_app
 
-    dialog = JarvisPromptDialog()
+    dialog = NexusPromptDialog()
     dialog.center_on_primary()
     QTimer.singleShot(0, dialog.raise_)
     QTimer.singleShot(0, dialog.activateWindow)
@@ -396,7 +396,7 @@ def acquire_or_prompt_replace(
     wait_seconds: float = 8.0,
     poll_interval_seconds: float = 0.1,
     event_logger: Callable[[str], None] | None = None,
-    eyebrow_text: str = "JARVIS",
+    eyebrow_text: str = "NEXUS",
     primary_button_text: str = "Close Current And Relaunch",
     secondary_button_text: str = "Keep Current",
     active_session_settled_signal: NamedSignal | None = None,
@@ -467,7 +467,7 @@ def acquire_or_prompt_replace(
         if not harness_suppress_already_running_dialogs():
             show_already_running_dialog(
                 title,
-                "Jarvis could not signal the current instance to close. Please close it manually and try again.",
+                "Nexus could not signal the current instance to close. Please close it manually and try again.",
                 eyebrow_text=eyebrow_text,
                 primary_button_text="Close",
             )
@@ -501,7 +501,7 @@ def acquire_or_prompt_replace(
     if not harness_suppress_already_running_dialogs():
         show_already_running_dialog(
             title,
-            "Jarvis is still closing. Please wait a moment and try again.",
+            "Nexus is still closing. Please wait a moment and try again.",
             eyebrow_text=eyebrow_text,
             primary_button_text="Close",
         )

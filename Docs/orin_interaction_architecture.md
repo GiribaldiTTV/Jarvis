@@ -204,7 +204,7 @@ For current product truth:
 
 User-facing interaction surfaces should prefer current Nexus / ORIN naming.
 
-Legacy `Jarvis` wording should appear only when:
+Legacy `Nexus` wording should appear only when:
 
 - preserved historical context is being discussed
 - backward-compatible runtime artifacts still use that name

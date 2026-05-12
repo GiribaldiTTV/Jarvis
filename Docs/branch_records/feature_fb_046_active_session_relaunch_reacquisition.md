@@ -69,7 +69,7 @@ None. Post-release closure prerequisites are satisfied, and the first bounded re
 - FB-044 and FB-045 close as released historical truth, and merged-unreleased release debt clears
 - FB-046 owns a bounded runtime/user-facing slice on a normal `feature/` branch while remaining `Registry-only` during Branch Readiness
 - the admitted slice records exact affected paths, validation coverage, rollback conditions, and same-branch backlog-completion posture
-- Branch Readiness resolves without widening into `main.py`, `Audio/`, `logs/`, `jarvis_visual/`, installer work, or broader boot-orchestrator implementation
+- Branch Readiness resolves without widening into `main.py`, `Audio/`, `logs/`, `nexus_visual/`, installer work, or broader boot-orchestrator implementation
 
 ## Rollback Target
 
@@ -154,7 +154,7 @@ Backlog-Split Reason: `None`
   - `main.py`
   - `Audio/`
   - `logs/`
-  - `jarvis_visual/`
+  - `nexus_visual/`
   - installer, packaging, or shortcut-registration redesign
   - broader boot-orchestrator implementation
   - unrelated tray, task, or runtime UX expansion
@@ -167,7 +167,7 @@ Backlog-Split Reason: `None`
   - no `main.py` ownership rewrite
   - no `Audio/` rewiring
   - no `logs/` ownership changes
-  - no `jarvis_visual/` relocation or reorganization
+  - no `nexus_visual/` relocation or reorganization
   - no installer or shortcut-registration redesign
   - no broader boot-orchestrator buildout
 
@@ -186,7 +186,7 @@ Backlog-Split Reason: `None`
 - rollback if the already-green desktop shortcut / VBS / launcher / renderer startup path regresses before or at authoritative settled
 - rollback if runtime-guard reacquisition or replacement-session settled proof becomes less truthful or depends on cleanup masking instead of real replacement-session evidence
 - rollback if explicit dev-boot proof regresses or drifts away from the authoritative settled contract
-- rollback if the slice widens into `main.py`, `Audio/`, `logs/`, `jarvis_visual/`, installer behavior, or broader orchestrator work
+- rollback if the slice widens into `main.py`, `Audio/`, `logs/`, `nexus_visual/`, installer behavior, or broader orchestrator work
 
 ## User Test Summary Strategy
 

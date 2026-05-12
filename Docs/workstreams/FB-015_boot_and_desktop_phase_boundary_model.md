@@ -223,7 +223,7 @@ WS-1 is docs/canon only. It inventories the current boot and desktop phase bound
 Current user-facing production desktop-launch path:
 
 - `launch_orin_desktop.vbs` is the repository-root Windows launch shim. It resolves the repo root from the script location, points at the configured `pythonw.exe`, and launches `desktop\orin_desktop_launcher.pyw` with a hidden window.
-- `desktop/orin_desktop_launcher.pyw` is the current production desktop phase-control entrypoint. It defaults to `desktop/orin_desktop_main.py`, allows harness-only target and log-root overrides through `JARVIS_HARNESS_TARGET_SCRIPT` and `JARVIS_HARNESS_LOG_ROOT`, starts the renderer process, and observes `RENDERER_MAIN|STARTUP_READY`.
+- `desktop/orin_desktop_launcher.pyw` is the current production desktop phase-control entrypoint. It defaults to `desktop/orin_desktop_main.py`, allows harness-only target and log-root overrides through `NEXUS_HARNESS_TARGET_SCRIPT` and `NEXUS_HARNESS_LOG_ROOT`, starts the renderer process, and observes `RENDERER_MAIN|STARTUP_READY`.
 - `desktop/orin_desktop_main.py` is the current production renderer/runtime entrypoint. It parses `--runtime-log` and `--startup-abort-signal`, constructs `DesktopRuntimeWindow`, initializes tray and hotkey services, defers window show until core visualization readiness, emits `RENDERER_MAIN|...` milestones, and requests passive default handoff to `state=dormant`.
 - `desktop/desktop_renderer.py::DesktopRuntimeWindow` is the current desktop presentation surface. It owns core-visualization readiness/visibility signaling, desktop-mode enablement and reinforcement, command-overlay toggling, tray-origin Create Custom Task routing, and renderer shutdown initiation.
 
@@ -235,7 +235,7 @@ Current dev-only boot and handoff path:
 
 Current shared control and validation support surfaces:
 
-- `desktop/single_instance.py` provides `SingleInstanceGuard`, `NamedSignal`, and `acquire_or_prompt_replace`. Both the production launcher and the dev-only boot prototype reuse the same `Local\\JarvisRuntimeSingletonV1` mutex and `Local\\JarvisRuntimeRelaunchRequestV1` relaunch event, but that shared primitive does not collapse their separate phase ownership.
+- `desktop/single_instance.py` provides `SingleInstanceGuard`, `NamedSignal`, and `acquire_or_prompt_replace`. Both the production launcher and the dev-only boot prototype reuse the same `Local\\NexusRuntimeSingletonV1` mutex and `Local\\NexusRuntimeRelaunchRequestV1` relaunch event, but that shared primitive does not collapse their separate phase ownership.
 - `dev/orin_desktop_entrypoint_validation.py` validates direct renderer startup, tray readiness, overlay routing, and `RENDERER_MAIN|...` startup milestones without making launcher-owned recovery decisions.
 - `dev/orin_desktop_launcher_healthy_validation.py` validates the launcher-to-renderer healthy path through harness log-root overrides and `RENDERER_MAIN|STARTUP_READY` evidence.
 - `dev/orin_desktop_launcher_regression_harness.py` remains a registered launcher-regression helper, but its current legacy-path constants are not repaired in WS-1 and therefore do not redefine current phase truth.
@@ -243,7 +243,7 @@ Current shared control and validation support surfaces:
 Current evidence and persisted-state surfaces:
 
 - Live launcher/runtime evidence defaults to root `logs/` through `desktop/orin_desktop_launcher.pyw`, including `Runtime_<timestamp>_<token>.txt`, `crash/Crash_<timestamp>_<token>.txt`, `diagnostics_status.txt`, `diagnostics_stop.signal`, and `renderer_startup_abort.signal`.
-- Launcher-managed historical outcome state persists through `%LOCALAPPDATA%/Nexus Desktop AI/state/jarvis_history_v1.jsonl`, with harness log-root overrides only in validation contexts.
+- Launcher-managed historical outcome state persists through `%LOCALAPPDATA%/Nexus Desktop AI/state/nexus_history_v1.jsonl`, with harness log-root overrides only in validation contexts.
 - Dev and harness proof belongs under `dev/logs/<lane>/...`, including boot-transition, desktop-entrypoint, and launcher-healthy validation roots.
 
 ### Ownership Map Across Current Boundaries
@@ -378,7 +378,7 @@ Desktop-settled and evidence states:
 - Renderer first-visible proof is not the same as renderer-ready proof, renderer-ready proof is not the same as launcher-owned `startup ready observed`, and launcher-owned readiness observation is not the same as final runtime success.
 - Dev-only `BOOT_MAIN|DESKTOP_SETTLED|state=dormant` is not equivalent to production `RENDERER_MAIN|STARTUP_READY` or launcher `STARTUP_READY_OBSERVED`.
 - `state=dormant` is a presentation state, not a release, trust, shortcut, recovery, or success-state claim by itself.
-- `Local\JarvisRuntimeSingletonV1` and `Local\JarvisRuntimeRelaunchRequestV1` are shared primitives. Shared primitive reuse does not collapse ownership between the launcher path and the dev-only boot prototype.
+- `Local\NexusRuntimeSingletonV1` and `Local\NexusRuntimeRelaunchRequestV1` are shared primitives. Shared primitive reuse does not collapse ownership between the launcher path and the dev-only boot prototype.
 - Live runtime logs, crash reports, startup-abort/status files, and finalized history remain launcher-owned until a later admitted implementation seam explicitly changes that contract.
 
 ### Transition Ambiguities Captured For Later Seams

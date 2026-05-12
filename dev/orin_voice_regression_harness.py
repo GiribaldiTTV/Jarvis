@@ -32,7 +32,7 @@ EXPECTED_DIAGNOSTICS_LINES = [
     "Shutting down.",
 ]
 
-NORMAL_VOICE_PROBE_TEXT = "Jarvis normal voice path validation."
+NORMAL_VOICE_PROBE_TEXT = "Nexus normal voice path validation."
 
 
 def hidden_subprocess_kwargs():
@@ -124,10 +124,10 @@ def run_launcher_lane(name, target_script, log_root, expected_lane_markers):
     reset_dir(log_root)
 
     env = os.environ.copy()
-    env["JARVIS_HARNESS_TARGET_SCRIPT"] = target_script
-    env["JARVIS_HARNESS_LOG_ROOT"] = log_root
-    env["JARVIS_HARNESS_DISABLE_DIAGNOSTICS"] = "1"
-    env.pop("JARVIS_HARNESS_DISABLE_VOICE", None)
+    env["NEXUS_HARNESS_TARGET_SCRIPT"] = target_script
+    env["NEXUS_HARNESS_LOG_ROOT"] = log_root
+    env["NEXUS_HARNESS_DISABLE_DIAGNOSTICS"] = "1"
+    env.pop("NEXUS_HARNESS_DISABLE_VOICE", None)
 
     result = run_command([sys.executable, LAUNCHER_SCRIPT], env=env, timeout_seconds=120)
 
@@ -383,7 +383,7 @@ def collect_failures(section):
 
 def build_report_text(branch_state, report_path, launcher_sections, probe_sections, normal_section, semantics_section, overall_ok):
     lines = [
-        "JARVIS VOICE REGRESSION HARNESS",
+        "NEXUS VOICE REGRESSION HARNESS",
         f"Report: {report_path}",
         f"Branch: {branch_state}",
         f"Overall Result: {'PASS' if overall_ok else 'FAIL'}",
