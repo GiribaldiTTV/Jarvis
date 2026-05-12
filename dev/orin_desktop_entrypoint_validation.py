@@ -17,12 +17,13 @@ ENTRYPOINT_SCRIPT = os.path.join(ROOT_DIR, "launch_orin_desktop.vbs")
 LAUNCHER_SCRIPT = os.path.join(ROOT_DIR, "desktop", "orin_desktop_launcher.pyw")
 DEFAULT_TARGET_SCRIPT = os.path.join(ROOT_DIR, "desktop", "orin_desktop_main.py")
 MAIN_SCRIPT = os.path.join(ROOT_DIR, "main.py")
-DESKTOP_SHORTCUT_PATH = os.path.join(
+DEFAULT_DESKTOP_SHORTCUT_PATH = os.path.join(
     os.path.expanduser("~"),
     "OneDrive",
     "Desktop",
     "Nexus Desktop Launcher.lnk",
 )
+DESKTOP_SHORTCUT_PATH_ENV = "NEXUS_DESKTOP_VALIDATION_SHORTCUT_PATH"
 EXPECTED_DEFAULT_TARGET_LINE = re.compile(
     r'DEFAULT_TARGET_SCRIPT\s*=\s*os\.path\.join\(ROOT_DIR,\s*"desktop",\s*"orin_desktop_main\.py"\)'
 )
@@ -296,6 +297,128 @@ def run_hidden_command(args, env=None, timeout_seconds=20):
         timeout=timeout_seconds,
         **hidden_subprocess_kwargs(),
     )
+
+
+def powershell_literal(value):
+    return "'" + str(value).replace("'", "''") + "'"
+
+
+def shortcut_metadata(path):
+    payload = {
+        "exists": os.path.exists(path),
+        "path": path,
+        "targetPath": "",
+        "arguments": "",
+        "workingDirectory": "",
+        "error": "",
+    }
+    if not payload["exists"] or os.name != "nt":
+        return payload
+
+    script = (
+        "$shell = New-Object -ComObject WScript.Shell; "
+        f"$shortcut = $shell.CreateShortcut({powershell_literal(path)}); "
+        "[pscustomobject]@{"
+        "TargetPath=$shortcut.TargetPath;"
+        "Arguments=$shortcut.Arguments;"
+        "WorkingDirectory=$shortcut.WorkingDirectory"
+        "} | ConvertTo-Json -Compress"
+    )
+    try:
+        result = run_hidden_command(
+            ["powershell", "-NoProfile", "-Command", script],
+            timeout_seconds=10,
+        )
+    except Exception as exc:
+        payload["error"] = f"{type(exc).__name__}: {exc}"
+        return payload
+
+    if result.returncode != 0:
+        payload["error"] = (result.stderr or result.stdout or "shortcut metadata read failed").strip()
+        return payload
+
+    try:
+        metadata = json.loads(result.stdout or "{}")
+    except Exception as exc:
+        payload["error"] = f"metadata json parse failed: {type(exc).__name__}: {exc}"
+        return payload
+
+    payload["targetPath"] = str(metadata.get("TargetPath") or "")
+    payload["arguments"] = str(metadata.get("Arguments") or "")
+    payload["workingDirectory"] = str(metadata.get("WorkingDirectory") or "")
+    return payload
+
+
+def shortcut_targets_current_root(metadata):
+    if not metadata.get("exists"):
+        return False
+    target_path = os.path.abspath(str(metadata.get("targetPath") or ""))
+    working_directory = os.path.abspath(str(metadata.get("workingDirectory") or ""))
+    return (
+        target_path == os.path.abspath(ENTRYPOINT_SCRIPT)
+        and working_directory == os.path.abspath(ROOT_DIR)
+    )
+
+
+def create_validation_shortcut(path):
+    ensure_dir(os.path.dirname(path))
+    script = (
+        "$shell = New-Object -ComObject WScript.Shell; "
+        f"$shortcut = $shell.CreateShortcut({powershell_literal(path)}); "
+        f"$shortcut.TargetPath = {powershell_literal(ENTRYPOINT_SCRIPT)}; "
+        f"$shortcut.WorkingDirectory = {powershell_literal(ROOT_DIR)}; "
+        "$shortcut.Arguments = ''; "
+        "$shortcut.Save()"
+    )
+    result = run_hidden_command(
+        ["powershell", "-NoProfile", "-Command", script],
+        timeout_seconds=10,
+    )
+    if result.returncode != 0:
+        raise RuntimeError((result.stderr or result.stdout or "shortcut creation failed").strip())
+    return shortcut_metadata(path)
+
+
+def resolve_desktop_shortcut_for_current_root(scenario_root):
+    env_shortcut_path = os.environ.get(DESKTOP_SHORTCUT_PATH_ENV, "").strip()
+    if env_shortcut_path:
+        env_metadata = shortcut_metadata(env_shortcut_path)
+        if shortcut_targets_current_root(env_metadata):
+            return {
+                "path": env_shortcut_path,
+                "mode": "env-provided-current-root-shortcut",
+                "actualDesktopShortcut": shortcut_metadata(DEFAULT_DESKTOP_SHORTCUT_PATH),
+                "selectedShortcut": env_metadata,
+            }
+        raise RuntimeError(
+            f"{DESKTOP_SHORTCUT_PATH_ENV} does not target this FAM worktree: {env_metadata}"
+        )
+
+    actual_metadata = shortcut_metadata(DEFAULT_DESKTOP_SHORTCUT_PATH)
+    if shortcut_targets_current_root(actual_metadata):
+        return {
+            "path": DEFAULT_DESKTOP_SHORTCUT_PATH,
+            "mode": "actual-desktop-shortcut-current-root",
+            "actualDesktopShortcut": actual_metadata,
+            "selectedShortcut": actual_metadata,
+        }
+
+    validation_shortcut_path = os.path.join(
+        scenario_root,
+        "Nexus Desktop Launcher - FAM006 Validation.lnk",
+    )
+    validation_metadata = create_validation_shortcut(validation_shortcut_path)
+    if not shortcut_targets_current_root(validation_metadata):
+        raise RuntimeError(
+            f"validation shortcut does not target this FAM worktree: {validation_metadata}"
+        )
+
+    return {
+        "path": validation_shortcut_path,
+        "mode": "fam-worktree-equivalent-shortcut",
+        "actualDesktopShortcut": actual_metadata,
+        "selectedShortcut": validation_metadata,
+    }
 
 
 def terminate_process_tree(proc):
@@ -1317,16 +1440,21 @@ def validate_desktop_shortcut_real_client_tray_precheck():
             "processes_after": [],
         }
 
-    if not os.path.exists(DESKTOP_SHORTCUT_PATH):
+    shortcut_resolution = {}
+    try:
+        shortcut_resolution = resolve_desktop_shortcut_for_current_root(scenario_root)
+    except Exception as exc:
         return {
             "ok": False,
             "status": "NOT_RUN",
             "manifest_path": manifest_path,
-            "error": f"desktop shortcut missing: {DESKTOP_SHORTCUT_PATH}",
+            "error": f"desktop shortcut/FAM worktree proof path unavailable: {type(exc).__name__}: {exc}",
             "manifest": {},
             "runtime_files": [],
             "processes_after": [],
+            "shortcut_resolution": shortcut_resolution,
         }
+    shortcut_path = shortcut_resolution["path"]
 
     env = os.environ.copy()
     env["NEXUS_HARNESS_LOG_ROOT"] = scenario_root
@@ -1337,10 +1465,11 @@ def validate_desktop_shortcut_real_client_tray_precheck():
     env["NEXUS_MONITORING_HUD_REAL_CLIENT_TRAY_PRECHECK_EXIT"] = "1"
     env["NEXUS_MONITORING_HUD_STATE_PATH"] = os.path.join(scenario_root, "monitoring_hud_state.json")
     env["NEXUS_SHUTDOWN_CONFIRMATION_TIMEOUT_MS"] = "1200"
+    env[DESKTOP_SHORTCUT_PATH_ENV] = shortcut_path
 
     launch_result = None
     try:
-        escaped_shortcut = DESKTOP_SHORTCUT_PATH.replace("'", "''")
+        escaped_shortcut = shortcut_path.replace("'", "''")
         launch_result = run_hidden_command(
             [
                 "powershell",
@@ -1360,6 +1489,7 @@ def validate_desktop_shortcut_real_client_tray_precheck():
             "manifest": {},
             "runtime_files": [],
             "processes_after": list_launch_chain_processes_for_log_root(scenario_root),
+            "shortcut_resolution": shortcut_resolution,
         }
 
     deadline = time.time() + 45.0
@@ -1393,6 +1523,7 @@ def validate_desktop_shortcut_real_client_tray_precheck():
         "manifest": manifest,
         "runtime_files": runtime_files,
         "processes_after": processes_after_wait,
+        "shortcut_resolution": shortcut_resolution,
         "launch_stdout": (launch_result.stdout or "").strip() if launch_result else "",
         "launch_stderr": (launch_result.stderr or "").strip() if launch_result else "",
     }
@@ -7619,6 +7750,18 @@ def build_report_text(report_path, result, overall_ok):
                 f"  Error: {precheck.get('error') or 'none'}",
             ]
         )
+        shortcut_resolution = precheck.get("shortcut_resolution") or {}
+        if shortcut_resolution:
+            lines.extend(
+                [
+                    f"  Shortcut mode: {shortcut_resolution.get('mode')}",
+                    f"  Selected shortcut: {(shortcut_resolution.get('selectedShortcut') or {}).get('path')}",
+                    f"  Selected target: {(shortcut_resolution.get('selectedShortcut') or {}).get('targetPath')}",
+                    f"  Selected working directory: {(shortcut_resolution.get('selectedShortcut') or {}).get('workingDirectory')}",
+                    f"  Actual desktop shortcut target: {(shortcut_resolution.get('actualDesktopShortcut') or {}).get('targetPath')}",
+                    f"  Actual desktop shortcut working directory: {(shortcut_resolution.get('actualDesktopShortcut') or {}).get('workingDirectory')}",
+                ]
+            )
         manifest = precheck.get("manifest") or {}
         for step in manifest.get("steps", []):
             lines.append(

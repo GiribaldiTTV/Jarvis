@@ -82,6 +82,7 @@ WM_LBUTTONUP = 0x0202
 WM_CAPTURECHANGED = 0x0215
 VK_LBUTTON = 0x01
 HTTRANSPARENT = -1
+HTCAPTION = 2
 HTLEFT = 10
 HTRIGHT = 11
 HTTOP = 12
@@ -5778,6 +5779,12 @@ class DesktopRuntimeWindow(QWidget):
         self._monitoring_hud_resize_hover_timer = QTimer(self)
         self._monitoring_hud_resize_hover_timer.setInterval(20)
         self._monitoring_hud_resize_hover_timer.timeout.connect(self._poll_monitoring_hud_resize_hover_cursor)
+        self._monitoring_hud_native_move_finalize_timer = QTimer(self)
+        self._monitoring_hud_native_move_finalize_timer.setSingleShot(True)
+        self._monitoring_hud_native_move_finalize_timer.setInterval(260)
+        self._monitoring_hud_native_move_finalize_timer.timeout.connect(
+            lambda: self._finish_monitoring_hud_native_system_move("native_caption_move")
+        )
         self._monitoring_hud_native_card_drag_active = False
         self._monitoring_hud_native_card_resize_active = False
         self._monitoring_hud_native_card_drag_id = ""
@@ -5843,6 +5850,14 @@ class DesktopRuntimeWindow(QWidget):
         if self._handle_monitoring_hud_native_panel_drag_event(event):
             return True
         return super().eventFilter(watched, event)
+
+    def moveEvent(self, event):
+        super().moveEvent(event)
+        if self.surface_role != "hud" or not self.desktop_mode or not self.isVisible():
+            return
+        self._monitoring_hud_interactive_screen_rect = self.geometry()
+        if not self._monitoring_hud_native_window_resize_active:
+            self._monitoring_hud_native_move_finalize_timer.start()
 
     def compute_compact_geometry(self):
         g = self.screen_ref.geometry()
@@ -11033,12 +11048,18 @@ class DesktopRuntimeWindow(QWidget):
                 if message_id == WM_NCHITTEST:
                     x = ctypes.c_short(int(msg.lParam) & 0xFFFF).value
                     y = ctypes.c_short((int(msg.lParam) >> 16) & 0xFFFF).value
-                    edges = self._monitoring_hud_native_resize_edges_for_point(QPoint(x, y))
+                    screen_point = QPoint(x, y)
+                    edges = self._monitoring_hud_native_resize_edges_for_point(screen_point)
                     hit_test = self._monitoring_hud_native_resize_hit_test_for_edges(edges)
-                    if hit_test and not self._monitoring_hud_dashboard_control_rect_contains(QPoint(x, y)):
+                    if hit_test and not self._monitoring_hud_dashboard_control_rect_contains(screen_point):
                         # Windows owns the cursor state at the visible resize rail;
                         # the frameless Dashboard still owns geometry resize below.
                         return True, hit_test
+                    if (
+                        self._monitoring_hud_header_rect().contains(screen_point)
+                        and not self._monitoring_hud_dashboard_control_rect_contains(screen_point)
+                    ):
+                        return True, HTCAPTION
                 if message_id in (WM_SETCURSOR, WM_MOUSEMOVE, WM_NCMOUSEMOVE) and not self._monitoring_hud_native_window_resize_active:
                     _, edges = self._monitoring_hud_resize_edges_under_cursor()
                     if edges:

@@ -1701,7 +1701,7 @@ FAM006_ELEMENT_LEDGER_REQUIRED_PHRASES = (
     "FAM006-FUTURE-AUDIO-043",
     "FAM006-FUTURE-PERSONA-044",
     "## UTS Coverage Map",
-    "Current Coverage Status: `Live Validation LV1 Handoff Green After WS56/H1 - RUI-001 through RUI-056 remain issue-grounded; current UTS was refreshed from fresh human-client proof and active-client screenshots, all current-scope Codex prechecks are PASS or explicitly deferred/future, and LV2 remains blocked until returned USER PASS/FAIL/WAIVED results or explicit waiver`",
+    "Current Coverage Status: `Hardening H1 Green After Post-Main Launcher Merge - RUI-001 through RUI-056 remain issue-grounded; post-main launcher/orphan-tray and #117 active-owner PID integration are pressure-tested, WS56 resize/cursor/fluidity rows are revalidated against the current executable state, prior LV1 handoff is stale for affected launcher/tray/entrypoint rows, and refreshed LV1 remains required after explicit USER admission before LV2 can digest returned USER PASS/FAIL/WAIVED results or explicit waiver`",
     "## Proof Rebaseline Summary",
     "Returned Step 2 Tray enable/disable/open Dashboard",
     "Returned Step 3 Tray Exit NDAI",

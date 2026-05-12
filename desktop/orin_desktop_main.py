@@ -43,6 +43,7 @@ SHUTDOWN_CONFIRMATION_DECISION_ENV = "NEXUS_SHUTDOWN_CONFIRMATION_DECISION"
 SHUTDOWN_CONFIRMATION_TIMEOUT_ENV = "NEXUS_SHUTDOWN_CONFIRMATION_TIMEOUT_MS"
 REAL_CLIENT_TRAY_PRECHECK_MANIFEST_ENV = "NEXUS_MONITORING_HUD_REAL_CLIENT_TRAY_PRECHECK_MANIFEST"
 REAL_CLIENT_TRAY_PRECHECK_EXIT_ENV = "NEXUS_MONITORING_HUD_REAL_CLIENT_TRAY_PRECHECK_EXIT"
+DESKTOP_VALIDATION_SHORTCUT_ENV = "NEXUS_DESKTOP_VALIDATION_SHORTCUT_PATH"
 SHUTDOWN_CONFIRMATION_ACCEPTED = "accepted"
 SHUTDOWN_CONFIRMATION_CANCELLED = "cancelled"
 SHUTDOWN_CONFIRMATION_TIMEOUT = "timeout"
@@ -416,6 +417,13 @@ def real_client_tray_precheck_exits_after_run():
     return value in {"1", "true", "yes", "on"}
 
 
+def real_client_tray_precheck_shortcut_path():
+    return (
+        os.environ.get(DESKTOP_VALIDATION_SHORTCUT_ENV)
+        or r"C:\Users\anden\OneDrive\Desktop\Nexus Desktop Launcher.lnk"
+    )
+
+
 def startup_abort_requested():
     return bool(STARTUP_ABORT_SIGNAL_FILE) and os.path.exists(STARTUP_ABORT_SIGNAL_FILE)
 
@@ -690,7 +698,7 @@ def main():
                 "startedAt": started_at,
                 "finishedAt": datetime.datetime.now(datetime.timezone.utc).isoformat(),
                 "seam": "Workstream WS47 - Dashboard Real-Client Tray Shortcut And Proof-Governance Repair",
-                "shortcutPath": r"C:\Users\anden\OneDrive\Desktop\Nexus Desktop Launcher.lnk",
+                "shortcutPath": real_client_tray_precheck_shortcut_path(),
                 "proofClasses": {
                     "staticProof": "supporting",
                     "sandboxProof": "supporting",

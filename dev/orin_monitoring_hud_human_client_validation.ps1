@@ -85,6 +85,10 @@ public static class CodexHumanClientWin32 {
     [DllImport("user32.dll")] private static extern bool GetCursorInfo(out CURSORINFO pci);
     [DllImport("user32.dll", SetLastError = true)] private static extern IntPtr LoadCursor(IntPtr hInstance, IntPtr lpCursorName);
     [DllImport("user32.dll")] private static extern IntPtr SendMessage(IntPtr hWnd, uint Msg, IntPtr wParam, IntPtr lParam);
+    [DllImport("user32.dll")] private static extern int GetMenuItemCount(IntPtr hMenu);
+    [DllImport("user32.dll")] private static extern bool GetMenuItemRect(IntPtr hWnd, IntPtr hMenu, uint uItem, out RECT rect);
+    [DllImport("user32.dll", CharSet = CharSet.Unicode)] private static extern int GetMenuStringW(IntPtr hMenu, uint uIDItem, StringBuilder lpString, int nMaxCount, uint uFlag);
+    [DllImport("user32.dll")] private static extern uint GetMenuState(IntPtr hMenu, uint uId, uint uFlags);
     [DllImport("user32.dll")] private static extern IntPtr GetAncestor(IntPtr hWnd, uint gaFlags);
 
     private static IntPtr LoadSystemCursor(int cursorId) {
@@ -168,6 +172,25 @@ public static class CodexHumanClientWin32 {
         SendInput(3, inputs, Marshal.SizeOf(typeof(INPUT)));
     }
 
+    public static void SendAbsoluteRightClick(int x, int y) {
+        int virtualX = GetSystemMetrics(76);
+        int virtualY = GetSystemMetrics(77);
+        int virtualWidth = GetSystemMetrics(78);
+        int virtualHeight = GetSystemMetrics(79);
+        int absoluteX = (int)Math.Round(((double)(x - virtualX) * 65535.0) / Math.Max(1, virtualWidth - 1));
+        int absoluteY = (int)Math.Round(((double)(y - virtualY) * 65535.0) / Math.Max(1, virtualHeight - 1));
+        INPUT[] inputs = new INPUT[3];
+        inputs[0].type = 0;
+        inputs[0].mi.dx = absoluteX;
+        inputs[0].mi.dy = absoluteY;
+        inputs[0].mi.dwFlags = 0x0001 | 0x4000 | 0x8000;
+        inputs[1].type = 0;
+        inputs[1].mi.dwFlags = 0x0008;
+        inputs[2].type = 0;
+        inputs[2].mi.dwFlags = 0x0010;
+        SendInput(3, inputs, Marshal.SizeOf(typeof(INPUT)));
+    }
+
     public static void SendRightClick() {
         SendMouseButton(0x0008, 0x0010);
     }
@@ -221,7 +244,7 @@ public static class CodexHumanClientWin32 {
         }, IntPtr.Zero);
 
         foreach (IntPtr hWnd in candidates) {
-            for (uint uid = 0; uid < 16; uid++) {
+            for (uint uid = 0; uid < 256; uid++) {
                 NOTIFYICONIDENTIFIER identifier = new NOTIFYICONIDENTIFIER();
                 identifier.cbSize = (uint)Marshal.SizeOf(typeof(NOTIFYICONIDENTIFIER));
                 identifier.hWnd = hWnd;
@@ -305,6 +328,38 @@ public static class CodexHumanClientWin32 {
         }, IntPtr.Zero);
 
         return result.ToInt64();
+    }
+
+    public static string[] GetNativeMenuItemsForPopup(long hwndValue) {
+        if (hwndValue == 0) { return new string[0]; }
+        IntPtr hwnd = new IntPtr(hwndValue);
+        IntPtr hMenu = SendMessage(hwnd, 0x01E1, IntPtr.Zero, IntPtr.Zero);
+        if (hMenu == IntPtr.Zero) { return new string[0]; }
+        int count = GetMenuItemCount(hMenu);
+        if (count <= 0) { return new string[0]; }
+        List<string> items = new List<string>();
+        for (uint index = 0; index < (uint)count; index++) {
+            StringBuilder text = new StringBuilder(256);
+            GetMenuStringW(hMenu, index, text, text.Capacity, 0x00000400);
+            RECT rect;
+            if (!GetMenuItemRect(hwnd, hMenu, index, out rect)) {
+                rect = new RECT();
+            }
+            uint state = GetMenuState(hMenu, index, 0x00000400);
+            bool enabled = (state & 0x00000003) == 0;
+            bool separator = (state & 0x00000800) != 0;
+            items.Add(string.Format(
+                "{0}|{1}|{2}|{3},{4},{5},{6}",
+                index,
+                enabled ? "enabled" : "disabled",
+                separator ? "<separator>" : text.ToString().Replace("|", "/"),
+                rect.Left,
+                rect.Top,
+                rect.Right,
+                rect.Bottom
+            ));
+        }
+        return items.ToArray();
     }
 
     public static int[] GetVisibleDashboardRectForProcess(int processId) {
@@ -421,7 +476,12 @@ $LogRoot = Join-Path $RootDir "dev\logs\fam_006_human_client_validation\$Stamp"
 $ScreenshotRoot = Join-Path $LogRoot "screenshots"
 $ManifestPath = Join-Path $LogRoot "human_client_manifest.json"
 $LatestManifestPath = Join-Path $RootDir "dev\logs\fam_006_human_client_validation\latest_manifest.json"
-$DesktopShortcutPath = Join-Path $env:USERPROFILE "OneDrive\Desktop\Nexus Desktop Launcher.lnk"
+$DefaultDesktopShortcutPath = Join-Path $env:USERPROFILE "OneDrive\Desktop\Nexus Desktop Launcher.lnk"
+$DesktopShortcutPath = if ($env:NEXUS_DESKTOP_VALIDATION_SHORTCUT_PATH) {
+    $env:NEXUS_DESKTOP_VALIDATION_SHORTCUT_PATH
+} else {
+    $DefaultDesktopShortcutPath
+}
 
 New-Item -ItemType Directory -Force -Path $ScreenshotRoot | Out-Null
 
@@ -479,6 +539,17 @@ function Send-Key {
     Start-Sleep -Milliseconds 80
     [CodexHumanClientWin32]::keybd_event($Vk, 0, 2, [UIntPtr]::Zero)
     Start-Sleep -Milliseconds 180
+}
+
+function Send-AltF4 {
+    [CodexHumanClientWin32]::keybd_event(0x12, 0, 0, [UIntPtr]::Zero)
+    Start-Sleep -Milliseconds 80
+    [CodexHumanClientWin32]::keybd_event(0x73, 0, 0, [UIntPtr]::Zero)
+    Start-Sleep -Milliseconds 80
+    [CodexHumanClientWin32]::keybd_event(0x73, 0, 2, [UIntPtr]::Zero)
+    Start-Sleep -Milliseconds 80
+    [CodexHumanClientWin32]::keybd_event(0x12, 0, 2, [UIntPtr]::Zero)
+    Start-Sleep -Milliseconds 220
 }
 
 function Send-WinB {
@@ -926,20 +997,37 @@ function Cleanup-Runtime {
 }
 
 function Open-HiddenTrayOnNexus {
-    $runtimeProcesses = Find-ProcessesForLogRoot
-    foreach ($process in $runtimeProcesses) {
-        $rect = [CodexHumanClientWin32]::GetNotifyIconRectForProcess([int]$process.ProcessId)
-        if ($rect -and $rect.Length -eq 4) {
-            $x = [int](($rect[0] + $rect[2]) / 2)
-            $y = [int](($rect[1] + $rect[3]) / 2)
-            [CodexHumanClientWin32]::SetCursorPos($x, $y) | Out-Null
-            Start-Sleep -Milliseconds 160
-            [CodexHumanClientWin32]::SendRightClick()
-            Start-Sleep -Milliseconds 650
-            return
+    $deadline = (Get-Date).AddSeconds(8)
+    while ((Get-Date) -lt $deadline) {
+        $runtimeProcesses = Find-ProcessesForLogRoot
+        foreach ($process in $runtimeProcesses) {
+            $rect = [CodexHumanClientWin32]::GetNotifyIconRectForProcess([int]$process.ProcessId)
+            if ($rect -and $rect.Length -eq 4) {
+                $x = [int](($rect[0] + $rect[2]) / 2)
+                $y = [int](($rect[1] + $rect[3]) / 2)
+                for ($attempt = 1; $attempt -le 3; $attempt++) {
+                    [CodexHumanClientWin32]::SetCursorPos($x, $y) | Out-Null
+                    Start-Sleep -Milliseconds 220
+                    [CodexHumanClientWin32]::SendAbsoluteRightClick($x, $y)
+                    Start-Sleep -Milliseconds 750
+                    $menuRect = Get-VisibleTrayMenuRect -TimeoutSeconds 1
+                    if ($menuRect -and $menuRect.Length -eq 4) {
+                        return @{
+                            processId = [int]$process.ProcessId
+                            notifyIconRect = @([int]$rect[0], [int]$rect[1], [int]$rect[2], [int]$rect[3])
+                            clicked = @($x, $y)
+                            attempt = $attempt
+                            menuRect = @([int]$menuRect[0], [int]$menuRect[1], [int]$menuRect[2], [int]$menuRect[3])
+                            clickMethod = "Shell_NotifyIconGetRect + absolute right click"
+                        }
+                    }
+                }
+            }
         }
+        Start-Sleep -Milliseconds 300
     }
 
+    $runtimeProcesses = Find-ProcessesForLogRoot
     throw "Nexus tray icon rectangle not found for runtime process IDs: $($runtimeProcesses.ProcessId -join ', ')"
 }
 
@@ -1027,47 +1115,112 @@ function Test-RectCenterInside {
 function Click-VisibleTrayMenuAction {
     param([string]$ActionName)
 
-    Open-HiddenTrayOnNexus
-    $menuHandle = Get-VisibleTrayMenuHandle -TimeoutSeconds 5
-    if ($menuHandle -eq [IntPtr]::Zero) {
+    $trayOpenEvidence = Open-HiddenTrayOnNexus
+    $menuHandle = Get-VisibleTrayMenuHandle -TimeoutSeconds 1
+    $menuElement = $null
+    $coordinateOnlyMenu = $false
+    if ($menuHandle -ne [IntPtr]::Zero) {
+        $menuElement = [System.Windows.Automation.AutomationElement]::FromHandle($menuHandle)
+    }
+    if (-not $menuElement -and $trayOpenEvidence.menuRect) {
+        $coordinateOnlyMenu = $true
+        $menuRectPayload = @($trayOpenEvidence.menuRect)
+        $menuRect = [pscustomobject]@{
+            X = [double]$menuRectPayload[0]
+            Y = [double]$menuRectPayload[1]
+            Width = [double]($menuRectPayload[2] - $menuRectPayload[0])
+            Height = [double]($menuRectPayload[3] - $menuRectPayload[1])
+        }
+    } elseif (-not $menuElement) {
         throw "Visible Nexus tray context menu did not appear for action '$ActionName'"
     }
 
-    $menuElement = [System.Windows.Automation.AutomationElement]::FromHandle($menuHandle)
-    if (-not $menuElement) {
-        throw "Visible Nexus tray context menu was found but UIAutomation could not bind to it for action '$ActionName'"
+    if (-not $itemRect -and -not $coordinateOnlyMenu) {
+        $menuRect = $menuElement.Current.BoundingRectangle
+        $items = $menuElement.FindAll(
+            [System.Windows.Automation.TreeScope]::Subtree,
+            [System.Windows.Automation.Condition]::TrueCondition
+        )
+    } else {
+        $items = @()
     }
-
-    $menuRect = $menuElement.Current.BoundingRectangle
-    $items = $menuElement.FindAll(
-        [System.Windows.Automation.TreeScope]::Subtree,
-        [System.Windows.Automation.Condition]::TrueCondition
-    )
     $target = $null
     $targetControlType = ""
-    foreach ($preferredControlType in @(
-        [System.Windows.Automation.ControlType]::Button,
-        [System.Windows.Automation.ControlType]::MenuItem
-    )) {
-        for ($i = 0; $i -lt $items.Count; $i++) {
-            $item = $items.Item($i)
-            if (
-                $item.Current.ControlType -eq $preferredControlType -and
-                $item.Current.Name -eq $ActionName -and
-                $item.Current.IsEnabled
-            ) {
-                $candidateRect = $item.Current.BoundingRectangle
-                if (Test-RectCenterInside -InnerRect $candidateRect -OuterRect $menuRect) {
-                    $target = $item
-                    $targetControlType = $item.Current.ControlType.ProgrammaticName
-                    break
+    $itemRect = $null
+    $nativeMenuItems = @()
+    if ($menuHandle -ne [IntPtr]::Zero) {
+        try {
+            $nativeMenuItems = @([CodexHumanClientWin32]::GetNativeMenuItemsForPopup($menuHandle.ToInt64()))
+        } catch {
+            $nativeMenuItems = @()
+        }
+        foreach ($nativeItem in $nativeMenuItems) {
+            $parts = ([string]$nativeItem).Split("|", 4)
+            if ($parts.Count -ne 4) { continue }
+            $enabled = $parts[1] -eq "enabled"
+            $text = $parts[2]
+            $rectParts = $parts[3].Split(",")
+            if (-not $enabled -or $text -ne $ActionName -or $rectParts.Count -ne 4) { continue }
+            $left = [int]$rectParts[0]
+            $top = [int]$rectParts[1]
+            $right = [int]$rectParts[2]
+            $bottom = [int]$rectParts[3]
+            if ($right -gt $left -and $bottom -gt $top) {
+                $itemRect = [pscustomobject]@{
+                    X = [double]$left
+                    Y = [double]$top
+                    Width = [double]($right - $left)
+                    Height = [double]($bottom - $top)
                 }
+                $targetControlType = "ControlType.NativeMenuItemRect"
+                $coordinateFallback = $true
+                break
             }
         }
-        if ($target) { break }
     }
-    $coordinateFallback = $false
-    if (-not $target) {
+    if (-not $coordinateOnlyMenu) {
+        foreach ($preferredControlType in @(
+            [System.Windows.Automation.ControlType]::Button,
+            [System.Windows.Automation.ControlType]::MenuItem
+        )) {
+            for ($i = 0; $i -lt $items.Count; $i++) {
+                $item = $items.Item($i)
+                if (
+                    $item.Current.ControlType -eq $preferredControlType -and
+                    $item.Current.Name -eq $ActionName -and
+                    $item.Current.IsEnabled
+                ) {
+                    $candidateRect = $item.Current.BoundingRectangle
+                    if (Test-RectCenterInside -InnerRect $candidateRect -OuterRect $menuRect) {
+                        $target = $item
+                        $targetControlType = $item.Current.ControlType.ProgrammaticName
+                        break
+                    }
+                }
+            }
+            if ($target) { break }
+        }
+    }
+    $coordinateFallback = $coordinateOnlyMenu
+    if ($itemRect) {
+        $coordinateFallback = $true
+    }
+    if (-not $target -and -not $itemRect) {
+        foreach ($runtimeControlType in @("ControlType.MenuItem", "ControlType.Button")) {
+            $runtimeTarget = Find-VisibleRuntimeElementByName -Name $ActionName -ControlTypeName $runtimeControlType -TimeoutSeconds 2
+            if ($runtimeTarget) {
+                $runtimeRect = $runtimeTarget.Current.BoundingRectangle
+                if ($runtimeRect.Width -le 0 -or $runtimeRect.Height -le 0) {
+                    continue
+                }
+                $target = $runtimeTarget
+                $targetControlType = $runtimeControlType
+                $coordinateFallback = $false
+                break
+            }
+        }
+    }
+    if (-not $target -and -not $itemRect) {
         $nativeY = $null
         if ($ActionName -in @("Enable HUD Feature", "Disable HUD Feature")) {
             $nativeY = [int]($menuRect.Y + 17)
@@ -1137,6 +1290,7 @@ function Click-VisibleTrayMenuAction {
             [int]($itemRect.X + $itemRect.Width),
             [int]($itemRect.Y + $itemRect.Height)
         )
+        trayOpenEvidence = $trayOpenEvidence
         targetControlType = $targetControlType
         coordinateFallback = $coordinateFallback
         clicked = @($x, $y)
@@ -1316,7 +1470,7 @@ function Dismiss-VisibleRuntimeDialog {
 
     $before = Wait-ForVisibleRuntimeWindowByTitle -Title $Title -TimeoutSeconds 1
     $beforeLineCount = (Read-RuntimeLines).Count
-    if ($before -and $before.Count -eq 4 -and $Title -in @("Create Custom Task", "Create Custom Group")) {
+    if ($before -and $before.Count -eq 4 -and $Title -in @("Create Custom Task", "Create Custom Group", "Manage Custom Tasks", "Manage Custom Groups")) {
         $x = [int]($before[2] - 205)
         $y = [int]($before[1] + 342)
         [CodexHumanClientWin32]::SetCursorPos($x, $y) | Out-Null
@@ -1368,7 +1522,7 @@ function Dismiss-VisibleRuntimeDialog {
         }
         Start-Sleep -Milliseconds 120
     }
-    if ($before -and $before.Count -eq 4 -and $Title -in @("Create Custom Task", "Create Custom Group")) {
+    if ($before -and $before.Count -eq 4 -and $Title -in @("Create Custom Task", "Create Custom Group", "Manage Custom Tasks", "Manage Custom Groups")) {
         $x = [int]($before[2] - 205)
         $y = [int]($before[1] + 342)
         [CodexHumanClientWin32]::SetCursorPos($x, $y) | Out-Null
@@ -1391,6 +1545,37 @@ function Dismiss-VisibleRuntimeDialog {
                     method = "dialog-title-relative-coordinate-click"
                     beforeRect = $before
                     clicked = @($x, $y)
+                    dismissed = $true
+                }
+            }
+            Start-Sleep -Milliseconds 120
+        }
+    }
+    if ($before -and $before.Count -eq 4 -and $Title -in @("Create Custom Task", "Create Custom Group", "Manage Custom Tasks", "Manage Custom Groups")) {
+        $focusX = [int](($before[0] + $before[2]) / 2)
+        $focusY = [int](($before[1] + $before[3]) / 2)
+        [CodexHumanClientWin32]::SetCursorPos($focusX, $focusY) | Out-Null
+        Start-Sleep -Milliseconds 120
+        [CodexHumanClientWin32]::SendLeftClick()
+        Start-Sleep -Milliseconds 160
+        Send-AltF4
+        $altF4Deadline = (Get-Date).AddSeconds($TimeoutSeconds)
+        while ((Get-Date) -lt $altF4Deadline) {
+            if ($ExpectedDismissMarker -and (Wait-ForRuntimeMarkerAfterLine -Marker $ExpectedDismissMarker -AfterLine $beforeLineCount -TimeoutSeconds 1)) {
+                return @{
+                    method = "dialog-focus-alt-f4-runtime-marker"
+                    beforeRect = $before
+                    clicked = @($focusX, $focusY)
+                    dismissed = $true
+                    marker = $ExpectedDismissMarker
+                }
+            }
+            $afterAltF4 = Wait-ForVisibleRuntimeWindowByTitle -Title $Title -TimeoutSeconds 1
+            if (-not $afterAltF4 -or $afterAltF4.Count -ne 4) {
+                return @{
+                    method = "dialog-focus-alt-f4"
+                    beforeRect = $before
+                    clicked = @($focusX, $focusY)
                     dismissed = $true
                 }
             }
@@ -1424,7 +1609,7 @@ function Save-Manifest {
         schema = "fam006-human-client-validation-v1"
         status = $Status
         failure = $Failure
-        seam = "Workstream WS53 - Dashboard Resize Edge Discoverability Repair"
+        seam = "FAM-006 human-client Dashboard/tray/resize validation"
         startedAt = $script:StartedAt
         finishedAt = (Get-Date).ToUniversalTime().ToString("o")
         desktopShortcutPath = $DesktopShortcutPath
@@ -1478,8 +1663,11 @@ try {
     $launchShot = Capture-VirtualScreenshot "01_after_shortcut_launch_settled"
     Add-Step -Id "launch_settled_visible_desktop" -Title "Shortcut launch settles with visible desktop context" -Status "PASS" -Detail "Runtime settled; screenshot captured." -Evidence @{ screenshot = $launchShot; runtimeLog = $script:RuntimeLogPath }
 
-    Open-HiddenTrayOnNexus
-    $initialMenuRect = Get-VisibleTrayMenuRect -TimeoutSeconds 5
+    $initialTrayOpenEvidence = Open-HiddenTrayOnNexus
+    $initialMenuRect = @($initialTrayOpenEvidence.menuRect)
+    if (-not $initialMenuRect -or $initialMenuRect.Length -ne 4) {
+        $initialMenuRect = Get-VisibleTrayMenuRect -TimeoutSeconds 5
+    }
     if (-not $initialMenuRect -or $initialMenuRect.Length -ne 4) {
         throw "Visible tray context menu was not opened from the real Nexus tray icon"
     }
