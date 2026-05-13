@@ -139,10 +139,23 @@ PR Base: `main`
 PR Head: `feature/fam-006-dashboard-ia-controls-followthrough`
 PR Created: `2026-05-13T22:11:53Z`
 PR Latest Head At Creation: `ea0e94b4a82a52614502e72a83afdf06a3187925`
+PR Latest Head After Metadata Sync: `edbf65b7eb08e836807f22d80e318016b4f584b2`
 PR Mergeability At Creation: `MERGEABLE`
 PR Changed Files At Creation: `18`
 PR Readiness Gate After Creation: `Blocked only by Bot Review Signal Pending; source-truth metadata sync follows on the same branch.`
-Watcher / Bot-Review Posture: `Watch PR #132 for Codex/bot review comments, requested changes, status checks, and mergeability. Bounded repair may occur only on this PR branch if review feedback remains inside the accepted #125/#126 PR package or the accepted governance/source-truth repair scope; otherwise stop and surface a new USER decision.`
+Bot Review Signal Status: `Pending for current head edbf65b7eb08e836807f22d80e318016b4f584b2. A Codex bot review comment was observed for prior head ea0e94b4a82a52614502e72a83afdf06a3187925, but it does not clear current-head PR readiness.`
+Watcher Provisioning Status: `Provisioned after USER drift report - native Codex heartbeat watcher pr-132-fam-006-ia-controls-watch is ACTIVE on one-minute cadence.`
+Watcher Kind: `heartbeat`
+Watcher ID: `pr-132-fam-006-ia-controls-watch`
+Watcher Name: `PR #132 FAM-006 IA Controls Watch`
+Watcher Target: `https://github.com/GiribaldiTTV/Nexus-Desktop-AI/pull/132`
+Watcher Reporting Surface: `Current Codex thread`
+Watcher Reporting Thread ID: `019e2169-5c7a-7962-a2d7-4510002a7d76`
+Watcher Schedule: `FREQ=MINUTELY;INTERVAL=1`
+Watcher Runtime Proof Method: `Codex automation run/inbox evidence and current-thread heartbeat output; ACTIVE configuration alone is not runtime proof.`
+Watcher Runtime Proof Status: `Pending first scheduler run proof at provisioning time; automation observability classified the new watcher as REVIEW_INFO inside the initial grace window.`
+Watcher Fallback / Teardown: `If native heartbeat run proof does not appear, USER may approve a bounded local watcher fallback. Retire or update the watcher after PR #132 merges, closes, or is replaced.`
+Watcher / Bot-Review Posture: `Watch PR #132 for Codex/bot review comments, requested changes, status checks, mergeability, and merge state. Bounded repair may occur only on this PR branch if review feedback remains inside the accepted #125/#126 PR package or the accepted governance/source-truth repair scope; otherwise stop and surface a new USER decision.`
 
 ## Post-Merge State
 
