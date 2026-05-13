@@ -156,9 +156,17 @@ Next Legal Phase Gate: `PR Readiness Stage 2 owns final PR package sync, PR crea
 - Watcher Runtime Proof: `Pending first heartbeat emission; ACTIVE configuration state is not runtime proof`
 - Watcher Teardown Rule: `Watcher must be deleted after PR #128 reaches merged=true or closed=true and terminal same-thread delivery proof is present`
 - Bot Review Signal: `Comment addressed`
-- Bot Review Signal Repair Commit: `53e5df02b8e230bf549402c2575b42d4cd47d487`
+- Bot Review Signal Repair Commit: `53e5df0de3306243c8e972f3dd70aa40ad736dc6`
 - Bot Review Signal Source: `Codex review thread PRRT_kwDORwnWIs6B0VZy / comment PRRC_kwDORwnWIs7A3dC1 on Docs/feature_backlog.md registry row`
 - Bot Review Signal Closeout: `Replied and resolved review thread after updating FAM-007 registry row to candidate/planned planning baseline with historical branch authority planning trace`
+
+## PR Bot Review Signal
+
+Bot Review Signal Status: `Comment addressed`
+Bot Review Signal Head SHA: `53e5df0de3306243c8e972f3dd70aa40ad736dc6`
+Bot Review Signal Source: `Codex review thread PRRT_kwDORwnWIs6B0VZy / comment PRRC_kwDORwnWIs7A3dC1 on Docs/feature_backlog.md registry row`
+Bot Review Signal Timestamp: `2026-05-13T16:10:32Z`
+Bot Review Signal Actor: `chatgpt-codex-connector[bot] / GiribaldiTTV`
 
 ## Branch Objective
 
