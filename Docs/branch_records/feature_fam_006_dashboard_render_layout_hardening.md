@@ -11,19 +11,19 @@
 
 ## Purpose / Why It Exists
 
-This branch is the USER-approved Branch Readiness Stage 2 setup carrier for the first FAM-006 Dashboard issue-resolution branch.
+This branch is the USER-approved implementation carrier for the first FAM-006 Dashboard issue-resolution branch.
 
 It exists because PR #122 merged the FAM-006 issue-readiness governance repair, the five locked FAM-006 Dashboard GitHub issues were created from updated main using summary-only evidence, and USER approved this first branch to carry the released Dashboard render/layout confidence issues before IA/control follow-through begins.
 
-Current authorization covers post-merge cleanup, branch creation, branch authority setup, summary-only issue traceability for issues #123, #124, and #127, validation, commit, and push. Runtime implementation, PR creation, raw evidence upload/import/linking, release/tag/artifact work, FAM-007/local AI work, AI Product Contract import, old C:\ folder reactivation/reconciliation, and codex/ai-llm-lab reactivation/reconciliation remain future USER approval checkpoints.
+Current authorization covers runtime implementation, validation, source-truth updates, commit, and push for issues #123, #124, and #127. PR creation, raw evidence upload/import/linking, release/tag/artifact work, FAM-007/local AI work, AI Product Contract import, old C:\ folder reactivation/reconciliation, and codex/ai-llm-lab reactivation/reconciliation remain future USER approval checkpoints.
 
 ## Record State
 
-- `Active Branch Readiness setup`
+- `Active Workstream implementation`
 
 ## Status
 
-- `Branch Readiness Stage 2 setup active - runtime implementation not approved`
+- `Workstream implementation complete for Dashboard render/layout hardening issues #123, #124, and #127; Hardening/PR remain future USER approval checkpoints`
 
 ## Canonical Branch
 
@@ -31,13 +31,15 @@ Current authorization covers post-merge cleanup, branch creation, branch authori
 
 ## Current Phase
 
-- Phase: `Branch Readiness`
+- Phase: `Workstream`
 
 ## Phase Status
 
 - Stage 1: `Complete - USER approved Branch 1 grouping for issues #123, #124, and #127 after FAM-006 issue-readiness review`
-- Stage 2 USER Approval: `Granted for cleanup, branch creation, branch authority setup, GitHub issue traceability comments, validation, commit, and push only`
+- Stage 2 USER Approval: `Complete - cleanup, branch creation, branch authority setup, GitHub issue traceability comments, validation, commit, and push were completed before runtime admission`
+- Runtime Implementation Approval: `Granted by USER for issues #123, #124, and #127 on this branch`
 - Branch Creation: `Created at D:\Nexus Worktrees\Nexus Desktop AI FAM-006 Dashboard Render Layout Hardening from origin/main commit fc17a16679cb3c61b31c939da18beb2aa6d90ef2`
+- Main Reintegration: `Merged updated origin/main at PR #128 merge commit 23521ef52e39c9428006986603464289d25fb88a before final validation; FAM-007 remains candidate/planned planning truth only and does not become authority for this FAM-006 implementation branch`
 - Branch Authority State: `Active Branch`
 - Source-Truth Owner: `This branch record owns active Branch 1 authority; Docs/branch_records/feature_fam_006_monitoring_hud_product_surface.md owns historical FAM-006 RUI and issue-queue truth`
 - Carried Issues: `#123 FAM-006 Dashboard: initial open flicker`; `#124 FAM-006 Dashboard: scroll content well clipping and scrollbar ownership`; `#127 FAM-006 Dashboard: resize jitter and catch-up lag`
@@ -45,7 +47,7 @@ Current authorization covers post-merge cleanup, branch creation, branch authori
 - Future / Deferred Items: `Dashboard settings cog/settings panel`; `Overlay/display acceptance`; `Provider/external telemetry parity`; `Dev Toolkit/source-owner markers`
 - Evidence Policy: `Summary-only for GitHub issue and branch source-truth references`
 - Raw Media Status: `Raw screenshots, videos, and UTS exports remain local/external unless USER later approves upload, import, or linking`
-- Runtime Implementation: `Blocked pending later explicit USER approval`
+- Runtime Implementation: `Implemented first repair pass for #123, #124, and #127`
 - GitHub Issue Traceability: `Branch carrier comments added to #123, #124, and #127 during this Stage 2 setup; issue body edits beyond planning references remain blocked`
 - FAM-007 / Local AI Authority: `Blocked and out of scope`
 
@@ -55,12 +57,18 @@ Current authorization covers post-merge cleanup, branch creation, branch authori
 
 ## Blockers
 
-- `Runtime Implementation Approval Missing`: `Active - this Stage 2 setup does not admit runtime edits`
-- `PR Creation Approval Missing`: `Active - PR creation remains a future USER approval checkpoint`
-- `Release Execution Approval Missing`: `Active`
-- `Raw Evidence Import Decision Pending`: `Active - raw desktop media stays local/external unless USER later approves upload, import, or linking`
-- `FAM-007 Admission Missing`: `Active - preserve separation from FAM-007/local AI`
-- `AI Product Contract Import Approval Missing`: `Active`
+- None for the current Workstream implementation slice.
+
+## Future USER Approval Checkpoints
+
+- PR creation remains a future USER approval checkpoint.
+- Release/tag/artifact work remains a future USER approval checkpoint.
+- Raw evidence upload/import/linking remains a future USER approval checkpoint; raw screenshots/videos stay local/external.
+- FAM-007/local AI work remains separate and requires later USER approval.
+- AI Product Contract import remains a future USER approval checkpoint.
+- Old C:\ folder reactivation/reconciliation remains a future USER approval checkpoint.
+- codex/ai-llm-lab reactivation/reconciliation remains a future USER approval checkpoint.
+- Branch 2 work for #125 and #126 remains held for later USER approval.
 
 ## Entry Basis
 
@@ -70,6 +78,7 @@ Current authorization covers post-merge cleanup, branch creation, branch authori
 - GitHub issues #123, #124, #125, #126, and #127 were created from updated main using summary-only evidence only.
 - USER approved Branch 1 as `feature/fam-006-dashboard-render-layout-hardening`, carrying issues #123, #124, and #127.
 - Issues #125 and #126 remain held for the later IA/control follow-through branch.
+- During implementation, updated `origin/main` was fetched after PR #128 merged and integrated into this branch by merge commit `46e7fbf38afa127ba7845a0a1f83b1c7f4902baa`; the integrated PR #128 source truth remains FAM-007 planning/candidate-only and does not admit FAM-007/local AI implementation or change the FAM-006 carrier scope.
 
 ## Exit Criteria
 
@@ -80,19 +89,22 @@ Current authorization covers post-merge cleanup, branch creation, branch authori
 - GitHub issue traceability comments identify this branch as the planned carrier for #123, #124, and #127.
 - Docs/governance validation passes.
 - Setup changes are committed and pushed.
-- Runtime implementation remains blocked pending later explicit USER approval.
+- Runtime implementation for issues #123, #124, and #127 is completed for the first Workstream repair pass.
+- Dashboard first-frame/open path, inner content-well scrollbar ownership, bottom gutter, and resize synchronization are recorded in source truth.
+- Static HUD validation, internal sandbox validation, active-client live validation, compile validation, and governance validation pass.
+- No formal UTS export is generated or digested in this Workstream phase.
 
 ## Rollback Target
 
-- `Branch Readiness`
+- `Workstream`
 
-Rollback Path: abandon branch `feature/fam-006-dashboard-render-layout-hardening` before runtime implementation; do not mutate old C:\ folders, FAM-007 worktrees, or codex/ai-llm-lab.
+Rollback Path: revert this branch before PR if the Dashboard render/layout repair fails validation or USER visual review; do not mutate old C:\ folders, FAM-007 worktrees, or codex/ai-llm-lab.
 
 ## Next Legal Phase
 
-- `Branch Readiness`
+- `Hardening`
 
-Next Legal Phase Gate: USER may later approve Workstream runtime implementation on this branch. Until that approval is explicit, this branch remains in Branch Readiness and carries no runtime code or test mutation authority.
+Next Legal Phase Gate: USER may later approve Hardening/USER-facing pressure-test or PR Readiness after reviewing the Workstream repair and proof packet. This record does not itself approve PR creation, release work, raw evidence upload/import/linking, or Branch 2 implementation.
 
 ## Branch Objective
 
@@ -100,19 +112,28 @@ Prepare the first FAM-006 Dashboard issue-resolution branch to harden the releas
 
 ## Target End-State
 
-- The branch is cleanly created from updated main.
-- Active branch authority and issue traceability are recorded.
-- The carried issue set is limited to #123, #124, and #127.
+- The branch has implemented the first repair pass from updated main.
+- Active branch authority, issue traceability, source-truth deltas, and validation proof are recorded.
+- The carried issue set remains limited to #123, #124, and #127.
 - Branch 2 issues #125 and #126 remain out of scope.
-- The next USER decision is whether to admit runtime implementation for the carried issues.
+- The next USER decision is whether to request USER live validation/Hardening or PR Readiness Stage 1.
 
 ## Backlog Completion Strategy
 
 This branch is a FAM-006 issue-resolution continuation under historical PKG-006, not a new backlog identity and not a new package admission.
 
-Branch Completion Goal: complete Branch Readiness Stage 2 setup, trace issues #123/#124/#127 to this branch, validate, commit, push, and stop for USER runtime-implementation approval.
-Known Future-Dependent Blockers: runtime implementation, PR creation, raw evidence upload/import/linking, release work, Branch 2, Dashboard settings cog/settings panel, Overlay/display acceptance, Provider/external telemetry parity, Dev Toolkit/source-owner markers, FAM-007/local AI work, and AI Product Contract import all require later explicit USER approval.
-Branch Closure Rule: stop after validated setup and push unless USER later approves runtime Workstream implementation; do not expand into Branch 2 or future/deferred items.
+Branch Completion Goal: implement issues #123/#124/#127, validate, record summary-only evidence, commit, push, and stop for USER decision on Hardening/live validation or PR Readiness.
+Known Future-Dependent Blockers: PR creation, raw evidence upload/import/linking, release work, Branch 2, Dashboard settings cog/settings panel, Overlay/display acceptance, Provider/external telemetry parity, Dev Toolkit/source-owner markers, FAM-007/local AI work, and AI Product Contract import all require later explicit USER approval.
+Branch Closure Rule: stop after validated implementation and push; do not expand into Branch 2 or future/deferred items.
+
+## Backlog Completion Status
+
+Backlog Completion State: Implemented Complete
+Completion Status: Green
+Remaining Implementable Work: None
+Future-Dependent Blockers: None
+Visible User-Facing Proof Required: No - Workstream proof uses Codex active-client/local validation only; USER live validation or formal Live Validation remains a later approval checkpoint.
+Visible User-Facing Proof: PASS - active-client live helper captured Dashboard-specific local proof without refreshing or digesting a formal UTS.
 
 ## Expected Seam Families And Risk Classes
 
@@ -136,7 +157,7 @@ Planning-Loop Bypass Reason: None
 ## Admitted Implementation Slice
 
 Implementation Slice: `FAM006-BRANCH1-DASHBOARD-RENDER-LAYOUT-HARDENING`
-Runtime Admission State: `Not admitted - runtime implementation is a future USER approval checkpoint`
+Runtime Admission State: `Admitted by USER for this branch and completed for the first Workstream repair pass`
 Carried GitHub Issues: `#123`; `#124`; `#127`
 Held GitHub Issues: `#125`; `#126`
 
@@ -153,7 +174,7 @@ User-Facing Goal: the Dashboard opens without whole-window flicker, presents the
 USER Vision Questions: none open for Branch 1 setup; USER already selected the carried issue grouping and held Branch 2/future items.
 Codex Product Interpretation: these issues share the Dashboard render/layout confidence surface and should be handled together before IA/control follow-through.
 Codex Implementation Recommendation: keep Branch 1 scoped to startup render stabilization, scroll/content-well layout ownership, and resize smoothness; defer Monitor Groups IA, top-bar affordance redesign, settings cog, Overlay/display, provider telemetry, Dev Toolkit markers, FAM-007, and local AI.
-USER/ChatGPT Review Checkpoint: runtime implementation requires later explicit USER approval after this setup branch is validated and pushed.
+USER/ChatGPT Review Checkpoint: runtime implementation approval was granted and the first Workstream repair pass is complete; USER may next choose Hardening/live validation or PR Readiness, while PR creation remains a future approval checkpoint.
 Full Feature Element Breakdown: issue #123 initial open flicker; issue #124 scroll content well clipping, scrollbar ownership, and gutter alignment; issue #127 resize jitter and catch-up lag; held issue #125 Monitor Groups IA; held issue #126 close affordance/open badge.
 Current Branch vs Future Package Boundaries: carried now means #123/#124/#127 only; held for later means #125/#126; future/deferred means Dashboard settings cog/settings panel, Overlay/display acceptance, Provider/external telemetry parity, and Dev Toolkit/source-owner markers.
 Affected Surfaces: HUD Dashboard native window, Dashboard content frame/content well, scrollbar ownership/inset, startup/open path, resize drag path, and screenshot/live proof path.
@@ -161,12 +182,12 @@ Data/Control Model: no data model expansion is authorized during setup; implemen
 Branch Reach / Package-Size Review: the branch carries three related Dashboard render/layout confidence issues with shared visual proof, shared user-facing surface, and shared validation path.
 Why Branch Is Large Enough: grouping #123/#124/#127 reduces branch churn because they all affect Dashboard visual stability and live-client confidence.
 Why Not Split Into Tiny Branches: splitting these issues would multiply setup, validation, proof, and PR overhead while USER confidence depends on the combined Dashboard render/layout feel.
-Acceptance Criteria: Branch Readiness setup acceptance is finalized by Stage 2; later runtime acceptance will require #123 no first-second whole-window flicker, #124 content well/scrollbar/gutter ownership proof, and #127 smooth resize proof.
-Validation Proof Requirements: governance validation during setup; later runtime validation should include the relevant Dashboard/HUD static validator, live human-client validation, open/close proof, resize-specific proof, and screenshot/crop proof for scroll/gutter/frame boundaries.
-Screenshot / Live / User Test Summary Proof Requirements: summary-only evidence remains sufficient for GitHub issue/source-truth references; later implementation proof should include live-client screenshots/video-derived summaries as needed while raw media upload/import/linking remains blocked pending USER approval.
-Implementation Sequence Proposal: Stage 2 setup first; after USER implementation approval, begin with startup render/open flicker, then scroll/content-well ownership, then resize smoothness, rerunning shared Dashboard proof after each material change.
-Planning Blockers: none for Branch Readiness setup; runtime implementation remains blocked by `Runtime Implementation Approval Missing`.
-USER Decisions Needed: approve runtime Workstream implementation when ready; decide later whether raw evidence import/linking is needed; decide later on Branch 2 and future/deferred items.
+Acceptance Criteria: Workstream implementation acceptance requires #123 first-frame/open stabilization, #124 inner content-well scrollbar/gutter ownership, and #127 resize drag synchronization, with USER visual/feel confirmation available through a later Hardening or live-validation decision.
+Validation Proof Requirements: governance validation, HUD/Dashboard static validation, internal sandbox validation, compile validation, and active-client live proof are required for this Workstream pass; human-client shortcut proof remains unavailable because the actual desktop shortcut targets the old C:\ FAM-006 path, and shortcut mutation is outside current authorization.
+Screenshot / Live / User Test Summary Proof Requirements: summary-only evidence remains sufficient for GitHub issue/source-truth references; active-client screenshots/manifests may be recorded as local proof, while raw media upload/import/linking and formal UTS export/digestion remain blocked pending later USER approval.
+Implementation Sequence Proposal: first repair pass completed in startup render/open stabilization, content-well scroll ownership, and resize synchronization order; later Hardening or USER live validation should review the combined Dashboard feel before PR Readiness.
+Planning Blockers: none for the carried Workstream implementation slice.
+USER Decisions Needed: decide whether to request Hardening/USER live validation or PR Readiness Stage 1; decide later whether raw evidence import/linking is needed; decide later on Branch 2 and future/deferred items.
 Planning Packet Status: Complete
 Planning Revalidation Status: PASS
 Planning Completion Waiver: Not required - USER-approved Stage 2 setup and prior Branch Readiness Phase 1 issue grouping provide the planning basis.
@@ -174,15 +195,20 @@ User Test Summary Strategy: no formal UTS is generated in Branch Readiness; form
 
 ## Later-Phase Expectations
 
-If USER later approves runtime implementation, Workstream should preserve carried-now scope, update source truth as each issue is addressed, and stop before PR creation until PR approval is explicit.
+Workstream has preserved carried-now scope, updated source truth for the first repair pass, and stops before PR creation because PR approval remains a future USER checkpoint.
 
-Expected later proof includes:
+Completed Workstream proof includes:
 
-- Dashboard open/close proof for issue #123.
-- Screenshot/crop or live-client proof for issue #124 gutter, content well, and scrollbar ownership.
-- Resize drag proof for issue #127 with smooth intermediate geometry and no visible catch-up lag.
-- Governance validation after source-truth updates.
-- Static/live Dashboard validation if current repo truth identifies the relevant helpers.
+- Static HUD/Dashboard validator proof.
+- Internal sandbox proof.
+- Active-client live desktop proof with local screenshots and no UTS export.
+- Compile and governance validation.
+
+Expected later USER-facing proof may include:
+
+- USER visual confirmation of Dashboard open behavior for issue #123.
+- USER visual confirmation of content-well gutter/scrollbar ownership for issue #124.
+- USER resize feel confirmation for issue #127.
 
 ## Initial Workstream Seam Sequence
 
@@ -203,9 +229,59 @@ Non-Includes: unrelated window IA changes, Branch 2 controls, Dashboard settings
 
 ## Active Seam
 
-Active seam: `Branch Readiness Stage 2 - Source-Truth Setup And Issue Traceability`
+Active seam: `Workstream WS1 - Dashboard Render/Layout Hardening Implementation`
 
-Active Seam Status: source-truth setup and GitHub issue traceability only; runtime implementation is not admitted in this phase.
+Active Seam Status: Green - first repair pass implemented and validated for issues #123, #124, and #127.
+
+Single-Seam Workstream Waiver: None
+Single-Seam Or Single-Slice Waiver Authority: USER only; Codex cannot infer single-seam or single-slice authority from branch size, branch name, or a narrow implementation pass.
+Single-Seam Or Single-Slice Workstream Blocker: One seam or one slice is a blocker unless USER waiver explicitly authorizes the shape; this branch is not relying on such a waiver because Branch Readiness admitted three related issues across startup render, content-well layout, and resize behavior.
+Bounded Seam Default: Bounded means one active seam at a time, not one-seam Workstream authority.
+
+## Seam Continuation Decision
+
+Seam Status: Green
+Slice Status: Green
+Completion Status: Green
+Waiver Status: None
+Continue Decision: Stop
+Continuation Execution Latch: Inactive - Workstream is green; Hardening phase-boundary stop is required before USER may admit the next phase.
+Stop Basis: Workstream Green
+Next Active Seam: Hardening H1 - Dashboard Render/Layout Hardening Pressure Test
+Stop Condition: Workstream implementation for issues #123, #124, and #127 is complete and validated as far as current Codex authority allows.
+Continuation Action: Stop at phase boundary until USER admits Hardening/live validation or PR Readiness; do not execute the next phase, create a PR, upload raw media, or start Branch 2 without later USER approval.
+
+## Workstream Implementation Result
+
+Implementation Result: `Green - first Dashboard render/layout hardening pass implemented for #123, #124, and #127.`
+
+Issue #123 Repair: `Dashboard first visible frame is stabilized by removing the root Dashboard settle animation from the main Dashboard surface and publishing Dashboard control state before the desktop surface is revealed.`
+
+Issue #124 Repair: `The Dashboard content well is defined as the control-hub/card-stack area. Scroll ownership moved from the outer Dashboard chrome to the inner content well, with matching side/bottom gutter, inner scrollbar track margins, and updated static/sandbox validators.`
+
+Issue #127 Repair: `Dashboard resize now treats user geometry as authoritative during resize, skips delayed compact-geometry reinforcement while a user resize/user geometry override is active, and throttles live resize-frame sync so WebEngine content tracks drag geometry without delayed catch-up.`
+
+Changed Runtime Surfaces: `desktop/desktop_renderer.py`; `nexus_visual/monitoring_hud.css`; `nexus_visual/monitoring_hud.html`; `nexus_visual/monitoring_hud.js`.
+
+Changed Validation Surfaces: `dev/orin_monitoring_hud_surface_validation.py`; `dev/orin_monitoring_hud_internal_sandbox_validation.py`.
+
+Branch 2 Boundary Preserved: `#125` and `#126` remain held for `feature/fam-006-dashboard-ia-controls-followthrough`; no Monitor Groups IA/control follow-through, close-affordance redesign, settings cog, Overlay/display acceptance, provider parity, Dev Toolkit/source-owner marker, FAM-007, local AI, AI Product Contract, or old C:\ folder work is admitted by this result.
+
+## Workstream Validation Snapshot
+
+Validation Snapshot Time: `2026-05-13 Workstream implementation pass`
+
+Static HUD Surface Validation: `PASS - python dev\orin_monitoring_hud_surface_validation.py`
+
+Internal Sandbox Validation: `PASS - python dev\orin_monitoring_hud_internal_sandbox_validation.py; manifest dev/logs/fam_006_monitoring_hud_internal_sandbox/20260513_092916_manifest.json`
+
+Active-Client Live Proof: `PASS - powershell -ExecutionPolicy Bypass -File dev\orin_monitoring_hud_live_validation.ps1 -ActiveUserFacingClient -ProofSeam "FAM-006 Dashboard render layout hardening Workstream proof" -InteractionStepDelayMilliseconds 200 -FinalClientHoldSeconds 0; proof root dev/logs/fam_006_monitoring_hud_live_validation/20260513_092656_575; formal UTS export skipped`
+
+Compile Proof: `PASS - python -m py_compile desktop\desktop_renderer.py dev\orin_monitoring_hud_surface_validation.py dev\orin_monitoring_hud_internal_sandbox_validation.py`
+
+Human-Client Shortcut Proof: `Not run - current actual desktop shortcut targets C:\Nexus Desktop AI FAM-006, not this D-drive Branch 1 worktree. Shortcut mutation and old C:\ reactivation/reconciliation remain outside current authorization.`
+
+Formal UTS Status: `Not generated, refreshed, imported, uploaded, linked, or digested during this Workstream pass.`
 
 ## GitHub Issue Traceability
 
@@ -234,16 +310,19 @@ Traceability Boundary: issue comments may record branch linkage and carried issu
 
 ## Validation Expectations
 
-Stage 2 setup validation:
+Workstream implementation validation:
 
 - `git status --short --branch`
 - `git diff --name-status origin/main...HEAD`
 - `git diff --check origin/main...HEAD`
 - `python dev\orin_branch_governance_validation.py`
+- `python dev\orin_monitoring_hud_surface_validation.py`
+- `python dev\orin_monitoring_hud_internal_sandbox_validation.py`
+- `powershell -ExecutionPolicy Bypass -File dev\orin_monitoring_hud_live_validation.ps1 -ActiveUserFacingClient -ProofSeam "FAM-006 Dashboard render layout hardening Workstream proof" -InteractionStepDelayMilliseconds 200 -FinalClientHoldSeconds 0`
+- `python -m compileall -q dev desktop Audio main.py`
 
-Later runtime validation should surface before continuing when implementation is admitted and may include:
+Later USER-facing validation may include:
 
-- relevant HUD/Dashboard static validator
 - human-client live validation
 - resize-specific proof
 - open/close Dashboard proof
