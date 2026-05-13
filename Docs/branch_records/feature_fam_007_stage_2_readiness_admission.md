@@ -15,19 +15,25 @@ This branch is the USER-approved one-branch Branch Readiness Stage 2 carrier for
 
 It exists because current `main` is clean and aligned with `origin/main` at `96ec36e7be751d444eda8dc220bc4a035d44fca1`, PR #129 merged the first FAM-006 Dashboard render/layout issue-resolution implementation after the latest public prerelease `v1.7.0-prebeta`, and prior FAM-007 planning truth remained candidate-only after PR #128.
 
-This branch admits the FAM-007 foundation package and named planning slices as source-truth execution targets, but it does not authorize runtime/provider/model/shortcut/installer implementation, full private AI Product Contract import, PR creation, release/tag/artifact work, or GitHub issue creation.
+This branch admits the FAM-007 foundation package and named planning slices as source-truth execution targets, but it does not authorize runtime/provider/model/shortcut/installer implementation, full private AI Product Contract import, merge, release/tag/artifact work, or GitHub issue creation.
+
+## Record State
+
+- `Historical PR readiness package / merge-target No Active Branch projected`
 
 ## Current Phase
 
-- Phase: `Branch Readiness`
+- Phase: `Historical Traceability`
 
 ## Phase Status
 
 - Stage 1 Basis: `Complete - verified clean C:\Nexus Desktop AI main, PR #129 merged, No Active Branch source truth, FAM-007 planning-only truth, PKG-007 candidate/pending truth, no admitted FAM-007 slices, and AI Product Contract v0.6.2 external planning-evidence boundary`
 - Stage 2 USER Approval: `Granted - USER approved one governed FAM-007 Stage 2 readiness/admission/governance carrier branch from current clean main`
+- PR Readiness Stage 1 Projection: `Complete - USER directed merge-target No Active Branch and PR #129 release-debt posture to be handled before PR creation, and this record now carries the merge-stable post-merge projection`
+- PR Readiness Stage 2 Approval: `Granted - USER approved final PR-readiness source-truth sync, validation, push, and PR creation targeting main while keeping merge, release, runtime, provider, model, memory, shortcut, installer, full AI Product Contract import, private Dev ORIN import, and GitHub issue creation blocked`
 - Branch Creation: `Created in C:\Nexus Desktop AI from origin/main / HEAD 96ec36e7be751d444eda8dc220bc4a035d44fca1`
-- Branch Record State: `Active Branch`
-- Branch Authority State: `Active until PR Readiness projects merge-target No Active Branch truth`
+- Branch Record State: `Historical Branch Authority Records after merge`
+- Branch Authority State: `Historical / No Active Branch after merge`
 - PR #129 Drift Repair: `Admitted - record merged-unreleased release-debt truth for FAM-006 Dashboard render/layout hardening after v1.7.0-prebeta`
 - Thread Launch / Write-Target Identity Lock: `Admitted - record permanent preflight and routing-packet governance`
 - PKG-007 Admission: `Admitted by USER for Branch Readiness Stage 2 source-truth readiness; implementation remains blocked`
@@ -60,7 +66,7 @@ Backlog-Split Reason: `None`
 - `AI Product Contract Full Import Approval Missing`: `Active - v0.6.2 remains external USER planning evidence only`
 - `PR #129 Release Debt`: `Active - PR #129 merged after v1.7.0-prebeta and requires later release handling before it can be called released`
 - `Release Execution Approval Missing`: `Active - no tag, GitHub Release, release notes, release artifact, or release publication is authorized`
-- `PR Creation Approval Missing`: `Active - this Stage 2 pass may commit and push but must not create a PR`
+- `PR Creation Approval`: `Cleared for this PR Readiness Stage 2 execution only; PR creation does not approve merge`
 - `Runtime Workstream Entry Blocked`: `Active - FAM-007 Workstream cannot begin until Stage 2 source truth is validated, pushed, later reviewed, and USER separately approves the next phase`
 
 ## Entry Basis
@@ -84,9 +90,11 @@ Backlog-Split Reason: `None`
 - `PKG-007` is admitted as the FAM-007 foundation package with multiple admitted slices.
 - FAM-007 slice admission remains source-truth readiness only, not implementation completion.
 - AI Product Contract v0.6.2 remains external planning evidence unless later USER approval imports a bounded public-safe digest or full contract.
+- Merge-target No Active Branch and PR #129 merged-unreleased release-debt posture are projected before PR creation.
+- This branch authority record is moved to historical/no-active posture before PR green.
 - Validation passes.
 - Changes are committed and pushed.
-- PR creation remains blocked until later explicit USER approval.
+- PR creation is allowed only by the explicit PR Readiness Stage 2 USER approval; merge remains blocked.
 
 ## Rollback Target
 
@@ -100,7 +108,26 @@ Rollback Path: abandon `feature/fam-007-stage-2-readiness-admission` before PR i
 
 - `PR Readiness`
 
-Next Legal Phase Gate: PR Readiness requires later explicit USER approval. It must perform final source-truth sync, merge-target authority projection to post-merge `No Active Branch` or the then-approved release-debt posture, validation, commit/push if needed, PR creation, live PR validation, watcher planning/proof if required, and bot-review handling. Release execution, runtime implementation, shortcut work, provider/model installation, full AI Product Contract import, and GitHub issue creation remain separate USER approval gates.
+Next Legal Phase Gate: PR Readiness Stage 2 is approved only to validate durable source truth, push any bounded PR-readiness sync, create the PR targeting `main`, and report live PR state. After merge, repo-level truth returns to `No Active Branch` with PR #129 release debt still active; release execution, runtime implementation, shortcut work, provider/model installation, full AI Product Contract import, private Dev ORIN import, GitHub issue creation, and successor branch creation remain separate USER approval gates.
+
+## Post-Merge State
+
+Repo State: No Active Branch
+Merged-Main Repo State: No Active Branch
+Branch Authority Disposition: `Historical Branch Authority Records`
+Merged-Unreleased Release-Debt Owner: `FAM-006 Dashboard Render/Layout Hardening / PR #129`
+Release Target: `v1.7.1-prebeta`
+Release Floor: `patch prerelease`
+Version Rationale: `PR #129 is a bounded FAM-006 Dashboard issue-resolution and UX/render-layout hardening package after v1.7.0-prebeta; patch prerelease is the correct floor because it fixes and hardens an existing released Dashboard surface without opening a new product lane. This FAM-007 readiness/admission carrier is docs/governance/source-truth only and does not add executable product behavior.`
+Release Scope: `PR #129 FAM-006 Dashboard initial open flicker, scroll content-well clipping and scrollbar ownership, resize jitter/catch-up lag, and the bounded bot-review repair for native move/user geometry override handling. FAM-007 readiness/admission source-truth changes are non-runtime governance/planning truth and do not expand the release runtime scope.`
+Release Artifacts: `Pending - no tag, GitHub Release, release notes, or artifacts have been created for PR #129 or this branch.`
+Post-Release Truth: `Pending release execution and post-release canon closure for v1.7.1-prebeta or a later USER-approved release target; FAM-007 runtime/provider/model/memory/shortcut/installer implementation remains blocked.`
+Selected Next Workstream: None
+Selected Next Implementation Branch: Not created
+Backlog Addition User Approval Missing: Active for any successor selected-next workstream, package admission beyond PKG-007 readiness truth, branch creation, new backlog item, backlog split, promotion, runtime implementation, full AI Product Contract import, private Dev ORIN import, release work, GitHub issue creation, or implementation outside this PR unless USER separately approves it.
+Next Workstream User Waiver: Granted - USER approved PR Readiness Stage 2 and explicitly kept runtime/provider/model/memory/shortcut/installer implementation and successor issue/release work blocked, so this PR may merge with no selected successor workstream and no successor branch created.
+Next-Branch Creation Gate: Blocked - FAM-007 Workstream/runtime entry, release handling for PR #129, Repo-Wide High-Risk Source Owner Marker Adoption, FAM-006 follow-through issue work, AI Product Contract import, private Dev ORIN import, and any other successor branch remain separate future USER approval checkpoints.
+Post-Merge Proof Handling: This record preserves FAM-007 readiness/admission/governance source truth only; PR creation, live PR mergeability, and any bot-review or watcher facts belong in operator output unless later USER-approved source-truth recording is required.
 
 ## Branch Objective
 
@@ -121,7 +148,7 @@ User-Facing Goal: Nexus should make AI availability understandable before runtim
 USER Vision Questions: no open USER questions block this Stage 2 readiness/admission/governance carrier; later runtime entry still needs separate USER approval.
 Codex Product Interpretation: FAM-007 should admit a foundation package that defines local AI shell behavior, provider boundaries, hardware safety, capability-pack lifecycle, memory/context privacy, Windows resilience, persona/Core/voice planning, and validation gates before implementation.
 Codex Implementation Recommendation: keep this branch source-truth-only; later implementation should start with explicit provider/no-provider contracts, privacy-visible state, hardware detection/fallback rules, and validation scaffolds before model/provider runtime work.
-USER/ChatGPT Review Checkpoint: USER approved this one-branch Stage 2 carrier; ChatGPT review remains separate from repo truth and PR creation remains unapproved.
+USER/ChatGPT Review Checkpoint: USER approved this one-branch Stage 2 carrier and later approved PR Readiness Stage 2 / PR creation; ChatGPT review remains separate from repo truth and merge remains unapproved.
 Full Feature Element Breakdown: SLC-017 no-provider/Assisted Desktop Mode shell; SLC-018 provider and privacy-visible state; SLC-031 hardware safety and GPU/CPU routing; SLC-032 capability-pack lifecycle; SLC-033 data classification, memory, context, consent, audit, and secrets; SLC-034 Windows compatibility and resilience; SLC-035 persona/Core/voice planning; SLC-036 validation, eval, abuse, and release proof gates.
 Current Branch vs Future Package Boundaries: current branch may record governance, branch authority, backlog, roadmap, and public-safe readiness/admission truth only; future packages or phases must own runtime/provider/model/memory/indexing/voice/Core/setup/installer/shortcut implementation after USER approval.
 Affected Surfaces: `Docs/Main.md`, `Docs/development_rules.md`, `Docs/phase_governance.md`, `Docs/codex_modes.md`, `Docs/nexus_startup_contract.md`, `Docs/branch_records/index.md`, FAM-006 and FAM-007 branch records, `Docs/feature_backlog.md`, `Docs/prebeta_roadmap.md`, `Docs/orin_vision.md`, and `Docs/workstreams/index.md`.
@@ -133,8 +160,8 @@ Acceptance Criteria: source truth records PR #129 release debt, identity-lock go
 Validation Proof Requirements: `git diff --check`, `python dev\orin_branch_governance_validation.py`, `python dev\orin_release_body_validation.py`, `python -m compileall -q dev desktop Audio main.py`, and targeted source-truth searches.
 Screenshot / Live / User Test Summary Proof Requirements: no screenshot, live runtime proof, or formal User Test Summary is required for this source-truth-only Stage 2 branch; later user-facing AI surfaces must define visible proof or receive explicit USER waiver.
 Implementation Sequence Proposal: future USER-approved Workstream should proceed through provider/no-provider shell, provider/privacy state, hardware/GPU/CPU routing, optional pack lifecycle, memory/context/consent/audit, Windows resilience, persona/Core/voice planning, and validation/eval gates one admitted seam at a time.
-Planning Blockers: runtime/provider/model/memory/shortcut/installer implementation approval missing; PR creation approval missing; release execution approval missing; full AI Product Contract import approval missing; private Dev ORIN import approval missing.
-USER Decisions Needed: approve PR Readiness when ready, approve or reject any PR creation, separately approve runtime Workstream entry, separately approve full or digested AI Product Contract import, separately approve release/tag/artifact work, and separately approve any private Dev ORIN material import.
+Planning Blockers: runtime/provider/model/memory/shortcut/installer implementation approval missing; release execution approval missing; full AI Product Contract import approval missing; private Dev ORIN import approval missing; merge approval missing.
+USER Decisions Needed: review the created PR, separately approve or reject merge, separately approve runtime Workstream entry, separately approve full or digested AI Product Contract import, separately approve release/tag/artifact work, and separately approve any private Dev ORIN material import.
 Planning Packet Status: Complete
 Planning Revalidation Status: PASS
 User Test Summary Strategy: this branch records UTS strategy only; runtime/live/user-facing proof belongs to later governed implementation, hardening, live validation, or explicit USER waiver.
@@ -155,7 +182,7 @@ Formal User Test Summary export remains out of scope for this source-truth-only 
 
 ## Later-Phase Expectations
 
-PR Readiness requires later USER approval and must perform final source-truth sync, validation, merge-target authority projection, PR creation only if approved, live PR validation, watcher handling if required, and bot-review handling.
+PR Readiness Stage 2 is approved to validate durable source truth, push bounded sync if needed, create the PR targeting `main`, validate live PR state, and report blockers. It does not approve merge, release execution, runtime implementation, shortcut/provider/model work, full AI Product Contract import, private Dev ORIN import, or GitHub issue creation.
 
 Future FAM-007 Workstream entry requires separate USER approval after this readiness carrier is reviewed. Runtime/provider/model/memory/voice/Core/shortcut/installer work, AI Product Contract import, private Dev ORIN material import, release/tag/artifact work, and GitHub issue creation remain outside this branch.
 
@@ -239,9 +266,9 @@ Future candidate seam sequence after PR Readiness and USER Workstream approval:
 
 ## Active Seam
 
-Active seam: `Branch Readiness Stage 2 - FAM-007 Readiness Admission And Governance Carrier`
+Projected seam: `PR Readiness Stage 2 - merge-target projection validated before PR creation`
 
-Active Seam Status: In progress until validation, commit, and push complete.
+Projected Seam Status: Merge-target projected; PR creation may proceed after validation, commit, and push.
 
 Single-Seam Workstream Waiver: None
 Single-Seam Or Single-Slice Waiver Authority: USER only; this branch is not using a single-slice waiver because PKG-007 admits eight slices as Branch Readiness targets.
@@ -252,6 +279,6 @@ Bounded Seam Default: bounded means one active seam at a time, not one-seam Work
 
 This branch completes Branch Readiness Stage 2 source-truth readiness/admission/governance only. It does not complete `PKG-007`, any slice, FAM-007 implementation, PR creation, release handling, or AI Product Contract import.
 
-Branch Completion Goal: record and validate the USER-approved one-branch FAM-007 Stage 2 readiness/admission/governance carrier, then commit and push without PR, runtime, provider, model, shortcut, installer, release, tag, artifact, or private-contract import work.
-Known Future-Dependent Blockers: PR creation, runtime Workstream entry, provider/model/memory implementation, shortcut and installer changes, release/tag/artifact work, full AI Product Contract import, private Dev ORIN import, GitHub issue creation, and any future package split all require later explicit USER approval.
-Branch Closure Rule: stop after validation, commit, and push; do not create a PR or begin implementation without later USER approval.
+Branch Completion Goal: record and validate the USER-approved one-branch FAM-007 Stage 2 readiness/admission/governance carrier, project merge-target No Active Branch and PR #129 release-debt truth, commit, push, and create the PR without runtime, provider, model, shortcut, installer, release, tag, artifact, or private-contract import work.
+Known Future-Dependent Blockers: merge, runtime Workstream entry, provider/model/memory implementation, shortcut and installer changes, release/tag/artifact work, full AI Product Contract import, private Dev ORIN import, GitHub issue creation, and any future package split all require later explicit USER approval.
+Branch Closure Rule: stop after PR creation and live PR status reporting; do not merge the PR or begin implementation without later USER approval.
