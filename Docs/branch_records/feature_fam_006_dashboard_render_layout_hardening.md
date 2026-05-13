@@ -286,6 +286,46 @@ Human-Client Shortcut Proof: `Not run - current actual desktop shortcut targets 
 
 Formal UTS Status: `Not generated, refreshed, imported, uploaded, linked, or digested during this Workstream pass.`
 
+## Workspace Identity Guard - FAM-006 Branch 1
+
+Guard Reason: `A GitHub Desktop binding mismatch was found during Hardening H1 preparation: shell was correctly on the D-drive Branch 1 worktree, while GitHub Desktop visibly showed Nexus Desktop AI - FAM-006 on main with Pull origin 11, matching the stale C:\Nexus Desktop AI FAM-006 folder.`
+
+Expected Active Worktree: `D:\Nexus Worktrees\Nexus Desktop AI FAM-006 Dashboard Render Layout Hardening`
+
+Expected Active Branch: `feature/fam-006-dashboard-render-layout-hardening`
+
+Expected Worktree Role: `active branch worktree for FAM-006 Dashboard render/layout hardening issues #123, #124, and #127`
+
+Before Branch 1 code work, live validation, H1 validation, PR readiness, or GitHub Desktop-assisted workflow, Codex must verify:
+
+- shell current working directory
+- git repo root
+- current branch and upstream
+- local HEAD and origin/main
+- worktree list
+- visible GitHub Desktop repository/folder/branch when GitHub Desktop is open
+- launcher or shortcut target when USER-facing launch behavior is part of validation
+
+Mismatch Condition: `A Workspace Identity Mismatch exists when shell, GitHub Desktop, shortcut/launcher, or source-truth branch record points to a different repo, worktree, branch, or stale folder than the expected active Branch 1 worktree.`
+
+Recovery Posture: `When mismatch is found, Codex records the mismatch, reports the expected workspace, reports the conflicting visible workspace, and surfaces the recovery decision before continuing code work, runtime validation, H1 validation, PR readiness, or GitHub Desktop-assisted workflow.`
+
+Branch 1 H1 Desktop Binding Note: `GitHub Desktop should either be bound to the D-drive Branch 1 worktree or explicitly ignored for H1. C:\Nexus Desktop AI FAM-006 is historical/stale for this Branch 1 H1 flow.`
+
+Branch 1 Launcher Note: `The normal desktop shortcut is not the Branch 1 validation path unless USER explicitly approves retargeting or a temporary Branch 1 shortcut. H1 currently uses the direct D-drive branch launcher path.`
+
+USER-Facing GitHub Desktop Correction Steps:
+
+1. In GitHub Desktop, use `File > Add local repository...`.
+2. Select `D:\Nexus Worktrees\Nexus Desktop AI FAM-006 Dashboard Render Layout Hardening`.
+3. Confirm GitHub Desktop shows `feature/fam-006-dashboard-render-layout-hardening`.
+4. Confirm GitHub Desktop does not show `Pull origin 11`.
+5. Treat `C:\Nexus Desktop AI FAM-006` as historical/stale for this H1 flow.
+
+Persistent Removal Boundary: `Removing the stale C-drive repository from GitHub Desktop, deleting folders, retargeting shortcuts, or reconciling old C:\ workspaces remains a future USER approval checkpoint. If USER wants the safer immediate Desktop path, remove the stale repository from GitHub Desktop without deleting the folder.`
+
+Broader Workspace Identity Gate Review: `Repo-wide identity governance already exists in Docs/Main.md, Docs/development_rules.md, Docs/phase_governance.md, and Docs/branch_records/index.md through Thread / Worktree Identity Preflight, GitHub Desktop binding verification, and Thread / Worktree Identity Mismatch blockers. This branch records the Branch 1-specific guard only. A reusable helper/check script to print active repo root, branch, upstream, origin/main, and expected worktree should be a later USER-approved governed improvement rather than an H1 source-truth patch.`
+
 ## Hardening H1 USER-Facing Handoff
 
 H1 Admission: `Granted by USER on 2026-05-13 for FAM-006 Dashboard render/layout hardening before PR Readiness.`
