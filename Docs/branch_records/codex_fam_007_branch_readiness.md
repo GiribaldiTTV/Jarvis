@@ -17,15 +17,19 @@ It exists because FAM-006 merged through PR #118, PR #119 repaired pre-release c
 
 ## Current Phase
 
-- Phase: `Branch Readiness`
+- Phase: `Historical Traceability`
 
 ## Phase Status
 
-- `Active Branch`: `codex/fam-007-branch-readiness`
-- Active Seam: `Branch Readiness Stage 2 - Post-v1.7.0 Canon Closure, Release-Body SOP, Loader, And Workspace Governance Repair`
+- Historical Branch: `codex/fam-007-branch-readiness`
+- Historical Seam: `Branch Readiness Stage 2 - Post-v1.7.0 Canon Closure, Release-Body SOP, Loader, And Workspace Governance Repair`
 - Stage 1 Basis: `Complete - Stage 1 recommended a combined FAM-007/governance carrier and identified post-release canon drift, release-body drift, loader/source-truth drift, and multi-worktree governance gaps`
 - Stage 2 USER Approval: `Granted for governance/canon/source-truth repair and approved v1.7.0-prebeta release-artifact body correction only`
 - Branch Creation: `Created at D:\Nexus Worktrees\Nexus Desktop AI FAM-007 from origin/main commit 06edf8143dd862c94d26ff7d812105179a621206`
+- PR Readiness Stage 1: `Complete - accepted for Stage 2 after validation, release-body reconciliation, merge forecast, and scope review`
+- PR Readiness Stage 2 USER Approval: `Granted for final PR package sync, merge-target authority projection, PR creation, watcher provisioning, live PR validation, and bot-review handling if needed`
+- Merge-Target Authority Projection: `Complete - branch record moved to historical/no-active posture before PR creation so merged main remains No Active Branch`
+- Branch Authority State: `Historical / merge-stable - not listed as active branch authority in merge-target truth`
 - Release State: `v1.7.0-prebeta is published at https://github.com/GiribaldiTTV/Nexus-Desktop-AI/releases/tag/v1.7.0-prebeta on commit 06edf8143dd862c94d26ff7d812105179a621206`
 - FAM-006 State: `Released historical traceability / Dashboard acceptance USER WAIVED/PASSABLE / Overlay deferred non-gating / Core dependency-only`
 - FAM-007 State: `Planning candidate only; implementation and package admission remain blocked`
@@ -39,7 +43,7 @@ It exists because FAM-006 merged through PR #118, PR #119 repaired pre-release c
 
 - `FAM-007 Implementation Admission Missing`: `Active - this carrier does not admit AI implementation, local model/provider work, or runtime package implementation`
 - `FAM-007 Package Admission Missing`: `Active - PKG-007 remains pending until a later Branch Readiness revalidation and USER approval`
-- `Post-v1.7.0 Canon Closure Drift`: `Active until backlog, roadmap, branch index, loader/governance docs, and validators record released v1.7.0-prebeta truth`
+- `Post-v1.7.0 Canon Closure Drift`: `Cleared for PR package sync - backlog, roadmap, branch index, loader/governance docs, and validators record released v1.7.0-prebeta truth`
 - `Release Body SOP Drift`: `Cleared for v1.7.0-prebeta; dev/orin_release_body_validation.py validates the latest release body and reports older mismatches as historical drift`
 - `FAM-006 Issue Thread Creation Approval Missing`: `Active - this branch may prepare issue-thread planning but must not create GitHub issues without later USER approval`
 - `AI Product Contract Import Approval Missing`: `Active - private AI/Product Contract material remains outside repo truth unless later legally imported`
@@ -77,9 +81,25 @@ Rollback Path: abandon branch `codex/fam-007-branch-readiness` before merge; for
 
 - `PR Readiness`
 
-Next Legal Seam: `PR Readiness Stage 1 - FAM-007 Governance/Canon Repair PR Readiness Analysis`
+Next Legal Seam: `PR Readiness Stage 2 - FAM-007 Governance/Canon Repair PR Execution`
 
-Next Legal Phase Gate: `PR Readiness Stage 1 must verify the governance/canon carrier is bounded, FAM-007 implementation remains blocked, release-body correction is recorded, validation is green, and PR details/watch plan are ready before USER may approve Stage 2 PR execution.`
+Next Legal Phase Gate: `PR Readiness Stage 2 owns PR creation, watcher provisioning, live PR validation, bot-review handling if needed, and merge-watch preparation while merge, release execution, issue creation, FAM-007 implementation, and FAM-007 package admission remain blocked without later USER approval.`
+
+## Post-Merge State
+
+- Repo State: `No Active Branch`
+- Merged-Main Active Branch Authority Records: `None`
+- Branch Authority State: `Historical / merge-stable`
+- Backlog Addition User Approval Missing: `Preserved for any attempted new backlog item, runtime package admission, selected-next successor selection, GitHub issue creation, or implementation branch creation outside later explicit USER approval`
+- Next Workstream User Waiver: Granted - USER directed no automatic selected-next successor or FAM-007 implementation/package admission from this PR; after PR merge and updated-main validation, perform separate repo-facing and AI-lab handoff/cleanup passes before any later Branch Readiness Stage 1 analysis.
+- User-Approved Selected-Next Defer: Granted for this governance/canon repair PR.
+- Selected Next Workstream: `None`
+- Selected Next Implementation Branch: `Not created`
+- FAM-007 Implementation Admission: `Blocked pending later Branch Readiness revalidation and explicit USER approval`
+- FAM-007 Package Admission: `Blocked pending later Branch Readiness revalidation and explicit USER approval`
+- GitHub Issue Creation: `Blocked pending later USER approval`
+- Release Execution: `Not approved and not required by this carrier`
+- Post-Merge Validation Expectation: `After PR merge, update main, run governance and release-body validators, verify v1.7.0-prebeta release truth remains green, and then perform the separate repo-facing and AI-lab handoff/cleanup passes only under explicit USER approval.`
 
 ## Branch Objective
 
@@ -117,7 +137,7 @@ No User Test Summary is generated or refreshed by this governance/canon carrier.
 
 ## Later-Phase Expectations
 
-PR Readiness Stage 1 should verify the repair remains bounded, validators are green, the live release body still matches the standard, FAM-007 implementation is still blocked, and the PR/watch plan is ready. Later FAM-007 Branch Readiness must revalidate package admission before implementation starts.
+PR Readiness Stage 2 should create and validate the governance/canon repair PR, provision watcher coverage, address bot review if needed, and prepare merge-watch without approving merge. Later FAM-007 Branch Readiness must revalidate package admission before implementation starts.
 
 ## Initial Workstream Seam Sequence
 
@@ -126,9 +146,9 @@ Goal: close post-`v1.7.0-prebeta` source-truth drift and prevent recurrence thro
 Scope: source truth, branch authority, release-body validator, loader/prompt guidance, and workspace-safety guidance.
 Non-Includes: local AI implementation, model/provider work, GitHub issue creation, new release/tag/artifact creation, or FAM-007 package admission.
 
-## Active Seam
+## Historical Seam
 
-Active seam: Branch Readiness Stage 2 - Post-v1.7.0 Canon Closure, Release-Body SOP, Loader, And Workspace Governance Repair.
+Historical seam: Branch Readiness Stage 2 - Post-v1.7.0 Canon Closure, Release-Body SOP, Loader, And Workspace Governance Repair.
 
 ## FAM-006 Issue Thread Planning Boundary
 

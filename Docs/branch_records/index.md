@@ -79,10 +79,11 @@ Do not use this layer to replace:
 
 ## Active Branch Authority Records
 
-- `Docs/branch_records/codex_fam_007_branch_readiness.md`
+None.
 
 ## Historical Branch Authority Records
 
+- `Docs/branch_records/codex_fam_007_branch_readiness.md`
 - `Docs/branch_records/feature_fam_006_monitoring_hud_product_surface.md`
 - `Docs/branch_records/codex_v1_6_13_prebeta_post_release_canon_closure.md`
 - `Docs/branch_records/codex_v1_6_13_prebeta_pr112_source_truth_closeout.md`
