@@ -157,6 +157,21 @@ Watcher Runtime Proof Status: `Pending first scheduler run proof at provisioning
 Watcher Fallback / Teardown: `If native heartbeat run proof does not appear, USER may approve a bounded local watcher fallback. Retire or update the watcher after PR #132 merges, closes, or is replaced.`
 Watcher / Bot-Review Posture: `Watch PR #132 for Codex/bot review comments, requested changes, status checks, mergeability, and merge state. Bounded repair may occur only on this PR branch if review feedback remains inside the accepted #125/#126 PR package or the accepted governance/source-truth repair scope; otherwise stop and surface a new USER decision.`
 
+## PR #132 Bot Review Repair
+
+Repair Admission: `Granted - USER accepted the watcher-reported Codex P1 close-affordance repair on 2026-05-13.`
+Review Thread: `PRRT_kwDORwnWIs6B576h`
+Review Comment: `3237765665`
+Review URL: `https://github.com/GiribaldiTTV/Nexus-Desktop-AI/pull/132#discussion_r3237765665`
+Review Signal: `P1 - Keep the close button out of the drag handle`
+Scope Decision: `Inside accepted #126 scope because the close affordance must hide the Dashboard without being swallowed by native header drag handling.`
+Validity Decision: `Valid - ordinary runtime did not populate dashboardClose in _monitoring_hud_live_screen_rects unless live self-QA geometry capture had run, so native header hit-testing could treat the close click as a drag/caption gesture before the DOM click handler ran.`
+Repair Summary: `Add a native fallback close-control hit zone for the top-right Dashboard chrome, route matching native close-control clicks directly through Dashboard hide control state, and strengthen active-client proof by clearing live self-QA rects before the Dashboard close click, proving the close affordance remains clickable without self-QA geometry state.`
+Validation Scope: `Governance validation, release-body validation, compileall, HUD surface validator, HUD internal sandbox validator, and active-client/live proof when safe.`
+Failed Proof Root: `dev/logs/fam_006_monitoring_hud_live_validation/20260513_152502_989 - strengthened proof caught that the first fallback only avoided drag handling and did not hide the Dashboard.`
+Passing Proof Root: `dev/logs/fam_006_monitoring_hud_live_validation/20260513_152827_807 - PASS; live-client geometry was cleared before the close click, Dashboard hidden state passed, and #125/#126 interaction checks remained green.`
+GitHub Review Closeout: `Pending until repair commit is pushed and the review thread is replied to/resolved.`
+
 ## Post-Merge State
 
 Repo State: No Active Branch

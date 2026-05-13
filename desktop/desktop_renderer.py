@@ -6346,6 +6346,20 @@ class DesktopRuntimeWindow(QWidget):
                         screen_rects[str(name)] = screen_rect
         self._monitoring_hud_live_screen_rects = screen_rects
 
+    def _monitoring_hud_dashboard_close_fallback_screen_rect(self) -> QRect:
+        header_rect = self._monitoring_hud_header_rect()
+        if not header_rect.isValid() or header_rect.isNull():
+            return QRect()
+        width = min(220, max(120, header_rect.width() // 3))
+        height = min(116, max(64, header_rect.height() - 24))
+        left = max(header_rect.x(), header_rect.right() - width + 1 - 18)
+        return QRect(
+            left,
+            header_rect.y() + 18,
+            width,
+            height,
+        )
+
     def _monitoring_hud_point_in_interactive_rect(self, point: QPoint) -> bool:
         rect = self._monitoring_hud_interactive_screen_rect
         if rect.isNull() or not rect.isValid():
@@ -7001,7 +7015,35 @@ class DesktopRuntimeWindow(QWidget):
             rect = self._monitoring_hud_live_screen_rects.get(name, QRect())
             if rect.isValid() and not rect.isNull() and rect.contains(point):
                 return True
+            if name == "dashboardClose":
+                fallback_rect = self._monitoring_hud_dashboard_close_fallback_screen_rect()
+                if fallback_rect.isValid() and not fallback_rect.isNull() and fallback_rect.contains(point):
+                    return True
         return False
+
+    def _monitoring_hud_dashboard_close_control_rect_contains(self, point: QPoint) -> bool:
+        rect = self._monitoring_hud_live_screen_rects.get("dashboardClose", QRect())
+        if rect.isValid() and not rect.isNull() and rect.contains(point):
+            return True
+        fallback_rect = self._monitoring_hud_dashboard_close_fallback_screen_rect()
+        return bool(fallback_rect.isValid() and not fallback_rect.isNull() and fallback_rect.contains(point))
+
+    def _handle_monitoring_hud_dashboard_close_native_control(self, screen_point: QPoint) -> bool:
+        if not self._monitoring_hud_dashboard_close_control_rect_contains(screen_point):
+            return False
+        self.request_monitoring_hud_dashboard_from_tray(source="dashboard-close-native-control", visible=False)
+        self._persist_monitoring_hud_feature_state(source="dashboard-close-native-control")
+        self._emit_runtime_signal(
+            "MONITORING_HUD_DASHBOARD_CLOSE_NATIVE_CONTROL_READY",
+            package="PKG-006",
+            slice="SLC-027",
+            seam="WS43",
+            feature_enabled=bool(self._monitoring_hud_feature_enabled),
+            dashboard_visible=bool(self.isVisible() and self._monitoring_hud_visible),
+            x=screen_point.x(),
+            y=screen_point.y(),
+        )
+        return True
 
     def _begin_monitoring_hud_native_user_move(self, source: str = "native_caption_move") -> None:
         if self.surface_role != "hud":
@@ -7730,6 +7772,8 @@ class DesktopRuntimeWindow(QWidget):
             return False
         if event_type == QEvent.MouseButtonPress and event.button() == Qt.LeftButton:
             screen_point = event.globalPosition().toPoint()
+            if self._handle_monitoring_hud_dashboard_close_native_control(screen_point):
+                return True
             resize_edges = self._monitoring_hud_native_resize_edges_for_point(screen_point)
             if resize_edges and not self._monitoring_hud_dashboard_control_rect_contains(screen_point):
                 # Use direct geometry resizing for the user-facing Dashboard. Qt/Windows can
@@ -9110,7 +9154,11 @@ class DesktopRuntimeWindow(QWidget):
             close_rect = geometry.get("dashboardClose") if isinstance(geometry.get("dashboardClose"), dict) else None
             screen_point = rect_center("dashboardClose")
             widget_point = self._monitoring_hud_widget_point_from_page_rect(close_rect)
+            saved_live_screen_rects = dict(self._monitoring_hud_live_screen_rects)
+            self._monitoring_hud_live_screen_rects = {}
             os_clicked = self._monitoring_hud_send_mouse_click(screen_point)
+            native_close_fallback_rect = self._monitoring_hud_dashboard_close_fallback_screen_rect()
+            self._monitoring_hud_live_screen_rects = saved_live_screen_rects
             widget_clicked = False
             if not os_clicked or self.geometry().x() < 0:
                 widget_clicked = self._monitoring_hud_send_widget_click(widget_point)
@@ -9126,6 +9174,10 @@ class DesktopRuntimeWindow(QWidget):
                     "widgetPoint": [widget_point.x(), widget_point.y()] if widget_point else None,
                     "osClickSent": os_clicked,
                     "widgetFallbackSent": widget_clicked,
+                    "liveClientGeometryClearedForNativeCloseProof": True,
+                    "nativeCloseFallbackRect": self._monitoring_hud_rect_payload(native_close_fallback_rect)
+                    if native_close_fallback_rect.isValid()
+                    else None,
                 },
             )
             if not clicked:
