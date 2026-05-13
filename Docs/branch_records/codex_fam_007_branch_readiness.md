@@ -139,6 +139,14 @@ No User Test Summary is generated or refreshed by this governance/canon carrier.
 
 PR Readiness Stage 2 should create and validate the governance/canon repair PR, provision watcher coverage, address bot review if needed, and prepare merge-watch without approving merge. Later FAM-007 Branch Readiness must revalidate package admission before implementation starts.
 
+## PR Bot Review Signal
+
+- Bot Review Signal Status: `Comment addressed`
+- Bot Review Signal Head SHA: `91dca28be6b37d5905626d142f72673d8ed77256`
+- Bot Review Signal Source: `Codex review thread PRRT_kwDORwnWIs6Bn_XT / comment PRRC_kwDORwnWIs7Amm_P; same-branch repair updated Docs/prebeta_roadmap.md and Docs/feature_backlog.md so merged-main Next Legal Phase points to post-merge updated-main validation plus later Branch Readiness revalidation instead of the already-consumed PR Stage 2 carrier.`
+- Bot Review Signal Timestamp: `2026-05-13T03:43:14Z`
+- Bot Review Signal Actor: `chatgpt-codex-connector[bot] / GiribaldiTTV`
+
 ## Initial Workstream Seam Sequence
 
 Seam 1: Governance/canon repair and release-body SOP validation.
