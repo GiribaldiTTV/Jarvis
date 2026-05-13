@@ -9,6 +9,7 @@ Use this layer for:
 - active `Registry-only` backlog branches in `Branch Readiness` before a promoted canonical workstream exists
 - `release packaging` branches
 - active `repair/dev-tooling-governance` feature branches when USER-admitted repair scope includes developer-tooling plus governance hardening
+- USER-approved bounded issue-readiness/source-truth repair carriers that extend an existing family branch authority record without creating GitHub issues or admitting implementation
 - preserved historical `docs/governance` or `emergency canon repair` records
 
 when those branches need a durable repo-owned phase authority record.
@@ -21,12 +22,14 @@ Do not use this layer to replace:
 ## Rules
 
 - branch authority records are for approved branches that do not yet map to a promoted canonical workstream
+- active branch names and active branch authority records must not use the `codex/` branch prefix; use `feature/` or another USER-approved non-`codex/` prefix, while historical `codex/` branch records remain traceability only and are not precedent
 - active `Registry-only` backlog branches may use this layer during `Branch Readiness` before promotion
 - active-branch-first remains the default during `pre-Beta`
 - new governance-only branches are not used for Nexus work
 - Standalone docs/governance, emergency canon repair, and repair-only feature branches are blocked for future Nexus work.
 - Governance, docs, source-of-truth, and validator repairs must ride inside the next legitimate runtime-focused backlog branch during `Branch Readiness` or `PR Readiness`.
 - USER-approved workspace-resilience or dev-tooling governance foundation carriers may exist only to clear a recorded multi-worktree/thread-safety blocker before future branch work; they do not authorize runtime implementation, package admission, release work, issue work, AI Product Contract import, or future standalone governance branches.
+- USER-approved bounded issue-readiness/source-truth repair carriers may exist only to reconcile existing family/branch-record evidence into issue-ready source truth; they do not authorize GitHub issue creation, issue-resolution branches, runtime implementation, package admission, release work, FAM-007/local AI work, AI Product Contract import, or future standalone governance branches.
 - If release publication exposes release-dependent canon drift, the drift must be recorded for the next legitimate runtime-focused branch's `Branch Readiness Stage 1` and repaired in `Branch Readiness Stage 2` before implementation begins.
 - If no runtime-focused branch is legally admitted yet, record the drift as a blocker and wait instead of creating a repair branch by inertia.
 - Historical repair-only branch records remain traceability only and do not authorize new repair-only branch creation.
@@ -81,10 +84,11 @@ Do not use this layer to replace:
 
 ## Active Branch Authority Records
 
-- `Docs/branch_records/codex_fam_007_local_ai_foundation_readiness.md`
+- `Docs/branch_records/feature_fam_007_local_ai_foundation_readiness.md`
 
 ## Historical Branch Authority Records
 
+- `Docs/branch_records/feature_fam_006_issue_readiness_governance_repair.md`
 - `Docs/branch_records/codex_workspace_governance_foundation.md`
 - `Docs/branch_records/codex_fam_007_branch_readiness.md`
 - `Docs/branch_records/feature_fam_006_monitoring_hud_product_surface.md`

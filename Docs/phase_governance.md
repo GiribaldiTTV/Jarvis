@@ -49,6 +49,12 @@ If `Seam Sequence` is present, it is structure only.
 Prompt text may name the entry seam and downstream planned seams, but it does not define seam behavior, bypass phase rules, or authorize continuation by itself.
 The canonical seam workflow contract below controls whether Codex may continue, must stop, or may split a backlog item across branches only with explicit USER approval.
 
+## Branch Naming Prefix Rule
+
+Active Nexus branch names and active branch authority records must not use the `codex/` prefix.
+Use `feature/` or another USER-approved non-`codex/` prefix for current branch carriers.
+Historical `codex/` branch names remain preserved traceability only and must not be treated as precedent for new or active branch naming.
+
 ## Canonical Phase Enum
 
 The only normal branch phases are:

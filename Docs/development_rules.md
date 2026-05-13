@@ -69,6 +69,7 @@ Use this layered ownership model:
 - branch authority records = repo-owned phase owners for selected `Registry-only` backlog branches in `Branch Readiness`, approved `release packaging` branches, active runtime-focused branches that must carry bounded governance/source-of-truth repairs before PR green, and preserved historical repair records; standalone docs/governance, emergency canon repair, and repair-only feature branches are blocked for future Nexus work
 - Element Validation Ledger = row-level created/touched/affected/deferred/future element proof tracking owned by the existing workstream doc or branch authority record; use a companion file only when that owning record points to it canonically
 - `Docs/Main.md` = routing authority aligned to merged truth
+- active branch names must not use the `codex/` prefix; use `feature/` or another USER-approved non-`codex/` prefix, and treat historical `codex/` branch names as traceability only
 
 Use `Docs/phase_governance.md` for:
 

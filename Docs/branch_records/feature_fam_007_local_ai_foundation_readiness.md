@@ -1,8 +1,8 @@
-# Branch Authority Record: codex/fam-007-local-ai-foundation-readiness
+# Branch Authority Record: feature/fam-007-local-ai-foundation-readiness
 
 ## Branch Identity
 
-- Branch: `codex/fam-007-local-ai-foundation-readiness`
+- Branch: `feature/fam-007-local-ai-foundation-readiness`
 - Workstream: `FAM-007 Local AI Foundation Readiness`
 - Branch Class: `implementation`
 - Backlog Record State: `Registry-only`
@@ -25,7 +25,7 @@ This branch does not admit FAM-007 implementation, does not mark any package or 
 
 ## Phase Status
 
-- `Active Branch`: `codex/fam-007-local-ai-foundation-readiness`
+- `Active Branch`: `feature/fam-007-local-ai-foundation-readiness`
 - Branch Readiness Stage 1: `Complete - recommended FAM-007 planning/source-truth setup before any local AI implementation`
 - Branch Readiness Stage 2 USER Approval: `Granted for branch/worktree creation, AI Product Contract v0.6.2 evidence digestion, public-safe source-truth planning updates, validation, commit, and push only`
 - Branch Creation: `Created at D:\Nexus Worktrees\Nexus Desktop AI FAM-007 from origin/main commit 88c11d53845f67bbf2490b8e4ce2b224bd62437b`
@@ -95,7 +95,7 @@ Backlog-Split Reason: `None`
 
 Rollback Commit: main at `88c11d53845f67bbf2490b8e4ce2b224bd62437b`
 
-Rollback Path: abandon branch `codex/fam-007-local-ai-foundation-readiness` before merge; remove the worktree if needed; do not mutate old `C:\` folders or the parked `codex/ai-llm-lab` branch.
+Rollback Path: abandon branch `feature/fam-007-local-ai-foundation-readiness` before merge; remove the worktree if needed; do not mutate old `C:\` folders or the parked `codex/ai-llm-lab` branch.
 
 ## Next Legal Phase
 

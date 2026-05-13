@@ -41,6 +41,7 @@ Current local workspace roles:
 - `D:\Nexus Artifacts\` is the artifact/model/eval output root; content there is evidence only unless legally imported through repo governance
 - old `C:\` Nexus folders are parked or fallback workspaces unless explicitly reactivated
 - `C:\Nexus Desktop AI` on `codex/ai-llm-lab` is parked lab/planning context only and is not a governance, runtime, or FAM-007 carrier unless later imported by USER-approved repo governance
+- active branch names must not use the `codex/` prefix; use `feature/` or another USER-approved non-`codex/` prefix, and treat historical `codex/` branch names as traceability only
 
 Before branch creation, worktree creation, phase entry, commit, push, PR work, release work, or GitHub Desktop handoff, run a `Thread / Worktree Identity Preflight` and prove the active thread is operating in the intended workspace, repository root, branch, upstream, and worktree role. If the identity does not match the requested work, stop on `Thread / Worktree Identity Mismatch`.
 
