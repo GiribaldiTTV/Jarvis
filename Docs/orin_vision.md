@@ -113,12 +113,15 @@ Current merged truth should still be read as:
 - future boot and access planning deferred
 - product trust and resident presence concepts still living at planning level
 
-## Post-Beta AI Vision
+## Local AI And Capability-Pack Vision
 
-This section records intended post-Beta AI direction.
+This section records public-safe FAM-007 local AI and capability-pack direction.
 
-It is future-facing product intent only.
-It does not change current pre-Beta runtime truth, roadmap sequencing, or the active `FB-036` + Idea 5 branch boundaries.
+It is product intent and planning truth only.
+It does not admit implementation, package work, local models, provider runtime code, memory/indexing, voice/Core sync, setup behavior, or release work by itself.
+The USER-provided `Nexus AI Product Contract v0.6.2` is planning evidence for this direction, not repo source truth and not a full imported contract.
+
+FAM-007 should be staged so the base app remains useful without a local LLM and heavy local AI remains optional capability-pack work rather than default installer bloat.
 
 ### AI Behavior Goals
 
@@ -134,6 +137,8 @@ It does not change current pre-Beta runtime truth, roadmap sequencing, or the ac
 - the local system should avoid heavy or expensive workloads that do not fit the machine or the release stage
 - external deferral is acceptable when computation is too large, storage or model footprint is impractical, or an outside system is the better execution surface
 - when deferral happens, the system should say so clearly rather than hiding the boundary
+- no-provider behavior should degrade into an Assisted Desktop Mode rather than feeling broken
+- provider choice should not replace ORIN/ARIA as the user-facing assistant layer
 
 ### Privacy Model
 
@@ -141,6 +146,8 @@ It does not change current pre-Beta runtime truth, roadmap sequencing, or the ac
 - retain as little user data as practical and avoid unnecessary persistence
 - avoid third-party monitoring or exposure where a local or first-party path can satisfy the need
 - user trust, visibility, and local control are primary design constraints
+- Local Only, Local Network, External API, and No AI Provider states should be visible when those modes exist
+- external API use should be opt-in, revocable, and cost/privacy-aware
 
 ### Execution Model
 
@@ -148,12 +155,14 @@ It does not change current pre-Beta runtime truth, roadmap sequencing, or the ac
 - local logic should handle common tasks, routing, and assistant orchestration
 - external fallback should remain optional and reserved for queries that exceed reasonable local capability
 - even when external help is used, the product should still feel like a local system extension rather than a thin client for a remote dependency
+- provider boundaries should be defined before implementation so local, LAN, external API, and test providers can be swapped without changing the ORIN-facing product shell
+- hardware safety, power state, thermals, and model/capability-pack requirements should gate what the user can enable on a given machine
 
 ### Technology Exploration
 
 - Python is the primary exploration path for orchestration and rapid iteration
 - C++ is a candidate path for performance-critical components
-- CUDA is an optional acceleration path where a later workload actually justifies it
+- GPU acceleration is preferred where officially supported and validated; NVIDIA CUDA, AMD-supported paths, Windows DirectML / Windows ML / ONNX Runtime, and CPU fallback should be considered by capability and maintenance cost
 - Java and C# remain open integration paths where platform or tooling fit warrants them
 - this is exploration space, not a locked implementation stack
 
@@ -167,8 +176,27 @@ It does not change current pre-Beta runtime truth, roadmap sequencing, or the ac
 
 - do not treat this section as current implementation truth
 - do not introduce large local models or heavy local inference in the current release
-- do not widen the current branch beyond `FB-036` + Idea 5
+- do not admit FAM-007 implementation without a later Branch Readiness revalidation and explicit USER approval
+- do not mark `PKG-007` or its slices as `Admitted` from vision text alone
+- do not import private/internal-only planning wholesale into public source truth
+- do not mutate or repurpose the parked `codex/ai-llm-lab` branch by inertia
 - do not reinterpret current workstream, validation, or release-posture docs through this future section
+
+### Public-Safe Planning Carry-Forward
+
+The first FAM-007 package should likely be a foundation package, not a full assistant implementation.
+
+Public-safe planning principles to carry forward:
+
+- define Assisted Desktop Mode and no-provider behavior first
+- define provider boundaries before tying ORIN to any model, runtime, or vendor
+- define visible privacy/provider state before any external call path exists
+- define hardware, power, and performance safeguards before enabling local heavy workloads
+- define model/capability-pack license, integrity, disk-space, and update migration rules before distribution
+- define data classification, memory, context packing, consent, audit, secrets, and trust reset before indexing or learning work
+- keep Windows compatibility and safe repair paths first-class
+- keep Boot-Facing Mode and secure sign-in work future/high-risk
+- keep full internal Dev ORIN/private prompt/eval/beta-feedback tooling outside public repo truth unless later sanitized and approved
 
 ## Historical Relationship
 

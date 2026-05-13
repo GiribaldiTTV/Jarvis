@@ -81,7 +81,7 @@ Do not use this layer to replace:
 
 ## Active Branch Authority Records
 
-None.
+- `Docs/branch_records/codex_fam_007_local_ai_foundation_readiness.md`
 
 ## Historical Branch Authority Records
 
