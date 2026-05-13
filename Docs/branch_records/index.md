@@ -84,10 +84,11 @@ Do not use this layer to replace:
 
 ## Active Branch Authority Records
 
-- `Docs/branch_records/feature_fam_006_issue_readiness_governance_repair.md`
+None.
 
 ## Historical Branch Authority Records
 
+- `Docs/branch_records/feature_fam_006_issue_readiness_governance_repair.md`
 - `Docs/branch_records/codex_workspace_governance_foundation.md`
 - `Docs/branch_records/codex_fam_007_branch_readiness.md`
 - `Docs/branch_records/feature_fam_006_monitoring_hud_product_surface.md`
