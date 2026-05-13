@@ -2045,6 +2045,8 @@ Allowed:
 - PR creation
 - PR state validation
 
+Repo-wide governance or workflow-policy repairs discovered during Branch Readiness or PR Readiness require an explicit package/carrier decision before Codex edits files unless that repair was already part of the approved package. The decision must classify the repair, identify the cleanest carrier, state what current authorization covers, list pending USER decisions, name any stop/report condition, and either record why the current branch may legally carry the repair or stop with the exact USER decision needed for a separate carrier. Small tightly coupled repairs may ride the current legitimate carrier only when the current phase authorization covers them, source truth records the carrier decision, and the repair does not expand runtime/product scope.
+
 Forbidden:
 
 - implementation
