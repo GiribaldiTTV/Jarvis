@@ -15,15 +15,15 @@ This branch is the USER-approved implementation carrier for the first FAM-006 Da
 
 It exists because PR #122 merged the FAM-006 issue-readiness governance repair, the five locked FAM-006 Dashboard GitHub issues were created from updated main using summary-only evidence, and USER approved this first branch to carry the released Dashboard render/layout confidence issues before IA/control follow-through begins.
 
-Current authorization covers runtime implementation, validation, source-truth updates, commit, and push for issues #123, #124, and #127. PR creation, raw evidence upload/import/linking, release/tag/artifact work, FAM-007/local AI work, AI Product Contract import, old C:\ folder reactivation/reconciliation, and codex/ai-llm-lab reactivation/reconciliation remain future USER approval checkpoints.
+Current authorization covers Hardening H1 preparation, validation-path review, USER-facing handoff instructions, source-truth updates, commit, and push for issues #123, #124, and #127. PR creation, raw evidence upload/import/linking, release/tag/artifact work, FAM-007/local AI work, AI Product Contract import, old C:\ folder reactivation/reconciliation, and codex/ai-llm-lab reactivation/reconciliation remain future USER approval checkpoints.
 
 ## Record State
 
-- `Active Workstream implementation`
+- `Active Hardening H1 validation handoff`
 
 ## Status
 
-- `Workstream implementation complete for Dashboard render/layout hardening issues #123, #124, and #127; Hardening/PR remain future USER approval checkpoints`
+- `Hardening H1 prepared for Dashboard render/layout hardening issues #123, #124, and #127; USER result remains pending before H1 closeout or PR Readiness`
 
 ## Canonical Branch
 
@@ -31,13 +31,14 @@ Current authorization covers runtime implementation, validation, source-truth up
 
 ## Current Phase
 
-- Phase: `Workstream`
+- Phase: `Hardening`
 
 ## Phase Status
 
 - Stage 1: `Complete - USER approved Branch 1 grouping for issues #123, #124, and #127 after FAM-006 issue-readiness review`
 - Stage 2 USER Approval: `Complete - cleanup, branch creation, branch authority setup, GitHub issue traceability comments, validation, commit, and push were completed before runtime admission`
 - Runtime Implementation Approval: `Granted by USER for issues #123, #124, and #127 on this branch`
+- Hardening H1 Admission: `Granted by USER on 2026-05-13 for USER-facing live validation coordination before PR Readiness`
 - Branch Creation: `Created at D:\Nexus Worktrees\Nexus Desktop AI FAM-006 Dashboard Render Layout Hardening from origin/main commit fc17a16679cb3c61b31c939da18beb2aa6d90ef2`
 - Main Reintegration: `Merged updated origin/main at PR #128 merge commit 23521ef52e39c9428006986603464289d25fb88a before final validation; FAM-007 remains candidate/planned planning truth only and does not become authority for this FAM-006 implementation branch`
 - Branch Authority State: `Active Branch`
@@ -48,6 +49,7 @@ Current authorization covers runtime implementation, validation, source-truth up
 - Evidence Policy: `Summary-only for GitHub issue and branch source-truth references`
 - Raw Media Status: `Raw screenshots, videos, and UTS exports remain local/external unless USER later approves upload, import, or linking`
 - Runtime Implementation: `Implemented first repair pass for #123, #124, and #127`
+- Hardening H1 Status: `Prepared/pending USER result - D-drive launch path selected, pre-USER validators passed, active-client H1 support proof passed, and USER test template is ready`
 - GitHub Issue Traceability: `Branch carrier comments added to #123, #124, and #127 during this Stage 2 setup; issue body edits beyond planning references remain blocked`
 - FAM-007 / Local AI Authority: `Blocked and out of scope`
 
@@ -57,7 +59,8 @@ Current authorization covers runtime implementation, validation, source-truth up
 
 ## Blockers
 
-- None for the current Workstream implementation slice.
+- None for H1 preparation.
+- H1 closeout remains pending on USER-returned result for #123, #124, #127, and the regression check.
 
 ## Future USER Approval Checkpoints
 
@@ -102,9 +105,9 @@ Rollback Path: revert this branch before PR if the Dashboard render/layout repai
 
 ## Next Legal Phase
 
-- `Hardening`
+- `PR Readiness`
 
-Next Legal Phase Gate: USER may later approve Hardening/USER-facing pressure-test or PR Readiness after reviewing the Workstream repair and proof packet. This record does not itself approve PR creation, release work, raw evidence upload/import/linking, or Branch 2 implementation.
+Next Legal Phase Gate: USER may return the H1 result for digestion. If H1 is PASS or WAIVE-PASSABLE, USER may later request PR Readiness Stage 1. If H1 is REPAIR, the branch should route to bounded hardening repair before PR Readiness. This record does not itself approve PR creation, release work, raw evidence upload/import/linking, or Branch 2 implementation.
 
 ## Branch Objective
 
@@ -122,7 +125,7 @@ Prepare the first FAM-006 Dashboard issue-resolution branch to harden the releas
 
 This branch is a FAM-006 issue-resolution continuation under historical PKG-006, not a new backlog identity and not a new package admission.
 
-Branch Completion Goal: implement issues #123/#124/#127, validate, record summary-only evidence, commit, push, and stop for USER decision on Hardening/live validation or PR Readiness.
+Branch Completion Goal: implement issues #123/#124/#127, validate, record summary-only evidence, commit, push, prepare H1, and stop for USER-returned H1 result before PR Readiness.
 Known Future-Dependent Blockers: PR creation, raw evidence upload/import/linking, release work, Branch 2, Dashboard settings cog/settings panel, Overlay/display acceptance, Provider/external telemetry parity, Dev Toolkit/source-owner markers, FAM-007/local AI work, and AI Product Contract import all require later explicit USER approval.
 Branch Closure Rule: stop after validated implementation and push; do not expand into Branch 2 or future/deferred items.
 
@@ -132,8 +135,8 @@ Backlog Completion State: Implemented Complete
 Completion Status: Green
 Remaining Implementable Work: None
 Future-Dependent Blockers: None
-Visible User-Facing Proof Required: No - Workstream proof uses Codex active-client/local validation only; USER live validation or formal Live Validation remains a later approval checkpoint.
-Visible User-Facing Proof: PASS - active-client live helper captured Dashboard-specific local proof without refreshing or digesting a formal UTS.
+Visible User-Facing Proof Required: Yes for H1 closeout - USER-facing validation is prepared through the active D-drive branch launcher; formal Live Validation UTS remains a later separate phase if admitted.
+Visible User-Facing Proof: Pending USER H1 result - active-client helper captured Dashboard-specific local proof without refreshing or digesting a formal UTS.
 
 ## Expected Seam Families And Risk Classes
 
@@ -174,7 +177,7 @@ User-Facing Goal: the Dashboard opens without whole-window flicker, presents the
 USER Vision Questions: none open for Branch 1 setup; USER already selected the carried issue grouping and held Branch 2/future items.
 Codex Product Interpretation: these issues share the Dashboard render/layout confidence surface and should be handled together before IA/control follow-through.
 Codex Implementation Recommendation: keep Branch 1 scoped to startup render stabilization, scroll/content-well layout ownership, and resize smoothness; defer Monitor Groups IA, top-bar affordance redesign, settings cog, Overlay/display, provider telemetry, Dev Toolkit markers, FAM-007, and local AI.
-USER/ChatGPT Review Checkpoint: runtime implementation approval was granted and the first Workstream repair pass is complete; USER may next choose Hardening/live validation or PR Readiness, while PR creation remains a future approval checkpoint.
+USER/ChatGPT Review Checkpoint: runtime implementation approval was granted, the first Workstream repair pass is complete, and USER admitted Hardening H1; USER may next return the H1 result for digestion, while PR creation remains a future approval checkpoint.
 Full Feature Element Breakdown: issue #123 initial open flicker; issue #124 scroll content well clipping, scrollbar ownership, and gutter alignment; issue #127 resize jitter and catch-up lag; held issue #125 Monitor Groups IA; held issue #126 close affordance/open badge.
 Current Branch vs Future Package Boundaries: carried now means #123/#124/#127 only; held for later means #125/#126; future/deferred means Dashboard settings cog/settings panel, Overlay/display acceptance, Provider/external telemetry parity, and Dev Toolkit/source-owner markers.
 Affected Surfaces: HUD Dashboard native window, Dashboard content frame/content well, scrollbar ownership/inset, startup/open path, resize drag path, and screenshot/live proof path.
@@ -187,7 +190,7 @@ Validation Proof Requirements: governance validation, HUD/Dashboard static valid
 Screenshot / Live / User Test Summary Proof Requirements: summary-only evidence remains sufficient for GitHub issue/source-truth references; active-client screenshots/manifests may be recorded as local proof, while raw media upload/import/linking and formal UTS export/digestion remain blocked pending later USER approval.
 Implementation Sequence Proposal: first repair pass completed in startup render/open stabilization, content-well scroll ownership, and resize synchronization order; later Hardening or USER live validation should review the combined Dashboard feel before PR Readiness.
 Planning Blockers: none for the carried Workstream implementation slice.
-USER Decisions Needed: decide whether to request Hardening/USER live validation or PR Readiness Stage 1; decide later whether raw evidence import/linking is needed; decide later on Branch 2 and future/deferred items.
+USER Decisions Needed: return the H1 result for #123, #124, #127, and regression check; decide later whether PR Readiness Stage 1, bounded repair, raw evidence import/linking, Branch 2, or future/deferred items should proceed.
 Planning Packet Status: Complete
 Planning Revalidation Status: PASS
 Planning Completion Waiver: Not required - USER-approved Stage 2 setup and prior Branch Readiness Phase 1 issue grouping provide the planning basis.
@@ -204,7 +207,7 @@ Completed Workstream proof includes:
 - Active-client live desktop proof with local screenshots and no UTS export.
 - Compile and governance validation.
 
-Expected later USER-facing proof may include:
+Prepared H1 USER-facing proof includes:
 
 - USER visual confirmation of Dashboard open behavior for issue #123.
 - USER visual confirmation of content-well gutter/scrollbar ownership for issue #124.
@@ -282,6 +285,75 @@ Compile Proof: `PASS - python -m py_compile desktop\desktop_renderer.py dev\orin
 Human-Client Shortcut Proof: `Not run - current actual desktop shortcut targets C:\Nexus Desktop AI FAM-006, not this D-drive Branch 1 worktree. Shortcut mutation and old C:\ reactivation/reconciliation remain outside current authorization.`
 
 Formal UTS Status: `Not generated, refreshed, imported, uploaded, linked, or digested during this Workstream pass.`
+
+## Hardening H1 USER-Facing Handoff
+
+H1 Admission: `Granted by USER on 2026-05-13 for FAM-006 Dashboard render/layout hardening before PR Readiness.`
+
+H1 Status: `Prepared / USER result pending`
+
+H1 Scope: `#123 Dashboard initial open flicker`; `#124 Dashboard scroll content well clipping / scrollbar ownership / gutter alignment`; `#127 Dashboard resize jitter / catch-up lag`.
+
+H1 Held Scope: `#125 Monitor Groups IA / Create/Edit split`; `#126 redundant HUD Dashboard Open badge / close affordance`; Dashboard settings cog/settings panel; Overlay/display acceptance; provider telemetry parity; Dev Toolkit/source-owner markers; FAM-007/local AI; AI Product Contract; old C:\ folder reactivation/reconciliation; codex/ai-llm-lab reactivation/reconciliation.
+
+Launch Path Decision: `Use the existing D-drive branch launcher directly; do not create or mutate the persistent desktop shortcut during H1 preparation.`
+
+USER-Facing Launch Command: `wscript.exe "D:\Nexus Worktrees\Nexus Desktop AI FAM-006 Dashboard Render Layout Hardening\launch_orin_desktop.vbs"`
+
+Launch Working Directory: `D:\Nexus Worktrees\Nexus Desktop AI FAM-006 Dashboard Render Layout Hardening`
+
+Persistent Desktop Shortcut State: `C:\Users\anden\OneDrive\Desktop\Nexus Desktop Launcher.lnk still targets C:\Nexus Desktop AI FAM-006 and is not used as the H1 branch launcher. Shortcut mutation and old C:\ reactivation/reconciliation remain future USER approval checkpoints.`
+
+Temporary Launch Helper: `None created.`
+
+H1 Pre-USER Validation:
+
+- `PASS - git status --short --branch`
+- `PASS - git diff --check origin/main...HEAD`
+- `PASS - python dev\orin_branch_governance_validation.py`
+- `PASS - python dev\orin_monitoring_hud_surface_validation.py`
+- `PASS - python dev\orin_monitoring_hud_internal_sandbox_validation.py; manifest dev/logs/fam_006_monitoring_hud_internal_sandbox/20260513_093701_manifest.json`
+- `PASS - python -m compileall -q dev desktop Audio main.py`
+- `PASS - powershell -ExecutionPolicy Bypass -File dev\orin_monitoring_hud_live_validation.ps1 -ActiveUserFacingClient -ProofSeam "FAM-006 Dashboard render layout hardening H1 pre-USER proof" -InteractionStepDelayMilliseconds 200 -FinalClientHoldSeconds 0; proof root dev/logs/fam_006_monitoring_hud_live_validation/20260513_093709_833; formal UTS export skipped`
+
+Runtime Ownership Result: `No active Nexus/Python runtime process remained after H1 pre-USER validation.`
+
+H1 USER Test Instructions:
+
+1. Launch the active Branch 1 build from `wscript.exe "D:\Nexus Worktrees\Nexus Desktop AI FAM-006 Dashboard Render Layout Hardening\launch_orin_desktop.vbs"`.
+2. Open HUD Dashboard and watch the first 1-2 seconds of the reveal. Expected for #123: the Dashboard appears stable without full-window flicker before settling.
+3. Inspect the monitor group card stack / Dashboard scroll content well. Scroll if content exceeds the visible area. Expected for #124: side and bottom gutter feel consistent, the card stack does not run into the bottom edge, and the scrollbar visually belongs to the inner content well/card stack instead of the outer shell.
+4. Resize the Dashboard slowly and quickly from edges/corners. Expected for #127: resize feels smoother, with reduced lag/catch-up behavior and no delayed compact-geometry snap while USER resize is active.
+5. Regression check: open/close Dashboard from tray or supported control path; confirm Dashboard still opens/closes normally and Branch 2 items remain held for later.
+
+H1 USER Return Template:
+
+```text
+Issue #123 open flicker:
+PASS / FAIL / PASSABLE
+Notes:
+
+Issue #124 scroll/gutter/scrollbar:
+PASS / FAIL / PASSABLE
+Notes:
+
+Issue #127 resize smoothness:
+PASS / FAIL / PASSABLE
+Notes:
+
+Regression check:
+PASS / FAIL / PASSABLE
+Notes:
+
+Overall H1 result:
+PASS / REPAIR / WAIVE-PASSABLE
+```
+
+If USER reports `FAIL` or `PASSABLE`, capture the exact action, expected behavior, observed behavior, and whether it reproduces every time or intermittently. Screenshot/video remains local/external unless USER later approves raw upload/import/linking.
+
+H1 Next Phase Rule: `If USER returns PASS, recommend PR Readiness Stage 1. If USER returns REPAIR, perform bounded hardening repair on this branch before PR Readiness. If USER returns WAIVE-PASSABLE, PR Readiness may proceed only with the explicit waiver recorded.`
+
+Formal UTS Boundary: `Preserved - no C:\Users\anden\OneDrive\Desktop\User Test Summary.txt export or returned-result digestion occurs during H1 preparation.`
 
 ## GitHub Issue Traceability
 
