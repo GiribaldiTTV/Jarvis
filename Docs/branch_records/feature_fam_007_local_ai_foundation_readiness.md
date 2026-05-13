@@ -11,9 +11,9 @@
 
 ## Purpose / Why It Exists
 
-This branch is the USER-approved Branch Readiness Stage 2 planning/source-truth carrier for FAM-007 Local AI and Capability Packs.
+This branch is the USER-approved Branch Readiness and PR Readiness planning/source-truth carrier for FAM-007 Local AI and Capability Packs.
 
-It exists because `v1.7.0-prebeta` is published, PR #121 merged the workspace/thread identity governance foundation, and updated `origin/main` is validated at `88c11d53845f67bbf2490b8e4ce2b224bd62437b`.
+It exists because `v1.7.0-prebeta` is published, PR #121 merged the workspace/thread identity governance foundation, PR #122 merged FAM-006 issue-readiness governance, and updated `origin/main` is validated at `fc17a16679cb3c61b31c939da18beb2aa6d90ef2`.
 
 The branch digests the USER-provided `Nexus AI Product Contract v0.6.2` as planning evidence only. It records public-safe FAM-007 package shape, candidate/planned slices, blockers, proof gates, acceptance criteria, and current-vs-future boundaries before any package admission or implementation can begin.
 
@@ -21,14 +21,20 @@ This branch does not admit FAM-007 implementation, does not mark any package or 
 
 ## Current Phase
 
-- Phase: `Branch Readiness`
+- Phase: `Historical Traceability`
 
 ## Phase Status
 
-- `Active Branch`: `feature/fam-007-local-ai-foundation-readiness`
+- Historical Branch: `feature/fam-007-local-ai-foundation-readiness`
 - Branch Readiness Stage 1: `Complete - recommended FAM-007 planning/source-truth setup before any local AI implementation`
 - Branch Readiness Stage 2 USER Approval: `Granted for branch/worktree creation, AI Product Contract v0.6.2 evidence digestion, public-safe source-truth planning updates, validation, commit, and push only`
-- Branch Creation: `Created at D:\Nexus Worktrees\Nexus Desktop AI FAM-007 from origin/main commit 88c11d53845f67bbf2490b8e4ce2b224bd62437b`
+- Branch Creation: `Created at D:\Nexus Worktrees\Nexus Desktop AI FAM-007 from origin/main commit 88c11d53845f67bbf2490b8e4ce2b224bd62437b, then synced with origin/main commit fc17a16679cb3c61b31c939da18beb2aa6d90ef2 after PR #122`
+- PR Readiness Stage 1: `Complete - accepted for Stage 2 after updated-main sync, feature/ branch-prefix migration, source-truth alignment review, merge forecast, and scope review`
+- PR Readiness Stage 2 USER Approval: `Granted for final PR package sync, merge-target authority projection, USER-approved FAM-007 candidate/planned backlog structure only, selected-next/backlog defer waiver, validation, PR creation, stale codex/ remote-ref cleanup after safety checks, and watcher provisioning`
+- Merge-Target Authority Projection: `Complete - branch record moved to historical/no-active posture before PR creation so merged main remains No Active Branch`
+- Branch Authority State: `Historical / merge-stable - not listed as active branch authority in merge-target truth`
+- USER-Approved Candidate/Planned Structure: `Granted for FAM-007 planning truth only; no package or slice admission`
+- Selected-Next / Backlog Handling: `USER-approved defer/waiver for this PR; post-merge next work still requires a separate USER decision`
 - Package Admission: `Not granted`
 - Slice Admission: `Not granted`
 - Implementation: `Blocked`
@@ -47,7 +53,7 @@ Implementation Delta Class: `docs-only`
 Implementation Delta Class: `docs-only`
 Docs-Only Workstream: `Yes`
 Planning-Loop Bypass User Approval: `APPROVED`
-Planning-Loop Bypass Reason: `USER approved Branch Readiness Stage 2 source-truth planning only, with package admission, implementation, PR creation, release work, issue creation, and AI Product Contract full import blocked.`
+Planning-Loop Bypass Reason: `USER approved Branch Readiness Stage 2 source-truth planning only, then PR Readiness Stage 2 for PR package sync and PR creation only; package admission, implementation, release work, issue creation, and AI Product Contract full import remain blocked.`
 
 ## Slice Continuation Policy
 
@@ -61,21 +67,24 @@ Backlog-Split Reason: `None`
 - `FAM-007 Implementation Admission Missing`: `Active - no local model/provider/runtime code work is authorized`
 - `AI Product Contract Full Import Approval Missing`: `Active - the Desktop contract is planning evidence only`
 - `Admission State Granted Missing`: `Active - no package or slice may be marked Admitted on this Stage 2 pass`
-- `Branch Readiness Planning Incomplete`: `Active until a later Stage 1 revalidates the finalized planning packet or USER grants an explicit waiver`
-- `Feature Element Breakdown Pending Revalidation`: `Active until the candidate/planned element breakdown is revalidated after this Stage 2 source-truth update`
-- `Acceptance Criteria Pending Revalidation`: `Active until a later Stage 1 confirms current-package acceptance criteria are sufficient`
-- `User-Facing Proof Standard Pending Revalidation`: `Active until a later Stage 1 confirms proof expectations before Workstream`
-- `Current Branch vs Future Package Boundary Pending Revalidation`: `Active until a later Stage 1 confirms what belongs in the first package versus future packages`
+- `Branch Readiness Planning Incomplete`: `Cleared for PR packaging - Stage 1 revalidated the planning packet for PR Readiness only`
+- `Feature Element Breakdown Pending Revalidation`: `Cleared for PR packaging - candidate/planned slice structure is USER-approved as planning truth only`
+- `Acceptance Criteria Pending Revalidation`: `Cleared for PR packaging - acceptance criteria remain planning/source-truth only`
+- `User-Facing Proof Standard Pending Revalidation`: `Cleared for PR packaging - no user-facing runtime surface is implemented by this branch`
+- `Current Branch vs Future Package Boundary Pending Revalidation`: `Cleared for PR packaging - implementation and package admission remain future approval gates`
 - `GitHub Issue Creation Approval Missing`: `Active`
 - `Release Execution Approval Missing`: `Active`
-- `PR Creation Approval Missing`: `Active`
+- `PR Creation Approval Missing`: `Cleared by USER approval for PR Readiness Stage 2`
+- `Backlog Addition User Approval Missing`: `Cleared only for FAM-007 candidate/planned backlog structure in this planning PR; active for package admission, implementation branch creation, selected-next successor selection, issue creation, backlog split, promotion, or any new backlog identity outside later explicit USER approval`
+- `Next Workstream User Waiver`: `Granted - USER approved selected-next/backlog handling as deferred for this PR, with post-merge next work requiring a separate USER decision`
 
 ## Entry Basis
 
-- `origin/main` is validated at `88c11d53845f67bbf2490b8e4ce2b224bd62437b`.
+- `origin/main` is validated at `fc17a16679cb3c61b31c939da18beb2aa6d90ef2` after PR #122 FAM-006 issue-readiness governance.
 - `D:\Nexus Repos\Nexus Desktop AI Main` is the D-drive main/consolidator clone.
 - `D:\Nexus Worktrees\` is the approved active worktree root.
 - `D:\Nexus Worktrees\Nexus Desktop AI FAM-007` is the approved FAM-007 worktree path for this branch.
+- The stale remote branch `origin/codex/fam-007-local-ai-foundation-readiness` exists only as pre-migration trace until PR Readiness Stage 2 verifies the `feature/` branch is pushed and source truth no longer uses the stale `codex/` active identity.
 - `C:\Nexus Desktop AI` on `codex/ai-llm-lab` remains parked lab/planning context only and must not be used as the FAM-007 implementation or governance carrier.
 - The USER-provided `Nexus AI Product Contract v0.6.2` exists on the Desktop as planning evidence only. It is not repo source truth and does not authorize implementation or full import.
 
@@ -88,22 +97,42 @@ Backlog-Split Reason: `None`
 - Source truth records blockers that keep implementation and package admission blocked.
 - Validation passes.
 - Changes are committed and pushed.
+- PR Readiness Stage 2 creates the PR and provisions watcher coverage if live PR validation is green.
 
 ## Rollback Target
 
 - `Branch Readiness`
 
-Rollback Commit: main at `88c11d53845f67bbf2490b8e4ce2b224bd62437b`
+Rollback Commit: main at `fc17a16679cb3c61b31c939da18beb2aa6d90ef2`
 
 Rollback Path: abandon branch `feature/fam-007-local-ai-foundation-readiness` before merge; remove the worktree if needed; do not mutate old `C:\` folders or the parked `codex/ai-llm-lab` branch.
 
 ## Next Legal Phase
 
-- `Branch Readiness`
+- `PR Readiness`
 
-Next Legal Seam: `Branch Readiness Stage 1 - FAM-007 Local AI Foundation Planning Revalidation`
+Next Legal Seam: `PR Readiness Stage 2 - FAM-007 Local AI Foundation Planning PR Execution`
 
-Next Legal Phase Gate: `After this Stage 2 planning/source-truth pass is committed and pushed, a later USER-approved Branch Readiness Stage 1 must revalidate whether the candidate package is ready for package admission, branch continuation, or further planning. Workstream, implementation, package admission, PR creation, issue creation, release work, AI Product Contract full import, and codex/ai-llm-lab mutation remain blocked without later USER approval.`
+Next Legal Phase Gate: `PR Readiness Stage 2 owns final PR package sync, PR creation, live PR validation, watcher provisioning, stale codex/ remote-ref cleanup after safety checks, and bot-review handling if needed. PR merge, Workstream, implementation, package admission, issue creation, release work, AI Product Contract full import, old C-folder reactivation, codex/ai-llm-lab reactivation, and Workspace Runtime Isolation Stage 2 remain blocked without later USER approval.`
+
+## Post-Merge State
+
+- Repo State: `No Active Branch`
+- Merged-Main Active Branch Authority Records: `None`
+- Branch Authority State: `Historical / merge-stable`
+- FAM-007 State: `Planning baseline only; no package admission, no slice admission, no implementation`
+- PKG-007 State: `Candidate / Planned / Pending USER approval`
+- Backlog Addition User Approval Missing: `Cleared only for this PR's FAM-007 candidate/planned backlog structure; active for any implementation, package admission, selected-next successor, branch creation, issue creation, backlog split, family promotion, or new backlog identity outside later explicit USER approval`
+- Next Workstream User Waiver: `Granted - USER-approved selected-next defer for this planning PR; post-merge next work requires a separate USER decision`
+- Selected Next Workstream: `None`
+- Selected Next Implementation Branch: `Not created`
+- FAM-007 Implementation Admission: `Blocked pending later Branch Readiness revalidation and explicit USER approval`
+- FAM-007 Package Admission: `Blocked pending later Branch Readiness revalidation and explicit USER approval`
+- GitHub Issue Creation: `Blocked pending later USER approval`
+- Release Execution: `Not approved and not required by this carrier`
+- AI Product Contract Import: `Blocked; v0.6.2 remains planning evidence only`
+- codex/ai-llm-lab: `Parked lab/planning context only; not mutated, merged, rebased, repurposed, or deleted`
+- Post-Merge Validation Expectation: `After PR merge, update the D-drive main clone, run governance/release-body/compile validation, verify no active branch remains, remove the merged worktree/branch only with USER approval, and ask USER to choose the next legal track.`
 
 ## Branch Objective
 
@@ -137,7 +166,7 @@ Validation Proof Requirements: governance validator, release-body validator, com
 Screenshot / Live / User Test Summary Proof Requirements: no screenshot/live/UTS proof is required for this planning-only branch; future user-facing AI surfaces must define UTS and screenshot/live proof during admitted implementation phases.
 Implementation Sequence Proposal: later sequence should revalidate planning, admit package/slices only with USER approval, then proceed through provider boundary/test stub, hardware safety, privacy/provider state, Assisted Desktop Mode, model/capability-pack lifecycle, context/memory, persona/Core/voice planning, and validation gates as separately admitted work.
 Planning Blockers: FAM-007 package admission missing; implementation admission missing; AI Product Contract full import approval missing; feature element breakdown, acceptance criteria, user-facing proof standard, and current-vs-future boundary require later Stage 1 revalidation.
-USER Decisions Needed: later USER approval is required for package admission, slice admission, implementation, full AI Product Contract import, PR creation, GitHub issue creation, release work, Dev ORIN/private material import, or `codex/ai-llm-lab` mutation.
+USER Decisions Needed: later USER approval is required for package admission, slice admission, implementation, full AI Product Contract import, PR merge, GitHub issue creation, release work, Dev ORIN/private material import, old C-folder reactivation, Workspace Runtime Isolation Stage 2, or `codex/ai-llm-lab` mutation.
 Planning Packet Status: Complete
 Planning Revalidation Status: Complete
 User Test Summary Strategy: no User Test Summary is generated by this branch; future user-facing AI surfaces require UTS planning and acceptance or explicit waiver.
@@ -145,7 +174,7 @@ Planning Completion Waiver: None
 
 ## Backlog Completion Strategy
 
-This branch does not complete or admit a backlog package. It records a public-safe Branch Readiness planning foundation for `FAM-007` and leaves package admission, implementation, PR creation, issue creation, release work, and full AI Product Contract import blocked for later USER-approved phases.
+This branch does not complete or admit a backlog package. It records a public-safe Branch Readiness planning foundation for `FAM-007` and leaves package admission, implementation, PR merge, issue creation, release work, and full AI Product Contract import blocked for later USER-approved phases.
 
 Branch Completion Goal: source-truth planning is durable enough for a later Branch Readiness Stage 1 revalidation to decide whether `PKG-007` is ready for package admission, further planning, or deferral.
 Known Future-Dependent Blockers: FAM-007 package admission, FAM-007 implementation, AI Product Contract full import, GitHub issue creation, release execution, and `codex/ai-llm-lab` mutation remain future approval gates.
@@ -332,13 +361,13 @@ Future user-facing AI surfaces must define a real User Test Summary checklist du
 Seam 1: FAM-007 local AI foundation planning/source-truth setup.
 Goal: record the public-safe local AI foundation package shape, candidate/planned slice structure, blockers, proof gates, and acceptance criteria.
 Scope: `Docs/feature_backlog.md`, `Docs/prebeta_roadmap.md`, `Docs/orin_vision.md`, `Docs/branch_records/index.md`, and this branch authority record.
-Non-Includes: package admission, implementation, runtime code edits, local model/provider work, AI Product Contract full import, GitHub issue creation, PR creation, release/tag/artifact work, old `C:\` folder mutation, or `codex/ai-llm-lab` mutation.
+Non-Includes: package admission, implementation, runtime code edits, local model/provider work, AI Product Contract full import, GitHub issue creation, PR merge, release/tag/artifact work, old `C:\` folder mutation, Workspace Runtime Isolation Stage 2, or `codex/ai-llm-lab` mutation.
 
-## Active Seam
+## Historical Seam
 
-Active seam: `Branch Readiness Stage 2 - FAM-007 local AI foundation planning/source-truth setup`
+Historical seam: `Branch Readiness Stage 2 - FAM-007 local AI foundation planning/source-truth setup`
 
-The active seam is docs-only planning/source-truth setup. Workstream, implementation, package admission, PR creation, release work, and issue creation remain blocked until later USER approval.
+PR Readiness Stage 2 owns the current docs-only package sync and PR creation work before merge. Workstream, implementation, package admission, PR merge, release work, and issue creation remain blocked until later USER approval.
 
 ## Later-Phase Expectations
 
