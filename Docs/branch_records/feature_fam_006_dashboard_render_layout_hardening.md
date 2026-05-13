@@ -15,15 +15,15 @@ This branch is the USER-approved implementation carrier for the first FAM-006 Da
 
 It exists because PR #122 merged the FAM-006 issue-readiness governance repair, the five locked FAM-006 Dashboard GitHub issues were created from updated main using summary-only evidence, and USER approved this first branch to carry the released Dashboard render/layout confidence issues before IA/control follow-through begins.
 
-Current authorization covers Hardening H1 preparation, validation-path review, USER-facing handoff instructions, workspace reconsolidation source-truth sync, AI Lab branch consolidation/retirement, source-truth updates, commit, and push for issues #123, #124, and #127. PR creation, raw evidence upload/import/linking, release/tag/artifact work, FAM-007/local AI work, AI Product Contract import, deleting D-drive main/folders, shortcut retargeting, and recreating or reusing codex/ai-llm-lab remain future USER approval checkpoints.
+Current authorization covers PR Readiness Stage 2 final package sync, live PR creation to `main`, live PR metadata recording, merge-target authority projection to post-merge `No Active Branch`, next-workstream defer/waiver recording without creating a new branch, PR readiness gate validation, and watcher/review handling if required by repo truth. PR merge, raw evidence upload/import/linking, release/tag/artifact work, Workspace Runtime Isolation Stage 2, Branch 2 work for #125 and #126, extra runtime work outside #123/#124/#127, FAM-007/local AI work, AI Product Contract import, deleting D-drive main/folders, shortcut retargeting, and recreating or reusing codex/ai-llm-lab remain future USER approval checkpoints.
 
 ## Record State
 
-- `Active Hardening H1 validation recorded`
+- `Historical PR package / merge-target No Active Branch projected`
 
 ## Status
 
-- `Hardening H1 active-client validation PASS recorded for Dashboard render/layout hardening issues #123, #124, and #127 from the reconsolidated C:\Nexus Desktop AI workspace; USER may next request PR Readiness Stage 1, while PR creation remains a future approval checkpoint`
+- `PR Readiness Stage 2 package prepared for Dashboard render/layout hardening issues #123, #124, and #127; post-merge source truth projects back to No Active Branch, Branch 2/future work remains deferred, and PR merge remains a future USER approval checkpoint`
 
 ## Canonical Branch
 
@@ -31,7 +31,7 @@ Current authorization covers Hardening H1 preparation, validation-path review, U
 
 ## Current Phase
 
-- Phase: `Hardening`
+- Phase: `Historical Traceability`
 
 ## Phase Status
 
@@ -39,10 +39,12 @@ Current authorization covers Hardening H1 preparation, validation-path review, U
 - Stage 2 USER Approval: `Complete - cleanup, branch creation, branch authority setup, GitHub issue traceability comments, validation, commit, and push were completed before runtime admission`
 - Runtime Implementation Approval: `Granted by USER for issues #123, #124, and #127 on this branch`
 - Hardening H1 Admission: `Granted by USER on 2026-05-13 for USER-facing live validation coordination before PR Readiness`
+- PR Readiness Stage 1: `Complete - Stage 1 analysis found the branch clean, pushed, scoped to #123/#124/#127, H1 proof recorded, merge forecast clean, and Stage 2 ready after USER approval`
+- PR Readiness Stage 2 Approval: `Granted by USER for final PR package sync, live PR creation, live PR metadata recording, merge-target authority projection, selected-next defer/waiver recording, validation, and watcher/review handling while stopping before merge`
 - Branch Creation: `Created at D:\Nexus Worktrees\Nexus Desktop AI FAM-006 Dashboard Render Layout Hardening from origin/main commit fc17a16679cb3c61b31c939da18beb2aa6d90ef2`
 - Main Reintegration: `Merged updated origin/main at PR #128 merge commit 23521ef52e39c9428006986603464289d25fb88a before final validation; FAM-007 remains candidate/planned planning truth only and does not become authority for this FAM-006 implementation branch`
-- Branch Authority State: `Active Branch`
-- Source-Truth Owner: `This branch record owns active Branch 1 authority; Docs/branch_records/feature_fam_006_monitoring_hud_product_surface.md owns historical FAM-006 RUI and issue-queue truth`
+- Branch Authority State: `Historical / No Active Branch after merge`
+- Source-Truth Owner: `This branch record owns historical Branch 1 PR package evidence after merge; Docs/branch_records/feature_fam_006_monitoring_hud_product_surface.md owns historical FAM-006 RUI and issue-queue truth`
 - Carried Issues: `#123 FAM-006 Dashboard: initial open flicker`; `#124 FAM-006 Dashboard: scroll content well clipping and scrollbar ownership`; `#127 FAM-006 Dashboard: resize jitter and catch-up lag`
 - Held Issues: `#125 FAM-006 Dashboard: Monitor Groups dead space and Create/Edit window split`; `#126 FAM-006 Dashboard: remove redundant open badge and add close affordance`
 - Future / Deferred Items: `Dashboard settings cog/settings panel`; `Overlay/display acceptance`; `Provider/external telemetry parity`; `Dev Toolkit/source-owner markers`
@@ -51,6 +53,9 @@ Current authorization covers Hardening H1 preparation, validation-path review, U
 - Runtime Implementation: `Implemented first repair pass for #123, #124, and #127`
 - Hardening H1 Status: `PASS - active-client H1 validation completed from C:\Nexus Desktop AI on 2026-05-13 for #123, #124, and #127; formal UTS export remains blocked unless a later governed Live Validation phase is admitted`
 - GitHub Issue Traceability: `Branch carrier comments added to #123, #124, and #127 during this Stage 2 setup; issue body edits beyond planning references remain blocked`
+- PR Metadata: `Pending live PR creation during Stage 2`
+- Live PR Truth: `Pending live PR creation during Stage 2`
+- PR Bot Review Signal: `Pending live PR creation / bot signal`
 - FAM-007 / Local AI Authority: `Blocked and out of scope`
 
 ## Branch Class
@@ -64,7 +69,7 @@ Current authorization covers Hardening H1 preparation, validation-path review, U
 
 ## Future USER Approval Checkpoints
 
-- PR creation remains a future USER approval checkpoint.
+- PR merge remains a future USER approval checkpoint.
 - Release/tag/artifact work remains a future USER approval checkpoint.
 - Raw evidence upload/import/linking remains a future USER approval checkpoint; raw screenshots/videos stay local/external.
 - FAM-007/local AI work remains separate and requires later USER approval.
@@ -107,9 +112,65 @@ Rollback Path: revert this branch before PR if the Dashboard render/layout repai
 
 ## Next Legal Phase
 
-- `PR Readiness`
+- `Release Readiness`
 
-Next Legal Phase Gate: USER may request PR Readiness Stage 1 after the recorded C-drive active-client H1 PASS. If USER later reports REPAIR from visual review, the branch should route to bounded hardening repair before PR Readiness. This record does not itself approve PR creation, release work, raw evidence upload/import/linking, or Branch 2 implementation.
+Next Legal Phase Gate: USER may review the live PR after PR Readiness Stage 2. Merge remains a future USER approval checkpoint, and release/tag/artifact work remains a separate later approval checkpoint after merge. If USER later reports REPAIR from visual review before merge, the branch should route to bounded hardening repair before merge. This record does not itself approve PR merge, release work, raw evidence upload/import/linking, Workspace Runtime Isolation Stage 2, FAM-007/local AI work, or Branch 2 implementation.
+
+## Post-Merge State
+
+Repo State: No Active Branch
+Merged-Main Repo State: No Active Branch
+Branch Authority Disposition: `Historical Branch Authority Records`
+Selected Next Workstream: None
+Selected Next Implementation Branch: Not created
+Backlog Addition User Approval Missing: Active for any successor selected-next workstream, package admission, branch creation, new backlog item, backlog split, promotion, or implementation outside this PR unless USER separately approves it.
+Next Workstream User Waiver: Granted - USER approved deferring selected-next successor truth for this PR and preserving later selection as a separate USER decision.
+Next-Branch Creation Gate: Blocked - Branch 2 issue work, Workspace Runtime Isolation Stage 2, FAM-007/local AI, raw evidence import/linking, release work, and any successor branch remain separate future USER approval checkpoints.
+Post-Merge Proof Handling: Branch 1 implementation and H1 proof remain historical PR evidence after merge; raw screenshots/videos/UTS exports remain local/external unless USER later approves upload, import, or linking.
+Post-Merge Issue Handling: Issues #123, #124, and #127 may be reviewed after merge for closure. Issues #125 and #126 remain held for later Branch 2 work and are not promoted into active work by this PR.
+Post-Merge Workspace Handling: `C:\Nexus Desktop AI` remains the local workspace; GitHub Desktop should remain bound to that folder unless USER later changes workflow.
+
+## PR Readiness Stage 2 Package
+
+PR Title: `FAM-006 Dashboard render/layout hardening`
+
+Base Branch: `main`
+
+Head Branch: `feature/fam-006-dashboard-render-layout-hardening`
+
+PR Summary:
+
+- Implements #123, #124, and #127.
+- Stabilizes the Dashboard first visible frame.
+- Moves scrollbar ownership to the inner content well with matching side/bottom gutter.
+- Improves Dashboard resize geometry/frame sync during user resize.
+- Records C-drive active-client H1 validation proof.
+- Keeps #125/#126, Workspace Runtime Isolation, FAM-007/local AI, release work, and raw evidence upload/import/linking out of scope.
+
+Next Workstream:
+
+- Recommended Next Workstream: `Deferred by USER waiver for this PR`
+- Candidate Work To Be Done: `Branch 2 issues #125/#126, Workspace Runtime Isolation Stage 2, FAM-007/local AI revalidation, Repo-Wide High-Risk Source Owner Marker Adoption, or another legal carrier may be reviewed later by USER`
+- User-Facing Output: `No successor branch or package is created by this PR; USER gets a focused Dashboard render/layout PR for #123/#124/#127`
+- Dependencies / Blockers: `USER approval required before any successor branch creation, package admission, implementation, raw evidence import/linking, release work, or Workspace Runtime Isolation Stage 2`
+- Validation Needs: `Future carriers must run their own Branch Readiness and source-truth validation before implementation`
+- Release Impact: `This PR carries runtime/user-facing implementation delta; release/tag/artifact work remains a separate future USER approval checkpoint`
+- Selection-Truth Status: `No selected-next truth encoded; successor selection deferred by USER waiver`
+- Branch-Creation Status: `Not created`
+- Next Workstream User Waiver: `Granted`
+
+Next Branch Pre-Plan:
+
+- Next Branch Package Shape: `Deferred by USER waiver for this PR`
+- Proposed FAM / Package: `No successor selected in this PR`
+- Candidate Work To Be Done: `Branch 2 #125/#126, Workspace Runtime Isolation Stage 2, FAM-007/local AI revalidation, Repo-Wide High-Risk Source Owner Marker Adoption, or another USER-selected legal carrier`
+- Single-Slice Drift Review: `Deferred - no successor package or slice is admitted`
+- Family Organization Review: `Deferred - no successor family selection is encoded`
+- Element Coverage Review: `Deferred to later Branch Readiness for the USER-selected successor`
+- Dependencies / Blockers: `USER must approve any next branch, package admission, and runtime implementation`
+- Validation / Live-Test Needs: `Successor-specific validators and proof must be selected during later Branch Readiness`
+- Branch Creation Status: `Not created`
+- USER Approvals Required: `Successor branch creation, package admission, implementation, PR creation, release work, and raw evidence import/linking remain separate future USER approval checkpoints`
 
 ## Branch Objective
 
