@@ -134,6 +134,29 @@ Next Legal Phase Gate: `PR Readiness Stage 2 owns final PR package sync, PR crea
 - codex/ai-llm-lab: `Parked lab/planning context only; not mutated, merged, rebased, repurposed, or deleted`
 - Post-Merge Validation Expectation: `After PR merge, update the D-drive main clone, run governance/release-body/compile validation, verify no active branch remains, remove the merged worktree/branch only with USER approval, and ask USER to choose the next legal track.`
 
+## PR Readiness Stage 2 PR Package Record
+
+- PR URL: `https://github.com/GiribaldiTTV/Nexus-Desktop-AI/pull/128`
+- PR Number: `128`
+- PR Title: `Record FAM-007 local AI foundation planning`
+- PR Base Branch: `main`
+- PR Head Branch: `feature/fam-007-local-ai-foundation-readiness`
+- PR Head SHA: `a38d9c6f42c56f70bee6024d018dc791bf8d4518`
+- PR State At Creation: `OPEN / non-draft / MERGEABLE`
+- PR Summary: `Record FAM-007 Local AI Foundation candidate/planned planning truth, keep PKG-007 and slices pending only, preserve AI Product Contract v0.6.2 as planning evidence only, and project merged-main truth to No Active Branch.`
+- Watcher ID: `fam-007-pr-128-watcher`
+- Watcher Kind: `heartbeat`
+- Watcher Status: `ACTIVE`
+- Watcher RRULE: `FREQ=MINUTELY;INTERVAL=1`
+- Watcher Config Path: `C:\Users\anden\.codex\automations\fam-007-pr-128-watcher\automation.toml`
+- Watcher Target Thread: `019e1c10-ee6d-7420-937b-4b01bd706086`
+- Watcher Reporting Surface: `same Codex thread`
+- Watcher Configuration Proof: `PASS - heartbeat automation created with status ACTIVE for PR #128`
+- Watcher Routing Proof: `PASS for configuration - automation.toml records target_thread_id 019e1c10-ee6d-7420-937b-4b01bd706086 for this thread`
+- Watcher Runtime Proof: `Pending first heartbeat emission; ACTIVE configuration state is not runtime proof`
+- Watcher Teardown Rule: `Watcher must be deleted after PR #128 reaches merged=true or closed=true and terminal same-thread delivery proof is present`
+- Bot Review Signal: `Pending live Codex bot signal; actionable bot comments require same-branch repair before PR green`
+
 ## Branch Objective
 
 Turn the USER-approved FAM-007 planning direction into public-safe repo source truth while preserving a strict boundary between planning, package admission, and implementation.
