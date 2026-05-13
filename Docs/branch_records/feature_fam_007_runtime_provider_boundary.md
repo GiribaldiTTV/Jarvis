@@ -28,9 +28,10 @@ This branch may repair governance, source truth, and validator coverage that con
 - Branch Creation: `Created in C:\Nexus Desktop AI from main / origin/main at 543118de12887c746902da2b7a0862cea43a53cf`
 - Branch Authority State: `Active Branch`
 - Runtime-Specific Carrier: `FAM-007 provider boundary / no-provider shell branch-readiness carrier`
+- Selected-Next Decision: `Granted - USER selected FAM-007 exclusively within this thread/worktree; PR #129 release-support remains separate unless USER later selects it`
 - Governance Drift Repair: `Active - harden PR Readiness Stage 1 selected-next/no-release-debt handling so next branch/workstream selection, stale-canon prevention, and any unavoidable release handling cannot be deferred to Stage 2`
 - Runtime Implementation: `Blocked until Branch Readiness completes, selected-next/no-release-debt gates are clear or explicitly waived where canon allows, and USER separately approves Workstream entry`
-- Existing PR #129 Unreleased Work: `Blocking exception - this branch does not execute release work or clear PR #129, and future PR Readiness must not create this state without explicit USER decision, named owner, and real-carrier plan`
+- Existing PR #129 Unreleased Work: `Separate USER-gated lane - this branch does not execute release work or clear PR #129; release-support remains outside this thread/worktree unless USER later selects it`
 
 ## Branch Class
 
@@ -53,7 +54,7 @@ Backlog-Split Reason: `None`
 
 ## Blockers
 
-- `No-Release-Debt / Existing PR #129 Exception`: `Active - PR #129 remains existing merged-unreleased implementation work after v1.7.0-prebeta; this branch may repair governance so future PRs avoid that state, but may not publish a release or pretend PR #129 is cleared`
+- `No-Release-Debt / Existing PR #129 Exception`: `Separate USER-gated lane - PR #129 remains existing merged-unreleased implementation work after v1.7.0-prebeta, but USER selected FAM-007 exclusively within this thread/worktree; this branch may not publish a release, pretend PR #129 is cleared, or select PR #129 release-support without later USER approval`
 - `FAM-007 Workstream Entry Approval Missing`: `Active - runtime implementation remains blocked until USER separately approves Workstream entry after Branch Readiness revalidates`
 - `AI Product Contract Full Import Approval Missing`: `Active - v0.6.2 remains external USER planning evidence only`
 - `Release Execution Approval Missing`: `Active - no tag, GitHub Release, release notes, release artifact, or release publication is authorized`
@@ -97,7 +98,7 @@ Rollback Path: abandon `feature/fam-007-runtime-provider-boundary` before PR if 
 
 - `Branch Readiness`
 
-Next Legal Phase Gate: complete and validate the bounded Branch Readiness governance repair first. After that, USER must separately decide whether to approve PR Readiness Stage 1 rerun, FAM-007 runtime Workstream entry, a release-support carrier for PR #129, AI Product Contract import, GitHub issue creation, PR creation, or any runtime/provider/model/memory/shortcut/installer work.
+Next Legal Phase Gate: complete and validate the bounded Branch Readiness governance repair first. USER has selected FAM-007 exclusively within this thread/worktree. After that, USER must separately decide whether to approve PR Readiness Stage 1 rerun, FAM-007 runtime Workstream entry, AI Product Contract import, GitHub issue creation, PR creation, or any runtime/provider/model/memory/shortcut/installer work. PR #129 release-support remains separate unless USER later selects it.
 
 ## Branch Objective
 
@@ -130,8 +131,8 @@ Acceptance Criteria: governance/source-truth/validator coverage records selected
 Validation Proof Requirements: `git diff --check`, `python dev\orin_branch_governance_validation.py`, `python dev\orin_release_body_validation.py`, and `python -m compileall -q dev desktop Audio main.py`.
 Screenshot / Live / User Test Summary Proof Requirements: no screenshot, live runtime proof, or UTS is required for this docs/governance/validator repair; future user-facing runtime implementation must define those proof paths before Workstream/Live Validation handoff.
 Implementation Sequence Proposal: after this repair validates and USER separately approves Workstream entry, begin with provider/no-provider contract and visible provider/privacy state before model loading, memory, voice, shortcuts, or installer work.
-Planning Blockers: existing PR #129 release-support decision missing; Workstream implementation approval missing; release execution approval missing; AI Product Contract full import approval missing; PR creation approval missing.
-USER Decisions Needed: approve whether to rerun PR Readiness Stage 1 after this repair, approve whether to continue into FAM-007 runtime Workstream after Branch Readiness, approve whether to handle PR #129 through a release-support carrier, approve any future PR creation, approve any full AI Product Contract import, and approve any release/tag/artifact work.
+Planning Blockers: Workstream implementation approval missing; release execution approval missing; AI Product Contract full import approval missing; PR creation approval missing. PR #129 release-support remains separate and USER-gated outside this lane.
+USER Decisions Needed: approve whether to rerun PR Readiness Stage 1 after this repair, approve whether to continue into FAM-007 runtime Workstream after Branch Readiness, approve any future PR creation, approve any full AI Product Contract import, and approve any release/tag/artifact work. PR #129 release-support requires a later separate USER selection if USER wants it.
 Planning Packet Status: Complete
 Planning Revalidation Status: PASS
 User Test Summary Strategy: no UTS is generated by this branch; runtime-facing provider/privacy UI or status surfaces will require future screenshot/live/UTS planning or explicit waiver.
@@ -142,7 +143,7 @@ Planning Completion Waiver: Not required - this branch records a bounded governa
 This branch does not complete `PKG-007`, any FAM-007 slice, or any runtime implementation. It keeps the backlog item in Branch Readiness while repairing the governance that blocks safe runtime entry.
 
 Branch Completion Goal: make selected-next/no-release-debt Stage 1 handling unambiguous and validator-backed on the runtime-specific FAM-007 branch.
-Known Future-Dependent Blockers: PR #129 release handling, FAM-007 Workstream entry approval, provider/model/runtime implementation approval, AI Product Contract import approval, PR creation approval, release/tag/artifact approval, and GitHub issue creation approval.
+Known Future-Dependent Blockers: FAM-007 Workstream entry approval, provider/model/runtime implementation approval, AI Product Contract import approval, PR creation approval, release/tag/artifact approval, GitHub issue creation approval, and any later USER-selected PR #129 release-support handling.
 Branch Closure Rule: stop after validation, commit, and push; do not enter Workstream, create a PR, or perform release work without later USER approval.
 
 ## Admitted Package Context
@@ -191,7 +192,7 @@ No User Test Summary is required for this governance/validator repair. Future ru
 
 ## Later-Phase Expectations
 
-After this Branch Readiness governance repair is committed and pushed, the next legal action is a USER decision: approve PR Readiness Stage 1 rerun for this branch, approve FAM-007 runtime Workstream entry, approve a release-support carrier for PR #129, approve PR creation only after Stage 1 is rerun and green, or choose another legal carrier. Runtime/provider/model/memory/shortcut/installer implementation remains blocked until Workstream is separately admitted.
+After this Branch Readiness governance repair is committed and pushed, the next legal action is a USER decision: approve PR Readiness Stage 1 rerun for this branch, approve FAM-007 runtime Workstream entry, approve PR creation only after Stage 1 is rerun and green, or choose another legal carrier. PR #129 release-support remains separate unless USER later selects it. Runtime/provider/model/memory/shortcut/installer implementation remains blocked until Workstream is separately admitted.
 
 ## Initial Workstream Seam Sequence
 
