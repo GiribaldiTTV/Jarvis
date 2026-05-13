@@ -19,14 +19,19 @@ This branch does not admit FAM-007 implementation, FAM-007 package work, AI Prod
 
 ## Current Phase
 
-- Phase: `Branch Readiness`
+- Phase: `Historical Traceability`
 
 ## Phase Status
 
-- `Active Branch`: `codex/workspace-governance-foundation`
+- Historical Branch: `codex/workspace-governance-foundation`
+- Historical Seam: `Branch Readiness Stage 2 - Workspace governance foundation source-truth repair`
 - Branch Readiness Stage 1: `Complete - recommended a narrow workspace governance foundation carrier before simultaneous FAM-006 UTS digest and FAM-007 planning branches`
 - Branch Readiness Stage 2 USER Approval: `Granted for branch/worktree creation, narrow workspace governance source-truth edits, validation, commit, and push only`
 - Branch Creation: `Created at D:\Nexus Worktrees\Nexus Desktop AI Workspace Governance from origin/main commit 257128ac2afdcd9c7edf47b57a9cebe6566023c0`
+- PR Readiness Stage 1: `Complete - accepted for Stage 2 after identity preflight, scope review, validation, and merge forecast`
+- PR Readiness Stage 2 USER Approval: `Granted for final PR package sync, merge-target authority projection, validation, commit/push if needed, and PR creation only`
+- Merge-Target Authority Projection: `Complete - branch record moved to historical/no-active posture before PR creation so merged main remains No Active Branch`
+- Branch Authority State: `Historical / merge-stable - not listed as active branch authority in merge-target truth`
 - FAM-007 Implementation Admission: `Blocked`
 - FAM-007 Package Admission: `Blocked`
 - AI Product Contract Import: `Blocked`
@@ -39,7 +44,7 @@ This branch does not admit FAM-007 implementation, FAM-007 package work, AI Prod
 
 ## Blockers
 
-- `PR Creation Approval Missing`: `Active - this Stage 2 pass does not authorize PR creation`
+- `Merge Approval Missing`: `Active - PR creation is approved, but merge remains blocked pending later USER approval`
 - `FAM-007 Implementation Admission Missing`: `Active`
 - `FAM-007 Package Admission Missing`: `Active`
 - `AI Product Contract Import Approval Missing`: `Active`
@@ -72,9 +77,25 @@ Rollback Path: abandon branch `codex/workspace-governance-foundation` before mer
 
 - `PR Readiness`
 
-Next Legal Seam: `PR Readiness Stage 1 - Workspace Governance Foundation PR Readiness Analysis`
+Next Legal Seam: `PR Readiness Stage 2 - Workspace Governance Foundation PR Execution`
 
-Next Legal Phase Gate: `PR Readiness Stage 1 may analyze PR readiness for this governance foundation carrier only after USER approval. PR creation, merge, release work, issue creation, FAM-007 implementation, FAM-007 package admission, and AI Product Contract import remain blocked until separately approved.`
+Next Legal Phase Gate: `PR Readiness Stage 2 owns final PR package sync, merge-target authority projection, validation, commit/push if needed, and PR creation only. Merge, release work, issue creation, FAM-006 UTS digest work, FAM-007 Branch Readiness, FAM-007 implementation, FAM-007 package admission, and AI Product Contract import remain blocked until separately approved.`
+
+## Post-Merge State
+
+- Repo State: `No Active Branch`
+- Merged-Main Active Branch Authority Records: `None`
+- Branch Authority State: `Historical / merge-stable`
+- Selected Next Workstream: `None`
+- Selected Next Implementation Branch: `Not created`
+- FAM-006 UTS Digest Analysis: `Blocked pending later explicit USER approval`
+- FAM-007 Branch Readiness: `Blocked pending later explicit USER approval`
+- FAM-007 Implementation Admission: `Blocked pending later Branch Readiness revalidation and explicit USER approval`
+- FAM-007 Package Admission: `Blocked pending later Branch Readiness revalidation and explicit USER approval`
+- AI Product Contract Import: `Blocked pending later USER approval`
+- GitHub Issue Creation: `Blocked pending later USER approval`
+- Release Execution: `Not approved and not required by this carrier`
+- Post-Merge Validation Expectation: `After PR merge, update main, run governance and release-body validators, verify worktree identity governance remains present, and then request separate USER approval before any FAM-006 UTS digest analysis or FAM-007 Branch Readiness work.`
 
 ## Branch Objective
 
@@ -120,9 +141,9 @@ Goal: record the D-drive workspace layout, thread/worktree identity preflight, G
 Scope: `Docs/Main.md`, `Docs/development_rules.md`, `Docs/phase_governance.md`, `Docs/codex_user_guide.md`, `Docs/nexus_startup_contract.md`, branch authority index, and this branch authority record.
 Non-Includes: FAM-006 UTS digest work, FAM-007 Branch Readiness, FAM-007 implementation, package admission, AI Product Contract import, GitHub issues, release/tag/artifact work, old `C:\` folder mutation, or `codex/ai-llm-lab` mutation.
 
-## Active Seam
+## Historical Seam
 
-Active seam: `Branch Readiness Stage 2 - Workspace governance foundation source-truth repair`
+Historical seam: `Branch Readiness Stage 2 - Workspace governance foundation source-truth repair`; PR Readiness Stage 1 accepted the branch for Stage 2, and PR Readiness Stage 2 projected merge-stable no-active authority before PR creation.
 
 ## Workspace Governance Scope
 
