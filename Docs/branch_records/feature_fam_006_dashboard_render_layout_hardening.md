@@ -188,6 +188,39 @@ Next Branch Pre-Plan:
 - Branch Creation Status: `Not created`
 - USER Approvals Required: `Successor branch creation, package admission, implementation, PR creation, release work, and raw evidence import/linking remain separate future USER approval checkpoints`
 
+## PR #129 Bot Review Repair
+
+Repair Admission: `Granted by USER for bounded PR #129 bot-review repair on 2026-05-13`
+
+Review Comment: `Codex P2 on desktop/desktop_renderer.py warned that moveEvent could latch internal setGeometry moves as user geometry overrides through the native move finalize timer`
+
+Validity Decision: `Valid - internal Dashboard setGeometry/compact-geometry correction paths could start the native move finalize timer while the Dashboard was visible, allowing _finish_monitoring_hud_native_system_move to set _monitoring_hud_user_geometry_override_active without a recorded user move`
+
+Repair Summary:
+
+- Internal Dashboard geometry corrections no longer arm the native move finalize timer by themselves.
+- Native/user move sessions now record user-move start geometry and source before finish handling.
+- Native move finalization sets `_monitoring_hud_user_geometry_override_active` only when a recorded user move actually changes geometry.
+- `_reinforce_desktop_mode` skips compact correction while a recorded user move is active, but compact-geometry repair remains available after internal setGeometry moves.
+- Fallback resize remains user-initiated and continues to preserve #127 resize/catch-up behavior.
+
+Branch Scope Preservation: `Preserved - repair is limited to Branch 1 issues #123, #124, and #127; Branch 2 issues #125/#126 remain held for later`
+
+Proof Impact: `H1 active-client proof remains supporting and was refreshed by bounded PR #129 repair proof; formal UTS export and raw screenshot/video upload/import/linking remain blocked unless USER later approves`
+
+Repair Validation:
+
+- `PASS - python -m py_compile desktop/desktop_renderer.py dev/orin_monitoring_hud_surface_validation.py dev/orin_monitoring_hud_internal_sandbox_validation.py`
+- `PASS - git diff --check`
+- `PASS - python dev/orin_branch_governance_validation.py`
+- `PASS - python dev/orin_monitoring_hud_surface_validation.py`
+- `PASS - python dev/orin_monitoring_hud_internal_sandbox_validation.py`
+- `PASS - powershell -NoProfile -ExecutionPolicy Bypass -File dev\orin_monitoring_hud_live_validation.ps1 -ActiveUserFacingClient -ProofSeam "FAM-006 Dashboard render layout hardening PR129 bot-review repair proof" -InteractionStepDelayMilliseconds 200 -FinalClientHoldSeconds 0; proof root C:\Nexus Desktop AI\dev\logs\fam_006_monitoring_hud_live_validation\20260513_114642_128; formal UTS export skipped`
+
+Runtime Cleanup Result: `PASS - no active Nexus/Python runtime process remained after bounded PR #129 repair proof`
+
+Thread Closeout State: `Pending - repair commit must be pushed, the PR #129 bot-review thread replied to and resolved, and PR Bot Review Signal source truth recorded before PR green`
+
 ## Branch Objective
 
 Prepare the first FAM-006 Dashboard issue-resolution branch to harden the released/passable Dashboard render/layout surface: initial open visual stability, scroll/content well ownership, bottom gutter alignment, and resize smoothness.

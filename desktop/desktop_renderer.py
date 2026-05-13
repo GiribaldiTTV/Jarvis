@@ -5775,6 +5775,10 @@ class DesktopRuntimeWindow(QWidget):
         self._monitoring_hud_native_window_resize_poll_active = False
         self._monitoring_hud_native_window_resize_last_rect = QRect()
         self._monitoring_hud_user_geometry_override_active = False
+        self._monitoring_hud_native_move_user_active = False
+        self._monitoring_hud_native_move_start_geometry = QRect()
+        self._monitoring_hud_native_move_last_geometry = QRect()
+        self._monitoring_hud_native_move_source = ""
         self._monitoring_hud_resize_frame_sync_last = 0.0
         self._monitoring_hud_resize_cursor_key = None
         self._monitoring_hud_resize_override_cursor_active = False
@@ -5785,7 +5789,9 @@ class DesktopRuntimeWindow(QWidget):
         self._monitoring_hud_native_move_finalize_timer.setSingleShot(True)
         self._monitoring_hud_native_move_finalize_timer.setInterval(260)
         self._monitoring_hud_native_move_finalize_timer.timeout.connect(
-            lambda: self._finish_monitoring_hud_native_system_move("native_caption_move")
+            lambda: self._finish_monitoring_hud_native_system_move(
+                self._monitoring_hud_native_move_source or "native_caption_move"
+            )
         )
         self._monitoring_hud_native_card_drag_active = False
         self._monitoring_hud_native_card_resize_active = False
@@ -5858,7 +5864,11 @@ class DesktopRuntimeWindow(QWidget):
         if self.surface_role != "hud" or not self.desktop_mode or not self.isVisible():
             return
         self._monitoring_hud_interactive_screen_rect = self.geometry()
-        if not self._monitoring_hud_native_window_resize_active:
+        if (
+            self._monitoring_hud_native_move_user_active
+            and not self._monitoring_hud_native_window_resize_active
+        ):
+            self._monitoring_hud_native_move_last_geometry = QRect(self.geometry())
             self._monitoring_hud_native_move_finalize_timer.start()
 
     def compute_compact_geometry(self):
@@ -6992,10 +7002,36 @@ class DesktopRuntimeWindow(QWidget):
                 return True
         return False
 
-    def _finish_monitoring_hud_native_system_move(self, source: str = "system_move"):
-        self._monitoring_hud_user_geometry_override_active = True
-        self._monitoring_hud_interactive_screen_rect = self.geometry()
+    def _begin_monitoring_hud_native_user_move(self, source: str = "native_caption_move") -> None:
+        if self.surface_role != "hud":
+            return
         geometry = self.geometry()
+        self._monitoring_hud_native_move_user_active = True
+        self._monitoring_hud_native_move_start_geometry = QRect(geometry)
+        self._monitoring_hud_native_move_last_geometry = QRect(geometry)
+        self._monitoring_hud_native_move_source = source
+        self._monitoring_hud_native_move_finalize_timer.stop()
+
+    def _clear_monitoring_hud_native_user_move(self) -> None:
+        self._monitoring_hud_native_move_user_active = False
+        self._monitoring_hud_native_move_start_geometry = QRect()
+        self._monitoring_hud_native_move_last_geometry = QRect()
+        self._monitoring_hud_native_move_source = ""
+        self._monitoring_hud_native_move_finalize_timer.stop()
+
+    def _finish_monitoring_hud_native_system_move(self, source: str = "system_move"):
+        geometry = self.geometry()
+        move_was_user_initiated = bool(self._monitoring_hud_native_move_user_active)
+        start_geometry = QRect(self._monitoring_hud_native_move_start_geometry)
+        geometry_changed = bool(
+            move_was_user_initiated
+            and start_geometry.isValid()
+            and geometry != start_geometry
+        )
+        self._clear_monitoring_hud_native_user_move()
+        if geometry_changed:
+            self._monitoring_hud_user_geometry_override_active = True
+        self._monitoring_hud_interactive_screen_rect = geometry
         self._emit_runtime_signal(
             "MONITORING_HUD_NATIVE_WINDOW_MOVE_READY",
             package="PKG-006",
@@ -7008,6 +7044,8 @@ class DesktopRuntimeWindow(QWidget):
             w=geometry.width(),
             h=geometry.height(),
             virtual_desktop="all_monitors",
+            user_initiated=move_was_user_initiated,
+            geometry_changed=geometry_changed,
         )
         self._emit_monitoring_hud_window_ownership_focus_ready(source=source)
         self._emit_monitoring_hud_window_status(source=source)
@@ -7090,12 +7128,14 @@ class DesktopRuntimeWindow(QWidget):
             movement_model="os-system-move-no-snap",
         )
         try:
+            self._begin_monitoring_hud_native_user_move("system_move")
             started = bool(start_system_move())
         except Exception:
             started = False
         if started:
-            self._monitoring_hud_user_geometry_override_active = True
             QTimer.singleShot(360, lambda: self._finish_monitoring_hud_native_system_move("system_move"))
+        else:
+            self._clear_monitoring_hud_native_user_move()
         return started
 
     def _monitoring_hud_native_resize_edges_for_point(self, point: QPoint):
@@ -7348,7 +7388,7 @@ class DesktopRuntimeWindow(QWidget):
         self._monitoring_hud_native_window_resize_last_rect = QRect(self.geometry())
         self._monitoring_hud_native_window_resize_poll_active = True
         self._monitoring_hud_resize_frame_sync_last = 0.0
-        self._monitoring_hud_native_move_finalize_timer.stop()
+        self._clear_monitoring_hud_native_user_move()
         try:
             SetCapture(ctypes.wintypes.HWND(int(self.winId())))
         except Exception:
@@ -7658,6 +7698,7 @@ class DesktopRuntimeWindow(QWidget):
         ):
             self._monitoring_hud_native_panel_drag_active = False
             self._monitoring_hud_native_window_resize_active = False
+            self._clear_monitoring_hud_native_user_move()
             self._monitoring_hud_native_card_drag_active = False
             self._monitoring_hud_native_card_resize_active = False
             self._reset_monitoring_hud_resize_cursor()
@@ -9482,6 +9523,13 @@ class DesktopRuntimeWindow(QWidget):
             )
             return
 
+        if self._monitoring_hud_native_move_user_active:
+            self._log_event(
+                "RENDERER_MAIN|DESKTOP_GEOMETRY_RESET_SKIPPED"
+                "|reason=monitoring_hud_move_active"
+            )
+            return
+
         if self._monitoring_hud_user_geometry_override_active:
             geometry = self.geometry()
             self._log_event(
@@ -11116,6 +11164,13 @@ class DesktopRuntimeWindow(QWidget):
                         self._set_monitoring_hud_resize_cursor(edges)
                         self._start_monitoring_hud_fallback_window_resize(edges, screen_point)
                         return True, 0
+                    if (
+                        int(msg.wParam) == HTCAPTION
+                        and not screen_point.isNull()
+                        and self._monitoring_hud_header_rect().contains(screen_point)
+                        and not self._monitoring_hud_dashboard_control_rect_contains(screen_point)
+                    ):
+                        self._begin_monitoring_hud_native_user_move("native_caption_move")
                 if self._monitoring_hud_native_window_resize_active and message_id in (WM_MOUSEMOVE, WM_NCMOUSEMOVE):
                     screen_point = self._monitoring_hud_cursor_screen_point()
                     if not screen_point.isNull():
@@ -11139,6 +11194,7 @@ class DesktopRuntimeWindow(QWidget):
         self.desktop_mode = True
         self._desktop_mode_requested = False
         self._monitoring_hud_user_geometry_override_active = False
+        self._clear_monitoring_hud_native_user_move()
         target_geometry = self.compute_compact_geometry()
 
         self.setGeometry(target_geometry)
