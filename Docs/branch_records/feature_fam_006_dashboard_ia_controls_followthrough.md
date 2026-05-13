@@ -121,7 +121,7 @@ Governance Drift Found: `PASS - PR Readiness Stage 1 found current-main drift af
 
 Current-Branch Repair Scope: `current-main merge conflict resolution, Branch 1 historical release-debt/issue-closeout wording, Branch 2 implementation/H1 wording, FAM-007 PR #131 historical/no-active posture, backlog/roadmap active-branch truth, and validation-helper/current-main sync.`
 
-Prompt Gate Drift Disposition: `Deferred - not part of the #125/#126 Dashboard IA/control PR-readiness blocker; requires later USER approval naming a legal loader/governance carrier.`
+Prompt Gate Drift Disposition: `USER Waiver Granted - USER explicitly approved carrying the Nexus Prompt Gate loader/source-truth repair on this FAM-006 PR Readiness carrier despite the earlier cleaner-carrier recommendation. The repair is bounded to Docs/nexus_startup_contract.md as primary owner, narrow cross-references in Docs/Main.md, Docs/codex_modes.md, and Docs/development_rules.md, and this branch-record waiver trace.`
 
 ## Post-Merge State
 
@@ -347,7 +347,7 @@ Branch 2 Stale-Wording Repair: `Resolved - source truth now records #125/#126 Wo
 
 FAM-007 Boundary Preservation: `PR #130 and PR #131 are current-main history only for this FAM-006 carrier. They do not authorize FAM-007/local AI runtime work, AI Product Contract import, provider/model/runtime/memory/shortcut/installer work, or Workspace Runtime Isolation Stage 2 inside Branch 2.`
 
-Nexus Prompt Gate Carrier Decision: `Deferred - the hard Nexus Prompt Gate is repo-wide loader/prompt-generation governance whose primary home is Docs/nexus_startup_contract.md, with possible cross-references in Docs/Main.md, Docs/codex_modes.md, and Docs/development_rules.md. It is not needed to close the #125/#126 PR-readiness conflict and would widen this FAM-006 issue branch beyond Dashboard IA/control follow-through. Recommended future carrier: a later USER-approved loader/governance repair on the next legal runtime-focused Branch Readiness or PR Readiness surface, with the exact USER decision: approve adding the Nexus Prompt Gate final scrub rule to the loader/source-truth governance layer and name the legal carrier.`
+Nexus Prompt Gate Carrier Decision: `USER Waiver Granted - the hard Nexus Prompt Gate is repo-wide loader/prompt-generation governance whose primary home is Docs/nexus_startup_contract.md, with cross-references in Docs/Main.md, Docs/codex_modes.md, and Docs/development_rules.md. USER directed this FAM-006 PR Readiness carrier to perform the repair anyway and use that direction as the waiver, so this branch carries only the bounded prompt-generation source-truth update and does not expand #125/#126 runtime scope.`
 
 ## Branch Scope
 

@@ -86,6 +86,35 @@ Prompts should favor neutral scope language such as `Codex should analyze`, `cho
 
 ChatGPT Project Settings may carry a compact form of this rule, but Project Settings text must remain below 8,000 characters. This character limit applies only to ChatGPT Project Settings / custom instructions. It does not apply to this repo loader/source-truth file.
 
+## Nexus Prompt Gate
+
+Before outputting a Codex prompt, ChatGPT or any other prompt-generation layer must run a final Nexus Prompt Gate.
+
+The gate rewrites boundaries as:
+
+- current authorization state
+- future USER approval checkpoints
+- source-truth facts
+- phase, seam, branch, and worktree status
+- stop/report conditions
+- exact USER decisions needed
+
+The gate must mechanically scrub broad command-box wording before prompt output. Flag and rewrite:
+
+- standalone `do not` phrasing when it creates a broad negative boundary list instead of a current authorization or future approval statement
+- standalone `this is not` framing when it defines scope by negation instead of source-truth state
+- standalone `not allowed` phrasing when it can be expressed as a pending USER approval checkpoint, blocker, or stop condition
+- standalone `never` phrasing unless it quotes durable repo law from an owning canon document
+- standalone `forbidden` phrasing unless it quotes durable repo law from an owning canon document
+- broad negative boundary lists that read like a command wall
+- command-box restriction walls that replace source-truth routing, blocker names, or approval-checkpoint language
+
+The gate preserves hard repo law when the owning canon requires it. Durable rules such as protected-main law, phase blockers, branch-prefix law, release file-freeze, and USER approval checkpoints should be stated as source-truth facts with the owning document or blocker name where practical.
+
+Preferred prompt wording uses phrases such as `current authorization covers`, `future USER approval checkpoint`, `source truth records`, `surface before continuing`, `stop and report`, `preserve separation from`, and `exact decision needed`.
+
+If a generated prompt cannot pass the Nexus Prompt Gate without changing USER intent, the prompt should report the conflict as a prompt-generation blocker and ask for the exact USER decision needed rather than outputting an ambiguous command wall.
+
 ## Loader Contract
 
 When ChatGPT or another interface layer generates a Nexus prompt, the generated prompt must require the executing assistant to:
