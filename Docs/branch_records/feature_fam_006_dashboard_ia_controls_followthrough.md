@@ -170,7 +170,9 @@ Repair Summary: `Add a native fallback close-control hit zone for the top-right 
 Validation Scope: `Governance validation, release-body validation, compileall, HUD surface validator, HUD internal sandbox validator, and active-client/live proof when safe.`
 Failed Proof Root: `dev/logs/fam_006_monitoring_hud_live_validation/20260513_152502_989 - strengthened proof caught that the first fallback only avoided drag handling and did not hide the Dashboard.`
 Passing Proof Root: `dev/logs/fam_006_monitoring_hud_live_validation/20260513_152827_807 - PASS; live-client geometry was cleared before the close click, Dashboard hidden state passed, and #125/#126 interaction checks remained green.`
-GitHub Review Closeout: `Pending until repair commit is pushed and the review thread is replied to/resolved.`
+Repair Commit: `deb06ccf498a84ddd15929df664275929ec84a0e`
+GitHub Review Reply: `https://github.com/GiribaldiTTV/Nexus-Desktop-AI/pull/132#discussion_r3237820272`
+GitHub Review Closeout: `Resolved - review thread PRRT_kwDORwnWIs6B576h resolved after repair commit push and evidence reply.`
 
 ## Post-Merge State
 
