@@ -201,6 +201,15 @@ PR Readiness Stage 2 created PR #122 for the FAM-006 issue-readiness governance 
 - Bot Review Snapshot: `No bot approval or actionable bot-review comment was present at initial Stage 2 inspection; PR green remains subject to the live bot-review signal or governed comment-closeout path`
 - Watcher Handling: `No merge-watch is provisioned by this source-truth sync; merge/watch handling remains a later USER approval checkpoint after USER reviews PR #122`
 
+## PR Bot Review Signal
+
+- Bot Review Signal Status: `Comment addressed`
+- Bot Review Signal Head SHA: `d812c8d0b6934502a56ae506d03f4f4fd9dbfa0c`
+- Bot Review Signal Source: `Inline review comment https://github.com/GiribaldiTTV/Nexus-Desktop-AI/pull/122#discussion_r3235477406`
+- Bot Review Signal Timestamp: `2026-05-13T15:28:00Z`
+- Bot Review Signal Actor: `chatgpt-codex-connector[bot]`
+- Bot Review Signal Closeout: `The bot requested moving the completed repair record out of active branch records before landing. Stage 2 source-truth sync commit d812c8d moves the record to Historical Branch Authority Records, sets historical/no-active merge-target projection, and records No Active Branch post-merge truth.`
+
 ## Post-Merge State
 
 Repo State: No Active Branch.
