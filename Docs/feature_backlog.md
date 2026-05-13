@@ -62,14 +62,14 @@ FB-038 remains released and closed in `v1.4.1-prebeta`.
 
 ## Current Branch Execution Posture
 
-Released Historical Scope: FAM-006 Monitoring HUD Dashboard Product Surface released in v1.7.0-prebeta through PR #118 plus FAM-001 legacy FB-049 Active-session pre-settled incoming-launch conflict truth, FAM-004 legacy FB-030 voice/audio runtime diagnostics proof, merged governance/automation proof package, PR #112 source-truth closeout / merge-target authority hardening proof, and PR #113 source-truth closeout / merge-target authority hardening proof released in v1.6.13-prebeta. PR #129 is merged-unreleased FAM-006 Dashboard issue-resolution debt, not released historical scope yet.
+Released Historical Scope: FAM-006 Monitoring HUD Dashboard Product Surface released in v1.7.0-prebeta through PR #118 plus FAM-001 legacy FB-049 Active-session pre-settled incoming-launch conflict truth, FAM-004 legacy FB-030 voice/audio runtime diagnostics proof, merged governance/automation proof package, PR #112 source-truth closeout / merge-target authority hardening proof, and PR #113 source-truth closeout / merge-target authority hardening proof released in v1.6.13-prebeta. PR #129 is existing unreleased FAM-006 Dashboard issue-resolution implementation work, not released historical scope yet.
 Repo State: Active Branch - `feature/fam-007-runtime-provider-boundary`.
 Merged-Main Repo State: No Active Branch at branch start.
 Latest Public Prerelease: v1.7.0-prebeta.
 Latest Public Release Commit: 06edf8143dd862c94d26ff7d812105179a621206.
 Latest Public Prerelease Publication: https://github.com/GiribaldiTTV/Nexus-Desktop-AI/releases/tag/v1.7.0-prebeta.
 Latest Public Prerelease Title: Pre-Beta v1.7.0.
-Release Debt: Active - PR #129 FAM-006 Dashboard render/layout hardening merged after v1.7.0-prebeta and is merged-unreleased implementation debt until a later USER-approved release path publishes it.
+Release-Debt Avoidance Status: Existing exception - PR #129 FAM-006 Dashboard render/layout hardening merged after v1.7.0-prebeta and remains unreleased implementation work until a later USER-approved release path publishes it; future PR Readiness Stage 1 must avoid creating this state unless USER explicitly approves the exception, owner, and real-carrier plan before PR creation.
 Merged-main Current Active Workstream: None.
 Current Active Workstream: None promoted; FAM-007 runtime provider-boundary Branch Readiness is active through the branch authority record, and no FAM-007 runtime/provider/model/shortcut/installer Workstream implementation is active.
 Current Active Workstream Before Reform: None.
@@ -81,13 +81,13 @@ Earlier Historical Active Workstream Before Release: FB-048 Active-session relau
 Historical Active Branch Before Release: feature/automation-planning.
 Earlier Historical Active Branch Before Release: feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeout-truth.
 Selected Next Workstream: FAM-007 runtime provider-boundary Branch Readiness only - runtime Workstream entry remains USER-gated.
-Selected Next Record State: None.
+Selected Next Record State: Registry-only / Branch Readiness only.
 Selected Next Runtime Package Candidate: `PKG-007` provider/no-provider runtime boundary planning carrier.
 Selected Next Implementation Branch: `feature/fam-007-runtime-provider-boundary`.
-Selected Next Status: USER approved the next branch to be runtime-specific and to carry the PR Readiness Stage 1 release-debt governance repair; `PKG-007` and its named slices remain admitted as source-truth targets, while Workstream/runtime implementation remains blocked pending later USER approval.
+Selected Next Status: USER approved the next branch to be runtime-specific and to carry the PR Readiness Stage 1 selected-next/no-release-debt governance repair; `PKG-007` and its named slices remain admitted as source-truth targets, while Workstream/runtime implementation remains blocked pending later USER approval.
 Runtime Package Admission: Historical - PKG-006 was admitted on the FAM-006 branch and merged through PR #118.
 Next Legal Runtime Step: Branch Readiness governance repair on `feature/fam-007-runtime-provider-boundary`; Workstream/runtime implementation remains blocked until USER separately approves runtime entry after Branch Readiness revalidates.
-Next Legal Analysis Candidate: release handling for PR #129, FAM-007 runtime Workstream entry, Repo-Wide High-Risk Source Owner Marker Adoption, GitHub issue creation, or another legal carrier remain separate USER approval gates.
+Next Legal Analysis Candidate: PR Readiness Stage 1 rerun for this repaired branch, a release-support carrier for PR #129, FAM-007 runtime Workstream entry, Repo-Wide High-Risk Source Owner Marker Adoption, GitHub issue creation, or another legal carrier remain separate USER approval gates.
 Post-FAM-006 Required Governance/Package Candidate: Repo-Wide High-Risk Source Owner Marker Adoption; candidate branch `feature/repo-wide-source-owner-marker-adoption`; recorded as a future governance/package candidate after FAM-006 issue-planning priority is resolved or USER reorders it, not as an active selected-next implementation branch or newly admitted package. Later readiness must decide the legal carrier and package/admission shape before branch creation. Future scope is to scan existing source files, identify high-risk product/proof-bearing code regions, map them to Element Validation Ledger rows, add high-risk-only source-owner markers where useful, validate marker-to-ledger consistency, and plan repo-wide Dev Toolkit Interface Review Mode dispositions for existing and future USER-facing elements including NCP, Core visualization, Dashboard, Overlay/display when admitted, and other windows/components. The Dev Toolkit design is tabled for that future pass, including whether to use per-interface launchers, a generalized all-surfaces review-mode launch, or both. The future pass must keep production runtime behavior unchanged unless a separately admitted repair is required, and production UI must not expose element numbers.
 Backlog Addition User Approval Missing: Cleared for this USER-approved runtime-specific branch creation and bounded governance repair only; active for runtime implementation, new backlog item, backlog split, future successor selection outside `PKG-007`, full AI Product Contract import, GitHub issue work, release/tag/artifact work, branch creation outside this carrier, PR creation, or any single-slice package waiver.
 Historical Repair-Only Branch Handling: `feature/fb-046-post-merge-canon-sync` was a bounded repair-only post-merge canon-sync `feature/` branch and did not imply Branch Readiness admission or active branch truth for FB-046.
@@ -103,15 +103,15 @@ Historical runtime-proof governance remains preserved: the PR watcher remains th
 Historical Workstream State: Automation catalog implementation is merged historical branch proof after PR #99; FB-048 is Released / Closed in `v1.6.12-prebeta`; FB-047 is Released / Closed in `v1.6.11-prebeta`; FB-046 is Released / Closed in `v1.6.10-prebeta`; FB-044 and FB-045 remain Released / Closed historical proof in `v1.6.9-prebeta`.
 Historical Hardening State: Complete on `feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeout-truth`.
 Historical Live Validation State: Complete on `feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeout-truth`.
-Canonical Current-State Rule: merge-target current-state owners stay merge-stable during merged-unreleased release-debt windows; live PR state, conflict/readiness details, review-resolution details, and blocker-clearing repair-lane narration live only in explicit historical PR sections of the canonical workstream and in operator output.
+Canonical Current-State Rule: merge-target current-state owners stay merge-stable and must not normalize unresolved release debt, stale canon, or cleanup-only branches as the default. Live PR state, conflict/readiness details, review-resolution details, and blocker-clearing repair-lane narration live only in explicit historical PR sections of the canonical workstream and in operator output.
 Release Execution State: `v1.7.0-prebeta` is published; the governance/canon repair carrier corrected post-release source-truth drift and the approved live release-body artifact, but it does not create a new tag, GitHub Release, or new release artifact.
 Release Target: `v1.7.0-prebeta`.
 Release Floor: minor prerelease.
 Version Rationale: `v1.7.0-prebeta` is the next minor prerelease because PR #118 merged the user-facing FAM-006 Monitoring HUD Dashboard Product Surface after `v1.6.13-prebeta`; the release window also includes post-`v1.6.13-prebeta` source-truth closeout and launcher/orphan-tray recovery history already merged to main.
 Release Scope: PR #114 `docs: close v1.6.13 post-release canon`, PR #116 `Fix launcher orphan tray recovery`, and PR #118 `FAM-006 Monitoring HUD Dashboard Product Surface`, including the USER WAIVED/PASSABLE Dashboard-first acceptance state, deferred Overlay/display boundary, Core dependency-only boundary, actual shortcut proof, and saved/deferred issue traceability.
 Release Artifacts: Published - tag `v1.7.0-prebeta` and GitHub Release `Pre-Beta v1.7.0` exist at `06edf8143dd862c94d26ff7d812105179a621206`; the live release body has been corrected with detailed summary, highlights, validation/governance, generated `What's Changed`, and `Full Changelog` sections as the approved release-artifact correction in this Stage 2 carrier.
-Post-Release Truth: `v1.7.0-prebeta` remains the latest public prerelease; PR #129 is merged-unreleased FAM-006 Dashboard render/layout implementation debt after that release; FAM-007 readiness/admission is historical source-truth and the active runtime-specific branch repairs governance before any runtime behavior is implemented.
-Next-Branch Creation Gate: Blocked - PR Readiness Stage 2 may create the current PR, but any Workstream, issue-resolution branch, release packaging branch, or successor branch remains blocked until later USER approval and updated-main revalidation.
+Post-Release Truth: `v1.7.0-prebeta` remains the latest public prerelease; PR #129 is existing unreleased FAM-006 Dashboard render/layout implementation work after that release; FAM-007 readiness/admission is historical source-truth and the active runtime-specific branch repairs governance before any runtime behavior is implemented.
+Next-Branch Creation Gate: Blocked - PR Readiness Stage 1 must select, confirm, or explicitly USER-waive the next governed branch/workstream path before PR creation; any Workstream, issue-resolution branch, release-support branch, release packaging branch, or successor branch remains blocked until later USER approval and updated-main revalidation.
 Next Legal Phase: Branch Readiness on `feature/fam-007-runtime-provider-boundary`; release handling for PR #129, FAM-007 runtime implementation, issue creation, PR creation, and AI Product Contract import remain blocked until separately approved.
 
 ## Backlog Governance Sync
@@ -403,13 +403,13 @@ Admitted Slice Count: 8
 Package Completion State: In Progress / Branch Readiness
 Single-Slice Package User Approval: Not required - `PKG-007` admits eight concrete slices and no single-slice waiver is granted.
 Historical Branch Authority Record: `Docs/branch_records/feature_fam_007_local_ai_foundation_readiness.md`; `Docs/branch_records/feature_fam_007_stage_2_readiness_admission.md`
-Active Branch Authority Record: None after merge
-Planning Branch Trace: `feature/fam-007-local-ai-foundation-readiness` historical planning carrier; `feature/fam-007-stage-2-readiness-admission` PR-readiness carrier projected to historical/no-active posture before PR creation
+Active Branch Authority Record: `Docs/branch_records/feature_fam_007_runtime_provider_boundary.md`
+Planning Branch Trace: `feature/fam-007-local-ai-foundation-readiness` historical planning carrier; `feature/fam-007-stage-2-readiness-admission` PR-readiness carrier projected to historical/no-active posture before PR creation; `feature/fam-007-runtime-provider-boundary` active governance/readiness carrier
 Planning Worktree Trace: historical D-drive planning worktree removed; active work is in `C:\Nexus Desktop AI`
 AI Product Contract v0.6.2 Status: USER-provided planning evidence only; not repo source truth, not fully imported, and not implementation authority.
-Current Branch vs Future Package Boundary: current Stage 2 branch may record package/slice admission, public-safe planning, proof gates, blockers, acceptance criteria, release-debt repair, and identity-lock governance only. Later approved phases may implement hardware profiling, provider routing, model/capability-pack install, memory/indexing, voice/Core sync, setup wizard, beta feedback, or Dev ORIN surfaces.
+Current Branch vs Future Package Boundary: current active branch may record selected-next/no-release-debt governance, public-safe planning, proof gates, blockers, acceptance criteria, and identity-lock governance only. Later approved phases may implement hardware profiling, provider routing, model/capability-pack install, memory/indexing, voice/Core sync, setup wizard, beta feedback, or Dev ORIN surfaces.
 Interface Release Boundary: Admitted planning boundary / no runtime interface implemented. Primary future surface is provider/privacy status plus Assisted Desktop Mode setup/status.
-Branch Readiness Planning Blockers: `FAM-007 Implementation Approval Missing`, `AI Product Contract Full Import Approval Missing`, `PR #129 Release Debt`, `Runtime Workstream Entry Blocked`, and `Release Execution Approval Missing`.
+Branch Readiness Planning Blockers: `FAM-007 Implementation Approval Missing`, `AI Product Contract Full Import Approval Missing`, `PR #129 Release-Support Decision Missing`, `Runtime Workstream Entry Blocked`, and `Release Execution Approval Missing`.
 
 Package Trace:
 
