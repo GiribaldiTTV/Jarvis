@@ -9,6 +9,7 @@ Use this layer for:
 - active `Registry-only` backlog branches in `Branch Readiness` before a promoted canonical workstream exists
 - `release packaging` branches
 - active `repair/dev-tooling-governance` feature branches when USER-admitted repair scope includes developer-tooling plus governance hardening
+- USER-approved bounded issue-readiness/source-truth repair carriers that extend an existing family branch authority record without creating GitHub issues or admitting implementation
 - preserved historical `docs/governance` or `emergency canon repair` records
 
 when those branches need a durable repo-owned phase authority record.
@@ -27,6 +28,7 @@ Do not use this layer to replace:
 - Standalone docs/governance, emergency canon repair, and repair-only feature branches are blocked for future Nexus work.
 - Governance, docs, source-of-truth, and validator repairs must ride inside the next legitimate runtime-focused backlog branch during `Branch Readiness` or `PR Readiness`.
 - USER-approved workspace-resilience or dev-tooling governance foundation carriers may exist only to clear a recorded multi-worktree/thread-safety blocker before future branch work; they do not authorize runtime implementation, package admission, release work, issue work, AI Product Contract import, or future standalone governance branches.
+- USER-approved bounded issue-readiness/source-truth repair carriers may exist only to reconcile existing family/branch-record evidence into issue-ready source truth; they do not authorize GitHub issue creation, issue-resolution branches, runtime implementation, package admission, release work, FAM-007/local AI work, AI Product Contract import, or future standalone governance branches.
 - If release publication exposes release-dependent canon drift, the drift must be recorded for the next legitimate runtime-focused branch's `Branch Readiness Stage 1` and repaired in `Branch Readiness Stage 2` before implementation begins.
 - If no runtime-focused branch is legally admitted yet, record the drift as a blocker and wait instead of creating a repair branch by inertia.
 - Historical repair-only branch records remain traceability only and do not authorize new repair-only branch creation.
@@ -81,7 +83,7 @@ Do not use this layer to replace:
 
 ## Active Branch Authority Records
 
-None.
+- `Docs/branch_records/codex_fam_006_issue_readiness_governance_repair.md`
 
 ## Historical Branch Authority Records
 
