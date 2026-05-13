@@ -31,6 +31,9 @@ This branch does not admit runtime implementation, GitHub issue creation, issue-
 - Current Authority: `This branch authority record owns only the bounded repair carrier state`
 - FAM-006 RUI Authority: `Docs/branch_records/feature_fam_006_monitoring_hud_product_surface.md owns the Returned USER Issue Register; Docs/branch_records/feature_fam_006_monitoring_hud_product_surface_element_ledger.md owns row-level proof/disposition detail`
 - Branch Scope: `Reconcile LV2 waiver/passable UTS wording, issue-readiness classifications, stale current-state FAM-006 backlog/roadmap wording, and issue-creation boundaries`
+- USER-Confirmed Issue Queue: `Locked as 5 FAM-006 Dashboard issue threads; issue creation remains a future approval checkpoint`
+- Evidence Policy: `Summary-only for future GitHub issue bodies; raw screenshots/videos stay local/external unless USER later approves upload, import, or linking`
+- Branch Grouping: `Branch 1 feature/fam-006-dashboard-render-layout-hardening carries Issues 1, 2, and 5; Branch 2 feature/fam-006-dashboard-ia-controls-followthrough carries Issues 3 and 4`
 - GitHub Issue Creation: `Blocked pending later explicit USER approval`
 - Issue-Resolution Branches: `Blocked pending later explicit USER approval`
 - Runtime Implementation: `Blocked`
@@ -73,6 +76,7 @@ This branch does not admit runtime implementation, GitHub issue creation, issue-
 
 - Stale FAM-006 UTS wording is reconciled with the LV2 explicit USER waiver/passable digest.
 - The RUI issue-readiness map distinguishes closed-by-waiver/passable, deferred, future, unconfirmed/raw-proof-needed, and USER concern / issue-candidate states.
+- The USER-confirmed five-thread issue queue, summary-only evidence policy, Branch 1 / Branch 2 grouping, deferred/future items, and post-issue-closure direction are recorded.
 - Backlog and roadmap current-state rows no longer imply FAM-006 PR Readiness pending, no PR created, unreleased release debt, or FAM-007/local AI authority for this FAM-006 issue-planning track.
 - GitHub issue creation and issue-resolution branches remain blocked pending later USER approval.
 - Raw evidence import remains a future USER decision.
@@ -86,9 +90,9 @@ Rollback Path: abandon branch `feature/fam-006-issue-readiness-governance-repair
 
 ## Next Legal Phase
 
-- `Branch Readiness`
+- `PR Readiness`
 
-Next Legal Phase Gate: after this bounded repair validates, stop and return the issue-readiness packet. Later GitHub issue creation, issue-resolution branch creation, PR creation, release work, runtime work, FAM-007 work, or local AI work requires separate explicit USER approval.
+Next Legal Phase Gate: after this bounded source-truth update validates, commits, and pushes, recommend `PR Readiness Stage 1` for this issue-readiness governance branch. Stage 1 may review PR readiness only; GitHub issue creation, issue-resolution branch creation, PR creation, release work, runtime work, FAM-007 work, or local AI work still requires separate explicit USER approval.
 
 ## Branch Objective
 
@@ -98,15 +102,16 @@ Repair FAM-006 issue-readiness source truth so the existing FAM-006 branch recor
 
 - FAM-006 current-state source truth distinguishes closed-by-waiver/passable, deferred, future, unconfirmed/raw-proof-needed, and USER concern / issue-candidate rows.
 - The existing FAM-006 Returned USER Issue Register remains the source owner; no GitHub issues, issue drafts, runtime artifacts, or raw evidence archives are created.
+- The confirmed FAM-006 issue queue is locked as five issue threads with summary-only evidence and two recommended future issue-resolution branch groups.
 - Backlog and roadmap no longer imply stale FAM-006 PR Readiness, unmerged, unreleased, or FAM-007/local-AI successor authority.
 
 ## Backlog Completion Strategy
 
 This carrier does not admit or complete a backlog package. It records a bounded post-release FAM-006 issue-readiness governance/source-truth repair and leaves issue creation, issue-resolution branches, package admission, runtime implementation, FAM-007/local AI work, and AI Product Contract import blocked.
 
-Branch Completion Goal: source-truth cleanup validates and returns a Stage 2 stop packet.
+Branch Completion Goal: source-truth cleanup validates, records the USER-confirmed issue queue and branch grouping, commits, pushes, and returns a Stage 2 stop packet with PR Readiness Stage 1 as the recommended next governance step.
 Known Future-Dependent Blockers: GitHub issue creation, issue-resolution branches, raw evidence import/linking, runtime implementation, PR creation, release work, FAM-007/local AI work, and AI Product Contract import require later explicit USER approval.
-Branch Closure Rule: stop after validated Stage 2 repair; do not continue into issue creation, branch creation, PR work, release work, runtime implementation, FAM-007, or local AI.
+Branch Closure Rule: stop after validated Stage 2 source-truth update; do not continue into issue creation, issue-resolution branch creation, PR creation, release work, runtime implementation, FAM-007, or local AI.
 
 ## Expected Seam Families And Risk Classes
 
@@ -122,9 +127,62 @@ Risk Classes: stale UTS wording, accidental issue creation, accidental issue-res
 
 No User Test Summary is generated, refreshed, imported, or mutated by this carrier. The raw desktop UTS, screenshots, and videos remain external evidence unless USER later approves a governed evidence-import or link strategy.
 
+## USER-Confirmed FAM-006 Issue Queue Lock
+
+Queue Lock State: `USER confirmed 5 FAM-006 Dashboard issue threads for future review. This record creates no GitHub issues and opens no issue-resolution branches.`
+
+Prefix Correction: `USER-provided grouping names that used the old codex/ prefix are recorded with feature/ names because active Nexus branch names must not use codex/.`
+
+| Issue Thread | Confirmed Title | Future Branch Grouping | Current Classification | Evidence Posture |
+| --- | --- | --- | --- | --- |
+| `FAM006-ISSUE-001` | Dashboard initial open flicker | `feature/fam-006-dashboard-render-layout-hardening` | USER concern / issue-candidate | Summary-only from USER video description and RUI/source-truth mapping; raw video remains local/external |
+| `FAM006-ISSUE-002` | Dashboard scroll content well clipping / scrollbar ownership / gutter alignment | `feature/fam-006-dashboard-render-layout-hardening` | USER concern / issue-candidate | Summary-only from USER screenshots and RUI/source-truth mapping; raw screenshots remain local/external |
+| `FAM006-ISSUE-003` | Monitor Groups card dead space plus Create/Edit monitor window split | `feature/fam-006-dashboard-ia-controls-followthrough` | USER concern / issue-candidate | Summary-only from USER screenshot description and RUI/source-truth mapping; raw screenshot remains local/external |
+| `FAM006-ISSUE-004` | Remove redundant HUD Dashboard Open badge and add close affordance | `feature/fam-006-dashboard-ia-controls-followthrough` | USER concern / issue-candidate, with Dashboard settings cog/panel deferred | Summary-only from USER screenshot description and RUI/source-truth mapping; raw screenshot remains local/external |
+| `FAM006-ISSUE-005` | Dashboard resize choppy/jittery | `feature/fam-006-dashboard-render-layout-hardening` | USER concern / issue-candidate | Summary-only from USER description and existing RUI resize-fluidity history; raw screen recording remains local/external unless later approved |
+
+## Evidence Policy
+
+GitHub Issue Evidence Policy: `Future GitHub issue bodies should use summary-only evidence based on repo-truth RUI rows, source-truth summaries, and proof paths. Raw screenshots, videos, and UTS exports remain local/external unless USER later explicitly approves upload, import, or linking.`
+
+Raw Media Status: `No raw media file is imported, copied, uploaded, linked, or converted into a repo artifact by this carrier.`
+
+## Branch Grouping
+
+Branch 1 Recommendation: `feature/fam-006-dashboard-render-layout-hardening`
+
+Branch 1 Carries: `FAM006-ISSUE-001 Dashboard initial open flicker`; `FAM006-ISSUE-002 Dashboard scroll content well clipping / scrollbar ownership / gutter alignment`; `FAM006-ISSUE-005 Dashboard resize choppy/jittery`.
+
+Branch 1 Purpose: `Dashboard render/layout hardening for the released/passable Dashboard surface.`
+
+Branch 2 Recommendation: `feature/fam-006-dashboard-ia-controls-followthrough`
+
+Branch 2 Carries: `FAM006-ISSUE-003 Monitor Groups card dead space plus Create/Edit monitor window split`; `FAM006-ISSUE-004 remove redundant HUD Dashboard Open badge and add close affordance`.
+
+Branch 2 Purpose: `Dashboard IA/control follow-through after render/layout confidence is addressed.`
+
+Branch Creation Boundary: `These are recommendations only. Issue-resolution branch creation remains a future USER approval checkpoint.`
+
+## Future / Deferred Items
+
+- Dashboard settings cog/settings panel.
+- Overlay/display acceptance.
+- Provider/external telemetry parity.
+- Dev Toolkit/source-owner markers.
+
+## Post-FAM-006 Issue Closure Direction
+
+After the confirmed FAM-006 issue threads are resolved, validated, and closed, the next FAM-006 Dashboard-related work should be selected from the highest-priority deferred Dashboard-related feature or the next priority item identified by current repo truth and USER review.
+
+Current likely deferred candidates include Dashboard settings cog / settings panel, Overlay / display acceptance, Provider / external telemetry parity, and Dev Toolkit / source-owner markers.
+
+The next item should be selected through the governed next-work / Branch Readiness path, using current source truth, USER priority, dependency order, and validation readiness.
+
+This statement records forward direction only. It does not itself create a new branch, create issues, approve implementation, or promote a deferred item into active work.
+
 ## Later-Phase Expectations
 
-There is no automatic next phase from this carrier. USER may later approve GitHub issue creation, a specific issue-resolution branch, a raw evidence policy, or no further FAM-006 issue work; each later action requires separate explicit approval.
+After this source-truth update is validated, committed, and pushed, the recommended next governance step is `PR Readiness Stage 1` for the FAM-006 issue-readiness governance branch. USER may later approve GitHub issue creation, a specific issue-resolution branch, raw evidence upload/import/linking, runtime implementation, or no further FAM-006 issue work; each later action requires separate explicit approval.
 
 ## Initial Workstream Seam Sequence
 
@@ -137,7 +195,7 @@ Non-Includes: runtime code, tests, GitHub issues, issue-resolution branches, PR 
 
 Active seam: FAM-006 issue-readiness source-truth repair.
 
-Active Seam Status: `Stage 2 source-truth repair is complete; branch naming prefix correction is complete after validation, commit, and push; this carrier remains active only for approved FAM-006 issue-readiness planning/source-truth organization until PR Readiness is requested.`
+Active Seam Status: `Stage 2 source-truth repair is complete through the USER-confirmed issue queue lock after validation, commit, and push; this carrier remains active only for approved FAM-006 issue-readiness planning/source-truth organization until PR Readiness Stage 1 is requested.`
 
 Next active seam: `None - later issue creation or branch work requires explicit USER approval.`
 

@@ -145,7 +145,49 @@ Raw Evidence Boundary: `The raw desktop UTS export, USER screenshot folders, and
 | Deferred | `FAM006-RUI-011`; `FAM006-RUI-012` child-window implementation portion; `FAM006-RUI-013` full editor portion; `FAM006-RUI-018` per-monitor warning-settings portion; `FAM006-RUI-020`; `FAM006-RUI-047`; Overlay/display acceptance rows and related future surface rows | Intentionally outside the FAM-006 Dashboard-first release acceptance path | Eligible for later USER-approved GitHub issue candidates or future package planning |
 | Future enhancement | Provider parity, external/plugin telemetry, Stream Deck, audio/spoken warning integration, graphs/history/persistence, installer/capability-pack work, repo-wide source-owner markers, and Dev Toolkit Interface Review Mode | Not part of current FAM-006 completion and not admitted by this repair | Requires later Branch Readiness and USER approval before issue creation, package admission, or implementation |
 | Unconfirmed / raw-proof-needed | Any future issue body that depends on exact raw UTS text, screenshots, or video frames rather than existing repo summaries | Repo truth preserves the result and evidence paths, but raw media/files are not repo-contained | USER must choose summary-only issue creation or a governed evidence-import/linking path before high-fidelity issue drafting |
-| USER concern / issue-candidate | Dashboard resize/cursor/fluidity; Dashboard chrome/scrollbar/visual boundary; Dashboard IA and child-window editor; NCP placement/persistence; tray/HUD Feature/Exit prompt UX; Overlay/display package; provider/external telemetry; Dev Toolkit/source-owner marker adoption; UTS/RUI governance cleanup | These concerns remain saved for later prioritization without undoing the USER WAIVED/PASSABLE acceptance baseline | Candidate issue list only; no GitHub issue exists or is approved by this record |
+| USER concern / issue-candidate | USER-confirmed issue queue: Dashboard initial open flicker; Dashboard scroll content well clipping / scrollbar ownership / gutter alignment; Monitor Groups card dead space plus Create/Edit monitor window split; redundant HUD Dashboard Open badge plus missing close affordance; Dashboard resize choppy/jittery | These concerns remain saved for later prioritization without undoing the USER WAIVED/PASSABLE acceptance baseline | Candidate issue list only; no GitHub issue exists or is approved by this record |
+
+## USER-Confirmed FAM-006 Issue Thread Lock
+
+Issue Queue Lock State: `USER confirmed 5 FAM-006 Dashboard issue threads for future review. This record creates no GitHub issues and opens no issue-resolution branches.`
+
+Evidence Policy: `Future GitHub issue bodies should use summary-only evidence based on repo-truth RUI rows, source-truth summaries, and proof paths. Raw screenshots, videos, and UTS exports remain local/external unless USER later explicitly approves upload, import, or linking.`
+
+Branch Prefix Policy: `The USER-provided grouping names are recorded with feature/ prefixes because active Nexus branch names must not use codex/.`
+
+| Issue Thread | Confirmed Title | Related RUI / Ledger Evidence | Future Branch Grouping | Validation Expectation | USER Approval Checkpoint |
+| --- | --- | --- | --- | --- | --- |
+| `FAM006-ISSUE-001` | Dashboard initial open flicker | Related to `FAM006-RUI-021`, `FAM006-DASH-STARTUP-045`, `FAM006-HUD-TRAY-FLASH-051`, `FAM006-GOV-HUMAN-CLIENT-065`; USER video summary reports 100 percent reproducible first-second whole-window flicker when opening the HUD Dashboard | `feature/fam-006-dashboard-render-layout-hardening` | Reproduce from normal Dashboard open path, prove the initial render stabilizes without flicker, and capture human-visible proof | GitHub issue creation and branch creation require later explicit USER approval |
+| `FAM006-ISSUE-002` | Dashboard scroll content well clipping / scrollbar ownership / gutter alignment | Related to `FAM006-RUI-008`, `FAM006-RUI-026`, `FAM006-RUI-027`, `FAM006-RUI-049`, `FAM006-DASH-SCROLL-007`, `FAM006-DASH-FRAME-HAZE-056`, `FAM006-DASH-LAYOUT-005`; USER screenshot summary identifies the card-stack/content well reaching the bottom without matching bottom gutter and the scrollbar visually owning the wrong boundary | `feature/fam-006-dashboard-render-layout-hardening` | Prove the scroll owner belongs to the content/card well, bottom gutter matches side gutter, and rounded chrome/content boundaries do not clip awkwardly | GitHub issue creation and branch creation require later explicit USER approval |
+| `FAM006-ISSUE-003` | Monitor Groups card dead space plus Create/Edit monitor window split | Related to `FAM006-RUI-012`, `FAM006-RUI-013`, `FAM006-RUI-015`, `FAM006-RUI-034`, `FAM006-DASH-MONITOR-GROUP-009`, `FAM006-DASH-CHILD-WINDOW-049`, `FAM006-DASH-MONITOR-POLLING-011`; USER screenshot summary asks to remove center dead space and replace dropdown-driven monitor editing with separate Create Monitor and Edit Monitor windows | `feature/fam-006-dashboard-ia-controls-followthrough` | Prove the Monitor Groups card no longer wastes space and Create/Edit monitor actions route to distinct window flows without dropdown ambiguity | GitHub issue creation and branch creation require later explicit USER approval |
+| `FAM006-ISSUE-004` | Remove redundant HUD Dashboard Open badge and add close affordance | Related to `FAM006-RUI-023`, `FAM006-RUI-038`, `FAM006-DASH-TRAY-OPEN-CLOSE-053`, `FAM006-HUD-FEATURE-TRAY-046`, `FAM006-DASH-AFFORDANCE-COPY-012`; USER screenshot summary identifies the top Dashboard-open badge as redundant and asks for a close button, with a possible future Dashboard settings cog/settings panel | `feature/fam-006-dashboard-ia-controls-followthrough` | Prove the redundant open-state badge is gone, a clear close affordance exists, and the Dashboard settings cog/panel remains deferred unless separately admitted | GitHub issue creation and branch creation require later explicit USER approval |
+| `FAM006-ISSUE-005` | Dashboard resize choppy/jittery | Related to `FAM006-RUI-019`, `FAM006-RUI-028`, `FAM006-RUI-051` through `FAM006-RUI-056`, `FAM006-DASH-RESIZE-057`, `FAM006-DASH-WINDOW-002`, `FAM006-GOV-HUMAN-CLIENT-065`; USER summary reports resize smoothness is jittery/choppy and the window catches up roughly half a second later | `feature/fam-006-dashboard-render-layout-hardening` | Prove live drag resize updates smoothly with multiple intermediate geometry samples and no visible catch-up lag | GitHub issue creation and branch creation require later explicit USER approval |
+
+## FAM-006 Issue Branch Grouping
+
+Branch 1 Recommendation: `feature/fam-006-dashboard-render-layout-hardening`
+
+Branch 1 Carries: `FAM006-ISSUE-001 Dashboard initial open flicker`; `FAM006-ISSUE-002 Dashboard scroll content well clipping / scrollbar ownership / gutter alignment`; `FAM006-ISSUE-005 Dashboard resize choppy/jittery`.
+
+Branch 1 Purpose: `Dashboard render/layout hardening for the released/passable Dashboard surface.`
+
+Branch 2 Recommendation: `feature/fam-006-dashboard-ia-controls-followthrough`
+
+Branch 2 Carries: `FAM006-ISSUE-003 Monitor Groups card dead space plus Create/Edit monitor window split`; `FAM006-ISSUE-004 remove redundant HUD Dashboard Open badge and add close affordance`.
+
+Branch 2 Purpose: `Dashboard IA/control follow-through after render/layout confidence is addressed.`
+
+Future / Deferred Items: `Dashboard settings cog/settings panel`; `Overlay/display acceptance`; `Provider/external telemetry parity`; `Dev Toolkit/source-owner markers`.
+
+## Post-FAM-006 Issue Closure Direction
+
+After the confirmed FAM-006 issue threads are resolved, validated, and closed, the next FAM-006 Dashboard-related work should be selected from the highest-priority deferred Dashboard-related feature or the next priority item identified by current repo truth and USER review.
+
+Current likely deferred candidates include Dashboard settings cog / settings panel, Overlay / display acceptance, Provider / external telemetry parity, and Dev Toolkit / source-owner markers.
+
+The next item should be selected through the governed next-work / Branch Readiness path, using current source truth, USER priority, dependency order, and validation readiness.
+
+This statement records forward direction only. It does not itself create a new branch, create issues, approve implementation, or promote a deferred item into active work.
 
 | Stable Issue ID | Original USER Number | Title | Source Evidence / UTS Step | Mapped Ledger Rows | Severity | Proof Failure Type | Current Disposition | Repair Seam | Required Proof | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
