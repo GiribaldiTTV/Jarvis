@@ -17,17 +17,17 @@ It exists because PR #129 merged Dashboard render/layout hardening for issues #1
 
 ## Current Phase
 
-- Phase: `PR Readiness`
+- Phase: `Historical Traceability`
 
 ## Phase Status
 
 - Branch Readiness Stage 1: `Complete - accepted feature/fam-006-dashboard-release-support as the correct legal FAM-006 carrier for post-PR #129/#132 source-truth drift, issue-closeout planning, and release-readiness sequencing`
 - Branch Readiness Stage 2: `Complete - USER approved branch creation, source-truth repair, validation, commit, and push; branch was created from main at 98b53fafd63abfe4876b718d5649b4a0df46f2a0 and pushed at e490ce479c7a1a9cf6d6c4b0e1ec56617c6fbf83`
-- PR Readiness Stage 1: `Stage 2 ready after bounded wording repair - Stage 1 found Branch Readiness Stage 2 active/in-progress phrasing and Prompt Gate style leakage before PR creation; this branch carries the source-truth repair`
-- PR Readiness Stage 2: `Pending USER approval for final validation, PR creation, live PR metadata, and watch posture`
-- `Active Branch`: `feature/fam-006-dashboard-release-support`
+- PR Readiness Stage 1: `Complete - Stage 1 found Branch Readiness Stage 2 active/in-progress phrasing and Prompt Gate style leakage before PR creation; this branch carried the source-truth repair`
+- PR Readiness Stage 2: `Complete through PR creation - PR #133 opened from feature/fam-006-dashboard-release-support to main; live PR watch posture remains until USER merge decision`
+- Branch Authority State: `Historical / no-active merge-target projection for PR #133; merged main should remain No Active Branch for FAM-006 release support`
 - Branch Creation: `Created from main at 98b53fafd63abfe4876b718d5649b4a0df46f2a0, the PR #132 merge commit`
-- Source-Truth Repair: `Complete on this branch for PR Readiness Stage 1`
+- Source-Truth Repair: `Complete on this branch for PR Readiness Stage 2 metadata projection`
 - Runtime Implementation: `Pending USER approval outside this release-support source-truth carrier`
 - GitHub Issue Closeout: `Pending USER approval for #123, #124, #125, #126, and #127`
 - Release Execution: `Pending USER approval`
@@ -39,7 +39,7 @@ It exists because PR #129 merged Dashboard render/layout hardening for issues #1
 ## Blockers
 
 - `GitHub Issue Closeout Approval Missing`: active for comments or state changes on #123, #124, #125, #126, and #127.
-- `PR Creation Approval Missing`: active for this release-support branch.
+- `PR Merge Approval Missing`: active for PR #133.
 - `Release Execution Approval Missing`: active.
 - `Raw Evidence Import Decision Pending`: active.
 - `FAM-007 / Local AI Authority Missing`: active and out of scope.
@@ -75,7 +75,7 @@ Rollback Path: if this wording repair fails validation, current authorization co
 
 - `PR Readiness`
 
-Next Legal Phase Gate: After this PR Readiness Stage 1 wording repair validates, commits, and pushes, the next legal step is USER decision on PR Readiness Stage 2 / PR creation for this release-support branch. GitHub issue comments/closeout, merge, release execution, raw evidence handling, FAM-007/runtime work, and AI Product Contract import remain separate USER approval checkpoints.
+Next Legal Phase Gate: After PR #133 creation and watch setup, the next legal step is USER decision on merge/watch handling. GitHub issue comments/closeout, merge, release execution, raw evidence handling, FAM-007/runtime work, and AI Product Contract import remain separate USER approval checkpoints.
 
 ## Release-Support Repair Scope
 
@@ -149,11 +149,11 @@ Repair FAM-006 post-merge source truth after PR #129 and PR #132, record merged-
 
 ## Backlog Completion Strategy
 
-Branch Completion Goal: `Complete PR Readiness Stage 1 wording repair and prepare the branch for USER decision on PR Readiness Stage 2.`
+Branch Completion Goal: `Complete PR Readiness Stage 2 metadata projection and preserve PR #133 for USER merge/watch decision.`
 
 Known Future-Dependent Blockers: `GitHub issue closeout/comments, raw evidence upload/import/linking, PR creation, merge, release execution, tags, GitHub Releases, artifacts, FAM-007 runtime/admission, AI Product Contract import, and runtime/provider/model/memory/shortcut/installer work all require later USER approval.`
 
-Branch Closure Rule: `After validation, commit, and push, report readiness and preserve PR creation, issue closeout/comments, release work, raw evidence handling, runtime/FAM-007 scope, and merge as pending USER decisions.`
+Branch Closure Rule: `After validation, commit, and push, preserve issue closeout/comments, release work, raw evidence handling, runtime/FAM-007 scope, and merge as pending USER decisions.`
 
 ## Expected Seam Families And Risk Classes
 
@@ -168,8 +168,8 @@ No new User Test Summary is required for this source-truth release-support carri
 
 ## Later-Phase Expectations
 
-- PR Readiness Stage 2 may be requested after this Stage 1 wording repair validates and is pushed.
-- PR creation requires later USER approval.
+- PR #133 live watch remains until review/check state changes or USER approves merge handling.
+- PR creation was completed for this branch in PR Readiness Stage 2.
 - Merge requires later USER approval.
 - Release Readiness and release execution require later USER approval after the release-support PR path is complete.
 - GitHub issue closeout/comments require later USER approval.
@@ -182,8 +182,8 @@ Goal: Record PR #129 and PR #132 as merged-unreleased FAM-006 Dashboard work, cl
 
 Scope: Docs/source-truth updates only for the expected FAM-006 release-support files.
 
-Pending USER Approval Checkpoints: GitHub issue closeout/comments, PR creation, merge, release execution, tag creation, GitHub Release creation, artifact creation, raw evidence upload/import/linking, FAM-007 work, runtime/provider/model/memory/shortcut/installer work, and runtime implementation.
+Pending USER Approval Checkpoints: GitHub issue closeout/comments, merge, release execution, tag creation, GitHub Release creation, artifact creation, raw evidence upload/import/linking, FAM-007 work, runtime/provider/model/memory/shortcut/installer work, and runtime implementation.
 
-## Active Seam
+## Recorded Seam
 
-Active seam: PR Readiness Stage 1 wording repair for release-support source truth.
+Recorded seam: PR Readiness Stage 2 metadata projection for release-support source truth and PR #133 watch posture.

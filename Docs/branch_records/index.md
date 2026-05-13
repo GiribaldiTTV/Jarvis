@@ -87,10 +87,11 @@ Do not use this layer to replace:
 
 ## Active Branch Authority Records
 
-- `Docs/branch_records/feature_fam_006_dashboard_release_support.md`
+None.
 
 ## Historical Branch Authority Records
 
+- `Docs/branch_records/feature_fam_006_dashboard_release_support.md`
 - `Docs/branch_records/feature_fam_006_dashboard_ia_controls_followthrough.md`
 - `Docs/branch_records/feature_fam_007_runtime_provider_boundary.md`
 - `Docs/branch_records/feature_fam_007_stage_2_readiness_admission.md`
