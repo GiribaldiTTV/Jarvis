@@ -84,7 +84,7 @@ Backlog-Split Reason: `None`
 - `D:\Nexus Repos\Nexus Desktop AI Main` is the D-drive main/consolidator clone.
 - `D:\Nexus Worktrees\` is the approved active worktree root.
 - `D:\Nexus Worktrees\Nexus Desktop AI FAM-007` is the approved FAM-007 worktree path for this branch.
-- The stale remote branch `origin/codex/fam-007-local-ai-foundation-readiness` exists only as pre-migration trace until PR Readiness Stage 2 verifies the `feature/` branch is pushed and source truth no longer uses the stale `codex/` active identity.
+- The stale remote branch `origin/codex/fam-007-local-ai-foundation-readiness` was deleted during PR Readiness Stage 2 after verifying the `feature/` branch was pushed and source truth no longer used the stale `codex/` active identity.
 - `C:\Nexus Desktop AI` on `codex/ai-llm-lab` remains parked lab/planning context only and must not be used as the FAM-007 implementation or governance carrier.
 - The USER-provided `Nexus AI Product Contract v0.6.2` exists on the Desktop as planning evidence only. It is not repo source truth and does not authorize implementation or full import.
 
