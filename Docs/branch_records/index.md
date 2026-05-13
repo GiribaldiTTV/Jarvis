@@ -26,6 +26,7 @@ Do not use this layer to replace:
 - new governance-only branches are not used for Nexus work
 - Standalone docs/governance, emergency canon repair, and repair-only feature branches are blocked for future Nexus work.
 - Governance, docs, source-of-truth, and validator repairs must ride inside the next legitimate runtime-focused backlog branch during `Branch Readiness` or `PR Readiness`.
+- USER-approved workspace-resilience or dev-tooling governance foundation carriers may exist only to clear a recorded multi-worktree/thread-safety blocker before future branch work; they do not authorize runtime implementation, package admission, release work, issue work, AI Product Contract import, or future standalone governance branches.
 - If release publication exposes release-dependent canon drift, the drift must be recorded for the next legitimate runtime-focused branch's `Branch Readiness Stage 1` and repaired in `Branch Readiness Stage 2` before implementation begins.
 - If no runtime-focused branch is legally admitted yet, record the drift as a blocker and wait instead of creating a repair branch by inertia.
 - Historical repair-only branch records remain traceability only and do not authorize new repair-only branch creation.
@@ -60,6 +61,7 @@ Do not use this layer to replace:
 - `PR Watcher Routing Unverified` is the standard blocker when a branch expects watcher-based PR monitoring but the configured watcher target and delivery proof have not yet been cross-checked against the recorded reporting surface and proven to land there
 - PR watcher delivery proof requires assistant-message transcript presence plus Codex thread-state refresh plus automation run/inbox visibility for the approved reporting surface; a watcher must not retire after merge until that final delivery proof is present
 - Automation Observability Review Pending is checked with `dev/automation_observability_report.py`; Codex automation run/inbox rows and `$CODEX_HOME/automations/*/memory.md` are review inputs, while `BLOCKER_CANDIDATE` and `REVIEW_REQUIRED` findings require a bounded repair seam before repo canon changes
+- `Thread / Worktree Identity Mismatch` blocks phase entry, branch/worktree creation, commit, push, PR creation, release action, and GitHub Desktop handoff when the active local folder, git root, branch, upstream, `HEAD`, `origin/main`, worktree role, runtime/process ownership, or GitHub Desktop binding does not match the requested work
 - relevant desktop user-facing Live Validation must include the `Codex Live Client Self-QA Gate` before User Test Summary handoff: the active authority record must declare `Codex Live Client Self-QA:`, `Visual Quality:`, `Usability Check:`, and `Platform Uniformity Check:`, and `Codex Live Client Self-QA Pending` blocks USER handoff readiness until Codex inspects the launched client like a user or an explicit waiver is recorded
 - historical branch authority records are preserved traceability records, not live execution authority
 - historical-only closeout traceability records must report `Phase: Historical Traceability` and must not retain live PR state, active seam ownership, or open-PR narration
@@ -83,6 +85,7 @@ None.
 
 ## Historical Branch Authority Records
 
+- `Docs/branch_records/codex_workspace_governance_foundation.md`
 - `Docs/branch_records/codex_fam_007_branch_readiness.md`
 - `Docs/branch_records/feature_fam_006_monitoring_hud_product_surface.md`
 - `Docs/branch_records/codex_v1_6_13_prebeta_post_release_canon_closure.md`

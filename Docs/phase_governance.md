@@ -746,6 +746,8 @@ Hard blockers:
   If the still-not-closed FAM plus not-complete package/slice list is empty and new work would require a new backlog identity, Codex must stop for USER direction instead of inventing the next lane.
 - `Branch Readiness Execution User Approval Missing`:
   Branch Readiness Stage 1 - Analysis Gate is a no-work review pass. Branch Readiness cannot enter Branch Readiness Stage 2 - Execution Gate, mutate repository files, create a branch, admit a package, sync docs, create selected-next truth, prepare PR work, or perform release work until the Stage 1 packet is returned and explicit USER approval to enter Stage 2 is recorded.
+- `Thread / Worktree Identity Mismatch`:
+  Any phase, branch creation, worktree creation, commit, push, PR creation, release action, or GitHub Desktop handoff must stop when the active local folder, git root, branch, upstream, `HEAD`, `origin/main`, worktree role, runtime/process ownership, or GitHub Desktop binding does not match the requested thread/workstream. Codex must report the expected workspace, actual workspace, expected branch, actual branch, expected thread/workstream role, actual repo state, and safest next correction before continuing.
 - `Single-Slice Package User Approval Missing`:
   Branch Readiness and Workstream cannot greenlight a package with exactly one admitted slice unless explicit USER approval records `Single-Slice Package User Approval: Granted`. Historical evidence rows, merged evidence rows, future placeholders, deferred ideas, and future-package-required rows do not count as admitted slices.
 - `Package Completion Unproven`:

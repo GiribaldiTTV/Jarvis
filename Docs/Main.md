@@ -29,6 +29,21 @@ Use these rules before trusting any planning or governance claim:
 - local unmerged branches, stashes, and docs overlays are reference material only until revalidated against updated `origin/main`
 - if code, logs, and merged docs disagree, validate the live repo truth first and then repair the docs
 
+## Workspace And Thread Identity Baseline
+
+Nexus may use multiple local folders for the same GitHub repository, but `origin/main` remains the canonical remote source truth.
+
+Current local workspace roles:
+
+- `D:\Nexus Repos\Nexus Desktop AI Main` is the local main/consolidator clone for updated-main validation and approved worktree or branch creation; tracked file edits on `main` remain blocked
+- `D:\Nexus Worktrees\` is the preferred root for active branch worktrees
+- `D:\Nexus Dev ORIN\` is the private/dev workspace root; content there is evidence only unless legally imported through repo governance
+- `D:\Nexus Artifacts\` is the artifact/model/eval output root; content there is evidence only unless legally imported through repo governance
+- old `C:\` Nexus folders are parked or fallback workspaces unless explicitly reactivated
+- `C:\Nexus Desktop AI` on `codex/ai-llm-lab` is parked lab/planning context only and is not a governance, runtime, or FAM-007 carrier unless later imported by USER-approved repo governance
+
+Before branch creation, worktree creation, phase entry, commit, push, PR work, release work, or GitHub Desktop handoff, run a `Thread / Worktree Identity Preflight` and prove the active thread is operating in the intended workspace, repository root, branch, upstream, and worktree role. If the identity does not match the requested work, stop on `Thread / Worktree Identity Mismatch`.
+
 ## Protected Main Law
 
 `main` is a protected branch for Codex work.
