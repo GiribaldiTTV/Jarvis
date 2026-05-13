@@ -237,7 +237,10 @@ For tracked work, that means:
 11. use the owning `Element Validation Ledger` in the canonical workstream doc or active branch authority record for created, touched, affected, deferred, future, dependency-only, and non-gating supporting product elements
 12. record a Dev Toolkit Interface Review Mode disposition for USER-facing interface elements, including previous and future implementations: callable in dev-only review mode, deferred to a named repo-wide adoption branch/package, or not-applicable with reason
 13. use `Docs/incident_patterns.md` only for generalized cross-branch patterns
-14. state the next safe move before narrowing scope
+14. run `Thread / Worktree Identity Preflight` before Stage 2, phase entry, branch/worktree creation, commit, push, PR work, release work, or GitHub Desktop handoff
+15. state the next safe move before narrowing scope
+
+`Thread / Worktree Identity Preflight` proves the current working directory, repository root, branch, upstream, `HEAD`, `origin/main`, `git worktree list`, clean/dirty state, workspace role, runtime/process ownership, and GitHub Desktop folder binding when relevant. If the thread is in the wrong folder or branch for the requested work, stop on `Thread / Worktree Identity Mismatch` instead of correcting by inertia.
 
 Promoted workstream docs remain the place to read branch-local feature state, evidence, active seams, artifact history, and branch-local reuse notes.
 Repo-wide lifecycle rules such as phases, stop-loss, timeout governance, and proof authority come from `Docs/phase_governance.md`.
@@ -594,6 +597,7 @@ Do not ask Codex to keep planning from an old lane branch when live repo truth s
 If repo truth is a steady-state `No Active Branch`, it is still not valid to invent the next real runtime candidate without explicit USER approval.
 Do not ask Codex to work directly on `main`; `main` is protected and read-only for Codex work.
 There is no emergency direct-main repair path for Codex.
+For local Nexus work, `D:\Nexus Repos\Nexus Desktop AI Main` is the main/consolidator clone and `D:\Nexus Worktrees\` is the preferred active branch root. Old `C:\` Nexus folders are parked/fallback unless explicitly reactivated, and `C:\Nexus Desktop AI` on `codex/ai-llm-lab` is historical AI lab/planning context only.
 Any tracked file mutation while Codex is on `main` is a `Main Write Attempt`.
 
 ## PR Readiness Green Output

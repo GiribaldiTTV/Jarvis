@@ -455,12 +455,26 @@ That means:
   - between-branch canon repair is blocked
   - standalone docs/governance, emergency canon repair, and repair-only feature branches are blocked for future Nexus work
   - governance, docs, source-of-truth, and validator repairs must ride inside the next legitimate runtime-focused backlog branch during `Branch Readiness` or `PR Readiness`
+  - a USER-approved workspace-resilience or dev-tooling governance foundation carrier may exist only when repo truth records a multi-worktree/thread-safety gap that blocks safe future branch work; it must not admit runtime implementation, package admission, release work, issue work, AI Product Contract import, or future standalone governance branch creation
   - if no runtime-focused branch is legally admitted yet, record the drift as a blocker and wait instead of creating a repair branch by inertia
   - historical repair-only branch records remain traceability only and do not authorize new repair-only branch creation
   - direct writes to `main` are blocked as `Main Write Attempt`
   - Release Readiness must not absorb docs sync or canon cleanup that PR Readiness should have completed
   - Release Readiness must not mutate files to repair a discovered gap; use `PR Readiness` before merge or the next legitimate runtime-focused backlog branch's `Branch Readiness` after merge
 - do not use canon sync as an excuse for broad unrelated documentation churn
+
+Thread / Worktree Identity Preflight:
+
+- before `Branch Readiness Stage 2`, `Workstream`, `Hardening`, `Live Validation`, `PR Readiness`, `Release Readiness`, branch creation, worktree creation, commit, push, PR creation, release action, or GitHub Desktop handoff, Codex must verify the current working directory, git repository root, branch, upstream, `HEAD`, `origin/main`, `git worktree list`, clean/dirty state, and the intended local workspace role
+- local workspace roles are `Main/consolidator`, `active branch worktree`, `parked fallback`, `historical/lab context`, `private/dev workspace`, or `artifact output root`
+- `D:\Nexus Repos\Nexus Desktop AI Main` is the local main/consolidator clone; `D:\Nexus Worktrees\` is the preferred active branch worktree root; `D:\Nexus Dev ORIN\` and `D:\Nexus Artifacts\` remain private/dev or artifact roots whose contents are evidence only until legally imported
+- `C:\Nexus Desktop AI` on `codex/ai-llm-lab` is parked lab/planning context only and must not be used as a governance carrier, runtime carrier, or FAM-007 implementation carrier unless later imported through USER-approved repo governance
+- future FAM-007 worktrees must branch from updated `origin/main`, not from the parked AI lab branch
+- before interactive desktop validation, Codex must confirm no Nexus/Python runtime from another worktree is active; only one interactive desktop validation may run at a time
+- across related Nexus worktrees, use one Git operation at a time where practical, and run source-truth freshness checks before phase transitions
+- before PR creation, run changed-file overlap review and merge/conflict forecasting against `origin/main`
+- before USER-driven GitHub Desktop operations, confirm GitHub Desktop is bound to the intended local repository folder
+- if the active folder, branch, upstream, or workspace role does not match the requested work, stop on `Thread / Worktree Identity Mismatch` and report expected workspace, actual workspace, expected branch, actual branch, expected thread/workstream role, actual repo state, and the safest next correction
 
 Local docs overlays are reference material only until revalidated against updated `origin/main`.
 
