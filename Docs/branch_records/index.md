@@ -26,13 +26,13 @@ Do not use this layer to replace:
 - new governance-only branches are not used for Nexus work
 - Standalone docs/governance, emergency canon repair, and repair-only feature branches are blocked for future Nexus work.
 - Governance, docs, source-of-truth, and validator repairs must ride inside the next legitimate runtime-focused backlog branch during `Branch Readiness` or `PR Readiness`.
-- If USER explicitly admits a real release-support or release-packaging carrier before the next runtime-focused branch, blocker-clearing governance closeout may ride inside that carrier's `Branch Readiness` before release-readiness work begins.
+- If release publication exposes release-dependent canon drift, the drift must be recorded for the next legitimate runtime-focused branch's `Branch Readiness Stage 1` and repaired in `Branch Readiness Stage 2` before implementation begins.
 - If no runtime-focused branch is legally admitted yet, record the drift as a blocker and wait instead of creating a repair branch by inertia.
 - Historical repair-only branch records remain traceability only and do not authorize new repair-only branch creation.
-- Post-merge closeout proof must be in merged source truth, not only in a deleted branch, reflog, automation memory, or conversation transcript. If missing proof blocks release, carry the closeout on a real release-support carrier; if product work is next, carry it on the next real runtime package carrier.
-- Post-release canon closure must land in remote source truth after release execution. A local-only post-release closure commit is a blocker, not completed source truth; protected-main branch rejection must route to a real release-support closure branch/PR rather than direct-main mutation or standalone cleanup by default.
-- Release execution is not fully closed until post-release canon closure lands in remote source truth.
-- Post-release validation must compare published GitHub release/tag truth against remote repo source truth before release execution is considered fully closed, and runtime Branch Readiness remains blocked until release publication and canon closure are both complete.
+- Post-merge closeout proof must be in merged source truth, not only in a deleted branch, reflog, automation memory, or conversation transcript. If the branch has not merged, return to `PR Readiness`; if the branch has already merged, carry the closeout on the next real runtime package carrier's `Branch Readiness`.
+- Post-release canon closure must land in remote source truth after release execution. A local-only post-release closure commit is a blocker, not completed source truth; protected-main branch rejection must route to the next approved Branch Readiness Stage 2 canon/governance repair carrier rather than direct-main mutation, standalone cleanup, or a default release-support branch.
+- release execution and post-release canon closure are separate; release publication may exist before merge-stable source truth has recorded the post-release closure.
+- post-release validation must compare published GitHub release/tag truth and release-body format against remote repo source truth. runtime implementation remains blocked until release publication exists, post-release canon drift is explicitly recorded or repaired through the approved Branch Readiness carrier, and owning validation reports green.
 - The one-time `codex/one-time-backlog-governance-repair` branch is USER-admitted as `repair/dev-tooling-governance` to repair the blocker rule that allowed FB-027/PR #109 drift; it does not reopen governance-only branch creation as a default path.
 - between-branch canon repair is blocked
 - missed PR Readiness canon work must be carried by the next legitimate runtime-focused backlog branch's `Branch Readiness` before implementation begins
@@ -83,6 +83,7 @@ None.
 
 ## Historical Branch Authority Records
 
+- `Docs/branch_records/codex_fam_007_branch_readiness.md`
 - `Docs/branch_records/feature_fam_006_monitoring_hud_product_surface.md`
 - `Docs/branch_records/codex_v1_6_13_prebeta_post_release_canon_closure.md`
 - `Docs/branch_records/codex_v1_6_13_prebeta_pr112_source_truth_closeout.md`
