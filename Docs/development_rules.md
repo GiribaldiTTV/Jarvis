@@ -68,6 +68,7 @@ Use this layered ownership model:
 - validation helper registry = repo-wide helper naming, helper ownership, reuse-first inventory, workstream-scoped exception markers, and consolidation contract
 - branch authority records = repo-owned phase owners for selected `Registry-only` backlog branches in `Branch Readiness`, approved `release packaging` branches, active runtime-focused branches that must carry bounded governance/source-of-truth repairs before PR green, and preserved historical repair records; standalone docs/governance, emergency canon repair, and repair-only feature branches are blocked for future Nexus work
 - Element Validation Ledger = row-level created/touched/affected/deferred/future element proof tracking owned by the existing workstream doc or branch authority record; use a companion file only when that owning record points to it canonically
+- `Docs/nexus_startup_contract.md` = ChatGPT/new-chat loader map and prompt-generation guardrail owner, including the Nexus Prompt Gate final scrub rule when prompt generation, bootstrap continuity, or loader/source-truth drift review is in scope
 - `Docs/Main.md` = routing authority aligned to merged truth
 - active branch names must not use the `codex/` prefix; use `feature/` or another USER-approved non-`codex/` prefix, and treat historical `codex/` branch names as traceability only
 
@@ -471,9 +472,15 @@ Thread / Worktree Identity Preflight:
 
 - before `Branch Readiness Stage 2`, `Workstream`, `Hardening`, `Live Validation`, `PR Readiness`, `Release Readiness`, branch creation, worktree creation, commit, push, PR creation, release action, meaningful repo work, file mutation, or GitHub Desktop handoff, Codex must verify the current working directory, git repository root, branch, upstream, `HEAD`, `origin/main`, `git worktree list`, clean/dirty state, intended local workspace role, expected phase/seam, and intended write target
 - local workspace roles are `Main/consolidator`, `active branch worktree`, `parked fallback`, `historical/lab context`, `private/dev workspace`, or `artifact output root`
-- `C:\Nexus Desktop AI` is the active local workspace only when the active branch record and Thread / Worktree Identity Preflight agree; as of FAM-007 Stage 2 readiness/admission it carries `feature/fam-007-stage-2-readiness-admission`
-- `D:\Nexus Repos\Nexus Desktop AI Main` is retained as a clean main/consolidator fallback; `D:\Nexus Worktrees\` remains a governed worktree root, but retired worktrees there are not active carriers unless a current branch record names them; `D:\Nexus Dev ORIN\` and `D:\Nexus Artifacts\` remain private/dev or artifact roots whose contents are evidence only until legally imported
+- `C:\Nexus Desktop AI` is the local main/consolidator workspace by default after workspace reconsolidation; tracked file edits on `main` remain blocked, and it becomes an active branch workspace only when the active branch record and Thread / Worktree Identity Preflight assign it
+- `C:\Nexus Worktrees\` is the governed local root for active branch worktrees after workspace reconsolidation; retired worktrees there are not active carriers unless a current branch record names them
+- `D:\Nexus Repos\Nexus Desktop AI Main` and `D:\Nexus Worktrees\` are retained fallback/historical workspace paths unless later USER-approved governance or identity preflight assigns them a current role; `D:\Nexus Dev ORIN\` and `D:\Nexus Artifacts\` remain private/dev or artifact roots whose contents are evidence only until legally imported
 - `codex/ai-llm-lab` is historical AI Lab planning traceability only; after USER-approved consolidation into the current feature branch it has no active local/remote branch ref and must not be recreated or reused as a governance carrier, runtime carrier, or FAM-007 implementation carrier without USER-approved repo governance
+- assigned parallel worktrees are allowed when USER explicitly assigns separate Codex threads to separate active branch worktrees; each assigned thread must record its expected path, branch, upstream, `HEAD`, `origin/main`, source-truth owner, write target, and worktree role before mutation
+- the default repo-wide limit is two active assigned branch worktrees; a third active branch worktree or any same-file/same-source-truth-owner overlap between active worktrees requires a USER decision before continued mutation
+- an assigned thread may have no created branch yet when it is intentionally waiting in Release Readiness analysis, Branch Readiness Stage 1 analysis, or updated-main wait posture for another branch to merge; this is `Waiting For Updated Main`, not an active branch worktree, and it must remain file-freeze/read-only until updated `origin/main` is fetched, source truth is revalidated, and USER approves any later branch creation or mutation
+- multi-worktree branch health markers are: clean/dirty state, ahead/behind state, merge-base freshness, current `origin/main`, upstream reachability, merge forecast, open PR state, branch retirement/cleanup expectation, and whether the branch has source truth projected to merge-stable posture
+- multi-worktree file health markers are: changed-file list, intended write set, shared-file overlap with the other active worktree, generated/log artifacts, validator/helper files, source-truth files, line-ending warnings, and unresolved conflict risk
 - future FAM-007 worktrees must branch from updated `origin/main`, not from the parked AI lab branch
 - before interactive desktop validation, Codex must confirm no Nexus/Python runtime from another worktree is active; only one interactive desktop validation may run at a time
 - across related Nexus worktrees, use one Git operation at a time where practical, and run source-truth freshness checks before phase transitions
@@ -707,6 +714,15 @@ If Codex cannot self-run the same path reliably, it must say so explicitly and i
 
 When a slice materially changes user-facing desktop UI, Codex must also plan a post-green live launched-process UI audit before closeout.
 That audit is a closeout-quality check, not a screenshot requirement for every seam iteration.
+
+When the approved issue itself is visual or layout-specific, marker proof and
+functional click-path proof are not enough. The H1/live validation path must
+include a check that would fail the reported visible defect, such as measured
+geometry, overlap/gutter assertions, screenshot audit evidence, or another
+durable visual proof tied to the exact user concern. If returned USER media
+contradicts the active-client result, treat the active-client result as
+insufficient proof, reopen the branch to Hardening, and patch validation before
+claiming PR readiness.
 
 For runtime, UI, startup, prompt, voice, or other operator-facing implementation slices, green validators are necessary but not sufficient on their own.
 

@@ -147,6 +147,7 @@ body.desktop-mode #monitoring-hud > * {
 }
 
 .monitoring-hud__chrome {
+  position: relative;
   display: flex;
   flex-direction: column;
   width: 100%;
@@ -237,7 +238,7 @@ body.desktop-mode #monitoring-hud > * {
   text-transform: none;
 }
 
-.monitoring-hud__mode-stack {
+.monitoring-hud__chrome-actions {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
@@ -262,6 +263,28 @@ body.desktop-mode #monitoring-hud > * {
   border-color: rgba(121, 226, 255, 0.18);
   background: rgba(6, 24, 42, 0.48);
   color: rgba(171, 229, 243, 0.86);
+}
+
+.monitoring-hud__chrome-button,
+.monitoring-hud__child-window-close {
+  min-height: 34px;
+  border: 1px solid rgba(122, 232, 255, 0.26);
+  border-radius: 999px;
+  background: linear-gradient(145deg, rgba(7, 42, 62, 0.9), rgba(3, 18, 32, 0.88));
+  color: rgba(235, 252, 255, 0.96);
+  font-family: "Bahnschrift", "Rajdhani", "Segoe UI", sans-serif;
+  font-size: 12px;
+  font-weight: 760;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.monitoring-hud__chrome-button {
+  width: 100%;
+  padding: 8px 14px;
+  border-color: rgba(126, 248, 218, 0.38);
+  background: linear-gradient(145deg, rgba(7, 57, 63, 0.86), rgba(5, 30, 48, 0.82));
 }
 
 .monitoring-hud__summary {
@@ -331,8 +354,7 @@ body.desktop-mode #monitoring-hud > * {
 }
 
 .monitoring-hud__control-button,
-.monitoring-hud__hub-action,
-.monitoring-hud__selector-control select {
+.monitoring-hud__hub-action {
   min-height: 38px;
   border: 1px solid rgba(117, 228, 255, 0.22);
   border-radius: 999px;
@@ -389,6 +411,12 @@ body.desktop-mode #monitoring-hud > * {
 .monitoring-hud__hub-action[data-control="open-data-sources"] {
   border-color: rgba(126, 248, 218, 0.34);
   background: linear-gradient(145deg, rgba(7, 57, 63, 0.82), rgba(5, 30, 48, 0.78));
+}
+
+.monitoring-hud__hub-action--secondary {
+  border-color: rgba(149, 176, 194, 0.24);
+  background: rgba(12, 29, 42, 0.54);
+  color: rgba(176, 204, 214, 0.78);
 }
 
 .monitoring-hud__control-button[data-control="warning-notifications"],
@@ -455,6 +483,9 @@ body.desktop-mode #monitoring-hud > * {
 .monitoring-hud__control-hub {
   flex: 1 1 auto;
   min-height: 0;
+  grid-template-columns: minmax(0, 1fr);
+  grid-auto-flow: row;
+  grid-auto-rows: max-content;
   overflow-x: hidden;
   overflow-y: auto;
   overscroll-behavior: contain;
@@ -469,6 +500,7 @@ body.desktop-mode #monitoring-hud > * {
   display: flex;
   min-width: 0;
   min-height: 0;
+  box-sizing: border-box;
   flex-direction: column;
   gap: 11px;
   padding: 14px;
@@ -481,6 +513,16 @@ body.desktop-mode #monitoring-hud > * {
     rgba(4, 16, 29, 0.68);
   background-size: 20px 20px, 20px 20px, auto, auto;
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.025);
+}
+
+.monitoring-hud__hub-card--monitor-groups {
+  display: grid;
+  align-self: start;
+  align-content: start;
+  grid-template-columns: minmax(0, 1fr);
+  grid-auto-rows: max-content;
+  gap: 10px;
+  justify-content: flex-start;
 }
 
 .monitoring-hud__hub-card-topline {
@@ -515,6 +557,7 @@ body.desktop-mode #monitoring-hud > * {
 
 .monitoring-hud__hub-card p,
 .monitoring-hud__hub-card small {
+  display: block;
   margin: 0;
   color: rgba(181, 218, 229, 0.86);
   font-size: 12px;
@@ -565,30 +608,9 @@ body.desktop-mode #monitoring-hud > * {
   line-height: 1.28;
 }
 
-.monitoring-hud__selector-control {
-  display: inline-flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 10px;
-  font-size: 12px;
-  font-weight: 740;
-  letter-spacing: 0.11em;
-  text-transform: uppercase;
-  color: rgba(139, 233, 255, 0.86);
-}
-
-.monitoring-hud__selector-control select {
-  min-height: 36px;
-  min-width: 180px;
-  border: 1px solid rgba(117, 228, 255, 0.22);
-  border-radius: 999px;
-  background: rgba(6, 28, 48, 0.76);
-  color: rgba(232, 250, 255, 0.94);
-  font-family: "Bahnschrift", "Rajdhani", "Segoe UI", sans-serif;
-  font-size: 12px;
-  font-weight: 720;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+.monitoring-hud__monitor-summary-grid {
+  display: grid;
+  gap: 4px;
 }
 
 #monitoring-hud-monitor-list-summary {
@@ -597,6 +619,141 @@ body.desktop-mode #monitoring-hud > * {
   color: rgba(173, 213, 226, 0.82);
   font-size: 12px;
   font-weight: 650;
+}
+
+.monitoring-hud__child-window-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 40;
+  display: grid;
+  place-items: center;
+  padding: 22px;
+  background: rgba(1, 8, 16, 0.72);
+  backdrop-filter: blur(10px);
+  pointer-events: auto;
+}
+
+.monitoring-hud__child-window-layer[hidden],
+.monitoring-hud__child-window[hidden] {
+  display: none;
+}
+
+.monitoring-hud__child-window {
+  width: min(440px, calc(100% - 24px));
+  max-height: min(620px, calc(100% - 24px));
+  overflow: auto;
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid rgba(122, 232, 255, 0.26);
+  border-radius: 8px;
+  background:
+    linear-gradient(90deg, rgba(117, 228, 255, 0.04) 1px, transparent 1px),
+    linear-gradient(rgba(117, 228, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(145deg, rgba(5, 23, 39, 0.98), rgba(2, 10, 20, 0.98));
+  background-size: 20px 20px, 20px 20px, auto;
+  box-shadow:
+    0 18px 40px rgba(0, 0, 0, 0.52),
+    0 0 0 1px rgba(230, 251, 255, 0.05) inset;
+}
+
+.monitoring-hud__child-window-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.monitoring-hud__child-window-header span,
+.monitoring-hud__child-field,
+.monitoring-hud__child-check,
+.monitoring-hud__child-list button {
+  color: rgba(139, 233, 255, 0.86);
+  font-size: 12px;
+  font-weight: 740;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.monitoring-hud__child-window-header strong {
+  display: block;
+  margin-top: 4px;
+  color: rgba(234, 253, 255, 0.95);
+  font-size: 18px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.monitoring-hud__child-window-close {
+  padding: 8px 12px;
+  flex: 0 0 auto;
+}
+
+.monitoring-hud__child-field {
+  display: grid;
+  gap: 7px;
+}
+
+.monitoring-hud__child-field input,
+.monitoring-hud__child-field select {
+  min-height: 36px;
+  box-sizing: border-box;
+  width: 100%;
+  border: 1px solid rgba(117, 228, 255, 0.22);
+  border-radius: 8px;
+  background: rgba(6, 28, 48, 0.76);
+  color: rgba(232, 250, 255, 0.94);
+  font-family: "Bahnschrift", "Rajdhani", "Segoe UI", sans-serif;
+  font-size: 13px;
+  font-weight: 650;
+  padding: 8px 10px;
+}
+
+.monitoring-hud__child-check {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  line-height: 1.3;
+}
+
+.monitoring-hud__child-check input {
+  width: 18px;
+  height: 18px;
+  accent-color: rgba(126, 248, 218, 0.9);
+}
+
+.monitoring-hud__child-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(132px, 1fr));
+  gap: 8px;
+}
+
+.monitoring-hud__child-list button {
+  min-height: 34px;
+  border: 1px solid rgba(117, 228, 255, 0.18);
+  border-radius: 8px;
+  background: rgba(6, 28, 48, 0.66);
+  color: rgba(229, 249, 255, 0.9);
+  cursor: pointer;
+}
+
+.monitoring-hud__child-list button[aria-pressed="true"] {
+  border-color: rgba(126, 248, 218, 0.42);
+  background: linear-gradient(145deg, rgba(7, 57, 63, 0.86), rgba(5, 30, 48, 0.82));
+}
+
+.monitoring-hud__child-note {
+  margin: 0;
+  color: rgba(181, 218, 229, 0.86);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.36;
+}
+
+.monitoring-hud__child-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
 .monitoring-hud__grid,
@@ -1061,7 +1218,7 @@ body.desktop-mode #monitoring-hud > * {
     flex-direction: column;
   }
 
-  .monitoring-hud__mode-stack {
+  .monitoring-hud__chrome-actions {
     align-items: flex-start;
     flex-direction: row;
     flex-wrap: wrap;

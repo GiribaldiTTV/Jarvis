@@ -15,7 +15,7 @@ This branch is the USER-approved implementation carrier for the first FAM-006 Da
 
 It exists because PR #122 merged the FAM-006 issue-readiness governance repair, the five locked FAM-006 Dashboard GitHub issues were created from updated main using summary-only evidence, and USER approved this first branch to carry the released Dashboard render/layout confidence issues before IA/control follow-through begins.
 
-This record now preserves PR #129 merged historical evidence and merged-unreleased release-debt truth. Release/tag/artifact work, raw evidence upload/import/linking, Workspace Runtime Isolation Stage 2, Branch 2 work for #125 and #126, extra runtime work outside #123/#124/#127, FAM-007/local AI runtime work, AI Product Contract import, deleting D-drive main/folders, shortcut retargeting, and recreating or reusing codex/ai-llm-lab remain future USER approval checkpoints.
+This record now preserves PR #129 merged historical evidence, issues #123/#124/#127 completed-by-PR #129 source-truth, and merged-unreleased release-debt truth. GitHub issue closeout for #123/#124/#127, release/tag/artifact work, raw evidence upload/import/linking, Workspace Runtime Isolation Stage 2, extra runtime work outside #123/#124/#127, FAM-007/local AI runtime work, AI Product Contract import, deleting D-drive main/folders, shortcut retargeting, and recreating or reusing codex/ai-llm-lab remain future USER approval checkpoints. Branch 2 work for #125/#126 is carried by `feature/fam-006-dashboard-ia-controls-followthrough` until that branch reaches a PR/merge outcome.
 
 ## Record State
 
@@ -23,7 +23,7 @@ This record now preserves PR #129 merged historical evidence and merged-unreleas
 
 ## Status
 
-- `Merged through PR #129; Dashboard render/layout hardening issues #123, #124, and #127 are merged-unreleased release debt after v1.7.0-prebeta; Branch 2/future work remains deferred`
+- `Merged through PR #129; Dashboard render/layout hardening issues #123, #124, and #127 are completed-by-PR #129 and merged-unreleased release debt after v1.7.0-prebeta; GitHub issue closeout remains separate USER-gated work; #125/#126 are carried by the active Branch 2 issue-resolution branch`
 
 ## Canonical Branch
 
@@ -69,7 +69,7 @@ This record now preserves PR #129 merged historical evidence and merged-unreleas
 
 ## Future USER Approval Checkpoints
 
-- PR merge is complete; release/tag/artifact work remains a future USER approval checkpoint.
+- PR merge is complete for PR #129; GitHub issue closeout for #123/#124/#127 remains a future USER approval checkpoint.
 - Release/tag/artifact work remains a future USER approval checkpoint.
 - Raw evidence upload/import/linking remains a future USER approval checkpoint; raw screenshots/videos stay local/external.
 - FAM-007/local AI work remains separate and requires later USER approval.
@@ -114,7 +114,7 @@ Rollback Path: revert this branch before PR if the Dashboard render/layout repai
 
 - `Release Readiness`
 
-Next Legal Phase Gate: Release handling remains a later USER approval checkpoint because PR #129 merged after `v1.7.0-prebeta` and is now merged-unreleased implementation debt. This record does not itself approve release work, raw evidence upload/import/linking, Workspace Runtime Isolation Stage 2, FAM-007/local AI runtime work, or Branch 2 implementation.
+Next Legal Phase Gate: Release handling remains a later USER approval checkpoint because PR #129 merged after `v1.7.0-prebeta` and is now merged-unreleased implementation debt. GitHub issue closeout for #123/#124/#127, raw evidence upload/import/linking, Workspace Runtime Isolation Stage 2, FAM-007/local AI runtime work, and any Branch 2 PR/merge/issue closeout action remain separate USER approval checkpoints.
 
 ## Post-Merge State
 

@@ -51,7 +51,9 @@ This loader routes to these authorities:
 - runtime implementation remains blocked until release publication exists, post-release canon drift is explicitly recorded or repaired through the approved Branch Readiness carrier, and owning validation reports green.
 - runtime work starts only after release publication and canon closure both land and validate; FAM-006 Monitoring and HUD selected-next truth requires explicit USER approval, and branch creation plus runtime package admission remain separately blocked until later Branch Readiness approval.
 - generated prompts should require `Thread / Worktree Identity Preflight` plus `Thread Launch / Write-Target Identity Lock` before Stage 2, phase entry, branch/worktree creation, commit, push, PR work, release work, meaningful repo work, file mutation, runtime validation, shortcut mutation, provider/model installation, or GitHub Desktop handoff; the preflight verifies current working directory, git root, branch, upstream, `HEAD`, `origin/main`, `git worktree list`, clean/dirty state, workspace role, expected phase/seam, intended write target, runtime/process ownership, and GitHub Desktop folder binding when relevant, and stops on `Thread / Worktree Identity Mismatch` with a routing packet when the thread is in the wrong folder, branch, lane, or write target
-- local Nexus workspace prompts should treat `C:\Nexus Desktop AI` as active only when the current branch authority and identity preflight agree, `D:\Nexus Repos\Nexus Desktop AI Main` as the main/consolidator clone, `D:\Nexus Worktrees\` as a governed worktree root, `D:\Nexus Dev ORIN\` and `D:\Nexus Artifacts\` as private/dev or artifact roots whose contents are evidence only until legally imported, and `codex/ai-llm-lab` as historical AI Lab planning traceability with no active local/remote branch ref unless USER-approved repo governance recreates or imports it
+- generated prompts for assigned parallel worktree mode must name the assigned thread/worktree owner, expected branch, expected path, intended write set, source-truth owner, branch health markers, file health markers, runtime/interactive-validation owner, Git operation owner, and GitHub Desktop binding rule; the default limit is two active branch worktrees, and overlap or unknown ownership stops on `Parallel Worktree Coordination Missing`
+- generated prompts may declare an assigned lane as `Waiting For Updated Main` when it is in Release Readiness analysis, Branch Readiness Stage 1 analysis, or another file-freeze analysis posture with no created branch yet; such prompts must keep the lane read-only until the required merge lands in `origin/main` and a new preflight confirms the next legal action
+- local Nexus workspace prompts should treat `C:\Nexus Desktop AI` as the local main/consolidator workspace by default after workspace reconsolidation and as an active branch workspace only when current branch authority plus identity preflight assign it, `C:\Nexus Worktrees\` as the governed local active-branch worktree root, D-drive repo/worktree folders as fallback or historical unless current preflight assigns them, `D:\Nexus Dev ORIN\` and `D:\Nexus Artifacts\` as private/dev or artifact roots whose contents are evidence only until legally imported, and `codex/ai-llm-lab` as historical AI Lab planning traceability with no active local/remote branch ref unless USER-approved repo governance recreates or imports it
 - Nexus project direction remains Windows-first, modular, GPU-aware, privacy/local-first where practical, with a lean default install, optional heavy local AI capability packs, preferred GPU use for supported model workloads, and CPU fallback preserved.
 - the active workstream doc owns branch-local phase truth, evidence, blockers, and next legal phase for promoted work.
 - `Docs/incident_patterns.md` owns generalized recurring drift or validation lessons.
@@ -85,6 +87,35 @@ Preferred ChatGPT prompt-framing pattern:
 Prompts should favor neutral scope language such as `Codex should analyze`, `choose the best path`, `update what is needed`, and `report repair candidates`. Safety boundaries should be stated as repo-truth facts and USER-approval boundaries, not as broad ChatGPT-authored command boxes.
 
 ChatGPT Project Settings may carry a compact form of this rule, but Project Settings text must remain below 8,000 characters. This character limit applies only to ChatGPT Project Settings / custom instructions. It does not apply to this repo loader/source-truth file.
+
+## Nexus Prompt Gate
+
+Before outputting a Codex prompt, ChatGPT or any other prompt-generation layer must run a final Nexus Prompt Gate.
+
+The gate rewrites boundaries as:
+
+- current authorization state
+- future USER approval checkpoints
+- source-truth facts
+- phase, seam, branch, and worktree status
+- stop/report conditions
+- exact USER decisions needed
+
+The gate must mechanically scrub broad command-box wording before prompt output. Flag and rewrite:
+
+- standalone `do not` phrasing when it creates a broad negative boundary list instead of a current authorization or future approval statement
+- standalone `this is not` framing when it defines scope by negation instead of source-truth state
+- standalone `not allowed` phrasing when it can be expressed as a pending USER approval checkpoint, blocker, or stop condition
+- standalone `never` phrasing unless it quotes durable repo law from an owning canon document
+- standalone `forbidden` phrasing unless it quotes durable repo law from an owning canon document
+- broad negative boundary lists that read like a command wall
+- command-box restriction walls that replace source-truth routing, blocker names, or approval-checkpoint language
+
+The gate preserves hard repo law when the owning canon requires it. Durable rules such as protected-main law, phase blockers, branch-prefix law, release file-freeze, and USER approval checkpoints should be stated as source-truth facts with the owning document or blocker name where practical.
+
+Preferred prompt wording uses phrases such as `current authorization covers`, `future USER approval checkpoint`, `source truth records`, `surface before continuing`, `stop and report`, `preserve separation from`, and `exact decision needed`.
+
+If a generated prompt cannot pass the Nexus Prompt Gate without changing USER intent, the prompt should report the conflict as a prompt-generation blocker and ask for the exact USER decision needed rather than outputting an ambiguous command wall.
 
 ## Loader Contract
 
