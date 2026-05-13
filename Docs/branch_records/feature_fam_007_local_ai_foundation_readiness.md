@@ -155,7 +155,10 @@ Next Legal Phase Gate: `PR Readiness Stage 2 owns final PR package sync, PR crea
 - Watcher Routing Proof: `PASS for configuration - automation.toml records target_thread_id 019e1c10-ee6d-7420-937b-4b01bd706086 for this thread`
 - Watcher Runtime Proof: `Pending first heartbeat emission; ACTIVE configuration state is not runtime proof`
 - Watcher Teardown Rule: `Watcher must be deleted after PR #128 reaches merged=true or closed=true and terminal same-thread delivery proof is present`
-- Bot Review Signal: `Pending live Codex bot signal; actionable bot comments require same-branch repair before PR green`
+- Bot Review Signal: `Comment addressed`
+- Bot Review Signal Repair Commit: `53e5df02b8e230bf549402c2575b42d4cd47d487`
+- Bot Review Signal Source: `Codex review thread PRRT_kwDORwnWIs6B0VZy / comment PRRC_kwDORwnWIs7A3dC1 on Docs/feature_backlog.md registry row`
+- Bot Review Signal Closeout: `Replied and resolved review thread after updating FAM-007 registry row to candidate/planned planning baseline with historical branch authority planning trace`
 
 ## Branch Objective
 
