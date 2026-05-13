@@ -24,7 +24,7 @@ Current authorization covered Hardening/H1 validation, PR Readiness Stage 2, PR 
 
 ## Status
 
-- `Dashboard IA/control follow-through PR #132 merged for issues #125 and #126; GitHub issue closeout/comment updates, release work, and raw evidence handling remain blocked pending USER approval`
+- `Dashboard IA/control follow-through PR #132 merged for issues #125 and #126; GitHub issue closeout/comment updates, release work, and raw evidence handling remain pending USER approval`
 
 ## Canonical Branch
 
@@ -420,7 +420,7 @@ PR #131 State: `MERGED - FAM-007 runtime provider boundary readiness merged at 3
 
 Branch 1 Record Reconciliation: `Resolved - PR #129 historical evidence, completed-by-PR #129 issue truth for #123/#124/#127, merged-unreleased release-debt truth, and Branch 2 routing for #125/#126 are preserved together.`
 
-Branch 2 Stale-Wording Repair: `Resolved - source truth now records #125/#126 Workstream implementation, H1 visual repair, PR creation, bot-review closeout, and merge as complete, with GitHub issue state/comment updates and release execution still blocked pending later USER approval.`
+Branch 2 Stale-Wording Repair: `Resolved - source truth now records #125/#126 Workstream implementation, H1 visual repair, PR creation, bot-review closeout, and merge as complete, with GitHub issue state/comment updates and release execution remaining pending later USER approval.`
 
 FAM-007 Boundary Preservation: `PR #130 and PR #131 are current-main history only for this FAM-006 carrier. They do not authorize FAM-007/local AI runtime work, AI Product Contract import, provider/model/runtime/memory/shortcut/installer work, or Workspace Runtime Isolation Stage 2 inside Branch 2.`
 
