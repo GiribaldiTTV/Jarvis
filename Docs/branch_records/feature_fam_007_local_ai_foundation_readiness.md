@@ -141,7 +141,7 @@ Next Legal Phase Gate: `PR Readiness Stage 2 owns final PR package sync, PR crea
 - PR Title: `Record FAM-007 local AI foundation planning`
 - PR Base Branch: `main`
 - PR Head Branch: `feature/fam-007-local-ai-foundation-readiness`
-- PR Head SHA: `c080d7790987cbecadbf663fa91fd7d629138ff1`
+- PR Head SHA: `validated by live PR inspection during PR Readiness; do not pin this field to a branch-head hash in merge-target truth`
 - PR State At Creation: `OPEN / non-draft / MERGEABLE`
 - PR Summary: `Record FAM-007 Local AI Foundation candidate/planned planning truth, keep PKG-007 and slices pending only, preserve AI Product Contract v0.6.2 as planning evidence only, and project merged-main truth to No Active Branch.`
 - Watcher ID: `fam-007-pr-128-watcher`
