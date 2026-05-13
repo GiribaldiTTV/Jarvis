@@ -55,7 +55,7 @@ Current authorization covers PR Readiness Stage 2 final package sync, live PR cr
 - GitHub Issue Traceability: `Branch carrier comments added to #123, #124, and #127 during this Stage 2 setup; issue body edits beyond planning references remain blocked`
 - PR Metadata: `PR #129 - https://github.com/GiribaldiTTV/Nexus-Desktop-AI/pull/129`
 - Live PR Truth: `OPEN / ready for review / head feature/fam-006-dashboard-render-layout-hardening / base main / mergeable MERGEABLE / merge state CLEAN / no checks reported at creation`
-- PR Bot Review Signal: `Pending live PR bot signal after PR creation`
+- PR Bot Review Signal: `Comment addressed - PR #129 Codex P2 thread replied to and resolved after bounded user-geometry override repair commit 24da9faffad902bf976b5f9f1340dfbbb2bc8575`
 - FAM-007 / Local AI Authority: `Blocked and out of scope`
 
 ## Branch Class
@@ -152,7 +152,7 @@ PR Mergeability: `MERGEABLE / CLEAN`
 
 PR Checks: `No checks reported at creation`
 
-PR Bot Review Signal: `Pending - Stage 2 must report the live PR state and wait for a thumbs-up reaction or bot comment before PR green if repo bot-review governance requires it`
+PR Bot Review Signal: `Comment addressed - Codex P2 review thread PRRT_kwDORwnWIs6B2tcf was replied to and resolved after repair commit 24da9faffad902bf976b5f9f1340dfbbb2bc8575`
 
 PR Summary:
 
@@ -219,7 +219,21 @@ Repair Validation:
 
 Runtime Cleanup Result: `PASS - no active Nexus/Python runtime process remained after bounded PR #129 repair proof`
 
-Thread Closeout State: `Pending - repair commit must be pushed, the PR #129 bot-review thread replied to and resolved, and PR Bot Review Signal source truth recorded before PR green`
+Thread Closeout State: `Resolved - repair commit 24da9faffad902bf976b5f9f1340dfbbb2bc8575 was pushed, PR #129 comment 3236612974 was replied to with comment 3236690472, and review thread PRRT_kwDORwnWIs6B2tcf was resolved`
+
+## PR Bot Review Signal
+
+Bot Review Signal Status: `Comment addressed`
+
+Bot Review Signal Head SHA: `24da9faffad902bf976b5f9f1340dfbbb2bc8575`
+
+Bot Review Signal Source: `PR #129 Codex P2 review thread PRRT_kwDORwnWIs6B2tcf on desktop/desktop_renderer.py comment 3236612974; reply comment 3236690472 recorded the fix and validation; thread resolved`
+
+Bot Review Signal Timestamp: `2026-05-13T18:48:52Z`
+
+Bot Review Signal Actor: `chatgpt-codex-connector`
+
+Bot Review Closeout Scope: `Bounded PR #129 same-thread repair for the Dashboard native move/user geometry override path; later source-truth-only follow-through after the recorded head remains limited to branch-record closeout metadata`
 
 ## Branch Objective
 
