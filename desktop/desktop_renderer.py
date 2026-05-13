@@ -8520,6 +8520,66 @@ class DesktopRuntimeWindow(QWidget):
             rect = geometry.get(name)
             return self._monitoring_hud_screen_point_from_page_rect(rect if isinstance(rect, dict) else None)
 
+        def rect_from(result: dict, name: str) -> dict:
+            geometry = result.get("geometry") or {}
+            rect = geometry.get(name) if isinstance(geometry, dict) else {}
+            return rect if isinstance(rect, dict) else {}
+
+        def rect_number(rect: dict, key: str) -> float:
+            try:
+                return float(rect.get(key) or 0)
+            except (TypeError, ValueError):
+                return 0.0
+
+        def rect_present(rect: dict, *, min_width: float = 24.0, min_height: float = 18.0) -> bool:
+            return rect_number(rect, "width") >= min_width and rect_number(rect, "height") >= min_height
+
+        def vertical_gap(upper: dict, lower: dict) -> float:
+            return rect_number(lower, "top") - rect_number(upper, "bottom")
+
+        def rects_intersect(first: dict, second: dict) -> bool:
+            if not rect_present(first, min_width=1, min_height=1) or not rect_present(second, min_width=1, min_height=1):
+                return False
+            horizontal_overlap = max(rect_number(first, "left"), rect_number(second, "left")) < min(
+                rect_number(first, "right"),
+                rect_number(second, "right"),
+            )
+            vertical_overlap = max(rect_number(first, "top"), rect_number(second, "top")) < min(
+                rect_number(first, "bottom"),
+                rect_number(second, "bottom"),
+            )
+            return horizontal_overlap and vertical_overlap
+
+        def monitor_groups_visual_checks(result: dict) -> dict:
+            scroll_well = rect_from(result, "monitorList")
+            card = rect_from(result, "monitorGroupsCard")
+            summary = rect_from(result, "monitorListSummary")
+            summary_grid = rect_from(result, "monitorGroupsSummaryGrid")
+            actions = rect_from(result, "monitorGroupsActions")
+            scope = rect_from(result, "monitorGroupsScope")
+            readiness = rect_from(result, "readinessCard")
+            summary_to_grid_gap = vertical_gap(summary, summary_grid)
+            grid_to_actions_gap = vertical_gap(summary_grid, actions)
+            actions_to_scope_gap = vertical_gap(actions, scope)
+            return {
+                "monitor_groups_scroll_well_present": rect_present(scroll_well, min_width=260, min_height=300),
+                "monitor_groups_card_present": rect_present(card, min_width=240, min_height=120),
+                "monitor_groups_summary_present": rect_present(summary, min_width=180, min_height=12),
+                "monitor_groups_summary_grid_present": rect_present(summary_grid, min_width=180, min_height=48),
+                "monitor_groups_actions_present": rect_present(actions, min_width=160, min_height=28),
+                "monitor_groups_scope_present": rect_present(scope, min_width=180, min_height=12),
+                "monitor_groups_readiness_card_present": rect_present(readiness, min_width=240, min_height=120),
+                "monitor_groups_summary_gap_not_dead_space": 0 <= summary_to_grid_gap <= 56,
+                "monitor_groups_actions_follow_summary": 0 <= grid_to_actions_gap <= 40,
+                "monitor_groups_scope_follows_actions": 0 <= actions_to_scope_gap <= 36,
+                "monitor_groups_scope_inside_card": rect_number(scope, "bottom") <= rect_number(card, "bottom") - 4,
+                "monitor_groups_card_horizontally_inside_scroll_well": (
+                    rect_number(card, "left") >= rect_number(scroll_well, "left") - 2
+                    and rect_number(card, "right") <= rect_number(scroll_well, "right") + 4
+                ),
+                "monitor_groups_no_readiness_overlap": not rects_intersect(card, readiness),
+            }
+
         def assert_user_hit_targets(result):
             geometry = result.get("geometry") or {}
             controls = {
@@ -8579,6 +8639,7 @@ class DesktopRuntimeWindow(QWidget):
                 "dashboard_monitor_management": dataset.get("monitorManagement") == "create-edit-enable-polling",
                 "dashboard_overlay_mode_controls": dataset.get("overlayModeControls") == "overlay-deferred-tray-owned",
                 "dashboard_settings_content_polished": dataset.get("dashboardContentPolish") == "branch2-monitor-groups-no-dead-space",
+                "dashboard_layout_proof": dataset.get("dashboardLayoutProof") == "monitor-groups-measured-no-overlap",
                 "dashboard_close_affordance": dataset.get("dashboardCloseAffordance") == "top-chrome-close-button",
                 "dashboard_open_badge_removed": dataset.get("dashboardOpenBadge") == "removed",
                 "dashboard_child_window_scope": dataset.get("dashboardChildWindowScope") == "branch2-create-edit-monitor-windows",
@@ -8623,6 +8684,7 @@ class DesktopRuntimeWindow(QWidget):
                 "native_overlay_size": int(overlay_proof.get("w") or 0) >= 360 and int(overlay_proof.get("h") or 0) >= 220,
                 "standalone_hud_layer": isolation.get("hudOutsideCoreScene") is True,
             }
+            checks.update(monitor_groups_visual_checks(result))
             return all(checks.values()), checks
 
         def assert_surface_split(result):
@@ -8851,7 +8913,9 @@ class DesktopRuntimeWindow(QWidget):
                 "overlay_deferred_hidden": overlay_proof.get("visible") is False
                     and overlay_proof.get("dashboardCoupled") is False,
                 "fake_telemetry_policy_blocked": dataset.get("dashboardFakeTelemetryPolicy") == "blocked",
+                "dashboard_layout_proof": dataset.get("dashboardLayoutProof") == "monitor-groups-measured-no-overlap",
             }
+            checks.update(monitor_groups_visual_checks(result))
             return all(checks.values()), checks
 
         def assert_dashboard_close_ready(result):
@@ -8883,6 +8947,7 @@ class DesktopRuntimeWindow(QWidget):
                 "dashboard_monitor_management": dataset.get("monitorManagement") == "create-edit-enable-polling",
                 "dashboard_overlay_mode_controls": dataset.get("overlayModeControls") == "overlay-deferred-tray-owned",
                 "dashboard_settings_content_polish": dataset.get("dashboardContentPolish") == "branch2-monitor-groups-no-dead-space",
+                "dashboard_layout_proof": dataset.get("dashboardLayoutProof") == "monitor-groups-measured-no-overlap",
                 "dashboard_close_affordance": dataset.get("dashboardCloseAffordance") == "top-chrome-close-button",
                 "dashboard_open_badge_removed": dataset.get("dashboardOpenBadge") == "removed",
                 "dashboard_child_window_scope": dataset.get("dashboardChildWindowScope") == "branch2-create-edit-monitor-windows",

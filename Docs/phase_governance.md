@@ -1797,6 +1797,20 @@ The canonical rule is narrower:
 - marker-first proof for behavior
 - live launched-process UI audit when meaningful desktop UI changed and closeout depends on user-facing UI quality
 
+### Visual-Claim Proof Lock
+
+When a branch carries a concrete visual/layout concern, H1 or closeout proof must
+prove that exact visible concern with geometry assertions, screenshot audit
+evidence, or an equivalent durable visual check. Dataset markers, copy presence,
+and successful click/action flow cannot by themselves close a visual/layout
+claim.
+
+If USER screenshot or video evidence contradicts a green H1 result, the branch
+returns to Hardening for that concern. Codex must record why the earlier proof
+was insufficient, patch the smallest reliable validator/helper coverage that
+would have caught the defect, rerun validation, and only then recommend PR
+Readiness or user handoff again.
+
 ## Phase Transition Rule
 
 - `Branch Readiness` -> `Workstream` only after branch base, branch class, authority record, branch objective, target end-state, complete family-package product planning packet when applicable, expected seam families and risk classes, validation contract, User Test Summary strategy, later-phase expectations, and first Workstream seam or initial seam sequence are explicit, and no `Branch Readiness Planning Incomplete` blocker remains active unless explicitly USER-waived

@@ -704,6 +704,15 @@ If Codex cannot self-run the same path reliably, it must say so explicitly and i
 When a slice materially changes user-facing desktop UI, Codex must also plan a post-green live launched-process UI audit before closeout.
 That audit is a closeout-quality check, not a screenshot requirement for every seam iteration.
 
+When the approved issue itself is visual or layout-specific, marker proof and
+functional click-path proof are not enough. The H1/live validation path must
+include a check that would fail the reported visible defect, such as measured
+geometry, overlap/gutter assertions, screenshot audit evidence, or another
+durable visual proof tied to the exact user concern. If returned USER media
+contradicts the active-client result, treat the active-client result as
+insufficient proof, reopen the branch to Hardening, and patch validation before
+claiming PR readiness.
+
 For runtime, UI, startup, prompt, voice, or other operator-facing implementation slices, green validators are necessary but not sufficient on their own.
 
 Before continuing to the next implementation slice on the same branch, Codex must also perform a deeper branch-local validation and hardening pass that:

@@ -358,6 +358,7 @@ function monitoringHudRenderMonitorManagement() {
     monitoringHud.dataset.dashboardClippingProof = "within-virtual-desktop";
     monitoringHud.dataset.dashboardDecouplingProof = "core-overlay-independent";
     monitoringHud.dataset.dashboardContentPolish = "branch2-monitor-groups-no-dead-space";
+    monitoringHud.dataset.dashboardLayoutProof = "monitor-groups-measured-no-overlap";
     monitoringHud.dataset.dashboardHomeModel = "control-hub-cards-dedicated-child-window-actions";
     monitoringHud.dataset.dashboardPollingPlacement = "monitor-group-editor-only";
     monitoringHud.dataset.dashboardProofContentPolicy = "validator-artifacts-not-home-surface";
@@ -512,6 +513,7 @@ function monitoringHudUpdateSurfaceSplit() {
     monitoringHud.dataset.interfaceBundleApproval = "not-granted";
     monitoringHud.dataset.coreRepairClassification = "dependency-repair-only";
     monitoringHud.dataset.dashboardContentPolish = "branch2-monitor-groups-no-dead-space";
+    monitoringHud.dataset.dashboardLayoutProof = "monitor-groups-measured-no-overlap";
     monitoringHud.dataset.dashboardSettingsModel = "hud-overlay-monitor-groups-provider-warning";
     monitoringHud.dataset.dashboardHomeModel = "control-hub-cards-dedicated-child-window-actions";
     monitoringHud.dataset.dashboardChildWindowScope = "branch2-create-edit-monitor-windows";
@@ -976,6 +978,13 @@ window.getMonitoringHudLiveClientGeometry = function() {
     warningModeControl: rectFor("#monitoring-hud-warning-mode-control"),
     panelDragHandle: rectFor("#monitoring-hud-drag-handle"),
     monitorList: rectFor("#monitoring-hud-monitor-list"),
+    hudOverlayCard: rectFor('[data-dashboard-hub-card="hud-overlay"]'),
+    monitorGroupsCard: rectFor('[data-dashboard-hub-card="monitor-groups"]'),
+    monitorGroupsSummaryGrid: rectFor('[data-dashboard-hub-card="monitor-groups"] .monitoring-hud__monitor-summary-grid'),
+    monitorGroupsActions: rectFor('[data-dashboard-hub-card="monitor-groups"] .monitoring-hud__hub-actions'),
+    monitorGroupsScope: rectFor("#monitoring-hud-monitor-editor-scope"),
+    dataSourcesCard: rectFor('[data-dashboard-hub-card="data-sources"]'),
+    readinessCard: rectFor('[data-dashboard-hub-card="readiness"]'),
     monitorSelector: null,
     dataSourcesAction: rectFor('[data-control="open-data-sources"]'),
     hudOverlayDeferredAction: rectFor('[data-dashboard-hub-card="hud-overlay"]'),

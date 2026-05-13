@@ -19,11 +19,11 @@ Current authorization covers Hardening/H1 validation for issues #125 and #126 on
 
 ## Record State
 
-- `Active Hardening H1 repair/validation complete for #125/#126; next phase pending USER decision`
+- `Active Hardening H1 visual repair/validation complete for #125/#126 after USER screenshot follow-up; next phase pending USER decision`
 
 ## Status
 
-- `Dashboard IA/control follow-through H1 validation complete for issues #125 and #126; GitHub issue closeout/comment updates and PR creation remain blocked pending USER approval`
+- `Dashboard IA/control follow-through H1 validation repaired and complete for issues #125 and #126; GitHub issue closeout/comment updates and PR creation remain blocked pending USER approval`
 
 ## Canonical Branch
 
@@ -40,9 +40,9 @@ Current authorization covers Hardening/H1 validation for issues #125 and #126 on
 - Branch Creation: `Created in C:\Nexus Worktrees\Nexus Desktop AI FAM-006 Dashboard IA Controls Followthrough from origin/main commit 96ec36e7be751d444eda8dc220bc4a035d44fca1`
 - GitHub Desktop Association: `GitHub Desktop was asked to open/add the new C-drive worktree; local GitHub Desktop log records adding the repository at C:\Nexus Worktrees\Nexus Desktop AI FAM-006 Dashboard IA Controls Followthrough; GitHub Desktop local alias is FAM-006`
 - Workstream USER Approval: `Granted - USER approved runtime implementation on feature/fam-006-dashboard-ia-controls-followthrough in the isolated Branch 2 worktree for GitHub issues #125 and #126 only`
-- Workstream Implementation: `Complete - Monitor Groups card flow now uses dedicated Create Monitor and Edit Monitor child-window flows, the Dashboard-home dropdown is removed, the redundant HUD Dashboard Open badge is removed, and a top-chrome Dashboard close affordance hides the Dashboard without disabling the HUD Feature`
+- Workstream Implementation: `Complete - Monitor Groups card flow now uses dedicated Create Monitor and Edit Monitor child-window flows, the Dashboard-home dropdown is removed, Monitor Groups layout is a measured no-overlap single-column card stack, the redundant HUD Dashboard Open badge is removed, and a top-chrome Dashboard close affordance hides the Dashboard without disabling the HUD Feature`
 - Hardening H1 Admission: `Granted - USER approved H1 validation/hardening for FAM-006 Branch 2 on 2026-05-13 from the isolated Branch 2 worktree`
-- Hardening H1 Status: `PASS - active-client H1 validation completed from C:\Nexus Worktrees\Nexus Desktop AI FAM-006 Dashboard IA Controls Followthrough on 2026-05-13 for #125 and #126 after bounded stale-selector cleanup; formal UTS export remains blocked unless a later governed Live Validation phase is admitted`
+- Hardening H1 Status: `PASS - active-client H1 validation completed from C:\Nexus Worktrees\Nexus Desktop AI FAM-006 Dashboard IA Controls Followthrough on 2026-05-13 for #125 and #126 after bounded stale-selector cleanup and USER-screenshot visual layout repair; formal UTS export remains blocked unless a later governed Live Validation phase is admitted`
 - `Active Branch`: `feature/fam-006-dashboard-ia-controls-followthrough`
 - Branch Authority State: `Active after Hardening H1; PR Readiness Stage 1 pending USER decision`
 - Source-Truth Owner: `This branch record owns Branch 2 setup and issue traceability; Docs/branch_records/feature_fam_006_monitoring_hud_product_surface.md owns historical FAM-006 RUI and issue-queue truth`
@@ -169,7 +169,7 @@ Completion Status: Green
 Remaining Implementable Work: None
 Future-Dependent Blockers: None
 Visible User-Facing Proof Required: Yes for Dashboard IA/control confidence - active-client validation has run from the active Branch 2 worktree; USER visual review remains optional/future if USER wants it before PR Readiness.
-Visible User-Facing Proof: PASS by active-client H1 proof at dev/logs/fam_006_monitoring_hud_live_validation/20260513_130300_320 after stale Dashboard selector residue was removed and validators were updated to guard the no-Dashboard-dropdown contract.
+Visible User-Facing Proof: PASS by active-client H1 proof at dev/logs/fam_006_monitoring_hud_live_validation/20260513_133233_235 after USER screenshot follow-up repaired the Monitor Groups dead-space/overlap defect and validators were updated to guard the visual geometry contract.
 
 ## Product Definition Plan
 
@@ -197,7 +197,7 @@ Workstream Implementation Record:
 
 Implementation Status: `Complete for #125 and #126 on feature/fam-006-dashboard-ia-controls-followthrough`
 
-Issue #125 Implementation: `Monitor Groups card layout no longer uses the old Dashboard-home dropdown/edit selector. The card now exposes only Create Monitor and Edit Monitor actions; each action opens a dedicated child-window flow. The create flow creates/selects a new Monitor Group and the edit flow owns group name, enabled state, and polling floor controls. Monitor selection moved to the Edit Monitor child window only.`
+Issue #125 Implementation: `Monitor Groups card layout no longer uses the old Dashboard-home dropdown/edit selector. The card now exposes only Create Monitor and Edit Monitor actions; each action opens a dedicated child-window flow. The control hub uses a measured single-column card stack so Monitor Groups no longer leaves a center dead zone or overlaps Readiness. The create flow creates/selects a new Monitor Group and the edit flow owns group name, enabled state, and polling floor controls. Monitor selection moved to the Edit Monitor child window only.`
 
 Issue #126 Implementation: `The top Dashboard chrome no longer shows the redundant HUD Dashboard Open badge. It now exposes a Close button that hides the Dashboard while preserving the HUD Feature enabled state and tray/open restoration path. Native Dashboard header hit-testing now treats the close affordance as a control so it is not swallowed by native move/resize handling.`
 
@@ -207,9 +207,9 @@ Validator Files Changed: `dev/orin_monitoring_hud_surface_validation.py`; `dev/o
 
 Source-Truth Files Changed: `Docs/branch_records/feature_fam_006_dashboard_ia_controls_followthrough.md`.
 
-Validation Evidence: `Static HUD validator PASS; internal sandbox validator PASS; active-client live validation PASS at dev/logs/fam_006_monitoring_hud_live_validation/20260513_124941_575; H1 active-client live validation PASS at dev/logs/fam_006_monitoring_hud_live_validation/20260513_130300_320; interaction manifest proves Dashboard close affordance, restored Dashboard control hub, Create Monitor child-window route, Edit Monitor child-window route, monitor editor mutation, and final monitor management state.`
+Validation Evidence: `Static HUD validator PASS; internal sandbox validator PASS; active-client live validation PASS at dev/logs/fam_006_monitoring_hud_live_validation/20260513_124941_575; earlier H1 active-client live validation PASS at dev/logs/fam_006_monitoring_hud_live_validation/20260513_130300_320 is superseded for #125 visual-layout acceptance by USER screenshot follow-up; repaired H1 active-client live validation PASS at dev/logs/fam_006_monitoring_hud_live_validation/20260513_133233_235 proves measured Monitor Groups spacing/no-overlap, Dashboard close affordance, restored Dashboard control hub, Create Monitor child-window route, Edit Monitor child-window route, monitor editor mutation, and final monitor management state.`
 
-H1 Repair Note: `A small #125 hardening defect was found during review: the old Dashboard-home dropdown did not render in the Dashboard DOM, but stale .monitoring-hud__selector-control CSS and validator expectations still preserved legacy monitor-selector styling. The stale CSS was removed and validators now assert that the old Dashboard monitor selector/id/copy are absent from the Dashboard home surface.`
+H1 Repair Note: `Two #125 hardening defects were found after initial implementation: first, stale .monitoring-hud__selector-control CSS and validator expectations preserved legacy monitor-selector styling; second, USER screenshot evidence showed the active-client proof did not catch Monitor Groups dead space/Readiness overlap. The repair removes the stale selector contract, switches the control hub to a no-overlap single-column card stack, exposes Monitor Groups/Readiness geometry to live validation, and requires active-client spacing/overlap assertions before H1 can pass.`
 
 Known Proof Boundary: `This Workstream pass uses Codex active-client proof and repo validators. USER visual review, GitHub issue closeout/comment updates, PR creation, raw evidence upload/import/linking, release work, Workspace Runtime Isolation Stage 2, FAM-007/local AI, AI Product Contract import, and any expansion beyond #125/#126 remain future USER approval checkpoints.`
 
@@ -259,13 +259,33 @@ H1 Validation Commands:
 
 H1 Active-Client Observed Markers: `MONITORING_HUD_DASHBOARD_SURFACE_READY`; `MONITORING_HUD_DASHBOARD_CONTENT_READY`; `MONITORING_HUD_DASHBOARD_MONITOR_GROUP_CLARITY_READY`; `MONITORING_HUD_LIVE_CLIENT_SELF_QA_READY`; `MONITORING_HUD_DASHBOARD_STANDALONE_WINDOW_TRAVEL_READY`; `MONITORING_HUD_DASHBOARD_CLIPPING_BOUNDARY_READY`; `MONITORING_HUD_LIVE_CLIENT_SELF_QA_INTERACTION_READY`.
 
-Issue #125 H1 Result: `PASS by static, sandbox, and active-client proof - Dashboard-home dropdown/id/copy is absent, stale selector CSS was removed, Create Monitor and Edit Monitor are the only Monitor Groups Dashboard-home actions, each action opens a dedicated child-window flow, and the monitor editor mutation/create-edit-enable-polling state passed active-client proof.`
+Issue #125 H1 Result: `PASS by static, sandbox, and active-client proof after USER screenshot repair - Dashboard-home dropdown/id/copy is absent, stale selector CSS was removed, Create Monitor and Edit Monitor are the only Monitor Groups Dashboard-home actions, each action opens a dedicated child-window flow, the Monitor Groups card no longer has the screenshot-reported dead-space/Readiness overlap, and the monitor editor mutation/create-edit-enable-polling state passed active-client proof.`
 
 Issue #126 H1 Result: `PASS by static, sandbox, and active-client proof - the redundant top-chrome HUD Dashboard Open badge is removed, the Dashboard Close button is present and click-tested, native hit-testing treats Dashboard controls as controls, and the active-client close action hides only the Dashboard while preserving HUD Feature/tray restoration behavior.`
 
 Regression Check Result: `PASS by active-client proof - Dashboard runtime launched, settled, captured before/after screenshots, exercised close/restore/Create/Edit control paths, and exited with no remaining Nexus/Python runtime process.`
 
 Proof Strength: `Sufficient for PR Readiness Stage 1 source-truth review. USER visual review may still be requested as an additional confidence step before PR creation, and raw screenshot/video upload/import/linking remains a future USER approval checkpoint.`
+
+## Hardening H1 Visual Repair Result - USER Screenshot Follow-Up
+
+USER Screenshot Finding: `FAIL - USER-provided screenshot showed #125 visual acceptance was not actually complete: Monitor Groups still had visible dead space and the lower card boundary/readiness card relationship was visually wrong. The earlier H1 proof over-credited Create/Edit action flow and source markers without measuring the exact visual concern.`
+
+Why Earlier H1 Did Not Catch It: `The active-client geometry only exposed broad Dashboard/control rects and Create/Edit hit targets. It did not expose the Monitor Groups card, Monitor Groups summary grid, action row, footer scope text, or Readiness card geometry, and the H1 assertions accepted dataset/copy/action-flow proof as sufficient for a visual-layout issue.`
+
+Governance Repair: `Docs/development_rules.md and Docs/phase_governance.md now require visual/layout issue claims to be proven by a check that would fail the reported visible defect. Marker proof and functional click-path proof cannot close a concrete visual/layout claim by themselves. Returned USER media that contradicts H1 returns the branch to Hardening and requires validator/helper repair before PR Readiness.`
+
+Runtime Repair: `The Dashboard control hub now renders as a measured single-column card stack with max-content rows; Monitor Groups uses a compact grid card, block footer text, and no-overlap spacing so the dead center zone is removed and Readiness cannot visually intrude into the Monitor Groups card.`
+
+Validator / Helper Repair: `window.getMonitoringHudLiveClientGeometry now exposes Monitor Groups card, summary grid, actions, footer scope, and Readiness card rectangles. desktop/desktop_renderer.py active-client H1 checks now fail if Monitor Groups summary-to-grid spacing becomes dead space, if actions/footer spacing drifts, if footer text escapes the card, or if Monitor Groups intersects Readiness. Static and internal sandbox validators require the new layout marker, CSS row model, and live-geometry hooks.`
+
+Proof Rerun:
+
+- `FAIL - dev/logs/fam_006_monitoring_hud_live_validation/20260513_132930_394 proved the new H1 assertions caught the remaining Monitor Groups/Readiness overlap and footer visibility gap instead of false-passing.`
+- `FAIL - dev/logs/fam_006_monitoring_hud_live_validation/20260513_133120_702 proved overlap was repaired, then caught an over-strict summary-height assertion before final threshold correction.`
+- `PASS - dev/logs/fam_006_monitoring_hud_live_validation/20260513_133233_235 proves the repaired Monitor Groups layout, no Readiness overlap, visible footer scope, Create/Edit child-window flows, Dashboard close affordance, and tray/open/close regression path.`
+
+Visual Repair Status: `PASS - H1 is green again only after the product layout defect and the H1 proof blind spot were both repaired.`
 
 ## Branch Scope
 
