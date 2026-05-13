@@ -13680,6 +13680,7 @@ def _run_pr_live_state_gate(
         ),
     )
 
+    live_codex_review_threads_clear = False
     if not manual_comment_resolution_clear and not fallback_local_state:
         unresolved_codex_threads, thread_error = _gh_unresolved_codex_threads(
             str(pr_info.get("id") or ""),
@@ -13699,6 +13700,7 @@ def _run_pr_live_state_gate(
                 "unresolved Codex comments/issues remain on the PR"
             ),
         )
+        live_codex_review_threads_clear = not thread_error and not unresolved_codex_threads
 
     if manual_comment_resolution_clear:
         if (
@@ -13823,8 +13825,12 @@ def _run_pr_live_state_gate(
     signal_timestamp = live_signal.get("timestamp", "")
     signal_actor = live_signal.get("actor", "")
     if signal_status == "comment":
+        inline_review_thread_resolved = (
+            signal_source == "inline review comment"
+            and live_codex_review_threads_clear
+        )
         require(
-            False,
+            inline_review_thread_resolved,
             (
                 "PR readiness gate: PR Validation Pending blocker is active; bot review comment "
                 f"detected from '{signal_actor or BOT_REVIEW_BOT_LOGIN}' via {signal_source or 'comment'} "
