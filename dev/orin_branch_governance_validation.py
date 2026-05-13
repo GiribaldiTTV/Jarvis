@@ -43,6 +43,10 @@ BLOCKED_FUTURE_ACTIVE_BRANCH_CLASSES = (
     "emergency canon repair",
 )
 
+PROHIBITED_ACTIVE_BRANCH_PREFIXES = (
+    "codex/",
+)
+
 PROMPT_CONTRACT_DOCS = (
     Path("Docs/phase_governance.md"),
     Path("Docs/development_rules.md"),
@@ -1701,7 +1705,7 @@ FAM006_ELEMENT_LEDGER_REQUIRED_PHRASES = (
     "FAM006-FUTURE-AUDIO-043",
     "FAM006-FUTURE-PERSONA-044",
     "## UTS Coverage Map",
-    "Current Coverage Status: `PR Readiness Stage 2 In Progress After USER Admission - RUI-001 through RUI-057 remain issue-grounded; the actual desktop shortcut now targets C:\\Nexus Desktop AI FAM-006, WS56 resize/cursor/fluidity rows are revalidated against the current executable state, current LV1 handoff is refreshed, LV2 digested explicit USER waiver/passable acceptance, and PR Readiness Stage 2 must validate the live PR, watcher proof, bot-review handling if needed, and merge-watch before final package closeout`",
+    "Current Coverage Status: `Released historical traceability - RUI-001 through RUI-057 remain issue-grounded; the actual desktop shortcut targeted the FAM-006 worktree for final proof; WS56 resize/cursor/fluidity rows were revalidated; current LV1 handoff was refreshed; LV2 digested explicit USER waiver/passable acceptance; PR #118 merged; PR #119 repaired pre-release canon drift; v1.7.0-prebeta published the package; later issue-thread creation requires separate USER approval`",
     "## Proof Rebaseline Summary",
     "Returned Step 2 Tray enable/disable/open Dashboard",
     "Returned Step 3 Tray Exit NDAI",
@@ -14627,6 +14631,15 @@ def main() -> int:
     active_branch_record_paths = _collect_branch_record_paths(branch_record_index_text, "Active Branch Authority Records")
     historical_branch_record_paths = _collect_branch_record_paths(branch_record_index_text, "Historical Branch Authority Records")
     current_git_branch = _git_current_branch()
+    for prohibited_prefix in PROHIBITED_ACTIVE_BRANCH_PREFIXES:
+        require(
+            current_git_branch == "main" or not current_git_branch.startswith(prohibited_prefix),
+            (
+                f"Active git branch '{current_git_branch}' uses prohibited prefix "
+                f"'{prohibited_prefix}'. Use `feature/` or another USER-approved "
+                "non-`codex/` prefix for active Nexus work."
+            ),
+        )
     branch_record_class_map, all_repair_branch_names, active_repair_branch_names = _branch_record_branch_sets(
         active_branch_record_paths,
         historical_branch_record_paths,
@@ -16243,6 +16256,15 @@ def main() -> int:
                 bool(branch_name),
                 f"{branch_record_path}: active branch record must declare a Branch in Branch Identity",
             )
+            for prohibited_prefix in PROHIBITED_ACTIVE_BRANCH_PREFIXES:
+                require(
+                    not branch_name.startswith(prohibited_prefix),
+                    (
+                        f"{branch_record_path}: active branch record uses prohibited branch "
+                        f"prefix '{prohibited_prefix}'. Use `feature/` or another USER-approved "
+                        "non-`codex/` prefix."
+                    ),
+                )
             require(
                 (branch_name in all_branch_names) or (f"origin/{branch_name}" in all_branch_names),
                 (
