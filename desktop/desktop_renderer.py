@@ -6988,6 +6988,7 @@ class DesktopRuntimeWindow(QWidget):
         control_rect_names = (
             "anchorToggle",
             "visibilityToggle",
+            "dashboardClose",
             "createMonitor",
             "snapToggle",
             "pollingRate",
@@ -8461,8 +8462,8 @@ class DesktopRuntimeWindow(QWidget):
                 const geometry = window.getMonitoringHudLiveClientGeometry
                     ? window.getMonitoringHudLiveClientGeometry()
                     : {};
-                const cpuConfigOption = document.querySelector('[data-monitor-config-option="cpu"]');
-                const gpuConfigOption = document.querySelector('[data-monitor-config-option="gpu"]');
+                const cpuConfigOption = document.querySelector('[data-monitor-edit-select="cpu"]');
+                const gpuConfigOption = document.querySelector('[data-monitor-edit-select="gpu"]');
                 return JSON.stringify({
                     hasHud: Boolean(hud),
                     text,
@@ -8525,6 +8526,7 @@ class DesktopRuntimeWindow(QWidget):
                 "hud": geometry.get("hud") if isinstance(geometry, dict) else None,
                 "createMonitor": geometry.get("createMonitor") if isinstance(geometry, dict) else None,
                 "editMonitor": geometry.get("editMonitor") if isinstance(geometry, dict) else None,
+                "dashboardClose": geometry.get("dashboardClose") if isinstance(geometry, dict) else None,
                 "panelDragHandle": geometry.get("panelDragHandle") if isinstance(geometry, dict) else None,
                 "warningToggle": geometry.get("warningToggle") if isinstance(geometry, dict) else None,
                 "dataSourcesAction": geometry.get("dataSourcesAction") if isinstance(geometry, dict) else None,
@@ -8576,7 +8578,11 @@ class DesktopRuntimeWindow(QWidget):
                 "dashboard_role": dataset.get("productSurfaceRole") == "dashboard-configuration-surface",
                 "dashboard_monitor_management": dataset.get("monitorManagement") == "create-edit-enable-polling",
                 "dashboard_overlay_mode_controls": dataset.get("overlayModeControls") == "overlay-deferred-tray-owned",
-                "dashboard_settings_content_polished": dataset.get("dashboardContentPolish") == "ws45-clean-control-hub-ia",
+                "dashboard_settings_content_polished": dataset.get("dashboardContentPolish") == "branch2-monitor-groups-no-dead-space",
+                "dashboard_close_affordance": dataset.get("dashboardCloseAffordance") == "top-chrome-close-button",
+                "dashboard_open_badge_removed": dataset.get("dashboardOpenBadge") == "removed",
+                "dashboard_child_window_scope": dataset.get("dashboardChildWindowScope") == "branch2-create-edit-monitor-windows",
+                "dashboard_monitor_selection_in_child_window": dataset.get("dashboardMonitorSelectionPlacement") == "edit-child-window-only",
                 "dashboard_settings_model": dataset.get("dashboardSettingsModel") == "hud-overlay-monitor-groups-provider-warning",
                 "monitor_group_model": dataset.get("monitorGroupModel") == "organizational-groups-settings-only",
                 "dashboard_card_policy": dataset.get("dashboardMonitorCardPolicy") == "overlay-display-owns-monitor-cards",
@@ -8795,7 +8801,7 @@ class DesktopRuntimeWindow(QWidget):
             if not passed:
                 finish("FAIL", "dashboard standalone window virtual-desktop travel proof failed")
                 return
-            QTimer.singleShot(delay(900), step_hide)
+            query("dashboard close target geometry refreshed after standalone travel", assert_dashboard_close_ready, step_hide)
 
         def assert_hidden(result):
             dataset = result.get("dataset") or {}
@@ -8848,6 +8854,25 @@ class DesktopRuntimeWindow(QWidget):
             }
             return all(checks.values()), checks
 
+        def assert_dashboard_close_ready(result):
+            dataset = result.get("dataset") or {}
+            state = result.get("state") or {}
+            geometry = result.get("geometry") or {}
+            close_rect = geometry.get("dashboardClose") if isinstance(geometry, dict) else {}
+            hud_rect = geometry.get("hud") if isinstance(geometry, dict) else {}
+            checks = {
+                "visible_state": bool(state.get("visible")),
+                "dataset_visible": dataset.get("visibilityState") == "visible",
+                "dashboard_close_affordance": dataset.get("dashboardCloseAffordance") == "top-chrome-close-button",
+                "dashboard_close_target_present": isinstance(close_rect, dict)
+                    and float(close_rect.get("width") or 0) > 24
+                    and float(close_rect.get("height") or 0) > 18,
+                "hud_geometry_refreshed": isinstance(hud_rect, dict)
+                    and float(hud_rect.get("width") or 0) >= 620
+                    and float(hud_rect.get("height") or 0) >= 520,
+            }
+            return all(checks.values()), checks
+
         def assert_monitor_management(result):
             dataset = result.get("dataset") or {}
             state = result.get("state") or {}
@@ -8857,14 +8882,17 @@ class DesktopRuntimeWindow(QWidget):
             checks = {
                 "dashboard_monitor_management": dataset.get("monitorManagement") == "create-edit-enable-polling",
                 "dashboard_overlay_mode_controls": dataset.get("overlayModeControls") == "overlay-deferred-tray-owned",
-                "dashboard_settings_content_polish": dataset.get("dashboardContentPolish") == "ws45-clean-control-hub-ia",
+                "dashboard_settings_content_polish": dataset.get("dashboardContentPolish") == "branch2-monitor-groups-no-dead-space",
+                "dashboard_close_affordance": dataset.get("dashboardCloseAffordance") == "top-chrome-close-button",
+                "dashboard_open_badge_removed": dataset.get("dashboardOpenBadge") == "removed",
+                "dashboard_child_window_scope": dataset.get("dashboardChildWindowScope") == "branch2-create-edit-monitor-windows",
                 "dashboard_monitor_group_model": dataset.get("monitorGroupModel") == "organizational-groups-settings-only",
                 "dashboard_monitor_card_policy": dataset.get("dashboardMonitorCardPolicy") == "overlay-display-owns-monitor-cards",
                 "monitor_count_expanded": len(cards) >= 3,
                 "created_monitor_selected": selected_id.startswith("monitor-"),
                 "created_monitor_disabled": selected.get("enabled") is False,
                 "created_monitor_polling_5000": int(selected.get("pollingRateMs") or 0) == 5000,
-                "global_polling_preserved": int(state.get("pollingRateMs") or 0) == 2000,
+                "global_polling_preserved": int(state.get("pollingRateMs") or 0) == 1000,
                 "monitor_sequence_advanced": int(state.get("monitorSequence") or 0) >= 3,
             }
             return all(checks.values()), checks
@@ -9013,23 +9041,38 @@ class DesktopRuntimeWindow(QWidget):
             QTimer.singleShot(delay(900), lambda: query("HUD panel drag keeps HUD and core visible", assert_panel_dragged, step_surface_travel))
 
         def step_hide():
-            self.request_monitoring_hud_dashboard_from_tray(source="live-client-self-qa-dashboard-close", visible=False)
+            geometry = latest_result.get("geometry") if isinstance(latest_result.get("geometry"), dict) else {}
+            close_rect = geometry.get("dashboardClose") if isinstance(geometry.get("dashboardClose"), dict) else None
+            screen_point = rect_center("dashboardClose")
+            widget_point = self._monitoring_hud_widget_point_from_page_rect(close_rect)
+            os_clicked = self._monitoring_hud_send_mouse_click(screen_point)
+            widget_clicked = False
+            if not os_clicked or self.geometry().x() < 0:
+                widget_clicked = self._monitoring_hud_send_widget_click(widget_point)
+            clicked = os_clicked or widget_clicked
             add_step(
-                "active live-client tray Dashboard close route sent",
-                True,
+                "active live-client Dashboard close affordance click sent",
+                clicked,
                 {
                     "target": "Close HUD Dashboard",
-                    "route": "request_monitoring_hud_dashboard_from_tray",
+                    "route": "monitoring-hud-dashboard-close-action",
                     "featureEnabled": bool(self._monitoring_hud_feature_enabled),
+                    "screenPoint": screen_point,
+                    "widgetPoint": [widget_point.x(), widget_point.y()] if widget_point else None,
+                    "osClickSent": os_clicked,
+                    "widgetFallbackSent": widget_clicked,
                 },
             )
-            QTimer.singleShot(delay(700), lambda: query("tray Dashboard close hides only the Dashboard", assert_hidden, step_restore))
+            if not clicked:
+                finish("FAIL", "active live-client Dashboard close affordance click failed before state assertion")
+                return
+            QTimer.singleShot(delay(900), lambda: query("Dashboard close affordance hides only the Dashboard", assert_hidden, step_restore))
 
         def step_restore():
             self.request_monitoring_hud_dashboard_from_tray(source="live-client-self-qa-dashboard-open", visible=True)
             QTimer.singleShot(
                 delay(500),
-                lambda: query("restore Dashboard control hub without formal UTS export", assert_dashboard_restored, step_finish),
+                lambda: query("restore Dashboard control hub without formal UTS export", assert_dashboard_restored, step_create_monitor),
             )
 
         def step_change_polling():
@@ -9073,6 +9116,8 @@ class DesktopRuntimeWindow(QWidget):
                         pollingRateMs: 1000
                     };
                     window.setMonitoringHudControlState(next);
+                    const closeCreate = document.querySelector('[data-child-window-close="monitor-group-create"]');
+                    if (closeCreate) closeCreate.click();
                 })();
                 """
             )
@@ -9087,6 +9132,16 @@ class DesktopRuntimeWindow(QWidget):
             QTimer.singleShot(delay(650), step_edit_created_monitor)
 
         def step_edit_created_monitor():
+            clicked = self._monitoring_hud_send_mouse_click(rect_center("editMonitor"))
+            add_step(
+                "active live-client Edit Monitor opens dedicated child window",
+                clicked,
+                {"target": "monitoring-hud-edit-monitor", "screenPoint": rect_center("editMonitor")},
+            )
+            if not clicked:
+                finish("FAIL", "active live-client edit monitor click failed before state assertion")
+                return
+
             def after_monitor_edit(result):
                 try:
                     parsed = json.loads(result) if isinstance(result, str) else result
@@ -9607,7 +9662,13 @@ class DesktopRuntimeWindow(QWidget):
                     monitoringHud.dataset.dashboardStandaloneProof = "ws32-dashboard-window-travel";
                     monitoringHud.dataset.dashboardClippingProof = "within-virtual-desktop";
                     monitoringHud.dataset.dashboardDecouplingProof = "core-overlay-independent";
-                    monitoringHud.dataset.dashboardContentPolish = "ws45-clean-control-hub-ia";
+                    monitoringHud.dataset.dashboardContentPolish = "branch2-monitor-groups-no-dead-space";
+                    monitoringHud.dataset.dashboardHomeModel = "control-hub-cards-dedicated-child-window-actions";
+                    monitoringHud.dataset.dashboardChildWindowScope = "branch2-create-edit-monitor-windows";
+                    monitoringHud.dataset.dashboardIaModel = "branch2-ia-controls-followthrough";
+                    monitoringHud.dataset.dashboardCloseAffordance = "top-chrome-close-button";
+                    monitoringHud.dataset.dashboardOpenBadge = "removed";
+                    monitoringHud.dataset.dashboardMonitorSelectionPlacement = "edit-child-window-only";
                     monitoringHud.dataset.dashboardSettingsModel = "hud-overlay-monitor-groups-provider-warning";
                     monitoringHud.dataset.monitorGroupModel = "organizational-groups-settings-only";
                     monitoringHud.dataset.dashboardMonitorCardPolicy = "overlay-display-owns-monitor-cards";

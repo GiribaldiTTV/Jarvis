@@ -11,19 +11,19 @@
 
 ## Purpose / Why It Exists
 
-This branch is the USER-approved Branch Readiness Stage 2 setup carrier for the second FAM-006 Dashboard issue-resolution branch.
+This branch is the USER-approved Branch Readiness Stage 2 setup carrier and Workstream implementation carrier for the second FAM-006 Dashboard issue-resolution branch.
 
 It exists because PR #129 merged the first FAM-006 Dashboard issue-resolution branch for render/layout hardening, issues #125 and #126 remain open and held for Dashboard IA/control follow-through, and USER approved Branch Readiness Stage 2 setup for `feature/fam-006-dashboard-ia-controls-followthrough` from current `origin/main`.
 
-Current authorization covers branch/worktree setup, source-truth authority setup, source-truth traceability for issues #125 and #126, preservation of #123/#124/#127 as completed-by-PR #129 but pending GitHub issue closeout, validation, commit, and push. Runtime implementation, GitHub issue comments/state updates, raw evidence upload/import/linking, PR creation, release/tag/artifact work, Workspace Runtime Isolation Stage 2, FAM-007/local AI work, AI Product Contract import, and branch expansion beyond #125/#126 remain future USER approval checkpoints.
+Current authorization covers runtime implementation for issues #125 and #126 only, directly supporting validator/source-truth updates, validation, commit, and push. GitHub issue comments/state updates, raw evidence upload/import/linking, PR creation, release/tag/artifact work, Workspace Runtime Isolation Stage 2, FAM-007/local AI work, AI Product Contract import, and branch expansion beyond #125/#126 remain future USER approval checkpoints.
 
 ## Record State
 
-- `Active Branch Readiness Stage 2 setup complete; Workstream implementation pending USER approval`
+- `Active Workstream implementation complete for #125/#126; validation green; next phase pending USER decision`
 
 ## Status
 
-- `Branch authority setup complete for Dashboard IA/control follow-through issues #125 and #126; runtime implementation is not admitted by this record`
+- `Dashboard IA/control follow-through implementation complete for issues #125 and #126; GitHub issue closeout/comment updates and PR creation remain blocked pending USER approval`
 
 ## Canonical Branch
 
@@ -31,7 +31,7 @@ Current authorization covers branch/worktree setup, source-truth authority setup
 
 ## Current Phase
 
-- Phase: `Branch Readiness`
+- Phase: `Workstream`
 
 ## Phase Status
 
@@ -39,15 +39,17 @@ Current authorization covers branch/worktree setup, source-truth authority setup
 - Stage 2 USER Approval: `Granted - USER approved Branch Readiness Stage 2 for feature/fam-006-dashboard-ia-controls-followthrough from current main, carrying existing GitHub issues #125 and #126 only`
 - Branch Creation: `Created in C:\Nexus Worktrees\Nexus Desktop AI FAM-006 Dashboard IA Controls Followthrough from origin/main commit 96ec36e7be751d444eda8dc220bc4a035d44fca1`
 - GitHub Desktop Association: `GitHub Desktop was asked to open/add the new C-drive worktree; local GitHub Desktop log records adding the repository at C:\Nexus Worktrees\Nexus Desktop AI FAM-006 Dashboard IA Controls Followthrough; GitHub Desktop local alias is FAM-006`
+- Workstream USER Approval: `Granted - USER approved runtime implementation on feature/fam-006-dashboard-ia-controls-followthrough in the isolated Branch 2 worktree for GitHub issues #125 and #126 only`
+- Workstream Implementation: `Complete - Monitor Groups card flow now uses dedicated Create Monitor and Edit Monitor child-window flows, the Dashboard-home dropdown is removed, the redundant HUD Dashboard Open badge is removed, and a top-chrome Dashboard close affordance hides the Dashboard without disabling the HUD Feature`
 - `Active Branch`: `feature/fam-006-dashboard-ia-controls-followthrough`
-- Branch Authority State: `Active after Branch Readiness Stage 2 setup; Workstream implementation pending later USER approval`
+- Branch Authority State: `Active after Workstream implementation; next phase pending USER decision`
 - Source-Truth Owner: `This branch record owns Branch 2 setup and issue traceability; Docs/branch_records/feature_fam_006_monitoring_hud_product_surface.md owns historical FAM-006 RUI and issue-queue truth`
 - Carried Issues: `#125 FAM-006 Dashboard: Monitor Groups dead space and Create/Edit window split`; `#126 FAM-006 Dashboard: remove redundant open badge and add close affordance`
 - Completed-By-PR-129 Issues Pending GitHub Closeout: `#123`; `#124`; `#127`
 - Future / Deferred Items: `Dashboard settings cog/settings panel`; `Overlay/display acceptance`; `Provider/external telemetry parity`; `Dev Toolkit/source-owner markers`
 - Evidence Policy: `Summary-only for GitHub issue and branch source-truth references`
 - Raw Media Status: `Raw screenshots, videos, and UTS exports remain local/external unless USER later approves upload, import, or linking`
-- Runtime Implementation: `Blocked until later explicit USER approval`
+- Runtime Implementation: `Approved for #125/#126 and completed on this branch`
 - FAM-007 / Local AI Authority: `Blocked and out of scope`
 
 ## Branch Class
@@ -56,7 +58,7 @@ Current authorization covers branch/worktree setup, source-truth authority setup
 
 ## Blockers
 
-- `Runtime Implementation Approval Missing`: active.
+- `Hardening / PR Readiness User Decision Pending`: active after Workstream implementation.
 - `GitHub Issue Closeout Approval Missing`: active for #123/#124/#127 and any comments/state changes on #125/#126.
 - `PR Creation Approval Missing`: active.
 - `Raw Evidence Import Decision Pending`: active.
@@ -92,20 +94,20 @@ Current authorization covers branch/worktree setup, source-truth authority setup
 - Source truth records that GitHub issue comments/state updates are not approved in this Stage 2 pass.
 - Branch 2 non-goals remain explicit.
 - Docs/governance validation passes.
-- Stage 2 setup changes are committed and pushed.
-- Runtime implementation does not begin until USER separately approves it.
+- Workstream implementation changes for #125/#126 are committed and pushed after validation.
+- Runtime implementation remains limited to #125/#126; any branch expansion requires separate USER approval.
 
 ## Rollback Target
 
 - `Branch Readiness`
 
-Rollback Path: abandon branch `feature/fam-006-dashboard-ia-controls-followthrough` and remove the isolated worktree if USER requests rollback before runtime implementation. Do not mutate the dirty FAM-007 work in `C:\Nexus Desktop AI`, delete D-drive folders, edit GitHub issue state, import raw media, or recreate/reuse codex/ai-llm-lab.
+Rollback Path: abandon or repair branch `feature/fam-006-dashboard-ia-controls-followthrough` if USER rejects the Workstream implementation before PR creation. Do not mutate the dirty FAM-007 work in `C:\Nexus Desktop AI`, delete D-drive folders, edit GitHub issue state, import raw media, or recreate/reuse codex/ai-llm-lab.
 
 ## Next Legal Phase
 
-- `Workstream`
+- `Hardening`
 
-Next Legal Phase Gate: USER may later approve runtime implementation for issues #125 and #126 on this branch. Until then, implementation, PR creation, GitHub issue comments/state updates, raw evidence upload/import/linking, release/tag/artifact work, Workspace Runtime Isolation Stage 2, FAM-007/local AI work, AI Product Contract import, and any branch expansion remain blocked.
+Next Legal Phase Gate: USER may next choose Hardening/H1, USER visual review, or PR Readiness Stage 1 after reviewing the implementation packet. PR creation, GitHub issue comments/state updates, raw evidence upload/import/linking, release/tag/artifact work, Workspace Runtime Isolation Stage 2, FAM-007/local AI work, AI Product Contract import, and any branch expansion remain blocked.
 
 ## Branch Objective
 
@@ -117,7 +119,7 @@ Prepare the FAM-006 Dashboard IA/control follow-through branch to resolve the re
 ## Target End-State
 
 - The branch authority is established and pushed.
-- Runtime implementation is ready to be requested by USER as a separate step.
+- Runtime implementation for #125/#126 is complete and ready for USER decision on the next validation/readiness phase.
 - The carried issue set remains limited to #125 and #126.
 - Branch 1 issues #123/#124/#127 stay completed-by-PR #129 and pending GitHub issue closeout.
 - Future/deferred Dashboard settings cog, Overlay/display acceptance, provider telemetry parity, Dev Toolkit/source-owner markers, Workspace Runtime Isolation, FAM-007/local AI, and AI Product Contract work remain out of scope.
@@ -148,15 +150,24 @@ Backlog-Split Reason: None
 - Exact Affected Paths: `nexus_visual/monitoring_hud.*`; `desktop/desktop_renderer.py` if Dashboard visibility routing is needed; HUD Dashboard validators if implementation changes behavior.
 - Carried Issues: `#125`; `#126`.
 - Non-Includes: `#123`; `#124`; `#127`; Dashboard settings cog/settings panel; Overlay/display acceptance; provider telemetry parity; Dev Toolkit/source-owner markers; Workspace Runtime Isolation Stage 2; FAM-007/local AI; AI Product Contract import; raw evidence import/linking; GitHub issue state/comment updates; PR creation; release/tag/artifact work.
-- Implementation Admission Status: `Future USER approval required before runtime implementation begins; this Stage 2 pass records the admitted slice and branch authority only.`
+- Implementation Admission Status: `Admitted by USER for #125/#126 only and completed in the Workstream implementation pass.`
 
 ## Backlog Completion Strategy
 
-Branch Completion Goal: `Complete source-truth setup, then later implement and validate issues #125 and #126 on this same branch only after USER separately approves runtime implementation.`
+Branch Completion Goal: `Complete and validate issues #125 and #126 on this branch, then await USER decision for Hardening/H1, USER visual review, or PR Readiness Stage 1.`
 
-Known Future-Dependent Blockers: `Runtime implementation approval, GitHub issue comments/state updates, raw evidence upload/import/linking, PR creation, release/tag/artifact work, Workspace Runtime Isolation Stage 2, FAM-007/local AI work, AI Product Contract import, and branch expansion beyond #125/#126 all require later explicit USER approval.`
+Known Future-Dependent Blockers: `GitHub issue comments/state updates, raw evidence upload/import/linking, PR creation, release/tag/artifact work, Workspace Runtime Isolation Stage 2, FAM-007/local AI work, AI Product Contract import, and branch expansion beyond #125/#126 all require later explicit USER approval.`
 
-Branch Closure Rule: `Stop after validated Stage 2 setup, commit, and push; do not begin runtime work, PR work, GitHub issue closeout, release work, raw evidence handling, FAM-007/local AI work, or Workspace Runtime Isolation.`
+Branch Closure Rule: `Stop after validated runtime implementation, source-truth update, commit, and push; do not begin PR work, GitHub issue closeout/comment updates, release work, raw evidence handling, FAM-007/local AI work, Workspace Runtime Isolation, or any work beyond #125/#126 without later USER approval.`
+
+## Backlog Completion Status
+
+Backlog Completion State: Implemented Complete
+Completion Status: Green
+Remaining Implementable Work: None
+Future-Dependent Blockers: None
+Visible User-Facing Proof Required: Yes for Dashboard IA/control confidence - active-client validation has run from the active Branch 2 worktree; USER visual review remains optional/future if USER wants it before PR Readiness.
+Visible User-Facing Proof: PASS by active-client proof at dev/logs/fam_006_monitoring_hud_live_validation/20260513_124941_575.
 
 ## Product Definition Plan
 
@@ -170,7 +181,7 @@ Codex Product Interpretation: `Issue #125 is the Monitor Groups card/control-flo
 
 Codex Implementation Recommendation: `Keep the branch limited to Monitor Groups card layout/actions and top Dashboard close/open-state chrome. Preserve tray behavior, Dashboard render/layout repairs from PR #129, and future settings/Overlay/provider/Dev Toolkit deferrals.`
 
-USER/ChatGPT Review Checkpoint: `Runtime implementation remains blocked until USER separately approves Workstream implementation from this Stage 2 setup.`
+USER/ChatGPT Review Checkpoint: `Runtime implementation has been performed under the USER approval for #125/#126 only; next USER review decides whether to run Hardening/H1, USER visual review, or PR Readiness Stage 1.`
 
 Full Feature Element Breakdown: `#125 Monitor Groups dead space removal; #125 Create Monitor dedicated window/flow; #125 Edit Monitor dedicated window/flow; #125 Dashboard dropdown removal; #126 redundant HUD Dashboard Open badge removal; #126 Dashboard close affordance; #126 tray open/close regression preservation.`
 
@@ -179,6 +190,24 @@ Current Branch vs Future Package Boundaries: `Current branch carries #125 and #1
 Affected Surfaces: `nexus_visual/monitoring_hud.html`; `nexus_visual/monitoring_hud.css`; `nexus_visual/monitoring_hud.js`; `desktop/desktop_renderer.py` if native close/window routing is needed; HUD Dashboard validators.
 
 Data/Control Model: `Dashboard remains a control/settings surface. Monitor Groups remain organizational settings objects for future Overlay/display behavior. Create/Edit actions should route to dedicated flows; close affordance should control Dashboard visibility without toggling HUD Feature state unless repo truth says otherwise.`
+
+Workstream Implementation Record:
+
+Implementation Status: `Complete for #125 and #126 on feature/fam-006-dashboard-ia-controls-followthrough`
+
+Issue #125 Implementation: `Monitor Groups card layout no longer uses the old Dashboard-home dropdown/edit selector. The card now exposes only Create Monitor and Edit Monitor actions; each action opens a dedicated child-window flow. The create flow creates/selects a new Monitor Group and the edit flow owns group name, enabled state, and polling floor controls. Monitor selection moved to the Edit Monitor child window only.`
+
+Issue #126 Implementation: `The top Dashboard chrome no longer shows the redundant HUD Dashboard Open badge. It now exposes a Close button that hides the Dashboard while preserving the HUD Feature enabled state and tray/open restoration path. Native Dashboard header hit-testing now treats the close affordance as a control so it is not swallowed by native move/resize handling.`
+
+Runtime Files Changed: `nexus_visual/monitoring_hud.html`; `nexus_visual/monitoring_hud.css`; `nexus_visual/monitoring_hud.js`; `desktop/desktop_renderer.py`.
+
+Validator Files Changed: `dev/orin_monitoring_hud_surface_validation.py`; `dev/orin_monitoring_hud_internal_sandbox_validation.py`.
+
+Source-Truth Files Changed: `Docs/branch_records/feature_fam_006_dashboard_ia_controls_followthrough.md`.
+
+Validation Evidence: `Static HUD validator PASS; internal sandbox validator PASS; active-client live validation PASS at dev/logs/fam_006_monitoring_hud_live_validation/20260513_124941_575; interaction manifest proves Dashboard close affordance, restored Dashboard control hub, Create Monitor child-window route, Edit Monitor child-window route, monitor editor mutation, and final monitor management state.`
+
+Known Proof Boundary: `This Workstream pass uses Codex active-client proof and repo validators. USER visual review, GitHub issue closeout/comment updates, PR creation, raw evidence upload/import/linking, release work, Workspace Runtime Isolation Stage 2, FAM-007/local AI, AI Product Contract import, and any expansion beyond #125/#126 remain future USER approval checkpoints.`
 
 Branch Reach / Package-Size Review: `Two tightly related Dashboard IA/control issues share product surface, proof path, and user acceptance. The branch is narrow enough for focused review and large enough to avoid unnecessary branch churn.`
 
@@ -190,19 +219,19 @@ Acceptance Criteria: `Issue #125 and #126 acceptance criteria are recorded below
 
 Validation Proof Requirements: `Static HUD/Dashboard validator, internal sandbox validator, compile validation, governance validation, active-client Dashboard proof, and USER visual review after implementation.`
 
-Screenshot / Live / User Test Summary Proof Requirements: `Future implementation should provide USER-visible proof for Monitor Groups card layout, Create/Edit actions, close affordance, and tray/open/close regression. Formal UTS export is not required by this Stage 2 setup and raw media remains external unless USER later approves.`
+Screenshot / Live / User Test Summary Proof Requirements: `This implementation provides Codex active-client proof for Monitor Groups card layout, Create/Edit actions, close affordance, and tray/open/close regression. Formal UTS export is not required by this Workstream pass and raw media remains external unless USER later approves.`
 
 Implementation Sequence Proposal: `Inspect current Dashboard markup/control routing; implement #126 top-chrome close affordance and redundant badge removal; implement #125 Monitor Groups layout/action split; update validators; run active-client proof; record validation; stop for PR Readiness or USER visual review decision.`
 
-Planning Blockers: `Runtime Implementation Approval Missing`; `GitHub Issue Closeout Approval Missing`; `Raw Evidence Import Decision Pending`; `PR Creation Approval Missing`.
+Planning Blockers: `GitHub Issue Closeout Approval Missing`; `Raw Evidence Import Decision Pending`; `PR Creation Approval Missing`; `Hardening / PR Readiness User Decision Pending`.
 
-USER Decisions Needed: `Approve runtime implementation for #125/#126 when ready; later approve GitHub issue comments/closeout, PR creation, raw evidence handling, and release work if desired.`
+USER Decisions Needed: `Choose next phase after Workstream implementation; later approve GitHub issue comments/closeout, PR creation, raw evidence handling, and release work if desired.`
 
 Planning Packet Status: Complete
 
 Planning Revalidation Status: PASS
 
-User Test Summary Strategy: `No UTS is generated, refreshed, imported, or digested by Stage 2 setup. Future Workstream/H1 may use active-client proof and USER visual review; formal UTS remains a later governed decision if needed.`
+User Test Summary Strategy: `No UTS is generated, refreshed, imported, or digested by this Workstream implementation pass. Active-client proof is recorded; formal UTS remains a later governed decision if USER requests it.`
 
 Planning Completion Waiver: `Not required - Stage 1 analysis and USER Stage 2 approval completed the planning packet for this two-issue branch.`
 
@@ -247,14 +276,7 @@ Issue #126:
 
 ## Validation Expectations
 
-Stage 2 setup validation:
-
-- `git diff --check`
-- `python dev/orin_branch_governance_validation.py`
-- `python dev/orin_release_body_validation.py`
-- `python -m compileall -q dev desktop Audio main.py`
-
-Future runtime validation after separate USER approval:
+Workstream implementation validation:
 
 - HUD/Dashboard static validator.
 - HUD/Dashboard internal sandbox validator.
@@ -267,11 +289,11 @@ Source-truth issue traceability is established here for #125 and #126. GitHub is
 
 ## User Test Summary Strategy
 
-No User Test Summary is generated, refreshed, imported, uploaded, linked, or digested by this Stage 2 setup. Raw screenshots, videos, and prior UTS exports remain local/external unless USER later explicitly approves a governed evidence-import or linking path. Future runtime implementation should use active-client proof and USER visual review unless a later governed Live Validation/UTS phase is admitted.
+No User Test Summary is generated, refreshed, imported, uploaded, linked, or digested by this Workstream implementation pass. Raw screenshots, videos, and prior UTS exports remain local/external unless USER later explicitly approves a governed evidence-import or linking path. Active-client proof is summary-recorded in this branch record; USER visual review or a later governed Live Validation/UTS phase remains a future decision.
 
 ## Later-Phase Expectations
 
-After this Stage 2 setup is committed and pushed, USER may separately approve runtime implementation for #125 and #126 on this branch. If implementation later validates green, the branch should route to Hardening or PR Readiness according to repo truth. GitHub issue closeout, PR creation, release/tag/artifact work, raw evidence handling, Workspace Runtime Isolation Stage 2, FAM-007/local AI work, and AI Product Contract import remain separate approval checkpoints.
+After this Workstream implementation is committed and pushed, USER may choose the next legal validation/readiness phase. GitHub issue closeout/comment updates, PR creation, release/tag/artifact work, raw evidence handling, Workspace Runtime Isolation Stage 2, FAM-007/local AI work, AI Product Contract import, and any branch expansion remain separate approval checkpoints.
 
 ## Expected Seam Families And Risk Classes
 
@@ -291,15 +313,32 @@ Non-Includes: `Dashboard settings cog/settings panel, Overlay/display acceptance
 
 ## Active Seam
 
-Active seam: `Branch Readiness Stage 2 source-truth setup for FAM-006 Dashboard IA/control follow-through`.
+Active seam: `Workstream implementation for FAM-006 Dashboard IA/control follow-through`.
 
-Active Seam Status: `Stage 2 setup complete when this record is committed and pushed; runtime Workstream not started`.
+Active Seam Status: `Workstream implementation complete when this record and runtime changes are committed and pushed`.
 
-Next active seam: `Workstream implementation for #125/#126 only after USER separately approves runtime implementation`.
+Next active seam: `Hardening/H1, USER visual review, or PR Readiness Stage 1 only after USER selects the next phase`.
+
+Single-Seam Workstream Waiver: None
+Single-Seam Or Single-Slice Waiver Authority: USER only; Codex cannot infer single-seam or single-slice authority from branch size, branch name, or a narrow implementation pass.
+Single-Seam Or Single-Slice Workstream Blocker: Blocker active if only one seam or one slice is planned or visible without explicit USER waiver; this branch is not relying on such a waiver because Branch Readiness admitted two related GitHub issue threads (#125 and #126) into one bounded Dashboard IA/control follow-through branch.
+Bounded Seam Default: Bounded means one active seam at a time, not one-seam Workstream authority.
+
+## Seam Continuation Decision
+
+Seam Status: Green
+Slice Status: Green
+Completion Status: Green
+Waiver Status: None
+Continue Decision: Stop
+Continuation Execution Latch: Inactive - Workstream is green; phase-boundary stop is required before USER may admit Hardening/H1, USER visual review, PR Readiness Stage 1, GitHub issue closeout/comment updates, or PR creation.
+Stop Basis: Workstream Green
+Next Active Seam: Hardening H1 / USER visual review / PR Readiness Stage 1 pending USER decision
+Stop Condition: Workstream implementation for issues #125 and #126 is complete and validated as far as current Codex authority allows.
+Continuation Action: Stop at phase boundary until USER admits the next phase; do not create a PR, edit GitHub issue state/comments, upload/link raw evidence, release, start Workspace Runtime Isolation, start FAM-007/local AI work, or expand beyond #125/#126 without later USER approval.
 
 ## Non-Includes
 
-- Runtime implementation.
 - GitHub issue creation.
 - GitHub issue comments or state changes.
 - Closing #123/#124/#127.

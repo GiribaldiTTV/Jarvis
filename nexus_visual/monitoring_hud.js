@@ -29,6 +29,7 @@ const monitoringHudAnchorStatus = document.getElementById("monitoring-hud-anchor
 const monitoringHudDragHandle = document.getElementById("monitoring-hud-drag-handle");
 const monitoringHudToggle = document.getElementById("monitoring-hud-toggle");
 const monitoringHudAnchorToggle = document.getElementById("monitoring-hud-anchor-toggle");
+const monitoringHudDashboardClose = document.getElementById("monitoring-hud-dashboard-close-action");
 const monitoringHudCreateMonitor = document.getElementById("monitoring-hud-create-monitor-action");
 const monitoringHudEditMonitor = document.getElementById("monitoring-hud-edit-monitor-action");
 const monitoringHudSnapToggle = document.getElementById("monitoring-hud-snap-toggle");
@@ -37,12 +38,22 @@ const monitoringHudSnapLabel = document.getElementById("monitoring-hud-snap-labe
 const monitoringHudPollingRate = document.getElementById("monitoring-hud-polling-rate");
 const monitoringHudWarningModeControl = document.getElementById("monitoring-hud-warning-mode-control");
 const monitoringHudMonitorList = document.getElementById("monitoring-hud-monitor-list");
-const monitoringHudMonitorSelector = document.getElementById("monitoring-hud-monitor-selector");
 const monitoringHudMonitorListSummary = document.getElementById("monitoring-hud-monitor-list-summary");
+const monitoringHudMonitorCount = document.getElementById("monitoring-hud-monitor-count");
+const monitoringHudMonitorPollingSummary = document.getElementById("monitoring-hud-monitor-polling-summary");
 const monitoringHudMonitorEditorTitle = document.getElementById("monitoring-hud-monitor-editor-title");
 const monitoringHudMonitorEnabled = document.getElementById("monitoring-hud-monitor-enabled");
 const monitoringHudMonitorPollingRate = document.getElementById("monitoring-hud-monitor-polling-rate");
 const monitoringHudMonitorEditorScope = document.getElementById("monitoring-hud-monitor-editor-scope");
+const monitoringHudChildWindowLayer = document.getElementById("monitoring-hud-child-window-layer");
+const monitoringHudCreateMonitorWindow = document.getElementById("monitoring-hud-create-monitor-window");
+const monitoringHudEditMonitorWindow = document.getElementById("monitoring-hud-edit-monitor-window");
+const monitoringHudCreateMonitorName = document.getElementById("monitoring-hud-create-monitor-name");
+const monitoringHudCreateMonitorConfirm = document.getElementById("monitoring-hud-create-monitor-confirm");
+const monitoringHudEditMonitorList = document.getElementById("monitoring-hud-edit-monitor-list");
+const monitoringHudEditMonitorTitle = document.getElementById("monitoring-hud-edit-monitor-title");
+const monitoringHudEditMonitorName = document.getElementById("monitoring-hud-edit-monitor-name");
+const monitoringHudEditMonitorConfirm = document.getElementById("monitoring-hud-edit-monitor-confirm");
 
 let monitoringHudTelemetry = {
   packageId: "PKG-006",
@@ -104,6 +115,7 @@ const monitoringHudSnapSize = 20;
 let monitoringHudDragInProgress = false;
 let monitoringHudPanelPositionFrame = 0;
 let monitoringHudQueuedPanelPosition = null;
+let monitoringHudActiveChildWindow = "";
 
 function monitoringHudSnap(value) {
   if (!monitoringHudControlState.snapEnabled) return Math.round(value);
@@ -157,6 +169,25 @@ function monitoringHudCardDefaults(cardId) {
   };
 }
 
+function monitoringHudNextMonitorGroupNumber() {
+  const numericSuffixes = Object.keys(monitoringHudControlState.cards || {})
+    .map((cardId) => {
+      const match = String(cardId).match(/^monitor-(\d+)$/);
+      return match ? Number(match[1]) : 0;
+    })
+    .filter((value) => Number.isFinite(value));
+  return Math.max(3, Number(monitoringHudControlState.monitorSequence || 2) + 1, ...numericSuffixes.map((value) => value + 1));
+}
+
+function monitoringHudSuggestedMonitorName() {
+  return `Monitor Group ${monitoringHudNextMonitorGroupNumber()}`;
+}
+
+function monitoringHudCleanMonitorTitle(value, fallback) {
+  const title = String(value || "").trim();
+  return title || fallback || "Monitor Group";
+}
+
 function monitoringHudSelectedMonitor() {
   const cards = monitoringHudControlState.cards || {};
   const selectedId = monitoringHudControlState.selectedMonitorId;
@@ -182,13 +213,8 @@ function monitoringHudNormalizeMonitorGroupTitle(cardId, layout) {
 }
 
 function monitoringHudCreateCardNode(cardId, layout) {
-  if (!monitoringHudMonitorSelector || monitoringHudMonitorSelector.querySelector(`[data-monitor-config-option="${cardId}"]`)) return;
-  const title = layout.title || "Monitor Group";
-  const option = document.createElement("option");
-  option.value = cardId;
-  option.dataset.monitorConfigOption = cardId;
-  option.textContent = title;
-  monitoringHudMonitorSelector.appendChild(option);
+  if (!cardId || !layout) return;
+  monitoringHudControlState.lastMonitorGroupNodeSync = "edit-child-window-list";
 }
 
 function monitoringHudEnsureCardNodes() {
@@ -201,8 +227,125 @@ function monitoringHudEnsureCardNodes() {
   });
 }
 
+function monitoringHudSetChildWindowVisibility(kind) {
+  monitoringHudActiveChildWindow = kind || "";
+  if (!monitoringHudChildWindowLayer) return;
+  const open = Boolean(monitoringHudActiveChildWindow);
+  monitoringHudChildWindowLayer.hidden = !open;
+  monitoringHudChildWindowLayer.setAttribute("aria-hidden", open ? "false" : "true");
+  monitoringHudChildWindowLayer.dataset.childWindowState = open ? monitoringHudActiveChildWindow : "closed";
+  [monitoringHudCreateMonitorWindow, monitoringHudEditMonitorWindow].forEach((windowNode) => {
+    if (!windowNode) return;
+    const isActive = windowNode.dataset.childWindow === monitoringHudActiveChildWindow;
+    windowNode.hidden = !isActive;
+    windowNode.setAttribute("aria-hidden", isActive ? "false" : "true");
+  });
+  if (monitoringHud) {
+    monitoringHud.dataset.activeChildWindow = open ? monitoringHudActiveChildWindow : "none";
+  }
+}
+
+function monitoringHudRenderChildWindows() {
+  const cards = monitoringHudControlState.cards || {};
+  const selected = monitoringHudSelectedMonitor();
+  const count = Object.keys(cards).length;
+  if (monitoringHudCreateMonitorName && !monitoringHudCreateMonitorName.value.trim()) {
+    monitoringHudCreateMonitorName.value = monitoringHudSuggestedMonitorName();
+  }
+  if (monitoringHudEditMonitorTitle) {
+    monitoringHudEditMonitorTitle.textContent = selected.layout.title || "Monitor Group";
+  }
+  if (monitoringHudEditMonitorName) {
+    monitoringHudEditMonitorName.value = selected.layout.title || "Monitor Group";
+  }
+  if (monitoringHudMonitorEnabled) {
+    monitoringHudMonitorEnabled.checked = selected.layout.enabled !== false;
+  }
+  if (monitoringHudMonitorPollingRate) {
+    monitoringHudMonitorPollingRate.value = String(Math.max(1000, Number(selected.layout.pollingRateMs) || 1000));
+  }
+  if (monitoringHudEditMonitorList) {
+    monitoringHudEditMonitorList.innerHTML = "";
+    Object.keys(cards).forEach((cardId) => {
+      const layout = Object.assign(monitoringHudCardDefaults(cardId), cards[cardId] || {});
+      monitoringHudNormalizeMonitorGroupTitle(cardId, layout);
+      const button = document.createElement("button");
+      button.type = "button";
+      button.dataset.monitorEditSelect = cardId;
+      button.setAttribute("aria-pressed", cardId === selected.id ? "true" : "false");
+      button.textContent = layout.title || `Group ${cardId}`;
+      monitoringHudEditMonitorList.appendChild(button);
+    });
+  }
+  if (monitoringHudEditMonitor) {
+    monitoringHudEditMonitor.disabled = count === 0;
+    monitoringHudEditMonitor.setAttribute("aria-disabled", count === 0 ? "true" : "false");
+  }
+}
+
+function monitoringHudOpenChildWindow(kind) {
+  if (kind === "monitor-group-create" && monitoringHudCreateMonitorName) {
+    monitoringHudCreateMonitorName.value = monitoringHudSuggestedMonitorName();
+  }
+  monitoringHudRenderChildWindows();
+  monitoringHudSetChildWindowVisibility(kind);
+  const focusTarget = kind === "monitor-group-create"
+    ? monitoringHudCreateMonitorName
+    : monitoringHudEditMonitorName;
+  if (focusTarget && typeof focusTarget.focus === "function") {
+    setTimeout(() => focusTarget.focus(), 0);
+  }
+}
+
+function monitoringHudCloseChildWindow() {
+  monitoringHudSetChildWindowVisibility("");
+}
+
+function monitoringHudCreateMonitorGroupFromWindow() {
+  const nextNumber = monitoringHudNextMonitorGroupNumber();
+  monitoringHudControlState.monitorSequence = nextNumber;
+  const cardId = `monitor-${nextNumber}`;
+  const title = monitoringHudCleanMonitorTitle(
+    monitoringHudCreateMonitorName ? monitoringHudCreateMonitorName.value : "",
+    `Monitor Group ${nextNumber}`
+  );
+  monitoringHudControlState.cards[cardId] = {
+    x: 0,
+    y: (nextNumber - 1) * 300,
+    w: 600,
+    h: 280,
+    title,
+    enabled: true,
+    pollingRateMs: 1000
+  };
+  monitoringHudControlState.selectedMonitorId = cardId;
+  monitoringHudApplyCardLayout();
+  monitoringHudRenderControls();
+  monitoringHudCloseChildWindow();
+  monitoringHudMarkChanged();
+}
+
+function monitoringHudSaveEditMonitorWindow() {
+  const selected = monitoringHudSelectedMonitor();
+  if (!selected.id || !selected.layout) return;
+  selected.layout.title = monitoringHudCleanMonitorTitle(
+    monitoringHudEditMonitorName ? monitoringHudEditMonitorName.value : "",
+    selected.layout.title || "Monitor Group"
+  );
+  selected.layout.enabled = monitoringHudMonitorEnabled ? Boolean(monitoringHudMonitorEnabled.checked) : selected.layout.enabled !== false;
+  selected.layout.pollingRateMs = monitoringHudMonitorPollingRate
+    ? Math.max(1000, Number(monitoringHudMonitorPollingRate.value) || 1000)
+    : Math.max(1000, Number(selected.layout.pollingRateMs) || 1000);
+  monitoringHudControlState.cards[selected.id] = selected.layout;
+  monitoringHudApplyCardLayout();
+  monitoringHudRenderControls();
+  monitoringHudCloseChildWindow();
+  monitoringHudMarkChanged();
+}
+
 function monitoringHudRenderMonitorManagement() {
   const selected = monitoringHudSelectedMonitor();
+  const monitorCount = Object.keys(monitoringHudControlState.cards || {}).length;
   if (monitoringHud) {
     monitoringHud.dataset.dashboardControlPanel = "hud-overlay-monitor-management";
     monitoringHud.dataset.monitorManagement = "create-edit-enable-polling";
@@ -214,13 +357,16 @@ function monitoringHudRenderMonitorManagement() {
     monitoringHud.dataset.dashboardStandaloneProof = "ws32-dashboard-window-travel";
     monitoringHud.dataset.dashboardClippingProof = "within-virtual-desktop";
     monitoringHud.dataset.dashboardDecouplingProof = "core-overlay-independent";
-    monitoringHud.dataset.dashboardContentPolish = "ws45-clean-control-hub-ia";
-    monitoringHud.dataset.dashboardHomeModel = "control-hub-cards-no-inline-editor";
+    monitoringHud.dataset.dashboardContentPolish = "branch2-monitor-groups-no-dead-space";
+    monitoringHud.dataset.dashboardHomeModel = "control-hub-cards-dedicated-child-window-actions";
     monitoringHud.dataset.dashboardPollingPlacement = "monitor-group-editor-only";
     monitoringHud.dataset.dashboardProofContentPolicy = "validator-artifacts-not-home-surface";
-    monitoringHud.dataset.dashboardChildWindowScope = "ws41-if-admitted";
+    monitoringHud.dataset.dashboardChildWindowScope = "branch2-create-edit-monitor-windows";
     monitoringHud.dataset.dashboardSettingsModel = "hud-overlay-monitor-groups-provider-warning";
-    monitoringHud.dataset.dashboardIaModel = "ws45-hub-actions-current-scope";
+    monitoringHud.dataset.dashboardIaModel = "branch2-ia-controls-followthrough";
+    monitoringHud.dataset.dashboardCloseAffordance = "top-chrome-close-button";
+    monitoringHud.dataset.dashboardOpenBadge = "removed";
+    monitoringHud.dataset.dashboardMonitorSelectionPlacement = "edit-child-window-only";
     monitoringHud.dataset.dashboardQuickAccess = "warning-notifications-only";
     monitoringHud.dataset.dashboardGlobalFeatureControl = "tray-owned";
     monitoringHud.dataset.dashboardDeferredActionPolicy = "disabled-labeled-not-clickable";
@@ -230,25 +376,28 @@ function monitoringHudRenderMonitorManagement() {
     monitoringHud.dataset.overlayAcceptancePolicy = "deferred-non-gating";
     monitoringHud.dataset.interfaceBundleApproval = "not-granted";
     monitoringHud.dataset.coreRepairClassification = "dependency-repair-only";
-    monitoringHud.dataset.monitorCount = String(Object.keys(monitoringHudControlState.cards || {}).length);
+    monitoringHud.dataset.monitorCount = String(monitorCount);
     monitoringHud.dataset.selectedMonitor = selected.id || "";
   }
   Object.keys(monitoringHudControlState.cards || {}).forEach((cardId) => {
     const layout = Object.assign(monitoringHudCardDefaults(cardId), monitoringHudControlState.cards[cardId] || {});
     monitoringHudNormalizeMonitorGroupTitle(cardId, layout);
-    const cardNode = monitoringHudMonitorSelector
-      ? monitoringHudMonitorSelector.querySelector(`[data-monitor-config-option="${cardId}"]`)
+    const cardNode = monitoringHudEditMonitorList
+      ? monitoringHudEditMonitorList.querySelector(`[data-monitor-edit-select="${cardId}"]`)
       : null;
     if (!cardNode) return;
     cardNode.dataset.monitorEnabled = layout.enabled === false ? "false" : "true";
     cardNode.dataset.monitorPollingMs = String(Math.max(1000, Number(layout.pollingRateMs) || 1000));
     cardNode.textContent = layout.title || "Monitor";
   });
-  if (monitoringHudMonitorSelector) {
-    monitoringHudMonitorSelector.value = selected.id || "cpu";
-  }
   if (monitoringHudMonitorListSummary) {
-    monitoringHudMonitorListSummary.textContent = `${Object.keys(monitoringHudControlState.cards || {}).length} Monitor Groups configured. Polling defaults to 1s inside Create/Edit, not on the Dashboard home.`;
+    monitoringHudMonitorListSummary.textContent = `${monitorCount} Monitor Groups configured. Create/Edit opens dedicated monitor windows; polling stays inside those flows.`;
+  }
+  if (monitoringHudMonitorCount) {
+    monitoringHudMonitorCount.textContent = `${monitorCount} configured`;
+  }
+  if (monitoringHudMonitorPollingSummary) {
+    monitoringHudMonitorPollingSummary.textContent = "1s floor inside Create/Edit";
   }
   if (monitoringHudMonitorEditorTitle) {
     monitoringHudMonitorEditorTitle.textContent = selected.layout.title || "Monitor Group";
@@ -262,6 +411,7 @@ function monitoringHudRenderMonitorManagement() {
   if (monitoringHudMonitorEditorScope) {
     monitoringHudMonitorEditorScope.textContent = "Monitor Groups organize what the future HUD Overlay shows; the Dashboard does not render display cards or fake values.";
   }
+  monitoringHudRenderChildWindows();
 }
 
 function monitoringHudCreateOverlayCardNode(cardId, layout) {
@@ -361,9 +511,14 @@ function monitoringHudUpdateSurfaceSplit() {
     monitoringHud.dataset.overlayAcceptancePolicy = "deferred-non-gating";
     monitoringHud.dataset.interfaceBundleApproval = "not-granted";
     monitoringHud.dataset.coreRepairClassification = "dependency-repair-only";
-    monitoringHud.dataset.dashboardContentPolish = "ws45-clean-control-hub-ia";
+    monitoringHud.dataset.dashboardContentPolish = "branch2-monitor-groups-no-dead-space";
     monitoringHud.dataset.dashboardSettingsModel = "hud-overlay-monitor-groups-provider-warning";
-    monitoringHud.dataset.dashboardIaModel = "ws45-hub-actions-current-scope";
+    monitoringHud.dataset.dashboardHomeModel = "control-hub-cards-dedicated-child-window-actions";
+    monitoringHud.dataset.dashboardChildWindowScope = "branch2-create-edit-monitor-windows";
+    monitoringHud.dataset.dashboardIaModel = "branch2-ia-controls-followthrough";
+    monitoringHud.dataset.dashboardCloseAffordance = "top-chrome-close-button";
+    monitoringHud.dataset.dashboardOpenBadge = "removed";
+    monitoringHud.dataset.dashboardMonitorSelectionPlacement = "edit-child-window-only";
     monitoringHud.dataset.dashboardQuickAccess = "warning-notifications-only";
     monitoringHud.dataset.dashboardGlobalFeatureControl = "tray-owned";
     monitoringHud.dataset.dashboardDeferredActionPolicy = "disabled-labeled-not-clickable";
@@ -444,7 +599,7 @@ function monitoringHudRenderControls() {
   monitoringHud.dataset.dashboardWarningControls = "visual-non-invasive-only";
   monitoringHud.dataset.dashboardFakeTelemetryPolicy = "blocked";
   if (monitoringHudRuntimeStatus) {
-    monitoringHudRuntimeStatus.textContent = dashboardVisible ? "HUD Dashboard open" : "HUD Dashboard closed";
+    monitoringHudRuntimeStatus.textContent = dashboardVisible ? "Dashboard visible" : "Dashboard hidden";
   }
   if (monitoringHudAnchorStatus) {
     monitoringHudAnchorStatus.textContent = overlayDeferred ? "HUD Overlay deferred" : (monitoringHudControlState.anchored ? "HUD Overlay anchored" : "HUD Overlay unanchored");
@@ -457,7 +612,7 @@ function monitoringHudRenderControls() {
     monitoringHudAnchorToggle.disabled = overlayDeferred;
   }
   if (monitoringHudEditMonitor) {
-    monitoringHudEditMonitor.textContent = "Edit Monitor Group";
+    monitoringHudEditMonitor.textContent = "Edit Monitor";
   }
   if (monitoringHudSnapToggle) {
     monitoringHudSnapToggle.textContent = "HUD Overlay settings";
@@ -538,8 +693,8 @@ function monitoringHudRenderSensorCards(cards) {
   if (!Array.isArray(cards)) return;
   cards.forEach((card) => {
     if (!card || !card.id) return;
-    const cardNode = monitoringHudMonitorList
-      ? monitoringHudMonitorList.querySelector(`[data-monitor-config-option="${card.id}"]`)
+    const cardNode = monitoringHudEditMonitorList
+      ? monitoringHudEditMonitorList.querySelector(`[data-monitor-edit-select="${card.id}"]`)
       : null;
     if (cardNode) {
       if (card.state) cardNode.dataset.monitorProviderState = card.state;
@@ -660,33 +815,43 @@ function monitoringHudWireControls() {
       monitoringHudMarkChanged();
     });
   }
-  function createMonitorGroup() {
-    const nextNumber = Math.max(3, Number(monitoringHudControlState.monitorSequence || 2) + 1);
-    monitoringHudControlState.monitorSequence = nextNumber;
-    const cardId = `monitor-${nextNumber}`;
-    monitoringHudControlState.cards[cardId] = {
-      x: 0,
-      y: (nextNumber - 1) * 300,
-      w: 600,
-      h: 280,
-      title: `Monitor Group ${nextNumber}`,
-      enabled: true,
-      pollingRateMs: 1000
-    };
-    monitoringHudControlState.selectedMonitorId = cardId;
-    monitoringHudApplyCardLayout();
-    monitoringHudWireCardInteractions();
-    monitoringHudRenderControls();
-    monitoringHudMarkChanged();
+  if (monitoringHudDashboardClose) {
+    monitoringHudDashboardClose.addEventListener("click", () => {
+      monitoringHudCloseChildWindow();
+      monitoringHudControlState.visible = false;
+      monitoringHudRenderControls();
+      monitoringHudMarkChanged();
+    });
   }
   if (monitoringHudCreateMonitor) {
     monitoringHudCreateMonitor.addEventListener("click", () => {
-      createMonitorGroup();
+      monitoringHudOpenChildWindow("monitor-group-create");
     });
   }
-  document.querySelectorAll('[data-control="create-monitor"]').forEach((button) => {
-    if (button === monitoringHudCreateMonitor) return;
-    button.addEventListener("click", createMonitorGroup);
+  if (monitoringHudEditMonitor) {
+    monitoringHudEditMonitor.addEventListener("click", () => {
+      monitoringHudOpenChildWindow("monitor-group-edit");
+    });
+  }
+  if (monitoringHudCreateMonitorConfirm) {
+    monitoringHudCreateMonitorConfirm.addEventListener("click", monitoringHudCreateMonitorGroupFromWindow);
+  }
+  if (monitoringHudEditMonitorConfirm) {
+    monitoringHudEditMonitorConfirm.addEventListener("click", monitoringHudSaveEditMonitorWindow);
+  }
+  if (monitoringHudEditMonitorList) {
+    monitoringHudEditMonitorList.addEventListener("click", (event) => {
+      const button = event.target && event.target.closest ? event.target.closest("[data-monitor-edit-select]") : null;
+      if (!button) return;
+      const cardId = button.dataset.monitorEditSelect;
+      if (!cardId || !monitoringHudControlState.cards[cardId]) return;
+      monitoringHudControlState.selectedMonitorId = cardId;
+      monitoringHudRenderMonitorManagement();
+      monitoringHudMarkChanged();
+    });
+  }
+  document.querySelectorAll("[data-child-window-close]").forEach((button) => {
+    button.addEventListener("click", monitoringHudCloseChildWindow);
   });
   if (monitoringHudSnapToggle) {
     monitoringHudSnapToggle.addEventListener("click", () => {
@@ -735,15 +900,6 @@ function monitoringHudWireControls() {
       monitoringHudMarkChanged();
     });
   }
-  if (monitoringHudMonitorSelector) {
-    monitoringHudMonitorSelector.addEventListener("change", () => {
-      const cardId = monitoringHudMonitorSelector.value;
-      if (!cardId || !monitoringHudControlState.cards[cardId]) return;
-      monitoringHudControlState.selectedMonitorId = cardId;
-      monitoringHudRenderMonitorManagement();
-      monitoringHudMarkChanged();
-    });
-  }
 }
 
 function monitoringHudInitializeControls() {
@@ -778,7 +934,8 @@ function monitoringHudInitializeControls() {
 
 window.getMonitoringHudControlState = function() {
   return Object.assign({}, monitoringHudControlState, {
-    cards: Object.assign({}, monitoringHudControlState.cards)
+    cards: Object.assign({}, monitoringHudControlState.cards),
+    activeChildWindow: monitoringHudActiveChildWindow || "none"
   });
 };
 
@@ -808,6 +965,10 @@ window.getMonitoringHudLiveClientGeometry = function() {
     anchorToggle: null,
     createMonitor: rectFor("#monitoring-hud-create-monitor-action"),
     editMonitor: rectFor("#monitoring-hud-edit-monitor-action"),
+    dashboardClose: rectFor("#monitoring-hud-dashboard-close-action"),
+    createMonitorWindow: rectFor("#monitoring-hud-create-monitor-window"),
+    editMonitorWindow: rectFor("#monitoring-hud-edit-monitor-window"),
+    childWindowLayer: rectFor("#monitoring-hud-child-window-layer"),
     visibilityToggle: null,
     snapToggle: rectFor("#monitoring-hud-snap-toggle"),
     warningToggle: rectFor("#monitoring-hud-warning-toggle"),
@@ -815,11 +976,13 @@ window.getMonitoringHudLiveClientGeometry = function() {
     warningModeControl: rectFor("#monitoring-hud-warning-mode-control"),
     panelDragHandle: rectFor("#monitoring-hud-drag-handle"),
     monitorList: rectFor("#monitoring-hud-monitor-list"),
-    monitorSelector: rectFor("#monitoring-hud-monitor-selector"),
+    monitorSelector: null,
     dataSourcesAction: rectFor('[data-control="open-data-sources"]'),
     hudOverlayDeferredAction: rectFor('[data-dashboard-hub-card="hud-overlay"]'),
     monitorEnabled: rectFor("#monitoring-hud-monitor-enabled"),
     monitorPollingRate: rectFor("#monitoring-hud-monitor-polling-rate"),
+    editMonitorName: rectFor("#monitoring-hud-edit-monitor-name"),
+    createMonitorName: rectFor("#monitoring-hud-create-monitor-name"),
     monitorListSummary: rectFor("#monitoring-hud-monitor-list-summary")
   };
 };
@@ -906,7 +1069,7 @@ window.getMonitoringHudDashboardAcceptanceState = function() {
       && split.dashboardDecouplingProof === "core-overlay-independent"
     ),
     dashboardSettingsContentReady: Boolean(
-      split.dashboardContentPolish === "ws45-clean-control-hub-ia"
+      split.dashboardContentPolish === "branch2-monitor-groups-no-dead-space"
       && split.dashboardSettingsModel === "hud-overlay-monitor-groups-provider-warning"
       && split.monitorGroupModel === "organizational-groups-settings-only"
       && split.dashboardMonitorCardPolicy === "overlay-display-owns-monitor-cards"
@@ -1054,7 +1217,7 @@ window.setMonitoringHudTelemetry = function(snapshot) {
     monitoringHud.dataset.pollingRateMs = String(monitoringHudTelemetry.pollingRateMs || monitoringHudControlState.pollingRateMs || 1000);
   }
   if (monitoringHudRuntimeStatus) {
-    monitoringHudRuntimeStatus.textContent = monitoringHudControlState.visible ? "HUD Dashboard open" : "HUD Dashboard closed";
+    monitoringHudRuntimeStatus.textContent = monitoringHudControlState.visible ? "Dashboard visible" : "Dashboard hidden";
   }
   if (monitoringHudProviderState) {
     monitoringHudProviderState.textContent = monitoringHudTelemetry.providerLabel || "Provider setup required";
