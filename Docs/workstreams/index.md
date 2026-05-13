@@ -117,7 +117,9 @@ None.
 Merged / Release Debt Owners are promoted implementation workstreams whose implementation branch is merge-target complete but whose public release packaging has not yet cleared release debt.
 These records are not active implementation branch owners after merge.
 
-None.
+No promoted workstream record currently owns release debt.
+
+Branch-authority release debt owner: `Docs/branch_records/feature_fam_006_dashboard_render_layout_hardening.md` records PR #129 FAM-006 Dashboard render/layout hardening as merged-unreleased release debt after `v1.7.0-prebeta`.
 
 ### Closed
 
