@@ -53,9 +53,9 @@ Current authorization covers PR Readiness Stage 2 final package sync, live PR cr
 - Runtime Implementation: `Implemented first repair pass for #123, #124, and #127`
 - Hardening H1 Status: `PASS - active-client H1 validation completed from C:\Nexus Desktop AI on 2026-05-13 for #123, #124, and #127; formal UTS export remains blocked unless a later governed Live Validation phase is admitted`
 - GitHub Issue Traceability: `Branch carrier comments added to #123, #124, and #127 during this Stage 2 setup; issue body edits beyond planning references remain blocked`
-- PR Metadata: `Pending live PR creation during Stage 2`
-- Live PR Truth: `Pending live PR creation during Stage 2`
-- PR Bot Review Signal: `Pending live PR creation / bot signal`
+- PR Metadata: `PR #129 - https://github.com/GiribaldiTTV/Nexus-Desktop-AI/pull/129`
+- Live PR Truth: `OPEN / ready for review / head feature/fam-006-dashboard-render-layout-hardening / base main / mergeable MERGEABLE / merge state CLEAN / no checks reported at creation`
+- PR Bot Review Signal: `Pending live PR bot signal after PR creation`
 - FAM-007 / Local AI Authority: `Blocked and out of scope`
 
 ## Branch Class
@@ -137,6 +137,22 @@ PR Title: `FAM-006 Dashboard render/layout hardening`
 Base Branch: `main`
 
 Head Branch: `feature/fam-006-dashboard-render-layout-hardening`
+
+PR Number: `#129`
+
+PR URL: `https://github.com/GiribaldiTTV/Nexus-Desktop-AI/pull/129`
+
+PR Created: `2026-05-13 PR Readiness Stage 2`
+
+PR State: `OPEN`
+
+PR Draft State: `false`
+
+PR Mergeability: `MERGEABLE / CLEAN`
+
+PR Checks: `No checks reported at creation`
+
+PR Bot Review Signal: `Pending - Stage 2 must report the live PR state and wait for a thumbs-up reaction or bot comment before PR green if repo bot-review governance requires it`
 
 PR Summary:
 
