@@ -87,7 +87,7 @@ Do not use this layer to replace:
 
 ## Active Branch Authority Records
 
-None.
+- `Docs/branch_records/feature_fam_007_provider_boundary_no_provider_shell.md`
 
 ## Historical Branch Authority Records
 
