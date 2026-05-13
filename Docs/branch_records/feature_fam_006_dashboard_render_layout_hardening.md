@@ -15,7 +15,7 @@ This branch is the USER-approved implementation carrier for the first FAM-006 Da
 
 It exists because PR #122 merged the FAM-006 issue-readiness governance repair, the five locked FAM-006 Dashboard GitHub issues were created from updated main using summary-only evidence, and USER approved this first branch to carry the released Dashboard render/layout confidence issues before IA/control follow-through begins.
 
-Current authorization covers Hardening H1 preparation, validation-path review, USER-facing handoff instructions, source-truth updates, commit, and push for issues #123, #124, and #127. PR creation, raw evidence upload/import/linking, release/tag/artifact work, FAM-007/local AI work, AI Product Contract import, old C:\ folder reactivation/reconciliation, and codex/ai-llm-lab reactivation/reconciliation remain future USER approval checkpoints.
+Current authorization covers Hardening H1 preparation, validation-path review, USER-facing handoff instructions, workspace reconsolidation source-truth sync, AI Lab branch consolidation/retirement, source-truth updates, commit, and push for issues #123, #124, and #127. PR creation, raw evidence upload/import/linking, release/tag/artifact work, FAM-007/local AI work, AI Product Contract import, deleting D-drive main/folders, shortcut retargeting, and recreating or reusing codex/ai-llm-lab remain future USER approval checkpoints.
 
 ## Record State
 
@@ -49,7 +49,7 @@ Current authorization covers Hardening H1 preparation, validation-path review, U
 - Evidence Policy: `Summary-only for GitHub issue and branch source-truth references`
 - Raw Media Status: `Raw screenshots, videos, and UTS exports remain local/external unless USER later approves upload, import, or linking`
 - Runtime Implementation: `Implemented first repair pass for #123, #124, and #127`
-- Hardening H1 Status: `Prepared/pending USER result - D-drive launch path selected, pre-USER validators passed, active-client H1 support proof passed, and USER test template is ready`
+- Hardening H1 Status: `Prepared/pending USER result - workspace reconsolidated to C:\Nexus Desktop AI, C-drive launch path selected for the next H1 continuation, prior pre-USER validators passed, active-client H1 support proof passed, and USER test template remains ready`
 - GitHub Issue Traceability: `Branch carrier comments added to #123, #124, and #127 during this Stage 2 setup; issue body edits beyond planning references remain blocked`
 - FAM-007 / Local AI Authority: `Blocked and out of scope`
 
@@ -70,7 +70,7 @@ Current authorization covers Hardening H1 preparation, validation-path review, U
 - FAM-007/local AI work remains separate and requires later USER approval.
 - AI Product Contract import remains a future USER approval checkpoint.
 - Old C:\ folder reactivation/reconciliation remains a future USER approval checkpoint.
-- codex/ai-llm-lab reactivation/reconciliation remains a future USER approval checkpoint.
+- Recreating or reusing codex/ai-llm-lab remains a future USER approval checkpoint.
 - Branch 2 work for #125 and #126 remains held for later USER approval.
 
 ## Entry Basis
@@ -82,6 +82,8 @@ Current authorization covers Hardening H1 preparation, validation-path review, U
 - USER approved Branch 1 as `feature/fam-006-dashboard-render-layout-hardening`, carrying issues #123, #124, and #127.
 - Issues #125 and #126 remain held for the later IA/control follow-through branch.
 - During implementation, updated `origin/main` was fetched after PR #128 merged and integrated into this branch by merge commit `46e7fbf38afa127ba7845a0a1f83b1c7f4902baa`; the integrated PR #128 source truth remains FAM-007 planning/candidate-only and does not admit FAM-007/local AI implementation or change the FAM-006 carrier scope.
+- Workspace reconsolidation Stage 2 moved active Branch 1 work to `C:\Nexus Desktop AI` at `b5e2adc5f9deb0d66510fbd4b7048da9644ae630`, retired the clean `C:\Nexus Desktop AI FAM-006` linked worktree, retired the D-drive Branch 1 worktree, and retained `D:\Nexus Repos\Nexus Desktop AI Main` as a clean main/consolidator fallback.
+- AI Lab consolidation proof showed `codex/ai-llm-lab` at `3c68cd881a9f6bf447f09ac0949d556e97bce4f4` was contained in both current Branch 1 `HEAD` and `origin/main`, with no unique commits outside the current feature branch. USER then approved deleting the local and remote AI Lab branch refs while preserving historical traceability through merged history and this source-truth record.
 
 ## Exit Criteria
 
@@ -101,7 +103,7 @@ Current authorization covers Hardening H1 preparation, validation-path review, U
 
 - `Workstream`
 
-Rollback Path: revert this branch before PR if the Dashboard render/layout repair fails validation or USER visual review; do not mutate old C:\ folders, FAM-007 worktrees, or codex/ai-llm-lab.
+Rollback Path: revert this branch before PR if the Dashboard render/layout repair fails validation or USER visual review; do not mutate other old C:\ folders, FAM-007 worktrees, D-drive main/folders, or recreate/reuse codex/ai-llm-lab.
 
 ## Next Legal Phase
 
@@ -135,7 +137,7 @@ Backlog Completion State: Implemented Complete
 Completion Status: Green
 Remaining Implementable Work: None
 Future-Dependent Blockers: None
-Visible User-Facing Proof Required: Yes for H1 closeout - USER-facing validation is prepared through the active D-drive branch launcher; formal Live Validation UTS remains a later separate phase if admitted.
+Visible User-Facing Proof Required: Yes for H1 closeout - USER-facing validation is now prepared through the active C-drive Branch 1 launcher path; formal Live Validation UTS remains a later separate phase if admitted.
 Visible User-Facing Proof: Pending USER H1 result - active-client helper captured Dashboard-specific local proof without refreshing or digesting a formal UTS.
 
 ## Expected Seam Families And Risk Classes
@@ -282,19 +284,21 @@ Active-Client Live Proof: `PASS - powershell -ExecutionPolicy Bypass -File dev\o
 
 Compile Proof: `PASS - python -m py_compile desktop\desktop_renderer.py dev\orin_monitoring_hud_surface_validation.py dev\orin_monitoring_hud_internal_sandbox_validation.py`
 
-Human-Client Shortcut Proof: `Not run - current actual desktop shortcut targets C:\Nexus Desktop AI FAM-006, not this D-drive Branch 1 worktree. Shortcut mutation and old C:\ reactivation/reconciliation remain outside current authorization.`
+Human-Client Shortcut Proof: `Not run - current actual desktop shortcut still targets the retired C:\Nexus Desktop AI FAM-006 path, not the active C:\Nexus Desktop AI Branch 1 workspace. H1 uses the direct C-drive Branch 1 launcher path unless USER later approves persistent shortcut retargeting.`
 
 Formal UTS Status: `Not generated, refreshed, imported, uploaded, linked, or digested during this Workstream pass.`
 
 ## Workspace Identity Guard - FAM-006 Branch 1
 
-Guard Reason: `A GitHub Desktop binding mismatch was found during Hardening H1 preparation: shell was correctly on the D-drive Branch 1 worktree, while GitHub Desktop visibly showed Nexus Desktop AI - FAM-006 on main with Pull origin 11, matching the stale C:\Nexus Desktop AI FAM-006 folder.`
+Guard Reason: `A GitHub Desktop binding mismatch was found during Hardening H1 preparation, then USER approved workspace reconsolidation back to C:\Nexus Desktop AI. The stale C:\Nexus Desktop AI FAM-006 linked worktree and the D-drive Branch 1 worktree were retired. GitHub Desktop was restored to the C:\Nexus Desktop AI repository entry, the stale Desktop entries were removed, and the display alias was reset to Nexus Desktop AI.`
 
-Expected Active Worktree: `D:\Nexus Worktrees\Nexus Desktop AI FAM-006 Dashboard Render Layout Hardening`
+Expected Active Worktree: `C:\Nexus Desktop AI`
 
 Expected Active Branch: `feature/fam-006-dashboard-render-layout-hardening`
 
-Expected Worktree Role: `active branch worktree for FAM-006 Dashboard render/layout hardening issues #123, #124, and #127`
+Expected Worktree Role: `active local Branch 1 workspace for FAM-006 Dashboard render/layout hardening issues #123, #124, and #127`
+
+Retained Fallback / Historical Context: `D:\Nexus Repos\Nexus Desktop AI Main remains a retained clean main/consolidator fallback unless later USER-approved governance changes its disposition. codex/ai-llm-lab is resolved as historical AI Lab planning traceability: its commits are contained in Branch 1 and origin/main, the local/remote branch refs were deleted by USER approval, and it is not the active Branch 1 carrier.`
 
 Before Branch 1 code work, live validation, H1 validation, PR readiness, or GitHub Desktop-assisted workflow, Codex must verify:
 
@@ -310,19 +314,19 @@ Mismatch Condition: `A Workspace Identity Mismatch exists when shell, GitHub Des
 
 Recovery Posture: `When mismatch is found, Codex records the mismatch, reports the expected workspace, reports the conflicting visible workspace, and surfaces the recovery decision before continuing code work, runtime validation, H1 validation, PR readiness, or GitHub Desktop-assisted workflow.`
 
-Branch 1 H1 Desktop Binding Note: `GitHub Desktop should either be bound to the D-drive Branch 1 worktree or explicitly ignored for H1. C:\Nexus Desktop AI FAM-006 is historical/stale for this Branch 1 H1 flow.`
+Branch 1 H1 Desktop Binding Note: `GitHub Desktop should be bound to C:\Nexus Desktop AI and show feature/fam-006-dashboard-render-layout-hardening before H1 continues. C:\Nexus Desktop AI FAM-006 and the retired D-drive Branch 1 worktree are no longer active Branch 1 carriers.`
 
-Branch 1 Launcher Note: `The normal desktop shortcut is not the Branch 1 validation path unless USER explicitly approves retargeting or a temporary Branch 1 shortcut. H1 currently uses the direct D-drive branch launcher path.`
+Branch 1 Launcher Note: `The normal desktop shortcut is not the Branch 1 validation path while it still targets the retired C:\Nexus Desktop AI FAM-006 path. H1 should use the direct C-drive Branch 1 launcher path unless USER explicitly approves persistent shortcut retargeting or a temporary Branch 1 shortcut.`
 
 USER-Facing GitHub Desktop Correction Steps:
 
-1. In GitHub Desktop, use `File > Add local repository...`.
-2. Select `D:\Nexus Worktrees\Nexus Desktop AI FAM-006 Dashboard Render Layout Hardening`.
+1. In GitHub Desktop, use the `Nexus Desktop AI` local repository entry.
+2. Confirm the current repository path is `C:\Nexus Desktop AI`.
 3. Confirm GitHub Desktop shows `feature/fam-006-dashboard-render-layout-hardening`.
-4. Confirm GitHub Desktop does not show `Pull origin 11`.
-5. Treat `C:\Nexus Desktop AI FAM-006` as historical/stale for this H1 flow.
+4. Confirm GitHub Desktop does not show the stale `Nexus Desktop AI - FAM-006` or retired D-drive Branch 1 entries.
+5. Confirm GitHub Desktop does not show `Pull origin 11` for the active H1 workspace.
 
-Persistent Removal Boundary: `Removing the stale C-drive repository from GitHub Desktop, deleting folders, retargeting shortcuts, or reconciling old C:\ workspaces remains a future USER approval checkpoint. If USER wants the safer immediate Desktop path, remove the stale repository from GitHub Desktop without deleting the folder.`
+Persistent Removal Boundary: `The stale GitHub Desktop entries for C:\Nexus Desktop AI FAM-006 and the retired D-drive Branch 1 worktree were removed from GitHub Desktop without deleting D-drive main/folders. The codex/ai-llm-lab local/remote branch refs were deleted only after containment proof and USER approval. Deleting D-drive main/folders, retargeting shortcuts, or recreating/reusing codex/ai-llm-lab remains a future USER approval checkpoint.`
 
 Broader Workspace Identity Gate Review: `Repo-wide identity governance already exists in Docs/Main.md, Docs/development_rules.md, Docs/phase_governance.md, and Docs/branch_records/index.md through Thread / Worktree Identity Preflight, GitHub Desktop binding verification, and Thread / Worktree Identity Mismatch blockers. This branch records the Branch 1-specific guard only. A reusable helper/check script to print active repo root, branch, upstream, origin/main, and expected worktree should be a later USER-approved governed improvement rather than an H1 source-truth patch.`
 
@@ -334,15 +338,15 @@ H1 Status: `Prepared / USER result pending`
 
 H1 Scope: `#123 Dashboard initial open flicker`; `#124 Dashboard scroll content well clipping / scrollbar ownership / gutter alignment`; `#127 Dashboard resize jitter / catch-up lag`.
 
-H1 Held Scope: `#125 Monitor Groups IA / Create/Edit split`; `#126 redundant HUD Dashboard Open badge / close affordance`; Dashboard settings cog/settings panel; Overlay/display acceptance; provider telemetry parity; Dev Toolkit/source-owner markers; FAM-007/local AI; AI Product Contract; old C:\ folder reactivation/reconciliation; codex/ai-llm-lab reactivation/reconciliation.
+H1 Held Scope: `#125 Monitor Groups IA / Create/Edit split`; `#126 redundant HUD Dashboard Open badge / close affordance`; Dashboard settings cog/settings panel; Overlay/display acceptance; provider telemetry parity; Dev Toolkit/source-owner markers; FAM-007/local AI; AI Product Contract; persistent shortcut retargeting; deleting D-drive main/folders; recreating or reusing codex/ai-llm-lab.
 
-Launch Path Decision: `Use the existing D-drive branch launcher directly; do not create or mutate the persistent desktop shortcut during H1 preparation.`
+Launch Path Decision: `Use the C-drive Branch 1 launcher directly from C:\Nexus Desktop AI; do not create or mutate the persistent desktop shortcut during this source-truth sync.`
 
-USER-Facing Launch Command: `wscript.exe "D:\Nexus Worktrees\Nexus Desktop AI FAM-006 Dashboard Render Layout Hardening\launch_orin_desktop.vbs"`
+USER-Facing Launch Command: `wscript.exe "C:\Nexus Desktop AI\launch_orin_desktop.vbs"`
 
-Launch Working Directory: `D:\Nexus Worktrees\Nexus Desktop AI FAM-006 Dashboard Render Layout Hardening`
+Launch Working Directory: `C:\Nexus Desktop AI`
 
-Persistent Desktop Shortcut State: `C:\Users\anden\OneDrive\Desktop\Nexus Desktop Launcher.lnk still targets C:\Nexus Desktop AI FAM-006 and is not used as the H1 branch launcher. Shortcut mutation and old C:\ reactivation/reconciliation remain future USER approval checkpoints.`
+Persistent Desktop Shortcut State: `C:\Users\anden\OneDrive\Desktop\Nexus Desktop Launcher.lnk still targets the retired C:\Nexus Desktop AI FAM-006 path and is not used as the H1 branch launcher. Persistent shortcut retargeting remains a future USER approval checkpoint.`
 
 Temporary Launch Helper: `None created.`
 
@@ -360,7 +364,7 @@ Runtime Ownership Result: `No active Nexus/Python runtime process remained after
 
 H1 USER Test Instructions:
 
-1. Launch the active Branch 1 build from `wscript.exe "D:\Nexus Worktrees\Nexus Desktop AI FAM-006 Dashboard Render Layout Hardening\launch_orin_desktop.vbs"`.
+1. Launch the active Branch 1 build from `wscript.exe "C:\Nexus Desktop AI\launch_orin_desktop.vbs"` with working directory `C:\Nexus Desktop AI`.
 2. Open HUD Dashboard and watch the first 1-2 seconds of the reveal. Expected for #123: the Dashboard appears stable without full-window flicker before settling.
 3. Inspect the monitor group card stack / Dashboard scroll content well. Scroll if content exceeds the visible area. Expected for #124: side and bottom gutter feel consistent, the card stack does not run into the bottom edge, and the scrollbar visually belongs to the inner content well/card stack instead of the outer shell.
 4. Resize the Dashboard slowly and quickly from edges/corners. Expected for #127: resize feels smoother, with reduced lag/catch-up behavior and no delayed compact-geometry snap while USER resize is active.
