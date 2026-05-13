@@ -15,16 +15,16 @@ This branch is the USER-approved Branch Readiness Stage 2 setup carrier and Work
 
 It exists because PR #129 merged the first FAM-006 Dashboard issue-resolution branch for render/layout hardening, issues #125 and #126 remain open and held for Dashboard IA/control follow-through, and USER approved Branch Readiness Stage 2 setup for `feature/fam-006-dashboard-ia-controls-followthrough` from current `origin/main`.
 
-Current authorization covers Hardening/H1 validation for issues #125 and #126 only, directly supporting validator/source-truth updates, validation, commit, and push. GitHub issue comments/state updates, raw evidence upload/import/linking, PR creation, release/tag/artifact work, Workspace Runtime Isolation Stage 2, FAM-007/local AI work, AI Product Contract import, and branch expansion beyond #125/#126 remain future USER approval checkpoints.
+Current authorization has covered Hardening/H1 validation, PR Readiness Stage 2, PR creation, and live PR metadata sync for issues #125 and #126 plus the USER-approved bounded governance/source-truth repairs recorded below. GitHub issue comments/state updates, raw evidence upload/import/linking, merge, release/tag/artifact work, Workspace Runtime Isolation Stage 2, FAM-007/local AI work, AI Product Contract import, and branch expansion beyond the accepted PR package remain future USER approval checkpoints.
 
 ## Record State
 
-- `Active Hardening H1 visual repair/validation complete for #125/#126 after USER screenshot follow-up; next phase pending USER decision`
+- `PR #132 open / watch pending after H1 visual repair/validation complete for #125/#126 and PR Readiness Stage 2 execution`
 - `Merge-target No Active Branch projected for PR Readiness`
 
 ## Status
 
-- `Dashboard IA/control follow-through H1 validation repaired and complete for issues #125 and #126; GitHub issue closeout/comment updates and PR creation remain blocked pending USER approval`
+- `Dashboard IA/control follow-through PR #132 is open for issues #125 and #126; GitHub issue closeout/comment updates, merge, release work, and raw evidence handling remain blocked pending USER approval`
 
 ## Canonical Branch
 
@@ -46,7 +46,7 @@ Current authorization covers Hardening/H1 validation for issues #125 and #126 on
 - Hardening H1 Status: `PASS - active-client H1 validation completed from C:\Nexus Worktrees\Nexus Desktop AI FAM-006 Dashboard IA Controls Followthrough on 2026-05-13 for #125 and #126 after bounded stale-selector cleanup and USER-screenshot visual layout repair; formal UTS export remains blocked unless a later governed Live Validation phase is admitted`
 - PR Readiness Repair: `Active - current-main sync reconciles PR #130 and PR #131 main changes, resolves Branch 1 historical-record conflicts, refreshes stale Branch 2 implementation/H1 wording, and preserves Branch 2 as the current #125/#126 PR-readiness carrier`
 - Branch Under PR Readiness Review: `feature/fam-006-dashboard-ia-controls-followthrough`
-- Branch Authority State: `Historical / No Active Branch projected for PR Readiness; PR creation remains blocked pending later USER approval`
+- Branch Authority State: `Historical / No Active Branch projected for PR Readiness; PR #132 is open and merge remains blocked pending later USER approval`
 - Source-Truth Owner: `This branch record owns Branch 2 setup and issue traceability; Docs/branch_records/feature_fam_006_monitoring_hud_product_surface.md owns historical FAM-006 RUI and issue-queue truth`
 - Carried Issues: `#125 FAM-006 Dashboard: Monitor Groups dead space and Create/Edit window split`; `#126 FAM-006 Dashboard: remove redundant open badge and add close affordance`
 - Completed-By-PR-129 Issues Pending GitHub Closeout: `#123`; `#124`; `#127`
@@ -64,7 +64,8 @@ Current authorization covers Hardening/H1 validation for issues #125 and #126 on
 
 - `PR Readiness User Decision Pending`: active after Hardening H1 validation.
 - `GitHub Issue Closeout Approval Missing`: active for #123/#124/#127 and any comments/state changes on #125/#126.
-- `PR Creation Approval Missing`: active.
+- `PR Bot Review Signal Pending`: active for PR #132 until the live PR receives bot review signal.
+- `PR Merge Approval Missing`: active.
 - `Raw Evidence Import Decision Pending`: active.
 - `Release Execution Approval Missing`: active.
 - `Branch Expansion Approval Missing`: active for any work outside #125/#126.
@@ -107,13 +108,13 @@ Current authorization covers Hardening/H1 validation for issues #125 and #126 on
 
 - `Branch Readiness`
 
-Rollback Path: abandon or repair branch `feature/fam-006-dashboard-ia-controls-followthrough` if USER rejects the Workstream implementation before PR creation. Do not mutate main, delete D-drive folders, edit GitHub issue state, import raw media, enter FAM-007/local AI work, or recreate/reuse codex/ai-llm-lab.
+Rollback Path: abandon or repair branch `feature/fam-006-dashboard-ia-controls-followthrough` if USER rejects the PR before merge. Do not mutate main, delete D-drive folders, edit GitHub issue state, import raw media, enter FAM-007/local AI work, or recreate/reuse codex/ai-llm-lab.
 
 ## Next Legal Phase
 
 - `PR Readiness`
 
-Next Legal Phase Gate: after this PR Readiness Stage 1 repair is validated and pushed, USER may request a fresh PR Readiness Stage 1 packet or, if the repair packet reports Stage 2-ready, explicitly approve PR Readiness Stage 2. PR creation, GitHub issue comments/state updates, raw evidence upload/import/linking, release/tag/artifact work, Workspace Runtime Isolation Stage 2, FAM-007/local AI work, AI Product Contract import, and any branch expansion remain blocked.
+Next Legal Phase Gate: PR #132 is open after USER-approved PR Readiness Stage 2. The next legal action is PR watch/bot-review handling and then a later USER merge decision if review/check state is green. GitHub issue comments/state updates, raw evidence upload/import/linking, release/tag/artifact work, Workspace Runtime Isolation Stage 2, FAM-007/local AI work, AI Product Contract import, and any branch expansion remain blocked.
 
 ## Governance Drift Audit
 
@@ -126,6 +127,22 @@ Prompt Gate Drift Disposition: `USER Waiver Granted - USER explicitly approved c
 Parallel Worktree Governance Carrier Decision: `Accepted on this FAM-006 carrier after oversight repair. Source-truth facts: USER explicitly assigned this Codex thread to the FAM-006 worktree until complete, assigned a separate Codex thread to the FAM-007 worktree, and requested governance/source-truth guardrails so the two-worktree workflow is accepted repo-wide without branch/file-health drift. Current authorization covers the scope-oversight repair and governance update before PR Readiness Stage 2. Phase/seam status is PR Readiness; the repair is docs/source-truth only, does not alter #125/#126 runtime behavior, and directly protects this PR package from multi-worktree collision during PR creation/watch. Cleaner separate-carrier handling would be required for future broad workflow-policy changes that are not tied to the active PR-readiness risk or not explicitly USER-approved.`
 
 Future Carrier Decision Rule: `Added to Docs/phase_governance.md and Docs/codex_modes.md. When Branch Readiness or PR Readiness discovers a repo-wide governance or workflow-policy repair outside the already approved package, Codex must surface the package/carrier decision before editing, classify the repair, name the cleanest carrier, state current approval coverage, list pending USER decisions, and either record why the current carrier is legal or stop with the exact separate-carrier decision needed.`
+
+## PR Readiness Stage 2 Package
+
+PR Number: `#132`
+PR URL: `https://github.com/GiribaldiTTV/Nexus-Desktop-AI/pull/132`
+PR Title: `FAM-006 Dashboard IA/control follow-through`
+PR State: `OPEN`
+PR Draft State: `false`
+PR Base: `main`
+PR Head: `feature/fam-006-dashboard-ia-controls-followthrough`
+PR Created: `2026-05-13T22:11:53Z`
+PR Latest Head At Creation: `ea0e94b4a82a52614502e72a83afdf06a3187925`
+PR Mergeability At Creation: `MERGEABLE`
+PR Changed Files At Creation: `18`
+PR Readiness Gate After Creation: `Blocked only by Bot Review Signal Pending; source-truth metadata sync follows on the same branch.`
+Watcher / Bot-Review Posture: `Watch PR #132 for Codex/bot review comments, requested changes, status checks, and mergeability. Bounded repair may occur only on this PR branch if review feedback remains inside the accepted #125/#126 PR package or the accepted governance/source-truth repair scope; otherwise stop and surface a new USER decision.`
 
 ## Post-Merge State
 
