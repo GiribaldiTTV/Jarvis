@@ -88,6 +88,7 @@ None.
 
 ## Historical Branch Authority Records
 
+- `Docs/branch_records/feature_fam_006_dashboard_render_layout_hardening.md`
 - `Docs/branch_records/feature_fam_007_local_ai_foundation_readiness.md`
 - `Docs/branch_records/feature_fam_006_issue_readiness_governance_repair.md`
 - `Docs/branch_records/codex_workspace_governance_foundation.md`

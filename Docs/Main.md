@@ -35,12 +35,13 @@ Nexus may use multiple local folders for the same GitHub repository, but `origin
 
 Current local workspace roles:
 
-- `D:\Nexus Repos\Nexus Desktop AI Main` is the local main/consolidator clone for updated-main validation and approved worktree or branch creation; tracked file edits on `main` remain blocked
-- `D:\Nexus Worktrees\` is the preferred root for active branch worktrees
+- `C:\Nexus Desktop AI` is the active local workspace only when the current branch record and Thread / Worktree Identity Preflight agree; as of the FAM-006 Branch 1 reconsolidation it carries `feature/fam-006-dashboard-render-layout-hardening`
+- `D:\Nexus Repos\Nexus Desktop AI Main` is retained as a clean main/consolidator fallback for updated-main validation unless later USER-approved governance changes its disposition; tracked file edits on `main` remain blocked
+- `D:\Nexus Worktrees\` remains a governed worktree root, but retired worktrees there are not active carriers unless a current branch record names them
 - `D:\Nexus Dev ORIN\` is the private/dev workspace root; content there is evidence only unless legally imported through repo governance
 - `D:\Nexus Artifacts\` is the artifact/model/eval output root; content there is evidence only unless legally imported through repo governance
-- old `C:\` Nexus folders are parked or fallback workspaces unless explicitly reactivated
-- `C:\Nexus Desktop AI` on `codex/ai-llm-lab` is parked lab/planning context only and is not a governance, runtime, or FAM-007 carrier unless later imported by USER-approved repo governance
+- other old `C:\` Nexus folders, including `C:\Nexus Desktop AI FAM-006`, are parked or fallback workspaces unless explicitly reactivated
+- `codex/ai-llm-lab` is historical AI Lab planning traceability only; after USER-approved consolidation into the current feature branch it has no active local/remote branch ref and must not be recreated or reused without USER-approved repo governance
 - active branch names must not use the `codex/` prefix; use `feature/` or another USER-approved non-`codex/` prefix, and treat historical `codex/` branch names as traceability only
 
 Before branch creation, worktree creation, phase entry, commit, push, PR work, release work, or GitHub Desktop handoff, run a `Thread / Worktree Identity Preflight` and prove the active thread is operating in the intended workspace, repository root, branch, upstream, and worktree role. If the identity does not match the requested work, stop on `Thread / Worktree Identity Mismatch`.
