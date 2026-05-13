@@ -137,7 +137,7 @@ Release Scope: PR #114 `docs: close v1.6.13 post-release canon`, PR #116 `Fix la
 Release Artifacts: Published - tag `v1.7.0-prebeta` and GitHub Release `Pre-Beta v1.7.0` exist at `06edf8143dd862c94d26ff7d812105179a621206`; the live release body has been corrected with detailed summary, highlights, validation/governance, generated `What's Changed`, and `Full Changelog` sections as the approved release-artifact correction in this Stage 2 carrier.
 Post-Release Truth: `v1.7.0-prebeta` is published and FAM-006 is released historical traceability. Post-release canon drift and release-body SOP drift are repaired in the approved governance/canon carrier, which is projected as historical/no-active before PR creation so merged main remains `No Active Branch`.
 Next-Branch Creation Gate: Cleared only for the completed governance/canon repair carrier now projected as historical/no-active for merge. FAM-007 implementation branch/package admission remains blocked until a later Branch Readiness revalidation and USER approval.
-Next Legal Phase: PR Readiness Stage 2 for the governance/canon repair carrier; after PR merge and updated-main validation, run separate repo-facing and AI-lab handoff/cleanup passes before any FAM-007 implementation or package admission.
+Next Legal Phase: Post-merge updated-main validation and separate repo-facing / AI-lab handoff cleanup; after that, later Branch Readiness Stage 1 revalidation may analyze FAM-007 implementation/package admission only with explicit USER approval.
 
 ## Released Historical Scope
 
