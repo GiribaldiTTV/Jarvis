@@ -15,7 +15,7 @@ This branch is the USER-approved implementation carrier for the first FAM-006 Da
 
 It exists because PR #122 merged the FAM-006 issue-readiness governance repair, the five locked FAM-006 Dashboard GitHub issues were created from updated main using summary-only evidence, and USER approved this first branch to carry the released Dashboard render/layout confidence issues before IA/control follow-through begins.
 
-Current authorization covers PR Readiness Stage 2 final package sync, live PR creation to `main`, live PR metadata recording, merge-target authority projection to post-merge `No Active Branch`, next-workstream defer/waiver recording without creating a new branch, PR readiness gate validation, and watcher/review handling if required by repo truth. PR merge, raw evidence upload/import/linking, release/tag/artifact work, Workspace Runtime Isolation Stage 2, Branch 2 work for #125 and #126, extra runtime work outside #123/#124/#127, FAM-007/local AI work, AI Product Contract import, deleting D-drive main/folders, shortcut retargeting, and recreating or reusing codex/ai-llm-lab remain future USER approval checkpoints.
+This record now preserves PR #129 merged historical evidence for issues #123, #124, and #127. GitHub issue closeout for #123/#124/#127, raw evidence upload/import/linking, release/tag/artifact work, Workspace Runtime Isolation Stage 2, Branch 2 runtime implementation for #125 and #126, extra runtime work outside #123/#124/#127, FAM-007/local AI work, AI Product Contract import, deleting D-drive main/folders, shortcut retargeting, and recreating or reusing codex/ai-llm-lab remain future USER approval checkpoints unless separately approved.
 
 ## Record State
 
@@ -23,7 +23,7 @@ Current authorization covers PR Readiness Stage 2 final package sync, live PR cr
 
 ## Status
 
-- `PR Readiness Stage 2 package prepared for Dashboard render/layout hardening issues #123, #124, and #127; post-merge source truth projects back to No Active Branch, Branch 2/future work remains deferred, and PR merge remains a future USER approval checkpoint`
+- `Merged through PR #129 for Dashboard render/layout hardening issues #123, #124, and #127; post-merge source truth returns to No Active Branch, Branch 2/future work remains separately approval-gated, and GitHub issue closeout for #123/#124/#127 remains pending USER approval`
 
 ## Canonical Branch
 
@@ -54,7 +54,7 @@ Current authorization covers PR Readiness Stage 2 final package sync, live PR cr
 - Hardening H1 Status: `PASS - active-client H1 validation completed from C:\Nexus Desktop AI on 2026-05-13 for #123, #124, and #127; formal UTS export remains blocked unless a later governed Live Validation phase is admitted`
 - GitHub Issue Traceability: `Branch carrier comments added to #123, #124, and #127 during this Stage 2 setup; issue body edits beyond planning references remain blocked`
 - PR Metadata: `PR #129 - https://github.com/GiribaldiTTV/Nexus-Desktop-AI/pull/129`
-- Live PR Truth: `OPEN / ready for review / head feature/fam-006-dashboard-render-layout-hardening / base main / mergeable MERGEABLE / merge state CLEAN / no checks reported at creation`
+- Live PR Truth: `MERGED - PR #129 merged into main at 96ec36e7be751d444eda8dc220bc4a035d44fca1 on 2026-05-13T18:51:42Z`
 - PR Bot Review Signal: `Comment addressed - PR #129 Codex P2 thread replied to and resolved after bounded user-geometry override repair commit 24da9faffad902bf976b5f9f1340dfbbb2bc8575`
 - FAM-007 / Local AI Authority: `Blocked and out of scope`
 
@@ -69,7 +69,7 @@ Current authorization covers PR Readiness Stage 2 final package sync, live PR cr
 
 ## Future USER Approval Checkpoints
 
-- PR merge remains a future USER approval checkpoint.
+- PR merge is complete for PR #129; GitHub issue closeout for #123/#124/#127 remains a future USER approval checkpoint.
 - Release/tag/artifact work remains a future USER approval checkpoint.
 - Raw evidence upload/import/linking remains a future USER approval checkpoint; raw screenshots/videos stay local/external.
 - FAM-007/local AI work remains separate and requires later USER approval.
@@ -114,7 +114,7 @@ Rollback Path: revert this branch before PR if the Dashboard render/layout repai
 
 - `Release Readiness`
 
-Next Legal Phase Gate: USER may review the live PR after PR Readiness Stage 2. Merge remains a future USER approval checkpoint, and release/tag/artifact work remains a separate later approval checkpoint after merge. If USER later reports REPAIR from visual review before merge, the branch should route to bounded hardening repair before merge. This record does not itself approve PR merge, release work, raw evidence upload/import/linking, Workspace Runtime Isolation Stage 2, FAM-007/local AI work, or Branch 2 implementation.
+Next Legal Phase Gate: PR #129 is merged and this branch is historical traceability. Release/tag/artifact work, GitHub issue closeout for #123/#124/#127, raw evidence upload/import/linking, Workspace Runtime Isolation Stage 2, FAM-007/local AI work, and Branch 2 runtime implementation remain separate future USER approval checkpoints.
 
 ## Post-Merge State
 
@@ -144,11 +144,11 @@ PR URL: `https://github.com/GiribaldiTTV/Nexus-Desktop-AI/pull/129`
 
 PR Created: `2026-05-13 PR Readiness Stage 2`
 
-PR State: `OPEN`
+PR State: `MERGED`
 
 PR Draft State: `false`
 
-PR Mergeability: `MERGEABLE / CLEAN`
+PR Mergeability: `Merged into main at 96ec36e7be751d444eda8dc220bc4a035d44fca1`
 
 PR Checks: `No checks reported at creation`
 

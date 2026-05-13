@@ -84,7 +84,7 @@ Do not use this layer to replace:
 
 ## Active Branch Authority Records
 
-None.
+- `Docs/branch_records/feature_fam_006_dashboard_ia_controls_followthrough.md`
 
 ## Historical Branch Authority Records
 
