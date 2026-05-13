@@ -141,11 +141,11 @@ Next Legal Phase: PR Readiness for `feature/fam-006-dashboard-ia-controls-follow
 
 ## Selected Next Workstream
 
-Selected Next Workstream: None selected by this FAM-006 Branch 2 repair.
-Record State: Not selected.
-Minimal Scope: Not applicable; current active branch remains the FAM-006 #125/#126 issue-resolution carrier.
-Branch: Not created.
-Selection Scope: PR #130 and PR #131 preserve FAM-007 governance/readiness history, but this Branch 2 repair does not select or admit FAM-007 runtime Workstream entry.
+Selected Next Workstream: FAM-007 Local AI and Capability Packs.
+Record State: Registry-only.
+Minimal Scope: runtime provider-boundary and no-provider shell Workstream planning for `PKG-007`; no provider/model/runtime/memory/shortcut/installer implementation.
+Branch: Not created for successor runtime Workstream implementation; `feature/fam-007-runtime-provider-boundary` is historical PR #131 governance/readiness evidence only.
+Selection Scope: PR #130 and PR #131 preserve FAM-007 governance/readiness history; this Branch 2 repair does not admit FAM-007 runtime Workstream entry.
 PR #129 Boundary: release-support remains separate and USER-gated unless USER later selects it.
 PR Creation: blocked until USER separately approves PR Readiness Stage 2.
 

@@ -80,11 +80,11 @@ Historical Active Workstream Before Release: Automation Implementation.
 Earlier Historical Active Workstream Before Release: FB-048 Active-session relaunch signal-failure and wait-timeout truth.
 Historical Active Branch Before Release: feature/automation-planning.
 Earlier Historical Active Branch Before Release: feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeout-truth.
-Selected Next Workstream: FAM-006 Dashboard IA/control issue-resolution Branch 2 only for the current active branch; FAM-007 runtime Workstream entry remains USER-gated and out of scope.
-Selected Next Record State: Registry-only issue-resolution continuation under historical FAM-006 / PKG-006.
-Selected Next Runtime Package Candidate: None beyond Branch 2 issues #125/#126; this branch does not admit a new FAM/package.
-Selected Next Implementation Branch: `feature/fam-006-dashboard-ia-controls-followthrough`.
-Selected Next Status: USER approved FAM-006 Branch 2 for issues #125/#126, and Workstream implementation plus H1 repair are complete in source truth. PR #130 and PR #131 FAM-007 governance/readiness branches are historical current-main evidence only; FAM-007 Workstream/runtime implementation remains blocked pending later USER approval.
+Selected Next Workstream: FAM-007 Local AI and Capability Packs remains the selected-next registry candidate; current active execution is the already-approved FAM-006 Branch 2 issue-resolution carrier for #125/#126.
+Selected Next Record State: Registry-only.
+Selected Next Runtime Package Candidate: `PKG-007` provider/no-provider runtime boundary planning carrier.
+Selected Next Implementation Branch: Not created for successor runtime Workstream implementation; `feature/fam-007-runtime-provider-boundary` is historical PR #131 governance/readiness evidence only.
+Selected Next Status: FAM-007 remains selected-next candidate truth, while PR #130 and PR #131 are historical current-main evidence only; FAM-007 Workstream/runtime implementation remains blocked pending later USER approval.
 Runtime Package Admission: Historical - PKG-006 was admitted on the FAM-006 branch and merged through PR #118.
 Next Legal Runtime Step: None; Branch 2 runtime implementation for #125/#126 is complete and the branch is in PR Readiness repair before any PR creation.
 Next Legal Analysis Candidate: fresh PR Readiness Stage 1 or Stage 2 decision for `feature/fam-006-dashboard-ia-controls-followthrough` after this repair validates; GitHub issue closeout/comments, PR creation, PR #129 release-support, FAM-007 runtime Workstream entry, Repo-Wide High-Risk Source Owner Marker Adoption, GitHub issue creation outside the existing five FAM-006 issues, or another legal carrier remain separate USER approval gates.

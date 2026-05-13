@@ -20,6 +20,7 @@ Current authorization covers Hardening/H1 validation for issues #125 and #126 on
 ## Record State
 
 - `Active Hardening H1 visual repair/validation complete for #125/#126 after USER screenshot follow-up; next phase pending USER decision`
+- `Merge-target No Active Branch projected for PR Readiness`
 
 ## Status
 
@@ -31,7 +32,7 @@ Current authorization covers Hardening/H1 validation for issues #125 and #126 on
 
 ## Current Phase
 
-- Phase: `PR Readiness`
+- Phase: `Historical Traceability`
 
 ## Phase Status
 
@@ -44,8 +45,8 @@ Current authorization covers Hardening/H1 validation for issues #125 and #126 on
 - Hardening H1 Admission: `Granted - USER approved H1 validation/hardening for FAM-006 Branch 2 on 2026-05-13 from the isolated Branch 2 worktree`
 - Hardening H1 Status: `PASS - active-client H1 validation completed from C:\Nexus Worktrees\Nexus Desktop AI FAM-006 Dashboard IA Controls Followthrough on 2026-05-13 for #125 and #126 after bounded stale-selector cleanup and USER-screenshot visual layout repair; formal UTS export remains blocked unless a later governed Live Validation phase is admitted`
 - PR Readiness Repair: `Active - current-main sync reconciles PR #130 and PR #131 main changes, resolves Branch 1 historical-record conflicts, refreshes stale Branch 2 implementation/H1 wording, and preserves Branch 2 as the current #125/#126 PR-readiness carrier`
-- `Active Branch`: `feature/fam-006-dashboard-ia-controls-followthrough`
-- Branch Authority State: `Active during PR Readiness Stage 1 repair after Hardening H1; PR creation remains blocked pending later USER approval`
+- Branch Under PR Readiness Review: `feature/fam-006-dashboard-ia-controls-followthrough`
+- Branch Authority State: `Historical / No Active Branch projected for PR Readiness; PR creation remains blocked pending later USER approval`
 - Source-Truth Owner: `This branch record owns Branch 2 setup and issue traceability; Docs/branch_records/feature_fam_006_monitoring_hud_product_surface.md owns historical FAM-006 RUI and issue-queue truth`
 - Carried Issues: `#125 FAM-006 Dashboard: Monitor Groups dead space and Create/Edit window split`; `#126 FAM-006 Dashboard: remove redundant open badge and add close affordance`
 - Completed-By-PR-129 Issues Pending GitHub Closeout: `#123`; `#124`; `#127`
