@@ -297,8 +297,11 @@ def validate() -> list[str]:
         "Warning posture",
         "Monitor group to edit",
         "Monitor group editor",
+        "Selected Monitor Group",
         "Dashboard proof",
         "Full desktop now; UTS only in Live Validation Stage 1",
+        'id="monitoring-hud-monitor-selector"',
+        "monitoring-hud__selector-control",
         'data-dashboard-content="dashboard-proof-next-actions"',
         'data-dashboard-content="monitor-group-management"',
     ):
@@ -436,7 +439,6 @@ def validate() -> list[str]:
         ".monitoring-hud__hub-card-topline",
         ".monitoring-hud__hub-action",
         ".monitoring-hud__state-row",
-        ".monitoring-hud__selector-control",
         "#monitoring-hud-monitor-list-summary",
         ".monitoring-hud-minimal__frame",
         ".monitoring-hud-minimal__topline",
@@ -457,6 +459,11 @@ def validate() -> list[str]:
         "@keyframes monitoringHudSettle",
     ):
         _require_contains(css, needle, "monitoring HUD CSS", failures)
+    _require(
+        ".monitoring-hud__selector-control" not in css,
+        "monitoring HUD CSS must not keep legacy Dashboard monitor selector styling",
+        failures,
+    )
 
     for needle in (
         'const monitoringHud = document.getElementById("monitoring-hud")',

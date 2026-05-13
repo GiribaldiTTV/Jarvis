@@ -303,8 +303,11 @@ def _validate_static_surface(failures: list[str]) -> None:
         "Warning posture",
         "Monitor group to edit",
         "Monitor group editor",
+        "Selected Monitor Group",
         "Dashboard proof",
         "Full desktop now; UTS only in Live Validation Stage 1",
+        'id="monitoring-hud-monitor-selector"',
+        "monitoring-hud__selector-control",
     ):
         _require(
             forbidden_home_copy not in html,
@@ -333,7 +336,6 @@ def _validate_static_surface(failures: list[str]) -> None:
         ".monitoring-hud__hub-card-topline",
         ".monitoring-hud__hub-action",
         ".monitoring-hud__state-row",
-        ".monitoring-hud__selector-control",
         "#monitoring-hud-monitor-list-summary",
         ".monitoring-hud-minimal__frame",
         ".monitoring-hud-minimal-card",
@@ -351,6 +353,11 @@ def _validate_static_surface(failures: list[str]) -> None:
         "scrollbar-gutter: stable;",
     ):
         _require_contains(css, needle, "HUD CSS interaction surface", failures)
+    _require(
+        ".monitoring-hud__selector-control" not in css,
+        "HUD CSS interaction surface must not keep legacy Dashboard monitor selector styling",
+        failures,
+    )
 
     for needle in (
         "window.getMonitoringHudControlState = function()",

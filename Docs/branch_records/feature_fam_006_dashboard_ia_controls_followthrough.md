@@ -15,15 +15,15 @@ This branch is the USER-approved Branch Readiness Stage 2 setup carrier and Work
 
 It exists because PR #129 merged the first FAM-006 Dashboard issue-resolution branch for render/layout hardening, issues #125 and #126 remain open and held for Dashboard IA/control follow-through, and USER approved Branch Readiness Stage 2 setup for `feature/fam-006-dashboard-ia-controls-followthrough` from current `origin/main`.
 
-Current authorization covers runtime implementation for issues #125 and #126 only, directly supporting validator/source-truth updates, validation, commit, and push. GitHub issue comments/state updates, raw evidence upload/import/linking, PR creation, release/tag/artifact work, Workspace Runtime Isolation Stage 2, FAM-007/local AI work, AI Product Contract import, and branch expansion beyond #125/#126 remain future USER approval checkpoints.
+Current authorization covers Hardening/H1 validation for issues #125 and #126 only, directly supporting validator/source-truth updates, validation, commit, and push. GitHub issue comments/state updates, raw evidence upload/import/linking, PR creation, release/tag/artifact work, Workspace Runtime Isolation Stage 2, FAM-007/local AI work, AI Product Contract import, and branch expansion beyond #125/#126 remain future USER approval checkpoints.
 
 ## Record State
 
-- `Active Workstream implementation complete for #125/#126; validation green; next phase pending USER decision`
+- `Active Hardening H1 repair/validation complete for #125/#126; next phase pending USER decision`
 
 ## Status
 
-- `Dashboard IA/control follow-through implementation complete for issues #125 and #126; GitHub issue closeout/comment updates and PR creation remain blocked pending USER approval`
+- `Dashboard IA/control follow-through H1 validation complete for issues #125 and #126; GitHub issue closeout/comment updates and PR creation remain blocked pending USER approval`
 
 ## Canonical Branch
 
@@ -31,7 +31,7 @@ Current authorization covers runtime implementation for issues #125 and #126 onl
 
 ## Current Phase
 
-- Phase: `Workstream`
+- Phase: `Hardening`
 
 ## Phase Status
 
@@ -41,8 +41,10 @@ Current authorization covers runtime implementation for issues #125 and #126 onl
 - GitHub Desktop Association: `GitHub Desktop was asked to open/add the new C-drive worktree; local GitHub Desktop log records adding the repository at C:\Nexus Worktrees\Nexus Desktop AI FAM-006 Dashboard IA Controls Followthrough; GitHub Desktop local alias is FAM-006`
 - Workstream USER Approval: `Granted - USER approved runtime implementation on feature/fam-006-dashboard-ia-controls-followthrough in the isolated Branch 2 worktree for GitHub issues #125 and #126 only`
 - Workstream Implementation: `Complete - Monitor Groups card flow now uses dedicated Create Monitor and Edit Monitor child-window flows, the Dashboard-home dropdown is removed, the redundant HUD Dashboard Open badge is removed, and a top-chrome Dashboard close affordance hides the Dashboard without disabling the HUD Feature`
+- Hardening H1 Admission: `Granted - USER approved H1 validation/hardening for FAM-006 Branch 2 on 2026-05-13 from the isolated Branch 2 worktree`
+- Hardening H1 Status: `PASS - active-client H1 validation completed from C:\Nexus Worktrees\Nexus Desktop AI FAM-006 Dashboard IA Controls Followthrough on 2026-05-13 for #125 and #126 after bounded stale-selector cleanup; formal UTS export remains blocked unless a later governed Live Validation phase is admitted`
 - `Active Branch`: `feature/fam-006-dashboard-ia-controls-followthrough`
-- Branch Authority State: `Active after Workstream implementation; next phase pending USER decision`
+- Branch Authority State: `Active after Hardening H1; PR Readiness Stage 1 pending USER decision`
 - Source-Truth Owner: `This branch record owns Branch 2 setup and issue traceability; Docs/branch_records/feature_fam_006_monitoring_hud_product_surface.md owns historical FAM-006 RUI and issue-queue truth`
 - Carried Issues: `#125 FAM-006 Dashboard: Monitor Groups dead space and Create/Edit window split`; `#126 FAM-006 Dashboard: remove redundant open badge and add close affordance`
 - Completed-By-PR-129 Issues Pending GitHub Closeout: `#123`; `#124`; `#127`
@@ -58,7 +60,7 @@ Current authorization covers runtime implementation for issues #125 and #126 onl
 
 ## Blockers
 
-- `Hardening / PR Readiness User Decision Pending`: active after Workstream implementation.
+- `PR Readiness User Decision Pending`: active after Hardening H1 validation.
 - `GitHub Issue Closeout Approval Missing`: active for #123/#124/#127 and any comments/state changes on #125/#126.
 - `PR Creation Approval Missing`: active.
 - `Raw Evidence Import Decision Pending`: active.
@@ -105,9 +107,9 @@ Rollback Path: abandon or repair branch `feature/fam-006-dashboard-ia-controls-f
 
 ## Next Legal Phase
 
-- `Hardening`
+- `PR Readiness`
 
-Next Legal Phase Gate: USER may next choose Hardening/H1, USER visual review, or PR Readiness Stage 1 after reviewing the implementation packet. PR creation, GitHub issue comments/state updates, raw evidence upload/import/linking, release/tag/artifact work, Workspace Runtime Isolation Stage 2, FAM-007/local AI work, AI Product Contract import, and any branch expansion remain blocked.
+Next Legal Phase Gate: USER may next choose PR Readiness Stage 1, request an optional USER visual review, or request bounded repair if a visual concern remains. PR creation, GitHub issue comments/state updates, raw evidence upload/import/linking, release/tag/artifact work, Workspace Runtime Isolation Stage 2, FAM-007/local AI work, AI Product Contract import, and any branch expansion remain blocked.
 
 ## Branch Objective
 
@@ -119,7 +121,7 @@ Prepare the FAM-006 Dashboard IA/control follow-through branch to resolve the re
 ## Target End-State
 
 - The branch authority is established and pushed.
-- Runtime implementation for #125/#126 is complete and ready for USER decision on the next validation/readiness phase.
+- Runtime implementation and H1 hardening validation for #125/#126 are complete and ready for USER decision on PR Readiness Stage 1 or optional USER visual review.
 - The carried issue set remains limited to #125 and #126.
 - Branch 1 issues #123/#124/#127 stay completed-by-PR #129 and pending GitHub issue closeout.
 - Future/deferred Dashboard settings cog, Overlay/display acceptance, provider telemetry parity, Dev Toolkit/source-owner markers, Workspace Runtime Isolation, FAM-007/local AI, and AI Product Contract work remain out of scope.
@@ -154,7 +156,7 @@ Backlog-Split Reason: None
 
 ## Backlog Completion Strategy
 
-Branch Completion Goal: `Complete and validate issues #125 and #126 on this branch, then await USER decision for Hardening/H1, USER visual review, or PR Readiness Stage 1.`
+Branch Completion Goal: `Complete and validate issues #125 and #126 on this branch, then await USER decision for PR Readiness Stage 1, optional USER visual review, or bounded repair if visual concern remains.`
 
 Known Future-Dependent Blockers: `GitHub issue comments/state updates, raw evidence upload/import/linking, PR creation, release/tag/artifact work, Workspace Runtime Isolation Stage 2, FAM-007/local AI work, AI Product Contract import, and branch expansion beyond #125/#126 all require later explicit USER approval.`
 
@@ -167,7 +169,7 @@ Completion Status: Green
 Remaining Implementable Work: None
 Future-Dependent Blockers: None
 Visible User-Facing Proof Required: Yes for Dashboard IA/control confidence - active-client validation has run from the active Branch 2 worktree; USER visual review remains optional/future if USER wants it before PR Readiness.
-Visible User-Facing Proof: PASS by active-client proof at dev/logs/fam_006_monitoring_hud_live_validation/20260513_124941_575.
+Visible User-Facing Proof: PASS by active-client H1 proof at dev/logs/fam_006_monitoring_hud_live_validation/20260513_130300_320 after stale Dashboard selector residue was removed and validators were updated to guard the no-Dashboard-dropdown contract.
 
 ## Product Definition Plan
 
@@ -181,7 +183,7 @@ Codex Product Interpretation: `Issue #125 is the Monitor Groups card/control-flo
 
 Codex Implementation Recommendation: `Keep the branch limited to Monitor Groups card layout/actions and top Dashboard close/open-state chrome. Preserve tray behavior, Dashboard render/layout repairs from PR #129, and future settings/Overlay/provider/Dev Toolkit deferrals.`
 
-USER/ChatGPT Review Checkpoint: `Runtime implementation has been performed under the USER approval for #125/#126 only; next USER review decides whether to run Hardening/H1, USER visual review, or PR Readiness Stage 1.`
+USER/ChatGPT Review Checkpoint: `Runtime implementation and H1 validation have been performed under USER approval for #125/#126 only; next USER review decides whether to request PR Readiness Stage 1, optional USER visual review, or bounded repair if any visual concern remains.`
 
 Full Feature Element Breakdown: `#125 Monitor Groups dead space removal; #125 Create Monitor dedicated window/flow; #125 Edit Monitor dedicated window/flow; #125 Dashboard dropdown removal; #126 redundant HUD Dashboard Open badge removal; #126 Dashboard close affordance; #126 tray open/close regression preservation.`
 
@@ -205,7 +207,9 @@ Validator Files Changed: `dev/orin_monitoring_hud_surface_validation.py`; `dev/o
 
 Source-Truth Files Changed: `Docs/branch_records/feature_fam_006_dashboard_ia_controls_followthrough.md`.
 
-Validation Evidence: `Static HUD validator PASS; internal sandbox validator PASS; active-client live validation PASS at dev/logs/fam_006_monitoring_hud_live_validation/20260513_124941_575; interaction manifest proves Dashboard close affordance, restored Dashboard control hub, Create Monitor child-window route, Edit Monitor child-window route, monitor editor mutation, and final monitor management state.`
+Validation Evidence: `Static HUD validator PASS; internal sandbox validator PASS; active-client live validation PASS at dev/logs/fam_006_monitoring_hud_live_validation/20260513_124941_575; H1 active-client live validation PASS at dev/logs/fam_006_monitoring_hud_live_validation/20260513_130300_320; interaction manifest proves Dashboard close affordance, restored Dashboard control hub, Create Monitor child-window route, Edit Monitor child-window route, monitor editor mutation, and final monitor management state.`
+
+H1 Repair Note: `A small #125 hardening defect was found during review: the old Dashboard-home dropdown did not render in the Dashboard DOM, but stale .monitoring-hud__selector-control CSS and validator expectations still preserved legacy monitor-selector styling. The stale CSS was removed and validators now assert that the old Dashboard monitor selector/id/copy are absent from the Dashboard home surface.`
 
 Known Proof Boundary: `This Workstream pass uses Codex active-client proof and repo validators. USER visual review, GitHub issue closeout/comment updates, PR creation, raw evidence upload/import/linking, release work, Workspace Runtime Isolation Stage 2, FAM-007/local AI, AI Product Contract import, and any expansion beyond #125/#126 remain future USER approval checkpoints.`
 
@@ -217,15 +221,15 @@ Why Not Split Into Tiny Branches: `Splitting would create two very small Dashboa
 
 Acceptance Criteria: `Issue #125 and #126 acceptance criteria are recorded below in this branch record and must be preserved during Workstream implementation.`
 
-Validation Proof Requirements: `Static HUD/Dashboard validator, internal sandbox validator, compile validation, governance validation, active-client Dashboard proof, and USER visual review after implementation.`
+Validation Proof Requirements: `Static HUD/Dashboard validator, internal sandbox validator, compile validation, governance validation, active-client Dashboard proof, and optional USER visual review after H1 if USER wants added confidence before PR Readiness.`
 
 Screenshot / Live / User Test Summary Proof Requirements: `This implementation provides Codex active-client proof for Monitor Groups card layout, Create/Edit actions, close affordance, and tray/open/close regression. Formal UTS export is not required by this Workstream pass and raw media remains external unless USER later approves.`
 
 Implementation Sequence Proposal: `Inspect current Dashboard markup/control routing; implement #126 top-chrome close affordance and redundant badge removal; implement #125 Monitor Groups layout/action split; update validators; run active-client proof; record validation; stop for PR Readiness or USER visual review decision.`
 
-Planning Blockers: `GitHub Issue Closeout Approval Missing`; `Raw Evidence Import Decision Pending`; `PR Creation Approval Missing`; `Hardening / PR Readiness User Decision Pending`.
+Planning Blockers: `GitHub Issue Closeout Approval Missing`; `Raw Evidence Import Decision Pending`; `PR Creation Approval Missing`; `PR Readiness User Decision Pending`.
 
-USER Decisions Needed: `Choose next phase after Workstream implementation; later approve GitHub issue comments/closeout, PR creation, raw evidence handling, and release work if desired.`
+USER Decisions Needed: `Choose PR Readiness Stage 1, optional USER visual review, or bounded repair if any visual concern remains; later approve GitHub issue comments/closeout, PR creation, raw evidence handling, and release work if desired.`
 
 Planning Packet Status: Complete
 
@@ -234,6 +238,34 @@ Planning Revalidation Status: PASS
 User Test Summary Strategy: `No UTS is generated, refreshed, imported, or digested by this Workstream implementation pass. Active-client proof is recorded; formal UTS remains a later governed decision if USER requests it.`
 
 Planning Completion Waiver: `Not required - Stage 1 analysis and USER Stage 2 approval completed the planning packet for this two-issue branch.`
+
+## Hardening H1 Validation Result
+
+H1 Result Time: `2026-05-13 Branch 2 isolated C-drive worktree validation`
+
+Workspace Identity: `PASS - shell repo root C:\Nexus Worktrees\Nexus Desktop AI FAM-006 Dashboard IA Controls Followthrough, branch feature/fam-006-dashboard-ia-controls-followthrough, HEAD c11784f2d7b4e2290cc681a8e31d37d8d2f17962 before the H1 repair commit, upstream origin/feature/fam-006-dashboard-ia-controls-followthrough, origin/main 96ec36e7be751d444eda8dc220bc4a035d44fca1`
+
+GitHub Desktop Binding: `Branch 2 worktree was added to GitHub Desktop with local alias FAM-006; if GitHub Desktop is used for this branch, it should point to C:\Nexus Worktrees\Nexus Desktop AI FAM-006 Dashboard IA Controls Followthrough on feature/fam-006-dashboard-ia-controls-followthrough.`
+
+H1 Validation Commands:
+
+- `PASS - git diff --check`
+- `PASS - python dev\orin_branch_governance_validation.py; 4563 checks`
+- `PASS - python dev\orin_release_body_validation.py; latest pre-Beta release v1.7.0-prebeta matches the standard, with historical drift only in older releases`
+- `PASS - python -m compileall -q dev desktop Audio main.py`
+- `PASS - python dev\orin_monitoring_hud_surface_validation.py`
+- `PASS - python dev\orin_monitoring_hud_internal_sandbox_validation.py; manifest C:\Nexus Worktrees\Nexus Desktop AI FAM-006 Dashboard IA Controls Followthrough\dev\logs\fam_006_monitoring_hud_internal_sandbox\20260513_130557_manifest.json`
+- `PASS - powershell -NoProfile -ExecutionPolicy Bypass -File dev\orin_monitoring_hud_live_validation.ps1 -ActiveUserFacingClient -ProofSeam "FAM-006 Branch2 H1 IA Controls" -MarkerTimeoutSeconds 240 -NoProgressTimeoutSeconds 240 -FinalClientHoldSeconds 0; proof root C:\Nexus Worktrees\Nexus Desktop AI FAM-006 Dashboard IA Controls Followthrough\dev\logs\fam_006_monitoring_hud_live_validation\20260513_130300_320; formal UTS export skipped`
+
+H1 Active-Client Observed Markers: `MONITORING_HUD_DASHBOARD_SURFACE_READY`; `MONITORING_HUD_DASHBOARD_CONTENT_READY`; `MONITORING_HUD_DASHBOARD_MONITOR_GROUP_CLARITY_READY`; `MONITORING_HUD_LIVE_CLIENT_SELF_QA_READY`; `MONITORING_HUD_DASHBOARD_STANDALONE_WINDOW_TRAVEL_READY`; `MONITORING_HUD_DASHBOARD_CLIPPING_BOUNDARY_READY`; `MONITORING_HUD_LIVE_CLIENT_SELF_QA_INTERACTION_READY`.
+
+Issue #125 H1 Result: `PASS by static, sandbox, and active-client proof - Dashboard-home dropdown/id/copy is absent, stale selector CSS was removed, Create Monitor and Edit Monitor are the only Monitor Groups Dashboard-home actions, each action opens a dedicated child-window flow, and the monitor editor mutation/create-edit-enable-polling state passed active-client proof.`
+
+Issue #126 H1 Result: `PASS by static, sandbox, and active-client proof - the redundant top-chrome HUD Dashboard Open badge is removed, the Dashboard Close button is present and click-tested, native hit-testing treats Dashboard controls as controls, and the active-client close action hides only the Dashboard while preserving HUD Feature/tray restoration behavior.`
+
+Regression Check Result: `PASS by active-client proof - Dashboard runtime launched, settled, captured before/after screenshots, exercised close/restore/Create/Edit control paths, and exited with no remaining Nexus/Python runtime process.`
+
+Proof Strength: `Sufficient for PR Readiness Stage 1 source-truth review. USER visual review may still be requested as an additional confidence step before PR creation, and raw screenshot/video upload/import/linking remains a future USER approval checkpoint.`
 
 ## Branch Scope
 
@@ -293,7 +325,7 @@ No User Test Summary is generated, refreshed, imported, uploaded, linked, or dig
 
 ## Later-Phase Expectations
 
-After this Workstream implementation is committed and pushed, USER may choose the next legal validation/readiness phase. GitHub issue closeout/comment updates, PR creation, release/tag/artifact work, raw evidence handling, Workspace Runtime Isolation Stage 2, FAM-007/local AI work, AI Product Contract import, and any branch expansion remain separate approval checkpoints.
+After this H1 pass is committed and pushed, USER may choose PR Readiness Stage 1, optional USER visual review, or bounded repair if any visual concern remains. GitHub issue closeout/comment updates, PR creation, release/tag/artifact work, raw evidence handling, Workspace Runtime Isolation Stage 2, FAM-007/local AI work, AI Product Contract import, and any branch expansion remain separate approval checkpoints.
 
 ## Expected Seam Families And Risk Classes
 
@@ -313,11 +345,11 @@ Non-Includes: `Dashboard settings cog/settings panel, Overlay/display acceptance
 
 ## Active Seam
 
-Active seam: `Workstream implementation for FAM-006 Dashboard IA/control follow-through`.
+Active seam: `Hardening H1 for FAM-006 Dashboard IA/control follow-through`.
 
-Active Seam Status: `Workstream implementation complete when this record and runtime changes are committed and pushed`.
+Active Seam Status: `H1 repair/validation complete when this record and validator/CSS changes are committed and pushed`.
 
-Next active seam: `Hardening/H1, USER visual review, or PR Readiness Stage 1 only after USER selects the next phase`.
+Next active seam: `PR Readiness Stage 1, optional USER visual review, or bounded repair only after USER selects the next phase`.
 
 Single-Seam Workstream Waiver: None
 Single-Seam Or Single-Slice Waiver Authority: USER only; Codex cannot infer single-seam or single-slice authority from branch size, branch name, or a narrow implementation pass.
@@ -331,10 +363,10 @@ Slice Status: Green
 Completion Status: Green
 Waiver Status: None
 Continue Decision: Stop
-Continuation Execution Latch: Inactive - Workstream is green; phase-boundary stop is required before USER may admit Hardening/H1, USER visual review, PR Readiness Stage 1, GitHub issue closeout/comment updates, or PR creation.
-Stop Basis: Workstream Green
-Next Active Seam: Hardening H1 / USER visual review / PR Readiness Stage 1 pending USER decision
-Stop Condition: Workstream implementation for issues #125 and #126 is complete and validated as far as current Codex authority allows.
+Continuation Execution Latch: Inactive - Workstream and Hardening H1 are green; phase-boundary stop is required before USER may admit PR Readiness Stage 1, optional USER visual review, GitHub issue closeout/comment updates, or PR creation.
+Stop Basis: Hardening H1 Green
+Next Active Seam: PR Readiness Stage 1 / optional USER visual review / bounded repair pending USER decision
+Stop Condition: Workstream implementation and H1 validation for issues #125 and #126 are complete and validated as far as current Codex authority allows.
 Continuation Action: Stop at phase boundary until USER admits the next phase; do not create a PR, edit GitHub issue state/comments, upload/link raw evidence, release, start Workspace Runtime Isolation, start FAM-007/local AI work, or expand beyond #125/#126 without later USER approval.
 
 ## Non-Includes

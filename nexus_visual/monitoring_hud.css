@@ -354,8 +354,7 @@ body.desktop-mode #monitoring-hud > * {
 }
 
 .monitoring-hud__control-button,
-.monitoring-hud__hub-action,
-.monitoring-hud__selector-control select {
+.monitoring-hud__hub-action {
   min-height: 38px;
   border: 1px solid rgba(117, 228, 255, 0.22);
   border-radius: 999px;
@@ -602,32 +601,6 @@ body.desktop-mode #monitoring-hud > * {
 .monitoring-hud__monitor-summary-grid {
   display: grid;
   gap: 4px;
-}
-
-.monitoring-hud__selector-control {
-  display: inline-flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 10px;
-  font-size: 12px;
-  font-weight: 740;
-  letter-spacing: 0.11em;
-  text-transform: uppercase;
-  color: rgba(139, 233, 255, 0.86);
-}
-
-.monitoring-hud__selector-control select {
-  min-height: 36px;
-  min-width: 180px;
-  border: 1px solid rgba(117, 228, 255, 0.22);
-  border-radius: 999px;
-  background: rgba(6, 28, 48, 0.76);
-  color: rgba(232, 250, 255, 0.94);
-  font-family: "Bahnschrift", "Rajdhani", "Segoe UI", sans-serif;
-  font-size: 12px;
-  font-weight: 720;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
 }
 
 #monitoring-hud-monitor-list-summary {
