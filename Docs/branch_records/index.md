@@ -22,6 +22,7 @@ Do not use this layer to replace:
 ## Rules
 
 - branch authority records are for approved branches that do not yet map to a promoted canonical workstream
+- active branch names and active branch authority records must not use the `codex/` branch prefix; use `feature/` or another USER-approved non-`codex/` prefix, while historical `codex/` branch records remain traceability only and are not precedent
 - active `Registry-only` backlog branches may use this layer during `Branch Readiness` before promotion
 - active-branch-first remains the default during `pre-Beta`
 - new governance-only branches are not used for Nexus work
@@ -83,7 +84,7 @@ Do not use this layer to replace:
 
 ## Active Branch Authority Records
 
-- `Docs/branch_records/codex_fam_006_issue_readiness_governance_repair.md`
+- `Docs/branch_records/feature_fam_006_issue_readiness_governance_repair.md`
 
 ## Historical Branch Authority Records
 

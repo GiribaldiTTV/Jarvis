@@ -1,8 +1,8 @@
-# Branch Authority Record: codex/fam-006-issue-readiness-governance-repair
+# Branch Authority Record: feature/fam-006-issue-readiness-governance-repair
 
 ## Branch Identity
 
-- Branch: `codex/fam-006-issue-readiness-governance-repair`
+- Branch: `feature/fam-006-issue-readiness-governance-repair`
 - Workstream: `FAM-006 Issue Readiness Governance Repair`
 - Branch Class: `repair/dev-tooling-governance`
 - Backlog Record State: `No promoted backlog workstream`
@@ -26,6 +26,7 @@ This branch does not admit runtime implementation, GitHub issue creation, issue-
 - Stage 1: `Complete - FAM-006 issue-readiness analysis found stale UTS/source-truth wording and recommended bounded source-truth cleanup before any issue creation`
 - Stage 2 USER Approval: `Granted for FAM-006 issue-readiness/source-truth cleanup only`
 - Branch Creation: `Created at D:\Nexus Worktrees\Nexus Desktop AI FAM-006 Issue Readiness from origin/main commit 88c11d53845f67bbf2490b8e4ce2b224bd62437b`
+- Branch Naming State: `Renamed to feature/fam-006-issue-readiness-governance-repair after USER clarified active Nexus branch names must not use the codex/ prefix`
 - Branch Authority State: `Active Branch`
 - Current Authority: `This branch authority record owns only the bounded repair carrier state`
 - FAM-006 RUI Authority: `Docs/branch_records/feature_fam_006_monitoring_hud_product_surface.md owns the Returned USER Issue Register; Docs/branch_records/feature_fam_006_monitoring_hud_product_surface_element_ledger.md owns row-level proof/disposition detail`
@@ -81,7 +82,7 @@ This branch does not admit runtime implementation, GitHub issue creation, issue-
 
 - `Branch Readiness`
 
-Rollback Path: abandon branch `codex/fam-006-issue-readiness-governance-repair`; do not mutate old `C:\` folders or the parked `codex/ai-llm-lab` branch.
+Rollback Path: abandon branch `feature/fam-006-issue-readiness-governance-repair`; do not mutate old `C:\` folders or the parked `codex/ai-llm-lab` branch.
 
 ## Next Legal Phase
 
@@ -136,7 +137,7 @@ Non-Includes: runtime code, tests, GitHub issues, issue-resolution branches, PR 
 
 Active seam: FAM-006 issue-readiness source-truth repair.
 
-Active Seam Status: `In progress until docs/governance validation, commit, and push complete; then Stage 2 must stop.`
+Active Seam Status: `Stage 2 source-truth repair is complete; branch naming prefix correction is complete after validation, commit, and push; this carrier remains active only for approved FAM-006 issue-readiness planning/source-truth organization until PR Readiness is requested.`
 
 Next active seam: `None - later issue creation or branch work requires explicit USER approval.`
 

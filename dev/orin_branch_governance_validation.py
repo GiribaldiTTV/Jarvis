@@ -43,6 +43,10 @@ BLOCKED_FUTURE_ACTIVE_BRANCH_CLASSES = (
     "emergency canon repair",
 )
 
+PROHIBITED_ACTIVE_BRANCH_PREFIXES = (
+    "codex/",
+)
+
 PROMPT_CONTRACT_DOCS = (
     Path("Docs/phase_governance.md"),
     Path("Docs/development_rules.md"),
@@ -14627,6 +14631,15 @@ def main() -> int:
     active_branch_record_paths = _collect_branch_record_paths(branch_record_index_text, "Active Branch Authority Records")
     historical_branch_record_paths = _collect_branch_record_paths(branch_record_index_text, "Historical Branch Authority Records")
     current_git_branch = _git_current_branch()
+    for prohibited_prefix in PROHIBITED_ACTIVE_BRANCH_PREFIXES:
+        require(
+            current_git_branch == "main" or not current_git_branch.startswith(prohibited_prefix),
+            (
+                f"Active git branch '{current_git_branch}' uses prohibited prefix "
+                f"'{prohibited_prefix}'. Use `feature/` or another USER-approved "
+                "non-`codex/` prefix for active Nexus work."
+            ),
+        )
     branch_record_class_map, all_repair_branch_names, active_repair_branch_names = _branch_record_branch_sets(
         active_branch_record_paths,
         historical_branch_record_paths,
@@ -16243,6 +16256,15 @@ def main() -> int:
                 bool(branch_name),
                 f"{branch_record_path}: active branch record must declare a Branch in Branch Identity",
             )
+            for prohibited_prefix in PROHIBITED_ACTIVE_BRANCH_PREFIXES:
+                require(
+                    not branch_name.startswith(prohibited_prefix),
+                    (
+                        f"{branch_record_path}: active branch record uses prohibited branch "
+                        f"prefix '{prohibited_prefix}'. Use `feature/` or another USER-approved "
+                        "non-`codex/` prefix."
+                    ),
+                )
             require(
                 (branch_name in all_branch_names) or (f"origin/{branch_name}" in all_branch_names),
                 (
