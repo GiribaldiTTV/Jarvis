@@ -15,7 +15,7 @@ This branch is the USER-approved implementation carrier for the first FAM-006 Da
 
 It exists because PR #122 merged the FAM-006 issue-readiness governance repair, the five locked FAM-006 Dashboard GitHub issues were created from updated main using summary-only evidence, and USER approved this first branch to carry the released Dashboard render/layout confidence issues before IA/control follow-through begins.
 
-This record now preserves PR #129 merged historical evidence, issues #123/#124/#127 completed-by-PR #129 source-truth, and merged-unreleased release-debt truth. GitHub issue closeout for #123/#124/#127, release/tag/artifact work, raw evidence upload/import/linking, Workspace Runtime Isolation Stage 2, extra runtime work outside #123/#124/#127, FAM-007/local AI runtime work, AI Product Contract import, deleting D-drive main/folders, shortcut retargeting, and recreating or reusing codex/ai-llm-lab remain future USER approval checkpoints. Branch 2 work for #125/#126 is carried by `feature/fam-006-dashboard-ia-controls-followthrough` until that branch reaches a PR/merge outcome.
+This record now preserves PR #129 merged historical evidence, issues #123/#124/#127 completed-by-PR #129 source-truth, and merged-unreleased release-debt truth. GitHub issue closeout for #123/#124/#127, release/tag/artifact work, raw evidence upload/import/linking, Workspace Runtime Isolation Stage 2, extra runtime work outside #123/#124/#127, FAM-007/local AI runtime work, AI Product Contract import, deleting D-drive main/folders, shortcut retargeting, and recreating or reusing codex/ai-llm-lab remain future USER approval checkpoints. Branch 2 work for #125/#126 is completed by PR #132 in source truth and remains pending GitHub issue closeout only.
 
 ## Record State
 
@@ -23,7 +23,7 @@ This record now preserves PR #129 merged historical evidence, issues #123/#124/#
 
 ## Status
 
-- `Merged through PR #129; Dashboard render/layout hardening issues #123, #124, and #127 are completed-by-PR #129 and merged-unreleased release debt after v1.7.0-prebeta; GitHub issue closeout remains separate USER-gated work; #125/#126 are carried by the active Branch 2 issue-resolution branch`
+- `Merged through PR #129; Dashboard render/layout hardening issues #123, #124, and #127 are completed-by-PR #129 and merged-unreleased release debt after v1.7.0-prebeta; GitHub issue closeout remains separate USER-gated work; #125/#126 are completed by PR #132 in separate Branch 2 historical truth`
 
 ## Canonical Branch
 
@@ -46,7 +46,7 @@ This record now preserves PR #129 merged historical evidence, issues #123/#124/#
 - Branch Authority State: `Historical / No Active Branch after merge`
 - Source-Truth Owner: `This branch record owns historical Branch 1 PR package evidence after merge; Docs/branch_records/feature_fam_006_monitoring_hud_product_surface.md owns historical FAM-006 RUI and issue-queue truth`
 - Carried Issues: `#123 FAM-006 Dashboard: initial open flicker`; `#124 FAM-006 Dashboard: scroll content well clipping and scrollbar ownership`; `#127 FAM-006 Dashboard: resize jitter and catch-up lag`
-- Held Issues: `#125 FAM-006 Dashboard: Monitor Groups dead space and Create/Edit window split`; `#126 FAM-006 Dashboard: remove redundant open badge and add close affordance`
+- Former Held Issues: `#125 FAM-006 Dashboard: Monitor Groups dead space and Create/Edit window split`; `#126 FAM-006 Dashboard: remove redundant open badge and add close affordance` were later completed by PR #132 and remain pending GitHub closeout only
 - Future / Deferred Items: `Dashboard settings cog/settings panel`; `Overlay/display acceptance`; `Provider/external telemetry parity`; `Dev Toolkit/source-owner markers`
 - Evidence Policy: `Summary-only for GitHub issue and branch source-truth references`
 - Raw Media Status: `Raw screenshots, videos, and UTS exports remain local/external unless USER later approves upload, import, or linking`
@@ -76,7 +76,7 @@ This record now preserves PR #129 merged historical evidence, issues #123/#124/#
 - AI Product Contract import remains a future USER approval checkpoint.
 - Old C:\ folder reactivation/reconciliation remains a future USER approval checkpoint.
 - Recreating or reusing codex/ai-llm-lab remains a future USER approval checkpoint.
-- Branch 2 work for #125 and #126 remains held for later USER approval.
+- Branch 2 work for #125 and #126 was later completed by PR #132; GitHub closeout remains pending USER approval.
 
 ## Entry Basis
 
@@ -85,7 +85,7 @@ This record now preserves PR #129 merged historical evidence, issues #123/#124/#
 - The merged FAM-006 issue-readiness carrier was verified as historical/no-active and cleaned up locally/remotely before this branch was created.
 - GitHub issues #123, #124, #125, #126, and #127 were created from updated main using summary-only evidence only.
 - USER approved Branch 1 as `feature/fam-006-dashboard-render-layout-hardening`, carrying issues #123, #124, and #127.
-- Issues #125 and #126 remain held for the later IA/control follow-through branch.
+- Issues #125 and #126 were later carried by the IA/control follow-through branch and completed by PR #132.
 - During implementation, updated `origin/main` was fetched after PR #128 merged and integrated into this branch by merge commit `46e7fbf38afa127ba7845a0a1f83b1c7f4902baa`; the integrated PR #128 source truth remains FAM-007 planning/candidate-only and does not admit FAM-007/local AI implementation or change the FAM-006 carrier scope.
 - Workspace reconsolidation Stage 2 moved active Branch 1 work to `C:\Nexus Desktop AI` at `b5e2adc5f9deb0d66510fbd4b7048da9644ae630`, retired the clean `C:\Nexus Desktop AI FAM-006` linked worktree, retired the D-drive Branch 1 worktree, and retained `D:\Nexus Repos\Nexus Desktop AI Main` as a clean main/consolidator fallback.
 - AI Lab consolidation proof showed `codex/ai-llm-lab` at `3c68cd881a9f6bf447f09ac0949d556e97bce4f4` was contained in both current Branch 1 `HEAD` and `origin/main`, with no unique commits outside the current feature branch. USER then approved deleting the local and remote AI Lab branch refs while preserving historical traceability through merged history and this source-truth record.
@@ -94,7 +94,7 @@ This record now preserves PR #129 merged historical evidence, issues #123/#124/#
 
 - Branch authority is recorded for `feature/fam-006-dashboard-render-layout-hardening`.
 - Issues #123, #124, and #127 are recorded as carried-now scope.
-- Issues #125 and #126 plus future/deferred Dashboard-related items remain held for later USER decisions.
+- Issues #125 and #126 were completed by PR #132; future/deferred Dashboard-related items remain held for later USER decisions.
 - Summary-only evidence policy and raw-media external/local status are preserved.
 - GitHub issue traceability comments identify this branch as the planned carrier for #123, #124, and #127.
 - Docs/governance validation passes.
@@ -114,7 +114,7 @@ Rollback Path: revert this branch before PR if the Dashboard render/layout repai
 
 - `Release Readiness`
 
-Next Legal Phase Gate: Release handling remains a later USER approval checkpoint because PR #129 merged after `v1.7.0-prebeta` and is now merged-unreleased implementation debt. GitHub issue closeout for #123/#124/#127, raw evidence upload/import/linking, Workspace Runtime Isolation Stage 2, FAM-007/local AI runtime work, and any Branch 2 PR/merge/issue closeout action remain separate USER approval checkpoints.
+Next Legal Phase Gate: Release handling remains a later USER approval checkpoint because PR #129 merged after `v1.7.0-prebeta` and is now merged-unreleased implementation debt. PR #132 later added merged-unreleased FAM-006 Dashboard IA/control debt. GitHub issue closeout for #123/#124/#127, raw evidence upload/import/linking, Workspace Runtime Isolation Stage 2, FAM-007/local AI runtime work, and any #125/#126 issue closeout action remain separate USER approval checkpoints.
 
 ## Post-Merge State
 
@@ -132,9 +132,9 @@ Selected Next Workstream: None
 Selected Next Implementation Branch: Not created
 Backlog Addition User Approval Missing: Active for any successor selected-next workstream, package admission, branch creation, new backlog item, backlog split, promotion, or implementation outside this PR unless USER separately approves it.
 Next Workstream User Waiver: Granted - USER approved deferring selected-next successor truth for this PR and preserving later selection as a separate USER decision.
-Next-Branch Creation Gate: Blocked - Branch 2 issue work, Workspace Runtime Isolation Stage 2, FAM-007/local AI, raw evidence import/linking, release work, and any successor branch remain separate future USER approval checkpoints.
+Next-Branch Creation Gate: Historical - Branch 2 issue work later merged through PR #132; Workspace Runtime Isolation Stage 2, FAM-007/local AI, raw evidence import/linking, release work, and any successor branch remain separate future USER approval checkpoints.
 Post-Merge Proof Handling: Branch 1 implementation and H1 proof remain historical PR evidence after merge; raw screenshots/videos/UTS exports remain local/external unless USER later approves upload, import, or linking.
-Post-Merge Issue Handling: Issues #123, #124, and #127 may be reviewed after merge for closure. Issues #125 and #126 remain held for later Branch 2 work and are not promoted into active work by this PR.
+Post-Merge Issue Handling: Issues #123, #124, and #127 may be reviewed after merge for closure after USER approval. Issues #125 and #126 were later completed by PR #132 and also remain pending USER-approved GitHub closeout.
 Post-Merge Workspace Handling: `C:\Nexus Desktop AI` remains the local workspace; GitHub Desktop should remain bound to that folder unless USER later changes workflow.
 
 ## PR Readiness Stage 2 Package
@@ -585,8 +585,8 @@ Traceability Boundary: issue comments may record branch linkage and carried issu
 
 ## Held Work
 
-- `#125 FAM-006 Dashboard: Monitor Groups dead space and Create/Edit window split` remains Branch 2 work.
-- `#126 FAM-006 Dashboard: remove redundant open badge and add close affordance` remains Branch 2 work.
+- `#125 FAM-006 Dashboard: Monitor Groups dead space and Create/Edit window split` was later completed by PR #132 and remains pending GitHub issue closeout.
+- `#126 FAM-006 Dashboard: remove redundant open badge and add close affordance` was later completed by PR #132 and remains pending GitHub issue closeout.
 - Dashboard settings cog/settings panel remains future/deferred.
 - Overlay/display acceptance remains future/deferred.
 - Provider/external telemetry parity remains future/deferred.
