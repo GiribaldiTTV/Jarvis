@@ -2123,6 +2123,25 @@ Before meaningful repo work, file mutation, phase entry, branch/worktree creatio
 
 When relevant, the lock must also verify runtime/process ownership and GitHub Desktop folder binding.
 
+Assigned parallel worktree mode is allowed when USER explicitly assigns different Codex threads to different active branch worktrees. The default limit is two active branch worktrees. Each assigned worktree must have one owning thread, one branch, one write target, and one source-truth owner set. A third active branch worktree, unknown owner, unknown write target, or overlapping same-file/source-truth-owner mutation is `Parallel Worktree Coordination Missing` until USER routes the work.
+
+An assigned thread may also be in `Waiting For Updated Main` posture. This is valid when that thread is in Release Readiness analysis, Branch Readiness Stage 1 analysis, or another file-freeze analysis state and is waiting for a different branch to merge before creating or continuing its branch. A waiting thread is not an active mutation carrier; it must remain read-only, must not create a branch from stale source truth, and must rerun preflight after `origin/main` updates.
+
+Before mutation in assigned parallel worktree mode, each thread must report:
+
+- assigned thread / worktree owner
+- expected path, git root, branch, upstream, `HEAD`, and `origin/main`
+- worktree role and phase/seam
+- intended write target and source-truth owner
+- changed-file set and shared-file overlap forecast against the other active worktree
+- clean/dirty state, ahead/behind state, merge forecast, and open PR state
+- runtime/process ownership and interactive validation ownership
+- Git operation ownership
+- GitHub Desktop binding when Desktop is used
+- waiting status if the assigned lane has no created branch yet and is blocked on updated `origin/main`
+
+Only one related Git operation should run at a time where practical, and only one interactive desktop validation may run at a time. If a branch needs a shared source-truth file already being edited by the other assigned worktree, stop and surface the coordination decision before patching.
+
 If the active folder, branch, upstream, worktree role, phase/seam, write target, runtime/process owner, or GitHub Desktop binding does not match the requested work, `Thread / Worktree Identity Mismatch` blocks entry and Codex must return a routing packet instead of mutating files.
 
 The routing packet must include expected workspace, actual workspace, expected branch, actual branch, expected write target, actual write target, expected phase/seam, actual repo state, mismatch evidence, and safest next correction.

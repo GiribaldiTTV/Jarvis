@@ -135,11 +135,11 @@ Version Rationale: `This branch is a bounded FAM-006 Dashboard issue-resolution 
 Release Scope: `FAM-006 Dashboard Monitor Groups layout/Create/Edit child-window flow for #125, redundant Dashboard-open badge removal and close affordance for #126, and the H1 visual-proof/governance hardening required after USER screenshot follow-up.`
 Release Artifacts: `Pending - no tag, GitHub Release, release notes, or artifacts have been created or approved by this branch.`
 Post-Release Truth: `Pending release execution and post-release canon closure for v1.7.1-prebeta or a later USER-approved release target.`
-Selected Next Workstream: None
-Selected Next Implementation Branch: Not created
-Backlog Addition User Approval Missing: Active for any successor selected-next workstream, package admission, branch creation, new backlog item, backlog split, promotion, or implementation outside this PR unless USER separately approves it.
-Next Workstream User Waiver: Pending - successor selection is not granted by this repair prompt; PR Readiness Stage 1 rerun or Stage 2 must report whether a waiver/selection is needed before PR green.
-Next-Branch Creation Gate: Blocked - Workspace Runtime Isolation Stage 2, FAM-007/local AI, PR #129 release-support, raw evidence import/linking, release work, and any successor branch remain separate future USER approval checkpoints.
+Selected Next Workstream: FAM-006 Dashboard release-support / issue-closeout follow-through.
+Selected Next Implementation Branch: Not created; candidate next-line branch is `feature/fam-006-dashboard-release-support`.
+Backlog Addition User Approval Missing: Cleared only for recording the USER-directed FAM-006 next-line branch candidate; active for package admission, branch creation, new backlog item, backlog split, promotion, GitHub issue closeout/comments, release work, or implementation outside this PR unless USER separately approves it.
+Next Workstream User Waiver: Granted for next-line identification only - USER directed Codex to ensure a FAM-006 branch is identified as next in line before PR Readiness Stage 2.
+Next-Branch Creation Gate: Blocked - `feature/fam-006-dashboard-release-support` is a recorded next-line candidate only. Workspace Runtime Isolation Stage 2, FAM-007/local AI, raw evidence import/linking, release work, GitHub issue closeout/comments, branch creation, and any successor branch remain separate future USER approval checkpoints.
 Post-Merge Proof Handling: Branch 2 implementation, H1 repair, and active-client proof remain historical PR evidence after merge; raw screenshots/videos/UTS exports remain local/external unless USER later approves upload, import, or linking.
 Post-Merge Issue Handling: Issues #125 and #126 may be reviewed after merge for closure only after USER approval. Issues #123/#124/#127 remain completed by PR #129 and pending GitHub issue closeout.
 
@@ -290,6 +290,30 @@ H1 Result Time: `2026-05-13 Branch 2 isolated C-drive worktree validation`
 Workspace Identity: `PASS - shell repo root C:\Nexus Worktrees\Nexus Desktop AI FAM-006 Dashboard IA Controls Followthrough, branch feature/fam-006-dashboard-ia-controls-followthrough, HEAD c11784f2d7b4e2290cc681a8e31d37d8d2f17962 before the H1 repair commit, upstream origin/feature/fam-006-dashboard-ia-controls-followthrough; branch creation base was origin/main 96ec36e7be751d444eda8dc220bc4a035d44fca1 and current PR-readiness repair integrates origin/main 36b66b4ee2926f6325d8c337af3c7df02e209802`
 
 GitHub Desktop Binding: `Branch 2 worktree was added to GitHub Desktop with local alias FAM-006; if GitHub Desktop is used for this branch, it should point to C:\Nexus Worktrees\Nexus Desktop AI FAM-006 Dashboard IA Controls Followthrough on feature/fam-006-dashboard-ia-controls-followthrough.`
+
+## Assigned Parallel Worktree Guard
+
+Assigned Worktree Mode: `Allowed with guardrails - USER explicitly stated this Codex thread is assigned to the FAM-006 worktree until this branch is complete and that a separate Codex thread is assigned to a FAM-007 worktree.`
+
+Current FAM-006 Assignment: `This thread owns C:\Nexus Worktrees\Nexus Desktop AI FAM-006 Dashboard IA Controls Followthrough on feature/fam-006-dashboard-ia-controls-followthrough.`
+
+Observed Registered Worktrees: `Current local git worktree list shows C:\Nexus Desktop AI on main and C:\Nexus Worktrees\Nexus Desktop AI FAM-006 Dashboard IA Controls Followthrough on feature/fam-006-dashboard-ia-controls-followthrough. A FAM-007 worktree must prove its own registration, branch, upstream, HEAD, origin/main, clean state, and write target in its own thread before it is treated as active.`
+
+FAM-007 Boundary: `The other Codex thread may own FAM-007 only from its own verified worktree. This FAM-006 thread must not mutate, inspect for authority, merge, rebase, or clean up the FAM-007 worktree except through read-only worktree-list metadata needed for collision checks.`
+
+Allowed Parallelism: `Two active assigned branch worktrees maximum by default. More than two active branch worktrees, unknown thread ownership, unknown write target, or same-file/source-truth-owner overlap requires USER coordination before mutation.`
+
+Waiting Lane Posture: `The separate FAM-007 Codex thread may be intentionally waiting with no created branch while it remains in Release Readiness analysis, Branch Readiness Stage 1 analysis, or updated-main wait posture. That waiting posture is valid and read-only until this FAM-006 branch reaches the needed PR/merge outcome and the other thread fetches updated origin/main.`
+
+FAM-006 Write Set: `FAM-006 Dashboard IA/control branch source truth, Dashboard IA/control runtime files already changed on this branch, validator updates already changed on this branch, and bounded PR-readiness governance carried by this branch.`
+
+Shared-File Health Markers: `Before PR creation, commit, push, or additional mutation, compare changed files against origin/main and any known active FAM-007 write set; surface overlaps in Docs/Main.md, Docs/development_rules.md, Docs/phase_governance.md, Docs/codex_modes.md, Docs/feature_backlog.md, Docs/prebeta_roadmap.md, branch records, validators, desktop runtime files, and nexus_visual runtime files.`
+
+Branch Health Markers: `Track clean/dirty state, ahead/behind state, upstream reachability, merge-base freshness, origin/main freshness, merge forecast, open PR state, branch-authority projection, and branch retirement/cleanup state.`
+
+Runtime/Git Ownership: `Only one interactive desktop validation may run at a time. Related Git operations across FAM-006 and FAM-007 worktrees should run one at a time where practical. GitHub Desktop must be bound to the intended worktree if used.`
+
+Stop Condition: `If this thread sees FAM-007 files, FAM-007 source-truth ownership, unregistered worktree state, dirty unrelated changes, shared-file overlap that has not been reconciled, active runtime from another worktree, or mismatched GitHub Desktop binding, stop on Thread / Worktree Identity Mismatch or Parallel Worktree Coordination Missing before continuing.`
 
 H1 Validation Commands:
 

@@ -35,14 +35,35 @@ Nexus may use multiple local folders for the same GitHub repository, but `origin
 
 Current local workspace roles:
 
-- `C:\Nexus Desktop AI` is the active local workspace only when the current branch record and Thread / Worktree Identity Preflight agree; the folder is not itself active-branch authority, and merged canon must return to merge-stable `No Active Branch` truth when the active branch record has been projected to historical/no-active posture before PR green
-- `D:\Nexus Repos\Nexus Desktop AI Main` is retained as a clean main/consolidator fallback for updated-main validation unless later USER-approved governance changes its disposition; tracked file edits on `main` remain blocked
-- `D:\Nexus Worktrees\` remains a governed worktree root, but retired worktrees there are not active carriers unless a current branch record names them
+- `C:\Nexus Desktop AI` is the local main/consolidator workspace by default after workspace reconsolidation; tracked file edits on `main` remain blocked, and the folder becomes an active branch workspace only when the current branch record and Thread / Worktree Identity Preflight assign it
+- `C:\Nexus Worktrees\` is the governed local root for active branch worktrees after workspace reconsolidation; retired worktrees there are not active carriers unless a current branch record names them
+- `D:\Nexus Repos\Nexus Desktop AI Main` and `D:\Nexus Worktrees\` are retained fallback/historical workspace paths unless later USER-approved governance or identity preflight assigns them a current role
 - `D:\Nexus Dev ORIN\` is the private/dev workspace root; content there is evidence only unless legally imported through repo governance
 - `D:\Nexus Artifacts\` is the artifact/model/eval output root; content there is evidence only unless legally imported through repo governance
 - other old `C:\` Nexus folders, including `C:\Nexus Desktop AI FAM-006`, are parked or fallback workspaces unless explicitly reactivated
 - `codex/ai-llm-lab` is historical AI Lab planning traceability only; after USER-approved consolidation into the current feature branch it has no active local/remote branch ref and must not be recreated or reused without USER-approved repo governance
 - active branch names must not use the `codex/` prefix; use `feature/` or another USER-approved non-`codex/` prefix, and treat historical `codex/` branch names as traceability only
+
+Assigned parallel worktrees are allowed only when USER explicitly assigns separate Codex threads to separate branch worktrees and each thread's Thread / Worktree Identity Preflight proves the expected path, branch, upstream, `HEAD`, `origin/main`, clean state, and write target.
+
+Default assigned-worktree limit: two active branch worktrees across the repo. More than two active branch worktrees, or two worktrees touching the same files or source-truth owners, requires an explicit USER decision before work continues.
+
+Parallel worktree governance markers that must be tracked when more than one branch worktree is active:
+
+- Assigned Thread: which Codex thread owns the worktree
+- Worktree Role: `active branch worktree`, `main/consolidator`, `parked fallback`, or `historical/lab context`
+- Expected Branch / Upstream / HEAD / `origin/main`
+- Source-Truth Owner and intended write target
+- Changed-file set and shared-file overlap forecast against the other active worktree
+- Branch health: clean/dirty state, ahead/behind state, merge-base freshness, merge forecast, PR state, and branch-retirement plan
+- File health: uncommitted files, generated/log artifacts, validator/helper files, source-truth files, line-ending warnings, and cross-branch conflict risk
+- Runtime/process owner and interactive validation owner
+- Git operation owner, because related worktrees should use one Git operation at a time where practical
+- GitHub Desktop folder binding if Desktop is used
+
+Main/consolidator worktrees remain read-only for Codex file mutation. A parked or historical worktree does not become active merely because it exists on disk; it becomes active only when a current branch record plus preflight names it as the assigned worktree.
+
+Assigned lane waiting posture is valid. A second Codex thread may sit in Release Readiness analysis, Branch Readiness Stage 1 analysis, or updated-main wait state with no created branch when it is waiting for another branch to merge before it can safely create or continue its own branch. In that posture, it must not mutate files, create a branch, or treat stale local source truth as authority; it must report `Waiting For Updated Main` or the closest canonical blocker until `origin/main` contains the needed merge data and the thread reruns identity preflight.
 
 Before branch creation, worktree creation, phase entry, commit, push, PR work, release work, or GitHub Desktop handoff, run a `Thread / Worktree Identity Preflight` and prove the active thread is operating in the intended workspace, repository root, branch, upstream, `HEAD`, `origin/main`, worktree role, clean state, and write target. If the identity does not match the requested work, stop on `Thread / Worktree Identity Mismatch`.
 
