@@ -64,7 +64,8 @@ Do not use this layer to replace:
 - `PR Watcher Routing Unverified` is the standard blocker when a branch expects watcher-based PR monitoring but the configured watcher target and delivery proof have not yet been cross-checked against the recorded reporting surface and proven to land there
 - PR watcher delivery proof requires assistant-message transcript presence plus Codex thread-state refresh plus automation run/inbox visibility for the approved reporting surface; a watcher must not retire after merge until that final delivery proof is present
 - Automation Observability Review Pending is checked with `dev/automation_observability_report.py`; Codex automation run/inbox rows and `$CODEX_HOME/automations/*/memory.md` are review inputs, while `BLOCKER_CANDIDATE` and `REVIEW_REQUIRED` findings require a bounded repair seam before repo canon changes
-- `Thread / Worktree Identity Mismatch` blocks phase entry, branch/worktree creation, commit, push, PR creation, release action, and GitHub Desktop handoff when the active local folder, git root, branch, upstream, `HEAD`, `origin/main`, worktree role, runtime/process ownership, or GitHub Desktop binding does not match the requested work
+- `Thread / Worktree Identity Mismatch` blocks phase entry, branch/worktree creation, commit, push, PR creation, release action, and GitHub Desktop handoff when the active local folder, git root, branch, upstream, `HEAD`, `origin/main`, worktree role, runtime/process ownership, write target, or GitHub Desktop binding does not match the requested work
+- `Thread Launch / Write-Target Identity Lock` requires a routing packet before meaningful repo work or file mutation when the chat lane, repo path, branch, upstream, `HEAD`, `origin/main`, worktree role, expected phase/seam, write target, clean state, runtime/process ownership, or GitHub Desktop binding is missing, stale, parked, lab-context, or otherwise mismatched
 - relevant desktop user-facing Live Validation must include the `Codex Live Client Self-QA Gate` before User Test Summary handoff: the active authority record must declare `Codex Live Client Self-QA:`, `Visual Quality:`, `Usability Check:`, and `Platform Uniformity Check:`, and `Codex Live Client Self-QA Pending` blocks USER handoff readiness until Codex inspects the launched client like a user or an explicit waiver is recorded
 - historical branch authority records are preserved traceability records, not live execution authority
 - historical-only closeout traceability records must report `Phase: Historical Traceability` and must not retain live PR state, active seam ownership, or open-PR narration
@@ -84,7 +85,7 @@ Do not use this layer to replace:
 
 ## Active Branch Authority Records
 
-None.
+- `Docs/branch_records/feature_fam_007_stage_2_readiness_admission.md`
 
 ## Historical Branch Authority Records
 

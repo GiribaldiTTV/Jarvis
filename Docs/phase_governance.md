@@ -2100,6 +2100,18 @@ Exit:
 - ready for release packaging
 - or returned to the failed earlier phase with explicit blockers
 
+## Thread Launch / Write-Target Identity Lock
+
+Before meaningful repo work, file mutation, phase entry, branch/worktree creation, commit, push, PR creation, release action, runtime validation, shortcut mutation, provider/model installation, or GitHub Desktop handoff, Codex must verify the active chat lane, local workspace path, git root, branch, upstream, `HEAD`, `origin/main`, `git worktree list`, clean state, worktree role, expected phase/seam, and intended write target.
+
+When relevant, the lock must also verify runtime/process ownership and GitHub Desktop folder binding.
+
+If the active folder, branch, upstream, worktree role, phase/seam, write target, runtime/process owner, or GitHub Desktop binding does not match the requested work, `Thread / Worktree Identity Mismatch` blocks entry and Codex must return a routing packet instead of mutating files.
+
+The routing packet must include expected workspace, actual workspace, expected branch, actual branch, expected write target, actual write target, expected phase/seam, actual repo state, mismatch evidence, and safest next correction.
+
+Stale parked branches, old worktrees, fallback folders, AI Lab context, deleted/recreated historical refs, and unknown write targets are stop conditions until USER explicitly routes the work to a legal target.
+
 ## Repo-Level State: No Active Branch
 
 `No Active Branch` is the repo-level state when no implementation lane is currently selected.

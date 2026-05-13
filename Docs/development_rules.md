@@ -466,9 +466,9 @@ That means:
 
 Thread / Worktree Identity Preflight:
 
-- before `Branch Readiness Stage 2`, `Workstream`, `Hardening`, `Live Validation`, `PR Readiness`, `Release Readiness`, branch creation, worktree creation, commit, push, PR creation, release action, or GitHub Desktop handoff, Codex must verify the current working directory, git repository root, branch, upstream, `HEAD`, `origin/main`, `git worktree list`, clean/dirty state, and the intended local workspace role
+- before `Branch Readiness Stage 2`, `Workstream`, `Hardening`, `Live Validation`, `PR Readiness`, `Release Readiness`, branch creation, worktree creation, commit, push, PR creation, release action, meaningful repo work, file mutation, or GitHub Desktop handoff, Codex must verify the current working directory, git repository root, branch, upstream, `HEAD`, `origin/main`, `git worktree list`, clean/dirty state, intended local workspace role, expected phase/seam, and intended write target
 - local workspace roles are `Main/consolidator`, `active branch worktree`, `parked fallback`, `historical/lab context`, `private/dev workspace`, or `artifact output root`
-- `C:\Nexus Desktop AI` is the active local workspace only when the active branch record and Thread / Worktree Identity Preflight agree; as of the FAM-006 Branch 1 reconsolidation it carries `feature/fam-006-dashboard-render-layout-hardening`
+- `C:\Nexus Desktop AI` is the active local workspace only when the active branch record and Thread / Worktree Identity Preflight agree; as of FAM-007 Stage 2 readiness/admission it carries `feature/fam-007-stage-2-readiness-admission`
 - `D:\Nexus Repos\Nexus Desktop AI Main` is retained as a clean main/consolidator fallback; `D:\Nexus Worktrees\` remains a governed worktree root, but retired worktrees there are not active carriers unless a current branch record names them; `D:\Nexus Dev ORIN\` and `D:\Nexus Artifacts\` remain private/dev or artifact roots whose contents are evidence only until legally imported
 - `codex/ai-llm-lab` is historical AI Lab planning traceability only; after USER-approved consolidation into the current feature branch it has no active local/remote branch ref and must not be recreated or reused as a governance carrier, runtime carrier, or FAM-007 implementation carrier without USER-approved repo governance
 - future FAM-007 worktrees must branch from updated `origin/main`, not from the parked AI lab branch
@@ -476,7 +476,8 @@ Thread / Worktree Identity Preflight:
 - across related Nexus worktrees, use one Git operation at a time where practical, and run source-truth freshness checks before phase transitions
 - before PR creation, run changed-file overlap review and merge/conflict forecasting against `origin/main`
 - before USER-driven GitHub Desktop operations, confirm GitHub Desktop is bound to the intended local repository folder
-- if the active folder, branch, upstream, or workspace role does not match the requested work, stop on `Thread / Worktree Identity Mismatch` and report expected workspace, actual workspace, expected branch, actual branch, expected thread/workstream role, actual repo state, and the safest next correction
+- if the active folder, branch, upstream, workspace role, expected phase/seam, write target, runtime/process owner, or GitHub Desktop binding does not match the requested work, stop on `Thread / Worktree Identity Mismatch` and report expected workspace, actual workspace, expected branch, actual branch, expected write target, actual write target, expected thread/workstream role, actual repo state, mismatch evidence, and the safest next correction
+- `Thread Launch / Write-Target Identity Lock` is the permanent pre-mutation gate for Nexus work: a stale parked branch, AI Lab context, old worktree, fallback folder, wrong GitHub Desktop repository, wrong write target, or unknown lane identity requires a routing packet and blocks source edits, branch/worktree creation, commits, pushes, PR work, release work, shortcut mutation, provider/model installation, and runtime validation until corrected
 
 Local docs overlays are reference material only until revalidated against updated `origin/main`.
 

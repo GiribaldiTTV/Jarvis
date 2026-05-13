@@ -118,8 +118,10 @@ Current merged truth should still be read as:
 This section records public-safe FAM-007 local AI and capability-pack direction.
 
 It is product intent and planning truth only.
-It does not admit implementation, package work, local models, provider runtime code, memory/indexing, voice/Core sync, setup behavior, or release work by itself.
+It does not admit implementation, local models, provider runtime code, memory/indexing, voice/Core sync, setup behavior, or release work by itself.
 The USER-provided `Nexus AI Product Contract v0.6.2` is planning evidence for this direction, not repo source truth and not a full imported contract.
+
+`PKG-007` package/slice admission, when recorded by the active FAM-007 Branch Readiness Stage 2 authority, is source-truth readiness only and does not authorize runtime implementation.
 
 FAM-007 should be staged so the base app remains useful without a local LLM and heavy local AI remains optional capability-pack work rather than default installer bloat.
 
@@ -177,7 +179,7 @@ FAM-007 should be staged so the base app remains useful without a local LLM and 
 - do not treat this section as current implementation truth
 - do not introduce large local models or heavy local inference in the current release
 - do not admit FAM-007 implementation without a later Branch Readiness revalidation and explicit USER approval
-- do not mark `PKG-007` or its slices as `Admitted` from vision text alone
+- do not mark `PKG-007` or its slices as `Admitted` from vision text alone; admission requires the active branch authority and USER approval
 - do not import private/internal-only planning wholesale into public source truth
 - do not mutate or repurpose the parked `codex/ai-llm-lab` branch by inertia
 - do not reinterpret current workstream, validation, or release-posture docs through this future section
