@@ -129,6 +129,18 @@ Next Workstream User Waiver: Granted - USER approved PR Readiness Stage 2 and ex
 Next-Branch Creation Gate: Blocked - FAM-007 Workstream/runtime entry, release handling for PR #129, Repo-Wide High-Risk Source Owner Marker Adoption, FAM-006 follow-through issue work, AI Product Contract import, private Dev ORIN import, and any other successor branch remain separate future USER approval checkpoints.
 Post-Merge Proof Handling: This record preserves FAM-007 readiness/admission/governance source truth only; PR creation, live PR mergeability, and any bot-review or watcher facts belong in operator output unless later USER-approved source-truth recording is required.
 
+## PR Readiness Watcher Record
+
+Watcher Automation: `pr-130-bot-review-watcher`
+
+Watcher Reporting Surface: current Codex thread
+
+Watcher Configuration State: `Configured - native Codex heartbeat watcher for PR #130`
+
+Watcher Runtime Proof Boundary: `ACTIVE` automation configuration is not runtime proof; accepted proof must come from watcher thread output, automation memory/log/state updates, scheduler last-run evidence, or another accepted run evidence source.
+
+Bot-Comment Repair Authority: USER approved the watcher to inspect PR #130 bot reactions, bot comments, review threads, PR comments, inline comments, PR state, and mergeability. If a valid Codex bot comment appears and the requested fix stays inside this PR's docs/governance/source-truth scope, the watcher may continue the same PR Readiness Stage 2 repair loop: verify identity, apply bounded same-PR fixes, rerun validation, commit and push to `feature/fam-007-stage-2-readiness-admission`, reply/resolve when required by the review-thread contract, and report closeout. Merge, release/tag/artifact work, runtime/provider/model/memory/shortcut/installer implementation, full AI Product Contract import, private Dev ORIN import, GitHub issue creation, unrelated cleanup, and FAM-006 dirty worktree mutation remain blocked.
+
 ## Branch Objective
 
 Turn prior FAM-007 planning truth into admitted package/slice readiness while repairing PR #129 release-debt canon drift and hardening lane/workspace/write-target governance before any local AI implementation begins.
