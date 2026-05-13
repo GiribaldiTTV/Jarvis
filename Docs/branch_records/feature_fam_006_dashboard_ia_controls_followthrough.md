@@ -31,7 +31,7 @@ Current authorization covers Hardening/H1 validation for issues #125 and #126 on
 
 ## Current Phase
 
-- Phase: `Hardening`
+- Phase: `PR Readiness`
 
 ## Phase Status
 
@@ -43,8 +43,9 @@ Current authorization covers Hardening/H1 validation for issues #125 and #126 on
 - Workstream Implementation: `Complete - Monitor Groups card flow now uses dedicated Create Monitor and Edit Monitor child-window flows, the Dashboard-home dropdown is removed, Monitor Groups layout is a measured no-overlap single-column card stack, the redundant HUD Dashboard Open badge is removed, and a top-chrome Dashboard close affordance hides the Dashboard without disabling the HUD Feature`
 - Hardening H1 Admission: `Granted - USER approved H1 validation/hardening for FAM-006 Branch 2 on 2026-05-13 from the isolated Branch 2 worktree`
 - Hardening H1 Status: `PASS - active-client H1 validation completed from C:\Nexus Worktrees\Nexus Desktop AI FAM-006 Dashboard IA Controls Followthrough on 2026-05-13 for #125 and #126 after bounded stale-selector cleanup and USER-screenshot visual layout repair; formal UTS export remains blocked unless a later governed Live Validation phase is admitted`
+- PR Readiness Repair: `Active - current-main sync reconciles PR #130 and PR #131 main changes, resolves Branch 1 historical-record conflicts, refreshes stale Branch 2 implementation/H1 wording, and preserves Branch 2 as the current #125/#126 PR-readiness carrier`
 - `Active Branch`: `feature/fam-006-dashboard-ia-controls-followthrough`
-- Branch Authority State: `Active after Hardening H1; PR Readiness Stage 1 pending USER decision`
+- Branch Authority State: `Active during PR Readiness Stage 1 repair after Hardening H1; PR creation remains blocked pending later USER approval`
 - Source-Truth Owner: `This branch record owns Branch 2 setup and issue traceability; Docs/branch_records/feature_fam_006_monitoring_hud_product_surface.md owns historical FAM-006 RUI and issue-queue truth`
 - Carried Issues: `#125 FAM-006 Dashboard: Monitor Groups dead space and Create/Edit window split`; `#126 FAM-006 Dashboard: remove redundant open badge and add close affordance`
 - Completed-By-PR-129 Issues Pending GitHub Closeout: `#123`; `#124`; `#127`
@@ -72,12 +73,14 @@ Current authorization covers Hardening/H1 validation for issues #125 and #126 on
 
 ## Entry Basis
 
-- Current `origin/main` is `96ec36e7be751d444eda8dc220bc4a035d44fca1`, the merge commit for PR #129.
+- Branch creation base was `96ec36e7be751d444eda8dc220bc4a035d44fca1`, the merge commit for PR #129.
+- Current-main reconciliation has fetched and integrated `origin/main` at `36b66b4ee2926f6325d8c337af3c7df02e209802`, the merge commit for PR #131, after PR #130 and PR #131 both merged.
 - PR #129 is merged and Branch 1 is historical traceability.
+- PR #130 FAM-007 Stage 2 readiness/admission and PR #131 FAM-007 runtime provider-boundary readiness are current-main history only for this FAM-006 branch; neither admits FAM-007/local AI runtime work into Branch 2.
 - Issues #123, #124, and #127 were implemented by PR #129 and remain pending GitHub issue closeout only.
 - Issues #125 and #126 remain open GitHub issues and were held for Branch 2 in FAM-006 issue-readiness source truth.
 - USER approved creating this Branch 2 carrier from current main and continuing Stage 2 in a new worktree to avoid mixing with uncommitted FAM-007 changes in `C:\Nexus Desktop AI`.
-- The dirty FAM-007 work in `C:\Nexus Desktop AI` remains untouched by this branch; active Branch 2 work is isolated in `C:\Nexus Worktrees\Nexus Desktop AI FAM-006 Dashboard IA Controls Followthrough`.
+- The prior FAM-007 work in `C:\Nexus Desktop AI` is merged through PR #131 and the main worktree is current on `main`; active Branch 2 work remains isolated in `C:\Nexus Worktrees\Nexus Desktop AI FAM-006 Dashboard IA Controls Followthrough`.
 
 ## Source-Truth Placement Preflight
 
@@ -103,13 +106,53 @@ Current authorization covers Hardening/H1 validation for issues #125 and #126 on
 
 - `Branch Readiness`
 
-Rollback Path: abandon or repair branch `feature/fam-006-dashboard-ia-controls-followthrough` if USER rejects the Workstream implementation before PR creation. Do not mutate the dirty FAM-007 work in `C:\Nexus Desktop AI`, delete D-drive folders, edit GitHub issue state, import raw media, or recreate/reuse codex/ai-llm-lab.
+Rollback Path: abandon or repair branch `feature/fam-006-dashboard-ia-controls-followthrough` if USER rejects the Workstream implementation before PR creation. Do not mutate main, delete D-drive folders, edit GitHub issue state, import raw media, enter FAM-007/local AI work, or recreate/reuse codex/ai-llm-lab.
 
 ## Next Legal Phase
 
 - `PR Readiness`
 
-Next Legal Phase Gate: USER may next choose PR Readiness Stage 1, request an optional USER visual review, or request bounded repair if a visual concern remains. PR creation, GitHub issue comments/state updates, raw evidence upload/import/linking, release/tag/artifact work, Workspace Runtime Isolation Stage 2, FAM-007/local AI work, AI Product Contract import, and any branch expansion remain blocked.
+Next Legal Phase Gate: after this PR Readiness Stage 1 repair is validated and pushed, USER may request a fresh PR Readiness Stage 1 packet or, if the repair packet reports Stage 2-ready, explicitly approve PR Readiness Stage 2. PR creation, GitHub issue comments/state updates, raw evidence upload/import/linking, release/tag/artifact work, Workspace Runtime Isolation Stage 2, FAM-007/local AI work, AI Product Contract import, and any branch expansion remain blocked.
+
+## Governance Drift Audit
+
+Governance Drift Found: `PASS - PR Readiness Stage 1 found current-main drift after PR #130 and PR #131, a Branch 1 historical-record merge conflict, stale Branch 2 implementation/H1 wording, and a Nexus Prompt Gate carrier question before PR creation. This repair reconciles current main, keeps Branch 2 as the active #125/#126 carrier, preserves PR #129/#130/#131 historical truth, and defers the broader loader Prompt Gate to a future USER-approved legal carrier.`
+
+Current-Branch Repair Scope: `current-main merge conflict resolution, Branch 1 historical release-debt/issue-closeout wording, Branch 2 implementation/H1 wording, FAM-007 PR #131 historical/no-active posture, backlog/roadmap active-branch truth, and validation-helper/current-main sync.`
+
+Prompt Gate Drift Disposition: `Deferred - not part of the #125/#126 Dashboard IA/control PR-readiness blocker; requires later USER approval naming a legal loader/governance carrier.`
+
+## Post-Merge State
+
+Repo State: No Active Branch
+Merged-Main Repo State: No Active Branch
+Branch Authority Disposition: `Historical Branch Authority Records after this branch merges`
+Merged-Unreleased Release-Debt Owner: `FAM-006 Dashboard IA/control follow-through / this branch's future PR`
+Release Target: `v1.7.1-prebeta`
+Release Floor: `patch prerelease`
+Version Rationale: `This branch is a bounded FAM-006 Dashboard issue-resolution and UX/control hardening package after v1.7.0-prebeta; patch prerelease is the correct floor because it fixes and hardens an existing released Dashboard surface without opening a new product lane.`
+Release Scope: `FAM-006 Dashboard Monitor Groups layout/Create/Edit child-window flow for #125, redundant Dashboard-open badge removal and close affordance for #126, and the H1 visual-proof/governance hardening required after USER screenshot follow-up.`
+Release Artifacts: `Pending - no tag, GitHub Release, release notes, or artifacts have been created or approved by this branch.`
+Post-Release Truth: `Pending release execution and post-release canon closure for v1.7.1-prebeta or a later USER-approved release target.`
+Selected Next Workstream: None
+Selected Next Implementation Branch: Not created
+Backlog Addition User Approval Missing: Active for any successor selected-next workstream, package admission, branch creation, new backlog item, backlog split, promotion, or implementation outside this PR unless USER separately approves it.
+Next Workstream User Waiver: Pending - successor selection is not granted by this repair prompt; PR Readiness Stage 1 rerun or Stage 2 must report whether a waiver/selection is needed before PR green.
+Next-Branch Creation Gate: Blocked - Workspace Runtime Isolation Stage 2, FAM-007/local AI, PR #129 release-support, raw evidence import/linking, release work, and any successor branch remain separate future USER approval checkpoints.
+Post-Merge Proof Handling: Branch 2 implementation, H1 repair, and active-client proof remain historical PR evidence after merge; raw screenshots/videos/UTS exports remain local/external unless USER later approves upload, import, or linking.
+Post-Merge Issue Handling: Issues #125 and #126 may be reviewed after merge for closure only after USER approval. Issues #123/#124/#127 remain completed by PR #129 and pending GitHub issue closeout.
+
+## Release Window Audit
+
+Release Window Audit: PASS
+Remaining Known Release Blockers: `None`
+Another Pre-Release Repair PR Required: `NO`
+Release Window Split Waiver: `None`
+Latest Public Prerelease: `v1.7.0-prebeta`
+Latest Public Release Commit: `06edf8143dd862c94d26ff7d812105179a621206`
+Current Merged-Unreleased Implementation Debt: `PR #129 FAM-006 Dashboard render/layout hardening plus this branch's future PR if merged before release execution`
+Release Execution State: `Blocked - no release/tag/artifact/GitHub Release work is approved`
+Release Window Decision: `Future USER approval required before publishing v1.7.1-prebeta or another release target`
 
 ## Branch Objective
 
@@ -243,7 +286,7 @@ Planning Completion Waiver: `Not required - Stage 1 analysis and USER Stage 2 ap
 
 H1 Result Time: `2026-05-13 Branch 2 isolated C-drive worktree validation`
 
-Workspace Identity: `PASS - shell repo root C:\Nexus Worktrees\Nexus Desktop AI FAM-006 Dashboard IA Controls Followthrough, branch feature/fam-006-dashboard-ia-controls-followthrough, HEAD c11784f2d7b4e2290cc681a8e31d37d8d2f17962 before the H1 repair commit, upstream origin/feature/fam-006-dashboard-ia-controls-followthrough, origin/main 96ec36e7be751d444eda8dc220bc4a035d44fca1`
+Workspace Identity: `PASS - shell repo root C:\Nexus Worktrees\Nexus Desktop AI FAM-006 Dashboard IA Controls Followthrough, branch feature/fam-006-dashboard-ia-controls-followthrough, HEAD c11784f2d7b4e2290cc681a8e31d37d8d2f17962 before the H1 repair commit, upstream origin/feature/fam-006-dashboard-ia-controls-followthrough; branch creation base was origin/main 96ec36e7be751d444eda8dc220bc4a035d44fca1 and current PR-readiness repair integrates origin/main 36b66b4ee2926f6325d8c337af3c7df02e209802`
 
 GitHub Desktop Binding: `Branch 2 worktree was added to GitHub Desktop with local alias FAM-006; if GitHub Desktop is used for this branch, it should point to C:\Nexus Worktrees\Nexus Desktop AI FAM-006 Dashboard IA Controls Followthrough on feature/fam-006-dashboard-ia-controls-followthrough.`
 
@@ -286,6 +329,24 @@ Proof Rerun:
 - `PASS - dev/logs/fam_006_monitoring_hud_live_validation/20260513_133233_235 proves the repaired Monitor Groups layout, no Readiness overlap, visible footer scope, Create/Edit child-window flows, Dashboard close affordance, and tray/open/close regression path.`
 
 Visual Repair Status: `PASS - H1 is green again only after the product layout defect and the H1 proof blind spot were both repaired.`
+
+## PR Readiness Current-Main Reconciliation
+
+Reconciliation Admission: `Granted by USER for the Branch 2 PR Readiness repair pass before PR creation.`
+
+Current Main Integrated: `origin/main 36b66b4ee2926f6325d8c337af3c7df02e209802, including PR #130 and PR #131.`
+
+PR #130 State: `MERGED - FAM-007 Stage 2 readiness/admission merged at 543118de12887c746902da2b7a0862cea43a53cf on 2026-05-13T20:08:45Z.`
+
+PR #131 State: `MERGED - FAM-007 runtime provider boundary readiness merged at 36b66b4ee2926f6325d8c337af3c7df02e209802 on 2026-05-13T21:18:11Z.`
+
+Branch 1 Record Reconciliation: `Resolved - PR #129 historical evidence, completed-by-PR #129 issue truth for #123/#124/#127, merged-unreleased release-debt truth, and Branch 2 routing for #125/#126 are preserved together.`
+
+Branch 2 Stale-Wording Repair: `Resolved - source truth now records #125/#126 Workstream implementation and H1 visual repair as complete, with PR creation and GitHub issue state/comment updates still blocked pending later USER approval.`
+
+FAM-007 Boundary Preservation: `PR #130 and PR #131 are current-main history only for this FAM-006 carrier. They do not authorize FAM-007/local AI runtime work, AI Product Contract import, provider/model/runtime/memory/shortcut/installer work, or Workspace Runtime Isolation Stage 2 inside Branch 2.`
+
+Nexus Prompt Gate Carrier Decision: `Deferred - the hard Nexus Prompt Gate is repo-wide loader/prompt-generation governance whose primary home is Docs/nexus_startup_contract.md, with possible cross-references in Docs/Main.md, Docs/codex_modes.md, and Docs/development_rules.md. It is not needed to close the #125/#126 PR-readiness conflict and would widen this FAM-006 issue branch beyond Dashboard IA/control follow-through. Recommended future carrier: a later USER-approved loader/governance repair on the next legal runtime-focused Branch Readiness or PR Readiness surface, with the exact USER decision: approve adding the Nexus Prompt Gate final scrub rule to the loader/source-truth governance layer and name the legal carrier.`
 
 ## Branch Scope
 

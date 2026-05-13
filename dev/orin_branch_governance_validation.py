@@ -1773,10 +1773,7 @@ SUCCESSOR_LOCK_WAIVER_DOCS = (
     Path("Docs/codex_modes.md"),
 )
 
-SUCCESSOR_LOCK_WAIVER_PHRASE = (
-    "If post-merge truth will resolve to `No Active Branch` because `Release Debt` "
-    "or another repo-level admission blocker remains open"
-)
+SUCCESSOR_LOCK_WAIVER_PHRASE = "Post-merge `No Active Branch` is not the default"
 
 NO_ACTIVE_BRANCH_STEADY_STATE_DOCS = (
     Path("Docs/phase_governance.md"),
@@ -2600,6 +2597,8 @@ PR_READINESS_STAGE_PACKET_PHRASES = (
     "Package-Size / Single-Slice Drift Review:",
     "Element Coverage Review:",
     "Release-Debt Impact:",
+    "Release-Debt Handling Status:",
+    "Selected-Next / No-Release-Debt Handling Status:",
     "Required Current-Branch Source-Truth Sync:",
     "Planned Merge-Target Canon Updates:",
     "Planned Next Branch Block:",
@@ -2628,6 +2627,7 @@ PR_READINESS_STAGE1_READINESS_LOCK_REQUIRED_PHRASES = {
         "PR creation is blocked while any Stage 1 blocker",
         "next-workstream/package hierarchy is reviewed in PR Readiness Stage 1",
         "Branch Readiness fallback is real carrier branch/package analysis",
+        "Stage 1 selected-next/no-release-debt handling is complete only when",
     ),
     Path("Docs/development_rules.md"): (
         "PR Readiness Stage 1 is the Stage 2 readiness-lock gate",
@@ -2637,6 +2637,7 @@ PR_READINESS_STAGE1_READINESS_LOCK_REQUIRED_PHRASES = {
         "New Carrier Branch Required",
         "Stage 1 USER Waiver Required",
         "Stage 2 owns final PR execution only",
+        "Stage 1 selected-next/no-release-debt handling is complete only when",
     ),
     Path("Docs/Main.md"): (
         "Stage 1 is the Stage 2 readiness-lock gate",
@@ -2648,6 +2649,7 @@ PR_READINESS_STAGE1_READINESS_LOCK_REQUIRED_PHRASES = {
         "Stage 2 owns final PR execution only",
         "next-workstream/package hierarchy is reviewed in PR Readiness Stage 1",
         "Branch Readiness fallback is not workstream selection by default",
+        "Stage 1 selected-next/no-release-debt handling is complete only when",
     ),
     Path("Docs/codex_modes.md"): (
         "PR Readiness Stage 1 is the Stage 2 readiness-lock gate",
@@ -2658,6 +2660,7 @@ PR_READINESS_STAGE1_READINESS_LOCK_REQUIRED_PHRASES = {
         "Stage 1 USER Waiver Required",
         "Stage 2 owns final PR execution only",
         "PR creation is blocked while any Stage 1 blocker",
+        "Stage 1 selected-next/no-release-debt handling is complete only when",
     ),
     Path("Docs/orin_task_template.md"): (
         "PR Readiness Stage 1 is the Stage 2 readiness-lock gate",
@@ -2668,6 +2671,7 @@ PR_READINESS_STAGE1_READINESS_LOCK_REQUIRED_PHRASES = {
         "Stage 1 USER Waiver Required",
         "Stage 2 owns final PR execution only",
         "Stage 1 Outcome:",
+        "Stage 1 selected-next/no-release-debt handling is complete only when",
     ),
     Path("Docs/codex_user_guide.md"): (
         "analysis-first readiness-lock gate",
@@ -2679,6 +2683,7 @@ PR_READINESS_STAGE1_READINESS_LOCK_REQUIRED_PHRASES = {
         "Stage 2 owns final PR execution only",
         "Next-workstream/package hierarchy is reviewed in PR Readiness Stage 1",
         "Branch Readiness fallback is real carrier branch/package analysis",
+        "Stage 1 selected-next/no-release-debt handling is complete only when",
     ),
     Path("Docs/nexus_startup_contract.md"): (
         "analysis-first readiness-lock gate",
@@ -2690,6 +2695,7 @@ PR_READINESS_STAGE1_READINESS_LOCK_REQUIRED_PHRASES = {
         "Stage 2 begins only after",
         "Stage 2 sync plan",
         "Branch Readiness fallback is real carrier branch/package analysis",
+        "Stage 1 selected-next/no-release-debt handling is complete only when",
     ),
     Path("Docs/branch_records/index.md"): (
         "analysis-first readiness-lock gate",
@@ -2700,6 +2706,7 @@ PR_READINESS_STAGE1_READINESS_LOCK_REQUIRED_PHRASES = {
         "Stage 1 USER Waiver Required",
         "approved final PR execution pass",
         "Branch Readiness fallback is real carrier branch/package analysis",
+        "Stage 1 selected-next/no-release-debt handling is complete only when",
     ),
     Path("Docs/branch_records/codex_v1_6_13_prebeta_post_merge_closeout_hardening.md"): (
         "Branch Readiness Stage 2-R2 PR Readiness Stage 1 Readiness-Lock Governance Repair",

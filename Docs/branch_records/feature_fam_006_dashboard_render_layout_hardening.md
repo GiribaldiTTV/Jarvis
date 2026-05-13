@@ -15,7 +15,7 @@ This branch is the USER-approved implementation carrier for the first FAM-006 Da
 
 It exists because PR #122 merged the FAM-006 issue-readiness governance repair, the five locked FAM-006 Dashboard GitHub issues were created from updated main using summary-only evidence, and USER approved this first branch to carry the released Dashboard render/layout confidence issues before IA/control follow-through begins.
 
-This record now preserves PR #129 merged historical evidence for issues #123, #124, and #127. GitHub issue closeout for #123/#124/#127, raw evidence upload/import/linking, release/tag/artifact work, Workspace Runtime Isolation Stage 2, Branch 2 runtime implementation for #125 and #126, extra runtime work outside #123/#124/#127, FAM-007/local AI work, AI Product Contract import, deleting D-drive main/folders, shortcut retargeting, and recreating or reusing codex/ai-llm-lab remain future USER approval checkpoints unless separately approved.
+This record now preserves PR #129 merged historical evidence, issues #123/#124/#127 completed-by-PR #129 source-truth, and merged-unreleased release-debt truth. GitHub issue closeout for #123/#124/#127, release/tag/artifact work, raw evidence upload/import/linking, Workspace Runtime Isolation Stage 2, extra runtime work outside #123/#124/#127, FAM-007/local AI runtime work, AI Product Contract import, deleting D-drive main/folders, shortcut retargeting, and recreating or reusing codex/ai-llm-lab remain future USER approval checkpoints. Branch 2 work for #125/#126 is carried by `feature/fam-006-dashboard-ia-controls-followthrough` until that branch reaches a PR/merge outcome.
 
 ## Record State
 
@@ -23,7 +23,7 @@ This record now preserves PR #129 merged historical evidence for issues #123, #1
 
 ## Status
 
-- `Merged through PR #129 for Dashboard render/layout hardening issues #123, #124, and #127; post-merge source truth returns to No Active Branch, Branch 2/future work remains separately approval-gated, and GitHub issue closeout for #123/#124/#127 remains pending USER approval`
+- `Merged through PR #129; Dashboard render/layout hardening issues #123, #124, and #127 are completed-by-PR #129 and merged-unreleased release debt after v1.7.0-prebeta; GitHub issue closeout remains separate USER-gated work; #125/#126 are carried by the active Branch 2 issue-resolution branch`
 
 ## Canonical Branch
 
@@ -114,13 +114,20 @@ Rollback Path: revert this branch before PR if the Dashboard render/layout repai
 
 - `Release Readiness`
 
-Next Legal Phase Gate: PR #129 is merged and this branch is historical traceability. Release/tag/artifact work, GitHub issue closeout for #123/#124/#127, raw evidence upload/import/linking, Workspace Runtime Isolation Stage 2, FAM-007/local AI work, and Branch 2 runtime implementation remain separate future USER approval checkpoints.
+Next Legal Phase Gate: Release handling remains a later USER approval checkpoint because PR #129 merged after `v1.7.0-prebeta` and is now merged-unreleased implementation debt. GitHub issue closeout for #123/#124/#127, raw evidence upload/import/linking, Workspace Runtime Isolation Stage 2, FAM-007/local AI runtime work, and any Branch 2 PR/merge/issue closeout action remain separate USER approval checkpoints.
 
 ## Post-Merge State
 
 Repo State: No Active Branch
 Merged-Main Repo State: No Active Branch
 Branch Authority Disposition: `Historical Branch Authority Records`
+Merged-Unreleased Release-Debt Owner: `FAM-006 Dashboard Render/Layout Hardening / PR #129`
+Release Target: `v1.7.1-prebeta`
+Release Floor: `patch prerelease`
+Version Rationale: `PR #129 is a bounded FAM-006 Dashboard issue-resolution and UX/render-layout hardening package after v1.7.0-prebeta; patch prerelease is the correct floor because it fixes and hardens an existing released Dashboard surface without opening a new product lane.`
+Release Scope: `PR #129 FAM-006 Dashboard initial open flicker, scroll content-well clipping and scrollbar ownership, resize jitter/catch-up lag, and the bounded bot-review repair for native move/user geometry override handling.`
+Release Artifacts: `Pending - no tag, GitHub Release, release notes, or artifacts have been created for PR #129.`
+Post-Release Truth: `Pending release execution and post-release canon closure for v1.7.1-prebeta or a later USER-approved release target.`
 Selected Next Workstream: None
 Selected Next Implementation Branch: Not created
 Backlog Addition User Approval Missing: Active for any successor selected-next workstream, package admission, branch creation, new backlog item, backlog split, promotion, or implementation outside this PR unless USER separately approves it.
